@@ -1,44 +1,72 @@
-Subject: Re: X policy classes
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Joshua Brindle <jbrindle@snu.edu>
-Cc: SELinux <SELinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>,
-   Eamon Walsh <ewalsh@epoch.ncsc.mil>
-In-Reply-To: <40A5014A.9060400@snu.edu>
-References: <40A464EB.5030008@snu.edu>
-	 <1084536340.17741.15.camel@moss-spartans.epoch.ncsc.mil>
-	 <40A5014A.9060400@snu.edu>
-Content-Type: text/plain
-Message-Id: <1084556829.18592.5.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 14 May 2004 13:47:09 -0400
+Message-Id: <200405141839.i4EIdUSf027316@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'SELinux'" <SELinux@tycho.nsa.gov>
+Cc: "Stephen Smalley" <sds@epoch.ncsc.mil>, <selinux-dev@tresys.com>
+Subject: selinuxfs patch
+Date: Fri, 14 May 2004 14:39:34 -0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0030_01C439C1.4630EF60"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-05-14 at 13:26, Joshua Brindle wrote:
-> --- security_classes.orig       2004-05-13 20:15:19.898433608 -0500
-> +++ security_classes    2004-05-13 12:37:47.489834072 -0500
-> @@ -47,6 +47,9 @@
->  # passwd/chfn/chsh
->  class passwd
->  
-> +# pax flags
-> +class pax
-> +
->  # SE-X Windows stuff
->  class drawable
->  class window
-> 
+This is a multi-part message in MIME format.
 
-Hmmm...applying that diff now will perturb the values of the X window
-classes, requiring regeneration of the libselinux headers that went out
-in the release we just made and requiring a rebuild of any modified X
-servers upon a migration from libselinux-1.12 to any newer version.  How
-much trouble is it for you to relocate the pax definition after the X
-classes and migrate your users?
+------=_NextPart_000_0030_01C439C1.4630EF60
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Steve,
+
+Attached is a trivial patch to fix a potential deadlock in the selinuxfs
+code on out-of-memory errors.
+
+Karl
+
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410)290-1411 ext 134 
+
+
+------=_NextPart_000_0030_01C439C1.4630EF60
+Content-Type: application/octet-stream;
+	name="selinuxfs-deadlock-fix-5-14-2004.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="selinuxfs-deadlock-fix-5-14-2004.patch"
+
+--- selinuxfs-old.c	2004-05-14 14:18:12.000000000 -0400=0A=
++++ selinuxfs.c	2004-05-14 14:19:02.000000000 -0400=0A=
+@@ -833,8 +833,10 @@=0A=
+ 		goto out;=0A=
+ 	}=0A=
+ 	page =3D (char*)__get_free_page(GFP_KERNEL);=0A=
+-	if (!page)=0A=
+-		return -ENOMEM;=0A=
++	if (!page) {=0A=
++		length =3D -ENOMEM;=0A=
++		goto out;=0A=
++	}=0A=
+ 	memset(page, 0, PAGE_SIZE);=0A=
+ =0A=
+ 	if (copy_from_user(page, buf, count))=0A=
+@@ -889,8 +891,10 @@=0A=
+ 		goto out;=0A=
+ 	}=0A=
+ 	page =3D (char*)__get_free_page(GFP_KERNEL);=0A=
+-	if (!page)=0A=
+-		return -ENOMEM;=0A=
++	if (!page) {=0A=
++		length =3D -ENOMEM;=0A=
++		goto out;=0A=
++	}=0A=
+ =0A=
+ 	memset(page, 0, PAGE_SIZE);=0A=
+ =0A=
+
+------=_NextPart_000_0030_01C439C1.4630EF60--
 
 
 --
