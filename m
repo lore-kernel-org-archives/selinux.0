@@ -1,41 +1,49 @@
-Date: Mon, 17 Dec 2001 07:53:56 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Shaun Savage <savages@pcez.com>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: two different domains from on program
-In-Reply-To: <3C1D909C.6070805@pcez.com>
-Message-ID: <Pine.GSO.4.33.0112170746320.10438-100000@raven>
+From: "Vanuxem" <gvanuxem@club-internet.fr>
+To: "SELinux Mailing" <SELinux@tycho.nsa.gov>
+Subject: TR: Trans_domain and MLS (small error)
+Date: Mon, 17 Dec 2001 14:32:07 +0100
+Message-ID: <ADEEIKPBIEHIINPOFGAOAEFCCAAA.gvanuxem@club-internet.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Sun, 16 Dec 2001, Shaun Savage wrote:
+Hi
 
-> I have a question.
->
-> courier has one program the has two different usage. I would like one
-> program to transistion into two different domains depending on the
-> starting domain.
->
-> domain_auto_trans(domain1, exec_file_t, domain2)
-> domain_auto_trans(domain3, exec_file_t, domain4)
->
-> where the context of the executable file is exec_file_t
+I have two questions :
 
-So, what's the question?  Notice that there are examples of this behavior
-in the example policy.  For example, initrc_t transitions to sendmail_t
-when running sendmail_exec_t for the daemon process, user_t transitions to
-user_mail_t when running sendmail_exec_t for sending mail, and sysadm_t
-transitions to sysadm_mail_t when running sendmail_exec_t for sending
-mail.
+-	How can I 'Trans' to system role if the original is user
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I explain :
+I have the pppd domain that work under the user or sysadm role for example :
+
+'greg:user_r:user_pppd_t'
+
+I want allow to trans to the system role and system user:
+system_u:system_r:portsentry_t
+If  use the macro domain_auto_trans : domain_auto_trans ($1_pppd,
+portsentry_exec_t,portsentry_t)
+The resulting context is greg:user_r:portsentry_t
+
+Is it possible without using newrole??
 
 
+-	I want to know if you continue your work about MLS
+
+Since if I want that a user login with a high level, he must write on a tty
+device that has a lower level.
+I know that the MLS is just for experimentation but I have no see some
+change in the code and may be you
+stop this developement actually...
+
+
+
+
+Sorry for my poor english...
+
+	Greg
 
 
 --
