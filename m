@@ -1,26 +1,28 @@
-Subject: Re: Access_terminal + ioctl
+Subject: Re: sshd transition points (user@ip or net_context with setcon)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: ivg2@cornell.edu
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1108961995.20655.8.camel@cobra.ivg2.net>
-References: <1108961995.20655.8.camel@cobra.ivg2.net>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050221134124.GR14038@lkcl.net>
+References: <20050221134124.GR14038@lkcl.net>
 Content-Type: text/plain
-Date: Tue, 22 Feb 2005 08:57:53 -0500
-Message-Id: <1109080673.2256.62.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 22 Feb 2005 09:01:10 -0500
+Message-Id: <1109080870.2256.66.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-02-20 at 23:59 -0500, Ivan Gyurdiev wrote:
-> Is it all right if I add back ioctl permission
-> on $1_devpts_t, $1_tty_device_t, and devtty_t (chr_file)
-> in the access_terminal macro?
+On Mon, 2005-02-21 at 13:41 +0000, Luke Kenneth Casson Leighton wrote:
+> e.g. oh i dunno, being able to lock down the priv_sep sshd,
+> and the monitor process, because they would have distinct
+> selinux domains?
 
-Yes.
-
-> Can I just use rw_file_perms?
-
-No.
+Being able to assign different permissions (particularly different
+capabilities) to the listening sshd, parent monitor process, and
+unprivileged child process seems useful.  But that doesn't require
+anything per-user and can be done _before_ the user identity is even
+acquired from the client.  It would be better to switch domains prior to
+processing input from the client (other than the initial connection) to
+reduce the likelihood of exploitation prior to the domain switch.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
