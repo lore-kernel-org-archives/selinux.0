@@ -1,40 +1,66 @@
-Subject: Re: A vulnerability in SELinux (fwd)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h59CLuI4013063
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2003 08:21:56 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h59CLitV004042
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2003 12:21:44 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h59CLial004039 for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2003 12:21:44 GMT
+Subject: Re: A vulnerability in SELinux
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Brian May <bam@snoopy.apana.org.au>
-Cc: Rafal Wojtczuk <rafal@intruvert.com>, SELinux@tycho.nsa.gov
-In-Reply-To: <20030607005310.GC27123@snoopy.apana.org.au>
-References: <20030606170611.GA701@emperor.intruvert.com>
-	 <20030607005310.GC27123@snoopy.apana.org.au>
+To: Russell Coker <russell@coker.com.au>
+Cc: jack@rapturesecurity.com, selinux@tycho.nsa.gov
+In-Reply-To: <200306071914.10635.russell@coker.com.au>
+References: <1054916729.1057.213.camel@moss-huskers.epoch.ncsc.mil>
+	 <1054974401.13760.29.camel@bubbles.eatflamingdeath.org>
+	 <200306071914.10635.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1055160503.1068.12.camel@moss-huskers.epoch.ncsc.mil>
+Message-Id: <1055161264.1068.24.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 09 Jun 2003 08:08:24 -0400
+Date: 09 Jun 2003 08:21:05 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-06-06 at 20:53, Brian May wrote:
-> You could relabel every library, and only allow domains to execute
-> libraries that are required by the application, but unless this can be
-> automatated or semiautomated to some degree (eg. by looking at output of
-> ldd), I think this could be a tedious and error prone task.
+On Sat, 2003-06-07 at 05:14, Russell Coker wrote:
+> On Sat, 7 Jun 2003 18:26, Jack wrote:
+> > From the limited research Ive been able to put into this
+> > Ive found that changing glibc/sysdeps/generic/enbl-secure.c
+> > to
+> >
+> >  __libc_enable_secure = (__geteuid () != __getuid ()
+> >
+> >                           || __getegid () != __getgid ()
+> >                           || getsecsid() != getosecsid());
 > 
-> Then you have issues that program X runs in a new domain, and may not
-> require library Z, but execs program Y in the same domain which does
-> require Z.
+> That looks like the right code.  The question is what is the right way of 
+> integrating it into a distribution.
+> 
+> I don't want to maintain my own version of libc6 for SE Linux support if I can 
+> avoid it.
+> 
+> I can't in good conscience ask the Debian libc6 maintainers to include the 
+> above code at this time as the 2.6.0 transition will change the getsecsid() 
+> system call and cause problems.
+> 
+> I could potentially write some library code to perform the 2.6.x getsecsid() 
+> and then use the 2.4.x version on x86 and ARM platforms if the 2.6.x version 
+> fails.  But that seems ugly.
+> 
+> On the debian-devel mailing list I have raised the suggestion of having an 
+> option for libc6 to load a shared object for such checks (which could be used 
+> for many things other than SE Linux).  However nothing productive has 
+> resulted.
 
-Despite the potential difficulties, I'd still recommend partitioning the
-shared libraries into multiple types and limiting especially privileged
-domains to a subset of the complete set of shared library types.  Given
-a small set of privileged domains (and a small set of code that needs to
-run in those domains), this should be feasible.
-
-> Which leaves the one last option: modifying /lib/ld-linux.so.2 to ignore
-> LD_PRELOAD if the domain has changed.
-
-Yes, changing ld.so to clear the sensitive LD_* vars on SID/context
-transitions is desirable.  We could also provide a kernel mechanism for
-doing a complete purge/reset of the environment on certain SID/context
-transitions, but that would be far less fine-grained.
+A certain individual has privately suggested that the kernel pass a flag
+via the auxiliary table that is put on the initial stack indicating
+whether libc should enable its secure mode, just as it presently passes
+the uid and gid information on the stack for use in the existing test.
+Note that the above code for the uid/gid tests typically never calls the
+get[ug]id syscalls; it can pull it off the initial stack provided by the
+kernel.  See the AT_* definitions in include/linux/elf.h and the
+corresponding code in fs/binfmt_elf.c.  That would avoid the 2.4 vs. 2.6
+API issue, and would also allow other security modules to implement
+their own logic as they see fit.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
