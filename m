@@ -1,58 +1,71 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA16083
-	for <selinux@tycho.nsa.gov>; Sun, 29 Sep 2002 22:48:17 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id CAA20455
-	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 02:46:28 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id CAA20451 for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 02:46:27 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brian May <bam@snoopy.apana.org.au>, selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA16321
+	for <selinux@tycho.nsa.gov>; Sun, 29 Sep 2002 23:50:39 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id DAA14409
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 03:49:06 GMT
+Received: from edmond.crypt.gen.nz (203-79-74-194.adsl.paradise.net.nz [203.79.74.194])
+	by jazzswing.ncsc.mil  with ESMTP id DAA14405
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 03:49:05 GMT
+Received: from crypt.gen.nz (localhost.localdomain [127.0.0.1])
+	by edmond.crypt.gen.nz (Postfix) with SMTP id 58EF913924
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 15:50:30 +1200 (NZST)
+Message-ID: <13580.202.6.84.11.1033357831.squirrel@www.crypt.gen.nz>
+Date: Mon, 30 Sep 2002 15:50:31 +1200 (NZST)
 Subject: Re: Indentifying SE-Linux version
-Date: Mon, 30 Sep 2002 04:48:03 +0200
-References: <20020930002206.GB24855@snoopy.apana.org.au>
+From: "Kerry Thompson" <kerry@crypt.gen.nz>
+To: <selinux@tycho.nsa.gov>
 In-Reply-To: <20020930002206.GB24855@snoopy.apana.org.au>
+References: <20020930002206.GB24855@snoopy.apana.org.au>
 MIME-Version: 1.0
-Message-Id: <200209300448.03455.russell@coker.com.au>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 30 Sep 2002 02:22, Brian May wrote:
+Yes, this would sure help keeping the versions under control. Or even just
+CVS id tags in the source files, like openssh does for its files. Try
+running
+
+ strings /usr/bin/ssh | grep '@(#)'
+
+and you'll see what I mean.
+
+Version identifiers in the top of the standard policy source files would
+be nice too.
+
+Kerry
+
+
+Brian May said:
 > The version of the SELinux libraries seem to be constantly
 > changing, and introducing new incompatabilities, etc.
-
-I wouldn't go as far as to say it's constantly changing, but it does change 
-more than we'd like...
-
+>
 > I think we need a way to identify what version of selinux
 > a given binary has been compiled against.
+>
+> This could be done, for instance, with an identifying string inside
+> libsecure.a that is also put in compiled code, so we can do something
+> like:
+>
+> strings /usr/bin/stat | grep SELINUX
+>
+> to obtain, say "SELINUX V12".
+>
+> Something like (not tested):
+>
+> static char id[] = "\nSELINUX v12\n";
+>
+> should be sufficient...
+>
+> (Assuming that this hasn't already been done)
 
-I've been thinking about this some more since we first discussed the matter.
-
-I think that it's more important for the application to be able to determine 
-what version of the API it's running against (policy versions may not require 
-a new version of the API).
-
-The application should be able to query the kernel for which version of the 
-API it provides and then shut down if it's not what we want.  Alternately the 
-application should be able to say "I want to talk version 12, is that OK" and 
-the kernel responds with a boolean.  If running an application and a kernel 
-that were compiled at the same time then this will not be a problem.  If the 
-kernel is newer it may support a compatability mode and flag that application 
-as an application to use the old interface with (but this is a feature for 
-after a 1.0 release).  If the application is newer then it could conceivably 
-then try enquiring about older versions of the ABI until it finds one it can 
-work with (but that would be too difficult for most people to deal with - so 
-maybe we'll never do it).
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Kerry Thompson, CCNA CISSP
+Information Systems Security Consultant
+http://www.crypt.gen.nz  kerry@crypt.gen.nz
+
+
 
 
 --
