@@ -1,71 +1,55 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5ONLT3E026350
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 19:21:29 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5P1oE3E026820
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 21:50:14 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h5ONLS5e009136
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 23:21:28 GMT
-Received: from citation.av8.net ([130.105.12.4])
-        by jazzband.ncsc.mil  with ESMTP id h5ONLS92009133 for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 23:21:28 GMT
-Date: Tue, 24 Jun 2003 19:18:13 -0400 (EDT)
-From: Dean Anderson <dean@av8.com>
-To: Russell Coker <russell@coker.com.au>
-cc: selinux@tycho.nsa.gov
-Subject: Re: proftpd
-In-Reply-To: <200306250840.43592.russell@coker.com.au>
-Message-ID: <Pine.LNX.4.44.0306241911350.11879-100000@vista.av8.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by jazzband.ncsc.mil  with ESMTP id h5P1oD5e012218
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 01:50:13 GMT
+Received: from monk.verbum.org (mx-outgoing.verbum.org [216.226.142.159])
+        by jazzband.ncsc.mil  with ESMTP id h5P1oC92012213 for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 01:50:12 GMT
+Received: from columbia (dhcp024-208-189-249.columbus.rr.com [24.208.189.249])
+	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
+	(Client CN "columbia.verbum.org", Issuer "verbum.org CA" (verified OK))
+	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id 07B3AF63A
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 21:50:07 -0400 (EDT)
+Subject: local policy changes, /var/lib access, syslogd
+From: Colin Walters <walters@verbum.org>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Message-Id: <1056505792.29159.43.camel@columbia>
+Mime-Version: 1.0
+Date: 24 Jun 2003 21:49:52 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I was trying to fire up binaries (that I planned to put in rc.local)
-directly using run_init.  I figured out why this doesn't work just now.
-The run_init can make transition the rc scripts to the initrc_t domain,
-and then things they start can be transitioned from initrc_t to their
-domain. The documentation says this, but I wasn't reading the
-documentation closely enough.
+Hi,
 
-		--Dean
+I have a few questions.  First, where is the best place to keep one's
+local policy changes?  For example, I wanted to let user_t have general
+access to httpd_sys_content_t, since almost all of my users maintain
+their own websites.  So I just put 
 
-On Wed, 25 Jun 2003, Russell Coker wrote:
+# Since most of our users are also web admins, just allow this.
+rw_dir_create_file(user_t,httpd_sys_content_t)
+allow user_t httpd_sys_content_t:dir create_dir_perms;
 
-> On Wed, 25 Jun 2003 05:15, Dean Anderson wrote:
-> > I'm having some trouble with the proftpd program, specifically, it won't
-> > seem to transition from the initrc domain to the ftpd_t domain
->
-> The daemon_domain() macro should take care of this.
->
-> > I relabeled the files (after changing the path to the proftpd binary to
-> > /usr/local/sbin/proftpd in file_contexts/programs/ftpd.fc
-> >
-> > ls --context /usr/local/sbin/proftpd
-> > shows system_u:object_r:ftpd_exec_t
-> >
-> > grep ftpd_exec_t policy.conf shows a type transition line:
-> > type_transition initrc_t ftpd_exec_t:process ftpd_t
-> >
-> > Yet, no effect. Rebooting also has no effect.
->
-> It seems that you've done all the right checks.  I'm not sure what's going
-> wrong here.
->
-> > Interestingly, the radius.te file has this:
-> >
-> > domain_auto_trans(system_crond_t, radiusd_exec_t, radiusd_t)
-> >
-> > However, radius is not started by cron. What is up with this?
->
-> This is so that cron jobs for maintaining RADIUS run in the same domain.  It
-> may be worth putting the cron job into a different domain, maybe
-> radius_crond_t.
->
-> --
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
->
->
+in /etc/selinux/domains/misc/local.te.  Is there a more "standard" place
+for this?
+
+Secondly, I'm getting a lot of programs wanting search access to
+/var/lib (var_lib_t).  At least sshd_t, user_ssh_t, syslogd_t,
+postfix_master_t, etc.  I added a bunch of dontaudit rules, but I'm
+wondering if anyone knew why these programs were trying to access
+/var/lib?
+
+Finally, I also get a number of denials from syslogd attempting to
+access /dev/xconsole:
+
+avc:  denied  { read write } for  pid=162 exe=/sbin/syslogd path=/dev/xconsole dev=03:01 ino=2310191 scontext=system_u:system_r:syslogd_t tcontext=system_u:object_r:device_t tclass=fifo_file
+
+I don't plan to use X on this machine, so I could just add a dontaudit I
+suppose, but I'm curious why this isn't the default.
+
+And thanks for SELinux, it's great!
 
 
 --
