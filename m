@@ -1,48 +1,62 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9GJkxrT013709
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 15:46:59 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9GJjki9017568
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 19:45:46 GMT
-Date: Sat, 16 Oct 2004 20:57:53 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>,
-   RH SELinux list <rhselinux-list@redhat.com>
-Subject: Re: mv and cp behavior.
-Message-ID: <20041016195753.GD19398@lkcl.net>
-References: <41712EEF.9090402@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9H121rT014527
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 21:02:02 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9H11ulX015876
+	for <selinux@tycho.nsa.gov>; Sun, 17 Oct 2004 01:02:00 GMT
+Subject: Re: SELinux Testing Software/Scripts
+From: Erich Schubert <erich@debian.org>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Alex Ackerman <alex@darkhonor.com>, fedora-selinux-list@redhat.com,
+   selinux@tycho.nsa.gov, ackermal@jmu.edu
+In-Reply-To: <20041016180414.GB19398@lkcl.net>
+References: <A52BEA1D8EE8634B9196A136333637B130F1@maat.darkhonor.net>
+	 <20041016180414.GB19398@lkcl.net>
+Content-Type: text/plain
+Date: Sun, 17 Oct 2004 03:01:54 +0200
+Message-Id: <1097974915.21919.5.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <41712EEF.9090402@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Oct 16, 2004 at 10:23:43AM -0400, Daniel J Walsh wrote:
+Hi,
 
-> I believe that the what mv/cp is doing is wrong and we could do better, 
-> by default.
- 
- after (funnily enough) just examining apache_macros.te, i don't see a
- file_auto_trans in there which i would have expected there to be.
+>  as i understand it, there is no "escalation" present in SE/Linux,
+>  only that assigned in the minds of us humans.
+[...]
+>  that's a bit different from "escalating privilege" because that implies
+>  hierarchy, which SE/Linux doesn't have, per-se.
 
- sure, there's a create_dir_file, but i would have expected at least to
- see some use of file_type_auto_trans($1_t, httpd_$1_content_t, httpd_$1_content_t)
- [i think that's right: if a user creates stuff in the
- httpd_user_content_t directory, it's given that same context]
+As long as you have roles with certain higher privileges (for example
+writing to configuration files, binding to arbitrary ports, loading a
+new policy...) there is privilege escalation.
 
- and yes i'd expect mv and cp to obey that file_type_auto_trans.
+Privilege escalation just means getting more rights than you were
+supposed to get. You usually don't care about losing access rights,
+because you could have done things there earlier. Its only about getting
+a privilege you want to have.
 
- l.
+Even in normal Linux, becoming root might give you less access rights in
+some specific cases. For example with NFS mounts that do root_squash.
+(Of course there may be ways of circumventing this, these may exist in
+SELinux, too)
 
+Another important aspect in the use of the term "privilege escalation"
+is doing multiple steps to get the privileges you really want. A typical
+theoretical example is using a game as nobody to get group access to
+games, then using this to exploit some game and finally get access to a
+user account (which could then be used to get futher access rights)
+- referring to the problem that by itself you wouldn't mind for the
+"games" group rights, still this may open new points of entry for an
+attacker.
+
+Greetings,
+Erich Schubert
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
+ A man doesn't know what he knows until he knows what he doesn't know. //\
+    Wer keine Zeit mehr mit echten Freunden verbringt, der wird bald   V_/_
+            sein Gleichgewicht verlieren. --- Michael Levine
 
 
 --
