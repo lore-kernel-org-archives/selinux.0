@@ -1,41 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA28573
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 09:16:26 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA29377
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 13:15:37 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id NAA29373
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 13:15:36 GMT
-Date: Mon, 29 Jul 2002 09:15:22 -0400 (EDT)
+Date: Mon, 29 Jul 2002 09:03:46 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: fileutils
-In-Reply-To: <20020727122038.6B5C7265@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0207290911390.10600-100000@raven>
+To: Carsten Grohmann <carstengrohmann@gmx.de>
+cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: run_init
+In-Reply-To: <200207271043.KAA05992@jazzband.ncsc.mil>
+Message-ID: <Pine.GSO.4.33.0207290858020.10600-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Sat, 27 Jul 2002, Russell Coker wrote:
+On Sat, 27 Jul 2002, Carsten Grohmann wrote:
 
-> One final thing, I think that copy_s() in copy.c should be changed to use
-> open_secure() instead of just calling the regular function.  If we really
-> want the context set on copy then the current setup allows for a race
-> condition where a large file could potentially be read by an unauthorised
-> process while it's being copied.  Also could there be situations in which the
-> user has permission to create a file in a particular type via open_secure()
-> but not have permissions to change it to that type later?
+> The run_init program on my SuSE need follow rule
+> allow run_init_t initrc_exec_t:file { execute };
+> to correct.
+> I think it should need this rule. After this I read rule set and found
+> this
+> # Execute the init scripts
+> domain_auto_trans(run_init_t, etc_t, initrc_t)
+>
+> Now my question:
+> The init scripts are labled with initrc_exec_t and so etc_t should be
+> initrc_exec_t to run correct. Or?
 
-I agree, and yes, the latter is a possible situation.
+Only rc scripts that are run directly by init_t need to be labeled with
+initrc_exec_t so that init_t will transition to initrc_t.  The
+individual program scripts under /etc/init.d (or /etc/rc.d/init.d) are
+typically left in etc_t, since they have no specific entry in
+file_contexts.  The policy/file_contexts/program/initrc.fc file only
+assigns initrc_exec_t to the /etc/rc.d/rc.* scripts.  There is also an
+entry for /etc/init.d/rc.*, presumably for some other distribution.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
