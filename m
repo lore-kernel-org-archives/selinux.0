@@ -1,32 +1,61 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8SMSFrT011591
-	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 18:28:15 -0400 (EDT)
-Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8SMRCuK013980
-	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 22:27:12 GMT
-Subject: Re: [patch] types.fc
-From: Colin Walters <walters@verbum.org>
-To: jwcart2@epoch.ncsc.mil
-Cc: Chris PeBenito <pebenito@gentoo.org>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1096396552.30810.77.camel@moss-lions.epoch.ncsc.mil>
-References: <1095987749.7142.6.camel@gorn.pebenito.net>
-	 <1096396552.30810.77.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 28 Sep 2004 18:29:55 -0400
-Message-Id: <1096410595.21408.26.camel@nexus.verbum.private>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8SMpIrT011736
+	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 18:51:18 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8SMpGPw021335
+	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 22:51:17 GMT
+Date: Wed, 29 Sep 2004 00:02:26 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Problems with fixfiles and setfiles.
+Message-ID: <20040928230226.GB6287@lkcl.net>
+References: <4159C55D.4050404@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4159C55D.4050404@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-09-28 at 14:35 -0400, James Carter wrote:
-> Merged, except for the ifdef around the java sdk stuff.  This is not
-> part of Fedora or RHEL (AFAIK), so I don't think that we want the
-> ifdef.  
+On Tue, Sep 28, 2004 at 04:11:09PM -0400, Daniel J Walsh wrote:
+> The fixfiles script is used to report and fix file contexts that are 
+> invalid, the problem is that it gets a lot of
+> false positives.  Reviewing fixfiles.cron shows that most of the files 
+> created by mozilla are reported as invalid.
+> It would be nice if we could remove these false positives by some means.
+> 
+> If we had some mechanism of saying a file could have one of several 
+> valid contexts, or be in a context that
+> has a certain attribute.
+> 
+> Ideas?
+ 
+ this was... touched upon in a discussion two-ish weeks ago: the
+ concept was that of having more than one context for a file,
+ with a convenient (but from what i can gather unnecessary)
+ 123... 4'th parameter on the file_contexts entries.
 
-Right, that's just the place that Sun's JDK typically installs to, not
-specific to Fedora or RHEL.
+ the mechanism would, as i understand it, define "additional" contexts
+ with the first one being the "default".
 
+ under such circumstances, mozilla could in fact save a file under a
+ specific file context according to what was defined _in_ file_contexts
+ (with a different 4th parameter being used as the lookup for the
+ alternative context)
+ 
+ ... such that then, yes, fixfiles could then go "oh, it's an
+ alternative context for the same file".
+
+ l.
+ 
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
