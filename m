@@ -1,46 +1,31 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA09274
-	for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2002 16:54:42 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA16149
+	for <selinux@tycho.nsa.gov>; Wed, 6 Nov 2002 12:09:28 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id VAA26091
-	for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2002 21:52:45 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id VAA26087 for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2002 21:52:43 GMT
+	by jazzband.ncsc.mil  with ESMTP id RAA16097
+	for <selinux@tycho.nsa.gov>; Wed, 6 Nov 2002 17:07:32 GMT
+Received: from prserv.net (asmtp1.prserv.net [32.97.166.51])
+        by jazzband.ncsc.mil  with ESMTP id RAA16093 for <selinux@tycho.nsa.gov>; Wed, 6 Nov 2002 17:07:30 GMT
+Message-Id: <200211061707.RAA16093@jazzband.ncsc.mil>
+Date: Wed, 6 Nov 2002 12:5:55 -0500
+From: "Subba Rao" <sailorn@attglobal.net>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: SELinux and security tools?
+Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: azeredo@qmc.ufsc.br, selinux@tycho.nsa.gov
-Subject: Re: Selinux on RH8
-Date: Tue, 5 Nov 2002 22:22:43 +0100
-References: <1036528113.3dc829f18bb9c@qmc.ufsc.br>
-In-Reply-To: <1036528113.3dc829f18bb9c@qmc.ufsc.br>
-MIME-Version: 1.0
-Message-Id: <200211052222.43780.russell@coker.com.au>
+      charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 5 Nov 2002 21:28, azeredo@qmc.ufsc.br wrote:
->  Thank you guys for the help. But i still got some problems. I did
->
-> make relabel after adding the Wasterman lines for the postfix policy and
-> reboot and got the following messages:
->
-> Activating swap partitions
-> /etc/rc.d/rc.sysinit: line 318 /etc/mtab: Read-only file system
-> /etc/rc.d/rc.sysinit: line 324 Segmentation fault mount -f
-> touch: creating '/var/lock/subsys/network/ ' Read-only file system
+I am planning to install SELinux on one of my laptop.  The key tools I plan to use are security tools such as Nessus, nmap, Snort and tcpdump.
+Will these tools work well on on SELinux?  Has anyone experienced problems with these tools on SELinux?
 
-Sounds like the process of mounting the root file system read-write after fsck 
-broke somehow.  Run "dmesg | grep avc" to see the information on the things 
-that SE Linux prevented then post the bits that seem relevant here and we can 
-probably advise you on what might need to be changed.
+Thank you in advance for any help.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Subba Rao
+sailorn@attglobal.net
+2002-11-06
+
 
 
 --
