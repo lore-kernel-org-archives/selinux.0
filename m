@@ -1,41 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SJQdrT013698
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 15:26:39 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6SJQ8tS014675
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 19:26:08 GMT
-Subject: Re: file_contexts patch
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: SELinux ML <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
-   Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <20040726220609.GB2175@jmh.mhn.de>
-References: <20040716201531.GB4940@obadja.jmh.mhn.de>
-	 <200407170802.08072.russell@coker.com.au>
-	 <20040716224252.GD4940@obadja.jmh.mhn.de>
-	 <200407171159.00489.russell@coker.com.au>
-	 <20040717195326.GA16762@bern.cip.ifi.lmu.de>
-	 <1090873552.25761.28.camel@moss-spartans.epoch.ncsc.mil>
-	 <20040726220609.GB2175@jmh.mhn.de>
-Content-Type: text/plain
-Message-Id: <1091042753.6886.152.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Wed, 28 Jul 2004 15:25:53 -0400
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SKuVrT014336
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 16:56:31 -0400 (EDT)
+Received: from d10systems.homelinux.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6SKuUXs015292
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 20:56:30 GMT
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by d10systems.homelinux.com (Postfix) with ESMTP id 3A4F837141
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 16:55:38 +0000 (UTC)
+Date: Wed, 28 Jul 2004 16:55:38 +0000 (UTC)
+From: Dhruv Gami <dgami@uncc.edu>
+Reply-To: dgami@uncc.edu
+To: selinux@tycho.nsa.gov
+Subject: Dominance rules
+Message-ID: <Pine.LNX.4.58.0407281623110.18839@d10systems.homelinux.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-07-26 at 18:06, Thomas Bleher wrote:
-> That would be okay with me.
-> 
-> To support distro-specific file contexts we would have to modify the
-> build to include the tunables when creating the file_contexts file (it
-> is already run through m4). Something like the following quick patch:
+Hello Everyone,
 
-Merged.  Also added a tunables/distro.te file.
+I had been playing with role dominance, and seem to be unable to get it to 
+work. From what I understood, dominance rules basically grant the same 
+permissions to the dominating role as were given to the dominating role.
+
+I set up a test system in the following way:
+
+1. created 2 new roles, X_r and Y_r
+2. in rbac, i wrote 'dominance { role X_r; role Y_r; }'
+3. i also allowed transition by 'allow X_r Y_r;'
+4. then i gave a certain permission, like permission to run 'ping' to role 
+Y_r by adding these to the policy:
+	role Y_r types ping_t;
+	allow Y_t Y_t:capability { net_raw setuid };
+	allow Y_t Y_t:rawip_socket { create getopt read setopt write };
+
+Now, doing this allows a user 'paul' in Y_r:Y_t context 
+to ping around, but it does not allow another user 'max' in X_r to ping. 
+
+Am I doing something wrong here, or missing something, or is dominance not 
+working as expected ?
+
+regards,
+Gami
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Dhruv Gami
+http://d10systems.com/gami
 
 
 --
