@@ -1,16 +1,15 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4CH3VI4003523
-	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 13:03:31 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4CH3U7R020403
-	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 17:03:30 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4CHQpI4003684
+	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 13:26:52 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4CHQYjN022130
+	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 17:26:34 GMT
 Received: from mxlx1.surveysavvy.com (mxlx1.surveysavvy.com [63.108.92.46])
-        by jazzband.ncsc.mil  with SMTP id h4CH3RKP020400 for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 17:03:29 GMT
-Message-ID: <54804.63.108.92.34.1052758991.squirrel@mxlx1.surveysavvy.com>
-In-Reply-To: <200305122216.40918.russell@coker.com.au>
-References: <200305122216.40918.russell@coker.com.au>
-Date: Mon, 12 May 2003 10:03:11 -0700 (PDT)
-Subject: Re: SE Linux talk for LUV on 3rd of June
+	by jazzswing.ncsc.mil  with SMTP id h4CHQUTU022127
+	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 17:26:32 GMT
+Message-ID: <54829.63.108.92.34.1052760393.squirrel@mxlx1.surveysavvy.com>
+Date: Mon, 12 May 2003 10:26:33 -0700 (PDT)
+Subject: kernel patches
 From: "Chris Babcock" <cbabcock@luthresearch.com>
 To: "SE Linux" <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
@@ -18,39 +17,15 @@ Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Has anybody considered making a uml image of a working selinux system for
-distribution?
+Since the selinux project doesn't apply any patches to the distributed
+kernel, what kernel patches have those who have been having good success
+with selinux been using?
 
+Also, I have seen some vocal opposition to the current implementation of
+LSM in 2.5 on lklm.  Has there been any resolution, and where does this
+put selinux on 2.5?
 
-> http://www.luv.asn.au/
-> Next month I am giving a talk for the Linux Users of Victoria on SE Linux,
-> see
-> the above URL for details.
->
-> Sometime before then I'll put my play machine online again so that after
-> my
-> talk the LUV members can login and check it out.
->
-> Also I am in discussions about giving a talk for the LUV programmer's SIG
-> on
-> SE Linux programming.  As I am now permanently based in Australia I will
-> probably look at giving SE Linux talks in other states and maybe NZ as
-> well.
->
-> --
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
->
-
+-Chris
 
 --
 This message was distributed to subscribers of the selinux mailing list.
