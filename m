@@ -1,122 +1,107 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4K8jmRb017083
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 04:45:48 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4K8hMB2010243
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 08:43:22 GMT
-Received: from smtp804.mail.ukl.yahoo.com (smtp804.mail.ukl.yahoo.com [217.12.12.141])
-	by jazzswing.ncsc.mil  with SMTP id i4K8hLwi010240
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 08:43:21 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4K9xNRb017370
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 05:59:23 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4K9xKAR007993
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 09:59:20 GMT
+Received: from smtp802.mail.ukl.yahoo.com (smtp802.mail.ukl.yahoo.com [217.12.12.139])
+        by jazzband.ncsc.mil  with SMTP id i4K9xJHn007990 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 09:59:20 GMT
 Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
-  by smtp804.mail.ukl.yahoo.com with SMTP; 20 May 2004 08:45:43 -0000
-Received: from highfield ([192.168.0.223]:33130 helo=lkcl.net)
+  by smtp802.mail.ukl.yahoo.com with SMTP; 20 May 2004 09:59:19 -0000
+Received: from highfield ([192.168.0.223]:33138 helo=lkcl.net)
 	by lkcl.net with esmtp (Exim 4.24 #1)
-	id 1BQjEI-00011h-12
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 08:48:42 +0000
+	id 1BQkNW-00014D-5a
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 10:02:18 +0000
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BQj8s-0001Ow-Px
-	for selinux@tycho.nsa.gov; Thu, 20 May 2004 08:43:06 +0000
-Date: Thu, 20 May 2004 08:43:06 +0000
+	id 1BQkHx-0007Oi-MP
+	for selinux@tycho.nsa.gov; Thu, 20 May 2004 09:56:33 +0000
+Date: Thu, 20 May 2004 09:56:33 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: start of patch to dpkg's start-stop-daemon
-Message-ID: <20040520084306.GL24597@lkcl.net>
+Subject: something up with use of setfiles
+Message-ID: <20040520095633.GM24597@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
+hi, i just had to double-checked something, because this is rather odd.
 
-steve, russell, would you mind taking a quick look at this?
+when running make relabel, i'd expect the entire filesystem to be
+relabelled, and it isn't: /usr/bin/kdm is not changed from its
+context of lkcl_t:object_r:bin_t.
 
-it's a patch to dpkg 1.10.21's utils/start-stop-daemon.c
-which causes a context switch just before
-the setuid/setgid calls.
+so, well, okay, i figured i'd do a manual setfiles, just like in
+/etc/dpkg/postinst.d/setfiles.
 
-now, whether this is required behaviour or not, i cannot say.
+okay, here we go, setfiles -q -s
+/etc/selinux/file_contexts/file_contexts
+it expects input, so type
+/usr/bin/kdm
+/usr/bin/kdm_greet
+/usr/bin/kdm_config
+^D
 
-what i do believe is that if start-stop-daemon is used with -u UID
-instead of username, and there _is_ no username associated with
-that UID, then the resultant failure will, on an SE/Linux system,
-be a Good Thing.
+and voila, ls --context /usr/bin/kdm* shows NO CHANGE.
+the context is UNCHANGED.
 
-hey, maybe it isn't good, maybe people expect a fallback to
-user_u context, i don't know.
+okay, so what about this, let's try...
+setfiles -q -s
+/etc/selinux/file_contexts/domain/xdm.te
+/usr/bin/kdm
+/usr/bin/kdm_greet
+/usr/bin/kdm_config
+^D
 
-maybe there should be an extra option to start-stop-daemon
-to specify the context separately: again, i don't know.
+check it again... AH HA!
+
+-rwxr-xr-x  root     root     system_u:object_r:xdm_exec_t   kdm
+-rwxr-xr-x  root     root     lkcl:object_r:staff_home_dir_t kdm_config
+-rwxr-xr-x  root     root     lkcl:object_r:staff_home_dir_t kdm_greet
+
+ta-daa.  double-checking for kdm_config and kdm_greet in xdm.te, of
+course, obviously, they're not there, well i can live with that.
+
+okay, so let's have a look at the _contents_ of
+file_contexts/file_contexts:
+
+/root/.default_contexts --      system_u:object_r:default_context_t
+
+uhn.... is that right?
+
+i no unnerstand.
 
 
-i put the context execution switch in after the opening of
-/dev/ttyX and after the chroot, but before the setgid/setuid/setgroups.
+okay, taking a look at the /etc/selinux/Makefile, this section:
 
-and without doing anything to the file handle of the /dev/ttyX.
+$(FC): $(FCFILES) domains/program domains/misc file_contexts/program
+file_contexts/misc users
+	@echo "Building file_contexts ..."
+	@m4 $(FCFILES) > $@.tmp
+	@grep -v "^/root" $@.tmp > $@.root
+	@/usr/sbin/genhomedircon . $@.root  > $@
+	@grep "^/root" $@.tmp >> $@
+	@-rm $@.tmp $@.root
 
-oh, and also after, and without doing anything to, the opening
-of the /var/run/daemon_name.pid file.
+if i comment out the 2nd grep, i get a complete
+file_contexts/file_contexts.
 
-... is that right?  should those file handles be in and remain
-in the initrd_t context?
+hm...
 
-should the user-context-switch be done at all??
+okedokeeyyy...  what about if i switch off the grep -v in the
+first grep and switch on grep -v in the second?
 
-sincerely,
+	@grep "^/root" $@.tmp > $@.root
+	@/usr/sbin/genhomedircon . $@.root  > $@
+	@grep -v "^/root" $@.tmp >> $@
+	@-rm $@.tmp $@.root
+
+ah ha!  i get results!  i appear to get a list of err stuff that
+looks familiar, but it doesn't have /root/.default_contexts anywhere
+in it: is that right?
 
 l.
 
---- start-stop-daemon.c.old	2004-05-20 08:32:31.000000000 +0000
-+++ start-stop-daemon.c	2004-05-20 08:32:34.000000000 +0000
-@@ -93,6 +93,11 @@
-   #include <hurd/ihash.h>
- #endif
- 
-+#ifdef WITH_SELINUX
-+#include <selinux/get_context_list.h>
-+#include <selinux/selinux.h>
-+#endif
-+
- static int testmode = 0;
- static int quietmode = 0;
- static int exitnodo = 1;
-@@ -1245,6 +1250,37 @@
- 	if (chdir(changedir) < 0)
- 		fatal("Unable to chdir() to %s", changedir);
- 	if (changeuser != NULL) {
-+
-+    /*
-+     * for Security Enhanced Linux,
-+     * set the default security context for this user.
-+     */
-+#ifdef WITH_SELINUX
-+   if (is_selinux_enabled() > 0)
-+   {
-+        security_context_t scontext;
-+
-+		/* changeuser could be specified as a uid, so we need to look
-+		 * up the username.  this _could_ be expected to fail if someone
-+		 * is deliberately using a uid with no username associated with
-+		 * it, in which case, tough: this is SE/Linux not Unix.
-+		 */
-+		struct passwd *pw = getpwnam(runas_uid);
-+		if (pw == NULL || pw->pw_name == NULL)
-+			fatal("uid `%d' not found username\n", runas_uid);
-+
-+        if (get_default_context(pw->pw_name,NULL,&scontext))
-+		{
-+             fatal("Failed to get default security context for %s.", curuser);
-+		}
-+        Debug("setting security context to %s", scontext);
-+        if (setexeccon(scontext)) {
-+             freecon(scontext);
-+             fatal("Failed to set exec security context %s for %s.", scontext, curuser);
-+        }
-+        freecon(scontext);
-+   }
-+#endif
-  		if (setgid(runas_gid))
-  			fatal("Unable to set gid to %d", runas_gid);
- 		if (initgroups(changeuser, runas_gid))
 -- 
 -- 
 expecting email to be received and understood is a bit like
