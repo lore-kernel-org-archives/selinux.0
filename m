@@ -1,51 +1,40 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h63MwDHa004609
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 18:58:14 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h640JfHa004882
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 20:19:41 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h63MvKnJ003494
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 22:57:20 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h63MvJhr003489
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 22:57:19 GMT
-Subject: Re: Policies.. but where there are?
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: Mauro Chiarugi <vlaovic@libero.it>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20030703234800.330f8026.vlaovic@libero.it>
-References: <20030703234800.330f8026.vlaovic@libero.it>
-Content-Type: text/plain
-Message-Id: <1057273088.31584.70.camel@moss-sooners.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 03 Jul 2003 18:58:09 -0400
+	by jazzswing.ncsc.mil  with ESMTP id h640ImnJ006349
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 00:18:48 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h640Ikhr006342
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 00:18:47 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: busybox
+Date: Fri, 4 Jul 2003 10:19:26 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200307041019.26588.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The policy is built using a Makefile which combines the files with the
-policy statements (and M4 macros) into a single policy.conf.  The
-policy.conf file is compiled by the checkpolicy program into a file
-better parsed by computers than humans.  The compiled output file is
-loaded into kernel data structures which are then used during access
-control checks.
+My SE Linux patch (written for use in the Familiar distribution on the iPaQ 
+but which also works well for recovery disks) has been accepted into the 
+Busybox CVS.
 
-That is a very brief very high-level answer.  Does it answer your
-question?
+I have inspected the merged code and it all looks OK, but I have not had time 
+to compile it and boot a machine running it.  I don't expect any problems 
+however.
 
-On Thu, 2003-07-03 at 17:48, Mauro Chiarugi wrote:
-> Hi,
-> i've just read come docs about SELinux, but i don't have unsterstood
-> where these policy (domains, etc.) are saved.. when i compile the
-> policy, where are recordered this information? In the kernel? In a file?
-> In the filesystem? 
-> 
-> thanks
-> 
-> bye bye
-> 
-> sracatus
+Now the only thing that needs to get merged upstream for my SE Linux iPaQ port 
+is some of the policy and the X login program (gpe-login) patch.
+
 -- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
