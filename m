@@ -1,51 +1,51 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2S1Lrx6028036
-	for <selinux@tycho.nsa.gov>; Thu, 27 Mar 2003 20:21:53 -0500 (EST)
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2SDDOx6029467
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 08:13:26 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h2S1IJlY022440
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 01:18:19 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h2S1IGKX022437
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 01:18:18 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SE Linux on ARM
-Date: Fri, 28 Mar 2003 02:21:21 +0100
-References: <200303242201.33705.russell@coker.com.au>
-In-Reply-To: <200303242201.33705.russell@coker.com.au>
-Cc: familiar@handhelds.org
+	by jazzswing.ncsc.mil  with ESMTP id h2SD9olY015067
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 13:09:50 GMT
+Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h2SD9nKX015064
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 13:09:49 GMT
+Message-Id: <200303281320.IAA25548@moss-shockers.ncsc.mil>
+Date: Fri, 28 Mar 2003 08:20:59 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: kernel compile failure
+To: selinux@tycho.nsa.gov, pebenito@ieee.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200303280221.21079.russell@coker.com.au>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 24 Mar 2003 22:01, Russell Coker wrote:
-> I have also ported it to the 2.4.19 ARM kernel and put it on
-> http://www.coker.com.au/arm/
-> One patch is for the main LSM and SE code, the other is for the ARM
-> specific SE code, both patches are required.  They are separate for ease of
-> management.
->
-> The following entry in /etc/ipkg.conf is for a feed of kernel packages
-> based on the above patches:
-> src 2.4.19 http://adsl.coker.com.au/ipaq/
 
-I have just updated this feed to include the latest hh8 kernel build (with the 
-Oops fixed) which is compiled with the latest gcc 3.2.3 compiler to fix the 
-JFFS2 errors.
+> I patched a stock 2.4.20 kernel with the 2003011510 lsm and selinux
+> patches from the NSA site.  The compile fails right at the end with a
+> linker error (.config attached):
+<snip>
+> kernel/kernel.o(.text+0xbf34): In function `sys_acct':
+> : undefined reference to `security_acct'
+> make: *** [vmlinux] Error 1
+> 
+> 
+> This config has worked on previous revisions of the patches.  Ideas?
 
-I have also added a package "selinux" to the feed which contains the core SE 
-Linux utility programs.  Tomorrow I expect to put a policy online which 
-allows the machine to boot in enforcing mode.
+Yes, while back porting the changes from 2.5 to make LSM a
+configuration option, I missed a couple of instances where we need to
+#include <linux/security.h> to pick up the static inline function
+definitions.  This was mentioned previously in
+http://marc.theaimsgroup.com/?l=selinux&m=104284099029343&w=2 (and the
+next message in the thread, same problem if you enable quotas).  You
+might want to check out a copy of the sourceforge CVS tree, since it
+has the patches that have been posted since the last public release
+already merged:
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+cvs -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux \
+-z3 co nsa
+
+--
+Stephen Smalley, NSA
+
 
 
 --
