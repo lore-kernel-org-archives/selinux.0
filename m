@@ -1,49 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4492GI4023458
-	for <selinux@tycho.nsa.gov>; Sun, 4 May 2003 05:02:16 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4492F7R005153
-	for <selinux@tycho.nsa.gov>; Sun, 4 May 2003 09:02:15 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id h44921KP005150 for <selinux@tycho.nsa.gov>; Sun, 4 May 2003 09:02:12 GMT
-Date: Sun, 4 May 2003 19:01:34 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h44AQXI4023579
+	for <selinux@tycho.nsa.gov>; Sun, 4 May 2003 06:26:33 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h44AQLVf028558
+	for <selinux@tycho.nsa.gov>; Sun, 4 May 2003 10:26:21 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h44AQI4D028555
+	for <selinux@tycho.nsa.gov>; Sun, 4 May 2003 10:26:19 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Brian May <bam@snoopy.apana.org.au>, Stephen Smalley <sds@epoch.ncsc.mil>
 Subject: Re: ssh/login
-Message-ID: <20030504090134.GB2483@snoopy.apana.org.au>
-References: <20030501022414.GA13019@snoopy.apana.org.au> <1051793224.1377.64.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1051793224.1377.64.camel@moss-huskers.epoch.ncsc.mil>
+Date: Sun, 4 May 2003 20:25:31 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20030501022414.GA13019@snoopy.apana.org.au> <1051793224.1377.64.camel@moss-huskers.epoch.ncsc.mil> <20030504090134.GB2483@snoopy.apana.org.au>
+In-Reply-To: <20030504090134.GB2483@snoopy.apana.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200305042025.31763.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, May 01, 2003 at 08:47:05AM -0400, Stephen Smalley wrote:
-> Index: lsm-2.4/security/selinux/syscalls.c
-> ===================================================================
-> RCS file: /home/pal/CVS/lsm-2.4/security/selinux/syscalls.c,v
-> retrieving revision 1.14
-> diff -u -r1.14 syscalls.c
-> --- lsm-2.4/security/selinux/syscalls.c	21 Mar 2003 16:07:05 -0000	1.14
-> +++ lsm-2.4/security/selinux/syscalls.c	1 May 2003 12:36:15 -0000
-> @@ -41,6 +41,10 @@
->  long sys_getsecsid(void) 
->  {
->  	struct task_security_struct *tsec;
-> +	extern int ss_initialized;
-> +
-> +	if (!ss_initialized)
-> +		return -ENOSYS;
->  
->  	tsec = current->security;
->  	return tsec->sid;
+On Sun, 4 May 2003 19:01, Brian May wrote:
+> > +	extern int ss_initialized;
+> > +
+> > +	if (!ss_initialized)
+> > +		return -ENOSYS;
+> >
+> >  	tsec = current->security;
+> >  	return tsec->sid;
+>
+> I can confirm that this patch works.
 
-I can confirm that this patch works.
+Works for me on ARM too.
 
-Thanks.
 -- 
-Brian May <bam@snoopy.apana.org.au>
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
