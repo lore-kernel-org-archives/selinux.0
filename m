@@ -1,63 +1,50 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QAOUrT026850
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 06:24:30 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QAOThU003492
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 10:24:30 GMT
-Date: Sun, 26 Sep 2004 11:35:33 +0100
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QBt5rT027002
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 07:55:05 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QBs376012499
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 11:54:03 GMT
+Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
+	by open.hands.com (Postfix) with ESMTP id AA596C0D5
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 12:54:56 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1CBXn6-0007CY-9p
+	for selinux@tycho.nsa.gov; Sun, 26 Sep 2004 13:06:08 +0100
+Date: Sun, 26 Sep 2004 13:06:08 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Dale Amon <amon@vnl.com>
-Cc: Russell Coker <russell@coker.com.au>,
-   "Christopher J. PeBenito" <cpebenito@tresys.com>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: Remove unrestricted_admin
-Message-ID: <20040926103533.GA26338@lkcl.net>
-References: <200409211526.37810.russell@coker.com.au> <200409252039.01196.russell@coker.com.au> <1096119005.11665.21.camel@gorn.pebenito.net> <200409260121.10665.russell@coker.com.au> <20040925220708.GB15912@vnl.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: udev_uses_tmpfs
+Message-ID: <20040926120608.GG26338@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040925220708.GB15912@vnl.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Sep 25, 2004 at 11:07:08PM +0100, Dale Amon wrote:
-> On Sun, Sep 26, 2004 at 01:21:10AM +1000, Russell Coker wrote:
-> > Corner cases that happen to be a regular part of any sys-admin's job.
-> 
-> I massively agree. Lots of people do 'ghosting'; lots
-> of people back up entire disk images before doing
-> something dangerous. Now I've got ways around a lot
-> of the problems anyway because I've a root boot floppy
-> I use. Boot a machine off an nfs root; mount a Real Big
-> Disk over nfs, and then dd the whole frigging host
-> system disk to the destination system where it
-> can be worked on. 
+examining the latest cvs policy i find that there is a whole stack-load
+of assumptions that only redhat can do udev in tmpfs.
 
- i'm doing something similar using rsync to do backups and restores
- (i did use dd but had to save space).
+can i suggest that this be specified as a tunable "udev_uses_tmpfs"
+instead?
 
- it's a boot cd, and on a restore it runs in "permissive" mode,
- sets up the partitions on /target/, /target/boot, /target/var etc.
- chroots to /target and then does a make -C /etc/selinux/src relabel.
+if there are _really_ some redhat-specific things such as "only redhat
+does udev+tmpfs from its initial ramdisk" then fine.
 
- that seems to "do the job".
+irrespective of whether people like the above suggestion, it's what i
+have to do.
 
- i am certain that lots of people can come up with alternative schemes,
- all of which will work "offline" where you have physical access to the
- machine.
+as a tunable would be better: some debian systems use udev,
+some don't use initrd.
 
- what i believe russell to be concerned about is that there _are_ so
- many "alternative" schemes that people use [during live operation]
- e.g. _yes_ people really do do "dd backups" usually at 3am on a cron
- job to a spare disk.
+l.
 
- therefore, making a decision about, how do we say "which
- one(s)" - if at all - should go into the "strict" policy is
- of some concern.
-
- ...if this was microsoft, you'd write your own backup program and then
- lock the OS to that.
-
- l.
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
