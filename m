@@ -1,42 +1,39 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i75Ha9rT006928
-	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 13:36:10 -0400 (EDT)
-Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i75HZZn4022835
-	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 17:35:35 GMT
-Subject: SE-Packages for powerpc available
-From: Wolfgang Pfeiffer <roto@gmx.net>
-To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i75HcurT006965
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 13:38:56 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i75HcsZl027852
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 17:38:54 GMT
+Subject: Re: How to use other LSM modules
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20040805171955.71973.qmail@web51503.mail.yahoo.com>
+References: <20040805171955.71973.qmail@web51503.mail.yahoo.com>
 Content-Type: text/plain
-Message-Id: <1091727357.2840.40.camel@debby>
+Message-Id: <1091727491.2583.106.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 05 Aug 2004 19:35:57 +0200
+Date: Thu, 05 Aug 2004 13:38:11 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi All
+On Thu, 2004-08-05 at 13:19, Park Lee wrote:
+> Do you mean that SELinux is not implemented as a LSM module as it was
+> described in <<Implementing SELinux as a Linux Security Module>>? 
+> Has this situation change now? and what about the capability module?
 
-Things are beginning to move for ppc, as it seems:
-<http://home.t-online.de/home/520050060325-0001/>
+SELinux is implementing using the LSM framework, and is a "security
+module", but it has to be built-in to the kernel; you cannot build it as
+a separate module and dynamically insert it into a running kernel.  The
+capability module can be built-in or a loadable module, but if you make
+it a loadable module, you still need to load it very early in the
+initialization process to avoid problems with pre-existing processes
+that lack proper capability assignment.  The technical report is out of
+date, as noted on the web site and in the introduction of the report.
 
-I don't know how soon the free transfer rate (1 GB, IINM) will be
-exceeded. If this happens, I'll have to stop the possibility for
-downloads for the rest of the month where this happens. Until the
-following month.
-
-Sorry, but I simply don't have the financial means currently to pay the
-downloads.
-
-So if someone wants to mirror
-<http://home.t-online.de/home/520050060325-0001/>
-then you're definitely welcome.
-
-HTH
-
-Best Regards
-Wolfgang
 -- 
-Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
