@@ -1,56 +1,43 @@
-Date: Mon, 28 Oct 2002 07:57:06 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Brian May <bam@snoopy.apana.org.au>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: kernel warning
-In-Reply-To: <20021027042301.GA18290@snoopy.apana.org.au>
-Message-ID: <Pine.GSO.4.33.0210280741410.29887-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA10905
+	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 08:38:57 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA07552
+	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 13:37:02 GMT
+Received: from nox.lemuria.org ([213.191.86.30])
+        by jazzband.ncsc.mil  with ESMTP id NAA07548 for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 13:37:01 GMT
+Date: Mon, 28 Oct 2002 14:38:55 +0100
+From: Tom <tom@lemuria.org>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: dontaudit
+Message-ID: <20021028143854.A5399@lemuria.org>
+References: <20021028125555.A3585@lemuria.org> <200210281357.29762.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200210281357.29762.russell@coker.com.au>; from russell@coker.com.au on Mon, Oct 28, 2002 at 01:57:29PM +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, Oct 28, 2002 at 01:57:29PM +0100, Russell Coker wrote:
+> > so what is the best way to globally turn off dontaudit? grep -v
+> > dontaudit policy.conf  ?
+> 
+> grep -v ^dontaudit policy.conf > p ; mv p policy.conf ; make load
+> 
+> I guess it might make sense to have an entry in the Makefile to allow "make 
+> dontaudit" for this...
 
-On Sun, 27 Oct 2002, Brian May wrote:
-
-> While compiling the kernel, 2.4.19, with the latest lsm-SE Linux
-> patches from Russell (I am not sure how to double check this; but it is
-> POLICYDB_VERSION 12), I happened to glance at my screen when this was
-> displayed:
->
-> gcc -D__KERNEL__ -I/home/bam/tmp/woody/selinux/kernel-image/kernel-image-2.4.19-i386-2.4.19/build-k6/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6    -Iinclude  -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=hooks  -c -o hooks.o hooks.c
-> hooks.c:66: warning: #warning "SELinux:  The separate SELinux kernel patch has not been applied.  Using SELinux without this patch is not recommended."
-<snip>
-> Have I made a mistake somewhere in patching the kernel, or maybe this
-> code is obsolete? Or perhaps Russell's patch is not intended to be used
-> standalone anymore but must be used in conjection with another patch?
->
-> What is this "seperate kernel patch"?
-
-SELinux has always included a separate SELinux-specific kernel patch to be
-applied on top of the LSM patch, although the precise purpose of the patch
-has varied over time.  In the current release, the patch is available in
-the SELinux archive in selinux/module/selinux-2.4.patch or directly from
-http://www.nsa.gov/selinux/patches/selinux-2.4-2002102211.patch.gz.  In
-the latest release, the dependence of the SELinux module on this patch has
-increased due to the elimination of precondition functions.  Some of the
-changes in this patch may find their way back into the mainstream LSM
-patch in a more general form in the future (they have all been discussed
-on the LSM mailing list), but some changes are likely to remain
-SELinux-specific.
-
-As a side note, please be aware that the lsm-2.4 tree and LSM patch that
-is provided on the NSA SELinux web site is also different from the
-old 2.4.19-lsm1 snapshot patch from WireX.  It is consistent with the head
-of the LSM BitKeeper tree, so it includes many changes that have been
-committed since that snapshot patch.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Actually, the more I work with policies the more I want various
+policies, i.e. "create a new one but keep the old". Should be possible
+right now with some manual work, but something like Lilo where you can
+also boot from a choice of kernels would be better.
 
 
-
+-- 
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
