@@ -1,51 +1,71 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h47J3xI4011920
-	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 15:03:59 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h47J5PI4011946
+	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 15:05:25 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h47J3w7R020465
-	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 19:03:58 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h47J3vKP020460 for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 19:03:57 GMT
-Subject: Re: /dev/pts/* denials w/devfs
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Christopher J. PeBenito" <pebenito@ieee.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1052326645.13937.23.camel@chris.pebenito.net>
-References: <1052326645.13937.23.camel@chris.pebenito.net>
-Content-Type: text/plain
-Message-Id: <1052334230.1044.104.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 07 May 2003 15:03:50 -0400
+	by jazzband.ncsc.mil  with ESMTP id h47J5D7R020499
+	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 19:05:14 GMT
+Received: from babbler.bmc.com (fw-us-sjc-1.bmc.com [198.175.229.250])
+        by jazzband.ncsc.mil  with ESMTP id h47J5BKP020495 for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 19:05:12 GMT
+Date: Wed, 7 May 2003 14:03:41 -0500 (CDT)
+From: Richard Troth <rtroth@bmc.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: Nick Gray <nagray@austin.rr.com>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: SELinux and LFS
+In-Reply-To: <200305080343.11969.russell@coker.com.au>
+Message-ID: <Pine.LNX.4.44.0305071357530.30962-100000@trothnec.bmc.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-05-07 at 12:57, Christopher J. PeBenito wrote:
-> I'm trying to integrate SELinux with Gentoo
-> (http://www.gentoo.org/proj/en/hardened/), however I'm encountering some
-> problems.  The problem surrounds /dev/pts/* denials.  Gentoo uses devfs,
-> so I have a feeling that it might be causing some problems.  For
-> example, the following are the denials I get when logging in via ssh. 
-> The ssh.te is still the stock from selinux-small, and openssh is
-> patched.  I also have the devfsd-se.so devfsd module running. 
-> Suggestions?
+> Considered Debian?
 
-The devfs kernel code really needs to be patched to work properly with
-SELinux; your pty problem is just a small part of the problem.  Note
-that in 2.4, we have to patch devpts for it to properly set up the
-inode's security label; in 2.5, this is handled without patching because
-devpts_pty_new now calls d_instantiate, so we can set up the security
-label in the usual manner via the d_instantiate hook.  You could patch
-the devfs code similarly, but there isn't much point in doing so, as
-unix98 pty support has been removed from devfs in 2.5, so everyone needs
-to start using devpts anyway if they want unix98 ptys.  A more serious
-problem with using devfs with SELinux is preserving security labels on
-devfs entries when they are evicted from the dcache; if you don't patch
-devfs to preserve the security information, devfs entries will "lose"
-any security label when the entry is evicted.
+Good point.
+For my own "Linux from scratch",
+Debian has proved to be a vital source depot and reference.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+ ...
+> > my efforts to remove the software responsible. I actually found circular
+> > dependencies in the packages.
+>
+> Debian has no such "features", and is in a fairly good state with regard to
+> circular dependencies.
+>
+> For building a Debian system from source there are some dependency issues.
+> For example you can't build packages in a regular fashion without Perl, and
+> Perl needs a huge number of other things to be built before it can be built.
+
+Right.   For the "tool chain",  you need GCC, GLIBC, and a
+smattering few other development tools.   But one or two of those
+(in my experience,  not exhaustively scientific)  required Perl
+for their auto config.   [sigh]   So the basic tool chain
+racked up to 28 packages.   That was enough to give me a
+usable 'chroot' where I could re-build the same 28 and then
+build anything else.
+
+> Doing a cross-compile bootstrap of Debian will be painful because of this.
+> But recompiling every package in a Debian system should be quite easy (on
+> i486 and newer CPUs at least).
+
+[Mine is not related to SE.]
+I still haven't figured out Debian's build process.
+I'm trying to stick to the usual
+
+	./configure
+	make
+	make install
+
+though a good number of packages need an explicit  "--prefix=/usr".
+
+> Some people on this list have been talking about getting SE Linux going
+> with Gentoo which is based on compiling everything.  I wonder how their
+> progress is going.
+
+Yes.   Gentoo is recommended by many hard-core bootstrappers.
+
+-- RMT
+
 
 
 --
