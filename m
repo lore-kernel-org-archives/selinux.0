@@ -1,48 +1,47 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h82HC2La017741
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 13:12:03 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h82HAUpQ015375
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 17:10:30 GMT
-Received: from mx1.utulsa.edu (mx1.utulsa.edu [129.244.3.226])
-	by jazzswing.ncsc.mil  with SMTP id h82HATQX015372
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 17:10:30 GMT
-Message-ID: <3F54CF05.8050608@utulsa.edu>
-Date: Tue, 02 Sep 2003 12:10:29 -0500
-From: Nick Davis <nicholas-davis@utulsa.edu>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: glibc rpm install error
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h82HPiLa017889
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 13:25:44 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h82HPhet019406
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 17:25:44 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h82HPhlq019403 for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 17:25:43 GMT
+Subject: Re: glibc rpm install error
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Nick Davis <nicholas-davis@utulsa.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <3F54CF05.8050608@utulsa.edu>
+References: <3F54CF05.8050608@utulsa.edu>
+Content-Type: text/plain
+Message-Id: <1062523542.18568.130.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 02 Sep 2003 13:25:42 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Tue, 2003-09-02 at 13:10, Nick Davis wrote:
+> Error: %postun(glibc-2.3.2-27.9.selinux.0) scriptlet failed, exit status 121
+> 
+>  From that point on, any command I run gives a Segmentation Fault.  I 
+> tried installing the glibc RPMs last, after all of the other utils, but 
+> the same thing happens.
+> 
+> Has anyone run into this problem before, or have an idea on what the 
+> problem might be?
 
-I've been trying to get SELinux 2.6 up and running on a RH9 box, and am 
-having some difficulties.  I can compile/install the kernel just fine, 
-but I run into problems when building the userspace tools.  
-Specifically, I'm trying to get the SRPMs all built.  The source RPMs 
-all install and build, leaving me with several RPMS in the i386 
-directory.  I've managed to get everything working fine (i.e. RPMs all 
-install without errors) except the SELinux-patched glibc RPMs.  Here's 
-the error I get:
+Yes.  The problem isn't specific to SELinux; it also occurs when
+installing the original RHL errata RPMs if you install the i386 glibc on
+a system that previously had the i686 glibc installed.  You need to
+build two sets of glibc RPMS, one with --target=i386 and one with
+--target=i686, then install the glibc-N.i686.rpm along with
+glibc-{common,...}-N.i386.rpm, omitting the glibc-N.i386.rpm entirely.
 
-Error: %postun(glibc-2.3.2-27.9.selinux.0) scriptlet failed, exit status 121
+You may also be able to just grab the rawhide glibc from RH and use it,
+as the changes to support AT_SECURE were upstreamed.
 
- From that point on, any command I run gives a Segmentation Fault.  I 
-tried installing the glibc RPMs last, after all of the other utils, but 
-the same thing happens.
-
-Has anyone run into this problem before, or have an idea on what the 
-problem might be?
-
-Thanks in advance,
-
-Nick Davis
-Center for Information Security
-University of Tulsa
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
