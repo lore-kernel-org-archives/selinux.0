@@ -1,130 +1,92 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4NIDeRb006397
-	for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 14:13:40 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4NIBBB2027690
-	for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 18:11:11 GMT
-Received: from mailrelay2.lrz-muenchen.de (mailrelay2.lrz-muenchen.de [129.187.254.102])
-	by jazzswing.ncsc.mil  with ESMTP id i4NIBAwi027687
-	for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 18:11:10 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.99.1] [192.168.99.1]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sun, 23 May 2004 20:13:32 +0200
-Date: Sun, 23 May 2004 20:13:19 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Bootup problems
-Message-Id: <20040523181318.GA2104@jmh.mhn.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ylS2wUBXLOxYXZFQ"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4NKDcRb006662
+	for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 16:13:39 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4NKDZAR010661
+	for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 20:13:35 GMT
+Received: from smtp.sws.net.au ([61.95.69.6])
+        by jazzband.ncsc.mil  with ESMTP id i4NKDNHn010645 for <selinux@tycho.nsa.gov>; Sun, 23 May 2004 20:13:34 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH][RFC] Allow administrator control over per-user default_contexts
+Date: Mon, 24 May 2004 06:12:15 +1000
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov,
+   Daniel J Walsh <dwalsh@redhat.com>, selinux-dev@tresys.com
+References: <1085155374.2789.131.camel@moss-spartans.epoch.ncsc.mil> <200405212213.i4LMDLZM005446@turing-police.cc.vt.edu>
+In-Reply-To: <200405212213.i4LMDLZM005446@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200405240612.15645.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 22 May 2004 08:13, Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 21 May 2004 12:02:55 EDT, Stephen Smalley said:
+> > - Does this change seem reasonable?
+>
+> Yes.
 
---ylS2wUBXLOxYXZFQ
-Content-Type: multipart/mixed; boundary="zCKi3GIZzVBPywwA"
-Content-Disposition: inline
+I agree.
 
+However I am not certain that the existence of the directory should preclude 
+any use of ~/.default_contexts.  Maybe only the existence of 
+a /etc/security/selinux/default_contexts.user/username should be used to 
+indicate that ~/.default_contexts should be ignored.
 
---zCKi3GIZzVBPywwA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > - Should the policy include support for the $HOME/.default_contexts
+> > files for ordinary users?
+>
+> I'm ambivalent on this one.  I *will* firmly commit to the idea that *if*
+> we have a $HOME/.default_contexts file at all, that we need
+> $1_default_context_t and all the other policy rules/domains to do it
+> *right*.
 
-The attached dmesg (non-relevant lines before and after snipped) is the
-bootlog of a 2.6.6er-kernel on a SuSE 9.0 system. No initrd, no special
-modules (only sound as module, everything else compiled in).
-The system works fine afterwards, the filesystem is properly labeled.
-It just seems like it is the file labels are initialized to late.
-Anyone knows why this is happening or where I should look?
+I agree.  Also we would have to write a utility to generate/modify the 
+~/.default_contexts file.  Having users correctly label files under their 
+home directory is painful.  It would be easy to write a script to make the 
+current context the default and then set the type of the file correctly.
 
-Thomas
+> A related question - has anybody done scaling tests for this sort of thing
+> for large numbers of different values of $1?  I'm thinking about situations
+> like webhosting, where dozens/hundreds of logins might need this - it's
+> unclear (at least to me) at what point it becomes a Bad Idea to create
+> per-user policies and just dump all of them in "customer_t".
 
-re: the last audit deny: /soft is the root of an nfs-mount. Later in the
-process it is correctly treated as nfs_t.
-PS: This also happend with 2.6.5, it is no new problem of 2.6.6
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+The most I've used is ~36 user roles.  That didn't cause a problem so dozens 
+seems OK to me.
 
---zCKi3GIZzVBPywwA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=dmesg
+> > - Should Fedora transition to using
+> > /etc/security/default_contexts.user/root instead of
+> > /root/.default_contexts, thus prohibiting use of $HOME/.default_contexts
+> > by default?  Administrators who want to allow $HOME/.default_contexts
+> > would then need to copy the root entry to /root/.default_contexts and
+> > remove the directory to enable such support.
+>
+> That seems eminently sane as far as changing the default on new
+> installs.
 
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Freeing unused kernel memory: 484k freed
-usb 2-2: new low speed USB device using address 2
-security:  22 users, 5 roles, 577 types, 1 bools
-security:  30 classes, 60011 rules
-SELinux:  Completing initialization.
-SELinux:  Setting up existing superblocks.
-SELinux: initialized (dev , type selinuxfs), uses genfs_contexts
-audit(1085334438.959:0): avc:  denied  { execute_no_trans } for  pid=141 comm=khelper path=/sbin/hotplug dev=hda3 ino=1589274 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:unlabeled_t tclass=file
-audit(1085334438.963:0): avc:  denied  { read } for  pid=141 comm=khelper path=/sbin/hotplug dev=hda3 ino=1589274 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:unlabeled_t tclass=file
-audit(1085334438.968:0): avc:  denied  { execute } for  pid=141 comm=khelper name=bash dev=hda3 ino=671755 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:unlabeled_t tclass=file
-audit(1085334438.974:0): avc:  denied  { getattr } for  pid=141 exe=/bin/bash path=/etc/ld.so.cache dev=hda3 ino=213295 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:unlabeled_t tclass=file
-input: USB HID v1.10 Mouse [Logitech USB Optical Mouse] on usb-0000:00:1d.0-2
-SELinux: initialized (dev hda3, type ext3), uses xattr
-audit(1085334439.166:0): avc:  denied  { read write } for  pid=137 exe=/bin/bash name=tty dev=hda3 ino=69775 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:devtty_t tclass=chr_file
-SELinux: initialized (dev , type usbfs), uses genfs_contexts
-SELinux: initialized (dev , type usbdevfs), uses genfs_contexts
-audit(1085334439.298:0): avc:  denied  { read } for  pid=137 exe=/bin/bash name=mtab dev=hda3 ino=213423 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:etc_runtime_t tclass=file
-audit(1085334439.298:0): avc:  denied  { getattr } for  pid=137 exe=/bin/bash path=/etc/mtab dev=hda3 ino=213423 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:etc_runtime_t tclass=file
-SELinux: initialized (dev , type devpts), uses transition SIDs
-SELinux: initialized (dev , type eventpollfs), uses genfs_contexts
-SELinux: initialized (dev , type pipefs), uses task SIDs
-SELinux: initialized (dev , type tmpfs), uses transition SIDs
-SELinux: initialized (dev , type futexfs), uses genfs_contexts
-SELinux: initialized (dev , type sockfs), uses task SIDs
-SELinux: initialized (dev , type proc), uses genfs_contexts
-SELinux: initialized (dev , type bdev), uses genfs_contexts
-SELinux: initialized (dev , type rootfs), uses genfs_contexts
-SELinux: initialized (dev , type sysfs), uses genfs_contexts
-audit(1085334439.441:0): avc:  denied  { read } for  pid=137 exe=/bin/bash name=nsswitch.conf dev=hda3 ino=213031 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:etc_t tclass=file
-audit(1085334439.449:0): avc:  denied  { getattr } for  pid=137 exe=/bin/bash path=/etc/nsswitch.conf dev=hda3 ino=213031 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:etc_t tclass=file
-audit(1085334439.616:0): avc:  denied  { ioctl } for  pid=140 exe=/bin/bash path=/sbin/hotplug dev=hda3 ino=1589274 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:hotplug_exec_t tclass=file
-audit(1085334440.578:0): avc:  denied  { search } for  pid=337 exe=/sbin/showconsole name=proc dev=hda3 ino=32769 scontext=system_u:system_r:showconsole_t tcontext=system_u:object_r:file_t tclass=dir
-audit(1085334440.664:0): avc:  denied  { getattr } for  pid=337 exe=/sbin/showconsole path=/dev/pts dev=hda3 ino=98305 scontext=system_u:system_r:showconsole_t tcontext=system_u:object_r:file_t tclass=dir
-audit(1085334440.674:0): avc:  denied  { read } for  pid=337 exe=/sbin/showconsole name=pts dev=hda3 ino=98305 scontext=system_u:system_r:showconsole_t tcontext=system_u:object_r:file_t tclass=dir
-Adding 1534196k swap on /dev/hda2.  Priority:42 extents:1
-EXT3 FS on hda3, internal journal
-SELinux: initialized (dev , type tmpfs), uses transition SIDs
-Disabled Privacy Extensions on device c05cfd40(lo)
-e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
-HTB init, kernel part version 3.16
-HTB: quantum of class 10001 is big. Consider r2q change.
-HTB: quantum of class 10011 is big. Consider r2q change.
-audit(1085334473.044:0): avc:  denied  { getattr } for  pid=1741 exe=/bin/mount path=/mnt/storage01 dev=hda3 ino=1507869 scontext=system_u:system_r:mount_t tcontext=system_u:object_r:file_t tclass=dir
-SELinux: initialized (dev , type rpc_pipefs), uses genfs_contexts
-SELinux: initialized (dev 0:e, type nfs), uses genfs_contexts
-SELinux: initialized (dev 0:10, type nfs), uses genfs_contexts
-SELinux: initialized (dev 0:11, type nfs), uses genfs_contexts
-SELinux: initialized (dev 0:12, type nfs), uses genfs_contexts
-SELinux: initialized (dev 0:13, type nfs), uses genfs_contexts
-SELinux: initialized (dev 0:14, type nfs), uses genfs_contexts
-SELinux: initialized (dev 0:15, type nfs), uses genfs_contexts
-audit(1085334477.241:0): avc:  denied  { search } for  pid=1753 exe=/sbin/ldconfig name=soft dev=hda3 ino=8700040 scontext=system_u:system_r:ldconfig_t tcontext=system_u:object_r:file_t tclass=dir
-PCI: Setting latency timer of device 0000:00:1f.5 to 64
-intel8x0_measure_ac97_clock: measured 49289 usecs
-intel8x0: clocking to 48000
+Makes sense to me.
 
---zCKi3GIZzVBPywwA--
+> It would be easy enough to add an RPM 'postinstall' scriptlet to
+> auto-populate /etc/security/default_contexts.user based on all $HOME
+> values:
 
---ylS2wUBXLOxYXZFQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+[...]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+> but somehow that seems to violate the Principle of Least Surprise - it's
+> the sort of thing like 'pwconv' was - a good thing for the sysadmin to do,
+> but the sort of thing that I'd hate done to my system just because I ran an
+> 'rpm -Fvh'..
 
-iD8DBQFAsOm+xWIrrrL0q+cRAoCdAJwPP2uNTsgZxewPkvH4ifgvvo0tKgCffdyE
-a3HZfSNcCBzU6lgEogsKryY=
-=n+mD
------END PGP SIGNATURE-----
+I agree.
 
---ylS2wUBXLOxYXZFQ--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
