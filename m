@@ -1,88 +1,49 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA07418
-	for <selinux@tycho.nsa.gov>; Tue, 28 May 2002 23:09:43 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA08262
+	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 03:45:27 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id DAA21349
-	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 03:09:37 GMT
-Received: from web14311.mail.yahoo.com (web14311.mail.yahoo.com [216.136.224.61])
-	by jazzswing.ncsc.mil  with SMTP id DAA21345
-	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 03:09:36 GMT
-Message-ID: <20020529030941.3019.qmail@web14311.mail.yahoo.com>
-Date: Wed, 29 May 2002 04:09:41 +0100 (BST)
-From: =?iso-8859-1?q?vishwakarma=20singh?= <vsingh014@yahoo.com>
-Subject: Re: setuid problem
-To: Stephen Smalley <sds@tislabs.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <Pine.GSO.4.33.0205281138510.1315-100000@raven>
+	by jazzswing.ncsc.mil  with ESMTP id HAA00131
+	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 07:45:19 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id HAA00127
+	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 07:45:16 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 76AE292460
+	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 17:45:13 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 42F59746
+	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 09:45:04 +0200 (CEST)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: deficiency in logging in enforcing mode
+Date: Wed, 29 May 2002 08:08:20 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <20020529074504.42F59746@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I like that all the setuid programs are executed even
-if  new sid  assigned to them fails to comply to the
-rules of the policy (in this case program will be 
-prevented  from executing ) . that is , i want to run
-all setuid programs  just like  simple linux . than
-what are the changes i should bring in ....
+It seems that messages such as the following are not logged in enforcing 
+mode, only in permissive mode.  So if I can't execute a program because it's 
+got a domain_auto_trans rule specifying that it should transition to a domain 
+that is not permitted for the role I'm in then it just doesn't get executed 
+with no reason being logged!
 
-thanx
-vishwakarma singh
+This makes it difficult to determine why something is not working if you make 
+a mistake in the role definitions, and limits the use of roles.  Can this be 
+fixed in the next version?
 
- --- Stephen Smalley <sds@tislabs.com> wrote: > 
-> On Tue, 28 May 2002, [iso-8859-1] vishwakarma singh
-> wrote:
-> 
-> >  If i am not wrong than setuid does not work in
-> > selinux if they donot comply to the rules of
-> policy
-> > configuration . but since many programs and
-> utilities
-> > in normal linux uses setuid , i want to reenable
-> it .
-> > have anybody any idea , how to reenable it ?please
-> > give details.
-> > thanx
-> 
-> SElinux doesn't disable setuid.  It does perform a
-> parallel check to the
-> existing CAP_SETUID capability checks, but setuid
-> program execution only
-> requires CAP_SETUID under special conditions
-> (process tracing, shared
-> state via clone).  If you are encountering a setuid
-> capability denial from
-> SELinux, you can grant that permission to the
-> appropriate domain (or
-> define a new domain, as appropriate).
-> 
-> The SELinux access controls are orthogonal to the
-> Linux access controls,
-> and do not depend on the Linux identity attributes. 
-> Please read the
-> Configuring the SELinux Policy report, particularly
-> the security model
-> section.
-> 
-> --
-> Stephen D. Smalley, NAI Labs
-> ssmalley@nai.com
-> 
-> 
-> 
-> 
-> --
-> You have received this message because you are
-> subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as
-> the message. 
+security_compute_sid:  invalid context rjc:sysadm_r:apmd_t for 
+scontext=rjc:sysadm_r:sysadm_t tcontext=system_u:object_r:apmd_exec_t 
+tclass=process
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
