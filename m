@@ -1,44 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1EFqRRb003660
-	for <selinux@tycho.nsa.gov>; Sat, 14 Feb 2004 10:52:27 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1EFqFc3007699
-	for <selinux@tycho.nsa.gov>; Sat, 14 Feb 2004 15:52:15 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id i1EFqFR0007696 for <selinux@tycho.nsa.gov>; Sat, 14 Feb 2004 15:52:15 GMT
-Date: Sat, 14 Feb 2004 15:51:43 +0000
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: Dale Amon <amon@vnl.com>, selinux@tycho.nsa.gov
-Subject: Re: Problem with defaulting answers to selinux-policy-default
-Message-ID: <20040214155143.GB25142@vnl.com>
-References: <20040208163236.GF10500@vnl.com> <200402091602.48538.russell@coker.com.au> <20040209154855.GF22989@vnl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040209154855.GF22989@vnl.com>
+Message-ID: <20040214161254.87474.qmail@web15212.mail.bjs.yahoo.com>
+Date: Sun, 15 Feb 2004 00:12:54 +0800 (CST)
+From: =?gb2312?q?Park=20Lee?= <parklee_2004@yahoo.com.cn>
+Subject: Questions about extended attributes
+To: SELinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1965384011-1076775174=:86731"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Had some time this weekend and I'm making some progress
-on fixing my scripts to deal with the changes. I did a
-bit of handwaving with debconf-loadtemplate and 
-debconf-configure to sort things out...
+--0-1965384011-1076775174=:86731
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: 8bit
 
-I get an error in the Automatic build though:
+Dear sir,
+ What's the difference between extended attributes for file system and the old method of using persistent labeling mapping for persistent files and directories? 
+ Is it still using persistent security identifiers (PSIDs) in  
+extended attributes?
+ Where can I get more information about extended attributes for file system?
+Thank you
+     Yours,
+     Park Lee
+     2004-2-15 
 
-ERROR 'unknown type klogd_t' at token ';' on line 39546:
-neverallow ~klogd_t proc_kmsg_t:file ~{ getattr };
 
-So I punt this one into Russell's Endzone...
 
--- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+---------------------------------
+Do You Yahoo!?
+完全免费的雅虎电邮，马上注册获赠额外60兆网络存储空间
+--0-1965384011-1076775174=:86731
+Content-Type: text/html; charset=gb2312
+Content-Transfer-Encoding: 8bit
+
+<DIV>Dear sir,</DIV>
+<DIV>&nbsp;What's the difference between extended attributes for file system and the old method of using persistent labeling mapping for persistent files and directories? <BR>&nbsp;Is it still using persistent security identifiers (PSIDs) in&nbsp; </DIV>
+<DIV>extended attributes?<BR>&nbsp;Where can I get more information about extended attributes for file system?</DIV>
+<DIV>Thank you<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Yours,<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Park Lee<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2004-2-15 </DIV><p><br><hr size=1><b>Do You Yahoo!?</b><br>
+<a href="http://cn.rd.yahoo.com/mail_cn/tag/?http://cn.mail.yahoo.com" target=blank>完全免费的雅虎电邮，马上注册获赠额外60兆网络存储空间</a>
+--0-1965384011-1076775174=:86731--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
