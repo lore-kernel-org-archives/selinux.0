@@ -1,103 +1,48 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA17253
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 19:28:21 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id AAA21218
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 00:27:45 GMT
-Received: from sgi.com (sgi.SGI.COM [192.48.153.1])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id AAA21214
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 00:27:44 GMT
-Message-ID: <3A5E4F12.74C9D3AF@sgi.com>
-Date: Thu, 11 Jan 2001 16:25:54 -0800
-From: Casey Schaufler <casey@sgi.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tislabs.com>
-CC: selinux@tycho.nsa.gov, linux-privs-discuss@sourceforge.net
-Subject: Re: [Linux-privs-discuss] SELinux & Linux-privs projects
-References: <Pine.SOL.3.95.1010111132105.23465e-100000@clipper.gw.tislabs.com>
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA19389
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 07:05:43 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id MAA24970
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 12:04:15 GMT
+Received: from itesec.hsc.fr (itesec.hsc.fr [192.70.106.33])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id MAA24966
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 12:04:14 GMT
+Received: from kuching.hsc.fr (kuching.hsc.fr [192.70.106.79])
+	by itesec.hsc.fr (Postfix) with ESMTP id A731B10F00
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jan 2001 13:05:35 +0100 (CET)
+Date: Fri, 12 Jan 2001 13:06:04 +0100
+From: Jean-Jacques Bernard-Gundol <Jean-Jacques.Bernard@hsc.fr>
+To: selinux@tycho.nsa.gov
+Subject: Re: Security enhancements, et al
+Message-ID: <20010112130604.A6705@kuching.hsc.fr>
+References: <3A5C118F.36583E35@occamnetworks.com> <Pine.LNX.4.21.0101100924010.5905-100000@mail.thesportsregi ster.com> <5.0.0.25.2.20010111124540.01be6940@gnat.inet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <5.0.0.25.2.20010111124540.01be6940@gnat.inet.org>; from rja@inet.org on Thu, Jan 11, 2001 at 12:47:34PM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Stephen Smalley wrote:
+RJ Atkinson <rja@inet.org> écrivait (wrote) :
+
+> At 09:41 10/01/01, Johnathon Day wrote:
 > 
-> On Thu, 11 Jan 2001, Casey Schaufler wrote:
+> >The "Open Source" IPSECs I know of are: NIST (Linux), FreeS/WAN (Linux),
+> >CISCO (BSD), MIT (BSD) and DOD (BSD). 
 > 
-> > I don't know who told you that, but it certainly wasn't
-> > anyone who worked on the standard. The 1e MAC specification
-> > is explicitly devoid of any such assumptions. That's one
-> > reason there's no specification on Moldy directories, for
-> > example.
-> 
-> I assume that "devoid of any assumptions" refers to the kind
-> of label as opposed to being designed for a particular kind
-> of security policy.
+> Aside:
+>         I don't think there exists an MIT (BSD) IPsec.  I think
+> you meant the "NRL (BSD) IPsec" that happens to be distributed
+> by MIT as a service to the community, at the request of ARPA,
+> (done because getting NRL management to distribute crypto code 
+> online was too administratively painful).
 
-No, it means that the developers of the DRAFT couldn't
-agree on what the right policy was, so they made sure
-that no one would have an advantage by having the DRAFT
-specificly match their policy. For example, Sun was doing
-restricted Bell&LaPadula sensitivity. SGI did modified
-Bell&LaPadula sensitivity and Biba integrity. Data General,
-well, we were never sure what they were up to, but it
-sure sounded like a reasonably pure Bell&LaPadula. In
-the early days AT&T was pushing for time stamp sorts of
-policy, too.
+At least two are missing here: the KAME stack for {free,net}bsd and
+BSD/OS and the openbsd stack. I didn't know CISCO made a ipsec stack
+for BSD.
 
-> Are you suggesting that POSIX.1e was
-> not designed specifically for lattice-based models like
-> BLP and Biba?
+Regards,
 
-I'm suggesting that the design goals included supporting
-those policies, but also included generality. No one
-who came to more than one meeting advocated anything
-other than policy independence.
-
-> The fundamental statement of mandatory access
-> control policy in the standard is hardly suitable for all
-> mandatory security policies:  Subjects cannot cause information
-> labeled at some MAC label L1 to become accessible to subjects
-> at L2 unless L2 dominates L1.  You can't represent Type
-> Enforcement by such a statement.  And the kind of label is
-> implicit by the dominates relatinship.
-
-I'll take your word for it that you couldn't represent
-TE using the 1e scheme.
-
-> > That's because those are the only operations POSIX systems
-> > support! It's implicit in being a POSIX (DRAFT) standard.
-> 
-> You can define distinct operations (permissions) in the
-> mandatory security policy for distinct kernel services
-> without altering the interfaces or behavior for discretionary
-> access controls.
-
-You're correct. If you really think it's valueable to
-seperate left-hand-twiddle permission from write permission
-the POSIX.1e scheme is not for you.
-
-
-> ... - the
-> point is that we need a flexible mandatory access control
-> architecture so that the system can be customized and
-> can evolve easily to meet different security requirements.
-
-I have to disagree. It has not been the policy inflexibility
-of MLS systems which have held them back, if in fact they
-can be said to have been held back at all. It is the fact
-that they're *different*. Flexible policy will not help in
-the marketplace, it will hurt. We finally got people to the
-point where they generally understood permission bits, when
-along come NT ACLs, and the whole thing goes on the floor.
-We'd be in much better shape if the MAC policies on MULTICS,
-Solaris, HP/UX, AIX, and Irix where all the same. Flexibility?
-Bad for the community.
-
--- 
-
-Casey Schaufler				Manager, Trust Technology, SGI
-casey@sgi.com				voice: 650.933.1634
-casey_p@pager.sgi.com			Pager: 888.220.0607
+JJ
 
 --
 You have received this message because you are subscribed to the selinux list.
