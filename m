@@ -1,48 +1,39 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i76C5ErT011474
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 08:05:14 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i76C4bps024369
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 12:04:38 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: matchfilecon (the program) vs matchfilecon (the libselinux1 fn)
-Date: Fri, 6 Aug 2004 22:05:08 +1000
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>,
-   Daniel J Walsh <dwalsh@redhat.com>,
-   Linux Hotplug Dev List <linux-hotplug-devel@lists.sourceforge.net>
-References: <20040801172751.GD20103@lkcl.net> <1091474356.23449.272.camel@moss-spartans.epoch.ncsc.mil> <20040802211212.GB6260@lkcl.net>
-In-Reply-To: <20040802211212.GB6260@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408062205.08533.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i76E6PrT012195
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 10:06:25 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i76E6OO0022849
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 14:06:24 GMT
+Subject: RE: Now that SELinux supports booleans should we replace tunables
+	with booleans?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Cc: Russell Coker <russell@coker.com.au>, Daniel J Walsh <dwalsh@redhat.com>,
+   selinux-dev@tresys.com
+In-Reply-To: <1091472796.23449.248.camel@moss-spartans.epoch.ncsc.mil>
+References: <200404141453.i3EEr2Jx015745@gotham.columbia.tresys.com>
+	 <1091472796.23449.248.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Message-Id: <1091800968.8590.39.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 06 Aug 2004 10:02:48 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 3 Aug 2004 07:12, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
->  p.s. first cut at mods attached for general review NO I HAVEN'T
->  COMPILED IT.
+On Mon, 2004-08-02 at 14:53, Stephen Smalley wrote:
+> As a minor issue, we should also reconsider the names of the boolean
+> utilities, as they are too generic and could easily conflict in the
+> future with other non-SELinux programs.  Also, Chris PeBenito posted a
+> toggle_bool utility a while back that would likely be useful to add.
 
-One thing to note is that is_selinux_enabled() reads /proc/filesystems and 
-then reads /proc/self/attr/current.  This is more work than you want to do 
-for every device node.  So you want to cache the result of 
-is_selinux_enabled() to some degree.  You certainly don't want to call it 
-twice in the same code path.
-
-udev is tricky in this regard because there is the possibility that udev may 
-be started before SE Linux is enabled.
-
-Maybe the best thing to do would be to check for SE Linux being enabled once 
-for each group of new devices that you add, and only once for the system 
-startup.
+change_bool -> change_sebool
+show_bools -> show_sebools
+toggle_bool -> toggle_sebool
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
