@@ -1,33 +1,25 @@
-Date: Tue, 26 Jun 2001 16:46:13 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Pranav Saha <psaha@bbn.com>
-cc: SELinux@tycho.nsa.gov
-Subject: Re: New to Linux - Need help
-In-Reply-To: <001201c0fe80$2c6aa730$9c34e9c0@sahad1>
-Message-ID: <Pine.SOL.3.95.1010626164343.7101A-100000@clipper.gw.tislabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: john.rh@hushmail.com
+Message-Id: <200106270253.TAA31440@user7.hushmail.com>
+Date: Tue, 26 Jun 2001 19:42:41 -0500 (PDT)
+To: SELinux@tycho.nsa.gov
+Mime-version: 1.0
+Content-type: multipart/mixed; boundary="Hushpart_boundary_hKexrOorBRVhNjmdVdomtVEPZYmtYQtT"
+Subject: Slackware
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--Hushpart_boundary_hKexrOorBRVhNjmdVdomtVEPZYmtYQtT
+Content-type: text/plain
 
-On Tue, 26 Jun 2001, Pranav Saha wrote:
+I'm pretty new to the list (as of last week), so forgive me if i'm being 
+ignorant of topics already covered.
 
-> without any other patches.  Not sure what you want to know about the kernel
-> "configuration"...  I have not manually made any configuration changes to
-> the kernel beyond what is automatically configured.  I may try to step up to
-> Red Hat 7.1 if that may solve some of these installation issues?
+Has there been much success in using SELinux with the Slackware distribution?
+Comments on using SELinux with Slackware are GREATLY appreciated!
 
-No, I don't think upgrading to RH7.1 will help with this problem.
-By kernel configuration, I'm referring to the settings you choose
-when you ran 'make menuconfig' or 'make xconfig'.  Send me a copy
-of your .config file.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-john
+Free, encrypted, secure Web-based email at www.hushmail.com
+--Hushpart_boundary_hKexrOorBRVhNjmdVdomtVEPZYmtYQtT--
 
 
 
