@@ -1,70 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA03480
-	for <selinux@tycho.nsa.gov>; Sat, 21 Apr 2001 04:46:44 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id IAA21809
-	for <selinux@tycho.nsa.gov>; Sat, 21 Apr 2001 08:46:12 GMT
-Received: from Woody.fw.matav.hu (matav-1.matav.hu [145.236.241.98])
-	by jazzswing.ncsc.mil  with ESMTP id IAA21797
-	for <selinux@tycho.nsa.gov>; Sat, 21 Apr 2001 08:45:41 GMT
-From: Magosányi Árpád <mag@bunuel.tii.matav.hu>
-Date: Sat, 21 Apr 2001 10:45:02 +0200
-To: "Donaldson, Matthew" <matthew@datadeliverance.com>
-Cc: selinux <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA04107
+	for <selinux@tycho.nsa.gov>; Sat, 21 Apr 2001 11:16:50 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA15580
+	for <selinux@tycho.nsa.gov>; Sat, 21 Apr 2001 15:16:40 GMT
+Received: from ns.caldera.de (ns.caldera.de [212.34.180.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA15576
+	for <selinux@tycho.nsa.gov>; Sat, 21 Apr 2001 15:16:39 GMT
+Date: Sat, 21 Apr 2001 17:15:30 +0200
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Magos?nyi ?rp?d <mag@bunuel.tii.matav.hu>
+Cc: "Donaldson, Matthew" <matthew@datadeliverance.com>,
+        selinux <selinux@tycho.nsa.gov>
 Subject: Re: [BUGTRAQ] Linux patches to solve /tmp race problem
-Message-ID: <20010421104502.A25434@bunuel.tii.matav.hu>
-References: <15072.12895.627024.191687@localhost.localdomain>
+Message-ID: <20010421171530.A3210@caldera.de>
+References: <15072.12895.627024.191687@localhost.localdomain> <20010421104502.A25434@bunuel.tii.matav.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <15072.12895.627024.191687@localhost.localdomain>; from matthew@DATADELIVERANCE.COM on Fri, Apr 20, 2001 at 10:28:07PM +0930
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20010421104502.A25434@bunuel.tii.matav.hu>; from mag@bunuel.tii.matav.hu on Sat, Apr 21, 2001 at 10:45:02AM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+On Sat, Apr 21, 2001 at 10:45:02AM +0200, Magos?nyi ?rp?d wrote:
+> Hi!
+> 
+> This is a good functionality. What about making a selinux-dependent
+> version of it, which can include the TSID (or much better the label
+> representation) in the pathname?
+> It could be very useful for creating multilevel directories.
 
-This is a good functionality. What about making a selinux-dependent
-version of it, which can include the TSID (or much better the label
-representation) in the pathname?
-It could be very useful for creating multilevel directories.
+It's a _horrible_ cludge.  Look at Al Viro's namespace patches for Linux 2.4
+(ftp.math.psu.edu:/pub/viro) for a sane alternative.
 
-A levelezõm azt hiszi, hogy Donaldson, Matthew a következõeket írta:
-> Hi all,
-> 
-> I have recently developed some patches to the Linux 2.2 kernels which solve
-> the /tmp race problem without needing to define environment variables -
-> useful particularly for naive applications and scripts which dont use
-> TMPDIR and friends.
-> 
-> The patch creates "dynamic" symlinks, which point to different paths
-> depending on the user accessing them (for example, including the UID in the
-> path name).  Such a link can be placed instead of /tmp and/or /var/tmp, and
-> any other similar directories.  More usefully, these links can be configured
-> to automatically create the directory they refer to if it does not exist.
-> 
-> This means you can create a directory such as /tmp_files, for example, and
-> have the /tmp link automatically create user directories in it on demand.
-> Default permissions and ownership can be specified.
-> 
-> The patches are available from http://www.datadeliverance.com in the Linux
-> Patches section, along with a full discussion of the issues involved.  Your
-> comments on the scheme are invited.
-> 
-> Cheers
-> 
-> 		-Matthew
-> 
-> --
-> +--------------------------------------------------------------------------+
-> | Matthew Donaldson             http://www.datadeliverance.com             |
-> | Data Deliverance Pty. Ltd.    Email: matthew@datadeliverance.com         |
-> | 30 Musgrave Ave.              Phone: +61 8 8265 7976            _        |
-> | Banksia Park                  Fax:   +61 8 8265 0032     John  / \/      |
-> | South Australia 5091                                     3:16  \_/\      |
-> +--------------------------------------------------------------------------+
-> 
+	Christoph
 
 -- 
-GNU GPL: csak tiszta forrásból
+Of course it doesn't work. We've performed a software upgrade.
 
 --
 You have received this message because you are subscribed to the selinux list.
