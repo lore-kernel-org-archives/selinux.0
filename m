@@ -1,47 +1,41 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h38CCJI4020442
-	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 08:12:19 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h38CSLI4020530
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 08:28:21 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h38C8bOv008417
-	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 12:08:37 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h38COdOv009238
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 12:24:40 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h38C8bY1008414
-	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 12:08:37 GMT
-Subject: Re: ipv6 tunnel problem.
+	by jazzswing.ncsc.mil  with ESMTP id h38COdY1009235
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 12:24:39 GMT
+Subject: Re: NTFS / bitkeeper problem
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Kurt Roeckx <Q@ping.be>
+To: ccallen <ccallen@windowpane.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20030405232837.GA14825@ping.be>
-References: <20030405232837.GA14825@ping.be>
+In-Reply-To: <001d01c2fd77$1721c5a0$398314d1@windowpane.com>
+References: <001d01c2fd77$1721c5a0$398314d1@windowpane.com>
 Content-Type: text/plain
-Date: 08 Apr 2003 08:12:26 -0400
-Message-Id: <1049803947.1606.6.camel@moss-huskers.epoch.ncsc.mil>
+Date: 08 Apr 2003 08:28:31 -0400
+Message-Id: <1049804912.1606.23.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-04-05 at 18:28, Kurt Roeckx wrote:
-> I'm not exactly sure what causes it, but I got those 2 messages a
-> few times so far:
-> 
-> avc:  denied  { rawip_send } for  pid=3789
-> exe=/usr/local/ircd/sbin/ircd saddr=x.x.x.x
-> daddr=y.y.y.y netif=eth0
-> scontext=system_u:object_r:unlabeled_t
-> tcontext=system_u:object_r:netif_eth0_t tclass=netif
-> 
-> avc:  denied  { rawip_send } for  saddr=x.x.x.x
-> daddr=y.y.y.y netif=eth0
-> scontext=system_u:object_r:unlabeled_t
-> tcontext=system_u:object_r:netif_eth0_t tclass=netif
-> 
-> x.x.x.x is the local ipv4 address, and y.y.y.y is the ipv4
-> endpoint of my ipv6 (sit) tunnel.
+On Mon, 2003-04-07 at 22:32, ccallen wrote:
+> I kicked off bitkeeper with "bk clone bk://lsm.bkbits.net:lsm-2.5", it made
+> it as far as "include/linux/netfilter_ipv4/SCCS/s.ipt_dscp.h" and displayed
+> the message below. Is it going to be impossible to clone the repository to
+> NTFS, or is there a way to do this? I could put my linux machine online, but
+> I wanted to get selinux configured first.
 
-The LSM patch does not presently include hooks for IPv6, so some of the
-SELinux processing won't be applied to IPv6.  If you aren't actually
-using the SELinux networking functionality, you might want to just
-disable CONFIG_SECURITY_NETWORK to omit it.
+Sorry, I don't know if there is a workaround for the lack of case
+sensitivity in NTFS.  
+
+> Is the Mainline 2.5 basically the same thing as the lsm-2.5 bits, just
+> cleaned up in preperation for release with the kernel?
+
+No, there are fairly major changes taking place as part of preparing
+SELinux for submission to mainline 2.5, as described in the
+selinux-2.5/README file, and this is still a work in progress.  
 
 
 
