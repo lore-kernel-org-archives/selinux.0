@@ -1,52 +1,59 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8KEt5rT018090
-	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 10:55:05 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8KEs3oq029822
-	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 14:54:05 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8KFH9rT018257
+	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 11:17:09 -0400 (EDT)
+Received: from kokytos.rz.informatik.uni-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8KFGAoq001375
+	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 15:16:11 GMT
+Received: from rom.cip.ifi.lmu.de (rom.cip.informatik.uni-muenchen.de [141.84.214.183])
+	by kokytos.rz.informatik.uni-muenchen.de (Postfix) with ESMTP id 87856435BA
+	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 17:17:02 +0200 (CEST)
+Date: Mon, 20 Sep 2004 17:17:01 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: selinux@tycho.nsa.gov
 Subject: Re: [RFC] Upstream policy handling
-Date: Tue, 21 Sep 2004 00:54:48 +1000
-Cc: Joshua Brindle <method@gentoo.org>, selinux <selinux@tycho.nsa.gov>,
-   "pebe @lkcl.net>> Chris PeBenito" <pebenito@gentoo.org>
-References: <414DA0A7.1000708@gentoo.org> <200409200729.50087.russell@coker.com.au> <20040920122548.GM23901@lkcl.net>
-In-Reply-To: <20040920122548.GM23901@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409210054.48578.russell@coker.com.au>
+Message-ID: <20040920151701.GA17900@rom.cip.ifi.lmu.de>
+References: <414DA0A7.1000708@gentoo.org> <1095631736.4431.27.camel@nexus.verbum.private>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+In-Reply-To: <1095631736.4431.27.camel@nexus.verbum.private>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 20 Sep 2004 22:25, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> On Mon, Sep 20, 2004 at 07:29:50AM +1000, Russell Coker wrote:
-> > The Debian goals are closer to Gentoo goals than that of Fedora.  For
-> > example there is no targeted policy in Debian.
->
->  *lol* - there _is_ no policy for debian - no group has taken clear
->  responsibility for it "official" like and said "this is it, this is
->  what debian can run with" and i don't believe that is likely to
->  happen.
+* Colin Walters <walters@verbum.org> [2004-09-20 01:17]:
+> On Sun, 2004-09-19 at 11:07 -0400, Joshua Brindle wrote:
+> > If there are any other suggestions or comments on this I'd like to hear 
+> > them. Obviously the implementation details are up in the air here, and I 
+> > know that some of you can't/won't use bk. 
+> >
+> > If there are suggestions for a 
+> >   better system and a way to host it (preferably neutrally) that would 
+> > be great.
+> 
+> If you are set on this, I suggest GNU Arch.  It is actually better than
+> Bitkeeper in a number of ways (besides the obvious one of licensing);
+> for example, it supports cherry-picking (applying individual
+> changesets), and doesn't require anything other than an unmodified web
+> server for read access. 
 
-In Debian each package is owned by a person and that person has virtually 
-total control over it.  I own the selinux-policy-default package in Debian, 
-so therefore the official default for Debian is strict policy because I say 
-so.
+I'd like to add a data point here: I have been using Arch for all my
+policy work and it just works great. Arch makes it very easy to have
+parallel branches and to merge between them. I don't think I would have
+been able to keep my policy in sync with the fedora policy without arch.
 
-Another Debian developer may package the targeted policy, if so then Debian 
-will have two policies to choose from, but the strict policy will remain the 
-default.
+Personally I think it is better to have one policy which governs all
+distros. But regardless how this is decided, I think it would be great
+if all policies were easily accessible in one place. Recently I wanted
+to add the gentoo policy into my arch repository so I could compare the
+approaches and see which changes had been made. However I could not find
+the gentoo policy in an easily accessible format (a tarball with all
+policy, cvs repository, ...). If anyone can recommend a method to get
+it, I would be really thankful.
 
-Fedora has targeted policy as the default.  Different aims, different 
-user-base, and a different default.
+Thomas
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
 --
 This message was distributed to subscribers of the selinux mailing list.
