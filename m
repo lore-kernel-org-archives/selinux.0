@@ -1,40 +1,37 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7UInWrT007125
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 14:49:32 -0400 (EDT)
-Message-ID: <413376B1.4040106@redhat.com>
-Date: Mon, 30 Aug 2004 14:49:21 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7UIxKrT007224
+	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 14:59:21 -0400 (EDT)
+Message-ID: <41337903.7020308@redhat.com>
+Date: Mon, 30 Aug 2004 14:59:15 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: jwcart2@epoch.ncsc.mil
 CC: russell@coker.com.au, SELinux <selinux@tycho.nsa.gov>
-Subject: Latest diffs from our pool
+Subject: Previous patch broken.
 References: <20040823215636.GD13677@lkcl.net>	 <200408242147.44485.russell@coker.com.au> <1093640980.24188.47.camel@moss-lions.epoch.ncsc.mil>
 In-Reply-To: <1093640980.24188.47.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: multipart/mixed;
- boundary="------------040100090105040301010909"
+ boundary="------------040503080907080507070309"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------040100090105040301010909
+--------------040503080907080507070309
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
-Some of Russells changes are included.
 
-Dan
-
---------------040100090105040301010909
+--------------040503080907080507070309
 Content-Type: text/plain;
  name="policy-20040830.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
  filename="policy-20040830.patch"
 
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/crond.te policy-1.17.6/domains/program/crond.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/crond.te policy-1.17.7/domains/program/crond.te
 --- nsapolicy/domains/program/crond.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/domains/program/crond.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/crond.te	2004-08-30 14:54:52.328858521 -0400
 @@ -81,11 +81,13 @@
  ifdef(`distro_redhat', `
  # Run the rpm program in the rpm_t domain. Allow creation of RPM log files
@@ -49,9 +46,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/crond.te policy-1
  
  allow system_crond_t var_log_t:file r_file_perms;
  
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/initrc.te policy-1.17.6/domains/program/initrc.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/initrc.te policy-1.17.7/domains/program/initrc.te
 --- nsapolicy/domains/program/initrc.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/initrc.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/initrc.te	2004-08-30 14:54:52.329858406 -0400
 @@ -12,12 +12,14 @@
  # initrc_exec_t is the type of the init program.
  #
@@ -69,9 +66,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/initrc.te policy-
  role system_r types initrc_t;
  uses_shlib(initrc_t);
  can_ypbind(initrc_t)
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/ssh.te policy-1.17.6/domains/program/ssh.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/ssh.te policy-1.17.7/domains/program/ssh.te
 --- nsapolicy/domains/program/ssh.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/domains/program/ssh.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/ssh.te	2004-08-30 14:54:52.330858292 -0400
 @@ -232,6 +232,7 @@
  
  # Type for the ssh executable.
@@ -80,9 +77,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/ssh.te policy-1.1
  
  # Everything else is in the ssh_domain macro in
  # macros/program/ssh_macros.te.
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/syslogd.te policy-1.17.6/domains/program/syslogd.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/syslogd.te policy-1.17.7/domains/program/syslogd.te
 --- nsapolicy/domains/program/syslogd.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/syslogd.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/syslogd.te	2004-08-30 14:54:52.331858177 -0400
 @@ -95,3 +95,6 @@
  #
  dontaudit syslogd_t file_t:dir search;
@@ -90,9 +87,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/syslogd.te policy
 +# For tageted policy tries to read /init
 +dontaudit syslogd_t root_t:file { getattr read };
 +
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/apache.te policy-1.17.6/domains/program/unused/apache.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/apache.te policy-1.17.7/domains/program/unused/apache.te
 --- nsapolicy/domains/program/unused/apache.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/apache.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/apache.te	2004-08-30 14:54:52.331858177 -0400
 @@ -41,6 +41,7 @@
  append_logdir_domain(httpd)
  #can read /etc/httpd/logs
@@ -101,17 +98,17 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/apache.te 
  
  # For /etc/init.d/apache2 reload
  can_tcp_connect(httpd_t, httpd_t)
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/canna.te policy-1.17.6/domains/program/unused/canna.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/canna.te policy-1.17.7/domains/program/unused/canna.te
 --- nsapolicy/domains/program/unused/canna.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/canna.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/canna.te	2004-08-30 14:54:52.332858063 -0400
 @@ -40,4 +40,3 @@
  can_unix_connect(i18n_input_t, canna_t)
  ')
  
 -allow canna_t tmp_t:dir search;
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/cups.te policy-1.17.6/domains/program/unused/cups.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/cups.te policy-1.17.7/domains/program/unused/cups.te
 --- nsapolicy/domains/program/unused/cups.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/cups.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/cups.te	2004-08-30 14:54:52.332858063 -0400
 @@ -157,5 +157,6 @@
  allow cupsd_t ptal_var_run_t:dir { search };
  dontaudit ptal_t { sysadm_home_dir_t staff_home_dir_t }:dir { getattr search };
@@ -119,17 +116,17 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/cups.te po
 +allow cupsd_t printer_device_t:fifo_file rw_file_perms;
  dontaudit cupsd_t selinux_config_t:dir search;
  dontaudit cupsd_t selinux_config_t:file { getattr read };
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/dbusd.te policy-1.17.6/domains/program/unused/dbusd.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/dbusd.te policy-1.17.7/domains/program/unused/dbusd.te
 --- nsapolicy/domains/program/unused/dbusd.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/dbusd.te	2004-08-30 14:08:00.408575062 -0400
++++ policy-1.17.7/domains/program/unused/dbusd.te	2004-08-30 14:55:40.446348342 -0400
 @@ -32,3 +32,4 @@
  
  # SE-DBus specific permissions
  allow { dbus_client_domain userdomain } { dbusd_t self }:dbus { send_msg };
-+domain_auto_trans(userdomain, dbus_exec_t, dbus_t)
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/dovecot.te policy-1.17.6/domains/program/unused/dovecot.te
++domain_auto_trans(userdomain, dbusd_exec_t, dbusd_t)
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/dovecot.te policy-1.17.7/domains/program/unused/dovecot.te
 --- nsapolicy/domains/program/unused/dovecot.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/dovecot.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/dovecot.te	2004-08-30 14:54:52.334857834 -0400
 @@ -11,7 +11,7 @@
  
  type dovecot_cert_t, file_type, sysadmfile;
@@ -153,17 +150,17 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/dovecot.te
  allow dovecot_t bin_t:dir { getattr search };
  can_exec(dovecot_t, bin_t)
  
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ftpd.te policy-1.17.6/domains/program/unused/ftpd.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ftpd.te policy-1.17.7/domains/program/unused/ftpd.te
 --- nsapolicy/domains/program/unused/ftpd.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/ftpd.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/ftpd.te	2004-08-30 14:54:52.334857834 -0400
 @@ -101,3 +101,4 @@
  allow ftpd_t nfs_t:file r_file_perms;
  }
  ')dnl end if nfs_home_dirs
 +dontaudit ftpd_t selinux_config_t:dir { search };
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/hald.te policy-1.17.6/domains/program/unused/hald.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/hald.te policy-1.17.7/domains/program/unused/hald.te
 --- nsapolicy/domains/program/unused/hald.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/hald.te	2004-08-30 14:00:48.923231385 -0400
++++ policy-1.17.7/domains/program/unused/hald.te	2004-08-30 14:54:52.335857719 -0400
 @@ -33,7 +33,10 @@
  allow hald_t { fixed_disk_device_t removable_device_t }:blk_file { getattr read ioctl };
  allow hald_t event_device_t:chr_file { getattr read };
@@ -176,9 +173,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/hald.te po
  ifdef(`udev.te', `
  domain_auto_trans(hald_t, udev_exec_t, udev_t)
  allow udev_t hald_t:unix_dgram_socket sendto;
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/hotplug.te policy-1.17.6/domains/program/unused/hotplug.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/hotplug.te policy-1.17.7/domains/program/unused/hotplug.te
 --- nsapolicy/domains/program/unused/hotplug.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/hotplug.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/hotplug.te	2004-08-30 14:54:52.335857719 -0400
 @@ -137,7 +137,6 @@
  
  ifdef(`udev.te', `
@@ -187,9 +184,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/hotplug.te
  ')
  
  file_type_auto_trans(hotplug_t, etc_t, etc_runtime_t, file)
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/iptables.te policy-1.17.6/domains/program/unused/iptables.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/iptables.te policy-1.17.7/domains/program/unused/iptables.te
 --- nsapolicy/domains/program/unused/iptables.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/iptables.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/iptables.te	2004-08-30 14:54:52.336857605 -0400
 @@ -23,10 +23,9 @@
  # to allow rules to be saved on reboot
  allow iptables_t initrc_tmp_t:file rw_file_perms;
@@ -208,9 +205,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/iptables.t
  # system-config-network appends to /var/log
  allow iptables_t var_log_t:file { append };
 -allow iptables_t var_t:dir { search };
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/mdadm.te policy-1.17.6/domains/program/unused/mdadm.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/mdadm.te policy-1.17.7/domains/program/unused/mdadm.te
 --- nsapolicy/domains/program/unused/mdadm.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/mdadm.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/mdadm.te	2004-08-30 14:54:52.337857491 -0400
 @@ -28,7 +28,6 @@
  # Ignore attempts to read every device file
  dontaudit mdadm_t device_type:{ chr_file blk_file } getattr;
@@ -219,9 +216,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/mdadm.te p
  dontaudit mdadm_t devpts_t:dir r_dir_perms;
  
  # Ignore attempts to read/write sysadmin tty
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/openca-ca.te policy-1.17.6/domains/program/unused/openca-ca.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/openca-ca.te policy-1.17.7/domains/program/unused/openca-ca.te
 --- nsapolicy/domains/program/unused/openca-ca.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/openca-ca.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/openca-ca.te	2004-08-30 14:54:52.337857491 -0400
 @@ -39,11 +39,6 @@
  allow httpd_t openca_ca_t:process {transition};
  allow httpd_t openca_ca_exec_t:dir r_dir_perms;
@@ -263,9 +260,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/openca-ca.
  #
  # Allow access to writeable files under /etc/openca
  #
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/portmap.te policy-1.17.6/domains/program/unused/portmap.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/portmap.te policy-1.17.7/domains/program/unused/portmap.te
 --- nsapolicy/domains/program/unused/portmap.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/portmap.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/portmap.te	2004-08-30 14:54:52.338857376 -0400
 @@ -26,6 +26,7 @@
  
  # portmap binds to arbitary ports
@@ -274,9 +271,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/portmap.te
  
  allow portmap_t etc_t:file { getattr read };
  
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/rpm.te policy-1.17.6/domains/program/unused/rpm.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/rpm.te policy-1.17.7/domains/program/unused/rpm.te
 --- nsapolicy/domains/program/unused/rpm.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/rpm.te	2004-08-30 11:28:18.000000000 -0400
++++ policy-1.17.7/domains/program/unused/rpm.te	2004-08-30 14:54:52.339857262 -0400
 @@ -10,7 +10,7 @@
  # var_log_rpm_t is the type for rpm log files (/var/log/rpmpkgs*)
  # var_lib_rpm_t is the type for rpm files in /var/lib
@@ -303,9 +300,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/rpm.te pol
  # policy for rpm scriptlet
  role system_r types rpm_script_t;
  uses_shlib(rpm_script_t)
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/udev.te policy-1.17.6/domains/program/unused/udev.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/udev.te policy-1.17.7/domains/program/unused/udev.te
 --- nsapolicy/domains/program/unused/udev.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/udev.te	2004-08-30 14:13:22.725611783 -0400
++++ policy-1.17.7/domains/program/unused/udev.te	2004-08-30 14:54:52.340857147 -0400
 @@ -16,7 +16,6 @@
  etc_domain(udev)
  typealias udev_etc_t alias etc_udev_t;
@@ -378,9 +375,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/udev.te po
  ifdef(`dhcpc.te', `
  domain_auto_trans(udev_t, dhcpc_exec_t, dhcpc_t)
  ')
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/xdm.te policy-1.17.6/domains/program/unused/xdm.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/xdm.te policy-1.17.7/domains/program/unused/xdm.te
 --- nsapolicy/domains/program/unused/xdm.te	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/xdm.te	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/domains/program/unused/xdm.te	2004-08-30 14:54:52.341857033 -0400
 @@ -28,7 +28,7 @@
  # for xdmctl
  allow xdm_t xdm_var_run_t:fifo_file create_file_perms;
@@ -390,17 +387,17 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/xdm.te pol
  
  tmp_domain(xdm)
  var_lib_domain(xdm)
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/xfs.te policy-1.17.6/domains/program/unused/xfs.te
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/xfs.te policy-1.17.7/domains/program/unused/xfs.te
 --- nsapolicy/domains/program/unused/xfs.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/domains/program/unused/xfs.te	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/domains/program/unused/xfs.te	2004-08-30 14:54:52.341857033 -0400
 @@ -40,4 +40,3 @@
  # Read /usr/X11R6/lib/X11/fonts/.* and /usr/share/fonts/.*
  allow xfs_t fonts_t:dir search;
  allow xfs_t fonts_t:file { getattr read };
 -allow xfs_t tmpfs_t:dir { search };
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/dovecot.fc policy-1.17.6/file_contexts/program/dovecot.fc
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/dovecot.fc policy-1.17.7/file_contexts/program/dovecot.fc
 --- nsapolicy/file_contexts/program/dovecot.fc	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/file_contexts/program/dovecot.fc	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/file_contexts/program/dovecot.fc	2004-08-30 14:54:52.342856918 -0400
 @@ -1,6 +1,12 @@
  # for Dovecot POP and IMAP server
  /usr/sbin/dovecot		--	system_u:object_r:dovecot_exec_t
@@ -414,9 +411,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/dovecot.fc 
  /usr/share/ssl/certs/dovecot.pem --	system_u:object_r:dovecot_cert_t
  /usr/share/ssl/private/dovecot.pem --	system_u:object_r:dovecot_cert_t
  /var/run/dovecot(-login)?(/.*)?		system_u:object_r:dovecot_var_run_t
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/initrc.fc policy-1.17.6/file_contexts/program/initrc.fc
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/initrc.fc policy-1.17.7/file_contexts/program/initrc.fc
 --- nsapolicy/file_contexts/program/initrc.fc	2004-08-30 09:49:16.000000000 -0400
-+++ policy-1.17.6/file_contexts/program/initrc.fc	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/file_contexts/program/initrc.fc	2004-08-30 14:54:52.342856918 -0400
 @@ -13,7 +13,9 @@
  /var/run/setmixer_flag	--	system_u:object_r:initrc_var_run_t
  # run_init
@@ -427,9 +424,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/initrc.fc p
  /etc/nologin.*		--	system_u:object_r:etc_runtime_t
  /etc/nohotplug		--	system_u:object_r:etc_runtime_t
  /halt                   --      system_u:object_r:etc_runtime_t
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/mailman.fc policy-1.17.6/file_contexts/program/mailman.fc
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/mailman.fc policy-1.17.7/file_contexts/program/mailman.fc
 --- nsapolicy/file_contexts/program/mailman.fc	2004-08-30 09:49:16.000000000 -0400
-+++ policy-1.17.6/file_contexts/program/mailman.fc	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/file_contexts/program/mailman.fc	2004-08-30 14:54:52.343856804 -0400
 @@ -4,7 +4,6 @@
  /usr/lib/cgi-bin/mailman/.* -- system_u:object_r:mailman_cgi_exec_t
  /usr/lib/mailman/cron/.*	-- system_u:object_r:mailman_queue_exec_t
@@ -447,9 +444,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/mailman.fc 
  /var/mailman/locks(/.*)?	   system_u:object_r:mailman_lock_t
  /var/mailman/cron		-d system_u:object_r:bin_t
  /var/mailman/cron/.+		-- system_u:object_r:mailman_queue_exec_t
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/udev.fc policy-1.17.6/file_contexts/program/udev.fc
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/udev.fc policy-1.17.7/file_contexts/program/udev.fc
 --- nsapolicy/file_contexts/program/udev.fc	2004-08-30 09:49:16.000000000 -0400
-+++ policy-1.17.6/file_contexts/program/udev.fc	2004-08-30 14:13:36.136146006 -0400
++++ policy-1.17.7/file_contexts/program/udev.fc	2004-08-30 14:54:52.343856804 -0400
 @@ -3,7 +3,8 @@
  /sbin/udev	--	system_u:object_r:udev_exec_t
  /sbin/udevd	--	system_u:object_r:udev_exec_t
@@ -461,17 +458,17 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/udev.fc pol
 +/etc/hotplug.d/default/udev.* -- system_u:object_r:udev_helper_exec_t
  /dev/udev\.tbl	--	system_u:object_r:udev_tbl_t
  /dev/\.udev\.tdb --	system_u:object_r:udev_tbl_t
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/xfs.fc policy-1.17.6/file_contexts/program/xfs.fc
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/xfs.fc policy-1.17.7/file_contexts/program/xfs.fc
 --- nsapolicy/file_contexts/program/xfs.fc	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/file_contexts/program/xfs.fc	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/file_contexts/program/xfs.fc	2004-08-30 14:54:52.344856689 -0400
 @@ -1,3 +1,4 @@
  # xfs
  /tmp/\.font-unix(/.*)?		system_u:object_r:xfs_tmp_t
  /usr/X11R6/bin/xfs	--	system_u:object_r:xfs_exec_t
 +/usr/X11R6/bin/xfs-xtt	--	system_u:object_r:xfs_exec_t
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/types.fc policy-1.17.6/file_contexts/types.fc
+diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/types.fc policy-1.17.7/file_contexts/types.fc
 --- nsapolicy/file_contexts/types.fc	2004-08-30 09:49:15.000000000 -0400
-+++ policy-1.17.6/file_contexts/types.fc	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/file_contexts/types.fc	2004-08-30 14:54:52.345856575 -0400
 @@ -217,7 +217,7 @@
  /u?dev/amixer.*		-c	system_u:object_r:sound_device_t
  /u?dev/snd/.*		-c	system_u:object_r:sound_device_t
@@ -481,9 +478,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/types.fc policy-1.1
  /u?dev/n?z?qft[0-3]	-c	system_u:object_r:tape_device_t
  /u?dev/n?tpqic[12].*	-c	system_u:object_r:tape_device_t
  /u?dev/ht[0-1]		-b	system_u:object_r:tape_device_t
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/core_macros.te policy-1.17.6/macros/core_macros.te
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/core_macros.te policy-1.17.7/macros/core_macros.te
 --- nsapolicy/macros/core_macros.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/macros/core_macros.te	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/macros/core_macros.te	2004-08-30 14:54:52.346856460 -0400
 @@ -590,7 +590,7 @@
  #
  define(`can_create_pty',`
@@ -493,9 +490,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/macros/core_macros.te policy-1.17
  ')
  
  
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/global_macros.te policy-1.17.6/macros/global_macros.te
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/global_macros.te policy-1.17.7/macros/global_macros.te
 --- nsapolicy/macros/global_macros.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/macros/global_macros.te	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/macros/global_macros.te	2004-08-30 14:54:52.347856346 -0400
 @@ -598,7 +598,6 @@
  
  # Set user information and skip authentication.
@@ -505,9 +502,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/macros/global_macros.te policy-1.
  allow $1 self:nscd *;
 -')
 +')dnl end unconfined_domain
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/screen_macros.te policy-1.17.6/macros/program/screen_macros.te
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/screen_macros.te policy-1.17.7/macros/program/screen_macros.te
 --- nsapolicy/macros/program/screen_macros.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/macros/program/screen_macros.te	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/macros/program/screen_macros.te	2004-08-30 14:54:52.348856232 -0400
 @@ -48,9 +48,8 @@
  ifdef(`gnome-pty-helper.te', `allow $1_screen_t $1_gph_t:fd use;')
  
@@ -520,9 +517,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/screen_macros.te p
  ifdef(`nfs_home_dirs', `
  r_dir_file($1_screen_t, nfs_t)
  ')dnl end if nfs_home_dirs
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/xserver_macros.te policy-1.17.6/macros/program/xserver_macros.te
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/xserver_macros.te policy-1.17.7/macros/program/xserver_macros.te
 --- nsapolicy/macros/program/xserver_macros.te	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/macros/program/xserver_macros.te	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/macros/program/xserver_macros.te	2004-08-30 14:54:52.348856232 -0400
 @@ -241,6 +241,7 @@
  
  allow $1_xserver_t var_lib_t:dir search;
@@ -531,9 +528,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/xserver_macros.te 
  
  # for fonts
  r_dir_file($1_xserver_t, fonts_t)
-diff --exclude-from=exclude -N -u -r nsapolicy/Makefile policy-1.17.6/Makefile
+diff --exclude-from=exclude -N -u -r nsapolicy/Makefile policy-1.17.7/Makefile
 --- nsapolicy/Makefile	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/Makefile	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/Makefile	2004-08-30 14:54:52.349856117 -0400
 @@ -146,6 +146,7 @@
  	@grep -v "^/root" $@.tmp > $@.root
  	@/usr/sbin/genhomedircon . $@.root  > $@
@@ -542,9 +539,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/Makefile policy-1.17.6/Makefile
  	@-rm $@.tmp $@.root
  
  clean:
-diff --exclude-from=exclude -N -u -r nsapolicy/tunables/distro.tun policy-1.17.6/tunables/distro.tun
+diff --exclude-from=exclude -N -u -r nsapolicy/tunables/distro.tun policy-1.17.7/tunables/distro.tun
 --- nsapolicy/tunables/distro.tun	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/tunables/distro.tun	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/tunables/distro.tun	2004-08-30 14:54:52.349856117 -0400
 @@ -5,7 +5,7 @@
  # appropriate ifdefs.
  
@@ -554,9 +551,9 @@ diff --exclude-from=exclude -N -u -r nsapolicy/tunables/distro.tun policy-1.17.6
  
  dnl define(`distro_suse')
  
-diff --exclude-from=exclude -N -u -r nsapolicy/tunables/tunable.tun policy-1.17.6/tunables/tunable.tun
+diff --exclude-from=exclude -N -u -r nsapolicy/tunables/tunable.tun policy-1.17.7/tunables/tunable.tun
 --- nsapolicy/tunables/tunable.tun	2004-08-27 14:44:11.000000000 -0400
-+++ policy-1.17.6/tunables/tunable.tun	2004-08-30 11:28:19.000000000 -0400
++++ policy-1.17.7/tunables/tunable.tun	2004-08-30 14:54:52.350856003 -0400
 @@ -5,40 +5,40 @@
  dnl define(`user_net_control')
  
@@ -621,7 +618,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/tunables/tunable.tun policy-1.17.
 +# Allow spamassasin to do DNS lookups
 +dnl define(`spamassasin_can_network')
 
---------------040100090105040301010909--
+--------------040503080907080507070309--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
