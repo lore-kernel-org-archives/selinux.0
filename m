@@ -1,68 +1,107 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA02751
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 08:20:20 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA02890
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 08:37:37 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA17736
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 13:17:06 GMT
-Received: from venere.mat.uniroma1.it ([151.100.50.3])
-	by jazzswing.ncsc.mil  with ESMTP id NAA17732
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 13:17:05 GMT
-Received: from inwind.it (archimede.mat.uniroma1.it [151.100.50.200])
-	by venere.mat.uniroma1.it (8.9.1b+Sun/8.9.1) with ESMTP id OAA17439
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 14:17:59 +0100 (MET)
-Message-ID: <3E5CBF1E.40001@inwind.it>
-Date: Wed, 26 Feb 2003 14:20:30 +0100
-From: Giorgio Zanin <giorgio.zanin@inwind.it>
+	by jazzswing.ncsc.mil  with ESMTP id NAA18565
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 13:34:22 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id NAA18560
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 13:34:22 GMT
+Date: Wed, 26 Feb 2003 08:36:31 -0500 (EST)
+From: Wayne Salamon <wsalamon@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Core policy
+In-Reply-To: <200302242059.51557.russell@coker.com.au>
+Message-ID: <Pine.LNX.4.33.0302260836250.3682-100000@vox.gw.tislabs.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: about the configuration language grammar
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-i am having a look at the grammar of the SELinux configuration language. 
-Productions for role declaration is the following:
+On Mon, 24 Feb 2003, Russell Coker wrote:
 
-role_type_def    :  ROLE identifier  TYPES names ';'
+> On Mon, 24 Feb 2003 19:55, Wayne Salamon wrote:
+> > Here is a list of policy files that may considered the core policy.
+> > However, this policy needs some work in order to build, but I'm trying to
+> > get a feel for what users typically run on their systems.
+>
+> I think that you need to firstly define "core" more clearly.
+>
+> In previous discussions about core policy I always thought it was the packages
+> needed for booting and for base functionality.  I don't think that such
+> criteria matches your list of packages.
+>
+> > apache.te	Apache Web server; may need to be simplified to allow only
+> > 		serving Web pages without CGI, etc.
+>
+> Most workstations do not need Apache.  The suggestion of separating out the
+> CGI part is a good one.  I will investigate it.
+>
+> > apmd.te		Automatic Power Management daemon
+> > cardmgr.te	PCMCIA control programs
+>
+> Perhaps we should have different groupings of policy?  apmd.te and cardmgr.te
+> go together.  It's quite rare to use one without the other.
+>
+> > cups.te		Common Unix Printing System
+> > lpr.te		Print client
+>
+> Do we need choices in the core policy?  Maybe we should make one the
+> recommended option and the other the optional replacement.
+>
+> > dhcpc.te	DHCP client
+> > pump.te		DHCP client
+>
+> I think that whatever pump needs should be merged into dhcpc.te.  There isn't
+> that much a DHCP client can do, so there isn't a need to have two policy
+> files IMHO.  Maybe a bit of ifdef in the policy for some of the less used
+> features, but that's all.
+>
+> > gpm.te		General Purpose Mouse driver
+>
+> GPM is not suitable for core IMHO.  I've never used it or seen anyone use it.
+>
+> > portslave.te	Terminal server software (not sure about this one)
+>
+> Portslave is not needed for core policy.  The vast majority of Linux machines
+> are not running as terminal servers.
+>
+> > procmail.te	Mail delivery agent for mail servers (may be removed)
+>
+> It's a server-only thing, IMHO it's claim is exactly as good as that of
+> Apache.
+>
+> > rpcd.te		RPC daemon (not sure; how often do client workstations export
+> > 		RPC services)
+>
+> Also using rpc without care is a huge security risk.  If you want a secure
+> system then removing RPC is often a good thing to do.
+>
+> > X Windows potential core domains
+> > ==================================================
+> > xdm.te		X Display Manager
+> > xfs.te		X font server
+>
+> xfs is not required IMHO.  I think that the only need for XFS is for TrueType
+> fonts, and I get the impression that anti-aliasing benefits from this too.
+> But the core functionality is fine without it.
+>
+> As for xdm, it currently doesn't work properly and has excessive permissions.
+> I'm working on this now, I expect to have it sorted out in a couple of weeks
+> along with a patch for kdm 3.1.
+>
+> > the policy source files. Also, there are several instances of rules being
+> > duplicated in the generated policy due to macro usage.
+>
+> Duplication of rules is a minor annoyance, and I've been fixing it wherever I
+> notice it.  But is it a big problem?  The compiler removes that anyway...
+>
+>
 
-names    : identifier
-               | nested_id_set
-               | asterisk
-               | tilde identifier
-               | tilde nested_id_set
-           
-nested_id_set : '{' nested_id_list '}'
-
-nested_id_list : nested_id_element
-                         | nested_id_list nested_id_element
-
-nested_id_element : identifier
-                                | nested_id_set
-
-Actually it's different from the ones in the document  "Configuring the 
-SELinux Policy" (*) :
-
-role_decl -> ROLE identifier TYPES types  ';'
-
-types -> set
-
-set ->  *  | identifier |  {  identifier_list  }  |  ~  identifier |  
-~   {  identifier_ list  }
-
-The former grammar is more difficult but more powerful. The latter is 
-more natural and it seems to me to be enough. Why is it possible to 
-express something like
-
-role admin types { me { you { him } } }
-
-and what's the meaning?
-
-I'm working on a tool for configuration analisys. Am I safe if I change 
-the grammar as in (*)?
-
-Thanks
-
-Giorgio
+-- 
+Wayne Salamon
+wsalamon@tislabs.com
 
 
 --
