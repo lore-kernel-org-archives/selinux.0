@@ -1,44 +1,80 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2AH5SRb020550
-	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 12:05:29 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2AJEhRb021421
+	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 14:14:43 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i2AH5R0F001259
-	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 17:05:27 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i2AH5RgZ001256 for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 17:05:27 GMT
-Subject: Re: blocking security xattr changes when policy is not loaded
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Thorsten Kukuk <kukuk@suse.de>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20040310155916.GA11097@suse.de>
-References: <200403092329.42958.arekm@pld-linux.org>
-	 <1078923038.4029.37.camel@moss-spartans.epoch.ncsc.mil>
-	 <20040310155916.GA11097@suse.de>
-Content-Type: text/plain
-Message-Id: <1078938321.4029.117.camel@moss-spartans.epoch.ncsc.mil>
+	by jazzband.ncsc.mil  with ESMTP id i2AJEg0F012236
+	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 19:14:42 GMT
+Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
+        by jazzband.ncsc.mil  with ESMTP id i2AJEggZ012233 for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 19:14:42 GMT
+Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2AJEfL6006841
+	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 14:14:41 -0500
+Received: (from hdholm@localhost)
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id i2AJEfQk006839
+	for selinux@tycho.nsa.gov; Wed, 10 Mar 2004 14:14:41 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2A1ZRRb016283
+	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2004 20:35:27 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i2A1ZQ0F008556
+	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 01:35:26 GMT
+Received: from omx2.sgi.com (mtvcafw.sgi.com [192.48.171.6])
+        by jazzband.ncsc.mil  with ESMTP id i2A1ZPgZ008553 for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 01:35:25 GMT
+Received: from larry.melbourne.sgi.com (larry.melbourne.sgi.com [134.14.52.130])
+	by omx2.sgi.com (8.12.11/8.12.9/linux-outbound_gateway-1.1) with SMTP id i2A3aC7b026591
+	for <@external-mail-relay.sgi.com:selinux@tycho.nsa.gov>; Tue, 9 Mar 2004 19:36:13 -0800
+Date: Wed, 10 Mar 2004 12:34:56 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Cc: linux-xfs@oss.sgi.com
+Subject: Re: XFS and SE Linux
+Message-ID: <20040310013456.GC1004@frodo>
+References: <200403100014.03542.russell@coker.com.au>
 Mime-Version: 1.0
-Date: Wed, 10 Mar 2004 12:05:21 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200403100014.03542.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-03-10 at 10:59, Thorsten Kukuk wrote:
-> But if you add this check, the security attributes will be missing
-> for the new file. I don't think that this is the expected behavior.
+Hi Russell,
 
-If you run with selinux=0 (or with SELinux enabled but no policy), then
-you have to assume that some file labels are going to be wrong when you
-next boot SELinux with a policy.  Even if certain programs preserve the
-labels on certain files, there are going to be some files (e.g.
-/etc/mtab) that are no longer going to be typed correctly.  And the
-trustworthiness of any of the labels is suspect, obviously, as any root
-process may have tampered with them.  Hence, you need to relabel your
-filesystem anyway after running with selinux=0 or no policy in order to
-get it back to a known safe state.  
+Thanks for sending this out.  Couple of additions...
+
+On Wed, Mar 10, 2004 at 12:14:03AM +1100, Russell Coker wrote:
+> XFS defaults to an Inode size of 256 bytes and a block size of 4K on i386.
+
+These default values are platform independent.
+
+> The "security.selinux" xattr name and the data stored in it can apparently be 
+> counted on to not fit into the <50 bytes left in a 256 byte Inode after all 
+> the other meta-data is stored.  This will mean that a new block is used for 
+> the XATTR (which in 99.99% of all cases will be the only XATTR on the file).
+> 
+> Using an extra 4K block per file is a significant waste of disk space, XFS 
+> apparently does not support block sharing so you have 4K of disk space for 50 
+> bytes of data.
+
+It also amounts to a fairly significant performance hit, since
+there is additional I/O involved once the attributes are no longer
+inline.  When we tweaked the ACL code to be more conscious of this
+issue, speedups were of the order 10x-12x IIRC.
+
+Heavy users of extended attributes should always use larger inode
+sizes with XFS.
+
+> If at mkfs time you make the Inode 512 bytes in size you will have enough 
+> space for the SE Linux xattr.  This will save huge amounts of space on a SE 
+> Linux system as there will effectively be 256 bytes of overhead per file 
+> instead of 4096.
+
+That extra inline space is also available for use by inline
+directory entries (and of course other extended attributes),
+so its not useless overhead either.
+
+cheers.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Nathan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
