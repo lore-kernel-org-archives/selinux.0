@@ -1,47 +1,56 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6V3Z9Ha000918
-	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 23:35:09 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6V4bgHa001127
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 00:37:42 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6V3XwFB028958
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 03:33:58 GMT
-Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
-	by jazzswing.ncsc.mil  with ESMTP id h6V3XwGD028950
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 03:33:58 GMT
-Subject: Re: writing a java policy file
-From: Colin Walters <walters@verbum.org>
-To: Michael Luu <mluu@cougaarsoftware.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <003e01c35707$c0cf6230$ef0111ac@mluudt>
-References: <003e01c35707$c0cf6230$ef0111ac@mluudt>
-Content-Type: text/plain
-Message-Id: <1059622256.12917.5.camel@columbia>
-Mime-Version: 1.0
-Date: 30 Jul 2003 23:30:56 -0400
+	by jazzswing.ncsc.mil  with ESMTP id h6V4aTFB001111
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 04:36:30 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h6V4aNGD001108
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 04:36:29 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>, selinux@tycho.nsa.gov
+Subject: Re: macro about network
+Date: Thu, 31 Jul 2003 14:37:21 +1000
+References: <20030729184953.31a3b3fb.ynakam@ori.hitachi-sk.co.jp>
+In-Reply-To: <20030729184953.31a3b3fb.ynakam@ori.hitachi-sk.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200307311437.21069.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-07-30 at 22:02, Michael Luu wrote:
-> hi all,
-> 
-> i'm trying set up a simple java policy whereby i only allow a specific
-> user (in java_r role) to run a java (type java_t)application that
-> communicates with a server (e.g., www.yahoo.com).  
+On Tue, 29 Jul 2003 19:49, Yuichi Nakamura wrote:
+> In "can_network" macro,
+> "allow $1 netmsg_type:tcp_socket { connectto acceptfrom };"
+> exists.
+>
+> I think in some case "connectto" permission is not neccesary.
 
-I think that java_t is a bad name for what you're doing.  It seems to me
-that you are writing a policy for a program which is implemented in
-Java, not the JVM itself.
+That sounds reasonable.  However I suggest that we get the port binding done 
+properly first.
 
-What you probably want to do is write up a macro like
+Currently even my tree doesn't have the bind permissions changes complete, and 
+in the NSA tree every domain can bind to every port.
 
-uses_java(foo_t)
+I encourage you to investigate my policy in 
+http://www.coker.com.au/selinux/policy.tgz and let me know of any 
+improvements that can be made to the port binding rules.
 
-that gives an application privileges to do everything that the JVM does
-by default (i.e. using shared libraries, maybe mmapping /dev/zero,
-whatever).  
+One issue that I am currently considering is how to label ports for X to bind 
+to.  Ports 6000..6009 need to be reserved for the X servers, and 6010..6030 
+are commonly used by sshd for X proxying.  I am thinking of having a 
+configuration option for ssh to determine whether sshd is allowed to run X 
+proxying, and if so those ports would be reserved for it.
 
-Then you should write a policy for your application, call it myapp_t,
-and use the uses_java macro.  The .fc file looks fine though.
+What do you think?
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
