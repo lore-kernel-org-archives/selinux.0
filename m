@@ -1,44 +1,54 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KBnvrT003041
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 07:49:57 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KBqirT003068
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 07:52:44 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KBnF4v001818
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 11:49:16 GMT
-Subject: Re: conflict between libselinux and libsepol
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KBq34v001976
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 11:52:03 GMT
+Subject: Re: distro.tun
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1092972342.29540.35.camel@nexus.verbum.private>
-References: <1092942083.1721.101.camel@moss-spartans.epoch.ncsc.mil>
-	 <1092972342.29540.35.camel@nexus.verbum.private>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200408201459.47366.russell@coker.com.au>
+References: <200408192333.25072.russell@coker.com.au>
+	 <200408201459.47366.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1093002523.16585.31.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1093002687.16585.34.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 20 Aug 2004 07:48:43 -0400
+Date: Fri, 20 Aug 2004 07:51:27 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-08-19 at 23:25, Colin Walters wrote:
-> On Thu, 2004-08-19 at 15:01 -0400, Stephen Smalley wrote:
+On Fri, 2004-08-20 at 00:59, Russell Coker wrote:
+> On Thu, 19 Aug 2004 23:33, Russell Coker <russell@coker.com.au> wrote:
+> > The attached patch makes the distro tunable macros define to their same
+> > values.  This is useful because distributions have many files named after
+> > the distribution and sometimes the file needs a different label to other
+> > files in the same directory.
+> >
+> > Of course we could have names like (r)edhat in file names, but I think that
+> > this is the most convenient solution which will cause the least confusion.
 > 
-> > The core checkpolicy logic has been moved into libsepol, a library for binary
-> > policy manipulation.  
+> My previous patch was bogus, I should know better than to send a patch 
+> untested late at night even if it's trivial.
 > 
-> There appears to be a conflict between the headers from this and
-> libselinux, so an application can't presently include both (I am working
-> on a patch to setfiles which needs this).  Specifically, "struct
-> av_decision" is defined in both selinux/selinux.h and
-> sepol/flask_types.h.
+> It put m4 into an infinite loop.
 > 
-> Perhaps libselinux should be modified to depend on libsepol, and include
-> the definition from flask_types.h in selinux.h?
+> Now we can do a macro definition such as the following:
+> define(redhat, `redhat')
+> 
+> But this means that if you pass "redhat" without the `' M4 quotes to a macro 
+> it can still go into an infinite loop.  To get this to work with 
+> full_user_role(redhat) we need to change most instances of "$1" to "`$1'" in 
+> the macros files.
+> 
+> By using "redhat", "debian", "gentoo", and "suse" as flag macros we are 
+> essentially making them reserved words.  I think that the most practical 
+> solution to this problem is to use "USING_REDHAT" etc as the flag macros.  
+> The chance of someone wanting a user role named USING_REDHAT_r is quite low, 
+> while the incidence of people wanting a redhat_r role is much higher.
 
-I'd rather keep them independent, as they serve different purposes
-(types for the binary policy vs. types for the SELinux API) and may
-diverge over time.  Simplest fix would be to add a distinguishing prefix
-to the sepol types to avoid namespace conflicts.  But I'm a bit curious
-about why setfiles would need libsepol at all, as it normally does not
-have anything to do with binary policies.
+distro_redhat, distro_debian, distro_gentoo, distro_suse.  No need to
+shout.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
