@@ -1,38 +1,23 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Albert Cahalan <albert@users.sourceforge.net>,
-   Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: threads
-Date: Wed, 21 Jan 2004 16:09:05 +1100
-Cc: SELinux@tycho.nsa.gov
-References: <1072454081.827.103.camel@cube> <1072712224.845.66.camel@moss-spartans.epoch.ncsc.mil> <1074647474.953.40407.camel@cube>
-In-Reply-To: <1074647474.953.40407.camel@cube>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0L5rbRb029535
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jan 2004 00:53:37 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0L5raiV027048
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jan 2004 05:53:37 GMT
+Received: from mxlx1.surveysavvy.com (mxlx1.surveysavvy.com [63.108.92.46])
+        by jazzband.ncsc.mil  with SMTP id i0L5ra06027045 for <selinux@tycho.nsa.gov>; Wed, 21 Jan 2004 05:53:36 GMT
+Message-ID: <1988.68.6.187.64.1074664098.squirrel@mxlx1.surveysavvy.com>
+Date: Tue, 20 Jan 2004 21:48:18 -0800 (PST)
+Subject: Debian and 2.6 selinux
+From: "Chris Babcock" <cbabcock@luthresearch.com>
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200401211609.05416.russell@coker.com.au>
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 21 Jan 2004 12:11, Albert Cahalan <albert@users.sourceforge.net> 
-wrote:
-> > For MAC, per-thread contexts make little sense
-> > since you cannot enforce any separation of the memory.
->
-> This is not quite right. A server daemon using
-> per-thread contexts is clearly within your trusted
-> computing base, just as the kernel is. This can
-> improve security over the obvious alternative of
-> having the server run in a context that can do
-> anything.
-
-Also having threads in different contexts may be helpful for file servers.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Does the 2.6 version of SE work well on Debian Potato (r2) or do I need to
+run Sid to get good results with the 2.6 version?
 
 
 --
