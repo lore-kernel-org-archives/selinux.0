@@ -1,61 +1,66 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5IJ66rT019425
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 15:06:06 -0400 (EDT)
-Received: from smtp801.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5IJ62rD005661
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 19:06:02 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp801.mail.ukl.yahoo.com with SMTP; 18 Jun 2004 19:04:31 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BbO3M-0002we-Ax
-	for selinux@tycho.nsa.gov; Fri, 18 Jun 2004 18:25:28 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BbOcR-0000LS-3j
-	for selinux@tycho.nsa.gov; Fri, 18 Jun 2004 19:01:43 +0000
-Date: Fri, 18 Jun 2004 19:01:43 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: selinux@tycho.nsa.gov
-Subject: Re: SELinux on Debian (Sid)
-Message-ID: <20040618190143.GQ362@lkcl.net>
-References: <20040609144404.GJ5477@philips.com> <200406121819.57709.russell@coker.com.au> <20040612143714.GA28996@yggdrasil.localdomain> <200406131029.35825.russell@coker.com.au> <20040613012852.GA4210@yggdrasil.localdomain> <20040613075427.GZ2861@lkcl.net> <20040613154033.GA10171@yggdrasil.localdomain> <20040613160310.GA10763@yggdrasil.localdomain> <20040613232622.GA13617@yggdrasil.localdomain> <20040614033955.GA14338@yggdrasil.localdomain>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5IJVJrT019588
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 15:31:19 -0400 (EDT)
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: "John D. Ramsdell" <ramsdell@mitre.org>,
+   Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+   Amy L Herzog <aherzog@mitre.org>, guttman@mitre.org (Joshua D. Guttman)
+Subject: Re: Fedora Core 2 setools RPM
+Reply-To: guttman@mitre.org (Joshua D. Guttman disp: slinux)
+References: <200406171847.i5HIlPSf000906@gotham.columbia.tresys.com>
+	<ogtpt7x10ni.fsf@mitre.org>
+	<1087567982.27697.47.camel@moss-spartans.epoch.ncsc.mil>
+	<nhak6y43hgj.fsf@malabar.mitre.org>
+	<1087581080.27697.132.camel@moss-spartans.epoch.ncsc.mil>
+	<nhafz8s3f2y.fsf@malabar.mitre.org>
+	<1087584215.27697.173.camel@moss-spartans.epoch.ncsc.mil>
+From: guttman@mitre.org (Joshua D. Guttman)
+Date: 18 Jun 2004 15:31:09 -0400
+In-Reply-To: <1087584215.27697.173.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <nhabrjg3bpe.fsf@malabar.mitre.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040614033955.GA14338@yggdrasil.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Jun 13, 2004 at 10:39:55PM -0500, Greg Norris wrote:
-> On Sun, Jun 13, 2004 at 06:26:22PM -0500, Greg Norris wrote:
-> > I case anyone else encounters this issue, I've submitted a bugreport
-> > to the Debian bug-tracking system.  You can view it at
-> > "http://bugs.debian.org/254219".
-> 
-> Ok, I've finally managed to get the package to install... it turns out
-> that I needed to include chkpwd.te and inetd.se in my policy
-> selections.  I'm not actually using the corresponding software for
-> either, but they apparently include some definitions which are needed
-> by other policies.
+Steve --
 
-well done :)
+So in some sense the bottom line is that you think the type relations
+give the essential core of the policy info, and to a first
+approximation one can focus on that.
 
-greg, i am curious: the debian selinux policy packages that i
-installed (1.12-1) i didn't get asked any questions about policy
-selections.
+Of course, it's still desirable to have access to the supplementary
+information (and an idea how to interpret it) so that the further
+refinement will eventually work out.  
 
-at least, i don't _remember_ being asked any...
+A different point is that the main value added of slat is much more
+expressive security goals (even when restricted to the types info).
+You're not just talking about accessibility of a type to information
+flow from another, but also whether all the possible flows go through
+a desired gate type.  And the key fact you mentioned at the end of
+your last message
 
-what gives?
+Stephen Smalley <sds@epoch.ncsc.mil> writes:
+
+>   But from an information flow perspective, you simply want to prove
+>   that user_t can only reach sysadm_t through specific gate domains
+>   like newrole_t.
+
+is of this form:  It's apparently not expressible as a simple
+information flow accessibility assertion.
+
+Cheers --
+
+        Joshua 
+
+
 
 -- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+	Joshua D. Guttman		<guttman@mitre.org>
+	MITRE, Mail Stop S119		Office:	+1 781 271 2654
+	202 Burlington Rd.		Fax:	+1 781 271 8953
+	Bedford, MA 01730-1420 USA	Cell:	+1 781 526 5713
+
 
 
 --
