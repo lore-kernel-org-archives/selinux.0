@@ -1,55 +1,84 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAJIrLIi022808
-	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 13:53:21 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAJIpr3F023773
-	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 18:51:53 GMT
-Subject: Re: using procmail under SE-Linux
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
-Cc: Greg Norris <haphazard@kc.rr.com>, SE-Linux <selinux@tycho.nsa.gov>,
-   Jim Carter <jwcart2@epoch.ncsc.mil>
-In-Reply-To: <1100837214.23707.15.camel@nexus.verbum.private>
-References: <20041119013811.GA21001@yggdrasil.localdomain>
-	 <1100837214.23707.15.camel@nexus.verbum.private>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAJJZPIi023242
+	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 14:35:26 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAJJZSlF016304
+	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 19:35:28 GMT
+Subject: Re: patch: misc policy additions
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: Colin Walters <walters@verbum.org>, SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <20041110102439.GA2541@jmh.mhn.de>
+References: <20041109210447.GC2543@jmh.mhn.de>
+	 <1100046550.26388.8.camel@nexus.verbum.private>
+	 <20041110102439.GA2541@jmh.mhn.de>
 Content-Type: text/plain
-Message-Id: <1100889824.15944.195.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1100893088.31793.14.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 19 Nov 2004 13:43:45 -0500
+Date: Fri, 19 Nov 2004 14:38:08 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-11-18 at 23:06, Colin Walters wrote:
-> However, I've learned a lot about SELinux since then, and I think a
-> better approach would be to use security_compute_relabel.  Then the
-> policy itself can specify the type to use, via type_transition.  For
-> example:
-> 
-> type_transition postfix_local_t user_home_dir_t:dir user_procmail_t.
-> 
-> So procmail would compute the domain to use like this, in pseudocode:
-> 
-> newcon = security_compute_relabel (getcon (), 
->                                    getfilecon (getpwent (getuid ())->pw_dir))
-> setexeccon(newcon)
-> 
-> To do this right, you create a postfix_user_domain($1) macro, call it
-> from base_user_macros.te (and probably ifdef(`procmail.te')).
-> 
-> I think this is arguably cleaner than having another config file
-> in /etc.
+Merged.  Except for the following chunk:
 
-Nit:  That would be security_compute_create(), which internally consults
-type_transition rules.  security_compute_relabel() is for relabeling and
-consults type_change rules.
+diff -urN orig/domains/program/restorecon.te mod/domains/program/restorecon.te
+--- orig/domains/program/restorecon.te  2004-11-09 08:45:50.000000000 +0100
++++ mod/domains/program/restorecon.te   2004-11-09 21:50:48.000000000 +0100
+@@ -41,7 +41,7 @@
+ allow restorecon_t unlabeled_t:dir_file_class_set { getattr relabelfrom };
+ allow restorecon_t unlabeled_t:dir read;
+ allow restorecon_t device_type:{ chr_file blk_file } { getattr relabelfrom relabelto };
+-allow restorecon_t { device_t device_type }:{ chr_file blk_file } { getattr relabelfrom relabelto };
++allow restorecon_t { device_t device_type ttyfile }:{ chr_file blk_file } { getattr relabelfrom relabelto };
+ ifdef(`distro_redhat', `
+ allow restorecon_t tmpfs_t:{ chr_file blk_file } { rw_file_perms relabelfrom relabelto };
+ ')
 
-However, I think you would actually just use get_default_context(), and
-define appropriate entries in default_contexts for procmail.
+Why do you want to restorecon_t to relabel a ttyfile?  
+The only contexts with the ttyfile attribute are user_tty_device_t,
+staff_tty_device_t, and sysadm_tty_device_t.  The tty is relabeled to
+these from an initial tty_device_t context, so the only thing that I see
+this permission doing is to allow a current session to be relabeled from
+one of these three contexts to tty_device_t.  Why would we want to do
+that?
 
+I noticed that the line above the one you want to change duplicates
+permissions, so I removed it.
+
+On Wed, 2004-11-10 at 05:24, Thomas Bleher wrote:
+> * Colin Walters <walters@verbum.org> [2004-11-10 03:37]:
+> > On Tue, 2004-11-09 at 22:04 +0100, Thomas Bleher wrote:
+> > 
+> > +ifdef(`distro_suse', `
+> > +# because of libraries in /var/lib/samba/bin
+> > +allow ldconfig_t { var_lib_t bin_t }:dir search;
+> > +allow ldconfig_t var_lib_t:lnk_file read;
+> > 
+> > I know this is under distro_suse, but wouldn't it be better to label
+> > these files as lib_t, and have that be ifdef(`distro_suse') in the
+> > samba.fc?
+> 
+> You are right, the second line is not needed, all symlinks are labeled
+> lib_t. I did not move it to samba.te because these are client libs,
+> samba itself is not installed.
+> 
+> > -# read /proc/meminfo, /proc/self/mounts and /etc/mtab
+> > -allow nrpe_t { self proc_t etc_runtime_t }:file { getattr read };
+> > +# read /proc/meminfo, /proc/self/mounts, /etc/localtime and /etc/mtab
+> > +allow nrpe_t { self proc_t etc_runtime_t locale_t }:file { getattr read };
+> > 
+> > The convention here seems to be: read_locale(nrpe_t)  That does allow
+> > one to turn off reading of locale files in a centralized place.
+> 
+> OK, fixed.
+> 
+> Updated patch is attached.
+> 
+> Thomas
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
