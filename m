@@ -1,100 +1,65 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0DFfURb019563
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 10:41:30 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0DFeMxr016100
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 15:40:22 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i0DFeMYc016097
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 15:40:22 GMT
-Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0DFfSAn017133
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 10:41:29 -0500 (EST)
-Subject: [patch] Change libselinux to use getpwnam_r
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-mIEwZaDdm4lMsgKqHitf"
-Message-Id: <1074008488.13586.20.camel@moss-spartans.epoch.ncsc.mil>
+Subject: FS crash
+From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-2
+Date: 13 Jan 2004 16:49:55 +0100
+Message-Id: <1074008995.7158.18.camel@kusturica>
 Mime-Version: 1.0
-Date: Tue, 13 Jan 2004 10:41:28 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi!
 
---=-mIEwZaDdm4lMsgKqHitf
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+This is a sparc64 system with kernel 2.6.1-rc2, fs type is ext3.
+Distrib is Debian/sid
+After doing a make relabel:
+silo could not find /etc/silo.conf
+could boot by adding the kernel image path by hand
+made an e2fsck (now I know it was not a good idea):
+see the output below.
+I have version 1.4-1 of the selinux utilities.
 
-The attached patch against libselinux-1.4 changes it to use getpwnam_r
-internally instead of getpwnam, so that it doesn't clobber any existing
-pwd struct previously obtained by the caller.  This showed up as an
-issue for the selinux-enabled gdm.  It doesn't appear to affect login or
-sshd, since they make a copy of the pwd struct themselves.
+I guess it is either a kernel problem or a tool incompatibility.
+What is the problem?
+How it can be cured?
+The important data (tla archives of all config files changed/added
+is in an lvm logical volume). What would you do to get the data out?
+
+
+root@(none)-TCB:/# e2fsck -f /dev/sda1
+e2fsck 1.35-WIP (21-Aug-2003)
+Pass 1: Checking inodes, blocks, and sizes
+Extended attribute block 246069 has reference count 1020, should be
+1018.  Fix<y>? yes
+
+Pass 2: Checking directory structure
+Entry 'awk' in
+/etc/{arch}/++pristine-trees/unlocked/tcb-etc/tcb-etc--active/tcb-etc--active--0.1/root@szoketto--2004-sys
+
+Entry 'awk.1.gz' in
+/etc/{arch}/++pristine-trees/unlocked/tcb-etc/tcb-etc--active/tcb-etc--active--0.1/root@szoketto--20s
+
+Entry 'builtins.7.gz' in
+/etc/{arch}/++pristine-trees/unlocked/tcb-etc/tcb-etc--active/tcb-etc--active--0.1/root@szoketts
+
+Entry 'dhcp-options.5.gz' in
+/etc/{arch}/++pristine-trees/unlocked/tcb-etc/tcb-etc--active/tcb-etc--active--0.1/root@szos
+
+Entry 'infobrowser' in
+/etc/{arch}/++pristine-trees/unlocked/tcb-etc/tcb-etc--active/tcb-etc--active--0.1/root@szoketto-s
+
+Symlink
+/etc/{arch}/++pristine-trees/unlocked/tcb-etc/tcb-etc--active/tcb-etc--active--0.1/root@szoketto--2004-system/tc.
+Clear<y>? yes
+
+Illegal block number passed to ext2fs_unmark_block_bitmap #1920169263
+for in-use block map
+Illegal block number passed to ext2fs_unmark_block_bitmap #1920169263
+for block bitmap for /dev/sda1
+Segmentation fault
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
---=-mIEwZaDdm4lMsgKqHitf
-Content-Disposition: attachment; filename=libselinux-getpwnam.patch
-Content-Type: text/x-patch; name=libselinux-getpwnam.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: libselinux/src/get_context_list.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/get_context_list.c,v
-retrieving revision 1.8
-diff -u -r1.8 get_context_list.c
---- libselinux/src/get_context_list.c	1 Dec 2003 19:28:32 -0000	1.8
-+++ libselinux/src/get_context_list.c	13 Jan 2004 12:36:21 -0000
-@@ -206,26 +206,38 @@
-     FILE *config_file;    /* The configuration file                    */
-     char *fname = 0;      /* The name of the user's configuration file */
-     size_t fname_len;     /* The length of fname                       */
--    struct passwd *pwd;   /* The user's passwd structure               */
-+    struct passwd pwdbuf, *pwd = &pwdbuf;   
-+    char *buf;
-     int retval;           /* The return value                          */
-+    long buflen;
- 
-     if (which == USERPRIORITY)
-     {
--        /* Get the password structure in order to find the home directory */
--        pwd = getpwnam (user);
--        if (!pwd)
--        {
--            return -1;
-+        /* Get the password structure in order to find the home directory.
-+	   Use getpwnam_r to avoid clobbering any existing pwd struct obtained
-+	   by the caller. */
-+	buflen = sysconf(_SC_GETPW_R_SIZE_MAX);
-+	if (buflen < 0)
-+		return -1;
-+	buf = malloc(buflen);
-+	if (!buf)
-+		return -1;
-+	retval = getpwnam_r (user, pwd, buf, buflen, &pwd );
-+        if (retval < 0 || !pwd) {
-+		free(buf);
-+		return -1;
-         }
-         fname_len = strlen (pwd->pw_dir) + 20;
-         fname = malloc (fname_len);
--        if (!fname)
-+        if (!fname) 
-         {
-+	    free(buf);
-             return -1;
-         }
-         sprintf (fname, "%s%s", pwd->pw_dir, "/.default_contexts");
-         config_file = fopen (fname, "r");
- 	free (fname);
-+        free(buf);
-     }
-     else if (which == SYSTEMPRIORITY)
-     {
-
---=-mIEwZaDdm4lMsgKqHitf--
+GNU GPL: csak tiszta forrásból
 
 
 --
