@@ -1,61 +1,83 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8HK8orT005250
-	for <selinux@tycho.nsa.gov>; Fri, 17 Sep 2004 16:08:50 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8HK7rNM014111
-	for <selinux@tycho.nsa.gov>; Fri, 17 Sep 2004 20:07:54 GMT
-Subject: Re: Strange Associate bug
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
-In-Reply-To: <414B4091.5030500@redhat.com>
-References: <414B4091.5030500@redhat.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8HKAJrT005269
+	for <selinux@tycho.nsa.gov>; Fri, 17 Sep 2004 16:10:20 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8HK9MNM014167
+	for <selinux@tycho.nsa.gov>; Fri, 17 Sep 2004 20:09:22 GMT
+Subject: Re: policy patch: some misc additions
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <20040911133324.GA2557@jmh.mhn.de>
+References: <20040911133324.GA2557@jmh.mhn.de>
 Content-Type: text/plain
-Message-Id: <1095451597.17932.332.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1095451769.4295.7.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 17 Sep 2004 16:06:37 -0400
+Date: Fri, 17 Sep 2004 16:09:29 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-09-17 at 15:52, Daniel J Walsh wrote:
-> If I mount an NFS filesystem and then try to move a file to it,
-> I get permission denied and end up with an associate error
+On Sat, 2004-09-11 at 09:33, Thomas Bleher wrote:
+> The following patch against latest CVS adds some misc policy:
 > 
->  >mount remote:/vol/vol1/home /mnt/dwalsh
->  >touch /home/dwalsh/foo
->  >mv /home/dwalsh/foo /mnt/dwalsh
-> mv: cannot create regular file `./foo': Permission denied
-> Sep 17 15:48:19 celtics kernel: audit(1095450499.359:0): avc:  denied  { 
-> associate } for  pid=19797 exe=/bin/mv name=foo 
-> scontext=user_u:object_r:user_home_t tcontext=system_u:object_r:nfs_t 
-> tclass=filesystem
+> logrotate.te: the suse version doesn't work without this
+> modutil.te: I see no reason why user_r should ever touch insmod_t
+> iptables.te: added tc (traffic control) to the iptables domain
+> rpm.te: gpg doesn't want to verify signatures otherwise
+> xdm.te: needed with XFree86 4.3, kdm 3.3 and nvidia
+> types.fc: added file contexts for some kde and gnome libraries
+>           (filenames are like /opt/kde3/lib/kde3/kcalc.so)
+>           the nVidia libs need some extra file context, too
+> gpg_agent_macros.te: permission was needed because of wrongly labeled
+>                      files (see above)
+> ssh_agent_macros.te: make sure user_home_t and nfs_t behave the same;
+>                      also add my name (I'm the original author of this
+>                      policy)
+> ssh-agent.te: ssh wants to create ~/.ssh if it doesn't exist
 > 
-> allow user_home_t nfs_t:filesystem { associate };
-> 
-> Do I need to change mv to be able to handle this or do we need
-> 
-> allow domain nfs_t:filesystem associate;
+> Thomas
 
-You mean:
-allow file_type nfs_t:filesystem associate;
+> diff -ur orig/file_contexts/types.fc mod/file_contexts/types.fc
+> --- orig/file_contexts/types.fc 2004-09-11 14:31:47.000000000 +0200
+> +++ mod/file_contexts/types.fc  2004-09-11 14:47:06.000000000 +0200
+> @@ -224,6 +224,9 @@
+>  /u?dev/n?osst[0-3].*   -c      system_u:object_r:tape_device_t
+>  /u?dev/n?pt[0-9]+      -c      system_u:object_r:tape_device_t
+>  /u?dev/tape.*          -c      system_u:object_r:tape_device_t
+> +ifdef(`distro_suse', `
+> +/u?dev/usbscanner      -c      system_u:object_r:scanner_device_t
+> +')
+>  /u?dev/usb/scanner.*   -c      system_u:object_r:scanner_device_t
+>  /u?dev/usb/dc2xx.*     -c      system_u:object_r:scanner_device_t
+>  /u?dev/usb/mdc800.*    -c      system_u:object_r:scanner_device_t
+> @@ -242,6 +245,7 @@
+>  /opt/[^/]*/lib(/.*)?           system_u:object_r:lib_t
+>  /opt/[^/]*/lib/lib[^/]*\.so(\.[^/]*)*  --      system_u:object_r:shlib_t
+>  /opt/[^/]*/lib/.*/lib[^/]*\.so(\.[^/]*)*       --      system_u:object_r:shlib_t
+> +/opt/.*/lib/.*\.so     --      system_u:object_r:shlib_t
+>  /opt/[^/]*/man(/.*)?           system_u:object_r:man_t
+>  /opt/[^/]*/libexec(/.*)?       system_u:object_r:bin_t
+>  
+> @@ -336,11 +340,14 @@
+>  /usr/lib(64)?/autofs/.*\.so    --      system_u:object_r:shlib_t
+>  /usr/lib(64)?/perl5/man(/.*)?  system_u:object_r:man_t
+>  /usr/lib(64)?/perl.*\.so       --      system_u:object_r:shlib_t
+> +/usr/lib(64)?/(NORM|NVIDIA)_lib.*\.so(\.[^/]*)*        --      system_u:object_r:shlib_t
+> +/usr/lib(64)?/tls/NVIDIA/(NORM|NVIDIA)_lib.*\.so(\.[^/]*)*     --      system_u:object_r:shlib_t
+>  /usr/lib(64)?/selinux(/.*)?            system_u:object_r:policy_src_t
+>  /usr/lib(64)?/emacsen-common/.*        system_u:object_r:bin_t
+>  /usr/lib(64)?/.*/bin(/.*)?             system_u:object_r:bin_t
+>  /usr/lib(64)?/gconv/.*\.so     --      system_u:object_r:shlib_t
+>  /usr/share/guile/g-wrapped/.*\.so -- system_u:object_r:shlib_t
+> +/usr/lib/[^/]*\.so     --      system_u:object_r:shlib_t
 
-Options are:
-1) Change the kernel code to ignore the fscreate context when the
-filesystem uses genfs_contexts, similar to the existing mount context=
-handling, or
-2) Change mv to reset the fscreate context to NULL and retry if the file
-creation fails with EACCES, thereby falling back to the default labeling
-behavior,
-3) Allow the association, as above.
-
-Allowing the association is a bit misleading, because the file is going
-to revert to the base type ultimately, even if the incore inode happens
-to be temporarily labeled with the fscreate context.
+Why add this?  Why not /usr/lib(64)?/[^/]*\.so ?
+If this rule is added, some other rules can be deleted.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
