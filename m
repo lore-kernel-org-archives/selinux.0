@@ -1,136 +1,70 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Today's diffs
-Date: Sat, 2 Oct 2004 02:36:22 +1000
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <415CAFC5.8020505@redhat.com> <200410020125.00090.russell@coker.com.au> <415D799B.3060406@redhat.com>
-In-Reply-To: <415D799B.3060406@redhat.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_GeYXB5AGmBdbRFw"
-Message-Id: <200410020236.22248.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i91GhirT002779
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 12:43:44 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i91GhhEZ006794
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 16:43:43 GMT
+Subject: Re: policy patches
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200409300620.41527.russell@coker.com.au>
+References: <200409292354.15227.russell@coker.com.au>
+	 <20040929174540.GA4373@rom.cip.ifi.lmu.de>
+	 <200409300620.41527.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1096648965.13366.35.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 01 Oct 2004 12:42:45 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Mostly merged with the corrections.
 
---Boundary-00=_GeYXB5AGmBdbRFw
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+These two lines caused things to break, so I held off merging these for
+now.
++/sbin/kmodule  --      system_u:object_r:kudzu_exec_t
++/sbin/start_udev --    system_u:object_r:udev_exec_t
 
-On Sat, 2 Oct 2004 01:36, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> >+# /usr/sbin/sendmail asks for w access to utmp
-> >+allow sendmail_t initrc_var_run_t:file { getattr read lock write };
+These are the denials I am seeing:
+avc:  denied  { unlink } for  pid=705 exe=/bin/rm name=.udev.tdb dev=tmpfs ino=927 scontext=system_u:system_r:udev_t tcontext=system_u:object_r:tmpfs_t tclass=file
+avc:  denied  { read write } for  pid=707 exe=/sbin/udev name=.udev.tdb dev=tmpfs ino=927 scontext=system_u:system_r:udev_t tcontext=system_u:object_r:tmpfs_t tclass=file
+avc:  denied  { search } for  pid=856 exe=/sbin/kmodule name=usr dev=hda2 ino=162881 scontext=system_u:system_r:kudzu_t tcontext=user_u:object_r:file_t tclass=dir
+avc:  denied  { getattr } for  pid=856 exe=/sbin/kmodule path=/lib/modules/2.6.8-1.541/kernel dev=hda2 ino=930725 scontext=system_u:system_r:kudzu_t tcontext=system_u:object_r:modules_object_t tclass=dir
+avc:  denied  { setattr } for  pid=2402 exe=/usr/X11R6/bin/Xorg name=dri dev=tmpfs ino=7757 scontext=system_u:system_r:xdm_xserver_t tcontext=system_u:object_r:device_t tclass=dir
+
+The udev_t tmpfs_t:file { read write } denial occurs a lot.
+
+The xdm_xserver_t device_t:dir setattr denial is not due to this patch. 
+It is the only denial that I have been seeing lately; I just haven't had
+an opportunity to look into it more.  It doesn't appear to cause any
+problems though.
+
+On Wed, 2004-09-29 at 16:20, Russell Coker wrote:
+> On Thu, 30 Sep 2004 03:45, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
+> wrote:
+> > > +ifdef(`unlimitedUsers', `
+> > > +role staff_r types rpm_t;
+> > > +domain_auto_trans(staff_t, rpm_exec_t, rpm_t)
+> > > +')
 > >
-> >Why does sendmail need lock and write access to initrc_var_run_t?
->
-> sm-client will not work without this.
-
-That turned out to be a bug in sendmail.fc.  I have attached a patch which 
-fixes sendmail.fc and also removes the unnecessary rules from sendmail.te.
-
-> >Also you have put in comments indicating that several programs have been
-> >compiled with SSP (Stack Smashing Protection).  If the Fedora GCC packages
-> >support SSP then we should enable it for newrole etc.
-
-You missed the bit about SSP.
-
-> >+allow udev_t domain:dir r_dir_perms;
+> > AFAIK unlimitedUsers was removed recently, so this snippet makes no
+> > sense anymore.
+> 
+> Thanks, I've removed that from my tree.
+> 
+> > On Debian, it's
+> > /usr/sbin/nagios                --      system_u:object_r:nagios_exec_t
+> > and
+> > /usr/lib/cgi-bin/nagios         --      system_u:object_r:nagios_cgi_exec_t
 > >
-> >Why does udev need this?  Why would it need read access to the directory
-> > but not to files inside it?
->
-> It is running killall.
-
-OK, then probably we want a dontaudit rule.
-
-> >+/usr/bin/chage         --      system_u:object_r:passwd_exec_t
-> >
-> >This is wrong.  It should be admin_passwd_exec_t.  A regular user should
-> > not execute this.
->
-> chage -l dwalsh is available.
-
-OK, we need to patch chage in the same way as passwd then.  We don't want to 
-permit root:user_r:user_t to invalidate accounts.
-
-> >--- nsapolicy/macros/global_macros.te   2004-09-22 16:19:13.000000000
-> > -0400 +++ policy-1.17.25/macros/global_macros.te      2004-09-30
-> > 20:59:57.315488479 -0400
-> >@@ -287,6 +287,7 @@
-> > allow $1_t device_t:dir { getattr search };
-> > allow $1_t null_device_t:chr_file rw_file_perms;
-> > dontaudit $1_t console_device_t:chr_file rw_file_perms;
-> >+dontaudit $1_t unpriv_userdomain:fd use;
-> >
-> > r_dir_file($1_t, sysfs_t)
-> >
-> >How do you trigger this?  Is it related to the bug in su where su does not
-> >re-open the terminal when changing role?  I expect that fixing su will fix
-> >this.
->
-> Maybe, it happens when you do a service daemon restart.  Not sure we can
-> easily fix the su bug.
-
-Please give an example of a command that triggers this.
-
-> >+allow $1_lpr_t $1_mozilla_t:tcp_socket { read write };
-> >+allow $1_lpr_t $1_mozilla_t:unix_stream_socket { read write };
-> >
-> >Looks like mozilla is too buggy to close it's file handles before spawning
-> >lpr.  There's no reason for lpr to access a tcp or unix socket that
-> > mozilla has created, they should be dontaudit rules.
->
-> Happens when printing from pdf files.  Could they be opening  a pipe to
-> the lpr command?
-
-I can't believe that mozilla would use a TCP socket to send data to lpr.  
-Creating a unix domain socket for it also seems to be a very odd way of doing 
-things that is likely to cause breakage.  It would either be a fifo or a 
-temporary file.
-
-Does it work if you replace those allow rules with dontaudit rules?
-
+> > These should be added also.
+> 
+> Thanks for that.  I've attached a new nagios.fc with that change.
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_GeYXB5AGmBdbRFw
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
---- /usr/src/se/policy/file_contexts/program/sendmail.fc	2004-02-25 17:05:05.000000000 +1100
-+++ /tmp/sendmail.fc	2004-10-02 02:28:23.000000000 +1000
-@@ -3,3 +3,5 @@
- /var/spool/(client)?mqueue(/.*)?	system_u:object_r:mqueue_spool_t
- /var/log/sendmail\.st		--	system_u:object_r:sendmail_log_t
- /var/log/mail(/.*)?			system_u:object_r:sendmail_log_t
-+/var/run/sendmail.pid		--	system_u:object_r:sendmail_var_run_t
-+/var/run/sm-client.pid		--	system_u:object_r:sendmail_var_run_t
---- /usr/src/se/policy/domains/program/unused/sendmail.te	2004-09-11 16:21:45.000000000 +1000
-+++ domains/program/unused/sendmail.te	2004-10-02 02:31:38.000000000 +1000
-@@ -65,11 +65,6 @@
- # Read /usr/lib/sasl2/.*
- allow sendmail_t lib_t:file { getattr read };
- 
--# /usr/sbin/sendmail asks for w access to utmp, but it will operate
--# correctly without it.  Do not audit write and lock denials to utmp.
--allow sendmail_t initrc_var_run_t:file { getattr read };
--dontaudit sendmail_t initrc_var_run_t:file { lock write };
--
- # When sendmail runs as user_mail_domain, it needs some extra permissions
- # to update /etc/mail/statistics.
- allow user_mail_domain etc_mail_t:file rw_file_perms;
-
---Boundary-00=_GeYXB5AGmBdbRFw--
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
