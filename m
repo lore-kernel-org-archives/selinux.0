@@ -1,51 +1,69 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2SDDOx6029467
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 08:13:26 -0500 (EST)
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2SDuAx6029767
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 08:56:11 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h2SD9olY015067
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 13:09:50 GMT
-Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h2SD9nKX015064
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 13:09:49 GMT
-Message-Id: <200303281320.IAA25548@moss-shockers.ncsc.mil>
-Date: Fri, 28 Mar 2003 08:20:59 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: kernel compile failure
-To: selinux@tycho.nsa.gov, pebenito@ieee.org
+	by jazzswing.ncsc.mil  with ESMTP id h2SDqalY017265
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 13:52:37 GMT
+Received: from RelayDAL.nai.com (relaydal.nai.com [205.227.136.197])
+	by jazzswing.ncsc.mil  with ESMTP id h2SDqaKX017262
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 13:52:36 GMT
+Received: from txwsout1.nai.com ([161.69.216.92])
+	by RelayDAL.nai.com (Switch-2.2.5/Switch-2.2.5) with SMTP id h2SDrkN05561
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 07:53:46 -0600 (CST)
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: RE: general policy stuff
+Date: Fri, 28 Mar 2003 07:58:29 -0600
+Message-ID: <8894CA1F87A5D411BD24009027EE783801C14D09@md-exchange1.na.nai.com>
+From: <Kelly_Djahandari@nai.com>
+To: <russell@coker.com.au>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Russell Coker's diff patch have been applied to the files on sourceforge, and the spelling error corrected. Thanks Russell for the changes.
 
-> I patched a stock 2.4.20 kernel with the 2003011510 lsm and selinux
-> patches from the NSA site.  The compile fails right at the end with a
-> linker error (.config attached):
-<snip>
-> kernel/kernel.o(.text+0xbf34): In function `sys_acct':
-> : undefined reference to `security_acct'
-> make: *** [vmlinux] Error 1
-> 
-> 
-> This config has worked on previous revisions of the patches.  Ideas?
+Kelly Djahandari
+Network Associates Laboratories
 
-Yes, while back porting the changes from 2.5 to make LSM a
-configuration option, I missed a couple of instances where we need to
-#include <linux/security.h> to pick up the static inline function
-definitions.  This was mentioned previously in
-http://marc.theaimsgroup.com/?l=selinux&m=104284099029343&w=2 (and the
-next message in the thread, same problem if you enable quotas).  You
-might want to check out a copy of the sourceforge CVS tree, since it
-has the patches that have been posted since the last public release
-already merged:
+-----Original Message-----
+From: Russell Coker
+To: SE Linux
+Sent: 3/16/03 3:36 PM
+Subject: general policy stuff
 
-cvs -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux \
--z3 co nsa
+The Makefile for the policy has constraints mis-spelled in the following
+line:
+POLICYFILES += tmp/contraints-contexts.m4
 
---
-Stephen Smalley, NSA
+Temporary files don't matter much how they are spelled, but I still
+think it 
+should be right.
 
+Recently the line
+allow $2_t console_device_t:chr_file rw_file_perms;
+was added to the daemon_sub_domain() macro.  I don't think that this is 
+desired as the ability to read/write to the console can allow a daemon a
+
+dangerous level of access (maybe offering a trojan login prompt).
+
+Although there are probably some other things that need to be considered
+
+regarding the console (last time I wanted to run a getty on a serial
+console 
+I found the default policy incapable of it).
+
+I have attached the diff between my policy and the CVS policy for the
+core 
+files and the .fc files.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux
+packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+ <<diff>> 
 
 
 --
