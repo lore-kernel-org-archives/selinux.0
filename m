@@ -1,57 +1,79 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA14347
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 09:11:01 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA03990
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:08:58 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA14271
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 09:06:00 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA08750
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:03:44 GMT
 Received: from hellcat.admin.navo.hpc.mil (hellcat.admin.navo.hpc.mil [204.222.179.34])
-        by jazzband.ncsc.mil  with ESMTP id OAA03986 for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:08:58 GMT
+	by jazzswing.ncsc.mil  with ESMTP id OAA08746
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:03:43 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Russell Coker <russell@coker.com.au>,
-        "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
-Subject: Re: expect
-Date: Mon, 2 Dec 2002 08:09:20 -0600
-References: <200211292002.PAA23890@moss-shockers.ncsc.mil> <200212011308.58878.russell@coker.com.au>
-In-Reply-To: <200212011308.58878.russell@coker.com.au>
+To: "Subba Rao" <sailorn@attglobal.net>, Russell Coker <russell@coker.com.au>,
+        selinux <selinux@tycho.nsa.gov>
+Subject: Re: SELinux compile errors
+Date: Mon, 2 Dec 2002 08:04:16 -0600
+References: <200211301704.RAA19613@jazzband.ncsc.mil>
+In-Reply-To: <200211301704.RAA19613@jazzband.ncsc.mil>
 MIME-Version: 1.0
-Message-Id: <200212020809.20563.pollard@admin.navo.hpc.mil>
+Message-Id: <200212020804.16595.pollard@admin.navo.hpc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 01 December 2002 06:08 am, Russell Coker wrote:
-> On Fri, 29 Nov 2002 21:02, Stephen D. Smalley wrote:
-> > > Due to what I believe to be bugs in expect, the new open_init_pty
-> > > program will not work correctly with old versions of expect.  Version
-> > > 5.38.0 works fine, version 5.32.2 is broken.  I don't know when the bug
-> > > was fixed exactly.
+On Saturday 30 November 2002 11:03 am, Subba Rao wrote:
+> I will first try the SSH without the kerberos option.  If it works then I
+> will  file a bug report for Slackware.
+
+It's not exactly a Slackware problem. They accept the configuration as defined 
+by  the person making the submission.
+
+Since you are doing a raw rebuild, you have to specify the "without-kerberos5"
+and possibly "without-kerberos4" as well.
+
+This is a leftover ? from adding kerberos support to OpenSSH by the OpenSSH
+project. This was added only within the last 2/3 months, and the people using
+it/developing it MUST have Kerberos included (Major Shared Resource Center
+as part of the DoD HPC modernization program - me incuded as a user). I don't
+know why it is on by default since it is useless without the path to the
+Kerberos libraries. It may actually be a bug in the "configure" phase and not
+a bug in the code.
+
+> ======= At 2002-11-30, 17:58:00 you wrote: =======
+>
+> >On Sat, 30 Nov 2002 17:45, Subba Rao wrote:
+> >> /usr/include/bits/string2.h:446: warning: pointer of type `void *' used
+> >> in arithmetic /usr/include/bits/string2.h:448: warning: pointer of type
+> >> `void *' used in arithmetic /usr/include/bits/string2.h:453: warning:
+> >> pointer of type `void *' used in arithmetic
 > >
-> > I've backed out the open_init_pty changes to our internal copy of
-> > run_init.   I'd rather not have the base run_init functionality dependent
-> > on a particular version of expect, and I'm not even sure that it is
-> > wise to depend on having expect installed at all.
+> >That looks like a bug in the string2.h file, but it might be a bug in
+> >something else that it depends on.
+> >
+> >Does Slackware have a bug tracking system?  If so file a bug report about
+> >this.
+> >
+> >> gcc -g -O2 -Wall -Wpointer-arith
+> >> -Wno-uninitialized -DWITH_SELINUX -I/usr/local/selinux/include -I. -I.
+> >> -I/usr/kerberos/include -DSSHDIR=\"/etc/ssh\"
+> >> -D_PATH_SSH_PROGRAM=\"/usr/bin/ssh\"
+> >> -D_PATH_SSH_ASKPASS_DEFAULT=\"/usr/libexec/openssh/ssh-askpass\"
+> >> -D_PATH_SFTP_SERVER=\"/usr/libexec/openssh/sftp-server\"
+> >> -D_PATH_SSH_KEY_SIGN=\"/usr/libexec/openssh/ssh-keysign\"
+> >> -D_PATH_SSH_PIDDIR=\"/var/run\"
+> >> -D_PATH_PRIVSEP_CHROOT_DIR=\"/var/empty\"
+> >> -DSSH_RAND_HELPER=\"/usr/libexec/openssh/ssh-rand-helper\"
+> >> -DHAVE_CONFIG_H -c monitor_wrap.c In file included from
+> >> monitor_wrap.c:36:
+> >> auth.h:42: krb5.h: No such file or directory
+> >> make[1]: *** [monitor_wrap.o] Error 1
+> >> make[1]: Leaving directory `/usr/src/selinux/utils/openssh-3.4p1'
+> >> make: *** [xopenssh] Error 2
+> >>  --------------------------------------
+> >
+> >Have you tried adding --without-kerberos5 to the ./configure for ssh?
 >
-> I will not do the same for my Debian packages.
->
-> I can see the benefit in having two options available for users in this
-> case, as some smaller devices such as PDAs may not have space for expect. 
-> But Debian is a heavy distribution primarily designed for workstations and
-> servers.  Debian works well on laptops too but is not designed to scale
-> down any further than that.  So I think that there is no reason not to
-> depend on expect.
->
-> I have made my Debian packages depend on the appropriate version of expect
-> so you can just install the packages and be sure that the right things are
-> automatically installed.
-
-IMHO not the best solution, since the existance of "expect" depends entirely
-on local policy. At our site, it is not to be installed without a LOT of
-justification first, and only with policy wavers on an individual basis.
-
-Making it mandatory for the system to function would mean that the Debian
-distribution will not be permitted. This isn't a major problem for us, at
-least, since we have standardized on RH.
+> = = = = = = = = = = = = = = = = = = = =
 
 -- 
 -------------------------------------------------------------------------
