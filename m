@@ -1,42 +1,32 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98DdGrT021488
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 09:39:16 -0400 (EDT)
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98Dc6Bk028018
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 13:38:07 GMT
-Subject: Re: .fonts-cache being created as user_home_dir_t
-From: Erich Schubert <erich@debian.org>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20041008100458.GC5089@lkcl.net>
-References: <20041005091026.GB25251@lkcl.net>
-	 <200410071250.14304.russell@coker.com.au>  <20041008100458.GC5089@lkcl.net>
-Content-Type: text/plain
-Date: Fri, 08 Oct 2004 15:38:56 +0200
-Message-Id: <1097242736.14591.5.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: More SELinux fixes.
+Date: Fri, 8 Oct 2004 23:41:32 +1000
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <4165B9AA.8090803@redhat.com>
+In-Reply-To: <4165B9AA.8090803@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200410082341.32225.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Fri, 8 Oct 2004 07:48, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Please eliminate space before "udp" in inetd_child calls.  This will not
+> work correctly with the space.
 
->  i couldn't entirely say: let me see if i can find out...
->  a search through all kdebase *.cpp,h only shows up
->  something in kcontrol kio handler.  so that didn't work.
+In what way doesn't it work correctly?
 
-.fonts-cache is probably created by the fontconfig libraries, so any app
-that does link this library could be "causing" this.
-I guess the cleanes SELinux approach would be to split this out of the
-fontconfig libraries into an own application... ;-)
+I just did a quick test and diff didn't report any difference in the result 
+when I added a space.
 
-Greetings,
-Erich Schubert
 -- 
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-     Which is worse: ignorance or apathy? Who knows? Who cares?     //\
-            Es lohnt sich nicht, die Augen aufzumachen,             V_/_
-                   wenn der Kopf im Sand steckt.
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
