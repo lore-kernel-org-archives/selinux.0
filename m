@@ -1,70 +1,103 @@
-Subject: RE: Policy compiler issues.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Bush, Daniel" <Daniel.Bush@boeing.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>, selinux-dev@tresys.com
-In-Reply-To: <E7E29FA7C732D146887C784B34AEF6A0044E412B@xch-ne-01.ne.nos.boeing.com>
-References: 
-	 <E7E29FA7C732D146887C784B34AEF6A0044E412B@xch-ne-01.ne.nos.boeing.com>
-Content-Type: text/plain
-Message-Id: <1085070079.521.194.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KGQPRb020362
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:26:26 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4KGQMAR009378
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 16:26:22 GMT
+Received: from smtp804.mail.ukl.yahoo.com (smtp804.mail.ukl.yahoo.com [217.12.12.141])
+        by jazzband.ncsc.mil  with SMTP id i4KGQKHn009371 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 16:26:21 GMT
+Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
+  by smtp804.mail.ukl.yahoo.com with SMTP; 20 May 2004 16:26:20 -0000
+Date: Thu, 20 May 2004 16:23:43 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: start of patch to dpkg's start-stop-daemon
+Message-ID: <20040520162343.GL8810@lkcl.net>
+References: <20040520084306.GL24597@lkcl.net> <200405210132.17391.russell@coker.com.au>
 Mime-Version: 1.0
-Date: Thu, 20 May 2004 12:21:19 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200405210132.17391.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-05-20 at 11:54, Bush, Daniel wrote:
-> >How do you plan on distributing updates to the users list and user-role authorizations?
->    As it stands the whole system needs to weigh in at less than about
-> 64M with smaller being MUCH better (32M would be ideal.) So you can
-> see, there's not much room for a full compiler/linker suite.
+On Fri, May 21, 2004 at 01:32:17AM +1000, Russell Coker wrote:
+> On Thu, 20 May 2004 18:43, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > it's a patch to dpkg 1.10.21's utils/start-stop-daemon.c
+> > which causes a context switch just before
+> > the setuid/setgid calls.
+> 
+> What is the benefit in that?
+ 
+ uhm...
 
-Just to clarify, we aren't talking about a full compiler/linker suite. 
-The policy compiler is just a specialized compiler for the policy
-language.  And you can always recompile the policy on a "policy build
-machine" and push the new binary policy to all of your embedded systems
-via some mechanism, so you really only need load_policy on the embedded
-systems.  load_policy is a trivial program; just opens and mmap's the
-binary policy file and writes it to /selinux/load to feed it to the
-kernel.
+ mmm...
+ 
+ it's easier than breaking pre-existing /etc/init.d/* scripts where 
+ people expect the -u option to act as it should?
 
-$ size /usr/sbin/load_policy
-   text    data     bss     dec     hex filename
-   2739     316       0    3055     bef /usr/sbin/load_policy
+ in other words, the benefit in patching start-stop-daemon is to
+ provide legacy transition support.
 
->     "user_u" isn't really the problem. The other, higher orders are.
-> The specification calls for a couple of new user classes (I'm pretty
-> sure I can institute those.) and those  classes have a forseeable need
-> to have their membership lists changed in the field. If we need to
-> re-compile the policy when that happens, this presents a problem.
+ i _really_ don't want the -u option on my custom /etc/init.d/custom
+ script to suddenly start running the daemon as root.
 
-If you set up an infrastructure that lets you rebuild policy on a
-"policy build machine" and then push out the binary policy to all of
-your embedded systems upon user database updates, I'm not sure that this
-is a real issue.  
+ as an inexperienced SE/Linux user i might not _know_ that i have to
+ write a domain_auto_trans() rule in the /etc/selinux policy.
 
-The alternative is to implement support for generic user identity
-mapping in libselinux's get_ordered_context_list function beyond the
-simple user_u support that exists today, define a set of generic user
-identities one per role (staff_u, sysadm_u, etc) that are authorized for
-that role, and have libselinux map all real users to one of these
-generic user identities based on some other criteria (e.g. is the real
-user in a particular group in the NIS map?).  That pushes responsibility
-for enforcing user-role restrictions up into libselinux and ultimately
-to your user database server, so you obviously need to provide
-appropriate protection there.
+ therefore all of a sudden, by upgrading to SE/Linux i suddenly have
+ my -u option effectively ignored.
 
-> This sounds promising... Could you please direct me to the date range of the messages you're referring to?
+ under which circumstances, what you are saying is that
+ because the script will run as system_u:system_r:initrc_t,
+ and because that context will not have (shouldn't have!)
+ permission to do anything outrageous, my startup script will
+ break.
 
-http://marc.theaimsgroup.com/?l=selinux&m=106453351114046&w=2
-http://marc.theaimsgroup.com/?l=selinux&m=105459714906101&w=2
+ well, that's better than nothing (an "i can't... " is a LOT
+ better than "i didn't know it could...") , but it's still a pain.
 
-The binary policy patch tools are out-of-date, and should be obsoleted
-by newer work going on at Tresys to support direct manipulation of
-binary policies.
+ 
+ so, the benefit is: not so much pain.
+
+ is that a good enough reason?
+
+ sincerely,
+
+ l.
+
+
+> start-stop-daemon is designed to be run from a /etc/init.d/* script.  That 
+> script will run as system_u:system_r:initrc_t and there will be a 
+> domain_auto_trans() rule to cause the daemon to be started as 
+> system_u:system_r:whatever_t.
+> 
+> start-stop-daemon is also run from cron jobs, in that case it will run as 
+> system_u:system_r:system_crond_t (in which case the program it runs will have 
+> any appropriate domain transition automatically), or it will run as the cron 
+> domain for the daemon (IE the script that calls start-stop-daemon has a 
+> domain transition *) and again it doesn't need to do anything special.
+> 
+> *)  domain_auto_trans() rules that allow script execution to have more privs 
+> than the calling code is bad.  But having the script execute with less privs 
+> is OK (not great but OK).
+> 
+> -- 
+> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+> http://www.coker.com.au/~russell/  My home page
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+-- 
+expecting email to be received and understood is a bit like
+picking up the telephone and immediately dialing without
+checking for a dial-tone; speaking immediately without listening
+for either an answer or ring-tone; hanging up immediately and
+believing that you have actually started a conversation.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
