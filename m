@@ -1,38 +1,27 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h984OlWt016770
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 00:24:47 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h984Ok7d007773
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 04:24:46 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-        by jazzband.ncsc.mil  with ESMTP id h984OgRn007770 for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 04:24:44 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: =?iso-8859-2?q?Magos=E1nyi=20=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Subject: Re: [selinux] init
-Date: Wed, 8 Oct 2003 14:24:19 +1000
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE Linux <selinux@tycho.nsa.gov>
-References: <200310080111.50210.russell@coker.com.au> <1065558422.7696.106.camel@kusturica>
-In-Reply-To: <1065558422.7696.106.camel@kusturica>
+To: Peter Simons <simons+sel@cryp.to>, SELinux@tycho.nsa.gov
+Subject: Re: patched wdm (new API)
+Date: Wed, 8 Oct 2003 15:05:33 +1000
+References: <20031002145936.A16412@lemuria.org> <87isn0a5ot.fsf@peti.cryp.to>
+In-Reply-To: <87isn0a5ot.fsf@peti.cryp.to>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
-Message-Id: <200310081424.19249.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200310081505.33814.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 8 Oct 2003 06:27, Magosányi Árpád wrote:
-> I would vote for 5 being
-> < 5) if policy isn't loaded and we don't have [some indication that we
-> do not insist on selinux], halt the system with an appropriate message.
+On Wed, 8 Oct 2003 11:17, Peter Simons wrote:
+>  > I have patched the current wdm version so we have again an
+>  > SELinux-aware graphical login available.
 >
-> The indication could be that there is no selinux support in the kernel,
-> or some boot option.
+> Out of curiosity: wdm requires WindowMaker as well, right?
+>
+> Is there any chance these patches could be applied to xdm as well?
 
-Currently we have been working towards making a SE Linux system be usable if 
-booted with a non-SE kernel.  We could have a compile option to do what you 
-request, but I doubt that we want it on by default.  We certainly don't want 
-it in RPMs that we ship!
+Have you tried the PAM module that Dan wrote?  It should work for xdm as long 
+as it's PAM enabled.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
