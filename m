@@ -1,30 +1,80 @@
-Date: Wed, 26 Nov 2003 17:33:29 +0100
-From: Tom <tom@lemuria.org>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Problems with /dev/tty on reboot.
-Message-ID: <20031126173328.C6812@lemuria.org>
-References: <3FC4AF2B.3060301@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3FC4AF2B.3060301@redhat.com>; from dwalsh@redhat.com on Wed, Nov 26, 2003 at 08:48:27AM -0500
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAQJPtRb021594
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 14:25:55 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAQJPKp5013619
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 19:25:20 GMT
+Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
+	by jazzswing.ncsc.mil  with ESMTP id hAQJPIt0013610
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 19:25:19 GMT
+Received: (from root@localhost)
+	by baitaca.ipen.br (8.12.9/8.12.9) id hAQJQNSf025580
+	for selinux@tycho.nsa.gov; Wed, 26 Nov 2003 17:26:23 -0200
+Received: from ipen.br ([10.0.12.47])
+	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id hAQJQDeE024994
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 17:26:13 -0200
+Message-ID: <3FC4FE11.8020003@ipen.br>
+Date: Wed, 26 Nov 2003 17:25:05 -0200
+From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
+MIME-Version: 1.0
+To: selinux <selinux@tycho.nsa.gov>
+Subject: fs_use and genfscon
+Content-Type: multipart/alternative;
+ boundary="------------070707090505060802010202"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Nov 26, 2003 at 08:48:27AM -0500, Daniel J Walsh wrote:
-> is not a clean solution.  Also this can probably happen to other files 
-> that have their contexts changed by running processes.  Ideas on how to 
-> solve this problem??
 
-Your solution doesn't sound too bad.
+--------------070707090505060802010202
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Have a config file, say /etc/selinux/required_file_contexts and call
-setfiles from an init script very early.
+Helo.
 
+About *fs_use* and *genfscon*, I can take that: *fs_use* is used with 
+filesystems that use extended attributes (xattr) and *genfscon* is to 
+filesystems that not use.
+
+Thanks.
+
+Sorry my unworthiness.
 
 -- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+Carlos Anisio Monteiro  <monteiro@ipen.br>
+IPEN/CNEN-SP
+Sao Paulo - Brasil
+
+
+--------------070707090505060802010202
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+Helo.<br>
+<br>
+About <b>fs_use</b> and <b>genfscon</b>, I can take that: <b>fs_use</b> is
+used with filesystems that use extended attributes (xattr) and <b>genfscon</b>
+is to filesystems that not use.<br>
+<br>
+Thanks.<br>
+<br>
+Sorry my unworthiness.<br>
+<br>
+<pre class="moz-signature" cols="$mailwrapcol">-- 
+Carlos Anisio Monteiro  <a class="moz-txt-link-rfc2396E" href="mailto:monteiro@ipen.br">&lt;monteiro@ipen.br&gt;</a>
+IPEN/CNEN-SP
+Sao Paulo - Brasil
+</pre>
+</body>
+</html>
+
+--------------070707090505060802010202--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
