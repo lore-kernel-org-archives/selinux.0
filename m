@@ -1,63 +1,62 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KHooRb021238
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 13:50:51 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KIDCRb021464
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 14:13:13 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4KHmOB2014205
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 17:48:24 GMT
-Received: from smtp802.mail.ukl.yahoo.com (smtp802.mail.ukl.yahoo.com [217.12.12.139])
-	by jazzswing.ncsc.mil  with SMTP id i4KHmNwi014202
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 17:48:24 GMT
-Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 20 May 2004 17:50:45 -0000
-Date: Thu, 20 May 2004 17:48:03 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <rcoker@redhat.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: start of patch to dpkg's start-stop-daemon
-Message-ID: <20040520174803.GA18182@lkcl.net>
-References: <20040520084306.GL24597@lkcl.net> <200405210132.17391.russell@coker.com.au> <20040520162343.GL8810@lkcl.net> <200405210333.37234.rcoker@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200405210333.37234.rcoker@redhat.com>
+	by jazzswing.ncsc.mil  with ESMTP id i4KIAjB2016119
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 18:10:46 GMT
+Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
+	by jazzswing.ncsc.mil  with ESMTP id i4KIAjwi016113
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 18:10:45 GMT
+Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KID7WG026087
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 14:13:07 -0400
+Received: (from hdholm@localhost)
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id i4KID7dp026085
+	for selinux@tycho.nsa.gov; Thu, 20 May 2004 14:13:07 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KI5CRf021358
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 14:05:24 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4KHYjAR014857
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 17:34:46 GMT
+Received: from smtp.sws.net.au ([61.95.69.6])
+        by jazzband.ncsc.mil  with ESMTP id i4KHXYHn014368 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 17:33:35 GMT
+From: Russell Coker <rcoker@redhat.com>
+Reply-To: rcoker@redhat.com
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: FAM uses seteuid and setegid
+Date: Fri, 21 May 2004 03:32:23 +1000
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   SE-Linux <selinux@tycho.nsa.gov>
+References: <20040520121538.GA8810@lkcl.net> <20040520162445.GM8810@lkcl.net> <1085070739.521.201.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1085070739.521.201.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200405210332.23918.rcoker@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, May 21, 2004 at 03:33:37AM +1000, Russell Coker wrote:
-> On Fri, 21 May 2004 02:23, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > > it's a patch to dpkg 1.10.21's utils/start-stop-daemon.c
-> > > > which causes a context switch just before
-> > > > the setuid/setgid calls.
-> > >
-> > > What is the benefit in that?
+On Fri, 21 May 2004 02:32, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> On Thu, 2004-05-20 at 12:24, Luke Kenneth Casson Leighton wrote:
+> > > Famd is badly designed for security.  There has been talk of replacing
+> > > that functionality with other code, the general concept is that for a
+> > > local FAM you just have the first process to call it fork off a child
+> > > process which executes a famd in the user context, then other processes
+> > > with the same UID can connect to the same famd.
 > >
-> >  it's easier than breaking pre-existing /etc/init.d/* scripts where
-> >  people expect the -u option to act as it should?
-> 
-> How is it broken?  initrc_t has setuid and setgid capabilities so SE Linux 
-> does not stop the regular function of start-stop-daemon.
- 
- ..o*??  ah, cool, that's very smart, i wasn't expecting that.
+> >  that's much more sensible.
+>
+> Yes, but unfortunately it doesn't help with remote FAM usage, which
+> isn't uncommon.
 
- i learn something new every day :)
+We can still use the current version of famd for remote use, it just becomes 
+an option that does not need to be installed.  Previously famd was required 
+for any fully functional desktop system, which is not what we want.
 
-> >  in other words, the benefit in patching start-stop-daemon is to
-> >  provide legacy transition support.
-> 
-> My systems have been working fine with a non-patched start-stop-daemon for two 
-> years.  When I first started working on SE Linux I had a similar idea to 
-> avoid the use of run_init, that turned out to be a bad idea and I've been 
-> using the regular start-stop-daemon since then.
-> 
-> >  i _really_ don't want the -u option on my custom /etc/init.d/custom
-> >  script to suddenly start running the daemon as root.
-> 
-> Why not?
- 
- ignore all the rest of my comments: they were based on the assumption
- that initrc_t would not allow setuid or setgid.
-
- l.
-
+-- 
+http://apac.redhat.com/disclaimer
+See above URL for disclaimer.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
