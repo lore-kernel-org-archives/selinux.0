@@ -1,69 +1,42 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8OFnWrT018532
-	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 11:49:32 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8OFnVrq027303
-	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 15:49:31 GMT
-Subject: Re: patch: clean up vmware
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8OHmfrT019408
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 13:48:42 -0400 (EDT)
+Received: from oe-im1.bizmailsrvcs.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8OHlfxO002946
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 17:47:41 GMT
+Subject: Re: Remove unrestricted_admin
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Russell Coker <russell@coker.com.au>
-Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <200409232314.25355.russell@coker.com.au>
-References: <20040917224956.GA2517@jmh.mhn.de>
-	 <200409232314.25355.russell@coker.com.au>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, jwcart2@epoch.ncsc.mil,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <200409250105.40796.russell@coker.com.au>
+References: <200409211526.37810.russell@coker.com.au>
+	 <1095884528.11254.6.camel@moss-lions.epoch.ncsc.mil>
+	 <4152D07C.9060507@redhat.com>  <200409250105.40796.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1096040908.21017.64.camel@moss-lions.epoch.ncsc.mil>
+Date: Fri, 24 Sep 2004 13:50:44 -0400
+Message-Id: <1096048244.9895.4.camel@selinux>
 Mime-Version: 1.0
-Date: Fri, 24 Sep 2004 11:48:28 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
+On Sat, 2004-09-25 at 01:05 +1000, Russell Coker wrote:
+> -allow sysadm_t fixed_disk_device_t:devfile_class_set rw_file_perms;
+> 
+> I think that perhaps we should add that line back.
+> 
+> Of the times that I temporarily enable permissive mode to execute a command, 
+> in 99% of them it's because of access to a fixed disk.
 
-I also added:
+Why would you need to directly access the disk as sysadm_t?  All the
+applicable tools should be transitioning to fsadm_t.
 
-diff -u -r1.24 base_user_macros.te
---- macros/base_user_macros.te	22 Sep 2004 20:06:02 -0000	1.24
-+++ macros/base_user_macros.te	24 Sep 2004 14:46:39 -0000
-@@ -167,10 +167,7 @@
- # Instantiate a derived domain for user cron jobs.
- ifdef(`crond.te', `crond_domain($1)')
- 
--ifdef(`vmware.te', `
--# probably should have a separate domain for each user
--file_type_auto_trans(vmware_user_t, $1_home_dir_t, vmware_user_file_t)
--')
-+ifdef(`vmware.te', `vmware_domain($1)')
- 
- if (user_direct_mouse) {
- # Read the mouse.
-
-On Thu, 2004-09-23 at 09:14, Russell Coker wrote:
-> On Sat, 18 Sep 2004 08:49, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
-> wrote:
-> > After reading through the messy vmware policy I decided to clean it up a
-> > little. Result is below.
-> 
-> The changes are so great that patches don't work well.  I've made a few 
-> modifications to your policy and attached an archive of it.
-> 
-> I think that defining vmware_t is a bad idea.  I think that we want 
-> system_vmware_t to be used for vmware sessions launched by the server and 
-> have the same base macro used as for user_vmware_t.
-> 
-> Your work is good and is a significant enough improvement to be worth merging 
-> now.  But we need to go further to get the full functionality.
-> 
-> Also please keep in mind that some people may want to have multiple VMware 
-> sessions isolated from each other which are launched from the same user role.  
-> Maybe having two parameters to the vmware_domain() macro is the correct thing 
-> to do, one to specify the source role and one part of the name for the target 
-> domain.
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
