@@ -1,33 +1,31 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA00638
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 10:54:14 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA15284
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 15:51:58 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA01110
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 11:19:59 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA12698
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 16:17:56 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id PAA15278
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 15:51:57 GMT
-Message-Id: <200212021601.LAA25250@moss-shockers.ncsc.mil>
-Date: Mon, 2 Dec 2002 11:01:33 -0500 (EST)
+        by jazzband.ncsc.mil  with ESMTP id QAA12694 for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 16:17:56 GMT
+Message-Id: <200212021627.LAA25272@moss-shockers.ncsc.mil>
+Date: Mon, 2 Dec 2002 11:27:17 -0500 (EST)
 From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
 Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: automake
-To: selinux@tycho.nsa.gov, JBrindle@snu.edu
+Subject: Re: SELinux compile errors
+To: russell@coker.com.au, selinux@tycho.nsa.gov, sailorn@attglobal.net
 MIME-Version: 1.0
 Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> Are the patches to use automake with selinux going to be merged into the
-> selinux distribution on sourceforge? 
+SELinux isn't inherently dependent on PAM or kerberos.  If your system is not
+using PAM, then you'll need to adjust the configure options in
+utils/Makefile and the flags in the newrole and run_init Makefiles.
+Likewise with the configure options for kerberos in utils/Makefile.
 
-If you are referring to the CVS repository at sourceforge, it mirrors
-the public releases of SELinux from the NSA site.  I wouldn't expect
-the automake changes to be merged upstream in their current form,
-since as far as I know, they only address selinux-small (not the full
-set of SELinux-patched utilities and daemons) and are dependent on
-the installation locations used by the Debian selinux package.
+But I can't really recommend that you proceed down this path.  Porting
+SELinux to Slackware properly requires more than just hacking up configure
+options and Makefiles.
 
 --
 Stephen Smalley, NSA
