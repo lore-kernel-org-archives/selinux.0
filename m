@@ -1,41 +1,53 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBK4pqIi012782
-	for <selinux@tycho.nsa.gov>; Sun, 19 Dec 2004 23:51:52 -0500 (EST)
-Received: from web50209.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id iBK4o8kB025159
-	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 04:50:08 GMT
-Message-ID: <20041220045151.46055.qmail@web50209.mail.yahoo.com>
-Date: Sun, 19 Dec 2004 20:51:51 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [patch] selinux_capget()
-To: russell@coker.com.au, Casey Schaufler <casey@schaufler-ca.com>
-Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <200412201216.23660.russell@coker.com.au>
-MIME-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBKFo1Ii014864
+	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 10:50:02 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBKFo3eP018299
+	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 15:50:04 GMT
+Received: from lkcl.net (host81-153-247-118.range81-153.btcentralplus.com [81.153.247.118])
+	by open.hands.com (Postfix) with ESMTP id 2C984BFF4
+	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 15:49:52 +0000 (GMT)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1CgPxf-0000Qs-LP
+	for selinux@tycho.nsa.gov; Mon, 20 Dec 2004 16:00:39 +0000
+Date: Mon, 20 Dec 2004 16:00:39 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: paranoid FC3 setup: banning all login access (!)
+Message-ID: <20041220160039.GE24188@lkcl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+hi,
 
---- Russell Coker <russell@coker.com.au> wrote:
+i have a requirement for setting up a server that might even ban
+logins - even admin logins.
 
- 
-> Doesn't access(2) deal with ACLs and mount options?
+the only things that should be allowed are reboot (ctrl-alt-delete at
+console) and services (e.g apache).
 
-No. 
+my question is, therefore: is it possible to _conveniently_
+load a completely different selinux policy file (by typing
+"linux init 3" or other incantation at the grub prompt)
 
+what i want to be able to do is say to my customer "yes, in
+order to do upgrades and maintenance, you press ctrl-alt-delete,
+selection option 2) on the boot-loader menu, and you will be
+dropped into standard admin mode.  when you are done, reboot
+again and let it go back into 'paranoid' mode")
 
-=====
-Casey Schaufler
-casey@schaufler-ca.com
+can anyone help advise?
 
+ta,
 
-		
-__________________________________ 
-Do you Yahoo!? 
-All your favorites on one personal page – Try My Yahoo!
-http://my.yahoo.com 
+l.
+
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
