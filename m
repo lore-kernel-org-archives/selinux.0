@@ -1,47 +1,109 @@
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-Subject: GNU Coding Standards (was: Setools 1.0.1 released)
-References: <1067890582.1269.32.camel@colossus.columbia.tresys.com>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 14 Nov 2003 10:04:13 -0500
-In-Reply-To: <1067890582.1269.32.camel@colossus.columbia.tresys.com>
-Message-ID: <ogtn0az2dqq.fsf@divan.mitre.org>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAEGvHSf025745
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 11:57:17 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAEGunBb029155
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 16:56:49 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+	by jazzswing.ncsc.mil  with ESMTP id hAEGun4o029152
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 16:56:49 GMT
+Message-ID: <3FB50965.4030207@redhat.com>
+Date: Fri, 14 Nov 2003 11:57:09 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: James Morris <jmorris@redhat.com>
+CC: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: unix_chkpwd
+References: <Xine.LNX.4.44.0311140823320.21499-100000@thoron.boston.redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0311140823320.21499-100000@thoron.boston.redhat.com>
+Content-Type: multipart/alternative;
+ boundary="------------070001060600010807040501"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Karl MacMillan <kmacmillan@tresys.com> writes:
+This is a multi-part message in MIME format.
+--------------070001060600010807040501
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> We have just released version 1.0.1 of setools.
+James Morris wrote:
 
-...
+>On Fri, 14 Nov 2003, Russell Coker wrote:
+>
+>  
+>
+>>We can do one of three things:
+>>1)  dontaudit system_chkpwd_t inetd_t:fd use;
+>>2)  Change sshd to use fcntl() before doing any PAM stuff.
+>>3)  Put code in pam_unix.so to close all file handles after the fork().
+>>
+>>Which do you think is best?  2 seems most correct to me, but may be most 
+>>difficult to get accepted upstream.
+>>    
+>>
+>
+>Yes, 2 seems correct to me as well, what objections would they have 
+>upstream?
+>
+>
+>- James
+>  
+>
 
-> The next release, sometime in early December, will include improved
-> information flow analysis, the ability to save and load complex
-> queries in apol, the removal of Tcl/TK and X dependencies from the
-> command-line tools, and a log file analysis tool that leverages
-> libapol to help a policy developer or system administrator
-> understand the audit message from SELinux.
+I still think the safest thing is to manual close all sockets, since 
+this prevents the case where someone has opened a socket accidently 
+since you don't know where pam is going to be used.  The time it takes 
+to run 0-max open file descriptors is tiny.
 
-Karl,
+Dan
 
-It would also be very helpful if the setools distribution adhered to
-GNU Coding Standards.  The standards have been developed over a long
-period of time, and compliant distributions fit into the Linux
-framework well.  Furthermore, tools are available that automate most
-of the work needed to meet the standards.  The lastest generation of
-autoconf, automake, libtool, and autoheader, make managing releases a
-no-brainer.
+--------------070001060600010807040501
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-If you're not an Emacs user, you can read about the GNU Coding
-Standards with the command "info standards".
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
+  <title></title>
+</head>
+<body text="#000000" bgcolor="#ffffff">
+James Morris wrote:<br>
+<blockquote type="cite"
+ cite="midXine.LNX.4.44.0311140823320.21499-100000@thoron.boston.redhat.com">
+  <pre wrap="">On Fri, 14 Nov 2003, Russell Coker wrote:
 
-You can see an example of a distribution that meets the standards in
-the selinux-usr/slat directory of the nsa module in the selinux
-project's CVS repository on SourceForge.  I just finished tuning it.
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">We can do one of three things:
+1)  dontaudit system_chkpwd_t inetd_t:fd use;
+2)  Change sshd to use fcntl() before doing any PAM stuff.
+3)  Put code in pam_unix.so to close all file handles after the fork().
 
-John
+Which do you think is best?  2 seems most correct to me, but may be most 
+difficult to get accepted upstream.
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+Yes, 2 seems correct to me as well, what objections would they have 
+upstream?
+
+
+- James
+  </pre>
+</blockquote>
+<br>
+I still think the safest thing is to manual close all sockets, since
+this prevents the case where someone has opened a socket accidently
+since you don't know where pam is going to be used.&nbsp; The time it takes
+to run 0-max open file descriptors is tiny.<br>
+<br>
+Dan<br>
+</body>
+</html>
+
+--------------070001060600010807040501--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
