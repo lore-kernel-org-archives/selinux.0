@@ -1,29 +1,30 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA13189
-	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 17:34:55 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id VAA19403
-	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 21:33:19 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA13207
+	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 17:35:41 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id VAA15984
+	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 21:34:47 GMT
 Received: from pintail.mail.pas.earthlink.net (pintail.mail.pas.earthlink.net [207.217.120.122])
-        by jazzband.ncsc.mil  with ESMTP id VAA19399 for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 21:33:18 GMT
+	by jazzswing.ncsc.mil  with ESMTP id VAA15980
+	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 21:34:46 GMT
 Received: from crtntx1-ar7-4-35-055-009.crtntx1.elnk.dsl.genuity.net ([4.35.55.9] helo=donkey)
 	by pintail.mail.pas.earthlink.net with esmtp (Exim 3.33 #1)
-	id 17bpV1-0002tz-00
-	for selinux@tycho.nsa.gov; Mon, 05 Aug 2002 14:34:47 -0700
+	id 17bpVr-0004Bn-00
+	for selinux@tycho.nsa.gov; Mon, 05 Aug 2002 14:35:39 -0700
 From: "Ryan Bergauer" <privateryan@mindspring.com>
 To: <selinux@tycho.nsa.gov>
-Subject: CVS install error
-Date: Mon, 5 Aug 2002 16:34:52 -0500
-Message-ID: <001201c23cc7$ef2bd1a0$0300a8c0@donkey>
+Subject: CVS tree make error
+Date: Mon, 5 Aug 2002 16:35:43 -0500
+Message-ID: <001701c23cc8$0dcc6520$0300a8c0@donkey>
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0013_01C23C9E.0655C9A0"
+	boundary="----=_NextPart_000_0018_01C23C9E.24F65D20"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0013_01C23C9E.0655C9A0
+------=_NextPart_000_0018_01C23C9E.24F65D20
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -44,8 +45,9 @@ This is on a barebones Red Hat 7.3 install. The July 3 release doesn't
 give this error.
  
 -Ryan 
+ 
 
-------=_NextPart_000_0013_01C23C9E.0655C9A0
+------=_NextPart_000_0018_01C23C9E.24F65D20
 Content-Type: text/html;
 	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
@@ -62,7 +64,7 @@ charset=3Dus-ascii">
 <meta name=3DProgId content=3DWord.Document>
 <meta name=3DGenerator content=3D"Microsoft Word 10">
 <meta name=3DOriginator content=3D"Microsoft Word 10">
-<link rel=3DFile-List href=3D"cid:filelist.xml@01C23C9E.05473FD0">
+<link rel=3DFile-List href=3D"cid:filelist.xml@01C23C9E.24299740">
 <!--[if gte mso 9]><xml>
  <o:OfficeDocumentSettings>
   <o:DoNotRelyOnCSS/>
@@ -235,13 +237,17 @@ font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 style=3D'font-size:10.0pt;
 font-family:Arial'>-Ryan <o:p></o:p></span></font></p>
 
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
 </div>
 
 </body>
 
 </html>
 
-------=_NextPart_000_0013_01C23C9E.0655C9A0--
+------=_NextPart_000_0018_01C23C9E.24F65D20--
 
 
 --
