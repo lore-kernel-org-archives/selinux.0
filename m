@@ -1,64 +1,40 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23707
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 08:44:57 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA18849
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 12:44:30 GMT
-Received: from eclipse.ncsc.mil (shuttle.eclipse.ncsc.mil [144.51.102.80])
-	by jazzband.ncsc.mil  with ESMTP id MAA18845
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 12:44:30 GMT
-Received: from star (star [144.51.102.85])
-	by eclipse.ncsc.mil (YOU_CAN/BYTE_ME) with SMTP id IAA15519
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 08:46:26 -0400 (EDT)
-Message-Id: <200109211246.IAA15519@eclipse.ncsc.mil>
-Date: Fri, 21 Sep 2001 08:46:26 -0400 (EDT)
-From: "James J." <jjohnson@eclipse.ncsc.mil>
-Reply-To: "James J." <jjohnson@eclipse.ncsc.mil>
-Subject: compiling LSM/SELinux fileutils
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA25488
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 13:33:10 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id RAA00809
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 17:31:35 GMT
+Received: from femail44.sdc1.sfba.home.com ([24.254.60.38])
+	by jazzswing.ncsc.mil  with ESMTP id RAA00805
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 17:31:35 GMT
+Received: from [192.168.1.12] ([65.0.60.32]) by femail44.sdc1.sfba.home.com
+          (InterMail vM.4.01.03.20 201-229-121-120-20010223) with ESMTP
+          id <20010921173302.IZZY29400.femail44.sdc1.sfba.home.com@[192.168.1.12]>
+          for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 10:33:02 -0700
+Date: Fri, 21 Sep 2001 10:33:01 -0700
+Subject: SELinux on embedded devices?
+From: Devon Hubbard <devon@mac.com>
+To: <selinux@tycho.nsa.gov>
+Message-ID: <B7D0C7DD.6697%devon@mac.com>
+In-Reply-To: <200109211246.IAA15519@eclipse.ncsc.mil>
+Mime-version: 1.0
+Content-type: text/plain; charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+My apologies to the list if there have been threads in the past on the
+following question...
 
-If this is not the proper list for a SELinux compile question please 
-direct me to a better list.
+Has anyone worked on putting SELinux on embedded devices?  Of course PDAs
+are by themselves inherently un-secure because of their portable nature but
+embedded devices that have wireless connections need high security as well.
 
-I'm trying to compile the "Option 3 - Everything but Kernel Source" code 
-and am running into trouble compiling in utils/fileutils-4.0.  I'm 
-following the steps in the README file.  All goes well until step 6 
-(Build and install the modified applications.)
+If you know if any existing projects for embedded devices please let me
+know.
 
-I have made one deviation from the steps in the README.  The system is 
-very stripped down, so logrotate, openssh, stat, and vixie-cron are not 
-on the system.  I have eliminated these programs from the SUBDIRS line 
-in the Makefile.
-  
-The first problem is that "make" fails because code in 
-fileutils-4.0/aclocal.m4 is duplicated in fileutils-4.0/m4/isc-posix.m4. 
- Inserting "dnl " in front of lines 519-527 of aclocal.m4 (i.e. 
-commenting out the duplicated lines) appears to fix this problem.  Is 
-there a better solution?
-
-The second problem is that "make" fails while running autoheader.  Here 
-is the error message:
-
-make[1]: Entering directory '/usr/src/selinux/utils/fileutils-4.0'
-cd . && autoheader
-autoheader: No template for symbol 'const'
-autoheader: No template for symbol 'mode_t'
-autoheader: No template for symbol 'off_t'
-autoheader: No template for symbol 'size_t'
-make[1]: *** [stamp-h.in] Error 1
-make[1]: Leaving directory '/usr/src/selinux/utils/fileutils-4.0'
-make: *** [all] Error 1
-
-I'm not familiar with autoheader, so I'm having some difficulty 
-diagnosing this problem.  Any ideas?
-
-James
-
+thanks,
+dEVoN Hubbard
+Motorola
 
 
 --
