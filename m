@@ -1,54 +1,48 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38ETPRb018010
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 10:29:25 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i38ETOmw010602
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 14:29:24 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38H9dRb019067
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:09:40 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i38H7dUZ004174
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 17:07:39 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i38ETO4w010599 for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 14:29:24 GMT
-Received: from moss-huskies (moss-huskies [144.51.25.7])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38ETL15010451
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 10:29:21 -0400 (EDT)
-Subject: Updated Release
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NMx9bNke0CGoYA3/GbUc"
-Message-Id: <1081434563.30613.72.camel@moss-huskies>
+	by jazzswing.ncsc.mil  with ESMTP id i38H7dmT004170
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 17:07:39 GMT
+Subject: Re: Policy backward compatibility
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Valdis.Kletnieks@vt.edu
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200404081704.i38H4ncM017181@turing-police.cc.vt.edu>
+References: <1081430495.6379.89.camel@moss-spartans.epoch.ncsc.mil>
+	 <200404081704.i38H4ncM017181@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Message-Id: <1081444172.6379.174.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 08 Apr 2004 10:29:23 -0400
+Date: Thu, 08 Apr 2004 13:09:32 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2004-04-08 at 13:04, Valdis.Kletnieks@vt.edu wrote:
+> What would be the upgrade path when installing a new kernel?  Would there be an
+> option for the policy tools similar to the current mkinitrd, that allows you to
+> specify the kernel version to use (so you can build an initrd for the kernel
+> you're about to try to boot)?
 
---=-NMx9bNke0CGoYA3/GbUc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yes, I think so.  Might be a front-end wrapper for checkpolicy that
+calls the right checkpolicy-{kernelrelease} binary to generate the
+policy for that kernel release.
 
-The SELinux web site <http://www.nsa.gov/selinux/> has been updated. The
-site includes a new release of the SELinux prototype. The current
-prototype and the experimental NFS code are now based on Linux kernel
-2.6.5. IPv6 support has been added. A new sestatus utility is
-available.  A number of bugs have been fixed and many updates have been
-made to the example policy.
+> What would the scheme be if you had to for some reason boot an older kernel
+> (for instance, having to drop back to 2.6.5-mm1 because -mm2 is b0rked for
+> something)?
 
---=20
-Howard Holm <hdholm@epoch.ncsc.mil>
-Office of Defensive Computing Research
+If you include the kernel release in the policy pathname (e.g.
+/etc/security/selinux/`uname -r`/policy), as with kernel modules
+(/lib/modules/`uname -r`), then the old policy should still be there and
+should be used by the older kernel if you reboot it.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
-
---=-NMx9bNke0CGoYA3/GbUc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQBAdWHC4bzZdP61mHERAg0KAJ9UnskgIGjosshi+5qzL9EHarfAaQCfRZ5q
-ikg98hXAizZZfcAK/bRuxZ8=
-=ZSnq
------END PGP SIGNATURE-----
-
---=-NMx9bNke0CGoYA3/GbUc--
 
 
 --
