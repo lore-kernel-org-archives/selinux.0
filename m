@@ -1,65 +1,54 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4HLn3Rb027375
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 17:49:03 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4HLwlRb027455
+	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 17:58:47 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4HLn1AR014686
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 21:49:01 GMT
+	by jazzband.ncsc.mil  with ESMTP id i4HLwjAR015270
+	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 21:58:45 GMT
 Received: from hafnium.btinternet.com (hafnium.btinternet.com [194.73.73.121])
-        by jazzband.ncsc.mil  with ESMTP id i4HLn0Hn014683 for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 21:49:00 GMT
-Received: from [81.130.181.235] (helo=lkcl.net)
-	by hafnium.btinternet.com with esmtp (Exim 3.22 #25)
-	id 1BPpym-0001Bd-00
-	for selinux@tycho.nsa.gov; Mon, 17 May 2004 22:49:00 +0100
-Received: from highfield ([192.168.0.223]:33965 helo=lkcl.net)
-	by lkcl.net with esmtp (Exim 4.24 #1)
-	id 1BPq1W-00076c-Lz
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 21:51:50 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BPpwH-0002qL-Df
-	for selinux@tycho.nsa.gov; Mon, 17 May 2004 21:46:25 +0000
-Date: Mon, 17 May 2004 21:46:25 +0000
+        by jazzband.ncsc.mil  with ESMTP id i4HLwiHn015267 for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 21:58:44 GMT
+Date: Mon, 17 May 2004 21:56:01 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: selinux@tycho.nsa.gov
-Subject: error on build of latest cvs (head) selinux-usr/policy
-Message-ID: <20040517214625.GV9378@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: suggestion to help transition to selinux: dynamic loading of libselinux
+Message-ID: <20040517215601.GW9378@lkcl.net>
+References: <20040515232606.GA9378@lkcl.net> <200405180510.40047.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200405180510.40047.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-bug-report time!
+On Tue, May 18, 2004 at 05:10:40AM +1000, Russell Coker wrote:
+> On Sun, 16 May 2004 09:26, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > and i presume that if such programs are compromised, and someone
+> > attempts to _stop_ libselinux from being loaded, well then
+> > those programs will not be capable of making domain transitions
+> > etc. and they will be useless [am i right?]
+> 
+> The first candidate for such changes would be init.  We would have to 
+> hard-code a check for selinux=0 in the init source to avoid having init just 
+> not enable SE Linux if file system corruption causes libselinux.so to 
+> disappear.
+ 
+ oh.  eek!  of course :)  cause libselinux.so to be corrupted and you're
+ in.
 
-i get the following message:
+ hmmm.... physical security is assumed already (i.e. no boot from
+ floppy)... 
 
-mkdir -p /etc/security/selinux
-/usr/bin/checkpolicy -o /etc/security/selinux/policy.15 policy.conf
-/usr/bin/checkpolicy:  loading policy configuration from policy.conf
-ERROR 'syntax error' at token 'typealias' on line 2764:
-typealias net_conf_t alias resolv_conf_t;
-type net_conf_t, file_type, sysadmfile;
-/usr/bin/checkpolicy:  error(s) encountered while parsing configuration
+ ... modification of initscripts "by corruption" an outside chance...
+ 
+ ... replacement of initscripts (apt-get install sysvinit) _cannot_
+ be ruled out...
 
-i also had to add:
+ ... therefore the startup process must be secure (no dynamic loading)
 
-$(ROOTDIR)/.default_contexts: appconfig/root_default_contexts
-        mkdir -p $(ROOTDIR)
-		install -m 644 $< $@
+ i don't know enough to be able to say it would be good, or bad, to
+ make _some_ programs do dynamic loading of libselinux and some not
+ do it.
 
-mkdir -p because otherwise the file doesn't get copied because
-the directory doesn't exist.
-
-l.
-
--- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+ l.
 
 
 --
