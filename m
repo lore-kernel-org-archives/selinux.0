@@ -1,90 +1,69 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82JpJrT002641
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:51:19 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82JoT3w008998
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 19:50:29 GMT
-Message-ID: <413779AB.3020102@redhat.com>
-Date: Thu, 02 Sep 2004 15:51:07 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Proposed Hardware File Context file.
-References: <200408241818.40064.russell@coker.com.au> <41371628.2020408@redhat.com> <1094130607.17265.47.camel@moss-spartans.epoch.ncsc.mil> <200409022338.20644.russell@coker.com.au> <1094136369.17265.128.camel@moss-spartans.epoch.ncsc.mil> <413741A3.3070305@redhat.com> <20040902195422.GJ5745@lkcl.net>
-In-Reply-To: <20040902195422.GJ5745@lkcl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82JsbrT002675
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:54:37 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82JsZv0029749
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 19:54:36 GMT
+Date: Thu, 2 Sep 2004 21:05:40 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
+   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+   Colin Walters <walters@verbum.org>,
+   linux-hotplug-devel@lists.sourceforge.net, SELinux <SELinux@tycho.nsa.gov>,
+   Bill Nottingham <notting@redhat.com>, Nigel Kukard <nkukard@lbsd.net>,
+   harald@redhat.com
+Subject: Re: Lomac questions [was Re: [OT] SELinux vs. other systems]
+Message-ID: <20040902200540.GL5745@lkcl.net>
+References: <20040830173744.GD10151@lbsd.net> <20040831160750.GM11456@lkcl.net> <20040831164635.GK10151@lbsd.net> <20040831191809.GC4375@lkcl.net> <20040831224447.GA4964@austin.ibm.com> <1094048975.11084.9.camel@nexus.verbum.private> <20040901172542.GH4964@austin.ibm.com> <1094141429.17265.281.camel@moss-spartans.epoch.ncsc.mil> <20040902172907.GB9645@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040902172907.GB9645@austin.ibm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Luke Kenneth Casson Leighton wrote:
+On Thu, Sep 02, 2004 at 12:29:07PM -0500, Linas Vepstas wrote:
 
->On Thu, Sep 02, 2004 at 11:52:03AM -0400, Daniel J Walsh wrote:
->  
->
->>Collin and I were discussing a way to label hardware devices correctly.
->>
->>One proposal would be to come up with a new file_contexts file based off 
->>of path and hardware type.
->>
->>So we could have a file with
->>
->>/dev/h
->>
->>/u?dev/[shmx]d[^/]*    -b    system_u:object_r:fixed_disk_device_t
->>    
->>
->
->you mean:
->
->  /u?dev/[shmx]d[^/]*    -b    system_u:object_r:fixed_disk_device_t disk
->
->or do you mean _not_ having the extra word on the end to indicate
->the default, should the type not be matched [by a udev script]?
->
->  
->
->>/u?dev/[shmx]d[^/]*    -b    system_u:object_r:removable_disk_device_t cdrom
->>    
->>
->
->  
->
-Yes I was thinking no hardware type would be default.
+> Is the 'broken-ness' the fact that grandma failed to run an anti-virus
+> scanner and verify checksums, yada yada, before elevating the
+> priveldge on the downloaded software?
 
->>Then either add a param to matchpathcon or a new function that would 
->>pass in the hardware type
->>and get the correct context.
->>
->>Then tools like udev could use this to create the device with the 
->>correct context.
->>
->>ideas??
->>    
->>
->
-> interesting.
->
-> in some respects, it's almost like you don't need the /u?dev/[...]...
-> bit: if it's a cdrom, you know it's removable_disk_device_t, end
-> of story.
->
->  
->
-Yes covered in another email.
+ [this is all with the strict policy 1.14 mostly sortof btw]
 
-> hm.
->
-> except.... what about restricting access to removable_disk_device_t,
-> or is that covered by user_rw_noexattrfile?
->
-> l.
->
-> 
->  
->
-Yes this is just getting the file type correct.  Policy would be handled 
-in the traditional way.
+ i've installed clamav, spamassassin, razor and pyzor.
+
+ oh, and freshclam.
+
+ i then found a little script called clamassassin [google], i then
+ searched [google] for some advice on how to set up kmail filters.
+
+ kmail, the clamassassin script and spamc all run under the user
+ context.
+
+ the user context is given the right to bind to servers.
+
+ spamd and clamd both run as servers: they have their own
+ policies that restrict their operation to what is known
+ that they presently do, but they are allowed to listen to
+ incoming requests [from spamc and the clamassassin script
+ respectively.]
+
+ selinux doesn't in the _slightest_ bit get in the way.
+
+
+ the only thing that i did find is that razor is a complete pain.
+
+ it endeavours to write log files into /root/razor.log, /tmp/razor.log,
+ /razor.log, it's a pain, and selinux is _exactly_ the sort of thing
+ that can detect - and stop! - this behaviour.
+
+ pyzor appears to be a lot less haphazard.
+
+ also nobody else appears to have tried to run freshclam [automatic
+ update script] before now, so i had to hack the clamav.te policy
+ a bit to get it to run.
+
+ l.
 
 
 --
