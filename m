@@ -1,44 +1,52 @@
-Date: Wed, 23 Jan 2002 00:18:15 +0100
-From: Tom <tom@lemuria.org>
-To: Stephen Smalley <sds@tislabs.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: restricted guest domain accounts
-Message-ID: <20020123001815.B29234@lemuria.org>
-References: <20020121091553.A28411@lemuria.org> <Pine.GSO.4.33.0201221410110.20295-100000@raven>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.GSO.4.33.0201221410110.20295-100000@raven>; from sds@tislabs.com on Tue, Jan 22, 2002 at 02:28:51PM -0500
+Date: Tue, 22 Jan 2002 16:13:00 -0800
+From: Paul Krumviede <pwk@acm.org>
+To: forrest whitcher <fw@fwsystems.com>, SELinux@tycho.nsa.gov
+Subject: Re: switching between SE Linux utils - kernel versions ? ... also
+ ntp
+Message-ID: <197460933.1011715980@localhost>
+In-Reply-To: <20020122171507.060a9821.fw@fwsystems.com>
+References: <20020122171507.060a9821.fw@fwsystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jan 22, 2002 at 02:28:51PM -0500, Stephen Smalley wrote:
-> It seems like using SELinux on this system would be beneficial even
-> without a special guest user domain.  The example policy provides a user_t
-> domain for ordinary users that is already limited, e.g. even if such a
-> user obtains superuser privileges, he cannot modify the system software,
-> configuration files, or logs.  The issue is not what programs can be run
-> by the user but what permissions are granted to domains that can be
-> entered by the user.  You could strip the user_t domain down further if
-> desired, but you need to consider whether you are really improving
-> security by doing so.  With regard to system calls, SELinux doesn't
-> interpose on system calls - it provides low-level controls over the actual
-> kernel operations on kernel objects.
+--On Tuesday, 22 January, 2002 17:15 -0500 forrest whitcher 
+<fw@fwsystems.com> wrote:
 
-thanks - as I said, I still haven't understood all of it.
+>
+> A note on NTP: ntpd / ntpdate on my selinux installation has
+> (surprsingly) not raised any AVC: messages in develop/permissive mode.
+> Does this suggest that setting system time is not LSM / SEL hooked?
 
-what I want is, essentially, a user that can do exactly two things: log
-in, and connect out again, with a small set of tools (ssh and telnet,
-currently). that's it. he shouldn't be able to run anything else on the
-machine. no looking at the process table, no ping'ing, no starting
-daemons, nothing.
+if ntpddate/ntpd are (only) run out of the init scripts, then ntpd
+is probably still running in the initrc domain, which may not be
+desirable. i recall having to make some changes for things
+like adjtime at system shutdown (this was interesting because
+it occured after syslog was stopped, so i only saw it as a console
+message).
 
-I'm not so much troubled about the users obtaining root, as the users
-using the machine for a purpose other than the one specified.
+every version of the selinux/README file i've read has text
+along the lines of "run 'ps -e --context' and if anything is running
+in the initrc domain then check it carefully as it should either have
+its own domain or the executable may not have been labelled
+correctly."
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/D88D35A6 2001-11-14 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = 276B B7BB E4D8 FCCE DB8F  F965 310B 811A D88D 35A6
+as to selinux/kernel versions, i've had problems with the
+utilities from versions 2.4.16 and afterwards running on
+pre-2.4.16 kernels. i'm not sure if the selinux versions of
+login will work correctly on the different kernel versions
+(i know i wound up with a version of login that wouldn't
+allow logins in the process of booting yet another selinux
+version, but i don't recall the exact details). for safety's
+sake i keep one non-selinux kernel around i can boot
+from in an emergency, along with all the selinux/utils
+directories so i can do a combination of "make install"
+for the utilities and then relabel (but i might not do
+that on production machines).
+
+-paul
+
 
 --
 You have received this message because you are subscribed to the selinux list.
