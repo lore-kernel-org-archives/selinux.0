@@ -1,46 +1,50 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBCDhjRb008518
-	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 08:43:45 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBCDvFRb008595
+	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 08:57:15 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hBCDgxlU013278
-	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 13:42:59 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id hBCDgwSX013275
-	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 13:42:58 GMT
+	by jazzswing.ncsc.mil  with ESMTP id hBCDuTlU014217
+	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 13:56:29 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+	by jazzswing.ncsc.mil  with ESMTP id hBCDuCSX014138
+	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 13:56:28 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Carlos =?iso-8859-1?q?An=EDsio=20Monteiro?= <monteiro@ipen.br>,
+   selinux <selinux@tycho.nsa.gov>
 Subject: Re: Information about selinuxfs
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Carlos =?ISO-8859-1?Q?An=EDsio?= Monteiro <monteiro@ipen.br>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <3FD9B8F2.7030100@ipen.br>
+Date: Sat, 13 Dec 2003 00:55:29 +1100
 References: <3FD9B8F2.7030100@ipen.br>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1071236618.14716.21.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 12 Dec 2003 08:43:39 -0500
+In-Reply-To: <3FD9B8F2.7030100@ipen.br>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200312130055.29272.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-12-12 at 07:47, Carlos AnÃ­sio Monteiro wrote:
-> Helo.
-> 
+On Fri, 12 Dec 2003 23:47, Carlos Anísio Monteiro <monteiro@ipen.br> wrote:
 > A information about the selinuxfs filesystem.
-> The directory name and the path to mount o selinuxfs must be alway /selinux.
-> A change on this name (/selinux) only affect the sysvinit and initrd, 
-> what set the directory name and path, or it will cause others problems ?
+> The directory name and the path to mount o selinuxfs must be alway
+> /selinux. A change on this name (/selinux) only affect the sysvinit and
+> initrd, what set the directory name and path, or it will cause others
+> problems ?
 
-libselinux expects selinuxfs to be mounted on /selinux for the various
-security_* calls.  However, someone recently suggested that we change
-libselinux to discover the selinuxfs mount point at runtime from
-/proc/mounts, which would allow you to change the mount point without
-requiring a patch and rebuild for libselinux.
+Every program that wants to verify the validity of a security context, load 
+new security policy, check the version of the policy, or do almost any other 
+operation that involves SE Linux will depend on the path.  So changing the 
+mount point will require recompiling libselinux.
 
-There have been suggestions to move the selinuxfs mount point from
-/selinux to somewhere else, e.g. /security/selinux, but no final
-decision yet.
+There has been some discussion about this, but so far no decision has been 
+made.
+
+Why do you want to change it and where do you think would be the best place?
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 
 --
