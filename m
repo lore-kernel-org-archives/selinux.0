@@ -1,51 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j32FcgDo019911
-	for <selinux@tycho.nsa.gov>; Sat, 2 Apr 2005 10:38:43 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j32Fb2u7016186
-	for <selinux@tycho.nsa.gov>; Sat, 2 Apr 2005 15:37:02 GMT
-Subject: Re: [ PATCH ] X clients cleanup Patch #3
+Subject: hal - denials
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
-To: russell@coker.com.au
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <200504022227.40688.russell@coker.com.au>
-References: <1112308113.17917.9.camel@cobra.ivg2.net>
-	 <1112416291.7982.7.camel@cobra.ivg2.net> <424E8A49.2090408@redhat.com>
-	 <200504022227.40688.russell@coker.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1112031473.2914.109.camel@moss-spartans.epoch.ncsc.mil>
+References: <1111905173.3520.8.camel@cobra.ivg2.net>
+	 <1112016475.2914.16.camel@moss-spartans.epoch.ncsc.mil>
+	 <1112026129.3040.1.camel@cobra.ivg2.net>
+	 <1112026381.2914.95.camel@moss-spartans.epoch.ncsc.mil>
+	 <1112029334.3350.2.camel@cobra.ivg2.net>
+	 <1112029488.2914.103.camel@moss-spartans.epoch.ncsc.mil>
+	 <1112030817.3350.6.camel@cobra.ivg2.net>
+	 <1112031473.2914.109.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Sat, 02 Apr 2005 10:43:09 -0500
-Message-Id: <1112456589.12762.6.camel@cobra.ivg2.net>
+Date: Sat, 02 Apr 2005 18:14:30 -0500
+Message-Id: <1112483670.14277.5.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2005-04-02 at 22:27 +1000, Russell Coker wrote:
-> On Saturday 02 April 2005 22:04, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > Do we want to remove tmpfs_domain from base_user_domain.  I would prever
-> > to have policy where X privs for users is optional.
-> > Think eventually about loadable modules, where you have a X user support
-> > module.  Server users need a lot less privs.
-> 
-> When you say "X is optional" do you mean to have a boolean or to have it 
-> optional at compile time?
-> 
-> If a boolean then we would probably have the boolean not stop tmpfs access.  
-> If optional at compile time then we certainly want tmpfs_domain in 
-> base_user_domain.
-> 
-> I think that in any case we probably want tmpfs_domain in base_user_domain 
-> just for best structure of policy.
+Ok, here is what hald required to stop complaining.
+Which ones should be dontaudit? I take it you won't like
+allowing hald to write to /selinux, and read /dev/mem.
 
-How do I prevent the tmpfs type from being declared twice (causing a
-compile error)? Can't put it in both x_client and user, and other
-domains don't declare a tmpfs_domain themselves - they rely on x_client
-to do it for them.
+re: dmidecode - 
+dmidecode decodes the DMI data present in x86 and IA64 BIOS's.
 
-I didn't like this either, but removing tmpfs_domain from x_client
-also seemed like a bad idea - it causes denials for everything. 
-Moving it into the individual domains is a problem, because then 
-you're relying on a type in x_client that might not have been declared.
+Can't that be made to run in its own domain?
+
+diff -aur policy.old/domains/program/hald.te
+policy/domains/program/hald.te
+--- policy.old/domains/program/hald.te  2005-04-02 17:37:37.000000000
+-0500
++++ policy/domains/program/hald.te      2005-04-02 18:06:02.000000000
+-0500
+@@ -43,6 +43,7 @@
+ allow hald_t event_device_t:chr_file { getattr read ioctl };
+ allow hald_t printer_device_t:chr_file rw_file_perms;
+ allow hald_t urandom_device_t:chr_file read;
++allow hald_t mouse_device_t:chr_file { read ioctl };
+
+ ifdef(`updfstab.te', `
+ domain_auto_trans(hald_t, updfstab_exec_t, updfstab_t)
+@@ -73,3 +74,20 @@
+ tmp_domain(hald)
+ allow hald_t mnt_t:dir search;
+ r_dir_file(hald_t, proc_net_t)
++
++# For /usr/libexec/hald-add-selinux-mount-option
++allow hald_t security_t:dir search;
++allow hald_t security_t:file { read write };
++allow hald_t security_t:security check_context;
++
++# For /usr/libxexc/hald-addon-acpi - writes to /var/run/acpid.socket
++allow hald_t apmd_var_run_t:sock_file write;
++allow hald_t apmd_t:unix_stream_socket connectto;
++
++# For /usr/sbin/dmidecode
++# Violates assertion
++#allow hald_t memory_device_t:chr_file read;
++allow hald_t self:capability sys_rawio;
++
++# ??
++allow hald_t lvm_control_t:chr_file getattr;
+
 
 -- 
 Ivan Gyurdiev <ivg2@cornell.edu>
