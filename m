@@ -1,47 +1,45 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA20218
-	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 08:38:22 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA20816
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 09:58:31 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA13923
-	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 13:37:37 GMT
+	by jazzband.ncsc.mil  with ESMTP id OAA17835
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 14:57:53 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id NAA13919
-	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 13:37:37 GMT
-Date: Mon, 19 Nov 2001 08:37:53 -0500 (EST)
+	by jazzband.ncsc.mil  with ESMTP id OAA17831
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 14:57:53 GMT
+Date: Mon, 19 Nov 2001 09:57:39 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: Tracy R Reed <treed@ultraviolet.org>
+To: Harald von Fellenberg <Harald.Von-Fellenberg@sun.com>
 cc: <selinux@tycho.nsa.gov>
-Subject: Re: SELinux policy configuration tutorial?
-In-Reply-To: <20011116190059.L24702@ultraviolet.org>
-Message-ID: <Pine.GSO.4.33.0111190826490.24517-100000@raven>
+Subject: Re: SELinux and non-ext[23] file systems
+In-Reply-To: <200111191451.fAJEpsE26751@zurich-mail1.Swiss.Sun.COM>
+Message-ID: <Pine.GSO.4.33.0111190953140.27226-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 16 Nov 2001, Tracy R Reed wrote:
+On Mon, 19 Nov 2001, Harald von Fellenberg - Sun Switzerland Zurich - Technology Strategy Office wrote:
 
-> I am having problems understanding how to define policies and how the
-> roles, domains, types, etc. work to do this. I am slowly making my way
-> through the documentation on the web site but I find most of it to be
-> quite inscrutable. Has anyone written up a general tutorial on how all of
-> this stuff works in practice?
+> This said, I would like to re-raise the importance of non-ext2 file system
+> support, notably ReiserFS. It has been pointed out before, by Stephen Smalley,
+> that this should in principle be easy to integrate (the per-node sec context
+> needs to be stored in a file rather than in an unused field of the on-disk inode
+> structure). However, I am not aware of anyone tackling this implementation.
 
-I don't think anyone has written a general tutorial.  However, you'll find
-quite a bit of useful information in the security server section of the
-first technical report, the entire second technical report, and the OLS
-2001 paper, all of which are on the web site.  Several people outside of
-the SELinux project have already contributed to the example policy
-configuration, including both refinement of the existing domains and new
-domains (e.g. Mark Westerman's mount_t, ipsec_t and gdm_t domains,
-Yuichi Nakamura's named_t domain, David Wheeler's ping_t and hwclock_t
-domains).  Feel free to ask specific questions about policy configuration
-on the list.
+Only the original SELinux prototype was limited to the ext2 filesystem,
+due to the use of a spare field in the on-disk ext2 inode to store the
+persistent security identifier (PSID).  When we transitioned to LSM, we
+extended the persistent label mapping to maintain the inode-to-PSID
+mapping as a regular file because LSM does not provide filesystem-specific
+hooks.  Hence, the LSM-based SELinux prototype should be able to use
+ReiserFS, although we haven't tried it.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
+
 
 
 
