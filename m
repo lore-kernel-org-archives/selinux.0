@@ -1,53 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA06000
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 09:14:47 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA16761
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 13:14:30 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id NAA16757
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 13:14:29 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: emger@norwich.edu, selinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA06084
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 09:20:54 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA09961
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 13:19:31 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id NAA09957 for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 13:19:30 GMT
+Date: Thu, 13 Jun 2002 09:20:10 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Ryan Emge <emger@norwich.edu>
+cc: <selinux@tycho.nsa.gov>
 Subject: Re: XFS and LSM
-Date: Thu, 13 Jun 2002 15:14:35 +0200
-References: <5772.1023963428@ocs3.intra.ocs.com.au> <20020613104731.CF50F1F09@lyta.coker.com.au> <20030708180754.1bc130f8.emger@norwich.edu>
 In-Reply-To: <20030708180754.1bc130f8.emger@norwich.edu>
+Message-ID: <Pine.GSO.4.33.0206130911470.23212-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020613131435.77B3340BF@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 9 Jul 2003 00:07, Ryan Emge wrote:
+
+On Tue, 8 Jul 2003, Ryan Emge wrote:
+
 > ext2 and ext3 would be optimum filesystems that would not "break" SE Linux?
 
-Stephen says that the quota changes in question are already in 2.5 kernels, 
-so if you can find a 2.5.x kernel patch for XFS then it should not cause any 
-difficulty (unless you use IA64).
+SELinux works fine with ext2 and ext3.  It has also been reported to work
+with reiserfs, although we have not tested it ourselves.
 
-Ext2/3 are not the only file systems that will work without problems.  
-ReiserFS is working well for me, there's no reason to expect a problem with 
-Minix or any other Inode based file system either.
+With regard to XFS in general, see my prior message on the topic at
+http://marc.theaimsgroup.com/?l=selinux&m=101300861319394&w=2.  With
+regard to the quota changes, these can be easily addressed by backporting
+the corresponding changes to SELinux from the 2.5 SELinux module.
+Likewise, the LSM and SELinux changes related to the *xattr operations can
+be backported from the 2.5 SELinux module.
 
-The only problems are with file systems that lack Inodes (DOS and NFS), and 
-with file systems that aren't in the kernel as applying several patches to 
-the kernel is likely to result in patches not applying or a kernel that 
-doesn't compile.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-Anyway I have a 2.4.18 kernel running with XFS support compiled in.  When I 
-quickly hacked the support in I probably broke SE support for quotas, but I 
-don't care as it's not something that's important to me.  The only problem 
-here is that I can't be sure that my sample policy works well for other 
-people in this regard (but it would not be difficult for them to fix).
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+
 
 --
 You have received this message because you are subscribed to the selinux list.
