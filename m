@@ -1,44 +1,34 @@
-Message-Id: <200207241331.NAA15055@jazzswing.ncsc.mil>
 Content-Type: text/plain;
   charset="iso-8859-1"
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: var_log_ksyms_t
-Date: Wed, 24 Jul 2002 15:20:14 +0200
-References: <Pine.GSO.4.33.0207230811400.29998-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0207230811400.29998-100000@raven>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Richard Mayo" <rmayo@caci.com>, SELinux@tycho.nsa.gov
+Subject: Re:
+Date: Wed, 24 Jul 2002 16:19:52 +0200
+References: <OF3775534F.EB0631B6-ON85256C00.004AAC59@hq.caci.com>
+In-Reply-To: <OF3775534F.EB0631B6-ON85256C00.004AAC59@hq.caci.com>
 MIME-Version: 1.0
+Message-Id: <20020724141953.422DF7DE2@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Am Dienstag, 23. Juli 2002 14:16 schrieb Stephen Smalley:
-> On Mon, 22 Jul 2002, Carsten Grohmann wrote:
-> > Wich program use the var_log_ksyms_t, I don't found anyfing about this.
-> > But the initrc domain label new files under /var/log with this security
-> > context. Why?
->
-> On RedHat, rc.sysinit rotates any existing /var/log/ksyms.N files and
-> dumps the contents of /proc/cpuinfo, /proc/modules, and /proc/ksyms to
-> a newly created /var/log/ksyms.0 file.  Consequently, the initrc.te file
-> in the example policy includes a rule to place these files into their own
-> type:  file_type_auto_trans(initrc_t, var_log_t, var_log_ksyms_t).
+On Wed, 24 Jul 2002 15:37, Richard Mayo wrote:
+> It's obvious to me how to configure my computer to boot only to SELinux,
+> but how do I force the computer into Enforcing mode?
 
-If I understand you right, rc.sysinit is the scricpt,  who is starting the 
-single rc-scriptes. And then it is not possible to change the domain for this 
-job. 
+I am currently putting in a symlink from /usr/sbin/avc_toggle to 
+/etc/rc.boot/avc_toggle, but I'll probably use an init script later on.
 
-It is possible to overwrite the file_type_auto_trans instruction in an later 
-script? This is may be simplier than to edit the init script.
+> Also, when a user logs on the system asks if he or she would like to switch
+> user contexts.  Is there an easy way to suppress this?
 
-The other is to change the xfs start script. 
+It would be good to suppress the choice of role when the user is only 
+authorised for one role though.  As for choice of domains, there is currently 
+no way of automatically determining which domains might work (although in the 
+current default policy only the main domain will work).
 
-On Red Hat the xfs starting with the -daemon option or not ? 
 
-On SuSE it starts via startproc (start_daemon) with -nodaemon option and 
-redirect the output to the /var/log directory. And this file is labled with 
-the false context. 
-
-Carsten 
+Russell Coker
 
 --
 You have received this message because you are subscribed to the selinux list.
