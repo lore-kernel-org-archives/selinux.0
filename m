@@ -1,63 +1,47 @@
-Date: Wed, 29 Sep 2004 19:45:41 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: policy patches
-Message-ID: <20040929174540.GA4373@rom.cip.ifi.lmu.de>
-References: <200409292354.15227.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-In-Reply-To: <200409292354.15227.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8THoMrT017632
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 13:50:22 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8THnInY026655
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 17:49:19 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Subject: Re: Access to xdm_t
+Date: Thu, 30 Sep 2004 03:50:06 +1000
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+References: <20040929163222.GA4125@rom.cip.ifi.lmu.de>
+In-Reply-To: <20040929163222.GA4125@rom.cip.ifi.lmu.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Message-Id: <200409300350.06284.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Russell Coker <russell@coker.com.au> [2004-09-29 18:49]:
-> diff -ru /usr/src/se/policy/domains/program/unused/rpm.te ./domains/program/unused/rpm.te
-> --- /usr/src/se/policy/domains/program/unused/rpm.te	2004-09-21 14:39:14.000000000 +1000
-> +++ ./domains/program/unused/rpm.te	2004-09-29 01:05:44.000000000 +1000
-> @@ -16,9 +16,15 @@
->...
-> +ifdef(`unlimitedUsers', `
-> +role staff_r types rpm_t;
-> +domain_auto_trans(staff_t, rpm_exec_t, rpm_t)
-> +')
+On Thu, 30 Sep 2004 02:32, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
+wrote:
+> I have a question about access to xdm_t:
+> With KDM 3.3 I am seeing a lot of accesses to xdm_t:fd and
+> xdm_t:fifo_file from user processes (say user_lpr_t and user_gpg_t)
+> Should these be allowed?
+> If yes, should xdm_t get the attribute privfd?
 
-AFAIK unlimitedUsers was removed recently, so this snippet makes no
-sense anymore.
+I don't think that is necessary.  gpg and lpr are both text based programs and 
+have no need of direct communication with xdm_t.  I think that the wide 
+inheritance of that file handle is a bug.
 
-> diff -ru /usr/src/se/policy/file_contexts/program/nagios.fc ./file_contexts/program/nagios.fc
-> --- /usr/src/se/policy/file_contexts/program/nagios.fc	2004-06-17 03:38:16.000000000 +1000
-> +++ ./file_contexts/program/nagios.fc	2004-09-24 20:44:24.000000000 +1000
-> @@ -1,7 +1,10 @@
-> -# netsaint - network monitoring server
-> -/usr/sbin/netsaint		--	system_u:object_r:nagios_exec_t
-> -#/var/run/netsaint(/.*)?		system_u:object_r:nagios_var_run_t
-> -/etc/netsaint(/.*)?			system_u:object_r:nagios_etc_t
-> +# nagios - network monitoring server
->  /var/log/netsaint(/.*)?			system_u:object_r:nagios_log_t
->  /usr/lib(64)?/netsaint/plugins(/.*)?		system_u:object_r:bin_t
->  /usr/lib(64)?/cgi-bin/netsaint/.+	--	system_u:object_r:nagios_cgi_exec_t
-> +# nagios
-> +/usr/bin/nagios			--	system_u:object_r:nagios_exec_t
-> +/etc/nagios(/.*)?			system_u:object_r:nagios_etc_t
-> +/var/log/nagios(/.*)?			system_u:object_r:nagios_log_t
-> +/usr/lib(64)?/nagios/plugins(/.*)?	system_u:object_r:bin_t
-> +/usr/lib(64)?/nagios/cgi/.+	--	system_u:object_r:nagios_cgi_exec_t
+> Also, is it OK to dontaudit access to .xsession-errors (on SuSE it lives
+> under ~ and I do not want to give all derived user domains access to user's
+> home dir). Or will this cause errors with some programs?
 
-On Debian, it's
-/usr/sbin/nagios                --      system_u:object_r:nagios_exec_t
-and
-/usr/lib/cgi-bin/nagios         --      system_u:object_r:nagios_cgi_exec_t
-
-These should be added also.
-
-Everything else looks fine.
-
-Thomas
+That should be fine.
 
 -- 
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
