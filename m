@@ -1,30 +1,55 @@
-Subject: Re: Changing context with UID - doubt
+Subject: Re: Multiple contexts
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Bartlomiej Balcerek <Bartlomiej.Balcerek@pwr.wroc.pl>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <Pine.GSO.4.44.0501091400340.4757-100000@sun1000.pwr.wroc.pl>
-References: <Pine.GSO.4.44.0501091400340.4757-100000@sun1000.pwr.wroc.pl>
+To: ivg2@cornell.edu
+Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1105390249.8093.21.camel@cobra.ivg2.net>
+References: <1105390249.8093.21.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Message-Id: <1105456164.20566.37.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105456723.20566.47.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 11 Jan 2005 10:09:25 -0500
+Date: Tue, 11 Jan 2005 10:18:43 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-01-09 at 08:37, Bartlomiej Balcerek wrote:
-> Hello,
-> I'am still newbie in SELinux. I'am confused, if SELinux can
-> automaticaly change process context when changing system EUID ?
-> My process executes shell with different EUID, which just executes another
-> subprocess. I want that subprocess to run in role or domain coupled
-> with its EUID, defined in "user" file. It is possible in SELinux ?
+On Mon, 2005-01-10 at 15:50, Ivan Gyurdiev wrote:
+> Why doesn't SElinux support multiple contexts per file?
+> It seems to me that this feature would be very useful. 
+> Is this technically not feasible?
+> 
+> I've been trying to get the following setup working on FC3 (rawhide):
+> 
+> /var/www/html.userX  - 
+> 	virtual server for userX.mydomain labeled httpd_sys_content_t
+> /home/userX - 
+> 	home folder for userX, exported via Samba (not yet, but
+> 	it will be, once dwalsh puts in booleans for samba reading home)
+> 
+> /home/userX/webserver - symlink to /var/www/html.userX 
+> 
+> Now, /var/www/html.userX needs to be accessed both by smbd and httpd.
+> I need to label it with both samba_share_t and httpd_sys_content_t.
+> 
+> I have to edit the cryptic m4 policy file to add a type that's
+> accessible by both. Why is this necessary? Why can't selinux
+> either
+> 	(1) Label the file with both contexts, and permit
+> 	the operation if any context permits it
+> 
+> 	or
+> 		
+> 	(2) Create a type with the properties of both
+> 	with less user interaction (without needing to 
+> 	modify the policy manually)
+> 
+> Since I'm unfamiliar with how SElinux works internally,
+> this might be a stupid question, but it seems to me that 
+> the user should not be required to understand how a policy
+> file works to label a file for use by two restricted programs.
 
-No, SELinux has its own user identity attribute, and does not use the
-Linux uids for its own access control or transition decisions (although
-the existing Linux DAC checks are still applied as well).  See the User
-Identity Model section of
-http://www.nsa.gov/selinux/papers/policy2/x87.html.
- 
+Don't confuse the user interface with the mechanism.  You can build the
+user interface you describe in (2) on top of the existing mechanism, and
+others are already working on higher level policy tools and languages.
+
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
