@@ -1,62 +1,76 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6R0aJrT028905
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jul 2004 20:36:19 -0400 (EDT)
-Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6R0Zn7L018035
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 00:35:49 GMT
-Message-Id: <200407270036.i6R0a2Xj001502@turing-police.cc.vt.edu>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux ML <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
-   Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: file_contexts patch 
-In-Reply-To: Your message of "Mon, 26 Jul 2004 16:25:53 EDT."
-             <1090873552.25761.28.camel@moss-spartans.epoch.ncsc.mil>
-From: Valdis.Kletnieks@vt.edu
-References: <20040716201531.GB4940@obadja.jmh.mhn.de> <200407170802.08072.russell@coker.com.au> <20040716224252.GD4940@obadja.jmh.mhn.de> <200407171159.00489.russell@coker.com.au> <20040717195326.GA16762@bern.cip.ifi.lmu.de>
-            <1090873552.25761.28.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_284301058P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 26 Jul 2004 20:36:02 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6R8CirT000247
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 04:12:44 -0400 (EDT)
+Received: from imf17aec.mail.bellsouth.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6R8CEmJ026418
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 08:12:15 GMT
+Message-ID: <41060E79.1080102@bellsouth.net>
+Date: Tue, 27 Jul 2004 04:12:41 -0400
+From: Jim McCullough <jwmccull@bellsouth.net>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: Wolfgang Pfeiffer <roto@gmx.net>, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Selinux possible on Debian-Linux/ppc?
+References: <1090769556.7265.32.camel@debby> <200407261340.04981.russell@coker.com.au>
+In-Reply-To: <200407261340.04981.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_284301058P
-Content-Type: text/plain; charset=us-ascii
+I'm not sure on ppc.  I never had to install linux on one personally.  
+Give me two more weeks and I will tell you how it goes with SGI Octane's 
+though.  I scavenged two at work for mini-servers for the group I am 
+with.  Before they went out the door to the dump.  One of which is going 
+to requires some extensive perl work to incorperate NetDisco project.  
+Default Debian Sarge build breaks the root discovery with CDP SNMP and 
+creation of network topology maps.  The other box is for nagios with 
+selinux kernel base and policies because of the dual roll with the 
+IT-Security group for network security scans, and with Network-Ops for 
+monitoring network devices and servers.
+I will let you know how the build goes when I get it completed.  BTW, 
+the CVS archive on the web site seems to be holding stable at work on a 
+P3 500 I setup on 2.6.7 last thurs.  Still going and still screaming, 
+throughput and performance much better than the 2.6.7-686 build from the 
+binary tree.
 
-On Mon, 26 Jul 2004 16:25:53 EDT, Stephen Smalley said:
+Jim McCullough
 
-> Would it be better to make the distro a tunable (e.g.
-> policy/tunables/distro.te) and use ifdef's in the individual .te files
-> and .fc files for the distro-specific changes to a given domain?  I'd
-> particularly like to see all of the RedHat-specific changes moved from
-> rpm.{te,fc} into something that is clearly specific to RedHat.
+Russell Coker wrote:
 
-Go for it.  Especially if we start using m4 to handle the case where the files
-are the same, but different distros put them elsewhere - so file_contexts would have
+>On Mon, 26 Jul 2004 01:32, Wolfgang Pfeiffer <roto@gmx.net> wrote:
+>  
+>
+>>But I'm not quite sure whether SElinux will run on that machine, and on
+>>Debian-ppc ...
+>>    
+>>
+>
+>It is expected to work, I think that the Gentoo people have been getting PPC 
+>machines to run SE Linux.
+>
+>  
+>
+>>But a quick search for SElinux packages for my system gives this:
+>>
+>>      * checkpolicy - SELinux policy compiler
+>>      * libselinux1 - SELinux shared libraries
+>>      * libselinux1-dev - SELinux development headers
+>>      * policycoreutils - SELinux core policy utilities
+>>      * selinux-doc - documentation for Security-Enhanced Linux
+>>      * selinux-policy-default - Policy config files and management for
+>>        NSA Security Enhanced Linux
+>>      * selinux-utils - SELinux utility programs
+>>    
+>>
+>
+>You will need to compile ssh, dpkg, cron, sysvinit, logrotate, and pam with 
+>the SE Linux patches from my web site to get it going.  I only have i386 
+>architecture hardware, and a lot of my stuff hasn't been accepted into Debian 
+>yet.
+>
+>  
+>
 
-$distro_foobar_dir/foobar.conf -- <whatever>
-
-and then the distro.te could set $distro_foobar_dir as needed.
-
-All the distros that use RPM but aren't RedHat (And I'll argue that for this
-purpose, RHEL and Fedora have diverged enough to count) will be happy with
-rpm.* not being abused....
-
---==_Exmh_284301058P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBBaNycC3lWbTT17ARAvCHAKDtjdsARa1MnaGnOJN796EQyNvTGACgr1kW
-5s7e6zDhp6zFe9MwcXi0S0M=
-=nOaF
------END PGP SIGNATURE-----
-
---==_Exmh_284301058P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
