@@ -1,30 +1,36 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CGtVIi016882
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 11:55:31 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CGrZ8I001310
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 16:53:35 GMT
-Subject: Re: kernel error
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CGwtIi016920
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 11:58:55 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CGwwgF025361
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 16:58:58 GMT
+Subject: Re: transition denied
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
+To: johans@gnu.hu
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200501102205.36386.russell@coker.com.au>
-References: <200501102205.36386.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1105548548.22495.131.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1105283615.3146.25.camel@medeia.home.hu>
+References: <1105283615.3146.25.camel@medeia.home.hu>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1105548781.22495.134.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 12 Jan 2005 11:49:08 -0500
+Date: Wed, 12 Jan 2005 11:53:01 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-01-10 at 06:05, Russell Coker wrote:
-> I am getting the attached kernel error repeatedly when trying to install a new 
-> kernel package on a Debian 2.6.10 system (stock kernel.org kernel with no 
-> patches).  This error happens in enforcing mode but not in permissive mode.
+On Sun, 2005-01-09 at 10:13, Milus János wrote:
+> I modified the user file:
+> 
+> user system_u roles { system_r games_r }
+> 
+> And I added the privovner and privrole attribute to initrc_t domain.
+> (but I'm not absolutly sure, that this is necessary)
+> 
+> What am I miss?
 
-Looks like it might be triggered by a revocation of the controlling
-tty.  If you do a make enableaudit load and then try it again, do you
-see any relevant audit messages for the controlling tty?
+privuser, not privowner.  privuser == ability to transition to other
+user identities, privowner == ability to create/relabel files with other
+user identities.  Also, games_t needs the userdomain attribute as well
+as the domain attribute in order to satisfy the constraint.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
