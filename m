@@ -1,69 +1,46 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j05GkIIi003181
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jan 2005 11:46:18 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j05GpDIi003239
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jan 2005 11:51:13 -0500 (EST)
 Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j05GiQFH009291
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jan 2005 16:44:26 GMT
-Subject: Re: policy
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j05GnKFH009679
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jan 2005 16:49:20 GMT
+Subject: Re: gentoo diff for arpwatch
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200501030202.01321.russell@coker.com.au>
-References: <200501030202.01321.russell@coker.com.au>
+Cc: petre rodan <kaiowas@gentoo.org>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200412251818.54944.russell@coker.com.au>
+References: <4198D07B.6070401@gentoo.org>
+	 <1100893653.31793.25.camel@moss-lions.epoch.ncsc.mil>
+	 <200412251818.54944.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1104943711.1511.12.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1104944000.1511.19.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 05 Jan 2005 11:48:32 -0500
+Date: Wed, 05 Jan 2005 11:53:20 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
+Ok.  Merged.
 
-This chunk is not needed because this rule occurs earlier in rpm's
-policy.
+On Sat, 2004-12-25 at 02:18, Russell Coker wrote:
+> On Saturday 20 November 2004 06:47, James Carter <jwcart2@epoch.ncsc.mil> 
+> wrote:
+> > I moved the following rules and put an "ifdef(`arpwatch.te'" around
+> > them:
+> > "allow system_mail_t" rules to mta.te
+> > "allow qmail_inject_t" rules to qmail.te
+> > "allow allow postfix_local_t" rule to postfix.te
+> 
+> This is not what we want.  Below I have pasted some text from 
+> http://www.coker.com.au/selinux/talks/ibmtu-2004/linux21.ppt describing the 
+> MTA policy (it's not great but it's the best description of MTA policy).
+> 
+> I have attached a patch that makes some changes to make it work with the 
+> design of the mta policy.  This makes it work with Postfix, Qmail, Sendmail, 
+> and any other mta that might be used.  The idea is that you don't have to 
+> write policy for every combination of program that sends mail and mta, this 
+> doesn't scale well as the number of supported mta's increases.
 
---- /usr/src/se/policy/domains/program/unused/rpm.te    2004-11-21 21:51:14.000000000 +1100
-+++ ./domains/program/unused/rpm.te     2004-11-22 03:14:43.000000000 +1100
-@@ -66,6 +66,11 @@
- domain_auto_trans(rpm_script_t, cupsd_exec_t, cupsd_t)
- ')
- 
-+ifdef(`gpg.te', `
-+# gpg wants this so it does not dump core on errors
-+allow rpm_t self:process { setrlimit };
-+')
-+
- # for a bug in rm
- dontaudit initrc_t pidfile:file write;
- 
-
-On Sun, 2005-01-02 at 10:01, Russell Coker wrote:
-> udev.diff just combines a couple of lines into a single line.
-> 
-> diff changes the Makefile to have it not run setfiles -q needlessly (good for 
-> when a script runs "make install" a few hundred times).
-> 
-> Adds a couple of lines to assert.te.
-> 
-> Adds hide_broken_symptoms to ldconfig.te (there is no good cause for 
-> ldconfig_t to access a TCP socket).
-> 
-> Changes ftpd.te to allow access to home_root_t for the case of NFS root.  This 
-> means that if you have home directories individually mounted on /home/user 
-> then things will still work (and there's no harm in granting such access).
-> 
-> Added some extra access that seems to be needed by the latest version of howl.
-> 
-> Removed the memory_device_t commend from xdm.te - we should not need to 
-> re-enable that.
-> 
-> Removed redundant entries from types.fc relating to the old locations 
-> before /etc/selinux was used.
-> 
-> Add support for the Debian locations for pmap_dump and pmap_set.  I wonder 
-> whether those files will have to change locations in other distributions for 
-> the case of /usr on NFS...
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
