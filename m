@@ -1,69 +1,46 @@
-Message-ID: <36282A1733C57546BE392885C06185924D92D7@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: Karl MacMillan <kmacmillan@tresys.com>,
-   Stephen Smalley
-	 <sds@epoch.ncsc.mil>
-Cc: Frank Mayer <mayerf@tresys.com>, Darrel Goeddel
-	 <DGoeddel@TrustedCS.com>,
-   SELinux List <SELinux@tycho.nsa.gov>, Chad Hanson <chanson@TrustedCS.com>
-Subject: RE: dynamic context transitions
-Date: Tue, 2 Nov 2004 13:49:07 -0500 
+Message-ID: <4187DEA1.8080407@redhat.com>
+Date: Tue, 02 Nov 2004 14:23:13 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: What policy is the system running?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+We have been doing some work on sestatus and selinuxconfig type tools 
+to  be able to tell us about the current running system. 
+We have a problem in that we can not tell which policy is currently 
+running on the system (strict, targeted, mls, ...)  It would be
+usefull if there was a way to identify a name in policy.  Then if there 
+was a way to ask the kernel what name it has loaded. 
+One possible way we have thought about doing this is by defining a 
+boolean for each policy that would define the policytype. 
+So we could define a policytype_targeted boolean in targeted policy and 
+a policytype_strict boolean in strict policy.
+Then we could make scripts and programs smart enough to look for 
+/selinux/booleans/policytype_* to determine it.
+This is admittedly a hack but would solve our problem without having to 
+modify the kernel.  One potential problem with this is
+that the policy writers could define two policytype_ booleans.  Another 
+problem is that there is no requirement to define a
+boolean of this type.  
 
-Karl MacMillan wrote: 
-> I admit that I was really trying to make it clear that this isn't a
-> transition mechanism, but something that would stay if introduced. Also,
-> where would you put the trust boundaries if not at process boundries? Is
-> it possible to truly reduce the trust between two sections of code in
-> the same process image? [these are not rhetorical questions - I'm really
-> asking for some clarification]
+Other ideas that have been discussed is modifying load_policy and init 
+to write /var/run/policytype or some such, but init runs
+too early in the boot process to write to the local file system.
 
-You put the trust at the process boundary. This does not preclude you from
-trying increase the trust in the code. You clearly could reduce the trust
-within an application. The privilege bracketing approach goes hand in hand
-with secure programming techniques. An example would be that your program
-needs to open the kernel memory device. If your application does this action
-and has the needed information you should close the device. If you have
-incorrect source and forget to close this device, there are two methods of
-protection. One approach is the exec-based methodology and exec other
-programs to perform additional operations, thus reducing the footprint of
-the trusted code. The second approach would be using privilege bracketing to
-remove the ability to handle this resource. If you permanently remove your
-access to this device, even if the file descriptor is still open you will
-not be able to access this information.  Both of these approaches achieve
-the exact same goal, the implementations are just a bit different. 
+Adding a policyname type to policy, changin checkpolicy to require this 
+field,  and then modifying the kernel to  provide this field
+in the selinux file system, would probably be the ultimate solution. 
 
-> 
-> > On the other hand, what happens if we simply
-> > reject this functionality?  Will the developers of all of these "legacy"
-> > applications rush to restructure their applications to better support
-> > least privilege and isolation for SELinux?  Or will they just leave them
-> > as they are, either not running on SELinux at all or running in a single
-> > domain with the maximal set of permissions required for operation all
-> > the time?  Is that truly preferable?
-> > 
-> 
-> It is not a straightforward answer I don't think. One reason I am able
-> to work on SELinux is because of the compromises made to make this a
-> workable system for general purpose. My concern is that dynamic context
-> transitions will give people a false sense of security. I don't think
-> that it is necessarily the case that it is worse to run in a domain with
-> the maximal set of permissions. 
+One other thing to think about; When we have loadable  policymodules, it 
+would be nice to identify which modules are currently loaded, via a 
+similar mechanism.
 
-I would disagree, running with the maximal set of permissions is exactly
-what we are trying to prevent by providing fine-grained privileges.  This
-shouldn't provide  a false sense of security, from a vulnerability point of
-view, because the process is capable of using all current privileges and
-misuse of what it can execute. The minimal use of permission can be used to
-verify that the application is behaving as intended without using unneeded
-permissions for an operation.
+Ideas???
 
--Chad
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
