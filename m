@@ -1,129 +1,195 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2CM60Do014989
-	for <selinux@tycho.nsa.gov>; Sat, 12 Mar 2005 17:06:01 -0500 (EST)
-Received: from glaurung.internal.golden-gryphon.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2CM0YqN017697
-	for <selinux@tycho.nsa.gov>; Sat, 12 Mar 2005 22:00:35 GMT
-Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
-	by glaurung.internal.golden-gryphon.com (8.13.3/8.13.3/Debian-8) with ESMTP id j2CLqHJO023331
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Sat, 12 Mar 2005 15:52:32 -0600
-From: Manoj Srivastava <manoj.srivastava@stdc.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2CNuIDo015280
+	for <selinux@tycho.nsa.gov>; Sat, 12 Mar 2005 18:56:19 -0500 (EST)
+Received: from static-70-19-113-34.ny325.east.verizon.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2CNmM7c000966
+	for <selinux@tycho.nsa.gov>; Sat, 12 Mar 2005 23:48:22 GMT
+Subject: New policy for tripwire
+From: David Hampton <hampton-rh@rainbolthampton.net>
 To: selinux@tycho.nsa.gov
-Subject: Manual pages for utilities in libsepol
-Date: Sat, 12 Mar 2005 15:52:01 -0600
-Message-ID: <87r7iksfb2.fsf@glaurung.internal.golden-gryphon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: fedora-selinux-list@redhat.com, hampton-rh@rainbolthampton.net
+Content-Type: multipart/mixed; boundary="=-vU9QfEwVhQcMijE4Qv6E"
+Date: Sat, 12 Mar 2005 18:50:45 -0500
+Message-Id: <1110671445.7641.16.camel@hampton-pc.rainbolthampton.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-        While packaging the new version of sepol-utils for Debian, I
- noticed that the utilities chkcon and genpolusers had no manual
- pages. I have added the following (trivial) man pages for them (patch
- appended).
+--=-vU9QfEwVhQcMijE4Qv6E
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-        manoj
+This is written on an FC3 base system using the selinux-policy-strict-
+sources-1.22.1-2 policy from March 11th.  These are the first policies
+I've submitted so I'd appreciate any comments on how to write better
+policies.
 
---- /dev/null
-+++ new-files-archive/man/man8/chkcon.8
-@@ -0,0 +1,41 @@
-+.\" Hey, Emacs! This is an -*- nroff -*- source file.
-+.\" Copyright (c) 1997 Manoj Srivastava <srivasta@debian.org>
-+.\"
-+.\" This is free documentation; you can redistribute it and/or
-+.\" modify it under the terms of the GNU General Public License as
-+.\" published by the Free Software Foundation; either version 2 of
-+.\" the License, or (at your option) any later version.
-+.\"
-+.\" The GNU General Public License's references to "object code"
-+.\" and "executables" are to be interpreted as the output of any
-+.\" document formatting or typesetting system, including
-+.\" intermediate and printed output.
-+.\"
-+.\" This manual is distributed in the hope that it will be useful,
-+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+.\" GNU General Public License for more details.
-+.\"
-+.\" You should have received a copy of the GNU General Public
-+.\" License along with this manual; if not, write to the Free
-+.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
-+.\" USA.
-+.\"
-+.TH CHKCON 8 "Mar 12 2005" "SELinux" "SELinux Command Line documentation"
-+.SH NAME
-+chkcon \-  determine if a security context is valid for a given binary policy
-+.SH SYNOPSIS
-+chkcon policy_file context
-+.SH DESCRIPTION
-+This utility validates (the string representation of) a security context
-+specified by the argument
-+.I context
-+against configuration data read in from a policy database binary
-+representation file specified by the argument
-+.I policy_file.
-+.SH FILES
-+policy file
-+.SH AUTHOR
-+This manual page (and just the manual page) was written by Manoj
-+Srivastava <srivasta@debian.org>.
-+
---- /dev/null
-+++ new-files-archive/man/man8/genpolusers.8
-@@ -0,0 +1,42 @@
-+.\" Hey, Emacs! This is an -*- nroff -*- source file.
-+.\" Copyright (c) 1997 Manoj Srivastava <srivasta@debian.org>
-+.\"
-+.\" This is free documentation; you can redistribute it and/or
-+.\" modify it under the terms of the GNU General Public License as
-+.\" published by the Free Software Foundation; either version 2 of
-+.\" the License, or (at your option) any later version.
-+.\"
-+.\" The GNU General Public License's references to "object code"
-+.\" and "executables" are to be interpreted as the output of any
-+.\" document formatting or typesetting system, including
-+.\" intermediate and printed output.
-+.\"
-+.\" This manual is distributed in the hope that it will be useful,
-+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+.\" GNU General Public License for more details.
-+.\"
-+.\" You should have received a copy of the GNU General Public
-+.\" License along with this manual; if not, write to the Free
-+.\" Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139,
-+.\" USA.
-+.\"
-+.TH GENPOLUSERS 8 "Mar 12 2005" "SELinux" "SELinux Command Line documentation"
-+.SH NAME
-+genpolusers \- Generate new binary policy with updated user configuration
-+.SH SYNOPSIS
-+genpolusers in-policy usersdir out-policy
-+.SH DESCRIPTION
-+Given an existing binary policy file 
-+.I in\-policy, 
-+generate a new binary policy 
-+.I out\-policy 
-+with an updated user configuration based on any 
-+.B system.users 
-+and
-+.B local.users 
-+files in the specified 
-+.I usersdir.
-+.SH AUTHOR
-+This manual page (and just the manual page) was written by Manoj
-+Srivastava <srivasta@debian.org>.
+David
 
 
+--=-vU9QfEwVhQcMijE4Qv6E
+Content-Disposition: attachment; filename=tripwire.fc
+Content-Type: text/plain; name=tripwire.fc; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
--- 
-Law of Computability Applied to Social Sciences: If at first you don't
-succeed, transform your data set.
-Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+# tripwire
+/etc/tripwire(/.*)?			system_u:object_r:tripwire_etc_t
+/usr/sbin/siggen			system_u:object_r:siggen_exec_t
+/usr/sbin/tripwire			system_u:object_r:tripwire_exec_t
+/usr/sbin/tripwire-setup-keyfiles	system_u:object_r:bin_t
+/usr/sbin/twadmin			system_u:object_r:twadmin_exec_t
+/usr/sbin/twprint			system_u:object_r:twprint_exec_t
+/var/lib/tripwire(/.*)?			system_u:object_r:tripwire_var_lib_t
+/var/lib/tripwire/report(/.*)?		system_u:object_r:tripwire_report_t
+
+--=-vU9QfEwVhQcMijE4Qv6E
+Content-Disposition: attachment; filename=tripwire.te
+Content-Type: text/plain; name=tripwire.te; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+# DESC tripwire
+#
+# Author: David Hampton <hampton@employees.org>
+#
+
+# NOTE: Tripwire creates temp file in its current working directory.
+# This policy does not allow write access to home directories, so
+# users will need to either cd to a directory where they have write
+# permission, or set the TEMPDIRECTORY variable in the tripwire config
+# file.  The latter is preferable, as then the file_type_auto_trans
+# rules will kick in and label the files as private to tripwire.
+
+
+# Common definitions
+type tripwire_report_t, file_type, sysadmfile;
+etcdir_domain(tripwire)
+var_lib_domain(tripwire)
+tmp_domain(tripwire)
+
+
+# Macro for defining tripwire domains
+define(`tripwire_domain',`
+application_domain($1, `, auth')
+role system_r types $1_t;
+
+# Allow access to common tripwire files
+allow $1_t tripwire_etc_t:file r_file_perms;
+allow $1_t tripwire_etc_t:dir r_dir_perms;
+allow $1_t tripwire_etc_t:lnk_file { getattr read };
+file_type_auto_trans($1_t, var_lib_t, tripwire_var_lib_t, file)
+allow $1_t tripwire_var_lib_t:dir rw_dir_perms;
+file_type_auto_trans($1_t, tmp_t, tripwire_tmp_t, `{ file dir }')
+
+allow $1_t self:process { fork sigchld };
+allow $1_t self:capability { setgid setuid dac_override };
+
+# Tripwire needs to read all files on the system
+general_proc_read_access($1_t)
+allow $1_t file_type:dir { search getattr read};
+allow $1_t file_type:{file chr_file lnk_file sock_file} {getattr read};
+allow $1_t file_type:fifo_file { getattr };
+allow $1_t device_type:file { getattr read };
+allow $1_t sysctl_t:dir { getattr read };
+allow $1_t {memory_device_t tty_device_t urandom_device_t zero_device_t}:chr_file getattr;
+
+# Tripwire report files
+create_dir_file($1_t, tripwire_report_t)
+
+# gethostid()?
+allow $1_t self:unix_stream_socket { connect create };
+
+# Running editor program (tripwire forks then runs bash which rins editor)
+can_exec($1_t, shell_exec_t)
+can_exec($1_t, bin_t)
+uses_shlib($1_t)
+
+allow $1_t self:dir search;
+allow $1_t self:file { getattr read };
+')
+
+
+##########
+##########
+
+#
+# When run by a user
+#
+tripwire_domain(`tripwire')
+
+# Running from the command line
+allow tripwire_t devpts_t:dir search;
+allow tripwire_t devtty_t:chr_file { read write };
+allow tripwire_t {sysadm_devpts_t user_devpts_t}:chr_file rw_file_perms;
+allow tripwire_t sshd_t:fd use;
+
+
+##########
+##########
+
+#
+# When run from cron
+#
+tripwire_domain(`tripwire_crond')
+system_crond_entry(tripwire_exec_t, tripwire_crond_t)
+domain_auto_trans(crond_t, tripwire_exec_t, tripwire_t)
+
+# Tripwire uses a temp file in the root home directory
+#create_dir_file(tripwire_crond_t, root_t)
+
+
+##########
+# Twadmin
+##########
+application_domain(twadmin)
+read_locale(twadmin_t)
+create_dir_file(twadmin_t, tripwire_etc_t)
+
+allow twadmin_t sysadm_tmp_t:file { getattr read write };
+
+# Running from the command line
+allow twadmin_t sshd_t:fd use;
+allow twadmin_t sysadm_devpts_t:chr_file rw_file_perms;
+
+dontaudit twadmin_t { bin_t sbin_t }:dir search;
+dontaudit twadmin_t home_root_t:dir search;
+dontaudit twprint_t user_home_dir_t:dir search;
+
+
+##########
+# Twprint
+##########
+application_domain(twprint)
+read_locale(twprint_t)
+r_dir_file(twprint_t, tripwire_etc_t)
+allow twprint_t { var_t var_lib_t }:dir search;
+r_dir_file(twprint_t, tripwire_var_lib_t)
+r_dir_file(twprint_t, tripwire_report_t)
+
+# Running from the command line
+allow twprint_t sshd_t:fd use;
+allow twprint_t sysadm_devpts_t:chr_file rw_file_perms;
+
+dontaudit twprint_t { bin_t sbin_t }:dir search;
+dontaudit twprint_t home_root_t:dir search;
+
+
+##########
+# Siggen
+##########
+application_domain(siggen, `, auth')
+read_locale(siggen_t)
+
+# Need permission to read files
+allow siggen_t file_type:dir { search getattr read};
+allow siggen_t file_type:file {getattr read};
+
+# Running from the command line
+allow siggen_t sshd_t:fd use;
+allow siggen_t sysadm_devpts_t:chr_file rw_file_perms;
+
+--=-vU9QfEwVhQcMijE4Qv6E--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
