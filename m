@@ -1,43 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4CImUI4004211
-	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 14:48:31 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4CImU7R025147
-	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 18:48:30 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h4CImTKP025144 for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 18:48:29 GMT
-Subject: Re: kernel patches
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chris Babcock <cbabcock@luthresearch.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <54829.63.108.92.34.1052760393.squirrel@mxlx1.surveysavvy.com>
-References: <54829.63.108.92.34.1052760393.squirrel@mxlx1.surveysavvy.com>
-Content-Type: text/plain
-Message-Id: <1052765305.4729.253.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 12 May 2003 14:48:27 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4D3ivI4005987
+	for <selinux@tycho.nsa.gov>; Mon, 12 May 2003 23:44:57 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4D3idjN017482
+	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 03:44:39 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h4D3iYTU017479
+	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 03:44:35 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id EC0D3BF4F
+	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 13:44:49 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 30009-02
+ for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 13:44:48 +1000 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id A34B2BF4E
+	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 13:44:48 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 55CDE924A3
+	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 13:44:47 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 5F79014AC
+	for <selinux@tycho.nsa.gov>; Tue, 13 May 2003 13:43:30 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: OLS
+Date: Tue, 13 May 2003 13:43:29 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200305131343.29794.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-05-12 at 13:26, Chris Babcock wrote:
-> Also, I have seen some vocal opposition to the current implementation of
-> LSM in 2.5 on lklm.  Has there been any resolution, and where does this
-> put selinux on 2.5?
-
-LSM is still in mainline 2.5, recently submitted patches that add
-support for the use of extended attributes by security modules have been
-merged, and a recently submitted patch that adds support for a process
-attribute API has been queued up for merging.  RFCs on the SELinux
-module have also been posted to lkml, and we plan on submitting SELinux
-for merging once the process attribute API patch and the security
-initcall patch make their way into mainline.  The most significant
-objection to LSM has appeared to be the lack of any real security
-modules in mainline that use it; this should be addressed by the merging
-of SELinux.
+I've just been checking out the OLS site.  It appears that I'll change 
+nationality between my paper presentation and my tutorial.  ;)
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
