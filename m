@@ -1,70 +1,75 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j11DQK53015153
-	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 08:26:20 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j11DQKYD011633
-	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 13:26:22 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j11Dc753015260
+	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 08:38:07 -0500 (EST)
 Subject: Re: File Browsing apps and getattr
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: ivg2@cornell.edu
 Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1107263499.26936.50.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1107264384.6956.2.camel@cobra.ivg2.net>
 References: <1107210369.1928.5.camel@cobra.ivg2.net>
 	 <1107259894.26936.27.camel@moss-spartans.epoch.ncsc.mil>
 	 <1107263308.6722.5.camel@cobra.ivg2.net>
 	 <1107263499.26936.50.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107264384.6956.2.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Date: Tue, 01 Feb 2005 06:26:24 -0700
-Message-Id: <1107264384.6956.2.camel@cobra.ivg2.net>
+Message-Id: <1107264676.26936.63.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Tue, 01 Feb 2005 08:31:16 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2005-02-01 at 08:26, Ivan Gyurdiev wrote:
+> Why is the stat() information so important for security?
 
-> > "These  functions  return information about the specified file.  You do
-> > not need any access rights to the file to get this information but you
-> > need search rights to all directories named in the path leading to the
-> > file."
+It depends on the particular file, obviously.  The point is that it
+represents an information flow that conveys possibly sensitive
+information about the object, and should be controlled in accordance
+with the security properties of the object.
+
+> If you won't do this, how do you plan to address the denials I have
+> posted about? 
 > 
-> Yes, that is in the absence of mandatory access control.  Properties of
-> the file should be protected in accordance with the security label of
-> the file, not the parent directory.  The name is part of the directory
-> state, but the stat(2) information is part of the inode state.
+> Will you leave ls in this state:
+> 
+> [phantom@cobra ~]$ ls -l /var
+> total 112
+> ?---------   ? ?    ?       ?            ? account
+> drwxr-xr-x  10 root root 4096 Jan 16 05:33 cache
+> drwxr-xr-x   3 root root 4096 Oct 19 13:20 db
+> drwxr-xr-x   3 root root 4096 Aug 12 11:02 empty
+> ?---------   ? ?    ?       ?            ? gdm
+> drwxr-xr-x  24 root root 4096 Jan 16 05:33 lib
+> drwxr-xr-x   2 root root 4096 Aug 12 11:02 local
+> ?---------   ? ?    ?       ?            ? lock
+> drwxr-xr-x  13 root root 4096 Feb  1 04:02 log
+> ?---------   ? ?    ?       ?            ? mail
+> ?---------   ? ?    ?       ?            ? named
+> drwx------   2 root root 4096 Dec  1 13:49 net-snmp
+> drwxr-xr-x   2 root root 4096 Aug 12 11:02 nis
+> drwxr-xr-x   2 root root 4096 Aug 12 11:02 opt
+> drwxr-xr-x   2 root root 4096 Aug 12 11:02 preserve
+> drwxr-xr-x  18 root root 4096 Feb  1 06:16 run
+> drwxr-xr-x  14 root root 4096 Aug 12 11:02 spool
+> drwxrwxrwt   2 root root 4096 Feb  1 06:16 tmp
+> drwxr-xr-x  12 root root 4096 Jan 11 19:28 www
+> ?---------   ? ?    ?       ?            ? yp
+> [phantom@cobra ~]$
 
-Why is the stat() information so important for security?
-If you won't do this, how do you plan to address the denials I have
-posted about? 
+You can certainly propose allowing access to additional file types on a
+case-by-case basis, possibly introducing new attributes to identify the
+desired set of types, but adding permissions always requires a
+justification, not just 'why not?'.  What is the functional requirement
+that ls display the attributes of those subdirectories/files?  What is
+the real benefit if you cannot search the subdirectories or read the
+files?
 
-Will you leave ls in this state:
-
-[phantom@cobra ~]$ ls -l /var
-total 112
-?---------   ? ?    ?       ?            ? account
-drwxr-xr-x  10 root root 4096 Jan 16 05:33 cache
-drwxr-xr-x   3 root root 4096 Oct 19 13:20 db
-drwxr-xr-x   3 root root 4096 Aug 12 11:02 empty
-?---------   ? ?    ?       ?            ? gdm
-drwxr-xr-x  24 root root 4096 Jan 16 05:33 lib
-drwxr-xr-x   2 root root 4096 Aug 12 11:02 local
-?---------   ? ?    ?       ?            ? lock
-drwxr-xr-x  13 root root 4096 Feb  1 04:02 log
-?---------   ? ?    ?       ?            ? mail
-?---------   ? ?    ?       ?            ? named
-drwx------   2 root root 4096 Dec  1 13:49 net-snmp
-drwxr-xr-x   2 root root 4096 Aug 12 11:02 nis
-drwxr-xr-x   2 root root 4096 Aug 12 11:02 opt
-drwxr-xr-x   2 root root 4096 Aug 12 11:02 preserve
-drwxr-xr-x  18 root root 4096 Feb  1 06:16 run
-drwxr-xr-x  14 root root 4096 Aug 12 11:02 spool
-drwxrwxrwt   2 root root 4096 Feb  1 06:16 tmp
-drwxr-xr-x  12 root root 4096 Jan 11 19:28 www
-?---------   ? ?    ?       ?            ? yp
-[phantom@cobra ~]$
+dontaudit is appropriate if you just want to silence the warnings,
+although you obviously don't want to do that for a file to which you
+truly want to track attempted accesses.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
