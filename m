@@ -1,35 +1,52 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>
-Subject: Re: SELinux, KDE, and honeypots
-Date: Wed, 9 Jul 2003 19:48:43 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <200307082303.22083.wlsel@verizon.net> <20030709102025.C30693@lemuria.org>
-In-Reply-To: <20030709102025.C30693@lemuria.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200307091948.43838.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h69C1uHa022724
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 08:01:56 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h69C1tH5027740
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 12:01:55 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h69C1tRX027737 for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 12:01:55 GMT
+Subject: Re: context trouble with 2.5 bits
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Colin Walters <walters@verbum.org>, Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1057701768.25921.53.camel@columbia>
+References: <1057701768.25921.53.camel@columbia>
+Content-Type: text/plain
+Message-Id: <1057752105.13738.10.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 09 Jul 2003 08:01:46 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 9 Jul 2003 18:20, Tom wrote:
-> Yes, though if I understand correctly, the kdm patch was never actually
-> tested.
+On Tue, 2003-07-08 at 18:02, Colin Walters wrote:
+> I think I'm pretty close to getting my Debian system running with the
+> SELinux 2.5 bits.  However, I can't seem to get either the patched sshd
+> or login to give me the correct context.  When I login (using login) as
+> root, I see:
+> 
+> Warning!  Could not get new context for tty1, not relabeling.
 
-The patch for KDE 3.x was never successfully compiled (or not by me anyway).
+Did you remember to mount selinuxfs on /selinux, as described in the
+selinux-doc README?  Otherwise, the daemons cannot obtain security
+policy decisions from the kernel, such as the new label for the tty.
 
-For KDE 2.x I was using the patch for quite a long time, and there's no reason 
-why you couldn't use it today.  You would need a default_context file in 
-addition to the default_contexts file, but that's not a serious problem.
+> ...followed by a bunch of avc denials about tty1 and /root, and then my
+> context is:
+> 
+> meta:~# id
+> uid=0(root) gid=0(root) groups=0(root) context:system_u:system_r:user_t
 
-Using wdm to login to KDE is also a good option.
+Verify that execcon or runcon work for you, e.g.
+	execcon root:sysadm_r:sysadm_t bash
+
+If so, then you need to verify that your login patch is properly calling
+setexeccon() with a legitimate user context prior to exec'ing the shell
+and that the call is not failing.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
