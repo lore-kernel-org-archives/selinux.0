@@ -1,38 +1,87 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0OH45FX027640
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 12:04:05 -0500 (EST)
-Subject: Re: [patch] enhanced MLS support
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <20050124163859.71571.qmail@web50204.mail.yahoo.com>
-References: <20050124163859.71571.qmail@web50204.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1106585869.19246.96.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 24 Jan 2005 11:57:49 -0500
+Message-ID: <41F5332C.3050604@redhat.com>
+Date: Mon, 24 Jan 2005 12:41:00 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Change fixfiles to use file_context.local if it exists.
+References: <41F521F0.7090108@redhat.com> <1106584190.19246.72.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1106584190.19246.72.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed;
+ boundary="------------090904070504090305000702"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-01-24 at 11:38, Casey Schaufler wrote:
-> Sorry, my acronym matcher failed on "TE".
+This is a multi-part message in MIME format.
+--------------090904070504090305000702
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Type Enforcement.  It was originally discussed as an alternative to Biba
-in "A Practical Alternative to Hierarchical Integrity Policies", in the
-Proceedings of the 8th National Computer Security Conference, 1985,
-pages 18-27.
+Stephen Smalley wrote:
 
-> You could certainly store handling caveats in
-> the category bitmaps, but expressing NOFORN
-> in categories has been tried and does not work.
+>On Mon, 2005-01-24 at 11:27, Daniel J Walsh wrote:
+>  
+>
+>>diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-1.21.1/scripts/fixfiles
+>>--- nsapolicycoreutils/scripts/fixfiles	2005-01-24 11:19:10.103136000 -0500
+>>+++ policycoreutils-1.21.1/scripts/fixfiles	2005-01-24 11:19:28.998223000 -0500
+>>@@ -37,11 +37,19 @@
+>> SELINUXTYPE="targeted"
+>> if [ -e /etc/selinux/config ]; then
+>>     . /etc/selinux/config
+>>-    FC=/etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts
+>>+    FC=`mktemp /var/tmp/file_contexts.XXXXXX`
+>>+    cat /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts.local > $FC 2> /dev/null
+>>    
+>>
+>
+>Rather than using a temporary file in /var/tmp, I'd recommend creating
+>it in the same parent directory as the existing file_contexts
+>configuration (i.e. /etc/selinux/${SELINUXTYPE}/contexts/files). 
+>setfiles_t cannot read temporary files, and we don't especially want to
+>allow it to do so (to protect against low integrity input).
+>
+>  
+>
+Ah good point, change to
 
-I'll leave it to Darrel to respond to this point.
+/etc/selinux/${SELINUXTYPE}/contexts/files
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
 
+
+--------------090904070504090305000702
+Content-Type: text/x-patch;
+ name="policycoreutils-rhat.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policycoreutils-rhat.patch"
+
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-1.21.1/scripts/fixfiles
+--- nsapolicycoreutils/scripts/fixfiles	2005-01-24 11:19:10.103136000 -0500
++++ policycoreutils-1.21.1/scripts/fixfiles	2005-01-24 11:19:28.998223000 -0500
+@@ -37,11 +37,19 @@
+ SELINUXTYPE="targeted"
+ if [ -e /etc/selinux/config ]; then
+     . /etc/selinux/config
+-    FC=/etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts
++    FC=`mktemp /etc/selinux/${SELINUXTYPE}/contexts/files/file_context.XXXXXX`
++    cat /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts.local > $FC 2> /dev/null
+ else
+     FC=/etc/security/selinux/file_contexts
+ fi
+ 
++cleanup() {
++    if [ -e /etc/selinux/config -a -f "$FC" ]; then
++	rm -f $FC
++    fi
++}
++trap "cleanup" 0 1 2 3 13 15
++
+ #
+ # Log to either syslog or a LOGFILE
+ #
+
+--------------090904070504090305000702--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
