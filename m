@@ -1,17 +1,18 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27351
-	for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 11:04:42 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h04EIoI06851
-	for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 14:18:50 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27388
+	for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 11:10:06 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id AAA16688
+	for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 00:20:46 GMT
 Received: from server.westcam.com (rrcs-sw-24-242-155-198.biz.rr.com [24.242.155.198])
-        by jazzband.ncsc.mil  with ESMTP id h04EImf06847 for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 14:18:48 GMT
-Subject: 
+	by jazzswing.ncsc.mil  with ESMTP id AAA16682
+	for <selinux@tycho.nsa.gov>; Sat, 4 Jan 2003 00:20:45 GMT
+Subject: Policy Language
+Date: Fri, 3 Jan 2003 13:37:57 -0600
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Date: Sat, 4 Jan 2003 08:21:01 -0600
-Message-ID: <862636C39A8D56448223B94D197571335587@server.westcam.com>
+	charset="Windows-1252"
+Message-ID: <862636C39A8D56448223B94D19757133015EB6@server.westcam.com>
 From: "Mark Westerman" <mark.westerman@westcam.com>
 To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
@@ -33,7 +34,7 @@ class_def        : CLASS identifier
                      {if (define_class()) return -1;}
                  ;
 
-could the class_def be defined as
+coudl the class_def be defined as
 
 class_def        : CLASSDEF identifier
                      {if (define_class()) return -1;}
@@ -80,8 +81,6 @@ file.
 
 
 Mark
-
-
 
 
 --
