@@ -1,56 +1,56 @@
-Subject: Re: Proposed change to install
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <41D00FE7.2070203@redhat.com>
-References: <41D00FE7.2070203@redhat.com>
-Content-Type: text/plain
-Message-Id: <1104158005.15615.84.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 27 Dec 2004 09:33:25 -0500
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBREtmIi017854
+	for <selinux@tycho.nsa.gov>; Mon, 27 Dec 2004 09:55:48 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBRErvTv001749
+	for <selinux@tycho.nsa.gov>; Mon, 27 Dec 2004 14:53:58 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: fedora-selinux-list@redhat.com
+Subject: Re: Yee-HAH! 'smartd' issues 70 avc's when it tries to send mail...
+Date: Tue, 28 Dec 2004 01:55:37 +1100
+Cc: Valdis.Kletnieks@vt.edu, selinux@tycho.nsa.gov
+References: <200412032012.iB3KCjaT030175@turing-police.cc.vt.edu> <200412071650.iB7GoSQs014629@turing-police.cc.vt.edu> <200412080203.iB823Mhd023488@turing-police.cc.vt.edu>
+In-Reply-To: <200412080203.iB823Mhd023488@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200412280155.40742.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-12-27 at 08:36, Daniel J Walsh wrote:
-> But with install, I believe 
-> matchpathcon is required.  So I am have modified the patch in coreutils 
-> to call matchpathcon and setfilecon.  This function currently will fail 
-> silently, leaving the current behavior.  Do you think this should report 
-> errors?
+On Wednesday 08 December 2004 13:03, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 07 Dec 2004 11:50:27 EST, Valdis.Kletnieks@vt.edu said:
+> > I'm wondering if it would make more sense to push a patch upstream to the
+> > kernel-utils crew.  Reading the smartd manpage in more detail, it looks
+> > like feeding it a '-M exec /usr/sbin/sendmail' (or building with that as
+> > the default) would let us only have to add sendmail_exec_t rather than
+> > all those.
+>
+> Or that *would* work, if the smartd code didn't use popen() to actually run
+> it, giving us a gratuitous '/bin/sh -c'.  Looks like some fairly hefty
+> reworking to make it do the whole pipe()/fork()/exec() thing itself.
 
-Likely not, if it is the default behavior, as the caller may not have
-permission to relabel files at all or to the particular context. 
-Definitely not for errno == EOPNOTSUPP, i.e. filesystems that do not
-support the security xattr.
+In spite of what Colin says I think it would be good to get such a change in 
+smartd.
 
-> I am not sure what we should do with the "preserve_context" field.  Also 
-> it is questionable whether we should use setfscreatecon rather then 
-> setfilecon.
+There are other benefits too.  Imagine that we get a bad sector on the part of 
+disk that contains /bin/bash or one of the many shared objects it uses.  
+Bummer if this causes smartd not to do anything and this delay in 
+notification causes the administrator to lose other data as the hard disk 
+slowly dies.
 
-You don't want to call your new function if the -P or -Z options were
-specified, as your new function will clobber whatever context would have
-been preserved by -P or set by -Z.  We definitely want to be able to
-still use -P to explicitly request preservation of the original context
-or -Z to explicitly request a particular context for the installed file.
-
-Using setfscreatecon() prior to file creation would be preferable to
-avoid any window where the file will be in wrong context, but may be
-more difficult to integrate into install.
-
-I believe that you don't need to check scontext for NULL if
-matchpathcon() returns 0; matchpathcon() should never return 0 with a
-NULL scontext unless I am missing something.
-
-On a different note, should matchpathcon() be doing something different
-in the <<none>> case rather than returning it to the caller, so that the
-caller doesn't have to hardcode a check for it?  Possibly return -1 with
-errno ENOENT as in the case where there is no matching entry in
-file_contexts?
+Another issue is that hard disk errors are probably more likely than average 
+in times of high disk load.  Anything that you can do to reduce the disk use 
+in performing an operation at such times will give a faster result.  NB Linux 
+tends to give very long delays on file read or process execute if there is a 
+large write queue.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
