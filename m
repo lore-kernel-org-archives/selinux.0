@@ -1,46 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA00159
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:46:08 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA06939
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 19:44:42 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA00287
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:52:29 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA28055
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 19:52:02 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id TAA06931 for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 19:44:40 GMT
+	by jazzswing.ncsc.mil  with ESMTP id TAA28051
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 19:52:00 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>,
-        Debian User <rogelio@evoworks.evoserve.com>
-Subject: Re: modifying utilities to use libselinux
-Date: Thu, 27 Jun 2002 15:43:15 -0400
-Cc: <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0206270845460.1331-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0206270845460.1331-100000@raven>
+To: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Re: Major reduction in errors
+Date: Thu, 27 Jun 2002 15:52:19 -0400
+Cc: selinux@tycho.nsa.gov
+References: <20020627193625.27977.qmail@web40015.mail.yahoo.com>
+In-Reply-To: <20020627193625.27977.qmail@web40015.mail.yahoo.com>
 MIME-Version: 1.0
-Message-Id: <20020627194529.154287D02@lyta.coker.com.au>
+Message-Id: <20020627195219.DA7037CFE@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 27 Jun 2002 09:07, Stephen Smalley wrote:
-> On Thu, 27 Jun 2002, Debian User wrote:
-> > is it wise to modify utiliies to use libsecure? what kind of utilities
-> > besides login and ssh should use libsecure? how about screen? I had a
-> > big problem making it work in selinux.
+On Thu, 27 Jun 2002 15:36, Brad Chapman wrote:
+> --- Russell Coker <russell@coker.com.au> wrote:
+> > avc:  denied  { read } for  pid=12 exe=/sbin/devfsd path=/.devfsd
+> > dev=00:07 ino=2 scontext=system_u:system_r:devfsd_t
+> > tcontext=system_u:object_r:devfs_t tclass=chr_file
+> >
+> > You need the following in the devfs_contexts file:
+> > devfscon /.devfsd               system_u:object_r:devfs_control_t
 >
-> The modified daemons and the new and modified utilities that are provided
-> with SELinux are described briefly in the Configuring the SELinux Policy
-> report (the Security-Aware Applications section).  The login and sshd
-> modifications are important for initially setting the security
-> context for user sessions.  You can then typically just use automatic
-> domain transitions within a user session to change permissions as
-> necessary as particular programs are executed.  I'm not sure why screen
-> would require modifications - can you clarify?
+>         This causes a syntax error when I attempt to compile the policy.
 
-Screen runs as SUID root and creates unix domain sockets to allow 
-reconnection of processes in a common directory.  The policy needs to change 
-to a suitable domain.  I made a quick hack of a screen policy which is in my 
-packages, and it seems to work...
+In that case you're using too old a version of the selinux-small code base to 
+work with this.  Put in a rule to allow devfsd_t to read from 
+devfs_t:chr_file until you can upgrade.
 
 -- 
 I do not get viruses because I do not use MS software.
