@@ -1,80 +1,161 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6OJ7xrT017770
-	for <selinux@tycho.nsa.gov>; Sat, 24 Jul 2004 15:07:59 -0400 (EDT)
-Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6OJ7u3o021320
-	for <selinux@tycho.nsa.gov>; Sat, 24 Jul 2004 19:07:57 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sat, 24 Jul 2004 21:07:56 +0200
-Date: Sat, 24 Jul 2004 21:08:11 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Cc: russell@coker.com.au, krahmer@suse.com
-Subject: Re: file_contexts patch
-Message-Id: <20040724190811.GC2016@jmh.mhn.de>
-References: <20040716201531.GB4940@obadja.jmh.mhn.de> <200407181258.37018.russell@coker.com.au> <20040718150357.GA322@rom.cip.ifi.lmu.de> <200407190959.48713.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6ON13rT018208
+	for <selinux@tycho.nsa.gov>; Sat, 24 Jul 2004 19:01:03 -0400 (EDT)
+Received: from smtp800.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6ON0YUX000839
+	for <selinux@tycho.nsa.gov>; Sat, 24 Jul 2004 23:00:34 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp800.mail.ukl.yahoo.com with SMTP; 24 Jul 2004 23:00:51 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BoV0V-0000AG-Ii
+	for selinux@tycho.nsa.gov; Sat, 24 Jul 2004 22:28:43 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BoVgI-0001FQ-L9
+	for selinux@tycho.nsa.gov; Sun, 25 Jul 2004 00:11:54 +0100
+Date: Sun, 25 Jul 2004 00:11:54 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: [idea] multiple contexts.
+Message-ID: <20040724231154.GE3437@lkcl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
-In-Reply-To: <200407190959.48713.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+i'd like to propose an extension to the SE/Linux system: it's quite
+straightforward and it could possibly be implemented in the macro
+system - maybe, maybe not.
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+the ultimate aim is to help simplify the production of policies.
 
-* Russell Coker <russell@coker.com.au> [2004-07-19 03:25]:
-> On Mon, 19 Jul 2004 01:03, Thomas Bleher <bleher@informatik.uni-muenchen.=
-de>=20
-> wrote:
-> > > unix_chkpwd has been around for years, I can't believe that it's
-> > > something that they haven't got to it yet.
-> >
-> > unix_chkpwd is included in the PAM package, it's just that suse has
-> > developed their own pam module (pam_unix2.so) which doesn't use
-> > unix_chkpwd AFAIK.
->=20
-> Why can't you just use pam_unix.so instead?
+the idea is simple: to be able to have more than one context, and
+to be able to make auditing decisions based on more than one context.
 
-At the time I installed SELinux on the computers here my primary focus
-was to get a working system without breaking too much so I didn't want
-to muck around with pam config if possible.
+extensions
+----------
 
-After this mail exchange I looked at the code again. And indeed, the
-patch Russell mentioned earlier (to make pam_unix use unix_chkpwd if it
-can't access /etc/shadow) was missing. After adding this patch, pam now
-runs fine without every login program needing the auth attribute.
+domain_auto_trans(user_t, kdeinit_exec_t, +kde_user_t);
 
-So, for everyone who uses my packages, please update to the latest pam,
-which you can get from my site. After that, replace every occurrence of
-pam_unix.so or pam_unix2.so under /etc/pam.d with pam_unix_auth.so,
-pam_unix_acct.so, pam_unix_passwd.so or pam_unix_session.so,
-respectively.
+note the plus sign: this means "whenever a user executes the executable
+program kdeinit, then instead of transitioning TO the kde_user_t
+context, they get an EXTRA context kde_user_t".
 
-Thomas
+domain_auto_trans(kde_user_t&user_t, skype_exec_t, skype_t);
 
-PS: Thanks to Russell for nudging me to this.
+note the use of _two_ contexts: this means "whenever a user who
+is in BOTH the kde_user AND the user context, executes the
+skype VoIP application, they transition to the skype_t context".
 
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+implications
+------------
 
---bg08WKrSYDhXBjb5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+in other words, this has the effect of limiting users to only
+be able to run certain KDE applications.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+in a really simple and straightforward manner.
 
-iD8DBQFBArObxWIrrrL0q+cRAosBAJ4p0ETAz++oB6EhWGAdBPuPfkMgXQCeL+i9
-F1CrX7GATmJ/cvWseV8KCTM=
-=Pm1i
------END PGP SIGNATURE-----
+the alternative is that i will have to write a set of policy files
+on a per-KDE-application basis.
 
---bg08WKrSYDhXBjb5--
+and i'll have to deal with them walking through kdeinit, which is
+a pain.
+
+if there was a means to "attach" a second context which was unaffected
+and carried over "through" other execve system calls, it'd be
+possible to "pick it up" on the other side of the execve'd use of
+"kdeinit".
+
+exim4 would also, i believe, be a doddle, and i do not believe it
+would need the hacks to exim4 to make it call different binary
+names for different functions.
+
+second contexts could be "attached" to the exim4_exec_t - a
+sendmail_something_t context which would "activate" allow rules
+based on allow exim4_exec_t&sendmail_something_t, .... instead of
+just allow exim4_exec_t .....
+
+implementations
+---------------
+
+i thought it might be possible to use pre-processing macro
+expansion to do the same job as hacking the selinux source code.
+
+fortunately, my subconscious disabused me of that notion over the
+last two days, and threw up the kdeinit and the exim4 examples
+as cases which could be solved by multiple-contexts.
+
+... alternatively, yes, actually, thinking about it: the idea
+recommended by russell which is to exec to an alternate binary
+that then execs to the same binary *IS* a multiple-context
+"shim".
+
+in case you missed it, exim4 is a single binary which frequently
+execve's to itself with new arguments: e.g. to open up a transport
+it does execve("exim4", "-M", ...) and stuff.
+
+russell's idea was to replace exim4 in the above example with
+exim4-M, and then to write a SEPARATE policy file for a binary
+named exim4-M.
+
+that exim4-M is a one-liner that calls execve to exim4 with its
+argv[] arguments is, to exim4, irrelevant: the effect of going
+via a different binary IS that exim4 "picks up" an extra context.
+
+
+... now, i sure as heck don't wanna go through that with kdeinit.
+
+to solve the same issue for kdeinit, i would have to write and
+compile STACKS of these little binaries, and would have to do
+something like find and double-check the locations where kdeinit
+is called (including third party applications), prefix the
+name of the program being called with kdeinit, execve to that
+binary (/usr/bin/kdeinit-konqueror, /usr/bin/kdeinit-kdesktop,
+/usr/bin/kdeinit-ksmserver), which would then execve all its
+char *argv[] arguments _back_ to kdeinit, and write an SELinux
+policy for every single new little program kdeinit-konqueror
+kdeinit-khotkeys kdeinit-kio_file THE WORKS.
+
+there are OVER A HUNDRED programs beginning with k, most of which
+are kde ones, and that's not even with the full kde suite installed
+(i use fvwm) and precious few of the optional packages.
+
+without this "multiple contexts" idea in place, it's a stacking big
+task with no "default" to fall back on - that i can think of.
+
+
+i feel certain that there are other areas where this "multiple contexts"
+idea will have other benefits, to simplify auditing and enhance
+selinux.
+
+i know it's a bit like unix groups, only you can't do file permission
+checks in POSIX based on being in _more_ than one group, so it's
+actually a lot more powerful a concept.
+
+i also feel, intuitively, that it might help with the issues involving
+users.  i cannot _begin_ to comprehend what that is about, but i
+see a lot of messages six weeks ago indicating that there appears
+to be a history of problems as the number of users increases on
+an selinux system [at least, that's what it looked like] ...
+
+but i see no solutions.
+
+would "multiple contexts" help at all?
+
+l.
+
+
+
+-- 
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility if acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
