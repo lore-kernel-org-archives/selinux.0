@@ -1,34 +1,47 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2EDOXZ005540
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 09:13:24 -0500 (EST)
-Received: from oe-im2.bizmailsrvcs.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2EC34G007724
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 14:12:03 GMT
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
-   "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>
-Cc: "'Chad Hanson'" <chanson@TrustedCS.com>,
-   "'Darrel Goeddel'" <DGoeddel@TrustedCS.com>, <selinux@tycho.nsa.gov>
-Subject: RE: dynamic context transitions
-Date: Tue, 2 Nov 2004 09:13:23 -0500
-Message-ID: <00bb01c4c0e6$1d5a3a40$1e0c010a@columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1099403267.31739.22.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: dynamic context transitions
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   SELinux List <SELinux@tycho.nsa.gov>, Chad Hanson <chanson@TrustedCS.com>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1099402984.31739.17.camel@moss-spartans.epoch.ncsc.mil>
+References: <4182959B.4080503@trustedcs.com>
+	 <20041029211809.GJ8897@lkcl.net> <20041030090603.GK8897@lkcl.net>
+	 <1099315214.21386.13.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041101141025.GZ8897@lkcl.net>  <418662EE.5090001@trustedcs.com>
+	 <1099344460.23756.49.camel@pham.columbia.tresys.com>
+	 <1099402984.31739.17.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Tue, 02 Nov 2004 09:16:28 -0500
+Message-Id: <1099404989.23756.79.camel@pham.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> TE is an access matrix, so it can represent a MLS policy, but the
-> resulting representation would be huge for any significant number of
-> MLS levels.  A native implementation of MLS is more efficient and
-> easier to analyze.  There is benefit in a hybrid TE/MLS model.
+On Tue, 2004-11-02 at 08:43 -0500, Stephen Smalley wrote:
+> On Mon, 2004-11-01 at 16:27, Karl MacMillan wrote:
+> > Dropping privileges after startup can already be accomplished with
+> > conditional policies, though it requires that only one process be
+> > running in a given domain.
+> 
+> Not sure that this works well in practice, e.g. daemon restart is an
+> issue here, and as you note, it cannot distinguish among multiple
+> instances of the domain.
+> 
 
-Actually, we have been struggling with this a bit, and the only MLS-like issues
-we seem not to be able to handle efficiently in TE is compartments.  So it seems
-a combination of TE and categories/compartments is most efficient (though this
-still doesn't seem to necessitate making the mechanisms non-orthogonal).
+It would certainly require some additional infrastructure and more
+invasive changes to init scripts, but it could be made to work. I think
+that others have raised the more important point - what real use case is
+there for this functionality?
 
+Karl
+
+-- 
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+http://www.tresys.com
 
 
 --
