@@ -1,39 +1,34 @@
-Message-ID: <3F30FC1E.8030709@tresys.com>
-Date: Wed, 06 Aug 2003 09:01:18 -0400
-From: David Caplan <dac@tresys.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h76FkGHa026981
+	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 11:46:17 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h76Fj1FB018721
+	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 15:45:01 GMT
+Received: from gw.enyo.de (sinma-gmbh.17.mind.de [212.21.92.17])
+	by jazzswing.ncsc.mil  with ESMTP id h76Fj0GD018716
+	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 15:45:00 GMT
+To: russell@coker.com.au
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Fwd: [JS] Suse on IBM eServer achieves EAL2+ security
+References: <200308061046.16095.russell@coker.com.au>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Wed, 06 Aug 2003 17:46:01 +0200
+In-Reply-To: <200308061046.16095.russell@coker.com.au> (Russell Coker's
+ message of "Wed, 6 Aug 2003 10:46:16 +1000")
+Message-ID: <87oez2n612.fsf@deneb.enyo.de>
 MIME-Version: 1.0
-To: Diyab <diyab@diyab.net>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: attribute definitions
-References: <3F2FD7E9.6010207@diyab.net>
-In-Reply-To: <3F2FD7E9.6010207@diyab.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Diyab wrote:
+Russell Coker <russell@coker.com.au> writes:
 
-> Where are the type attributes defined?  I'm trying to find out what 
-> these attributes give permissions to but I can not find any reference 
-> to where they are defined.  I've tried grepping the policy for things 
-> like sysadmfile but all I can find is the use of the attribute, not a 
-> definition.
->
-> Timothy,
->
-You can use our analysis tool, apol, to determine the set of types that 
-use an attribute or which attributes are assigned to a specific type. 
-You can also do regular expression searches on either types or 
-attributes and display the appropriate groupings.  The tool is included 
-in the SE Linux distribution and available from our web site, 
-http://www.tresys.com/selinux.
+> Of course Linux didn't get the highest rating possible, it seems
+> that Reuters made a mistake in this regard.  EAL2 is not the highest
+> rating,
 
-David
-
-David Caplan
-dac@tresys.com
-
-
+Isn't it the highest rating possible with the current feature set
+(that is, no ACLs on anything)?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
