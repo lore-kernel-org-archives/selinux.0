@@ -1,41 +1,60 @@
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA13142
-	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 07:14:31 -0400 (EDT)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 0ACB692465
-	for <selinux@tycho.nsa.gov>; Wed,  2 Oct 2002 21:14:30 +1000 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id BB606A90D
-	for <selinux@tycho.nsa.gov>; Wed,  2 Oct 2002 13:14:22 +0200 (CEST)
+Message-Id: <200210021252.MAA21909@jazzband.ncsc.mil>
 Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: attributes for roles?
-Date: Wed, 2 Oct 2002 13:14:22 +0200
+  charset="iso-8859-1"
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: Russell Coker <russell@coker.com.au>
+Subject: Re: postfix
+Date: Wed, 2 Oct 2002 14:53:25 +0200
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <20020929161517.D356DBEF4@sat.sws.net.au> <200209291914.23804.russell@coker.com.au>
+In-Reply-To: <200209291914.23804.russell@coker.com.au>
 MIME-Version: 1.0
-Message-Id: <200210021314.22359.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've just setup a machine with 5 different user roles.  I want to allow 
-administrative accounts to assume any of those roles.  This requires that as 
-each role is added the users file be updated for all administrative 
-identities.
+Am Sonntag, 29. September 2002 19:14 schrieb Russell Coker:
+> On Sun, 29 Sep 2002 17:57, Carsten Grohmann wrote:
+> > the attached patch contain some little changes on your postfix rules. I
+> > need the additional rules on my (SuSE) system and I think this changes
+> > are not SuSE specific and we could add this to postfix.te
+>
+> How is the following needed?  A fifo_file access to the same process is
+> not checked for creation and usually only needs { read write } access,
+> sometimes getattr and ioctl.  I could probably make it more restrictive
+> than rw_file_perms even...
+> -allow postfix_master_t self:fifo_file rw_file_perms;
+> +allow postfix_master_t self:fifo_file create_file_perms;
+>
+> What needs the following?  On my system I have no fifo's with that type,
+> only sockets.
+> -allow postfix_master_t postfix_private_t:fifo_file getattr;
+> +allow postfix_master_t postfix_private_t:fifo_file create_file_perms;
+>
+> For the following, are you sure that you have the programs in the right
+> domains?
 
-It would be a lot easier to have the following in the users file:
-user root roles { sysadm_r user_roles };
+Yes I think.
 
-Then in user.te:
-allow system_r user_roles;
-allow sysadm_r user_roles;
+> -allow postfix_master_t postfix_prng_t:file getattr;
+> +allow postfix_master_t postfix_prng_t:file { getattr lock read write };
+> +allow postfix_master_t random_device_t:chr_file { read };
+> The following file_contexts line was changed recently to cover a change
+> in the default Debian setup for Postfix, maybe this is something you
+> need. /usr/lib/postfix/(n)?qmgr      
+> system_u:object_r:postfix_qmgr_exec_t
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+qmgr is labelling correct
+
+> What is this one used for?
+> +allow postfix_pickup_t self:udp_socket { create ioctl };
+>
+> Could you show me some dmesg output?
+
+Is attached.
+
+Could it be that this rules are used by older postfix versions? Because I 
+don't use the current version use 20010228pl8.
+
 
 
 --
