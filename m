@@ -1,58 +1,40 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA05253
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 06:47:46 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id KAA02871
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 10:46:23 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id KAA02867 for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 10:46:21 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Keith Owens <kaos@sgi.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA05453
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 07:40:15 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id LAA11834
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 11:39:58 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id LAA11830
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 11:39:58 GMT
+Date: Thu, 13 Jun 2002 07:39:13 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: <linux-security-module@wirex.com>, SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: XFS and LSM
-Date: Thu, 13 Jun 2002 12:47:31 +0200
-Cc: linux-security-module@wirex.com, linux-xfs@oss.sgi.com,
-        SE Linux <selinux@tycho.nsa.gov>
-References: <5772.1023963428@ocs3.intra.ocs.com.au>
-In-Reply-To: <5772.1023963428@ocs3.intra.ocs.com.au>
+In-Reply-To: <20020613104731.CF50F1F09@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0206130737180.23212-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020613104731.CF50F1F09@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 13 Jun 2002 12:17, Keith Owens wrote:
-> At 10:15 13-6-2002 +0200, Russell Coker wrote:
-> >I wanted to build a system running the XFS file system and Linux Security
-> >Modules (LSM), so I had a look at hacking the patch files to make them
-> > work.
-> >
-> >I found one issue where the patches severely conflict, system call 1217 on
-> >IA64 is sys_setxattr for XFS and is sys_security for LSM!
->
-> The *attr syscall numbers are official, in both Linus and Marcelo
-> kernels.  LSM is picking an arbitrary syscall number for testing so
-> they will have to find another number - and change user space to match.
 
-OK.  Shouldn't be a big issue.
+On Thu, 13 Jun 2002, Russell Coker wrote:
 
-> Pity Linus did not take my patch that reserves a range of syscall
-> numbers for testing and provides a clean interface for determining
-> which number to use.  Linus does not consider this to be a problem.
+> BTW  XFS also changes the quota system in a serious way which breaks SE Linux
+> (not LSM).
 
-Yes, reserving a separate range for testing would be good, especially if you 
-can make it work so that patches don't conflict...
+The changes to the quota code have already been merged into 2.5, and the
+2.5 SELinux module in BitKeeeper has already been updated for those
+changes.  You can backport the quotactl hook from the 2.5 SELinux module.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-BTW  XFS also changes the quota system in a serious way which breaks SE Linux 
-(not LSM).
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
