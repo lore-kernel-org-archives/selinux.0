@@ -1,77 +1,62 @@
 Subject: Re: Multiple contexts
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
+In-Reply-To: <20050112182954.GF26175@lkcl.net>
 References: <1105390249.8093.21.camel@cobra.ivg2.net>
-	 <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050110232312.GI6967@lkcl.net>
+	 <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050111214818.GE26175@lkcl.net>
+	 <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050112144411.GZ26175@lkcl.net>
+	 <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050112181814.GD26175@lkcl.net>
+	 <1105552982.22495.169.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050112182954.GF26175@lkcl.net>
 Content-Type: text/plain
-Date: Wed, 12 Jan 2005 13:11:27 -0700
-Message-Id: <1105560687.11135.26.camel@cobra.ivg2.net>
+Message-Id: <1105565236.23136.12.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Wed, 12 Jan 2005 16:27:16 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-And of course I forgot to cc list.
-Sorry about the multiple mails.
-
-> > I have to edit the cryptic m4 policy file to add a type that's
-> > accessible by both. Why is this necessary? Why can't selinux
-> > either
-> > 	(1) Label the file with both contexts, and permit
-> > 	the operation if any context permits it
+On Wed, 2005-01-12 at 13:29, Luke Kenneth Casson Leighton wrote:
+>  i don't believe it does - or i am misunderstanding.
 > 
-> Because then policy would be encoded in the file attributes, not in a
-> centralized security policy.  Hence, one would be unable to analyze
-> information flow in the system based solely on the policy and would have
-> to also analyze the complete filesystem state, and that state is much
-> more subject to change at runtime than the policy itself (one would
-> hope).
+>  having two policy files apache.fc and mymodifiedthing.fc which _both_
+>  have a file context for the same file / directory, such that the
+>  data that ends up in the security.selinux xattr is "apache_filetype_t,
+>  "mymodifiedthing_filetype_t" doesn't mean, in my book "policy is in
+>  filesystem state".
+> 
+>  ... does it?
+> 
+>  *lost*.
 
-Please explain this some more - Luke also seems confused about this
-(unless I misunderstand). I don't understand how the change from one
-context to multiple contexts stored per file translates into policy
-being encoded in the file attributes.
+The file_contexts configuration is not part of the kernel policy.  It is
+only used by userspace to set the contexts for files upon installation,
+to recheck the state of the filesystem against the initial labeling
+state, or to restore portions of the filesystem to the initial labeling
+state.
 
-It seems to me that this change would simply allow more accurate
-association of the files with the proper security data.
-
-It is still a centralized policy which decides whether to allow an
-action or not - it just takes into consideration multiple contexts.
-I am merely suggesting that when a security decision is necessary for
-a file, all the contexts it is labeled with are provided by the
-filesystem, and the security server makes a decision based on 
-whether an access path (not sure of terminology here) exists
-between the subject context and any object context. 
-
-Your httpd policy describes what contexts httpd has access to.
-Your samba policy describes what contexts smbd has access to.
-This information is not stored in the filesystem somewhere - it's 
-in the binary policy. Multiple contexts will simply allow
-the user to more accurately specify the class of the object 
-that you have to work with, with minimal interaction - it 
-is fundamentally not a samba share, or httpd content, it is both,
-and it seems the only sane thing to do is label it with both,
-or something that's a mix of the two. I am interested in 
-the easiest possible way to do this without playing with the policy.
-Why should I be changing the policy? I should
-only need to do that when I want to describe changes in 
-security classes and relationships between them. What I want to do 
-is simply mark data as belong to more than one existing class,
-without changing either one.
-
-So, it seems to me that userspace tools should provide
-an easy way to mark a file for contexts it belongs to,
-and internally selinux could still map this information
-to a unique sid somehow. Is this possible?
-
-I can imagine multiple contexts for processes would be useful
-as well, although I can't come up with examples right now...
+If you change the SELinux module to support a list of file contexts
+within the security.selinux attribute, and change its policy engine to
+allow access if any access is allowed to any one of those contexts, then
+the only way to truly identify what information flow is possible in the
+system is by checking the current security.selinux attributes of all
+files in the system for such combinations and collapsing them to a
+single security equivalence class for analysis purposes.  Think:  policy
+says allow P1 F1:file read; allow P2 F2:file write;, policy analysis
+says that there is no allowed information flow from P2 to P1, but
+someone does a chcon -t F1,F2 foobar and now P2 can write to foobar and
+P1 can read from it, so information flow is now possible.  If you want
+to control information flow throughout the system to prevent leakage of
+information or to protect trusted processes against being corrupted by
+untrustworthy input, you can't ignore the issue.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
