@@ -1,41 +1,42 @@
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8HAasLa024174
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 06:36:55 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8HAZDLY008576
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 10:35:14 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h8HAZCsG008573
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 10:35:13 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Karl MacMillan <kmacmillan@tresys.com>,
-   SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: Policy source and initial ramdisk
-Date: Wed, 17 Sep 2003 20:32:56 +1000
-References: <1063747354.25176.44.camel@colossus.columbia.tresys.com>
-In-Reply-To: <1063747354.25176.44.camel@colossus.columbia.tresys.com>
+To: Dale Amon <amon@vnl.com>, SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: Trivial debian bootscript for selinuxfs on 2.6
+Date: Wed, 17 Sep 2003 20:36:48 +1000
+References: <20030916155439.GN8988@vnl.com>
+In-Reply-To: <20030916155439.GN8988@vnl.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200309172032.56257.russell@coker.com.au>
+Message-Id: <200309172036.48566.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 17 Sep 2003 07:22, Karl MacMillan wrote:
-> It appears that users are required to call mkinitrd whenever the policy
-> is modified. If this is the case it seems that users might be unaware
-> that make install /etc/security/selinux/src/policy doesn't change the
-> policy loaded during the next boot. Additionally, it is problematic for
-> tools that modify the policy source. The quickest solution would be to
-> modify the install target to call mkinitrd, but this has some issues
-> (like reliably determining the name of the ramdisk image). Does anyone
-> have any thoughts about the best way to approach this problem?
+On Wed, 17 Sep 2003 01:54, Dale Amon wrote:
+> In case anyone might find it useful, or if it saves Colin
+> five minutes on his next release, here is the bootscript
+> I wrote to handle getting selinuxfs mounted on /.
 
-My solution to this is to have a base policy in the initrd which defines every 
-type for a file that may be accessed in the early stages of the boot process 
-(up until the root fs is re-mounted read-write), and all the policy for those 
-parts of the boot.
+I suggest also reloading the policy in the same script (see my previous 
+message about initrd policy).
 
-Then in the early stage of boot the real policy will be loaded from the root 
-fs.
+> I was undecided as to whether to actually have the
+> reload/restart or not, or even whether it made sense
+> to have a stop that dismounts selinuxfs. I'm agnostic
+> on it.
 
-This avoids re-building an initrd every time the policy is changed (which 
-incurs danger of making the maching non-bootable if there is an error and 
-which is difficult in the case of updating several kernels at the same time).
-
-I'll release some sample policy for this soon.
+It has occurred to me that if you were to use a NBD or similar device for a 
+root fs then you might want to do a pivot_root in the shutdown to umount root 
+properly, and therefore umounting any file systems under / will be helpful.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
