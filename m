@@ -1,42 +1,91 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71HH7rT007920
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 13:17:07 -0400 (EDT)
-Received: from smtp809.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i71HGY52025084
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 17:16:34 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp809.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 17:16:50 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BrJTP-0002GN-Mz
-	for selinux@tycho.nsa.gov; Sun, 01 Aug 2004 16:46:11 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BrK7j-0005IF-M9
-	for selinux@tycho.nsa.gov; Sun, 01 Aug 2004 18:27:51 +0100
-Date: Sun, 1 Aug 2004 18:27:51 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: matchfilecon (the program) vs matchfilecon (the libselinux1 fn)
-Message-ID: <20040801172751.GD20103@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71HwxrT008054
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 13:59:00 -0400 (EDT)
+Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i71HwR52025798
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 17:58:27 GMT
+Subject: gcc-2.95: checking for va_list assignment copy... configure:
+	error: no
+From: Wolfgang Pfeiffer <roto@gmx.net>
+To: Debian Bug Tracking System <submit@bugs.debian.org>,
+   SE-Linux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1091383127.1295.283.camel@debby>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Sun, 01 Aug 2004 19:58:48 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
+Package: gcc-2.95
+Version: 1:2.95.4-22
+Severity: normal
 
-does anyone know: the matchfilecon program reads
-/etc/selinux/.../file_contexts/file_contexts.
 
-does the matchfilecon libselinux1 api does the same?
+Trying to build a SE-Linux dpkg package with gcc-2.95 and this script:
 
-or does it read a binary policy from somewhere?
+=========================================== 
+#!/bin/sh -x
+cd $HOME/russellpackages/dpkg/ && \
+rm -rf * && \
+curl -f -O http://selinux.lemuria.org/newselinux/dpkg/dpkg_1.10.22.orig.tar.gz && \
+curl -f -O http://selinux.lemuria.org/newselinux/dpkg/dpkg_1.10.22-se1.diff.gz && \
+tar -xzvf *\.tar.gz && \
+cd dpkg-1.10.22/ && \
+cp ../dpkg_1.10.22-se1.diff.gz . && \
+gzip -cd dpkg_1.10.22-se1.diff.gz | patch -p1 && \
+chmod +x debian/rules && \
+autoconf && \
+fakeroot debian/rules binary
+=================================================
 
-the reason i ask is because if i were to code up stuff into
-udev, it might solve the problem of having to move
-/usr/share/selinux/stuff off of /usr and onto /etc.
+ends like this:
+---------------------------------------------------- 
+checking for initscr in -lncurses... yes
+checking if TIOCNOTTY is defined in sys/ioctl.h... yes
+checking for va_copy... no
+checking for va_list assignment copy... configure: error: no
+make: *** [/home/shorty/russellpackages/dpkg/dpkg-1.10.22/build/configure-stamp] Error 1
+----------------------------------------------------
 
-l.
+Google hints that
+"gcc build has failed to install varargs.h"
+<http://www.uclibc.org/lists/uclibc/2003-February/005694.html>
+
+$ locate varargs.h
+/usr/lib/gcc-lib/powerpc-linux/2.95.4/include/varargs.h
+/usr/lib/gcc-lib/powerpc-linux/3.0.4/include/varargs.h
+/usr/lib/gcc-lib/powerpc-linux/3.3.4/include/varargs.h
+/usr/lib/gcc/powerpc-linux/3.4.1/include/varargs.h
+
+Trying to build the package with the mentioned script above plus gcc-3.3
+or gcc-3.0 or gcc-3.4 each time successfully builds these packages:
+
+dpkg-dev_1.10.22-se1_all.deb
+dpkg-doc_1.10.22-se1_all.deb
+dpkg_1.10.22-se1_powerpc.deb
+dselect_1.10.22-se1_powerpc.deb
+
+HTH
+
+Regards
+Wolfgang
+
+
+-- System Information:
+Debian Release: 3.1
+  APT prefers unstable
+  APT policy: (990, 'unstable')
+Architecture: powerpc (ppc)
+Kernel: Linux 2.4.25-ben1
+Locale: LANG=C, LC_CTYPE=C
+
+Versions of packages gcc-2.95 depends on:
+ii  binutils                   2.14.90.0.7-8 The GNU assembler, linker and bina
+ii  cpp-2.95                   1:2.95.4-22   The GNU C preprocessor
+ii  libc6                      2.3.2.ds1-13  GNU C Library: Shared libraries an
+-- no debconf information
+-- 
+Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
 
 
 --
