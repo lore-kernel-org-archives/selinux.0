@@ -8,9 +8,9 @@ References: <4213C115.3030703@trustedcs.com>
 	 <1108647155.24494.18.camel@moss-spartans.epoch.ncsc.mil>
 	 <4214C657.7@trustedcs.com>
 Content-Type: text/plain
-Message-Id: <1108657794.24494.69.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1108660235.24494.77.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 17 Feb 2005 11:29:54 -0500
+Date: Thu, 17 Feb 2005 12:10:35 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -19,7 +19,13 @@ On Thu, 2005-02-17 at 11:29, Darrel Goeddel wrote:
 > security_validate_transition (I originally had it another function which was 
 > called after security_validate_transition)...  How about the attached patch instead.
 
-Looks good, thanks.
+One other question:  At present, you won't perform any such auditing
+when in permissive mode, as you bail out of
+security_validate_transition() immediately in that case.  Do you want
+instead to handle this more like security_compute_sid(), i.e. always
+auditing the denial but only returning an error if enforcing? 
+Otherwise, you won't even see such denials if you are doing any kind of
+policy development in permissive mode.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
