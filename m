@@ -1,33 +1,36 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA02231
-	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 08:35:17 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA21466
-	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 12:34:39 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA03026
+	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 16:44:00 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA22675
+	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 20:42:30 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id MAA21462
-	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 12:34:36 GMT
+        by jazzband.ncsc.mil  with ESMTP id UAA22671 for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 20:42:28 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 5E61A92462
-	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 22:35:12 +1000 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id F3FAC92462
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 06:43:55 +1000 (EST)
 Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id B0E2F400
-	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 14:35:04 +0200 (CEST)
+	by lyta.coker.com.au (Postfix) with SMTP id 597BFF0A
+	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 22:43:44 +0200 (CEST)
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: fileutils
-Date: Sun, 14 Jul 2002 14:35:04 +0200
+Subject: shellutils
+Date: Sun, 14 Jul 2002 22:43:43 +0200
 MIME-Version: 1.0
-Message-Id: <20020714123504.B0E2F400@lyta.coker.com.au>
+Message-Id: <20020714204344.597BFF0A@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've created a fileutils 4.1.9 package with SE Linux patches.  It's on 
-http://www.coker.com.au/selinux/fileutils/ .  There is a problem though, 4 of 
-the regression tests fail...
+I've built a new Debian package of shellutils and put it on my web site.  
+It's updated to sh-utils-2.0.12, and I changed the id program to not display 
+the SID and context if you specify a different UID.
+
+EG: if you type "id nobody" it should not say root:sysaadm_r:sysadm_r.
+
+http://www.coker.com.au/selinux/shellutils/
 
 -- 
 I do not get viruses because I do not use MS software.
