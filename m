@@ -1,35 +1,33 @@
-Date: Tue, 29 Jan 2002 08:18:39 -0800
-From: Paul Krumviede <pwk@acm.org>
+Subject: Additional permissions that appear to be necessary
+From: Justin Smith <jsmith@mcs.drexel.edu>
 To: SELinux@tycho.nsa.gov
-Subject: file labeling (was Re: applications and ports)
-Message-ID: <95876102.1012292319@localhost>
-In-Reply-To: <Pine.GSO.4.33.0201290944230.11892-100000@raven>
-References: <Pine.GSO.4.33.0201290944230.11892-100000@raven>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain
+Date: 29 Jan 2002 11:51:10 -0500
+Message-Id: <1012323070.1329.4.camel@jsmith.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---On Tuesday, 29 January, 2002 10:32 -0500 Stephen Smalley 
-<sds@tislabs.com> wrote:
+This is apart from those made necessary by my own policy configuration
+(i.e., they probably apply to all Redhat 7.2 installations):
 
-> You also need to assign the program type
-> associated with the domain to the program in the file_contexts
-> configuration and run 'make relabel' in the setfiles directory.
-> Alternatively, you can directly set the label on a program via chcon, but
-> it is a good idea to also update the file_contexts configuration in case
-> you later do a 'make relabel'.
+allow initrc_t initrc_t:socket { create };
 
-i would emphasize this last sentence, as i've confused myself by
-failing to track manually labeled files in file_contexts only to have
-policy changes fail to work unexpectedly after i'd relabel the
-file system.
+allow kmod_t kmod_t:capability { setuid };
 
-as an aside, the default install for file-utils in the latest release
-doesn't seem to install the chcon man page, so i didn't find
-the option to not dereference symbolic links for a bit.
+allow logrotate_t logrotate_t:capability { sys_pacct };
 
--paul
+allow system_crond_t etc_t:dir { setattr write };
+allow system_crond_t file_labels_t:dir { setattr };
+allow system_crond_t var_lib_rpm_t:dir { add_name write };
+allow system_crond_t var_lib_rpm_t:file { create read write };
+allow system_crond_t var_log_t:file { setattr write };
+
+
+The last 5 lines only appear after running a system for several days so
+that its periodic maintenance is performed.
+
+-- 
 
 
 --
