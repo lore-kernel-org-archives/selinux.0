@@ -1,55 +1,47 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA06766
-	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 17:52:18 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA21122
-	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 21:51:46 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id VAA21116
-	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 21:51:44 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Linux Security Module <linux-security-module@wirex.com>
-Subject: Re: OLS: Packaging NSA SELinux for Debian
-Date: Sun, 30 Jun 2002 00:41:30 -0400
-References: <3D1E051B.1020500@wirex.com>
-In-Reply-To: <3D1E051B.1020500@wirex.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
+Date: Mon, 8 Jul 2002 12:30:01 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Timothy Wood <timothy@hallcomp.com>
+cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: new LSM ver
+In-Reply-To: <1026141595.1724.71.camel@phobos>
+Message-ID: <Pine.GSO.4.33.0207081134580.19100-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020704214517.C94FF2B9D@lyta.coker.com.au>
-List-ID: <selinux@tycho.nsa.gov>
-
->     * Q: [Alan Cox] should dpkg create files in a super-secure mode to
->       prevent install-time tampering, and some stuff about /tmp handling
->       that I couldn't hear
->     * A: couldn't hear Russ' answer either
-
-Apparently there are some potential race conditions regarding files in /tmp, 
-I have made a change to my policy tree to address one this which I will 
-release soon.
-
-Most of the stuff about /tmp was about how when user_t domain processes 
-create files in /tmp they get type user_tmp_t while sysadm_t processes create 
-files as sysadm_tmp_t.  This means that users can't read files from the 
-administrator, but as the administrator can read files from the users we will 
-be vulnerable to symlink race conditions.
-
-In some situations it may be desirable to prevent sysadm_t from reading links 
-that have type user_tmp_t to avoid such sym-link attacks (although stacking 
-OpenWall would probably be a better solution).
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sender: owner-selinux@tycho.nsa.gov
+List-Id: selinux@tycho.nsa.gov
 
 
-I will put my slides on http://www.coker.com.au/selinux/ols/ in the near 
-future, however reading Crispin's notes is probably a good idea too, he noted 
-quite a few things that aren't in my slides...
+On 8 Jul 2002, Timothy Wood wrote:
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+> This is true.  You can also merely change the context when you login (if
+> you log in as root).
+
+If you login via sshd, you can only login with the default context.  You
+can then change contexts via newrole.
+
+> however I do like the idea of severely restricting root or removing root
+> altogether.  Would I be correct in that pretty much everything would
+> have to be rewritten if this were to be accomplished (the removal of
+> root, that is)?
+
+This is simple as far as the kernel is concerned.  You would simply
+disable the stacking support in the SELinux module or stack with a null
+module so that SELinux would provide the sole authoritative decision for
+Linux capabilities (i.e. root privileges).  The difficult tasks would be
+updating all of the applications that have hardcoded assumptions about uid
+0 or about setuid programs (and don't forget ld.so!), and configuring the
+policy appropriately now that you are depending entirely on the
+SELinux policy to authorize root privileges.
+
+See http://marc.theaimsgroup.com/?l=selinux&m=97922666422991&w=2 for an
+earlier discussion of how SELinux relates to Linux capabilities.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 
 --
