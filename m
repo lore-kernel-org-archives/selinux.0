@@ -1,54 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65]) by
-	tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h33Jnkx6002077 for
-	<selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 14:49:46 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1]) by
-	jazzswing.ncsc.mil  with ESMTP id h33Jk7Ov012679 for
-	<selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 19:46:08 GMT
-Received: from sat.sws.net.au ([202.5.161.49]) by jazzswing.ncsc.mil  with
-	ESMTP id h33JjoY1012664 for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2003
-	19:46:06 GMT
-Received: from localhost (localhost [127.0.0.1]) by sat.sws.net.au
-	(Postfix) with ESMTP id 591F0BF47 for <selinux@tycho.nsa.gov>; Fri,  4 Apr
-	2003 05:49:13 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1]) by localhost (sat
-	[127.0.0.1:10024]) (amavisd-new) with ESMTP id 22392-04 for
-	<selinux@tycho.nsa.gov>; Fri,  4 Apr 2003 05:49:12 +1000 (EST)
-Received: from tsv.sws.net.au (unknown [61.95.69.2]) by sat.sws.net.au
-	(Postfix) with ESMTP id 1174FBF43 for <selinux@tycho.nsa.gov>; Fri,  4 Apr
-	2003 05:49:12 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1]) by tsv.sws.net.au
-	(Postfix) with ESMTP id BDE2192738 for <selinux@tycho.nsa.gov>; Fri,  4 Apr
-	2003 05:49:10 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1]) by lyta.coker.com.au
-	(Postfix) with ESMTP id 980A6724D for <selinux@tycho.nsa.gov>; Fri,  4 Apr
-	2003 05:49:06 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: policy
-Date: Fri, 4 Apr 2003 05:49:06 +1000
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h33Linx6002847
+	for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 16:44:49 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h33LfBOv019511
+	for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 21:41:11 GMT
+Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h33LfBY1019508
+	for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 21:41:11 GMT
+Message-Id: <200304032152.QAA06093@moss-shockers.ncsc.mil>
+Date: Thu, 3 Apr 2003 16:52:29 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: usermod/group* patch
+To: selinux@tycho.nsa.gov, dac@tresys.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Message-Id: <200304040549.06053.russell@coker.com.au>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-can_exec(crond_t, sbin_t);
-Why was the above rule added to crond.te?
 
-allow $1_t sshd_tmp_t:file create_file_perms;
-The above rule from macros/user_macros.te looks dangerous.  We have the type 
-sshd_tmp_t being used for all user domains.
+> Attached is a patch which adds the usermod utility and the corresponding set
+> of group utilities to the spasswd wrapper utility set.  The patch changes
+> the Makefile for .../selinux/utils/spasswd and adds a set of policy files
+> (groupadd.te,fc) for the group utilities.
+> 
+> The .../selinux/utils/spasswd/Makefile patch creates s-wrappers for usermod,
+> groupadd, groupdel, groupmod, and gpasswd.  These are all similar to
+> suseradd, suserdel, etc.
+> 
+> The groupadd.te,fc policy used the useradd.te policy as a base. Some rules
+> and permissions were trimmed out and some dontaudit rules were added.
+> 
+> I generated the patch against the latest cvs version of selinux.
 
-Could the following please be added to initrc.fc:
-/etc/nologin.*                 system_u:object_r:etc_runtime_t
-/etc/nohotplug                 system_u:object_r:etc_runtime_t
+Thanks, I've merged this into our internal tree, and it will be included
+in the next release.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--
+Stephen Smalley, NSA
+
 
 
 --
