@@ -1,95 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4FK76I4020500
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 16:07:06 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4FK75VG011169
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 20:07:05 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h4FK75L9011166 for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 20:07:05 GMT
-Subject: Re: Has anyone had or seen a SELinux system approved for
-	classified use?
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: Dean Anderson <dean@av8.com>
-Cc: Douglas Phillipson <phillipd@oem.doe.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <Pine.LNX.4.44.0305150922510.4983-100000@commander.av8.net>
-References: <Pine.LNX.4.44.0305150922510.4983-100000@commander.av8.net>
-Content-Type: text/plain
-Message-Id: <1053029192.10963.39.camel@moss-sooners.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 15 May 2003 16:06:32 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4FLnsI4020996
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 17:49:54 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4FLnYl5001702
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 21:49:34 GMT
+Received: from datas-world.dyndns.org (dsl-213-023-218-135.arcor-ip.net [213.23.218.135])
+	by jazzswing.ncsc.mil  with ESMTP id h4FLnXNc001694
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 21:49:33 GMT
+From: Torsten Knodt <tk-selinux@datas-world.de>
+To: selinux@tycho.nsa.gov
+Subject: Policy for exim and/ or tiger?
+Date: Thu, 15 May 2003 23:49:26 +0200
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Message-Id: <200305152349.28038.tk-selinux@datas-world.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I don't mean to be too harsh, but the answer given here by Dean is
-dramatically wrong.  Since this is a public forum, I feel a need to
-caution anyone from depending on it.  The Trusted Computer Security
-Evaluation Criteria (TCSEC) references given by Steven Rottura in his
-response should help anyone who wants to understand what C2, B1, and B2
-really mean at a high level.  However, the TCSEC has been superceeded by
-the Common Criteria for a number of years now.  The Common Criteria as a
-whole is more than I want to get into in this note, but evaluation
-against the Common Criteria is most similar to TCSEC terms when
-performed against the requirements of a Protection Profile.  Various
-Protection Profiles including current C2 and B1 equivalents for
-operating systems can be found at
-http://www.nsff.org/protection_profiles/profiles.cfm
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Thu, 2003-05-15 at 09:50, Dean Anderson wrote:
-> Its been awhile, but when I was at OSF back in the late 80s, OSF/1 was
-> developed to be B1 certified. C2 only requires that physical access to the
-> "console" still require a password to boot, and that the case be lockable
-> to exclude undetected disassembly. On a PC, this is handled by the BIOS,
-> and most BIOS's handle this now.  Sun and most workstation vendors also
-> can protect the boot rom with a password.  Most PC and workstation
-> enclosures also have locks.  You can get a copy of the DOD orange book to
-> look up other requirements, but I think that was pretty much it.
-> 
-> Prior to working at OSF, I worked at Draper Labs, which handled classified
-> computing. This was still in the mainframe era, but at the early part of
-> the PC era. Prior to a classified computing run, the Mainframe was
-> isolated from the rest of the lab via scheduled downtime. I think the
-> isolation was physical disconnection of terminal controllers and network
-> controllers, but I'm not sure. I didn't work in that part of the computer
-> center.  Classified PC computing was done in secured labs, where the PC
-> had no outside connection, and personnel in the labs were cleared.  C2
-> security essentially just attempts to detect and deter some kinds of
-> inappropriate behavior by cleared personnel.
-> 
-> Linux is not a terribly secure operating system.  I don't present myself
-> as an expert, but I think it would be inadvisable to rely on linux to keep
-> any data secure in a multiuser classified/non-classified environment.
-> Perhaps the result of the SELinux project might be a B1 or B2
-> certification**, but its clearly not there yet.
-> 
-> **If I recall, B1 requires that OS privileges be split into different
-> roles, so that no one person can compromise the system undetected, and B2
-> requires mandatory access control. There are other requirements and
-> differences that I don't rememeber. Also as I recall, the pentagon kept
-> multics around for so long because it was the only certified B2 secure
-> system.  I'm not sure the multics system was replaced with another B2
-> system, or if they just set up completely separate classified and
-> unclassified networks, and partitioned classified networks accordingly.
-> 
-> 		--Dean
-> 
-> On Wed, 14 May 2003, Douglas Phillipson wrote:
-> 
-> > This may be the wrong forum for this question and I apologize if thats
-> > the case.  I was wondering if anyone has or knows of any Linux
-> > systems/networks/OS versions that have been approved for processing
-> > classified data?  I work for the Dept Of Energy and am looking for a
-> > test case to model a security plan on, possibly using SELinux.
-> >
-> > I am also looking for "C2" software for Linux if anyone has seen it?
-> >
-> > Regards
-> >
-> > Doug Phillipson
+Hello,
+has someone a policy for the exim mta and/ or the tiger script?
 
--- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
+Thanks in advance
+	Torsten Knodt
+
+- -- 
+Domain in provider transition, hope for smoothness.
+pub  1024D/4CD29A2C 2001-01-12 Torsten Knodt <torstenknodt@datas-world.de>
+ Schl.-Fingerabdruck = A2B1 C626 F819 7C58 B2F9  4F4C BF16 64B6 4CD2 9A2C
+uid Torsten Knodt (Account for communication about SE Linux) 
+<tk-selinux@datas-world.de>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+xAtmvxZktkzSmiwRAjg2AJ9l9uFUfKzhF2GDU9gPhZuFiBGwTgCdGV4K
+P0yXSmGY3UCfLicrIIWznqA=
+=PzQz
+-----END PGP SIGNATURE-----
+
 
 
 --
