@@ -1,47 +1,87 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6P0I3rT018357
-	for <selinux@tycho.nsa.gov>; Sat, 24 Jul 2004 20:18:03 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6P0HXUX001693
-	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 00:17:34 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: [idea] multiple contexts.
-Date: Sun, 25 Jul 2004 10:17:49 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040724231154.GE3437@lkcl.net>
-In-Reply-To: <20040724231154.GE3437@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200407251017.49201.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6P9kZrT019607
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 05:46:35 -0400 (EDT)
+Received: from smtp808.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6P9kYYd000720
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 09:46:35 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp808.mail.ukl.yahoo.com with SMTP; 25 Jul 2004 09:46:34 -0000
+Date: Sun, 25 Jul 2004 10:57:39 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: pam-list@redhat.com, SE-Linux <selinux@tycho.nsa.gov>
+Subject: IDEA: /etc/pam.d/*/*
+Message-ID: <20040725095739.GH3437@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 25 Jul 2004 09:11, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> note the plus sign: this means "whenever a user executes the executable
-> program kdeinit, then instead of transitioning TO the kde_user_t
-> context, they get an EXTRA context kde_user_t".
+there is a minor issue of inter-dependence of packages that may
+be resolved by applying the usual debian approach of 
+"if-it-was-a-config-file-make-it-a-directory".
 
-Nothing that you could do with kdeinit will give a good result.
+the issue is that Debian has to cater for SELinux being
+installed and not installed.
 
-kdeinit is a hack to avoid the time taken for loading shared objects (less 
-than 1 second of CPU time on a P3-650).  Like most hacks it causes problems 
-for other things, in this case for security systems of which SE Linux is only 
-one example.
+openssh, login, kdm, gdm, su and several other packages all
+require "session pam_selinux.so required" to be added to
+their respective /etc/pam.d/XXX configurations in order for
+SE/Linux to operate correctly.
 
-If you get a 1GHz machine (one of those cheap new VIA systems or a cheap 
-second-hand system) then you probably won't mind the small extra overhead of 
-loading shared objects.  Also removing the kdeinit hack will probably avoid 
-most of the problems of KDE acting weird when you upgrade your system while 
-still logged in.
+Redhat is solving the issue by always enabling SE/Linux by
+default.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Debian has no such luxury.
+
+therefore, openssh etc. etc. cannot accept upstream patches
+to have /etc/pam.d/ssh include that line by default, because
+if you do, and pam_selinux.so is not installed, you're hosed.
+
+one possible solution is to turn, exactly as was done with
+pam.conf into pam.d several years ago, the contents of
+the pam.d files into directories.
+
+now, in this case, an ordering is required, and so the same
+thing can be done as with /etc/rc?.d/* and /etc/exim4/conf.d
+namely to have a number NN[N][N] at the front of the config.
+
+what this allows people to do is to install pam, and to install
+selinux, and for there to NOT be an inter-dependence between
+the two, and for there NOT to have to be a special openssh-selinux
+with only a single file different (a different /etc/pam.d/ssh)
+and likewise for all other packages.
+
+in other words, the contents of /etc/pam.d/ssh get split into
+a directory, /etc/pam.d/ssh, as follows:
+
+000_nonroot:
+	# Disallow non-root logins when /etc/nologin exists.
+	auth       required     pam_nologin.so
+
+100_stdunix:
+	# Standard Un*x authentication.
+	@include common-auth
+
+	# Standard Un*x authorization.
+	@include common-account
+
+	# Standard Un*x session setup and teardown.
+	@include common-session
+
+
+etc. etc.
+
+and then, you can install a separate pam-selinux package that
+blats into the mix:
+
+800_selinux:
+
+	session   required pam_selinux.so
+
+reckon?
+
+l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
