@@ -1,33 +1,38 @@
-Subject: Re: restorecon read symlink
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1110897579.25947.47.camel@moss-spartans.epoch.ncsc.mil>
-References: <1110897735.3769.4.camel@cobra.ivg2.net>
-	 <1110897579.25947.47.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2FI6oDo001065
+	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 13:06:50 -0500 (EST)
+Subject: Re: gentoo policies for daemontools, ucspi-tcp, publicfile,
+	djbdns, clockspeed
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: petre rodan <kaiowas@gentoo.org>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <41A07D3C.4070300@gentoo.org>
+References: <41A07D3C.4070300@gentoo.org>
 Content-Type: text/plain
-Date: Tue, 15 Mar 2005 09:58:36 -0500
-Message-Id: <1110898717.3769.9.camel@cobra.ivg2.net>
+Date: Tue, 15 Mar 2005 13:02:22 -0500
+Message-Id: <1110909742.19764.13.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-03-15 at 09:39 -0500, Stephen Smalley wrote:
-> On Tue, 2005-03-15 at 09:42 -0500, Ivan Gyurdiev wrote:
-> > Without this restorecon sdir/* fails, where sdir is a symlink to a
-> > directory. Is this a security hole, or can it be patched?
-> 
-> You don't want restorecon or setfiles (or any other trusted program)
-> following untrustworthy symlinks, to avoid malicious symlink attacks.
-> So you don't want file_type there; at most, you want a list of trusted
-> file types that are only modifiable by the admin.
+Sorry for the delay, but the policies for clockspeed, daemontools,
+djbdns, publicfile, and ucspi-tcp have now been added.
 
-Ok true, I realize that now - it should probably stay unchanged.
+On Sun, 2004-11-21 at 13:34 +0200, petre rodan wrote:
+> Hi,
+> 
+> This is a collection of policies that I've been using and maintaining for more than an year now.
+> 
+> [1] http://cr.yp.to/daemontools.html
+> [2] http://cr.yp.to/ucspi-tcp.html
+> [3] http://cr.yp.to/publicfile.html
+> [4] http://cr.yp.to/djbdns.html
+> [5] http://cr.yp.to/clockspeed.html
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 
 --
