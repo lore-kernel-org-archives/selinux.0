@@ -1,60 +1,59 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CNM9Ii020402
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 18:22:10 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CNMBgF011377
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 23:22:12 GMT
-Date: Wed, 12 Jan 2005 23:32:41 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: ivg2@cornell.edu, SELinux@tycho.nsa.gov
-Subject: Re: Multiple contexts
-Message-ID: <20050112233241.GF11846@lkcl.net>
-References: <1105390249.8093.21.camel@cobra.ivg2.net> <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil> <1105560687.11135.26.camel@cobra.ivg2.net> <1105566461.23136.40.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0D1CMIi020901
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 20:12:23 -0500 (EST)
+Received: from glaurung.internal.golden-gryphon.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0D1AG8I006823
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jan 2005 01:10:22 GMT
+Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
+	by glaurung.internal.golden-gryphon.com (8.13.2/8.13.2/Debian-1) with ESMTP id j0D17vJ8017509
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 19:07:58 -0600
+From: Manoj Srivastava <manoj.srivastava@stdc.com>
+To: selinux@tycho.nsa.gov
+Subject: Error building libsepol with gcc 4.0
+Date: Wed, 12 Jan 2005 19:07:57 -0600
+Message-ID: <87hdlmuoeq.fsf@glaurung.internal.golden-gryphon.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1105566461.23136.40.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jan 12, 2005 at 04:47:41PM -0500, Stephen Smalley wrote:
-> On Wed, 2005-01-12 at 15:11, Ivan Gyurdiev wrote:
-> > Please explain this some more - Luke also seems confused about this
-> > (unless I misunderstand). I don't understand how the change from one
-> > context to multiple contexts stored per file translates into policy
-> > being encoded in the file attributes.
-> > 
-> > It seems to me that this change would simply allow more accurate
-> > association of the files with the proper security data.
-> > 
-> > It is still a centralized policy which decides whether to allow an
-> > action or not - it just takes into consideration multiple contexts.
-> > I am merely suggesting that when a security decision is necessary for
-> > a file, all the contexts it is labeled with are provided by the
-> > filesystem, and the security server makes a decision based on 
-> > whether an access path (not sure of terminology here) exists
-> > between the subject context and any object context.
-> 
-> If we followed that approach, then we wouldn't be able to tell whether
-> information can flow from type A to type B without analyzing the
-> filesystem state to see what files had multiple contexts and collapsing
-> each such combination into a single security equivalence class (type).
+Hi,
+
+        There is a problem building 'libsepol' on amd64 with gcc-4.0:
+
+cc -O2 -I. -I../include -c -o policydb.o policydb.c
+policydb.c:29: error: static declaration of 'policydb_compat' follows non-static declaration
+private.h:27: error: previous declaration of 'policydb_compat' was here
+make[2]: *** [policydb.o] Error 1
+make[2]: Leaving directory `/libsepol-1.2/src'
+
+	Which is indeed a problem (though gcc used to ignore it in the
+ past). Looking at it, policydb_compat is only used in policydb.c, so
+ it can remain a static array of struct policydb_compat_info, and we
+ can just remove the extern declaration from private.h.
+
+	The following should do the trick:
+======================================================================
+diff -urN libsepol-1.2/src/private.h ./src/private.h
+--- .libsepol-1.2/src/private.h	2004-08-20 21:02:11.000000000 +0200
++++ ./src/private.h	2004-12-27 21:02:34.453860304 +0100
+@@ -24,7 +24,6 @@
+ 	int ocon_num;
+ };
  
- would you accept that that could be done at policy compile time,
- and that it would be unnecessary to do that at runtime?
+-extern struct policydb_compat_info policydb_compat[];
+ extern struct policydb_compat_info *policydb_lookup_compat(int version);
+ 
+ /* Reading from a policy "file". */
+======================================================================
 
- [if yes, then the question becomes a) who's gonna do the work
-  b) is it useable without making selinux horribly complex]
-
- would you also agree that if someone wants to mess things up
- with chcon then all bets are off for _any_ kind of analysis?
-
- btw so you aren't thinking of doing something irrational in order
- to stay sane i should point out that i'm not pursuing this to be
- bloody-minded - hopefully you know me better than that by now!
-
- l.
-
+	manoj
+-- 
+He who utters only gentle, instructive and truthful speech,
+criticising no-one - that is what I call a brahmin. 408
+Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
