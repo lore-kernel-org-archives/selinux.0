@@ -1,56 +1,31 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i67KcVrT008727
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 16:38:31 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i67KlvrT008814
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 16:47:58 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i67KcTaX008578
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 20:38:30 GMT
-Subject: Re: Serviceusers File Question?
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i67KluaX008888
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jul 2004 20:47:56 GMT
+Subject: Re: policy patch
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Joseph M.Kusmiss" <jkusmiss@mitre.org>
-Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
-   Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <001401c46378$334c4bc0$33395381@MITRE.ORG>
-References: <001401c46378$334c4bc0$33395381@MITRE.ORG>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200407041504.48924.russell@coker.com.au>
+References: <200407041504.48924.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1089228873.1774.234.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1089233264.1774.264.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 07 Jul 2004 15:34:33 -0400
+Date: Wed, 07 Jul 2004 16:47:44 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-07-06 at 12:42, Joseph M.Kusmiss wrote:
-> I am trying to understand the serviceusers file. It seems to have the same
-> syntax as the users file, i.e., a userid and its role(s). How are these
-> users treated differently from the users in the users file? What would be
-> required to start a daemon using a userid and role from this file (and a
-> particular domain)? I can take my answer(s) offline. Thank you.
+On Sun, 2004-07-04 at 01:04, Russell Coker wrote:
+> The attached patch fixes a problem with LVM on Fedora, some annoying audit 
+> messages from rpm, and has some of the stuff that's needed for Postgresql (NB 
+> it's not enough to make Postgresql fully functional but it's a definite 
+> improvement over what's currently there so it's worth having).
+> 
+> Steve, please put this into Sourceforge.
 
-The syntax is the same; as far as the policy compiler (checkpolicy) is
-concerned, they are all just user declarations.  I think that they are
-in separate files so that the script that generates file contexts
-entries for user home directories (genhomedircon) does not attempt to
-generate such entries for any of the serviceusers.  The serviceusers
-correspond to pseudo user identities that need to be known to the policy
-due to their use in calls to su(1), when using pam_selinux with su. 
-Note that for each such pseudo user identity, there is an entry in
-serviceusers for the user-role declaration as well as a corresponding
-domain under domains/program that includes a role-type declaration and
-rules for the type (domain).  initrc.te includes rules for running su in
-initrc_su_t.  However, it appears that certain necessary elements are
-missing for this to work properly, e.g. rules allowing initrc_su_t to
-transition to cyrus_t, a modification to constraints for the transition
-to a non-userdomain, and an allow rule for the role transition.
-
-Russell Coker has recently questioned whether this is the right approach
-on the fedora selinux list.  Conceivably, one could introduce an option
-to pam_selinux so that it would just not set the exec context at all
-rather than falling back to user_u when there is no user identity in the
-SELinux policy, and then use that option for /etc/pam.d/su.  That would
-also require an extension to libselinux to offer a flag indicating
-whether it should automatically fall back to user_u or not.  That would
-allow the old behavior (before using pam_selinux with su) to be retained
-for such pseudo user identities, and just perform domain transitions
-without affecting user identity or role.
+Thanks, merged.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
