@@ -1,48 +1,68 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8DGKmrT003910
-	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 12:20:48 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8DIicrT005088
+	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 14:44:38 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8DGJrHC019833
-	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 16:19:53 GMT
-Subject: Re: process:share condition on 2.6.x kernel
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8DIhhHC000997
+	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 18:43:43 GMT
+Subject: Re: checkpolicy-1.16 multiple compile job fix
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>
-In-Reply-To: <02eb01c49953$84344590$f97d220a@linux.bs1.fc.nec.co.jp>
-References: <02eb01c49953$84344590$f97d220a@linux.bs1.fc.nec.co.jp>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1094857561.6513.66.camel@gorn.pebenito.net>
+References: <1094857561.6513.66.camel@gorn.pebenito.net>
 Content-Type: text/plain
-Message-Id: <1095092319.22460.21.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1095100956.22460.54.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 13 Sep 2004 12:18:40 -0400
+Date: Mon, 13 Sep 2004 14:42:36 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-09-13 at 01:35, Kaigai Kohei wrote:
-> The 'share' condition is checked in selinux_bprm_apply_creds() as
-> an extension of execve() system call when the domain-transration
-> is happened and LSM_UNSAFE_SHARE bit in the 'unsafe' variable is set.
+On Fri, 2004-09-10 at 19:06, Chris PeBenito wrote:
+> Here is a patch for the checkpolicy Makefile to fix a compile problem
+> with multiple compile jobs (make -j*).
 > 
-> Obviously, the domain-transition can happen according to the security-policy.
-> But LSM_UNSAFE_SHARE bit is never set in 2.6.x, thus the 'share' condition
-> is never evaluated, namely always ignored.
+> One of the errors that was happening was:
 > 
-> In 2.6.x implementation, de_thread() function is called from load_binary()
-> method of the ELF,aout and so on when execve() is called.
-> When the current process contains some threads, de_thread() kills all
-> the threads except 'current' in the same threads-group.
-> Then, compute_creds() function is called for the calculation of
-> LSM_UNSAFE_SHARE. But the current process has already only a thread,
-> so LSM_UNSAFE_SHARE is always unset.
-> The 'share' condition is ignored in 2.6.x in the result.
+> policy_scan.l: In function `yylex':
+> policy_scan.l:48: error: `CLONE' undeclared (first use in this function)
+> policy_scan.l:48: error: (Each undeclared identifier is reported only
+> once
+> policy_scan.l:48: error: for each function it appears in.)
+> policy_scan.l:50: error: `COMMON' undeclared (first use in this
+> function)
+> [many more undeclared]
 > 
-> I think the 'share' condition is one of the historical inheritances
-> and harmless, so this condition should be documented as it's a deprecated
-> condition.
-> Is my understanding correct?
+> 
+> Another was:
+> policy_scan.l:23:19: y.tab.h: No such file or directory
+> make: *** [lex.yy.o] Error 1
+> make: *** Waiting for unfinished jobs....
 
-No.  They can share state without being part of the same thread group,
-e.g. trying calling clone(2) with CLONE_FS and then exec'ing a
-domain-changing program.
+Possibly the diff below instead.
+
+Index: checkpolicy/Makefile
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/checkpolicy/Makefile,v
+retrieving revision 1.22
+diff -u -r1.22 Makefile
+--- checkpolicy/Makefile	13 Aug 2004 15:09:25 -0000	1.22
++++ checkpolicy/Makefile	13 Sep 2004 18:37:04 -0000
+@@ -48,13 +48,13 @@
+ y.tab.c: policy_parse.y
+ 	$(YACC) -d policy_parse.y
+ 
+-lex.yy.c: policy_scan.l
++lex.yy.c: policy_scan.l y.tab.h
+ 	$(LEX) policy_scan.l
+ 
+ users.tab.c: users.y
+ 	$(YACC) -d -o $@ $<
+ 
+-lex.users.c: users.l
++lex.users.c: users.l users.tab.h 
+ 	$(LEX) -o$@ $<
+ 
+ install: all
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
