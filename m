@@ -1,42 +1,46 @@
-Message-ID: <20040214161254.87474.qmail@web15212.mail.bjs.yahoo.com>
-Date: Sun, 15 Feb 2004 00:12:54 +0800 (CST)
-From: =?gb2312?q?Park=20Lee?= <parklee_2004@yahoo.com.cn>
-Subject: Questions about extended attributes
-To: SELinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1EGKJRb003779
+	for <selinux@tycho.nsa.gov>; Sat, 14 Feb 2004 11:20:19 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i1EGKIc3008743
+	for <selinux@tycho.nsa.gov>; Sat, 14 Feb 2004 16:20:18 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i1EGKHR0008734 for <selinux@tycho.nsa.gov>; Sat, 14 Feb 2004 16:20:18 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Dale Amon <amon@vnl.com>
+Subject: Re: Problem with defaulting answers to selinux-policy-default
+Date: Sun, 15 Feb 2004 03:18:45 +1100
+Cc: selinux@tycho.nsa.gov
+References: <20040208163236.GF10500@vnl.com> <20040209154855.GF22989@vnl.com> <20040214155143.GB25142@vnl.com>
+In-Reply-To: <20040214155143.GB25142@vnl.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1965384011-1076775174=:86731"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200402150318.45514.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1965384011-1076775174=:86731
-Content-Type: text/plain; charset=gb2312
-Content-Transfer-Encoding: 8bit
+On Sun, 15 Feb 2004 02:51, Dale Amon <amon@vnl.com> wrote:
+> Had some time this weekend and I'm making some progress
+> on fixing my scripts to deal with the changes. I did a
+> bit of handwaving with debconf-loadtemplate and
+> debconf-configure to sort things out...
+>
+> I get an error in the Automatic build though:
+>
+> ERROR 'unknown type klogd_t' at token ';' on line 39546:
+> neverallow ~klogd_t proc_kmsg_t:file ~{ getattr };
 
-Dear sir,
- What's the difference between extended attributes for file system and the old method of using persistent labeling mapping for persistent files and directories? 
- Is it still using persistent security identifiers (PSIDs) in  
-extended attributes?
- Where can I get more information about extended attributes for file system?
-Thank you
-     Yours,
-     Park Lee
-     2004-2-15 
+You should have klogd.te included.  I'll have to change the policy package to 
+not allow you to deselect such files.
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-
----------------------------------
-Do You Yahoo!?
-完全免费的雅虎电邮，马上注册获赠额外60兆网络存储空间
---0-1965384011-1076775174=:86731
-Content-Type: text/html; charset=gb2312
-Content-Transfer-Encoding: 8bit
-
-<DIV>Dear sir,</DIV>
-<DIV>&nbsp;What's the difference between extended attributes for file system and the old method of using persistent labeling mapping for persistent files and directories? <BR>&nbsp;Is it still using persistent security identifiers (PSIDs) in&nbsp; </DIV>
-<DIV>extended attributes?<BR>&nbsp;Where can I get more information about extended attributes for file system?</DIV>
-<DIV>Thank you<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Yours,<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Park Lee<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2004-2-15 </DIV><p><br><hr size=1><b>Do You Yahoo!?</b><br>
-<a href="http://cn.rd.yahoo.com/mail_cn/tag/?http://cn.mail.yahoo.com" target=blank>完全免费的雅虎电邮，马上注册获赠额外60兆网络存储空间</a>
---0-1965384011-1076775174=:86731--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
