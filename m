@@ -1,36 +1,47 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "ccallen" <ccallen@windowpane.com>, <SELinux@tycho.nsa.gov>
-Subject: Re: update question
-Date: Fri, 18 Apr 2003 14:08:55 +1000
-References: <00d801c303f1$9fef2f00$398314d1@windowpane.com>
-In-Reply-To: <00d801c303f1$9fef2f00$398314d1@windowpane.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200304181408.55003.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3IDCAI4011071
+	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2003 09:12:10 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h3IDC8Vf009230
+	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2003 13:12:08 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h3IDC84D009227
+	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2003 13:12:08 GMT
+Subject: Re: auditallow
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200304181237.45386.russell@coker.com.au>
+References: <200304141822.43798.russell@coker.com.au>
+	 <1050416640.1051.12.camel@moss-huskers.epoch.ncsc.mil>
+	 <200304181237.45386.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1050671519.2593.25.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 18 Apr 2003 09:12:00 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 16 Apr 2003 18:24, ccallen wrote:
-> If there is an older version of selinux installed, does the old one need to
-> be uninstalled before running the new version? If so is there a file with
-> the steps to do this? I thought I had read something on that before, but
-> cant find it now.
+On Thu, 2003-04-17 at 22:37, Russell Coker wrote:
+> Thanks for the explanation.  However I believe that the policy compiler is not 
+> behaving correctly in this regard.
+> 
+> I think that as a policy with auditallow rules and no matching allow rules 
+> makes no sense the policy compiler should flag a warning about this at least.  
+> Also an optional warning about auditdeny rules where there are matching allow 
+> rules would be good.
+> 
+> This could be an optional feature, a "-v" option or something similar.
 
-You don't need to uninstall it.  However upgrades sometimes have changes to 
-the file contexts files (*.fc) which mean that you need to relabel part of 
-your file system after an upgrade.
-
-The most recent such change was the addition of locale_t which requires that 
-all time zone information files and directories be relabelled.
+Along the same lines, you likely want warnings when there is a
+type_transition rule that has no corresponding allow rules granting the
+necessary permissions.  I'm not adverse to adding such warnings, but it
+isn't a high priority for us at the moment.  If someone else wants to
+write a patch for it, feel free.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
