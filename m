@@ -1,42 +1,49 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i52478rT001166
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 00:07:08 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5346reD017451
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 00:06:53 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i524NnrT001289
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 00:23:49 -0400 (EDT)
+Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i534NYeD017938
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 00:23:34 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 09:20:26 -0000
-Date: Tue, 1 Jun 2004 09:17:52 +0000
+  by smtp804.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 12:23:48 -0000
+Date: Tue, 1 Jun 2004 12:21:14 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: exim (running from cron) attempting to write to logs under system_cron_t
-Message-ID: <20040601091752.GQ8312@lkcl.net>
-References: <20040601091012.GN8312@lkcl.net> <200406011918.35292.russell@coker.com.au>
+To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
+Subject: dpkg-reconfigure xserver-xfree86
+Message-ID: <20040601122114.GI8312@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406011918.35292.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jun 01, 2004 at 07:18:35PM +1000, Russell Coker wrote:
-> On Tue, 1 Jun 2004 19:10, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > hiya russell,
-> >
-> > what's this one about?
-> >
-> > allow system_crond_t var_log_t:file { append };
-> >         #EXE=/usr/sbin/exim  NAME=mainlog   :  append
-> > 		#EXE=/usr/sbin/exim  NAME=mainlog   :  append
-> 
-> There is no policy for Exim.  Exim needs some patches for best operation with 
-> SE Linux, upstream has agreed to them in concept, someone just needs to 
-> implement them.  Check the list archives, I think I've summarised what needs 
-> to be done if you want to do the coding.
+russell, hi,
 
-okie.
+ah ha, you missed one :)
 
-fuuun :)
+i frequently use dpkg-reconfigure xserver-xfree86 to reconfig X.
+
+and of course a run_init /etc/init.d/kdm restart throws a wobbly
+because the /etc/X11/XF86Config-4 file is owned by
+root:sysadm_r:sysadm_t instead of system_u:...
+
+so!
+
+the setfiles trigger, /etc/dpkg/postinst.d/selinux, needs to
+be re-run after people use dpkg-reconfigure.
+
+[luke smiles widely - or more specifically, turns corners of
+ mouth up and shows lots of teeth]
+
+-- 
+-- 
+expecting email to be received and understood is a bit like
+picking up the telephone and immediately dialing without
+checking for a dial-tone; speaking immediately without listening
+for either an answer or ring-tone; hanging up immediately and
+believing that you have actually started a conversation.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
