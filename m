@@ -1,44 +1,30 @@
-Date: Fri, 7 Nov 2003 21:23:33 +0000
-From: Dale Amon <amon@vnl.com>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: Dale Amon <amon@vnl.com>, SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: Setools 1.0.1 released
-Message-ID: <20031107212333.GI22435@vnl.com>
-References: <1067890582.1269.32.camel@colossus.columbia.tresys.com> <20031107131519.GF22435@vnl.com> <1068222062.6381.13.camel@colossus.columbia.tresys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1068222062.6381.13.camel@colossus.columbia.tresys.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA83klSf027201
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2003 22:46:48 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hA83klKl016632
+	for <selinux@tycho.nsa.gov>; Sat, 8 Nov 2003 03:46:47 GMT
+Received: from savages.net (savages.net [12.154.202.18])
+        by jazzband.ncsc.mil  with ESMTP id hA83kj5m016629 for <selinux@tycho.nsa.gov>; Sat, 8 Nov 2003 03:46:46 GMT
+Message-ID: <3FAC671F.4080702@pcez.com>
+Date: Fri, 07 Nov 2003 19:46:39 -0800
+From: Shaun Savage <savages@pcez.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: util-linux-2.11y  and kernel 2.6-test9
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Nov 07, 2003 at 11:21:02AM -0500, Karl MacMillan wrote:
-> The policy analysis tool apol doesn't require selinux at all and the
-> policy editing tool sepcut only needs checkpolicy for full
-> functionality. You can simply copy your policy source files and a
-> policy.conf file from your server to a desktop machine to edit and
-> analyze your policy.
+Has any person had problems compiling util-linux-2.11y with kernel 
+2.6-test9?
 
-Thanks. That could be very useful. It's the main reason I've not
-spent time learning how to use them so far.
+in disk-utils/blockdev.c
 
-> The selinux/linux user management tool seuser can be run from the
-> command line. Unfortunately, the current release still links with and
-> requires Tcl/TK and therefore requires at least the X libraries to be
-> present. Our next release removes this requirement. We are also working
-> on some command line policy query tools that allow you to do some of the
-> simpler queries from apol. I'm not certain when these will be released,
-> but they may be included with our next release in late November or
-> December.
+line 70 parse error
+{ "--getbsz", "BLKBSZGET", BLKBSZGET, ARGINTG, -1,NULL,N_("get blocksize") }
 
-I guess I'll have to wait on that one then. There's
-just no way X libs are sneaking onto my firewalls! :-)
 
--- 
-------------------------------------------------------
-       IN MY NAME:            Dale Amon, CEO/MD
-  No Mushroom clouds over     Islandone Society
-    London and New York.      www.islandone.org
-------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
