@@ -1,49 +1,65 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8ONxmsJ021412
-	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 19:59:48 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8P32AsJ021910
+	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 23:02:10 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8ONw4Zt012239
-	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 23:58:04 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-	by jazzswing.ncsc.mil  with ESMTP id h8ONw0M3012236
-	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 23:58:00 GMT
-Date: Thu, 25 Sep 2003 10:00:45 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: "Inger, Slav (S.B.)" <vinger@ford.com>
-Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: Re: Sample SELinux policy that's equivalent to standard root?
-Message-ID: <20030925000045.GB14203@snoopy.apana.org.au>
-References: <F5441DDE18FFD9418974338018C522B718BDAB@na1fcm61.dearborn.ford.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <F5441DDE18FFD9418974338018C522B718BDAB@na1fcm61.dearborn.ford.com>
+	by jazzswing.ncsc.mil  with ESMTP id h8P30QZt020599
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 03:00:26 GMT
+Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
+	by jazzswing.ncsc.mil  with ESMTP id h8P30PM3020596
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 03:00:25 GMT
+Message-ID: <3F725AA4.1090300@diyab.net>
+Date: Wed, 24 Sep 2003 23:01:56 -0400
+From: Diyab <diyab@diyab.net>
+MIME-Version: 1.0
+To: Dale Amon <amon@vnl.com>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: ssh policy hassles
+References: <F5441DDE18FFD9418974338018C522B718BDB0@na1fcm61.dearborn.ford.com> <20030924221157.GS21997@vnl.com> <20030924222702.GT21997@vnl.com>
+In-Reply-To: <20030924222702.GT21997@vnl.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Sep 23, 2003 at 05:16:27PM -0400, Inger, Slav (S.B.) wrote:
-> I hope this is the right mailing list to ask this question.  Here's my
-> setup:  a freshly compiled Linux 2.6.0-test3-selinux1, using a default
-> policy supplied in selinux-usr/policy.  What I would like to do is,
-> instead of starting with the most restrictive mode and easing my way
-> to less restrictive, I'd like to start with a relaxed root access
-> policy (i.e. start with root as "God" even in enforced mode, as is the
-> case with standard Linux) and tighten up from there.  So my question
-> is, does anyone know where I could get the configs for a policy with
-> root rights equivalent to that on a standard Linux system?  TIA.
+Dale Amon wrote:
+> On Wed, Sep 24, 2003 at 11:11:57PM +0100, Dale Amon wrote:
+> 
+>>I'll have to go to the ssh.te now and figure out why it
+>>isn't there already. Seems strange that it isn't if it
+>>is commonly accessed.
+> 
+> 
+> I've added this:
+> 
+> # DMA20030924 Added search /var/lib 
+> allow $1 var_lib_t:dir search;
+> 
+> to ssh.te and it gets rid of that avc. I wonder if this
+> is needed in the master policy? Up to Steve I guess.
+> 
+> Okay, now I've still one more, and this one is really
+> confusing because ino=48726022 seems not to exist:
+> 
+> 	48726022        <inode not found>
+> 
+> I half wonder if I've got a bad link somewhere. It would
+> be easy enough to add an allow for this, but I'd like
+> to figure out why rather than blindly add things.
+> 
+> avc:  denied  { read } for  pid=743 exe=/usr/sbin/sshd dev= ino=48726022 scontext=system_u:system_r:sshd_t tcontext=system_u:system_r:sshd_t tclass=lnk_file
+> 
 
-Essientially the simplist and least restrictive policy would be:
+I don't get that /var/lib avc error.  Does the login work without that 
+allow rule you added?  If so then maybe it doesn't really need it.
 
-- all process run with the one domain
-- all files, sockets, have the one type
-- this one domain is allowed full access to this one type with
-any operation.
+Maybe that "bad" link has something to do with it.  unmount /var and run 
+an fsck on it then remount it and see if you still get the error.
 
-Yes, this would be simple, but I don't think it is what you want.
+Timothy,
 
-I think you would end up "reinventing the wheel" and creating a
-policy very similar to Russell's.
 -- 
-Brian May <bam@snoopy.apana.org.au>
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
