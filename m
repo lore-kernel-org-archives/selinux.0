@@ -1,68 +1,57 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAMH0jIi006084
-	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 12:00:46 -0500 (EST)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAMGxDm1019384
-	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 16:59:16 GMT
-Message-ID: <41A21B32.8040808@redhat.com>
-Date: Mon, 22 Nov 2004 12:00:34 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAMHwPIi006516
+	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 12:58:25 -0500 (EST)
+Received: from mbox-o00.iijmio.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAMHwGOZ019400
+	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 17:58:27 GMT
+Message-Id: <200411221758.iAMHwDrU025847@mms-r00.iijmio.jp>
+Date: Mon, 22 Nov 2004 12:58:00 -0500
+From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
 MIME-Version: 1.0
-To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-CC: sds@epoch.ncsc.mil, selinux@tycho.nsa.gov
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: sds@epoch.ncsc.mil, selinux@tycho.nsa.gov, himainu-ynakam@miomio.jp
 Subject: Re: idea: setfiles to exclude specific type
-References: <200411221554.iAMFsPDM027086@mms-r01.iijmio.jp>
-In-Reply-To: <200411221554.iAMFsPDM027086@mms-r01.iijmio.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-2022-JP
+In-Reply-To: <41A21B32.8040808@redhat.com>
+References: <41A21B32.8040808@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yuichi Nakamura wrote:
 
->Hello.
->
->I add setfiles "-x" option.
->I attach my idea in "setfiles.diff".
->
->-x option is used to exclude specified type.
->
->For example,
-># setfiles file_contexts /home -x httpd_user_rw_t
->setfiles skips relabeling files that have "httpd_user_rw_t".
->
->The reason why this option is necessary is following.
->I heard that fixfiles.cron is removed, because unwanted alerts are displayed.
->In some case, types must be preserved.
->http://www.redhat.com/archives/fedora-selinux-list/2004-November/msg00061.html
->
->But I think fixfiles.cron is useful, and hope it is included again.
->Because integrity of label is critical for SELinux.
->
->I think to suppress unwanted alerts, 
->it is necessary to add new option in setfiles and modify fixfiles.
->
->Does it sound reasonable?
->
->---
->Yuichi Nakamura
->Japan SELinux Users Group(JSELUG)
->http://www.selinux.gr.jp/
->  
->
-Is there any way we could get a list of "variable policy" from the 
-loaded context?  Or should we write a file with this in it.
+Daniel J Walsh wrote:
+> Is there any way we could get a list of "variable policy" from the 
+> loaded context?  Or should we write a file with this in it.
+Yes, I think we have to prepare file where list is described.
+fixfiles will read the file and pass the list to setfiles.
 
-IE,  It would be nice to create an attribute (save_context???)  That we 
-could assign to a file context, and have setfiles/restorcon ignore if a 
-file is se to this context?    So httpd_???_context_rw_t, gpg_t, 
-ssh_key_t, user_tmp_t and others could be ignored if setfiles comes upon 
-them on a relabel or check?
+> IE,  It would be nice to create an attribute (save_context???)  That we 
+> could assign to a file context, and have setfiles/restorcon ignore if a 
+> file is se to this context?    So httpd_???_context_rw_t, gpg_t, 
+> ssh_key_t, user_tmp_t and others could be ignored if setfiles comes upon 
+> them on a relabel or check?
+> I guess we could populate a context file via a grep during policy build.
+That sounds a good idea.
+I may be misunderstanding, to make sure, I will write flow.
 
-I guess we could populate a context file via a grep during policy build.
+In policy.conf,
+type ssh_key_t, file_type, sysadmfile, save_context; 
+type gpg_key_t, file_type, sysadmfile, save_context;
+..etc are described.
+When "make", 
+types that have "save_context" is written in somewhere
+(like, /etc/selinux/targeted|strict/save_contexts).
+And fixfiles is executed with some option(like fixfiles -x)
+it reads save_contexts file.
+In fixfiles, setfiles will be executed like following,
+setfiles file_contexts /  -x ssh_key_t -x gpg_key_t -x ....
 
-Ideas?
 
-Dan
+---
+Yuichi Nakamura
+Japan SELinux Users Group(JSELUG)
+　　http://www.selinux.gr.jp/
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
