@@ -1,53 +1,40 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h43Em5I4021485
-	for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 10:48:06 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h43HY4I4021736
+	for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 13:34:04 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h43Em47R006894
-	for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 14:48:04 GMT
+	by jazzband.ncsc.mil  with ESMTP id h43HY27R011004
+	for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 17:34:02 GMT
 Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h43ElpKP006890 for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 14:48:02 GMT
+        by jazzband.ncsc.mil  with ESMTP id h43HY0KP011001 for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 17:34:01 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: SE Linux on Familiar
-Date: Sun, 4 May 2003 00:46:40 +1000
+To: Wesley Parish <wes.parish@paradise.net.nz>, selinux@tycho.nsa.gov
+Subject: Re: Support for XWindows ?
+Date: Sun, 4 May 2003 03:33:01 +1000
+References: <20030503004232.1113.qmail@web20805.mail.yahoo.com> <200305031551.14261.russell@coker.com.au> <200305031022.50946.wes.parish@paradise.net.nz>
+In-Reply-To: <200305031022.50946.wes.parish@paradise.net.nz>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200305040046.40916.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200305040333.01369.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have reached a major milestone in my SE Linux on Familiar work.  I now have 
-an iPaQ booting in enforcing mode and allowing logins over the serial port 
-(both terminal logins and ppp sessions).
+On Sat, 3 May 2003 08:22, Wesley Parish wrote:
+> I'm thinking of setting up a spare box for use with selinux as a
+> spam-culler
 
-All the difficult work is done.
+Sounds like a good idea.  One significant advantage of SE Linux for such 
+applications is that it reduces the chance of a bug in an application being 
+exploitable, and therefore increases the length of time that a machine may be 
+running on the net unattended.  Naturally leaving a machine on the net 
+without monitoring it is not recommended, but it's the typical practise for 
+firewall type devices (and no-one seems to want to pay extra for management).
 
-I have developed two solutions to the busybox wrapper problem (I have yet to 
-determine which is best or whether there is a place for both of them).
+> I hadn't realized that you already had working policies for X-Window.  That
+> does encourage me!
 
-Currently the sshd and xdm programs I am using are not patched (so I login to 
-the iPaQ via ssh as system_u:system_r:sysadm_t).  Patching ssh will be easy, 
-I have a lot of practise at this.  Patching the xdm program should not be any 
-more difficult than patching kdm (painful, nasty and messy - but not 
-technically challenging).
-
-Currently the xdm program is not functional.  It does some undesirable things 
-(such as wanting read-write access to /root), so I will need some policy 
-changes and maybe some code changes to get it going.  But it's a lot easier 
-to get this going now that I have the basic functionality in place.
-
-All of the things that could cause the iPaQ to become unbootable if I made a 
-mistake (requiring that I spend an hour reloading all the software) are done.  
-I have developed basic installation proceedures for this as well.
-
-Some of the code and policy that I have written is rather ugly and needs to be 
-cleaned up, that shouldn't be really difficult.  Tomorrow I will post some 
-policy patches that are related to my iPaQ work.
-
-I anticipate that I will have an iPaQ that's running SE Linux in enforcing 
-mode that is ready for non-development use within a week.
+Why would you want X on a firewall?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
