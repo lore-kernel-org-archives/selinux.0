@@ -1,54 +1,42 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h486RJI4015414
-	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 02:27:20 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h486R4Vf021932
-	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 06:27:05 GMT
-Received: from mgr2.xmission.com (mgr2.xmission.com [198.60.22.202])
-	by jazzswing.ncsc.mil  with ESMTP id h486R44D021929
-	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 06:27:04 GMT
-From: "Lamont R. Peterson" <lrp@xmission.com>
-Reply-To: lrp@xmission.com
-To: "ccallen" <ccallen@windowpane.com>, <selinux@tycho.nsa.gov>
-Subject: Re: Fw: SELinux and LFS
-Date: Thu, 8 May 2003 00:23:42 -0600
-References: <021f01c31516$43cf0390$398314d1@windowpane.com>
-In-Reply-To: <021f01c31516$43cf0390$398314d1@windowpane.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <200305080023.53526.lrp@xmission.com>
+From: "jiade" <jiadejiade@hotmail.com>
+To: <SELinux@tycho.nsa.gov>
+Subject: Source MAC Address DoS
+Date: Thu, 8 May 2003 16:34:10 +0800
+Message-ID: <Sea2-DAV62M19VMczi9000012c6@hotmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+(For those who have read the first part, there are new
+content added, thanks!)
 
-On Wednesday 07 May 2003 09:59 pm, ccallen wrote:
-> Scratch the request for the use of the dat drive, cant find the tape. I
-> have some windows based utilities that can incorporate some of yard's
-> features.
->
-> Conan
+I got arp storm in my network(30 PCs and some WLAN devices),
+about 10,000 arp requests per second, no responses,lasting
+for severalminutes,all these arp requests have the same content
+which looks very strange:
 
-I was going to offer to copy data from tape to a CD-R for you.  I have several 
-DDS drives here at home (funny thing though...I insist on proper tape backups 
-to my clients, but I have yet to invest in a sufficient supply of media to do 
-the same for myself...go figure :-).
+SRC             DST                info
+0060e0017d96    0060f0017d96       who has 192.168.1.188? tell 192.168.1.188
 
-If you come across it, I would be happy to "convert" your data for you.  Just 
-pay for the shipping (I am in Centerville, Utah; Salt Lake area) and I'll pay 
-for the blank CD-R.
-- -- 
-Sincerely,
-Lamont R. Peterson <lrp@xmission.com>
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+it's an arp request but the DST is not a broadcast,
+and the DST is a real MAC address of one of my netcards
+while the SRC is a fake one.
+This happens several times a day but not regularly.
+Who will send millions of this kind of arp requests?
 
-iD8DBQE+uff2g5LkF3+ZgzARAjf+AJ9/vwPqUpGJoLWOT8A3DU0zBjO6gwCeI38z
-leLizfEN0FVpbCSFDjyfhic=
-=OETX
------END PGP SIGNATURE-----
+Later I captured these packets and replayed this storm at 10000packets/s,
+no matter what kind of upper level protocol stuff (ARP,UDP or somethingelse)
+I filled in these packets ,they will jam up the Linux box whose MAC address
+is the same as the SOURCE (not the destination) MAC address of these
+packets.
+When I change the packets'source MAC address with the destination MAC
+address,the Linux box works well.I don't know the reason.
+
+Need your help, thanks.
+
+
+
+
+
 
 
 
