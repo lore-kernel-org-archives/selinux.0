@@ -1,27 +1,28 @@
-Date: Fri, 12 Apr 2002 09:12:15 -0400 (EDT)
+Date: Fri, 12 Apr 2002 09:09:35 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Sung Kim <hunkim@cse.ucsc.edu>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: Compile error with Download 2.4 LSM-based Prototype (stable,
- recommended)
-In-Reply-To: <Pine.GSO.4.33.0204120834330.21729-100000@raven>
-Message-ID: <Pine.GSO.4.33.0204120910440.21729-100000@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: Tom <tom@lemuria.org>, <SELinux@tycho.nsa.gov>
+Subject: Re: db conflict ?
+In-Reply-To: <20020412120516.E261F2845B@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0204120907250.21729-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 12 Apr 2002, Stephen Smalley wrote:
+On Fri, 12 Apr 2002, Russell Coker wrote:
 
-> You should only have set the Capabilities Support, the IP Networking
-> Support, the NSA SELinux Support, and the NSA SELinux Development Module
-> security options, as discussed in selinux/README.
+> Steve, I think that we need an option in the policy.conf file to specify the
+> version of the policydb.  If we add it now then it'll break compatability
+> with old versions of checkpolicy (which is desired).  Then we can say
+> "policy v8" in the config file and count on any older version refusing to
+> compile it.
 
-Sorry, I omitted the Labeled IP Networking Support and CIPSO/FIPS-188 IP
-Options security options.  You can enable those as well if you want to
-experiment with the labeled networking support, but keep in mind that
-those options are still considered experimental.
+The policy.conf file isn't necessarily tied to a particular version of the
+policydb (the binary representation).  The change from policydb version 7
+to policydb version 8 had no impact on policy.conf, just on the resulting
+policy (/ss_policy) file compiled by checkpolicy.
 
 --
 Stephen D. Smalley, NAI Labs
