@@ -1,29 +1,29 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7BJIUHa016083
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 15:18:30 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7BJITj6021000
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 19:18:29 GMT
-Received: from hotmail.com (bay8-f112.bay8.hotmail.com [64.4.27.112])
-        by jazzband.ncsc.mil  with ESMTP id h7BJISNN020995 for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 19:18:28 GMT
-From: "Timmy Jones" <zapperlink@hotmail.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7BKonHa016532
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 16:50:49 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h7BKnVOD011545
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 20:49:31 GMT
+Received: from unicorn.lemuria.org (c152158.adsl.hansenet.de [213.39.152.158])
+	by jazzswing.ncsc.mil  with ESMTP id h7BKnUKO011536
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2003 20:49:30 GMT
+Date: Mon, 11 Aug 2003 22:47:10 +0200
+From: Tom <tom@lemuria.org>
 To: selinux@tycho.nsa.gov
-Subject: User Guidance Document 
-Date: Mon, 11 Aug 2003 12:18:27 -0700
+Subject: slides for presentation
+Message-ID: <20030811224710.C13960@lemuria.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY8-F112R881Np7vXe00001482@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Do we still need this " User Guidance Document" to be completed? I had 
-already taken the liberty to start one in HTML format. If you also have 
-input or additons or request for topics for it.. let me know.
+I've just added the slides we used during our presentation to my
+SELinux website at http://selinux.lemuria.org
 
-_________________________________________________________________
-Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
-http://join.msn.com/?page=features/junkmail
-
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
