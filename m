@@ -1,46 +1,40 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA16824
-	for <selinux@tycho.nsa.gov>; Tue, 4 Feb 2003 13:29:38 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h14ITbI06090
-	for <selinux@tycho.nsa.gov>; Tue, 4 Feb 2003 18:29:37 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h14ITaf06086 for <selinux@tycho.nsa.gov>; Tue, 4 Feb 2003 18:29:36 GMT
-Message-Id: <200302041836.NAA05338@moss-shockers.ncsc.mil>
-Date: Tue, 4 Feb 2003 13:36:59 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: tmpfs_t
-To: selinux@tycho.nsa.gov, russell@coker.com.au
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA21054
+	for <selinux@tycho.nsa.gov>; Wed, 5 Feb 2003 05:06:50 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id KAA24693
+	for <selinux@tycho.nsa.gov>; Wed, 5 Feb 2003 10:03:51 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id KAA24689
+	for <selinux@tycho.nsa.gov>; Wed, 5 Feb 2003 10:03:46 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id E0050924E5
+	for <selinux@tycho.nsa.gov>; Wed,  5 Feb 2003 21:06:23 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 78984621
+	for <selinux@tycho.nsa.gov>; Wed,  5 Feb 2003 11:06:17 +0100 (CET)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: FOSDEM
+Date: Wed, 5 Feb 2003 11:06:16 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200302051106.16868.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This weekend I will be at FOSDEM http://www.fosdem.org/ .
 
-> For UML and busy Apache servers using tmpfs as /tmp is common practise.  The 
-> current SE Linux setup will force many of the people who run big servers to 
-> change their operation in a way that will hurt performance to support running 
-> SE Linux.
+I will have a SE Linux play machine on the LAN there, and I'll be available 
+for key-signing, impromptu talks on security, etc.
 
-You can use tmpfs as /tmp, as long as you are ok with the same labeling
-behavior and policy for /tmp and for System V shared memory and shared
-anonymous mappings.  That may be reasonable.
-
-> I've experimented with using chcon to set the type after mounting which seems 
-> to work OK.
-> 
-> I believe that the best option is to label the root inode of tmpfs as 
-> system_u:object_r:tmp_t via initial_sid_contexts.  I've been looking at the 
-> kernel code, is superblock_doinit() the right place to do a change?
-
-Doesn't help.  We already provide labeling for tmpfs (see the tmpfs entry
-in policy/fs_use).  There is only an issue if you want to distinguish
-different instances of tmpfs mounts.
-
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
