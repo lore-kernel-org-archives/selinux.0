@@ -1,84 +1,60 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5R8QVrT007255
-	for <selinux@tycho.nsa.gov>; Sun, 27 Jun 2004 04:26:31 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5R8QH5h004357
-	for <selinux@tycho.nsa.gov>; Sun, 27 Jun 2004 08:26:17 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 27 Jun 2004 08:25:29 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BeUOS-00049o-2s
-	for selinux@tycho.nsa.gov; Sun, 27 Jun 2004 07:48:04 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BeUvW-00038I-MG
-	for selinux@tycho.nsa.gov; Sun, 27 Jun 2004 08:22:14 +0000
-Date: Sun, 27 Jun 2004 08:22:14 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: is there a way to express permission to access any tcp or udp socket?
-Message-ID: <20040627082214.GC11890@lkcl.net>
-References: <20040627080856.GB11890@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040627080856.GB11890@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5R8xArT007353
+	for <selinux@tycho.nsa.gov>; Sun, 27 Jun 2004 04:59:11 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5R8wr5h004798
+	for <selinux@tycho.nsa.gov>; Sun, 27 Jun 2004 08:58:56 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: fsck deleting extended attributes
+Date: Sun, 27 Jun 2004 18:58:24 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040626220355.GL3559@lkcl.net>
+In-Reply-To: <20040626220355.GL3559@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200406271858.24058.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-due to the terribly bad taste of replying to your own posts, i
-had better phrase this as a question in need of confirmation:
+On Sun, 27 Jun 2004 08:03, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> the issue is that if a system is switched off without shutdown and
+> the filesystem is damaged, such that some extended attributes are
+> deleted on an fsck, that's it - the file cannot be accessed!
 
-	allow fireflier_t domain:{ tcp_socket udp_socket } { getattr };
+The fact that a file without a label is inaccessible to most programs is a bug 
+not a feature.  You wouldn't want /etc/shadow to lose it's label and give 
+away passwords...
 
-is this right? :)
+No matter what you do there are situations in which a file system can be 
+messed up beyond the ability of fsck to fix it.  By default there are many 
+situations in which fsck will want to operate in manual mode (you have to 
+edit something under /etc to have fsck run with -f to have it recover from 
+most errors without intervention).
 
-l.
+> i am setting up a system where the users will NOT be told what
+> the root password is, nor will they be given a user login
+> (they will be given an automatic KDE login), and there is
+> ABSOLUTELY no chance of either user support or admin support.
 
-On Sun, Jun 27, 2004 at 08:08:56AM +0000, Luke Kenneth Casson Leighton wrote:
+How about mounting the root fs R/O so that it can't be messed up and then 
+having /var and /home relabelled on some schedule (eg every 5th boot).
 
-> hi, i'm in the process of getting this fireflier policy right, and
-> it (like lsof) reads /proc/NNNN/fd/N to obtain the name of the program
-> that's actually using a tcp or udp socket - and then allowing the user
-> the option of banning or allowing that program to send or receive
-> tcp or udp traffic (on demand.  it's really cool).
-> 
-> of course, fireflier needs to do a stat of /proc/NNNN/fd/N in order
-> to find out its inode - hence the getattr.
-> 
-> i've patched fireflierd to stop it doing a stat of EVVEERRYY single
-> damn file descriptor (!!!) but there are still
-> 
-> i don't want to have to add permission for postfix_t, sendmail_t,
-> exim_t, nntp_t, sshd_t, lpd_t, 
-> every_single_server_i_can_think_of_and_all_those_that_i_can't_t:
-> 
-> 	allow fireflier_t rpcd_t:tcp_socket { getattr };
-> 	allow fireflier_t rpcd_t:udp_socket { getattr };
-> 	allow fireflier_t sshd_t:tcp_socket { getattr };
-> 	allow fireflier_t user_t:udp_socket { getattr };
-> 	allow fireflier_t user_t:tcp_socket { getattr };
-> 
-> does anyone know of a way to do something like, oh, this:
-> 
-> 	allow fireflier_t absolutely_everything_t:tcp_socket { getattr };
-> 	allow fireflier_t absolutely_everything_t:udp_socket { getattr };
-> 
-> what should i put in the absolutely_everything_t?
-> 
-> much appreciated,
-> 
-> l.
+> a) get fsck.ext2 fixed?
+
+I think it's already as good as it's going to get in this regard.
+
+> b) forcibly run make -C /etc/selinux relabel from /etc/init.d/checkfs.sh
+
+Yes, but not every boot.
 
 -- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
