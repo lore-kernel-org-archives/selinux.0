@@ -1,41 +1,34 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OCAbrT025614
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 08:10:37 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OCAZCV000209
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 12:10:36 GMT
-Subject: Re: named policy
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OCOYrT025711
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 08:24:34 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OCNmMZ000428
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 12:23:49 GMT
+Subject: Re: policy patch
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Jason Vas Dias <jvdias@redhat.com>,
-   Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <200408241840.58207.russell@coker.com.au>
-References: <200408241840.58207.russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <200408241818.40064.russell@coker.com.au>
+References: <200408241818.40064.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1093349343.1800.57.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1093350182.1800.71.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 24 Aug 2004 08:09:03 -0400
+Date: Tue, 24 Aug 2004 08:23:02 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-08-24 at 04:40, Russell Coker wrote:
-> The attached patch adjusts some comments in the named policy to match what's 
-> being done, fixes up a lot of the type labelling (including some ifdef's for 
-> distro specific stuff), removes rndc_conf_t references from the policy (the 
-> typealias statement is only there for files that are already labelled on the 
-> file system), and removes some access that should not be needed.
-> 
-> If ndc_t really needs to write to type named_zone_t then we probably have a 
-> mis-labelling issue.
+On Tue, 2004-08-24 at 04:18, Russell Coker wrote:
+> diff1 removes some unnecessary dontaudit lines from syslogd.te, if there is to 
+> be one single domain accessing devpts_t:chr_file then syslogd_t is not it, 
+> and if a log file gets type unlabeled_t then it's something we want audited.
 
-Requires coordination with named maintainer:
-1) You are reverting named_cache_t to being used for secondary zone
-files and being writable, whereas he (or Dan) was using it for named.ca
-files and keeping it read-only.  So what happens to the named.ca files?
-2) named maintainer claimed that ndc did need write access to /var/named
-(named_zone_t).  See his earlier email.
-3) /var/named/chroot labeling changes seem wrong to me; the current .fc
-file provides consistent labels with a normal filesystem layout.
+Both rules were added by Dan, so please coordinate such changes with
+him.  The dontaudit rules for devpts_t:chr_file are for the targeted
+policy, which has no derived types for ptys or ttys; daemon restart will
+trigger such denials.  I think that the dontaudit rule for unlabeled_t
+is for the kernel bug that is leaking descriptors to the rootfs to init
+and its descendants.  However, SELinux should be closing those
+descriptors and re-opening them to the null device anyway.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
