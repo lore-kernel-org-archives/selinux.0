@@ -1,35 +1,28 @@
-Message-Id: <200208021511.PAA22068@jazzband.ncsc.mil>
 Content-Type: text/plain;
   charset="iso-8859-1"
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
-Subject: file_t or root_t
-Date: Fri, 2 Aug 2002 17:12:39 +0200
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: rw_dir_file and similar macros
+Date: Fri, 2 Aug 2002 17:16:40 +0200
+References: <200208021450.OAA20775@jazzband.ncsc.mil>
+In-Reply-To: <200208021450.OAA20775@jazzband.ncsc.mil>
 MIME-Version: 1.0
+Message-Id: <20020802151641.3F6B918CC@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all together!
+On Fri, 2 Aug 2002 16:39, Carsten Grohmann wrote:
+> This macros works fine. But I think it is not necessary to give lnk_file
+> rw_file_perms, a simple read should work too. Or?
 
-If it not recommend to use file_t, why labelling we all unknown entries 
-with it.
+Right, { read getattr link access } will probably do.
 
-Should we change follow lines in policy/file_contexts/types.fc
-#
-# The security context for all files not otherwise specified.
-#
-/.*				system_u:object_r:file_t
-
-to
-
-#
-# The security context for all files not otherwise specified.
-#
-/.*				system_u:object_r:root_t
-
-??
-
-Carsten
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
