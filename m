@@ -1,41 +1,48 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6CBGrrT000939
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 07:16:53 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6CBGmPJ005398
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 11:16:50 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: Bug#258725: Location of net.agent
-Date: Mon, 12 Jul 2004 21:16:36 +1000
-Cc: Thomas Hood <jdthood@aglu.demon.nl>, 258725@bugs.debian.org,
-   "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-   SE-Linux <selinux@tycho.nsa.gov>
-References: <20040711145538.GA15954@wonderland.linux.it> <1089615747.2520.213.camel@localhost.localdomain> <20040712083309.GU4677@lkcl.net>
-In-Reply-To: <20040712083309.GU4677@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200407122116.36896.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6CCoorT001557
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 08:50:50 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6CCoTDC003135
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 12:50:29 GMT
+Subject: Re: Policy flexibility & multiple Policy issue
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20040711095847.82412.qmail@web51506.mail.yahoo.com>
+References: <20040711095847.82412.qmail@web51506.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1089636639.22449.41.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 12 Jul 2004 08:50:39 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 12 Jul 2004 18:33, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
->  by recommending a subdirectory, it is possible to do the
->  selinux-equivalent of setgid, such that any file in that
->  subdirectory will be made writeable to the hotplug scripts.
+On Sun, 2004-07-11 at 05:58, Park Lee wrote:
+> Hi,
+>       I reread the <<The Flask Security Architecture: System Support
+> for Diverse Security Policies>>,in its introduction section there are
+> some words:"Supporting policy flexibility in the operating system is a
+> hard problem that goes beyond just supporting multiple policies." 
+>       
+>       Then I was confused with the following question:"What is exactly
+> the difference between supporting policy flexibility and supporting
+> multiple policies in the operating system?"  Before we support policy
+> flexibility in the operating system, must we support multiple
+> policies?
 
-There are two advantages of a subdirectory for writable files, one is that we 
-don't have to keep changing the file_contexts file every time a change is 
-made to hotplug, the other is that on systems with a read-only root only one 
-sym-link is needed to get those files written to a writable file system.
+You can develop a system that supports several different policies
+without providing genuine flexibility.  Read the remainder of the
+paragraph that begins with the sentence you quoted, and read the next
+section of the paper.  Policy flexibility goes beyond merely supporting
+some list of known policies.  Hence, a policy flexible system will
+support multiple policies, but not every system that supports multiple
+policies is policy flexible.  This is all discussed in detail in the
+paper.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
