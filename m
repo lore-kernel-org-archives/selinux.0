@@ -1,51 +1,51 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5IIx0rT019361
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 14:59:00 -0400 (EDT)
-Received: from smtp802.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5IIwvrD005373
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 18:58:57 GMT
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5IJ66rT019425
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 15:06:06 -0400 (EDT)
+Received: from smtp801.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5IJ62rD005661
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 19:06:02 GMT
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 18 Jun 2004 18:29:13 -0000
-Date: Fri, 18 Jun 2004 18:26:24 +0000
+  by smtp801.mail.ukl.yahoo.com with SMTP; 18 Jun 2004 19:04:31 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BbO3M-0002we-Ax
+	for selinux@tycho.nsa.gov; Fri, 18 Jun 2004 18:25:28 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BbOcR-0000LS-3j
+	for selinux@tycho.nsa.gov; Fri, 18 Jun 2004 19:01:43 +0000
+Date: Fri, 18 Jun 2004 19:01:43 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: kde (users) requires read permission to /var/spool/cups(/certs/0)
-Message-ID: <20040618182624.GB362@lkcl.net>
-References: <20040613103203.GF2861@lkcl.net> <200406141546.29122.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: Re: SELinux on Debian (Sid)
+Message-ID: <20040618190143.GQ362@lkcl.net>
+References: <20040609144404.GJ5477@philips.com> <200406121819.57709.russell@coker.com.au> <20040612143714.GA28996@yggdrasil.localdomain> <200406131029.35825.russell@coker.com.au> <20040613012852.GA4210@yggdrasil.localdomain> <20040613075427.GZ2861@lkcl.net> <20040613154033.GA10171@yggdrasil.localdomain> <20040613160310.GA10763@yggdrasil.localdomain> <20040613232622.GA13617@yggdrasil.localdomain> <20040614033955.GA14338@yggdrasil.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406141546.29122.russell@coker.com.au>
+In-Reply-To: <20040614033955.GA14338@yggdrasil.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jun 14, 2004 at 03:46:29PM +1000, Russell Coker wrote:
-> On Sun, 13 Jun 2004 20:32, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > don't exactly know what this is about, but if i boot in
-> > non-enforcing mode then i can add a local cupsys-managed
-> > printer WITHOUT having to type in a password (a desirable
-> > thing for a single user home office system), and i get this
-> > in the audit logs:
-> >
-> > 	allow user_t print_spool_t:dir { search };
-> > 			#EXE=/usr/bin/kdeinit  NAME=cups   :  search
+On Sun, Jun 13, 2004 at 10:39:55PM -0500, Greg Norris wrote:
+> On Sun, Jun 13, 2004 at 06:26:22PM -0500, Greg Norris wrote:
+> > I case anyone else encounters this issue, I've submitted a bugreport
+> > to the Debian bug-tracking system.  You can view it at
+> > "http://bugs.debian.org/254219".
 > 
-> On my system that directory is more 0700 so a user can't search it anyway.  
-> Are you sure that kde is doing the right thing?
- 
- ... and therefore, if you add a printer, you get asked for
- a username / password, yes?
+> Ok, I've finally managed to get the package to install... it turns out
+> that I needed to include chkpwd.te and inetd.se in my policy
+> selections.  I'm not actually using the corresponding software for
+> either, but they apparently include some definitions which are needed
+> by other policies.
 
- however, if you add the user to the lpadmin group, and you then
- also allow that user to access that directory (perms 0750, perhaps? )
- then i think you will find that you do not get asked for a username
- or a password.
+well done :)
 
- for the system that i am setting up, this is a desirable scenario
- [not being asked for user/pass] because i will not BE giving out
- usernames or passwords - very much a WYSIWYG philosophy.
+greg, i am curious: the debian selinux policy packages that i
+installed (1.12-1) i didn't get asked any questions about policy
+selections.
 
- l.
+at least, i don't _remember_ being asked any...
+
+what gives?
 
 -- 
 -- 
