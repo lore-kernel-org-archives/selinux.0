@@ -1,114 +1,64 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAOMj0Rb011262
-	for <selinux@tycho.nsa.gov>; Mon, 24 Nov 2003 17:45:00 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAOMiwqa023656
-	for <selinux@tycho.nsa.gov>; Mon, 24 Nov 2003 22:44:59 GMT
-Message-ID: <3FC289E7.30602@redhat.com>
-Date: Mon, 24 Nov 2003 17:44:55 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: How to handle lots of executables  buried in /usr
-References: <3FC21D65.5070803@redhat.com> <1069700405.8635.137.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1069700405.8635.137.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/alternative;
- boundary="------------040506070807020809090804"
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAPE32Rb013790
+	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 09:03:02 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAPE2Sp5024130
+	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 14:02:28 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id hAPE2Rt0024119
+	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 14:02:27 GMT
+Date: Tue, 25 Nov 2003 14:02:56 +0000
+From: Dale Amon <amon@vnl.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Still no authentication from new debian packages
+Message-ID: <20031125140255.GI2718@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040506070807020809090804
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+I've been working on this in the background for 
+many weeks now, trying to build an selinux
+image disk that simply works when rsync'd. I've
+<ahem> a bit more work ahead yet.
 
-Stephen Smalley wrote:
+I'm still not getting past the problem with the 
+packages. I do not get the expected role prompt;
+and newrole goes to the password file, which it
+shouldn't.
 
->On Mon, 2003-11-24 at 10:01, Daniel J Walsh wrote:
->  
->
->>I am seeing lots of errors in policy because of shell scripts and exes 
->>that are installed in subdirectories of /usr being marked as  usr_t 
->>instead of bin_t .  What do you guys think of adding a script to be 
->>executed after make relabel that would find these files and change their 
->>context to bin_t.
->>
->>find /usr -perm +111 --context system_u:object_r:usr_t -type f -exec 
->>chcon \
->>system_u:object_r:bin_t {} ; -print
->>
->>
->>Is this a bad idea?  I do notice that their are a lot of files marked 
->>executables by their install that are really not executable, but this 
->>would clean up several failures untill the package installs are cleaned up.
->>    
->>
->
->It might be better to define multiple types for different groups of
->binaries, and only grant execute access as appropriate.
->
->As a side note, be careful about symlinks.  The above find construct
->will get the context of the symlink, but the chcon will set the context
->of the referenced file unless you specify -h.
->  
->
-The -type f on the command line will ensure that it only gets files, not 
-sym links.
+This still looks like a wrong package set but everything
+updates flawlessly from Russell's repository and I 
+cannot see any unexpected version numbers. I've got
+another system that was built from Colin's old package
+set some months ago and it works fine. I can't see 
+why one package set works and the other does not.
 
-Dan
+I'd like very much to compare notes with someone else
+who has installed a virgin debian sid with Russell's
+new selinux packages on top. 
 
---------------040506070807020809090804
-Content-Type: text/html; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+What is the most likely package to be the guilty
+party? 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
-  <title></title>
-</head>
-<body text="#000000" bgcolor="#ffffff">
-Stephen Smalley wrote:<br>
-<blockquote type="cite"
- cite="mid1069700405.8635.137.camel@moss-spartans.epoch.ncsc.mil">
-  <pre wrap="">On Mon, 2003-11-24 at 10:01, Daniel J Walsh wrote:
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">I am seeing lots of errors in policy because of shell scripts and exes 
-that are installed in subdirectories of /usr being marked as  usr_t 
-instead of bin_t .  What do you guys think of adding a script to be 
-executed after make relabel that would find these files and change their 
-context to bin_t.
+Fortuneately the -test10 kernel has made debugging
+a bit easier on my test box... the NIC's work now.
+Before the only way to change a package was to 
+boot off an NFS floppy, flatten the whole fs (the
+small boot kernel couldn't handle the xattr and
+security attr) and rsync the entire disk. Let's just
+say that it didn't require a lot of attention but
+didn't allow for more than one or two test runs in
+a day...
 
-find /usr -perm +111 --context system_u:object_r:usr_t -type f -exec 
-chcon \
-system_u:object_r:bin_t {} ; -print
-
-
-Is this a bad idea?  I do notice that their are a lot of files marked 
-executables by their install that are really not executable, but this 
-would clean up several failures untill the package installs are cleaned up.
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->
-It might be better to define multiple types for different groups of
-binaries, and only grant execute access as appropriate.
-
-As a side note, be careful about symlinks.  The above find construct
-will get the context of the symlink, but the chcon will set the context
-of the referenced file unless you specify -h.
-  </pre>
-</blockquote>
-The -type f on the command line will ensure that it only gets files,
-not sym links.<br>
-<br>
-Dan<br>
-</body>
-</html>
-
---------------040506070807020809090804--
-
+-- 
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
