@@ -1,31 +1,48 @@
-Date: Fri, 12 Apr 2002 16:50:34 +0200
+Date: Fri, 12 Apr 2002 17:01:31 +0200
 From: Tom <tom@lemuria.org>
 To: SELinux@tycho.nsa.gov
 Subject: Re: db conflict ?
-Message-ID: <20020412165034.A29953@lemuria.org>
-References: <20020412161729.B29624@lemuria.org> <Pine.GSO.4.33.0204121019570.21729-100000@raven>
+Message-ID: <20020412170130.A30042@lemuria.org>
+References: <Pine.GSO.4.33.0204120840060.21729-100000@raven> <20020412135859.3D809281EF@lyta.coker.com.au> <20020412161729.B29624@lemuria.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.GSO.4.33.0204121019570.21729-100000@raven>; from sds@tislabs.com on Fri, Apr 12, 2002 at 10:21:48AM -0400
+In-Reply-To: <20020412161729.B29624@lemuria.org>; from tom@lemuria.org on Fri, Apr 12, 2002 at 04:17:29PM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Apr 12, 2002 at 10:21:48AM -0400, Stephen Smalley wrote:
-> > One thing that I noticed during this setup was that the patched login
-> > and ssh tools do not appear to work if they run on a non-lsm kernel.
-> > While this is probably the right thing to do security-wise, it also
-> > means that keeping a non-SELinux kernel as "rescue system" on-disk
-> > doesn't help a thing.
-> 
-> I can't speak for the Debian selinux packages, but the upstream SELinux
-> modified daemons and utilities run fine on non-SELinux kernels and non-LSM
-> kernels.  They simply fall back to the ordinary processing in that case.
+On Fri, Apr 12, 2002 at 04:17:29PM +0200, Tom wrote:
+> It looks like I solved the problem, at least it now boots and appears
+> to run fine, except that I can't log in remotely, but ssh localhost
+> works. I'll inspect that later.
 
-I didn't spot any differences in the diff file, and I've just looked
-through it trying to find my remote login bug.
+Funny thing, I guess I found the revers of "NoRootLogin" :)
 
-Anyway, I dig both ways of doing it, and I can always keep a rescue CD
-near, I'm just used to having a 2nd kernel around.
+Analysis: Logging in via ssh as root works, as a user not. i.e. "ssh
+-l tom testmachine" fails, "ssh -l root testmachine" works.
+
+The error message in /var/log/auth.log is:
+
+fatal: Could not obtain SID for user tom
+
+
+The piece of code that triggers this appears to be:
+
+if (!get_default_user_sid(pw->pw_name, 
+			  strlen(pw->pw_name),
+			  &scontext,
+			  &sid)) {
+	fprintf(stderr, "Could not obtain SID for user %s\n",
+		pw->pw_name);
+	exit(1);
+}
+
+so I wonder why this fails, because my /etc/selinux/users says:
+
+user user_u roles user_r;
+user root roles { user_r sysadm_r };
+user tom roles { user_r sysadm_r };
+
+so tom should be more than covered. or am I just being dumb again?
 
 
 -- 
