@@ -1,37 +1,28 @@
-Subject: Re: Something seems to be self-contradictory
+Subject: Re: Logging the target?
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_2004@yahoo.com.cn>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20040216140245.87457.qmail@web15201.mail.bjs.yahoo.com>
-References: <20040216140245.87457.qmail@web15201.mail.bjs.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1077031819.16139.70.camel@moss-spartans.epoch.ncsc.mil>
+To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1076949388.10004.14.camel@kusturica>
+References: <1076949388.10004.14.camel@kusturica>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1077031954.16139.74.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 17 Feb 2004 10:30:19 -0500
+Date: Tue, 17 Feb 2004 10:32:34 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-02-16 at 09:02, Park Lee wrote:
-> Hi,
-> Today,I was reading some SELinux technical documents.I saw the
-> following words, They seems to be self-contradictory:
->  
-> 1.  ... ... A program,like any other object, is assigned a
-> type,....      ( Page 4, subsection 3.1.TE Model,  Configuring the
-> SELinux Policy).
-> 2. ... ...These transitions ensure that system processes and certain
-> programs are placed into their own separate domains automatically.
-> ......    ( Page 2, section 2 Overview,  A Security Policy
-> Configuration for the Security-Enhanced Linux ).
->  
-> Then I was confused by such a problem:
-> Whether a program is assigned a type or a domain ?
->  
-A program (i.e. an executable file) is assigned a type.  A process is
-assigned a domain (although in SELinux, a domain is just a type
-associated with a process).  So the latter statement isn't quite
-accurate; it should be "...system processes and processes that execute
-certain programs are placed...".
+On Mon, 2004-02-16 at 11:36, Magosányi Árpád wrote:
+> Hi!
+> 
+> Is there a way to figure out the target object of a deny?
+> An example: when I done an exec("/bin/bash") it was denied
+> by my policy, because some library files was not the right
+> type. It would spare me 2 reboots if the actual target would be stated
+> in the logs.
+
+SELinux logs the target pathname when it has the necessary information
+available to it, i.e. the (vfsmount,dentry) pair.  Otherwise, it cannot
+generate a pathname for auditing.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
