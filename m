@@ -1,49 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9UMYoWt016256
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 17:34:50 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9UMYmKl020488
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 22:34:49 GMT
-Received: from lyta.coker.com.au (nat-pool-bos.redhat.com [66.187.230.200])
-        by jazzband.ncsc.mil  with ESMTP id h9UMYh5m020479 for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 22:34:48 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 0EC2D7F002
-	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2003 09:33:47 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: attr_copy_file()
-Date: Fri, 31 Oct 2003 09:33:46 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200310310933.46513.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9UNluWt016515
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 18:47:56 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9UNlcC7021463
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 23:47:38 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+	by jazzswing.ncsc.mil  with ESMTP id h9UNlQuw021447
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 23:47:30 GMT
+Date: Fri, 31 Oct 2003 10:47:12 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user's access to files in their own home directory
+Message-ID: <20031030234711.GA31194@snoopy.apana.org.au>
+References: <200310310610.14859.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200310310610.14859.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This function usually returns errors when running on SE Linux.  It tries to 
-set the security.selinux attribute which in most cases will fail, and is 
-often not desirable even if it will work.
+On Fri, Oct 31, 2003 at 06:10:14AM +1100, Russell Coker wrote:
+> So far in writing the policy I have allowed the user full access to files in 
+> their own home directory, with the exception of gpg where secrecy requires 
+> that the user's processes often be denied read access.
+> 
+> I would like some feedback on how people feel about having files/dirs under a 
+> user's home directory that they can't unlink or rename.
 
-To deal with this it has to check for a security.selinux attribute name and 
-for whether SE Linux is active, if so then it needs special case handling.
+This would seem to imply a useability/security tradeoff that is
+dependant on the security requirements of the computer.
 
-I am considering two options for dealing with this.  One is to just never copy 
-security.selinux when SE Linux is enabled, the other is to never display 
-EPERM error messages in this case if the operation fails.  The problem with 
-the latter is that every cp by sysadm_t acts like a "cp -c", which often is 
-not what you desire.
-
-This gets ugly in that code for is_selinux_enabled() will need to be copied 
-into libxattr source (can't have libxattr and libselinux depend on each 
-other).
-
+However, what files/dirs are you thinking of?
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
