@@ -1,226 +1,265 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6M9JarT002967
-	for <selinux@tycho.nsa.gov>; Thu, 22 Jul 2004 05:19:36 -0400 (EDT)
-Received: from flame.hosts.ndo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6M9J8rx026828
-	for <selinux@tycho.nsa.gov>; Thu, 22 Jul 2004 09:19:08 GMT
-Received: from th-pm01-28.ndirect.co.uk ([195.7.225.92] helo=lkcl.net)
-	by flame.hosts.ndo.com with esmtp (NDO SMTP Pool (Abuse to: abuse@ndo.com))
-	id 1BnZCz-00025F-00
-	for <selinux@tycho.nsa.gov>; Thu, 22 Jul 2004 09:45:45 +0100
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BnZNj-0000u4-AV
-	for selinux@tycho.nsa.gov; Thu, 22 Jul 2004 09:56:51 +0100
-Date: Thu, 22 Jul 2004 09:56:51 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SELinux <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6MDJLrT003993
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jul 2004 09:19:21 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6MDIsrx009937
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jul 2004 13:18:54 GMT
+Message-ID: <40FFBED6.8070609@redhat.com>
+Date: Thu, 22 Jul 2004 09:19:18 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+CC: SELinux <selinux@tycho.nsa.gov>
 Subject: Re: running interpreted scripts in different domains
-Message-ID: <20040722085651.GD3252@lkcl.net>
-References: <40FADE92.7060307@gentoo.org> <1090338174.25139.60.camel@moss-lions.epoch.ncsc.mil> <40FD6114.3020808@gentoo.org> <1090355250.25139.130.camel@moss-lions.epoch.ncsc.mil> <40FD814B.2060503@gentoo.org> <20040721230605.GD2848@jmh.mhn.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040721230605.GD2848@jmh.mhn.de>
+References: <40FADE92.7060307@gentoo.org> <1090338174.25139.60.camel@moss-lions.epoch.ncsc.mil> <40FD6114.3020808@gentoo.org> <1090355250.25139.130.camel@moss-lions.epoch.ncsc.mil> <40FD814B.2060503@gentoo.org> <20040721230605.GD2848@jmh.mhn.de> <20040722085651.GD3252@lkcl.net>
+In-Reply-To: <20040722085651.GD3252@lkcl.net>
+Content-Type: multipart/mixed;
+ boundary="------------080704030208090602050309"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jul 22, 2004 at 01:06:06AM +0200, Thomas Bleher wrote:
+This is a multi-part message in MIME format.
+--------------080704030208090602050309
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> How does cron handle this? I think that cron is in a similar situation
-> since it can't exec the users crontab. From macros/program/crond_macros.te:
-> 
-> # Permit a transition from the crond_t domain to this domain.
-> # The transition is requested explicitly by the modified crond
-> # via execve_secure.  There is no way to set up an automatic
-> # transition, since crontabs are configuration files, not executables.
-> domain_trans(crond_t, shell_exec_t, $1_crond_t)
-> 
-> Additionaly, crond has this:
-> # Set exec context.
-> can_setexec(crond_t)
-> 
-> Maybe someone who knows the cron code better than me can explain what
-> exactly cron is doing and if this can be applied to the fastcgi code as
-> well.
+Latest cron patch.
 
-this patch fragment is out-of-date, dan walsh has done some updates
-since:
+--------------080704030208090602050309
+Content-Type: text/x-patch;
+ name="vixie-cron-selinux.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vixie-cron-selinux.patch"
 
-	--- database.c.old	2004-05-19 10:03:06.000000000 +0100
-	+++ database.c	2004-05-20 15:15:55.000000000 +0100
-	@@ -30,6 +30,11 @@
-	 #include <sys/stat.h>
-	 #include <sys/file.h>
-	 
-	+#ifdef WITH_SELINUX
-	+#include <selinux/selinux.h>
-	+#include <selinux/flask.h>
-	+#include <selinux/av_permissions.h>
-	+#endif
-	 
-	 #define TMAX(a,b) ((a)>(b)?(a):(b))
-	 
-	@@ -46,7 +51,7 @@
-	 
-	 #endif /* ifndef PATH_MAX */
-	 
-	-static	void		process_crontab __P((char *, char *, char *,
-	+static	void 		process_crontab __P((char *, char *, char *,
-							 struct stat *,
-							 cron_db *, cron_db *));
-	 #ifdef DEBIAN
-	@@ -167,7 +172,7 @@
-		new_db.head = new_db.tail = NULL;
-	 
-		if (syscron_stat.st_mtime) {
-	-		process_crontab("root", "*system*",
-	+		process_crontab(SYSUSERNAME, "*system*",
-					SYSCRONTAB, &syscron_stat,
-					&new_db, old_db);
-		}
-	@@ -205,7 +210,7 @@
-	 
-			/* statbuf is used as working storage by process_crontab() --
-			   current contents are irrelevant */
-	-		process_crontab("root", fname, tabname,
-	+		process_crontab(SYSUSERNAME, fname, tabname,
-					&statbuf, &new_db, old_db);
-	 
-		}
-	@@ -324,6 +329,13 @@
-		int		crontab_fd = OK - 1;
-		user		*u;
-	 
-	+#ifdef WITH_SELINUX
-	+	security_context_t  file_context=NULL;
-	+	security_context_t   user_context=NULL;
-	+	struct av_decision avd;
-	+	int retval=0, selinux_enabled = (is_selinux_enabled() > 0);
-	+#endif
-	+
-	 #ifdef DEBIAN
-		/* If the name begins with *system*, don't worry about password -
-		 it's part of the system crontab */
-	@@ -349,6 +361,14 @@
-			goto next_crontab;
-				 }
-	 
-	+#ifdef WITH_SELINUX
-	+	    if (selinux_enabled) {
-	+		if (fgetfilecon(crontab_fd, &file_context) < OK) {
-	+		    log_it(fname, getpid(), "getfilecon FAILED", tabname);
-	+		    goto next_crontab;
-	+		}
-	+	    }
-	+#endif
-				 if (fstat(crontab_fd, statbuf) < OK) {
-			log_it(fname, getpid(), "FSTAT FAILED", tabname);
-			goto next_crontab;
-	@@ -385,6 +405,14 @@
-			goto next_crontab;
-				 }
-	 
-	+#ifdef WITH_SELINUX
-	+	    if (selinux_enabled) {
-	+		if (fgetfilecon(crontab_fd, &file_context) < OK) {
-	+		    log_it(fname, getpid(), "getfilecon FAILED", tabname);
-	+		    goto next_crontab;
-	+		}
-	+	    }
-	+#endif
-				 if (fstat(crontab_fd, statbuf) < OK) {
-			log_it(fname, getpid(), "FSTAT FAILED", tabname);
-			goto next_crontab;
-	@@ -425,6 +453,31 @@
-			free_user(u);
-			log_it(fname, getpid(), "RELOAD", tabname);
-		}
-	+#ifdef WITH_SELINUX
-	+	if (selinux_enabled)	{
-	+		/*
-	+		 * Since crontab files are not directly executed,
-	+		 * crond must ensure that the crontab file has
-	+		 * a context that is appropriate for the context of
-	+		 * the user cron job.  It performs an entrypoint
-	+		 * permission check for this purpose.
-	+		 */
-	+		if (get_default_context(uname, NULL, &user_context)) {
-	+			log_it(uname, getpid(), "NO CONTEXT", tabname);
-	+			goto next_crontab;
-	+		}
-	+		retval = security_compute_av(user_context, file_context,
-	+			SECCLASS_FILE, FILE__ENTRYPOINT, &avd);
-	+		freecon(user_context);
-	+		freecon(file_context);
-	+		file_context = NULL;
-	+
-	+		if (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT)) {
-	+			log_it(fname, getpid(), "ENTRYPOINT FAILED", tabname);
-	+			goto next_crontab;
-	+		}
-	+	}
-	+#endif
-		u = load_user(crontab_fd, pw, fname);
-		if (u != NULL) {
-			u->mtime = statbuf->st_mtime;
-	@@ -436,6 +489,12 @@
-			Debug(DLOAD, (" [done]\n"))
-			close(crontab_fd);
-		}
-	+#ifdef WITH_SELINUX
-	+	if(file_context) {
-	+		freecon(file_context);
-	+		file_context = NULL;
-	+	}
-	+#endif
-	 }
-	 
-	 #ifdef DEBIAN
-	
-which i believe to be testing the access permissions on the crontab
-file, and in child_process() which is called by do_command() which
-is called by job_queue():
+--- vixie-cron-3.0.1/Makefile.selinux	2004-06-25 12:31:30.000000000 -0400
++++ vixie-cron-3.0.1/Makefile	2004-06-25 12:31:30.000000000 -0400
+@@ -55,7 +55,7 @@
+ INCLUDE		=	-I.
+ #INCLUDE	=
+ #<<need getopt()>>
+-LIBS		=
++LIBS		= -lselinux 
+ #<<optimize or debug?>>
+ OPTIM		=	$(RPM_OPT_FLAGS)
+ #OPTIM		=	-g
+@@ -71,7 +71,7 @@
+ #<<want to use a nonstandard CC?>>
+ #CC		=	vcc
+ #<<manifest defines>>
+-DEFS		= -s
++DEFS		= -s -DWITH_SELINUX
+ #(SGI IRIX systems need this)
+ #DEFS		=	-D_BSD_SIGNALS -Dconst=
+ #<<the name of the BSD-like install program>>
+--- vixie-cron-3.0.1/user.c.selinux	1995-05-31 17:37:22.000000000 -0400
++++ vixie-cron-3.0.1/user.c	2004-06-25 12:33:43.000000000 -0400
+@@ -23,9 +23,73 @@
+  */
+ 
+ 
++#ifdef WITH_SELINUX
++#include <selinux/selinux.h>
++#include <selinux/flask.h>
++#include <selinux/av_permissions.h>
++#endif
++
+ #include "cron.h"
+ 
+ 
++#ifdef WITH_SELINUX
++static	int get_security_context(char *name, 
++				 int crontab_fd, 
++				 security_context_t *rcontext, 
++				 char *tabname) {
++	security_context_t scontext;
++	security_context_t  file_context=NULL;
++	struct av_decision avd;
++	int retval=0;
++	*rcontext = NULL;
++	if (get_default_context(name, NULL, &scontext)) {
++		if (security_getenforce() > 0) {
++			log_it(name, getpid(), "No SELinux security context",tabname);
++			return -1;
++		} else {
++			log_it(name, getpid(), "No security context but SELinux in permissive mode, continuing",tabname);
++		}
++	}
++	
++	if (fgetfilecon(crontab_fd, &file_context) < OK) {
++		if (security_getenforce() > 0) {
++			log_it(name, getpid(), "getfilecon FAILED", tabname);
++			freecon(scontext);
++			return -1;
++		} else {
++			log_it(name, getpid(), "getfilecon FAILED but SELinux in permissive mode, continuing", tabname);
++			*rcontext=scontext;
++			return 0;
++		}
++	}
++    
++	/*
++	 * Since crontab files are not directly executed,
++	 * crond must ensure that the crontab file has
++	 * a context that is appropriate for the context of
++	 * the user cron job.  It performs an entrypoint
++	 * permission check for this purpose.
++	 */
++	retval = security_compute_av(scontext,
++				     file_context,
++				     SECCLASS_FILE,
++				     FILE__ENTRYPOINT,
++				     &avd);
++	freecon(file_context);
++	if (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT)) {
++		if (security_getenforce() > 0) {
++			log_it(name, getpid(), "ENTRYPOINT FAILED", tabname);
++			freecon(scontext);
++			return -1;
++		} else {
++			log_it(name, getpid(), "ENTRYPOINT FAILED but SELinux in permissive mode, continuing", tabname);
++		}
++	}
++	*rcontext=scontext;
++	return 0;
++}
++#endif
++
+ void
+ free_user(u)
+ 	user	*u;
+@@ -37,15 +101,20 @@
+ 		ne = e->next;
+ 		free_entry(e);
+ 	}
++#ifdef WITH_SELINUX
++	freecon(u->scontext);
++#endif	
+ 	free(u);
+ }
+ 
+ 
+ user *
+-load_user(crontab_fd, pw, name)
++load_user(crontab_fd, pw, uname, fname, tabname)
+ 	int		crontab_fd;
+ 	struct passwd	*pw;		/* NULL implies syscrontab */
+-	char		*name;
++	char		*uname;
++	char		*fname;
++	char            *tabname;
+ {
+ 	char	envstr[MAX_ENVSTR];
+ 	FILE	*file;
+@@ -64,7 +133,7 @@
+ 	/* file is open.  build user entry, then read the crontab file.
+ 	 */
+ 	u = (user *) malloc(sizeof(user));
+-	u->name = strdup(name);
++	u->name = strdup(fname);
+ 	u->crontab = NULL;
+ 
+ 	/* 
+@@ -72,6 +141,22 @@
+ 	 */
+ 	envp = env_init();
+ 
++#ifdef WITH_SELINUX
++	if (is_selinux_enabled() > 0) {
++		char *sname=uname;
++		if (pw==NULL) {
++			sname="system_u";
++		}
++
++		if (get_security_context(sname, crontab_fd, 
++					 &u->scontext, tabname) != 0) {
++			free_user(u);
++			u = NULL;
++			goto done;
++		}
++	}
++#endif
++
+ 	/*
+ 	 * load the crontab
+ 	 */
+--- vixie-cron-3.0.1/database.c.selinux	2004-06-25 12:31:30.000000000 -0400
++++ vixie-cron-3.0.1/database.c	2004-06-25 12:31:30.000000000 -0400
+@@ -297,7 +297,7 @@
+ 		free_user(u);
+ 		log_it(fname, getpid(), "RELOAD", tabname);
+ 	}
+-	u = load_user(crontab_fd, pw, fname);
++	u = load_user(crontab_fd, pw, uname, fname, tabname);
+ 	if (u != NULL) {
+ 		u->mtime = statbuf->st_mtime;
+ 		link_user(new_db, u);
+--- vixie-cron-3.0.1/cron.h.selinux	2004-06-25 12:31:30.000000000 -0400
++++ vixie-cron-3.0.1/cron.h	2004-06-25 12:31:30.000000000 -0400
+@@ -39,7 +39,9 @@
+ #include "pathnames.h"
+ #include "config.h"
+ #include "externs.h"
+-
++#ifdef WITH_SELINUX
++#include <selinux/selinux.h>
++#endif
+ 	/* these are really immutable, and are
+ 	 *   defined for symbolic convenience only
+ 	 * TRUE, FALSE, and ERR must be distinct
+@@ -174,6 +176,9 @@
+ 	char		*name;
+ 	time_t		mtime;		/* last modtime of crontab */
+ 	entry		*crontab;	/* this person's crontab */
++#ifdef WITH_SELINUX
++        security_context_t scontext;    /* SELinux security context */
++#endif
+ } user;
+ 
+ typedef	struct _cron_db {
+@@ -219,7 +224,7 @@
+ 		**env_copy __P((char **)),
+ 		**env_set __P((char **, char *));
+ 
+-user		*load_user __P((int, struct passwd *, char *)),
++user		*load_user __P((int, struct passwd *, char *, char *, char *)),
+ 		*find_user __P((cron_db *, char *));
+ 
+ entry		*load_entry __P((FILE *, void (*)(),
+--- vixie-cron-3.0.1/do_command.c.selinux	2004-06-25 12:31:30.000000000 -0400
++++ vixie-cron-3.0.1/do_command.c	2004-06-25 12:31:30.000000000 -0400
+@@ -29,6 +29,9 @@
+ # include <syslog.h>
+ #endif
+ 
++#ifdef WITH_SELINUX
++#include <selinux/selinux.h>
++#endif
+ 
+ static void		child_process __P((entry *, user *)),
+ 			do_univ __P((user *));
+@@ -251,6 +254,18 @@
+ 			 */
+ 			(void) signal(SIGCHLD, SIG_DFL);
+ #endif
++#ifdef WITH_SELINUX
++			if (is_selinux_enabled() >0 ) {
++				if (setexeccon(u->scontext) < 0) {
++					if (security_getenforce() > 0) {
++						fprintf(stderr, 
++							"Could not set exec context to %s for user  %s\n", 
++							u->scontext,u->name);
++						_exit(ERROR_EXIT);
++					}
++				}
++			}
++#endif
+ 			execle(shell, shell, "-c", e->cmd, (char *)0, e->envp);
+ 			fprintf(stderr, "execl: couldn't exec `%s'\n", shell);
+ 			perror("execl");
 
 
-#ifdef WITH_SELINUX
-            if (is_selinux_enabled()) {
-              security_context_t scontext;
-              if (get_default_context(u->name, NULL, &scontext)) {
-                fprintf(stderr, "execle_secure: couldn't get security context for user %s\n", u->name);
-                _exit(ERROR_EXIT);
-              }
-              if (setexeccon(scontext) < 0) {
-                fprintf(stderr, "Could not set exec context to %s for user  %s\n", scontext,u->name);
-                _exit(ERROR_EXIT);
-              }
-              freecon(scontext);
-            }
-#endif
-                        execle(shell, shell, "-c", e->cmd, (char *)0, jobenv);
-            fprintf(stderr, "execl: couldn't exec `%s'\n", shell);
-            perror("execl");
-            _exit(ERROR_EXIT);
-        }
-
-which ensures that the command is run under the correct user context (u->name).
-
-dan, steven, russell and the deb maintainer steve greene had a bash at
-going over this because the deb maintainer would not accept the patch:
-the reason it turned out was because of bugs in the patch _and_ in
-cron over how to deal with running cron jobs as non-user (i.e. as
-the cron system, and the fake and deliberately nonexistent username 
-*system* was used to "represent" the cron system such that if a
-getpwnam was called with "*system*" it would always fail).
-
-of course, cron _does_ have the concept of system, called system_u :)
-
-anyway, as you can see, the shell command is exec'd, there's also
-a cron_popen() but i haven't tracked down how it's called.
-
-if fastcgi does an exec?e to run the cgi script, cron's code would,
-i believe, be a useful starting point.
-
-l.
-
+--------------080704030208090602050309--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
