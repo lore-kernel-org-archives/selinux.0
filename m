@@ -1,39 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA20224
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 18:16:11 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA08016
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 22:14:41 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA20948
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 21:55:02 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id BAA28768
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 01:54:25 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id WAA08012 for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 22:14:39 GMT
+	by jazzswing.ncsc.mil  with ESMTP id BAA28764
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 01:54:23 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Brad Chapman <jabiru_croc@yahoo.com>, selinux@tycho.nsa.gov
-Subject: Re: minilogd.te
-Date: Fri, 12 Jul 2002 00:15:54 +0200
-References: <20020711215548.37078.qmail@web40014.mail.yahoo.com>
-In-Reply-To: <20020711215548.37078.qmail@web40014.mail.yahoo.com>
+To: Brian May <bam@snoopy.apana.org.au>
+Subject: Re: /etc/resolv.conf
+Date: Fri, 12 Jul 2002 03:54:49 +0200
+References: <20020712014137.GA2504@snoopy.apana.org.au>
+In-Reply-To: <20020712014137.GA2504@snoopy.apana.org.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Message-Id: <20020711221554.75DA4429@lyta.coker.com.au>
+Message-Id: <20020712015450.28D7442F2@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 11 Jul 2002 23:55, Brad Chapman wrote:
-> Everyone,
+On Fri, 12 Jul 2002 03:41, you wrote:
+> If I edit /etc/resolv.conf as sysadm, eg. using vim, it gets the label
+> root:object_r:etc_t.
 >
->       Here is a domain setup for minilogd, borrowed from klogd.te.
+> This means pumpd can no longer alter it, it requires
+> it be system_u:object_r:resolv_conf_t.
 >
->       Status: It Works For Me (tm)
+> What is the best way around this problem.
 
-Use "fd use" not "fd inherit_fd_perms", the latter is obsolete.
+I have been thinking of writing a script that uses a similar concept to 
+"vipw" for such things.  It would use the setfiles configuration file to 
+determine the correct context, and it would cause vi to edit the file under 
+/tmp and use open_secure() to create the new file after vi has finished.
 
-Allowing any domain other than devfsd access to devfs_t chr_file devices is 
-wrong.  The correct thing to do is to use genfs for anything that needs a 
-label before devfsd starts.
-
-What does minilogd do anyway?  Why not give it the same domain as klogd?
+What do you think?
 
 -- 
 I do not get viruses because I do not use MS software.
