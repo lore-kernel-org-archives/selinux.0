@@ -1,57 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1FGStL9008589
-	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 11:28:55 -0500 (EST)
-Subject: Re: Adding libseuser functionality to libselinux?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Frank Mayer <mayerf@tresys.com>
-In-Reply-To: <421221C0.20907@redhat.com>
-References: <20050215155323.GC23765@lkcl.net>  <421221C0.20907@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1FGUTL9008614
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 11:30:29 -0500 (EST)
+Received: from mx-4.zoominternet.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1FGTLEP005889
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 16:29:21 GMT
+Received: from mua-4.zoominternet.net (mua-4.zoominternet.net [24.154.1.47])
+	by mx-4.zoominternet.net (8.12.11/8.12.11) with ESMTP id j1FGSGZ8008532
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 11:29:08 -0500
+Received: from 192.168.1.101 (acs-24-144-213-127.zoominternet.net [24.144.213.127])
+	by mua-4.zoominternet.net (Postfix) with ESMTP id 464F17F42D
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 11:21:01 -0500 (EST)
+Subject: Determining if SELinux is installed
+From: Scott Cain <cain@cshl.org>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Message-Id: <1108484448.17854.97.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 15 Feb 2005 11:18:40 -0500
+Message-Id: <1108484321.3297.45.camel@localhost.localdomain>
 Mime-Version: 1.0
-Date: Tue, 15 Feb 2005 11:20:48 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-15 at 11:22, Daniel J Walsh wrote:
-> Thoughts on moving some of the functions available in setools into 
-> libselinux.
-> 
-> Basically I want to add the ability to addroles via the adduser command  
-> (shadow-utils) and thus
-> make dealing with roles easier in OS.  The problem is that I don't want 
-> to require setools  in
-> order to get this functionality (libseuser).   
-> 
-> I need the ability to get the roles that are available via the currently 
-> running policy and to manipulate
-> the users defined in the local.users file.  I then need to have 
-> genpolusers type functions to allow me
-> to change the running policy.  We don't need the functionality that 
-> deals with policy-sources.
-> 
-> What do you think of moving these functions into libselinux?
+Hello,
 
-I think you want them in libsepol, not libselinux.  The former is for
-binary policy manipulation (which can still deal with the "active"
-policy file that happesn to be presently loaded, as long as said file
-still exists on the filesystem and you can reliably find it) and can be
-used even on non-SELinux systems (an important property for building and
-analyzing policies).  The latter is only for security-aware applications
-running on a SELinux kernel.
+Is there a programmatic way to determine if SELinux is installed and
+enabled?  I would like to know so that I can let the installer I've
+written take appropriate action if it detects that it is there.
 
-I do plan to look into migrating genpolusers functionality into
-libsepol, as I formerly did for genpolbools, to allow load_policy and
-init to generate the users database based on local customizations at
-load time, just as they currently set the booleans based on local
-customizations at load time.  I'm not sure what you want from libseuser;
-you can certainly implement functions in libsepol that extract the set
-of roles for a user and manipulate it.
+Thanks,
+Scott
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+------------------------------------------------------------------------
+Scott Cain, Ph. D.                                         cain@cshl.org
+GMOD Coordinator (http://www.gmod.org/)                     216-392-3087
+Cold Spring Harbor Laboratory
 
 
 --
