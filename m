@@ -1,37 +1,34 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j03L21Ii020020
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 16:02:01 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j03L1PIi019995
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 16:01:25 -0500 (EST)
 Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j03L0AFS023886
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 21:00:10 GMT
-Subject: Re: howl and modutil
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j03KxXFS023861
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 20:59:33 GMT
+Subject: Re: cpuspeed and powernow
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200412250432.55521.russell@coker.com.au>
-References: <200412250432.55521.russell@coker.com.au>
+Cc: SELinux <selinux@tycho.nsa.gov>, Thomas Bleher <ThomasBleher@gmx.de>
+In-Reply-To: <200412240058.56587.russell@coker.com.au>
+References: <200412240058.56587.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1104786252.14157.6.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1104786196.14157.4.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 03 Jan 2005 16:04:12 -0500
+Date: Mon, 03 Jan 2005 16:03:16 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged both.
+Merged.  I also removed the powernowd policy from CVS.
 
-On Fri, 2004-12-24 at 12:32, Russell Coker wrote:
-> Attached are patches for howl and modutil.
+On Thu, 2004-12-23 at 08:58, Russell Coker wrote:
+> I don't believe that we need separate policies for cpuspeed and powernow.  
+> They both perform the same function but for different CPUs so there is no 
+> possibility of them both running at the same time (AFAIK) and therefore no 
+> benefit in having separate domains.
 > 
-> The howl patch allows the latest version of howl in rawhide to work correctly.
-> 
-> The modutil patch allows insmod_t to do everything it wants to do on my system 
-> including access to memory_device_t.  insmod_t has ultimate access anyway so 
-> this doesn't seem to be a problem.
-> 
-> One thing I have been idly considering regarding modprobe is to re-write it to 
-> not use system(3) so it doesn't need access to shell_exec_t and thus can have 
-> assert_execute().
+> I have attached a patch that adds the appropriate functionality to cpuspeed.te 
+> and cpuspeed.fc.  James please add this patch and remove powernowd.te and 
+> powernowd.fc.
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
