@@ -1,40 +1,28 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA09236
-	for <selinux@tycho.nsa.gov>; Mon, 13 May 2002 11:59:17 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA22347
-	for <selinux@tycho.nsa.gov>; Mon, 13 May 2002 15:57:57 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id PAA22343 for <selinux@tycho.nsa.gov>; Mon, 13 May 2002 15:57:53 GMT
-Date: Mon, 13 May 2002 11:58:23 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>
-cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
-Subject: Re: .journal
-In-Reply-To: <3CDFD7DC.158E4D41@dr-baldeweg.de>
-Message-ID: <Pine.GSO.4.33.0205131151170.21547-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA12872
+	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 03:44:12 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id HAA28915
+	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 07:42:03 GMT
+Received: from karai.net (karai.net [80.72.67.228])
+	by jazzswing.ncsc.mil  with ESMTP id HAA28909
+	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 07:41:45 GMT
+Date: Tue, 14 May 2002 10:42:30 +0300 (EEST)
+From: Hacko <toltec@karai.net>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: 2002050211
+In-Reply-To: <20020510103804.30FF4C30@lyta.coker.com.au>
+Message-ID: <Pine.LNX.4.44.0205141041080.4913-100000@karai.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 13 May 2002, Carsten Grohmann wrote:
+> Also I'm getting married tomorrow, so I won't be reading email for 2 weeks.
 
-> Since a few days I use the ext3 filesystem. And now I am looking the
-> correct rights for the journaling files (.journal). At this time I
-> labeled as file_t. What is your opinion? Should it use an own type or is
-> the file_t better?
-
-You should define a new type for the .journal files, and limit access to
-only a few domains.  The only reason that we haven't done so is that our
-journal files aren't visible (created via mke2fs -j with a clean
-filesystem rather than on an existing filesystem).
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
+Wish you happy life ;)
 
 
 
