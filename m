@@ -1,40 +1,37 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9GE8DWt002761
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 10:08:13 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9GEE1Wt002840
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 10:14:02 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9GE8CmR026668
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 14:08:12 GMT
-Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
-        by jazzband.ncsc.mil  with ESMTP id h9GE8Ajp026665 for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 14:08:11 GMT
-Received: (from root@localhost)
-	by baitaca.ipen.br (8.12.9/8.12.9) id h9GE8J3B004267
-	for selinux@tycho.nsa.gov; Thu, 16 Oct 2003 11:08:19 -0300
-Received: from ipen.br ([10.0.12.47])
-	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id h9GE87Y8003942
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 11:08:08 -0300
-Message-ID: <3F8E7BCB.2020107@ipen.br>
-Date: Thu, 16 Oct 2003 09:06:51 -0200
-From: Carlos Anisio Monteiro <monteiro@ipen.br>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: selinux documentation
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	by jazzband.ncsc.mil  with ESMTP id h9GEE1mR027047
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 14:14:01 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h9GEE0jp027044 for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 14:14:00 GMT
+Subject: Re: selinux documentation
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Carlos Anisio Monteiro <monteiro@ipen.br>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <3F8E7BCB.2020107@ipen.br>
+References: <3F8E7BCB.2020107@ipen.br>
+Content-Type: text/plain
+Message-Id: <1066313633.25279.0.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 16 Oct 2003 10:13:53 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi.
+On Thu, 2003-10-16 at 07:06, Carlos Anisio Monteiro wrote:
+> Hi.
+> 
+> Please, where can I find a documentation/guide about "wildcards" (p.ex. 
+> '\.', '.*', '^'), explain the meaning.
+> I woud like to know the aplication them in the file contexts.
 
-Please, where can I find a documentation/guide about "wildcards" (p.ex. 
-'\.', '.*', '^'), explain the meaning.
-I woud like to know the aplication them in the file contexts.
-
-Thanks.
+The file contexts configuration uses pathname regular expressions.  man
+7 regex
 
 -- 
-Carlos Anisio Monteiro    monteiro@ipen.br
-IPEN/CNEN-SP
-Sao Paulo - Brasil
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
