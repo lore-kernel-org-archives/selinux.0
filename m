@@ -1,55 +1,46 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0VJHaRb025315
-	for <selinux@tycho.nsa.gov>; Sat, 31 Jan 2004 14:17:36 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i11FJsRb027208
+	for <selinux@tycho.nsa.gov>; Sun, 1 Feb 2004 10:19:54 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0VJGHVK004361
-	for <selinux@tycho.nsa.gov>; Sat, 31 Jan 2004 19:16:17 GMT
-Received: from mail.gmx.net (pop.gmx.net [213.165.64.20])
-	by jazzswing.ncsc.mil  with SMTP id i0VJGGlx004358
-	for <selinux@tycho.nsa.gov>; Sat, 31 Jan 2004 19:16:16 GMT
-From: Carsten Grohmann <carstengrohmann@gmx.de>
+	by jazzswing.ncsc.mil  with ESMTP id i11FIYVK010932
+	for <selinux@tycho.nsa.gov>; Sun, 1 Feb 2004 15:18:34 GMT
+Received: from mail.lemuria.org (web.lemuria.org [213.191.85.3])
+	by jazzswing.ncsc.mil  with ESMTP id i11FIXlx010843
+	for <selinux@tycho.nsa.gov>; Sun, 1 Feb 2004 15:18:33 GMT
+Received: from unicorn.lemuria.org (unknown [213.39.193.178])
+	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
+	(No client certificate requested)
+	by mail.lemuria.org (Postfix) with ESMTP id 17C8ADAB63
+	for <selinux@tycho.nsa.gov>; Sun,  1 Feb 2004 16:18:47 +0100 (CET)
+Date: Sun, 1 Feb 2004 16:11:21 +0100
+From: Tom <tom@lemuria.org>
 To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: SELinux Workshop in Chemnitz, Germany
-Date: Sat, 31 Jan 2004 20:16:12 +0100
-MIME-Version: 1.0
-Message-Id: <200401312007.35735.carstengrohmann@gmx.de>
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Subject: SELinux Talk in Hamburg, Germany
+Message-ID: <20040201161120.F14411@lemuria.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Title SELinux
+Thanks to Carsten for reminding me to post here:
 
-Place
-  LinuxTag in Chemnitz, Germany
+I'll also be giving another talk, essentially an evolved version of
+what I presented in Tokio last year, at the DFN-CERT congress in
+Hamburg, Germany.
 
-Date
-  Saturday 06 March 2004 10:00 Uhr
-
-Duration
-  3h
-
-Short description:
- 1st Part:
- - short initiation - workings and background
- 2nd Part:
- - demonstration on a play maschine
- 3rd Part:
- - first steps with the Gentoo SELinux LiveCD
- - using the setools to maintain and analyse the policy
-
-The 3rd part is a practical part. The participant can discover 
-SELinux and try the programs individually.
-
-Speaker
-  Carsten Grohmann
-
-More Informations:
-http://www.tu-chemnitz.de/linux/tag/2004/workshops/
-http://www.securityenhancedlinux.de
-http://www.nsa.gov/selinux/index.html
+CERT should require no explanation, DFN is "deutsches ForschungsNetz",
+which translates to "german research network" and is essentially the
+german university and research center backbone.
 
 
+The congress has a website at:
+http://www.dfn-cert.de/events/ws/2004/
+
+
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
