@@ -1,67 +1,64 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AKdxrT001201
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:39:59 -0400 (EDT)
-Received: from abyss.simplyaquatics.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5AKdvaH023443
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:39:57 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
-	by abyss.simplyaquatics.com (Postfix) with ESMTP id 4A4C13A4069
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 15:39:58 -0500 (CDT)
-Received: from TECRAS1 (simplyaquatics.com [209.192.116.78])
-	by abyss.simplyaquatics.com (Postfix) with ESMTP id A59FC3A4069
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 15:39:56 -0500 (CDT)
-From: "Ed Street" <edstreet@street-tek.com>
-Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
-Subject: RE: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Date: Thu, 10 Jun 2004 16:39:54 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <20040610202615.GC2861@lkcl.net>
-Message-Id: <20040610203956.A59FC3A4069@abyss.simplyaquatics.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AKiTrT001267
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:44:29 -0400 (EDT)
+Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5AKiOP2026491
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:44:24 -0400 (EDT)
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
+  by smtp802.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 20:44:27 -0000
+Date: Thu, 10 Jun 2004 20:41:47 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [debian] - installation of mysqld requires chfn
+Message-ID: <20040610204147.GE2861@lkcl.net>
+References: <20040609222209.GH5727@lkcl.net> <200406101220.53966.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200406101220.53966.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+russell, steven - just a thought.
 
-As stated numerous times in the past write access to etc_t is a horrible
-idea.  What would be better is maybe use postfix_etc_t or something similar,
-correct me if I'm wrong but are we not already using postfix_etc_t? if so
-then maybe a postfix_spool_etc_t.
+if you look at dpkg.te, and presumably rpm.te too, are you at all
+concerned about the ever-increasing permission set that's added to
+these two packages' policies?
 
-Ed
+it doesn't seem right to me that dpkg's policy file has to grant
+permission to run passwd.te in order to install oh, say, foomatic-db.
 
------Original Message-----
-From: Luke Kenneth Casson Leighton [mailto:lkcl@lkcl.net] 
-Sent: Thursday, June 10, 2004 4:26 PM
-To: Ed Street
-Cc: 'SE-Linux'
-Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't
-working.
+it just goes against the grain of granting least privilege.
 
-On Wed, Jun 09, 2004 at 10:22:21PM -0400, Ed Street wrote:
-> Well why ANY app needs write access to /etc is beyond me.  Also are you
-> using run_init /etc/init.d/foo ?
- 
- yes, i am, and that's part of the problem.
+i'm just concerned that dpkg.te and rpm.te turn into these
+pretty-much-everything "monsters".
 
- if you do an ls --context /var/spool/postfix/etc and compare the files
- listed there to ls --context /etc for example (there are others)
- you will find that the contexts are identical.
+so, let's see... is it possible to add something into dpkg
+(se_dpkg?) to make it call run_init or do a domain_auto_trans
+just before calling the postinstall / prerm etc. scripts,
+to move it from dpkg.te into dpkg_<PACKAGENAME>.te?
 
- therefore, in order for the chroot jail files to be copyable 
- (and overwritable!) from /etc to /var/spool/postfix/etc,
- and from /lib to /var/spool/postfix/lib, it is necessary to
- give initrd_t (which is what run_init drops you into, yes)
- write permission to etc_t (amongst other things).
+l.
 
- if you do that, you get a policy violation (build error) on a
- "make policy" on one of the checks that bans you from doing
- things like give initrd_t access to writing in etc_t or
- etc_runtime_t.
+On Thu, Jun 10, 2004 at 12:20:53PM +1000, Russell Coker wrote:
+> On Thu, 10 Jun 2004 08:22, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > i added the can_exec chfn_exec_t into domains/programs/dpkg.te:
 
- l.
+> > [ to make it possible to install mysqld ]
 
+> ifdef(`passwd.te', `
+> domain_auto_trans(dpkg_t, chfn_exec_t, chfn_t)
+> ')
+
+> The above is what you want.  You don't want to allow dpkg_t direct access 
+> to /etc/shadow because it will probably mess it up (replace it with a copy 
+> labelled as etc_t).
+> 
+> -- 
+> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+> http://www.coker.com.au/~russell/  My home page
 
 -- 
 -- 
@@ -72,18 +69,6 @@ will act with both honesty and integrity in return - and tell me.
 --
 <a href="http://lkcl.net">      lkcl.net      </a> <br />
 <a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.698 / Virus Database: 455 - Release Date: 6/2/2004
- 
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.698 / Virus Database: 455 - Release Date: 6/2/2004
- 
 
 
 --
