@@ -1,39 +1,35 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j11CI453014681
-	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 07:18:04 -0500 (EST)
-Subject: Re: File Browsing apps and getattr
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j11CLD53014706
+	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 07:21:13 -0500 (EST)
+Subject: Re: Policy format: apostrophe in comments
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: ivg2@cornell.edu
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1107210369.1928.5.camel@cobra.ivg2.net>
-References: <1107210369.1928.5.camel@cobra.ivg2.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1107210569.1928.8.camel@cobra.ivg2.net>
+References: <1107210569.1928.8.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Message-Id: <1107259894.26936.27.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1107260084.26936.32.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 01 Feb 2005 07:11:35 -0500
+Date: Tue, 01 Feb 2005 07:14:44 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-01-31 at 17:26, Ivan Gyurdiev wrote:
-> What are your thoughts on this bug?
-> It asks whether it would be reasonable to grant full getattr privileges
-> to all file browsing applications (like nautilus, mozilla, things with a
-> file open dialog..)
+On Mon, 2005-01-31 at 17:29, Ivan Gyurdiev wrote:
+> What about this bug? It complains about not being able to use
+> apostrophe in the policy config. Any chance this will be fixed,
+> or should I leave it alone? I ask because I was confused
+> what was wrong with my policy when adding apostr. comments. 
 > 
-> This has bothered me ever since I first tried selinux - I open up 
-> nautilus or any other app with a file browser, and soon I get a storm of
-> denials. There should be a way to fix this.
-> 
-> https://bugzilla.redhat.com/beta/show_bug.cgi?id=146557
-> 
-> The bug says dontaudit, but when dwalsh explained the difference
-> I see I mean allow instead.
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=146553
 
-Allowing access to file_type would obviously be too wide.  Allowing a
-user's browser or similar user apps to stat his home directory files
-with the corresponding derived types may be reasonable.  The
-$1_file_type attribute may help you there.
-
+Yes, that has bothered me as well; it is a curious property of m4 that
+it interprets quotes even within comments.  An option would be to use
+the m4 changequote builtin to change the start-quote and end-quote
+delimiters, but that would require rewriting all actual uses of the
+existing quote characters in the existing policy to use the new
+delimiters.  Obviously not my highest priority, but I'd be willing to
+consider patches that make such a change.
+  
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
