@@ -1,43 +1,50 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA06485
-	for <selinux@tycho.nsa.gov>; Fri, 13 Sep 2002 07:48:21 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA16424
-	for <selinux@tycho.nsa.gov>; Fri, 13 Sep 2002 11:46:36 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id LAA16420 for <selinux@tycho.nsa.gov>; Fri, 13 Sep 2002 11:46:35 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Rogelio M. Serrano Jr." <rogelio@evoworks.evoserve.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: lsm on ac kernel
-Date: Fri, 13 Sep 2002 13:46:09 +0200
-References: <Pine.LNX.4.44.0209130957530.512-100000@coffeesaur>
-In-Reply-To: <Pine.LNX.4.44.0209130957530.512-100000@coffeesaur>
-MIME-Version: 1.0
-Message-Id: <200209131346.09308.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA09077
+	for <selinux@tycho.nsa.gov>; Fri, 13 Sep 2002 11:56:44 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA22992
+	for <selinux@tycho.nsa.gov>; Fri, 13 Sep 2002 15:55:23 GMT
+Received: from unicorn.lemuria.org (b116024.adsl.hansenet.de [62.109.116.24])
+	by jazzswing.ncsc.mil  with ESMTP id PAA22988
+	for <selinux@tycho.nsa.gov>; Fri, 13 Sep 2002 15:55:22 GMT
+Date: Fri, 13 Sep 2002 17:56:21 +0200
+From: Tom <tom@lemuria.org>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: uml policy
+Message-ID: <20020913175620.C3149@lemuria.org>
+References: <20020912201240.B2594@lemuria.org> <200209130053.55563.russell@coker.com.au> <20020913073553.D2818@lemuria.org> <200209131101.18761.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200209131101.18761.russell@coker.com.au>; from russell@coker.com.au on Fri, Sep 13, 2002 at 11:01:18AM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 13 Sep 2002 03:58, Rogelio M. Serrano Jr. wrote:
-> Is there an selinux patch against the ac tree?
+On Fri, Sep 13, 2002 at 11:01:18AM +0200, Russell Coker wrote:
+> > Definitely append only, but the problem is that they are created on
+> > runtime, not like logfiles where you can assume that it exists when you
+> > execute.
+> 
+> You can allow create and append access but no write or unlink...
 
-AFAIK there has never been such a patch.
+Good, yeah. I guess I'll do that.
 
-Also the LSM part of the patch (the part that intercepts most system calls 
-etc) is very invasive and tends to conflict with most other kernel patches.
 
-I suggest that you ask on the LSM mailing list, maybe someone has made such a 
-patch for their own use that they will be willing to share.
+> > And they are always created in the uml dir. I'll look into the uml
+> > source what exactly is hardcoded there. I would definitely prefer them
+> > to be in their own subdir.
+> 
+> Is the fact that they are created in the UML directory interfering with the 
+> policy you desire?  Or is it just a general UML usability issue?
+
+Both, actually. If they had their own dir, I could define a type and
+autotransition for that dir.
+
 
 -- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
