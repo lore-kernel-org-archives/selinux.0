@@ -1,45 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA06030
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 13:40:20 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0PIeJI20516
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 18:40:19 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA06211
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 14:32:29 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA06414
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 19:29:36 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h0PIeHf20512 for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 18:40:17 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id E313692666
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jan 2003 05:40:15 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 93B3445A5
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 19:40:07 +0100 (CET)
+	by jazzswing.ncsc.mil  with ESMTP id TAA06410
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 19:29:35 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: UML and SE Linux
-Date: Sat, 25 Jan 2003 19:40:05 +0100
+To: j.logsdon@lancaster.ac.uk, selinux@tycho.nsa.gov
+Subject: Re: relabel ...
+Date: Sat, 25 Jan 2003 20:32:17 +0100
+References: <Pine.LNX.4.10.10301251812410.17667-100000@mercury.quantex>
+In-Reply-To: <Pine.LNX.4.10.10301251812410.17667-100000@mercury.quantex>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200301251940.05843.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200301252032.17559.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Last night I got the kernel code for UML and SE Linux going.  It turned out to 
-be only about a dozen lines of (somewhat ugly) code.  I'll post a patch soon.
+On Sat, 25 Jan 2003 19:17, j.logsdon@lancaster.ac.uk wrote:
+> At the end of compiling the NSA version, it says to 'make relabel' after
+> rebooting to reset the files created during shutdown/boot.  However I
+> can't find the Makefile that includes this target so from whereever I
+> 'make relabel' it understandably objects and I keep getting avc denials.
+>
+> What is the (hopefully) last stage to complete this process?
 
-Now I've got SKAS working (the Separate Kernel Address Space) with UML.  I've 
-adjusted my UML policy to allow UML instances to write to proc_t files for 
-/proc/mm (yes I know this isn't desirable - but this shouldn't be a big deal, 
-and it will go away in SKAS4 hopefully).
+In the selinux-small archive it's in the "policy" subdirectory.  If you search 
+for "policy/Makefile" then you should find it.
 
-I've got policy for tmpfs working which I will release soon after some 
-discussion on this list.
-
-So now this gives secure well-performing virtual SE Linux machines.  So to use 
-this I'm going to offer accounts on my SE play machine with UML access for 
-anyone who'd like to administer their own virtual SE machine.
-
-Let me know by private email if you are interested in this.
+If you are really stuck then send me a private mail and I'll send it to you as 
+a file attachment.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
