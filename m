@@ -1,107 +1,57 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7UKh3rT007916
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 16:43:03 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7UKgEAE021735
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 20:42:14 GMT
-Subject: Re: Progress! .532 boots! -- but dbus/hotplug/udev problems remain?
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Tom London <selinux@comcast.net>, russell@coker.com.au
-Cc: fedora-selinux-list@redhat.com, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <41323421.7050904@comcast.net>
-References: <4130CF1B.3090909@comcast.net>
-	 <200408291737.17497.russell@coker.com.au>  <41323421.7050904@comcast.net>
-Content-Type: text/plain
-Message-Id: <1093898533.3227.28.camel@moss-lions.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7UMChrT008380
+	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 18:12:43 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7UMCf10006154
+	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 22:12:42 GMT
+Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
+	by open.hands.com (Postfix) with ESMTP id B77FABF28
+	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 23:12:36 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1C1uZ9-000246-RV
+	for selinux@tycho.nsa.gov; Mon, 30 Aug 2004 23:23:55 +0100
+Date: Mon, 30 Aug 2004 23:23:55 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: banning copying of binaries (e.g. mozilla etc).
+Message-ID: <20040830222355.GI31497@lkcl.net>
 Mime-Version: 1.0
-Date: Mon, 30 Aug 2004 16:42:13 -0400
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks Russell and Tom.  Merged into sourceforge policy using
-r_dir_file() for selinux_config_t, file_context_t, and
-default_context_t.
+okay, got a weird issue where i am curious as to whether selinux could
+help.
 
-Showing only the part changed from Russell's patch:
+imagine that ipt_owner has been successfully hacked up (hacked as in
+the literal and true meaning of the word not the one the press associate
+with it) to support program names (or as a last resort inodes) as part
+of the checking / filtering rules.
 
---- domains/program/unused/udev.te	27 Aug 2004 13:14:05 -0000	1.17
-+++ domains/program/unused/udev.te	30 Aug 2004 19:36:44 -0000
-@@ -32,19 +31,19 @@
- allow udev_t device_t:blk_file create_file_perms;
- allow udev_t device_t:chr_file create_file_perms;
- allow udev_t device_t:sock_file create_file_perms;
--allow udev_t etc_t:file { getattr read execute };
-+allow udev_t device_t:lnk_file create_lnk_perms;
-+allow udev_t etc_t:file { getattr read };
- allow udev_t { bin_t sbin_t }:dir r_dir_perms;
- allow udev_t { sbin_t bin_t }:lnk_file read;
--can_exec(udev_t, { shell_exec_t bin_t sbin_t } )
-+allow udev_t bin_t:lnk_file read;
-+can_exec(udev_t, { shell_exec_t bin_t sbin_t etc_t } )
- can_exec(udev_t, udev_exec_t)
--can_exec(udev_t, hostname_exec_t)
--can_exec(udev_t, iptables_exec_t)
- r_dir_file(udev_t, sysfs_t)
- allow udev_t sysadm_tty_device_t:chr_file { read write };
- allow udev_t { device_t device_type }:{chr_file blk_file} { relabelfrom relabelto create_file_perms };
- 	
--# to read the file_contexts file?
--r_dir_file(udev_t, policy_config_t)
-+# to read the file_contexts file
-+r_dir_file(udev_t, { selinux_config_t file_context_t default_context_t } )
- 
- allow udev_t policy_config_t:dir { search };
- allow udev_t proc_t:file { read };
+i.e. like fireflier's rather buggy userspace support for allowing
+e.g. mozilla to do port 80 and port 445 but NOT any other program,
+only done properly and in the kernel.
 
-On Sun, 2004-08-29 at 15:53, Tom London wrote:
-> Russell,
-> 
-> The following changes to udev.te seem needed....
-> (If udev shouldn't be reading file_contexts, then dontaudit?)
-> 
-> Please correct/improve,
->    tom
-> 
-> --- /tmp/patches/udev.te        2004-08-29 11:35:48.000000000 -0700
-> +++ udev.te     2004-08-29 12:40:58.000000000 -0700
-> @@ -44,7 +44,9 @@
-> 
->  # to read the file_contexts file
->  allow udev_t { selinux_config_t default_context_t }:dir search;
-> -allow udev_t default_context_t:file { getattr read };
-> +allow udev_t { selinux_config_t default_context_t }:file { getattr read };
-> +allow udev_t file_context_t:dir { search };
-> +allow udev_t file_context_t:file { getattr read };
-> 
->  allow udev_t policy_config_t:dir { search };
->  allow udev_t proc_t:file { read };
-> 
-> 
-> Russell Coker wrote:
-> 
-> >On Sun, 29 Aug 2004 04:29, Tom London <selinux@comcast.net> wrote:
-> >  
-> >
-> >>Newest Rawhide updates (including udev-030-10, mkinitrd-4.1.8-1,
-> >>kernel-2.6.8-1.532, and selinux-policy-strict-1.17.5-2)
-> >>now boots in strict/enforcing.
-> >>    
-> >>
-> >
-> >I've attached a diff against the CVS policy as well as the .te and .fc files 
-> >for udev changes which fix this and address some other issues as well.
-> >
-> >Please try it out and let me know how it goes.
-> >
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+now imagine that someone bypasses these rules by simply copying the
+binary.
+
+in this way, they would be able to at the very least bypass "DENY"
+rules.
+
+my question is, therefore, is there an easy way to ban users from
+copying binaries, whilst still allowing users to run them?
+
+l.
+
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
