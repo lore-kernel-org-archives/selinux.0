@@ -1,83 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBNDx0Ii003573
-	for <selinux@tycho.nsa.gov>; Thu, 23 Dec 2004 08:59:00 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBNDvCiX002410
-	for <selinux@tycho.nsa.gov>; Thu, 23 Dec 2004 13:57:13 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: cpuspeed and powernow
-Date: Fri, 24 Dec 2004 00:58:53 +1100
-Cc: Thomas Bleher <ThomasBleher@gmx.de>
+Message-ID: <41CAE132.3020504@theptrgroup.com>
+Date: Thu, 23 Dec 2004 10:16:02 -0500
+From: Mike Anderson <mike@theptrgroup.com>
+Reply-To: mike@theptrgroup.com
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_g8syBVhG22X54Et"
-Message-Id: <200412240058.56587.russell@coker.com.au>
+To: SElinux <SELinux@tycho.nsa.gov>
+Subject: Starting applications from initrc in a user's context?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_g8syBVhG22X54Et
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Greetings Gurus of Space, Time and SELinux:
 
-I don't believe that we need separate policies for cpuspeed and powernow.  
-They both perform the same function but for different CPUs so there is no 
-possibility of them both running at the same time (AFAIK) and therefore no 
-benefit in having separate domains.
+  Let me preface by saying that I'm a newbie to SELinux.  <disclaimer done>
 
-I have attached a patch that adds the appropriate functionality to cpuspeed.te 
-and cpuspeed.fc.  James please add this patch and remove powernowd.te and 
-powernowd.fc.
+  I'm trying to run a series of applications from the init scripts that 
+I want to run in separate user contexts. Four separate init scripts all 
+run from a master script that runs the user code only if tripwire says 
+that the file system is kosher.  The actual launching of the four 
+separate scripts is working well.  However, I'm trying to use the runcon 
+command to run the applications in the separate user contexts and  I'm 
+getting a transition error from the initrc domain to the user domain.  
+I've added the
+
+allow initrc_t user1_t:process { transition };
+
+to the user domain .te file as recommended by audit2allow, but this does 
+not seem to squelch this error.   As an additional gotcha, the 
+applications are actually Java code and are run with the "java 
+classname" invokation.
+
+What am I missing?  Or, is there a better way of running the four 
+applications in their respective user domains from the init scripts?
+
+Regards,
+
+Mike
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_g8syBVhG22X54Et
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="cpuspeed.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="cpuspeed.diff"
+---------------------------------------------------------------
+Mike Anderson                    703.585.9384
+CTO/Chief Scientist              mike@ThePTRGroup.com
+www.ThePTRGroup.com              Embedded, Real-Time Solutions
+---------------------------------------------------------------
+"Software development is like making a baby. 
+ You can't make a baby in one month by impregnating nine women.
+ Some things just take time."
+             
+      -Paraphrased from The Mythical Man Month
 
---- /usr/src/se/policy/domains/program/unused/cpuspeed.te	2004-11-13 03:56:01.000000000 +1100
-+++ domains/program/unused/cpuspeed.te	2004-12-23 19:57:33.000000000 +1100
-@@ -1,12 +1,17 @@
--#DESC cpuspeed - domain for microcode_ctl and other programs to speed CPU
-+#DESC cpuspeed - domain for microcode_ctl, powernowd, etc
- #
--# Author:  Russell Coker <russell@coker.com.au>
-+# Authors:  Russell Coker <russell@coker.com.au>
-+#           Thomas Bleher <ThomasBleher@gmx.de>
- #
- 
- daemon_base_domain(cpuspeed)
-+read_locale(cpuspeed_t)
-+
- allow cpuspeed_t sysfs_t:dir search;
- allow cpuspeed_t sysfs_t:file rw_file_perms;
- allow cpuspeed_t proc_t:dir r_dir_perms;
- allow cpuspeed_t proc_t:file { getattr read };
--allow cpuspeed_t etc_runtime_t:file { getattr read };
--allow cpuspeed_t etc_t:file { getattr read };
-+allow cpuspeed_t { etc_t etc_runtime_t }:file { getattr read };
-+
-+allow cpuspeed_t self:process setsched;
-+allow cpuspeed_t self:unix_dgram_socket create_socket_perms;
---- /usr/src/se/policy/file_contexts/program/cpuspeed.fc	2004-03-18 05:26:06.000000000 +1100
-+++ file_contexts/program/cpuspeed.fc	2004-12-23 19:57:06.000000000 +1100
-@@ -1,2 +1,3 @@
- # cpuspeed
- /usr/sbin/cpuspeed	--	system_u:object_r:cpuspeed_exec_t
-+/usr/sbin/powernowd	--	system_u:object_r:cpuspeed_exec_t
-
---Boundary-00=_g8syBVhG22X54Et--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
