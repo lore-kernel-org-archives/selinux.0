@@ -1,45 +1,27 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0LJH7FX014588
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 14:17:08 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0LJmRFX014940
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 14:48:27 -0500 (EST)
 Subject: Re: run_init and interactive scripts
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Manoj Srivastava <manoj.srivastava@stdc.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <87fz0ufwz0.fsf@glaurung.internal.golden-gryphon.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+   Russell Coker <russell@coker.com.au>
+In-Reply-To: <1106333491.28551.159.camel@moss-spartans.epoch.ncsc.mil>
 References: <87acr4u57h.fsf@glaurung.internal.golden-gryphon.com>
 	 <1106246926.26753.196.camel@moss-spartans.epoch.ncsc.mil>
 	 <87fz0ufwz0.fsf@glaurung.internal.golden-gryphon.com>
+	 <1106333491.28551.159.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Message-Id: <1106333491.28551.159.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1106336411.28551.171.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 21 Jan 2005 13:51:31 -0500
+Date: Fri, 21 Jan 2005 14:40:11 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-01-21 at 13:39, Manoj Srivastava wrote:
->         This is because I was putting the users terminal into raw
->  mode, and that also turns off output processing.  So, in the
->  following patch I introduce a function called tty_semi_raw, which is
->  just like raw mode, except we retain output processing. This is still
->  fine for things like aptitude and dselect, and makes the non-curses
->  applicationss look OK (like so)
-> ======================================================================
-> Shutting down mimedefang: [  OK  ]
-> Shutting down mimedefang-multiplexor: [  OK  ]
->  ....
-> ======================================================================
-> 
->         This is an incremental patch in addition to the one I sent 12
->  hours or so ago, which had the fflush stderr fixes. Please apply.
+BTW, this also requires removing the ifdef(`distro_debian') conditional
+in initrc.fc for open_init_pty to ensure proper labeling by
+setfiles/restorecon/rpm.
 
-Hmmm...I now get erratic behavior, sometimes only getting the first line
-of output (Stopping sshd: [ OK ]), sometimes getting the first line and
-the prefix of the second line, but still not the complete output.  And
-this behavior occurs under permissive mode as well, so it isn't related
-to any permissions.  Reverting this latest patch, I at least get
-consistent output, only losing the final OK status.
-> 
-> ______________________________________________________________________
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
