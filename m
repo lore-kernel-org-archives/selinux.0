@@ -1,49 +1,45 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8OIS2rT019705
-	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 14:28:02 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8OIRxrq003348
-	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 18:28:00 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: Remove unrestricted_admin
-Date: Sat, 25 Sep 2004 04:27:49 +1000
-Cc: Daniel J Walsh <dwalsh@redhat.com>, jwcart2@epoch.ncsc.mil,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-References: <200409211526.37810.russell@coker.com.au> <200409250105.40796.russell@coker.com.au> <1096048244.9895.4.camel@selinux>
-In-Reply-To: <1096048244.9895.4.camel@selinux>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8OIoBrT019837
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 14:50:11 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8OInAxO007002
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 18:49:10 GMT
+Message-ID: <41546C54.20403@gentoo.org>
+Date: Fri, 24 Sep 2004 14:49:56 -0400
+From: Joshua Brindle <method@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409250427.49189.russell@coker.com.au>
+To: russell@coker.com.au
+CC: Daniel J Walsh <dwalsh@redhat.com>, jwcart2@epoch.ncsc.mil,
+   SE Linux <selinux@tycho.nsa.gov>,
+   "'Christopher J. PeBenito'" <cpebenito@tresys.com>
+Subject: Re: Remove unrestricted_admin
+References: <200409211526.37810.russell@coker.com.au> <1095884528.11254.6.camel@moss-lions.epoch.ncsc.mil> <4152D07C.9060507@redhat.com> <200409250105.40796.russell@coker.com.au>
+In-Reply-To: <200409250105.40796.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 25 Sep 2004 03:50, "Christopher J. PeBenito" <cpebenito@tresys.com> 
-wrote:
-> On Sat, 2004-09-25 at 01:05 +1000, Russell Coker wrote:
-> > -allow sysadm_t fixed_disk_device_t:devfile_class_set rw_file_perms;
-> >
-> > I think that perhaps we should add that line back.
-> >
-> > Of the times that I temporarily enable permissive mode to execute a
-> > command, in 99% of them it's because of access to a fixed disk.
->
-> Why would you need to directly access the disk as sysadm_t?  All the
-> applicable tools should be transitioning to fsadm_t.
+Russell Coker wrote:
 
-dd if=/dev/hda of=/dev/hdb
+> On Thu, 23 Sep 2004 23:32, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> 
+>>Remove unrestricted_admin tunable.  This was a bad idea :^(
+> 
+> 
+> -allow sysadm_t fixed_disk_device_t:devfile_class_set rw_file_perms;
+> 
+> I think that perhaps we should add that line back.
+> 
+> Of the times that I temporarily enable permissive mode to execute a command, 
+> in 99% of them it's because of access to a fixed disk.
+> 
 
-file -s /dev/hda
+*ahem* non-bypassability anyone?
 
-Using an LVM snapshot to backup a disk onto a DVD.
+The strict policy is suppose to be getting stricter, this corner case 
+shouldn't be considered at all.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Joshua Brindle
 
 --
 This message was distributed to subscribers of the selinux mailing list.
