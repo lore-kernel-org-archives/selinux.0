@@ -1,67 +1,95 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1FHx9Rb006755
-	for <selinux@tycho.nsa.gov>; Sun, 15 Feb 2004 12:59:09 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1FHx8c3026953
-	for <selinux@tycho.nsa.gov>; Sun, 15 Feb 2004 17:59:08 GMT
-Received: from smtp106.mail.sc5.yahoo.com (smtp106.mail.sc5.yahoo.com [66.163.169.226])
-        by jazzband.ncsc.mil  with SMTP id i1FHx7R0026950 for <selinux@tycho.nsa.gov>; Sun, 15 Feb 2004 17:59:07 GMT
-Date: Sun, 15 Feb 2004 11:58:32 -0600
-Mime-Version: 1.0 (Apple Message framework v553)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: Policy configuration question
-From: Ignacio Tripodi <ignaciot@unt.edu>
-To: selinux@tycho.nsa.gov
-Message-Id: <916FF28D-5FE0-11D8-8943-000393013D1A@unt.edu>
+Date: Sun, 15 Feb 2004 20:27:27 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Of applications and separating configuration systems
+Message-ID: <20040215202727.GG1083@gallifrey>
+References: <20040214000922.GA1083@gallifrey> <200402141521.49027.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200402141521.49027.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+* Russell Coker (russell@coker.com.au) wrote:
 
-I'm trying to tune up the policy because I'm getting many "avc: denied" 
-log entries for almost every single command I try to run. The source 
-context seems to be the same (system_u:system_r:local_login_t), 
-regardless of what I'm trying to access. For example, if I want to do:
+  (In reply to my comments about separating config/preference editing
+  out of apps)
 
-[ignaciot@UMLselinux]# cat VERSION
+> I agree.  However there is the issue of maintaining correct labeling.
+> 
+> We don't necessarily want a regular shell session for the user to be able to 
+> edit some of the config files, but they have to be able to get access to them 
+> when necessary.  Also we don't want to accidentally lose the correct types on 
+> such files either through system relabeling or through user error.
 
-I get:
+True - that could be a pain to maintain.
 
-avc:  denied  { read } for  pid=494 exe=/bin/cat name=VERSION dev=62:00 
-ino=97738 scontext=system_u:system_r:local_login_t 
-tcontext=system_u:object_r:policy_src_t tclass=file
+> For POP and SSL I think that we want to have a proxy that runs in a different 
+> domain so it can access the config files, the proxy will start the connection 
+> to the server.  In the case of POP a file handle could be passed back to the 
+> calling application, in the case of SSL all data would have to be proxied.
 
-Shouldn't the source context be the one from the user who's running the 
-program? If I check the current users in the policy using the setools, 
-my entry shows like:
+The problem with proxy's is ensuring that only the right clients access
+them - how can that be checked?
 
-[ignaciot@UMLselinux]# seuser show users
-system_u: system_r
-user_u: user_r
-root: staff_r sysadm_r system_r
-ignaciot: staff_r sysadm_r
+> 
+> > It strikes me that normal users of a system might want to have multiple
+> > contexts to them within a windowing system; for example with seperate
+> > permissions for normal stuff, a web browser, the web browser they use
+> > for confidential stuff, and building things they downloaded.
+> 
+> There are some difficulties with this.  Mozilla 1.6 seems to want to access 
+> files all over the user's home directory.  Lots of gconf sub-dirs etc.  
+> Getting the labelling on all those sub-directories and files correct is 
+> difficult, and any mistakes will result in Mozilla aborting without 
+> displaying an error!
 
-However, if I run getcon I get:
+Sigh yes - although there is no excuse for applications not displaying
+decent errors.
 
-[ignaciot@UMLselinux]# getcon
-system_u:system_r:local_login_t
-(or system_u:system_r:sshd_t if I'm accessing via ssh)
+> Work is being done on Security Enhanced X.  This will make it possible to give 
+> different X clients different levels of access to the display (a 
+> pre-requisite for any serious control of graphical programs).  I'm not sure 
+> whether SE-X will support distinguishing between multiple copies of an 
+> application that have different contexts.  Even when those problems are 
+> solved we are still left with the situation that Mozilla checks for other 
+> copies of itself and aborts if it finds any.
 
-Any clues of what I'm doing wrong?
-Thanks!
+Thats quite interesting; because I do worry about apps stealing selected
+text or producing fake dialogs.  Another example (easier to deal with
+using less exotic tools) is stopping accidental pasting of confidential
+info into some windows (e.g. many people worry about accidentally
+pasting things into irc or chat windows).
 
-Ignacio
-CoPS Lab
-University of North Texas
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (Darwin)
+> The problem for KDE is that programs are not exec'd, they are mmap'd into a 
+> running process, so domain_auto_trans() does not work for Konqueror!
 
-iD8DBQFAL7NPwGqh0xtlFYsRAowoAKCUxFMuy9I+jTZURJQOO+tAI086UwCeKa9y
-+O+Nwh2UlaySNeh9xdCpz/0=
-=nb/u
------END PGP SIGNATURE-----
+Sigh - that really isn't going to make it easy to control; a pity really
+because bits of KDE are quite nice - but if it can't be made secure then
+its future will be limited.
 
+> > Is it easy to set such a system up?  What about allowing normal users
+> > to see the policy violations that are causing their individual programs
+> > are making?
+> 
+> This is not really possible at the moment.  Allowing all users to see all 
+> messages is easy but usually not desirable.  Writing a program to sort 
+> through the syslogd output and make some of the messages involving a user's 
+> account available to them would be possible, but no-one has worked on it 
+> AFAIK.
+
+Hmm doesn't sound that hard to do.
+
+Well I've created a new issue in the OpenOffice database
+(http://qa.openoffice.org/issues/show_bug.cgi?id=25503)
+suggesting splitting the config/options out into a separate binary.
+
+Dave
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
