@@ -1,58 +1,62 @@
+Date: Wed, 3 Dec 2003 11:56:39 -0500
+From: "Serge E. Hallyn" <hallyn@cs.wm.edu>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
 Subject: Re: policy under version control
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: SELinux List <SELinux@tycho.nsa.gov>, tom@lemuria.org
-Content-Type: text/plain
-Message-Id: <1070465788.3774.29.camel@colossus.columbia.tresys.com>
+Message-ID: <20031203165639.GA2150@escher.cs.wm.edu>
+References: <1070465788.3774.29.camel@colossus.columbia.tresys.com>
 Mime-Version: 1.0
-Date: Wed, 03 Dec 2003 10:36:28 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1070465788.3774.29.camel@colossus.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-12-01 at 14:28, Tom wrote:
-> On Mon, Dec 01, 2003 at 10:13:35AM -0500, Stephen Smalley wrote:
-> > There is already a sourceforge CVS tree, and patches can be posted to
-> > the selinux list.
-> 
-> The problem I see with read-only CVS and a post-to-mailinglist approach 
-> is that it's non-trivial to maintain various sets of the same policy.
-> 
-> It seems that in the long run we won't be able to do with a single
-> default policy. We'll need a couple, or a modular approach. Something
-> very much like Debian's tasksel or other tools for other distributions
-> where you have 5-10 fields you can check what your machine is going to
-> be, and the relevant policy is then assembled automatically.
-> 
-> 
+> We are also working on binary policy modules, which more directly
+> address what you are wanting I think. This will allow you to create
+> small binary policy modules separately from a base policy. This is
 
-We are working on some general mechanisms to address this problem. The
-first is the ability to define booleans in policies that can be changed
-at runtime. This will allow you to turn on and off TE rules based on the
-values of the booleans. We posted some messages about this in the past
-and we are going to release a working snapshot of this in the next few
-days.
+For DTE, I "compile" a set of modules into policy.  Each module (ie ssh)
+can define related types and domains (ie ssh_t, ssh_et, ssh_socket_t, ssh_d).
+In order to facilitate concise (and precise) inter-module access rules, types
+and domains can each be specified by:
 
-We are also working on binary policy modules, which more directly
-address what you are wanting I think. This will allow you to create
-small binary policy modules separately from a base policy. This is
-primarily for the purpose of adding or removing policy components for
-specific applications. The advantages of this system are that the
-requirement for the policy source and checkpolicy is removed, there will
-be language extensions to make the policy modules more loosely coupled
-to the core policy (i.e. 1 module will potentially work with a variety
-of base policies), and there will be provisions to handle labeling on
-installation or removal of the policy modules. Hopefully we will be able
-to post some more information about this in the near future (we are in
-the design phase of this project).
+   their explicit name (ie sbin_t and bin_t)
+   hierarchy (so you can call bin_t and sbin_t binaries.bin_t and
+      binaries.sbin_t, then talk about access to binaries.*, but still
+      talk about just bin_t)
+   group (there can be groups of types, and groups of domains)
+   "all"
 
-Karl
+Priority of listed access rules goes up with precision, so
+Domain my_domain
+   access all none
+   access binaries.* rx
+   access bin_t rwx
+End
 
--- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-http://www.tresys.com
-(410) 290-1411 x134
+gives the intuitive result.  Also, "incoming" access rules take
+priority over "outgoing" access rules, so if we have a wu_ftpd domain
+giving itself write access to root_t, but root_t itself denied that
+access, then wu_ftpd will not have that access.  (again to give the
+intuitive result, not in any misguided attempt to "protect" from a
+module)
 
+Modules are, then, intended to be pretty much standalone, so you do
+just apply a module to a base policy.  Some additional hooks check
+for maintenance of desired constraints (anything you care to implement,
+but currently there's only a modified version of BLP) accross module
+application.
+
+I can see the value (for selinux) in sending out binary policy modules,
+but it seems that easily modifiable source modules should be more
+useful.  I've been meaning for quite some time to implement this kind
+of thing to work with selinux, but I just keep getting sidetracked...
+
+I also keep debating whether it would be simple enough to implement
+with the current selinux policy system.  It seems flexible enough that
+it should be.
+
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
