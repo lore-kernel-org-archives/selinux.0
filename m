@@ -1,112 +1,77 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4TKxdrT015654
-	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 16:59:39 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4TKv9Tg029068
-	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 20:57:09 GMT
-Received: from smtp802.mail.ukl.yahoo.com (smtp802.mail.ukl.yahoo.com [217.12.12.139])
-	by jazzswing.ncsc.mil  with SMTP id i4TKv8PE029065
-	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 20:57:08 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4TL9arT015704
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 17:09:36 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4TL9Zo9001812
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 21:09:35 GMT
+Received: from smtp804.mail.ukl.yahoo.com (smtp804.mail.ukl.yahoo.com [217.12.12.141])
+        by jazzband.ncsc.mil  with SMTP id i4TL9YIn001809 for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 21:09:34 GMT
 Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 29 May 2004 20:59:37 -0000
-Received: from highfield ([192.168.0.223]:32770 helo=lkcl.net)
+  by smtp804.mail.ukl.yahoo.com with SMTP; 29 May 2004 21:09:28 -0000
+Received: from highfield ([192.168.0.223]:32778 helo=lkcl.net)
 	by lkcl.net with esmtp (Exim 4.34 #1)
-	id 1BUAHG-0000km-5h
-	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 20:17:58 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BUAsw-0000kl-M9
-	for selinux@tycho.nsa.gov; Sat, 29 May 2004 20:56:54 +0000
-Date: Sat, 29 May 2004 20:56:54 +0000
+	id 1BUAQp-0000ku-3U
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 20:27:51 +0000
+Date: Sat, 29 May 2004 15:26:49 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Debian / SE/Linux packages: "Pre-Depends".
-Message-ID: <20040529205654.GA2851@lkcl.net>
+To: Chris Babcock <cbabcock@luthresearch.com>
+Cc: mayerf@tresys.com, "'SELinux List'" <selinux@tycho.nsa.gov>
+Subject: Re: FW: XP as a base for NetTop
+Message-ID: <20040529152649.GA2569@lkcl.net>
+References: <004901c44366$a0f3bd70$9a0c010a@columbia.tresys.com> <1985.68.6.187.64.1085615340.squirrel@mxlx1.surveysavvy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1985.68.6.187.64.1085615340.squirrel@mxlx1.surveysavvy.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-russell, hi,
+On Wed, May 26, 2004 at 04:49:00PM -0700, Chris Babcock wrote:
+> > Stephen Smalley wrote:
+> >> Looks like Microsoft is indeed pushing an XP-based NetTop
+> >> called Trusted Multi-Net/Typhon XP, e.g.:
+> >>
+> >> http://www.computerweekly.com/Article123730.htm
+> >>
+> > http://download.microsoft.com/download/4/f/8/4f89f896-f020-46d1-adc0-08a18c8432d
+> > 5/Trusted%20Multi-Net%20for%20SSE%202003.ppt
+> >
+> 
+> Interesting.
+> 
+> The slides indicate that in their system threads are able to change what
+> context they run in.
+> 
+> It makes me wonder if they have some magic to prevent threads from
+> poluting shared data (unlikely), or if it is just a hack to avoid process
+> vs. thread design issues on windows.
 
-regarding .deb packaging, i note that there are 1.12 versions of
-packages now (hooray).
+NT's security model uses DCE/RPC applications to compartmentalise
+pretty much everything.
 
-i asked someone who groks debian and makes a living out of it -
-phil hands - about the note on
-http://selinux.lemuria.org/install-2.6.html saying "you must install
-libselinux1 first otherwise your system will break: mine did".
+the creation of new processes therefore takes a stunningly long time
+(relatively speaking) due to having to go in and out of another
+application in order to vet the user's access rights.
 
-he instantly said "oh yes, that sounds like you need a Pre-Depends
-on libselinux1 for all packages that use it".
+the advantage is that process creation can in theory be vetted
+and controlled by a remote and centralised NT "primary domain
+controller", with the obvious implications:
 
-libc6 has the dubious distinction of being one such package.
+1) you always have to have a connection to \\yourpdc\PIPE\NETLOGON
 
-phil also said that judicious use of Pre-Depends is an absolute
-must, because if you get _that_ wrong you can end up with
-unrecoverable circular dependencies.
+2) process creation could be severely delayed if that connection is
+   disrupted.
 
-at least with "Depends" it's not so hard-and-fast, and thoroughly
-wooly, or, more specifically, the use of "Depends" says that the
-*installation process* of a package is NOT dependent on the
-day-to-day running OF the package.
+consequently, to avoid any significant delays, threading is highly
+recommended in NT "services".
 
-whereas "Pre-Depends" says that both the usage AND installation
-process require the Pre-Dependencies to be fully installed and
-set up before the installation can continue.
+i presume that it is possible to cache security contexts and then
+make a rapid switch to them?
 
+makes me wonder why they didn't do the same sort of thing for processes.
 
-i believe that libselinux1 falls into this category, namely that
-if libselinux1 is not installed, you _can_ expect things to break.
-
-so, somewhere in coreutils-N.NN-seN, and all the other packages
-that have libselinux1 as a dependency, i believe this should
-be changed to "Pre-Depends".
-
-also, i believe that selinux-policy-default requires a Pre-Depends
-on policycoreutils, because if dpkg happens to get policycoreutils
-pre-inst'd after selinux-policy-default, selinux-policy-default
-will _happen_ to find that /usr/sbin/setfiles might not exist.
-
-i think the same holds for checkpolicy, because selinux-policy-default
-as part of its preinst process runs a make xxxx in /etc/selinux,
-which uses checkpolicy.
-
-if checkpolicy is set up _after_ selinux-policy-default, you have
-a problem (/usr/sbin/checkpolicy doesn't exist).
-
-
-
-also, i've installed policycoreutils 1.12-2 and it still overwrites
-a version of genhomedircon which doesn't work.
-
-the "patched" version of genhomedircon which is "special" to debian
-takes a filename as input and does an OVERWRITE of that first argument.
-see debian/genhomedircon and debian/rules which specifically 
-overwrites the scripts/genhomedircon version.
-
-
-the scripts/genhomedircon version however, takes a filename as
-input and OUTPUTS onto stdout the file_contexts output.
-
-if you use the broken debian version of genhomedircon, as mentioned
-before (last week), you get NOTHING in file_contexts, and consequently
-setfiles does zip.
-
-
-fun and games.
+oh well.
 
 l.
-
--- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
