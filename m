@@ -1,39 +1,43 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA14099
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 10:04:19 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA14270
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 10:18:51 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA29667
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 14:04:08 GMT
+	by jazzswing.ncsc.mil  with ESMTP id OAA00739
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 14:18:40 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id OAA29663
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 14:04:07 GMT
+	by jazzswing.ncsc.mil  with ESMTP id OAA00735
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 14:18:38 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: <blacknet@simplyaquatics.com>
-Subject: Re: Your debain install
-Date: Tue, 4 Jun 2002 16:04:07 +0200
-References: <000801c20bcd$aeb56580$0a01a8c0@ed>
-In-Reply-To: <000801c20bcd$aeb56580$0a01a8c0@ed>
+To: Stephen Smalley <sds@tislabs.com>
+Subject: Re: auditdeny is painful
+Date: Tue, 4 Jun 2002 16:18:38 +0200
 Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0206040908440.3949-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0206040908440.3949-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020604140408.1A15673EF@lyta.coker.com.au>
+Message-Id: <20020604141838.4C49073ED@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 4 Jun 2002 15:42, you wrote:
-> I mostly run custom kernels under debian.  Been playing with the d/l
-> kernel from the nsa's site.  Everything seems to be going find but not
-> sure if setfiles "conflicing specifications for /dev/scX and /dev/srX,
-> using system_u:object_r:removable_device_t." is normal or not.  Seems
-> like there was something on the mailing list recently about this.
+On Tue, 4 Jun 2002 15:28, Stephen Smalley wrote:
+> you don't want audited, as with other rules.  When multiple auditdeny
+> rules are specified for a single (type, type, class) triple, the union of
+> the permission sets is used, as with other rules.
 
-I think that's a bug in the policy from the NSA.  scX and srX are documented 
-as hard links in the devices.txt for 2.4.18.  So they should both have the 
-same settings in types.fc.
+The problem is that it is the union of the audit rules, but when people are 
+writing such rules they tend to do them as "don't audit" rules so we get the 
+intersection instead.
 
-I'm now using the regex "/dev/s(cd|r)[^/]*" in my tree.
+> I suppose that we could introduce a dontaudit rule that automatically
+> generates auditdeny access vectors with the complement of the specified
+> set of permissions, and that uses the intersection of the permission sets
+> when multiple rules are specified for a single (type, type, class) triple.
+> This would likely be more suited to what a human would expect.
+
+Sounds good to me!
 
 -- 
 I do not get viruses because I do not use MS software.
