@@ -1,56 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0IE9QIi019860
-	for <selinux@tycho.nsa.gov>; Tue, 18 Jan 2005 09:09:26 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0IE7S9K021440
-	for <selinux@tycho.nsa.gov>; Tue, 18 Jan 2005 14:07:28 GMT
-Subject: Re: Role transition error
+Subject: Re: How SELinux label packet by default?
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Steve Brueckner <steve@atc-nycorp.com>
-Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-In-Reply-To: <60D45469A1AAD311A04C009027B6BF6804FCF003@server20.inside.oracorp.com>
-References: 
-	 <60D45469A1AAD311A04C009027B6BF6804FCF003@server20.inside.oracorp.com>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20050118061124.94277.qmail@web51506.mail.yahoo.com>
+References: <20050118061124.94277.qmail@web51506.mail.yahoo.com>
 Content-Type: text/plain
-Message-Id: <1106056997.18274.86.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1106061955.18274.185.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 18 Jan 2005 09:03:17 -0500
+Date: Tue, 18 Jan 2005 10:25:55 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-01-17 at 18:01, Steve Brueckner wrote:
-> Added the following to .../strict/src/policy/users
-> user engineer roles { user_r developer_r };
-> 
-> Added the following to .../strict/src/policy/domains/user.te
-> full_user_role(developer)
-> allow system_r developer_r
-> allow sysadm_r developer_r
-> allow user_r developer_r
-> allow staff_r developer_r
+On Tue, 2005-01-18 at 01:11, Park Lee wrote:
+> Hi,
+>   In initial_sid_contexts, there seems no default
+> packet SID. Then, 
+>   (here, let's don't take IPsec protection into
+> account)
+>   1) When a packet is sending or receiving, Does
+> SELinux label the packet and then control the
+> sending/receiving packet according to the label? or
+> just ignore it?
+>   2) When an unlabeled packet is received from a node,
+> What default packet SID will SELinux set to the packet
+> ? 
+>   Is it still be as "When a message is sent on a
+> socket, it inherits the SID of the sending socket by
+> default. When the network component receives a message
+> from the network, the SID of the message is initially
+> set to a default message SID associated with the
+> receiving network interface." as is described in
+> subsection 8.1.1 of "Integrating Flexible Support for
+> Security Policies into the Linux Operating System"
 
-No semicolon terminators?  Also, this is typically handled using the
-role_tty_type_change() macro, which also includes type_change rules you
-need to define proper type changes for the tty upon a newrole or su
-between the roles.
-
-> Added the following into in_user_role macro in
-> .../strict/src/policy/macros/user_macros.te
-> role developer_r types $1;
-
-Hmmm...normally, the role authorization for the base user domain is
-defined by the base_user_domain() macro in base_user_macros.te.  The
-in_user_role() macro in user_macros.te is used to allow access for
-various program domains.  If you just want to allow developer_r to enter
-user_t, then just add an explicit role developer_r types user_t; to
-domains/user.te.  Only put it in a macro if you want it applied to
-everything that uses that macro.  
-
-However, I'm not sure about your goal here; if you truly want to
-separate developer_r from user_r, you need a separate user domain for
-it, i.e. developer_t, which is indeed defined if you used
-full_user_role().  Why aren't you using developer_t as the default type
-for the role?
+As I've explained previously, the security fields and hooks needed to
+label and control sk_buff's (i.e. messages) were not accepted into
+mainline Linux 2.6, so that code was dropped out of SELinux.  SELinux
+network access control checks were redesigned by James Morris in 2.6.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
