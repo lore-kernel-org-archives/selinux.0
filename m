@@ -1,187 +1,164 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA27146
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2003 03:44:40 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h098idI13405
-	for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2003 08:44:39 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA28495
+	for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2003 09:02:36 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA08366
+	for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2003 13:59:54 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h098ibf13401 for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2003 08:44:38 GMT
+	by jazzswing.ncsc.mil  with ESMTP id NAA08362
+	for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2003 13:59:51 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id D8F9F92732
-	for <selinux@tycho.nsa.gov>; Thu,  9 Jan 2003 19:44:24 +1100 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id D241192732
+	for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2003 01:02:14 +1100 (EST)
 Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id F2A6A151
-	for <selinux@tycho.nsa.gov>; Thu,  9 Jan 2003 09:44:13 +0100 (CET)
+	by lyta.coker.com.au (Postfix) with ESMTP id 3939971FB
+	for <selinux@tycho.nsa.gov>; Thu,  9 Jan 2003 15:02:07 +0100 (CET)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-Subject: Fwd: Verano gets real-time with SELinux
-Date: Thu, 9 Jan 2003 09:44:11 +0100
+Subject: SE Linux talk at Next GLLUG Meeting Saturday 18th January 2003
+Date: Thu, 9 Jan 2003 15:02:06 +0100
 To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200301090944.11815.russell@coker.com.au>
+Message-Id: <200301091502.06438.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-NB I'm just a regular subscriber to Network World.  I don't know anything 
-about what Verano is doing other than this very brief article.  If anyone 
-knows more then a detailed posting would be welcome...
+---------- Forwarded message ----------
+Date: Thu, 9 Jan 2003 12:47:16 +0000
+From: GLLUG Organiser <gllugadmin@linux.co.uk>
+Reply-To: gllug@linux.co.uk
+To: gllug-announce@linux.co.uk
+Cc: gllug@linux.co.uk
+Subject: [Gllug-announce] Next GLLUG Meeting Saturday 18th January 2003
 
-----------  Forwarded Message  ----------
+[apologies for the delay in sending this out. I will resend this message,
+with any additions, next week]
 
-Subject: Verano gets real-time with SELinux
-Date: Thu, 9 Jan 2003 00:30
-From: NW on Linux <Linux@bdcimail.com>
-To: russell@coker.com.au
+Meeting: 18th January 2003
 
-NETWORK WORLD NEWSLETTER: PHIL HOCHMUTH on
-LINUX
-01/08/03
-Today's focus: Verano gets real-time with SELinux
+  The Greater London Linux User Group is set to have another meeting.
 
-Dear Russell Coker,
+  That's right, there is a GLLUG meeting on Saturday 18th January 2003,
+  between 12noon and 5pm.
 
-In this issue:
+  We will be meeting in the New Cavendish Street campus of Westminster
+  University. This is in the shadow of the BT Tower, the nearest tube
+  stations are Great Portland Street, Warren Street and Goodge Street. You
+  will find a map at [ http://www.wmin.ac.uk/static/maps.asp ] or via
+  html version of this message at the GLLUG web site.
 
-* Verano turns to extra-secure version of Linux
-* Links related to Linux
-* Featured reader resource
+  NOTE: you will need to sign in at the front desk to gain access to
+  the building. There are building works at the moment but we'll post
+  signs if the entrance has moved.
 
-_______________________________________________________________
-NETWORK WORLD SPECIAL REPORTS
+Talks
 
-Exclusive to Network World Fusion - our Special Reports cover
-key network technology topics including Security, Business
-Continuity, Network/Systems Management, Storage and more. Each
-Network World Fusion Special Report is available to you free of
-charge - registration is required. Click here:
-http://nww1.com/go/1216nwwspec.html
-_______________________________________________________________
-FREE Technical White Paper: "Higher Availability. Lower TCO."
+  We have two main talks planned for the December meeting. These will
+  be in the large lecture theatre on the second floor:-
 
-As companies focus on Total Cost of Ownership (TCO),
-availability becomes even more critical. This white paper
-discusses the human and technical factors involved in increased
-availability and provides an overview of related Sun products,
-services, and solutions. Click here for your free copy:
-http://nww1.com/go/ad369.html
+ 12:00 - 12:30
 
-_______________________________________________________________
-Today's focus: Verano gets real-time with SELinux
+  Welcome and Introduction.
+  also opportunity to try and debug overhead projectors :-)
 
-By Phil Hochmuth
+ 12:30 - 14:00
 
-If you're looking for a secure computing platform to run
-mission-critical applications, there are dozens of vendors
-eager for your business that offer a variety of products. Or
-you could just turn to the National Security Agency, which is
-what Verano did.
+  Russell Coker - Security Enhanced Linux
 
-Verano recently announced it is using SELinux, developed by the
-NSA, as a secure server platform for software products that
-control and monitor industrial processes.
+  Introduction to SE Linux [ http://www.nsa.gov/selinux/ ].
 
-Verano is releasing its Supervisory Control and Data
-Acquisition (SCADA) software for SELinux. SCADA is designed to
-allow real-time, Internet-based control and monitoring of
-infrastructure at critical facilities.
+  It will cover the concepts of MAC vs DAC, the Identity, Role, Domain
+  security context model, Domain-Type enforcement and some examples of
+  how it can be used to improve security.
 
-Security Enhanced Linux, or SELinux, was developed by the NSA
-as a version of the operating system with security enhancements
-beyond most commercial distributions of Linux. SELinux segments
-parts of Linux, and the applications that run on the server,
-into secure domains, which are aimed at preventing some of the
-"buffer overflow" and "string format" attacks that are used to
-compromise Linux systems.
+ 14:30 - 16:00
 
-Verano's Enterprise Link and Real Time Application Platform
-(RTAP) are secure software products used by customers such as
-Boeing, ChevronTexaco and Bayer, and run on a variety of Unix
-platforms. The company says it went with SELinux for SCADA to
-provide an enhanced level of security. SELinux/SCADA is
-targeted as a platform for running monitoring and control
-software for facilities such as factories, power plants, oil
-and gas pipelines, as well as public transportation and
-utilities.
+  Carsten H. Pederson - MySQL
 
-_______________________________________________________________
-To contact Phil Hochmuth:
+  The exact contents of the talk are not yet available. Carsten works for
+  MySQL.com and can talk on both Introductory and advanced mysql subjects.
 
-Phil Hochmuth is a Senior Writer for Network World, and
-a former systems integrator. You can reach him at
-mailto:phochmut@nww.com.
-_______________________________________________________________
-FREE Technical White Paper: "Higher Availability. Lower TCO."
+ To round the meeting off: There will be an open forum discussion,
+ including the return of the "Heckle Steve Session".
 
-As companies focus on Total Cost of Ownership (TCO),
-availability becomes even more critical. This white paper
-discusses the human and technical factors involved in increased
-availability and provides an overview of related Sun products,
-services, and solutions. Click here for your free copy:
-http://nww1.com/go/ad369.html
-_______________________________________________________________
-RELATED EDITORIAL LINKS
+  * Do please be aware that we can't guarantee that the talks will happen
+  at the times stated, but we will do our best to make sure they do.
 
-More on SELinux
-http://www.nsa.gov/selinux/src-disclaim.html
 
-Archive of the Linux newsletter:
-http://www.nwfusion.com/newsletters/linux/index.html
-_______________________________________________________________
-FEATURED READER RESOURCE
+Other activities
 
-HOLIDAY SHOPPING MADE A LITTLE EASIER ON NWFUSION'S NETSMART
+  Away from the formal lectures, we have two rooms set aside, both on
+  the second floor, same level as main lecture room.
 
-Check out NetSmart - Network World's premier books and training
-resource. At NetSmart, you will find all the IT learning tools
-you need to advance your career. Easily select and purchase
-from a comprehensive group of leading vendor certification
-programs, practice tests, face-to-face events, Webcasts and
-much more! Visit NetSmart at: http://nww1.com/go/ad363.html
-_______________________________________________________________
-May We Send You a Free Print Subscription?
-You've got the technology snapshot of your choice delivered
-at your fingertips each day. Now, extend your knowledge by
-receiving 51 FREE issues to our print publication. Apply
-today at http://www.subscribenw.com/nl2
+  The network lab, as it is known, can be used for rolling demos of
+  Linux being installations and to experiment with configuration.
 
-International subscribers click here :
-http://nww1.com/go/circ_promo.html
-_______________________________________________________________
-SUBSCRIPTION SERVICES
+  We also have the Multimedia room. This will be used for people to set
+  is up their own machines. You can do this if you have something to
+  show off, or you are looking for a solution to some problems. If your
+  are bringing in your own machine, make sure you sign it in when you
+  arrive, otherwise security won't let you take it when you go! We'll
+  have monitors, keyboards, mice, and powerleads available. [So no need
+  to lug all that stuff].
 
-To subscribe or unsubscribe to any Network World e-mail
-newsletters, go to:
-http://www.nwwsubscribe.com/news/scripts/notprinteditnews.asp
+  We will have access to some of the latest iso images and a CD-Burner.
 
-To unsubscribe from promotional e-mail go to:
-http://www.nwwsubscribe.com/ep
+  If you decide to bring a PC, please have the serial number written
+  down ahead of time, in case it needs to be registered at the ground
+  floor Reception. We may also take a picture of you and your PC as
+  proof of ownership.
 
-To change your e-mail address, go to:
-http://www.nwwsubscribe.com/news/scripts/changeemail.asp
+  The network lab and the multimedia room are the places you can go to,
+  should you be looking for sanctuary away from the formal talks. If
+  we're lucky the Refectory on the ground floor will have its food and
+  drinks machines restocked.
 
-Subscription questions? Contact Customer Service by replying to
-this message.
+Sales
 
-Have editorial comments? Write Jeff Caruso, Newsletter Editor,
-at: mailto:jcaruso@nww.com
+  For the latter part of the afternoon Josette Garcia from O'Reilly
+  will be with us, so if you are looking to buy some O'Reilly books,
+  now's your chance. And yes - we do get 25% off the cover price.
 
-For advertising information, write Alonna Doucette, V.P. of
-Online Development, at: mailto:sponsorships@nwfusion.com
+  John Winters of The Linux Emporium [ http://www.linuxemporium.co.uk ]
+  will be along to sell some boxed sets and stuff. If anybody has any
+  specific requirements please check out his web page and then contact
+  john@linuxemporium.co.uk
 
-Copyright Network World, Inc., 2003
+After
 
-------------------------
-This message was sent to:  russell@coker.com.au
+  After the meeting, for those that want, the group will move off to
+  'The Green Man' public house, very close to Great Portland Street. We
+  have it booked from 5:30pm, part of the ground floor area of the bar is
+  reserved for us. Even if you were unable to make the daytime meeting,
+  please feel free to join us at the pub. To help you find the pub have
+  a look at this external streetmap link.
+
+Next meeting
+
+  The date for the next meeting has not yet been set, but should be a
+  Saturday sometime in March or April; keep watching these pages for
+  further announcements.
+
+Contact us
+
+        If you have any ideas for future events, you can either discuss
+        them on the main mailing list, or get our direct attention by
+        mailing to gllugadmin@linux.co.uk
+
+
+  -- Steve Cobrin
+
+
+--
+Gllug-announce mailing list  -  Gllug-announce@linux.co.uk
+http://list.ftech.net/mailman/listinfo/gllug-announce
+
+
+----- End forwarded message -----
 
 -------------------------------------------------------
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 
 --
