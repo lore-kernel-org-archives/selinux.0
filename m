@@ -1,176 +1,63 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71DuMrT007079
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 09:56:22 -0400 (EDT)
-Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i71DuK0x021248
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 13:56:20 GMT
-Subject: Re: [Fwd: Re: Building SE-ssh. Result: fakeroot: Permission denied]
-From: Wolfgang Pfeiffer <roto@gmx.net>
-To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>,
-   Erich Schubert <erich@debian.org>, Colin Walters <walters@verbum.org>,
-   Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-In-Reply-To: <1091278744.1295.40.camel@debby>
-References: <1091278744.1295.40.camel@debby>
-Content-Type: text/plain
-Message-Id: <1091368566.1295.213.camel@debby>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71ELXrT007183
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 10:21:33 -0400 (EDT)
+Received: from smtp801.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i71EL152022430
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 14:21:01 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp801.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 14:21:32 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BrGjm-0002Et-K8
+	for selinux@tycho.nsa.gov; Sun, 01 Aug 2004 13:50:54 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BrHO8-00049s-Ka
+	for selinux@tycho.nsa.gov; Sun, 01 Aug 2004 15:32:36 +0100
+Date: Sun, 1 Aug 2004 15:32:36 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: user-directory _is_ home directory
+Message-ID: <20040801143236.GA15949@lkcl.net>
 Mime-Version: 1.0
-Date: Sun, 01 Aug 2004 15:56:07 +0200
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2004-07-31 at 14:59, Wolfgang Pfeiffer wrote:
+okay, got a good one for you.
 
-                   [ ... ]
+... i notice that genhomedircon is working properly (hurrah)
 
-> 
-> Tomorrow, Sunday, I will try to re-establish conditions for a failing
-> se-openssh build, i.e. I will try to first uninstall
-> ecos, ecosconfig, libwxgtk2.4
-> again and then rebuild ssh: the stock debian one and the other one
-> patched for SE-Linux, logging both builts, if possible --- I hope things
-> will become clear by that.
+however, it brings me a slight problem.
 
-           [ ... ]
+i've made /home _the_ home directory: there is one user, it's
+_the_ user.
 
-I'm stumped: Today the builds worked without
-ecos, ecosconfig and libwxgtk2.4 being installed:
+i could alternatively make a ln -s from /home/theoneuser to /c or
+something but that would drive me up the wall because it is so
+... so.... windows.
 
-# apt-get remove --purge ecos ecosconfig libwxgtk2.4
-Reading Package Lists... Done
-Building Dependency Tree... Done
-The following packages will be REMOVED:
-  ecos* ecosconfig* libwxgtk2.4*
-0 upgraded, 0 newly installed, 3 to remove and 124 not upgraded.
-Need to get 0B of archives.
-After unpacking 94.3MB disk space will be freed.
-Do you want to continue? [Y/n] Y
-(Reading database ... 136765 files and directories currently installed.)
-Removing ecos ...
-Removing ecosconfig ...
-Purging configuration files for ecosconfig ...
-Removing libwxgtk2.4 ...
+my question is: does anyone have any recommendations on how to deal
+with /home being a mount point, and also being a user's home directory.
 
-$ locate ansi.h
-/usr/src/ecos/packages/net/common/v2_0/include/machine/ansi.h
-shorty@ 14:26:04:$ ls /usr/src/ecos/packages/net/common/v2_0/include/machine/ansi.h
-ls: /usr/src/ecos/packages/net/common/v2_0/include/machine/ansi.h: No such file or directory
+naively i removed the HOME_ROOT macro from types.fc, and naturally,
+the /home mount point doesn't.  mount, that is.
 
-:# apt-get build-dep openssh
-Reading Package Lists... Done
-Building Dependency Tree... Done
-0 upgraded, 0 newly installed, 0 to remove and 124 not upgraded.
+clues anyone?
 
-# ll `which gcc`
-lrwxrwxrwx  1 root root 8 Jul 30 16:48 /usr/bin/gcc -> gcc-2.95
+live with oh, say, restoring it /home/theoneuser instead, and
+creating a symlink as "/MyDocuments" or something stupid?
 
-Then AFAIKS, successfully building a default Debian ssh package with
-this script I called
-ssh-default-debian.getandbuild.sh:
+l.
 
-###############################################
-#!/bin/sh -x
-/bin/sh -n $HOME/ssh-default-debian.getandbuild.sh && \
-cd $HOME/ssh-default-debian.getandbuild/ && \
-rm -rf * && \
-fakeroot apt-get source --compile openssh
-##############################################
-
-I ran the latter like that:
-./ssh-default-debian.getandbuild.sh &> ssh-default-debian.getandbuild.log.txt
-
-(during the build I slightly hit the desk where the computer did the
-compile: I didn't repeat the above compile for that ... )
-
-Here's what I got:
-
-:$ ls -R ssh-default-debian.getandbuild/ | egrep '(\.udeb|\.deb)$'
-openssh-client-udeb_3.8.1p1-8_powerpc.udeb
-openssh-server-udeb_3.8.1p1-8_powerpc.udeb
-ssh-askpass-gnome_3.8.1p1-8_powerpc.deb
-ssh_3.8.1p1-8_powerpc.deb
-
-The log for the latter build is on
-<http://www.geocities.com/wolfgangpfeiffer/ssh-default-debian.getandbuild.log.txt>
-
-
-Now the SE-build:
-
-With the sources from http://www.coker.com.au/newselinux/ repositories
-it worked like a charm.
-Here's the script ("ssh-SE.getandbuild.sh") I used:
-
-######################################
-#!/bin/sh -x
-/bin/sh -n $HOME/ssh-SE.getandbuild.sh && \
-cd $HOME/ssh-SE.getandbuild/ && \
-rm -rf * && \
-curl -f -O http://www.coker.com.au/newselinux/ssh/openssh_3.8.1p1.orig.tar.gz && \
-curl -f -O http://www.coker.com.au/newselinux/ssh/openssh-selinux.patch.gz && \
-curl -f -O http://www.coker.com.au/newselinux/ssh/openssh-selinux.patch.gz.sign && \
-curl -f -O http://www.coker.com.au/newselinux/ssh/openssh_3.8.1p1-7.se1.diff.gz && \
-tar -xzvf *\.tar.gz && \
-cd openssh-3.8.1p1/ && \
-cp ../openssh_3.8.1p1-7.se1.diff.gz . && \
-gzip -cd  openssh_3.8.1p1-7.se1.diff.gz | patch -p1 && \
-chmod +x debian/rules && \
-autoconf && \
-fakeroot debian/rules binary
-###########################################
-
-I ran the latter like that:
-./ssh-SE.getandbuild.sh &> ssh-SE.getandbuild.sh.log.txt
-
-$ ls -R ssh-SE.getandbuild/ | egrep '(\.udeb|\.deb)$'
-openssh-client-udeb_3.8.1p1-7.se1_powerpc.udeb
-openssh-server-udeb_3.8.1p1-7.se1_powerpc.udeb
-ssh-askpass-gnome_3.8.1p1-7.se1_powerpc.deb
-ssh_3.8.1p1-7.se1_powerpc.deb
-
-The log for the build is here
-<http://www.geocities.com/wolfgangpfeiffer/ssh-SE.getandbuild.sh.log.txt>
-
-
-Now the build with the sources from
-<http://selinux.lemuria.org/newselinux/ssh/>
-
-Here's the script ("ssh-SE-lemuria.getandbuild.sh") that I ran
-like that:
-./ssh-SE-lemuria.getandbuild.sh &> ssh-SE-lemuria.getandbuild.log.txt
-
-ssh-SE-lemuria.getandbuild.sh:
-######################################################
-#!/bin/sh -x
-/bin/sh -n $HOME/ssh-SE-lemuria.getandbuild.sh && \
-cd $HOME/ssh-SE-lemuria.getandbuild/ && \
-rm -rf * && \
-curl -f -O http://selinux.lemuria.org/newselinux/ssh/openssh_3.8.1p1.orig.tar.gz && \
-curl -f -O http://selinux.lemuria.org/newselinux/ssh/openssh-selinux.patch.gz && \
-curl -f -O http://selinux.lemuria.org/newselinux/ssh/openssh-selinux.patch.gz.sign && \
-curl -f -O http://selinux.lemuria.org/newselinux/ssh/openssh_3.8.1p1-7.se1.diff.gz && \
-tar -xzvf *\.tar.gz && \
-cd openssh-3.8.1p1/ && \
-cp ../openssh_3.8.1p1-7.se1.diff.gz . && \
-gzip -cd  openssh_3.8.1p1-7.se1.diff.gz | patch -p1 && \
-chmod +x debian/rules && \
-autoconf && \
-fakeroot debian/rules binary
-######################################################
-
-This last build also worked, IINM:
-
-$ ls -R ssh-SE-lemuria.getandbuild/ | egrep '(\.udeb|\.deb)$'
-openssh-client-udeb_3.8.1p1-7.se1_powerpc.udeb
-openssh-server-udeb_3.8.1p1-7.se1_powerpc.udeb
-ssh-askpass-gnome_3.8.1p1-7.se1_powerpc.deb
-ssh_3.8.1p1-7.se1_powerpc.deb
-
-log:
-<http://www.geocities.com/wolfgangpfeiffer/ssh-SE-lemuria.getandbuild.log.txt>
-
-Best Regards
-Wolfgang
 -- 
-Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility if acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
