@@ -1,77 +1,60 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i87HlCrT028080
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 13:47:14 -0400 (EDT)
-Received: from mbox-o00.iijmio.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i87HkCxo015302
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 17:46:18 GMT
-Message-Id: <200409071747.i87HkxJ6012464@mms-r00.iijmio.jp>
-Date: Tue, 07 Sep 2004 13:46:35 -0400
-From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Cc: himainu-ynakam@miomio.jp
-Subject: Re: PAM in suse9.1 (Re: SuSE 9.1 SELinux)
-Content-Type: text/plain; charset=ISO-2022-JP
-In-Reply-To: <OF296DC5F7.062BA6BF-ON49256F08.000B7FC4-49256F08.000D462A@jp.ibm.com>
-References: <OF296DC5F7.062BA6BF-ON49256F08.000B7FC4-49256F08.000D462A@jp.ibm.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i87JGqrT028786
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 15:16:52 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i87JGpll024231
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 19:16:51 GMT
+Subject: Re: Please review openssh patch for selinux
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>,
+   Nalin Dahyabhai <nalin@redhat.com>
+In-Reply-To: <4139A554.9020604@redhat.com>
+References: <200408241818.40064.russell@coker.com.au>
+	 <41371628.2020408@redhat.com>
+	 <1094130607.17265.47.camel@moss-spartans.epoch.ncsc.mil>
+	 <200409022338.20644.russell@coker.com.au>
+	 <1094136369.17265.128.camel@moss-spartans.epoch.ncsc.mil>
+	 <413741A3.3070305@redhat.com>
+	 <1094153919.17265.375.camel@moss-spartans.epoch.ncsc.mil>
+	 <41377927.3080703@redhat.com>
+	 <1094155198.17265.389.camel@moss-spartans.epoch.ncsc.mil>
+	 <41377E8A.2030707@redhat.com>
+	 <1094215690.19206.73.camel@moss-spartans.epoch.ncsc.mil>
+	 <4139A554.9020604@redhat.com>
+Content-Type: text/plain
+Message-Id: <1094584497.15891.110.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 07 Sep 2004 15:14:57 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 2004-09-04 at 07:21, Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+> >As per the earlier discussion on the list, I think we want a new
+> >libselinux function similar to get_default_context() that also takes the
+> >optional role, and rather than simply substituting the role (if
+> >specified) and its default type, it would check the array returned by
+> >get_ordered_context_list for the first entry that matches the role and
+> >return the entry or fail if no such entry exists.  That would ensure
+> >that we immediately abort if the role is not reachable by sshd, and also
+> >allow an admin to prevent use of this feature for a given role simply by
+> >not listing it in the sshd entry in defualt_contexts.
+> >
+> >  
+> >
+> Ok, can you create the function?
 
-Takuya Mishina <TMISHINA@jp.ibm.com> wrote:
-> Nakamura-san's patch for pam_unix module is useful to make newrole running 
-> without setuid bit.
-> I've changed my SuSE 9.1 to use Nakamura-san's patched pam_unix.so.
-> (modify /etc/pam.d/newrole and install patched pam_unix.so to 
-> /lib/security)
-> After that newrole runs correctly without setuid bit.
-It is found that there is a problem in SUSE's PAM from this fact.
+Ok, done.  Function prototype is:
 
-You are using pam_unix.so instead of pam_unix2.so.
-I looked the code of "pam_unix2.so" 
-but I could not find the code to use helper program(such as unix_chkpwd).
-This is a problem.
+int get_default_context_with_role(const char* user, 
+				  const char *role,
+				  security_context_t fromcon,
+				  security_context_t *newcon);
 
-> I've changed my SuSE 9.1 to use Nakamura-san's patched pam_unix.so.
-I forgot to attach diff for this ML.
-The following is diff between FC3-test1's pam_unix and SUSE9.1's pam_unix.
---- Linux-PAM-0.77/modules/pam_unix/support.c	2004-09-06 11:12:15.548643432 -0400
-+++ Linux-PAM-0.77.rh/modules/pam_unix/support.c	2004-09-06 11:09:14.194213496 -0400
-@@ -24,7 +28,12 @@
- 
- #include "md5.h"
- #include "support.h"
--
-+#ifdef WITH_SELINUX
-+#include <selinux/selinux.h>
-+#define SELINUX_ENABLED is_selinux_enabled()>0
-+#else
-+#define SELINUX_ENABLED 0
-+#endif
- extern char *crypt(const char *key, const char *salt);
- extern char *bigcrypt(const char *key, const char *salt);
- 
-@@ -569,8 +766,9 @@
- 	}
- 
- 	retval = PAM_SUCCESS;
--	if (pwd == NULL || salt == NULL || strlen(salt) == 1) {
--		if (geteuid()) {
-+	if (pwd == NULL || salt == NULL || strlen(salt) == 1) {
-+	  
-+		if (geteuid() || SELINUX_ENABLED) {
- 			/* we are not root perhaps this is the reason? Run helper */
- 			D(("running helper binary"));
- 			retval = _unix_run_helper_binary(pamh, p, ctrl, name);
-
-
----
-Yuichi Nakamura
-Japan SELinux Users Group(JSELUG)
-　　http://www.selinux.gr.jp/
-Hitachi Software
-    http://www.selinux.hitachi-sk.co.jp/en
-The George Washington University
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
