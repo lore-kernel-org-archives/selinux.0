@@ -1,63 +1,58 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5FUNGZ000853
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 10:30:23 -0500 (EST)
-Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5F9jgk025651
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 15:09:46 GMT
-Subject: Re: Updated SELinux Release
-From: Colin Walters <walters@verbum.org>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Manoj Srivastava <manoj.srivastava@stdc.com>, selinux@tycho.nsa.gov,
-   debian-devel@lists.debian.org
-In-Reply-To: <20041105102853.GA5565@lkcl.net>
-References: <1099496380.1213.111.camel@moss-spartans.epoch.ncsc.mil>
-	 <Pine.LNX.4.58.0411031908500.12297@d10systems.homelinux.com>
-	 <1099534538.3875.6.camel@nexus.verbum.private>
-	 <87k6t2qepg.fsf@glaurung.internal.golden-gryphon.com>
-	 <20041104131544.GC5461@lkcl.net>
-	 <1099627566.25416.6.camel@nexus.verbum.private>
-	 <20041105102853.GA5565@lkcl.net>
+Subject: Re: dynamic context transitions
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, Frank Mayer <mayerf@tresys.com>,
+   "'Colin Walters'" <walters@verbum.org>,
+   "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
+   "'Chad Hanson'" <chanson@TrustedCS.com>,
+   SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <1099668037.6373.126.camel@moss-spartans.epoch.ncsc.mil>
+References: <01df01c4c336$4facc6f0$1e0c010a@columbia.tresys.com>
+	 <418B968F.3070700@trustedcs.com>
+	 <1099668037.6373.126.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 05 Nov 2004 10:11:01 -0500
-Message-Id: <1099667461.25416.27.camel@nexus.verbum.private>
+Date: Fri, 05 Nov 2004 10:33:05 -0500
+Message-Id: <1099668785.20150.139.camel@pham.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-11-05 at 10:28 +0000, Luke Kenneth Casson Leighton wrote:
-> On Thu, Nov 04, 2004 at 11:06:06PM -0500, Colin Walters wrote:
-> > On Thu, 2004-11-04 at 13:15 +0000, Luke Kenneth Casson Leighton wrote:
-> > 
-> > >  default: no.
-> > 
-> > Why not on by default, 
+On Fri, 2004-11-05 at 10:20 -0500, Stephen Smalley wrote:
+> On Fri, 2004-11-05 at 10:04, Darrel Goeddel wrote:
+> > The process first needs the ability to perform a dynamic transition ("allow 
+> > foo_t self:process dyntransition").
 > 
->  i would agree with stephen that it should be compiled in,
->  default options "selinux=no".
-
-I don't believe Stephen said that.  He said that the performance hit in
-that case is just the LSM hooks.
-
->  that gives people the choice, 
-
-It doesn't make sense to make security a "choice".  The current Linux
-security model is simply inadequate.
-
-http://www.nsa.gov/selinux/papers/inevit-abs.cfm
-
-> without affecting performance.
-
-That's just a bug, and it's being worked on.  Personally I don't notice
-any performance problems.
-
-> > with a targeted policy, for everyone?  
+> You mean "setcurrent", right?  dyntransition is the pairwise check, as
+> you correctly described later in the same message.
 > 
->  debianites have yet to be convinced of the benefits of
->  _anything_ to do with selinux [irrespective of whether they
->  are actually _aware_ of its benefits]
+> > Since the policy allows for such control, I do not see the need to wait for 
+> > policy language extensions, or to make dyntransitions a compile-time option to 
+> > the kernel.  Sorry if I got a little long-winded there :)
+> 
+> The only reason I can see for making it a compile-time option is greater
+> assurance that it will never be used, much as some people may want to
+> disable the selinux= boot parameter, runtime disable, or development
+> support options via the existing kernel config options.  But I am
+> hesitant to do this for an API (ability to write to
+> /proc/pid/attr/current), although I suppose one could argue that those
+> existing options also affect the API (ability to write to
+> /selinux/enforce and /selinux/disable as well as the boot parameters
+> themselves).  No strong preference either way for me.
+> 
 
-That's what we're working on.
+It seems to depend on whether most distributions are going to compile it
+in or not. If it is rarely enabled - like MLS - then I would just assume
+it be compile time. If most distributions expect to turn it on I would
+rather see it always compiled. Do you anticipate the permissions to
+always be present - and I assume this will be policy version 19?
 
+Karl
+
+-- 
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+http://www.tresys.com
 
 
 --
