@@ -1,64 +1,60 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA28413
-	for <selinux@tycho.nsa.gov>; Fri, 1 Feb 2002 15:26:20 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA00709
+	for <selinux@tycho.nsa.gov>; Sat, 2 Feb 2002 11:43:52 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA06258
-	for <selinux@tycho.nsa.gov>; Fri, 1 Feb 2002 20:25:28 GMT
-Received: from vorpal.mcs.drexel.edu (vorpal.mcs.drexel.edu [129.25.6.250])
-        by jazzband.ncsc.mil  with ESMTP id UAA06254 for <selinux@tycho.nsa.gov>; Fri, 1 Feb 2002 20:25:27 GMT
-Subject: Re: Strange behavior of httpd
-From: Justin Smith <jsmith@mcs.drexel.edu>
-To: Jen Schommer <jschommer@mitre.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <3C5ADC13.A4B39A60@mitre.org>
-References: <1012394639.1422.6.camel@jsmith.org>
-	<3C5ADC13.A4B39A60@mitre.org>
-Content-Type: text/plain
-Date: 01 Feb 2002 15:21:43 -0500
-Message-Id: <1012594903.9496.14.camel@vorpal>
-Mime-Version: 1.0
+	by jazzband.ncsc.mil  with ESMTP id QAA11565
+	for <selinux@tycho.nsa.gov>; Sat, 2 Feb 2002 16:42:59 GMT
+Received: from khaipur.xiat.org ([66.125.68.98])
+        by jazzband.ncsc.mil  with ESMTP id QAA11561 for <selinux@tycho.nsa.gov>; Sat, 2 Feb 2002 16:42:58 GMT
+Received: from [10.0.1.17] (goedel.xiat.org [10.0.1.17])
+	(authenticated)
+	by khaipur.xiat.org (8.11.6/8.11.6) with ESMTP id g12GhJ615412
+	for <selinux@tycho.nsa.gov>; Sat, 2 Feb 2002 08:43:19 -0800
+Date: Sat, 02 Feb 2002 08:43:08 -0800
+From: Paul Krumviede <pwk@acm.org>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: strange audit messages from the dhcpc_t domain
+Message-ID: <22613336.1012639388@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2002-02-01 at 13:18, Jen Schommer wrote:
-> Justin,
-> 
-> I worked on the example Apache policy for Selinux.  
-> 
-> The files you reference seem to be semaphore files.  Apache is using
-> these files to globally synchronize two or more of it's processes. The
-> behavior you describe seems legitimate, therefor it is ok to create
-> these types and give Apache permisison to them. The same will be done
-> for the example Apache policy in Selinux. 
-> 
-> I am not sure what changed in the Apache environment, where the policy
-> is running, to make Apache want to globally synchronzie it's proceses. 
-> 
-> Jen
+i just noticed a few strange denials on a RH 7.2 system running the 
+2.4.17-kernel
+version. the machine is using DHCP on eth1 and gets assigned an address of
+172.16.218.138.
 
+1)	Feb  1 04:02:05 fermat kernel: avc:  denied  { recvfrom } for  pid=2235 
+	exe=/usr/sbin/sendmail saddr=0.4.172.16 daddr=218.138.0.0 netif=eth1 
+	scontext=system_u:system_r:dhcpc_t
+	tcontext=system_u:object_r:netmsg_eth1_t tclass=packet_socket
 
-Thank you very much! 
+why is sendmail running in the dhcpc_t domain? and the saddr and daddr 
+values look
+mangled.
 
-I'm running a very active server with Apache interfacing a Tomcat
-servlet/jsp engine and it becomes particularly active during exam time
-(when more than 100 students submit their online exams in a short time).
+2)	Feb  2 02:37:10 fermat kernel: avc:  denied  { recvfrom } for
+	saddr=172.16.218.254 source=17680
+	daddr=172.16.218.138 dest=328
+	netif=eth1
+ 	scontext=system_u:system_r:dhcpc_t
+	tcontext=system_u:object_r:netmsg_eth1_t tclass=packet_socket
 
-It doesn't astound me that apache wants to synchronize its resources. I
-didn't know that it used a file like this to do it. Perhaps the resource
-in question is the mod_jk.so file...
+this looks correct, while
 
-Thanks again. This list is fantastic!
--- 
-______________________________________________________________________
-Time blows wildly against my door       | Justin R. Smith
-Stirring discarded sorrows      	| Department of Mathematics and
-Like dead leaves of summers past        |     Computer Science
-Memories of forgotten lore          	| Drexel University
-Making way for new tomorrows         	| Philadelphia, PA 19104
-New hopes, new fears,                   |
-         and new ways that last         | Office: (215) 895-1847
-URL: http://vorpal.mcs.drexel.edu       | Fax:    (215) 895-1582
+3)	Feb  2 02:42:06 fermat kernel: avc:  denied  { recvfrom } for
+	saddr=0.8.172.16
+	daddr=218.1.0.0
+	netif=eth1 scontext=system_u:system_r:dhcpc_t
+	tcontext=system_u:object_r:netmsg_eth1_t
+	tclass=packet_socket
 
+this also seems to have mangled the saddr/daddr fields (and if i reconstruct
+the fields as 172.16.218.1, i don't think that machine would ever emit DHCP
+or BOOTP messages, although i could be wrong).
+
+-paul
 
 
 --
