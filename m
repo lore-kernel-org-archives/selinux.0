@@ -1,39 +1,45 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA15957
-	for <selinux@tycho.nsa.gov>; Sun, 22 Dec 2002 10:52:22 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA19047
-	for <selinux@tycho.nsa.gov>; Sun, 22 Dec 2002 15:49:53 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id PAA19043
-	for <selinux@tycho.nsa.gov>; Sun, 22 Dec 2002 15:49:51 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Subba Rao" <sailorn@attglobal.net>, selinux <selinux@tycho.nsa.gov>
-Subject: Re: avc: denied
-Date: Sun, 22 Dec 2002 16:52:08 +0100
-References: <200212221456.OAA17687@jazzswing.ncsc.mil>
-In-Reply-To: <200212221456.OAA17687@jazzswing.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA16157
+	for <selinux@tycho.nsa.gov>; Sun, 22 Dec 2002 12:07:05 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id gBMH73I27158
+	for <selinux@tycho.nsa.gov>; Sun, 22 Dec 2002 17:07:03 GMT
+Received: from mail.simplyaquatics.com ([66.0.92.223])
+        by jazzband.ncsc.mil  with ESMTP id gBMH73f27154 for <selinux@tycho.nsa.gov>; Sun, 22 Dec 2002 17:07:03 GMT
+Received: from ed (ed1 [192.168.1.10])
+	by mail.simplyaquatics.com (Postfix) with ESMTP id 074C38440D8
+	for <selinux@tycho.nsa.gov>; Sun, 22 Dec 2002 12:06:14 -0500 (EST)
+Reply-To: <blacknet@simplyaquatics.com>
+From: "Ed Street" <blacknet@simplyaquatics.com>
+To: "Selinux" <selinux@tycho.nsa.gov>
+Subject: Freeswan breaks lsm kernel build
+Date: Sun, 22 Dec 2002 12:06:14 -0500
+Message-ID: <000201c2a9dc$6fb3d170$0a01a8c0@simplyaquatics.com>
 MIME-Version: 1.0
-Message-Id: <200212221652.08865.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 22 Dec 2002 15:58, Subba Rao wrote:
-> ===================
-> avc:  denied  { search } for  pid=848 exe=/usr/bin/perl path=/var/www/mrtg
-> dev=03:01 ino=272926 scontext=system_u:system_r:crond_t
-> tcontext=system_u:object_r:httpd_sys_content_t tclass=dir
+Hello,
 
-Did you install my mrtg policy?
+I am working with 2.4.20 kernel and applying lm_sensors, i2c, freeswan
+v1.99 and lsm.  After installing freeswan and I attempt to apply lsm
+(lsm_2002.12.12-2_all.deb) it does not apply cleanly.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Testing whether LSM Support for Linux patch for 2.4.20 applies (dry
+run):
+1 out of 2 hunks FAILED -- saving rejects to file
+arch/i386/defconfig.rej
+LSM Support for Linux patch for 2.4.20 does not apply cleanly
+
+Ed
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.431 / Virus Database: 242 - Release Date: 12/17/2002
+ 
 
 
 --
