@@ -1,36 +1,51 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAN6WZIi010070
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 01:32:36 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAN6WgIi010079
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 01:32:42 -0500 (EST)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAN6V25q024639
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 06:31:05 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAN6VA5q024651
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 06:31:11 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Serge Hallyn <serge.hallyn@gmail.com>
-Subject: Re: learning about policies/transitions
-Date: Tue, 23 Nov 2004 15:21:39 +1100
-Cc: selinux@tycho.nsa.gov
-References: <46ce702f041103084530fe8539@mail.gmail.com> <1099657575.6373.5.camel@moss-spartans.epoch.ncsc.mil> <46ce702f041115081242f9f8e7@mail.gmail.com>
-In-Reply-To: <46ce702f041115081242f9f8e7@mail.gmail.com>
+To: Wolfgang Pfeiffer <roto@gmx.net>
+Subject: Re: Linux Journal Article
+Date: Tue, 23 Nov 2004 15:48:29 +1100
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <Xine.LNX.4.44.0411122147260.7482-100000@thoron.boston.redhat.com> <1100375928.1691.17.camel@debby>
+In-Reply-To: <1100375928.1691.17.camel@debby>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200411231521.42560.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200411231548.32753.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 16 November 2004 03:12, Serge Hallyn <serge.hallyn@gmail.com> 
-wrote:
-> Thanks for your help, Stephen.  I've *briefly* looked around at the
-> inird and /bin/init sources, and can't find an initiial policy that
-> would be loaded before the root filesystem pivot_root.  I expect to
+On Sunday 14 November 2004 06:58, Wolfgang Pfeiffer <roto@gmx.net> wrote:
+> "Work also is being done on Security Enhanced X, where the aim is to
+> have control over the X sessions so that, for instance, a hostile X
+> program can't interfere with other X programs on the display."
+>
+> Does this mean that SElinux currently can't have an impact on X-related
+> processes (gdm, Gnome, FVWM etc., and on Debian/unstable)?
 
-Only the initrd is running before pivot_root and the initrd does not load 
-policy any more.  So there is no policy loaded until after the root file 
-system is mounted as "/" and /sbin/init is executed.
+SE Linux prevents X access to X servers started from another user role.  So if 
+you had a dual-head machine and one user was logged in as user_r while 
+another was logged in as staff_r they would not be able to access each 
+other's X servers IF those X servers were started by entering "startx" from 
+the command line.
 
-/sbin/init loads the policy and then re-exec's itself to transition from 
-kernel_t to init_t.
+If the X servers were started by gdm or a similar program then there would be 
+nothing in SE Linux preventing the users from accessing each other's 
+displays.
+
+Also within one user role there is nothing to prevent an X client running in 
+user_games_t from interfering with the X access of a program running in 
+user_t.  This interferance means sniffing the keyboard input (capturing 
+passwords), reading the contents of the window (copying confidential data), 
+and impersonating programs (making it appear that Kmail is asking for the GPG 
+pass-phrase to decrypt an email as part of an attack on GPG).
+
+SE-X solves most of those issues.  However there are still some issues related 
+to sharing a pty device between programs running in different domains.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
