@@ -1,47 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j35DeFDo008174
-	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 09:40:16 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j35Dc2Gl024603
-	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 13:38:04 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Alejandro Mery <amery@geeks.cl>
-Subject: Re: selinux without sysvinit
-Date: Tue, 5 Apr 2005 23:37:25 +1000
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
-References: <4188E956.7020808@geeks.cl> <1099579644.3174.73.cam el@moss-spartans.epoch.ncsc.mil> <418B9531.7090303@geeks.cl>
-In-Reply-To: <418B9531.7090303@geeks.cl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200504052337.28548.russell@coker.com.au>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j35DrfDo008278
+	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 09:53:41 -0400 (EDT)
+Subject: Re: Additions to net_contexts
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: David Hampton <hampton-rh@rainbolthampton.net>
+Cc: SELinux <selinux@tycho.nsa.gov>, fedora-selinux-list@redhat.com
+In-Reply-To: <1110979052.20316.16.camel@hampton-pc.rainbolthampton.net>
+References: <1110979052.20316.16.camel@hampton-pc.rainbolthampton.net>
+Content-Type: text/plain
+Date: Tue, 05 Apr 2005 09:52:43 -0400
+Message-Id: <1112709163.1883.6.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 06 November 2004 01:58, Alejandro Mery <amery@geeks.cl> wrote:
-> > Yes, that should work as well, and I think some people have actually
-> > used that approach in the past.  But if you decide to move aside
-> > /sbin/init and replace it with a small program that loads policy and
-> > then runs the real init program, be careful that telinit is then
-> > redirected to the real init program.
->
-> i was thinking in a /sbin/seinit with proper init= on loader, hardcoded
-> to execve /sbin/init and /bin/sh after that.
+Merged into the SELinux policy CVS tree at sourceforge.
 
-I've done that, it works.  It's a minor PITA though, you need to have your 
-boot loader pass init=/sbin/seinit though.  If your boot loader is something 
-like the boot loader in a Cobalt machine it's even more painful as BIOS 
-upgrades etc can lose the boot loader config.
-
-Best to just patch /sbin/init, I only patched init after trying all the other 
-options and finding them to be worse.
-
+On Wed, 2005-03-16 at 08:17 -0500, David Hampton wrote:
+> Here are some additions to net_contexts to define additional privileged
+> ports.  I'll be submitting policies that reference these ports over the
+> next week or so as I get them cleaned up.  This is based on the file
+> from the selinux-policy-strict-sources-1.22.1-2 rpm on my FC3 system.
+> 
+> David
+> 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
