@@ -1,63 +1,44 @@
-Message-ID: <72222DC86846D411ABD300A0C9EB08A101524351@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: SELinux@tycho.nsa.gov
-Subject: SELinux RPM Version
-Date: Fri, 19 Apr 2002 15:26:24 -0500
+Date: Fri, 19 Apr 2002 16:20:12 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: Dale Amon <amon@vnl.com>,
+        "Westerman, Mark" <Mark.Westerman@csoconline.com>,
+        <SELinux@tycho.nsa.gov>
+Subject: Re: db conflict ?
+In-Reply-To: <20020418154333.B804444D90@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0204191615090.18117-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I expect to release a beta version to sourceforge 
-of an rpm package of SELinux next week.
 
-Current Configuration.
+On Thu, 18 Apr 2002, Russell Coker wrote:
 
-/etc/selinux/policy	The main policy directory 
-If the directory does not exist then the rpm 
-packages will create it and install example policy files.
+> Why not just have a file_contexts directory under the main policy directory?
+>
+> I think that having a single Makefile do them both is the best way to do it.
+> In my current code base it will compile the policy before doing a relabel.
+>
+> Also with the new file_contexts scheme of separate files then the same
+> Makefile needs to be used so it can determine which .fc files to use
+> something like the following:
+> FC_FILES=$(pathsubst domains/program/%.te,file_contexts/%.fc, $(wildcard
+> domains/program/*.te))
 
-/etc/selinux/setfiles	Same for the policy directory
+I've moved the file contexts configuration under policy/file_contexts in
+our tree and changed the policy Makefile to cover both policy builds and
+relabeling.  The setfiles directory now merely contains the setfiles
+program sources and a Makefile to build and install it.  I used your
+definition above (except pathsubt->patsubst), and it appears to work
+correctly with the partitioned file contexts.
 
-The example policy is installed
-/usr/share/doc/selinux/examples/policy
-
-
-Flask files
-/usr/lib/flask
-
-Libsecure
-/usr/lib/libsecure.a
-
-All the added programs for selinux such as newrole
-will be install into /usr/bin
-
-The include directory
-/usr/include/selinux
-
-All packages such as 
-fileutils-4.1-4
-
-have been renamed to
-
-fileutils-selinux-4.1-4
-
-This packages provides: fileutils
-
-The provides is so other rpms can 
-meet requirements. 
-
-All packages have been build for original spec files
-with the selinux patch added. So the will install into
-normal locations. 
-
-the --replacefiles option must be used when installing.
-
-Comments or suggestions
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-Mark
+
 
 --
 You have received this message because you are subscribed to the selinux list.
