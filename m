@@ -1,67 +1,55 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2V9vEDo023407
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 04:57:14 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2V9tuiv023595
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 09:55:57 GMT
-Date: Thu, 31 Mar 2005 11:05:33 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Tom <tom@lemuria.org>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Casey Schaufler <casey@schaufler-ca.com>,
-   selinux@tycho.nsa.gov
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2V9xqDo023430
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 04:59:52 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2V9tuTg011301
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 09:55:56 GMT
 Subject: Re: Desktop apps interoperability
-Message-ID: <20050331100533.GD9752@lkcl.net>
-References: <20050330155207.58846.qmail@web31601.mail.mud.yahoo.com> <1112199204.8592.13.camel@cobra.ivg2.net> <20050330235010.B622@lemuria.org> <20050330221246.GC9752@lkcl.net> <20050331103736.K1195@lemuria.org>
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20050330175836.45907.qmail@web31614.mail.mud.yahoo.com>
+References: <20050330175836.45907.qmail@web31614.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Thu, 31 Mar 2005 05:04:40 -0500
+Message-Id: <1112263480.10971.34.camel@cobra.ivg2.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050331103736.K1195@lemuria.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Mar 31, 2005 at 10:37:36AM +0200, Tom wrote:
-> On Wed, Mar 30, 2005 at 11:12:46PM +0100, Luke Kenneth Casson Leighton wrote:
-> >  kdbfs "flattens" the directory structures and forces applications,
-> >  via patches to the file save and file open dialogs, to ONLY be able
-> >  to save documents in certain subdirectories, ~/Documents, ~/Music ...
-> >  etc.
+On Wed, 2005-03-30 at 09:58 -0800, Casey Schaufler wrote:
+> --- Ivan Gyurdiev <ivg2@cornell.edu> wrote:
 > 
-> There will be many people who reject that concept 
+> > Ok, some apps like gift don't ask where to save the
+> > content, 
+> > but that's the exception and not the rule. 
+> 
+> I challenge you to back up this claim.
 
- yep - i know.  i didn't say it was a "nice" solution.
+I don't need to back up this claim, because:
 
- for "dummies" - the sorts of people who use MAC OS/X -
- directories are a massive confusional concept.
+1) Apps that don't let you configure where to save your content are
+badly designed.
 
- think of the kinds of people who store 16,000 files in "My Documents"
- because they've never heard of creating folders.
- 
- [and we won't talk about the person who spent 10 minutes each
- day paging down the same word document until they got to the
- end, okay? :) ]
+2) They can be changed
 
- we are _privileged_ people who "understand" computers, graphical
- OSes, and such.
+3) If they're not changed, it doesn't matter, because what I'm proposing
+is backwards compatible. User_t will still have access to all content
+types, and can write stuff to /home as user_home_t. Apps will have to be
+specifically confined in order not to be able to write to user_home_t.
+If some app is a problem, it can be left to run at user_home_t for now.
 
- it's vitally important to remember that there are people out there who:
+4) If apps store stuff in a hardcoded location, we can label that easily
+with the proper context, unless it's hardcoded to /home or some other
+shared place. 
 
- a) can't use a mouse
+Anyway, I am starting to get a better idea as to how this might work - 
+see my response to Luke's message.
 
- b) can't phyisically or PSYCHOLOGICALLY see or locate a cursor
-    (esp. the Mozilla Firefox and MS Word vertical bar ones)
-
- c) don't really understand the concept of folders being a thing
-    with a border around it, let alone directories.
-
- so, whilst we all "love" to put documents where we "want", creating
- lovely structured directory hierarchies with symlinks to convenient
- places, the majority of users simply use what's put in front of them
- [and typically use or grok very little of even that].
-
- and Apple put the "finder" in front of people, on MAC-OS/X,
- and they sodding love it, because it finds EVERYTHING that's
- useful to them.
-
- l.
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
