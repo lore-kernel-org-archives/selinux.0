@@ -1,56 +1,46 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h91DQesJ024950
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 09:26:40 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h91DuLsJ025149
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 09:56:21 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h91DOqZt028412
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 13:24:52 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-	by jazzswing.ncsc.mil  with ESMTP id h91DOpM3028405
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 13:24:51 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: makemap
-Date: Wed, 1 Oct 2003 23:26:30 +1000
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200310012113.44940.russell@coker.com.au> <1065014251.350.20.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1065014251.350.20.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310012326.30906.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h91DsXZt001176
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 13:54:33 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h91DsXM3001173
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 13:54:33 GMT
+Subject: Re: file_labels_t
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1064984367.1511.30.camel@chris.pebenito.net>
+References: <1064984367.1511.30.camel@chris.pebenito.net>
+Content-Type: text/plain
+Message-Id: <1065016578.350.51.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 01 Oct 2003 09:56:18 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 1 Oct 2003 23:17, Stephen Smalley wrote:
-> On Wed, 2003-10-01 at 07:13, Russell Coker wrote:
-> > /usr/bin/makemap                system_u:object_r:sbin_t
-> >
-> > What is the above entry in types.fc about?  Is there a hard-link between
-> > a file in /usr/sbin and /usr/bin?
->
-> IIRC, this was a hard link to /usr/sbin/makemap in an older version of
-> RH, but it appears to now be a symlink, so this isn't really necessary
-> anymore.
+On Wed, 2003-10-01 at 00:59, Chris PeBenito wrote:
+> I was doing some cleaning (goodbye devfsd.{te.fc}), and I was thinking
+> that file_labels_t could be removed in new api policy, since psid is
+> gone.  However, when I was going through looking for the rules that had
+> it, I realized that it is still an initial sid.  Why is the initial sid
+> still around if psid is gone?  Because it requires a bit of a kernel
+> modification?
 
-Great.  I've deleted it from my tree.
-
-If anyone knows of any other file_contexts entries that are now obsolete 
-because of newer versions of Linux distributions then please let me know.  
-setfiles time is directly proportional to the size of the file_contexts file, 
-so anything we can remove will make setfiles faster.
-
-For those of you who were wondering, even with my recent patch setfiles is 
-much slower than it used to be.  We have added lots of new policy, and the 
-policy that is there has been made more complete.  This meant adding lots of 
-new file_contexts entries.  I am not trying to get it to the situation where 
-disk IO speed is the bottleneck.
+You can remove the type, and just map the initial SID to unlabeled_t
+until we get around to cleaning up the initial SIDs.  Cleaning up the
+initial SIDs does presently require rebuilding the kernel module with
+updated headers so that it reflects the current values of the subsequent
+initial SIDs, which will be perturbed by the removal of earlier initial
+SIDs, so we would likely increment the policy version number at that
+point.  The initial SID support needs to be reworked to support more
+dynamic removal and extension; we originally expected the initial SIDs
+to be very static, but that doesn't really seem to be the case.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
