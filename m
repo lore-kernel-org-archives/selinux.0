@@ -1,45 +1,51 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA06732
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 14:39:40 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA08099
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 17:55:07 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA04520
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 19:39:26 GMT
-Received: from smtpproxy1.mitre.org (mb-20-100.mitre.org [129.83.20.100])
-	by jazzswing.ncsc.mil  with ESMTP id TAA04516
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 19:39:24 GMT
-Received: from avsrv1.mitre.org (avsrv1.mitre.org [129.83.20.58])
-	by smtpproxy1.mitre.org (8.9.3/8.9.3) with ESMTP id OAA11298
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 14:39:36 -0500 (EST)
-Received: from mailsrv1.mitre.org (mailsrv1.mitre.org [129.83.20.6])
-	by smtpsrv1.mitre.org (8.9.3/8.9.3) with ESMTP id OAA21045
-	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 14:39:35 -0500 (EST)
-Message-ID: <3AC38FB1.FA2E8109@mitre.org>
-Date: Thu, 29 Mar 2001 14:40:33 -0500
-From: Jon Crowley <jonathan@mitre.org>
+	by jazzswing.ncsc.mil  with ESMTP id WAA14186
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 22:54:52 GMT
+Received: from nmda-bubba.NMSU.EDU ([128.123.134.231])
+	by jazzswing.ncsc.mil  with ESMTP id WAA14182
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 22:54:52 GMT
+Message-ID: <B7F6E4A39BE7D111BF2500A0C989BA4795071B@NMDA-BUBBA>
+From: "Simonin, Bradley" <BSimonin@nmda-bubba.nmsu.edu>
+To: "NSA Linux (E-mail)" <selinux@tycho.nsa.gov>
+Subject: Can I compile NSA Linux 2.4.2 kernel the same way I do a the norm
+	al 2.4.2 kernel?
+Date: Thu, 29 Mar 2001 15:53:39 -0700
 MIME-Version: 1.0
-To: "McFarland David M." <DMMcFa2@missi.ncsc.mil>
-CC: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: Re: Context switches
-References: <200103291918.OAA25148@stingray.missi.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Have you changed your path to have /usr/flask/bin before /usr/bin?  If
-not, you may not be using the new versions of the utilities.
 
-Jon
+I have read over the installing security enhanced Linux instructions.
+However, if I can, I would like to configure the kernel like I would with
+the normal 2.4.2 kernel instead of using the shell scripts.  I am hoping I
+can do that but I am having some trouble.  
 
+I copied the context-examples into the /etc/security directory and added
+myself as a sysadm.  From the slinux/kernel directory I uncommented the
+'export INSTALL_PATH=/boot' in Makefile.  I then do 'make mrproper', 'make
+xconfig', 'make dep; make clean', 'make bzImage', 'make modules', 'make
+modules_install'.  I then copy the bzImage kernel from the
+slinux/kernel/arch/i386/boot to my /boot and run lilo.
 
-> "McFarland, David M." wrote:
-> 
-> Hello,
-> 
->         I was able to install the 2.2.12 kernel fine but when I try to
-> use the --context switches it gives me an error. Any idea what might
-> be wrong? I'm following the install instructions from the website.
-> 
-> Dave
+When I reboot I am getting a kernel panic.  The message says:
+Security:  Starting up (compiled Mar 29, 2001)
+Security:  loaded policy configuration from /ss_policy
+Security:  unable to open /ss_policy
+
+If I check no on the flask security mechanism in xconfig then I am able to
+reboot and kernel 2.4.2-FLASK runs like any other kernel.
+
+Am I not going to be able to compile the NSA Kernel like I would with a
+normal kernel?
+
+Thanks in advance,
+
+Brad Simonin     
 
 --
 You have received this message because you are subscribed to the selinux list.
