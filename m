@@ -1,50 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA21507
-	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 13:37:04 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA21005
-	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 18:33:55 GMT
-Received: from moss-sooners.epoch.ncsc.mil (moss-sooners.epoch.ncsc.mil [144.51.25.14])
-	by jazzswing.ncsc.mil  with ESMTP id SAA21001
-	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 18:33:54 GMT
-Received: from moss-sooners.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-sooners.epoch.ncsc.mil (8.12.5/8.12.5) with ESMTP id h1KIb1TT010091
-	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 13:37:01 -0500
-Received: (from hdholm@localhost)
-	by moss-sooners.epoch.ncsc.mil (8.12.5/8.12.5/Submit) id h1KIb02A010089
-	for selinux@tycho.nsa.gov; Thu, 20 Feb 2003 13:37:00 -0500
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA19945
-	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 11:40:57 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA22282
+	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 14:36:47 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1KGeuI05607
-	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 16:40:56 GMT
-Received: from torexch1.mykotronx.com (host-65-119-11-194.mykotronx.com [65.119.11.194] (may be forged))
-        by jazzband.ncsc.mil  with ESMTP id h1KGesf05603 for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 16:40:55 GMT
-Message-ID: <FD2221F5E1A8184DB61AFCE064C395F1C91CE6@torexch1.mykotronx.com>
-From: CNGUYEN <CNguyen@mykotronx.com>
-To: "'Stephen D. Smalley'" <sds@epoch.ncsc.mil>,
-        "'selinux@tycho.nsa.gov'"
-	 <selinux@tycho.nsa.gov>
-Subject: Making OPIE/QTOPIA aware of SELinux
-Date: Thu, 20 Feb 2003 08:42:22 -0800
+	by jazzband.ncsc.mil  with ESMTP id h1KJajI21814
+	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 19:36:45 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id h1KJaef21783 for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 19:36:42 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: CNGUYEN <CNguyen@mykotronx.com>,
+        "'Stephen D. Smalley'" <sds@epoch.ncsc.mil>,
+        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Re: Making OPIE/QTOPIA aware of SELinux
+Date: Thu, 20 Feb 2003 20:36:15 +0100
+References: <FD2221F5E1A8184DB61AFCE064C395F1C91CE6@torexch1.mykotronx.com>
+In-Reply-To: <FD2221F5E1A8184DB61AFCE064C395F1C91CE6@torexch1.mykotronx.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+Message-Id: <200302202036.15660.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Any thoughts on how to make the GUI environment (OPIE or QTOPIA) aware of
-SELinux so that "bypassing" SELinux is prevented?
+On Thu, 20 Feb 2003 17:42, CNGUYEN wrote:
+> Any thoughts on how to make the GUI environment (OPIE or QTOPIA) aware of
+> SELinux so that "bypassing" SELinux is prevented?
 
-Chieu Nguyen
-Mykotronx
+What exactly do you mean by "bypassing SE Linux" and in what ways do you think 
+it should be made aware of SE Linux?
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
+I'm working on Familiar right now but my work is just starting...
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
