@@ -1,49 +1,62 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i827C5rT026966
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 03:12:05 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i827C2v0028977
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 07:12:03 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: /dev entries which also need to be /.?u?dev'd
-Date: Thu, 2 Sep 2004 17:11:59 +1000
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8280IrT027150
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 04:00:19 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i827xS3w015794
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 07:59:29 GMT
+Date: Thu, 2 Sep 2004 09:11:24 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040831101602.GB2098@lkcl.net>
-In-Reply-To: <20040831101602.GB2098@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409021711.59397.russell@coker.com.au>
+Subject: Re: /dev entries which also need to be /.?u?dev'd
+Message-ID: <20040902081124.GA5745@lkcl.net>
+References: <20040831101602.GB2098@lkcl.net> <200409021711.59397.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200409021711.59397.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 31 Aug 2004 20:16, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> the following entries presently marked as /dev need, imo, to also
-> be modified to be ":%s/\/dev/\/.?u?dev/g" [in vi].
->
-> the reason is as i explained that if someone using udev [with or
-> without tmpfs] does a
->
->  setfiles /etc/selinux/src/file_contexts/file_contexsts /.dev
->
-> then they are buggered, without the above.
+On Thu, Sep 02, 2004 at 05:11:59PM +1000, Russell Coker wrote:
+> On Tue, 31 Aug 2004 20:16, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > the following entries presently marked as /dev need, imo, to also
+> > be modified to be ":%s/\/dev/\/.?u?dev/g" [in vi].
+> >
+> > the reason is as i explained that if someone using udev [with or
+> > without tmpfs] does a
+> >
+> >  setfiles /etc/selinux/src/file_contexts/file_contexsts /.dev
+> >
+> > then they are buggered, without the above.
+> 
+> What if a rule such as the following was added at the end?
+> /\.dev(/.*)? <<none>>
+ 
+ as i understand it, that would result in /.dev and its contents
+ from _not_ being affected by setfiles - neither setting nor
+ unsetting any existing file contexts.
 
-What if a rule such as the following was added at the end?
-/\.dev(/.*)? <<none>>
+ that would mean that if the files in /.dev accidentally lost
+ their file contexts [e.g. if you remember, 3 months ago i
+ regularly had fsck.ext2 complain about extended attributes
+ and _delete_ them in order to "fix" the problem]
 
-That will work for the short-term.  Long term I think that the correct thing 
-to do is to work on the stem-compression code in setfiles and have multiple 
-prefixes for the /dev stuff.  However this requires either adding special 
-case code to setfiles or adding more configuration information to the config 
-file (syntax additions).
+ or if someone re-ran MAKEDEV in /.dev
+
+ that they would still be unable to boot unless they remembered
+ to manually set up a file context on each node.
+
+ l.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
