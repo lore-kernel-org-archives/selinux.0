@@ -1,55 +1,45 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7EC3MHa028327
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 08:03:22 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7EGE4Ha029432
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 12:14:04 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7EC3Lj6020458
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 12:03:21 GMT
-Received: from moss-sooners.epoch.ncsc.mil (moss-sooners.epoch.ncsc.mil [144.51.25.14])
-        by jazzband.ncsc.mil  with ESMTP id h7EC3LNN020455 for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 12:03:21 GMT
-Received: from moss-sooners.epoch.ncsc.mil (moss-sooners.epoch.ncsc.mil [127.0.0.1])
-	by moss-sooners.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7EC3KYS012885
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 08:03:21 -0400
-Received: (from hdholm@localhost)
-	by moss-sooners.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h7EC3Kaq012883
-	for selinux@tycho.nsa.gov; Thu, 14 Aug 2003 08:03:20 -0400
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7EBkTHa028279
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 07:46:29 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7EBj9OD021275
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 11:45:09 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h7EBj8KO021272
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 11:45:08 GMT
-Received: from moss-sooners (moss-sooners [144.51.25.14])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7EBkRLX000034
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 07:46:27 -0400 (EDT)
-Subject: Updated Release
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-List-Id: selinux@tycho.nsa.gov
+	by jazzband.ncsc.mil  with ESMTP id h7EGE3j6006967
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 16:14:03 GMT
+Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
+        by jazzband.ncsc.mil  with ESMTP id h7EGE3NN006964 for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2003 16:14:03 GMT
+Subject: Re: Updated Release
+From: Chris PeBenito <pebenito@gentoo.org>
+To: Howard Holm <hdholm@epoch.ncsc.mil>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1060861583.11825.2537.camel@moss-sooners.epoch.ncsc.mil>
+References: <1060861583.11825.2537.camel@moss-sooners.epoch.ncsc.mil>
 Content-Type: text/plain
-Message-Id: <1060861583.11825.2537.camel@moss-sooners.epoch.ncsc.mil>
+Message-Id: <1060877641.1909.11.camel@chris.pebenito.net>
 Mime-Version: 1.0
-Date: 14 Aug 2003 07:46:26 -0400
+Date: Thu, 14 Aug 2003 11:14:01 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The SELinux web site <http://www.nsa.gov/selinux/> including the
-maillist archive has been updated.  The SELinux module has been merged
-into the mainline kernel as of 2.6.0-test3.  This release includes new
-kernel patches based on the 2.6.0-test3 kernel and a backport of the 2.6
-SELinux module to the 2.4.21 kernel.  The new API is consistent between
-2.4 and 2.6.  The old 2.4 API and user-space utilities are no longer
-actively maintained.  There have been a number of bug fixes and cleanups
-to the library and utilities as well as new contributions to the example
-policy.
+Is this backported 2.6 api non arch-specific, like it is in 2.6?  Or is
+it still limited to x86?
 
+On Thu, 2003-08-14 at 06:46, Howard Holm wrote:
+> The SELinux web site <http://www.nsa.gov/selinux/> including the
+> maillist archive has been updated.  The SELinux module has been merged
+> into the mainline kernel as of 2.6.0-test3.  This release includes new
+> kernel patches based on the 2.6.0-test3 kernel and a backport of the 2.6
+> SELinux module to the 2.4.21 kernel.  The new API is consistent between
+> 2.4 and 2.6.  The old 2.4 API and user-space utilities are no longer
+> actively maintained.  There have been a number of bug fixes and cleanups
+> to the library and utilities as well as new contributions to the example
+> policy.
 -- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Office of Defensive Computing Research
-National Security Agency
-
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer, SELinux
+Hardened Gentoo Linux
+ 
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
+Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
 --
 This message was distributed to subscribers of the selinux mailing list.
