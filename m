@@ -1,184 +1,50 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA07275
-	for <selinux@tycho.nsa.gov>; Thu, 16 May 2002 13:58:34 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA27578
-	for <selinux@tycho.nsa.gov>; Thu, 16 May 2002 17:56:31 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id RAA27574
-	for <selinux@tycho.nsa.gov>; Thu, 16 May 2002 17:56:31 GMT
-Received: from localhost (sds@localhost)
-	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id g4GHw0r18629
-	for <selinux@tycho.nsa.gov>; Thu, 16 May 2002 13:58:00 -0400 (EDT)
-Date: Thu, 16 May 2002 13:58:00 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: <selinux@tycho.nsa.gov>
-Subject: [patch] security_get_sids
-Message-ID: <Pine.GSO.4.33.0205161355350.29714-200000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA20792
+	for <selinux@tycho.nsa.gov>; Sun, 19 May 2002 23:42:47 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id DAA12963
+	for <selinux@tycho.nsa.gov>; Mon, 20 May 2002 03:41:30 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id DAA12959 for <selinux@tycho.nsa.gov>; Mon, 20 May 2002 03:41:24 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>,
+        Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>
+Subject: Re: .journal
+Date: Mon, 20 May 2002 12:21:17 +1000
+Cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0205131151170.21547-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0205131151170.21547-100000@raven>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-684387517-1021571880=:29714"
+Message-Id: <20020520034239.61FEF6DEC@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Tue, 14 May 2002 01:58, Stephen Smalley wrote:
+> On Mon, 13 May 2002, Carsten Grohmann wrote:
+> > Since a few days I use the ext3 filesystem. And now I am looking the
+> > correct rights for the journaling files (.journal). At this time I
+> > labeled as file_t. What is your opinion? Should it use an own type or is
+> > the file_t better?
+>
+> You should define a new type for the .journal files, and limit access to
+> only a few domains.  The only reason that we haven't done so is that our
+> journal files aren't visible (created via mke2fs -j with a clean
+> filesystem rather than on an existing filesystem).
 
----559023410-684387517-1021571880=:29714
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Maybe something like the following?
 
-
-The attached patch (also committed to the sourceforge CVS) fixes the
-locking and layering of the security_get_sids call, used by list_sids.
-To apply, cd lsm-2.4 && patch -p0 < ~/get_sids.patch.  Then, rebuild your
-kernel.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
+file_type_auto_trans(fsadm_t, root_t, ext3_journal_t)
 
 
----559023410-684387517-1021571880=:29714
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="get_sids.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0205161358000.29714@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="get_sids.patch"
 
-SW5kZXg6IHNlY3VyaXR5L3NlbGludXgvc3Mvc2VydmljZXMuYw0KPT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290L3NlbGludXgv
-bnNhL2xzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zcy9zZXJ2aWNlcy5jLHYN
-CnJldHJpZXZpbmcgcmV2aXNpb24gMS41DQpkaWZmIC11IC1yMS41IHNlcnZp
-Y2VzLmMNCi0tLSBzZWN1cml0eS9zZWxpbnV4L3NzL3NlcnZpY2VzLmMJMjYg
-TWFyIDIwMDIgMjA6MTU6MTcgLTAwMDAJMS41DQorKysgc2VjdXJpdHkvc2Vs
-aW51eC9zcy9zZXJ2aWNlcy5jCTE2IE1heSAyMDAyIDE3OjUwOjExIC0wMDAw
-DQpAQCAtMTE0OSw2ICsxMTQ5LDIyIEBADQogfQ0KIA0KIC8qDQorICogR2Vu
-ZXJhdGUgdGhlIHNldCBvZiBhY3RpdmUgU0lEcy4NCisgKiBTZXQgYCpzaWRz
-JyB0byBwb2ludCB0byBhIGR5bmFtaWNhbGx5IGFsbG9jYXRlZCANCisgKiBh
-cnJheSBjb250YWluaW5nIHRoZSBzZXQgb2YgU0lEcy4gIFNldCBgKm5lbCcg
-dG8gdGhlDQorICogbnVtYmVyIG9mIGVsZW1lbnRzIGluIHRoZSBhcnJheS4N
-CisgKi8NCitpbnQgc2VjdXJpdHlfZ2V0X3NpZHMoc2VjdXJpdHlfaWRfdCAq
-KnNpZHMsDQorCQkgICAgICBfX3UzMiAqbmVsKQ0KK3sNCisJaW50IHJjOw0K
-KwlQT0xJQ1lfUkRMT0NLOyANCisJcmMgPSBzaWR0YWJfZ2V0X3NpZHMoJnNp
-ZHRhYiwgc2lkcywgbmVsKTsNCisJUE9MSUNZX1JEVU5MT0NLOw0KKwlyZXR1
-cm4gcmM7DQorfQ0KKw0KKy8qDQogICogR2VuZXJhdGUgdGhlIHNldCBvZiBT
-SURzIGZvciBsZWdhbCBzZWN1cml0eSBjb250ZXh0cw0KICAqIGZvciBhIGdp
-dmVuIHVzZXIgdGhhdCBjYW4gYmUgcmVhY2hlZCBieSBgZnJvbXNpZCcuDQog
-ICogU2V0IGAqc2lkcycgdG8gcG9pbnQgdG8gYSBkeW5hbWljYWxseSBhbGxv
-Y2F0ZWQgDQpJbmRleDogc2VjdXJpdHkvc2VsaW51eC9zcy9zZXJ2aWNlcy5o
-DQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2c3Jvb3Qv
-c2VsaW51eC9uc2EvbHNtLTIuNC9zZWN1cml0eS9zZWxpbnV4L3NzL3NlcnZp
-Y2VzLmgsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjEuMS4xDQpkaWZmIC11
-IC1yMS4xLjEuMSBzZXJ2aWNlcy5oDQotLS0gc2VjdXJpdHkvc2VsaW51eC9z
-cy9zZXJ2aWNlcy5oCTIwIERlYyAyMDAxIDIzOjMwOjA1IC0wMDAwCTEuMS4x
-LjENCisrKyBzZWN1cml0eS9zZWxpbnV4L3NzL3NlcnZpY2VzLmgJMTYgTWF5
-IDIwMDIgMTc6NTA6MTEgLTAwMDANCkBAIC0zMCw2ICszMCw5IEBADQogCQkJ
-ICAgc2VjdXJpdHlfaWRfdCAqKnNpZHMsDQogCQkJICAgX191MzIgKm5lbCk7
-DQogDQoraW50IHNlY3VyaXR5X2dldF9zaWRzKHNlY3VyaXR5X2lkX3QgKipz
-aWRzLA0KKwkJICAgICAgX191MzIgKm5lbCk7DQorDQogI2VuZGlmCS8qIF9T
-RVJWSUNFU19IXyAqLw0KIA0KIC8qIEZMQVNLICovDQpJbmRleDogc2VjdXJp
-dHkvc2VsaW51eC9zcy9zaWR0YWIuYw0KPT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PQ0KUkNTIGZpbGU6IC9jdnNyb290L3NlbGludXgvbnNhL2xzbS0yLjQvc2Vj
-dXJpdHkvc2VsaW51eC9zcy9zaWR0YWIuYyx2DQpyZXRyaWV2aW5nIHJldmlz
-aW9uIDEuNA0KZGlmZiAtdSAtcjEuNCBzaWR0YWIuYw0KLS0tIHNlY3VyaXR5
-L3NlbGludXgvc3Mvc2lkdGFiLmMJMjYgTWFyIDIwMDIgMTk6MDc6NDYgLTAw
-MDAJMS40DQorKysgc2VjdXJpdHkvc2VsaW51eC9zcy9zaWR0YWIuYwkxNiBN
-YXkgMjAwMiAxNzo1MDoxMSAtMDAwMA0KQEAgLTI0MywyMCArMjQzLDIwIEBA
-DQogCXNpZCA9IHNpZHRhYl9zZWFyY2hfY29udGV4dChzLCBjb250ZXh0KTsN
-CiAJaWYgKCFzaWQpIHsNCiAJCVNJRFRBQl9MT0NLKHMsZmxhZ3MpOw0KLQkJ
-LyogUmVzY2FuIG5vdyB0aGF0IHdlIGhvbGQgdGhlIHNlbWFwaG9yZS4gKi8N
-CisJCS8qIFJlc2NhbiBub3cgdGhhdCB3ZSBob2xkIHRoZSBsb2NrLiAqLw0K
-IAkJc2lkID0gc2lkdGFiX3NlYXJjaF9jb250ZXh0KHMsIGNvbnRleHQpOw0K
-IAkJaWYgKHNpZCkgDQotCQkJZ290byB1cF9vdXQ7DQorCQkJZ290byB1bmxv
-Y2tfb3V0Ow0KIAkJLyogTm8gU0lEIGV4aXN0cyBmb3IgdGhlIGNvbnRleHQu
-ICBBbGxvY2F0ZSBhIG5ldyBvbmUuICovDQogCQlpZiAocy0+bmV4dF9zaWQg
-PT0gVUlOVF9NQVgpIHsNCiAJCQlyZXQgPSAtRU5PTUVNOw0KLQkJCWdvdG8g
-dXBfb3V0Ow0KKwkJCWdvdG8gdW5sb2NrX291dDsNCiAJCX0NCiAJCXNpZCA9
-IHMtPm5leHRfc2lkKys7DQogCQlyZXQgPSBzaWR0YWJfaW5zZXJ0KHMsIHNp
-ZCwgY29udGV4dCk7DQogCQlpZiAocmV0KQ0KIAkJCXMtPm5leHRfc2lkLS07
-DQotdXBfb3V0Og0KK3VubG9ja19vdXQ6DQogCQlTSURUQUJfVU5MT0NLKHMs
-ZmxhZ3MpOw0KIAl9DQogDQpAQCAtMzIxLDkgKzMyMSw0NiBAQA0KIA0KIHZv
-aWQgc2lkdGFiX3NldChzaWR0YWJfdCAqZHN0LCBzaWR0YWJfdCAqc3JjKQ0K
-IHsNCisJdW5zaWduZWQgbG9uZyBmbGFnczsNCisJU0lEVEFCX0xPQ0soc3Jj
-LCBmbGFncyk7DQogCWRzdC0+aHRhYmxlID0gc3JjLT5odGFibGU7DQogCWRz
-dC0+bmVsID0gc3JjLT5uZWw7DQogCWRzdC0+bmV4dF9zaWQgPSBzcmMtPm5l
-eHRfc2lkOw0KKwlTSURUQUJfVU5MT0NLKHNyYywgZmxhZ3MpOw0KK30NCisN
-CitpbnQgc2lkdGFiX2dldF9zaWRzKHNpZHRhYl90ICpzLA0KKwkJICAgIHNl
-Y3VyaXR5X2lkX3QgKipzaWRzLA0KKwkJICAgIF9fdTMyICpuZWwpDQorew0K
-Kwl1bnNpZ25lZCBsb25nIGZsYWdzOw0KKwlpbnQgcmMgPSAwOw0KKwlzZWN1
-cml0eV9pZF90ICpteXNpZHM7DQorCV9fdTMyIG15bmVsOw0KKwlpbnQgaSwg
-ajsNCisJc2lkdGFiX25vZGVfdCAqY3VyOw0KKw0KKwlTSURUQUJfTE9DSyhz
-LGZsYWdzKTsNCisJbXluZWwgPSBzLT5uZWw7DQorCW15c2lkcyA9IG1hbGxv
-YyhzaXplb2Yoc2VjdXJpdHlfaWRfdCkqbXluZWwpOw0KKwlpZiAoIW15c2lk
-cykgew0KKwkJcmMgPSAtRU5PTUVNOw0KKwkJZ290byBvdXQ7DQorCX0NCisJ
-aiA9IDA7DQorCWZvciAoaSA9IDA7IGkgPCBTSURUQUJfU0laRSAmJiBqIDwg
-bXluZWw7IGkrKykgew0KKwkJY3VyID0gcy0+aHRhYmxlW2ldOw0KKwkJd2hp
-bGUgKGN1ciAhPSBOVUxMICYmIGogPCBteW5lbCkgew0KKwkJCW15c2lkc1tq
-KytdID0gY3VyLT5zaWQ7DQorCQkJY3VyID0gY3VyLT5uZXh0Ow0KKwkJfQ0K
-Kwl9DQorCSpuZWwgPSBteW5lbDsNCisJKnNpZHMgPSBteXNpZHM7DQorDQor
-b3V0Og0KKwlTSURUQUJfVU5MT0NLKHMsZmxhZ3MpOw0KKwlyZXR1cm4gcmM7
-DQogfQ0KIA0KIC8qIEZMQVNLICovDQpJbmRleDogc2VjdXJpdHkvc2VsaW51
-eC9zcy9zaWR0YWIuaA0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZp
-bGU6IC9jdnNyb290L3NlbGludXgvbnNhL2xzbS0yLjQvc2VjdXJpdHkvc2Vs
-aW51eC9zcy9zaWR0YWIuaCx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMw0K
-ZGlmZiAtdSAtcjEuMyBzaWR0YWIuaA0KLS0tIHNlY3VyaXR5L3NlbGludXgv
-c3Mvc2lkdGFiLmgJMjYgTWFyIDIwMDIgMTk6MDc6NDYgLTAwMDAJMS4zDQor
-Kysgc2VjdXJpdHkvc2VsaW51eC9zcy9zaWR0YWIuaAkxNiBNYXkgMjAwMiAx
-Nzo1MDoxMSAtMDAwMA0KQEAgLTY0LDYgKzY0LDEwIEBADQogDQogdm9pZCBz
-aWR0YWJfc2V0KHNpZHRhYl90ICpkc3QsIHNpZHRhYl90ICpzcmMpOw0KIA0K
-K2ludCBzaWR0YWJfZ2V0X3NpZHMoc2lkdGFiX3QgKnMsDQorCQkgICAgc2Vj
-dXJpdHlfaWRfdCAqKnNpZHMsDQorCQkgICAgX191MzIgKm5lbCk7DQorDQog
-I2VuZGlmCS8qIF9TSURUQUJfSF8gKi8NCiANCiAvKiBGTEFTSyAqLw0KSW5k
-ZXg6IHNlY3VyaXR5L3NlbGludXgvc3Mvc3lzY2FsbHMuYw0KPT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290L3NlbGludXgvbnNh
-L2xzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zcy9zeXNjYWxscy5jLHYNCnJl
-dHJpZXZpbmcgcmV2aXNpb24gMS4xLjEuMg0KZGlmZiAtdSAtcjEuMS4xLjIg
-c3lzY2FsbHMuYw0KLS0tIHNlY3VyaXR5L3NlbGludXgvc3Mvc3lzY2FsbHMu
-YwkyMiBKYW4gMjAwMiAxNzowNzoxOCAtMDAwMAkxLjEuMS4yDQorKysgc2Vj
-dXJpdHkvc2VsaW51eC9zcy9zeXNjYWxscy5jCTE2IE1heSAyMDAyIDE3OjUw
-OjExIC0wMDAwDQpAQCAtMTIsNyArMTIsNiBAQA0KICNpbmNsdWRlIDxhc20v
-dWFjY2Vzcy5oPgkvKiBjb3B5X3RvL2Zyb21fdXNlciAgKi8NCiAjaW5jbHVk
-ZSA8YXNtL2Vycm5vLmg+DQogI2luY2x1ZGUgInNlcnZpY2VzLmgiDQotI2lu
-Y2x1ZGUgInNpZHRhYi5oIg0KIA0KIC8qIGhvb2tzLmMgKi8NCiBleHRlcm4g
-aW50IHRhc2tfaGFzX3NlY3VyaXR5KHN0cnVjdCB0YXNrX3N0cnVjdCAqdHNr
-LA0KQEAgLTMxNSwxMiArMzE0LDExIEBADQogICogdG8gdGhlIG51bWJlciBv
-ZiBhY3RpdmUgU0lEcyBhbmQgLUVOT1NQQyBpcyByZXR1cm5lZC4NCiAgKi8N
-CiBsb25nIHN5c19zZWN1cml0eV9nZXRfc2lkcyhzZWN1cml0eV9pZF90ICog
-c2lkcywNCi0JCQkJICAgICBfX3UzMiAqbmVsKQ0KKwkJCSAgIF9fdTMyICpu
-ZWwpDQogew0KLQlpbnQgcmV0X3ZhbCwgaSwgajsNCi0Jc2VjdXJpdHlfaWRf
-dCAqc2lkczI7DQotCV9fdTMyIGluX25lbDsNCi0Jc2lkdGFiX25vZGVfdCAq
-Y3VyOw0KKwlzZWN1cml0eV9pZF90ICpzaWRzMiA9IDA7DQorCV9fdTMyIGlu
-X25lbCwgb3V0X25lbDsNCisJaW50IHJldF92YWw7DQogDQogCXJldF92YWwg
-PSB0YXNrX2hhc19zZWN1cml0eShjdXJyZW50LCBTRUNVUklUWV9fR0VUX1NJ
-RFMpOw0KIAlpZiAocmV0X3ZhbCkNCkBAIC0zMzAsMzQgKzMyOCwyNyBAQA0K
-IAkJcmV0X3ZhbCA9IC1FRkFVTFQ7DQogCQlnb3RvIG91dDsNCiAJfQ0KLQlp
-ZiAoY29weV90b191c2VyKG5lbCwgJnNpZHRhYi5uZWwsIHNpemVvZihfX3Uz
-MikpKSB7DQorDQorCXJldF92YWwgPSBzZWN1cml0eV9nZXRfc2lkcygmc2lk
-czIsICZvdXRfbmVsKTsNCisJaWYgKHJldF92YWwpDQorCQlnb3RvIG91dDsN
-CisNCisJaWYgKGNvcHlfdG9fdXNlcihuZWwsICZvdXRfbmVsLCBzaXplb2Yo
-X191MzIpKSkgew0KIAkJcmV0X3ZhbCA9IC1FRkFVTFQ7DQogCQlnb3RvIG91
-dDsNCiAJfQ0KLQlpZiAoaW5fbmVsIDwgc2lkdGFiLm5lbCkgew0KKwlpZiAo
-aW5fbmVsIDwgb3V0X25lbCkgew0KIAkJcmV0X3ZhbCA9IC1FTk9TUEM7DQog
-CQlnb3RvIG91dDsNCiAJfQ0KLQlzaWRzMiA9IGttYWxsb2Moc2l6ZW9mKHNl
-Y3VyaXR5X2lkX3QpICogc2lkdGFiLm5lbCwgR0ZQX1VTRVIpOw0KLQlpZiAo
-IXNpZHMyKSB7DQotCQlyZXRfdmFsID0gLUVOT01FTTsNCi0JCWdvdG8gb3V0
-Ow0KLQl9DQotCWogPSAwOw0KLQlmb3IgKGkgPSAwOyBpIDwgU0lEVEFCX1NJ
-WkU7IGkrKykgew0KLQkJY3VyID0gc2lkdGFiLmh0YWJsZVtpXTsNCi0JCXdo
-aWxlIChjdXIgIT0gTlVMTCkgew0KLQkJCXNpZHMyW2orK10gPSBjdXItPnNp
-ZDsNCi0JCQljdXIgPSBjdXItPm5leHQ7DQotCQl9DQotCX0NCiANCi0JaWYg
-KGNvcHlfdG9fdXNlcihzaWRzLCBzaWRzMiwgc2l6ZW9mKHNlY3VyaXR5X2lk
-X3QpICogc2lkdGFiLm5lbCkpIHsNCisJaWYgKGNvcHlfdG9fdXNlcihzaWRz
-LCBzaWRzMiwgc2l6ZW9mKHNlY3VyaXR5X2lkX3QpICogb3V0X25lbCkpIHsN
-CiAJCXJldF92YWwgPSAtRUZBVUxUOw0KIAkJZ290byBvdXQ7DQogCX0NCi0J
-a2ZyZWUoc2lkczIpOw0KICAgICAgIG91dDoNCisJaWYgKHNpZHMyKQ0KKwkJ
-a2ZyZWUoc2lkczIpOw0KIAlyZXR1cm4gcmV0X3ZhbDsNCiB9DQogDQo=
----559023410-684387517-1021571880=:29714--
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
