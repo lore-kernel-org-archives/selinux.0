@@ -1,88 +1,79 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA213oXZ001982
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 20:03:50 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA21CbXZ002042
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 20:12:37 -0500 (EST)
 Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA213ofG018104
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 01:03:50 GMT
-Message-ID: <4186DCE7.9030401@tresys.com>
-Date: Mon, 01 Nov 2004 20:03:35 -0500
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA21CbfG018491
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 01:12:37 GMT
+Message-ID: <4186DEE7.9040900@tresys.com>
+Date: Mon, 01 Nov 2004 20:12:07 -0500
 From: Karl MacMillan <kmacmillan@tresys.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: Frank Mayer <mayerf@tresys.com>,
-   "'Darrel Goeddel'" <dgoeddel@TrustedCS.com>, selinux@tycho.nsa.gov,
-   "'Chad Hanson'" <chanson@TrustedCS.com>
-Subject: Re: dynamic context transitions
-References: <000501c4bf9b$a157d2e0$6701a8c0@columbia.tresys.com> <1099316236.21386.31.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1099316236.21386.31.camel@moss-spartans.epoch.ncsc.mil>
+To: Chad Hanson <chanson@TrustedCS.com>
+CC: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: dynamic context transitions - a seteuid parallel
+References: <36282A1733C57546BE392885C06185924D91F1@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C06185924D91F1@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+Chad Hanson wrote:
 
->On Sun, 2004-10-31 at 17:47, Frank Mayer wrote:
+>Luke Kenneth Casson Leighton wrote:
 >  
 >
->>Ah and here we have the beginning of the slippery slope.  This might be easy in
->>terms of lines of code, but the conceptual complexity of what you describe above
->>scares me.  I still wonder why we have to change TE to support a MLS convention.
->>I'd much rather you did not make these mechanisms dependent on each other.  
+>>what are the alternatives?
+>>
 >>    
 >>
 >
->TE was originally developed to fill in the gaps of MLS, including
->privilege management for trusted subjects.  Using TE to control MLS
->privileges is a good thing.  Whether or not privilege bracketing is a
->good thing is more open to debate, although it is clearly entrenched in
->applications today, and not just MLS applications; the prior requests
->for such a feature have been to support traditional Unix applications
->that presently use seteuid/setfsuid.
->
->Devil's advocate: 
+>The alternatives are to overprivilege the application which is not
+>acceptable or to rewrite all of the applications before they can be used on
+>this new platform.
 >
 
-This is a clear start to a message that I should probably avoid replying 
-to . . .
-
->Would you argue for removing the ability to reload
->policy at runtime from SELinux?  For removing the ability to relabel
->files at runtime from SELinux?  Or is it sufficient that these "unsafe"
->operations are controlled by the policy?  The dynamic context
->transitions can be controlled on a pairwise context basis, so you do get
->much finer control than a traditional setuid-like operation.
->
->  
->
-
-I certainly see your general point: we are already on the slippery 
-slope. That doesn't mean we have to keep going, though. I have a few 
-questions (and answers) back:
-
-Is it possible to build a reasonable system without any of these 
-features? I don't see how SELinux could be made acceptable to the linux 
-world without policy reloading and file relabeling,  but it seems clear 
-that a reasonable system can be built without dynamic context 
-transistions. Feel free to beat me up about what a "reasonable" system is.
-
-All of these mechanism are present to allow integration of SELinux with 
-existing linux, and prehaps solaris, concepts and practices. The 
-question is, how far are we willing to go to preserve backwards 
-compatibility and when is it valuable to force a certain model? I think 
-it is valuable to force an exec model of domain transitions because it 
-requires applications to conform to a sound security architecture. TCS 
-and others with a large body of existing code probably have a different 
-view.
-
-Everyone seems to agree that dynamic context transitions are useful only 
-to support legacy applications that should be rewritten to an exec 
-model. Will dynamic context transitions therefore be removed at some 
-point in the future? It seems that if this is accepted not only will it 
-remain forever to support legacy, but new applications will be written 
-that use this capability.
+It is not clear to me how the application is not overprivileged already 
+if it is allowed to freely change between a privileged and unprivileged 
+domain. The application must be fully trusted with the maximum access 
+that it is granted. A misbehaving application will simply not drop 
+access (obviously). Additionally, it seems that from an analysis stand 
+point, these domains must be treated as equivalent and so it is not 
+clear how the argument can be made that this increases assurance.
 
 Karl
 
+>The latter is goal which can and should be achieved or
+>time. Applications can streamlined and reorganized to fit into the modular
+>framework and of cooperating applications. This is a considerable effort and
+>major roadblock to utilizing SELinux and therefore Linux for these types of
+>  
+>
+
+>The other main roadblocks are already being addressed with Linux getting
+>CAPP EAL3 and soon to be EAL4 certifications. Add LSPP and RBAC and you have
+>Linux system suitable to address secure information sharing needs.
+>
+>-Chad
+>
+>  
+>
+>>l.
+>>
+>>p.s. not that i actually understand MLS enough to understand 
+>>any answers
+>>[yet] but i'm just encouraging people to bounce ideas.
+>>
+>>
+>>    
+>>
+>
+>--
+>This message was distributed to subscribers of the selinux mailing list.
+>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>the words "unsubscribe selinux" without quotes as the message.
+>  
+>
 
 
 --
