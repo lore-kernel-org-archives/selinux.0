@@ -1,26 +1,46 @@
-Subject: Re: Latest diffs
-From: Colin Walters <walters@verbum.org>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <41768337.3080303@redhat.com>
-References: <41768337.3080303@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9KK8sXZ003928
+	for <selinux@tycho.nsa.gov>; Wed, 20 Oct 2004 16:08:55 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9KK7eui006038
+	for <selinux@tycho.nsa.gov>; Wed, 20 Oct 2004 20:07:40 GMT
+Subject: Re: cdrecord deadlocks linux 2.6.8.1 (problem in setscheduler)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chris Wright <chrisw@osdl.org>
+Cc: James Morris <jmorris@redhat.com>,
+   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   lsm <linux-security-module@wirex.com>, SELinux ML <selinux@tycho.nsa.gov>,
+   Crispin Cowan <crispin@immunix.com>
+In-Reply-To: <20041020104123.J2357@build.pdx.osdl.net>
+References: <1098217020.29525.183.camel@moss-spartans.epoch.ncsc.mil>
+	 <Xine.LNX.4.44.0410191635070.30036-100000@thoron.boston.redhat.com>
+	 <20041019140947.G2357@build.pdx.osdl.net>
+	 <1098275010.672.41.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041020104123.J2357@build.pdx.osdl.net>
 Content-Type: text/plain
-Date: Wed, 20 Oct 2004 15:18:12 -0400
-Message-Id: <1098299892.26380.47.camel@decepticon.boston.redhat.com>
+Message-Id: <1098302713.672.198.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Wed, 20 Oct 2004 16:05:13 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-10-20 at 11:24 -0400, Daniel J Walsh wrote:
+On Wed, 2004-10-20 at 13:41, Chris Wright wrote:
+> Unfortunately, policy < 0 is not really POSIX compliant, but it's
+> documented behaviour, so changing this would change the ABI, and could
+> break something.  Otherwise, the simplest would be remove that bit
+> altogether.  Don't think we need to hold lock while sampling the value,
+> since it should be processor word-sized value, nothing odd on loading
+> should happen.  It's possible to loop and recheck, but w/out convincing
+> oneself that livelock is not possible, -EPERM and return seems quite
+> valid for this very unlikely case.  Untested patch below.
 
-> +domain_auto_trans(sysadm_t, httpdcontent, httpd_sys_script_t)
+Works for me.  However, the test may be overly strong, e.g. if policy >=
+0 on entry, then oldpolicy isn't used, and we don't care whether it
+stayed the same, right?
 
-Hm, this change seems a bit asymmetric; we don't give other userdomains
-the ability to directly execute their own scripts
-(httpd_staff_script_exec_t), right?  If we're going to allow this, we
-should probably do it in apache_macros.te too.
-
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
