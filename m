@@ -1,32 +1,54 @@
-Subject: Re: Desktop apps interoperability
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Tom <tom@lemuria.org>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <20050331231259.B2607@lemuria.org>
-References: <20050331160546.36303.qmail@web31615.mail.mud.yahoo.com>
-	 <1112285287.11216.114.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050331231259.B2607@lemuria.org>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2VMNkDo000131
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 17:23:46 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2VMJiTg023527
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 22:19:44 GMT
+Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j2VMMNB9018301
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 17:22:24 -0500 (EST)
+Subject: Further X client cleanups..questions
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 31 Mar 2005 16:05:52 -0500
-Message-Id: <1112303152.11216.199.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 31 Mar 2005 17:28:33 -0500
+Message-Id: <1112308113.17917.9.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-03-31 at 23:13 +0200, Tom wrote:
-> He does have a point, though - sometimes the application can not be
-> changed. It may be a legacy application and for all I care, those are
-> the ones most in need of a protective cage.
+I am wondering whether the following are needed:
 
-Sure, and at that point, you just confine it as best as you can while
-still allowing whatever functionality you require.  SELinux supports
-that need just fine.  But you don't want to just accept that status quo
-for all applications for all time, which seemed to be Casey's attitude.
- 
+allow $1_$2_t xdm_t:fd use;
+allow $1_$2_t xdm_t:fifo_file rw_file_perms;
+dontaudit $1_$2_t xdm_t:tcp_socket { read write };
+
+allow $1_t $2_xserver_t:process signal;
+
+=========
+
+I also plan on moving this out of x_client and into each 
+separate client:
+
+# Allow the user domain to send any signal to the $2 process.
+can_ps($1_t, $1_$2_t)
+allow $1_t $1_$2_t:process signal_perms;
+
+=========
+
+And I've introduced a boolean here:
+
+# Client write xserver shm
+if (allow_write_xshm) {
+allow $1_t $2_xserver_t:shm write;
+allow $1_t $2_xserver_tmpfs_t:file write;
+}
+
+
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
