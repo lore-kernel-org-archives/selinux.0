@@ -1,35 +1,50 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA24473
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 11:43:02 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA01928
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 16:41:55 GMT
-Received: from urc1.cc.kuleuven.ac.be (urc1.cc.kuleuven.ac.be [134.58.10.3])
-	by jazzswing.ncsc.mil  with ESMTP id QAA01924
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 16:41:54 GMT
-Received: from student.kuleuven.ac.be (campsight.kotnet.org [10.67.60.249])
-	by urc1.cc.kuleuven.ac.be (8.12.0/8.12.0) with ESMTP id g1RGgxMk034034
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 17:42:59 +0100
-Message-ID: <3C7D0C37.D47A1D6E@student.kuleuven.ac.be>
-Date: Wed, 27 Feb 2002 17:41:27 +0100
-From: Johan Camp <johan.camp@student.kuleuven.ac.be>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA25386
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 13:31:55 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA18833
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 18:30:56 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id SAA18829 for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 18:30:55 GMT
+Date: Wed, 27 Feb 2002 13:30:43 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: <wakkerma@debian.org>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: straceing SE Linux
+In-Reply-To: <20020227182506.47225134A4@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0202271327520.12300-100000@raven>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: thesis subject
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi
 
-I work at the computer science department of the KUL (Katholic
-University of Leuven). Our security-group is looking for some
-interesting subjects for a thesis next academic year. Has anyone got an
-idea for a thesis subject concerning SELinux?
+On Wed, 27 Feb 2002, Russell Coker wrote:
 
-Thanx
+> From inspecting the kernel code and the strace it appears that socketcall
+> doesn't get processed the way you might expect.  It appears that for every
+> function that works with socketcall() there is a separate system call for it.
+>  So when I strace a socket program on my system it displays the socket(),
+> connect() etc because those system calls are called directly.  It appears
+> that my libc does not use socketcall()!  I could not find any special
+> handling in the strace source for socketcall, it appears that socketcall()
+> will be displayed as such!
 
-Johan Camp
+If you look at arch/i386/kernel/entry.S in the kernel tree, you'll see
+that there are no entrypoints for the individual socket calls.  Just for
+sys_socketcall.  Similarly for the System V IPC system calls - they are
+all multiplexed through sys_ipc.  It is true that there are separate
+library functions for the different calls, but not different system calls.
+You won't find any definitions for connect and friends in
+include/asm-i386/unistd.h either.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
