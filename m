@@ -1,452 +1,768 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j35Mq2Do013204
-	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 18:52:03 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j35Ml3sM001007
-	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 22:47:04 GMT
-Subject: Re: [ PATCH ] X clients cleanup Patch #3
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <425154AB.8080206@redhat.com>
-References: <1112308113.17917.9.camel@cobra.ivg2.net>
-	 <1112416291.7982.7.camel@cobra.ivg2.net> <424E8A49.2090408@redhat.com>
-	 <200504022227.40688.russell@coker.com.au>
-	 <1112456589.12762.6.camel@cobra.ivg2.net>  <425154AB.8080206@redhat.com>
-Content-Type: multipart/mixed; boundary="=-Gqqdak8lvy8BD2uulzoq"
-Date: Tue, 05 Apr 2005 18:56:04 -0400
-Message-Id: <1112741764.24363.5.camel@cobra.ivg2.net>
-Mime-Version: 1.0
+Message-ID: <425320BD.5050207@trustedcs.com>
+Date: Tue, 05 Apr 2005 18:35:25 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>,
+   selinux-dev@tresys.com
+Subject: Re: policy hierarchy patch
+References: <1112631282.19526.18.camel@localhost>	 <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil>	 <1112643447.19527.30.camel@localhost>  <4251BA1E.9040406@trustedcs.com> <1112709782.19531.39.camel@localhost>
+In-Reply-To: <1112709782.19531.39.camel@localhost>
+Content-Type: multipart/mixed;
+ boundary="------------000507090100040509090802"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---=-Gqqdak8lvy8BD2uulzoq
-Content-Type: text/plain
+This is a multi-part message in MIME format.
+--------------000507090100040509090802
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
+Joshua Brindle wrote:
+>>Sounds good to me.  I should actually be able to take a look at it tomorrow and 
+>>help you out with the code.  I know that the parsing isn't the prettiest...  I 
+>>think I may be able to make it look better in C code.  And we didn't really like 
+>>the spaces anyway.
+>>
+> 
+> 
+> So what were you thinking? the hierarchy stuff already has the
+> infrastructure for checking for '.' in the identifier and splitting out
+> the "parent", which in your case would be the lower part of the range.
+> Obviously these have hierarchy specific names and would be very
+> confusing to on-lookers so maybe we could generalize those to avoid
+> repeating code. 
+> 
+> Then we just convert everything to identifier and anything that expects
+> a category can check for '.' and set the values appropriately, this
+> seems even cleaner than the way it's done now with the MLS_CAT_RANGE
+> string.. 
+> 
+> I can probably bang this out pretty quickly unless you had something
+> else you wanted to do with MLS or prefer to deal with that part
+> yourself, let me know what you want to do. Also, will you be able to
+> send a policy patch at the same time that rids the policy of those
+> spaces?
+> 
+> Thanks, Joshua Brindle
+> 
 
-> ifdef(`has_$1_tmpfs_t', `',
-> type ...
-> define(`has_$1_tmpfs_t', `')
-> ')
+Here is a patch relative to the hierarchy-backport.patch that reworks the mls 
+category processing.  It gets rid of the special MLS_IDENTIFIER - now uses 
+standard IDENTIFIERS.  There is a new centralized function to parse categories 
+which interprets the '.' char in C code (and that nasty MLS_CAT_RANGE stuff is 
+gone).  This patch also disallows '.' in the names and aliases of sensitivities 
+and categories.
 
-So, if this is the only objection to this patch,
-maybe it should be merged - I can submit a followup patch 
-to deal with the tmpfs issue - seems like the right thing to do
-is to protect all the type-declaring macros in global-macros.te 
-against double inclusion?
+I have only tried this with our mls policy currently - I have not tried this 
+with a policy generated from CVS using the mlsconvert target.  The patch does 
+modify the mlsconvert target to fit with the new processing (no spaces around 
+the '.') - I will test that tomorrow.  If anyone else tests this first please 
+let me know.  I will be banging on this tomorrow to make sure all everything 
+behaves sanely.
 
-I don't see problems being caused by moving the X functionality..
-
-Attached is a resync against Fedora: selinux-policy-strict-1.23.6-3,
-and a table update for the securitylevel tool that fixes a typo, 
-and describes the allow_write_xshm boolean.
+I am still testing, and am open to suggestions...  I'll let everyone know when I 
+am satisfied with it.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
 
---=-Gqqdak8lvy8BD2uulzoq
-Content-Disposition: attachment; filename=table_update.diff
-Content-Type: text/x-patch; name=table_update.diff; charset=UTF-8
+Darrel
+
+--------------000507090100040509090802
+Content-Type: text/x-patch;
+ name="hierarchy-mls-fix.patch"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hierarchy-mls-fix.patch"
 
---- selinux.tbl.old	2005-04-03 21:51:20.000000000 -0400
-+++ selinux.tbl	2005-04-03 21:52:34.000000000 -0400
-@@ -150,6 +150,7 @@
- xdm_disable_trans _("SELinux Service Protection") _("Disable SELinux protection for xdm daemon")
- allow_xserver_home_fonts _("XServer") _("Allow the xserver to check for fonts in ~/.gnome or ~/.kde")
- xdm_sysadm_login _("XServer") _("Allow xdm logins as sysadm_r:sysadm_t")
-+allow_write_xshm _("XServer") _("Allow clients to write to X shared memory")
- xfs_disable_trans _("SELinux Service Protection") _("Disable SELinux protection for xfs daemon")
- ypserv_disable_trans _("SELinux Service Protection") _("Disable SELinux protection for ypserv daemon")
- zebra_disable_trans _("SELinux Service Protection") _("Disable SELinux protection for zebra daemon")
-@@ -168,7 +169,7 @@
- samba_enable_home_dirs _("Samba") _("Allow Samba to share users home directories")
- use_samba_home_dirs _("Samba") _("Allow users to login with CIFS home directories")
- winbind_disable_trans _("Samba") _("Disable SELinux protection for winbind daemon")
--allow_execmod _("Compatibility") _("Allow the use of shared libaries with Text Relocation")
-+allow_execmod _("Compatibility") _("Allow the use of shared libraries with Text Relocation")
- allow_execmem _("Compatibility") _("Allow applications to execute anonymous or writable private file mappings")
- allow_gpg_execstack _("Compatibility") _("Allow gpg to run with executable stack (/selinux/checkreqprot implies this)")
- allow_java_execstack _("Compatibility") _("Allow Sun Microsystems java web plugin to run with executable stack (/selinux/checkreqprot implies this)")
-
---=-Gqqdak8lvy8BD2uulzoq
-Content-Disposition: attachment; filename=x_client_cleanup3_v1.diff
-Content-Type: text/x-patch; name=x_client_cleanup3_v1.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -aru policy.old/macros/base_user_macros.te policy/macros/base_user_macros.te
---- policy.old/macros/base_user_macros.te	2005-04-04 11:43:36.000000000 -0400
-+++ policy/macros/base_user_macros.te	2005-04-04 15:48:40.000000000 -0400
-@@ -124,8 +124,6 @@
- # Use the type when relabeling pty devices.
- type_change $1_t server_pty:chr_file $1_devpts_t;
+diff -ruNp hier/checkpolicy/policy_parse.y hier-mls/checkpolicy/policy_parse.y
+--- hier/checkpolicy/policy_parse.y	2005-04-05 15:13:01.000000000 -0500
++++ hier-mls/checkpolicy/policy_parse.y	2005-04-05 17:45:01.673860352 -0500
+@@ -73,7 +73,7 @@ static int define_av_perms(int inherits)
+ static int define_sens(void);
+ static int define_dominance(void);
+ static int define_category(void);
+-static int define_level(int range);
++static int define_level(void);
+ static int define_attrib(void);
+ static int define_typealias(void);
+ static int define_typeattribute(void);
+@@ -170,7 +170,6 @@ static int define_ipv6_node_context(void
+ %token NOT AND OR XOR
+ %token CTRUE CFALSE
+ %token IDENTIFIER
+-%token MLS_IDENTIFIER
+ %token NUMBER
+ %token EQUALS
+ %token NOTEQUAL
+@@ -256,12 +255,10 @@ category_def		: CATEGORY identifier alia
+ levels	 		: level_def 
+ 			| levels level_def
+ 			;
+-level_def		: LEVEL identifier ':' identifier '.' identifier ';'
+-			{if (define_level(1)) return -1;}
+-			| LEVEL identifier ':' id_comma_list ';'
+-			{if (define_level(0)) return -1;}
++level_def		: LEVEL identifier ':' id_comma_list ';'
++			{if (define_level()) return -1;}
+ 			| LEVEL identifier ';' 
+-			{if (define_level(0)) return -1;}
++			{if (define_level()) return -1;}
+ 			;
+ mlspolicy		: mlspolicy_decl
+ 			| mlspolicy mlspolicy_decl
+@@ -679,18 +676,11 @@ mls_range_def		: mls_level_def '-' mls_l
+ 	                | mls_level_def
+ 			{if (insert_separator(0)) return -1;}
+ 	                ;
+-mls_level_def		: mls_identifier ':' cat_comma_list
++mls_level_def		: identifier ':' id_comma_list
+ 			{if (insert_separator(0)) return -1;}
+-	                | mls_identifier 
++	                | identifier
+ 			{if (insert_separator(0)) return -1;}
+ 	                ;
+-cat_comma_list		: cat_range
+-			| cat_comma_list ',' cat_range
+-			;
+-cat_range		: mls_identifier
+-			| mls_identifier '.' mls_identifier
+-			{ if (insert_id("MLS_CAT_RANGE",0)) return -1; }
+-			;
+ id_comma_list           : identifier
+ 			| id_comma_list ',' identifier
+ 			;
+@@ -744,12 +734,6 @@ nested_id_element       : identifier | '
+ identifier		: IDENTIFIER
+ 			{ if (insert_id(yytext,0)) return -1; }
+ 			;
+-mls_identifier		: MLS_IDENTIFIER
+-			{ if (insert_id(yytext,0)) return -1; }
+-			;
+-mls_identifier_push	: MLS_IDENTIFIER
+-			{ if (insert_id(yytext, 1)) return -1; }
+-			;
+ path     		: PATH
+ 			{ if (insert_id(yytext,0)) return -1; }
+ 			;
+@@ -1141,6 +1125,10 @@ static int define_sens(void)
+ 		yyerror("no sensitivity name for sensitivity definition?");
+ 		return -1;
+ 	}
++	if (id_has_dot(id)) {
++		yyerror("sensitivity identifiers may not contain periods");
++		goto bad;
++	}
+ 	level = (mls_level_t *) malloc(sizeof(mls_level_t));
+ 	if (!level) {
+ 		yyerror("out of memory");
+@@ -1175,6 +1163,10 @@ static int define_sens(void)
+ 	}
  
--tmpfs_domain($1)
--
- ifdef(`cardmgr.te', `
- # to allow monitoring of pcmcia status
- allow $1_t cardmgr_var_run_t:file { getattr read };
-@@ -280,6 +278,9 @@
- #
- dontaudit $1_t usr_t:file setattr;
+ 	while ((id = queue_remove(id_queue))) {
++		if (id_has_dot(id)) {
++			yyerror("sensitivity aliases may not contain periods");
++			goto bad_alias;
++		}
+ 		aliasdatum = (level_datum_t *) malloc(sizeof(level_datum_t));
+ 		if (!aliasdatum) {
+ 			yyerror("out of memory");
+@@ -1285,6 +1277,10 @@ static int define_category(void)
+ 		yyerror("no category name for category definition?");
+ 		return -1;
+ 	}
++	if (id_has_dot(id)) {
++		yyerror("category identifiers may not contain periods");
++		goto bad;
++	}
+ 	datum = (cat_datum_t *) malloc(sizeof(cat_datum_t));
+ 	if (!datum) {
+ 		yyerror("out of memory");
+@@ -1309,6 +1305,11 @@ static int define_category(void)
+ 	}
  
-+# Use X
-+x_client_domain($1, $1)
-+
- ifdef(`xserver.te', `
- # for /tmp/.ICE-unix
- file_type_auto_trans($1_t, xdm_xserver_tmp_t, $1_tmp_t, sock_file)
-@@ -289,13 +290,7 @@
- ifdef(`xdm.te', `
- # Connect to the X server run by the X Display Manager.
- can_unix_connect($1_t, xdm_t)
--allow $1_t xdm_tmp_t:sock_file rw_file_perms;
--allow $1_t xdm_tmp_t:dir r_dir_perms;
--allow $1_t xdm_tmp_t:file { getattr read };
--allow $1_t xdm_xserver_tmp_t:sock_file { read write };
--allow $1_t xdm_xserver_tmp_t:dir search;
--allow $1_t xdm_xserver_t:unix_stream_socket connectto;
--# certain apps want to read xdm.pid file
-+# certain apps want to read xdm.pid file 
- r_dir_file($1_t, xdm_var_run_t)
- allow $1_t xdm_var_lib_t:file { getattr read };
- allow xdm_t $1_home_dir_t:dir getattr;
-@@ -303,9 +298,6 @@
- file_type_auto_trans(xdm_t, $1_home_dir_t, $1_xauth_home_t, file)
- ')
- 
--# for shared memory
--allow xdm_xserver_t $1_tmpfs_t:file { read write };
--
- ')dnl end ifdef xdm.te
- 
- # Access the sound device.
-diff -aru policy.old/macros/program/gift_macros.te policy/macros/program/gift_macros.te
---- policy.old/macros/program/gift_macros.te	2005-04-01 22:55:49.000000000 -0500
-+++ policy/macros/program/gift_macros.te	2005-04-01 23:09:54.000000000 -0500
-@@ -18,7 +18,7 @@
- role $1_r types $1_gift_t;
- 
- # X access, Home files 
--x_client_domain($1, gift)
-+x_client_domain($1_gift, $1)
- home_domain($1, gift)
- 
- uses_shlib($1_gift_t)
-@@ -26,12 +26,15 @@
- read_sysctl($1_gift_t)
- access_terminal($1_gift_t, $1)
- 
-+# Allow the user domain to signal/ps.
-+can_ps($1_t, $1_gift_t)
-+allow $1_t $1_gift_t:process signal_perms;
-+
- # Self permissions
- allow $1_gift_t self:process getsched;
- 
- # Fonts, icons
- r_dir_file($1_gift_t, usr_t)
--r_dir_file($1_gift_t, fonts_t)
- 
- # Launch gift daemon
- allow $1_gift_t bin_t:dir search;
-diff -aru policy.old/macros/program/java_macros.te policy/macros/program/java_macros.te
---- policy.old/macros/program/java_macros.te	2005-04-04 15:47:43.000000000 -0400
-+++ policy/macros/program/java_macros.te	2005-04-04 15:47:19.000000000 -0400
-@@ -32,7 +32,6 @@
- allow $1_javaplugin_t port_type:tcp_socket name_connect;
- can_ypbind($1_javaplugin_t)
- allow $1_javaplugin_t self:process { execmem fork signal_perms getsched setsched };
--allow $1_javaplugin_t self:unix_stream_socket { connectto create_stream_socket_perms };
- allow $1_javaplugin_t self:fifo_file rw_file_perms;
- allow $1_javaplugin_t etc_runtime_t:file { getattr read };
- allow $1_javaplugin_t fs_t:filesystem getattr;
-@@ -56,36 +55,8 @@
- allow $1_javaplugin_t texrel_shlib_t:file execmod;
+ 	while ((id = queue_remove(id_queue))) {
++		if (id_has_dot(id)) {
++			free(id);
++			yyerror("category aliases may not contain periods");
++			goto bad_alias;
++		}
+ 		aliasdatum = (cat_datum_t *) malloc(sizeof(cat_datum_t));
+ 		if (!aliasdatum) {
+ 			yyerror("out of memory");
+@@ -1350,13 +1351,11 @@ static int define_category(void)
  }
  
--# Allow connections to X server.
--ifdef(`xserver.te', `
--
--ifdef(`xdm.te', `
--# for when /tmp/.X11-unix is created by the system
--allow $1_javaplugin_t xdm_xserver_tmp_t:dir search;
--allow $1_javaplugin_t xdm_t:fifo_file rw_file_perms;
--allow $1_javaplugin_t xdm_tmp_t:dir search;
--allow $1_javaplugin_t xdm_tmp_t:sock_file write;
--')
--
--ifdef(`startx.te', `
--# for when /tmp/.X11-unix is created by the X server
--allow $1_javaplugin_t $2_xserver_tmp_t:dir search;
--
--# for /tmp/.X0-lock
--allow $1_javaplugin_t $2_xserver_tmp_t:file getattr;
--
--allow $1_javaplugin_t $2_xserver_tmp_t:sock_file rw_file_perms;
--can_unix_connect($1_javaplugin_t, $2_xserver_t)
--')dnl end startx
--
--can_unix_connect($1_javaplugin_t, xdm_xserver_t)
--allow xdm_xserver_t $1_javaplugin_t:fd use;
--allow xdm_xserver_t $1_javaplugin_t:shm { associate getattr read unix_read };
--dontaudit xdm_xserver_t $1_javaplugin_t:shm { unix_write write };
--
--')dnl end xserver
--
--allow $1_javaplugin_t self:shm create_shm_perms;
-+# Connect to X server
-+x_client_domain($1_javaplugin, $2) 
  
- uses_shlib($1_javaplugin_t)
- read_locale($1_javaplugin_t)
-@@ -119,4 +90,5 @@
+-static int define_level(int range)
++static int define_level(void)
+ {
+ 	int i;
+-	char *id, *levid;
++	char *id;
+ 	level_datum_t *levdatum;
+-	cat_datum_t *catdatum = NULL;
+-	cat_datum_t *catdatum_r = NULL;
  
- # Do not audit read/getattr of .fonts-cache-1
- dontaudit $1_javaplugin_t $1_home_t:file { read getattr };
+ 	if (!mlspol) {
+ 		yyerror("level definition in non-MLS configuration");
+@@ -1388,65 +1387,59 @@ static int define_level(int range)
+ 		free(id);
+ 		return -1;
+ 	}
+-	levid = id;
++	free(id);
+ 
+ 	while ((id = queue_remove(id_queue))) {
+-		catdatum =(cat_datum_t *)hashtab_search(policydbp->p_cats.table,
+-		                                        (hashtab_key_t) id);
+-		if (!catdatum) {
+-			sprintf(errormsg, "unknown category %s used in level definition", id);
+-			yyerror(errormsg);
+-			free(id);
+-			continue;
+-		}
+-		if (ebitmap_set_bit(&levdatum->level->cat, catdatum->value - 1, TRUE)) {
+-			yyerror("out of memory");
+-			free(id);
+-			free(levid);
+-			return -1;
+-		}
+-		/* no need to keep category name */
+-		free(id);
++		cat_datum_t *cdatum;
++		int range_start, range_end, i;
+ 
+-		if (range)
+-			break;
+-	}
++		if (id_has_dot(id)) {
++			char *id_start = id;
++			char *id_end = strchr(id, '.');
 +
- ')
-diff -aru policy.old/macros/program/mozilla_macros.te policy/macros/program/mozilla_macros.te
---- policy.old/macros/program/mozilla_macros.te	2005-04-01 22:55:49.000000000 -0500
-+++ policy/macros/program/mozilla_macros.te	2005-04-01 23:09:25.000000000 -0500
-@@ -26,7 +26,7 @@
- 
- # X access, Home files
- home_domain($1, mozilla)
--x_client_domain($1, mozilla)
-+x_client_domain($1_mozilla, $1)
- 
- # Browse files
- file_browse_domain($1_mozilla_t)
-@@ -43,6 +43,10 @@
- allow $1_t $1_mozilla_t:process { noatsecure siginh rlimitinh };
- allow $1_mozilla_t $1_t:process signull;
- 
-+# Allow the user domain to signal/ps.
-+can_ps($1_t, $1_mozilla_t)
-+allow $1_t $1_mozilla_t:process signal_perms;
++			*(id_end++) = '\0';
 +
- # Fork, set resource limits and scheduling info.
- allow $1_mozilla_t self:process { fork signal_perms setrlimit setsched getsched };
++			cdatum = (cat_datum_t *)hashtab_search(policydbp->p_cats.table,
++			                                       (hashtab_key_t)id_start);
++			if (!cdatum) {
++				sprintf(errormsg, "unknown category %s", id_start);
++				yyerror(errormsg);
++				free(id);
++				return -1;
++			}
++			range_start = cdatum->value - 1;
++			cdatum = (cat_datum_t *)hashtab_search(policydbp->p_cats.table,
++			                                       (hashtab_key_t)id_end);
++			if (!cdatum) {
++				sprintf(errormsg, "unknown category %s", id_end);
++				yyerror(errormsg);
++				free(id);
++				return -1;
++			}
++			range_end = cdatum->value - 1;
  
-diff -aru policy.old/macros/program/mplayer_macros.te policy/macros/program/mplayer_macros.te
---- policy.old/macros/program/mplayer_macros.te	2005-03-31 17:39:39.000000000 -0500
-+++ policy/macros/program/mplayer_macros.te	2005-04-01 23:09:12.000000000 -0500
-@@ -15,6 +15,10 @@
- # Read global config
- r_dir_file($1_$2_t, mplayer_etc_t)
+-	if (range)
+-	{
+-		id = queue_remove(id_queue);
+-		catdatum_r =(cat_datum_t *)hashtab_search(
+-							policydbp->p_cats.table,
+-							(hashtab_key_t) id);
+-		if (!catdatum_r) {
+-			sprintf(errormsg,
+-				"unknown category %s used in level definition",
+-				id);
+-			yyerror(errormsg);
+-			free(levid);
+-			free(id);
+-			return -1;
+-		}
+-		if (catdatum_r->value < catdatum->value)
+-		{
+-			yyerror("category range is negative");
+-			free(levid);
+-			free(id);
+-			return -1;
++			if (range_end < range_start) {
++				sprintf(errormsg, "category range is invalid", id);
++				yyerror(errormsg);
++				free(id);
++				return -1;
++			}
++		} else {
++			cdatum = (cat_datum_t *)hashtab_search(policydbp->p_cats.table,
++			                                       (hashtab_key_t)id);
++			range_start = range_end = cdatum->value - 1;
+ 		}
  
-+# Allow the user domain to signal/ps.
-+can_ps($1_t, $1_$2_t)
-+allow $1_t $1_$2_t:process signal_perms;
+-		for (i = catdatum->value; i < catdatum_r->value; i++)
+-		{
++		for (i = range_start; i <= range_end; i++) {
+ 			if (ebitmap_set_bit(&levdatum->level->cat, i, TRUE)) {
+ 				yyerror("out of memory");
+ 				free(id);
+-				free(levid);
+ 				return -1;
+ 			}
+ 		}
+-	}
+ 
+-	free(levid);
++		free(id);
++	}
+ 
+ 	return 0;
+ }
+@@ -3889,16 +3882,70 @@ static int set_user_roles(ebitmap_t *set
+ }
+ 
+ 
++static int
++parse_categories(char *id, level_datum_t *levdatum, ebitmap_t *cats)
++{
++	cat_datum_t *cdatum;
++	int range_start, range_end, i;
 +
- # Read data in /usr/share (fonts, icons..)
- r_dir_file($1_$2_t, usr_t)
- 
-@@ -72,7 +76,7 @@
- 
- # Home access, X access, Browse files
- home_domain($1, mplayer)
--x_client_domain($1, mplayer)
-+x_client_domain($1_mplayer, $1)
- file_browse_domain($1_mplayer_t)
- 
- # Mplayer common stuff
-diff -aru policy.old/macros/program/ssh_macros.te policy/macros/program/ssh_macros.te
---- policy.old/macros/program/ssh_macros.te	2005-04-04 15:44:26.000000000 -0400
-+++ policy/macros/program/ssh_macros.te	2005-04-04 15:44:02.000000000 -0400
-@@ -129,18 +129,8 @@
- # allow ps to show ssh
- can_ps($1_t, $1_ssh_t)
- 
--ifdef(`xserver.te', `
--# Communicate with the X server.
--ifdef(`startx.te', `
--can_unix_connect($1_ssh_t, $1_xserver_t)
--allow $1_ssh_t $1_xserver_tmp_t:sock_file rw_file_perms;
--allow $1_ssh_t $1_xserver_tmp_t:dir search;
--')dnl end if startx
--ifdef(`xdm.te', `
--allow $1_ssh_t { xdm_xserver_tmp_t xdm_tmp_t }:dir search;
--allow $1_ssh_t { xdm_tmp_t }:sock_file write;
--')
--')dnl end if xserver
-+# Connect to X server
-+x_client_domain($1_ssh, $1)
- 
- ifdef(`ssh-agent.te', `
- ssh_agent_domain($1)
-@@ -167,16 +157,6 @@
- allow $1_ssh_keysign_t self:file { getattr read };
- allow $1_ssh_keysign_t self:unix_stream_socket create_socket_perms;
- 
--ifdef(`xdm.te', `
--# should be able to remove these two later
--allow $1_ssh_t xdm_xserver_tmp_t:sock_file { read write };
--allow $1_ssh_t xdm_xserver_tmp_t:dir search;
--allow $1_ssh_t xdm_xserver_t:unix_stream_socket connectto;
--allow $1_ssh_t xdm_xserver_t:shm r_shm_perms;
--allow $1_ssh_t xdm_xserver_t:fd use;
--allow $1_ssh_t xdm_xserver_tmpfs_t:file read;
--allow $1_ssh_t xdm_t:fd use;
--')dnl end if xdm.te
- ')dnl end macro definition
- ', `
- 
-diff -aru policy.old/macros/program/tvtime_macros.te policy/macros/program/tvtime_macros.te
---- policy.old/macros/program/tvtime_macros.te	2005-03-31 17:41:35.000000000 -0500
-+++ policy/macros/program/tvtime_macros.te	2005-04-01 23:08:50.000000000 -0500
-@@ -26,13 +26,17 @@
- 
- # X access, Home files
- home_domain($1, tvtime)
--x_client_domain($1, tvtime)
-+x_client_domain($1_tvtime, $1)
- 
- uses_shlib($1_tvtime_t)
- read_locale($1_tvtime_t)
- read_sysctl($1_tvtime_t)
- access_terminal($1_tvtime_t, $1)
- 
-+# Allow the user domain to signal/ps.
-+can_ps($1_t, $1_tvtime_t)
-+allow $1_t $1_tvtime_t:process signal_perms;
++	if (id_has_dot(id)) {
++		char *id_start = id;
++		char *id_end = strchr(id, '.');
 +
- # Read /etc/tvtime
- allow $1_tvtime_t etc_t:file { getattr read };
- 
-diff -aru policy.old/macros/program/x_client_macros.te policy/macros/program/x_client_macros.te
---- policy.old/macros/program/x_client_macros.te	2005-03-31 16:30:34.000000000 -0500
-+++ policy/macros/program/x_client_macros.te	2005-04-01 23:07:05.000000000 -0500
-@@ -1,5 +1,5 @@
- #
--# Macros for X client programs ($2 etc)
-+# Macros for X client programs 
- #
- 
- #
-@@ -8,6 +8,9 @@
- # and Timothy Fraser 
- #
- 
-+# Allows clients to write to the X server's shm 
-+bool allow_write_xshm false;
++		*(id_end++) = '\0';
 +
- define(`xsession_domain', `
- 
- # Connect to xserver
-@@ -23,73 +26,73 @@
- # Signal Xserver
- allow $1_t $2_xserver_t:process signal;
- 
--# Use file descriptors created by each other.
--allow $1_t $2_xserver_t:fd use;
-+# Xserver read/write client shm
- allow $2_xserver_t $1_t:fd use;
--
--# Xserver read/write parent shm
- allow $2_xserver_t $1_t:shm rw_shm_perms;
- allow $2_xserver_t $1_tmpfs_t:file rw_file_perms;
- 
--# Parent read xserver shm
-+# Client read xserver shm
-+allow $2_xserver_t $1_t:fd use;
- allow $1_t $2_xserver_t:shm r_shm_perms;
- allow $1_t $2_xserver_tmpfs_t:file r_file_perms;
++		cdatum = (cat_datum_t *)hashtab_search(policydbp->p_cats.table,
++		                                       (hashtab_key_t)id_start);
++		if (!cdatum) {
++			sprintf(errormsg, "unknown category %s", id_start);
++			yyerror(errormsg);
++			return -1;
++		}
++		range_start = cdatum->value - 1;
++		cdatum = (cat_datum_t *)hashtab_search(policydbp->p_cats.table,
++		                                       (hashtab_key_t)id_end);
++		if (!cdatum) {
++			sprintf(errormsg, "unknown category %s", id_end);
++			yyerror(errormsg);
++			return -1;
++		}
++		range_end = cdatum->value - 1;
 +
-+# Client write xserver shm
-+if (allow_write_xshm) {
-+allow $1_t $2_xserver_t:shm write;
-+allow $1_t $2_xserver_tmpfs_t:file write;
++		if (range_end < range_start) {
++			sprintf(errormsg, "category range is invalid", id);
++			yyerror(errormsg);
++			return -1;
++		}
++	} else {
++		cdatum = (cat_datum_t *)hashtab_search(policydbp->p_cats.table,
++		                                       (hashtab_key_t)id);
++		range_start = range_end = cdatum->value - 1;
++	}
++
++	for (i = range_start; i <= range_end; i++) {
++		if (!ebitmap_get_bit(&levdatum->level->cat, i)) {
++			sprintf(errormsg, "category %s can not be associated "
++			        "with level", id);
++			yyerror(errormsg);
++			return -1;
++		}
++		if (ebitmap_set_bit(cats, i, TRUE)) {
++			yyerror("out of memory");
++			return -1;
++		}
++	}
++
++	return 0;
 +}
 +
- ')
++
+ static int define_user(void)
+ {
+ 	char *id;
+ 	user_datum_t *usrdatum;
+ 	int ret;
+ 	level_datum_t *levdatum;
+-	cat_datum_t *catdatum = NULL;
+-	cat_datum_t *catdatum_r = NULL;
+ 	int l, i;
+-	char *levid;
+ 
+ 	if (pass == 1) {
+ 		while ((id = queue_remove(id_queue))) 
+@@ -3963,154 +4010,50 @@ static int define_user(void)
+ 		levdatum = (level_datum_t *)
+ 				hashtab_search(policydbp->p_levels.table,
+ 						(hashtab_key_t) id);
++		free(id);
+ 		if (!levdatum) {
+ 			sprintf(errormsg, "unknown sensitivity %s used in user"
+ 					" level definition", id);
+ 			yyerror(errormsg);
+-			free(id);
+ 			return -1;
+ 		}
+ 
+ 		usrdatum->dfltlevel.sens = levdatum->level->sens;
+ 		ebitmap_init(&usrdatum->dfltlevel.cat);
+ 
+-		levid = id;
+-
+ 		while ((id = queue_remove(id_queue))) {
+-			/* Check for ranged entry */
+-			if (strcmp(id, "MLS_CAT_RANGE") == 0) {
+-				free(id);
+-				if (catdatum_r->value >= catdatum->value) {
+-					yyerror("category range is negative");
+-					free(levid);
+-					return -1;
+-				}
+-
+-				for (i=catdatum_r->value;
+-						i<catdatum->value-1; i++) {
+-					if (!ebitmap_get_bit(&levdatum->level->cat, i)) {
+-						sprintf(errormsg, "category value=%d cannot be associated with level %s", i+1, levid);
+-						yyerror(errormsg);
+-						continue;
+-					}
+-					if (ebitmap_set_bit(&usrdatum->dfltlevel.cat, i, TRUE)) {
+-						yyerror("out of memory");
+-						free(levid);
+-						return -1;
+-					}
+-				}
+-				continue;
+-			}
+-			/* Save previous entry */	
+-			catdatum_r = catdatum;
+-
+-			catdatum = (cat_datum_t *)
+-					hashtab_search(policydbp->p_cats.table,
+-							   (hashtab_key_t) id);
+-			if (!catdatum) {
+-				sprintf(errormsg, "unknown category %s used in user range definition", id);
+-				yyerror(errormsg);
+-				free(id);
+-				continue;
+-			}
+-			if (!ebitmap_get_bit(&levdatum->level->cat, catdatum->value - 1)) {
+-				sprintf(errormsg, "category %s cannot be associated with level %s", id, levid);
+-				yyerror(errormsg);
+-				free(id);
+-				continue;
+-			}
+-			if (ebitmap_set_bit(&usrdatum->dfltlevel.cat, catdatum->value - 1, TRUE)) {
+-				yyerror("out of memory");
++			if (parse_categories(id, levdatum,
++			                     &usrdatum->dfltlevel.cat)) {
+ 				free(id);
+-				free(levid);
+-				ebitmap_destroy(&usrdatum->dfltlevel.cat);
+ 				return -1;
+ 			}
+ 			free(id);
+ 		}
+ 
+-		free(levid);
+-
+ 		id = queue_remove(id_queue);
+ 
+ 		for (l = 0; l < 2; l++) {
+ 			levdatum = (level_datum_t *)
+ 				hashtab_search(policydbp->p_levels.table,
+ 						     (hashtab_key_t) id);
++			free(id);
+ 			if (!levdatum) {
+ 				sprintf(errormsg, "unknown sensitivity %s used in user range definition", id);
+ 				yyerror(errormsg);
+-				free(id);
+ 				continue;
+ 			}
+ 			usrdatum->range.level[l].sens = levdatum->level->sens;
+ 			ebitmap_init(&usrdatum->range.level[l].cat);
+ 
+-			levid = id;
+-
+ 			while ((id = queue_remove(id_queue))) {
+-				/* Check for ranged entry */
+-				if (strcmp(id, "MLS_CAT_RANGE") == 0) {
+-					free(id);
+-					if (catdatum_r->value >= catdatum->value) {
+-						yyerror("category range is negative");
+-						free(levid);
+-						return -1;
+-					}
+-
+-					for (i=catdatum_r->value; i<catdatum->value-1; i++) {
+-						if (!ebitmap_get_bit(&levdatum->level->cat, i)) {
+-							sprintf(errormsg, "category value=%d cannot be associated with level %s", i+1, levid);
+-							yyerror(errormsg);
+-							continue;
+-						}
+-						if (ebitmap_set_bit(&usrdatum->range.level[l].cat, i, TRUE)) {
+-							yyerror("out of memory");
+-							free(levid);
+-							return -1;
+-						}
+-					}
+-					continue;
+-				}
+-				/* Save previous entry */
+-				catdatum_r = catdatum;
+-
+-				catdatum = (cat_datum_t *)
+-				hashtab_search(policydbp->p_cats.table,
+-							(hashtab_key_t) id);
+-				if (!catdatum) {
+-					sprintf(errormsg, "unknown category %s used in user range definition", id);
+-					yyerror(errormsg);
+-					free(id);
+-					continue;
+-				}
+-				if (!ebitmap_get_bit(&levdatum->level->cat,
+-							catdatum->value - 1)) {
+-					sprintf(errormsg,"category %s cannot be associated with level %s", id, levid);
+-					yyerror(errormsg);
+-					free(id);
+-					continue;
+-				}
+-				if (ebitmap_set_bit(&usrdatum->range.level[l].cat, catdatum->value - 1, TRUE)) {
+-					yyerror("out of memory");
++				if (parse_categories(id, levdatum,
++				              &usrdatum->range.level[l].cat)) {
+ 					free(id);
+-					free(levid);
+-					ebitmap_destroy(&usrdatum->dfltlevel.cat);
+-					ebitmap_destroy(&usrdatum->range.level[l].cat);
+ 					return -1;
+ 				}
+-
+-				/*
+-				 * no need to keep category name
+-				 */
+ 				free(id);
+ 			}
+ 
+-			/*
+-			 * no need to keep sensitivity name
+-			 */
+-			free(levid);
+-
+ 			id = queue_remove(id_queue);
+ 			if (!id)
+ 				break;
+@@ -4153,10 +4096,7 @@ static int parse_security_context(contex
+ 	role_datum_t *role;
+ 	type_datum_t *typdatum;
+ 	user_datum_t *usrdatum;
+-	char *levid;
+ 	level_datum_t *levdatum;
+-	cat_datum_t *catdatum = NULL;
+-	cat_datum_t *catdatum_r = NULL;
+ 	int l, i;
+ 
+ 	if (pass == 1) {
+@@ -4252,66 +4192,25 @@ static int parse_security_context(contex
+ 			levdatum = (level_datum_t *)
+ 				hashtab_search(policydbp->p_levels.table,
+ 						     (hashtab_key_t) id);
++			free(id);
+ 			if (!levdatum) {
+ 				sprintf(errormsg, "Sensitivity %s is not "
+ 								"defined", id);
+ 				yyerror(errormsg);
+-				free(id);
+ 				return -1;
+ 			}
+ 			c->range.level[l].sens = levdatum->level->sens;
+ 
+ 			/* extract low category set */
+-			levid = id;
+ 			while ((id = queue_remove(id_queue))) {
+-				/* Check for ranged entry */
+-				if (strcmp(id, "MLS_CAT_RANGE") == 0) {
++				if (parse_categories(id, levdatum,
++				                     &c->range.level[l].cat)) {
+ 					free(id);
+-					if (catdatum_r->value >=
+-								catdatum->value)
+-					{
+-						yyerror("category range is negative");
+-						free(levid);
+-						return -1;
+-					}
+-
+-					for (i = catdatum_r->value;
+-					     i < catdatum->value-1; i++) {
+-						if (ebitmap_set_bit(&c->range.level[l].cat, i, TRUE)) {
+-							yyerror("out of memory");
+-							free(levid);
+-							return -1;
+-						}
+-					}
+-					continue;
+-				}
+-				/* Save previous entry */	
+-				catdatum_r = catdatum;
+-
+-				catdatum = (cat_datum_t *)
+-					hashtab_search(policydbp->p_cats.table,
+-							(hashtab_key_t) id);
+-				if (!catdatum) {
+-					sprintf(errormsg, "unknown category %s used in initial sid context", id);
+-					yyerror(errormsg);
+-					free(levid);
+-					free(id);
+-					goto bad;
+-				}
+-				if (ebitmap_set_bit(&c->range.level[l].cat,
+-					     catdatum->value - 1, TRUE)) {
+-					yyerror("out of memory");
+-					free(levid);
+-					free(id);
+-					goto bad;
++					return -1;
+ 				}
+-				/* no need to keep category name */
+ 				free(id);
+ 			}
+ 
+-			/* no need to keep the sensitivity name */
+-			free(levid);
+-
+ 			/* extract high sensitivity */
+ 			id = (char *) queue_remove(id_queue);
+ 			if (!id)
+@@ -4881,10 +4780,7 @@ static int define_genfs_context(int has_
+ static int define_range_trans(void)
+ {
+ 	char *id;
+-	char *levid;
+ 	level_datum_t *levdatum = 0;
+-	cat_datum_t *catdatum = NULL;
+-	cat_datum_t *catdatum_r = NULL;
+ 	mls_range_t range;
+ 	ebitmap_t doms, types, negset;
+ 	range_trans_t *rt = 0;
+@@ -4938,6 +4834,7 @@ static int define_range_trans(void)
+ 	}
+ 	for (l = 0; l < 2; l++) {
+ 		levdatum = hashtab_search(policydbp->p_levels.table, id);
++		free(id);
+ 		if (!levdatum) {
+ 			sprintf(errormsg, "unknown level %s used in range_transition definition", id);
+ 			yyerror(errormsg);
+@@ -4945,54 +4842,16 @@ static int define_range_trans(void)
+ 		}
+ 		range.level[l].sens = levdatum->level->sens;
+ 
+-		levid = id;
+ 		ebitmap_init(&range.level[l].cat);
++
+ 		while ((id = queue_remove(id_queue))) {
+-			/* Check for ranged entry */
+-			if (strcmp(id, "MLS_CAT_RANGE") == 0) {
++			if (parse_categories(id, levdatum,
++			                     &range.level[l].cat)) {
+ 				free(id);
+-				if (catdatum_r->value >= catdatum->value) {
+-					yyerror("category range is negative");
+-					free(levid);
+-					return -1;
+-				}
+-
+-				for (i = catdatum_r->value; i < catdatum->value - 1; i++) {
+-					if (!ebitmap_get_bit(&levdatum->level->cat, i)) {
+-						sprintf(errormsg, "category value=%d cannot be associated with level %s", i+1, levid);
+-						yyerror(errormsg);
+-						continue;
+-					}
+-					if (ebitmap_set_bit(&range.level[l].cat, i, TRUE)) {
+-						yyerror("out of memory");
+-						free(levid);
+-						return -1;
+-					}
+-				}
+-				continue;
+-			}
+-
+-			/* Save previous entry */
+-			catdatum_r = catdatum;
+-
+-			catdatum = hashtab_search(policydbp->p_cats.table, id);
+-			if (!catdatum) {
+-				sprintf(errormsg, "unknown category %s used in range_transition definition", id);
+-				yyerror(errormsg);
+-				return -1;
+-			}
+-			if (!ebitmap_get_bit(&levdatum->level->cat, catdatum->value - 1)) {
+-				sprintf(errormsg, "category %s not allowed with specified sensitivity", id);
+-				yyerror(errormsg);
+-				return -1;
+-			}		
+-			if (ebitmap_set_bit(&range.level[l].cat, catdatum->value - 1, TRUE)) {
+-				yyerror("out of memory");
+ 				return -1;
+ 			}
+ 			free(id);
+ 		}
+-		free(levid);
+ 
+ 		id = (char *)queue_remove(id_queue);
+ 		if (!id)
+diff -ruNp hier/checkpolicy/policy_scan.l hier-mls/checkpolicy/policy_scan.l
+--- hier/checkpolicy/policy_scan.l	2005-04-05 15:13:01.000000000 -0500
++++ hier-mls/checkpolicy/policy_scan.l	2005-04-05 17:45:01.674860091 -0500
+@@ -192,7 +192,6 @@ H2				{ return(H2); }
+ 					  else 
+ 					  	REJECT;
+ 					}
+-{letter}({letter}|{digit}|_)*	{ return(MLS_IDENTIFIER); }
+ {digit}{digit}*                 { return(NUMBER); }
+ {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|":"|".")*	{ return(IPV6_ADDR); }
+ #line[ ]1[ ]\"[^\n]*\"		{ source_lineno = 1; strncpy(source_file, yytext+9, 255); source_file[strlen(source_file)-1] = '\0'; }
+diff -ruNp hier/policy/Makefile hier-mls/policy/Makefile
+--- hier/policy/Makefile	2005-04-05 15:31:32.000000000 -0500
++++ hier-mls/policy/Makefile	2005-04-05 15:32:22.000000000 -0500
+@@ -327,8 +327,8 @@ mlsconvert: 
+ 	done
+ 	@for file in $(USER_FILES); do \
+ 		echo "Converting $$file"; \
+-		sed -e 's/;/ level s0 range s0 - s9 : c0 . c127;/' $$file > $$file.new && \
++		sed -e 's/;/ level s0 range s0 - s9 : c0.c127;/' $$file > $$file.new && \
+ 		mv $$file.new $$file; \
+ 	done
+-	@sed -e '/sid kernel/s/s0/s0 - s9 : c0 . c127/' initial_sid_contexts > initial_sid_contexts.new && mv initial_sid_contexts.new initial_sid_contexts
++	@sed -e '/sid kernel/s/s0/s0 - s9 : c0.c127/' initial_sid_contexts > initial_sid_contexts.new && mv initial_sid_contexts.new initial_sid_contexts
+ 	@echo "Done"
+diff -ruNp hier/policy/mls hier-mls/policy/mls
+--- hier/policy/mls	2005-04-05 16:09:29.000000000 -0500
++++ hier-mls/policy/mls	2005-04-05 16:09:49.000000000 -0500
+@@ -160,16 +160,16 @@ category c127;
+ # Each MLS level specifies a sensitivity and zero or more categories which may
+ # be associated with that sensitivity.
+ #
+-level s0:c0 . c127;
+-level s1:c0 . c127;
+-level s2:c0 . c127;
+-level s3:c0 . c127;
+-level s4:c0 . c127;
+-level s5:c0 . c127;
+-level s6:c0 . c127;
+-level s7:c0 . c127;
+-level s8:c0 . c127;
+-level s9:c0 . c127;
++level s0:c0.c127;
++level s1:c0.c127;
++level s2:c0.c127;
++level s3:c0.c127;
++level s4:c0.c127;
++level s5:c0.c127;
++level s6:c0.c127;
++level s7:c0.c127;
++level s8:c0.c127;
++level s9:c0.c127;
+ 
  
  #
--# x_client_domain(user, app)
-+# x_client_domain(client, role)
- #
--# Defines common X access rules for the user_app_t domain
-+# Defines common X access rules for the client domain
- #
- define(`x_client_domain',`
- 
--allow $1_$2_t self:unix_dgram_socket create_socket_perms;
--allow $1_$2_t self:unix_stream_socket { connectto create_stream_socket_perms };
-+# Create socket to communicate with X server
-+allow $1_t self:unix_dgram_socket create_socket_perms;
-+allow $1_t self:unix_stream_socket { connectto create_stream_socket_perms };
- 
-+# Read .Xauthority file
- ifdef(`xauth.te',`
--allow $1_$2_t $1_xauth_home_t:file { getattr read };
-+allow $1_t home_root_t:dir { search getattr };
-+allow $1_t $2_xauth_home_t:file { getattr read };
- ')
- 
--# Allow the user domain to send any signal to the $2 process.
--can_ps($1_t, $1_$2_t)
--allow $1_t $1_$2_t:process signal_perms;
--
- # for .xsession-errors
--dontaudit $1_$2_t $1_home_t:file write;
-+dontaudit $1_t $2_home_t:file write;
- 
- # for X over a ssh tunnel
- ifdef(`ssh.te', `
--can_tcp_connect($1_$2_t, sshd_t)
-+can_tcp_connect($1_t, sshd_t)
- ')
- 
--# Read the home directory, e.g. for .Xauthority and to get to config files
--allow $1_$2_t home_root_t:dir { search getattr };
--
- # Use a separate type for tmpfs/shm pseudo files.
--tmpfs_domain($1_$2)
--
--allow $1_$2_t self:shm create_shm_perms;
-+tmpfs_domain($1)
-+allow $1_t self:shm create_shm_perms;
- 
- # allow X client to read all font files
--r_dir_file($1_$2_t, fonts_t)
-+r_dir_file($1_t, fonts_t)
- 
- # Allow connections to X server.
- ifdef(`xserver.te', `
--allow $1_$2_t tmp_t:dir search;
-+allow $1_t tmp_t:dir search;
- 
- ifdef(`xdm.te', `
--xsession_domain($1_$2, xdm)
-+xsession_domain($1, xdm)
- 
- # for when /tmp/.X11-unix is created by the system
--allow $1_$2_t xdm_t:fifo_file rw_file_perms;
--allow $1_$2_t xdm_tmp_t:dir search;
--allow $1_$2_t xdm_tmp_t:sock_file { read write };
--allow $1_$2_t xdm_t:fd use;
--dontaudit $1_$2_t xdm_t:tcp_socket { read write };
-+allow $1_t xdm_t:fifo_file rw_file_perms;
-+allow $1_t xdm_tmp_t:dir search;
-+allow $1_t xdm_tmp_t:sock_file { read write };
-+allow $1_t xdm_t:fd use;
-+dontaudit $1_t xdm_t:tcp_socket { read write };
- ')
- 
- ifdef(`startx.te', `
--xsession_domain($1_$2, $1)
-+xsession_domain($1, $2)
- ')dnl end startx
- 
- ')dnl end xserver
 
---=-Gqqdak8lvy8BD2uulzoq--
-
+--------------000507090100040509090802--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
