@@ -1,43 +1,55 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA4HF2XZ024825
-	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 12:15:02 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA4HF1cx005747
-	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 17:15:02 GMT
-Date: Thu, 4 Nov 2004 17:25:47 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Chad Hanson <chanson@TrustedCS.com>,
-   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
-   Darrel Goeddel <DGoeddel@TrustedCS.com>,
-   SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: dynamic context transitions
-Message-ID: <20041104172547.GI5461@lkcl.net>
-References: <36282A1733C57546BE392885C06185924D93DC@chaos.tcs.tcs-sec.com> <20041103172609.GE5061@lkcl.net> <1099587019.3174.137.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA4HF0XZ024820
+	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 12:15:00 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA4HDcCH005533
+	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 17:13:38 GMT
+Subject: Re: learning about policies/transitions
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Serge Hallyn <serge.hallyn@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <46ce702f041104082042e4c02a@mail.gmail.com>
+References: <46ce702f041103084530fe8539@mail.gmail.com>
+	 <1099510181.1213.198.camel@moss-spartans.epoch.ncsc.mil>
+	 <46ce702f041104082042e4c02a@mail.gmail.com>
+Content-Type: text/plain
+Message-Id: <1099588265.3174.158.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1099587019.3174.137.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 04 Nov 2004 12:11:06 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Nov 04, 2004 at 11:50:19AM -0500, Stephen Smalley wrote:
-> On Wed, 2004-11-03 at 12:26, Luke Kenneth Casson Leighton wrote:
-> >  the problem that SELinux faces is that as soon as you provide a
-> >  seteuid-like function as a "sop" to help people adopt SElinux
-> >  in applications, all bets are off for being able to remove
-> >  it at a later date, and SELinux's security assurance is lost.
+On Thu, 2004-11-04 at 11:20, Serge Hallyn wrote:
+> Ah, running setfilecon worked.
 > 
-> I don't think that this is a fair statement
+> I don't understand why, though.  The security.selinux xattr (as given by 
+> getxattr(2)) looked the same before and after.  What else is being changed
+> by setfilecon?
 
- i am happy to be corrected.
+The incore inode SID.  setfilecon(1) unconditionally calls
+setfilecon(3), which invokes setxattr(2), which will invoke the
+post_setxattr hook and update the incore inode SID.  setfiles and/or
+chcon would have just looked at the existing on-disk xattr value (via
+getfilecon(3)->getxattr(2)), seen that the on-disk xattr was already
+correct, and not bothered to call setfilecon(3), so the incore inode SID
+wasn't being updated by those programs.  I think RedHat is/has added an
+option to chcon(1) to force the call to setfilecon(3) regardless of its
+current value.  Perhaps setfiles(1) should unconditionally call
+setfilecon(3) too.
 
-> I would like to move forward with this proposal, going beyond a
-> discussion of whether or not it should be implemented to how 
+This is an unfortunate side effect of using the xattr API (vs. the
+original SELinux API, which directly fetched the incore inode SID and
+returned it to the caller), because the xattr API always consults the
+filesystem and reports the on-disk xattr.  SELinux maps the on-disk
+xattr to a SID at the time of d_instantiate, but if the on-disk xattr is
+invalid at that time (e.g. type isn't defined in the policy), then the
+inode SID is left unlabeled and it requires an explicit setxattr(2) to
+correct.
 
- cool.  elrond [samba-tng] is happy to create a real-world test
- of any such implementation.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
- l.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
