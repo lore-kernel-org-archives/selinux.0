@@ -1,43 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2KGCUx6016842
-	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 11:12:30 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h2KGCT9P021350
-	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 16:12:29 GMT
-Received: from gemini.nr.no (gemini.nr.no [156.116.2.76])
-        by jazzband.ncsc.mil  with ESMTP id h2KGCSP7021341 for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 16:12:29 GMT
-Date: Thu, 20 Mar 2003 17:12:15 +0100
-Message-Id: <200303201612.h2KGCFL05001@triumph.nr.no>
-To: Dale Amon <amon@vnl.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SE-Linux and 2.4.20
-References: <20030320002246.GC13288@snoopy.apana.org.au> <20030320111227.GJ24908@vnl.com>
-From: Thor Kristoffersen <Thor.Kristoffersen@nr.no>
-In-Reply-To: Dale Amon's message of "Thu, 20 Mar 2003 11:12:27 +0000"
+Message-ID: <3E7A0B04.4090502@oem.doe.gov>
+Date: Thu, 20 Mar 2003 10:40:04 -0800
+From: Douglas Phillipson <phillipd@oem.doe.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: Opinions on installing SeLinux on different distros
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dale Amon writes:
-> Just as another data point: I had to back a 2.4.20
-> kernel off a firewall because it was oopsing in random
-> processes after a couple hours. Might not be related...
-> the kernel had crypto, freeswan and grsec, the oops
-> was during kernel paging.
+I have been monitoring this list for a few months and as a SELinux newby 
+I have a few questions for those that have braved the attempt to use 
+SELinux.  I hope to use it myself in the DOE community shortly.
 
-I think there may be reason to suspect that there is something wrong in the
-LSM code, and not necessarily SELinux itself, because in my experience
-  LIDS without LSM works fine.
-  LIDS with LSM
-    - works fine without X
-    - OOPSes with X.
-This pattern has been repeatable for me across several versions of Linux,
-LIDS, and LSM.  I seem to recall that these OOPSes also occured at some
-kind of paging request.
+1) I see lots of problems with SELinux, by the posts I read.  Is there 
+any release version, by number, with known problems for each release. Or 
+is this just a evolving "Thing" where bugs are fixed and new capability 
+is added on the fly?
+
+2) Is it best to start from non-distro raw kernel source or is patching 
+one of the major distros, redhat, Suse, Mandrake, Debian compatible, better.
+
+3) Are there recommended  distros and or kernel versions to use SELinux 
+with?  Perhaps a FAQ for each supported Distro or version of kernel?
+
+4) Has anyone compiled a installation procedure that was successful for 
+their distro that you could share with others?  Perhaps even a list of 
+"gotchas" to avoid.
+
+5) Has anyone had SELinux approved for use in a classified network?  If 
+so do you have a security plan I could look at?
+
+6) Does there exist a "White Paper" on SeLinux's security 
+features/enhancements.
+
+7) Does SeLinux add and "C2" auditing functionality.
+
+8) I understand that  the "Secure Computing" corporation had a hand in 
+this.  Do they have a commercial version available or one planned?
+
+Comment:  I think the Debian method of "release when it's ready" and a 
+"Stable", "Testing" and "Unstable" release system would be a good fit 
+here.  Any opinions or plans on this?
+
+Thanks, I am looking forward to trying it but don't want to re-invent 
+the wheel here.
+
+Doug P
 
 
-Thor
 
 --
 This message was distributed to subscribers of the selinux mailing list.
