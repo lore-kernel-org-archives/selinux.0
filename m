@@ -1,55 +1,46 @@
-Date: 2 Jan 2002 06:23:08 -0000
-Message-ID: <20020102062308.26006.qmail@mailFA10.rediffmail.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA05366
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jan 2002 15:59:00 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA10936
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jan 2002 20:58:33 GMT
+Received: from portal.east.saic.com (portal.east.saic.com [198.151.13.15])
+	by jazzswing.ncsc.mil  with SMTP id UAA10932
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jan 2002 20:58:33 GMT
+Received: from mcl-its-ieg01.mail.saic.com by mclmx.mail.saic.com for selinux@tycho.nsa.gov; Fri, 4 Jan 2002 15:58:45 -0500
+Received: from mcl-its-exbh01.mail.saic.com ([149.8.64.11])
+ by mcl-its-ieg01.mail.saic.com (NAVGW 2.5.1.15) with SMTP id M2002010415584408399
+ for <selinux@tycho.nsa.gov>; Fri, 04 Jan 2002 15:58:44 -0500
+Message-Id: <39C5845092F9D1119AA90008C724FC7C03C18CD6@US-Columbia.mail.saic.com>
+From: "Christie, Richard" <ChristieR@atsgroup.saic.com>
+To: "'selinux_post'" <selinux@tycho.nsa.gov>
+Subject: Syntax for users for MLS
+Date: Fri, 4 Jan 2002 15:58:43 -0500 
 MIME-Version: 1.0
-From: "Samarth  Sharma" <samarth7880@rediffmail.com>
-Reply-To: "Samarth  Sharma" <samarth7880@rediffmail.com>
-To: "Filip Brcic" <brcha@sendmail.ru>
-Cc: "=?iso-8859-1?Q?=E5=A2=97=E7=94=B0_=E5=93=B2=E6=AC=A1?=" <tmasuda@chi.it.teu.ac.jp>,
-        "Aleksandar Pjanovic" <darkblue@sezampro.yu>,
-        "ANA JELIC" <anna@beotel.yu>, "Antonela" <antonela@galeb.etf.bg.ac.yu>,
-        "Bizic" <tatamama@ptt.yu>,
-        "Bojan Marinkovic" <mr99007@alas.matf.bg.ac.yu>,
-        "Goran Todorovic" <todor@grf.bg.ac.yu>,
-        "Igor Jeremic" <mr99115@jwork.net>, "igor jeremic" <igor@jwork.net>,
-        "Ilona" <ilona@ptt.yu>, "Ivan Elcic" <elcha@EUnet.yu>,
-        "Laslo Kraus" <kraus@etf.bg.ac.yu>,
-        "marko jankovic" <mj_011@hotmail.com>,
-        "Miodrag Tasic" <tasicmd@EUnet.yu>,
-        "Nebojsa Pirocanac" <pirke@EUnet.yu>,
-        "Radivoje Djuric" <rade@el.etf.bg.ac.yu>,
-        "Radovan" <radovan@beotel.yu>, "SElinux" <SELinux@tycho.nsa.gov>,
-        SPellije@wiley.co.uk, "Suncica Babel" <suncicab@EUnet.yu>,
-        "Veckey Petkovic" <veckeypet@hotmail.com>,
-        "Zorana Kalabic" <zoka@beotel.yu>
-Subject: Re Happy New Year!!! --- Srecna Nova Godina!!!
-Content-type: text/plain;
-	charset=iso-8859-1
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Can someone please tell me the correct syntax for the
+policy/users file to support MLS? I know that entries
+for this file are to take the form of 
+user username roles role_set [ranges MLS range_set]
+
+I am unsure of what form the MLS range set syntax is supposed to be.
+
+an example
+
+user mrbean roles {user_r} ranges {u c s ts};
+
+Also,
+
+Is there better documentation on how to implement MLS somewhere?
+
+Richard Christie
+christier@saic.com
 
 
-happy nu year to all
-On Tue, 01 Jan 2002 Filip Brcic wrote :
-> Svim svojim prijateljima koji su se našli u mom 
-> veoma oskudnom i često brisanom addressbook-u
-> želim sve najbolje u Novoj 2k2 Godini !!!
-> 
-> Filip
-> 
-> 
-> ---------------------------------------------------------
-> ------------------------
-> 
-> 
-> To all my friends who were found in my short and
-> frequently erased addressbook, I wish all the best in
-> the New 2k2 Year !!!
-> 
-> Filip
-> 
-> 
- 
 
 
 --
