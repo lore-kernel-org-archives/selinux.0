@@ -1,62 +1,43 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAQAF0Rb018663
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 05:15:00 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAQAExqY027542
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 10:14:59 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id hAQAEw0o027539 for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 10:14:59 GMT
-Date: Wed, 26 Nov 2003 10:14:47 +0000
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: Dale Amon <amon@vnl.com>, selinux <selinux@tycho.nsa.gov>
-Subject: Re: Still no authentication from new debian packages
-Message-ID: <20031126101447.GU2718@vnl.com>
-References: <20031125140255.GI2718@vnl.com> <20031125205010.GA2174@rom.cip.informatik.uni-muenchen.de> <20031125231100.GQ2718@vnl.com> <200311261454.14965.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200311261454.14965.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAQCXbRb019006
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 07:33:37 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAQCX1p5009609
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 12:33:01 GMT
+Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
+	by jazzswing.ncsc.mil  with ESMTP id hAQCX0t0009601
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 12:33:01 GMT
+Received: (from root@localhost)
+	by baitaca.ipen.br (8.12.9/8.12.9) id hAQCYB7v014860
+	for selinux@tycho.nsa.gov; Wed, 26 Nov 2003 10:34:11 -0200
+Received: from ipen.br ([10.0.12.47])
+	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id hAQCY9eE014853
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 10:34:10 -0200
+Message-ID: <3FC49D7D.4090507@ipen.br>
+Date: Wed, 26 Nov 2003 10:33:01 -0200
+From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
+MIME-Version: 1.0
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Network security contexts
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Nov 26, 2003 at 02:54:14PM +1100, Russell Coker wrote:
-> On Wed, 26 Nov 2003 10:11, Dale Amon <amon@vnl.com> wrote:
-> > > I also appended the line
-> > >         session required pam_selinux.so
-> > > to /etc/pam.d/{login,ssh}
-> >
-> > That is worth a look also. But I think Russell might
-> 
-> That is the right answer.  An updated login or ssh package is no longer 
-> needed.
+Hi.
 
-Well, I guess I could add a sed script to handle it for
-me during the build. But then I'll forget about it, and
-you'll fix it... and I'll break again and wonder what 
-happened. :-)
- 
-> I have to automate this somehow, unfortunately Debian policy prohibits 
-> interfering with the configuration files of another package.  Maybe I'll have 
-> to do a diversion.
+How can I verified if the network entities are setting to the proper 
+security contexts ? What can I command use ?
+The security contexts to the network entities are setting in the 
+net_contexts file.
 
-I don't know that this is true in general, inetd.conf
-for example. Your addition looks like a single line
-to be added/deleted with the install/purge of pam_selinux.so.
-I should think you'd be okay there.
-
-I often set some of my own house rules in pam so it 
-would be annoying if the existing files went poof... far 
-better to just edit with sed and make the minimal changes 
-required. 
+Thanks.
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+Carlos Anisio Monteiro  <monteiro@ipen.br>
+IPEN/CNEN-SP
+Sao Paulo - Brasil
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
