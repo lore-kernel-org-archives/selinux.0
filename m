@@ -1,42 +1,77 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA20737
-	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 09:52:03 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA21463
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 11:19:14 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA24012
-	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 14:51:45 GMT
-Received: from mercury.Sun.COM (mercury.Sun.COM [192.9.25.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA24000
-	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 14:51:44 GMT
-Message-Id: <200111191451.fAJEpsE26751@zurich-mail1.Swiss.Sun.COM>
-Date: Mon, 19 Nov 2001 15:51:54 +0100 (MET)
+	by jazzswing.ncsc.mil  with ESMTP id QAA28887
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 16:18:57 GMT
+Received: from patan.sun.com (patan.Sun.COM [192.18.98.43])
+	by jazzswing.ncsc.mil  with ESMTP id QAA28883
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 16:18:56 GMT
+Message-Id: <200111191615.fAJGFHE02817@zurich-mail1.Swiss.Sun.COM>
+Date: Mon, 19 Nov 2001 17:15:17 +0100 (MET)
 From: Harald von Fellenberg - Sun Switzerland Zurich - Technology Strategy Office <Harald.Von-Fellenberg@sun.com>
 Reply-To: Harald von Fellenberg - Sun Switzerland Zurich - Technology Strategy Office <Harald.Von-Fellenberg@sun.com>
-Subject: SELinux and non-ext[23] file systems
-To: sds@tislabs.com
-Cc: selinux@tycho.nsa.gov, Harald.Von-Fellenberg@sun.com
+Subject: Re: SELinux and non-ext[23] file systems
+To: Harald.Von-Fellenberg@sun.com, sds@tislabs.com
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-First the good news. Last week I gave a presentation about secure operating 
-systems, running the slides on Staroffice 6.0 beta on SELinux 20011016. It ran 
-smoothly like a humming bee. Great! It shows that this stuff is usable on a 
-laptop.
+IT WORKS ON REISERFS!!!
 
-This said, I would like to re-raise the importance of non-ext2 file system 
-support, notably ReiserFS. It has been pointed out before, by Stephen Smalley, 
-that this should in principle be easy to integrate (the per-node sec context 
-needs to be stored in a file rather than in an unused field of the on-disk inode 
-structure). However, I am not aware of anyone tackling this implementation.
+Why did you not tell me before ... :-)
+I will now invest my brain cycles on making the utils compile under Suse 7.x
 
-Now, if someone could give me a few hints of where the additional code goes, I 
-would like to volunteer some of my spare brain cycles to tackle this problem.
-ReiserFS support on SELinux would certainly not only make my day.
-
-Regards
+Thanks and regards
 
 Harald
+PS here my patch :-)
+
+--- setfiles/Makefile.orig      Wed Jul 18 22:38:11 2001
++++ setfiles/Makefile   Mon Nov 19 16:19:18 2001
+@@ -9,6 +9,7 @@
+ 
+ relabel:  $(FILECONTEXTS) setfiles
+        ./setfiles $(FILECONTEXTS) `mount | awk '/ext2/{print $$3}'`
++       ./setfiles $(FILECONTEXTS) `mount | awk '/reiserfs/{print $$3}'`
+        touch relabel
+ 
+ install:  relabel
+
+>
+>On Mon, 19 Nov 2001, Harald von Fellenberg - Sun Switzerland Zurich - 
+Technology Strategy Office wrote:
+>
+>> This said, I would like to re-raise the importance of non-ext2 file system
+>> support, notably ReiserFS. It has been pointed out before, by Stephen 
+Smalley,
+>> that this should in principle be easy to integrate (the per-node sec context
+>> needs to be stored in a file rather than in an unused field of the on-disk 
+inode
+>> structure). However, I am not aware of anyone tackling this implementation.
+>
+>Only the original SELinux prototype was limited to the ext2 filesystem,
+>due to the use of a spare field in the on-disk ext2 inode to store the
+>persistent security identifier (PSID).  When we transitioned to LSM, we
+>extended the persistent label mapping to maintain the inode-to-PSID
+>mapping as a regular file because LSM does not provide filesystem-specific
+>hooks.  Hence, the LSM-based SELinux prototype should be able to use
+>ReiserFS, although we haven't tried it.
+>
+>--
+>Stephen D. Smalley, NAI Labs
+>ssmalley@nai.com
+>
+>
+>
+>
+>
+>--
+>You have received this message because you are subscribed to the selinux list.
+>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>the words "unsubscribe selinux" without quotes as the message.
 
 **********************************************************
  Dr. Harald von Fellenberg  
