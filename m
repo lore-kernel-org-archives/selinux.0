@@ -1,347 +1,47 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBAKIdRb029885
-	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 15:18:40 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBAMpnRb000658
+	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 17:51:54 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hBAKIcRV026144
-	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 20:18:39 GMT
-Received: from mail.idtweb.com (mail.idtweb.com [63.140.241.100])
-        by jazzband.ncsc.mil  with ESMTP id hBAKIcta026140 for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 20:18:38 GMT
-Subject: Re: Information flow models
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: "Joshua D. Guttman disp: current" <guttman@mitre.org>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <nha3cbsv6fv.fsf@malabar.mitre.org>
-References: <ogtfzfzqa3g.fsf@divan.mitre.org>
-	 <1070906232.6729.53.camel@colossus.columbia.tresys.com>
-	 <ogtu148yfom.fsf@divan.mitre.org>
-	 <1071069077.6729.108.camel@colossus.columbia.tresys.com>
-	 <ogt8ylky9mn.fsf@divan.mitre.org>
-	 <1071070628.6729.118.camel@colossus.columbia.tresys.com>
-	 <nha3cbsv6fv.fsf@malabar.mitre.org>
+	by jazzband.ncsc.mil  with ESMTP id hBAMpmRV001794
+	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 22:51:48 GMT
+Received: from hawaii.efficax.net (rrcs-sw-24-153-230-186.biz.rr.com [24.153.230.186])
+        by jazzband.ncsc.mil  with ESMTP id hBAMpkta001791 for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 22:51:47 GMT
+Received: from hawaii.efficax.net (localhost [127.0.0.1])
+	by hawaii.efficax.net (8.12.8/8.12.8) with ESMTP id hBAMphQd019184
+	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 16:51:43 -0600
+Received: (from nick@localhost)
+	by hawaii.efficax.net (8.12.8/8.12.8/Submit) id hBAMpgo7019182
+	for selinux@tycho.nsa.gov; Wed, 10 Dec 2003 16:51:43 -0600
+Subject: changing root to default to sysadm_r
+From: Nick <nagray@austin.rr.com>
+Reply-To: nagray@austin.rr.com
+To: SE Linux <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Message-Id: <1071087506.6729.175.camel@colossus.columbia.tresys.com>
+Message-Id: <1071096702.4060.948.camel@hawaii.efficax.net>
 Mime-Version: 1.0
-Date: Wed, 10 Dec 2003 15:18:27 -0500
+Date: Wed, 10 Dec 2003 16:51:42 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-12-10 at 14:06, Joshua D. Guttman wrote:
-> Hi Karl --
-> 
-> John showed me the email exchange, but I didn't understand what your
-> arrows actually mean.  
+I thought I could do make root come up in the sysadm_r initially by
+changing the users.te file
 
-The arrows are directed edges (arcs if you prefer). They mean that there
-was 1 or more allow rules that defined an information flow between the
-nodes.
+diff users .users
+42c42
+< user root roles { sysadm_r staff_r };
+---
+> user root roles { staff_r sysadm_r };
 
-> Since I don't have a machine with a copy of
-> your software installed, could I possibly ask you please to post the
-> relevant part of the documentation to this list, preferably cc:ing me?
-> 
+and recompiling the policy.
 
-Here is the documentation - it is user level documentation and doesn't
-discuss the implementation at all.
+Apparently not, suggestions! and comments why it is not this way
+already.
 
-Karl
-
-AN OVERVIEW OF INFORMATION FLOW ANALYSIS
-apol, version 1.0
-September 22, 2003
-selinux@tresys.com
-
-
-Apol now supports a limited and highly experimental ability to automate 
-the search for overt information flows between two types.  The purpose 
-of this analysis is to identify undesirable or unexpected flows of 
-information allowed by a type enforcement (TE) policy.  For example, 
-imagine that the type shadow_t is assigned to the shadow password file 
-/etc/shadow. You might be interested to know all the types to which 
-information can flow from the shadow_t type (e.g, indicating possible 
-paths for encrypted passwords to be unintentionally leaked). In this 
-case you would do a "flow from" analysis on the shadow_t type. Another 
-example might be a firewall application where your intent is to
-understand 
-all flows allowed between two network interfaces.
-
-Information flow analysis in SELinux is challenging for several reasons,
-including:
-
-  + The TE policy mechanism is extremely flexible, allowing for good and
-    bad flows to be easily specified, not necessarily as part of the 
-    policy writer's intent.
-    
-  + TE policies tend to be complex, with possibly tens of thousands of 
-    rules and hundreds of types, making it difficult for a policy
-    writer to know all that is allowed.
-  
-  + SELinux currently supports 30 object classes and 122 object 
-    permissions, each of which must be examined with their ability to 
-    allow information flow from/to its associated object class.
-    
-In the remainder of this file we provide an overview on how apol 
-performs information flow analysis.
-
-
-WHAT IS OVERT INFORMATION FLOW IN SELINUX?
-
-Information flow is defined in terms of access allowed (not necessarily 
-whether that access is actually used).  In SELinux, all objects and 
-subjects have an associated type.  Generally speaking, subjects can read
-or write objects, and thereby cause information to flow into and out of 
-objects, and into and out of themselves.  For example, suppose you had
-two 
-types (say subject_t and object_t), and you had a subject (with 
-subject_t type) able to read, but not write an object (with object_t 
-type), then a rule that would allow this access might look like the 
-following:
-
-	allow subject_t object_t : {file link_file} read;
-
-In this case, you would have the following direct information flows for 
-the types subject_t and object_t:
-
-	subject_t: FROM object_t
-	
-	object_t:  TO subject_t
-	
-If this were the only rule relating to these two types, then there would
-be no other direct information flows from or to either.
-
-Notice that an information flow can only occur when a subject is 
-involved; you cannot have a flow directly between two objects since a 
-subject is required to cause action.  In SELinux, processes are 
-generally the subject.  There are currently 30 object classes (including
-processes, which are both subjects and objects).
-
-In apol, the subject is easy to recognize; any type that is used in the 
-'source' field of an allow rule is presumed to be associated with a 
-subject (usually as the domain type of some process).  The object type 
-is the type used in the 'target' field of an allow rule.  
-
-In the case of objects, the allow rule also explicitly identifies the 
-object classes for which the rule applies.  This fact results in a 
-complication for analyzing information flows; specifically that flows 
-between types are restricted by object classes.  A flow between types 
-is typically not allowed for all object classes, but for only those 
-classes identified.  So to be more precise, the direct information flows
-allowed by the object rules for object_t in the example above are:
-
-	object_t [file, link_file]:  TO subject_t 
-	
-   NOTE: Apol currently assumes that 'source' types are associated with 
-   process objects and reports flows for source types with the process 
-   object class.  So again with the above rule, the more precise 
-   statement of flows for subject_t and object_t are:
-
-	subject_t [process]:  FROM object_t [file, link_file]
-	object_t [file, link_file]:   TO subject_t [process]
-	
-Currently in apol, the implicit subject-process relationship is not
-reported, and all places where the results show an object class, the 
-class refers to the target object class.  
-	
-Finally, notice the perspective difference between source (subject) 
-types and target (object) types.  A read permission between a source 
-type and a target type is a flow out of the target (which is being read)
-and flow into the source (which, being a process, is receiving the data 
-being read into its memory).
-
-
-OBJECT PERMISSION MAPPINGS
-
-Notice in the above examples we used 'read' permission, but described 
-flows as 'in' or 'out' or 'from' and 'to'.  In general for information 
-flow analysis, the only access between subjects and objects that are of 
-interest, are read and write.  Remembering the perspective difference 
-mentioned above, read and write access results in the following flow for
-subjects (sources) and objects (targets):
-
-	SUBJECT: READ:  IN flow
-	         WRITE: OUT flow
-	          
-	OBJECT:  READ:  OUT flow
-	         WRITE: IN flow
-	        
-   NOTE: Remember that a process can be either a subject or an object.
-So 
-   when the process object class is specified in the allow rule, then 
-   the target type is associated with process object class and the 
-   object flow rules apply.
-	
-While read and write access are the only access rights of interest for 
-an information flow analysis, that does not mean that 'read' and 'write'
-permissions are the only SELinux permissions of interest.  The name of a
-permission does not necessarily imply whether it allows read or write 
-access.  Indeed we need to map all defined permissions for all object 
-classes to read and write access in order to perform an information flow
-analysis.
-
-This mapping can be a difficult chore, and certainly requires extensive 
-understanding of the access allowed by each of the 122 permissions 
-currently defined.  For example, the file object class has the 'getattr'
-permission defined which allows the ability to determine information 
-about a file (such as date created and size).  One could consider this a
-read access since the subject is reading information about the file. 
-Then again this begins to feel like COVERT information flow analysis, 
-where one is concerned about illicit signaling of information through 
-non-traditional means (e.g., signaling the critical data by varying the 
-size of file is a covert flow, writing the data directly in the file so 
-it can be read is an overt flow). This type of decision must be made for
-each defined object permission for each defined object class.  
-
-The permission mapping mechanism in apol allows each permission to be 
-mapped to read, write, both, or none.  In addition, the tool attempts to
-'fix' a permission map to fit the needs of the currently opened policy. 
-So for example, if a permission map file does not map a set of 
-permissions, or skips an entire object class, apol will label the 
-missing permissions to "unmapped" and treat them as if they were mapped 
-to 'none.'  Likewise if a map has permissions that are undefined in the 
-current policy, it will ignore those mappings.  In this way apol 
-continues its tradition of supporting old and new versions of policies 
-(see below for more on managing permission maps).
-
-The default SELinux policy provides an existing mapping for each 
-permission used for the optional MLS access control feature (which 
-enforces a strict, non-flexible form of overt information flow 
-controls).  Most people do not use the MLS access control feature (nor 
-does apol provide support to analyze the associated optional policy 
-features).  However, you can use the policy 'mls' file to get at least a
-starting permission map.  Under the Advanced menu, there is a tool that 
-will allow you to take a policy mls file and convert it into the 
-permission mapping file format required by apol.
-
-As distributed, apol provides two default permission mappings (one based
-on a sample policy for policy version 12, and one based on policy 
-version 15).  These files are directly converted from the policy mls 
-files.
-
-   NOTE: It has often been noted on the mail list that the mls file is 
-   not necessarily a perfect, or even good permission map.  In addition,
-   a permission mapping good for MLS security may not necessarily be 
-   good for type enforcement information flow analysis.  We leave it up 
-   to others to create better permission maps. 
-   
-Apol provides mechanisms to allow you to manage and customize permission
-mappings that best suit your needs.  These tools, including a 
-permission map editor, are all available under the Advanced menu (see 
-more on this topic below).
-
-
-TYPES OF INFORMATION FLOW ANALYSIS
-
-In the examples so far, we've only looked at 'direct' information flows.
-Apol currently implements at least some aspects of both 'direct' and 
-'transitive' information flow analyses.  While both analyses are 
-experimental and likely have existing logic errors, the transitive 
-analysis is much more complex and has many known limitations (that we 
-note below).  Both analyses will improve in future versions.
-
-As its name implies, direct information flow analysis examines a policy 
-for information flows that are directly permitted by one or more allow 
-rules.  In essence, every allow rule defines a direct information flow 
-between the source and target types (for those allowed permissions that 
-map to read, write, or both).  The direct information flow analysis 
-automates the search for these direct flows.
-
-Transitive information flow analysis attempts to link together a series 
-of direct information flows to find an indirect path in which
-information 
-can flow between two types.  The results for a transitive closure will 
-show one or more steps in the chain required for information to flow 
-between the start and end types.  Currently, the results will only show 
-one such path for each end type; specifically the shortest path.
-
-As an example, examine the following rules:
-
-	allow one_t two_t : file write;
-	allow three_t two_t: file read;
-	
-If you were doing a direct flow analysis between one_t and three_t, you 
-would not find any flows since no rule explicitly allows access between 
-them.  However, there is a two-step flow that would allow flow between 
-these two types, namely one_t writing information into a file type 
-(two_t) that three_t can read.  These are the types of flows that the 
-transitive analysis attempts to find.
-
-For both analyses, the results are presented in a less-than-desirable 
-tree form (a more natural form might be a graph presentation; presently 
-we are not prepared for that type of investment into the GUI).   Each 
-node in the tree represents a flow (in the direction selected) between 
-the type of the parent node and the type of the node. The results window
-will show details about the flow, including links to the rule(s) that 
-allow the flow.
-
-MANAGING PERMISSION MAPPINGS
-
-The ability to directly manage permission maps is important for the 
-following reasons: 
-
-  + Permission maps are central to analyzing information flows, and the 
-    correctness of the map has a direct influence on the value of the 
-    results;
-   
-  + The mapping for individual permissions and object classes are 
-    subjective, and changing permissions to alter the analysis might be 
-    necessary (e.g., by unmapping certain object classes to remove them 
-    from the analysis); and 
-    
-  + You might be trying to work with several different policies each 
-    with different definitions of object classes and permissions.
-    
-    
-Because of these reasons, apol was designed to provide great latitude in
-managing permission mappings using the Advanced->Permission Mappings 
-menus.  A user need not manage permission maps directly.  Apol is 
-equipped with default permission maps (in /usr/lib/apol/) that 
-will be loaded automatically when an information flow analysis is 
-performed. 
-
-With The Advanced menus, you can manually load a permission map from any
-file location.  In this way you can keep several versions of permission 
-map files around, and then load the one you want for the analysis you're
-currently doing.  You can also take a 'mls' file and generate a 
-permission map file.  In addition, you can manually load the default 
-permission map (see below).
-
-There are two ways to edit the mappings in a permission map : 1) edit a 
-map file directly, or 2) use the permission map editor under the 
-Advanced menu.  The editor will display all the object classes and 
-permissions currently mapped (or unmapped) in the currently loaded 
-policy.  Since apol will adapt a permission map file to meet the needs 
-of a loaded policy, the loaded map may be different than the file on 
-disk.  If you save the loaded map, the on-disk file will be changed to 
-match the loaded map.
-
-If you make changes to the default permission map, a copy will be made 
-for you in $HOME/.apol_perm_mapping.  If .apol_perm_mapping exists, 
-it will be used as your default.  Otherwise the system default from 
-/usr/lib/apol will be used as the default.
-
-   NOTE: Only one permission map may be loaded at a time, and only if a 
-   policy.conf file is opened.  If you have performed an information 
-   flow analysis, the default permission map will be loaded 
-   automatically unless you previously manually loaded a permission map.
-   Loading a new permission map will unload the current map. Closing the
-   policy will also unload the map.
-
-We expect permission map management to be a central part of complex 
-information flow analysis.
-		
-		
-
-
-
-> Thanks so much --
-> 
->         Joshua 
 -- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-http://www.tresys.com
-(410) 290-1411 x134
-
+Nick (Nix) Gray
+Senior Systems Engineer
+Bruzenak Inc.
+(512) 331-7998
 
 --
 This message was distributed to subscribers of the selinux mailing list.
