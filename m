@@ -1,95 +1,67 @@
-Date: Mon, 17 Feb 2003 15:20:01 +0000
-From: Dale Amon <amon@vnl.com>
-To: Joshua Brindle <JBrindle@snu.edu>
+Subject: Re: spasswd.c
+From: kayo <kayo@pyra.ca>
+To: Russell Coker <russell@coker.com.au>
 Cc: SELinux@tycho.nsa.gov
-Subject: Re: user transparent encryption
-Message-ID: <20030217152001.GD14914@vnl.com>
-References: <se502174.064@atlas.snu.edu>
+In-Reply-To: <200302162251.40417.russell@coker.com.au>
+References: <DTCOIKAKKNB3NWCMMKNXKJCDHTEAEFP3JRHWOJAF@ziplip.com>
+	 <200302162251.40417.russell@coker.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kBNs+FeFlaQKdBznV3hN"
+Message-Id: <1045507488.3079.5.camel@smeagol>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <se502174.064@atlas.snu.edu>
+Date: 17 Feb 2003 12:44:48 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Feb 16, 2003 at 11:40:01PM -0600, Joshua Brindle wrote:
-> I've pondered this myself, suppose you have a great selinux setup
-> very secure, no easy way to compromise it, but the machine itself
-> was in a hostile environment (not able to be protected from others
-> well). What is to stop someone from booting up a non-selinux kernel
-> and having at it with your filesystems? Nothing. I've often wondered
-> if there is a way to lock down the drive contents so it is not
-> accessible 
-> (at least easily) by a non-selinux kernel, or even the encrypted fs
-> where the key is compiled securely into a selinux-enabled kernel
-> so that with a new (possible non-selinux) kernel the filesystem would
-> not be readable. Do you guys think this is possible? granted it would
-> make system recovery next to impossible but maybe it would be a 
-> good option for folks with malicious or ignorant users/-co admins?
-> 
-> Joshua Brindle
-> UNIX Administrator
-> Southern Nazarene University
 
-I don't have a full solution (other than what Russell
-discusses later in this thread) but you should certainly
-assume a well configured secure systems has:
+--=-kBNs+FeFlaQKdBznV3hN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	* a BIOS password
-	* a lilo boot password
-	* good root and role passwords
+Your little play machine rocks, but in my insomnia one night i will find
+something you havent included in your security model. But damn you cant
+do shit even as root... i would like to see what you did and why and how
+cheers
 
-If you have reasonable password security, an attacker
-now has no choice other than to disassemble the machine
-and put the hard drive(s) in another machine. This is
-not a full solution, but it stops the casual attacker
-in the machine room cold unless they've got enough 
-time to:
 
-	* open up the machine
-	* connect the IDE/SCSI cables to a preconfigured
-	  attack machine
-	* attack the disks
-		* online: immediate entry and mod
-		* offline: make copies of the disks
-		  for study and later attack
-	* load a log cleansing script
-	* reconnect, close up and reboot
-	* have the cleanup script run and remove
-	  itself.
 
-The online attack can be stopped cold by encrypted
-root and user disks. Then, the attacker must
 
-	* get an image of the disk
-	* use social engineering, espionage or 
-	  theft to get the password
 
-And even then, to get the disk copy they might as
-well not even try to hide their tracks because
-without the passwords they can't put it back
-as it was. They will have left a clear signature
-they were there. Which means a serious attacker
-might just torch the computer room to hide their
-tracks. (hmmm... Twente???)
+On Sun, 2003-02-16 at 15:51, Russell Coker wrote:
+> On Sun, 16 Feb 2003 22:36, Dusty Hall wrote:
+> >   Thanks for the fix, it worked like a champ.  Although now I'm having
+> > problems compiling disk-utils, specifically raw.c.  The following is th=
+e
+> > error message:
+> >
+> > cc -O -pipe -O2 -m486 -fomit-frame-pointer -I../lib -Wall
+> > -Wmissing-prototypes -Wstrict-prototypes -I/usr/include/ncurses -DNCH=
+=3D0
+> > -I/usr/include/slang -D_FILE_OFFSET_BITS=3D64 -DSBINDIR=3D\"/sbin\"
+> > -DUSRSBINDIR=3D\"/usr/sbin\" -DLOGDIR=3D\"/var/log\" -DVARPATH=3D\"/var=
+\"
+> > -DLOCALEDIR=3D\"/usr/share/locale\"  -s  raw.c   -o raw raw.c:22:
+> > linux/raw.h: No such file or directory
+>=20
+> It seems that your system doesn't have the latest headers.  Login to my p=
+lay=20
+> machine and copy the headers you need.  The login details are in my SE Li=
+nux=20
+> web site.
 
-So if you go with Russell's approach, the machine
-is secure against all but the admin with the key
-and. If the admin is bent, or not careful with
-the key, or his subverted (Mata Hari or missing 
-fingers), then all is lost.
+--=-kBNs+FeFlaQKdBznV3hN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Ultimately comes down to internal security 
-procedures and a sufficiently large and highly
-trained staff to handle those issues.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-That's why real security is *very* expensive.
+iD8DBQA+US2f+2nlubU9QZIRApNdAJ9Asipa+RiOUE3/Ln7qK9QD4X367gCeOZSp
+Ty0W+J0To/zs0IcN9+qF1do=
+=DLvD
+-----END PGP SIGNATURE-----
 
--- 
-------------------------------------------------------
-       IN MY NAME:            Dale Amon, CEO/MD
-  No Mushrooms clouds over    Islandone Society
-    London and New York.      www.islandone.org
-------------------------------------------------------
+--=-kBNs+FeFlaQKdBznV3hN--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
