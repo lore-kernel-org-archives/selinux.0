@@ -1,75 +1,56 @@
-Date: Wed, 16 Apr 2003 10:18:25 -0400 (EDT)
-From: Keisuke Inoue <kinoue@ecs.syr.edu>
-To: david caplan <dac@tresys.com>
-cc: "'SELinux'" <SELinux@tycho.nsa.gov>
-Subject: RE: Help for setools 0.8
-In-Reply-To: <GBEAJBKHFOBIBBJBCGAGEEPNCLAA.dac@tresys.com>
-Message-ID: <Pine.GSO.4.44.0304161011360.24461-100000@boreas.ecs.syr.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: installing SELinux on Trustix
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Christof Rath <rath@sbox.tu-graz.ac.at>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <000801c303a8$4622a310$3700a8c0@wind>
+References: <000801c303a8$4622a310$3700a8c0@wind>
+Content-Type: text/plain
+Message-Id: <1050508220.1143.21.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 16 Apr 2003 11:50:23 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thank you for the responce.
+On Tue, 2003-04-15 at 19:39, Christof Rath wrote:
+> avc: denied { getattr } for pid=1 exe=/sbin/init path=/dev/initctl
+> dev=08:07 ino=22610 scontext=system_u:system_r:kernel_t
+> tcontext=system_u:objecr_r:file_t tclass=fifo_file
+>  
+> avc: denied { read } for pid=8 exe=/sbin/init path=/bin/sh dev=08:07
+> ino=55138 scontext=system_u:system_r:kernel_t
+> tcontext=system_u:objecr_r:file_t tclass=lnk_file
+> [snip]
 
-> Is apol.tcl in /usr/local/lib/apol?  That is the default installation
+The above messages suggest that you did not label your filesystems prior
+to booting the SELinux kernel.  This makes sense if the quickinstall
+aborted without completing.
 
-Yes.
-Is it that the error occurs when apol.tcl is executed (with awin)?
+> and some more of them and at the end I got a list of 
+>  
+> [snip]
+> INIT: cannot execute "/sbin/mingetty" 
+> INIT: cannot execute "/sbin/mingetty" 
+> INIT: cannot execute "/sbin/mingetty"
+> [snip]
 
-Keisuke Inoue
+Did you configure your kernel with CONFIG_SECURITY_SELINUX_DEVELOP=y
+(NSA SELinux Development Support), as per the README instructions?  It
+sounds like you did not enable this option and are booting an enforcing
+kernel, which isn't going to work without having labeled the filesystem
+(and may not work anyway, as the example policy may not cover everything
+you need for your system to operate, especially if you are just using
+the core policy and haven't enabled any optional policy modules).  You
+should build the kernel with the development option and boot it in
+permissive mode (the default) initially so that you can address any
+policy configuration issues and then transition to an enforcing kernel. 
+> I hope someone can tell me a solution...
 
-On Wed, 16 Apr 2003, david caplan wrote:
+Boot with your old kernel and follow the step-by-step instructions for
+installing SELinux, since the quickinstall aborted for you.
 
-> Hi.
->
-> Is apol.tcl in /usr/local/lib/apol?  That is the default installation
-> location for the tcl/tk front end script.  The apol application expects the
-> script to be there unless you've set the APOL_INSTALL_DIR environment
-> variable.
->
-> David
->
-> > -----Original Message-----
-> > From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
-> > Behalf Of Keisuke Inoue
-> > Sent: Tuesday, April 15, 2003 11:49 AM
-> > To: 'SELinux'
-> > Subject: Help for setools 0.8
-> >
-> >
-> > Hello,
-> >
-> > I am Keisuke Inoue, a student in Syracuse University, NY.
-> > I am trying to use the setools 0.8, and cannot figure out what is wrong:
-> >
-> >      # apol
-> >      Error in StartScript (/usr/local/lib/apol//apol.tcl):
-> >
-> >      If APOL_INSTALL_DIR is set, make sure directory is correct
-> >
-> > I am using 2.4 LSM based kernel, Debian unstable, with Russell Coker's
-> > SELinux packages. Makefile was changed accordingly, but I haven't done
-> > anything else.
-> >
-> >     TCL_INCLUDE	= -I/usr/include/tcl8.3
-> >     TCL_LIBINC	= -L/usr/lib/tcl8.3
-> >     YACC	= bison-1.35 -y
-> >
-> >     POLICY_SRC_DIR  = /etc/selinux
-> >
-> > Thank you very much,
-> >
-> > K
-> >
-> >
-> >
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to
-> > majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
->
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
