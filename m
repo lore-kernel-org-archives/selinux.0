@@ -1,76 +1,105 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8D5ZVrT000769
-	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 01:35:34 -0400 (EDT)
-Received: from tyo202.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8D5YZHC023484
-	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 05:34:36 GMT
-Received: from mailgate3.nec.co.jp (mailgate53.nec.co.jp [10.7.69.162] (may be forged))
-	by tyo202.gate.nec.co.jp (8.11.7/3.7W01080315) with ESMTP id i8D5ZQ217069
-	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 14:35:26 +0900 (JST)
-Received: (from root@localhost) by mailgate3.nec.co.jp (8.11.7/3.7W-MAILGATE-NEC)
-	id i8D5ZPu12947 for selinux@tycho.nsa.gov; Mon, 13 Sep 2004 14:35:25 +0900 (JST)
-Received: from mailsv.bs1.fc.nec.co.jp (venus.hpc.bs1.fc.nec.co.jp [10.34.77.164]) by mailsv3.nec.co.jp (8.11.7/3.7W-MAILSV4-NEC) with ESMTP
-	id i8D5ZLW20557 for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 14:35:21 +0900 (JST)
-Received: from mailsv.linux.bs1.fc.nec.co.jp (IDENT:postfix@namesv2.linux.bs1.fc.nec.co.jp [10.34.125.2])
-	by mailsv.bs1.fc.nec.co.jp (8.12.10/3.7W-HPC5.2F(mailsv)04081615) with ESMTP id i8D5biYV023941
-	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 14:37:46 +0900 (JST)
-Received: from sanma (sanma.linux.bs1.fc.nec.co.jp [10.34.125.249])
-	by mailsv.linux.bs1.fc.nec.co.jp (Postfix) with SMTP id B004130981
-	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 14:35:18 +0900 (JST)
-Message-ID: <02eb01c49953$84344590$f97d220a@linux.bs1.fc.nec.co.jp>
-From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
-To: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>
-Subject: process:share condition on 2.6.x kernel
-Date: Mon, 13 Sep 2004 14:35:45 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8DBUfrT001888
+	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 07:30:42 -0400 (EDT)
+Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8DBUeSW008836
+	for <selinux@tycho.nsa.gov>; Mon, 13 Sep 2004 11:30:40 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Mon, 13 Sep 2004 13:30:39 +0200
+Date: Mon, 13 Sep 2004 13:31:14 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: policy patch: some misc additions
+Message-Id: <20040913113113.GA2544@jmh.mhn.de>
+References: <20040911133324.GA2557@jmh.mhn.de> <200409121718.46194.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
+In-Reply-To: <200409121718.46194.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello, all.
 
-I noticed that the condition of 'process:share' is never checked in 2.6.x kernel.
-Is it expected, or unexpected ?
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Stephen D. Smalley wrote about the condition of 'share' in 23/Jan/2003.
-See, http://www.nsa.gov/selinux/list-archive/0301/3782.cfm
+* Russell Coker <russell@coker.com.au> [2004-09-12 09:19]:
+> On Sat, 11 Sep 2004 23:33, Thomas Bleher <bleher@informatik.uni-muenchen.=
+de>=20
+> wrote:
+> > The following patch against latest CVS adds some misc policy:
+> >
+> > logrotate.te: the suse version doesn't work without this
+>=20
+> I think that this is a bug in logrotate.  Looking at the source to figure=
+ out=20
+> what the problem is would be a good idea.
 
->> Is there a short answer of what process "share" permission controls? 
->> Nothing obvious in any reports. Thanks Frank 
->
-> It is mentioned in the module technical report. It is checked when
-> a process SID would change (due to an execve or execve_secure) and
-> the process shares state with its parent due to the prior use of
-> clone(2) to create the process. See the man page for clone for
-> detailed information about what can be shared. 
+I will look at the code and see why it's happening.
 
-The 'share' condition is checked in selinux_bprm_apply_creds() as
-an extension of execve() system call when the domain-transration
-is happened and LSM_UNSAFE_SHARE bit in the 'unsafe' variable is set.
+> > iptables.te: added tc (traffic control) to the iptables domain
+>=20
+> domain_auto_trans(initrc_t, iptables_exec_t, iptables_t) is already inclu=
+ded=20
+> in daemon_base_domain().  Does SUSE have a change to daemon_base_domain()?
 
-Obviously, the domain-transition can happen according to the security-policy.
-But LSM_UNSAFE_SHARE bit is never set in 2.6.x, thus the 'share' condition
-is never evaluated, namely always ignored.
+No, it's the same as everywhere else. I can't remember why I added this
+(it has been in my tree for a while), but, as you noted, it should work
+without so you can forget about that part.
 
-In 2.6.x implementation, de_thread() function is called from load_binary()
-method of the ELF,aout and so on when execve() is called.
-When the current process contains some threads, de_thread() kills all
-the threads except 'current' in the same threads-group.
-Then, compute_creds() function is called for the calculation of
-LSM_UNSAFE_SHARE. But the current process has already only a thread,
-so LSM_UNSAFE_SHARE is always unset.
-The 'share' condition is ignored in 2.6.x in the result.
+> Why do you have tc labelled as iptables_exec_t?  On Debian and Fedora tc =
+is=20
+> working well labelled as ifconfig_exec_t.
 
-I think the 'share' condition is one of the historical inheritances
-and harmless, so this condition should be documented as it's a deprecated
-condition.
-Is my understanding correct?
+Ahh, hadn't seen this.
+Then I propose the following patch instead:
 
-Thanks.
---------
-Kai Gai <kaigai@ak.jp.nec.com>
+--- orig/file_contexts/program/ifconfig.fc
++++ mod/file_contexts/program/ifconfig.fc
+@@ -3,6 +3,7 @@
+ /sbin/iwconfig         --      system_u:object_r:ifconfig_exec_t
+ /sbin/ip               --      system_u:object_r:ifconfig_exec_t
+ /sbin/tc               --      system_u:object_r:ifconfig_exec_t
++/usr/sbin/tc           --      system_u:object_r:ifconfig_exec_t
+ /bin/ip                        --      system_u:object_r:ifconfig_exec_t
+ /sbin/ethtool          --      system_u:object_r:ifconfig_exec_t
+ /sbin/mii-tool         --      system_u:object_r:ifconfig_exec_t
 
+It could also be surrounded by ifdef(`distro_suse', `') if noone else=20
+has tc under /usr/sbin.
+
+> > xdm.te: needed with XFree86 4.3, kdm 3.3 and nvidia
+>=20
+> Why would xdm_xserver_t need it but user_xserver_t not need it? I've adde=
+d it=20
+> to macros/program/xserver_macros.te in my tree.
+
+Not sure. KDM wouldn't want to start without it, but users don't seem to
+need it. It don't think it's a problem to allow it unconditionally.
+
+Thanks for your comments!
+Thomas
+
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+
+--YZ5djTAD1cGYuMQK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBRYUBxWIrrrL0q+cRAjw/AJkBgcCtDwitWomqTG4BKcZnIVHgfwCgiyZ1
+KBotsOEtgMLMzNPgPfvSTQQ=
+=O+PC
+-----END PGP SIGNATURE-----
+
+--YZ5djTAD1cGYuMQK--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
