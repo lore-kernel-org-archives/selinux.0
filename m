@@ -1,40 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA06057
-	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 14:16:37 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id gBUJGaI15627
-	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 19:16:36 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id gBUJGWf15614 for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 19:16:34 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 696759246B
-	for <selinux@tycho.nsa.gov>; Tue, 31 Dec 2002 06:16:18 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id C16AF13C9
-	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 20:16:13 +0100 (CET)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: SE Linux people in the UK
-Date: Mon, 30 Dec 2002 20:16:13 +0100
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA06758
+	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 15:36:58 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA01088
+	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 20:34:22 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id UAA01084
+	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 20:34:22 GMT
+Message-Id: <200212302044.PAA08457@moss-shockers.ncsc.mil>
+Date: Mon, 30 Dec 2002 15:44:20 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: SELinux To Do list
+To: selinux@tycho.nsa.gov, KAMUELA.D.GUERRA@saic.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200212302016.13305.russell@coker.com.au>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In mid-January I will be visiting England for a few days.  I am currently in 
-negotiations regarding giving a presentation on SE Linux.
 
-I will also have some time for meeting SE Linux people in London, if 
-interested then please contact me off-list.
+> According to http://www.nsa.gov/selinux/todo.html there is still work to be
+> done on the documentation tasks.
+> 
+> What still needs to be done and how can I help?
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I don't think anyone has written any of the three documents listed on the 
+todo.html page.  Prior to starting to work on any such documentation, you should 
+review the existing papers and technical reports available from the NSA site 
+(http://www.nsa.gov/selinux/docs.html).  Tresys Technology has also written a 
+few policy whitepapers, available from their site 
+(http://www.tresys.com/selinux), but be aware that some things have changed 
+since those whitepapers were written.
+
+We would welcome contributions of HOWTO-style documents.  In creating such
+documents, please don't start from scratch; you should be able to leverage
+some of the content of the existing papers and reports.  The published
+papers and older technical reports were originally written in LaTeX, and
+the newer technical reports were written in DocBook.
+
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
 
 --
