@@ -1,71 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA17246
-	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2002 18:17:15 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA06690
-	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2002 22:15:36 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA06686
-	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2002 22:15:35 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brian May <bam@snoopy.apana.org.au>
-Subject: Re: limiting types on a file system
-Date: Thu, 26 Sep 2002 00:16:54 +0200
-Cc: selinux@tycho.nsa.gov
-References: <200209251622.02323.russell@coker.com.au> <20020925215924.GI26806@snoopy.apana.org.au>
-In-Reply-To: <20020925215924.GI26806@snoopy.apana.org.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA19527
+	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 02:42:29 -0400 (EDT)
+From: pasi.kivikangas@nokia.com
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id GAA00025
+	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 06:40:42 GMT
+Received: from mgw-x4.nokia.com (mgw-x4.nokia.com [131.228.20.27])
+        by jazzband.ncsc.mil  with ESMTP id GAA00021 for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 06:40:41 GMT
+Received: from esvir03nok.nokia.com (esvir03nokt.ntc.nokia.com [172.21.143.35])
+	by mgw-x4.nokia.com (Switch-2.2.1/Switch-2.2.0) with ESMTP id g8Q6guF02388
+	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 09:42:56 +0300 (EET DST)
+Received: from esebh001.NOE.Nokia.com (unverified) by esvir03nok.nokia.com
+ (Content Technologies SMTPRS 4.2.5) with ESMTP id <T5d91fd248aac158f230ad@esvir03nok.nokia.com> for <selinux@tycho.nsa.gov>;
+ Thu, 26 Sep 2002 09:40:44 +0300
 MIME-Version: 1.0
-Message-Id: <200209260016.54271.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: RE: SELinux on UML
+Date: Thu, 26 Sep 2002 09:40:43 +0300
+Message-ID: <98C7D2E5BCD2374C9AAE0BCD2E9C1DD9BE842A@esebe013.ntc.nokia.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 25 Sep 2002 23:59, Brian May wrote:
-> Would you want to allow the disk to be labelled based on information
-> stored on that disk?
+> From: ext Russell Coker [mailto:russell@coker.com.au] Sent: 26 September, 2002 00:17
+> 
+> I've just had a quick look at it.  It seems that UML provides 
+> a different ptrace interface internally.
 
-Ideally yes but within certain limits.
+That's correct, actually interface seems to be very different to what SE is using and it also seems that UML has had troubles with ptrace earlier.
 
-> I think this goes against the principles behind SE-Linux, where
-> it is the system adminstrator who is in control of the system,
-> not each user.
+> I've sent Jeff an email asking how to get the ptrace stuff 
+> working on UML, but it might be better to get the SE kernel code to not do things 
+> that way if possible...
 
-The system administrator would still be in control, they could limit which 
-types a particular mount domain could create.
+Hopefully that can be done. It'd be so cool to just turn on and off virtual machines instead of real ones after doing some fatal experiments.
 
-Currently the user can change files between user_home_t, user_netscape_ro_t, 
-and user_netscape_rw_t in their home directory.  Why not allow them to store 
-the same types on a floppy disk?
 
-> Also floppy disks are typically small, and you want to maximize
-> available space.
+	- Pasi
 
-The difference between minix and ext2 is probably greater than the size of 
-/...security ...
-
-> How about a fixed type depending on who is doing the mount command,
-> and what parameters they use?
-
-That would be workable.
-
-> (eg. so one user may want the floppy disk to save files downloaded
-> from netscape, but another user may want to prevent netscape having
-> any access)
->
-> Are there any implications here in case the user wants to back
-> up their private gpg key on floppy disk?
-
-Yes, so the user can mount one disk for netscape to access, umount it and then 
-mount a disk for the gpg private key (which netscape is not allowed to 
-access) with a different type.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 
 --
