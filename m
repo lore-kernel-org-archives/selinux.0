@@ -1,69 +1,41 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11614
-	for <selinux@tycho.nsa.gov>; Sat, 23 Nov 2002 12:37:25 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA16434
+	for <selinux@tycho.nsa.gov>; Mon, 25 Nov 2002 06:21:51 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA28822
-	for <selinux@tycho.nsa.gov>; Sat, 23 Nov 2002 17:34:55 GMT
-Received: from pandora.snu.edu ([204.126.2.1])
-	by jazzswing.ncsc.mil  with SMTP id RAA28818
-	for <selinux@tycho.nsa.gov>; Sat, 23 Nov 2002 17:34:55 GMT
-Message-Id: <sddf6838.049@atlas.snu.edu>
-Date: Sat, 23 Nov 2002 11:36:21 -0600
-From: "Joshua Brindle" <JBrindle@snu.edu>
-To: <bam@snoopy.apana.org.au>
-Cc: <russell@coker.com.au>, <selinux@tycho.nsa.gov>, <jabiru_croc@yahoo.com>
-Subject: Re: SELinux distro building
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	by jazzswing.ncsc.mil  with ESMTP id LAA09109
+	for <selinux@tycho.nsa.gov>; Mon, 25 Nov 2002 11:19:40 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id LAA09105
+	for <selinux@tycho.nsa.gov>; Mon, 25 Nov 2002 11:19:39 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 5E2F092668
+	for <selinux@tycho.nsa.gov>; Mon, 25 Nov 2002 22:21:30 +1100 (EST)
+Received: from lyta (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id DC3949099
+	for <selinux@tycho.nsa.gov>; Mon, 25 Nov 2002 12:21:20 +0100 (CET)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: LinuxBIOS and secure booting
+Date: Mon, 25 Nov 2002 12:21:20 +0100
+MIME-Version: 1.0
+Message-Id: <200211251221.20204.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ok, here is a list of places that need $(MODDIR)/include added to
-INCLUDES in Makefile
-libsecure/test
-setfiles/
-utils/newrole
-utils/run_init
-utils/spasswd
-devfsd/
+http://www.clustermatic.org/pipermail/linuxbios/2002-November/001186.html
 
-after adding all these it compiled cleanly on a completely virgin
-system. excellent.. Thanks
+I think that everyone on this list will have some interest in this topic.  A 
+secure boot loader for SE Linux is something that we need.
 
-Joshua Brindle
-UNIX Administrator
-Southern Nazarene University
-
->>> Brian May <bam@snoopy.apana.org.au> 11/20/02 04:48PM >>>
-On Wed, Nov 20, 2002 at 02:54:18PM -0600, Joshua Brindle wrote:
-> much closer
-> i used --with-lsm=/usr/src/linux-2.4.19-selinux because it was
-looking
-> in ../../.. for lsm-2.4, instead of just ../ (i dunno)
-> anyway, it compiled almost everything then i got this error
-> (if you prefer i can pipe the entire compile to a file and attach..
-> Thanks
-
-Looks like another directory that needs to include LSM directories.
-
-What directories need these include files?
-
-So far it seems to be:
-
-libsecure/src
-libsecure/test
-modules/checkpolicy
-
-Is that all? Are there any others I might have missed?
 -- 
-Brian May <bam@snoopy.apana.org.au>
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---
-This message was distributed to subscribers of the selinux mailing
-list.
-If you no longer wish to subscribe, send mail to
-majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
