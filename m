@@ -1,46 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA06758
-	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 15:36:58 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA01088
-	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 20:34:22 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id UAA01084
-	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 20:34:22 GMT
-Message-Id: <200212302044.PAA08457@moss-shockers.ncsc.mil>
-Date: Mon, 30 Dec 2002 15:44:20 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA07151
+	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 16:37:36 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id gBULbZI22425
+	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 21:37:35 GMT
+Received: from grue.lurking-grue.org (lurking-grue.org [203.10.72.64])
+        by jazzband.ncsc.mil  with ESMTP id gBULbYf22421 for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 21:37:34 GMT
+Date: Tue, 31 Dec 2002 08:37:25 +1100
+To: selinux@tycho.nsa.gov
 Subject: Re: SELinux To Do list
-To: selinux@tycho.nsa.gov, KAMUELA.D.GUERRA@saic.com
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Message-ID: <20021230213725.GA19754@lurking-grue.org>
+References: <200212302226.04411.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200212302226.04411.russell@coker.com.au>
+From: faye@lurking-grue.org (Faye)
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 30 Dec 2002 21:44, Stephen D. Smalley wrote:
 
-> According to http://www.nsa.gov/selinux/todo.html there is still work to be
-> done on the documentation tasks.
-> 
-> What still needs to be done and how can I help?
+> I don't think anyone has written any of the three documents listed on the 
+> todo.html page.  Prior to starting to work on any such documentation, you should 
+> review the existing papers and technical reports available from the NSA site 
+> (http://www.nsa.gov/selinux/docs.html).  Tresys Technology has also written a 
+> few policy whitepapers, available from their site 
+> (http://www.tresys.com/selinux), but be aware that some things have changed 
+> since those whitepapers were written.
+> We would welcome contributions of HOWTO-style documents.  In creating such
+> documents, please don't start from scratch; you should be able to leverage
+> some of the content of the existing papers and reports.  The published
+> papers and older technical reports were originally written in LaTeX, and
+> the newer technical reports were written in DocBook.
 
-I don't think anyone has written any of the three documents listed on the 
-todo.html page.  Prior to starting to work on any such documentation, you should 
-review the existing papers and technical reports available from the NSA site 
-(http://www.nsa.gov/selinux/docs.html).  Tresys Technology has also written a 
-few policy whitepapers, available from their site 
-(http://www.tresys.com/selinux), but be aware that some things have changed 
-since those whitepapers were written.
+I am part of the way through writing an introductory level HOWTO.  Hope
+to have it available in a week.  Actually with New Year celebrations, I
+might have to make that a week to two weeks  ;)
 
-We would welcome contributions of HOWTO-style documents.  In creating such
-documents, please don't start from scratch; you should be able to leverage
-some of the content of the existing papers and reports.  The published
-papers and older technical reports were originally written in LaTeX, and
-the newer technical reports were written in DocBook.
+faye
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+-- 
+Message from Our Sponsor on ttytv at 00:01 ...
+Faye Coker			    faye@lurking-grue.org
+Current stomping ground: 	    Amsterdam, The Netherlands
 
 
 --
