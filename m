@@ -1,23 +1,23 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA03701
-	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2001 14:48:30 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA28491
-	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2001 18:48:09 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA03662
+	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2001 14:46:44 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA13740
+	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2001 18:45:28 GMT
 Received: from albatross.prod.itd.earthlink.net (albatross.mail.pas.earthlink.net [207.217.120.120])
-	by jazzband.ncsc.mil  with ESMTP id SAA28487
-	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2001 18:48:08 GMT
+	by jazzswing.ncsc.mil  with ESMTP id SAA13736
+	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2001 18:45:27 GMT
 Received: from zion (CBL-dataefx.hs.earthlink.net [207.217.173.155])
-	by albatross.prod.itd.earthlink.net (EL-8_9_3_3/8.9.3) with SMTP id LAA08455
-	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2001 11:48:14 -0700 (PDT)
+	by albatross.prod.itd.earthlink.net (EL-8_9_3_3/8.9.3) with SMTP id LAA29198
+	for <selinux@tycho.nsa.gov>; Thu, 23 Aug 2001 11:46:41 -0700 (PDT)
 From: "JohnScroggins" <dataefx@earthlink.net>
 To: <selinux@tycho.nsa.gov>
-Subject: FW: New Development Site 
-Date: Thu, 23 Aug 2001 11:41:21 -0700
-Message-ID: <AGEMJJFIEKIAAOJCCEIGMEGICEAA.dataefx@earthlink.net>
+Subject: FW: New Development Site
+Date: Thu, 23 Aug 2001 11:39:48 -0700
+Message-ID: <AGEMJJFIEKIAAOJCCEIGIEGICEAA.dataefx@earthlink.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -25,58 +25,79 @@ List-Id: selinux@tycho.nsa.gov
 
 -----Original Message-----
 From: JohnScroggins [mailto:dataefx@earthlink.net]
-Sent: Wednesday, August 22, 2001 10:21 AM
-To: RJ Atkinson
+Sent: Wednesday, August 22, 2001 12:00 PM
+To: Jonathan Day
 Subject: RE: New Development Site
 
 
+Hi,
 
-At 18:00 21/08/01, you wrote:
->p.s. If the move to Sourceforge will inhibit your participation in the
->discussions, and/or development process please let us know, or if you have
-a
->better suggestion for a collaborative site forward the information for
->consideration.
+I hope you've not taken over the -whole- of Sourceforge. That could be most
+awkward for the 10,000 or so other projects hosted there. :)
 
-        It is duplicative and creates confusion.
+Aww, they'll get used to it sooner or later ;)
 
-Believe me, that was not my intent.
+Seriously, I thought someone had -already- mirrored SELinux over on
+Sourceforge. Not that it really does any good, as 99.999% of the development
+work, at this point, is being done behind the scenes, anyway.
 
-In effect, you are forking the SE Linux development project, which just
-is NOT helpful here.
+Someone has, and we are using the site that you are talking about..
+The kernel development is going forward, but my concern was the remaining
+work tasks. I have talked with Stephen Smalley, and indicated an interest in
+providing the guidance documentation for the project, that portion of the
+project lays dormant.
 
-It would be unwise and self serving if I thought that the core developers
-would EVEN think about moving from the .gov site to Sourceforge.  There are
-task that remain undone, documentation, functional testing and all those
-sorts of things, which are listed on the NSA's web site as REMAINING work.
-My goal is not to fork the project, rather, to gather assistance to fulfill
-the other deliverables. If there is someone else doing these things, please
-let me know, and I will sit back and wait for the finished product.
+IMHO, there's a right time for everything, and right now, that seems to be
+to examine the new infrastructure that's going to be used. Will it mean that
+the next version of SELinux will be more restricted? More flexible? How
+secure is the infrastructure itself? The new version of SELinux will be
+using external code - has it been audited? What else can it do?
 
+I believe the timing is good on this ramp up effort.. what better than to
+have people waiting to test the next release? I would not recommend this(or
+any other) development kernel be used in a real time environ, but if there
+are people that are willing to run it on test boxes, and provide input and
+help make the administrative tasks simpler (which means more people may use
+it as a part of their solution), I think this puts the project further down
+the road. maybe?
 
-Besides which I think there are other
-mirrors already existing...
+Until the SELinux group is cleared to release the new code, mirroring the
+old stuff may be more harmful than good. For a start, it might give the
+impression that it -is- the new code, which would NOT be good.
 
-Yes, there are, just that mirrors.. I fail to see the relevance.. those
-sites seem dead and unattended, what are they giving back to the project?
+Since there is a v2.4.2 listed on the site now, I would have to say: that
+was not my plan. If this is hazardous overall, then a link to the NSA's
+website for download would be sufficient? It's already there in the mirror,
+just eliminate the CVS option.
 
-I have retained assistance from a number of people that deploy solutions in
-ISP and ASP scenarios, not so that we can modify the code or fork the
-project, but to give the developers some additional input on use cases,
-possible policy configurations, testing and possibly a modified install
-script which can help engineers and admins deploy the kernel with maximum
-efficiency..
+Also, if there are multiple mirrors (especially multiple mirrors on
+Sourceforge), consolidation and/or arrangement might be a good idea. If the
+mirrors are all manual, for example, how is anybody to know, at any given
+time, what mirrors hold what versions of what? Perhaps you might want to
+look into a "meta-mirror", which allows people to see this information.
 
-Then again, I may not be seeing the whole picture here ;)
-Your input is valuable
+there seems to be only one site on S/F for selinux, and we are using that
+one to build on.
 
-TIA
+thanks for the input, really ...:)
 
 --JS
 
-Ran
-rja@inet.org
+Just some thoughts
 
+
+
+
+------------------------------------------------------------
+--== Sent via Deja.com ==--
+http://www.deja.com/
+
+--
+You have received this message because you are subscribed to the selinux
+list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 
 --
