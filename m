@@ -1,46 +1,48 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA05475
-	for <selinux@tycho.nsa.gov>; Sun, 1 Dec 2002 07:06:49 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA05501
+	for <selinux@tycho.nsa.gov>; Sun, 1 Dec 2002 07:09:18 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA18470
-	for <selinux@tycho.nsa.gov>; Sun, 1 Dec 2002 12:04:45 GMT
+	by jazzband.ncsc.mil  with ESMTP id MAA18576
+	for <selinux@tycho.nsa.gov>; Sun, 1 Dec 2002 12:07:14 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id MAA18465 for <selinux@tycho.nsa.gov>; Sun, 1 Dec 2002 12:04:44 GMT
+        by jazzband.ncsc.mil  with ESMTP id MAA18559 for <selinux@tycho.nsa.gov>; Sun, 1 Dec 2002 12:07:13 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
-Subject: Re: executing a sock_file
-Date: Sun, 1 Dec 2002 13:06:14 +0100
-References: <200211292010.PAA23902@moss-shockers.ncsc.mil>
-In-Reply-To: <200211292010.PAA23902@moss-shockers.ncsc.mil>
+Subject: Re: expect
+Date: Sun, 1 Dec 2002 13:08:58 +0100
+References: <200211292002.PAA23890@moss-shockers.ncsc.mil>
+In-Reply-To: <200211292002.PAA23890@moss-shockers.ncsc.mil>
 MIME-Version: 1.0
-Message-Id: <200212011306.14961.russell@coker.com.au>
+Message-Id: <200212011308.58878.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 29 Nov 2002 21:10, Stephen D. Smalley wrote:
-> > Nov 28 15:50:18 lyta kernel: avc:  denied  { execute } for  pid=4084
-> > exe=/usr/lib/openoffice/program/soffice.bin
-> > path=/tmp/OSL_PIPE_1001_SingleOfficeIPC_-383479802 dev=03:02 ino=900
-> > scontext=rjc:user_r:user_t tcontext=rjc:object_r:user_tmp_t
-> > tclass=sock_file
-> >
-> > What does it mean by executing a sock_file?
-> >
-> > Star Office seems to run OK anyway...
+On Fri, 29 Nov 2002 21:02, Stephen D. Smalley wrote:
+> > Due to what I believe to be bugs in expect, the new open_init_pty program
+> > will not work correctly with old versions of expect.  Version 5.38.0
+> > works fine, version 5.32.2 is broken.  I don't know when the bug was
+> > fixed exactly.
 >
-> Can you reproduce this denial reliably?  For normal file execution, the
-> base kernel should deny attempts to execute any non-regular file before
-> LSM/SELinux is ever invoked.  Possibly a check on a mmap, but that doesn't
-> make a lot of sense to me either for a sock file.
+> I've backed out the open_init_pty changes to our internal copy of
+> run_init.   I'd rather not have the base run_init functionality dependent
+> on a particular version of expect, and I'm not even sure that it is
+> wise to depend on having expect installed at all.
 
-I've tried a few times to do this, under both 2.4.19 and 2.4.20, but I can't 
-get it to happen again.
+I will not do the same for my Debian packages.
 
-For the moment I've given up, if I see such a thing in future I'll have to 
-make careful notes about the state of my machine.
+I can see the benefit in having two options available for users in this case, 
+as some smaller devices such as PDAs may not have space for expect.  But 
+Debian is a heavy distribution primarily designed for workstations and 
+servers.  Debian works well on laptops too but is not designed to scale down 
+any further than that.  So I think that there is no reason not to depend on 
+expect.
+
+I have made my Debian packages depend on the appropriate version of expect so 
+you can just install the packages and be sure that the right things are 
+automatically installed.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
