@@ -1,138 +1,70 @@
-Subject: rssh pass two - secure GNU arch committers
-From: Colin Walters <walters@verbum.org>
-To: SELinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zPSyuvK/B/1Ts88/GdFS"
-Message-Id: <1073950831.8539.156.camel@nexus.verbum.private>
-Mime-Version: 1.0
-Date: Mon, 12 Jan 2004 18:40:32 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0D3KoRb017020
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jan 2004 22:20:50 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0D3KniV025957
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 03:20:49 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i0D3Kb06025908 for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 03:20:48 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by ns.sws.net.au (Postfix) with ESMTP id D52E061BAA
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 14:19:14 +1100 (EST)
+Received: from ns.sws.net.au ([127.0.0.1])
+	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 10804-05 for <selinux@tycho.nsa.gov>;
+	Tue, 13 Jan 2004 14:19:14 +1100 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by ns.sws.net.au (Postfix) with ESMTP id 6C66161B17
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 14:19:14 +1100 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 1A13B924F5
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 14:19:14 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 5B0CAB5871
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 14:19:24 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Samba and NFSv4 user-space server
+Date: Tue, 13 Jan 2004 14:19:23 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200401131419.23834.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+For Samba it's possible for a single TCP connection to be used for multiple 
+identities.  This is standard practise for "Windws Terminal Server", and 
+would be used when you specify different user-id's for different "net use" 
+commands if the Windows SMB client code wasn't so buggy.
 
---=-zPSyuvK/B/1Ts88/GdFS
-Content-Type: multipart/mixed; boundary="=-gjnnw3+vC85WkFuJpEJg"
+This means that having a separate SE Linux context for each copy of smbd would 
+be impossible if full functionality is to be maintained, and in spite of this 
+it would be really difficult to change the smbd code to make it re-exec 
+itself every time someone authenticates.
 
+I spent some time discussing the matter with Tridge, he seems quite convinced 
+that SE Linux needs some method to allow an smbd to change security context 
+for file system operations (similar in concept to setfsuid() perhaps).
 
---=-gjnnw3+vC85WkFuJpEJg
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-I've extended my previous rssh.te to support multiple archives.  My
-ultimate goal here is to have a role for people committing to a GNU arch
-archive, which just requires the ability to write files over sftp.  I
-don't want to give out full shell accounts for this.
-
-There are two files attached, intended to be
-domains/program/unused/rssh.te and macros/program/rssh_macros.te.
-
-Here's a full explanation of how to use it.  Say you have an area that
-you want several people to be able to write to over SFTP.  First, you
-have to install rssh:  http://rssh.sf.net/
-
-Next, in a local .te policy file (I use domains/misc/local.te), do
-something like:
-
-rssh_domain(rhythmbox)
-
-This creates a role: rssh_rhythmbox_r, as well as some important types:
-rssh_rhythmbox_ro_t and rssh_rhythmbox_rw_t. =20
-
-Next, create a new user account:
-suseradd -s /usr/bin/rssh rhythmbox
-mkdir /home/rhythmbox
-chcon system_u:object_r:rssh_rhythmbox_ro_t /home/rhythmbox
-
-Now, edit /etc/selinux/users, and add a line that looks like this:
-
-user rhythmbox roles { rssh_rhythmbox_r };
-
-Next, gather public ssh keys (usually ~/.ssh/id_rsa.pub) for all the
-people you want to have the ability to write to the archive.=20
-Concatenate them all into /home/rhythmbox/.ssh/authorized_keys.
-
-Double-check that the type on .ssh and .authorized_keys is
-rssh_rhythmbox_ro_t.  The user should *not* be able to write to these
-files.
-
-At this point, double-check that you can log in successfully:
-
-sftp rhythmbox@example.com
-
-And finally, just create the directory you want people to be able to
-write to (in my case, /home/rhythmbox/arch), and ensure it has the
-rssh_rhythmbox_rw_t type.
-
-In my case, I also wanted the webserver to be able to read these files,
-so in my local.te, I do:
-
-define(`monk_rssh_domain',`
-r_dir_file(httpd_t,rssh_$1_ro_t)
-r_dir_file(httpd_t,rssh_$1_rw_t)
-dontaudit httpd_t rssh_$1_ro_t:sock_file r_file_perms;
-')
-monk_rssh_domain(rhythmbox)
-
-The sock_file bits are for another program we use (mini-dinstall).
+After that Tridge and Linus spent some time discussing the possibility of 
+having a method of storing all process context (UID, GID, supplemental GIDs, 
+signal state, etc) and allowing a process to switch some large amount of it's 
+process state with a single system call.  They suggested having SE Linux 
+context be part of this process state to be changed.
 
 
---=-gjnnw3+vC85WkFuJpEJg
-Content-Disposition: attachment; filename=rssh.te
-Content-Type: text/plain; name=rssh.te; charset=UTF-8
-Content-Transfer-Encoding: base64
+We don't want to allow wide and arbitary changing of context as setuid() 
+allows.  But allowing transitions between samba_user_t and samba_staff_t 
+should be OK.
 
-I0RFU0MgUnNzaCAtIFJlc3RyaWN0ZWQgKHNjcC9zZnRwKSBvbmx5IHNoZWxsDQojDQojIEF1dGhv
-cnM6IENvbGluIFdhbHRlcnMgPHdhbHRlcnNAdmVyYnVtLm9yZz4NCiMgWC1EZWJpYW4tUGFja2Fn
-ZTogcnNzaA0KIw0KDQp0eXBlIHJzc2hfZXhlY190LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGUsIGV4
-ZWNfdHlwZTsNCg0KaWZkZWYoYHNzaC50ZScsYA0KYWxsb3cgc3NoZF90IHJzc2hfZXhlY190OmZp
-bGUgcl9maWxlX3Blcm1zOw0KJykNCg0KIyBTZWUgcnNzaF9tYWNyb3MudGUgZm9yIHRoZSByZXN0
-Lg==
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---=-gjnnw3+vC85WkFuJpEJg
-Content-Disposition: attachment; filename=rssh_macros.te
-Content-Type: text/plain; name=rssh_macros.te; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-Iw0KIyBNYWNyb3MgZm9yIFJzc2ggZG9tYWlucw0KIw0KIyBBdXRob3I6IENvbGluIFdhbHRlcnMg
-PHdhbHRlcnNAdmVyYnVtLm9yZz4NCiMNCg0KIw0KIyByc3NoX2RvbWFpbihkb21haW5fcHJlZml4
-KQ0KIw0KIyBEZWZpbmUgYSBzcGVjaWZpYyByc3NoIGRvbWFpbi4NCiMNCiMgVGhlIHR5cGUgZGVj
-bGFyYXRpb24gZm9yIHRoZSBleGVjdXRhYmxlIHR5cGUgZm9yIHRoaXMgcHJvZ3JhbSBpcw0KIyBw
-cm92aWRlZCBzZXBhcmF0ZWx5IGluIGRvbWFpbnMvcHJvZ3JhbS9yc3NoLnRlLiANCiMNCnVuZGVm
-aW5lKGByc3NoX2RvbWFpbicpDQppZmRlZihgcnNzaC50ZScsIGANCmRlZmluZShgcnNzaF9kb21h
-aW4nLGANCnR5cGUgcnNzaF8kMV90LCBkb21haW4sIHByaXZsb2csIHByaXZmZDsNCnJvbGUgcnNz
-aF8kMV9yIHR5cGVzIHJzc2hfJDFfdDsNCmFsbG93IHN5c3RlbV9yIHJzc2hfJDFfcjsNCg0KdHlw
-ZSByc3NoXyQxX3J3X3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZTsNCnR5cGUgcnNzaF8kMV9yb190
-LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGU7DQoNCmdlbmVyYWxfZG9tYWluX2FjY2Vzcyhyc3NoXyQx
-X3QpOw0KdXNlc19zaGxpYihyc3NoXyQxX3QpOw0KYmFzZV9maWxlX3JlYWRfYWNjZXNzKHJzc2hf
-JDFfdCk7DQphbGxvdyByc3NoXyQxX3QgdmFyX3Q6ZGlyIHJfZGlyX3Blcm1zOw0Kcl9kaXJfZmls
-ZShyc3NoXyQxX3QsIGV0Y190KTsNCnJfZGlyX2ZpbGUocnNzaF8kMV90LCBldGNfcnVudGltZV90
-KTsNCnJfZGlyX2ZpbGUocnNzaF8kMV90LCBsb2NhbGVfdCk7DQpjYW5fZXhlYyhyc3NoXyQxX3Qs
-IGJpbl90KTsNCmNhbl9leGVjKHJzc2hfJDFfdCwgc3NoZF9zZnRwX2V4ZWNfdCk7DQoNCnJfZGly
-X2ZpbGUocnNzaF8kMV90LCByc3NoXyQxX3JvX3QpOw0KY3JlYXRlX2Rpcl9maWxlKHJzc2hfJDFf
-dCwgcnNzaF8kMV9yd190KTsNCg0KaWZkZWYoYHNzaC50ZScsYA0KYWxsb3cgcnNzaF8kMV90IHNz
-aGRfdDpmZCB1c2U7DQphbGxvdyByc3NoXyQxX3Qgc3NoZF90OnRjcF9zb2NrZXQgcndfc3RyZWFt
-X3NvY2tldF9wZXJtczsNCmFsbG93IHJzc2hfJDFfdCBzc2hkX3Q6dW5peF9zdHJlYW1fc29ja2V0
-IHJ3X3N0cmVhbV9zb2NrZXRfcGVybXM7DQojIEZvciByZWFkaW5nIC9ob21lL3VzZXIvLnNzaA0K
-cl9kaXJfZmlsZShzc2hkX3QsIHJzc2hfJDFfcm9fdCk7DQpkb21haW5fdHJhbnMoc3NoZF90LCBy
-c3NoX2V4ZWNfdCwgcnNzaF8kMV90KTsNCicpDQonKQ0KDQonLCBgDQoNCmRlZmluZShgcnNzaF9k
-b21haW4nLGAnKQ0KDQonKQ0K
-
---=-gjnnw3+vC85WkFuJpEJg--
-
---=-zPSyuvK/B/1Ts88/GdFS
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAAzBvOIkJWWp2WGURApDWAJ0SK9J4YLY/k2/D1vbuuTKseS7t9QCfXTmb
-SyDaGtBUPl+RWDqg9Jkgb5U=
-=yAKU
------END PGP SIGNATURE-----
-
---=-zPSyuvK/B/1Ts88/GdFS--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
