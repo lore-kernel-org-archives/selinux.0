@@ -1,44 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FL5jHa020218
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 17:05:45 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6FL5iH5006225
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 21:05:44 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FL6SHa020248
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 17:06:29 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6FL5RnJ019372
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 21:05:27 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h6FL5hRX006222 for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 21:05:43 GMT
-Subject: Re: another patch for the new release
+	by jazzswing.ncsc.mil  with ESMTP id h6FL5Rhr019369
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 21:05:27 GMT
+Subject: Re: [patch] uninitialized values in setfiles/psid.c
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200307122201.06936.russell@coker.com.au>
-References: <200307122201.06936.russell@coker.com.au>
+To: Colin Walters <walters@verbum.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1058077234.10673.68.camel@columbia>
+References: <1058077234.10673.68.camel@columbia>
 Content-Type: text/plain
-Message-Id: <1058303138.13738.809.camel@moss-huskers.epoch.ncsc.mil>
+Message-Id: <1058303185.13738.811.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 15 Jul 2003 17:05:39 -0400
+Date: 15 Jul 2003 17:06:26 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-07-12 at 08:01, Russell Coker wrote:
-> I think that it is desirable that when a user is authorized for user_r and 
-> staff_r that staff_r is the default.
+On Sun, 2003-07-13 at 02:20, Colin Walters wrote:
+> While updating to the newer policycoreutils release, I noticed the
+> following gcc warnings:
 > 
-> I patched spasswd to have svigr, and to fix a bug in the Makefile with 
-> creating a directory.
+> psid.c: In function `chpsid':
+> psid.c:609: warning: `off' might be used uninitialized in this function
+> psid.c:610: warning: `len' might be used uninitialized in this function
 > 
-> xstat_conv.h doesn't work for me, it seems that struct kern_stat not struct 
-> stat is required.  Haven't fully tested this yet but at least it makes it 
-> compile.
-> 
-> A couple of minor changes to the devfsd shared object that I've posted here a 
-> couple of times but which don't seem to make it.
-> 
-> Also a patch to the makefile to make it compile on HPPA.  Of course it doesn't 
-> really do much good without HPPA kernel support.  ;)
+> I believe the patch below should fix the problem.
 
-A subset of these diffs have been committed to the sourceforge CVS tree,
-omitting the default_contexts diff and the xstat_conv.h diff.
-  
+A patch removing the obsolete psid code from setfiles has been committed
+to the sourceforge CVS tree.
+
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
