@@ -1,61 +1,65 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBM476Ii025595
-	for <selinux@tycho.nsa.gov>; Tue, 21 Dec 2004 23:07:07 -0500 (EST)
-Received: from h80ad248a.async.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBM45JCo023044
-	for <selinux@tycho.nsa.gov>; Wed, 22 Dec 2004 04:05:20 GMT
-Message-Id: <200412220406.iBM46g0D019149@turing-police.cc.vt.edu>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBM9EuIi026532
+	for <selinux@tycho.nsa.gov>; Wed, 22 Dec 2004 04:14:56 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBM9Ewlw014562
+	for <selinux@tycho.nsa.gov>; Wed, 22 Dec 2004 09:14:59 GMT
+Date: Wed, 22 Dec 2004 09:25:38 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Valdis.Kletnieks@vt.edu
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: paranoid FC3 setup: banning all login access (!) 
-In-Reply-To: Your message of "Mon, 20 Dec 2004 16:00:39 GMT."
-             <20041220160039.GE24188@lkcl.net>
-From: Valdis.Kletnieks@vt.edu
-References: <20041220160039.GE24188@lkcl.net>
+Subject: Re: paranoid FC3 setup: banning all login access (!)
+Message-ID: <20041222092538.GV6364@lkcl.net>
+References: <20041220160039.GE24188@lkcl.net> <200412220406.iBM46g0D019149@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1423228900P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Tue, 21 Dec 2004 23:06:41 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200412220406.iBM46g0D019149@turing-police.cc.vt.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-1423228900P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <22001.1103688385.1@turing-police.cc.vt.edu>
+On Tue, Dec 21, 2004 at 11:06:41PM -0500, Valdis.Kletnieks@vt.edu wrote:
 
-On Mon, 20 Dec 2004 16:00:39 GMT, Luke Kenneth Casson Leighton said:
-> hi,
+> On Mon, 20 Dec 2004 16:00:39 GMT, Luke Kenneth Casson Leighton said:
+> > hi,
+> > 
+> > i have a requirement for setting up a server that might even ban
+> > logins - even admin logins.
+> > 
+> > the only things that should be allowed are reboot (ctrl-alt-delete at
+> > console) and services (e.g apache).
 > 
-> i have a requirement for setting up a server that might even ban
-> logins - even admin logins.
+> Umm.. how about this:
 > 
-> the only things that should be allowed are reboot (ctrl-alt-delete at
-> console) and services (e.g apache).
+> # chkconfig sshd off
+> # chkconfig telnetd off
+> 
+> and then 'grep -v getty' to remove those from /etc/inittab?
 
-Umm.. how about this:
+ that's the practical side: thank you.
 
-# chkconfig sshd off
-# chkconfig telnetd off
+ i hope to recommend removing even the selinux policy that
+ allows getty, sshd, telnetd and other login mechanisms from
+ being run by users (!)
 
-and then 'grep -v getty' to remove those from /etc/inittab?
+ 
+> Leave the ctrl-alt-del entry in inittab, and have a grub entry
+> that boots with init=/bin/bash or similar single-user setup.
+ 
+ ... with enable=0 most likely for simplicity, and no networking.
 
-Leave the ctrl-alt-del entry in inittab, and have a grub entry
-that boots with init=/bin/bash or similar single-user setup.
+ the key issue is whether the customer says that running
+ "enable=0" in that single-user no-networking mode is okay.
 
+ if they say "no it isn't" then i will need to go further, as
+ david caplan recommends, by instead of removing the selinux
+ policy for getty, to enable it via a dynamic boolean.
 
---==_Exmh_-1423228900P
-Content-Type: application/pgp-signature
+ l.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFByPLQcC3lWbTT17ARAi6NAKCiB8nnes2eASzUOwzNwhAm4K+rPgCghXTU
-Otbh1RVZ9hg4LtoB+vLiIfg=
-=R8tT
------END PGP SIGNATURE-----
-
---==_Exmh_-1423228900P--
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
