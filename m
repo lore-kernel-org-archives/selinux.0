@@ -1,12 +1,32 @@
-Message-ID: <3E7A0B04.4090502@oem.doe.gov>
-Date: Thu, 20 Mar 2003 10:40:04 -0800
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2KKGwx6018504
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 15:16:58 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h2KKGv9P006196
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 20:16:57 GMT
+Received: from fw.oem.doe.gov (fw.oem.doe.gov [205.254.142.226])
+        by jazzband.ncsc.mil  with ESMTP id h2KKGuP7006193 for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 20:16:57 GMT
+Received: from oem.oem.doe.gov (oem-blk.oem.doe.gov [172.30.10.118])
+	by fw.oem.doe.gov with ESMTP id h2KKH81h000727
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 15:17:08 -0500 (EST)
+Received: from rsl-blk.oem.doe.gov (rsl-blk.oem.doe.gov [172.20.12.10])
+	by oem.oem.doe.gov (8.8.8+Sun/8.8.8) with ESMTP id PAA11794
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 15:19:30 -0500 (EST)
+Received: from oem.doe.gov (athlon [172.20.10.7])
+	by rsl-blk.oem.doe.gov (8.8.8+Sun/8.8.8) with ESMTP id MAA05136
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 12:19:29 -0800 (PST)
+Message-ID: <3E7A1FA6.1030604@oem.doe.gov>
+Date: Thu, 20 Mar 2003 12:08:06 -0800
 From: Douglas Phillipson <phillipd@oem.doe.gov>
 MIME-Version: 1.0
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Opinions on installing SeLinux on different distros
+To: selinux@tycho.nsa.gov
+Subject: Opinions on installing selinux on different distros, second try
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+I'm sorry if this gets posted twice.  The first time I didn't see it get 
+posted...
 
 I have been monitoring this list for a few months and as a SELinux newby 
 I have a few questions for those that have braved the attempt to use 
@@ -46,7 +66,6 @@ Thanks, I am looking forward to trying it but don't want to re-invent
 the wheel here.
 
 Doug P
-
 
 
 --
