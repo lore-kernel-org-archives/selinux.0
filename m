@@ -1,52 +1,108 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6UJMLrT029554
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2004 15:22:21 -0400 (EDT)
-Received: from emepe3.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6UJLmTf014366
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2004 19:21:49 GMT
-Received: from [66.60.14.199] (helo=[192.168.0.101])
-	by emepe3.com with asmtp (Exim 3.35 #1 (Debian))
-	id 1BqdFP-0006Ji-00
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2004 14:40:56 -0500
-Subject: Re: New or Old SELinux
-From: Martin Sarsale <martin@emepe3.net>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <200407281659.06601.russell@coker.com.au>
-References: <1090955044.1886.49.camel@allhosts>
-	 <200407281659.06601.russell@coker.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eyQP/z+m13psrVDNmj1q"
-Message-Id: <1091214924.12122.1.camel@kadaif>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6UJrcrT029765
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2004 15:53:38 -0400 (EDT)
+Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6UJrZAP021309
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2004 19:53:36 GMT
+Subject: Re: Building SE-ssh. Result: fakeroot: Permission denied
+From: Wolfgang Pfeiffer <roto@gmx.net>
+To: Colin Walters <walters@verbum.org>, Erich Schubert <erich@debian.org>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040730131510.GB7025@legolas.drinsama.de>
+References: <1091187766.18595.153.camel@debby>
+	 <1091188128.18595.158.camel@debby>
+	 <20040730131510.GB7025@legolas.drinsama.de>
+Content-Type: text/plain
+Message-Id: <1091217211.19256.227.camel@debby>
 Mime-Version: 1.0
-Date: Fri, 30 Jul 2004 16:15:50 -0300
+Date: Fri, 30 Jul 2004 21:53:31 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Colin Walters, Erich Schubert:
 
---=-eyQP/z+m13psrVDNmj1q
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Thanks.
 
-> Sarge is about to be frozen, maybe it's best to wait for the Sarge freeze=
- and=20
-> use it.
-that's what Im going to do.
-In the meanwhile I'll play on an unstable machine.
+On Fri, 2004-07-30 at 15:15, Erich Schubert wrote:
+> Hi,
+> 
+> > > /usr/bin/fakeroot: line 146: debian/rules: Permission denied
+> 
+> Try "chmod +x debian/rules"
 
-Thanks for everything
+               [ .... ]
 
---=-eyQP/z+m13psrVDNmj1q
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+This worked ... Thanks .. :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Result:
+openssh-client-udeb_3.8.1p1-7.se1_powerpc.udeb
+openssh-server-udeb_3.8.1p1-7.se1_powerpc.udeb
+ssh-askpass-gnome_3.8.1p1-7.se1_powerpc.deb
+ssh_3.8.1p1-7.se1_powerpc.deb
 
-iD8DBQBBCp5MhruVGj+ub3MRAhibAKCJW8zgmolvXvPkm68wOC2Gf6KBygCgpXCy
-gL+OxBuZQLRTTl8dE0Ay0ts=
-=Hu+A
------END PGP SIGNATURE-----
+But there was another obstacle before the package(s ?) finally built:
 
---=-eyQP/z+m13psrVDNmj1q--
+At the end of a build:
+---------------------------
+In file included from /usr/include/unistd.h:195,
+                 from ../includes.h:69,
+                 from ../ssh-dss.c:25:
+/usr/lib/gcc-lib/powerpc-linux/2.95.4/include/stddef.h:28: machine/ansi.h: No such file or directory
+make[1]: *** [ssh-dss.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
+make[1]: Leaving directory `/home/shorty/test/openssh-3.8.1p1/build-udeb'
+make: *** [build-udeb-stamp] Error 2
+-----------------------------
+
+I could solve the issue (Thank you, 
+"apt-file search ansi.h | grep machine/ansi.h")
+above by installing the Debian packages 
+ecos, ecosconfig, libwxgtk2.4:
+
+$ apt-file search ansi.h | grep machine/ansi.h
+ecos: usr/src/ecos/packages/net/common/v2_0/include/machine/ansi.h
+newlib-m68hc1x: usr/m68hc11/include/machine/ansi.h
+
+Thank you, "apt-file" ...
+
+But this dependency (ansi.h etc.) is nowhere declared in the ssh
+sources, or at least i didn't find something about it: Is this something
+one should be worried about? gcc-bug?
+
+Please remember that I intend to upload the packages above for downloads
+as soon as I have a place on www somewhere for them ... So I'd like to
+make sure not to ruin other folks' systems by building and providing 
+messed up stuff ...
+
+
+I'll try to to rebuild
+ssh, dpkg, cron, sysvinit, logrotate, and pam
+for SE-Linux/ppc  this weekend.
+All of them with gcc-2.95, running "autoconf" only on the dpkg and ssh
+packages.
+
+IINM only the sources for the the packages I can't download and compile
+via a
+
+fakeroot apt-get source --compile <somepackage>=<someversion>
+
+might need a "autoconf"
+Please let me know if someone thinks the rest of the packages might like
+an "autoconf" kiss, too ..
+
+Nice weekend
+
+And thanks to everyone for sharing knowledge ... 
+
+Regards
+Wolfgang
+-- 
+Profile: http://profiles.yahoo.com/wolfgangpfeiffer
+
+and 3 more reasons for Linux:
+<http://uptime.netcraft.com/up/graph?site=http%3A%2F%2Fwww.whitehouse.gov%2F>
+<http://uptime.netcraft.com/up/graph?site=http%3A%2F%2Fwww.fbi.gov%2F>
+<http://uptime.netcraft.com/up/graph?site=http%3A%2F%2Fwww.defenselink.mil>
 
 
 --
