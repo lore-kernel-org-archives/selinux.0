@@ -1,100 +1,97 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8N5McsJ011103
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 01:22:38 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8N6NrsJ011283
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 02:23:53 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8N5Ksd0028225
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 05:20:54 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h8N6MAd0000701
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 06:22:10 GMT
 Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h8N5KpVY028220
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 05:20:52 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h8N6M7VY000698
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 06:22:08 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id 743C3C16B
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 16:23:48 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+ id 12278-04 for <selinux@tycho.nsa.gov>;
+ Tue, 23 Sep 2003 16:23:45 +1000 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 85CDAC167
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 16:23:45 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 00A1E924D6
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 16:23:44 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 3FFE47F004
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 16:23:42 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: setfiles performance patch
-Date: Tue, 23 Sep 2003 15:22:25 +1000
-Cc: "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: setfiles performance patch
+Date: Tue, 23 Sep 2003 16:23:41 +1000
+References: <200309231522.25749.russell@coker.com.au>
+In-Reply-To: <200309231522.25749.russell@coker.com.au>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Ri9b/H7Vg7P0IdR"
-Message-Id: <200309231522.25749.russell@coker.com.au>
+  boundary="Boundary-00=_tb+b/5vZjal4lPa"
+Message-Id: <200309231623.41712.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_Ri9b/H7Vg7P0IdR
+--Boundary-00=_tb+b/5vZjal4lPa
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-I have attached a patch for setfiles (from the new SE Linux) to improve the 
-performance.  It implements the idea I described on this list about a year 
-ago.
+On Tue, 23 Sep 2003 15:22, Russell Coker wrote:
+> I have attached a patch for setfiles (from the new SE Linux) to improve the
+> performance.  It implements the idea I described on this list about a year
+> ago.
 
-When reading through the list of specifications for every spec that has no 
-regex characters before the second '/' it will implement stem compression 
-(that is the majority of entries).  The stem compression method is to create 
-an array of stems (the part of the spec before the second '/' and store with 
-each regex which of the stems applies.
+Attached is a patch for the setfiles from the old SE Linux.
 
-Then when comparing a file it checks it's stem against the array.  The 
-regexec() library function will only be called when the spec has no stem (IE 
-it has a regex starting before the second '/' or it's in the root directory) 
-or when the stem index of the file and the spec both match (EG they both 
-start with "/var/").
+Here's the time for running the NSA version on a root file system with 157273 
+files on a machine with a P3-650 CPU:
+real    17m55.623s
+user    15m45.300s
+sys     0m14.750s
 
-The result of this is that the number of regexec() function calls is hugely 
-decreased, and for each regexec() call only the part after the stem is 
-checked.  So if we want to check whether the file "/var/lib/foo" matches spec 
-"/var/log/atsar(/.*)?" the regexec() function will compare "/lib/foo" with
-"/log/atsar(/.*)?", I imagine that this may also reduce the time taken for 
-regexec but have not tested it.
+Here's the time for running my version on the same system.
+real    4m58.447s
+user    4m42.320s
+sys     0m10.240s
 
-I did a quick test on a machine with a 4G ext3 root file system that has 
-168552 inodes.  As it's a root file system a good balance of the different 
-specs is used, also this made a good test as I had previously run the NSA 
-setfiles so when my setfiles program gave the same results I concluded that 
-it was bug free.
+Note that the cache was not hot when I ran the NSA version, and it did have to 
+relabel about 30 files.
 
-The test machine has a P2-400 CPU and 192M of RAM.  Most of the test ran out 
-of cache so a test on a cold machine would probably have more disk access 
-delays.  Also the tests were done on a system that already had the correct 
-contexts for all files so nothing was written.  Again if there was a need to 
-write something (the usual case) then it would be slower.
+Now here's the results for a P-166 with 102592 files in the root fs:
+My version:
+real    2m33.416s
+user    1m46.180s
+sys     0m13.710s
 
-The NSA version had the following results:
-real    14m8.375s
-user    12m53.800s
-sys     1m6.310s
+NSA version:
+real    4m42.297s
+user    4m2.620s
+sys     0m9.360s
 
-My version gives this:
-real    4m14.511s
-user    3m16.810s
-sys     0m48.470s
+NB  The difference between the real time and user+sys is that the machine in 
+question is a live server.  So not all the resources of the machine go 
+towards setfiles.  Also when I ran my version the cache was not hot and it 
+had to relabel about 1000 files.
 
-So I have reduced the CPU use by a factor of 4, which (in this instance) 
-increases the overall speed by a factor of 3.
+Now my version takes 15:45 CPU to check 157K files and 1:46 to check 102K 
+files.  That is a rate of 166 files per second on a P3-650 and 962 on a 
+P-166.  Either the operations that setfiles performs are seriously optimised 
+for the original Pentium, the GCC 2.9.5 I used to compile for the P1 is 
+better than the gcc 3.3.2 used for for the P2, or we have some performance 
+issues whereby setfiles does not scale linearly to the number of files in the 
+file system.  I will investigate this next and post again soon.
 
-I did some tests with the "-s" option and labeling a single file.  I expected 
-that my version would be slower than the NSA version for this due to the 
-overhead of finding the stems.  However according to "time" my version took 
-0.18 seconds while the NSA version took 0.20 (and this was repeated over a 
-dozen runs).  So I conclude that there is no situation in which my version is 
-slower than the NSA version.
 
-One thing I am now considering is the possibility of having two levels of 
-stems, separating the /var/log, /var/run, and /var/lib entries may offer some 
-more performance.  I won't bother at this stage, I am reasonably happy with 
-making it 3 times faster (although I had been hoping to make it 4 times 
-faster) and I don't want to make the code too ugly.
-
-The next thing I am thinking of is the possibility of having it fork off 
-another two processes for disk IO.  Then one process could do all disk reads 
-while another could do all disk writes.  This would mean that in situations 
-where the data is not all in cache (real-world use) the process that 
-determines labels could use 100% CPU time instead of the 50% CPU time I 
-expect to see when I try out my setfiles on more real-world tests.  Stephen 
-Tweedie, do you have any comments on this?
+PS  We probably should modify setfiles to report the number of files it 
+relabeled before it exits.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -102,19 +99,17 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_Ri9b/H7Vg7P0IdR
+--Boundary-00=_tb+b/5vZjal4lPa
 Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="setfiles.diff"
+  charset="iso-8859-1";
+  name="old-setfiles.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="setfiles.diff"
+	filename="old-setfiles.diff"
 
-Binary files setfiles.orig/setfiles and setfiles/setfiles differ
-diff -ru setfiles.orig/setfiles.c setfiles/setfiles.c
---- setfiles.orig/setfiles.c	2003-08-27 20:26:38.000000000 +1000
-+++ setfiles/setfiles.c	2003-09-23 14:53:22.000000000 +1000
-@@ -99,8 +99,107 @@
+--- /tmp/selinux/setfiles/setfiles.c	2003-05-30 06:21:42.000000000 +1000
++++ setfiles.c	2003-09-23 15:28:53.000000000 +1000
+@@ -116,8 +116,107 @@
  				   any meta characters.  
  				   0 = no meta chars 
  				   1 = has one or more meta chars */
@@ -222,17 +217,18 @@ diff -ru setfiles.orig/setfiles.c setfiles/setfiles.c
  /*
   * The array of specifications, initially in the
   * same order as in the specification file.
-@@ -266,7 +365,8 @@
+@@ -286,8 +385,9 @@
  
- int match(const char *name, struct stat *sb)
+ int match(const char *name, struct stat *sb, security_id_t *out_sid) 
  {
 -	int i, ret;
 +	int i, ret, file_stem;
+ 	const char *fullname = name;
 +	const char *buf = name;
  
- 	ret = lstat(name, sb);
- 	if (ret) {
-@@ -275,25 +375,34 @@
+ 	/* fullname will be the real file that gets labeled
+ 	 * name will be what is matched in the policy */
+@@ -311,25 +411,34 @@
  		return -1;
  	}
  
@@ -282,7 +278,7 @@ diff -ru setfiles.orig/setfiles.c setfiles/setfiles.c
  		}
  	}
  
-@@ -631,10 +740,12 @@
+@@ -796,10 +905,12 @@
  
  			if (pass == 1) {
  				/* On the second pass, compile and store the specification in spec. */
@@ -296,7 +292,7 @@ diff -ru setfiles.orig/setfiles.c setfiles/setfiles.c
  				anchored_regex = malloc(len + 3);
  				if (!anchored_regex) {
  					fprintf(stderr,
-@@ -642,7 +753,7 @@
+@@ -807,7 +918,7 @@
  						argv[0], lineno);
  					exit(1);
  				}
@@ -305,9 +301,8 @@ diff -ru setfiles.orig/setfiles.c setfiles/setfiles.c
  
  				/* Compile the regular expression. */
  				regerr =
-Binary files setfiles.orig/setfiles.o and setfiles/setfiles.o differ
 
---Boundary-00=_Ri9b/H7Vg7P0IdR--
+--Boundary-00=_tb+b/5vZjal4lPa--
 
 
 --
