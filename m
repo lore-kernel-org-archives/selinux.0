@@ -1,48 +1,57 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA02538
-	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 19:10:36 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA02820
+	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 20:26:19 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id XAA09080
-	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 23:08:59 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id XAA09076 for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 23:08:57 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 516EF9246C
-	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 09:10:32 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id C437E873F
-	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 01:10:24 +0200 (CEST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: changing open mode of file handle
-Date: Tue, 13 Aug 2002 01:10:24 +0200
+	by jazzband.ncsc.mil  with ESMTP id AAA12229
+	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 00:24:42 GMT
+Received: from web40008.mail.yahoo.com (web40008.mail.yahoo.com [66.218.78.26])
+        by jazzband.ncsc.mil  with SMTP id AAA12225 for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 00:24:41 GMT
+Message-ID: <20020813002617.72875.qmail@web40008.mail.yahoo.com>
+Date: Mon, 12 Aug 2002 17:26:17 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Re: Swollen su_macros.te file
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20020812222957.674718732@lyta.coker.com.au>
 MIME-Version: 1.0
-Message-Id: <20020812231024.C437E873F@lyta.coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently I have cron jobs that create a temporary file in read-only mode, 
-delete the file, then use the file descriptor as standard input for a process 
-that runs "mail root".
+Mr. Russell,
 
-The problem is that I don't want to give the mail program write access to the 
-temporary file type, so I currently have to dontaudit the writes.
+--- Russell Coker <russell@coker.com.au> wrote:
+> On Mon, 12 Aug 2002 15:21, Brad Chapman wrote:
+> >         The context REMAINS THE SAME! Even when I use 'su -l' !!!
+> >
+> >         What does this mean?
+> 
+> This means that su is operating correctly on your system.
 
-But I don't really like this, I'd rather just change the mode of the file 
-handle to be read-only.
+        Um.... OK. Could you explain that?
 
-How can I change the open mode of a file handle for a deleted file to be 
-read-only instead of read-write?  I'm sure it's possible but can't work out 
-how.
+> 
+> 
+> So how do you cause the situation where your programs are running in the su 
+> domain and causing the errors to be logged?
+ 
+        I don't know. Does it have anything to do with the domain_auto_trans()
+m4 macro, or does it have to do with the use of su at all?
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Brad
+
+
+=====
+Brad Chapman
+
+Permanent e-mails: kakadu_croc@yahoo.com
+		   jabiru_croc@yahoo.com
+		   tanami_croc@devel.lbsd.net
+
+__________________________________________________
+Do You Yahoo!?
+HotJobs - Search Thousands of New Jobs
+http://www.hotjobs.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
