@@ -1,33 +1,47 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i75I36rT007196
-	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 14:03:06 -0400 (EDT)
-Received: from smtp.polymtl.ca (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i75I2Vn4024484
-	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 18:02:32 GMT
-Received: from fugusec.net (dsl-207-112-20-65.tor.primus.ca [207.112.20.65])
-	by smtp.polymtl.ca (8.13.0/8.13.0) with ESMTP id i75I2rsx009516
-	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 14:02:59 -0400
-Message-ID: <41127650.5060007@fugusec.net>
-Date: Thu, 05 Aug 2004 14:02:56 -0400
-From: Alexis Wagner <venon@fugusec.net>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: netifcon
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i75IJ3rT007296
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 14:19:03 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i75IJ2Zl029196
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 18:19:02 GMT
+Subject: Re: netifcon
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Alexis Wagner <venon@fugusec.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <41127650.5060007@fugusec.net>
+References: <41127650.5060007@fugusec.net>
+Content-Type: text/plain
+Message-Id: <1091729898.2583.123.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Thu, 05 Aug 2004 14:18:18 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Thu, 2004-08-05 at 14:02, Alexis Wagner wrote:
+> Hi,
+> 
+> I have read this comment in the file attrib.te : ... operations on the 
+> interface (XXX obsolete, not supported via LSM) .
+> 
+> I would like to know if I define a security context for an interface via 
+> netifcon would it be supported by SELinux ?
 
-I have read this comment in the file attrib.te : ... operations on the 
-interface (XXX obsolete, not supported via LSM) .
+You can still assign security contexts to interfaces and control traffic
+sent or received on the interface based on that security context.  Only
+operations on the interface (e.g. ioctls to configure the interface) are
+being referenced by that comment; in the pre-LSM SELinux, permission
+checks were directly inserted into the devinet code to check permissions
+between the process security context and the interface security context;
+LSM sought to avoid such deeply embedded security hooks.  In the
+LSM-based SELinux, you can still leverage the existing capability
+checks, as SELinux performs a parallel permission check whenever a
+capability check is applied, so the SELinux policy still has to grant
+you cap_net_admin in order to configure the interface, but this is just
+a process-based authorization, not a per-interface based authorization.
 
-I would like to know if I define a security context for an interface via 
-netifcon would it be supported by SELinux ?
-
-Thank you,
-
-Alexis Wagner
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
