@@ -1,14 +1,14 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i87LACrT029605
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 17:10:13 -0400 (EDT)
-Received: from oe-im2.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i87LABll028246
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 21:10:11 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i87LFYrT029661
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 17:15:34 -0400 (EDT)
+Received: from oe-im2.bizmailsrvcs.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i87LEfxo000678
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 21:14:42 GMT
 From: "Frank Mayer" <mayerf@tresys.com>
 To: <selinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
-Subject: 
-Date: Tue, 7 Sep 2004 17:10:10 -0400
-Message-ID: <02c601c4951f$1041d090$a00c010a@columbia.tresys.com>
+Subject: SELinux Symposium Call for Presentation Proposals
+Date: Tue, 7 Sep 2004 17:15:29 -0400
+Message-ID: <02c701c4951f$cd8cad50$a00c010a@columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
