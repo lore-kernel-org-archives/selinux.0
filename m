@@ -1,50 +1,63 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4O99TRb009057
-	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 05:09:30 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4O970B2015019
-	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 09:07:00 GMT
-Received: from kokytos.rz.informatik.uni-muenchen.de (kokytos.rz.informatik.uni-muenchen.de [141.84.214.13])
-	by jazzswing.ncsc.mil  with ESMTP id i4O96xwi014988
-	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 09:07:00 GMT
-Date: Mon, 24 May 2004 11:09:09 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Russell Coker <rcoker@redhat.com>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: [patch] policy for nrpe
-Message-ID: <20040524090907.GA15439@thebe.cip.ifi.lmu.de>
-References: <20040523214406.GB6147@jmh.mhn.de> <200405241056.58596.rcoker@redhat.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4OCiRRb009988
+	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 08:44:27 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4OCiOAR004786
+	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 12:44:24 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i4OCiNHn004780 for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 12:44:23 GMT
+Subject: Re: [PATCH][RFC] Allow administrator control over per-user
+	default_contexts
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: Valdis.Kletnieks@vt.edu, selinux@tycho.nsa.gov,
+   Daniel J Walsh <dwalsh@redhat.com>, selinux-dev@tresys.com
+In-Reply-To: <200405240612.15645.russell@coker.com.au>
+References: <1085155374.2789.131.camel@moss-spartans.epoch.ncsc.mil>
+	 <200405212213.i4LMDLZM005446@turing-police.cc.vt.edu>
+	 <200405240612.15645.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1085402633.26446.45.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-In-Reply-To: <200405241056.58596.rcoker@redhat.com>
+Date: Mon, 24 May 2004 08:43:53 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Russell Coker <rcoker@redhat.com> [2004-05-24 02:56]:
-> On Mon, 24 May 2004 07:44, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
-> wrote:
-> > The attached patch adds policy support for nrpe.
-> > (nrpe stands for Nagios Remote Plugin Execution and is a client called
-> > from inetd which performs checks on a client on behalf of a Nagios
-> > server)
-> 
-> We currently have a netsaint.te in the policy, should we change that to 
-> nagios.te?  
+On Sun, 2004-05-23 at 16:12, Russell Coker wrote:
+> However I am not certain that the existence of the directory should preclude 
+> any use of ~/.default_contexts.  Maybe only the existence of 
+> a /etc/security/selinux/default_contexts.user/username should be used to 
+> indicate that ~/.default_contexts should be ignored.
 
-Yes, I think it would be best to change the name.
+Possibly, but then we need another method to allow an admin to
+absolutely prohibit any use of $HOME/.default_contexts.  Requiring the
+admin to create a stub entry under /etc/security/default_contexts.user
+for every user just to prevent use of $HOME/.default_contexts is
+unreasonable.  We could use the existence of another file, e.g.
+/etc/security/default_contexts.user/ONLY, to indicate to libselinux that
+it should only pull from that subdirectory and not from
+$HOME/.default_contexts.
 
-> Should we include the nrpe stuff in the main netsaint.te or 
-> nagios.te file or is it best to keep client and server stuff separate?
+> I agree.  Also we would have to write a utility to generate/modify the 
+> ~/.default_contexts file.  Having users correctly label files under their 
+> home directory is painful.  It would be easy to write a script to make the 
+> current context the default and then set the type of the file correctly.
 
-It should be kept separate. Typically you have one server running
-Nagios, but many or all clients running nrpe. So it makes sense to
-keep the policy separate.
+True, or teach users to use restorecon on it after creation.
 
-Thomas
+> > A related question - has anybody done scaling tests for this sort of thing
+> > for large numbers of different values of $1?  I'm thinking about situations
+> > like webhosting, where dozens/hundreds of logins might need this - it's
+> > unclear (at least to me) at what point it becomes a Bad Idea to create
+> > per-user policies and just dump all of them in "customer_t".
+
+Sounds like Valdis may have misunderstood - the $1 corresponds to the
+user role/domain, not the user identity.
 
 -- 
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
