@@ -1,36 +1,40 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3762kRb007440
-	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 02:02:46 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3776LRb007679
+	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 03:06:21 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i3762jmw004621
-	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 06:02:45 GMT
-Received: from mail.lemuria.org (web.lemuria.org [213.191.85.3])
-        by jazzband.ncsc.mil  with ESMTP id i3762i4w004618 for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 06:02:44 GMT
-Date: Wed, 7 Apr 2004 07:54:06 +0200
-From: Tom <tom@lemuria.org>
-To: Bill McCarty <bmccarty@pt-net.net>
-Cc: selinux@tycho.nsa.gov
+	by jazzband.ncsc.mil  with ESMTP id i3776Kmw006437
+	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 07:06:20 GMT
+Received: from mutemail.com (mutemail.com [24.244.170.124])
+        by jazzband.ncsc.mil  with SMTP id i3776J4w006434 for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 07:06:19 GMT
+Date: Wed, 07 Apr 2004 00:05:47 -0700
+From: Bill McCarty <bmccarty@pt-net.net>
+To: Tom <tom@lemuria.org>
+cc: selinux@tycho.nsa.gov
 Subject: Re: Problems finding working kernel/user land combination
-Message-ID: <20040407075405.D19421@lemuria.org>
-References: <401FF280.8070301@treblig.org> <88042458.1081270777@[192.168.0.3]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <88042458.1081270777@[192.168.0.3]>; from bmccarty@pt-net.net on Tue, Apr 06, 2004 at 04:59:37PM -0700
+Message-ID: <113611865.1081296347@[192.168.0.3]>
+In-Reply-To: <20040407075405.D19421@lemuria.org>
+References: <401FF280.8070301@treblig.org>
+ <88042458.1081270777@[192.168.0.3]> <20040407075405.D19421@lemuria.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Apr 06, 2004 at 04:59:37PM -0700, Bill McCarty wrote:
-> I'm trying to follow the trail for installing SELinux on Debian unstable, 
-> as helpfully documented by Dave Gilbert (see below). Thanks, Dave!
+Hi Tom,
 
-Those are for woody, not unstable. Look at my site for apt sources for
-the other distros (http://selinux.lemuria.org)
+Tausend Dank!
+
+--On Wednesday, April 07, 2004 7:54 AM +0200 Tom <tom@lemuria.org> wrote:
+
+> Those are for woody, not unstable. Look at my site for apt sources for
+> the other distros (http://selinux.lemuria.org)
+
+---------------------------------------------------
+Bill McCarty, Ph.D.
+Professor of Information Technology
+Azusa Pacific University
 
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
