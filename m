@@ -1,42 +1,51 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h63Mr9Ha004577
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 18:53:09 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h63Mr8H5001674
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 22:53:08 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h63Mr7RX001670 for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 22:53:07 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Mauro Chiarugi <vlaovic@libero.it>, selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h63MwDHa004609
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 18:58:14 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h63MvKnJ003494
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 22:57:20 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h63MvJhr003489
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 22:57:19 GMT
 Subject: Re: Policies.. but where there are?
-Date: Fri, 4 Jul 2003 08:52:51 +1000
-References: <20030703234800.330f8026.vlaovic@libero.it>
+From: Howard Holm <hdholm@epoch.ncsc.mil>
+To: Mauro Chiarugi <vlaovic@libero.it>
+Cc: selinux@tycho.nsa.gov
 In-Reply-To: <20030703234800.330f8026.vlaovic@libero.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200307040852.51081.russell@coker.com.au>
+References: <20030703234800.330f8026.vlaovic@libero.it>
+Content-Type: text/plain
+Message-Id: <1057273088.31584.70.camel@moss-sooners.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 03 Jul 2003 18:58:09 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 4 Jul 2003 07:48, Mauro Chiarugi wrote:
+The policy is built using a Makefile which combines the files with the
+policy statements (and M4 macros) into a single policy.conf.  The
+policy.conf file is compiled by the checkpolicy program into a file
+better parsed by computers than humans.  The compiled output file is
+loaded into kernel data structures which are then used during access
+control checks.
+
+That is a very brief very high-level answer.  Does it answer your
+question?
+
+On Thu, 2003-07-03 at 17:48, Mauro Chiarugi wrote:
+> Hi,
 > i've just read come docs about SELinux, but i don't have unsterstood
 > where these policy (domains, etc.) are saved.. when i compile the
 > policy, where are recordered this information? In the kernel? In a file?
-> In the filesystem?
-
-They are stored in a "policy database" named /etc/security/selinux/policy.XX 
-(where XX is the version number) in recent versions.
-
-The policy may be loaded into a running SE Linux kernel with the load_policy 
-command, and it will be loaded from that location automatically on boot.
-
+> In the filesystem? 
+> 
+> thanks
+> 
+> bye bye
+> 
+> sracatus
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Howard Holm <hdholm@epoch.ncsc.mil>
+Secure Systems Research Office
+National Security Agency
 
 
 --
