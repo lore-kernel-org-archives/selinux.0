@@ -1,56 +1,42 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2IBK7x6004700
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 06:20:07 -0500 (EST)
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2K0Mxx6014081
+	for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2003 19:23:00 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h2IBGdn8002516
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 11:16:39 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h2IBGbpk002509
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 11:16:38 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id E328FBF52
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 21:56:46 +1100 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 15486-09
- for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 21:56:45 +1100 (EST)
-Received: from tsv.sws.net.au (unknown [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 90BF6BF41
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 21:56:45 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 6DDDA9253C
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 21:56:46 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 30E84790D
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 11:56:36 +0100 (CET)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h2K0JVn8007795
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 00:19:31 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+	by jazzswing.ncsc.mil  with ESMTP id h2K0JTpk007792
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 00:19:30 GMT
+Date: Thu, 20 Mar 2003 11:22:46 +1100
+From: Brian May <bam@snoopy.apana.org.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: file_type_auto_trans(initrc_t, etc_t, etc_runtime_t) 
-Date: Tue, 18 Mar 2003 11:56:34 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200303181156.34723.russell@coker.com.au>
+Subject: SE-Linux and 2.4.20
+Message-ID: <20030320002246.GC13288@snoopy.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I think that the above policy line should be changed to:
-file_type_auto_trans(initrc_t, etc_t, etc_runtime_t, file)
+Hello,
 
-Currently I have a script that creates a symlink under /etc which doesn't need 
-to be in etc_runtime_t.  I don't think that there's any need for enabling all 
-file types to be created in etc_runtime_t (especially as there isn't policy 
-to allow other programs to access those types).
+I have found I simply cannot use a 2.4.20 kernel with SE-Linux
+support on my laptop computer with out it "hanging" after a while.
 
-I have also changed all other instances of type transitions to etc_runtime_t 
-to refer to "file" class objects in my tree.
+By this I mean random processes hang, and cannot be killed, even with
+kill -9, and rebooting doesn't work.
 
+Combinations tested:
+
+2.4.19 + older selinux patch (v12) = OK
+2.4.20 with SE-Linux (accidently) disabled = OK
+2.4.20 with new SE-Linux patch (v12) = crashed before 30 minutes.
+(was doing nothing but downloading files at the time with apt-get).
+
+In all cases I have the same policy installed.
+
+Any ideas on how to debug this problem further?
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
