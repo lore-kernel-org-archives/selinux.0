@@ -1,39 +1,39 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB8J6xIi007338
-	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 14:06:59 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB8J71u3029668
-	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 19:07:02 GMT
-Subject: Re: [2.6 patch] selinux: possible cleanups
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <1102089296.29971.110.camel@moss-spartans.epoch.ncsc.mil>
-References: <20041128190139.GD4390@stusta.de>
-	 <1102089296.29971.110.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Message-Id: <1102532326.26951.129.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Wed, 08 Dec 2004 13:58:46 -0500
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB8JImIi007484
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 14:18:48 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB8JIlu3000209
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 19:18:50 GMT
+Message-ID: <41B753E3.70805@tresys.com>
+Date: Wed, 08 Dec 2004 14:20:03 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+CC: selinux-dev@tresys.com
+Subject: announcement dealy
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-12-03 at 10:54, Stephen Smalley wrote:
-> - Shouldn't the AVC_CALLBACK_* definitions other than RESET be removed
-> since you are removing the other avc_ss interfaces?
+An updated release of the binary policy module infrastructure is
+available from http://www.tresys.com/selinux/. The binary policy module
+project aims to ease policy management by developing tools for creating
+binary policy modules that can be safely linked together on a production
+system to create a system policy. To the end user, managing binary
+policy modules will be similar to managing software with a binary
+package manager like RPM. More information can be found on the website.
 
-Actually, we'd have to keep at least the GRANT definition as well, since
-that is used from avc_has_perm_noaudit() for the permissive mode case,
-and I suppose we might as well leave the others alone and not disturb
-the avc_update_node() code.  So the only changes I'd suggest are
-removing the security_member_sid diffs (as it is now used) and including
-your follow-up diff for making avtab_insert static.
+This infrastructure includes a module compiler (checkmodule) and a set
+of programs for policy management (semodule_link, semodule_expand, and
+semodule).
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+This release is experimental and is not intended for production use. It
+is being released to generate community feedback and discussion. For
+information on using semodule please refer to the README.MODULE file in
+selinux-doc.
 
+Joshua Brindle
+Tresys Technology
 
 --
 This message was distributed to subscribers of the selinux mailing list.
