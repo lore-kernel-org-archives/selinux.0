@@ -1,79 +1,62 @@
-Message-ID: <41E43DD8.5000306@redhat.com>
-Date: Tue, 11 Jan 2005 15:58:00 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0BLbtIi011006
+	for <selinux@tycho.nsa.gov>; Tue, 11 Jan 2005 16:37:56 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0BLbo1A026635
+	for <selinux@tycho.nsa.gov>; Tue, 11 Jan 2005 21:37:54 GMT
+Date: Tue, 11 Jan 2005 21:48:18 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux <SELinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>
-Subject: Re: Added is_context_configurable function
-References: <41E2FEF4.5070604@redhat.com>	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>	 <41E3FAF4.2060109@redhat.com>	 <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>	 <41E43784.2060406@redhat.com> <1105475738.20566.150.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1105475738.20566.150.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
+Subject: Re: Multiple contexts
+Message-ID: <20050111214818.GE26175@lkcl.net>
+References: <1105390249.8093.21.camel@cobra.ivg2.net> <20050110232312.GI6967@lkcl.net> <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+On Tue, Jan 11, 2005 at 03:09:51PM -0500, Stephen Smalley wrote:
+> On Mon, 2005-01-10 at 18:23, Luke Kenneth Casson Leighton wrote:
+> >  i can only hazard a hazardous guess therefore that the more
+> >  "normal" ACL system [that we are used to seeing] was rejected
+> >  because it makes the formal proof methodology more difficult.
+> 
+> With ACLs, you have to traverse the entire filesystem state in order to:
+> 1) determine what your policy truly is (and that policy can change
+> underneath you during your traversal),
+> 2) apply any widespread changes in policy state.
+ 
+> Management and scalability nightmare.
+ 
+ oh - ah.  yes, now it comes back to me.
 
->On Tue, 2005-01-11 at 15:31, Daniel J Walsh wrote:
->  
->
->>Using your method for every file he puts under /var/www/html now needs 
->>him to write some special rule into file_context file?
->>I don't like the usability of that.
->>    
->>
->
->No, you just add contexts to the end of the existing entries in
->apache.fc where you want to support alternatives.  Only case where you
->need a new entry is if you want to allow alternatives for a smaller set
->than is presently covered by some pathname regex.
->  
->
->  
->
->>I was going to put in a -F qualifier which would allow you to override 
->>the configurable_types.  Also
->>using -v -v will show you all files with configurable types
->>
->>restorecon -R -v /var
->>Quietly leave configurables
->>
->>restorecon -R -v -v /var
->>Would leave configurable entries but report them
->>
->>restorecon -F -R -v /var
->>Will work like current restorecon works.
->>    
->>
->
->configurable -> customizable or alternatives
->
->In practice, I would expect that admins will only use the default form
->(i.e. leave them intact and not report them) unless they encounter some
->other policy error, and that could prove fatal, e.g. if some sensitive
->file becomes mislabeled and accessible to untrusted processes.
->
->  
->
-This might be a conflict between strict and relaxed policy.  I am 
-getting bugs from users who setup the apache web servers
-with files in different locations than the preordaned.  I am looking for 
-an easy way for them to configure their system and make
-it survive a restoration of file labels.  I don't believe telling them 
-that they have to edit some file_context file and place regular expression
-commands in some wierd format is a workable solution.  In strict policy 
-it seems to me we have more control over the environment.
-How about a user who wants to share /home/USER/www instead of 
-/home/USER/public_html, how about setting up cluster system that
-shares pages off of a /share directory.  Their are lots of examples with 
-shared (customizable,alternatives, configurable whatever) files need to be
-labeled, and we want a simple way for users to do this.  If the 
-mechanism is to have them chcon -t samba_share_t XYZ and then they
-forget to add an entry to file_context of they make a mistake in 
-file_context and a restorecon blows their mods away they are not going to be
-happy.
+ microsoft solved this problem partially in NT 3.5 - NT 4.0 by
+ only reading the ACL on the file [or directory] and applying that.
 
+ by the time that NT 5 [aka windeuuws teuu thousand, with NT being a
+ trademark owned by Northern Telecom, aka Nortel and all] came around,
+ this was considered utterly mad.
 
+ recursion was added to ACLs - or "inheritance" - because to fix access
+ to subdirectories and all contents you are required in NT 4.0 to change
+ ALL permissions on ALL subdirectories and contents!
 
+ basically you now have to traverse the directory tree right
+ up to the mount point [as stephen says] in order to determine access
+ rights, combining and checking permissions as you go.
+
+ eeuuuw.
+
+ ... was that what you were referring to stephen?
+
+ l.
+
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
