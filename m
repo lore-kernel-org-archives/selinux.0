@@ -1,50 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBFIM4Ii020075
-	for <selinux@tycho.nsa.gov>; Wed, 15 Dec 2004 13:22:04 -0500 (EST)
-Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBFIKMxm020678
-	for <selinux@tycho.nsa.gov>; Wed, 15 Dec 2004 18:20:22 GMT
-Message-Id: <200412151822.iBFIM37D018581@turing-police.cc.vt.edu>
-To: mike@theptrgroup.com
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Tripwire policy? 
-In-Reply-To: Your message of "Tue, 14 Dec 2004 15:28:04 EST."
-             <41BF4CD4.1000809@theptrgroup.com>
-From: Valdis.Kletnieks@vt.edu
-References: <41BF4CD4.1000809@theptrgroup.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBFJSoIi020502
+	for <selinux@tycho.nsa.gov>; Wed, 15 Dec 2004 14:28:50 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBFJSrSe022410
+	for <selinux@tycho.nsa.gov>; Wed, 15 Dec 2004 19:28:53 GMT
+Subject: Re: gentoo policies for daemontools, ucspi-tcp, publicfile,
+	djbdns, clockspeed
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: petre rodan <kaiowas@gentoo.org>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <41A07D3C.4070300@gentoo.org>
+References: <41A07D3C.4070300@gentoo.org>
+Content-Type: text/plain
+Message-Id: <1103139082.31218.29.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1381849252P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Wed, 15 Dec 2004 13:22:03 -0500
+Date: Wed, 15 Dec 2004 14:31:22 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-1381849252P
-Content-Type: text/plain; charset=us-ascii
+Do others use these tools?
 
-On Tue, 14 Dec 2004 15:28:04 EST, Mike Anderson said:
->   According to the mail archives, back in May/June there was some 
-> discussion about the development of a set of TEs etc. for tripwire.  Did 
-> these ever get put together?  If so, who can I contact to obtain them?
+Petre, you didn't include the publicfile policy, would you please send
+it to the list.
 
-Umm.. I think that was me that started that thread, and no, I never
-did actually get a policy written.  There was considerable sentiment that
-perhaps doing an AIDE (http://sourceforge.net/projects/aide) policy might
-be more sensible.
+Looking through these:
 
---==_Exmh_-1381849252P
-Content-Type: application/pgp-signature
+In Daemontools.te:
+- The macro svc_sub_domain() is not used, so I will probably remove it.
+- The macro svc_confdir_domain() is only used once (and it is only one
+line long), so I will probably remove it as well.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+In djbdns.te:
+I will add ifdef(`daemontools.te' and ifdef(`ucspi-tcp.te'.
 
-iD8DBQFBwIDKcC3lWbTT17ARAiSiAKDZmHgqZNekz6jQkv0fXS06vY8pfACbBOBK
-pvYmZ3ssmdb3nBrNFUxjN5o=
-=zzp+
------END PGP SIGNATURE-----
+Anyone else have any comments on these?
 
---==_Exmh_-1381849252P--
+On Sun, 2004-11-21 at 06:34, petre rodan wrote:
+> Hi,
+> 
+> This is a collection of policies that I've been using and maintaining for more than an year now.
+> 
+> [1] http://cr.yp.to/daemontools.html
+> [2] http://cr.yp.to/ucspi-tcp.html
+> [3] http://cr.yp.to/publicfile.html
+> [4] http://cr.yp.to/djbdns.html
+> [5] http://cr.yp.to/clockspeed.html
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
