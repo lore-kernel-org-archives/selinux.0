@@ -1,106 +1,77 @@
-Subject: Re: problems using setcon()
+Subject: Re: [RFC & PATCH] inherited type definition.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kodungallur Varma <ramgwu@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <fa8ec5d805031118353197f745@mail.gmail.com>
-References: <fa8ec5d80503082008161e5619@mail.gmail.com>
-	 <20050309084655.GC5236@thorium.jmh.mhn.de>
-	 <fa8ec5d805031118353197f745@mail.gmail.com>
-Content-Type: multipart/mixed; boundary="=-YSeUOUBgVrI6HrUwLcW8"
-Date: Mon, 14 Mar 2005 10:06:12 -0500
-Message-Id: <1110812772.21378.79.camel@moss-spartans.epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
+   SELinux Mail List <selinux@tycho.nsa.gov>, kaigai@ak.jp.nec.com
+In-Reply-To: <20050314151351.GC1246@lkcl.net>
+References: <42346C17.3090301@kaigai.gr.jp>
+	 <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050314151351.GC1246@lkcl.net>
+Content-Type: text/plain
+Date: Mon, 14 Mar 2005 10:22:12 -0500
+Message-Id: <1110813732.21378.91.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2005-03-14 at 15:13 +0000, Luke Kenneth Casson Leighton wrote:
+>  i would expect syntax allow parent_t self:process sigkill to
+>  be inherited to "allow child_t self:process sigkill"
+> 
+>  and expect "allow parent_t parent_t:process sigkill to
+>  be inherited to "allow child_t parent_t:process sigkill"
 
---=-YSeUOUBgVrI6HrUwLcW8
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I would not expect there to be any difference, as self is just a
+convenience notation, and in this particular example, someone who writes
+either form likely would not want the child to be able to kill the
+parent without an explicit allow rule from the child to the parent.
 
-On Fri, 2005-03-11 at 21:35 -0500, Kodungallur Varma wrote:
->        I came to know that I cant simply cast a string into a security
-> identifier as shown below. insted I found out that I have to use
-> security_compute_create().
+>  except that wouldn't work if there's a "special" meaning given
+>  to "self:".
 
-No, you can directly construct context strings; you just have to ensure
-that they are valid contexts or the kernel will reject them.  The
-easiest approach is to use getcon() to get the current context, then use
-the context_new(), context_type_set(), context_str() functions to create
-a context string with a modified type field, and then call setcon() on
-the resulting context string.  security_compute_create() is appropriate
-when you want to get a context based on a type_transition rule in the
-policy (for an exec-based process transition or a file creation), but
-that is not what you are doing.  Sample program below should work for
-you, assuming appropriate policy and a kernel that supports dynamic
-context transitions (>= 2.6.11 for the mainline kernel).  Policy would
-need can_setcon() for the domain and allow <olddomain>
-<newdomain>:process dyntransition; (the domain_auto_trans rules are for
-exec-based transitions only).
+The policy compiler can (and does) distinguish self for processing, e.g.
+	allow domain self:process sigkill;
+expands to what you would expect, i.e.
+	allow domain0_t domain0_t:process sigkill;
+	allow domain1_t domain1_t:process sigkill;
+	...
+
+Hence, the policy compiler can handle self differently if desired, but
+in this case, I don't think we want it to be handled differently.
+
+>  subdivide the parent domain into rules which you do want to be
+>  inherited, and those that you do not.
+> 
+>  derive a child domain that gives you the original one, so you
+>  don't have any code uses to change.
+> 
+>  derive other domains from the smaller parent one.
+
+Yes, but if you are willing to refactor existing domains in this manner,
+then it is unclear that you gain much benefit from having the
+inheritance support (vs. just defining macros that partition the domain
+in the same manner, and only including the desired macros in the "child"
+domains).
+
+>  5) what about multiple inheritance?
+> 
+>     syntax should allow for such - to combine two parent
+>     sets into one child domain.
+
+I think that KaiGai's patch allows for such multiple inheritance, but
+think about the implications there for type transition rules - what
+happens if they have a different default transition on the same
+executable type?
+
+If you look at existing derived domains for programs, you'll see that
+they don't fall neatly into this kind of inheritance scheme, as they
+gain some permissions that aren't directly allowed to the user domain
+and drop some permissions (and most/all transitions) possessed by the
+user domain that the program doesn't need.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
 National Security Agency
-
---=-YSeUOUBgVrI6HrUwLcW8
-Content-Disposition: attachment; filename=setconexample.c
-Content-Type: text/x-csrc; name=setconexample.c; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-#include <stdio.h>
-#include <selinux/selinux.h>
-#include <selinux/context.h>
-
-int main(int argc, char **argv)
-{
-	int rc;
-	security_context_t scon;
-	context_t con;
-
-	if (argc != 2) {
-		fprintf(stderr, "usage: %s newtype\n", argv[0]);
-		exit(1);
-	}
-
-	rc = getcon(&scon);
-	if (rc < 0) {
-		perror("getcon");
-		exit(1);
-	}
-	con = context_new(scon);
-	freecon(scon);
-	rc = context_type_set(con, argv[1]);
-	if (rc) {
-		perror("context_type_set");
-		exit(1);
-	}
-	scon = context_str(con);
-	if (!scon) {
-		perror("context_str");
-		exit(1);
-	}
-	if (security_check_context(scon) < 0) {
-		fprintf(stderr, "%s is not a valid context in the policy\n",
-			scon);
-		exit(1);
-	}
-	rc = setcon(scon);
-	if (rc < 0) {
-		perror("setcon");
-		exit(1);
-	}
-	context_free(con);
-	scon = NULL;
-	rc = getcon(&scon);
-	if (rc < 0) {
-		perror("getcon");
-		exit(1);
-	}
-	printf("Changed to %s\n", scon);
-	exit(0);
-}
-
---=-YSeUOUBgVrI6HrUwLcW8--
 
 
 --
