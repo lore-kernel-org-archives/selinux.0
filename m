@@ -1,74 +1,84 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j33NfGDo025507
-	for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2005 19:41:16 -0400 (EDT)
-Received: from web31611.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j33NaduF009696
-	for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2005 23:36:40 GMT
-Message-ID: <20050403233923.94400.qmail@web31611.mail.mud.yahoo.com>
-Date: Sun, 3 Apr 2005 16:39:23 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Desktop apps interoperability
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-   Casey Schaufler <casey@schaufler-ca.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: 6667
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j34C8RDo029069
+	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 08:08:27 -0400 (EDT)
+Received: from hermes.domdv.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j34C6RW6008898
+	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 12:06:28 GMT
+Message-ID: <42512DC5.8060102@domdv.de>
+Date: Mon, 04 Apr 2005 14:06:29 +0200
+From: Andreas Steinmetz <ast@domdv.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: selinux@tycho.nsa.gov
+Subject: build fixes for selinux-doc-1.18
+Content-Type: multipart/mixed;
+ boundary="------------030802090407020101070001"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------030802090407020101070001
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2005-03-31 at 08:51 -0800, Casey Schaufler
-> wrote:
-> > Existing MLS systems allow unprivileged
-> > applications to run unmodified. In at least
-> > one case that included an unmodified X server.
-> > You have to do at least as well as the unix MLS
-> > systems to be credible. You think that's a
-> > low bar, so you shouldn't have any trouble,
-> > right?
-> 
-> You can certainly allow applications to run
-> unmodified on SELinux today.
+1. added simple top level Makefile
+2. replaced db2html with docbook2html as db2html is not part of
+   docbook-utils but seems to be created by some distro only
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
 
-This is critically important to the possibility
-of widespread acceptance of the system.
+--------------030802090407020101070001
+Content-Type: text/plain;
+ name="selinux-doc-1.18.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="selinux-doc-1.18.diff"
 
-> But there can be benefit from modifying applications
-> to provide stronger
-> isolation and true least privilege in the future.
-
-To be sure. An application that is written with
-understanding of the environment in which it runs
-will always have the advantage over the one that
-is not.
+diff -rNu selinux-doc-1.18.orig/Makefile selinux-doc-1.18/Makefile
+--- selinux-doc-1.18.orig/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ selinux-doc-1.18/Makefile	2005-04-04 00:12:35.000000000 +0200
+@@ -0,0 +1,4 @@
++subdirs=module uavc policy
++
++all:
++	for i in $(subdirs) ; do make -C $$i || exit 1 ; done
+diff -rNu selinux-doc-1.18.orig/module/Makefile selinux-doc-1.18/module/Makefile
+--- selinux-doc-1.18.orig/module/Makefile	2004-02-26 21:36:44.000000000 +0100
++++ selinux-doc-1.18/module/Makefile	2005-04-04 00:05:49.000000000 +0200
+@@ -20,7 +20,7 @@
  
-> And users do care
-> about these "unprivileged" applications corrupting
-> or leaking their
-> data.
+ $(HTML): $(ALL)
+ 	-$(RM) -r $@
+-	db2html $(TOP)
++	docbook2html $(TOP)
+ 	if [ ! -z "$(JPG-$@)" ]; then cp $(JPG-$@) $@; fi
+ 
+ clean:
+diff -rNu selinux-doc-1.18.orig/policy/Makefile selinux-doc-1.18/policy/Makefile
+--- selinux-doc-1.18.orig/policy/Makefile	2004-02-26 21:36:47.000000000 +0100
++++ selinux-doc-1.18/policy/Makefile	2005-04-04 00:05:58.000000000 +0200
+@@ -20,7 +20,7 @@
+ 
+ $(HTML): $(ALL)
+ 	-$(RM) -r $@
+-	db2html $(TOP)
++	docbook2html $(TOP)
+ 	if [ ! -z "$(JPG-$@)" ]; then cp $(JPG-$@) $@; fi
+ 
+ clean:
+diff -rNu selinux-doc-1.18.orig/uavc/Makefile selinux-doc-1.18/uavc/Makefile
+--- selinux-doc-1.18.orig/uavc/Makefile	2004-05-29 01:57:26.000000000 +0200
++++ selinux-doc-1.18/uavc/Makefile	2005-04-04 00:06:06.000000000 +0200
+@@ -20,7 +20,7 @@
+ 
+ $(HTML): $(ALL)
+ 	-$(RM) -r $@
+-	db2html $(TOP)
++	docbook2html $(TOP)
+ 	if [ ! -z "$(JPG-$@)" ]; then cp $(JPG-$@) $@; fi
+ 
+ clean:
 
-True enough. Nonetheless, the operating
-system developer must have enough confidence
-in the policies and mechanisms of the OS to
-let the application developer do arbitrary
-unprivileged things. Only a truely closed
-system can control everything, which is why
-the clear definition of system policies is
-so important in an open or open source system.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-	
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - You care about security. So do we. 
-http://promotions.yahoo.com/new_mail
+--------------030802090407020101070001--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
