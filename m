@@ -1,51 +1,50 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBFErkRb020024
-	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 09:53:46 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBFFjiRb020437
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 10:45:44 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hBFEqvjx002996
-	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 14:52:57 GMT
+	by jazzswing.ncsc.mil  with ESMTP id hBFFitjx007988
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 15:44:55 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id hBFEquSR002993
-	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 14:52:57 GMT
-Subject: Re: [patch] add source line numbers to checkpolicy
+	by jazzswing.ncsc.mil  with ESMTP id hBFFirSR007982
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 15:44:54 GMT
+Subject: Re: log_domain macro
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
+To: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>
 Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
-   Howard Holm <hdholm@epoch.ncsc.mil>, Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <1071478020.17990.8.camel@nexus.verbum.private>
-References: <1071478020.17990.8.camel@nexus.verbum.private>
+   Howard Holm <hdholm@epoch.ncsc.mil>
+In-Reply-To: <20031215190237.4f459090.ynakam@ori.hitachi-sk.co.jp>
+References: <20031215190237.4f459090.ynakam@ori.hitachi-sk.co.jp>
 Content-Type: text/plain
-Message-Id: <1071500009.28044.60.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1071503117.28044.76.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 15 Dec 2003 09:53:29 -0500
+Date: Mon, 15 Dec 2003 10:45:17 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-12-15 at 03:47, Colin Walters wrote:
-> Attached are two patches which have checkpolicy emit the source line
-> number where an error occurred, if available.  This would have been
-> fairly trivial, except it required rewriting the sample policy Makefile
-> to not invoke m4 multiple times.  
+On Mon, 2003-12-15 at 05:02, Yuichi Nakamura wrote:
+> In log_domain macro,
+> file_type_auto_trans($1_t, var_log_t, $1_log_t, file)
+> is described.
 > 
-> It all seems to work fine, but the changes to the Makefile should
-> probably be looked at carefully - I don't understand why it wasn't
-> written like this in the first place, so I'm wondering if I'm missing
-> something.
+> By file_type_auto_trans, $1_t can write(unlink) $1_log_t.
+> 
+> If attackers obtains the domain where log_domain macro is used, 
+> attackers can erase log file.
+> 
+> Many daemons only need append permission to log files.
+> I think macro such as following is necessary.
+> 
+> define(`append_log_domain', `
+> type $1_log_t, file_type, sysadmfile, logfile;
+> allow $1_t var_log_t:dir rw_dir_perms;
+> allow $1_t $1_log_t:file  { create ra_file_perms };
+> type_transition $1_t var_log_t:file $1_log_t;
+> ')
 
-Thanks, this looks useful.  If I recall correctly, we originally split
-up the m4 processing because we were encountering a m4 failure due to
-the number of arguments.  I'm not sure what version of m4 that was, but
-the m4 on RHEL3 and FC1 appear to work fine with your patch and all
-existing .te files enabled, so perhaps that limitation was eliminated. 
-Given this change, I would think that we could also factor out
-tmp/program_unused_flags.te and $(ALL_MACROS) from ALLTEFILES and
-CONSTRAINT_CONTEXT_MACRO_FILES and only include them once in POLICYFILES
-prior to TE_RBAC_FILES.
-
-The fact that you retain the policy.conf line information as well as the
-source line information is important, as some tools now use that
-information (e.g. Tresys setools), and since the source file and line
-information doesn't deal with macro expansion.
+This sounds reasonable.  Note that there is a create_append_log_file()
+macro in core_macros.te that is used by syslogd_t and bootloader_t, but
+it acts on an existing log type and does not include a type declaration
+or type_transition rule.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
