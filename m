@@ -1,44 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA22320
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 11:05:43 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA08538
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 15:05:20 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id PAA08534
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 15:05:19 GMT
-Date: Fri, 21 Jun 2002 11:05:28 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: error
-In-Reply-To: <20020621145254.A716019B5@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0206211057290.12888-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA24348
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 15:19:08 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA08802
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 19:17:42 GMT
+Received: from az25ege01.gd-decisionsystems.com ([63.226.32.21])
+        by jazzband.ncsc.mil  with SMTP id TAA08795 for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 19:17:39 GMT
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: SE Linux loading procedure.
+Date: Fri, 21 Jun 2002 12:18:57 -0700
+Message-ID: <685C998FC4F39E48ABC93EABA534DEBD5690CA@AZ25EXM01N2.gddsi.com>
+From: "Oren Abe-P27525" <Abe.Oren@gd-decisionsystems.com>
+To: "Stephen Smalley" <sds@tislabs.com>,
+        "Russell Coker" <russell@coker.com.au>
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi there...
 
-On Fri, 21 Jun 2002, Russell Coker wrote:
+Do you (or anybody) have a flow chart(s)
+describe the SE Linux loading sequence.
 
-> It seems that I didn't update initial_sid_contexts.
+Something like step-by-step of the main
+modules and procedures that loads into the
+memory during the boot process ?
 
-Yes, try applying the selinux.patch to your selinux directory.
+Thanks in advance.
 
-> Hmm, maybe initial_sid_contexts should be in /usr/lib/selinux instead?  As it
-> doesn't seem to make any sense to have it where users can mess with it...
-
-A policy writer may choose to map the initial SIDs to completely different
-security contexts.  That is a policy configuration issue.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
-
+Abe Oren
+Principal Engineer
+General Dynamics
+Decision Systems
+(480)675-2575
 
 --
 You have received this message because you are subscribed to the selinux list.
