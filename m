@@ -1,42 +1,31 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>
-Subject: Re: Default Policy question?
-Date: Tue, 3 Jun 2003 09:51:59 +1000
+Date: Tue, 3 Jun 2003 08:32:37 +0200
+From: Tom <tom@lemuria.org>
+To: Russell Coker <russell@coker.com.au>
 Cc: SELinux@tycho.nsa.gov
-References: <3EDB7585.8050308@redhat.com> <1054574512.1053.178.camel@moss-huskers.epoch.ncsc.mil> <20030602230314.C3637@lemuria.org>
-In-Reply-To: <20030602230314.C3637@lemuria.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200306030951.59964.russell@coker.com.au>
+Subject: Re: some policy feedback
+Message-ID: <20030603083237.B4056@lemuria.org>
+References: <20030601222359.D31891@lemuria.org> <200306021037.21050.russell@coker.com.au> <20030602182422.D2944@lemuria.org> <200306031022.03152.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200306031022.03152.russell@coker.com.au>; from russell@coker.com.au on Tue, Jun 03, 2003 at 10:22:03AM +1000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 3 Jun 2003 07:03, Tom wrote:
-> But if the secadm_r controls the policy, he should have enough power at
-> his hands to prevent subversion. Things he would have to protect:
->
-> * his home directory (environment)
-> * policy and policy tools
-> * kernel and kernel modules
+On Tue, Jun 03, 2003 at 10:22:03AM +1000, Russell Coker wrote:
+[user macros]
+> Nothing serious is being done at this time.  In the last two years it seems 
+> that I'm the only person to work in this area, and all I have wanted to do 
+> was get multiple user roles working properly (which is 99% done).
+> 
+> Go for it!
 
-So who runs debugfs/fdisk/mkfs?
-
-> Other than that, all other tools are limited by the policy, aren't
-> they? The sysadm_r can replace ls with a trojaned binary, but he can't
-> make it do anything that the normal ls isn't allowed to do.
-
-When "ls" is run by any userdomain it does not trigger a domain transition.  
-If ls is compromised it's game-over, ls can do lots of interesting things 
-other than list the stats of files if it wants to...
+Going. Any input appreciated, otherwise I'll just keep the list in
+touch about my progress.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
