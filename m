@@ -1,63 +1,51 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81Kx1rT024759
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 16:59:01 -0400 (EDT)
-Received: from sccrmhc13.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i81KwBY2000914
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 20:58:12 GMT
-Subject: SE Linux and /proc files
-From: Albert Cahalan <albert@users.sourceforge.net>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Message-Id: <1094072237.434.7207.camel@cube>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81LLHrT024906
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 17:21:17 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i81LLFeu018671
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 21:21:15 GMT
+Date: Wed, 1 Sep 2004 22:32:22 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Scott James Remnant <scott@netsplit.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>,
+   Dpkg Development <debian-dpkg@lists.debian.org>,
+   Debian Developers <debian-devel@lists.debian.org>
+Subject: Re: dpkg and selinux
+Message-ID: <20040901213222.GC6567@lkcl.net>
+References: <20040831234115.GZ4375@lkcl.net> <1094004762.6901.68.camel@descent.netsplit.com> <20040901101921.GC5882@lkcl.net> <1094045403.6901.112.camel@descent.netsplit.com> <20040901172551.GC4400@lkcl.net> <1094071829.6901.149.camel@descent.netsplit.com>
 Mime-Version: 1.0
-Date: 01 Sep 2004 16:57:17 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1094071829.6901.149.camel@descent.netsplit.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-At an extreme security level, users can't see processes
-running in other roles. At a low security level, they can.
+On Wed, Sep 01, 2004 at 09:50:28PM +0100, Scott James Remnant wrote:
+> On Wed, 2004-09-01 at 18:25 +0100, Luke Kenneth Casson Leighton wrote:
+> 
+> > On Wed, Sep 01, 2004 at 02:30:03PM +0100, Scott James Remnant wrote:
+> > > However I'm loath to embed specific selinux support into dpkg if it
+> > > introduces extra dependencies, or causes problems for those not using
+> > > it.
+> >  
+> >  1) fortunately, the only extra dependency will be libselinux1 which
+> >     needs to be made "Required" such that cron, coreutils, logrotate,
+> > 	ssh etc. can use it.
+> > 
+> That rules that solution out, then.  
 
-How about a middle ground? I've been thinking of adding
-a new /proc file containing some basic data for procps.
-It wouldn't have EIP, ESP, WCHAN, and a few others that
-are quite revealing to an attacker. A list of items that
-would be enough for basic procps functionality is:
+ ... temporarily.
 
-class   - scheduling class
-cmd     - COMMAND, w/o args
-cstime  - CPU time
-cutime  - CPU time
-euid
-nice
-nlwp  - num threads
-pcpu  - %CPU (once implemented)
-pgrp
-ppid
-priority
-processor
-resident
-rtprio
-ruid
-sched  - RT scheduling class
-session
-share  - memory info
-size
-start_time
-state
-stime  - CPU time
-tgid
-tid
-tpgid
-tty
-utime  - CPU time
-vm_lock - locked mem (just need yes/no)
-vm_rss
-vm_size
+> I'm not going to add a dpkg
+> dependency on libselinux until selinux is the default (over chown/chmod/
+> etc.)
+ 
+ it's okay: the only reason that libselinux1 isn't presently "Required"
+ is because of the sarge freeze...
 
-Might this be useful?
+ ... which brings us neatly back full circle as to why i contacted you
+ last month to see if i could help in oxford :)
 
-Anything on that list more troublesome than cmd?
-
+ l.
 
 
 --
