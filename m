@@ -1,60 +1,85 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h74GXQHa017677
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2003 12:33:26 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h74L43Ha019023
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2003 17:04:03 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h74GWCFB026551
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2003 16:32:12 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h74GWBGD026548
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2003 16:32:11 GMT
-Subject: Re: SELinux-2.6-PPC
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1060011891.2997.156.camel@chris.pebenito.net>
-References: <1059955240.2997.75.camel@chris.pebenito.net>
-	 <1060003910.4298.47.camel@moss-spartans.epoch.ncsc.mil>
-	 <1060011891.2997.156.camel@chris.pebenito.net>
+	by jazzswing.ncsc.mil  with ESMTP id h74L2mFB023478
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2003 21:02:48 GMT
+Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
+	by jazzswing.ncsc.mil  with ESMTP id h74L2lGD023475
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2003 21:02:48 GMT
+Subject: oops on policy load (PPC)
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Message-Id: <1060014803.4298.93.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1060029193.2997.206.camel@chris.pebenito.net>
 Mime-Version: 1.0
-Date: 04 Aug 2003 12:33:23 -0400
+Date: 04 Aug 2003 15:33:14 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-08-04 at 11:44, Chris PeBenito wrote:
-> What exactly do you mean by a reduction of genfs_contexts support?  I
-> didn't see any mention of this in the docs (perhaps I missed it), but I
-> did notice that genfs_contexts is a lot slimmer than the old policy.  I
-> do have devfs in mind, as its used in Gentoo.  
+I get this oops on the first time the policy is loaded (2.6.0-test2-bk3
+on PPC):
 
-See the comments at the beginning of the genfs_contexts file in the 2.5
-policy tree.  Also mentioned in the policy part of the PORTING file in
-selinux-doc.  The code that attempted to reconstruct a pathname relative
-to the top of the mount for auditing and for genfs_contexts had to be
-dropped as part of the cleanup for mainline inclusion; you can't
-reliably map an inode to a pathname in general.  For proc, we can use
-the proc_dir_entry tree to generate paths within proc to identify nodes
-in the policy in order to map them to security contexts.  Something
-similar might be possible in devfs, but you also likely need an xattr
-handler for it to support userspace management of security contexts on
-device nodes.  You might want to look into udev as a replacement for
-devfs for 2.6.
+security:  4 users, 6 roles, 334 types
+security:  30 classes, 22358 rules
+SELinux:  Completing initialization.
+SELinux:  Setting up existing superblocks.
+SELinux: initialized (dev 0:d, type nfs), uses genfs_contexts
+SELinux: initialized (dev , type rpc_pipefs), not configured for
+labeling
+SELinux: initialized (dev , type selinuxfs), uses genfs_contexts
+Oops: kernel access of bad area, sig: 11 [#1]
+NIP: C00F5208 LR: C00F5FFC SP: CCFD7C30 REGS: ccfd7b80 TRAP: 0301    Not
+tainted
+MSR: 00001032 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 11
+DAR: 01000003, DSISR: 40000000
+TASK = cd3eaa80[3202] 'load_policy' Last syscall: 4
+GPR00: 0000000C CCFD7C30 CD3EAA80 01000003 FFFFFFFE C01E9BC8 CCFD7CD0
+0000000A
+GPR08: 00000000 01000003 FFFFFFFF CCFD7C68 53000033
+Call trace:
+ [c001a598] printk+0x9c/0x204
+ [c00e5d30] superblock_doinit+0x184/0x270
+ [c00eabe4] selinux_complete_init+0x108/0x220
+ [c00f17f4] security_load_policy+0x10c/0x2f0
+ [c00eb11c] sel_write_load+0xd4/0x118
+ [c00561d0] vfs_write+0x10c/0x154
+ [c00562cc] sys_write+0x40/0x74
+ [c0005abc] ret_from_syscall+0x0/0x44
+note: load_policy[3202] exited with preempt_count 1
 
-> As for reiser I would
-> think that for it to work it would just need the appropriate xattr
-> support in the kernel (and fix the policy makefile to run setfiles on it
-> during a relabel).
+The policy actually does get loaded, as I start getting denials.  It
+looks like the oops is related to the filesystem initializations; if I
+load the policy after this, it doesn't oops.  If I unmount /boot and
+then mount it, the mount command hangs, and I dont get the kernel
+messages saying that it was initialized for SELinux.
 
-Yes, you would need to implement an xattr handler for the security
-namespace in reiser.  You can likely leverage the existing reiser xattr
-patches, but you'll still need to add the handler for the security
-namespace.
+
+I also get a problem relabeling:
+
+beta policy-dev # make relabel
+/usr/sbin/setfiles file_contexts/file_contexts `mount | awk
+'/ext[23]/{print $3}'`
+/usr/sbin/setfiles:  Using extended attributes (default)
+/usr/sbin/setfiles:  read 389 specifications
+/usr/sbin/setfiles:  labeling files under /
+/: Function not implemented
+/usr/sbin/setfiles:  unable to obtain attribute for file /
+/usr/sbin/setfiles:  error while labeling files under /
+make: *** [relabel] Error 1
+
+but I suspect its related to that oops, since it never says / is
+initialized.  I can use getfattr and setfattr to manually set
+security.selinux, so the xattr support is certainly enabled.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer, SELinux
+Hardened Gentoo Linux
+ 
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
+Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
 --
 This message was distributed to subscribers of the selinux mailing list.
