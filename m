@@ -1,58 +1,44 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5HFa9rT010306
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 11:36:10 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5HFa7SU016061
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 15:36:07 GMT
-Message-Id: <200406171535.i5HFZVSf032291@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'John D. Ramsdell'" <ramsdell@mitre.org>, <selinux@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5HFwkrT010492
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 11:58:46 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5HFwbMX011486
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 15:58:37 GMT
 Subject: RE: Fedora Core 2 setools RPM
-Date: Thu, 17 Jun 2004 11:36:02 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <ogtvfhss8rr.fsf@mitre.org>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'John D. Ramsdell'" <ramsdell@mitre.org>, selinux@tycho.nsa.gov
+In-Reply-To: <200406171535.i5HFZVSf032291@gotham.columbia.tresys.com>
+References: <200406171535.i5HFZVSf032291@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Message-Id: <1087487902.25033.89.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Thu, 17 Jun 2004 11:58:22 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am not aware of an setools-devel rpm that installs the include files and
-libapol.a. I think at one point the setools rpms that Dan Walsh was making
-for Redhat/Fedora installed these files, but the current rpms for Fedora do
-not.
-
-In general, we have not spent many resources addressing the use of libapol
-outside of setools. Because of this, we haven't added a target to install
-the headers and library. The simplest thing to do is to download our source
-and work within the setools directory. Otherwise, it is easy to write an
-install target if you want.
-
-Karl
-
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410)290-1411 ext 134 
-
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-> Behalf Of John D. Ramsdell
-> Sent: Tuesday, June 15, 2004 7:26 PM
-> To: selinux@tycho.nsa.gov
-> Subject: Fedora Core 2 setools RPM
+On Thu, 2004-06-17 at 11:36, Karl MacMillan wrote:
+> I am not aware of an setools-devel rpm that installs the include files and
+> libapol.a. I think at one point the setools rpms that Dan Walsh was making
+> for Redhat/Fedora installed these files, but the current rpms for Fedora do
+> not.
 > 
-> I notice the RPM for setools fails to install libapol.a into /usr/lib,
-> and fails to install the header files needed to use the library into
-> /usr/include/libapol.  Is there is a setools-devel RPM I don't know
-> about?
-> 
-> John
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+> In general, we have not spent many resources addressing the use of libapol
+> outside of setools. Because of this, we haven't added a target to install
+> the headers and library. The simplest thing to do is to download our source
+> and work within the setools directory. Otherwise, it is easy to write an
+> install target if you want.
+
+I think it would be helpful for libapol to be available for third party
+packages to encourage other people working on policy tools to re-use and
+(if necessary) contribute extensions back to libapol rather than
+reinventing the wheel each time.  I'd also think you would want both
+shared and static libraries, and have most of the tools dynamically
+linked against the shared library.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
