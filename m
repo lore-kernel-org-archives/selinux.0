@@ -1,67 +1,240 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9GCtjWt002278
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 08:55:45 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9GCtb0p010087
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 12:55:37 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h9GCtar7010084
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 12:55:36 GMT
-Subject: Re: genfscon and /boot
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200310162109.25021.russell@coker.com.au>
-References: <200310162109.25021.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1066308938.24561.38.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 16 Oct 2003 08:55:38 -0400
+Message-ID: <3F8E9DB7.5030903@redhat.com>
+Date: Thu, 16 Oct 2003 09:31:35 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: [Fwd: Re: avc_toggle and avc_enforcing]
+Content-Type: multipart/mixed;
+ boundary="------------090302060106020307020007"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-10-16 at 07:09, Russell Coker wrote:
-> Currently the Red Hat kernels are compiled with Ext2 having no support for 
-> XATTR or ACLs.  This is convenient when dealing with boot loaders that don't 
-> support XATTR (such as the old Cobalt boot ROMs) as you can make /boot an 
-> ext2 file system and not risk making the machine unbootable.
+This is a multi-part message in MIME format.
+--------------090302060106020307020007
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+
+--------------090302060106020307020007
+Content-Type: message/rfc822;
+ name="Re: avc_toggle and avc_enforcing"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline;
+ filename="Re: avc_toggle and avc_enforcing"
+
+Message-ID: <3F8E9D94.5080909@redhat.com>
+Date: Thu, 16 Oct 2003 09:31:00 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kerry Thompson <kerry@crypt.gen.nz>
+Subject: Re: avc_toggle and avc_enforcing
+References: <3F8BE8E5.9050006@ipen.br>    <1066145242.5054.213.camel@moss-spartans.epoch.ncsc.mil> <2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz>
+In-Reply-To: <2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz>
+Content-Type: multipart/alternative;
+ boundary="------------000105070903010202000504"
+
+This is a multi-part message in MIME format.
+--------------000105070903010202000504
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Kerry Thompson wrote:
+
+>Speaking of which, I'd like to assemble a quick list of userland ( or more
+>accurately, adminland ) changes between the current release and the
+>previous non-/selinux release to update the documentation I've got, like
+>the U-FAQ. The ones I've noticed so far :
 >
-> The Sun/Cobalt people are aware of this issue and it will hopefully be 
-> resolved soon, but we still want a solution to this as probably not all 
-> hardware will get the bugs fixed soon enough.  Also some people who own 
-> Cobalt hardware may not desire a ROM upgrade.
+>- avc_enforcing, avc_toggle replaced by /selinux/enforcing
+>- id command requires -c to display context
+>  
+>
+This has been converted to -Z in latest patches, for consistency.
 
-Supporting Cobalt hardware is not a priority for us, particularly not at
-a sacrifice in security (which is what you are really suggesting).
+>- ps command uses -Z to display context
+>- initrd now mandatory
+>  
+>
+We are working to remove this requirement.
 
-> Now for /boot to have appropriate labels we need genfs entries for it.
+>- selinux kernel boot option
+>- multiple changes to installation procedure
+>  
+>
+>- SRPMs added to installation image
+>- new tools added ( Tresys tools, star )
+>- binary RPMs available ( thanks Daniel )
+>
+>  
+>
+Your welcome.
 
-genfscon cannot be used reliably for a filesystem type like ext2.
-It works ok for proc, where we can reliably generate a pathname relative
-to the root of proc from the proc_dir_entry tree, and is ok for mapping
-all entries in certain filesystem types to a single fixed context, but
-that is about it.  Pathname-based labeling doesn't work in Unix, much
-less so in Linux.
+>I've looked into the ChangeLog files, but there really isn't much info
+>there, so I'd like to hear of any other changes that have been made which
+>need to be documented.
+>
+>  
+>
+We are working to eliminate root assumptions in the OS and replace them 
+with ones based on
+security contexts.  So config tools should be prompting for your 
+password instead of root password. 
 
-> Currently the genfs does not seem to support giving a different label to 
-> System.map* files (needed for ps to display the wchan and for kogd) and the 
-> other files (which need restricted access).
+One goal of userland changes is that the average user should not have to 
+know that he is running
+on a SELinux machine.  A system administrator should be able to manage 
+the machine with limited knowlege of the way policy works.
 
-The limitations of genfs_contexts are documented, both in the comments
-at the beginning of genfs_contexts and in the PORTING file.  
+>I'm still working on getting my test system up to the new 2.4 and 2.6,
+>unfortunately I rendered it unbootable last night so it will take a little
+>longer than expected ( note to self : make sure kernel can build an initrd
+>before removing /boot/initrd* ).
+>
+>Kerry
+>
+>
+>Stephen Smalley said:
+>  
+>
+>>On Tue, 2003-10-14 at 08:15, Carlos Anísio Monteiro wrote:
+>>    
+>>
+>>>Please, where I find the commands: avc_toggle and avc_enforcing. What
+>>>are it the packages where it are?
+>>>      
+>>>
+>>They no longer exist as programs.  With the new SELinux API, you can
+>>simply 'cat /selinux/enforce' to see the current enforcing value,
+>>'echo 1 > /selinux/enforce' to switch into enforcing mode, and
+>>'echo  > /selinux/enforce' to switch into permissive mode (if permitted
+>>by the policy).
+>>
+>>--
+>>Stephen Smalley <sds@epoch.ncsc.mil>
+>>National Security Agency
+>>    
+>>
+>
+>
+>--
+>This message was distributed to subscribers of the selinux mailing list.
+>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>the words "unsubscribe selinux" without quotes as the message.
+>  
+>
 
-> To get this working as desired we need to either change genfs to support 
-> appropriate labeling, or to change distributions to have System.map in 
-> another file system.  Having the System.map in a different file system may 
-> make sense anyway as we would probably prefer not to have /boot mounted in 
-> normal operation, but we do want to have System.map available all the time.
+--------------000105070903010202000504
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-No, you just need to accept the fact that you need xattr support in the
-kernel.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
+  <title></title>
+</head>
+<body text="#000000" bgcolor="#ffffff">
+Kerry Thompson wrote:<br>
+<blockquote type="cite"
+ cite="mid2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz">
+  <pre wrap="">Speaking of which, I'd like to assemble a quick list of userland ( or more
+accurately, adminland ) changes between the current release and the
+previous non-/selinux release to update the documentation I've got, like
+the U-FAQ. The ones I've noticed so far :
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+- avc_enforcing, avc_toggle replaced by /selinux/enforcing
+- id command requires -c to display context
+  </pre>
+</blockquote>
+This has been converted to -Z in latest patches, for consistency.<br>
+<blockquote type="cite"
+ cite="mid2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz">
+  <pre wrap="">- ps command uses -Z to display context
+- initrd now mandatory
+  </pre>
+</blockquote>
+We are working to remove this requirement.<br>
+<blockquote type="cite"
+ cite="mid2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz">
+  <pre wrap="">- selinux kernel boot option
+- multiple changes to installation procedure
+  </pre>
+</blockquote>
+<blockquote type="cite"
+ cite="mid2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz">
+  <pre wrap="">- SRPMs added to installation image
+- new tools added ( Tresys tools, star )
+- binary RPMs available ( thanks Daniel )
+
+  </pre>
+</blockquote>
+Your welcome.<br>
+<blockquote type="cite"
+ cite="mid2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz">
+  <pre wrap="">I've looked into the ChangeLog files, but there really isn't much info
+there, so I'd like to hear of any other changes that have been made which
+need to be documented.
+
+  </pre>
+</blockquote>
+We are working to eliminate root assumptions in the OS and replace them
+with ones based on<br>
+security contexts.&nbsp; So config tools should be prompting for your
+password instead of root password.&nbsp; <br>
+<br>
+One goal of userland changes is that the average user should not have
+to know that he is running<br>
+on a SELinux machine.&nbsp; A system administrator should be able to manage
+the machine with limited knowlege of the way policy works.<br>
+<blockquote type="cite"
+ cite="mid2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz">
+  <pre wrap="">I'm still working on getting my test system up to the new 2.4 and 2.6,
+unfortunately I rendered it unbootable last night so it will take a little
+longer than expected ( note to self : make sure kernel can build an initrd
+before removing /boot/initrd* ).
+
+Kerry
+
+
+Stephen Smalley said:
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">On Tue, 2003-10-14 at 08:15, Carlos An&Atilde;&shy;sio Monteiro wrote:
+    </pre>
+    <blockquote type="cite">
+      <pre wrap="">Please, where I find the commands: avc_toggle and avc_enforcing. What
+are it the packages where it are?
+      </pre>
+    </blockquote>
+    <pre wrap="">They no longer exist as programs.  With the new SELinux API, you can
+simply 'cat /selinux/enforce' to see the current enforcing value,
+'echo 1 &gt; /selinux/enforce' to switch into enforcing mode, and
+'echo  &gt; /selinux/enforce' to switch into permissive mode (if permitted
+by the policy).
+
+--
+Stephen Smalley <a class="moz-txt-link-rfc2396E" href="mailto:sds@epoch.ncsc.mil">&lt;sds@epoch.ncsc.mil&gt;</a>
 National Security Agency
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to <a class="moz-txt-link-abbreviated" href="mailto:majordomo@tycho.nsa.gov">majordomo@tycho.nsa.gov</a> with
+the words "unsubscribe selinux" without quotes as the message.
+  </pre>
+</blockquote>
+</body>
+</html>
+
+--------------000105070903010202000504--
+
+
+--------------090302060106020307020007--
 
 
 --
