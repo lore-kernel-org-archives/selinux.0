@@ -1,47 +1,103 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA06495
-	for <selinux@tycho.nsa.gov>; Fri, 18 Oct 2002 08:07:53 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA19462
-	for <selinux@tycho.nsa.gov>; Fri, 18 Oct 2002 12:06:08 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id MAA19458
-	for <selinux@tycho.nsa.gov>; Fri, 18 Oct 2002 12:06:07 GMT
 Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
-Subject: Re: latest policy patch
-Date: Fri, 18 Oct 2002 14:07:40 +0200
-References: <200210170017.38299.russell@coker.com.au> <20021017231011.GD15699@snoopy.apana.org.au> <20021018082000.D25703@lemuria.org>
-In-Reply-To: <20021018082000.D25703@lemuria.org>
+  charset="us-ascii"
+From: Brian Fegler <fegler@bigfoot.com>
+Reply-To: fegler@bigfoot.com
+To: SELinux@tycho.nsa.gov
+Subject: rule analyzer
+Date: Fri, 18 Oct 2002 11:50:49 -0600
 MIME-Version: 1.0
-Message-Id: <200210181407.40199.russell@coker.com.au>
+Message-Id: <200210181150.49348.fegler@bigfoot.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 18 Oct 2002 08:20, Tom wrote:
-> On Fri, Oct 18, 2002 at 09:10:11AM +1000, Brian May wrote:
-> > One suggestion with selinux-policy-default:
-> >
-> > Installing the new policy should be optional when installing the Debian
-> > package. Perhaps with a config option /etc/selinux-policy.conf (maybe)
-> > or an extra question (but I am not a fan of all of these questions...).
->
-> Yes, please. It could simply check if a policy is already installed,
-> and if so, ask "should I update your policy?" just like every other
-> debian package does before changing config files. It could then
-> automatically step over all the files that I choose not to have the
-> first time, to reduce the number of questions asked.
+I wrote a short rule analyzer. It works off of a policy.conf file. I know a 
+couple already exist, but I wanted a script that was a stand alone file, and 
+had full functionality from the command line.
 
-OK.  I'll make an upgrade ask you "update yes/no/never".
+It is primative, but it gets the job done. In a nutshell, it shows what 
+can access what. (doesn't show type_transitions or anything else yet). 
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I've been using it for awhile, but figured I should spruce it up a bit, throw 
+it out there, and get some feedback. 
+
+If it's used there are a few things I wouldn't mind adding (see todo list).  
+
+Feedback and comments are welcome. 
+
+Here are a few examples. (the name of the program is cando - as in what 
+"cando" what). "..." added for readability.
+
+###################################
+cando --dst=user_gpg_secret
+sysadm_gpg_t
+    user_gpg_secret_t
+        dir          { rename create write getattr remove_name... }
+        file         { rename create write getattr ioctl append... } 
+
+user_gpg_t
+    user_gpg_secret_t
+        dir          { rename create write getattr remove_name... }
+
+user_t
+    user_gpg_secret_t
+        dir          { write getattr remove_name search setattr read... }
+        file         { getattr }
+
+
+###################################
+cando --src=user_t --dst=var.*
+user_t
+        var_lib_nfs_t
+                dir          { read lock access getattr ioctl search poll }
+        var_lib_rpm_t
+                dir          { read lock access getattr ioctl search poll }
+        var_lib_t
+                dir          { read lock access getattr ioctl search poll }
+        var_lock_t
+                dir          { read lock access getattr ioctl search poll }
+        var_log_sa_t
+                dir          { read lock access getattr ioctl search poll }
+        var_log_t
+                dir          { read lock access getattr ioctl search poll }
+        var_run_t
+                dir          { read lock access getattr ioctl search poll }
+        var_spool_t
+                dir          { read lock access getattr ioctl search poll }
+        var_t
+                dir          { read lock access getattr ioctl search poll }
+        var_yp_t
+                dir          { read lock access getattr ioctl search poll }
+
+
+###################################
+cando --src=bootloader_t --dst=boot -d
+bootloader_t
+        boot_t
+                dir          { write getattr remove_name search read...
+        bootloader_exec_t
+                file         { getattr ioctl read execute lock...
+        bootloader_tmp_t
+                dir          { rename create write getattr remove_name...
+        etc_bootloader_t
+                file         { getattr ioctl read lock access poll }
+
+
+###################################
+(-s means short -a means align)
+cando  --src=httpd --dst=^user -sa
+allow httpd_t                     user_home_t: dir       { search };
+allow httpd_t                     user_home_t: file      { read getattr };
+allow httpd_user_script_process_t user_home_t: dir       { getattr search };
+allow httpd_user_script_process_t user_t:      fd        { use };
+allow httpd_user_script_process_t user_t:      fifo_file { write getattr ... 
+};
+allow httpd_user_script_process_t user_t:      process   { sigchld };
+
+
+###################################
+cando --dst=bin_t --class=file --perm=execute --l=1
+
+this will show all of the domains that can execute a file of type bin_t
 
 
 --
