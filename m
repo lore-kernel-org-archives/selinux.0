@@ -1,64 +1,42 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7696RHa025374
-	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 05:06:28 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h769ICHa025415
+	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 05:18:12 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7695CFB015293
-	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 09:05:12 GMT
-Received: from mail.vegaa.de (mail.vegaa.de [213.203.196.181])
-	by jazzswing.ncsc.mil  with ESMTP id h7695CGD015290
-	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 09:05:12 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Carsten Grohmann <carsten.grohmann@raumbildsysteme.de>
-To: Glen Boyd <glenb@napier.govt.nz>, selinux@tycho.nsa.gov
-Subject: Re: libsecure Compilation Failure
-Date: Wed, 6 Aug 2003 10:02:46 +0200
-References: <86170000.1060141226@glenb.napier.govt.nz>
-In-Reply-To: <86170000.1060141226@glenb.napier.govt.nz>
-MIME-Version: 1.0
-Message-Id: <200308061002.47802.carsten.grohmann@raumbildsysteme.de>
+	by jazzswing.ncsc.mil  with ESMTP id h769GuFB015928
+	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 09:16:56 GMT
+Received: from nox.lemuria.org ([213.191.86.35])
+	by jazzswing.ncsc.mil  with ESMTP id h769GuGD015925
+	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 09:16:56 GMT
+Date: Wed, 6 Aug 2003 10:53:35 +0200
+From: Tom <tom@lemuria.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Fwd: [JS] Suse on IBM eServer achieves EAL2+ security
+Message-ID: <20030806105335.P8641@lemuria.org>
+References: <200308061046.16095.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200308061046.16095.russell@coker.com.au>; from russell@coker.com.au on Wed, Aug 06, 2003 at 10:46:16AM +1000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Wed, Aug 06, 2003 at 10:46:16AM +1000, Russell Coker wrote:
+> Of course Linux didn't get the highest rating possible, it seems that Reuters 
+> made a mistake in this regard.  EAL2 is not the highest rating, but it's a 
+> good step and they apparently plan to continue trying for higher ratings.
 
-you can found help about this in Kerrys faq 
-(http://www.crypt.gen.nz/selinux/faq.html) or some mails like 
-Stephens Mail "Re: SELinux Compilation Error on Redhat 8.0 with LSM 
-2.5" from 02.05.2003
-
-Am Mittwoch, 6. August 2003 05:40 schrieb Glen Boyd:
-> Hi,
->
-> I am attempting to compile libsecure on a RedHat 8 based system
-> and I get the following error message when running make:
->
-> *****
->
-> cc -o fstat_secure.o -c -I../include
-> -I/usr/local/seclinux/include fstat_secure.c
-> In file included from fstat_secure.c:5
-> xstat_conv.h: In function `xstat_conv':
-> xstat_conv.h:59: structure has no member named `st_atim'
-> xstat_conv.h:60: structure has no member named `st_atim'
-> xstat_conv.h:61: structure has no member named `st_mtim'
-> xstat_conv.h:62: structure has no member named `st_mtim'
-> xstat_conv.h:63: structure has no member named `st_ctim'
-> xstat_conv.h:64: structure has no member named `st_ctim'
-> make: *** [fstat_secure.o] Error 1
->
-> *****
->
-> Is there any workaround to this to enable compilation?
->
-> If you require further details or if this is in fact the
-> completely wrong place to post this question please let me know.
->
-> thanks
->
-> Glen Boyd               <glenb@napier.govt.nz>
+AFAIK, IBM/SuSE are still going for EAL4, as are Redhat/Oracle. It just
+takes more time and they probably needed _some_ cert soon.
 
 
+> No SE Linux in SUSE AFAIK.  :(
+
+CC is about trust, not security. Wanna start a TE Linux project? :)
+
+
+-- 
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
