@@ -1,65 +1,65 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CMpPIi020143
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 17:51:25 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CMnO8I001920
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 22:49:24 GMT
-Date: Wed, 12 Jan 2005 23:01:48 +0000
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CMv1Ii020187
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 17:57:01 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CMuwgF010710
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 22:56:58 GMT
+Date: Wed, 12 Jan 2005 23:07:24 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
+To: Stephen Bennett <spb@gentoo.org>
+Cc: ivg2@cornell.edu, Stephen Smalley <sds@epoch.ncsc.mil>,
+   SELinux@tycho.nsa.gov
 Subject: Re: Multiple contexts
-Message-ID: <20050112230148.GC11846@lkcl.net>
-References: <20050110232312.GI6967@lkcl.net> <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil> <20050111214818.GE26175@lkcl.net> <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil> <20050112144411.GZ26175@lkcl.net> <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil> <20050112181814.GD26175@lkcl.net> <1105552982.22495.169.camel@moss-spartans.epoch.ncsc.mil> <20050112182954.GF26175@lkcl.net> <1105565236.23136.12.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <20050112230724.GD11846@lkcl.net>
+References: <1105390249.8093.21.camel@cobra.ivg2.net> <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil> <1105560687.11135.26.camel@cobra.ivg2.net> <1105566046.3933.5.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1105565236.23136.12.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1105566046.3933.5.camel@localhost>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jan 12, 2005 at 04:27:16PM -0500, Stephen Smalley wrote:
+On Wed, Jan 12, 2005 at 09:40:46PM +0000, Stephen Bennett wrote:
+> On Wed, 2005-01-12 at 13:11 -0700, Ivan Gyurdiev wrote:
+> > > Because then policy would be encoded in the file attributes, not in a
+> > > centralized security policy.  Hence, one would be unable to analyze
+> > > information flow in the system based solely on the policy and would have
+> > > to also analyze the complete filesystem state, and that state is much
+> > > more subject to change at runtime than the policy itself (one would
+> > > hope).
+> > 
+> > Please explain this some more - Luke also seems confused about this
+> > (unless I misunderstand). I don't understand how the change from one
+> > context to multiple contexts stored per file translates into policy
+> > being encoded in the file attributes.
+> 
+> AIUI, the issue is something like this: 
+> 
+> With only one type per file, it's possible to look at the policy and be
+> certain (for example) that domain1 can't affect domain2 in any way,
+> because there are no interactions allowed between the two, and the file
+> types they can access don't overlap. If you allow multiple contexts per
+> file, that ability goes out of the window, and you have to look at which
+> files have multiple contexts and what contexts they are before you can
+> figure out where information can and can't flow.
+ 
+ and you'd need to take all of the files matched by a regexp for one
+ filetype, and all of the files of the other, work out if there are any
+ common ones, and those would be your "multiple contexted" files.
 
-> single security equivalence class for analysis purposes.  Think:  policy
-> says allow P1 F1:file read; allow P2 F2:file write;, policy analysis
-> says that there is no allowed information flow from P2 to P1, but
-> someone does a chcon -t F1,F2 foobar and now P2 can write to foobar and
-> P1 can read from it, so information flow is now possible. 
+ this you could do at policy compilation time.
 
- yep - and the policy analysis tools would need to understand the
- new format.
+ the thing is - which is easier: to expect people to do that
+ analysis themselves [by modifying the default policies]
+ or to do it in an automated at-pol-compile-time?
+ 
+ what is gained and is it worth it in terms of the cost of development
+ and extra complexity of the policy macroing system and the useability?
 
- 1) if someone does a "chcon -t F2 foobar" all bets would be off as
-    far as static analysis is concerned.
-
- 2 ) even if they did chcon -t "F1,F2" foobar, you would still expect
-     them to be doing that as an "interim" measure whilst they were
-     testing something _pending_ formal analysis by putting that
-     into the policy files.
-
- ... and once they did that, i would rationally expect the
- analysis tools to be able to cope, to "combine" 
- allow P1 F1:file read; allow P2 F2:file write; into some sort of
- pseudo-thing ... mmm... mmm...
-
- *thinks*...
-
- the analysis would need the macro-munging approach _anyway_ in
- order to "grok" the new syntax - an intermediate preprocessing
- stage that "notices" multiple-file-applications (including
- possibly expanding regexps!)  and ending up with something
- like this:
-
- filetype Files_with_F1_and_F2_applied_t;
-
- allow P1 F1:file read;
- allow P1 Files_with_F1_and_F2_applied_t:file read;
- allow P2 F2:file write;
- allow P2 Files_with_F1_and_F2_applied_t:file write;
-
- it'd be yeurk - but doable, i think.
+ is the extra syntax useful or hazardously complex?
 
  l.
- 
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
