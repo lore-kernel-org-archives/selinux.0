@@ -1,59 +1,50 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TE5NrT018988
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 10:05:23 -0400 (EDT)
-Received: from smtp810.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6TE5MCb005940
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 14:05:22 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp810.mail.ukl.yahoo.com with SMTP; 29 Jul 2004 14:05:22 -0000
-Date: Thu, 29 Jul 2004 15:16:28 +0100
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TE9FrT019032
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 10:09:15 -0400 (EDT)
+Received: from smtp808.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6TE8ibB021244
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 14:08:44 GMT
+Date: Thu, 29 Jul 2004 15:20:19 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Dale Amon <amon@vnl.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: pear-shaped behaviour after enough make reloads
-Message-ID: <20040729141628.GF8858@lkcl.net>
-References: <20040728211229.GB18711@lkcl.net> <20040728225322.GE18711@lkcl.net> <20040729104317.GE24051@vnl.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>,
+   James Morris <jmorris@redhat.com>
+Subject: Re: temporary hack to use udev in selinux
+Message-ID: <20040729142019.GG8858@lkcl.net>
+References: <20040728232043.GF18711@lkcl.net> <410844F9.3010203@gentoo.org> <20040729013510.GC4335@lkcl.net> <20040729020431.GA10044@lkcl.net> <1091105268.21971.22.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040729104317.GE24051@vnl.com>
+In-Reply-To: <1091105268.21971.22.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jul 29, 2004 at 11:43:17AM +0100, Dale Amon wrote:
-> On Wed, Jul 28, 2004 at 11:53:22PM +0100, Luke Kenneth Casson Leighton wrote:
-> >  i had to kill off processes manually one by one, umount the partitions
-> >  manually, poweroff, and i chose to boot with enforcing=0 init 1 in
-> >  order to safely run ldconfig and make relabel.
-> > 
-> >  i find this all a bit odd, i haven't a clue what's causing it.
-> 
-> Is this particular machine and kernel presently stable 
-> when running the same kernel and no selinux? 
+On Thu, Jul 29, 2004 at 08:47:48AM -0400, Stephen Smalley wrote:
+> On Wed, 2004-07-28 at 22:04, Luke Kenneth Casson Leighton wrote:
+> > okay, i've added in some stuff for tmpfs, just like chris did,
+> > joshua.
 
- as a general rule, yes: i have used it to watch tv and dvds...
+> Please prepare a patch for upstreaming, as this is definitely a desired
+> feature (tmpfs xattr support for SELinux).  
 
- now that you mention it, the hard drive _did_ have a head-crash
- last week when i was doing a 4.3gbyte disk-image...
+ okay.
 
+> However, tmpfs may be a bit
+> tricky to handle correctly, because it is also used for the shmem pseudo
+> filesystem, and the current policy only allows access based on that
+> usage at the moment.
 
-> I have
-> seen very strange things happen over the years when
-> hardware is failing or marginal, power supply voltages
-> are on the edge... 
+ i don't follow entirely... ah, do you mean, tmpfs_t covers _both_ shmem
+ _and_ tmpfs, so if i add xattr support and people start using it as
+ tmpfs, then the policies are, yes, i think i get it.
 
- yes, so have i, but having bought eight identical cheap-and-nasty
- machines ($125ea) where one of the PSUs blew so loud it took out its
- internal fuse, the plug fuse, the 4-way-block fuse _and_ the
- mains trip, i didn't want to admit that anything was wrong.
+ ... is there a way of supporting both names shmfs and tmpfs in
+ the mount command and also in the kernel, such that they are
+ distinguishable that way?
 
-> Worth checking before you ruin Stephen Smalley's sleep 
-> and fill it with nightmares of kernel race conditions
-> and random byte squashers. :-)
- 
- *lol*.
+ i.e. it's the same kernel code, but it can be mounted with two
+ different names.
 
- oh, okay then, i'll try running it without selinux for a while,
- see what happens.
+ is that reasonable or unreasonable?
 
  l.
 
