@@ -1,49 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA05459
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 10:57:23 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0PFvMI16108
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 15:57:22 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h0PFvLf16104 for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 15:57:21 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 26FE892666
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jan 2003 02:57:17 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 893902B6D
-	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 16:57:09 +0100 (CET)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA05931
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 13:13:01 -0500 (EST)
+From: j.logsdon@lancaster.ac.uk
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA04151
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 18:10:08 GMT
+Received: from parmenides.zen.co.uk (parmenides.zen.co.uk [212.23.8.69])
+	by jazzswing.ncsc.mil  with SMTP id SAA04147
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 18:10:07 GMT
+Received: from localhost (j.logsdon@localhost)
+	by quantex-research.com (8.8.7/8.8.7) with ESMTP id SAA14372
+	for <selinux@tycho.nsa.gov>; Sat, 25 Jan 2003 18:17:25 GMT
+Date: Sat, 25 Jan 2003 18:17:25 +0000 (GMT)
 To: selinux@tycho.nsa.gov
-Subject: tmpfs_t
-Date: Sat, 25 Jan 2003 16:57:08 +0100
+Subject: relabel ...
+Message-ID: <Pine.LNX.4.10.10301251812410.17667-100000@mercury.quantex>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200301251657.08983.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have been looking into using tmpfs as /tmp .
+Hi all
 
-Currently tmpfs is labeled tmpfs_t and there is no policy for allowing file 
-creation under it.  So I have experimented with labelling it as tmp_t and 
-changing the tmp_domain() macro to have the following rule:
-allow $1_tmp_t tmp_t:filesystem associate;
+At last a successful compilation and rebooting of the NSA version -
+although I had to retro to the i386 version on my (nominally) i586
+machine.  RH8, gcc-3.2 version.
 
-To do this properly I would also have to change every
-allow whatever fs_t:filesystem getattr;
-to:
-allow whatever { fs_t tmp_t }:filesystem getattr;
+At the end of compiling the NSA version, it says to 'make relabel' after
+rebooting to reset the files created during shutdown/boot.  However I
+can't find the Makefile that includes this target so from whereever I
+'make relabel' it understandably objects and I keep getting avc denials.
 
-Or should I instead leave the tmpfs filesystem labelled as tmpfs_t and add 
-appropriate file_type_auto_trans() rules for it?
+What is the (hopefully) last stage to complete this process?
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+John
 
 
 --
