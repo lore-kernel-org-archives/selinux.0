@@ -1,41 +1,38 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAQDi1Rb019295
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 08:44:01 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAQDkRRb019338
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 08:46:28 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAQDi0qY002999
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 13:44:01 GMT
-Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
-        by jazzband.ncsc.mil  with ESMTP id hAQDhq0o002981 for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 13:43:57 GMT
-Received: (from root@localhost)
-	by baitaca.ipen.br (8.12.9/8.12.9) id hAQDiTFM030039
-	for selinux@tycho.nsa.gov; Wed, 26 Nov 2003 11:44:29 -0200
-Received: from ipen.br ([10.0.12.47])
-	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id hAQDiNeE029983
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 11:44:24 -0200
-Message-ID: <3FC4ADF3.2050509@ipen.br>
-Date: Wed, 26 Nov 2003 11:43:15 -0200
-From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
-MIME-Version: 1.0
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Type attributes
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	by jazzband.ncsc.mil  with ESMTP id hAQDkQqY003135
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 13:46:27 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id hAQDkQ0o003132 for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 13:46:26 GMT
+Subject: Re: genfs_contexts file
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Russell Coker <russell@coker.com.au>,
+   Carlos =?ISO-8859-1?Q?An=EDsio?= Monteiro <monteiro@ipen.br>,
+   selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <3FC4ADD3.9040505@redhat.com>
+References: <3FC3CE10.8020307@ipen.br>
+	 <200311261135.09128.russell@coker.com.au>  <3FC4ADD3.9040505@redhat.com>
+Content-Type: text/plain
+Message-Id: <1069854373.30315.25.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 26 Nov 2003 08:46:13 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi.
+On Wed, 2003-11-26 at 08:42, Daniel J Walsh wrote:
+> Is there a way to change libselinux to return this data, ie if
+> getfilecon is going to return NULL, then have it return the genfscon
+> value?
 
-The type attributes are used only as identifier to SELinux or to 
-administrator of the SELinux. As the type attributes is optional not 
-have needed of declare them. Then, can I pass over ? or I am not 
-undertanding them right.
-
-Thanks.
+libselinux is the wrong place.  If userspace needs access to the labels,
+then the filesystem needs to export an xattr handler.  
 
 -- 
-Carlos Anisio Monteiro  <monteiro@ipen.br>
-IPEN/CNEN-SP
-Sao Paulo - Brasil
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
