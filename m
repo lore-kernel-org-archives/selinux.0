@@ -1,79 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1GJiDL9019597
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 14:44:13 -0500 (EST)
-Received: from localhost.localdomain (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j1GJgdfu022789
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 19:42:54 GMT
-Subject: Re: sshd transition points
-From: "Peter K. Lee" <saint@corenova.com>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050216175027.GZ31121@lkcl.net>
-References: <1108491293.17854.153.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050215191640.GA26294@lkcl.net>
-	 <1108495342.17854.200.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050215200355.GB26294@lkcl.net> <20050215225329.GH26294@lkcl.net>
-	 <20050215231707.GC29523@lkcl.net> <20050216000437.GD30341@lkcl.net>
-	 <1108559425.19756.54.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050216134457.GL31121@lkcl.net> <20050216152644.GU31121@lkcl.net>
-	 <20050216175027.GZ31121@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1108576757.26442.72.camel@snap3401>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1GL3kL9020132
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 16:03:46 -0500 (EST)
+Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1GL08Nj006161
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 21:00:09 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Wed, 16 Feb 2005 22:02:24 +0100
+Date: Wed, 16 Feb 2005 22:02:28 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: ssh problems when no pty allocated
+Message-Id: <20050216210227.GD5431@jmh.mhn.de>
 Mime-Version: 1.0
-Date: 16 Feb 2005 09:59:17 -0800
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Luke, I was wondering why you can't use sshd_config like this:
 
-AllowUsers \
-	restricted_user1@192.168.0.223 \
-	restricted_user2@192.168.0.224 \
-	...
+--rS8CxjVDS/+yyDmU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Also, wouldn't using SE/Linux to do per/user/IP ACL, you need an entry
-in the policy (file?) for every user?  And the policy can be reloaded
-during run-time of the system every time it gets modified?  (sorry, I
-have _no_ idea how SE/Linux works yet...)
+I am having some problems with ssh:
+ssh works fine as long as I just call a shell. However, when ssh is
+called like "ssh host command" it doesn't allocate a pty. See the
+comment in domains/program/ssh.te:
 
--Peter
+# inheriting stream sockets is needed for "ssh host command" as no pty
+# is allocated
+allow unpriv_userdomain sshd_t:unix_stream_socket rw_stream_socket_perms;
 
+This works for userdomains but breaks horribly when transitioning to
+another domain. We use ssh for remote system administration here, so to
+this date I had to add permissions to the following domains to access
+the unix_stream_socket of sshd_t and send sigchld to sshd_t:
+  dmesg_t hostname_t checkpolicy_t load_policy_t restorecon_t mount_t
+  setfiles_t ldconfig_t sysadm_gpg_t bootloader_t user_ssh_agent_t rpm_t
+More are probably needed.
 
+I am not sure what the right way is to handle this problem, so I'm
+asking here. Is it possible to just always allocate a pty? That seems to
+be the most correct solution.
+I wouldn't like to give every domain which can be called by a user
+access to sshd_t:unix_stream_socket.
 
-On Wed, 2005-02-16 at 09:50, Luke Kenneth Casson Leighton wrote:
-> just fyi: this is an actual real-world deployment of SE/Linux for
-> a Bastion Server, where it is necessary to restrict which users
-> may sftp in and upload files on the box - and also to restrict
-> the users to only one particular directory - _and_ also to restrict
-> which IP addresses those users can come in on.
-> 
-> so it's actually quite an exciting project.
-> 
-> bearing in mind that it is possible to compromise or just
-> absent-mindedly or otherwise in a blaze fashion copy ssh
-> private keys (esp. amongst security-unconscious users) it
-> becomes necessary to restrict one set of sftp users from being
-> able to sftp in to another customer's upload directory.
-> 
-> yes, the iptables approach works fine - right up to the point
-> where you run out of virtual interfaces because of the number
-> of different customers that the Bastion Server is supporting.
-> 
-> l.
-> 
-> On Wed, Feb 16, 2005 at 03:26:45PM +0000, Luke Kenneth Casson Leighton wrote:
-> > stephen, i believe i have enough to go on, now: thank you for your
-> > help, even if it's not entirely clear what i want to achieve here :)
-> > 
-> > i aim to add a setcon() into sshd's "input_userauth_request()"
-> > function just after the point where the username is obtained,
-> > such that any unauthorised IP addresses for that username will
-> > immediately stop any further TCP traffic.
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+Thomas
+
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+
+--rS8CxjVDS/+yyDmU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCE7TjD9qpeVMU938RAiJhAJ9ttmZeFI2hSmAzvnUlBtpMbui64gCgiVQ6
+aaA4Mu98Ch44FlVzULTjGs0=
+=X92p
+-----END PGP SIGNATURE-----
+
+--rS8CxjVDS/+yyDmU--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
