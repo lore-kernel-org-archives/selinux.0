@@ -1,26 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0LJmRFX014940
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 14:48:27 -0500 (EST)
-Subject: Re: run_init and interactive scripts
+Subject: Re: Change of restorecon and setfiles to not modify context if
+	only_user_section changed
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Manoj Srivastava <manoj.srivastava@stdc.com>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-   Russell Coker <russell@coker.com.au>
-In-Reply-To: <1106333491.28551.159.camel@moss-spartans.epoch.ncsc.mil>
-References: <87acr4u57h.fsf@glaurung.internal.golden-gryphon.com>
-	 <1106246926.26753.196.camel@moss-spartans.epoch.ncsc.mil>
-	 <87fz0ufwz0.fsf@glaurung.internal.golden-gryphon.com>
-	 <1106333491.28551.159.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41F148B8.5090504@redhat.com>
+References: <41F148B8.5090504@redhat.com>
 Content-Type: text/plain
-Message-Id: <1106336411.28551.171.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1106336874.28551.181.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 21 Jan 2005 14:40:11 -0500
+Date: Fri, 21 Jan 2005 14:47:55 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-BTW, this also requires removing the ifdef(`distro_debian') conditional
-in initrc.fc for open_init_pty to ensure proper labeling by
-setfiles/restorecon/rpm.
+On Fri, 2005-01-21 at 13:23, Daniel J Walsh wrote:
+> Specifying force (-F) will override.
+
+Thanks, merged into sourceforge CVS as of policycoreutils 1.21.3.
+Also includes the fix below for restorecon to avoid handling errors from
+is_customizable_context() incorrectly as per Tom London's bug report.
+
+Index: policycoreutils/restorecon/restorecon.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/policycoreutils/restorecon/restorecon.c,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -u -p -r1.21 -r1.22
+--- policycoreutils/restorecon/restorecon.c	21 Jan 2005 19:14:20 -0000	1.21
++++ policycoreutils/restorecon/restorecon.c	21 Jan 2005 19:39:23 -0000	1.22
+@@ -133,7 +133,7 @@ int restore(char *filename) {
+     int customizable=0;
+     if (retcontext < 0 || 
+ 	(strcmp(prev_context,scontext) != 0 && 	
+-	 !(customizable=(force ? 0: is_context_customizable(prev_context))))) {
++	 !(customizable=(force ? 0: (is_context_customizable(prev_context) > 0))))) {
+       if (outfile) {
+ 	fprintf(outfile, "%s\n", filename);
+       }
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
