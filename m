@@ -1,48 +1,52 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA16646
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 15:24:43 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA10792
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 20:24:41 GMT
-Received: from deliverator.sgi.com (deliverator.sgi.com [204.94.214.10])
-	by jazzband.ncsc.mil  with ESMTP id UAA10788
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 20:24:39 GMT
-Received: from nodin.corp.sgi.com (nodin.corp.sgi.com [192.26.51.193]) by deliverator.sgi.com (980309.SGI.8.8.8-aspam-6.2/980310.SGI-aspam) via ESMTP id MAA14356
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 12:23:22 -0800 (PST)
-	mail_from (florin@sgi.com)
-Received: from crom.corp.sgi.com (crom.corp.sgi.com [130.62.63.32])
-	by nodin.corp.sgi.com (8.11.2/8.11.2/nodin-1.0) with ESMTP id f2KKOW14111094
-	for <@fddi-odin.corp.sgi.com:selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 12:24:32 -0800 (PST)
-Received: from stantz.corp.sgi.com (stantz.corp.sgi.com [130.62.175.86]) by crom.corp.sgi.com (980427.SGI.8.8.8/970903.SGI.AUTOCF) via ESMTP id MAA60688 for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 12:28:39 -0800 (PST)
-Received: from localhost (localhost [127.0.0.1])
-	by stantz.corp.sgi.com (Postfix) with ESMTP id CEE7E14E62D
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 12:24:04 -0800 (PST)
-Subject: Re: SELinux compatible with XFS?
-From: Florin Andrei <florin@sgi.com>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <200103191645.LAA08103@coalstove.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: 20 Mar 2001 12:24:04 -0800
-Mime-Version: 1.0
-Message-Id: <20010320202404.CEE7E14E62D@stantz.corp.sgi.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA17058
+	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 16:40:31 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id VAA07697
+	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 21:40:22 GMT
+Received: from ecstasy.ksu.ru (ecstasy.ksu.ru [193.232.252.41])
+	by jazzswing.ncsc.mil  with ESMTP id VAA07692
+	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 21:40:21 GMT
+Message-ID: <3AB7CBBB.1060404@ksu.ru>
+Date: Wed, 21 Mar 2001 00:29:31 +0300
+From: Pedro Rosa <Pedro.Rosa@ksu.ru>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tislabs.com>
+CC: Jeff Largent <jlargent@imagelinks.com>, selinux <selinux@tycho.nsa.gov>
+Subject: Re: lids
+References: <Pine.SOL.3.95.1010320083916.9741B-100000@clipper.gw.tislabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 19 Mar 2001 11:45:23 -0500, Howard Holm wrote:
+Sorry but LIDS stands for Linux Intrusion Detection System. Its main 
+purpose has nothing to do with what SELinux deals with. I don't know too 
+much about the inners of LIDS but I know that it is an evolution of some 
+ideas based on NIDS (Network Intrusion Detection System). Well it's a 
+few monthes since I took a look at LIDS so I might be wrong in some 
+point. The tool seems to follow some principles for a NIDS system but it 
+is quite weaker. Besides it seems more concentrated on the inners of the 
+system rather than caring about the networking environment.
+
+In fact LIDS is a complementary  task of  what SELinux pretends to 
+answer. While SELinux tries cares for the permissions of the system and 
+controls their use, LIDS tries to answer for situations when such 
+control is overcomed.
+
+Ektanoor
+
+
+Stephen Smalley wrote:
+
+> Security-Enhanced Linux (SELinux) has a well-defined architecture for
+> flexible mandatory access controls that has been experimentally
+
+<skipped>
+
 > 
-> While I'm not completely familiar with XFS, my understanding is that
-> one of its advantages is that it stores extended attributes with the
-> files.  So, it should, hopefully, be relatively easy to add a PSID to the
-> extended file attributes.  That said, it isn't one of NSA's priorities
-> to add that support.  If someone else wants it enough to do the work,
-> we'd certainly like to see the results made available.
+> 
+> 
 
-So, i suppose the same is true for SELinux and ReiserFS, right?
-
-It would be nice to have journaling FS with SELinux... ;-)
-
--- 
-Florin Andrei
 
 
 --
