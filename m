@@ -1,89 +1,72 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8KJd7sJ003630
-	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 15:39:08 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8KJcvsJ003604
+	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 15:38:57 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8KJYkdI018400
-	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 19:37:21 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h8KJYkd6018400
+	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 19:37:14 GMT
 Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h8J2KlVY013328
-	for <selinux@tycho.nsa.gov>; Fri, 19 Sep 2003 02:22:09 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h8J6EOVY021371
+	for <selinux@tycho.nsa.gov>; Fri, 19 Sep 2003 06:15:46 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id 1B84AC167
+	for <selinux@tycho.nsa.gov>; Fri, 19 Sep 2003 16:16:05 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+ id 32468-01 for <selinux@tycho.nsa.gov>;
+ Fri, 19 Sep 2003 16:16:04 +1000 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 24914BF15
+	for <selinux@tycho.nsa.gov>; Fri, 19 Sep 2003 16:16:04 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id E7753924D6
+	for <selinux@tycho.nsa.gov>; Fri, 19 Sep 2003 16:16:03 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id C7ADC7F0E1
+	for <selinux@tycho.nsa.gov>; Fri, 19 Sep 2003 16:16:01 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: privsep in ssh
-Date: Fri, 19 Sep 2003 12:22:15 +1000
-Cc: Colin Watson <cjwatson@debian.org>
+Subject: /dev/tty
+Date: Fri, 19 Sep 2003 16:16:01 +1000
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Xhma/RRq3GCAQKg"
-Message-Id: <200309191222.15919.russell@coker.com.au>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200309191616.01134.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+If I have a session with /dev/pts/1 as the controlling tty and I do the 
+following:
+program < /dev/tty 2> /dev/tty > /dev/tty &
 
---Boundary-00=_Xhma/RRq3GCAQKg
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Then changing the context of /dev/pts/1 does not cause my program to lose 
+terminal access.  This is not what I expected!
 
-#ifdef DISABLE_FD_PASSING
-        if (1) {
-#else
-        if (authctxt->pw->pw_uid == 0 || options.use_login) {
-#endif
-                /* File descriptor passing is broken or root login */
-                monitor_apply_keystate(pmonitor);
-                use_privsep = 0;
-                return;
-        }
+I am not sure whether this would be considered a limitation of SE Linux.  If a 
+process has the ability to make a pseudo-tty it's controlling terminal before 
+you change the context of the pseudo-tty to do something important with it 
+then you probably have some more serious problem.
 
-When browsing the ssh source I noticed the above in sshd.c.  It appears from a 
-casual inspection that we should change this and remove the check for
-pw_uid == 0.  Logging in as root in SE Linux does not mean that we have full 
-administrative privs, so I think that we should have privsep enabled all the 
-time.
+Obviously in the case of "newrole -r sysadm_r" if you have another user with 
+write access to the terminal before the newrole command then they could be 
+intercepting what you are doing and you've already lost.
 
-I have compiled a sshd with privsep for root logins and it seems to work fine.
+However one thing that may trick people is that when they run
+"newrole -r user_r" from a more priviledged role to execute some untrusted 
+program, they will think that it's really gone when the command finishes.  It 
+seems that the only safe way of using su or newrole to run an untrusted 
+program is through using the "exec" command so that when the untrusted 
+session is complete there are no priviledged processes waiting to take over 
+the terminal.
 
-I have attached the patch against ssh 3.6.1p2, I expect that the same thing 
-would be necessary in 3.7.1 and the same patch probably applies (but I 
-haven't checked).
-
-I believe that this patch is worthy of inclusion in the standard distribution 
-of ssh.  The only drawback is that it uses a small amount of extra CPU power 
-for root logins, and on systems such as SE Linux it provides security 
-benefits.
-
-Anyone who wants to use the SE Linux PAM module for sshd probably wants this.
+I am not sure whether there are any other cases in which devtty_t access would 
+be considered harmful.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_Xhma/RRq3GCAQKg
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
---- orig/openssh-3.6.1p2/sshd.c	2003-09-18 15:16:41.000000000 +1000
-+++ openssh-3.6.1p2/sshd.c	2003-09-19 12:00:15.000000000 +1000
-@@ -636,7 +636,7 @@
- #ifdef DISABLE_FD_PASSING
- 	if (1) {
- #else
--	if (authctxt->pw->pw_uid == 0 || options.use_login) {
-+	if (options.use_login) {
- #endif
- 		/* File descriptor passing is broken or root login */
- 		monitor_apply_keystate(pmonitor);
-
---Boundary-00=_Xhma/RRq3GCAQKg--
 
 
 --
