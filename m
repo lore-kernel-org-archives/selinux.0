@@ -1,27 +1,44 @@
-Date: Fri, 22 Aug 2003 14:53:21 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: Russell Coker <russell@coker.com.au>
-Cc: Dale Amon <amon@vnl.com>, SELinux <SELinux@tycho.nsa.gov>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Brian May <bam@snoopy.apana.org.au>
 Subject: Re: 2.6.0-test3
-Message-ID: <20030822045320.GD15441@snoopy.apana.org.au>
-References: <1061468940.1665.16.camel@kusturica> <200308212337.59952.russell@coker.com.au> <20030821172554.GD4481@vnl.com> <200308221204.56942.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200308221204.56942.russell@coker.com.au>
+Date: Fri, 22 Aug 2003 15:04:31 +1000
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <1061468940.1665.16.camel@kusturica> <200308221204.56942.russell@coker.com.au> <20030822045320.GD15441@snoopy.apana.org.au>
+In-Reply-To: <20030822045320.GD15441@snoopy.apana.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200308221504.31692.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Aug 22, 2003 at 12:04:56PM +1000, Russell Coker wrote:
-> However those of us who use different versions of the relevant applications, 
-> or who use alternate programs will have some coding to do.  Also the process 
-> of upgrading from old SE Linux to new SE Linux will be slightly more 
-> difficult than doing a fresh install of SE Linux...  :(
+On Fri, 22 Aug 2003 14:53, Brian May wrote:
+> On Fri, Aug 22, 2003 at 12:04:56PM +1000, Russell Coker wrote:
+> > However those of us who use different versions of the relevant
+> > applications, or who use alternate programs will have some coding to do. 
+> > Also the process of upgrading from old SE Linux to new SE Linux will be
+> > slightly more difficult than doing a fresh install of SE Linux...  :(
+>
+> What is required to upgrade?
+>
+> I assume the biggest problem will be the file labels?
 
-What is required to upgrade?
+Firstly you have to install a kernel with the new SE Linux support and boot 
+it.  Then you have to install the utilities that match the new kernel (after 
+which you can't go back).  Then you install the policy, label the file 
+systems, and reboot.  Then you do another relabel after the reboot for any 
+files that were created by shutdown (presuming that nothing went wrong and 
+you have a bootable system that allows you to login).
 
-I assume the biggest problem will be the file labels?
+Much the same as installing SE Linux on a non-SE machine.
+
 -- 
-Brian May <bam@snoopy.apana.org.au>
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
