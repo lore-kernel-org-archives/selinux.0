@@ -1,138 +1,48 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9Q6IJWt020986
-	for <selinux@tycho.nsa.gov>; Sun, 26 Oct 2003 01:18:19 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9RCjhWt024552
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 07:45:43 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9Q6I5IS008359
-	for <selinux@tycho.nsa.gov>; Sun, 26 Oct 2003 06:18:05 GMT
-Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
-	by jazzswing.ncsc.mil  with ESMTP id h9Q6I2Dc008356
-	for <selinux@tycho.nsa.gov>; Sun, 26 Oct 2003 06:18:03 GMT
-Received: from lky (mailwall.shnet.edu.cn [202.112.26.55])
-	by sjtu.edu.cn (WorldPost) with ESMTP id 4421C346607
-	for <selinux@tycho.nsa.gov>; Sun, 26 Oct 2003 14:18:11 +0800 (BEIST)
-Message-ID: <003a01c39ac1$1e94a6d0$5d38a8c0@lky>
-From: "lky" <lky77@sjtu.edu.cn>
-To: "SELINUX" <SELinux@tycho.nsa.gov>
-Subject: installation problems about apol and seuser
-Date: Sat, 25 Oct 2003 14:27:48 +0800
+	by jazzswing.ncsc.mil  with ESMTP id h9RCjRIS005699
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 12:45:27 GMT
+Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
+	by jazzswing.ncsc.mil  with ESMTP id h9RCjRDc005691
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 12:45:27 GMT
+Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9RCjfh9015489
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 07:45:41 -0500
+Received: (from hdholm@localhost)
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h9RCjfnr015487
+	for selinux@tycho.nsa.gov; Mon, 27 Oct 2003 07:45:41 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9R3GuWt023182
+	for <selinux@tycho.nsa.gov>; Sun, 26 Oct 2003 22:16:56 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9R3GtIE025332
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 03:16:55 GMT
+Received: from citation.av8.net ([130.105.12.4])
+        by jazzband.ncsc.mil  with ESMTP id h9R3Gt1J025329 for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 03:16:55 GMT
+Received: from vista.av8.net (vista.av8.net [130.105.36.10])
+	by citation.av8.net (8.9.3/8.9.3) with ESMTP id WAA01652
+	for <selinux@tycho.nsa.gov>; Sun, 26 Oct 2003 22:16:52 -0500
+Date: Sun, 26 Oct 2003 22:12:35 -0500 (EST)
+From: Dean Anderson <dean@av8.com>
+To: selinux@tycho.nsa.gov
+Subject: RPM filelist as basis for policy definitions?
+Message-ID: <Pine.LNX.4.44.0310262209210.7506-100000@vista.av8.net>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0037_01C39B04.2A0E71B0"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+Has anyone tried generating a policy database?
 
-------=_NextPart_000_0037_01C39B04.2A0E71B0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
+Currently, it is pretty hand tweaked.  I was thinking it could be
+generated from a list of files from something like RPM
 
-SGk6DQpJIGhhdmUgaW5zdGFsbGVkIHRoZSBzZXRvb2xzIGZvciAyLjYtYmFzZWQgU0VMaW51eCBv
-biBSZWRoYXQ5LjAuIEJ1dCBJIGhhdmUgcHJvYmxlbXMgYWJvdXQgYXBvbCBhbmQgc2V1c2VyLg0K
-MS5hcG9sOiANCkhvdyBjYW4gSSBpbnN0YWxsIGl0IHdpdGggbWxzIHN1cHBvcnQ/IEkgbW9kaWZp
-ZWQgdGhlIE1ha2VmaWxlIGFuZCBsZXQgdGhlIENGTEFHUyBpbmNsdWRlIHRoZSAtRENPTkZJR19T
-RUNVUklUWV9TRUxJTlVYX01MUyBmbGFnLGlzIGl0IHJpZ2h0PyBCdXQgdGhlcmUgd2FzIGVycm9y
-cyB3aGVuIEkgd2FudCB0byAgb3BlbiB0aGUgbWxzIHBvbGljeSBjb25maWcgZmlsZS4gV2hlbiBJ
-IGV4aXRlZCB0aGUgcHJvZ3JhbSBpdCBzYWlkIGFzIGJlbG93Og0KLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLQ0KZXJyb3IgaW4gdGhlIHN0YXRlbWVudCBlbmRpbmcgb24gbGlu
-ZSA0MzQgKHRva2VuICc7Jyk6IHNlbnNpdGl2aXR5IGRlZmluaXRpb24gaW4gbm9uLU1MUyBjb25m
-aWd1cmF0aW9uDQplcnJvcihzKSBlbmNvdW50ZXJlZCB3aGlsZSBwYXJzaW5nIGNvbmZpZ3VyYXRp
-b24gKGZpcnN0IHBhc3MpDQplcnJvciByZWFkaW5nIHBvbGljeQ0KLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0NCkkgdGhpbmsgaXQgbXVzdCBiZWNhdXNlIEkgZGlkbid0IGNv
-cnJlY3RseSBjb25maWd1cmUgdGhlIG1scyBzdXBwb3J0IGluIHRoZSBNYWtlZmlsZS4NCkhvd2V2
-ZXIgSSBjYW4gYW5hbHl6ZSB0aGUgbm9uLW1scyBwb2xpY3kgZmlsZSB3aXRoIGFwb2wuDQoyLnNl
-dXNlcg0KSSBjb3VsZG4ndCBpbnN0YWxsIHNldXNlciB0b29sLlRoZSBlcnJvciBtZXNzYWdlcyBp
-cyBiZWxvdzoNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCkVSUk9SICdz
-eW50YXggZXJyb3InIGF0IHRva2VuICdldmVyeV9kb21haW4nIG9uIGxpbmUgMzMzNDA6DQpldmVy
-eV9kb21haW4oc2V1c2VyX3QpDQojIEZJWDogU2hvdWxkIGJlIG1vcmUgcmVzdGljdGVkIHRoYW4g
-dGhpcy4NCi91c3IvYmluL2NoZWNrcG9saWN5OiAgZXJyb3IocykgZW5jb3VudGVyZWQgd2hpbGUg
-cGFyc2luZyBjb25maWd1cmF0aW9uDQptYWtlWzJdOiAqKiogWy9ldGMvc2VjdXJpdHkvc2VsaW51
-eC9wb2xpY3kuMTUtbWxzXSBFcnJvciAxDQptYWtlWzFdOiAqKiogW3BvbGljeS1pbnN0YWxsXSBF
-cnJvciAyDQptYWtlOiAqKiogW2luc3RhbGwtc2V1c2VyXSBFcnJvciAyDQotLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KSSBndWVzcyB0aGF0IHNldXNlciB0b29sIG11c3Qg
-dXNlIHRoZSBldmVyeV9kb21haW4gYnV0IHNlbGludXggZGlkbid0IGRlZmluZSBpdCBzbyB0aGUg
-Y2hlY2twb2xpY3kgZGlzcGxheSB0aGUgZXJyb3IuIA0KVGhlIHNlcGN0IHRvb2wgY2FuIHdvcmsg
-d2VsbC4NCjMuQW5vdGhlciBxdWVzdGlvbjogDQpJIHdhbnQgdG8ga25vdyB3aGV0aGVyIHRoZSBz
-ZXRvb2xzIGNhbiBvbmx5IHJ1biB1bmRlciBYIHdpbmRvdyBzaW5jZSBJIGNhbid0IHJ1biB0aGVt
-IGluIHRleHRtb2RlLiBUaGUgZXJyb3IgbWVzc2FnZSBpczoNCi0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0NCkFwcGxpY2F0aW9uIGluaXRpYWxpemF0aW9uIGZhaWxlZDogbm8g
-ZGlzcGxheSBuYW1lIGFuZCBubyAkRElTUExBWSANCmVudmlyb25tZW50IHZhcmlhYmxlDQotLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0K
-VGhhbmtzIGEgbG90IQ0KbGt5DQo=
+Alternately, perhaps RPM files could be extended to include the policies
+for the package.
 
-------=_NextPart_000_0037_01C39B04.2A0E71B0
-Content-Type: text/html;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
-
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
-dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
-MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
-WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPg0KPERJVj48
-Rk9OVCBmYWNlPUFyaWFsPkhpOjwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbD5J
-IGhhdmUgaW5zdGFsbGVkIHRoZSBzZXRvb2xzIGZvciAyLjYtYmFzZWQgU0VMaW51eCBvbiANClJl
-ZGhhdDkuMC4gQnV0IEkgaGF2ZSBwcm9ibGVtcyBhYm91dCBhcG9sIGFuZCBzZXVzZXIuPC9GT05U
-PjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPjxTVFJPTkc+MS5hcG9sOjwvU1RST05HPiA8
-L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+SG93IGNhbiBJIGluc3RhbGwgaXQg
-d2l0aCBtbHMgc3VwcG9ydD8gSSBtb2RpZmllZCB0aGUgDQpNYWtlZmlsZSBhbmQgbGV0IHRoZSBD
-RkxBR1MgaW5jbHVkZSB0aGUgLURDT05GSUdfU0VDVVJJVFlfU0VMSU5VWF9NTFMgZmxhZyxpcyBp
-dCANCnJpZ2h0PyBCdXQmbmJzcDt0aGVyZSB3YXMgZXJyb3JzIHdoZW4gSSZuYnNwO3dhbnQgdG8g
-Jm5ic3A7b3BlbiB0aGUgbWxzIHBvbGljeSANCmNvbmZpZyBmaWxlLiBXaGVuIEkgZXhpdGVkIHRo
-ZSBwcm9ncmFtIGl0IHNhaWQgYXMgYmVsb3c6PC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCANCmZh
-Y2U9QXJpYWw+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLTwvRk9OVD48L0RJ
-Vj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbD5lcnJvciBpbiB0aGUgc3RhdGVtZW50IGVuZGluZyBv
-biBsaW5lIDQzNCAodG9rZW4gJzsnKTogDQpzZW5zaXRpdml0eSBkZWZpbml0aW9uIGluIG5vbi1N
-TFMgY29uZmlndXJhdGlvbjwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbD5lcnJv
-cihzKSBlbmNvdW50ZXJlZCB3aGlsZSBwYXJzaW5nIGNvbmZpZ3VyYXRpb24gKGZpcnN0IA0KcGFz
-cyk8QlI+ZXJyb3IgcmVhZGluZyBwb2xpY3k8L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIA0KZmFj
-ZT1BcmlhbD4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLTwvRk9OVD48L0RJ
-Vj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbD5JIHRoaW5rIGl0IG11c3QgYmVjYXVzZSBJIGRpZG4n
-dCBjb3JyZWN0bHkgY29uZmlndXJlIHRoZSANCm1scyBzdXBwb3J0IGluIHRoZSBNYWtlZmlsZS48
-L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+SG93ZXZlciBJIGNhbiBhbmFseXpl
-IHRoZSBub24tbWxzIHBvbGljeSBmaWxlIHdpdGggDQphcG9sLjwvRk9OVD48L0RJVj4NCjxESVY+
-PEZPTlQgZmFjZT1BcmlhbD48U1RST05HPjIuc2V1c2VyPC9TVFJPTkc+PC9GT05UPjwvRElWPg0K
-PERJVj48Rk9OVCBmYWNlPUFyaWFsPkkgY291bGRuJ3QgaW5zdGFsbCBzZXVzZXIgdG9vbC5UaGUg
-ZXJyb3IgbWVzc2FnZXMgaXMgDQpiZWxvdzo8L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIA0KZmFj
-ZT1BcmlhbD4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tPC9GT05UPjwvRElW
-Pg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPkVSUk9SICdzeW50YXggZXJyb3InIGF0IHRva2VuICdl
-dmVyeV9kb21haW4nIG9uIGxpbmUgDQozMzM0MDo8QlI+ZXZlcnlfZG9tYWluKHNldXNlcl90KTxC
-Uj4jIEZJWDogU2hvdWxkIGJlIG1vcmUgcmVzdGljdGVkIHRoYW4gDQp0aGlzLjxCUj4vdXNyL2Jp
-bi9jaGVja3BvbGljeTombmJzcDsgZXJyb3IocykgZW5jb3VudGVyZWQgd2hpbGUgcGFyc2luZyAN
-CmNvbmZpZ3VyYXRpb248QlI+bWFrZVsyXTogKioqIFsvZXRjL3NlY3VyaXR5L3NlbGludXgvcG9s
-aWN5LjE1LW1sc10gRXJyb3IgDQoxPEJSPm1ha2VbMV06ICoqKiBbcG9saWN5LWluc3RhbGxdIEVy
-cm9yIDI8QlI+bWFrZTogKioqIFtpbnN0YWxsLXNldXNlcl0gRXJyb3IgDQoyPC9GT05UPjwvRElW
-Pg0KPERJVj48Rk9OVCANCmZhY2U9QXJpYWw+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS08L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+SSBndWVzcyB0aGF0
-IHNldXNlciB0b29sIG11c3QgdXNlIHRoZSBldmVyeV9kb21haW4gYnV0IA0Kc2VsaW51eCBkaWRu
-J3QgZGVmaW5lIGl0IHNvIHRoZSBjaGVja3BvbGljeSBkaXNwbGF5IHRoZSBlcnJvci4gPC9GT05U
-PjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPlRoZSBzZXBjdCB0b29sIGNhbiB3b3JrIHdl
-bGwuPC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPjxTVFJPTkc+My5Bbm90aGVy
-IHF1ZXN0aW9uOjwvU1RST05HPiA8L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+
-SSB3YW50IHRvIGtub3cgd2hldGhlciB0aGUgc2V0b29scyBjYW4gb25seSBydW4gdW5kZXIgWCAN
-CndpbmRvdyBzaW5jZSBJIGNhbid0IHJ1biB0aGVtIGluIHRleHRtb2RlLiBUaGUgZXJyb3IgbWVz
-c2FnZSBpczo8L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIA0KZmFjZT1BcmlhbD4tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tPC9GT05UPjwvRElWPg0KPERJVj5BcHBsaWNhdGlv
-biBpbml0aWFsaXphdGlvbiBmYWlsZWQ6IG5vIGRpc3BsYXkgbmFtZSBhbmQgbm8gDQokRElTUExB
-WSZuYnNwOzxCUj5lbnZpcm9ubWVudCB2YXJpYWJsZTwvRElWPg0KPERJVj4tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLTwvRElWPg0KPERJ
-Vj48Rk9OVCBmYWNlPUFyaWFsPlRoYW5rcyBhIGxvdCE8L0ZPTlQ+PC9ESVY+DQo8RElWPmxreTwv
-RElWPjwvRk9OVD48L0RJVj48L0JPRFk+PC9IVE1MPg0K
-
-------=_NextPart_000_0037_01C39B04.2A0E71B0--
-
-
+		--Dean
 
 --
 This message was distributed to subscribers of the selinux mailing list.
