@@ -1,59 +1,49 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8AGmvLa010091
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 12:48:57 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8AGmumw012961
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 16:48:56 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id h8AGmt9d012958 for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 16:48:55 GMT
-Date: Wed, 10 Sep 2003 17:48:54 +0100
-From: Dale Amon <amon@vnl.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: rfs xattr's, mkinitrd and other stories
-Message-ID: <20030910164854.GO5397@vnl.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8AH2QLa010206
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 13:02:26 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8AH0nLY014687
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 17:00:49 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h8AH0nsG014684
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 17:00:49 GMT
+Subject: Re: rfs xattr's, mkinitrd and other stories
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Dale Amon <amon@vnl.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <20030910164854.GO5397@vnl.com>
+References: <20030910164854.GO5397@vnl.com>
+Content-Type: text/plain
+Message-Id: <1063213343.14458.35.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: 10 Sep 2003 13:02:23 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If anyone is interested, I've worked with Jeff Mahoney 
-and Steve Smalley and between us we've got what should
-be the necessary patches for using selinux with
-reiserfs on 2.6.0 kernels. They are availabe here and
-possibly on the Suse site by now:
+On Wed, 2003-09-10 at 12:48, Dale Amon wrote:
+> So I'm on to the next phase of getting a debian 
+> system working with 2.6.0 (with devfs and a 
+> reiserfs root)
 
- http://www.unixthugs.org/~jeffm/technical/reiserfs/aclea/2.6.0-test4/
+devfs will require a patch to support labeling, and appears to be
+obsolete in 2.6.
 
-So I'm on to the next phase of getting a debian 
-system working with 2.6.0 (with devfs and a 
-reiserfs root)
+> Secondly, all of the examples I find are somewhat
+> different. Steve's patch in the HOWTO is for a
+> very different looking RH file so it's hard to
+> tell what he actually needs. Colin's July 17 looks
+> reasonable and I'll probably start with that... but
+> I am worried about the issues with debian packages.
 
-I've got to sort out the initrd next. I've not needed
-it before so I'm on a cold start. First question is
-how to do the least damage to the debian setup. If I
-just replace /usr/sbin/mkinitrd, it is going to get
-overwritten the next time I do an upgrade.
-
-Secondly, all of the examples I find are somewhat
-different. Steve's patch in the HOWTO is for a
-very different looking RH file so it's hard to
-tell what he actually needs. Colin's July 17 looks
-reasonable and I'll probably start with that... but
-I am worried about the issues with debian packages.
-
-Colin? Russ? What approach do you suggest?
-
-BTW: I'm using Colin's policy default with a few
-fixes to let syslog-ng work. Russell's set is too
-divergent from Colin's for me to use it unless they've
-synced up recently.
+The mkinitrd script needs to copy the policy file and load_policy
+program onto the initrd, and the /linuxrc script that is placed on the
+initrd needs to mount selinuxfs and run load_policy before the root
+filesystem is mounted.
 
 -- 
-------------------------------------------------------
-       IN MY NAME:            Dale Amon, CEO/MD
-  No Mushroom clouds over     Islandone Society
-    London and New York.      www.islandone.org
-------------------------------------------------------
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
