@@ -1,28 +1,24 @@
-Subject: Re: sshd transition points (user@ip or net_context with setcon)
+Subject: Re: PT_GNU_STACK RWE
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050221134124.GR14038@lkcl.net>
-References: <20050221134124.GR14038@lkcl.net>
+To: ivg2@cornell.edu
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1108946955.9501.7.camel@cobra.ivg2.net>
+References: <1108946955.9501.7.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Date: Tue, 22 Feb 2005 09:01:10 -0500
-Message-Id: <1109080870.2256.66.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 22 Feb 2005 09:04:08 -0500
+Message-Id: <1109081048.2256.70.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-02-21 at 13:41 +0000, Luke Kenneth Casson Leighton wrote:
-> e.g. oh i dunno, being able to lock down the priv_sep sshd,
-> and the monitor process, because they would have distinct
-> selinux domains?
+On Sun, 2005-02-20 at 19:49 -0500, Ivan Gyurdiev wrote:
+> Some of those are causing trouble, just like java.
+> They produce the same kind of denials as a legacy domain
+> where you say READ implies EXEC for backwards compatibility. 
 
-Being able to assign different permissions (particularly different
-capabilities) to the listening sshd, parent monitor process, and
-unprivileged child process seems useful.  But that doesn't require
-anything per-user and can be done _before_ the user identity is even
-acquired from the client.  It would be better to switch domains prior to
-processing input from the client (other than the initial connection) to
-reduce the likelihood of exploitation prior to the domain switch.
+Note btw that the kernel didn't use to enable read-implies-exec behavior
+for PT_GNU_STACK RWE; only for a missing PT_GNU_STACK, but this was
+changed recently upstream to deal with compatibility problems.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
