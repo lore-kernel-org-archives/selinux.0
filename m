@@ -1,66 +1,81 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4FCorI4017529
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 08:50:54 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4FCoXl5004083
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:50:33 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h4FCoXNc004080
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:50:33 GMT
-Subject: Re: about the safety problem in SELinux
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: selinux list <selinux_list@yahoo.it>
-Cc: Russell Coker <russell@coker.com.au>, Pete Loscocco <pal@epoch.ncsc.mil>,
-   Howard Holm <hdholm@epoch.ncsc.mil>, selinux@tycho.nsa.gov
-In-Reply-To: <3EC2C366.5060901@yahoo.it>
-References: <3EC2792D.1020209@yahoo.it>
-	 <200305150539.40186.russell@coker.com.au>  <3EC2C366.5060901@yahoo.it>
-Content-Type: text/plain
-Message-Id: <1053003033.4729.674.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 15 May 2003 08:50:33 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4FDuuI4017946
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 09:56:57 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h4FDusVG019620
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 13:56:54 GMT
+Received: from citation.av8.net ([130.105.12.4])
+        by jazzband.ncsc.mil  with ESMTP id h4FDuoL9019612 for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 13:56:53 GMT
+Date: Thu, 15 May 2003 09:50:52 -0400 (EDT)
+From: Dean Anderson <dean@av8.com>
+To: Douglas Phillipson <phillipd@oem.doe.gov>
+cc: selinux@tycho.nsa.gov
+Subject: Re: Has anyone had or seen a SELinux system approved for classified
+ use?
+In-Reply-To: <3EC2AE1D.9040509@oem.doe.gov>
+Message-ID: <Pine.LNX.4.44.0305150922510.4983-100000@commander.av8.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-05-14 at 18:29, selinux list wrote:  
-> This is exactly what is prescribed by TE (and its variants like DTE).
-> It is why I am so sure the safety problem in SELinux is so trivially
-> solved...SELinux should be safe because with Type Enforcement every
-> time a subject moves from a domain to another domain, the rights it
-> had are lost and others are acquired. 
+Its been awhile, but when I was at OSF back in the late 80s, OSF/1 was
+developed to be B1 certified. C2 only requires that physical access to the
+"console" still require a password to boot, and that the case be lockable
+to exclude undetected disassembly. On a PC, this is handled by the BIOS,
+and most BIOS's handle this now.  Sun and most workstation vendors also
+can protect the boot rom with a password.  Most PC and workstation
+enclosures also have locks.  You can get a copy of the DOD orange book to
+look up other requirements, but I think that was pretty much it.
 
-SELinux implements MAC, so a process cannot transfer rights
-(descriptors) to another process unless the recipient process is also
-authorized to access the object in the same manner by the MAC policy
-(which can only be changed administratively).  SELinux controls
-descriptor inheritance across execve (when security context transitions
-occur for a process) and descriptor transfer via Unix domain socket IPC.
-It also typically revalidates permission on access to deal with
-revocation due to a file relabel or policy change; however, this is not
-yet complete - we do not presently provide revocation for memory-mapped
-files.  Security context transitions are controlled by the policy, as
-are file relabels.
+Prior to working at OSF, I worked at Draper Labs, which handled classified
+computing. This was still in the mainframe era, but at the early part of
+the PC era. Prior to a classified computing run, the Mainframe was
+isolated from the rest of the lab via scheduled downtime. I think the
+isolation was physical disconnection of terminal controllers and network
+controllers, but I'm not sure. I didn't work in that part of the computer
+center.  Classified PC computing was done in secured labs, where the PC
+had no outside connection, and personnel in the labs were cleared.  C2
+security essentially just attempts to detect and deter some kinds of
+inappropriate behavior by cleared personnel.
 
-Of course, proving specific security properties requires an analysis of
-the particular policy configuration.  SELinux just provides the
-mechanism for enforcing the policy.
+Linux is not a terribly secure operating system.  I don't present myself
+as an expert, but I think it would be inadvisable to rely on linux to keep
+any data secure in a multiuser classified/non-classified environment.
+Perhaps the result of the SELinux project might be a B1 or B2
+certification**, but its clearly not there yet.
 
-> I completely agree, but SELinux seems safe to me not becouse of RBAC
-> support (it is just a user-centric concept to group some user
-> identities to assign to some domains...probably SELinux could work
-> fine even without RBAC support at all...), but thanks to TE.
+**If I recall, B1 requires that OS privileges be split into different
+roles, so that no one person can compromise the system undetected, and B2
+requires mandatory access control. There are other requirements and
+differences that I don't rememeber. Also as I recall, the pentagon kept
+multics around for so long because it was the only certified B2 secure
+system.  I'm not sure the multics system was replaced with another B2
+system, or if they just set up completely separate classified and
+unclassified networks, and partitioned classified networks accordingly.
 
-Correct.  However, some people like to use the RBAC component as a
-further boundary on domain transitions, e.g. you could potentially allow
-domain D1 to transition to domain D2 but only permit role R1 to enter
-domain D1 and role R2 to enter domain D1 and domain D2.  Using the RBAC
-component in that manner is a bit dangerous, as you have to make sure
-that there aren't any other permissions granted from D1 to D2 that could
-allow R1:D1 to interfere with R2:D2, e.g. signal permissions.
+		--Dean
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+On Wed, 14 May 2003, Douglas Phillipson wrote:
+
+> This may be the wrong forum for this question and I apologize if thats
+> the case.  I was wondering if anyone has or knows of any Linux
+> systems/networks/OS versions that have been approved for processing
+> classified data?  I work for the Dept Of Energy and am looking for a
+> test case to model a security plan on, possibly using SELinux.
+>
+> I am also looking for "C2" software for Linux if anyone has seen it?
+>
+> Regards
+>
+> Doug Phillipson
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
 
 --
