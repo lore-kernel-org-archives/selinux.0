@@ -1,70 +1,55 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2JUiXZ009252
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 14:30:44 -0500 (EST)
-Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2JTN8r003684
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 19:29:24 GMT
-Message-Id: <200411021930.iA2JURrg028137@turing-police.cc.vt.edu>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Chad Hanson <chanson@TrustedCS.com>,
-   Darrel Goeddel <DGoeddel@TrustedCS.com>, selinux@tycho.nsa.gov,
-   Frank Mayer <mayerf@tresys.com>
-Subject: Re: dynamic context transitions 
-In-Reply-To: Your message of "Mon, 01 Nov 2004 22:58:20 GMT."
-             <20041101225820.GP9643@lkcl.net>
-From: Valdis.Kletnieks@vt.edu
-References: <36282A1733C57546BE392885C06185924D9100@chaos.tcs.tcs-sec.com> <1099342548.21386.239.camel@moss-spartans.epoch.ncsc.mil>
-            <20041101225820.GP9643@lkcl.net>
+Subject: Re: Configuring kernel module for labeling ...
+From: Jaspreet Singh <jsingh@ensim.com>
+Reply-To: jsingh@ensim.com
+To: nsa <SELinux@tycho.nsa.gov>
+In-Reply-To: <1099420972.31739.269.camel@moss-spartans.epoch.ncsc.mil>
+References: <1099385154.11681.3.camel@jsingh>
+	 <200411030323.16648.russell@coker.com.au>
+	 <1099417545.12370.21.camel@jsingh>
+	 <1099420134.31739.250.camel@moss-spartans.epoch.ncsc.mil>
+	 <1099420972.31739.269.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Message-Id: <1099427580.12614.15.camel@jsingh>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-876842421P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Tue, 02 Nov 2004 14:30:26 -0500
+Date: Wed, 03 Nov 2004 02:03:01 +0530
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-876842421P
-Content-Type: text/plain; charset=us-ascii
+Hi,
 
-On Mon, 01 Nov 2004 22:58:20 GMT, Luke Kenneth Casson Leighton said:
+this can't be real ... or is it the matrix ... I have been trying these
+things for the past 7 days .. and you solved them . in just two mails.
 
->  any process which uses either mls_upgrade or mls_downgrade must contain
->  within it [usually by accident] resources that are being passed over to
->  the other context after the mls change.
+Thanx a lot sir...
 
-Right so far - if it isn't dragging a resource along, there's no point to
-doing the up/downgrade call.
+On Wed, 2004-11-03 at 00:12, Stephen Smalley wrote:
 
->  by exec()'ing a process, that just simply cannot occur: the
->  most you pass over is the command-line arguments, environment
->  variables and um... according to man exec that's it.  [oh, and
->  man execve says it respects setuid and setgid bits on an executable.]
+> Looking at mini_fo/main.c, I see that it doesn't copy the inode
+> attributes (e.g. mode) until after the d_instantiate.  Not good for
+> SELinux, as we want the mode at that time to determine the security
+> class.  Might want to try the patch below.
+> 
+It worked .. and i have tested it now.
+> Note that fs/xattr.c:setxattr() calls a security_inode_post_setxattr()
+> hook function upon successful setting of the attribute to tell 
+> SELinux to update its incore inode SID as well. You need to do 
 
-Not true at all - just because the only things passed to the execve()
-syscall are the argv[] and envp[] arrays doesn't mean that it's the
-only resources passed to the post-exec code:
+Ok... i got it now. Yups I have seen the code ... I thought something on
+the same lines .. I will try to figure it out my-self and bother you
+only if i can't do it.
 
-1) Open file descriptors, unless flagged as close-on-exec
-2) ulimit/umask settings
-3) Posix 1.e attributes (modulo the active/permitted/inherited changes)
-4) The current working directory
-5) Any namespaces created by mount --bind, clone(CLONE_FS), and friends.
+Can you provide me with some documents/links .. so that i can learn
+these things ... with details.
 
-And probably a bunch of other stuff I'm forgetting.  There's PLENTY of
-places to accidentally leak stuff up/down across an exec() call....
+Thanx a lot...
+Jaspreet Singh.
 
---==_Exmh_-876842421P
-Content-Type: application/pgp-signature
+-- 
+:: don't walk as if you own the world 
+	 walk as if you dont damn who owns it ::
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFBh+BQcC3lWbTT17ARArSHAJ9ZStD60h/e4rIGVnZCqfdUYXK5vQCgkv5Z
-ImVP27NIgJDRET+LfM8zrL4=
-=Dl81
------END PGP SIGNATURE-----
 
---==_Exmh_-876842421P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
