@@ -1,17 +1,30 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-Subject: Re: New Rease
-Date: Mon, 11 Mar 2002 18:35:38 +0100
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524303@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Russell Coker'" <russell@coker.com.au>,
+        "Westerman, Mark"
+	 <Mark.Westerman@csoconline.com>
 Cc: SELinux@tycho.nsa.gov
-References: <72222DC86846D411ABD300A0C9EB08A101524300@csoc-mail-box.csoconline.com>
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A101524300@csoc-mail-box.csoconline.com>
+Subject: RE: New Rease
+Date: Mon, 11 Mar 2002 11:40:03 -0600
 MIME-Version: 1.0
-Message-Id: <20020311173538.5DAE53CFDC@lyta.coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+OK 
+
+I fat fingered the release number 
+It was supposed to say 2.4.18
+
+
+-----Original Message-----
+From: Russell Coker [mailto:russell@coker.com.au]
+Sent: Monday, March 11, 2002 11:36 AM
+To: Westerman, Mark
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: New Rease
+
 
 On Mon, 11 Mar 2002 16:59, Westerman, Mark wrote:
 > Now that 2.4.19 is out do you have any idea when
@@ -33,7 +46,8 @@ The latest -ac patch to the stable Linux kernels is:        2.4.19-pre2-ac4
 The latest -dj patch to the beta Linux kernels is:          2.5.5-dj3
 
 
-Actually if 2.4.19 was out it might delay the new release while they test it 
+Actually if 2.4.19 was out it might delay the new release while they test it
+
 on 2.4.19.
 
 -- 
