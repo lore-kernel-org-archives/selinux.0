@@ -1,40 +1,35 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2J1WRb017393
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 14:01:32 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2JBeRb017503
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 14:11:41 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB2J1VqY012336
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 19:01:31 GMT
+	by jazzband.ncsc.mil  with ESMTP id hB2JBeqY012964
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 19:11:40 GMT
 Received: from unicorn.lemuria.org (c152152.adsl.hansenet.de [213.39.152.152])
-        by jazzband.ncsc.mil  with ESMTP id hB2J1U0o012330 for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 19:01:30 GMT
-Date: Tue, 2 Dec 2003 19:54:33 +0100
+        by jazzband.ncsc.mil  with ESMTP id hB2JBc0o012960 for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 19:11:39 GMT
+Date: Tue, 2 Dec 2003 20:04:42 +0100
 From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: selinux-policy-default
-Message-ID: <20031202195432.H18433@lemuria.org>
-References: <3FCC831A.1070002@zurich.ibm.com> <200312030159.41676.russell@coker.com.au> <3FCCAEA2.2040703@zurich.ibm.com>
+To: joshmccormack@travelersdiary.com
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: Debian Investigation Report after Server Compromises (fwd)
+Message-ID: <20031202200441.I18433@lemuria.org>
+References: <Pine.LNX.4.44.0312021036000.14896-100000@westhost39.westhost.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3FCCAEA2.2040703@zurich.ibm.com>; from vbc@zurich.ibm.com on Tue, Dec 02, 2003 at 04:24:18PM +0100
+In-Reply-To: <Pine.LNX.4.44.0312021036000.14896-100000@westhost39.westhost.net>; from joshmccormack@travelersdiary.com on Tue, Dec 02, 2003 at 10:37:40AM -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Dec 02, 2003 at 04:24:18PM +0100, Chris Vanden Berghe wrote:
-> Yes, but I did use --purge, so I expected that all configuration files
-> would have been deleted by this.
+On Tue, Dec 02, 2003 at 10:37:40AM -0600, joshmccormack@travelersdiary.com wrote:
+> Sorry this is so long, but I couldn't find it online anywhere to send a link out. I'd love some perspective on this from people using SELinux, on Debian ideally. 
 
-I think I had the same issue. It appears some things are left behind.
-Try --purge again and check if both /etc/selinux and /usr/share/selinux
-have gone.
+As I learned earlier this year, protection of the system once the
+kernel has been broken open is outside the scope of SELinux.
 
+It's an interesting topic, though. And it will certainly grow in
+importance as the blackhats are concentrating more on kernel exploits
+and less on userspace exploits. Which is a trend we've been seing for
+at least a year now.
 
-> And, as Dave suggested, I'm currently installing this under a
-> non-selinux kernel (since the selinux one doesn't boot: it complains
-> that it cannot find the policy file :-( ).  So the idea was to install
-> all the selinux related packages under a non-selinux kernel and to
-> afterwards boot with the selinux kernel.
-
-You might want to check my step-by-step howto at
-http://selinux.lemuria.org and check if you've done all that.
 
 -- 
 http://web.lemuria.org/pubkey.html
