@@ -1,34 +1,39 @@
-Date: Thu, 9 May 2002 09:59:21 -0400 (EDT)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA20872
+	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 10:10:37 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA06469
+	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 14:09:23 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id OAA06465 for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 14:09:22 GMT
+Date: Thu, 9 May 2002 10:09:55 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: "Davies, James E" <jedavie@sandia.gov>
-cc: "'Selinux@tycho.nsa.gov'" <Selinux@tycho.nsa.gov>
-Subject: Re: new selinux install
-In-Reply-To: <B51F0C636E578A4E832D3958690CD73EBB102D@es04snlnt>
-Message-ID: <Pine.GSO.4.33.0205090952211.1046-100000@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: setfiles -q option?
+In-Reply-To: <20020509054935.0704B6E05@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0205091008290.1046-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 9 May 2002, Davies, James E wrote:
+On Thu, 9 May 2002, Russell Coker wrote:
 
-> I've just installed the selinux 2.4.(18) kernel on redhat 7.2 from the nsa
-> site and have the following problems. All I've done so far is to add 2
-> users. I have not modified any context or .te files yet.
+> Could we have a "-q" option to setfiles to make it not write out messages
+> such as the following?
 >
-> Most of the processes are labeled as type kernel_t with a sid of 1. I
-> suppose this means they're not transitioning to their proper domain.
-> AVC_toggle to enforcing mode hangs the system console session, forcing a
-> reboot.
+> /usr/sbin/setfiles:  Running on a SELinux kernel, using new system calls
+> /usr/sbin/setfiles:  read 450 specifications
+> /usr/sbin/setfiles:  Done.
+>
+> Having it write out messages if it's not running on a SE Linux kernel would
+> still be useful.  But when you install 100 new packages having the above
+> three lines displayed 100 times is rather annoying...
 
-It doesn't look like you labeled the filesystem.  Did you follow the
-complete installation instructions in selinux/README?   Run 'make relabel'
-in selinux/policy and then reboot.
-
-As a general note, when asking questions or reporting bugs, please
-identify the particular release that you are using (e.g. 2002050211 is the
-latest) and the download option that you used.
+We could certainly add such an option.  Or you could just redirect stdout
+to /dev/null.
 
 --
 Stephen D. Smalley, NAI Labs
