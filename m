@@ -1,69 +1,69 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA14755
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 10:20:01 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA21214
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 14:18:20 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id OAA21210 for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 14:18:18 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 2ACA892466
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 00:19:52 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 7F9263F5F
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 16:19:44 +0200 (CEST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Timothy Wood <timothy@hallcomp.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: ssh and fs relabel (new release)
-Date: Wed, 28 Aug 2002 15:45:11 +0200
-References: <1030541100.2059.18.camel@phobos>
-In-Reply-To: <1030541100.2059.18.camel@phobos>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: makefile patch
+Date: Wed, 28 Aug 2002 16:19:44 +0200
 MIME-Version: 1.0
-Message-Id: <20020828134511.DAFDD8FDA@lyta.coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_W45KGMUGB1T8SO384PZX"
+Message-Id: <20020828141944.7F9263F5F@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 28 Aug 2002 15:25, Timothy Wood wrote:
-> I just preformed a clean install of RH7.2 and the latest lsm from the
-> NSA site and there seem to be a few problems.
->
-> When enforcing mode is enabled there are several things that do not work
-> which should.  The first of these is sshd.  sshd works fine in
-> permissive mode, but when in enforcing mode the following avc messages
-> are logged and no connection can be completed.  From the client side
-> authentication passes and then the connection is closed.
->
-> avc:  denied  { relabelto } for  pid=1298 exe=/usr/sbin/sshd path=/0
-> dev=00:06 ino=2 scontext=system_u:system_r:sshd_t
-> tcontext=timothy:object_r:sysadm_devpts_t tclass=chr_file
 
-In the new policy ssh is totally denied access to the sysadm_t domain 
-(there's no domain transition allowed) and to the pseudo-tty devices (can't 
-access them or transition to/from them).  You can change ssh.te, change the 
-following line:
-allow sshd_t userpty_type:chr_file { setattr relabelto rw_file_perms };
-to:
-allow sshd_t { sysadm_devpts_t userpty_type }:chr_file { setattr relabelto 
-rw_file_perms };
+--------------Boundary-00=_W45KGMUGB1T8SO384PZX
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
-Then change the following:
-domain_trans($1, shell_exec_t, unpriv_userdomain)
-to:
-domain_trans($1, shell_exec_t, { sysadm_t unpriv_userdomain })
+In the post-install script of my selinux-policy-default package I have the 
+following:
+  make -s -C /etc/selinux install
+  make -s -C /etc/selinux load || true
 
-However, be aware that making such changes grants anyone who has port 22 
-access to your machine full administrative access if (when?) another bug is 
-discovered in sshd...
-
-> Also while in enforcing mode attempting a make relabel from the
-> selinux/policy directory fails with the following avc messages.
->
-> avc:  denied  { read } for  pid=1476
-> exe=/usr/local/selinux/bin/checkpolicy path=/src/selinux/policy/Makefile
-> dev=03:0b ino=1737013 scontext=root:sysadm_r:checkpolicy_t
-> tcontext=system_u:object_r:src_t tclass=file
->
-> avc:  denied  { read } for  pid=1477 exe=/usr/local/selinux/bin/setfiles
-> path=/src/selinux/policy/file_contexts/file_contexts dev=03:0b
-> ino=1524031 scontext=root:sysadm_r:setfiles_t
-> tcontext=system_u:object_r:src_t tclass=file
-
-It's expected that the policy source files have type policy_src_t...
+This results in the policy being compiled twice when using the NSA Makefile, 
+I've attached a patch to fix this.
 
 -- 
 I do not get viruses because I do not use MS software.
 If you use Outlook then please do not put my email address in your
 address-book so that WHEN you get a virus it won't use my address in the
 >From field.
+
+--------------Boundary-00=_W45KGMUGB1T8SO384PZX
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="makefile.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="makefile.diff"
+
+LS0tIC90bXAvcG9saWN5L01ha2VmaWxlCTIwMDItMDgtMjcgMTk6MzI6MDcuMDAwMDAwMDAwICsw
+MjAwCisrKyBwb2xpY3kvTWFrZWZpbGUJMjAwMi0wOC0yOCAxNjoxNzoxMy4wMDAwMDAwMDAgKzAy
+MDAKQEAgLTQ2LDEwICs0Niw4IEBACiAkKFBPTElDWVZFUik6ICB0bXAgcG9saWN5LmNvbmYgJChD
+SEVDS1BPTElDWSkKIAkkKENIRUNLUE9MSUNZKSAtbyAkQCBwb2xpY3kuY29uZgogCi10bXA6Ci0J
+bWtkaXIgdG1wCi0KLWluaXRyZC0kKFBPTElDWVZFUik6ICB0bXAgaW5pdHJkLXBvbGljeS5jb25m
+ICQoQ0hFQ0tQT0xJQ1kpCitpbml0cmQtJChQT0xJQ1lWRVIpOiBpbml0cmQtcG9saWN5LmNvbmYg
+JChDSEVDS1BPTElDWSkKKwlta2RpciAtcCB0bXAKIAkkKENIRUNLUE9MSUNZKSAtbyB0bXAvJEAg
+aW5pdHJkLXBvbGljeS5jb25mCiAJZ3ppcCAtYyB0bXAvJEAgPiAkQAogCkBAIC04MSw3ICs3OSw4
+IEBACiAKIGxvYWQ6IHRtcC9sb2FkCiAKLXBvbGljeS5jb25mOiB0bXAgJChQT0xJQ1lGSUxFUykg
+Citwb2xpY3kuY29uZjogJChQT0xJQ1lGSUxFUykgCisJbWtkaXIgLXAgdG1wCiAJbTQgLUltYWNy
+b3MgLXMgJChQT0xJQ1lGSUxFUykgPiBwb2xpY3kuY29uZgogCiBpbnN0YWxsLXNyYzogCg==
+
+--------------Boundary-00=_W45KGMUGB1T8SO384PZX--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
