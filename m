@@ -1,62 +1,56 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA14110
-	for <selinux@tycho.nsa.gov>; Wed, 11 Dec 2002 04:18:53 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA26945
+	for <selinux@tycho.nsa.gov>; Thu, 12 Dec 2002 10:52:34 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id gBB9IqI06875
-	for <selinux@tycho.nsa.gov>; Wed, 11 Dec 2002 09:18:52 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id gBB9Iof06871 for <selinux@tycho.nsa.gov>; Wed, 11 Dec 2002 09:18:51 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Subba Rao" <sailorn@attglobal.net>, selinux <selinux@tycho.nsa.gov>
-Subject: Re: SELinux (in) Clusters
-Date: Wed, 11 Dec 2002 10:18:30 +0100
-References: <200212110059.AAA14517@jazzswing.ncsc.mil>
-In-Reply-To: <200212110059.AAA14517@jazzswing.ncsc.mil>
+	by jazzband.ncsc.mil  with ESMTP id gBCFqXI03868
+	for <selinux@tycho.nsa.gov>; Thu, 12 Dec 2002 15:52:33 GMT
+Received: from mx.nas-smoothtransition.com (nas-vm-149.nas-smoothtransition.com [66.95.157.149] (may be forged))
+        by jazzband.ncsc.mil  with ESMTP id gBCFqWf03860 for <selinux@tycho.nsa.gov>; Thu, 12 Dec 2002 15:52:33 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Serge E. Hallyn'" <hallyn@cs.wm.edu>,
+        "'selinux'" <selinux@tycho.nsa.gov>
+Subject: RE: policy administration
+Date: Thu, 12 Dec 2002 10:51:12 -0500
+Message-ID: <001601c2a1f6$57480680$6600a8c0@columbia.tresys.com>
 MIME-Version: 1.0
-Message-Id: <200212111018.30892.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <20021130022643.A8018@escher.cs.wm.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 11 Dec 2002 02:01, Subba Rao wrote:
-> I haven't decided which cluster to build yet (HPC or HA cluster). Has
-> anyone deployed SELinux in a Cluster environment? My main question would be
-> would the MPI libraries in a cluster work on SELinux?
+Sorry I missed this message earlier, we are doing some work in this
+area.  See our web site (www.tresys.com/selinux) which has information
+about released tools...within a week or two we're releasing updated
+versions of our tools and a new *basic* policy browser/editor/config
+tool. 
 
-For a typical HA cluster you just have two servers, one is running the service 
-and the other is in standby mode.
+Frank
 
-For this the SE Linux policy would be quite simple, you just need to write 
-policy for the HA program that allows it to do whatever network/serial 
-operations are necessary for the "heartbeat" and then have it transition to 
-initrc_t whenever it executes etc_t type files (so that /etc/init.d/ scripts 
-are run in the right context for daemon start and stop).
-
-Putting SE Linux on such a cluster would only take about an hour longer than 
-doing it without SE Linux if you know how to use SE Linux (and that's a 
-conservative estimate - I'm sure I could do the SE part in much less than an 
-hour).
-
-If you have an application that's cluster aware and does it's own network 
-communication then it's even easier, it may not be necessary to do anything 
-special at all.
-
-
-Mosix however is a totally different issue.  Mosix and similar process 
-migration technologies would require matching (if not identical) policies on 
-all machines, mechanisms for migrating security context when migrating 
-context, and some modifications to allow permission checking on files that 
-were opened before process migration.
-
-Pete and Steve, any comments on what it would take to get SE OpenMosix going?
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+> -----Original Message-----
+> Behalf Of Serge E. Hallyn
+> Sent: Saturday, November 30, 2002 2:27 AM
+> To: selinux
+> Subject: policy administration
+> 
+> Hi,
+> 
+> For the past, er,  while, I've been working on tools for dealing
+> with DTE policies.  I'd now like to start applying that to selinux
+> policies.  Briefly, the work spanned from the extremely mundane
+> (a gui policy editor) to the somewhat less mundane (presenting
+> graphical representations of relations in policies) to the
+> stuff I enjoyed more (constructing policies from modules, and
+> analyzing policies using other MAC systems - ie using the BLP
+> star-property to introduce relations on types, in a manner similar
+> to what TIS did in 1998 to allow automatic policy updates*).
+> 
+> I've been looking at the website and the mailing list, and it
+> doesn't seem anyone is doing anything like this just yet.  If
+> anyone is, please let me know.
+> 
+> thanks,
+> -serge
 
 
 --
