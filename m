@@ -1,39 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA19964
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 03:26:29 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id HAA11129
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 07:25:08 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA19949
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 03:24:31 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id HAA22701
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 07:24:19 GMT
 Received: from nox.lemuria.org ([213.191.86.30])
-        by jazzband.ncsc.mil  with ESMTP id HAA11125 for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 07:25:07 GMT
-Date: Wed, 5 Jun 2002 09:26:27 +0200
+	by jazzswing.ncsc.mil  with ESMTP id HAA22697
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 07:24:19 GMT
+Date: Wed, 5 Jun 2002 09:24:23 +0200
 From: Tom <tom@lemuria.org>
 To: SE Linux <selinux@tycho.nsa.gov>
+Cc: "Haigh, Tom" <tom_haigh@securecomputing.com>
 Subject: Re: Sorry, read this one: Re: SELinux Dumb Questions
-Message-ID: <20020605092627.C12852@lemuria.org>
-References: <31A81CDD9175D411815100508BE32AA60142F388@emss02m13.ems.lmco.com>
+Message-ID: <20020605092423.B12852@lemuria.org>
+References: <E17FMB5-0006Or-00@swan.prod.itd.earthlink.net> <20020604221224.C10D7748E@lyta.coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <31A81CDD9175D411815100508BE32AA60142F388@emss02m13.ems.lmco.com>; from ken.mcfadden@lmco.com on Tue, Jun 04, 2002 at 04:28:27PM -0600
+In-Reply-To: <20020604221224.C10D7748E@lyta.coker.com.au>; from russell@coker.com.au on Wed, Jun 05, 2002 at 12:12:24AM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jun 04, 2002 at 04:28:27PM -0600, McFadden, Ken wrote:
-> Once again, We are doing this for NSA and GNU NOT SECURE COMPUTING!!!!!!!
-> If Tom has a problem then they need to address it with the NSA and the 
-> NSA can go forth and remove their crap or deem it as being GNU.....As I
-> see it SELinux will go on and if someone would like to use it then all
-> they would need to do is keep the original GNU licensing with it.....
-> Other words this is not our problem to work out but Tom's and NSA's........
-> Until then I would treat it as GNU per NSA's web page!!!!!!!
+On Wed, Jun 05, 2002 at 12:12:24AM +0200, Russell Coker wrote:
+> Yes.  Unless of course they claim that they didn't GPL it, or that the GPL 
+> only covers the code not the patent.
 
-you should only do that if you live in a country free of software
-patents. I'm fairly certain that a US court won't even listen to the
-license argument if the suit is brought as a patent infringement suit.
+The GPL has a couple of things to say about patents on GPL software,
+the main point being:
+
+"[...] If you cannot distribute so as to satisfy simultaneously your 
+obligations under this License and any other pertinent obligations, then 
+as a consequence you may not distribute the Program at all. For example, 
+if a patent license would not permit royalty-free redistribution of the 
+Program by all those who receive copies directly or indirectly through 
+you, then the only way you could satisfy both it and this License would 
+be to refrain entirely from distribution of the Program."
 
 
+In short: If this patent is intended to be enforced, even selectively
+(*especially* selectively), then distribution of SELinux just died.
 
-(I'm the OTHER Tom :) )
+
+I, too, have had plans to use SELinux commercially, but I'd rather
+write cobol software on VMS than support software patents.
 
 
 -- 
