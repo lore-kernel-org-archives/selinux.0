@@ -1,58 +1,48 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8F0qvLa009047
-	for <selinux@tycho.nsa.gov>; Sun, 14 Sep 2003 20:52:58 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8F1YRLa009192
+	for <selinux@tycho.nsa.gov>; Sun, 14 Sep 2003 21:34:27 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8F0qomw020812
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 00:52:50 GMT
-Received: from smtp.vasco.com (smtp.vasco.com [62.58.124.115])
-        by jazzband.ncsc.mil  with ESMTP id h8F0qo9d020809 for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 00:52:50 GMT
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by smtp.vasco.com (Postfix) with ESMTP id A265E4B9E9
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 02:49:32 +0200 (CEST)
-Received: from smtp.vasco.com ([127.0.0.1])
- by localhost (proxy.vasco.com [127.0.0.1]) (amavisd-new, port 10024)
- with SMTP id 32231-06 for <selinux@tycho.nsa.gov>;
- Mon, 15 Sep 2003 02:49:32 +0200 (CEST)
-Received: from smtp.vasco.com (vasco-exch.vasco.com [192.168.1.251])
-	by smtp.vasco.com (Postfix) with ESMTP id 5BA794BA0B
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 02:49:29 +0200 (CEST)
-From: Jason <jna@vasco.com>
-To: selinux@tycho.nsa.gov
-Subject: booting selinux rh9
-Date: Mon, 15 Sep 2003 21:47:32 +1000
-Cc: Russell Coker <russell@coker.com.au>
-MIME-Version: 1.0
+	by jazzband.ncsc.mil  with ESMTP id h8F1YQmw022142
+	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 01:34:26 GMT
+Received: from out006.verizon.net (out006pub.verizon.net [206.46.170.106])
+        by jazzband.ncsc.mil  with ESMTP id h8F1YQ9d022139 for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 01:34:26 GMT
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200309152147.32147.jna@vasco.com>
+  charset="iso-8859-1"
+From: Bill Laut <wlsel@verizon.net>
+To: russell@coker.com.au, trelane@digitasaru.net, selinux@tycho.nsa.gov
+Subject: Re: New Potential Research Area for SELinux
+Date: Sun, 14 Sep 2003 21:35:18 -0400
+References: <20030914043007.GD5651@digitasaru.net> <200309141651.42416.russell@coker.com.au>
+In-Reply-To: <200309141651.42416.russell@coker.com.au>
+MIME-Version: 1.0
+Message-Id: <200309142135.18546.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Guys,
+On Sunday 14 September 2003 02:51 am, Russell Coker wrote:
+> On Sun, 14 Sep 2003 14:30, Joseph Pingenot wrote:
+> >
+> > [...]
+>
+> > Hope I'm not too far off my rocker; I think this would be an excellent
+> >   system for running untrusted code (or even "trusted" code. ;)  Examples
+> >   which immediately come to mind are executable email attachments and
+> >   networked collaboration/p2p environments (part of my netshard project,
+>
+> Regular SE Linux functionality should be enough for such things IMHO.  Why
+> do you think you need more than a separate domain for such untrusted code?
+>
+> The biggest problem we have at the moment (IMHO) is that Security Enhanced
+> X isn't implemented yet.
+>
 
-I have been having a great time setting up selinux the latest 2.4.21-selinux1 
-version on rh9.
+SE-X is something I'm working on as time permits, based on the current XFree86 
+v4.3.0.  I'm hoping to have an initial draft of an implementation strategy I 
+can publish on the mailing list sometime towards the end of September to 
+middle of October, with the desire that all mailing list participants 
+critically review it for completeness and/or security loopholes.
 
-However, once again, I cannot get past a certain problem, at login time after 
-rebooting, I try to login as root, and it says it cannot determine a security 
-context for me, and do I wish to specify one. I say y (which is default), I 
-type sysadm_r and type of sysadm_t (I also tried the user_r and user_t as 
-well), and it responds with invalid security context, and I try again.
-
-So I reboot into selinux single mode, and this is ok, I check the the 
-selinuxfs has been mounted (of which it has) and all the directories seem to 
-be there.  As a note, my context at this point is kernel_t.
-
-Does anyone know what I might have done wrong?
-I also believe that the initrd I created using the one supplied with the 
-patched differences in the download from nsa creates a valid linuxrc file of 
-which I have checked, but are you supposed to see the output of the initrd's 
-echo statements at boot time, because I dont? ( ie : echo Loading Policy)
-
-Cheers
-and thanx in advance
-
-Jason
+Bill
 
 
 --
