@@ -1,69 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA05697
-	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 09:07:24 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA20520
-	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 13:05:57 GMT
-Received: from web40018.mail.yahoo.com (web40018.mail.yahoo.com [66.218.78.58])
-        by jazzband.ncsc.mil  with SMTP id NAA20516 for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 13:05:56 GMT
-Message-ID: <20020704130701.82161.qmail@web40018.mail.yahoo.com>
-Date: Thu, 4 Jul 2002 06:07:01 -0700 (PDT)
-From: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: Updated Release
-To: Grant Bayley <gbayley@ausmac.net>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <Pine.BSO.4.44.0207042131340.7645-100000@ausmac.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: gdsmarshall@hushmail.com
+Message-Id: <200207041319.g64DJ8448572@mailserver2.hushmail.com>
+To: SELinux@tycho.nsa.gov
+Subject: This does not look correct....
+Date: Thu,  4 Jul 2002 06:19:08 -0700
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mr. Bayley,
 
---- Grant Bayley <gbayley@ausmac.net> wrote:
-> 
-> Apologies for the delay.
-> 
-> The Wiretapped mirror of SELinux has now been updated with the most recent
-> (2002070313) versions:
-> 
-> 	http://the.wiretapped.net/security/operating-systems/selinux/
-
-      Where is the best place to look for a ChangeLog for this version (i.e.
-bugfixes, features, additional policy tweaks, etc.)
-
-> 
-> Hope this helps,
-> 
-> Grant
-
-Thanks,
-
-Brad
-
-> 
-> 
-> On Wed, 3 Jul 2002, Howard Holm wrote:
-> 
-> > The SELinux web site <http://www.nsa.gov/selinux/> including the mail
-> > list archive has been updated. The site includes a new release of
-> > the LSM-based SELinux prototype.  The stable (2.4) LSM-based SELinux
-> 
-> [snip]
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-=====
-Brad Chapman
+Hello,
 
-Permanent e-mails: kakadu_croc@yahoo.com
-		   jabiru_croc@yahoo.com
-		   tanami_croc@devel.lbsd.net
+I know I have not been trying to configure SELinux for very long, but this does not look correct to me.  Should ssh have a getty_t definision?  I know it needs one to prevent this error message, but is it correct for ssh to have a getty_t definision?
 
-__________________________________________________
-Do You Yahoo!?
-Sign up for SBC Yahoo! Dial - First Month Free
-http://sbc.yahoo.com
+Jul  4 08:05:33 gatekeeper kernel: avc:  denied  { use } for  pid=339 exe=/usr/b
+in/ssh path=/dev/tty3 dev=03:01 ino=71770 scontext=root:sysadm_r:sysadm_ssh_t tc
+ontext=system_u:system_r:getty_t tclass=fd
+
+I am running debian (woody), with kernel from NSA, and packages from Russell's site.
+
+Many thanks in advance,
+
+Spencer
+-----BEGIN PGP SIGNATURE-----
+Version: Hush 2.1
+Note: This signature can be verified at https://www.hushtools.com
+
+wmAEARECACAFAj0kVwUZHGdkc21hcnNoYWxsQGh1c2htYWlsLmNvbQAKCRC4zrK67KP4
+z0DlAJ9ACPH8CG6Pw2HI4Ld6nxULeC8sogCfeYsD+vujZTeTgiBQ5rPgneoXpOs=
+=KdUn
+-----END PGP SIGNATURE-----
+
+
+Communicate in total privacy.
+Get your free encrypted email at https://www.hushmail.com/?l=2
+
+Looking for a good deal on a domain name? http://www.hush.com/partners/offers.cgi?id=domainpeople
+
 
 --
 You have received this message because you are subscribed to the selinux list.
