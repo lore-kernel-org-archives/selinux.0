@@ -1,30 +1,41 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82J3ArT002159
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:03:10 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82J38v0025270
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 19:03:08 GMT
-Received: from [10.1.12.42] (twoface.columbia.tresys.com [10.1.12.42])
-	by gotham.columbia.tresys.com (8.12.8/8.12.8) with ESMTP id i82J29Sf029716
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:02:09 -0400
-Message-ID: <41376E31.60702@tresys.com>
-Date: Thu, 02 Sep 2004 15:02:09 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: LD_DEBUG issue
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82JOLrT002339
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:24:21 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82JNV3w006899
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 19:23:31 GMT
+Date: Thu, 2 Sep 2004 18:15:44 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Russell Coker <russell@coker.com.au>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Latest Patches
+Message-ID: <20040902171544.GG5745@lkcl.net>
+References: <200408241818.40064.russell@coker.com.au> <1093640295.24188.29.camel@moss-lions.epoch.ncsc.mil> <200408282346.05926.russell@coker.com.au> <1093897455.3227.6.camel@moss-lions.epoch.ncsc.mil> <41371628.2020408@redhat.com> <1094130607.17265.47.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1094130607.17265.47.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-see http://lwn.net/Articles/99137 first for an overview.
+On Thu, Sep 02, 2004 at 09:10:07AM -0400, Stephen Smalley wrote:
 
-Now, we (Gentoo) have this fixed in our glibc to disallow LD_DEBUG on 
-suid binaries but i believe it is necessary to add this to AT_SECURE so 
-that we can prevent this kind of info leak during domain transitions, 
-What do you guys think?
+> > @@ -127,7 +130,9 @@
+> >  allow $1_xserver_t mtrr_device_t:file rw_file_perms;
+> >  allow $1_xserver_t apm_bios_t:chr_file rw_file_perms;
+> >  allow $1_xserver_t framebuf_device_t:chr_file rw_file_perms;
+> > +ifdef(`redhat', `
+> >  allow $1_xserver_t device_t:lnk_file { getattr read };
+> > +')
+> >  allow $1_xserver_t devtty_t:chr_file rw_file_perms;
+> >  allow $1_xserver_t devtty_t:lnk_file read;
+> >  
+> 
+> Wrapping such a trivial rule with a distro-specific ifdef is pointless,
+> IMHO, and makes maintenance a pain.
 
-Joshua Brindle
+ it's also, istrc, needed for debian.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
