@@ -1,148 +1,71 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i36NVHRb005908
-	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 19:31:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i37000Rb006020
+	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 20:00:01 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i36NVGmw021298
-	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 23:31:16 GMT
-Received: from smtp-2.llnl.gov (smtp-2.llnl.gov [128.115.250.82])
-        by jazzband.ncsc.mil  with ESMTP id i36NVF4w021295 for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 23:31:15 GMT
-Received: from popcorn.llnl.gov (localhost [127.0.0.1])
-	by smtp-2.llnl.gov (8.12.3p2-20030917/8.12.3/LLNL evision: 1.13 $) with ESMTP id i36NVDQq014704
-	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 16:31:14 -0700 (PDT)
-Received: from [128.115.96.64] (account shakespeare2 [128.115.96.64] verified)
-  by popcorn.llnl.gov (CommuniGate Pro SMTP 4.0.6)
-  with ESMTP id 37196874 for selinux@tycho.nsa.gov; Tue, 06 Apr 2004 16:31:13 -0700
-Mime-Version: 1.0
-Message-Id: <p06100503bc98ecccb8c1@[128.115.96.64]>
-Date: Tue, 6 Apr 2004 16:31:12 -0700
+	by jazzband.ncsc.mil  with ESMTP id i36Nxxmw022268
+	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 23:59:59 GMT
+Received: from mutemail.com (mutemail.com [24.244.170.124])
+        by jazzband.ncsc.mil  with SMTP id i36Nxv4w022250 for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 23:59:58 GMT
+Date: Tue, 06 Apr 2004 16:59:37 -0700
+From: Bill McCarty <bmccarty@pt-net.net>
 To: selinux@tycho.nsa.gov
-From: Mark Shakespeare <mshakes@llnl.gov>
-Subject: Sepcut Relabel problem
-Content-Type: multipart/alternative; boundary="============_-1130828223==_ma============"
+Subject: Re: Problems finding working kernel/user land combination
+Message-ID: <88042458.1081270777@[192.168.0.3]>
+In-Reply-To: <401FF280.8070301@treblig.org>
+References: <401FF280.8070301@treblig.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---============_-1130828223==_ma============
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Hi all,
 
-Trying to relabel file system from within Sepcut ( most current version )
+I'm trying to follow the trail for installing SELinux on Debian unstable, 
+as helpfully documented by Dave Gilbert (see below). Thanks, Dave!
 
-getting a weird error....
+However, I'm having difficulty with the Selinux-policy-default package, 
+which Dselect complains is not compatible with Policycoreutils. I plan to 
+start over with a very minimal Debian installation on the hypothesis that 
+one or more of the SELinux package versions has been obsoleted by a 
+non-SELinux package. Can anyone offer other suggestions for installing 
+SELinux under Debian, whether stable or unstable?
+
+Cheers,
+
+--On Tuesday, February 03, 2004 7:12 PM +0000 "Dave Gilbert (Home)" 
+<gilbertd@treblig.org> wrote:
+
+> So - to summarise (for those reading this in the future - is the archive
+> working?); to get SELinux working on Debian/woody:
+>
+>    * Get the kernel patches (lsm and exec-shield) off Russell Coker's site
+>    * Get the standard debian 2.4.24 kernel package (from the main debian
+> pool) and the debian kernel-patch-acl package    * To the standard kernel
+> apply the kernel-patch-acl patches (if you are doing it by hand that has
+> to be in the order ea, acl, nfsacl)    * Apply the exec-shield patch
+>    * apply the lsm patch
+>
+> Add:
+>
+>
+> deb http://www.microcomaustralia.com.au/debian unstable selinux main
+>
+> to your sources.list
+>
+> and follow the instructions from the *new* selinux howto - that will be
+> the one that tells you to mount /selinux and doesn't mention the 'login'
+> package.
+>
+> Note: When installing the packages it is best to do one big apt-get line
+> rather than one at a time - doing them individually has a nasty habit of
+> removing other packages.
+
+---------------------------------------------------
+Bill McCarty, Ph.D.
+Professor of Information Technology
+Azusa Pacific University
 
 
-couldn't open "/tmp/sepcut-zrqWs8Ew": no such file or directory
-couldn't open "/tmp/sepcut-zrqWs8Ew": no such file or directory
-     while executing
-"::open $tmpfilename "RDONLY""
-     (procedure "Sepct_Test::test_Policy" line 87)
-     invoked from within
-"Sepct_Test::test_Policy relabel"
-     ("uplevel" body line 1)
-     invoked from within
-"uplevel \#0 $cmd"
-     (procedure "Button::_release" line 18)
-     invoked from within
-"Button::_release .mainframe.frame.nb.fSepct_Test.rightf.relabel"
-     (command bound to event)
-
-
-Sepcut hangs....then no other X-based apps can run. A reboot clears things.
-
-Any ideas?
-
-I'am using the most recent versions of Policy.
-
-
-								Mark
-
-
--- 
-******************************************
-* Mark Shakespeare			 *
-* Engineering Computer Operations Team   *
-* Lawrence Livermore National Laboratory *
-* 7000 East Ave		L-130            *
-* Livermore,Ca 94550			 *
-* 925-423-9922	      mshakes@llnl.gov   *
-******************************************
---============_-1130828223==_ma============
-Content-Type: text/html; charset="us-ascii"
-
-<!doctype html public "-//W3C//DTD W3 HTML//EN">
-<html><head><style type="text/css"><!--
-blockquote, dl, ul, ol, li { padding-top: 0 ; padding-bottom: 0 }
- --></style><title>Sepcut Relabel problem</title></head><body>
-<div>Trying to relabel file system from within Sepcut ( most current
-version )</div>
-<div><br></div>
-<div>getting a weird error....</div>
-<div><br></div>
-<div><br></div>
-<div><font face="Times New Roman" size="+1" color="#000000">couldn't
-open &quot;/tmp/sepcut-zrqWs8Ew&quot;: no such file or directory<br>
-couldn't open &quot;/tmp/sepcut-zrqWs8Ew&quot;: no such file or
-directory<br>
-&nbsp;&nbsp;&nbsp; while executing<br>
-&quot;::open $tmpfilename &quot;RDONLY&quot;&quot;<br>
-&nbsp;&nbsp;&nbsp; (procedure &quot;Sepct_Test::test_Policy&quot; line
-87)<br>
-&nbsp;&nbsp;&nbsp; invoked from within<br>
-&quot;Sepct_Test::test_Policy relabel&quot;<br>
-&nbsp;&nbsp;&nbsp; (&quot;uplevel&quot; body line 1)<br>
-&nbsp;&nbsp;&nbsp; invoked from within<br>
-&quot;uplevel \#0 $cmd&quot;<br>
-&nbsp;&nbsp;&nbsp; (procedure &quot;Button::_release&quot; line
-18)<br>
-&nbsp;&nbsp;&nbsp; invoked from within<br>
-&quot;Button::_release
-.mainframe.frame.nb.fSepct_Test.rightf.relabel&quot;<br>
-&nbsp;&nbsp;&nbsp; (command bound to event)</font><br>
-<font face="Times New Roman" size="+1" color="#000000"></font></div>
-<div><br></div>
-<div>Sepcut hangs....then no other X-based apps can run. A reboot
-clears things.</div>
-<div><br></div>
-<div>Any ideas?</div>
-<div><br></div>
-<div>I'am using the most recent versions of Policy.</div>
-<div><br></div>
-<div><br></div>
-<div><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab>Mark</div>
-<div><br></div>
-<div>&nbsp;</div>
-<x-sigsep><pre>-- 
-</pre></x-sigsep>
-<div>******************************************<br>
-* Mark Shakespeare<x-tab>&nbsp;&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </x-tab>
-*<br>
-* Engineering Computer Operations Team&nbsp;&nbsp; *<br>
-* Lawrence Livermore National Laboratory *<br>
-* 7000 East Ave<x-tab>&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab
->L-130&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-*<br>
-* Livermore,Ca 94550<x-tab>&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab><x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </x-tab>
-*<br>
-* 925-423-9922<x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mshakes@llnl.gov&nbsp;&nbsp;
-*<br>
-******************************************</div>
-</body>
-</html>
---============_-1130828223==_ma============--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
