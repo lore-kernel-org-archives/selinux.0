@@ -1,44 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3OGC3I4008826
-	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 12:12:03 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h3OGBvVf023640
-	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 16:11:57 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h3OGBu4D023637
-	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 16:11:56 GMT
-Subject: Re: please offer your good advices / new policies: exim, dovecot,
-	maradns, (aptitude)
+Subject: Re: SUDO package
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andreas Schuldei <andreas@schuldei.org>
-Cc: Peter Gervai <grin@tolna.net>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <20030423201331.GA14673@lukas>
-References: <20030423111231.GV3993@narya.grin.hu>
-	 <20030423201331.GA14673@lukas>
+To: Russell Coker <russell@coker.com.au>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <200304231710.34773.russell@coker.com.au>
+References: <00d801c303f1$9fef2f00$398314d1@windowpane.com>
+	 <3EA021A5.4020603@redhat.com>
+	 <1051021175.14761.61.camel@moss-huskers.epoch.ncsc.mil>
+	 <200304231710.34773.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1051200706.20300.58.camel@moss-huskers.epoch.ncsc.mil>
+Message-Id: <1051205517.20300.71.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 24 Apr 2003 12:11:46 -0400
+Date: 24 Apr 2003 13:31:58 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-04-23 at 16:13, Andreas Schuldei wrote:
-> yes, that is what i did, too. (i think i asked the same question
-> here, too, and never got an answer.)
+On Wed, 2003-04-23 at 03:10, Russell Coker wrote:
+> In the daemon_domain() macro defined in macros/global_macros.te the naming 
+> scheme var_run_$1_t is used.  It might make things easier in future to use 
+> that.
+> 
+> We probably should have a macro var_run_domain() which is used by 
+> daemon_domain() and by other policy such as the sudo policy.
+> 
+> How about something like the following:
+> define(`var_run_domain', `
+> type var_run_$1_t, file_type, sysadmfile, lockfile;
+> file_type_auto_trans($1_t, var_run_t, var_run_$1_t)
+> ')
+> 
+> Or we could change the naming scheme to something else.  Log files etc have 
+> the _log_t part appended to the base name of the program domain.
 
-Since they use a packet socket, they receive every frame, so SELinux is
-correctly checking permission.  They may be filtering the packets via a
-socket filter after the permission check has been performed.
-
-> i have here collected over time:
-> dontaudit dhcpd_t sshd_t:packet_socket { recvfrom };
-
-It would be simpler to do 'dontaudit dhcpd_t domain:packet_socket
-recvfrom;' or 'allow dhcpd_t domain:packet_socket recvfrom;'.  Not clear
-it is worth denying this access for locally generated packets, when it
-is still free to pick up remote ones (and you can't distinguish among
-the remote ones except by interface unless you are using the
-experimental labeled networking support). 
+I prefer extending the domain name with the type suffix, but this is
+obviously not a big deal as long as we are consistent.  It is likely
+easier to quickly see what types are associated with a given domain if
+they use the domain name as the prefix.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
