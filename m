@@ -1,33 +1,44 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brian May <bam@snoopy.apana.org.au>
-Subject: Re: kernel warning
-Date: Tue, 29 Oct 2002 00:00:43 +0100
+Date: Tue, 29 Oct 2002 09:53:43 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: Russell Coker <russell@coker.com.au>
 Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <20021027042301.GA18290@snoopy.apana.org.au> <Pine.GSO.4.33.0210280741410.29887-100000@raven> <20021028225343.GD18889@snoopy.apana.org.au>
-In-Reply-To: <20021028225343.GD18889@snoopy.apana.org.au>
-MIME-Version: 1.0
-Message-Id: <200210290000.43851.russell@coker.com.au>
+Subject: Re: kernel warning
+Message-ID: <20021028225343.GD18889@snoopy.apana.org.au>
+References: <20021027042301.GA18290@snoopy.apana.org.au> <Pine.GSO.4.33.0210280741410.29887-100000@raven>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.GSO.4.33.0210280741410.29887-100000@raven>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 28 Oct 2002 23:53, Brian May wrote:
-> Do you have any plans to include this patch, which currently appears to
-> be missing into your Debian package kernel-patch-2.4-lsm?
->
-> When I next get the chance I will patch my kernel source image available
-> online my website with this extra patch.
+On Mon, Oct 28, 2002 at 07:57:06AM -0500, Stephen Smalley wrote:
+> SELinux has always included a separate SELinux-specific kernel patch to be
+> applied on top of the LSM patch, although the precise purpose of the patch
+> has varied over time.  In the current release, the patch is available in
+> the SELinux archive in selinux/module/selinux-2.4.patch or directly from
+> http://www.nsa.gov/selinux/patches/selinux-2.4-2002102211.patch.gz.  In
+> the latest release, the dependence of the SELinux module on this patch has
+> increased due to the elimination of precondition functions.  Some of the
+> changes in this patch may find their way back into the mainstream LSM
+> patch in a more general form in the future (they have all been discussed
+> on the LSM mailing list), but some changes are likely to remain
+> SELinux-specific.
+> 
+> As a side note, please be aware that the lsm-2.4 tree and LSM patch that
+> is provided on the NSA SELinux web site is also different from the
+> old 2.4.19-lsm1 snapshot patch from WireX.  It is consistent with the head
+> of the LSM BitKeeper tree, so it includes many changes that have been
+> committed since that snapshot patch.
 
-Yes, I'll do it now.
+Russell,
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Do you have any plans to include this patch, which currently appears to
+be missing into your Debian package kernel-patch-2.4-lsm?
 
+When I next get the chance I will patch my kernel source image available
+online my website with this extra patch.
+--
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
