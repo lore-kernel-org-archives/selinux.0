@@ -1,58 +1,112 @@
-From: "Timmy Jones" <zapperlink@hotmail.com>
-To: SELinux@tycho.nsa.gov
+Message-ID: <250101c3850c$6727f700$d8742244@DJHB9G21>
+From: "Tony Stanco" <Tony@egovos.org>
+To: "Howard Holm" <hdholm@epoch.ncsc.mil>,
+   "NSA's SELinux" <SELinux@tycho.nsa.gov>
 Subject: Re: SELinux meetings??
-Date: Sat, 27 Sep 2003 07:31:59 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY8-F58h7ksYkks6rX0000f6ac@hotmail.com>
+Date: Sat, 27 Sep 2003 11:31:20 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+George Washington University is happy to provide the Computer Science
+conference room as a place to host a monthly SELinux users meeting. We are
+at the Foggy Bottom metro station in Washington, so it would be a central
+location for people coming from both Maryland and Virginia. Good pizza place
+around the corner for beers afterwards.
 
-Well it seems that DC is getting its due need for a SELinux. I personally 
-live out in Phoenix and would be more than willing to cover the West coast 
-for such a meeting.
+Best regards,
+
+Tony Stanco
+Founding Director
+The Center of Open Source & Government
+http://www.eGovOS.org
+tony@egovos.org
+
+Associate Director
+Open Source and eGovernment
+Cyber Security Policy and Research Institute
+George Washington University
+[NSA Center of Excellence in Information Assurance]
+2033 K Street, NW, Suite 340
+Washington, DC 20006
+tel        202-994-5513
+fax       202-994-5505
+http://www.cpi.seas.gwu.edu
+Stanco@gwu.edu
 
 
-
->From: "McDonald Patrick" <mcdonald_patrick@bah.com>
->To: K Rob <kdrobins@engineer.com>
->CC: Dale Amon <amon@vnl.com>, Michael Pender 
-><michael.pender@nanochron.com>,   Howard Holm <hdholm@epoch.ncsc.mil>, 
->Subba Rao <subba9@cablespeed.com>,   "NSA's SELinux" 
-><SELinux@tycho.nsa.gov>
->Subject: Re: SELinux meetings??
->Date: Fri, 26 Sep 2003 19:25:29 -0400
+> ----- Original Message ----- 
+> From: "K Rob" <kdrobins@engineer.com>
+> To: "Dale Amon" <amon@vnl.com>; "Michael Pender"
+> <michael.pender@nanochron.com>
+> Cc: "Howard Holm" <hdholm@epoch.ncsc.mil>; "Subba Rao"
+> <subba9@cablespeed.com>; "NSA's SELinux" <SELinux@tycho.nsa.gov>
+> Sent: Friday, September 26, 2003 6:36 PM
+> Subject: Re: SELinux meetings??
 >
->All,
 >
->I would be interested in forming an SELinux user group as well.  I work in 
->Tyson's Corner doing Multi-Level Security work for the US government.  
->There are several other people I work with who would be interested in 
->attending as well.
+> > Greetings everyone.
+> >
+> > I just wanted to put my vote and interest in forming a SELINUX user
+group
+> here in the D.C. area.
+> >
+> > I work downtown D.C. in the Northwest Area. I do some administration on
+> Dell Poweredge servers running RH Linux 7.2, 8.0. We will be implementing
+> the SELinux kernel as well and I would like to participate, and even help
+> organize a group in the area here. Please keep me informed as to
+development
+> of the group in D.C.
+> >
+> > ----- Original Message -----
+> > From: Dale Amon <amon@vnl.com>
+> > Date: Fri, 26 Sep 2003 11:56:56 +0100
+> > To: Michael Pender <michael.pender@nanochron.com>
+> > Subject: Re: SELinux meetings??
+> >
+> > > On Thu, Sep 25, 2003 at 04:56:31PM -0400, Michael Pender wrote:
+> > > > There might be enough people here in the DC-metro area with an
+> interest in
+> > > > Secure Linux to get a user group started.  I live and work in the
+> Ballston
+> > > > area of Arlington, and I'm not inclined to drive 40+ miles to
+> Columbia.
+> > > > However, I would be interested in a group in Arlington or DC.
+> > >
+> > > Just a suggestion. If you do have such get togethers, post the
+> > > details here. Although I am in Northern Ireland, I have major
+> > > customers (well they'd be major if their projects had more funding!)
+> > > in the DC area, not to mention my connections with the
+> > > National Space Society there :-) So I pass through that area
+> > > for short periods fairly often. Twice this year so far, par example.
+> > >
+> > >
+> > > --
+> > > This message was distributed to subscribers of the selinux mailing
+list.
+> > > If you no longer wish to subscribe, send mail to
+majordomo@tycho.nsa.gov
+> with
+> > > the words "unsubscribe selinux" without quotes as the message.
+> >
+> > -- 
+> > __________________________________________________________
+> > Sign-up for your own personalized E-mail at Mail.com
+> > http://www.mail.com/?sr=signup
+> >
+> > CareerBuilder.com has over 400,000 jobs. Be smarter about your job
+search
+> > http://corp.mail.com/careers
+> >
+> >
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
+> > the words "unsubscribe selinux" without quotes as the message.
 >
->Pat
->
->K Rob wrote:
->
->>Greetings everyone.
->>
->>I just wanted to put my vote and interest in forming a SELINUX user group 
->>here in the D.C. area.
->>
->>I work downtown D.C. in the Northwest Area. I do some administration on 
->>Dell Poweredge servers running RH Linux 7.2, 8.0. We will be implementing 
->>the SELinux kernel as well and I would like to participate, and even help 
->>organize a group in the area here. Please keep me informed as to 
->>development of the group in D.C.
->>
->>
->
-><< smime.p7s >>
-
-_________________________________________________________________
-Help protect your PC.  Get a FREE computer virus scan online from McAfee. 
-http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
 
 
 --
