@@ -1,68 +1,62 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA20771
-	for <selinux@tycho.nsa.gov>; Fri, 14 Feb 2003 11:02:31 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1EG2TI15759
-	for <selinux@tycho.nsa.gov>; Fri, 14 Feb 2003 16:02:29 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h1EG2Tf15755 for <selinux@tycho.nsa.gov>; Fri, 14 Feb 2003 16:02:29 GMT
-Message-Id: <200302141609.LAA10146@moss-shockers.ncsc.mil>
-Date: Fri, 14 Feb 2003 11:09:59 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: Transitivity in role dominance relation
-To: selinux@tycho.nsa.gov, kimhc@kjist.ac.kr
+Message-Id: <200302151600.QAA01090@jazzswing.ncsc.mil>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: patch makefiles
+Date: Sat, 15 Feb 2003 16:32:34 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_AIWCAH4TPFR92WIFG3VT"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> I've been testing role dominance relation. expecially,
-> the transitivity of role dominance relation.
-> 
-> prof_r > (osg_r, dbg_r) > stud_r
-> 
-> as;
-> 
-> dominance { role prof_r { role osg_r; role dbg_r; } }
-> dominance { role osg_r { role stud_r; } }
-> dominance { role dbg_r { role stud_r; } }
-> # disabled direct relation
-> #dominance { role prof_r { role stud_r; } }
-> 
-> In the above relation, I guessed that the prof_r role can not inherit
-> the types of stud_r as seeing below;
+--------------Boundary-00=_AIWCAH4TPFR92WIFG3VT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Yes, this is an artifact of the implementation in the policy compiler,
-and doesn't seem desirable.  If you were to specify the above as a single
-dominance statement, e.g.
-dominance { role prof_r { role osg_r { role stud_r; } role dbg_r { role stud_r; 
-} } }
-, then prof_r would inherit the types of stud_r and every user
-authorized for prof_r would also be authorized for stud_r.  Of greater
-concern is the fact that the order of the dominance statements affects
-the end result; notice what happens if you simply move the dominance
-statements for osg_r and dbg_r before the statement for prof_r.  The
-compiler should be changed to eliminate this ordering dependency.
+Hi,=20
 
-As an aside, note that the example policy does not use role dominance,
-and some have suggested that it should be eliminated entirely.  Keep in
-mind that the RBAC model does not provide any additional security
-mechanism; it is merely an abstraction layer to conveniently group
-domains into sets for assignment to users.  The real security of the
-system is based on the TE model.
+I start to build new rpms for SuSE this days. Thru this, I found two litt=
+le=20
+"problems" with non existent man page directories, if anybody don't use t=
+he
+install sequence from the readme file. The attached patch fix the problem=
+=2E
 
-> And I also could not get the context of stud_r using the newrole command
-> after getting the context of osg_r or dbg_r.
+Carsten
 
-You need to allow the corresponding role transitions and domain transitions
-in the policy.  role dominance doesn't implicitly grant such accesses.
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+--------------Boundary-00=_AIWCAH4TPFR92WIFG3VT
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="makefiles.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="makefiles.diff"
 
+SW5kZXg6IHNldGZpbGVzL01ha2VmaWxlCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KUkNTIGZpbGU6IC9jdnNyb290L3Nl
+bGludXgvbnNhL3NlbGludXgvc2V0ZmlsZXMvTWFrZWZpbGUsdgpyZXRyaWV2aW5nIHJldmlzaW9u
+IDEuMgpkaWZmIC11IC1yMS4yIE1ha2VmaWxlCi0tLSBzZXRmaWxlcy9NYWtlZmlsZQkxNiBBdWcg
+MjAwMiAxNDoyNzozNSAtMDAwMAkxLjIKKysrIHNldGZpbGVzL01ha2VmaWxlCTE0IEZlYiAyMDAz
+IDE4OjIxOjE3IC0wMDAwCkBAIC05LDYgKzksNyBAQAogCSQoQ0MpICQoTERGTEFHUykgLW8gJEAg
+JF4gJChMRExJQlMpCiAKIGluc3RhbGw6IHNldGZpbGVzCisJWyAtZCAkKE1BTkRJUikvbWFuOCBd
+IHx8IG1rZGlyIC1wICQoTUFORElSKS9tYW44CiAJaW5zdGFsbCAtbSA3NTUgc2V0ZmlsZXMgJChC
+SU5ESVIpCiAJaW5zdGFsbCAtbSA2NDQgLW8gcm9vdCAtZyByb290IHNldGZpbGVzLjggJChNQU5E
+SVIpL21hbjgKIApJbmRleDogdXRpbHMvcnVuX2luaXQvTWFrZWZpbGUKPT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpSQ1Mg
+ZmlsZTogL2N2c3Jvb3Qvc2VsaW51eC9uc2Evc2VsaW51eC91dGlscy9ydW5faW5pdC9NYWtlZmls
+ZSx2CnJldHJpZXZpbmcgcmV2aXNpb24gMS4zCmRpZmYgLXUgLXIxLjMgTWFrZWZpbGUKLS0tIHV0
+aWxzL3J1bl9pbml0L01ha2VmaWxlCTMgRGVjIDIwMDIgMTQ6Mzk6MDYgLTAwMDAJMS4zCisrKyB1
+dGlscy9ydW5faW5pdC9NYWtlZmlsZQkxNCBGZWIgMjAwMyAxODoyMToxNyAtMDAwMApAQCAtNDIs
+NiArNDIsOCBAQAogCSQoQ0MpICQoTERGTEFHUykgJChDRkxBR1MpIC1vIHJ1bl9pbml0IHJ1bl9p
+bml0LmMgJChMSUJGTEFHUykKIAogaW5zdGFsbCA6IGFsbAorCVsgLWQgJChERVNURElSKSBdIHx8
+IG1rZGlyIC1wICQoREVTVERJUikKKwlbIC1kICQoTUFORElSKS9tYW44IF0gfHwgbWtkaXIgLXAg
+JChNQU5ESVIpL21hbjgKIAlpbnN0YWxsIC1tIDU1NSAtbyByb290IC1nIHJvb3QgJChQUk9HUykg
+JChERVNURElSKQogCWluc3RhbGwgLW0gNjQ0IC1vIHJvb3QgLWcgcm9vdCBydW5faW5pdC44ICQo
+TUFORElSKS9tYW44LwogCWlmIFsgLWQgL2V0Yy9wYW0uZCBdOyB0aGVuIFwK
+
+--------------Boundary-00=_AIWCAH4TPFR92WIFG3VT--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
