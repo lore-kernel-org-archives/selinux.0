@@ -1,38 +1,62 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h51JnRI4006318
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jun 2003 15:49:34 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h51Jmess013276
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jun 2003 19:48:40 GMT
-Received: from unicorn.lemuria.org (c145004.adsl.hansenet.de [213.39.145.4])
-	by jazzswing.ncsc.mil  with ESMTP id h51JmchY013219
-	for <selinux@tycho.nsa.gov>; Sun, 1 Jun 2003 19:48:39 GMT
-Date: Sun, 1 Jun 2003 21:46:21 +0200
+Date: Sun, 1 Jun 2003 22:23:59 +0200
 From: Tom <tom@lemuria.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: John Wolff <jrwolff@comcast.net>, selinux@tycho.nsa.gov
-Subject: Re: Compaq DL-360
-Message-ID: <20030601214621.C31891@lemuria.org>
-References: <3ED7C88A.7060209@comcast.net> <200305310953.08664.russell@coker.com.au>
+To: SELinux@tycho.nsa.gov
+Subject: some policy feedback
+Message-ID: <20030601222359.D31891@lemuria.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200305310953.08664.russell@coker.com.au>; from russell@coker.com.au on Sat, May 31, 2003 at 09:53:08AM +1000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, May 31, 2003 at 09:53:08AM +1000, Russell Coker wrote:
-> On Sat, 31 May 2003 07:09, John Wolff wrote:
-> > Has anyone attempted to get SE Linux running on a Compaq DL-360 server?
-> 
-> Can you boot a non-SE kernel you compiled?
+I've just come back from a 3-day hacker convention where I brought an
+SELinux play system with me, to let the likes of teso, THC, LSD, etc.
+have a go at it.
 
-John, Russell is right here. We're using some of these machines at work
-and I remember that they required some patches that redhat made. Your
-problem may not be related to SELinux.
+There were a number of interesting points that I'd like to feed to the
+list:
 
-I'll ask someone at work tomorrow who set up the machines and shoot you
-an off-list message.
+1) su problem
+The default policy seems to have a hole that has potentially serious
+consequences. Root can run su and change to any user account authorized
+for root's current role. That way, root can set up traps for the sysadm
+when he logs into his own account, e.g. by trojaning the .bashrc file
+and having the sysadm execute a fake newrole (which calls the real one
+in the background, possibly a wrapper), capturing his password.
 
+Someone (whose name I unfortunately forgot to get) did exploit this
+problem and modified my .bashrc in a non-malicious way. I discussed the
+issue with him and we both felt that it would probably be possible to
+exploit it.
+
+
+2) various kernel-level issues
+code from LSD has brought up several interesting points that I could
+not really answer due to lack of in-depth knowledge, especially in the
+kernel operations.
+
+One question was the usual LKM issue. Would it be possible to overload
+calls of the SELinux patch, in turn disabling it? Or does LSM and/or SE
+have any kind of "self-preservation" behaviour?
+
+Another issue was whether it would be possible to trojan a running
+binary. Assuming that a daemon has an exploitable buffer overflow, it
+seems to be possible to change the daemon itself, at runtime. No exec
+would be made, and as I understand it, no system calls that could
+trigger SE. The trojaned daemon would continue to run, with whatever
+changes were made. (obviously, patching binary code while its running
+isn't for the faint of heart, but I've seen several methods for doing
+so in action, and it certainly is possible.)
+
+
+that brings me to
+
+3) user macros
+I've been digging through the user macros, because I wanted to set up
+an additional unpriviledge (guest) user. Is there any documentation on
+why the macros were laid out the way they were?
+
+
+Some more details when I've caught up on some sleep.
 
 -- 
 http://web.lemuria.org/pubkey.html
