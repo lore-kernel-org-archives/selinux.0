@@ -1,30 +1,77 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: $1_cupsd_spool_t in lpr_macros.te
-Date: Sun, 29 Sep 2002 13:43:46 +0200
-References: <200209291121.LAA25284@jazzband.ncsc.mil>
-In-Reply-To: <200209291121.LAA25284@jazzband.ncsc.mil>
+Message-Id: <200209291613.QAA02571@jazzband.ncsc.mil>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: Russell Coker <russell@coker.com.au>
+Subject: postfix
+Date: Sun, 29 Sep 2002 17:57:54 +0200
+Cc: SELinux <SELinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Message-Id: <200209291343.46606.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_I0J7E9YBG3XVGA9AM8BI"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 29 Sep 2002 12:29, Carsten Grohmann wrote:
-> the attached patch add cups support in lpr_domain. You can pipe some data
-> to lpr with this additional rules.
 
-Won't you also need something like the following?
-allow cupsd_t $1_cupsd_spool_t:file { r_file_perms unlink };
+--------------Boundary-00=_I0J7E9YBG3XVGA9AM8BI
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Hi Russel,
 
+the attached patch contain some little changes on your postfix rules. I=20
+need the additional rules on my (SuSE) system and I think this changes ar=
+e=20
+not SuSE specific and we could add this to postfix.te
+
+Carsten
+--------------Boundary-00=_I0J7E9YBG3XVGA9AM8BI
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="patch.postfix"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch.postfix"
+
+SW5kZXg6IHBvc3RmaXgudGUKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpSQ1MgZmlsZTogL2N2c3Jvb3Qvc2VsaW51eC9u
+c2Evc2VsaW51eC9wb2xpY3kvZG9tYWlucy9wcm9ncmFtL3Bvc3RmaXgudGUsdgpyZXRyaWV2aW5n
+IHJldmlzaW9uIDEuNQpkaWZmIC11IC1yMS41IHBvc3RmaXgudGUKLS0tIHBvc3RmaXgudGUJMjcg
+U2VwIDIwMDIgMTk6MTE6NDMgLTAwMDAJMS41CisrKyBwb3N0Zml4LnRlCTI5IFNlcCAyMDAyIDE1
+OjMxOjUxIC0wMDAwCkBAIC03MCw3ICs3MCw3IEBACiBjYW5fZXhlYyhwb3N0Zml4X21hc3Rlcl90
+LCBsc19leGVjX3QpCiBhbGxvdyBwb3N0Zml4X21hc3Rlcl90IHN5c2N0bF9rZXJuZWxfdDpkaXIg
+cl9kaXJfcGVybXM7CiBhbGxvdyBwb3N0Zml4X21hc3Rlcl90IHN5c2N0bF9rZXJuZWxfdDpmaWxl
+IHJfZmlsZV9wZXJtczsKLWFsbG93IHBvc3RmaXhfbWFzdGVyX3Qgc2VsZjpmaWZvX2ZpbGUgcndf
+ZmlsZV9wZXJtczsKK2FsbG93IHBvc3RmaXhfbWFzdGVyX3Qgc2VsZjpmaWZvX2ZpbGUgY3JlYXRl
+X2ZpbGVfcGVybXM7CiBhbGxvdyBwb3N0Zml4X21hc3Rlcl90IHVzcl90OmZpbGUgcl9maWxlX3Bl
+cm1zOwogY2FuX2V4ZWMocG9zdGZpeF9tYXN0ZXJfdCwgeyBzaGVsbF9leGVjX3QgYmluX3QgcG9z
+dGZpeF9leGVjX3QgfSkKIGFsbG93IHBvc3RmaXhfbWFzdGVyX3Qgc2VsZjpjYXBhYmlsaXR5IHsg
+ZGFjX292ZXJyaWRlIGtpbGwgc2V0Z2lkIHNldHVpZCBuZXRfYmluZF9zZXJ2aWNlIH07CkBAIC03
+OSwxNCArNzksMTUgQEAKIGFsbG93IHBvc3RmaXhfbWFzdGVyX3QgcG9zdGZpeF9wdWJsaWNfdDpk
+aXIgcndfZGlyX3Blcm1zOwogYWxsb3cgcG9zdGZpeF9tYXN0ZXJfdCBwb3N0Zml4X3ByaXZhdGVf
+dDpkaXIgcndfZGlyX3Blcm1zOwogYWxsb3cgcG9zdGZpeF9tYXN0ZXJfdCBwb3N0Zml4X3ByaXZh
+dGVfdDpzb2NrX2ZpbGUgY3JlYXRlX2ZpbGVfcGVybXM7Ci1hbGxvdyBwb3N0Zml4X21hc3Rlcl90
+IHBvc3RmaXhfcHJpdmF0ZV90OmZpZm9fZmlsZSBnZXRhdHRyOworYWxsb3cgcG9zdGZpeF9tYXN0
+ZXJfdCBwb3N0Zml4X3ByaXZhdGVfdDpmaWZvX2ZpbGUgY3JlYXRlX2ZpbGVfcGVybXM7CiBjYW5f
+bmV0d29yayhwb3N0Zml4X21hc3Rlcl90KQogYWxsb3cgcG9zdGZpeF9tYXN0ZXJfdCBzbXRwX3Bv
+cnRfdDp0Y3Bfc29ja2V0IG5hbWVfYmluZDsKIGFsbG93IHBvc3RmaXhfbWFzdGVyX3QgcG9zdGZp
+eF9zcG9vbF9tYWlsZHJvcF90OmRpciByX2Rpcl9wZXJtczsKLWFsbG93IHBvc3RmaXhfbWFzdGVy
+X3QgcG9zdGZpeF9wcm5nX3Q6ZmlsZSBnZXRhdHRyOworYWxsb3cgcG9zdGZpeF9tYXN0ZXJfdCBw
+b3N0Zml4X3BybmdfdDpmaWxlIHsgZ2V0YXR0ciBsb2NrIHJlYWQgd3JpdGUgfTsKIGFsbG93IHBv
+c3RmaXhfbWFzdGVyX3QgcG9zdGZpeF9zcG9vbF9tYWlsZHJvcF90OmZpbGUgZ2V0YXR0cjsKIGFs
+bG93IHBvc3RmaXhfbWFzdGVyX3QgcHJpdmZkOmZkIHVzZTsKIGFsbG93IHBvc3RmaXhfbWFzdGVy
+X3QgZXRjX2FsaWFzZXNfdDpmaWxlIHJfZmlsZV9wZXJtczsKK2FsbG93IHBvc3RmaXhfbWFzdGVy
+X3QgcmFuZG9tX2RldmljZV90OmNocl9maWxlIHsgcmVhZCB9OwogY3JlYXRlX2Rpcl9maWxlKHBv
+c3RmaXhfbWFzdGVyX3QsIHBvc3RmaXhfc3Bvb2xfZmx1c2hfdCkKICMgc2hvdWxkIG5vdCBuZWVk
+IHJlYWQsIGdldGF0dHIgZG9lcyBub3QgbWF0dGVyCiAjYWxsb3cgcG9zdGZpeF9tYXN0ZXJfdCBh
+ZG1pbl90dHlfdHlwZTpjaHJfZmlsZSB7IGdldGF0dHIgcmVhZCB3cml0ZSB9OwpAQCAtMjIzLDYg
+KzIyNCw3IEBACiBhbGxvdyBwb3N0Zml4X3BpY2t1cF90IHBvc3RmaXhfc3Bvb2xfbWFpbGRyb3Bf
+dDpmaWxlIHJfZmlsZV9wZXJtczsKIGFsbG93IHBvc3RmaXhfcGlja3VwX3QgcG9zdGZpeF9zcG9v
+bF9tYWlsZHJvcF90OmZpbGUgdW5saW5rOwogYWxsb3cgcG9zdGZpeF9waWNrdXBfdCBzZWxmOnRj
+cF9zb2NrZXQgY3JlYXRlX3NvY2tldF9wZXJtczsKK2FsbG93IHBvc3RmaXhfcGlja3VwX3Qgc2Vs
+Zjp1ZHBfc29ja2V0IHsgY3JlYXRlIGlvY3RsIH07CiAKIHBvc3RmaXhfcHVibGljX2RvbWFpbihx
+bWdyKQogYWxsb3cgcG9zdGZpeF9xbWdyX3QgcG9zdGZpeF9wdWJsaWNfdDpmaWZvX2ZpbGUgcndf
+ZmlsZV9wZXJtczsK
+
+--------------Boundary-00=_I0J7E9YBG3XVGA9AM8BI--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
