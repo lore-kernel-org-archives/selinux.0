@@ -1,35 +1,51 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "lky" <lky77@sjtu.edu.cn>, "SELINUX" <SELinux@tycho.nsa.gov>
-Subject: Re: can't start X window in enforce mode
-Date: Mon, 13 Oct 2003 08:11:28 +1000
-References: <000901c390ef$d8b3c770$5d38a8c0@lky>
-In-Reply-To: <000901c390ef$d8b3c770$5d38a8c0@lky>
+Message-ID: <3F89DF39.9070005@cisco.com>
+Date: Sun, 12 Oct 2003 16:09:45 -0700
+From: Michael Reilly <michaelr@cisco.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="gb2312"
-Message-Id: <200310130811.28355.russell@coker.com.au>
+To: russell@coker.com.au
+CC: SELinux@tycho.nsa.gov
+Subject: Re: How to get Xfree86 to run - old API
+References: <sf880644.030@atlas.snu.edu> <3F88FAEB.8000707@cisco.com> <200310121738.53945.russell@coker.com.au>
+In-Reply-To: <200310121738.53945.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 13 Oct 2003 04:37, lky wrote:
->-------------- Why the system didn't display the denied message if the
-> opration violate the policy? How should I configure my policy in order to
-> start the X window? Thanks!
+I first tried to run it as michaelr:staff_r:tstaff_t with the same results.
 
-# memory_device_t access is needed if not using the frame buffer
-dontaudit $1_xserver_t memory_device_t:chr_file read;
+I have startx.te in my policy (although the file startx.te itself has 
+nothing but comments in it).  I do see a couple of ifdef(`startx.te', ` in 
+x_client_macros.te
 
-The above is the relevant section of policy in
-macros/program/xserver_macros.te.  The X server tries to access /dev/mem even 
-if it doesn't need to.  Change the dontaudit rule to an allow for 
-rw_file_perms and it should work.
+The policy statements enabled by the ifdef are iincluded n policy.conf.
+
+Why is nothing logged?
+
+michael
+Russell Coker wrote:
+> On Sun, 12 Oct 2003 16:55, Michael Reilly wrote:
+> 
+>>When trying to run the Xfree86 server using startx as
+>>michaelr:sysadm_r:sysadm_t
+> 
+> 
+> This is probably not something that is desirable.  startx often runs lots of 
+> things that shouldn't have full access to the system.
+> 
+> 
+>>the server does not startup.  This message is displayed
+>>
+>>Fatal server error:
+>>xf86OpenConsole: Cannot open /dev/tty0 (No such file or directory)
+> 
+> 
+> Do you have startx.te compiled into your policy?
+> 
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+---- ---- ----
+Michael Reilly    michaelr@cisco.com
+     Cisco Systems, Santa Cruz, CA
 
 
 --
