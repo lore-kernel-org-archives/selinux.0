@@ -1,34 +1,36 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8FK5KrT020369
-	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 16:05:20 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8FK5rrT020401
+	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 16:05:53 -0400 (EDT)
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8FK5JhN015667
-	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 20:05:19 GMT
-Subject: Re: [patch] add proc_fs attribute
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8FK5rhN015705
+	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 20:05:53 GMT
+Subject: Re: Patch: Kill duplicate permissions
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
-To: Colin Walters <walters@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1095202603.8379.27.camel@nexus.verbum.private>
-References: <1095202603.8379.27.camel@nexus.verbum.private>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <20040915170909.GA2560@jmh.mhn.de>
+References: <20040915170909.GA2560@jmh.mhn.de>
 Content-Type: text/plain
-Message-Id: <1095278665.13380.8.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1095278704.13380.10.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 15 Sep 2004 16:04:25 -0400
+Date: Wed, 15 Sep 2004 16:05:04 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged as part of Dan's second patch.
+Thanks.  Merged.
 
-On Tue, 2004-09-14 at 18:56, Colin Walters wrote:
-> Hi,
+On Wed, 2004-09-15 at 13:09, Thomas Bleher wrote:
+> Kill a few duplicate permissions, plus some small cleanup.
 > 
-> The attached patch should fix this denial:
+> crond.te: already defined in logrotate.te
+> xserver_macros.te: already defined in xdm.te
 > 
-> audit(1095188105.721:0): avc:  denied  { read }
-> for  pid=2789 exe=/sbin/mdadm name=mdstat dev=proc ino=-268435080
-> scontext=user_u:system_r:unconfined_t
-> tcontext=system_u:object_r:proc_mdstat_t tclass=file
+> Others have duplicate permissions in the same file.
+> 
+> Please apply.
+> 
+> Thomas
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
