@@ -1,49 +1,39 @@
-Date: Wed, 3 Jul 2002 12:48:26 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Timothy Wood <timothy@hallcomp.com>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: udp receive
-In-Reply-To: <1025714377.3620.18.camel@phobos>
-Message-ID: <Pine.GSO.4.33.0207031237310.29509-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA02646
+	for <selinux@tycho.nsa.gov>; Wed, 3 Jul 2002 16:15:46 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA19734
+	for <selinux@tycho.nsa.gov>; Wed, 3 Jul 2002 20:14:19 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id UAA19730 for <selinux@tycho.nsa.gov>; Wed, 3 Jul 2002 20:14:19 GMT
+Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA02533
+	for <selinux@tycho.nsa.gov>; Wed, 3 Jul 2002 16:15:44 -0400 (EDT)
+Date: Wed, 3 Jul 2002 15:59:16 -0400 (EDT)
+From: hdholm@epoch.ncsc.mil (Howard Holm)
+Message-Id: <200207031959.PAA09221@coalpipe.epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Subject: Updated Release
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On 3 Jul 2002, Timothy Wood wrote:
-
-> avc:  denied  { recvfrom } for  pid=1791 exe=/usr/sbin/rpc.rquotad
-> saddr=127.0.0.1 source=696 daddr=127.0.0.1 dest=111 netif=lo
-> scontext=system_u:system_r:portmap_t tcontext=root:sysadm_r:sysadm_t
-> tclass=udp_socket
-<snip>
-> It looks to me like it's loopback between the rpc quota daemon and the
-> portmapper.
-
-In this case, the current process information is unreliable, since this
-check is performed during network input processing.  You can see from the
-pair of contexts that rpc.rquotad isn't truly the relevant process, since
-neither context has the rpcd_t type.  What you really want to add is
-can_udp_send($1_t, portmap_t) to macros/user_macros.te.
-
-> Is there a template I could use or could someone please explain how to
-> go about creating a new domain?  I understand how to do some basic
-> modifications so far but I'm no expert yet.  Thanks
-
-The Configuring the SELinux Policy report includes a very brief
-introduction to creating new domains in the Creating a New Domain
-subsection of the Customizing the Policy section.  The easiest approach is
-to use one of the existing domains as a template.  You may want to use
-Russell Coker's daemon_domain macro (in global_macros.te) to get started.
-The recently posted samba domains were reworked to use that macro, as you
-can see from Ryan Bergauer's postings.
+The SELinux web site <http://www.nsa.gov/selinux/> including the mail
+list archive has been updated. The site includes a new release of
+the LSM-based SELinux prototype.  The stable (2.4) LSM-based SELinux
+prototype remains at kernel 2.4.18.  The development (2.5) LSM-based
+SELinux prototype was updated to kernel 2.5.24.  The OpenSSH patch has
+been updated to openssh-3.4p1.  The file system labeling support has
+been generalized and labeling for kernel-generated IGMP and ICMP
+traffic has been added.  Many improvements have been made in the policy
+including making many policy sections optional, changing the audit
+configuration syntax, adding explicit type attribute declarations, and
+merging many contributed domains and policy changes.  The technical
+report describing configuration of the policy has also been updated.
 
 --
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+Howard Holm <hdholm@epoch.ncsc.mil>
+Secure Systems Research Office
+National Security Agency
 
 
 --
