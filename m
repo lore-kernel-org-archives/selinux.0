@@ -1,39 +1,28 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1AFEeL9011835
-	for <selinux@tycho.nsa.gov>; Thu, 10 Feb 2005 10:14:40 -0500 (EST)
-Subject: Re: Latest diffs
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1AFIPL9011878
+	for <selinux@tycho.nsa.gov>; Thu, 10 Feb 2005 10:18:25 -0500 (EST)
+Subject: Re: some policy patches
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <4200D68A.6030309@redhat.com>
-References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <41FA9717.2000609@redhat.com>
-	 <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>
-	 <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107349736.890.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107350272.890.82.camel@moss-spartans.epoch.ncsc.mil>
-	 <4200D68A.6030309@redhat.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200502032350.40924.russell@coker.com.au>
+References: <200502032350.40924.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1108048567.10328.9.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1108048794.10328.14.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 10 Feb 2005 10:16:07 -0500
+Date: Thu, 10 Feb 2005 10:19:54 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
+Merged.  
 
-On Wed, 2005-02-02 at 08:32, Daniel J Walsh wrote:
-> Added mplayer policy
-> 
-> Switched /u?dev back to /dev since this is no longer needed.
-> 
-> more fixes for smbmount.
-> 
-> Made some of the changes Stephen suggested.
-> 
-> Dan
+Except that a chunk in ssh.te and login.te reverted Dan's removal of
+ifdef(`automount.te' statements.  Was there a reason for this?
 
+On Thu, 2005-02-03 at 07:50, Russell Coker wrote:
+> Nothing really exciting in this patch.  Just some minor fixes and sorting out 
+> some of the distro-specific stuff.
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
