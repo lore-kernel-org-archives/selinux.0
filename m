@@ -1,37 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1IMhoRb025489
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2004 17:43:50 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1IMhmc5021843
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2004 22:43:49 GMT
-Date: Wed, 18 Feb 2004 14:43:46 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: James Morris <jmorris@redhat.com>
-Cc: "David S. Miller" <davem@redhat.com>, akpm@osdl.org,
-   linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1INlcRb025814
+	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2004 18:47:38 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i1INk5lM013715
+	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2004 23:46:07 GMT
+Date: Wed, 18 Feb 2004 18:47:33 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Chris Wright <chrisw@osdl.org>
+cc: "David S. Miller" <davem@redhat.com>, <akpm@osdl.org>,
+   <linux-kernel@vger.kernel.org>, <sds@epoch.ncsc.mil>,
+   <selinux@tycho.nsa.gov>
 Subject: Re: [SELINUX] Event notifications via Netlink
-Message-ID: <20040218144346.B22989@build.pdx.osdl.net>
-References: <20040218125545.6c499296.davem@redhat.com> <Xine.LNX.4.44.0402181621390.28705-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Xine.LNX.4.44.0402181621390.28705-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Wed, Feb 18, 2004 at 04:22:51PM -0500
+In-Reply-To: <20040218144346.B22989@build.pdx.osdl.net>
+Message-ID: <Xine.LNX.4.44.0402181845520.29323-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* James Morris (jmorris@redhat.com) wrote:
-> +static int selnl_msglen(int msgtype)
-> +	default:
-> +		BUG();
-> +static void selnl_add_payload(struct nlmsghdr *nlh, int len, int msgtype, void *data)
-> +	default:
-> +		BUG();
+On Wed, 18 Feb 2004, Chris Wright wrote:
 
-Is BUG() the best error here, or too draconian?
+> * James Morris (jmorris@redhat.com) wrote:
+> > +static int selnl_msglen(int msgtype)
+> > +	default:
+> > +		BUG();
+> > +static void selnl_add_payload(struct nlmsghdr *nlh, int len, int msgtype, void *data)
+> > +	default:
+> > +		BUG();
+> 
+> Is BUG() the best error here, or too draconian?
+> 
 
-thanks,
--chris
+Reaching this would be incorrect use of a kernel API, leading to 
+malfunctioning security code, so I feel that a BUG() is appropriate.
+
+
+- James
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+James Morris
+<jmorris@redhat.com>
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
