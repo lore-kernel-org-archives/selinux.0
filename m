@@ -1,38 +1,37 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6THGwrT020643
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 13:16:58 -0400 (EDT)
-Date: Thu, 29 Jul 2004 13:06:15 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6THQsrT020735
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 13:26:54 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6THQNbB004801
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 17:26:23 GMT
 Subject: Re: temporary hack to use udev in selinux
-In-Reply-To: <1091120226.21971.110.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.44.0407291305360.16390-100000@dhcp83-76.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: James Morris <jmorris@redhat.com>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <Xine.LNX.4.44.0407291305360.16390-100000@dhcp83-76.boston.redhat.com>
+References: 
+	 <Xine.LNX.4.44.0407291305360.16390-100000@dhcp83-76.boston.redhat.com>
+Content-Type: text/plain
+Message-Id: <1091121776.21971.132.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Thu, 29 Jul 2004 13:22:56 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 29 Jul 2004, Stephen Smalley wrote:
+On Thu, 2004-07-29 at 13:06, James Morris wrote:
+> This could be done by simply allowing context= to override any other 
+> behavior, right?
 
-> SELinux determines filesystem labeling behavior (policy/fs_use) based on
-> filesystem type, and shmem subsystem happens to use an instance of the
-> tmpfs filesystem type.  James Morris introduced a new mount option
-> (context=) a while back to allow assigning a single security context to
-> all inodes in a particular mount; I suppose that this could be
-> generalized to allow you to specify the labeling behavior itself on a
-> per-mount basis.
+context= only lets you map all inodes in the filesystem to a single
+security context and prohibits getxattr/setxattr/setfscreatecon.  For
+tmpfs, we want to allow individual inode labeling and
+getxattr/setxattr/setfscreatecon, so that tmpfs can be used for /tmp or
+/dev or shmem in differing ways.
 
-This could be done by simply allowing context= to override any other 
-behavior, right?
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
