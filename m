@@ -1,56 +1,61 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBQAvgIi013758
-	for <selinux@tycho.nsa.gov>; Sun, 26 Dec 2004 05:57:43 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBQAtqEM006619
-	for <selinux@tycho.nsa.gov>; Sun, 26 Dec 2004 10:55:54 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 2A44161AFD
-	for <selinux@tycho.nsa.gov>; Sun, 26 Dec 2004 21:57:39 +1100 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 17703-04 for <selinux@tycho.nsa.gov>;
-	Sun, 26 Dec 2004 21:57:38 +1100 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id BF45961AF9
-	for <selinux@tycho.nsa.gov>; Sun, 26 Dec 2004 21:57:38 +1100 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id D70BBA4
-	for <selinux@tycho.nsa.gov>; Sun, 26 Dec 2004 21:57:37 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: r_dir_file() and sym-links
-Date: Sun, 26 Dec 2004 21:57:34 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200412262157.36359.russell@coker.com.au>
+Date: Sun, 26 Dec 2004 12:54:05 +0000
+From: Dale Amon <amon@vnl.com>
+To: Jaspreet Singh <jsingh@ensim.com>
+Cc: Erich Schubert <erich@debian.org>, nsa <SELinux@tycho.nsa.gov>
+Subject: Re: Overlay Filesystem and SELinux
+Message-ID: <20041226125404.GA2459@vnl.com>
+References: <1098274225.12118.20.camel@jsingh.india.ensim.com> <20041020151031.GB21185@lkcl.net> <20041020174938.GL21185@lkcl.net> <1098887565.1620.15.camel@jsingh.india.ensim.com> <1104022405.29054.7.camel@wintermute.xmldesign.de> <1104050461.14672.6.camel@jsingh>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
+In-Reply-To: <1104050461.14672.6.camel@jsingh>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In retrospect it was a mistake to make r_dir_file() and friends operate on 
-lnk_file types as well.  We should have had separate macros for sym-links and 
-without sym-link access.
 
-Currently there are many instances in the policy of r_dir_file() being used 
-for cases where sym-links are not possible (EG for some parts of /proc).
+--rwEMma7ioTxnRzrJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Also r_dir_perms and r_file_perms grant more access than is usually required.  
-Maybe we should have a macro like the following:
+On Sun, Dec 26, 2004 at 02:11:00PM +0530, Jaspreet Singh wrote:
+> I was initially involved in creating a unionfs (of BSD) for Linux. This
+> project was called "mini_fo". Search google for results.
+>=20
+> That project is now .. not maintained .. and now I am involved in a much
+> more sophisticated implementation called - "unionfs" . Check this link -
+> www.fsl.cs.sunysb.edu/project-unionfs.html
+>=20
+> Unionfs was initially only for 2.4 kernel, but i recently ported it to
+> 2.6. The port is not official yet. But, its working.
 
-define(`s_dir_r_file', `
-allow $1 $2:dir search;
-allow $1 $2:file { getattr read };
-')
+Brilliant. I have been waiting for this quite literally
+for years. What are the chances it will go into the
+main kernel tree?
 
-What do you think?
+--=20
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--rwEMma7ioTxnRzrJ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBzrRsZHES7UL0zXERAu7WAKCBPWHGeOdtrkFopLuWSLpni9H90ACfXxcB
+vLbODwQNhP4pEdADNCkByA4=
+=41Zl
+-----END PGP SIGNATURE-----
+
+--rwEMma7ioTxnRzrJ--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
