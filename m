@@ -1,27 +1,29 @@
-Date: Fri, 12 Apr 2002 10:21:48 -0400 (EDT)
+Date: Fri, 12 Apr 2002 10:40:53 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Tom <tom@lemuria.org>
-cc: Russell Coker <russell@coker.com.au>, <SELinux@tycho.nsa.gov>
+To: Russell Coker <russell@coker.com.au>
+cc: Tom <tom@lemuria.org>, <SELinux@tycho.nsa.gov>
 Subject: Re: db conflict ?
-In-Reply-To: <20020412161729.B29624@lemuria.org>
-Message-ID: <Pine.GSO.4.33.0204121019570.21729-100000@raven>
+In-Reply-To: <20020412140719.EC35D281EF@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0204121030040.21729-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 12 Apr 2002, Tom wrote:
+On Fri, 12 Apr 2002, Russell Coker wrote:
 
-> One thing that I noticed during this setup was that the patched login
-> and ssh tools do not appear to work if they run on a non-lsm kernel.
-> While this is probably the right thing to do security-wise, it also
-> means that keeping a non-SELinux kernel as "rescue system" on-disk
-> doesn't help a thing.
+> Having SE Linux code in /etc/magic for 0x6, 0x7, or 0x8, etc as the first
+> long of the file is not viable, eventually we'll hit a conflict.
+>
+> This is why I have intentionally not submitted my /etc/magic changes to the
+> maintainer of the "file" package.
 
-I can't speak for the Debian selinux packages, but the upstream SELinux
-modified daemons and utilities run fine on non-SELinux kernels and non-LSM
-kernels.  They simply fall back to the ordinary processing in that case.
+Yes, you originally asked for a magic number back in January.  Sorry.  How
+about the same magic number we use to distinguish the SELinux module's
+system calls and security structures, 0xf97cff8c?  This number follows a
+convention suggested by David Wheeler for security modules - see
+http://marc.theaimsgroup.com/?l=linux-security-module&m=99842987214848&w=2.
 
 --
 Stephen D. Smalley, NAI Labs
