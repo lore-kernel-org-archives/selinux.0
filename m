@@ -1,62 +1,35 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9HC47Wt008585
-	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 08:04:07 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9HC8bWt008606
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 08:08:37 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9HC46mR011188
-	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 12:04:06 GMT
+	by jazzband.ncsc.mil  with ESMTP id h9HC8amR011354
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 12:08:36 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h9HC45jp011185 for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 12:04:05 GMT
+        by jazzband.ncsc.mil  with ESMTP id h9HC8Zjp011350 for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 12:08:36 GMT
 Subject: Re: process context
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Carlos Anisio Monteiro <monteiro@ipen.br>
+To: kamal <kamalnee@iitk.ac.in>
 Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
-In-Reply-To: <3F8EEA16.8090908@ipen.br>
+In-Reply-To: <3F8FC612.2090105@iitk.ac.in>
 References: <3F8EEA16.8090908@ipen.br>
+	 <200310171327.31980.russell@coker.com.au>  <3F8FC612.2090105@iitk.ac.in>
 Content-Type: text/plain
-Message-Id: <1066392235.31764.6.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1066392503.31764.11.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 17 Oct 2003 08:03:55 -0400
+Date: 17 Oct 2003 08:08:23 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-10-16 at 14:57, Carlos Anisio Monteiro wrote:
-> Hi.
+On Fri, 2003-10-17 at 06:36, kamal wrote:
+> But why does this happen? I also had the same problem, and because getty 
+> process is not labeled properly, login fails to get default context.
 > 
-> The system have many process running in the following context:
-> system_u:system_r:kernel_t (see example below).
-<snip>
-> 
-> This is happen in the time of boot.
-> 
-> Is this correct? Any process, p.ex. init, syslogd, klogd, shouldn't
-> they running in the proper context?
-> P.ex.: 
-> init - system_u:system_r:init_t
-> klogd - system_u:system_r:klogd_t
-> cron - system_u:system_r:cron_t
-> 
-> If yes. How I resolve ???
+> Output of "ls --context /sbin/init" is:
+> -rwxr-xr-x  root     root     system_u:object_r:init_exec_t    /sbin/init
 
-The possible scenarios are:
-1) You never labeled /sbin/init with system_u:object_r:init_exec_t.
-Based on your prior email, you have labeled /sbin/init, so this is not
-the cause.
-
-2) You labeled /sbin/init initially, but you are running prelink on your
-system and do not have the patched prelink program, so prelink is
-cheerfully unlinking it and re-creating it with the default type,
-causing it to fall back into sbin_t.  You can check for this by doing a
-'ls --context /sbin/init' again.  Dan Walsh has a patched prelink
-program that preserves security contexts available from his site,
-ftp://people.redhat.com/dwalsh/SELinux.  prelink is enabled by default
-in Fedora Core.
-
-3) /sbin/init is labeled correctly, but the policy is not loaded prior
-to starting it, so the domain transition rule isn't defined when the
-execution occurs.  This would happen if you failed to load the policy
-from an initrd prior to execution of /sbin/init, or if you are trying to
-perform the initial policy load via /sbin/init itself without
-re-exec'ing it after performing the load.
+As with the other poster, your problem may be that you aren't loading
+the policy prior to executing /sbin/init, or you are loading the policy
+via /sbin/init but failing to re-execute it.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
