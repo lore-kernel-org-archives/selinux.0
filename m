@@ -1,40 +1,21 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8DBt6La001461
-	for <selinux@tycho.nsa.gov>; Sat, 13 Sep 2003 07:55:06 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8DBrRLY007529
-	for <selinux@tycho.nsa.gov>; Sat, 13 Sep 2003 11:53:27 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id h8DBrQsG007526
-	for <selinux@tycho.nsa.gov>; Sat, 13 Sep 2003 11:53:27 GMT
-Date: Sat, 13 Sep 2003 12:55:03 +0100
+Date: Sat, 13 Sep 2003 16:49:43 +0100
 From: Dale Amon <amon@vnl.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: rfs xattr's, mkinitrd and other stories
-Message-ID: <20030913115503.GB16830@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Another small SE presentation
+Message-ID: <20030913154943.GC16830@vnl.com>
+References: <20030909215414.K6475@lemuria.org> <3F5ED720.3090206@hotmail.com> <200309110907.17495.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200309110907.17495.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've got it sorted and the answers may be useful to
-others. 
+On Thu, Sep 11, 2003 at 09:07:17AM +1000, Russell Coker wrote:
+> My 2.6.0-test5 patch is only needed for UML.  I've never booted a 2.6 kernel 
+> on a non-UML system...
 
-1) Don't enable BOTH cramfs and romfs if you are
-   using romfs for your initrd image. initrd seems
-   to default to cramfs if it is in the kernel.
-   This was very unobvious from the error output.
-
-2) Make sure you enable the shm pseudo file system
-   so that tmpfs exists.
-
-I'll try to find some time to write up the details
-of getting initrd running on a 2.6.0 kernel under
-a Debian dist. 
-
-First I've got a *&^%$ load of avc's. And I still
-have to prove my attribute handler kernel patch
-works.
+Yes, he leaves it to fools like me. :-)
 
 -- 
 ------------------------------------------------------
