@@ -1,29 +1,30 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9TJGIXZ010906
-	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 15:16:18 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9TJExMb021165
-	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 19:14:59 GMT
-Subject: Re: screen patch
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9TJGaXZ010924
+	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 15:16:36 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9TJGWsx020468
+	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 19:16:32 GMT
+Subject: Re: Patch: small fix for sudo
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 Cc: SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <20041026120629.GC24672@rom.cip.ifi.lmu.de>
-References: <20041026120629.GC24672@rom.cip.ifi.lmu.de>
+In-Reply-To: <20041026092350.GB24672@rom.cip.ifi.lmu.de>
+References: <20041026092350.GB24672@rom.cip.ifi.lmu.de>
 Content-Type: text/plain
-Message-Id: <1099077306.12321.88.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1099077320.12321.90.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 29 Oct 2004 15:15:06 -0400
+Date: Fri, 29 Oct 2004 15:15:20 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Merged.
 
-On Tue, 2004-10-26 at 08:06, Thomas Bleher wrote:
-> The following patch allows users to start screen with some other program
-> than the shell, e.g. "screen vim /some/file". The given command forms
-> the first session inside of screen.
+On Tue, 2004-10-26 at 05:23, Thomas Bleher wrote:
+> Attached patch fixes one duplicate permission which is already in
+> newrole_domain() and moves the exec type declaration out of the macro.
+> The old policy generated types like staff_sudo_exec_t which is wrong, I
+> think.
 > 
 > Please apply.
 > 
