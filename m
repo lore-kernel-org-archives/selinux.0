@@ -1,32 +1,34 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2DtcRb014251
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 08:55:39 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB2DtbqY024507
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 13:55:37 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2DvARb014270
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 08:57:10 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hB2DuLp5026995
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 13:56:21 GMT
 Received: from nox.lemuria.org ([213.191.86.35])
-        by jazzband.ncsc.mil  with ESMTP id hB2Dta0o024498 for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 13:55:37 GMT
-Date: Tue, 2 Dec 2003 14:55:31 +0100
+	by jazzswing.ncsc.mil  with ESMTP id hB2DuKt0026992
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 13:56:20 GMT
+Date: Tue, 2 Dec 2003 14:56:59 +0100
 From: Tom <tom@lemuria.org>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: wdm now has SELinux support out-of-the-box
-Message-ID: <20031202145531.B1867@lemuria.org>
-References: <20031202094639.C29282@lemuria.org> <200312022248.40562.russell@coker.com.au>
+To: Chris Vanden Berghe <vbc@zurich.ibm.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: selinux-policy-default
+Message-ID: <20031202145659.C1867@lemuria.org>
+References: <3FCC831A.1070002@zurich.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200312022248.40562.russell@coker.com.au>; from russell@coker.com.au on Tue, Dec 02, 2003 at 10:48:40PM +1100
+In-Reply-To: <3FCC831A.1070002@zurich.ibm.com>; from vbc@zurich.ibm.com on Tue, Dec 02, 2003 at 01:18:34PM +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Dec 02, 2003 at 10:48:40PM +1100, Russell Coker wrote:
-> While you're on a roll perhaps you could look into trying to get some of the 
-> other application patches accepted upstream.  At the moment I'm busy enough 
-> just keeping things working...
+On Tue, Dec 02, 2003 at 01:18:34PM +0100, Chris Vanden Berghe wrote:
+> I tried installing the new selinux version for kernel 2.6.0-test11 under
+> Debian.  Started by installing libselinux1 from Russells newselinux
+> archives, this worked just fine.  But when afterwards I tried installing
+> selinux-policy-default, then I got the error message below:
 
-Tell me which ones are most important.
-
-I have a tight deadline next monday for my next paper. After that I'll
-have a bit of time. Until then, I'm struggling for free minutes.
+I had a similiar error when I upgraded. I _think_ you can just manually
+create an empty dir and it should work. Try that. If it doesn't, yell
+again and I'll try to recreate the steps I took to get it running.
 
 
 -- 
