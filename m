@@ -1,29 +1,47 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA00823
-	for <selinux@tycho.nsa.gov>; Sun, 17 Nov 2002 17:04:46 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA00937
+	for <selinux@tycho.nsa.gov>; Sun, 17 Nov 2002 17:37:37 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA25978
-	for <selinux@tycho.nsa.gov>; Sun, 17 Nov 2002 22:02:46 GMT
+	by jazzband.ncsc.mil  with ESMTP id WAA26831
+	for <selinux@tycho.nsa.gov>; Sun, 17 Nov 2002 22:35:37 GMT
 Received: from edmond.crypt.gen.nz (203-79-124-72.adsl.paradise.net.nz [203.79.124.72])
-        by jazzband.ncsc.mil  with ESMTP id WAA25974 for <selinux@tycho.nsa.gov>; Sun, 17 Nov 2002 22:02:44 GMT
+        by jazzband.ncsc.mil  with ESMTP id WAA26827 for <selinux@tycho.nsa.gov>; Sun, 17 Nov 2002 22:35:35 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Kerry Thompson <kerry@crypt.gen.nz>
 To: "Subba Rao" <sailorn@attglobal.net>, selinux <selinux@tycho.nsa.gov>
 Subject: Re: SELinux compile errors
-Date: Mon, 18 Nov 2002 11:04:30 +1300
+Date: Mon, 18 Nov 2002 11:37:32 +1300
 References: <200211161559.PAA06301@jazzband.ncsc.mil>
 In-Reply-To: <200211161559.PAA06301@jazzband.ncsc.mil>
 MIME-Version: 1.0
-Message-Id: <200211181104.30566.kerry@crypt.gen.nz>
+Message-Id: <200211181137.32658.kerry@crypt.gen.nz>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+Aaarg. Sorry about the previous broken message, it seems that CTRL-V in KMail 
+is 'Send', and not 'Paste bit of useful code'.
 
 The same problem was raised a few weeks ago, it comes from ip_warn() in 
 selopt_core.c having two arguments, while the macro definition in selopt.h 
 has 3 arguments. Namely :
 
+in selopt.h :
 
+  #define ip_warn(iph, fmt, args...)                                     \
+       do { printk(KERN_WARNING "%s: " fmt, __FUNCTION__, ##args);     \
+            printk(" [%u.%u.%u.%u->%u.%u.%u.%u]\n",                    \
+            NIPQUAD(iph->saddr), NIPQUAD(iph->daddr));                 \
+       } while (0);
+
+while the lines in selopt_core.c with compiler warnings are like :
+
+    ip_warn(iph, "out of memory expanding skb\n");
+
+... and your compiler is having a nasty reaction to it. You could try adding 
+an extra parameter to the ip_warn() calls, like adding a NULL argument. Or, 
+you could avoid the issue by building without labelled network support in 
+your kernel config and avoiding selopt altogether.
 
 Can you please identify which GCC compiler you're using ( 'gcc --version' ) ?
 
