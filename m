@@ -1,36 +1,40 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UJIbrT026006
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 15:18:37 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UJHVng004773
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 19:17:32 GMT
-Date: Thu, 30 Sep 2004 20:29:35 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UJVsrT026140
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 15:31:54 -0400 (EDT)
+Received: from web14926.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i8UJUmng005963
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 19:30:48 GMT
+Message-ID: <20040930193153.22233.qmail@web14926.mail.yahoo.com>
+Date: Thu, 30 Sep 2004 12:31:53 -0700 (PDT)
+From: Tom Anderson <granite217@yahoo.com>
+Subject: Re: purpose of the staff_r role?
 To: Colin Walters <walters@verbum.org>
-Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: Access to xdm_t
-Message-ID: <20040930192935.GA6063@lkcl.net>
-References: <20040929163222.GA4125@rom.cip.ifi.lmu.de> <1096561927.4957.15.camel@nexus.verbum.private>
-Mime-Version: 1.0
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1096550221.969.5.camel@nexus.verbum.private>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1096561927.4957.15.camel@nexus.verbum.private>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 30, 2004 at 12:32:07PM -0400, Colin Walters wrote:
-> On Wed, 2004-09-29 at 18:32 +0200, Thomas Bleher wrote:
-> 
-> > If yes, should xdm_t get the attribute privfd?
-> 
-> Actually even moving the log to /tmp you'll still get programs wanting
-> access to the xdm_t fd.  Ideally we would have a little program run in
-> its own domain (xdm_launcher_t say) that would simply close all of its
-> file descriptors, open up the tmp file itself for logging and exec the
-> user session.  
+> It's the role that a person who can become sysadm_r should do their
+> daily work in like reading mail, working on source code, etc.  The
+> reason is because it basically isn't allowed to interact with user_t
+> at all; for example, staff_t can't read user_tmp_t.  This prevents 
+> /tmp races from working.
 
- /usr/bin/startkde for example?
+Ah, that makes sense.  But I'd like my staff_t user able to read
+logfiles, without needing to become sysadm_r first ('cuz I can do some
+real damage inadvertently).  Is there a "correct" way to do this?  I've
+tried granting read access to var_log_t, but several daemons have their
+own logfile types.
 
+
+
+		
+_______________________________
+Do you Yahoo!?
+Express yourself with Y! Messenger! Free. Download now. 
+http://messenger.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
