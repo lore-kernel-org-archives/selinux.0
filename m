@@ -1,83 +1,80 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Bill Laut <wlsel@verizon.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: Verify the integrity of downloaded archives
-Date: Fri, 7 Nov 2003 13:13:32 -0500
-Cc: SELinux@tycho.nsa.gov
-References: <000001c3a3db$2dad18f0$02000a0a@lady> <200311060111.16197.wlsel@verizon.net> <1068128683.4355.37.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1068128683.4355.37.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA7J5DSf025501
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2003 14:05:13 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hA7J5BKl028789
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2003 19:05:11 GMT
+Received: from mail.gmx.net (pop.gmx.net [213.165.64.20])
+        by jazzband.ncsc.mil  with SMTP id hA7J5A5m028775 for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2003 19:05:11 GMT
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: Paul Dwerryhouse <paul@dwerryhouse.com.au>, selinux@tycho.nsa.gov
+Subject: Re: SELinux kernel RPMs for SuSE.
+Date: Fri, 7 Nov 2003 19:28:11 +0100
+References: <20031107093210.GA1052@localhost>
+In-Reply-To: <20031107093210.GA1052@localhost>
 MIME-Version: 1.0
-Message-Id: <200311071313.32442.wlsel@verizon.net>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_7Q+q/Ne6N3mCpGc"
+Message-Id: <200311071928.11502.carstengrohmann@gmx.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thursday 06 November 2003 09:24 am, Stephen Smalley wrote:
-> On Thu, 2003-11-06 at 01:11, Bill Laut wrote:
-> > While I'd love to meet a hacker who could successfully break into the
-> > NSA's website to install a Trojan (;-), Oliver does bring up a good
-> > point.  As SELinux gains a wider audience it would be reasonable to
-> > anticipate the distro eventually getting mirrored at other sites.  Since
-> > the use of digital signatures as an integrity-check is now commonplace
-> > within the Linux community, would it be reasonable to start posting
-> > signatures on the NSA website?
+--Boundary-00=_7Q+q/Ne6N3mCpGc
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+On Freitag, 7. November 2003 10:32, Paul Dwerryhouse wrote:
+> Hi all,
 >
-> Possibly.  Since we originally released SELinux as a proof of concept /
-> reference implementation and it has never been intended to be a Linux
-> distribution unto itself (although it can be incorporated into one),
-> this hasn't been a major concern in the past.  However, I understand the
-> concern.  On the other hand, on what basis would you trust the key used
-> to sign the archives and patches?
->
+> In September, I built a bunch of SELinux userspace RPMs for SuSE
+> Linux 8.2. I have now ported the 2.4 backport of the 'new'
+> SELinux code to Hubert Mantel's SuSE default kernel 2.4.21-121,
+> and subsequently have built an RPM of the kernel itself.
 
-I'm not certain what you mean by "trust."  If you're implying a CA like 
-Verisign, no way.  Firstly, that would be overkill.  Secondly, the idea of 
-NSA going to Verisign for credentials is, well, politically distasteful to 
-say the least and would undoubtedly engender all sorts of unintended 
-consequences, political and otherwise.
+Thanks for the new SuSE packages.
+I've attached a patch for mkinitrd to copy all necessary SELinux 
+staff in the initial ramdisks. The option -S enabled this.
 
-As to the trustworthiness of the algorithms, I'm not aware of successful 
-published attacks on DSA, et al.  The only one that comes to mind is RC5 
-which IIRC a German cryptogapher nearly all but broke back around 1996.  If 
-anyone has better knowledge please feel free to post it.
+Ciao
 
-As for "trust" defined by the security of the NSA's website, well, that was 
-why I put the "winking-face" icon after my opening sarcasm:  If there's one 
-website that's "hacker-proof," it is the NSA's home page and which is why I 
-and undoubtedly others chuckled at Oliver's innocent cheek.
+Carsten
 
-I understand what you said about SELinux being a research project that was 
-never intended as a Linux distro unto itself.  Perhaps my use of "distro" was 
-a poor choice to describe the two-part downloads of the patched kernel and 
-userland archive.  Nevertheless, now that it's mainstreamed as of v2.6 
-SELinux is going to gain a much wider audience and as it does it will explode 
-worldwide throughout the Linux community.  (As a former free-lance consultant 
-I haven't seen "bottled lightning" this potent since the Internet achieved 
-critical mass around 1991/92, but that's for another thread.)
+--Boundary-00=_7Q+q/Ne6N3mCpGc
+Content-Type: application/x-gzip;
+  name="mkinitrd.diff.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="mkinitrd.diff.gz"
 
-While I believe anyone is secure in downloading SELinux from the NSA's 
-website, as Jim mentioned there's already enough interest in it that other 
-websites have begun mirroring SELinux.  And therein lies the problem.  As 
-SELinux's popularity grows it will eventually come under attack by whoever 
-has an agenda to push, if only because it carries the NSA's imprimatur.  If 
-they can't attack it on the NSA's website they'll go to other, less secure 
-mirrors to do so.  Therefore, in order to pre-empt all of that I'm 
-questioning if now wouldn't be the appropriate time to consider some sort of 
-digital signing strategy.
+H4sICCnjqz8AA21raW5pdHJkLmRpZmYArVZtc5tGEP4Mv2KLNcm4gCRQ9GIcuU6nbiYzcd2p009N
+R0Fwsi4CjnKHa6Xpf+/ucQjZUZxOGywj3d7evjz7cuv7PuQbXnBVpX1R8RsrHA5HPn6CGQSzaDSJ
+xuP+sH3AHQbDoe267u5UcyAI/GEIwSgaB1E4++TA+Tn44TD0JuDS1xTOz22wAHwJkn9gsHtepCnI
+MovlGuKC57HiosBfKSyFUDKpGCtACTAGNzIErHj2QMbVxSVUTMuWdVmKShlmBSovFymvDDOuAFce
+pGwV15mSJN4ZINmxXTpwDfef1yJO4friNS/qOyhFxpOt1m+DveOp0FjSEXXH1JqRHpYoUW31ipig
+jCvFtZNcQi7qQrEULbDhkee+pU4D7miiwR1NDbhLY8LccWyD6NyJayVwKVhOZFeyjLzQLDYcQVwl
+a67QxLpCY1nJihQ/kKzj4obJyNYM83d1EecM/Pxdo3n8DFW64XjShvX01AYm4wSF+n+uKTQ3TIkS
+DY7Wm4hHebSM0khEMlIRxHAKqbDdLzFet5xgJbFk0IsxCXBhvY0+vv3u2BCvfn7z4peXZseyNscW
+S9aIkr/BbPijRvwlbFhVsAwyLjX86ItilUHxZKxRPJl6s8YXS3tjWerYMnkzN0raTdeyro+bwOzw
+3DJJ2dMeXh9btYxvWCdPw0MaR1ON3mg6M+g1kWsCtii5jkUTx16bVYNaVgO5jis2aPgGmE45k4Ok
+ripWKIdimcd3PK9zUym6ymwfC+qGLZaZSDZyHlB92u592pho0NB4IVIm56EmkUz/6/1p5yezETk/
+mU13zh/9/8eGgrF0kfFlMrf938AAl93mDswhoH7hF0jFKnBo4fRqyRDqW2QiTkNcx3LxfiXNKhWL
+D6ukdOB3ePJkT0Fgu19bg16ZVDqgD0HiKyClOypxnVJPKahvSIVdM1nINcuy+WDJiwGmiMZ7OqYs
+c6eT0Dtp0vvbY5Mgi5Td8gSj3WUZUgZ/KbUNPHyF3gdWCa+os8zDkhnSK6BXSC/6T7nceKvl0EtE
+IUXGvDwd/k3JTk/TDvSv2ziDpAQ/ht591dCjCssLRZptn5iRr7fvTsdCbuEdEZ5pM8ks+PgRWFWJ
+Cp6BUwgDA+hzWIy2e7TPbbv/Sv6jMuGBCF7IXKT3ZRjaQTvH+zIbRqe9RY7g1QrYHfYo6UEiyi3E
+mRSGq9+c6Yss9YArujrwZozp6lhu8RZJa8UzCStR6bDPQn03zEahF0x03M0tlXe2ZmnakpMUy1P/
+WvEGpuZtsq7LTJNybnOsabRY2+3daO5dp2XIN3Tr+mWn1Ij6PANTCTJhW+Nq23IPHpGHiLe7JsV2
+2XxQVHN994Px4yo/J1P3YYpyhjPBwswC96zZ32mkaEzbKGvMnh59AybfnsJZL7tbVMne9llLolCe
+jKcUypPpyAvalnlx9eN/CBcksdrJhufPSQqWCNmrpxNzDlrbm/DS8MOLmwfzT7/fxyjr6YUGLHN0
+JaEQBYMWRdirgfDsCXbOT8H7Qphst260dJGxXW258d/ganx/2HW7Lmkd8J7wDYaz0BuBGwTDk7ZY
+GrFYiwp69F4keC3aLrGPAx0O+gpCYnapQsm8rvZNsaI5lz+9eXX54uXFXmOg4sgKGoObIwUNvh2j
+piFbWYklo7xxMUTf8yLGEXJv9NQD8j6MVP8IIHUATaeQcZyAXbcrmk5JC+WhzcPl4DZefqGmnMfF
+dJzOTuLBinqA3N4WHURYyM3Lqx9+fX2B8KPx+ud1M1fumvQtq5YCZ0Ss4AFemgRrneHQ1GvmwYE5
+tuc7cuH5FHPY/gdkgUlyJw0AAA==
 
-Anyway, to finish answering your question concerning key trust:  It wouldn't 
-have to be complicated.  Perhaps nothing more than just the usual PGP 
-detached signature, one for each download, with the signing done on an 
-air-gapped PC and the public key and sigs distributed on the NSA's website, 
-with the public key included in the patched kernel's Documentation directory 
-as distributed by www.kernel.org and/or maybe uploaded to a number of public 
-keyservers.
-
-Does this sound reasonable?  Am I forgetting or overlooking anything?
-
-Bill
-
+--Boundary-00=_7Q+q/Ne6N3mCpGc--
 
 
 --
