@@ -1,46 +1,45 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB3AKDRb020352
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 05:20:13 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB3B2iRb020469
+	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 06:02:44 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB3AJ8p5010773
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 10:19:24 GMT
-Received: from nox.lemuria.org ([213.191.86.35])
-	by jazzswing.ncsc.mil  with ESMTP id hB3AIVt0010720
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 10:18:48 GMT
-Date: Wed, 3 Dec 2003 11:17:47 +0100
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: the /etc/selinux problem
-Message-ID: <20031203111746.A27632@lemuria.org>
+	by jazzswing.ncsc.mil  with ESMTP id hB3B23p7012534
+	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 11:02:05 GMT
+Date: Wed, 3 Dec 2003 11:02:26 +0000
+From: Dale Amon <amon@vnl.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: nagray@austin.rr.com, Russell Coker <russell@coker.com.au>,
+   nagray@bruzenak.com, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: What causes this??
+Message-ID: <20031203110225.GA25416@vnl.com>
+References: <1070340338.12612.2.camel@hawaii> <200312021549.34383.russell@coker.com.au> <1070376464.13070.127.camel@hawaii> <1070382538.14253.65.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1070382538.14253.65.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Someone here had an install problem - sorry, I don't remember your
-name.
+On Tue, Dec 02, 2003 at 11:28:58AM -0500, Stephen Smalley wrote:
+> On Tue, 2003-12-02 at 09:47, Nick wrote:
+> > id -c 
+> > system_u:system_r:sysadm_t
+> 
+> This implies that you aren't running the patched login program (or,
+> alternatively, using the pam_selinux module).  Note that the user
+> identity portion of the context wasn't set, which is why newrole is
+> confused.
 
-I stepped back through my install and found your solution:
-
-
-There is a hen-egg problem in /etc/dpkg/postinst.d/selinux when you
-upgrade (don't know about fresh installs). Here's what I did to get it
-solved:
-
-dpkg --purge selinux-policy-default
-manually rm -r /etc/selinux and rm -r /usr/share/selinux/policy
-now vi /etc/dpkg/postinst.d/selinux and put an exit 0 right at the
-start.
-now dpkg -i selinux-policy-default_1.2.real-13_all.deb
-
-should now work. Remove the exit 0 from the script. You may have to
-issue a make relabel, but that's a good idea anyways.
-
+Stephen, just a modest and time saving suggestion. Why
+not add a bit of code to detect this particular condition
+and print a message stating the probable solution? 
 
 -- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
