@@ -1,40 +1,39 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5A2KLrT024411
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 22:20:22 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5A5A3rT025051
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 01:10:03 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5A2KFP2005605
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 22:20:16 -0400 (EDT)
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5A59rP2009256
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 01:09:57 -0400 (EDT)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: [debian] - installation of mysqld requires chfn
-Date: Thu, 10 Jun 2004 12:20:53 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040609222209.GH5727@lkcl.net>
-In-Reply-To: <20040609222209.GH5727@lkcl.net>
+To: "Ed Street" <edstreet@street-tek.com>
+Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
+Date: Thu, 10 Jun 2004 15:10:31 +1000
+Cc: "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
+   "'SE-Linux'" <selinux@tycho.nsa.gov>
+References: <20040610022221.7796D3A4063@abyss.simplyaquatics.com>
+In-Reply-To: <20040610022221.7796D3A4063@abyss.simplyaquatics.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200406101220.53966.russell@coker.com.au>
+  charset="windows-1252"
+Message-Id: <200406101510.31547.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 10 Jun 2004 08:22, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> i added the can_exec chfn_exec_t into domains/programs/dpkg.te:
+On Thu, 10 Jun 2004 12:22, "Ed Street" <edstreet@street-tek.com> wrote:
+> Well why ANY app needs write access to /etc is beyond me.  Also are you
+> using run_init /etc/init.d/foo ?
 
-ifdef(`passwd.te', `
-domain_auto_trans(dpkg_t, chfn_exec_t, chfn_t)
-')
-
-The above is what you want.  You don't want to allow dpkg_t direct access 
-to /etc/shadow because it will probably mess it up (replace it with a copy 
-labelled as etc_t).
+It's not /etc, it's /var/spool/postfix/etc.  Fortunately LaMont addressed this 
+issue in version 1.1.7-5 by making the files not be copied to the chroot if 
+master.cf does not specify any services to be chrooted.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
