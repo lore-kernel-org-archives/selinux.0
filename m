@@ -1,79 +1,208 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA04450
-	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 13:40:31 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA19619
-	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 17:38:44 GMT
-Received: from smails.tresys.com ([66.200.42.5])
-        by jazzband.ncsc.mil  with ESMTP id RAA19615 for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 17:38:44 GMT
-From: "david caplan" <dac@tresys.com>
-To: "Russell Coker" <russell@coker.com.au>, <selinux@tycho.nsa.gov>
-Subject: RE: checkpolicy and login names
-Date: Tue, 24 Sep 2002 13:40:50 -0400
-Message-ID: <GBEAJBKHFOBIBBJBCGAGIEKJCFAA.dac@tresys.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA04835
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 14:14:43 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA17358
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 18:13:15 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id SAA17354
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 18:13:14 GMT
+Received: from localhost (sds@localhost)
+	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id g8OIEMq01857
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 14:14:22 -0400 (EDT)
+Date: Tue, 24 Sep 2002 14:14:22 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [patch] Fix bug in pivot_root handling
+Message-ID: <Pine.GSO.4.33.0209241408520.23277-200000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <200209241900.20427.russell@coker.com.au>
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1297389768-1032891262=:23277"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-chown will accept ':' or '.' as a separator when you want to specify a
-group.  In the case where there is a conflict between username and group
-name, it will defer to the username.  For example, if I have users foo and
-foo.bar and a group bar:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-chown foo.bar file
+---559023410-1297389768-1032891262=:23277
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-will only change the owner on file to foo.bar.  If I wanted to change it to
-foo with group bar I have to use:
 
-chown foo:bar file
+Due to a change in the initialization code in 2.4.19, the SELinux handling
+of the pivot_root mechanism for initrds is broken.  The attached patch,
+also committed to the sourceforge CVS tree, fixes this bug and cleans up
+the SELinux code based on the changes in 2.4.19.  As of 2.4.19, it should
+not be necessary to place a policy on an initrd at all, only on the real
+root filesystem.
 
-It accepts foo.bar.bar to change the ownership to foo.bar and the group to
-bar.  If one had a bar.bar group as well, then you'd have to enter
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-chown foo:bar.bar
 
-[I think I got that right :-)]
 
-I admit it's confusing, but it (chown) seems to be built to handle this.  It
-appears, though I can find no documentation on this, that the "standard" for
-a username is that it starts with a letter (upper or lower) and can be
-followed by [a-zA-Z0-9._-]*
+---559023410-1297389768-1032891262=:23277
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pivotroot.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0209241414220.23277@raven>
+Content-Description: 
+Content-Disposition: attachment; filename="pivotroot.patch"
 
-david
-
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
-> Behalf Of Russell Coker
-> Sent: Tuesday, September 24, 2002 1:00 PM
-> To: david caplan; selinux@tycho.nsa.gov
-> Subject: Re: checkpolicy and login names
->
->
-> On Tue, 24 Sep 2002 16:32, david caplan wrote:
-> > We just ran across the case where we were trying to add a login
-> name with a
-> > '.' in it.  When we tried to add the user to the policy,
-> checkpolicy choked
-> > on the '.' in the id.  The parser expects an Identifier, which
-> is defined
-> > to be a letter followed by a combination of letter|digit|_ of
-> any length.
->
-> What about "chown user.group file"?  I think that alone is a good enough
-> reason not to want to have a '.' in a user-name.
->
-> Of course there does not have to be any mapping between user-names and SE
-> identities, and the SE identities should not be limited in the
-> same way as
-> Unix account names for this reason.
->
-> I could imagine a model where you might have Unixname.something as the SE
-> identity...
->
-
+SW5kZXg6IGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9hdmMuYw0KPT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290L3NlbGludXgv
+bnNhL2xzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9hdmMuYyx2DQpyZXRyaWV2
+aW5nIHJldmlzaW9uIDEuOA0KZGlmZiAtdSAtcjEuOCBhdmMuYw0KLS0tIGxz
+bS0yLjQvc2VjdXJpdHkvc2VsaW51eC9hdmMuYwk2IFNlcCAyMDAyIDE5OjI1
+OjM3IC0wMDAwCTEuOA0KKysrIGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9h
+dmMuYwkyNCBTZXAgMjAwMiAxNzoxNzoxNSAtMDAwMA0KQEAgLTIwNSw5ICsy
+MDUsNiBAQA0KIAkJYXZjX25vZGVfZnJlZWxpc3QgPSBuZXc7DQogCX0NCiAN
+Ci0JcHJpbnRrKCJBVkM6ICBhbGxvY2F0ZWQgJWQgYnl0ZXMgZHVyaW5nIGlu
+aXRpYWxpemF0aW9uLlxuIiwgDQotCSAgICAgICBpICogc2l6ZW9mKGF2Y19u
+b2RlX3QpKTsNCi0NCiAJYXZjX2F1ZGl0X2J1ZmZlciA9IChjaGFyICopX19n
+ZXRfZnJlZV9wYWdlKEdGUF9BVE9NSUMpOw0KIAlpZiAoIWF2Y19hdWRpdF9i
+dWZmZXIpDQogCQlwYW5pYygiQVZDOiAgdW5hYmxlIHRvIGFsbG9jYXRlIGF1
+ZGl0IGJ1ZmZlclxuIik7DQpAQCAtNjcwLDcgKzY2Nyw3IEBADQogDQogCQkJ
+CWlmIChpbm9kZSkgew0KIAkJCQkJcHJpbnRrKCIgZGV2PSVzIGlubz0lbGQi
+LCANCi0JCQkJCSAgICAgICBrZGV2bmFtZShpbm9kZS0+aV9kZXYpLA0KKwkJ
+CQkJICAgICAgIGtkZXZuYW1lKHRvX2tkZXZfdChpbm9kZS0+aV9kZXYpKSwN
+CiAJCQkJCSAgICAgICBpbm9kZS0+aV9pbm8pOw0KIAkJCQl9DQogCQkJfQ0K
+QEAgLTY5Miw3ICs2ODksNyBAQA0KIAkJCQl9DQogDQogCQkJCXByaW50aygi
+IGRldj0lcyBpbm89JWxkIiwgDQotCQkJCSAgICAgICBrZGV2bmFtZShpbm9k
+ZS0+aV9kZXYpLGlub2RlLT5pX2lubyk7DQorCQkJCSAgICAgICBrZGV2bmFt
+ZSh0b19rZGV2X3QoaW5vZGUtPmlfZGV2KSksaW5vZGUtPmlfaW5vKTsNCiAJ
+CQl9DQogCQkJYnJlYWs7DQogCQljYXNlIEFWQ19BVURJVF9EQVRBX05FVDoN
+CkBAIC0xMTM0LDcgKzExMzEsNyBAQA0KIAlpZiAoIWF2Y19kZWJ1Z19hbHdh
+eXNfYWxsb3cpIHsNCiAJCWF2Y19zc19yZXNldChhdmNfY2FjaGUubGF0ZXN0
+X25vdGlmKTsNCiAJCWlmICghc3NfaW5pdGlhbGl6ZWQpIHsNCi0JCQllcnJv
+ciA9IHNlY3VyaXR5X2luaXQoKTsNCisJCQllcnJvciA9IHN5c19zZWN1cml0
+eV9sb2FkX3BvbGljeShOVUxMLCAwKTsNCiAJCQlpZiAoZXJyb3IpDQogCQkJ
+CXBhbmljKCJTRUxpbnV4OiAgQ291bGQgbm90IGluaXRpYWxpemVcbiIpOw0K
+IAkJfQ0KSW5kZXg6IGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5j
+DQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2c3Jvb3Qv
+c2VsaW51eC9uc2EvbHNtLTIuNC9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMs
+dg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjE3DQpkaWZmIC11IC1yMS4xNyBo
+b29rcy5jDQotLS0gbHNtLTIuNC9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMJ
+MjMgQXVnIDIwMDIgMTg6MzE6NDggLTAwMDAJMS4xNw0KKysrIGxzbS0yLjQv
+c2VjdXJpdHkvc2VsaW51eC9ob29rcy5jCTI0IFNlcCAyMDAyIDE3OjE3OjE2
+IC0wMDAwDQpAQCAtMjAyNCw1NCArMjAyNCwxOSBAQA0KIHN0YXRpYyB2b2lk
+IHNlbGludXhfcG9zdF9tb3VudHJvb3QJKHZvaWQpDQogew0KIAlzdHJ1Y3Qg
+c3VwZXJfYmxvY2sgKnNiOw0KLQlzdHJ1Y3Qgc3VwZXJibG9ja19zZWN1cml0
+eV9zdHJ1Y3QgKnNic2VjOw0KLQlpbnQgcmM7DQotCWludCByZWluaXRfcHNp
+ZHMgPSAwOw0KLQ0KLQ0KLQlpZiAoIXNzX3ByZWNvbmRpdGlvbigpKSB7DQot
+CQkvKiBQZXJmb3JtIHRoZSBpbml0aWFsIGxvYWQgb2YgdGhlIHBvbGljeSBk
+dXJpbmcgYm9vdGluZy4NCi0JCSAgIEEgZmFpbHVyZSBoZXJlIGlzIGZhdGFs
+IHVubGVzcyB0aGUgZGV2ZWxvcG1lbnQgbW9kdWxlIA0KLQkJICAgb3B0aW9u
+IHdhcyBlbmFibGVkLiAqLw0KLQkJcmMgPSBzZWN1cml0eV9pbml0KCk7DQot
+CQlpZiAocmMpIHsNCi0JCQloYW5kbGVfc2VjdXJpdHlfaW5pdF9mYWlsdXJl
+Ow0KLQkJCXJldHVybjsNCi0JCX0NCi0JfSBlbHNlIHsNCi0JCS8qIFRyeSB0
+byByZWxvYWQgdGhlIHBvbGljeSBmcm9tIHRoZSBuZXcgcm9vdCBmaWxlc3lz
+dGVtLiANCi0JCSAgIElmIG9uZSBleGlzdHMsIGl0IHdpbGwgcmVwbGFjZSB0
+aGUgaW5pdHJkIHBvbGljeS4gDQotCQkgICBPdGhlcndpc2UsIHdlIGNvbnRp
+bnVlIG9wZXJhdGluZyB1bmRlciB0aGUgaW5pdHJkIHBvbGljeS4NCi0JCSAg
+IFRoaXMgb2NjdXJzIHdoZW4gdGhlIG9sZCBjaGFuZ2Vfcm9vdCBtZWNoYW5p
+c20gaXMgdXNlZC4gKi8NCi0JCWlmIChzeXNfc2VjdXJpdHlfbG9hZF9wb2xp
+Y3koTlVMTCwgMCkpIHsNCi0JCQlwcmludGsoInNlbGludXhfcG9zdF9tb3Vu
+dHJvb3Q6ICB1bmFibGUgdG8gcmVsb2FkIHBvbGljeSBmcm9tIG5ldyByb290
+LlxuIik7DQotCQl9IGVsc2Ugew0KLQkJCXJlaW5pdF9wc2lkcyA9IDE7DQot
+CQl9DQotCX0NCiANCi0JaWYgKCFjdXJyZW50LT5mcyB8fCAhY3VycmVudC0+
+ZnMtPnJvb3RtbnQgfHwgIWN1cnJlbnQtPmZzLT5yb290bW50LT5tbnRfc2Ip
+IHsNCi0JCXByaW50aygic2VsaW51eF9wb3N0X21vdW50cm9vdDogIHVuYWJs
+ZSB0byBpbml0aWFsaXplIHJvb3QgZmlsZXN5c3RlbS5cbiIpOw0KLQkJcmV0
+dXJuOw0KLQl9DQotCXNiID0gY3VycmVudC0+ZnMtPnJvb3RtbnQtPm1udF9z
+YjsNCisJcHJpbnRrKEtFUk5fSU5GTyAiU0VMaW51eDogIENvbXBsZXRpbmcg
+aW5pdGlhbGl6YXRpb24uXG4iKTsNCiANCi0JcmMgPSBzdXBlcmJsb2NrX3By
+ZWNvbmRpdGlvbihzYik7DQotCWlmIChyYyA8PSAwKQ0KKyAgICAgICAgLyog
+TG9hZCB0aGUgc2VjdXJpdHkgcG9saWN5LiAqLw0KKyAgICAgICAgaWYgKHN5
+c19zZWN1cml0eV9sb2FkX3BvbGljeShOVUxMLCAwKSkgew0KKwkJLyogRmF0
+YWwgdW5sZXNzIGJ1aWx0IHdpdGggdGhlIGRldmVsb3BtZW50IG9wdGlvbi4g
+Ki8NCisJCWhhbmRsZV9zZWN1cml0eV9pbml0X2ZhaWx1cmU7DQogCQlyZXR1
+cm47DQotDQotCWlmIChyZWluaXRfcHNpZHMpIHsNCi0JCXNic2VjID0gc2It
+PnNfc2VjdXJpdHk7DQotCQlpZiAoc2JzZWMtPnVzZXNfcHNpZHMpIHsNCi0J
+CQlwc2lkX3JlbGVhc2Uoc2IpOw0KLQkJCXJjID0gcHNpZF9pbml0KHNiKTsN
+Ci0JCQlpZiAocmMgPCAwKSB7DQotCQkJCXByaW50aygic2VsaW51eF9wb3N0
+X21vdW50cm9vdDogIHVuYWJsZSB0byByZWluaXRpYWxpemUgdGhlIFBTSUQg
+bWFwcGluZ1xuIik7DQotCQkJCXJldHVybjsNCi0JCQl9DQotCQl9DQogCX0N
+CiANCisJLyogU2V0IHVwIHRoZSByb290IGZpbGVzeXN0ZW0uICovDQorCXNi
+ID0gY3VycmVudC0+ZnMtPnJvb3RtbnQtPm1udF9zYjsNCisJc3VwZXJibG9j
+a19wcmVjb25kaXRpb24oc2IpOw0KIAlyZXR1cm47DQogfQ0KIA0KQEAgLTIw
+ODksMzggKzIwNTQsNyBAQA0KIA0KIHN0YXRpYyB2b2lkIHNlbGludXhfcG9z
+dF9waXZvdHJvb3QgKHN0cnVjdCBuYW1laWRhdGEgKm9sZF9uZCwgc3RydWN0
+IG5hbWVpZGF0YSAqbmV3X25kKQ0KIHsNCi0Jc3RydWN0IHN1cGVyX2Jsb2Nr
+ICpzYjsNCi0Jc3RydWN0IHN1cGVyYmxvY2tfc2VjdXJpdHlfc3RydWN0ICpz
+YnNlYzsNCi0JaW50IHJjOw0KLQ0KLQkvKiBUcnkgdG8gcmVsb2FkIHRoZSBw
+b2xpY3kgZnJvbSB0aGUgbmV3IHJvb3QgZmlsZXN5c3RlbS4gDQotCSAgIElm
+IG9uZSBleGlzdHMsIGl0IHdpbGwgcmVwbGFjZSB0aGUgaW5pdHJkIHBvbGlj
+eS4gDQotCSAgIE90aGVyd2lzZSwgd2UgY29udGludWUgb3BlcmF0aW5nIHVu
+ZGVyIHRoZSBpbml0cmQgcG9saWN5Lg0KLQkgICBUaGlzIG9jY3VycyB3aGVu
+IHRoZSBwaXZvdF9yb290IG1lY2hhbmlzbSBpcyB1c2VkLiAqLw0KLQlpZiAo
+c3lzX3NlY3VyaXR5X2xvYWRfcG9saWN5KE5VTEwsIDApKSB7DQotCQlwcmlu
+dGsoInNlbGludXhfcG9zdF9waXZvdHJvb3Q6ICB1bmFibGUgdG8gcmVsb2Fk
+IHBvbGljeS5cbiIpOw0KLQkJcmV0dXJuOw0KLQl9DQotDQotCS8qIFRyeSB0
+byByZWluaXRpYWxpemUgdGhlIFBTSUQgbWFwcGluZyBiYXNlZCBvbiB0aGUg
+bmV3IHBvbGljeSAqLw0KLQ0KLQlpZiAoIW5ld19uZC0+bW50IHx8ICFuZXdf
+bmQtPm1udC0+bW50X3NiKQ0KLQkJcmV0dXJuOw0KLQlzYiA9IG5ld19uZC0+
+bW50LT5tbnRfc2I7DQotDQotCXJjID0gc3VwZXJibG9ja19wcmVjb25kaXRp
+b24oc2IpOw0KLQlpZiAocmMgPD0gMCkNCi0JCXJldHVybjsNCi0Jc2JzZWMg
+PSBzYi0+c19zZWN1cml0eTsNCi0NCi0JaWYgKHNic2VjLT51c2VzX3BzaWRz
+KSB7DQotCQlwc2lkX3JlbGVhc2Uoc2IpOw0KLQkJcmMgPSBwc2lkX2luaXQo
+c2IpOw0KLQkJaWYgKHJjIDwgMCkgew0KLQkJCXByaW50aygic2VsaW51eF9w
+b3N0X3Bpdm90cm9vdDogIHVuYWJsZSB0byByZWluaXRpYWxpemUgdGhlIFBT
+SUQgbWFwcGluZ1xuIik7DQotCQkJcmV0dXJuOw0KLQkJfQ0KLQl9DQorCXJl
+dHVybjsNCiB9DQogDQogLyogaW5vZGUgc2VjdXJpdHkgb3BlcmF0aW9ucyAq
+Lw0KSW5kZXg6IGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zcy9NYWtlZmls
+ZQ0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290
+L3NlbGludXgvbnNhL2xzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zcy9NYWtl
+ZmlsZSx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMS4xLjMNCmRpZmYgLXUg
+LXIxLjEuMS4zIE1ha2VmaWxlDQotLS0gbHNtLTIuNC9zZWN1cml0eS9zZWxp
+bnV4L3NzL01ha2VmaWxlCTMgSnVsIDIwMDIgMjA6NDk6NDUgLTAwMDAJMS4x
+LjEuMw0KKysrIGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zcy9NYWtlZmls
+ZQkyNCBTZXAgMjAwMiAxNzoxNzoxNiAtMDAwMA0KQEAgLTYsNyArNiw3IEBA
+DQogDQogT19UQVJHRVQgOj0gc3Mubw0KIA0KLW9iai15IDo9IGViaXRtYXAu
+byBoYXNodGFiLm8gc3ltdGFiLm8gc2lkdGFiLm8gYXZ0YWIubyBwb2xpY3lk
+Yl9pbmZsYXRlLm8gcG9saWN5ZGIubyBzZXJ2aWNlcy5vIGluaXQubyBzeXNj
+YWxscy5vIA0KK29iai15IDo9IGViaXRtYXAubyBoYXNodGFiLm8gc3ltdGFi
+Lm8gc2lkdGFiLm8gYXZ0YWIubyBwb2xpY3lkYl9pbmZsYXRlLm8gcG9saWN5
+ZGIubyBzZXJ2aWNlcy5vIHN5c2NhbGxzLm8gDQogI29iai1tIDo9ICQoT19U
+QVJHRVQpDQogDQogaWZlcSAoJChDT05GSUdfU0VDVVJJVFlfU0VMSU5VWF9N
+TFMpLHkpDQpJbmRleDogbHNtLTIuNC9zZWN1cml0eS9zZWxpbnV4L3NzL3N5
+c2NhbGxzLmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAv
+Y3Zzcm9vdC9zZWxpbnV4L25zYS9sc20tMi40L3NlY3VyaXR5L3NlbGludXgv
+c3Mvc3lzY2FsbHMuYyx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMw0KZGlm
+ZiAtdSAtcjEuMyBzeXNjYWxscy5jDQotLS0gbHNtLTIuNC9zZWN1cml0eS9z
+ZWxpbnV4L3NzL3N5c2NhbGxzLmMJMyBKdW4gMjAwMiAxMzo0Njo1MSAtMDAw
+MAkxLjMNCisrKyBsc20tMi40L3NlY3VyaXR5L3NlbGludXgvc3Mvc3lzY2Fs
+bHMuYwkyNCBTZXAgMjAwMiAxNzoxNzoxNiAtMDAwMA0KQEAgLTI0Myw4ICsy
+NDMsNyBAQA0KIAlyZXR1cm4gcmV0X3ZhbDsNCiB9DQogDQotDQotZXh0ZXJu
+IGNoYXIgKnBvbGljeWZpbGU7DQorY2hhciAqcG9saWN5ZmlsZTsNCiANCiAv
+Kg0KICAqIExvYWQgYSBuZXcgcG9saWN5IGNvbmZpZ3VyYXRpb24gZnJvbSBh
+IGZpbGUsDQpAQCAtMjU5LDYgKzI1OCwyMSBAQA0KIAljaGFyICpmaWxlOw0K
+IAlGSUxFICpmcDsNCiAJaW50IHJldF92YWw7DQorCXVuc2lnbmVkIGludCBs
+ZW47DQorDQorCWlmICghcG9saWN5ZmlsZSkgew0KKwkJbGVuID0gc3RybGVu
+KFBPTElDWURCX1BBVEhQUkVGSVgpKzEyOw0KKwkJcG9saWN5ZmlsZSA9IG1h
+bGxvYyhsZW4pOw0KKwkJaWYgKCFwb2xpY3lmaWxlKSANCisJCQlyZXR1cm4g
+LUVOT01FTTsNCisjaWZkZWYgQ09ORklHX1NFQ1VSSVRZX1NFTElOVVhfTUxT
+DQorCQlzbnByaW50Zihwb2xpY3lmaWxlLCBsZW4sICIlcy4lZC1tbHMiLCBQ
+T0xJQ1lEQl9QQVRIUFJFRklYLCANCisJCQkgUE9MSUNZREJfVkVSU0lPTik7
+DQorI2Vsc2UNCisJCXNucHJpbnRmKHBvbGljeWZpbGUsIGxlbiwgIiVzLiVk
+IiwgUE9MSUNZREJfUEFUSFBSRUZJWCwgDQorCQkJIFBPTElDWURCX1ZFUlNJ
+T04pOw0KKyNlbmRpZgkJDQorCX0NCiANCiAJaWYgKHBhdGhsZW4gPiBQQVRI
+X01BWCkgDQogCQlyZXR1cm4gLUVOQU1FVE9PTE9ORzsNCkBAIC0yODQsMTYg
+KzI5OCwxNSBAQA0KIAl9IGVsc2UNCiAJCWZpbGUgPSBwb2xpY3lmaWxlOw0K
+IA0KLQlwcmludGYoInNzOiAgbG9hZGluZyBwb2xpY3kgY29uZmlndXJhdGlv
+biBmcm9tICVzXG4iLCBmaWxlKTsNCiAJZnAgPSBmb3BlbihmaWxlLCAiciIp
+Ow0KIAlpZiAoIWZwKSB7DQotCQlwcmludGYoInNzOiAgdW5hYmxlIHRvIG9w
+ZW4gJXNcbiIsIGZpbGUpOw0KIAkJcmV0X3ZhbCA9IC1FSU5WQUw7DQogCQln
+b3RvIG91dDI7DQogCX0NCiAJcmV0X3ZhbCA9IHRhc2tfaGFzX3NlY3VyaXR5
+KGN1cnJlbnQsIFNFQ1VSSVRZX19MT0FEX1BPTElDWSk7DQotCWlmIChyZXRf
+dmFsKQ0KKwlpZiAocmV0X3ZhbCkgDQogCQlnb3RvIG91dDsNCisJcHJpbnRm
+KCJzZWN1cml0eTogIGxvYWRpbmcgcG9saWN5IGNvbmZpZ3VyYXRpb24gZnJv
+bSAlc1xuIiwgZmlsZSk7DQogCXJldF92YWwgPSBzZWN1cml0eV9sb2FkX3Bv
+bGljeShmcCk7DQogDQogICAgICAgb3V0Og0K
+---559023410-1297389768-1032891262=:23277--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
