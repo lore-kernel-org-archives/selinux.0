@@ -1,44 +1,38 @@
-Subject: Re: RFE: inheritance
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <1109619068.17982.3.camel@cobra.ivg2.net>
-References: <1109400342.4581.25.camel@cobra.ivg2.net>
-	 <1109618167.28470.46.camel@moss-spartans.epoch.ncsc.mil>
-	 <1109619068.17982.3.camel@cobra.ivg2.net>
+Subject: Re: security files - why not sysadmfile
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1109617986.28470.41.camel@moss-spartans.epoch.ncsc.mil>
+References: <1109440349.11452.7.camel@cobra.ivg2.net>
+	 <1109617986.28470.41.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 28 Feb 2005 14:25:54 -0500
-Message-Id: <1109618754.28470.55.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 28 Feb 2005 14:38:11 -0500
+Message-Id: <1109619491.17982.7.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-02-28 at 14:31 -0500, Ivan Gyurdiev wrote:
-> What about execmod?
-> 
-> define(`legacy_domain', `
-> allow $1_t self:process { execmem };
-> allow $1_t { texrel_shlib_t shlib_t }:file execmod;
-> allow $1_t ld_so_t:file execmod;
-> allow $1_t ld_so_cache_t:file execute;
-> ')
+On Mon, 2005-02-28 at 14:13 -0500, Stephen Smalley wrote:
+>On Sat, 2005-02-26 at 12:52 -0500, Ivan Gyurdiev wrote:
+>> Why are those types not marked sysadmfile?
+>> This is particularly annoying when vi spits out
+>> error messages every time I edit a selinux source file.
+>
+>The goal is to ultimately remove direct access to many file types by
+>sysadm_t, and only allow permissions to specific programs when run by
+>sysadm_t.  That reduces your risk of accidental corruption by the admin
+>and of intentional corruption or leakage by malicious code unwittingly
+>run by the admin.  In particular, protecting the policy in this manner
+>is important.
 
-Depends on whether execute permission to the modified mapping was
-directly requested by the application (including ld.so) or was added
-automatically by the kernel read-implies-exec logic.  My patch only
-removes the need for execmod rules for the latter case.
-
-> Also, I still like the idea of inheritance for types,
-> whether or not this problem is fixed differently.
-
-The policy language used to include a 'clone' statement that allowed
-cloning all TE rules for a given type into another type, but it didn't
-seem to work very well in practice, so it was left to more customized
-definition by macros.
-
+So, what's the proper way for a user to edit policy source files
+(which is the purpose of the selinux-sources package) without 
+running into denials.
+>
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
