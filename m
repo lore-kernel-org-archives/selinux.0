@@ -1,48 +1,120 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9LIIkWt028847
-	for <selinux@tycho.nsa.gov>; Tue, 21 Oct 2003 14:18:46 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9LIdiWt029075
+	for <selinux@tycho.nsa.gov>; Tue, 21 Oct 2003 14:39:45 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9LIIXIS017544
-	for <selinux@tycho.nsa.gov>; Tue, 21 Oct 2003 18:18:34 GMT
-Received: from extern.mail.waldi.eu.org (wavehammer.waldi.eu.org [82.139.196.55])
-	by jazzswing.ncsc.mil  with ESMTP id h9LIIWDc017539
-	for <selinux@tycho.nsa.gov>; Tue, 21 Oct 2003 18:18:33 GMT
-Date: Tue, 21 Oct 2003 08:26:14 +0200
-From: Bastian Blank <bastian@waldi.eu.org>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: init patch for loading policy
-Message-ID: <20031021062614.GA21159@wavehammer.waldi.eu.org>
-References: <200310200148.15852.russell@coker.com.au> <20031020204728.GA664@wavehammer.waldi.eu.org> <200310211057.54098.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200310211057.54098.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h9LIdUIU019660
+	for <selinux@tycho.nsa.gov>; Tue, 21 Oct 2003 18:39:32 GMT
+Message-ID: <3F957D6A.7060807@redhat.com>
+Date: Tue, 21 Oct 2003 14:39:38 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: chcon
+References: <200310212327.05821.russell@coker.com.au> <1066743378.27065.81.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1066743378.27065.81.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/alternative;
+ boundary="------------030400080509050204080002"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Oct 21, 2003 at 10:57:54AM +1000, Russell Coker wrote:
-> > isn't it easier to divert /sbin/init and use a script which loads the
-> > policy and execs the real init after?
-> 
-> No.  You have all the same issues, with the additional problem that the shell 
-> which is used to interpret the script might do something unexpected (like 
-> closing file handle 11) and break init functionality.
+This is a multi-part message in MIME format.
+--------------030400080509050204080002
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This pipe is only used for reexec. The reexec uses argv[0] as
-executable, which is the real one, not the script.
+Stephen Smalley wrote:
 
-> Another method I considered is to have a script named /sbin/se-init which 
-> loads policy and exec's /sbin/init.  Then you would configure your boot 
-> loader to pass "init=/sbin/se-init" to the kernel.  I have used this for UML 
-> systems and it basically works.  However I am concerned about what happens if 
-> init SEGV's...
+>On Tue, 2003-10-21 at 09:27, Russell Coker wrote:
+>  
+>
+>>Steve, chcon needs access to /selinux/context, is there any problem in putting 
+>>in a macro such as the following and using it for all user domains?
+>>
+>>define(`can_check_context', `
+>>allow $1 security_t:dir search;
+>>allow $1 security_t:file { read write };
+>>allow $1 security_t:security { check_context };
+>>')
+>>    
+>>
+>
+>This is a recent change to chcon in Dan's SRPM; doesn't exist in the
+>coreutil-selinux patch from the last release. It isn't truly necessary,
+>as the context will be checked when it is passed to the kernel via
+>setfilecon and that call will fail if the context is invalid, so it is
+>only useful if there is some benefit to catching such errors earlier.
+>
+>Even if it is worth retaining in chcon, I would suggest distinguishing
+>between an errno of ENOENT and an errno of EINVAL, as the former may
+>just indicate that selinuxfs wasn't mounted or the kernel was a
+>non-SELinux kernel (but could still have the xattr handlers), and
+>letting the chcon proceed in the former case.  Otherwise, you won't be
+>able to use chcon if selinuxfs is unmounted or using a non-SELinux
+>kernel that has the xattr handlers.  I should likely make the same
+>change to setfiles.
+>
+>  
+>
+I have put out a new patch that does not do this anymore.  It has a 
+simpler error mechanism.
 
-That is exactly the same because at least any sysvinit versions i know
-don't rely on the real name /sbin/init.
+Dan
 
-Bastian
+--------------030400080509050204080002
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
--- 
-Ahead warp factor one, Mr. Sulu.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
+  <title></title>
+</head>
+<body text="#000000" bgcolor="#ffffff">
+Stephen Smalley wrote:<br>
+<blockquote type="cite"
+ cite="mid1066743378.27065.81.camel@moss-spartans.epoch.ncsc.mil">
+  <pre wrap="">On Tue, 2003-10-21 at 09:27, Russell Coker wrote:
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">Steve, chcon needs access to /selinux/context, is there any problem in putting 
+in a macro such as the following and using it for all user domains?
+
+define(`can_check_context', `
+allow $1 security_t:dir search;
+allow $1 security_t:file { read write };
+allow $1 security_t:security { check_context };
+')
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+This is a recent change to chcon in Dan's SRPM; doesn't exist in the
+coreutil-selinux patch from the last release. It isn't truly necessary,
+as the context will be checked when it is passed to the kernel via
+setfilecon and that call will fail if the context is invalid, so it is
+only useful if there is some benefit to catching such errors earlier.
+
+Even if it is worth retaining in chcon, I would suggest distinguishing
+between an errno of ENOENT and an errno of EINVAL, as the former may
+just indicate that selinuxfs wasn't mounted or the kernel was a
+non-SELinux kernel (but could still have the xattr handlers), and
+letting the chcon proceed in the former case.  Otherwise, you won't be
+able to use chcon if selinuxfs is unmounted or using a non-SELinux
+kernel that has the xattr handlers.  I should likely make the same
+change to setfiles.
+
+  </pre>
+</blockquote>
+I have put out a new patch that does not do this anymore.&nbsp; It has a
+simpler error mechanism.<br>
+<br>
+Dan<br>
+</body>
+</html>
+
+--------------030400080509050204080002--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
