@@ -1,42 +1,27 @@
-Subject: Re: memory access restrictions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Mark Davies <m.p.davies@newi.ac.uk>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <6.2.1.2.0.20050309144019.03a894d0@cronus.newi.ac.uk>
-References: <6.2.1.2.0.20050309144019.03a894d0@cronus.newi.ac.uk>
-Content-Type: text/plain
-Date: Wed, 09 Mar 2005 11:08:06 -0500
-Message-Id: <1110384486.3791.18.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j29GOLDo024694
+	for <selinux@tycho.nsa.gov>; Wed, 9 Mar 2005 11:24:21 -0500 (EST)
+Received: from oe-im2.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j29GJNVV018016
+	for <selinux@tycho.nsa.gov>; Wed, 9 Mar 2005 16:19:27 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "NSA Selinux Mailinglist" <selinux@tycho.nsa.gov>,
+   "'Fedora SELinux support  list for users &amp; developers.'" <fedora-selinux-list@redhat.com>
+Subject: Selinux symposium presentations
+Date: Wed, 9 Mar 2005 11:19:16 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Message-Id: <20050309161916.NKTI7908.mm-ismta4.bizmailsrvcs.net@FLM800>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-03-09 at 14:49 +0000, Mark Davies wrote:
-> From what I have seen of SELinux and (most) other operating systems
-> there is no control over what memory locations a program running can
-> access. Malicious code in user areas could therefore access privileged
-> information that has been put into memory by other programs,
-> specifically worrying is the ability to access system level programs.
-> With access is the potential for such data to be altered to help a
-> user raise their privileges and so this is potentially a security
-> concern. My question is, therefore, is anything being done to
-> counteract this? My first idea was to have the kernel create an
-> "exception" (not really the right term I know) in a program that tries
-> to access any memory that has not been allocated to it. Your comments
-> would be greatly appreciated, especially since I should like to
-> implement such controls in the short term.
-
-Process isolation is already provided by most operating systems,
-including Linux.  What SELinux provides is the ability to enforce
-separation based on security properties, e.g. to separate different
-classes of processes to ensure confidentiality or integrity guarantees.
-Basic memory protection of the process is already provided by Linux, but
-SELinux mediates the ability of processes to interact via shared
-resources such as files, IPC objects, shared memory, etc.
-
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+FYI, soft copies of all the presentations from last week's SELinux Symposium
+are now posted on the symposium's web site (www.selinux-symposium.org). In
+general, I think the symposium was a great success, and the participation
+was much greater than we originally expected. Hopefully signs of good things
+to come with this technology.  Stay tuned for the dates and call for next
+year's event! Frank
 
 
 --
