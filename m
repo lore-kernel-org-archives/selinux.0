@@ -1,43 +1,37 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB681jIi019487
-	for <selinux@tycho.nsa.gov>; Mon, 6 Dec 2004 03:01:46 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB681joX001331
-	for <selinux@tycho.nsa.gov>; Mon, 6 Dec 2004 08:01:47 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Subject: Re: patch: misc policy additions
-Date: Mon, 6 Dec 2004 19:01:34 +1100
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-References: <20041109210447.GC2543@jmh.mhn.de> <20041127225844.GA2509@jmh.mhn.de> <20041128193712.GA2509@jmh.mhn.de>
-In-Reply-To: <20041128193712.GA2509@jmh.mhn.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200412061901.36320.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB6EQcIi021071
+	for <selinux@tycho.nsa.gov>; Mon, 6 Dec 2004 09:26:38 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB6EQeoX008545
+	for <selinux@tycho.nsa.gov>; Mon, 6 Dec 2004 14:26:40 GMT
+Subject: Re: SELinux port for 2.4.28 (and incoming backport from 2.6)
+	released.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: lorenzo@gnu.org
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1102192723.19001.19.camel@localhost>
+References: <1102192723.19001.19.camel@localhost>
+Content-Type: text/plain
+Message-Id: <1102342918.23475.70.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 06 Dec 2004 09:21:58 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 29 November 2004 06:37, Thomas Bleher 
-<bleher@informatik.uni-muenchen.de> wrote:
-> I just looked over it again and realized that tty_file_t doesn't have
-> attribute ttyfile. So I agree that it's not very useful. We may want to
-> allow relabelfrom (it's already in initrc-policy) so you can say
->         restorecon /dev/tty*
-> in an init-script and have it work even if the files hadn't been
-> relabeled back (eg because of a crash)
-> But I'll leave that for you to decide.
+On Sat, 2004-12-04 at 15:38, Lorenzo Hernandez Garcia-Hierro wrote:
+> I've not tested it yet, but hopefully works.
 
-I think that the best solution to this may be to have getty restore the 
-context.  This could be done by having a shell script run restorecon before 
-running getty or by patching getty to know about SE Linux.
+For that kernel, you'll have to pass the -c 15 option to checkpolicy to
+tell it to build a version 15 policy, as the 2.4-based SELinux doesn't
+support newer policy versions.  Specifically, the 2.4-based SELinux was
+never updated for the conditional policy support (policy booleans), ipv6
+support, and fine-grained netlink classes.  See
+http://marc.theaimsgroup.com/?l=selinux&m=107643944721568&w=2.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
