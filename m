@@ -1,14 +1,21 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFGgWIi024355
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 11:42:32 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFGf6vq002115
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 16:41:06 GMT
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFH75Ii024527
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 12:07:05 -0500 (EST)
+Received: from rproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFH5dvq004093
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 17:05:39 GMT
+Received: by rproxy.gmail.com with SMTP id i8so716767rne
+        for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 09:07:08 -0800 (PST)
+Message-ID: <46ce702f0411150907a569ef0@mail.gmail.com>
+Date: Mon, 15 Nov 2004 11:07:08 -0600
+From: Serge Hallyn <serge.hallyn@gmail.com>
+Reply-To: Serge Hallyn <serge.hallyn@gmail.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Subject: Re: learning about policies/transitions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Serge Hallyn <serge.hallyn@gmail.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <46ce702f041115081242f9f8e7@mail.gmail.com>
+In-Reply-To: <1100536712.31773.134.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 References: <46ce702f041103084530fe8539@mail.gmail.com>
 	 <1099510181.1213.198.camel@moss-spartans.epoch.ncsc.mil>
 	 <46ce702f041104082042e4c02a@mail.gmail.com>
@@ -16,33 +23,19 @@ References: <46ce702f041103084530fe8539@mail.gmail.com>
 	 <46ce702f041104182352cbcd1@mail.gmail.com>
 	 <1099657575.6373.5.camel@moss-spartans.epoch.ncsc.mil>
 	 <46ce702f041115081242f9f8e7@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1100536712.31773.134.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 15 Nov 2004 11:38:33 -0500
+	 <1100536712.31773.134.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-11-15 at 11:12, Serge Hallyn wrote:
-> Thanks for your help, Stephen.  I've *briefly* looked around at the
-> inird and /bin/init sources, and can't find an initiial policy that
-> would be loaded before the root filesystem pivot_root.  I expect to
-> have more time at the end of this week to figure it out, though.
+On Mon, 15 Nov 2004 11:38:33 -0500, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> /etc/selinux/(strict|targeted)/policy/policy.NN under FC3.  The question
+> is whether you are subsequently loading a different policy, possibly too
+> late, after /bin/login has already been looked up and brought incore.
 
-In Fedora, policy is loaded from the real root filesystem by /sbin/init,
-not from the initrd.  We did use an initrd originally when we first
-overhauled SELinux for mainline inclusion and moved the initial policy
-load into userspace, but RedHat encountered practical issues with using
-an initrd and migrated to a patched /sbin/init.  So /sbin/init is
-loading policy from /etc/security/selinux/policy.NN under FC2 or
-/etc/selinux/(strict|targeted)/policy/policy.NN under FC3.  The question
-is whether you are subsequently loading a different policy, possibly too
-late, after /bin/login has already been looked up and brought incore.
+Alas no, the custom policy is in /etc/security/selinux/policy.17 (on a
+FC2 throwaway partition).
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
