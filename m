@@ -1,44 +1,38 @@
-Date: Mon, 28 Jan 2002 09:43:53 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Thomas A Langan <tlangan@dsl.cis.upenn.edu>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: Policy Enforcement Question
-In-Reply-To: <Pine.GSO.4.33.0201272204020.3875-100000@codex.cis.upenn.edu>
-Message-ID: <Pine.GSO.4.33.0201280914250.24971-100000@raven>
+Message-ID: <2137.192.168.1.12.1012313346.squirrel@mail.outstep.com>
+Date: Tue, 29 Jan 2002 09:09:06 -0500 (EST)
+Subject: applications and ports
+From: "Lonnie Cumberland" <lonnie@outstep.com>
+To: <SELinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello All,
 
-On Sun, 27 Jan 2002, Thomas A Langan wrote:
+I was just wondering about the way to take full advantage of the
+security features of SELinux.
 
-> I have a quick conceptual question about the role policies in the Flask
-> architecture.
->
-> When policies are defined by an admin --- using RBAC, TE or a
-> combination thereof --  and parsed into the system, does rights-checking
-> at the lowest level occur seperately for each policy defined (and in turn,
-> seperately for each language such as RBAC or TE) or do all the policies
-> compile down to an intermediate format that handles all of the languages
-> and policies transparently?  If the latter, what is the intermediate
-> representation?
+If I add a new application to my system or a new service to my
+xinet.d services then in order for SELinux to impose the security
+policy on it I would guess that I have to make a TE file for it and
+rerun the make, right?
 
->From the perspective of the object managers, the "intermediate
-representation" is an access vector for a given SID pair and security
-class.  The object managers have no knowledge of the inner workings of the
-policy or even that there are multiple policies.  The Flask architecture
-specifies the interfaces to the security server, not its implementation.
+Would this also mean that there are applications and service that
+might not be under the SELinux security policy that exist on my
+machine and that could potentially cause problems?
 
->From the perspective of the example security server, each policy has
-some core logic that is driven by the corresponding configuration, and an
-access vector computation involves combining the results of a computation
-by each policy.  Most of the policy is expressed through the TE
-configuration.
+Cheers,
+Lonnie
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+-- 
+ Lonnie Cumberland
+ OutStep Technologies Incorporated
+ (313) 832-7366
+
+ URL: http://www.outstep.com
+ EMAIL: Lonnie@OutStep.com
+      : Lonnie_Cumberland@yahoo.com
 
 
 
