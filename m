@@ -1,85 +1,86 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAELxQRb027761
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 16:59:26 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAEMFmRb027907
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 17:15:48 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hAELwwBb022883
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 21:58:58 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id hAELwu4o022863
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 21:58:57 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id EFB4661BD7
-	for <selinux@tycho.nsa.gov>; Sat, 15 Nov 2003 08:59:16 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
-	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 17151-04 for <selinux@tycho.nsa.gov>;
-	Sat, 15 Nov 2003 08:59:15 +1100 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by ns.sws.net.au (Postfix) with ESMTP id B2B6D61BAF
-	for <selinux@tycho.nsa.gov>; Sat, 15 Nov 2003 08:59:08 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 741BB925E8
-	for <selinux@tycho.nsa.gov>; Sat, 15 Nov 2003 08:59:08 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: unix_chkpwd
-Date: Sat, 15 Nov 2003 08:59:04 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200311141901.14660.russell@coker.com.au> <1068813495.9878.31.camel@sisko.scot.redhat.com>
-In-Reply-To: <1068813495.9878.31.camel@sisko.scot.redhat.com>
+	by jazzswing.ncsc.mil  with ESMTP id hAEMFLBb024053
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 22:15:21 GMT
+Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
+	by jazzswing.ncsc.mil  with ESMTP id hAEMFL4o024050
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 22:15:21 GMT
+Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAEMFkh9023310
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 17:15:47 -0500
+Received: (from hdholm@localhost)
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id hAEMFkHp023308
+	for selinux@tycho.nsa.gov; Fri, 14 Nov 2003 17:15:46 -0500
+Date: Fri, 14 Nov 2003 16:59:58 -0500 (EST)
+From: Dean Anderson <dean@av8.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SELinux@tycho.nsa.gov
+Subject: Re: Verify the integrity of downloads
+In-Reply-To: <200311131054.48634.russell@coker.com.au>
+Message-ID: <Pine.LNX.4.44.0311141638110.28318-100000@vista.av8.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311150859.04677.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 14 Nov 2003 23:38, "Stephen C. Tweedie" <sct@redhat.com> wrote:
-> > We can do one of three things:
-> > 1)  dontaudit system_chkpwd_t inetd_t:fd use;
-> > 2)  Change sshd to use fcntl() before doing any PAM stuff.
-> > 3)  Put code in pam_unix.so to close all file handles after the fork().
-> >
-> > Which do you think is best?  2 seems most correct to me
+On Thu, 13 Nov 2003, Russell Coker wrote:
+
+> On Tue, 11 Nov 2003 12:05, Dean Anderson wrote:
+> > Certain ISPs in the Netherlands permit scanning that other ISPs think is
+> > inappropriate.  Thus, said ISPs are blocked from entering the US by
+> > certain American ISPs.  This could affect the NSA public sites, I suppose.
 >
-> 2 would require fcntl()ing it back again afterwards, of course.  Having
-> your shell inherit FD_CLOEXEC on stdin could be confusing, at best. :-)
+> Every ISP that has any customers permits scanning that some ISPs won't
+> like.  If you lock down customers too much they go elsewhere.  The
+> solution to such problems is to avoid getting hosting through American
+> ISPs that put in stupid filters.
 
-That handle isn't used by the application and I need to have the policy deal 
-with unix_chkpwd inheriting file handles for the pty/tty device anyway for 
-the case of screen blankers etc.  So setting it back shouldn't be necessary.
+Well, Av8 doesn't have any such customers.  Few ISPs do. And mostly, the
+ISPs that have such customers respond positively to complaints about such
+scanning, and make the customers knock it off.  Some certain Netherlands
+ISPs do not.  I would offer to be a mirror site, but very likely, we are
+also blocking this Netherlands ISP, or will be soon.
 
-> 2 seems clearly the cleanest solution, but is also a rather
-> PAM+SELinux-specific hack.
+Probably the solution is to avoid getting service through a Netherlands
+ISP that permits this scanning.  It should not be overlooked that the
+purpose of this scanning is to obtain information and/or crash computers,
+or contact virus-infected machines.  There is no legitimate purpose to
+this scanning activity.  At best it is mischief and frequently, it is
+criminal.
 
-It's not really SE Linux specific.  There is no need for a program that sshd 
-executes to receive a copy of that file handle.  So the best practise (IMHO) 
-is to ensure that such programs don't get it.
+> > On the other hand, it could the user's ISP that is blocking the NSA...
+>
+> Unlikely.  Blocking web servers makes the ISP an "editor" of the Internet
+> content (and therefore legally liable to some degree for what they don't
+> censor).  This is why hardly any ISPs block the truely objectionable
+> material.
 
-> I guess that we're going to be maintaining
-> SELinux-specific patches against a lot of core utils for some time,
+The "editor"-ness would be true of either ISP.  Why is it more likely for
+one ISP to be blocking than for the other ISP to be blocking?  I left out
+the case that it might be an ISP in the middle. But that is also possible.
 
-I certainly hope not.  Maintaining such patches is extremely painful and time 
-consuming.  We want to get upstream support for SE Linux things as soon as 
-possible.
+But since the netherlands ISP doesn't have to worry about US law, and
+presumably doesn't have to worry about the editing of content from the US
+government, it seems to me that of the (minimum) two ISPs involved, the
+Netherlands ISP probably has the least liability for blocking.
 
-> until it becomes so widespread that all maintainers are desperate to
-> merge full SELinux support :-), and this specific change seems a
-> relatively minimal and painless one to maintain in that manner.
+> > One used to be able to tell where the block was by the ICMP error
+> > return, but some many ISPs are blocking ICMP these days that it is
+> > hard to tell what is wrong, or where.
+>
+> If we got in contact with the person who reported this problem then we
+> could probably track it down in a small amount of time.  The real
+> problem here is that we don't even have contact with the person who had
+> the problem (and lots of people want to download SE Linux without
+> identifying themselves, so presumably they aren't the only one).
 
-I don't think that maintainers will be desperate for SE Linux support for a 
-while.  However during our SE Linux work we often find and fix other bugs 
-that may have security implications.  It would be rather embarassing for an 
-upstream maintainer if the SE Linux version of a program was the only version 
-that did not have a security hole and people who don't use SE Linux were 
-forced to use the SE Linux version to close the hole!
+True enough. That is why most ISPs don't accept abuse reports that don't
+identify the parties involved.  Certain anti-s*am sites send abuse reports
+in which the victim's address is removed.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+		--Dean
 
 
 --
