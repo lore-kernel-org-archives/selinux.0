@@ -1,63 +1,58 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9H121rT014527
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 21:02:02 -0400 (EDT)
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9H11ulX015876
-	for <selinux@tycho.nsa.gov>; Sun, 17 Oct 2004 01:02:00 GMT
-Subject: Re: SELinux Testing Software/Scripts
-From: Erich Schubert <erich@debian.org>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Alex Ackerman <alex@darkhonor.com>, fedora-selinux-list@redhat.com,
-   selinux@tycho.nsa.gov, ackermal@jmu.edu
-In-Reply-To: <20041016180414.GB19398@lkcl.net>
-References: <A52BEA1D8EE8634B9196A136333637B130F1@maat.darkhonor.net>
-	 <20041016180414.GB19398@lkcl.net>
-Content-Type: text/plain
-Date: Sun, 17 Oct 2004 03:01:54 +0200
-Message-Id: <1097974915.21919.5.camel@wintermute.xmldesign.de>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9HBDDrT015949
+	for <selinux@tycho.nsa.gov>; Sun, 17 Oct 2004 07:13:13 -0400 (EDT)
+Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9HBDC8B027435
+	for <selinux@tycho.nsa.gov>; Sun, 17 Oct 2004 11:13:12 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sun, 17 Oct 2004 13:13:10 +0200
+Date: Sun, 17 Oct 2004 13:13:46 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: petre rodan <kaiowas@gentoo.org>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: gentoo merge for postfix
+Message-Id: <20041017111346.GA2537@jmh.mhn.de>
+References: <417149C9.9010102@gentoo.org>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
+In-Reply-To: <417149C9.9010102@gentoo.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
->  as i understand it, there is no "escalation" present in SE/Linux,
->  only that assigned in the minds of us humans.
-[...]
->  that's a bit different from "escalating privilege" because that implies
->  hierarchy, which SE/Linux doesn't have, per-se.
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-As long as you have roles with certain higher privileges (for example
-writing to configuration files, binding to arbitrary ports, loading a
-new policy...) there is privilege escalation.
+* petre rodan <kaiowas@gentoo.org> [2004-10-17 00:55]:
+> can you please ifdef 'rhgb_domain(postfix_master_t)' since it's not part =
+of=20
+> some distros?
 
-Privilege escalation just means getting more rights than you were
-supposed to get. You usually don't care about losing access rights,
-because you could have done things there earlier. Its only about getting
-a privilege you want to have.
+I disagree. rhgb_domain() is a no-op if you don't use rhgb.te. Using
+additional ifdefs just makes the policy harder to read.
 
-Even in normal Linux, becoming root might give you less access rights in
-some specific cases. For example with NFS mounts that do root_squash.
-(Of course there may be ways of circumventing this, these may exist in
-SELinux, too)
+Thomas
 
-Another important aspect in the use of the term "privilege escalation"
-is doing multiple steps to get the privileges you really want. A typical
-theoretical example is using a game as nobody to get group access to
-games, then using this to exploit some game and finally get access to a
-user account (which could then be used to get futher access rights)
-- referring to the problem that by itself you wouldn't mind for the
-"games" group rights, still this may open new points of entry for an
-attacker.
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
-Greetings,
-Erich Schubert
--- 
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
- A man doesn't know what he knows until he knows what he doesn't know. //\
-    Wer keine Zeit mehr mit echten Freunden verbringt, der wird bald   V_/_
-            sein Gleichgewicht verlieren. --- Michael Levine
+--82I3+IH0IqGh5yIs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBclPqxWIrrrL0q+cRAkOEAKC3SYtomjEHfTzV2kz9xWSspxLuOwCfWIS4
+0Hix+niOaTg4TLOsCTRfhgA=
+=ulVy
+-----END PGP SIGNATURE-----
+
+--82I3+IH0IqGh5yIs--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
