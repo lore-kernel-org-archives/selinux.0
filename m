@@ -1,34 +1,84 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Michael Reilly <michaelr@cisco.com>, <SELinux@tycho.nsa.gov>
-Subject: Re: Anyone run mozilla in enforce mode?
-Date: Wed, 15 Oct 2003 10:16:43 +1000
-References: <20031014121148.4155015d.michaelr@cisco.com>
-In-Reply-To: <20031014121148.4155015d.michaelr@cisco.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9F0KMWt022561
+	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 20:20:22 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9F0KLmR008033
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 00:20:21 GMT
+Received: from remt23.cluster1.charter.net (remt23.cluster1.charter.net [209.225.8.33])
+        by jazzband.ncsc.mil  with ESMTP id h9F0KLjp008030 for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 00:20:21 GMT
+Received: from [68.116.1.217] (HELO eng21)
+  by remt23.cluster1.charter.net (CommuniGate Pro SMTP 4.0.6)
+  with ESMTP id 27154218 for selinux@tycho.nsa.gov; Tue, 14 Oct 2003 20:20:20 -0400
+From: "Robert Potter" <robertp72@charter.net>
+To: "'SE Linux'" <selinux@tycho.nsa.gov>
+Subject: RE: trusted vs untrusted packages
+Date: Tue, 14 Oct 2003 17:20:44 -0700
+Message-ID: <000001c392b2$2e780f40$d9017444@eng21>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310151016.43827.russell@coker.com.au>
+	charset="us-ascii"
+In-Reply-To: <3F8C873B.30703@diyab.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 15 Oct 2003 05:11, Michael Reilly wrote:
-> Now I have another problem - mozilla fails to start.  Nothing is logged
-> even with the dontaudit's removed from the policy.  Mozilla does complain
-> that it couldn't find one of its libraries (I do not recall which one and I
-> left my notes at home).
+Calls to mind varying degrees of trust, which could be useful technology if
+implemented in an AI update scheme.
 
-It's been working well for me.
+Rob
 
-Please do the same things as you did for X, remove the dontaudits and see what 
-gets logged.  Then please send me an email with the exact changes you made to 
-the file_contexts (and anything else that needs changing).
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+Behalf Of Diyab
+Sent: Tuesday, October 14, 2003 4:31 PM
+To: James Morris
+Cc: Russell Coker; SE Linux
+Subject: Re: trusted vs untrusted packages
+
+
+James Morris wrote:
+> On Tue, 14 Oct 2003, Russell Coker wrote:
+> 
+> 
+>>Now this raises some interesting issues.  If a signed package has a 
+>>program
+>>which relies on some other program (and has a dependency), what happens if
+
+>>the dependency is satisfied by an unsigned package?  Installing the
+unsigned 
+>>package may not result in the system being fully functional (execution of
+the 
+>>file in question may be denied).
+> 
+> 
+> This should be like enforcing vs. non-enforcing -- you either want all 
+> of your packages signed (and the above would fail) or not (just 
+> generate a warning).
+> 
+> 
+> - James
+
+How about trust based on the package requiring said untrusted or 
+temporarily untrusted package.  For example, you have package abc signed 
+by a trusted source.  The package contents have been verified as 
+legitimate through something like the package signature. A requirement 
+made by the verified abc package says you need package xyz.  The abc 
+package also gives you the option to install a public key for the 
+required xyz package, which is trusted by the abc package.  Therefore as 
+long as package xyz passes the basic signature/validity check then not 
+only are the contents valid but they are trusted by someone you trust.
+
+Timothy,
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
+
+
+--
+This message was distributed to subscribers of the selinux mailing list. If
+you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
+
 
 
 
