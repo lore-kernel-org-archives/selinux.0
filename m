@@ -1,79 +1,44 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, SELinux@tycho.nsa.gov
-Subject: Re: db conflict ?
-Date: Fri, 12 Apr 2002 14:05:16 +0200
-References: <20020412122349.A28382@lemuria.org>
-In-Reply-To: <20020412122349.A28382@lemuria.org>
-Cc: sds@tislabs.com
+Date: Fri, 12 Apr 2002 08:38:24 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Sung Kim <hunkim@cse.ucsc.edu>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: Compile error with Download 2.4 LSM-based Prototype (stable,
+ recommended)
+In-Reply-To: <Pine.GSO.4.44.0204112038440.17711-100000@sundance.cse.ucsc.edu>
+Message-ID: <Pine.GSO.4.33.0204120834330.21729-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020412120516.E261F2845B@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 12 Apr 2002 12:23, Tom wrote:
-> I have just installed a new SELinux test machine. It had an SELinux
-> earlier, but I deleted that and installed a new one, from the Debian
-> packages.
+
+On Thu, 11 Apr 2002, Sung Kim wrote:
+
+> I tried to install 2.4 LSM-based Prototype (stable, recommended).
+> But I've got these error messages.
 >
-> During boot, I get this error message:
->
-> something looks very wrong here. my /ss_policy is up-to-date:
->
-> -rw-r--r--    1 root     root      1291704 Apr 12 11:50 ss_policy
->
-> but my "make install" fails:
->
-> arkham:/etc/selinux# make install
-> install -m 644 -o root -g root policy /ss_policy
-> chsid system_u:object_r:policy_config_t /ss_policy
-> system_u:object_r:policy_config_t: Invalid argument
-> make: *** [install] Error 1
+> make[3]: Entering directory `/usr/src/lsm-2.4/security/selinux/selopt'
+> gcc -D__KERNEL__ -I/usr/src/lsm-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer \-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686    -I../include -I.. -DKBUILD_\BASENAME=queue  -c -o queue.o queue.c
+> queue.c: In function `__selopt_queue_dequeue':
+> queue.c:98: warning: implicit declaration of function `nf_reinject'
 
-That's failing because you aren't running SE Linux at the time.  But that's 
-OK, merely having it copied in place by the "install" program is OK if you 
-reboot afterwards.
+Did you enable Network Packet Filtering (NetFilter) under the Networking
+Options submenu?  This option should be set by default in your defconfig
+file if you followed the installation procedure from selinux/README.
 
-> arkham:/etc/selinux# load_policy /ss_policy
-> security_load_policy: Invalid argument
+> My gcc version is 3.0.2 and tried in Linux hunkim.cse.ucsc.edu 2.4.17 #1 SMP Fri Jan 4 14:46:58 EST 2002 i686 unknown.
+> I set all possible security options.
 
-When you're not running SE Linux you can't load the policy, but if you booted 
-an SE kernel in debugging mode with an invalid policy file then you should be 
-able to use load_policy to enable SE mode.
+You should only have set the Capabilities Support, the IP Networking
+Support, the NSA SELinux Support, and the NSA SELinux Development Module
+security options, as discussed in selinux/README.
 
-Here's a quick and dirty hack for /etc/magic to support SE Linux policy:
-0       lelong  7       SE Linux policy v7
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-0       lelong  8       SE Linux policy v8
->4      lelong  =1      MLS
->8      lelong  x       %d symbols
->12     lelong  x       %d ocons
 
-> I did remove the persistent label things:
->   rm -rf /...security /var/...security
 
-That gains you nothing.  The problem here is in the file /ss_policy.
-
-Use file (after updating /etc/magic) to check /etc/selinux/policy, then make 
-sure that the right checkpolicy program is getting run (the ancient versions 
-would generate the old policy file).  Try "make clean ; make install".
-
-Steve, I think that we need an option in the policy.conf file to specify the 
-version of the policydb.  If we add it now then it'll break compatability 
-with old versions of checkpolicy (which is desired).  Then we can say
-"policy v8" in the config file and count on any older version refusing to 
-compile it.
-
-I think that if we already had such a feature then Tom would find his 
-problems much easier to solve.
-
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
