@@ -1,40 +1,45 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA24819
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 17:40:43 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA24868
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 17:46:07 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA19037
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 22:38:35 GMT
+	by jazzswing.ncsc.mil  with ESMTP id WAA19311
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 22:43:59 GMT
 Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-	by jazzswing.ncsc.mil  with ESMTP id WAA19033
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 22:38:33 GMT
-Date: Thu, 21 Nov 2002 09:43:20 +1100
+	by jazzswing.ncsc.mil  with ESMTP id WAA19307
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 22:43:56 GMT
+Date: Thu, 21 Nov 2002 09:48:51 +1100
 From: Brian May <bam@snoopy.apana.org.au>
-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: conflicting header files
-Message-ID: <20021120224320.GA17578@snoopy.apana.org.au>
-References: <200211201304.IAA16966@moss-shockers.ncsc.mil>
+To: Joshua Brindle <JBrindle@snu.edu>
+Cc: russell@coker.com.au, selinux@tycho.nsa.gov, jabiru_croc@yahoo.com
+Subject: Re: SELinux distro building
+Message-ID: <20021120224851.GB17578@snoopy.apana.org.au>
+References: <sddba22a.029@atlas.snu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200211201304.IAA16966@moss-shockers.ncsc.mil>
+In-Reply-To: <sddba22a.029@atlas.snu.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Nov 20, 2002 at 08:04:26AM -0500, Stephen D. Smalley wrote:
-> 
-> > In lsm-2.4/security/selinux/include/linux/flask/security.h, it has:
-> 
-> These are the internal kernel interfaces to the security server.
-> Application code shouldn't be including this file.
+On Wed, Nov 20, 2002 at 02:54:18PM -0600, Joshua Brindle wrote:
+> much closer
+> i used --with-lsm=/usr/src/linux-2.4.19-selinux because it was looking
+> in ../../.. for lsm-2.4, instead of just ../ (i dunno)
+> anyway, it compiled almost everything then i got this error
+> (if you prefer i can pipe the entire compile to a file and attach..
+> Thanks
 
-Thats what I thought.
+Looks like another directory that needs to include LSM directories.
 
-However, when compiling checkpolicy,
-lsm-2.4/security/selinux/include/linux/flask/ss/global.h is included
-(command line parameter), which also includes linux/flask/security.h,
+What directories need these include files?
 
-Is checkpolicy considered a special case?
---
+So far it seems to be:
+
+libsecure/src
+libsecure/test
+modules/checkpolicy
+
+Is that all? Are there any others I might have missed?
+-- 
 Brian May <bam@snoopy.apana.org.au>
 
 --
