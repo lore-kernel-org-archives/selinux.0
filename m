@@ -1,62 +1,48 @@
-Message-ID: <4235F2A9.4090003@redhat.com>
-Date: Mon, 14 Mar 2005 15:23:05 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: ivg2@cornell.edu
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 Subject: Re: user_trans/user_trans_boolean macro
-References: <1110692016.29852.77.camel@cobra.ivg2.net>	 <1110804353.21378.8.camel@moss-spartans.epoch.ncsc.mil>	 <1110820329.16850.8.camel@cobra.ivg2.net>	 <1110820795.21378.141.camel@moss-spartans.epoch.ncsc.mil> <1110824019.16850.19.camel@cobra.ivg2.net>
-In-Reply-To: <1110824019.16850.19.camel@cobra.ivg2.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
+In-Reply-To: <1110831210.21378.235.camel@moss-spartans.epoch.ncsc.mil>
+References: <1110692016.29852.77.camel@cobra.ivg2.net>
+	 <1110804353.21378.8.camel@moss-spartans.epoch.ncsc.mil>
+	 <1110820329.16850.8.camel@cobra.ivg2.net>
+	 <1110820795.21378.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <1110824399.16850.21.camel@cobra.ivg2.net>
+	 <1110825077.21378.199.camel@moss-spartans.epoch.ncsc.mil>
+	 <1110826572.16850.33.camel@cobra.ivg2.net>
+	 <1110829424.16850.39.camel@cobra.ivg2.net>
+	 <1110829277.21378.219.camel@moss-spartans.epoch.ncsc.mil>
+	 <1110831501.16850.47.camel@cobra.ivg2.net>
+	 <1110831210.21378.235.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 14 Mar 2005 15:45:56 -0500
+Message-Id: <1110833157.16850.63.camel@cobra.ivg2.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
+On Mon, 2005-03-14 at 15:13 -0500, Stephen Smalley wrote:
+> On Mon, 2005-03-14 at 15:18 -0500, Ivan Gyurdiev wrote:
+> > I guess what I'm trying to figure out is why 
+> > domain_auto_trans doesn't add the role access rule
+> > by default. Isn't this always necessary if you want
+> > a transition to occur?
+> 
+> domain_auto_trans() can be (and is ) used from any domain, not just a
+> user domain.  One could certainly add an optional argument for a role
 
->Ok, how about this instead - seems more useful
->
->1) Renamed: user_trans -> allow_trans
->2) Added role as a separate argument for flexibility
->3) Remove boolean macro - declare boolean in the app .te file
->
->#####################################################
->#
-># allow_trans(prefix, role_prefix, app_prefix)
->#
-># Transition user:$2_r:$1_t to user:$2_r:$1_$3_t
->#
->define(`allow_trans', `
->role $2_r types $1_$3_t;
->if (! disable_$1_$3_transition) {
->domain_auto_trans($1_t, $3_exec_t, $1_$3_t)
->}
->')
->
->  
->
-disable_$1_transition is so the admin can decide if they want certain 
-users to transition. 
-For example, I think we should have a locked down mozilla policy where 
-it only shows
-web pages and only allows you do download to /tmp or My Downloads.    It 
-should not be
-allowed to touch the users home directory.  This should be the only 
-mozilla policy, and the
-admin gets the ability to turn on/off the policy.  So if you want to be 
-protected by Mozilla
-policy you give up alot of its functionality otherwise you run it as 
-user_t.  The way Mozilla
-was policy is going is we end up with user_t privs anyways.  I don't 
-think we need a boolean
-for each role though.  IE I think the exposion of booleans is worse the 
-the loss of customizability.
+Well, I think I will conclude that I'll leave things exactly as they
+are :) It seems a bad idea to me to add yet another argument. The macro
+I was trying to write also seems like a bad idea now. 
 
-So one disable_mozilla_trans is better than disable_user_mozilla_trans.
-
-Dan
+The only thing I will do is add controlling booleans to the domain.te
+file, and use them in the macros.te file around the auto_trans call 
+(and remove all of this from x_client_macros).
 
 -- 
-
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
