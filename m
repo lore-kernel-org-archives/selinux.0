@@ -1,32 +1,71 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA04453
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 15:34:35 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA10788
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 19:32:48 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id TAA10784 for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 19:32:47 GMT
-Date: Fri, 27 Sep 2002 15:33:59 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Frank Mayer <mayerf@tresys.com>
-cc: <selinux@tycho.nsa.gov>, "'David Caplan'" <dac@tresys.com>
-Subject: RE: checkpolicy and login names [patch]
-In-Reply-To: <006b01c2658e$a57e8990$6600a8c0@columbia.tresys.com>
-Message-ID: <Pine.GSO.4.33.0209271533540.24078-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA05170
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 17:28:09 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id VAA10168
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 21:26:38 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id VAA10164
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 21:26:37 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id AC93C92465
+	for <selinux@tycho.nsa.gov>; Sat, 28 Sep 2002 07:28:04 +1000 (EST)
+Received: from lyta (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id A6EBA9F6A
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 23:27:56 +0200 (CEST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: apache
+Date: Fri, 27 Sep 2002 23:27:56 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_KY84I8UYXI31ZJYAD5YU"
+Message-Id: <200209272327.56232.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-Thanks, merged.
+--------------Boundary-00=_KY84I8UYXI31ZJYAD5YU
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I've attached a patch for the apache policy.
 
+If someone here knows the Apache source then the best solution would be to get 
+the Apache source patched to set the file handle in question to close on 
+exec...
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
+--------------Boundary-00=_KY84I8UYXI31ZJYAD5YU
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="a.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="a.diff"
+
+diff -ru /tmp/policy/domains/program/apache.te ./domains/program/apache.te
+--- /tmp/policy/domains/program/apache.te	2002-09-27 22:27:37.000000000 +0200
++++ ./domains/program/apache.te	2002-09-27 18:28:52.000000000 +0200
+@@ -158,6 +158,10 @@
+ allow httpd_suexec_process_t httpd_var_run_t:file rw_file_perms;
+ allow httpd_suexec_process_t httpd_cache_t:file rw_file_perms;
+ 
++# apache should set close-on-exec
++dontaudit httpd_suexec_process_t httpd_t:unix_stream_socket { read write };
++dontaudit { system_mail_t mta_user_agent } httpd_t:unix_stream_socket { read write };
++
+ #
+ # If a user starts a script by hand it gets the proper context
+ #
+
+--------------Boundary-00=_KY84I8UYXI31ZJYAD5YU--
 
 
 --
