@@ -1,58 +1,64 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA02318
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 09:10:47 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA06186
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 16:42:21 -0500 (EST)
+From: azeredo@qmc.ufsc.br
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0HEAcI29726
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 14:10:38 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h0HEAbf29722 for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 14:10:37 GMT
-Message-Id: <200301171418.JAA00475@moss-shockers.ncsc.mil>
-Date: Fri, 17 Jan 2003 09:18:06 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: KDM login trouble
-To: selinux@tycho.nsa.gov, tom@lemuria.org
+	by jazzband.ncsc.mil  with ESMTP id h0HLgMI26813
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 21:42:22 GMT
+Received: from quark.qmc.ufsc.br (bohr-gw.qmc.ufsc.br [150.162.31.223])
+        by jazzband.ncsc.mil  with ESMTP id h0HLgLf26809 for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 21:42:21 GMT
+Received: (from wwwrun@localhost)
+	by quark.qmc.ufsc.br (8.11.3/8.11.3/SuSE Linux 8.11.1-0.5) id h0HL8XG09783
+	for selinux@tycho.nsa.gov; Fri, 17 Jan 2003 19:08:33 -0200
+Message-ID: <1042837713.3e2870d149dd5@qmc.ufsc.br>
+Date: Fri, 17 Jan 2003 19:08:33 -0200
+To: selinux@tycho.nsa.gov
+Subject: Problems compiling selinux release (2003011510) for 2.4.20 kernel
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> For the first time since I started working with SELinux I've done it to
-> a desktop machine today.
-> 
-> Works fine, except for kdm. For one thing, run_init /etc/init.d/kdm
-> exits immediately. doh.
-> On boot, however, kdm fires up just right.
-> 
-> But, it doesn't let anyone log in. The logfile says
-> UNABLE TO GET VALID SID for ...
-> 
-> Even though all users, including root, can log on just fine one the
-> console, so they _do_ have valid SIDs. And I'm still running in
-> permissive mode. No denied log entries, either.
-> 
-> What am I missing?
+    Hi,
 
-Offhand, I would guess that the SELinux patch for kdm was never updated
-for the newer libsecure functions and default_contexts configuration,
-so it is still looking for the old (and no longer existing)
-default_context configuration.  See
-http://marc.theaimsgroup.com/?l=selinux&m=103772416731711&w=2 for a
-discussion of this change, which was introduced in the October 2002
-release.  We updated the components in our tree (login, sshd, crond),
-but not external components like the patched kdm.
-
-Alternatively, if the kdm patch was updated, then I would guess that
-kdm is not running the right domain.   Check the ps -e --context output
-to see the domain on the kdm process.  If it isn't correct, check the
-type on the executable.
+   I was trying to compile the updated release (2003011510) for 2.4.20 and
+2.5.58 kernels on  RedHat 8.0 and using  the same config got the following error
+for 2.4.20 kernel despite the fact that   it went fine for 2.5.58 kernel. 
+  Has anyone run into the same problem?
+        
+    
 
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+make[1]: Saindo do diretório `/usr/src/lsm-2.4/arch/i386/lib'
+ld -m elf_i386 -T /usr/src/lsm-2.4/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o
+init/do_mounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
+fs/fs.o ipc/ipc.o security/vmlinux-obj.o \
+         drivers/parport/driver.o drivers/char/char.o drivers/block/block.o
+drivers/misc/misc.o drivers/net/net.o drivers/media/media.o
+drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o
+drivers/cdrom/driver.o drivers/pci/driver.o drivers/pnp/pnp.o
+drivers/video/video.o drivers/usb/usbdrv.o \
+        net/network.o \
+        /usr/src/lsm-2.4/arch/i386/lib/lib.a /usr/src/lsm-2.4/lib/lib.a
+/usr/src/lsm-2.4/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+kernel/kernel.o: In function `sys_acct':
+kernel/kernel.o(.text+0xa3b9): undefined reference to `security_acct'
+make: ** [vmlinux] Erro 1
 
+
+
+                                  Mathematics department
+                                   UFSC
+                                   Aldrovando Azeredo
+
+-------------------------------------------------
+This mail sent through IMP: http://horde.org/imp/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
