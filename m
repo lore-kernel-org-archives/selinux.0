@@ -1,47 +1,136 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5DIbvrT014413
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2004 14:37:57 -0400 (EDT)
-Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5DIboP2012852
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2004 14:37:50 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 13 Jun 2004 18:37:54 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BZZEu-0002GQ-Kw
-	for selinux@tycho.nsa.gov; Sun, 13 Jun 2004 17:57:52 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BZZp1-00077c-9T
-	for selinux@tycho.nsa.gov; Sun, 13 Jun 2004 18:35:11 +0000
-Date: Sun, 13 Jun 2004 18:35:11 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: you get a break
-Message-ID: <20040613183511.GA27357@lkcl.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5DLo7rT014833
+	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2004 17:50:07 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5DLo3kj002826
+	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2004 17:50:04 -0400 (EDT)
+Subject: RAID and postfix patches
+From: Colin Walters <walters@redhat.com>
+To: dwalsh@redhat.com, russell@coker.com.au
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sX9o2q5Nl1TaL93XFQag"
+Message-Id: <1087163341.23384.4.camel@optimus-prime.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Sun, 13 Jun 2004 17:49:02 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-dear selinux people,
 
-some of you may be relieved to know that i'm off for five days, back
-on about saturday.  the recent deluge of emails therefore stops dead,
-as of like... now, really.  which means that in six days time... :)
+--=-sX9o2q5Nl1TaL93XFQag
+Content-Type: multipart/mixed; boundary="=-fvcaXNxAMkjI61FX5C7g"
 
-luck to everyone doing se/linux stuff.
 
-l.
+--=-fvcaXNxAMkjI61FX5C7g
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+Hi,
+
+Attached is a policy for the RAID tool "mdadm", which has a daemon
+monitoring mode that wants to access /dev/md0 (of course).  Major
+caveat: I haven't tested it for creating RAID devices.  I hope someone
+can try this out.
+
+Also, the policy for the "postmap" program from Postfix seemed busted -
+it had postmap run as postfix_master_t, which doesn't have write access
+to /etc/postfix.  postmap is very commonly run by administrators to
+regenerate the hash database files.  I've attached a patch for the
+Postfix policy which creates a new domain for it.
+
+There are also a few other fixes in the Postfix patch too.
+
+
+
+--=-fvcaXNxAMkjI61FX5C7g
+Content-Disposition: attachment; filename=mdadm.te
+Content-Type: text/plain; name=mdadm.te; charset=ISO-8859-1
+Content-Transfer-Encoding: base64
+
+I0RFU0MgbWRhZG0gLSBMaW51eCBSQUlEIHRvb2wNCiMNCiMgQXV0aG9yOiBDb2xpbiBXYWx0ZXJz
+IDx3YWx0ZXJzQHJlZGhhdC5jb20+DQojDQoNCmRhZW1vbl9iYXNlX2RvbWFpbihtZGFkbSwgYCwg
+ZnNfZG9tYWluJykNCnJvbGUgc3lzYWRtX3IgdHlwZXMgbWRhZG1fdDsNCg0KIyBLZXJuZWwgZmls
+ZXN5c3RlbSBwZXJtaXNzaW9ucw0Kcl9kaXJfZmlsZShtZGFkbV90LCBwcm9jX3QpDQphbGxvdyBt
+ZGFkbV90IHN5c2N0bF9rZXJuZWxfdDpmaWxlIHJfZmlsZV9wZXJtczsNCmFsbG93IG1kYWRtX3Qg
+c3lzY3RsX2tlcm5lbF90OmRpciByX2Rpcl9wZXJtczsNCnJfZGlyX2ZpbGUobWRhZG1fdCwgc3lz
+ZnNfdCkgDQojIEFsbG93IHdyaXRlcyB0byAvcHJvYy9tZHN0YXQgLSBUT0RPOiBzcGVjaWZpYyB0
+eXBlIGZvciB0aGF0IGZpbGUNCmFsbG93IG1kYWRtX3QgcHJvY190OmZpbGUgcndfZmlsZV9wZXJt
+czsNCg0KIyBDb25maWd1cmF0aW9uDQphbGxvdyBtZGFkbV90IHsgZXRjX3QgZXRjX3J1bnRpbWVf
+dCB9OmZpbGUgeyBnZXRhdHRyIHJlYWQgfTsNCnJlYWRfbG9jYWxlKG1kYWRtX3QpDQoNCiMgTGlu
+dXggY2FwYWJpbGl0aWVzDQphbGxvdyBtZGFkbV90IHNlbGY6Y2FwYWJpbGl0eSB7IGRhY19vdmVy
+cmlkZSBzeXNfYWRtaW4gfTsNCg0KIyBIZWxwZXIgcHJvZ3JhbSBhY2Nlc3MNCmNhbl9leGVjKG1k
+YWRtX3QsIHsgYmluX3Qgc2Jpbl90IH0pDQoNCiMgUkFJRCBibG9jayBkZXZpY2UgYWNjZXNzDQph
+bGxvdyBtZGFkbV90IGZpeGVkX2Rpc2tfZGV2aWNlX3Q6YmxrX2ZpbGUgY3JlYXRlX2ZpbGVfcGVy
+bXM7DQoNCiMgSWdub3JlIGF0dGVtcHRzIHRvIHJlYWQgZXZlcnkgZGV2aWNlIGZpbGUNCmRvbnRh
+dWRpdCBtZGFkbV90IGRldmljZV90eXBlOnsgY2hyX2ZpbGUgYmxrX2ZpbGUgfSBnZXRhdHRyOw0K
+ZG9udGF1ZGl0IG1kYWRtX3QgZGV2aWNlX3Q6eyBmaWZvX2ZpbGUgZmlsZSBkaXIgY2hyX2ZpbGUg
+YmxrX2ZpbGUgfSB7IHJlYWQgZ2V0YXR0ciB9Ow0KZG9udGF1ZGl0IG1kYWRtX3QgZHJpX2Rldmlj
+ZV90OmRpciByX2Rpcl9wZXJtczsNCmRvbnRhdWRpdCBtZGFkbV90IGRldnB0c190OmRpciByX2Rp
+cl9wZXJtczsNCg0KIyBJZ25vcmUgYXR0ZW1wdHMgdG8gcmVhZC93cml0ZSBzeXNhZG1pbiB0dHkN
+CmRvbnRhdWRpdCBtZGFkbV90IHN5c2FkbV90dHlfZGV2aWNlX3Q6Y2hyX2ZpbGUgcndfZmlsZV9w
+ZXJtczsNCg0KIyBPdGhlciByYW5kb20gaWdub3Jlcw0KZG9udGF1ZGl0IG1kYWRtX3QgdG1wZnNf
+dDpkaXIgcl9kaXJfcGVybXM7DQpkb250YXVkaXQgbWRhZG1fdCBpbml0Y3RsX3Q6Zmlmb19maWxl
+IHsgZ2V0YXR0ciB9Ow0K
+
+--=-fvcaXNxAMkjI61FX5C7g
+Content-Disposition: attachment; filename=postfix.patch
+Content-Type: text/x-patch; name=postfix.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: base64
+
+LS0tIGRvbWFpbnMvcHJvZ3JhbS9wb3N0Zml4LnRlfgkyMDA0LTA1LTA3IDExOjI0OjI0LjAwMDAw
+MDAwMCAtMDQwMA0KKysrIGRvbWFpbnMvcHJvZ3JhbS9wb3N0Zml4LnRlCTIwMDQtMDYtMTMgMTc6
+MjU6MTcuNTYzOTQxNjQ4IC0wNDAwDQpAQCAtNDMsNiArNDMsNyBAQA0KIA0KIGFsbG93IHBvc3Rm
+aXhfJDFfdCB7IHNiaW5fdCBiaW5fdCB9OmRpciByX2Rpcl9wZXJtczsNCiBhbGxvdyBwb3N0Zml4
+XyQxX3QgYmluX3Q6bG5rX2ZpbGUgcl9maWxlX3Blcm1zOw0KK2FsbG93IHBvc3RmaXhfJDFfdCB1
+c3JfdDpsbmtfZmlsZSByX2ZpbGVfcGVybXM7DQogYWxsb3cgcG9zdGZpeF8kMV90IHNoZWxsX2V4
+ZWNfdDpmaWxlIHJ4X2ZpbGVfcGVybXM7DQogYWxsb3cgcG9zdGZpeF8kMV90IHsgdmFyX3QgdmFy
+X3Nwb29sX3QgfTpkaXIgeyBzZWFyY2ggZ2V0YXR0ciB9Ow0KIGFsbG93IHBvc3RmaXhfJDFfdCBw
+b3N0Zml4X2V4ZWNfdDpmaWxlIHJ4X2ZpbGVfcGVybXM7DQpAQCAtMTYyLDYgKzE2Myw4IEBADQog
+YWxsb3cgcG9zdGZpeF9zbXRwZF90IHsgcG9zdGZpeF9wcml2YXRlX3QgcG9zdGZpeF9wdWJsaWNf
+dCB9OmRpciBzZWFyY2g7DQogYWxsb3cgcG9zdGZpeF9zbXRwZF90IHsgcG9zdGZpeF9wcml2YXRl
+X3QgcG9zdGZpeF9wdWJsaWNfdCB9OnNvY2tfZmlsZSByd19maWxlX3Blcm1zOw0KIGFsbG93IHBv
+c3RmaXhfc210cGRfdCBwb3N0Zml4X21hc3Rlcl90OnVuaXhfc3RyZWFtX3NvY2tldCBjb25uZWN0
+dG87DQorIyBmb3IgT3BlblNTTCBjZXJ0aWZpY2F0ZXMNCityX2Rpcl9maWxlKHBvc3RmaXhfc210
+cGRfdCx1c3JfdCkNCiBhbGxvdyBwb3N0Zml4X3NtdHBkX3QgZXRjX2FsaWFzZXNfdDpmaWxlIHJf
+ZmlsZV9wZXJtczsNCiANCiAjIGZvciBwcm5nX2V4Y2gNCkBAIC0zMDgsMyArMzExLDE1IEBADQog
+aWZkZWYoYHByb2NtYWlsLnRlJywgYA0KIGRvbWFpbl9hdXRvX3RyYW5zKHBvc3RmaXhfcGlwZV90
+LCBwcm9jbWFpbF9leGVjX3QsIHByb2NtYWlsX3QpDQogJykNCisNCisjIFByb2dyYW0gZm9yIGNy
+ZWF0aW5nIGRhdGFiYXNlIGZpbGVzDQorYXBwbGljYXRpb25fZG9tYWluKHBvc3RmaXhfbWFwKQ0K
+K2Jhc2VfZmlsZV9yZWFkX2FjY2Vzcyhwb3N0Zml4X21hcF90KQ0KK2FsbG93IHBvc3RmaXhfbWFw
+X3QgeyBldGNfdCBldGNfcnVudGltZV90IH06eyBmaWxlIGxua19maWxlIH0geyBnZXRhdHRyIHJl
+YWQgfTsNCit0bXBfZG9tYWluKHBvc3RmaXhfbWFwKQ0KK2NyZWF0ZV9kaXJfZmlsZShwb3N0Zml4
+X21hcF90LCBwb3N0Zml4X2V0Y190KQ0KK2FsbG93IHBvc3RmaXhfbWFwX3Qgc2VsZjp1bml4X3N0
+cmVhbV9zb2NrZXQgY3JlYXRlX3N0cmVhbV9zb2NrZXRfcGVybXM7DQorZG9udGF1ZGl0IHBvc3Rm
+aXhfbWFwX3QgcHJvY190OmRpciB7IGdldGF0dHIgcmVhZCBzZWFyY2ggfTsNCitkb250YXVkaXQg
+cG9zdGZpeF9tYXBfdCBsb2NhbF9sb2dpbl90OmZkIHsgdXNlIH07DQorYWxsb3cgcG9zdGZpeF9t
+YXN0ZXJfdCBwb3N0Zml4X21hcF9leGVjX3Q6ZmlsZSByeF9maWxlX3Blcm1zOw0KKw0KLS0tIGZp
+bGVfY29udGV4dHMvcHJvZ3JhbS9wb3N0Zml4LmZjfgkyMDA0LTA1LTA3IDExOjI0OjI0LjAwMDAw
+MDAwMCAtMDQwMA0KKysrIGZpbGVfY29udGV4dHMvcHJvZ3JhbS9wb3N0Zml4LmZjCTIwMDQtMDYt
+MTMgMTc6MDE6MzYuNjM1OTU1NTM2IC0wNDAwDQpAQCAtMjEsNyArMjEsNyBAQA0KIC91c3Ivc2Jp
+bi9wb3N0a2ljawktLQlzeXN0ZW1fdTpvYmplY3Rfcjpwb3N0Zml4X21hc3Rlcl9leGVjX3QNCiAv
+dXNyL3NiaW4vcG9zdGxvY2sJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6cG9zdGZpeF9tYXN0ZXJfZXhl
+Y190DQogL3Vzci9zYmluL3Bvc3Rsb2cJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6cG9zdGZpeF9tYXN0
+ZXJfZXhlY190DQotL3Vzci9zYmluL3Bvc3RtYXAJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6cG9zdGZp
+eF9tYXN0ZXJfZXhlY190DQorL3Vzci9zYmluL3Bvc3RtYXAJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6
+cG9zdGZpeF9tYXBfZXhlY190DQogL3Vzci9zYmluL3Bvc3RxdWV1ZQktLQlzeXN0ZW1fdTpvYmpl
+Y3Rfcjpwb3N0Zml4X3Bvc3RxdWV1ZV9leGVjX3QNCiAvdXNyL3NiaW4vcG9zdHN1cGVyCS0tCXN5
+c3RlbV91Om9iamVjdF9yOnBvc3RmaXhfbWFzdGVyX2V4ZWNfdA0KIC91c3Ivc2Jpbi9ybWFpbAkJ
+LS0Jc3lzdGVtX3U6b2JqZWN0X3I6c2VuZG1haWxfZXhlY190DQo=
+
+--=-fvcaXNxAMkjI61FX5C7g--
+
+--=-sX9o2q5Nl1TaL93XFQag
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAzMvNOIkJWWp2WGURAufhAJ9txGwEWEP/GGx+sU1/QOsUzvqeZwCfVltS
+1LdNj3W7IxzmJ1CQzS+ex9s=
+=4H80
+-----END PGP SIGNATURE-----
+
+--=-sX9o2q5Nl1TaL93XFQag--
 
 
 --
