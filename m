@@ -1,41 +1,26 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA09804
-	for <selinux@tycho.nsa.gov>; Mon, 18 Nov 2002 23:09:48 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA10682
+	for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 03:07:35 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id EAA14159
-	for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 04:07:49 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id EAA14155 for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 04:07:46 GMT
-Date: Tue, 19 Nov 2002 15:12:34 +1100
-From: Brian May <bam@snoopy.apana.org.au>
-To: Brad Chapman <jabiru_croc@yahoo.com>, Joshua Brindle <JBrindle@snu.edu>,
-        Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
-Subject: Re: SELinux distro building
-Message-ID: <20021119041234.GI25830@snoopy.apana.org.au>
-References: <sdd11fd2.035@atlas.snu.edu> <20021113005009.53937.qmail@web40018.mail.yahoo.com> <20021113013123.GA21921@snoopy.apana.org.au> <20021113082902.GA26850@snoopy.apana.org.au>
+	by jazzband.ncsc.mil  with ESMTP id IAA22022
+	for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 08:05:35 GMT
+Received: from mail.osss.is.tsukuba.ac.jp (dumbo.osss.is.tsukuba.ac.jp [130.158.85.97])
+        by jazzband.ncsc.mil  with ESMTP id IAA21988 for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 08:05:33 GMT
+Received: from manchester (ryche.osss.is.tsukuba.ac.jp [130.158.85.100])
+	by mail.osss.is.tsukuba.ac.jp (Postfix) with SMTP id E1203D52A0
+	for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 17:07:09 +0900 (JST)
+Date: Tue, 19 Nov 2002 17:07:09 +0900
+From: Koichi ONOUE <koichi@osss.is.tsukuba.ac.jp>
+To: selinux@tycho.nsa.gov
+Subject: login
+Message-Id: <20021119170709.1bc23c6e.koichi@osss.is.tsukuba.ac.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20021113082902.GA26850@snoopy.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Nov 13, 2002 at 07:29:03PM +1100, Brian May wrote:
-> On Wed, Nov 13, 2002 at 12:31:23PM +1100, Brian May wrote:
-> > Would somebody be willing to test a patch that does this?
-> 
-> I have modified Russell's version of libselinux-small,
-> to build with autoconf/automake/libtool.
-> 
-> See
-> <URL:http://www.microcomaustralia.com.au/debian/selinux-small-2002102211.tar.gz>
-
-Has anyone tested this?
-
-Not that I intend to push anybody, I am just curious if the silence
-means that everyone has missed this message or tried it and had no
-problems...
---
-Brian May <bam@snoopy.apana.org.au>
+I begined to start SELinux, but I cannot login.
+Please tell me what I should do in order to be able to login.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
