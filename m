@@ -1,58 +1,55 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iATFO1Ii011383
-	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2004 10:24:01 -0500 (EST)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iATFO0km003205
-	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2004 15:24:04 GMT
-Message-ID: <41AB3F0B.6050104@redhat.com>
-Date: Mon, 29 Nov 2004 10:23:55 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iATFgkIi011607
+	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2004 10:42:46 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iATFeBYf025632
+	for <selinux@tycho.nsa.gov>; Mon, 29 Nov 2004 15:41:13 GMT
+Date: Mon, 29 Nov 2004 10:41:47 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+cc: sds@epoch.ncsc.mil, <linux-kernel@vger.kernel.org>,
+   <selinux@tycho.nsa.gov>
+Subject: Re: [2.6 patch] selinux: possible cleanups
+In-Reply-To: <20041128190139.GD4390@stusta.de>
+Message-ID: <Xine.LNX.4.44.0411291040320.6506-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: petre rodan <kaiowas@gentoo.org>
-CC: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: gentoo policy for dante
-References: <4198E94B.8070008@gentoo.org>	 <1100808438.26930.28.camel@moss-lions.epoch.ncsc.mil>	 <419D1ABD.4020901@gentoo.org> <1100893919.31793.32.camel@moss-lions.epoch.ncsc.mil> <41A02530.3070505@redhat.com> <41A99F8C.4080503@gentoo.org>
-In-Reply-To: <41A99F8C.4080503@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-petre rodan wrote:
+On Sun, 28 Nov 2004, Adrian Bunk wrote:
 
->
-> Hi Daniel,
->
-> Daniel J Walsh wrote:
->
->> Small change on previous patch.
->>
->> Please ignore previous patch and use this one.
->
-> >
->
->> --- nsapolicy/domains/program/unused/postgresql.te    2004-11-20 
->> 22:29:09.000000000 -0500
->> +++ policy-1.19.4/domains/program/unused/postgresql.te    2004-11-21 
->> 00:17:07.933617789 -0500
->> @@ -110,6 +110,14 @@
->>  dontaudit postgresql_t selinux_config_t:dir { search };
->>  allow postgresql_t mail_spool_t:dir { search };
->>  rw_dir_create_file(postgresql_t, var_lock_t)
->> +can_exec(postgresql_t, { shell_exec_t bin_t } )
->> +ifdef(`httpd.te', `
->> +# +# Allow httpd to work with postgresql
->> +#
->> +allow httpd_t postgresql_tmp_t:sock_file rw_file_perms;
->> +can_unix_connect(httpd_t, posgresql_t)
->> +')
->
->
-> shouldn't this be an ifdef on apache.te instead of httpd.te?
->
-> bye,
-> peter
->
-Yes.
+> The patch below contains the following possible cleanups:
+> - make needlessly global code static
+> - remove the following unused global functions:
+>   - avc.c: avc_ss_grant
+>   - avc.c: avc_ss_try_revoke
+>   - avc.c: avc_ss_revoke
+>   - avc.c: avc_ss_set_auditallow
+>   - avc.c: avc_ss_set_auditdeny
+>   - ss/avtab.c: avtab_map
+>   - ss/ebitmap.c: ebitmap_or
+>   - ss/hashtab.c: hashtab_remove
+>   - ss/hashtab.c: hashtab_replace
+>   - ss/hashtab.c: hashtab_map_remove_on_error
+>   - ss/services.c: security_member_sid
+>   - ss/sidtab.c: sidtab_remove
+> - remove the following unused static functions:
+>   - avc.c: avc_update_cache
+>   - avc.c: avc_control
+> 
+
+I think these functions were going to be left in for possible future use, 
+but it's probably better to remove them and add them back only if 
+necessary.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
