@@ -1,36 +1,43 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h37Kl1I4018112
-	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2003 16:47:01 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h37KhKOv006992
-	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2003 20:43:20 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h37KhJY1006989
-	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2003 20:43:19 GMT
-Subject: Updated Release
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: SELinux Mailing List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1049748415.23420.6.camel@moss-sooners.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 07 Apr 2003 16:46:56 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h37LjiI4018438
+	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2003 17:45:44 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h37LjXxH025969
+	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2003 21:45:33 GMT
+Received: from mx.nas-smoothtransition.com (nas-vm-156.nas-smoothtransition.com [66.95.157.156] (may be forged))
+        by jazzband.ncsc.mil  with ESMTP id h37LjWDl025886 for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2003 21:45:32 GMT
+From: "david caplan" <dac@tresys.com>
+To: "Russell Coker" <russell@coker.com.au>, <selinux@tycho.nsa.gov>
+Subject: RE: usermod/group* patch
+Date: Mon, 7 Apr 2003 17:45:16 -0400
+Message-ID: <GBEAJBKHFOBIBBJBCGAGMEJCCLAA.dac@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <200303301127.05440.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The SELinux web site <http://www.nsa.gov/selinux/> including the mail
-list archive has been updated. The example policy has been updated with
-enhancements and cleanups.  A number of bugs have been fixed in the
-SELinux module.  The updated module is available for the ia32 2.4.20
-Linux kernel.   The updated module is also available for both the
-mainline 2.5.66 Linux kernel and an LSM patched 2.5.66 Linux kernel. 
-The new mainline module also includes work in preparation for a new
-SELinux API.  Finally, a port of SELinux to the arm 2.4.19 kernel is
-also now available.
+In trying out the new policy I rn across a problem with userdel (which uses
+the useradd.te policy).  I got a denied { rmdir } on a user's home directory
+when I tried to remove the account.
 
--- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
+I'm not sure when this was changed, but the useradd_t user_home_dir_t
+directory line went from:
+
+file_type_auto_trans(useradd_t, home_root_t, user_home_dir_t)
+
+to
+
+file_type_auto_trans(useradd_t, home_root_t, user_home_dir_t, dir)
+
+Specifying the 'dir' results in useradd_t not getting rmdir permission
+(necessary for userdel when removing the account's home directory).  This is
+because file_type_auto_trans (actually its subcall to file_type_trans) only
+gives create_file_perms when a fourth argument is given.  When a fourth
+argument is not specified file_type_trans produces two relevant rules, one
+of which grants the target type (arg 3) of class dir, create_dir_perms.
+
 
 
 --
