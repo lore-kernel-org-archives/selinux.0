@@ -1,38 +1,47 @@
-Date: Wed, 3 Jul 2002 10:08:55 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Timothy Wood <timothy@hallcomp.com>
-cc: SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: udp receive
-In-Reply-To: <1025704604.3619.11.camel@phobos>
-Message-ID: <Pine.GSO.4.33.0207031002290.29509-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Timothy Wood <timothy@hallcomp.com>
+To: Stephen Smalley <sds@tislabs.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <Pine.GSO.4.33.0207031002290.29509-100000@raven>
+References: <Pine.GSO.4.33.0207031002290.29509-100000@raven>
+Content-Type: text/plain
+Date: 03 Jul 2002 12:39:36 -0400
+Message-Id: <1025714377.3620.18.camel@phobos>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+> I need more detail from the audit message, in particular the two types
+> from the scontext and tcontext fields. 
 
-On 3 Jul 2002, Timothy Wood wrote:
-
-> I'm getting a recvfrom error for rpc.rquotad when I try to run nfs
-> services.  I can find a can_udp_send in the rpcd.te but I can not find
-> anything like can_udp_recv.  Is there anything like this that I need to
-> assign to the rpc.te in order to allow it to recv udp?
-
-I need more detail from the audit message, in particular the two types
-from the scontext and tcontext fields. The can_udp_send macro
-(defined in macros/global_macros.te) grants appropriate permissions for
-the sender domain and the receiver domain, so you likely just need a
-can_udp_send macro between the particular sender and receiver.  Of course,
-this is only significant for loopback communication (or if you are using
-the experimental labeled networking support for network communication),
-since the packets are otherwise labeled based on the receiving network
-interface and are handled by the can_network macro.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+avc:  denied  { recvfrom } for  pid=1791 exe=/usr/sbin/rpc.rquotad
+saddr=127.0.0.1 source=696 daddr=127.0.0.1 dest=111 netif=lo
+scontext=system_u:system_r:portmap_t tcontext=root:sysadm_r:sysadm_t
+tclass=udp_socket
 
 
+> The can_udp_send macro
+> (defined in macros/global_macros.te) grants appropriate permissions for
+> the sender domain and the receiver domain, so you likely just need a
+> can_udp_send macro between the particular sender and receiver.  Of course,
+> this is only significant for loopback communication (or if you are using
+
+It looks to me like it's loopback between the rpc quota daemon and the
+portmapper.
+
+> By the way, please note that the rpcd_t domain is simply a placeholder
+> for rpc daemons, and that you should really define an individual
+> domain for any rpc daemon that requires privilege (e.g. nfsd).  You
+> should also consider limiting this domain to true least privilege by
+> removing every_domain and only adding the bare minimum set of
+> permissions needed for operation.
+
+Is there a template I could use or could someone please explain how to
+go about creating a new domain?  I understand how to do some basic
+modifications so far but I'm no expert yet.  Thanks
+
+
+Timothy,
 
 
 
