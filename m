@@ -1,51 +1,181 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9FLikWt029071
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 17:44:46 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9FLsCWt029129
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 17:54:12 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9FLiimR028576
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 21:44:44 GMT
-Received: from whms0094.cwshs.com (mailout.cgi.com [66.110.7.6])
-        by jazzband.ncsc.mil  with ESMTP id h9FLiijp028566 for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 21:44:44 GMT
-Received: from whml0344.cgi.com ([10.254.251.20]) by
-          whms0094.cwshs.com (Netscape Messaging Server 4.15 whms0094 Jul
-          22 2001 13:33:35) with SMTP id HMTJ2D02.XAH for
-          <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 17:44:37 -0400
-Received: from RWANNER ([207.164.204.5]) by whms0335.cwshs.com
-          (Netscape Messaging Server 4.15 whms0335 Jan 17 2002 00:23:08)
-          with SMTP id HMTJ2C01.PBE for <selinux@tycho.nsa.gov>; Wed, 15
-          Oct 2003 17:44:36 -0400
-From: "Richard Herbert Wanner" <richard.wanner@cgi.com>
-To: "SELinux NSA" <selinux@tycho.nsa.gov>
-Subject: More 2.4 Build problems on RH 9.0
-Date: Wed, 15 Oct 2003 17:42:50 -0400
-Message-ID: <GMECJOINLDFDGEEPGINLAEGOCKAA.richard.wanner@cgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <1066241904.7399.84.camel@moss-spartans.epoch.ncsc.mil>
+	by jazzband.ncsc.mil  with ESMTP id h9FLsBmR029069
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 21:54:11 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h9FLsBjp029066 for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 21:54:11 GMT
+Subject: Re: More 2.4 Build problems on RH 9.0
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Richard Herbert Wanner <richard.wanner@cgi.com>
+Cc: SELinux NSA <selinux@tycho.nsa.gov>
+In-Reply-To: <GMECJOINLDFDGEEPGINLAEGOCKAA.richard.wanner@cgi.com>
+References: <GMECJOINLDFDGEEPGINLAEGOCKAA.richard.wanner@cgi.com>
+Content-Type: multipart/mixed; boundary="=-n/BeAxrv7SdEjpKgBZJK"
+Message-Id: <1066254850.7399.230.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 15 Oct 2003 17:54:10 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks for the help with my kernel build problems.  I now have a good working 2.4 kernel and I am on to the userland install.
 
-Sorry, but again I have an error.  Checkpolicy made ok, but libselinux seems to have a missing header file.
+--=-n/BeAxrv7SdEjpKgBZJK
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-cc -o fgetfilecon.o -c Wall -fPIC -I..include fgetfilecon.c
-fgetfilecon.c:7:24: attr/xattr.h: No such file or directory
-fgetfilecon.c: In function 'fgetfilecon':
-fgetfilecon.c:22:warning implicit declaration of function 'fgetxattr'
-make[1]: *** [fgetfilecon.o] Error 1
-make[1]: Leaving directory '/tmp/selinux-usr/libselinux/src
-make: *** [install] Error 2
+On Wed, 2003-10-15 at 17:42, Richard Herbert Wanner wrote:
+> cc -o fgetfilecon.o -c Wall -fPIC -I..include fgetfilecon.c
+> fgetfilecon.c:7:24: attr/xattr.h: No such file or directory
+> fgetfilecon.c: In function 'fgetfilecon':
+> fgetfilecon.c:22:warning implicit declaration of function 'fgetxattr'
+> make[1]: *** [fgetfilecon.o] Error 1
+> make[1]: Leaving directory '/tmp/selinux-usr/libselinux/src
+> make: *** [install] Error 2
 
-I am assuming from the name that xattr.h has to do with extended attributes.  I enabled 
-(CONFIG_DEVPTS_FS_XATTR), (CONFIG_DEVPTS_FS_SECURITY), (CONFIG_EXT2_FS_XATTR), and (CONFIG_EXT2_FS_SECURITY) along with the security parameters before building the kernel.  
+You can either install libattr-devel or you can apply the attached patch
+if your glibc directly supports the xattr calls (likely, unless using an
+older glibc or an older set of kernel headers).
 
-Any suggestions would be appreciated.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Thanks
-Rick
+--=-n/BeAxrv7SdEjpKgBZJK
+Content-Disposition: attachment; filename=libselinux-attr.patch
+Content-Type: text/x-patch; name=libselinux-attr.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
+Index: libselinux/src/Makefile
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/Makefile,v
+retrieving revision 1.14
+diff -u -r1.14 Makefile
+--- libselinux/src/Makefile	8 Oct 2003 19:30:44 -0000	1.14
++++ libselinux/src/Makefile	9 Oct 2003 19:45:08 -0000
+@@ -20,7 +20,7 @@
+ 	ranlib $@
+ 
+ $(LIBSO): $(OBJS)
+-	$(CC) $(LDFLAGS) -shared -o $@ $^ -lattr -Wl,-soname,$(LIBSO) 
++	$(CC) $(LDFLAGS) -shared -o $@ $^ -Wl,-soname,$(LIBSO) 
+ 	ln -sf $@ $(TARGET) 
+ 
+ %.o:  %.c
+Index: libselinux/src/fgetfilecon.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/fgetfilecon.c,v
+retrieving revision 1.4
+diff -u -r1.4 fgetfilecon.c
+--- libselinux/src/fgetfilecon.c	17 Jul 2003 14:03:27 -0000	1.4
++++ libselinux/src/fgetfilecon.c	9 Oct 2003 19:44:51 -0000
+@@ -4,7 +4,7 @@
+ #include <selinux/selinux.h>
+ #include <stdlib.h>
+ #include <errno.h>
+-#include <attr/xattr.h>
++#include <sys/xattr.h>
+ #include "policy.h"
+ 
+ int fgetfilecon(int fd, security_context_t *context)
+Index: libselinux/src/fsetfilecon.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/fsetfilecon.c,v
+retrieving revision 1.1
+diff -u -r1.1 fsetfilecon.c
+--- libselinux/src/fsetfilecon.c	28 Apr 2003 14:09:37 -0000	1.1
++++ libselinux/src/fsetfilecon.c	9 Oct 2003 19:44:51 -0000
+@@ -4,7 +4,7 @@
+ #include <selinux/selinux.h>
+ #include <stdlib.h>
+ #include <errno.h>
+-#include <attr/xattr.h>
++#include <sys/xattr.h>
+ #include "policy.h"
+ 
+ int fsetfilecon(int fd, security_context_t context)
+Index: libselinux/src/getfilecon.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/getfilecon.c,v
+retrieving revision 1.4
+diff -u -r1.4 getfilecon.c
+--- libselinux/src/getfilecon.c	17 Jul 2003 14:03:28 -0000	1.4
++++ libselinux/src/getfilecon.c	9 Oct 2003 19:44:51 -0000
+@@ -4,7 +4,7 @@
+ #include <selinux/selinux.h>
+ #include <stdlib.h>
+ #include <errno.h>
+-#include <attr/xattr.h>
++#include <sys/xattr.h>
+ #include "policy.h"
+ 
+ int getfilecon(const char *path, security_context_t *context)
+Index: libselinux/src/lgetfilecon.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/lgetfilecon.c,v
+retrieving revision 1.4
+diff -u -r1.4 lgetfilecon.c
+--- libselinux/src/lgetfilecon.c	17 Jul 2003 14:03:28 -0000	1.4
++++ libselinux/src/lgetfilecon.c	9 Oct 2003 19:44:51 -0000
+@@ -4,7 +4,7 @@
+ #include <selinux/selinux.h>
+ #include <stdlib.h>
+ #include <errno.h>
+-#include <attr/xattr.h>
++#include <sys/xattr.h>
+ #include "policy.h"
+ 
+ int lgetfilecon(const char *path, security_context_t *context)
+Index: libselinux/src/lsetfilecon.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/lsetfilecon.c,v
+retrieving revision 1.1
+diff -u -r1.1 lsetfilecon.c
+--- libselinux/src/lsetfilecon.c	28 Apr 2003 14:09:37 -0000	1.1
++++ libselinux/src/lsetfilecon.c	9 Oct 2003 19:44:51 -0000
+@@ -4,7 +4,7 @@
+ #include <selinux/selinux.h>
+ #include <stdlib.h>
+ #include <errno.h>
+-#include <attr/xattr.h>
++#include <sys/xattr.h>
+ #include "policy.h"
+ 
+ int lsetfilecon(const char *path, security_context_t context)
+Index: libselinux/src/setfilecon.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/setfilecon.c,v
+retrieving revision 1.1
+diff -u -r1.1 setfilecon.c
+--- libselinux/src/setfilecon.c	28 Apr 2003 14:09:37 -0000	1.1
++++ libselinux/src/setfilecon.c	9 Oct 2003 19:44:51 -0000
+@@ -4,7 +4,7 @@
+ #include <selinux/selinux.h>
+ #include <stdlib.h>
+ #include <errno.h>
+-#include <attr/xattr.h>
++#include <sys/xattr.h>
+ #include "policy.h"
+ 
+ int setfilecon(const char *path, security_context_t context)
+Index: libselinux/utils/Makefile
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/utils/Makefile,v
+retrieving revision 1.5
+diff -u -r1.5 Makefile
+--- libselinux/utils/Makefile	7 Jul 2003 12:53:42 -0000	1.5
++++ libselinux/utils/Makefile	9 Oct 2003 19:45:14 -0000
+@@ -4,7 +4,7 @@
+ 
+ CFLAGS = -Wall
+ override CFLAGS += -I../include
+-LDLIBS += -L../src -lselinux -lattr
++LDLIBS += -L../src -lselinux 
+ 
+ TARGETS=$(patsubst %.c,%,$(wildcard *.c))
+ 
+
+--=-n/BeAxrv7SdEjpKgBZJK--
 
 
 --
