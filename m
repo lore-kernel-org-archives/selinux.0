@@ -1,42 +1,33 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA01901
-	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 05:07:33 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id JAA03932
-	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 09:06:03 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA02231
+	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 08:35:17 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA21466
+	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 12:34:39 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id JAA03928 for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 09:06:01 GMT
+	by jazzswing.ncsc.mil  with ESMTP id MAA21462
+	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 12:34:36 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 3D60B92465
-	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 19:07:29 +1000 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 5E61A92462
+	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 22:35:12 +1000 (EST)
 Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 8913B7BD
-	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 10:52:38 +0200 (CEST)
+	by lyta.coker.com.au (Postfix) with SMTP id B0E2F400
+	for <selinux@tycho.nsa.gov>; Sun, 14 Jul 2002 14:35:04 +0200 (CEST)
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: minor bugfix for vmware.te
-Date: Sun, 14 Jul 2002 10:52:38 +0200
+Subject: fileutils
+Date: Sun, 14 Jul 2002 14:35:04 +0200
 MIME-Version: 1.0
-Message-Id: <20020714085238.8913B7BD@lyta.coker.com.au>
+Message-Id: <20020714123504.B0E2F400@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-diff -ru default/domains/program/vmware.te current/domains/program/vmware.te
---- default/domains/program/vmware.te   Sun Jul 14 09:59:45 2002
-+++ current/domains/program/vmware.te   Sun Jul 14 10:35:09 2002
-@@ -156,7 +156,9 @@
- allow vmware_user_t removable_device_t:lnk_file { read };
-
- # Allow to attach to xserver
-+ifdef(`gnome-pty-helper.te', `
- allow vmware_user_t user_gph_t:fd use;
-+')
- allow vmware_user_t user_xserver_tmp_t:sock_file { unlink write };
- allow vmware_user_t user_xserver_tmp_t:dir { search };
- allow vmware_user_t user_xserver_t:unix_stream_socket { connectto };
+I've created a fileutils 4.1.9 package with SE Linux patches.  It's on 
+http://www.coker.com.au/selinux/fileutils/ .  There is a problem though, 4 of 
+the regression tests fail...
 
 -- 
 I do not get viruses because I do not use MS software.
