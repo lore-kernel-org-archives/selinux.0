@@ -1,30 +1,25 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAEJxlRb026881
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 14:59:47 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAEJxfqY016579
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 19:59:41 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id hAEJxe0o016576 for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 19:59:40 GMT
-Subject: Re: insmod
+Subject: Re: problem about boot
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>, Howard Holm <hdholm@epoch.ncsc.mil>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200311050757.54690.russell@coker.com.au>
-References: <200311050757.54690.russell@coker.com.au>
+To: Nick <nagray@austin.rr.com>
+Cc: Richard Herbert Wanner <richard.wanner@cgi.com>,
+   SELINUX <SELinux@tycho.nsa.gov>
+In-Reply-To: <1068839235.3058.731.camel@marquesas>
+References: <376013375d87.375d87376013@wshs>
+	 <1068839235.3058.731.camel@marquesas>
 Content-Type: text/plain
-Message-Id: <1068839961.18402.178.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1068841563.18402.201.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 14 Nov 2003 14:59:21 -0500
+Date: Fri, 14 Nov 2003 15:26:03 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-11-04 at 15:57, Russell Coker wrote:
-> So it seems that we need have insmod run in kernel_t and have modprobe run in 
-> it's own domain modprobe_t.
+On Fri, 2003-11-14 at 14:47, Nick wrote:
+> Why do I have to do this! I understand the mechanics of what is
+> happening. I am just unclear as to why the SELinux kernel can't handle
+> the label or why it doesn't install as /dev/hdxx or appropriate.
 
-There should be no userland entrypoints into kernel_t.  Grant insmod_t
-additional permissions if necessary, but keep it separate from kernel_t.
+It isn't a kernel issue; it is an initrd issue.  You can boot with
+root=LABEL=/ with SELinux if you are using an initrd.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
