@@ -1,39 +1,37 @@
-Subject: Re: warning and question: e2fsck
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1061821751.1665.700.camel@kusturica>
-References: <1061821751.1665.700.camel@kusturica>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1061822507.28086.440.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 25 Aug 2003 10:41:48 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7PEhWLa024492
+	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:43:32 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h7PEhVfF029121
+	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 14:43:31 GMT
+Received: from mail3.utc.com (mail3.utc.com [192.249.46.81])
+        by jazzband.ncsc.mil  with ESMTP id h7PEhUHd029118 for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 14:43:30 GMT
+Received: (from uucp@localhost)
+	by mail3.utc.com (8.10.0/8.10.0) id h7PEhTn17904
+	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:43:29 -0400 (EDT)
+Received: from ehposrv5.eh.pweh.com (ehposrv5.eh.pweh.com [191.29.78.93])
+	by uusnwa0l.utc.com (Switch-2.2.6/Switch-2.2.6) with ESMTP id h7PEhLp11961
+	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:43:21 -0400 (EDT)
+Message-ID: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com>
+From: "Pisupati, Ajay" <ajay.pisupati@pw.utc.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: SElinux vs. Grsecruity
+Date: Mon, 25 Aug 2003 10:43:19 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-08-25 at 10:29, Magosányi Árpád wrote:
-> Hi!
-> 
-> Kernel: 2.6.0-test3
-> relevant configs: ext2 and ext3 support, support with selinux extended
-> attributes
-> 
-> I have made a make relabel.
-> After the next reboot, fsck have complained that the extended attribute
-> is not okay. 
-> I have made an e2fsck.
-> It seems that most of my files have been deleted due to it.
-> e2fsck is from debian sarge
-> 
-> And the question:
-> How can I avoid it next time besides not fscking?
+Hi,
+	I just started reading about SE Linux and grsecurity.  Having used
+neither one (and wanting to learn), I wanted to find out the differences
+(advantages and disadvantes) between both.  I am not looking for a detailed
+explanation of how things work but just an introduction on a conceptual
+level.
 
-Upgrade your e2fsprogs.  Latest one is 1.34, iirc.
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Thanks
+ajay  
 
 --
 This message was distributed to subscribers of the selinux mailing list.
