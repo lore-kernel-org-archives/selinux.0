@@ -1,45 +1,90 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA03276
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2001 16:31:42 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA03537
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2001 17:21:12 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA27318
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2001 20:31:03 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id UAA27314
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2001 20:31:02 GMT
-Date: Tue, 3 Jul 2001 16:30:45 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-Reply-To: Stephen Smalley <sds@tislabs.com>
-To: Levi A Bard <labard@ole.augie.edu>
-cc: selinux@tycho.nsa.gov
-Subject: Re: checkpolicy fails - compiler probs
-In-Reply-To: <200107032011.UAA06380@jazzband.ncsc.mil>
-Message-ID: <Pine.SOL.3.95.1010703162752.5583v-100000@clipper.gw.tislabs.com>
+	by jazzswing.ncsc.mil  with ESMTP id VAA29309
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2001 21:20:33 GMT
+Received: from mx03.uni-tuebingen.de (mx03.uni-tuebingen.de [134.2.3.13])
+	by jazzswing.ncsc.mil  with ESMTP id VAA29305
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jul 2001 21:20:32 GMT
+Date: Tue, 3 Jul 2001 23:21:08 +0200 (CEST)
+From: Jan Petranek <jan.petranek@student.uni-tuebingen.de>
+To: Stephen Smalley <sds@tislabs.com>
+cc: Jan Petranek <jan.petranek@student.uni-tuebingen.de>,
+        NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+Subject: Re: checkpolicy fails
+In-Reply-To: <Pine.SOL.3.95.1010703083521.5583B-100000@clipper.gw.tislabs.com>
+Message-ID: <Pine.LNX.4.30.0107032307120.15938-100000@linux45.zdv.uni-tuebingen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 3 Jul 2001, Levi A Bard wrote:
 
-> There have been notorious and well-documented problems with
-> the C compiler installed by Redhat 7.0, hence the need for
-> kgcc (just an earlier version of gcc) with that
-> distribution.  
+On Tue, 3 Jul 2001, Stephen Smalley wrote:
 
-With regard to the checkpolicy problem, it really was a bug
-in the checkpolicy program, not just a compiler problem.
-See my patch from the archives for a fix.  I don't know whether
-the other problem (with 'make relabel') is a bug in the
-setfiles program or if it is a compiler problem.  
+> Date: Tue, 3 Jul 2001 08:51:01 -0400 (EDT)
+> From: Stephen Smalley <sds@tislabs.com>
+> To: Jan Petranek <jan.petranek@student.uni-tuebingen.de>
+> Cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+> Subject: Re: checkpolicy fails
+>
+>
+> On Tue, 3 Jul 2001, Jan Petranek wrote:
+>
+> > ./setfiles:  invalid context system_u:object_r:user_netscape_rw_ti on line number 66
+>
+> This error has been previously reported by Hugo Martinez and by Rajan
+> Ravindran, but I haven't been able to replicate it.  Try using gdb
+> on the setfiles program, setting a breakpoint immediately after the sscanf
+> call (line 458) and a breakpoint before the security_context_to_sid call
+> (line 553).  Examine context at each breakpoint.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Well, I did as you told me. The program setfiles runs twice through all
+entries in the file_contexts file. During the first run, nothing special
+has happened (or if so, I must have overlooked it. But then again, the
+error messages would have come in twice).
 
+In the second run, all went fine until the miraculous line 66: In the
+beginning, the context is not set (like always at this point).
 
+Breakpoint 1, main (argc=3, argv=0xbffffb2c) at setfiles.c:458
+458                             if (items < 2) {
+2: *context = 0 '\000'
+1: context = 0x8158a80 ""
 
+As we come to the second breakpoint, the content has read the context
+correctly from the file:
+
+Breakpoint 2, main (argc=3, argv=0xbffffb2c) at setfiles.c:553
+553                                             len = strlen(context);
+2: *context = 115 's'
+1: context = 0x81586f0 "system_u:object_r:user_netscape_rw_ti"
+(gdb)
+
+But then, probably as the scanf is invoked, the content doesn't seem to
+fit any more:
+
+Continuing.
+/slinux/policy/setfiles:  invalid context system_u:object_r:user_netscape_rw_ti
+on line number 66
+
+And so on...
+
+I am not using MLS, so where does the "i" come frome?
+1: context = 0x81586f0 "system_u:object_r:user_netscape_rw_ti"
+                                                            ^
+BTW: the directory /home/user/.netscape doesn't exist (yet) on the system.
+But files like /dev/fd0, mentioned in the context of
+system_u:object_r:removable_device_ti
+do exist on the system...
+
+(Maybe, I should check that again.)
+
+So long,
+
+JanP
 
 
 
