@@ -1,37 +1,52 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA12987
-	for <selinux@tycho.nsa.gov>; Thu, 25 Jul 2002 23:21:47 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id DAA27543
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 03:20:15 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA13124
+	for <selinux@tycho.nsa.gov>; Thu, 25 Jul 2002 23:45:25 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id DAA00791
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 03:44:38 GMT
 Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id DAA27539 for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 03:20:13 GMT
-Date: Fri, 26 Jul 2002 13:21:29 +1000
+	by jazzswing.ncsc.mil  with ESMTP id DAA00787
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 03:44:36 GMT
+Date: Fri, 26 Jul 2002 13:45:14 +1000
 From: Brian May <bam@snoopy.apana.org.au>
-To: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
-Subject: IDENTIFIER
-Message-ID: <20020726032129.GD27354@snoopy.apana.org.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Attributes vs Macro
+Message-ID: <20020726034514.GE27354@snoopy.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is it possible to relax the definition of IDENTIFIER:
+Hello,
 
-{letter}({letter}|{digit}|_)*   { return(IDENTIFIER); }
+Out of these, why would you choose one over the other?
 
-?
 
-For the work I am doing, I need a way to seperate words
-and phrases seperately.
+1. macro
 
-For instance dpkg_postinst/oav_update.
+type mydomain1_t domain;
+type mydomain2_t domain;
 
-Any one symbol would be OK, but suggested ones include ~!@%&-=/
+define(`xyz_domain',`
+allow $1_t ...
+...
+')
 
-(or all of them, but I haven't considered if this will cause problems
-elsewhere; for instance : probably should not be used, it is used in
-allow statements).
+xyz_domain(mydomain1_t)
+xyz_domain(mydomain2_t)
+
+
+2. attribute
+
+type mydomain1_t domain, xyz;
+type mydomain2_t domain, xyz;
+
+allow xyz ...
+...
+
+
+Are there any perfomance considerations when
+choosing one other the other?
 -- 
 Brian May <bam@snoopy.apana.org.au>
 
