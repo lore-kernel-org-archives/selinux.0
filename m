@@ -1,64 +1,57 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA21348
-	for <selinux@tycho.nsa.gov>; Sun, 2 Dec 2001 10:54:17 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA22004
+	for <selinux@tycho.nsa.gov>; Sun, 2 Dec 2001 17:21:56 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA04381
-	for <selinux@tycho.nsa.gov>; Sun, 2 Dec 2001 15:54:13 GMT
-Received: from jsmith.org (pool-141-158-40-161.phil.east.verizon.net [141.158.40.161])
-	by jazzswing.ncsc.mil  with ESMTP id PAA04377
-	for <selinux@tycho.nsa.gov>; Sun, 2 Dec 2001 15:54:12 GMT
-Subject: X windows with i810 chip
-From: Justin Smith <jsmith@mcs.drexel.edu>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: 02 Dec 2001 10:51:35 -0500
-Message-Id: <1007308295.1903.0.camel@jsmith.org>
-Mime-Version: 1.0
+	by jazzswing.ncsc.mil  with ESMTP id WAA15821
+	for <selinux@tycho.nsa.gov>; Sun, 2 Dec 2001 22:21:52 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id WAA15817
+	for <selinux@tycho.nsa.gov>; Sun, 2 Dec 2001 22:21:50 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Justin Smith <jsmith@mcs.drexel.edu>, selinux@tycho.nsa.gov
+Subject: Re: X windows with i810 chip
+Date: Sun, 2 Dec 2001 23:21:31 +0100
+References: <1007308295.1903.0.camel@jsmith.org>
+In-Reply-To: <1007308295.1903.0.camel@jsmith.org>
+MIME-Version: 1.0
+Message-Id: <20011202222132.14963353193@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-X windows presents special problems with this (unfortunately common)
-graphics chip. Even with all of the standard allows declarations for X
-windows (and a few extras), I get the following:
+On Sun, 2 Dec 2001 16:51, Justin Smith wrote:
+> avc:  denied  { read write } for  pid=1215 exe=/usr/X11R6/bin/XFree86
+> path=/dev/mem dev=03:01 ino=25224
+>    scontext=jsmith:user_r:user_t
+>    tcontext=system_u:object_r:memory_device_t
+>    tclass=chr_file
+>
+>
+>
+> I have been unable to enable this access (perhaps there's a 'neverallow'
+> coded for it). Any suggestions would be appreciated! (I really need  X
+> windows --- to the extent that I would have to discontinue using SELinux
+> if it prohibits it).
+>
+> Is there a way to allow memory access for a RESTRICTED range of
+> addresses (if so, a hacker would at most be able to display pictures on
+> the screen)?  (Maybe this would require assigning types to PARTS of a
+> device, ranges of bytes).
 
+The idea of changing ACLs whenever a hardware device changes it's settings 
+(can potentially change at reboot, in future with hot-swap PCI it could 
+change at run time) is unappealing.
 
+Why not use VESA frame buffer and then run the FBDEV X server?  Setting the 
+ACL to allow read/write access to /dev/fb/* is pretty safe.
 
-avc:  denied  { read } for  pid=1215 exe=/usr/X11R6/bin/XFree86
-path=/dev/mem dev=03:01 ino=25224
-   scontext=jsmith:user_r:user_t
-   tcontext=system_u:object_r:memory_device_t
-   tclass=chr_file
-
-avc:  denied  { read write } for  pid=1215 exe=/usr/X11R6/bin/XFree86
-path=/dev/mem dev=03:01 ino=25224
-   scontext=jsmith:user_r:user_t
-   tcontext=system_u:object_r:memory_device_t
-   tclass=chr_file
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 261M
-agpgart: Detected an Intel i810 E Chipset.
-agpgart: detected 4MB dedicated video ram.
-agpgart: AGP aperture is 64M @ 0xf8000000
-
-avc:  denied  { read write } for  pid=1215 exe=/usr/X11R6/bin/XFree86
-path=/dev/mem dev=03:01 ino=25224
-   scontext=jsmith:user_r:user_t
-   tcontext=system_u:object_r:memory_device_t
-   tclass=chr_file
-
-
-
-I have been unable to enable this access (perhaps there's a 'neverallow'
-coded for it). Any suggestions would be appreciated! (I really need  X
-windows --- to the extent that I would have to discontinue using SELinux
-if it prohibits it). 
-
-Is there a way to allow memory access for a RESTRICTED range of
-addresses (if so, a hacker would at most be able to display pictures on
-the screen)?  (Maybe this would require assigning types to PARTS of a
-device, ranges of bytes).
 -- 
-
+http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
+http://www.coker.com.au/projects.html Projects I am working on
+http://www.coker.com.au/~russell/     My home page
 
 --
 You have received this message because you are subscribed to the selinux list.
