@@ -1,30 +1,36 @@
-Message-ID: <4239F161.8030403@redhat.com>
-Date: Thu, 17 Mar 2005 16:06:41 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Need functions to manipulare users file.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Need functions to manipulare users file.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <4239F161.8030403@redhat.com>
+References: <4239F161.8030403@redhat.com>
+Content-Type: text/plain
+Date: Thu, 17 Mar 2005 16:16:41 -0500
+Message-Id: <1111094201.8664.143.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen we want to build a patch to either libselinux or libsepol or a 
-third library to manipulate the local.users file.
+On Thu, 2005-03-17 at 16:06 -0500, Daniel J Walsh wrote:
+> Stephen we want to build a patch to either libselinux or libsepol or a 
+> third library to manipulate the local.users file.
 
-Basically useradd, usermod, userdel and freinds need to call
+libsepol already has to understand the users source file format for
+reading it by sepol_genusers(3), and doesn't depend on running on a
+SELinux system.  So I think it is likely the right place.  Since
+libsepol doesn't assume that it is running on a SELinux system and
+doesn't want to assume the presence of /etc/selinux/config, the caller
+has to provide the path to the users directory, so for example,
+load_policy passes the result of selinux_users_path(3), which is
+provided by libselinux, to sepol_genusers(3).
 
-selinux_adduser(dwalsh, staff_r, sysadm_r, ...)
-selinux_deluser(dwalsh)
-selinux_moduser(dwalsh, user_r, ...)
+Ultimately, the policy source parsing code might be moved into libsepol
+so that it not only provides manipulation of binary policies and user
+source files but also manipulation of any source.  
 
-Do you think this belongs to libgenpol or libselinux or some third 
-libary, like tresys has this.
-
-Basically libgenpol understands the file format and libselinux 
-understands the way selinux
-is installed. 
-
-Dan
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
