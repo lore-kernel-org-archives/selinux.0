@@ -1,34 +1,50 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4FNSKRb018339
-	for <selinux@tycho.nsa.gov>; Sat, 15 May 2004 19:28:21 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4FNSIMi018673
-	for <selinux@tycho.nsa.gov>; Sat, 15 May 2004 23:28:18 GMT
-Received: from mailrelay2.lrz-muenchen.de (mailrelay2.lrz-muenchen.de [129.187.254.102])
-        by jazzband.ncsc.mil  with ESMTP id i4FNSHpI018667 for <selinux@tycho.nsa.gov>; Sat, 15 May 2004 23:28:17 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.99.1] [192.168.99.1]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sun, 16 May 2004 01:28:15 +0200
-Date: Sun, 16 May 2004 01:27:57 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: "'Selinux'" <selinux@tycho.nsa.gov>
-Subject: Re: Suse
-Message-Id: <20040515232756.GB2095@jmh.mhn.de>
-References: <1084540729.17741.61.camel@moss-spartans.epoch.ncsc.mil> <20040514224053.9377E3A404F@abyss.simplyaquatics.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
-In-Reply-To: <20040514224053.9377E3A404F@abyss.simplyaquatics.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4G2GdRb018828
+	for <selinux@tycho.nsa.gov>; Sat, 15 May 2004 22:16:39 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4G2EHRA028133
+	for <selinux@tycho.nsa.gov>; Sun, 16 May 2004 02:14:17 GMT
+Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
+	by jazzswing.ncsc.mil  with ESMTP id i4G2EGjN028119
+	for <selinux@tycho.nsa.gov>; Sun, 16 May 2004 02:14:16 GMT
+From: "Ed Street" <edstreet@street-tek.com>
+To: "'Thomas Bleher'" <bleher@informatik.uni-muenchen.de>,
+   "'Selinux'" <selinux@tycho.nsa.gov>
+Subject: RE: Suse
+Date: Sat, 15 May 2004 22:16:20 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+In-Reply-To: <20040515232756.GB2095@jmh.mhn.de>
+Message-Id: <20040516021620.D3F2F3A404F@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello,
 
---FkmkrVfFsRoUs1wW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I would be more than happy to give it a spin.  I put it on my mini-itx
+machine and maybe buying a micro-atx for suse.  My cd's just arrived a few
+days ago and I installed it last night.  I did notice that libselinux and
+the basic userland mod's have been included but it's a few versions behind.
+Overall I am greatly pleased with this as it's a big step forward for the
+project.  
+
+One thing that I'm very displeased over, when doing my 200+ meg updates (yea
+200+ already) I noticed that many of the packages are NOT gpg signed by the
+maintainers!
+
+Ed
+
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+Behalf Of Thomas Bleher
+Sent: Saturday, May 15, 2004 7:28 PM
+To: 'Selinux'
+Subject: Re: Suse
 
 * Ed Street <edstreet@street-tek.com> [2004-05-15 02:09]:
-> As was suspected it appears that suse 9.1 pro (shipping) has all the seli=
-nux
+> As was suspected it appears that suse 9.1 pro (shipping) has all the
+selinux
 > userland patches in place but no policy and no kernel support. I see the
 > same startup in suse 9.1 as I do in fedora fc2t3 so it's disabled.
 
@@ -56,24 +72,16 @@ me a note!
 Thanks,
 Thomas
 
---=20
+-- 
 http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
 GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
---FkmkrVfFsRoUs1wW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+---
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.686 / Virus Database: 447 - Release Date: 5/14/2004
+ 
 
-iD8DBQFApqd8xWIrrrL0q+cRAguCAKClold0HJircdgrCN7/Ytj+8hzF0QCfasp+
-MqpVsk+HX671cuwd8xSpkcY=
-=kJUa
------END PGP SIGNATURE-----
-
---FkmkrVfFsRoUs1wW--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
