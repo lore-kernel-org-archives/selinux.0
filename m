@@ -1,111 +1,83 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Jesse Pollard <pollard@admin.navo.hpc.mil>
-Subject: Re: Domain transition -- enabling user_r in eklogin
-Date: Fri, 20 Dec 2002 19:40:31 +0100
-Cc: SELinux@tycho.nsa.gov
-References: <200212171725.MAA01304@moss-shockers.ncsc.mil> <200212192333.12008.russell@coker.com.au> <200212201025.34107.pollard@admin.navo.hpc.mil>
-In-Reply-To: <200212201025.34107.pollard@admin.navo.hpc.mil>
+Message-ID: <3E036FCE.7070407@ieee.org>
+Date: Fri, 20 Dec 2002 14:30:22 -0500
+From: Martin Robb <MartinRobb@ieee.org>
 MIME-Version: 1.0
-Message-Id: <200212201940.32007.russell@coker.com.au>
+To: SELinux@tycho.nsa.gov
+Subject: nfsd kernel NULL pointer dereference
+Content-Type: multipart/mixed;
+ boundary="------------010005040109090909080700"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 20 Dec 2002 17:25, Jesse Pollard wrote:
-> > I guess you could have different roles, and have sshd only allow
-> > transitioning to a low security role which is prohibited from running ssh
-> > or gpg.  I wonder whether a domain that only has full access to
-> > user_home_dir_t and user_home_t can misdirect the actions of ssh or gpg..
->
-> Only if ssh/gpg doesn't have the ability to distinguish between secure data
-> and insecure data. It would seem reasonable (for some level of reasonable)
-> that gpg should be able to sign less secure data using a normally
-> inaccessable secret key, IF it can recognize that changing/generating keys
-> is not allowed (or perhaps it should, provided the keys are also marked at
-> the lower level - multilevel filesystems are a bitch to debug)
+This is a multi-part message in MIME format.
+--------------010005040109090909080700
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-It seems reasonable to me that the main part of the ssh and gpg programs 
-should be devoted to operating on behalf of the user rather than trying to 
-enforce system policies.
+Greetings,
 
-If the sshd and gpg programs have to know about system security policies then 
-I think that indicates that a bad approach is being taken to security.
+I am running the selinux-2002102211 package against the 2.4.19 kernel 
+patched with lsm-2.4-2002102211.  The system seems basically functional 
+in non-enforcing mode, but my nfs service is hanging, and in fact the 
+system is hanging on a shutdown.  In the system log I get:
 
-The gpg people seem to like my idea of having a separate process that just 
-reads the gpg secret key and pipes it back to the main application.  That 
-allows me as a SE Linux policy author and every SE Linux administrator to 
-have choices about how the security policy works that don't affect gpg 
-compilation.  I don't think that the authors of such programs want to be 
-worried about the issues we are discussing, and in the case of ssh I don't 
-want to trust the authors for this.
+Unable to handle kernel NULL pointer dereference in ...
 
-> If it is at a lower level, then yes, some functionality should be lost -
-> though that should not be significant, PROVIDED the X server and KDE know
-> how to compartmentalize the facilities communicating with that less trusted
-> service.
+I'm attaching the relevant lines from the system log.  I don't claim to 
+totally follow the dump, but it appears to me that 
+selinux_file_permission() is getting called with a null struct file 
+pointer -- ultimately by nfsd and apparently through vfs_readdir().
 
-They don't.  This is something I would like to do.  I thought about giving a 
-paper on this for OLS 2003, but at this stage I doubt I'll get it done in 
-time.
+FWIW, the system in question is built from scratch using kickstart and 
+the selinux kernel and utilities become part of a larger rpm.  I did 
+have to go through some contortions to get the ~600 files that selinux 
+installs under / to install elsewhere, but things appear to be working 
+other than this nfsd issue so I don't think that is the source of the 
+problem.  The production version of this system has been using an 
+LSM-patched 2.4.14 kernel without selinux, and has been quite stable 
+with no NFS problems.
 
-Some of this coding is going to get really ugly.
+Any thoughts on the source of this problem?
 
-> I realize that this is NOT a simple thing to do. It does require full
-> compartemented workstation support.
+Thanks and happy holidays,
+Martin Robb
 
-To do it properly it does require CW support.  To do a half-job that will stop 
-the majority of potential exploits SE Linux will do OK right now I think.
 
-> > The problem is that if you can run GPG currently you can encrypt the
-> > secret key to yourself with a password (IE not encrypting to a public
-> > key) and then decrypt the result to get the key.  A future version of GPG
-> > will address this.  I don't know how PGP performs in this regard.
->
-> Yup. That is one of the things the application must be able to evaluate.
-> The output media/medium is the determining factor here. To do this requires
-> reading data with a high level label by a trusted process which must NOT
-> write that data to a media/medum with a low level label. That trusted
-> process SHOULD be able to read low labeled data, munch it using high labled
-> data, and write it to a low labeled media/medum since this is WHY it is a
-> trusted process.
 
-Are you sure that it's a good idea to make gpg a trusted program that can 
-over-ride MLS boundaries rather than have it merely be trusted to perform the 
-actions that the user requests of it?
 
-Currently we only have to trust that gpg will do what we tell it to.  The GPG 
-developers plan to make some small changes to make it easier for me to ensure 
-that gpg isn't executed in the wrong way by the wrong program.
 
-If gpg has to become a trusted part of system security (as it is on default 
-Linux systems due to being SUID root) then the requirements on gpg are much 
-greater.  The counter arguement of course is that this level of trust in gpg 
-apparently works OK on default Linux setups...
+--------------010005040109090909080700
+Content-Type: text/plain;
+ name="low-diode.kerneNULL"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="low-diode.kerneNULL"
 
-> Personally, I dislike the idea of privileged applications. For a secure
-> environment, I would prever all secret keys to be maintained by a security
-> server process, and all queries/updates for access to this data to be
-> carried out by that security server. This would turn at least half of
-> GPG/Kerberos functions over to the security server (which should pass the
-> actions on the keys to sub processes. That includes encryption/decryption
-> services, though the security server may just pass a socket connection back
-> to the requesting application to allow that application to push data into
-> the encryption engine and either recieve the results, or the output could
-> already be connected to another socket for outgoing data.
->
-> Complicated perhaps, but no trusted application need exist other than the
-> security server. And the users would have no need to access the secret keys
-> directly.
+Dec 20 12:01:14 low-diode kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000010 
+Dec 20 12:01:14 low-diode kernel:  printing eip: 
+Dec 20 12:01:14 low-diode kernel: c0186388 
+Dec 20 12:01:14 low-diode kernel: *pde = 00000000 
+Dec 20 12:01:14 low-diode kernel: Oops: 0000 
+Dec 20 12:01:14 low-diode kernel: CPU:    0 
+Dec 20 12:01:14 low-diode kernel: EIP:    0010:[selinux_file_permission+216/688]    Not tainted 
+Dec 20 12:01:14 low-diode kernel: EFLAGS: 00010202 
+Dec 20 12:01:14 low-diode kernel: eax: 00000000   ebx: cea23eb0   ecx: ce66fb80   edx: cea2b2a0 
+Dec 20 12:01:14 low-diode kernel: esi: 00000002   edi: cea22000   ebp: cea23eb0   esp: cea23dd4 
+Dec 20 12:01:14 low-diode kernel: ds: 0018   es: 0018   ss: 0018 
+Dec 20 12:01:14 low-diode kernel: Process nfsd (pid: 574, stackpage=cea23000) 
+Dec 20 12:01:14 low-diode kernel: Stack: ce66fb80 c0138421 ce66fb80 00000004 00000000 cea22000 ce65d7e0 ce66fb80  
+Dec 20 12:01:14 low-diode kernel:        00000004 cf1ed860 cf1ed860 c016c3f4 ceaa1000 ce65d7e0 00000044 cea22000  
+Dec 20 12:01:14 low-diode kernel:        cea2a490 00000000 cea2a480 00000202 cea23e40 cea23e88 ceaf81fc cea23eb0  
+Dec 20 12:01:14 low-diode kernel: Call Trace:    [permission+65/80] [fh_verify+1012/1056] [nfsd_open+41/432] [nfssvc_encode_entry+0/176] [vfs_readdir+47/144] 
+Dec 20 12:01:14 low-diode kernel:   [nfssvc_encode_entry+0/176] [nfsd_readdir+167/416] [nfssvc_encode_entry+0/176] [nfsd_proc_readdir+182/224] [nfssvc_encode_entry+0/176] [nfsd_dispatch+183/384] 
+Dec 20 12:01:14 low-diode kernel:   [svc_process+819/1264] [nfsd+455/768] [kernel_thread+38/48] [nfsd+0/768] 
+Dec 20 12:01:14 low-diode kernel:  
+Dec 20 12:01:14 low-diode kernel: Code: 8b 40 10 39 42 14 0f 84 74 01 00 00 8d 6c 24 60 31 c0 b9 06  
+Dec 20 12:03:17 high-diode kernel: 
+Dec 20 12:03:17 high-diode kernel: avc:  denied  { read } for  pid=6713 exe=/usr/bin/tail path=/diode dev=03:06 ino=22 scontext=root:user_r:user_t tcontext=root:object_r:file_t tclass=file
+Dec 20 12:03:17 high-diode kernel: 
 
-Interesting idea.  Sounds like kerberos on steroids.  ;)
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--------------010005040109090909080700--
 
 
 --
