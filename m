@@ -1,44 +1,42 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8TBSWrT014328
-	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 07:28:32 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8TBRRnY000104
-	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 11:27:29 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8TBamrT014408
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 07:36:48 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8TBajjQ005073
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 11:36:46 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Subject: Re: Patch for strict policy
-Date: Wed, 29 Sep 2004 21:28:18 +1000
-Cc: Daniel J Walsh <dwalsh@redhat.com>, jwcart2@epoch.ncsc.mil,
-   SELinux <selinux@tycho.nsa.gov>
-References: <41542FF5.2090502@redhat.com> <41584D2F.5020902@redhat.com> <20040927205512.GA2574@jmh.mhn.de>
-In-Reply-To: <20040927205512.GA2574@jmh.mhn.de>
+Subject: Re: policy for resmgrd
+Date: Wed, 29 Sep 2004 21:36:42 +1000
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+References: <20040926204642.GC2529@jmh.mhn.de>
+In-Reply-To: <20040926204642.GC2529@jmh.mhn.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200409292128.18559.russell@coker.com.au>
+Message-Id: <200409292136.42039.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 28 Sep 2004 06:55, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
+On Mon, 27 Sep 2004 06:46, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
 wrote:
-> * Daniel J Walsh <dwalsh@redhat.com> [2004-09-27 21:12]:
-> > diff --exclude-from=exclude -N -u -r
-> > nsapolicy/domains/misc/screensaver.te
-> > policy-1.17.22/domains/misc/screensaver.te ---
-> > nsapolicy/domains/misc/screensaver.te 1969-12-31 19:00:00.000000000 -0500
-> > +++ policy-1.17.22/domains/misc/screensaver.te 2004-09-27
-> > 10:19:13.000000000 -0400 @@ -0,0 +1,18 @@
-> > +#
-> > +# Alias file to stop blow up during policy upgrade, since
-> > +# screensaver policy is being removed.
->
-> How will screensavers be able to authenticate users (think screen lock)
-> if this policy is removed? screensavers had the auth_chkpwd attribute to
-> do this; I do not think that we should grant this capability to user_t.
+> Resmgrd is a daemon which is used on SuSE Linux to mediate access to
+> devices. Clients can ask resmgrd to open a specific device, resmgrd
+> checks if the app has appropriate permission and opens the device on
+> behalf of the client. Resmgrd should probably be a userspace SELinux
+> enforcer, but for now the attached policy allows it to work on a SELinux
+> system.
 
-In macros/base_user_macros.te:
-ifdef(`chkpwd.te', `chkpwd_domain($1)')
+allow resmgrd_t self:unix_dgram_socket { connect create write };
+
+I suggest that the above be replace by:
+
+allow resmgrd_t self:unix_dgram_socket create_socket_perms;
+
+There's no real reason to restrict it's unix domain socket access to itself.
+
+Apart from that it's great, I've put it in my tree.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
