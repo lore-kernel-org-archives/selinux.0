@@ -1,52 +1,33 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA13219
-	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 12:20:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA13824
+	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 13:25:56 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA10384
-	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 16:20:14 GMT
-Received: from blackbird.intercode.com.au (blackbird.intercode.com.au [203.32.101.10])
-	by jazzswing.ncsc.mil  with ESMTP id QAA10380
-	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 16:20:11 GMT
-Date: Fri, 24 May 2002 02:19:50 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>
-cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
-Subject: Re: boot.msg
-In-Reply-To: <3CECB29D.391E0E55@dr-baldeweg.de>
-Message-ID: <Mutt.LNX.4.44.0205240216460.23338-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by jazzswing.ncsc.mil  with ESMTP id RAA14336
+	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 17:25:53 GMT
+Received: from jsmith.org (pool-141-158-42-213.phil.east.verizon.net [141.158.42.213])
+	by jazzswing.ncsc.mil  with ESMTP id RAA14332
+	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 17:25:53 GMT
+Subject: Redhat 7.3: sendmail.fc
+From: Justin Smith <jsmith@mcs.drexel.edu>
+To: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: 23 May 2002 13:25:35 -0400
+Message-Id: <1022174735.2351.1.camel@jsmith.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 23 May 2002, Carsten Grohmann wrote:
+In Redhat 7.3, /usr/sbin/sendmail is a link to
 
-> Hi !
-> 
-> I found in my boot.msg follow lines:
-> 
-> Security Scaffold v1.0.0 initialized
-> AVC:  allocated 14760 bytes during initialization.
-> SELinux:  module inserted
-> SELinux:  Starting in permissive mode
-> There is already a security framework initialized, register_security
-> failed.
-> Failure registering capabilities with the kernel
-> selinux_register_security:  Registering secondary module capability
-> Capability LSM initialized
-> 
-> Is it OK with the "failed" in line 5? 
-> 
+/etc/alternatives/mta
 
-Yes, this is normal, as the SELinux module is already loaded.  The 
-capabilities module is then stacked explicitly by SELinux.
+so one must add the line
 
+/etc/alternatives/mta		system_u:object_r:sendmail_exec_t
 
-- James
+to the sendmail.fc file
+
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
 
 
 --
