@@ -1,60 +1,25 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: regular expressions
-Date: Mon, 20 Jan 2003 01:28:20 +0100
-References: <200301191750.h0JHoMf08676@jazzband.ncsc.mil>
-In-Reply-To: <200301191750.h0JHoMf08676@jazzband.ncsc.mil>
-Cc: mark.westerman@westcam.com
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: patch for new domains
+Date: Mon, 20 Jan 2003 01:21:20 +0100
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_kK0K+F+frHTLuMM"
-Message-Id: <200301200128.20028.russell@coker.com.au>
+  boundary="Boundary-00=_AE0K+QKYn0kB0ub"
+Message-Id: <200301200121.20459.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_kK0K+F+frHTLuMM
+--Boundary-00=_AE0K+QKYn0kB0ub
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-On Sun, 19 Jan 2003 18:29, Carsten Grohmann wrote:
-> a few fc-files used the regexp [^/]* to label exact one file system entry.
-> I think sometimes it is better to use [^/]+ to mark one entry instead of
-> "zero and more".
-
-You are right.  Those regex's should be made more strict to avoid the 
-potential for future conflicts or mis-interpretations.
-
-> An good example is the entry for the .ssh directory /home/[^/]*/.ssh(/.*)?
-> matched the user specific ssh directories but also /home/.ssh.
-> This time I don't see no way to use this to compromise the system, but I'm
-> in two minds as to whether it is potential unsecure or not.
-
-It is not insecure (IMHO) as the only person who can create subdirectories of 
-/home is also the only person who can relabel such files, and /home/.ssh 
-should not have any special meaning unless something is very broken.
-
-But it's good to fix it anyway.
-
-> The attached patch change it. I also change some /home resp. /root entries
-> in this way too.
-
-I've applied this to my tree, and in addition I changed the preceeding two 
-lines in types.fc in a similar fashion.  I have put an archive of my tree on 
-http://www.coker.com.au/selinux/policy.tgz and I've attached the patch that 
-I'm using for this regex change (note that it has several things not in 
-Carsten's patch).
-
-> I don't  now enouph about the directory structure of dpkg.fc so I don't
-> change it. Could anybody do it?
-
-I'll do it.  Also Mark, I couldn't work out what you were trying to do with 
-vmware and the "\v" parts, could you please take a look at it?
-
-Also perhaps every instance of "(/.*)?" should be changed to "(/.+)?"?
+I've attached a patch with policy for Perdition, nessus, nsd, and UML.  Also 
+it has a new file auth-net.te with the policy for doing network 
+authentication (LDAP etc).
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -62,149 +27,393 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_kK0K+F+frHTLuMM
+--Boundary-00=_AE0K+QKYn0kB0ub
 Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="regex.diff"
+  charset="us-ascii";
+  name="new.diff"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="regex.diff"
+Content-Disposition: attachment; filename="new.diff"
 
-diff -ruwN /tmp/policy/file_contexts/program/dpkg.fc policy/file_contexts/program/dpkg.fc
---- /tmp/policy/file_contexts/program/dpkg.fc	2002-11-04 13:27:57.000000000 +0100
-+++ policy/file_contexts/program/dpkg.fc	2003-01-20 01:06:35.000000000 +0100
-@@ -7,17 +7,17 @@
- /usr/sbin/dpkg-reconfigure	system_u:object_r:dpkg_exec_t
- /usr/bin/dselect		system_u:object_r:dpkg_exec_t
- /usr/bin/update-menus		system_u:object_r:install_menu_exec_t
--/usr/lib/apt/methods/.*		system_u:object_r:apt_exec_t
-+/usr/lib/apt/methods/.+		system_u:object_r:apt_exec_t
- /usr/lib/man-db(/.*)?		system_u:object_r:bin_t
--/usr/lib/dpkg/.*		system_u:object_r:dpkg_exec_t
-+/usr/lib/dpkg/.+		system_u:object_r:dpkg_exec_t
- /usr/sbin/dpkg-preconfigure	system_u:object_r:dpkg_exec_t
- /usr/sbin/install-menu		system_u:object_r:install_menu_exec_t
- /usr/share/applnk(/.*)?		system_u:object_r:debian_menu_t
- /usr/share/debconf(/.*)?	system_u:object_r:dpkg_exec_t
- /usr/share/debiandoc-sgml/saspconvert system_u:object_r:bin_t
--/usr/share/lintian/.*		system_u:object_r:bin_t
--/usr/share/kernel-package/.*	system_u:object_r:bin_t
--/usr/share/bug/[^/]*	--	system_u:object_r:bin_t
-+/usr/share/lintian/.+		system_u:object_r:bin_t
-+/usr/share/kernel-package/.+	system_u:object_r:bin_t
-+/usr/share/bug/[^/]+	--	system_u:object_r:bin_t
- /var/cache/apt(/.*)?		system_u:object_r:var_cache_apt_t
- /var/lib/apt(/.*)?		system_u:object_r:var_lib_apt_t
- /var/state/apt(/.*)?		system_u:object_r:var_lib_apt_t
-@@ -26,8 +26,8 @@
- /var/lib/kde(/.*)?		system_u:object_r:debian_menu_t
- /var/spool/kdeapplnk(/.*)?	system_u:object_r:debian_menu_t
- /var/cache/debconf(/.*)?	system_u:object_r:debconf_cache_t
--/etc/dpkg/.*			system_u:object_r:etc_dpkg_t
-+/etc/dpkg/.+			system_u:object_r:etc_dpkg_t
- /etc/menu-methods/.*		system_u:object_r:install_menu_exec_t
--/etc/kde2/.*\.sh		system_u:object_r:install_menu_exec_t
-+/etc/kde2/.+\.sh		system_u:object_r:install_menu_exec_t
- /usr/share/console/getkmapchoice.pl system_u:object_r:bin_t
- /var/run/update-menus.pid	system_u:object_r:install_menu_var_run_t
-diff -ruwN /tmp/policy/file_contexts/program/gpg.fc policy/file_contexts/program/gpg.fc
---- /tmp/policy/file_contexts/program/gpg.fc	2002-07-12 17:19:44.000000000 +0200
-+++ policy/file_contexts/program/gpg.fc	2003-01-20 00:56:36.000000000 +0100
-@@ -1,4 +1,4 @@
- # gpg
--/home/.*/\.gnupg(/.*)?		system_u:object_r:user_gpg_secret_t
--/root/.*/\.gnupg(/.*)?		system_u:object_r:sysadm_gpg_secret_t
-+/home/[^/]+/\.gnupg(/.+)?		system_u:object_r:user_gpg_secret_t
-+/root/[^/]+/\.gnupg(/.+)?		system_u:object_r:sysadm_gpg_secret_t
- /usr/bin/gpg			system_u:object_r:gpg_exec_t
-diff -ruwN /tmp/policy/file_contexts/program/modutil.fc policy/file_contexts/program/modutil.fc
---- /tmp/policy/file_contexts/program/modutil.fc	2002-12-16 17:06:32.000000000 +0100
-+++ policy/file_contexts/program/modutil.fc	2003-01-20 00:57:07.000000000 +0100
-@@ -1,10 +1,11 @@
- # module utilities
- /etc/modules.conf(.old)?	system_u:object_r:modules_conf_t
- /lib/modules(/.*)?		system_u:object_r:modules_object_t
--/lib/modules/[^/]*/modules\..* system_u:object_r:modules_dep_t
-+/lib/modules/[^/]+/modules\..+ system_u:object_r:modules_dep_t
-+/lib/modules/modprobe.conf	system_u:object_r:modules_conf_t
- /sbin/depmod.*			system_u:object_r:depmod_exec_t
- /sbin/modprobe.*		system_u:object_r:insmod_exec_t
- /sbin/insmod.*			system_u:object_r:insmod_exec_t
--/sbin/insmod.static		system_u:object_r:insmod_exec_t
-+/sbin/insmod_ksymoops_clean	system_u:object_r:sbin_t
- /sbin/rmmod.*			system_u:object_r:insmod_exec_t
- /sbin/update-modules		system_u:object_r:update_modules_exec_t
-diff -ruwN /tmp/policy/file_contexts/program/netscape.fc policy/file_contexts/program/netscape.fc
---- /tmp/policy/file_contexts/program/netscape.fc	2002-10-01 19:28:51.000000000 +0200
-+++ policy/file_contexts/program/netscape.fc	2003-01-20 00:59:09.000000000 +0100
-@@ -1,12 +1,12 @@
- #  netscape/mozilla
- /root/\.netscape(/.*)?		system_u:object_r:sysadm_netscape_rw_t
- /root/\.mozilla(/.*)?		system_u:object_r:sysadm_netscape_rw_t
--/home/.*/\.netscape(/.*)?	system_u:object_r:user_netscape_rw_t
--/home/.*/\.mozilla(/.*)?	system_u:object_r:user_netscape_rw_t
-+/home/[^/]+/\.netscape(/.*)?	system_u:object_r:user_netscape_rw_t
-+/home/[^/]+/\.mozilla(/.*)?	system_u:object_r:user_netscape_rw_t
- /usr/bin/netscape		system_u:object_r:netscape_exec_t
- /usr/bin/mozilla		system_u:object_r:netscape_exec_t
- /usr/bin/mozilla-[0-9].*	system_u:object_r:netscape_exec_t
- /usr/bin/mozilla-bin-[0-9].*	system_u:object_r:netscape_exec_t
--/usr/lib/netscape/.*/communicator/communicator-smotif.real system_u:object_r:netscape_exec_t
-+/usr/lib/netscape/.+/communicator/communicator-smotif.real system_u:object_r:netscape_exec_t
- /usr/lib/netscape/base-4/wrapper system_u:object_r:netscape_exec_t
--/usr/lib/mozilla/reg.*		system_u:object_r:netscape_exec_t
-+/usr/lib/mozilla/reg.+		system_u:object_r:netscape_exec_t
-diff -ruwN /tmp/policy/file_contexts/program/vmware.fc policy/file_contexts/program/vmware.fc
---- /tmp/policy/file_contexts/program/vmware.fc	2002-09-11 21:33:12.000000000 +0200
-+++ policy/file_contexts/program/vmware.fc	2003-01-20 01:00:13.000000000 +0100
-@@ -48,6 +48,6 @@
- # The rules below assume that the user's VMWare virtual disks are in the
- # ~/vmware, and the preferences and license files are in ~/.vmware.
- #
--/home/.*/\.vmware(/.*)?	         system_u:object_r:vmware_user_file_t
--/home/.*/\vmware(/.*)?	         system_u:object_r:vmware_user_file_t
--/home/.*/\vmware[^/]*/.*\.cfg    system_u:object_r:vmware_user_conf_t
-+/home/[^/]+/\.vmware(/.*)?	         system_u:object_r:vmware_user_file_t
-+/home/[^/]+/\vmware(/.*)?	         system_u:object_r:vmware_user_file_t
-+/home/[^/]+/\vmware[^/]*/.*\.cfg    system_u:object_r:vmware_user_conf_t
-diff -ruwN /tmp/policy/file_contexts/program/xauth.fc policy/file_contexts/program/xauth.fc
---- /tmp/policy/file_contexts/program/xauth.fc	2002-10-01 19:19:42.000000000 +0200
-+++ policy/file_contexts/program/xauth.fc	2003-01-20 01:01:25.000000000 +0100
-@@ -1,4 +1,4 @@
- # xauth
- /usr/X11R6/bin/xauth		system_u:object_r:xauth_exec_t
--/home/[^/]*/.Xauthority.*	system_u:object_r:user_home_xauth_t
-+/home/[^/]+/.Xauthority.*	system_u:object_r:user_home_xauth_t
- /root/.Xauthority.*		system_u:object_r:sysadm_home_xauth_t
-diff -ruwN /tmp/policy/file_contexts/types.fc policy/file_contexts/types.fc
---- /tmp/policy/file_contexts/types.fc	2003-01-20 01:11:41.000000000 +0100
-+++ policy/file_contexts/types.fc	2003-01-20 00:52:33.000000000 +0100
-@@ -85,9 +85,9 @@
- # Other user home directories.
- #
- /home				system_u:object_r:home_root_t
--/home/[^/]*	-d		system_u:object_r:user_home_dir_t
--/home/.*/.*			system_u:object_r:user_home_t
--/home/[^/]*/.ssh(/.*)?		system_u:object_r:user_home_ssh_t
-+/home/[^/]+	-d		system_u:object_r:user_home_dir_t
-+/home/[^/]+/.+			system_u:object_r:user_home_t
-+/home/[^/]+/.ssh(/.*)?		system_u:object_r:user_home_ssh_t
- 
- #
- # /bin
-diff -ruwN /tmp/policy/macros/program/ssh_macros.te policy/macros/program/ssh_macros.te
---- /tmp/policy/macros/program/ssh_macros.te	2003-01-20 01:04:03.000000000 +0100
-+++ policy/macros/program/ssh_macros.te	2003-01-18 15:11:09.000000000 +0100
-@@ -69,7 +69,7 @@
- allow $1_ssh_t $1_devpts_t:chr_file rw_file_perms;
- 
- # Allow the user shell to signal the ssh program.
--allow $1_t $1_ssh_t:process signal;
-+allow $1_t $1_ssh_t:process { signal setpgid };
- # allow ps to show ssh
- allow $1_t $1_ssh_t:dir { search getattr read };
- allow $1_t $1_ssh_t:{ file lnk_file } { read getattr };
+diff -ruwN /tmp/policy/domains/misc/auth-net.te policy/domains/misc/auth-net.te
+--- /tmp/policy/domains/misc/auth-net.te	1970-01-01 01:00:00.000000000 +0100
++++ policy/domains/misc/auth-net.te	2003-01-18 12:01:19.000000000 +0100
+@@ -0,0 +1,4 @@
++#DESC Policy for using network servers for authenticating users (IE PAM-LDAP)
++
++can_network(auth)
++allow auth resolv_conf_t:file { getattr read };
+diff -ruwN /tmp/policy/domains/program/nessusd.te policy/domains/program/nessusd.te
+--- /tmp/policy/domains/program/nessusd.te	1970-01-01 01:00:00.000000000 +0100
++++ policy/domains/program/nessusd.te	2003-01-19 12:27:06.000000000 +0100
+@@ -0,0 +1,58 @@
++#DESC Nessus network scanning daemon
++#
++# Author:  Russell Coker <russell@coker.com.au>
++#
++
++#################################
++#
++# Rules for the nessusd_t domain.
++#
++# nessusd_exec_t is the type of the nessusd executable.
++#
++daemon_domain(nessusd)
++
++type etc_nessusd_t, file_type, sysadmfile;
++type nessusd_db_t, file_type, sysadmfile;
++
++type nessus_port_t, port_type;
++allow nessusd_t nessus_port_t:tcp_socket name_bind;
++
++#tmp_domain(nessusd)
++
++# Use the network.
++can_network(nessusd_t)
++allow nessusd_t self:unix_stream_socket create_socket_perms;
++#allow nessusd_t self:unix_dgram_socket create_socket_perms;
++
++# why ioctl on /dev/urandom?
++allow nessusd_t random_device_t:chr_file { getattr read ioctl };
++allow nessusd_t self:{ rawip_socket packet_socket } create_socket_perms;
++allow nessusd_t any_socket_t:rawip_socket sendto;
++allow nessusd_t self:capability net_raw;
++
++# for nmap etc
++allow nessusd_t { bin_t sbin_t }:dir search;
++allow nessusd_t bin_t:lnk_file read;
++can_exec(nessusd_t, bin_t)
++allow nessusd_t self:fifo_file { getattr read write };
++
++# allow appropriate domains to connect to nessusd
++can_tcp_connect(domain, nessusd_t)
++
++allow nessusd_t self:process setsched;
++
++allow nessusd_t proc_t:file { getattr read };
++
++# Allow access to the nessusd authentication database
++create_dir_file(nessusd_t, nessusd_db_t)
++allow nessusd_t var_lib_t:dir r_dir_perms;
++
++# read config files
++allow nessusd_t { etc_t etc_nessusd_t resolv_conf_t etc_runtime_t }:{ file lnk_file } r_file_perms;
++
++#allow nessusd_t etc_t:dir r_dir_perms;
++
++#allow nessusd_t sysctl_kernel_t:dir search;
++#allow nessusd_t sysctl_kernel_t:file read;
++
++log_domain(nessusd)
+diff -ruwN /tmp/policy/domains/program/nsd.te policy/domains/program/nsd.te
+--- /tmp/policy/domains/program/nsd.te	1970-01-01 01:00:00.000000000 +0100
++++ policy/domains/program/nsd.te	2003-01-18 14:47:39.000000000 +0100
+@@ -0,0 +1,51 @@
++#DESC Authoritative only name server
++#
++# Author: Russell Coker
++# 
++#
++
++#################################
++#
++# Rules for the nsd_t domain.
++#
++ifdef(`named.te', `', `
++type named_port_t, port_type;
++')
++
++daemon_domain(nsd)
++
++# A type for configuration files of nsd
++type nsd_conf_t, file_type, sysadmfile;
++# A type for zone files
++type nsd_zone_t, file_type, sysadmfile;
++
++r_dir_file(nsd_t, { nsd_conf_t nsd_zone_t })
++r_dir_file(initrc_t, nsd_conf_t)
++
++# Use capabilities. Surplus capabilities may be allowed.
++allow nsd_t self:capability { setuid setgid net_bind_service };
++
++allow nsd_t etc_t:{ file lnk_file } { getattr read };
++allow nsd_t resolv_conf_t:file { getattr read };
++
++# nsd can use network
++can_network(nsd_t)
++# allow client access from caching BIND
++ifdef(`named.te', `
++can_udp_send(named_t, nsd_t)
++can_udp_send(nsd_t, named_t)
++can_tcp_connect(named_t, nsd_t)
++')
++
++# if you want to allow all programs to contact the primary name server
++#can_udp_send(domain, nsd_t)
++#can_udp_send(nsd_t, domain)
++#can_tcp_connect(domain, nsd_t)
++
++# Bind to the named port.
++allow nsd_t named_port_t:udp_socket name_bind;
++allow nsd_t named_port_t:tcp_socket name_bind;
++
++allow nsd_t self:unix_stream_socket create_stream_socket_perms;
++allow nsd_t self:unix_dgram_socket create_socket_perms;
++
+diff -ruwN /tmp/policy/domains/program/perdition.te policy/domains/program/perdition.te
+--- /tmp/policy/domains/program/perdition.te	1970-01-01 01:00:00.000000000 +0100
++++ policy/domains/program/perdition.te	2003-01-18 14:51:19.000000000 +0100
+@@ -0,0 +1,34 @@
++#DESC Perdition POP and IMAP proxy
++#
++# Author:  Russell Coker <russell@coker.com.au>
++#
++
++#################################
++#
++# Rules for the perdition_t domain.
++#
++daemon_domain(perdition)
++
++ifdef(`courier.te', `', `
++type pop_port_t, port_type;
++')
++allow perdition_t pop_port_t:tcp_socket name_bind;
++
++type etc_perdition_t, file_type, sysadmfile;
++
++# Use the network.
++can_network(perdition_t)
++allow perdition_t self:unix_stream_socket create_socket_perms;
++allow perdition_t self:unix_dgram_socket create_socket_perms;
++
++# allow any domain to connect to the proxy
++can_tcp_connect(domain, perdition_t)
++
++# Use capabilities
++allow perdition_t self:capability { setgid setuid net_bind_service };
++
++# read config files
++allow perdition_t etc_perdition_t:dir r_dir_perms;
++allow perdition_t { etc_t etc_perdition_t resolv_conf_t }:file r_file_perms;
++allow perdition_t etc_t:lnk_file read;
++
+diff -ruwN /tmp/policy/domains/program/uml.te policy/domains/program/uml.te
+--- /tmp/policy/domains/program/uml.te	1970-01-01 01:00:00.000000000 +0100
++++ policy/domains/program/uml.te	2003-01-18 14:59:45.000000000 +0100
+@@ -0,0 +1,7 @@
++
++# Author: Russell Coker <russell@coker.com.au>
++#
++type uml_exec_t, file_type, sysadmfile, exec_type;
++
++# the main code is in macros/program/uml_macros.te
++
+diff -ruwN /tmp/policy/domains/program/uml_net.te policy/domains/program/uml_net.te
+--- /tmp/policy/domains/program/uml_net.te	1970-01-01 01:00:00.000000000 +0100
++++ policy/domains/program/uml_net.te	2003-01-18 14:59:51.000000000 +0100
+@@ -0,0 +1,36 @@
++#DESC uml_net helper program for user-mode Linux
++#
++# Author: Russell Coker <russell@coker.com.au>
++#
++
++type uml_net_t, domain, privlog;
++type uml_net_exec_t, file_type, sysadmfile, exec_type;
++in_user_role(uml_net_t)
++allow uml_net_t self:process { fork signal_perms };
++allow uml_net_t { bin_t sbin_t }:dir search;
++allow uml_net_t self:fifo_file { read write };
++allow uml_net_t device_t:dir search;
++allow uml_net_t self:udp_socket { create ioctl };
++uses_shlib(uml_net_t)
++allow uml_net_t devtty_t:chr_file { read write };
++allow uml_net_t etc_runtime_t:file { getattr read };
++allow uml_net_t etc_t:file read;
++allow uml_net_t { proc_t sysctl_t sysctl_net_t }:dir search;
++allow uml_net_t proc_t:file { getattr read };
++
++# if you want ip_forward to be set then you should set it yourself
++dontaudit uml_net_t { sysctl_t sysctl_net_t }:dir search;
++dontaudit uml_net_t sysctl_net_t:file write;
++
++dontaudit { insmod_t ifconfig_t } uml_net_t:udp_socket { read write };
++dontaudit uml_net_t self:capability { sys_module };
++
++domain_auto_trans_read(uml_net_t, insmod_exec_t, insmod_t)
++domain_auto_trans_read(uml_net_t, ifconfig_exec_t, ifconfig_t)
++allow uml_net_t tun_tap_device_t:chr_file { read write getattr ioctl };
++can_exec(uml_net_t, { shell_exec_t sbin_t })
++
++
++# this is really bad for security!
++in_user_role({ insmod_t ifconfig_t })
++
+diff -ruwN /tmp/policy/file_contexts/program/nessusd.fc policy/file_contexts/program/nessusd.fc
+--- /tmp/policy/file_contexts/program/nessusd.fc	1970-01-01 01:00:00.000000000 +0100
++++ policy/file_contexts/program/nessusd.fc	2003-01-19 12:27:38.000000000 +0100
+@@ -0,0 +1,6 @@
++# nessusd - network scanning server
++/usr/sbin/nessusd		system_u:object_r:nessusd_exec_t
++/usr/lib/nessus/plugins/.*	system_u:object_r:nessusd_exec_t
++/var/lib/nessus(/.*)?		system_u:object_r:nessusd_db_t
++/var/log/nessus(/.*)?		system_u:object_r:nessusd_log_t
++/etc/nessus/nessusd.conf	system_u:object_r:etc_nessusd_t
+diff -ruwN /tmp/policy/file_contexts/program/nsd.fc policy/file_contexts/program/nsd.fc
+--- /tmp/policy/file_contexts/program/nsd.fc	1970-01-01 01:00:00.000000000 +0100
++++ policy/file_contexts/program/nsd.fc	2003-01-18 15:05:28.000000000 +0100
+@@ -0,0 +1,4 @@
++# nsd
++/etc/nsd(/.*)?       		system_u:object_r:nsd_conf_t
++/usr/sbin/nsd      		system_u:object_r:nsd_exec_t
++/var/run/nsd.pid		system_u:object_r:var_run_nsd_t
+diff -ruwN /tmp/policy/file_contexts/program/perdition.fc policy/file_contexts/program/perdition.fc
+--- /tmp/policy/file_contexts/program/perdition.fc	1970-01-01 01:00:00.000000000 +0100
++++ policy/file_contexts/program/perdition.fc	2003-01-18 15:05:34.000000000 +0100
+@@ -0,0 +1,3 @@
++# perdition POP and IMAP proxy
++/usr/sbin/perdition		system_u:object_r:perdition_exec_t
++/etc/perdition(/.*)?		system_u:object_r:etc_perdition_t
+diff -ruwN /tmp/policy/file_contexts/program/uml_net.fc policy/file_contexts/program/uml_net.fc
+--- /tmp/policy/file_contexts/program/uml_net.fc	1970-01-01 01:00:00.000000000 +0100
++++ policy/file_contexts/program/uml_net.fc	2003-01-18 15:06:20.000000000 +0100
+@@ -0,0 +1,2 @@
++# User Mode Linux
++/usr/lib/uml/uml_net	system_u:object_r:uml_net_exec_t
+diff -ruwN /tmp/policy/macros/program/uml_macros.te policy/macros/program/uml_macros.te
+--- /tmp/policy/macros/program/uml_macros.te	1970-01-01 01:00:00.000000000 +0100
++++ policy/macros/program/uml_macros.te	2003-01-18 15:12:22.000000000 +0100
+@@ -0,0 +1,129 @@
++#
++# Macros for uml domains.
++#
++
++#
++# Author:  Russell Coker <russell@coker.com.au>
++#
++
++#
++# uml_domain(domain_prefix)
++#
++# Define a derived domain for the uml program when executed
++# by a user domain.
++#
++# The type declaration for the executable type for this program is
++# provided separately in domains/program/uml.te. 
++#
++undefine(`uml_domain')
++ifdef(`uml.te', `
++define(`uml_domain',`
++# Derived domain based on the calling user domain and the program.
++type $1_uml_t, domain;
++type $1_uml_exec_t, file_type, sysadmfile;
++type $1_uml_ro_t, file_type, sysadmfile;
++type $1_uml_rw_t, file_type, sysadmfile;
++
++allow $1_t { $1_uml_ro_t $1_uml_rw_t $1_uml_exec_t }:file_class_set { relabelfrom relabelto create_file_perms };
++allow $1_t { $1_uml_ro_t $1_uml_rw_t $1_uml_exec_t }:dir { relabelfrom relabelto create_dir_perms };
++
++# Transition from the user domain to this domain.
++domain_auto_trans($1_t, { uml_exec_t $1_uml_exec_t }, $1_uml_t)
++can_exec($1_uml_t, { uml_exec_t $1_uml_exec_t })
++
++# The user role is authorized for this domain.
++role $1_r types $1_uml_t;
++
++# Inherit and use descriptors from gnome-pty-helper.
++ifdef(`gnome-pty-helper.te',
++`allow $1_uml_t $1_gph_t:fd use;
++allow $1_t $1_gph_t:fd use;')
++
++# Inherit and use descriptors from newrole.
++ifdef(`newrole.te', `allow $1_uml_t newrole_t:fd use;')
++
++# allow ps to show uml
++allow $1_t $1_uml_t:dir { search getattr read };
++allow $1_t $1_uml_t:{ file lnk_file } { read getattr };
++allow $1_t $1_uml_t:process signal_perms;
++
++# allow the UML thing to happen
++allow $1_uml_t self:process { fork signal_perms ptrace };
++can_create_pty($1_uml)
++allow $1_uml_t root_t:dir search;
++tmp_domain($1_uml)
++can_exec($1_uml_t, $1_uml_tmp_t)
++create_dir_file($1_t, $1_uml_tmp_t)
++allow $1_uml_t self:fifo_file rw_file_perms;
++
++allow $1_uml_t tun_tap_device_t:chr_file { read write ioctl };
++
++ifdef(`uml_net.te', `
++# for uml_net
++domain_auto_trans_read($1_uml_t, uml_net_exec_t, uml_net_t)
++allow uml_net_t $1_uml_t:unix_stream_socket { read write };
++allow uml_net_t $1_uml_t:unix_dgram_socket { read write };
++dontaudit uml_net_t privfd:fd use;
++allow uml_net_t $1_uml_devpts_t:chr_file { read write };
++dontaudit uml_net_t $1_uml_rw_t:dir { getattr search };
++
++dontaudit uml_net_t $1_uml_ro_t:file read;
++dontaudit uml_net_t $1_uml_rw_t:file { read write };
++dontaudit { insmod_t ifconfig_t } $1_uml_t:fd { use };
++')
++
++# for mconsole
++allow { $1_t $1_uml_t } $1_uml_t:unix_dgram_socket sendto;
++allow $1_uml_t $1_t:unix_dgram_socket sendto;
++
++# Use the network.
++can_network($1_uml_t)
++
++# for xterm
++uses_shlib($1_uml_t)
++can_exec($1_uml_t, { bin_t sbin_t lib_t })
++allow $1_uml_t bin_t:dir search;
++dontaudit $1_uml_t sbin_t:dir search;
++allow $1_uml_t etc_t:file { getattr read };
++dontaudit $1_uml_t { etc_runtime_t resolv_conf_t }:file read;
++can_tcp_connect($1_uml_t, sshd_t)
++allow $1_uml_t $1_home_xauth_t:file { getattr read };
++allow $1_uml_t initrc_var_run_t:file { getattr read lock };
++dontaudit $1_uml_t initrc_var_run_t:file write;
++
++#allow $1_uml_t { etc_t resolv_conf_t }:file { read getattr };
++#allow $1_uml_t etc_t:lnk_file read;
++#allow $1_uml_t fs_t:filesystem getattr;
++#allow $1_uml_t var_t:dir search;
++allow $1_uml_t devpts_t:dir { getattr read search };
++allow $1_uml_t device_t:dir search;
++allow $1_uml_t devtty_t:chr_file rw_file_perms;
++allow $1_uml_t self:unix_stream_socket create_stream_socket_perms;
++allow $1_uml_t self:unix_dgram_socket create_socket_perms;
++allow $1_uml_t privfd:fd use;
++allow $1_uml_t proc_t:dir search;
++allow $1_uml_t proc_t:file { getattr read };
++#allow $1_uml_t { self proc_t }:lnk_file read;
++#allow $1_uml_t self:dir search;
++#dontaudit $1_uml_t var_run_t:dir search;
++
++# Write to the user domain tty.
++allow $1_uml_t $1_tty_device_t:chr_file rw_file_perms;
++allow $1_uml_t $1_devpts_t:chr_file rw_file_perms;
++
++# allow utmp access
++#allow $1_uml_t initrc_var_run_t:file read;
++#dontaudit $1_uml_t initrc_var_run_t:file lock;
++
++# access config files
++allow $1_uml_t home_root_t:dir search;
++file_type_auto_trans($1_uml_t, $1_home_dir_t, $1_uml_rw_t)
++r_dir_file($1_uml_t, $1_uml_ro_t)
++
++')
++
++', `
++
++define(`uml_domain',`')
++
++')
 
---Boundary-00=_kK0K+F+frHTLuMM--
+--Boundary-00=_AE0K+QKYn0kB0ub--
 
 
 --
