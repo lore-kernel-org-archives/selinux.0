@@ -1,54 +1,124 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8JL4orT013753
-	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 17:04:50 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8JL4mNX011142
-	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 21:04:49 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Chris PeBenito <pebenito@gentoo.org>
-Subject: Re: [PATCH] Gentoo-specific initrc
-Date: Mon, 20 Sep 2004 07:04:46 +1000
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-References: <1095381586.735.30.camel@gorn.pebenito.net> <200409191801.05094.russell@coker.com.au> <1095599331.735.62.camel@gorn.pebenito.net>
-In-Reply-To: <1095599331.735.62.camel@gorn.pebenito.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8JLCVrT013814
+	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 17:12:31 -0400 (EDT)
+Received: from sccrmhc13.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8JLCUNX011212
+	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 21:12:30 GMT
+Message-ID: <414DF5F2.9030700@gentoo.org>
+Date: Sun, 19 Sep 2004 17:11:14 -0400
+From: Joshua Brindle <method@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409200704.46291.russell@coker.com.au>
+To: russell@coker.com.au
+CC: selinux <selinux@tycho.nsa.gov>,
+   "pebe >> Chris PeBenito" <pebenito@gentoo.org>
+Subject: Re: [RFC] Upstream policy handling
+References: <414DA0A7.1000708@gentoo.org> <200409200646.51865.russell@coker.com.au>
+In-Reply-To: <200409200646.51865.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 19 Sep 2004 23:08, Chris PeBenito <pebenito@gentoo.org> wrote:
-> > +allow initrc_t etc_runtime_t:dir read;
-> >
-> > Your patch doesn't include any .fc entries to label a directory as
-> > etc_runtime_t.
+Russell Coker wrote:
+
+>On Mon, 20 Sep 2004 01:07, Joshua Brindle <method@gentoo.org> wrote:
+>  
 >
-> This is going to appear in my types.fc patch.  The directory I'm
-> referring to is not specific to initrc.
-
-What is the purpose of a etc_runtime_t directory?  Currently any process that 
-can create files as etc_runtime_t can write to a directory labelled as etc_t.  
-Are you planning to change that?
-
-> > +domain_auto_trans(sysadm_t,initrc_exec_t,run_init_t)
-> >
-> > This isn't something I expected, I'm not sure if it's desirable to do it
-> > like that but I can't think of any better way.  Steve, what do you think
-> > about this?
+>>The current upstream policy is a compositite of most changes made by
+>>distros and policy writers who may have different philosophies about how
+>>the policy should work.
+>>    
+>>
 >
-> Since run_init is integrated into our init script interpreter, there is
-> afaik no other way to get into run_init_t since the scripts are run as
-> usual (/etc/init.d/foo start).
+>Not really.  The different philosophies are the ones that are totally 
+>unmergable.  One example was posted here about a year ago that didn't seem to 
+>have a single domain or type name in common with the NSA policy.
+>
+>  
+>
+Using different policy semantics (eg., not having seperate domain and 
+file types) is not the same as having different philosophies. The 
+philosophy differences I speak of are the differences between, for 
+example, Redhat and Gentoo. It's no secret that Redhats primary goal is 
+to make SELinux work in the system (and it's a noble goal). Gentoo's 
+goal is to make the system secure, and if need be break legacy 
+behaviour. These are radical differences.
 
-Yes.
+>>One example is our sysadmfile trim which happened a few weeks ago. Chris
+>>  PeBenito suggested this on the list only to be scrutinized, we have
+>>    
+>>
+>
+>Scrutiny is good!  It's when code is not scrutinised that the quality drops.  
+>Open Source is about scrutiny of code.
+>
+>  
+>
+This sort of scrutity was an example of Redhat's vs. Gentoo's policy 
+philosophy as above.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+>>since gone ahead with the changes but based on the feedback here Chris
+>>felt it a moot point to post the changes. Recently it was suggested by
+>>another distro (though vetoed by Steve) to make sysadmfile even more
+>>accessible to non-admins. This illustrates the radical difference in
+>>policy philosophies.
+>>    
+>>
+>
+>No, it demonstrates that Steve knows what's going on, has a plan, and is 
+>making everyone stick to it.  Convince Steve and your patch goes in to the 
+>CVS!
+>
+>  
+>
+The Current CVS policy is heavily biased toward Redhat (and their 
+SELinux goals). This leaves no room for others (such is why I'm 
+suggesting this)
+
+>>I feel that distro tunables are undesirable. They bloat the policy in
+>>unnecessary ways and just don't make sense to me. Downstream vendors
+>>often apply their own patches to applications, so Gentoo, Debian and
+>>Redhat would have patchsets for apps rather than the upstream app having
+>>#ifdef REDHAT ... #elif DEBIAN and so on. (Russel pointed out that some
+>>apps have this sort of thing in upstream but that doesn't make it
+>>correct ;) )
+>>    
+>>
+>
+>OK, try maintaining a separate Gentoo policy patch for another year or so and 
+>see if you still think that distribution specific tunables are a bad 
+>idea.  ;)
+>
+>  
+>
+PeBenito has maintained our policy for longer than that.  Distro 
+tunables (and indeed many many of the current tunables) are 
+fundamentally flawed.
+Think about the difficulty of analyzing policy with X number of 
+tunables. To do it properly you'd have to analyze X! permutations. Then 
+take into account conditionals, and optional modules.
+
+>>Specifically I think it would be optimal to set up a policy repository
+>>at bkbits.net (yes, this is bitkeeper, yes I know about the license,
+>>will cover that later). In this repository there should be branches for
+>>each vendor, and the NSA. Obviously each vendor pushes their own policy
+>>changes into their branch. If the NSA and/or any other vendors like the
+>>    
+>>
+>
+>The problem is that vendors will introduce bad patches.  Without the 
+>requirement to get the policy checked off by Steve the quality will drop 
+>while the number of unmerged patches steadily increases.
+>
+>  
+>
+eh? vendors would introduce bad patches to their own policy. Obviously 
+this can already be done, I'm not sure what you are getting at here.
+If vendors are concerned about their patches they'd still be able to 
+post them to the list (also the changesets would be available at a 
+specific central place for everyone so it would be far easier to see 
+what people are doing to the policies, and the differences, etc)
+
+Joshua
 
 --
 This message was distributed to subscribers of the selinux mailing list.
