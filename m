@@ -1,47 +1,48 @@
+Date: Wed, 3 Jul 2002 12:48:26 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Timothy Wood <timothy@hallcomp.com>
+cc: SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: udp receive
-From: Timothy Wood <timothy@hallcomp.com>
-To: Stephen Smalley <sds@tislabs.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <Pine.GSO.4.33.0207031002290.29509-100000@raven>
-References: <Pine.GSO.4.33.0207031002290.29509-100000@raven>
-Content-Type: text/plain
-Date: 03 Jul 2002 12:39:36 -0400
-Message-Id: <1025714377.3620.18.camel@phobos>
-Mime-Version: 1.0
+In-Reply-To: <1025714377.3620.18.camel@phobos>
+Message-ID: <Pine.GSO.4.33.0207031237310.29509-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I need more detail from the audit message, in particular the two types
-> from the scontext and tcontext fields. 
 
-avc:  denied  { recvfrom } for  pid=1791 exe=/usr/sbin/rpc.rquotad
-saddr=127.0.0.1 source=696 daddr=127.0.0.1 dest=111 netif=lo
-scontext=system_u:system_r:portmap_t tcontext=root:sysadm_r:sysadm_t
-tclass=udp_socket
+On 3 Jul 2002, Timothy Wood wrote:
 
+> avc:  denied  { recvfrom } for  pid=1791 exe=/usr/sbin/rpc.rquotad
+> saddr=127.0.0.1 source=696 daddr=127.0.0.1 dest=111 netif=lo
+> scontext=system_u:system_r:portmap_t tcontext=root:sysadm_r:sysadm_t
+> tclass=udp_socket
+<snip>
+> It looks to me like it's loopback between the rpc quota daemon and the
+> portmapper.
 
-> The can_udp_send macro
-> (defined in macros/global_macros.te) grants appropriate permissions for
-> the sender domain and the receiver domain, so you likely just need a
-> can_udp_send macro between the particular sender and receiver.  Of course,
-> this is only significant for loopback communication (or if you are using
+In this case, the current process information is unreliable, since this
+check is performed during network input processing.  You can see from the
+pair of contexts that rpc.rquotad isn't truly the relevant process, since
+neither context has the rpcd_t type.  What you really want to add is
+can_udp_send($1_t, portmap_t) to macros/user_macros.te.
 
-It looks to me like it's loopback between the rpc quota daemon and the
-portmapper.
+> Is there a template I could use or could someone please explain how to
+> go about creating a new domain?  I understand how to do some basic
+> modifications so far but I'm no expert yet.  Thanks
 
-> By the way, please note that the rpcd_t domain is simply a placeholder
-> for rpc daemons, and that you should really define an individual
-> domain for any rpc daemon that requires privilege (e.g. nfsd).  You
-> should also consider limiting this domain to true least privilege by
-> removing every_domain and only adding the bare minimum set of
-> permissions needed for operation.
+The Configuring the SELinux Policy report includes a very brief
+introduction to creating new domains in the Creating a New Domain
+subsection of the Customizing the Policy section.  The easiest approach is
+to use one of the existing domains as a template.  You may want to use
+Russell Coker's daemon_domain macro (in global_macros.te) to get started.
+The recently posted samba domains were reworked to use that macro, as you
+can see from Ryan Bergauer's postings.
 
-Is there a template I could use or could someone please explain how to
-go about creating a new domain?  I understand how to do some basic
-modifications so far but I'm no expert yet.  Thanks
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-
-Timothy,
 
 
 
