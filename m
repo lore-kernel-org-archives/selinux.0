@@ -1,65 +1,49 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2U5XwDo012343
-	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 00:33:58 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2U5UBph027290
-	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 05:30:12 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: ivg2@cornell.edu
-Subject: Re: [ PATCH ] X clients cleanup patch #2
-Date: Tue, 29 Mar 2005 12:12:30 +1100
-Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
-References: <1111972339.1119.8.camel@cobra.ivg2.net> <1111972562.1119.12.camel@cobra.ivg2.net>
-In-Reply-To: <1111972562.1119.12.camel@cobra.ivg2.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200503291112.33518.russell@coker.com.au>
+Subject: Re: problems using setcon()
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Kodungallur Varma <ramgwu@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <fa8ec5d8050329194145add881@mail.gmail.com>
+References: <fa8ec5d80503082008161e5619@mail.gmail.com>
+	 <20050309084655.GC5236@thorium.jmh.mhn.de>
+	 <fa8ec5d805031118353197f745@mail.gmail.com>
+	 <1110812772.21378.79.camel@moss-spartans.epoch.ncsc.mil>
+	 <fa8ec5d8050328195571c9d4fc@mail.gmail.com>
+	 <1112107028.4339.34.camel@moss-spartans.epoch.ncsc.mil>
+	 <fa8ec5d8050329194145add881@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 30 Mar 2005 07:35:17 -0500
+Message-Id: <1112186117.8012.5.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 28 March 2005 11:16, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
-> Question 1: X has the following rules:
->
-> allow $1_$2_t self:unix_dgram_socket create_socket_perms;
-> allow $1_$2_t self:unix_stream_socket { connectto
-> create_stream_socket_perms };
->
-> Removing them seems to affect most (all?) X clients.
-> Are those related to establishing a connection to X,
-> or are they just common frequently used rules?
+On Tue, 2005-03-29 at 22:41 -0500, Kodungallur Varma wrote:
+> thanx a lot..the program worked. however I need to change the policy
+> file(.te) often and so I need to make load it. I am unable to do that
+> at the moment due to the problem that I updated the following without
+> updating my policy:
+> 
+> checkpolicy-1.22
+> libsepol-1.4
+> policycoreutils-1.22
+> 
+> how do I uninstall them??
 
-If DISPLAY=:0.0 then all X clients will need such access.  DISPLAY=:0.0 is the 
-default for a local X login so we should assume that every system that has X 
-will need such access.
+You can grab the older checkpolicy, libsepol, and policycoreutils
+packages from FC3 and re-install them with rpm -Uvh --oldpackage.
 
-In any case "self" access isn't a security issue.
+>  also I tried the alternative to update my
+> policy by doing:
+> "yum install selinux-policy-strict-sources" and "yum install
+> selinux-policy-targeted-sources". the targeted version was updated,
+> but strict had "nothing to do". seems like it is up to date.
 
-> Question 2:
->
-> games, mozilla, and gift want to read /etc/mtab, and /etc/nsswitch.conf.
-> Why is that neessary, and do those rules always go together?
-
-nsswitch.conf is used for any program that does a UID->name or name->UID 
-lookup.  So any operation comparable to "ls -l" will need it.  Mozilla will 
-probably call getuid() and then getpwuid() to get the Unix account name for 
-various things (including temporary file names I think).
-
-/etc/mtab is unrelated.  Lots of programs read it.  For example programs that 
-want to know how much disk space is free often read /etc/mtab.  Usually such 
-access is not strictly necessary (the program could perform the same tasks 
-without it) but sometimes the program will not be written well in this regard 
-and will fail without such access.  /etc/mtab doesn't contain any secret data 
-so there's no harm.  /proc/mounts is a better source of such data anyway so 
-any program that can read proc_t:lnk_file and self:file can get the same data 
-from a more authoritative source.
+You would need to update to the rawhide (FC4 development) policy; FC3
+policy doesn't include these changes.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
