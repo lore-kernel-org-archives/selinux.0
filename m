@@ -1,47 +1,66 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA12145
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 09:43:31 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA04366
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 13:41:44 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id NAA04362
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 13:41:43 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: new Debian package
-Date: Thu, 25 Apr 2002 15:43:19 +0200
-References: <Pine.GSO.4.33.0204250829440.4789-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0204250829440.4789-100000@raven>
-Cc: SE Linux <selinux@tycho.nsa.gov>
+To: "Westerman, Mark" <Mark.Westerman@csoconline.com>,
+        "'Reino Wallin'" <reino@oribium.com>
+Subject: Re: SELinux RPM Version
+Date: Thu, 25 Apr 2002 15:51:10 +0200
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <72222DC86846D411ABD300A0C9EB08A101524363@csoc-mail-box.csoconline.com>
+In-Reply-To: <72222DC86846D411ABD300A0C9EB08A101524363@csoc-mail-box.csoconline.com>
 MIME-Version: 1.0
-Message-Id: <20020425134319.E0A8A3943@lyta.coker.com.au>
+Message-Id: <20020425135110.E75773943@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 25 Apr 2002 14:30, you wrote:
-> Does this mean that you've inserted appropriate ifdef's throughout
-> the .te files for all inter-domain dependencies?  If so, that's great!
+On Thu, 25 Apr 2002 14:48, Westerman, Mark wrote:
+> In the Filesystem Hierarchy Standard (FHS) document for the
+> Linux Standard Base.
+>
+> "Any program or package which contains or requires data the doesn't
+> need to modified should store that data in /usr/share. "
+>
+> the doc subdirectory if for "Miscellaneous documentation"
 
-Not all, just all the ones that bit me over the installations of three 
-machines with significantly different uses.
+IMHO that means that /usr/share/selinux is better than /usr/share/doc/selinux 
+for the sample policy files.
 
-Reading through all the .te's and analysing them for potential problems is 
-more work than I wanted to get into, so I just fixed the things that bit me 
-(I think I got all the most common ones) and I'll wait for bug reports now.
+Sample policy files are not documentation, they don't even have much in the 
+way of comments!
 
-I'll post some patches soon for this type of thing.
+> I do not consider the examples/policy to be required
+> by the selinux package. I look at the example
+> policy as being documentation. That is why
+> I will be keeping the
+> /usr/share/doc/selinux/example/.......
+> Directory Structure.
 
-Also with the current Makefile rules we need the following empty files:
-file_contexts/program/custom.fc
-file_contexts/program/kernel.fc
-file_contexts/program/kmod.fc
+I agree that the sample policy is not required by the selinux package, which 
+is why I am now planning to split it out into a separate package.
 
-I haven't worked out how to remove this need so I've just added the empty 
-files to my package.
+I am thinking of having selinux suggest the virtual package "selinux-policy" 
+which will be provided by both "selinux-policy-default" in my packages, and a 
+"selinux-policy-firewall" for the firewall policy that has been recently 
+discussed here.
+
+> The /etc/selinux/policy directory is created
+> and can be modified.
+
+OK.  I'll change my package back to using /etc/selinux as the location for 
+the files.
+
+> This data in /usr/share is for read-only. That is
+> why a symbolic link is not created.
+>
+> I will keep with the Linux Standard Base
+> Filesystem Hierarchy Standard and
+> keep.
+>
+> /usr/share/doc/seliunx
+> directory structure.
+
+I will keep with the LSB and keep /usr/share/selinux.
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
