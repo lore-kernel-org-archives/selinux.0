@@ -1,49 +1,35 @@
-Subject: Re: init, checkpolicy manpage and labeling questions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1062071503.3076.124.camel@kusturica>
-References: <1062071503.3076.124.camel@kusturica>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1062074148.2517.62.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7SEmWLa019421
+	for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2003 10:48:32 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h7SEmUet023113
+	for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2003 14:48:30 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id h7SEmUlq023110 for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2003 14:48:30 GMT
+Date: Thu, 28 Aug 2003 15:48:25 +0100
+From: Dale Amon <amon@vnl.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Package install probs
+Message-ID: <20030828144825.GA6898@vnl.com>
 Mime-Version: 1.0
-Date: 28 Aug 2003 08:35:48 -0400
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-08-28 at 07:51, Magosányi Árpád wrote:
-> First the questions:
-> 
-> Make relabel complained about /var/run/pump.sock . putting a <<none>>
-> in file_contexts did not help, but I could manage it by removing the
-> socket.
-> Do we have labels on sockets yet?
+Colin, at the end of the install of the default policy
+I'm getting this error message:
 
-Yes, this should work.  Are you using ext2 or ext3?  If ext2, then you
-need the patch I posted on Monday in response to Karl MacMillan's
-posting on the list; there is a typo in an #ifdef in ext2/namei.c that
-prevents special inodes from getting the xattr operations.
-
-> My other problem is with various files in /dev. I use devfs and devfsd.
-> for example getfilecon fails for /dev/console, /dev/null, and /dev/pts/0
-> (in a devpts fs). Can someone explain the situation to me?
-
-For devpts, you need to enable the xattr handler, as mentioned in the
-selinux-doc README.  There is presently no xattr handler for devfs; you
-can implement one if you like, but devfs appears to be obsolete.
-
-> You can find a checkpolicy manpage attached. I was not too definiitive:)
-
-Thanks, I'll take a look at it, since I wrote the program.
-
-> Also here is my boot method, as I did not want to boot from initrd:
-
-Any particular reason?
+ an error on line 39260 "Unknown type klogd_t at token ';'"
+"neverallow ~klogd_t proc_kmsg_t:file ~{ getattr }"
+while parsing /usr/bin/checkpolicy configuration make
+/etc/security/selinux/policy.15 error 1
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+------------------------------------------------------
+       IN MY NAME:            Dale Amon, CEO/MD
+  No Mushroom clouds over     Islandone Society
+    London and New York.      www.islandone.org
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
