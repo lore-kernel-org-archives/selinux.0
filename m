@@ -1,33 +1,41 @@
-Date: Thu, 28 Mar 2002 08:17:39 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200203281417.IAA96290@tomcat.admin.navo.hpc.mil>
-To: r2q2@rocketmail.com, SeLinux@tycho.nsa.gov
-Subject: Re: Java intragration
+Message-ID: <032101c1d679$e6135ca0$ae5b9dac@oemcomputer>
+From: "Tony Stanco" <Tony@freedevelopers.net>
+To: <SeLinux@tycho.nsa.gov>
+Subject: SELinux speakers circuit
+Date: Thu, 28 Mar 2002 11:59:12 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- R2-Q2 <r2q2@rocketmail.com>:
-> 
-> Would it be a good idea to intragrate Java into the operating system.
-> Possibally it could be faster if it was. Java is known to be secure and
-> there are many open source vm's out there. Or we just could install it
-> into the OS using SUN's or IBM's version. Though probally SUN because
-> they have the latest version.
+I have received some invitations to do other panels on SELinux. If you would
+like to be on a panel, please let me know off-line. Some are east coast,
+some west coast, some international. Unfortunately, you should assume that
+you have to pay your own expenses, except for registration to the
+conferences. [On rare occasions expenses are covered].
 
-I think you will find the memory management model used to track objects
-to be too incompatable with kernel memory management. Most of the JVMs
-I have run across (only two, so limited experience here) indicate that
-they expect a flat memory modle, and do not handle holes in memory at
-all since that breaks the security model being implemented.
+Also, if you haven't seen it, the SELinux panel (Pete Loscocco, Mark
+Westerman, and Martin Dean) at FOSE was covered by Grant Gross of NewsForge.
 
-Now if it were the JavaOS now, that is a different animal. But it isn't
-Linux.
+http://newsforge.com/article.pl?sid=02/03/22/1716241&tid=23
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+There were other reporters from PostNewsweek who said they may do articles,
+too. If they do, I will forward them.
 
-Any opinions expressed are solely my own.
+Best regards,
+
+Tony Stanco, Esq.
+Senior Policy Analyst
+Open Source and e-Gov
+Cyberspace Policy Institute
+George Washington University
+2033 K Street N.W., Suite 340
+Washington, DC 20006
+202-994-5513  Fax:202-994-5505
+Tony@FreeDevelopers.net
+http://www.cpi.seas.gwu.edu
+
 
 --
 You have received this message because you are subscribed to the selinux list.
