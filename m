@@ -1,45 +1,34 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA20850
-	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 10:07:49 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA05376
-	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 14:05:50 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id OAA05372
-	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 14:05:36 GMT
-Date: Thu, 9 May 2002 10:06:54 -0400 (EDT)
+Date: Thu, 9 May 2002 09:59:21 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: kmod.te
-In-Reply-To: <20020509054938.BC169310F@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0205091000120.1046-100000@raven>
+To: "Davies, James E" <jedavie@sandia.gov>
+cc: "'Selinux@tycho.nsa.gov'" <Selinux@tycho.nsa.gov>
+Subject: Re: new selinux install
+In-Reply-To: <B51F0C636E578A4E832D3958690CD73EBB102D@es04snlnt>
+Message-ID: <Pine.GSO.4.33.0205090952211.1046-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 9 May 2002, Russell Coker wrote:
+On Thu, 9 May 2002, Davies, James E wrote:
 
-> In that case I think that we should have a macro for the majority of the
-> insmod policy instead of duplicating policy code.  I suggest that the macro
-> be in the start of modutil.te and be used twice from there.  I think that
-> such policy belongs in modutil.te because the modules utilities are optional
-> (you can compile a kernel without module support), but kmod.te will always be
-> required.
+> I've just installed the selinux 2.4.(18) kernel on redhat 7.2 from the nsa
+> site and have the following problems. All I've done so far is to add 2
+> users. I have not modified any context or .te files yet.
+>
+> Most of the processes are labeled as type kernel_t with a sid of 1. I
+> suppose this means they're not transitioning to their proper domain.
+> AVC_toggle to enforcing mode hangs the system console session, forcing a
+> reboot.
 
-I'm not sure I follow you.  If you want a shared macro between kmod.te and
-modutils.te, then we should create a new macros file, e.g.
-macros/program/modutils_macros.te.
+It doesn't look like you labeled the filesystem.  Did you follow the
+complete installation instructions in selinux/README?   Run 'make relabel'
+in selinux/policy and then reboot.
 
-> Also is there any system using a version of modutils that has separate
-> programs for insmod, rmmod, and modprobe but which runs the required versions
-> of all other software for running SE Linux?  If not then I suggest that we
-> remove all references to having separate programs from the policy.
-
-That's fine with me as long as it doesn't break compatibility for any
-SELinux users.
+As a general note, when asking questions or reporting bugs, please
+identify the particular release that you are using (e.g. 2002050211 is the
+latest) and the download option that you used.
 
 --
 Stephen D. Smalley, NAI Labs
