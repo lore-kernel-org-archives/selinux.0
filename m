@@ -1,43 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i28BeKRb004886
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 06:40:20 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i28BeJ0F009993
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 11:40:19 GMT
-Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
-        by jazzband.ncsc.mil  with ESMTP id i28BeIgZ009980 for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 11:40:18 GMT
-Received: (from root@localhost)
-	by baitaca.ipen.br (8.12.9/8.12.9) id i28BgOqx030340
-	for selinux@tycho.nsa.gov; Mon, 8 Mar 2004 08:42:24 -0300
-Received: from net.ipen.br ([10.0.12.47])
-	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id i28BgHiX030214
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 08:42:18 -0300
-Message-ID: <404C5B57.9020209@net.ipen.br>
-Date: Mon, 08 Mar 2004 08:39:03 -0300
-From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@baitaca.ipen.br>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: system_r and sysadm_r roles
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i28EovRb006032
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 09:50:57 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i28EnH6Q019962
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 14:49:17 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id i28EnG5t019959
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 14:49:16 GMT
+Subject: Re: system_r and sysadm_r roles
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Carlos =?ISO-8859-1?Q?An=EDsio?= Monteiro <monteiro@baitaca.ipen.br>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <404C5B57.9020209@net.ipen.br>
+References: <404C5B57.9020209@net.ipen.br>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1078757447.30181.82.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 08 Mar 2004 09:50:47 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Helo.
+On Mon, 2004-03-08 at 06:39, Carlos AnÃ­sio Monteiro wrote:
+> IÂ´d  like to know why there is a transition permission between system_r 
+> and sysadm_r.
+> 
+> Example:  allow system_r sysadm_r;
 
-I´d  like to know why there is a transition permission between system_r 
-and sysadm_r.
+The login process (which is a system_r process) transitions to sysadm_r
+for administrative logins.  
 
-Example:  allow system_r sysadm_r;
+> This would can induce the a problem of security ?
 
-This would can induce the a problem of security ?
-
-Thanks.
+No, domain transitions are the key.
 
 -- 
-Carlos Anísio Monteiro	<monteiro@ipen.br>
-IPEN-CNEN/SP
-São Paulo - Brasil
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
