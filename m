@@ -1,46 +1,69 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1IHfXZ028514
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 13:17:41 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1IGKCC021828
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 18:16:20 GMT
-Subject: Re: patch: add assert statement for syslog
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
-Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <200411011745.iA1HjGZ0004102@turing-police.cc.vt.edu>
-References: <20041101102345.GA3377@jmh.mhn.de>
-	 <200411011745.iA1HjGZ0004102@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Message-Id: <1099332844.21386.170.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 01 Nov 2004 13:14:05 -0500
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1ISSXZ028644
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 13:28:28 -0500 (EST)
+Received: from tcsfw2.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1IR1CE022897
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 18:27:07 GMT
+Message-ID: <36282A1733C57546BE392885C06185924D9100@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>,
+   Darrel Goeddel
+	 <DGoeddel@TrustedCS.com>
+Cc: selinux@tycho.nsa.gov, Chad Hanson <chanson@TrustedCS.com>,
+   Frank Mayer <mayerf@tresys.com>
+Subject: RE: dynamic context transitions
+Date: Mon, 1 Nov 2004 13:28:57 -0500 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-11-01 at 12:45, Valdis.Kletnieks@vt.edu wrote:
-> Unless I'm missing a 'privlog' entry on a 'type' line someplace, this
-> basically means that unless you write some policy, an arbitrary program can't
-> syslog() at all.  This does help prevent "flood the syslog" attacks, but
-> I'm not sure we want to be *that* draconian without a site-settable flag.
+
+> On Fri, 2004-10-29 at 15:10, Darrel Goeddel wrote:
+> > A process may also
+> > jump between multiple MLS labels and perform actions at each.
+> <snip>
+> > The chain
+> > of allowable dynamic  transitions is also controlled on a 
+> context-pair
+> > basis.  This allows a "dynamic  transition group" to be 
+> treated as an
+> > equivalence class for policy analysis.
 > 
-> It sort of renders /usr/bin/logger in a shell script useless, for starters...
+> These two statements seem to be in conflict to me.  Whereas 
+> you might be
+> able to legitimately collapse multiple domains into a single 
+> equivalence
+> class for information flow analysis purposes, I don't see how this is
+> legitimate for levels.  If they were separate levels in the 
+> first place,
+> then they should be separate equivalence classes for 
+> information flow. 
+> Can you clarify?
 
-The patch merely adds an assertion to verify what should already be true
-in the policy, i.e. that every domain authorized to write to the
-/dev/log socket has the privlog attribute. syslogd.te includes the
-following rules that allow this to happen for such domains:
+Let me try to give some background.
 
-# Domains with the privlog attribute may log to syslogd.
-allow privlog devlog_t:sock_file rw_file_perms;
-can_unix_send(privlog,syslogd_t)
-can_unix_connect(privlog,syslogd_t)
+The ability for a process to perform actions at multiple MLS labels exists
+whether dynamic transitions exist or not. Privilege bracketing does limit
+the use and permits removal of the ability from the process.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+MLS level transitions will need to be controlled via new permissions on the 
+process class (mls_upgrade and mls_downgrade).  Similar permissions will be 
+implemented for objects.  Most processes will not have the ability to alter 
+their MLS level (just as most will not be able to alter their domain).  For 
+processes that have the ability to alter their mls level, they will need to
+be 
+regarded as having access to all levels of information within the process' 
+clearance.
 
+I would assume this would along the lines of the trusted reader/writer
+concept. THe app is bounded to an MLS range. Instead of a process being
+ranged and running at unclass-confidential, it is bounded by confidential
+and effectively is running at either unclassfied or confidential and able to
+transition between the two levels.
+
+-Chad
 
 --
 This message was distributed to subscribers of the selinux mailing list.
