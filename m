@@ -1,55 +1,50 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA12415
-	for <selinux@tycho.nsa.gov>; Sat, 5 Oct 2002 02:28:21 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA00292
+	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 09:09:26 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id GAA09170
-	for <selinux@tycho.nsa.gov>; Sat, 5 Oct 2002 06:26:45 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id GAA09166
-	for <selinux@tycho.nsa.gov>; Sat, 5 Oct 2002 06:26:44 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: RH8 policy support
-Date: Sat, 5 Oct 2002 08:28:09 +0200
-Cc: selinux@tycho.nsa.gov
-References: <20021004211432.73107.qmail@web40001.mail.yahoo.com>
-In-Reply-To: <20021004211432.73107.qmail@web40001.mail.yahoo.com>
+	by jazzswing.ncsc.mil  with ESMTP id NAA14782
+	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 13:07:47 GMT
+Received: from WS0005.indiatimes.com ([203.199.93.15])
+	by jazzswing.ncsc.mil  with ESMTP id NAA14778
+	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 13:07:40 GMT
+Received: from 192.168.57.15 (a2 [192.168.57.22])
+	by WS0005.indiatimes.com (8.9.3/8.9.3) with SMTP id SAA26313
+	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 18:16:37 +0530
+From: "hariharanjayaraman" <hariharanjayaraman@indiatimes.com>
+Message-Id: <200210081246.SAA26313@WS0005.indiatimes.com>
+To: <selinux@tycho.nsa.gov>
+Reply-To: "hariharanjayaraman"<hariharanjayaraman@indiatimes.com>
+Date: Tue, 08 Oct 2002 18:31:14 +0530
+Content-Type: multipart/alternative;
+	   boundary="=_MAILER_ATTACH_BOUNDARY1_200210821831141801979802"
 MIME-Version: 1.0
-Message-Id: <200210050828.09485.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 4 Oct 2002 23:14, Brad Chapman wrote:
-> > Wrappers for rpm and related commands to run them in system_u:system_r .
->
-> I can certainly try this, but it will be ugly and evil and will need some
-> major cleanups before going into the CVS.
+--=_MAILER_ATTACH_BOUNDARY1_200210821831141801979802
+Content-Type: text/plain; charset=us-ascii
 
-No, just copy my code for wrapping dpkg.
 
-> > Support for relabelling files after installing a new RPM package.
->
-> How would you do that?
+Hi,
 
-rpm triggers should do it, just need to call a script that gets a list of 
-files in the package and then uses "setfiles -s" to relabel them.
 
-> > Policy to make the install scripts start daemons in the correct domain.
->
-> What install scripts do you mean?
+    Can anyone tell me how to debug selinux kernel.
 
-Well if you install a new version of cron then the package manager has to stop 
-the old version and start the new version.  You don't want cron running in 
-the rpm_t domain...
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+ 
+Get Your Private, Free E-mail from Indiatimes at  http://email.indiatimes.com
+Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
+
+--=_MAILER_ATTACH_BOUNDARY1_200210821831141801979802
+Content-Type: text/html; charset=us-ascii
+
+<P><BR>Hi,</P>
+<P>&nbsp;&nbsp;&nbsp; Can anyone tell me how to debug selinux kernel.</P>
+<P><BR>&nbsp;</P>
+<hr><font face="Arial" size="2"><b>Get Your Private, Free E-mail from Indiatimes at  </font><a href="http://email.indiatimes.com"><font face="Arial" size="2">http://email.indiatimes.com</font></a></b><br>Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from <A href="http://www.planetm.co.in">http://www.planetm.co.in</A>
+
+--=_MAILER_ATTACH_BOUNDARY1_200210821831141801979802--
 
 
 --
