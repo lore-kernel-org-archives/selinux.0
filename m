@@ -1,50 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA01479
-	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 07:15:38 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id LAA02579
-	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 11:14:05 GMT
-Received: from nox.lemuria.org ([213.191.86.30])
-	by jazzswing.ncsc.mil  with ESMTP id LAA02574
-	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 11:14:04 GMT
-Date: Tue, 1 Oct 2002 13:15:36 +0200
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: policy version
-Message-ID: <20021001131535.A21503@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA01807
+	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 07:47:01 -0400 (EDT)
+Date: Tue, 1 Oct 2002 07:46:43 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Tom <tom@lemuria.org>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: policy version
+In-Reply-To: <20021001131535.A21503@lemuria.org>
+Message-ID: <Pine.GSO.4.33.0210010742590.1579-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm a little upset right now, so apologies up front if I get across a
-little too aggressive:
 
-I have a totally unusable SELinux system right now, because of policy
-version conflicts. For reasons I don't understand, checkpolicy creates
-a binary representation version 12, which load_policy refuses to load
-because it's version 11.
+On Tue, 1 Oct 2002, Tom wrote:
 
-I have removed and reinstalled all available policies from both
-Russell's and Brian's site, all available selinux packages from both
-sites, and both .deb and .tgz versions where I could.
+> I have a totally unusable SELinux system right now, because of policy
+> version conflicts. For reasons I don't understand, checkpolicy creates
+> a binary representation version 12, which load_policy refuses to load
+> because it's version 11.
 
-Unless I am horribly stupid, there is a major fuckup somewhere. Add to
-this the fact that your system is fubar'ed when the policy doesn't work
-and I second Brian's call that we require a lot more checking and
-information when it comes to the policy versions.
+This implies that you are still running a kernel with policy version 11,
+but your checkpolicy program has been rebuilt for policy version 12.
+Maybe you need to boot your new kernel (hopefully, you did obtain a new
+kernel, right?)?
 
-I just find it unacceptable that a standard update (all my troubles
-started when I ran nothing more than "se_apt-get upgrade" this morning)
-can take the system out completely, with no path back.
-
-That, or I'm a total idiot.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
--- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
