@@ -1,60 +1,63 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA29813
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2001 18:35:40 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA18338
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2001 22:35:25 GMT
-Received: from mozart.fwsystems.com (mozart.fwsystems.com [63.101.67.2])
-	by jazzband.ncsc.mil  with ESMTP id WAA18334
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2001 22:35:24 GMT
-Received: from fwsystems.com (localhost [127.0.0.1]) by mozart.fwsystems.com (AIX4.3/UCB 8.8.8/8.8.8) with ESMTP id SAA56520 for <selinux@tycho.nsa.gov>; Mon, 23 Jul 2001 18:35:38 -0400
-Message-ID: <3B5CA6BA.955EDD95@fwsystems.com>
-Date: Mon, 23 Jul 2001 18:35:38 -0400
-From: Forrest Whitcher <fw@fwsystems.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA03015
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 11:21:24 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA21445
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 15:20:31 GMT
+Received: from blackbird.intercode.com.au (blackbird.intercode.com.au [203.32.101.10])
+	by jazzswing.ncsc.mil  with ESMTP id PAA21441
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 15:20:29 GMT
+Date: Wed, 25 Jul 2001 01:21:08 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Stephen Smalley <sds@tislabs.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] Apache configuration
+In-Reply-To: <Pine.SOL.3.95.1010723104715.3466L-100000@clipper.gw.tislabs.com>
+Message-ID: <Pine.LNX.4.31.0107250046470.26706-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Kerberos configuration?; running <- vmware; running afs < selinux
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 23 Jul 2001, Stephen Smalley wrote:
 
-1.
-I will be shortly sitting down to work out a kerberos_t domain
-to run under selinux. If anyone's already done or started this
-I'd be glad to know about it first! 
+>
+> On Sun, 22 Jul 2001, James Morris wrote:
+>
+> > I've been working on a simple policy configuration for the Apache server,
+> > a patch for which is attached below.
+>
+> A more complex policy configuration for apache has been developed
+> by some folks at MITRE, but your simple policy configuration may
+> be more appropriate if you only want to serve static content.  I've
+> adjusted the MITRE apache policy for our new LSM-based SELinux
+> prototype, and it will be included in releases of that prototype.
+> MITRE could probably provide a copy of the original apache policy
+> for the original SELinux prototype.
 
-2.
-I've been running under a dev-mode selinux kernel on real hardware
-as well as inside a vmware VM with good results so far.
+Hi Stephen,
 
-3.
-I'm afraid this one may be non-trival to solve. After getting a
-working AFS under the vanilla RH62 k2.2.19, I took a stab at 
-running under selinux.
+Thanks for looking at this, it was my first attempt at configuring Flask
+policy, so I'm quite relieved that you didn't seem to find any serious
+issues!
 
-That runs but does not work, at the time of starting the afs
-client. The expected "avc: denied {mounton} messages post, AFS
-prints a diagnostic indicating "Can't mount AFS on /afs".
+I initially considered a more detailed configuration including the ability
+to execute scripts, although it quickly became apparent that this could
+indeed become complex for a useful non-static implementation (e.g. one
+that would be able to run mod_perl, php scripts or java servlets, and
+other types of complex apache modules).
 
- (I haven't tried the server side yet, that will probably
-be a simpler matter).
+I'm now looking at thttpd as a possibly better choice of server for static
+files -- perhaps it may be useful to offer both a more fully featured
+Apache and a simpler thttpd.
 
-AFS patches the kernel with an insmod;  in the process of building
-the patch the build broke over #includes which reached into the flask
-header files, where in turn flask's .h's assumed a src build directory
-was in the -I directives. I worked-around by adding an appropriate
--I pointing to where I'd built the selinux kernel, simple enough, 
-however AFS is probably making some assumptions about the kernel
-that are no longer valid < selinux.
 
-I'm in the middle of trying to dig into the sources and figure out
-what's breaking, I'll post it here if I make any headway.
-
-forrest
-
+- James
 -- 
-Forrest Whitcher    Principal      FW Systems
+James Morris
+<jmorris@intercode.com.au>
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
