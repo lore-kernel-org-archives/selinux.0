@@ -1,49 +1,131 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA18430
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 20:57:06 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id AAA25406
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 00:55:45 GMT
-Received: from angusbay.vnl.com ([194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id AAA25402 for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 00:55:44 GMT
-Date: Wed, 5 Jun 2002 01:58:09 +0100
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: jw@centraltexasit.com, selinux@tycho.nsa.gov,
-        "Haigh, Tom" <tom_haigh@securecomputing.com>,
-        "'Admissions Office'" <admissions@internet.edu.nf>,
-        Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>,
-        linux-security-module@wirex.com
-Subject: Re: SELinux Dumb Questions
-Message-ID: <20020605005809.GS5394@vnl.com>
-References: <200205281111.39926.jw@centraltexasit.com> <20020603153940.937033C34@lyta.coker.com.au> <E17FLsN-00072J-00@pintail.mail.pas.earthlink.net> <20020604215946.DA32A748C@lyta.coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020604215946.DA32A748C@lyta.coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA18538
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 21:35:41 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id BAA09068
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 01:35:24 GMT
+Received: from www.cabledns.net (internet.edu.nf [64.42.232.109] (may be forged))
+	by jazzswing.ncsc.mil  with ESMTP id BAA09050
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 01:34:55 GMT
+Message-ID: <010001c20c31$1b799980$91c03b8e@OK>
+From: "Admissions Office" <admissions@internet.edu.nf>
+To: "McFadden, Ken" <ken.mcfadden@lmco.com>,
+        "'Russell Coker'" <russell@coker.com.au>, "JW" <jw@centraltexasit.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>
+Cc: "Haigh, Tom" <tom_haigh@securecomputing.com>,
+        "Carsten Grohmann" <carsten.grohmann@dr-baldeweg.de>
+References: <31A81CDD9175D411815100508BE32AA60142F388@emss02m13.ems.lmco.com>
+Subject: Re: Sorry, read this one: Re: SELinux Dumb Questions
+Date: Tue, 4 Jun 2002 19:34:16 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jun 04, 2002 at 11:59:46PM +0200, Russell Coker wrote:
-> > On Monday 03 June 2002 04:13 pm, Haigh, Tom wrote:
-> > > SELinux includes Type Enforcement technology developed and patented by
-> > > the Secure Computing Corporation, who still holds rights to all
-> > > commercial use of the technology.  Before a colo company, or anyone else
-> > > uses the technology commercially, it will be necessary to negotiate a
-> > > license with Secure Computing.  If anyone wants to do so, I can help get
-> > > the ball rolling with our Legal and BD folks.
-> 
-> PS  When does the patent expire?  If it's due to expire in 1 year or less we 
-> can just wait until it's gone...
-
-I agree with Russell. This really had better be clarified. I believe it
-is the intent of many on this list, myself included, to productize
-systems based on SELinux.
-
-It's either GPL or it ain't. Which is it? Do I drop my plans or continue?
-
-PS: For my purposes, the BSD license will do just as well.
+Ok but, lets not let emotions rule the day. The NSA has done us all a
+service and we them. So in the true spirit of the internet lets work this
+out.  Tom & I are playing phone tag but, we will speak.... And I bet we will
+have something to report back. No big deal !
+Really.
 
 
+----- Original Message -----
+From: "McFadden, Ken" <ken.mcfadden@lmco.com>
+To: "'Russell Coker'" <russell@coker.com.au>; "JW" <jw@centraltexasit.com>;
+"SE Linux" <selinux@tycho.nsa.gov>
+Cc: "Haigh, Tom" <tom_haigh@securecomputing.com>; "'Admissions Office'"
+<admissions@internet.edu.nf>; "Carsten Grohmann"
+<carsten.grohmann@dr-baldeweg.de>
+Sent: Tuesday, June 04, 2002 16:28
+Subject: RE: Sorry, read this one: Re: SELinux Dumb Questions
+
+
+> Once again, We are doing this for NSA and GNU NOT SECURE COMPUTING!!!!!!!
+> If Tom has a problem then they need to address it with the NSA and the
+> NSA can go forth and remove their crap or deem it as being GNU.....As I
+> see it SELinux will go on and if someone would like to use it then all
+> they would need to do is keep the original GNU licensing with it.....
+> Other words this is not our problem to work out but Tom's and
+NSA's........
+> Until then I would treat it as GNU per NSA's web page!!!!!!!
+>
+>
+>
+>
+> -----Original Message-----
+> From: Russell Coker [mailto:russell@coker.com.au]
+> Sent: Tuesday, June 04, 2002 4:12 PM
+> To: JW; SE Linux
+> Cc: Haigh, Tom; 'Admissions Office'; Carsten Grohmann
+> Subject: Re: Sorry, read this one: Re: SELinux Dumb Questions
+>
+>
+> On Tue, 4 Jun 2002 23:49, JW wrote:
+> > Sorry about that last empty message, I accidently hit ^[ENTER] when I
+> meant
+> > hit shift...
+>
+> You had written enough to clarify the issue (I don't know how I missed
+Tom's
+>
+> message the first time).
+>
+> > IANAL, but it is my understanding that you cannot restrict the use or
+> > distribution of GPLd Free Software. It simply does not work that way, no
+> > exceptions, no excuses. Once code is GPLd it is free for all to use. You
+> > can change the license on future versions of the code, but you cannot go
+> > back and restrict GPL's code "after the fact"
+>
+> Yes.  Unless of course they claim that they didn't GPL it, or that the GPL
+> only covers the code not the patent.
+>
+> > 2. It will need to be removed from Debian's tree -- at least moved to
+> > non-free, yet as I said before, if Secure Computing is correct, SE-Linux
+> is
+> > not legal to use with GPL'd software anyway (at least the way I see it).
+>
+> Stuff that.  I'm not putting this much work into non-free stuff!  If the
+> license gets changed to anything other than the GPL then I'll immediately
+> cease work and file critical bug reports against ftp.debian.org asking for
+> the packages to be removed.  If Secure Computing want me to work on
+material
+>
+> that's patented by them then they'll have to pay me at my usual consulting
+> rates, plus back-pay for the last 6 months.
+>
+> > You'd better bet that GNU and other people who's code is being modified
+to
+> > work with SE-Linux will have ten purple cows on anyone who mixes
+non-free
+> > code with their GPLd code.
+>
+> The code can be still released as patches, but the problems of having them
+> becoming obsolete and not matching the version your OS uses will remain.
+>
+> Basically I think that SE Linux is as good as dead for anything other than
+> research use if this patent gets enforced.
+>
+> --
+> I do not get viruses because I do not use MS software.
+> If you use Outlook then please do not put my email address in your
+> address-book so that WHEN you get a virus it won't use my address in the
+> >From field.
+>
+> --
+> You have received this message because you are subscribed to the selinux
+> list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+> --
+> You have received this message because you are subscribed to the selinux
+list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
 
 --
