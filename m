@@ -1,65 +1,51 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KFmtRb019996
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 11:48:56 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4KFkSB2005614
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 15:46:28 GMT
-Received: from fury.moregruel.net (fury.moregruel.net [64.62.190.193])
-	by jazzswing.ncsc.mil  with ESMTP id i4KFkRwi005609
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 15:46:28 GMT
-Date: Thu, 20 May 2004 10:48:49 -0500
-From: Steve Greenland <steveg@moregruel.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>,
-   193644@bugs.debian.org
-Subject: Re: Bug#193644: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=193644 (cron upstream patch)
-Message-ID: <20040520154849.GA14106@moregruel.net>
-Reply-To: Steve Greenland <steveg@moregruel.net>
-References: <20040519091454.GL7348@lkcl.net> <1084973453.30873.76.camel@moss-spartans.epoch.ncsc.mil> <20040519140239.GF4221@lkcl.net> <20040519181120.GA6115@moregruel.net> <20040519200057.GD24597@lkcl.net> <20040519215409.GA7459@moregruel.net> <1085054262.521.27.camel@moss-spartans.epoch.ncsc.mil> <20040520142212.GE8810@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040520142212.GE8810@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: RE: Policy compiler issues.
+Date: Thu, 20 May 2004 11:54:19 -0400
+Message-ID: <E7E29FA7C732D146887C784B34AEF6A0044E412B@xch-ne-01.ne.nos.boeing.com>
+From: "Bush, Daniel" <Daniel.Bush@boeing.com>
+To: "Stephen Smalley" <sds@epoch.ncsc.mil>
+Cc: "SELinux" <SELinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 20-May-04, 09:22 (CDT), Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote: 
->  therefore, whatever you specify under such circumstances (fname
->  == '*system*'), the uname argument is completely irrelevant.
->  it could, in fact, be NULL.
-> 
->  therefore, under such circumstances, whatever is specified in
->  uname there can be no objection about.
-> 
->  therefore, it is perfectly reasonable to do this, at both lines
->  179 and 220 or thereabouts:
-> 
->  process_crontab ("system_u", "*system*", ...)
+First and foremost: Thank you all for your help. I REALLY appreciate it. 
+That said:
 
-Bingo. 
+>>   I'm trying to deploy SELInux in an embedded environment. Footprint 
+>> space is tight, every kilobyte counts. The environment is also fairly 
+>> dynamic, the users list and assigned roles can change fairly rapidly.
+>
+>That seems like an odd combination - embedded but highly dynamic users and roles?  
+    Yes, it's an odd combination, but _is_ the case. 
 
->  now, it so happens that at line 250 or thereabouts, the
->  first and 2nd arg are identical (fname).
-> 
->  conclusion:
-> 
->  by doing process_crontab ("system_u", "*system*", ...) wherever
->  "*system*" is used, and by doing get_default_context(uname, ...)
->  inside process_crontab, the correct semantics are maintained.
+>How do you plan on distributing updates to the users list and user-role authorizations?
+   That's another part of the problem... We have a server/management mechanisim planned, but it's a Win2k environment (Yeah, yeah, I know. Wasn't my decision...) I figure we can deploy the compilers on a suitably modified CygWin, mount either the CygWin or the SELinux device as an NFS device on the other, and get the necessary functionality that way. We're still working on that.
+   As it stands the whole system needs to weigh in at less than about 64M with smaller being MUCH better (32M would be ideal.) So you can see, there's not much room for a full compiler/linker suite.
 
-Yes.
+>> Can a user be assigned a set of (non-default user) roles without 
+>> re-compiling the security system?
 
-Thanks for following this through. I'll look at the patch this weekend.
+>If you want the user to be recognized by SELinux as an individual user, then you need to >modify the policy (either directly patching the binary policy or modifying the source and >recompiling) and reload it.  There is already a user_u user that is a fallback for 
+>ordinary users who do not have a specific entry in the SELinux policy, so if you don't 
+>add the user to the SELinux policy, he will be mapped to user_u and limited to the roles >authorized for user_u. 
+    "user_u" isn't really the problem. The other, higher orders are. The specification calls for a couple of new user classes (I'm pretty sure I can institute those.) and those  classes have a forseeable need to have their membership lists changed in the field. If we need to re-compile the policy when that happens, this presents a problem.
 
-Hmmm. One Debian specific problem. libselinux1 is priority "optional",
-while cron is "important". I guess I need to talk to Colin Walters.
+> Direct manipulation of the binary policy is possible, and I expect that libraries and 
+>tools for doing so will become available; note the earlier work by Tresys on binary 
+>policy patching that was posted to this list, plus the posting re future work on loadable >binary policy modules. 
 
-Steve
+This sounds promising... Could you please direct me to the date range of the messages you're referring to?
+
+>>   Can SELinux be compiled under uClibc? 
+>I haven't tried.  What kind of problem are you encountering?
+   I just wanted to know if it was definitely known Impossible before I went any further. I've just made a couple of wild stabs at it, and it could be things in my environment that are mucking up the works. (It's definitely not ready for prime-time yet...) Since I seem to be cutting new trail here, I'll keep everybody posted on my progress. 
+
+-=Dan Bush
+"Peace through superior surrealism"
 
 
--- 
-Steve Greenland
-    The irony is that Bill Gates claims to be making a stable operating
-    system and Linus Torvalds claims to be trying to take over the
-    world.       -- seen on the net
 
 --
 This message was distributed to subscribers of the selinux mailing list.
