@@ -1,27 +1,30 @@
-Date: Wed, 24 Apr 2002 08:43:04 -0400 (EDT)
+Date: Wed, 24 Apr 2002 08:36:44 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Reino Wallin <reino@oribium.com>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: iptables err
-In-Reply-To: <1019631854.26933.12.camel@matilda.oribium.com>
-Message-ID: <Pine.GSO.4.33.0204240841390.17117-100000@raven>
+cc: "Westerman, Mark" <Mark.Westerman@csoconline.com>,
+        SELinux <SELinux@tycho.nsa.gov>
+Subject: RE: SELinux RPM Version
+In-Reply-To: <1019593521.4289.28.camel@matilda.oribium.com>
+Message-ID: <Pine.GSO.4.33.0204240834440.17117-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On 24 Apr 2002, Reino Wallin wrote:
+On 23 Apr 2002, Reino Wallin wrote:
 
-> When I am executing /etc/init.d/iptables stop, the following error message appears:
->
-> iptables: libiptc/libip4tc.c:384: do_check:
-> Assertion `h->info.valid_hooks == (1 << 0 | 1 << 3)' failed.
->
-> It works just fine with the standard RedHat kernel.
+> OK. Would then /usr/share/doc/selinux/examples/policy/firewall and
+> /usr/share/doc/selinux/examples/setfiles/firewall be correct paths for
+> the firewall policy and its file_contexts?
 
-You might need a newer version of iptables that corresponds with our base
-kernel version.
+The file contexts configuration has been moved under the policy directory,
+within a subdirectory named file_contexts, and the Makefile rules for the
+policy and relabeling have been merged into a single policy/Makefile.  The
+setfiles directory in the source tree now only contains the setfiles
+program sources along with a Makefile to build and install the
+setfiles program when SELinux is installed, and this step occurs prior to
+running 'make relabel' in the policy directory.
 
 --
 Stephen D. Smalley, NAI Labs
