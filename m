@@ -1,37 +1,78 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h67CdEHa012275
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2003 08:39:14 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h67CdDH5014196
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2003 12:39:13 GMT
-Received: from nox.lemuria.org ([213.191.86.35])
-        by jazzband.ncsc.mil  with ESMTP id h67CdCRX014186 for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2003 12:39:12 GMT
-Date: Mon, 7 Jul 2003 14:39:00 +0200
-From: Tom <tom@lemuria.org>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: rssh.{te,fc}
-Message-ID: <20030707143900.E22972@lemuria.org>
-References: <1057551740.1241.10.camel@columbia> <200307072014.38841.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200307072014.38841.russell@coker.com.au>; from russell@coker.com.au on Mon, Jul 07, 2003 at 08:14:38PM +1000
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Bill Laut <wlsel@verizon.net>
+To: SELinux@tycho.nsa.gov
+Subject: Newbie Q on "disappearing" boot dialog
+Date: Mon, 7 Jul 2003 12:32:49 -0400
+MIME-Version: 1.0
+Message-Id: <200307071232.49186.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jul 07, 2003 at 08:14:38PM +1000, Russell Coker wrote:
-> with a sub-set of that functionality (user.te is a mess anyway and really 
-> needs to be sorted out).
 
-I know I promised I would work on that. I'm in a
-damn-why-has-a-day-only-24-hours period again, but I'll come around to
-it eventually.
+I recently installed SELinux on my gateway/router, and as a novice I'm now 
+formulating some "baby-step" questions about SELinux.
+
+The first thing I'm noticing is that a majority of the boot dialog (such as 
+the kernel initialization messages) is no longer being recorded into 
+/var/log/messages.  For example, I traditionally would see:
+
+Jul  7 09:34:26 scanner kernel: klogd 1.4.1, log source = /proc/kmsg started.
+Jul  7 09:34:26 scanner kernel: Inspecting /boot/System.map-2.4.18
+Jul  7 09:34:26 scanner syslog: klogd startup succeeded
+Jul  7 09:34:26 scanner kernel: Loaded 20220 symbols from 
+/boot/System.map-2.4.18.
+Jul  7 09:34:26 scanner kernel: Symbols match kernel version 2.4.18.
+Jul  7 09:34:26 scanner kernel: Loaded 13 symbols from 1 module.
+Jul  7 09:34:26 scanner kernel: Linux version 2.4.18 (...)
+[...]
+Jul  7 09:34:26 scanner keytable: Loading keymap:  succeeded
+Jul  7 09:34:26 scanner kernel: On node 0 totalpages: 131068
+Jul  7 09:34:26 scanner kernel: zone(0): 4096 pages.
+Jul  7 09:34:26 scanner kernel: zone(1): 126972 pages.
+Jul  7 09:34:26 scanner kernel: zone(2): 0 pages.
+Jul  7 09:34:26 scanner kernel: Local APIC disabled by BIOS -- reenabling.
+Jul  7 09:34:26 scanner kernel: Found and enabled local APIC!
+Jul  7 09:34:26 scanner kernel: Kernel command line: ro root=/dev/hda9 
+hdc=ide-scsi
+Jul  7 09:34:26 scanner kernel: ide_setup: hdc=ide-scsi
+Jul  7 09:34:26 scanner kernel: Initializing CPU#0
+Jul  7 09:34:26 scanner kernel: Detected 1211.906 MHz processor.
+Jul  7 09:34:26 scanner kernel: Console: colour VGA+ 80x25
+Jul  7 09:34:26 scanner kernel: Calibrating delay loop... 2418.27 BogoMIPS
+
+etc., etc.  Instead, what is showing up under SELinux is:
+
+Jun 29 20:36:33 vortex syslogd 1.4.1: restart.
+Jun 29 20:36:33 vortex syslog: syslogd startup succeeded
+Jun 29 20:36:34 vortex syslog: klogd startup succeeded
+Jun 29 20:36:34 vortex kernel: klogd 1.4.1, log source = /proc/kmsg started.
+Jun 29 20:36:34 vortex kernel: Inspecting /boot/System.map-2.4.21-vortex
+       (Lots of startup messages missing between these two lines)
+Jun 29 20:36:31 vortex network: Bringing up interface eth1:  succeeded
+Jun 29 20:36:37 vortex keytable: Loading keymap:  succeeded
+Jun 29 20:36:38 vortex keytable: Loading system font:  succeeded
+Jun 29 20:36:40 vortex random: Initializing random number generator:  
+succeeded
+Jun 29 20:36:43 vortex autofs: automount startup succeeded
+Jun 29 20:36:45 vortex sshd: Starting sshd:
+Jun 29 20:36:46 vortex sshd:  succeeded
+Jun 29 20:36:47 vortex sshd:
+Jun 29 20:36:47 vortex rc: Starting sshd:  succeeded
+    (etc.)
+
+How do I get all of the startup messages to be logged again?  Is the default 
+kernel ring buffer too small?  (I haven't yet edited the policy to resolve 
+the "avc: denied" messages).  Or is there an SELinux parameter somewhere I 
+need to set? 
+
+Thank you in advance for your time to answer this query.
 
 
+Regards,
 
--- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+Bill Laut
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
