@@ -1,50 +1,53 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA09015
-	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 16:28:53 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA00225
-	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 21:27:30 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id VAA00211
-	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 21:27:28 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 3E31392443
-	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 08:28:48 +1100 (EST)
-Received: from there (lyta [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id CF3FE108F
-	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 22:28:40 +0100 (CET)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: strange failure
-Date: Fri, 22 Mar 2002 22:28:40 +0100
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11056
+	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 12:29:44 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA29979
+	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 17:28:41 GMT
+Received: from c001.snv.cp.net (c001-h000.c001.snv.cp.net [209.228.32.114])
+        by jazzband.ncsc.mil  with SMTP id RAA29975 for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 17:28:40 GMT
+From: "Leslie J. French" <ljf@semandex.net>
+To: <selinux@tycho.nsa.gov>
+Subject: RE: SMP mode?
+Date: Sat, 23 Mar 2002 12:30:06 -0500
+Message-ID: <BFEMIIHKHLALNELLMPOMMEMOCAAA.ljf@semandex.net>
 MIME-Version: 1.0
-Message-Id: <20020322212840.CF3FE108F@lyta.coker.com.au>
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <Pine.GSO.4.33.0203201538540.11981-100000@raven>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have the following in my policy:
-allow devfsd_t domain:dir_file_class_set getattr;
+On Wed, 20 Mar 2002, Leslie J. French wrote:
 
-But I get the following logged:
-Mar 22 22:26:22 test kernel: avc:  denied  { getattr } for  pid=394 
-exe=/sbin/devfsd path=/vc/2 dev=00:07 ino=20 
-scontext=system_u:system_r:devfsd_t 
-tcontext=root:object_r:sysadm_tty_device_t tclass=chr_file
+> I have =y on the following options (via modules/lsm-patch)
+>
+>  _PACKET _NETLINK _RTNETLINK _NETFILTER _UNIX _INET
+>  security: _CAPABILITIES _IP _SELINUX _SELINUX_DEVELOP
+>
+> the errors are occuring on a UDP socket, at random positions in a
+dataflow.
 
-What am I missing?
+To follow up on my own message -- the same code works perfectly on a
+single-processor board built with the "enterprise" kernel with the above
+security settings.
 
-I've tried this many times, read the macro expansion, reloaded the config and 
-restarted the daemon etc.  I'm pretty sure that I haven't made the obvious 
-mistakes of not saving the file or not loading the policy etc.
+Also, I can get the programs to run on the SMP if I slow them down, for
+example
+by adding print statements.  There is a point at which the operation is
+"marginal,"
+i.e. sometimes works sometimes doesn't, which is at around
+1-character-output-per-packet.
+More, and it runs, less and it fails.
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+I read somewhere that SeLinux will return EPERM if it thinks I'm trying a
+buffer overflow exploitation.  Is it possible that running the network at a
+very high rate on a dual-processor could confuse the kernel into thinking
+it's being attacked?  Is there any way I can check why the EPERM is being
+generated?
+
+Thx,  Leslie
+
 
 --
 You have received this message because you are subscribed to the selinux list.
