@@ -1,71 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA24209
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 08:19:11 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA10826
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 13:19:09 GMT
-Received: from angusbay.vnl.com ([194.46.8.33])
-	by jazzband.ncsc.mil  with ESMTP id NAA10822
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 13:19:07 GMT
-Date: Fri, 9 Feb 2001 13:19:50 +0000
-From: Dale Amon <amon@vnl.com>
-To: Dustin Reyes <crusader@linuxgames.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Crypto FS
-Message-ID: <20010209131949.O13451@vnl.com>
-References: <20010208155329.A1383@linuxgames.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20010208155329.A1383@linuxgames.com>; from crusader@linuxgames.com on Thu, Feb 08, 2001 at 03:53:29PM -0600
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA25167
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 10:15:56 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA20929
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 15:15:48 GMT
+Received: from arjun.eurolink.stpn.soft.net ([12.10.198.114])
+	by jazzswing.ncsc.mil  with ESMTP id PAA20917
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 15:15:39 GMT
+Reply-To: <Sankar.Karvannan@in.velocient.com>
+From: "Sankar Karvannan" <Sankar.Karvannan@in.velocient.com>
+To: <paul@bladestorm.com>, <selinux@tycho.nsa.gov>,
+        "Sandy Harris" <sandy@storm.ca>
+Subject: boot image file
+Date: Fri, 9 Feb 2001 20:55:07 +0530
+Message-ID: <NEBBKFHNKDKIOMFFNBADIEKOCJAA.Sankar.Karvannan@in.velocient.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <200102091018.AA709820754@bladestorm.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-On Thu, Feb 08, 2001 at 03:53:29PM -0600, Dustin Reyes wrote:
-> Re: Integrate existing publicly available file cryptography
-> with file mandatory controls 
-> 
-> Will the SE Linux team (NAI Labs, NSA, etc.) be conducting
-> an extensive security audit of current Linux disk encryption?
-> 
 
-I doubt they could step into that area. I also doubt they would
-want to take on the grief because no one would believe them
-anyway.
+Folks!
 
-> Finally, I'm not a professional coder or cryptologist, so this question
-> may be completely invalidated by encrypted filesystems are
-> already implemented... if so, I apologize in advance.
-> 
+Unfortunetely I maved the boot image file from /dev/hda1 to /dev/hdc1. Now I
+could not boot. I am not having image file on floppy?.
 
-The linux crypt tree is managed by a lot of very fine people
-spread all over the world and anyone who found a hole would
-gain instant fame in their esoteric coterie. If you were a 
-young math wizard, what better way to gain notoriety that to 
-find a backdoor in a popular cipher? I'd say that
-there are probably more people pounding on codes outside
-government circles now than the total of all the ones who
-were ever *inside*. Some people even think its fun. :-)
+How can I make the system active?.
 
-In any case, there are also standards like AES that are
-well trusted. And everyone knows you shouldn't trust DES
-for anything more serious than a teen love letter.
+thanks in advance
 
-In short, I think the people doing the hard work here
-should make sure they don't break the international
-patches, but it is perhaps not wise for them to step into
-quicksand.
+Sankar
 
-And I would in fact be happy to test the interoperability of
-the two sets of patches and report any problems. At the
-end of the day, its' my customers data that I need to 
-protect, and that means a full systemic approach.
-
--- 
-------------------------------------------------------
-Use Linux: A computer        Dale Amon, CEO/MD
-is a terrible thing          Village Networking Ltd
-to waste.                    Belfast, Northern Ireland
-------------------------------------------------------
 
 --
 You have received this message because you are subscribed to the selinux list.
