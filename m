@@ -1,45 +1,30 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>, Warren Lerner <wdl@zai.com>
-Subject: Re: AVC Messages
-Date: Mon, 17 Jun 2002 21:28:08 +0200
-Cc: <SELinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0206171445000.12900-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0206171445000.12900-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA27287
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 15:23:45 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA29053
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 19:22:21 GMT
+Received: from asgnet2.asg.sc.edu ([129.252.170.50])
+        by jazzband.ncsc.mil  with ESMTP id TAA29048 for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 19:22:20 GMT
+Subject: I think this is SCC patent if anyone is interested in reading it...
 MIME-Version: 1.0
-Message-Id: <20020617192808.5C8791665@lyta.coker.com.au>
+Content-Type: text/plain;
+	charset="us-ascii"
+Date: Mon, 17 Jun 2002 15:23:44 -0400
+Message-ID: <AE6FF3A533861C41A6571F1D7DDF6F61020465@asgnet2.asg.sc.edu>
+From: "Scott Shealy" <sshealy@asgnet.psc.sc.edu>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 17 Jun 2002 21:01, Stephen Smalley wrote:
-> > 2.  Can I write my own policy file from scratch and use only the
-> > functions necessary for my purpose?
->
-> Of course.  But writing a policy from scratch is nontrivial.  As with the
-> prior question, please read the aforementioned report.
 
-Writing a policy starting from the sample policy is not trivial either.  Even 
-starting from my sample policy (the NSA sample tree plus quite a number of 
-things I've written) it still takes a bit of work.
+Patent number 5864683
 
-I spent about 3 hours configuring the policy for the SE Debian machine at 
-LinuxTag.  3 hours for an expert to configure a shell server with hostile 
-users which is also a FTP server is not very good.
+Patent Link(sorry about the wrapping)
 
-Things are being improved though, my latest sample policy tree is much more 
-complete, and before OLS I aim to get all the features of the LinuxTag setup 
-in my standard default policy and submitted to Stephen.
-
-At that time a typical box with no unusual daemons could be setup by an 
-expert in 10 minutes, and by a novice in a few hours.
-
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO1&Sect2=HITOFF&d=PALL
+&p=1&u=/netahtml/srchnum.htm&r=1&f=G&l=50&s1='5864683'.WKU.&OS=PN/586468
+3&RS=PN/5864683
 
 --
 You have received this message because you are subscribed to the selinux list.
