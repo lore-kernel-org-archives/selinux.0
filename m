@@ -1,62 +1,71 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8N8jbsJ011563
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 04:45:37 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8NFDAsJ012973
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 11:13:10 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8N8hsd0006395
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 08:43:54 GMT
-Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h8N8hqVY006392
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 08:43:53 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 215A6BF3F
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 18:45:34 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
- id 13228-09 for <selinux@tycho.nsa.gov>;
- Tue, 23 Sep 2003 18:45:33 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 3DCDDC164
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 18:45:33 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id F2B80924D6
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 18:45:32 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id A02387F005
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 18:45:31 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: please delete kcheckpass.te
-Date: Tue, 23 Sep 2003 18:45:31 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200309231845.31131.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h8NFBLd0002053
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 15:11:21 GMT
+Received: from sisko.scot.redhat.com (82-41-8-61.cable.ubr02.edin.blueyonder.co.uk [82.41.8.61])
+	by jazzswing.ncsc.mil  with ESMTP id h8NFBLVY002050
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 15:11:21 GMT
+Subject: Re: setfiles performance patch
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <200309231522.25749.russell@coker.com.au>
+References: <200309231522.25749.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1064329967.3869.15.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+Date: 23 Sep 2003 16:12:48 +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Please delete the policy for kcheckpass.
+Hi,
 
-The problem with kcheckpass was that it is SUID root in Debian.  This is a bug 
-as it can run fine without being SUID, if kcheckpass is run from your UID 
-then the SUID helper program unix_chkpwd will be run (which has appropriate 
-policy support).  This is better than granting kcheckpass direct access to /
-etc/shadow as it means that we have less programs with access to the shadow 
-file so an attacker who wants to obtain a copy of it has less potential 
-targets.
+On Tue, 2003-09-23 at 06:22, Russell Coker wrote:
+> I have attached a patch for setfiles (from the new SE Linux) to improve the 
+> performance.  
+...
+> So I have reduced the CPU use by a factor of 4, which (in this instance) 
+> increases the overall speed by a factor of 3.
 
-Debian users should give kcheckpass mode 0755 (I have filed a Debian bug 
-report about this already).  Red Hat appears to not have this bug.
+Very nice. :-)
 
-Once kcheckpass is not run UID==0 then the pam_unix.so code will automatically 
-run unix_chkpwd.  Currently the pam_unix.so code will abort if it can't 
-read /etc/shadow and it's UID==0, I consider this a bug in pam.
+> The next thing I am thinking of is the possibility of having it fork off 
+> another two processes for disk IO.  Then one process could do all disk reads 
+> while another could do all disk writes.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Well, unless you're using fsync() after each operation, the writes
+should be asynchronous anyway.  But for reads, a separate reader may
+well improve things a lot.
+
+One really easy way to do that is to have a separate task which simply
+pulls stuff into the kernel cache.  You don't actually have to have
+two-way communications between the readahead task and the relabelling
+task: rather, just let the readahead task stat(2) the files in question
+so that the inodes are pulled into cache.  The parent relabelling task
+can then work without modifications.  
+
+That's much simpler than delegating the read to the child process
+entirely and passing the info back to the parent when needed, and should
+be as fast.  Even if the parent ends up stat()ing the file again, the
+dcache will mean that this is fast; and you avoid the overhead and
+complexity of adding a new communication channel between the readahead
+and relabelling tasks.
+
+If the relabeller walks the tree in a predictable order, then there may
+be no need to have _any_ communication between the relabel and readahead
+tasks.  That may need some tweaking, though: if you let the readahead
+get _too_ far ahead of the relabelling, then there's a chance that the
+readahead information gets chucked out of cache before the relabeller
+gets to it.  But it's really easy to add a simple form of throttling
+there: for example, just have the readahead task write a char to a pipe
+each time it reads something, and have the relabeller read a char when
+it is finished with an entry; that means the readahead won't get more
+than a pipe's width (4096 bytes by default) ahead.
+
+Cheers,
+ Stephen
 
 
 --
