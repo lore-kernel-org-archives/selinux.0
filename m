@@ -1,90 +1,47 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9HlbIi014297
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 12:47:37 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9HlcEj002254
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 17:47:39 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9HwPIi014390
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 12:58:25 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9HumPS010461
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 17:56:48 GMT
 Subject: Re: Single home directory type for all roles.
-From: Russell Coker <rcoker@redhat.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <rcoker@redhat.com>
 Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux list <selinux@tycho.nsa.gov>,
    Joshua Brindle <jbrindle@snu.edu>, Jim Carter <jwcart2@epoch.ncsc.mil>,
    Colin Walters <walters@redhat.com>, Nalin Dahyabhai <nalin@redhat.com>
-In-Reply-To: <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1102614445.4509.25.camel@aeon>
 References: <20041207000805.GH3678@jmh.mhn.de>
 	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
 	 <41B8826D.30105@redhat.com>
 	 <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil>
+	 <1102614445.4509.25.camel@aeon>
 Content-Type: text/plain
-Date: Fri, 10 Dec 2004 04:47:24 +1100
-Message-Id: <1102614445.4509.25.camel@aeon>
+Message-Id: <1102614805.32175.176.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Thu, 09 Dec 2004 12:53:26 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-12-09 at 12:20 -0500, Stephen Smalley wrote:
-> On Thu, 2004-12-09 at 11:50, Daniel J Walsh wrote:
-> > One problem I still have with RBAC though is the labeling of files based 
-> > on the role of the user.  IE (staff_home_t versus
-> > user_home_t).  I believe this causes many problems, without much benefit.
-> 
-> The benefit is providing separation among the roles.  If user_t can
-> write to staff_home_t, then the only thing preventing a user_t process
-> from injecting arbitrary commands into a staff user's .bashrc file or
-> otherwise corrupting a staff user's data or reading arbitrary files
-> created by the staff user is DAC.    
+On Thu, 2004-12-09 at 12:47, Russell Coker wrote:
+> However there still are issues because sysadm_t can read symlinks of
+> type user_tmp_t, so a user can attempt a symlink race condition attack
+> on the administrator.
 
-Yes.  This is how two SE Linux "play machines" have been demonstrated to
-be inadequately secured.  One of the two machines was demonstrated to be
-insecure by stealth and is believed to be the machine that caused
-spender to think that my machine had been cracked (can't be sure as
-spender doesn't answer questions).
+Yes, that should be removed IMHO.  Currently only occurs due to allow
+rule on sysadmfile:lnk_file.   
 
-> > 1.  Causes problems with sharing files between users,   IE a staff user 
-> > coping a file to tmp and then the user
-> > can't read it, because it has the wrong type. 
-> 
-> If you want to share files, you just need to define a file type that is
-> accessible to both domains and label the shared directory with it.  Then
+> Having a tunable to allow user roles to read each other's temporary
+> files would be much better than any other "solution" to this problem.
 
-Or just have them in the same role.
+No, having an explicit type for the purpose of sharing is preferable, so
+that the user has to explicitly indicate what he wants to share, either
+by relabeling or by copying into a shared directory that has that type.
 
-> users from both roles can create and modify content under that shared
-> directory without losing protection on their own data.  Note that
-> unifying the home directory type doesn't solve #1 for you, because cp
-> /home/user/foo /tmp/foo will create /tmp/foo in the default type, e.g.
-> staff_tmp_t; cp only preserves contexts when explicitly told to do so. 
-> And unifying the temporary types would again open a vulnerability
-> between the roles, classical insecure tmp file issues.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-However there still are issues because sysadm_t can read symlinks of
-type user_tmp_t, so a user can attempt a symlink race condition attack
-on the administrator.
-
-Having a tunable to allow user roles to read each other's temporary
-files would be much better than any other "solution" to this problem.
-
-> > 2.  Requirement that selinux-policy-strict-sources be installed and a 
-> > rebuild of policy in order to change the roles of a user.
-> 
-> You mean to update the file_contexts?  One could certainly build a tool
-> to apply selective modifications to an existing file_contexts
-> configuration without requiring the full sources.
-
-I think he's referring to the users file which is compiled into the
-policy.  But you've addressed that later in your message.
-
-
-I think that the real issue here is making a SE Linux system work for
-someone who doesn't want SE Linux.  We can make the targeted policy work
-for such people, but trying to make the strict policy work for them is
-not going to do any good, all it will result in is a less effective
-strict policy and such people still won't use it anyway!
-
-Last I heard Lindows had everything running as root.  Some people like
-having the minimum amount of security in return for a small amount of
-usability.  There's nothing that we can do in strict policy to make such
-people happy.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
