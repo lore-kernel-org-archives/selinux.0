@@ -1,228 +1,118 @@
 Subject: Re: Installation of policy source
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@tresys.com>
 Cc: Diyab <diyab@diyab.net>, SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <1063636005.13311.98.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1063639184.30627.38.camel@colossus.columbia.tresys.com>
 References: <1063388343.30627.9.camel@colossus.columbia.tresys.com>
 	 <1063388536.19531.185.camel@moss-spartans.epoch.ncsc.mil>
 	 <3F624B45.2050109@diyab.net>
 	 <1063636005.13311.98.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Message-Id: <1063639184.30627.38.camel@colossus.columbia.tresys.com>
+	 <1063639184.30627.38.camel@colossus.columbia.tresys.com>
+Content-Type: multipart/mixed; boundary="=-iY+bbzoDOyNqSVhoLbcx"
+Message-Id: <1063639604.13311.138.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 15 Sep 2003 11:19:45 -0400
+Date: 15 Sep 2003 11:26:45 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-09-15 at 10:26, Stephen Smalley wrote:
-> On Fri, 2003-09-12 at 18:40, Diyab wrote:
-> > That's fine if you use rpms but not everyone does.  I agree that the 
-> > install-src step should be mentioned in the documentation but I don't 
-> > see any reason it needs to be noted in the makefile.  Once you run 
-> > install-src you won't be doing it again after it's installed.
-> 
-> This patch includes both rpm-based and non-rpm-based instructions.
-> 
 
-I think it would be clearer if the tarball creation was explicitly
-mentioned. Below is a modified patch that does that. Other than that
-this certainly meets my initial goals.
+--=-iY+bbzoDOyNqSVhoLbcx
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Karl
+On Mon, 2003-09-15 at 11:19, Karl MacMillan wrote:
+> I think it would be clearer if the tarball creation was explicitly
+> mentioned. Below is a modified patch that does that. Other than that
+> this certainly meets my initial goals.
 
+The expectation was that people using the rpm-based approach had
+directly downloaded the individual tarballs from the NSA site, e.g. wget
+http://www.nsa.gov/selinux/archives/policy-1.1.tgz.  However, I suppose
+that this isn't a good assumption, as the patched SRPMS will have
+problems building unless you've installed libselinux via rpm, since
+rpm won't know about libselinux if you install it the old-fashioned way.
+
+Unless I'm missing something, your revised instructions won't work;
+rpmbuild will fail as it expects the tarball and directory name to
+include the version suffix.  I've attached a README patch relative to my
+prior one and a little script that can be used to build the tarballs in
+the desired form from the selinux-usr tree.
 
 -- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-(410)290-1411x134
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---- README.orig	2003-08-05 09:06:41.000000000 -0400
-+++ README	2003-09-15 11:12:55.125979720 -0400
-@@ -1,6 +1,6 @@
- CHANGES
- -------
--This is a new version of SELinux targeted for submission to mainline Linux.
-+This is a new version of SELinux that has been accepted into mainline Linux.
- It diverges from the old SELinux in several respects:
- 
- 1) The networking hooks that were rejected for 2.5 have been dropped.
-@@ -90,13 +90,14 @@
- old SELinux.  See PORTING for a discussion of how the policy has
- changed from the old SELinux.
- 
--6) patched libraries, daemons and utilities
-+6) patched daemons and utilities
- Several packages have been patched for SELinux.  The SELinux patches
- have been rewritten to use the libselinux interfaces (see PORTING).
- 
- There is a patch to glibc (glibc-secureexec.patch) to support secure
- transitions for role/domain changes, but this change has now been
- upstreamed (and is generalized for arbitrary Linux security modules).
-+Please verify that your glibc supports the AT_SECURE auxv entry.
- 
- Of the other SELinux patches, the most critical patches are the ones
- for login (util-linux-selinux.patch), sshd (openssh-selinux.patch),
-@@ -133,35 +134,63 @@
- 	Capabilities Support (CONFIG_SECURITY_CAPABILITIES)
- 	NSA SELinux Support (CONFIG_SECURITY_SELINUX)
- 	NSA SELinux Development Support (CONFIG_SECURITY_SELINUX_DEVELOP)
--
-+       NSA SELinux boot parameter (CONFIG_SECURITY_SELINUX_BOOTPARAM)
- 
- BUILDING AND INSTALLING
- ------------------------
--0) Obtain the libattr-devel and libattr packages and install them.
--These are required for building libselinux and applications that use
--libselinux functions that performs calls to the xattr API.  You may
--also want to obtain and install the attr package in order to use the
--getfattr and setfattr utilities to directly manipulate the attributes
--of individual files.
--
- 1) Configure, build and install the SELinux-patched kernel, and
- configure your boot manager so you can boot it.
--
--It is also recommended that you configure and build a separate kernel
-+       cd linux-2.6
-+       make menuconfig
-+       make 
-+       make modules_install
-+       make install
-+
-+If you do not enable the NSA SELinux boot parameter option
-+(CONFIG_SECURITY_SELINUX_BOOTPARAM) in your kernel configuration, then
-+it is also recommended that you configure and build a separate kernel
- that has the Ext[23] Security Labels options enabled but SELinux
- disabled for use as a maintenance kernel.  This maintenance kernel can
- be used to manipulate the file security labels without interference by
--the SELinux module to perform emergency recovery.  
-+the SELinux module to perform emergency recovery.  If you did enable
-+the NSA SELinux boot parameter option, then you can simply boot with
-+"selinux=0" to disable the SELinux module at boot time to perform
-+emergency recovery.
- 
- You may want to configure and build a 2.4+EA kernel if you still want
+--=-iY+bbzoDOyNqSVhoLbcx
+Content-Disposition: attachment; filename=README.patch2
+Content-Type: text/x-patch; name=README.patch2; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Index: selinux-doc/README
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/selinux-doc/README,v
+retrieving revision 1.5
+diff -u -r1.5 README
+--- selinux-doc/README	15 Sep 2003 14:07:51 -0000	1.5
++++ selinux-doc/README	15 Sep 2003 15:17:40 -0000
+@@ -161,6 +161,18 @@
  to boot 2.4 kernels on your system, as unmodified 2.4 kernels will not
  boot after you have assigned the SELinux EAs to the root filesystem.
  
++
++NOTE: If you downloaded the 'selinux-usr' archive, the 'build' script
++can be run to build and install the new SELinux packages via rpm so
++that the rpm database is properly updated and any other packages that
++depend on the new SELinux packages can be built with rpm.  This
++handles steps 2-5, although you will want to customize the policy as
++described in step 5 prior to building and installing it.
++	cd selinux-usr
++	su
++	./build
++
++
  2) Build and install the checkpolicy policy compiler.
-+       tar cfz checkpolicy.tgz checkpolicy
-+       rpmbuild -tb checkpolicy.tgz
-+       rpm -Uvh /usr/src/redhat/RPMS/i386/checkpolicy*.rpm
-+
-+       -or-
-+
-+       cd selinux-usr/checkpolicy
-+       make install
- 
- 3) Build and install libselinux.
-+       tar cfz libselinux.tgz libselinux
-+       rpmbuild -tb libselinux.tgz
-+       rpm -Uvh /usr/src/redhat/RPMS/i386/libselinux*.rpm
-+
-+       -or-
-+
-+       cd selinux-usr/libselinux
-+       make install
-+       /sbin/ldconfig
- 
- 4) Build and install the policy core utilities.
-+       tar cfz policycoreutils.tgz policycoreutils
-+       rpmbuild -tb policycoreutils.tgz
-+       rpm -Uvh /usr/src/redhat/RPMS/i386/policycoreutils*.rpm
-+
-+       -or-
-+       
-+       cd selinux-usr/policycoreutils
-+       make install
- 
- 5) Customize your policy configuration, and then build and install the policy.
- Customization of the policy includes:
-@@ -191,13 +220,33 @@
- configuration will be used in step 10 when you assign extended
- attributes to the filesystem.
- 
--6) Build and install the SELinux-patched libraries, daemons and utilities.
-+To build and install the policy:
-+       tar cfz policy.tgz policy
-+       rpmbuild -tb policy.tgz
-+       rpm -Uvh /usr/src/redhat/RPMS/noarch/policy-*.rpm
-+
-+       -or-
-+       
-+       cd selinux-usr/policy
-+       make install install-src                
-+
-+6) Build and install the SELinux-patched daemons and utilities.
- Note that the SELinux-patched utilities are now installed directly to
- their standard locations rather than under /usr/local/selinux.  If you 
- have a /usr/local/selinux directory from the old 2.4 SELinux, make sure 
- that you do not include /usr/local/selinux/{bin,sbin} in your path when 
- using the new SELinux, since the APIs are different.
- 
-+If you build from SRPMs, use the following command to build the binary RPMS:
-+       rpmbuild --define "WITH_SELINUX 1" --rebuild *.src.rpm
-+Then install the binary RPMs as usual.
-+
-+You will likely want a version of glibc that handles the AT_SECURE
-+auxv entry provided by the kernel so that domain transitions will
-+enable glibc secure mode.  Check your glibc to see if such support has
-+been added.  The change has been upstreamed and is available in
-+rawhide.
-+
- 7) Create an initrd with load_policy, the binary policy file, and a
- /linuxrc that will perform the initial policy load prior to mounting
- the root filesystem.  For example, you might modify your mkinitrd
-@@ -258,11 +307,16 @@
- System processes should have the system_u user identity and the
- system_r role.  Each system process with a different executable should
- have its own separate domain.  If some system processes are running in
--the initrc_t domain, then either we have not moved it into a separate
--domain yet or the pathname for the executable in
--policy/file_contexts/{types.fc,program/*.fc} is not correct.  You
--should either disable any system processes left in the initrc_t domain
--(if you do not need them) or define new domains for them.
-+the initrc_t domain, then there are several possible reasons:
-+- The .te file for the program wasn't moved up from the
-+policy/domains/program/unused directory before building the policy.
-+- The pathname for the program in its .fc file (in the
-+ policy/file_contexts/program directory) doesn't match your system.
-+- A domain has not yet been defined for the program in the example policy.
-+
-+You should either disable any system processes left in the initrc_t
-+domain (if you do not need them) or place them into a different
-+domain, possibly defining new domains if necessary.
- 
- Your user processes should have your user identity and the sysadm_r
- role.  Your shell and most of its children will have the sysadm_t
-@@ -306,9 +360,23 @@
- error in your policy configuration that renders your system
- unuseable).
- 
--15) If you subsequently reboot with a non-SELinux kernel, be sure to
--run setfiles again before booting SELinux to reset your file security
--contexts properly.
-+You may find the contributed policy/newrules.pl script useful in
-+generating additional 'allow' rules from the log messages for your
-+policy, but the generated rules should be carefully reviewed to ensure
-+that they are consistent with your security goals.  You may find it
-+desirable to define new domains and/or types rather than simply
-+granting the permission for an existing domain and/or type in order to
-+preserve existing security guarantees.  You may also find that certain
-+permission denials require other kinds of policy changes, e.g. changes
-+to the RBAC or constraints configurations.  You may also find that
-+certain permission denials are not fatal to the application and you
-+may not want to grant these permissions due to your security goals.
-+In that case, you may wish to simply suppress logging of the denial
-+via an 'dontaudit' rule.
-+
-+15) If you subsequently reboot with a non-SELinux kernel (or with
-+"selinux=0"), be sure to run setfiles again before booting SELinux to
-+reset your file security contexts properly.
- 
- 
- EXPERIMENTING WITH THE NEW API
+ 	rpmbuild -tb checkpolicy-*.tgz
+ 	rpm -Uvh /usr/src/redhat/RPMS/i386/checkpolicy*.rpm
 
+--=-iY+bbzoDOyNqSVhoLbcx
+Content-Disposition: attachment; filename=build
+Content-Type: text/x-sh; name=build; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+#!/bin/sh
+
+# Build and install the new SELinux packages via rpm from the selinux-usr
+# source tree.
+
+# Note that this only installs the _new_ packages that we provide,
+# not the SELinux-patched daemons and utilities or externally-produced
+# new packages like Tresys setools.  The patched packages can be built via
+# rpmbuild --define "WITH_SELINUX 1" --rebuild SRPMS/*.src.rpm, and
+# can then be installed via rpm in the usual manner.
+
+set -e
+
+for d in checkpolicy libselinux policycoreutils 
+do
+	ver=`cat $d/VERSION`
+	mv $d $d-$ver
+	tar czf $d-$ver.tgz $d-$ver
+	mv $d-$ver $d
+	rpmbuild -tb $d-$ver.tgz
+	rpm -Uvh --force /usr/src/redhat/RPMS/i386/$d*$ver*rpm
+done
+
+for d in policy selinux-doc
+do
+	ver=`cat $d/VERSION`
+	mv $d $d-$ver
+	tar czf $d-$ver.tgz $d-$ver
+	mv $d-$ver $d
+	rpmbuild -tb $d-$ver.tgz
+	rpm -Uvh --force /usr/src/redhat/RPMS/noarch/$d*$ver*rpm
+done
+
+--=-iY+bbzoDOyNqSVhoLbcx--
 
 
 --
