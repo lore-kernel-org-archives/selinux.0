@@ -1,48 +1,39 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA19746
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 11:26:06 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA19908
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 11:38:16 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA07555
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 15:26:02 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id PAA07551
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 15:26:02 GMT
-Date: Fri, 24 May 2002 11:25:55 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: signal permissions
-In-Reply-To: <20020523080857.BB39948E@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0205241124180.23057-100000@raven>
+	by jazzswing.ncsc.mil  with ESMTP id PAA08283
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 15:38:12 GMT
+Received: from mail.tresys.com (mail.tresys.com [66.22.20.205])
+	by jazzswing.ncsc.mil  with ESMTP id PAA08279
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 15:38:12 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "NSA Selinux Mailinglist" <selinux@tycho.nsa.gov>
+Subject: Proposal: install policy.conf
+Date: Fri, 24 May 2002 11:41:52 -0400
+Message-ID: <ACEHIKGIGFEDAIKEMMMIIENMKDAA.mayerf@tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Now that we've completed a version of seuser, and somewhat of a follow on to
+the comments in
+http://marc.theaimsgroup.com/?l=selinux&m=102192722227366&w=2, I have a
+specific proposal for operationally managing policies.
 
-On Thu, 23 May 2002, Russell Coker wrote:
+I suggest that policy.conf be installed in /etc/security as the "official
+installed" policy (rather than /ss_policy), that load_policy or equivalent
+commands effectively do a "checkpolicy -o /etc/security/policy.conf;
+install -m 644 -o root -g root policy /ss_policy; load_policy /ss_policy" as
+the only accepted means of installing a new policy.
 
-> Why is it possible to specify sigstop but not sigcont in the permissions?
-> Surely it would make sense to be able to control starting in the same way as
-> controlling stopping?  If you allow "signal" access to get the sigcont then
-> you are also allowing sigusr*, sigsegv, etc.
->
-> Also what about sighup?
+What we'd like to see is /etc/security/policy.conf treated as the definitive
+policy for a system, allowing all sorts of tools to change, create, or
+otherwise manage all or portions of the installed policy.
 
-Distinct permissions are provided for signals that cannot be caught or
-ignored (sigkill, sigstop), since they may have different security
-implications.  A distinct permission is also provided for sigchld, since it
-is commonly granted between a child and its parent without wanting to grant
-other signal permissions.
-
-It would be easy to provide a distinct permission for every signal, but it
-isn't clear that whether such distinctions would be worthwhile.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+Frank
 
 
 --
