@@ -1,124 +1,106 @@
-Message-ID: <005501c12758$95f6cf70$3a8314d1@nwlink.com>
-Reply-To: "Conan Callen" <ccallen@windowpane.com>
-From: "Conan Callen" <ccallen@windowpane.com>
-To: "John Scroggins" <dataefx@earthlink.net>
-Cc: <SELinux@tycho.nsa.gov>, "\"Christopher Mahmood\"" <ckm@suse.com>
-References: <3B7C7C69.E7B84C68@earthlink.net> <003f01c12746$e02faf60$3a8314d1@nwlink.com> <3B7D75C0.23A2B9C9@earthlink.net>
-Subject: Re: Partial TOC for Comment]
-Date: Fri, 17 Aug 2001 13:09:56 -0700
+Message-ID: <3B7D98DA.B4EA0C3C@earthlink.net>
+Date: Fri, 17 Aug 2001 15:21:14 -0700
+From: John Scroggins <dataefx@earthlink.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Conan Callen <ccallen@windowpane.com>
+CC: SELinux@tycho.nsa.gov, "\"\\\"Christopher Mahmood\\\"\"" <ckm@suse.com>
+Subject: Re: Partial TOC for Comment]
+References: <3B7C7C69.E7B84C68@earthlink.net> <003f01c12746$e02faf60$3a8314d1@nwlink.com> <3B7D75C0.23A2B9C9@earthlink.net> <005501c12758$95f6cf70$3a8314d1@nwlink.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-.. this is your chance to volunteer....  :)
-
-In the early 90's, I maintained a kornshell based installer for a unix
-product (cim21 by Industrial Systems, bought up by AspenTech). That was a
-while ago, but after I get my server up and running (and get SELinux
-installed :) It had two parts, one would pull all the required files out of
-the build tree and tar them up, and second part was the actual installer. I
-rember much of how it was written, I think the key was the configuration
-files. Once I get the fires under control I can play around with it.
-
-On a different topic (installing linux and immediatly getting cracked):
-An interesting note. As soon as I finished installing Linux lastnight, I
-noticed the hard drive start whirling like someone was there doing searches
-of my hard drive. This morning I got the same thing. I ran ps -aux and could
-see a process as root running a something like ls | awk ... looking for
-different things. I didnt take time to write it down, I just shut the
-machine down.
-
-It appears that as soon as I was done installing the system it was
-compromised. It made me think that there must be hundreds / thousands of
-people installing linux everyday and have the same thing happen and dont
-even realize it. Its like the machine puts out a message to the internet as
-soon as you turn it on "please, come hack me!"
-
-Im in the process of locking the machine down now. I stared by pulling the
-ethernet cable. Does SELinux help to make it tougher for the crackers to
-gain access like this? Know of any good webpages / books on how to get
-started (steps) on locking down a system, and creating scripts to monitor
-the system?
-
-Conan
-
------ Original Message -----
-From: "John Scroggins" <dataefx@earthlink.net>
-To: "Conan Callen" <ccallen@windowpane.com>
-Cc: <SELinux@tycho.nsa.gov>; "Christopher Mahmood" <ckm@suse.com>
-Sent: Friday, August 17, 2001 12:51 PM
-Subject: Re: Partial TOC for Comment]
-
-
-> > Conan Callen wrote:
-> >
-> > More on supported scenarios -
-> >
-> > As an example of the "Supported Scenario" idea is this:
->
-> hmm.. sounds interesting.. good idea, I'll add that as a heading
-> 9hopefully we will be able to fill it out ..;)
-> >
-> > The Redhat 7.1 Linux installer gives you the following choices:
-> > Workstation
-> > Server
-> > Laptop
-> > Custom System
->
-> I can leave a placeholder for laptops, but the primary focus will start
-> like this: servers --> workstations --> custom deployments
->
-> > It also allows you to choose your firewall settings.
-> > Of coursed, depending upon what you select, the installer will place
-> > different components onto your system. A list of supported scenarios
-> > would also helps to limit the scope of customer support. When
-> > contacting redhat for support, I would imagine that the first thing
-> > they ask you is which sku you selected.
->
-> This sounds close to a distro specific guide, e.g. SELinux for RedHat
-> 7.x Administrator Guide.. since the NSA has provided a source package, I
-> tend toward staying with a generic application. I would not want to box
-> some one into a distro descision.
->
->
-> > These represent what most people will be interested in over the next
-> > year or so. Supporting just this set would help to limit the scope of
-> > SELinux,
->
-> agreed ..
->
-> > and the amount of work that the dev's need to do. I dont know
-> > if there is an installer for SELinux (just finished the redhat install
-> > at last night) but if would be convienent if there was an install had
-> > a selection menu like the above list.
->
-> This is something I would like to do, but I am not skilled in this area
+Conan Callen wrote:
+> 
 > .. this is your chance to volunteer....  :)
->
->  Has anyone considered wraping
-> > selinux into an rpm package?
->
-> Due to the fact SELinux is supposed to be secure, I will not support
-> .rpm installation documeentation in the guide. :(
-> I am suggesting the package be built with installer which runs from a
-> shell (i.e., installSEL.sh)..I find no confidence in deploying a binary
-> type kernel package in a secure environ. Building from source is not an
-> option, at least in my mind.. I could be wrong .... let me know
->
-> -- Cheers
->
-> --JS
->
-> >
-> > Transactions on Software Engineering (Dec 1998, V24, N12) This is a
-> > special issue on the topic of using scenarios to determine
-> > requirements.
-> >
-> > Conan
->
+> 
+> In the early 90's, I maintained a kornshell based installer for a unix
+> product (cim21 by Industrial Systems, bought up by AspenTech). That was a
+> while ago, but after I get my server up and running (and get SELinux
+> installed :) It had two parts, one would pull all the required files out of
+> the build tree and tar them up, and second part was the actual installer. I
+> rember much of how it was written, I think the key was the configuration
+> files. Once I get the fires under control I can play around with it.
 
+Sounds like a plan ... when you are ready to start on something like
+that we will need to talk to Chris M. also 
+> 
+> On a different topic (installing linux and immediatly getting cracked):
+> An interesting note. As soon as I finished installing Linux lastnight, I
+> noticed the hard drive start whirling like someone was there doing searches
+> of my hard drive. This morning I got the same thing. I ran ps -aux and could
+> see a process as root running a something like ls | awk ... looking for
+> different things. I didnt take time to write it down, I just shut the
+> machine down.
+
+Next time let it run till you find the suspect process and identify its
+function (you can minimize the affect by disconnecting the ethernet
+cable instead of shutting down the machine..) 
+> 
+> It appears that as soon as I was done installing the system it was
+> compromised. It made me think that there must be hundreds / thousands of
+> people installing linux everyday and have the same thing happen and dont
+> even realize it. Its like the machine puts out a message to the internet as
+> soon as you turn it on "please, come hack me!"
+
+Its unfortunate, but the 'net is being scanned constantly, most of the
+time with automated tools. That is why it is essential to follow
+specific protocols when setting up secure installations. I have had it
+happen to me -- a few years ago ;) 
+> 
+> Im in the process of locking the machine down now. I stared by pulling the
+> ethernet cable. Does SELinux help to make it tougher for the crackers to
+> gain access like this? Know of any good webpages / books on how to get
+> started (steps) on locking down a system, and creating scripts to monitor
+> the system?
+
+Without knowledge of "how" your box was _rooted_ , I will make a broad
+brush statement: 
+
+The flask architecture should significantly hinder processes that may be
+exploited. Processes like httpd, ftpd, vixie-cron, and other other
+vulnerable processes can be segregated into different domain/roles, and
+if attacked and exploited, they will have to check with the kernel
+subsystem (security server), which limits their system interaction based
+on the policy configuration. 
+
+You might want to check out http://www.rootprompt.org ,
+http://www.sans.org and http://www.cert.org  (also try
+www.ciac.llnl.gov)
+
+Tip:
+
+1) never install your system on the wire (hooked up), unless it is an
+ftp/nfs install. 
+2) after you install, run tripwire or some other file integrity checking
+program. Or you can issue this command 
+#/  touch chk.log 
+#/ rpm -Va >  chk.log 
+to let you know which packages were installed.
+
+3) run 
+#/ netstat -na |less 
+
+and verify open ports 21-ftp 22-ssh 23-telnet 25-smtp 111 - 113-  
+
+4) edit your /etc/inetd.conf (I think redhat uses a file called
+/etc/services) file to limit services running and open ports.
+
+5) install and configure  "portsentry"
+
+6) install logcheck (or logwatch, whichever you prefer-)
+
+7) setup a firewall (on a separate box) and run ipchains with Seattle
+Firewall or pmFirewall or whatever you like 
+
+8) plug it in and watch your logs ...  
+
+Cheers.. 
+
+--JS      
+ 
+> Conan
+>
 
 --
 You have received this message because you are subscribed to the selinux list.
