@@ -1,65 +1,111 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RLc6rT005948
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 17:38:06 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6RLbamJ014923
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 21:37:36 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 27 Jul 2004 21:38:05 -0000
-Date: Tue, 27 Jul 2004 22:49:11 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: [idea] multiple contexts.
-Message-ID: <20040727214911.GA23371@lkcl.net>
-References: <20040724231154.GE3437@lkcl.net> <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil> <20040727160605.GG3392@lkcl.net> <200407271940.i6RJebSp032388@turing-police.cc.vt.edu> <20040727212836.GA21236@lkcl.net> <200407272123.i6RLNcp9016219@turing-police.cc.vt.edu>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RMaErT006226
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 18:36:15 -0400 (EDT)
+Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6RMaDup021659
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 22:36:13 GMT
+Received: from localhost (shorty@debby [127.0.0.1])
+	by localhost.localdomain (8.12.11/8.12.11/Debian-5) with ESMTP id i6RMaDNN025079
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 00:36:14 +0200
+Subject: SeLinux packages compiled smoothly on ppc (after some help ..)
+From: Wolfgang Pfeiffer <roto@gmx.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1090967773.7271.2017.camel@debby>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200407272123.i6RLNcp9016219@turing-police.cc.vt.edu>
+Date: Wed, 28 Jul 2004 00:36:13 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jul 27, 2004 at 05:23:38PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 27 Jul 2004 22:28:36 BST, Luke Kenneth Casson Leighton said:
-> 
-> >  yes, sort-of: more that i only wish to limit what programs a user
-> >  can run (and what programs _those_ programs can run).
-> > 
-> >  in particular, i want to stop people from being able to use the
-> >  "Run" capability of Konqueror, etc.  STOP, not have the popup coming
-> >  up with "are you sure you want to run this program?".
-> 
-> Do these users have anything resembling shell access? If they can get an xterm
-> or an editor open, they can run the program *anyhow*....
- 
- no, xterm will not be on the list of programs they can run :)
+Hi all
 
- when i say it'll be a list of programs that they can run i MEAN
- if it ain't on the list it ain't gonna run.
+With the patches/packages from (IIRC :)
+http://www.coker.com.au/newselinux/
+it's possible to build these binaries on ppc (on Debian/unstable and a
+Powerbook G4):
 
- i.e. it's mandatory access control, 
+cron_3.0pl1-83.se1_powerpc.deb
+dpkg-dev_1.10.22_all.deb
+dpkg-doc_1.10.22_all.deb
+dpkg_1.10.22_powerpc.deb
+dselect_1.10.22_powerpc.deb
+logrotate_3.7-2.se1_powerpc.deb
+libpam-cracklib_0.77-0.se5_powerpc.deb
+libpam-doc_0.77-0.se5_all.deb
+libpam-modules_0.77-0.se5_powerpc.deb
+libpam-runtime_0.77-0.se5_all.deb
+libpam0g-dev_0.77-0.se5_powerpc.deb
+libpam0g_0.77-0.se5_powerpc.deb
+openssh-client-udeb_3.8.1p1-7_powerpc.udeb
+openssh-server-udeb_3.8.1p1-7_powerpc.udeb
+ssh-askpass-gnome_3.8.1p1-7_powerpc.deb
+ssh_3.8.1p1-7_powerpc.deb
+initscripts_2.85-22.se2_powerpc.deb
+sysv-rc_2.85-22.se2_all.deb
+sysvinit_2.85-22.se2_powerpc.deb
 
-> Probably easier to do the kdeuser group and start chgrp'ing, than to try to fight THAT
-> war.
-> 
-> Or see how hard it would be to create a patch to Konqueror to disable the
-> button, and see if you can push it upstream...
 
- there are more places, there are more programs.
+FYI:
+Not all of them built with the same compiler, provided I didn't make any
+other mistake. 
+For example:
 
- other programs, such as ksmoothdock, such as Basket, such as kxdocker,
- such as KMenu being edited and people manually putting programs onto
- their menus.
+fakeroot apt-get source --compile dpkg=1.10.22-se1
 
- all of these things i just don't wanna know about _how_ they are run:
- if they ain't on the list, splat.
+works not with 2.95, but with 3.4.
+The build with 2.95 ended with:
+______________________________________
+checking for initscr in -lncurses... yes
+checking if TIOCNOTTY is defined in sys/ioctl.h... yes
+checking for va_copy... no
+checking for va_list assignment copy... configure: error: no
+make: *** [/home/shorty/testone/dpkg-1.10.22/build/configure-stamp] Error 1
+Build command 'cd dpkg-1.10.22 && dpkg-buildpackage -b -uc' failed.
+E: Child process failed
+______________________________________
 
- make a user a member of kdeusers + chgrp-to-kdeusers + 0660 on all
- exes in the "allowed list" is my "fallback" position.
 
- i'd just rather it wasn't the only position.
 
- l.
+And this:
+I patched the openssh sources only with the openssh-selinux.patch.gz
+and *not* with the 
+ssh.diff.gz
+that can be found in the same directory on
+http://www.coker.com.au/newselinux/
+
+Like that:
+---------------------------------
+apt-get source openssh
+cd openssh-3.8.1p1/
+cp ../../openssh-selinux.patch.gz .
+
+$ gzip -cd openssh-selinux.patch.gz | patch -p1
+patching file contrib/redhat/sshd.init
+patching file configure.ac
+Hunk #2 succeeded at 2924 (offset -2 lines).
+patching file sshpty.c
+patching file config.h.in
+patching file Makefile.in
+patching file session.c
+$
+
+fakeroot debian/rules binary
+
+-----------------------------------------
+
+I hope the latter procedure is OK ....
+
+And please let me know in case someone would like to upload ppc packages
+like the ones above. With detailed guidance on how exactly to build them
+I'd enjoy to help here, and make them available for others, too ...
+
+Best Regards
+And Thanks for your work ..
+
+Wolfgang
+-- 
+Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
