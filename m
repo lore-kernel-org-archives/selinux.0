@@ -1,55 +1,59 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA11747
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jan 2003 18:05:04 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA12108
+	for <selinux@tycho.nsa.gov>; Sun, 26 Jan 2003 19:56:51 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id XAA20918
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jan 2003 23:02:10 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id XAA20914
-	for <selinux@tycho.nsa.gov>; Sun, 26 Jan 2003 23:02:09 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 66A0492666
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jan 2003 10:05:00 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id A60003659
-	for <selinux@tycho.nsa.gov>; Mon, 27 Jan 2003 00:04:52 +0100 (CET)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: propolice and other stack-smashing protections
-Date: Mon, 27 Jan 2003 00:04:51 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200301270004.51912.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id AAA24005
+	for <selinux@tycho.nsa.gov>; Mon, 27 Jan 2003 00:53:57 GMT
+Received: from mail.unthought.net (unthought.net [212.97.129.24])
+	by jazzswing.ncsc.mil  with ESMTP id AAA24001
+	for <selinux@tycho.nsa.gov>; Mon, 27 Jan 2003 00:53:56 GMT
+Date: Mon, 27 Jan 2003 01:56:30 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov, Don Marti <dmarti@zgp.org>
+Subject: Re: box is back
+Message-ID: <20030127005630.GA14156@unthought.net>
+References: <200301211359.35581.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <200301211359.35581.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://www.trl.ibm.com/projects/security/ssp/
-Is anyone using stack-protection mechanisms such as propolice (URL above) in 
-conjunction with SE Linux?
+On Tue, Jan 21, 2003 at 01:59:35PM +0100, Russell Coker wrote:
+> I have a new SE Linux play machine online.
+> ssh -p 222 root@adsl.coker.com.au
+> Password "1234"
+> 
 
-Propolice should work as well with SE Linux as it does with any other code of 
-course.  But it will be interesting to know whether it is actually being 
-used.
+Hello Russel,
 
-Also I would be interested in a comment from one of the NSA people regarding 
-the worth of stack-protection tools on SE Linux.  The issues of course are 
-that "defence in depth" is always a good thing, and that SE Linux controls 
-the access of programs so much that the need for such tools is vastly 
-reduced.  I am not expecting a clear yes/no answer.  ;)
+And thanks for putting the box up, for us newbies to toy with  ;)
 
-Another issue is that I recall that one of the stack smashing routines was 
-based on the process sending a "kill -9" to itself.  If such things are 
-common then we should consider auditing the sample policy to ensure that 
-every process is able to "kill -9" itself.
+Two (minor, allright) things that caught my attention;
+1) One can see dmesg, when in the user_r role. This means, I can see
+   what everyone else tried and did - which may (?) in turn reveil
+   information about which files exist in places I'm not supposed to
+   know about.
+2) One can see all PIDs in /proc
+   Yes, it's not possible to look further than that - but it still gives
+   valuable information (such as, how much logging is this box likely to
+   run - by looking at which low-numbered PIDs exist).  It's a fairly
+   high bandwidth covert channel as well, but I guess that's not really
+   a concern for the moment  ;)
+
+I don't know if any of this is a concern - I think the dmesg one is the
+serious one (if I'm not completely mistaken about it).
+
+Anyways, Cheers!, and thanks again,
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:
 
 --
 This message was distributed to subscribers of the selinux mailing list.
