@@ -1,55 +1,54 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4IJoKRb004818
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 15:50:21 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4IJltB2020380
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 19:47:55 GMT
-Received: from smtp801.mail.ukl.yahoo.com (smtp801.mail.ukl.yahoo.com [217.12.12.138])
-	by jazzswing.ncsc.mil  with SMTP id i4IJlswi020374
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 19:47:55 GMT
-Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
-  by smtp801.mail.ukl.yahoo.com with SMTP; 18 May 2004 19:15:14 -0000
-Date: Tue, 18 May 2004 19:12:38 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: list of permissions created by allow2audit: what do i do now?
-Message-ID: <20040518191238.GO24917@lkcl.net>
-References: <20040518104026.GC24333@lkcl.net> <1084884047.28966.59.camel@moss-spartans.epoch.ncsc.mil> <20040518130244.GB24917@lkcl.net> <200405181625.i4IGPpIa012129@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200405181625.i4IGPpIa012129@turing-police.cc.vt.edu>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4IJrxRb004858
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 15:53:59 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4IJrvAR019024
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 19:53:57 GMT
+Received: from smtp.sws.net.au ([61.95.69.6])
+        by jazzband.ncsc.mil  with ESMTP id i4IJrtHn018907 for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 19:53:56 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: suggestion to help transition to selinux: dynamic loading of libselinux
+Date: Wed, 19 May 2004 05:52:43 +1000
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, selinux@tycho.nsa.gov
+References: <20040515232606.GA9378@lkcl.net> <1084898046.28966.100.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1084898046.28966.100.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200405190552.43316.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, May 18, 2004 at 12:25:51PM -0400, Valdis.Kletnieks@vt.edu wrote:
+On Wed, 19 May 2004 02:34, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> Interestingly, this issue just came up on the userlinux mailing list;
+> someone noticed that upon doing an apt-get update, they pulled in
+> libselinux1.  After a bit of investigation, they found that this was due
+> to updating gdm, because the SELinux patch for gdm is already
+> upstreamed.
 
-> On Tue, 18 May 2004 13:02:44 -0000, Luke Kenneth Casson Leighton said:
-> 
-> >  given the number of errors i am seeing, and given that they won't
-> >  go away, perhaps there is some breakdown in communication between
-> >  the rules being in the policy.conf file and their application to
-> >  packages.
-> > 
-> >  for example, should i be doing a make relabel every time i add
-> >  some new rules?
-> 
-> If you add new *rules* (allow foo_t bar_t...), you need to do a 'make reload'
-> to get the new policy in place.
-> 
-> If you add new file contexts, that requires a 'make relabel'.
-> 
-> Remember :  *.te changes -> make reload;  *.fc changes -> make relabel.
- 
- ta.
+I don't think that is a problem.  If you have gdm installed then you have lots 
+of other libraries dragged in by gdm itself and by all the other GNOME 
+components.  libselinux should be lost in the noise.
 
-> (If you're clever, you'll invoke setfiles by hand so you only relabel the
-> file system(s) you need to - if all the stuff you need is on /usr, you don't
-> need to redo all the other file systems...)
+Using dlopen for SE Linux alone is not worth-while for gdm (IMHO) unless we 
+find a more generic use for the mechanism (IE supporting things other than SE 
+Linux).
 
-i'd noticed the technique employed by /etc/dpkg/postinst.d/selinux.
+> Note of caution:  Some people still build /sbin/init statically, I
+> think, and we don't want to prevent people from doing so just for
+> SELinux.  The current patches allow for that; if we rewrite them to use
+> dlopen, won't that be a problem?
 
+To support that we would want to have #ifdef STATIC_BUILD or something 
+similar.  That should not be hard to do.
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
