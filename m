@@ -1,67 +1,74 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j233IBDo013504
-	for <selinux@tycho.nsa.gov>; Wed, 2 Mar 2005 22:18:11 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j233C1YA011443
-	for <selinux@tycho.nsa.gov>; Thu, 3 Mar 2005 03:12:01 GMT
-Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j233EPTI022602
-	for <selinux@tycho.nsa.gov>; Wed, 2 Mar 2005 22:14:26 -0500 (EST)
-Subject: x_client_domain: reducing privileges - suspect rules
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Wed, 02 Mar 2005 22:17:56 -0500
-Message-Id: <1109819880.17743.8.camel@cobra.ivg2.net>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j23JtiDo018192
+	for <selinux@tycho.nsa.gov>; Thu, 3 Mar 2005 14:55:44 -0500 (EST)
+Received: from turing-police.cirt.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j23JppSm000942
+	for <selinux@tycho.nsa.gov>; Thu, 3 Mar 2005 19:51:51 GMT
+Message-Id: <200503031951.j23JpeQQ006501@turing-police.cc.vt.edu>
+To: Michael Halcrow <mike@halcrow.us>
+Cc: Serge Hallyn <serge.hallyn@gmail.com>, selinux@tycho.nsa.gov,
+   todd glassey <todd.glassey@worldnet.att.net>
+Subject: Re: Fwd: Compromise of SHA1 and SElinux 
+In-Reply-To: Your message of "Thu, 03 Mar 2005 08:40:09 CST."
+             <20050303144008.GA25681@halcrow.us>
+From: Valdis.Kletnieks@vt.edu
+References: <1109400342.4581.25.camel@cobra.ivg2.net> <20050227104528.GC28871@lkcl.net> <00d501c51cf1$651072c0$010aff0a@gw> <200502272139.j1RLdo28027659@turing-police.cc.vt.edu> <46ce702f05030305344dbdc83a@mail.gmail.com>
+            <20050303144008.GA25681@halcrow.us>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1109879500_5032P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Thu, 03 Mar 2005 14:51:40 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Which of those rules (taken from x_client_domain) has to do
-_specifically_ with connecting to the X server, and which is there for
-no good reason and should be removed? I have a hard time believing
-_all_ of this is absolutely necessary. I can remove rules and test
-if things break if you're not sure. The idea is to decouple
-"general-domain" style functionality from the things necessary to
-connect to X, which I think should be the theme for this domain/macro.
+--==_Exmh_1109879500_5032P
+Content-Type: text/plain; charset=us-ascii
 
-I see a lot of overlap with general_domain_access, but a lot is
-different too. 
+On Thu, 03 Mar 2005 08:40:09 CST, Michael Halcrow said:
 
-# This domain is granted permissions common to most domains (including
-can_net)
-can_network($1_$2_t)
-can_ypbind($1_$2_t)
-allow $1_$2_t self:process { fork signal_perms getsched };
-allow $1_$2_t self:unix_dgram_socket create_socket_perms;
-allow $1_$2_t self:unix_stream_socket { connectto
-create_stream_socket_perms };
-allow $1_$2_t self:fifo_file rw_file_perms;
-allow $1_$2_t etc_runtime_t:file { getattr read };
-allow $1_$2_t etc_t:lnk_file read;
-allow $1_$2_t fs_t:filesystem getattr;
-access_terminal($1_$2_t, $1)
-read_locale($1_$2_t)
-r_dir_file($1_$2_t, readable_t)
-allow $1_$2_t proc_t:dir search;
-allow $1_$2_t proc_t:lnk_file read;
-allow $1_$2_t self:dir search;
-allow $1_$2_t self:lnk_file read;
-read_sysctl($1_$2_t)
+> > From: Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu>
 
-# allow using shared libraries and running programs
-uses_shlib($1_$2_t)
-allow $1_$2_t { bin_t sbin_t }:dir search;
-allow $1_$2_t bin_t:lnk_file read;
-can_exec($1_$2_t, { shell_exec_t bin_t })
-allow $1_$2_t etc_t:file { getattr read };
+> > Now the guys who wrote the BSD Seclevel LSM *do* need to look at
+> > upgrading, as that beast *does* use SHA1 for something.
+> 
+> The BSD Secure Levels module can accept a SHA1-hash of a passphrase
+> when it initializes.  It then hashes a plaintext passphrase that is
+> later passed in to produce a SHA1 hash, which is compared against the
+> SHA1 hash originally sent to the module; a match reduces the secure
+> level.
+
+> From what I have read, this attack's scope is:  Given m, you can find
+> m' in 2^69 operations, such that H{m} = H{m'}.
+
+> If an attacker is ``given m'' in the first place, well, you're already
+> screwed.  I do not see how this attack could apply to BSD Secure
+> Levels.
+
+OK... I'll consider it "looked at".. ;)  In some applications, the "given m"
+is accessible to the attacker (for instance, in a digital signature on a file).
+If inside seclvl (and any userspace helpers) the original SHA1 hash is never
+anyplace an attacker has access to without it being "game over" anyhow(*), then
+there's no real issue. I didn't feel qualified to trace the dataflow through,
+figured I'd leave that to somebody who understood it better...
+
+(*) Sometimes it's shoot-self-in-foot time - I've seen more than one box where the
+admin set a Grub password that used MD5 - but /boot/grub/grub.conf was mode 644,
+and the password was easily brute-forced.... ;)
 
 
--- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+--==_Exmh_1109879500_5032P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCJ2rLcC3lWbTT17ARAphyAKCEI5+5LF37SNIUhuov9cP4jeq8zACgq8ef
+4zErZPnOFSUR977Hif8CSfI=
+=XAfY
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1109879500_5032P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
