@@ -1,67 +1,80 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAL65DRb027393
-	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2003 01:05:13 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hAL64fp5026365
-	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2003 06:04:41 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id hAL64dt0026362
-	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2003 06:04:40 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hALEZCRb028798
+	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2003 09:35:12 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hALEZBqY015181
+	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2003 14:35:12 GMT
+Received: from southwark.dsl.net (southwark.dsl.net [65.84.81.9])
+        by jazzband.ncsc.mil  with ESMTP id hALEZB0o015178 for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2003 14:35:11 GMT
+Reply-To: <don.patterson@tresys.com>
+From: "Don Patterson" <don.patterson@tresys.com>
 To: <ZVPA2@imail.etsu.edu>
-Subject: Re: Kernel panic: No init found with SE patched kernel 2.6.0-test6
-Date: Fri, 21 Nov 2003 17:04:56 +1100
-Cc: selinux <selinux@tycho.nsa.gov>
-References: <200311202137.AA25034968@imail.etsu.edu>
-In-Reply-To: <200311202137.AA25034968@imail.etsu.edu>
+Cc: "'selinux'" <selinux@tycho.nsa.gov>
+Subject: RE: Kernel panic: No init found with SE patched kernel 2.6.0-test6
+Date: Fri, 21 Nov 2003 09:35:09 -0500
+Message-ID: <000b01c3b03c$aaffc100$5100a8c0@columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311211704.56652.russell@coker.com.au>
+	charset="us-ascii"
+In-Reply-To: <200311202137.AA25034968@imail.etsu.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 21 Nov 2003 13:37, "Achanta, Venkata Phani" <ZVPA2@imail.etsu.edu> 
-wrote:
-> VFS:Mounted root(ext2 filesystem)
+Just a guess, but if your root partition is ext3, your kernel may not be
+configured with BUILT-IN ext3 support. This is one of the problems I
+encountered while installing SE Linux on Redhat 9. You can also refer to the
+mailing archives for further information.
+(http://marc.theaimsgroup.com/?l=selinux&m=106695360807833&w=2)
 
-Here we have mounted the initrc (ext2 is the Red Hat default file system for 
-the initrd).
+--Don
 
-> Red hat nash version 3.4.42 starting
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
+Behalf Of Achanta, Venkata Phani
+Sent: Thursday, November 20, 2003 9:38 PM
+To: russell@coker.com.au
+Cc: selinux
+Subject: Kernel panic: No init found with SE patched kernel 2.6.0-test6
 
-Here we are running code from the initrd, nash is a small shell that's good 
-for an initrd.
 
-> Mounting /proc filesystem
-> creating block devices
-> creating root device
-> Mounting root file system
-> mount: error 19 mounting ext3
+hi everybody,
 
-Here we are trying to mount root and failing.  The return code 19 means the 
-following (see the mount man page):
-       1      incorrect invocation or permissions
-       2      system error (out of memory, cannot fork, no more loop devices)
-       16     problems writing or locking /etc/mtab
+I have applied SELinux patch against kernel 2.6.0-test6 and i get the
+following error when i boot the new kernel.
 
-Missing /etc/mtab is no big deal for an initrd.  Errors 2 and 1 are more 
-serious and I have no idea what the cause of them may be.  For the Red Hat SE 
-Linux release we will have a standard kernel, a standard initrd, and init 
-will load SE Linux after root is mounted so we won't have to deal with any SE 
-Linux specific issues relating to booting the system.
+VFS:Mounted root(ext2 filesystem)
+Red hat nash version 3.4.42 starting
+Mounting /proc filesystem
+creating block devices
+creating root device
+Mounting root file system
+mount: error 19 mounting ext3
+pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed:2
+umount /initrd/proc failed:2
+Freeing unused kernel memory:228k freed
+kernel panic:No init found.Try passing init= option to kernel
 
-http://people.redhat.com/arjanv/2.5/RPMS.kernel/
-I suggest you go to the above URL and download one of Arjan's kernels.  They 
-have SE Linux built in and it'll be much easier than trying to compile your 
-own.
+Any help will be appriciated.Is this a issue with ext3 fs support?
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Thanks in Advance,
+
+Venkata Phani Achanta
+Graduate Student
+Dept of Computer Science
+East Tennessee state university
+USA
+
+
+
+
+
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 
 --
