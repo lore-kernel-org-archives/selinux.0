@@ -1,116 +1,100 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA07450
-	for <selinux@tycho.nsa.gov>; Sun, 2 Sep 2001 12:27:30 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA29131
-	for <selinux@tycho.nsa.gov>; Sun, 2 Sep 2001 16:26:10 GMT
-Received: from donald.oleane.net (APuteaux-102-1-5-74.abo.wanadoo.fr [193.253.243.74])
-	by jazzswing.ncsc.mil  with ESMTP id QAA29127
-	for <selinux@tycho.nsa.gov>; Sun, 2 Sep 2001 16:26:09 GMT
-Message-Id: <200109021627.SAA09636@donald.oleane.net>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Paul Rolland <rol@as2917.net>
-Reply-To: rol@as2917.net
-To: selinux@tycho.nsa.gov
-Subject: Question regarding security policy configuration
-Date: Sun, 2 Sep 2001 18:27:28 +0200
-Cc: rol@as2917.net
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA07928
+	for <selinux@tycho.nsa.gov>; Sun, 2 Sep 2001 18:06:47 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id WAA15183
+	for <selinux@tycho.nsa.gov>; Sun, 2 Sep 2001 22:06:22 GMT
+Received: from windowpane.com (ip56.gte1.rb1.bel.nwlink.com [209.20.131.56])
+	by jazzband.ncsc.mil  with ESMTP id WAA15179
+	for <selinux@tycho.nsa.gov>; Sun, 2 Sep 2001 22:06:21 GMT
+Message-ID: <001b01c133fb$8d6e0490$3a8314d1@nwlink.com>
+Reply-To: "Conan Callen" <ccallen@windowpane.com>
+From: "Conan Callen" <ccallen@windowpane.com>
+To: <selinux@tycho.nsa.gov>
+References: <200109021627.SAA09636@donald.oleane.net>
+Subject: Re: Question regarding security policy configuration
+Date: Sun, 2 Sep 2001 15:06:44 -0700
 MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+Hi Paul,
 
-I've just installed for the first time SElinux on a running 2.4.9 Linux box.
-As this is my first contact with SELinux, I've been doing exactly what's
-described in the README file, and I now have done all the steps described,
-and restarted successfully my box.
+I too am new to selinux. I had it installed, and everything was working fine
+until Friday. I had two hard-drives go out on me! (there old timers).
+Stephen Smalley sent me the message below on fixing the errors you have
+encountered. I havent had a chance to work through it yet. I've finally got
+some replacement hard-drives working and am now building the new kernel.
 
-The good news is : the box is running.
-The bad news is : I've a bunch of :
+My first time through I had missed a step or two, and had some other strange
+problems. This time I am going very carefully.
+
+Conan
 
 
-Aug 29 17:58:46 www-dev kernel: avc:  denied  { read write } for  pid=58 
-exe=/bi
-n/mount path=/etc/mtab dev=08:02 ino=166389
-Aug 29 17:58:46 www-dev kernel:    scontext=system_u:system_r:mount_t
-Aug 29 17:58:46 www-dev kernel:    tcontext=system_u:object_r:file_t
-Aug 29 17:58:46 www-dev kernel:    tclass=file
-Aug 29 17:58:46 www-dev kernel:
-Aug 29 17:58:46 www-dev kernel: avc:  denied  { read append } for  pid=58 
-exe=/b
-in/mount path=/etc/mtab dev=08:02 ino=166389
-Aug 29 17:58:46 www-dev kernel:    scontext=system_u:system_r:mount_t
-Aug 29 17:58:46 www-dev kernel:    tcontext=system_u:object_r:file_t
-Aug 29 17:58:46 www-dev kernel:    tclass=file
-Aug 29 17:58:46 www-dev kernel:
-Aug 29 17:58:46 www-dev kernel: avc:  denied  { write } for  pid=10 
-exe=/bin/bas
-h path=/etc/mtab dev=08:02 ino=166389
-Aug 29 17:58:46 www-dev kernel:    scontext=system_u:system_r:initrc_t
-Aug 29 17:58:46 www-dev kernel:    tcontext=system_u:object_r:file_t
-Aug 29 17:58:46 www-dev kernel:    tclass=file
-Aug 29 17:58:46 www-dev kernel:
-Aug 29 17:58:46 www-dev kernel: avc:  denied  { setattr } for  pid=10 
-exe=/bin/b
-ash path=/etc/mtab dev=08:02 ino=166389
-Aug 29 17:58:46 www-dev kernel:    scontext=system_u:system_r:initrc_t
-Aug 29 17:58:46 www-dev kernel:    tcontext=system_u:object_r:file_t
-Aug 29 17:58:46 www-dev kernel:    tclass=file
-Aug 29 17:58:46 www-dev kernel:
-Aug 29 17:58:46 www-dev kernel: avc:  denied  { getattr } for  pid=73 
-exe=/sbin/
-insmod path=/lib/modules/2.4.9-lsm/build dev=08:02 ino=133209
-Aug 29 17:58:46 www-dev kernel:    scontext=system_u:system_r:insmod_t
-Aug 29 17:58:46 www-dev kernel:    tcontext=system_u:object_r:modules_object_t
-Aug 29 17:58:46 www-dev kernel:    tclass=lnk_file
-Aug 29 17:58:46 www-dev kernel:
-Aug 29 17:58:46 www-dev kernel: avc:  denied  { unlink } for  pid=91 
-exe=/bin/rm
- path=/var/run/identd.pid dev=08:02 ino=101648
-Aug 29 17:58:46 www-dev kernel:    scontext=system_u:system_r:initrc_t
-Aug 29 17:58:46 www-dev kernel:    tcontext=system_u:object_r:file_t
-Aug 29 17:58:46 www-dev kernel:    tclass=file
+--- Message from Stephen Smalley ---
 
-but I can't find anywhere where and what to change to prevent what is 
-mentionned denied to be really denied when I'll switch to a "live" 
-SELinux config...
 
-For example, looking at the first one :
-Aug 29 17:58:46 www-dev kernel: avc:  denied  { read write } for  pid=58 
-exe=/bin/mount path=/etc/mtab dev=08:02 ino=166389
-Aug 29 17:58:46 www-dev kernel:    scontext=system_u:system_r:mount_t
-Aug 29 17:58:46 www-dev kernel:    tcontext=system_u:object_r:file_t
-Aug 29 17:58:46 www-dev kernel:    tclass=file
-Aug 29 17:58:46 www-dev kernel:
+Ok, let's go through these:
 
-I've found in the source tree :
-/bin/mount: system_u:object_t:mount_exec_t
-/etc/mtab: system_u:object_r:etc_runtime_t
+avc:  denied  { write search } for  pid=1504 exe=/usr/sbin/sendmail
+path=/var/spool/mqueue dev=03:41 ino=32194
+      scontext=system_u:system_r:system_crond_t
+      tcontext=system_u:object_r:mqueue_spool_t
+      tclass=dir
 
-This is different from scontext (Security (?) context) and tcontext
-(Task (?) context)....
+The root cause of this access denial (and several of the subsequent
+denials) is that crond is running sendmail without transitioning into
+an appropriate domain.  The question is why is sendmail being run
+from one of your system cron jobs?  Anyway, if you want to do this,
+just add the following to policy/domains/system/crond.te and
+do a 'make load' in your policy directory:
+domain_auto_trans(system_crond_t, sendmail_exec_t, user_mail_t)
 
-It seems I deeply missed some configs, but I can't find them. Could someone
-help me ?
+avc:  denied  { getattr } for  pid=1932 exe=/usr/bin/slocate dev=00:06
+ino=1582
+      kernel:    scontext=system_u:system_r:system_crond_t
+      kernel:    tcontext=system_u:object_r:unlabeled_t
+      kernel:    tclass=dir
 
-Regards,
-Paul
+This is probably because you are running the automounter.  Unless you
+really need it, shut it off.
 
--- 
+avc:  denied  { write } for  pid=2003 exe=/usr/local/bin/logtail
+path=/var/log/messages.offset dev=03:41 ino=81507
+      scontext=system_u:system_r:system_crond_t
+      tcontext=system_u:object_r:var_log_t
+      tclass=file
 
-                                                       .--.  The penguin
-Paul Rolland, rol@as2917.net                          |o_o | will survive,
-                                                      |(_/ |  unlike
-                                                     //   \ \  dinosaurs !
-                                                    (|     | )
-                                                   /'\_   _/`\
-                                                   \___)=(___/
-Please no MIME, I don't read it - Pas de MIME, je ne le lis pas
-Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
+So, what is /usr/local/bin/logtail?  And why is it run from crond,
+and why is it trying to write to /var/log?  Anyway, if you want to
+allow this, you can use the logrotate_t domain as an example.
+You can either label /usr/local/bin/logtail with logrotate_exec_t
+if it just needs the same permissions as logrotate, or you can
+define a separate domain for it that is similar.
 
-"Some people dreams of success... while others wake up and work hard at it"
+avc:  denied  { execute } for  pid=2327 exe=/bin/bash path=/usr/bin/which
+dev=03:41 ino=351008
+      scontext=system_u:system_r:atd_t
+      tcontext=system_u:object_r:bin_t
+      tclass=file
+
+The atd domain is just a stub, because we don't use it for anything (why
+not just use cron?).  If you really want to use atd, then you'll need to
+add some permissions to it.  Also, you may even want to extend atd in the
+same way that we changed crond so that it runs in different security
+contexts depending on what it is doing.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
+
 
 
 --
