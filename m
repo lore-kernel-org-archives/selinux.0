@@ -1,24 +1,35 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA29852
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 12:26:19 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA08095
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 16:24:49 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id QAA08079 for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 16:24:47 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: jw@centraltexasit.com, "SELinux" <SELinux@tycho.nsa.gov>
-Subject: Re: Make errors from newrole in utils
-Date: Mon, 8 Jul 2002 16:04:13 -0400
-References: <200207080116.57947.jw@centraltexasit.com>
-In-Reply-To: <200207080116.57947.jw@centraltexasit.com>
+To: jw@centraltexasit.com, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: IRC?
+Date: Mon, 8 Jul 2002 16:02:44 -0400
+References: <200207080042.44030.jw@centraltexasit.com>
+In-Reply-To: <200207080042.44030.jw@centraltexasit.com>
 MIME-Version: 1.0
-Message-Id: <20020709162533.822977672@lyta.coker.com.au>
+Message-Id: <20020709162533.7441B766E@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 8 Jul 2002 02:16, JW wrote:
-> When I run make in utils I get errors in newrole.c about
-> security/pam_appl.h security/pam_misc.h missing:
+On Mon, 8 Jul 2002 01:42, JW wrote:
+> I'm wondering if any of you SE Linux users regularly hang out on IRC
+> anywhere, if so, where?
+>
+> Just looking for a place where I could possibly ask questions in a more
+> interactive manner :-)
 
-To build on a Debian machine you need the libpam0g-dev package installed 
-(it's in the build-depends for my SE Linux package).  For other distributions 
-you need the equivalent package.
+#selinux on irc.openprojects.net is used for the discussion of my play 
+machine (which is going back online about the 10th of July) and also for 
+gereral SE Linux discussion.
 
 -- 
 I do not get viruses because I do not use MS software.
