@@ -1,58 +1,86 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA03385
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 16:38:45 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA07596
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 21:36:31 GMT
-Received: from prserv.net (asmtp1.prserv.net [32.97.166.51])
-	by jazzswing.ncsc.mil  with ESMTP id VAA07592
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 21:36:30 GMT
-Message-Id: <200211292136.VAA07592@jazzswing.ncsc.mil>
-Date: Fri, 29 Nov 2002 16:35:18 -0500
-From: "Subba Rao" <sailorn@attglobal.net>
-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux <selinux@tycho.nsa.gov>
-Subject: Re: Building SELinux - System requirement and 'warning' messages
-Mime-Version: 1.0
-Content-Type: text/plain;
-      charset="us-ascii"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA03342
+	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 16:35:40 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id VAA00869
+	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 21:33:36 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id VAA00865 for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 21:33:36 GMT
+Message-Id: <200211292142.QAA23944@moss-shockers.ncsc.mil>
+Date: Fri, 29 Nov 2002 16:42:59 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: label transitions
+To: selinux@tycho.nsa.gov, giorgio.zanin@inwind.it
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen,
 
-Thanks for pointing this out.  I guess I will move my server to SuSe or Redhat.
+> I'm now investigating the mechanism used in SELinux to change 
+> something's security label.
+> I know there is a kernel interface and a system call for applications  
+> to do it, their name is security_transition_sid.
 
-Subba Rao
-sailorn@attglobal.net
-2002-11-29
+Not exactly.  security_transition_sid is an interface for obtaining
+labeling/transition decisions, e.g. to obtain the default label for a process
+transformed by execve or to obtain the default label for a newly created object.
+It is strictly a policy decision interface; it does not relabel anything. 
+Labeling/transition decisions are a fundamental concept; you'll see them
+discussed in the Flask architecture paper as well as the more recent
+technical reports.  The SELinux kernel code calls this interface
+when a process is transformed or when a new object is created.
 
-======= At 2002-11-29, 15:34:00 you wrote: =======
+security_change_sid is an interface for obtaining relabeling decisions,
+e.g. to obtain the SID to use when relabeling a tty for a user session
+based on the session's security label.  It is also a policy decision interface; 
+it does not relabel anything.  This is not used by the kernel at all, and was 
+only added to support functionality like tty relabeling in a policy-independent
+manner.
 
->> I am running Slackware Linux 8.1 on one of my spare systems and am trying to 
->install SELinux on this system.
->> It is a holiday project I guess.  I have been following the instructions in 
->the README files in 'selinux' directory.
->> My build process has stopped 3 times so far complaining about some missing 
->packages such as PAM, Kerberos and now BSD lib.
->> Is there a library or system requirements list for SELinux?
->
->No, but the web site notes that we have only built and used SELinux
->on RedHat 7.x.  The modified daemons and utilities are mostly derived from
->the RedHat 7.2 sources, so you need to port the SELinux patches for the
->modified applications if you want to use another distribution.   You also
->need to adapt the policy configuration for other distributions.  Russell Coker 
->has done this work for Debian, and Carsten Grohmann has done some
->work on SuSE policy changes.  See http://selinux.sourceforge.net/distros.
->
->--
->Stephen Smalley, NSA
->sds@epoch.ncsc.mil
+chsid is an interface for changing the SID of an existing file to
+a given SID.  An application can pass any SID to chsid, but the policy must
+authorize the corresponding relabelfrom and relabelto permissions.
+Some applications (e.g. login) will call security_change_sid to
+obtain a relabeling SID and will then call chsid with that SID.
+But other applications (e.g. setfiles) will just call chsid
+with a SID computed in some other manner, e.g. the file contexts
+configuration.
 
-= = = = = = = = = = = = = = = = = = = =
-			
+> The configuration language has two constructs: type_transition and 
+> type_change. The first is used by the kernel and instructs the security 
+> server to return a particular label for a type pair and a class when the 
+> security_transition_sid is called to label a new object or a transformed 
+> process.
 
+Right.  security_transition_sid is computed based on the type_transition
+rules in the policy.  security_change_sid is computed based on the
+type_change rules in the policy.
 
+> If type_transition is used to label a transformed process, it requires 
+> the transition permission of the class process.
 
+You need more than just process transition permission.  See the
+domain_trans macro.
+
+> What about type_transition for files? I mean I had a look at 
+> file_trans_macro and it seems it's not specified anything like the 
+> transition process permission to change the type of a file. How can I 
+> control the privilege to change the type of a new object?
+> 
+> Is it correct to argue that permissions relabelto, relabelfrom and 
+> transition of file class are used to grant applications the ability to 
+> change labels with a call to security_transition_sid (with the output 
+> label specified via type_change)?
+
+The file_type_trans macro has to do with file creations, not relabeling.
+Relabeling requires relabelfrom permission to the old SID and relabelto
+permission to the new SID (from the current process SID, in both cases).
+
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
 
 --
