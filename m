@@ -1,41 +1,46 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5L4nprT028806
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 00:49:51 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5L4nni3020397
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 04:49:49 GMT
-Date: Mon, 21 Jun 2004 00:49:42 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: sched_setscheduler()
-In-Reply-To: <200406200049.25402.russell@coker.com.au>
-Message-ID: <Xine.LNX.4.44.0406210043150.22018-100000@thoron.boston.redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5LD5QrT000774
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 09:05:26 -0400 (EDT)
+Received: from mail.idtweb.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5LD5ENg012764
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 13:05:14 GMT
+Reply-To: <mayerf@tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'John D. Ramsdell'" <ramsdell@mitre.org>, <selinux@tycho.nsa.gov>
+Cc: <selinux-dev@tresys.com>
+Subject: RE: Fedora Core 2 setools RPM
+Date: Mon, 21 Jun 2004 09:04:22 -0400
+Message-ID: <003f01c45790$6a3cc090$4d0c010a@columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <ogtllil1085.fsf@mitre.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 20 Jun 2004, Russell Coker wrote:
-
-> I am having some problems with asterisk (the VOIP server).
+> If Tresys is not completely sure that the libapol API is stable, they
+> may want to only release a static library for now.  Changing the API
+> used by a static library means that compilations may fail, but
+> existing binaries will be not be effected by the change.  Changing the
+> API used by a shared library means that existing binaries may fail.
+> Tresys should commit itself to an API provided by a shared library
+> only after careful thought. 
 > 
-> According to strace it does the following:
-> sched_setscheduler(0, SCHED_OTHER, { 0 }) = -1 EACCES (Permission denied)
-> 
-> This failure happens in enforcing mode but not in permissive mode, however 
-> nothing is audited!
+> John
 
-setschedluler denials are not audited by the kernel, as doing so causes a 
-deadlock with printk (the kernel logging function).  I believe this can be 
-fixed with an asynchronous feature of the new audit framework, but am not 
-sure if it's been looked into.
+We are positive that the API is not stable, and guarantee that it will change a
+lot between releases.  We're still in a highly exploratory development cycle; so
+feel free to use the libraries but understand they are evolving based upon our
+needs.  For example, significant work is proceeding now to enhance the library
+to support a semantic policy diff tool we're building, as well as a means to
+model and batch information flow analyses. 
 
+With that said, we have 2.5 years invested in this code, and for our own sanity
+we try to keep old interfaces syntactically the same between versions, and add
+new ones as necessary.  The headers are not structured well for strong modular
+isolation of the libraries, so be careful.
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+Frank
 
 
 
