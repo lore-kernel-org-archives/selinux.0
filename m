@@ -1,48 +1,48 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1OMpRRb026916
-	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 17:51:27 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1P9O7Rb028809
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 04:24:07 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i1OMnqlK018220
-	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 22:49:52 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i1OMnpOX018170
-	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 22:49:51 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: James Morris <jmorris@redhat.com>
-Subject: Re: identity
-Date: Wed, 25 Feb 2004 09:50:00 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <Xine.LNX.4.44.0402240945330.24455-100000@thoron.boston.redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0402240945330.24455-100000@thoron.boston.redhat.com>
+	by jazzswing.ncsc.mil  with ESMTP id i1P9MWlK004870
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 09:22:32 GMT
+Received: from internode.on.net (bep1.adl2.internode.on.net [203.16.214.212])
+	by jazzswing.ncsc.mil  with ESMTP id i1P9MUOX004867
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 09:22:31 GMT
+Received: from internode.on.net (unverified [203.16.214.212])
+	by internode.on.net (SurgeMail 1.6e10) with ESMTP id 20060325
+	for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2004 19:53:16 +1030 (CDT)
+From: "keen@internode.on.net" <keen@internode.on.net>
+Reply-to: keen@internode.on.net
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: I/O Redirect?
+Date: Wed, 25 Feb 2004 20:23:16 +1100
+Message-id: <403c6984.108.36cc.1234700170@internode.on.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402250950.00790.russell@coker.com.au>
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 25 Feb 2004 01:47, James Morris <jmorris@redhat.com> wrote:
-> On Mon, 23 Feb 2004, Russell Coker wrote:
-> > The idea is to have something like rjc#10.0.0.1:user_r:user_t to indicate
-> > that I logged in from IP address 10.0.0.1.
->
-> How would the kernel know the IP address you're logged in from?
+Hi,
 
-The login application would tell it.
+I am experimenting with SELinux, while doing so, I have
+edited the ping.te to include
 
-> Would you
-> also want to log the serial device if that's how the user logged in?
+domain_auto_trans(user_t, ping_exec_t, ping_t)
+type user_ping_t, file_type, sysadmfile;
+file_type_auto_trans(ping_t, tmp_t, user_ping_t)
 
-Sure.  That would be easy to do if the kernel supported arbitary text appended 
-to the identity.
+however, files which were created in /tmp using commands
+such as:
+ping 127.0.0.5 -c 4 > pingfile
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+do not result in a user_ping_t context file being saved,
+instead the result was a user_tmp_t . Is using redirection
+the cause of it? or is there anyway to produce the file with
+the desired context with I/O redirection?
 
+Any input is appreciated.
+
+Regards,
+Keen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
