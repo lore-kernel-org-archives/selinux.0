@@ -1,102 +1,77 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1NIKDmr001961
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 13:20:13 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1NIKLmr001980
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 13:20:21 -0500 (EST)
 Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1NIFNuD022329
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 18:15:23 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1NIFVuD022342
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 18:15:31 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id j1NIJQ68009294
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 13:19:26 -0500
+	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id j1NIJakB009299
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 13:19:36 -0500
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1/Submit) id j1NIJQHt009293
-	for selinux@tycho.nsa.gov; Wed, 23 Feb 2005 13:19:26 -0500
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1N6mXdW028407
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 01:48:34 -0500 (EST)
-Received: from mail02.infosat.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1N6k6at007237
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 06:46:08 GMT
-Received: from [196.38.110.14] (HELO mail01.infosat.net)
-  by mail02.infosat.net (CommuniGate Pro SMTP 4.1.8)
-  with ESMTP id 208197921 for selinux@tycho.nsa.gov; Wed, 23 Feb 2005 08:45:52 +0200
-Received: from [66.18.72.157] (HELO hivsa.com)
-  by mail01.infosat.net (CommuniGate Pro SMTP 4.1.8)
-  with SMTP id 646269367 for selinux@tycho.nsa.gov; Wed, 23 Feb 2005 08:45:50 +0200
-From: Jayendren Anand Maduray <jayendren@hivsa.com>
-Reply-To: jayendren@mweb.co.za
-To: russell@coker.com.au
-Subject: Re: fc3 - password change problem - syslog and portmapper
-Date: Wed, 23 Feb 2005 08:44:19 +0200
-Cc: jayendren@mweb.co.za, "SE-Linux" <selinux@tycho.nsa.gov>
-References: <200502220809.40631.jayendren@hivsa.com> <200502221151.19612.jayendren@hivsa.com> <200502222347.02398.russell@coker.com.au>
-In-Reply-To: <200502222347.02398.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200502230844.19180.jayendren@hivsa.com>
+	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1/Submit) id j1NIJaJZ009298
+	for selinux@tycho.nsa.gov; Wed, 23 Feb 2005 13:19:36 -0500
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1NHOEmr001537
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 12:24:14 -0500 (EST)
+Received: from pentafluge.infradead.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1NHJNuD019628
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 17:19:24 GMT
+Subject: Exim and SELinux
+From: David Woodhouse <dwmw2@infradead.org>
+To: russell@coker.com.au, walters@redhat.com
+Cc: exim-dev@exim.org, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Wed, 23 Feb 2005 17:21:21 +0000
+Message-Id: <1109179281.3820.15.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
-tried restorecon, here is the output:
+In a message for which marc.theaimsgroup.com ate the Message-ID, Russell
+wrote:
+> For the most desirable support of Exim we need some minor changes to the way 
+> it works.  I have spoken to the author about this and he has a positive 
+> attitude towards this, all that is necessary is for me (or someone else) to 
+> write some patches, test them, and send them to him.
+> 
+> Once we get Exim working the way we desire doing the policy will be easy.
+> 
+> What we want is to have different parts of Exim running in different domains.  
+> Exim is comprised of a single program that performs multiple tasks, but it 
+> re-exec's itself for each task.  I think that the best way to do this is to 
+> have (for non-SE systems) multiple hard links to the main executable and have 
+> it use different names for each exec call.  This just takes up a few extra 
+> directory entries on a non-SE system and has no noticeable overhead.
 
-[root@shiva jay]# restorecon /etc/passwd
-[root@shiva jay]# passwd
-Changing password for user root.
-New UNIX password:
-Retype new UNIX password:
-passwd: Authentication failure
-[root@shiva jay]#
+AFAICT there's only really two at the moment -- there's the unprivileged
+mode where we only really need access to the spool directory, and the
+mode we use for delivery, where we need to be able to write to users'
+files. At http://david.woodhou.se/exim-4.50-selinux.patch there's a
+patch which attempts to do this. If there are more personalities which I
+should have distinguished between, we can fix that. Do we need a
+separate binary to have privileges to listen on port 25? 
 
-here is dmesg:
-SELinux:  Completing initialization.
-SELinux:  Setting up existing superblocks.
-SELinux: initialized (dev hda5, type ext3), uses xattr
-SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
-SELinux: initialized (dev selinuxfs, type selinuxfs), uses genfs_contexts
-SELinux: initialized (dev mqueue, type mqueue), not configured for labeling
-SELinux: initialized (dev hugetlbfs, type hugetlbfs), not configured for 
-labeling
-SELinux: initialized (dev devpts, type devpts), uses transition SIDs
-SELinux: initialized (dev eventpollfs, type eventpollfs), uses genfs_contexts
-SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
-SELinux: initialized (dev futexfs, type futexfs), uses genfs_contexts
-SELinux: initialized (dev pipefs, type pipefs), uses task SIDs
-SELinux: initialized (dev sockfs, type sockfs), uses task SIDs
-SELinux: initialized (dev proc, type proc), uses genfs_contexts
-SELinux: initialized (dev bdev, type bdev), uses genfs_contexts
-SELinux: initialized (dev rootfs, type rootfs), uses genfs_contexts
-SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
-SELinux: initialized (dev usbfs, type usbfs), uses genfs_contexts
+> For a SE system we could have small wrapper programs (a few K in size - they 
+> would provide little overhead) that just exec the main executable.  So when a 
+> new Exim task is launched it would exec the appropriate name which would 
+> trigger a domain transition, that new domain would then execute the main 
+> program to do the work.
 
-For Syslogd:
-syslogd: error while loading shared libraries: /lib/ld-linux.so.2: cannot 
-apply additional memory protection after relocation
+For the moment I just hard-linked it. There's an patched version of the
+current Fedora RPM called exim-4.50-2.selinux.{src,ppc,i386}.rpm in the
+same location as above.
 
-For portmap:
-error while loading shared libraries: libnsl.so.1:
-cannot open shared object file: No such file or directory.
+> This way Exim itself need know nothing about SE Linux, but we can get all the 
+> functionality we want.
+> 
+> I believe that this would probably be acceptable to the author.  In a month or 
+> so I may have time to code this.  If someone else makes an appropriate patch 
+> to Exim I'll write the SE Linux policy immediately.
 
-
-On Tuesday 22 February 2005 14:46, Russell Coker wrote:
-> restorecon /etc/passwd
+Let me know if you need anything more.
 
 -- 
-Jayendren Anand Maduray
-Microsoft Certified Professional
-Network Plus
-IT Administrator  
-
-Perinatal HIV Research Unit
-Old Potch Road
-Chris Hani Baragwanath Hospital
-Soweto
-South Africa
-
-Tel: +27 11 989 9776
-Tel: +27 11 989 9999
-Fax: +27 11 938 3973
-Cel: 082 22 774 94
+dwmw2
 
 --
 This message was distributed to subscribers of the selinux mailing list.
