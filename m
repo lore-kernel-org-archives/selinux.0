@@ -1,75 +1,104 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAGgAIi021369
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 11:42:10 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAGeWwg007021
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 16:40:32 GMT
-Subject: Re: Manipulating user roles without policy-sources installed
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux ML <selinux@tycho.nsa.gov>, Nalin Dahyabhai <nalin@redhat.com>
-In-Reply-To: <41B9CD6A.2030008@redhat.com>
-References: <20041207000805.GH3678@jmh.mhn.de>
-	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
-	 <41B8826D.30105@redhat.com>
-	 <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil>
-	 <1102614049.32175.168.camel@moss-spartans.epoch.ncsc.mil>
-	 <41B9CD6A.2030008@redhat.com>
-Content-Type: text/plain
-Message-Id: <1102696635.1628.132.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAH0AIi021501
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 12:00:10 -0500 (EST)
+Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAGwSwg008155
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 16:58:28 GMT
+Message-Id: <200412101700.iBAH06eq019975@turing-police.cc.vt.edu>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: SE Linux list <selinux@tycho.nsa.gov>
+Subject: Re: Single home directory type for all roles. 
+In-Reply-To: Your message of "Fri, 10 Dec 2004 08:19:39 PST."
+             <20041210161940.57421.qmail@web50204.mail.yahoo.com>
+From: Valdis.Kletnieks@vt.edu
+References: <20041210161940.57421.qmail@web50204.mail.yahoo.com>
 Mime-Version: 1.0
-Date: Fri, 10 Dec 2004 11:37:15 -0500
+Content-Type: multipart/signed; boundary="==_Exmh_-2050370756P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 10 Dec 2004 12:00:06 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-12-10 at 11:23, Daniel J Walsh wrote:
-> I want to change genpolusers syntax to be
+--==_Exmh_-2050370756P
+Content-Type: text/plain; charset=us-ascii
+
+On Fri, 10 Dec 2004 08:19:39 PST, Casey Schaufler said:
+
+> > Or if
+> > it *is* solved there, it's not actually made it into
+> > AIX, Irix, Tru64, or Solaris.
 > 
-> genpolusers inpolicy outpolicy userfile1 [userfile2 ... ]
+> You have to go to the costs-extra multilevel secure
+> versions.
 
-Yes, that's easy enough to do, and as no one has used genpolusers to
-date AFAIK, changing the interface is ok with me.
+Right.  And that was my point - that although every vendor has managed to hack
+something up, it hasn't ever escaped and gotten any significant mindshare. You
+may as well say that somebody's already solved this for Linux, because there
+exists some out-of-tree patch that handles it.  Because that's what all those
+basically were - out-of-mainline-tree add-ons. It hasn't been solved for "the
+Unix world", it's been solved for some tiny subset that were forced to install
+"an MLS component" for whatever reason, and had to deal with all the borkedness
+of the bolt-on because there wasn't enough market share to make it Really Work
+Right (go ahead - admit it.  Trusted Irix almost certainly had plenty of warts
+on it that never got fixed because Trusted Irix had only a miniscule market share,
+when similar-sized warts in the regular Irix would get fixed...)
 
-________________________________________________________________________
-> diff --exclude-from=exclude -N -u -r nsapolicy/local.users policy-1.19.12/local.users
-> --- nsapolicy/local.users	1969-12-31 19:00:00.000000000 -0500
-> +++ policy-1.19.12/local.users	2004-12-10 10:59:20.750916770 -0500
-> +# or if you want to be able to directly start daemons 
-> +
-> +#user jadmin roles { staff_r sysadm_r system_r };
+And "in the base level" is an important thing - I've seen *plenty* of sites
+that don't want to have to install (or pay for) a full MLS implementation when
+all they want is some variant of "We need to redirect each user's view of /tmp
+to $USER/tmp just so they quit stepping on each other's toes accidentally".
+Everybody who's ever worked the help desk at a uni and had to answer "How come
+I can't save test1.c?" with "because some other user already saved test1.c in
+/tmp" knows exactly what I mean...
 
-Rather than just have this as a comment in the file, why not use an
-ifdef in the source file here and apply m4 to it as well so that there
-is a single line in the installed file that either includes system_r or
-does not based on what tunables were set when the policy was built? 
-Reduces user confusion, particularly since you are always enabling
-direct_sysadm_daemon for FC and it is also needed for rpm %post
-scriptlet processing in a number of cases.
+(Admittedly, it was even worse in the days before 'chmod +t /tmp', when one
+user doing a 'rm *' could totally adger the work of everybody on the system..)
 
-> diff --exclude-from=exclude -N -u -r nsapolicy/Makefile policy-1.19.12/Makefile
-> --- nsapolicy/Makefile	2004-10-25 14:01:13.000000000 -0400
-> +++ policy-1.19.12/Makefile	2004-12-10 10:54:18.524901686 -0500
-> +$(USERPATH)/system.users: $(ALL_TUNABLES) $(USER_FILES) policy.conf
-> +	@mkdir -p $(USERPATH)
-> +	@echo "# " > tmp/system.users
-> +	@echo "# Do not edit this file. " >> tmp/system.users
-> +	@echo "# This file is replaced on reinstalls of this policy." >> tmp/system.users
-> +	@echo "# Please edit users.custom to make local changes." >> tmp/system.users
-> +	@echo "#" >> tmp/system.users
-> +	m4 $(ALL_TUNABLES) tmp/program_used_flags.te $(USER_FILES) | grep -h -v "^#" | grep [a-zA-Z] >> tmp/system.users
-> +	install -m 644 tmp/system.users $@
+> > So I have no idea what Casey's talking about.  There
+> > might be some hooks in
+> > some Unixoids to help assist, but I don't know of
+> > anyplace where it's a fully
+> > integrated solution...
+> 
+> Trusted Solaris, Trusted Irix, SystemV/MLS, UNICOS
+> all include it.
 
-The comment says "users.custom", but you've named it "local.users".
-I'm also unclear on the purpose of the grep's - just to make it more
-readable?  If you just want the user statement, you could just grep for
-lines beginning with user unless you are worried about multi-line user
-statements in the base policy (which is allowed by checkpolicy, since it
-uses a semicolon terminator).
+After-the-fact bolt-ons, all of them. ;)
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+For better or worse, at least the AIX/370 "hidden directories" stuff was mostly
+integrated into the base level code, and documented, and integrated into the
+sysadmin and user userspace tools - /bin/sh had code to set the search path for
+them, and so on.  And even there, IBM had basically grafted Locus's "Transparent
+Computing Facility" code onto an otherwise mostly-stock SYSV kernel, and there
+were quite a few rough edges to deal with (all the *little* stuff, like getting
+the software installer tool to Do The Right Thing - it had all the same sort of
+corner-case issues that Fedora is now fighting with 'rpm' to make sure that
+files end up labelled correctly).
 
+Why am I making a point about this?  Because we're presumably working on
+something that will be in the *mainline* kernel, and have support in the
+default .ISO images shipped by vendors - and I don't know of any Unix vendor
+who's shipped this stuff in their *mainline* product.
+
+And *that* is uncharted territory indeed.  VMS is probably the closest thing to
+Unix/Linux that actually used stuff like SYS$WHATEVER inside a filename to get
+a similar effect to moldy directories *and* carry it through all the way for
+the base system...
+
+
+--==_Exmh_-2050370756P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBudYVcC3lWbTT17ARAgfrAJ9nhiwyH1Yag//odMk4gyt9LEeVbQCePCns
+BfrYb04PxCEsMzUz0RYxyqw=
+=pe3S
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-2050370756P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
