@@ -1,68 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23858
-	for <selinux@tycho.nsa.gov>; Wed, 7 Aug 2002 08:41:33 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA18870
-	for <selinux@tycho.nsa.gov>; Wed, 7 Aug 2002 12:40:37 GMT
-Received: from smtp.comcast.net (smtp.comcast.net [24.153.64.2])
-	by jazzswing.ncsc.mil  with ESMTP id MAA18864
-	for <selinux@tycho.nsa.gov>; Wed, 7 Aug 2002 12:40:36 GMT
-Received: from cpcug.org
- (pcp01712074pcs.nrockv01.md.comcast.net [68.48.115.127])
- by mtaout01.icomcast.net
- (iPlanet Messaging Server 5.1 HotFix 0.8 (built May 13 2002))
- with ESMTP id <0H0H00DLL4G0DE@mtaout01.icomcast.net> for
- selinux@tycho.nsa.gov; Wed, 07 Aug 2002 08:38:24 -0400 (EDT)
-Date: Wed, 07 Aug 2002 08:38:19 -0400
-From: James Griffin <agriffin@cpcug.org>
-Subject: Re: A 'Statement of Assurance' on SELinux patents
-To: selinux@tycho.nsa.gov
-Reply-to: agriffin@cpcug.org
-Message-id: <3D5114BB.D45BAD57@cpcug.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-References: <000f01c23d4a$e938e750$0a01a8c0@ed>
- <20020806141841.8278925D@lyta.coker.com.au>
- <20020807132157.B25323@mail.enternet.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23799
+	for <selinux@tycho.nsa.gov>; Wed, 7 Aug 2002 08:36:12 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA23186
+	for <selinux@tycho.nsa.gov>; Wed, 7 Aug 2002 12:34:37 GMT
+Received: from mail.tresys.com (mail.tresys.com [66.22.20.205])
+        by jazzband.ncsc.mil  with ESMTP id MAA23182 for <selinux@tycho.nsa.gov>; Wed, 7 Aug 2002 12:34:36 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "Russell Coker" <russell@coker.com.au>,
+        "Samarth Sharma" <samarth7880@rediffmail.com>, <selinux@tycho.nsa.gov>
+Subject: RE: adduser??
+Date: Wed, 7 Aug 2002 08:36:59 -0400
+Message-ID: <ACEHIKGIGFEDAIKEMMMIIEDHKFAA.mayerf@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <20020807110516.851CE19A4@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ben McGinnes wrote:
-> 
-> Russell Coker(russell@coker.com.au)@Tue, Aug 06, 2002 at 04:18:41PM +0200:
-> >
-> > Who would want to do that?  The NSA appear to believe that they have already
-> > paid for all necessary rights, so naturally they will not want to pay twice
-> > (also such a payment would be regarded as an admission of guilt).
-> >
-> > I won't give SCC a cent, will you?
-> 
-> Ah, pride, it's a wonderful thing ... I guess, that leaves the only
-> other alternative (on the buying assets front) as
-> someone/something/some group buying SCC in its entirety.  Though this, of course, begs the question, "why would anyone *want* to?"  ;)
-> 
-> Regards,
-> Ben
-> 
 
-Principle or pride?  I'm not sure, but am inclined to opt for
-"principle" in Mr. Coker's case.
+> Also you may want to change the file_context/types.fc to use the
+> sysadm_home_t for the home directory of the user in question and
+> use setfiles
+> to apply the change.
 
-All in all, it seems to me that what we have here is a failure of
-imagination coupled with a lack of historical perspective.
+I think I would use "chcon <user>:object_r:sysadm_hom_t" if you wanted to
+change the user's home directory.  Running setfiles seems like overkill.
 
-To answer the question "why would any one *want* to?", let me suggest
-that it is to further "poison the well" and increase the FUD associated
-with this issue.  As for the unasked question "who would want to?", I
-would suggest a convicted abusive monopolist that might not like having
-a well vetted, low cost, highly securable competitive alternative to
-their latest marketing program concerning trusted computing.
+Of course one should also edit file_context/types.fc as suggested so that if
+setfiles is re-run at some future date, the appropriate labels are applied.
+What we're doing for labeling in install scripts for new stuff after the
+system has been installed is: 1) add, install, and load our policy updates,
+2) use install -X or chcon to fix those labels we care about, and 3)
+change/add the appropriate *.fc files to make those labeling changes
+permanent in case setfiles is run again.
 
-I'll leave the historical perspective as an exercise for the interested
-reader, but offer a hint, graphic rendering patents.
+Once we get out the prototype development mode, I would expect setfiles to
+be run during system install, and then only rarely maybe as part of some
+recovery process.
 
-Regards,
-Jim
+Frank
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
