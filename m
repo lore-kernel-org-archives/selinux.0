@@ -1,50 +1,105 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA17242
-	for <selinux@tycho.nsa.gov>; Tue, 20 Aug 2002 10:15:10 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA16810
-	for <selinux@tycho.nsa.gov>; Tue, 20 Aug 2002 14:14:06 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id OAA16806
-	for <selinux@tycho.nsa.gov>; Tue, 20 Aug 2002 14:14:06 GMT
-Date: Tue, 20 Aug 2002 10:14:36 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: A F A 1 W I <DoD@penn.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Latest release
-In-Reply-To: <003401c2484f$39f0e4e0$7e935b40@usaf>
-Message-ID: <Pine.GSO.4.33.0208201009530.24294-100000@raven>
+Received: from deliverance.tycho.ncsc.mil (deliverance [144.51.3.101])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA08251
+	for <selinux@tycho.nsa.gov>; Thu, 22 Aug 2002 11:05:30 -0400 (EDT)
+Message-ID: <0D2F5426C26FD511A1C400B0D0D0596835521C@deliverance.tycho.ncsc.mil>
+From: "Wagner, Grant" <gmw@tycho.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Subject: RE: NSA moving away from SELinux?????
+Date: Thu, 22 Aug 2002 11:07:22 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+The National Security Agency remains committed to operating system security
+research in general and specifically in continuing our research using the 
+Security-enhanced Linux prototype.  Our relationships with open source
+researchers have been very beneficial and we hope to continue and expand
+such relationships in the future.
 
-On Tue, 20 Aug 2002, A F A 1 W I wrote:
+Grant M. Wagner
+Technical Director
+Secure Systems Research Office
+National Security Agency
 
-> Could anyone please tell me if this is the latest release?
->
-> selinux-2.4.18-2002031409.i386.rpm
+-----Original Message-----
+From: Russell Coker [mailto:russell@coker.com.au]
+Sent: Friday, August 16, 2002 6:08 PM
+To: Steve Tate; selinux@tycho.nsa.gov
+Subject: Re: NSA moving away from SELinux?????
 
-No, that isn't the latest release.  It is actually several releases behind
-the latest release.
 
-The latest release is 2002070313 and can be obtained from the NSA SELinux
-web site http://www.nsa.gov/selinux.  If you want the latest release +
-patches posted since the release, you can check out the CVS tree from the
-sourceforge site using the following:
+I'll respond to this message even though it's off-topic because it's 
+something that people will want to discuss and other people will be too 
+constrained to say much.
 
-cvs -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux \
--z3 co nsa/lsm-2.4/security/selinux
+Please restrict follow-ups to private mail.
 
-I expect that a new release will be forthcoming soon based on 2.4.19.
+On Fri, 16 Aug 2002 23:29, Steve Tate wrote:
+> It's been a while since I've been able to keep up with this list, but
+> saw an interesting story on news.com today.  Here's an excerpt (full
+> story at http://news.com.com/2100-1001-950083.html):
+
+It's an interesting story, however some of the technical issues are wrong to
+
+an extent that I question the main point of the story.
+
+It's impossible to get a common criteria assesment for multiple 
+distributions, because they are compiled by different people, have different
+
+source trees, and are different.
+
+>From what I've heard of United Linux, it may not be coherant enough to get a
+
+single testing for the common criteria.
+
+At the moment I doubt that anyone other than Red Hat will be getting it.  
+No-one else seems to have the combination of money and interest.
+
+>   SE Linux may be the NSA's last direct contribution to open-source
+>   security, however. Because of loud criticism, the NSA will have a
+>   far less direct role in the creation of more secure versions of
+>   open-source software.
+
+This doesn't really mean much.  Maybe they'll just pay NAI, SCC, and others 
+to do work for them without it being official NSA work.  If the same people 
+do the same work for the same aims it doesn't really matter what company or 
+organization has it's name on the bottom line.
+
+> Can people "in the know" say whether the NSA is going to be distancing
+> itself from SELinux?  Or even abandoning it?  I think so much has
+
+If the NSA people wanted to announce something then I'm sure that they would
+
+have done so.
+
+> already been done with SELinux and the influence of this project on
+> other parts of Linux (such as loadable security modules) that we could
+> call it a success and turn everything over to the open source
+> community, but I would really hate to see NSA become less involved.
+> Frankly, I think it's one of the best non-secret things they've done
+> in the past decade (and probably ever, for that matter)...
+
+I agree.  SE Linux is at a stage where it can continue without NSA support
+if 
+necessary.  But things will progress faster with them.
+
+I see plenty of evidence of the NSA guys doing active work on SE Linux, I 
+don't see any evidence of them slowing down or making SE Linux a lower 
+priority in favour of other things.
+
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
