@@ -1,50 +1,50 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8PJZ0rT024690
-	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 15:35:00 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8PL3RrT024909
+	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 17:03:27 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8PJXvsn002929
-	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 19:33:58 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8PL2Osn003994
+	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 21:02:25 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: fedora-selinux-list@redhat.com, Tom London <selinux@gmail.com>
+To: Tom London <selinux@gmail.com>
 Subject: Re: hald - r/w access to /dev/usb/lp0?
-Date: Sun, 26 Sep 2004 05:34:51 +1000
-References: <4c4ba153040925112714a5f9ac@mail.gmail.com>
-In-Reply-To: <4c4ba153040925112714a5f9ac@mail.gmail.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Date: Sun, 26 Sep 2004 07:03:22 +1000
+Cc: fedora-selinux-list@redhat.com, SE Linux <selinux@tycho.nsa.gov>,
+   Daniel J Walsh <dwalsh@redhat.com>
+References: <4c4ba153040925112714a5f9ac@mail.gmail.com> <200409260534.51592.russell@coker.com.au> <4c4ba15304092512542d749951@mail.gmail.com>
+In-Reply-To: <4c4ba15304092512542d749951@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_bhcVBeqYSdYX03h"
-Message-Id: <200409260534.51592.russell@coker.com.au>
+  boundary="Boundary-00=_a0dVBtth8VKEBOe"
+Message-Id: <200409260703.22135.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_bhcVBeqYSdYX03h
+--Boundary-00=_a0dVBtth8VKEBOe
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-On Sun, 26 Sep 2004 04:27, Tom London <selinux@gmail.com> wrote:
-> When haldaemon starts, and typically just after the text 'login:'
-> appears but before the graphical stuff takes over, I get:
+On Sun, 26 Sep 2004 05:54, Tom London <selinux@gmail.com> wrote:
+> Understand and agree about read access, but  the AVC
+> shows it wanting write access as well.
 >
-> Sep 25 10:28:57 fedora kernel: audit(1096133337.944:0): avc:  denied
-> { read write } for  pid=3187 exe=/usr/sbin/hald name=lp0 dev=tmpfs
-> ino=5073 scontext=system_u:system_r:hald_t
-> tcontext=system_u:object_r:printer_device_t tclass=chr_file
+> Your patch allows read/getattr/ioctl. but not write. I can certainly
+> imagine a dialog protocol that would require both read and write,
+> but I'm not certain if this is in fact used here.
 >
-> referring to /dev/usb/lp0.
->
-> Does hald need read/write access to the printer_device?
+> What do you think?
 
-Does hald need it right now?  Probably, but I'm not sure.
+I think we should allow write as well, I've attached a new patch.
 
-Will it need such access in the future to perform the tasks that it is 
-designed for?  Definitely!  There is a lot of variation among printer 
-hardware and hald is the correct program to inform you of what type of 
-printer you have just connected.  I've attached a patch to add the access.
+If it wanted write access to fixed_disk_device_t or something then we would 
+have to look into it seriously.  But write to a printer doesn't seem so 
+important and it's something that is needed for some status queries.
+
+If hald ever goes as far as querying the paper size then it'll definitely need 
+such access.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -52,7 +52,7 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_bhcVBeqYSdYX03h
+--Boundary-00=_a0dVBtth8VKEBOe
 Content-Type: text/x-diff;
   charset="iso-8859-1";
   name="diff"
@@ -66,12 +66,12 @@ Content-Disposition: attachment;
  allow hald_t device_t:lnk_file read;
  allow hald_t { fixed_disk_device_t removable_device_t }:blk_file { getattr read ioctl };
  allow hald_t event_device_t:chr_file { getattr read ioctl };
-+allow hald_t printer_device_t:chr_file { getattr read ioctl };
++allow hald_t printer_device_t:chr_file rw_file_perms;
  
  ifdef(`updfstab.te', `
  domain_auto_trans(hald_t, updfstab_exec_t, updfstab_t)
 
---Boundary-00=_bhcVBeqYSdYX03h--
+--Boundary-00=_a0dVBtth8VKEBOe--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
