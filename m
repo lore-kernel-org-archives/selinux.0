@@ -1,61 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAE81RSf023242
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 03:01:27 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAE81QqY020255
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 08:01:26 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hAE81P0o020250 for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 08:01:25 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id 164CC61BD5
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 19:01:18 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
-	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 18322-07 for <selinux@tycho.nsa.gov>;
-	Fri, 14 Nov 2003 19:01:17 +1100 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by ns.sws.net.au (Postfix) with ESMTP id C8CEF61BCF
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 19:01:17 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 7BC24925E8
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 19:01:16 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 3611A7F06D
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 19:01:15 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: unix_chkpwd
-Date: Fri, 14 Nov 2003 19:01:14 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200311141901.14660.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAECcgSf023884
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 07:38:42 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAECcFBb008308
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 12:38:15 GMT
+Received: from sisko.scot.redhat.com (82-41-8-128.cable.ubr02.edin.blueyonder.co.uk [82.41.8.128])
+	by jazzswing.ncsc.mil  with ESMTP id hAECcE4o008305
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 12:38:15 GMT
+Subject: Re: unix_chkpwd
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200311141901.14660.russell@coker.com.au>
+References: <200311141901.14660.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1068813495.9878.31.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+Date: 14 Nov 2003 12:38:15 +0000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When sshd is launched from inetd it inherits the open file handle for the TCP 
-socket.  It does not use fcntl(fd, F_SETFD..) to make it close on exec for 
-child processes, so when pam_unix.so runs unix_chkpwd (*) the file handle is 
-inherited.
+Hi,
 
-We can do one of three things:
-1)  dontaudit system_chkpwd_t inetd_t:fd use;
-2)  Change sshd to use fcntl() before doing any PAM stuff.
-3)  Put code in pam_unix.so to close all file handles after the fork().
+On Fri, 2003-11-14 at 08:01, Russell Coker wrote:
 
-Which do you think is best?  2 seems most correct to me, but may be most 
-difficult to get accepted upstream.  3 means ~1000 close() calls, which 
-doesn't take too long on modern machines.  1 is a hack.
+> We can do one of three things:
+> 1)  dontaudit system_chkpwd_t inetd_t:fd use;
+> 2)  Change sshd to use fcntl() before doing any PAM stuff.
+> 3)  Put code in pam_unix.so to close all file handles after the fork().
+> 
+> Which do you think is best?  2 seems most correct to me
 
-(*) This only happens with my modified PAM and SE Linux policy to prevent all 
-login processes from being able to read /etc/shadow directly.
+2 would require fcntl()ing it back again afterwards, of course.  Having
+your shell inherit FD_CLOEXEC on stdin could be confusing, at best. :-)
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+2 seems clearly the cleanest solution, but is also a rather
+PAM+SELinux-specific hack.  I guess that we're going to be maintaining
+SELinux-specific patches against a lot of core utils for some time,
+until it becomes so widespread that all maintainers are desperate to
+merge full SELinux support :-), and this specific change seems a
+relatively minimal and painless one to maintain in that manner.
+
+--Stephen
 
 
 --
