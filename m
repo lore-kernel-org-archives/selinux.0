@@ -1,30 +1,48 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4B2YRRb019236
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 22:34:28 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4B7HERb020169
+	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 03:17:14 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4B2YPYW022220
-	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 02:34:25 GMT
-Received: from ercist.iscas.ac.cn ([159.226.5.94])
-        by jazzband.ncsc.mil  with ESMTP id i4B2YJBf022215 for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 02:34:24 GMT
-Date: Tue, 11 May 2004 10:36:25 +0800
-From: "=?gb2312?B?wO7A9sa8?=" <llp@ercist.iscas.ac.cn>
-To: "selinux" <selinux@tycho.nsa.gov>
-Subject: selopt  &   dsi
+	by jazzband.ncsc.mil  with ESMTP id i4B7HCYW000834
+	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 07:17:12 GMT
+Received: from nox.lemuria.org ([213.191.86.35])
+        by jazzband.ncsc.mil  with ESMTP id i4B7HBBf000831 for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 07:17:11 GMT
+Date: Tue, 11 May 2004 09:17:00 +0200
+From: Tom <tom@lemuria.org>
+To: selinux@tycho.nsa.gov
+Subject: Re: Japanese Documentation(Re: presentation results)
+Message-ID: <20040511091700.B21637@lemuria.org>
+References: <20040510032712.919833A404E@abyss.simplyaquatics.com> <20040511085849.2213308a.ynakam@ori.hitachi-sk.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Message-ID: <hoic78cgsptv81w.110520041038@ercist.iscas.ac.cn>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040511085849.2213308a.ynakam@ori.hitachi-sk.co.jp>; from ynakam@ori.hitachi-sk.co.jp on Tue, May 11, 2004 at 08:58:49AM +0900
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, May 11, 2004 at 08:58:49AM +0900, Yuichi Nakamura wrote:
+> On Sun, 9 May 2004 23:27:12 -0400
+> "Ed Street" <edstreet@street-tek.com> wrote:
+> > Documentation, is there any plans to have a printed book dealing with
+> > selinux administration?
+> 
+> There are book and many articles in Japan.
+> Unfortunately, they are written in Japanese.
+> People who can read Japanese, please look at them.
 
-How do you think about DSI (Distributed Security Infrastructure)? I think selopt can do better if it is developed to support labeled communication between different security perimeters. 
 
-Is there any working still continue to develop SeLopt on distributed network area?
+Good point!
+
+SELinux is _big_ in Japan. If we could manage to build a wider bridge
+there, everyone would profit a lot. Unfortunately, the language barrier
+is quite high.
+
+Russell - maybe you could ask inside Redhat? I know that a couple guys
+from Redhat Japan are doing SELinux work.
 
 
-
-
+-- 
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
