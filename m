@@ -1,44 +1,93 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i39E8qRb024951
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 10:08:52 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i39FQxRb025530
+	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 11:27:00 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i39E6aUZ000560
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 14:06:36 GMT
-Received: from mail.lemuria.org (web.lemuria.org [213.191.85.3])
-	by jazzswing.ncsc.mil  with ESMTP id i39E6ZmT000550
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 14:06:36 GMT
-Date: Fri, 9 Apr 2004 15:59:18 +0200
-From: Tom <tom@lemuria.org>
-To: Bill McCarty <bmccarty@pt-net.net>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Problems finding working kernel/user land combination
-Message-ID: <20040409155916.A21924@lemuria.org>
-References: <401FF280.8070301@treblig.org> <88042458.1081270777@[192.168.0.3]> <20040407075405.D19421@lemuria.org> <280262546.1081462998@[192.168.0.3]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <280262546.1081462998@[192.168.0.3]>; from bmccarty@pt-net.net on Thu, Apr 08, 2004 at 10:23:19PM -0700
+	by jazzswing.ncsc.mil  with ESMTP id i39FOxUZ005610
+	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 15:24:59 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+	by jazzswing.ncsc.mil  with ESMTP id i39FOxmT005605
+	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 15:24:59 GMT
+Message-ID: <4076C05A.6010104@redhat.com>
+Date: Fri, 09 Apr 2004 11:25:14 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: John Reuning <john@metalab.unc.edu>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Fedora Core 2 Test 2
+References: <1081459652.24857.33.camel@hawaii.efficax.net>	 <32926.192.168.1.3.1081469476.squirrel@www> <1081481682.11877.26.camel@camelot>
+In-Reply-To: <1081481682.11877.26.camel@camelot>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Apr 08, 2004 at 10:23:19PM -0700, Bill McCarty wrote:
-> However, I ran into a snag. Sid's SSH package has been updated to require 
-> libpam-runtime 0.76-14 or greater, and the latest libpam-runtime having 
-> SELinux mods is only 0.76-13.
-> 
-> Although I was once familiar with Debian, I no longer know my way around 
-> it. Is there a way to instruct apt-get to ignore such a package dependency? 
-> I haven't been able to find an appropriate option in the man pages. I 
-> suppose that I could manually download the SSH package and install it via 
-> dpkg, which has a --force option. Is that the way to go?
+John Reuning wrote:
 
-Yes. Just to be sure I usually keep a full copy of the package archive
-locally (just the SE progs) and then do something like dpkg -i * after
-every upgrade.
+>I'll offer my limited experience with fc2t2.  I've done two installs,
+>both onto clean systems with reformatted partitions.  There was an
+>option to disable selinux in the installer click-through choices.
+>
+>The first install resulted in an almost unusable system.  I think
+>something hiccuped because the fs labeling was messed up.  For example,
+>I couldn't create user accounts as root because the root user didn't
+>have access to write /etc/shadow or /etc/passwd.  A manual relabeling of
+>the file systems fixed the problem.  After that, everything was fine.
+>
+>The second install was smooth.  No labeling or policy problems yet. 
+>Although, I haven't used the system except as a headless test server.
+>
+>I haven't tried upgrading a fc1 system to fc2t2.  Maybe that's a source
+>of trouble?
+>
+>Thanks,
+>
+>-John R.
+>
+>  
+>
+First off there is a Mailing list for discussing Fedora SELinux issues.
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+http://www.redhat.com/mailman/listinfo/fedora-selinux-list
+As well as fedora-test-list and fedora-devel-list (Discussions are going 
+on all three lists).
+
+1.  Upgrading to Fedora Core 2/SELinux requires a relabel of the file 
+system, so people
+who have done this have gotten into trouble.
+2.  We have had tons of fixes to policy over the past few weeks that 
+have cleaned up a lot of
+problems.  So if you install FC2, make sure you update to the latest 
+policy off of rawhide.
+3.  Overall the number of bugs being reported has dropped dramatically, 
+either we have fixed
+a lot of the problems or people have figured out how to turn off SELinux 
+(Probably a combination
+of both.)
+4.  Red Hat will be announcing our strategy for SELinux support in 
+FC2/Test3  and Final shortly.
+
+>>>1: I was a little surprised to find that SELinux was installed by
+>>>default and that there didn't seem to be a way to avoid it. This said,
+>>>the kernel did come up properly and the system booted.
+>>>[snip]
+>>>      
+>>>
+>
+>  
+>
+The installer has three options currently Enforcing (Default), 
+Permissive, Disabled.
+There is also a FAQ explaining how to use SELinux within FC2.
+http://people.redhat.com/kwade/fedora-docs/selinux-faq-en/
+
+Comments welcome.
+
+>
+>--
+>This message was distributed to subscribers of the selinux mailing list.
+>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>the words "unsubscribe selinux" without quotes as the message.
+>  
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
