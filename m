@@ -1,32 +1,974 @@
+Message-ID: <413F26BF.8000308@redhat.com>
+Date: Wed, 08 Sep 2004 11:35:27 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: Patch to make udev/tmpfs work and changes from colin  walters
-	for dbus.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <413F1DD8.2000201@redhat.com>
-References: <413E1DE0.9050905@redhat.com>
-	 <1094645825.20215.33.camel@moss-spartans.epoch.ncsc.mil>
-	 <413F1DD8.2000201@redhat.com>
-Content-Type: text/plain
-Message-Id: <1094656361.20215.133.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Wed, 08 Sep 2004 11:12:42 -0400
+ for dbus.
+References: <413E1DE0.9050905@redhat.com>	 <1094645825.20215.33.camel@moss-spartans.epoch.ncsc.mil>	 <413F1DD8.2000201@redhat.com> <1094656361.20215.133.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1094656361.20215.133.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed;
+ boundary="------------060601010900010706030204"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-09-08 at 10:57, Daniel J Walsh wrote:
-> It is the feeling here to keep the init program as simple as possible 
-> for maintainability, bugs in it are very difficult to debug, so the
-> restorecon will remain in the rc.sysinit scripts.
+This is a multi-part message in MIME format.
+--------------060601010900010706030204
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Is the patch for rc.sysinit available somewhere we can look at it?  You
-want to apply restorecon as early as possible in it to minimize the set
-of programs that access /dev before it has been restored.
+Stephen Smalley wrote:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+>On Wed, 2004-09-08 at 10:57, Daniel J Walsh wrote:
+>  
+>
+>>It is the feeling here to keep the init program as simple as possible 
+>>for maintainability, bugs in it are very difficult to debug, so the
+>>restorecon will remain in the rc.sysinit scripts.
+>>    
+>>
+>
+>Is the patch for rc.sysinit available somewhere we can look at it?  You
+>want to apply restorecon as early as possible in it to minimize the set
+>of programs that access /dev before it has been restored.
+>
+>  
+>
+The new initscripts package is out on my people page.
+mount, hostname and init will need the privs.
 
+Dan
+
+
+
+--------------060601010900010706030204
+Content-Type: text/plain;
+ name="rc.sysinit"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="rc.sysinit"
+
+#!/bin/bash
+#
+# /etc/rc.d/rc.sysinit - run once at boot time
+#
+# Taken in part from Miquel van Smoorenburg's bcheckrc.
+#
+
+# Rerun ourselves through initlog
+if [ -z "$IN_INITLOG" -a -x /sbin/initlog ]; then
+    exec /sbin/initlog -r /etc/rc.d/rc.sysinit
+fi
+
+HOSTNAME=`/bin/hostname`
+HOSTTYPE=`uname -m`
+unamer=`uname -r`
+eval version=`echo $unamer | awk -F '.' '{ print "(" $1 " " $2 ")" }'`
+
+if [ -f /etc/sysconfig/network ]; then
+    . /etc/sysconfig/network
+fi
+if [ -z "$HOSTNAME" -o "$HOSTNAME" = "(none)" ]; then
+    HOSTNAME=localhost
+fi
+
+# Mount /proc and /sys (done here so volume labels can work with fsck)
+mount -n -t proc /proc /proc
+mount -n -t usbfs /proc/bus/usb /proc/bus/usb
+mount -n -t sysfs /sys /sys >/dev/null 2>&1
+
+. /etc/init.d/functions
+
+# Check SELinux status
+selinuxfs=`awk '/ selinuxfs / { print $2 }' /proc/mounts`
+SELINUX=
+if [ -n "$selinuxfs" ] && [ "`cat /proc/self/attr/current`" != "kernel" ]; then
+	if [ -r $selinuxfs/enforce ] ; then
+		SELINUX=`cat $selinuxfs/enforce`
+	else
+		# assume enforcing if you can't read it
+		SELINUX=1
+	fi
+fi
+
+if [ "$SELINUX" = "1" -a -x /sbin/restorecon ] && fgrep -q " /dev " /proc/mounts ; then
+	restorecon  /dev /dev/null
+	restorecon  /dev/* 2> /dev/null
+fi
+
+disable_selinux() {
+	echo "*** Warning -- SELinux is active"
+	echo "*** Disabling security enforcement for system recovery."
+	echo "*** Run 'setenforce 1' to reenable."
+	echo "0" > $selinuxfs/enforce
+}
+
+relabel_selinux() {
+    if [ -x /usr/bin/rhgb-client ] && /usr/bin/rhgb-client --ping ; then
+	chvt 1
+    fi
+    echo "
+         *** Warning -- SELinux relabel is required. ***
+	 *** Disabling security enforcement.         ***
+	 *** Relabeling could take a very long time, ***
+	 *** depending on file system size.          ***
+	 "
+    echo "0" > $selinuxfs/enforce
+    mount -n -o remount,rw /
+    mount -a
+    /sbin/fixfiles -F relabel > /dev/null 2>&1 
+    rm -f  /.autorelabel 
+    mount -n -o remount,ro /
+    umount -a
+    echo "*** Enabling security enforcement.         ***"
+    echo $SELINUX > $selinuxfs/enforce
+}
+
+
+
+if [ "$HOSTTYPE" != "s390" -a "$HOSTTYPE" != "s390x" ]; then
+  last=0
+  for i in `LC_ALL=C grep '^[0-9].*respawn:/sbin/mingetty' /etc/inittab | sed 's/^.* tty\([0-9][0-9]*\).*/\1/g'`; do
+        > /dev/tty$i
+        last=$i
+  done
+  if [ $last -gt 0 ]; then
+       > /dev/tty$((last+1))
+       > /dev/tty$((last+2))
+  fi
+fi
+
+if [ "$CONSOLETYPE" = "vt" -a -x /sbin/setsysfont ]; then
+   echo -n "Setting default font ($SYSFONT): "
+   /sbin/setsysfont
+   if [ $? -eq 0 ]; then
+      success
+   else
+      failure
+   fi
+   echo ; echo
+fi
+
+# Print a text banner.
+echo -en $"\t\tWelcome to "
+if LC_ALL=C fgrep -q "Red Hat" /etc/redhat-release ; then 
+ [ "$BOOTUP" = "color" ] && echo -en "\\033[0;31m"
+ echo -en "Red Hat"
+ [ "$BOOTUP" = "color" ] && echo -en "\\033[0;39m"
+ PRODUCT=`sed "s/Red Hat \(.*\) release.*/\1/" /etc/redhat-release`
+ echo " $PRODUCT"
+elif LC_ALL=C fgrep -q "Fedora" /etc/redhat-release ; then 
+ [ "$BOOTUP" = "color" ] && echo -en "\\033[0;31m"
+ echo -en "Fedora"
+ [ "$BOOTUP" = "color" ] && echo -en "\\033[0;39m"
+ PRODUCT=`sed "s/Fedora \(.*\) release.*/\1/" /etc/redhat-release`
+ echo " $PRODUCT"
+else
+ PRODUCT=`sed "s/ release.*//g" /etc/redhat-release`
+ echo "$PRODUCT"
+fi
+if [ "$PROMPT" != "no" ]; then
+ echo -en $"\t\tPress 'I' to enter interactive startup."
+ echo
+fi
+
+# Fix console loglevel
+if [ -n "$LOGLEVEL" ]; then
+	/bin/dmesg -n $LOGLEVEL
+fi
+
+if [ -f /etc/udev/udev.conf ];then
+	. /etc/udev/udev.conf
+fi
+
+if [ "$USE_UDEV" = "yes" -a "$UDEV_TMPFS" = "yes" ]; then
+	[ -x /sbin/start_udev ] && /sbin/start_udev
+fi
+
+# Initialize hardware
+if [ -f /proc/sys/kernel/modprobe ]; then
+   if ! strstr cmdline nomodules && [ -f /proc/modules ] ; then
+       sysctl -w kernel.modprobe="/sbin/modprobe" >/dev/null 2>&1
+       sysctl -w kernel.hotplug="/sbin/hotplug" >/dev/null 2>&1
+   else
+       # We used to set this to NULL, but that causes 'failed to exec' messages"
+       sysctl -w kernel.modprobe="/bin/true" >/dev/null 2>&1
+       sysctl -w kernel.hotplug="/bin/true" >/dev/null 2>&1
+   fi
+fi
+
+echo -n $"Initializing hardware... "
+
+ide=""
+scsi=""
+network=""
+audio=""
+other=""
+eval `kmodule | while read devtype mod ; do
+	case "$devtype" in
+		"IDE")	ide="$ide $mod"
+		   echo "ide=\"$ide"\";;
+		"SCSI") scsi="$scsi $mod"
+		   echo "scsi=\"$scsi"\";;
+		"NETWORK") network="$network $mod"
+		   echo "network=\"$network"\";;
+		"AUDIO") audio="$audio $mod"
+		   echo "audio=\"$audio"\";;
+		*) other="$other $mod"
+		   echo "other=\"$other"\";;
+	esac
+done`
+
+# IDE
+for module in $ide ; do
+	modprobe $module >/dev/null 2>&1
+done
+
+# SCSI
+for module in `/sbin/modprobe -c | awk '/^alias[[:space:]]+scsi_hostadapter[[:space:]]/ { print $3 }'` $scsi; do
+	modprobe $module >/dev/null 2>&1
+done
+modprobe floppy >/dev/null 2>&1
+
+echo -n $" storage"
+
+# Network
+pushd /etc/sysconfig/network-scripts >/dev/null 2>&1
+interfaces=`ls ifcfg* | LANG=C egrep -v '(ifcfg-lo|:|rpmsave|rpmorig|rpmnew)' | \
+            LANG=C egrep -v '(~|\.bak)$' | \
+            LANG=C egrep 'ifcfg-[A-Za-z0-9\._-]+$' | \
+	    sed 's/^ifcfg-//g' |
+	    sed 's/[0-9]/ &/' | LANG=C sort -k 1,1 -k 2n | sed 's/ //'`
+
+for i in $interfaces ; do
+	eval $(LANG=C fgrep "DEVICE=" ifcfg-$i)
+	modprobe $DEVICE >/dev/null 2>&1
+done
+popd >/dev/null 2>&1
+
+for module in $network ; do
+	modprobe $module >/dev/null 2>&1
+done
+
+echo -n $" network"
+
+# Sound
+for module in `/sbin/modprobe -c | awk '/^alias[[:space:]]+snd-card-[[:digit:]]+[[:space:]]/ { print $3 }'` $audio; do
+	modprobe $module >/dev/null 2>&1
+done
+
+echo -n $" audio"
+
+# Everything else (duck and cover)
+for module in $other ; do
+	modprobe $module >/dev/null 2>&1
+done
+
+echo -n $" done"
+success
+echo
+
+echo "raidautorun /dev/md0" | nash --quiet
+
+# Start the graphical boot, if necessary; /usr may not be mounted yet, so we
+# may have to do this again after mounting
+RHGB_STARTED=0
+mount -n /dev/pts
+
+if fgrep rhgb /proc/cmdline > /dev/null 2>&1 && [ "$BOOTUP" = "color" -a "$GRAPHICAL" = "yes" -a -x /usr/bin/rhgb ]; then
+   LC_MESSAGES= /usr/bin/rhgb
+   RHGB_STARTED=1
+fi
+
+# Configure kernel parameters
+update_boot_stage RCkernelparam
+action $"Configuring kernel parameters: " sysctl -e -p /etc/sysctl.conf
+
+# Set the system clock.
+update_boot_stage RCclock
+ARC=0
+SRM=0
+UTC=0
+
+if [ -f /etc/sysconfig/clock ]; then
+   . /etc/sysconfig/clock
+
+   # convert old style clock config to new values
+   if [ "${CLOCKMODE}" = "GMT" ]; then
+      UTC=true
+   elif [ "${CLOCKMODE}" = "ARC" ]; then
+      ARC=true
+   fi
+fi
+
+CLOCKDEF=""
+CLOCKFLAGS="$CLOCKFLAGS --hctosys"
+
+case "$UTC" in
+    yes|true)	CLOCKFLAGS="$CLOCKFLAGS --utc"
+		CLOCKDEF="$CLOCKDEF (utc)" ;;
+    no|false)	CLOCKFLAGS="$CLOCKFLAGS --localtime"
+		CLOCKDEF="$CLOCKDEF (localtime)" ;;
+esac
+case "$ARC" in
+    yes|true)	CLOCKFLAGS="$CLOCKFLAGS --arc"
+		CLOCKDEF="$CLOCKDEF (arc)" ;;
+esac
+case "$SRM" in
+    yes|true)	CLOCKFLAGS="$CLOCKFLAGS --srm"
+		CLOCKDEF="$CLOCKDEF (srm)" ;;
+esac
+
+/sbin/hwclock $CLOCKFLAGS
+
+action $"Setting clock $CLOCKDEF: `date`" date
+
+if [ "$CONSOLETYPE" = "vt" -a -x /bin/loadkeys ]; then
+ KEYTABLE=
+ KEYMAP=
+ if [ -f /etc/sysconfig/console/default.kmap ]; then
+  KEYMAP=/etc/sysconfig/console/default.kmap
+ else
+  if [ -f /etc/sysconfig/keyboard ]; then
+    . /etc/sysconfig/keyboard
+  fi
+  if [ -n "$KEYTABLE" -a -d "/lib/kbd/keymaps" ]; then
+     KEYMAP="$KEYTABLE.map"
+  fi
+ fi
+ if [ -n "$KEYMAP" ]; then 
+  # Since this takes in/output from stdin/out, we can't use initlog
+  if [ -n "$KEYTABLE" ]; then
+    echo -n $"Loading default keymap ($KEYTABLE): "
+  else
+    echo -n $"Loading default keymap: "
+  fi
+  loadkeys $KEYMAP < /dev/tty0 > /dev/tty0 2>/dev/null && \
+     success $"Loading default keymap" || failure $"Loading default keymap"
+  echo
+ fi
+fi
+
+# Set the hostname.
+update_boot_stage RChostname
+action $"Setting hostname ${HOSTNAME}: " hostname ${HOSTNAME}
+
+# Only read this once.
+cmdline=$(cat /proc/cmdline)
+
+# Initialiaze ACPI bits
+if [ -d /proc/acpi ]; then
+   for module in /lib/modules/$unamer/kernel/drivers/acpi/* ; do
+      insmod $module >/dev/null 2>&1
+   done
+fi
+
+if [ -f /fastboot ] || strstr "$cmdline" fastboot ; then
+	fastboot=yes
+fi
+
+if [ -f /fsckoptions ]; then
+	fsckoptions=`cat /fsckoptions`
+fi
+
+if [ -f /forcefsck ] || strstr "$cmdline" forcefsck ; then
+	fsckoptions="-f $fsckoptions"
+elif [ -f /.autofsck ]; then
+        if [ -x /usr/bin/rhgb-client ] && /usr/bin/rhgb-client --ping ; then
+	     chvt 1
+	fi
+	echo $"Your system appears to have shut down uncleanly"
+	AUTOFSCK_TIMEOUT=5
+	[ -f /etc/sysconfig/autofsck ] && . /etc/sysconfig/autofsck
+	if [ "$AUTOFSCK_DEF_CHECK" = "yes" ]; then
+		AUTOFSCK_OPT=-f
+	fi
+
+	if [ "$PROMPT" != "no" ]; then
+		if [ "$AUTOFSCK_DEF_CHECK" = "yes" ]; then
+			if /sbin/getkey -c $AUTOFSCK_TIMEOUT -m $"Press N within %d seconds to not force file system integrity check..." n ; then
+				AUTOFSCK_OPT=
+			fi
+		else
+			if /sbin/getkey -c $AUTOFSCK_TIMEOUT -m $"Press Y within %d seconds to force file system integrity check..." y ; then
+				AUTOFSCK_OPT=-f
+			fi
+		fi
+		echo
+	else
+		# PROMPT not allowed
+		if [ "$AUTOFSCK_DEF_CHECK" = "yes" ]; then
+			echo $"Forcing file system integrity check due to default setting"
+		else
+			echo $"Not forcing file system integrity check due to default setting"
+		fi
+	fi
+	fsckoptions="$AUTOFSCK_OPT $fsckoptions"
+fi
+
+if [ "$BOOTUP" = "color" ]; then
+	fsckoptions="-C $fsckoptions"
+else
+	fsckoptions="-V $fsckoptions"
+fi
+
+if [ -f /etc/sysconfig/readonly-root ]; then
+    . /etc/sysconfig/readonly-root
+
+    if [ "$READONLY" = "yes" ]; then
+        # Call rc.readonly to set up magic stuff needed for readonly root
+        . /etc/rc.readonly
+    fi
+fi
+ 
+_RUN_QUOTACHECK=0
+ROOTFSTYPE=`awk '/ \/ / && ($3 !~ /rootfs/) { print $3 }' /proc/mounts`
+if [ -z "$fastboot" -a "$READONLY" != "yes" -a "X$ROOTFSTYPE" != "Xnfs" -a "X$ROOTFSTYPE" != "Xnfs4" ]; then 
+
+        STRING=$"Checking root filesystem"
+	echo $STRING
+	rootdev=`awk '/ \/ / && ($3 !~ /rootfs/) {print $1}' /proc/mounts`
+	if [ -b /initrd/"$rootdev" ] ; then
+		rootdev=/initrd/"$rootdev"
+	else
+		rootdev=/
+	fi
+	initlog -c "fsck -T -a $rootdev $fsckoptions"
+	rc=$?
+	
+	if [ "$rc" -eq "0" ]; then
+		success "$STRING"
+		echo
+	elif [ "$rc" -eq "1" ]; then
+	        passed "$STRING"
+		echo
+        fi
+	
+        # A return of 2 or higher means there were serious problems.
+	if [ $rc -gt 1 ]; then
+	        if [ -x /usr/bin/rhgb-client ] && /usr/bin/rhgb-client --ping ; then
+		    chvt 1
+		fi
+
+		failure "$STRING"
+		echo
+		echo
+		echo $"*** An error occurred during the file system check."
+		echo $"*** Dropping you to a shell; the system will reboot"
+		echo $"*** when you leave the shell."
+
+                str=$"(Repair filesystem)"
+		PS1="$str \# # "; export PS1
+		[ "$SELINUX" = "1" ] && disable_selinux
+		sulogin
+
+		echo $"Unmounting file systems"
+		umount -a
+		mount -n -o remount,ro /
+		echo $"Automatic reboot in progress."
+		reboot -f
+	elif [ "$rc" -eq "1" ]; then
+		_RUN_QUOTACHECK=1
+	fi
+fi
+#
+# Check to see if SELinux requires a relabel
+#
+[ -n "$SELINUX" ] && [ -f /.autorelabel ] && relabel_selinux
+
+# Unmount the initrd, if necessary
+if LC_ALL=C fgrep -q /initrd /proc/mounts && ! LC_ALL=C fgrep -q /initrd/loopfs /proc/mounts ; then
+   if [ -e /initrd/dev/.devfsd ]; then
+      umount /initrd/dev
+   fi
+   umount /initrd
+   /sbin/blockdev --flushbufs /dev/ram0 >/dev/null 2>&1
+fi
+                                                                                
+# Possibly update quotas if fsck was run on /.
+LC_ALL=C grep -E '[[:space:]]+/[[:space:]]+' /etc/fstab | \
+    awk '{ print $4 }' | \
+    LC_ALL=C fgrep -q quota
+_ROOT_HAS_QUOTA=$?
+if [ "X$_RUN_QUOTACHECK" = "X1" -a \
+    "X$_ROOT_HAS_QUOTA" = "X0" -a \
+    -x /sbin/quotacheck ]; then
+	if [ -x /sbin/convertquota ]; then
+	    if [ -f /quota.user ]; then
+		action $"Converting old user quota files: " \
+		    /sbin/convertquota -u / && rm -f /quota.user
+	    fi
+	    if [ -f /quota.group ]; then
+		action $"Converting old group quota files: " \
+		    /sbin/convertquota -g / && rm -f /quota.group
+	    fi
+	fi
+	action $"Checking root filesystem quotas: " /sbin/quotacheck -nug /
+fi
+
+if [ -x /sbin/isapnp -a -f /etc/isapnp.conf -a ! -f /proc/isapnp ]; then
+    # check for arguments passed from kernel
+    if ! strstr "$cmdline" nopnp ; then
+	PNP=yes
+    fi
+    if [ -n "$PNP" ]; then
+	action $"Setting up ISA PNP devices: " /sbin/isapnp /etc/isapnp.conf
+    else
+	action $"Skipping ISA PNP configuration at users request: " /bin/true
+    fi
+fi
+
+# Remount the root filesystem read-write.
+update_boot_stage RCmountfs
+state=`awk '/ \/ / && ($3 !~ /rootfs/) { print $4 }' /proc/mounts`
+[ "$state" != "rw" -a "$READONLY" != "yes" ] && \
+  action $"Remounting root filesystem in read-write mode: " mount -n -o remount,rw /
+
+if [ "$USE_UDEV" = "yes" -a "$UDEV_TMPFS" = "no" ]; then
+	[ -x /sbin/start_udev ] && /sbin/start_udev
+fi
+
+
+# LVM2 initialization
+if [ -x /sbin/lvm.static ]; then
+    if ! LC_ALL=C fgrep -q "device-mapper" /proc/devices 2>/dev/null ; then
+	modprobe dm-mod >/dev/null 2>&1
+    fi
+    echo "mkdmnod" | /sbin/nash --quiet >/dev/null 2>&1
+    [ -n "$SELINUX" ] && restorecon /dev/mapper/control >/dev/null 2>&1
+    if [ -c /dev/mapper/control -a -x /sbin/lvm.static ]; then
+	if /sbin/lvm.static vgscan --mknodes --ignorelockingfailure > /dev/null 2>&1 ; then
+	    action $"Setting up Logical Volume Management:" /sbin/lvm.static vgchange -a y --ignorelockingfailure
+	fi
+    fi
+fi
+# LVM initialization
+if [ -f /etc/lvmtab ]; then
+    [ -e /proc/lvm ] || modprobe lvm-mod > /dev/null 2>&1
+    if [ -e /proc/lvm -a -x /sbin/vgchange ]; then
+	action $"Setting up Logical Volume Management:" /sbin/vgscan && /sbin/vgchange -a y
+    fi
+fi
+
+# Clean up SELinux labels
+if [ -n "$SELINUX" ]; then
+   for file in /etc/mtab /etc/ld.so.cache ; do
+   	[ -r $file ] && restorecon $file  >/dev/null 2>&1
+   done
+fi
+
+# Clear mtab
+(> /etc/mtab) &> /dev/null
+
+# Remove stale backups
+rm -f /etc/mtab~ /etc/mtab~~
+
+# Enter root, /proc and (potentially) /proc/bus/usb and devfs into mtab.
+mount -f /
+mount -f /proc
+mount -f /sys >/dev/null 2>&1
+mount -f /dev/pts
+[ -f /proc/bus/usb/devices ] && mount -f -t usbdevfs usbdevfs /proc/bus/usb
+[ -e /dev/.devfsd ] && mount -f -t devfs devfs /dev 
+
+# configure all zfcp (scsi over fibrechannel) devices before trying to mount them
+# zfcpconf.sh exists only on mainframe
+[ -x /sbin/zfcpconf.sh ] && /sbin/zfcpconf.sh
+
+# The root filesystem is now read-write, so we can now log
+# via syslog() directly..
+if [ -n "$IN_INITLOG" ]; then
+    IN_INITLOG=
+fi
+
+if ! strstr "$cmdline" nomodules && [ -f /proc/modules ] ; then
+    USEMODULES=y
+fi
+
+# Load modules (for backward compatibility with VARs)
+if [ -f /etc/rc.modules ]; then
+	/etc/rc.modules
+fi
+
+update_boot_stage RCraid
+if [ -f /etc/raidtab ]; then
+    # Add raid devices
+    [ -f /proc/mdstat ] || modprobe md >/dev/null 2>&1
+
+    if [ -f /proc/mdstat ]; then
+	echo -n $"Starting up RAID devices: " 
+
+	rc=0
+	
+	for i in `awk '{if ($1=="raiddev") print $2}' /etc/raidtab`
+	do
+		RAIDDEV=`basename $i`
+                RAIDSTAT=`LC_ALL=C grep "^$RAIDDEV : active" /proc/mdstat`
+		if [ -z "$RAIDSTAT" ]; then
+			# First scan the /etc/fstab for the "noauto"-flag
+			# for this device. If found, skip the initialization
+			# for it to avoid dropping to a shell on errors.
+			# If not, try raidstart...if that fails then
+			# fall back to raidadd, raidrun.  If that
+			# also fails, then we drop to a shell
+			RESULT=1
+			INFSTAB=`LC_ALL=C grep -c "^$i" /etc/fstab`
+			if [ $INFSTAB -eq 0 ] ; then
+			    RESULT=0
+			    RAIDDEV="$RAIDDEV(skipped)"
+			fi
+			NOAUTO=`LC_ALL=C grep "^$i" /etc/fstab | LC_ALL=C fgrep -c "noauto"`
+			if [ $NOAUTO -gt 0 ]; then
+			    RESULT=0
+			    RAIDDEV="$RAIDDEV(skipped)"
+			fi
+			if [ $RESULT -gt 0 -a -x /sbin/raidstart ]; then
+				/sbin/raidstart $i
+				RESULT=$?
+			fi
+			if [ $RESULT -gt 0 -a -x /sbin/raid0run ]; then
+				/sbin/raid0run $i
+				RESULT=$?
+			fi
+			if [ $RESULT -gt 0 -a -x /sbin/raidadd -a -x /sbin/raidrun ]; then
+				/sbin/raidadd $i
+				/sbin/raidrun $i
+				RESULT=$?
+			fi
+			if [ $RESULT -gt 0 ]; then
+				rc=1
+			fi
+			echo -n "$RAIDDEV "
+		else
+			echo -n "$RAIDDEV "
+		fi
+	done
+	echo
+
+	# A non-zero return means there were problems.
+	if [ $rc -gt 0 ]; then
+	        if [ -x /usr/bin/rhgb-client ] && /usr/bin/rhgb-client --ping ; then
+		    chvt 1
+		fi
+		echo
+		echo
+		echo $"*** An error occurred during the RAID startup"
+		echo $"*** Dropping you to a shell; the system will reboot"
+		echo $"*** when you leave the shell."
+
+ 		str=$"(RAID Repair)"
+		PS1="$str \# # "; export PS1
+		[ "$SELINUX" = "1" ] && disable_selinux
+		sulogin
+
+		echo $"Unmounting file systems"
+		umount -a
+		mount -n -o remount,ro /
+		echo $"Automatic reboot in progress."
+		reboot -f
+	fi
+	# LVM2 initialization, take 2
+	if [ -c /dev/mapper/control -a -x /sbin/lvm.static ]; then
+		if /sbin/lvm.static vgscan > /dev/null 2>&1 ; then 
+			action $"Setting up Logical Volume Management:" /sbin/lvm.static vgscan --mknodes --ignorelockingfailure && /sbin/lvm.static vgchange -a y --ignorelockingfailure
+		fi
+	fi
+	# LVM initialization, take 2 (it could be on top of RAID)
+	if [ -e /proc/lvm -a -x /sbin/vgchange -a -f /etc/lvmtab ]; then
+		action $"Setting up Logical Volume Management:" /sbin/vgscan && /sbin/vgchange -a y
+	fi
+    fi
+fi
+
+if [ -x /sbin/devlabel ]; then
+	/sbin/devlabel restart
+fi
+
+_RUN_QUOTACHECK=0
+# Check filesystems
+if [ -z "$fastboot" ]; then
+        STRING=$"Checking filesystems"
+	echo $STRING
+	initlog -c "fsck -T -R -A -a $fsckoptions"
+	rc=$?
+        if [ "$rc" -eq "0" ]; then
+		success "$STRING"
+		echo
+	elif [ "$rc" -eq "1" ]; then
+	        passed "$STRING"
+		echo
+	fi
+
+	# A return of 2 or higher means there were serious problems.
+	if [ $rc -gt 1 ]; then
+	        if [ -x /usr/bin/rhgb-client ] && /usr/bin/rhgb-client --ping ; then
+		    chvt 1
+		fi
+
+	        failure "$STRING"
+		echo
+		echo
+		echo $"*** An error occurred during the file system check."
+		echo $"*** Dropping you to a shell; the system will reboot"
+		echo $"*** when you leave the shell."
+
+		str=$"(Repair filesystem)"
+		PS1="$str \# # "; export PS1
+		[ "$SELINUX" = "1" ] && disable_selinux
+		sulogin
+
+		echo $"Unmounting file systems"
+		umount -a
+		mount -n -o remount,ro /
+		echo $"Automatic reboot in progress."
+		reboot -f
+	elif [ "$rc" -eq "1" -a -x /sbin/quotacheck ]; then
+		_RUN_QUOTACHECK=1
+	fi
+fi
+
+# Mount all other filesystems (except for NFS and /proc, which is already
+# mounted). Contrary to standard usage,
+# filesystems are NOT unmounted in single user mode.
+action $"Mounting local filesystems: " mount -a -t nonfs,nfs4,smbfs,ncpfs,cifs,gfs -O no_netdev
+
+# Start the graphical boot, if necessary and not done yet.
+if fgrep rhgb /proc/cmdline > /dev/null 2>&1 && [ "$RHGB_STARTED" -eq 0 -a "$BOOTUP" = "color" -a "$GRAPHICAL" = "yes" -a -x /usr/bin/rhgb ]; then
+   LC_MESSAGES= /usr/bin/rhgb
+   RHGB_STARTED=1
+fi
+
+# check remaining quotas other than root
+if [ X"$_RUN_QUOTACHECK" = X1 -a -x /sbin/quotacheck ]; then
+	if [ -x /sbin/convertquota ]; then
+	    # try to convert old quotas
+	    for mountpt in `awk '$4 ~ /quota/{print $2}' /etc/mtab` ; do
+		if [ -f "$mountpt/quota.user" ]; then
+		    action $"Converting old user quota files: " \
+		    /sbin/convertquota -u $mountpt && \
+			rm -f $mountpt/quota.user
+		fi
+		if [ -f "$mountpt/quota.group" ]; then
+		    action $"Converting old group quota files: " \
+		    /sbin/convertquota -g $mountpt && \
+			rm -f $mountpt/quota.group
+		fi
+	    done
+	fi
+	action $"Checking local filesystem quotas: " /sbin/quotacheck -aRnug
+fi
+
+if [ -x /sbin/quotaon ]; then
+    action $"Enabling local filesystem quotas: " /sbin/quotaon -aug
+fi
+
+# Initialize pseudo-random number generator
+if [ -f "/var/lib/random-seed" ]; then
+	cat /var/lib/random-seed > /dev/urandom
+else
+	touch /var/lib/random-seed
+fi
+chmod 600 /var/lib/random-seed
+dd if=/dev/urandom of=/var/lib/random-seed count=1 bs=512 2>/dev/null
+
+# Use the hardware RNG to seed the entropy pool, if available
+[ -x /sbin/rngd -a -f /dev/hw_random ] && rngd
+
+# Configure machine if necessary.
+if [ -f /.unconfigured ]; then
+    if [ -x /usr/bin/rhgb-client ] && /usr/bin/rhgb-client --ping ; then
+	chvt 1
+    fi
+
+    if [ -x /usr/sbin/kbdconfig ]; then
+	/usr/sbin/kbdconfig
+    fi
+    if [ -x /usr/bin/passwd ]; then 
+        /usr/bin/passwd root
+    fi
+    if [ -x /usr/sbin/netconfig ]; then
+	/usr/sbin/netconfig
+    fi
+    if [ -x /usr/sbin/timeconfig ]; then
+	/usr/sbin/timeconfig
+    fi
+    if [ -x /usr/sbin/authconfig ]; then
+	/usr/sbin/authconfig --nostart
+    fi
+    if [ -x /usr/sbin/ntsysv ]; then
+	/usr/sbin/ntsysv --level 35
+    fi
+
+    # Reread in network configuration data.
+    if [ -f /etc/sysconfig/network ]; then
+	. /etc/sysconfig/network
+
+	# Reset the hostname.
+	action $"Resetting hostname ${HOSTNAME}: " hostname ${HOSTNAME}
+    fi
+
+    rm -f /.unconfigured
+
+    if [ -x /usr/bin/rhgb-client ] && /usr/bin/rhgb-client --ping ; then
+	chvt 8
+    fi
+fi
+
+# Clean out /.
+rm -f /fastboot /fsckoptions /forcefsck /.autofsck /halt /poweroff &> /dev/null
+
+# Do we need (w|u)tmpx files? We don't set them up, but the sysadmin might...
+_NEED_XFILES=
+[ -f /var/run/utmpx -o -f /var/log/wtmpx ] && _NEED_XFILES=1
+
+# Clean up /var.  I'd use find, but /usr may not be mounted.
+for afile in /var/lock/* /var/run/* ; do
+	if [ -d "$afile" ]; then
+	   case "$afile" in
+		*/news|*/mon)	;;
+		*/sudo)		rm -f $afile/*/* ;;
+		*/vmware)	rm -rf $afile/*/* ;;
+		*/samba)	rm -rf $afile/*/* ;;
+		*)		rm -f $afile/* ;;
+	   esac
+	else
+	   rm -f $afile
+	fi
+done
+rm -f /var/lib/rpm/__db* &> /dev/null
+
+# Reset pam_console permissions
+[ -x /sbin/pam_console_apply ] && /sbin/pam_console_apply -r
+
+{
+# Clean up utmp/wtmp
+> /var/run/utmp
+touch /var/log/wtmp
+chgrp utmp /var/run/utmp /var/log/wtmp
+chmod 0664 /var/run/utmp /var/log/wtmp
+if [ -n "$_NEED_XFILES" ]; then
+  > /var/run/utmpx
+  touch /var/log/wtmpx
+  chgrp utmp /var/run/utmpx /var/log/wtmpx
+  chmod 0664 /var/run/utmpx /var/log/wtmpx
+fi
+
+# Clean up various /tmp bits
+rm -f /tmp/.X*-lock /tmp/.lock.* /tmp/.gdm_socket /tmp/.s.PGSQL.*
+rm -rf /tmp/.X*-unix /tmp/.ICE-unix /tmp/.font-unix /tmp/hsperfdata_* \
+       /tmp/kde-* /tmp/ksocket-* /tmp/mc-* /tmp/mcop-* /tmp/orbit-*  \
+       /tmp/scrollkeeper-*  /tmp/ssh-*
+# Make ICE directory
+mkdir -m 1777 -p /tmp/.ICE-unix >/dev/null 2>&1
+chown root:root /tmp/.ICE-unix
+[ -n "$SELINUX" ] && restorecon /tmp/.ICE-unix >/dev/null 2>&1
+
+# Start up swapping.
+update_boot_stage RCswap
+action $"Enabling swap space: " swapon -a -e
+
+# Set up binfmt_misc
+/bin/mount -t binfmt_misc none /proc/sys/fs/binfmt_misc > /dev/null 2>&1
+
+# Initialize the serial ports.
+if [ -f /etc/rc.serial ]; then
+	. /etc/rc.serial
+fi
+
+# If they asked for ide-scsi, load it
+if strstr "$cmdline" ide-scsi ; then
+	modprobe ide-cd >/dev/null 2>&1
+	modprobe ide-scsi >/dev/null 2>&1
+fi
+
+# Turn on harddisk optimization
+# There is only one file /etc/sysconfig/harddisks for all disks
+# after installing the hdparm-RPM. If you need different hdparm parameters
+# for each of your disks, copy /etc/sysconfig/harddisks to
+# /etc/sysconfig/harddiskhda (hdb, hdc...) and modify it.
+# Each disk which has no special parameters will use the defaults.
+# Each non-disk which has no special parameters will be ignored.
+# 
+ 
+disk[0]=s;
+disk[1]=hda;  disk[2]=hdb;  disk[3]=hdc;  disk[4]=hdd;
+disk[5]=hde;  disk[6]=hdf;  disk[7]=hdg;  disk[8]=hdh;
+disk[9]=hdi;  disk[10]=hdj; disk[11]=hdk; disk[12]=hdl;
+disk[13]=hdm; disk[14]=hdn; disk[15]=hdo; disk[16]=hdp;
+disk[17]=hdq; disk[18]=hdr; disk[19]=hds; disk[20]=hdt;
+ 
+ 
+if [ -x /sbin/hdparm ]; then
+   for device in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
+	unset MULTIPLE_IO USE_DMA EIDE_32BIT LOOKAHEAD EXTRA_PARAMS
+        if [ -f /etc/sysconfig/harddisk${disk[$device]} ]; then
+                . /etc/sysconfig/harddisk${disk[$device]}
+                HDFLAGS[$device]=
+                if [ -n "$MULTIPLE_IO" ]; then
+                    HDFLAGS[$device]="-q -m$MULTIPLE_IO"
+                fi
+                if [ -n "$USE_DMA" ]; then
+                    HDFLAGS[$device]="${HDFLAGS[$device]} -q -d$USE_DMA"
+                fi
+                if [ -n "$EIDE_32BIT" ]; then
+                    HDFLAGS[$device]="${HDFLAGS[$device]} -q -c$EIDE_32BIT"
+                fi
+                if [ -n "$LOOKAHEAD" ]; then
+                    HDFLAGS[$device]="${HDFLAGS[$device]} -q -A$LOOKAHEAD"
+                fi
+                if [ -n "$EXTRA_PARAMS" ]; then
+                    HDFLAGS[$device]="${HDFLAGS[$device]} $EXTRA_PARAMS"
+                fi
+        else
+                HDFLAGS[$device]="${HDFLAGS[0]}"
+        fi
+        if [ -e "/proc/ide/${disk[$device]}/media" ]; then
+             hdmedia=`cat /proc/ide/${disk[$device]}/media`
+             if [ "$hdmedia" = "disk" -o -f "/etc/sysconfig/harddisk${disk[$device]}" ]; then
+                  if [ -n "${HDFLAGS[$device]}" ]; then
+                      action $"Setting hard drive parameters for ${disk[$device]}: "  /sbin/hdparm ${HDFLAGS[$device]} /dev/${disk[$device]}
+                  fi
+             fi
+        fi
+   done
+fi
+
+# Boot time profiles. Yes, this should be somewhere else.
+if [ -x /usr/sbin/system-config-network-cmd ]; then
+  if strstr "$cmdline" netprofile= ; then
+    for arg in $cmdline ; do
+        if [ "${arg##netprofile=}" != "${arg}" ]; then
+	    /usr/sbin/system-config-network-cmd --profile ${arg##netprofile=}
+        fi
+    done
+  fi
+fi
+
+# Now that we have all of our basic modules loaded and the kernel going,
+# let's dump the syslog ring somewhere so we can find it later
+dmesg -s 131072 > /var/log/dmesg
+
+# create the crash indicator flag to warn on crashes, offer fsck with timeout
+touch /.autofsck &> /dev/null
+
+kill -TERM `/sbin/pidof getkey` >/dev/null 2>&1
+} &
+if strstr "$cmdline" confirm ; then
+	touch /var/run/confirm
+fi
+if [ "$PROMPT" != "no" ]; then
+	/sbin/getkey i && touch /var/run/confirm
+fi
+wait
+
+# Let rhgb know that we're leaving rc.sysinit
+if [ -x /usr/bin/rhgb-client ] && /usr/bin/rhgb-client --ping ; then
+    /usr/bin/rhgb-client --sysinit
+fi
+
+
+--------------060601010900010706030204--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
