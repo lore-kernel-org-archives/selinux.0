@@ -1,97 +1,73 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA22161
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 09:55:25 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA23664
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 14:54:22 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA22462
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 10:31:50 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA04105
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 15:30:29 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id OAA23660 for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 14:54:21 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 041A192443
-	for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 01:55:20 +1100 (EST)
-Received: from there (lyta [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 919FD22731
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 15:55:13 +0100 (CET)
+	by jazzswing.ncsc.mil  with ESMTP id PAA04101
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 15:30:28 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: ntp policy
-Date: Wed, 20 Mar 2002 15:55:13 +0100
+To: Shaun Savage <savages@pcez.com>, selinux <selinux@tycho.nsa.gov>
+Subject: Re: package configuration (for dpkg - rpm will have the same issues)
+Date: Wed, 20 Mar 2002 16:31:29 +0100
+References: <Pine.GSO.4.33.0203150854350.15480-100000@raven> <20020320133514.46E8075B8@lyta.coker.com.au> <3C989C1D.30500@pcez.com>
+In-Reply-To: <3C989C1D.30500@pcez.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_1G1AUNBNCTS8JASXXZOT"
-Message-Id: <20020320145513.919FD22731@lyta.coker.com.au>
+Message-Id: <20020320153129.C4B3EC61D@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 20 Mar 2002 15:26, Shaun Savage wrote:
+> | Check in what sense?  Checking for syntax errors should be easy enough,
+> | checking for dependencies with other .te's without actually compiling it
+> | will be difficult, checking for stupid mistakes should be possible, but
+> | checking for subtle mistakes or malicious omissions will be impossible.
+>
+> I look at the policy as a giant state machine.  The checking could/should
+> be done off line.  By using the same concepts used in VLSI design, a
+> software program could look for nasties. Sounds like a great thesis :) Any
+> one want to send me to school again? I have work on it some and have a few
+> things worked out but  it would be a two year effort to have something that
+> would get the  test coverage needed.
 
---------------Boundary-00=_1G1AUNBNCTS8JASXXZOT
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+I recall a message from an IBMer some time ago about some work in that 
+general direction.
 
-Here's my latest effort at a ntpd policy, first the file_contexts entries:
-/var/lib/ntp(|/.*)              system_u:object_r:var_lib_ntp_t
-/etc/ntp.conf                   system_u:object_r:etc_ntp_t
-/usr/sbin/ntpd                  system_u:object_r:ntpd_exec_t
-/var/log/ntpstats(|/.*)         system_u:object_r:var_log_ntp_t
-/var/log/ntpd                   system_u:object_r:var_log_ntp_t
+> | The average admin can't properly deal with standard unix permissions. 
+> | The average admin can't compile their own kernel.  Is SE Linux ever going
+> | to be for the average admin?
+>
+> Yes, I would like a distro that works out the the box. all the admin does
+> is add users, create virtual web sites. .... They don't mess with the
+> system.  The packages are tested and verifed before it get to the sysadmin.
+>
+> I would like to see SELinux in the schools, hospitals, police/fire
+> stations, in ~ dept. of fish and wildlife offices.
 
-I've attached the ntp.te file.
+What is needed for that is a set of "teacher machine" policy files for SE 
+Linux, a set of "student workstation" policy files, a set of "student 
+time-share machine" policy files and a set of Police policy files.  All these 
+would have to be quite different (although teacher machines and Police 
+machines would have similar requirements).
 
-Note that I'm using my version of uses_shlib that is as follows:
-define(`uses_shlib',`
-allow $1 ld_so_t:file rx_file_perms;
-allow $1 ld_so_t:file execute_no_trans;
-allow $1 ld_so_t:lnk_file r_file_perms;
-allow $1 shlib_t:file rx_file_perms;
-allow $1 shlib_t:lnk_file r_file_perms;
-allow $1 ld_so_cache_t:file r_file_perms;
-allow $1 lib_t:dir r_dir_perms;
-')
+>  But that the 99.99%,
+> where Mr Msadmin can just click a button the system drops to admin mode,
+> drag the new package to the ~ install box and its done. World peace, and a
+> chicken in every pot. :)
+
+That requires huge amounts of work writing policy files.  Some of my policy 
+files have taken me more than a day's work.  I am getting better at it now, 
+but I've still got to do Postfix which will be really painful.
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
 of legalistic junk at the end then you are specifically authorizing me to do
 whatever I wish with the message and all other messages from your domain, by
 posting the message you agree that your long legalistic sig is void.
-
---------------Boundary-00=_1G1AUNBNCTS8JASXXZOT
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="ntp.te"
-Content-Transfer-Encoding: base64
-Content-Description: ntp.te
-Content-Disposition: attachment; filename="ntp.te"
-
-IwojIEF1dGhvcjogIFJ1c3NlbGwgQ29rZXIgPHJ1c3NlbGxAY29rZXIuY29tLmF1PgojCgojIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKIwojIFJ1bGVzIGZvciB0aGUgbnRwZF90IGRv
-bWFpbi4KIwp0eXBlIG50cGRfdCwgZG9tYWluLCBwcml2bG9nOwp0eXBlIG50cGRfZXhlY190LCBm
-aWxlX3R5cGUsIHN5c2FkbWZpbGUsIGV4ZWNfdHlwZTsKdHlwZSB2YXJfbGliX250cF90LCBmaWxl
-X3R5cGUsIHN5c2FkbWZpbGU7CnR5cGUgdmFyX2xvZ19udHBfdCwgZmlsZV90eXBlLCBzeXNhZG1m
-aWxlOwp0eXBlIGV0Y19udHBfdCwgZmlsZV90eXBlLCBzeXNhZG1maWxlOwoKcm9sZSBzeXN0ZW1f
-ciB0eXBlcyBudHBkX3Q7CgojIEluaGVyaXQgYW5kIHVzZSBkZXNjcmlwdG9ycyBmcm9tIGluaXQu
-CmFsbG93IG50cGRfdCBpbml0X3Q6ZmQgaW5oZXJpdF9mZF9wZXJtczsKCmFsbG93IG50cGRfdCBp
-bml0X3Q6cHJvY2VzcyBzaWdjaGxkOwoKdXNlc19zaGxpYihudHBkX3QpCmFsbG93IG50cGRfdCBy
-b290X3Q6ZGlyIHJfZGlyX3Blcm1zOwoKIyBDcmVhdGUgcGlkIGZpbGUuCnR5cGUgdmFyX3J1bl9u
-dHBfdCwgZmlsZV90eXBlLCBzeXNhZG1maWxlLCBwaWRmaWxlOwpmaWxlX3R5cGVfYXV0b190cmFu
-cyhudHBkX3QsIHZhcl9ydW5fdCwgdmFyX3J1bl9udHBfdCkKZmlsZV90eXBlX2F1dG9fdHJhbnMo
-bnRwZF90LCB2YXJfbG9nX3QsIHZhcl9sb2dfbnRwX3QpCgphbGxvdyBudHBkX3QgeyB2YXJfbGli
-X3QgdXNyX3QgfTpkaXIgcl9kaXJfcGVybXM7CmFsbG93IG50cGRfdCB1c3JfdDpmaWxlIHJfZmls
-ZV9wZXJtczsKYWxsb3cgbnRwZF90IG51bGxfZGV2aWNlX3Q6Y2hyX2ZpbGUgcndfZmlsZV9wZXJt
-czsKYWxsb3cgbnRwZF90IHsgdmFyX2xpYl9udHBfdCB2YXJfbG9nX250cF90IH06ZGlyIHJ3X2Rp
-cl9wZXJtczsKYWxsb3cgbnRwZF90IHsgdmFyX2xpYl9udHBfdCB2YXJfbG9nX250cF90IH06Zmls
-ZSByd19maWxlX3Blcm1zOwoKYWxsb3cgbnRwZF90IHNlbGY6Y2FwYWJpbGl0eSB7IHN5c190aW1l
-IG5ldF9iaW5kX3NlcnZpY2UgaXBjX2xvY2sgfTsKCmFsbG93IG50cGRfdCBldGNfdDpkaXIgcl9k
-aXJfcGVybXM7CmFsbG93IG50cGRfdCBldGNfdDpsbmtfZmlsZSByX2ZpbGVfcGVybXM7CmFsbG93
-IG50cGRfdCBldGNfbnRwX3Q6ZmlsZSByd19maWxlX3Blcm1zOwoKIyBVc2UgdGhlIG5ldHdvcmsu
-CmNhbl9uZXR3b3JrKG50cGRfdCkKYWxsb3cgbnRwZF90IGRvbWFpbjpwYWNrZXRfc29ja2V0IHJl
-Y3Zmcm9tOwphbGxvdyBudHBkX3Qgc2VsZjp1bml4X2RncmFtX3NvY2tldCBjcmVhdGVfc29ja2V0
-X3Blcm1zOwoKYWxsb3cgbnRwZF90IHNlbGY6cHJvY2VzcyBmb3JrOwoKZG9tYWluX2F1dG9fdHJh
-bnMoaW5pdHJjX3QsIG50cGRfZXhlY190LCBudHBkX3QpCgphbGxvdyBudHBkX3QgZnNfdDpmaWxl
-c3lzdGVtIGdldGF0dHI7Cg==
-
---------------Boundary-00=_1G1AUNBNCTS8JASXXZOT--
 
 --
 You have received this message because you are subscribed to the selinux list.
