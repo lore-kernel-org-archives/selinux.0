@@ -1,44 +1,43 @@
-Message-Id: <200209151641.QAA28645@jazzband.ncsc.mil>
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: some missing printer devices
-Date: Sun, 15 Sep 2002 18:42:04 +0200
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: some missing printer devices
+Date: Sun, 15 Sep 2002 19:18:01 +0200
+References: <200209151641.QAA28645@jazzband.ncsc.mil>
+In-Reply-To: <200209151641.QAA28645@jazzband.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_4QNH6SF4W86B0EKBCH7A"
+Message-Id: <200209151918.01141.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, 15 Sep 2002 18:42, Carsten Grohmann wrote:
+> The attached patch add some missing printer devices lpd.fc.
 
---------------Boundary-00=_4QNH6SF4W86B0EKBCH7A
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+/dev/usblp* is not in devices.txt so it's probably not suitable for 
+distributing.
 
-Hi,
+/dev/ttyS* is more commonly used for ppp, the next most common use is for 
+serial port logins.  The policy should reflect this, tty_device_t is the 
+current type and it works well.
 
-The attached patch add some missing printer devices lpd.fc.
+I can't recall ever seeing a serial printer, modern printers can't be serial 
+because they use too much data transfer.  Anyone who has a serial printer 
+will have to do some customising of their policy.
 
-Carsten
---------------Boundary-00=_4QNH6SF4W86B0EKBCH7A
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="lpd.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="lpd.diff"
+Also when updating policy for /dev entries make sure you update the genfs 
+entries for the devfs file system.
 
-LS0tIC4uL29yaWdpbmFsL2ZpbGVfY29udGV4dHMvcHJvZ3JhbS9scGQuZmMJVGh1IEF1ZyAyMiAx
-NDo1NTo1MyAyMDAyCisrKyBmaWxlX2NvbnRleHRzL3Byb2dyYW0vbHBkLmZjCVN1biBTZXAgMTUg
-MTg6MzY6MjIgMjAwMgpAQCAtMSw1ICsxLDkgQEAKICMgbHBkCiAvZGV2L3ByaW50ZXIJCQlzeXN0
-ZW1fdTpvYmplY3RfcjpwcmludGVyX3QKKy9kZXYvbHAuKgkJCXN5c3RlbV91Om9iamVjdF9yOnBy
-aW50ZXJfdAorL2Rldi90dHlTLioJCQlzeXN0ZW1fdTpvYmplY3RfcjpwcmludGVyX3QKKy9kZXYv
-dXNiL2xwLioJCQlzeXN0ZW1fdTpvYmplY3RfcjpwcmludGVyX3QKKy9kZXYvdXNibHAuKgkJCXN5
-c3RlbV91Om9iamVjdF9yOnByaW50ZXJfdAogL3Vzci9zYmluL2xwZAkJCXN5c3RlbV91Om9iamVj
-dF9yOmxwZF9leGVjX3QKIC91c3Ivc2Jpbi9jaGVja3BjCQlzeXN0ZW1fdTpvYmplY3RfcjpjaGVj
-a3BjX2V4ZWNfdAogL3Zhci9zcG9vbC9scGQoLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOmxwZF9z
-cG9vbF90Cg==
+I've added /dev/lp* and /dev/usb/lp* to my policy tree with matching changes 
+to the genfs_contexts file.
 
---------------Boundary-00=_4QNH6SF4W86B0EKBCH7A--
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
