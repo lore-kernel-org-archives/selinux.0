@@ -1,44 +1,37 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j35KLpDo012145
-	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 16:21:51 -0400 (EDT)
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j35MWRDo013079
+	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 18:32:27 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j35MUAGn008680
+	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 22:30:13 GMT
 Subject: Re: New Policy Patch
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <42518C8A.7040200@redhat.com>
+Cc: jwcart2@epoch.ncsc.mil, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <42519848.7080203@redhat.com>
 References: <41E57081.4090500@redhat.com>
 	 <1106339767.25125.31.camel@moss-lions.epoch.ncsc.mil>
-	 <42518C8A.7040200@redhat.com>
+	 <42518C8A.7040200@redhat.com> <1112643515.31122.3.camel@cobra.ivg2.net>
+	 <42519848.7080203@redhat.com>
 Content-Type: text/plain
-Date: Tue, 05 Apr 2005 16:20:50 -0400
-Message-Id: <1112732450.2367.11.camel@moss-lions.epoch.ncsc.mil>
+Date: Tue, 05 Apr 2005 18:36:24 -0400
+Message-Id: <1112740584.23438.1.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
 
-I did change the java_macros.te execmem usage to use the allow_execmem
-boolean.
+> Since we do not have that policy yet, we need this for strict to work, 
+> correct?
 
-On Mon, 2005-04-04 at 14:50 -0400, Daniel J Walsh wrote:
-> Major regrouping of apache_policy
-> 
-> Now use apache_domain and apache_user_domain
-> Added boolean httpd_builtin_scripting.   Which when turned off only allows
-> running of external apache scripts, not built in modules like PHP.
-> Users can now create their own scripts using apache_domain(myscript)
-> 
-> More fixes of can_network and named_connect
-> 
-> Added NetworkManager policy.
-> 
-> A few fixes submitted from Ivan  for hal, kudzu
+Well, I did get a denial, and that fixes the denial, but I'm not
+sure if it should be merged, given that the memory_device_t read
+isn't allowed yet... 
 
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
