@@ -1,65 +1,61 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AJ8xrT000262
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 15:08:59 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5AJ8uaH019891
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 15:08:56 -0400 (EDT)
-Subject: Re: Restrict File creation types
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Kenny <selinux@kfk2.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20040610172612.25551.qmail@web.different1.com>
-References: <20040610172612.25551.qmail@web.different1.com>
-Content-Type: text/plain
-Message-Id: <1086894527.4397.94.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 10 Jun 2004 15:08:47 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AJWarT000508
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 15:32:36 -0400 (EDT)
+Received: from abyss.simplyaquatics.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5AJWWP2021740
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 15:32:32 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+	by abyss.simplyaquatics.com (Postfix) with ESMTP id 210C73A4066
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 14:32:20 -0500 (CDT)
+Received: from TECRAS1 (simplyaquatics.com [209.192.116.78])
+	by abyss.simplyaquatics.com (Postfix) with ESMTP id 8DD243A4066
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 14:32:18 -0500 (CDT)
+From: "Ed Street" <edstreet@street-tek.com>
+Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
+Subject: RE: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
+Date: Thu, 10 Jun 2004 15:32:18 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+In-Reply-To: <200406102220.19165.russell@coker.com.au>
+Message-Id: <20040610193218.8DD243A4066@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-06-10 at 13:26, Kenny wrote:
-> How would I go about restricting all files created in a certain
-> directory to a set of types. Eg:
-> I have Dir Types:
-> Dir_Type1_t
-> Dir_Type2_t
-> and file Types:
-> File_type_1a_t
-> File_type_1b_t
-> File_type_2a_t
-> File_type_2b_t
-> 
-> I want all files in Dir_Type1_t to be of types File_type_1a_t or
-> File_type_1b_t no matter the domain of the creating process 
-> and all files in Dir_Type2_t to be of types File_type_2a_t or
-> File_type_2b_t.
-> (mkdir -Z user:object_r:File_type_2a_t TEST in a dir of type
-> Dir_Type2_t should fail as any user/role/domain)
-> 
-> I've tried looking through the logs with auditallow on for all the Dir
-> and File types, but didn't see anything where both types where listed
-> in the same allow statement.  Is this even possible?
+Hello,
 
-There isn't a particular permission that enforces an association between
-the parent directory type and the new file type.  You can do things
-like:
-- Prevent a domain from specifying a particular context at all for a new
-file, forcing new files to inherit from the parent directory or to
-follow any type_transition rule specified in the policy.
-- Control which domains can write to a given directory, and then ensure
-that those domains can only create files with particular types.
+Well like they say chroot is the poor mans security setup :) Disabling the
+chroot jail would be the best solution overall.
 
-It wouldn't be difficult to add a new permission check between the
-parent directory type and the new file type on file creation, but you
-would also need to ensure that the property is preserved for hard links,
-and possibly for bind mounts.
+Ed
 
-There is a permission check performed between the new file type and the
-filesystem type.
+-----Original Message-----
+From: Russell Coker [mailto:russell@coker.com.au] 
+Sent: Thursday, June 10, 2004 8:20 AM
+To: Ed Street
+Cc: 'SE-Linux'
+Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't
+working.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+On Thu, 10 Jun 2004 21:47, "Ed Street" <edstreet@street-tek.com> wrote:
+> Then shouldn't it be postfix_etc_t instead of etc_t?
+
+We could do something like that, although it would still require breaking
+the 
+design aim of "application should not have write access to it's own config 
+files".
+
+I think that the ideal solution would be to have a better mechanism of
+turning 
+off chroot operation.
+
+ 
+
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.698 / Virus Database: 455 - Release Date: 6/2/2004
+ 
 
 
 --
