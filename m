@@ -1,34 +1,45 @@
-Date: Tue, 27 Apr 2004 13:14:12 +0100
-From: Dale Amon <amon@vnl.com>
-To: Tom Brown <tdbrown@uiuc.edu>
-Cc: Ed Street <edstreet@street-tek.com>, SELinux@tycho.nsa.gov,
-   "'Michael Ihde'" <ihde@uiuc.edu>
-Subject: Re: SELinux security in the face of single bit errors
-Message-ID: <20040427121412.GC741@vnl.com>
-References: <20040415231659.GG4773@peach.ece.utexas.edu> <20040416124423.1858C3A404F@abyss.simplyaquatics.com> <20040416184516.GV4773@peach.ece.utexas.edu> <20040417112213.GE21171@vnl.com> <20040422035659.GQ731@peach.ece.utexas.edu>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3RFg7Rb028548
+	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 11:42:07 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i3RFdeW3025006
+	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 15:39:40 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id i3RFddIx025001
+	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 15:39:39 GMT
+Subject: Re: /etc/passwd labeling issues
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: Ed Street <edstreet@street-tek.com>, Selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200404271325.58348.russell@coker.com.au>
+References: <20040426224500.7F3B83A4053@abyss.simplyaquatics.com>
+	 <200404271325.58348.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1083080493.24445.117.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040422035659.GQ731@peach.ece.utexas.edu>
+Date: Tue, 27 Apr 2004 11:41:34 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Apr 21, 2004 at 10:56:59PM -0500, Tom Brown wrote:
-> Not specifically. SEU's are more likely in space but they do occur in
-> terrestrial systems. I believe SEU's can be encouraged by a solar
-> radiation storm or simple heat[1]. We want to see at what rate they
-> might create security problems.
+On Mon, 2004-04-26 at 23:25, Russell Coker wrote:
+> On Tue, 27 Apr 2004 08:44, "Ed Street" <edstreet@street-tek.com> wrote:
+> > So we have 2 choices for our debian users.  A) Change the password, change
+> 
+> No, we have only one realistic choice.  To fix PAM and make it work correctly 
+> as it does in Fedora.
 
-Yes, and like random decays from the material in ceramic
-pack IC's if I remember correctly. Interesting idea. 
+Or use the wrapper-based approach of the older SELinux, i.e. spasswd and
+friends.
+
+As I recall, Fedora includes more than just a modified pam for this
+purpose; it also required modifications to libuser, shadow-utils, and
+components of util-linux to preserve contexts on /etc/passwd and
+/etc/shadow.
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
