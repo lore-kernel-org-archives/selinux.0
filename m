@@ -1,39 +1,43 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA02699
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 17:45:08 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA19768
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 22:43:14 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id WAA19763
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 22:43:14 GMT
-Date: Wed, 30 Oct 2002 17:44:27 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: <selinux@tycho.nsa.gov>, <linux-security-module@wirex.com>
-Subject: Re: SELinux Kernel Oops
-In-Reply-To: <200210302230.RAA26019@moss-anteater.epoch.ncsc.mil>
-Message-ID: <Pine.GSO.4.33.0210301742240.25777-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA02591
+	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 17:36:33 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id WAA22207
+	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 22:34:38 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id WAA22203 for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 22:34:37 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 2C6C092713
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 09:36:30 +1100 (EST)
+Received: from lyta (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 7B2F92096
+	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 23:36:22 +0100 (CET)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: the new default_contexts file
+Date: Wed, 30 Oct 2002 23:36:21 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200210302336.21769.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+The idea of having key-value pairs where the key is the partial context of the 
+daemon is good.
 
-On Wed, 30 Oct 2002, James W Carter wrote:
+However only being able to specify an order is not good.
 
-> I found a problem with SELinux on a 2.5.44 kernel generating a kernel Oops when
-> running nfsd.
+I would like to be able to have two users, user "a" gets user_r:user_t by 
+default while user "b" gets second_r:second_t by default even though both 
+users are authorised for both roles.
 
-Just to clarify, the issue exists in both 2.4.19 and 2.5.44, and it is
-relevant to the LSM patch, not just SELinux.  Without these patches,
-private file structs will have NULL security fields.  We'd like to commit
-these patches to the LSM BitKeeper trees as well.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
