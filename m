@@ -1,58 +1,56 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8SIajrT009657
-	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 14:36:45 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8SIZhuK001765
-	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 18:35:43 GMT
-Subject: Re: [patch] types.fc
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8SIhOrT009773
+	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 14:43:24 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8SIhMPw013194
+	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 18:43:22 GMT
+Subject: Re: [patch] policy update for dnsmasq
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1095987749.7142.6.camel@gorn.pebenito.net>
-References: <1095987749.7142.6.camel@gorn.pebenito.net>
+To: Greg Norris <haphazard@kc.rr.com>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040925005803.GA23849@yggdrasil.localdomain>
+References: <20040925005803.GA23849@yggdrasil.localdomain>
 Content-Type: text/plain
-Message-Id: <1096396552.30810.77.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1096396758.30810.82.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 28 Sep 2004 14:35:52 -0400
+Date: Tue, 28 Sep 2004 14:39:18 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged, except for the ifdef around the java sdk stuff.  This is not
-part of Fedora or RHEL (AFAIK), so I don't think that we want the
-ifdef.  
+Merged.
 
-
- On Thu, 2004-09-23 at 21:02, Chris PeBenito wrote:
-> Here's an update of types.fc with a some Gentoo-specific entries,
-> against CVS.  Also enclose a few entries with other distro tunables.
-
-> Index: file_contexts/types.fc
-> ===================================================================
-> RCS file:
-> /cvsroot/selinux/nsa/selinux-usr/policy/file_contexts/types.fc,v
-> retrieving revision 1.40
-> diff -u -r1.40 types.fc
-> --- file_contexts/types.fc      23 Sep 2004 19:08:59 -0000      1.40
-> +++ file_contexts/types.fc      24 Sep 2004 01:00:59 -0000
-
-
-> @@ -493,10 +514,12 @@
->  #
->  # The Sun Java development kit, RPM install
->  #
-> +ifdef(`distro_redhat', `
->  /usr/java/j2.*/bin(/.*)?               system_u:object_r:bin_t
->  /usr/java/j2.*/jre/lib(64)?/i386(/.*)? system_u:object_r:lib_t
->  /usr/java/j2.*/jre/lib(64)?/i386(/.*)?[^/]*\.so(\.[^/]*)* --
-> system_u:object_r:shlib_t
->  /usr/java/j2.*/plugin/i386(/.*)?/lib[^/]*\.so(\.[^/]*)* --
-> system_u:object_r:shlib_t
-> +')
->  
->  #
->  #  The krb5.conf file is always being tested for writability, so
-
+On Fri, 2004-09-24 at 20:58, Greg Norris wrote:
+> Please apply the attached dnsmasq policy patch.  It's needed in order to
+> support version 2.10 and later (see below for details).
+> 
+> Let me know if I can provide any additional information.  Thanx!
+> 
+> ----- Forwarded message from Greg Norris <haphazard@kc.rr.com> -----
+> 
+> Date: Tue, 14 Sep 2004 20:18:36 -0500
+> From: Greg Norris <haphazard@kc.rr.com>
+> To: SE-Linux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>
+> Cc: simon@thekelleys.org.uk
+> Subject: policy update for dnsmasq
+> X-Mailing-List: selinux-tycho.nsa.gov
+> 
+> I've attached a small patch against the dnsmasq policy, which provides
+> the updates indicated below.  Thanx to Simon Kelley, author of this
+> wondrous beastie, for bringing the relevant enhancements to my
+> attention. ;-)
+> 
+> 1) Allow binding to port 53 TCP.  Beginning with version 2.10, dnsmasq
+>    supports DNS queries over both TCP and UDP.
+> 
+> 2) Allow the creation of RAWIP sockets, in order to enable ICMP echo
+>    requests.  This is used as a sanity-check before assigning an IP
+>    address via DHCP, to ensure that it isn't already in use.
+> 
+> I've been running with the modified policy for the past few days (while
+> trying to stress it appropriately), and everything appears to be
+> working as expected... I think it's ready to be merged into CVS.  As
+> always, comments are most welcome.
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
