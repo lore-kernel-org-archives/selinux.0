@@ -1,54 +1,43 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i823sKrT026406
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 23:54:20 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i823rRY2011993
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 03:53:29 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i827C5rT026966
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 03:12:05 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i827C2v0028977
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 07:12:03 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: udev policy
-Date: Thu, 2 Sep 2004 13:54:07 +1000
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: /dev entries which also need to be /.?u?dev'd
+Date: Thu, 2 Sep 2004 17:11:59 +1000
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <200409011753.01483.russell@coker.com.au> <1094057500.13328.86.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1094057500.13328.86.camel@moss-spartans.epoch.ncsc.mil>
+References: <20040831101602.GB2098@lkcl.net>
+In-Reply-To: <20040831101602.GB2098@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200409021354.07034.russell@coker.com.au>
+Message-Id: <200409021711.59397.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2 Sep 2004 02:51, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> On Wed, 2004-09-01 at 03:53, Russell Coker wrote:
-> > The attached patch allows udev in rawhide to work properly with no audit
-> > messages.
+On Tue, 31 Aug 2004 20:16, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> the following entries presently marked as /dev need, imo, to also
+> be modified to be ":%s/\/dev/\/.?u?dev/g" [in vi].
 >
-> --- /usr/src/se/policy/domains/program/unused/udev.te 2004-09-01
-> 10:52:36.000000000 +1000 +++ domains/program/unused/udev.te 2004-09-01
-> 17:51:52.000000000 +1000 @@ -43,7 +43,8 @@
->  allow udev_t { device_t device_type }:{chr_file blk_file} { relabelfrom
-> relabelto create_file_perms };
+> the reason is as i explained that if someone using udev [with or
+> without tmpfs] does a
 >
->  # to read the file_contexts file
-> -r_dir_file(udev_t, { selinux_config_t file_context_t default_context_t } )
-> +allow udev_t { selinux_config_t default_context_t file_context_t }:dir
-> search; +allow udev_t { selinux_config_t file_context_t }:file { getattr
-> read };
+>  setfiles /etc/selinux/src/file_contexts/file_contexsts /.dev
 >
->  allow udev_t policy_config_t:dir { search };
->  allow udev_t proc_t:file { read };
->
-> What's wrong with using r_dir_file here?
+> then they are buggered, without the above.
 
-Sure, we could do that just as easily:
+What if a rule such as the following was added at the end?
+/\.dev(/.*)? <<none>>
 
-r_dir_file(udev_t, { selinux_config_t file_context_t })
-allow udev_t default_context_t:dir search;
-
-We don't seem to need access to default_context_t:file or lnk_file access to 
-any of those types.  But I guess that adding the lnk_file access is not a bad 
-idea to avoid unexpected breakage if the sys-admin does something unexpected.
+That will work for the short-term.  Long term I think that the correct thing 
+to do is to work on the stem-compression code in setfiles and have multiple 
+prefixes for the /dev stuff.  However this requires either adding special 
+case code to setfiles or adding more configuration information to the config 
+file (syntax additions).
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
