@@ -1,87 +1,139 @@
-Date: Mon, 17 Dec 2001 12:52:09 -0500
-From: forrest whitcher <fw@fwsystems.com>
-To: Stephen Smalley <sds@tislabs.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: persistent labelling on afs, jfs, xfs? - also read-only media???
-Message-Id: <20011217125209.508d4128.fw@fwsystems.com>
-In-Reply-To: <Pine.GSO.4.33.0112141628470.24054-100000@raven>
-References: <20011214160928.209536e6.fw@fwsystems.com>
-	<Pine.GSO.4.33.0112141628470.24054-100000@raven>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA01674
+	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2001 13:12:44 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA10241
+	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2001 18:12:31 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
+	by jazzswing.ncsc.mil  with ESMTP id SAA10237
+	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2001 18:12:30 GMT
+Received: from localhost (sds@localhost)
+	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id fBHICGr07116
+	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2001 13:12:17 -0500 (EST)
+Date: Mon, 17 Dec 2001 13:12:16 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [PATCH] Bug fix for SID table
+Message-ID: <Pine.GSO.4.33.0112171307250.5442-200000@raven>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-758783491-1008612736=:5442"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 14 Dec 2001 16:39:27 -0500 (EST)
-Stephen Smalley <sds@tislabs.com> Stephen Smalley did inscribe thusly:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+---559023410-758783491-1008612736=:5442
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-> function in the hooks.c file.  You can patch it to recognize additional
-> filesystem types if you wish.  However, note that for networked
-> or distributed filesystems, this isn't safe, since there is no mechanism
-> for coordinating updates to the mapping among the clients.
-> 
+The attached patch fixes a bug in the SID table that manifests when SIDs
+are invalidated by a policy reload due to the removal of users, roles,
+types or levels or due to reductions in user-role authorizations or
+role-type authorizations.  To apply this patch, save it to
+~/sidtab.patch, change to the lsm directory, and run 'patch -p1 <
+~/sidtab.patch'.  Then rebuild the kernel.
 
-Yes, I understood this, however I can think of a few methods or conventions
-which could be used to handle this:
-
-1. ensure that all 'secured' clients use the same policy / psid definitions
-to begin.
-
-2. in a 'client-read-only' environment (a common use of AFS) write static 
-PSID's into the AFS filesystem, to allow type enforcement in that space.
-
-
-In a general read-write distributed environment If (1) above is established,
-then I think the outstanding problem is what happens if a client *changes*
-the PSID, invalidating the SID's of other clients.
-
-I can think of 2 ways of handling this: 
-
-The first would be to enforce a policy that prohibits *changes* of SID / 
-context to objects in the distributed filesystem.
-
-The second (far more involved) would be to use the AFS client-callback
-to syncronize dynamic changes to persistent data files. Clearly this would
-be a large project, requiring mods to (at minimum) afsd and the client
-module; and on the server side, the fileserver, and possibly volserver,
-volume location server.
-
-AFS would present some other challenges, psid data would probably not
-be best stored in the /afs directory, as that is usually RO.
-
-AFS provides persistent and consistent inodes to clients in at
-least the standard operation, I believe that this remains true
-even for volumes moved dynamically between fileservers and for
-backup volumes.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
 
-In poking about this and journalling filesystems I observed the following
+---559023410-758783491-1008612736=:5442
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="sidtab.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0112171312160.5442@raven>
+Content-Description: 
+Content-Disposition: attachment; filename="sidtab.patch"
 
-SELinux (or the 'setfiles program) will dynamically map SID's to an r/w 
-filesystem which is not recognized by hooks.c
-
-A filesystem mounted r/o will will read ...security and report
-file contexts as they were written when the filesystem was mounted
-r/w.
-
-I haven't tried to create this, however it looks like an iso9660
-CDROM should be able to transport PSID-labelled data between 
-SELinux systems. Is this correct?
-
-Would it make sense to add logic to SELinux (or LSM) to look use a
-digital signature on security label data (...security/*) when
-accessing readonly optical data? 
-
-I think this would provide for a degree of trust in distributing 
-optical medea between SEL systems  and an appropriate assurance for 
-maintaining type-enforcement on same. An obvious candidate would be 
-system file signatures generated by Tripwire or similar integrity 
-checking systems.
-
-forrest
-
+SW5kZXg6IGxzbS9zZWN1cml0eS9zZWxpbnV4L3NzL3NlcnZpY2VzLmMNCmRp
+ZmYgLXUgbHNtL3NlY3VyaXR5L3NlbGludXgvc3Mvc2VydmljZXMuYzoxLjMg
+bHNtL3NlY3VyaXR5L3NlbGludXgvc3Mvc2VydmljZXMuYzoxLjQNCi0tLSBs
+c20vc2VjdXJpdHkvc2VsaW51eC9zcy9zZXJ2aWNlcy5jOjEuMwlUaHUgRGVj
+IDEzIDEwOjU3OjIzIDIwMDENCisrKyBsc20vc2VjdXJpdHkvc2VsaW51eC9z
+cy9zZXJ2aWNlcy5jCU1vbiBEZWMgMTcgMDg6NDA6MTUgMjAwMQ0KQEAgLTg3
+MCwxNSArODcwLDEzIEBADQogDQogCS8qIFNhdmUgdGhlIG9sZCBwb2xpY3lk
+YiBhbmQgU0lEIHRhYmxlIHRvIGZyZWUgbGF0ZXIuICovDQogCW1lbWNweSgm
+b2xkcG9saWN5ZGIsICZwb2xpY3lkYiwgc2l6ZW9mIHBvbGljeWRiKTsNCi0J
+b2xkc2lkdGFiLmh0YWJsZSA9IHNpZHRhYi5odGFibGU7DQotCW9sZHNpZHRh
+Yi5uZWwgPSBzaWR0YWIubmVsOw0KKwlzaWR0YWJfc2V0KCZvbGRzaWR0YWIs
+ICZzaWR0YWIpOw0KIA0KIAkvKiBJbnN0YWxsIHRoZSBuZXcgcG9saWN5ZGIg
+YW5kIFNJRCB0YWJsZS4gKi8NCiAJUE9MSUNZX1dSTE9DSzsNCiAJSU5URVJS
+VVBUU19PRkY7DQogCW1lbWNweSgmcG9saWN5ZGIsICZuZXdwb2xpY3lkYiwg
+c2l6ZW9mIHBvbGljeWRiKTsNCi0Jc2lkdGFiLmh0YWJsZSA9IG5ld3NpZHRh
+Yi5odGFibGU7DQotCXNpZHRhYi5uZWwgPSBuZXdzaWR0YWIubmVsOw0KKwlz
+aWR0YWJfc2V0KCZzaWR0YWIsICZuZXdzaWR0YWIpOw0KIAlzZXFubyA9ICsr
+bGF0ZXN0X2dyYW50aW5nOw0KIAlJTlRFUlJVUFRTX09OOw0KIAlQT0xJQ1lf
+V1JVTkxPQ0s7DQpJbmRleDogbHNtL3NlY3VyaXR5L3NlbGludXgvc3Mvc2lk
+dGFiLmMNCmRpZmYgLXUgbHNtL3NlY3VyaXR5L3NlbGludXgvc3Mvc2lkdGFi
+LmM6MS4yIGxzbS9zZWN1cml0eS9zZWxpbnV4L3NzL3NpZHRhYi5jOjEuMw0K
+LS0tIGxzbS9zZWN1cml0eS9zZWxpbnV4L3NzL3NpZHRhYi5jOjEuMglUaHUg
+RGVjIDEzIDA5OjAyOjMxIDIwMDENCisrKyBsc20vc2VjdXJpdHkvc2VsaW51
+eC9zcy9zaWR0YWIuYwlNb24gRGVjIDE3IDA4OjQwOjE1IDIwMDENCkBAIC0z
+Myw2ICszMyw3IEBADQogCWZvciAoaSA9IDA7IGkgPCBTSURUQUJfU0laRTsg
+aSsrKQ0KIAkJcy0+aHRhYmxlW2ldID0gKHNpZHRhYl9wdHJfdCkgTlVMTDsN
+CiAJcy0+bmVsID0gMDsNCisJcy0+bmV4dF9zaWQgPSAxOw0KIAlJTklUX1NJ
+RFRBQl9MT0NLKHMpOw0KIAlyZXR1cm4gMDsNCiB9DQpAQCAtNTgsMTMgKzU5
+LDE0IEBADQogCQlyZXR1cm4gLUVFWElTVDsNCiANCiAJbmV3bm9kZSA9IChz
+aWR0YWJfbm9kZV90ICopIG1hbGxvYyhzaXplb2Yoc2lkdGFiX25vZGVfdCkp
+Ow0KLQlpZiAobmV3bm9kZSA9PSBOVUxMKQ0KKwlpZiAobmV3bm9kZSA9PSBO
+VUxMKSANCiAJCXJldHVybiAtRU5PTUVNOw0KIAluZXdub2RlLT5zaWQgPSBz
+aWQ7DQogCWlmIChjb250ZXh0X2NweSgmbmV3bm9kZS0+Y29udGV4dCwgY29u
+dGV4dCkpIHsNCiAJCWZyZWUobmV3bm9kZSk7DQogCQlyZXR1cm4gLUVOT01F
+TTsNCiAJfQ0KKw0KIAlpZiAocHJldikgew0KIAkJbmV3bm9kZS0+bmV4dCA9
+IHByZXYtPm5leHQ7DQogCQl3bWIoKTsNCkBAIC03Niw2ICs3OCw4IEBADQog
+CX0NCiANCiAJcy0+bmVsKys7DQorCWlmIChzaWQgPj0gcy0+bmV4dF9zaWQp
+IA0KKwkJcy0+bmV4dF9zaWQgPSBzaWQgKyAxOw0KIAlyZXR1cm4gMDsNCiB9
+DQogDQpAQCAtMTA4LDYgKzExMiw3IEBADQogCWNvbnRleHRfZGVzdHJveSgm
+Y3VyLT5jb250ZXh0KTsNCiANCiAJZnJlZShjdXIpOw0KKwlzLT5uZWwtLTsN
+CiAJcmV0dXJuIDA7DQogfQ0KIA0KQEAgLTEyNyw4ICsxMzIsMTYgQEANCiAJ
+d2hpbGUgKGN1ciAhPSBOVUxMICYmIHNpZCA+IGN1ci0+c2lkKQ0KIAkJY3Vy
+ID0gY3VyLT5uZXh0Ow0KIA0KLQlpZiAoY3VyID09IE5VTEwgfHwgc2lkICE9
+IGN1ci0+c2lkKQ0KLQkJcmV0dXJuIE5VTEw7DQorCWlmIChjdXIgPT0gTlVM
+TCB8fCBzaWQgIT0gY3VyLT5zaWQpIHsNCisJCS8qIFJlbWFwIGludmFsaWQg
+U0lEcyB0byB0aGUgdW5sYWJlbGVkIFNJRC4gKi8NCisJCXNpZCA9IFNFQ0lO
+SVRTSURfVU5MQUJFTEVEOw0KKwkJaHZhbHVlID0gU0lEVEFCX0hBU0goc2lk
+KTsNCisJCWN1ciA9IHMtPmh0YWJsZVtodmFsdWVdOw0KKwkJd2hpbGUgKGN1
+ciAhPSBOVUxMICYmIHNpZCA+IGN1ci0+c2lkKQ0KKwkJCWN1ciA9IGN1ci0+
+bmV4dDsJCQkNCisJCWlmICghY3VyIHx8IHNpZCAhPSBjdXItPnNpZCkNCisJ
+CQlyZXR1cm4gTlVMTDsNCisJfQ0KIA0KIAlyZXR1cm4gJmN1ci0+Y29udGV4
+dDsNCiB9DQpAQCAtMTg5LDYgKzIwMiw3IEBADQogCQkJCWN1ciA9IGN1ci0+
+bmV4dDsNCiAJCQkJY29udGV4dF9kZXN0cm95KCZ0ZW1wLT5jb250ZXh0KTsN
+CiAJCQkJZnJlZSh0ZW1wKTsNCisJCQkJcy0+bmVsLS07DQogCQkJfSBlbHNl
+IHsNCiAJCQkJbGFzdCA9IGN1cjsNCiAJCQkJY3VyID0gY3VyLT5uZXh0Ow0K
+QEAgLTIzNCwxMiArMjQ4LDE0IEBADQogCQlpZiAoc2lkKSANCiAJCQlnb3Rv
+IHVwX291dDsNCiAJCS8qIE5vIFNJRCBleGlzdHMgZm9yIHRoZSBjb250ZXh0
+LiAgQWxsb2NhdGUgYSBuZXcgb25lLiAqLw0KLQkJaWYgKHMtPm5lbCA9PSBV
+SU5UX01BWCkgew0KKwkJaWYgKHMtPm5leHRfc2lkID09IFVJTlRfTUFYKSB7
+DQogCQkJcmV0ID0gLUVOT01FTTsNCiAJCQlnb3RvIHVwX291dDsNCiAJCX0N
+Ci0JCXNpZCA9IHMtPm5lbCArIDE7DQorCQlzaWQgPSBzLT5uZXh0X3NpZCsr
+Ow0KIAkJcmV0ID0gc2lkdGFiX2luc2VydChzLCBzaWQsIGNvbnRleHQpOw0K
+KwkJaWYgKHJldCkNCisJCQlzLT5uZXh0X3NpZC0tOw0KIHVwX291dDoNCiAJ
+CVNJRFRBQl9VTkxPQ0socyk7DQogCX0NCkBAIC0yOTksNiArMzE1LDE1IEBA
+DQogCX0NCiAJZnJlZShzLT5odGFibGUpOw0KIAlzLT5odGFibGUgPSBOVUxM
+Ow0KKwlzLT5uZWwgPSAwOw0KKwlzLT5uZXh0X3NpZCA9IDE7DQorfQ0KKw0K
+K3ZvaWQgc2lkdGFiX3NldChzaWR0YWJfdCAqZHN0LCBzaWR0YWJfdCAqc3Jj
+KQ0KK3sNCisJZHN0LT5odGFibGUgPSBzcmMtPmh0YWJsZTsNCisJZHN0LT5u
+ZWwgPSBzcmMtPm5lbDsNCisJZHN0LT5uZXh0X3NpZCA9IHNyYy0+bmV4dF9z
+aWQ7DQogfQ0KIA0KIC8qIEZMQVNLICovDQpJbmRleDogbHNtL3NlY3VyaXR5
+L3NlbGludXgvc3Mvc2lkdGFiLmgNCmRpZmYgLXUgbHNtL3NlY3VyaXR5L3Nl
+bGludXgvc3Mvc2lkdGFiLmg6MS4xIGxzbS9zZWN1cml0eS9zZWxpbnV4L3Nz
+L3NpZHRhYi5oOjEuMg0KLS0tIGxzbS9zZWN1cml0eS9zZWxpbnV4L3NzL3Np
+ZHRhYi5oOjEuMQlGcmkgRGVjICA3IDA5OjMzOjAwIDIwMDENCisrKyBsc20v
+c2VjdXJpdHkvc2VsaW51eC9zcy9zaWR0YWIuaAlNb24gRGVjIDE3IDA4OjQw
+OjE1IDIwMDENCkBAIC0zMCw2ICszMCw3IEBADQogdHlwZWRlZiBzdHJ1Y3Qg
+ew0KIAlzaWR0YWJfcHRyX3QgKmh0YWJsZTsNCiAJdW5zaWduZWQgaW50IG5l
+bDsJLyogbnVtYmVyIG9mIGVsZW1lbnRzICovDQorCXVuc2lnbmVkIGludCBu
+ZXh0X3NpZDsJLyogbmV4dCBTSUQgdG8gYWxsb2NhdGUgKi8NCiAjaWZkZWYg
+X19LRVJORUxfXw0KIAlzdHJ1Y3Qgc2VtYXBob3JlIHNlbTsNCiAjZW5kaWYN
+CkBAIC02MCw2ICs2MSw4IEBADQogdm9pZCBzaWR0YWJfaGFzaF9ldmFsKHNp
+ZHRhYl90ICpoLCBjaGFyICp0YWcpOw0KIA0KIHZvaWQgc2lkdGFiX2Rlc3Ry
+b3koc2lkdGFiX3QgKnMpOw0KKw0KK3ZvaWQgc2lkdGFiX3NldChzaWR0YWJf
+dCAqZHN0LCBzaWR0YWJfdCAqc3JjKTsNCiANCiAjZW5kaWYJLyogX1NJRFRB
+Ql9IXyAqLw0KIA0K
+---559023410-758783491-1008612736=:5442--
 
 --
 You have received this message because you are subscribed to the selinux list.
