@@ -1,125 +1,169 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA03144
-	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2001 11:14:52 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA03868
+	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2001 12:32:52 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA14128
-	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2001 15:14:28 GMT
-Received: from mailout03.sul.t-online.com (mailout03.sul.t-online.com [194.25.134.81])
-	by jazzswing.ncsc.mil  with ESMTP id PAA14124
-	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2001 15:14:27 GMT
-From: Amon Ott <ao@rsbac.org>
-To: selinux@tycho.nsa.gov, rsbac@compuniverse.de
+	by jazzswing.ncsc.mil  with ESMTP id QAA18602
+	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2001 16:32:28 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id QAA18598
+	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2001 16:32:27 GMT
+Date: Wed, 4 Apr 2001 12:31:39 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Amon Ott <ao@rsbac.org>
+cc: selinux@tycho.nsa.gov, rsbac@compuniverse.de
 Subject: Re: Rule Set Based Access Control (RSBAC)
-Date: Wed, 4 Apr 2001 16:44:23 +0200
-Content-Type: text/plain
-References: <Pine.LNX.4.10.10104040817380.8824-100000@gargoyle.clark.net>
-In-Reply-To: <Pine.LNX.4.10.10104040817380.8824-100000@gargoyle.clark.net>
+In-Reply-To: <01040412163501.00989@marvin>
+Message-ID: <Pine.SOL.3.95.1010404112221.13906D-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Message-Id: <01040417141800.00861@marvin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mit, 04 Apr 2001 Paul D. Robertson wrote:
-> On Wed, 4 Apr 2001, Amon Ott wrote:
-> > Something special in my point of view is that I distrust all user mode
-> > programs, because they come from unknown sources and might have been modified,
-> > e.g. trojanized or infected by viruses. In some cases I have to rely on them,
-> > e.g. for the (insuffient) Linux style user authentication.
+
+> So does it really e.g. change the access bits on open file descriptors or close
+> them, when the policy setting that originally granted access is now set so that
+> access would be denied?
+
+For open file descriptions, SELinux simply revalidates permission on use,
+so it doesn't need to modify the file flags or close the descriptors.
+The AVC entry references allow SELinux to perform such revalidation
+without the overhead of a full permission check computation unless
+the policy has changed.  For memory-mapped files, SELinux
+invalidates the page cache entries for the relevant file and 
+revalidates permission on the subsequent page fault (this support is 
+not yet complete in our 2.4 version). 
+
+> The fixed RSBAC models were implemented in such a hardwired way, because it
+> should be conceptually impossible to change them at runtime. Thus I saw no need
+> for type abstraction, and sure the compiler type checks were useful for coding.
+
+But this is contrary to being flexible in the ability to add, remove,
+or completely replace policy modules in the ADF without affecting the rest
+of the kernel or applications that deal with labels.
+
+> After having another look into RSBAC code: The only such pointer really used is
+> the dentry pointer. How do you handle attribute value inheritance in
+> filesystems? Do you have such a concept?
 > 
-> I'm curious about this- in a best-case scenerio, how do you see user auth?  At
-> some point, especially for network aware applications, some user mode
-> authenticating piece has to be (probably grudgingly) moved into the TCB.
-> For instance with the Dockmaster II stuff, the modified httpd has to be
-> part of the TCB because it must be able to allow per-user access.  Is a
-> known-goodware scan better than a malware scan for such applications?    
+> Inheritance is an important RSBAC concept, because it greatly reduces the
+> number of attribute structs ('labels') and makes administration easier.
 
-Only the part doing the authentication must be part of the TCB. Take RSBAC
-AUTH model as an example, which has been designed to solve this problem:
+By inheritance, do you simply mean the behavior when a file
+is created and initially assigned a label or do you mean
+an implicit labeling mechanism similar to the implicit
+typing of DTE?  SELinux stores file labels explicitly,
+but it allows labels to be managed using a higher-level
+specification based on pathname regular expressions.
+We support inheritance of attributes when files are
+created, but each file has its own label.  However,
+the technique used to store those labels only needs
+to store each distinct label once.
 
-- User mode process, e.g. running httpd, wants to setuid to access some object
-with different rights. It gathers authentication data and calls an independent
-auth facility (IPC to a daemon or syscall).
-- Authentication facility checks the data and either returns error or adds an
-AUTH capability for the requesting process to setuid to the desired uid. This
-cap is only valid for this single process.
-- Process calls setuid and works on behalf of another user
-- If process wants to setuid to another uid (or the original one), the procedure
-restarts
+> Not having to change the tool is sure an advantage, but policy independent ps
+> output must somehow be connected to the policy afterwards to be of any use, or
+> am I mistaken here? How is this problem handled? Sure you are not just moving
+> it to the administrators.
 
-In this szenario, the httpd can be mostly untrusted, apart from gathering auth
-data - this is difficult to avoid because of the http protocol. Sure the auth
-data could be valid for this purpose only, what could be solved on a per-program
-basis.
+The two policy-independent data types for security labels are
+the security context and the security identifier (SID).  The
+security context is simply a human-readable string representation of the
+security attributes, while the security identifier is simply
+a nonpersistent, local integer that refers to a security context.
+Applications such as the modified ps can simply handle and display
+security contexts without needing to deal with the internal content and
+format of such contexts.  The file system code can likewise handle and
+store security contexts for persistent labels (using an intermediate
+mapping of persistent security identifiers for efficiency) without
+needing to deal with the internals of labels.  Most of the kernel
+can simply deal with SIDs for active subjects and objects.  So
+you can add or remove attribute fields or completely replace
+the security label format/contents without any impact on 
+applications or kernel code that deals with labels.
 
-> > Real account management should be in the kernel, with strong data protection,
-> > strong on-disk encryption and setuid limitation by this account management to
-> > those ids which have been authenticated by the process asking.
+> We still seem to have some difference in the way we look at security models:
+> For me, labelling by a subject should be an exception from the rule, because it
+> is a discretionary element. Whenever possible, the labels should be mandatory,
+> chosen by predefined security settings, which are done with as much separation
+> of duty as possible.
 > 
-> The process asking still has the malware problem though doesn't it?  (Has
-> anyone applied RSBAC to an International kernel to get disk encryption?)
+> Something special in my point of view is that I distrust all user mode
+> programs, because they come from unknown sources and might have been modified,
+> e.g. trojanized or infected by viruses. In some cases I have to rely on them,
+> e.g. for the (insuffient) Linux style user authentication.
 
-I know that several people are planning to combine both in their server
-systems. I have not yet tried myself, but in principle it should work.
-  
-> > > The example configuration provided with SELinux defines 70 domains,
-> > > 188 file types, and 38 other types (e.g. network-related types).
-> 
-> How do the SELinux people expect auditing to take place in such an
-> example?  Users switching jobs and system upgrades seem to be difficult to
-> audit effectively with that many default permutations, or am I missing
-> something?
+I don't think we really disagree here.  As much as possible, we try to
+provide complete transparency to applications through default labeling
+behaviors.  But we also believe that there are valid reasons for
+providing extended APIs to certain applications.  Providing those
+extended APIs doesn't weaken our security, because a single set
+of consistent controls is defined that addresses both the ordinary
+calls and the extended calls.
 
-That's part of what I meant with 'Who keeps the overview'. Just think of adding
-a user account and looking the desired role up in a book.
-  
-> > > I probably wasn't clear.  With SELinux, you edit the human-readable policy
-> > > configuration files to set up your policy (starting with the example
-> > > configuration we provide if you want), then compile that policy
-> > > into a binary representation and install it.  You can then load
-> > > the updated policy into your running kernel (if the policy authorizes
-> > > such runtime changes) using a new system call, or you can reboot
-> > > (in which case the kernel will load the new policy when it
-> > > initializes).  My concern was with the need to run a special
-> > > set of utilities that use a special set of system calls to
-> > > customize the configuration, as opposed to being able to edit
-> > > human-readable configuration files.
+> But here you interfere with the existing Linux access control scheme, which
+> might want to set the capabilities differently.
+> Or are you only talking about the place of interception of the object access?
+> Then you have a point here, it could really reduce the modifications, but it
+> gives you less data to decide upon.
 
-> [cut]
- 
-> I'm also still intensely interested in "two man missile key" stuff.  How
-> does SELinux handle a model where either multiple adminitstrators should
-> be necessary to grant access to something, or granting a subset of grant
-> privs. to a subject is possible to stop the subject from granting all
-> grant privs. to another subject or itself (which makes it easy to get to
-> the first part by requiring both privs. to do something)?  Is it possible to 
+In addition to our other controls, we provide a parallel
+"interception"/control for each of the Linux capabilities that is
+implemented in the existing capable function.  That allow us to
+leverage what the Linux-Privs people have done to trivially
+control a number of privileged operations.  We aren't interfering
+with the Linux capabilities scheme any more than we are interfering
+with the Linux DAC scheme - we simply provide an additional,
+orthogonal control that must also authorize the operation.
 
-These problems have been solved in Simone Fischer-Hübner's Privacy Model
-design (RSBAC PM module), where you must be Security Officer *and* need a
-'ticket' issued by a Data Protection Officer (or TP Manager in other cases) to
-do some administrative task.
+> How do you authenticate and set another id then? Do you provide modified
+> programs with extra calls for all such cases?
 
-Also, RC model separation of admin duty can split admin tasks up into several
-roles, which have to work together. E.g., role A sets up role C's rights to
-those target types, that role A is allowed to access control, and role B
-assigns role C to users.
+We provide a slightly modified login program to set the initial
+security context for the user's login session.  Alternatively,
+we could have left login alone and provided a new program
+for authenticating and setting our user identity after login,
+but it was cleaner to modify login.  Otherwise, we don't care
+about changes in the Linux identity attributes during a login
+session - they aren't relevant to our controls.
 
-Of course, all denied changes are logged to syslog and RSBAC internal log.
+> And you are sure you do not want to use ACLs instead? How do you keep the
+> overview over 70 domains and filesystems with 188 file types?
+> How many domains are for single users only?
 
-> set up a system where an administrator doesn't have access to certain
-> targets, and whilst they could grant permissions to other targets on the
-> same sytem, and even grant access to grant access to other targets, were
-> still blocked from seeing the data they're not supposed to have access to
-> (obviously along with their grantees)?  [IOW: is granting rights to grant
-> rights restrictable in a way other than a binary yes/no fashion?]
+Most of the domains are simply for the various system daemons
+and for programs that require special access rights.  For example,
+we define domains for init, the rc scripts, getty, syslogd,
+klogd, crond, login, inetd, tcpd, ftpd, etc.  For some
+programs, we define multiple domains depending on the context
+in which they were called, e.g. login runs in different domains
+with different permissions depending on whether it was executed
+by getty, rlogind, or sshd.  Programs that require special
+access rights like insmod or fsck are placed into their
+own domains, and we restrict the ability to enter these
+domains.
 
-RC separation of admin duty does part of this. ACL module administration does
-most, but there is currently no way to disallow granting yourself any
-additional rights, if you are allowed to grant rights to others.
+For users, we currently just define two initial login domains, one 
+for ordinary users and one for administrators.  However, as users
+run programs, these domains automatically transition to derived
+domains as needed to gain or shed access rights.  For example,
+when users run netscape, they transition to a less privileged
+domain so that any downloaded code is confined.  When users
+run passwd, they transition to a more privileged domain that
+can modify the passwd file.
 
-As often in RSBAC, a combination of RC and ACL does the full trick (full
-explanation on request - this is a bit complicated).
+> Out of interest: How is your binary policy representation protected against
+> unwanted modification?
 
-Amon.
+In the same way that any other file is protected - by labeling
+appropriately and defining the policy so that write access 
+is highly restricted.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
