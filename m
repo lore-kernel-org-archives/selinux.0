@@ -1,53 +1,42 @@
-Subject: Re: RES: Problem with SELinux and Squid+Winbind+Samba
-From: Colin Walters <walters@verbum.org>
-To: "Luis Fernando C. Talora" <luis.talora@iesa.com.br>
-Cc: "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
-   "(SELinux@tycho.nsa.gov)" <SELinux@tycho.nsa.gov>
-In-Reply-To: <5D201EB6E3041946BC4F8F6A14296132607EEB@svnt4-5.inepar.com.br>
-References: <5D201EB6E3041946BC4F8F6A14296132607EEB@svnt4-5.inepar.com.br>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-au9AOiz5T5VFdCMjIK8J"
-Date: Wed, 08 Dec 2004 10:18:54 -0500
-Message-Id: <1102519134.4401.7.camel@nexus.verbum.private>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB8HBVIi006253
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 12:11:31 -0500 (EST)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB8H9sTx029785
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 17:09:54 GMT
+Received: from [10.1.13.32] (twoface.columbia.tresys.com [10.1.13.32])
+	by gotham.columbia.tresys.com (8.12.8/8.12.8) with ESMTP id iB8HBY7K014219
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 12:11:34 -0500
+Message-ID: <41B73620.6050905@tresys.com>
+Date: Wed, 08 Dec 2004 12:13:04 -0500
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: getfilecon() and friends in libselinux
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Some applications in setools, namely findcon, replcon and indexcon walk 
+the filesystem and get the file context off files. Previously it was 
+fairly known what filesystems supported labeling so they were defined 
+during the build process but now that other filesystems (reiser, jfs and 
+tmpfs) support labeling but aren't necessarilly widespread we can't 
+reliably define the supported filesystems during the build process and 
+expect it to work across systems.
 
---=-au9AOiz5T5VFdCMjIK8J
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+The idea is to iterate the filesystem mount points and do a getfilecon() 
+or similar on a file in it, then examine the error code returned to 
+decide if the filesystem supports xattr and also supports the security 
+namespace. Is this a stable API to rely on for this? Will the error 
+codes remain stable?
 
-On Wed, 2004-12-08 at 08:36 -0200, Luis Fernando C. Talora wrote:
-> That=C2=B4s the problem: I have no idea of how to build policies for SELi=
-nux...
-> Is there a way to remove SELinux features without reinstaling the OS from
-> the scratch?=20
+Further, if there is ever support for contexts via psids or something 
+that isn't xattr will getfilecon() also be a supported method for 
+accessing those?
 
-You can disable SELinux enforcement just for Squid.
-http://fedora.redhat.com/docs/selinux-faq-fc3/index.html#using-s-c-security=
-level
-
-> Or (maybe it=C2=B4s better) could you please tell me where to find
-> some documentation about SELinux?=20
-
-http://fedora.redhat.com/docs/selinux-faq-fc3/index.html
-And there's a lot of other links from there.
-
-
---=-au9AOiz5T5VFdCMjIK8J
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBtxteOIkJWWp2WGURAkbcAJ4/6Zg2i5Bbmu2FD/LpWYqgo7OLRQCfcJo9
-ePyArtvcacD/DGDL4eqG0xw=
-=DIJ4
------END PGP SIGNATURE-----
-
---=-au9AOiz5T5VFdCMjIK8J--
-
+Joshua Brindle
+Tresys Technology
 
 --
 This message was distributed to subscribers of the selinux mailing list.
