@@ -1,48 +1,177 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FL9UHa020344
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 17:09:30 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FNBjHa020729
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 19:11:46 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6FL8TnJ019494
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 21:08:29 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h6FL8Thr019491
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 21:08:29 GMT
-Subject: Re: [patch] pass linker soname flag for libselinux, autotools
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1058157786.9620.38.camel@columbia>
-References: <1058157786.9620.38.camel@columbia>
-Content-Type: text/plain
-Message-Id: <1058303367.13738.818.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 15 Jul 2003 17:09:28 -0400
+	by jazzswing.ncsc.mil  with ESMTP id h6FNAinJ025522
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 23:10:44 GMT
+Received: from zaphod.crypt.gen.nz (203-79-74-204.adsl.paradise.net.nz [203.79.74.204])
+	by jazzswing.ncsc.mil  with ESMTP id h6FNAghr025519
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 23:10:43 GMT
+Received: from crypt.gen.nz (zaphod.crypt.gen.nz [192.168.1.5])
+	by zaphod.crypt.gen.nz (Postfix) with SMTP id DF5E97D41
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2003 11:11:39 +1200 (NZST)
+Message-ID: <1849.202.27.185.71.1058310700.squirrel@www.crypt.gen.nz>
+Date: Wed, 16 Jul 2003 11:11:40 +1200 (NZST)
+Subject: Policy for Kerberos
+From: "Kerry Thompson" <kerry@crypt.gen.nz>
+To: <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_20030716111140_18493"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-07-14 at 00:43, Colin Walters wrote:
-> The symlink was there in the package, so I started looking at the
-> library SONAME, and I eventually figured out the magic -Wl,-soname flag
-> was missing.  Apparently this encodes the soname into the file.
-> 
-> A patch is attached which fixes this problem.
+------=_20030716111140_18493
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-This patch has been merged into the sourceforge CVS tree.
+Attached is my first cut at a policy for Kerberos. This is for the MIT
+Kerberos5 software but should work fine for most for most distros with
+file location tweaking.
 
-> This does remind me though; has any consideration been given to
-> autotoolizing the various packages?  That would have fixed the CFLAGS
-> issue I ran into earlier, and libtool knows all about the magic needed
-> to create shared libraries.  Plus you automatically get support for lots
-> of nice things like testing for installed software, regression tests,
-> etc.  I'd be willing to put a bit of effort into doing the
-> autotoolizing, but since this is a new set of tools you'd have to use
-> upstream I'd like to see if there was interest before doing the work.
+The policy basically just supports the krb5kdc and kadmind daemons, and
+most user programs such as kinit, klist, kdestroy, and kadmin. The
+Kerberos release also includes telnetd, ftpd, and rlogind services which I
+haven't put into this policy. The Kerberos telnetd and rlogind use their
+own login program to perform ticket authentication and forwarding which
+would need to be patched for SELinux support.
 
-I'm not sure whether this is justified.
+Rather than using telnetd/ftpd/rlogind I recommend OpenSSH instead which
+is more functional and supports privsep. This policy supports the latest
+OpenSSH ssh & sshd patched with GSSAPI-Kerberos support ( Simon
+Wilkinson's patch ) plus the SELinux patch.
+
+Note that something in the Kerberos library is opening config files in
+read/write mode - I've blocked this with a few dontaudit rules to avoid
+the noise, but it doesn't cover everything - you'll still see some write
+denials here and there. I've notified the MIT Kerberos team as to the
+issue, but I'm not expecting a fix any time soon.
+
+I've also included a patch to put the Kerberos services into net_contexts.
+
+Kerry
+
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Kerry Thompson
+Information Systems Security Consultant
+http://www.crypt.gen.nz  kerry@crypt.gen.nz
+
+
+
+------=_20030716111140_18493
+Content-Type: application/octet-stream; name="kerberos.fc"
+Content-Disposition: attachment; filename="kerberos.fc"
+Content-Transfer-Encoding: base64
+
+IyBNSVQgS2VyYmVyb3Mga3Jia2RjLCBrYWRtaW5kCi9ldGMva3JiNVwuY29uZiAgICAgICAJCQlz
+eXN0ZW1fdTpvYmplY3RfcjprcmI1X2NvbmZfdAovZXRjL2tyYjVcLmtleXRhYiAgICAgICAJCXN5
+c3RlbV91Om9iamVjdF9yOmtyYjVfa2V5dGFiX3QKL3VzcigvbG9jYWwpPy9zYmluL2tyYjVrZGMg
+ICAgICAJc3lzdGVtX3U6b2JqZWN0X3I6a3JiNWtkY19leGVjX3QKL3VzcigvbG9jYWwpPy9zYmlu
+L2thZG1pbmQJCXN5c3RlbV91Om9iamVjdF9yOmthZG1pbmRfZXhlY190Ci91c3IvbG9jYWwvdmFy
+L2tyYjVrZGMJCQlzeXN0ZW1fdTpvYmplY3RfcjprcmI1a2RjX2NvbmZfdAovdXNyL2xvY2FsL3Zh
+ci9rcmI1a2RjLy4qCQlzeXN0ZW1fdTpvYmplY3RfcjprcmI1a2RjX2NvbmZfdAovdXNyL2xvY2Fs
+L3Zhci9rcmI1a2RjL3ByaW5jaXBhbC4qCXN5c3RlbV91Om9iamVjdF9yOmtyYjVrZGNfcHJpbmNp
+cGFsX3QK
+------=_20030716111140_18493
+Content-Type: application/octet-stream; name="kerberos.te"
+Content-Disposition: attachment; filename="kerberos.te"
+Content-Transfer-Encoding: base64
+
+I0RFU0MgS2VyYmVyb3M1IC0gTUlUIEtlcmJlcm9zNSBrcmI1a2RjIGFuZCBrYWRtaW5kIGRhZW1v
+bnMKIwojIGluY2x1ZGVzIHJ1bGVzIGZvciBPcGVuU1NIIGRhZW1vbiBjb21waWxlZCB3aXRoIGJv
+dGgKIyBrZXJiZXJvczUgYW5kIFNFTGludXggc3VwcHJ0CiMKIyBOb3Qgc3VwcG9ydGVkIDogdGVs
+bmV0ZCwgZnRwZCwga3Byb3Ava3Byb3BkCiMKIyBBdXRob3I6ICAgS2VycnkgVGhvbXBzb24gPGtl
+cnJ5QGNyeXB0Lmdlbi5uej4KIyAKIwoKIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+CiMKIyBSdWxlcyBmb3IgdGhlIGtyYjVrZGNfdCxrYWRtaW5kX3QgZG9tYWlucy4KIwoKdHlwZSBr
+ZXJiZXJvc19wb3J0X3QsIHBvcnRfdHlwZTsKdHlwZSBrZXJiZXJvc19hZG1pbl9wb3J0X3QsIHBv
+cnRfdHlwZTsKdHlwZSBrZXJiZXJvc19tYXN0ZXJfcG9ydF90LCBwb3J0X3R5cGU7CgpkYWVtb25f
+ZG9tYWluKGtyYjVrZGMpCmRhZW1vbl9kb21haW4oa2FkbWluZCkKCmNhbl9leGVjKGtyYjVrZGNf
+dCwga3JiNWtkY19leGVjX3QpCmNhbl9leGVjKGthZG1pbmRfdCwga2FkbWluZF9leGVjX3QpCgoj
+IHR5cGVzIGZvciBnZW5lcmFsIGNvbmZpZ3VyYXRpb24gZmlsZXMgaW4gL2V0Ywp0eXBlIGtyYjVf
+Y29uZl90LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGU7CnR5cGUga3JiNV9rZXl0YWJfdCwgZmlsZV90
+eXBlLCBzeXNhZG1maWxlOwoKIyBmb3IgS0RDIGNvbmZpZ3MgYW5kIHByaW5jaXBhbCBmaWxlKHMp
+CnR5cGUga3JiNWtkY19jb25mX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZTsKdHlwZSBrcmI1a2Rj
+X3ByaW5jaXBhbF90LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGU7CgojIFVzZSBjYXBhYmlsaXRpZXMu
+IFN1cnBsdXMgY2FwYWJpbGl0aWVzIG1heSBiZSBhbGxvd2VkLgphbGxvdyBrcmI1a2RjX3Qga3Ji
+NWtkY190OmNhcGFiaWxpdHkgeyBzZXR1aWQgc2V0Z2lkIG5ldF9iaW5kX3NlcnZpY2UgY2hvd24g
+Zm93bmVyIGRhY19vdmVycmlkZSBzeXNfbmljZSB9OwphbGxvdyBrYWRtaW5kX3Qga2FkbWluZF90
+OmNhcGFiaWxpdHkgeyBzZXR1aWQgc2V0Z2lkIG5ldF9iaW5kX3NlcnZpY2UgY2hvd24gZm93bmVy
+IGRhY19vdmVycmlkZSBzeXNfbmljZSB9OwoKIyBrcmI1a2RjIGFuZCBrYWRtaW5kIGNhbiB1c2Ug
+bmV0d29yawpjYW5fbmV0d29yayhrcmI1a2RjX3QpCmNhbl9uZXR3b3JrKGthZG1pbmRfdCkKCiMg
+YWxsb3cgVURQIHRyYW5zZmVyIHRvL2Zyb20gYW55IHByb2dyYW0KY2FuX3VkcF9zZW5kKGtlcmJl
+cm9zX3BvcnRfdCwga3JiNWtkY190KQpjYW5fdWRwX3NlbmQoa3JiNWtkY190LCBrZXJiZXJvc19w
+b3J0X3QpCmNhbl90Y3BfY29ubmVjdChrZXJiZXJvc19wb3J0X3QsIGtyYjVrZGNfdCkKY2FuX3Rj
+cF9jb25uZWN0KGtlcmJlcm9zX2FkbWluX3BvcnRfdCwga2FkbWluZF90KQoKIyBCaW5kIHRvIHRo
+ZSBrZXJiZXJvcywga2VyYmVyb3MtYWRtIHBvcnRzLgphbGxvdyBrcmI1a2RjX3Qga2VyYmVyb3Nf
+cG9ydF90OnVkcF9zb2NrZXQgbmFtZV9iaW5kOwphbGxvdyBrcmI1a2RjX3Qga2VyYmVyb3NfcG9y
+dF90OnRjcF9zb2NrZXQgbmFtZV9iaW5kOwphbGxvdyBrYWRtaW5kX3Qga2VyYmVyb3NfYWRtaW5f
+cG9ydF90OnRjcF9zb2NrZXQgbmFtZV9iaW5kOwoKIwojIEdlbmVyYWwgcnVsZXMgZm9yIC9ldGMv
+a3JiNS5jb25mCmFsbG93IHVzZXJfdCBrcmI1X2NvbmZfdDpmaWxlIHsgZ2V0YXR0ciBpb2N0bCBy
+ZWFkIH07CmFsbG93IGxvY2FsX2xvZ2luX3Qga3JiNV9jb25mX3Q6ZmlsZSB7IGdldGF0dHIgaW9j
+dGwgcmVhZCB9OwphbGxvdyBzeXNhZG1fc3VfdCBrcmI1X2NvbmZfdDpmaWxlIHsgZ2V0YXR0ciBp
+b2N0bCByZWFkIH07CmFsbG93IHVzZXJfc3VfdCBrcmI1X2NvbmZfdDpmaWxlIHsgZ2V0YXR0ciBp
+b2N0bCByZWFkIH07CmFsbG93IHJ1bl9pbml0X3Qga3JiNV9jb25mX3Q6ZmlsZSB7IGdldGF0dHIg
+cmVhZCB9OwoKIyBTb21ldGhpbmcgaW4gdGhlIEtlcmJlcm9zNSBsaWJyYXJ5IGxpa2VzIHRvIG9w
+ZW4ga3JiNS5jb25mIGZvciB3cml0aW5nCmRvbnRhdWRpdCB1c2VyX3Qga3JiNV9jb25mX3Q6Zmls
+ZSB7IHdyaXRlIH07CgojCiMgUnVsZXMgZm9yIEtlcmJlcm9zNSBLREMgZGFlbW9uCmFsbG93IGty
+YjVrZGNfdCBrcmI1X2NvbmZfdDpmaWxlIHsgZ2V0YXR0ciByZWFkIH07CmFsbG93IGtyYjVrZGNf
+dCBrcmI1a2RjX2NvbmZfdDpkaXIgeyBzZWFyY2ggfTsKYWxsb3cga3JiNWtkY190IGtyYjVrZGNf
+Y29uZl90OmZpbGUgeyBnZXRhdHRyIHJlYWQgfTsKYWxsb3cga3JiNWtkY190IGtyYjVrZGNfcHJp
+bmNpcGFsX3Q6ZmlsZSB7IGdldGF0dHIgbG9jayByZWFkIHdyaXRlIH07CmFsbG93IGtyYjVrZGNf
+dCBsb2NhbGVfdDpmaWxlIHsgZ2V0YXR0ciByZWFkIH07CmFsbG93IGtyYjVrZGNfdCB0bXBfdDpk
+aXIgeyBhZGRfbmFtZSByZW1vdmVfbmFtZSBzZWFyY2ggd3JpdGUgfTsKYWxsb3cga3JiNWtkY190
+IHRtcF90OmZpbGUgeyBjcmVhdGUgZ2V0YXR0ciByZWFkIHJlbmFtZSB1bmxpbmsgd3JpdGUgfTsK
+YWxsb3cga3JiNWtkY190IHZhcl9sb2dfdDpkaXIgeyBhZGRfbmFtZSBzZWFyY2ggd3JpdGUgfTsK
+YWxsb3cga3JiNWtkY190IHZhcl9sb2dfdDpmaWxlIHsgcmVhZCBhcHBlbmQgY3JlYXRlIGdldGF0
+dHIgfTsKCgojCiMgUnVsZXMgZm9yIEtlcmJlcm9zNSBLYWRtaW4gZGFlbW9uCmFsbG93IGthZG1p
+bmRfdCBrYWRtaW5kX3Q6dW5peF9kZ3JhbV9zb2NrZXQgeyBjb25uZWN0IGNyZWF0ZSB3cml0ZSB9
+OwphbGxvdyBrYWRtaW5kX3Qga3JiNV9jb25mX3Q6ZmlsZSB7IGdldGF0dHIgcmVhZCB9OwphbGxv
+dyBrYWRtaW5kX3Qga3JiNWtkY19jb25mX3Q6ZGlyIHsgc2VhcmNoIH07CmFsbG93IGthZG1pbmRf
+dCBrcmI1a2RjX2NvbmZfdDpmaWxlIHsgZ2V0YXR0ciBsb2NrIHJlYWQgfTsKYWxsb3cga2FkbWlu
+ZF90IGtyYjVrZGNfcHJpbmNpcGFsX3Q6ZmlsZSB7IGdldGF0dHIgbG9jayByZWFkIHdyaXRlIHNl
+dGF0dHIgfTsKYWxsb3cga2FkbWluZF90IGxvY2FsZV90OmZpbGUgeyBnZXRhdHRyIHJlYWQgfTsK
+YWxsb3cga2FkbWluZF90IHRtcF90OmRpciB7IGFkZF9uYW1lIHJlbW92ZV9uYW1lIHNlYXJjaCB3
+cml0ZSB9OwphbGxvdyBrYWRtaW5kX3QgdG1wX3Q6ZmlsZSB7IGNyZWF0ZSBnZXRhdHRyIHJlYWQg
+dW5saW5rIHdyaXRlIH07CmFsbG93IGthZG1pbmRfdCB2YXJfbG9nX3Q6ZGlyIHsgYWRkX25hbWUg
+c2VhcmNoIHdyaXRlIH07CmFsbG93IGthZG1pbmRfdCB2YXJfbG9nX3Q6ZmlsZSB7IHJlYWQgYXBw
+ZW5kIGNyZWF0ZSBnZXRhdHRyIH07CgphbGxvdyBzeXNhZG1fc3VfdCBrcmI1a2RjX3Q6dWRwX3Nv
+Y2tldCB7IHJlY3Zmcm9tIH07CmFsbG93IGtyYjVrZGNfdCBzeXNhZG1fc3VfdDp1ZHBfc29ja2V0
+IHsgcmVjdmZyb20gfTsKCmFsbG93IGtyYjVrZGNfdCBzeXNhZG1fdDp1ZHBfc29ja2V0IHsgcmVj
+dmZyb20gfTsKYWxsb3cgc3lzYWRtX3Qga3JiNWtkY190OnVkcF9zb2NrZXQgeyByZWN2ZnJvbSB9
+OwphbGxvdyBrcmI1a2RjX3QgdXNlcl90OnVkcF9zb2NrZXQgeyByZWN2ZnJvbSB9OwphbGxvdyB1
+c2VyX3Qga3JiNWtkY190OnVkcF9zb2NrZXQgeyByZWN2ZnJvbSB9OwphbGxvdyBrcmI1a2RjX3Qg
+dXNlcl9zdV90OnVkcF9zb2NrZXQgeyByZWN2ZnJvbSB9OwoKIwojIFJ1bGVzIGZvciBPcGVuU1NI
+IHNzaGQgc2VydmVyIGFuZCBzc2ggY2xpZW50IGNvbXBpbGVkCiMgd2l0aCBLZXJiZXJvcyBzdXBw
+cnQKaWZkZWYoYHNzaC50ZScsIGAKYWxsb3cga3JiNWtkY190IHNzaGRfdDp1ZHBfc29ja2V0IHsg
+cmVjdmZyb20gfTsKYWxsb3cgc3NoZF90IGtyYjVrZGNfdDp1ZHBfc29ja2V0IHsgcmVjdmZyb20g
+fTsKYWxsb3cga3JiNWtkY190IHVzZXJfc3NoX3Q6dWRwX3NvY2tldCB7IHJlY3Zmcm9tIH07CmFs
+bG93IHVzZXJfc3NoX3Qga3JiNWtkY190OnVkcF9zb2NrZXQgeyByZWN2ZnJvbSB9OwphbGxvdyBz
+c2hkX3Qga3JiNV9jb25mX3Q6ZmlsZSB7IGdldGF0dHIgaW9jdGwgcmVhZCB9OwphbGxvdyBzc2hk
+X3Qga3JiNV9rZXl0YWJfdDpmaWxlIHsgbG9jayByZWFkIH07CmFsbG93IHN5c2FkbV9zc2hfdCBr
+cmI1X2NvbmZfdDpmaWxlIHsgZ2V0YXR0ciByZWFkIH07CmFsbG93IHVzZXJfc3NoX3Qga3JiNV9j
+b25mX3Q6ZmlsZSB7IGdldGF0dHIgcmVhZCB9OwoKIyBRdWlldGx5IGRpc2FsbG93IHdyaXRlIHRv
+IC9ldGMva3JiNS5jb25mCmRvbnRhdWRpdCBzc2hkX3Qga3JiNV9jb25mX3Q6ZmlsZSB7IHdyaXRl
+IH07CmRvbnRhdWRpdCB1c2VyX3NzaF90IGtyYjVfY29uZl90OmZpbGUgeyB3cml0ZSB9OwoKIwoj
+IHNzaGQtZ2VuZXJhdGVkIGtlcmJlcm9zIGNyZWRlbnRpYWxzIGFyZSBzdG9yZWQgYXMgc3NoZF90
+bXBfdAojIGtpbml0IGNyZWF0ZWQgY3JlZHMgYXJlIHVzZXJfdG1wX3QKYWxsb3cgdXNlcl90IHNz
+aGRfdG1wX3Q6ZmlsZSB7IGxvY2sgcmVhZCB1bmxpbmsgfTsKYWxsb3cgdXNlcl9zc2hfdCB1c2Vy
+X3RtcF90OmZpbGUgeyBsb2NrIHdyaXRlIH07CgojIHNzaGQgZGVzdHJveXMga2luaXQtY3JlYXRl
+ZCB0aWNrZXRzIG9uIGV4aXQKYWxsb3cgc3NoZF90IHVzZXJfdG1wX3Q6ZmlsZSB7IGdldGF0dHIg
+cmVhZCB3cml0ZSB1bmxpbmsgfTsKJykKCgo=
+------=_20030716111140_18493
+Content-Type: application/octet-stream; name="net_contexts.diff"
+Content-Disposition: attachment; filename="net_contexts.diff"
+Content-Transfer-Encoding: base64
+
+NzgsODhkNzcKPCAjCjwgIyBLZXJiZXJvcyBrcmI1a2RjLCBrYWRtaW5kCjwgIwo8IGlmZGVmKGBr
+ZXJiZXJvcy50ZScsIGAKPCBwb3J0Y29uIHVkcCA4OCBzeXN0ZW1fdTpvYmplY3RfcjprZXJiZXJv
+c19wb3J0X3QKPCBwb3J0Y29uIHRjcCA4OCBzeXN0ZW1fdTpvYmplY3RfcjprZXJiZXJvc19wb3J0
+X3QKPCBwb3J0Y29uIHRjcCA3NDkgc3lzdGVtX3U6b2JqZWN0X3I6a2VyYmVyb3NfYWRtaW5fcG9y
+dF90CjwgcG9ydGNvbiB1ZHAgNzUxIHN5c3RlbV91Om9iamVjdF9yOmtlcmJlcm9zX21hc3Rlcl9w
+b3J0X3QKPCBwb3J0Y29uIHRjcCA3NTEgc3lzdGVtX3U6b2JqZWN0X3I6a2VyYmVyb3NfbWFzdGVy
+X3BvcnRfdAo8ICcpCjwgCg==
+
+------=_20030716111140_18493--
 
 
 --
