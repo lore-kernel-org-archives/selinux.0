@@ -1,87 +1,57 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8AN5drT022131
-	for <selinux@tycho.nsa.gov>; Fri, 10 Sep 2004 19:05:39 -0400 (EDT)
-Received: from rwcrmhc13.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8AN5cl6022618
-	for <selinux@tycho.nsa.gov>; Fri, 10 Sep 2004 23:05:39 GMT
-Subject: checkpolicy-1.16 multiple compile job fix
-From: Chris PeBenito <pebenito@gentoo.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oDy54INFR1x0elTP2K0D"
-Message-Id: <1094857561.6513.66.camel@gorn.pebenito.net>
-Mime-Version: 1.0
-Date: Fri, 10 Sep 2004 19:06:01 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8B6iFrT023456
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 02:44:16 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8B6iC6V028331
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 06:44:15 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Bill Nottingham <notting@redhat.com>
+Subject: Re: tmpfs /dev
+Date: Sat, 11 Sep 2004 16:43:54 +1000
+Cc: Development discussions related to Fedora Core <fedora-devel-list@redhat.com>,
+   Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
+References: <200409100536.59711.russell@coker.com.au> <200409101508.27612.russell@coker.com.au> <20040910163021.GA28303@nostromo.devel.redhat.com>
+In-Reply-To: <20040910163021.GA28303@nostromo.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200409111643.54132.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 11 Sep 2004 02:30, Bill Nottingham <notting@redhat.com> wrote:
+> Russell Coker (russell@coker.com.au) said:
+> > On Fri, 10 Sep 2004 06:19, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> > > You will need to talk to Bill Nottingham about modifying /sbin/init to
+> > > do this.  They are not crazy about
+> > > putting additional code into /sbin/init since it is very hard to debug.
+> >
+> > We've done it once, we can do it again.
+>
+> But why is init any better? Especially when it's just spawning a
+> shell script - that's a hack.
 
---=-oDy54INFR1x0elTP2K0D
-Content-Type: multipart/mixed; boundary="=-V25fyXQilmqAVLQJi2lw"
+Spawning a shell script is good for a test.  If we decide to run it from init 
+then we can do it differently in the release version of the code.
 
+> > > They prefer rc.sysinit.  They also do not
+> >
+> > rc.sysinit means changing the policy for init_t, initrc_t, and maybe
+> > others.
+>
+> init runs in init_t, surely?
 
---=-V25fyXQilmqAVLQJi2lw
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+init runs in init_t AFTER it re-exec's itself.  At the time it is doing the SE 
+Linux stuff it's running as kernel_t or running on a system with no policy 
+loaded.
 
-Here is a patch for the checkpolicy Makefile to fix a compile problem
-with multiple compile jobs (make -j*).
-
-One of the errors that was happening was:
-
-policy_scan.l: In function `yylex':
-policy_scan.l:48: error: `CLONE' undeclared (first use in this function)
-policy_scan.l:48: error: (Each undeclared identifier is reported only
-once
-policy_scan.l:48: error: for each function it appears in.)
-policy_scan.l:50: error: `COMMON' undeclared (first use in this
-function)
-[many more undeclared]
-
-
-Another was:
-policy_scan.l:23:19: y.tab.h: No such file or directory
-make: *** [lex.yy.o] Error 1
-make: *** Waiting for unfinished jobs....
-
-
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-Embedded Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
-
---=-V25fyXQilmqAVLQJi2lw
-Content-Disposition: attachment; filename=checkpolicy-1.16.diff
-Content-Type: text/x-patch; name=checkpolicy-1.16.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-LS0tIGNoZWNrcG9saWN5LTEuMTYub3JpZy9NYWtlZmlsZQkyMDA0LTA4LTEzIDExOjA5OjI1LjAw
-MDAwMDAwMCAtMDQwMA0KKysrIGNoZWNrcG9saWN5LTEuMTYvTWFrZWZpbGUJMjAwNC0wOS0xMCAx
-Nzo0NTo1OS45MTgzMDAwMTYgLTA0MDANCkBAIC00OCw3ICs0OCw3IEBADQogeS50YWIuYzogcG9s
-aWN5X3BhcnNlLnkNCiAJJChZQUNDKSAtZCBwb2xpY3lfcGFyc2UueQ0KIA0KLWxleC55eS5jOiBw
-b2xpY3lfc2Nhbi5sDQorbGV4Lnl5LmM6IHBvbGljeV9zY2FuLmwgeS50YWIuYw0KIAkkKExFWCkg
-cG9saWN5X3NjYW4ubA0KIA0KIHVzZXJzLnRhYi5jOiB1c2Vycy55DQo=
-
---=-V25fyXQilmqAVLQJi2lw--
-
---=-oDy54INFR1x0elTP2K0D
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBQjNYvI7kLeavkkMRAmvaAJ9Kp0sJqjS/8KM6+iRXU21C4QFW8wCfdu43
-96AQWl7vTeg3pTCRYSioBfs=
-=vcoM
------END PGP SIGNATURE-----
-
---=-oDy54INFR1x0elTP2K0D--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
