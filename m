@@ -1,117 +1,61 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA00953
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 03:28:03 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id HAA18469
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 07:27:38 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id HAA18465
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 07:27:36 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: policy update script
-Date: Mon, 24 Jun 2002 09:27:36 +0200
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA01354
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 07:17:02 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id LAA09252
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 11:15:36 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id LAA09248 for <selinux@tycho.nsa.gov>; Mon, 24 Jun 2002 11:15:35 GMT
+Date: Mon, 24 Jun 2002 07:16:24 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: vishwakarma singh <vsingh014@yahoo.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: role allow rules
+In-Reply-To: <20020621213017.D4F7156@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0206240702320.10386-100000@raven>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_0Q87S1BTC12A7XA4AJ9F"
-Message-Id: <20020624072737.497201683@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---------------Boundary-00=_0Q87S1BTC12A7XA4AJ9F
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+On Fri, 21 Jun 2002 17:20, Vishwakarma Singh [inferred] wrote:
 
-I've finally written a script to prompt the user for updating their current 
-policy tree from the default tree.
+>   I like to know whenever a role changes , how the
+> ROLE ALLOW RULES  mentioned in the rbac policy
+> configuration file  are checked , whether the role
+> change is allowed  or not .
+>              I also want to know difference between a
+> role transition rule and a role allow rule . If there
+> are role transition rules , why there is need of role
+> allow rules .
 
-It's a little bit of a hack at the moment, but generally works.
+Role allow rules specify authorized transitions between roles based on the
+pair of roles.  These rules are checked for the process transition
+permission.  As noted in Section 4.3.2 of the Configuring the SELinux
+Policy report, role allow rules serve little purpose in the example policy
+configuration, since most pairings of roles need to be authorized to
+support normal transitions among daemons and user processes.  The example
+policy configuration uses the constraints configuration to limit role
+transitions to certain TE domains that are associated with processes such
+as login and newrole.
 
-Check it out and let me know what you think.  Also if you're a half decent 
-perl programmer then please make some more of the code into functions.  The 
-file write stuff could probably be made a function by someone who knows what 
-they are doing.
+Role allow rules are used in computing access decisions.  Role transition
+rules are used in computing labeling decisions (and are deprecated, as
+noted in Section 4.3.3).  See Section 2.1 (Flask Concepts) for an
+explanation of access decisions vs. labeling decisions.  Labeling
+decisions must be authorized by corresponding access decisions; we do not
+implicitly grant the permissions associated with a labeling decision.
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
---------------Boundary-00=_0Q87S1BTC12A7XA4AJ9F
-Content-Type: application/x-perl;
-  name="selinux-update"
-Content-Transfer-Encoding: base64
-Content-Description: selinux-update
-Content-Disposition: attachment; filename="selinux-update"
 
-IyEvdXNyL2Jpbi9wZXJsCnVzZSBzdHJpY3Q7CgpjaGRpcigiL3Vzci9zaGFyZS9zZWxpbnV4L3Bv
-bGljeSIpOwpteSAlbmV3ZmlsZXMgPSByZWFkZmlsZSgibmV3ZmlsZXMiKTsKbXkgJWRlbGZpbGVz
-ID0gcmVhZGZpbGUoImRlbGZpbGVzIik7Cm15ICVpZ25vcmVkaWZmID0gcmVhZGZpbGUoImlnbm9y
-ZWRpZmYiKTsKY2hkaXIoImRlZmF1bHQiKSBvciBkaWUgIkNhbid0IGFjY2VzcyBkaXJlY3Rvcnkg
-ZGVmYXVsdCI7Cm15ICVkZWZhdWx0ID0gZmluZGl0KCk7CmNoZGlyKCIuLi9jdXJyZW50Iikgb3Ig
-ZGllICJDYW4ndCBhY2Nlc3MgZGlyZWN0b3J5IGN1cnJlbnQiOwpteSAlY3VycmVudCA9IGZpbmRp
-dCgpOwpjaGRpcigiLi4iKSBvciBkaWUgIkNhbid0IGNoYW5nZSBkaXJlY3RvcnkiOwoKbXkgJGZp
-bGU7CmZvcmVhY2ggJGZpbGUgKGtleXMgJW5ld2ZpbGVzKQp7CiAgaWYoJGN1cnJlbnR7JGZpbGV9
-ICE9IDEgb3IgJGRlZmF1bHR7JGZpbGV9ID09IDEpCiAgewogICAgJG5ld2ZpbGVzeyRmaWxlfSA9
-IDA7CiAgfQogIGVsc2UKICB7CiAgICAkY3VycmVudHskZmlsZX0gPSAwOwogIH0KfQpmb3JlYWNo
-ICRmaWxlIChrZXlzICVkZWxmaWxlcykKewogIGlmKCRkZWZhdWx0eyRmaWxlfSAhPSAxIG9yICRj
-dXJyZW50eyRmaWxlfSA9PSAxKQogIHsKICAgICRkZWxmaWxlc3skZmlsZX0gPSAwOwogIH0KICBl
-bHNlCiAgewogICAgJGRlZmF1bHR7JGZpbGV9ID0gMDsKICB9Cn0KCiMgY2hlY2sgZm9yIG5ldyBm
-aWxlcwpmb3JlYWNoICRmaWxlIChrZXlzICVkZWZhdWx0KQp7CiAgaWYoICgkZGVmYXVsdHskZmls
-ZX0gPT0gMSkgYW5kICgkY3VycmVudHskZmlsZX0gIT0gMSkgKQogIHsKICAgIG15ICRpbjsKICAg
-IExPT1A6IHdoaWxlKDEpCiAgICB7CiAgICAgIHByaW50KCJOZXcgZmlsZTogJGZpbGUsIENvcHkv
-RGlzcGxheS9JZ25vcmUgW2MvZC9JXT8gXG4iKTsKICAgICAgJGluID0gbGMoc3Vic3RyKDxTVERJ
-Tj4sIDAsIDEpKTsKICAgICAgU1dJVENIOiB7CiAgICAgICAgaWYoJGluID1+IC9jLyApIHsgYGNw
-IGRlZmF1bHQvJGZpbGUgY3VycmVudC8kZmlsZWA7IGxhc3QgTE9PUDsgfQogICAgICAgIGlmKCRp
-biA9fiAvZC8pIHsgc3lzdGVtKCJsZXNzIGRlZmF1bHQvJGZpbGUiKTsgbGFzdCBTV0lUQ0g7IH0K
-ICAgICAgICAkZGVsZmlsZXN7JGZpbGV9ID0gMTsKICAgICAgICAkZGVmYXVsdHskZmlsZX0gPSAw
-OwogICAgICAgIGxhc3QgTE9PUDsKICAgICAgfQogICAgfQogIH0KfQpvcGVuKE9VVCwgIj5kZWxm
-aWxlcyIpIG9yIGRpZSAiQ2FuJ3Qgd3JpdGUgdG8gbGlzdCBvZiBkZWxldGVkIGZpbGVzLiI7CmZv
-cmVhY2ggJGZpbGUgKGtleXMgJWRlbGZpbGVzKQp7CiAgaWYoJGRlbGZpbGVzeyRmaWxlfSA9PSAx
-KQogIHsKICAgIHByaW50ZihPVVQgIiVzXG4iLCAkZmlsZSkgb3IgZGllICJDYW4ndCB3cml0ZSB0
-byBmaWxlIjsKICB9Cn0KY2xvc2UoT1VUKTsKCiMgY2hlY2sgZm9yIGRlbGV0ZWQgZmlsZXMKZm9y
-ZWFjaCAkZmlsZSAoa2V5cyAlY3VycmVudCkKewogIGlmKCAoJGN1cnJlbnR7JGZpbGV9ID09IDEp
-IGFuZCAoJGRlZmF1bHR7JGZpbGV9ICE9IDEpICkKICB7CiAgICBteSAkaW47CiAgICBMT09QOiB3
-aGlsZSgxKQogICAgewogICAgICBwcmludCgiVXBzdHJlYW0gZGVsZXRpb24gb3IgY3VzdG9tIGZp
-bGU6ICRmaWxlLCBEZWxldGUvSWdub3JlIFtkL0ldPyBcbiIpOwogICAgICAkaW4gPSBsYyhzdWJz
-dHIoPFNURElOPiwgMCwgMSkpOwogICAgICBTV0lUQ0g6IHsKICAgICAgICBpZigkaW4gPX4gL2Qv
-KSB7IHN5c3RlbSgicm0gY3VzdG9tLyRmaWxlIik7IGxhc3QgU1dJVENIOyB9CiAgICAgICAgJG5l
-d2ZpbGVzeyRmaWxlfSA9IDE7CiAgICAgICAgJGN1cnJlbnR7JGZpbGV9ID0gMDsKICAgICAgICBs
-YXN0IExPT1A7CiAgICAgIH0KICAgIH0KICB9Cn0Kb3BlbihPVVQsICI+bmV3ZmlsZXMiKSBvciBk
-aWUgIkNhbid0IHdyaXRlIHRvIGxpc3Qgb2YgbmV3IGZpbGVzLiI7CmZvcmVhY2ggJGZpbGUgKGtl
-eXMgJW5ld2ZpbGVzKQp7CiAgaWYoJG5ld2ZpbGVzeyRmaWxlfSA9PSAxKQogIHsKICAgIHByaW50
-ZihPVVQgIiVzXG4iLCAkZmlsZSkgb3IgZGllICJDYW4ndCB3cml0ZSB0byBmaWxlIjsKICB9Cn0K
-Y2xvc2UoT1VUKTsKCmZvcmVhY2ggJGZpbGUgKGtleXMgJWRlZmF1bHQpCnsKICBteSAkcmMgPSAw
-OwogIGlmKCRkZWZhdWx0eyRmaWxlfSA9PSAxIGFuZCAkaWdub3JlZGlmZnskZmlsZX0gIT0gMSkK
-ICB7CiAgICAkcmMgPSBzeXN0ZW0oImNtcCBkZWZhdWx0LyRmaWxlIGN1cnJlbnQvJGZpbGUgPiAv
-ZGV2L251bGwiKTsKICB9CiAgaWYoJHJjICE9IDApCiAgewogICAgbXkgJGluOwogICAgTE9PUDog
-d2hpbGUoMSkKICAgIHsKICAgICAgcHJpbnQoIkZpbGUgXCIkZmlsZVwiIGNoYW5nZWQuXG5Db3B5
-L0lnbm9yZS9BbHdheXMgaWdub3JlL3ZpZXcgRGlmZiBbL2MvSS9hL2RdPyBcbiIpOwogICAgICAk
-aW4gPSBsYyhzdWJzdHIoPFNURElOPiwgMCwgMSkpOwogICAgICBTV0lUQ0g6IHsKICAgICAgICBp
-ZigkaW4gPX4gL2MvICkgeyBgY3AgZGVmYXVsdC8kZmlsZSBjdXJyZW50LyRmaWxlYDsgbGFzdCBM
-T09QOyB9CiAgICAgICAgaWYoJGluID1+IC9kLykgeyBzeXN0ZW0oImRpZmYgLXUgZGVmYXVsdC8k
-ZmlsZSBjdXJyZW50LyRmaWxlIHwgbGVzcyIpOyBsYXN0IFNXSVRDSDsgfQogICAgICAgIGlmKCRp
-biA9fiAvYS8pIHsgJGlnbm9yZWRpZmZ7JGZpbGV9ID0gMTsgbGFzdCBMT09QOyB9CiAgICAgICAg
-bGFzdCBMT09QOwogICAgICB9CiAgICB9CiAgfQp9CgpvcGVuKE9VVCwgIj5pZ25vcmVkaWZmIikg
-b3IgZGllICJDYW4ndCB3cml0ZSB0byBsaXN0IG9mIGlnbm9yZSBkaWZmIGZpbGVzLiI7CmZvcmVh
-Y2ggJGZpbGUgKGtleXMgJWlnbm9yZWRpZmYpCnsKICBpZigkaWdub3JlZGlmZnskZmlsZX0gPT0g
-MSkKICB7CiAgICBwcmludGYoT1VUICIlc1xuIiwgJGZpbGUpIG9yIGRpZSAiQ2FuJ3Qgd3JpdGUg
-dG8gZmlsZSI7CiAgfQp9CmNsb3NlKE9VVCk7CgoKCnN1YiBmaW5kaXQKewogIG9wZW4oSU5QVVQs
-ICJmaW5kIC4gLXR5cGUgZiAyPiAvZGV2L251bGwgfCIpIG9yIGRpZSAiQ2FuJ3QgZmluZC4iOwog
-IG15ICVmaWxlcyA9ICgpOwogIHdoaWxlKDxJTlBVVD4pCiAgewogICAgY2hvbXA7CiAgICAkXyA9
-fiBzL14uLi8vOwogICAgaWYobm90ICRfID1+IC9edG1wLyBhbmQgbm90ICRfID1+IC9ecG9saWN5
-LyBhbmQgbm90ICRfID1+IC9eLiQvCiAgICAgIGFuZCBub3QgJF8gPX4gL2ZpbGVfY29udGV4dHNc
-L2ZpbGVfY29udGV4dHMvKQogICAgewogICAgICAkZmlsZXN7JF99ID0gMTsKICAgIH0KICB9CiAg
-Y2xvc2UoSU5QVVQpOwogIHJldHVybiAlZmlsZXM7Cn0KCnN1YiByZWFkZmlsZQp7CiAgb3BlbihJ
-TlBVVCwgIjwiIC4gJF9bMF0pIG9yIHJldHVybiAoKTsKICBteSAlZmlsZXMgPSAoKTsKCiAgd2hp
-bGUoPElOUFVUPikKICB7CiAgICBjaG9tcDsKICAgICRmaWxlc3skX30gPSAxOwogIH0KICBjbG9z
-ZShJTlBVVCk7CiAgcmV0dXJuICVmaWxlczsKfQo=
 
---------------Boundary-00=_0Q87S1BTC12A7XA4AJ9F--
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
