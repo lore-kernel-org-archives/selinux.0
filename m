@@ -1,52 +1,33 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA28577
-	for <selinux@tycho.nsa.gov>; Wed, 21 Feb 2001 18:05:32 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id XAA10499
-	for <selinux@tycho.nsa.gov>; Wed, 21 Feb 2001 23:05:15 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id XAA10495
-	for <selinux@tycho.nsa.gov>; Wed, 21 Feb 2001 23:05:15 GMT
-Date: Wed, 21 Feb 2001 18:04:53 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Dan DeVries <ddevries2000@yahoo.com>
-cc: selinux@tycho.nsa.gov
-Subject: Re: Err when ./tools/build-apps
-In-Reply-To: <20010221222540.39245.qmail@web9307.mail.yahoo.com>
-Message-ID: <Pine.SOL.3.95.1010221174451.25354A-100000@clipper.gw.tislabs.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA29778
+	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2001 00:55:05 -0500 (EST)
+From: jgko@etri.re.kr
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id FAA23295
+	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2001 05:54:58 GMT
+Received: from cms3.etri.re.kr (cms3.etri.re.kr [129.254.16.13])
+	by jazzband.ncsc.mil  with ESMTP id FAA23291
+	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2001 05:54:56 GMT
+To: selinux@tycho.nsa.gov
+Subject: questions...
+Date: Thu, 22 Feb 2001 14:58:17 +0900
+Message-ID: <NEBBKCIACMGHCEFINOAEGELOCAAA.jgko@etri.re.kr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="ks_c_5601-1987"
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
+Hi all...
+This is the first time to this mailing list...
 
-What platform are you using to build SELinux?
+I am wondering whether or not SELINUX checks DAC which supported by orginal LINUX for access control decision..
 
-It appears that your build problem is occurring in
-utils/procps-2.0.4/watch.c.  Line 215 is 'mvaddstr(0, 0, header)' in 
-that file.  mvaddstr is defined in /usr/include/ncurses.h, and 
-ultimately expands to include the symbol ERR.  However,
-/usr/include/ncurses.h also defines ERR to -1 if it is not
-already defined.  So I don't know why your build is failing,
-unless your ncurses.h happens to differ.
+if so... is there any priority between Type Enforcement and DAC
 
---
-Stephen D. Smalley, NAI Labs
-sds@tislabs.com
+otherwise,  all policy should be allowed...?
 
-On Wed, 21 Feb 2001, Dan DeVries wrote:
-
-> When installing selinux
-> I got the following error when building the apps 
-> ...
-> watch.c In function 'main'
-> watch.c: 215 ERR undeclared first use in this function
-> watch.c: 215 (Each undeclared identifier...
-> make: *** watch.c Error 1
-> um..
-> Any Suggestions?
-> 
-> -Dan
+thank you in advace....
 
 
 --
