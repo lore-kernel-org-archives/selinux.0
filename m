@@ -1,47 +1,53 @@
-Date: Wed, 18 Dec 2002 12:28:30 +1100
-From: Brian May <bam@snoopy.apana.org.au>
-To: forrest whitcher <fw@fwsystems.com>
-Cc: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, SELinux@tycho.nsa.gov
-Subject: Re: Domain transition -- enabling user_r in eklogin
-Message-ID: <20021218012830.GC31462@snoopy.apana.org.au>
-References: <200212171725.MAA01304@moss-shockers.ncsc.mil> <20021217192856.427b5d68.fw@fwsystems.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA19046
+	for <selinux@tycho.nsa.gov>; Tue, 17 Dec 2002 21:45:25 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id gBI2jPI23141
+	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 02:45:25 GMT
+Received: from pandora.snu.edu (pandora.snu.edu [204.126.2.1])
+        by jazzband.ncsc.mil  with SMTP id gBI2jOf23137 for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 02:45:24 GMT
+Message-Id: <sdff8cd8.058@atlas.snu.edu>
+Date: Tue, 17 Dec 2002 20:44:33 -0600
+From: "Joshua Brindle" <JBrindle@snu.edu>
+To: <selinux@tycho.nsa.gov>
+Subject: New selinux-small with automake?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20021217192856.427b5d68.fw@fwsystems.com>
+Content-Type: multipart/alternative; boundary="=_633FAC28.14750C48"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Dec 17, 2002 at 07:28:56PM -0500, forrest whitcher wrote:
-> I'll look into adding kerberos auth to newrole(1) to save retypings of
-> password next.
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-Interesting idea, it would be good not to have to type in your password
-each time.
+--=_633FAC28.14750C48
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-However, I have to wonder if this is such a good idea...
+Any chance of the new selinux-small package with automake being posted?
 
-At the very least you would need to have a strict policy that only
-allows very trusted programs to access the ticket or to run a program
-(eg. newrole) that has access to this ticket.
+ 
+Joshua Brindle
+UNIX Administrator
+Southern Nazarene University
 
-This might be a good thing anyway, you probably don't want a copy of
-mozilla being able to automatically run commands on remote computer with
-your Kerberos ticket for instance.
+--=_633FAC28.14750C48
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Description: HTML
 
-If there is any weakness in this strict policy, and for instance program
-X finds it can run newrole indirectly via, say bash, and automatically
-get sysadm_r priviliges, you loose any benifit SE-Linux could provide.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<META content="MSHTML 6.00.2800.1126" name=GENERATOR></HEAD>
+<BODY style="MARGIN-TOP: 2px; FONT: 8pt Tahoma; MARGIN-LEFT: 2px">
+<DIV><FONT size=2>Any chance of the new selinux-small package with automake 
+being posted? </FONT></DIV>
+<DIV>&nbsp;</DIV>
+<DIV><FONT size=2>Joshua Brindle<BR>UNIX Administrator<BR>Southern Nazarene 
+University</FONT></DIV></BODY></HTML>
 
-Some sort of tool for analysing policy might be good here, for instance
-so you can ask questions like "Can Mozilla access the Kerberos ticket
-either directly or indirectly by loading another program first?".
-
-I am not yet sure how good SE-Linux will be at solving this type of
-problem, without duplicating a lot of domains, for instance
-a set of domains for programs with Kerberos ticket access, and
-a duplicate set for programs without Kerberos ticket access).
---
-Brian May <bam@snoopy.apana.org.au>
+--=_633FAC28.14750C48--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
