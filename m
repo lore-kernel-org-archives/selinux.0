@@ -1,38 +1,35 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i920uArT006076
-	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 20:56:10 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i920t24L013316
-	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 00:55:03 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i92102rT006129
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 21:00:02 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i920xwEZ019859
+	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 00:59:59 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Erich Schubert <erich@debian.org>
-Subject: Re: bash_profile: Permission denied
-Date: Sat, 2 Oct 2004 10:56:05 +1000
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-   "James R. Marcus" <jmarcus@mvalent.net>, selinux@tycho.nsa.gov
-References: <E6E16A6D4277CD459BBDE6713766033CB71F3E@exchange.mvalent.local> <41530866.4020306@redhat.com> <1096670260.4161.18.camel@wintermute.xmldesign.de>
-In-Reply-To: <1096670260.4161.18.camel@wintermute.xmldesign.de>
+To: Greg Norris <haphazard@kc.rr.com>
+Subject: Re: need advice for ld_so_cache_t errors
+Date: Sat, 2 Oct 2004 10:59:57 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20041001233554.GA26550@yggdrasil.localdomain>
+In-Reply-To: <20041001233554.GA26550@yggdrasil.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200410021056.05616.russell@coker.com.au>
+Message-Id: <200410021059.57835.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2 Oct 2004 08:37, Erich Schubert <erich@debian.org> wrote:
-> > The problem is probably that you are logging as staff_r and the
-> > directory is sysadm_r.
+On Sat, 2 Oct 2004 09:35, Greg Norris <haphazard@kc.rr.com> wrote:
+>    Oct  1 17:16:34 sasami kernel: audit(1096668994.071:0): avc:
+>      denied  { execute } for  pid=3039 path=/etc/ld.so.cache
+>      dev=hda5 ino=1022 scontext=system_u:system_r:postfix_master_t
+>      tcontext=system_u:object_r:ld_so_cache_t tclass=file
 >
-> What is the preferred way for having login being done as staff_r, but
-> still having some profile files for root/staff_r?
-> (staff_r doesn't necessarily need to write them, but i'd like him to be
-> able to read them. So i can at least have a macro for "newrole -r
-> sysadm_r" or a bash history entry...)
+> This happens for a number of other domains as well, but postfix seems to
+> have an exceptional affinity.  Should I just go ahead and grant execute
 
-You can use the boolean staff_read_sysadm_file to enable staff_t (and other 
-semi-privileged domains) to have getattr and search access to 
-sysadm_home_dir_t:dir and have getattr and read access to sysadm_home_t:file.
+Strange, I don't have any such problems with the Debian machines I have 
+running Postfix.  What versions of Postfix and libc6?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
