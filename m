@@ -1,58 +1,57 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBPKjTRb003753
-	for <selinux@tycho.nsa.gov>; Thu, 25 Dec 2003 15:45:30 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hBPKiY74018025
-	for <selinux@tycho.nsa.gov>; Thu, 25 Dec 2003 20:44:34 GMT
-Received: from mail.gmx.net (mail.gmx.de [213.165.64.20])
-	by jazzswing.ncsc.mil  with SMTP id hBPKiXC6017929
-	for <selinux@tycho.nsa.gov>; Thu, 25 Dec 2003 20:44:33 GMT
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: audit2allow script name
-Date: Thu, 25 Dec 2003 21:03:27 +0100
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_PK06/bpfRbVUCOF"
-Message-Id: <200312252103.27414.carstengrohmann@gmx.de>
+Subject: non-Linux behavior
+From: Albert Cahalan <albert@users.sourceforge.net>
+To: SELinux@tycho.nsa.gov
+Content-Type: text/plain
+Message-Id: <1072453276.953.89.camel@cube>
+Mime-Version: 1.0
+Date: 26 Dec 2003 10:41:16 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I've been adding SE Linux support to procps.
+The 3.1.15 release supports "--context" when
+run on a 2.6.0 kernel. (http://procps.sf.net/)
 
---Boundary-00=_PK06/bpfRbVUCOF
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I need some help. One of my goals is to be
+mostly compatible with both UNIX and BSD.
+I'm looking for people willing to try out
+security-related ps options on high-security
+systems. Better yet would be a trial account.
 
-Hi,
+I'm interested in whatever systems commonly
+in use or are likely to be of importance.
+I guess that means: Trusted IRIX, Cray's OS,
+Trusted Solaris, FreeBSD with LOMAC, and
+probably stuff from IBM or HP. Anything else?
+If you'd like Linux compatible with whatever
+it is you've been using, speak now.
 
-the attached patch replace the old script name in the function 
-printUsage with the new
+For those who can help only by typing commands
+themselves, feel free to change command names
+to "[x]", "x", or "x x" as appropriate. (I need
+to know if args are shown or if brakets are used)
+The same goes for user names, etc.
 
-Greetings
+I'd like to have output from at least:
 
-Carsten
---Boundary-00=_PK06/bpfRbVUCOF
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="audit2allow.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="audit2allow.patch"
+ps -Z
+ps -flZ
+ps -Zlf
+ps -ZelfLyPcj  (all the options you can do)
+ps Z
 
---- audit2allow.orig	2003-10-17 19:38:03.000000000 +0200
-+++ audit2allow	2003-12-25 20:59:07.000000000 +0100
-@@ -147,7 +147,7 @@
- }
- 
- sub printUsage {
--	print "newrules [-d] [-v] [-l] [-i <inputfile> ] [-o <outputfile>]
-+	print "audit2allow [-d] [-v] [-l] [-i <inputfile> ] [-o <outputfile>]
-         -d      read input from output of /bin/dmesg
-         -v      verbose output
-         -l      read input only after last \"load_policy\"
+Then again, replacing the 'Z' with 'z'.
+Then again, this time with 'M'.
+Then again, this time with 'x'.
+Then again, this time with 'C'.
+And so on, for every security-related option...
 
---Boundary-00=_PK06/bpfRbVUCOF--
+Plus this one:
+
+ps -zMZ  (all available security options at once)
+
+The goal here is to determine column width,
+column order, interactions between options, etc.
 
 
 
