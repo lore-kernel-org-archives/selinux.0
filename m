@@ -1,52 +1,58 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA02124
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 16:57:01 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA17445
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 21:55:08 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id VAA17441
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 21:55:06 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
+Date: Thu, 31 Oct 2002 09:03:13 +1100
+From: Brian May <bam@snoopy.apana.org.au>
 To: Stephen Smalley <sds@tislabs.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: kernel warning
-Date: Wed, 30 Oct 2002 22:56:39 +0100
-References: <Pine.GSO.4.33.0210301642520.22794-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0210301642520.22794-100000@raven>
-Cc: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Message-Id: <200210302256.39163.russell@coker.com.au>
+Message-ID: <20021030220313.GA16395@snoopy.apana.org.au>
+References: <20021029230748.GA9936@snoopy.apana.org.au> <Pine.GSO.4.33.0210300819100.26525-100000@raven>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.GSO.4.33.0210300819100.26525-100000@raven>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 30 Oct 2002 22:45, Stephen Smalley wrote:
-> > That isn't new; in prior releases, the SELinux-specific patch set the
-> > SELinux option defaults in defconfig and set EXTRAVERSION to -selinux in
-> > the top-level Makefile, so it wasn't appropriate for LIDS or DTE users
-> > anyway.
->
-> By the way, the EXTRAVERSION change was requested by you a year ago
-> (distribution of kernel patches thread on the selinux list).  But I get
+On Wed, Oct 30, 2002 at 08:23:58AM -0500, Stephen Smalley wrote:
+> You would only apply this patch if you intend to use SELinux, so it is
+> implicit that SELinux is going to be enabled.  We could #ifdef it, but I'm
 
-Correct.  However unofficial Debian policy regarding kernel patches changed 
-after that time and I reluctantly changed my packages to match.
+I find it considerably easier to maintain my kernel sources, if I only
+need to maintain one kernel source tree for all systems.
 
-> the impression that you've been dropping the Makefile and defconfig
-> changes from your kernel patch packages (not sure whether you have been
-> including the netsyms.c changes, those are needed for building Selopt as a
-> module, and are #ifdef'd appropriately).
+This means I don't have the situation in several months time "I have to
+compile this 3rd party closed source driver[1], but I can't remember how
+I created the original kernel source." (This did happen to me recently
+too, I thought I had the kernel tree safe, but I must have accidently
+modified it somehow...) In comparision, keeping track of the config
+files is very easy, Debian kernel packages do this automatically.
 
-I've just built a new kernel-patch package with this.  I'll upload it now.
+So I use the same kernel source now for all my systems. It has been
+patched with not only SE-Linux, but also ISDN DOV[2], ISDN Voice, and
+Freeswan. Sometime in the future I may also investigate adding the
+EVMS patch (assuming it doesn't conflict in any way with any of the
+other patches).
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+This doesn't mean that I want to use all of these features on all
+systems (for instance I am not ready to install SE-Linux on all my
+systems just yet), it just makes it easier to maintain.
 
+So for now, I have patched my kernel source to make that init
+call optional.
+
+Another option I might consider is creating a extremely simply policy,
+maybe with only one domain and give that domain access to everything.
+That way I can install SE-Linux kernels on computers where I am not yet
+ready to install a full blown SE-Linux policy, but at the same time not
+flood the console with lots of warnings, or risk DOS attacks.
+
+Notes:
+[1] Unfortunately, sometimes as much as we all hate to use closed
+    source drivers, it is the only choice, for instance with
+    a certain brand (or maybe even any brand) of satellite cards.
+
+[2] The DOV patch will be obsolete as of 2.4.20, it has been intergrated
+    into the main kernel.
+--
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
