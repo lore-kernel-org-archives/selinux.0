@@ -1,41 +1,111 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82Em2rT029645
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 10:48:02 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82ElC3w007537
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 14:47:13 GMT
-Subject: Re: Latest Patches
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200409022338.20644.russell@coker.com.au>
-References: <200408241818.40064.russell@coker.com.au>
-	 <41371628.2020408@redhat.com>
-	 <1094130607.17265.47.camel@moss-spartans.epoch.ncsc.mil>
-	 <200409022338.20644.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1094136369.17265.128.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 02 Sep 2004 10:46:09 -0400
+Message-ID: <36282A1733C57546BE392885C06185923AFE0D@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
+Cc: "Stephen Smalley (E-mail)" <sds@epoch.ncsc.mil>
+Subject: [patch] Role Dominance Ordering
+Date: Thu, 2 Sep 2004 11:17:46 -0400 
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C49100.007B88E0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-09-02 at 09:38, Russell Coker wrote:
-> Also something to note is that we really don't want to use this when producing 
-> a file_contexts file for distributing to other machines.  It would be likely 
-> to grant inappropriate access to block devices.
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-But with the current Makefile patch, this is precisely what will happen
-for anyone who does not have policy sources installed, right?  And last
-I checked, policy sources are only installed by explicit request, not by
-default.  Seems to require separate Makefile targets for local build vs.
-rpm build.
-  
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+------_=_NextPart_000_01C49100.007B88E0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 
+
+The attached patch addresses the role dominance ordering issues which has
+been brought up on this list previously.
+
+policy_parse.y |   38 ++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 38 insertions
+
+ <<role_order.patch>> 
+____________________________
+Chad Hanson
+Senior Secure Systems Engineer
+
+Trusted Computer Solutions
+121 W Goose Alley
+Urbana, IL  61801
+
+www.TrustedCS.com
+
+V: 217.384.0028  ext.12
+F: 217.384.0288
+E: chanson@TrustedCS.com
+
+
+------_=_NextPart_000_01C49100.007B88E0
+Content-Type: application/octet-stream;
+	name="role_order.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="role_order.patch"
+
+--- checkpolicy.old/policy_parse.y	2004-09-01 11:39:03.304407969 =
+-0500=0A=
++++ checkpolicy/policy_parse.y	2004-09-01 11:41:49.345351281 -0500=0A=
+@@ -2987,6 +2987,38 @@=0A=
+ 	return new;=0A=
+ }=0A=
+ =0A=
++/* This function eliminates the ordering dependency of role dominance =
+rule */=0A=
++static int dominate_role_recheck(hashtab_key_t key, hashtab_datum_t =
+datum, void *arg)=0A=
++{=0A=
++	role_datum_t *rdp =3D (role_datum_t *) arg;=0A=
++	role_datum_t *rdatum =3D (role_datum_t *) datum;=0A=
++	int i;=0A=
++=0A=
++	/* Don't bother to process against self role */=0A=
++	if (rdatum->value =3D=3D rdp->value)=0A=
++		return 0;=0A=
++=0A=
++	/* If a dominating role found */=0A=
++	if (ebitmap_get_bit(&(rdatum->dominates), rdp->value - 1))=0A=
++	{=0A=
++		/* raise types and dominates from dominated role */=0A=
++		for (i =3D ebitmap_startbit(&rdp->dominates); =0A=
++			i < ebitmap_length(&rdp->dominates); i++) =0A=
++		{=0A=
++			if (ebitmap_get_bit(&rdp->dominates, i))=0A=
++				ebitmap_set_bit(&rdatum->dominates, i, TRUE);=0A=
++		}=0A=
++		for (i =3D ebitmap_startbit(&rdp->types); =0A=
++			i < ebitmap_length(&rdp->types); i++)	=0A=
++		{=0A=
++			if (ebitmap_get_bit(&rdp->types, i))=0A=
++				ebitmap_set_bit(&rdatum->types, i, TRUE);=0A=
++		}		=0A=
++	}=0A=
++=0A=
++	/* go through all the roles */=0A=
++	return 0;=0A=
++}=0A=
+ =0A=
+ static role_datum_t *=0A=
+  define_role_dom(role_datum_t * r)=0A=
+@@ -3040,6 +3072,12 @@=0A=
+ 			ebitmap_destroy(&r->dominates);=0A=
+ 			free(r);=0A=
+ 		}=0A=
++		/*=0A=
++		 * Now go through all the roles and escalate this role's=0A=
++		 * dominates and types if a role dominates this role.=0A=
++		 */=0A=
++		hashtab_map(policydbp->p_roles.table,=0A=
++						dominate_role_recheck, role);=0A=
+ 	}=0A=
+ 	return role;=0A=
+ }=0A=
+
+------_=_NextPart_000_01C49100.007B88E0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
