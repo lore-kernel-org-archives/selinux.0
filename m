@@ -1,47 +1,38 @@
-Date: Sun, 24 Oct 2004 16:40:09 -0700
-From: Nifty Hat Mitch <mitch48@sbcglobal.net>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: mv and cp behavior.
-Message-ID: <20041024234009.GB714@xtl1.xtl.tenegg.com>
-References: <41712EEF.9090402@redhat.com> <1098105487.27895.40.camel@moss-spartans.epoch.ncsc.mil> <1098115678.6101.30.camel@decepticon.boston.redhat.com> <1098119648.27895.150.camel@moss-spartans.epoch.ncsc.mil> <1098121436.6101.56.camel@decepticon.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1098121436.6101.56.camel@decepticon.boston.redhat.com>
+Message-ID: <20041025101047.55713.qmail@web13421.mail.yahoo.com>
+Date: Mon, 25 Oct 2004 12:10:47 +0200 (CEST)
+From: Stanislas Rusinsky <rusinskystanislas@yahoo.fr>
+Subject: Re: SELinux with IPSec - something going on ?
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SELinux ml <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@epoch.ncsc.mil>,
+   Park Lee <parklee_sel@yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I had to postpone my work so I ain't done much since
+last year. At all events it is still on my 'wish
+list'.
 
-On Mon, Oct 18, 2004 at 01:43:56PM -0400, Colin Walters wrote:
-> On Mon, 2004-10-18 at 13:14 -0400, Stephen Smalley wrote:
-> 
-> > Ok, but if you were able to use chcon to set the type in the first
-> > place, then you presumably are able to use it after moving files there
-> > in Dan's example scenario.
-> 
-> Right; this was just a related issue, not quite the same thing as Dan's
-....
-> Yeah.  I'm kind of curious why Dan wrote the dhcp.conf in /tmp and later
-> moved it to /etc; I'd imagine most admins would just
-> $EDITOR /etc/dhcp.conf.
+Stephen: in your mail to Alexis Wagner (subject: '
+Re: network object',  12 Aug 2004) you say there was a
+debate on implicit labeling vs. explicit labeling, has
+ther been any conclusion to it ? 
 
-I am not sure why Dan would but, in a large site administration context
-I might expect that that "$EDITOR /etc/dhcp.conf" is not permitted.
-Some places want to have testing, approval and change log policy.
+Luke: The person at IBM was Trent Jaeger.
 
-Something like these untested lines.
-  scp approved-new-dhcp.conf  user@keyhost:~/approved-new-dhcp.conf
-  ssh user@keyhost sudo mv /etc/dhcp.conf /etc/dhcp.conf.save`date +%s`
-  ssh user@keyhost sudo mv ~/approved-new-dhcp.conf /etc/dhcp.conf
-  ssh user@keyhost sudo service dhcpd reload
-
-Anyhow some staged approval process with an audit trail....
+Stanislas.
 
 
+	
 
--- 
-	T o m  M i t c h e l l 
-	May your cup runneth over with goodness and mercy
-	and may your buffers never overflow.
+	
+		
+Vous manquez d’espace pour stocker vos mails ? 
+Yahoo! Mail vous offre GRATUITEMENT 100 Mo !
+Créez votre Yahoo! Mail sur http://fr.benefits.yahoo.com/
+
+Le nouveau Yahoo! Messenger est arrivé ! Découvrez toutes les nouveautés pour dialoguer instantanément avec vos amis. A télécharger gratuitement sur http://fr.messenger.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
