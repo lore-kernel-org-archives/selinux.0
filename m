@@ -1,51 +1,43 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1KTgXZ029930
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 15:29:42 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1KTgfG007383
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 20:29:42 GMT
-Subject: Re: dynamic context transitions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-   Chad Hanson <chanson@TrustedCS.com>, samba-technical@samba.org,
-   tng-technical@samba-tng.org
-In-Reply-To: <20041101203524.GJ9643@lkcl.net>
-References: <418662EE.5090001@trustedcs.com>
-	 <Xine.LNX.4.44.0411011508210.5409-100000@thoron.boston.redhat.com>
-	 <20041101203524.GJ9643@lkcl.net>
+Subject: sexattr and getxattr
+From: Jaspreet Singh <jsingh@ensim.com>
+Reply-To: jsingh@ensim.com
+To: sds@epoch.ncsc.mil, nsa <SELinux@tycho.nsa.gov>,
+   Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1099340721.21386.223.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1099341061.9527.11.camel@jsingh>
 Mime-Version: 1.0
-Date: Mon, 01 Nov 2004 15:25:21 -0500
+Date: Tue, 02 Nov 2004 02:01:01 +0530
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-11-01 at 15:35, Luke Kenneth Casson Leighton wrote:
->  no there is no reason why [a helper application should] not [be used].
->  
->  i am not sure if the simple solution [that andrew and russell
->  came up with] was fully enumerated: it involves exec'ing a
->  per-user helper application which does a setuid.
->  
->  the helper application opens files as-and-when they are needed,
->  [and also does mkdirs? and rmdirs?] and then passes the file
->  descriptor over a unix-domain-socket to the smbd process,
->  which NEVER itself does file opens under a user context.
-> 
->  i believe it then no longer becomes necessary for smbd to
->  call become_user().
+Hi, 
 
-Except that SELinux mediates access to file descriptors upon transfer
-via local socket IPC as well as attempted use for read/write, so SELinux
-is still going to apply a permission check to the parent smbd process in
-that situation.  Not to mention that this no doubt has a significant
-cost.
+I have some trouble with using inode->i_op->get/setxattrs ...
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I used getxattr and setxattr from linux/fs.h (kernel 2.6.8 and ext3) to
+get and set xattrs in the following manner -
+
+getxattr from /home and set it to /var/home
+
+ls -Zd /home /var/home
+drwxr-xr-x+ root     root  system_u:object_r:home_root_t    /home/
+drwxr-xr-x+ root     root  system_u:object_r:home_root_t    /var/home/
+
+perfect till now .. but now when i try and create files inside /var/home
+they get the "root:object_r:var_t" unlike /home where i get
+"root:object_r:user_home_dir_t"  :-(
+
+and on the contrary if i create /var/home and tag with "home_root_t"
+using setfiles it works perfectly fine ... any clues 
+
+I cant use user-space get/setxattr coz I am writing a overlay
+file-system ... so ....
+
+any suggestions ....
+
+Jaspreet Singh
+
+
 
 
 --
