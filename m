@@ -1,67 +1,59 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RLHWrT005803
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 17:17:34 -0400 (EDT)
-Received: from smtp811.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6RLH1mJ014128
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 21:17:02 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp811.mail.ukl.yahoo.com with SMTP; 27 Jul 2004 21:17:31 -0000
-Date: Tue, 27 Jul 2004 22:28:36 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Valdis.Kletnieks@vt.edu
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RLNgrT005877
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 17:23:42 -0400 (EDT)
+Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6RLNAmL014403
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 21:23:12 GMT
+Message-Id: <200407272123.i6RLNcp9016219@turing-police.cc.vt.edu>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: [idea] multiple contexts.
-Message-ID: <20040727212836.GA21236@lkcl.net>
+Subject: Re: [idea] multiple contexts. 
+In-Reply-To: Your message of "Tue, 27 Jul 2004 22:28:36 BST."
+             <20040727212836.GA21236@lkcl.net>
+From: Valdis.Kletnieks@vt.edu
 References: <20040724231154.GE3437@lkcl.net> <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil> <20040727160605.GG3392@lkcl.net> <200407271940.i6RJebSp032388@turing-police.cc.vt.edu>
+            <20040727212836.GA21236@lkcl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200407271940.i6RJebSp032388@turing-police.cc.vt.edu>
+Content-Type: multipart/signed; boundary="==_Exmh_-1406971762P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Tue, 27 Jul 2004 17:23:38 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--==_Exmh_-1406971762P
+Content-Type: text/plain; charset=us-ascii
 
-On Tue, Jul 27, 2004 at 03:40:37PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 27 Jul 2004 17:06:06 BST, Luke Kenneth Casson Leighton said:
+On Tue, 27 Jul 2004 22:28:36 BST, Luke Kenneth Casson Leighton said:
+
+>  yes, sort-of: more that i only wish to limit what programs a user
+>  can run (and what programs _those_ programs can run).
 > 
-> >  i also seek to limit the programs that a KDE user may run.
-> > 
-> >  if there is a simple way to do that which does not involve writing
-> >  policy files for each and every single KDE program i intend to restrict
-> >  users to use, i would be interested to hear it.
-> 
-> Are there KDE programs that don't require anything but user permissions, but
-> that you want to restrict anyhow?
- 
- yes, sort-of: more that i only wish to limit what programs a user
- can run (and what programs _those_ programs can run).
+>  in particular, i want to stop people from being able to use the
+>  "Run" capability of Konqueror, etc.  STOP, not have the popup coming
+>  up with "are you sure you want to run this program?".
 
- in particular, i want to stop people from being able to use the
- "Run" capability of Konqueror, etc.  STOP, not have the popup coming
- up with "are you sure you want to run this program?".
+Do these users have anything resembling shell access? If they can get an xterm
+or an editor open, they can run the program *anyhow*....
 
+Probably easier to do the kdeuser group and start chgrp'ing, than to try to fight THAT
+war.
 
- setting up a kdeusers group, chgrp'ing the allowed programs
- to that group, and setting permissions to 0660 is what i really
- need...
+Or see how hard it would be to create a patch to Konqueror to disable the
+button, and see if you can push it upstream...
 
- ... but i wondered if there was a way to do that same thing in
- SE/Linux...
+--==_Exmh_-1406971762P
+Content-Type: application/pgp-signature
 
- ... _without_ writing a whole stack of policies, one per program.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
- a macro i could write that would let me do this:
- 
- allow_user_kde_access(konqueror_exec_t)
- allow_user_kde_access(k3b_exec_t)
+iD8DBQFBBsfacC3lWbTT17ARAh/3AJ98wWQSbZSYQovAv88lcNiUwM7PkwCeMM5B
+GaCxOUTOLV9KiS8DgvhTMfk=
+=oAQ3
+-----END PGP SIGNATURE-----
 
- with all that that implies.
-
- or, to simply set all the allowed kde executables into
- kde_user_exec_t type, and set this on /usr/bin/konqueror,
- /usr/bin/k3b, /usr/bin/koffice etc.
-
- l.
-
+--==_Exmh_-1406971762P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
