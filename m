@@ -1,100 +1,128 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j13DhL53029822
-	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 08:43:21 -0500 (EST)
-Received: from vds-320151.amen-pro.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j13DhNf1029782
-	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 13:43:23 GMT
-Subject: Re: Advice on bringing up SE Linux
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: russell@coker.com.au
-Cc: "Villalovos, John L" <john.l.villalovos@intel.com>,
-   Stephen Smalley <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
-In-Reply-To: <200502031820.54692.russell@coker.com.au>
-References: <60C14C611F1DDD4198D53F2F43D8CA3B035B559E@orsmsx410>
-	 <200502031820.54692.russell@coker.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-cgutvPERF0dujW6ZWrGU"
-Date: Thu, 03 Feb 2005 14:42:50 +0100
-Message-Id: <1107438170.3754.162.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j13Epg53000272
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 09:51:42 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j13EnXo7003345
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 14:49:33 GMT
+Message-ID: <42023A75.7050501@redhat.com>
+Date: Thu, 03 Feb 2005 09:51:33 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Scott Cain <cain@cshl.org>
+CC: selinux@tycho.nsa.gov
+Subject: Re: FC3, Apache and CGI web app
+References: <1107378461.3351.62.camel@localhost.localdomain>	 <42016640.3050807@redhat.com> <1107405040.3391.17.camel@localhost.localdomain>
+In-Reply-To: <1107405040.3391.17.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Scott Cain wrote:
 
---=-cgutvPERF0dujW6ZWrGU
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+>On Wed, 2005-02-02 at 18:46 -0500, Daniel J Walsh wrote:
+>  
+>
+>>Scott Cain wrote:
+>>    
+>>
+>>>[...snip...]
+>>>
+>>>      
+>>>
+>>First make sure you have the latest policy, via yum
+>>
+>>yum update selinux-policy-targeted
+>>
+>>    
+>>
+>Check!
+>
+>  
+>
+>>Next make sure httpd_unified is set
+>>
+>>setsebool -P httpd_unified 1
+>>    
+>>
+>
+>Check; # sudo cat /etc/selinux/targeted/booleans
+>allow_ypbind=1
+>dhcpd_disable_trans=0
+>httpd_disable_trans=1
+>httpd_enable_cgi=1
+>httpd_enable_homedirs=1
+>httpd_ssi_exec=1
+>httpd_tty_comm=1
+>httpd_unified=1
+>mysqld_disable_trans=0
+>named_disable_trans=0
+>named_write_master_zones=0
+>nscd_disable_trans=0
+>ntpd_disable_trans=0
+>portmap_disable_trans=0
+>postgresql_disable_trans=0
+>snmpd_disable_trans=0
+>squid_disable_trans=0
+>syslogd_disable_trans=0
+>winbind_disable_trans=0
+>ypbind_disable_trans=0
+>
+>  
+>
+>>Now try it.
+>>    
+>>
+>
+>Check (and I restarted httpd, to answer Colin's question)
+>  
+>
+>>Look for AVC messages in /var/log/messages which will tell you what is 
+>>being denied.
+>>http://fedora.redhat.com/docs/selinux-apache-fc3/
+>>has a lot of information on settingup apache and SElinux.
+>>    
+>>
+>
+>Here we go from /var/log/messages:
+>Feb  2 23:23:13 localhost kernel: audit(1107404593.566:0): avc:  denied
+>{ read } for  pid=3792 exe=/usr/bin/perl name=tmp dev=hda2 ino=4243590
+>scontext=root:system_r:httpd_sys_script_t
+>tcontext=system_u:object_r:tmp_t tclass=lnk_file
+>
+>  
+>
+You would have to write policy at this point.  Allowing scripts to read 
+sym links off of /tmp would
+be considered dangerous. 
 
-El jue, 03-02-2005 a las 18:20 +1100, Russell Coker escribi=F3:
-> On Wednesday 02 February 2005 07:51, "Villalovos, John L"=20
-> <john.l.villalovos@intel.com> wrote:
-> > > /sbin/init is what normally loads the policy during startup.  Are you
-> > > using the modified /sbin/init (included in Fedora)?  What is in your
-> > > /etc/selinux/config?
-> >
-> > Okay.  We are using Busybox for the init.  So it does not have the SE
-> > Linux stuff in it.
->=20
-> The upstream developer of busybox was accepting of SE Linux patches, I ha=
-d=20
-> some SE Linux patches in the busybox CVS at one time (not sure if they ar=
-e=20
-> still there).  If I get a bit of spare time I'll do some more work on Bus=
-ybox=20
-> SE Linux support, it's good to have for recovery purposes and I think I'v=
-e=20
-> still got some patches hanging around that I never got sorted out properl=
-y=20
-> for release.
->=20
-> Also you may want to check out the paper I presented at OLS on getting SE=
-=20
-> Linux running on iPaQ's, the stuff about wrapping busybox etc will probab=
-ly=20
-> be of interest to you.
->=20
-> If you get the JFFS2 support written I'll be very interested, I have a co=
-uple=20
-> of iPaQ's I want to get running SE Linux again.
+But this would a bug, since you have httpd_disable_trans set to 1, you 
+should not be running as httpd_sys_script_t.
 
-I've been studying the code from both mtd and Linux-2.6 sources of
-JFFS2	.
-Also talked with some people from the Gentoo project that could help
-with it.
-We can try to bring up a work module on the SELinux CVS and start doing
-something there.
+selinux-policy-targeted-1.17.30-2.76 Will prevent this transition.
 
-AFAIK, and from the conversations I had with one of the Hardened Gentoo
-guys (solar), xattr takes an additional 32bytes or 1 block which makes
-it an overhead that needs to be studied, and noticeable on devices with
-*limited* storage capacity, such as iPAQs.
+I have put out a version on
+ftp://people.redhat.com/dwalsh/SELinux/FC3 
 
-Anyways, I would like to discuss this with some kernel hackers before
-getting into the job.
-The best start is having such device for testing, and I don't own an
-iPAQ, also using machine emulators is pretty a crap solution, in my
-opinion.
-(I have no experience working with ARM, so, sure I'm forgetting
-something)
+This will go into Fedora-testing tonight.  Please try it out and see if 
+it fixes the transition problem.  IE your scripts should be running under
+unconfined_t.
 
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
 
---=-cgutvPERF0dujW6ZWrGU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
+Dan
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBCAipaDcEopW8rLewRAgpwAJ9rSt7R4zgXqiZnRUcX3bhRTVD+SQCeM4Om
-gFu6IMfCXkaYo4jKB0CpGd4=
-=Zou8
------END PGP SIGNATURE-----
-
---=-cgutvPERF0dujW6ZWrGU--
+>So what can I do to make this work?
+>
+>Thanks,
+>Scott
+>
+>  
+>
+>>Dan
+>>
+>>
+>>    
+>>
 
 
 --
