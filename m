@@ -1,20 +1,21 @@
-Date: Mon, 28 Oct 2002 15:26:56 -0500 (EST)
+Date: Mon, 28 Oct 2002 15:26:28 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
 To: Carsten Grohmann <carstengrohmann@gmx.de>
 cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: patch to install libsecure man pages
-In-Reply-To: <200210240916.JAA07281@jazzband.ncsc.mil>
-Message-ID: <Pine.GSO.4.33.0210281526450.29887-100000@raven>
+Subject: Re: newrules.pl
+In-Reply-To: <200210231610.QAA29339@jazzswing.ncsc.mil>
+Message-ID: <Pine.GSO.4.33.0210281526180.29887-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 24 Oct 2002, Carsten Grohmann wrote:
+On Wed, 23 Oct 2002, Carsten Grohmann wrote:
 
-> The attached patch help you to install the man pages from
-> libsecure/man to /usr/local/selinux/man.
+> anytime if I use "newrules.pl --help" to get the syntax I receive a error
+> message. The attached patch add the option "--help" to show the syntax to
+> newrules.
 
 Thanks, merged.
 
