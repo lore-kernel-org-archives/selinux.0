@@ -1,30 +1,31 @@
-Date: Wed, 30 Oct 2002 14:48:12 -0500 (EST)
+Date: Wed, 30 Oct 2002 14:54:24 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: Brian May <bam@snoopy.apana.org.au>, SELinux <SELinux@tycho.nsa.gov>
+To: Kerry Thompson <kerry@crypt.gen.nz>
+cc: <SELinux@tycho.nsa.gov>
 Subject: Re: kernel warning
-In-Reply-To: <200210301613.51096.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0210301441331.12970-100000@raven>
+In-Reply-To: <55267.202.6.84.11.1036007034.squirrel@www.crypt.gen.nz>
+Message-ID: <Pine.GSO.4.33.0210301450010.12970-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 30 Oct 2002, Russell Coker wrote:
+On Thu, 31 Oct 2002, Kerry Thompson wrote:
 
-> This means that I can't produce a single kernel-patch package that can be used
-> by SE Linux, LIDS, and DTE users...
+> The 'Everything in one Part' download at
+> http://www.nsa.gov/selinux/archives/lsm-2.4-selinux-2002102211.tgz doesn't
+> seem to have this patch included, and the NSA site isn't very clear that
+> the patch is required. Could we please have the patch added to the next
+> all-in-one snapshot?
 
-That isn't new; in prior releases, the SELinux-specific patch set the
-SELinux option defaults in defconfig and set EXTRAVERSION to -selinux in
-the top-level Makefile, so it wasn't appropriate for LIDS or DTE users
-anyway.  [Are LIDS users now using the LSM kernel patch package, or are
-they still using the separate LIDS package?  Are there any DTE users?]
-For the separate SELinux patch to work for LIDS and DTE users, you would
-need to drop those changes as well as #ifdef the initialization call.  You
-would also need to add stub hook functions for inode_init to the LIDS and
-DTE modules.
+The separate SELinux-specific patch is in that archive.  If you expand the
+archive, you'll find it in selinux/module/selinux-2.4.patch.  If you
+follow the installation instructions in selinux/README, that patch will be
+applied to the lsm-2.4 tree prior to building the kernel.  The only change
+from the prior release with regard to this issue was that the patch file
+was renamed from lsm-2.4.patch to selinux-2.4.patch for clarity and the
+set of changes within the patch have increased.
 
 --
 Stephen D. Smalley, NAI Labs
