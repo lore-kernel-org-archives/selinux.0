@@ -1,44 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA05524
-	for <selinux@tycho.nsa.gov>; Wed, 27 Nov 2002 09:41:08 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA11652
-	for <selinux@tycho.nsa.gov>; Wed, 27 Nov 2002 14:39:06 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id OAA11648 for <selinux@tycho.nsa.gov>; Wed, 27 Nov 2002 14:39:06 GMT
-Message-Id: <200211271448.JAA21999@moss-shockers.ncsc.mil>
-Date: Wed, 27 Nov 2002 09:48:22 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: role dominance
-To: guttman@mitre.org
-Cc: selinux@tycho.nsa.gov, giorgio.zanin@poste.it,
-        selinux-list@lists.mitre.org
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA07373
+	for <selinux@tycho.nsa.gov>; Wed, 27 Nov 2002 13:07:59 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA04761
+	for <selinux@tycho.nsa.gov>; Wed, 27 Nov 2002 18:05:47 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id SAA04757
+	for <selinux@tycho.nsa.gov>; Wed, 27 Nov 2002 18:05:45 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 26EF492668
+	for <selinux@tycho.nsa.gov>; Thu, 28 Nov 2002 05:07:40 +1100 (EST)
+Received: from lyta (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id A53DC9F2
+	for <selinux@tycho.nsa.gov>; Wed, 27 Nov 2002 19:07:30 +0100 (CET)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: network operations
+Date: Wed, 27 Nov 2002 19:07:29 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <200211271907.29847.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+When a program tries to establish a TCP connection that is denied by SE Linux 
+policy then the result is that it will hang as the SYN packet is simply 
+dropped.
 
-> role dominance seems not to be used in the current example policy.  I
-> had the impression that you were planning to deprecate it or remove
-> it.   Is that wrong?  
+Would it be possible for a RST packet to be sent back so that the application 
+will get an error condition and then continue operating?
 
-We don't use role dominance in the example policy, but the example
-policy only defines a few roles and those roles are relatively orthogonal.
-If people start defining more complex sets of roles, then they may wish
-to define role dominance hierarchies.  For analysis purposes, you can
-just expand the role dominance relation into the user-role and role-domain
-relations.
 
-The present RBAC language and logic is very simple; I would expect that
-people might want to eventually expand it to directly represent more
-complex relationships among roles, drawing from prior work that has
-been done on RBAC models.  Our own focus has been more on the TE component.
+NB  I'm talking about localhost connections here, although I expect that the 
+same situation would occur on labelled networking on a LAN.
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
