@@ -1,69 +1,43 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA07344
-	for <selinux@tycho.nsa.gov>; Tue, 27 Aug 2002 10:46:33 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA07569
+	for <selinux@tycho.nsa.gov>; Tue, 27 Aug 2002 11:15:24 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA27846
-	for <selinux@tycho.nsa.gov>; Tue, 27 Aug 2002 14:45:22 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id OAA27828
-	for <selinux@tycho.nsa.gov>; Tue, 27 Aug 2002 14:45:14 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: devfs change, trivial patches, netscape & x patches
-Date: Tue, 27 Aug 2002 16:46:12 +0200
-Cc: SE Linux <selinux@tycho.nsa.gov>, bam@snoopy.apana.org.au
-References: <Pine.GSO.4.33.0208270946320.11201-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0208270946320.11201-100000@raven>
-MIME-Version: 1.0
-Message-Id: <20020827144612.A22212355@lyta.coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id PAA29838
+	for <selinux@tycho.nsa.gov>; Tue, 27 Aug 2002 15:14:15 GMT
+Received: from nox.lemuria.org ([213.191.86.30])
+	by jazzswing.ncsc.mil  with ESMTP id PAA29830
+	for <selinux@tycho.nsa.gov>; Tue, 27 Aug 2002 15:14:14 GMT
+Date: Tue, 27 Aug 2002 17:15:22 +0200
+From: Tom <tom@lemuria.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: FYI: woody startup messages
+Message-ID: <20020827171522.A26026@lemuria.org>
+References: <20020827161633.A23590@lemuria.org> <Pine.GSO.4.33.0208271028010.14544-100000@raven>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.GSO.4.33.0208271028010.14544-100000@raven>; from sds@tislabs.com on Tue, Aug 27, 2002 at 10:32:45AM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 27 Aug 2002 16:01, Stephen Smalley wrote:
-> These three patches have been merged and are available in the sourceforge
-> CVS tree, with the following exceptions from triv.diff:
-> 1) login.te:  remote_login_t, the domain of a login process spawned by
-> rlogind, is only granted domain_trans() to unpriv_userdomain, not
-> userdomain.
+On Tue, Aug 27, 2002 at 10:32:45AM -0400, Stephen Smalley wrote:
+> This isn't a bug, and was asked previously on the list, most recently on
+> 8/20 (http://marc.theaimsgroup.com/?l=selinux&m=102985179503728&w=2).  You
+> can only reconstruct an "absolute" (no such thing) pathname if you have a
+> vfsmount and a dentry, and many of the file-related permission checks only
+> have an inode or a dentry available at the point where they are checked.
+> As with the port number issue, this merely affects the audit output, not
+> the permission check.  SELinux is inode-based, not path-based.  The path
+> information is merely a hint to help understand the audit message and is
+> not reliable.
 
-I forgot that one.
+I see, thanks for the explanation. is there a better way to find a
+specific inode than "find /home -inum xxx" ?
 
-> 2) oav-update.te:  There was a spurious amavisd rule in this file, likely
-> a cut-and-paste error.  Removed.
-
-I've CC'd Brian, it's his policy.
-
-> 3) global_macros.te:  daemon_base_domain() should not need to include
-> init_t in the domain_auto_trans() rule, unless some of these daemons are
-> truly started directly by init.  The separate type_transition init_t rule
-> should be sufficient to deal with the reparenting issue when using
-> SELinux as a dynamically loaded module, which isn't recommended anyway.
-
-Some daemons are started from init though.  I'll make some changes.
-
-> 4) sendmail.fc:  We don't want to remove the /etc/aliases entries or the
-> sendmail executable entries for people running sendmail.
-
-No, people running sendmail will still have mta.te and therefore get it from 
-mta.fc.
-
-> With regard to the netscape changes, note that netscape can still read
-> files in the user home type for the .Xauthority file.  We need to place
-> this file into its own type, with a separate domain for the xauth program.
-
-Yes, that's on my to-do list.
-
-The current policy prevents netscape from descending sub-directories of the 
-home directory, which is better than nothing.
 
 -- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
