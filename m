@@ -1,62 +1,51 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27565
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 11:57:06 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27512
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 11:53:19 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA12590
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:56:39 GMT
-Received: from web40012.mail.yahoo.com (web40012.mail.yahoo.com [66.218.78.30])
-	by jazzswing.ncsc.mil  with SMTP id PAA12585
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:56:38 GMT
-Message-ID: <20020627155703.10654.qmail@web40012.mail.yahoo.com>
-Date: Thu, 27 Jun 2002 08:57:03 -0700 (PDT)
-From: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: Configuration issues on a new installation
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20020627152533.6E99B7CBA@lyta.coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by jazzswing.ncsc.mil  with ESMTP id PAA12317
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:52:52 GMT
+Received: from gateg.kw.bbc.co.uk (gateg.kw.bbc.co.uk [132.185.132.16])
+	by jazzswing.ncsc.mil  with ESMTP id PAA12313
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:52:51 GMT
+Received: from localhost ([192.168.202.116])
+	by gateg.kw.bbc.co.uk (8.11.2/8.11.2) with SMTP id g5RFrFJ25920
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 16:53:16 +0100 (BST)
+Message-Id: <200206271553.g5RFrFJ25920@gateg.kw.bbc.co.uk>
+Subject: BBC E-mail: Pro-Islamic hackers join forces
+To: selinux@tycho.nsa.gov
+From: jason phillips <jphillips@maximumbsd.com>
+Content-type: text/plain; charset="iso-8859-1"
+Mime-version: 1.0
+Date: Thu, 27 Jun 2002 15:47 +0000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mr. Coker,
+jason phillips saw this story on BBC News Online and thought you should see it.
 
---- Russell Coker <russell@coker.com.au> wrote:
-> On Thu, 27 Jun 2002 10:17, Brad Chapman wrote:
-> >        Could you please help me fix your Makefile for my system? I can't
-> > seem to make it compile the policy; it keeps failing with this error:
-> >
-> > ( cd macros/program/ ; for n in *.te ; do echo "define(\`$n')"; done ) >
-> > tmp/macro_used_flags.te
-> > /bin/sh: tmp/macro_used_flags.te: No such file or directory
-> > make: *** [tmp/macro_used_flags.te] Error 1
-> >
-> >        I'm running RedHat 6.2 with SELinux installed in /usr/local/selinux.
-> 
-> mkdir /usr/local/selinux/tmp
-> 
-> I think that Steve fixed this when merging my code into his tree.  I'll merge
-> 
-> his fix when I get the next NSA release.
+------------
+Message:
 
-      Sorry, it doesn't work. I get the exact same error. I also tried mkdir
-/usr/local/selinux/flask/tmp since I had to modify the Makefile to look in that
-dir for some of the context files it needed, but I still didn't have any luck.
+security is a issue
+------------
 
-Brad
+*Pro-Islamic hackers join forces*
+<http://news.bbc.co.uk/go/em/fr/-/hi/english/sci/tech/newsid_2052000/2052320.stm>
+
+A global alliance of anti-US, anti-India and anti-Israel hacking groups
+could increase the threat to cyberspace, say security experts.
 
 
-=====
-Brad Chapman
 
-Permanent e-mails: kakadu_croc@yahoo.com
-		   jabiru_croc@yahoo.com
-		   tanami_croc@devel.lbsd.net
+BBC Daily E-mail
+Choose the news and sport headlines you want - when you want them, all in one daily e-mail
+<http://www.bbc.co.uk/dailyemail/>
 
-__________________________________________________
-Do You Yahoo!?
-LAUNCH - Your Yahoo! Music Experience
-http://launch.yahoo.com
+Disclaimer: The BBC is not responsible for the content of this e-mail, and anything said in this e-mail does not necessarily reflect the BBC's views.
+
+If you don't wish to receive such mails in the future, please e-mail webmasters@bbc.co.uk making sure you include the following text: 
+I do not want to receive "E-mail a friend" mailings.
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
