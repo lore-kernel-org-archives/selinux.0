@@ -1,47 +1,44 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: $1_cupsd_spool_t in lpr_macros.te
-Date: Mon, 30 Sep 2002 10:21:48 +0200
-References: <200209291121.LAA25284@jazzband.ncsc.mil> <200209291859.41395.russell@coker.com.au> <20020930064925.7A616BF1B@sat.sws.net.au>
-In-Reply-To: <20020930064925.7A616BF1B@sat.sws.net.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA17760
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 04:44:59 -0400 (EDT)
+From: pasi.kivikangas@nokia.com
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id IAA00564
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 08:43:11 GMT
+Received: from mgw-x4.nokia.com (mgw-x4.nokia.com [131.228.20.27])
+        by jazzband.ncsc.mil  with ESMTP id IAA00560 for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 08:43:10 GMT
+Received: from esvir03nok.nokia.com (esvir03nokt.ntc.nokia.com [172.21.143.35])
+	by mgw-x4.nokia.com (Switch-2.2.1/Switch-2.2.0) with ESMTP id g8U8jUF13515
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 11:45:30 +0300 (EET DST)
 MIME-Version: 1.0
-Message-Id: <200209301021.48501.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: RE: SE Linux and UML compile problems... 
+Date: Mon, 30 Sep 2002 11:44:09 +0300
+Message-ID: <98C7D2E5BCD2374C9AAE0BCD2E9C1DD9BE8440@esebe013.ntc.nokia.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 30 Sep 2002 08:47, Carsten Grohmann wrote:
-> Am Sonntag, 29. September 2002 18:59 schrieb Russell Coker:
-> > On Sun, 29 Sep 2002 18:07, Carsten Grohmann wrote:
-> > > Am Sonntag, 29. September 2002 13:43 schrieb Russell Coker:
-> > > > On Sun, 29 Sep 2002 12:29, Carsten Grohmann wrote:
-> > > > > the attached patch add cups support in lpr_domain. You can pipe
-> > > > > some data to lpr with this additional rules.
-> > > >
-> > > > Won't you also need something like the following?
-> > > > allow cupsd_t $1_cupsd_spool_t:file { r_file_perms unlink };
-> > >
-> > > No. I try the new rules and it runs fine.
-> >
-> > So how does $1_cupsd_spool_t get accessed by the print server?  What is
-> > done with the $1_cupsd_spool_t?  Is it just a temporary file that the lpr
-> > just writes and then reads back?
->
-> I thinks also it is only a temporary file from lpr. In this case we could
-> label it as $1_lpr_spool_t instead of $1_cupsd_spool_t.
+> -----Original Message-----
+> From: ext Jeff Dike [mailto:jdike@karaya.com] Sent: 27 September, 2002 19:14
+> 
+> pasi.kivikangas@nokia.com said:
+> > 	unsigned int magic = regs.regs.args[1]; 
+> >	unsigned int call = regs.regs.args[2];
+> >	unsigned long *args = (unsigned long *)regs.regs.args[3];
+> 
+> Yeah, that would be better.
+> 
+> 		Jeff
 
-I've added such a change to my tree to make it use $1_lpr_spool_t.  Although 
-it has occurred to me that perhaps the best thing to do is to remove 
-cupsd_spool_t and replace it with lpd_spool_t instead.  What do you think?
+Hi,
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Just wanted to confirm that SELinux enhanced UML kernel now boots.
 
+
+	- Pasi
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
