@@ -1,39 +1,62 @@
-Subject: Re: extra secondary_ops for digsig
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Joshua Brindle <jbrindle@snu.edu>
+Message-Id: <200404151452.i3FEqjOd013530@turing-police.cc.vt.edu>
+To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <407E7111.506@snu.edu>
-References: <407E7111.506@snu.edu>
-Content-Type: text/plain
-Message-Id: <1082030949.25880.23.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Now that SELinux supports booleans should we replace tunables with booleans? 
+In-Reply-To: Your message of "Wed, 14 Apr 2004 22:29:44 EDT."
+             <407DF398.4010405@redhat.com>
+From: Valdis.Kletnieks@vt.edu
+References: <200404141315.i3EDFkJx015414@gotham.columbia.tresys.com> <200404150219.27857.russell@coker.com.au> <200404141950.i3EJoFSM021953@turing-police.cc.vt.edu>
+            <407DF398.4010405@redhat.com>
 Mime-Version: 1.0
-Date: Thu, 15 Apr 2004 08:09:10 -0400
+Content-Type: multipart/signed; boundary="==_Exmh_-1470930448P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Thu, 15 Apr 2004 10:52:45 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-04-15 at 07:25, Joshua Brindle wrote:
-> I started playing with digsig and quickly found out that selinux doesn't 
-> support all the secondary ops that it requires (it isn't even set up to 
-> be a secondary module, I had to fix that too so this is expected)..
-> 
-> Digsig is an LSM that verifies signatures on ELF binaries before they 
-> are allowed to run. It requires inode_permission, file_mmap, 
-> bprm_check_security and inode_unlink, I've attached a patch to add 
-> these, it'd be nice to get it upstream so that this module will run as a 
-> secondary to selinux without hacking (I'll send the patch for digsig to 
-> their authors as well)
-> 
-> Just out of curiousity, why are there so few secondary_ops available? 
-> Was it just decided to add them as they were required or is there a 
-> different reason?
+--==_Exmh_-1470930448P
+Content-Type: text/plain; charset=us-ascii
 
-Blindly stacking two security modules can be very dangerous, so we
-didn't want to encourage it.  We only added secondary ops as required.
+On Wed, 14 Apr 2004 22:29:44 EDT, you said:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+> >really silly shell script that does the moral equiv of:
+> >
+> >for i in unused/*.te; do rpm -qf $i && mv $i .; done
+> >  
+> >
+> There is not a 1-1 relationship between rpm names and policy names.
 
+Right.  That's why I said "the moral equivalent of".  Any other
+equivalent means of trimming out .te files for software that isn't even
+installed would work too.
+
+I liked Russell's suggestion that we have a separate rpm that contains
+the .te for the package - appropriate %postinstall scripting magic
+would make all the policy rebuilding/reloading and file labelling happen
+when you installed the package....
+
+> I would prefer not to use unused at all, but some macro version to 
+> indicate whether to include a te
+> file or not.  Moving files around on the fly is not a great solution.
+
+Wrapping all of them in m4 ifdef() blocks and a front end that sets
+control variables would be OK too.  If m4 can deal with Sendmail's
+.mc/.cf file wierdness, it can do this... :)
+
+
+--==_Exmh_-1470930448P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAfqG8cC3lWbTT17ARAgLNAKDq2o8gzE0MFIEEaxYWtgvbvxNODACgjfhG
+wqR+djT8BBdE8e/2QhSw57Y=
+=VCuF
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1470930448P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
