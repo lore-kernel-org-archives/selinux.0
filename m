@@ -1,54 +1,47 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3IRXXZ017110
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 13:27:33 -0500 (EST)
-Received: from glaurung.internal.golden-gryphon.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3IRWJZ010414
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 18:27:33 GMT
-Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
-	by glaurung.internal.golden-gryphon.com (8.13.1/8.13.1/Debian-16) with ESMTP id iA3ILvgi000377
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 12:21:57 -0600
-To: selinux@tycho.nsa.gov
-Subject: Re: selinux-doc problems
-References: <87is8msv81.fsf@glaurung.internal.golden-gryphon.com>
-	<1099503633.1213.153.camel@moss-spartans.epoch.ncsc.mil>
-From: Manoj Srivastava <manoj.srivastava@stdc.com>
-Date: Wed, 03 Nov 2004 12:21:57 -0600
-In-Reply-To: <1099503633.1213.153.camel@moss-spartans.epoch.ncsc.mil> (Stephen
-	Smalley's message of "Wed, 03 Nov 2004 12:40:33 -0500")
-Message-ID: <87actysshm.fsf@glaurung.internal.golden-gryphon.com>
-MIME-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3IaXXZ017177
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 13:36:33 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3IaWJZ011328
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 18:36:33 GMT
+Date: Wed, 3 Nov 2004 18:47:23 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Frank Mayer <mayerf@tresys.com>
+Cc: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
+   "'Chad Hanson'" <chanson@TrustedCS.com>,
+   "'Darrel Goeddel'" <DGoeddel@TrustedCS.com>, selinux@tycho.nsa.gov
+Subject: Re: dynamic context transitions
+Message-ID: <20041103184723.GJ5061@lkcl.net>
+References: <1099405366.31739.65.camel@moss-spartans.epoch.ncsc.mil> <00bc01c4c0e9$59d01aa0$1e0c010a@columbia.tresys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <00bc01c4c0e9$59d01aa0$1e0c010a@columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 03 Nov 2004 12:40:33 -0500, Stephen Smalley <sds@epoch.ncsc.mil> said: 
+okay.
 
-> On Wed, 2004-11-03 at 12:22, Manoj Srivastava wrote:
->> Is there an effort underway to update the selinux-doc package?  If
->> so, I'll hold off fixing up the SGML issues and wait for the new
->> version (I lack the knowledge to actually update the contents).
+following up on the idea of "it is acceptable to do single-process
+dynamic context transition on an MLS up-or-down but not to provide a
+'generic' method to do same":
 
-> Nothing in progress, although I would like to update the reports to
-> reflect the current system, as much has changed since they were last
-> updated.  However, the report does build for me on Fedora Core 3.
-> rpm -q -f /usr/bin/jade reports openjade-1.3.2-14.  Seems
-> unfortunate to prohibit _ in identifiers; why was this done?
-> Quoting change would be trivial, of course.
+would it be reasonable to have an equivalent to domain_auto_trans
+which tracks, in selinux domain context terms, the MLS operations
 
-	I am running Version: 1.4devel1-13 of openjade. I am not sure
- why the change was done -- but my trusty SGML handbook seems to
- indicate that ID value attribute lists should contain only name
- tokens, which are letters followed by letters and digits (ISO 8879
- 9.2.1).
+mls_upgrade_auto_trans(some_exec_t, in_some_context_t, to_some_context_t)
 
-	I guess openjade is getting more compliant.
+and also have an mls_downgrade_auto_trans()
 
-	manoj
+anyone grok?
+
+l.
+
 -- 
-Never tell a lie unless it is absolutely convenient.
-Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+--
+you don't have to BE MAD   | this space    | my brother wanted to join mensa,
+  to work, but   IT HELPS  |   for rent    | for an ego trip - and get kicked 
+ you feel better!  I AM    | can pay cash  | out for a even bigger one.
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
