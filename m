@@ -1,44 +1,32 @@
-Message-ID: <36282A1733C57546BE392885C06185924D9422@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: Karl MacMillan <kmacmillan@tresys.com>,
-   Chad Hanson
-	 <chanson@TrustedCS.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Frank Mayer <mayerf@tresys.com>,
-   Darrel Goeddel <DGoeddel@TrustedCS.com>,
-   SELinux List
-	 <SELinux@tycho.nsa.gov>
-Subject: RE: dynamic context transitions
-Date: Wed, 3 Nov 2004 13:00:50 -0500 
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3IHsXZ017000
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 13:17:54 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3IHrJZ009674
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 18:17:54 GMT
+Date: Wed, 3 Nov 2004 18:28:46 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Jaspreet Singh <jsingh@ensim.com>
+Cc: nsa <SELinux@tycho.nsa.gov>, Colin Walters <walters@verbum.org>
+Subject: Re: avc: denied with kernel module .. someone help !!!
+Message-ID: <20041103182845.GH5061@lkcl.net>
+References: <1099347144.9776.3.camel@jsingh> <1099347590.9784.3.camel@jsingh> <20041102003903.GR9643@lkcl.net> <1099409000.12251.17.camel@jsingh>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1099409000.12251.17.camel@jsingh>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-Karl MacMillan wrote:
+On Tue, Nov 02, 2004 at 08:53:20PM +0530, Jaspreet Singh wrote:
+> Hi ,
 > 
-> I think there are very important differences between the dynamic
-> transitions and the exec model and I read part of your message above as
-> arguing they are basically equivalent. Correct me if I am wrong. 
+> Sir. Stephen Smalley ... i think i badly need your help here :-(
+> coz this may be .. one of my last mails to selinux community ...
+> 
+> thanx for the mail ... Luke 
+ 
+ so adding to fs_use worked?
 
-I would agree these models are not same. 
-
-Privilege bracketing can be used for two distinct purposes. 
-
-	The first purpose is to always run with the mininum amount of
-permission to complete an operation. This model has no gain in security
-assurance than program always running with all of the permissions. It can
-only help audit the internal functionality of the program.
-	The second purpose can permanently remove permissions from a
-process. This provides a mechanism this is more strict than the previous
-domain, and cannot revert back to the old domain. This is similiar to the
-exec model without the environment cleansing and controlled interfaces. I
-believe it could help strengthen the exec model, by disallowing usage of
-helpers which are no longer needed inside an application. 
-
-The exec model also leads itself to easier analysis as a source audit is not
-needed to help determine the abilities of an application.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
