@@ -1,71 +1,98 @@
-Subject: Re: Strange staff role problems...
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1109131644.5285.10.camel@cobra.ivg2.net>
-References: <1109131644.5285.10.camel@cobra.ivg2.net>
-Content-Type: text/plain
-Date: Wed, 23 Feb 2005 08:00:26 -0500
-Message-Id: <1109163626.17298.8.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <421C9750.4080402@redhat.com>
+Date: Wed, 23 Feb 2005 09:46:40 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
+Subject: policycoreutils fixes
+Content-Type: multipart/mixed;
+ boundary="------------070200020002000103090603"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-22 at 23:07 -0500, Ivan Gyurdiev wrote:
-> What does this mean, exactly, and what can cause it?
-> 
-> Feb 22 22:19:15 cobra kernel: inode_doinit_with_dentry:
-> context_to_sid([username]:object_r:staff_home_dir_t) returned 22 for
-> dev=dm-2 ino=324481
+This is a multi-part message in MIME format.
+--------------070200020002000103090603
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-22 == EINVAL.  This means that the security context was invalid with
-respect to the current policy, which typically means that:
-- one of the components (user, role, type) is no longer defined in the
-policy, or
-- the combination of the components is illegal in the policy
+Fix genhomedircon:
+     always add "\n"
+    Strip extra spaces off of config files (SELINUXPOLICYTYPE)
 
-Given what you show above, I'd assume that the user is no longer defined
-in the policy.
+Fix fixfiles:
+    Use find recursion instead of restorecon to walk directory tree so 
+that it will
+not go into file systems that do not support extended attributes.
 
-> Something's broken on my machine. I had to reboot,
-> and then gdm said my home directory is missing (which it isn't - 
-> apparently it sees unlabeled context, which doesn't make any sense 
-> either, because ls -Z shows staff_home_dir_t).
+Dan
 
-ls -Z (or other applications) will display the on-disk extended
-attribute value, regardless of whether it is valid or not, as the xattr
-API queries the filesystem code, not the security module (other than to
-check permissions for accessing the xattr).  Hence, SELinux may
-internally be treating it as unlabeled due to an invalid context.
+--------------070200020002000103090603
+Content-Type: text/plain;
+ name="policycoreutils-rhat.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policycoreutils-rhat.patch"
 
-> Then I enable permissive mode, start X, and it creates unlabeled_t 
-> Xauthority file. Restorecon properly restores that to staff_home_t.
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-1.21.19/scripts/fixfiles
+--- nsapolicycoreutils/scripts/fixfiles	2005-02-08 13:27:03.000000000 -0500
++++ policycoreutils-1.21.19/scripts/fixfiles	2005-02-23 09:31:45.000000000 -0500
+@@ -78,8 +78,8 @@
+                   esac; \
+                fi; \
+             done | \
+-	while read pattern ; do find $pattern -maxdepth 0 -print; done 2> /dev/null | \
+-	 ${RESTORECON} -R $2 -v -e /root -e /home -e /tmp -e /var/tmp -e /dev -f - 
++	while read pattern ; do find $pattern -fstype ext2 -fstype ext3 -fstype reiserfs -fstype xfs -print; done 2> /dev/null | \
++	 ${RESTORECON} $2 -v -e /root -e /home -e /tmp -e /var/tmp -e /dev -f - 
+ 	rm -f ${TEMPFILE}
+ fi
+ }
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/genhomedircon policycoreutils-1.21.19/scripts/genhomedircon
+--- nsapolicycoreutils/scripts/genhomedircon	2005-02-17 14:28:23.000000000 -0500
++++ policycoreutils-1.21.19/scripts/genhomedircon	2005-02-23 09:33:26.000000000 -0500
+@@ -154,13 +154,13 @@
+ def getDefaultHomeDir():
+     rc=commands.getstatusoutput("grep ^HOME= /etc/default/useradd | tail -1")
+     if rc[0]==0:
+-        return rc[1].split("=")[-1]
++        return rc[1].split("=")[-1].strip()
+     return "/home"
+ 
+ def getSELinuxType(directory):
+     rc=commands.getstatusoutput("grep ^SELINUXTYPE= %s/config | tail -1" % directory)
+     if rc[0]==0:
+-        return rc[1].split("=")[-1]
++        return rc[1].split("=")[-1].strip()
+     return "targeted"
+ 
+ def usage(error = ""):
+@@ -203,7 +203,7 @@
+     def getHomeRootContext(self, homedir):
+ 	    rc=commands.getstatusoutput("grep HOME_ROOT  %s | sed -e \"s|^HOME_ROOT|%s|\"" % ( self.getHomeDirTemplate(), homedir))
+ 	    if rc[0] == 0:
+-		    return rc[1]
++		    return rc[1]+"\n"
+ 	    else:
+ 		    errorExit(string.join("sed error ", rc[1]))
+ 
+@@ -254,7 +254,7 @@
+ 	# Fill in HOME and ROLE for users that are defined
+ 	for u in users.keys():
+ 		ret += self.getHomeDirContext (u, users[u]["home"], users[u]["role"])
+-	return ret
++	return ret+"\n"
+ 
+     def checkExists(self, home):
+         return commands.getstatusoutput("grep -E '^%s[^[:alnum:]_-]' %s" % (home, self.getFileContextFile()))[0]
+@@ -285,7 +285,6 @@
+ 	ret= self.heading()
+         for h in self.getHomeDirs():
+             ret += self.getHomeDirContext ("user_u" , h+'/[^/]*', "user")
+-            ret += "\n"
+             ret += self.getHomeRootContext(h)
+         ret += self.genHomeDirContext()
+         return ret
 
-If the home directory is being treated internally as unlabeled, then any
-files created in it will by default also inherit that label.
-
-> What could be the problem?
-> I have all the right users and roles, I think
-> in /etc/selinux/strict/users/local.users
-
-We only recently introduced support for actually using local.users, by
-adding sepol_genusers(3) to libsepol and modifying load_policy(1) to
-call it prior to loading the policy into the kernel.  At the same time,
-we changed the policy Makefile to no longer pull in local.users upon a
-policy build because it is now being dynamically added to the in-memory
-binary policy image by load_policy(1).  AFAIK, Dan is still working on
-the patch to /sbin/init to likewise call sepol_genusers(3) prior to
-loading the policy into the kernel.  Until that change is made, you'll
-lose any user definitions in local.users upon a reboot until you run
-load_policy, because /sbin/init won't dynamically pull in those entries.
-In the short term, you can either restore the inclusion of local.users
-into your policy build or separately run genpolusers(1) to rebuild the
-binary policy file with local.users included.
-
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
-
+--------------070200020002000103090603--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
