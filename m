@@ -1,28 +1,45 @@
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA13785
+	for <selinux@tycho.nsa.gov>; Sat, 6 Jul 2002 16:07:35 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA05818
+	for <selinux@tycho.nsa.gov>; Sat, 6 Jul 2002 20:07:02 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id UAA05814
+	for <selinux@tycho.nsa.gov>; Sat, 6 Jul 2002 20:07:00 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Timothy Wood <timothy@hallcomp.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: named pt2
-Date: Thu, 4 Jul 2002 23:40:32 -0400
-References: <1025732909.3620.136.camel@phobos>
-In-Reply-To: <1025732909.3620.136.camel@phobos>
+To: <blacknet@simplyaquatics.com>, "Selinux" <selinux@tycho.nsa.gov>
+Subject: Re: /tmp and others
+Date: Thu, 4 Jul 2002 21:38:39 -0400
+References: <004f01c22302$150ebf70$0a01a8c0@ed>
+In-Reply-To: <004f01c22302$150ebf70$0a01a8c0@ed>
 MIME-Version: 1.0
-Message-Id: <20020706200822.5594276E1@lyta.coker.com.au>
+Message-Id: <20020706200822.1332F2892@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 3 Jul 2002 17:48, Timothy Wood wrote:
-> Can someone explain to my why bind works if I let init start it but it
-> does not start if I start it as root from the cli?
+On Wed, 3 Jul 2002 22:25, Ed Street wrote:
+> I'm curious as to how Selinux deals with /tmp issues like exploits.
 
-You are supposed to use run_init to run the init script.  run_init causes the 
-script to be run as system_u:system_r:initrc_t, and then a 
-domain_auto_trans() rule transitions it to system_u:system_r:named_t which is 
-the correct context of the daemon.
+As a general rule each domain that creates files in /tmp uses a different 
+type (user_tmp_t for user_t domain and sysadm_tmp_t for sysadm_t domain).  So 
+the only race condition that you are vulnerable to in a typical configuration 
+is that of having the system administrator follow a sym-link created by a 
+user.  But this could be fixed by a different policy (and I may do this in my 
+default policy).
 
-Running it in another context denies it access to port 53 (port 53 is only 
-for named_t).
+There was a question about this issue at my presentation for OLS.
+
+> Also how does Selinux deal with stack exploits and /proc exploits?
+
+It doesn't do anything with stack exploits, you should be able to get one of 
+the stack protection mechanisms going in addition to it, but I've never 
+really tried.
+
+As for /proc exploits, what exactly do you mean?
 
 -- 
 I do not get viruses because I do not use MS software.
