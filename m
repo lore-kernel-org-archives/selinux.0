@@ -1,79 +1,72 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6PFWZrT020320
-	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 11:32:36 -0400 (EDT)
-Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6PFW6VH012424
-	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 15:32:06 GMT
-Received: from localhost (shorty@debby [127.0.0.1])
-	by localhost.localdomain (8.12.11/8.12.11/Debian-5) with ESMTP id i6PFWaLG007441
-	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 17:32:37 +0200
-Subject: Selinux possible on Debian-Linux/ppc?
-From: Wolfgang Pfeiffer <roto@gmx.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6PGR7rT020473
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 12:27:07 -0400 (EDT)
+Received: from home.nightdaughter.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6PGQxYd005151
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 16:27:06 GMT
+Received: from hydra.joerghoh.de (hydra.joerghoh.de [192.168.0.14])
+	by home.nightdaughter.de (Postfix) with SMTP id 5702217003A
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 18:26:53 +0200 (CEST)
+From: "Joerg Hoh" <joerg@devone.org>
+Date: Sun, 25 Jul 2004 18:26:53 +0200
 To: SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1090769556.7265.32.camel@debby>
+Subject: Re: Selinux possible on Debian-Linux/ppc?
+Message-ID: <20040725162653.GC8638@hydra.joerghoh.de>
+References: <1090769556.7265.32.camel@debby>
 Mime-Version: 1.0
-Date: Sun, 25 Jul 2004 17:32:36 +0200
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
+In-Reply-To: <1090769556.7265.32.camel@debby>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi All
 
-First what I have here:
+--qcHopEYAB45HaUaB
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-$ cat /proc/cpuinfo 
-processor       : 0
-cpu             : 7455, altivec supported
-clock           : 867MHz
-revision        : 3.2 (pvr 8001 0302)
-bogomips        : 864.64
-machine         : PowerBook3,5
-motherboard     : PowerBook3,5 MacRISC2 MacRISC Power Macintosh
-board revision  : 00000000
-detected as     : 80 (PowerBook Titanium IV)
-pmac flags      : 0000000b
-L2 cache        : 256K unified
-memory          : 768MB
-pmac-generation : NewWorld
+On Sun, Jul 25, 2004 at 05:32:36PM +0200, Wolfgang Pfeiffer wrote:
+>=20
+> I'm planning to get a SE Kernel 2.6 compiled here.
+>=20
+> But I'm not quite sure whether SElinux will run on that machine, and on
+> Debian-ppc ...
 
-And I'm running 2 OS's on that machine: Mac OS X (that gets booted here
-about once in 2 months or so ...  :). And Debian Linux, unstable
-edition.
+I think SELinux runs well on your machine, most little/big-endian flaws
+should have been found ...
 
-I'm planning to get a SE Kernel 2.6 compiled here.
+> On=20
+> <http://www.nsa.gov/selinux/>:
+> I read:
+> "Currently, we can only support the x86 architecture .."
 
-But I'm not quite sure whether SElinux will run on that machine, and on
-Debian-ppc ...
+This is a historic statement :-) SELinux ran fine on my alpha 6 months
+ago.
 
-On 
-<http://www.nsa.gov/selinux/>:
-I read:
-"Currently, we can only support the x86 architecture .."
+Joerg
 
-But a quick search for SElinux packages for my system gives this:
+--=20
+Fachbegriffe der Informatik (Nr 289): Chef
+- Jemand, der ohne Plan von der Sache unsinnige Anweisungen gibt, die Erfol=
+ge
+f=FCr sich reklamiert und die Katastrophen an =BBdie Techniker=AB weitergib=
+t.=20
+	Alexander Schreiber
 
-      * checkpolicy - SELinux policy compiler
-      * libselinux1 - SELinux shared libraries
-      * libselinux1-dev - SELinux development headers
-      * policycoreutils - SELinux core policy utilities
-      * selinux-doc - documentation for Security-Enhanced Linux
-      * selinux-policy-default - Policy config files and management for
-        NSA Security Enhanced Linux
-      * selinux-utils - SELinux utility programs
+--qcHopEYAB45HaUaB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-So my hope is that the info on
-<http://www.nsa.gov/selinux/>
-isn't valid any more. Or that it simply means that the downloadable
-packages on  .<http://www.nsa.gov/selinux/>  are meant for Intel only ..
+iD8DBQFBA99N6xdMID018FIRAsjvAJ4ltLxkrn+CM8cfcpfTrv+KEUEVwQCfco9Z
+pbPoafO4W/EjnqtgK1WE5TU=
+=J557
+-----END PGP SIGNATURE-----
 
-Thanks for some hints in anticipation
-
-Best Regards
-Wolfgang
--- 
-Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
-
+--qcHopEYAB45HaUaB--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
