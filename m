@@ -1,61 +1,54 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA03604
-	for <selinux@tycho.nsa.gov>; Sun, 22 Sep 2002 20:14:34 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id AAA01293
-	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 00:13:07 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA03598
+	for <selinux@tycho.nsa.gov>; Sun, 22 Sep 2002 20:14:33 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id AAA02700
+	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 00:12:45 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id AAA01289
-	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 00:13:05 GMT
+        by jazzband.ncsc.mil  with ESMTP id AAA02696 for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 00:12:44 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 88BC892467
+	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 10:14:27 +1000 (EST)
+Received: from lyta (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 6D69C4603
+	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2002 02:14:12 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>,
-        Michael Zimmermann <zim@vegaa.de>, selinux@tycho.nsa.gov
-Subject: Re: SElinux newbie seeks starter paper(s)
-Date: Mon, 23 Sep 2002 01:33:13 +0200
-References: <200209222212.18437.zim@vegaa.de> <200209222149.VAA27444@jazzswing.ncsc.mil>
-In-Reply-To: <200209222149.VAA27444@jazzswing.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Subject: setuid/setgid capability
+Date: Mon, 23 Sep 2002 02:00:40 +0200
 MIME-Version: 1.0
-Message-Id: <200209230133.13854.russell@coker.com.au>
+Message-Id: <200209230145.45134.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 22 Sep 2002 23:50, Carsten Grohmann wrote:
-> You can
-> found they on my homepage http://www.carstengrohmann.de (only german).
+Why does user_t need setuid and setgid capabilities?
 
-Perhaps it might be worth-while to establish a mailing list for 
-German-language SE Linux discussions?
+So far in a quick examination of my system it seems that the man-db package 
+wants setuid capability, but works OK without it except as root (as root it 
+calls setuid() repeatedly trying in vain to change it's UID and puts lots of 
+entries in the syslog).  Of the things I use gpg, su, passwd, etc also need 
+root, but they all have different domains which allow setuid capability.
 
-I think that a community of German SE Linux users is starting to develop, it's 
-not just the two of you, there's the people who attended my tutorial and 
-presentation at Linux Kongress as well.
+For setgid the games want it, so I could remove that access at the cost of 
+losing access to high scores.  But there's probably less reason to deny 
+setgid and more potential benefits.
 
-I think that many of the people who attended my tutorial might be nervous 
-about posting questions to this forum both from being afraid of asking a 
-silly question, and from fear of being misunderstood through language issues 
-on an English-language list.
 
-Carsten, you have a good grasp of SE Linux, you would be able to advise new 
-German users on a German-language list, and then if you don't know the answer 
-to a question they would not feel foolish about asking here.
+Perhaps the default policy should be changed to deny setuid access to user_t 
+and to have a comment suggesting that setgid is a candidate for removal?
 
-Interested?  If so we need a location for the list, AFAIK none of the NSA 
-people speak German so I doubt that they'll want to host it.  I could host 
-(*) it, but having a German list hosted in Australia might not make much 
-sense.  Anyone got a good Mailman machine in Germany for the task?
+If we remove setuid then we can also probably remove dac_override and 
+net_bind_service as neither of them even apply if you are not root, and if 
+you are root but not sysadm_r then you probably don't deserve them.
 
+Steve was talking about removing sys_tty_config.  So we might have only { 
+setgid chown fowner } as the capabilities for user_t then.
 
 
 Russell Coker
-
-(*)  My server that is used for the selinux-talk mailing list has suffered an 
-undetermined hardware failure (suspected network hardware).  I had plans to 
-move the list off it anyway, so I am moving those plans forward.  I should 
-have the list going again at a new home with better hardware in a few days.
-
 
 
 --
