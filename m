@@ -1,47 +1,33 @@
-Date: Tue, 17 Sep 2002 09:37:43 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA27488
+	for <selinux@tycho.nsa.gov>; Tue, 17 Sep 2002 10:04:04 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA01923
+	for <selinux@tycho.nsa.gov>; Tue, 17 Sep 2002 14:02:36 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id OAA01916
+	for <selinux@tycho.nsa.gov>; Tue, 17 Sep 2002 14:02:35 GMT
+Date: Tue, 17 Sep 2002 10:03:48 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: /var/lock
-In-Reply-To: <200209132039.59879.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0209170932220.11411-100000@raven>
+cc: <tim@bird.org>, <selinux@tycho.nsa.gov>
+Subject: Re: Fwd: Re: Any assured channel work for Linux
+In-Reply-To: <200209170051.51285.russell@coker.com.au>
+Message-ID: <Pine.GSO.4.33.0209170959220.11411-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 13 Sep 2002, Russell Coker wrote:
+On Tue, 17 Sep 2002, Russell Coker wrote:
 
-> Currently to run minicom you have to be in sysadm_r, minicom needs to create a
-> lock file under /var/lock which needs sysadm_t.
->
-> This is wrong.
->
-> I am thinking of adding a user_lock_t file type for this purpose.
->
-> Also it would need a userlock attribute for allowing appropriate programs to
-> unlink the lock files.
+> For secure networking you need encryption of course.  SE Linux apparently has
+> some support for labelled networking over IPSec, but I haven't got IPSec
+> working yet so I don't know what it does exactly.
 
-It appears that the lock file creation is handled by /usr/sbin/lockdev, a
-setgid lock program.  Hence, you could place lockdev into a domain and
-define a file type auto transition rule to create /var/lock files with a
-derived type.  More generally, we should likely be using file type
-transitions for all of the /var/lock files, as with the /var/run files.
-
-Of course, minicom requires permissions to the modem device in order to
-function, so I'm not sure what you intend there (i.e. placing minicom into
-a domain with such access).
-
-> I also thought of giving system programs (such as pppd) the ability to unlink
-> userlock files so that they can break locks.  However this would also require
-> access to kill the user_t processes which hold the locks, and is possibly
-> undesirable.
->
-> What do you think?
-
-It would be preferable to maintain separation between system processes and
-user processes.
+Unfortunately, FreeSWAN does not presently support IP options.  Hence, the
+Selopt labeled networking support does not work with FreeSWAN IPSEC.
 
 --
 Stephen D. Smalley, NAI Labs
