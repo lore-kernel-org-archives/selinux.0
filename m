@@ -1,69 +1,86 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA10109
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 10:43:56 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA04704
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 15:43:18 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id PAA04700
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 15:43:17 GMT
-Date: Fri, 18 Jan 2002 10:43:21 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Justin Smith <jsmith@mcs.drexel.edu>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: ext3 file system
-In-Reply-To: <1011303902.5928.2.camel@vorpal>
-Message-ID: <Pine.GSO.4.33.0201181035160.3743-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA10277
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 11:01:24 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA04130
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 16:00:35 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id QAA04117 for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 16:00:33 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 69E9592749
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jan 2002 03:01:17 +1100 (EST)
+Received: from there (lyta [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 2498232FE08
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:00:58 +0100 (CET)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: <selinux@tycho.nsa.gov>
+Subject: devfs_contexts
+Date: Fri, 18 Jan 2002 17:00:57 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020118160058.2498232FE08@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+How exactly is devfs_contexts supposed to work, when is it applied?
 
-On 17 Jan 2002, Justin Smith wrote:
+The default settings in the file appear to be applied, here is a sample:
+root@test:/etc/flask# stat /dev/null /dev/random
+  File: "/dev/null"
+  Size: 0               Blocks: 0          IO Block: 1024   Character Device
+Device: 7h/7d   Inode: 9           Links: 1     Device type: 1,3
+Access: (0666/crw-rw-rw-)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: Thu Jan  1 01:00:00 1970
+Modify: Thu Jan  1 01:00:00 1970
+Change: Thu Jan  1 01:00:00 1970
 
-> When trying to label files with the setfiles utilities, the process
-> crashes when they encounter the .journal files. These are user-visible,
-> but are not regular files (they are immutable in the sense that even
-> root cannot change them in any way). The setfiles utilities issue a
-> warning that they cannot write to .journal and quit.
->
-> Any ideas?
->
-> Perhaps there should be some way of exempting the .journal files from
-> the labelling process. It is unfortunate that they are visible to users
-> (since users cannot actually use them for anything).
+  SID: 33
+  S_context: system_u:object_r:null_device_t
+  File: "/dev/random"
+  Size: 0               Blocks: 0          IO Block: 1024   Character Device
+Device: 7h/7d   Inode: 13          Links: 1     Device type: 1,8
+Access: (0666/crw-rw-rw-)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: Thu Jan  1 01:00:00 1970
+Modify: Thu Jan  1 01:00:00 1970
+Change: Fri Jan 18 03:38:15 2002
 
-First, the journals aren't visible to users on my RH7.2 systems running
-the SELinux kernel, so I'm not sure why they are visible on your system.
+  SID: 130
+  S_context: system_u:object_r:random_device_t
 
-Second, setfiles should not need to write to .journal.  However, it does
-need to be able to set the label of .journal.  If you are running setfiles
-on a non-SELinux kernel, setfiles directly updates the persistent label
-mapping files in /...security.  If you are running setfiles on a SELinux
-kernel, setfiles uses the lchsid system call to set the label for each
-file.  At present, lchsid fails on immutable files, just like chmod and
-chown.  However, there isn't any strong reason to prevent relabeling of
-immutable files, so we could remove this restriction from the [l|f|]chsid
-calls in the SELinux module.
+However I added the following line to the file:
+/vc/0                   system_u:object_r:devtty_t
 
-Third, you can exempt files from the labeling process by using the
-<<none>> specification in the file_contexts configuration.  So, to exempt
-.journal files from being relabeled by setfiles, you might add the
-following to the end of file_contexts:
+But then after loading the new policy it's still not there!
+root@test:/etc/flask# make load
+install -m 644 -o root -g root policy /ss_policy
+/usr/bin/load_policy /ss_policy
 
-.*/\.journal		<<none>>
+Success
+root@test:/etc/flask# stat /dev/vc/0
+  File: "/dev/vc/0"
+  Size: 0               Blocks: 0          IO Block: 1024   Character Device
+Device: 7h/7d   Inode: 83          Links: 1     Device type: 4,0
+Access: (0666/crw-rw-rw-)  Uid: (    0/    root)   Gid: (    5/     tty)
+Access: Thu Jan  1 01:00:00 1970
+Modify: Thu Jan  1 01:00:00 1970
+Change: Fri Jan 18 03:38:15 2002
 
-Of course, this is a questionable choice.  We should probably define a
-type for the journal files so that they can be rigorously protected by
-the SELinux nondiscretionary access controls.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+  SID: 34
+  S_context: system_u:object_r:device_t
+root@test:/etc/flask#
 
 
 
+PS I'm running 2.4.17 with the latest patch for the utilities (thanks 
+Stephen).
+
+-- 
+http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
+http://www.coker.com.au/projects.html Projects I am working on
+http://www.coker.com.au/~russell/     My home page
 
 --
 You have received this message because you are subscribed to the selinux list.
