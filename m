@@ -1,117 +1,63 @@
-Message-ID: <41A788C2.9060609@gentoo.org>
-Date: Fri, 26 Nov 2004 21:49:22 +0200
-From: petre rodan <kaiowas@gentoo.org>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: Daniel J Walsh <Dan-Walsh@comcast.net>, James Morris <jmorris@redhat.com>,
-   SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Still getting random execute permissions on shared libraries.
-References: <41A3EC21.1090200@comcast.net> <1101303008.22014.47.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1101303008.22014.47.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAQJafIi001202
+	for <selinux@tycho.nsa.gov>; Fri, 26 Nov 2004 14:36:41 -0500 (EST)
+Received: from ms-smtp-03.rdc-kc.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAQJZ9im021123
+	for <selinux@tycho.nsa.gov>; Fri, 26 Nov 2004 19:35:10 GMT
+Received: from sasami.localdomain (CPE-24-163-154-106.kc.rr.com [24.163.154.106])
+	by ms-smtp-03.rdc-kc.rr.com (8.12.10/8.12.7) with ESMTP id iAQJagOl017331
+	for <selinux@tycho.nsa.gov>; Fri, 26 Nov 2004 13:36:42 -0600 (CST)
+Received: from localhost (localhost [127.0.0.1])
+	by sasami.localdomain (Postfix) with ESMTP id CBF224A658
+	for <selinux@tycho.nsa.gov>; Fri, 26 Nov 2004 13:36:41 -0600 (CST)
+Received: from sasami.localdomain ([127.0.0.1])
+	by localhost (sasami [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 00391-02 for <selinux@tycho.nsa.gov>;
+	Fri, 26 Nov 2004 13:36:41 -0600 (CST)
+Received: from yggdrasil.localdomain (yggdrasil.localdomain [192.168.0.2])
+	by sasami.localdomain (Postfix) with ESMTP id 8C15F4A650
+	for <selinux@tycho.nsa.gov>; Fri, 26 Nov 2004 13:36:41 -0600 (CST)
+Date: Fri, 26 Nov 2004 13:36:41 -0600
+From: Greg Norris <haphazard@kc.rr.com>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: anyone attending the SELinux Symposium?
+Message-ID: <20041126193641.GB15850@yggdrasil.localdomain>
+Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigEACEDB2B7351DCA24335F67B"
+	protocol="application/pgp-signature"; boundary="dc+cDN39EJAMEtIO"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigEACEDB2B7351DCA24335F67B
-Content-Type: multipart/mixed;
- boundary="------------080503030203020707070706"
 
-This is a multi-part message in MIME format.
---------------080503030203020707070706
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+--dc+cDN39EJAMEtIO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Is anyone else planning to attend the SELinux Symposium
+(http://www.selinux-symposium.org)?  If so, have you tried to reserve a
+room at the hotel yet?  Any problems?  I was told that it doesn't appear
+on their list of events, which means that the group rate isn't
+available.  I'm curious if everyone's getting the same story, or perhaps
+the person I spoke with is "out of the loop"?
 
-Hi Stephen,
+I emailed info@selinux-symposium.org separately... if there's really a
+problem with the conference hotel arrangements, I assume they'll get it
+cleared up.
 
-Stephen Smalley wrote:
-> On Tue, 2004-11-23 at 21:04, Daniel J Walsh wrote:
-> 
->>Trying to run java from within firefox is a disaster, Mozilla crashes.
->>
->>allow user_mozilla_t ld_so_cache_t:file execute;
->>allow user_mozilla_t lib_t:file execute; (Jar files)
->>allow user_mozilla_t user_tmp_t:file execute;
->>allow user_t ld_so_cache_t:file execute;
->>allow user_t locale_t:file execute;
-> 
-> 
-> They aren't random.  As discussed previously here and on
-> fedora-selinux-list, execution of a legacy binary causes the
-> read_implies_exec behavior to be enabled for the process, so that
-> subsequent read requests are transparently mapped to read|execute.  This
-> was a change in the upstream kernel, not SELinux, and was to allow
-> introduction of NX support without breaking compatibility with legacy
-> binaries.  SELinux is merely checking permissions based on the
-> information supplied by the core kernel.
-> 
-> Your options are:
-> - get java rebuilt with a PT_GNU_STACK header so the kernel doesn't
-> treat it as a legacy binary (assuming that it doesn't assume that read
-> implies exec),
-> - change policy to allow execute permission in these cases (although it
-> would be preferable here to move java into its own domain in that case,
-> so that you only have to allow it these permissions and not the entire
-> user domain or mozilla domain).
-
-I made a patch to the kernel that reverts to the old behaviour. no more execs on random files.
-I find that changing the policy to allow those execs is not a valid solution.
-
-would it be feasible to send upstream a patch that would remove the 'exec on read' behaviour if the kernel has selinux capabilities?
-
-bye,
-peter
-
--- 
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-
---------------080503030203020707070706
-Content-Type: text/plain;
- name="mmap_oddity.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mmap_oddity.diff"
-
---- linux-2.6.9.orig/mm/mmap.c	2004-11-11 20:18:36.436249280 +0200
-+++ linux-2.6.9/mm/mmap.c	2004-11-11 20:20:47.863269336 +0200
-@@ -790,10 +790,12 @@
- 	 * (the exception is when the underlying filesystem is noexec
- 	 *  mounted, in which case we dont add PROT_EXEC.)
- 	 */
-+	/*
-+ 	// this breaks havoc on a SELinux system
- 	if ((prot & PROT_READ) && (current->personality & READ_IMPLIES_EXEC))
- 		if (!(file && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC)))
- 			prot |= PROT_EXEC;
--
-+	*/
- 	if (!len)
- 		return addr;
- 
-
---------------080503030203020707070706--
-
---------------enigEACEDB2B7351DCA24335F67B
+--dc+cDN39EJAMEtIO
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBp4jHGSBEIeh4AEYRAjsKAKCONk6pm9IjR+BaqQe9MUf0IIYMjgCfTyh/
-HaH5vlsDEBRBdkRuGkJYFXs=
-=Hqaf
+iD8DBQFBp4XJgrEMyr8Cx2YRAuL0AJ4u6h+6wh4gc1ToJKyvkLYyBslW5QCcDuV8
+jQ4go5h6YXIwBuzG3YDQgUo=
+=Pi45
 -----END PGP SIGNATURE-----
 
---------------enigEACEDB2B7351DCA24335F67B--
+--dc+cDN39EJAMEtIO--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
