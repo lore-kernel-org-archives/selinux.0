@@ -1,52 +1,39 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h69E8MHa023798
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 10:08:23 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h69E7PnJ023775
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 14:07:25 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h69E7Phr023772
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 14:07:25 GMT
-Subject: Re: libsecure fails to compile
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1057725650.6866.0.camel@columbia>
-References: 
-	 <B3B3B1C9A024D511B52C00D0B7201BDB07703D@ca-ex-remote1.na.nai.com>
-	 <1057686414.12912.84.camel@moss-huskers.epoch.ncsc.mil>
-	 <1057725650.6866.0.camel@columbia>
-Content-Type: text/plain
-Message-Id: <1057759698.4246.9.camel@moss-sooners.epoch.ncsc.mil>
+Message-Id: <sf0be0df.042@atlas.snu.edu>
+Date: Wed, 09 Jul 2003 09:30:37 -0500
+From: "Joshua Brindle" <JBrindle@snu.edu>
+To: <SELinux@tycho.nsa.gov>, <wlsel@verizon.net>
+Subject: Re: SELinux, KDE, and honeypots
 Mime-Version: 1.0
-Date: 09 Jul 2003 10:08:18 -0400
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm unable to get to anonymous CVS right now as well, but the
-SourceForge staff claims that as of 19 June the connection cap was
-increased for the pserver and they believed that only at peak times
-would the pserver be unavailable (returning a recv() error or "end of
-file from server".)  See the SourceForge Site Status for details. If
-this continues to be a problem let me know, and we'll look into creating
-a nightly tarball from the SourceForge CVS.  But I really don't want to
-have to take on that work if the pserver is available.
+>The idea I had was to create a pseudo-device driver that leverages
+NetFilter 
+>to output all traffic from all TCP streams to a user-mode daemon that
+writes 
+>the packets for each stream into their own separate disk files (and
+governing 
+>the throughput if need be so that the transcribing daemon can keep up
+with 
+>the traffic).  If no security violations are reported during the
+lifetime of 
+>the TCP stream, then when it is closed the transcript is moved to a
+directory 
+>where it remains for some period of time (perhaps for auditing
+purposes) 
+>before being routinely deleted.
 
-On Wed, 2003-07-09 at 00:40, Colin Walters wrote:
-> On Tue, 2003-07-08 at 13:46, Stephen Smalley wrote:
-> 
-> > Side note:  The current release on nsa.gov is a bit dated (April 2003),
-> > should be updated soon.  Between releases, you can typically get a more
-> > up-to-date snapshot from the sourceforge CVS tree.
-> 
-> Do you know if there's a mirror anywhere?  sf.net's anonymous cvs has
-> been unavailable for some time.
-
--- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
-
+this is sorta offtopic so i'll just quickly say it would be insane to
+try and
+handle that with netfilter.. you can use libpcap but that would take
+decades to review, your best bet is to plug in an IDS like prelude
+(www.prelude-ids.org) to monitor tcp traffic for violations. we are
+looking
+into getting rules written for the prelude log monitor to understand
+selinux avc messages so thats a plus (prelude is hybrid ids, that is
+net + host ids) so you can monitor network traffic on your router
+and host ids (logs, file digests, etc) on your other machines.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
