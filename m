@@ -1,62 +1,69 @@
-Message-ID: <423AFCAF.5050802@redhat.com>
-Date: Fri, 18 Mar 2005 11:07:11 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Jun OKAJIMA <okajima@digitalinfra.co.jp>, SELinux@tycho.nsa.gov
+Message-ID: <20050318162144.32437.qmail@web50202.mail.yahoo.com>
+Date: Fri, 18 Mar 2005 08:21:44 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: Do you trust X server?
-References: <200503172228.AA00008@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <1111149494.17131.13.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1111149494.17131.13.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Tom <tom@lemuria.org>, SELinux@tycho.nsa.gov
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
 
->On Fri, 2005-03-18 at 07:28 +0900, Jun OKAJIMA wrote:
->  
->
->>Hello.
->>
->>I am not sure that here is the proper place to discuss this issue,
->>but do you trust X server (or video driver), when you use your PC
->>with X window?.
->>
->>Most ( and probably all) X server runs as root on Linux.
->>Then, if it has ( and it must have ) a buffer overflow or any vulnerability,
->>and it would execute some cruel code if a certain drawing commands set comes.
->>A cracker makes web sites contain htmls or SVG or ... to make a such commands
->>set to be displayed. Then, you can be cracked with just browsing the pages,
->>not being required to click untrusted contents explicitly.
->>
->>Have you considered this risk? Is there any site about this issue?
->>And any measure to solve this issue with SE linux?
->>    
->>
->
->There are ways to run X with less privilege (unrelated to SELinux), and
->SELinux can then be used to limit the capabilities granted to the X
->server.  X is also a concern for SELinux because without modification,
->it allows uncontrolled information flow among X clients, potentially
->violating the security policy.  The latter concern (but not the former
->one) is being addressed by the security enhanced X work, originally by
->Eamon Walsh and now picked up by Trusted Computer Solutions.  See:
->http://www.nsa.gov/selinux/papers/x11-abs.cfm
->http://www.nsa.gov/selinux/list-archive/0405/7030.cfm
->http://lists.freedesktop.org/pipermail/xorg/2005-February/006452.html
->http://lists.freedesktop.org/archives/xorg/2005-March/006906.html
->
->  
->
-Jim Getty's also mentioned at the SELinux Symposium some effort to get X 
-to not
-need to run as Root (Or at least most of X).
+--- Tom <tom@lemuria.org> wrote:
+> On Fri, Mar 18, 2005 at 12:26:04AM -0500,
+> Valdis.Kletnieks@vt.edu wrote:
+> > For a remote exploit of the X server itself, you'd
+> have to find a way to
+> > exploit the X protocol, 
+> 
+> Not true.
+
+Let us be clear. The X consortium has always
+made it plain the the X server provides mechanism,
+not policy. You can trust the X server to the same
+degree you can trust any part of the system that
+does not implement or enforce policy. If you
+chose to use the X server as a component of
+your policy enforcement that is your affair,
+but the appropriate use of that code is your
+responsibility, not that of the X server.
+
+> This was 2002, and it was a DoS, but it shows that
+> the X server can be
+> attacked through remote applications:
+> 
+> http://web.lemuria.org/security/mozilla-dos.html
+> 
+> The short: A font-rendering bug in X can cause a
+> system freeze if mozilla
+> is instructed to render a huge (like 1666666 pixels)
+> font.
+
+There are bugs in code that provides mechanism.
+The security consequences of these problems are
+one reason why systems are evalauted as a whole,
+not by their individual components.
+
+> Don't trust X.
+
+The case mentioned above requires breakdowns
+in the browser, font manager, and system admin.
+None of these are X server problems. Further,
+the "system" is not damaged at all. The DoS
+"attack" is a programming flaw, or "bug" in
+the jargon.
 
 
+Casey Schaufler
+casey@schaufler-ca.com
 
--- 
 
-
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Small Business - Try our new resources site!
+http://smallbusiness.yahoo.com/resources/ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
