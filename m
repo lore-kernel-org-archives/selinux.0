@@ -1,94 +1,110 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i523SlrT000787
-	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 23:28:47 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i52BNIbn009730
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 07:23:18 -0400 (EDT)
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i523SHrT000755
+	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 23:28:17 -0400 (EDT)
+Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i533S2eD016756
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 23:28:02 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 20:22:03 -0000
-Date: Tue, 1 Jun 2004 20:19:28 +0000
+  by smtp804.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 08:41:35 -0000
+Date: Tue, 1 Jun 2004 08:39:01 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: XP as a base for NetTop
-Message-ID: <20040601201928.GQ5690@lkcl.net>
-References: <BCDBA110.10B6A%edm@tycho.ncsc.mil> <40B67F41.6020309@snu.edu> <1086111584.13325.111.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: installing x-window-system on my loovely minimalist system
+Message-ID: <20040601083901.GI8312@lkcl.net>
+References: <20040531215339.GR3170@lkcl.net> <200406011323.26802.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1086111584.13325.111.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <200406011323.26802.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jun 01, 2004 at 01:39:44PM -0400, Stephen Smalley wrote:
-
-> On Thu, 2004-05-27 at 19:52, Joshua Brindle wrote:
-> > on the slide entitled seperation it says that ACL's are used to protect 
-> > the disk files so that rogue apps in a vm can't affect other vm's, 
-> > additionally each vm's disk file is encrypted so that only the 'level' 
-> > user can access it.
-> > 
-> > Obviously both of these things can be done with (SE)Linux but it appears 
-> >   they thought about this already.
+On Tue, Jun 01, 2004 at 01:23:26PM +1000, Russell Coker wrote:
+> On Tue, 1 Jun 2004 07:53, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > okay, just for fun, i began to install x-windows.
+> >
+> > bizarrely i get these (wheeee):
+> >
+> > allow initrc_t sysadm_tmp_t:file { read };
+> > 	#EXE=/bin/cat  NAME=XF86Config-4   :  read
+> >
+> > allow ldconfig_t lib_t:file { read };
+> > 	#EXE=/sbin/ldconfig  NAME=libXft.so.2.1.1   :  read
+> > 	#EXE=/sbin/ldconfig  NAME=libfontconfig.so.1.0.4   :  read
+> > 	#EXE=/sbin/ldconfig  NAME=libXft.so.2.1.1   :  read
 > 
-> ACLs are a poor substitute for MAC, e.g. see
-> http://marc.theaimsgroup.com/?l=selinux&m=104508693312829&w=2
+> When you use apt or dselect to install packages several packages will have 
+> their files installed at one pass, then the postinst scripts will be run for 
+> the packages.
+> 
+> In Debian file labelling is done just before the postinst, so you have files 
+> from packages liba and libb installed but not labeled, you run liba's 
+> postinst (which first correctly labels files in liba), but ldconfig tries 
+> reading the files from libb which fails.
+> 
+> Maybe I should just put a dontaudit rule in dpkg.te?
  
+ *shrug*  :)
 
- NT Security Descriptors (which contain ACLs) were pinched pretty
- much wholesale from VME / VMS, and they are a lot more comprehensive
- than what is described at that reference.
+> > allow ldconfig_t usr_t:file { read };
+> > 	#EXE=/sbin/ldconfig  NAME=libXrandr.so.2.0   :  read
+> > 	#EXE=/sbin/ldconfig  NAME=libXTrap.so.6.4   :  read
+> >
+> > allow ldconfig_t usr_t:lnk_file { read unlink };
+> > 	#EXE=/sbin/ldconfig  NAME=libXrandr.so.2   :  read
+> > 	#EXE=/sbin/ldconfig  NAME=libXrandr.so.2   :  unlink
+> 
+> That is wrong.  What directories are those files in?
 
- NT security descriptors contain four ACLS:
+sez:~# locate libXrandr
+/usr/X11R6/lib/libXrandr.so.2
+/usr/X11R6/lib/libXrandr.so.2.0
 
- - a system mandatory acl
- - a system discretionary acl
- - a [user?] mandatory acl
- - a [user?] discretionary acl
+sez:~# locate libXTrap.so.6.4
+/usr/X11R6/lib/libXTrap.so.6.4
+sez:~# 
 
- bizarrely all of those are optional and the usual default behaviour
- of an empty SD is "allow everything" which is about the only
- stupidity of the NT security model.
-
- NT ACLs themselves contain ACEs (access control entries) which
- themselves contain a SID (security identifier) and an oh i forget
- what call it a.. a... access permission set.
-
- SIDs are up to 6 32-bit words in length and consist of a domain
- prefix (long) and a suffix (only one, the last one, of the 32-bit
- words).
-
- access permissions are 32-bit - 16 of those bits are "generic"
- and consist of things like generic read, generic write, generic
- execute, then delete, access, etc. pretty much like capabilities,
- and then there are 16-bits which are designated for "service-specific"
- things.
-
- so a service can create up to 16 separate "capabilities".
-
-
- the only thing about the use of NT security descriptors is that they
- are implemented pretty much exclusively in USER SPACE.
-
- usually in those lovely DCE/RPC applications.
-
- there is very little in the way of kernel-level support for NT
- security descriptors, and what there is is self-contained and
- uses the same API as the user-space applications e.g. the NT
- SMB file server is all in kernel-space *gibber*.
-
+> On my system it's in /usr/X11R6/lib and the following file_contexts entry 
+> correctly matches it:
+> 
+> /usr/X11R6/(.*/)?lib(64)?/.*\.so.* --   system_u:object_r:shlib_t
  
- so, what _most_ people think of in "ACLs" is user and group and
- other read-write-execute lists, whereas in NT it's a lot more
- comprehensive and pervasive.
+sez:~# ls --context /usr/X11R6/lib/libXTrap.so.6.4
+-rw-r--r--  root     root     system_u:object_r:shlib_t
+/usr/X11R6/lib/libXTrap.so.6.4
+sez:~# ls --context /usr/X11R6/lib/libXrandr.so.2.0
+-rw-r--r--  root     root     system_u:object_r:shlib_t
+/usr/X11R6/lib/libXrandr.so.2.0
+sez:~# ls --context /usr/X11R6/lib/libXrandr.so.2  
+lrwxrwxrwx  root     root     system_u:object_r:lib_t
+/usr/X11R6/lib/libXrandr.so.2
+sez:~# 
 
- and, due to the default of "allow everything if there's no SD"
- it's a pretty moot issue, silly people.
+well, somehow, one of them doesn't match - libXrandr.so.2 is
+a lib_t type (is that because it's a symbolic link?) and
+what happened to libXtrap.so.6 symbolic link??
 
- as a developer, you make one mistake (add a new function and
- forget to correct support the user-space SDs) and NT's toast.
 
+hey, i gotta question for you.
+
+is there possibly a delay in the journalling ext3 file system
+on extended attributes?
+
+is there any way that old extended attributes could be read from
+the filesystem because of delays in the journalling filesystem
+not writing them down immediately?
+
+> > allow xprint_t sysadm_xserver_tmp_t:dir { search };
+> > 	#EXE=/usr/bin/Xprt  NAME=.X11-unix   :  search
+> > 	#EXE=/usr/bin/Xprt  NAME=.X11-unix   :  search
+> 
+> I had been in a rush when I wrote the policy for xprint.  I've attached a new 
+> policy file which should work better, please try it out and let me know how 
+> it goes.
+
+ ah ha, okie.
+ 
  l.
-
 
 
 --
