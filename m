@@ -1,124 +1,37 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h97197Wt009182
-	for <selinux@tycho.nsa.gov>; Mon, 6 Oct 2003 21:09:07 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h972P6Wt009370
+	for <selinux@tycho.nsa.gov>; Mon, 6 Oct 2003 22:25:06 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h971940r024631
-	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 01:09:05 GMT
-Date: Mon, 6 Oct 2003 21:09:11 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Stephen Smalley <sds@epoch.ncsc.mil>, <linux-kernel@vger.kernel.org>,
-   <selinux@tycho.nsa.gov>
-Subject: [PATCH][SELINUX] add policyvers to selinuxfs
-Message-ID: <Pine.LNX.4.44.0310062102040.2813-100000@thoron.boston.redhat.com>
+	by jazzswing.ncsc.mil  with ESMTP id h972P40p027556
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 02:25:04 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+	by jazzswing.ncsc.mil  with ESMTP id h972Owr7027541
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 02:25:03 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Thorsten Kukuk <kukuk@suse.de>
+Subject: Re: libselinux-1.2 and const usage
+Date: Tue, 7 Oct 2003 12:24:45 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20031003063614.GA20539@suse.de> <1065205090.4080.177.camel@moss-spartans.epoch.ncsc.mil> <20031006073312.GA3261@suse.de>
+In-Reply-To: <20031006073312.GA3261@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200310071224.45294.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds a file to the root selinuxfs directory which returns the
-security policy version associated with the currently running kernel.  
-Its purpose is to allow scripts to determine which version of policy to
-load.
+On Mon, 6 Oct 2003 17:33, Thorsten Kukuk wrote:
+> I try to add SELinux support to pam_login
 
-Please apply.
+Are you working from Dan's PAM patch or doing it differently?
 
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-diff -urN -X dontdiff linux-2.6.0-test6-mm2.orig/security/selinux/include/security.h linux-2.6.0-test6-mm2.w1/security/selinux/include/security.h
---- linux-2.6.0-test6-mm2.orig/security/selinux/include/security.h	2003-09-27 20:50:07.000000000 -0400
-+++ linux-2.6.0-test6-mm2.w1/security/selinux/include/security.h	2003-10-03 15:06:59.901346808 -0400
-@@ -13,6 +13,7 @@
- #define SECCLASS_NULL			0x0000 /* no class */
- 
- #define SELINUX_MAGIC 0xf97cff8c
-+#define POLICYDB_VERSION 15
- 
- #ifdef CONFIG_SECURITY_SELINUX_BOOTPARAM
- extern int selinux_enabled;
-diff -urN -X dontdiff linux-2.6.0-test6-mm2.orig/security/selinux/selinuxfs.c linux-2.6.0-test6-mm2.w1/security/selinux/selinuxfs.c
---- linux-2.6.0-test6-mm2.orig/security/selinux/selinuxfs.c	2003-09-27 20:51:22.000000000 -0400
-+++ linux-2.6.0-test6-mm2.w1/security/selinux/selinuxfs.c	2003-10-03 15:04:31.579895096 -0400
-@@ -37,7 +37,8 @@
- 	SEL_ACCESS,	/* compute access decision */
- 	SEL_CREATE,	/* compute create labeling decision */
- 	SEL_RELABEL,	/* compute relabeling decision */
--	SEL_USER	/* compute reachable user contexts */
-+	SEL_USER,	/* compute reachable user contexts */
-+	SEL_POLICYVERS	/* return policy version for this kernel */
- };
- 
- static ssize_t sel_read_enforce(struct file *filp, char *buf,
-@@ -125,6 +126,46 @@
- 	.write		= sel_write_enforce,
- };
- 
-+static ssize_t sel_read_policyvers(struct file *filp, char *buf,
-+                                   size_t count, loff_t *ppos)
-+{
-+	char *page;
-+	ssize_t length;
-+	ssize_t end;
-+
-+	if (count < 0 || count > PAGE_SIZE)
-+		return -EINVAL;
-+	if (!(page = (char*)__get_free_page(GFP_KERNEL)))
-+		return -ENOMEM;
-+	memset(page, 0, PAGE_SIZE);
-+
-+	length = snprintf(page, PAGE_SIZE, "%u", POLICYDB_VERSION);
-+	if (length < 0) {
-+		free_page((unsigned long)page);
-+		return length;
-+	}
-+
-+	if (*ppos >= length) {
-+		free_page((unsigned long)page);
-+		return 0;
-+	}
-+	if (count + *ppos > length)
-+		count = length - *ppos;
-+	end = count + *ppos;
-+	if (copy_to_user(buf, (char *) page + *ppos, count)) {
-+		count = -EFAULT;
-+		goto out;
-+	}
-+	*ppos = end;
-+out:
-+	free_page((unsigned long)page);
-+	return count;
-+}
-+
-+static struct file_operations sel_policyvers_ops = {
-+	.read		= sel_read_policyvers,
-+};
-+
- static ssize_t sel_write_load(struct file * file, const char * buf,
- 			      size_t count, loff_t *ppos)
- 
-@@ -568,6 +609,7 @@
- 		[SEL_CREATE] = {"create", &transaction_ops, S_IRUGO|S_IWUGO},
- 		[SEL_RELABEL] = {"relabel", &transaction_ops, S_IRUGO|S_IWUGO},
- 		[SEL_USER] = {"user", &transaction_ops, S_IRUGO|S_IWUGO},
-+		[SEL_POLICYVERS] = {"policyvers", &sel_policyvers_ops, S_IRUGO},
- 		/* last one */ {""}
- 	};
- 	return simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
-diff -urN -X dontdiff linux-2.6.0-test6-mm2.orig/security/selinux/ss/policydb.h linux-2.6.0-test6-mm2.w1/security/selinux/ss/policydb.h
---- linux-2.6.0-test6-mm2.orig/security/selinux/ss/policydb.h	2003-09-27 20:50:38.000000000 -0400
-+++ linux-2.6.0-test6-mm2.w1/security/selinux/ss/policydb.h	2003-10-03 15:06:59.291439528 -0400
-@@ -225,7 +225,6 @@
- 
- #define PERM_SYMTAB_SIZE 32
- 
--#define POLICYDB_VERSION 15
- #define POLICYDB_CONFIG_MLS    1
- 
- #define OBJECT_R "object_r"
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
