@@ -1,63 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h32LnGx6026123
-	for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2003 16:49:17 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h32Ln5xH023525
-	for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2003 21:49:05 GMT
-Received: from windowpane.com (ip57.gte1.rb1.bel.nwlink.com [209.20.131.57])
-        by jazzband.ncsc.mil  with ESMTP id h32Ln4Dl023426 for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2003 21:49:05 GMT
-Message-ID: <003501c2f962$231ba240$398314d1@windowpane.com>
-From: "ccallen" <ccallen@windowpane.com>
-To: "Russell Coker" <russell@coker.com.au>
-Cc: <selinux@tycho.nsa.gov>
-References: <000d01c2f7fa$f3c67730$398314d1@windowpane.com> <200304022237.31539.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h32NrVx6026514
+	for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2003 18:53:31 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h32NnrOv023396
+	for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2003 23:49:54 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h32NnpY1023393
+	for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2003 23:49:52 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "ccallen" <ccallen@windowpane.com>
 Subject: Re: Motif for selinux?
-Date: Wed, 2 Apr 2003 13:52:20 -0800
+Date: Thu, 3 Apr 2003 09:53:04 +1000
+Cc: <selinux@tycho.nsa.gov>
+References: <000d01c2f7fa$f3c67730$398314d1@windowpane.com> <200304022237.31539.russell@coker.com.au> <003501c2f962$231ba240$398314d1@windowpane.com>
+In-Reply-To: <003501c2f962$231ba240$398314d1@windowpane.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+Message-Id: <200304030953.04862.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks Russel,
+On Thu, 3 Apr 2003 07:52, ccallen wrote:
+> I'll try out your KDE. I have RH 7.1 and selinux 2.5, will this work ok
+> with your code?
 
-I'll try out your KDE. I have RH 7.1 and selinux 2.5, will this work ok with
-your code?
+There is no "selinux 2.5", SE Linux has never been released with any version 
+number other than the date (for at least the last two years).  I imagine that 
+you may be referring to Linux kernel 2.5.x, that should work as well as a 
+2.4.x kernel provided you have the right kernel patches.
 
-Conan
+My kdm binary may not work with RH, KDE depends on lots of shared objects and 
+my package may depend on different versions of the libraries than you have 
+installed.
 
------ Original Message -----
-From: "Russell Coker" <russell@coker.com.au>
-To: "ccallen" <ccallen@windowpane.com>; <selinux@tycho.nsa.gov>
-Sent: Wednesday, April 02, 2003 4:37 AM
-Subject: Re: Motif for selinux?
+If you compile from source then it should be OK if RH 7.1 uses KDE 2.2.
 
-
-> On Tue, 1 Apr 2003 13:01, ccallen wrote:
-> > In build / install doc states that there are a modified versions of gdm
-&
-> > kdm that will work with selinux, where can these projects be found? Is
-> > there a modified version of open motif that will work with selinux?
->
-> KDM for KDE 2.2 is on my web site.  I have not yet got KDM 3.1.1 to build
-with
-> SE Linux patches (hopefully soon).
->
-> I don't know the current status of GDM, check the SourceForge site.
->
-> There are no other X based login programs which have been modified for SE
-> Linux.  You could modify the program you desire (it's not difficult
-coding),
-> of you could use KDM (using KDM to start a different desktop system works
-> fine).
->
-> --
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
->
->
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
