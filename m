@@ -1,89 +1,66 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4FCdjI4017436
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 08:39:45 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4FCorI4017529
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 08:50:54 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4FCdPl5003525
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:39:25 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h4FCd7Nc003510
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:39:23 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 4EC22BF54
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 22:39:09 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 20980-07
- for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 22:39:08 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 21906BF53
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 22:39:08 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id E5251924A3
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 22:39:06 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id C28031B8F
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 22:37:44 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: memory used by SE Linux
-Date: Thu, 15 May 2003 22:37:44 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200305152237.44225.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h4FCoXl5004083
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:50:33 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h4FCoXNc004080
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2003 12:50:33 GMT
+Subject: Re: about the safety problem in SELinux
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: selinux list <selinux_list@yahoo.it>
+Cc: Russell Coker <russell@coker.com.au>, Pete Loscocco <pal@epoch.ncsc.mil>,
+   Howard Holm <hdholm@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+In-Reply-To: <3EC2C366.5060901@yahoo.it>
+References: <3EC2792D.1020209@yahoo.it>
+	 <200305150539.40186.russell@coker.com.au>  <3EC2C366.5060901@yahoo.it>
+Content-Type: text/plain
+Message-Id: <1053003033.4729.674.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 15 May 2003 08:50:33 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Here is some raw data about SE Linux memory use on ARM.  I haven't previously 
-done any checks on i386 because my i386 machines are so big that it doesn't 
-matter.  Eventually I'll probably look into i386 memory usage to compare.
+On Wed, 2003-05-14 at 18:29, selinux list wrote:  
+> This is exactly what is prescribed by TE (and its variants like DTE).
+> It is why I am so sure the safety problem in SELinux is so trivially
+> solved...SELinux should be safe because with Type Enforcement every
+> time a subject moves from a domain to another domain, the rights it
+> had are lost and others are acquired. 
 
-All tests were done on a machine with kernel module loading disabled and 
-minimal functionality.  The proceedure was to login on a serial terminal and 
-run free as soon as the machine was functional.
+SELinux implements MAC, so a process cannot transfer rights
+(descriptors) to another process unless the recipient process is also
+authorized to access the object in the same manner by the MAC policy
+(which can only be changed administratively).  SELinux controls
+descriptor inheritance across execve (when security context transitions
+occur for a process) and descriptor transfer via Unix domain socket IPC.
+It also typically revalidates permission on access to deal with
+revocation due to a file relabel or policy change; however, this is not
+yet complete - we do not presently provide revocation for memory-mapped
+files.  Security context transitions are controlled by the policy, as
+are file relabels.
 
-Non-SE kernel 2.4.19-rmk6-pxa1-hh11 (just for a quick test - the differences 
-between hh11 and hh12 aren't great, but I'll have to compile them both with 
-the same compiler etc for a proper test).
+Of course, proving specific security properties requires an analysis of
+the particular policy configuration.  SELinux just provides the
+mechanism for enforcing the policy.
 
-              total         used         free       shared      buffers
-  Mem:        63404        18408        44996            0            0
- Swap:            0            0            0
-Total:        63404        18408        44996
+> I completely agree, but SELinux seems safe to me not becouse of RBAC
+> support (it is just a user-centric concept to group some user
+> identities to assign to some domains...probably SELinux could work
+> fine even without RBAC support at all...), but thanks to TE.
 
-Memory with SE Linux kernel 2.4.19-rmk6-pxa1-hh12-se2 but no policy:
-
-              total         used         free       shared      buffers
-  Mem:        63284        20784        42500            0            0
- Swap:            0            0            0
-Total:        63284        20784        42500
-
-So apart from the issue of different memory use by the minor kernel revision 
-and the potential for different compiler having different memory use (which I 
-will test tomorrow) it appears that 2376K of data may be used for SE Linux.  
-This can't be right, I'll have to recompile both kernels with exactly the 
-same options to re-test this.
-
-Memory with same SE Linux kernel and 85837byte compressed (583771 byte 
-uncompressed) policy:
-              total         used         free       shared      buffers
-  Mem:        63284        22084        41200            0            0
- Swap:            0            0            0
-Total:        63284        22084        41200
-
-It seems that 1300K is used by the active policy.  Would I be correct in 
-assuming that the AVC cache would also consume more memory once the machine 
-is in full operation and more domain-type combinations are in the cache?
-
-Apart from making the policy smaller (which I am working on), is there any 
-easy way of reducing the kernel memory use of SE Linux?  5% of RAM seems like 
-a lot when there's no swap.
+Correct.  However, some people like to use the RBAC component as a
+further boundary on domain transitions, e.g. you could potentially allow
+domain D1 to transition to domain D2 but only permit role R1 to enter
+domain D1 and role R2 to enter domain D1 and domain D2.  Using the RBAC
+component in that manner is a bit dangerous, as you have to make sure
+that there aren't any other permissions granted from D1 to D2 that could
+allow R1:D1 to interfere with R2:D2, e.g. signal permissions.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
