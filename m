@@ -1,45 +1,56 @@
-Date: Fri, 16 Apr 2004 00:17:39 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Thorsten Sauter <tsauter@gmx.net>
-Cc: SELinux Developers <SELinux@tycho.nsa.gov>
-Subject: Re: pam_selinux.so question
-Message-ID: <20040415221739.GA28260@rom.cip.ifi.lmu.de>
-References: <20040414220007.GA15471@gmx.net>
+Date: Thu, 15 Apr 2004 18:16:59 -0500
+From: tdbrown@uiuc.edu
+To: SELinux@tycho.nsa.gov
+Cc: Michael Ihde <ihde@uiuc.edu>
+Subject: SELinux security in the face of single bit errors
+Message-ID: <20040415231659.GG4773@peach.ece.utexas.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-In-Reply-To: <20040414220007.GA15471@gmx.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Thorsten Sauter <tsauter@gmx.net> [2004-04-15 01:37]:
-> I have installed a fresh Debian Sid system (powerpc) and compiled my own
-> 2.6.5 (vanilla kernel) with selinux support.
-> 
-> All required packages for selinux are installed (simply rebuild the
-> debian packages).
-> 
-> But now, I have a mysterious behavior with the pam_selinux.so module,
-> which is required in /etc/pam.d/login.
-> 
-> If I login as root I got the normal info text:
-> "Your default context is root:sysadm_r:sysadm_t." [...]
-> 
-> But as soon as I try this as an normal user I got a new question:
-> "Would you like to enter a security context? [y]"
-> 
-> Hitting "n" will end with an "authentication failure" and logout this
-> user.
-> Using "y" and insering user_r/user_t will help, and allow the user to
-> login.
-> 
-> But why I get this "manual" question?
+I'm taking a graduate level Fault Tolerant Computing course.  My partner 
+and I intend on injecting single bit faults into the data and text 
+sections of SELinux to see if such faults can compromise system 
+security. While it is obvious that a single bit error in some 
+structures, such as the AVC allowed field or the selinux_enforcing, can 
+open an SELinux system for a period of time.  We want to look for less 
+obvious holes which may be realized by a single bit flip (also called 
+soft-errors). Our plan is to run a User-mode SELinux kernel and use the 
+ptrace interface to inject errors in the SELinux text section and/or 
+data section. The kernel will execute a test program as init which will 
+attempt to violate the SELinux policy by writing to a protected file 
+with mod=777 and then shutdown the system.  Given more time we would 
+like to violate other  things than simple file permissions.
 
-My guess is that you have not labeled your filesystem. pam_selinux.so
-seems to behave this way if it can't find any labels on the fs.
-If you do a "make reload relabel" and reboot, it should work.
+We are aware that the impact of a transient single bit errors depends on 
+how long the bit-error lasts.  In the case of an bit error in the AVC it 
+may only last a short time (when the avc entry is overwritten) or a long 
+time.  Bit errors in the text segment may last longer depending on the 
+particulars of the OS. We are not planning to measure the time that a 
+particular bits creates a vulnerability, we have limited time to get 
+results and the parameter is heavily dependant on the enviroment.  We
+will include this cavot in our report.
 
-HTH,
-Thomas
+Our project was inspired by the following papers:
+
+   * "An Experimental Study of Security Vulnerabilities Caused by 
+Errors"
+     Jun Xu, Shuo Chen, Abigniew Kalbarczyk, Ravishankar K. Iyer
+
+   * "Using Memory Errors to Attack a Virtual Machine", Sudhakar
+     Govindavajhala, Andrew W. Appel
+
+   * "Framework for Testing the Fault-Tolerance of Systems Including OS
+     and Network Aspects", Kerstin Buchacker, Volkmar Sieh (HASE '01)
+
+If you have any comments or suggestions we would love to hear them.  To 
+save traffic on the mailing list you can add your comments to
+ 
+http://www.randomwalking.com/cgi-bin/kwiki/index.cgi?ECE442OutsideComments
+
+~Michael Ihde & Tom Brown
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
