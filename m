@@ -1,59 +1,37 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0OGcwFX027417
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 11:38:58 -0500 (EST)
-Received: from web50204.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j0OGcx8I004152
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 16:39:00 GMT
-Message-ID: <20050124163859.71571.qmail@web50204.mail.yahoo.com>
-Date: Mon, 24 Jan 2005 08:38:59 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0OH45FX027640
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 12:04:05 -0500 (EST)
 Subject: Re: [patch] enhanced MLS support
-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-   Casey Schaufler <casey@schaufler-ca.com>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
    "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <1106569823.19246.11.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20050124163859.71571.qmail@web50204.mail.yahoo.com>
+References: <20050124163859.71571.qmail@web50204.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1106585869.19246.96.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 24 Jan 2005 11:57:49 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2005-01-24 at 11:38, Casey Schaufler wrote:
+> Sorry, my acronym matcher failed on "TE".
 
---- Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+Type Enforcement.  It was originally discussed as an alternative to Biba
+in "A Practical Alternative to Hierarchical Integrity Policies", in the
+Proceedings of the 8th National Computer Security Conference, 1985,
+pages 18-27.
 
-> TE is preferable for integrity protection.
+> You could certainly store handling caveats in
+> the category bitmaps, but expressing NOFORN
+> in categories has been tried and does not work.
 
-Sorry, my acronym matcher failed on "TE".
+I'll leave it to Darrel to respond to this point.
 
-> IMHO, there is no need to
-> introduce a Biba model to SELinux.
-
-It is probably more trouble than it's worth.
-
-> > Erg. Or handling caveats? Actually, the
-> > above comment regarding the flexibility of
-> > the system applies. If the system can't be
-> > demonstrated to handle these, it probably
-> > isn't very agile.
-> 
-> Should be expressible using the category bitmaps.
-
-You could certainly store handling caveats in
-the category bitmaps, but expressing NOFORN
-in categories has been tried and does not work.
-
-
-=====
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Meet the all-new My Yahoo! - Try it today! 
-http://my.yahoo.com 
- 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
