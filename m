@@ -1,50 +1,60 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: RE: Policy compiler issues.
-Date: Thu, 20 May 2004 11:54:19 -0400
-Message-ID: <E7E29FA7C732D146887C784B34AEF6A0044E412B@xch-ne-01.ne.nos.boeing.com>
-From: "Bush, Daniel" <Daniel.Bush@boeing.com>
-To: "Stephen Smalley" <sds@epoch.ncsc.mil>
-Cc: "SELinux" <SELinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KGHHRb020256
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:17:18 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4KGEpB2007633
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 16:14:51 GMT
+Received: from smtp804.mail.ukl.yahoo.com (smtp804.mail.ukl.yahoo.com [217.12.12.141])
+	by jazzswing.ncsc.mil  with SMTP id i4KGEowi007624
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 16:14:50 GMT
+Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
+  by smtp804.mail.ukl.yahoo.com with SMTP; 20 May 2004 16:17:01 -0000
+Date: Thu, 20 May 2004 16:14:23 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <rcoker@redhat.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: is this pretty much it (to patch kdm 3.2.2)?
+Message-ID: <20040520161423.GJ8810@lkcl.net>
+References: <20040519074242.GK7348@lkcl.net> <1085057380.521.70.camel@moss-spartans.epoch.ncsc.mil> <20040520145258.GF8810@lkcl.net> <200405210139.49261.rcoker@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200405210139.49261.rcoker@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-First and foremost: Thank you all for your help. I REALLY appreciate it. 
-That said:
+On Fri, May 21, 2004 at 01:39:49AM +1000, Russell Coker wrote:
+> On Fri, 21 May 2004 00:52, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> >  i _do_ notice in permissive / audit mode that kdeinit attempts to
+> >  do an su:
+> 
+> Which program was it?  Almost every KDE program runs as kdeinit as an attempt 
+> at optimising load performance.
+ 
+ sadly i cannot tell.  i have been meaning to ask:
 
->>   I'm trying to deploy SELInux in an embedded environment. Footprint 
->> space is tight, every kilobyte counts. The environment is also fairly 
->> dynamic, the users list and assigned roles can change fairly rapidly.
->
->That seems like an odd combination - embedded but highly dynamic users and roles?  
-    Yes, it's an odd combination, but _is_ the case. 
+ is it possible to run things to present more debug info at the TIME
+ that an avc message is placed in the logs?
 
->How do you plan on distributing updates to the users list and user-role authorizations?
-   That's another part of the problem... We have a server/management mechanisim planned, but it's a Win2k environment (Yeah, yeah, I know. Wasn't my decision...) I figure we can deploy the compilers on a suitably modified CygWin, mount either the CygWin or the SELinux device as an NFS device on the other, and get the necessary functionality that way. We're still working on that.
-   As it stands the whole system needs to weigh in at less than about 64M with smaller being MUCH better (32M would be ideal.) So you can see, there's not much room for a full compiler/linker suite.
+ for example, when the above kdeinit occurs, to do, oh, i dunno,
+ a ps -ax --forest.
 
->> Can a user be assigned a set of (non-default user) roles without 
->> re-compiling the security system?
+ i don't really care how long it takes, what i care about is identifying
+ the parent process(es).
 
->If you want the user to be recognized by SELinux as an individual user, then you need to >modify the policy (either directly patching the binary policy or modifying the source and >recompiling) and reload it.  There is already a user_u user that is a fallback for 
->ordinary users who do not have a specific entry in the SELinux policy, so if you don't 
->add the user to the SELinux policy, he will be mapped to user_u and limited to the roles >authorized for user_u. 
-    "user_u" isn't really the problem. The other, higher orders are. The specification calls for a couple of new user classes (I'm pretty sure I can institute those.) and those  classes have a forseeable need to have their membership lists changed in the field. If we need to re-compile the policy when that happens, this presents a problem.
+ ... alternatively, do you know how could i tell?
 
-> Direct manipulation of the binary policy is possible, and I expect that libraries and 
->tools for doing so will become available; note the earlier work by Tresys on binary 
->policy patching that was posted to this list, plus the posting re future work on loadable >binary policy modules. 
+ l.
 
-This sounds promising... Could you please direct me to the date range of the messages you're referring to?
-
->>   Can SELinux be compiled under uClibc? 
->I haven't tried.  What kind of problem are you encountering?
-   I just wanted to know if it was definitely known Impossible before I went any further. I've just made a couple of wild stabs at it, and it could be things in my environment that are mucking up the works. (It's definitely not ready for prime-time yet...) Since I seem to be cutting new trail here, I'll keep everybody posted on my progress. 
-
--=Dan Bush
-"Peace through superior surrealism"
-
+-- 
+-- 
+expecting email to be received and understood is a bit like
+picking up the telephone and immediately dialing without
+checking for a dial-tone; speaking immediately without listening
+for either an answer or ring-tone; hanging up immediately and
+believing that you have actually started a conversation.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
