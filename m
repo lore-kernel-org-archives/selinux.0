@@ -1,48 +1,64 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAIKfZIi016364
-	for <selinux@tycho.nsa.gov>; Thu, 18 Nov 2004 15:41:35 -0500 (EST)
-Received: from smtp-bedford.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAIKfc3m010662
-	for <selinux@tycho.nsa.gov>; Thu, 18 Nov 2004 20:41:38 GMT
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (8.11.6/8.11.6) with SMTP id iAIKfdA06578
-	for <selinux@tycho.nsa.gov>; Thu, 18 Nov 2004 15:41:39 -0500
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (Postfix) with ESMTP id 0FB89BF00
-	for <selinux@tycho.nsa.gov>; Thu, 18 Nov 2004 15:41:39 -0500 (EST)
-To: Steve G <linux_4ever@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: polgen and strace
-References: <20041118191131.87032.qmail@web50601.mail.yahoo.com>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 18 Nov 2004 15:41:38 -0500
-In-Reply-To: <20041118191131.87032.qmail@web50601.mail.yahoo.com>
-Message-ID: <ogtsm76lwjh.fsf@divan.mitre.org>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAIKwVIi016542
+	for <selinux@tycho.nsa.gov>; Thu, 18 Nov 2004 15:58:31 -0500 (EST)
+Received: from sunspire.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAIKwW3m011427
+	for <selinux@tycho.nsa.gov>; Thu, 18 Nov 2004 20:58:33 GMT
+Message-ID: <419D1ABD.4020901@gentoo.org>
+Date: Thu, 18 Nov 2004 23:57:17 +0200
+From: petre rodan <kaiowas@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: jwcart2@epoch.ncsc.mil
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: gentoo policy for dante
+References: <4198E94B.8070008@gentoo.org> <1100808438.26930.28.camel@moss-lions.epoch.ncsc.mil>
+In-Reply-To: <1100808438.26930.28.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigF475C0B55EC403CD14B5C178"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Steve G <linux_4ever@yahoo.com> writes:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigF475C0B55EC403CD14B5C178
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> >I have made the patch available to all at 
-> >
-> >http://simp.mitre.org/selinux
+
+Hi James,
+
+James Carter wrote:
+> allow dante_t initrc_var_run_t:file { getattr write };
 > 
+> Why does dante need this?
 
-> The patch removes the guts of the COPYING file. I wouldn't touch
-> that file. I'd leave it the way the authors tar'ed it up so that no
-> one says the license changed due to a 3rd party patch.
+The current gentoo init scripts create the pid file for the daemon. This will be fixed soon.
+Please drop that particular rule from the policy.
 
-Ugh.  I don't know what happened to the COPYING file in my CVS
-repository, but I put it back, and I fixed the patch.
+thanks,
+peter
 
-> The patch should also modify strace.1 to add the -X
-> option. Otherwise looks OK to me.
+-- 
+petre rodan
+<kaiowas@gentoo.org>
+Developer,
+Hardened Gentoo Linux
 
-Good call.  Will do.  Thanks.
+--------------enigF475C0B55EC403CD14B5C178
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-John
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFBnRrCGSBEIeh4AEYRAsOvAJ9R0pJy7nfeRKHMIIPpSmTLttCs9ACeNs8I
+fqtdGsMfdGWbJD4EHaKwRVY=
+=lhta
+-----END PGP SIGNATURE-----
+
+--------------enigF475C0B55EC403CD14B5C178--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
