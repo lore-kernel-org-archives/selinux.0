@@ -1,58 +1,187 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i43GuLRb006845
-	for <selinux@tycho.nsa.gov>; Mon, 3 May 2004 12:56:21 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i43Gs7Zx026600
-	for <selinux@tycho.nsa.gov>; Mon, 3 May 2004 16:54:07 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i43GoaRb006790
+	for <selinux@tycho.nsa.gov>; Mon, 3 May 2004 12:50:36 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i43GoYYW019672
+	for <selinux@tycho.nsa.gov>; Mon, 3 May 2004 16:50:34 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i43Gs6Jv026597
-	for <selinux@tycho.nsa.gov>; Mon, 3 May 2004 16:54:06 GMT
-Subject: [patch] Add devnull initial SID to policy
+        by jazzband.ncsc.mil  with ESMTP id i43GoYBf019669 for <selinux@tycho.nsa.gov>; Mon, 3 May 2004 16:50:34 GMT
+Subject: [PATCH][SELINUX] Re-open descriptors closed on exec by SELinux to
+	/dev/null
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Cc: Daniel J Walsh <dwalsh@redhat.com>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+   lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
 Content-Type: text/plain
-Message-Id: <1083603367.7446.202.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1083603014.7446.197.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 03 May 2004 12:56:07 -0400
+Date: Mon, 03 May 2004 12:50:14 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch for the policy adds a devnull initial SID and corresponding
-context to support the SELinux module patch that I posted to re-open
-descriptors closed on exec by SELinux to /dev/null.  This policy patch
-can be applied without harming operation of existing kernels, but needs
-to be applied prior to using a kernel that includes the updated SELinux
-module that uses this initial SID.
+This patch against 2.6.6-rc3 changes the SELinux module to try to reset
+any descriptors it closes on exec (due to a lack of permission by the
+new domain to the inherited open file) to refer to the null device. 
+This counters the problem of SELinux inducing program misbehavior,
+particularly due to having descriptors 0-2 closed when the new domain is
+not allowed access to the caller's tty.  This is primarily to address
+the case where the caller is trusted with respect to the new domain, as
+the untrusted caller case is already handled via AT_SECURE and glibc
+secure mode.  The code is partly based on the OpenWall LSM, which in
+turn drew from the OpenWall kernel patch.  Note that the code does not
+guarantee that the descriptor is always re-opened to /dev/null; it
+merely makes a reasonable effort to do so, but can fail under various
+conditions.
+Please apply.
 
-Index: policy/initial_sid_contexts
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/initial_sid_contexts,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 initial_sid_contexts
---- policy/initial_sid_contexts	30 Apr 2003 18:42:48 -0000	1.1.1.1
-+++ policy/initial_sid_contexts	30 Apr 2004 18:11:43 -0000
-@@ -30,5 +30,6 @@
- sid kmod	system_u:system_r:kernel_t
- sid policy	system_u:object_r:policy_config_t
- sid scmp_packet	system_u:system_r:scmp_packet_t
-+sid devnull	system_u:object_r:null_device_t
+ security/selinux/hooks.c                         |   85 ++++++++++++++++++++++-
+ security/selinux/include/flask.h                 |    3 
+ security/selinux/include/initial_sid_to_string.h |    1 
+ 3 files changed, 85 insertions(+), 4 deletions(-)
+
+diff -X /home/sds/dontdiff -ru linux-2.6/security/selinux/hooks.c linux-2.6.new/security/selinux/hooks.c
+--- linux-2.6/security/selinux/hooks.c	2004-04-30 14:12:43.042622889 -0400
++++ linux-2.6.new/security/selinux/hooks.c	2004-04-30 13:50:48.000000000 -0400
+@@ -62,6 +62,7 @@
+ #include <linux/nfs_mount.h>
+ #include <net/ipv6.h>
+ #include <linux/hugetlb.h>
++#include <linux/major.h>
  
- # FLASK
-Index: policy/flask/initial_sids
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/flask/initial_sids,v
-retrieving revision 1.1
-diff -u -r1.1 initial_sids
---- policy/flask/initial_sids	30 May 2003 14:30:14 -0000	1.1
-+++ policy/flask/initial_sids	30 Apr 2004 17:47:13 -0000
-@@ -30,5 +30,6 @@
- sid kmod
- sid policy
- sid scmp_packet
-+sid devnull
+ #include "avc.h"
+ #include "objsec.h"
+@@ -1712,18 +1713,77 @@
+ 	kfree(bsec);
+ }
  
- # FLASK
++/* Create an open file that refers to the null device.
++   Derived from the OpenWall LSM. */
++struct file *open_devnull(void) 
++{
++	struct inode *inode;
++	struct dentry *dentry;
++	struct file *file = NULL;
++	struct inode_security_struct *isec;
++	dev_t dev;
++
++	inode = new_inode(current->fs->rootmnt->mnt_sb);
++	if (!inode)
++		goto out;
++
++	dentry = dget(d_alloc_root(inode));
++	if (!dentry)
++		goto out_iput;
++
++	file = get_empty_filp();
++	if (!file)
++		goto out_dput;
++
++	dev = MKDEV(MEM_MAJOR, 3); /* null device */
++
++	inode->i_uid = current->fsuid;
++	inode->i_gid = current->fsgid;
++	inode->i_blksize = PAGE_SIZE;
++	inode->i_blocks = 0;
++	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
++	inode->i_state = I_DIRTY; /* so that mark_inode_dirty won't touch us */
++
++	isec = inode->i_security;
++	isec->sid = SECINITSID_DEVNULL;
++	isec->sclass = SECCLASS_CHR_FILE;
++	isec->initialized = 1;
++
++	file->f_flags = O_RDWR;
++	file->f_mode = FMODE_READ | FMODE_WRITE;
++	file->f_dentry = dentry;
++	file->f_vfsmnt = mntget(current->fs->rootmnt);
++	file->f_pos = 0;
++
++	init_special_inode(inode, S_IFCHR | S_IRUGO | S_IWUGO, dev);
++	if (inode->i_fop->open(inode, file))
++		goto out_fput;
++
++out:
++	return file;
++out_fput:
++	mntput(file->f_vfsmnt);
++	put_filp(file);
++out_dput:	
++	dput(dentry);
++out_iput:	
++	iput(inode);
++	file = NULL;
++	goto out;
++}
++	
+ /* Derived from fs/exec.c:flush_old_files. */
+ static inline void flush_unauthorized_files(struct files_struct * files)
+ {
+ 	struct avc_audit_data ad;
+-	struct file *file;
++	struct file *file, *devnull = NULL;
+ 	long j = -1;
+ 
+ 	AVC_AUDIT_DATA_INIT(&ad,FS);
+ 
+ 	spin_lock(&files->file_lock);
+ 	for (;;) {
+-		unsigned long set, i;
++		unsigned long set, i, fd;
+ 
+ 		j++;
+ 		i = j * __NFDBITS;
+@@ -1740,8 +1800,27 @@
+ 					continue;
+ 				if (file_has_perm(current,
+ 						  file,
+-						  file_to_av(file)))
++						  file_to_av(file))) {
+ 					sys_close(i);
++					fd = get_unused_fd();
++					if (fd != i) {
++						if (fd >= 0)
++							put_unused_fd(fd);
++						fput(file);
++						continue;
++					}
++					if (devnull) {
++						atomic_inc(&devnull->f_count);
++					} else {
++						devnull = open_devnull();
++						if (!devnull) {
++							put_unused_fd(fd);
++							fput(file);
++							continue;
++						}
++					}
++					fd_install(fd, devnull);
++				}
+ 				fput(file);
+ 			}
+ 		}
+diff -X /home/sds/dontdiff -ru linux-2.6/security/selinux/include/flask.h linux-2.6.new/security/selinux/include/flask.h
+--- linux-2.6/security/selinux/include/flask.h	2003-08-12 09:05:09.000000000 -0400
++++ linux-2.6.new/security/selinux/include/flask.h	2004-04-30 13:47:59.000000000 -0400
+@@ -65,7 +65,8 @@
+ #define SECINITSID_KMOD                                 24
+ #define SECINITSID_POLICY                               25
+ #define SECINITSID_SCMP_PACKET                          26
++#define SECINITSID_DEVNULL                              27
+ 
+-#define SECINITSID_NUM                                  26
++#define SECINITSID_NUM                                  27
+ 
+ #endif
+diff -X /home/sds/dontdiff -ru linux-2.6/security/selinux/include/initial_sid_to_string.h linux-2.6.new/security/selinux/include/initial_sid_to_string.h
+--- linux-2.6/security/selinux/include/initial_sid_to_string.h	2003-08-12 09:05:09.000000000 -0400
++++ linux-2.6.new/security/selinux/include/initial_sid_to_string.h	2004-04-30 13:48:10.000000000 -0400
+@@ -28,5 +28,6 @@
+     "kmod",
+     "policy",
+     "scmp_packet",
++    "devnull",
+ };
+ 
+
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
