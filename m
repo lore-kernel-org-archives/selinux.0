@@ -1,68 +1,67 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6M33LHa018143
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 23:03:21 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6M33KDW017646
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 03:03:20 GMT
-Received: from mgr1.xmission.com (mgr1.xmission.com [198.60.22.201])
-        by jazzband.ncsc.mil  with ESMTP id h6M33JeN017643 for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 03:03:20 GMT
-Received: from mail by mgr1.xmission.com with spam-scanned (Exim 3.35 #1)
-	id 19enQr-0007nj-01
-	for selinux@tycho.nsa.gov; Mon, 21 Jul 2003 21:03:18 -0600
-From: "Lamont R. Peterson" <lrp@xmission.com>
-Reply-To: lrp@xmission.com
-To: "Kerry Thompson" <kerry@crypt.gen.nz>, <selinux@tycho.nsa.gov>
-Subject: Re: make quickinstall redhat9 problem
-Date: Mon, 21 Jul 2003 21:03:03 -0600
-Cc: <sreese@prcdigital.com>
-References: <000001c34fe6$c761e5a0$6601a8c0@inspiron> <2332.202.27.185.71.1058836061.squirrel@www.crypt.gen.nz>
-In-Reply-To: <2332.202.27.185.71.1058836061.squirrel@www.crypt.gen.nz>
+Message-ID: <2785.202.27.185.71.1058845191.squirrel@www.crypt.gen.nz>
+Date: Tue, 22 Jul 2003 15:39:51 +1200 (NZST)
+Subject: Re: hidden files and se linux?
+From: "Kerry Thompson" <kerry@crypt.gen.nz>
+To: <CoUnt3r@gmx.net>
+In-Reply-To: <20030721223849.GA2579@gmx.net>
+References: <20030721223849.GA2579@gmx.net>
+Cc: <SELinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <200307212103.09775.lrp@xmission.com>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Monday 21 July 2003 07:07 pm, Kerry Thompson wrote:
-> Stephen Reese said:
-> > make[1]: Entering directory `/home/installs/selinux/tools'
-> > make[2]: Entering directory `/home/installs/selinux/tools/setools' cd
-> > apol; make install
-> > make[3]: Entering directory `/home/installs/selinux/tools/setools/apol'
-> > gcc  -Wall -g -I/usr/include -DUSE_SORTING  -c apol_gui.c
-> > apol_gui.c:14:17: tcl.h: No such file or directory
-> > apol_gui.c:15:16: tk.h: No such file or directory
+Tobias said:
+> hello!
 >
-> [snip]
->
-> SETools requires the TCL and TK libraries to be installed. You can either
-> install TCL & TK packages or just build without these tools. SELinux will
+> is it possible to hide files under selinux?
+> i don't mean to prohibit the acces, i mean to make
+> some files absolute invisible for the entire system.
 
-Oops, I decided to read the message from the bottom up, and stopped reading 
-before I go to here.  Just shows how trying to debug in a hurry is not a good 
-idea :-).
+No problem.
+Just create a new type with minimal permissions, and label the files with
+this type. I just tried it on my test box :
 
-> install just fine without the tools, just comment out the line which
-> builds and installs the tools from the top-level Makefile:
->
->   # @echo "Building and installing SELinux tools"
->   # cd tools && make install
+# cat <<! >domains/misc/hidden.te
+# Basic type for completely hidden files
+type hidden_t;
+allow sysadm_t hidden_t:file { relabelto };
+allow sysadm_t hidden_t:dir { relabelto };
+allow hidden_t fs_t:filesystem { associate };
+!
 
-Good advice.
-- -- 
-Sincerely,
-Lamont R. Peterson <lrp@xmission.com>
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Now, run 'make load' to load that small addition to the policy, then label
+some files :
 
-iD8DBQE/HKlsg5LkF3+ZgzARAnfUAJ0Yv6cwXBGAkk8VDzJf/YeFppr9JQCfY7Qa
-JsKDAoYrm/H0vzqRKYdHXrI=
-=xWYK
------END PGP SIGNATURE-----
+# mkdir /var/tmp/hidden
+# touch /var/tmp/hidden/hiddenfile
+# chcon system_u:object_r:hidden_t /var/tmp/hidden/hiddenfile
+# chcon system_u:object_r:hidden_t /var/tmp/hidden
+
+.. and now test :
+
+# ls -l /var/tmp/hidden
+ls: /var/tmp/hidden: Permission denied
+# ls -l /var/tmp/hidden/*
+ls: /var/tmp/hidden/*: Permission denied
+# ls -l /var/tmp
+ls: /var/tmp/hidden: Permission denied
+
+Of course, an intruder could infer that something was there from the
+permission denied message, but nobody - not even the system admin - can
+get into that directory without either changing the policy to allow access
+or dropping ther system into permissive mode. In reality, you'll probably
+want to add some rules to the policy to give a small amount of access to
+someone.
+
+Kerry
+
+
+-- 
+Kerry Thompson, CCNA CISSP
+Information Systems Security Consultant
+http://www.crypt.gen.nz  kerry@crypt.gen.nz
+
 
 
 
