@@ -1,52 +1,52 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i393YkRb022591
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 23:34:46 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i393WkUZ009316
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 03:32:46 GMT
-Received: from ms-smtp-04-eri0.southeast.rr.com (ms-smtp-04-lbl.southeast.rr.com [24.25.9.103])
-	by jazzswing.ncsc.mil  with ESMTP id i393WkmT009313
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 03:32:46 GMT
-Received: from [192.168.1.100] (rdu88-244-196.nc.rr.com [24.88.244.196])
-	by ms-smtp-04-eri0.southeast.rr.com (8.12.10/8.12.7) with ESMTP id i393YhC8029581
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 23:34:43 -0400 (EDT)
-Subject: Re: Fedora Core 2 Test 2
-From: John Reuning <john@metalab.unc.edu>
-To: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <32926.192.168.1.3.1081469476.squirrel@www>
-References: <1081459652.24857.33.camel@hawaii.efficax.net>
-	 <32926.192.168.1.3.1081469476.squirrel@www>
-Content-Type: text/plain
-Message-Id: <1081481682.11877.26.camel@camelot>
-Mime-Version: 1.0
-Date: Thu, 08 Apr 2004 23:34:43 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i395NjRb023020
+	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 01:23:46 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i395Nimw029339
+	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 05:23:44 GMT
+Received: from mutemail.com (mutemail.com [24.244.170.124])
+        by jazzband.ncsc.mil  with SMTP id i395Ni4w029336 for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 05:23:44 GMT
+Date: Thu, 08 Apr 2004 22:23:19 -0700
+From: Bill McCarty <bmccarty@pt-net.net>
+To: Tom <tom@lemuria.org>
+cc: selinux@tycho.nsa.gov
+Subject: Re: Problems finding working kernel/user land combination
+Message-ID: <280262546.1081462998@[192.168.0.3]>
+In-Reply-To: <20040407075405.D19421@lemuria.org>
+References: <401FF280.8070301@treblig.org>
+ <88042458.1081270777@[192.168.0.3]> <20040407075405.D19421@lemuria.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'll offer my limited experience with fc2t2.  I've done two installs,
-both onto clean systems with reformatted partitions.  There was an
-option to disable selinux in the installer click-through choices.
+Hi Tom and all,
 
-The first install resulted in an almost unusable system.  I think
-something hiccuped because the fs labeling was messed up.  For example,
-I couldn't create user accounts as root because the root user didn't
-have access to write /etc/shadow or /etc/passwd.  A manual relabeling of
-the file systems fixed the problem.  After that, everything was fine.
+--On Wednesday, April 07, 2004 7:54 AM +0200 Tom <tom@lemuria.org> wrote:
 
-The second install was smooth.  No labeling or policy problems yet. 
-Although, I haven't used the system except as a headless test server.
+> Those are for woody, not unstable. Look at my site for apt sources for
+> the other distros (http://selinux.lemuria.org)
 
-I haven't tried upgrading a fc1 system to fc2t2.  Maybe that's a source
-of trouble?
+I ditched my not-quite-right Linux 2.4 installation of SELinux and had a go 
+at at Linux 2.6 installation under Debian Sid, created by following Tom's 
+excellent instructions at <http://selinux.lemuria.org/install-2.6.html>.
 
-Thanks,
+However, I ran into a snag. Sid's SSH package has been updated to require 
+libpam-runtime 0.76-14 or greater, and the latest libpam-runtime having 
+SELinux mods is only 0.76-13.
 
--John R.
+Although I was once familiar with Debian, I no longer know my way around 
+it. Is there a way to instruct apt-get to ignore such a package dependency? 
+I haven't been able to find an appropriate option in the man pages. I 
+suppose that I could manually download the SSH package and install it via 
+dpkg, which has a --force option. Is that the way to go?
 
-> > 1: I was a little surprised to find that SELinux was installed by
-> > default and that there didn't seem to be a way to avoid it. This said,
-> > the kernel did come up properly and the system booted.
-> > [snip]
+Cheers,
+
+---------------------------------------------------
+Bill McCarty, Ph.D.
+Professor of Information Technology
+Azusa Pacific University
 
 
 
