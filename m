@@ -1,48 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4UNsMI4001837
-	for <selinux@tycho.nsa.gov>; Fri, 30 May 2003 19:54:22 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4UNrgss005584
-	for <selinux@tycho.nsa.gov>; Fri, 30 May 2003 23:53:52 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h4UNrThY005575
-	for <selinux@tycho.nsa.gov>; Fri, 30 May 2003 23:53:40 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: John Wolff <jrwolff@comcast.net>, selinux@tycho.nsa.gov
-Subject: Re: Compaq DL-360
-Date: Sat, 31 May 2003 09:53:08 +1000
-References: <3ED7C88A.7060209@comcast.net>
-In-Reply-To: <3ED7C88A.7060209@comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200305310953.08664.russell@coker.com.au>
+Date: Fri, 30 May 2003 20:15:59 -0400
+From: Dave Dodge <dododge@alpha.ncsc.mil>
+To: Paul Dwerryhouse <paul@dwerryhouse.com.au>
+Cc: dododge@alpha.ncsc.mil, SELinux@tycho.nsa.gov
+Subject: Re: sparc support
+Message-Id: <20030530201559.149244d4.dododge@alpha.ncsc.mil>
+In-Reply-To: <20030529062528.GA22122@localhost>
+References: <sed3de3a.002@atlas.snu.edu>
+	<20030529062528.GA22122@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 31 May 2003 07:09, John Wolff wrote:
-> Has anyone attempted to get SE Linux running on a Compaq DL-360 server?
+On Thu, 29 May 2003 08:25:28 +0200
+Paul Dwerryhouse <paul@dwerryhouse.com.au> wrote:
+> That'll be me. It's actually a port to sparc64, since I don't have
+> access to a plain old sparc processor at the moment. It doesn't work
+> yet, and I've got stuck, so I haven't done any work on it for a while.
+[...]
+> Basically I've used the i386 patch & Russell's arm port as a guide
 
-Can you boot a non-SE kernel you compiled?
+Another example you can look at is the arm version from NSA's site,
+in particular the linux-2.4.19-rmk4-pxa2-hh3-lsm1-arm.patch which
+contains the arm-specific code. That implementation is slightly different
+from Russell's and does not contain his 2.4.20 backport. I doubt it will
+help much in your case, but it's another data point.
 
-You say "SE Linux modules loaded", it's recommended that SE Linux be 
-statically linked into the kernel not used as modules.
+> And I'm sure I've screwed up the part for the 32-bit userspace.
 
-Please capture the panic, if it's an Oops then run it through ksymoops and 
-post the results here, if it's some other crash message then just post the 
-messages here.  The serial-port console support is a good way of capturing 
-such boot messages.
+I seem to recall from LKML that the 32-64 translation issue on Sparc64
+is one of the reasons that sys_security was rejected for 2.5. I don't
+know enough about Sparc64 Linux to recommend a workaround. Here's the
+thread:
 
-Try getting it to boot with a floppy disk as the root device to eliminate RAID 
-issues.
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0210.2/0854.html
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+                                      -Dave Dodge/dododge@alpha.ncsc.mil
 
 --
 This message was distributed to subscribers of the selinux mailing list.
