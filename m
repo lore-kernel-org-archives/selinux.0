@@ -1,79 +1,51 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5PJVO0S003075
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 15:31:24 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5PLB90S004067
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 17:11:09 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h5PJUass009486
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 19:30:36 GMT
-Received: from monk.verbum.org (mx-outgoing.verbum.org [216.226.142.159])
-	by jazzswing.ncsc.mil  with ESMTP id h5PJUYhY009478
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 19:30:35 GMT
-Received: from columbia (dhcp024-208-189-249.columbus.rr.com [24.208.189.249])
-	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
-	(Client CN "columbia.verbum.org", Issuer "verbum.org CA" (verified OK))
-	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id 4E612F63A
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 15:31:20 -0400 (EDT)
-Subject: small passwd.te zsh fixes
-From: Colin Walters <walters@verbum.org>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-eKUTOQtimDjk3BLaPcQs"
-Message-Id: <1056569473.3752.25.camel@columbia>
-Mime-Version: 1.0
-Date: 25 Jun 2003 15:31:13 -0400
+	by jazzswing.ncsc.mil  with ESMTP id h5PLALss014760
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 21:10:21 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h5PLAJhY014745
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 21:10:20 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Colin Walters <walters@verbum.org>, selinux@tycho.nsa.gov
+Subject: Re: small passwd.te zsh fixes
+Date: Thu, 26 Jun 2003 07:10:55 +1000
+References: <1056569473.3752.25.camel@columbia>
+In-Reply-To: <1056569473.3752.25.camel@columbia>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200306260710.55224.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 26 Jun 2003 05:31, Colin Walters wrote:
+> Hi,
+>
+> I use zsh, and on my Debian system the setup looks like:
+> monk:/home/walters# lc /bin/zsh*
+> lrwxrwxrwx  root     root     system_u:object_r:shell_exec_t   /bin/zsh ->
+> /etc/alternatives/zsh -rwxr-xr-x  root     root    
+> system_u:object_r:shell_exec_t   /bin/zsh-4.0.4 -rwxr-xr-x  root     root  
+>   system_u:object_r:shell_exec_t   /bin/zsh4 monk:/home/walters# lc
+> /etc/alternatives/zsh
+> lrwxrwxrwx  root     root     system_u:object_r:etc_t         
+> /etc/alternatives/zsh -> /bin/zsh4
 
---=-eKUTOQtimDjk3BLaPcQs
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I recently changed my policy to not label such symlinks as shell_exec_t, the 
+current version in Debian does this so if you have the latest policy 
+installed and relabel /bin it should be fine.
 
-Hi,
+I have just added a change to my policy to allow reading etc_t:lnk_file.
 
-I use zsh, and on my Debian system the setup looks like:
-monk:/home/walters# lc /bin/zsh*
-lrwxrwxrwx  root     root     system_u:object_r:shell_exec_t   /bin/zsh -> /etc/alternatives/zsh
--rwxr-xr-x  root     root     system_u:object_r:shell_exec_t   /bin/zsh-4.0.4
--rwxr-xr-x  root     root     system_u:object_r:shell_exec_t   /bin/zsh4
-monk:/home/walters# lc /etc/alternatives/zsh
-lrwxrwxrwx  root     root     system_u:object_r:etc_t          /etc/alternatives/zsh -> /bin/zsh4
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-So in order to use schsh to change my shell to /bin/zsh (which is what's
-listed in /etc/shells), I need passwd_t to be able to read both
-shell_exec_t lnk_files, as well as read etc_t lnk_files.  Maybe for a
-higher level of security /etc/alternatives entries could have their own
-type, but that kind of seems like overkill to me.
-
-A patch to passwd.te is attached; this is against the policy distributed
-in the Debian woody packages.
-
---=-eKUTOQtimDjk3BLaPcQs
-Content-Disposition: attachment; filename=passwd-te.patch
-Content-Type: text/plain; name=passwd-te.patch; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
---- /usr/share/selinux/policy/default/domains/program/passwd.te	Sat May 24 =
-22:07:24 2003
-+++ passwd.te	Thu Jun 26 03:24:42 2003
-@@ -26,13 +26,16 @@
- # Execute /usr/bin/{passwd,chfn,chsh} and /usr/sbin/{useradd,vipw}.
- allow $1_t { bin_t sbin_t }:dir r_dir_perms;
- can_exec($1_t, { bin_t sbin_t shell_exec_t passwd_real_exec_t })
-+allow $1_t shell_exec_t:lnk_file read;
-+# Allow etc_t symlinks for /etc/alternatives on Debian.
-+allow $1_t etc_t:lnk_file read;
- allow $1_t bin_t:lnk_file read;
- r_dir_file($1_t, locale_t)
-=20
- allow $1_t fs_t:filesystem getattr;
-=20
- # allow checking if a shell is executable
--allow $1_t shell_exec_t:file execute;
-+allow $1_t shell_exec_t:{file lnk_file} execute;
-=20
- # Obtain contexts
- allow $1_t security_t:security { sid_to_context context_to_sid };
-
---=-eKUTOQtimDjk3BLaPcQs--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
