@@ -1,37 +1,59 @@
-Subject: Re: Change fixfiles to use file_context.local if it exists.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <41F521F0.7090108@redhat.com>
-References: <41F521F0.7090108@redhat.com>
-Content-Type: text/plain
-Message-Id: <1106584190.19246.72.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 24 Jan 2005 11:29:50 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0OGcwFX027417
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 11:38:58 -0500 (EST)
+Received: from web50204.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j0OGcx8I004152
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 16:39:00 GMT
+Message-ID: <20050124163859.71571.qmail@web50204.mail.yahoo.com>
+Date: Mon, 24 Jan 2005 08:38:59 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [patch] enhanced MLS support
+To: Stephen Smalley <sds@epoch.ncsc.mil>,
+   Casey Schaufler <casey@schaufler-ca.com>
+Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+In-Reply-To: <1106569823.19246.11.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-01-24 at 11:27, Daniel J Walsh wrote:
-> diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-1.21.1/scripts/fixfiles
-> --- nsapolicycoreutils/scripts/fixfiles	2005-01-24 11:19:10.103136000 -0500
-> +++ policycoreutils-1.21.1/scripts/fixfiles	2005-01-24 11:19:28.998223000 -0500
-> @@ -37,11 +37,19 @@
->  SELINUXTYPE="targeted"
->  if [ -e /etc/selinux/config ]; then
->      . /etc/selinux/config
-> -    FC=/etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts
-> +    FC=`mktemp /var/tmp/file_contexts.XXXXXX`
-> +    cat /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts.local > $FC 2> /dev/null
 
-Rather than using a temporary file in /var/tmp, I'd recommend creating
-it in the same parent directory as the existing file_contexts
-configuration (i.e. /etc/selinux/${SELINUXTYPE}/contexts/files). 
-setfiles_t cannot read temporary files, and we don't especially want to
-allow it to do so (to protect against low integrity input).
+--- Stephen Smalley <sds@epoch.ncsc.mil> wrote:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+> TE is preferable for integrity protection.
+
+Sorry, my acronym matcher failed on "TE".
+
+> IMHO, there is no need to
+> introduce a Biba model to SELinux.
+
+It is probably more trouble than it's worth.
+
+> > Erg. Or handling caveats? Actually, the
+> > above comment regarding the flexibility of
+> > the system applies. If the system can't be
+> > demonstrated to handle these, it probably
+> > isn't very agile.
+> 
+> Should be expressible using the category bitmaps.
+
+You could certainly store handling caveats in
+the category bitmaps, but expressing NOFORN
+in categories has been tried and does not work.
+
+
+=====
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Meet the all-new My Yahoo! - Try it today! 
+http://my.yahoo.com 
+ 
 
 
 --
