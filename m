@@ -1,17 +1,17 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5C8GrrT009721
-	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:16:53 -0400 (EDT)
-Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5C8GoEu005198
-	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:16:50 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5C8IhrT009746
+	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:18:43 -0400 (EDT)
+Received: from smtp802.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5C8IeEu005225
+	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:18:40 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp804.mail.ukl.yahoo.com with SMTP; 12 Jun 2004 08:16:51 -0000
-Date: Sat, 12 Jun 2004 08:14:09 +0000
+  by smtp802.mail.ukl.yahoo.com with SMTP; 12 Jun 2004 08:18:41 -0000
+Date: Sat, 12 Jun 2004 08:15:59 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Russell Coker <russell@coker.com.au>
 Cc: selinux@tycho.nsa.gov
 Subject: Re: SELinux on Debian (Sid)
-Message-ID: <20040612081409.GR2861@lkcl.net>
+Message-ID: <20040612081559.GS2861@lkcl.net>
 References: <20040609144404.GJ5477@philips.com> <200406111413.40262.russell@coker.com.au> <20040611204001.GE2861@lkcl.net> <200406121211.32316.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,22 +28,13 @@ On Sat, Jun 12, 2004 at 12:11:32PM +1000, Russell Coker wrote:
 > > ?broke os i'm leaving it there unless you believe that i really
 > > ?shouldn't?
 > 
-> Did you compile it or did someone else?  
-
- i got it from walter's repository
- (lemuria.selinux.org/walters)
- 
-> Where did the patch come from?
+> Did you compile it or did someone else?  Where did the patch come from?
 > 
 > I would like to know what this bsdutils patch does...
  
- i don't know, but look at http://www.nsa.gov/selinux, look
- for the downloads directory.
-
- also consider looking at russell's sf.net/projects/selinux
- cvs repository, search for the directory patches i think
- in selinux-usr.
-
+ SORRY russell i replied without looking at who you were, i thought
+ you were the other guy who originated this thread :)
+ 
  l.
 
 -- 
