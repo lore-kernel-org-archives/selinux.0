@@ -1,79 +1,42 @@
 Subject: Re: sepcut is broken
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: Mark Shakespeare <mshakes@llnl.gov>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <p0602040cbc34b0d29bb3@[128.115.96.64]>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: Mark Shakespeare <mshakes@llnl.gov>, SELinux List <SELinux@tycho.nsa.gov>,
+   Daniel J Walsh <dwalsh@redhat.com>, Russell Coker <russell@coker.com.au>
+In-Reply-To: <1074789931.27824.87.camel@colossus.columbia.tresys.com>
 References: <p0602040cbc34b0d29bb3@[128.115.96.64]>
+	 <1074789931.27824.87.camel@colossus.columbia.tresys.com>
 Content-Type: text/plain
-Message-Id: <1074789931.27824.87.camel@colossus.columbia.tresys.com>
+Message-Id: <1074792409.13445.148.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 22 Jan 2004 11:45:32 -0500
+Date: Thu, 22 Jan 2004 12:26:49 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-01-21 at 17:55, Mark Shakespeare wrote:
-> Just did a fresh install of Fedora core 1, and then ran Dan Walsh's
-> selUpgrade script.
+On Thu, 2004-01-22 at 11:45, Karl MacMillan wrote:
+> On Wed, 2004-01-21 at 17:55, Mark Shakespeare wrote:
+> > There were many duplicate .te files in the
+> > /etc/security/selinux/src/policy/domains/program and unused....which
+> > were resolved.
+> > 
 > 
-> Had a few conflicts to deal with....mostly glibc 2.3.3, tk 8.4,tcl 8.4
-> and db4.2.52
-> 
-> Resolved conflicts...ran script again and it went ok.
-> 
-> Had to install bwidget manually.
-> 
+> Dan and Russell - I noticed this as well. Is this duplication
+> intentional? This breaks the convention, on which sepcut depends, that a
+> .te file is either in programs or unused but not both.. We are making
+> sepcut handle this situation more gracefully, but I would like to see
+> this convention retained.
 
-Why did you have to install it manually? Also, are you using Dan's
-packages for setools or ours?
+Dan's policy spec file copies most of the unused .te files up prior to
+installing the policy so that they are included in the built policy.  He
+could move them up instead, I suppose.  Of course, a better system than
+moving .te files around would be preferable for enabling and disabling
+them; I think Russell suggested a while back creating something like the
+kernel configuration system for the policy, and saving the
+enabled/disabled state in a separate .config file.
 
-> Now sepcut is broken...error:page"pct_Test:text" does not exist...
-> 
-
-We're looking into this, but at first glance it looks like there might
-be something wrong with your installation. Can you download our source
-and try that:
-
-http://www.tresys.com/selinux/selinux_policy_tools.html
-
-If you are using tcl 8.4 you might have to change the top level makefile
-- just change the TCLVER variable at the top to 8.4.
-
-> There were many duplicate .te files in the
-> /etc/security/selinux/src/policy/domains/program and unused....which
-> were resolved.
-> 
-
-Dan and Russell - I noticed this as well. Is this duplication
-intentional? This breaks the convention, on which sepcut depends, that a
-.te file is either in programs or unused but not both.. We are making
-sepcut handle this situation more gracefully, but I would like to see
-this convention retained.
-
-> seaudit works fine...so does apol and seuserx
-> 
-
-Great.
-
-Karl
-
-> Any help would be appreciated.
-> 
-> Thanks.
-> -- 
-> ******************************************
-> * Mark Shakespeare                   *
-> * Engineering Computer Operations Team   *
-> * Lawrence Livermore National Laboratory *
-> * 7000 East Ave         L-130            *
-> * Livermore,Ca 94550                 *
-> * 925-423-9922             mshakes@llnl.gov   *
-> ******************************************
 -- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-http://www.tresys.com
-(410) 290-1411 x134
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
