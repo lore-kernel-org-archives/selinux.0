@@ -1,56 +1,53 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2GGk5Rb020840
-	for <selinux@tycho.nsa.gov>; Tue, 16 Mar 2004 11:46:05 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2GHdhRb021141
+	for <selinux@tycho.nsa.gov>; Tue, 16 Mar 2004 12:39:43 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i2GGiK6Q010539
-	for <selinux@tycho.nsa.gov>; Tue, 16 Mar 2004 16:44:20 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i2GGiJ5t010536
-	for <selinux@tycho.nsa.gov>; Tue, 16 Mar 2004 16:44:20 GMT
-Received: from moss-huskies (moss-huskies [144.51.25.7])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2GGk4jP027473
-	for <selinux@tycho.nsa.gov>; Tue, 16 Mar 2004 11:46:04 -0500 (EST)
-Subject: SELinux web site
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qiLCBvZ3BfV+LvWhjKtb"
-Message-Id: <1079455563.19950.6.camel@moss-huskies>
-Mime-Version: 1.0
-Date: 16 Mar 2004 11:46:03 -0500
+	by jazzswing.ncsc.mil  with ESMTP id i2GHbw6Q014810
+	for <selinux@tycho.nsa.gov>; Tue, 16 Mar 2004 17:37:58 GMT
+Received: from mail.gmx.net (mail.gmx.de [213.165.64.20])
+	by jazzswing.ncsc.mil  with SMTP id i2GHbv5t014807
+	for <selinux@tycho.nsa.gov>; Tue, 16 Mar 2004 17:37:57 GMT
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: newrole failed in enforcing mode
+Date: Tue, 16 Mar 2004 18:39:13 +0100
+References: <200403101650.07042.carstengrohmann@gmx.de>
+In-Reply-To: <200403101650.07042.carstengrohmann@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Message-Id: <200403161839.13748.carstengrohmann@gmx.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mittwoch, 10. März 2004 16:50, Carsten Grohmann wrote:
 
---=-qiLCBvZ3BfV+LvWhjKtb
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+[...]
 
-The NSA web site (www.nsa.gov) including the selinux web site
-(www.nsa.gov/selinux/) will be taken off-line beginning at 6:00 PM EST
-on Friday, March 19 for scheduled maintenance.  The site should again be
-available by 6:00 AM EST on Monday, March 22.  If you were planning to
-download SELinux over the weekend, you'll need to adjust your plans
-accordingly.  The SELinux mailing list operation is not expected to be
-affected.
+Today I used strace to localize my pam problem and I get follow 
+output:
+2226  execve("/usr/bin/newrole", ["/usr/bin/newrole", "-r", 
+"staff_r"], [/* 20 vars */]) = 0
+2226  +++ killed by SIGKILL ++
 
---=20
-Howard Holm <hdholm@epoch.ncsc.mil>
-Office of Defensive Computing Research
-National Security Agency
+"killed by SIGKILL" - which process send a sigkill only in the 
+enforcing mode? In the permissive mode it runs and I don't get avc 
+messages.
 
---=-qiLCBvZ3BfV+LvWhjKtb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I use strace with various prgrams successfull:
+- strace newrole in permissive mode
+- strace ps ax --context in permissive and enforcing mode
+But an strace of passwd failed in the enforcing mode with an similar 
+output?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Could it be that the pam libraries are reason of this behavior?
+Have anybody an idea to encircle this problem?
 
-iD8DBQBAVy9L4bzZdP61mHERAvsBAKCE2egc3mwwMvzODZfMiGQhOCQ/VACfXxKS
-0BW59Sf513KGHzLF40K6D/U=
-=QJu/
------END PGP SIGNATURE-----
+Thanks
 
---=-qiLCBvZ3BfV+LvWhjKtb--
+Carsten
+
+
 
 
 --
