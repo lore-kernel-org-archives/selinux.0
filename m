@@ -1,59 +1,52 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFENgIi023096
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 09:23:42 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFEMFvq020545
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 14:22:16 GMT
-Date: Mon, 15 Nov 2004 14:34:20 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFEufIi023358
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 09:56:41 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFEtFvq023503
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 14:55:15 GMT
 Subject: Re: dynamic context transitions
-Message-ID: <20041115143420.GB5492@lkcl.net>
-References: <20041114202332.GO5031@lkcl.net> <1100525144.31773.30.camel@moss-spartans.epoch.ncsc.mil>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20041115143420.GB5492@lkcl.net>
+References: <20041114202332.GO5031@lkcl.net>
+	 <1100525144.31773.30.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041115143420.GB5492@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1100530357.31773.77.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1100525144.31773.30.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 15 Nov 2004 09:52:37 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Nov 15, 2004 at 08:25:45AM -0500, Stephen Smalley wrote:
+On Mon, 2004-11-15 at 09:34, Luke Kenneth Casson Leighton wrote:
+>  just to make absolutely sure: my fears about A being able to
+>  transition to anydomainatall would be true if someone [explicitly]
+>  did this:
+> 
+> 	allow A domain:process dyntransition;
+> 
+>  is that correct?
 
-> As proposed, there are two permission checks applied upon a dynamic
-> domain transition operation from A to B:
-> 1) In order to write to /proc/pid/attr/current at all, A must have
-> setcurrent permission to itself, i.e. allow A self:process setcurrent;
-> This parallels the setexec and setfscreate checks performed for setting
-> other attributes under /proc/pid/attr.
-> 2) In order to dynamically transition from A to B, A must have
-> dyntransition permission to B, i.e. allow A B:process dyntransition;
-> This parallels the transition permission check applied upon exec-based
-> transitions, but is distinct so that we can control them separately.
- 
- okay - different language / words that i didn't quite understand at the
- time.
+Yes, or even something less direct, e.g.
+	allow A B:process dyntransition;
+	allow B C:process dyntransition;
+	allow C domain:process dyntransition;
 
- thanks for clarifying.
-
- it was that allow A B:process dyntransition bit that i wasn't
- understanding.
-
- just to make absolutely sure: my fears about A being able to
- transition to anydomainatall would be true if someone [explicitly]
- did this:
-
-	allow A domain:process dyntransition;
-
- is that correct?
-
-
-
- l.
+But this specific issue (bounding the set of reachable domains) is not
+particularly different than the equivalent rule for exec-based
+transitions, e.g.
+	allow A domain:process transition;
+would be just as bad, given that at least one privileged domain (i.e.
+sysadm_t) has the shell as its entrypoint.  The exec-based transitions
+can apply entrypoint restrictions in most cases and can apply
+inheritance controls, but you still want to bound reachability there as
+well.
 
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
