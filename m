@@ -1,39 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4UL9JI4001505
-	for <selinux@tycho.nsa.gov>; Fri, 30 May 2003 17:09:19 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4UL9ItV015524
-	for <selinux@tycho.nsa.gov>; Fri, 30 May 2003 21:09:18 GMT
-Received: from smtp-out.comcast.net (smtp-out.comcast.net [24.153.64.109])
-        by jazzband.ncsc.mil  with ESMTP id h4UL9Ial015521 for <selinux@tycho.nsa.gov>; Fri, 30 May 2003 21:09:18 GMT
-Received: from comcast.net (pcp830001pcs.nrockv01.md.comcast.net [68.50.129.6])
- by mtaout05.icomcast.net
- (iPlanet Messaging Server 5.2 HotFix 1.16 (built May 14 2003))
- with ESMTP id <0HFP00BRAXDCBN@mtaout05.icomcast.net> for
- selinux@tycho.nsa.gov; Fri, 30 May 2003 17:08:01 -0400 (EDT)
-Date: Fri, 30 May 2003 17:09:30 -0400
-From: John Wolff <jrwolff@comcast.net>
-Subject: Compaq DL-360
-To: selinux@tycho.nsa.gov
-Message-id: <3ED7C88A.7060209@comcast.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4UNsMI4001837
+	for <selinux@tycho.nsa.gov>; Fri, 30 May 2003 19:54:22 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4UNrgss005584
+	for <selinux@tycho.nsa.gov>; Fri, 30 May 2003 23:53:52 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h4UNrThY005575
+	for <selinux@tycho.nsa.gov>; Fri, 30 May 2003 23:53:40 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: John Wolff <jrwolff@comcast.net>, selinux@tycho.nsa.gov
+Subject: Re: Compaq DL-360
+Date: Sat, 31 May 2003 09:53:08 +1000
+References: <3ED7C88A.7060209@comcast.net>
+In-Reply-To: <3ED7C88A.7060209@comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200305310953.08664.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Has anyone attempted to get SE Linux running on a Compaq DL-360 server?
-I have been trying to get SE Linux running on said machine and have been 
-having deficulty.  Specifically, while RH 7.3 runs fine, a kernel build 
-based on the installed kernel with the SL Linux modules loaded (without 
-the MLS at this point) fails to boot.  What I get is kernel panic when 
-the boot sequence gets to the point where the OS attempts to mount the 
-SCSI drives.  I have downloaded and installed the latest drivers from 
-Compaq to no avail.  The DL-360 uses a proprietary SCSI/RAID system.  
-Whether I have the RAID going or not, SE Linux dies in the same place in 
-the boot sequence with the same kernel panic.
+On Sat, 31 May 2003 07:09, John Wolff wrote:
+> Has anyone attempted to get SE Linux running on a Compaq DL-360 server?
 
-jc
+Can you boot a non-SE kernel you compiled?
 
+You say "SE Linux modules loaded", it's recommended that SE Linux be 
+statically linked into the kernel not used as modules.
+
+Please capture the panic, if it's an Oops then run it through ksymoops and 
+post the results here, if it's some other crash message then just post the 
+messages here.  The serial-port console support is a good way of capturing 
+such boot messages.
+
+Try getting it to boot with a floppy disk as the root device to eliminate RAID 
+issues.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
