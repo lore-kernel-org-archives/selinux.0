@@ -1,83 +1,66 @@
-Date: Mon, 10 Dec 2001 16:59:01 -0800
-From: Paul Krumviede <pwk@acm.org>
-To: Johan Camp <johan.camp@student.kuleuven.ac.be>
-cc: SELinux@tycho.nsa.gov
-Subject: Re: problems after installing selinux
-Message-ID: <192900656.1008003541@localhost>
-In-Reply-To: <3C155620.91A01E40@student.kuleuven.ac.be>
-References: <3C155620.91A01E40@student.kuleuven.ac.be>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA29762
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2001 22:27:47 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id DAA03739
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 03:27:37 GMT
+Received: from ausmac.net (ausmac.net [203.12.68.15])
+	by jazzswing.ncsc.mil  with SMTP id DAA03735
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 03:27:36 GMT
+Date: Tue, 11 Dec 2001 14:27:36 +1100 (EST)
+From: Grant Bayley <gbayley@ausmac.net>
+To: Howard Holm <hdholm@epoch.ncsc.mil>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: Updated release
+In-Reply-To: <200112102055.PAA23146@coalpipe.epoch.ncsc.mil>
+Message-ID: <Pine.BSO.4.33.0112111425410.11998-100000@ausmac.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-do you see messages in dmesg such as
+Hi all,
 
-AVC:  allocated 14760 bytes during initialization.
-SELinux:  module inserted
+The SELinux mirror at Wiretapped in Sydney, Australia has now been updated
+with the new release:
 
-or, from messages,
+	http://the.wiretapped.net/security/operating-systems/selinux/
+	ftp://ftp.wiretapped.net/pub/security/operating-systems/selinux/
 
-Dec 10 16:49:15 zfc kernel: security:  starting up (compiled Nov 27 2001)
-Dec 10 16:49:15 zfc kernel: security:  loading policy configuration from 
-/ss_policy
-Dec 10 16:49:15 zfc kernel: security:  3 users, 6 roles, 372 types
-Dec 10 16:49:15 zfc kernel: security:  29 classes, 70479 rules
+Main archives:
+
+	http://www.wiretapped.net/
+
+Grant
+
+-------------------------------------------------------
+Grant Bayley                         gbayley@ausmac.net
+-IT Manager @ FNL Communications       (www.fnl.com.au)
+-Admin @ AusMac Archive, Wiretapped.net, 2600 Australia
+ www.ausmac.net   www.wiretapped.net   www.2600.org.au
+-------------------------------------------------------
 
 
-if not, i'd check to see if the SELinux kernel configuration
-flags are set correctly (for example, make sure that
-CONFIG_SECURITY_SELINUX=y is present in the
-kernel configuration file) and that a policy configuration exists in 
-/ss_policy.
+On Mon, 10 Dec 2001, Howard Holm wrote:
 
--paul
-
---On Tuesday, 11 December, 2001 01:41 +0100 Johan Camp 
-<johan.camp@student.kuleuven.ac.be> wrote:
-
-> Paul Krumviede wrote:
->>
->> --On Monday, 10 December, 2001 22:55 +0100 Johan Camp
->> <johan.camp@student.kuleuven.ac.be> wrote:
->>
->> > Hi
->> >
->> > I recently installed selinux (the 2.4-14-lsm kernel) on my SuSE 7.2
->> > system. After compiling and installing the kernel and all other
->> > utilities (exactly as described in the selinux/README file). I have the
->> > folowing problem:
->> >
->> > - when entering the 'ls --context' command I get the message "Sorry,
->> > --context can be used only on a flask-enabled kernel".
->> >
->> > - when entering the 'ps -e --context' command, all processes have SID =
->> > 3 and CONTEXT = -
->> >
->> > Can anyone tell me how I can solve this problem?
->>
->> this is what happens when a non-selinux kernel is booted. did you
->> fix up /etc/lilo.conf and run lilo to make sure the new kernel is
->> available at boot time?
+> The SELinux web site <http://www.nsa.gov/selinux/> including the mail
+> list archive has been updated.  The site includes a new release of the
+> LSM-based SELinux prototype.  This release is based on the
+> lsm-full-2001_12_10 patch against kernel 2.4.16 which merges SELinux
+> into the LSM tree.  Many utilities have been updated to newer versions
+> to improve compatibility with Red Hat 7.2. Auditing has been revised
+> for easier parsing and several additional bugs were fixed.
 >
-> Yes, I am sure of that. Another indicator is that the tty login used to
-> show "suse linux 2.4-4" and now shows "2.4-14-lsm", so this should be
-> correct (in a more scientific approach, I checked the lilo.conf file in
-> which '/boot/vmlinuz' is indicated as kernel image. 'ls -l
-> /boot/vmlinuz' shows this file was put there on dec 10 2002).
+> --
+> Howard Holm <hdholm@epoch.ncsc.mil>
+> Secure Systems Research Office
+> National Security Agency
 >
-> Any other suggestions are welcome
+> --
+> You have received this message because you are subscribed to the selinux list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 >
-> Thanx
->
->
-> Johan Camp
-> KULeuven
->
-> ps: oh yes, and I didn't forget to select the "NSA SELinux" option in
-> the make menuconfig menu either.
->
-
 
 
 --
