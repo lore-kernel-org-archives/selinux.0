@@ -1,86 +1,49 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6ECM3Ha011808
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 08:22:04 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6ECM2H5007156
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:22:02 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h6ECM0RX007153 for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:22:01 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 30347BF37
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 22:21:59 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 32290-03
- for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 22:21:57 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id BE786BF32
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 22:21:57 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 7A5BB924EC
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 22:21:57 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 2EC107F0C2
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 22:21:54 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: memory leak on SE Linux
-Date: Mon, 14 Jul 2003 22:21:44 +1000
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Message-Id: <200307142221.53607.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6ECXGHa011851
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 08:33:16 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6ECWGnJ000604
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:32:16 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h6ECWFhr000601
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:32:15 GMT
+Subject: Re: enforcement and initrds
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Colin Walters <walters@verbum.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1058151822.9620.25.camel@columbia>
+References: <1058151822.9620.25.camel@columbia>
+Content-Type: text/plain
+Message-Id: <1058185993.13738.597.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 14 Jul 2003 08:33:13 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 2003-07-13 at 23:03, Colin Walters wrote:
+> Hi,
+> 
+> I'm having trouble booting up my SE 2.5 system in enforcing mode,
+> because my initrd (which uses ramfs) is completely unlabelled (because
+> ramfs doesn't support xattrs).  
+> 
+> When I add enforcing=1 to the Linux command line, it therefore dies
+> almost immediately upon bootup.  Perhaps it would be better to have the
+> kernel not do anything with the enforcing=1 commandline, but instead
+> have special code on the initrd to look at /proc/cmdline and if
+> necessary set enforcing mode right before booting init?
 
-I have just done a diff between the LSM patch in my kernel-patch-2.4-lsm 
-Debian package and the latest release.  It seems that when merging patches or 
-porting between kernel versions I made an error and caused the pointer to 
-some allocated memory to be cleared incorrectly (thus making it impossible to 
-free the memory).
+If CONFIG_SECURITY_SELINUX_DEVELOP=n, then the kernel is always in
+enforcing mode, so you won't be able to defer setting enforcing mode to
+the initrd.  You can assign a single type to all of the ramfs entries
+via genfs_contexts (but nothing more granular without further support
+either in the ramfs code or in the SELinux module) and then grant
+permissions to it.  Or you can grant permissions to unlabeled_t to
+permit booting.
 
-I am still performing tests on the new kernel, but the results so far suggest 
-that the kernel memory leak I had previously experienced is now solved.
-
-I recall that some other people reported similar problems, if they were using 
-my kernel patch for 2.4.21 then it would be the same thing.  If someone is 
-experiencing a kernel memory leak when using a kernel patch from the NSA site 
-then it would be a different issue and should be raised again.
-
-NB my web site and the Debian repository now both contain a good patch for 
-2.4.21 which solves this problem.
-
-
-Below is the patch fragment in question.
-
-diff -ruN linux-2.4.21-mine/fs/inode.c linux-2.4.21-nsa/fs/inode.c
-- --- linux-2.4.21-mine/fs/inode.c        2003-07-13 12:23:29.000000000 +1000
-+++ linux-2.4.21-nsa/fs/inode.c 2003-07-13 12:20:16.000000000 +1000
-@@ -125,7 +125,6 @@
-                mapping->host = inode;
-                mapping->gfp_mask = GFP_HIGHUSER;
-                inode->i_mapping = mapping;
-- -               inode->i_security = NULL;
-        }
-        return inode;
- }
-
-- -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/EqBcwrB5/PXHUlYRAqQQAJ490tCtszUr2Ingm0x9UGgi7im2zwCcDAbs
-7WUAkyx/JbdJE5rNqs1QB2k=
-=i6yZ
------END PGP SIGNATURE-----
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
