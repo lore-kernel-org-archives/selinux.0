@@ -1,97 +1,68 @@
-Message-ID: <42394ECA.7010204@ak.jp.nec.com>
-Date: Thu, 17 Mar 2005 18:32:58 +0900
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2HDKKDo014614
+	for <selinux@tycho.nsa.gov>; Thu, 17 Mar 2005 08:20:20 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2HDE9te019397
+	for <selinux@tycho.nsa.gov>; Thu, 17 Mar 2005 13:14:09 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1) with ESMTP id j2HDFcVp027404
+	for <selinux@tycho.nsa.gov>; Thu, 17 Mar 2005 08:15:38 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.13.1/8.13.1/Submit) id j2HDFcuq027403
+	for selinux@tycho.nsa.gov; Thu, 17 Mar 2005 08:15:38 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2HDBcDo014553
+	for <selinux@tycho.nsa.gov>; Thu, 17 Mar 2005 08:11:43 -0500 (EST)
+Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2HD5Ote018727
+	for <selinux@tycho.nsa.gov>; Thu, 17 Mar 2005 13:05:26 GMT
+Message-ID: <423980AC.60409@ak.jp.nec.com>
+Date: Thu, 17 Mar 2005 22:05:48 +0900
 From: Kaigai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'KaiGai Kohei'" <kaigai@kaigai.gr.jp>,
+   "'SELinux Mail List'" <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
 Subject: Re: [RFC & PATCH] inherited type definition.
-References: <42346C17.3090301@kaigai.gr.jp>	 <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil>	 <4235C937.3030404@kaigai.gr.jp>	 <1110824712.21378.196.camel@moss-spartans.epoch.ncsc.mil>	 <4236CC03.5010104@kaigai.gr.jp>	 <1110897751.25947.52.camel@moss-spartans.epoch.ncsc.mil>	 <4237B950.2090604@ak.jp.nec.com> <1110981928.4802.81.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1110981928.4802.81.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+References: <200503162131.j2GLVU8R025568@gotham.columbia.tresys.com>
+In-Reply-To: <200503162131.j2GLVU8R025568@gotham.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Hello,
 
->>I have an idea that ALLOW statement is added an new option
->>For example:
->>  ALLOW @user_t @user_t:process {ptrace};
->>  ALLOW user_t @user_t:process {transition};
->>
->>When '@' is added in front of the type name, this means source/target
->>type is only user_t, not including user_ext_t and descendant.
->>Above example is rolled out as follows:
->>  ALLOW user_t user_t:process {ptrace};
->>  ALLOW {user_t user_ext_t}:process {transition};
->>
->>It restrains unlimited inheritance of permissions to child type/domain.
->>Can this approach solve such a concern ?
->
->
-> Note that at least in this case, even the ability to transition prevents
-> any real separation between user_t and user_ext_t, because user_t and
-> user_ext_t can be entered by a shell, so with transition permission,
-> user_t can then run a shell in user_ext_t and perform arbitrary actions
-> with those permissions.
+ > I'm not certain that you understand my objection. I'm not suggesting that your
+ > patch conflicts with this idea, I think that we should not make this type of
+ > language change unless it address a broad set of issues, which to me includes
+ > this group of types usage scenario. The EXTENDS syntax seems, to me, to have a
+ > fairly narrow usage similar to clone rules. The clone rules were ultimately
+ > dropped so I don't think that we should go down that path again without major
+ > additional advantages. In other words, I saying that I think handling the group
+ > of types usage scenario is a requirement to this type of language extension.
 
-I agree, two-way transition permissions make the separation between each domains
-meaningless. The '@' should be append in front of typenames as a general rule,
-when we will attach ptrace, transition and dyntransition permissions.
+There are some difference between the EXTENDS syntax and CLONE.
+First, CLONE can't emulate multiple-parents inheritance. This is useful and
+interresting character. Second, CLONE doesn't have a selective permission
+grant syntax. I'm willing to implement selective permission grant syntax
+such as '@' prefix.
+What CLONE was dropped is not appropriate for the reason of this issue.
 
-I think can_ptrace() and domain_trans() macros should be modify to avoid
-such a vague border of domain. Other grants of such permissions are similar.
+I feel this discussion fall into "discussion for discussion", so it's not
+productive. You should make your target image clear, and express your modeling.
+I can't compare practical functionality with vague images.
 
+ > As I stated above, my example requires the attributes to be applied to
+ > user/staff_ssh_t. This to me does not seem to be a major drawback - in fact it
+ > gives more control to the policy author.
 
-> One obvious question is how @<attributename> would be interpreted;
-> offhand, I would expect it to prevent expansion of the descendants of
-> the individual types that have the attribute.
+Needless to say, the EXTENDS syntax does not prevent to apply any attributes.
+In addition, your approach may be harmless, but opportunity benefit
+as union-filetype will be lost if EXTENDS syntax is denied.
 
-I intend that '@'<type/attribute name> is interpreted as if those
-type/attribute is interpreted on current version checkpolicy(1.22).
-In other word, '@'<typename> is merely recognized as <typename>,
-any descendants are not included. '@'<attribute> is rolled out
-some child types attached this attribute directly, not include
-any indirect descendants.
-
-e.g.
-attribute attr;
-type X;
-type Y extends attr;
-type Z extends Y;
-
-"allow @attr foo:XXX XXX;" means "allow Y foo:XXX XXX;", Z is not included.
-"allow @X foo:XXX XXX;" means "X foo:XXX XXX;", Y and Z is not included.
-
-If you remove '@' from above statements, this action is same as current checkpolicy works.
-
-
-> One concern with this
-> approach is that you have to explicitly mark types in order to prevent
-> expansion rather than having to explicitly mark types that you want to
-> expand, which seems prone to accidental expansion.
-
-To decide which is it preferable is a difficult issue.
-My preference is that explicitly mark types means deny of expand, and
-any permissions without above 3-operations should be expandable in default.
-
-Effective use of existing software assets is reason.
-For example, samba_httpd_content_t is a type extends samba_share_t
-and httpd_sys_content_t.  When we try to use the union filetype
-"samba_httpd_content_t", we must fix the allow statements of "samba_share_t"
-and "httpd_sys_content_t" if an allow statement without '@' means
-no-expandable permission grant.
-
-
-> Note that we have to
-> consider not only rules that directly specify the type but rules that
-> may indirectly include the type via attribute or set complement (~).
-> Requiring explicit marking of types to allow expansion of descendants
-> would presumably require more work by someone who wants to extend a
-> type, but would avoid unintentional expansion.
-
-OK, I'll fix up the latest patch with your notion.
-Please wait for a while.
+BTW, If we can control the access permission between 'group of type' and
+union-filetype, it may be so flexible.
+i.e. "Right man in the right place"
 
 Thanks,
 --
