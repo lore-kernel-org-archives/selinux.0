@@ -1,29 +1,31 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA00530
-	for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 11:07:28 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA00576
+	for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 11:12:35 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA29753
-	for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 16:06:25 GMT
+	by jazzband.ncsc.mil  with ESMTP id QAA00035
+	for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 16:11:31 GMT
 Received: from angusbay.vnl.com ([194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id QAA29749 for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 16:06:24 GMT
-Date: Thu, 21 Mar 2002 16:19:31 +0000
+        by jazzband.ncsc.mil  with ESMTP id QAA00031 for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 16:11:31 GMT
+Date: Thu, 21 Mar 2002 16:24:52 +0000
 From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: Stephen Smalley <sds@tislabs.com>, selinux <selinux@tycho.nsa.gov>
-Subject: Debian file_contexts needed
-Message-ID: <20020321161931.GP10482@vnl.com>
+To: Stephen Smalley <sds@tislabs.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Getdate error
+Message-ID: <20020321162452.GQ10482@vnl.com>
+References: <20020321121121.GJ10482@vnl.com> <Pine.GSO.4.33.0203211009170.19336-100000@raven>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.GSO.4.33.0203211009170.19336-100000@raven>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Does anyone have a current copy of a file_contexts for
-the new release for Debian? I presume Rich Coker does, 
-but given the time diff between Ireland and Australia, 
-I suspect he's well before dawn and sound asleep.
+On Thu, Mar 21, 2002 at 10:16:54AM -0500, Stephen Smalley wrote:
+> The semicolons are missing in the upstream sources, but this doesn't
+> appear to create a build problem for us.  bison appears to insert
+> an extra semicolon automatically anyway.  We're using bison version 1.28,
+> the standard one on RH7.1 and RH7.2.
 
-I could go ahead and roll my own, but it seems a boring
-waste of a few hours to re-invent it.
+I've got 1.34. Perhaps it's stricter?
 
 -- 
 ------------------------------------------------------
