@@ -1,31 +1,74 @@
+Message-ID: <421F608F.8030201@gentoo.org>
+Date: Fri, 25 Feb 2005 19:29:51 +0200
+From: petre rodan <kaiowas@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: RE: Fedora policies on Gentoo?
-Date: Fri, 25 Feb 2005 11:00:52 -0600
-Message-ID: <07C997312C46834CBC7C3B04A6FFABA406A5684E@wgiptcemx01.wgint.net>
-From: "Simpson, Richard" <Richard.Simpson@wgint.com>
-To: <bjorn.padding@ifsav.nl>, <SELinux@tycho.nsa.gov>
+To: bjorn.padding@ifsav.nl
+CC: SELinux@tycho.nsa.gov
+Subject: Re: Fedora policies on Gentoo?
+References: <H000007600022dad.1109356372.server.intranet.ifsaudiovisueel.nl@MHS>
+In-Reply-To: <H000007600022dad.1109356372.server.intranet.ifsaudiovisueel.nl@MHS>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig3E9F627107C9262F506F90D9"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->Hi,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig3E9F627107C9262F506F90D9
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+Hi
+
+bjorn.padding@ifsav.nl wrote:
+> Hi,
 >
->I was wondering... I am currently running on Gentoo.
->I see that there are way less existing policies on Gentoo than
->there are on Fedora. Can I unpunished cp these policies to my
->/etc/security/selinux/src/policy dir? The only consequence
->That I can think of is that I might have to change some
->./file_contexts/program/*.fc according to my Gentoo sys.
->But other than that it wouldn't create any problem, right?
->Somebody with some advice?
+> I was wondering... I am currently running on Gentoo.
+> I see that there are way less existing policies on Gentoo than
+> there are on Fedora. Can I unpunished cp these policies to my
+> /etc/security/selinux/src/policy dir? The only consequence
+> That I can think of is that I might have to change some
+> ./file_contexts/program/*.fc according to my Gentoo sys.
+> But other than that it wouldn't create any problem, right?
 
-I have done that, but there are some caveats. The Gentoo policy tends to lag behind the Fedora implementation, and there are distro customizations. Best bet is to download the FC3 policy source rpm (strict, not targeted) so that you have a complete policy source to use for troubleshooting. I actually use a working installation of FC3 to compare against.
+since gentoo is all about choice, depending on your USE flags you will
+end up having programs with a different behavior than what is present in
+fedora/debian.
 
-Richard.
+this means that sometimes you will also have to tweak the type
+enforcement files by adding capabilities or rules that permit
+interactions between domains.
 
+> Somebody with some advice?
 
+you can use the nsa policies as a starting point. they are available
+over annon cvs. see http://selinux.sourceforge.net/devel/cvs.php3
 
+bye,
+peter
+
+--
+petre rodan
+<kaiowas@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+
+--------------enig3E9F627107C9262F506F90D9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0-ecc0.1.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCH2CTGSBEIeh4AEYRAk16AJ4kaBAk94nzI53QXiplLhq6gYcE7gCggJET
+jkVTz6ii8y3NgqQme2AwlZc=
+=DJXD
+-----END PGP SIGNATURE-----
+
+--------------enig3E9F627107C9262F506F90D9--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
