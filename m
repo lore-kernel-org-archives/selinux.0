@@ -1,47 +1,40 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9IJAirT024082
-	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 15:10:45 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9IJAhhM013711
-	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 19:10:44 GMT
-Subject: Re: cdrecord deadlocks linux 2.6.8.1 (problem in setscheduler)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Crispin Cowan <crispin@immunix.com>
-Cc: James Morris <jmorris@redhat.com>,
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9IJBirT024121
+	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 15:11:45 -0400 (EDT)
+Date: Mon, 18 Oct 2004 12:11:38 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
    Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   lsm <linux-security-module@wirex.com>, SELinux ML <selinux@tycho.nsa.gov>,
-   john johansen <johansen@immunix.com>
-In-Reply-To: <4173F737.1070204@immunix.com>
-References: 
-	 <Xine.LNX.4.44.0410181102350.22995-100000@thoron.boston.redhat.com>
-	 <4173F737.1070204@immunix.com>
-Content-Type: text/plain
-Message-Id: <1098126442.27895.159.camel@moss-spartans.epoch.ncsc.mil>
+   lsm <linux-security-module@wirex.com>, SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: cdrecord deadlocks linux 2.6.8.1 (problem in setscheduler)
+Message-ID: <20041018121138.N2357@build.pdx.osdl.net>
+References: <1098107356.27895.51.camel@moss-spartans.epoch.ncsc.mil> <Xine.LNX.4.44.0410181102350.22995-100000@thoron.boston.redhat.com>
 Mime-Version: 1.0
-Date: Mon, 18 Oct 2004 15:07:22 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Xine.LNX.4.44.0410181102350.22995-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Mon, Oct 18, 2004 at 11:03:15AM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-10-18 at 13:02, Crispin Cowan wrote:
-> We (Immunix) discovered this bug a few weeks ago. At first we thought it 
-> was a bug in our SubDomain module, but then determined that any attempt 
-> to printk from within the scheduler hook was at risk of locking the kernel.
+* James Morris (jmorris@redhat.com) wrote:
+> On Mon, 18 Oct 2004, Stephen Smalley wrote:
 > 
-> John Johansen (cc'd) has prepared a patch that fixes the problem, and we 
-> just yesterday sent it to Andrea Arcangeli (scheduler maintainer) for 
-> comment.
+> > a) Add a flag to avc_audit(), optionally passed via avc_audit_data, that
+> > tells it to use audit_log_end_irq() so that it merely enqueues the audit
+> > message for later processing, and change capable and setscheduler hooks
+> > to pass this flag, or 
+> > b) Move the security checks in setscheduler outside of the runqueue
+> > lock, then just recheck that no security-relevant conditions changed
+> > after taking the lock.
 > 
-> JJ, you wanna share your patch with the LSM list?
+> A seems simpler, but perhaps better to do via a wrapper function.
 
-Does the patch address both the security_task_setscheduler() hook call
-and the capable(CAP_SYS_NICE) calls by the setscheduler function? 
-SELinux was already suppressing audit from its setscheduler hook to
-avoid this deadlock, but was not doing so for the CAP_SYS_NICE check.
-  
+I agree, esp. since the policy value can change.
+
+thanks,
+-chris
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
 
 --
 This message was distributed to subscribers of the selinux mailing list.
