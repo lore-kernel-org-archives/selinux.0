@@ -1,42 +1,64 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i53E1GrT011805
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 10:01:16 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i53Lti4D007970
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 17:55:45 -0400 (EDT)
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i53E5vrT011838
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 10:05:57 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i54E5bpx005522
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jun 2004 10:05:38 -0400 (EDT)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id BFB6261BD6
-	for <selinux@tycho.nsa.gov>; Fri,  4 Jun 2004 00:01:12 +1000 (EST)
+	by smtp.sws.net.au (Postfix) with ESMTP id 47FA961BD6
+	for <selinux@tycho.nsa.gov>; Fri,  4 Jun 2004 00:05:52 +1000 (EST)
 Received: from smtp.sws.net.au ([127.0.0.1])
 	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 26457-07 for <selinux@tycho.nsa.gov>;
-	Fri, 4 Jun 2004 00:01:12 +1000 (EST)
+	id 26463-09 for <selinux@tycho.nsa.gov>;
+	Fri, 4 Jun 2004 00:05:51 +1000 (EST)
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 60FF461BB0
-	for <selinux@tycho.nsa.gov>; Fri,  4 Jun 2004 00:01:12 +1000 (EST)
+	by smtp.sws.net.au (Postfix) with ESMTP id AB7C461BB0
+	for <selinux@tycho.nsa.gov>; Fri,  4 Jun 2004 00:05:51 +1000 (EST)
 Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id AC2FEB586F
-	for <selinux@tycho.nsa.gov>; Fri,  4 Jun 2004 00:01:11 +1000 (EST)
+	by lyta.coker.com.au (Postfix) with ESMTP id 57A9AB586F
+	for <selinux@tycho.nsa.gov>; Fri,  4 Jun 2004 00:05:50 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: SE Linux <selinux@tycho.nsa.gov>
 Subject: mysqld
-Date: Fri, 4 Jun 2004 00:01:11 +1000
+Date: Fri, 4 Jun 2004 00:05:49 +1000
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_n8yvAPyVobTmxGy"
-Message-Id: <200406040001.11136.russell@coker.com.au>
+  boundary="Boundary-00=_9AzvA5e3FxlFQbK"
+Message-Id: <200406040005.49762.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_n8yvAPyVobTmxGy
+--Boundary-00=_9AzvA5e3FxlFQbK
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
+ifdef(`mysqld.te', `portcon tcp 3306 system_u:object_r:mysqld_port_t')
 
+With the attached policy files and the above line added to net_contexts.te I 
+almost have mysqld working in Fedora.
+
+I get the below messages in /var/log/mysqld.log, I suspect that because the 
+first time I tried to start it the policy didn't let it do what it wanted it 
+messed things up and now isn't going to start properly.  Further testing by 
+someone who knows more about mysql than I do would be helpful.
+
+040603 23:44:13  mysqld started
+Cannot initialize InnoDB as 'innodb_data_file_path' is not set.
+If you do not want to use transactional InnoDB tables, add a line
+skip-innodb
+to the [mysqld] section of init parameters in your my.cnf
+or my.ini. If you want to use InnoDB tables, add to the [mysqld]
+section, for example,
+innodb_data_file_path = ibdata1:10M:autoextend
+But to get good performance you should adjust for your hardware
+the InnoDB startup options listed in section 2 at
+http://www.innodb.com/ibman.html
+040603 23:44:13  /usr/libexec/mysqld: Table 'mysql.host' doesn't exist
+040603 23:44:13  mysqld ended
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -44,7 +66,7 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_n8yvAPyVobTmxGy
+--Boundary-00=_9AzvA5e3FxlFQbK
 Content-Type: text/plain;
   charset="us-ascii";
   name="mysqld.te"
@@ -134,7 +156,24 @@ allow initrc_t mysqld_db_t:dir create_dir_perms;
 file_type_auto_trans(mysqld_t, mysqld_db_t, mysqld_var_run_t, sock_file)
 ')
 
---Boundary-00=_n8yvAPyVobTmxGy--
+--Boundary-00=_9AzvA5e3FxlFQbK
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="mysqld.fc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="mysqld.fc"
+
+# mysql database server
+/usr/sbin/mysqld	--	system_u:object_r:mysqld_exec_t
+/usr/libexec/mysqld	--	system_u:object_r:mysqld_exec_t
+/var/run/mysqld(/.*)?		system_u:object_r:mysqld_var_run_t
+/var/log/mysql.*	--	system_u:object_r:mysqld_log_t
+/var/lib/mysql(/.*)?		system_u:object_r:mysqld_db_t
+/etc/my\.cnf		--	system_u:object_r:mysqld_etc_t
+/etc/mysql(/.*)?		system_u:object_r:mysqld_etc_t
+
+--Boundary-00=_9AzvA5e3FxlFQbK--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
