@@ -1,46 +1,108 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i11FJsRb027208
-	for <selinux@tycho.nsa.gov>; Sun, 1 Feb 2004 10:19:54 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i11FIYVK010932
-	for <selinux@tycho.nsa.gov>; Sun, 1 Feb 2004 15:18:34 GMT
-Received: from mail.lemuria.org (web.lemuria.org [213.191.85.3])
-	by jazzswing.ncsc.mil  with ESMTP id i11FIXlx010843
-	for <selinux@tycho.nsa.gov>; Sun, 1 Feb 2004 15:18:33 GMT
-Received: from unicorn.lemuria.org (unknown [213.39.193.178])
-	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
-	(No client certificate requested)
-	by mail.lemuria.org (Postfix) with ESMTP id 17C8ADAB63
-	for <selinux@tycho.nsa.gov>; Sun,  1 Feb 2004 16:18:47 +0100 (CET)
-Date: Sun, 1 Feb 2004 16:11:21 +0100
-From: Tom <tom@lemuria.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: SELinux Talk in Hamburg, Germany
-Message-ID: <20040201161120.F14411@lemuria.org>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i136DRRb004577
+	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 01:13:28 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i136DI1K000865
+	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 06:13:21 GMT
+Subject: Re: fork and security context transitions
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <bs-f-vazquez@bs.rd.nttdata.co.jp>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1075469989.22930.19.camel@moss-spartans.epoch.ncsc.mil>
+References: <1075437775.1088.144.camel@volcano.rd.nttdata.co.jp>
+	 <1075469989.22930.19.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=
+Message-Id: <1075788687.826.222.camel@volcano.rd.nttdata.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Tue, 03 Feb 2004 15:11:28 +0900
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks to Carsten for reminding me to post here:
+Thank you for your prompt reply.
 
-I'll also be giving another talk, essentially an evolved version of
-what I presented in Tokio last year, at the DFN-CERT congress in
-Hamburg, Germany.
+I have read through the links you provided me with (I'm sorry you have
+had to answer so many times to the same question) and I would like to
+make some further comments.
 
-CERT should require no explanation, DFN is "deutsches ForschungsNetz",
-which translates to "german research network" and is essentially the
-german university and research center backbone.
+In one of your early replies you say that "SELinux only supports process
+SID transitions upon program execution so that inheritance of state and
+the initialization of the process in the new SID can be controlled". I
+agree with this statement, but what I was planning to do I feel that is
+slightly different.
 
+I was thinking of implementing a new function analogical to
+"setexeccon", that could be called something like "setforkcon".
+"setforkcon" would be invoked before the execution of fork (just as its
+model function) and the child would be given the security context
+specified in the call IF, AND ONLY IF, the parent process has been
+granted the transition to the requested domain.
 
-The congress has a website at:
-http://www.dfn-cert.de/events/ws/2004/
+"fork" would be modified to be aware of the use of "setforkcon" (maybe
+via /proc/*/attr/fork), but the compatibility with the original version
+of fork would be preserved, since, in case "setforkcon" has not been
+used, it is functionally identical. Of course, some changes would have
+to be made in both the kernel and user space parts of "SELinux" to add
+support to a new kind of operation (let's say "ftransition"). The
+application requiring this functionality could be granted a
+"ftransition" permission with a command such as:
 
+allow d1_t d2_t:process ftransition;
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+Wouldn't the "inheritance of state and the initialization of the process
+in the new SID" be controlled as effectively as it is with the use of
+"setexeccon" and "execv"?. This is, in once sentence, the source of all
+my doubts.
+
+I think that such a functionality would ease the adoption of SELinux by
+new applications. Of course, if my proposal makes no sense and something
+like "setforkcon" is potentially insecure it SHOULD not be used,
+regardless of its ease of use or user-friendliness.
+
+As an example, if we wanted to make Samba and Apache SELinux aware so
+that, in the event of a user session, a child process would be created
+in a user-specific domain, what should we do? With SELinux you are
+forced to split the servers in two executables, eventually being forced
+to make a lot of application specific changes (once more, if this is the
+only right approach let's stick with it).
+
+I think that the previous examples represent a case different from that
+of inetd, crond or ssh (to cite some), since the latter have to fork
+third party applications that are completely unrelated to themselves and
+whose trustworthiness is unknown.
+
+In the case of Samba, Apache and my own application, we are talking
+about ONE SINGLE application that forks itself. I think that splitting
+these programs into a listening server and a service application that is
+launched via execve is very similar, from a security point of view, to
+my proposal. Why do I think this?
+
+* Before changing the security context functionally identical functions
+have to be executed ("setexeccon" and "setforkcon" respectively).
+
+* Only if the right permissions (analogical in both cases) were granted
+in the policy, would the requested transition be performed.
+
+* The "initialization of the process" is equally controlled with both
+solutions, since in both cases the children could be spawned in a set of
+contexts (one per user) that is predefined in the security policy.
+
+* There's no need to make the child process execute a program from a
+type different from the father's, since both programs belong to the same
+application and, therefore, it is trusted. Any way, with the proposed
+extension I think that the same restrictions could be applied to the
+child processes.
+
+With the proposed approach I think that not new vulnerabilities (I
+apologize if I am completely missing the point!!!!!) are introduced and
+that the migration to a SELinux aware application is easier.
+
+I'm sorry for such a long mail and hope that what I have said makes any
+sense.
+
+Best regards,
+
+Fernando Vázquez
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
