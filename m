@@ -1,43 +1,61 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8RN0ZsJ007000
-	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 19:00:35 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8S3hXsJ007356
+	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 23:43:34 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8RN0YCG023122
-	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 23:00:34 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id h8RN0XqJ023119 for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 23:00:33 GMT
-Date: Sun, 28 Sep 2003 00:00:28 +0100
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: Dale Amon <amon@vnl.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: ssh policy hassles
-Message-ID: <20030927230028.GG22582@vnl.com>
-References: <20030923150926.GG21997@vnl.com> <20030927133244.GC22582@vnl.com> <20030927133352.GD22582@vnl.com> <200309280013.29258.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200309280013.29258.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id h8S3hXCG026144
+	for <selinux@tycho.nsa.gov>; Sun, 28 Sep 2003 03:43:33 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h8S3hUqJ026141 for <selinux@tycho.nsa.gov>; Sun, 28 Sep 2003 03:43:31 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Bill Laut <wlsel@verizon.net>
+Subject: Re: Emacs major mode for policy editing
+Date: Sun, 28 Sep 2003 13:43:23 +1000
+Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
+References: <1064504193.3885.14.camel@moss-tarheels.epoch.ncsc.mil> <200309272024.54251.russell@coker.com.au> <200309271624.17976.wlsel@verizon.net>
+In-Reply-To: <200309271624.17976.wlsel@verizon.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200309281343.23332.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Sep 28, 2003 at 12:13:29AM +1000, Russell Coker wrote:
-> But your error message seems to indicate that the setattr is required for your 
-> sshd.
-> 
-> I have attached my latest ssh policy, please try it out as-is and try changing 
-> the "dontaudit" to "allow" for the setattr operation.
+On Sun, 28 Sep 2003 06:24, Bill Laut wrote:
+> > At this point I should mention that Security Enhanced X is an important
+> > development for Linux, it's something that we've been waiting far too
+> > long for, and when it's available I'm sure we won't be able to get enough
+> > of it.
+>
+> I couldn't agree with you more.  That's why, for my contribution, I want
+> everyone who is interested to review it and tell me where I'm in error, or
+> where something could be better designed, so that what I eventually release
+> to the group is a polished gem.
+>
+> I have no ego problems with peer review/criticism whatsoever.
 
-Results:
+I agree that extensive review is a good thing.  One of the reasons for my work 
+on UML and SE Linux is so that images of SE Linux machines can be exchanged 
+for review.  I'm sure that exchanging images of Security Enhanced X will 
+become a popular past-time for many people.
 
-with latest policy.tgz		FAIL
-add  your new ssh.te		FAIL
-add  staff_devpts_t 		SUCCESS
+> That's also why I threw in the reference to "extra homework" in my previous
+> post.  For example, this could be a good excuse to go through XFree86 and
+> insure that there aren't any unrecognized buffer-overflow vulnerabilities.
+> It would be embarassing to say the least to release SE-X, only to have it
+> contain exploitable BO vulnerabilities--the very thing that SELinux is
+> advertised as protecting against.
 
-This single line does it:
+Absolutely!  However it should be noted that SE Linux has a very expressive 
+configuration language which allows detailed control over what is allowed.  
+If an administrator desires Back-Orifice access to their network then the 
+Security Enhanced X configuration will surely allow them to enable it.
 
-	allow sshd_t staff_devpts_t:chr_file { ioctl setattr }
-
-I don't know yet if both attributes are required. It's getting
-late and it's a night...
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
