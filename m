@@ -1,57 +1,68 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4IJ8DI4000727
-	for <selinux@tycho.nsa.gov>; Sun, 18 May 2003 15:08:13 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4IJ8CtV028588
-	for <selinux@tycho.nsa.gov>; Sun, 18 May 2003 19:08:12 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h4IJ7xal028585 for <selinux@tycho.nsa.gov>; Sun, 18 May 2003 19:08:10 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Torsten Knodt <tk-selinux@datas-world.de>, selinux@tycho.nsa.gov
-Subject: Re: Creating a new lsm function
-Date: Mon, 19 May 2003 05:06:18 +1000
-References: <200305181856.22022.tk-selinux@datas-world.de>
-In-Reply-To: <200305181856.22022.tk-selinux@datas-world.de>
+Message-Id: <200305182358.AA00703@ilios104.ori.hitachi-sk.co.jp>
+From: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>
+Date: Mon, 19 May 2003 08:58:23 +0900
+To: SELinux@tycho.nsa.gov
+Cc: ynakam@ori.hitachi-sk.co.jp
+Subject: Compile Error of libsecure on Redhat9.0
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200305190506.18495.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 19 May 2003 02:50, Torsten Knodt wrote:
-> I'd like to create two new function's, which fill a buffer with lsm
-> informations about an interface/ a socket. Both will simply give back the
-> context. Also, for this two, a function will return a title for these
-> fields. These function will be used to print out these informations in
-> /proc/net/tcp, ... to be read by net-tools.
+Hi.
+I'm researching SELinux in Japan.
 
-The idea is to have netstat display the security context.
+I tried to install SELinux(lsm2.4) on Redhat 9.0.
+But the compile of libsecure failed in fstat_secure.c.
+-------------------------------------
+cc -o fstat_secure.o -c -I../include -I/usr/local/selinux/include fstat_secure.c
+In file included from fstat_secure.c:4:
+kernel_stat.h:18: warning: no semicolon at end of struct or union
+kernel_stat.h:18: parse error before '.' token
+kernel_stat.h:21: parse error before '.' token
+kernel_stat.h:24: parse error before '.' token
+kernel_stat.h:31: parse error before '}' token
+In file included from fstat_secure.c:5:
+xstat_conv.h: In function `xstat_conv':
+xstat_conv.h:29: dereferencing pointer to incomplete type
+xstat_conv.h:29: dereferencing pointer to incomplete type
+xstat_conv.h:37: dereferencing pointer to incomplete type
+xstat_conv.h:41: dereferencing pointer to incomplete type
+xstat_conv.h:42: dereferencing pointer to incomplete type
+xstat_conv.h:43: dereferencing pointer to incomplete type
+xstat_conv.h:44: dereferencing pointer to incomplete type
+xstat_conv.h:45: dereferencing pointer to incomplete type
+xstat_conv.h:46: dereferencing pointer to incomplete type
+xstat_conv.h:50: dereferencing pointer to incomplete type
+xstat_conv.h:51: dereferencing pointer to incomplete type
+xstat_conv.h:52: dereferencing pointer to incomplete type
+xstat_conv.h:53: dereferencing pointer to incomplete type
+xstat_conv.h:55: structure has no member named `__unused1'
+xstat_conv.h:57: dereferencing pointer to incomplete type
+xstat_conv.h:59: structure has no member named `__unused2'
+xstat_conv.h:61: dereferencing pointer to incomplete type
+xstat_conv.h:63: structure has no member named `__unused3'
+fstat_secure.c: In function `fstat_secure':
+fstat_secure.c:12: storage size of `kbuf' isn't known
+make[2]: *** [fstat_secure.o] Error 1
+--------------------------------
 
-> Can someone give me a hint, where this has to be implemented to be
-> independent of the used security module?
+It seems that Redhat9.0's struct stat in /usr/include/bits/stat.h has changed from that of Redhat 8.0.
+"# define st_atime st_atim.tv_sec
+# define st_mtime st_mtim.tv_sec
+# define st_ctime st_ctim.tv_sec" in /usr/include/bits/stat.h
+conflict with struct kernel_stat in kernel_stat.h
+and  
+__unused1,__unused2,__unused3 don't exists in "struct stat".
 
-When 2.6.0 comes out with xattr being used in a consistant fashion for file 
-system and process labelling and this being done in a text form it will 
-hopefully be possible to make such things consistant across different 
-modules.
+Thank you.
 
-I don't think that there's much chance of it for 2.4.x, all of the kernel 
-programmers who are involved appear to be spending the vast majority of their 
-time on 2.5.x.  I don't think that there's much interest in doing anything 
-big for 2.4.x, so anything that gets done will be based on SIDs for SE Linux 
-which means that they won't be consistant across modules.
-
-
-PS  Have you tried playing with SE Linux and 2.5.x yet?
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+--------------------
+Yuichi Nakamura
+Research&Development Department
+Hitachi Software Engineering Co.,Ltd.
+ynakam@ori.hitachi-sk.co.jp
+SELinux Policy Editor:http://www.selinux.hitachi-sk.co.jp/en/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
