@@ -1,36 +1,32 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QDGFrT027231
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 09:16:15 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QDOXrT027278
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 09:24:33 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QDFC76013572
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 13:15:13 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QDNU76013709
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 13:23:31 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Joe Nall <joe@nall.com>
-Subject: Re: Remove unrestricted_admin
-Date: Sun, 26 Sep 2004 23:16:11 +1000
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-References: <200409211526.37810.russell@coker.com.au> <1096052356.9895.25.camel@selinux> <9A993228-0F47-11D9-80EA-000A95EED7F6@nall.com>
-In-Reply-To: <9A993228-0F47-11D9-80EA-000A95EED7F6@nall.com>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: udev_uses_tmpfs
+Date: Sun, 26 Sep 2004 23:24:29 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040926120608.GG26338@lkcl.net>
+In-Reply-To: <20040926120608.GG26338@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200409262316.11071.russell@coker.com.au>
+Message-Id: <200409262324.29324.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 26 Sep 2004 09:06, Joe Nall <joe@nall.com> wrote:
-> > Yes these are reasons; however, this is supposed to be the strict
-> > policy, and these are not compelling enough to loosen the policy this
-> > way, in my opinion.
->
-> dd has other options (seek, skip, count) that allow arbitrary editing of
-> a raw disk. If you can dd (or write in general) the root raw disk
-> partition,
-> you can do anything.
+On Sun, 26 Sep 2004 22:06, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> if there are _really_ some redhat-specific things such as "only redhat
+> does udev+tmpfs from its initial ramdisk" then fine.
 
-If you can put SE Linux in permissive mode (as sysadm_t can) then as far as SE 
-Linux is concerned you can do anything.
+That's what it is.
+
+If tmpfs is mounted after the machine boots (as done in Debian) then it can be 
+correctly labelled before use.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
