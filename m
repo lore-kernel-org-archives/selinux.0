@@ -1,70 +1,81 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA17071
-	for <selinux@tycho.nsa.gov>; Tue, 4 Sep 2001 20:46:26 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id AAA11436
-	for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2001 00:45:03 GMT
-Received: from windowpane.com (ip56.gte1.rb1.bel.nwlink.com [209.20.131.56])
-	by jazzswing.ncsc.mil  with ESMTP id AAA11432
-	for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2001 00:45:03 GMT
-Message-ID: <000c01c135a4$3524d700$3a8314d1@nwlink.com>
-Reply-To: "Conan Callen" <ccallen@windowpane.com>
-From: "Conan Callen" <ccallen@windowpane.com>
-To: "Howard Holm" <hdholm@epoch.ncsc.mil>
-Cc: <selinux@tycho.nsa.gov>
-References: <003401c13432$00288830$3a8314d1@nwlink.com> <20010904125630.A16961@truffula.epoch.ncsc.mil>
-Subject: Re: checkpolicy creates core file
-Date: Tue, 4 Sep 2001 17:46:30 -0700
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA24697
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 09:02:10 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA08030
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 13:01:45 GMT
+Received: from blackbird.intercode.com.au (blackbird.intercode.com.au [203.32.101.10])
+	by jazzband.ncsc.mil  with ESMTP id NAA08026
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 13:01:42 GMT
+Received: from localhost (jmorris@localhost)
+	by blackbird.intercode.com.au (8.9.3/8.9.3) with ESMTP id XAA28173
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 23:02:01 +1000
+Date: Thu, 6 Sep 2001 23:02:01 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: <selinux@tycho.nsa.gov>
+Subject: [PATCH] safe memory allocation flags
+Message-ID: <Pine.LNX.4.31.0109062231390.28083-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This was the problem. I set it to Classic Pentium and now checkpolicy works
-fine.
+The patch below allows netdev_precondition() to be called safely from
+interrupt context.
 
-Conan
+This can occur, for example, in the IP networking input path, which runs
+under a softirq.  Under these conditions, kernel memory needs to be
+allocated with the GFP_ATOMIC flag.  If anyone has seen an oops upon
+network traffic immedately after booting, this may have been the cause.
 
------ Original Message -----
-From: "Howard Holm" <hdholm@epoch.ncsc.mil>
-To: "Conan Callen" <ccallen@windowpane.com>
-Cc: <selinux@tycho.nsa.gov>
-Sent: Tuesday, September 04, 2001 9:56 AM
-Subject: Re: checkpolicy creates core file
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
+diff -urN -X /tmp/xmdiff module.orig/selinux_plug/hooks.c module/selinux_plug/hooks.c
+--- module.orig/selinux_plug/hooks.c	Thu Aug 23 14:20:50 2001
++++ module/selinux_plug/hooks.c	Thu Sep  6 21:57:33 2001
+@@ -308,7 +308,7 @@
+ {
+ 	struct netdev_security_struct *nsec = dev->security;
 
-> There's not a lot of information to go on here, but you might check the
-> kernel configuration under "Processor type and features" for "Processor
-> family" type.  I've seen similar problems when a kernel/checkpolicy is
-> compiled for a Pentium 3 and run on a standard Pentium.
->
-> On Sun, Sep 02, 2001 at 09:36:29PM -0700, Conan Callen wrote:
-> > I get a core file whenever checkpolicy is executed. While running step 4
-(build and install the example policy configuration) the core occurs.
-> >
-> > During the first install, today, I got this error. I thought I may had
-made a mistake, so I started over from scrath (deleted (rm -rf) both
-/root/lsm & /root/selinux then untared the distribution again). Once again I
-got the same error.
-> >
-> > Im going to continue with the install. I brought the core up in gdb, but
-its going to take a while for me to figure out whats going on. Im hoping
-that I can fix it after I get it installed.
-> >
-> > I started with
-http://www.nsa.gov/selinux/lsm/archives/lsm-200108221537.tgz. I just
-installed a fresh RedHat 7.1.
-> >
-> >
-> > I had installed selinux successfully before, but I got a "Kernel Panic"
-that looked like it was caused by a harddisk error. So I started with a new
-couple new harddrives and reinstalled linux.
-> --
-> Howard Holm <hdholm@epoch.ncsc.mil>
-> Information Assurance Research Group
-> National Security Agency
->
+-	nsec = kmalloc(sizeof(struct netdev_security_struct), GFP_KERNEL);
++	nsec = kmalloc(sizeof(struct netdev_security_struct), SAFE_ALLOC);
+ 	if (!nsec)
+ 		return -ENOMEM;
+ 	memset(nsec, 0, sizeof(struct netdev_security_struct));
+diff -urN -X /tmp/xmdiff module.orig/selinux_plug/include/linux/flask/flask_types.h module/selinux_plug/include/linux/flask/flask_types.h
+--- module.orig/selinux_plug/include/linux/flask/flask_types.h	Thu Jul 19 06:38:10 2001
++++ module/selinux_plug/include/linux/flask/flask_types.h	Thu Sep  6 21:58:37 2001
+@@ -76,5 +76,15 @@
+
+ #define CUR_SID current->sid
+
++#ifdef __KERNEL__
++/*
++ * Use this for memory allocation flags (e.g. for kmalloc()) when the interrupt
++ * state is unknown.
++ */
++#include <linux/interrupt.h>
++
++#define SAFE_ALLOC (in_interrupt () ? GFP_ATOMIC : GFP_KERNEL)
++#endif
++
+ #endif
+
+diff -urN -X /tmp/xmdiff module.orig/selinux_plug/ss/global.h module/selinux_plug/ss/global.h
+--- module.orig/selinux_plug/ss/global.h	Thu Jul 19 06:38:07 2001
++++ module/selinux_plug/ss/global.h	Thu Sep  6 22:19:22 2001
+@@ -77,7 +77,7 @@
+ #include <asm/uaccess.h>
+ #include "selinux_plug.h"
+
+-#define malloc(size) kmalloc(size, GFP_ATOMIC)
++#define malloc(size) kmalloc(size, SAFE_ALLOC)
+ #define free(ptr) kfree(ptr)
+
+ typedef struct file FILE;
 
 
 --
