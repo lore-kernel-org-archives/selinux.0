@@ -1,42 +1,46 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7J0m7Ha014868
-	for <selinux@tycho.nsa.gov>; Mon, 18 Aug 2003 20:48:07 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7J0kiOD019511
-	for <selinux@tycho.nsa.gov>; Tue, 19 Aug 2003 00:46:44 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-	by jazzswing.ncsc.mil  with ESMTP id h7J0khKO019508
-	for <selinux@tycho.nsa.gov>; Tue, 19 Aug 2003 00:46:43 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Ripin Natani" <ripinfs@hotmail.com>, selinux@tycho.nsa.gov
-Subject: Re: "Unable to mount root fs on unknown-block(0,0)"
-Date: Tue, 19 Aug 2003 10:47:53 +1000
-References: <BAY8-F87HJtfob7bOsP00014599@hotmail.com>
-In-Reply-To: <BAY8-F87HJtfob7bOsP00014599@hotmail.com>
-MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200308191047.53571.russell@coker.com.au>
+  charset="us-ascii"
+From: Bill Laut <wlsel@verizon.net>
+To: SELinux@tycho.nsa.gov
+Subject: Q on the Constrain verb
+Date: Tue, 19 Aug 2003 01:27:27 -0400
+MIME-Version: 1.0
+Message-Id: <200308190127.27853.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 19 Aug 2003 08:12, Ripin Natani wrote:
->       I am trying to run a custom compiled SElinux kernel with as small as
-> possible (with support for nfs and mounting and basic networking
-> capabilities). I get the following error when i use the custom compiled
-> image
-> "Unable to mount root fs on unknown-block(0,0)"
 
-What kernel version?
+I'm writing up a .te file for the Tripwire suite.  I'd like the policy to 
+distinguish between staff_r and sysadm_r, in that sysadm_r is given 
+unrestricted access to create/modify the Tripwire policy, database, and 
+local/site keys.  Staff_r (and initrc_t) are given read-only access to these 
+files, so that automated nightly and/or staff security checks are not allowed 
+to potentially alter the Tripwire database/policy.
 
-What happens when you compile your own kernel without SE Linux?
+I would like to use the constrain verb in my .te file to distinguish sysadm_r 
+from all others, but when I do a "make reload" I get a syntax error on the 
+constrain statement.  I've even gone so far as to quote the third example 
+constrain statement (pg. 20, Sec. 4.5 of "Configuring the SELinux Policy") 
+verbatim in my .te file, but it, too, generates a syntax error.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+So, if I have (for example) an allow statement of the form:
+
+   allow tripwire_t tripwire_cfg_t:file { create write read getattr };
+
+How do I correctly syntax a constrain statement that will restrict the write & 
+create permissions when the role is not sysadm_r?  And how do you connect a 
+given constraint statement with a given target context?  For example, 
+supposing that I have:
+
+   allow tripwire_t tripwire_cfg_t:file { create write read getattr };
+   allow tripwire_t tripwire_key_t:file { create write read getattr };
+   allow tripwire_t tripwire_report_t:file { create write read getattr };
+
+How do I syntax the constraint so that it constrains the cfg and key types but 
+not the report type?  That linkage is not apparent in the documentation.
+
+Thanks in advance.
+
 
 
 --
