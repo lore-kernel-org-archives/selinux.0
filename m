@@ -1,62 +1,58 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA21027
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 12:46:40 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA28470
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 17:44:48 GMT
-Received: from unicorn.lemuria.org (b067018.adsl.hansenet.de [62.109.67.18])
-	by jazzswing.ncsc.mil  with ESMTP id RAA28465
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 17:44:47 GMT
-Date: Tue, 29 Oct 2002 18:45:39 +0100
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: New Apache policy
-Message-ID: <20021029184539.A16049@lemuria.org>
-References: <20021029173606.A28387@lemuria.org> <Pine.GSO.4.33.0210291146020.29605-100000@raven>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.GSO.4.33.0210291146020.29605-100000@raven>; from sds@tislabs.com on Tue, Oct 29, 2002 at 12:09:30PM -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA21437
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 13:26:13 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA02472
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 18:24:17 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id SAA02468 for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 18:24:15 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
+Subject: Re: recovery docs starter
+Date: Tue, 29 Oct 2002 18:32:20 +0100
+References: <20021029134149.A25150@lemuria.org>
+In-Reply-To: <20021029134149.A25150@lemuria.org>
+MIME-Version: 1.0
+Message-Id: <200210291832.20142.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Oct 29, 2002 at 12:09:30PM -0500, Stephen Smalley wrote:
-> > The main reason for giving the client tools a domain was to unify
-> > server and client access, i.e. set up the repository so that it can
-> > only be accessed by the proper tools. As with CVS, tampering directly
-> > with the repository will corrupt it.
-> 
-> It would offer some limited integrity protection in terms of ensuring that
-> the transactions on the repository are well-formed (i.e. only permitting
-> transactions implemented via svn, svnlock, or svnadmin commands).  But it
+On Tue, 29 Oct 2002 13:41, Tom wrote:
+> As promised when I had some trouble, I've started a "SELinux failures
+> and recovery" document. It's very small right now, but nevertheless
+> here's the first draft and please give feedback, as I'm sure I have
+> missed stuff and made some mistakes.
+>
+> http://web.lemuria.org/se-recovery.html
 
-Correct. It protects from mistakes, not malicious intent.
+If the policy you try to load doesn't match the kernel policy version then 
+it'll just give an error when you try to load it.
 
-I still see the value in it, especially given that Subversion is still
-in development - who knows what kinds of access controls and other fine
-print the team might still add? Running in its own domain, the policy
-is ready for whatever they come up with.
+The only way you can get in trouble is if you compile a version of the policy 
+source that doesn't match the kernel.  Different binary policy versions often 
+require different policy source versions, if the files security_classes, 
+initial_sids, and access_vectors don't match the kernel then the result can 
+be a totally non-functional system.
 
-Also, I may think about restricting _local_ access for these tools,
-because they are connecting outwards to potentially hacked and/or
-malicious servers.
+In the file labels section you failed to mention that if you delete a file on 
+a non-SE kernel and create a new file then it might get the same Inode number 
+as the file you deleted (and therefore the same SID).
+
+avc_toggle only works if you have compiled in development mode...
 
 
-> > Also, this leaves the option of restricting access to the repository by
-> > restricting access to the tools by using either unix or SELinux
-> > permissions.
-> 
-> With a client program domain, this would take the form of only specifying
-> svn_domain() for certain user domains as opposed to all of them.  Without
-> a client program domain, it would simply consist of only allowing certain
-> user domains to directly access the repository type.
-
-You're right, it doesn't make much of a difference.
-
+Apart from that it looks good so far.  Next thing to do is make some mention 
+of the results of accidentally installing an unpatched /bin/login etc.  ;)
 
 -- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
