@@ -1,68 +1,311 @@
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Bill Laut <wlsel@verizon.net>
-To: SELinux@tycho.nsa.gov
-Subject: Q on nonuniform "recvfrom" avc message
-Date: Tue, 8 Jul 2003 12:24:41 -0400
-MIME-Version: 1.0
-Message-Id: <200307081224.41939.wlsel@verizon.net>
+Subject: Re: libsecure fails to compile
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Jonathan_Axisa@nai.com
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <B3B3B1C9A024D511B52C00D0B7201BDB07703D@ca-ex-remote1.na.nai.com>
+References: 
+	 <B3B3B1C9A024D511B52C00D0B7201BDB07703D@ca-ex-remote1.na.nai.com>
+Content-Type: multipart/mixed; boundary="=-P8btFdsLm2kI1lwvPveY"
+Message-Id: <1057686414.12912.84.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 08 Jul 2003 13:46:55 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-First of all, thank you for the advice on my previous newbie question about 
-the disappearing boot messages.  I'm now going through to edit my policy 
-files to resolve the AVC messages.  
+--=-P8btFdsLm2kI1lwvPveY
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-While reviewing the syslog output, I came across something else I was 
-wondering if someone could please explain to me?  I'm connecting through a 
-DSL with dynamic IP, and accordingly the DHCP server is polling me every two 
-hours to reconfirm my lease on the address.  The incoming UDP packet is being 
-silently logged and dropped by NetFilter, and in this case wouldn't matter 
-because dhcpcd doesn't create a UDP socket on port 68 anyway.
+On Tue, 2003-07-08 at 12:04, Jonathan_Axisa@nai.com wrote:
+> I am trying to compile libsecure (with the latest version of the SE Linux 
+> code, just downloaded from nsa.gov yesterday) but it fails with the following
+> error:
+> 
+> make -C src
+> make[1]: Entering directory `/home/jaxisa/work/nsa/selinux/libsecure/src'
+> cc -o fstat_secure.o -c -I../include -I/usr/local/selinux/include fstat_secure.c
+> In file included from fstat_secure.c:4:
+> kernel_stat.h:18: warning: no semicolon at end of struct or union
+> 
+> In kernel_stat.h, there are no .'s on the lines indicated, and there are semicolons in every place that needs a semicolon.
 
-Sporadically, I'm seeing an AVC message which suggests that kjournald is 
-trying to receive the packet.  Below is a snippet from my syslog:
+The stat structure definition in glibc has changed; if you look at
+/usr/include/bits/stat.h, you'll see that they have #define'd st_atime,
+st_mtime, and st_ctime for backward compatibility, which yields
+unpleasant results when expanding the old structure definition in
+kernel_stat.h.  You can try the attached patch for libsecure.  This was
+previously posted a while back on the list.  The issue is obsoleted by
+the overhaul of the SELinux API, which has been done for the 2.5-based
+SELinux and is being back ported to the 2.4-based SELinux.
 
-Jul  7 21:57:26 vortex kernel: UDP_rules: IN=eth1 OUT=
-   MAC=00:50:ba:5e:22:f7:00:02:3b:00:db:ee:08:00 SRC=209.244.127.6
-   DST=4.46.245.145 LEN=339 TOS=0x00 PREC=0x00 TTL=249 ID=53845 DF
-   PROTO=UDP SPT=67 DPT=68 LEN=319
+Side note:  The current release on nsa.gov is a bit dated (April 2003),
+should be updated soon.  Between releases, you can typically get a more
+up-to-date snapshot from the sourceforge CVS tree.
 
-Jul  7 23:57:26 vortex kernel: UDP_rules: IN=eth1 OUT=
-   MAC=00:50:ba:5e:22:f7:00:02:3b:00:db:ee:08:00 SRC=209.244.127.6
-   DST=4.46.245.145 LEN=339 TOS=0x00 PREC=0x00 TTL=249 ID=41215 DF 
-   PROTO=UDP SPT=67 DPT=68 LEN=319
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Jul  8 01:57:26 vortex kernel: avc:  denied  { recvfrom } for  pid=11
-   comm=kjournald saddr=209.244.127.6 source=17664 daddr=4.46.245.145 dest=339
-   netif=eth1 scontext=system_u:system_r:initrc_t
-   tcontext=system_u:object_r:netmsg_eth1_t tclass=packet_socket
+--=-P8btFdsLm2kI1lwvPveY
+Content-Disposition: attachment; filename=newstat.patch
+Content-Type: text/x-patch; name=newstat.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Jul  8 01:57:26 vortex kernel: UDP_rules: IN=eth1 OUT=
-   MAC=00:50:ba:5e:22:f7:00:02:3b:00:db:ee:08:00 SRC=209.244.127.6
-   DST=4.46.245.145 LEN=339 TOS=0x00 PREC=0x00 TTL=249 ID=28605 DF PROTO=UDP
-   SPT=67 DPT=68 LEN=319
+Index: selinux/libsecure/src/kernel_stat.h
+===================================================================
+RCS file: /home/pal/CVS/selinux/libsecure/src/kernel_stat.h,v
+retrieving revision 1.2
+diff -u -r1.2 kernel_stat.h
+--- selinux/libsecure/src/kernel_stat.h	27 Nov 2001 12:21:05 -0000	1.2
++++ selinux/libsecure/src/kernel_stat.h	22 Apr 2003 15:47:25 -0000
+@@ -15,18 +15,21 @@
+     unsigned long int st_size;
+     unsigned long int st_blksize;
+     unsigned long int st_blocks;
+-    unsigned long int st_atime;
+-    unsigned long int __unused1;
+-#define _HAVE___UNUSED1
+-    unsigned long int st_mtime;
+-    unsigned long int __unused2;
+-#define _HAVE___UNUSED2
+-    unsigned long int st_ctime;
+-    unsigned long int __unused3;
+-#define _HAVE___UNUSED3
++    struct timespec st_atim;
++    struct timespec st_mtim;
++    struct timespec st_ctim;
+     unsigned long int __unused4;
+ #define _HAVE___UNUSED4
+     unsigned long int __unused5;
+ #define _HAVE___UNUSED5
+   };
+ 
++#define _HAVE_STAT___UNUSED4
++#define _HAVE_STAT___UNUSED5
++#define _HAVE_STAT___PAD1
++#define _HAVE_STAT___PAD2
++#define _HAVE_STAT_NSEC
++#define _HAVE_STAT64___PAD1
++#define _HAVE_STAT64___PAD2
++#define _HAVE_STAT64___ST_INO
++#define _HAVE_STAT64_NSEC
+Index: selinux/libsecure/src/xstat_conv.h
+===================================================================
+RCS file: /home/pal/CVS/selinux/libsecure/src/xstat_conv.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 xstat_conv.h
+--- selinux/libsecure/src/xstat_conv.h	18 Jul 2001 20:38:06 -0000	1.1.1.1
++++ selinux/libsecure/src/xstat_conv.h	22 Apr 2003 15:40:53 -0000
+@@ -1,21 +1,26 @@
+ /* Convert between the kernel's `struct stat' format, and libc's.
+-   Copyright (C) 1991, 1995, 1996, 1997 Free Software Foundation, Inc.
++   Copyright (C) 1991,1995,1996,1997,2000,2002 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Library General Public License as
+-   published by the Free Software Foundation; either version 2 of the
+-   License, or (at your option) any later version.
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
+ 
+    The GNU C Library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Library General Public License for more details.
++   Lesser General Public License for more details.
+ 
+-   You should have received a copy of the GNU Library General Public
+-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+-   Boston, MA 02111-1307, USA.  */
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <errno.h>
++#define __set_errno(x) (errno) = (x)
++
++#include <string.h>
+ 
+ static inline int
+ xstat_conv (int vers, struct kernel_stat *kbuf, void *ubuf)
+@@ -35,7 +40,7 @@
+ 
+ 	/* Convert to current kernel version of `struct stat'.  */
+ 	buf->st_dev = kbuf->st_dev;
+-#ifdef _HAVE___PAD1
++#ifdef _HAVE_STAT___PAD1
+ 	buf->__pad1 = 0;
+ #endif
+ 	buf->st_ino = kbuf->st_ino;
+@@ -44,35 +49,44 @@
+ 	buf->st_uid = kbuf->st_uid;
+ 	buf->st_gid = kbuf->st_gid;
+ 	buf->st_rdev = kbuf->st_rdev;
+-#ifdef _HAVE___PAD2
++#ifdef _HAVE_STAT___PAD2
+ 	buf->__pad2 = 0;
+ #endif
+ 	buf->st_size = kbuf->st_size;
+ 	buf->st_blksize = kbuf->st_blksize;
+ 	buf->st_blocks = kbuf->st_blocks;
++#ifdef _HAVE_STAT_NSEC
++	buf->st_atim.tv_sec = kbuf->st_atim.tv_sec;
++	buf->st_atim.tv_nsec = kbuf->st_atim.tv_nsec;
++	buf->st_mtim.tv_sec = kbuf->st_mtim.tv_sec;
++	buf->st_mtim.tv_nsec = kbuf->st_mtim.tv_nsec;
++	buf->st_ctim.tv_sec = kbuf->st_ctim.tv_sec;
++	buf->st_ctim.tv_nsec = kbuf->st_ctim.tv_nsec;
++#else
+ 	buf->st_atime = kbuf->st_atime;
+-#ifdef _HAVE___UNUSED1
++	buf->st_mtime = kbuf->st_mtime;
++	buf->st_ctime = kbuf->st_ctime;
++#endif
++#ifdef _HAVE_STAT___UNUSED1
+ 	buf->__unused1 = 0;
+ #endif
+-	buf->st_mtime = kbuf->st_mtime;
+-#ifdef _HAVE___UNUSED2
++#ifdef _HAVE_STAT___UNUSED2
+ 	buf->__unused2 = 0;
+ #endif
+-	buf->st_ctime = kbuf->st_ctime;
+-#ifdef _HAVE___UNUSED3
++#ifdef _HAVE_STAT___UNUSED3
+ 	buf->__unused3 = 0;
+ #endif
+-#ifdef _HAVE___UNUSED4
++#ifdef _HAVE_STAT___UNUSED4
+ 	buf->__unused4 = 0;
+ #endif
+-#ifdef _HAVE___UNUSED5
++#ifdef _HAVE_STAT___UNUSED5
+ 	buf->__unused5 = 0;
+ #endif
+       }
+       break;
+ 
+     default:
+-      errno = EINVAL;
++      __set_errno (EINVAL);
+       return -1;
+     }
+ 
+Index: selinux/libsecure/src/arch/i386/fstat64_secure.c
+===================================================================
+RCS file: /home/pal/CVS/selinux/libsecure/src/arch/i386/fstat64_secure.c,v
+retrieving revision 1.2
+diff -u -r1.2 fstat64_secure.c
+--- selinux/libsecure/src/arch/i386/fstat64_secure.c	2 Oct 2002 20:28:17 -0000	1.2
++++ selinux/libsecure/src/arch/i386/fstat64_secure.c	22 Apr 2003 15:52:45 -0000
+@@ -2,26 +2,19 @@
+ #include <fs_secure.h>
+ #include <security.h>
+ #include <errno.h>
+-#include "kernel_stat64.h"
+-#include "xstat64_conv.h"
+ #include <flask_util.h>
+ 
+ int fstat64_secure(unsigned int fd,
+ 		   struct stat64 *buf, 
+ 		   security_id_t *out_sid)
+ {
+-	struct kernel_stat64 kbuf;
+ 	unsigned long args[3];
+-	long err;
+ 
+ 	if (is_flask_enabled()) {	
+ 		args[0] = (unsigned long)fd;
+-		args[1] = (unsigned long)&kbuf;
++		args[1] = (unsigned long)buf;
+ 		args[2] = (unsigned long)out_sid;
+-		err = security(SELINUX_MAGIC, SELINUXCALL_FSTAT64, args);
+-		if (err)
+-			return err;
+-		return xstat64_conv(_STAT_VER_LINUX, &kbuf, buf);
++		return security(SELINUX_MAGIC, SELINUXCALL_FSTAT64, args);
+ 	} else {
+ 		/* Compatibility for the modified utilities
+ 		   until they are fixed. */
+Index: selinux/libsecure/src/arch/i386/lstat64_secure.c
+===================================================================
+RCS file: /home/pal/CVS/selinux/libsecure/src/arch/i386/lstat64_secure.c,v
+retrieving revision 1.2
+diff -u -r1.2 lstat64_secure.c
+--- selinux/libsecure/src/arch/i386/lstat64_secure.c	2 Oct 2002 20:28:17 -0000	1.2
++++ selinux/libsecure/src/arch/i386/lstat64_secure.c	22 Apr 2003 15:53:12 -0000
+@@ -2,26 +2,19 @@
+ #include <fs_secure.h>
+ #include <security.h>
+ #include <errno.h>
+-#include "kernel_stat64.h"
+-#include "xstat64_conv.h"
+ #include <flask_util.h>
+ 
+ int lstat64_secure(const char *pathname, 
+ 		   struct stat64 *buf, 
+ 		   security_id_t *out_sid)
+ {
+-	struct kernel_stat64 kbuf;
+ 	unsigned long args[3];
+-	int err;
+ 	
+ 	if (is_flask_enabled()) {
+ 		args[0] = (unsigned long)pathname;
+-		args[1] = (unsigned long)&kbuf;
++		args[1] = (unsigned long)buf;
+ 		args[2] = (unsigned long)out_sid;
+-		err = security(SELINUX_MAGIC, SELINUXCALL_LSTAT64, args);
+-		if (err)
+-			return err; 
+-		return xstat64_conv(_STAT_VER_LINUX, &kbuf, buf);
++		return security(SELINUX_MAGIC, SELINUXCALL_LSTAT64, args);
+ 	} else {
+ 		/* Compatibility for the modified utilities
+ 		   until they are fixed. */
+Index: selinux/libsecure/src/arch/i386/stat64_secure.c
+===================================================================
+RCS file: /home/pal/CVS/selinux/libsecure/src/arch/i386/stat64_secure.c,v
+retrieving revision 1.2
+diff -u -r1.2 stat64_secure.c
+--- selinux/libsecure/src/arch/i386/stat64_secure.c	2 Oct 2002 20:28:17 -0000	1.2
++++ selinux/libsecure/src/arch/i386/stat64_secure.c	22 Apr 2003 15:52:50 -0000
+@@ -2,26 +2,19 @@
+ #include <fs_secure.h>
+ #include <security.h>
+ #include <errno.h>
+-#include "kernel_stat64.h"
+-#include "xstat64_conv.h"
+ #include <flask_util.h>
+ 
+ int stat64_secure(const char *pathname, 
+ 		  struct stat64 *buf, 
+ 		  security_id_t *out_sid)
+ {
+-	struct kernel_stat64 kbuf;
+ 	unsigned long args[3];
+-	long err;
+ 
+ 	if (is_flask_enabled()) {
+ 		args[0] = (unsigned long)pathname;
+-		args[1] = (unsigned long)&kbuf;
++		args[1] = (unsigned long)buf;
+ 		args[2] = (unsigned long)out_sid;
+-		err = security(SELINUX_MAGIC, SELINUXCALL_STAT64, args);
+-		if (err)
+-			return err;
+-		return xstat64_conv(_STAT_VER_LINUX, &kbuf, buf);
++		return security(SELINUX_MAGIC, SELINUXCALL_STAT64, args);
+ 	} else {
+ 		/* Compatibility for the modified utilities
+ 		   until they are fixed. */
 
-Jul  8 03:57:26 vortex kernel: UDP_rules: IN=eth1 OUT=
-   MAC=00:50:ba:5e:22:f7:00:02:3b:00:db:ee:08:00 SRC=209.244.127.6
-   DST=4.46.245.145 LEN=339 TOS=0x00 PREC=0x00 TTL=249 ID=15995 DF PROTO=UDP
-   SPT=67 DPT=68 LEN=319
-
-
-Why is SELinux reporting that kjournald is trying to receive this packet?  Is 
-it because the violation occured in the kernel while kjournald happened to be 
-the currently executing process?  Or is SELinux telling me that there's a 
-possible Trojan/BO/whatever buried inside of kjournald?
-
-So far, this has occured in only two processes:  kjournald and klogd.  That's 
-what sent my antennae up.
-
-Finally, what is the "source=" and "dest=" reporting?  Are they supposed to be 
-the source/destination port numbers?  It appears that there might be an error 
-as the dest= number appears to be the packet length.
-
-Thank you in advance for your advice.
+--=-P8btFdsLm2kI1lwvPveY--
 
 
 --
