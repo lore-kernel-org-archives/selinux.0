@@ -1,26 +1,28 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9KDNUWt019681
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 09:23:30 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9KDNdWt019686
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 09:23:39 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9KDNJ0p025997
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 13:23:19 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h9KDNIr7025993
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 13:23:18 GMT
-Subject: Re: Number of roles reported by checkpolicy
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Faye Coker <faye@lurking-grue.org>
+	by jazzswing.ncsc.mil  with ESMTP id h9KDNR0p026020
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 13:23:27 GMT
+Received: from tooheys.dsl.net (tooheys.dsl.net [65.84.81.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9KDNQr7026017
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 13:23:26 GMT
+Message-ID: <3F93E21C.4020405@tresys.com>
+Date: Mon, 20 Oct 2003 09:24:44 -0400
+From: David Caplan <dac@tresys.com>
+MIME-Version: 1.0
+To: faye@lurking-grue.org
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200310201900.27621.faye@lurking-grue.org>
+Subject: Re: Number of roles reported by checkpolicy
 References: <200310201900.27621.faye@lurking-grue.org>
-Content-Type: text/plain
-Message-Id: <1066656205.22196.25.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 20 Oct 2003 09:23:26 -0400
+In-Reply-To: <200310201900.27621.faye@lurking-grue.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-10-20 at 05:00, Faye Coker wrote:
+
+
+Faye Coker wrote:
 > Running checkpolicy shows I have 4 users and 5 roles:
 > 
 > faye@kaos:/etc/selinux$ checkpolicy
@@ -38,14 +40,21 @@ On Mon, 2003-10-20 at 05:00, Faye Coker wrote:
 > 
 > Any ideas as to why checkpolicy is reporting five roles, when I can only see 
 > four?
+> 
 
-You are forgetting the secret nsa_has_all_power role.  Oops, nevermind.
-Actually, that would be the implicitly defined object_r role for objects
-that is being counted.
+object_r is inserted as the first role into the role table (see 
+roles_init() in .../checkpolicy/policydb.c) when the policy database is 
+initialized.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+David
+
+__________________________________
+
+David Caplan     410 290 1411 x105
+dac@tresys.com
+Tresys Technology, LLC
+8840 Stanford Blvd., Suite 2100
+Columbia, MD 21045
 
 
 --
