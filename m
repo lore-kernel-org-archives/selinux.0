@@ -1,65 +1,46 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9TNCLWt010170
-	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 18:12:21 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9U09eWt010338
+	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 19:09:40 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9TNBQXK002007
-	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 23:11:26 GMT
-Received: from devious.adversary.org (ben140014-1.gw.connect.com.au [210.8.239.156])
-        by jazzband.ncsc.mil  with ESMTP id h9TN34j4001765 for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 23:07:00 GMT
-Date: Thu, 30 Oct 2003 10:01:42 +1100
-From: Ben McGinnes <ben@adversary.org>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Melbourne SE Linux group
-Message-ID: <20031030100142.B11538@devious.adversary.org>
-References: <200310072332.08689.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="E39vaYmALEf/7YXx"
-In-Reply-To: <200310072332.08689.russell@coker.com.au>; from russell@coker.com.au on Tue, Oct 07, 2003 at 11:32:08PM +1000
+	by jazzband.ncsc.mil  with ESMTP id h9U098XK004127
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 00:09:08 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+        by jazzband.ncsc.mil  with ESMTP id h9U091j4004118 for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 00:09:07 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>,
+   Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>
+Subject: Re: question about pam_selinux multiple option
+Date: Tue, 28 Oct 2003 09:38:18 +1100
+Cc: selinux@tycho.nsa.gov
+References: <20031025134459.4fb0e536.ynakam@ori.hitachi-sk.co.jp> <3F9D33EC.8060705@redhat.com>
+In-Reply-To: <3F9D33EC.8060705@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200310280938.18975.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 28 Oct 2003 02:04, Daniel J Walsh wrote:
+> The multiple option was added to allow the user to select the security
+> context they would be allowed to login in as.  We have decided to pull
+> this functionality from login programs and only allow the user to login
+> with the default context.  Afterwards they can change their context
+> using newrole.  I will fix the man page.
 
---E39vaYmALEf/7YXx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Dan, I agree that the multiple option is not something we want globally 
+enabled, and it may not be desirable to have it enabled in a default 
+configuration.  But I think that we should still have the feature available 
+in a default build of the module so that anyone who desires it and is using a 
+login program that will support it can do so.
 
-Russell Coker(russell@coker.com.au)@Tue, Oct 07, 2003 at 11:32:08PM +1000:
-> We are talking about establishing a Melbourne SE Linux SIG.  Currently it=
-'s=20
-> just me, Faye, and Brian (with a good proability of occasional visits fro=
-m=20
-> James Morris and Paul Dwerryhouse).  If we have the numbers we'll make it=
- a=20
-> SIG of the Linux Users of Victoria group.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-I meant to post this a while back, but the Melbourne (Vic, not FL)
-based SELinux SIG has now been established as part of Linux Users of
-Victoria (luv.asn.au).  Since LUV is known to extend membership to
-those outside of Victoria (and not just Aussie expats), the invitation
-to join this SELinux SIG is fairly open.  :)
-
-Feel free to contact either Russell or myself if you have any further
-queries.
-
-
-Regards,
-Ben (what passes for moderator of the LUV SELinux SIG list)
-
---E39vaYmALEf/7YXx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8
-
-iQA/AwUBP6BG1Tcaxb+gSuMTEQJscgCeNsnbBiwBoW+Z6WCRUd6hulJGvQ4AoI2c
-7r5Tw+lhWkwbYiebBc7a8V+K
-=FIDC
------END PGP SIGNATURE-----
-
---E39vaYmALEf/7YXx--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
