@@ -1,55 +1,51 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i52C50rT003655
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 08:05:00 -0400 (EDT)
-Received: from smtp802.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i53C4ieD029809
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 08:04:45 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 2 Jun 2004 12:04:59 -0000
-Date: Wed, 2 Jun 2004 12:02:25 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: exim4 / selinux (passwd) clash
-Message-ID: <20040602120225.GH2960@lkcl.net>
-References: <20040601100649.GV8312@lkcl.net>
+Subject: Re: issue on binary & source compatibility
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20040601133457.24158.qmail@web51508.mail.yahoo.com>
+References: <20040601133457.24158.qmail@web51508.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1086179625.15871.39.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040601100649.GV8312@lkcl.net>
+Date: Wed, 02 Jun 2004 08:33:45 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-btw i solved this one by applying the NSA patch to passwd (actually
-the shadow package) latest debian unstable source, and it applied
-cleanly, and rebuilt cleanly.
+On Tue, 2004-06-01 at 09:34, Park Lee wrote:
+> Today,I saw an article named 'An Overview of Security Enhanced Linux'
+> at http://www.kuro5hin.org/story/2001/6/17/0104/24701.
+> 
+> It says: At present SE Linux provides binary compatibility with
+> existing applications, and source compatibility with kernel modules.
+>  
+> Then, I want to ask what the meaning and differences of 'binary
+> compatibility' and 'source compatibility' are? and why it said so?
 
-in case anyone's interested in keeping up-to-date.
+That article is dated June 2001, so it is rather old.  The compatibility
+discussion is apparently taken from our FAQ, i.e.
+http://www.nsa.gov/selinux/info/faq.cfm#I7.  Source compatibility for
+kernel modules means that you don't need to modify the kernel module
+sources, but you do need to rebuild them against the modified kernel
+headers so that they pick up the extended kernel data structures that
+include security fields.  However, with the integration of LSM into the
+mainline kernel, any kernel modules built against the mainline kernel
+will pick up the extended kernel data structures automatically.  Hence,
+the answer in the FAQ (and that article) is out of date; kernel modules
+should be binary compatible as well.  
 
-l.
+Of course, some kernel modules may not interact well with SELinux
+without modification, e.g. if they directly allocate and set  up kernel
+objects without using the normal core kernel initialization functions,
+then you could end up with kernel objects that lack proper security
+information.  Some kernel modules may also lack proper security controls
+(or sufficiently fine-grained controls) over their operations; since LSM
+does hook capable() and permission(), SELinux can at least mirror all
+such checks performed by modules, but this may not always be adequate.
 
-On Tue, Jun 01, 2004 at 10:06:49AM +0000, Luke Kenneth Casson Leighton wrote:
-> drat!
-> 
-> hm, what happens if i back out of passwd...
-> 
-> sez:/etc/selinux# apt-get install exim4-base
-> Reading Package Lists... Done
-> Building Dependency Tree... Done
-> Some packages could not be installed. This may mean that you have
-> requested an impossible situation or if you are using the unstable
-> distribution that some required packages have not yet been created
-> or been moved out of Incoming.
-> 
-> Since you only requested a single operation it is extremely likely that
-> the package is simply not installable and a bug report against
-> that package should be filed.
-> The following information may help to resolve the situation:
-> 
-> The following packages have unmet dependencies:
->   exim4-base: Depends: exim4-config (>= 4.30) but it is not going to be installed or
->                        exim4-config-2
->               Depends: passwd (>= 1:4.0.3-9) but 1:4.0.3-8.selinux.1 is to be installed or
->                        passwd (< 1:4.0.3-1) but 1:4.0.3-8.selinux.1 is to be installed
-> E: Broken packages
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
