@@ -1,59 +1,36 @@
-Subject: Re: dynamic context transitions
-From: Karl MacMillan <kmacmillan@tresys.com>
+Message-ID: <418B9D6C.7080008@trustedcs.com>
+Date: Fri, 05 Nov 2004 09:34:04 -0600
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, Frank Mayer <mayerf@tresys.com>,
-   "'Colin Walters'" <walters@verbum.org>,
+CC: Frank Mayer <mayerf@tresys.com>, "'Colin Walters'" <walters@verbum.org>,
    "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
    "'Chad Hanson'" <chanson@TrustedCS.com>,
-   SELinux List <SELinux@tycho.nsa.gov>
+   "'Karl MacMillan'" <kmacmillan@tresys.com>,
+   "'SELinux List'" <SELinux@tycho.nsa.gov>
+Subject: Re: dynamic context transitions
+References: <01df01c4c336$4facc6f0$1e0c010a@columbia.tresys.com>	 <418B968F.3070700@trustedcs.com> <1099668037.6373.126.camel@moss-spartans.epoch.ncsc.mil>
 In-Reply-To: <1099668037.6373.126.camel@moss-spartans.epoch.ncsc.mil>
-References: <01df01c4c336$4facc6f0$1e0c010a@columbia.tresys.com>
-	 <418B968F.3070700@trustedcs.com>
-	 <1099668037.6373.126.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 05 Nov 2004 10:33:05 -0500
-Message-Id: <1099668785.20150.139.camel@pham.columbia.tresys.com>
-Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-11-05 at 10:20 -0500, Stephen Smalley wrote:
+Stephen Smalley wrote:
 > On Fri, 2004-11-05 at 10:04, Darrel Goeddel wrote:
-> > The process first needs the ability to perform a dynamic transition ("allow 
-> > foo_t self:process dyntransition").
+> 
+>>The process first needs the ability to perform a dynamic transition ("allow 
+>>foo_t self:process dyntransition").
+> 
 > 
 > You mean "setcurrent", right?  dyntransition is the pairwise check, as
 > you correctly described later in the same message.
 > 
-> > Since the policy allows for such control, I do not see the need to wait for 
-> > policy language extensions, or to make dyntransitions a compile-time option to 
-> > the kernel.  Sorry if I got a little long-winded there :)
-> 
-> The only reason I can see for making it a compile-time option is greater
-> assurance that it will never be used, much as some people may want to
-> disable the selinux= boot parameter, runtime disable, or development
-> support options via the existing kernel config options.  But I am
-> hesitant to do this for an API (ability to write to
-> /proc/pid/attr/current), although I suppose one could argue that those
-> existing options also affect the API (ability to write to
-> /selinux/enforce and /selinux/disable as well as the boot parameters
-> themselves).  No strong preference either way for me.
-> 
 
-It seems to depend on whether most distributions are going to compile it
-in or not. If it is rarely enabled - like MLS - then I would just assume
-it be compile time. If most distributions expect to turn it on I would
-rather see it always compiled. Do you anticipate the permissions to
-always be present - and I assume this will be policy version 19?
-
-Karl
+Yep, thats the one...
 
 -- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-http://www.tresys.com
 
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
