@@ -1,56 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4K875I4008295
-	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 04:07:06 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4K874tV014954
-	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 08:07:05 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4K8TSI4008360
+	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 04:29:28 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4K8T5Qj025696
+	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 08:29:05 GMT
 Received: from narya.grin.hu (Narya.grin.hu [195.38.113.130])
-        by jazzband.ncsc.mil  with ESMTP id h4K873al014950 for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 08:07:04 GMT
-Date: Tue, 20 May 2003 10:06:52 +0200
+	by jazzswing.ncsc.mil  with ESMTP id h4K8T4xS025693
+	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 08:29:05 GMT
+Received: from grin by narya.grin.hu with local (Exim 3.36 #1 (Debian))
+	id 19I2VB-0006aP-00
+	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 10:29:41 +0200
+Date: Tue, 20 May 2003 10:29:41 +0200
 From: Peter Gervai <grin@tolna.net>
-To: Torsten Knodt <tk-selinux@datas-world.de>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Policy for exim and/ or tiger?
-Message-ID: <20030520080652.GW32563@narya.grin.hu>
+To: selinux@tycho.nsa.gov
+Subject: Re: matrix
+Message-ID: <20030520082941.GY32563@narya.grin.hu>
 Reply-To: grin@tolna.net
-References: <200305152349.28038.tk-selinux@datas-world.de>
+References: <C540EABA36FDD41189FD00508BAF8E850149266A@atsgroup.saic.com> <200305192115.33548.tk-selinux@datas-world.de> <200305201437.24228.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200305152349.28038.tk-selinux@datas-world.de>
+In-Reply-To: <200305201437.24228.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Tue, May 20, 2003 at 02:37:24PM +1000, Russell Coker wrote:
+> On Tue, 20 May 2003 05:15, Torsten Knodt wrote:
 
-On Thu, May 15, 2003 at 11:49:26PM +0200, Torsten Knodt wrote:
+[...]
+> Good point.  I've changed that in my tree to { getattr read }.
+[...]
+> Fixed that too.
 
-> has someone a policy for the exim mta and/ or the tiger script?
+# Policy tightened to prevent Trinity from saving the world. -- Russel
 
-I have a still evolving exim policy at
+:)
 
-http://narya.grin.hu/selinux/policy/
+I find it nice that the policy gets better because of a jollywood movie. Not
+happens very often, like, let's say, for Jurassic Park or, um, that stupid
+one I can't recall where they wrote a virus to infect an unknown computer(?) of
+an alien race. *laugh*
 
-as selinux0516.tgz and selinux/ (they're the same). Unfortunately some of
-the very useful advices and modifications Russel did tell me I was not able
-to use without severe side effects, probably mta.te and exim.te still needs
-a definite amount of polishment. 
-
-In the current state it works for me(tm), and I have practised wishful
-thinking about it being secure. :-)
-
-Still I'd be glad to hear comments and advices and I try to merge them up to
-the point when they make it not to work, when I have to stop merging. :-/
-
-I have policy for pine, I mean, it's something like a policy but looks like
-a horrible rape on selinux for me, since it contains plenty of horrible
-permissions granted. I wonder whether it can be made working without
-these...
-
-I changed the dovecot and maradns policies a bit, but I'm still not
-satisfied. Due to the time constraints I won't promise The Perfect Versions
-available too soon. 
-
-Peter
+grin
 
 --
 This message was distributed to subscribers of the selinux mailing list.
