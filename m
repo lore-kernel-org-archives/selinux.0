@@ -1,45 +1,58 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA02208
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 08:53:19 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA15733
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 13:50:33 GMT
-Received: from nox.lemuria.org (nox.lemuria.org [213.191.86.30])
-	by jazzswing.ncsc.mil  with ESMTP id NAA15729
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 13:50:32 GMT
-Date: Fri, 17 Jan 2003 13:51:11 +0100
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: KDM login trouble
-Message-ID: <20030117135111.A16515@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA02318
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 09:10:47 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h0HEAcI29726
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 14:10:38 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h0HEAbf29722 for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 14:10:37 GMT
+Message-Id: <200301171418.JAA00475@moss-shockers.ncsc.mil>
+Date: Fri, 17 Jan 2003 09:18:06 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: KDM login trouble
+To: selinux@tycho.nsa.gov, tom@lemuria.org
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For the first time since I started working with SELinux I've done it to
-a desktop machine today.
 
-Works fine, except for kdm. For one thing, run_init /etc/init.d/kdm
-exits immediately. doh.
-On boot, however, kdm fires up just right.
+> For the first time since I started working with SELinux I've done it to
+> a desktop machine today.
+> 
+> Works fine, except for kdm. For one thing, run_init /etc/init.d/kdm
+> exits immediately. doh.
+> On boot, however, kdm fires up just right.
+> 
+> But, it doesn't let anyone log in. The logfile says
+> UNABLE TO GET VALID SID for ...
+> 
+> Even though all users, including root, can log on just fine one the
+> console, so they _do_ have valid SIDs. And I'm still running in
+> permissive mode. No denied log entries, either.
+> 
+> What am I missing?
 
-But, it doesn't let anyone log in. The logfile says
-UNABLE TO GET VALID SID for ...
+Offhand, I would guess that the SELinux patch for kdm was never updated
+for the newer libsecure functions and default_contexts configuration,
+so it is still looking for the old (and no longer existing)
+default_context configuration.  See
+http://marc.theaimsgroup.com/?l=selinux&m=103772416731711&w=2 for a
+discussion of this change, which was introduced in the October 2002
+release.  We updated the components in our tree (login, sshd, crond),
+but not external components like the patched kdm.
 
-Even though all users, including root, can log on just fine one the
-console, so they _do_ have valid SIDs. And I'm still running in
-permissive mode. No denied log entries, either.
-
-What am I missing?
-
-This is a Debian woody system with kdm 2.2.2-14.se2.bam
+Alternatively, if the kdm patch was updated, then I would guess that
+kdm is not running the right domain.   Check the ps -e --context output
+to see the domain on the kdm process.  If it isn't correct, check the
+type on the executable.
 
 
--- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
