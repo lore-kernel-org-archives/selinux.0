@@ -1,151 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5DJcUI4007083
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 15:38:30 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h5DJbnss027678
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 19:37:50 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h5DJbnhY027673
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 19:37:49 GMT
-Received: from moss-huskers.epoch.ncsc.mil (moss-huskers [144.51.25.140])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5DJcQu1012696
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 15:38:26 -0400 (EDT)
-Subject: [patch] newrole tty relabeling fix
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-tpYBD5LoCqG1jszHTeFr"
-Message-Id: <1055533107.3362.19.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 13 Jun 2003 15:38:27 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5DJwnI4007172
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 15:58:50 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h5DJwm5e012011
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 19:58:48 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h5DJwk92012008 for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 19:58:47 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@epoch.ncsc.mil>, Michael Lambert <mlambe7@lsu.edu>
+Subject: Re: Status of selinux on IBM mainframe
+Date: Sat, 14 Jun 2003 05:58:40 +1000
+Cc: selinux@tycho.nsa.gov
+References: <1055514931.6878.33.camel@lambert.ocs.lsu.edu> <1055526062.1039.214.camel@moss-huskers.epoch.ncsc.mil>
+In-Reply-To: <1055526062.1039.214.camel@moss-huskers.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200306140558.40220.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 14 Jun 2003 03:41, Stephen Smalley wrote:
+> On Fri, 2003-06-13 at 10:35, Michael Lambert wrote:
+> > I was wondering what the development status of selinux was for
+> > architectures other than intel, particularly for linux on the IBM
+> > mainframe. I've searched the list archives and found a few mentions of
+> > the s/390, but nothing very descriptive. If there is a desire to port
+> > selinux to mainframe linux, I may be able to lend a hand in development.
+>
+> There isn't much point in pursuing such a port; the overhaul of the
 
---=-tpYBD5LoCqG1jszHTeFr
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Unless you want to get it working before 2.6.0 is released, or 2.6.0 doesn't 
+work for you for some reason.
 
-The attached patch corrects the newrole tty relabeling bug identified by
-Rafal Wojtczuk.  The patch changes newrole to sets it handler for SIGHUP
-to the default action so that it will be terminated by vhangup, to use
-open+fstat_secure+fchsid to ensure that it is accessing the same tty
-throughout, and to recheck the tty label before resetting it to the
-original value when the child process terminates.
-
-To apply, save the attachment to ~/newrole.patch, cd
-selinux/utils/newrole, and run patch -p0 < ~/newrole.patch.  Then build
-and install the updated newrole and relabel it to the proper context
-(system_u:object_r:newrole_exec_t).
+After 2.6.0 is released I don't expect everyone to upgrade to it instantly, 
+ARM/Familiar is still based on 2.4.19 with no stated plans for upgrading, and 
+many people for various reasons are still on 2.2.x kernels.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
---=-tpYBD5LoCqG1jszHTeFr
-Content-Disposition: attachment; filename=newrole.patch
-Content-Type: text/x-patch; name=newrole.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: newrole.c
-===================================================================
-RCS file: /home/pal/CVS/selinux/utils/newrole/newrole.c,v
-retrieving revision 1.9
-retrieving revision 1.12
-diff -u -r1.9 -r1.12
---- newrole.c	9 Jan 2003 15:20:39 -0000	1.9
-+++ newrole.c	13 Jun 2003 13:34:23 -0000	1.12
-@@ -63,6 +63,7 @@
- #include <ss.h>                   /* for sid<->context routines */
- #include <context.h>              /* for context-mangling functions */
- #include <get_default_type.h>
-+#include <signal.h>
- 
- /* USAGE_STRING describes the command-line args of this program. */
- #define USAGE_STRING "USAGE: newrole -r role [ -t type ] [ -- args ]"
-@@ -272,6 +273,7 @@
-  
-   security_id_t tty_sid;	     /* The current sid of tty file */
-   security_id_t new_tty_sid;	     /* The new tty file sid */	
-+  security_id_t sid;	     
- 
-   security_context_t context_s;      /* our security context as a string */
-   int context_length;
-@@ -296,6 +298,7 @@
-   struct stat statbuf;		     /* when stat'ing the tty */
-   int fd;
- 
-+  signal(SIGHUP, SIG_DFL);
- 
-   /*
-    *
-@@ -495,11 +498,22 @@
- 
-   /* Fetch TTY information */
-   ttyn=ttyname(0);
--  if( ttyn==NULL || *ttyn=='\0' || stat_secure(ttyn,&statbuf,&tty_sid) ) {
-+  if( ttyn==NULL || *ttyn=='\0') {
-       fprintf(stderr, "Could not retrieve tty information.\n");
-       exit (-1);
-     }
- 
-+  fd = open(ttyn, O_RDWR);
-+  if (fd < 0) {
-+      fprintf(stderr, "Could not open %s.\n", ttyn);
-+      exit (-1);
-+  }
-+	  
-+  if (fstat_secure(fd,&statbuf,&tty_sid) ) {
-+      fprintf(stderr, "Could not fstat_secure %s.\n", ttyn);
-+      exit (-1);
-+  }
-+
- #ifdef CANTSPELLGDB
-   printf("Your tty %s was labeled with SID %d\n", ttyn, tty_sid);
- #endif
-@@ -515,7 +529,7 @@
- #endif
- 
-   /* Relabel it */
--  if( chsid(ttyn,new_tty_sid)!=0 ) {
-+  if( fchsid(fd,new_tty_sid)!=0 ) {
-     fprintf(stderr,"newrole: error: chsid");
-     exit(-1);
-   }
-@@ -531,18 +545,30 @@
-     /* PARENT */
-     wait(NULL);
- 
-+    /* Verify that the tty still has the SID set by newrole. */
-+    if (fstat_secure(fd,&statbuf,&sid) ) {
-+	  fprintf(stderr, "Could not fstat_secure %s.\n", ttyn);
-+	  exit (-1);
-+    }
-+
-+    if (sid != new_tty_sid) {
-+	    fprintf(stderr, "%s changed labels.\n", ttyn);
-+	    exit(-1);
-+    }
-+
- #ifdef CANTSPELLGDB
-   printf("Restoring tty %s back to SID %d\n", ttyn, tty_sid);
- #endif
- 
--    /* Cleanup TTY Context */
--    chsid(ttyn,tty_sid);
-+    fchsid(fd,tty_sid);
- 
-     /* Done! */
-     exit(0);
-   }
- 
-   /* CHILD */
-+
-+  close(fd);
- 
-   /* Close and reopen descriptors 0 through 2 */
-   if( close(0) || close(1) || close(2) )
-
---=-tpYBD5LoCqG1jszHTeFr--
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
