@@ -1,49 +1,41 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TM3UrT023104
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 18:03:30 -0400 (EDT)
-Received: from smtp808.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6TM2xbB022705
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 22:02:59 GMT
-Date: Thu, 29 Jul 2004 23:14:34 +0100
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TM7JrT023140
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 18:07:19 -0400 (EDT)
+Received: from smtp800.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6TM6lbB022821
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 22:06:47 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp800.mail.ukl.yahoo.com with SMTP; 29 Jul 2004 22:07:18 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BqIZN-00017Y-Sj
+	for selinux@tycho.nsa.gov; Thu, 29 Jul 2004 21:36:10 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BqJEG-0003JZ-9A
+	for selinux@tycho.nsa.gov; Thu, 29 Jul 2004 23:18:24 +0100
+Date: Thu, 29 Jul 2004 23:18:24 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
-   SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: udev has had udev_selinux removed - argh!
-Message-ID: <20040729221434.GP9950@lkcl.net>
-References: <20040729094717.GE6443@lkcl.net> <20040729185034.GA1530@kroah.com> <20040729204008.GM9950@lkcl.net> <1091133915.3283.25.camel@localhost.localdomain>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: pear-shaped behaviour after enough make reloads
+Message-ID: <20040729221824.GR9950@lkcl.net>
+References: <20040728211229.GB18711@lkcl.net> <1091126965.21971.160.camel@moss-spartans.epoch.ncsc.mil> <20040729202419.GI9950@lkcl.net> <1091133123.21971.200.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1091133915.3283.25.camel@localhost.localdomain>
+In-Reply-To: <1091133123.21971.200.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jul 29, 2004 at 10:45:15PM +0200, Kay Sievers wrote:
-> On Thu, 2004-07-29 at 21:40 +0100, Luke Kenneth Casson Leighton wrote:
-> > hello greg,
-> > 
-> > well i tried compiling udev-024 and it was a pain, plus i got udev-030
-> > to work and decided it wasn't worth the effort, the users can
-> > JustLiveWithIt(tm) until it's fixed properly.
-> > 
-> > greg, do you have any objections to me doing a "proper" job, which
-> > is to patch udev-add.c to use some libselinux1 functions that will
-> > "prime" the selinux module with the right context, such that
-> > when the node (and the symlink!) are individually created, they
-> > are individually created with the correct context - there and then.
-> 
-> How do we solve the klibc build, if selinux is used internally? We've
-> moved it to a external program for that reason.
- 
-  if i understand you correctly (i don't know what klibc is):
+for completeness on list, i should mention that i was modifying
+policy files during the make reloads.
 
-  i'd recommend leaving it up to distributions to decide
-  to create (or not) two _separate_ packages, se_udev and udev.
+stephen mentioned that apparently if inodes are using a SID
+that is deleted, no amount of subsequent make reloads will
+reattach the SID to that inode.
 
-  if you can at least provide an option --with-selinux in the
-  configure script, distros can make the decision.
+what happened because of what i was doing to my computer "fits"
+with this explanation.
 
-  l.
+l.
 
 
 --
