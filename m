@@ -1,47 +1,45 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBFBOKRb019068
-	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 06:24:20 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBFCFdRb019240
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 07:15:39 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hBFBOJpn016136
-	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 11:24:19 GMT
-Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
-        by jazzband.ncsc.mil  with ESMTP id hBFBOIab016127 for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 11:24:18 GMT
-Received: (from root@localhost)
-	by baitaca.ipen.br (8.12.9/8.12.9) id hBFBP033001532
-	for selinux@tycho.nsa.gov; Mon, 15 Dec 2003 09:25:01 -0200
-Received: from ipen.br ([10.0.12.47])
-	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id hBFBOjjx001032
-	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 09:24:46 -0200
-Message-ID: <3FDD9A28.9070406@ipen.br>
-Date: Mon, 15 Dec 2003 09:25:28 -0200
-From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
+	by jazzband.ncsc.mil  with ESMTP id hBFCFcpn017348
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 12:15:38 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id hBFCFOab017321 for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 12:15:37 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Carlos =?iso-8859-1?q?An=EDsio=20Monteiro?= <monteiro@ipen.br>,
+   selinux <selinux@tycho.nsa.gov>
+Subject: Re: Information
+Date: Mon, 15 Dec 2003 23:13:59 +1100
+References: <3FDD9A28.9070406@ipen.br>
+In-Reply-To: <3FDD9A28.9070406@ipen.br>
 MIME-Version: 1.0
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Information
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200312152313.59234.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi.
+On Mon, 15 Dec 2003 22:25, Carlos Anísio Monteiro <monteiro@ipen.br> wrote:
+> I have seen that the binary policy file (policy.15) have "15" as version
+> of the checkpolicy utility, right ?
+> The change done in the sysvinit package load the policy as:
+> /sbin/load_policy /etc/security/selinux/policy.15, right?
+> If yes, a change in the version of the checkpolicy, I have that change
+> the sysvinit too ?
 
-I have seen that the binary policy file (policy.15) have "15" as version 
-of the checkpolicy utility, right ?
-The change done in the sysvinit package load the policy as: 
-/sbin/load_policy /etc/security/selinux/policy.15, right?
-If yes, a change in the version of the checkpolicy, I have that change 
-the sysvinit too ?
+The file /selinux/policyvers has the version.  A future version of sysvinit 
+will examine that file to determine which (of possibly many) policy databases 
+should be loaded.
 
-Is this a good idea ?
-This is only a question.
-
-Cheers.
-Thanks.
-
+Maybe Dan's rpm has this already, I haven't checked.
 
 -- 
-Carlos Anisio Monteiro  <monteiro@ipen.br>
-IPEN/CNEN-SP
-Sao Paulo - Brasil
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 
