@@ -1,37 +1,49 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9K8LmWt018440
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 04:21:49 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9K8LlmR026776
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 08:21:47 GMT
-Received: from mail.vegaa.de (mail.vegaa.de [213.203.196.181])
-        by jazzband.ncsc.mil  with ESMTP id h9K8Ljjp026771 for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 08:21:47 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Carsten Grohmann <carsten.grohmann@raumbildsysteme.de>
-To: russell@coker.com.au, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: init patch for loading policy
-Date: Mon, 20 Oct 2003 10:21:10 +0200
-References: <200310200148.15852.russell@coker.com.au>
-In-Reply-To: <200310200148.15852.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9K932Wt018536
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 05:03:02 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9K92o0p012282
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 09:02:51 GMT
+Received: from kaos (c210-49-228-68.sunsh1.vic.optusnet.com.au [210.49.228.68])
+	by jazzswing.ncsc.mil  with ESMTP id h9K92gr7012268
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 09:02:50 GMT
+Received: from kaos (kaos [127.0.0.1])
+	by kaos (Postfix) with ESMTP id 5E2F247298
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 19:00:28 +1000 (EST)
+From: Faye Coker <faye@lurking-grue.org>
+Reply-To: faye@lurking-grue.org
+To: selinux@tycho.nsa.gov
+Subject: Number of roles reported by checkpolicy
+Date: Mon, 20 Oct 2003 19:00:27 +1000
 MIME-Version: 1.0
-Message-Id: <200310201021.10773.carsten.grohmann@raumbildsysteme.de>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200310201900.27621.faye@lurking-grue.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Am Sonntag, 19. Oktober 2003 17:48 schrieb Russell Coker:
-> I've attached a patch for /sbin/init to load the policy and set
-> enforcing mode.  Here's a quick summary of the algorithm:
+Running checkpolicy shows I have 4 users and 5 roles:
 
-That's great! Last Friday I had a lot of problems with the initrd 
-(and my patched mkinitrd for SuSE) and I hope we don't need it in 
-the future.
+faye@kaos:/etc/selinux$ checkpolicy
+checkpolicy:  loading policy configuration from policy.conf
+security:  4 users, 5 roles, 683 types
+security:  29 classes, 71806 rules
 
-Could we parse the kernel command line to check the SELinux mode. 
-I'm not sure if a general start in the enforcing mode a good idea.
+however, I can only see four roles:
 
-Carsten
+faye@kaos:/etc/selinux$ grep ^role policy.conf|cut -f2 "-d "|sort -u
+staff_r
+sysadm_r
+system_r
+user_r
 
+Any ideas as to why checkpolicy is reporting five roles, when I can only see 
+four?
+
+faye
+--
+Faye Coker
+faye@lurking-grue.org
 
 
 
