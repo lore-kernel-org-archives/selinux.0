@@ -1,51 +1,58 @@
-To: SELinux@tycho.nsa.gov
-Date: Thu, 25 Apr 2002 02:29:53 +0800
-From: Debian User <rogelio@evoworks.evoserve.com>
-Message-Id: <20020424182953.75A6C812DB@coffeesaur2.evoserve.com>
+Date: Wed, 24 Apr 2002 16:19:45 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Debian User <rogelio@evoworks.evoserve.com>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: your mail
+In-Reply-To: <20020424182953.75A6C812DB@coffeesaur2.evoserve.com>
+Message-ID: <Pine.GSO.4.33.0204241612160.18677-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-> 
-> On Wed, 24 Apr 2002, Debian User wrote:
-> 
-> > Im getting lots of error messages when i use my pc after installing
-> > selinux. How do I fix the configs? Where should i start? Are the error
-> > messages enough to be able to fix my configuration?
-> 
-> Are you using Russell Coker's Debian selinux package or the upstream
-> distribution?  If the latter, I'd suggest using the former, since the
-> upstream distribution isn't set up for Debian.
-> 
-> There is a contributed script in the distribution, scripts/newrules.pl,
-> that filters your dmesg output and generates the allow rules that would
-> need to be added to your policy configuration to avoid these denials.
-> However, you will typically need to review these rules carefully to
-> determine whether they are truly acceptable.  In many cases, you will need
-> to add new domains and/or types rather than simply adding the allow rule
-> that corresponds to the audit message.  These issues are discussed briefly
-> in a new report that will hopefully be available soon.
-> 
-> --
-> Stephen D. Smalley, NAI Labs
-> ssmalley@nai.com
-> 
-> 
+On Thu, 25 Apr 2002, Debian User wrote:
 
-I just used the prel script. Now im working on the syntax. I have the two 
-white papers with me. I think I need to define new types and domains.
-What would possibly be the criteria for the decision? A rule of thumb if
-i may say so.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+> I just used the prel script. Now im working on the syntax. I have the two
+> white papers with me. I think I need to define new types and domains.
+> What would possibly be the criteria for the decision? A rule of thumb if
+> i may say so.
 
-iD8DBQE8xvktT5WfhZieiQoRAicVAJ9mt8IhesuTE+Iv0mEMY17vf8Zg2ACdEeXR
-USG5L3KFDPbfNAcJEVgKPkE=
-=KrLp
------END PGP SIGNATURE-----
+First, read the selinux/README file, particularly the post-install
+instructions (starting around step 18).  Make sure that you don't have any
+system processes left in initrc_t, as mentioned in step 18.
+
+Domains and types are security equivalence classes for processes and
+objects, respectively.  In other words, all processes in the same domain
+have the same permissions, and all objects with the same type (and class)
+can be accessed in the same way.  You want to use a distinct domain or
+type when you want to distinguish a process or an object from others in
+the security policy.  Processes that have the same security properties can
+be placed into the same domain.  Similarly for objects and types.
+
+The new policy report should be helpful in getting you started, although
+it still isn't at the level of a HOWTO, so I'm hoping that others will
+start writing HOWTOs derived from it and expanding upon it.  I expect this
+report to be released soon, but I'm not sure exactly when.  Some
+people at Tresys Technology have started writing some white papers related
+to the policy that you can find at http://www.tresys.com/selinux.html.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
