@@ -1,48 +1,54 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92EZjsJ003339
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 10:35:45 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92HWgsJ004800
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 13:32:43 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h92EZi7d028039
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 14:35:44 GMT
+	by jazzband.ncsc.mil  with ESMTP id h92HWf7d008273
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 17:32:42 GMT
+Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
+        by jazzband.ncsc.mil  with ESMTP id h92HWfRn008270 for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 17:32:41 GMT
+Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92HWf0F028753
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 13:32:41 -0400
+Received: (from hdholm@localhost)
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h92HWfP4028751
+	for selinux@tycho.nsa.gov; Thu, 2 Oct 2003 13:32:41 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92HDMsJ004592
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 13:13:22 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h92HBXZt013600
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 17:11:33 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h92EZiRn028036 for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 14:35:44 GMT
-Subject: Re: assertions in kernel
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: James Morris <jmorris@redhat.com>
-Cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <Pine.LNX.4.44.0310020733290.16953-100000@thoron.boston.redhat.com>
-References: 
-	 <Pine.LNX.4.44.0310020733290.16953-100000@thoron.boston.redhat.com>
+	by jazzswing.ncsc.mil  with ESMTP id h92HBXM3013597
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 17:11:33 GMT
+Received: from moss-huskies (moss-huskies [144.51.25.7])
+	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92HDLRL022009
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 13:13:21 -0400 (EDT)
+Subject: Updated Release
+From: Howard Holm <hdholm@epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+List-Id: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Message-Id: <1065105309.31707.64.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1065114741.27477.3042.camel@moss-huskies>
 Mime-Version: 1.0
-Date: 02 Oct 2003 10:35:09 -0400
+Date: 02 Oct 2003 13:13:20 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-10-02 at 07:43, James Morris wrote:
-> On Wed, 1 Oct 2003, James Morris wrote:
-> 
-> > I don't think relabeling files from kernelspace is a good idea.  A better 
-> > approach may be to use an implicit label if a kernel assertion fails.
-> 
-> Just to clarify following an off-list enquiry, what I mean by an implicit
-> label is that the kernel returns 'unlabeled_t' following an assertion
-> failure for a file, but does not change the disk structure.  This should
-> be transparent to the user APIs.
-
-The SELinux kernel module can internally mark the inode with the
-unlabeled SID and use that for its own access controls, but it cannot
-"filter" getxattr requests in this manner.  The LSM hooks only support
-access control, not data filtering.  Hence, if you truly want the file
-to appear to userspace as if it had the unlabeled context, then the
-SELinux module would need to invoke the inode's setxattr method with
-that context.
+The SELinux web site <http://www.nsa.gov/selinux/> including the mail
+list archive has been updated.  SELinux kernel patches for 2.6.0-test6
+and 2.4.21 are available.  The updated kernel patches include support
+for an selinux boot parameter and improved auditing.  A number of
+bugfixes and improvements have been integrated into the user space tools
+and utilities.  SRPMs for newer Red Hat packages are available.  The
+star package has been added.  The example policy has been updated. 
+Improvements have been made to existing policy tools, and a new policy
+analysis tool has been added.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+Howard Holm <hdholm@epoch.ncsc.mil>
+Office of Defensive Computing Research
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
