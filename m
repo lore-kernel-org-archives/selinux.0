@@ -1,32 +1,29 @@
-Date: Mon, 2 Jul 2001 08:50:32 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA24677
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2001 09:01:41 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA13182
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2001 13:01:03 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id NAA13178
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2001 13:01:02 GMT
+Date: Mon, 2 Jul 2001 09:01:14 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: cslater@wcnet.org
-cc: SELinux@tycho.nsa.gov
-Subject: Re: Slackware
-In-Reply-To: <200106272310.f5RNAib05790@woody.wcnet.org>
-Message-ID: <Pine.SOL.3.95.1010702084703.13449A-100000@clipper.gw.tislabs.com>
+To: Jan Petranek <jan.petranek@student.uni-tuebingen.de>
+cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+Subject: Re: checkpolicy fails
+In-Reply-To: <Pine.LNX.4.30.0107021131100.4791-100000@linux16.zdv.uni-tuebingen.de>
+Message-ID: <Pine.SOL.3.95.1010702085931.13449D-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 27 Jun 2001 cslater@wcnet.org wrote:
+> error in the statement ending on line 2196 (token ';'): unknown class capability used in rule
 
-> I tried it on slackware. I also killed my box flat dead. SELinux as far as i 
-> can tell requires PAM. PAM Kills slackware. Do not use PAM and slackware. I 
-> tried. Gave errors when you tried to login, refused to let you login. I 
-> reformated and reinstalled. Ive been talking to people cin the forum and they 
-> say that they are not going to support PAM till it becomes more developed and 
-> mature. They say that there are too many security problems at the moment, and 
-> that it requires a entire rebuild of most of the a1 and possible n1 series. I 
-> would generaly stay away from SELinux.
-
-You should be able to work around this problem simply by disabling PAM
-in the util-linux MCONFIG before building the modified login program.
-SELinux itself doesn't depend on PAM, but the modified login program
-provided in the SELinux distribution is configured with PAM enabled
-by default, because we're using RedHat, and RedHat uses PAM.
+I posted a patch for this bug back on May 7th.  See
+http://marc.theaimsgroup.com/?l=selinux&m=98926011507312&w=2.
 
 --
 Stephen D. Smalley, NAI Labs
