@@ -1,139 +1,61 @@
-Message-ID: <36282A1733C57546BE392885C06185924D8EEF@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
-Subject: [PATCH] checkpolicy - nodecon ordering
-Date: Fri, 29 Oct 2004 10:07:50 -0400
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C4BDC0.ACC68B80"
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9TH6MXZ009785
+	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 13:06:23 -0400 (EDT)
+Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9TH53Mb011952
+	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 17:05:04 GMT
+Message-Id: <200410291706.i9TH6Fxx031799@turing-police.cc.vt.edu>
+To: Alex Ackerman <alex@darkhonor.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: make policy complains on file_contexts 
+In-Reply-To: Your message of "Thu, 28 Oct 2004 16:24:05 EDT."
+             <A52BEA1D8EE8634B9196A136333637B1DAF0@maat.darkhonor.net>
+From: Valdis.Kletnieks@vt.edu
+References: <A52BEA1D8EE8634B9196A136333637B1DAF0@maat.darkhonor.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1698560238P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 29 Oct 2004 13:06:15 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+--==_Exmh_-1698560238P
+Content-Type: text/plain; charset=us-ascii
 
-------_=_NextPart_000_01C4BDC0.ACC68B80
-Content-Type: text/plain;
-	charset="iso-8859-1"
+On Thu, 28 Oct 2004 16:24:05 EDT, Alex Ackerman said:
 
-Hi,
+> Building file_contexts ...
+> /usr/bin/checkpolicy -o policy.18 policy.conf
+> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
+> security:  6 users, 6 roles, 1204 types, 28 bools
+> security:  53 classes, 265518 rules
+> /usr/bin/checkpolicy:  policy configuration loaded
+> /usr/bin/checkpolicy:  writing binary representation (version 18) to =
+> policy.18
+> Validating file_contexts ...
+> /usr/sbin/setfiles -q -c policy.18 file_contexts/file_contexts
+> /usr/sbin/setfiles:  invalid context system_u:object_r:user_eclipse_rw_t =
+> on line number 898
+> make: *** [policy.18] Error 1
 
-I have created a patch which orders nodecon rules from most specific to
-least specific.  We think this functionality can be useful for ease of
-administration and to protect against accidental misconfiguration.
+Does a 'make reload' fix this?  A common cause of this is a "new" type that's
+in the on-disk policy, but not in the in-memory version.  So the
+new policy.18 is made, but when you run setfiles, user_eclipse_rw_t isn't
+active yet....
 
-I couldn't find any mention of this topic being brought up before, so I am
-interested in opinions on this subject.
+--==_Exmh_-1698560238P
+Content-Type: application/pgp-signature
 
-policy_parse.y |   59
-++++++++++++++++++++++++++++++++++++++++++++-------------
- 1 files changed, 46 insertions(+), 13 deletions(-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-____________________________
-Chad Hanson
-Senior Secure Systems Engineer
+iD8DBQFBgniGcC3lWbTT17ARAsAJAKCQhwv2U5a5ccRRg+KxbpdWWvXw4ACcD5Cp
+jPPQ/s/k8H3wnDaAUZ9qCO4=
+=6r6V
+-----END PGP SIGNATURE-----
 
-Trusted Computer Solutions
-121 W Goose Alley
-Urbana, IL  61801
-
-www.TrustedCS.com
-
-V: 217.384.0028  ext.12
-F: 217.384.0288
-E: chanson@TrustedCS.com
-
-
-
-------_=_NextPart_000_01C4BDC0.ACC68B80
-Content-Type: application/octet-stream;
-	name="nodecon_order.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="nodecon_order.patch"
-
---- policy_parse.y	2004-09-20 15:57:52.000000000 -0500=0A=
-+++ policy_parse.y.new	2004-10-28 16:10:21.471854576 -0500=0A=
-@@ -4501,15 +4501,32 @@=0A=
- 		free(newc);=0A=
- 		return -1;=0A=
- 	}=0A=
--	/* Place this at the end of the list, to retain=0A=
--	   the matching order specified in the configuration. */=0A=
--	head =3D policydbp->ocontexts[OCON_NODE];=0A=
--	for (l =3D NULL, c =3D head; c; l =3D c, c =3D c->next);=0A=
- =0A=
--	if (l)=0A=
--		l->next =3D newc;=0A=
--	else=0A=
--		policydbp->ocontexts[OCON_NODE] =3D newc;=0A=
-+ 	/* Create order of most specific to least retaining=0A=
-+ 	   the order specified in the configuration. */=0A=
-+  	head =3D policydbp->ocontexts[OCON_NODE];=0A=
-+ 	for (l =3D NULL, c =3D head; c; l =3D c, c =3D c->next)=0A=
-+ 	{=0A=
-+ 		if (newc->u.node.mask > c->u.node.mask)=0A=
-+ 			break;=0A=
-+ 	}=0A=
-+=0A=
-+  	if (l)=0A=
-+ 	{=0A=
-+ 		if (l->next)=0A=
-+ 		{=0A=
-+ 			newc->next =3D c;=0A=
-+ 			l->next =3D newc;=0A=
-+ 		}=0A=
-+ 		else=0A=
-+ 			l->next =3D newc;=0A=
-+ 	}=0A=
-+  	else=0A=
-+	{=0A=
-+		if (c)=0A=
-+			newc->next =3D c;=0A=
-+  		policydbp->ocontexts[OCON_NODE] =3D newc;=0A=
-+	}=0A=
- =0A=
- 	return 0;=0A=
- }=0A=
-@@ -4577,15 +4594,31 @@=0A=
- 		goto out;=0A=
- 	}=0A=
- =0A=
--	/* Place this at the end of the list, to retain=0A=
--	   the matching order specified in the configuration. */=0A=
-+	/* Create order of most specific to least retaining=0A=
-+	   the order specified in the configuration. */=0A=
- 	head =3D policydbp->ocontexts[OCON_NODE6];=0A=
--	for (l =3D NULL, c =3D head; c; l =3D c, c =3D c->next);=0A=
-+	for (l =3D NULL, c =3D head; c; l =3D c, c =3D c->next)=0A=
-+	{=0A=
-+		if (memcmp(&newc->u.node6.mask,&c->u.node6.mask,16) > 0)=0A=
-+			break;=0A=
-+	}=0A=
- =0A=
- 	if (l)=0A=
--		l->next =3D newc;=0A=
-+	{=0A=
-+		if (l->next)=0A=
-+		{=0A=
-+			newc->next =3D c;=0A=
-+			l->next =3D newc;=0A=
-+		}=0A=
-+		else=0A=
-+			l->next =3D newc;=0A=
-+	}=0A=
- 	else=0A=
--		policydbp->ocontexts[OCON_NODE6] =3D newc;=0A=
-+	{=0A=
-+		if (c)=0A=
-+			newc->next =3D c;=0A=
-+  		policydbp->ocontexts[OCON_NODE6] =3D newc;=0A=
-+	}=0A=
- =0A=
- 	rc =3D 0;=0A=
- out:=0A=
-
-------_=_NextPart_000_01C4BDC0.ACC68B80--
+--==_Exmh_-1698560238P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
