@@ -1,58 +1,40 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8KK51rT020606
-	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 16:05:01 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8KK50T2012602
-	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 20:05:00 GMT
-Subject: Re: Policy patches
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Russell Coker <russell@coker.com.au>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200409172207.21788.russell@coker.com.au>
-References: <200409162151.44819.russell@coker.com.au>
-	 <1095346343.17251.6.camel@moss-lions.epoch.ncsc.mil>
-	 <414A0454.2060304@redhat.com>  <200409172207.21788.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1095710635.3225.19.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 20 Sep 2004 16:03:55 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8KKiGrT020801
+	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 16:44:16 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8KKhHoq024195
+	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 20:43:17 GMT
+Message-ID: <414F4113.1000208@redhat.com>
+Date: Mon, 20 Sep 2004 16:44:03 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Colin Walters <walters@verbum.org>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+   Joshua Brindle <method@gentoo.org>, Russell Coker <russell@coker.com.au>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: File types that are not sysadmfiles...
+References: <414DA0A7.1000708@gentoo.org>	 <200409200646.51865.russell@coker.com.au> <414DF5F2.9030700@gentoo.org>	 <200409200729.50087.russell@coker.com.au>  <414E1AC3.2070209@gentoo.org>	 <1095651232.4431.123.camel@nexus.verbum.private>	 <1095684970.8397.117.camel@selinux> <1095695627.4431.157.camel@nexus.verbum.private>
+In-Reply-To: <1095695627.4431.157.camel@nexus.verbum.private>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged, except for the userhelper_macros.te chunk.
+grep file_type policy.conf | grep -v sysadmfile | grep "^type "
+type device_t, file_type, dev_fs;
+type printer_device_t, file_type, device_type, dev_fs;
+type shadow_t, file_type;
+type policy_config_t, file_type;
+type policy_src_t, file_type;
+type httpd_php_exec_t, file_type, exec_type;
+type lvm_control_t, file_type, device_type, dev_fs;
+type rpmbuild_exec_t, file_type, exec_type;
+type vmware_user_exec_t, file_type, exec_type;
+type vmware_device_t, file_type, device_type, dev_fs;
+type vmware_user_var_run_t, file_type, pidfile;
+type vmware_user_file_t, homedirfile, file_type;
+type vmware_user_conf_t, homedirfile, file_type;
+type watchdog_device_t, file_type, device_type, dev_fs;
 
-The attribute privuser is always needed by userhelper since the current code always switches to
-"root".
-
-diff -ru /usr/src/se/policy/macros/program/userhelper_macros.te macros/program/userhelper_macros.te
---- /usr/src/se/policy/macros/program/userhelper_macros.te      2004-09-11 16:21:48.000000000 +1000
-+++ macros/program/userhelper_macros.te 2004-09-11 19:24:48.000000000 +1000
-@@ -17,7 +17,7 @@
- ifdef(`single_userdomain', `
- typealias $1_t alias $1_userhelper_t;
- ', `
--type $1_userhelper_t, domain, userhelperdomain, privlog, privrole, privowner, auth_chkpwd, privfd, privuser;
-+type $1_userhelper_t, domain, userhelperdomain, privlog, privrole, privowner, auth_chkpwd, privfd ifdef(`user_canbe_sysadm', `, privuser');
- 
- in_user_role($1_userhelper_t)
- role sysadm_r types $1_userhelper_t;
-
-On Fri, 2004-09-17 at 08:07, Russell Coker wrote:
-> +dontaudit updfstab_t home_root_t:dir { getattr search };
-> +dontaudit updfstab_t { home_dir_type home_type }:dir { search };
-> 
-> Why is fstab-sync trying to access home directories?
-> 
-> +allow ttyfile tmpfs_t:filesystem { associate };
-> 
-> Better to just use the dev_fs attribute.  I have attached a patch to do this 
-> as well as clean up a few other minor issues with the macros directory.
-> 
-> The patch is against the latest CVS.
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
