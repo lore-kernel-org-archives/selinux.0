@@ -1,66 +1,59 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9HCrIrT016221
-	for <selinux@tycho.nsa.gov>; Sun, 17 Oct 2004 08:53:18 -0400 (EDT)
-Received: from rwcrmhc12.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9HCrH8B028592
-	for <selinux@tycho.nsa.gov>; Sun, 17 Oct 2004 12:53:18 GMT
-Subject: Re: gentoo merge for postfix
-From: Chris PeBenito <pebenito@gentoo.org>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9HCxGrT016264
+	for <selinux@tycho.nsa.gov>; Sun, 17 Oct 2004 08:59:16 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9HCw2xh001933
+	for <selinux@tycho.nsa.gov>; Sun, 17 Oct 2004 12:58:03 GMT
+Subject: Re: kernel oops
+From: Erich Schubert <erich@debian.org>
 To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: petre rodan <kaiowas@gentoo.org>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <20041017111346.GA2537@jmh.mhn.de>
-References: <417149C9.9010102@gentoo.org> <20041017111346.GA2537@jmh.mhn.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yaPYrUXT5L/jpM5RIKtL"
-Date: Sun, 17 Oct 2004 08:52:20 -0400
-Message-Id: <1098017540.6785.7.camel@chris.pebenito.net>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <20041017120245.GB2537@jmh.mhn.de>
+References: <20041017120245.GB2537@jmh.mhn.de>
+Content-Type: text/plain
+Date: Sun, 17 Oct 2004 14:59:08 +0200
+Message-Id: <1098017948.28183.18.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi Thomas,
 
---=-yaPYrUXT5L/jpM5RIKtL
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> happened on a system with loaded nvidia binary driver. Nevertheless,
 
-On Sun, 2004-10-17 at 13:13 +0200, Thomas Bleher wrote:
-> * petre rodan <kaiowas@gentoo.org> [2004-10-17 00:55]:
-> > can you please ifdef 'rhgb_domain(postfix_master_t)' since it's not par=
-t of=20
-> > some distros?
->=20
-> I disagree. rhgb_domain() is a no-op if you don't use rhgb.te. Using
-> additional ifdefs just makes the policy harder to read.
+> Call Trace:
+>  [<c0257281>] validate_class+0x91/0x140
+>  [<c0257180>] validate_perm+0x0/0x70
+>  [<c0252b44>] hashtab_map+0x44/0x70
+>  [<c02575e5>] security_load_policy+0x125/0x330
+>  [<c02571f0>] validate_class+0x0/0x140
 
-That is assuming rhgb_macros.te is included.  It is not included in
-Gentoo's policy since we never use it.  I'm not going to add unneeded
-files to fix something thats not properly ifdef'ed.
+>  [<f0f656f6>] _nv001140rm+0x10a/0x118 [nvidia]
 
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-Embedded Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+Not just with a loaded nvidia driver, but with nvidia in the call trace.
+(I'm no kernel expert at all. it looks a bit like an interrupt occured
+while transferring the policy to kernel space, that got handled by the
+nvidia driver. but that is just a guess.)
 
+>  [<c0108899>] handle_IRQ_event+0x49/0x80
+>  [<c0108cfa>] do_IRQ+0xea/0x1a0
+>  [<c0106d48>] common_interrupt+0x18/0x20
+>  [<c0277f92>] __copy_from_user_ll+0x42/0x80
 
---=-yaPYrUXT5L/jpM5RIKtL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Does it happen frequently? If so, try without preempt enabled.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+P.S. we should to exchange GPG keys; i'm at IFI, too, and i've got a
+strongly connected key. Although i havn't met rjc or colin yet in person
+i do only have a path distance of 2 to them, often with multiple links
+(well, the debian crowd loves keysigning...)
 
-iD8DBQBBcmsEvI7kLeavkkMRAj/BAJ9+4UY4NlKoYeZMpUzecozumde40ACgm2ta
-FSdTtYOxYe0HRsqAbqYCNik=
-=pwJc
------END PGP SIGNATURE-----
+Greetings,
+Erich Schubert
+-- 
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+      Go away or i'll replace you with a very small shell script.     //\
+  In unseren Freunden suchen wir, was uns fehlt. --- Thornton Wilder  V_/_
 
---=-yaPYrUXT5L/jpM5RIKtL--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
