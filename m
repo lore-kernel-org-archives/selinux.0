@@ -1,52 +1,47 @@
-From: ljf@semandex.net
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Carsten Grohmann <carstengrohmann@gmx.de>
+Subject: Re: pppd with ipppd
+Date: Sun, 8 Sep 2002 19:26:06 +0200
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <20020906174227.C97B8FA8D@ivanova.coker.com.au>
+In-Reply-To: <20020906174227.C97B8FA8D@ivanova.coker.com.au>
 MIME-Version: 1.0
-To: rwashington@crucialsecurity.com
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: Kernel panic: VFS: Unable to mount root fs
-Date: Fri, 06 Sep 2002 12:42:11 -0700 (PDT)
-Message-Id: <20020906124213.19641.h022.c001.wm@mail.semandex.net.criticalpath.net>
+Message-Id: <200209081926.06666.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I got this the first time I tried RH7.3 I think you may find that you did not enable the EXT3 filing system support when
-you configured LSM.  Your config file should contain:
+Firstly in future please supply patches made with "diff -u", this saves time 
+for people who merge them (otherwise they have to run diff themselves), and 
+it means that the patches may still apply if you generated them from an old 
+version of the source.
 
-CONFIG_EXT3_FS=y
+On Fri, 6 Sep 2002 19:41, Carsten Grohmann wrote:
+> I follow your suggestion and add the few line for the ipppd to the pppd_t
+> domain. The attached files contains the rules and the patch for the
+> net_context and network.te files.
 
-This is set from the Configuration Menu when you start the LSM make.
+I've applied the change to the file contexts in my tree.
 
-I can send you my exceedingly minimal config file it you want it.
+Why does ipppd need to run "ifconfig" while the regular pppd doesn't?  Or is 
+it some script that calls ifconfig?
 
-Leslie
+Also I expect that ifconfig does not need udp access to pppd_t, it would be 
+just another instance of pppd not setting it's file handles to close on exec.
 
-"Ryan Washington" wrote:
+> May be that some rule is SuSE specific. I missing labeling the password
+> files in your rules. Don't you use it?
 
-> 
-> 
-> 
-> hey,
-> i'm pretty new at this, but i can not get selinux 2.4 to load on a fresh
-> install of redhat 7.3. are there any special configs that need to be
-> done(since the README file is for 7.1 and 7.2)
-> 
-> i keep getting this error:
-> 
-> VFS: Cannot open root device &quot;sda2&quot; or 08:02
-> Please append a correct &quot;root= &quot; boot option
-> Kernel panic: VFS: Unable to mount root fs on 08:02
-> 
-> has anyone seen this before? i've tried adding &quot;mem=96M&quot; after the boot
-> option, but still hangs at this error.
-> any help would be greatly appreciated.
-> 
-> thanks,
-> ryan
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words &quot;unsubscribe selinux&quot; without quotes as the message.
+What do you mean?
+
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
