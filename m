@@ -1,49 +1,56 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA15851
-	for <selinux@tycho.nsa.gov>; Tue, 13 Feb 2001 15:38:59 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA19124
+	for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2001 09:10:55 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA12444
-	for <selinux@tycho.nsa.gov>; Tue, 13 Feb 2001 20:38:48 GMT
-Received: from ll.mit.edu (LLMAIL.LL.MIT.EDU [129.55.12.40])
-	by jazzswing.ncsc.mil  with ESMTP id UAA12440
-	for <selinux@tycho.nsa.gov>; Tue, 13 Feb 2001 20:38:47 GMT
-Received: (from smtp@localhost)
-	by ll.mit.edu (8.8.8/8.8.8) id PAA21580
-	for <selinux@tycho.nsa.gov>; Tue, 13 Feb 2001 15:38:50 -0500 (EST)
-Message-ID: <711DB7A5731DD111A2E1006097731A0B208686@ets>
-From: Robertson Wayne <robertsonw@ll.mit.edu>
-To: selinux@tycho.nsa.gov
-Subject: Porting to SELinux
-Date: Tue, 13 Feb 2001 13:46:57 -0700
+	by jazzswing.ncsc.mil  with ESMTP id OAA20273
+	for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2001 14:10:43 GMT
+Received: from csoc-mail-msfc.csoconline.com (csoc-mail-msfc.csoconline.com [140.169.36.3])
+	by jazzswing.ncsc.mil  with ESMTP id OAA20269
+	for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2001 14:10:43 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524083@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Redhat 7
+Date: Wed, 14 Feb 2001 08:10:47 -0600
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="ISO-8859-1"
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
 Hello All,
 
-I have a project where I have a glob of legacy (production) code that runs
-on Motorola MVME162/167 single board computers.  The OS is version 5 of
-their Unix.  
+I cleaned up the boot up to where are only a few error messages. 
+I have included the error message any sujestions would be a huge help.
 
-My project involves upgrading the hardware and the OS and porting our code.
-I would like to move to the linux world.  It is still undecided about
-PowerPC, Intel, or ?? for the new SBCs.  Because we have some real time
-needs and because we do need to be able to switch to a classified network I
-was thinking that RT Linux along with SE Linux might do the job.
-
-Does anyone have any comments/thoughts on the applicability of SE Linux in
-an environment where RT Linux would be utilized?  Of course, there remains
-the hardware issue but as I understand it SE Linux currently is not ported
-to the 68K/PPC platforms and so using SE Linux would indicate a choice of
-Intel boards (of which there aren't too many vendors that have such products
-that are VME based).
-
-Thanks in advance for any suggestions/comments.
-
-Wayne Robertson
-MIT - Lincoln Labs
+Mark
+Feb 13 23:48:41 CDEV2-186 kernel: avc:  denied  { read } for  pid=69
+exe=/bin/mount path=/dev/hda1 dev=03:01 ino=176886
+Feb 13 23:48:41 CDEV2-186 kernel:    scontext=system_u:system_r:initrc_t
+Feb 13 23:48:41 CDEV2-186 kernel:
+tcontext=system_u:object_r:fixed_disk_device_t
+Feb 13 23:48:41 CDEV2-186 kernel:    tclass=blk_file
+Feb 13 23:48:41 CDEV2-186 kernel: 
+Feb 13 23:48:41 CDEV2-186 kernel: avc:  denied  { read } for  pid=179
+exe=/sbin/hdparm path=/dev/hda dev=03:01 ino=176885
+Feb 13 23:48:41 CDEV2-186 kernel:    scontext=system_u:system_r:initrc_t
+Feb 13 23:48:41 CDEV2-186 kernel:
+tcontext=system_u:object_r:fixed_disk_device_t
+Feb 13 23:48:41 CDEV2-186 kernel:    tclass=blk_file
+Feb 13 23:48:41 CDEV2-186 kernel: 
+Feb 13 23:48:41 CDEV2-186 kernel: avc:  denied  { ioctl } for  pid=179
+exe=/sbin/hdparm path=/dev/hda dev=03:01 ino=176885
+Feb 13 23:48:41 CDEV2-186 kernel:    scontext=system_u:system_r:initrc_t
+Feb 13 23:48:41 CDEV2-186 kernel:
+tcontext=system_u:object_r:fixed_disk_device_t
+Feb 13 23:48:41 CDEV2-186 kernel:    tclass=blk_file
+Feb 13 23:50:00 CDEV2-186 kernel: avc:  denied  { sys_module } for  pid=529
+exe=/sbin/insmod capability=16
+Feb 13 23:50:00 CDEV2-186 kernel:
+scontext=system_u:system_r:system_crond_t
+Feb 13 23:50:00 CDEV2-186 kernel:
+tcontext=system_u:system_r:system_crond_t
+Feb 13 23:50:00 CDEV2-186 kernel:    tclass=capability
 
 --
 You have received this message because you are subscribed to the selinux list.
