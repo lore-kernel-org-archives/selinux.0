@@ -1,14 +1,14 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA24455
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2001 08:33:22 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA24463
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2001 08:33:30 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA00589
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2001 12:32:07 GMT
+	by jazzswing.ncsc.mil  with ESMTP id MAA00608
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2001 12:32:14 GMT
 Received: from mail22.bigmailbox.com (mail22.bigmailbox.com [209.132.220.199])
-	by jazzswing.ncsc.mil  with ESMTP id MAA00585
-	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2001 12:32:07 GMT
-Date: Wed, 22 Aug 2001 05:33:20 -0700
-Message-Id: <200108221233.FAA12952@mail22.bigmailbox.com>
+	by jazzswing.ncsc.mil  with ESMTP id MAA00597
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2001 12:32:13 GMT
+Date: Wed, 22 Aug 2001 05:33:26 -0700
+Message-Id: <200108221233.FAA12977@mail22.bigmailbox.com>
 Content-Type: text/plain
 Mime-Version: 1.0
 From: "Jonathan Day" <jd9812@my-deja.com>
