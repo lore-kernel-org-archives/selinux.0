@@ -1,98 +1,45 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA24881
-	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 17:55:11 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA24943
+	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 18:11:19 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id WAA03626
-	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 22:54:40 GMT
-Received: from midway.uchicago.edu (midway.uchicago.edu [128.135.12.12])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id WAA03622
-	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 22:54:39 GMT
-Received: from johnson.midway.uchicago.edu (v6-p-34.valley.net [198.115.164.34])
-	by midway.uchicago.edu (8.10.1/8.10.1) with ESMTP id eBQMt7o13157
-	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 16:55:07 -0600 (CST)
-Message-Id: <5.0.0.25.1.20001226175454.00a66af0@nsit-popmail.uchicago.edu>
-Date: Tue, 26 Dec 2000 17:56:08 -0500
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id XAA04049
+	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 23:10:48 GMT
+Received: from Woody.fw.matav.hu (matav-1.matav.hu [145.236.241.98])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id XAA04045
+	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 23:10:47 GMT
+Received: from mag by bunuel.tii.matav.hu with local (Exim 3.11 #1 (Debian))
+	id 14B3FU-0005y5-00
+	for <selinux@tycho.nsa.gov>; Wed, 27 Dec 2000 00:11:16 +0100
+Date: Wed, 27 Dec 2000 00:11:16 +0100
+From: =?iso-8859-2?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
 To: selinux@tycho.nsa.gov
-From: Ben Johnson <bsjohnso@midway.uchicago.edu>
-Subject: Re: Mirror Site
-In-Reply-To: <200012262148.QAA06775@coalstove.epoch.ncsc.mil>
+Subject: Re: [selinux] Re: Mirror Site
+Message-ID: <20001227001116.A22887@bunuel.tii.matav.hu>
+References: <200012262148.QAA06775@coalstove.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=iso-8859-2
+In-Reply-To: <200012262148.QAA06775@coalstove.epoch.ncsc.mil>; from hdholm@epoch.ncsc.mil on Tue, Dec 26, 2000 at 04:48:50PM -0500
 Sender: owner-selinux@tycho.nsa.gov
 Reply-To: selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Thanks for the reply.  My mirror would not have to be "official", it would 
-just be nice for me to get some more hits.  I guess I'll just settle for 
-the discussion on the mailinglist for the time being.
+> Although the tools provided by Sourceforge are nice, we're hopeful that
+> the capabilities of our website, and the interaction provided by this
+> list will meet the needs of anyone who wants to work with the code.
+> If, as things progress, anyone believes that more support
+> infrastructure is required, please let us know.  We'll reexamine our
+> options if and when more is needed.
+> 
 
-Ben Johnson
+Having a project sourceforged is important not for just technical reasons.
+If the project is on sourceforge, it more likely attracts more developers
+and users, so the critical mass of the project is more easily reached.
+BTW, is there any official word (either from Linus or from NSA), when will
+flask integrated into the mainstream kernel sources? It is also a major
+issue from the "marketing" perspective. (I would be happy to see it in 2.5)
 
-At 04:48 PM 12/26/2000 -0500, you wrote:
->I'm uncertain what question "authority" is being asked for here.  Mr.
->Johnson's posting didn't contain any questions, just statements.
->
->If I understand the intent, I'll just say that we do not attempt to
->prohibit mirrors of the site, although we don't support "official"
->mirrors at this time.  Currently our web server seems able to
->sufficiently handle the requests, and so we don't see a need to support
->mirrors which may become out of date or corrupt.  It is simply easier
->for us to maintain one "official" site.
->
->Although the tools provided by Sourceforge are nice, we're hopeful that
->the capabilities of our website, and the interaction provided by this
->list will meet the needs of anyone who wants to work with the code.
->If, as things progress, anyone believes that more support
->infrastructure is required, please let us know.  We'll reexamine our
->options if and when more is needed.
->
->--
->Howard Holm
->Information Assurance Research Office
->National Security Agency
->
->Benjamin Johnson <bsjohnso@midway.uchicago.edu> wrote:
-> > Anyone who has authority can answer this.  I run a website,
-> > www.codeposting.com, and am trying to find ways of getting more people to
-> > use this site.  The point of the site is to have programmers exchange free
-> > code under the GPL where people can use the code for whatever they
-> > like.  One idea I had was to setup a mirror site for selinux.  The 
-> reason I
-> > would like to do this is because not only will it increase hits for my
-> > site, but I have an interest in Linux as well as places like NSA.  I 
-> figure
-> > because the code is GPL, even if some bureaucrats or "higher-powers" take
-> > down the NSA site, the public will still be able to work with Secure Linux.
-> >
-> > Another idea I had was to not only mirror it, but put up a messageboard /
-> > patch update or something of the sort so that people could post whatever
-> > they wanted there and not have to make sure it is ok for the NSA's
-> > website.  If someone with authority could please e-mail me back at
-> > bsjohnso@midway.uchicago.edu or post it to the mailing list so that
-> > everyone could see it, I would be most appreciative.  Thank you.
->
->NathanX Dabney <nathanx.dabney@intel.com> responded:
-> > Last I checked, White River Junction, VT was still under jurisdiction 
-> of the
-> > US gov.  I don't think setting yourself up as a potential haven for runaway
-> > NSA code is a good place to start on this list.  Be glad you have the code
-> > and a chance to improve security with it and leave it at that.
->
-> > As far as the functionality you want to provide, I suggest having a look at
-> > the way sourceforge.org does it.  Hosting projects with them is free, 
-> simple
-> > and incredibly useful.  That and their code is GPL as well which would save
-> > you what looks like 2-3 years of development to catch up.
->
-> > Speaking of which, any reason selinux is not hosted on 
-> Sourceforge?  Anyone?
->
->
->You have received this message because you are subscribed to the selinux list.
->If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->the words "unsubscribe selinux" without quotes as the message.
-
-
+-- 
+GNU GPL: csak tiszta forrásból
 You have received this message because you are subscribed to the selinux list.
 If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 the words "unsubscribe selinux" without quotes as the message.
