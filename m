@@ -1,55 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA21766
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2001 16:37:56 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id VAA10416
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2001 21:37:53 GMT
-Received: from triton.pricegrabber.com (triton.pricegrabber.com [64.70.41.144])
-	by jazzband.ncsc.mil  with ESMTP id VAA10412
-	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2001 21:37:52 GMT
-Message-ID: <3A831189.5060509@pricegrabber.com>
-Date: Thu, 08 Feb 2001 13:37:13 -0800
-From: Christopher McCrory <chrismcc@pricegrabber.com>
-MIME-Version: 1.0
-To: Dale Amon <amon@vnl.com>
-CC: Pete Loscocco <pal@epoch.ncsc.mil>, selinux@tycho.nsa.gov
-Subject: Re: Selinux kernel patches
-References: <200102062028.PAA03888@coalstack.epoch.ncsc.mil> <20010208184118.G13451@vnl.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA21890
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2001 16:56:30 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id VAA15427
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2001 21:56:22 GMT
+Received: from mail.rdc2.tx.home.com (ha1.rdc2.tx.home.com [24.14.77.20])
+	by jazzswing.ncsc.mil  with ESMTP id VAA15423
+	for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2001 21:56:21 GMT
+Received: from c783838-b.croltn1.tx.home.com ([24.15.240.109])
+          by mail.rdc2.tx.home.com (InterMail vM.4.01.03.00 201-229-121)
+          with SMTP
+          id <20010208215628.OGTW26394.mail.rdc2.tx.home.com@c783838-b.croltn1.tx.home.com>
+          for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2001 13:56:28 -0800
+Date: Thu, 8 Feb 2001 15:56:29 -0600
+From: Dustin Reyes <crusader@linuxgames.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: Crypto FS
+Message-ID: <20010208155629.A1489@linuxgames.com>
+References: <20010208155329.A1383@linuxgames.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20010208155329.A1383@linuxgames.com>; from crusader on Thu, Feb 08, 2001 at 03:53:29PM -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Hello...
+On Thu, Feb 08, 2001 at 03:53:29PM -0600, Dustin Reyes wrote:
+> Finally, I'm not a professional coder or cryptologist, so this question
+> may be completely invalidated by encrypted filesystems are
+> already implemented... if so, I apologize in advance.
 
+Grrr, need caffeine :)
 
-Dale Amon wrote:
+That should've read:
 
-> On Tue, Feb 06, 2001 at 03:28:44PM -0500, Pete Loscocco wrote:
-> 
-<snip>
-> Just a wild suggestion. When things are well along and
-> everyone thinks the system is ready, why not put a box
-> out on a public network for a game of "capture the flag"?
-> 
+Finally, I'm not a professional coder or cryptologist, so this question
+may be completely invalidated by the way encrypted filesystems are
+already implemented...  if so, I apologize in advance.
 
-	This has been done before; with other systems.  It has also been shown 
-that the crackers you really need to worry about don't participate.
-
-
-
-<snip>
-
-
+-Dustin
 
 -- 
-
-Christopher McCrory
-"The guy that keeps the servers running"
-chrismcc@pricegrabber.com
-http://www.pricegrabber.com
-
-"Linux: Because rebooting is for adding new hardware"
-
+Dustin Reyes - crusader@linuxgames.com
+LinuxGames - http://www.linuxgames.com
 
 --
 You have received this message because you are subscribed to the selinux list.
