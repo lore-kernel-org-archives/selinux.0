@@ -1,33 +1,137 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KKZurT007052
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 16:35:56 -0400 (EDT)
-Date: Fri, 20 Aug 2004 16:35:47 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: Kaigai Kohei <kaigai@ak.jp.nec.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
-   "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
-Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
-In-Reply-To: <20040820201914.GA1244@us.ibm.com>
-Message-ID: <Xine.LNX.4.44.0408201633390.2238-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KKodrT007179
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 16:50:39 -0400 (EDT)
+Subject: Re: conflict between libselinux and libsepol
+From: Colin Walters <walters@redhat.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1093028441.16585.265.camel@moss-spartans.epoch.ncsc.mil>
+References: <1092942083.1721.101.camel@moss-spartans.epoch.ncsc.mil>
+	 <1092972342.29540.35.camel@nexus.verbum.private>
+	 <1093002523.16585.31.camel@moss-spartans.epoch.ncsc.mil>
+	 <1093013527.9495.0.camel@nexus.verbum.private>
+	 <1093015484.16585.199.camel@moss-spartans.epoch.ncsc.mil>
+	 <1093028441.16585.265.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LbgrZQDDvofKYroXcPLS"
+Date: Fri, 20 Aug 2004 15:37:47 -0400
+Message-Id: <1093030667.4212.4.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> > +		hvalue = atomic_inc_return(&avc_cache.lru_hint) % AVC_CACHE_SLOTS;
-
-atomic_inc_return() is not implemented on ia32 or x86-64.  Is there a 
-workaround, or do we need to implement it?  (Andi Kleen suggested using 
-the xadd instruction and altinstructions for i386).
+--=-LbgrZQDDvofKYroXcPLS
+Content-Type: multipart/mixed; boundary="=-OEWP57aV+PFF3YWuN4sU"
 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+--=-OEWP57aV+PFF3YWuN4sU
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, 2004-08-20 at 15:00 -0400, Stephen Smalley wrote:
+> On Fri, 2004-08-20 at 11:24, Stephen Smalley wrote:
+> > Hence, I would recommend that we add a function to libsepol to provide =
+a
+> > higher level interface for context validation against a given binary
+> > policy, add it to libsepol.map, and declare the prototype in sepol.h fo=
+r
+> > use by setfiles.
+>=20
+> Patch for libsepol attached, along with a sample program.  I'll add it
+> to the sourceforge CVS.
+
+Cool.  Here's an updated patch against setfiles.
+
+
+
+--=-OEWP57aV+PFF3YWuN4sU
+Content-Disposition: attachment; filename=policycoreutils-setfiles-validate.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=policycoreutils-setfiles-validate.patch;
+	charset=utf-8
+
+LS0tIHBvbGljeWNvcmV1dGlscy0xLjE1Ljcvc2V0ZmlsZXMvc2V0ZmlsZXMuYy5zZXRmaWxlcy12
+YWxpZGF0ZQkyMDA0LTA4LTE2IDA3OjU3OjQwLjAwMDAwMDAwMCAtMDQwMA0KKysrIHBvbGljeWNv
+cmV1dGlscy0xLjE1Ljcvc2V0ZmlsZXMvc2V0ZmlsZXMuYwkyMDA0LTA4LTIwIDE1OjI0OjU2LjI3
+MzE5NzQwOCAtMDQwMA0KQEAgLTEyLDggKzEyLDkgQEANCiAgKiB0aGUgdXNlci4gIFRoZSBwcm9n
+cmFtIGRvZXMgbm90IGNyb3NzIGZpbGUgc3lzdGVtIGJvdW5kYXJpZXMuDQogICoNCiAgKiBVU0FH
+RToNCi0gKiBzZXRmaWxlcyBbLWRucHFzdlddIFstbyBmaWxlbmFtZSBdIHNwZWNfZmlsZSBwYXRo
+bmFtZS4uLg0KKyAqIHNldGZpbGVzIFstZG5wcXN2V10gWy1jIHBvbGljeV0gWy1vIGZpbGVuYW1l
+IF0gc3BlY19maWxlIHBhdGhuYW1lLi4uDQogICogDQorICogLWMgICBWZXJpZnkgdGhlIHNwZWNp
+ZmljYXRpb24gZmlsZSB1c2luZyBhIGJpbmFyeSBwb2xpY3kNCiAgKiAtZCAgIFNob3cgd2hhdCBz
+cGVjaWZpY2F0aW9uIG1hdGNoZWQgZWFjaCBmaWxlLg0KICAqIC1uCURvIG5vdCBjaGFuZ2UgYW55
+IGZpbGUgbGFiZWxzLg0KICAqIC1xICAgQmUgcXVpZXQgKHN1cHByZXNzIG5vbi1lcnJvciBvdXRw
+dXQpLg0KQEAgLTY2LDYgKzY3LDcgQEANCiAjZGVmaW5lIF9fVVNFX1hPUEVOX0VYVEVOREVEIDEJ
+LyogbmZ0dyAqLw0KICNpbmNsdWRlIDxmdHcuaD4NCiAjaW5jbHVkZSA8bGltaXRzLmg+DQorI2lu
+Y2x1ZGUgPHNlcG9sL3NlcG9sLmg+DQogI2luY2x1ZGUgPHNlbGludXgvc2VsaW51eC5oPg0KIA0K
+IHN0YXRpYyBpbnQgYWRkX2Fzc29jID0gMTsNCkBAIC03NCw2ICs3Niw3IEBADQogLyoNCiAgKiBD
+b21tYW5kLWxpbmUgb3B0aW9ucy4NCiAgKi8NCitzdGF0aWMgY2hhciAqcG9saWN5ZmlsZSA9IE5V
+TEw7DQogc3RhdGljIGludCBkZWJ1ZyA9IDA7DQogc3RhdGljIGludCBjaGFuZ2UgPSAxOw0KIHN0
+YXRpYyBpbnQgcXVpZXQgPSAwOw0KQEAgLTQ4Myw3ICs0ODYsOCBAQA0KIHsNCiAJZnByaW50Zihz
+dGRlcnIsDQogCQkidXNhZ2U6ICAlcyBbLWRucXZXXSBbLW8gZmlsZW5hbWVdIHNwZWNfZmlsZSBw
+YXRobmFtZS4uLlxuIg0KLQkJInVzYWdlOiAgJXMgLXMgWy1kbnF2V10gWy1vIGZpbGVuYW1lIF0g
+c3BlY19maWxlXG4iLCBuYW1lLCBuYW1lKTsNCisJCSJ1c2FnZTogICVzIFstYyBwb2xpY3lmaWxl
+XSBzcGVjX2ZpbGVcbiINCisJCSJ1c2FnZTogICVzIC1zIFstZG5xdlddIFstbyBmaWxlbmFtZSBd
+IHNwZWNfZmlsZVxuIiwgbmFtZSwgbmFtZSwgbmFtZSk7DQogCWV4aXQoMSk7DQogfQ0KIA0KQEAg
+LTY5Niw2ICs3MDAsMjggQEANCiAJcm9vdHBhdGhsZW4gPSBsZW47DQogfQ0KIA0KK3ZvaWQgdmFs
+aWRhdGVfY29udGV4dChjb25zdCBjaGFyICpjb250ZXh0LCBjb25zdCBjaGFyICpwcm9nbmFtZSwN
+CisJCSAgICAgIGludCBsaW5lbm8pDQorew0KKwlpbnQgdmFsaWQgPSAxOw0KKw0KKwlpZiAocG9s
+aWN5ZmlsZSAmJiBzZXBvbF9jaGVja19jb250ZXh0ICgoY2hhciAqKSBjb250ZXh0KSA8IDApIHsN
+CisJCXZhbGlkID0gMDsNCisJfSBlbHNlIGlmIChzZWN1cml0eV9jaGVja19jb250ZXh0KChjaGFy
+ICopIGNvbnRleHQpIDwgMCAmJiBlcnJubyAhPSBFTk9FTlQpIHsNCisJCXZhbGlkID0gMDsNCisJ
+CWluY19lcnIoKTsNCisJfQ0KKw0KKwlpZiAoIXZhbGlkKSB7DQorCQlmcHJpbnRmKHN0ZGVyciwg
+IiVzOiAgaW52YWxpZCBjb250ZXh0ICVzIG9uIGxpbmUgbnVtYmVyICVkXG4iLA0KKwkJCXByb2du
+YW1lLCBjb250ZXh0LCBsaW5lbm8pOw0KKw0KKwkJLyogRXhpdCBpbW1lZGlhdGVseSBpZiB3ZSdy
+ZSBpbiBjaGVja2luZyBtb2RlLiAqLw0KKwkJaWYgKHBvbGljeWZpbGUpDQorCQkJZXhpdCgxKTsN
+CisJfQ0KK30NCisNCiBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFyZ3YpDQogew0KIAlGSUxF
+ICpmcDsNCkBAIC03MTEsOCArNzM3LDMwIEBADQogCXNwZWNfdCAqc3BlY19jb3B5Ow0KIA0KIAkv
+KiBQcm9jZXNzIGFueSBvcHRpb25zLiAqLw0KLQl3aGlsZSAoKG9wdCA9IGdldG9wdChhcmdjLCBh
+cmd2LCAiZG5xcnN2V286IikpID4gMCkgew0KKwl3aGlsZSAoKG9wdCA9IGdldG9wdChhcmdjLCBh
+cmd2LCAiYzpkbnFyc3ZXbzoiKSkgPiAwKSB7DQogCQlzd2l0Y2ggKG9wdCkgew0KKwkJY2FzZSAn
+Yyc6DQorCQl7DQorCQkJRklMRSAqcG9saWN5c3RyZWFtOw0KKwkJCQ0KKwkJCXBvbGljeWZpbGUg
+PSBvcHRhcmc7DQorDQorCQkJcG9saWN5c3RyZWFtID0gZm9wZW4ocG9saWN5ZmlsZSwiciIpOw0K
+KwkJCWlmICghcG9saWN5c3RyZWFtKSB7DQorCQkJCWZwcmludGYoc3RkZXJyLCAiRXJyb3Igb3Bl
+bmluZyAlczogJXNcbiIsIA0KKwkJCQkJcG9saWN5ZmlsZSwgc3RyZXJyb3IoZXJybm8pKTsNCisJ
+CQkJZXhpdCgxKTsNCisJCQl9DQorDQorCQkJaWYgKHNlcG9sX3NldF9wb2xpY3lkYl9mcm9tX2Zp
+bGUocG9saWN5c3RyZWFtKSA8IDApIHsNCisJCQkJZnByaW50ZihzdGRlcnIsICJFcnJvciByZWFk
+aW5nIHBvbGljeSAlczogJXNcbiIsIHBvbGljeWZpbGUsDQorCQkJCQlzdHJlcnJvcihlcnJubykp
+Ow0KKwkJCQlleGl0KDEpOw0KKwkJCX0NCisJCQlmY2xvc2UocG9saWN5c3RyZWFtKTsNCisJCQkN
+CisJCQlicmVhazsNCisJCX0NCiAJCWNhc2UgJ2QnOg0KIAkJCWRlYnVnID0gMTsNCiAJCQlicmVh
+azsNCkBAIC03NjAsNyArODA4LDEwIEBADQogCQl9DQogCX0NCiANCi0JaWYgKHVzZV9zdGRpbikg
+ew0KKwlpZiAocG9saWN5ZmlsZSkgew0KKwkJaWYgKG9wdGluZCAhPSAoYXJnYyAtIDEpKQ0KKwkJ
+CXVzYWdlKGFyZ3ZbMF0pOw0KKwl9IGVsc2UgaWYgKHVzZV9zdGRpbikgew0KIAkJaWYgKG9wdGlu
+ZCAhPSAoYXJnYyAtIDEpKSB7DQogCQkJLyogQ2Fubm90IG1peCB3aXRoIHBhdGhuYW1lIGFyZ3Vt
+ZW50cy4gKi8NCiAJCQl1c2FnZShhcmd2WzBdKTsNCkBAIC05MDQsMTMgKzk1NSw3IEBADQogCQkJ
+CXNwZWNfYXJyW25zcGVjXS5jb250ZXh0ID0gY29udGV4dDsNCiANCiAJCQkJaWYgKHN0cmNtcChj
+b250ZXh0LCAiPDxub25lPj4iKSkgew0KLQkJCQkJaWYgKHNlY3VyaXR5X2NoZWNrX2NvbnRleHQo
+Y29udGV4dCkgPCAwICYmIGVycm5vICE9IEVOT0VOVCkgew0KLQkJCQkJCWZwcmludGYoc3RkZXJy
+LA0KLQkJCQkJCQkiJXM6ICBpbnZhbGlkIGNvbnRleHQgJXMgb24gbGluZSBudW1iZXIgJWRcbiIs
+DQotCQkJCQkJCWFyZ3ZbMF0sIGNvbnRleHQsDQotCQkJCQkJCWxpbmVubyk7DQotCQkJCQkJaW5j
+X2VycigpOw0KLQkJCQkJfQ0KKwkJCQkJdmFsaWRhdGVfY29udGV4dChjb250ZXh0LCBhcmd2WzBd
+LCBsaW5lbm8pOw0KIAkJCQl9DQogDQogCQkJCS8qIERldGVybWluZSBpZiBzcGVjaWZpY2F0aW9u
+IGhhcyANCi0tLSBwb2xpY3ljb3JldXRpbHMtMS4xNS43L3NldGZpbGVzL01ha2VmaWxlfgkyMDA0
+LTA4LTE2IDA3OjU3OjQwLjAwMDAwMDAwMCAtMDQwMA0KKysrIHBvbGljeWNvcmV1dGlscy0xLjE1
+Ljcvc2V0ZmlsZXMvTWFrZWZpbGUJMjAwNC0wOC0yMCAxNToyNjo1MS41MDQ2Nzk1NjAgLTA0MDAN
+CkBAIC01LDcgKzUsNyBAQA0KIA0KIENGTEFHUyA9IC1XYWxsDQogb3ZlcnJpZGUgQ0ZMQUdTICs9
+IC1EX0ZJTEVfT0ZGU0VUX0JJVFM9NjQNCi1MRExJQlMgKz0gLWxzZWxpbnV4IA0KK0xETElCUyAr
+PSAtbHNlbGludXggLWxzZXBvbA0KIA0KIGFsbDogc2V0ZmlsZXMNCiANCg==
+
+
+--=-OEWP57aV+PFF3YWuN4sU--
+
+--=-LbgrZQDDvofKYroXcPLS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBJlMLOIkJWWp2WGURAudxAJ9MiKLGWeBGNHaxCPuMyGp540drCwCePRWY
+jv3Gd9kWaige0zxmw1jknNU=
+=2crM
+-----END PGP SIGNATURE-----
+
+--=-LbgrZQDDvofKYroXcPLS--
 
 
 --
