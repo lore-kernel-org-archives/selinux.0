@@ -1,50 +1,46 @@
-Date: Fri, 8 Feb 2002 21:16:47 +0200 (EET)
-From: Hacko <toltec@karai.net>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-cc: SELinux@tycho.nsa.gov
-Subject: RE: shell history task
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A1015242C8@csoc-mail-box.csoconline.com>
-Message-ID: <Pine.LNX.4.44.0202082059250.2758-100000@karai.karai.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA02169
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2002 20:21:19 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id BAA21498
+	for <selinux@tycho.nsa.gov>; Sat, 9 Feb 2002 01:20:24 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id BAA21494 for <selinux@tycho.nsa.gov>; Sat, 9 Feb 2002 01:20:22 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id C0A479266A
+	for <selinux@tycho.nsa.gov>; Sat,  9 Feb 2002 12:21:09 +1100 (EST)
+Received: from there (lyta [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 49DED32FDF1
+	for <selinux@tycho.nsa.gov>; Sat,  9 Feb 2002 11:21:56 +1000 (EST)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: run_init - am I missing something?
+Date: Sat, 9 Feb 2002 10:26:48 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020209012156.49DED32FDF1@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
+It seems to me that run_init should just quietly change to 
+system_u:system_r:initrc_t without asking for any passwords if run from
+system_u:system_r:init_t.  That way the same /etc/init.d/* scripts can be 
+used by the sysadmin to restart daemons and also for them to be started 
+automatically on boot.
 
-> I may be totally off base here, but the best you could do
-> is to create a append_only_file_t. This may be useful  for
-> some log files too. The real problem is unset SOMEENVIRONMNET.
-> The environment variables are residing in the bash program
-> itself. The unset command is part of the bash program,
-> I am not sure of any way the create SELinux
-> rules that would effect the way a programs behave to itself without
-> making system calls. The unset command I believe does
-> not make any system calls( I could be wrong, I have not
-> look at the source )  but only effects the bash program.
+Is there anything I'm missing here?  Is there some need to do otherwise?
 
-yes, i have done some weird bash patch 5-6 years ago, and it do all
-these, just today remember it and think it from the selinux point, like an
-idea rather than practically used. thanks for the append_only ;)
+Also I've hacked my run_init to just run the program if it's run on a non-SE 
+system so that the same start scripts can be used with an SE kernel or a 
+non-SE kernel.  Any good reasons for not doing this?
 
-> It looks like you are try to audit what programs are being
-> executed, (i.e. seeing what a hacker is doing). A better method
-> would be to use the snare audit modules from  Intersecalliance
-> http://www.intersectalliance.com/projects/Snare/Documentation/index.html#SNA
-> RE_Installation
-> I am currently using that product on top of SELlinux. The government
-> requires audit data and it is the best for right now.
->
-
-yes, the same is here, i'm using snare almost from the beginning, but
-seems that sometimes snare do some high load over machine, and for sure i'm
-not that crazy to rely on .bash_hitory for audits ;).
-
-best regards,
-
-Hacko
-
-
+-- 
+http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
+http://www.coker.com.au/projects.html Projects I am working on
+http://www.coker.com.au/~russell/     My home page
 
 
 --
