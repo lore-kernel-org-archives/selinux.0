@@ -1,40 +1,42 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: rules uptimed
-Date: Fri, 20 Jun 2003 11:31:56 +1000
-References: <200306182130.11056.carstengrohmann@gmx.de> <200306191056.29941.russell@coker.com.au> <200306192133.00539.carstengrohmann@gmx.de>
-In-Reply-To: <200306192133.00539.carstengrohmann@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200306201131.56608.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5K8ge3E006590
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2003 04:42:41 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h5K8gd5e010847
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2003 08:42:40 GMT
+Received: from petrus.schuldei.org (petrus.schuldei.org [81.27.1.16])
+        by jazzband.ncsc.mil  with ESMTP id h5K8gd92010844 for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2003 08:42:39 GMT
+Date: Fri, 20 Jun 2003 10:40:27 +0200
+From: Andreas Schuldei <andreas@schuldei.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+Subject: Re: how usable is selinux in lsm-2.5?
+Message-ID: <20030620084027.GA1852@schuldei.org>
+References: <20030618212607.GB5278@schuldei.org> <1056025963.1071.27.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1056025963.1071.27.camel@moss-huskers.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 20 Jun 2003 05:33, Carsten Grohmann wrote:
-> Am Donnerstag, 19. Juni 2003 02:56 schrieb Russell Coker:
-> > On Thu, 19 Jun 2003 05:34, Carsten Grohmann wrote:
-> > > I use the uptimed from unixcode.org/uptimed/ since a few
-> > > months. I wrote the rules last days. Feel free to use it....
-> >
-> > I've attached a version with a few minor changes.
->
-> Thank you!
->
-> You could also replace readable_t with locale_t. The new policy from
-> the CVS used it to label /etc/localtime.
+* Stephen Smalley (sds@epoch.ncsc.mil) [030619 14:33]:
+> On Wed, 2003-06-18 at 17:27, Andreas Schuldei wrote:
+> > I notice with satisfaction that lsm-2.5 with selinux configured
+> > in compiles fine here.
+> 
+> Are you referring to the lsm-2.5 BitKeeper tree from either
+> lsm.bkbits.net or lsm.immunix.org?  I did replace the SELinux module in
+> that tree with the new 2.5 SELinux, although the LSM patch in that tree
+> still includes various hooks that are not in mainline.  You might want
+> to wait until we make an updated public release of the mainline
+> 2.5-based SELinux and use it.
 
-I've changed that to:
-r_dir_file(uptimed_t, locale_t)
-There are directories and sym-links with the same type...
+when do you expect to release that?
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+> http://www.nsa.gov/selinux/lk, but it might be easier for you to wait
+> for an updated public release on the main download page.
 
+would that be the same date then above?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
