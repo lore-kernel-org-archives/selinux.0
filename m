@@ -1,45 +1,115 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAMDKQIi004474
-	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 08:20:27 -0500 (EST)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAMDKTCv009395
-	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 13:20:30 GMT
-Subject: Re: gentoo diff for snmpd
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: petre rodan <kaiowas@gentoo.org>, SELinux <selinux@tycho.nsa.gov>,
-   Chris PeBenito <pebenito@gentoo.org>
-In-Reply-To: <41A022C6.8050100@redhat.com>
-References: <4198D752.2020405@gentoo.org>
-	 <1100808061.26930.18.camel@moss-lions.epoch.ncsc.mil>
-	 <419DF805.80002@gentoo.org>
-	 <1100893806.31793.29.camel@moss-lions.epoch.ncsc.mil>
-	 <41A022C6.8050100@redhat.com>
-Content-Type: text/plain
-Message-Id: <1101129762.3264.8.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 22 Nov 2004 08:22:42 -0500
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAMFt0Ii005627
+	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 10:55:00 -0500 (EST)
+Received: from mbox-o00.iijmio.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAMFslCx014859
+	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 15:55:03 GMT
+Message-Id: <200411221554.iAMFsPDM027086@mms-r01.iijmio.jp>
+Date: Mon, 22 Nov 2004 10:54:22 -0500
+From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+MIME-Version: 1.0
+To: sds@epoch.ncsc.mil, dwalsh@redhat.com, selinux@tycho.nsa.gov
+Cc: himainu-ynakam@miomio.jp
+Subject: idea: setfiles to exclude specific type
+Content-Type: multipart/mixed; boundary="------------Boundary_TtSW55Up.2z-U:N"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2004-11-21 at 00:08, Daniel J Walsh wrote:
-> James Carter wrote:
-> 
-> >I put an "ifdef(`distro_gentoo'" around all of these rules and merged
-> >them.
-> >
-> >  
-> >
-> Are you sure the proc_net changes are specific to gentoo?
 
-I don't see why it couldn't be used in the other distributions.  
-I guess I put the ifdef's in because I knew only Gentoo was using it.  I
-don't have a problem with the ifdef's being removed.
+--------------Boundary_TtSW55Up.2z-U:N
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+Hello.
+
+I add setfiles "-x" option.
+I attach my idea in "setfiles.diff".
+
+-x option is used to exclude specified type.
+
+For example,
+# setfiles file_contexts /home -x httpd_user_rw_t
+setfiles skips relabeling files that have "httpd_user_rw_t".
+
+The reason why this option is necessary is following.
+I heard that fixfiles.cron is removed, because unwanted alerts are displayed.
+In some case, types must be preserved.
+http://www.redhat.com/archives/fedora-selinux-list/2004-November/msg00061.html
+
+But I think fixfiles.cron is useful, and hope it is included again.
+Because integrity of label is critical for SELinux.
+
+I think to suppress unwanted alerts, 
+it is necessary to add new option in setfiles and modify fixfiles.
+
+Does it sound reasonable?
+
+---
+Yuichi Nakamura
+Japan SELinux Users Group(JSELUG)
+http://www.selinux.gr.jp/
+
+--------------Boundary_TtSW55Up.2z-U:N
+Content-Type: application/octet-stream; name="setfiles.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="setfiles.diff"
+
+LS0tIHNldGZpbGVzLmMub3JpZwkyMDA0LTExLTE5IDE1OjQwOjA3LjAwMDAwMDAwMCAtMDUw
+MAorKysgc2V0ZmlsZXMuYwkyMDA0LTExLTE5IDE2OjIyOjE5LjQ0NDQ2NjQ0MCAtMDUwMApA
+QCAtNCw3ICs0LDcgQEAKICAqIEFVVEhPUjogIFN0ZXBoZW4gU21hbGxleSA8c2RzQGVwb2No
+Lm5jc2MubWlsPgogICogVGhpcyBwcm9ncmFtIHdhcyBkZXJpdmVkIGluIHBhcnQgZnJvbSB0
+aGUgc2V0ZmlsZXMucGwgc2NyaXB0CiAgKiBkZXZlbG9wZWQgYnkgU2VjdXJlIENvbXB1dGlu
+ZyBDb3Jwb3JhdGlvbi4KLSAqCisgKiAteCBvcHRpb246IFl1aWNoaSBOYWthbXVyYSA8eW5h
+a2FtQHNlbGludXguZ3IuanA+CiAgKiBQVVJQT1NFOgogICogVGhpcyBwcm9ncmFtIHJlYWRz
+IGEgc2V0IG9mIGZpbGUgc2VjdXJpdHkgY29udGV4dCBzcGVjaWZpY2F0aW9ucwogICogYmFz
+ZWQgb24gcGF0aG5hbWUgcmVndWxhciBleHByZXNzaW9ucyBhbmQgbGFiZWxzIGZpbGVzCkBA
+IC0yNSw2ICsyNSw3IEBACiAgKiAtdglTaG93IGNoYW5nZXMgaW4gZmlsZSBsYWJlbHMuICAK
+ICAqIC1XICAgV2FybiBhYm91dCBlbnRyaWVzIHRoYXQgaGF2ZSBubyBtYXRjaGluZyBmaWxl
+LgogICogLW8gZmlsZW5hbWUgd3JpdGUgb3V0IGZpbGUgbmFtZXMgd2l0aCB3cm9uZyBjb250
+ZXh0LgorICogLXggICBTcGVjaWZ5IHR5cGUgdG8gZXhjbHVkZQogICoKICAqIHNwZWNfZmls
+ZQlUaGUgc3BlY2lmaWNhdGlvbiBmaWxlLgogICogcGF0aG5hbWUuLi4JVGhlIGZpbGUgc3lz
+dGVtcyB0byBsYWJlbCAob21pdCBpZiB1c2luZyAtcykuCQpAQCAtODEsMTAgKzgyLDEyIEBA
+CiBzdGF0aWMgaW50IGV4Y2x1ZGVDdHI9MDsKIHN0cnVjdCBlZGlyIHsKIAljaGFyICpkaXJl
+Y3Rvcnk7CisJY2hhciAqdHlwZTsKICAgICAgICAgaW50IHNpemU7CiB9Owogc3RhdGljIHN0
+cnVjdCBlZGlyIGV4Y2x1ZGVBcnJheVtNQVhfRVhDTFVERVNdOwogCisKIC8qCiAgKiBDb21t
+YW5kLWxpbmUgb3B0aW9ucy4KICAqLwpAQCAtMTUzLDEyICsxNTYsMzUgQEAKIAlyZXR1cm4g
+dG1wIC0gYnVmOwogfQogCitpbnQgY2hlY2t0eXBlKGNvbnN0IGNoYXIgKmZpbGUsIGNoYXIg
+KnR5cGUsIGludCBzaXplKXsKKwlzZWN1cml0eV9jb250ZXh0X3QgY29uOworCWNoYXIgKmM7
+CisJaW50IHJldDsKKworCXJldCA9IGdldGZpbGVjb24oZmlsZSwgJmNvbik7CisJaWYocmV0
+ID09IC0xKXsKKwkJcmV0dXJuIDA7CisJfQorCWMgPSBzdHJyY2hyKGNvbiwnOicpOworCWMr
+KzsKKwlpZihzdHJjbXAoYyx0eXBlKSA9PTAgKXsKKwkJcmV0dXJuIDE7CisJfQorCXJldHVy
+biAwOworfQorCiBzdGF0aWMgaW50IGV4Y2x1ZGUoY29uc3QgY2hhciAqZmlsZSkgewogCWlu
+dCBpPTA7Ci0JZm9yKGk9MDsgaSA8IGV4Y2x1ZGVDdHI7IGkrKykgeyAKLQkJaWYgKHN0cm5j
+bXAoZmlsZSxleGNsdWRlQXJyYXlbaV0uZGlyZWN0b3J5LGV4Y2x1ZGVBcnJheVtpXS5zaXpl
+KT09MCkgewotCQkJaWYgKGZpbGVbZXhjbHVkZUFycmF5W2ldLnNpemVdPT0wIHx8IAotCQkJ
+ICAgIGZpbGVbZXhjbHVkZUFycmF5W2ldLnNpemVdPT0nLycpIHsKKwlmb3IoaT0wOyBpIDwg
+ZXhjbHVkZUN0cjsgaSsrKSB7CisJCWlmKGV4Y2x1ZGVBcnJheVtpXS50eXBlID09IE5VTEwp
+eworCQkJaWYgKHN0cm5jbXAoZmlsZSxleGNsdWRlQXJyYXlbaV0uZGlyZWN0b3J5LGV4Y2x1
+ZGVBcnJheVtpXS5zaXplKT09MCkgeworCQkJCWlmIChmaWxlW2V4Y2x1ZGVBcnJheVtpXS5z
+aXplXT09MCB8fCAKKwkJCQkgICAgZmlsZVtleGNsdWRlQXJyYXlbaV0uc2l6ZV09PScvJykg
+eworCQkJCQlyZXR1cm4gMTsKKwkJCQl9CisJCQl9CisJCX1lbHNleworCQkJaWYoIGNoZWNr
+dHlwZShmaWxlLGV4Y2x1ZGVBcnJheVtpXS50eXBlLGV4Y2x1ZGVBcnJheVtpXS5zaXplKSA9
+PSAxKXsKIAkJCQlyZXR1cm4gMTsKIAkJCX0KIAkJfQpAQCAtNzc1LDcgKzgwMSw3IEBACiAJ
+bWVtc2V0KGV4Y2x1ZGVBcnJheSwwLCBzaXplb2YoZXhjbHVkZUFycmF5KSk7CiAKIAkvKiBQ
+cm9jZXNzIGFueSBvcHRpb25zLiAqLwotCXdoaWxlICgob3B0ID0gZ2V0b3B0KGFyZ2MsIGFy
+Z3YsICJjOmRsbnFyc3ZXZTpvOiIpKSA+IDApIHsKKwl3aGlsZSAoKG9wdCA9IGdldG9wdChh
+cmdjLCBhcmd2LCAiYzpkbG5xcnN2V2U6eDpvOiIpKSA+IDApIHsKIAkJc3dpdGNoIChvcHQp
+IHsKIAkJY2FzZSAnYyc6CiAJCXsKQEAgLTgxOCw2ICs4NDQsNyBAQAogCQkJfQogCQkJbGVu
+PXN0cmxlbihvcHRhcmcpOwogCQkJZXhjbHVkZUFycmF5W2V4Y2x1ZGVDdHJdLmRpcmVjdG9y
+eSA9IHN0cmR1cChvcHRhcmcpOworCQkJZXhjbHVkZUFycmF5W2V4Y2x1ZGVDdHJdLnR5cGUg
+PSBOVUxMOwogCQkJaWYgKCFleGNsdWRlQXJyYXlbZXhjbHVkZUN0cl0uZGlyZWN0b3J5KSB7
+CiAJCQkJZnByaW50ZihzdGRlcnIsICJPdXQgb2YgbWVtb3J5LlxuIik7CiAJCQkJZXhpdCgx
+KTsKQEAgLTgzMCw3ICs4NTcsMjEgQEAKIAkJCX0KIAkJCWJyZWFrOwogCQl9Ci0JCQkKKwkJ
+Y2FzZSAneCc6CisJCXsKKwkJCWludCBsZW47CisJCQlsZW49c3RybGVuKG9wdGFyZyk7CisJ
+CQlleGNsdWRlQXJyYXlbZXhjbHVkZUN0cl0udHlwZSA9IHN0cmR1cChvcHRhcmcpOworCQkJ
+ZXhjbHVkZUFycmF5W2V4Y2x1ZGVDdHJdLmRpcmVjdG9yeSA9IE5VTEw7CisJCQlleGNsdWRl
+QXJyYXlbZXhjbHVkZUN0cisrXS5zaXplID0gbGVuOworCQkJaWYgKGV4Y2x1ZGVDdHIgPiBN
+QVhfRVhDTFVERVMpIHsKKwkJCQlmcHJpbnRmKHN0ZGVyciwgIk1heGltdW0gZXhjbHVkZXMg
+JWQgZXhjZWVkZWQuXG4iLCAKKwkJCQkJTUFYX0VYQ0xVREVTKTsKKwkJCQlleGl0KDEpOwor
+CQkJfQorCQkJYnJlYWs7CisJCX0KKwkKIAkJY2FzZSAnZCc6CiAJCQlkZWJ1ZyA9IDE7CiAJ
+CQlicmVhazsK
+
+--------------Boundary_TtSW55Up.2z-U:N--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
