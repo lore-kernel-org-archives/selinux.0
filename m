@@ -1,33 +1,46 @@
-Date: Wed, 15 Aug 2001 12:44:58 -0400 (EDT)
+Date: Wed, 15 Aug 2001 13:38:59 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: "Jones, Robyn M." <Robyn.Jones@jhuapl.edu>
-cc: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
-Subject: Re: Red Hat 6.1
-In-Reply-To: <91D1D51C2955D111B82B00805F1998950C23CA59@aples2.jhuapl.edu>
-Message-ID: <Pine.SOL.3.95.1010815124146.5693B-100000@clipper.gw.tislabs.com>
+To: Eric Peters <eric@peters.org>
+cc: SELinux@tycho.nsa.gov
+Subject: Re: SE Linux II?
+In-Reply-To: <00e601c125a7$70f0f410$020144c0@windows>
+Message-ID: <Pine.SOL.3.95.1010815130623.5693D-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 15 Aug 2001, Jones, Robyn M. wrote:
+On Wed, 15 Aug 2001, Eric Peters wrote:
 
-> I currently have Red Hat 6.0, but the instructions for SE Linux suggest
-> 6.1...Can anyone direct me to an upgrade site???
+> however still in a state of question about the representation of a 'domain'.
+> My understanding of a class is just aggregated types (read write/etc) which
+> could fall under the class 'file', yet what is the definition of a domain?
 
-Go to www.redhat.com if you want to obtain a version of RedHat Linux.
-You may want to simply upgrade to RH7.1 instead of RH6.1.  Several
-people on the list have successfully installed SELinux on RH7.1,
-with a few tweaks and some policy customization, and our new
-LSM-based SELinux prototype is being developed on a RH7.1 platform.
-You might want to wait a little on installing SELinux - the new
-LSM-based prototype should be available soon.
+The term "class" refers to the kind of object, e.g. a directory, a regular
+file, a device file, a TCP socket, a UDP socket, a message queue, etc.
+For each class, a set of permissions are defined to control the
+services/operations provided for that object.
+
+The terms "domain" and "type" refer to a particular security attribute 
+in the security context that is used by the Type Enforcement (TE) policy.
+There have been many papers about TE and its variant DTE.  A "domain"
+is simply a security tag for a process, and a "type" is simply a
+security tag for an object.  The TE policy configuration specifies
+authorized permissions for various (domain,type,class) triples for
+operations on objects or (domain,domain,class) triples for operations
+between subjects.  Abstractly, a domain is a set of processes with
+the same set of permissions to objects (an equivalence class of
+processes).  The ability to enter a domain can be limited to specific
+programs by using the entrypoint permission, and the ability to
+transition between domains is controlled.  Typically, a TE policy
+directly authorizes users for specific domains.  The SELinux
+example security server uses roles as an intermediate abstractions,
+authorizing roles for specific domains and users for specific roles.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
