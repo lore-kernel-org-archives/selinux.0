@@ -1,45 +1,50 @@
-Message-ID: <20050112001948.21459.qmail@web50206.mail.yahoo.com>
-Date: Tue, 11 Jan 2005 16:19:48 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Added is_context_configurable function
-To: Colin Walters <walters@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1105481440.24748.22.camel@nexus.verbum.private>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Unionfs and Selinux
+From: Jaspreet Singh <jsingh@ensim.com>
+Reply-To: jsingh@ensim.com
+To: Stephen Smalley <sds@epoch.ncsc.mil>, nsa <SELinux@tycho.nsa.gov>,
+   Erez Zadok <ezk@cs.sunysb.edu>, Unionfs <unionfs@filesystems.org>,
+   Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Content-Type: text/plain
+Date: Wed, 12 Jan 2005 15:07:40 +0530
+Message-Id: <1105522661.6597.14.camel@jsingh>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi,
 
---- Colin Walters <walters@redhat.com> wrote:
- 
-> I feel that the 
-> on-disk version should be canonical, and the
-> file_contexts only used for
-> system initialization.
+I am facing some problem using unionfs with selinux. Unionfs is
+available for linux from ftp://ftp.fsl.cs.sunysb.edu/pub/unionfs/
 
-I'd have to recheck the LSPP spec, but the B1
-requirements clearly stated that MAC labels
-had to be stored on the same media as the files.
-The "closer" the MAC attribute is to the file,
-the better. Hence an attribute of the file with
-the MAC label is prefered to a file or database.
-Further, the attribute must be associated with
-the file, not a pathname. Files can exist, after
-all, without a pathname.
+Unionfs redirects the listxattr /getxattr calls to underlying branches
+(of filesystems).
+
+It works somewhat like this -
+
+mount -t unionfs -o dirs=/a=rw:/b=ro none /n
+
+ls -Z /a /b .. displays correct security contexts but ls -Z on the mount
+point /n .. displays none. Although the mount point /n has security
+context.
+
+When I mentioned the following entry in fs_use.
+fs_use_xattr unionfs system_u:object_r:fs_t;
+
+It said :- mount: Operation not supported ,and audit says -
+SELinux: (dev unionfs, type unionfs) has no xattr support
+
+But IHMO it implements .. listxattr and getxattrs ... correctly.
+
+A quick strace on mount .. showed that the kernel returned -EOPNOTSUPP
+
+any clues ???
+
+Regards,
+Jaspreet
+
+-- 
 
 
-=====
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-	
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - You care about security. So do we. 
-http://promotions.yahoo.com/new_mail
 
 --
 This message was distributed to subscribers of the selinux mailing list.
