@@ -1,39 +1,35 @@
-Message-ID: <3B337809.7672C8D0@cyberdawgs.com>
-Date: Fri, 22 Jun 2001 12:53:29 -0400
-From: Kal Kolberg <kolberg@cyberdawgs.com>
-MIME-Version: 1.0
+Date: Fri, 22 Jun 2001 14:00:07 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
 To: Matt Jezorek <mjezorek@usa.net>
-Cc: SELinux@tycho.nsa.gov
+cc: SELinux@tycho.nsa.gov
 Subject: Re: selinux included in new distro
-References: <20010622140017.28383.qmail@nwcst284.netaddress.usa.net>
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20010622140017.28383.qmail@nwcst284.netaddress.usa.net>
+Message-ID: <Pine.SOL.3.95.1010622134446.10847E-100000@clipper.gw.tislabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I haven't worked with selinux much myself yet, but I believe that the code is
-integrated with the GPL and thus the answer would be yes.
 
-Kal
+On 22 Jun 2001, Matt Jezorek wrote:
 
-Matt Jezorek wrote:
-
->  Basics under current selinux licensing i can use selinux as the
-> base for a new distro correct provided I leave the copyright and info
-> and supply source (naturally) of any changes and so on...Is this
+>  Basics under current selinux licensing i can use selinux as the 
+> base for a new distro correct provided I leave the copyright and info 
+> and supply source (naturally) of any changes and so on...Is this 
 > statement correct?
->
-> Been thinking that if I gave up compatibility for security and then let
-> the people who are compatiable use the system then maybe we can
-> make a difference. But I just would like to make sure that I can
-> implement selinux as the base kernel for this distro
->
-> Matt Jezorek
-> mjezorek@usa.net
->
-> --
-> You have received this message because you are subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+
+You are free to use SELinux as part of a Linux distribution under
+the same conditions as any other GPL'd software.  All of the SELinux
+software is licensed under the GPL, including both the patches to
+existing GPL'd software (obviously and necessarily) and the newly
+developed components. 
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 
 --
