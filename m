@@ -1,82 +1,64 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38LRaRb021211
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 17:27:37 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i390BURb021958
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 20:11:31 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i38LRZmw012448
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 21:27:35 GMT
-Received: from hawaii.efficax.net (rrcs-sw-24-153-230-186.biz.rr.com [24.153.230.186])
-        by jazzband.ncsc.mil  with ESMTP id i38LRY4w012441 for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 21:27:35 GMT
-Received: from hawaii.efficax.net (localhost.localdomain [127.0.0.1])
-	by hawaii.efficax.net (8.12.10/8.12.10) with ESMTP id i38LRY02025901
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 16:27:34 -0500
-Received: (from nick@localhost)
-	by hawaii.efficax.net (8.12.10/8.12.10/Submit) id i38LRXWY025899
-	for selinux@tycho.nsa.gov; Thu, 8 Apr 2004 16:27:33 -0500
-Subject: Fedora Core 2 Test 2
-From: Nick Gray <nagray@austin.rr.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1081459652.24857.33.camel@hawaii.efficax.net>
-Mime-Version: 1.0
-Date: Thu, 08 Apr 2004 16:27:33 -0500
+	by jazzband.ncsc.mil  with ESMTP id i390BTmw018962
+	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 00:11:30 GMT
+Received: from zaphod.crypt.gen.nz (port-203-99-29-49.jet.net.nz [203.99.29.49])
+        by jazzband.ncsc.mil  with ESMTP id i390BS4w018954 for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 00:11:29 GMT
+Received: from www (zaphod.crypt.gen.nz [192.168.1.5])
+	by zaphod.crypt.gen.nz (Postfix) with SMTP id E3200FE9D
+	for <selinux@tycho.nsa.gov>; Fri,  9 Apr 2004 12:11:13 +1200 (NZST)
+Message-ID: <32926.192.168.1.3.1081469476.squirrel@www>
+In-Reply-To: <1081459652.24857.33.camel@hawaii.efficax.net>
+References: <1081459652.24857.33.camel@hawaii.efficax.net>
+Date: Fri, 9 Apr 2004 12:11:16 +1200 (NZST)
+Subject: Re: Fedora Core 2 Test 2
+From: "Kerry Thompson" <kerry@crypt.gen.nz>
+To: "SE Linux" <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-What is the strategy with Fedora Core 2 Test 2. I loaded it on my test
-server in order to make a first stab at transitioning to a 2.6 Kernel.
+Nick Gray said:
+> What is the strategy with Fedora Core 2 Test 2. I loaded it on my test
+> server in order to make a first stab at transitioning to a 2.6 Kernel.
+>
+> My observations so far:
+>
+> 1: I was a little surprised to find that SELinux was installed by
+> default and that there didn't seem to be a way to avoid it. This said,
+> the kernel did come up properly and the system booted.
+> [snip]
 
-My observations so far:
+I haven't tried FC2t2 yet so I can't comment on the details, but the
+feedback and hits I'm seeing against the FAQ page indicate many people are
+having problems. By far the most common google query is "disable selinux",
+and the hit rate has quadrulped since FC2t2 came out. A few people have
+commented that the desktop doesn't come up similar to Nick's comments.
 
-1: I was a little surprised to find that SELinux was installed by
-default and that there didn't seem to be a way to avoid it. This said,
-the kernel did come up properly and the system booted.
+I'm advising people that if they're not interested in SELinux or are
+installing a desktop for their granny then disable with selinux=0. If
+they're interested in SELinux, then go with enforcing=0 and be prepared
+for some messages and maybe enable enforcing later.
 
-2: I was a little bit more than surprised to find that the policy src
-and policy tools (i.e. checkpolicy) were not on the system anywhere.
-They also seem to be missing from the DVD ISO that I downloaded.
+I too would like to hear from the FC2 developers (Russell?) about what the
+install options will be (there really needs to be one), and if the
+policies will be clean enough for an install into enforcing mode.
 
-3: Not to be daunted by this, I downloaded the New release and installed
-it. My first attempt has gone down in flames. I get a system which trys
-to load X and gives me a couple of warnings in the top left portion of
-the screen (which I cant read) and hangs.
+I'm thinking of writing an introductory document for Fedora users new to
+SELinux about what to do during and after installation ( a bit like Faye's
+HOWTO but shorter and at a more basic level ) to help people when the FC2
+release comes out. So the strategy for the release would be greatly
+appreciated.
 
- I am going to make another stab at it and see if I can control the
-install a little bit better. Then I will guess making the system come up
-in permissive mode and then try re-installing SEL from source.
-
-Another thing I find sort of odd is, I needed to add packages to the
-install of SELinux on Core1. I did this by modifying the comps.xml to
-create an SELinux group which included:
-
-<packagereq type="mandatory">sharutils</packagereq>
-<packagereq type="mandatory">linuxdoc-tools</packagereq>
-<packagereq type="mandatory">netpbm-progs</packagereq>
-<packagereq type="mandatory">tetex-latex</packagereq>
-<packagereq type="mandatory">autoconf213</packagereq>
-<packagereq type="mandatory">elfutils-devel</packagereq>
-<packagereq type="mandatory">libcroco-devel</packagereq>
-
-On Core2, It looks as if elfutils, and libcroco have been updated but
-the DVD ISO is missing the development RPMs. I guess these were not
-needed for the SELinux kernel install when the system was building, but
-they seem to still be needed for the after installation build of the
-system.
-
-I am interested in hearing others experience on this. In particular
-anyone who is running core 2 with added users/programs.
-
-I am attempting to setup JBOSS as a daemon. With Core1 at least I was
-able to get it running in permissive. I couldn't even do that with
-Core2.
-
-Nix
+Kerry
 
 -- 
-Nick Gray
-Senior Systems Engineer
-Bruzenak Inc.
-nagray@austin.rr.com
-(512) 331-7998
+Kerry Thompson, CCNA CISSP
+Information Systems Security Consultant
+http://www.crypt.gen.nz  kerry@crypt.gen.nz
 
 --
 This message was distributed to subscribers of the selinux mailing list.
