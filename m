@@ -1,71 +1,161 @@
-Date: Tue, 16 Jul 2002 13:46:23 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Richard Mayo <rmayo@caci.com>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: Creating Permissions for New Software
-In-Reply-To: <OFC3FE5220.D84825C9-ON85256BF8.00591C2A@hq.caci.com>
-Message-ID: <Pine.GSO.4.33.0207161332200.23767-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA15444
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2002 14:58:52 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA12237
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2002 18:57:22 GMT
+Received: from gull.mail.pas.earthlink.net (gull.mail.pas.earthlink.net [207.217.120.84])
+        by jazzband.ncsc.mil  with ESMTP id SAA12233 for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2002 18:57:22 GMT
+Received: from crtntx1-ar7-4-35-055-073.crtntx1.elnk.dsl.genuity.net ([4.35.55.73] helo=donkey)
+	by gull.mail.pas.earthlink.net with esmtp (Exim 3.33 #1)
+	id 17UXX2-00048u-00
+	for selinux@tycho.nsa.gov; Tue, 16 Jul 2002 11:58:45 -0700
+From: "Ryan Bergauer" <privateryan@mindspring.com>
+To: <selinux@tycho.nsa.gov>
+Subject: user mount permissions
+Date: Tue, 16 Jul 2002 13:58:44 -0500
+Message-ID: <000001c22cfa$cf985bb0$0300a8c0@donkey>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0001_01C22CD0.E6C253B0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
 
-On Tue, 16 Jul 2002, Richard Mayo wrote:
+------=_NextPart_000_0001_01C22CD0.E6C253B0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 
-> Additionally, I created a new .te file (copied from Mr. Smalley's original
-> for Netscape) and commented out most of the original lines.   I've left a
-> few in -- the ones that create the derived domain and transition to this
-> domain --  but all of the specific permissions have been removed.
-> Additinally, I did remember to add this file to the list of includes in
-> user_macros.te.
+I'm want to allow users to be able to mount an encrypted directory in
+their home directory. Unfortunately, this requires allowing normal users
+to transition into mount_t via a mount executable, which I think would
+be wise to avoid. Is there a good way to allow users to mount only a
+certain type, say user_home_t (or in my case, crypt_home_t)? Thanks!
 
-As a side note, it sounds like you are using the 2002053110 release rather
-than the latest release (2002070313), since the need for explicit
-include's went away when we merged some of Russell's changes to the policy
-Makefile.
+------=_NextPart_000_0001_01C22CD0.E6C253B0
+Content-Type: text/html;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
 
-However, regardless of whether or not you need to include the file, you
-do need to "call" the macro within the user_domain macro definition.  See
-the series of macro "calls" preceded by the comment "# Instantiate derived
-domains for a number of programs."  Did you remember to do this?
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
 
-> Since then, I've tried to grant permissions to the user for his user files,
-> but nothing changed.
-
-Two possible causes:  1) you failed to "call" the macro, so it isn't being
-used, or 2) you failed to load the new policy into the kernel after
-updating it via 'make load'.
-
-> One specific question I have is, "What do I gain by creating the derived
-> (temporary?) domain and how does this impact the permission I must grant to
-> run my software?"
-
-You only need a separate domain if you want to grant different permissions
-to the software than to the user.  In the case of netscape/mozilla, we
-want to run the software with fewer permissions than the user to confine
-any exploit of the browser by malicious mobile code.  In the case of some
-programs, we want to run the software with more permissions than the user
-is directly granted.  Or we may want to just run the software
-with different permissions than the user, neither a strict subset nor
-superset.
-
-You can define a separate domain without defining a derived domain.  For
-example, for the spasswd wrapper program, a single passwd_t domain is
-defined in domains/program/passwd.te, and all user domains transition to
-this domain when running spasswd.  In contrast, with a derived domain like
-the netscape/mozilla domain, each user domain transitions to its own
-derived domain when running the program (e.g. sysadm_netscape_t or
-user_netscape_t).  The use of derived domains allow the policy to maintain
-separation between different instances of the program being run by
-different user domains.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
 
 
+<meta name=3DProgId content=3DWord.Document>
+<meta name=3DGenerator content=3D"Microsoft Word 10">
+<meta name=3DOriginator content=3D"Microsoft Word 10">
+<link rel=3DFile-List href=3D"cid:filelist.xml@01C22CD0.E5EDECB0">
+<!--[if gte mso 9]><xml>
+ <o:OfficeDocumentSettings>
+  <o:DoNotRelyOnCSS/>
+ </o:OfficeDocumentSettings>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:DocumentKind>DocumentEmail</w:DocumentKind>
+  <w:EnvelopeVis/>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	mso-style-noshow:yes;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:Arial;
+	mso-hansi-font-family:Arial;
+	mso-bidi-font-family:Arial;
+	color:windowtext;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */=20
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]-->
+</head>
 
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple =
+style=3D'tab-interval:.5in'>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I&#8217;m <span class=3DGramE>want</span> to allow =
+users to be
+able to mount an encrypted directory in their home directory. =
+Unfortunately,
+this requires allowing normal users to transition into <span =
+class=3DSpellE>mount_t</span>
+via a mount executable, which I think would be wise to avoid. Is there a =
+good
+way to allow users to mount only a certain type, say <span =
+class=3DSpellE>user_home_t</span>
+(or in my case, <span class=3DSpellE>crypt_home_t</span>)? =
+Thanks!<o:p></o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_000_0001_01C22CD0.E6C253B0--
 
 
 --
