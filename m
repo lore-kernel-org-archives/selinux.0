@@ -1,61 +1,54 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBKIUoIi016173
-	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 13:30:52 -0500 (EST)
-Received: from oe-im1.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBKIUheP023504
-	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 18:30:52 GMT
-Message-ID: <41C727B1.4080709@tresys.com>
-Date: Mon, 20 Dec 2004 14:27:45 -0500
-From: David Caplan <dac@tresys.com>
-MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: SE-Linux <selinux@tycho.nsa.gov>, selinuxdev <selinux-dev@tresys.com>
-Subject: Re: paranoid FC3 setup: banning all login access (!)
-References: <20041220160039.GE24188@lkcl.net>
-In-Reply-To: <20041220160039.GE24188@lkcl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBKJL4Ii016560
+	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 14:21:04 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBKJJJkB002309
+	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 19:19:19 GMT
+Subject: Re: User Space Auditing
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Linux <linux@linuon.com>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <200412182031.43836.linux@linuon.com>
+References: <200412182031.43836.linux@linuon.com>
+Content-Type: text/plain
+Message-Id: <1103570153.6674.58.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 20 Dec 2004 14:15:53 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Luke Kenneth Casson Leighton wrote:
-> hi,
-> 
-> i have a requirement for setting up a server that might even ban
-> logins - even admin logins.
-> 
-> the only things that should be allowed are reboot (ctrl-alt-delete at
-> console) and services (e.g apache).
-> 
-> my question is, therefore: is it possible to _conveniently_
-> load a completely different selinux policy file (by typing
-> "linux init 3" or other incantation at the grub prompt)
-> 
-> what i want to be able to do is say to my customer "yes, in
-> order to do upgrades and maintenance, you press ctrl-alt-delete,
-> selection option 2) on the boot-loader menu, and you will be
-> dropped into standard admin mode.  when you are done, reboot
-> again and let it go back into 'paranoid' mode")
-> 
-> can anyone help advise?
-> 
+On Sat, 2004-12-18 at 06:31, Linux wrote:
+> I have a quick question regarding auditing facility in SELinux.
+> It might not be really relating to SELinux, could be stupid 
+> question though.
+> What I want to do is capture SELinux audit logs directly from user space
+> daemon, just like netfilter's ulogd. Is there any daemon like ulogd already?
+> If not, are there any programs that use the audit facility that 
+> I can refer to?
+> It seems not right thing to do that porting SELinux to use ulog facility.
+> I looked for info about audit but there's almost no useful info available on
+> the internet.  I found there's Hert.org who seems to be original developer of 
+> linux audit facility but all related info had been removed from their server
+> now. Even Faith's, who is author of auditd, audit page on RedHat's site has
+> been removed.
+> If anyone out there know how to use linux audit facility then 
+> please enlighten me. 
 
-How about using a conditional expression (aka "boolean")?  That way you can 
-have a whole chunk of plicy that gets turned on only when you need it 
-(maintenance mode).  All of the types would always be defined, but the 
-rules would only be active when the conditional expression/boolean is 
-turned on/off.  That way you also don't run into the labeling insanity you 
-might encounter with two distinct policies.
-
-David
+There is a mailing list for discussions of the Linux audit framework,
+see http://www.redhat.com/mailman/listinfo/linux-audit.  Peter
+Martucelli has taken over from Rik Faith, who originally developed the
+framework (I don't know anything about any connection with hert.org),
+and has the sample auditd code at
+http://people.redhat.com/peterm/audit/, but I believe that there is
+ongoing work to significantly enhance both the kernel framework and the
+userspace tools.  If you aren't running an auditd, then the audit data
+is just channeled to klogd in the usual manner.  Please see the
+linux-audit mailing list archives.
 
 -- 
-__________________________________
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-David Caplan     410 290 1411 x105
-dac@tresys.com
-Tresys Technology, LLC
-8840 Stanford Blvd., Suite 2100
-Columbia, MD 21045
 
 --
 This message was distributed to subscribers of the selinux mailing list.
