@@ -1,68 +1,71 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA26056
-	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2001 09:25:44 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA21843
-	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2001 14:25:27 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id OAA21839
-	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2001 14:25:26 GMT
-Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA23279
-	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2001 09:25:43 -0500 (EST)
-Date: Tue, 20 Nov 2001 09:10:39 -0500 (EST)
-From: hdholm@epoch.ncsc.mil (Howard Holm)
-Message-Id: <200111201410.JAA04133@coalpipe.epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Subject: Updated release
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA26860
+	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2001 11:09:48 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA21280
+	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2001 16:09:09 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
+	by jazzband.ncsc.mil  with ESMTP id QAA21270
+	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2001 16:09:09 GMT
+Received: from localhost (sds@localhost)
+	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id fAKG9fN21244
+	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2001 11:09:41 -0500 (EST)
+Date: Tue, 20 Nov 2001 11:09:41 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [PATCH] Bug fix for selinux_inode_delete hook
+Message-ID: <Pine.GSO.4.33.0111201101420.17556-200000@raven>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-959030623-1006272581=:17556"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The SELinux web site <http://www.nsa.gov/selinux/> including the mail
-list archive has been updated.  The site includes a new release of the
-LSM-based SELinux prototype.  This release is based on the
-lsm-2001_11_05 patch against kernel 2.4.14.  It fixes a number of bugs,
-cleans up some code, and is based on newer versions of the kernel and
-utilities.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-The following changes should be carefully noted if you have previously
-installed SELinux:
+---559023410-959030623-1006272581=:17556
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-1) LSM has renamed all LSM-related configuration options to use a
-CONFIG_SECURITY prefix, and we have done likewise for the SELinux
-kernel option.  This means that old .config files aren't quite right
-anymore.  You can still use them, but you'll need to explicitly enable
-the LSM-related (IP Networking hooks, Capabilities) and SELinux options
-again when you configure (unless you hand edit your old .config file to
-reflect the name changes).
 
-2) A small change was made to the policydb format, so you need to
-rebuild checkpolicy and recompile your policy with the updated
-checkpolicy program.  Also, if you have customized your policy, you
-need to at least pick up a new initial SID definition (sysctl_net_unix)
-in the initial_sid_contexts file.
-
-3) The execve_secure system call has been reimplemented via the general
-security system call.  Previously, this system call remained as a
-separate entrypoint due to the inability to access register state
-(needed by execve) from the general security system call, but this was
-undesireable because only the security call is reserved in the
-mainstream kernel.  We found that we could reimplement the
-execve_secure call via the security call by replacing the LSM security
-call entrypoint function with our own architecture-specific entrypoint
-function that can support both execve_secure and all of our other
-calls.  So you must recompile libsecure and relink all applications
-that use exec.*_secure against it (runas, newrole, crond, run_init,
-sshd, login, Mark Westerman's modified gdm).  This will be a nuisance
-for current users, but ensures that you should never have to do so
-again, since the security syscall is reserved, unlike the old separate
-entrypoint for execve_secure.
+The attached patch fixes a bug in the selinux_inode_delete hook function
+in the latest release.  Sorry for not catching this prior to the release.
+This hook function should only call clear_psid if the inode is associated
+with a superblock that uses persistent SIDs.  This is particularly a
+problem if the inode does not have an associated superblock at all.  You
+can apply this patch by saving it to ~/delete.patch, changing to the
+selinux directory, and running 'patch -p1 < ~/delete.patch'.  This patch
+is for the hooks.c file, which is located in selinux/module/selinux_plug
+in the SELinux archive or in lsm/security/selinux when SELinux is inserted
+into the kernel tree.
 
 --
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
+
+
+---559023410-959030623-1006272581=:17556
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="delete.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0111201109410.17556@raven>
+Content-Description: 
+Content-Disposition: attachment; filename="delete.patch"
+
+SW5kZXg6IHNlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9ob29rcy5jDQpk
+aWZmIC11IHNlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9ob29rcy5jOjEu
+Njkgc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2hvb2tzLmM6MS43MA0K
+LS0tIHNlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9ob29rcy5jOjEuNjkJ
+U2F0IE5vdiAxNyAwODo1ODo0NiAyMDAxDQorKysgc2VsaW51eC9tb2R1bGUv
+c2VsaW51eF9wbHVnL2hvb2tzLmMJTW9uIE5vdiAxOSAyMjoyNDozMiAyMDAx
+DQpAQCAtMjE1OSw3ICsyMTU5LDEyIEBADQogDQogc3RhdGljIHZvaWQgc2Vs
+aW51eF9pbm9kZV9kZWxldGUoc3RydWN0IGlub2RlICppbm9kZSkNCiB7DQot
+CWNsZWFyX3BzaWQoaW5vZGUpOw0KKwlzdHJ1Y3Qgc3VwZXJfYmxvY2sgKnNi
+ID0gaW5vZGUtPmlfc2I7IA0KKwlpZiAoc2IpIHsNCisJCXN0cnVjdCBzdXBl
+cmJsb2NrX3NlY3VyaXR5X3N0cnVjdCAqc2JzZWMgPSBzYi0+c19zZWN1cml0
+eTsNCisJCWlmIChzYnNlYyAmJiBzYnNlYy0+dXNlc19wc2lkcykNCisJCQlj
+bGVhcl9wc2lkKGlub2RlKTsNCisJfQ0KIH0NCiANCiANCg==
+---559023410-959030623-1006272581=:17556--
 
 --
 You have received this message because you are subscribed to the selinux list.
