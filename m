@@ -1,18 +1,20 @@
-Subject: Re: fix for segfault in getconlist of libselinux-1.22
+Subject: Re: fix setfiles segfault caused by libselinux-1.22
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Andreas Steinmetz <ast@domdv.de>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <425029B0.3070208@domdv.de>
-References: <425029B0.3070208@domdv.de>
+In-Reply-To: <42513C67.7020604@domdv.de>
+References: <42513C67.7020604@domdv.de>
 Content-Type: text/plain
-Date: Mon, 04 Apr 2005 11:30:01 -0400
-Message-Id: <1112628601.7629.99.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 04 Apr 2005 11:30:28 -0400
+Message-Id: <1112628628.7629.101.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-04-03 at 19:36 +0200, Andreas Steinmetz wrote:
-> fix for segfault in case of non-exisiting user attached.
+On Mon, 2005-04-04 at 15:08 +0200, Andreas Steinmetz wrote:
+> setfiles does reset user defined functions by calling the related setup
+> function with NULL as argument. Instead of resetting to the default
+> these setup functions did set up NULL as the function pointer. Fix attached.
 
 Thanks, merged as of libselinux 1.23.4.
 
