@@ -1,63 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBDCUwIi002996
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 07:30:58 -0500 (EST)
-Received: from oe-im1.bizmailsrvcs.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBDCT9Ux014030
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 12:29:12 GMT
-Message-ID: <41BD8882.2030501@tresys.com>
-Date: Mon, 13 Dec 2004 07:18:10 -0500
-From: David Caplan <dac@tresys.com>
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   Russell Coker <russell@coker.com.au>, Daniel J Walsh <dwalsh@redhat.com>,
-   Stephen Smalley <sds@epoch.ncsc.mil>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   SELinux <selinux@tycho.nsa.gov>
-Subject: Re: can_network patch.
-References: <41741A2C.8040408@redhat.com> <1102698638.1628.148.camel@moss-spartans.epoch.ncsc.mil> <41B9E48A.8010204@redhat.com> <200412110511.12960.russell@coker.com.au>            <20041210191107.GA5059@jmh.mhn.de> <200412102139.iBALdhHh020525@turing-police.cc.vt.edu>
-In-Reply-To: <200412102139.iBALdhHh020525@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBDDPnIi003284
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 08:25:49 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBDDPoX4026510
+	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 13:25:51 GMT
+Subject: Re: Single home directory type for all roles.
+From: Russell Coker <rcoker@redhat.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Valdis.Kletnieks@vt.edu, Stephen Smalley <sds@epoch.ncsc.mil>,
+   SE Linux list <selinux@tycho.nsa.gov>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Colin Walters <walters@redhat.com>, Nalin Dahyabhai <nalin@redhat.com>
+In-Reply-To: <41B9AE1D.1020305@redhat.com>
+References: <20041207000805.GH3678@jmh.mhn.de>
+	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
+	 <41B8826D.30105@redhat.com>
+	 <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil>
+	 <1102614445.4509.25.camel@aeon>
+	 <1102614805.32175.176.camel@moss-spartans.epoch.ncsc.mil>
+	 <1102615951.4509.50.camel@aeon>
+	 <200412092040.iB9KelRx032136@turing-police.cc.vt.edu>
+	 <1102647815.4509.123.camel@aeon>  <41B9AE1D.1020305@redhat.com>
+Content-Type: text/plain
+Date: Tue, 14 Dec 2004 00:25:41 +1100
+Message-Id: <1102944341.32053.26.camel@aeon>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 10 Dec 2004 20:11:07 +0100, Thomas Bleher said:
-> 
-> 
->>Or add a boolean to control the transition from the userdomain to
->>mozilla. Then we can have a locked down policy for people who just want
->>to securely browse the web. People who want all the bells and whistles
->>can turn the transition off at the cost of higher exposure.
-> 
-> 
-> I could live with that.  However, before long we're in danger of getting lost
-> in a maze of tiny little twisty booleans, all different... :)
-> 
+On Fri, 2004-12-10 at 09:09 -0500, Daniel J Walsh wrote:
+> Ok I succumb.    I will not fight the battle any longer, but I believe 
+> that average people will not user roles because it
+> is too difficult.  I will not build tools that will automatically 
+> relabel the file system since these will be prone
+> to errors.  People will run users in the default role of the system, 
+> whether we default it to user_r  with user_canbe_sysadm,
+> or default to staff. 
 
-That is a good reason why the use of booleans and addition of 
-conditional policy blocks needs to be considered very carefully. 
-Another important reason is that even though a chunk of policy may be 
-controlled by a conditional expression, from a pure policy analysis 
-point of view, it must be considered that the conditional permissions 
-are allowed (i.e., if the rule(s) are in the policy then it is 
-_possible_ that they may be enabled).  In a perfect world, if the 
-permissions are always going to be disabled for a particular instance 
-then they shouldn't be in the policy at all.
+I think that the way to go is to have staff_t be the default login
+domain, have two roles for it staff_r and staff_restricted_r where the
+latter can't change to sysadm_r and has other limitations.  I'll write
+the policy for staff_restricted_r.
 
-That said, this issue was discussed before on the list 
-(http://tinyurl.com/596gq) and there are practical accepted reasons for 
-using booleans/conditionals as tunable mechanisms in some cases.  I 
-would just echo your caution that we don't want to get "lost in a maze 
-of tiny little twisty booleans".
+> I believe that the only people who will use roles as they are currently 
+> constituted are security people. 
 
-David
-
--- 
-__________________________________
-
-David Caplan
-dac@tresys.com
-Tresys Technology, LLC
+Currently the only people who use strict policy are "security people".
 
 --
 This message was distributed to subscribers of the selinux mailing list.
