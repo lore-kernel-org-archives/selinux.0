@@ -1,39 +1,51 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA13121
-	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 10:34:08 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA16751
-	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 14:32:12 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id OAA16747 for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 14:32:12 GMT
-Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA03563
-	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 10:34:03 -0400 (EDT)
-Date: Wed, 23 Oct 2002 10:16:48 -0400 (EDT)
-From: hdholm@epoch.ncsc.mil (Howard Holm)
-Message-Id: <200210231416.KAA04799@coalpipe.epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Subject: Updated Release
+Message-Id: <200210231610.QAA29339@jazzswing.ncsc.mil>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: newrules.pl
+Date: Wed, 23 Oct 2002 18:11:43 +0200
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_JNZFI6BU82IUVQS7YEBL"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The SELinux web site <http://www.nsa.gov/selinux/> including the mail
-list archive has been updated. The site includes a new release of the
-LSM-based SELinux prototype. The base 2.5 kernel version has been
-updated to 2.5.44. The base 2.4 kernel version remains at 2.4.19, but
-many changes have been made to the 2.4 LSM patch and to the 2.4 SELinux
-module since the last release. The modified login, sshd and crond
-programs have been updated to use a new configuration scheme. Socket
-handling has been improved. Internally, precondition functions have
-been removed in favor of early initialization support. The modified tar
-has been updated to tar-1.13.25. A number of other improvements, bug
-fixes and policy enhancements have taken place.
 
---
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
+--------------Boundary-00=_JNZFI6BU82IUVQS7YEBL
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
+Hi,
+
+anytime if I use "newrules.pl --help" to get the syntax I receive a error=
+=20
+message. The attached patch add the option "--help" to show the syntax to=
+=20
+newrules.
+
+Carsten
+
+
+--------------Boundary-00=_JNZFI6BU82IUVQS7YEBL
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="patch.newrules"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch.newrules"
+
+SW5kZXg6IG5ld3J1bGVzLnBsCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KUkNTIGZpbGU6IC9jdnNyb290L3NlbGludXgv
+bnNhL3NlbGludXgvc2NyaXB0cy9uZXdydWxlcy5wbCx2CnJldHJpZXZpbmcgcmV2aXNpb24gMS4x
+LjEuMgpkaWZmIC11IC1yMS4xLjEuMiBuZXdydWxlcy5wbAotLS0gbmV3cnVsZXMucGwJMyBNYXkg
+MjAwMiAxMjoyNjo0MiAtMDAwMAkxLjEuMS4yCisrKyBuZXdydWxlcy5wbAkyMyBPY3QgMjAwMiAx
+NjowNjo0MiAtMDAwMApAQCAtMjQsNiArMjQsNyBAQAogICAgICAgICBlbHNpZiAoJG9wdCBlcSAi
+LXYiKSB7ICR2ZXJib3NlKys7IH0KICAgICAgICAgZWxzaWYgKCRvcHQgZXEgIi1pIikgeyAkaW5w
+dXQgPSBzaGlmdCBAQVJHVjsgfQogICAgICAgICBlbHNpZiAoJG9wdCBlcSAiLW8iKSB7ICRvdXRw
+dXQ9IHNoaWZ0IEBBUkdWOyB9CisJZWxzaWYgKCRvcHQgZXEgIi0taGVscCIpIHsgJnByaW50VXNh
+Z2U7IH0KIAkJZWxzZSAgeyBwcmludCAidW5rbm93biBvcHRpb24sICckb3B0J1xuXG4iOyAmcHJp
+bnRVc2FnZTsgfQogfQogCg==
+
+--------------Boundary-00=_JNZFI6BU82IUVQS7YEBL--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
