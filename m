@@ -1,87 +1,47 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBGJ8iIi026819
-	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2004 14:08:44 -0500 (EST)
-Received: from hawaii.grays-systems.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBGJ71NH001528
-	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2004 19:07:01 GMT
-Received: (from nick@localhost)
-	by hawaii.grays-systems.com (8.13.1/8.13.1/Submit) id iBGJ8lFd003456
-	for selinux@tycho.nsa.gov; Thu, 16 Dec 2004 13:08:47 -0600
-Subject: Tomcat policy
-From: Nick Gray <nick-lists@austin.rr.com>
-To: SELinux ML <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBGKpDIi027625
+	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2004 15:51:13 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBGKnUNH008571
+	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2004 20:49:30 GMT
+Subject: Re: Tomcat policy
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Nick Gray <nick-lists@austin.rr.com>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <1103224127.32688.49.camel@hawaii.grays-systems.com>
+References: <1103224127.32688.49.camel@hawaii.grays-systems.com>
 Content-Type: text/plain
-Date: Thu, 16 Dec 2004 13:08:47 -0600
-Message-Id: <1103224127.32688.49.camel@hawaii.grays-systems.com>
+Message-Id: <1103229973.1463.145.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Thu, 16 Dec 2004 15:46:13 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have written a policy for Tomcat that works. And surprise it actually
-works (on my development system) If anyone is interested, I can post it
-up to the list after giving myself a chance to smooth it out a bit.
+On Thu, 2004-12-16 at 14:08, Nick Gray wrote:
+> So why can't I use tomcat_t to label directories?
 
-I have a few questions. regarding policies in general and how they
-applied to my case in point.
+Because you have defined it as a domain, not a file type.  Domains are
+for processes, and are also applied to the /proc/pid entries of that
+process.  You aren't supposed to use them for other files, and the
+filesystem associate permission check enforces the restriction.
 
+You do need to label the entrypoint program for the daemon with
+tomcat_exec_t.
 
-#1
+> I think I understand how to protect the daemon from the system, how do I
+> protect the system from the daemon.
 
-The installation of tree for tomcat looks something like 
-
-/usr/local/tomcat/5.0.28 
-/usr/local/tomcat/5.0.28/conf
-/usr/local/tomcat/5.0.28/logs
-/usr/local/tomcat/5.0.28/...
-
-I also defined
-
-daemon_domain(tomcat)
-type tomcat_config_t, file_type, sysadmfile;
-type tomcat_log_t, file_type, sysadmfile;
-
-If I am correct in my assumption that the "daemon_domain(tomcat)"
-defines the tomcat_t type, I thought I could do the following in
-the tomcat.fc
-
-/usr/local/tomcat/5.0.28/logs(/.*)?    system_u:object_r:tomcat_log_t
-/usr/local/tomcat/5.0.28/conf(/.*)?    system_u:object_r:tomcat_config_t
-# This does not work ??
-#/usr/local/tomcat/5.0.28(/.*)?         system_u:object_r:tomcat_t
-
-The logs and conf work like I thought, but when the system trys to label
-the others it gets permission denied. I don't believe it is a permision
-problem since I accidentally tried this and it worked
-
-/usr/local/tomcat/5.0.28(/.*)?    system_u:object_r:tomcat_log_t
-
-So why can't I use tomcat_t to label directories?
-
-
-#2
-
-I think I understand how to protect the daemon from the system, how do I
-protect the system from the daemon.
-
-The example I can come up with is a jsp page that opens
-the /etc/passwd/file and prints it. I want to keep the tomcat process
-encapsulated in it own space
-
-It seems I would want a restricted user "tomcat"! Since daemon does a
-check that it is being started by the unix user "tomcat", a natural
-extension of this would be to ensure that the user process has no access
-to the system other than what I have determined,
-
-
-Thanks
+Under targeted policy, the "system" (i.e. unconfined processes) can do
+whatever it wants to the daemon.  By defining a domain for tomcat, you
+are merely controlling what it can do to the system, and isolating it
+from other confined domains.  The daemon (if you have set it up properly
+to run in the tomcat_t domain) can only do what you allow tomcat_t to do
+in the policy, nothing else.
 
 -- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Nick Gray
-Senior Systems Engineer
-Bruzenak Inc
-Office: 512-331-7998
-Cell: 512-630-7009
 
 --
 This message was distributed to subscribers of the selinux mailing list.
