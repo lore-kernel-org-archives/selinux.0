@@ -1,104 +1,94 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9C8jfrT010259
-	for <selinux@tycho.nsa.gov>; Tue, 12 Oct 2004 04:45:41 -0400 (EDT)
-Received: from mproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9C8iUsX023376
-	for <selinux@tycho.nsa.gov>; Tue, 12 Oct 2004 08:44:30 GMT
-Received: by mproxy.gmail.com with SMTP id u52so67950cwc
-        for <selinux@tycho.nsa.gov>; Tue, 12 Oct 2004 01:45:37 -0700 (PDT)
-Message-ID: <ae023b60041012014519599f80@mail.gmail.com>
-Date: Tue, 12 Oct 2004 04:45:37 -0400
-From: Jim McCullough <jim.mccullough@gmail.com>
-Reply-To: Jim McCullough <jim.mccullough@gmail.com>
-To: Richard Hally <rhally@mindspring.com>
-Subject: Re: PostgreSQL Fun
-Cc: Alex Ackerman <alex@darkhonor.com>, selinux@tycho.nsa.gov
-In-Reply-To: <416B13D6.4080205@mindspring.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9CDiOrT011613
+	for <selinux@tycho.nsa.gov>; Tue, 12 Oct 2004 09:44:24 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9CDhDsX004097
+	for <selinux@tycho.nsa.gov>; Tue, 12 Oct 2004 13:43:13 GMT
+Subject: Re: need advice for ld_so_cache_t errors
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Greg Norris <haphazard@kc.rr.com>, SE-Linux <selinux@tycho.nsa.gov>,
+   Ingo Molnar <mingo@elte.hu>, James Morris <jmorris@redhat.com>
+In-Reply-To: <41670081.1010506@redhat.com>
+References: <20041001233554.GA26550@yggdrasil.localdomain>
+	 <20041002043740.GA28765@yggdrasil.localdomain>
+	 <20041002165041.GB30426@yggdrasil.localdomain>
+	 <200410040108.35839.russell@coker.com.au>
+	 <20041004014820.GA25896@yggdrasil.localdomain>
+	 <20041005003015.GA31681@yggdrasil.localdomain>
+	 <20041005010057.GA31754@yggdrasil.localdomain>
+	 <1097250170.16641.138.camel@moss-spartans.epoch.ncsc.mil>
+	 <41670081.1010506@redhat.com>
+Content-Type: text/plain
+Message-Id: <1097588341.29271.124.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-References: <A52BEA1D8EE8634B9196A136333637B1DAEC@maat.darkhonor.net>
-	 <416B13D6.4080205@mindspring.com>
+Date: Tue, 12 Oct 2004 09:39:01 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I also ran across this working on getting OpenNMS, Snort and a few
-other applications to push directly to a centralized database server. 
- Part of my problem was my build and traffic tunneling configurations
-( thats another subject not related to selinux).  Upgrading SQL
-packages correct the issue on Core 2 for the DB server.  Application
-servers were Debian Sarge base and was showing no signs of problems as
-of  4am EDT.
+On Fri, 2004-10-08 at 17:02, Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+> 
+> >On Mon, 2004-10-04 at 21:00, Greg Norris wrote:
+> >  
+> >
+> >>Ok, I've (finally) figured out what's actually failing.  When I strace a 
+> >>tail command on my selinux box, the following entries seem of interest:
+> >>
+> >>   open("/etc/ld.so.cache", O_RDONLY)      = 3
+> >>   fstat64(3, {st_mode=S_IFREG|0644, st_size=11997, ...}) = 0
+> >>   old_mmap(NULL, 11997, PROT_READ, MAP_PRIVATE, 3, 0) = -1 EACCES (Permission denied)
+> >>   close(3)                                = 0
+> >>
+> >>   open("/usr/lib/locale/locale-archive", O_RDONLY|O_LARGEFILE) = 3
+> >>   fstat64(3, {st_mode=S_IFREG|0644, st_size=1589840, ...}) = 0
+> >>   mmap2(NULL, 1589840, PROT_READ, MAP_PRIVATE, 3, 0) = -1 EACCES (Permission denied)
+> >>   close(3)                                = 0
+> >>
+> >>When I strace the same command on my non-selinux box (also running
+> >>Debian sid), both of the mmaps are successful.  So I guess I need to
+> >>figure out why the the mmaps are being blocked.
+> >>
+> >>I'm not sure why selinux would log that as a denied execute, tho.
+> >>    
+> >>
+> >
+> >Legacy binary?  Read-only mmap/mprotect requests are now automatically
+> >translated to read-execute for backward compatibility when executing
+> >legacy binaries due to the NX support that was added to the upstream
+> >kernel.  That translation happens before the SELinux hooks are
+> >encountered, so SELinux just sees it as a read/execute request.
+> >
+> >  
+> >
+> Ok I am seeing this stuff alot right now.  Mainly when running mozilla 
+> with java. 
+> 
+> Seems there is a problem with either glib or m_protect.
+> 
+> kernel-2.6.8-1.603
+> glibc-2.3.3-66
+> 
+> 
+> ______________________________________________________________________
+> Oct  8 16:57:13 celtics kernel: audit(1097269033.954:10750480): avc:  denied  { execute } for  pid=22541 path=/etc/ld.so.cache dev=dm-0 ino=624955 scontext=user_u:user_r:user_mozilla_t tcontext=system_u:object_r:ld_so_cache_t tclass=file
+> Oct  8 16:57:13 celtics kernel: audit(1097269033.967:10750749): avc:  denied  { execute } for  pid=22541 path=/tmp/hsperfdata_dwalsh/22541 dev=dm-0 ino=3118259 scontext=user_u:user_r:user_mozilla_t tcontext=user_u:object_r:user_tmp_t tclass=file
+> Oct  8 16:57:14 celtics kernel: audit(1097269034.118:10751092): avc:  denied  { execute } for  pid=22541 path=/usr/java/jre1.5.0/lib/i386/client/classes.jsa dev=dm-0 ino=2380505 scontext=user_u:user_r:user_mozilla_t tcontext=system_u:object_r:usr_t tclass=file
+> Oct  8 16:57:14 celtics kernel: audit(1097269034.172:10752097): avc:  denied  { execute } for  pid=22541 path=/usr/lib/locale/locale-archive dev=dm-0 ino=1786056 scontext=user_u:user_r:user_mozilla_t tcontext=root:object_r:locale_t tclass=file
+> Oct  8 16:57:14 celtics kernel: audit(1097269034.173:10752118): avc:  denied  { execute } for  pid=22541 path=/usr/lib/locale/en_US.utf8/LC_CTYPE dev=dm-0 ino=2032775 scontext=user_u:user_r:user_mozilla_t tcontext=system_u:object_r:locale_t tclass=file
 
-Jim McCullough
+Does this still occur with the latest rawhide kernel (or 2.6.9-rc3-bk8
+or later upstream)?  Ingo said that there was one more NX fix committed
+recently.
 
-
-On Mon, 11 Oct 2004 19:14:30 -0400, Richard Hally <rhally@mindspring.com> wrote:
-> 
-> 
-> Alex Ackerman wrote:
-> 
-> >
-> > I've been having a ton of fun lately trying to get PostgreSQL running
-> > using the Strict policy. I have a Fedora Core 2 system that has been
-> > updated to run the latest selinux strict policy (1.17.30-1). Most of
-> > the rest of the services run ok (MySQL still isn't happy either, but
-> > that's next), but PostgreSQL refuses to start. After running
-> > audit2allow, it generates the following recommendations:
-> >
-> > allow postgresql_t chkpwd_exec_t:file { execute };
-> > allow postgresql_t file_t:dir { search };
-> > allow postgresql_t security_t:dir { search };
-> > allow postgresql_t shadow_t:file { read };
-> >
-> > Those don't work for various reasons. The main reason is that the last
-> > line causes checkpolicy to choke on the following directive:
-> >
-> > neverallow { domain -auth -auth_write } shadow_t:file ~getattr;
-> >
-> > A discussion I found () suggests this is due to the requirement to
-> > limit access to /etc/shadow. I looked at my logs and found the top two
-> > errors lead me to believe it is a PAM issue with the following command
-> > in /etc/init.d/postgresql:
-> >
-> > su -l postgres -c "/usr/bin/pg_ctl  -D $PGDATA -p /usr/bin/postmaster
-> > -o '-p ${PGPORT} ${PGOPTS}' start  > /dev/null 2>&1" < /dev/null
-> >
-> > The offending lines are:
-> > Oct 11 16:21:47 baal kernel: audit(1097526107.360:0): avc:  denied  {
-> > search } for  pid=26072 exe=/bin/su dev=selinuxfs ino=1005
-> > scontext=root:system_r:postgresql_t
-> > tcontext=system_u:object_r:security_t tclass=dir
-> > Oct 11 16:21:47 baal PAM-rootok[26072]: pam_check_access failed, user
-> > does not have proper access: root:system_r:postgresql_t
-> >
-> > Has anyone else looked at this issue? Is it possibly a bugzilla issue
-> > to raise? I have pam-0.77-56 installed on my system. I imagine the
-> > problem doesn't show up in FC3test3 since the targeted policy runs
-> > postgres unconfined (haven't tested that theory though).  Any help I
-> > can get on this issue (even if it is just a link to a solution or
-> > ongoing discussion somewhere) would be greatly appreciated. I have
-> > found nothing so far on this issue.
-> >
-> > Thanks!
-> > Alex Ackerman
-> > http://www.darkhonor.com
-> >
-> >
-> 
-> Have you updated to the latest Postgresql?  7.4.5-3 has the fix for the
-> problem. It uses runuser in place of  the su in the start script.
-> HTH
-> Richard Hally
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
-
+If this is going to be a problem, perhaps we should save the original
+protection flags prior to alteration by the read_implies_exec logic and
+pass the original flags to the security hook?
 
 -- 
-Jim McCullough
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
