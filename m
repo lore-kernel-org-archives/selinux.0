@@ -1,35 +1,41 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9IERxrT021343
-	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 10:27:59 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9IEQjG3001135
-	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 14:26:45 GMT
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 181FDBF25
-	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 15:27:38 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1CJYeo-0000Wi-ND
-	for selinux@tycho.nsa.gov; Mon, 18 Oct 2004 15:38:42 +0100
-Date: Mon, 18 Oct 2004 15:38:42 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SELinux ML <selinux@tycho.nsa.gov>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9IF3IrT021726
+	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 11:03:18 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9IF3FhO000161
+	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 15:03:18 GMT
+Date: Mon, 18 Oct 2004 11:03:15 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux ML <selinux@tycho.nsa.gov>, lsm <linux-security-module@wirex.com>
 Subject: Re: cdrecord deadlocks linux 2.6.8.1 (problem in setscheduler)
-Message-ID: <20041018143842.GP19398@lkcl.net>
-References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de>
+In-Reply-To: <1098107356.27895.51.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.44.0410181102350.22995-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ah ha!  thomas, thank you v. much: i [badly] hacked up something
-for k3b to use some time ago.
+On Mon, 18 Oct 2004, Stephen Smalley wrote:
 
-On Mon, Oct 18, 2004 at 02:43:32PM +0200, Thomas Bleher wrote:
+> a) Add a flag to avc_audit(), optionally passed via avc_audit_data, that
+> tells it to use audit_log_end_irq() so that it merely enqueues the audit
+> message for later processing, and change capable and setscheduler hooks
+> to pass this flag, or 
+> b) Move the security checks in setscheduler outside of the runqueue
+> lock, then just recheck that no security-relevant conditions changed
+> after taking the lock.
 
-> I have just written selinux policy for cdrecord. While writing this 
-> policy cdrecord constantly locked up the computer (even in permissive
-> mode). When booting with selinux=0 the problem went away.
+A seems simpler, but perhaps better to do via a wrapper function.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
