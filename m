@@ -1,41 +1,75 @@
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2UHT1Do016655
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 12:29:01 -0500 (EST)
+Received: from web31607.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j2UHPBph027089
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 17:25:11 GMT
+Message-ID: <20050330172751.30281.qmail@web31607.mail.mud.yahoo.com>
+Date: Wed, 30 Mar 2005 09:27:51 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: Desktop apps interoperability
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, selinux@tycho.nsa.gov
-In-Reply-To: <20050330170426.86197.qmail@web31606.mail.mud.yahoo.com>
-References: <20050330170426.86197.qmail@web31606.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 12:15:22 -0500
-Message-Id: <1112202922.8012.83.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-03-30 at 09:04 -0800, Casey Schaufler wrote:
-> Well, the old unix way was for them to run as
-> a normal (unprivileged) user. No privilege, no
-> problem, right?
 
-Did you miss the desktop talk at the SELinux symposium?  
-http://www.selinux-symposium.org/2005/presentations/session3/3-1-walters.pdf
+--- Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+wrote:
+> On Wed, Mar 30, 2005 at 09:04:26AM -0800, Casey
+> Schaufler wrote:
+> 
+> > Yes, and I'm sure that you can do a configuration
+> > of most application defaults that will be good
+> > enough to demo. Application developers tend to
+> > have their own ideas regarding data storage and
+> > it is a bad idea for a system developer to
+> > interfere with said application developer's
+> > freedom to inovate.
+> 
+>  ... application developer's freedom to impose
+> insecurity,
+>  through ignorance on the part of the app-developer,
+> upon
+>  the users?
 
-> Is DTE application transparent or does it require
-> modification to the applications? If the latter
-> your proposals are reasonable but the whole DTE
-> scheme is more sophisticated than it needs to be.
-> If the former, you need to relax your expectations
-> of application behavior and work harder on the
-> policy you want to impose.
+What ignorance? The developer codes to the
+published policies (e.g. uids, modes, capabilities)
+and everything works *within the published policy*.
+Some stranger comes along and without warning
+arbitrarily imposes additional policy on the
+application that the developer has so carefully
+crafted, often without looking at the code to
+see what the developer's intent might have been. 
+ 
+>  no offense intended:
 
-TE (not DTE, different beast, ask me privately if you want a comparison
-paper) can operate transparently to the application, but you often can't
-achieve true least privilege without application modifications or
-changes in its conventional usage.  
+None taken. I buy skin thickener in 55 gallon drums.
 
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+> freedom in an abstract concept
+> [e.g. "the american way"]
+> _always_ has limits - laws / rules / policy
+> is defined to confine
+> that freedom, for good or worse.
 
+Yup. So long as those limits can be known by
+the "free" entity all is good. When additional
+constraints can be added whimsically there is
+bound to be resistance.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Make Yahoo! your home page 
+http://www.yahoo.com/r/hs
 
 --
 This message was distributed to subscribers of the selinux mailing list.
