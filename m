@@ -1,40 +1,32 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7MHq3La012235
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 13:52:03 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7MHq1fF020540
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 17:52:01 GMT
-Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
-        by jazzband.ncsc.mil  with ESMTP id h7MHq1Hd020537 for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 17:52:01 GMT
-Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7MHq0du011111
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 13:52:00 -0400
-Received: (from hdholm@localhost)
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h7MHq0wG011109
-	for selinux@tycho.nsa.gov; Fri, 22 Aug 2003 13:52:00 -0400
-Subject: Re: 2.6.0-test3
+Subject: Re: general security lib (was: 2.6.0-test3)
 From: Colin Walters <walters@verbum.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: Brian May <bam@snoopy.apana.org.au>, SELinux@tycho.nsa.gov
-In-Reply-To: <200308222244.46282.russell@coker.com.au>
-References: <200308212337.59952.russell@coker.com.au>
-	 <1061487623.22355.27.camel@columbia>
-	 <20030821223223.GA20695@snoopy.apana.org.au>
-	 <200308222244.46282.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1061574131.28960.17.camel@columbia>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>,
+   SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1061559409.28086.105.camel@moss-spartans.epoch.ncsc.mil>
+References: <1061468940.1665.16.camel@kusturica>
+	 <200308212337.59952.russell@coker.com.au>
+	 <1061487623.22355.27.camel@columbia>  <1061555921.1648.142.camel@kusturica>
+	 <1061559409.28086.105.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1061574715.28960.25.camel@columbia>
 Mime-Version: 1.0
-Date: Fri, 22 Aug 2003 13:42:11 -0400
+Date: Fri, 22 Aug 2003 13:51:55 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-08-22 at 08:44, Russell Coker wrote:
-> On Fri, 22 Aug 2003 08:32, Brian May wrote:
-> > Does the libselinux in unstable support the 2.6 interface yet?
-> 
-> Colin is about to upload a new libselinux for 2.6 and the 2.4 back-port...
+Stephen,
 
-I just uploaded 1.1 last night, it's waiting in queue/NEW.
+What do you think about Magosányi's point of sending more of these
+patches upstream?
+
+At least some projects like openssh have active upstreams with an
+interest in security, so I think they would be receptive.
+
+Other stuff like cron is unfortunately basically unmaintained, so
+there's not much we can do there.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
