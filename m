@@ -1,52 +1,33 @@
-Date: Tue, 14 Oct 2003 12:02:07 -0700
+Date: Tue, 14 Oct 2003 12:11:48 -0700
 From: Michael Reilly <michaelr@cisco.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Russell Coker <russell@coker.com.au>, lky <lky77@sjtu.edu.cn>,
-   SELINUX <SELinux@tycho.nsa.gov>
-Subject: Re: can't start X window in enforce mode
-Message-Id: <20031014120207.6a29818e.michaelr@cisco.com>
-In-Reply-To: <1066143647.5054.178.camel@moss-spartans.epoch.ncsc.mil>
-References: <000901c390ef$d8b3c770$5d38a8c0@lky>
-	<3F89E077.9030802@cisco.com>
-	<200310131752.11106.russell@coker.com.au>
-	<1066143647.5054.178.camel@moss-spartans.epoch.ncsc.mil>
+To: <SELinux@tycho.nsa.gov>
+Subject: Anyone run mozilla in enforce mode?
+Message-Id: <20031014121148.4155015d.michaelr@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I agree :-)
+Thank you to those who helped me  - I finally got my X server running in
+enforce mode.  Turning off dontaudit revealed that the X server needed
+DAC_OVERRIDE.
 
+Now I have another problem - mozilla fails to start.  Nothing is logged even
+with the dontaudit's removed from the policy.  Mozilla does complain that it
+couldn't find one of its libraries (I do not recall which one and I left my
+notes at home).
 
-I did find the problem - the X server needed DAC_OVERRIDE.  This was logged
-as soon as I removed the dontaudit's
+I went through and labeled the mozilla executables and reg* files so they
+match is specified in the file_constraints since mozilla installed itself
+into /usr/lib/mozilla-1.4 instead of /usr/lib/mozilla.  The shared libraries
+are properly labled as shared libs.
+
+Has anyone been able to run Mozilla in enforce mode?  If so, what changes
+need to be made from the default policy?
+
+Thanks,
 
 michael
-On 14 Oct 2003 11:00:47 -0400
-Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-
-> On Mon, 2003-10-13 at 03:52, Russell Coker wrote:
-> > On Mon, 13 Oct 2003 09:15, Michael Reilly wrote:
-> > > I had both problems.  I added the dontaudit memory devices
-> > > as mentioned in the file macros/program/xserver_macros.te.
-> > >
-> > > I have the second problem and have not yet solved it.  Nothing is
-> > > logged and I cannot figure out what is wrong.
-> > 
-> > Try doing
-> > grep -v dontaudit policy.conf > new-policy
-> > mv new-policy policy.conf
-> > 
-> > Then load the policy and see what happens.
-> 
-> There should likely be a policy Makefile target to generate and load
-> a policy that does not suppress any auditing.
-> 
-> -- 
-> Stephen Smalley <sds@epoch.ncsc.mil>
-> National Security Agency
-
-
 -- 
 ---- ---- ----
 Michael Reilly    michaelr@cisco.com
