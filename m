@@ -2,51 +2,50 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Reino Wallin <reino@oribium.com>,
-        "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "Westerman, Mark" <Mark.Westerman@csoconline.com>,
+        "'Reino Wallin'" <reino@oribium.com>
 Subject: Re: SELinux RPM Version
-Date: Wed, 24 Apr 2002 14:21:03 +0200
+Date: Wed, 24 Apr 2002 14:17:36 +0200
 Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <72222DC86846D411ABD300A0C9EB08A101524351@csoc-mail-box.csoconline.com> <1019579967.4289.11.camel@matilda.oribium.com>
-In-Reply-To: <1019579967.4289.11.camel@matilda.oribium.com>
+References: <72222DC86846D411ABD300A0C9EB08A10152435C@csoc-mail-box.csoconline.com>
+In-Reply-To: <72222DC86846D411ABD300A0C9EB08A10152435C@csoc-mail-box.csoconline.com>
 MIME-Version: 1.0
-Message-Id: <20020424122103.957B029B7@lyta.coker.com.au>
+Message-Id: <20020424121737.214CA29B7@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 23 Apr 2002 18:39, Reino Wallin wrote:
-> fre 2002-04-19 klockan 22.26 skrev Westerman, Mark:
-> > I expect to release a beta version to sourceforge
-> > of an rpm package of SELinux next week.
-> >
-> > Current Configuration.
-> >
-> > /etc/selinux/policy	The main policy directory
-> > If the directory does not exist then the rpm
-> > packages will create it and install example policy files.
-> >
-> > /etc/selinux/setfiles	Same for the policy directory
-> >
-> > The example policy is installed
-> > /usr/share/doc/selinux/examples/policy
+On Tue, 23 Apr 2002 19:44, Westerman, Mark wrote:
+> > According to the recent discussions, isn't
+> > /usr/share/selinux/policy/default
+> > the correct install path for the example policy?
+
+That is the path used by my Debian packages.
+
+> After much discussion on this subject it was decided
+> that the example policy resideds in
 >
-> According to the recent discussions, isn't
-> /usr/share/selinux/policy/default
-> the correct install path for the example policy?
+> /usr/share/doc/selinux/examples/policy
 
-It's what Howard has suggested and what I am now using for my Debian packages.
+On the 12th of April Howard Holm convinced me to use 
+/usr/share/selinux/policy as the old /usr/share/doc/selinux/examples/policy 
+directory that I (and only I) had been using was inconveniantly long.
 
-> I am considering to install upcoming releases of the firewall policy in
-> /usr/share/selinux/policy/firewall
+I changed my packages that day and don't plan to change them back.
 
-Great!
+Incidentally my original decision to use 
+/usr/share/doc/selinux/examples/policy was made before any discussion of the 
+matter (back when people were still trying to convince me that I shold use 
+/usr/local for everything).
 
-Now what I am thinking of doing is having a selinux-pol-firewall package to 
-contain the files for your policy (and hopefully someone else will take over 
-packaging of it as I am busy enough with my own policy).  Now I am 
-considering also splitting out the main policy into a selinux-pol-default 
-package so that the user can install the sample policy that matches their 
-needs.
+> The real policy
+>
+> /etc/selinux/policy
+
+I currently have /etc/selinux be a symbolic link pointing at 
+/usr/share/selinux/policy/current on my system (haven't yet changed the 
+package to automatically create such a link).  Again this was at Howard's 
+suggestion so that if /usr/share is shared between multiple similar machines 
+then they can share the same security policy.
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
