@@ -1,32 +1,34 @@
-To: SELinux@tycho.nsa.gov
-Message-ID: <OFF33E0DEE.14BD7FDF-ON85256C09.0050C2E3@hq.caci.com>
-From: "Richard Mayo" <rmayo@caci.com>
-Date: Fri, 2 Aug 2002 10:49:01 -0400
+Message-Id: <200208021450.OAA20771@jazzband.ncsc.mil>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: system_r and apm_t
+Date: Fri, 2 Aug 2002 16:33:54 +0200
+References: <200208020910.JAA06405@jazzband.ncsc.mil> <20020802105144.A01F0FA93@ivanova.coker.com.au> <20020802113727.99614181@lyta.coker.com.au>
+In-Reply-To: <20020802113727.99614181@lyta.coker.com.au>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm having a strange problem and I hope somebody has some advice for me --
-I'm stumped.  I'm trying to run the make quickinstall on my computer --
-I've done this 5 or 6 times with this CD -- all with no problems, but now
-I'm getting these file not found errors:
+Am Freitag, 2. August 2002 13:37 schrieb Russell Coker:
+> On Fri, 2 Aug 2002 12:49, Carsten Grohmann wrote:
+> > This time I write rules to adapt SuSE on the original SELinux rules. I
+> > don't want rewrite SuSE to become it more secure.
+>
+> You will probably discover that it's impossible to do that without
+> compromising security in some ways.
 
-security/pam_appl.h:  No such file or directory
-security/pam_misc.h:  No such file ore directory
-
-Indeed, these file aren't present after the unzip/tar process, so whatever
-I was doing before wasn't referencing them.  Is this related to some option
-in the quickinstall configuration menu?
-
-I'm using the 31 May release, which I know isn't the most up-to-date, but
-I'm kind of locked into it for now.
+I want link to make minimal changes.
 
 
+> > In this case I need for a cronjob access to apm_t via
+> > domain_auto_trans.
+>
+> Cronjob as sysadm_crond_t I guess?
 
-Thanks,
-Rich Mayo
-
+I would use an other type, like xxx_cronjob_t. This type was create via a 
+macro similar crond_domain, but without the full access to sysadm_home_t.
 
 
 --
