@@ -1,33 +1,111 @@
-Subject: Re: Boolean utilities segv's
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <200409172007.i8HK7W3w005709@turing-police.cc.vt.edu>
-References: <20040917193839.GA3020@us.ibm.com>
-	 <1095450979.17932.317.camel@moss-spartans.epoch.ncsc.mil>
-	 <200409172007.i8HK7W3w005709@turing-police.cc.vt.edu>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8HKw1rT005640
+	for <selinux@tycho.nsa.gov>; Fri, 17 Sep 2004 16:58:01 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8HKw0ut005118
+	for <selinux@tycho.nsa.gov>; Fri, 17 Sep 2004 20:58:00 GMT
+Subject: Re: Policy patches
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <414A0454.2060304@redhat.com>
+References: <200409162151.44819.russell@coker.com.au>
+	 <1095346343.17251.6.camel@moss-lions.epoch.ncsc.mil>
+	 <414A0454.2060304@redhat.com>
 Content-Type: text/plain
-Message-Id: <1095453700.17932.346.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1095454617.4295.55.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 17 Sep 2004 16:41:40 -0400
+Date: Fri, 17 Sep 2004 16:56:57 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-09-17 at 16:07, Valdis.Kletnieks@vt.edu wrote:
-> Probably should put in code like this:
+On Thu, 2004-09-16 at 17:23, Daniel J Walsh wrote:
+> New patches to allow hald to add a lines to the /etc/fstab with 
+> fscontext=system_u:object_r:removable_t.
 > 
-> 	fprintf(stderr,"%0: running on non-SELinux system, aborting", argv[0]);
-> 	exit(1);
+> Dan
 
-Ok, changes committed to the sourceforge CVS.  Added
-is_selinux_enabled() tests to the boolean utilities, fail immediately if
-not enabled, and added assertions to the boolean functions on
-selinux_mnt.
+> diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/nscd.te policy-1.17.17/domains/program/unused/nscd.te
+> --- nsapolicy/domains/program/unused/nscd.te	2004-09-16 09:48:15.000000000 -0400
+> +++ policy-1.17.17/domains/program/unused/nscd.te	2004-09-16 15:02:07.387150095 -0400
+> @@ -70,4 +70,8 @@
+>  #
+>  dontaudit nscd_t var_run_t:sock_file rw_file_perms;
+>  
+> +allow nscd_t self:file { getattr read };
+> +allow nscd_t proc_t:file { getattr read };
+> +allow nscd_t selinux_config_t:dir { search };
+> +r_dir_file(nscd_t, default_context_t)
+>  
+
+Is this only for the targeted policy?  Maybe userspace_objectmgr.te
+should be part of the targeted policy.  I think we would gain most of
+these permissions in that case.
+
+When does nscd access a default_context_t?
+
+> diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/portmap.te policy-1.17.17/domains/program/unused/portmap.te
+> --- nsapolicy/domains/program/unused/portmap.te	2004-09-16 09:48:15.000000000 -0400
+> +++ policy-1.17.17/domains/program/unused/portmap.te	2004-09-16 11:55:04.363237680 -0400
+> @@ -54,3 +54,4 @@
+>  
+>  # do not log when it tries to bind to a port belonging to another domain
+>  #dontaudit portmap_t port_type:{ tcp_socket udp_socket } name_bind;
+> +dontaudit portmap_t tty_device_t:chr_file { read write };
+
+How about this, so it applies to more then just portmap?
+
+diff -u -r1.58 global_macros.te
+--- global_macros.te	15 Sep 2004 19:58:14 -0000	1.58
++++ global_macros.te	17 Sep 2004 20:43:47 -0000
+@@ -294,6 +294,7 @@
+ allow $1_t autofs_t:dir { search getattr };
+ ')dnl end if automount.te
+ ifdef(`targeted_policy', `
++dontaudit $1_t tty_device_t:chr_file { read write };
+ dontaudit $1_t devpts_t:chr_file { read write };
+ dontaudit $1_t root_t:file { getattr read };
+ ')dnl end if targeted_policy
+
+> diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/updfstab.te policy-1.17.17/domains/program/unused/updfstab.te
+> --- nsapolicy/domains/program/unused/updfstab.te	2004-09-10 10:17:49.000000000 -0400
+> +++ policy-1.17.17/domains/program/unused/updfstab.te	2004-09-16 13:36:58.170098295 -0400
+> @@ -62,3 +62,10 @@
+>  
+>  r_dir_file(updfstab_t, { selinux_config_t file_context_t default_context_t } )
+>  can_getsecurity(updfstab_t)
+> +
+> +allow updfstab_t { sbin_t bin_t }:dir { search getattr };
+> +dontaudit updfstab_t devtty_t:chr_file { read write };
+> +allow updfstab_t self:fifo_file { getattr read write ioctl };
+> +can_exec(updfstab_t, { sbin_t bin_t ls_exec_t } )
+> +dontaudit updfstab_t home_root_t:dir { getattr search };
+> +dontaudit updfstab_t { home_dir_type home_type }:dir { search };
+
+Why can_exec(ls_exec_t)?
+
+> diff --exclude-from=exclude -N -u -r nsapolicy/macros/user_macros.te policy-1.17.17/macros/user_macros.te
+> --- nsapolicy/macros/user_macros.te	2004-09-14 09:18:11.000000000 -0400
+> +++ policy-1.17.17/macros/user_macros.te	2004-09-16 13:38:06.207431159 -0400
+> @@ -230,6 +230,12 @@
+>  mount_domain($1, $1_mount, `, fs_domain')
+>  role $1_r types $1_mount_t;
+>  r_dir_file($1_t, mnt_t)
+> +allow $1_mount_t removable_device_t:blk_file { read };
+> +allow $1_mount_t iso9660_t:filesystem { relabelfrom };
+> +allow $1_mount_t removable_t:filesystem { mount relabelto };
+> +allow $1_mount_t removable_t:dir { mounton };
+> +allow $1_mount_t xdm_t:fd { use };
+> +allow $1_mount_t xdm_t:fifo_file { write };
+>  ')
+
+Shouldn't these rules need to be in other macros as well?
+Also, the xdm_t rules should be in a ifdef.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
