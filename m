@@ -1,50 +1,48 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TAhLrT017487
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 06:43:21 -0400 (EDT)
-Received: from crisium.vnl.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TAhJCb000247
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 10:43:20 GMT
-Received: from amon by crisium.vnl.com with local (Exim 4.32 #1 (Debian))
-	id 1Bq8NZ-0006eK-NX
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 11:43:17 +0100
-Date: Thu, 29 Jul 2004 11:43:17 +0100
-From: Dale Amon <amon@vnl.com>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: pear-shaped behaviour after enough make reloads
-Message-ID: <20040729104317.GE24051@vnl.com>
-References: <20040728211229.GB18711@lkcl.net> <20040728225322.GE18711@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040728225322.GE18711@lkcl.net>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TCWurT017983
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 08:32:56 -0400 (EDT)
+Received: from rwcrmhc12.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TCWPbB014593
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 12:32:26 GMT
+Message-ID: <4108EE75.6040109@gentoo.org>
+Date: Thu, 29 Jul 2004 08:32:53 -0400
+From: Joshua Brindle <method@gentoo.org>
+MIME-Version: 1.0
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+CC: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: udev and .dev...
+References: <20040729091423.GC6443@lkcl.net>
+In-Reply-To: <20040729091423.GC6443@lkcl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jul 28, 2004 at 11:53:22PM +0100, Luke Kenneth Casson Leighton wrote:
->  i had to kill off processes manually one by one, umount the partitions
->  manually, poweroff, and i chose to boot with enforcing=0 init 1 in
->  order to safely run ldconfig and make relabel.
-> 
->  i find this all a bit odd, i haven't a clue what's causing it.
+Luke Kenneth Casson Leighton wrote:
 
-Is this particular machine and kernel presently stable 
-when running the same kernel and no selinux? I have
-seen very strange things happen over the years when
-hardware is failing or marginal, power supply voltages
-are on the edge... I've seen particular PCI modules
-blow the bus out of the water, etc, etc...
+>dear selinux people,
+>
+>ah ha!  okay, the reason why my hard drive was inaccessible
+>is because /.dev/* had all been set to default_t :)
+>
+>soooo... to fix that [rather than a patch, a sed command]:
+>
+>	:%s/u?dev/.?u?dev/g
+>
+>this will allow setfiles to set up the security contexts on
+>the /.dev which is the _real_ filesystem /dev stuff which will
+>allow things like, oh, init (!!) to access the hard drive.
+>
+>argh :)
+>
+>l.
+>
+>  
+>
+Why not have a minimal /dev for init and friends and mount the ramfs for 
+udev on top of it? it's much easier to deal with 1 /dev and this is 
+pretty standard anyway.
 
-Worth checking before you ruin Stephen Smalley's sleep 
-and fill it with nightmares of kernel race conditions
-and random byte squashers. :-)
-
--- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+Joshua
 
 --
 This message was distributed to subscribers of the selinux mailing list.
