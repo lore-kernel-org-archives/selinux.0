@@ -1,38 +1,45 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA09113
-	for <selinux@tycho.nsa.gov>; Fri, 18 Oct 2002 14:14:53 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA09308
+	for <selinux@tycho.nsa.gov>; Fri, 18 Oct 2002 14:22:40 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA08866
-	for <selinux@tycho.nsa.gov>; Fri, 18 Oct 2002 18:13:08 GMT
-Received: from troncalo.cs.poste.it ([62.241.4.26])
-	by jazzswing.ncsc.mil  with ESMTP id SAA08862
-	for <selinux@tycho.nsa.gov>; Fri, 18 Oct 2002 18:13:07 GMT
-Received: from inwind.it (80.116.229.60) by troncalo.cs.poste.it (5.5.053.1) (authenticated as giorgio.zanin@poste.it)
-        id 3D1C311B000ADC0A for selinux@tycho.nsa.gov; Fri, 18 Oct 2002 19:54:34 +0200
-Message-ID: <3DB04B4F.10709@inwind.it>
-Date: Fri, 18 Oct 2002 19:56:31 +0200
-From: Giorgio Zanin <giorgio.zanin@inwind.it>
+	by jazzswing.ncsc.mil  with ESMTP id SAA09259
+	for <selinux@tycho.nsa.gov>; Fri, 18 Oct 2002 18:20:54 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id SAA09255
+	for <selinux@tycho.nsa.gov>; Fri, 18 Oct 2002 18:20:53 GMT
+Date: Fri, 18 Oct 2002 14:21:41 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Giorgio Zanin <giorgio.zanin@inwind.it>
+cc: SELinux mailing list <selinux@tycho.nsa.gov>
+Subject: Re: a silly question
+In-Reply-To: <3DB04B4F.10709@inwind.it>
+Message-ID: <Pine.GSO.4.33.0210181418420.9847-100000@raven>
 MIME-Version: 1.0
-To: SELinux mailing list <selinux@tycho.nsa.gov>
-Subject: a silly question
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-anyone knows where I can collect papers or any technical report, other 
-than those under the "Documentation" link in the NSA web site, about 
-SELinux?
-I'm trying to figure out a sort of formal model of SELinux but in the 
-articles I've studied (those on the NSA web site) there are not many 
-technical informations. For example it's not clear to me whether a 
-process with a type A, changing its type (due to a domain migration, for 
-example, or to any other possible way - which are there?) to B, leaves 
-permissions granted in A and get just those in B or get those in A and 
-those in B (if I'm not wrong the former is the behaviour in canonical TE 
-and so it is supposed to be the right one).
-Thank you and excuse me for my silly question
 
-Giorgio
+On Fri, 18 Oct 2002, Giorgio Zanin wrote:
+
+> technical informations. For example it's not clear to me whether a
+> process with a type A, changing its type (due to a domain migration, for
+> example, or to any other possible way - which are there?) to B, leaves
+> permissions granted in A and get just those in B or get those in A and
+> those in B (if I'm not wrong the former is the behaviour in canonical TE
+> and so it is supposed to be the right one).
+
+The former is the behavior in SELinux.  And the domain (type) of a process
+can only change upon an execve (based on type transition rules in the
+policy) or execve_secure (explicit request by an application).  That
+permits control over the inheritance of state and the initialization of
+the process in the new domain.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
 
 
 --
