@@ -1,47 +1,57 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA07664
-	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2001 15:08:38 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA16805
-	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2001 20:08:31 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA07656
+	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2001 15:08:25 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA13314
+	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2001 20:08:23 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id UAA16801
-	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2001 20:08:31 GMT
-Date: Tue, 6 Feb 2001 15:08:21 -0500 (EST)
+	by jazzband.ncsc.mil  with ESMTP id UAA13310
+	for <selinux@tycho.nsa.gov>; Tue, 6 Feb 2001 20:08:23 GMT
+Date: Tue, 6 Feb 2001 15:08:19 -0500 (EST)
 From: hdholm@epoch.ncsc.mil (Howard Holm)
-Message-Id: <200102062008.PAA04494@coalstove.epoch.ncsc.mil>
+Message-Id: <200102062008.PAA04491@coalstove.epoch.ncsc.mil>
 To: selinux@tycho.nsa.gov
-Subject: Re: PPC port of SELinux
-Cc: rbsmith@sandia.gov
+Subject: Re: Division of Labor?
+Cc: crusader@linuxgames.com
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-I'm not aware of any port underway to the Power PC, nor is it something
-likely to ever be a priority for the NSA team.  If someone else wants
-to port to the Power PC, or in fact has done any work extending the
-system please keep the list informed so that we don't have people
-duplicating each other's work and consider making your work in progress
-available.  In general, as has already been said, we think the effort
-for most hardware ports should be low.  There are certainly bound to be
-a few problem areas, particularly as the first few ports weed out
-subtle x86 assumptions.
+It would be a mistake to view the TODO list, which may be seen at
+<http://www.nsa.gov/selinux/todo.html>, as a comprehensive list.  It is
+more a list of high priority items to further the project.  Many other
+tasks such as porting to other architectures and constructing policies
+for complex (particularly server or shared data) applications are good
+candidates for people looking for something to contribute.
 
-For my part of keeping the list informed I'll say that the NSA team has
-as its priorities demonstrating the security features to the community
-and exploring research aspects of policy and implmentation.  We also
-try to fix egregious user interface problems just to keep the system
-usable.  Specificly that means for the time being we're concentrating
-on making certain that kernel interfaces are adequately controlled and
-porting to current kernel versions.  Application policies and ports to
-other hardware are not going to be a priority until the kernel work is
-a lot more complete.
+Feedback about problems installing the system, or ways to ease the job
+of installing the system, or experiences in using the system would also
+help us a lot.
 
-rbsmith@sandia.gov wrote:
-> Is anyone working on a Power PC / Macintosh G4 port of SELinux? If so, can
-> you say something about the status of the work?
+External patches are always welcome and we encourage people to post
+patches to this list.  It has always been our intention to try and
+incorporate external patches into the work we're distributing, but
+being a large government agency has its disadvantages as well as
+advantages.  One disadvantage is that there is a lot of government
+contract law complicating our interaction with external developers.
+One advantage is that we have a legal staff that can make sense of it
+all so our team doesn't have to try.  We expect to have those issues
+clarified and resolved soon by our crack team of lawyers.
+
+Of course, the fact that the code is GPLed allows other parties to
+extend our work, and we in general welcome that.  Although, certainly
+for general extensions rather than site specific work, we would hope
+that external developers would want to work in close coordination with
+us rather than create a separate project.
+
+crusader@linuxgames.com wrote:
+> What's the current division of labor for knocking out the remaining
+> portions of the TODO list (http://www.nsa.gov/selinux/todo.html)?
 > 
-> Also, can anyone provide a ballpark estimate on the level-of-effort for the
-> 2.2.12 enhancements and/or the anticipated effort for the 2.4 port?
+> How are external patches being evaluated?
+> 
+> Also, I'm assuming that the parties involved would not object to
+> a third party expanding on the SE Linux distribution themselves,
+> as the changes were released under the GNU General Public License.
 
 --
 Howard Holm <hdholm@epoch.ncsc.mil>
