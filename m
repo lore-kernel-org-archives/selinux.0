@@ -1,38 +1,43 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7T1j3La023010
-	for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2003 21:45:03 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7T1j2et022917
-	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2003 01:45:02 GMT
-Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
-        by jazzband.ncsc.mil  with ESMTP id h7T1j0lq022883 for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2003 01:45:00 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7TBmNLa025390
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2003 07:48:23 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h7TBkrpQ025813
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2003 11:46:53 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id h7TBkrQX025810
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2003 11:46:53 GMT
+Date: Fri, 29 Aug 2003 12:48:21 +0100
+From: Dale Amon <amon@vnl.com>
+To: selinux <selinux@tycho.nsa.gov>
 Subject: Re: Package install probs
-From: Colin Walters <walters@verbum.org>
-To: Dale Amon <amon@vnl.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20030828144825.GA6898@vnl.com>
-References: <20030828144825.GA6898@vnl.com>
-Content-Type: text/plain
-Message-Id: <1062121264.2216.25.camel@columbia>
+Message-ID: <20030829114820.GB17642@vnl.com>
 Mime-Version: 1.0
-Date: Thu, 28 Aug 2003 21:41:04 -0400
+Content-Type: message/rfc822
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-08-28 at 10:48, Dale Amon wrote:
-> Colin, at the end of the install of the default policy
-> I'm getting this error message:
-> 
->  an error on line 39260 "Unknown type klogd_t at token ';'"
-> "neverallow ~klogd_t proc_kmsg_t:file ~{ getattr }"
-> while parsing /usr/bin/checkpolicy configuration make
-> /etc/security/selinux/policy.15 error 1
 
-I added syslog-ng (and everything else that currently Provides:
-system-log-daemon in Debian) to the X-Debian-Packages line in klogd.te
-in my policy tree.
+> On Fri, 29 Aug 2003 02:30, Dale Amon wrote:
+> OK, I've made changes to assert.te and syslogd.te that should do what you 
+> want.  I've attached the new versions, let me know how they go.
 
-I need to figure out a way to have the installer do virtual packages...
+Close but no cigar.
+
+ ERROR 'unknown type klogd_t' at token ';' on line 40021:
+    neverallow klogd_t ~klogd_exec_t:file entrypoint; neverallow klogd_t ~{ klogd_exec_t ld_so_t }:file execute_no_trans;
+ #line 8101
+ /usr/bin/checkpolicy:  error(s) encountered while parsing configuration
+ /usr/bin/checkpolicy:  loading policy configuration from /etc/security/selinux/src/policy.conf
+
+> Strange.  I tried to reproduce that and couldn't, it refers to *.te every 
+> time.  Please show me the error messages.
+
+ apt-get install --reinstall selinux-policy-default
+                   :
+                   :
+ Using policy installation method "Semi-automatic"
+ Upstream deletion or custome file: domains/program/dpkg.te~, Delete/Ignore [d/l]?
 
 
 --
