@@ -1,68 +1,49 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UJ8BrT025842
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 15:08:11 -0400 (EDT)
-Received: from venus.informatica.co.cr (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UJ74ng003513
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 19:07:05 GMT
-Subject: Re: where is the modified login program's source code
-From: Miguel Bolanos <mike@hsol.net>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20040930141837.5407.qmail@web51503.mail.yahoo.com>
-References: <20040930141837.5407.qmail@web51503.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1096571312.21508.16.camel@talena.hsol.net>
-Mime-Version: 1.0
-Date: Thu, 30 Sep 2004 13:08:32 -0600
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UJB0rT025878
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 15:11:00 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UJ9png003870
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 19:09:52 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Joe Nall <joe@nall.com>
+Subject: Re: Representing releasibilities in SELinux
+Date: Fri, 1 Oct 2004 05:10:41 +1000
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+References: <C21693A0-1240-11D9-B045-000A95EED7F6@nall.com>
+In-Reply-To: <C21693A0-1240-11D9-B045-000A95EED7F6@nall.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200410010510.41928.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Thu, 30 Sep 2004 03:55, Joe Nall <joe@nall.com> wrote:
+> We have an application that we are considering porting from a
+> Compartmented Mode Workstation (like Trusted Solaris) to SELinux. One of
+> the issues we need to address is representing releasability information.
+> We have a significant amount of data that is current marked with
+> variations of 'releasable to country1, country2 and country3'. Data
+> marked like this is releasable to any permutation of the countries
+> involved. There are a few hundred countries, so any approach needs
+> to scale to that level.
 
-On Thu, 2004-09-30 at 08:18, Park Lee wrote:
-> Hi,
->   I know that login is a modified daemon program. Now, I want to do
-> some work with the login program in SELinux. But, Where could I found
-> the modified login program's source code? It seems that it isn't
-> contained in Fedora Core 2.
->   If you know the matter, please tell me about it.
+In SE Linux every process has exactly one domain and every resource that a 
+process may access (IE file) has exactly one type.
 
-Well there is not such thing as a "login" package, this is part of
-util-linux package. The FC2 srpm can be found here:
+If you had options to release to 5 different groups (EG continents) then you 
+could have 2^5-1 types to represent all the different combinations.  
+Obviously having 2^200-1 types isn't going to work though.
 
-http://download.fedora.redhat.com/pub/fedora/linux/core/2/SRPMS/util-linux-2.12-18.src.rpm
+How do you do this on Trusted Solaris?  Does TSOL support multiple labels on 
+one object?
 
-There is also an srpm for util-linux at the selinux offical site:
-
-http://www.nsa.gov/selinux/SRPMS/util-linux-2.12a-2.src.rpm
-
-Or you can just get the source code from the original location:
-
-ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/
-ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/util-linux-2.12a.tar.gz
-
-And use the patch available at the selinux site for it:
-
-http://www.nsa.gov/selinux/patches/util-linux-selinux.patch.gz
-
-Hope this helps enough to get you started.
-best wishes
-
-Miguel
-
->  
->   Thank you.
-> 
-> --
-> Best Regards,
-> Park Lee <parklee_sel@yahoo.com> 
->  
-> 
-> 
-> ______________________________________________________________________
-> Do you Yahoo!?
-> Yahoo! Mail - 50x more storage than other providers!
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
