@@ -1,37 +1,54 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5BN66rT007890
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 19:06:06 -0400 (EDT)
-Received: from smtp801.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5BN60P2009377
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 19:06:00 -0400 (EDT)
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5BN52rT007872
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 19:05:02 -0400 (EDT)
+Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5BN4x1j027333
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 19:04:59 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp801.mail.ukl.yahoo.com with SMTP; 11 Jun 2004 23:06:00 -0000
-Date: Fri, 11 Jun 2004 23:03:14 +0000
+  by smtp804.mail.ukl.yahoo.com with SMTP; 11 Jun 2004 23:05:00 -0000
+Date: Fri, 11 Jun 2004 23:02:18 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Russell Coker <russell@coker.com.au>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: [debian] - installation of mysqld requires chfn
-Message-ID: <20040611230314.GJ2861@lkcl.net>
-References: <20040609222209.GH5727@lkcl.net> <200406101220.53966.russell@coker.com.au> <20040610203006.GD2861@lkcl.net> <200406111053.57914.russell@coker.com.au>
+Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
+Message-ID: <20040611230218.GI2861@lkcl.net>
+References: <20040609214126.GF5727@lkcl.net> <20040609232932.GD2142@jmh.mhn.de> <20040610211112.GG2861@lkcl.net> <200406111107.39205.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406111053.57914.russell@coker.com.au>
+In-Reply-To: <200406111107.39205.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 11, 2004 at 10:53:57AM +1000, Russell Coker wrote:
-> On Fri, 11 Jun 2004 06:30, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > yerss, i noticed that if i run with "enforcing=0" and run chfn as
-> > sysadm_r, i end up with /etc/shadow labelled as root:object_r:system_t
+On Fri, Jun 11, 2004 at 11:07:39AM +1000, Russell Coker wrote:
+> On Fri, 11 Jun 2004 07:11, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > ?if it bit me (who is coming into this blind with no prior
+> > ?knowledge or expectations other than "install it and find out
+> > ?how to fix it if it's broke") then it's definitely going to
+> > ?bite other people.
 > 
-> How does that happen?  There is no system_t type in the default policy!
- 
- ohohoh, yes.
+> http://www.coker.com.au/selinux/tweaks.html
 
-> The usual problem with chfn etc on Debian is of getting /etc/passwd labeled as 
-> root:object_r:shadow_t...
+ah ha!  thank you russell.
 
- yesyou'reright i was rushing when i wrote that.
+i'm raising wish-list bug report items for some of these in
+debian because if you think hundreds and thousands of people,
+a good proportion of them are not going to know about that
+document.
+
+put it in front of people and say "HERE!".
+
+[or if you read terry pratchett, "thtrap it down and zthap it
+with a bolth of lightning, that'th my motto" ]
+
+-- 
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility for acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
