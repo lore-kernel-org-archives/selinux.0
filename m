@@ -1,38 +1,25 @@
+Date: Sun, 24 Aug 2003 21:32:21 +0100
+From: Dale Amon <amon@vnl.com>
+To: Colin Walters <walters@verbum.org>
+Cc: Russell Coker <russell@coker.com.au>, Dale Amon <amon@vnl.com>,
+   SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: 2.6.0-test3
-From: Colin Walters <walters@verbum.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: Dale Amon <amon@vnl.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <200308231116.19099.russell@coker.com.au>
-References: <20030822201709.GE12548@vnl.com>
-	 <200308231116.19099.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1061747236.7660.206.camel@columbia>
+Message-ID: <20030824203221.GA22620@vnl.com>
+References: <20030822201709.GE12548@vnl.com> <200308231116.19099.russell@coker.com.au> <1061747236.7660.206.camel@columbia>
 Mime-Version: 1.0
-Date: Sun, 24 Aug 2003 13:47:16 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1061747236.7660.206.camel@columbia>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-08-22 at 21:16, Russell Coker wrote:
-> On Sat, 23 Aug 2003 06:17, Dale Amon wrote:
-> > > Why can't you install the new selinux package?
-> >
-> > Ah, I see, it's not a kernel package. This is the first time I've
-> > gone from packages instead of direct from the NSA tgz. But even so,
-> > there is a conflict. I presume I can just --force-conflicts.
-> 
-> In another message you mention that you are using 2.6.
-> 
-> I will have to make my selinux-policy-default package have an alternate 
-> dependency on something from Colin.
-> 
-> Colin, which of your packages should it depend on, and what version?
+On Sun, Aug 24, 2003 at 01:47:16PM -0400, Colin Walters wrote:
+> I think the issue here is that my selinux-policy-default packages have a
+> lower version than your selinux-policy-default packages.  I have only
+> been testing my 2.6 packages with my selinux-policy-default package.
 
-I think the issue here is that my selinux-policy-default packages have a
-lower version than your selinux-policy-default packages.  I have only
-been testing my 2.6 packages with my selinux-policy-default package.
-
-Russell, this could probably be solved if you could merge the
-Debianization changes in my selinux-policy-default package.
+I wonder if there is a temporary work around. I could do a force-conflicts
+if I was sure which package has the files which should over ride the 
+other.
 
 
 --
