@@ -1,54 +1,66 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j12LAO53025918
-	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 16:10:24 -0500 (EST)
-Received: from mx-5.zoominternet.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j12L8FVZ017370
-	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 21:08:16 GMT
-Received: from mua-1.zoominternet.net (mua-1.zoominternet.net [24.154.1.44])
-	by mx-5.zoominternet.net (8.12.11/8.12.11) with ESMTP id j12LAPRs013482
-	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 16:10:26 -0500
-Received: from 192.168.0.188 (acs-24-144-211-60.zoominternet.net [24.144.211.60])
-	by mua-1.zoominternet.net (Postfix) with ESMTP id 226C17F408
-	for <selinux@tycho.nsa.gov>; Wed,  2 Feb 2005 16:10:26 -0500 (EST)
-Subject: FC3, Apache and CGI web app
-From: Scott Cain <cain@cshl.org>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Wed, 02 Feb 2005 16:07:41 -0500
-Message-Id: <1107378461.3351.62.camel@localhost.localdomain>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j12NkH53026716
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 18:46:17 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j12Ni8VZ026537
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 23:44:08 GMT
+Message-ID: <42016640.3050807@redhat.com>
+Date: Wed, 02 Feb 2005 18:46:08 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Scott Cain <cain@cshl.org>
+CC: selinux@tycho.nsa.gov
+Subject: Re: FC3, Apache and CGI web app
+References: <1107378461.3351.62.camel@localhost.localdomain>
+In-Reply-To: <1107378461.3351.62.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+Scott Cain wrote:
 
-I am one of the authors of a web application that is widely used in my
-community, GBrowse ( http://www.gmod.org/ggb/ ).  We've started
-receiving bug reports from users who are trying to install and run it on
-Fedora Core 3 systems with SELinux installed and enabled with the
-default values from the distribution.  
+>Hello,
+>
+>I am one of the authors of a web application that is widely used in my
+>community, GBrowse ( http://www.gmod.org/ggb/ ).  We've started
+>receiving bug reports from users who are trying to install and run it on
+>Fedora Core 3 systems with SELinux installed and enabled with the
+>default values from the distribution.  
+>
+>To do some testing, I've installed FC3 and GBrowse and run into the same
+>problems.  The only way I've been able to get GBrowse to run is to
+>disable SELinux.  There are a few reasons I'd rather not tell my users
+>to do that, so I am looking for a way to leave SELinux enabled and still
+>run GBrowse.  The first thing I tried was to set httpd_disable_trans=1
+>(which the GUI calls "Disable SELinux protection for httpd daemon"), but
+>that doesn't help.  Are there any parameters that I can add
+>to /etc/selinux/targeted/booleans to allow GBrowse to work?
+>
+>As far as I can tell, the reason SELinux doesn't like GBrowse is that it
+>is a cgi that tries to read a directory and files in the apache conf
+>directory.
+>
+>Thanks,
+>Scott
+>
+>  
+>
+First make sure you have the latest policy, via yum
 
-To do some testing, I've installed FC3 and GBrowse and run into the same
-problems.  The only way I've been able to get GBrowse to run is to
-disable SELinux.  There are a few reasons I'd rather not tell my users
-to do that, so I am looking for a way to leave SELinux enabled and still
-run GBrowse.  The first thing I tried was to set httpd_disable_trans=1
-(which the GUI calls "Disable SELinux protection for httpd daemon"), but
-that doesn't help.  Are there any parameters that I can add
-to /etc/selinux/targeted/booleans to allow GBrowse to work?
+yum update selinux-policy-targeted
 
-As far as I can tell, the reason SELinux doesn't like GBrowse is that it
-is a cgi that tries to read a directory and files in the apache conf
-directory.
+Next make sure httpd_unified is set
 
-Thanks,
-Scott
+setsebool -P httpd_unified 1
 
--- 
-------------------------------------------------------------------------
-Scott Cain, Ph. D.                                         cain@cshl.org
-GMOD Coordinator (http://www.gmod.org/)                     216-392-3087
-Cold Spring Harbor Laboratory
+Now try it.
+
+Look for AVC messages in /var/log/messages which will tell you what is 
+being denied.
+http://fedora.redhat.com/docs/selinux-apache-fc3/
+has a lot of information on settingup apache and SElinux.
+
+Dan
 
 
 --
