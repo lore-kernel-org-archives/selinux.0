@@ -1,62 +1,52 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA03505
-	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2001 11:35:25 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA21181
-	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2001 15:33:42 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id PAA21177
-	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2001 15:33:41 GMT
-Date: Fri, 5 Oct 2001 11:35:04 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: James Bishop <james.bishop@jrc.it>, <selinux@tycho.nsa.gov>
-Subject: Re: Compiling for SuSE 7.2
-In-Reply-To: <20011005150905.8ED4537DF6C@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0110051121260.29582-100000@raven>
+Date: Fri, 05 Oct 2001 09:36:51 -0700
+From: Paul Krumviede <pwk@acm.org>
+To: Stephen Smalley <sds@tislabs.com>,
+        "Justin R. Smith" <jsmith@mcs.drexel.edu>
+cc: SELinux@tycho.nsa.gov
+Subject: Re: Some questions
+Message-ID: <43000731.1002274611@localhost>
+In-Reply-To: <Pine.GSO.4.33.0110050943410.29582-100000@raven>
+References: <Pine.GSO.4.33.0110050943410.29582-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+trimmed to ssh only...
 
-On Fri, 5 Oct 2001, Russell Coker wrote:
+--On Friday, 05 October, 2001 09:57 -0400 Stephen Smalley <sds@tislabs.com> 
+wrote:
 
-> /bin/login is for console logins, telnetd, and I think rshd.  sshd doesn't
-> use it (but there's a patch to sshd).  X logins use an X program, options
-> include xdm, kdm, gdm, and many others.  I intend to develop a patch for kdm
-> after getting everything else working (if no-one beats me to it).
+>
+> On 5 Oct 2001, Justin R. Smith wrote:
+>
+>> 3. SSH no longer recognizes my authorized keys --- I must always enter a
+>> password to use it. I've regenerated the keys several times (putting the
+>> appropriate public keys in 'authorized_keys') without success. I know
+>> the sshd on my system was replaced by another. Does it function
+>> differently?
+>
+> The utils Makefile only installs the modified sshd, not the rest of the
+> package, since we only modified sshd.  So if you were using a different
+> version of OpenSSH, you might have a compatibility problem.  The openssh
+> package provided with SELinux is the default one provided with RedHat 7.1
+> with the SELinux modifications.  If you are using a newer version of
+> OpenSSH, then I would suggest porting the SELinux patch forward to the
+> newer version (and please feed the resulting patch back to us).  If you
+> are using an older version of OpenSSH, then I would suggest doing a 'make
+> install' in the openssh-2.5.2p2-5 directory and then doing a 'make
+> relabel' in the utils directory.
 
-The simplest approach is to obtain the default security context for the
-user (via the get_default_user_sid function in libsecure) and use it in
-the appropriate exec*_secure call, and then let the user run newrole if
-necessary to change roles after login.  Also, as with login, the ?dm
-program should set the security context for the user's terminal device.
-Mark Westerman experimented with a patch for gdm that is available on
-his sourceforge selinux project site, but I'm not sure how far he got.
+i've had to force use of the version 2 protocol to make this work, either
+via the command line option to ssh or by changing the sshd_config file
+to only use protocol version 2. doing what is suggested above was not
+sufficient for me - i was trying to make this work separately some time
+ago (and i think i've had to do this on a base redhat 7.0 system, if i
+recall the circumstances correctly). i don't know if it matters or not,
+but this was when i had a DSA key present; i haven't tried it with
+only RSA keys.
 
-Note that some policy customization will be necessary to properly support
-the use of the ?dm programs.  A separate domain should be defined for
-these programs, and some of their helper programs may also need separate
-domains to provide least privilege.
-
-Longer term, it would be nice to change ?dm and its helper programs to
-permit users to specify a security context upon login.  But this would
-be more complicated and require a more invasive patch.
-
-> Initially using startx after logging in on the console is easiest.
-
-Yes, this is what we recommend if you want to run X.  However, please note
-that you must uncomment some allow rules in the
-policy/domains/program/xserver.te file to grant the X server the necessary
-permissions.  And note that this is dangerous - X is far too privileged,
-and needs to be restructured to support least privilege.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-paul
 
 
 --
