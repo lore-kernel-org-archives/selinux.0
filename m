@@ -1,44 +1,48 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA13666
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 08:58:09 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA16604
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 12:56:28 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id MAA16600 for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 12:56:27 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: ipsec access to { sysadm_tty_device_t sysadm_devpts_t }
-Date: Wed, 28 Aug 2002 14:57:57 +0200
-References: <200208281228.HAA06721@tomcat.admin.navo.hpc.mil>
-In-Reply-To: <200208281228.HAA06721@tomcat.admin.navo.hpc.mil>
-MIME-Version: 1.0
-Message-Id: <20020828125757.B48098F6E@lyta.coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA13798
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 09:09:21 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA23145
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 13:08:11 GMT
+Received: from tomcat.admin.navo.hpc.mil (tomcat.admin.navo.hpc.mil [204.222.179.33])
+	by jazzswing.ncsc.mil  with ESMTP id NAA23140
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 13:08:10 GMT
+Date: Wed, 28 Aug 2002 08:09:18 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200208281309.IAA07468@tomcat.admin.navo.hpc.mil>
+To: Mark.Westerman@csoconline.com,
+        "'Jesse Pollard'" <pollard@tomcat.admin.navo.hpc.mil>,
+        SE.Linux@tomcat.admin.navo.hpc.mil, <selinux@tycho.nsa.gov>
+Subject: RE: ipsec access to { sysadm_tty_device_t sysadm_devpts_t }
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 28 Aug 2002 14:28, Jesse Pollard wrote:
-> Russell Coker <russell@coker.com.au>:
-> > Now I'm working on ipsec which seems to require { read write ioctl
-> > getattr } access to those device types for correct functioning.  As I am
->
-> Slightly OT/side question:
->
-> Which IPSec implementation are you starting with - NIST reference,
-> Free/swan or a completely new one?
+"Westerman, Mark" <Mark.Westerman@csoconline.com>:
+> 
+> On Wednesday, August 28, 2002 7:28 AM, Jesse Pollard wrote:
+> 
+> > Slightly OT/side question:
+> > 
+> > Which IPSec implementation are you starting with - NIST 
+> > reference, Free/swan
+> > or a completely new one?
+> 
+> 
+> The orginal rules I created were for the FreeSwan IPSEC project.
+> I check the NIST web page. Is that project active any more ?
+> The last news date was "05/12/00 - Cerberus 0.5 release"
+> 
+> Mark
 
-I'm using Free/swan, I wasn't aware that I had a choice.  Could you please 
-give us a brief analysis of the difference between the different versions?
+I don't know. I was reading up on what it provided yesterday (including
+the ownership lists, which appears completly open) and wondering if it
+would be worth the effort to ask for it to find out.
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
