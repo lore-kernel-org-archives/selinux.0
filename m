@@ -1,65 +1,40 @@
-Date: Tue, 29 Jan 2002 12:10:30 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Justin Smith <jsmith@mcs.drexel.edu>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: Additional permissions that appear to be necessary
-In-Reply-To: <1012323070.1329.4.camel@jsmith.org>
-Message-ID: <Pine.GSO.4.33.0201291201301.11892-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA13077
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jan 2002 07:43:24 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA17459
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jan 2002 12:42:31 GMT
+Received: from jsmith.org (pool-141-158-40-34.phil.east.verizon.net [141.158.40.34])
+        by jazzband.ncsc.mil  with ESMTP id MAA17455 for <selinux@tycho.nsa.gov>; Wed, 30 Jan 2002 12:42:30 GMT
+Subject: Strange behavior of httpd
+From: Justin Smith <jsmith@mcs.drexel.edu>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: 30 Jan 2002 07:43:59 -0500
+Message-Id: <1012394639.1422.6.camel@jsmith.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+After running for more than a week on a fixed policy, httpd suddenly
+wants more privileges and refuses to serve web pages without them:
 
-On 29 Jan 2002, Justin Smith wrote:
+It, and cgi scripts it runs, are trying to access files in /var/cache
+and /var/run
 
-> This is apart from those made necessary by my own policy configuration
-> (i.e., they probably apply to all Redhat 7.2 installations):
->
-> allow initrc_t initrc_t:socket { create };
+/var/cache/ssl_gcache_data.sem
 
-I've seen this permission denial associated with the iwconfig program on
-RH7.2.  Do you really need to run iwconfig (configure a wireless network
-interface)?  If not, why grant this permission?
+and
 
-The correct way to handle this denial would be to define new security
-class for the protocol family used by iwconfig (it falls back to the
-generic 'socket' class since it isn't recognized by the SELinux module)
-and to define a domain for the iwconfig program.
+/var/run/httpd.mm.995.sem
 
-> allow kmod_t kmod_t:capability { setuid };
+I made up a new file type for the /var/run file, 'httpd_var_run_sem_t'
+and could do that for the ssl_gcache_data.sem file but wonder why this
+apparent change of behavior after so long.
 
-I haven't seen this denial on RH7.2, but it seems harmless (kmod_t is the
-domain associated with the kernel thread that invokes user mode helpers,
-such as modprobe or hotplug).
-
-> allow logrotate_t logrotate_t:capability { sys_pacct };
-
-I don't see this denial, and I'm not sure why logrotate would need this
-capability (configuration of process accounting).
-
-> allow system_crond_t etc_t:dir { setattr write };
-> allow system_crond_t file_labels_t:dir { setattr };
-
-I don't see either of these denials, and it seems undesirable to grant
-these permissions.
-
-> allow system_crond_t var_lib_rpm_t:dir { add_name write };
-> allow system_crond_t var_lib_rpm_t:file { create read write };
-> allow system_crond_t var_log_t:file { setattr write };
->
-> The last 5 lines only appear after running a system for several days so
-> that its periodic maintenance is performed.
-
-These are associated with running the rpm utilities.  We are likely to add
-a new domain (and a new log type) for this purpose rather than directly
-granting these permissions to system_crond_t.
+I apologize if this is off-topic.
 
 --
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
 
 
 --
