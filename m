@@ -1,52 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0DL0bRb021860
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 16:00:37 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0DKxSxr014571
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 20:59:28 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0E4dDRb023614
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 23:39:13 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0E4dCiV016627
+	for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2004 04:39:12 GMT
 Received: from thoron.boston.redhat.com (nat-pool-bos.redhat.com [66.187.230.200])
-	by jazzswing.ncsc.mil  with ESMTP id i0DKxQYe014563
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 20:59:28 GMT
-Date: Tue, 13 Jan 2004 16:00:32 -0500 (EST)
+        by jazzband.ncsc.mil  with ESMTP id i0E4dC06016624 for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2004 04:39:12 GMT
+Date: Tue, 13 Jan 2004 23:39:09 -0500 (EST)
 From: James Morris <jmorris@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, <selinux@tycho.nsa.gov>,
-   Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: [PATCH][SELINUX] 2/2 Add SEND_MSG and RECV_MSG controls
-In-Reply-To: <Xine.LNX.4.44.0401131326240.6829-100000@thoron.boston.redhat.com>
-Message-ID: <Xine.LNX.4.44.0401131557590.7560-100000@thoron.boston.redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: akpm@osdl.org, <linux-kernel@vger.kernel.org>, <sds@epoch.ncsc.mil>,
+   <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH][SELINUX] 6/7 Add SO_PEERSEC socket option and getpeersec
+ LSM hook.
+In-Reply-To: <20040113161257.40f1ff16.davem@redhat.com>
+Message-ID: <Xine.LNX.4.44.0401132336560.9386-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 13 Jan 2004, James Morris wrote:
+On Tue, 13 Jan 2004, David S. Miller wrote:
 
-> This patch implements two new access controls for SELinux: SEND_MSG and 
-> RECV_MSG, providing mediation of network packets based on destination 
-> port (IPv4 only at this stage).
-> 
+> I'm totally fine with this patch but I cannot apply it as it will not go in
+> cleanly without your previous SELINUX bits applied, please resend to me
+> when that stuff goes in.
 
-After some further discussion, Stephen and I decided that it would be more 
-useful for security to invert the sense of the RECV_MSG permission so that 
-the source port is checked during packet reception.
-
-This patch is relative to the previous patch, please let me know if you 
-want the entire patch redone.
+It's in -mm2 now.  It could either be left there for merging to mainline,
+or Andrew could drop it and I can send you the patch after the rest of the
+-mm2 stuff ends up in bitkeeper.
 
 
-diff -urN -X dontdiff linux-2.6.1-mm2.p/security/selinux/hooks.c linux-2.6.1-mm2.w/security/selinux/hooks.c
---- linux-2.6.1-mm2.p/security/selinux/hooks.c	2004-01-13 15:59:04.153184216 -0500
-+++ linux-2.6.1-mm2.w/security/selinux/hooks.c	2004-01-13 14:32:06.000000000 -0500
-@@ -2773,7 +2773,7 @@
- 
- 		/* Fixme: make this more efficient */
- 		err = security_port_sid(sk->sk_family, sk->sk_type,
--		                        sk->sk_protocol, ntohs(ad.u.net.dport),
-+		                        sk->sk_protocol, ntohs(ad.u.net.sport),
- 		                        &port_sid);
- 		if (err)
- 			goto out;
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
