@@ -1,36 +1,45 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA00158
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:46:08 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA06940
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 19:44:42 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id TAA06932 for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 19:44:40 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: gdsmarshall@hushmail.com, Selinux@tycho.nsa.gov
-Subject: Re: errors installing.....
-Date: Thu, 27 Jun 2002 15:40:56 -0400
-References: <200206271655.g5RGtjM07176@mailserver4.hushmail.com>
-In-Reply-To: <200206271655.g5RGtjM07176@mailserver4.hushmail.com>
+To: "Ryan Bergauer" <privateryan@mindspring.com>, <selinux@tycho.nsa.gov>
+Subject: Re: Configuration issues on a new installation
+Date: Thu, 27 Jun 2002 15:39:01 -0400
+References: <001701c21daa$28a60550$6501a8c0@donkey>
+In-Reply-To: <001701c21daa$28a60550$6501a8c0@donkey>
 MIME-Version: 1.0
-Message-Id: <20020627194529.060527D01@lyta.coker.com.au>
+Message-Id: <20020627194528.EB7477D00@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 27 Jun 2002 12:55, gdsmarshall@hushmail.com wrote:
-> /etc/selinux# make -C /etc/selinux relabel
-> make: Entering directory `/etc/selinux'
-> /usr/bin/load_policy /ss_policy
-> security_load_policy: Invalid argument
-> make: *** [tmp/load] Error 2
-> make: Leaving directory `/etc/selinux'
+On Thu, 27 Jun 2002 03:13, Ryan Bergauer wrote:
+> > Yes, they probably have.  But most of them seem to have suffered in
+> > silence. It seems that I'm the only SE Linux user who is spending any
+> > time writing policy files and then publishing them.
 >
-> In /var/log/messages, I get
-> Jun 27 17:51:52 gatekeeper kernel: ss:  loading policy configuration from
-> /ss_policy Jun 27 17:51:52 gatekeeper kernel: security:  policydb magic
-> number 8 does not match expected magic number -109248628
->
-> does anyone know what the problem is please? and how do I fix it.
+> Hah, tonight I've actually been working on policy files for Samba. This
+> is my first time dabbling with domains - could any of you who are much
+> more versed with SELinux take a quick look and tell me if everything
+> seems in order?
 
-Looks like your kernel doesn't have the same policy version as the database.
+Firstly, only have one .te file for an application.  smbd and nmbd can not be 
+used independantly, so there's no benefit in separate policy files.
 
-What version of my packages are you using?  Are you using "woody" not 
-"unstable"?  Maybe you should get the core selinux packages from my site too.
+Next, look at the daemon_domain() macro, and consider not using the 
+every_domain() macro (maybe you can give it more restrictive permissions.
+
+> Feeback is highly appreciated. No better way to get used to SELinux than
+> jumping in head-first...
+
+Yes.
 
 -- 
 I do not get viruses because I do not use MS software.
