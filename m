@@ -1,33 +1,32 @@
+Date: Fri, 23 Mar 2001 20:53:35 -0500 (EST)
+From: Chris Crowther <shadow@shad0w.org>
+To: SELinux@tycho.nsa.gov
+Subject: Re: your mail
+In-Reply-To: <OFC8827216.E70119F9-ON85256A18.007CF1F0@pok.ibm.com>
+Message-ID: <Pine.LNX.4.21.0103232050440.28046-100000@monolith.sanctum.shad0w.org>
 MIME-Version: 1.0
-To: <SELinux@tycho.nsa.gov>
-Message-ID: <OFC8827216.E70119F9-ON85256A18.007CF1F0@pok.ibm.com>
-From: "Hubertus Franke" <frankeh@us.ibm.com>
-Date: Fri, 23 Mar 2001 18:02:08 -0500
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-just downloaded the SELinux for 2.4.
+On Fri, 23 Mar 2001, Hubertus Franke wrote:
 
-I did the ./tools/build-kernel  and get the following errors.
+> /home/frankeh/slinux/kernel/include/linux/flask/avc.h:13:31:
+> linux/flask/flask.h: No such file or directory
+> /home/frankeh/slinux/kernel/include/linux/flask/security.h:49:32:
+> config/flask/audit.h: No such file or directory
+> 
+> Looks like various files are missing in the distribution.
+> Any ideas ?
 
+	The header files get auto-created by the build, but they're not
+there when make dep is run, so you get all the errors, but the Kernel does
+compile.
 
-/home/frankeh/slinux/kernel/include/linux/flask/avc.h:13:31:
-linux/flask/flask.h: No such file or directory
-
-
-/home/frankeh/slinux/kernel/include/linux/flask/security.h:49:32:
-config/flask/audit.h: No such file or directory
-
-Looks like various files are missing in the distribution.
-Any ideas ?
-
-
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
+-- 
+Chris "_Shad0w_" Crowther
+shad0w@shad0w.org
+http://www.shad0w.org.uk/
 
 
 
