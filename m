@@ -1,61 +1,67 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i13DKkRb005573
-	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 08:20:47 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i13DKj1I010584
-	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 13:20:45 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i13DKhbs010412 for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 13:20:44 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Fernando Luis =?iso-8859-1?q?V=E1zquez=20Cao?= <bs-f-vazquez@bs.rd.nttdata.co.jp>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i13FFLRb006221
+	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 10:15:59 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i13FE0VK016706
+	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 15:14:00 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id i13FE0lx016700
+	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 15:14:00 GMT
 Subject: Re: fork and security context transitions
-Date: Wed, 4 Feb 2004 00:19:11 +1100
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <bs-f-vazquez@bs.rd.nttdata.co.jp>
 Cc: selinux@tycho.nsa.gov
-References: <1075437775.1088.144.camel@volcano.rd.nttdata.co.jp> <1075469989.22930.19.camel@moss-spartans.epoch.ncsc.mil> <1075788687.826.222.camel@volcano.rd.nttdata.co.jp>
 In-Reply-To: <1075788687.826.222.camel@volcano.rd.nttdata.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402040019.11770.russell@coker.com.au>
+References: <1075437775.1088.144.camel@volcano.rd.nttdata.co.jp>
+	 <1075469989.22930.19.camel@moss-spartans.epoch.ncsc.mil>
+	 <1075788687.826.222.camel@volcano.rd.nttdata.co.jp>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1075821304.4024.114.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 03 Feb 2004 10:15:04 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 3 Feb 2004 17:11, Fernando Luis Vázquez Cao 
-<bs-f-vazquez@bs.rd.nttdata.co.jp> wrote:
-> As an example, if we wanted to make Samba and Apache SELinux aware so
-> that, in the event of a user session, a child process would be created
-> in a user-specific domain, what should we do? With SELinux you are
-> forced to split the servers in two executables, eventually being forced
-> to make a lot of application specific changes (once more, if this is the
-> only right approach let's stick with it).
+On Tue, 2004-02-03 at 01:11, Fernando Luis VÃ¡zquez Cao wrote:
+> Wouldn't the "inheritance of state and the initialization of the process
+> in the new SID" be controlled as effectively as it is with the use of
+> "setexeccon" and "execv"?. This is, in once sentence, the source of all
+> my doubts.
 
-For Samba this will not work.
+No.  On an exec-based domain transition, SELinux controls:
+1) The ability of the source domain to transition to the target domain
+(which you can do on a fork, as you note).
 
-The SMB protocol supports multiple SMB identities on the same SMB connection.  
-Currently this is only really used in Windows Terminal Server edition, but it 
-should be used in future workstation products when some bugs in the MS client 
-code are fixed.
+2) The ability of the target domain to be entered via a particular
+entrypoint program.  This binds the initialization of the process in
+that target domain to the startup code for that program, and binds the
+target domain to separate code from the source domain.  It is important
+to be able to control what code can be executed with what set of
+permissions (i.e. domain) and how a process can be initialized (i.e.
+startup code) when run with a particular set of permissions.  A
+fork-based domain transition can't enforce such controls; from the
+kernel's perspective, both the source and target domain execute the same
+code and the target domain can be initialized from anywhere within the
+program being executed by the source domain when it does the fork.  This
+weakens the guarantees that can be provided by the kernel, and increases
+the assurance burden on the application.  
 
-Because of this such code that you might write for Samba will only work for a 
-while (until the next release of Windows maybe).
-
-Of course in the development version of Samba things are a bit different and 
-you can write plug-ins to do these sorts of things.  It would be possible to 
-have the main Samba process execute helper programs to do the actual file IO 
-and then communicate with the parent process by shared memory and pipes.  
-Then a smbd which is serving for two SMB identities can have two helper 
-children running in different contexts.
-
-The other option is something like setfsuid() for SE Linux as previously 
-discussed.
-
+3) The ability of the target domain to inherit state from the source
+domain, or stated differently, the ability of the source domain to
+influence the target domain by passing state to it.  While we could
+implement specific forms of inheritance control and state sanitization
+for a domain-changing fork, these would increasingly diverge from the
+natural semantics of fork (whereas exec already has parallels for at
+least some of these controls), and you can't implement some at all
+without turning fork into exec - e.g. think about memory inheritance. 
+If we implemented a domain-changing fork and provided as much
+inheritance control as feasible, it isn't clear that the resulting fork
+would be any more useable by existing applications than an exec-based
+transition.
+ 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
