@@ -1,66 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2727eDo007849
-	for <selinux@tycho.nsa.gov>; Sun, 6 Mar 2005 21:07:40 -0500 (EST)
-Received: from iron1-mx.tops.gwu.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2723DgZ011009
-	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2005 02:03:13 GMT
-From: Shyaam Sundhar Rajamadam Srinivasan <shyaam@gwu.edu>
-To: Dale Amon <amon@vnl.com>
-Cc: Russell Coker <russell@coker.com.au>, SE-Linux
- <selinux@tycho.nsa.gov>
-Message-ID: <fae8df5fd0.f5fd0fae8d@gwu.edu>
-Date: Sun, 06 Mar 2005 21:03:13 -0500
+Message-ID: <422C6273.2000509@redhat.com>
+Date: Mon, 07 Mar 2005 09:17:23 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Subject: Re: conferences
-Content-Type: multipart/mixed; boundary="--24656146bc37b05"
+To: Harsha Srinath <srinath@usc.edu>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: SELinux - FC Project
+References: <42298528.8080003@usc.edu>
+In-Reply-To: <42298528.8080003@usc.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+Harsha Srinath wrote:
 
-----24656146bc37b05
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+> Hi Dan,
+>
+> I am Harsha Srinath, a CS grad at USC, Los Angeles. I am looking for a 
+> Linux Kernel related project for a OS lab course and I am an avid 
+> Fedora user. Having done graduate courses in Cryptography and Network 
+> Security, I wanted to do a project related to SELinux. I am very keen 
+> to make a contribution to the open source and Fedora community and am 
+> hoping you can propose an project work related to SELinx-Fedora Core.
+>
+> I have some prior kernel programming experience when I had tweaked TCP 
+> on a FreeBSD kernel while interning at Information Sciences Institute, 
+> last summer.
+>
+> Thanks,
+> Harsha
+>
+Harsha,
 
-Hi,
-Is there a possibility that we can maintain a site for a list of activities.
-Some site where information about,
-- Comferences
-- Local meetings(Local Chapters)
-- New arivals
-- new projects
-- Employment for SELinux
-- Research & Development
-Kindly, let me know if there is a site existing for these activities.
-Thank you in advance for your time and consideration.
-Yours Sincerely,
-R.S.Shyaam Sundhar
+Please send this request to the SELinux@tycho.nsa.gov.
 
-----24656146bc37b05
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think they would have some good ideas.  Thanks for your interest.
 
-On Sun, Mar 06, 2005 at 05:41:43PM +1100, Russell Coker wrote:
-> Last week was the SE Linux Symposium: http://www.selinux-symposium.com/
-
-Bad timing. I was in DC on a job for much of February;
-I will be back for half of May and perhaps even in
-April.=20
-
-I'd have loved to see the light side of SeLinux admin :-)
-
---=20
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
-
-----24656146bc37b05--
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
