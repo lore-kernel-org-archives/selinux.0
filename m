@@ -1,54 +1,42 @@
-Subject: Re: Multiple contexts
+Subject: Re: Added is_context_configurable function
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: ivg2@cornell.edu
-Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1105390249.8093.21.camel@cobra.ivg2.net>
-References: <1105390249.8093.21.camel@cobra.ivg2.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>
+In-Reply-To: <41E2FEF4.5070604@redhat.com>
+References: <41E2FEF4.5070604@redhat.com>
 Content-Type: text/plain
-Message-Id: <1105456723.20566.47.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 11 Jan 2005 10:18:43 -0500
+Date: Tue, 11 Jan 2005 10:22:14 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-01-10 at 15:50, Ivan Gyurdiev wrote:
-> Why doesn't SElinux support multiple contexts per file?
-> It seems to me that this feature would be very useful. 
-> Is this technically not feasible?
+On Mon, 2005-01-10 at 17:17, Daniel J Walsh wrote:
+> This patch defines two functions.
 > 
-> I've been trying to get the following setup working on FC3 (rawhide):
+> is_context_configurable(scontext) 
+> This returns if if the context is in the 
+> /etc/selinux/*/contexts/configurable_contexts file.
+> 0 If not and -1 on error.
 > 
-> /var/www/html.userX  - 
-> 	virtual server for userX.mydomain labeled httpd_sys_content_t
-> /home/userX - 
-> 	home folder for userX, exported via Samba (not yet, but
-> 	it will be, once dwalsh puts in booleans for samba reading home)
+> Internally this calls get_configurable_context_list which returns a 
+> contextarray of the contexts of that file.
 > 
-> /home/userX/webserver - symlink to /var/www/html.userX 
+> I have also patched the policy makefile to populate that file, but 
+> looking for all contexts marked as configurable.
 > 
-> Now, /var/www/html.userX needs to be accessed both by smbd and httpd.
-> I need to label it with both samba_share_t and httpd_sys_content_t.
-> 
-> I have to edit the cryptic m4 policy file to add a type that's
-> accessible by both. Why is this necessary? Why can't selinux
-> either
-> 	(1) Label the file with both contexts, and permit
-> 	the operation if any context permits it
-> 
-> 	or
-> 		
-> 	(2) Create a type with the properties of both
-> 	with less user interaction (without needing to 
-> 	modify the policy manually)
-> 
-> Since I'm unfamiliar with how SElinux works internally,
-> this might be a stupid question, but it seems to me that 
-> the user should not be required to understand how a policy
-> file works to label a file for use by two restricted programs.
+> Now I would like to use this function in restorecon/setfiles, so that by 
+> default they will leave configurable contexts alone.
 
-Don't confuse the user interface with the mechanism.  You can build the
-user interface you describe in (2) on top of the existing mechanism, and
-others are already working on higher level policy tools and languages.
+I think that in prior discussions of this functionality, we had
+discussed allowing an optional list of alternative contexts at the end
+of each entry in the file_contexts configuration, and having
+setfiles/restorecon not change the context if the file already had any
+context in that list, but still set the context to the first context
+listed if the file lacked any context at all (e.g. initial labeling). 
+I'm not sure I see the benefit of marking the types with an attribute in
+the policy since you aren't defining any rules based on that attribute
+or providing a separate configuration file from file_contexts.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
