@@ -1,36 +1,35 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB1EDIRb006590
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 09:13:18 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB1EJaRb006652
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 09:19:36 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB1EDCqY005474
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:13:12 GMT
+	by jazzband.ncsc.mil  with ESMTP id hB1EJZqY005855
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:19:35 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id hB1EDC0o005471 for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:13:12 GMT
-Subject: Re: More mkinitrd setup script problems
+        by jazzband.ncsc.mil  with ESMTP id hB1EJZ0o005851 for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:19:35 GMT
+Subject: Re:
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Dale Amon <amon@vnl.com>
-Cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20031128111439.GA18062@vnl.com>
-References: <20031128110536.GE12418@vnl.com>
-	 <200311282210.39268.russell@coker.com.au>  <20031128111439.GA18062@vnl.com>
+To: Nick <nagray@austin.rr.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1070143772.4562.253.camel@hawaii>
+References: <1070143772.4562.253.camel@hawaii>
 Content-Type: text/plain
-Message-Id: <1070287987.12270.53.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1070288104.12270.56.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 01 Dec 2003 09:13:07 -0500
+Date: Mon, 01 Dec 2003 09:15:04 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-11-28 at 06:14, Dale Amon wrote:
-> On Fri, Nov 28, 2003 at 10:10:39PM +1100, Russell Coker wrote:
-> > Strange, I would have expected libselinux.so.1 to be needed for quite a while.
+On Sat, 2003-11-29 at 17:09, Nick wrote:
+> I seem to have lost usage of Kudzu (Actually it still runs but cannot
+> see the printer on the parallel port) after installing SELinux. Is this
+> a known issue? 
 > 
-> Yes, it is. I was rather surprised to say the least.
+> I am running in permissive mode. Any suggestions?
 
-load_policy was originally statically linked for the initrd.  When we
-transitioned to using Dan's patched init program to perform the initial
-policy load, load_policy was switched to being dynamically linked, since
-it doesn't need to go onto the initrd.
- 
+Likely just a kernel configuration issue, i.e. you didn't enable the
+driver.  Try using Arjan's 2.6 kernel RPMs from under
+http://people.redhat.com/arjanv/2.5.
+
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
