@@ -1,46 +1,43 @@
-Message-ID: <72222DC86846D411ABD300A0C9EB08A101524483@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'sds@epoch.ncsc.mil'" <sds@epoch.ncsc.mil>
-Subject: get_ordered_sid_list
-Date: Tue, 3 Dec 2002 09:34:37 -0600 
-MIME-Version: 1.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA07354
+	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 10:31:39 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA17543
+	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 15:29:22 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id PAA17534
+	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 15:29:13 GMT
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
+Subject: Re: SELinux on CD
+Date: Tue, 3 Dec 2002 16:31:11 +0100
+References: <20021203162250.A30338@lemuria.org>
+In-Reply-To: <20021203162250.A30338@lemuria.org>
+Cc: Carsten Grohmann <carstengrohmann@gmx.de>
+MIME-Version: 1.0
+Message-Id: <200212031631.11158.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In porting the Redhat 8.0 gdm I have a strange problem
-in get_ordered_sid_list
+On Tue, 3 Dec 2002 16:22, Tom wrote:
+> I just received the newest german Linux Magazin, and it includes a CD
+> with "top security software". Part of which is SELinux 2002102211 and a
+> very detailed (almost 10 pages) article by Carsten Grohmann and
+> Konstantin Agouros.
 
-login returns the correct number of sids 2.
+Go Carsten!
 
-root:sysadm_r:sysadm_t
-root:user_r:user_t
+Any chance of getting it translated and published in English?
 
-login = "root"
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
- /* Get security context and SID for user */
-  sidlistlen = SIDLISTLEN;   /* 10 */
-  sidlist = malloc (sidlistlen*sizeof(security_id_t));
-  if (sidlist == 0)
-    {
-      syslog (LOG_ERR, "SELinux gdm Login: no memory for SID list\n");
-      return;
-    }
-  num_sids = get_ordered_sid_list (login, 0, sidlist, &sidlistlen);
-
-
-the call returns 1 and the sid is
-505   root:user_r:user_t
-
-actual sids
-504   root:sysadm_r:sysadm_t
-505   root:user_r:user_t
-
-Am I missing something obvious ?
-
-
-Mark
 
 --
 This message was distributed to subscribers of the selinux mailing list.
