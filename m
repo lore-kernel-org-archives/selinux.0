@@ -1,55 +1,22 @@
-Message-ID: <402A3505.2030809@tresys.com>
-Date: Wed, 11 Feb 2004 08:58:29 -0500
-From: David Caplan <dac@tresys.com>
-MIME-Version: 1.0
-To: =?ISO-8859-2?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-CC: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: dumb auditdeny question
-References: <1076486595.2415.134.camel@kusturica>
-In-Reply-To: <1076486595.2415.134.camel@kusturica>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Subject: polyinstantiation support in fs?
+From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-2
+Date: 12 Feb 2004 21:59:46 +0100
+Message-Id: <1076619586.2481.147.camel@kusturica>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Magosányi Árpád wrote:
-> Hi!
-> 
-> I wanted to get rid of the following message:
-> 
->  avc:  denied  { create } for  pid=400 exe=/usr/bin/vim
-> scontext=kernel_u:kernel_r:kernel_d tcontext=kernel_u:object_r:tcb_t
-> tclass=file
-> 
-> so I have the following in my policy:
-> 
-> auditdeny kernel_d tcb_t:{ file lnk_file sock_file fifo_file chr_file }
->         { ioctl append rename create };
-> 
-> But I still get the message.
-> 
-> What did I do wrong?
-> 
+Hi!
 
-You want to use the "dontaudit" command.  Auditdeny says to generate a 
-message only when permission was denied on the specified access.  So you 
-probably want:
+Do we have polyinstantiation support in the fs?
+Something like moldy dirs of trusted irix(?) or symlink add rc role
+of rsbac?
 
-dontaudit kernel_d tcb_t:{ file lnk_file sock_file fifo_file chr_file } 
-            { ioctl append rename create };
+-- 
+GNU GPL: csak tiszta forrásból
 
-It's not a dumb question; the auditdeny keyword is confusing.  That's 
-one reason the dontaudit syntax was introduced.  I believe in the base 
-(NSA) policy there are no uses of auditdeny.
-
-David
-
-__________________________________
-
-David Caplan     410 290 1411 x105
-dac@tresys.com
-Tresys Technology, LLC
-8840 Stanford Blvd., Suite 2100
-Columbia, MD 21045
 
 --
 This message was distributed to subscribers of the selinux mailing list.
