@@ -1,8 +1,8 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2EiuXZ005945
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 09:44:56 -0500 (EST)
-Message-ID: <41879D59.5050909@redhat.com>
-Date: Tue, 02 Nov 2004 09:44:41 -0500
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2EoOXZ006032
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 09:50:24 -0500 (EST)
+Message-ID: <41879EAB.5070300@redhat.com>
+Date: Tue, 02 Nov 2004 09:50:19 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@epoch.ncsc.mil>
@@ -15,25 +15,12 @@ Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+I can change daemon_core_domain to define domain types with
+nscd_client_domain,
 
->On Tue, 2004-11-02 at 09:30, Daniel J Walsh wrote:
->  
->
->>ypbind.
->>
->>I will add
->>
->>allow $1_t self:capability net_bind_service; to ypbind.
->>    
->>
->
->Will it work without the permission, e.g. if you just dontaudit the
->permission?
->
->  
->
-Don't know I will try.
+Does anyone have a problem with that?
+
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
