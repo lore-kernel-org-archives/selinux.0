@@ -1,47 +1,32 @@
-Message-ID: <3C1E0279.7030102@namesys.com>
-Date: Mon, 17 Dec 2001 17:34:33 +0300
-From: Hans Reiser <reiser@namesys.com>
+From: lonnie@outstep.com
+To: SELinux@tycho.nsa.gov
+Subject: New to SELinux question
+Message-ID: <1008600510.3c1e05beb5430@mail.outstep.com>
+Date: Mon, 17 Dec 2001 09:48:30 -0500 (EST)
+Cc: Mark.Westerman@csoconline.com
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tislabs.com>
-CC: forrest whitcher <fw@fwsystems.com>, SELinux@tycho.nsa.gov,
-        "Vladimir V. Saveliev" <monstr@namesys.com>,
-        Nikita Danilov <god@namesys.com>
-Subject: Re: persistent labelling on afs, jfs, xfs?
-References: <Pine.GSO.4.33.0112170709420.10438-100000@raven>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+Hello All,
 
->On Sat, 15 Dec 2001, Hans Reiser wrote:
->
->>We currently have unique and persistent inode numbers (at least until we
->>someday write a repacker that will optimize key assignments for better
->>layout), but you can't use them for finding files that are not in the
->>cache.  To find such files requires a key.
->>
->
->SELinux uses the inode number as an identifier for the file in the
->persistent label mapping in each filesystem.   So it doesn't find files
->based on the inode number, but it needs each file in a filesystem to have
->a unique and persistent inode number.  It sounds like reiserfs does
->currently provide this property.
->
->--
->Stephen D. Smalley, NAI Labs
->ssmalley@nai.com
->
->
->
->
->
->
+Hope that you are all doing well today.
 
-yes, so everything is easy for now.:)
+I have been able to compile and install SELinux on my Redhat 7.2 system and 
+have even installed the gdm patch with no problems.
 
-Hans
+I did, however, run into one small problem. Me network in now not working and I 
+am not sure why? 
 
+When things boot, I can see that SELinux brings up the eth0 card, but then I 
+see some connections refused messages in the log/messages.
+
+Is there some other configuration that I must do to let SELinux know that it is 
+ok to allow the network?
+
+cheers,
+Lonnie
 
 --
 You have received this message because you are subscribed to the selinux list.
