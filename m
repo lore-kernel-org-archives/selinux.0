@@ -1,47 +1,30 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3KF6VI4017323
-	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 11:06:34 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h3KF6QVf007689
-	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 15:06:26 GMT
-Received: from newton.ispgaya.pt (firewall.ispgaya.pt [193.126.229.34] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id h3KF6P4D007686
-	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 15:06:26 GMT
-Received: from ispgaya.pt (unknown [192.168.2.80])
-	by newton.ispgaya.pt (Postfix on SuSE Linux 7.3 (i386)) with SMTP id E97765904BF
-	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 16:06:20 +0100 (WEST)
-Message-ID: <3478.81.84.84.159.1050851180.squirrel@webmail.ispgaya.pt>
-Date: Sun, 20 Apr 2003 16:06:20 +0100 (WEST)
-Subject: SELinux ISO...
-From: "=?iso-8859-1?Q?Lu=EDs_Miguel_Silva?=" <lms@ispgaya.pt>
-To: <selinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3KG7OI4017414
+	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 12:07:25 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h3KG7N7R016819
+	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 16:07:24 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id h3KG7NKP016816 for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 16:07:23 GMT
+Date: Sun, 20 Apr 2003 16:09:58 +0100
+From: Dale Amon <amon@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: OLS BOFs etc
+Message-ID: <20030420150958.GD14564@vnl.com>
+References: <200304142329.56120.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200304142329.56120.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello everybody,
-
-Why isnt there a ISO of the SELinux available?
-
-Is the "groups" policy not to make an ISO available?
-
-I just subscribed this list a couple a days ago, so, im sorry if my
-question is kind of stupid.
-
-Best regards,
-+-----------------------------------------
-| Luís Miguel Silva
-| Network Administrator@ ISPGaya.pt
-| Rua António Rodrigues da Rocha, 291/341
-| Sto. Ovídio • 4400-025 V. N. de Gaia
-| Portugal
-| T: +351 22 3745730/3/5  F: +351 22 3745738
-| G: +351 93 6371253      E: lms@ispgaya.pt
-| H: http://lms.ispgaya.pt/
-+-----------------------------------------
-
-
+Russell: When is the OLS? It looks like I will be spending a
+considerable time on the road this year. Connecticut, DC, Manhattan
+so far this month, West Coast to come... more East coast, then
+back to Ireland and a Dublin job, but perhaps more over here later
+in year. So it would be nice to see if I could possibly find a
+way to work it into plans. 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
