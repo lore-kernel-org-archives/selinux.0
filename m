@@ -1,121 +1,104 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA25956
-	for <selinux@tycho.nsa.gov>; Tue, 27 Nov 2001 14:06:20 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA01627
-	for <selinux@tycho.nsa.gov>; Tue, 27 Nov 2001 19:05:56 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id TAA01623
-	for <selinux@tycho.nsa.gov>; Tue, 27 Nov 2001 19:05:56 GMT
-Date: Tue, 27 Nov 2001 14:05:32 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Justin Smith <jsmith@mcs.drexel.edu>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: lsm-selinux-200111191100.tgz
-In-Reply-To: <1006885442.1246.0.camel@vorpal>
-Message-ID: <Pine.GSO.4.33.0111271341370.28935-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA27095
+	for <selinux@tycho.nsa.gov>; Tue, 27 Nov 2001 16:20:25 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id VAA00280
+	for <selinux@tycho.nsa.gov>; Tue, 27 Nov 2001 21:19:44 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzband.ncsc.mil  with ESMTP id VAA00276
+	for <selinux@tycho.nsa.gov>; Tue, 27 Nov 2001 21:19:42 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 1424A926EF
+	for <selinux@tycho.nsa.gov>; Wed, 28 Nov 2001 08:20:18 +1100 (EST)
+Received: from there (lyta [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 257D725E
+	for <selinux@tycho.nsa.gov>; Tue, 27 Nov 2001 22:20:06 +0100 (CET)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: Fwd: Re: SE Linux packages of login, sshd, tar, stat, findutils, fileutils, and [xkg]dm
+Date: Tue, 27 Nov 2001 22:20:05 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20011127212006.257D725E@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Below is a message I just posted to the debian Developers list about my 
+latest test packages (not uploaded to Debian and not official packages).
 
-On 27 Nov 2001, Justin Smith wrote:
+What is probably of more interest to you is the locations that I've put 
+header files in, here's what I'm currently installing:
+/usr/include
+/usr/include/linux
+/usr/include/linux/flask
+/usr/include/linux/flask/class_to_string.h
+/usr/include/linux/flask/initial_sid_to_string.h
+/usr/include/linux/flask/avc.h
+/usr/include/linux/flask/avc_ss.h
+/usr/include/linux/flask/av_perm_to_string.h
+/usr/include/linux/flask/flask.h
+/usr/include/linux/flask/security.h
+/usr/include/linux/flask/psid.h
+/usr/include/linux/flask/common_perm_to_string.h
+/usr/include/linux/flask/syscalls.h
+/usr/include/linux/flask/flask_types.h
+/usr/include/linux/flask/av_permissions.h
+/usr/include/linux/flask/av_inherit.h
+/usr/include/selinux
+/usr/include/selinux/ss.h
+/usr/include/selinux/lsm.h
+/usr/include/selinux/ipc_secure.h
+/usr/include/selinux/proc_secure.h
+/usr/include/selinux/context.h
+/usr/include/selinux/get_sid_list.h
+/usr/include/selinux/fs_secure.h
+/usr/include/selinux/get_default_type.h
+/usr/include/selinux/socket_secure.h
+/usr/include/selinux/flask_util.h
+/usr/include/selinux/get_user_sid.h
 
-> When I did make install in module, it did not complete successfully
-> because the makefile expected a directory to be named
-<snip>
-> When I moved asm-i386 to asm it worked and I was able to boot
-> selinux.
+I would like some feedback from the authors of what they think about these 
+locations.  I will not put the include files in /usr/local, but I am open to 
+suggestions of other ways of arranging them under /usr/include.
 
-include/asm and arch/machine are created by the 'make dep' in the BUILDING
-instructions.  They are symbolic links that are automatically set to refer
-to the appropriate architecture.  Of course, at present, we only support
-x86, but by using these symbolic links, we make it easier to add support
-for other architectures in the future.  I'm not sure why your include/asm
-link was not set by the time you did the 'make install' in the module
-directory unless you did a 'make clean'.
+Also it would be conveniant for people who are develping distributions if 
+there was a suggested location for header files that worked with the LSB 
+directory scheme...
 
-> Having done so, I received the following messages:
+
+Subject: Re: SE Linux packages of login, sshd, tar, stat, findutils, 
+fileutils, and [xkg]dm
+Date: Tue, 27 Nov 2001 20:44:23 +0100
+From: Russell Coker <russell@coker.com.au>
+To: Giacomo Catenazzi <cate@debian.org>, debian-devel@lists.debian.org
+
+On Tue, 27 Nov 2001 17:41, Giacomo Catenazzi wrote:
+> > PS  I hope to have some test packages of SE-Linux enabled utilities on
+> > http://www.coker.com.au/selinux/ within 24 hours, and a complete set of
+> > SE-Linux Debian packages (apart from [xkg]dm) within a week.
 >
-> avc:  denied  { mounton } for  pid=75 exe=/bin/mount path=/bus/usb
-> dev=00:03 ino=4459
->    scontext=system_u:system_r:mount_t
->    tcontext=system_u:object_r:proc_t
->    tclass=dir
+> do you need some help?
 
-Ok, so you are mounting another filesystem under /proc.  Add a 'allow
-mount_t proc_t:dir mounton;' rule to policy/domains/system/mount.te.
+Yes!
 
-> avc:  denied  { search } for  pid=93 exe=/bin/cat dev=00:08 ino=1
->    scontext=system_u:system_r:initrc_t
->    tcontext=system_u:object_r:unlabeled_t
->    tclass=dir
->
-> avc:  denied  { read } for  pid=93 exe=/bin/cat path=/devices dev=00:08
-> ino=2
->    scontext=system_u:system_r:initrc_t
->    tcontext=system_u:object_r:unlabeled_t
->    tclass=file
->
-> avc:  denied  { getattr } for  pid=93 exe=/bin/cat path=/devices
-> dev=00:08 ino=2
->    scontext=system_u:system_r:initrc_t
->    tcontext=system_u:object_r:unlabeled_t
->    tclass=file
+Firstly check out http://www.coker.com.au/selinux/ .
 
-This indicates that you are using a filesystem type that isn't recognized
-by SELinux, so it is left unlabeled.  This is most likely some kind of
-pseudo filesystem type, like usbdevfs.  The handling for each pseudo
-filesystem type is specialized to provide reasonable security semantics
-for that type.  At present, SELinux defines labeling behaviors for procfs,
-devpts, tmpfs and devfs.  I haven't used usbdevfs or looked at its
-implementation, so I don't know whether it should just use the same
-labeling behavior as devfs or not.
+Please test compiling all the source first.  First compile the kernel-patch
+package (it's a build depdendency for libselinux-dev which everything else
+build-depends on).  After installing it build the libselinux-dev and then
+build the stat package.
 
-> avc:  denied  { write } for  pid=10 exe=/bin/bash path=/etc/mtab
-> dev=03:01 ino=28440
->    scontext=system_u:system_r:initrc_t
->    tcontext=system_u:object_r:file_t
->    tclass=file
+Then of course you can't do anything without having a kernel to boot (which
+is easily done) and a login package to allow you to login (which I haven't
+packaged yet).
 
-This is typical on the first boot of the SELinux kernel.  Run setfiles
-again, as recommended by step 15 of the README.
-
-> avc:  denied  { create } for  pid=296 exe=/sbin/ipchains
->    scontext=system_u:system_r:initrc_t
->    tcontext=system_u:system_r:initrc_t
->    tclass=rawip_socket
->
-> avc:  denied  { setopt } for  pid=296 exe=/sbin/ipchains lport=255
->    scontext=system_u:system_r:initrc_t
->    tcontext=system_u:system_r:initrc_t
->    tclass=rawip_socket
-
-Ok, so you either need to grant these permissions to initrc_t if you
-want to allow this to run, or you need to define a separate domain for
-ipchains that can do this.
-
-> avc:  denied  { search } for  pid=838 exe=/usr/sbin/httpd
-> path=/www/tomcat dev=03:05 ino=336750
->    scontext=system_u:system_r:httpd_t
->    tcontext=system_u:object_r:httpd_user_script_rw_t
->    tclass=dir
-
-I'm not sure why httpd_t doesn't have this permission.  You can certainly
-add it.
-
-> (plus many messages connected with running the Gnome desktop)
-
-Did you follow the instructions in step 4 prior to trying to run
-GNOME?
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+-- 
+http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
+http://www.coker.com.au/projects.html Projects I am working on
+http://www.coker.com.au/~russell/     My home page
 
 --
 You have received this message because you are subscribed to the selinux list.
