@@ -1,34 +1,37 @@
-Date: Fri, 12 Apr 2002 10:48:22 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: Tom <tom@lemuria.org>, <SELinux@tycho.nsa.gov>
+Date: Fri, 12 Apr 2002 16:50:34 +0200
+From: Tom <tom@lemuria.org>
+To: SELinux@tycho.nsa.gov
 Subject: Re: db conflict ?
-In-Reply-To: <20020412143847.D5446281EF@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0204121042260.21729-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020412165034.A29953@lemuria.org>
+References: <20020412161729.B29624@lemuria.org> <Pine.GSO.4.33.0204121019570.21729-100000@raven>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.GSO.4.33.0204121019570.21729-100000@raven>; from sds@tislabs.com on Fri, Apr 12, 2002 at 10:21:48AM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, Apr 12, 2002 at 10:21:48AM -0400, Stephen Smalley wrote:
+> > One thing that I noticed during this setup was that the patched login
+> > and ssh tools do not appear to work if they run on a non-lsm kernel.
+> > While this is probably the right thing to do security-wise, it also
+> > means that keeping a non-SELinux kernel as "rescue system" on-disk
+> > doesn't help a thing.
+> 
+> I can't speak for the Debian selinux packages, but the upstream SELinux
+> modified daemons and utilities run fine on non-SELinux kernels and non-LSM
+> kernels.  They simply fall back to the ordinary processing in that case.
 
-On Fri, 12 Apr 2002, Russell Coker wrote:
+I didn't spot any differences in the diff file, and I've just looked
+through it trying to find my remote login bug.
 
-> So what directory would we use?  /etc/selinux?
-
-Probably not.  You are using /etc/selinux to store the policy source
-files, right (and using the policy_src_t type)?  It seems preferable to
-keep the compiled policy in a separate directory and type
-(policy_config_t).  That should ultimately allow us to set up a direct
-pipeline enforced by the kernel from the policy sources through
-checkpolicy to the compiled policy.  I was thinking of a direct
-subdirectory of /, e.g. /selinux.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Anyway, I dig both ways of doing it, and I can always keep a rescue CD
+near, I'm just used to having a 2nd kernel around.
 
 
-
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/D88D35A6 2001-11-14 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = 276B B7BB E4D8 FCCE DB8F  F965 310B 811A D88D 35A6
 
 --
 You have received this message because you are subscribed to the selinux list.
