@@ -1,28 +1,36 @@
-Message-ID: <419373C8.8050701@redhat.com>
-Date: Thu, 11 Nov 2004 09:14:32 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <20041111185628.79458.qmail@web50601.mail.yahoo.com>
+Date: Thu, 11 Nov 2004 10:56:28 -0800 (PST)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: Re: How come security_get_boolean_pending returns true when a boolean is on.
+To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
+   SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <419373C8.8050701@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-Subject: How come security_get_boolean_pending returns true when a boolean
- is on.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-getsebool -a
-mozilla_writehome --> active: 1 pending: 1
-named_write_master_zones --> active: 0 pending: 0
-nfs_export_all_ro --> active: 0 pending: 0
-nfs_export_all_rw --> active: 0 pending: 0
-read_default_t --> active: 1 pending: 1
-run_ssh_inetd --> active: 0 pending: 0
-secure_mode --> active: 0 pending: 0
-spamassasin_can_network --> active: 0 pending: 0
-ssh_sysadm_login --> active: 1 pending: 1
-staff_read_sysadm_file --> active: 1 pending: 1
 
-Shouldn't this be
-staff_read_sysadm_file --> active: 1 pending: 0
+>Shouldn't this be
+>staff_read_sysadm_file --> active: 1 pending: 0
+
+That depends....SE Linux interface remembers booleans that get set but haven't
+been committed. There isn't an explicit "rollback" command to match the commit. I
+tried to fix togglesebool and setsebool to do a rollback by walking the table and
+setting all pending values to the active value.
+
+We you using current tools and how did you get it like that?
+
+-Steve Grubb
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Check out the new Yahoo! Front Page. 
+www.yahoo.com 
+ 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
