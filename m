@@ -1,73 +1,90 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h690I3Ha021171
-	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2003 20:18:04 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h690I2H5017328
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 00:18:02 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h690HtRX017324 for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 00:18:00 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Colin Walters <walters@verbum.org>, selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h692BfHa021395
+	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2003 22:11:42 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h692AjnJ025140
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 02:10:45 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+	by jazzswing.ncsc.mil  with ESMTP id h692Aihr025137
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 02:10:44 GMT
 Subject: Re: context trouble with 2.5 bits
-Date: Wed, 9 Jul 2003 10:17:42 +1000
+From: Colin Walters <walters@verbum.org>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200307091017.42539.russell@coker.com.au>
 References: <1057701768.25921.53.camel@columbia>
-In-Reply-To: <1057701768.25921.53.camel@columbia>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200307091017.42539.russell@coker.com.au>
+	 <200307091017.42539.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1057716690.5878.25.camel@columbia>
+Mime-Version: 1.0
+Date: 08 Jul 2003 22:11:30 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 9 Jul 2003 08:02, Colin Walters wrote:
-> Warning!  Could not get new context for tty1, not relabeling.
+On Tue, 2003-07-08 at 20:17, Russell Coker wrote:
+> On Wed, 9 Jul 2003 08:02, Colin Walters wrote:
+> > Warning!  Could not get new context for tty1, not relabeling.
+> 
+> Which may mean that the original type for the device node is not one that is 
+> expected.  Please tell me what "ls --context /dev/tty1" reports.
 
-Which may mean that the original type for the device node is not one that is 
-expected.  Please tell me what "ls --context /dev/tty1" reports.
+meta:/var/log# ls --context /dev/tty1
+crw-------  root     tty      system_u:object_r:tty_device_t   /dev/tty1
+meta:/var/log#
 
-However this should have nothing to do with the ability to login and run a 
-session in the correct context.
+> However this should have nothing to do with the ability to login and run a 
+> session in the correct context.
 
-> ...followed by a bunch of avc denials about tty1 and /root, and then my
-> context is:
->
-> meta:~# id
-> uid=0(root) gid=0(root) groups=0(root) context:system_u:system_r:user_t
+Yeah.
 
-This is wrong.  There's a domain_auto_trans() rule to transition to user_t for 
-when using a login program that is not aware of SE Linux.  So it looks like 
-the target context is not being set.
+> This is wrong.  There's a domain_auto_trans() rule to transition to user_t for 
+> when using a login program that is not aware of SE Linux.  So it looks like 
+> the target context is not being set.
 
-Under the new scheme I believe that some file is supposed to be written under 
-/proc for this.  Make sure that the right stuff is mounted under /proc, the 
-file is available, etc.
+Well this is embarassing, but apparently HAVE_SELINUX wasn't getting
+defined by my openssh build (the debian/rules file was overriding
+CFLAGS).  Now that I've fixed that, I get:
 
-Also while in permissive mode do some tests at the command line, do:
-# echo user_u:user_r:user_t > /proc/whatever-it-is
-# id
+Jul  8 21:41:52 meta sshd[642]: Accepted password for root from ::ffff:192.168.1.100 port 36286 ssh2
+Jul  8 21:41:52 meta sshd[642]: fatal: Failed to get default security context for root.
 
-Then id should report a context of user_u:user_r:user_t if the context change 
-is working correctly.
+The same thing happens with a normal user.
 
-> Now, since Debian uses the login in shadow-utils (not the one in
-> util-linux), I had to port over the patch, but I'm fairly sure that's
-> not the problem, because I get the exact same symptoms when logging in
-> over the patched ssh.
->
-> Does anyone have any ideas for what could be going wrong?
+> Under the new scheme I believe that some file is supposed to be written under 
+> /proc for this.  Make sure that the right stuff is mounted under /proc, the 
+> file is available, etc.
+> 
+> Also while in permissive mode do some tests at the command line, do:
+> # echo user_u:user_r:user_t > /proc/whatever-it-is
+> # id
+> 
+> Then id should report a context of user_u:user_r:user_t if the context change 
+> is working correctly.
 
-Does the NSA supplied patch for 2.5.x do the same things as the patch for 
-2.4.x?  Maybe there's something new in the NSA tree that's necessary and that 
-merely calling execve_secure() is not enough.
+Here's what I get:
 
-Does your /etc/security/default_contexts have the right stuff?
+meta:/var/log# cat /proc/self/attr/current  && echo
+system_u:system_r:user_t
+meta:/var/log# echo root:system_r:sysadm_r > /proc/self/attr/current
+meta:/var/log# cat /proc/self/attr/current  && echo
+system_u:system_r:user_t
+meta:/var/log#
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+> Does the NSA supplied patch for 2.5.x do the same things as the patch for 
+> 2.4.x?  Maybe there's something new in the NSA tree that's necessary and that 
+> merely calling execve_secure() is not enough.
+
+Well, there is no execve_secure() anymore; now you have to call
+setexeccon.  But their patch does appear to be doing the right things,
+at least according to their PORTING document.
+
+> Does your /etc/security/default_contexts have the right stuff?
+
+It looks like this:
+
+system_r:local_login_t  user_r:user_t staff_r:staff_t
+system_r:sshd_t         user_r:user_t staff_r:staff_t
+system_r:crond_t        user_r:user_crond_t staff_r:staff_crond_t system_r:system_crond_t
 
 
 --
