@@ -1,47 +1,52 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA26233
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 06:38:56 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id KAA23243
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 10:37:07 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id KAA23239
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 10:37:06 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Debian User <rogelio@evoworks.evoserve.com>, selinux@tycho.nsa.gov
-Subject: Re: selinux system from scratch
-Date: Mon, 29 Apr 2002 12:38:57 +0200
-References: <20020429051308.0851A81C48@coffeesaur2.evoserve.com>
-In-Reply-To: <20020429051308.0851A81C48@coffeesaur2.evoserve.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA26792
+	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 08:58:41 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA28283
+	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 12:57:28 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id MAA28279 for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 12:57:27 GMT
+Date: Mon, 29 Apr 2002 08:57:58 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: "use"
+In-Reply-To: <20020428200027.717963850@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0204290854320.19520-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020429103857.5E5382362@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 29 Apr 2002 07:13, Debian User wrote:
-> Im going to start from scratch now i guess. Did anybody do that
-> successfully? Just a stripped down system. Just the Bare minimum to host
-> an apache server.
 
-Yes.  Start by installing my packages from http://www.coker.com.au/selinux/ , 
-then install the kernel-patch-2.*-lsm package and build a kernel with it 
-(where * matches your kernel version).
+On Sun, 28 Apr 2002, Russell Coker wrote:
 
-Then remove policy files (.te files) for packages you don't use from 
-/usr/share/selinux/policy/current and run "make install" in that directory.  
-Then run "make relabel" in that directory before rebooting into the new 
-kernel.
+> What's the deal with the following section of the global macros file?  Why
+> are there three things aliased to use?  Is the plan to actually enforce a
+> distinction in a future version?  Or did a past version support a distinction
+> and is this a compatability thing?
+>
+> #
+> # Permissions to use file descriptions created by another domain.
+> #
+> define(`use_fd_perms', `use')
+> define(`inherit_fd_perms', `use')
+> define(`receive_fd_perms', `use')
 
-Let me know if you have any problems with this.
+The original (pre-LSM) SELinux provided a distinction among these three
+cases that was eliminated from the LSM-based SELinux.  The macros were
+retained for compatibility, but there is no intent to revive the
+distinction.  This change is documented more completely along with a
+summary of all the changes between the original SELinux and the LSM-based
+SELinux in a technical report that is pending release approval from the
+NSA.
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
