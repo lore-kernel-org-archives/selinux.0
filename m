@@ -1,61 +1,65 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HF9urT014228
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 11:09:56 -0400 (EDT)
-Received: from mcfeely.r00td0wn.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7HF9sKV018778
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 15:09:55 GMT
-Message-ID: <41221FC2.8050403@diyab.net>
-Date: Tue, 17 Aug 2004 11:09:54 -0400
-From: Timothy Wood <timothy@diyab.net>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HGO5rT014636
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 12:24:05 -0400 (EDT)
+Received: from web51502.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i7HGNP2E001687
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 16:23:25 GMT
+Message-ID: <20040817162404.22613.qmail@web51502.mail.yahoo.com>
+Date: Tue, 17 Aug 2004 09:24:04 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: Policy flexibility & multiple Policy issue
+To: sds@epoch.ncsc.mil
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: Colin Walters <walters@verbum.org>
-CC: Stephen Smalley <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov,
-   Nalin The Nalinator Dahyabhai <nalin@redhat.com>,
-   Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [patch] setting default role from ssh
-References: <1092513257.4515.28.camel@nexus.verbum.private>	 <1092665369.16631.53.camel@moss-spartans.epoch.ncsc.mil> <1092670862.9971.20.camel@nexus.verbum.private>
-In-Reply-To: <1092670862.9971.20.camel@nexus.verbum.private>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/alternative; boundary="0-1771607051-1092759844=:17551"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--0-1771607051-1092759844=:17551
+Content-Type: text/plain; charset=us-ascii
+
+On  Mon, 12 Jul 2004 08:50, Stephen Smalley wrote:
+>You can develop a system that supports several different policies
+>without providing genuine flexibility.  Policy flexibility goes beyond 
+>merely supporting some list of known policies.  Hence, a policy >flexible system will support multiple policies, but not every system 
+>that supports multiple policies is policy flexible.
+ 
+Now, I know that flexibility requires controlling the propagation
+of access rights, enforcing fine-grained access rights
+and supporting the revocation of previously granted access
+rights.
+
+But, What about supporting dynamic policy vs. supporting policy flexibility?
+Is there some differences between the two?
+ 
+Thanks,
+ 
+Best regards,
+Park Lee
 
 
 
-Colin Walters wrote:
-| On Mon, 2004-08-16 at 10:09 -0400, Stephen Smalley wrote:
-|
-| I wonder if the BSD people are really actively using it.  I guess though
-| even if they weren't, the OpenSSH developers would be averse to breaking
-| backwards compatibility for those who were.
-|
-|
+		
+---------------------------------
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+--0-1771607051-1092759844=:17551
+Content-Type: text/html; charset=us-ascii
 
-It is still used.  Although the way they use it, from what I have run
-into, is more like a way to define the authentication method you want to
-use.  For example if you wanted to log in using skey you would use
-
-username:skey@hostname
-
-so maybe, as colin posted, using this
-
-username/role:selinux@hostname
-
-would be best.  If selinux is specified as the style it splits the
-username and the desired role seperated by the / and tries to login
-using that?
-
-Timothy,
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBIh/CPT0XLCkCs2ARArh8AKCE3bwnVg8mI+D35asQn1kL4h+IIACfQDxk
-SFnMIQK0+7Tw1lfvwOERxEs=
-=L90+
------END PGP SIGNATURE-----
+<DIV>
+<DIV>On&nbsp; Mon, 12 Jul 2004 08:50, Stephen Smalley wrote:</DIV>
+<DIV>&gt;You can develop a system that supports several different policies<BR>&gt;without providing genuine flexibility.&nbsp; Policy flexibility goes beyond <BR>&gt;merely supporting some list of known policies.&nbsp; Hence, a policy &gt;flexible system will support multiple policies, but not every system </DIV>
+<DIV>&gt;that supports multiple policies is policy flexible.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Now, I know that flexibility requires controlling the propagation<BR>of access rights, enforcing fine-grained access rights<BR>and supporting the revocation of previously granted access<BR>rights.<BR></DIV>
+<DIV>But, What about supporting dynamic policy vs. supporting policy flexibility?<BR>Is there some differences between the two?</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Best regards,<BR>Park Lee<BR></DIV></DIV><p>
+		<hr size=1>Do you Yahoo!?<br>
+<a href="http://us.rd.yahoo.com/mail_us/taglines/50x/*http://promotions.yahoo.com/new_mail/static/efficiency.html">Yahoo! Mail</a> - 50x more storage than other providers!
+--0-1771607051-1092759844=:17551--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
