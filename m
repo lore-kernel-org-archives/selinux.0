@@ -1,44 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92CxosJ002392
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 08:59:50 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h92Cw1Zt020800
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 12:58:01 GMT
-Received: from nox.lemuria.org ([213.191.86.35])
-	by jazzswing.ncsc.mil  with ESMTP id h92Cw0M3020791
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 12:58:00 GMT
-Date: Thu, 2 Oct 2003 14:59:39 +0200
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: patched wdm (new API)
-Message-ID: <20031002145936.A16412@lemuria.org>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92EZjsJ003339
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 10:35:45 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h92EZi7d028039
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 14:35:44 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h92EZiRn028036 for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 14:35:44 GMT
+Subject: Re: assertions in kernel
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: James Morris <jmorris@redhat.com>
+Cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <Pine.LNX.4.44.0310020733290.16953-100000@thoron.boston.redhat.com>
+References: 
+	 <Pine.LNX.4.44.0310020733290.16953-100000@thoron.boston.redhat.com>
+Content-Type: text/plain
+Message-Id: <1065105309.31707.64.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: 02 Oct 2003 10:35:09 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi everyone -
+On Thu, 2003-10-02 at 07:43, James Morris wrote:
+> On Wed, 1 Oct 2003, James Morris wrote:
+> 
+> > I don't think relabeling files from kernelspace is a good idea.  A better 
+> > approach may be to use an implicit label if a kernel assertion fails.
+> 
+> Just to clarify following an off-list enquiry, what I mean by an implicit
+> label is that the kernel returns 'unlabeled_t' following an assertion
+> failure for a file, but does not change the disk structure.  This should
+> be transparent to the user APIs.
 
-I have patched the current wdm version so we have again an SELinux-aware
-graphical login available.
-
-Diff file and Debian package for Sid are on my website
-(http://selinux.lemuria.org)
-
-I have submitted the patch upstream for inclusion into the wdm tree.
-
-
-I also would like to congratulate everyone who was involved in creating
-the new API. It was much, much easier to patch wdm this time around,
-and it required less total and especially less intrusive changes.
-
-
-Tom
+The SELinux kernel module can internally mark the inode with the
+unlabeled SID and use that for its own access controls, but it cannot
+"filter" getxattr requests in this manner.  The LSM hooks only support
+access control, not data filtering.  Hence, if you truly want the file
+to appear to userspace as if it had the unlabeled context, then the
+SELinux module would need to invoke the inode's setxattr method with
+that context.
 
 -- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
