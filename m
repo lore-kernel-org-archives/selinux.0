@@ -1,58 +1,53 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7J4tBrT024937
-	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 00:55:12 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7J4t8EE016116
-	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 04:55:10 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7J4vFrT024956
+	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 00:57:15 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7J4uWpw028952
+	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 04:56:33 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: idea - running setfiles out of inetd!
-Date: Thu, 19 Aug 2004 14:55:02 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>,
-   Linux Hotplug Dev List <linux-hotplug-devel@lists.sourceforge.net>
-References: <20040817194712.GV18321@lkcl.net> <200408181956.46017.russell@coker.com.au> <20040818160459.GH19646@lkcl.net>
-In-Reply-To: <20040818160459.GH19646@lkcl.net>
+To: Carlos =?iso-8859-1?q?An=EDsio_Monteiro?= <monteiro@ipen.br>
+Subject: Re: Information about execute_no_trans permission
+Date: Thu, 19 Aug 2004 14:57:10 +1000
+Cc: selinux <selinux@tycho.nsa.gov>
+References: <41236128.9080709@ipen.br>
+In-Reply-To: <41236128.9080709@ipen.br>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200408191455.02780.russell@coker.com.au>
+Message-Id: <200408191457.10694.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 19 Aug 2004 02:04, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > What if udev spawns "setfiles -q -s" and then sends the file names down
-> > the pipe to it only closing the pipe after a certain time period of no
-> > new nodes?
+On Thu, 19 Aug 2004 00:01, Carlos Anísio Monteiro <monteiro@ipen.br> wrote:
+> I would like know how work the *execute_no_trans permission*.
+> Is it transition ?
+> How I would interprete this avc message, for sample.
 >
->  okay, cool...
->
->  so.... hey yes, of course.
->
->  yes, so that could be run from the main udev process, i get it.
->
->  and you exec each udevstart to create the file name, and then
->  send the same filename down to the "setfiles -q -s".
+> avc:  denied  { execute_no_trans } for  pid=1873
+> exe=/usr/sbin/boserver-apache
+> path=/bin/bash dev=hda3 ino=94777 scontext=system_u:system_r:httpd_t
+> tcontext=system_u:object_r:shell_exec_t tclass=file
 
-Yes.
+boserver-apache (domain httpd_t) is trying to execute /bin/bash (type 
+shell_exec_t).  There is no rule specifying an automatic domain transition so 
+therefore this is a request to execute without transition (execute_no_trans).
 
->  is using popen() okay to do that?
+If you want to allow this then use the policy:
 
-Should be.
+can_exec(httpd_t, shell_exec_t)
 
->  what implications [on policy writing and also security]
->  will it have to be running setfiles from inside udev
->  (bearing in mind that popen involves a pipe and a fork)
+If you want it to run in a different domain then do something like the 
+following:
 
-Nothing significant.  I don't think we'll have a domain transition (don't want 
-it to relabel arbitrary files), just have it run in udev_t (which should 
-already have most if not all the access needed for this.
+domain_auto_trans(httpd_t, shell_exec_t, target_domain)
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
