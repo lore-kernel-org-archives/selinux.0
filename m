@@ -1,167 +1,252 @@
-Subject: RE: Patching SRPM utilities produces rejects on RH9
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Kratzer, James R." <JamesK@xetron.com>
-Cc: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
-In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A36@s3cin>
-References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A36@s3cin>
-Content-Type: text/plain
-Message-Id: <1063309671.16884.105.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: How about future of MLS?
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Wu Yanjun <yanjunwu@sonata.iscas.ac.cn>,
+   SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <1063129289.8041.613.camel@moss-spartans.epoch.ncsc.mil>
+References: <200309080810.12991.yanjunwu@sonata.iscas.ac.cn>
+	 <1063023949.8041.42.camel@moss-spartans.epoch.ncsc.mil>
+	 <200309091050.57371.yanjunwu@sonata.iscas.ac.cn>
+	 <1063129289.8041.613.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed; boundary="=-ZGZdF/ZQsCGYpzwJS07T"
+Message-Id: <1063312550.28296.2.camel@colossus.columbia.tresys.com>
 Mime-Version: 1.0
-Date: 11 Sep 2003 15:47:51 -0400
+Date: Thu, 11 Sep 2003 16:35:50 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-09-11 at 15:32, Kratzer, James R. wrote:
-> I don't believe that the SRPMS are already patched and here is why.  Of the
-> 9 hunks in the patch, 8 are successful and 1 fails.  Comparing the original
-> source file (login.c.orig) to the patched source file (login.c) I can see
-> that applying the patch has added "#ifdef WITH_SELINUX" blocks to the
-> original source file.  If the original soruce files (those SRPMS included
-> with the userland archive) are already patched, where are the "#ifdef
-> WITH_SELINUX" blocks in the original file? What am I missing here?
 
-$ wget http://www.nsa.gov/selinux/archives/selinux-usr-2003081307.tgz
-<snip>
-15:42:46 (122.47 KB/s) - `selinux-usr-2003081307.tgz' saved [23578929/23578929]
+--=-ZGZdF/ZQsCGYpzwJS07T
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-$ tar xzf selinux-usr-2003081307.tgz
-$ cd selinux-usr/SRPMS
-$ rpm -ivh util-linux-2.11y-19.src.rpm
-<snip>
-1:util-linux             ########################################### [100%]
+On Tue, 2003-09-09 at 13:41, Stephen Smalley wrote:
+> Regardless of whether this approach is taken, the MLS configuration
+> requires further work to correctly map each SELinux permission to the
+> corresponding set of MLS base permissions (information flows), and the
+> TE configuration requires further work to identify domains that need to
+> act as trusted subjects.  Polyinstantiated / multi-level directory
+> support will be needed to support userspace, and a program for selecting
+> the current level will be needed.
 
-$ grep selinux /usr/src/redhat/SPECS/util-linux.spec
-Patch132: util-linux-selinux.patch
-%patch132 -p1 -b .selinux
+I have attached and included below two patches against the latest
+selinux-usr to help fix the mls configuration for SELinux. This is to
+support our work on information flow analysis that will be released
+soon. The first patch modifies policy/mls to support the object class
+changes. The base permissions assigned are meant to be consistent with
+the existing mappings, but anyone who wants to use MLS should
+review these changes. The second patch adds support to the checkpolicy
+Makefile for compiling with MLS support.
 
-$ ls -l /usr/src/redhat/SOURCES/util-linux-selinux.patch
--rw-rw-r--    1 root     root        14372 Jul  9 13:19 /usr/src/redhat/SOURCES/util-linux-selinux.patch
-
-$ cd /usr/src/redhat/SPECS
-$ rpmbuild -bp util-linux.spec
-Executing(%prep): /bin/sh -e /var/tmp/rpm-tmp.74796
-+ umask 022
-+ cd /usr/src/redhat/BUILD
-+ LANG=C
-+ export LANG
-+ cd /usr/src/redhat/BUILD
-+ rm -rf util-linux-2.11y
-+ /usr/bin/bzip2 -dc /usr/src/redhat/SOURCES/util-linux-2.11y.tar.bz2
-+ tar -xf -
-+ STATUS=0
-+ '[' 0 -ne 0 ']'
-+ cd util-linux-2.11y
-+ /usr/bin/gzip -dc /usr/src/redhat/SOURCES/kbdrate.tar.gz
-+ tar -xf -
-+ STATUS=0
-+ '[' 0 -ne 0 ']'
-+ /usr/bin/gzip -dc /usr/src/redhat/SOURCES/floppy-0.12.tar.gz
-+ tar -xf -
-+ STATUS=0
-+ '[' 0 -ne 0 ']'
-++ /usr/bin/id -u
-+ '[' 0 = 0 ']'
-+ /bin/chown -Rhf root .
-++ /usr/bin/id -u
-+ '[' 0 = 0 ']'
-+ /bin/chgrp -Rhf root .
-+ /bin/chmod -Rf a+rX,g-w,o-w .
-+ echo 'Patch #0 (util-linux-2.11y-rhconfig.patch):'
-Patch #0 (util-linux-2.11y-rhconfig.patch):
-+ patch -p1 -b --suffix .rhconfig -s
-+ echo 'Patch #1 (util-linux-2.11r-nochkdupexe.patch):'
-Patch #1 (util-linux-2.11r-nochkdupexe.patch):
-+ patch -p1 -b --suffix .nochkdupexe -s
-+ echo 'Patch #2 (util-linux-2.11a-gecossize.patch):'
-Patch #2 (util-linux-2.11a-gecossize.patch):
-+ patch -p1 -b --suffix .gecos -s
-+ echo 'Patch #4 (util-linux-2.11n-mount.patch):'
-Patch #4 (util-linux-2.11n-mount.patch):
-+ patch -p1 -b --suffix .mount -s
-+ echo 'Patch #21 (util-linux-2.9v-nonroot.patch):'
-Patch #21 (util-linux-2.9v-nonroot.patch):
-+ patch -p1 -b --suffix .nonroot -s
-+ echo 'Patch #27 (util-linux-2.11w-moretc.patch):'
-Patch #27 (util-linux-2.11w-moretc.patch):
-+ patch -p1 -b --suffix .moretc -s
-+ echo 'Patch #70 (util-linux-2.11r-miscfixes.patch):'
-Patch #70 (util-linux-2.11r-miscfixes.patch):
-+ patch -p1 -b --suffix .miscfixes -s
-+ cp /usr/src/redhat/SOURCES/cramfs.h /usr/src/redhat/SOURCES/mkcramfs.c .
-+ echo 'Patch #100 (mkcramfs.patch):'
-Patch #100 (mkcramfs.patch):
-+ patch -p1 -b --suffix .mkcramfs -s
-+ echo 'Patch #101 (mkcramfs-quiet.patch):'
-Patch #101 (mkcramfs-quiet.patch):
-+ patch -p1 -b --suffix .quiet -s
-+ echo 'Patch #102 (util-linux-2.11n-mkcramfs-pgsize.patch):'
-Patch #102 (util-linux-2.11n-mkcramfs-pgsize.patch):
-+ patch -p1 -b --suffix .blksize -s
-+ cp /usr/src/redhat/SOURCES/nologin.c /usr/src/redhat/SOURCES/nologin.8 .
-+ echo 'Patch #206 (mount-2.10r-kudzu.patch):'
-Patch #206 (mount-2.10r-kudzu.patch):
-+ patch -p1 -b --suffix .kudzu -s
-+ sed -e 's:^MAN_DIR=.*:MAN_DIR=/usr/share/man:' -e 's:^INFO_DIR=.*:INFO_DIR=/usr/share/info:' MCONFIG
-+ mv MCONFIG.new MCONFIG
-+ echo 'Patch #103 (util-linux-2.11r-ownerumount.patch):'
-Patch #103 (util-linux-2.11r-ownerumount.patch):
-+ patch -p1 -b --suffix .ownerumount -s
-+ echo 'Patch #106 (util-linux-2.11w-swaponsymlink-57300.patch):'
-Patch #106 (util-linux-2.11w-swaponsymlink-57300.patch):
-+ patch -p1 -b --suffix .swaponsymlink -s
-+ echo 'Patch #107 (util-linux-2.11y-procpartitions-37436.patch):'
-Patch #107 (util-linux-2.11y-procpartitions-37436.patch):
-+ patch -p1 -b --suffix .procpartitions -s
-+ echo 'Patch #109 (util-linux-2.11f-rawman.patch):'
-Patch #109 (util-linux-2.11f-rawman.patch):
-+ patch -p1 -b --suffix .rawman -s
-+ echo 'Patch #113 (util-linux-2.11r-ctty3.patch):'
-Patch #113 (util-linux-2.11r-ctty3.patch):
-+ patch -p1 -b --suffix .ctty3 -s
-+ echo 'Patch #116 (util-linux-2.11n-loginutmp-66950.patch):'
-Patch #116 (util-linux-2.11n-loginutmp-66950.patch):
-+ patch -p1 -b --suffix .loginutmp -s
-+ echo 'Patch #117 (util-linux-2.11y-moremisc.patch):'
-Patch #117 (util-linux-2.11y-moremisc.patch):
-+ patch -p1 -b --suffix .moremisc -s
-+ echo 'Patch #120 (util-linux-2.11y-skipraid2.patch):'
-Patch #120 (util-linux-2.11y-skipraid2.patch):
-+ patch -p1 -b --suffix .skipraid2 -s
-+ echo 'Patch #123 (util-linux-2.11y-blkgetsize-81069.patch):'
-Patch #123 (util-linux-2.11y-blkgetsize-81069.patch):
-+ patch -p1 -b --suffix .blkgetsize -s
-+ echo 'Patch #124 (util-linux-2.11y-umount-75421.patch):'
-Patch #124 (util-linux-2.11y-umount-75421.patch):
-+ patch -p1 -b --suffix .umount -s
-+ echo 'Patch #125 (util-linux-2.11y-umask-82552.patch):'
-Patch #125 (util-linux-2.11y-umask-82552.patch):
-+ patch -p1 -b --suffix .umask -s
-+ echo 'Patch #126 (util-linux-2.11y-multibyte.patch):'
-Patch #126 (util-linux-2.11y-multibyte.patch):
-+ patch -p1 -b --suffix .multibyte -s
-+ echo 'Patch #127 (util-linux-2.11y-mcookie-83345.patch):'
-Patch #127 (util-linux-2.11y-mcookie-83345.patch):
-+ patch -p1 -b --suffix .mcookie-dumbness -s
-+ echo 'Patch #128 (util-linux-2.11y-ipcs-84243-86285.patch):'
-Patch #128 (util-linux-2.11y-ipcs-84243-86285.patch):
-+ patch -p1 -b --suffix .ipcs -s
-+ echo 'Patch #129 (util-linux-2.11y-s390x.patch):'
-Patch #129 (util-linux-2.11y-s390x.patch):
-+ patch -p1 -b --suffix .s390x -s
-+ echo 'Patch #130 (util-linux-2.11y-login-32bit-lastlog-88574.patch):'
-Patch #130 (util-linux-2.11y-login-32bit-lastlog-88574.patch):
-+ patch -p1 -b --suffix .login32bitcompat -s
-+ echo 'Patch #131 (util-linux-2.11y-sysmap-85407.patch):'
-Patch #131 (util-linux-2.11y-sysmap-85407.patch):
-+ patch -p1 -b --suffix .sysmap -s
-+ echo 'Patch #132 (util-linux-selinux.patch):'
-Patch #132 (util-linux-selinux.patch):
-+ patch -p1 -b --suffix .selinux -s
-+ exit 0
-
+Karl
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+(410)290-1411x134
+
+--- policy/mls.orig     2003-09-12 01:57:22.908376432 -0400
++++ policy/mls  2003-09-12 02:54:16.302461656 -0400
+@@ -79,7 +79,7 @@
+        recv_msg        :       read
+        send_msg        :       write
+        name_bind       :       none
+-}      
++}
+ 
+ common ipc
+ {
+@@ -197,6 +197,10 @@
+        getcap          :       read
+        setcap          :       write
+        share           :       { read write }
++       noatsecure      :       none
++       getattr         :       read
++       setexec         :       write
++       setfscreate     :       write
+ }
+ 
+ class ipc
+@@ -222,26 +226,21 @@
+ class security
+ {
+        compute_av              :       none
+-       transition_sid          :       none
+-       member_sid              :       none
+-       sid_to_context          :       none
+-       context_to_sid          :       none
++       compute_create          :       none
++       compute_member          :       none
++       check_context           :       none
+        load_policy             :       none
+-       get_sids                :       none
+-       change_sid              :       none
+-       get_user_sids           :       none
++       compute_relabel         :       none
++       compute_user            :       none
++       setenforce              :       none
+ }
+ 
+ class system
+ {
+        ipc_info                :       none
+-       avc_toggle              :       none
+-       nfsd_control            :       none
+-       bdflush                 :       none
+        syslog_read             :       none
+        syslog_mod              :       none
+        syslog_console          :       none
+-       ichsid                  :       none    
+ }
+ 
+ class capability
+@@ -276,3 +275,10 @@
+        mknod                   :       none
+        lease                   :       none
+ }
++
++class passwd
++{
++       passwd                  :       write
++       chfn                    :       write
++       chsh                    :       write
++}
+
+
+--- checkpolicy/Makefile.orig   2003-09-12 01:52:03.694904256 -0400
++++ checkpolicy/Makefile        2003-09-12 01:55:08.370829248 -0400
+@@ -4,10 +4,21 @@
+ PREFIX ?= ${DESTDIR}/usr
+ BINDIR ?= $(PREFIX)/bin
+ 
+-CFLAGS = -g -Wall -O2 -pipe
++# Set to y for MLS
++MLS=n
++
++ifeq ($(MLS),y)
++OPTIONS = -DCONFIG_SECURITY_SELINUX_MLS
++OBJS = mls.o
++else
++OPTIONS =
++OBJS =
++endif
++
++CFLAGS = -g $(OPTIONS) -Wall -O2 -pipe
+ override CFLAGS += -include global.h -I. -Iinclude
+ 
+-OBJS = ebitmap.o hashtab.o symtab.o sidtab.o avtab.o policydb.o
+services.o y.tab.o lex.yy.o queue.o write.o checkpolicy.o
++OBJS += ebitmap.o hashtab.o symtab.o sidtab.o avtab.o policydb.o
+services.o y.tab.o lex.yy.o queue.o write.o checkpolicy.o
+ 
+ LIBS=-lfl
+
+
+--=-ZGZdF/ZQsCGYpzwJS07T
+Content-Disposition: attachment; filename=make-patch
+Content-Type: text/plain; name=make-patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- checkpolicy/Makefile.orig	2003-09-12 01:52:03.694904256 -0400
++++ checkpolicy/Makefile	2003-09-12 01:55:08.370829248 -0400
+@@ -4,10 +4,21 @@
+ PREFIX ?= ${DESTDIR}/usr
+ BINDIR ?= $(PREFIX)/bin
+ 
+-CFLAGS = -g -Wall -O2 -pipe
++# Set to y for MLS
++MLS=n
++
++ifeq ($(MLS),y)
++OPTIONS = -DCONFIG_SECURITY_SELINUX_MLS
++OBJS = mls.o
++else
++OPTIONS =
++OBJS =
++endif
++
++CFLAGS = -g $(OPTIONS) -Wall -O2 -pipe
+ override CFLAGS += -include global.h -I. -Iinclude
+ 
+-OBJS = ebitmap.o hashtab.o symtab.o sidtab.o avtab.o policydb.o services.o y.tab.o lex.yy.o queue.o write.o checkpolicy.o
++OBJS += ebitmap.o hashtab.o symtab.o sidtab.o avtab.o policydb.o services.o y.tab.o lex.yy.o queue.o write.o checkpolicy.o
+ 
+ LIBS=-lfl
+ 
+
+--=-ZGZdF/ZQsCGYpzwJS07T
+Content-Disposition: attachment; filename=mls-patch
+Content-Type: text/plain; name=mls-patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- policy/mls.orig	2003-09-12 01:57:22.908376432 -0400
++++ policy/mls	2003-09-12 02:54:16.302461656 -0400
+@@ -79,7 +79,7 @@
+ 	recv_msg	:	read
+ 	send_msg	:	write
+ 	name_bind	:	none
+-}	
++}
+ 
+ common ipc
+ {
+@@ -197,6 +197,10 @@
+ 	getcap		:	read
+ 	setcap		:	write
+ 	share		:	{ read write }
++	noatsecure	:	none
++	getattr		:	read
++	setexec		:	write
++	setfscreate	:	write
+ }
+ 
+ class ipc
+@@ -222,26 +226,21 @@
+ class security
+ {
+ 	compute_av		:	none
+-	transition_sid		:	none
+-	member_sid		:	none
+-	sid_to_context		:	none
+-	context_to_sid		:	none
++	compute_create		:	none
++	compute_member		:	none
++	check_context		:	none
+ 	load_policy		:	none
+-	get_sids		:	none
+-	change_sid		:	none
+-	get_user_sids		:	none
++	compute_relabel		:	none
++	compute_user		:	none
++	setenforce		:	none
+ }
+ 
+ class system
+ {
+ 	ipc_info		:	none
+-	avc_toggle		:	none
+-	nfsd_control		:	none
+-	bdflush			:	none
+ 	syslog_read		:	none
+ 	syslog_mod		:	none
+ 	syslog_console		:	none
+-	ichsid			:	none	
+ }
+ 
+ class capability
+@@ -276,3 +275,10 @@
+ 	mknod			:	none
+ 	lease			:	none
+ }
++
++class passwd
++{
++	passwd			:	write
++	chfn			:	write
++	chsh			:	write
++}
+
+--=-ZGZdF/ZQsCGYpzwJS07T--
 
 
 --
