@@ -1,63 +1,43 @@
 Subject: Re: Multiple contexts
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
-In-Reply-To: <20050112230148.GC11846@lkcl.net>
-References: <20050110232312.GI6967@lkcl.net>
-	 <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050111214818.GE26175@lkcl.net>
-	 <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050112144411.GZ26175@lkcl.net>
-	 <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050112181814.GD26175@lkcl.net>
-	 <1105552982.22495.169.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050112182954.GF26175@lkcl.net>
-	 <1105565236.23136.12.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050112230148.GC11846@lkcl.net>
+Cc: Stephen Bennett <spb@gentoo.org>, ivg2@cornell.edu, SELinux@tycho.nsa.gov
+In-Reply-To: <20050112230724.GD11846@lkcl.net>
+References: <1105390249.8093.21.camel@cobra.ivg2.net>
+	 <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil>
+	 <1105560687.11135.26.camel@cobra.ivg2.net>
+	 <1105566046.3933.5.camel@localhost>  <20050112230724.GD11846@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1105632203.24406.18.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105632387.24406.22.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 13 Jan 2005 11:03:23 -0500
+Date: Thu, 13 Jan 2005 11:06:27 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-12 at 18:01, Luke Kenneth Casson Leighton wrote:
->  yep - and the policy analysis tools would need to understand the
->  new format.
+On Wed, 2005-01-12 at 18:07, Luke Kenneth Casson Leighton wrote:
+>  and you'd need to take all of the files matched by a regexp for one
+>  filetype, and all of the files of the other, work out if there are any
+>  common ones, and those would be your "multiple contexted" files.
+> 
+>  this you could do at policy compilation time.
 
-It isn't a format issue; it is whether the policy is self-contained
-within the binary policy or whether it is distributed throughout the
-filesystem (and more generally, the set of all object attributes).
+No.  As I said, file_contexts is not part of the kernel policy.  It is
+only used by userspace tools like setfiles and restorecon to set the
+extended attributes upon installation to an initial labeling state (or
+to recheck or to restore against that initial labeling state).  If the
+policy is self-contained (as it is currently), then you don't need to
+look at file_contexts or the on-disk attributes in order to determine
+potential information flow, although you may choose to look at them
+after an analysis of the policy in order to see how "real" certain flows
+might be with the current system state.
 
->  1) if someone does a "chcon -t F2 foobar" all bets would be off as
->     far as static analysis is concerned.
+>  the thing is - which is easier: to expect people to do that
+>  analysis themselves [by modifying the default policies]
+>  or to do it in an automated at-pol-compile-time?
 
-Non-tranquility (ability to change the label on a subject or object) is
-an issue, but you can bound it statically in the policy, i.e. the policy
-can already ensure that F1 can never be relabeled to F2 or vice versa. 
-If the policy allows F1 to be relabeled to F2 or vice versa, then that
-fact will also show up in an information flow analysis of the policy,
-without requiring examination of filesystem state.  Also, some further
-controls over relabeling are coming in the MLS work.
-
->  2 ) even if they did chcon -t "F1,F2" foobar, you would still expect
->      them to be doing that as an "interim" measure whilst they were
->      testing something _pending_ formal analysis by putting that
->      into the policy files.
-
-If the mechanism allows it to happen at all, you can't make any
-guarantees without examination of the filesystem state. 
-
->  the analysis would need the macro-munging approach _anyway_ in
->  order to "grok" the new syntax - an intermediate preprocessing
->  stage that "notices" multiple-file-applications (including
->  possibly expanding regexps!)  and ending up with something
->  like this:
-
-No.  The analysis tools operate on policy.conf or binary policy already;
-they don't care about the macros, nor should they.  The raw policy.conf
-or binary policy tells the true story about possible information flow,
-and that is what we want to know.
+The question doesn't make sense, because the automated
+at-pol-compile-time analysis cannot be done if the policy is encoded in
+the filesystem.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
