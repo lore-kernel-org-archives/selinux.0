@@ -1,47 +1,103 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBEGGbIi012442
-	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 11:16:37 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBEGEtq9002985
-	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 16:14:55 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBEGM4Ii012485
+	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 11:22:04 -0500 (EST)
+Received: from web50205.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id iBEGM6fN008615
+	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 16:22:06 GMT
+Message-ID: <20041214162207.5089.qmail@web50205.mail.yahoo.com>
+Date: Tue, 14 Dec 2004 08:22:07 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: [patch] selinux_capget()
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: James Morris <jmorris@redhat.com>,
-   Casey Schaufler <casey@schaufler-ca.com>,
+To: James Morris <jmorris@redhat.com>
+Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
    "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <41BF0C63.30403@trustedcs.com>
-References: 
-	 <Xine.LNX.4.44.0412140104020.30724-100000@thoron.boston.redhat.com>
-	 <1103035060.30808.40.camel@moss-spartans.epoch.ncsc.mil>
-	 <41BF0C63.30403@trustedcs.com>
-Content-Type: text/plain
-Message-Id: <1103040686.30808.74.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Tue, 14 Dec 2004 11:11:26 -0500
+In-Reply-To: <Xine.LNX.4.44.0412140104020.30724-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-12-14 at 10:53, Darrel Goeddel wrote:
-> The whole reason I noticed this is because I have been playing with a secondary 
-> module that makes SELinux the authoritative decision maker for capable 
-> decisions.
 
-This is something we would eventually like to do (i.e. use RBAC/TE as
-the sole basis for granting privileges), but to do it safely, you need
-to perform:
-a) a thorough audit and tightening of the policy, going beyond what is
-in the strict policy today to provide separate domains for every setuid
-root program and to only allow capabilities to those specific domains,
-b) a thorough audit of userspace, going beyond what has been done in
-Fedora Core to ensure that no assumptions are made about uid 0 and that
-SELinux is consulted on access decisions via libselinux avc_has_perm or
-security_compute_av.
- 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+--- James Morris <jmorris@redhat.com> wrote:
 
+> On Mon, 13 Dec 2004, Casey Schaufler wrote:
+> 
+> > Briefly, the intent of the POSIX specification
+> > is that you should not "correct" the effective set
+> > due to the impact of additional policies or
+> > conditions.
+> 
+> How does the application determine the real
+> effective set?
+
+The short answer is that it doesn't. How do you
+determine if you can really open a file for write
+access? The real world behavior is to check what
+you know about (e.g. UID, mode bits) and hope that
+you'll pass any additinoal constraints (e.g. ACLS,
+capabilities, mount options) that might apply. Then
+try it and check the error return.
+
+> (confusing enough terms ? :-)
+
+If you think this is a confusing set of terms you
+should have been in Denver when we found out that
+the term "privilege" had an ISO definition, and so
+we had to change the draft to use something else.
+Leave it that capabilities with all it's terminology
+issues was the best choice.
+
+> Surely it is a reasonable thing to expect to be able
+> to do.
+
+Indeed it is. Unfortunatly, the best suggested
+interface I've seen is on the lines of:
+
+     canido("open(\"/somewhere/file\", O_WRITE)");
+
+which is a generalized version of access(2), that
+notoriously unuseful syscall. Needless to say, such
+an inferface is impracticle and would still yield
+false positives.
+
+> I'm not sure
+> that your example is valid here as euid==0 doesn't
+> mean anything in
+> SELinux (if it did, the application could check that
+> first and infer that
+> it has all capabilities).
+
+Many applications do check to see if they're running
+as root and (attempt to) behave differently if they
+are. And, you will gain no ground whatever if you
+try to get the developers of such applications to
+mend their evil ways. Applications that use privilege
+must be aware of the privilege mechanisms that
+constrain them.
+
+My example come from the capability implementation
+in IRIX, where privilege is granted if you have
+the effective capability or if you are root. In
+Trusted Irix (Trix to it's friends) the uid is not
+used in privilege checks, you must have the 
+capability. The POSIX draft specification permits
+either implementation. The application that cares
+about the security environment it resides in and
+does anything more sophisticated than trying
+the operation and reacting to errors will have a
+tough row to hoe.
+
+
+=====
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Easier than ever with enhanced search. Learn more.
+http://info.mail.yahoo.com/mail_250
 
 --
 This message was distributed to subscribers of the selinux mailing list.
