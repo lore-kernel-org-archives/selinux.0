@@ -1,70 +1,117 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA14723
-	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 17:09:38 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA14764
+	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 17:19:11 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id WAA21769
-	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 22:09:08 GMT
-Received: from saturn.cs.uml.edu (saturn.cs.uml.edu [129.63.8.2])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id WAA21765
-	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 22:09:07 GMT
-Date: Fri, 22 Dec 2000 17:09:36 -0500 (EST)
-Message-Id: <200012222209.eBMM9ao457986@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id WAA22131
+	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 22:18:42 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id WAA22127
+	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 22:18:41 GMT
+Received: from localhost by clipper.gw.tislabs.com (8.9.3/8.9.1) with SMTP id RAA27944
+	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 17:17:45 -0500 (EST)
+Date: Fri, 22 Dec 2000 17:17:45 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
 To: selinux@tycho.nsa.gov
-Subject: procps patches
+Subject: Re: NSA's Security-enchanced Linux now available
+In-Reply-To: <3A438196.C01DD9B3@tac.ch>
+Message-ID: <Pine.SOL.3.95.1001222155551.24350B-100000@clipper.gw.tislabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 Reply-To: selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
 
-Can I find out who wrote the procps (/bin/ps) patches?
-That is, without getting killed. :-) I'd be happy to include
-security data printing as part of the standard ps program.
+On Fri, 22 Dec 2000, ratz wrote:
 
-Latest source:  http://www.cs.uml.edu/~acahalan/procps/
+> I'll definitely have a closer look at it during the christmas days. However
+> would it be possible for you to make some comparisons between other open source
+> or not open source implementations of MAC or/and rule based access controls
+> such as referred to in the Orange Book, in POSIX1e or various thesis? I would
+> like to get some information about the implementation model used (although I
+> can and will of course glance at the code) and what is different to other 
+> models like the ones used in:
+> 
+> RSBAC           (http://www.rsbac.org)
+> argus-B1        (http://www.argus-systems.com/)
+> Trusted Solaris (somewhere in the depth of http://www.sun.com)
+> Trusted Irix    (http://oss.sgi.com/projects/ob1/)
+> 
+> and lots of others...
 
-Note that I have already reserved several option flags
-for MAC data... is this not what is needed? If possible
-I'd prefer to keep the Linux ps compatible with what is
-used on Trusted IRIX, etc.
+The Security-Enhanced Linux has a well-defined architecture for
+flexible mandatory access controls that has been experimentally
+validated through several prototype systems (DTMach, DTOS, and Flask).
+The architecture provides clean separation of policy from enforcement,
+well-defined policy decision interfaces, flexibility in labeling
+and access decisions, support for policy changes, and fine-grained
+controls over the kernel abstractions.  Detailed studies have been
+performed of the ability of the architecture to support a wide variety of
+security policies and are available on the DTOS and Flask web pages
+accessible via the Background page.
 
-Reserved for security data:  -M -Z -x -z
-You may have seen the -x as -y on other systems;
-the -y option is already taken for another purpose.
+The security architecture is described in the overview
+section of the kernel document (Integrating Flexible Support
+for Security Policies into the Linux Operating System).  On
+the Background page, you will also find a copy of a published paper
+about the security architecture (The Flask Security Architecture:
+System Support for Diverse Security Policies).
 
-BTW, I would be interested in output samples from ps running
-on various systems with mandatory access controls. I try to
-make the Linux ps compatible with every other ps. I also like
-man pages, "strings -a /bin/ps" output, and experiments with
-undocumented options.
+RSBAC appears to have similar goals to the Security-Enhanced Linux.
+Like the Security-Enhanced Linux, it separates policy from enforcement
+and supports a variety of security policies.  RSBAC uses a different
+architecture (the GFAC) than the Security-Enhanced Linux, although the
+Flask paper notes that at the highest level of abstraction, the
+the Flask architecture is consistent with the GFAC.  However,
+the GFAC does not seem to fully address the issue of policy changes
+and revocation, as discussed in the Flask paper.  RSBAC also differs
+in the specifics of its policy interfaces and its controls, but
+a careful evaluation of the significance of these differences has
+not been performed.
 
-It is strongly preferred that columns of data never contain
-whitespace and that unknown or unavailable data print as '-'.
-So the "<not authorized>" stuff must become "-" instead.
-This is to allow parsing the output of ps by splitting columns
-apart based on whitespace. The "-" should always be printed
-when using a non-FLASK kernel, instead of the error message.
+Unlike traditional trusted operating systems, the Security-Enhanced
+Linux provides flexible support for security policies.  It can
+support multi-level security, but it can also support Type
+Enforcement, Role-Based Access Control, and other kinds of
+policies.  Furthermore, since it cleanly separates policy
+from enforcement, the security policy logic can be radically
+revised without requiring any changes to the rest of the 
+operating system.  
 
-Um, if someone is not authorized to read security data, then
-why are they even allowed to know that the process exists?
-Somebody could transmit data by playing with signal masks and
-other items found under /proc.
+The POSIX.1e capabilities allow one to decompose superuser
+privileges.  This is not the same as a mandatory access control
+mechanism, and it does not support enforcing the separation of 
+information based on integrity and confidentiality requirements.
+In the Security-Enhanced Linux, these capabilities do not
+override the mandatory access controls.  In fact, the ability
+to use a capability is controlled by the mandatory access controls.
+Since the Security-Enhanced Linux provides subject labeling,
+it can restrict the use of capabilities to the appropriate programs
+through the centralized security policy configuration.
 
-I can't allow the #ifdef inside the list of format specifiers,
-because this makes it hard for me to keep the list sorted.
+In one of the predecessors of the Flask architecture (the DTOS system),
+the NSA implemented a more general mechanism for decomposing superuser
+privileges.  The superuser privileges were partitioned by having the
+security server return a set of override decisions along with its
+access decisions, where these override decisions could cause access
+to be granted even if the Unix access control would ordinarily deny
+access.  Unlike the Linux capabilities, these override decisions could be
+based on both the label of the subject and the label of the relevant
+object. This mechanism permitted fine-grained decomposition (e.g.
+permission to override DAC read restrictions could be limited to files
+with certain security labels) and simpler management (through the use of
+the centralized security server).  Similar support could be added to the
+Security-Enhanced Linux as well but is not present in the
+current implementation.
 
-Generating a path to the process in pr_context() is poor.
-Really, this should be done in the library code.
+--
+Stephen D. Smalley, NAI Labs
+sds@tislabs.com
 
-I notice that there are two new formats... why? It seems that
-there would be plenty of room to put all the data in one format,
-like this:
 
-{"FLASK", "pid,secsid,context,command"}, /* FLASK security data */
 
-On a standard 80-column screen you still get 22 characters for
-the command name and arguments. It would even be reasonable to
-include an extra column or two, like the (unimplemented?) LUID.
+
+
 
 
 You have received this message because you are subscribed to the selinux list.
