@@ -1,31 +1,23 @@
-Date: Wed, 16 Oct 2002 10:44:47 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-cc: <SELinux@tycho.nsa.gov>
-Subject: RE: initrd kernel panic
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A101524433@csoc-mail-box.csoconline.com>
-Message-ID: <Pine.GSO.4.33.0210161036540.14711-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: "hariharanjayaraman" <hariharanjayaraman@indiatimes.com>
+Message-Id: <200210161432.UAA09112@WS0005.indiatimes.com>
+To: "SELinux Mailing list E-mail"<SELinux@tycho.nsa.gov>
+Reply-To: "hariharanjayaraman"<hariharanjayaraman@indiatimes.com>
+Subject: where to find archieves
+Date: Wed, 16 Oct 2002 20:15:39 +0530
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+hi,
+  I want to know where can i find archieves of all the patched kernel so far..
 
-On Wed, 16 Oct 2002, Westerman, Mark wrote:
+Thanks 
+Hariharan Jayaraman
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
 
-> That should have been cvs check out on friday.
+ Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
 
-I'd suggest double checking your working copy (do a 'cvs update -A') and
-making sure that you are booting the kernel you just built.  The behavior
-you describe was specifically fixed by the patch, and the patch was
-committed to the head of the tree.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+Change the way you talk. Indiatimes presents Valufon, Your PC to Phone service with clear voice at rates far less than the normal ISD rates. Go to http://www.valufon.indiatimes.com. Choose your plan. BUY NOW.
 
 
 --
