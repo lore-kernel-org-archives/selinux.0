@@ -1,56 +1,67 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA32xtXZ011970
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 21:59:55 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA35phXZ012698
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 00:51:44 -0500 (EST)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA32wV8r022745
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 02:58:32 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA35oK4w025931
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 05:50:21 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: "Frank Mayer" <mayerf@tresys.com>
-Subject: Re: dynamic context transitions - a seteuid parallel
-Date: Wed, 3 Nov 2004 13:59:43 +1100
-Cc: "'Chad Hanson'" <chanson@TrustedCS.com>,
-   "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
-   "'SE-Linux'" <selinux@tycho.nsa.gov>
-References: <00aa01c4c0da$5acdd960$1e0c010a@columbia.tresys.com>
-In-Reply-To: <00aa01c4c0da$5acdd960$1e0c010a@columbia.tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Patch to make can_network stronger and remove nscd tunable.
+Date: Wed, 3 Nov 2004 16:41:59 +1100
+Cc: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>,
+   Stephen Smalley <sds@epoch.ncsc.mil>
+References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de> <200411030248.49998.russell@coker.com.au> <4187AE44.40204@redhat.com>
+In-Reply-To: <4187AE44.40204@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200411031359.43346.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200411031641.59816.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2 Nov 2004 23:49, "Frank Mayer" <mayerf@tresys.com> wrote:
-> So if we were honest, the real reason we want to change security content is
-> for performance reasons, not security assurance reason.
+On Wednesday 03 November 2004 02:56, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Updated with Russell's "daemon" change and other fixes.
+>
+> How does this look?
 
-Which probably made a lot of sense for Xenix, an 80286 was not a particularly 
-fast CPU.
++can_network($1_login_t) 
++allow $1_login_t self:{ tcp_socket udp_socket } connect;
 
-I've just done a quick test of exec time.  For a process to exec itself it 
-takes an average of .9ms per exec on a P3-650.  In the past we have discussed 
-at length issues related to modifying Samba for best operation under SE 
-Linux.  It seems to me that any disk sub-system you might find attached to a 
-P3-650 class CPU is unlikely to support 1000 operations of the form of file 
-create/open/unlink per second.  So therefore if we were to have a Samba 
-server process fork off a child for each file open we still probably wouldn't 
-have the exec be the bottleneck for Samba performance.
+local_login_t does not need network access unless you use NIS or similar.  
+can_ypbind() may be appropriate, but no other rules for network access for 
+$1_login_t.
 
-Now we have to keep in mind that doing a fork/exec for every file open isn't 
-the best way of doing such things.  If we create a helper process when the 
-SMB authentication is performed and pass requests to it via a Unix domain 
-socket then performance should be better.
+Your patch is allowing many domains access to { tcp_socket udp_socket } 
+connect which have no need for network connections other than ypbind.  It's 
+probably best to just add this to can_ypbind and not add it to ANY daemon 
+policy except for daemons which obviously need it.  Otherwise this change 
+will make the policy weaker overall by explicitely adding permissions where 
+they are not needed.  If we don't have the time to do this properly right now 
+then we should leave can_network as it is until we have more time to work on 
+it.
 
-What is the trend in new CPUs?  Are they getting worse or better for exec 
-performance?  The only machine better than a P3-800 that I have for testing 
-is a pitiful P-M.
+Probably the best thing to do is to merge a patch that doesn't allow such 
+access to any daemon apart from the most obvious cases (EG allowing a mail 
+server to make TCP connections).  Things will work for the binary policy in 
+Fedora as NIS support is enabled.  Then we can spend the next couple of 
+months testing out all the daemons and submitting patches for exactly the 
+connection access that is required.
 
 
-What programs have the greatest performance requirements in terms of launching 
-processes under a different context?  I suspect that a Samba server with the 
-design changes we discussed could be near the top of the list, with the main 
-competitor being a busy web server that's launching cgi-bin scripts.
++mount_domain(sysadm, mount, `, fs_domain, nscd_client_domain')
+
+What does mount do that requires nscd access?
+
+Why does user_ssh_t require kill capability?
+
+Does dhcpc_t require TCP connection access when there is no NIS?
+
+Does innd_t require UDP connection access when there is no NIS?
+
+
+sys_tty_config capability is another thing that should go into 
+daemon_base_domain(), but as a dontaudit.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
