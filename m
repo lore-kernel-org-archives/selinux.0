@@ -1,98 +1,53 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KF4SRb019400
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 11:04:28 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4KF21B2002479
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 15:02:02 GMT
-Received: from smtp802.mail.ukl.yahoo.com (smtp802.mail.ukl.yahoo.com [217.12.12.139])
-	by jazzswing.ncsc.mil  with SMTP id i4KF21wi002476
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 15:02:01 GMT
-Date: Thu, 20 May 2004 15:01:47 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>, 249784@bugs.debian.org
-Subject: updated - but irrelevant (with pam enabled) - SE/Linux patch
-Message-ID: <20040520150147.GG8810@lkcl.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="yNb1oOkm5a9FJOVX"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KFXqRb019823
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 11:33:53 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4KFXdAR005509
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 15:33:40 GMT
+Received: from smtp.sws.net.au ([61.95.69.6])
+        by jazzband.ncsc.mil  with ESMTP id i4KFXRHn005421 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 15:33:39 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: start of patch to dpkg's start-stop-daemon
+Date: Fri, 21 May 2004 01:32:17 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040520084306.GL24597@lkcl.net>
+In-Reply-To: <20040520084306.GL24597@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200405210132.17391.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 20 May 2004 18:43, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> it's a patch to dpkg 1.10.21's utils/start-stop-daemon.c
+> which causes a context switch just before
+> the setuid/setgid calls.
 
---yNb1oOkm5a9FJOVX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+What is the benefit in that?
 
-the attached patch to kdm/backends/client.c has been updated,
-but is not relevant _if_ the line:
+start-stop-daemon is designed to be run from a /etc/init.d/* script.  That 
+script will run as system_u:system_r:initrc_t and there will be a 
+domain_auto_trans() rule to cause the daemon to be started as 
+system_u:system_r:whatever_t.
 
-	session required pam_selinux.so
+start-stop-daemon is also run from cron jobs, in that case it will run as 
+system_u:system_r:system_crond_t (in which case the program it runs will have 
+any appropriate domain transition automatically), or it will run as the cron 
+domain for the daemon (IE the script that calls start-stop-daemon has a 
+domain transition *) and again it doesn't need to do anything special.
 
-is added to /etc/pam.d/kdm.
-
-l.
+*)  domain_auto_trans() rules that allow script execution to have more privs 
+than the calling code is bad.  But having the script execute with less privs 
+is OK (not great but OK).
 
 -- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
-
---yNb1oOkm5a9FJOVX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=f
-
---- ../client.c	2004-05-20 14:55:49.000000000 +0000
-+++ kdm/backend/client.c	2004-05-20 08:51:43.000000000 +0000
-@@ -45,6 +45,11 @@
- #include <pwd.h>
- #include <grp.h>
- 
-+#ifdef WITH_SELINUX
-+#include <selinux/get_context_list.h>
-+#include <selinux/selinux.h>
-+#endif
-+
- #ifdef SECURE_RPC
- # include <rpc/rpc.h>
- # include <rpc/key_prot.h>
-@@ -1086,6 +1091,29 @@
- 	   systemEnviron);
- 
-     /*
-+     * for Security Enhanced Linux,
-+     * set the default security context for this user.
-+     */
-+#ifdef WITH_SELINUX
-+   if (is_selinux_enabled() > 0)
-+   {
-+        security_context_t scontext;
-+        if (p != NULL && p->pw_name != NULL &&
-+			get_default_context(p->pw_name,NULL,&scontext))
-+		{
-+             LogError("Failed to get default security context for %s.", curuser);
-+             SessionExit (EX_NORMAL);
-+		}
-+        Debug("setting security context to %s", scontext);
-+        if (setexeccon(scontext)) {
-+             freecon(scontext);
-+             LogError("Failed to set exec security context %s for %s.", scontext, curuser);
-+             SessionExit (EX_NORMAL);
-+        }
-+        freecon(scontext);
-+   }
-+#endif
-+    /*
-      * for user-based authorization schemes,
-      * add the user to the server's allowed "hosts" list.
-      */
-
---yNb1oOkm5a9FJOVX--
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
