@@ -1,73 +1,54 @@
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA23932
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 11:00:44 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA01688
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 14:59:33 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id OAA01682
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 14:59:31 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: kernel daemons runs in init_t
-Date: Thu, 29 Aug 2002 16:21:42 +0200
-Cc: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0208290723570.447-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0208290723570.447-100000@raven>
+To: Mark =?iso-8859-1?q?M=FCller?= <trusted@web.de>, selinux@tycho.nsa.gov
+Subject: Re: Direct logins (via local and ssh) as httpd_admin_r?
+Date: Thu, 29 Aug 2002 17:00:30 +0200
+References: <200208290944.g7T9ikX09394@mailgate5.cinetic.de> <20020829101253.AAF656D11@lyta.coker.com.au>
+In-Reply-To: <20020829101253.AAF656D11@lyta.coker.com.au>
 MIME-Version: 1.0
-Message-Id: <20020829142143.2370712DB@lyta.coker.com.au>
+Message-Id: <20020829150031.4B2602EF0@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 29 Aug 2002 13:37, Stephen Smalley wrote:
-> On Wed, 28 Aug 2002, Russell Coker wrote:
-> >   PID    SID CONTEXT                                  COMMAND
-> >     1      7 system_u:system_r:init_t                 init [2]
-> >     2      1 system_u:system_r:kernel_t               [keventd]
-> >     3      1 system_u:system_r:kernel_t               [kapmd]
-> >     4      7 system_u:system_r:init_t                 [ksoftirqd_CPU0]
-> >     5      7 system_u:system_r:init_t                 [kswapd]
-> >     6      7 system_u:system_r:init_t                 [bdflush]
-> >     7      7 system_u:system_r:init_t                 [kupdated]
-> >    19      1 system_u:system_r:kernel_t               [mdrecoveryd]
-> >    22      7 system_u:system_r:init_t                 [khubd]
-> >    31      1 system_u:system_r:kernel_t               [raid1d]
-> >    40      1 system_u:system_r:kernel_t               [kreiserfsd]
-> >   246    330 system_u:system_r:insmod_t               [kSpeedSARd]
-> >   288    331 system_u:system_r:fsadm_t                [raid1d]
-> >   298    331 system_u:system_r:fsadm_t                [raid1d]
+On Thu, 29 Aug 2002 12:12, Russell Coker wrote:
+> Also httpd_admin_r is not permitted to have domain newrole_t.
 >
-> I see something more like what Carsten describes:
->     2      7 system_u:system_r:init_t                 [keventd]
->     3      7 system_u:system_r:init_t                 [ksoftirqd_CPU0]
->     4      7 system_u:system_r:init_t                 [kswapd]
->     5      7 system_u:system_r:init_t                 [bdflush]
->     6      7 system_u:system_r:init_t                 [kupdated]
->     8      7 system_u:system_r:init_t                 [khubd]
->    11      7 system_u:system_r:init_t                 [kjournald]
->   133      7 system_u:system_r:init_t                 [kjournald]
->
-> The ps -el output shows all of these "processes" having a PPID of 1, i.e.
-> init.
->
-> In part, the change may be due to the new hook in the kernel
-> reparent_to_init function.  This would affect the kjournald and khubd
-> threads, since they call this function.  But I don't think it fully
-> explains the change, and it doesn't explain why you see kernel_t on some
-> of the same threads.
+> I think that httpadm.te is a bad idea, it was written long before I solved
+> the problems of multiple user domains which allow this to be solved in a
+> much better fashion.  I suggest replacing the contents of httpadm.te with
+> something like the following:
+> full_user_role(httpd_admin)
+> allow system_r httpd_admin_r;
+> allow sysadm_r httpd_admin_r;
+> allow user_r httpd_admin_r;
+> Then followed by appropriate allow lines for httpd_config_t etc.
+> Or you could put the above in the httpd_admin_domain() macro.
 
-I have just changed my policy to get the initrd thing working properly.  Now 
-I have a 20K policydb for the initrd which covers everything it does, so I 
-get no AVC messages during the boot up and all the kernel threads are in the 
-right context.  See below:
+I've been thinking about this some more.  I think that we need some way of 
+handling such user-administration of servers.  This requires some sort of 
+run_init program for the service that starts from the user domain.
 
- PID    SID CONTEXT                                  COMMAND
-    1      7 system_u:system_r:init_t                 init [2]
-    2      7 system_u:system_r:init_t                 [keventd]
-    3      7 system_u:system_r:init_t                 [kapmd]
-    4      7 system_u:system_r:init_t                 [ksoftirqd_CPU0]
-    5      7 system_u:system_r:init_t                 [kswapd]
-    6      7 system_u:system_r:init_t                 [bdflush]
-    7      7 system_u:system_r:init_t                 [kupdated]
-   27     39 system_u:system_r:mount_t                [kreiserfsd]
-  152      7 system_u:system_r:init_t                 [khubd]
-
-I'll send a patch for this sometime soon, but it'll have to be cleaned up a 
-bit first.
+Also there's the root issue again.  To have the user be able to fully control 
+the server they need to be able to stop and start it which usually requires 
+root access.  Having full configuration control over a program that is 
+started as root means effectively having root access, so they need to be in a 
+domain without SETUID/SETGID/DAC_OVERRIDE capabilities, or which is fully 
+isolated from other domains by SE Linux controls.  Also of course the server 
+will need to be well isolated from the other users...  This means that for 
+example we need a separate type for ~/public_html and ~/Maildir so that the 
+daemon (and the person controlling it) can't access anything outside of what 
+they work on.
 
 -- 
 I do not get viruses because I do not use MS software.
