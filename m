@@ -1,46 +1,50 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA25476
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2001 13:16:39 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA26316
+	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2001 15:14:06 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA08796
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2001 18:16:02 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id SAA08792
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2001 18:16:02 GMT
-Date: Tue, 6 Nov 2001 13:15:36 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Femitha Majeed <m_femitha@hotmail.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Flask architecture
-In-Reply-To: <F1517q0JrAncMvgRFLq0000b8d6@hotmail.com>
-Message-ID: <Pine.GSO.4.33.0111061302180.11349-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by jazzband.ncsc.mil  with ESMTP id UAA14971
+	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2001 20:13:29 GMT
+Received: from houston.jhuapl.edu (houston.jhuapl.edu [128.244.26.10])
+	by jazzband.ncsc.mil  with ESMTP id UAA14967
+	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2001 20:13:29 GMT
+Received: from CONVERSION-DAEMON by houston.jhuapl.edu (PMDF V5.2-32 #40040)
+ id <0GME00301AVC91@houston.jhuapl.edu> for selinux@tycho.nsa.gov; Tue,
+ 6 Nov 2001 15:14:00 -0500 (EST)
+Date: Tue, 06 Nov 2001 15:11:21 -0500 (EST)
+From: Yanni Kouskoulas <Yanni.Kouskoulas@jhuapl.edu>
+Subject: Re: New SELinux release???
+In-reply-to: <3BE810A9.EAA3B410@odo.arl.psu.edu>
+To: "Timothy E. Kohler" <tim@odo.arl.psu.edu>
+Cc: selinux@tycho.nsa.gov
+Message-id: <Pine.LNX.4.21.0111061428270.1656-100000@kouskya1.jhuapl.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 6 Nov 2001, Timothy E. Kohler wrote:
 
-On Tue, 6 Nov 2001, Femitha Majeed wrote:
+> Been trying to work with SELinux under RedHat 7.2.  I've
+> had compile problems with utils/fileutils-4.0.  Everything
+> worked fine under 7.1.  Get the following error:
+> 
+> make[1]: Entering directory `/usr/src/selinux/utils/fileutils-4.0'
+> cd . && aclocal -I m4
+> aclocal: m4/isc-posix.m4: 11: duplicated macro `AC_ISC_POSIX'
+> make[1]: *** [aclocal.m4] Error 1
+> make[1]: Leaving directory `/usr/src/selinux/utils/fileutils-4.0'
 
-> Hi, I have question about implementation of Flask architecture.
->
-> Are SIDs unique? How does the security server assign an SID to a new object
-> given the security contexts(or SIDs) of related objects?
+It takes some effort to get the utils directory compiled under 7.2, but it
+is doable. If I remember correctly, there are some zero length files in
+/usr/src/selinux/utils/fileutils-4.0/m4 and these causing some errors.
+Copy the equivalent non-zero length .m4 files from
+/usr/src/selinux/utils/sh-utils-2.0/m4 and the make goes further.
 
-You'll find quite a bit of information about this in the papers and
-technical reports available on the Documentation and Background pages at
-the NSA SELinux web site.  As for your specific question, SIDs do not
-uniquely identify individual subjects or objects; they identify
-security contexts (aka security labels).  The security server determines a
-security context for a new subject or object based on some default logic
-and the policy rules, and then returns a SID that corresponds to that
-security context, possibly generating a new SID if one does not already
-exist for the context.
+There were also some modifications that to be made to the Makefile in
+psmisc (I think pstree was having trouble building, so for now just remove
+it).
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
+-Yanni
 
 
 
