@@ -1,41 +1,42 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5LDhjrT001235
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 09:43:45 -0400 (EDT)
-To: <mayerf@tresys.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5LFSWrT002853
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 11:28:32 -0400 (EDT)
+Received: from mail.idtweb.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5LFSLNg024409
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 15:28:21 GMT
+Reply-To: <mayerf@tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Joshua D. Guttman disp: current'" <guttman@mitre.org>
 Cc: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
    "'John D. Ramsdell'" <ramsdell@mitre.org>,
    "'Karl MacMillan'" <kmacmillan@tresys.com>, <selinux@tycho.nsa.gov>,
-   "'Amy L Herzog'" <aherzog@mitre.org>, guttman@mitre.org (Joshua D. Guttman)
-Subject: Re: Fedora Core 2 setools RPM
-Reply-To: guttman@mitre.org (Joshua D. Guttman disp: current)
-References: <004001c45791$d03b5400$4d0c010a@columbia.tresys.com>
-From: guttman@mitre.org (Joshua D. Guttman)
-Date: 21 Jun 2004 09:43:33 -0400
-In-Reply-To: <004001c45791$d03b5400$4d0c010a@columbia.tresys.com>
-Message-ID: <nhafz8pjabe.fsf@malabar.mitre.org>
+   "'Amy L Herzog'" <aherzog@mitre.org>
+Subject: RE: Fedora Core 2 setools RPM
+Date: Mon, 21 Jun 2004 11:28:29 -0400
+Message-ID: <007201c457a4$67b25510$4d0c010a@columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <nhafz8pjabe.fsf@malabar.mitre.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-"Frank Mayer" <mayerf@tresys.com> writes:
+guttman@malabar.mitre.org wrote:
+>>   Filters on that analysis make the analysis practical, and the most
+>>   important filters we have learned are interim types (i.e.,
+>>   "trusted" types), object classes, and permissions and permissions
+>>   weights.
+> 
+> Could I ask you please to explain what you mean by these terms?
 
->   Filters on that analysis make the analysis practical, and the most
->   important filters we have learned are interim types (i.e.,
->   "trusted" types), object classes, and permissions and permissions
->   weights.
+As a starting point, look at the GUI and help file for apol's information flow
+analysis.  I'm sure our help files are not the best, but performing the analysis
+should make these terms meaningful in the context of our tool.  The "trusted"
+types (I think the GUI calls them "excluded") is by far the most important
+filter, as it allows you to exclude certain intermediate types from the analysis
+of a given flow.
 
-Could I ask you please to explain what you mean by these terms?
-
-Thanks --
-
-        Joshua 
-
--- 
-	Joshua D. Guttman		<guttman@mitre.org>
-	MITRE, Mail Stop S119		Office:	+1 781 271 2654
-	202 Burlington Rd.		Fax:	+1 781 271 8953
-	Bedford, MA 01730-1420 USA	Cell:	+1 781 526 5713
+Frank
 
 
 
