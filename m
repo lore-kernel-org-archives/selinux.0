@@ -1,47 +1,58 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA18609
-	for <selinux@tycho.nsa.gov>; Mon, 15 Apr 2002 09:04:58 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA05849
-	for <selinux@tycho.nsa.gov>; Mon, 15 Apr 2002 13:03:18 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id NAA05845
-	for <selinux@tycho.nsa.gov>; Mon, 15 Apr 2002 13:03:18 GMT
-Date: Mon, 15 Apr 2002 09:04:41 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
+Date: Mon, 15 Apr 2002 10:44:24 -0400
+From: Howard Holm <hdholm@epoch.ncsc.mil>
 To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: setfiles verbosity
-In-Reply-To: <20020414185305.6F3FD22A7A@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0204150903030.24406-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Stephen Smalley <sds@tislabs.com>,
+        "Westerman, Mark" <Mark.Westerman@csoconline.com>,
+        SELinux@tycho.nsa.gov
+Subject: Re: db conflict ?
+Message-ID: <20020415104424.B23600@gricklegrass.epoch.ncsc.mil>
+References: <Pine.GSO.4.33.0204121514350.21729-100000@raven> <20020412201148.E8D262870D@lyta.coker.com.au> <20020412162551.C15470@gricklegrass.epoch.ncsc.mil> <20020412210141.AD99F3EFE7@lyta.coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20020412210141.AD99F3EFE7@lyta.coker.com.au>; from russell@coker.com.au on Fri, Apr 12, 2002 at 11:01:41PM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Could you elaborate on the problems with symbolic links.  My understanding
+(perhaps flawed) of RPMS is that it's possible to create a configuration
+alterable symbolic link.  (i.e., a symbolic link marked as a configuration
+file so that if it's altered, RPM won't restore it when upgrading the
+package.)  As little as I know about RPM, I know dramatically less about
+Debian packaging, so I really don't know what the situation might be for
+.debs.
 
-On Sun, 14 Apr 2002, Russell Coker wrote:
+As I mentioned in my response to Mark W., I think cp -a might loose a lot
+of the benefits of the link if I understand you correctly.
 
-> When running setfiles with the -v option I get messages such as the following:
->
-> setfiles:  relabeling /etc/ld.so.cache from rjc:object_r:ld_so_cache_t to
-> system_u:object_r:ld_so_cache_t
->
-> I suggest that we change setfiles to have two levels of verbosity, one of
-> which doesn't give messages such as the above.
->
-> What do you think?
-
-Do you mean omitting messages about changes that only setting the user
-identity attribute to system_u?  This would require intepretation of
-security contexts by setfiles.
+On Fri, Apr 12, 2002 at 11:01:41PM +0200, Russell Coker wrote:
+> On Fri, 12 Apr 2002 22:25, Howard Holm wrote:
+> > Bringing up again a proposal of mine from April 3rd, I suggest that we
+> > put the "example" policy in /usr/share/selinux/policy/default/ and
+> > compile the policy in automated scripts from
+> > /usr/share/selinux/policy/current/.  When creating current, it should
+> > be a link to default.  If the admin changes the link or removes it
+> > in favor of an actuall local directory then all that happens when an
+> > automated script installs new default policy language and recompiles
+> > and installs "current" is that the real current policy is reinstalled
+> > if it is different than the default.  If it is a link to the default,
+> > then the updated default policy is compliled and installed.  This
+> > seems to be a good compromise between not arbitrarily replacing a
+> > local administrative policy while still allowing the majority of
+> > people who use the default policy to have it automatically maintained
+> > and added to when adding new packages.
+> 
+> I like this idea, apart from one issue.
+> 
+> Symbolically linking to default does not work well with packaging systems, so 
+> I'll use "cp -a" instead.
+> 
+> One benefit of this is that it allows for easily creating several sets of 
+> sample configurations that could be used.
 
 --
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+Howard Holm <hdholm@epoch.ncsc.mil>
+Secure Systems Research Office
+National Security Agency
 
 --
 You have received this message because you are subscribed to the selinux list.
