@@ -1,64 +1,54 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA00852
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 13:25:15 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA13886
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 17:24:26 GMT
-Received: from capone.h.spamaps.org (ip-208-252-253-53-muca.asurf.net [208.252.253.53])
-	by jazzswing.ncsc.mil  with ESMTP id RAA13882
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 17:24:25 GMT
-Subject: Re: SCC
-From: Clint Byrum <cbyrum@spamaps.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: "Westerman, Mark" <Mark.Westerman@csoconline.com>,
-        SE Linux
-	 <selinux@tycho.nsa.gov>,
-        "'linux-security-module@wirex.com'"
-	 <linux-security-module@wirex.com>
-In-Reply-To: <200207291643.g6TGhF1R004747@turing-police.cc.vt.edu>
-References: 
-	<72222DC86846D411ABD300A0C9EB08A1015243D3@csoc-mail-box.csoconline.com>
-	<200207291643.g6TGhF1R004747@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: 29 Jul 2002 10:24:36 -0700
-Message-Id: <1027963481.620.22.camel@lancelot>
-Mime-Version: 1.0
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA01058
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 13:38:39 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA14831
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 17:37:06 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id RAA14827 for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 17:37:05 GMT
+Date: Mon, 29 Jul 2002 13:37:45 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: "Menon, Sunanda R" <sunanda.r.menon@intel.com>
+cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Re: building the kernel
+In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0F2F05CF@orsmsx108.jf.intel.com>
+Message-ID: <Pine.GSO.4.33.0207291334150.10600-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2002-07-29 at 09:43, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 29 Jul 2002 10:24:52 CDT, "Westerman, Mark" <Mark.Westerman@csoconline.com>  said:
-> 
-> > SCC by accepting the Sole Source Contract from the NSA and performing 
-> > the work by modifying Linux you accepted the terms of the GPL. Since 
-> > Linux uses the GPL, SCC was required by LAW to accept the terms of the 
-> > GPL. They modified Linux and distributed SELinux to the NSA.
-> 
-> If SCC was legally a contractor producing a custom work for the NSA, then the
-> modified Linux is the NSA's, and NSA is prohibited from distributing it.
-> 
 
-Heh.. Linux, even modified, is still the "Intellectual Property" of
-anyone who has done work on the modified kernel. Those people have
-licensed the work under the GPL. Therefore, this modified Linux's code
-must be distributed to anyone who receives the binaries, as per the
-terms of the GPL. 
+On Mon, 29 Jul 2002, Menon, Sunanda R wrote:
 
-Once you've received GPL'd programs/code, you are granted the same
-rights as those of the party who modified said works.
+> I downloaded 2.4 LSM based SE linux( Option 1 everything in one part),
+> unzipped into SELinux directory in Redhat 6.2 Linux.
+>  I went thru the "Building kernel" part of the documentation. When I do the
+> "make menuconfig", I am getting th efollowing error:
+> /bin/sh scripts/menuconfig arch/i386/config.in
+> :commnad not found
+> :command not found
+> :command not found
+> scripts/menuconfig:syntax error on line 104:  'unexpected token {
+>
+> Does anyone know what is the cause of this problem?
 
-Since the GPL would preclude any contracts referring to Linux, I think
-the NSA has every right to redistribute this work.
+No, I can't reproduce this error - 'make menuconfig' works fine on a clean
+copy of the 2002070313 release from www.nsa.gov/selinux.  Did the 'make
+insert' in selinux/module succeed without any errors?
 
-Of course, the patent precludes the GPL, so this is where it gets sort
-of sticky. SCC modified Linux by adding their own patented system to it.
-By doing this, they essentially licensed their code under the GPL, which
-says you can't have patented code in a GPL program, unless it is
-licensed for everyone freely. Since they willingly licensed their code
-under the GPL (READ the damn thing before you go using it people!), I
-think they nullified their patent claims on that code.
+Do you see the same error on a 'make menuconfig' of a clean Linux kernel
+from www.kernel.org?
 
-But, of course,  IANAL.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
+
+
 
 
 --
