@@ -1,46 +1,40 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KDefrT003834
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 09:40:41 -0400 (EDT)
-Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KDeeQ4026200
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 13:40:40 GMT
-Subject: Re: policy for scponly - need help
-From: Colin Walters <walters@verbum.org>
-To: Stefan SF <stefan@sf-net.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20040820080156.GA8602@crux.sternplastic>
-References: <20040819173620.GA8543@crux.localdomain>
-	 <1092967183.29540.30.camel@nexus.verbum.private>
-	 <20040820080156.GA8602@crux.sternplastic>
-Content-Type: text/plain
-Date: Fri, 20 Aug 2004 09:41:17 -0400
-Message-Id: <1093009277.4336.11.camel@nexus.verbum.private>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KDllrT003952
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 09:47:47 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KDliQ4026483
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 13:47:45 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: restorecon
+Date: Fri, 20 Aug 2004 23:47:39 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <200408201918.40233.russell@coker.com.au> <1093002067.16585.22.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1093002067.16585.22.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200408202347.39311.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-08-20 at 10:01 +0200, Stefan SF wrote:
-> Hi!
-> 
-> > scponly seems similar to rssh.  You may want to try my rssh policy:
-> > http://verbum.org/files/rssh_macros.te
-> > http://verbum.org/files/rssh.te
-> > http://verbum.org/files/rssh.fc
-> 
-> Hmm I can't make head or tail of this. I think the scponly-problem is another one.
->  Because you don't have to transit or anything else in the rssh-policy (user -> role).
+On Fri, 20 Aug 2004 21:41, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> Reasonable.  But still doesn't address the issue of whether the user
+> meant to relabel the symlink itself or the referenced file.
 
-Exactly the point!  The kernel thus ensures that the user is not able to
-enter the user_r role at all.  This is far more secure than what you are
-doing with transitioning from user_t to scponly_exec_t.  Instead, I only
-authorize the user for the rssh role.
+I think we have to assume that the user wants to relabel the sym-link not 
+follow it.
 
-Here, I documented the process a bit better a while ago:
-http://marc.theaimsgroup.com/?l=selinux&m=107395821724390&w=2
+In enforcing mode with the default policy there will be no option to follow 
+the link.  It's desirable to get the equivalent behaviour in enforcing and 
+permissive modes, so that means not following the link.
 
-You shouldn't need to touch user_t at all.
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
