@@ -1,45 +1,37 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAQDU4Rb019173
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 08:30:04 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAQDWZRb019207
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 08:32:35 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hAQDTTp5013264
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 13:29:29 GMT
+	by jazzswing.ncsc.mil  with ESMTP id hAQDW0p5013564
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 13:32:00 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id hAQDTTt0013261
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 13:29:29 GMT
-Subject: Re:
+	by jazzswing.ncsc.mil  with ESMTP id hAQDVxt0013561
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 13:31:59 GMT
+Subject: Re: genfs_contexts file
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Nick <nagray@austin.rr.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1069822336.3447.1234.camel@hawaii>
-References: <1069822336.3447.1234.camel@hawaii>
+To: Russell Coker <russell@coker.com.au>
+Cc: Carlos =?ISO-8859-1?Q?An=EDsio?= Monteiro <monteiro@ipen.br>,
+   selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200311261135.09128.russell@coker.com.au>
+References: <3FC3CE10.8020307@ipen.br>
+	 <200311261135.09128.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1069853384.30315.4.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1069853537.30315.8.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 26 Nov 2003 08:29:44 -0500
+Date: Wed, 26 Nov 2003 08:32:18 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-11-25 at 23:52, Nick wrote:
-> What about the file contexts, I didn't see these in the policy
-> directory?
+On Tue, 2003-11-25 at 19:35, Russell Coker wrote:
+> Files/directories that are assigned contexts with genfscon do not have an 
+> xattr, so "ls --context" can not show their context.
+> 
+> This is a known issue.  I don't know if there are plans to change it.
 
-The file contexts configuration is under policy/file_contexts.  Once you
-have labeled your filesystems, the contexts are stored as extended
-attributes of the inodes, so you don't need to retain the configuration
-on the machine.
-
-> I am going to have to create a /tcb directory and root all trusted code
-> there (policy, file contexts, binaries). I have been directed to move in
-> the direction of CMW. What are your thoughts on this.
-
-Seems problematic.  Are you going to move login under /tcb?  The pam
-modules that it relies on?  The /etc/shadow file?  What is the real
-benefit (vs. just locking down the SELinux permissions to the existing
-directories and files)?
-
-What do you mean by "move in the direction of CMW"?  Switch from SELinux
-to a CMW, or try to make SELinux look like a CMW?
+It would be possible to implement a "pseudo" xattr handler for such
+filesystems, as we have already done for devpts.  But that has to be
+done for every filesystem type where you want to export the labels to
+userspace.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
