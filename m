@@ -1,43 +1,76 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2QEEFRb023556
-	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 09:14:16 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i2QECOdQ023780
-	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 14:12:24 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i2QECNBL023777
-	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 14:12:23 GMT
-Subject: Re: status tool
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1080243007.12376.28.camel@gorn.pebenito.net>
-References: <1080243007.12376.28.camel@gorn.pebenito.net>
-Content-Type: text/plain
-Message-Id: <1080310444.6559.81.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 26 Mar 2004 09:14:04 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2QHYWRb025106
+	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 12:34:33 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i2QHYVFV005460
+	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 17:34:31 GMT
+Received: from thumbler.kulnet.kuleuven.ac.be (thumbler.kulnet.kuleuven.ac.be [134.58.240.45])
+        by jazzband.ncsc.mil  with ESMTP id i2QHYU36005451 for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 17:34:31 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by thumbler.kulnet.kuleuven.ac.be (Postfix) with ESMTP id 4E1DF137A26
+	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 18:34:30 +0100 (CET)
+Received: from lepidus.kulnet.kuleuven.ac.be (lepidus.kulnet.kuleuven.ac.be [134.58.240.72])
+	by thumbler.kulnet.kuleuven.ac.be (Postfix) with ESMTP id CA958137A13
+	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 18:34:29 +0100 (CET)
+Received: from [10.0.57.79] (zen.kotnet.org [10.0.57.79])
+	by lepidus.kulnet.kuleuven.ac.be (Postfix) with ESMTP id 65DEC38005A
+	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 18:34:29 +0100 (CET)
+Mime-Version: 1.0 (Apple Message framework v613)
+Message-Id: <D571AD7F-7F4B-11D8-A7FC-000A95D903E6@student.kuleuven.ac.be>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: selinux@tycho.nsa.gov
+From: Koen Vervloesem <koen.vervloesem@student.kuleuven.ac.be>
+Subject: make relabel: invalid context
+Date: Fri, 26 Mar 2004 18:34:28 +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-03-25 at 14:30, Chris PeBenito wrote:
-> Over the last couple weeks I've been working on a SELinux status tool. 
-> I originally intended it for use as a support tool, so we could get much
-> of SELinux's status in one shot.  Since not being able to log in is a
-> common problem, I aimed the tool to be helpful with figuring out the
-> problem.  After some suggestions from Russell, the result is the
-> attached sestatus.
+Hi,
 
-Thanks, this seems like a good idea.  Did you consider readlink of
-/proc/pid/exe rather than read of /proc/pid/cmdline when trying to find
-the process for a given program?  I suppose that might be a problem if
-they can't become root on the system, but it would offer a more reliable
-path for the executable.  Another possibility would be to scan
-/proc/pid/maps.
- 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I have installed the SELinux tools on Debian with the Linux 2.6.4 
+kernel with SELinux support. The package selinux-policy-default doens't 
+get installed, and gives very strange errors, so I decided to get the 
+NSA policy example (www.nsa.gov/selinux/code/download5.cfm). I did get 
+through make policy and make install, but when I execute make relabel I 
+get a bunch of errors:
+
+root@carnivore:/etc/selinux# make relabel
+/usr/sbin/setfiles file_contexts/file_contexts `mount | awk 
+'/ext[23]/{print $3}'`
+/usr/sbin/setfiles:  read 643 specifications
+/usr/sbin/setfiles:  invalid context system_u:object_r:file_t on line 
+number 39
+/usr/sbin/setfiles:  invalid context system_u:object_r:root_t on line 
+number 44
+/usr/sbin/setfiles:  invalid context system_u:object_r:var_t on line 
+number 49
+/usr/sbin/setfiles:  invalid context system_u:object_r:catman_t on line 
+number 50
+/usr/sbin/setfiles:  invalid context system_u:object_r:catman_t on line 
+number 51
+/usr/sbin/setfiles:  invalid context system_u:object_r:var_yp_t on line 
+number 52
+/usr/sbin/setfiles:  invalid context system_u:object_r:var_lib_t on 
+line number 53
+/usr/sbin/setfiles:  invalid context system_u:object_r:var_lib_nfs_t on 
+line number 54
+/usr/sbin/setfiles:  invalid context system_u:object_r:tetex_data_t on 
+line number 55
+/usr/sbin/setfiles:  invalid context system_u:object_r:tetex_data_t on 
+line number 56
+Exiting after 10 errors.
+make: *** [relabel] Fout 1
+root@carnivore:/etc/selinux#
+
+I can't find an error in the configuration files. Does anyone know 
+what's wrong here?
+
+Thanks in advance,
+
+Koen
+--
+"You do not truly know someone until you fight them. "  (Seraph , "The 
+Matrix Reloaded")
 
 
 --
