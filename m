@@ -1,66 +1,48 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5JrJIi002617
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 14:53:19 -0500 (EST)
-Received: from wproxy.gmail.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5JrLF9007319
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 19:53:22 GMT
-Received: by wproxy.gmail.com with SMTP id 64so58616wri
-        for <selinux@tycho.nsa.gov>; Fri, 05 Nov 2004 11:53:19 -0800 (PST)
-Message-ID: <561dc32604110511531fbd1e33@mail.gmail.com>
-Date: Fri, 5 Nov 2004 14:53:19 -0500
-From: Jiann-Ming Su <sujiannming@gmail.com>
-Reply-To: Jiann-Ming Su <sujiannming@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: MySQL Policy Patch
-In-Reply-To: <1098205374.29525.99.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5L1RIi003142
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 16:01:27 -0500 (EST)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5L1UF9010770
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 21:01:30 GMT
+Subject: Re: Updated SELinux Release
+From: Colin Walters <walters@verbum.org>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Manoj Srivastava <manoj.srivastava@stdc.com>, selinux@tycho.nsa.gov,
+   debian-devel@lists.debian.org
+In-Reply-To: <20041105155752.GC5565@lkcl.net>
+References: <1099496380.1213.111.camel@moss-spartans.epoch.ncsc.mil>
+	 <Pine.LNX.4.58.0411031908500.12297@d10systems.homelinux.com>
+	 <1099534538.3875.6.camel@nexus.verbum.private>
+	 <87k6t2qepg.fsf@glaurung.internal.golden-gryphon.com>
+	 <20041104131544.GC5461@lkcl.net>
+	 <1099627566.25416.6.camel@nexus.verbum.private>
+	 <20041105102853.GA5565@lkcl.net>
+	 <1099667461.25416.27.camel@nexus.verbum.private>
+	 <20041105155752.GC5565@lkcl.net>
+Content-Type: text/plain
+Date: Fri, 05 Nov 2004 16:01:04 -0500
+Message-Id: <1099688464.4012.6.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-References: <A52BEA1D8EE8634B9196A136333637B130F3@maat.darkhonor.net>
-	 <561dc326041019095644afc579@mail.gmail.com>
-	 <1098205374.29525.99.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 19 Oct 2004 13:02:54 -0400, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> 
-> IIRC, on FC2, you would do:
-> yum install policy-sources
-> cd /etc/security/selinux/src/policy
-> vi domains/program/mysqld.te
-> 
-> to look at the mysqld policy that shipped with FC2.  But you would
-> likely do better to update to FC3T3 if using SELinux, as much has
-> changed and FC2 policy hasn't had any updates AFAIK.
-> 
-FC3T3 wouldn't install on my system, so I'm having to work through
-FC2.  When I try to run "/etc/init.d/mysql start" as root, I get the
-following in dmesg:
+On Fri, 2004-11-05 at 15:57 +0000, Luke Kenneth Casson Leighton wrote:
 
-audit(1099684144.872:0): avc:  denied  { read } for  pid=5099
-exe=/bin/su name=.default_contexts dev=sda5 ino=213003
-scontext=jms:user_r:user_su_t tcontext=root:object_r:staff_home_dir_t
-tclass=file
-inode_doinit_with_dentry: 
-context_to_sid(system_u:object_r:mysql_home_dir_t) returned 22 for
-dev=sda8 ino=1107617
-audit(1099684153.056:0): avc:  denied  { associate } for  pid=5163
-exe=/usr/sbin/mysqld-max name=booboo.lower-test
-scontext=root:object_r:unlabeled_t tcontext=system_u:object_r:fs_t
-tclass=filesystem
-audit(1099684153.094:0): avc:  denied  { associate } for  pid=5163
-exe=/usr/sbin/mysqld-max name=mysql.sock
-scontext=root:object_r:unlabeled_t tcontext=system_u:object_r:fs_t
-tclass=filesystem
+>  response 3: _is_ it the job of debian developers to dictate the minimum
+>  acceptable security level?
 
-What do I need to do so that mysql will start on my system, and users
-can access the mysql database?  I've tried adding mysqld_r to the
-users file, but mysqld_r is not a role.  Sorry for being so slow with
-this.  Thanks for any info.
+It is absolutely Debian's job to provide a baseline level of security by
+default.  Debian doesn't let you install a system by default without a
+root password, or install a mail server that relays mail from any IP
+address, etc.  You're encouraged to create a regular user account for
+logins (IIRC).  Likewise, I think it should be part of the standard
+Linux security practice to have SELinux enabled by default.  With the
+targeted policy and all the flexibility it offers (e.g. just turn off
+protection for Apache, keep protection for named/portmap/syslog etc on),
+there's very little reason not to ship it on.
 
--- 
-Jiann-Ming Su
-"I have to decide between two equally frightening options. 
- If I wanted to do that, I'd vote." --Duckman
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
