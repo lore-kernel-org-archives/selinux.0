@@ -1,42 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7MBV7La008652
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 07:31:07 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7MBV6fF013491
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 11:31:06 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [144.51.25.4])
-        by jazzband.ncsc.mil  with ESMTP id h7MBV5Hd013488 for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 11:31:05 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7MBV4mG009154
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 07:31:04 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h7MBV4k1009152
-	for selinux@tycho.nsa.gov; Fri, 22 Aug 2003 07:31:04 -0400
-Date: Fri, 22 Aug 2003 08:32:23 +1000
-From: Brian May <bam@snoopy.apana.org.au>
+Subject: general security lib (was: 2.6.0-test3)
+From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
 To: Colin Walters <walters@verbum.org>
-Cc: Magos?nyi ?rp?d <mag@bunuel.tii.matav.hu>, SELinux@tycho.nsa.gov
-Subject: Re: 2.6.0-test3
-Message-ID: <20030821223223.GA20695@snoopy.apana.org.au>
-References: <200308212337.59952.russell@coker.com.au> <1061487623.22355.27.camel@columbia>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: SELinux <SELinux@tycho.nsa.gov>
 In-Reply-To: <1061487623.22355.27.camel@columbia>
+References: <1061468940.1665.16.camel@kusturica>
+	<200308212337.59952.russell@coker.com.au>
+	<1061487623.22355.27.camel@columbia>
+Content-Type: text/plain; charset=ISO-8859-2
+Date: 22 Aug 2003 14:38:41 +0200
+Message-Id: <1061555921.1648.142.camel@kusturica>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Aug 21, 2003 at 01:40:23PM -0400, Colin Walters wrote:
-> Eventually, I'd like to not have to use any packages outside of unstable
+2003-08-21, cs keltezéssel Colin Walters ezt írta:
 > at all.  Russell, what do you think about starting to send these patches
 > to the Debian package maintainers and get them integrated?  At least the
-> Debian coreutils package already applies over 50 patches, one more
-> wouldn't hurt :)
-> The only drawback I see is a dependency on libselinux, but it's so small
-> anyways.
 
-Does the libselinux in unstable support the 2.6 interface yet?
+It might be the least unconvenient solution for the short run.
+
+But for the long run it would be better if the upstream maintainers
+would integrate support for the userspace security API. And they
+won't necessarily like that they should use separate code for
+selinux, rsbac, etc. It means that there should be a general
+security lib. I now think that the current API of libselinux is
+good, only the inside workings should be made more general, to
+make it possible to plug other modules in.
+The approach is described in
+http://reality.sgiweb.org/offer/papers/PACM/
+in the rationale paper.
+
+
 -- 
-Brian May <bam@snoopy.apana.org.au>
+GNU GPL: csak tiszta forrásból
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
