@@ -1,37 +1,33 @@
-Date: Wed, 19 Dec 2001 14:36:10 -0500 (EST)
+Date: Wed, 19 Dec 2001 14:45:06 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: <lonnie@outstep.com>
-cc: SELinux Mailing <SELinux@tycho.nsa.gov>
+To: Gary Lowder <gary@lowder.com>
+cc: <SELinux@tycho.nsa.gov>
 Subject: Re: setting up new test user domain?
-In-Reply-To: <1008786485.3c20dc3520535@mail.outstep.com>
-Message-ID: <Pine.GSO.4.33.0112191351410.5056-100000@raven>
+In-Reply-To: <3C20D492.10504@lowder.com>
+Message-ID: <Pine.GSO.4.33.0112191439070.5056-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 19 Dec 2001 lonnie@outstep.com wrote:
+On Wed, 19 Dec 2001, Gary Lowder wrote:
 
-> Actually I found out that I had to use the original unchanged every.te as well
-> as changing the be_domain back to domain in the be_user.te file.
+> I hate to completely change the direction you're headed but...
+> Based on what you've said earlier about what you want to accomplish, it
+> seems a chroot jail is what you want for your users.  Why reinvent the
+> wheel?  Of course you can beat SELinux into doing what you're asking,
+> but that's not really what it was designed to directly accomplish.
 
-No, that isn't right.  If you use the original every.te file and you keep
-the "domain" attribute on your new domain, then the rules in every.te will
-be applied to your new domain, which is more permissive than you want.  As
-I said originally, you must either change every.te to exclude your new
-domain or you must not use the "domain" attribute on your new domain.  The
-first option seems preferable (changing every.te).
-
-Please make sure that you've read the available documentation regarding
-the policy before proceeding any further.  Randomly making changes without
-any understanding of what you are doing is unlikely to produce the desired
-result.
+I suppose that this depends on what he needs.  If he wants a completely
+isolated directory tree for each user and he wants this to be transparent
+to applications, then using chroot makes sense, although I would still
+suggest using SELinux to confine any damage if the chroot jail is broken
+and to protect the integrity of the base system.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
