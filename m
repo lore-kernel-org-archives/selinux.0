@@ -1,34 +1,43 @@
-Date: Mon, 29 Jul 2002 12:54:17 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Carsten Grohmann <carstengrohmann@gmx.de>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: security context of kapmd and others
-In-Reply-To: <200207291631.QAA11082@jazzband.ncsc.mil>
-Message-ID: <Pine.GSO.4.33.0207291248560.10600-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA00554
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 13:02:51 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id RAA12568
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 17:02:02 GMT
+Received: from caduceus.jf.intel.com (fmr06.intel.com [134.134.136.7])
+	by jazzswing.ncsc.mil  with ESMTP id RAA12564
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 17:02:01 GMT
+Received: from talaria.jf.intel.com (talaria.jf.intel.com [10.7.209.7])
+	by caduceus.jf.intel.com (8.11.6/8.11.6/d: outer.mc,v 1.48 2002/05/24 00:39:04 root Exp $) with ESMTP id g6TH1Eq14579
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 17:01:14 GMT
+Received: from orsmsxvs040.jf.intel.com (orsmsxvs040.jf.intel.com [192.168.65.206])
+	by talaria.jf.intel.com (8.11.6/8.11.6/d: inner.mc,v 1.22 2002/05/24 00:38:22 root Exp $) with SMTP id g6TGxSY06798
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 16:59:28 GMT
+Received: from orsmsx26.jf.intel.com ([192.168.65.26])
+ by orsmsxvs040.jf.intel.com (NAVGW 2.5.2.11) with SMTP id M2002072910034218452
+ for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 10:03:42 -0700
+Message-ID: <D9223EB959A5D511A98F00508B68C20C0F2F05CF@orsmsx108.jf.intel.com>
+From: "Menon, Sunanda R" <sunanda.r.menon@intel.com>
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: building the kernel
+Date: Mon, 29 Jul 2002 10:02:45 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I downloaded 2.4 LSM based SE linux( Option 1 everything in one part),
+unzipped into SELinux directory in Redhat 6.2 Linux.
+ I went thru the "Building kernel" part of the documentation. When I do the
+"make menuconfig", I am getting th efollowing error:
+/bin/sh scripts/menuconfig arch/i386/config.in
+:commnad not found
+:command not found
+:command not found
+scripts/menuconfig:syntax error on line 104:  'unexpected token {
 
-On Mon, 29 Jul 2002, Carsten Grohmann wrote:
-
-> After  a ps ax --context, I see that some kernel daemons don't run in the
-> kernel_t domain. On my SuSE are this kreiserfsd, keventd and kapmd.
->
-> Where can I change the settings to move this daemons to the kernel_t
-> domain. I don't found any settings for this.
-
-The initial task (pid 0) is assigned the kernel_t domain.  When it forks
-and executes /sbin/init, pid 1 transitions to the init_t domain due to
-the domain transition rule.  Any kernel threads created directly by pid 0
-inherit the kernel_t domain.  Any kernel threads created directly by pid 1
-inherit the init_t domain.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
+Does anyone know what is the cause of this problem?
 
 
 
