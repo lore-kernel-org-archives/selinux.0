@@ -1,75 +1,52 @@
-From: lonnie@outstep.com
-To: Gary Lowder <gary@lowder.com>
+Date: Wed, 19 Dec 2001 16:54:10 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: <lonnie@outstep.com>
+cc: SELinux Mailing <SELinux@tycho.nsa.gov>
 Subject: Re: setting up new test user domain?
-Message-ID: <1008796100.3c2101c42a177@mail.outstep.com>
-Date: Wed, 19 Dec 2001 16:08:20 -0500 (EST)
-Cc: SELinux@tycho.nsa.gov
-References: <Pine.GSO.4.33.0112190955150.5056-100000@raven> <3C20D492.10504@lowder.com>
-In-Reply-To: <3C20D492.10504@lowder.com>
+In-Reply-To: <1008795695.3c21002f44f24@mail.outstep.com>
+Message-ID: <Pine.GSO.4.33.0112191641430.5056-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Gary,
 
-One of the main problems that we have found while investigating the "chroot" 
-options was that when the system is running in "init 5" (graphical xwindows) 
-and the chrooted program is in place then the user cannot move out of their 
-directory from a shell. This also work great for "init 3" (text mode).
+On Wed, 19 Dec 2001 lonnie@outstep.com wrote:
 
-The fundamental problem is when you start an application once your window 
-manager such as kde has been started. If you start Netscape, or OpenOffice for 
-example the the user is free to navigate all over the system and effectively 
-breaks out of the 'chrooted' environment.
+> If I do this on the original every.te
+>
+> sed "s/domain/~be_domain/g" every.te > newevery.te
+> mv newevery.te every.te
+>
+> Then in my new file "be_user.te"
+>
+> I have replaced
+> "user_t" with "be_user_t"
+> "define('user_domain'," with "define('be_domain',"
+> "user_domain(user)" with "be_domain(be_user)"
+> "type user_t domain userdomain" with "type be_user_t domain be_userdomain"
+>
+> then when I go to the policy directory and do "make" I get the error unknown
+> type 'be_domain'
 
-this is why we have been looking to do it from many other possible directions 
-although there does not seem to be any easy method for this.
+In your every.te file, you are using the name of your macro
+(be_domain) rather than the name of your domain (be_user_t).
+Unfortunately, fixing that error won't actually help you, due
+to a limitation in the current policy language/compiler.  I erred in
+suggesting this approach; you should go back to not using the "domain"
+type attribute with your new domain and leave every.te unmodified (but
+remove the assertion from assert.te).  Sorry.
 
-Cheers,
-Lonnie
+I doubt that many of the other subscribers to this list are interested in
+this discussion any further, so you may want to take it off-list as a
+courtesy.
 
-Quoting Gary Lowder <gary@lowder.com>:
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-> Lonnie,
-> 
-> I hate to completely change the direction you're headed but...
-> Based on what you've said earlier about what you want to accomplish, it
-> 
-> seems a chroot jail is what you want for your users.  Why reinvent the
-> 
-> wheel?  Of course you can beat SELinux into doing what you're asking, 
-> but that's not really what it was designed to directly accomplish.
-> 
-> Largo, Florida, implemented a linux system for it's municipality workers
-> 
-> to use.  A base link off of which you might find lots of useful 
-> information is:  http://www.consultingtimes.com/Largo.html
-> He didn't do exactly what you're talking about, but it's not far off.
-> 
-> Where I would actually start, is a site to help explain and set up a 
-> chroot jail, one of I'm sure many sites is: 
-> http://www.gsyc.inf.uc3m.es/~assman/jail/1.html
-> 
-> I'm sure there are others out there.
-> 
-> With a large enough hammer it is entirely possible to beat a square peg
-> 
-> into a round hole, but it's much easier to just find the round peg.
-> 
-> Hope this helps you accomplish your objectives.
-> 
-> Gary.
-> 
-> 
-> 
-> --
-> You have received this message because you are subscribed to the selinux
-> list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
