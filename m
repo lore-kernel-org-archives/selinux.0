@@ -1,47 +1,40 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RHLXrT021591
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 13:21:33 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7RHLUoM025062
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 17:21:31 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Dale Amon <amon@vnl.com>
-Subject: Re: file_contexts/types.fc
-Date: Sat, 28 Aug 2004 03:21:28 +1000
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200408272141.36561.russell@coker.com.au> <200408280305.02429.russell@coker.com.au> <20040827171045.GA18446@vnl.com>
-In-Reply-To: <20040827171045.GA18446@vnl.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RKYerT022754
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 16:34:40 -0400 (EDT)
+Received: from mwinf0508.wanadoo.fr (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7RKXrpX021391
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 20:33:53 GMT
+Received: from me-wanadoo.net (localhost [127.0.0.1])
+	by mwinf0508.wanadoo.fr (SMTP Server) with SMTP id E9AA818000F9
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 22:34:39 +0200 (CEST)
+Received: from [192.168.1.17] (ALille-251-1-3-196.w82-127.abo.wanadoo.fr [82.127.145.196])
+	by mwinf0508.wanadoo.fr (SMTP Server) with ESMTP id BBB3418000AF
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 22:34:39 +0200 (CEST)
+Message-ID: <412F9AE3.3010401@wanadoo.fr>
+Date: Fri, 27 Aug 2004 22:34:43 +0200
+From: samuel desseaux <sam1975@wanadoo.fr>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408280321.28519.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: contributing to Selinux
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 28 Aug 2004 03:10, Dale Amon <amon@vnl.com> wrote:
-> On Sat, Aug 28, 2004 at 03:05:02AM +1000, Russell Coker wrote:
-> > > It usually means Digital Signal Processor.
-> >
-> > Yes, the issue however is what a DSP board is.  Is it a software
-> > modem/sound card device (like the MWave cards in older Thinkpads)?  Is it
-> > a numeric co-processor for offloading some computations from the main CPU
-> > (useful for sound/video processing)?
->
-> The only ones I'm familiar with were boards that
-> had one or more DSP chips on them for massive
-> offboard general purpose signal processing. There
-> was a dandy one for NeXT's from IRCAM many years
-> back...
+Hi!
 
-Maybe for that sort of thing a type external_processor_device_t type would do.  
-If the DSP in question is the same as the one from the NEXT.
+I am very interested by the Selinux 's project and would like to contribute.
+I am a french engineer of 28 years old and work as developer. Im my 
+freetime,i contribute to some free software 's projects and develop some 
+project (i  am working on a distribution from scratch where i have 
+included selinux).
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I'd like to know if i coulde eventually contribute to the documentation 
+tasks (and/or translating webpages of the project)?
+
+Best regards
+
+samuel desseaux
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
