@@ -1,66 +1,43 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5B3uHrT004089
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 23:56:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5B4DnrT004160
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 00:13:49 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5B3uCaH004279
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 23:56:13 -0400 (EDT)
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5B4Di1j004762
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 00:13:45 -0400 (EDT)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: se-samba - a possible way to get round no seteuid
-Date: Fri, 11 Jun 2004 13:56:08 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>, samba-technical@samba.org,
-   tng-technical@lists.samba-tng.org
-References: <20040609100345.GA5727@lkcl.net> <200406101731.39235.russell@coker.com.au> <20040610201327.GA2861@lkcl.net>
-In-Reply-To: <20040610201327.GA2861@lkcl.net>
+Subject: Re: SELinux on Debian (Sid)
+Date: Fri, 11 Jun 2004 14:13:40 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20040609144404.GJ5477@philips.com> <20040610120344.GM5477@philips.com> <20040610215418.GR2861@lkcl.net>
+In-Reply-To: <20040610215418.GR2861@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200406111356.08287.russell@coker.com.au>
+Message-Id: <200406111413.40262.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 11 Jun 2004 06:13, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > instead of doing a seteuid back to root, you do an execve to
-> > > an executable named samba-root.
-> >
-> > That doesn't work.  There are more possible UIDs than the root file
-> > system may have Inodes...
+On Fri, 11 Jun 2004 07:54, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > The selinux-default-policy came from the apt-repository mentioned above.
 >
->  ? i am confused.  by execve'ing back to a context, shall we call it
->  smbd_as_root_t, what connection does that have to UIDs?
+>  ah, there _isn't_ one in newselinux, you mean the one from
+>  ftp.uk.debian.org.
 
-The idea for Exim is that you have a set of wrapper binaries already there on 
-disk.  If a particular installation of Exim doesn't use one of the ~6 
-wrappers that are installed then it's only a waste of 4K of disk space.
+Or whichever Debian mirror is most convenient.
 
-If we do the same mechanism for each UID then we have many more executables, 
-or we have to allow the daemon to create new executables which also adds more 
-coding.
+>  check that you have 1.12-1
 
->  ah, remember that you can have several UIDs over the same TCP
->  connection (and multiple SMBsessionsetupX's to represent each
->  and you get these SMB-MIDs - multiplexing ids - to represent
->  each SMB session over the same TCP session),
+1.12-2 has been out for a while, and yesterday I uploaded 1.12-3 which fixes 
+some issues discussed in this thread.
 
-[...]
-
->  i thought that instead of having the seteuid and back to root,
->  you could execve back to the "smbd_as_root_t context".
-
-True, but re-execing requires serialising all the data to a file, shared 
-memory region, or something else that will survive past an exec.  That's pain 
-that we don't want to go through any more often than is necessary.
-
->  - smbd_the_daemon (waiting for connections)
+>  tell y'what, here's a list of packages i have installed:
 >
->  ... which transitions on a fork to...
->
->  - smbd_as_root_t (dealing with "connections")
->
->  ... which can transition to ...
+>  sez:/boot# dpkg -l | grep selinux
+>  ii  bsdutils       2.11z-4.selinu Basic utilities from 4.4BSD-Lite
 
-How about just smbd_the_daemon which can transition to smbd_as_a_user?
+Why do you need a patched bsdutils?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
