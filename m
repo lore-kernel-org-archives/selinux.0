@@ -1,40 +1,37 @@
-From: "Ed Street" <edstreet@street-tek.com>
-To: <russell@coker.com.au>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Ed Street" <edstreet@street-tek.com>
+Subject: Re: courier mods for Debian
+Date: Wed, 14 Apr 2004 08:53:03 +1000
 Cc: "'SELinux'" <SELinux@tycho.nsa.gov>
-Subject: RE: courier mods for Debian
-Date: Tue, 13 Apr 2004 17:25:43 -0400
+References: <20040413212543.F095B3A404F@abyss.simplyaquatics.com>
+In-Reply-To: <20040413212543.F095B3A404F@abyss.simplyaquatics.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <200404132128.15421.russell@coker.com.au>
-Message-Id: <20040413212543.F095B3A404F@abyss.simplyaquatics.com>
+  charset="windows-1252"
+Message-Id: <200404140853.03636.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Wed, 14 Apr 2004 07:25, "Ed Street" <edstreet@street-tek.com> wrote:
+> For run_init /etc/init.d/courier-imap I had to add the following to get it
+> to start.
+>
+> allow initrc_t initrc_t:process { setrlimit };
 
-For run_init /etc/init.d/courier-imap I had to add the following to get it
-to start.
+Seems reasonable, I'll add that.
 
-allow initrc_t initrc_t:process { setrlimit };
+> Also it looks like allow httpd_t var_run_t:sock_file { write }; is needed
+> for this.
 
- 
-Also it looks like allow httpd_t var_run_t:sock_file { write }; is needed
-for this.
+No, the sock_file just needs a better label.  httpd_t should notbe able to 
+create any object of type var_run_t.
 
-avc:  denied  { write } for  pid=27683 exe=/usr/sbin/apache-ssl
-name=gcache_port dev=hda3 ino=2539533 scontext=system_u:system_r:httpd_t
-tcontext=system_u:object_r:var_run_t tclass=sock_file
-
-Ed
-
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.656 / Virus Database: 421 - Release Date: 4/9/2004
- 
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
