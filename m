@@ -1,42 +1,41 @@
-Subject: Re: Getting the real task name in avc messages
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2UKpvDo018626
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 15:51:58 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2UKm6ph010083
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 20:48:07 GMT
+Date: Wed, 30 Mar 2005 15:50:45 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
 To: Steve G <linux_4ever@yahoo.com>
-Cc: selinux@tycho.nsa.gov
+cc: selinux@tycho.nsa.gov
+Subject: Re: Getting the real task name in avc messages
 In-Reply-To: <20050330195313.44516.qmail@web51504.mail.yahoo.com>
-References: <20050330195313.44516.qmail@web51504.mail.yahoo.com>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 15:41:30 -0500
-Message-Id: <1112215290.8012.141.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <Xine.LNX.4.44.0503301550070.14531-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-03-30 at 11:53 -0800, Steve G wrote:
+On Wed, 30 Mar 2005, Steve G wrote:
+
 > Hello,
 > 
 > Attached is a patch to the kernel that puts the program's name into the avc
 > message. This lets you know the script that caused the problem instead of
 > /bin/bash. Feedback would be appreciated.
 
-I don't think you want to put this in avc_audit.  Instead, the goal is
-to migrate processing from avc_audit to audit_log_exit where it makes
-sense to do so.  Note that anytime avc_audit generates an audit message,
-audit_log_exit will be called upon syscall exit, so by adding a call to
-your new function to audit_log_exit, you'll ensure that this information
-is recorded for every avc denial as well as every other audit message.
-Note that you don't need to repeate the syscall= and per= information,
-as it will already be handled by audit_log_exit for you.  I also think
-that the exe= logging should be moved to audit_log_exit, and the
-existing logging of the comm should be removed from avc_audit entirely.
+This will be looked upon dimly upstream:
 
-Note that the comm field is less complete (not a full path and may even
-be truncated) and is not trustworthy (can be changed by the process to
-any arbitrary string).  So you can't rely on it, but it can be useful
-for debugging.
++        char name[sizeof(current->comm)];
 
+the kernel stack space is very limited.
+
+
+- James
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
