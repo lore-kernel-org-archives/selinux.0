@@ -1,85 +1,43 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1EAcXZ025989
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 09:10:38 -0500 (EST)
-Received: from tcsfw2.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1E9ECE028117
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 14:09:17 GMT
-Message-ID: <36282A1733C57546BE392885C06185924D9033@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, Frank Mayer <mayerf@tresys.com>
-Cc: Darrel Goeddel <DGoeddel@TrustedCS.com>, selinux@tycho.nsa.gov,
-   Chad Hanson <chanson@TrustedCS.com>
-Subject: RE: dynamic context transitions
-Date: Mon, 1 Nov 2004 09:11:00 -0500 
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1FshXZ026970
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 10:54:43 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1FrNCC005634
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 15:53:23 GMT
+Subject: Re: dynamic context transitions
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   Chad Hanson <chanson@TrustedCS.com>, Frank Mayer <mayerf@tresys.com>
+In-Reply-To: <4182959B.4080503@trustedcs.com>
+References: <4182959B.4080503@trustedcs.com>
+Content-Type: text/plain
+Message-Id: <1099324262.21386.75.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 01 Nov 2004 10:51:02 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2004-10-29 at 15:10, Darrel Goeddel wrote:
+> A process may also
+> jump between multiple MLS labels and perform actions at each.
+<snip>
+> The chain
+> of allowable dynamic  transitions is also controlled on a context-pair
+> basis.  This allows a "dynamic  transition group" to be treated as an
+> equivalence class for policy analysis.
 
-> 
-> On Sun, 2004-10-31 at 17:47, Frank Mayer wrote:
-> > > 	The MLS model is another reason for this functionality. We have
-> > > chosen to create MLS policy overrides using a new SELinux MLS
-> > > capability class. 
-> > 
-> > I have not thought greatly about this choice, but I wonder 
-> if it was wise to
-> > make the MLS mechanism dependent on the capability 
-> mechanism.  Orthogonal
-> > mechanisms would seem smarter.  
-> 
-> Point of clarification:  These MLS capabilities only exist as TE
-> abstractions, not as part of the Linux capabilities logic, 
-> IIUC.  Using
-> TE to control MLS privileges is desirable.
-> 
+These two statements seem to be in conflict to me.  Whereas you might be
+able to legitimately collapse multiple domains into a single equivalence
+class for information flow analysis purposes, I don't see how this is
+legitimate for levels.  If they were separate levels in the first place,
+then they should be separate equivalence classes for information flow. 
+Can you clarify?
 
-This is correct. We believe the the existing capabilities logic shouldn't be
-extended and thus added a new TE class for MLS override logic.  These "MLS
-capabilities" only affect MLS policy decisions.  In our desired
-implementation, SELinux would abritrate all capability decisions and
-obsolete the capability module.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-> > Ah and here we have the beginning of the slippery slope.  
-> This might be easy in
-> > terms of lines of code, but the conceptual complexity of 
-> what you describe above
-> > scares me.  I still wonder why we have to change TE to 
-> support a MLS convention.
-> > I'd much rather you did not make these mechanisms dependent 
-> on each other.  
-> 
-> TE was originally developed to fill in the gaps of MLS, including
-> privilege management for trusted subjects.  Using TE to control MLS
-> privileges is a good thing.  Whether or not privilege bracketing is a
-> good thing is more open to debate, although it is clearly 
-> entrenched in
-> applications today, and not just MLS applications; the prior requests
-> for such a feature have been to support traditional Unix applications
-> that presently use seteuid/setfsuid.
-> 
-
-IMHO the combination of MLS and TE is next step in increasing the security
-of solutions.  Existing MLS applications and systems have weaknesses. Using
-TE to model a complex MLS scenario is not a good idea.  The combination of
-the two technologies create the strongest foundation. 
-
--Chad
-
-____________________________
-Chad Hanson
-Senior Secure Systems Engineer
-
-Trusted Computer Solutions
-121 W Goose Alley
-Urbana, IL  61801
-
-www.TrustedCS.com
-
-V:  217.384.0028  ext.12
-F:  217.384.0288
 
 --
 This message was distributed to subscribers of the selinux mailing list.
