@@ -1,29 +1,27 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8SIkPrT009851
-	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 14:46:25 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8SIkNPw013326
-	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 18:46:23 GMT
-Subject: Re: [patch] jabberd file-context update
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8SIkSrT009856
+	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 14:46:28 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8SIjPuK002426
+	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 18:45:25 GMT
+Subject: Re: dhclient from hotplug
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
-To: Greg Norris <haphazard@kc.rr.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Russell Coker <russell@coker.com.au>,
-   SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040925011325.GB23849@yggdrasil.localdomain>
-References: <20040925011325.GB23849@yggdrasil.localdomain>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <200409252333.58602.russell@coker.com.au>
+References: <200409252333.58602.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1096396843.30810.85.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1096397128.30810.93.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 28 Sep 2004 14:40:43 -0400
+Date: Tue, 28 Sep 2004 14:45:28 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Merged.
 
-On Fri, 2004-09-24 at 21:13, Greg Norris wrote:
-> Please apply the attached jabberd.fc update, which is needed to make the 
-> logfile accessible.  Thanx!
+On Sat, 2004-09-25 at 09:33, Russell Coker wrote:
+> The attached patch is necessary for when dhclient is started from hotplug.
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
