@@ -1,57 +1,75 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBJEt6Rb012175
-	for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2003 09:55:06 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hBJEsFjx015679
-	for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2003 14:54:15 GMT
-Received: from mail.idtweb.com (mail.idtweb.com [63.140.241.100])
-	by jazzswing.ncsc.mil  with ESMTP id hBJEs2SR015665
-	for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2003 14:54:02 GMT
-Message-ID: <3FE31239.3090209@tresys.com>
-Date: Fri, 19 Dec 2003 09:59:05 -0500
-From: "David A. Caplan" <dac@tresys.com>
-MIME-Version: 1.0
-To: Shane Wegner <shane-keyword-selinux.9d5a25@cm.nu>
-CC: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBJI3URb013261
+	for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2003 13:03:30 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hBJI3Tpn000347
+	for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2003 18:03:29 GMT
+Received: from continuum.cm.nu (continuum.cm.nu [216.113.193.225])
+        by jazzband.ncsc.mil  with ESMTP id hBJI3Sab000344 for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2003 18:03:28 GMT
+Received: from shane by continuum.cm.nu with local (Exim 4.30)
+	id 1AXOyF-0006DU-Ka
+	for selinux@tycho.nsa.gov; Fri, 19 Dec 2003 10:03:27 -0800
+Date: Fri, 19 Dec 2003 10:03:26 -0800
+To: selinux@tycho.nsa.gov
+Cc: Russell Coker <russell@coker.com.au>
 Subject: Re: Domain Transitions (or the Exim4 policy)
-References: <20031219024548.GA24510@cm.nu>	<200312191647.45107.russell@coker.com.au> <20031219070905.GA32075@cm.nu>
-In-Reply-To: <20031219070905.GA32075@cm.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-ID: <20031219180326.GA23288@cm.nu>
+References: <20031219024548.GA24510@cm.nu>
+	<200312191647.45107.russell@coker.com.au>
+	<20031219070905.GA32075@cm.nu>
+	<200312191859.56996.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200312191859.56996.russell@coker.com.au>
+From: Shane Wegner <shane-keyword-selinux.9d5a25@cm.nu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Shane Wegner wrote:
->
->  it does indeed transition to user_mail_t though
-> I can't figure out how.  
+On Fri, Dec 19, 2003 at 06:59:56PM +1100, Russell Coker wrote:
+> On Fri, 19 Dec 2003 18:09, Shane Wegner <shane-dated-1074409746.778e04@cm.nu> 
+> wrote:
+> > On Fri, Dec 19, 2003 at 04:47:45PM +1100, Russell Coker wrote:
+> > > Why did you change it to exim4_t?  It seems to me that as exim and
+> > > sendmail operate in the same manner it would be better to have a single
+> > > policy to use for them both.  This will make it easier to maintain the
+> > > policy.
+> >
+> > Point taken.  Exim does seem to use a slightly different
+> > capability set and needs some modified permissions but
+> > they're trivial changes.
+> 
+> Send me a list.
+> 
+> I think that possibly the solution to this is to have sendmail.te and exim.te 
+> both instantiate a common macro for 99% of the policy.
 
-For future reference, I'd suggest the Reverse Domain Transition analysis 
-function in apol (http://www.tresys.com/selinux/) to easily find the 
-exact rules in policy.conf that allow a domain to transition to the 
-domain in question.
+Ok, differences I can spot are:
+Exim needs only read access to sendmail_conf_t it its case
+/etc/exim4 and /var/lib/exim4
+Init scripts need write access to /var/lib/exim4 as the
+main config file automatically gets generated from
+fragments on startup/reload.
+Needs read access to /dev/urandom
+Needs append-only access to sendmail_log_t  In exim's case,
+it's a directory (/var/log/exim4).
+Needs complete access to sendmail_mqueue_t including
+mkdir/rmdir/file locking etc.  That's exim's playground.
+Needs read access to /home or /home/(^/+)/.procmailrc.  The
+procmail filter checks for the existance of a user's
+.procmailrc file which is how it decides whether to use
+procmail as the delivery agent or if not found, it delivers
+to the mail spool directly.  I suppose it'd also need
+$HOME/.forward etc.
 
-In regard to your other question:
- > I'm seeing user_mail_domain in policies
- > but don't see user_mail_t anywhere save a minor mention
- > in attrib.te.
+Capabilities Exim uses which the sendmail.te doesn't
+currently allow: dac_override fowner sys_resource.
 
-You can also use apol to find all TE rules related to a type and include 
-those rules using the type's attributes by using the Include Indirect 
-Matches option under the Policy Rules tab in apol.  The search results 
-also provide hyper links into policy.conf so you can trace back where 
-the rules came from.  The Policy Components tab can show you all the 
-types that use a given attribute.
+Sendmail allows sys_nice and sys_tty_config which Exim does
+not appear to use.  Exim also needs a line similar to:
+allow sendmail_t self:process setpgid;
 
-David
--- 
-__________________________________
-
-David Caplan     410 290 1411 x105
-dac@tresys.com
-Tresys Technology, LLC
-8840 Stanford Blvd., Suite 2100
-Columbia, MD 21045
-
+Best,
+Shane
 
 --
 This message was distributed to subscribers of the selinux mailing list.
