@@ -1,45 +1,80 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA05125
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 07:56:25 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA27789
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 11:54:55 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id LAA27785 for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 11:54:54 GMT
-Date: Wed, 10 Jul 2002 07:55:50 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: audit bug in fd handling
-In-Reply-To: <20020710074550.C3E6D106@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0207100750250.26546-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA05783
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 09:23:23 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA15289
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 13:22:47 GMT
+Received: from mail.simplyaquatics.com (66-0-92-223.deltacom.net [66.0.92.223])
+	by jazzswing.ncsc.mil  with ESMTP id NAA15281
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 13:22:46 GMT
+Reply-To: <blacknet@simplyaquatics.com>
+From: "Ed Street" <blacknet@simplyaquatics.com>
+To: "'Russell Coker'" <russell@coker.com.au>,
+        "'SE Linux'" <selinux@tycho.nsa.gov>
+Subject: RE: audit bug in fd handling
+Date: Wed, 10 Jul 2002 09:23:20 -0400
+Message-ID: <007501c22814$f5949e90$0a01a8c0@ed>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <20020710074550.C3E6D106@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello,
 
-On Wed, 10 Jul 2002, Russell Coker wrote:
+Perhaps this is why mail is the #1 exploited service.  So what's the
+solution?  
 
-> It seems that when a file handle open read/write is inherited by a domain
-> that is permitted read access only, an error about write access will be
-> logged - even if there is a dontaudit rule!
+Ed
 
-Congratulations, you've found a bug.  It isn't limited to file descriptor
-inheritance - it occurs whenever multiple permissions are checked
-simultaneously and at least one of the permissions is allowed.  A
-workaround would be to specify the full set of permissions in the
-dontaudit rule, e.g. 'dontaudit system_mail_t system_crond_tmp_t:file {
-read write };'.  I'll post a patch for the SELinux module shortly.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
-
-
+=> -----Original Message-----
+=> From: owner-selinux@tycho.nsa.gov
+[mailto:owner-selinux@tycho.nsa.gov] On
+=> Behalf Of Russell Coker
+=> Sent: Wednesday, July 10, 2002 3:46 AM
+=> To: SE Linux
+=> Subject: audit bug in fd handling
+=> 
+=> It seems that when a file handle open read/write is inherited by a
+domain
+=> that is permitted read access only, an error about write access will
+be
+=> logged - even if there is a dontaudit rule!
+=> 
+=> Here's the dmesg log:
+=> avc:  denied  { write } for  pid=4731 exe=/usr/sbin/sendmail
+=> path=/spool/fcron/fcrjob-Ldo3Uf (deleted) dev=03:08 ino=27923
+=> scontext=system_u:system_r:system_mail_t
+=> tcontext=system_u:object_r:system_crond_tmp_t tclass=file
+=> 
+=> Here's a grep from policy.conf:
+=> dontaudit system_mail_t system_crond_tmp_t:file write;
+=> 
+=> 
+=> Incidentally I'm changing the way mail sending operates.  Having
+daemons
+=> send
+=> mail as sysadm_mail_t is ugly, and having them send mail as
+user_mail_t
+=> is
+=> wrong.  I've created a new system_mail_t for this.
+=> 
+=> --
+=> I do not get viruses because I do not use MS software.
+=> If you use Outlook then please do not put my email address in your
+=> address-book so that WHEN you get a virus it won't use my address in
+the
+=> >From field.
+=> 
+=> --
+=> You have received this message because you are subscribed to the
+selinux
+=> list.
+=> If you no longer wish to subscribe, send mail to
+majordomo@tycho.nsa.gov
+=> with
+=> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
