@@ -1,51 +1,42 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6B9wrrT027055
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 05:58:53 -0400 (EDT)
-Received: from web51506.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6B9wpSC017746
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 09:58:51 GMT
-Message-ID: <20040711095847.82412.qmail@web51506.mail.yahoo.com>
-Date: Sun, 11 Jul 2004 02:58:47 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Policy flexibility & multiple Policy issue 
-To: selinux@tycho.nsa.gov
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6BAoHrT027161
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 06:50:17 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6BAoDSC018139
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 10:50:14 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: warning about debian hotplug package 20040329-9!
+Date: Sun, 11 Jul 2004 20:50:08 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040709201413.GB3168@lkcl.net>
+In-Reply-To: <20040709201413.GB3168@lkcl.net>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-285216838-1089539927=:81647"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200407112050.08313.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-285216838-1089539927=:81647
-Content-Type: text/plain; charset=us-ascii
+On Sat, 10 Jul 2004 06:14, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> warning warning warning, do not install hotplug version 20040329-9
+> from debian unstable because /etc/hotplug/net.rc attempts to write
+> to /etc/hotplug/net.enable.
+>
+> hotplug writing to /etc/ even /etc/hotplug is banned by the [present]
+> selinux policy.
+>
+> i'm raising a bugreport about this one if there isn't one already.
 
-Hi,
-      I reread the <<The Flask Security Architecture: System Support for Diverse Security Policies>>,in its introduction section there are some words:"Supporting policy flexibility in the operating system is a hard problem that goes beyond just supporting multiple policies." 
-      
-      Then I was confused with the following question:"What is exactly the difference between supporting policy flexibility and supporting multiple policies in the operating system?"  Before we support policy flexibility in the operating system, must we support multiple policies?
- 
-Thank you!
- 
-Park Lee
- 
+That package is broken in other ways.  It doesn't work with PC-Card or Cardbus 
+Ethernet devices doing DHCP.  Just use -8.
 
-		
----------------------------------
-Do you Yahoo!?
-Yahoo! Mail is new and improved - Check it out!
---0-285216838-1089539927=:81647
-Content-Type: text/html; charset=us-ascii
-
-<DIV>Hi,</DIV>
-<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I reread the &lt;&lt;The Flask Security Architecture: System Support for Diverse Security Policies&gt;&gt;,in its introduction section there are some words:"Supporting policy flexibility in the operating system is a hard problem that goes beyond just supporting multiple policies." </DIV>
-<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </DIV>
-<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Then I was confused with the following question:"What is exactly the difference between supporting policy flexibility and supporting multiple policies in the operating system?"&nbsp;&nbsp;Before we support policy flexibility in the operating system, must we support multiple policies?</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Thank you!</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Park Lee</DIV>
-<DIV>&nbsp;</DIV><p>
-		<hr size=1>Do you Yahoo!?<br>
-Yahoo! Mail is new and improved - <a href="http://us.rd.yahoo.com/mail_us/taglines/new/*http://promotions.yahoo.com/new_mail">Check it out!</a>
---0-285216838-1089539927=:81647--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
