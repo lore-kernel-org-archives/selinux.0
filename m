@@ -1,28 +1,23 @@
-Date: Mon, 16 Feb 2004 10:00:31 -0500
-From: Robert Connolly <cendres@videotron.ca>
-Subject: Re: StrongArm port
-In-reply-to: <005701c3f441$e13d7a20$6401a8c0@williams>
-To: Douglas Williams <douglaswilliams@sympatico.ca>,
-   SELinux <SELinux@tycho.nsa.gov>
-Message-id: <200402161000.31454.cendres@videotron.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-References: <005701c3f441$e13d7a20$6401a8c0@williams>
+Subject: Logging the target?
+From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-2
+Date: 16 Feb 2004 17:36:27 +0100
+Message-Id: <1076949388.10004.14.camel@kusturica>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On February 15, 2004 11:03 pm, Douglas Williams wrote:
-> Does anyone know where I can get a good linux kernel for an IPAQ 3850. My
-> next robot must have a secure OS especially since it will use an RF data
-> link with relatively weak encryption.
+Hi!
 
-I have just recently started working on Ipaq development. I can't give you an 
-expected date for a working release; but I intened to first get the Ipaq 
-(3600) Linux built with 'gcc -pie', and without text relocation. First with 
-glibc since that should already work, then with uclibc. Eventually leading to 
-kernel 2.6, with selinux, Pax, and ssp. I haven't considered the issue with 
-xattr, I'll deal with that when I get to it. I feel the biggest challenge 
-will come in porting the graphical software to pie/pax.
+Is there a way to figure out the target object of a deny?
+An example: when I done an exec("/bin/bash") it was denied
+by my policy, because some library files was not the right
+type. It would spare me 2 reboots if the actual target would be stated
+in the logs.
+
+-- 
+GNU GPL: csak tiszta forrásból
 
 
 --
