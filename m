@@ -1,60 +1,49 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h97Fi4Wt012351
-	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 11:44:04 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h97FqlWt012435
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 11:52:47 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h97Fi20p009182
-	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 15:44:02 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h97Fqi0p009929
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 15:52:44 GMT
 Received: from tsv.sws.net.au ([61.95.69.2])
-	by jazzswing.ncsc.mil  with ESMTP id h97Fi0r7009173
-	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 15:44:01 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h97Fqhr7009917
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 15:52:43 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: login messages
-Date: Wed, 8 Oct 2003 01:43:48 +1000
-Cc: "James R. Kratzer" <JamesK@xetron.com>, selinux@tycho.nsa.gov
-References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A45@s3cin> <200310071533.00017.russell@coker.com.au> <1065534718.3919.211.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1065534718.3919.211.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: /selinux/enforce permissions
+Date: Wed, 8 Oct 2003 01:52:31 +1000
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
+References: <200310080000.51892.russell@coker.com.au> <200310080129.48815.russell@coker.com.au> <1065541333.3919.256.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1065541333.3919.256.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200310080143.48828.russell@coker.com.au>
+Message-Id: <200310080152.31365.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 7 Oct 2003 23:51, Stephen Smalley wrote:
-> I don't think that this helps, unless you are carefully limiting the
-> types that can be read by user_loadkeys_t, since the user can still
-> specify a font and umap as arguments to unicode_start and thus specify
-> an arbitrary map.  Even if you use the policy to limit it to certain
-> system types, it isn't clear that it is safe to allow the user to select
-> any system-installed mapping.  The safest approach would be to have
-> getty or login perform the loading, and to load authorized mappings that
-> aren't subject to configuration by ordinary users.
+On Wed, 8 Oct 2003 01:42, Stephen Smalley wrote:
+> On Tue, 2003-10-07 at 11:29, Russell Coker wrote:
+> > The old SE Linux allowed the avc_enforcing() system call from any
+> > context, and when the machine was not in enforcing mode avc_toggle()
+> > could be run from any UID.  If we want to preserve the same functionality
+> > as old SE Linux then we want mode 0644.
+>
+> What functionality depended on that behavior?  Doesn't seem worth
+> retaining to me.
 
-Currently the consensus of opinion within Red Hat is to have the system 
-installed mappings be audited to avoid any problems regarding the loading of 
-bad mappings.  Then we just allow loading any system mappings by the user at 
-any time.  Having a mapping be bad enough to cause problems seems to require 
-a fairly gross error in the mapping.  Allowing the user to choose between 
-different system mappings seems to be a big enough benefit to outweigh the 
-tiny risk of immense gross errors in mappings.
+Running "avc_enforcing" from any UID was very convenient, it saved doing the 
+other strange things that you might have to do to determine the state of the 
+machine (and also saved having to su to do it).
 
-Also I think I'll just make it loadkeys_t instead of having a number of 
-user_loadkeys_t domains.
-
-
-PS  Before someone asks, yes this is important.  Having console access does 
-NOT mean that you can break the security of the machine in any trivial way.  
-Think about "Internet terminal" devices that are physically secured as well 
-as a Coke vending machine.
+I guess I could just do:
+alias avc_enforcing="dmesg 2> /dev/null|wc -l"
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
 
 
 --
