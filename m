@@ -1,105 +1,95 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59BEirT018774
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 07:14:45 -0400 (EDT)
-Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i59BEgTV019237
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 07:14:42 -0400 (EDT)
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Wed, 9 Jun 2004 13:14:41 +0200
-Date: Wed, 9 Jun 2004 13:14:28 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: How to handle tmpfiles under /home ?
-Message-Id: <20040609111427.GA2006@jmh.mhn.de>
-References: <20040607234412.GB2073@jmh.mhn.de> <200406091505.52603.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59Ei8rT020011
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 10:44:09 -0400 (EDT)
+Received: from gw-eur4.philips.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i59Ei6Qd028122
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 10:44:06 -0400 (EDT)
+Received: from smtpscan-eur5.philips.com (smtpscan-eur5.mail.philips.com [130.144.57.168])
+	by gw-eur4.philips.com (Postfix) with ESMTP id 98A06499AE
+	for <selinux@tycho.nsa.gov>; Wed,  9 Jun 2004 14:44:06 +0000 (UTC)
+Received: from smtpscan-eur5.philips.com (localhost [127.0.0.1])
+	by localhost.philips.com (Postfix) with ESMTP id 3C412AA
+	for <selinux@tycho.nsa.gov>; Wed,  9 Jun 2004 14:44:06 +0000 (GMT)
+Received: from smtprelay-eur1.philips.com (smtprelay-eur1.philips.com [130.144.57.170])
+	by smtpscan-eur5.philips.com (Postfix) with ESMTP id 83AB851
+	for <selinux@tycho.nsa.gov>; Wed,  9 Jun 2004 14:44:05 +0000 (GMT)
+Received: from prle4.natlab.research.philips.com (prle4.natlab.research.philips.com [130.145.137.96])
+	by smtprelay-eur1.philips.com (8.9.3p3/8.9.3-1.2.2m-20040401) with ESMTP id OAA02153
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 14:44:05 GMT
+Received: from smtpmon (smtpmon [130.145.137.150])
+	by prle4.natlab.research.philips.com (8.11.6/8.11.6) with ESMTP id i59Ei5W13086
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 16:44:05 +0200
+Received: from therning by pc67148596.ddns.htc.nl.philips.com with local (Exim 4.34)
+	id 1BY4JA-0002Th-Uf
+	for selinux@tycho.nsa.gov; Wed, 09 Jun 2004 16:44:04 +0200
+Date: Wed, 9 Jun 2004 16:44:04 +0200
+From: Magnus Therning <magnus-work@therning.org>
+To: selinux@tycho.nsa.gov
+Subject: SELinux on Debian (Sid)
+Message-ID: <20040609144404.GJ5477@philips.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
-In-Reply-To: <200406091505.52603.russell@coker.com.au>
+	protocol="application/pgp-signature"; boundary="JSkcQAAxhB1h8DcT"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---opJtzjQTFsWo+cga
+--JSkcQAAxhB1h8DcT
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-* Russell Coker <russell@coker.com.au> [2004-06-09 08:20]:
-> On Tue, 8 Jun 2004 09:44, Thomas Bleher <bleher@informatik.uni-muenchen.d=
-e>=20
-> wrote:
-> > I recently ran into a problem with tmpfiles in my homedir. I have
-> > configured mutt to store mails I write under ~/.mutt/tmp/.
-> > Unfortunately, current policy only allows postfix to read user_tmp_t.
-> > This leads to postfix sending totally empty mails in enforcing mode.
->=20
-> What version of the policy allows postfix to access user_tmp_t?
->=20
-> user_mail_t is allowed access to files of type user_tmp_t.  But apart fro=
-m=20
-> that there should be no access of postfix to user_tmp_t.
+I have run into some problems with getting a Debian box up and running
+with SELinux. Maybe someone can offer some insights?
 
-Yeah, I was unclear here. The denial occurs in user_mail_t.
+Installing selinux-default-policy failed, make complains about 'chsid'
+not being present. These are the problems I run into when trying to
+complete the installation of the policies:
 
-> user_tmp_t generally should not be used for files under the user home=20
-> directory, so ~/.mutt/tmp should be labelled as user_home_t.
->=20
-> If you create a file on /tmp and mv it to ~ then if ~ and /tmp are on the=
- same=20
-> file system then it will get the type user_tmp_t, is this the case with m=
-utt? =20
-> What does that have to do with Postfix anyway?  Postfix should not be=20
-> attempting delivery to ~/.mutt anyway.
->=20
-> Your message didn't clarify what your problem is, or what your objectives=
- are,=20
-> so I can't give any advice until I get more information.
+ 1. The makefile in /etc/selinux uses 'chsid'. This is the line:
 
-Apparently my mail wasn't clear so I'll try to restate my problem:
-I'm using mutt to read mail over IMAP, sent mail goes through a local
-postfix. mutt can be configured where to store mails which are being
-composed. I chose ~/.mutt/tmp which means that newly created messages
-have type user_home_t. mutt then calls /usr/sbin/sendmail which
-transitions to user_mail_t. sendmail wants to read the new message,
-fails to do so because it isn't allowed to read user_home_t; as a result
-a totally empty message is sent.
+      chsid system_u:object_r:policy_config_t /ss_policy
 
-I have fixed this particular case in my local policy already but I
-posted it here because I think that this is a more general problem:
-I think it is generally encouraged for users to set $TMP and $TMPDIR to
-some directory which is under their control and not world-writable.
-This can be done under /tmp (I think Bastille-Linux had a script for
-this) but it is much easier for users to do this in their homedir.
-The problem however is that setting $TMP to something under ~ breaks
-with current policy.
-This is OK on systems with only a few users who can easily be educated
-but presents problems on systems with a few thousand users.
-So my hope is that there will be some generic solution (like ~/.tmp) as
-I still see some security benefits to private homedirs, even with
-SELinux.
+    Apparently that tool has been replaced by 'chcon'.
 
->=20
-> As for Steve's message about putting the MUA into it's own domain, the pr=
-oblem=20
-> with that is that the MUA is usually expected to be able to attach files =
-=66rom=20
-> any directory and save received attachments to any directory.  It wants t=
-o=20
-> run gpg and store the gpg pass-phrase, so unless the usage patterns are=
-=20
-> significantly changed there's little ability to lock things down.
-=20
-I agree with this. Additionally I'm reading mail over imap, so my mail
-reader needs network access.
+      chcon -u system_u -r object_r -t policy_config_t /ss_policy
 
-Thomas
+    On a standard kernel this gave the following error message:
+     =20
+      chcon: invalid security context
+
+ 2. The path to 'load_policy' is wrong in /etc/selinux/Makefile it now
+    lives in /usr/sbin rather than /usr/bin. Also the variable
+    LOADPOLICY isn't used at all, instead every reference to
+    'load_policy' is written like this:
+
+      $(BINDIR)/load_policy
+
+    A little silly (-:
+
+ 3. 'make relabel' fails on a standard kernel:
+
+      load_policy: security_load_policy failed
+
+    After rebooting using my SE-kernel 'make relabel' also fails:
+
+      security:  policydb magic number 0x8 does not match expected magic nu=
+mber 0xf97cff8c
+      load_policy: security_load_policy failed
+
+Now I am stuck :-( I simply don't know where to look for a thread to
+pull to clean up the mess.
+
+/M
 
 --=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+Magnus Therning  mailto:therning@sourceforge.natlab.research.philips.com
++31-40-2745179  http://pww.innersource.philips.com/magnus/
+OpenPGP:0x4FBB2C40
 
---opJtzjQTFsWo+cga
+X-Windows: ...The art of incompetence.=20
+
+--JSkcQAAxhB1h8DcT
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -107,12 +97,13 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAxvETxWIrrrL0q+cRAnEuAKCZpQIczA1LC6dH9VSA0d9nXTOTygCcD5Nc
-RMZ7TOrspzcAqbPIl5hm2kE=
-=RwdO
+iD8DBQFAxyI0YcKlB0+7LEARAtHoAJ9HXx0/PD8HagjQM8xIA5oELGPVoACeIubj
+OvwZ5OmFR7kQ/RcrH+FpXkc=
+=ECOs
 -----END PGP SIGNATURE-----
 
---opJtzjQTFsWo+cga--
+--JSkcQAAxhB1h8DcT--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
