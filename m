@@ -1,60 +1,75 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7AHMCrT004614
-	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 13:22:12 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7AHMBlU008383
-	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 17:22:11 GMT
-Subject: Re: Now that SELinux supports booleans should we replace
-	tunableswith booleans?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Timothy Wood <timothy@diyab.net>
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, selinux-dev@tresys.com
-In-Reply-To: <41190079.9020206@diyab.net>
-References: <200408101429.i7AET6Sf010692@gotham.columbia.tresys.com>
-	 <41190079.9020206@diyab.net>
-Content-Type: text/plain
-Message-Id: <1092158438.6094.84.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Tue, 10 Aug 2004 13:20:38 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7B2cxrT007734
+	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 22:38:59 -0400 (EDT)
+Received: from smtp-09.primus.ca (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7B2cLET002318
+	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 02:38:23 GMT
+Received: from dsl-207-112-23-123.tor.primus.ca ([207.112.23.123] helo=fugusec.net)
+	by smtp-09.primus.ca with esmtp (Exim 3.36 #1)
+	id 1BujBh-0005r2-0A
+	for selinux@tycho.nsa.gov; Wed, 11 Aug 2004 02:50:01 +0000
+Message-ID: <411986C1.3030601@fugusec.net>
+Date: Tue, 10 Aug 2004 22:38:57 -0400
+From: Alexis Wagner <venon@fugusec.net>
+MIME-Version: 1.0
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: network object
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-08-10 at 13:06, Timothy Wood wrote:
-> Why not add an option to load_policy that would force loading of boolean
-> values from the policy.  If you specify that option load_policy modifies
-> the current boolean values to the policy defaults.  If you do not
-> specify the option load_policy does not touch current boolean values.
-> 
-> You could do the same thing with a tunable and have load_policy check
-> for the tunable value.
+Hi,
 
-The latest version of load_policy in the sourceforge CVS tree defaults
-to preserving the current boolean settings set under /selinux/booleans,
-but has a '-b' option to instead set the booleans to the boot-time
-boolean defaults defined by /etc/selinux/$SELINUXTYPE/booleans (or
-optionally another specified file).  We could add another option as you
-suggest, although in that case, load_policy doesn't have to modify
-anything - it just loads the binary policy unmodified, and the kernel
-will automatically reset the booleans to the compile-time policy
-defaults.  It is only the case where we want to preserve the current
-boolean settings or the boot-time boolean defaults that we need to
-modify the in-memory policy prior to loading.  Tunables aren't
-applicable here, as they are purely a policy source construct (actually
-a preprocessor construct), and aren't visible to load_policy in any way.
+I have some questions about selinux in a labeled network. 
 
-It would be easy to add such an option, but I'm not clear if that is
-what one would want.  If you truly want to force a reset to the
-compile-time policy defaults, you could just remove
-/etc/selinux/$SELINUXTYPE/booleans prior to calling load_policy -b.  If
-you don't remove the booleans file, then it is going to reset back to
-the boot-time configuration upon next boot, which is likely not what you
-want if your goal is to force use of the compile-time defaults.
+First of all, I have read on the web that network labelling is not 
+supported in kernel 2.6 an higher.  I have also read that it will be 
+possible to reimplement the necessary features using the packet filter.
+Is that true ?
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Imagine I want to allow the domain one_t to set up and use  a tcp 
+connection with the domain two_t on node two_t.  
+Is it the correct way to set up the policy ?
+
+node one  will have the following configuration :
+net_contexts  :
+        nodecon 10.10.10.2 255.255.255.255 system_u:object_r:node_two_t
+one.te :
+        allow one_t self:tcp_socket  { create_stream_socket_perms } ;
+        allow one_t netif_type:netif  {tcp_recv tcp_send} ;
+        allow one_t node_two_t:node {node_bind tcp_send tcp_recv};
+        allow one_t port_t:tcp_socket {name_bind  recv_msg send_msg} ;
+        allow one_t net_conf_t:file r_file_perms;
+
+        allow one_t kernel_t:tcp_socket {recvfrom } ;
+       #Wich domain I put here ? 
+        allow one_t ???:tcp_socket {acceptfrom recvfrom } ;
+
+node two will have the following configuration :
+net_contexts  :
+        nodecon 10.10.10.1 255.255.255.255 system_u:object_r:node_one_t
+two.te :
+        allow two_t self:tcp_socket  { create_stream_socket_perms } ;
+        allow two_t netif_type:netif  {tcp_recv tcp_send} ;
+        allow two_t node_one_t:node {node_bind tcp_send tcp_recv};
+        allow two_t port_t:tcp_socket {name_bind  recv_msg send_msg} ;
+        allow two_t net_conf_t:file r_file_perms;
+
+        allow two_t kernel_t:tcp_socket {recvfrom } ;
+       #Wich domain I put here ? 
+        allow two_t ???:tcp_socket {acceptfrom recvfrom } ;
+
+
+It is correct ?
+
+Where could I find more uptodate information about using SELinux in a 
+labeled network ?
+
+
+Thank you,
+
+Alexis Wagner
+
 
 
 --
