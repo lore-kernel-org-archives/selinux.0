@@ -1,84 +1,89 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAJB6Ii022590
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 14:11:07 -0500 (EST)
-Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAJ9Rwg017290
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 19:09:28 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Fri, 10 Dec 2004 20:11:07 +0100
-Date: Fri, 10 Dec 2004 20:11:07 +0100
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Russell Coker <russell@coker.com.au>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
-   Jim Carter <jwcart2@epoch.ncsc.mil>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: can_network patch.
-Message-Id: <20041210191107.GA5059@jmh.mhn.de>
-References: <41741A2C.8040408@redhat.com> <1102698638.1628.148.camel@moss-spartans.epoch.ncsc.mil> <41B9E48A.8010204@redhat.com> <200412110511.12960.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAJAeIi022548
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 14:10:40 -0500 (EST)
+Received: from nightfall.hsol.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAJAdR8009040
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 19:10:42 GMT
+Subject: [PATCH] polgen spec
+From: Miguel Bolanos <mike@hsol.net>
+To: SE Linux list <selinux@tycho.nsa.gov>
+Cc: dwalsh@redhat.com
+Content-Type: multipart/mixed; boundary="=-2OC4uhI07FeKLnstIsZZ"
+Message-Id: <1102706029.3886.36.camel@selene.hsol.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-In-Reply-To: <200412110511.12960.russell@coker.com.au>
+Date: Fri, 10 Dec 2004 13:14:00 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--=-2OC4uhI07FeKLnstIsZZ
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-* Russell Coker <russell@coker.com.au> [2004-12-10 20:04]:
-> On Saturday 11 December 2004 05:01, Daniel J Walsh <dwalsh@redhat.com> wr=
-ote:
-> > Stephen Smalley wrote:
-> > >On Fri, 2004-12-10 at 12:06, Daniel J Walsh wrote:
-> > >>When installing a package within firefox, it attemps to exec
-> > >>system-config-packages which blows up because
-> > >>*-mozilla-t can not run userhelper apps.
-> > >
-> > >Installing a package within firefox?  If you are talking about somethi=
-ng
-> > >firefox downloaded, then why does it use system-config-packages?  And I
-> > >would expect that you would end up installing any such packages local =
-to
-> > >the user's home directory at most (and even then only if policy allows
-> > >writing to it), not on a system-wide basis.
-> >
-> > You can trigger it by executing
-> >  firefox selinux-policy-strict-1.19.12-1.src.rpm
->=20
-> We have mozilla running in it's own domain to limit the risk of exploits =
-of=20
-> mozilla taking over the rest of the system.  Allowing mozilla to install=
-=20
-> packages seems to directly contradict this aim.
->=20
-> Maybe we should just remove the mozilla policy?
+Greetings,
 
-Or add a boolean to control the transition from the userdomain to
-mozilla. Then we can have a locked down policy for people who just want
-to securely browse the web. People who want all the bells and whistles
-can turn the transition off at the cost of higher exposure.
+Introducing .spec file for polgen
+best wishes
 
-Thomas
+Mike
 
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--=-2OC4uhI07FeKLnstIsZZ
+Content-Disposition: attachment; filename=polgen-spec.diff
+Content-Type: text/x-patch; name=polgen-spec.diff; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+diff -ruN polgen-0.8.orig/polgen.spec polgen-0.8/polgen.spec
+--- polgen-0.8.orig/polgen.spec	1969-12-31 18:00:00.000000000 -0600
++++ polgen-0.8/polgen.spec	2004-12-09 08:04:31.033592952 -0600
+@@ -0,0 +1,44 @@
++Summary: SELinux policy generation scripts
++Name: polgen
++Version: 0.8
++Release: 1
++License: GPL
++Group: Development/System 
++Source: http://www.nsa.gov/selinux/archives/%{name}-%{version}.tgz
++Prefix: %{_prefix}
++BuildRoot: %{_tmppath}/%{name}-buildroot
++Requires: python
++
++%description
++Security-enhanced Linux is a patch of the Linux® kernel and a number
++of utilities with enhanced security functionality designed to add
++mandatory access controls to Linux.  The Security-enhanced Linux
++kernel contains new architectural components originally developed to
++improve the security of the Flask operating system. These
++architectural components provide general support for the enforcement
++of many kinds of mandatory access control policies, including those
++based on the concepts of Type Enforcement®, Role-based Access
++Control, and Multi-level Security.
++
++This package contains polgen, a collection of scripts and tools 
++developed by the MITRE corporation to automate the SELinux
++policy generation process.
++
++%prep
++%setup -q
++
++%build
++make CFLAGS="%{optflags}"
++
++%install
++rm -rf ${RPM_BUILD_ROOT}
++mkdir -p ${RPM_BUILD_ROOT}%{_bindir}
++make DESTDIR="${RPM_BUILD_ROOT}" install
++
++%clean
++rm -rf ${RPM_BUILD_ROOT}
++
++%files
++%defattr(-,root,root)
++
++%changelog
 
-iD8DBQFBufTLxWIrrrL0q+cRAtZjAKCoIHCW5ShFa4WOKEvvm8Ux0CTWoQCeKTd/
-2tnVL5shjlr8fOsCu0l+NCk=
-=PT6b
------END PGP SIGNATURE-----
+--=-2OC4uhI07FeKLnstIsZZ--
 
---zhXaljGHf11kAtnf--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
