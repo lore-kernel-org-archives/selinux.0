@@ -1,44 +1,29 @@
-Message-ID: <20050310103322.86495.qmail@web51503.mail.yahoo.com>
-Date: Thu, 10 Mar 2005 02:33:22 -0800 (PST)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: Issue on getting security context of socket and message
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: Question about packet_socket class?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Park Lee <parklee_sel@yahoo.com>
 Cc: SELinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20050310102738.85071.qmail@web51503.mail.yahoo.com>
+References: <20050310102738.85071.qmail@web51503.mail.yahoo.com>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 07:56:23 -0500
+Message-Id: <1110459383.8434.30.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 09 Nov 2004 at 10:39, Stephen Smalley wrote:
-> Since sys_security was rejected by the mainline 
-> kernel, the extended socket API of SELinux is not 
-> presently supported; 
+On Thu, 2005-03-10 at 02:27 -0800, Park Lee wrote:
+> Hi,
+>   In security_classes file, we can see a security
+> class named packet_socket. 
+> then, What is this security class used for? What's the
+> meaning of it?
 
-Does this mean that LSM doesn't provide any system 
-call for security-aware applications now? (While, in
-the past, it provided a security system call for such
-applications)
+man 7 packet
 
-and,
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
-Except for not supporting the extended socket API,
-Does SELinux now support other extended API (e.g.
-extended file API and extended process API)? 
-Does security server still provide system calls for
-security_aware applications?
-
-
-Thank you.
-
-Best Regards,
-Park Lee
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Small Business - Try our new resources site!
-http://smallbusiness.yahoo.com/resources/ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
