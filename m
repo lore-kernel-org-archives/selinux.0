@@ -1,28 +1,36 @@
+Message-ID: <416172B8.1030200@redhat.com>
+Date: Mon, 04 Oct 2004 11:56:40 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: Patch to restorecon to add -R switch
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <41584DCA.7030006@redhat.com>
-References: <41584DCA.7030006@redhat.com>
-Content-Type: text/plain
-Message-Id: <1096904808.32008.53.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 04 Oct 2004 11:46:49 -0400
+References: <41584DCA.7030006@redhat.com> <1096904808.32008.53.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1096904808.32008.53.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-09-27 at 13:28, Daniel J Walsh wrote:
-> This will allow us to
-> 
-> restorecon -R /dev in the initscripts.
-> 
-> Also patch adds some fixed for fixfiles.
+Stephen Smalley wrote:
 
-So, how does this differ from just running setfiles on /dev instead?
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+>On Mon, 2004-09-27 at 13:28, Daniel J Walsh wrote:
+>  
+>
+>>This will allow us to
+>>
+>>restorecon -R /dev in the initscripts.
+>>
+>>Also patch adds some fixed for fixfiles.
+>>    
+>>
+>
+>So, how does this differ from just running setfiles on /dev instead?
+>
+>  
+>
+Setfiles allows for the specification of random file_context files so we 
+do not allow init to run setfiles.
+restorecon only reads the system file_context file.
 
 
 --
