@@ -1,56 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1R1GoDu018271
-	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 20:17:21 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1QLl5lw015067
-	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 21:48:21 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 96E1C61AF8
-	for <selinux@tycho.nsa.gov>; Sun, 27 Feb 2005 08:49:23 +1100 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 02987-08 for <selinux@tycho.nsa.gov>;
-	Sun, 27 Feb 2005 08:49:23 +1100 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 37B2561AE1
-	for <selinux@tycho.nsa.gov>; Sun, 27 Feb 2005 08:49:23 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Alexandre Oliva <aoliva@redhat.com>
-Subject: Re: writing zero bytes in bash
-Date: Sun, 27 Feb 2005 08:48:57 +1100
-Cc: fedora-devel-list@redhat.com, SE-Linux <selinux@tycho.nsa.gov>
-References: <200502261832.16337.russell@coker.com.au> <200502262139.45861.russell@coker.com.au> <or7jkvp1cm.fsf@livre.redhat.lsd.ic.unicamp.br>
-In-Reply-To: <or7jkvp1cm.fsf@livre.redhat.lsd.ic.unicamp.br>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200502270849.01464.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1R1KtDq018320
+	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 20:21:13 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1QHnMGK015536
+	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 17:50:37 GMT
+Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j1QHn1nP010561
+	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 12:49:17 -0500 (EST)
+Subject: security files - why not sysadmfile
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Sat, 26 Feb 2005 12:52:28 -0500
+Message-Id: <1109440349.11452.7.camel@cobra.ivg2.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 27 February 2005 06:28, Alexandre Oliva <aoliva@redhat.com> wrote:
-> On Feb 26, 2005, Russell Coker <russell@coker.com.au> wrote:
-> > Actually I am not asking for a feature to be added, but for a feature to
-> > be removed.  There is special-case code in bash if(size >0) write() and I
-> > am merely suggesting that the if statement be removed.
->
-> Have you considered that it might just be writing to a FILE*, and that
-> it's the stdio subsystem that's deciding it doesn't need to write
-> anything at close() time because nothing was actually written?
+Why are those types not marked sysadmfile?
+This is particularly annoying when vi spits out
+error messages every time I edit a selinux source file.
 
-Good point.  A quick test program shows that fwrite() doesn't support writing 
-zero bytes.
+#
+# security_t is the target type when checking
+# the permissions in the security class.  It is also
+# applied to selinuxfs inodes.
+#
+type security_t, fs_type;
 
-In that case we have a choice between having a change in the interface (such 
-as supporting the writing of "\n" for an empty setting), or just leaving such 
-operations as being impossible in shell scripts.
+#
+# policy_config_t is the type of /etc/security/selinux/*
+# the security server policy configuration.
+#
+type policy_config_t, file_type;
+
+#
+# policy_src_t is the type of the policy source
+# files.
+#
+type policy_src_t, file_type;
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
