@@ -1,87 +1,78 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94KDIrT021382
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 16:13:19 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94KDIs6026345
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 20:13:18 GMT
-Subject: Re: policy patches
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200410020344.04225.russell@coker.com.au>
-References: <200409292354.15227.russell@coker.com.au>
-	 <200409300620.41527.russell@coker.com.au>
-	 <1096648965.13366.35.camel@moss-lions.epoch.ncsc.mil>
-	 <200410020344.04225.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1096920735.3235.17.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 04 Oct 2004 16:12:15 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94MBkrT022184
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 18:11:47 -0400 (EDT)
+Received: from e6.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94MBjs6000643
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 22:11:46 GMT
+Received: from northrelay04.pok.ibm.com (northrelay04.pok.ibm.com [9.56.224.206])
+	by e6.ny.us.ibm.com (8.12.10/8.12.9) with ESMTP id i94MBkSD056420
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 18:11:46 -0400
+Received: from d01ml605.pok.ibm.com (d01av02.pok.ibm.com [9.56.224.216])
+	by northrelay04.pok.ibm.com (8.12.10/NCO/VER6.6) with ESMTP id i94MD0Kt099696
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 18:13:00 -0400
+To: <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Subject: Add a new class
+From: Trent Jaeger <jaegert@us.ibm.com>
+Message-ID: <OF459C4AF8.918C9B11-ON85256F23.00798D88-85256F23.0079ECBE@us.ibm.com>
+Date: Mon, 4 Oct 2004 18:11:43 -0400
+Content-Type: multipart/alternative; boundary="=_alternative 0079EB6585256F23_="
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged the start_udev line and the kudzu patch.
+This is a multipart message in MIME format.
+--=_alternative 0079EB6585256F23_=
+Content-Type: text/plain; charset="US-ASCII"
 
-On Fri, 2004-10-01 at 13:44, Russell Coker wrote:
-> On Sat, 2 Oct 2004 02:42, James Carter <jwcart2@epoch.ncsc.mil> wrote:
-> > Mostly merged with the corrections.
-> >
-> > These two lines caused things to break, so I held off merging these for
-> > now.
-> > +/sbin/kmodule  --      system_u:object_r:kudzu_exec_t
-> > +/sbin/start_udev --    system_u:object_r:udev_exec_t
-> >
-> > These are the denials I am seeing:
-> > avc:  denied  { unlink } for  pid=705 exe=/bin/rm name=.udev.tdb dev=tmpfs
-> > ino=927 scontext=system_u:system_r:udev_t
-> 
-> Version 7.85-1 of the initscripts package fixes the restorecon command to use 
-> the -R option to label all of /dev.  If you upgrade to the latest rawhide 
-> then the start_udev labelling should work.  NB  I sent the patch to you 
-> before rawhide was fixed, this was intentional as neither patch worked well 
-> without the other so there was no benefit in delaying.
+Hi,
 
-> > avc:  denied  { search } for  pid=856 exe=/sbin/kmodule
-> > name=usr dev=hda2 ino=162881 scontext=system_u:system_r:kudzu_t
-> > tcontext=user_u:object_r:file_t tclass=dir
-> 
-> Looks like either mis-labelling or you have /usr on a different file system.  
-> I guess we have to add a dontaudit rule for that for when /usr (or /var or 
-> whatever else it may access that isn't on the root fs).
-> 
+I think this is something I could find in the docs or code, but I don't 
+see it. 
 
-I do have /usr on a different file system.
+How do I add a new class?  There are a variety of files in 
+security/selinux/include, such as av_permissions.h, that are 
+"automatically generated", but they are already in the distribution, so it 
+is not clear how they are generated.  If I add a class, operations, etc., 
+these files have to be modified and I would rather do it the proper way.
 
-> > avc:  denied  { getattr } for  
-> > pid=856 exe=/sbin/kmodule path=/lib/modules/2.6.8-1.541/kernel dev=hda2
-> > ino=930725 scontext=system_u:system_r:kudzu_t
-> > tcontext=system_u:object_r:modules_object_t tclass=dir
-> 
-> I've attached kudzu.diff to deal with this issue and the above.  Please try 
-> including those file contexts changes, with kudzu.diff and the latest 
-> initscripts it should be fine.
-> 
-> > avc:  denied  { 
-> > setattr } for  pid=2402 exe=/usr/X11R6/bin/Xorg name=dri dev=tmpfs ino=7757
-> > scontext=system_u:system_r:xdm_xserver_t
-> > tcontext=system_u:object_r:device_t tclass=dir
-> 
-> I think that Dan's latest patch allowed that one.
-> 
-> > The xdm_xserver_t device_t:dir setattr denial is not due to this patch.
-> > It is the only denial that I have been seeing lately; I just haven't had
-> > an opportunity to look into it more.  It doesn't appear to cause any
-> > problems though.
-> 
-> Long term udev has to deal with that too.  The X server should not be creating 
-> device nodes.  Quite a bit of work has recently gone into reducing /dev/mem 
-> access but allowing arbitrary device node creation wastes that.  It'll be 
-> fixed eventually (but at the moment we are already busy enough with udev 
-> issues).
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+BTW -- this is for adding IPSec security associations for classes, so we 
+can label network connections.  Prototype code should be available soon.
+
+Regards,
+Trent.
+------------------------------------------------------------
+Trent Jaeger
+IBM T.J. Watson Research Center
+19 Skyline Drive, Hawthorne, NY 10532
+(914) 784-7225, FAX (914) 784-7225
+--=_alternative 0079EB6585256F23_=
+Content-Type: text/html; charset="US-ASCII"
+
+
+<br><font size=2 face="sans-serif">Hi,</font>
+<br>
+<br><font size=2 face="sans-serif">I think this is something I could find
+in the docs or code, but I don't see it. &nbsp;</font>
+<br>
+<br><font size=2 face="sans-serif">How do I add a new class? &nbsp;There
+are a variety of files in security/selinux/include, such as av_permissions.h,
+that are &quot;automatically generated&quot;, but they are already in the
+distribution, so it is not clear how they are generated. &nbsp;If I add
+a class, operations, etc., these files have to be modified and I would
+rather do it the proper way.</font>
+<br>
+<br><font size=2 face="sans-serif">BTW -- this is for adding IPSec security
+associations for classes, so we can label network connections. &nbsp;Prototype
+code should be available soon.</font>
+<br>
+<br><font size=2 face="sans-serif">Regards,</font>
+<br><font size=2 face="sans-serif">Trent.</font>
+<br><font size=2 face="sans-serif">------------------------------------------------------------<br>
+Trent Jaeger<br>
+IBM T.J. Watson Research Center<br>
+19 Skyline Drive, Hawthorne, NY 10532<br>
+(914) 784-7225, FAX (914) 784-7225</font>
+--=_alternative 0079EB6585256F23_=--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
