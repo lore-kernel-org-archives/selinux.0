@@ -1,53 +1,58 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h689F4Ha017174
-	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2003 05:15:06 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h689E8nJ025350
-	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2003 09:14:08 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h689E0hr025347
-	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2003 09:14:07 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id ABFF9BF33
-	for <selinux@tycho.nsa.gov>; Tue,  8 Jul 2003 19:14:48 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 11061-06
- for <selinux@tycho.nsa.gov>; Tue,  8 Jul 2003 19:14:47 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 24E4ABF32
-	for <selinux@tycho.nsa.gov>; Tue,  8 Jul 2003 19:14:47 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 5CD3492722
-	for <selinux@tycho.nsa.gov>; Tue,  8 Jul 2003 19:14:46 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 8971C7F0B1
-	for <selinux@tycho.nsa.gov>; Tue,  8 Jul 2003 19:14:42 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: August Linux Journal
-Date: Tue, 8 Jul 2003 19:14:40 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200307081914.40787.russell@coker.com.au>
+	charset="us-ascii"
+Subject: libsecure fails to compile
+Date: Tue, 8 Jul 2003 11:04:53 -0500
+Message-ID: <B3B3B1C9A024D511B52C00D0B7201BDB07703D@ca-ex-remote1.na.nai.com>
+From: <Jonathan_Axisa@nai.com>
+To: <SELinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In the August issue of Linux Journal there are two articles on SE Linux, one 
-is written by Faye and I wrote the other.  Faye wrote an introduction to SE 
-Linux and I wrote an article on my "play machine" (which will probably get 
-Slash-dotted as soon as the magazine hits the news stands).  They are on 
-pages 20 and 56 respectively.
+Hello,
+I am trying to compile libsecure (with the latest version of the SE Linux code, just downloaded from nsa.gov yesterday) but it fails with the following error:
 
-As the magazines seem to be available slightly before the start of the month, 
-there may be copies in news-stands by the time of OLS.
+make -C src
+make[1]: Entering directory `/home/jaxisa/work/nsa/selinux/libsecure/src'
+cc -o fstat_secure.o -c -I../include -I/usr/local/selinux/include fstat_secure.c
+In file included from fstat_secure.c:4:
+kernel_stat.h:18: warning: no semicolon at end of struct or union
+kernel_stat.h:18: parse error before '.' token
+kernel_stat.h:21: parse error before '.' token
+kernel_stat.h:24: parse error before '.' token
+kernel_stat.h:31: parse error before '}' token
+In file included from fstat_secure.c:5:
+xstat_conv.h: In function `xstat_conv':
+xstat_conv.h:29: dereferencing pointer to incomplete type
+xstat_conv.h:29: dereferencing pointer to incomplete type
+xstat_conv.h:37: dereferencing pointer to incomplete type
+xstat_conv.h:41: dereferencing pointer to incomplete type
+xstat_conv.h:42: dereferencing pointer to incomplete type
+xstat_conv.h:43: dereferencing pointer to incomplete type
+xstat_conv.h:44: dereferencing pointer to incomplete type
+xstat_conv.h:45: dereferencing pointer to incomplete type
+xstat_conv.h:46: dereferencing pointer to incomplete type
+xstat_conv.h:50: dereferencing pointer to incomplete type
+xstat_conv.h:51: dereferencing pointer to incomplete type
+xstat_conv.h:52: dereferencing pointer to incomplete type
+xstat_conv.h:53: dereferencing pointer to incomplete type
+xstat_conv.h:55: structure has no member named `__unused1'
+xstat_conv.h:57: dereferencing pointer to incomplete type
+xstat_conv.h:59: structure has no member named `__unused2'
+xstat_conv.h:61: dereferencing pointer to incomplete type
+xstat_conv.h:63: structure has no member named `__unused3'
+fstat_secure.c: In function `fstat_secure':
+fstat_secure.c:12: storage size of `kbuf' isn't known
+make[1]: *** [fstat_secure.o] Error 1
+make[1]: Leaving directory `/home/jaxisa/work/nsa/selinux/libsecure/src'
+make: *** [all] Error 2
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+
+In kernel_stat.h, there are no .'s on the lines indicated, and there are semicolons in every place that needs a semicolon.
+
+Thanks for your help in advance,
+Jon
 
 
 --
