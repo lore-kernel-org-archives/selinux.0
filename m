@@ -1,249 +1,184 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA12610
-	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 15:19:35 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA26609
-	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 20:16:47 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA12936
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 16:44:38 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h0JLiTI14990
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 21:44:29 GMT
 Received: from mozart.fwsystems.com (mozart.fwsystems.com [63.101.67.2])
-	by jazzswing.ncsc.mil  with ESMTP id UAA26605
-	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 20:16:46 GMT
-Date: Sun, 19 Jan 2003 15:19:29 -0500
+        by jazzband.ncsc.mil  with ESMTP id h0JLiSf14986 for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 21:44:28 GMT
+Date: Sun, 19 Jan 2003 16:44:12 -0500
 From: forrest whitcher <fw@fwsystems.com>
 To: selinux@tycho.nsa.gov
-Cc: openafs-info@openafs.org
-Subject: afs domain development under the selinux kernel
-Message-Id: <20030119151929.747254b8.fw@fwsystems.com>
+Cc: lunar@lunar-linux.org
+Subject: Selinux on the "Lunar" linux distribution.
+Message-Id: <20030119164412.4c7c8ad5.fw@fwsystems.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Sun__19_Jan_2003_15:19:29_-0500_097d11a8"
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
-
---Multipart_Sun__19_Jan_2003_15:19:29_-0500_097d11a8
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
 Summary:
 
-The Selinux kernel provides type enforcement via data labeling for all data,
-program and user objects on a server. This indludes persistent labels for 
-filesystem-based data and kernel/policy derived labels for other data objects
-such as /proc/*, shared memory, sockets, device files etc.
+Lunar linux (http://lunar-linux.org) is a source-based distribution which
+uses a set of bash scripts to provide package management and build recipes
+for various server and client applications. Lunar provides sysV init and
+FHS layout and strives for LSB compliance.
 
-(Open)AFS provides a robust network filesystem with directory-based ACLs
-authenticated against kerberos4 tickets, usually provided  by a krb5 kdc.
-Many sites rely on AFS to distribute system binaries.
-
-
-I've been working on OpenAFS client < selinux kernel for awhile now, and have 
-got a first-draft policy working and currently under test. I'm not to sure of 
-complete/correct-ness at this point but at least it seems to be working, and 
-now I want to go in and make changes to either the kernel, the libafs kernel 
-module or afsd to move the data in /afs/* into its own domain.
-
-Openafs 1.2.8 introduced some structural changes in the afsd impelmentation
-(which complicate the policy requirements).
+SELinux (http://www.nsa.gov/selinux) is a system impementing NSA's FLASK 
+model, providing domain and type enforcement and tools for MAC/MLS policy 
+development/implementation within the LSM (http://lsm.immunix.org) framework.
 
 
-General notes:
+I have been running the SELinux kernel in the lunar distribution as a vmware
+guest OS for a considerable time. Here are some notes on how to build and
+run this kernel on the lunar distribution.
 
-afsd (afs client) & kernel/module
+Config:
 
-tmpfs_t:* allow statements are specific because for the moment the afs
-cache dir is being created in /tmp -- that's only a kludge because I 
-hadn't created any other ext2fs and afsd won't run the cache on aything
-else. Longterm the cachedir should probably have it's own type.
+Lunar installed off of the 1.1.2 cd image. I expect this will work on later 
+test images, probably with a couple fewer foibles. The latest work has been done 
+runing gcc 3.2.1 and glibc 2.3.1. I'm not running/installing the current lunar
+kernel 2.4.20.
 
-userspace client access
+SELinux, kernel 2.4.19  version LSM patch and selinux sources. I don't have
+a particular need for the .20 kernel, however I think the .20 version of the 
+sources will work find (and might not need some of the customizations below).
 
-/afs/* is labeled of course as unlabeled_t, currently I'm using a
-policy which allows user_r unrestricted access to this type. Better
-solutions could involve having type enforcemnt check for valid afs
-tickets and/or assigning a type to this data, however I'm not too 
-sure what method might be appropriate for that.
+Generally, I think it's a good practice here to have as complete a setup as 
+possible prior to installing the hardened kernel. This is particularly true
+of security-related applications or libraries as installation after starting
+the SELinux will not install with the correct SID/file contexts, requireing
+'make relabel' which may in turn wipe out any changes made by hand to the
+setup.
 
+Run 'lunar update' allowing everyting to rebuild *except linux*.
 
-Objective:
+Prior to installing SELinux I installed all of the following (lin(1))
 
-Presently allowing user_r access to files provided through afsd could
-be extended to other limited roles such as system_u:system_r:httpd_t
-with reasonable safety. Extending this to other roles would seem to be
-somewhat more probelmatic.
+Linux-PAM
+krb5
+slang (which will force a gcc-rebuild)
+tcp_wrappers
+sysklogd 
 
-Questions:
+Customizatons:
 
-Where can I consider generating / enforcing an afs_t type for data
-in /afs? This mostly is implemented over UDP port 7001. I think 
-most things needed for the server parts are done, but I'm not certain
-how much implementation could to be done mostly in the policy config,
-and what things I need to modify to establish the type in either
-the kernel module or the afsd process.
+Set Lunar integrity checking to 'find' and 'ldd' checks only, removing 
+md5 checks.
 
-Next steps:
+Removed the devfs/devfsd from the configuration. I have not had good luck
+getting the selinux policies to work on Lunar with devfsd enabled.
 
-I will also be working on running the afs database and fileserver functions
-under the selinux kernel. Because AFS volumes directly manipulate the inode
-structures in ext2fs there may be some significant problems with hosting
-an afs fileserver process under selinux.
+*Remember* to edit /etc/fstab and /etc/lilo.conf to reflect /dev/hda|/dev/sda
+naming in place of the devfs names.
 
-SELinux will create a directory in every mounted filesystem named '...security' 
-in the root of every filesystem which stores persistent SID:inode data.
-I'm not certain whether the creation of ...security will cause problems
-with a fs used as an afs partition.
+Rather than running 'lrm devfsd' I chose to move the configuration files:
 
+/etc/devfsd.conf
+/etc/modules.devfs
 
+to backup locations.
 
-Here's what I've changed so far (in /etc/security/selinux/src/policy/)
+Reboot, run 'lin makedev' to fully populate the /dev directory structure.
 
+Required to build the selinux-provided openssh:
 
-
-domains/program/initrc.te added:
-
-allow run_init_t tmpfs_t:file { read write };
-
-# however this is not sufficient to allow afsd to startup in enforcing mode
-# so for now I'm starting afsd before toggling into enforcing
+in /usr/lib:
+ln -s libbsd-compat.a libbsd.a
 
 
+I would strongly suggest rebuilding glibc *after* building gcc. and before
+building/installing SELinux. I had a few things fail due to *not* doing this
+which were cleared up by using the current build.
 
 
-domains/program/mount.te added:
+Apply ncurses patches, required to build 'more' in util-linux:
 
-allow mount_t kernel_t:process { sigkill };
+utils_makefile_uselargefile.diff, utils_libncurses.diff see the 
+SELinux mailing list archive.
 
-# when /afs is unmounted I assume VFS is providing the magic for the kill to
-# be sent to afsd. Would it be better (possible?) to limit this to only killing
-# the afsd_t process?
+>From this point run 'make quickinstall' in /usr/src/selinux.
 
+Caveats:
 
+set GCCWRAPPERS=off in /etc/lunar/local/config. The GCC wrapper
+files have the wrong SID and will generate an avc: denied error
+in enforcing mode.
 
-file_contexts/program/afsd.fc:
+Consider linking ln -s /lib/libncurses.so.5.3 /usr/lib/libncurses.so
+The non-standard location used by Lunar causes build failures for
+some software.
 
-# afsd
-/usr/sbin/afsd            system_u:object_r:afsd_exec_t
+Lunar, particularly 'lunar update' or 'lunar rebuild' may force update of
+modules not in use (e.g. the lunar-customized linux kernel) and may force 
+update of components, even components that are 'held'.
 
-
-
-
-Most of the work is in:
-
-domains/program/afsd.te (also attached to this email)
-
-# Domain for afsd executable
-
-#
-# make afsd_exec_t
-
-type afsd_exec_t, file_type, sysadmfile,exec_type;
-type afsd_t, domain, privlog;
-
-domain_auto_trans(initrc_t, afsd_exec_t, afsd_t)
-
-allow afsd_t root_t:dir mounton;
-
-allow kernel_t afsd_t:udp_socket { read write };
-
-allow afsd_t afsd_t:capability { sys_admin sys_nice };
-allow afsd_t afsd_t:process { fork setsched };
-allow afsd_t afsd_t:udp_socket { create ioctl write };
-allow afsd_t any_socket_t:udp_socket { sendto };
-allow afsd_t etc_runtime_t:file { append getattr read };
-allow afsd_t etc_t:dir { search };
-allow afsd_t etc_t:file { getattr read write };
-allow afsd_t fs_t:filesystem { getattr };
-allow afsd_t ld_so_cache_t:file { getattr read };
-allow afsd_t lib_t:dir { search };
-allow afsd_t netif_eth0_t:netif { udp_send };
-allow afsd_t netmsg_eth0_t:udp_socket { recvfrom };
-allow afsd_t newrole_t:fd { use };
-allow afsd_t node_t:node { udp_send };
-allow afsd_t root_t:dir { search };
-allow afsd_t shlib_t:file { execute getattr read };
-allow afsd_t shlib_t:lnk_file { read };
-allow afsd_t sysadm_tty_device_t:chr_file { getattr ioctl read write };
-allow afsd_t sysadm_tmp_t:dir { create setattr getattr read search };
-allow afsd_t sysadm_tmp_t:file { create };
-
-allow afsd_t tmp_t:dir { search };
-allow afsd_t unlabeled_t:filesystem { mount };
-allow afsd_t usr_t:dir { search };
+I'm making no attempt to build this as an integrated or supported part of
+the lunar distribution. SELinux-custom utilities are installed in 
+/usr/local/selinux/.
 
 
-#
-# required to give any access to users
+I'm presently running all of the following services:
+
+sshd            0:off   1:off   2:off   3:on    4:on    5:on    6:off
+ntp             0:off   1:off   2:off   3:on    4:on    5:on    6:off
+klogd           0:off   1:off   2:on    3:on    4:off   5:off   6:off
+syslogd         0:off   1:off   2:on    3:on    4:off   5:off   6:off
+httpd           0:off   1:off   2:off   3:on    4:on    5:on    6:off
+mysqld          0:off   1:off   2:on    3:on    4:on    5:on    6:off
+avc             0:off   1:off   2:off   3:on    4:on    5:on    6:off  /* switch to enforcing mode */
+afs             0:off   1:off   2:off   3:on    4:on    5:on    6:off  /* afsd client */
+
+
+New policy changes installed, I needed fewer changes ot enable basic function 
+than under Slackware, more than on redhat 7.1:
+
+/etc/security/selinux/src/policy/domains/program/
+
+==> ssh.te <==
+
+# 
+# iterative edits
 #
 
-allow sysadm_t afsd_t:udp_socket { write };
-allow user_t afsd_t:udp_socket { write };
+allow sshd_t device_t:chr_file { getattr ioctl read write };
+allow sshd_t sysadm_tty_device_t:chr_file { getattr ioctl read relabelfrom relabelto setattr write };
+allow sshd_t tmpfs_t:file { lock read write };
+allow sshd_t tty_device_t:chr_file { getattr ioctl read relabelfrom setattr write };
+allow sshd_t user_tty_device_t:chr_file { getattr ioctl read relabelfrom relabelto setattr write };
+
+==> ntpd.te <==
+
+#
+# iterative edits
+#
+
+allow initrc_t tmpfs_t:file { write };
+allow ntpd_t tmpfs_t:dir { search };
+
+
+==> klogd.te <==
+
+#
+# iterative edits
+#
+
+allow klogd_t file_t:file { getattr read };
+allow klogd_t sysadm_tty_device_t:chr_file { read write };
+allow klogd_t tmpfs_t:file { getattr lock read unlink write };
+
+
+==> syslogd.te <==
 
 
 #
-# required for full client access
+# iterative edits
 #
 
-allow kernel_t unlabeled_t:udp_socket { read write };
+allow syslogd_t sysadm_tty_device_t:chr_file { read write };
+allow syslogd_t tmpfs_t:file { create getattr lock unlink write };
 
-allow unlabeled_t any_socket_t:udp_socket { sendto };
-allow unlabeled_t netif_eth0_t:netif { udp_send };
-allow unlabeled_t node_t:node { udp_send };
-allow unlabeled_t netmsg_eth0_t:udp_socket { recvfrom };
- 
-allow user_t unlabeled_t:dir { getattr search read write};
-allow user_t unlabeled_t:file { read write setattr getattr execute execute_no_trans };
-allow user_t unlabeled_t:lnk_file { read write setattr getattr };
-
-allow user_t unlabeled_t:udp_socket { read write };
-
-
-
-
---Multipart_Sun__19_Jan_2003_15:19:29_-0500_097d11a8
-Content-Type: application/octet-stream;
- name="afsd.te"
-Content-Disposition: attachment;
- filename="afsd.te"
-Content-Transfer-Encoding: base64
-
-IyBEb21haW4gZm9yIGFmc2QgZXhlY3V0YWJsZQoKIwojIG1ha2UgYWZzZF9leGVjX3QKCnR5cGUg
-YWZzZF9leGVjX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZSxleGVjX3R5cGU7CnR5cGUgYWZzZF90
-LCBkb21haW4sIHByaXZsb2c7Cgpkb21haW5fYXV0b190cmFucyhpbml0cmNfdCwgYWZzZF9leGVj
-X3QsIGFmc2RfdCkKCmFsbG93IGFmc2RfdCByb290X3Q6ZGlyIG1vdW50b247CgphbGxvdyBrZXJu
-ZWxfdCBhZnNkX3Q6dWRwX3NvY2tldCB7IHJlYWQgd3JpdGUgfTsKCgoKYWxsb3cgYWZzZF90IGFm
-c2RfdDpjYXBhYmlsaXR5IHsgc3lzX2FkbWluIHN5c19uaWNlIH07CmFsbG93IGFmc2RfdCBhZnNk
-X3Q6cHJvY2VzcyB7IGZvcmsgc2V0c2NoZWQgfTsKYWxsb3cgYWZzZF90IGFmc2RfdDp1ZHBfc29j
-a2V0IHsgY3JlYXRlIGlvY3RsIHdyaXRlIH07CmFsbG93IGFmc2RfdCBhbnlfc29ja2V0X3Q6dWRw
-X3NvY2tldCB7IHNlbmR0byB9OwphbGxvdyBhZnNkX3QgZXRjX3J1bnRpbWVfdDpmaWxlIHsgYXBw
-ZW5kIGdldGF0dHIgcmVhZCB9OwphbGxvdyBhZnNkX3QgZXRjX3Q6ZGlyIHsgc2VhcmNoIH07CmFs
-bG93IGFmc2RfdCBldGNfdDpmaWxlIHsgZ2V0YXR0ciByZWFkIHdyaXRlIH07CmFsbG93IGFmc2Rf
-dCBmc190OmZpbGVzeXN0ZW0geyBnZXRhdHRyIH07CmFsbG93IGFmc2RfdCBsZF9zb19jYWNoZV90
-OmZpbGUgeyBnZXRhdHRyIHJlYWQgfTsKYWxsb3cgYWZzZF90IGxpYl90OmRpciB7IHNlYXJjaCB9
-OwphbGxvdyBhZnNkX3QgbmV0aWZfZXRoMF90Om5ldGlmIHsgdWRwX3NlbmQgfTsKYWxsb3cgYWZz
-ZF90IG5ldG1zZ19ldGgwX3Q6dWRwX3NvY2tldCB7IHJlY3Zmcm9tIH07CmFsbG93IGFmc2RfdCBu
-ZXdyb2xlX3Q6ZmQgeyB1c2UgfTsKYWxsb3cgYWZzZF90IG5vZGVfdDpub2RlIHsgdWRwX3NlbmQg
-fTsKYWxsb3cgYWZzZF90IHJvb3RfdDpkaXIgeyBzZWFyY2ggfTsKYWxsb3cgYWZzZF90IHNobGli
-X3Q6ZmlsZSB7IGV4ZWN1dGUgZ2V0YXR0ciByZWFkIH07CmFsbG93IGFmc2RfdCBzaGxpYl90Omxu
-a19maWxlIHsgcmVhZCB9OwphbGxvdyBhZnNkX3Qgc3lzYWRtX3R0eV9kZXZpY2VfdDpjaHJfZmls
-ZSB7IGdldGF0dHIgaW9jdGwgcmVhZCB3cml0ZSB9OwphbGxvdyBhZnNkX3Qgc3lzYWRtX3RtcF90
-OmRpciB7IGNyZWF0ZSBzZXRhdHRyIGdldGF0dHIgcmVhZCBzZWFyY2ggfTsKYWxsb3cgYWZzZF90
-IHN5c2FkbV90bXBfdDpmaWxlIHsgY3JlYXRlIH07CgphbGxvdyBhZnNkX3QgdG1wX3Q6ZGlyIHsg
-c2VhcmNoIH07CmFsbG93IGFmc2RfdCB1bmxhYmVsZWRfdDpmaWxlc3lzdGVtIHsgbW91bnQgfTsK
-YWxsb3cgYWZzZF90IHVzcl90OmRpciB7IHNlYXJjaCB9OwoKCiMKIyByZXF1aXJlZCB0byBnaXZl
-IGFueSBhY2Nlc3MgdG8gdXNlcnMKIwoKYWxsb3cgc3lzYWRtX3QgYWZzZF90OnVkcF9zb2NrZXQg
-eyB3cml0ZSB9OwphbGxvdyB1c2VyX3QgYWZzZF90OnVkcF9zb2NrZXQgeyB3cml0ZSB9OwoKCiMK
-IyByZXF1aXJlZCBmb3IgZnVsbCBjbGllbnQgYWNjZXNzCiMKCmFsbG93IGtlcm5lbF90IHVubGFi
-ZWxlZF90OnVkcF9zb2NrZXQgeyByZWFkIHdyaXRlIH07CgphbGxvdyB1bmxhYmVsZWRfdCBhbnlf
-c29ja2V0X3Q6dWRwX3NvY2tldCB7IHNlbmR0byB9OwphbGxvdyB1bmxhYmVsZWRfdCBuZXRpZl9l
-dGgwX3Q6bmV0aWYgeyB1ZHBfc2VuZCB9OwphbGxvdyB1bmxhYmVsZWRfdCBub2RlX3Q6bm9kZSB7
-IHVkcF9zZW5kIH07CmFsbG93IHVubGFiZWxlZF90IG5ldG1zZ19ldGgwX3Q6dWRwX3NvY2tldCB7
-IHJlY3Zmcm9tIH07CiAKYWxsb3cgdXNlcl90IHVubGFiZWxlZF90OmRpciB7IGdldGF0dHIgc2Vh
-cmNoIHJlYWQgd3JpdGV9OwphbGxvdyB1c2VyX3QgdW5sYWJlbGVkX3Q6ZmlsZSB7IHJlYWQgd3Jp
-dGUgc2V0YXR0ciBnZXRhdHRyIGV4ZWN1dGUgZXhlY3V0ZV9ub190cmFucyB9OwphbGxvdyB1c2Vy
-X3QgdW5sYWJlbGVkX3Q6bG5rX2ZpbGUgeyByZWFkIHdyaXRlIHNldGF0dHIgZ2V0YXR0ciB9OwoK
-YWxsb3cgdXNlcl90IHVubGFiZWxlZF90OnVkcF9zb2NrZXQgeyByZWFkIHdyaXRlIH07Cg==
-
---Multipart_Sun__19_Jan_2003_15:19:29_-0500_097d11a8--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
