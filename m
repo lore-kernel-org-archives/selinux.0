@@ -1,14 +1,14 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA18457
-	for <selinux@tycho.nsa.gov>; Sun, 10 Mar 2002 15:18:31 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA18477
+	for <selinux@tycho.nsa.gov>; Sun, 10 Mar 2002 15:25:37 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA00194
-	for <selinux@tycho.nsa.gov>; Sun, 10 Mar 2002 20:17:30 GMT
+	by jazzband.ncsc.mil  with ESMTP id UAA00384
+	for <selinux@tycho.nsa.gov>; Sun, 10 Mar 2002 20:24:35 GMT
 Received: from mail.outstep.com (a904j637.tower.wayne.edu [141.217.140.65])
-        by jazzband.ncsc.mil  with ESMTP id UAA00189 for <selinux@tycho.nsa.gov>; Sun, 10 Mar 2002 20:17:29 GMT
-Message-ID: <1761.192.168.1.12.1015791063.squirrel@192.168.1.2>
-Date: Sun, 10 Mar 2002 15:11:03 -0500 (EST)
-Subject: SED Command
+        by jazzband.ncsc.mil  with ESMTP id UAA00380 for <selinux@tycho.nsa.gov>; Sun, 10 Mar 2002 20:24:34 GMT
+Message-ID: <1822.192.168.1.12.1015791488.squirrel@192.168.1.2>
+Date: Sun, 10 Mar 2002 15:18:08 -0500 (EST)
+Subject: sed command found
 From: "Lonnie Cumberland" <lonnie@outstep.com>
 To: <sds@tislabs.com>
 Cc: <selinux@tycho.nsa.gov>
@@ -17,17 +17,10 @@ Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Stephen,
+Sorry for the last email.
 
-How are you doing today? Good I hope.
-
-A while ago, you told me an sed command that wold globally replace
-one string in a file with another as I was trying to edit one of
-the .te files in a global way.
-
-Could you please tell me again what that command was?
-
-Thanks,
+I found the solution,
+Thanks again,
 Lonnie
 
 -- 
