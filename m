@@ -1,43 +1,43 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71GdlrT007725
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 12:39:47 -0400 (EDT)
-Received: from smtp811.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i71GdE52024432
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 16:39:14 GMT
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71HH7rT007920
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 13:17:07 -0400 (EDT)
+Received: from smtp809.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i71HGY52025084
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 17:16:34 GMT
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp811.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 16:39:46 -0000
-Date: Sun, 1 Aug 2004 17:50:51 +0100
+  by smtp809.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 17:16:50 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BrJTP-0002GN-Mz
+	for selinux@tycho.nsa.gov; Sun, 01 Aug 2004 16:46:11 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BrK7j-0005IF-M9
+	for selinux@tycho.nsa.gov; Sun, 01 Aug 2004 18:27:51 +0100
+Date: Sun, 1 Aug 2004 18:27:51 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: selinux-policy-default 1.14 is missing _stacks_ of stuff
-Message-ID: <20040801165051.GB20103@lkcl.net>
-References: <20040801103252.GC7384@lkcl.net> <200408012254.15553.russell@coker.com.au> <20040801135421.GE15205@lkcl.net> <200408020028.28909.russell@coker.com.au>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: matchfilecon (the program) vs matchfilecon (the libselinux1 fn)
+Message-ID: <20040801172751.GD20103@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200408020028.28909.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Aug 02, 2004 at 12:28:28AM +1000, Russell Coker wrote:
-> On Sun, 1 Aug 2004 23:54, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > Your /etc/selinux/config file should have the following line:
-> > > SELINUXTYPE=.
-> >
-> >  ah... there isn't an /etc/selinux/config file...
-> >
-> >  perhaps that is the cause of the problem?
-> 
-> selinux-policy-default version 1.14-1 has the file, you can verify this with 
-> "dpkg -c".
-> 
-> # dpkg -c /var/cache/apt/archives/selinux-policy-default_1%3a1.14-1_all.deb |
-> grep /etc/selinux/config
-> -rw-r--r-- root/root       120 2004-07-13 19:33:09 ./etc/selinux/config
- 
- ..+*?  how very very odd.
+hi,
 
- i wonder what happened.
+does anyone know: the matchfilecon program reads
+/etc/selinux/.../file_contexts/file_contexts.
+
+does the matchfilecon libselinux1 api does the same?
+
+or does it read a binary policy from somewhere?
+
+the reason i ask is because if i were to code up stuff into
+udev, it might solve the problem of having to move
+/usr/share/selinux/stuff off of /usr and onto /etc.
+
+l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
