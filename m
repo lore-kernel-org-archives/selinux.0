@@ -1,39 +1,48 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>, Brian May <bam@snoopy.apana.org.au>
+Message-ID: <55267.202.6.84.11.1036007034.squirrel@www.crypt.gen.nz>
+Date: Thu, 31 Oct 2002 08:43:54 +1300 (NZDT)
 Subject: Re: kernel warning
-Date: Wed, 30 Oct 2002 16:13:51 +0100
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0210300819100.26525-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0210300819100.26525-100000@raven>
+From: "Kerry Thompson" <kerry@crypt.gen.nz>
+To: <SELinux@tycho.nsa.gov>
+In-Reply-To: <Pine.GSO.4.33.0210280741410.29887-100000@raven>
+References: <20021027042301.GA18290@snoopy.apana.org.au>
+        <Pine.GSO.4.33.0210280741410.29887-100000@raven>
 MIME-Version: 1.0
-Message-Id: <200210301613.51096.russell@coker.com.au>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 30 Oct 2002 14:23, Stephen Smalley wrote:
-> > It appears that with this patch, it is no longer possible to
-> > compile the patched kernel without SE-LINUX support.
-> >
-> > Maybe the call to selinux_init() in main.c needs
-> > to be wrapped with #ifdef CONFIG_SECURITY_SELINUX?
->
-> You would only apply this patch if you intend to use SELinux, so it is
-> implicit that SELinux is going to be enabled.  We could #ifdef it, but I'm
-> not sure what the point is.  Now, if a generalized form of early
-> initialization is added to the LSM patch, then this would go away and the
-> SELinux-specific code would be hidden.
+The 'Everything in one Part' download at
+http://www.nsa.gov/selinux/archives/lsm-2.4-selinux-2002102211.tgz doesn't
+seem to have this patch included, and the NSA site isn't very clear that
+the patch is required. Could we please have the patch added to the next
+all-in-one snapshot?
 
-This means that I can't produce a single kernel-patch package that can be used 
-by SE Linux, LIDS, and DTE users...
+Kerry
+
+Stephen Smalley said:
+>
+> SELinux has always included a separate SELinux-specific kernel patch to
+> be applied on top of the LSM patch, although the precise purpose of the
+> patch has varied over time.  In the current release, the patch is
+> available in the SELinux archive in selinux/module/selinux-2.4.patch or
+> directly from
+> http://www.nsa.gov/selinux/patches/selinux-2.4-2002102211.patch.gz.  In
+> the latest release, the dependence of the SELinux module on this patch
+> has increased due to the elimination of precondition functions.  Some of
+> the changes in this patch may find their way back into the mainstream
+> LSM patch in a more general form in the future (they have all been
+> discussed on the LSM mailing list), but some changes are likely to
+> remain
+> SELinux-specific.
+
+
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Kerry Thompson, CCNA CISSP
+Information Systems Security Consultant
+http://www.crypt.gen.nz  kerry@crypt.gen.nz
+
+
 
 
 --
