@@ -1,52 +1,52 @@
-Subject: Re: Issue on getting security context of socket and message
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: SELinux@tycho.nsa.gov, James Morris <jmorris@redhat.com>
-In-Reply-To: <20041109105836.79902.qmail@web51503.mail.yahoo.com>
-References: <20041109105836.79902.qmail@web51503.mail.yahoo.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA9IJwIi024638
+	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 13:19:58 -0500 (EST)
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA9IK0si014242
+	for <selinux@tycho.nsa.gov>; Tue, 9 Nov 2004 18:20:01 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by localhost (Postfix) with ESMTP id D9C84C4C084
+	for <selinux@tycho.nsa.gov>; Tue,  9 Nov 2004 19:19:55 +0100 (CET)
+Received: from legolas.drinsama.de ([127.0.0.1])
+	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
+	with SMTP id 01600-03 for <selinux@tycho.nsa.gov>;
+	Tue, 9 Nov 2004 19:19:52 +0100 (CET)
+Received: from wintermute.xmldesign.de (smaug.cdtm.de [129.187.150.81])
+	by legolas.drinsama.de (Postfix) with ESMTP id 93177C4C08D
+	for <selinux@tycho.nsa.gov>; Tue,  9 Nov 2004 19:19:52 +0100 (CET)
+Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
+	by wintermute.xmldesign.de (Postfix) with ESMTP id BC035234053
+	for <selinux@tycho.nsa.gov>; Tue,  9 Nov 2004 19:19:34 +0100 (CET)
+Subject: tty files, console login on debian
+From: Erich Schubert <erich@debian.org>
+To: SELinux ML <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Message-Id: <1100014761.408.112.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 09 Nov 2004 19:19:34 +0100
+Message-Id: <1100024374.18347.5.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Date: Tue, 09 Nov 2004 10:39:21 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-11-09 at 05:58, Park Lee wrote:
->     In flask, as we know, sockets effectively serve as communication
-> proxies for processes in the Flask control model. Consequently,
-> sockets are labeled with the label of the creating process by default.
-> Messages are associated with both the label of their sending socket
-> and a separate message label. By default, this message label is the
-> same as the sending socket label.
->     Then how can we get the security context of socket and message
-> respectively in linux kernel space and user space respectively (i.e.
-> what functions and commands could we use to achieve our goal)? 
->     And is messages here refer to packages in network?
+Hi Russel,
+I just updated my system to your lates debian policy package.
+Afterwards I could no longer login on the console, ssh worked.
+I believe i found the problem in types/file.te:
+I solved it by adding the following:
 
-In the kernel, you can obtain the security context of a socket via the
-security field of its associated inode.  Look at socket_has_perm() and
-selinux_socket_sock_rcv_skb() in security/selinux/hooks.c for examples. 
-Unix domain sockets can also use the sk_security field in the struct
-sock for security state (e.g. peer SID), but INET sockets cannot safely
-do so at present.  Remember that most of the LSM networking security
-fields and hooks were rejected by the mainline kernel, so only limited
-support exists in the current SELinux and there is no message labeling
-at all.
+allow { dev_fs ttyfile } fs_t:filesystem associate;
 
-Since sys_security was rejected by the mainline kernel, the extended
-socket API of SELinux is not presently supported; we will ultimately
-have to revisit it in the future when we have better motivating examples
-of real applications that use it.  While fgetfilecon()->fgetxattr()
-could conceivably export the security context of a local socket, that
-would require implementing a fake xattr handler for the socket code;
-alternative would be to implement it via getsockopt().  There is a
-getpeercon(3) function in libselinux that allows you to get the context
-of a peer for a Unix domain stream socket; this is internally
-implemented via getsockopt().
+Since the type of the staff/user ttys is "ttyfile", but no longer
+"device_type". Maybe you'll prefer a different fix, though.
+It is also possible that the mountpoint or so needs to be relabeled?
+(redhat appears to have tmpfs_t there, not fs_t)
 
+Greetings,
+Erich Schubert
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+            There are only 10 types of people in the world:           //\
+            Those who understand binary and those who don't           V_/_
+  In unseren Freunden suchen wir, was uns fehlt. --- Thornton Wilder
 
 
 --
