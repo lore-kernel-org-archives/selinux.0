@@ -1,55 +1,46 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA19838
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 11:33:05 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA20081
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 11:54:33 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA07947
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 15:33:02 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id PAA07943
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 15:33:01 GMT
-Date: Fri, 24 May 2002 11:32:06 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: 2 checkpolicy bugs
-In-Reply-To: <20020524121244.237B6655@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0205241130020.23057-100000@raven>
+	by jazzswing.ncsc.mil  with ESMTP id PAA09272
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 15:54:30 GMT
+Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
+	by jazzswing.ncsc.mil  with SMTP id PAA09268
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 15:54:25 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524389@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Frank Mayer'" <mayerf@tresys.com>,
+        NSA Selinux Mailinglist
+	 <selinux@tycho.nsa.gov>
+Subject: RE: Proposal: install policy.conf
+Date: Fri, 24 May 2002 10:54:39 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+on Friday, May 24, 2002 10:42 AM Frank Mayer wrote:
 
-On Fri, 24 May 2002, Russell Coker wrote:
+> I suggest that policy.conf be installed in /etc/security as the "official
+> installed" policy (rather than /ss_policy), that load_policy or equivalent
 
-> If I don't assign SIDs to any TCP or UDP ports then I get the following
-> checkpolicy error:
->
-> error in the statement ending on line 31779 (token 'system_u'): parse error
->
-> Line 31779 is the following:
-> lo system_u:object_r:netif_lo_t system_u:object_r:netmsg_lo_t
->
-> I consider that there are two bugs in checkpolicy, firstly it doesn't accept
-> a valid configuration with no special SIDs assigned to any TCP or UDP ports.
-> Secondly it doesn't give me an error message that is any good to inform me of
-> this matter.
->
-> Currently to work around this matter I've assigned a type for port 1 (tcpmux)
-> which is never used.
+I, Russell Coker and Howard Holm have gone through a lengthily
+discussion on where things go. 
 
-Yes, the current policy parser requires most "sections" to be present,
-rather than allowing them to be optional.  Permitting most sections to be
-optional may require other changes in order to avoid ambiguities, but is a
-worthwhile goal.  It is already on my TODO list, but not as a high
-priority.
+We have settled on the following directory for the policy files.
+/etc/selinux/policy
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+In this directory you will find policy.conf file
+/etc/security/policy/policy.conf
+
+/ss_policy is the binary compiled version of policy.conf
+and that has been moved to /etc/security/selinux/policy.9
+
+where .9 is the current version of the compiled policy.
 
 
-
+Mark Westerman 
 
 --
 You have received this message because you are subscribed to the selinux list.
