@@ -1,46 +1,41 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1MJbadW025322
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 14:37:36 -0500 (EST)
-Subject: Re: [RFC][PATCH] Pass requested protection to
-	security_file_mmap/mprotect hooks
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Daniel J Walsh <dwalsh@redhat.com>,
-   lsm <linux-security-module@wirex.com>, Chris Wright <chrisw@osdl.org>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <1109099410.3858.23.camel@nexus.verbum.private>
-References: <1109095368.15893.17.camel@moss-spartans.epoch.ncsc.mil>
-	 <1109097647.3858.14.camel@nexus.verbum.private>
-	 <1109097979.15893.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <1109099410.3858.23.camel@nexus.verbum.private>
-Content-Type: text/plain
-Date: Tue, 22 Feb 2005 14:12:01 -0500
-Message-Id: <1109099521.15893.61.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1MJtVdW025459
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 14:55:31 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1MJr7ZG010930
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 19:53:11 GMT
+Date: Tue, 22 Feb 2005 14:52:58 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+cc: lsm <linux-security-module@wirex.com>, Chris Wright <chrisw@osdl.org>,
+   <selinux@tycho.nsa.gov>, Ivan Gyurdiev <ivg2@cornell.edu>,
+   Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [RFC][PATCH] Pass requested protection to security_file_mmap/mprotect
+ hooks
+In-Reply-To: <1109095368.15893.17.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.44.0502221452190.28223-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-22 at 14:10 -0500, Colin Walters wrote:
-> But we have already worked around the gpg (and other) issues by enabling
-> the unconfined_t execmod/execmem booleans by default, no?
+On Tue, 22 Feb 2005, Stephen Smalley wrote:
 
-I was speaking in the context of strict policy (or more generally, any
-confined process).  Strict policy is where we are seeing the greatest
-impact of the read-implies-exec logic, as you would expect.
+> possible.  What do people think about this proposed patch (obviously not
+> intended for upstreaming until after 2.6.11 is out)?
 
-> From your patch, it looks like the default is to have it disabled.  I do
-> feel that for Fedora we will want it enabled by default, so providing a
-> kernel build option for it is useful; the fewer magic things are in the
-> init scripts, the better.
+Seems like a good idea.
 
-Right, that is what I expected.  Security-focused distros may still
-choose to disable by default, as it does reflect the actual protection
-that is being applied, but I expect the major distros to enable
-checkreqprot by default.
+> Should the default value for /selinux/checkreqprot be configurable?
 
+I think so, perhaps via a boot param.
+
+
+- James
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
