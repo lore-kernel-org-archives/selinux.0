@@ -1,71 +1,40 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5A2MPrT024428
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 22:22:25 -0400 (EDT)
-Received: from abyss.simplyaquatics.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5A2MNQd023497
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 22:22:23 -0400 (EDT)
-From: "Ed Street" <edstreet@street-tek.com>
-To: "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>
-Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
-Subject: RE: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Date: Wed, 9 Jun 2004 22:22:21 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5A2KLrT024411
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 22:20:22 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5A2KFP2005605
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 22:20:16 -0400 (EDT)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: [debian] - installation of mysqld requires chfn
+Date: Thu, 10 Jun 2004 12:20:53 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040609222209.GH5727@lkcl.net>
+In-Reply-To: <20040609222209.GH5727@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <20040609233946.GI5727@lkcl.net>
-Message-Id: <20040610022221.7796D3A4063@abyss.simplyaquatics.com>
+  charset="iso-8859-1"
+Message-Id: <200406101220.53966.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Well why ANY app needs write access to /etc is beyond me.  Also are you
-using run_init /etc/init.d/foo ?
+On Thu, 10 Jun 2004 08:22, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> i added the can_exec chfn_exec_t into domains/programs/dpkg.te:
 
-Ed
+ifdef(`passwd.te', `
+domain_auto_trans(dpkg_t, chfn_exec_t, chfn_t)
+')
 
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-Behalf Of Luke Kenneth Casson Leighton
-Sent: Wednesday, June 09, 2004 7:40 PM
-To: SE-Linux
-Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't
-working.
+The above is what you want.  You don't want to allow dpkg_t direct access 
+to /etc/shadow because it will probably mess it up (replace it with a copy 
+labelled as etc_t).
 
-On Wed, Jun 09, 2004 at 09:41:26PM +0000, Luke Kenneth Casson Leighton
-wrote:
-> hi,
-> 
-> debian's postfix init.d script does a whole stackload of
-> things like copy over /etc/localtime, /etc/services.
- 
- i should be more specific: in the creation of the chroot jail,
- in /var/spool/postfix, the permissions (contexts) are preserved
- and recreated (see file_contexts/programs/postfix.fc)
-
- i.e., in order for the /etc/init.d/postfix script to create the
- chroot jail, it is necessary to give initrd_t permissions
- sufficient to write to etc_t, amongst other things.
-
- the chroot jail needs a copy of /etc/localtime and /lib/libnss* and
- such-like.
-
- clearly from an selinux perspective, the /etc/init.d/postfix
- script cannot be an appropriate place to set up a chroot jail.
-
- can anyone think of a way in which this could be better achieved?
-
- bearing in mind that the solution must take into account that
- postfix can be run in a chroot jail or not, depending on
- an administrative decision.
-
- l.
- 
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.698 / Virus Database: 455 - Release Date: 6/2/2004
- 
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
