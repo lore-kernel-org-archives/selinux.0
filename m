@@ -1,34 +1,47 @@
-Date: Fri, 3 Oct 2003 02:55:57 +0200
-From: Tom <tom@lemuria.org>
-To: "Fleischman, Eric" <eric.w.fleischman@boeing.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: Security Officer and System Administrator Separation of Duties
-Message-ID: <20031003025553.C28424@lemuria.org>
-References: <5B58696DB20B9140AD20E0685C573A6402992E48@xch-nw-09.nw.nos.boeing.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5B58696DB20B9140AD20E0685C573A6402992E48@xch-nw-09.nw.nos.boeing.com>; from eric.w.fleischman@boeing.com on Thu, Oct 02, 2003 at 03:42:30PM -0700
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h931EHsJ007646
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 21:14:17 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h931CSZt015043
+	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2003 01:12:28 GMT
+Received: from out012.verizon.net (out012pub.verizon.net [206.46.170.137])
+	by jazzswing.ncsc.mil  with ESMTP id h931CRM3015040
+	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2003 01:12:28 GMT
+Received: from scanner.gici.com ([4.64.156.165]) by out012.verizon.net
+          (InterMail vM.5.01.05.33 201-253-122-126-133-20030313) with ESMTP
+          id <20031003011412.ZFVW20366.out012.verizon.net@scanner.gici.com>
+          for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 20:14:12 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Bill Laut <wlsel@verizon.net>
+To: SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: SELinux meetings??  (in West Michigan)
+Date: Thu, 2 Oct 2003 21:16:32 -0400
+References: <20030922115944.GI7359@cablespeed.com>
+In-Reply-To: <20030922115944.GI7359@cablespeed.com>
+MIME-Version: 1.0
+Message-Id: <200310022116.32881.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Oct 02, 2003 at 03:42:30PM -0700, Fleischman, Eric wrote:
-> I hope to be able to configure SELinux so that it would have policies that correspond to the traditional DoD Separation of Duties with Least Privilege practice of establishing different roles/functions for Network Administrators than for Security Officers. Specifically, I'd like the Security Officer to be solely able to establish/modify accounts and passwords, establish group memberships, establish user role memberships, etc. However, the Security Officer must not be able to perform any other traditional sysadm_r:sysadm_t functions. Similarly, I want the sysadm_r:sysadm_t to no longer be able to perform the functionalities that have now become within the sole auspices of the Security Officer. Is this possible to do? If so, how can I do this? 
+On Monday 22 September 2003 07:59 am, Subba Rao wrote:
+> Hi,
+>
+> I would like to know if there is any SELinux users group meeting in the DC
+> metro area.  If so could someone please let me know where and how often
+> does the team meet.
+>
+> Thank you in advance.
+>
 
-This should be possible, in theory. In a practical implementation,
-there are possibly a lot of holes that might be used to elevate
-priviledges.
+Are there any readers of this mailing list in the extended West Michigan area 
+(Grand Rapids, Muskegon, Whitehall, Grand Haven, Kalamazoo, Holland) that 
+would be interested in getting together?
 
-The most obvious example is, of course, that if the security officer
-can modify the policy, he can grant himself additional rights.
+Thanks in advance,
 
+Bill
 
-What you certainly can do is create a sysadm_r that is limited in the
-respect you wish, i.e. can not add/edit users or modify the policy.
-
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
