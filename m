@@ -1,91 +1,62 @@
-Subject: Firewall Policy - thoughts
-From: Reino Wallin <reino@oribium.com>
-To: SELinux <SELinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: 25 Apr 2002 18:17:07 +0200
-Message-Id: <1019751428.27628.77.camel@matilda.oribium.com>
-Mime-Version: 1.0
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA14270
+	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 13:44:40 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA15510
+	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 17:43:28 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id RAA15504 for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 17:43:27 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+Subject: Re: newrules
+Date: Thu, 25 Apr 2002 19:44:26 +0200
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <72222DC86846D411ABD300A0C9EB08A10152436B@csoc-mail-box.csoconline.com>
+In-Reply-To: <72222DC86846D411ABD300A0C9EB08A10152436B@csoc-mail-box.csoconline.com>
+MIME-Version: 1.0
+Message-Id: <20020425174426.ED56C466B@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Besides to provide a Makefile for easy setup, the next step in my work
-with the firewall policy will be to refine the rules for interfaces and
-nodes.
+On Thu, 25 Apr 2002 18:42, Westerman, Mark wrote:
+> > Also for the newrules.pl, "read" should usually be changed to
+>
+> r_file_perms
+>
+> > and "read write" should usually be changed to rw_file_perms.
+>
+> This is where we have a difference of option. I don't use the
+> macros a whole lot. I test and retest the rules and behavior
+> of the program I am creating. The newrules.pl will create
+> a read and as you stated you should change to r_file_perms.
+> This is where I disagree. Why grant extra permission
+> such as for r_file_perms { read getattr access lock poll ioctl }
 
-At this time my idea is to refine the type enforcement files so they,
-without modification, can be used to set up the most common types, like:
+If you can read the entire file then what harm does poll or getattr do?  
+ioctl and lock may be a bad idea, maybe we need another macro...
 
-	+ LAN/DMZ/Internet
-	+ VPN gateway
-	+ Corporate bastion host
-	+ Home office, LAN/Internet
-	+ A corporate firewall to separate departments
+The problem that I have is that even with the macros the scope of the policy 
+is expanding to the limits of what can be managed.  Looking at each specific 
+attribute instead of classes such as r_file_perms would expand the amount of 
+work significantly!
 
-I figure it might be possible to set up the different types of firewalls
-only by editing net_contexts if the type enforcement files are properly
-written. When I know exactly what should be done, I will provide an
-interactive script to do it.
+> if a program does not need a permission such as lock, poll and ioctl
+> don't grant that permission. As we develop more finer grained access
+> rules program should only be granted the permission they need
+> and nothing else. In security terms only grant what is need.
 
-Anyway, below are some examples how it might look like. They are not
-complete, though.
+I understand the point, however with the current sample policy I'm working on 
+it is already over 10K lines of code.  The more code the harder it is to 
+audit...
 
----
-network.te
-
-	type node_admin_t, node_type;
-	type node_dmz_t, node_type;
-	type node_internal_t, node_type;
-	type node_external_t, node_type;
-	type node_extranet_t, node_type;
-	type node_vpn_t, node_type;
-
-	type netif_admin_t, netif_type;
-	type netif_dmz_t, netif_type;
-	type netif_external_t, netif_type;
-	type netif_extranet_t, netif_type;
-	type netif_internal_t, netif_type;
-	type netif_vpn_t, netif_type;
-
-	the analogous metmsg_type as well 
-
-net_contexts
-
-	eth0 system_u:object_r:netif_vpn_t system_u:object_r:netmsg_vpn_t
-	eth1 system_u:object_r:netif_admin_t system_u:object_r:netmsg_admin_t
-	eth2 system_u:object_r:netif_internal_t
-system_u:object_r:netmsg_internal_t
-	eth3 system_u:object_r:netif_dmz_t system_u:object_r:netmsg_dmz_t
-	
-generic.proxy.te
-
-	# Allow the domain to initiate TCP connections 
-	# on certain network interfaces.
-	allow generic_proxy_t netif_dmz_t:tcp_socket { connectto };
-	allow generic_proxy_t netif_external_t:tcp_socket { connectto };
-	allow generic_proxy_t netif_extranet_t:tcp_socket { connectto };
-	allow generic_proxy_t netif_vpn_t:tcp_socket { connectto };
-
-	# Allow the domain to accept TCP connections 
-	# on certain network interfaces.
-	allow generic_proxy_t netif_admin_t:tcp_socket { acceptfrom };
-	allow generic_proxy_t netif_dmz_t:tcp_socket { acceptfrom };
-	allow generic_proxy_t netif_external_t:tcp_socket { acceptfrom };
-	allow generic_proxy_t netif_extranet_t:tcp_socket { acceptfrom };
-	allow generic_proxy_t netif_internal_t:tcp_socket { acceptfrom };
-	allow generic_proxy_t netif_vpn_t:tcp_socket { acceptfrom };
-
-	the analogous metmsg_type as well
-
-	additional rules for the nodes
-
----
-
-What do you think of this?
-
-Reino
-
-
-
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
