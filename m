@@ -1,57 +1,48 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA01829
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 15:30:21 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA02538
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 16:51:26 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA03052
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 19:29:45 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id TAA03048
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 19:29:45 GMT
-Date: Tue, 9 Jul 2002 15:29:52 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Ryan Bergauer <privateryan@mindspring.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: RE: quota and ampd (and one more thing)
-In-Reply-To: <000701c2277d$cf5f9be0$6501a8c0@donkey>
-Message-ID: <Pine.GSO.4.33.0207091524380.27193-100000@raven>
+	by jazzswing.ncsc.mil  with ESMTP id UAA07863
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 20:50:51 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id UAA07859
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 20:50:49 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Ryan Bergauer" <privateryan@mindspring.com>, <selinux@tycho.nsa.gov>
+Subject: Re: quota and ampd
+Date: Tue, 9 Jul 2002 16:51:11 -0400
+References: <000401c226ca$7a507e20$6501a8c0@donkey>
+In-Reply-To: <000401c226ca$7a507e20$6501a8c0@donkey>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020709205111.97A622330@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 8 Jul 2002 17:57, Ryan Bergauer wrote:
+> I just installed the new release of SELinux, and I get about 7 messages
+> at boot-time requesting different permissions for quotaon, per the
+> following:
 
-On Tue, 9 Jul 2002, Ryan Bergauer wrote:
+I should have some new additions for the quota.te file soon which may address 
+these issues.
 
-> Here are four of the ones appearing at boot. They're pretty
-> representative of the rest.
->
-> avc:  denied  { getattr } for  pid=712 exe=/sbin/killall5 path=/1/stat
-> dev=00:03 ino=65547 scontext=system_u:system_r:apmd_t
-> tcontext=system_u:system_r:init_t tclass=file
+> In addition, I'm getting quite a few denied messages at boot and
+> shutdown regarding killall5 when I enable Advanced Power Management Bios
+> in the kernel (with apmd_t wanting read-type permissions for items in
+> init_t and kernel_t.) This sound familiar to anyone else? Please note
+> that this was occurring before the new release, I just never got around
+> to confronting it until now.
 
-I see.  If apmd needs to be able to kill all processes, you'll need to add
-permissions to permit it to access all /proc/PID directories and to send
-signals to all processes, e.g.:
-	allow apmd_t domain:{ file lnk_file } r_file_perms;
-	allow apmd_t domain:dir r_dir_perms;
-	allow apmd_t domain:process signal_perms;
+I'll check that out, I don't often check shutdown errors...
 
-> Also, I tried running run_init this morning and received the message
-> (after authentication):
->
-> execvp_secure: No such file or directory
->
-> Has anyone encountered this?
-
-This indicates that you specified a non-existing path as the script name
-for run_init.  Or at least that run_init was unable to find it.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
