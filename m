@@ -1,42 +1,54 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h93IIEsJ012120
-	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2003 14:18:14 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h93IGPZt009172
-	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2003 18:16:25 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h93IGOM3009169
-	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2003 18:16:24 GMT
-Subject: Re: libselinux-1.2 and const usage
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Thorsten Kukuk <kukuk@suse.de>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20031003063614.GA20539@suse.de>
-References: <20031003063614.GA20539@suse.de>
-Content-Type: text/plain
-Message-Id: <1065205090.4080.177.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 03 Oct 2003 14:18:10 -0400
+Date: Fri, 3 Oct 2003 16:28:45 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: "Kratzer, James R." <JamesK@xetron.com>
+cc: "SELinux (E-mail)" <SELinux@tycho.nsa.gov>,
+   "'sds@epoch.ncsc.mil'" <sds@epoch.ncsc.mil>
+Subject: Re: Fedora Project and SELinux
+In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A42@s3cin>
+Message-ID: <Pine.LNX.4.44.0310031602210.22164-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-10-03 at 02:36, Thorsten Kukuk wrote:
-> Hi,
-> 
-> when trying to add selinux support to some of my applications, I
-> found out that the libselinux interface does not make usage of
-> "const", which ends in a lot of compiler warnings.
-> 
-> Attached is a patch for libselinux to solve this.
+On Wed, 1 Oct 2003, Kratzer, James R. wrote:
 
-Thanks, I've merged this into our internal CVS tree as well as the
-sourceforge CVS tree.  I'd be interested in knowing what applications
-you are modifying and how you are adapting them for SELinux, if you're
-willing to share...
+> With Red Hat 9 being released to the open source community as the Fedora
+> project, will SELinux development continue with the Fedora core only, will
+> SELinux development continue with Red Hat Enterprise Linux only, or will
+> SELinux development continue with both?.
 
+Current SELinux development by Red Hat uses a Fedora base with SELinux 
+specific RPMS maintained by Dan Walsh:
+ftp://people.redhat.com/dwalsh/SELinux/packages
+
+> It seems that SELinux changes are being upstreamed to rawhide for
+> release with the 2.6 kernel.  Will this kernel, along with upstreamed
+> changes to glibc, be included in Fedora's release later this year as
+> well as the next release of RH Enterprise?
+
+As far as I know, Fedora will not initially be released with SELinux
+enabled, but a future version may.  This is also up to the Fedora
+development community, and further discussion on the issue should
+probably be directed to fedora-devel-list 
+(https://listman.redhat.com/mailman/listinfo/fedora-devel-list).
+
+Also see Michael Johnson's response to a similar question in August:
+http://www.redhat.com/archives/fedora-devel-list/2003-August/msg00139.html
+
+> With Fedora being an open source community supported project, will this
+> introduce security risks of backdoors being introduced into the core?
+
+Not in my opinion -- the development process is now even more transparent.
+
+
+- James
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
+
+
 
 
 --
