@@ -1,56 +1,56 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB634kRb009202
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 22:04:46 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB66MfRb009679
+	for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 01:22:41 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB634jRV023371
-	for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 03:04:45 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id hB634gta023362 for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 03:04:43 GMT
-Date: Tue, 2 Dec 2003 20:59:15 +1100
-From: Brian May <bam@snoopy.apana.org.au>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: policy under version control
-Message-ID: <20031202095915.GA28563@snoopy.apana.org.au>
-References: <20031129132619.GE26960@lukas.schuldei.com> <1070291615.12270.120.camel@moss-spartans.epoch.ncsc.mil> <20031201202813.I16359@lemuria.org> <200312021430.51186.russell@coker.com.au> <20031202080830.E17580@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20031202080830.E17580@lemuria.org>
+	by jazzband.ncsc.mil  with ESMTP id hB66MeRV025624
+	for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 06:22:40 GMT
+Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id hB66Mbta025621 for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 06:22:39 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: nagray@austin.rr.com
+Subject: Re: ssh policy
+Date: Sat, 6 Dec 2003 17:22:15 +1100
+References: <1070587102.27071.159.camel@hawaii.efficax.net> <200312051307.48320.russell@coker.com.au> <1070651210.27071.290.camel@hawaii.efficax.net>
+In-Reply-To: <1070651210.27071.290.camel@hawaii.efficax.net>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200312061722.15059.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Dec 02, 2003 at 08:08:34AM +0100, Tom wrote:
-> That's exactly where a more modern replacement of 20-year-old CVS would
-> help. From what I read about arch, it would be well possible to define,
-> say:
+On Sat, 6 Dec 2003 06:06, Nick <nagray@austin.rr.com> wrote:
+> > I don't get it either.  Usually sshd runs fine with that blocked, but
+> > sometimes it doesn't work correctly.  In my latest policy I have enabled
+> > that access, but it needs more review.
+>
+> I took a look at the source for sshd. While the daemon is waiting for
+> connections it regenerates it's server key every hour. This is done
+> through a SIGALRM. I am trying to figure out why this would cause
+> intermittent failures on the daemon if it wasn't allowed.
+>
+> I guess it really doesn't matter, it should be allowed. As the resident
+> expert on policies, can you tell me if we can restrict the signals down
+> to a type? I will look later.
 
-s/arch/tla/
+Strange.  In any case this has to be enabled for running as a daemon.
 
-arch is obsolete now, and replaced with tla.
+For the moment I will deny sshd_t access to send signals to itself when 
+running from inetd.
 
-tla is the only revision system that I know of (besides Bitkeeper) that
-supports distributed repositories, which I think could be rather
-important for selinux policy.
+> I just found out I don't need X at all, so for now this solves any
+> problem I have with that.
 
-So I could maintain my own private repository, keep it up to date with
-changes to selinux, while still maintaing a revision history of my
-changes.
+In that case it's best to disable X forwarding on both client and server.
 
-Sure, you can do this with CVS vendor branches, but this can get clumsy,
-and CVS wasn't designed for this purpose.
-
-The only question mark I have with tla, is that I have never seen a
-conflict, and I don't know how easy it is to resolve conflicts.
-
-There also are a few issues that take a bit of getting use to,
-especially if you are use to CVS. For instance, you don't commit
-individual files like in CVS, you commit a number of files in one go,
-and the revision of the entire project gets incremented (eg.  similar so
-a changeset in Bitkeeper or a commit operation in Subversion).
-
-(then again, I haven't migrated from using arch to tla yet for my
-projects either, but I will save that for another thread).
 -- 
-Brian May <bam@snoopy.apana.org.au>
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
