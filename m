@@ -1,58 +1,49 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAN6WoIi010096
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 01:32:51 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAN6VA5q024656
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 06:31:12 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Jiann-Ming Su <sujiannming@gmail.com>
-Subject: Re: MySQL Policy Patch
-Date: Tue, 23 Nov 2004 16:09:53 +1100
-Cc: selinux@tycho.nsa.gov
-References: <A52BEA1D8EE8634B9196A136333637B130F3@maat.darkhonor.net> <1098205374.29525.99.camel@moss-spartans.epoch.ncsc.mil> <561dc32604110511531fbd1e33@mail.gmail.com>
-In-Reply-To: <561dc32604110511531fbd1e33@mail.gmail.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iANFDWIi011933
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 10:13:32 -0500 (EST)
+Received: from omx1.americas.sgi.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iANFC25q013713
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 15:12:02 GMT
+Message-ID: <41A35397.1080001@sgi.com>
+Date: Tue, 23 Nov 2004 10:13:27 -0500
+From: Prarit Bhargava <prarit@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200411231609.57657.russell@coker.com.au>
+To: linux-ia64@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: SELinux & ia64
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 06 November 2004 06:53, Jiann-Ming Su <sujiannming@gmail.com> 
-wrote:
-> FC3T3 wouldn't install on my system, so I'm having to work through
-> FC2.  When I try to run "/etc/init.d/mysql start" as root, I get the
-> following in dmesg:
->
-> audit(1099684144.872:0): avc:  denied  { read } for  pid=5099
-> exe=/bin/su name=.default_contexts dev=sda5 ino=213003
-> scontext=jms:user_r:user_su_t tcontext=root:object_r:staff_home_dir_t
-> tclass=file
+SELinux appears to cause warnings while attempting mounts both at 
+boot-time and run-time:
 
-It was never possible to get correct operation when su is used for starting 
-daemons.
+kernel unaligned access to 0xa0000002003a0056, ip=0xa0000001002076d0
+kernel unaligned access to 0xa0000002003a005e, ip=0xa0000001002076d0
+kernel unaligned access to 0xa0000002003a0066, ip=0xa0000001002076d0
+kernel unaligned access to 0xa0000002003a006e, ip=0xa0000001002076d0
 
-FC3 has a new program "runuser" for starting daemons in this situation, 
-hopefully the mysql packages for FC3 will use runuser instead of su (if not 
-it's a bug).
+I've tracked this to the usage of le32_to_cpu in 
 
-> inode_doinit_with_dentry:
-> What do I need to do so that mysql will start on my system, and users
-> can access the mysql database?  I've tried adding mysqld_r to the
-> users file, but mysqld_r is not a role.  Sorry for being so slow with
-> this.  Thanks for any info.
+security/selinux/ss/policydb.c
 
-If you install the policy from FC3 and compile runuser on FC3 then you can 
-modify the init.d script to use runuser instead of su and things should work.
+The code in question uses:
 
-But it may be easier to fix the problem with installing FC3.
+    len = le32_to_cpu(buf[0]);
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+and should be
+
+    len = le32_to_cpu(get_unaligned(&buf[0]));
+
+However, this is probably not a good solution as the get_unaligned macro 
+can be expensive
+on platforms other than ia64. 
+
+I'm tempted to redefine the le32_to_cpu function for policydb.c for the 
+ia64 platform, but
+before I go down that road I was wondering if anyone had hit this issue 
+elsewhere in the kernel?
+
+Prarit.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
