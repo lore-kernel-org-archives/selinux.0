@@ -1,66 +1,46 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3DEYTRb016591
-	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 10:34:29 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3DEaMRb016622
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 10:36:22 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i3DEYOmw014363
-	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 14:34:24 GMT
-Received: from mtiwmhc13.worldnet.att.net (mtiwmhc13.worldnet.att.net [204.127.131.117])
-        by jazzband.ncsc.mil  with ESMTP id i3DEYO4w014358 for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 14:34:24 GMT
-Message-ID: <011a01c42164$501bec70$010aff0a@gw>
-From: "todd glassey" <todd.glassey@worldnet.att.net>
-To: "Michael Pender" <michael.pender@nanochron.com>,
-   "Dale Amon" <amon@vnl.com>, "Elvedin Trnjanin" <elvedin@ods.org>
-Cc: "Dean Anderson" <dean@av8.com>, "Matthew J. Fanto" <mattjf@uncompiled.com>,
-   <russell@coker.com.au>, "Untitled" <selinux@tycho.nsa.gov>
-References: <BCA0AAB7.9E1B%michael.pender@nanochron.com>
-Subject: Re: Logo Artwork for SELinux?
-Date: Tue, 13 Apr 2004 07:33:12 -0700
+	by jazzband.ncsc.mil  with ESMTP id i3DEaLmw014549
+	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 14:36:21 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i3DEaJ4w014412 for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 14:36:20 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Rogelio Serrano <rogelio@smsglobal.net>
+Subject: Re: udevd domain
+Date: Wed, 14 Apr 2004 00:34:55 +1000
+Cc: selinux@tycho.nsa.gov
+References: <5611c19c4dd1b4dfb943b46765fb5cac@debian>
+In-Reply-To: <5611c19c4dd1b4dfb943b46765fb5cac@debian>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+Message-Id: <200404140034.55526.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hey as a new member of the list I thought I would pay some dues here, and I
-called a friend who is a instructor at the SF Art Institute. He has a
-project that will come due from his students next week and we are asking a
-couple of them to whip up some ideas for this effort as well... Should have
-them by mid-week next week.
+On Sat, 10 Apr 2004 17:05, Rogelio Serrano <rogelio@smsglobal.net> wrote:
+> What domain should udevd run in? udev_t or hotplug_t
 
-Todd
+If we are to create a new domain for udevd then it would probably be best to 
+look at the devfsd policy for inspiration.
 
------ Original Message ----- 
-From: "Michael Pender" <michael.pender@nanochron.com>
-To: "todd glassey" <todd.glassey@worldnet.att.net>; "Dale Amon"
-<amon@vnl.com>; "Elvedin Trnjanin" <elvedin@ods.org>
-Cc: "Dean Anderson" <dean@av8.com>; "Matthew J. Fanto"
-<mattjf@uncompiled.com>; <russell@coker.com.au>; "Untitled"
-<selinux@tycho.nsa.gov>
-Sent: Monday, April 12, 2004 5:21 PM
-Subject: Re: Logo Artwork for SELinux?
+But does udev ever run as a daemon or is it always run from hotplug?  As 
+hotplug already has mknod capability it seems that having udev run in it's 
+context would not involve adding significant privs.  So it may be best to 
+stick with hotplug_t.
 
+I need to know more about udev to decide.  Or if you write some policy I'll 
+look at it and decide what to do (I can get a good idea of what a program 
+does from the policy it needs).
 
-> On 4/12/04 4:11 PM, "todd glassey" <todd.glassey@worldnet.att.net> wrote:
->
-> > How about something like a faded or screened stream of 1's and 0's with
-the
-> > armored penguin emblazoned over it? Have you seen the NSA's new Website?
-...
-> >
-> > Todd
->
-> Much like the abyss, when you look at the NSA's web site it looks back at
-> you. :)
->
-> - Mike
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-> the words "unsubscribe selinux" without quotes as the message.
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
