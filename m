@@ -1,49 +1,46 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA11127
-	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 13:42:09 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA11418
+	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 14:08:51 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA06997
-	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 17:40:33 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id RAA06993 for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 17:40:33 GMT
-Date: Mon, 5 Aug 2002 13:43:09 -0400 (EDT)
-From: Chris Vance <cvance@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>, Chris Vance <cvance@tislabs.com>
-Subject: Re: what is "null" access?
-In-Reply-To: <20020805145309.096EC2CA8@lyta.coker.com.au>
-Message-ID: <Pine.LNX.4.33.0208051335190.13180-100000@zorg.gw.tislabs.com>
+	by jazzband.ncsc.mil  with ESMTP id SAA08395
+	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 18:07:16 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id SAA08391 for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 18:07:15 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 11D2B9246C
+	for <selinux@tycho.nsa.gov>; Tue,  6 Aug 2002 04:08:48 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 59C7C7E
+	for <selinux@tycho.nsa.gov>; Mon,  5 Aug 2002 20:08:40 +0200 (CEST)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: New Debian packages
+Date: Mon, 5 Aug 2002 20:08:40 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020805180840.59C7C7E@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 5 Aug 2002, Russell Coker wrote:
+I have put a new version of my Debian packages online.  It's mostly just 
+incremental improvements and bug-fixes for what I've done before, plus the 
+start of my new chroot support that will be the topic of my paper for Linux 
+Kongress.
 
-> Aug ?5 10:58:57 ns kernel: avc: ?denied ?null for ?pid=30897
-> exe=/usr/sbin/apache IPCID=0 scontext=system_u:system_r:httpd_t
-> tcontext=system_u:system_r:httpd_t tclass=shm
-> Aug ?5 10:58:57 ns kernel: avc: ?denied ?null for ?pid=30897
-> exe=/usr/sbin/apache IPCID=0 scontext=system_u:system_r:httpd_t
-> tcontext=system_u:system_r:httpd_t tclass=shm
->
-> The above messages are appearing on a system running a version of SE Linux
-> that's not the latest (running the original 2002.07.03 release).
+Also I have setup an experimental apt repository for my SE modified packages, 
+add the following to your /etc/apt/sources.list file and dselect will offer 
+to upgrade the regular versions of login, cron, kdm, etc to my SE versions.
 
-The above message indicates that the requested permission is null.  In
-this particular case, it looks like apache is calling shmget() with a
-requested permission that does not include read or write access.  This can
-be a permission of '0000', '0111' or similar.  In May of this year a
-change to the AVC causes this access request to be explicitly denied.
+deb http://www.coker.com.au selinux/
 
-The kernel code path accepts this, and subsequently the ipc_permission()
-hook is called.  The SELinux implementation currently applies masks for
-read and write permissions, and not finding these checks for no (null)
-permission.  We are looking at the logic here and will likely make a
-change, as this denial is not the expected behaviour.
 
-chris.
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
