@@ -1,75 +1,122 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA10537
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2001 16:00:50 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA02528
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2001 20:00:38 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id UAA02524
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2001 20:00:38 GMT
-Date: Thu, 5 Jul 2001 15:59:48 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-Reply-To: Stephen Smalley <sds@tislabs.com>
-To: Steve Eckmann <eckmann@computer.org>
-cc: selinux@tycho.nsa.gov
-Subject: Re: how to add new user roles
-In-Reply-To: <4.3.2.7.2.20010705115300.00aed870@mail1.abac.com>
-Message-ID: <Pine.SOL.3.95.1010705154016.16955B-100000@clipper.gw.tislabs.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA13180
+	for <selinux@tycho.nsa.gov>; Fri, 6 Jul 2001 07:38:41 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id LAA22357
+	for <selinux@tycho.nsa.gov>; Fri, 6 Jul 2001 11:37:59 GMT
+Received: from mx01.uni-tuebingen.de (mx01.uni-tuebingen.de [134.2.3.11])
+	by jazzswing.ncsc.mil  with ESMTP id LAA22353
+	for <selinux@tycho.nsa.gov>; Fri, 6 Jul 2001 11:37:58 GMT
+Date: Fri, 6 Jul 2001 13:38:34 +0200 (CEST)
+From: Jan Petranek <jan.petranek@student.uni-tuebingen.de>
+To: Stephen Smalley <sds@tislabs.com>
+cc: Jan Petranek <jan.petranek@student.uni-tuebingen.de>,
+        NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+Subject: Re: checkpolicy fails
+In-Reply-To: <Pine.SOL.3.95.1010705081105.29381D-100000@clipper.gw.tislabs.com>
+Message-ID: <Pine.LNX.4.30.0107061325110.8881-100000@linux20.zdv.uni-tuebingen.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+> On Tue, 3 Jul 2001, Jan Petranek wrote:
+>
+> > Breakpoint 1, main (argc=3, argv=0xbffffb2c) at setfiles.c:458
+> > 458                             if (items < 2) {
+> > 2: *context = 0 '\000'
+> > 1: context = 0x8158a80 ""
+>
+> Oops.  I gave you incorrect guidance.  Display 'type' at this
+> breakpoint.  Also, at line 472, display 'context'.  Each line
+> in file_contexts has a pathname regular expression field, an optional
+> type field, and a security context field.  We aren't currently using
+> the optional type field, so immediately after the sscanf call,
+> 'type' points to the context and 'context' points to the empty string.
+> Then, between line 458 and 472, we see that there were only two fields,
+> so we set 'context' to 'type' and clear 'type'.  The purpose of
+> the first breakpoint is to see the content of the field immediately
+> after the sscanf, to see if it has the bogus 'i' suffix, which is
+> not actually present in file_contexts.
+>
+> No - the context is not right here - it has the 'i' suffix, which
+> is not in file_contexts.
+>
+> > I am not using MLS, so where does the "i" come frome?
+> > 1: context = 0x81586f0 "system_u:object_r:user_netscape_rw_ti"
+>
+> Right - that's the question.  The 'i' isn't in the file_contexts
+> file.
 
-On Thu, 5 Jul 2001, Steve Eckmann wrote:
-
->I guess I need to create a file like user.te for each new domain,
->possibly containing just a new type definition and a user_domain()
->"call", plus whatever new rules apply to each new domain.
-
-Yes, although you need to ensure that the user_domain macro definition
-is read prior to the first attempt to use it.  Right now, if you
-simply create some additional *.te files in domains/user, there 
-isn't any guarantee that user.te will be read first.  So you might
-need to rearrange things a little or tweak the Makefile.  Or you
-could just add your new domains to the end of the existing user.te file.
-
-> Can someone share a simple new user domain they've developed, or at 
->least the steps needed to add a new domain and role? For example, suppose
->I want two new domains A and B just like user except that A can read and
->execute B files, and B can read but not execute A files.
-
-Sorry, I don't have an example, but I can describe what I think will
-be necessary.  In addition to defining the domains as you mentioned 
-above, you'll need to:
-1) Authorize login to enter the domains by adding a domain_trans
-   rule to domains/system/login.te, e.g.
-
-   domain_trans(local_login_t, shell_exec_t, a_t)
-
-2) Define rules for the newrole_t domain so that it will relabel
-terminals properly for the new domains.  See the existing rules
-for user_*_t in domains/program/newrole.te.  These rules actually
-should be moved into the user_domain macro using the parameter
-as with the login rules.
-
-3) Define the role in the rbac file.  Same as user_t, but
-replace 'user' with your domain.  You could define a macro
-based on the current user_r definition and then reuse for
-each of the user domains if you want.
-
-4) Authorize users for the role in the users file.
-
-5) Relabel the home directories of the users who will use
-one of the new roles to the corresponding *_home_t type
-using the chcon program.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I went on examining the type and context. I also displayed the input
+buffer. It looks, like there is a bug in the sscanf!
 
 
+The good news: In all cases, the context later got the contents of the
+type:
 
+Breakpoint 2, main (argc=3, argv=0xbffffb2c) at setfiles.c:458
+458                             if (items < 2) {
+3: buf = "/usr/src/slinux/policy(|/.*)\tsystem_u:object_r:policy_src_t\000\000\000\000 example of\000\000°r\001@ì\177\002@Ep\001@\001\000\000\000\000\000\000\000 m\001@\216ÿw\001k;\001@Øúÿ¿Pl\001@O\205\004\bhúÿ¿\000\000\000\000¬\225\002@Ep\001@\020ii\rtúÿ¿Xx\000@\030r\001@@s\001@\a\000\000\000\000\000\000\0008f\001@Pl\001@\020ii\r\230úÿ¿Xx\000@ m\001@\000s\001@\a\000\000\000\000\000\000\000"...
+2: context = 0x814bf30 ""
+1: type = 0x814bf08 "system_u:object_r:policy_src_t"
+(gdb)
+Continuing.
+
+Breakpoint 3, main (argc=3, argv=0xbffffb2c) at setfiles.c:472
+472                             if (pass == 1) {
+3: buf = "/usr/src/slinux/policy(|/.*)\tsystem_u:object_r:policy_src_t\000
+\000\000\000 example of\000\000°r\001@ì\177\002@Ep\001@\001\000\000\000
+\000\000\000\000 m\001@\216ÿw\001k;\001@Øúÿ¿Pl\001@O\205\004\bhúÿ¿\000
+\000\000\000¬\225\002@Ep\001@\020ii\rtúÿ¿Xx\000@\030r\001@@s\001@\a\000
+\000\000\000\000\000\0008f\001@Pl\001@\020ii\r\230úÿ¿Xx\000@ m\001@\000s
+\001@\a\000\000\000\000\000\000\000"...
+2: context = 0x814bf08 "system_u:object_r:policy_src_t"
+1: type = 0x0
+(gdb)
+
+But, though the information in the buffer is correct, sscanf occasionally
+adds an "i":
+
+Breakpoint 2, main (argc=3, argv=0xbffffb2c) at setfiles.c:458
+458                             if (items < 2) {
+3: buf = "/home/.*/\\.netscape(|/.*)\tsystem_u:object_r:user_netscape_rw_t\000
+\000example of\000\000°r\001@ì\177\002@Ep\001@\001\000\000\000\000\000\000\000
+ m\001@\216ÿw\001k;\001@Øúÿ¿Pl\001@O\205\004\bhúÿ¿\000\000\000\000¬\225\002@Ep
+\001@\020ii\rtúÿ¿Xx\000@\030r\001@@s\001@\a\000\000\000\000\000\000\0008f
+\001@Pl\001@\020ii\r\230úÿ¿Xx\000@ m\001@\000s\001@\a\000\000\000\000\000\000
+\000"...
+2: context = 0x814c3d8 ""
+1: type = 0x814c3b0 "system_u:object_r:user_netscape_rw_ti"
+(gdb)
+
+There is another bad news: I also examined the regular expression (the
+path of the files). And even here, occasionally sscanf adds an additional
+closing bracket:
+
+Breakpoint 2, main (argc=3, argv=0xbffffb2c) at setfiles.c:458
+458                             if (items < 2) {
+4: regex = 0x814bee8 "/usr/src/slinux/policy(|/.*))"
+3: buf = "/usr/src/slinux/policy(|/.*)\tsystem_u:object_r:policy_src_t\000
+\000\000\000 example of\000\000°r\001@ì\177\002@Ep\001@\001\000\000\000
+\000\000\000\000 m\001@\216ÿw\001k;\001@Øúÿ¿Pl\001@O\205\004\bhúÿ¿\000
+\000\000\000¬\225\002@Ep\001@\020ii\rtúÿ¿Xx\000@\030r\001@@s\001@\a\000
+\000\000\000\000\000\0008f\001@Pl\001@\020ii\r\230úÿ¿Xx\000@ m\001@\000s
+\001@\a\000\000\000\000\000\000\000"...
+2: context = 0x814bf30 ""
+1: type = 0x814bf08 "system_u:object_r:policy_src_t"
+(gdb)
+
+Well, the good news is, neither of us seems to be to blame for the
+errors of sscanf. With some luck, I can get my hands on redhat7.1
+tomorrow.
+
+BTW: How do I find out, to which library this sscanf-function belongs to?
+This would at least give a chance of tracking down the bug.
+
+Thanks for your patience,
+
+JanP
 
 
 --
