@@ -1,33 +1,65 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA05953
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 18:57:42 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA16157
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 22:57:27 GMT
-Received: from smtp2.abac.com (smtp2.abac.com [216.55.128.11])
-	by jazzband.ncsc.mil  with ESMTP id WAA16153
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 22:57:26 GMT
-Received: from steve.computer.org (01-042.039.popsite.net [64.24.107.42])
-	by smtp2.abac.com (8.10.1/8.10.1) with ESMTP id f6OMvdn66451
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 15:57:40 -0700 (PDT)
-Message-Id: <4.3.2.7.2.20010724165057.00a965d0@mail1.abac.com>
-Date: Tue, 24 Jul 2001 16:57:43 -0600
-To: selinux@tycho.nsa.gov
-From: Steve Eckmann <eckmann@computer.org>
-Subject: 8.3 filenames
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Message-ID: <00bb01c11497$e75180a0$020144c0@windows>
+From: "Eric Peters" <eric@peters.org>
+To: <SELinux@tycho.nsa.gov>
+Subject: Can't do a make relabel...
+Date: Tue, 24 Jul 2001 16:25:11 -0700
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_00B8_01C1145D.36016660"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-My selinux kernel displays only 8.3 filenames for floppy and cdrom
-drives, but non-selinux kernels display "longnames". I've encountered
-this anomaly with every selinux installation that I've tried, over
-RH6.2 and RH7.1. I've built a lot of linux kernels and haven't seen
-this problem before. I guess I'm doing something wrong with filesystem
-configuration, but what?
+This is a multi-part message in MIME format.
 
-Steve
+------=_NextPart_000_00B8_01C1145D.36016660
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+I've got a fresh RedHat 7.1 install, and trying to make relabel but it =
+seems the 'setfiles' program doesn't have permission to transition the =
+e2fsck files from the sbin_t to fsadm_exec_t
+
+Anyone know what I'm talking about?
+
+The box isn't online but if it would help to get a more verbose error I =
+surely can.
+
+Thanks,
+
+Eric
+
+------=_NextPart_000_00B8_01C1145D.36016660
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 5.50.4616.200" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>I've got a fresh RedHat 7.1 install, =
+and trying to=20
+make relabel but it seems the 'setfiles' program doesn't have permission =
+to=20
+transition the e2fsck files from the sbin_t to fsadm_exec_t</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Anyone know what I'm talking =
+about?</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>The box isn't online but if it would =
+help to get a=20
+more verbose error I surely can.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Thanks,</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Eric</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_00B8_01C1145D.36016660--
 
 
 --
