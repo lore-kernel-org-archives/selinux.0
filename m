@@ -1,66 +1,79 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1MGK9dW023820
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 11:20:09 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1MHcRdW024273
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 12:38:27 -0500 (EST)
 Received: from vds-320151.amen-pro.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1MGHoZE001426
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 16:17:50 GMT
-Subject: JFFS2 Extended attributes support & SELinux in handhelds
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1MHa7ZE004658
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 17:36:08 GMT
+Subject: Re: idr_remove
 From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: familiar-dev@handhelds.org, selinux@tycho.nsa.gov,
-   "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: familiar@handhelds.org, handhelds@handhelds.org,
-   kernel-discuss@handhelds.org, oe@handhelds.org, agruen@suse.de,
-   Russell Coker <rcoker@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4HtJKJBoEZCZI4X+LsY2"
-Date: Tue, 22 Feb 2005 17:17:19 +0100
-Message-Id: <1109089039.4100.114.camel@localhost.localdomain>
+To: russell@coker.com.au
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+   Jim Houston <jim.houston@ccur.com>, selinux@tycho.nsa.gov
+In-Reply-To: <200502192332.54815.russell@coker.com.au>
+References: <200502192332.54815.russell@coker.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mnQyRH4xa5eZV2sIl8Pg"
+Date: Tue, 22 Feb 2005 18:35:40 +0100
+Message-Id: <1109093740.4100.128.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-4HtJKJBoEZCZI4X+LsY2
+--=-mnQyRH4xa5eZV2sIl8Pg
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+El s=E1b, 19-02-2005 a las 23:32 +1100, Russell Coker escribi=F3:
+> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D109838483518162&w=3D2
+>=20
+> I am getting messages "idr_remove called for id=3D0 which is not allocate=
+d" when=20
+> SE Linux denies search access to /dev/pts.
+>=20
+> The attached file has some klogd output showing the situation, triggered =
+in=20
+> this case by installing a new kernel package on a SE Debian system.  The=20
+> above URL references Jim Houston's message with the patch to add this=20
+> warning.
 
-I've been working in implementing extended attributes support in the
-JFFS2 filesystem.
+The problem seems to be in a call back from idr_remove() to
+sub_remove()@/lib/idr.c:284 which leads to calling idr_remove_warning(),
+doing the weird stack dump, when some logics don't work as expected.
 
-During the (short) time I worked on it, I just decided to try to bring
-back the thread on SELinux in hand-held and embedded devices and see if
-there's someone interested in contributing to it and collaborating to
-make something out of it.
+Jan 17 13:45:43 lyta kernel:  [dump_stack+23/32] dump_stack+0x17/0x20
+Jan 17 13:45:43 lyta kernel:  [sub_remove+233/240] sub_remove+0xe9/0xf0
+Jan 17 13:45:43 lyta kernel:  [idr_remove+35/144] idr_remove+0x23/0x90
 
-The current work is just a draft, I've started with the standard Vanilla
-kernel sources plus mtd JFFS2 sources, used to patch the vanilla ones
-for latest code (I'm confused on which one has the most updated tree or
-if there are special differences between mtd's trees and vanilla's), and
-implemented the skeleton using the reiserfs xattr code base.
+The spurious function called by sub_remove() (leads to the
+dump_stack+0x17/0x20):
 
-Then Russell Coker commented to me that I should use the handhelds.org
-kernel, so, I have the doubt on which one use, even if porting the
-changes made to JFFS2 code base to vanilla sources wouldn't be
-difficult, at least I suppose.
++static void idr_remove_warning(int id)
++{
++	printk("idr_remove called for id=3D%d which is not allocated.\n", id);
++	dump_stack();
++}
++
 
-I've opened a few wiki pages for discussion and documenting until it
-gets further developed:
+The changes that lead to such warning and stack dump
 
-	http://wiki.tuxedo-es.org/tuxedo/JFFS2xattr
-	http://wiki.tuxedo-es.org/tuxedo/SELinuxEmbedded
+@sub_remove
++	n =3D id & IDR_MASK;
++	if (likely(p !=3D NULL && test_bit(n, &p->bitmap))){
+(...etc...)
 
-In addition, having someone experienced with xattr API could be great,
-as development documentation seems inexistent, among James Morris'
-merged xattr consolidation code.
+idr_remove() is called, among other places, within the Device Mapper
+(DM) code that I suppose you are using, right?
 
-Thanks in advance,
-Cheers.
+I don't have time to make further checking, but seems to be somewhat
+type of devices handling and IDR minor numbers allocation tracking
+black magic, someone could have a further a look at it?
+
+Cheers,
 --=20
 Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
 [1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
 
---=-4HtJKJBoEZCZI4X+LsY2
+--=-mnQyRH4xa5eZV2sIl8Pg
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
 	digitalmente
@@ -68,12 +81,12 @@ Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBCG1sPDcEopW8rLewRAi7TAJwPqGMwWBFNHYvAk0HG8cFCYOBmBQCbBbdr
-xZ4GE4PWeYT1SjggLImPL5U=
-=7+r4
+iD8DBQBCG21sDcEopW8rLewRAvvqAKChvC3JM2QuK0MyiVsH+Y568p9QWACdEyTG
+wBNliiMtsQSdRpx3fWblJ7E=
+=wm34
 -----END PGP SIGNATURE-----
 
---=-4HtJKJBoEZCZI4X+LsY2--
+--=-mnQyRH4xa5eZV2sIl8Pg--
 
 
 --
