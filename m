@@ -1,80 +1,56 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2AJEhRb021421
-	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 14:14:43 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2B3hPRb023597
+	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 22:43:26 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i2AJEg0F012236
-	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 19:14:42 GMT
-Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
-        by jazzband.ncsc.mil  with ESMTP id i2AJEggZ012233 for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 19:14:42 GMT
-Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2AJEfL6006841
-	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 14:14:41 -0500
-Received: (from hdholm@localhost)
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id i2AJEfQk006839
-	for selinux@tycho.nsa.gov; Wed, 10 Mar 2004 14:14:41 -0500
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2A1ZRRb016283
-	for <selinux@tycho.nsa.gov>; Tue, 9 Mar 2004 20:35:27 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i2A1ZQ0F008556
-	for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 01:35:26 GMT
-Received: from omx2.sgi.com (mtvcafw.sgi.com [192.48.171.6])
-        by jazzband.ncsc.mil  with ESMTP id i2A1ZPgZ008553 for <selinux@tycho.nsa.gov>; Wed, 10 Mar 2004 01:35:25 GMT
-Received: from larry.melbourne.sgi.com (larry.melbourne.sgi.com [134.14.52.130])
-	by omx2.sgi.com (8.12.11/8.12.9/linux-outbound_gateway-1.1) with SMTP id i2A3aC7b026591
-	for <@external-mail-relay.sgi.com:selinux@tycho.nsa.gov>; Tue, 9 Mar 2004 19:36:13 -0800
-Date: Wed, 10 Mar 2004 12:34:56 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-Cc: linux-xfs@oss.sgi.com
-Subject: Re: XFS and SE Linux
-Message-ID: <20040310013456.GC1004@frodo>
-References: <200403100014.03542.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200403100014.03542.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id i2B3hO0F014333
+	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2004 03:43:25 GMT
+Received: from ercist.iscas.ac.cn ([159.226.5.94])
+        by jazzband.ncsc.mil  with ESMTP id i2B3hHgZ014324 for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2004 03:43:21 GMT
+Message-ID: <006b01c4071b$040d52f0$3b00a8c0@llp>
+From: "liliping" <llp@ercist.iscas.ac.cn>
+To: <sds@epoch.ncsc.mil>
+Cc: <selinux@tycho.nsa.gov>
+Subject: client and server identification
+Date: Thu, 11 Mar 2004 11:43:26 +0800
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0068_01C4075E.1133E370"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Russell,
+This is a multi-part message in MIME format.
 
-Thanks for sending this out.  Couple of additions...
+------=_NextPart_000_0068_01C4075E.1133E370
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
 
-On Wed, Mar 10, 2004 at 12:14:03AM +1100, Russell Coker wrote:
-> XFS defaults to an Inode size of 256 bytes and a block size of 4K on i386.
+TG9vayBzZWN0aW9uIDUuMi4yIG9mICJUaGUgRmxhc2sgU2VjdXJpdHkgQXJjaGl0ZWN0dXJlOiBT
+eXN0ZW0gU3VwcG9ydCBmb3IgRGl2ZXJzZSBTZWN1cml0eSBQb2xpY2llcyIuDQoNCkhvdyBkb2Vz
+IHNlbGludXggIGltcGxlbWVudCAiY2xpZW50IGFuZCBzZXJ2ZXIgaWRlbnRpZmljYXRpb24iIGJh
+c2VkIG9uIExTTT8gSXMgaXQgbmVjZXNzYXJ5Pw0KDQo=
 
-These default values are platform independent.
+------=_NextPart_000_0068_01C4075E.1133E370
+Content-Type: text/html;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
 
-> The "security.selinux" xattr name and the data stored in it can apparently be 
-> counted on to not fit into the <50 bytes left in a 256 byte Inode after all 
-> the other meta-data is stored.  This will mean that a new block is used for 
-> the XATTR (which in 99.99% of all cases will be the only XATTR on the file).
-> 
-> Using an extra 4K block per file is a significant waste of disk space, XFS 
-> apparently does not support block sharing so you have 4K of disk space for 50 
-> bytes of data.
+PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
+L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgY29udGVudD0idGV4dC9odG1sOyBjaGFyc2V0PWdi
+MjMxMiIgaHR0cC1lcXVpdj1Db250ZW50LVR5cGU+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNS4w
+MC4zMzE1LjI4NzAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8
+Qk9EWSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIHNpemU9Mj5Mb29rIHNlY3Rpb24gNS4y
+LjImbmJzcDtvZiAiPEZPTlQgc2l6ZT0xPjxCPlRoZSBGbGFzayBTZWN1cml0eSANCkFyY2hpdGVj
+dHVyZTogU3lzdGVtIFN1cHBvcnQgZm9yIERpdmVyc2UgU2VjdXJpdHkgDQpQb2xpY2llczwvQT48
+L0I+PC9GT05UPiIuPC9GT05UPjwvRElWPg0KPERJVj4mbmJzcDs8L0RJVj4NCjxESVY+PEZPTlQg
+c2l6ZT0yPkhvdyBkb2VzIHNlbGludXgmbmJzcDsgaW1wbGVtZW50ICJjbGllbnQgYW5kIHNlcnZl
+ciANCmlkZW50aWZpY2F0aW9uIiBiYXNlZCBvbiBMU00/IElzIGl0IG5lY2Vzc2FyeT88L0ZPTlQ+
+PC9ESVY+DQo8RElWPiZuYnNwOzwvRElWPjwvQk9EWT48L0hUTUw+DQo=
 
-It also amounts to a fairly significant performance hit, since
-there is additional I/O involved once the attributes are no longer
-inline.  When we tweaked the ACL code to be more conscious of this
-issue, speedups were of the order 10x-12x IIRC.
+------=_NextPart_000_0068_01C4075E.1133E370--
 
-Heavy users of extended attributes should always use larger inode
-sizes with XFS.
 
-> If at mkfs time you make the Inode 512 bytes in size you will have enough 
-> space for the SE Linux xattr.  This will save huge amounts of space on a SE 
-> Linux system as there will effectively be 256 bytes of overhead per file 
-> instead of 4096.
 
-That extra inline space is also available for use by inline
-directory entries (and of course other extended attributes),
-so its not useless overhead either.
-
-cheers.
-
--- 
-Nathan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
