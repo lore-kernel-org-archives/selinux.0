@@ -1,50 +1,43 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA19673
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 21:08:07 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id BAA21589
-	for <selinux@tycho.nsa.gov>; Sat, 27 Jul 2002 01:07:20 GMT
-Received: from sendmail (savages.net [208.170.193.18])
-	by jazzswing.ncsc.mil  with ESMTP id BAA21585
-	for <selinux@tycho.nsa.gov>; Sat, 27 Jul 2002 01:07:19 GMT
-Message-ID: <3D41F204.3010205@pcez.com>
-Date: Fri, 26 Jul 2002 18:06:12 -0700
-From: Shaun Savage <savages@pcez.com>
-MIME-Version: 1.0
-To: SCC <SCC@securecomputing.com>, selinux@tycho.nsa.gov
-Subject: Re: Message from Secure Computing
-References: <7124107ACDA2D3118B7300A0C99D99A107DB53CB@stpntmx01.share.rsvl.securecomputing.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA19916
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 22:26:01 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id CAA23074
+	for <selinux@tycho.nsa.gov>; Sat, 27 Jul 2002 02:24:27 GMT
+Received: from ducks.huff20may77.us ([63.147.7.154])
+        by jazzband.ncsc.mil  with ESMTP id CAA23070 for <selinux@tycho.nsa.gov>; Sat, 27 Jul 2002 02:24:26 GMT
+Subject: Re: Secure Computing statement of assurance
+From: "Edward J. Huff" <edward.huff@acm.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20020726210126.2BC2812AF@lyta.coker.com.au>
+References: 
+	<7124107ACDA2D3118B7300A0C99D99A107DB53CC@stpntmx01.share.rsvl.securecomputi
+	 ng.com>  <20020726210126.2BC2812AF@lyta.coker.com.au>
+Content-Type: text/plain
+Date: 26 Jul 2002 22:24:06 -0400
+Message-Id: <1027736646.10933.5.camel@ducks.huff20may77.us>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 2002-07-26 at 17:01, Russell Coker wrote:
+> I think that is a very clear statement that challenges the right of the NSA 
+> to distribute SE Linux under the GPL in the event of the patents being sold 
+> to another party.  Essentially if the patents were sold to another company 
+> then either the NSA would have to pay that other company, or we as users of 
+> SE Linux would have to arrange license agreements.
 
-In the paragraph
+Didn't I read somewhere that the NSA offered a contract for someone to
+implement SE Linux and release it under GPL, and Secure Computing signed
+that contract?  Wouldn't that contract obligate Secure Computing to
+grant a perpetual royalty free license for the patent to all users of SE
+Linux?  Wouldn't the NSA be able to sue for breach of contract
+(recovering at least everything it paid Secure Computing plus damages)
+if Secure Computing does not grant said license?
 
-"SELinux Limitation."  ......
-However, Secure Computing does not extend the Assurance to software that 
-merely interoperates with SELinux, or is merely included with a 
-distribution of SELinux.
+Just speculation...
 
-What does this mean?
-That there is only ONE version of SELinux distribution?
-
-Also the paragraph   "Limited Assurance."    
-
-Does this mean that the contract between the open source community and 
-SCC, created by earlier written statements has been changed?  
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE9QfIAn6I06Opz+XURAodGAJ9ZhR2CYF6JhXUn2yJPoJDm5NnS8ACeOan8
-3sOKgQnOh60NrEnOwMcb8EE=
-=zBOb
------END PGP SIGNATURE-----
-
+-- Ed Huff
 
 
 --
