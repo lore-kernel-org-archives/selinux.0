@@ -1,62 +1,39 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6UHVDHa028362
-	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 13:31:13 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6UJctHa029128
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 15:38:56 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6UHVCDW002896
-	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 17:31:12 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h6UHVBeN002893 for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 17:31:11 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id A216ABF63
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 03:31:03 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 26048-04
- for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 03:31:01 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id EAAECBF64
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 03:31:00 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id F02E892554
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 03:30:57 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id CAED07F005
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 04:26:39 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: per-user tmpdir
-Date: Mon, 28 Jul 2003 13:29:59 -0400
+	by jazzband.ncsc.mil  with ESMTP id h6UJcsDW009173
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 19:38:54 GMT
+Received: from ucontrol.mobiledns.com (ucontrol.mobiledns.com [216.162.33.29])
+        by jazzband.ncsc.mil  with ESMTP id h6UJcseN009163 for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 19:38:54 GMT
+Received: from ucontrol.mobiledns.com (localhost [127.0.0.1])
+	by ucontrol.mobiledns.com (8.12.3/8.12.3) with ESMTP id h6UJcmJM003356
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 15:38:48 -0400
+Received: from localhost (mike@localhost)
+	by ucontrol.mobiledns.com (8.12.3/8.12.3/Debian-6.4) with ESMTP id h6UJcmOC003353
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 15:38:48 -0400
+Date: Wed, 30 Jul 2003 15:38:47 -0400 (EDT)
+From: Miguel Bolanos <mike@linuxlabs.com>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: Question about development
+Message-ID: <Pine.LNX.4.21.0307301533500.3255-100000@ucontrol.mobiledns.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200307281329.59379.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently there is some discussion on the debian-devel mailing list about 
-libpam-tmpdir and other methods for creating a per-user directory under /tmp 
-and setting $TMP to it.
+Greetings to all.
+Recently i sent over a merge patch for kernel 2.6, but i found my self
+with the surprise, that this merge was already done, and that project
+webpage is out of date.
+I'm really willing to contribute some of my time and skills to selinux,
+and this si why i wonder if someone could kindly give me some links and
+references that i can use to get more involved, ie, where to get the
+latest development tree? CVS at sourceforge doesn't seem to work.
+Also some good Developers documentation would help me alot.
+thanks in advance.
 
-Under SE Linux this will require mkdir_secure() as the directory will be 
-created under the context of the calling program (/bin/login, sshd, or maybe 
-even crond) not the context of the user.
-
-Of course a per-user $TMP directory provides less benefits under SE Linux.  
-Sym-link attacks are not effective against regular users and will only do any 
-good against sysadm_t.  A special $TMP for administrative logins can be 
-easily handled as a special case, however getting it to work for cron jobs is 
-more difficult (and sysadm_crond_t is a domain that is particularly prone to 
-feature-creep).
-
-Writing a SE Linux libpam-tmpdir would probably be a good introduction to SE 
-Linux programming...
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Miguel.
 
 
 --
