@@ -1,44 +1,71 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6NEPMHa025588
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 10:25:22 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6NEPLDW011785
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 14:25:21 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h6NEPJeN011776 for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 14:25:20 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Stephen Reese" <sreese@prcdigital.com>, selinux@tycho.nsa.gov
-Subject: Re: grub/boot redhat9 problem
-Date: Tue, 22 Jul 2003 23:15:05 -0400
-References: <001a01c350a8$9bf0e750$6601a8c0@inspiron>
-In-Reply-To: <001a01c350a8$9bf0e750$6601a8c0@inspiron>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200307222315.05213.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6NF5pHa025855
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 11:05:52 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6NF4jFB022959
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 15:04:45 GMT
+Received: from prometheus.epoch.ncsc.mil (prometheus.epoch.ncsc.mil [144.51.25.40])
+	by jazzswing.ncsc.mil  with ESMTP id h6NF4jGD022956
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 15:04:45 GMT
+Received: from prometheus.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by prometheus.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6NF5oxH014095
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 11:05:50 -0400
+Received: (from jwcart2@localhost)
+	by prometheus.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h6NF5oVB014093
+	for selinux@tycho.nsa.gov; Wed, 23 Jul 2003 11:05:50 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6NEwCHa025805
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 10:58:13 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6NEv3FB022281
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 14:57:03 GMT
+Received: from mail.rollinghorse.com (dsl093-033-002.snd1.dsl.speakeasy.net [66.93.33.2])
+	by jazzswing.ncsc.mil  with ESMTP id h6NEv1GD022276
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 14:57:02 GMT
+Message-Id: <5.1.1.6.2.20030723080629.0a198680@Shire>
+Date: Wed, 23 Jul 2003 08:09:49 -0700
+To: Dean Anderson <dean@av8.com>, Russell Coker <russell@coker.com.au>
+From: "Carsten P. Gehrke" <Carsten@rollinghorse.com>
+Subject: Re: Linuxfromscratch.org
+Cc: Charlie Watts <st_possenti@yahoo.com>, <selinux@tycho.nsa.gov>
+In-Reply-To: <Pine.LNX.4.44.0307221644010.21542-100000@vista.av8.net>
+References: <200307221606.42540.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 22 Jul 2003 19:25, Stephen Reese wrote:
-> kmod: failed to exec /sbinmodprobe -s -k ide-disk, errno2
-> VFS: Cannot open root device "hda2" or 03:02
-> Please apend a correct "root" boot option
-> Kernel panic: VFS: Unable to mount root fs on 03:02
+At 13:49 22-07-03, Dean Anderson wrote:
+>if you are looking for integrity, Linuxfromscratch is just the start.
+>
+>You have to come up with a way to exclude Kerningan-style compiler hacks,
+>and similar OS hacks from being inserted into the "clean" source build.
+>
+>Kernigan, as some will remember, early in Unix days (70s), altered the
+>compiler to include a backdoor in login when it compiled login.c, and
+>altered the compiler to insert the backdoor-inserter whenever it compiled
+>itself.  So even if you recompiled Unix from scratch from clean source,
+>you still had a backdoor.  I think even if you retargeted the compiler, it
+>still inserted to the apprpropriate backdoor-inserter.  A similar hack can
+>be done at the OS level.
+>
+>                 --Dean
 
-That's an issue of configuring the modules for a 2.4.21 kernel in a way that 
-doesn't work (kernel is buggy).  Compile the IDE drivers into the kernel to 
-solve this.
+Is this true of the GNU C compiler suite as well?  And if so, would it not 
+be possible to remove it from the compiler?  How does it work?  Does it 
+look at the code, or is anything called login.c susceptible?  Why has this 
+not been removed in the open-source code?  How can I check to see if this 
+backdoor exists?
 
-Also I strongly recommend that you compile and boot a non-SE kernel first 
-before you try to get SE Linux running.
+TIA,
+Carsten
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
+--
+========================================================================
+                             Carsten P. Gehrke
+                      mailto:Carsten@RollingHorse.com
+========================================================================
 
 
 --
