@@ -1,80 +1,66 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i861R8rT019415
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 21:27:08 -0400 (EDT)
-Received: from georgia.yamato.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i861QFia014021
-	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 01:26:17 GMT
-Received: from e19f3n15.jp.ibm.com (d19relay02.sagamino.japan.ibm.com [9.189.5.62])
-	by georgia.yamato.ibm.com (8.11.6p2-20030922/8.11.1) with ESMTP id i861R1a274476
-	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 10:27:01 +0900
-Received: from D19ML102.sagamino.japan.ibm.com (d19av02.sagamino.japan.ibm.com [9.189.5.91])
-	by e19f3n15.jp.ibm.com (8.12.10/NCO/VER6.6) with ESMTP id i861R0s2152142
-	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 10:27:01 +0900
-Reply-To: 
-To: selinux@tycho.nsa.gov
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i867FMrT020331
+	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 03:15:22 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i867ETvL018112
+	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 07:14:30 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: hald and kudzu policy patch
+Date: Mon, 6 Sep 2004 17:15:15 +1000
+Cc: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Subject: SuSE 9.1 SELinux
-From: Takuya Mishina <TMISHINA@jp.ibm.com>
-Message-ID: <OF93C1DDD2.9FAF1403-ON49256F06.00517E1E-49256F07.0007F249@jp.ibm.com>
-Date: Mon, 6 Sep 2004 10:26:58 +0900
-Content-Type: text/plain; charset="ISO-2022-JP"
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_D6APBeEf0hZb6Ua"
+Message-Id: <200409061715.15957.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
 
-I've tried being enable SELinux on SuSE 9.1 personal edition, followings 
-are the installation and configuration memo.
-after this configuration, SELinux in console login mode (runlevel 3) is 
-available. please use this memo for your information about SELinux on 
-SuSE!
+--Boundary-00=_D6APBeEf0hZb6Ua
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+The attached patch allows hald and kudzu to read usbfs_t.
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-+ Install SuSE
-  filesystem must be ext3 (not reiserfs). no limitation except for 
-filesystem.
+--Boundary-00=_D6APBeEf0hZb6Ua
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
 
-+ Install and upgrade RPM packages using YaST
-   - checkpolicy
-   - policycoreutils
-   - policy-sources
-   - other update packages (kernel, etc.)
+--- /usr/src/se/policy/domains/program/unused/hald.te	2004-09-02 23:18:49.000000000 +1000
++++ hald.te	2004-09-06 17:01:43.000000000 +1000
+@@ -47,3 +47,5 @@
+ 
+ allow hald_t usbdevfs_t:dir search;
+ allow hald_t usbdevfs_t:file { getattr read };
++allow hald_t usbfs_t:dir search;
++allow hald_t usbfs_t:file { getattr read };
+--- /usr/src/se/policy/domains/program/unused/kudzu.te	2004-07-08 13:09:34.000000000 +1000
++++ kudzu.te	2004-09-06 17:01:14.000000000 +1000
+@@ -29,6 +29,8 @@
+ allow kudzu_t sysctl_kernel_t:file { getattr read write };
+ allow kudzu_t usbdevfs_t:dir search;
+ allow kudzu_t usbdevfs_t:file { getattr read };
++allow kudzu_t usbfs_t:dir search;
++allow kudzu_t usbfs_t:file { getattr read };
+ allow kudzu_t var_t:dir search;
+ allow kudzu_t kernel_t:system { syslog_console };
+ allow kudzu_t self:udp_socket { create ioctl };
 
-+ make mountpoint /selinux
-  # mkdir /selinux
-
-  /selinux will be automatically mounted on boot (cf. /etc/init.d/boot).
-
-+ modify /sbin/init 
-  cf. http://www.nsa.gov/selinux/list-archive/0310/5617.cfm
-  thanks, Russell!
-
-+ edit policy
-　add following into 
-/security/selinux/src/policy/file_contexts/program/init.fc 
-
-　/sbin/init.real               --      system_u:object_r:init_exec_t
-
-+ modify PAM configurations
-  add following into /etc/pam.d/sshd and /etc/pam.d/su
-
-  session       required        pam_selinux.so
-
-+ setuid to /usr/bin/newrole
-  # chmod 4755 /usr/bin/newrole
-  SuSE Linux newrole seems not to use PAM for authentication, so newrole 
-must be able to read /etc/shadow. 
-
-
-to enable SELinux, boot SuSE with kernel option "selinux=1".
-
-
-
----
-Takuya MISHINA
-IBM Research, Tokyo Research Laboratory
-
+--Boundary-00=_D6APBeEf0hZb6Ua--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
