@@ -1,58 +1,42 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2SGqCDo028080
-	for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2005 11:52:12 -0500 (EST)
-Received: from web31603.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j2SGpM1g013890
-	for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2005 16:51:22 GMT
-Message-ID: <20050328165109.60425.qmail@web31603.mail.mud.yahoo.com>
-Date: Mon, 28 Mar 2005 08:51:09 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Desktop apps interoperability
-To: Tom <tom@lemuria.org>, Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: "Fedora SELinux support list for users &amp,  developers." <fedora-selinux-list@redhat.com>,
-   selinux@tycho.nsa.gov
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [ PATCH ] hal - create netlink socket
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1112026381.2914.95.camel@moss-spartans.epoch.ncsc.mil>
+References: <1111905173.3520.8.camel@cobra.ivg2.net>
+	 <1112016475.2914.16.camel@moss-spartans.epoch.ncsc.mil>
+	 <1112026129.3040.1.camel@cobra.ivg2.net>
+	 <1112026381.2914.95.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 28 Mar 2005 12:02:14 -0500
+Message-Id: <1112029334.3350.2.camel@cobra.ivg2.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---- Tom <tom@lemuria.org> wrote:
-> On Mon, Mar 28, 2005 at 12:27:31AM -0500, Ivan
-> Gyurdiev wrote:
-> > Part of the problem seems to be the way Linux apps
-> treat /home, as the
-> > place for everything. 
-> 
-> It doesn't. It treats $HOME as the only place that
-> the user has
-> permission to store his stuff. On a well-configured
-> system, that
-> assumption is correct.
+> Ah, we don't get the desired information because it is being passed by
+> address for the socketcall multiplexer.  Maybe run hald under strace (in
+> permissive mode, of course).
 
-Windows and MacOS are designed as single user systems.
-Unix and Linux are designed as multiuser systems.
-Configuring a Windows system for multiple 
-concurrent users is quite painful. Configuring
-unix for a single user seems unnecessarily difficult.
+Does this help?
 
-Interestly, when we did the B1/LSPP versions of 
-unix the home directory model helped reduce the
-problem of user sensitivity restrictions by
-isolating the part of the directory hierarchy
-that had to be customized for the user.
+socket(PF_NETLINK, SOCK_DGRAM, 15)      = 7
+getpid()                                = 4076
+bind(7, {sa_family=AF_NETLINK, pid=4076, groups=ffffffff}, 12) = -1
+EPERM (Operation not permitted)
+fstat64(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 0), ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1,
+0) = 0xb7fd1000
+write(1, "*** [DIE] osspec.c:osspec_init()"..., 72) = 72
+munmap(0xb7fd1000, 4096)                = 0
+exit_group(1)                           = 
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Small Business - Try our new resources site!
-http://smallbusiness.yahoo.com/resources/ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
