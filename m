@@ -1,35 +1,31 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA4DgsXZ022770
-	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 08:42:54 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA4DfWCH016458
-	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 13:41:32 GMT
-Subject: Re: Updated SELinux Release
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA4Do4XZ022876
+	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 08:50:04 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA4Do48i021148
+	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 13:50:04 GMT
+Subject: Re: selinux-doc problems
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
-Cc: Manoj Srivastava <manoj.srivastava@stdc.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1099539462.5018.2.camel@nexus.verbum.private>
-References: <1099496380.1213.111.camel@moss-spartans.epoch.ncsc.mil>
-	 <87vfcmqvi5.fsf@glaurung.internal.golden-gryphon.com>
-	 <1099539462.5018.2.camel@nexus.verbum.private>
+To: Manoj Srivastava <manoj.srivastava@stdc.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <87fz3qqc20.fsf@glaurung.internal.golden-gryphon.com>
+References: <87is8msv81.fsf@glaurung.internal.golden-gryphon.com>
+	 <1099503633.1213.153.camel@moss-spartans.epoch.ncsc.mil>
+	 <87fz3qqc20.fsf@glaurung.internal.golden-gryphon.com>
 Content-Type: text/plain
-Message-Id: <1099575525.3174.7.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1099575909.3174.9.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 04 Nov 2004 08:38:45 -0500
+Date: Thu, 04 Nov 2004 08:45:10 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-03 at 22:37, Colin Walters wrote:
-> I don't think anyone has actually been using these functions up until
-> now.  Neither Debian or Fedora enabled MLS, and I don't think Gentoo did
-> either.  So it's probably safe to continue using the existing soname;
-> but we should certainly be careful about this in the future.
+On Thu, 2004-11-04 at 02:59, Manoj Srivastava wrote:
+> 	While we are waiting for the report to be updated, would it be
+>  useful if someone corrected the problems with compiling with the new
+>  openjade?  I could convert tags_with_undescore to TagsWithStudlyCaps,
+>  for example, and fix the quoting, and submit the patches back.
 
-As a reminder, when I created libsepol from the checkpolicy core logic,
-I had to export just about everything for use by checkpolicy via the
-static library, but narrowly limited the API exported by the shared
-library.  So we are free to rework the static library API at will, as
-long as it doesn't affect the shared library API/ABI.
+Yes, thanks.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
