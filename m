@@ -1,71 +1,40 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3NN5XZ019546
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 18:23:05 -0500 (EST)
-Received: from d10systems.homelinux.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3NLh4w024895
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 23:21:43 GMT
-Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by d10systems.homelinux.com (Postfix) with ESMTP id C216D36EC6
-	for <selinux@tycho.nsa.gov>; Wed,  3 Nov 2004 19:21:27 +0000 (UTC)
-Date: Wed, 3 Nov 2004 19:21:27 +0000 (UTC)
-From: Dhruv Gami <dgami@uncc.edu>
-Reply-To: dgami@uncc.edu
-To: selinux@tycho.nsa.gov
-Subject: Re: Updated SELinux Release
-In-Reply-To: <1099496380.1213.111.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.58.0411031908500.12297@d10systems.homelinux.com>
-References: <1099496380.1213.111.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA40sqXZ019936
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 19:54:52 -0500 (EST)
+Received: from smtp.puc.cl (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA40soJZ014784
+	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 00:54:51 GMT
+Received: from tayataf.puc.cl (HELO mx1.puc.cl) ([146.155.99.171])
+          (envelope-sender <amery@geeks.cl>)
+          by tarahuin-smtp.puc.cl (qmail-ldap-1.03) with SMTP
+          for <selinux@tycho.nsa.gov>; 4 Nov 2004 00:54:46 -0000
+Message-ID: <41897DD3.5060407@geeks.cl>
+Date: Wed, 03 Nov 2004 21:54:43 -0300
+From: Alejandro Mery <amery@geeks.cl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: selinux@tycho.nsa.gov
+Subject: Re: selinux without sysvinit
+References: <4188E956.7020808@geeks.cl> <1099508399.1213.188.camel@moss-spar
+	tans.epoch.ncsc.mil>
+In-Reply-To: <1099508399.1213.188.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 3 Nov 2004, Stephen Smalley wrote:
 
-> 2) I'd like to do away with the complete prepatched kernel tarball and
-> full userland tarball, and only distribute a kernel patch and the
-> individual component tarballs for checkpolicy, libsepol, libselinux,
-> policycoreutils, etc.  The prepatched kernel tarball doesn't seem very
-> useful to me, as most people likely want to combine the SELinux kernel
-> patch with other patches and prebuilt kernel packages with SELinux
-> support are available for the various distros now.  The full userland
-> tarball seems redundant to me, and packagers of SELinux are using the
-> individual component tarballs anyway.  Any objections to dropping these
-> two tarballs?
+> You either need to load a policy prior to running your runit program
+> (e.g. via an initrd, which is what we originally did), or modify your
+> runit program to load a policy and re-exec itself into the correct
+> security domain (as is done by the sysvinit patch).
 
-Personally, i would prefer to have those two tarballs available. I know 
-most people using SELinux are familiar with patching the kernel, and are 
-generally familiar with how Linux works and know their way around on a 
-Linux system. 
+what do you think about an selinux init to load policy and replace 
+itself with /sbin/init (any) after that?
 
-I have met a number of people who have wanted to try out SELinux, or even 
-Linux in general, but don't have either the expertise, or the time to 
-learn how to get those tasks of patching and recompiling done. For a 
-newbie, sometimes the sheer massiveness of the power available to him on a 
-linux system is overwhelming enough. My point is that a number of newbies 
-might get discouraged to even try out SELinux if they're unable to figure 
-out how to download and patch their system. Most distributions don't 
-install the kernel source code by default, and if its a newbie, im 
-assuming he/she installed linux with the default options. He might not be 
-aware of everything, but if he wants to try out something like SELinux 
-that could make his system more secure, and if a single tarball is 
-available to him, he can simply download that, compile it and be up and 
-running with a SELinux system. 
-
-I agree with Stephen that having the tarballs would be redundant as most 
-of us prefer to get individual patches and patch our kernels, but I'm just 
-thinking of the whole situation from a newbie's point of view. Old users 
-sometimes don't realise it, but it can get intriguing for someone just 
-starting out. Having something simple to use can be very helpful.
-
-just my 2 cents.
-
-regards,
-Gami
--- 
-Dhruv Gami
-http://d10systems.com/gami
-
+Regards,
+Alejandro Mery
 
 --
 This message was distributed to subscribers of the selinux mailing list.
