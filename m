@@ -1,65 +1,69 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA06803
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 15:22:50 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA07668
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 17:44:36 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA14640
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 20:19:36 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id UAA14636
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 20:19:35 GMT
-Date: Wed, 26 Feb 2003 15:22:15 -0500 (EST)
-From: Wayne Salamon <wsalamon@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Core policy, second pass
-In-Reply-To: <200302262110.51204.russell@coker.com.au>
-Message-ID: <Pine.LNX.4.33.0302261520260.4040-200000@vox.gw.tislabs.com>
+	by jazzswing.ncsc.mil  with ESMTP id WAA22915
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 22:41:23 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id WAA22911
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 22:41:21 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id D38C49253C
+	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 09:44:33 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 67C934EC
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 23:44:25 +0100 (CET)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+Subject: Fwd: [ols-announce] Accepting Proposals for BOFS, Tutorials, and Meetings.
+Date: Wed, 26 Feb 2003 23:44:24 +0100
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="554330684-2034360462-1046290935=:4040"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200302262344.24865.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Any plans for SE Linux things?  Should we have a SE BOF?
 
---554330684-2034360462-1046290935=:4040
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+----------  Forwarded Message  ----------
 
-On Wed, 26 Feb 2003, Russell Coker wrote:
+Subject: [ols-announce] Accepting Proposals for BOFS, Tutorials, and Meetings.
+Date: Wed, 26 Feb 2003 23:10
+From: "Andrew J. Hutton" <ajh@linuxsymposium.org>
+To: ols-announce@lists.linuxsymposium.org
 
-> As for the xauth part, what is this xauth-pty-helper.te file?
->
+We are now accepting proposals for Bird of a Feather Sessions,
+Tutorials, and Working Group meetings at the 2003 Symposium.
 
-  Wrong version of the patch. Attached is the correct version.
+To submit your proposal you will need to go to
+https://secure.linuxsymposium.org/2003/ and create an account.  You will
+then be given the option to submit a proposal.
 
-Thanks,
+We'd also like to encourage everyone to register as early as they are
+able to.  We're over 25% full as of today and there are over 1300 people
+on this list and we limit attendance to around 500 people.
+
+Looking forward to seeing everyone who is able to make it this year.
+
+--
+Andrew J. Hutton <ajh@linuxsymposium.org>
+Linux Symposium Inc.
+
+_______________________________________________
+ols-announce mailing list
+ols-announce@lists.achilles.net
+http://lists.achilles.net/mailman/listinfo/ols-announce
+
+-------------------------------------------------------
 
 -- 
-Wayne Salamon
-wsalamon@tislabs.com
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---554330684-2034360462-1046290935=:4040
-Content-Type: TEXT/plain; name="diff.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0302261522150.4040@vox.gw.tislabs.com>
-Content-Description: 
-Content-Disposition: attachment; filename="diff.txt"
-
-SW5kZXg6IHN1X21hY3Jvcy50ZQ0KPT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0K
-UkNTIGZpbGU6IC9jdnMvbHNtL3NlbGludXgvcG9saWN5L21hY3Jvcy9wcm9n
-cmFtL3N1X21hY3Jvcy50ZSx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuOQ0K
-ZGlmZiAtdSAtcjEuOSBzdV9tYWNyb3MudGUNCi0tLSBzdV9tYWNyb3MudGUJ
-MjAwMy8wMS8yNyAxOToxNTo1NwkxLjkNCisrKyBzdV9tYWNyb3MudGUJMjAw
-My8wMi8yNiAyMDoyMDowNA0KQEAgLTYxLDcgKzYxLDkgQEANCiBhbGxvdyAk
-MV9zdV90ICQxX2hvbWVfZGlyX3Q6ZGlyIHNlYXJjaDsNCiANCiAjIE1vZGlm
-eSAuWGF1dGhvcml0eSBmaWxlICh2aWEgeGF1dGggcHJvZ3JhbSkuDQoraWZk
-ZWYoYHhhdXRoLnRlJywgYA0KIGRvbWFpbl9hdXRvX3RyYW5zKCQxX3N1X3Qs
-IHhhdXRoX2V4ZWNfdCwgJDFfeGF1dGhfdCkNCisnKQ0KIA0KICMgQWNjZXNz
-IHNzaGQgY29va2llIGZpbGVzLg0KIGFsbG93ICQxX3N1X3Qgc3NoZF90bXBf
-dDpkaXIgcndfZGlyX3Blcm1zOw0K
---554330684-2034360462-1046290935=:4040--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
