@@ -1,86 +1,75 @@
-Message-Id: <200209121702.RAA23558@jazzswing.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA29640
+	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 13:09:25 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA00132
+	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 17:07:39 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id RAA00127 for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 17:07:39 GMT
+Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA12686
+	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 13:09:21 -0400 (EDT)
 Content-Type: text/plain;
   charset="iso-8859-1"
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: Russell Coker <russell@coker.com.au>
-Subject: Re: redhat.te and suse.te (was Re: pppd with ipppd)
-Date: Thu, 12 Sep 2002 18:56:58 +0200
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <200209082234.38885.russell@coker.com.au> <20020911090849.84828FA8D@ivanova.coker.com.au> <200209121632.39393.russell@coker.com.au>
-In-Reply-To: <200209121632.39393.russell@coker.com.au>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+Subject: new login Debian package
+Date: Wed, 11 Sep 2002 12:58:39 +0200
+To: SELinux <SELinux@tycho.nsa.gov>
 MIME-Version: 1.0
+Message-Id: <200209111258.45033.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Am Donnerstag, 12. September 2002 16:32 schrieb Russell Coker:
-> On Wed, 11 Sep 2002 11:07, Carsten Grohmann wrote:
-> > Am Dienstag, 10. September 2002 18:26 schrieb Russell Coker:
-> > > Now that we have shown that the .fc file per application scheme works
-> > > well I doubt that there is a real need to use M4 for the .fc files
-> > > (it's adding extra complexity for little benefit that I can see).
-> > >
-> > > > And it will by possible to remove unused single rules (like
-> > > > dhcpd_t) without get an error ( Unkown type ...).
-> > >
-> > > What do you mean?
-> >
-> > I am sorry about my bad english.
-> > Without the m4 macros specially ifdef, I would not create a single suse
-> > rule. Because with an monolithic suse.fc file it isn't possible to
-> > strip down the policy. But the possiblity to remove unused rules is (
-> > in my eyes ) good feature of selinux. Because of that I don't see a
-> > disadvantage in the use of ifdef's also in the fc files.
->
-> It's taken me some time to reply to this message, because it's very
-> difficult to understand.
->
-> I think that you are saying "we already use m4 for policy so therefore
-> there is no reason for not using it in the file contexts".
->
-> The fact is that I proposed using M4 in the file contexts before, Steve
-> rejected the idea, and we now have an alternate solution.
->
-> If we need a redhat.fc or suse.fc then we may need to use M4, however I
-> think that we will not need such entries.  I don't expect different
-> distributions to need different types for the same file, and therefore we
-> can put all definitions needed by all distributions in the main files.
->
-> I suggest that we keep the current method in place until we have a
-> concrete example of something failing with it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You have right. This little example shows the boundary of the current 
-method.
+Last week I recommended that everyone who is using my Debian packages upgrade 
+their login package to the latest version, that is 
+login_20000902-12.se2_i386.deb for unstable/sarge or 
+login_20000902-12.se2.woody0_i386.deb for woody.
 
-<< suse.fc >>
+The previous version had a serious bug where it used the username variable for 
+determining the SE Linux credentials instead of the pam_user variable.
 
-ifdef(`cups.fc',`
-....
-dev/usb/lp*		system_u:object_r:printer_device_t
-....
-')
+username is only set the first time you enter a user name, while pam_user is 
+set every time.
 
-ifdef(`ntpd.fc',`
-/var/log/ntp		system_u:object_r:var_log_ntp_t
-')
+To exploit this you could enter the name of an account that's authorised for 
+sysadm_r with a bad password.  Then on the second login attempt you could 
+enter an un-priviledged account name and the correct password and login to 
+the sysadm_r with the un-priv account.
 
-<< EOF suse.fc >>
+This was discovered in my tutorial (the students didn't discover the extent of 
+the bug - they discovered that sometimes they would get user_u:user_r:user_t 
+instead of the context they expected and I determined the extent of the bug 
+later).
 
-Advantage:
- - You can errase the single policy file without to edit the suse.fc file.
+This only affects code I released, not any code that is on the NSA web site.
 
-Disadvantage:
- - The Makefile is more complex
- - The fc file could be more complex, but we could only accept m4 
-   commands only in one or two file. The other file have to work without
-   m4 commands.
+In my initial advisory I got the URL for the woody files wrong.  As no-one 
+asked I presume that everyone who is using my packages for woody knew where 
+to get it.
 
-I see there are more disadvantages then advantages. But if we like to merge 
-the single suse file (apmd_suse.(fc|te) crond_suse, cups_suse, inetd_suse) 
-, we need an fc file like this example, I think. 
-The suse fc file are not empty. SuSE use in some cases similar filenames or 
-it uses new "devices" like /dev/blog. 
+For woody:
+deb http://www.coker.com.au/woody/ ./
 
-Carsten
+For Sarge/unstable:
+deb http://www.coker.com.au/selinux/ ./
+
+For the source:
+http://www.coker.com.au/selinux/login/
+
+
+Russell Coker
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9fyHiwrB5/PXHUlYRAuMAAKDZSXiQIot2qCx1q2zMJ5IDM+sNOwCdGJgS
+BkUm9XOHePXLMlaCudJg4T8=
+=fAcr
+-----END PGP SIGNATURE-----
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
