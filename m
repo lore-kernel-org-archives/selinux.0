@@ -1,51 +1,45 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA18029
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2001 09:37:42 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA23145
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2001 14:37:22 GMT
-Received: from mx2.tds.com (mx2.tds.com [165.159.62.4])
-	by jazzswing.ncsc.mil  with ESMTP id OAA23141
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2001 14:37:21 GMT
-Received: from mx2.tds.com (localhost.localdomain [127.0.0.1])
-	by mx2.tds.com (8.9.3/8.9.3) with ESMTP id GAA08768
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2001 06:37:40 -0800
-Received: from cerberus ([165.159.62.50])
-	by mx2.tds.com (8.9.3/8.9.3) with SMTP id GAA08762
-	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2001 06:37:40 -0800
-Message-ID: <7408C3158945264B85D07250D7A2C8010C7978@satxmail.tds.com>
-From: "Pagano, Art" <art_pagano@tds.com>
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: Is This a bad thing....
-Date: Mon, 26 Feb 2001 06:37:20 -0800
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA18183
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2001 09:59:26 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA19321
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2001 14:59:18 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzband.ncsc.mil  with ESMTP id OAA19316
+	for <selinux@tycho.nsa.gov>; Mon, 26 Feb 2001 14:59:17 GMT
+Date: Mon, 26 Feb 2001 09:58:19 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: "Pagano, Art" <art_pagano@tds.com>
+cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Re: Is This a bad thing....
+In-Reply-To: <7408C3158945264B85D07250D7A2C8010C7978@satxmail.tds.com>
+Message-ID: <Pine.SOL.3.95.1010226095411.21535D-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-If so has anyone found a fix??? 
 
-Art 
+> Installing the initial policy configuration. 
+> 
+> error in the statement ending on line 22875 (token 'user'): syntax error 
+> 
+> ../kernel/security/checkpolicy:  error(s) encountered while parsing 
+> configuratio 
+> n 
+> make: *** [initpolicy] Error 1 
 
-./tools/install-kernel 
+Based on this output, I would guess that there is an error in your
+policy/users file.  When you edited policy/users for your users,
+perhaps you forgot a semicolon.  You can look at the lines around
+line 22875 of your policy/policy.conf file to look for the particular
+error, and can then fix your policy/users file.
 
-Logging install output to install-kernel-log. 
-Installing the kernel and kernel modules. 
-Root device is (3, 8) 
-Boot sector 512 bytes. 
-Setup is 1396 bytes. 
-System is 649 kB 
-+ [ -x /sbin/installkernel ] 
-+ exec /sbin/installkernel 2.2.12-FLASK bzImage /slinux/kernel/System.map 
-Installing checkpolicy. 
-Installing the initial policy configuration. 
+--
+Stephen D. Smalley, NAI Labs
+sds@tislabs.com
 
-error in the statement ending on line 22875 (token 'user'): syntax error 
 
-../kernel/security/checkpolicy:  error(s) encountered while parsing 
-configuratio 
-n 
-make: *** [initpolicy] Error 1 
 
 
 --
