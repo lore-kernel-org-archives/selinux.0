@@ -1,58 +1,45 @@
+Message-ID: <20050112001948.21459.qmail@web50206.mail.yahoo.com>
+Date: Tue, 11 Jan 2005 16:19:48 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: Added is_context_configurable function
-From: Colin Walters <walters@redhat.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <41E43DD8.5000306@redhat.com>
-References: <41E2FEF4.5070604@redhat.com>
-	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <41E3FAF4.2060109@redhat.com>
-	 <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
-	 <41E43784.2060406@redhat.com>
-	 <1105475738.20566.150.camel@moss-spartans.epoch.ncsc.mil>
-	 <41E43DD8.5000306@redhat.com>
-Content-Type: text/plain
-Date: Tue, 11 Jan 2005 17:25:49 -0500
-Message-Id: <1105482350.4614.8.camel@nexus.verbum.private>
-Mime-Version: 1.0
+To: Colin Walters <walters@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1105481440.24748.22.camel@nexus.verbum.private>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-01-11 at 15:58 -0500, Daniel J Walsh wrote:
 
-> This might be a conflict between strict and relaxed policy.  I am 
-> getting bugs from users who setup the apache web servers
-> with files in different locations than the preordaned.  I am looking for 
-> an easy way for them to configure their system and make
-> it survive a restoration of file labels. 
+--- Colin Walters <walters@redhat.com> wrote:
+ 
+> I feel that the 
+> on-disk version should be canonical, and the
+> file_contexts only used for
+> system initialization.
 
-Now, part of this problem is that we're asking users to run "fixfiles
-relabel" so often.  This is really a quite drastic measure, and we
-should be solving some of these cases automatically.  For example, when
-PostgreSQL was added to the targeted policy, or when we move files
-around between FC3 and FC4, and users want to upgrade.  One approach
-here might be to have an idea of file system label "versions".  Let's
-call the contexts in the current rawhide to be version 0.  This version
-is stored in /.label_version.  Then let's say we add postgres, and we
-need to ensure that it's labeled correctly.  We call this version 1.
-Inside the postinst, we have code like this:
-
-# Increase this on every incompatible change to file_contexts
-curver=1
-
-fsver=$(cat /.label_version)
-if test $fsver -lt 1; then
-  relabel_package postgresql
-fi
-
-Then later, we move the dhcpd files around, so we just suffix this code:
-
-if test $fsver -lt 2; then
-  relabel_package dhcpd
-fi
-
-etc.
+I'd have to recheck the LSPP spec, but the B1
+requirements clearly stated that MAC labels
+had to be stored on the same media as the files.
+The "closer" the MAC attribute is to the file,
+the better. Hence an attribute of the file with
+the MAC label is prefered to a file or database.
+Further, the attribute must be associated with
+the file, not a pathname. Files can exist, after
+all, without a pathname.
 
 
+=====
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+	
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - You care about security. So do we. 
+http://promotions.yahoo.com/new_mail
 
 --
 This message was distributed to subscribers of the selinux mailing list.
