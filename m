@@ -1,44 +1,24 @@
-Subject: Re: Security contexts for the contexts directory?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>,
-   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
-In-Reply-To: <40B5F324.9010208@redhat.com>
-References: <40B5D706.2050902@redhat.com>
-	 <1085663772.1072.149.camel@moss-spartans.epoch.ncsc.mil>
-	 <40B5F324.9010208@redhat.com>
-Content-Type: text/plain
-Message-Id: <1085668041.1072.186.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 27 May 2004 10:27:21 -0400
+Message-ID: <40B6242E.30801@treblig.org>
+Date: Thu, 27 May 2004 18:23:58 +0100
+From: "Dave Gilbert (Home)" <gilbertd@treblig.org>
+MIME-Version: 1.0
+To: SELinux@tycho.nsa.gov
+Subject: hint for patching debian shadow tools/useradd
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-05-27 at 09:54, Daniel J Walsh wrote:
-> Ok how about, default_contexts_t for contexts directory and users 
-> directory.  Create a new directory called files and put file_contexts in 
-> there with a context of file_contexts_t.
+Just a hint for those patching the debian shadow tools ;
+I got the patch from the Fedora tools and applied the same
+stuff - no success.
+The thing to watch out for is that you need to patch the
+Makefile.in's on Debian not/as well as the Makefile.am's
 
-The existing default_context_t (no 's') type seems reasonable for the
-contexts directory and users subdirectory.  Note however that this will
-likely require new allow rules in the policy, as some domains may have
-previously had read access to the files under etc_t and will now need
-read permission to default_context_t.
+With that and a few policy tweaks I think it might just
+work and let you create users without screwing the contexts
+up.
 
-> Should that have default_contexts_t also? Or something different?
-
-/etc/selinux/config should have a different type.  We could define a
-type for the /etc/selinux directory and simply use that type for the
-config file as well to ease maintenance.  That would also make sense
-from a control perspective - you are unlikely to be allowed to modify
-the /etc/selinux directory (e.g. add new policies under it) unless you
-can also modify /etc/selinux/config to set the type.  No other files
-under /etc/selinux would normally have that type, as everything else is
-a subdirectory and has a separate type assigned.
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Dave
 
 
 --
