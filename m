@@ -1,25 +1,26 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7DL8NrT026669
-	for <selinux@tycho.nsa.gov>; Fri, 13 Aug 2004 17:08:23 -0400 (EDT)
-Received: from mail.mvalent.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7DL8LRl025078
-	for <selinux@tycho.nsa.gov>; Fri, 13 Aug 2004 21:08:22 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7DLAurT026712
+	for <selinux@tycho.nsa.gov>; Fri, 13 Aug 2004 17:10:57 -0400 (EDT)
+Received: from mail.mvalent.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7DLAIUu001042
+	for <selinux@tycho.nsa.gov>; Fri, 13 Aug 2004 21:10:19 GMT
 Subject: RE: vsftpd and security labels
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Date: Fri, 13 Aug 2004 17:08:23 -0400
-Message-ID: <E6E16A6D4277CD459BBDE6713766033CA50DFB@exchange.mvalent.local>
+Date: Fri, 13 Aug 2004 17:10:56 -0400
+Message-ID: <E6E16A6D4277CD459BBDE6713766033CA50DFC@exchange.mvalent.local>
 From: "James R. Marcus" <jmarcus@mvalent.net>
 To: "Stephen Smalley" <sds@epoch.ncsc.mil>
 Cc: "Joshua Brindle" <jbrindle@snu.edu>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ftp policy # pwd
-/etc/security/selinux/src/policy
-ftp policy # grep 'type_transition initrc_t ftpd_exec_t' policy.conf
-type_transition initrc_t ftpd_exec_t:process ftpd_t;
+Not sure if I sent this out
+ftp policy # run_init /etc/init.d/vftpd restart
+Authenticating root.
+Password: 
+execvp: No such file or directory
 ftp policy #
 
 -----Original Message-----
