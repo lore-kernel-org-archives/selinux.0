@@ -1,139 +1,61 @@
-Date: Thu, 24 Mar 2005 11:04:38 +0000
+Date: Thu, 24 Mar 2005 11:06:34 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
-   "'Kaigai Kohei'" <kaigai@ak.jp.nec.com>,
-   "'KaiGai Kohei'" <kaigai@kaigai.gr.jp>,
-   "'SELinux Mail List'" <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
 Subject: Re: [RFC & PATCH] inherited type definition.
-Message-ID: <20050324110438.GC13372@lkcl.net>
-References: <20050322001439.GB8444@lkcl.net> <200503221353.j2MDrT8R010539@gotham.columbia.tresys.com>
+Message-ID: <20050324110634.GD13372@lkcl.net>
+References: <4236CC03.5010104@kaigai.gr.jp> <1110897751.25947.52.camel@moss-spartans.epoch.ncsc.mil> <4237B950.2090604@ak.jp.nec.com> <1110981928.4802.81.camel@moss-spartans.epoch.ncsc.mil> <42394ECA.7010204@ak.jp.nec.com> <1111067742.8664.31.camel@moss-spartans.epoch.ncsc.mil> <42399AE4.5040508@kaigai.gr.jp> <423E9CFF.3080808@kaigai.gr.jp> <1111420782.13101.16.camel@moss-spartans.epoch.ncsc.mil> <42412635.4030108@ak.jp.nec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200503221353.j2MDrT8R010539@gotham.columbia.tresys.com>
+In-Reply-To: <42412635.4030108@ak.jp.nec.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Mar 22, 2005 at 08:53:28AM -0500, Karl MacMillan wrote:
+On Wed, Mar 23, 2005 at 05:17:57PM +0900, Kaigai Kohei wrote:
 
-> > -----Original Message-----
-> > From: Luke Kenneth Casson Leighton [mailto:lkcl@lkcl.net] 
-> > Sent: Monday, March 21, 2005 7:15 PM
-> <snip>
-> > > 
-> > > First, you missed the switch to the @ being required in order to 
-> > > inherit permissions through extends - making that syntax, 
-> > as far as I 
-> > > can tell, the same as what you are suggesting.
-> > 
-> >  i understood it to be the other way round - that the @ is 
-> > required to  _not_ allow a permission to be inherited through extends.
-> > 
-> > 
+ kaigai,
+
+ i love it.  i see where it's going.
+
+ i just don't get it yet.
+
+ :)
+
+> Hi,
 > 
-> Like I said - it switched part way through the discussion.
- 
- okay, i must have missed that.
-
- ... but, after a couple of days' thought, i don't believe
- that what i am suggesting is anything anywhere near the @
- syntax, and it is in fact in response to some comments by
- stephen [where he mentioned that it would be better to split
- domains up further using macros than it would be to use
- this inheritance system with some modifications suggested
- by me, so off i went to think of some better modifications -
- clarification below]
-
-
-> > > Next, my objection is that there is only one subset of 
-> > permissions - 
-> > > there is no way to have user_ftp_t inherit one set of 
-> > permissions from 
-> > > user_t and user_httpd_t inherit another set of permissions from 
-> > > user_t.
-> > 
-> >  note syntax in example [copied from above]:
-> > 
-> > > >  some_macro (`
-> > > > 	 inheritable($1_ftp_t, parent_class2_t) {
-> >                      ^^^^^^^^  ^^^^^^^^^^^^^^^
-> > > > 
-> > > > 		allow ....;
-> > > > 
-> > > > 	 }
-> > 
-> >  so, to link this with your examples above, let's express this in
-> >  "inheritable() { ... }" syntax:
-> > 
-> > 	some_macro (`
-> > 		inheritable($1_ftp_t, $1_httpd_t) {
-> > 			allow ....;
-> > 		}
-> > 		inheritable($1_ftp_t) {
-> > 			allow ....;
-> > 		}
-> > 		inheritable($1_httpd_t) {
-> > 			allow ....;
-> > 		}
-> > 		allow ....;
-> > 	}
-> > 
-> > 	')
-> > 
-> >  make sense?
-> > 
+> The attached (3rd) patch implements TYPEEXTENDS statement in addition
+> to the latest patch. Because TYPE ... EXTENDS statements can not handle
+> forwarding loopup, TYPEEXTENDS statement is necessary to represent
+> inheritance-relationship not to depend on the definition placement.
 > 
-> I guess I don't understand how your proposed syntax works. What does it mean
-> when there are two types?
+> TYPEEXTENDS <type-name> EXTENDS <type/attr>, <type/attr>, ... ;
+> 
+> (*) <type-name> and <type/attr> must have been defined.
+> This is almost the same as TYPEATTRIBUTE.
 
- that one set of permissions is inheritable via "extends"
- and other sets are not.
+>  # Access Samba shares.
+> -allow smbd_t samba_share_t:dir create_dir_perms;
+> -allow smbd_t samba_share_t:file create_file_perms;
+> +attribute samba_share_path;
+> +allow smbd_t samba_share_path:dir {getattr search};
+> +allow smbd_t @samba_share_t:dir create_dir_perms;
+> +allow smbd_t @samba_share_t:file create_file_perms;
+> 
 
- the reason why i am suggesting this syntax is because stephen said that
- it would not be okay to split macros down into sub-macro in order to
- inherit/extend "subsets" of a domain.
-
- e.g. if you do user_ftp_t extends user_t where you have already
- declared some_macro(user) then it ends up inheriting ONLY those
- blocks of permissions containing "user_ftp_t" inside "inheritable { }" 
- braces.
-
-
- ... so, after some thought, however, i believe we may be talking
- about two separate issues.
-
- the "inheritable" syntax i suggest above is a way to inherit SUBSETS of
- a domain, without disrupting the existing policy source too much (which
- i interpreted stephen's comments to mean)
-
- so, correct me if i am wrong, but the "@" syntax doesn't actually STOP
- something from being "extended", it just means that a different domain
- is inherited, yes?
-
- and your original question was: when you use A "extends" B and C
- "extends" B, and B contains "@"s, how do you potentially make A 
- ignore the "@" but C _not_ ignore the "@"?
-
- if that was your original question, then that's easy: you use a syntax
- @(A) or @(A,Z,Y,X)
+> o And, private additional configuration is as follows:
+> --- /dev/null   2005-03-22 18:46:01.562514976 -0500
+> +++ policy.kaigai/inaddition.te 2005-03-23 04:06:49.576548144 -0500
+> @@ -0,0 +1,7 @@
+> +# necessity for access path
+> +typeattribute var_t ftp_content_path, samba_share_path;
+> +typeattribute httpd_sys_content_t ftp_content_path, samba_share_path;
+> +# definition of unified file type
+> +type httpd_ftp_t extends httpd_sys_content_t, ftp_content_t;
+> +type httpd_samba_t extends httpd_sys_content_t, samba_share_t;
 
 
- I BELIEVE that the "inheritable" syntax above could be added as an
- enhancement to the existing proposed "extends" scheme, WITHOUT
- disrupting or having anything to do with the "@" syntax.
-
- the only question is: do you _want_ to use "inheritable" instead of
- splitting macros down into sub-macros to achieve the same end-result?
-
- which is simpler?
-
- which is easier to understand?
- 
- does the "inheritable" syntax cause any potential disruption/confusion
- (beyond what the @ syntax already does if you ask me!!!!)
-
- l.
-
+ ... what's the difference between attribute and typeattribute?
 
 
 --
