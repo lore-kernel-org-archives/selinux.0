@@ -1,63 +1,52 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7IDArrT020016
-	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 09:10:53 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7IDACho012260
-	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 13:10:12 GMT
-Date: Wed, 18 Aug 2004 14:21:56 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Erich Schubert <erich@debian.org>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: mozilla 0.9.3-2 crashing with tunables read and write homedir OFF
-Message-ID: <20040818132156.GB19646@lkcl.net>
-References: <20040817193823.GU18321@lkcl.net> <1092780620.6531.3.camel@wintermute.xmldesign.de>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7IDc8rT020200
+	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 09:38:08 -0400 (EDT)
+Received: from wowbagger.gapholdings.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7IDbSho013914
+	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 13:37:28 GMT
+Date: Wed, 18 Aug 2004 09:43:52 +0000
+From: Eric Andreychek <Eric.Andreychek@rwcwarranty.com>
+To: SELinux@tycho.nsa.gov
+Subject: Re: Port Binding Being Allowed
+Message-ID: <20040818094352.GG19197@rwcwarranty.com>
+References: <200408171523.21707.steven.harp@adventiumlabs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1092780620.6531.3.camel@wintermute.xmldesign.de>
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+In-Reply-To: <200408171523.21707.steven.harp@adventiumlabs.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Aug 18, 2004 at 12:10:20AM +0200, Erich Schubert wrote:
-> Hi,
-> 
-> > just in case anyone's curious about using mozilla with no read or write
-> > access to user-home: at present (policy 1.12-3 or 4 and mozilla 0.9.2-3)
-> > it don't work.
-> > 
-> > debian bugreport raised.
-> 
-> Waste of time. I guess that any mozilla developer will tell you they do
-> need write access to their profile directory.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- i believe you may be misunderstanding.
+Howdy,
 
- access to profile directory is fine: they can have write access
- to ~/.mozilla no problem, specifying some file contexts to
- allow that [a $1_mozilla_profile_t where $1=user/sysadm/staff/whatever
- which is placed on all files in ~/.mozilla]
+On Tue, 17 Aug 2004, Steven Harp wrote:
+> Suggest making sure the CONFIG_SECURITY_NETWORK security option 
+> in the kernel build has been enabled.  Curiously, this is off
+> by default in this config....
 
+Aha!
 
- it's write access to home directories [file downloads, viruses,
- exploits, security holes etc] that should be banned via the
- tunable parameter mozilla_can_write.
+After enabling that and rebooting, port binding is restricted as expected:
 
- instead, not setting this parameter causes mozilla to go pear-shaped.
+ $ nc -l -p 9001
+ Can't grab 0.0.0.0:9001 with bind : Permission denied
 
+Thanks for your help!
+  -Eric
 
+- -- 
+Eric Andreychek
+Residential Warranty Corporation
+(717) 561-4480 x2245
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-> Furthermore using an ancient version of mozilla doesn't help either.
-> Even Debian "woody" (aka "stable") has mozilla 1.0.0 because of security
-> issues... If you want to have a secure system you should at least
-> upgrade to the most recent security update.
-> 
-> And don't expect applications to behave differently than what they were designed for.
-> Mozilla was designed to have a writeable profile directory for its cache, configuration data etc.
-> I bet the developers will just drop your bug report and tell you to write your own browser using the gecko engine...
- 
-  hah! 
-
- when i am rich and no longer infamous.
-
+iD8DBQFBIyTYR5UKaDAjAG4RAkG5AJ9vdbJgh6N9Ilme3aLmUzcVezTUHQCfSa2q
+/y3d47Cly1UyR95AdQCIIRg=
+=Ct6T
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
