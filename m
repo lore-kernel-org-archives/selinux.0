@@ -1,37 +1,28 @@
-Subject: Re: Added is_context_configurable function
+Subject: Re: Multiple contexts
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>
-In-Reply-To: <41E3FAF4.2060109@redhat.com>
-References: <41E2FEF4.5070604@redhat.com>
-	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <41E3FAF4.2060109@redhat.com>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
+In-Reply-To: <20050110232312.GI6967@lkcl.net>
+References: <1105390249.8093.21.camel@cobra.ivg2.net>
+	 <20050110232312.GI6967@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 11 Jan 2005 15:00:11 -0500
+Date: Tue, 11 Jan 2005 15:09:51 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-01-11 at 11:12, Daniel J Walsh wrote:
-> I think this is more flexible, in that it allows users to specify the 
-> location of these files versus policy.
-> IE I create a new top level directory /rsync which I want to label 
-> ftp_anon_t, I don't want to have to specify
-> ftp_anon_t is an alternative to default_t.
+On Mon, 2005-01-10 at 18:23, Luke Kenneth Casson Leighton wrote:
+>  i can only hazard a hazardous guess therefore that the more
+>  "normal" ACL system [that we are used to seeing] was rejected
+>  because it makes the formal proof methodology more difficult.
 
-You could certainly specify a /rsync/(/.*)? entry in file_contexts that
-had both contexts listed.  Ordinary user shouldn't be able to
-create/populate /rsync anyway without administrative setup.
+With ACLs, you have to traverse the entire filesystem state in order to:
+1) determine what your policy truly is (and that policy can change
+underneath you during your traversal),
+2) apply any widespread changes in policy state.
 
-Failing to associate the context with a location in any manner means
-that setfiles/restorecon will fail to fix the label on e.g. /etc/shadow
-if it happens to get one of these configurable types at some point. 
-Admittedly, getting to that point requires some kind of serious error in
-the first place, but running fixfiles relabel will no longer correct
-such errors for you.
-
-BTW, customizable or alternatives seems better than configurable.
+Management and scalability nightmare.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
