@@ -1,143 +1,102 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4QFoLRb026783
-	for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 11:50:21 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4QFlpar003412
-	for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 15:47:51 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i4QFlpQu003409
-	for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 15:47:51 GMT
-Subject: Re: X policy classes
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: Joshua Brindle <jbrindle@snu.edu>,
-   SELinux Mail List <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>, Eamon Walsh <ewalsh@epoch.ncsc.mil>
-In-Reply-To: <1085585699.31854.54.camel@moss-spartans.epoch.ncsc.mil>
-References: <40A464EB.5030008@snu.edu>
-	 <1084536340.17741.15.camel@moss-spartans.epoch.ncsc.mil>
-	 <40A5014A.9060400@snu.edu>
-	 <1084556829.18592.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <1084561241.7518.222.camel@gorn.pebenito.net>
-	 <1084561713.18592.64.camel@moss-spartans.epoch.ncsc.mil>
-	 <1085585699.31854.54.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed; boundary="=-upUaWIdw4HHWUKuw3Up+"
-Message-Id: <1085586602.31854.57.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4QGQZRb027082
+	for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 12:26:35 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4QGQYAR026884
+	for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 16:26:34 GMT
+Received: from turing-police.cc.vt.edu (turing-police.cc.vt.edu [128.173.14.107])
+        by jazzband.ncsc.mil  with ESMTP id i4QGQXHn026877 for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 16:26:34 GMT
+Message-Id: <200405261626.i4QGQ1GQ001031@turing-police.cc.vt.edu>
+To: russell@coker.com.au
+Cc: fedora-selinux-list@redhat.com, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: mysql issues... 
+In-Reply-To: Your message of "Wed, 26 May 2004 14:17:40 +1000."
+             <200405261417.40958.russell@coker.com.au>
+From: Valdis.Kletnieks@vt.edu
+References: <200405250215.i4P2FFAe027848@turing-police.cc.vt.edu>
+            <200405261417.40958.russell@coker.com.au>
 Mime-Version: 1.0
-Date: Wed, 26 May 2004 11:50:02 -0400
+Content-Type: multipart/signed; boundary="==_Exmh_-1555143134P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Wed, 26 May 2004 12:26:01 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--==_Exmh_-1555143134P
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_-15587842340"
 
---=-upUaWIdw4HHWUKuw3Up+
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+This is a multipart MIME message.
 
-On Wed, 2004-05-26 at 11:35, Stephen Smalley wrote:
-> I think that this patch will ensure a stable order for the
-> av_permissions.h definitions.  Naturally, it will yield a large diff for
-> the first time we regenerate headers using it, but subsequent
-> regeneration will hopefully have smaller diffs.  Look sane?
+--==_Exmh_-15587842340
+Content-Type: text/plain; charset=us-ascii
 
-And the resulting diff for the regenerated headers.  Note that you can
-compare by sorting the pre-patched and patched headers and diffing the
-sorted files to see that no unexpected changes occurred.
+On Wed, 26 May 2004 14:17:40 +1000, Russell Coker said:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+> How should we determine who gets mysql client access?  Should we have a 
+> tunable determining whether we allow userdomain?
 
---=-upUaWIdw4HHWUKuw3Up+
-Content-Disposition: attachment; filename=selinux-headers.patch.bz2
-Content-Type: application/x-bzip; name=selinux-headers.patch.bz2
-Content-Transfer-Encoding: base64
+That might be a good solution.. 
 
-QlpoOTFBWSZTWc4fzTcAKRj/gHj////4H//6/+//4L/v/+pgHJ73s+SCnr73vh6d893IAe723svv
-rt3KUfAAPj4nzAAFFAfIAARAANBvgAZ6PEdKAB1QAH0BhqnpkwQjSKZTQAAAAAGgAAD0jynqaAHq
-AaehU9UqAAaGhoAADI0AAAAAAAAASnlUSgj0J6g9QeUyA9IBtIZAYRoAaABoPU0xGBKfqVUim1AA
-GTQADRoMgA0AAAAAAABEoiJ4jSFAMm0QNpD1DZE/VNHmoag2UYgA0eTFGhoCooQIQBBFT9SeoAaD
-QABoA09Ro9QYhpoBtI02wNoGKIMEIKABAKB+oHD24JuW7rp4ed185RHPO8dd413gs7ss66KaMnMq
-kPTT2vb10w2JgLmbHMJxOKRjEQYKViEisijJI1gASIJSMgJu9rHez73anbtxxzYBICDmiDCBIpI8
-b+OfKbcVFqLUWotEtktEtC0LUS2S2QtC0LQtT2MSIFdmyEpZWvRX453Avwww8wZBUVOoIEUjBFRA
-xBoIfS+A7xHwFfoCw8P2BZaS0KWRU2uxt/ncN2yYb7fDc002YY/O2YbOHHRpwvPR03mnDHBmZbpi
-7mzls/Zz05cVnGyppOccm07OjdvJbw4TGWMW/n7uOrra84re8p1OnYmcS8cTqJ2/YvPd34c92usj
-OLYqpiVaaOjqutXTdN3ZNnWkaGuLkMoVfHArAwwfvjJcpc5MJUaVaHiljeMdHbKdum627yYRvy26
-16FnlZ2dptcFtZq+nbumcNqxPLODu5TrfpM4wm08u2jOfPLNq6fYSxaokEDBWH0SVLPhCEKSjD0I
-kgxoWi2gEsw2m3M2su017YmLLsq63ZcWWm1W88bN9LGtUgAtN6Tc4wRl6XXOplp1nUfMcxZzMzEv
-eFUAyDccAM8zMMMjDALkc03fRuX6FzXfNNuwOwJ5g8gZzxBzBnA/0DXvwz7eOOsaK/wgvoSAAAAO
-qgA67u+QwAAuq7xV5K1114cq6AAACAArpOuv+9R0dFFHFHUXF0XXBHdFShNrM0tkltURVSSWlskt
-iKAAAAAAAAAAAAAAAHn+m8n9fPja5233De3tyqqrhDcDMw/DMMM8ks4eem6vZe0l+/bAcerLmmnr
-v/kpxDUiBQE89SFU6oFHUR2WVdFqhESEU05ScVqYP+1pRNRSEFHw6AqEk3IZpr/q4WzXzY6M5rGy
-r3YpIyBIMgPfiJKFFCku7OU83zYSG2NNraZoSFSw0UKZkUKiK1LY0FC4RQqIrUsNFDY01QitRptb
-RVtobtibmkJAzZiSQzQkNsabW0zTbbtjU25pCQM2YkkM25pCQM2YkkN27lKzc0hIbbNmJJB1pHTa
-G7YzQ1bE3NISBmzEkhmhIbY02tpN00hIa2zZiSQm5pCQ22bMSSE3NISBmzEkhN00hIbbNmJJFoT/
-Ey+8hJkpJEUphH8JPxWwwVTdOD5ODfmnflODTXUat8bZQ1W61lMtE1LlszTAJrkLh0oEGntNS5sY
-W1qnTQeWLmtvbpdDuMXYSoxmGYxGTuYnR/hTxPM3J6Il8lkdDsmnum8fKUp82nTZv2ZbLd0Oq+yE
-EVYEDrIfCAOAbMDjgDns9E6CNLM1F73EOiHrgHHB+Boyegf1w9YSJHz9PN8rGWkJEj3HeJJN/ZvD
-+/mrVq1atWrVtdNDHSKqqqiqqqp1zDDHTFxVCwGpmJRwxK5iWJFQPMzMSRY23ttttjbAG2AMANvE
-8COEjhI4SOECOEjhI4SODkhALbbVsWm6JsRSWIyMRGEsid4/By8K7OOiIjoiIniydjDMMwzDJkM4
-YQyBmlrrpajdJHCRwkcJHGNyxx1jctttttrVrtjjqHLbbbbbbbYszFxnnpPEkoggNjmGQmYJsjFz
-ZrZVlWVBThkERxvIYGETxiI0mYGBg2a8TIJMactShRJjEmOSJjQsCSRNhCYRSYSliYTF0TR0EJgS
-Y0JMaMkcMpjbhbHKQSYxJjEmMSYxKQeQggYlIPIQhkIQyEFG2x5CCBmQxkIZCEMhCGQhcw6Oz0fe
-n3c3Z52Uc3M4msqkzMsomYQEnQRxERXSIoqqqBV53E1k6CZmUEzbS8WVJmZZRMmISx0IHQyBwIEC
-BXQQIEjo0Vq8/RZB4XOcbbjW1xCLe91Eu4vfKdLXuOE7bpwxO7KN+FXAkKJBigvSt4VBvwuNo6To
-tAhpCNnKio26dhjXgYoTELVSuIC4wMBcBhYRAGBgMeaXvuQ2JT111qMKL3PGbjJ6ul73hlFrajK6
-6pl42ZRjdwklJ0eMpFbVWosotZ8qNguURqrtngoxDjp6e1I468gPfkvyVC0UURqCtAXCr8OSHy4M
-3HW4Gd3pFIdA7tItTRsMmB2mw9rzQ+VdIYcdVSKDB3d6y1rLo7C1lq5BRilrRliVs4hXmkOLZkQQ
-ut7PWLvZQjsLWk1qKFRSG1sMokzJ22Xra21d2GOS0tWZOEDum27wg5evjTa2ypMzLKJmFzWISEDu
-cV2XZBttc2ZmQMz1FxcQECAXFwmUDBggYIAwYSV+v1pxvVr0MkqiIHdGQHl17z1cbMlPX9jadov6
-/HSlKUpSlOYqE6yA8SAcaIflyApa9j67C8M8DNStJe8qC6La6dy8AqoGKAXgYomKobBmCGuHlMRR
-z6MAnxHu47P8bGM/s+u2mzH6xv/QvoePs8eQtx9NuNSJ9ET6Qn0Efz/n09bfmQnn9aV5Ntvu8zfc
-xfUxr1DjjiMtr+s6529W6pHrA9RPUTv385JHXXndMMaV3Q7IZHp9INdrcHhOuHOAcgJ1BKiahOJR
-OEA/wU4TjVChxKB44shRqWJ9Q1PJePpOApJJJJJJKQkJJJJJJJd+K514Xd+QOpOQwhvyadtmVLJM
-IkmiOLD98skYrRzEkf5GkDMh/8JOVhKQoehJxNf+cSmkjEiSfoSPVHPlVnT9DnCdiSpuR1YLSWSF
-CE5RJP0NKqNkPJ0ZkmBJUieTueInZ2BsyVOUZMkn/EqHnPJVVVVY+IcrKsTesLVKsj2xIxTysmFW
-yWsZxlM4Zzk9WptO5NmImJIe/gGoHohSJ/BEjYaRWSHPQ/TwknJYKmMSTFT1vtZHqsd62n7WC6wy
-shivTfNynNzG/OzW8dpokjVSJ8JhEkx4hu3YNpJqRHumzdyfO0iMv2okUx6sSbrJUMpPlGalSGvJ
-tDk3q/W4i3E2qukjTW1Wj1V3donaRPZoOUYepPVx+2SuFVVVVVUqUc7nOSQjiLnDuXSB6/pGGFVV
-VVVUqVZmRITf0d9/Hxm5zpg7bZYx6ST3lU6khlGqlVU8+fIkhkonz7qknUWosqLKiqil0l0nRdJd
-J0dF0nR0qKqLPu3MxTIw0SVGzXGLVstXGJiWXDT0IbRjceR9lXRIeZs3kmGzWLcO8kNOXxrPxc6Z
-kZDBgRhCngfUk01PNkkR6tn1IfEhHGSD4tkeapHjC/aYBsd6UY90nKSPSB0SfP2Ql4e96XvIJ+B7
-owipSxUqeXOWVLKra51iSETxJDyZZ8HiwwxSxSxSxSxS1RSxS1VRS1VRERSgYePgGGYeARmpai1a
-U7yI990ST6Pn4TZkYUtFixFsWpJJgNJu8nZHhFKdpIbq+mbjFpHRJ9XbdjF5ehJvEPQk3hPuxInn
-Xj435uM5JOg9m7llDu+WO52iXDCQ8QZZkiL4ttttttWW21VttyPoeNGCqpU7GcpgjLDtlPizGMTZ
-ZpHSlQ7mFhVFqy2VZZVqpexiQjBDaJ1CN25ung4sQlJPckskMBtBsTcukhzxZFMGBbtRSzDeTJml
-UqntJI5eiPkxApJCcA8Ht5B8Tl0+STtElcnkbN2ExMTDGMMZzRqDqDB3cRG5DZ3TDdsSZR7nmHDy
-PCpPiITJOSTz2b+fFmcXOSe0kPZ37riGR5GJME9JJ6h1E/bVcOpI83E4k57LmMjLw93YqlUqlUqU
-YiCHJMwI2vDNukcIilSaqpIZYiIpYpYpYpYpUqilhlqiIqililiIiliJhjFuGMW+EOzhxgPiSeCN
-VLZInOOsyYsXEUaRlZIbGIy5IyeER1p9TlsSOAndImAfCMMIk4OH0QnDjasEmPZHMSYYiNE4fIco
-jPsSejqVZVawslgq4twYqnru8FfM/A08NRfVEkrsyZSZkh94VQqB8xE2Y1JLIcuJFedMkmlJaLRa
-RVCqFUKoVQqhViSqLQqi0KoVQqhVCqFUKkn0DZ5TeCFHkLy0fVpD0OmFCbksnaSYWAdvTHsmKnTG
-EuGExU29NmptshnHNmtJrGdqzZbc5zmrTclzIy6pZJqJI06HQTdDw7KqqqqrBhKmE3ScpcuO53a0
-tWlyS4ndeGHJHpDlvOh3NzCc9+sXFYwgzJDo+z3r6qqlVKxhhZUpWHDvJuQ3YK1Ekd3nGQm3TBN8
-HeJI9om0SThYVRGyoYwuCGFQqoYLJJVSJVEKUhWFYQ4noYYX/Yb/Bic4XE9XQnQ4NI39bgHUNXBc
-HiTFBKCZnHjSZRJmWxRKiQPlrmUW7ZJJlEmLgw5WJAkEMG2tyzkQWnIglBWuiVFW3HlVtlYlRWx2
-ViVFa6JUVZW23MlfLkzZEGbr0S4FWPLXxrNkQZpuu6zZEGbtey2yFfGs2RBmwabebr41myIM3Xol
-wKlr41myIM03XdZsiDNN13WbIgzTdd1myIM0xOOV8jg5N0T5Rcqgzlr4HXK9OBKChBKChBKChBKC
-hBKGIa4qocGaLSmiUMQ1tVDTNFpu6oGmaLTd1QNM0WiRrxtbqoaZotKaJQT2qBpmi03dUDTNFpu6
-oGmaLTd1QN7N63u2NvJ4TxJCyWJFE+JPAfyHuRqNH3SfxENJML+TCRg1+Np8E+v1tQ2WqtaSCMAP
-UW8qGQKq2FirnBGhJGyGUJSJiTDLaIxMFJUiwoYhzIJonO7qj74wzk/Fjs5khodpCYS1bIsqlShl
-FkgqVd7bu6lrnV3letvKYZxhZGFkYWRhZGFkZZhZGFkZZlmFkZZlmlaWDFW6jRLFQktJI/Ufkqqq
-qqqlSq5uUjUsM2MWyFEqhzYspHcqSRbaImbIYh6ycu7L9SgVEZbKKq2UVVsoqIxVVRUQKppplpTR
-pplqrWjTTLVWtGmmWqtaNNMtVa0aaZmra1VsKaaUVECqtlFUqqoqhKq2UVSqqiotaNNMtVa0aaZa
-U0aaZaq1o00y0po00y1VrRpplqrWzgJUcR4xGFRZZJLIlIypUqRhE3E/M8sDvFuJ8/Hk2kebgVTE
-ThQp4vlU622dNOulrdjnGs886Vq8NuFrWqrw2zlSbrh3ddbdu2s5zrAcSNtuNTTnF047LV423zxn
-eKhWGzIbIqtMMEwyyhpUNIqt9mWmkznK12Ykkqu76OHBOG5+ZwGjqp4y8ZeOnTjj+PzIOIt2whiK
-uFJXnfJZ4b7kPNQ4dWZ31M+M+PC8XjXGLbgqHeoXZymrMtmM7W7OeOWFYVuTdw8+fFxWShsjyw6V
-LriQuMm4PlE8jzic37SSSSd5Pz5e+ckv1pS7zw2cz96V3NOuyOczpN7hyT+o/lUteW829g843dUa
-XtvLU5zYu0F3RloOXOYw4LOgAmxcUaEZ7ejrOJC/Rhw4u0r4q58tfpDhP/wJI9uzpP7ZTfMwCSPH
-l7+bEtucY/DH8F9fQPwMGE5h7zbXZ/L7huPrOQSRxru2x+mha8757t97LXs5+3P3b7ccPW+PwkeH
-xx1jw3Nlq22W3sevfz8ffHc3N3Rvtj49Pk5T2NwSR+DFfl5OK1hMO6GOMPxuYctZYZ/YD59+WT5T
-MZYS+nf7vTXuZ2M8PTc/f9g+6dvpNgSR9zwjXj6e3xfy0DzPQsmuj7RtHbnjjMGMY598x1n7clPr
-5xxH2+ffBtpxj2nxZbLZcB3+3ox4dbemnn3D74ee0e/vxnY/C8Zj79m88XG58Xpzg8oNrH9U5xbI
-JI3bcvY0k2niYuxsmZiOZsywM1isLgHqT48Oye+uPf1e5jpFLHM62jWfpzjbhv8OrPiZY8wgLJWU
-s7gRg9MAte8Ggt/Jb7NDltxHHR6mKLoBQluMfnPrGtla9pd9PaTzfSMZ+G/5j7nZJ+X2g753jFjs
-6+I2duN0r1j6xeMvsGPnAZev5bI2vgvP3OmIt7x9s4TUWV4rnT0c67o3dTf4xiLV8rhjE0TPDtzU
-6vk254PVsw4bXtyzjs9XhG2dl0Tt4dGkc1XYnbzofU/AOf4XjB/F6Iw83rPx3B/pN3kjfw9Ez5sD
-Gr2wy9GtF9Qf3oIkbGrLK0Bs5cZdVA2PWUe4MWMGMCMRUP/F3JFOFCQzh/NNwA==
+> Why have mysql_cmd_t instead of just allowing user_t directly?  What is the 
+> benefit in having a domain for client access?
 
---=-upUaWIdw4HHWUKuw3Up+--
+Thinko on my part - I invented the cmd_t because I'd been fighting various
+issues for about 14 hours at that point, and didn't parse through mysqld.te,
+apache.te, and mysqld.fc sufficiently to realize that the var_run_t was
+identical in semantics (somehow, I was convince that var_run_t included
+something I didn't want in cmd_t, but that was wrong).
 
+How do people feel about the attached patch to add a tunable?
+
+--==_Exmh_-15587842340
+Content-Type: text/plain ; name="mysql.selinux.patch"; charset=us-ascii
+Content-Description: mysql.selinux.patch
+Content-Disposition: attachment; filename="mysql.selinux.patch"
+
+--- macros/user_macros.te.dist	2004-05-11 11:03:38.000000000 -0400
++++ macros/user_macros.te	2004-05-26 12:22:18.852047888 -0400
+@@ -242,6 +242,14 @@
+ r_dir_file($1_t, mnt_t)
+ ')
+ 
++ifdef(`user_mysql',`
++#
++# Allow users to access the mysql socket
++#
++allow $1_t mysqld_var_run_t:dir search;
++allow $1_t mysqld_var_run_t:sock_file write;
++')
++
+ #
+ # Rules used to associate a homedir as a mountpoint
+ #
+--- tunable.te.dist	2004-05-11 11:03:38.000000000 -0400
++++ tunable.te	2004-05-26 12:19:33.221383912 -0400
+@@ -99,3 +99,6 @@
+ 
+ # Allow user to rw usb devices
+ define(`user_rw_usb')
++
++# Allow users to access mysql
++define(`user_mysql')
+
+--==_Exmh_-15587842340--
+
+
+--==_Exmh_-1555143134P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAtMUZcC3lWbTT17ARAk2qAJ9/n2VOMtjGzebszdD03nlkXUSE+gCfSvyk
+/Mrnt0BKZoBxa+IL5P2nEYw=
+=ckki
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1555143134P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
