@@ -1,51 +1,30 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j34JlODo003356
-	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 15:47:24 -0400 (EDT)
-Message-ID: <42519848.7080203@redhat.com>
-Date: Mon, 04 Apr 2005 15:40:56 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: ivg2@cornell.edu
-CC: jwcart2@epoch.ncsc.mil, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: New Policy Patch
-References: <41E57081.4090500@redhat.com>	 <1106339767.25125.31.camel@moss-lions.epoch.ncsc.mil>	 <42518C8A.7040200@redhat.com> <1112643515.31122.3.camel@cobra.ivg2.net>
-In-Reply-To: <1112643515.31122.3.camel@cobra.ivg2.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: build fixes for selinux-doc-1.18
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <42512DC5.8060102@domdv.de>
+References: <42512DC5.8060102@domdv.de>
+Content-Type: text/plain
+Date: Mon, 04 Apr 2005 16:12:50 -0400
+Message-Id: <1112645570.7629.183.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
+On Mon, 2005-04-04 at 14:06 +0200, Andreas Steinmetz wrote:
+> 1. added simple top level Makefile
+> 2. replaced db2html with docbook2html as db2html is not part of
+>    docbook-utils but seems to be created by some distro only
 
->>+can_getsecurity(hald_t)
->>    
->>
->
->check_context was sufficient for me.. does it
->need the rest of the things in can_getsecurity?
->
->+# For /usr/libexec/hald-add-selinux-mount-option
->+allow hald_t security_t:dir search;
->+allow hald_t security_t:file { read write };
->+allow hald_t security_t:security check_context;
->
->  
->
->>+# For /usr/sbin/dmidecode
->>+# Violates assertion
->>+#allow hald_t memory_device_t:chr_file read;
->>+allow hald_t self:capability sys_rawio;
->>    
->>
->
->Hold on - this should go into its own domain for dmidecode...
->
->  
->
-Since we do not have that policy yet, we need this for strict to work, 
-correct?
+Hmmm...well, db2html appears to create a separate directory for the
+output files, and copies stylesheet images into it as well.  The use of
+db2html was patterned after its use in the kernel
+Documentation/DocBook/Makefile.  Hence, I'm hesitant to merge the latter
+change without further justification.
 
 -- 
-
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
