@@ -1,74 +1,72 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, SELinux@tycho.nsa.gov
 Subject: Re: some policy feedback
-Date: Mon, 2 Jun 2003 10:37:21 +1000
-References: <20030601222359.D31891@lemuria.org>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Tom <tom@lemuria.org>
+Cc: SELinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
 In-Reply-To: <20030601222359.D31891@lemuria.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200306021037.21050.russell@coker.com.au>
+References: <20030601222359.D31891@lemuria.org>
+Content-Type: text/plain
+Message-Id: <1054559762.1053.127.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 02 Jun 2003 09:16:02 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2 Jun 2003 06:23, Tom wrote:
-> I've just come back from a 3-day hacker convention where I brought an
-> SELinux play system with me, to let the likes of teso, THC, LSD, etc.
-> have a go at it.
->
+On Sun, 2003-06-01 at 16:23, Tom wrote:
 > 1) su problem
 > The default policy seems to have a hole that has potentially serious
 > consequences. Root can run su and change to any user account authorized
 > for root's current role. That way, root can set up traps for the sysadm
 > when he logs into his own account, e.g. by trojaning the .bashrc file
 > and having the sysadm execute a fake newrole (which calls the real one
-> in the background, possibly a wrapper), capturing his password.
+> in the background, possibly a wrapper), capturing his password
 
-In /etc/pam.d/su:
-# This allows root to su without passwords (normal operation)
-#auth       sufficient pam_rootok.so
+Options:
+1) Drop the rootok line from the PAM configuration, as suggested by
+Russell.  This allows user_t to still use su, but always requires a
+password even when run by root.
+2) Move the su_domain line from user_macros.te to admin_macros.te, i.e.
+only allow sysadm_t and other admin domains to run su.
+3) Use different base roles and home directory types to strictly
+partition these users, i.e. no shared use of user_t and user_home_*_t by
+roles other than user_r or add a new staff_r/staff_t role/domain for the
+initial login of admins.
+4) Polyinstantiated home directories with transparent redirection (not
+yet supported).
 
-SE Linux does not aim to protect users against standard Unix issues.  The idea 
-is that you either have standard Unix permissions set up for it or you have 
-different roles.
-
-If you setup a different role for the users with non-0 UIDs and label their 
-home directories correctly then root can't do anything even if they su to the 
-account.
-
-> Someone (whose name I unfortunately forgot to get) did exploit this
-> problem and modified my .bashrc in a non-malicious way. I discussed the
-> issue with him and we both felt that it would probably be possible to
-> exploit it.
-
-Peter Palfreder has just demonstrated this on Method's SE-Gentoo system (see 
-the IRC channel).
-
+> 2) various kernel-level issues
+> code from LSD has brought up several interesting points that I could
+> not really answer due to lack of in-depth knowledge, especially in the
+> kernel operations.
+> 
 > One question was the usual LKM issue. Would it be possible to overload
 > calls of the SELinux patch, in turn disabling it? Or does LSM and/or SE
 > have any kind of "self-preservation" behaviour?
 
-You could entirely prevent module loading and access to /dev/mem and 
-/dev/kmem.  In a default configuration only X can access /dev/mem and only 
-modutils can load modules into the kernel.  If you change it so that nothing 
-can write to the modules files that get loaded or the modprobe/insmod/rmmod 
-binaries and don't install the policy for the X server then it should be 
-reasonably safe.
+For clarity, SELinux is always built-in, LSM isn't based on system call
+interposition, and your LSM can mediate access to the kernel module
+syscalls as well as to /dev memory nodes.  Naturally, if you can gain
+access to a domain that can insert modules or you can trick such a
+domain into inserting a trojaned module, then the module is free to do
+what it likes; you can't protect against other code in the kernel.
 
-> 3) user macros
-> I've been digging through the user macros, because I wanted to set up
-> an additional unpriviledge (guest) user. Is there any documentation on
-> why the macros were laid out the way they were?
+> Another issue was whether it would be possible to trojan a running
+> binary. Assuming that a daemon has an exploitable buffer overflow, it
+> seems to be possible to change the daemon itself, at runtime. No exec
+> would be made, and as I understand it, no system calls that could
+> trigger SE. The trojaned daemon would continue to run, with whatever
+> changes were made. (obviously, patching binary code while its running
+> isn't for the faint of heart, but I've seen several methods for doing
+> so in action, and it certainly is possible.)
 
-They have just evolved like that.  They need to be sorted out more, 
-documented, etc.
+Yes, it would continue to run, but would be limited to whatever
+permissions are granted to its domain.  There are techniques other than
+kernel MAC for helping to counter that issue, but that isn't the focus
+of SELinux.  You are naturally free to combine SELinux with other
+security techniques to provide further security.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
