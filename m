@@ -1,57 +1,147 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA21370
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 15:57:50 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA12522
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 19:57:23 GMT
-Received: from lyta.coker.com.au ([209.151.19.136])
-	by jazzswing.ncsc.mil  with ESMTP id TAA12498
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 19:57:16 GMT
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 019997C76
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 15:54:16 -0400 (EDT)
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Fwd: Re: OpenSSH 3.3p1 - not functioning as advertised.
-Date: Wed, 26 Jun 2002 15:54:16 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA21414
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 15:59:46 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA26874
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 19:58:20 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id TAA26870 for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 19:58:20 GMT
+Date: Wed, 26 Jun 2002 15:58:59 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: sshd bugs etc
+In-Reply-To: <20020625181906.63CAA1B0D@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0206261554380.28629-200000@raven>
 MIME-Version: 1.0
-Message-Id: <20020626195417.019997C76@lyta.coker.com.au>
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-758783491-1025121539=:28629"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When running SE Linux there is no need to run as a separate process.  It is
-easy to limit a root process to less access than a user process normally
- gets.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-In fact for the SE Linux policy I had to give the sshd_t domain MORE privs
-because of this change in sshd, I had to allow it the sys_chroot capability
-which it previously did not require.
-
-One thing I would like to see in a future version of OpenSSH is to have it
-exec() itself when (and only when) it wants to run as a less privileged
-co-process.  Then I could use the rule
-domain_auto_trans(sshd_t, sshd_exec_t, sshd_separation_t)
-to trigger a change in domain to sshd_separation_t when sshd exec's itself,
-and sshd_separation_t would have significantly less access to the system than
-a chroot'd UID=sshd co-process would normally have.
-
-Of course chroot is incompatable with exec(), so this would have to be a
-configuration option, as you wouldn't want to turn off the chroot() for
-non-SE systems.
+---559023410-758783491-1025121539=:28629
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-Also I believe that there is some DARPA funded development work on
-Domain-Type Enforcement for BSD, it would be good if the people working on
-OpenSSH would get some input from them too...
+On Tue, 25 Jun 2002, Russell Coker wrote:
+
+> For the new version of ssh, the sshd_t domain requires the sys_chroot
+> capability.
+>
+> Also I have attached a patch against the latest sshd to support SE
+> functionality.
+
+The SELinux patch against openssh-3.4p1 is attached.  This is a simple
+merge of the prior SELinux patch for openssh-3.1p1, nothing more.  As
+Russell noted, you also need to grant permission for the sys_chroot
+capability.
 
 --
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+---559023410-758783491-1025121539=:28629
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="openssh-3.4p1.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0206261558590.28629@raven>
+Content-Description: 
+Content-Disposition: attachment; filename="openssh-3.4p1.patch"
+
+SW5kZXg6IHNlbGludXgvdXRpbHMvb3BlbnNzaC0zLjRwMS9zZXNzaW9uLmMN
+CmRpZmYgLXUgc2VsaW51eC91dGlscy9vcGVuc3NoLTMuNHAxL3Nlc3Npb24u
+YzoxLjEuMS4xIHNlbGludXgvdXRpbHMvb3BlbnNzaC0zLjRwMS9zZXNzaW9u
+LmM6MS4yDQotLS0gc2VsaW51eC91dGlscy9vcGVuc3NoLTMuNHAxL3Nlc3Np
+b24uYzoxLjEuMS4xCVdlZCBKdW4gMjYgMTU6Mzc6NDcgMjAwMg0KKysrIHNl
+bGludXgvdXRpbHMvb3BlbnNzaC0zLjRwMS9zZXNzaW9uLmMJV2VkIEp1biAy
+NiAxNTozODo1MSAyMDAyDQpAQCAtNTgsNiArNTgsMTIgQEANCiAjaW5jbHVk
+ZSAic2Vzc2lvbi5oIg0KICNpbmNsdWRlICJtb25pdG9yX3dyYXAuaCINCiAN
+CisjaWZkZWYgV0lUSF9TRUxJTlVYDQorI2luY2x1ZGUgPGZsYXNrX3V0aWwu
+aD4NCisjaW5jbHVkZSA8Z2V0X3VzZXJfc2lkLmg+DQorI2luY2x1ZGUgPHBy
+b2Nfc2VjdXJlLmg+DQorI2VuZGlmDQorDQogI2lmZGVmIEhBVkVfQ1lHV0lO
+DQogI2luY2x1ZGUgPHdpbmRvd3MuaD4NCiAjaW5jbHVkZSA8c3lzL2N5Z3dp
+bi5oPg0KQEAgLTEyNTUsNiArMTI2MSwyMyBAQA0KIAljb25zdCBjaGFyICpz
+aGVsbCwgKnNoZWxsMCwgKmhvc3RuYW1lID0gTlVMTDsNCiAJc3RydWN0IHBh
+c3N3ZCAqcHcgPSBzLT5wdzsNCiAJdV9pbnQgaTsNCisjaWZkZWYgV0lUSF9T
+RUxJTlVYDQorCWludCBmbGFza19lbmFibGVkOw0KKwlzZWN1cml0eV9jb250
+ZXh0X3Qgc2NvbnRleHQgPSBOVUxMOw0KKwlzZWN1cml0eV9pZF90IHNpZDsN
+CisNCisJZmxhc2tfZW5hYmxlZCA9IGlzX2ZsYXNrX2VuYWJsZWQoKTsNCisJ
+aWYgKGZsYXNrX2VuYWJsZWQpIHsNCisJCWlmICghZ2V0X2RlZmF1bHRfdXNl
+cl9zaWQocHctPnB3X25hbWUsIA0KKwkJCQkJICBzdHJsZW4ocHctPnB3X25h
+bWUpLA0KKwkJCQkJICAmc2NvbnRleHQsDQorCQkJCQkgICZzaWQpKSB7DQor
+CQkJZnByaW50ZihzdGRlcnIsICJDb3VsZCBub3Qgb2J0YWluIFNJRCBmb3Ig
+dXNlciAlc1xuIiwNCisJCQkJcHctPnB3X25hbWUpOw0KKwkJCWV4aXQoMSk7
+DQorCQl9DQorCX0gDQorI2VuZGlmDQogDQogCS8qIHJlbW92ZSBob3N0a2V5
+IGZyb20gdGhlIGNoaWxkJ3MgbWVtb3J5ICovDQogCWRlc3Ryb3lfc2Vuc2l0
+aXZlX2RhdGEoKTsNCkBAIC0xMzk0LDYgKzE0MTcsMTEgQEANCiAJCS8qIEV4
+ZWN1dGUgdGhlIHNoZWxsLiAqLw0KIAkJYXJndlswXSA9IGFyZ3YwOw0KIAkJ
+YXJndlsxXSA9IE5VTEw7DQorI2lmZGVmIFdJVEhfU0VMSU5VWA0KKwkJCWlm
+IChmbGFza19lbmFibGVkKSANCisJCQkJZXhlY3ZlX3NlY3VyZShzaGVsbCwg
+YXJndiwgZW52LCBzaWQpOw0KKwkJCWVsc2UgDQorI2VuZGlmDQogCQlleGVj
+dmUoc2hlbGwsIGFyZ3YsIGVudik7DQogDQogCQkvKiBFeGVjdXRpbmcgdGhl
+IHNoZWxsIGZhaWxlZC4gKi8NCkBAIC0xNDA4LDYgKzE0MzYsMTEgQEANCiAJ
+YXJndlsxXSA9ICItYyI7DQogCWFyZ3ZbMl0gPSAoY2hhciAqKSBjb21tYW5k
+Ow0KIAlhcmd2WzNdID0gTlVMTDsNCisjaWZkZWYgV0lUSF9TRUxJTlVYDQor
+CWlmIChmbGFza19lbmFibGVkKSANCisJCWV4ZWN2ZV9zZWN1cmUoc2hlbGws
+IGFyZ3YsIGVudiwgc2lkKTsNCisJZWxzZSANCisjZW5kaWYNCiAJZXhlY3Zl
+KHNoZWxsLCBhcmd2LCBlbnYpOw0KIAlwZXJyb3Ioc2hlbGwpOw0KIAlleGl0
+KDEpOw0KSW5kZXg6IHNlbGludXgvdXRpbHMvb3BlbnNzaC0zLjRwMS9zc2hw
+dHkuYw0KZGlmZiAtdSBzZWxpbnV4L3V0aWxzL29wZW5zc2gtMy40cDEvc3No
+cHR5LmM6MS4xLjEuMSBzZWxpbnV4L3V0aWxzL29wZW5zc2gtMy40cDEvc3No
+cHR5LmM6MS4yDQotLS0gc2VsaW51eC91dGlscy9vcGVuc3NoLTMuNHAxL3Nz
+aHB0eS5jOjEuMS4xLjEJV2VkIEp1biAyNiAxNTozNzo0OCAyMDAyDQorKysg
+c2VsaW51eC91dGlscy9vcGVuc3NoLTMuNHAxL3NzaHB0eS5jCVdlZCBKdW4g
+MjYgMTU6Mzg6NTEgMjAwMg0KQEAgLTIyLDYgKzIyLDEzIEBADQogI2luY2x1
+ZGUgImxvZy5oIg0KICNpbmNsdWRlICJtaXNjLmgiDQogDQorI2lmZGVmIFdJ
+VEhfU0VMSU5VWA0KKyNpbmNsdWRlIDxmbGFza191dGlsLmg+DQorI2luY2x1
+ZGUgPGdldF91c2VyX3NpZC5oPg0KKyNpbmNsdWRlIDxmc19zZWN1cmUuaD4N
+CisjaW5jbHVkZSA8c3MuaD4NCisjZW5kaWYNCisNCiAvKiBQdHkgYWxsb2Nh
+dGVkIHdpdGggX2dldHB0eSBnZXRzIGJyb2tlbiBpZiB3ZSBkbyBJX1BVU0g6
+ZXMgdG8gaXQuICovDQogI2lmIGRlZmluZWQoSEFWRV9fR0VUUFRZKSB8fCBk
+ZWZpbmVkKEhBVkVfT1BFTlBUWSkNCiAjdW5kZWYgSEFWRV9ERVZfUFRNWA0K
+QEAgLTM3MCw2ICszNzcsMjIgQEANCiAJZ2lkX3QgZ2lkOw0KIAltb2RlX3Qg
+bW9kZTsNCiAJc3RydWN0IHN0YXQgc3Q7DQorI2lmZGVmIFdJVEhfU0VMSU5V
+WA0KKwlpbnQgZmxhc2tfZW5hYmxlZDsNCisJc2VjdXJpdHlfY29udGV4dF90
+IHNjb250ZXh0ID0gTlVMTDsNCisJc2VjdXJpdHlfaWRfdCB1c2VyX3NpZCwg
+b2xkX3R0eV9zaWQsIG5ld190dHlfc2lkOw0KKw0KKwlmbGFza19lbmFibGVk
+ID0gaXNfZmxhc2tfZW5hYmxlZCgpOw0KKwlpZiAoZmxhc2tfZW5hYmxlZCkg
+ew0KKwkJaWYgKCFnZXRfZGVmYXVsdF91c2VyX3NpZChwdy0+cHdfbmFtZSwg
+DQorCQkJCQkgIHN0cmxlbihwdy0+cHdfbmFtZSksDQorCQkJCQkgICZzY29u
+dGV4dCwNCisJCQkJCSAgJnVzZXJfc2lkKSkgew0KKwkJCWZhdGFsKCJDb3Vs
+ZCBub3Qgb2J0YWluIFNJRCBmb3IgdXNlciAlc1xuIiwNCisJCQkgICAgICBw
+dy0+cHdfbmFtZSk7DQorCQl9DQorCX0gDQorI2VuZGlmDQogDQogCS8qIERl
+dGVybWluZSB0aGUgZ3JvdXAgdG8gbWFrZSB0aGUgb3duZXIgb2YgdGhlIHR0
+eS4gKi8NCiAJZ3JwID0gZ2V0Z3JuYW0oInR0eSIpOw0KQEAgLTM4Niw5ICs0
+MDksMjQgQEANCiAJICogV2FybiBidXQgY29udGludWUgaWYgZmlsZXN5c3Rl
+bSBpcyByZWFkLW9ubHkgYW5kIHRoZSB1aWRzIG1hdGNoLw0KIAkgKiB0dHkg
+aXMgb3duZWQgYnkgcm9vdC4NCiAJICovDQorI2lmZGVmIFdJVEhfU0VMSU5V
+WA0KKwlpZiAoZmxhc2tfZW5hYmxlZCkgew0KKwkJaWYgKHN0YXRfc2VjdXJl
+KHR0eW5hbWUsICZzdCwgJm9sZF90dHlfc2lkKSkgDQorCQkJZmF0YWwoInN0
+YXRfc2VjdXJlKCUuMTAwcykgZmFpbGVkOiAlLjEwMHMiLCB0dHluYW1lLA0K
+KwkJCSAgICAgIHN0cmVycm9yKGVycm5vKSk7DQorCQlpZiAoc2VjdXJpdHlf
+Y2hhbmdlX3NpZCAodXNlcl9zaWQsIG9sZF90dHlfc2lkLCBTRUNDTEFTU19D
+SFJfRklMRSwgJm5ld190dHlfc2lkKSAhPSAwKSANCisJCQlmYXRhbCgic2Vj
+dXJpdHlfY2hhbmdlX3NpZCglLjEwMHMpIGZhaWxlZDogJS4xMDBzIiwgdHR5
+bmFtZSwNCisJCQkgICAgICBzdHJlcnJvcihlcnJubykpOw0KKwl9IGVsc2Ug
+ew0KKwkJaWYgKHN0YXQodHR5bmFtZSwgJnN0KSkNCisJCQlmYXRhbCgic3Rh
+dCglLjEwMHMpIGZhaWxlZDogJS4xMDBzIiwgdHR5bmFtZSwNCisJCQkgICAg
+ICBzdHJlcnJvcihlcnJubykpOw0KKwl9DQorI2Vsc2UNCiAJaWYgKHN0YXQo
+dHR5bmFtZSwgJnN0KSkNCiAJCWZhdGFsKCJzdGF0KCUuMTAwcykgZmFpbGVk
+OiAlLjEwMHMiLCB0dHluYW1lLA0KIAkJICAgIHN0cmVycm9yKGVycm5vKSk7
+DQorI2VuZGlmDQogDQogCWlmIChzdC5zdF91aWQgIT0gcHctPnB3X3VpZCB8
+fCBzdC5zdF9naWQgIT0gZ2lkKSB7DQogCQlpZiAoY2hvd24odHR5bmFtZSwg
+cHctPnB3X3VpZCwgZ2lkKSA8IDApIHsNCkBAIC00MTUsNCArNDUzLDEyIEBA
+DQogCQkJCSAgICB0dHluYW1lLCBtb2RlLCBzdHJlcnJvcihlcnJubykpOw0K
+IAkJfQ0KIAl9DQorDQorI2lmZGVmIFdJVEhfU0VMSU5VWA0KKwlpZiAoZmxh
+c2tfZW5hYmxlZCkgew0KKwkJaWYgKGNoc2lkICh0dHluYW1lLCBuZXdfdHR5
+X3NpZCkgIT0gMCkgDQorCQkJZmF0YWwoImNoc2lkKCUuMTAwcywgJWQpIGZh
+aWxlZDogJS4xMDBzIiwNCisJCQkJICAgICAgdHR5bmFtZSwgbmV3X3R0eV9z
+aWQsIHN0cmVycm9yKGVycm5vKSk7DQorCX0NCisjZW5kaWYNCiB9DQo=
+---559023410-758783491-1025121539=:28629--
 
 --
 You have received this message because you are subscribed to the selinux list.
