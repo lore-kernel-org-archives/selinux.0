@@ -1,34 +1,50 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FGe6Ha018280
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 12:40:06 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6FGd4nJ000766
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 16:39:04 GMT
-Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
-	by jazzswing.ncsc.mil  with ESMTP id h6FGd4hr000763
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 16:39:04 GMT
-Subject: Re: crash with 2.5.74 while loading policy
-From: Colin Walters <walters@verbum.org>
-To: James Morris <jmorris@intercode.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FHG0Ha018571
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 13:16:00 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h6FHFxH5026741
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 17:15:59 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h6FHFwRX026738 for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 17:15:58 GMT
+Subject: Re: enforcement and initrds
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Colin Walters <walters@verbum.org>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <Mutt.LNX.4.44.0307152306260.23933-100000@excalibur.intercode.com.au>
-References: 
-	 <Mutt.LNX.4.44.0307152306260.23933-100000@excalibur.intercode.com.au>
+In-Reply-To: <1058214662.19392.31.camel@columbia>
+References: <1058151822.9620.25.camel@columbia>
+	 <1058185993.13738.597.camel@moss-huskers.epoch.ncsc.mil>
+	 <1058214662.19392.31.camel@columbia>
 Content-Type: text/plain
-Message-Id: <1058287194.15102.4.camel@columbia>
+Message-Id: <1058289355.13738.705.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 15 Jul 2003 12:39:54 -0400
+Date: 15 Jul 2003 13:15:56 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-07-15 at 09:07, James Morris wrote:
+On Mon, 2003-07-14 at 16:31, Colin Walters wrote:
+> That's a good point, but then again we could just make DEVELOP=n instead
+> mean that once enforcing mode was switched on, it couldn't be switched
+> off.
 
-> I've not seen anything like this with 2.5.  And according to your report, 
-> it seems that dpkg was running when the oops occurred.
+I'd prefer to be able to compile out the permissive mode support
+entirely for production kernels.
 
-That's true, but I think dpkg is not at fault; besides, any kind of
-crash is a kernel bug.  The only thing I can think of that's even
-slightly unusual about this machine is that it's SMP (dual PII-350).
+> I tried this, but there appears to be a bootstrapping problem; the
+> policy says that romfs uses genfs; but the policy has to be loaded from
+> the initrd, which isn't labeled until we know what the policy is.
+
+romfs or ramfs?  It isn't an issue whether it is labeled before the
+policy is loaded; all permission checks are allowed until the policy is
+loaded and the security server is initialized.  At some point, we'd like
+to generate an initial bootstrapping policy that is built into the
+security server, but there isn't any point in doing that until things
+stabilize a bit more, and that initial policy could be dependent on your
+particular kernel configuration and your initrd setup.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
