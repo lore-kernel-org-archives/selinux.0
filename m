@@ -1,83 +1,50 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9HZrIi014150
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 12:35:53 -0500 (EST)
-Received: from mailrelay1.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9HYFPS008722
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 17:34:15 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 9 Dec 2004 18:35:54 +0100
-Date: Thu, 9 Dec 2004 18:35:55 +0100
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: patch: policy for powernowd
-Message-Id: <20041209173555.GE5074@jmh.mhn.de>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9HjoIi014243
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 12:45:50 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9HjrEj002182
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 17:45:53 GMT
+Subject: Re: Single home directory type for all roles.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux ML <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@snu.edu>,
+   Jim Carter <jwcart2@epoch.ncsc.mil>, Russell Coker <rcoker@redhat.com>,
+   Colin Walters <walters@redhat.com>, Nalin Dahyabhai <nalin@redhat.com>
+In-Reply-To: <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil>
+References: <20041207000805.GH3678@jmh.mhn.de>
+	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
+	 <41B8826D.30105@redhat.com>
+	 <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Message-Id: <1102614049.32175.168.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n/aVsWSeQ4JHkrmm"
+Date: Thu, 09 Dec 2004 12:40:49 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2004-12-09 at 12:20, Stephen Smalley wrote:
+> You can actually do that today without policy modules.  Recall that I
+> created a genpolusers utility a while back that takes an existing binary
+> policy and a new users text configuration and generates a new binary
+> policy that is identical except it has the new user declarations.  So
+> you only need a copy of the users source file on the machine, and you
+> can then modify it, use genpolusers to rebuild the binary policy against
+> it, and then load the new binary policy.
 
---n/aVsWSeQ4JHkrmm
-Content-Type: multipart/mixed; boundary="H8ygTp4AXg6deix2"
-Content-Disposition: inline
+BTW, note that the copy of the users source on the machine would need to
+be a post-processed copy, after m4 has processed it.  For example,
+during policy build, you could do:
+	m4 tunables/*.tun tmp/program_used_flags.te users serviceusers > users.final
 
+And then install that users.final file as part of the policy package, for use by
+genpolusers, e.g.
+	genpolusers policy.18 users.final policy-new.18
+	mv policy-new.18 policy.18
 
---H8ygTp4AXg6deix2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Attached is policy for powernowd.
-
-Thomas
-
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-
---H8ygTp4AXg6deix2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="powernowd.te"
-
-# DESC powernowd - Daemon to control the speed and voltage of cpus
-#
-# Author: Thomas Bleher <ThomasBleher@gmx.de>
-
-daemon_base_domain(powernowd)
-read_locale(powernowd_t)
-
-# write values under /sys/devices/system/cpu/cpu0/cpufreq/
-allow powernowd_t sysfs_t:file write;
-# read /proc/cpuinfo
-allow powernowd_t proc_t:file { getattr read };
-# read /etc/fstab and /etc/mtab
-allow powernowd_t { etc_t etc_runtime_t }:file { getattr read };
-allow powernowd_t self:process setsched;
-allow powernowd_t self:unix_dgram_socket create_socket_perms;
-
---H8ygTp4AXg6deix2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="powernowd.fc"
-
-# powernowd
-/usr/sbin/powernowd	--	system_u:object_r:powernowd_exec_t
-
---H8ygTp4AXg6deix2--
-
---n/aVsWSeQ4JHkrmm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBuIz7xWIrrrL0q+cRAl3QAKCH4gd789DMCs35n0FCYm/J5SCkfgCghszk
-77C1F2IOTuZKgqg1forrFig=
-=YEic
------END PGP SIGNATURE-----
-
---n/aVsWSeQ4JHkrmm--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
