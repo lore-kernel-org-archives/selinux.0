@@ -1,63 +1,49 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>
-Subject: Re: pppd with ipppd
-Date: Mon, 9 Sep 2002 22:36:02 +0200
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <200209082234.38885.russell@coker.com.au> <20020909200540.D0833FAC1@ivanova.coker.com.au>
-In-Reply-To: <20020909200540.D0833FAC1@ivanova.coker.com.au>
-MIME-Version: 1.0
-Message-Id: <200209092236.02733.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA10159
+	for <selinux@tycho.nsa.gov>; Mon, 9 Sep 2002 16:53:45 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA02709
+	for <selinux@tycho.nsa.gov>; Mon, 9 Sep 2002 20:52:01 GMT
+Received: from unicorn.lemuria.org (a083173.adsl.hansenet.de [213.191.83.173])
+        by jazzband.ncsc.mil  with ESMTP id UAA02705 for <selinux@tycho.nsa.gov>; Mon, 9 Sep 2002 20:52:00 GMT
+Date: Mon, 9 Sep 2002 22:53:11 +0200
+From: Tom <tom@lemuria.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Linux Kongress tutorial
+Message-ID: <20020909225311.B2383@lemuria.org>
+References: <200209092213.44558.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200209092213.44558.russell@coker.com.au>; from russell@coker.com.au on Mon, Sep 09, 2002 at 10:13:44PM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 9 Sep 2002 22:00, Carsten Grohmann wrote:
-> Am Sonntag, 8. September 2002 22:34 schrieb Russell Coker:
-> > On Sun, 8 Sep 2002 22:00, Carsten Grohmann wrote:
-> > > > Why does ipppd need to run "ifconfig" while the regular pppd doesn't?
-> > > >  Or is it some script that calls ifconfig?
-> > >
-> > > ifconfig is uesing by the SuSE ip-(up|down) scripts. You can remove the
-> > > complete ifconfig section.
-> >
-> > Or could just have "can_exec(pppd_t, ifconfig_exec_t)"...
->
-> If you don't need it, I would don't add this to the general rules. For my
+On Mon, Sep 09, 2002 at 10:13:44PM +0200, Russell Coker wrote:
+> I started out with a 6 hour hands-on tutorial on SE Linux.  This didn't go as 
+> well as planned for a number of reasons.
 
-I think that there's no reason not to add it.  I use ifconfig in a similar 
-manner on some of my machines (which aren't using SE Linux yet), so there is 
-definately a use for it on non-SUSE machines.  I'll add it to my policy now.
+Actually, Russell is being too harsh with himself. :)
 
-> SuSE rules I would add this in a seperate file (pppd_suse.(te|fc)) like the
-> other SuSE specific settings.
+>From what I grasped, the reception among the students was excellent,
+and many went away both impressed and interested in learning more.
 
-Now this is an issue.  Up until now we have had two branches of policy, my 
-Debian policy and the Red Hat policy, and we have been putting things in 
-rpm.te and dpkg.te.
+One thing that was mentioned was the lack of background material (like
+an explanation of the flask concept), which would of course have been
+impossible to include in that timeframe.
 
-If SUSE is doing the same thing as Red Hat in this regard (I get the 
-impression that no-one is doing anything serious with Red Hat and SE Linux 
-apart from NSA people, and they don't use dial-up networking - so it could be 
-that Red Hat has the same issue but no-one noticed it) then it can go in 
-rpm.te.  Otherwise what do we do?
+Nevertheless, I think it would help SELinux and it's popularity, if a
+short and easy-to-understand summary of the concept were available.
+I've read the whitepaper and it isn't exactly something you can read on
+the train and hope to understand.
+Not that I'd be able to do a better job, though I'd be glad to help
+anyone out who tries to write such a document with comments and
+editorial help if requested.
 
-Having pppd_suse.te, crond_suse.te, etc will get ugly very quickly.
-
-I suggest having suse.te for all the SUSE specific policy.  It can have policy 
-for all the different programs with appropriate ifdef()'s around them.
-
-Also if we do that then perhaps we should have a redhat.te and move some of 
-the stuff out of rpm.te, and change some of the "ifdef(`rpm.te'," statements 
-to "ifdef(`redhat.te',".
 
 -- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
