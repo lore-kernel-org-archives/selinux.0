@@ -1,33 +1,50 @@
-Received: from jazzdrum.ncsc.mil ([144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j03E88Ii017017
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 09:08:08 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j03E8A6C027326
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 14:08:10 GMT
-Subject: Re: modules needed to be compiled in for selinux to work
+Subject: Re: Newrole in targeted mode
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050102104530.GG6142@lkcl.net>
-References: <20050102104530.GG6142@lkcl.net>
+To: jsingh@ensim.com
+Cc: kwade@redhat.com, Matthew Leinhos <leinhos@lamar.colostate.edu>,
+   nsa <SELinux@tycho.nsa.gov>
+In-Reply-To: <1104729116.8446.9.camel@jsingh>
+References: <1104259373.22401.0.camel@hawaii.grays-systems.com>
+	 <1104259847.21391.107.camel@moss-spartans.epoch.ncsc.mil>
+	 <1104388628.3140.4.camel@jsingh>  <1104665427.9831.13.camel@erato.phig.org>
+	 <1104729116.8446.9.camel@jsingh>
 Content-Type: text/plain
-Message-Id: <1104760954.16598.53.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1104761692.16598.67.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 03 Jan 2005 09:02:34 -0500
+Date: Mon, 03 Jan 2005 09:14:52 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-01-02 at 05:45, Luke Kenneth Casson Leighton wrote:
-> hi,
+On Mon, 2005-01-03 at 00:11, Jaspreet Singh wrote:
+> I understand that .. But does the system makes *any* assumptions about
+> the target or strict policies ??
+
+No, the enforcement mechanism is the same, only the policy differs.  But
+the policies differ substantially, including boot-time definitions like
+initial SID contexts that cannot be changed without a reboot, and they
+differ structurally, e.g. targeted policy has nothing set up for user
+roles at present.  It should be easier to take strict policy and strip
+down the set of program domains than to add user roles to targeted
+policy, IMHO.
+
+> So, i can just borrow code from strict policy to add more domains and
+> roles to target policy.
 > 
-> debian's 2.6.9 kernel has selinux - and capabilities - as modules.
+> I am right ??
 
-SELinux cannot be built as a module.  
+Strictly speaking, yes.  But strict policy already gives you what you
+want structurally, i.e. user roles and domains as well as program
+domains, and you can strip down the set of program domains.  In
+contrast, targeted policy only gives you program domains and nothing for
+users, so you have to do more work to do what you describe (IMHO).
 
-> in other words, is CONFIG_CAPABILITY=m stopping selinux from
-> working in debian's 2.6.9 kernel?
+> And Also how can i make the selinux understand a policy tree
+> *intermediate* under /etc/selinux/  and load policy from there ....
 
-No, it shouldn't be an issue.
+Just create the directory, populate it with your policy files, and set
+SELINUXTYPE to it in /etc/selinux/config.  Then reboot to single-user
+mode (with enforcing=0) and relabel against your policy, and reboot
+again.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
