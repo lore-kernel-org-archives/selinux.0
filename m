@@ -1,49 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i062a5Rb006871
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jan 2004 21:36:05 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i062a3iV012634
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 02:36:03 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i062Zp06012602 for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 02:36:02 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Ignacio Tripodi <ignaciot@unt.edu>, selinux@tycho.nsa.gov
-Subject: Re: UML support
-Date: Tue, 6 Jan 2004 13:34:25 +1100
-References: <F3EFFBE2-3F93-11D8-85C4-000393013D1A@unt.edu>
-In-Reply-To: <F3EFFBE2-3F93-11D8-85C4-000393013D1A@unt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200401061334.25315.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i064hdRb007204
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jan 2004 23:43:44 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i064gbxr013350
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 04:42:37 GMT
+Received: from hawaii.efficax.net (rrcs-sw-24-153-230-186.biz.rr.com [24.153.230.186])
+	by jazzswing.ncsc.mil  with ESMTP id i064gaYc013347
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2004 04:42:36 GMT
+Received: from hawaii.efficax.net (hawaii.efficax.net [127.0.0.1])
+	by hawaii.efficax.net (8.12.10/8.12.10) with ESMTP id i064hbhl032718
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jan 2004 22:43:37 -0600
+Received: (from nick@localhost)
+	by hawaii.efficax.net (8.12.10/8.12.10/Submit) id i064hbAX032716
+	for selinux@tycho.nsa.gov; Mon, 5 Jan 2004 22:43:37 -0600
+Subject: 
+From: Nick <nagray@austin.rr.com>
+Reply-To: nagray@austin.rr.com
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1073364216.20253.137.camel@hawaii.efficax.net>
+Mime-Version: 1.0
+Date: Mon, 05 Jan 2004 22:43:37 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 6 Jan 2004 02:29, Ignacio Tripodi <ignaciot@unt.edu> wrote:
-> Has anybody tried using UML (user mode linux) on an SELinux system yet?
-> More precisely, I'm asking about the possibility of running a
-> non-SELinux or SELinux-enabled environment, depending on who logs in.
-> Can you have a virtual block device with a labeled filesystem?
+I was building Fedora tonight after taking a couple of weeks off and
+during the "rpmbuild --rebuild *.src.rpm" I am getting this error
 
-A UML block device is just a mapping of a regular file to a block device 
-inside the UML.  It can be used in any way that block devices are used with 
-all the usual file system options, this includes SE Linux labeling.
+Any quick ideas?
 
-SE Linux requires minor kernel patches to work with UML, I have been 
-maintaining such patches on http://www.coker.com.au/uml/ .  I will soon 
-release new patches for 2.4.24.
 
-As for SE or non-SE depending on who logs in.  You can have SE Linux UML 
-kernels and non-SE UML kernels running at the same machine.  I'm not sure if 
-this is what you want though.
+RPM build errors:
+    File not found by glob: /var/tmp/star-1.5a25-root/usr/bin/*star
+    File not found: /var/tmp/star-1.5a25-root/usr/bin/spax
+    File not found by glob:
+/var/tmp/star-1.5a25-root/usr/share/man/man1/star*
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Nick (Nix) Gray
+Senior Systems Engineer
+Bruzenak Inc.
+(512) 331-7998
 
 --
 This message was distributed to subscribers of the selinux mailing list.
