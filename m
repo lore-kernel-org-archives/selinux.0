@@ -1,44 +1,56 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA01288
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 09:14:11 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA15720
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 14:12:08 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id OAA15716 for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 14:12:07 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 862E292668
-	for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 01:14:07 +1100 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id E285EB115
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 15:14:00 +0100 (CET)
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-Subject: Attn: Howard
-Date: Fri, 29 Nov 2002 15:14:00 +0100
-To: selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA01354
+	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 09:24:11 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA23340
+	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 14:21:57 GMT
+Received: from venere.mat.uniroma1.it (venere.mat.uniroma1.it [151.100.50.3])
+	by jazzswing.ncsc.mil  with ESMTP id OAA23336
+	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 14:21:56 GMT
+Message-ID: <3DE7778D.9080703@inwind.it>
+Date: Fri, 29 Nov 2002 15:19:57 +0100
+From: Giorgio Zanin <giorgio.zanin@inwind.it>
 MIME-Version: 1.0
-Message-Id: <200211291514.00400.russell@coker.com.au>
+To: selinux@tycho.nsa.gov, sds@epoch.ncsc.mil
+Subject: label transitions
+Content-Type: multipart/related;
+ boundary="------------090404000608090603040609"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I guess you are planning a new release now that 2.4.20 is out.
 
-Please don't be too hasty, there's a few more things I'd like to get in
- before the release (including a solution to the run_init problem).
+--------------090404000608090603040609
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
+I'm now investigating the mechanism used in SELinux to change 
+something's security label.
+I know there is a kernel interface and a system call for applications  
+to do it, their name is security_transition_sid.
 
+The configuration language has two constructs: type_transition and 
+type_change. The first is used by the kernel and instructs the security 
+server to return a particular label for a type pair and a class when the 
+security_transition_sid is called to label a new object or a transformed 
+process.
 
-PS  I tried sending you this message direct, but your mail server is broken, 
-one of your front end MX servers has a hostname of "" apparently.
+If type_transition is used to label a transformed process, it requires 
+the transition permission of the class process.
+What about type_transition for files? I mean I had a look at 
+file_trans_macro and it seems it's not specified anything like the 
+transition process permission to change the type of a file. How can I 
+control the privilege to change the type of a new object?
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Is it correct to argue that permissions relabelto, relabelfrom and 
+transition of file class are used to grant applications the ability to 
+change labels with a call to security_transition_sid (with the output 
+label specified via type_change)?
+
+Thanks in advance for your nth answer ;)
+
+Giorgio
+
+--------------090404000608090603040609--
 
 
 --
