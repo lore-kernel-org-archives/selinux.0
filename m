@@ -1,42 +1,37 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3HgJXZ016587
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 12:42:19 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3Hev4w026335
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 17:40:57 GMT
-Date: Wed, 3 Nov 2004 17:53:06 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
-   "'Darrel Goeddel'" <dgoeddel@TrustedCS.com>, selinux@tycho.nsa.gov,
-   "'Chad Hanson'" <chanson@TrustedCS.com>
-Subject: Re: dynamic context transitions
-Message-ID: <20041103175306.GF5061@lkcl.net>
-References: <000501c4bf9b$a157d2e0$6701a8c0@columbia.tresys.com> <1099316236.21386.31.camel@moss-spartans.epoch.ncsc.mil> <4186DCE7.9030401@tresys.com> <1099409596.31739.150.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3HifXZ016625
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 12:44:42 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3HifJZ006782
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 17:44:41 GMT
+Subject: Re: selinux-doc problems
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Manoj Srivastava <manoj.srivastava@stdc.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <87is8msv81.fsf@glaurung.internal.golden-gryphon.com>
+References: <87is8msv81.fsf@glaurung.internal.golden-gryphon.com>
+Content-Type: text/plain
+Message-Id: <1099503633.1213.153.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1099409596.31739.150.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 03 Nov 2004 12:40:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Nov 02, 2004 at 10:33:17AM -0500, Stephen Smalley wrote:
+On Wed, 2004-11-03 at 12:22, Manoj Srivastava wrote:
+>         Is there an effort underway to update the selinux-doc package?
+>  If so, I'll hold off fixing up the SGML issues and wait for the new
+>  version (I lack the knowledge to actually update the contents).
 
-> Yet even the exec-based transitions are strongly influenced by
-> application compatibility concerns; otherwise, we would be purging the
-> entire environment, resetting the namespace, etc.  Some would argue that
-> exec-based transitions are fundamentally flawed in any case where the
-> new domain is more privileged than the calling domain due to the ability
-> of the caller to influence the new domain via the implicitly inherited
-> state, and an IPC-based model would be preferable so that all
-> untrustworthy input is explicitly passed and can be vetted rather than
-> implicitly conveyed and so that the initial state of the more trusted
-> domain is always setup by a trustworthy process.  
+Nothing in progress, although I would like to update the reports to
+reflect the current system, as much has changed since they were last
+updated.  However, the report does build for me on Fedora Core 3.
+rpm -q -f /usr/bin/jade reports openjade-1.3.2-14.  Seems unfortunate to
+prohibit _ in identifiers; why was this done?  Quoting change would be
+trivial, of course.
 
-
- well... that applies in the instance where selinux isn't involved
- _anyway_ - take any setuid root program as a classic example.
-
- l.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
