@@ -1,53 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA07735
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 10:43:37 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA04129
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 15:41:41 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id PAA04121 for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 15:41:41 GMT
-Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA08263
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 10:43:35 -0500 (EST)
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA03827
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 19:47:09 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA10398
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 17:31:03 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id AAA24795
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 00:45:15 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id AAA24791
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 00:45:14 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 65ACB92713
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 11:47:05 +1100 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id D3F361AB1
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 01:46:57 +0100 (CET)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id WAA24431
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 22:29:09 GMT
+Received: from mail.osss.is.tsukuba.ac.jp (dumbo.osss.is.tsukuba.ac.jp [130.158.85.97])
+	by jazzswing.ncsc.mil  with ESMTP id WAA24427
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 22:29:08 GMT
+Received: from manchester (ryche.osss.is.tsukuba.ac.jp [130.158.85.100])
+	by mail.osss.is.tsukuba.ac.jp (Postfix) with SMTP id CBD2DD529D
+	for <selinux@tycho.nsa.gov>; Fri,  1 Nov 2002 07:31:00 +0900 (JST)
+Date: Fri, 1 Nov 2002 07:31:00 +0900
+From: Koichi ONOUE <koichi@osss.is.tsukuba.ac.jp>
 To: selinux@tycho.nsa.gov
-Subject: new ssh and login packages
-Date: Thu, 31 Oct 2002 01:46:57 +0100
-MIME-Version: 1.0
-Message-Id: <200210310146.57123.russell@coker.com.au>
+Subject: MLS
+Message-Id: <20021101073100.066b9899.koichi@osss.is.tsukuba.ac.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've put new ssh and login packages for Debian/Unstable online.  They are 
-compiled against the latest libraries and based on the latest patches from 
-the NSA.  In the case of Login I've patched the Debian version which is based 
-on shadow utils so it's quite different from the NSA version in all aspects 
-other than the patch.
+I try to build and install example policy configuration with MLS.
+I add "policy/user" to below line.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+	user system_u roles system_r range u
 
+but below error
+
+/usr/local/selinux/bin/checkpolicy: loading policy configuration from
+/etc/security/selinux/src/policy.conf
+ERROR 'permission transition is not defined for common file' at toke '}' on line 471:
+	mounton		:	{ read write }
+/usr/local/selinux/bin/checkpolicy: error(s) encountered while parsing configuraion
+make: *** [/etc/security/selinux/policy.12-mls] Error 1
+
+
+Please tell me what I have to fix.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
