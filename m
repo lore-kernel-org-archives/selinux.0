@@ -1,53 +1,63 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4IBlHRb000556
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 07:47:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4ICfTRb000859
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 08:41:29 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4IBlFAR013310
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 11:47:15 GMT
-Received: from rhenium.btinternet.com (rhenium.btinternet.com [194.73.73.93])
-        by jazzband.ncsc.mil  with ESMTP id i4IBlEHn013307 for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 11:47:14 GMT
-Date: Tue, 18 May 2004 11:44:14 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Les Bell <lesbell@lesbell.com.au>
-Cc: Chris Babcock <cbabcock@luthresearch.com>, selinux@tycho.nsa.gov
-Subject: Re: suggestion to help transition to selinux: dynamic loading of libselinux
-Message-ID: <20040518114414.GA28412@lkcl.net>
-References: <OFC9F6DDFC.10588DF6-ONCA256E98.00360A82@lesbell.com.au>
+	by jazzband.ncsc.mil  with ESMTP id i4ICfQAR016162
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 12:41:26 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i4ICfQHn016159 for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 12:41:26 GMT
+Subject: Re: list of permissions created by allow2audit: what do i do now?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040518104026.GC24333@lkcl.net>
+References: <20040518104026.GC24333@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1084884047.28966.59.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <OFC9F6DDFC.10588DF6-ONCA256E98.00360A82@lesbell.com.au>
+Date: Tue, 18 May 2004 08:40:47 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, May 18, 2004 at 07:50:34PM +1000, Les Bell wrote:
+On Tue, 2004-05-18 at 06:40, Luke Kenneth Casson Leighton wrote:
+> from the list, below, i've removed me editing syslog as root without
+> doing newrole -r system_r :)
+
+sysadm_r, not system_r.
+
+> 	allow initrc_t xdm_rw_etc_t:dir { add_name remove_name write };
+> 	allow initrc_t xdm_rw_etc_t:file { create ioctl rename unlink write };
 > 
-> "Chris Babcock" <cbabcock@luthresearch.com> wrote:
+> i mean, i see in domains/programs/xdm.te that there _are_
+> allow initrc_t xdm_rw_etc_t permissions for create (create_file_perms)
+> and also a comment that init scripts want to check for update
+> windowmanagerlist so they get getattr and read allowed.
 > 
-> >>
-> Does this sound dangerous to anybody else?
-> <<
-> 
-> Does the design of SELinux depend on the state machine theory of security,
-> i.e. if a system starts in a secure state, and all transitions are secure,
-> then the system will remain secure? 
+> ... so what's going on?? why am i getting these messages?
 
- personally: i assume so (nothing else makes sense) on the basis that
- if you cannot change domain (because either libselinux is unavaiable
- or the programs that _use_ libselinux are somehow corrupted and
- unavailable) then you can go nowhere and therefore do no damage.
+In the upstream policy, I see:
+$ grep 'allow initrc_t xdm_rw_etc_t' policy.conf
+allow initrc_t xdm_rw_etc_t:file { getattr read };
 
+So initrc_t is presently only allowed to stat and read those files. 
+Now, there are other rules for xdm_t:
+$ grep 'allow xdm_t xdm_rw_etc_t' policy.conf
+allow xdm_t xdm_rw_etc_t:dir { read getattr lock search ioctl add_name remove_name write };
+allow xdm_t xdm_rw_etc_t:file { create ioctl read getattr lock write setattr append link unlink rename };
 
-> This design would seem unable to
-> support that theory, i.e. until the selinux library is loaded, there are no
-> constraints on the state of the machine. Just a thought. . .
- 
- yes you are right: there are issues, mentioned by russell,
- from initialisation (sysvinit) where if /usr/lib/libselinux.so
- is unavaiable (corrupted and in /lost+found) then the initialisation
- scripts would need to be modified to halt boot-up if the system
- is booted with selinux=1.
+And the xdm.te source file does have a comment prior to the
+corresponding source statements that says that this is for wdm.
+But perhaps someone erred and submitted the wrong rules for wdm (we
+don't use it ourselves).
 
- l.
+> if i am using wdm (the patched version) is there anything i need to
+> do to get it to work / be accepted?
+
+Don't know, as I've never used it.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
