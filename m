@@ -1,65 +1,78 @@
-Message-ID: <3C14E66E.10405@pcez.com>
-Date: Mon, 10 Dec 2001 08:44:30 -0800
-From: Shaun Savage <savages@pcez.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA26364
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2001 12:03:52 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA04904
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2001 17:03:10 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzband.ncsc.mil  with ESMTP id RAA04897
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2001 17:03:08 GMT
+Date: Mon, 10 Dec 2001 12:03:26 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: <lonnie@outstep.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: User Level Security Policies
+In-Reply-To: <1007874114.3c12f042364c3@mail.outstep.com>
+Message-ID: <Pine.GSO.4.33.0112101132310.13300-100000@raven>
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: Re: New security policy
-References: <Pine.GSO.4.33.0112101028390.13300-100000@raven>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
 
->On Sun, 9 Dec 2001, Shaun Savage wrote:
->
->>sysdm_r    this for root to admin the system but can't change security
->>of "system" types
->>secoff_r    The is for security officer to set up the security for the
->>system
->>dataoff_r    this is the only person that can "see" users personal
->>files/directories
->>
->
->You are likely to encounter difficulty in truly enforcing separation among
->these roles.  Obviously, you can't let sysadm_r update the kernel or
->its modules if you want to separate secoff_r, but even this is not
->sufficient.  For example, if you let sysadm_r update /bin/login or
->/etc/shadow, what prevents him from entering any role he wants?  Or if you
->let sysadm_r update system libraries or programs executed by the other
->roles, what prevents him from inserting arbitrary code of his choosing to
->be executed by the other roles?  I'm not sure about dataoff_r - what
->constitutes "personal" files/directories.  Obviously, if dataoff_r can
->read a user's private keys, then he can obtain access to the user's
->account and thus may be able to enter the other roles.
->
+On Sun, 9 Dec 2001 lonnie@outstep.com wrote:
 
-The sysadm_r is see as the every day admin.  checking logs, add/del 
-users,accounts using system-tools.
-But the secoff_r locks down system. if the secoff_r unlocks the system 
-then sysadm_r can then a administrator the whole system.  The reason I 
-like this is that an unknow root exploit can't comprimise the whole system.
+> First the easy one.
+> 1.) Is there some estimation as to when RH 7.2 might be supported?
 
-The dataoff_r is a trusted user that is allowed to move user data from 
-one domain to another, reclassify  data. This is a violation of the 
-rules, but that is the role.
+We have the current snapshot of SELinux (which should be available soon as
+a new public release) running on both RH7.1 and RH7.2.  The example policy
+configuration still needs more testing and refinement for RH7.2, but it is
+a reasonable starting point.  Some of the utility packages haven't been
+updated to RH7.2 yet (findutils, psmisc, stat, tar), but the old versions
+of these packages still seem to build and work fine on RH7.2.  Also, a
+SELinux user just posted updated patches for several of these remaining
+utility packages, but we haven't reviewed them yet for correctness.
 
->
->>I have compiled some of the selinux utils for RH7.2, I hope to do the
->>rest this week.
->>
->
->As I've mentioned previously on the list
->(http://marc.theaimsgroup.com/?l=selinux&m=100687390219347&w=2), we've
->been working on updating the utility patches to RH7.2 and have updated
->several of them already, so it seems that there is some duplication of
->work here.
->
-Where can I get the work that has been done already?
+> Now the harder one.
+> 2.) We have been looking at various security methods such as "restricted
+> shells", "chroot", etc... to find a method of locking a user into their HOME
+> directory. While this may sound a little restrictive, the current special
+> project that we are working on required that we allow the user to login via kdm
+> after which a simple window manager (fvwm95) would be started and then the user
+> could select an application to run.
 
+If you need to use kdm, you'll need a modified kdm that sets the security
+context for the user session.  Mark Westerman, a user of SELinux, has a
+modified gdm that performs the necessary processing, so you should refer
+to his patch for reference.  This isn't in the base SELinux release.
 
+> The catch is that the user would really never have a shell available to them
+> and only be able to run one of the applications that we have pre-configured for
+> them.
 
-Shaun Savage
+SELinux can certainly control what the user can execute.  But you may find
+that the system isn't useable if you don't grant the user's domain execute
+access to a shell, since the programs that are legitimately run by the
+user may assume that they can invoke shell commands.  Of course, you could
+transition those programs into domains with the necessary execute
+permission, but it isn't clear that this adds anything to the security of
+the system.
+
+> Also, we would like to prevent the user from navigating out of their HOME
+> directory at all times.
+
+Similar to the above, SELinux can control what directories the user can
+search.  But many applications will expect to be able to search
+directories other than the user's home directory.  As above, you can
+transition those applications into their own domains with the necessary
+permissions, but you need to consider whether you are really providing any
+improvement in security by not just directly granting the permission to
+the user's domain.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
 
