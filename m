@@ -1,38 +1,44 @@
-Subject: Re: SELinux Design Documentation
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20050307163727.53411.qmail@web50206.mail.yahoo.com>
-References: <20050307163727.53411.qmail@web50206.mail.yahoo.com>
-Content-Type: text/plain
-Date: Mon, 07 Mar 2005 11:41:02 -0500
-Message-Id: <1110213662.2282.10.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j27IVODo012398
+	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2005 13:31:25 -0500 (EST)
+Received: from ms-smtp-01.rdc-kc.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j27IQoZd029340
+	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2005 18:26:50 GMT
+Received: from sasami.localdomain (CPE-67-48-98-59.kc.rr.com [67.48.98.59])
+	by ms-smtp-01.rdc-kc.rr.com (8.12.10/8.12.7) with ESMTP id j27IPoWZ022416
+	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2005 12:26:20 -0600 (CST)
+Received: from localhost (localhost [127.0.0.1])
+	by sasami.localdomain (Postfix) with ESMTP id 030914A626
+	for <selinux@tycho.nsa.gov>; Mon,  7 Mar 2005 12:25:50 -0600 (CST)
+Received: from sasami.localdomain ([127.0.0.1])
+	by localhost (sasami [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 29274-03 for <selinux@tycho.nsa.gov>;
+	Mon, 7 Mar 2005 12:25:49 -0600 (CST)
+Received: from yggdrasil.localdomain (yggdrasil.localdomain [192.168.0.2])
+	by sasami.localdomain (Postfix) with ESMTP id BFDDB4A624
+	for <selinux@tycho.nsa.gov>; Mon,  7 Mar 2005 12:25:49 -0600 (CST)
+Date: Mon, 7 Mar 2005 12:25:49 -0600
+From: Greg Norris <haphazard@kc.rr.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: conferences
+Message-ID: <20050307182549.GA21087@yggdrasil.localdomain>
+References: <200503061741.44076.russell@coker.com.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200503061741.44076.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-03-07 at 08:37 -0800, Casey Schaufler wrote:
-> So, where is the "official" design
-> documentation for SELinux kept?
+On Sun, Mar 06, 2005 at 05:41:43PM +1100, Russell Coker wrote:
+> Before the conference I went to the NSA crypto museum with some friends.  It's 
+> a really good museum where you can play with a working Enigma machine and 
+> touch many other things including Crays.  The museum was more crowded than 
+> usual in the afternoon, I saw as many as three visitors in the museum who 
+> weren't in my group.  It's good and it's free, I recommend that everyone 
+> visit it.
 
-The original design and implementation technical report is available
-from 
-http://www.nsa.gov/selinux/papers/slinux-abs.cfm, which describes the
-design and implementation of the original SELinux kernel patch.  A
-follow-on report describing the LSM-based SELinux is available from
-http://www.nsa.gov/selinux/papers/module-abs.cfm, but the copy presently
-on the NSA web site is out of date with respect to the 2.6 SELinux;
-we've just updated it to reflect the current code in the CVS tree
-(available from the sourceforge site), and that will show up on the NSA
-site when we make an updated release based on 2.6.11, likely later this
-week.  However, I don't expect any of this to be sufficient for
-evaluation; as with the already completed CAPP/EAL3 and CAPP/EAL4
-evaluations done for Linux, I expect there to be a lot of further
-documentation to have to be created for evaluation of SELinux.
-
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+I've gotta agree with Russell... the Crypto Museum was quite slick.  
+Well worth a visit! ;-)
 
 
 --
