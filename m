@@ -5,23 +5,18 @@ Cc: jmorris@intercode.com.au, owner-selinux@tycho.nsa.gov,
 MIME-Version: 1.0
 Subject: Re: SELinux with IPSec - something going on ?
 From: Trent Jaeger <jaegert@us.ibm.com>
-Message-ID: <OFA91FE368.5627357C-ON85256F46.0051BCA5-85256F46.0051FA78@us.ibm.com>
-Date: Mon, 8 Nov 2004 09:55:25 -0500
-Content-Type: multipart/alternative; boundary="=_alternative 0051F7C385256F46_="
+Message-ID: <OF4BB0DB8A.13117788-ON85256F46.00529C24-85256F46.0052AC7A@us.ibm.com>
+Date: Mon, 8 Nov 2004 10:03:01 -0500
+Content-Type: multipart/alternative; boundary="=_alternative 0052A9F385256F46_="
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multipart message in MIME format.
---=_alternative 0051F7C385256F46_=
+--=_alternative 0052A9F385256F46_=
 Content-Type: text/plain; charset="US-ASCII"
 
-Hi,
-
-The xfrm code is based on the USAGI work: http://www.linux-ipv6.org/
-
-Here is a paper on the work: 
-http://hiroshi1.hongo.wide.ad.jp/hiroshi/papers/SAINT2004_kanda-ipsec.pdf
-
+Also this paper from the Linux Symposium: 
+http://www.finux.org/Reprints/Reprint-Miyazawa-OLS2004.pdf
 Regards,
 Trent.
 ------------------------------------------------------------
@@ -70,19 +65,13 @@ Park Lee <parklee_sel@yahoo.com>
 Do you Yahoo!?
 Check out the new Yahoo! Front Page. www.yahoo.com 
 
---=_alternative 0051F7C385256F46_=
+--=_alternative 0052A9F385256F46_=
 Content-Type: text/html; charset="US-ASCII"
 
 
-<br><font size=2 face="sans-serif">Hi,</font>
-<br>
-<br><font size=2 face="sans-serif">The xfrm code is based on the USAGI
-work:</font><a href="http://www.linux-ipv6.org/"><font size=2 color=blue face="sans-serif">
-http://www.linux-ipv6.org/</font></a>
-<br>
-<br><font size=2 face="sans-serif">Here is a paper on the work: </font><a href="http://hiroshi1.hongo.wide.ad.jp/hiroshi/papers/SAINT2004_kanda-ipsec.pdf"><font size=2 color=blue face="sans-serif">http://hiroshi1.hongo.wide.ad.jp/hiroshi/papers/SAINT2004_kanda-ipsec.pdf</font></a>
-<br>
-<br><font size=2 face="sans-serif">Regards,</font>
+<br><font size=2 face="sans-serif">Also this paper from the Linux Symposium:
+</font><a href="http://www.finux.org/Reprints/Reprint-Miyazawa-OLS2004.pdf"><font size=2 color=blue face="sans-serif">http://www.finux.org/Reprints/Reprint-Miyazawa-OLS2004.pdf</font>
+<br><font size=2 color=blue face="sans-serif">Regards,</font></a>
 <br><font size=2 face="sans-serif">Trent.</font>
 <br><font size=2 face="sans-serif">------------------------------------------------------------<br>
 Trent Jaeger<br>
@@ -145,7 +134,7 @@ etc.)</font>
 <br><font size=3>Check out the new Yahoo! Front Page. </font><a href=http://www.yahoo.com><font size=3 color=blue><u>www.yahoo.com</u></font></a><font size=3>
 </font>
 <br>
---=_alternative 0051F7C385256F46_=--
+--=_alternative 0052A9F385256F46_=--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
