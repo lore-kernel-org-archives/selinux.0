@@ -1,61 +1,91 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8KJntrT020410
-	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 15:49:55 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8KJtTrT020490
+	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 15:55:30 -0400 (EDT)
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8KJnsT2012061
-	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 19:49:55 GMT
-Subject: Re: Important fix for targeted policy
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8KJtTT2012239
+	for <selinux@tycho.nsa.gov>; Mon, 20 Sep 2004 19:55:29 GMT
+Subject: Re: policy patch: some misc additions
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <414B034A.4050407@redhat.com>
-References: <200409162151.44819.russell@coker.com.au>
-	 <1095346343.17251.6.camel@moss-lions.epoch.ncsc.mil>
-	 <1095356454.17251.10.camel@moss-lions.epoch.ncsc.mil>
-	 <414B034A.4050407@redhat.com>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <20040917230545.GB2517@jmh.mhn.de>
+References: <20040911133324.GA2557@jmh.mhn.de>
+	 <1095451769.4295.7.camel@moss-lions.epoch.ncsc.mil>
+	 <20040917230545.GB2517@jmh.mhn.de>
 Content-Type: text/plain
-Message-Id: <1095709723.3225.6.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1095710080.3225.10.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 20 Sep 2004 15:48:43 -0400
+Date: Mon, 20 Sep 2004 15:54:40 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Merged.
 
-On Fri, 2004-09-17 at 11:31, Daniel J Walsh wrote:
-> diff --exclude-from=exclude -N -u -r 
-> nsapolicy/targeted/domains/program/init.te 
-> policy-1.17.18/targeted/domains/program/init.te
-> --- nsapolicy/targeted/domains/program/init.te  2004-09-09 
-> 15:36:12.000000000 -0400
-> +++ policy-1.17.18/targeted/domains/program/init.te     2004-09-17 
-> 10:22:33.591562641 -0400
-> @@ -15,4 +15,4 @@
->  # strict policy.  /sbin/init will get this policy.
->  #
->  type init_exec_t, file_type, sysadmfile, exec_type;
-> -type initctl_t, file_type, sysadmfile;
-> +type initctl_t, file_type, sysadmfile, dev_fs;
-> diff --exclude-from=exclude -N -u -r 
-> nsapolicy/targeted/domains/program/udev.te 
-> policy-1.17.18/targeted/domains/program/udev.te
-> --- nsapolicy/targeted/domains/program/udev.te  2004-09-09 
-> 15:36:12.000000000 -0400
-> +++ policy-1.17.18/targeted/domains/program/udev.te     2004-09-17 
-> 10:22:22.119860649 -0400
-> @@ -13,4 +13,4 @@
->  #
->  type udev_exec_t, file_type, sysadmfile, exec_type;
->  type udev_helper_exec_t, file_type, sysadmfile, exec_type;
-> -type udev_tbl_t, file_type, sysadmfile;
-> +type udev_tbl_t, file_type, sysadmfile, dev_fs;
+Ended up modifying your second patch and used this:
+
+--- file_contexts/types.fc	13 Sep 2004 19:47:51 -0000	1.46
++++ file_contexts/types.fc	20 Sep 2004 18:20:43 -0000
+@@ -333,17 +337,11 @@
+ # /usr/lib(64)?
+ #
+ /usr/lib(64)?(/.*)?			system_u:object_r:lib_t
+-/usr/lib(64)?/lib[^/]*\.so(\.[^/]*)*	--	system_u:object_r:shlib_t
+-/usr/lib(64)?/python.*\.so	--	system_u:object_r:shlib_t
+-/usr/lib(64)?/.*/lib[^/]*\.so(\.[^/]*)* --	system_u:object_r:shlib_t
+-/usr/lib(64)?/.*/.*\.so	--	system_u:object_r:shlib_t
+-/usr/lib(64)?/autofs/.*\.so	--	system_u:object_r:shlib_t
++/usr/lib(64)?/.*\.so(\.[^/]*)*	--	system_u:object_r:shlib_t
+ /usr/lib(64)?/perl5/man(/.*)?	system_u:object_r:man_t
+-/usr/lib(64)?/perl.*\.so	--	system_u:object_r:shlib_t
+ /usr/lib(64)?/selinux(/.*)?		system_u:object_r:policy_src_t
+ /usr/lib(64)?/emacsen-common/.*	system_u:object_r:bin_t
+ /usr/lib(64)?/.*/bin(/.*)?		system_u:object_r:bin_t
+-/usr/lib(64)?/gconv/.*\.so	--	system_u:object_r:shlib_t
+ /usr/share/guile/g-wrapped/.*\.so -- system_u:object_r:shlib_t
+ 
+ #
+
+On Fri, 2004-09-17 at 19:05, Thomas Bleher wrote:
+> * James Carter <jwcart2@epoch.ncsc.mil> [2004-09-17 23:58]:
+> > On Sat, 2004-09-11 at 09:33, Thomas Bleher wrote:
+> > > The following patch against latest CVS adds some misc policy:
+> > > 
+> > > types.fc: added file contexts for some kde and gnome libraries
+> > >           (filenames are like /opt/kde3/lib/kde3/kcalc.so)
+> > >           the nVidia libs need some extra file context, too
+> > 
+> > > diff -ur orig/file_contexts/types.fc mod/file_contexts/types.fc
+> > > --- orig/file_contexts/types.fc 2004-09-11 14:31:47.000000000 +0200
+> > > +++ mod/file_contexts/types.fc  2004-09-11 14:47:06.000000000 +0200
+> > > @@ -336,11 +340,14 @@
+> > >  /usr/lib(64)?/autofs/.*\.so    --      system_u:object_r:shlib_t
+> > >  /usr/lib(64)?/perl5/man(/.*)?  system_u:object_r:man_t
+> > >  /usr/lib(64)?/perl.*\.so       --      system_u:object_r:shlib_t
+> > > +/usr/lib(64)?/(NORM|NVIDIA)_lib.*\.so(\.[^/]*)*        --      system_u:object_r:shlib_t
+> > > +/usr/lib(64)?/tls/NVIDIA/(NORM|NVIDIA)_lib.*\.so(\.[^/]*)*     --      system_u:object_r:shlib_t
+> > >  /usr/lib(64)?/selinux(/.*)?            system_u:object_r:policy_src_t
+> > >  /usr/lib(64)?/emacsen-common/.*        system_u:object_r:bin_t
+> > >  /usr/lib(64)?/.*/bin(/.*)?             system_u:object_r:bin_t
+> > >  /usr/lib(64)?/gconv/.*\.so     --      system_u:object_r:shlib_t
+> > >  /usr/share/guile/g-wrapped/.*\.so -- system_u:object_r:shlib_t
+> > > +/usr/lib/[^/]*\.so     --      system_u:object_r:shlib_t
+> > 
+> > Why add this?  Why not /usr/lib(64)?/[^/]*\.so ?
 > 
+> Because I have no 64bit system and didn't think of it? ;-)
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> > If this rule is added, some other rules can be deleted.
+> 
+> True. We already have
+> /usr/lib(64)?/.*/.*\.so --      system_u:object_r:shlib_t
+> a few lines above, so we can probably just say
+> /usr/lib(64)?/.*\.so    --      system_u:object_r:shlib_t
+> and be OK.
+> 
+> Patch which does this attached.
+> 
+> Thomas
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
