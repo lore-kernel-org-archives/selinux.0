@@ -1,73 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1GDgOL9015543
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 08:42:25 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1GDf7fs007570
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 13:41:07 GMT
-Date: Wed, 16 Feb 2005 13:51:08 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1GDlrL9015591
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 08:47:53 -0500 (EST)
 Subject: Re: sshd transition points
-Message-ID: <20050216135108.GN31121@lkcl.net>
-References: <20050215155323.GC23765@lkcl.net> <1108491293.17854.153.camel@moss-spartans.epoch.ncsc.mil> <20050215191640.GA26294@lkcl.net> <1108495342.17854.200.camel@moss-spartans.epoch.ncsc.mil> <20050215200355.GB26294@lkcl.net> <20050215205728.GC26294@lkcl.net> <1108558973.19756.45.camel@moss-spartans.epoch.ncsc.mil>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050216134457.GL31121@lkcl.net>
+References: <20050215155323.GC23765@lkcl.net>
+	 <1108491293.17854.153.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050215191640.GA26294@lkcl.net>
+	 <1108495342.17854.200.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050215200355.GB26294@lkcl.net> <20050215225329.GH26294@lkcl.net>
+	 <20050215231707.GC29523@lkcl.net> <20050216000437.GD30341@lkcl.net>
+	 <1108559425.19756.54.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050216134457.GL31121@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1108561176.19756.86.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1108558973.19756.45.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 16 Feb 2005 08:39:36 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Feb 16, 2005 at 08:02:53AM -0500, Stephen Smalley wrote:
-> On Tue, 2005-02-15 at 15:57, Luke Kenneth Casson Leighton wrote:
-> >  and, sorry for asking a second question in this fashion, but
-> >  if so, how would i derive the context which to dynamically
-> >  transition to?
-> > 
-> >  i couldn't use get_default_context() ... or could i?
-> > 
-> >  it'd involve calling the new lovely setcon(), i know that.
+On Wed, 2005-02-16 at 08:44, Luke Kenneth Casson Leighton wrote:
+>  out of curiosity: why?
 > 
-> At present, you can't use get_default_context() because it only returns
-> contexts for which 'transition' permission has been allowed, not
-> 'dyntransition'.  Whether or not we should change the internal logic
-> (which ultimately goes down to the kernel's /selinux/user interface) to
-> also return contexts for dynamic transitions or instead introduce a
-> separate interface for this purpose is not clear.
- 
- ah.
+>  if it's specified in the policy, and there are permissions
+>  required for it to occur, what is the harm?
 
-> Further, get_default_context() is only suitable when getting a default
-> context for a user session.  
+Because you have an application that has explicitly requested a context
+C1 but you are applying a different context C2 without its awareness. 
+Compare with file relabeling; we don't rewrite the context passed to
+setfilecon(3).  Or compare with setexeccon(3) - we don't rewrite the
+context passed to it.  That is different than applying a default context
+defined by policy when the application specified _no_ context for an
+execve or a file creation.
 
- yes.
+>  what rules must be placed in the policy such that
+>  security_compute_create will produce the desired results, for example:
 
- that's what i would like to do: create an ssh-specific user context
- from being already in sshd_priv_t and from user_t.
+It consults the type_transition rules in the policy.  It was named
+security_transition_sid in the old pre-2.6 SELinux API (and that is
+still the internal kernel function), but was renamed along with the
+other APIs to reflect the elimination of SIDs from the kernel interface,
+to avoid common misunderstandings (people often thought it caused a
+transition rather than computing one, and they often thought that it was
+used to relabel an object rather than to compute one for a new one), and
+to provide a consistent naming convention - see selinux-doc/PORTING. 
+Possibly a mistake to not retain transition in the name since that is
+still the name for the rules in the policy.
 
+>  if scon = "sshd_priv_t" and tcon = "user_t"
+>  [and tclass = SECCLASS_PROCESS?]
+> 
+>  and i want newcon to equal "sshd_priv_user_t" as a result of the call,
+> 
+>  what do i put in the policy to reflect this?
 
-> In this case, you want domains for the
-> monitor process and the unprivileged child process, neither of which are
-> associated with a user.  
+type_transition sshd_priv_t user_t:process sshd_priv_user_t;
 
- ah, but because the unprivileged child process in this instance manages
- the networking, and because i wish to restrict users on a per-IP basis
- from being able to log in, i _do_ want to associate a user-specific
- domain with the unprivileged child process.
+But I'm still not clear on your usage, as these processes are not
+associated with a user.
 
- even if it's for a few microseconds and it immediately transitions to
- something with even less privileges (again, using setcon).
-
-	 sshd_priv_pre_auth_t -> sshd_priv_user_t -> sshd_priv_t
-
-> Hence, I'd just pull them out of a config file.
- 
- yuk :)
-
- 
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
