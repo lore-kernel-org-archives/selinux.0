@@ -1,46 +1,40 @@
-Message-ID: <41F91ABF.5040101@redhat.com>
-Date: Thu, 27 Jan 2005 11:45:51 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux <SELinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>
 Subject: Re: Updated policy
-References: <41F6A47E.9010407@redhat.com> <1106841450.28623.132.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1106841450.28623.132.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41F917F6.8060602@redhat.com>
+References: <41F6A47E.9010407@redhat.com>
+	 <1106842924.28623.151.camel@moss-spartans.epoch.ncsc.mil>
+	 <41F917F6.8060602@redhat.com>
+Content-Type: text/plain
+Date: Thu, 27 Jan 2005 10:27:32 -0700
+Message-Id: <1106846852.28103.8.camel@cobra.ivg2.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
 
->On Tue, 2005-01-25 at 14:56, Daniel J Walsh wrote:
->  
->
->>Fixes for targeted crond to run as unconfined and still have transitions 
->>work.
->>    
->>
->
->I'm a little unclear on the current direction of the targeted policy.  I
->see that you are putting more programs like login and crond into
->domains, but then adding unconfined_domain() to them and allowing them
->to transition to unconfined_t.  What is the purpose of such domains?
->
->As a side note, do you truly want crond to run directly in
->system_crond_t (normally only used for system cron jobs in the strict
->policy, vs. crond_t for the daemon itself).
->
->  
->
-The direction of targeted policy is to attempt to lock down all of the 
-network daemons.  The remote login ones
-are prooving difficult  since they have to eventually transition to 
-unconfined_t.  So the problem we were having without
-telnetd, rshd, rlogind policy these daemons were running as 
-inetd_child_t and not working properly so we started to add
-policy.
+> >>allow mount_t binfmt_misc_fs_t:dir mounton;
+> >>Required to run wine.
+> >>    
+> >>
+> I got this one from Ivan Gyurdiev, I have never run wine.
 
-Dan
+Yes, it's a duplicate mount.
+
+I put it in fstab, so it's mounted with all the rest of the filesystems.
+
+Then rc.sysinit decides to do that again. Why, I don't know.
+I don't like this. All my other filesystems are in fstab, so 
+why does this one have to be special?
+
+# Set up binfmt_misc
+/bin/mount -t binfmt_misc none /proc/sys/fs/binfmt_misc > /dev/null 2>&1
+
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
