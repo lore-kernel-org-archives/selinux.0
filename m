@@ -1,66 +1,39 @@
-Subject: Re: chfn/passwd
-From: Colin Walters <walters@redhat.com>
-To: SELinux@tycho.nsa.gov
-In-Reply-To: <4088d1b8.2a5.1877.956371590@internode.on.net>
-References: <4088d1b8.2a5.1877.956371590@internode.on.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-avpCi44IABcVfKEBCzO1"
-Message-Id: <1082727010.6575.3.camel@nexus.verbum.private>
-Mime-Version: 1.0
-Date: Fri, 23 Apr 2004 09:30:10 -0400
+Message-ID: <40895691.8000306@redhat.com>
+Date: Fri, 23 Apr 2004 13:46:57 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: SELinux@tycho.nsa.gov
+Subject: Re: Oddness with password aging and related..
+References: <200404162308.i3GN8Bf5000929@turing-police.cc.vt.edu>
+In-Reply-To: <200404162308.i3GN8Bf5000929@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+The following patches have  been added to Fedora Policy
 
---=-avpCi44IABcVfKEBCzO1
-Content-Type: multipart/mixed; boundary="=-E1A3LE7aUTpbHipiUvc9"
-
-
---=-E1A3LE7aUTpbHipiUvc9
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, 2004-04-23 at 04:20, keen@internode.on.net wrote:
-> Hi, I am running the December release on a 2.6.2 kernel on a
-> FC1. I have realised normal users could not change their
-> finger name as well as changing password under enforcement
-> mode.
-
-I remember fixing a bug like this in the FC2 policy a few weeks ago,
-maybe it was also in the upstream policy.  After mining my email a bit,
-here's the patch I came up with at the time.  Not sure if you're running
-into the same problem, you'd need to post the exact AVC messages.
+--- policy-1.11.2/domains/program/unused/xdm.te.20040423        
+2004-04-23 09:51:22.000000000 -0400
++++ policy-1.11.2/domains/program/unused/xdm.te 2004-04-23 
+13:44:39.415634000 -0400
+@@ -314,3 +314,4 @@
+ # VNC v4 module in X server
+ type vnc_port_t, port_type;
+ allow xdm_xserver_t vnc_port_t:tcp_socket name_bind;
++allow xdm_t crack_db_t:file { getattr read };
 
 
+--- policy-1.11.2/domains/program/login.te.20040423     2004-04-23 
+09:51:22.000000000 -0400
++++ policy-1.11.2/domains/program/login.te      2004-04-23 
+13:44:08.306363328 -0400
+@@ -88,6 +88,8 @@
+ allow xdm_t $1_login_t:process { signull };
+ ')
 
---=-E1A3LE7aUTpbHipiUvc9
-Content-Disposition: attachment; filename=chfn-policy.patch
-Content-Type: text/x-patch; name=chfn-policy.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-LS0tIHBvbGljeS0xLjkuMi9kb21haW5zL3Byb2dyYW0vcGFzc3dkLnRlfgkyMDA0LTAzLTMxIDE1
-OjUyOjI3LjAwMDAwMDAwMCAtMDUwMA0KKysrIHBvbGljeS0xLjkuMi9kb21haW5zL3Byb2dyYW0v
-cGFzc3dkLnRlCTIwMDQtMDQtMDIgMTE6MTk6NDAuOTAyNTI1NjU2IC0wNTAwDQpAQCAtNzIsNyAr
-NzIsNyBAQA0KIA0KIHBhc3N3ZF9kb21haW4ocGFzc3dkKQ0KIHBhc3N3ZF9kb21haW4oc3lzYWRt
-X3Bhc3N3ZCkNCi1iYXNlX3Bhc3N3ZF9kb21haW4oY2hmbiwgYGF1dGhfY2hrcHdkLCBldGNfd3Jp
-dGVyJykNCitiYXNlX3Bhc3N3ZF9kb21haW4oY2hmbiwgYGF1dGhfY2hrcHdkLCBldGNfd3JpdGVy
-LCBwcml2b3duZXInKQ0KIGNhbl9zZXRmc2NyZWF0ZShjaGZuX3QpDQogYWxsb3cgY2hmbl90IHNl
-bGY6cHJvY2VzcyB7IHNldHJsaW1pdCB9Ow0KIA0K
-
---=-E1A3LE7aUTpbHipiUvc9--
-
---=-avpCi44IABcVfKEBCzO1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAiRphOIkJWWp2WGURAldXAJ497U6WAtmvDxnd0S4pLiYitfYh8QCcDluM
-mOP77IzUhUVuMujylWUhllg=
-=tJjp
------END PGP SIGNATURE-----
-
---=-avpCi44IABcVfKEBCzO1--
++allow $1_login_t crack_db_t:file { getattr read };
++
 
 
 --
