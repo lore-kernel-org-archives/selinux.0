@@ -1,66 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OKesHa003706
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 16:40:54 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6OKerDW009832
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 20:40:53 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h6OKepeN009824 for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 20:40:52 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id AE4E1BF60
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2003 06:40:50 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 02248-08
- for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2003 06:40:49 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 10309BF5F
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2003 06:40:49 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 1DCFF92554
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2003 06:40:48 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 2BC2A7F006
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 16:39:16 -0400 (EDT)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-Subject: Fwd: [ols-announce] Proceedings.
-Date: Thu, 24 Jul 2003 16:39:15 -0400
-To: SE Linux <selinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OMpKHa004237
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 18:51:20 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6OMoDFB008123
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 22:50:13 GMT
+Received: from mailrtr2.mailzone.edeltacom.com (mailrtr2.mailzone.edeltacom.com [216.248.176.138])
+	by jazzswing.ncsc.mil  with ESMTP id h6OMo9GD008120
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 22:50:12 GMT
+From: "Stephen Reese" <sreese@prcdigital.com>
+To: selinux@tycho.nsa.gov
+Subject: RE: grub/boot redhat9 problem
+Date: Thu, 24 Jul 2003 18:51:04 -0400
+Message-ID: <000001c35236$10b2f0e0$6401a8c0@inspiron>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200307241639.15645.russell@coker.com.au>
+	charset="us-ascii"
+In-Reply-To: <200307241101.32102.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If you want a copy of my paper from OLS, it's online now.
+Well if that's the issue then I'll simply wait until redhat release the
+*.21 release for my system and then go from there. Thank you and
+everyone else for your time.
 
-I've mirrored it on my site under http://www.coker.com.au/selinux/talks/ along 
-with the notes from my talk (in MagicPoint format, .mgp files are plain text 
-so you can view them without needing the magicpoint program).
+-----Original Message-----
+From: Russell Coker [mailto:russell@coker.com.au] 
+Sent: Thursday, July 24, 2003 11:02 AM
+To: Stephen Reese; selinux@tycho.nsa.gov
+Subject: Re: grub/boot redhat9 problem
 
-----------  Forwarded Message  ----------
 
-Subject: [ols-announce] Proceedings.
-Date: Thu, 24 Jul 2003 16:09
-From: "Andrew J. Hutton" <ajh@linuxsymposium.org>
-To: russell@coker.com.au
-Cc: Linux Symposium Announce List <ols-announce@lists.linuxsymposium.org>
+On Wed, 23 Jul 2003 01:07, Stephen Reese wrote:
+> I ran the quickinstall, but I think missed something in the kernel 
+> configuration. I attempted to copy as many setting as I could from a 
+> stock functional kernel, but I think I missed a switch...
 
-After repeated reminders, the proceedings are now on-line at
-http://archive.linuxsymposium.org/ols2003/Proceedings/
-
-Thanks to the wonderful work of John Lockhart who single handedly
-convinced the submitted TeX to layout and print correctly there are also
-many formats of PDF available including individual papers and PDFs
-formatted for single and dual sided printing.
-
+The problem here is that 2.4.21 needs different settings to 2.4.20.
+This is 
+not a SE Linux issue, I strongly recommend that you ask on your local
+LUG 
+mailing list or another resource for solving general Linux problems.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux
+packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
 
 
 --
