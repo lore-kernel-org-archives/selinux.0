@@ -1,84 +1,72 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j11FEE53015959
-	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 10:14:14 -0500 (EST)
-Received: from localhost.localdomain (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j11FC6rV006246
-	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 15:12:06 GMT
-Message-ID: <41FF9C1C.9050101@tresys.com>
-Date: Tue, 01 Feb 2005 10:11:24 -0500
-From: David Caplan <dac@tresys.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j11GFS53016291
+	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 11:15:29 -0500 (EST)
+Received: from web50202.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j11GFUYB019400
+	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 16:15:30 GMT
+Message-ID: <20050201161531.68020.qmail@web50202.mail.yahoo.com>
+Date: Tue, 1 Feb 2005 08:15:31 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: File Browsing apps and getattr
+To: ivg2@cornell.edu, Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1107264384.6956.2.camel@cobra.ivg2.net>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: ivg2@cornell.edu, selinux@tycho.nsa.gov,
-   selinuxdev <selinux-dev@tresys.com>
-Subject: Re: Policy format: apostrophe in comments
-References: <1107210569.1928.8.camel@cobra.ivg2.net> <1107260084.26936.32.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1107260084.26936.32.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2005-01-31 at 17:29, Ivan Gyurdiev wrote:
+
+--- Ivan Gyurdiev <ivg2@cornell.edu> wrote:
+
+
+> Why is the stat() information so important for
+> security?
+
+In a mandatory access control environment the
+attributes (e.g. inode information) are
+considered to be as sensitive as the data.
+Why? Because the attributes are manipulated
+by processes with the same sensitivity as
+the data. A Top Secret file can be manipulated
+by a Top Secret user. If an Unclassified user
+could read the attributes information could
+be overtly passed down using chmod, chown,
+utime, link, unlink, acl_set_file, and
+truncate.
+
+> If you won't do this, how do you plan to address the
+> denials I have
+> posted about? 
 > 
->>What about this bug? It complains about not being able to use
->>apostrophe in the policy config. Any chance this will be fixed,
->>or should I leave it alone? I ask because I was confused
->>what was wrong with my policy when adding apostr. comments. 
->>
->>https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=146553
+> Will you leave ls in this state:
 > 
-> 
-> Yes, that has bothered me as well; it is a curious property of m4 that
-> it interprets quotes even within comments.  
+> [phantom@cobra ~]$ ls -l /var
+> total 112
+> ?---------   ? ?    ?       ?            ? account
+> drwxr-xr-x  10 root root 4096 Jan 16 05:33 cache
 
-I thought this as well.  I discovered, with some help from Gary Vaughan at 
-gnu.org, that what I thought was a comment was actually embedded in a 
-quoted string.  For example:
+This is exactly what the U2X mandatory access
+control systems do. Actually, you'll see ls
+spewing "access denied" messages, not the neater
+"?" form you have here.
 
-define(`only_trans',`
-#
-# Allow the user's process to transition.
-#
-allow $1 $3:process transition;
-')
+In the U2X world we always had the luxury of
+telling irate users that this is exactly the
+correct behavior that they had paid extra for.
+Cackle.
 
-The comment is actually _in_ the quoted string, so the apostrophe in the 
-comment matches the end delimeter of the string and problems occur.  It 
-should really be written as:
 
-define(`only_trans',
-#
-# Allow the user's process to transition.
-#
-`
-allow $1 $3:process transition;
-')
+=====
+Casey Schaufler
+casey@schaufler-ca.com
 
-> An option would be to use
-> the m4 changequote builtin to change the start-quote and end-quote
-> delimiters, but that would require rewriting all actual uses of the
-> existing quote characters in the existing policy to use the new
-> delimiters.  
 
-Changing the quote delimeter was the suggestion I received from Gary, but 
-you are always going to end up vulnerable because of what someone puts into 
-what they believe is a comment line.
-
-Obviously not my highest priority, but I'd be willing to
-> consider patches that make such a change.
->   
-
-David
-
--- 
-__________________________________
-
-David Caplan     410 290 1411 x105
-dac@tresys.com
-Tresys Technology, LLC
-8840 Stanford Blvd., Suite 2100
-Columbia, MD 21045
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Find what you need with new enhanced search.
+http://info.mail.yahoo.com/mail_250
 
 --
 This message was distributed to subscribers of the selinux mailing list.
