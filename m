@@ -1,264 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6L3b0Ha012577
-	for <selinux@tycho.nsa.gov>; Sun, 20 Jul 2003 23:37:00 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6L3ZnFB018180
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 03:35:50 GMT
-Received: from zaphod.crypt.gen.nz (203-79-74-204.adsl.paradise.net.nz [203.79.74.204])
-	by jazzswing.ncsc.mil  with ESMTP id h6L3ZlGD018177
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 03:35:48 GMT
-Message-ID: <2392.202.27.185.71.1058758601.squirrel@www.crypt.gen.nz>
-Date: Mon, 21 Jul 2003 15:36:41 +1200 (NZST)
-Subject: Re: Policy for Kerberos
-From: "Kerry Thompson" <kerry@crypt.gen.nz>
-To: <selinux@tycho.nsa.gov>
-In-Reply-To: <200307161011.37633.russell@coker.com.au>
-References: <1849.202.27.185.71.1058310700.squirrel@www.crypt.gen.nz>
-        <200307161011.37633.russell@coker.com.au>
-Cc: <russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6LGusHa015419
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 12:56:54 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h6LGurDW020289
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 16:56:53 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+        by jazzband.ncsc.mil  with ESMTP id h6LGuqeN020286 for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 16:56:52 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.11.6/8.11.6) with ESMTP id h6LGuqH00989
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 12:56:52 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.64.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id h6LGuqI02722
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 12:56:52 -0400
+Received: from redhat.com (celtics.boston.redhat.com [172.16.65.39])
+	by mail.boston.redhat.com (8.11.6/8.11.6) with ESMTP id h6LGup428907
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 12:56:51 -0400
+Message-ID: <3F1C1B4D.6080102@redhat.com>
+Date: Mon, 21 Jul 2003 12:56:45 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_20030721153641_35304"
+To: selinux@tycho.nsa.gov
+Subject: Red Hat webcast on SELinux
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_20030721153641_35304
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+I will be giving a webcast talking about SELinux and Red Hat on July 22, 
+2003.
 
-Thanks Russell, your help is greatly appreciated. I've made most of your
-suggested fixes, and retested everything.
+https://www.redhat.com//apps/webform.html?event_type=webcast&eid=225
 
-Russell Coker said:
->
-> # General rules for /etc/krb5.conf
-> allow user_t krb5_conf_t:file { getattr ioctl read };
-> allow local_login_t krb5_conf_t:file { getattr ioctl read };
-> allow sysadm_su_t krb5_conf_t:file { getattr ioctl read };
-> allow user_su_t krb5_conf_t:file { getattr ioctl read };
-> allow run_init_t krb5_conf_t:file { getattr read };
->
-> Maybe this file should be labeled etc_t as it seems to be read by the
-> same  programs that read /etc/passwd (presumably for the same reasons).
+Dan
 
-I initially though so too, unfortunately something in the kerberos library
-likes to open the config file for writing and putting in a dontaudit for
-etc_t would block too much. Using 'allow userdomain krb5_conf_t:file'
-cleans this up quite well.
-
->
-> Also you should not specify user_t in policy, userdomain or
-> unpriv_userdomain  are more appropriate.
-
-Done. Updated kerberos.te attached.
-
->
-> As for the user_su_t, that would require a modification to the
-> su_macros.te  file with an ifdef(`kerberos.te'.
-
-Done. Patches for su_macros.te attached.
-
->
-> allow krb5kdc_t tmp_t:dir { add_name remove_name search write };
-> allow krb5kdc_t tmp_t:file { create getattr read rename unlink write };
->
-> Should be:
-> tmp_domain(krb5kdc)
-
-Done.
-
->
-> allow krb5kdc_t var_log_t:dir { add_name search write };
-> allow krb5kdc_t var_log_t:file { read append create getattr };
->
-> Should be:
-> log_domain(krb5kdc)
->
-> Same for kadmin_t, although maybe they should share a log type.
-
-Done (although still separate log types).
-
->
-> allow krb5kdc_t user_ssh_t:udp_socket { recvfrom };
-> allow user_ssh_t krb5kdc_t:udp_socket { recvfrom };
->
-> This needs to be in the ssh_macros.te file, otherwise it won't work for
-> staff_t and other user domains.
-
-Done. Patch for ssh_macros.te attached.
-
->
-> Also do you think it would be a good idea to separate kerberos server
-> and  client policy?
-
-Maybe. I put them together because there wasn't a client/server split for
-other packages in the policy base, and there's only a few simple client
-rules. Also, its possible that anything using PAM could become a kerberos
-client with the krb5 PAM module. The krb5 specific clients could be split
-out of the policy fairly easily.
-
-One outstanding problem is the ksu (client) program. It behaves very much
-like su and sudo combined, but with kerberos-based transparent
-authentication. It reads ~/.k5login and ~/.k5users from the destination
-user's home directory to get authorisation rules. With the kerberos policy
-at this stage it gets labelled with su_exec_t which causes it to behave
-like su ( no transparent authentication and no sudo features ). I'll need
-to learn a lot more about SELinux before I get ksu sorted out.
-
-Kerry.
-
-
-
--- 
-Kerry Thompson, CCNA CISSP
-Information Systems Security Consultant
-http://www.crypt.gen.nz  kerry@crypt.gen.nz
-
-
-
-
-------=_20030721153641_35304
-Content-Type: application/octet-stream; name="kerberos.fc"
-Content-Disposition: attachment; filename="kerberos.fc"
-Content-Transfer-Encoding: base64
-
-IyBNSVQgS2VyYmVyb3Mga3Jia2RjLCBrYWRtaW5kCi9ldGMva3JiNVwuY29uZiAgICAgICAJCQlz
-eXN0ZW1fdTpvYmplY3RfcjprcmI1X2NvbmZfdAovZXRjL2tyYjVcLmtleXRhYiAgICAgICAJCXN5
-c3RlbV91Om9iamVjdF9yOmtyYjVfa2V5dGFiX3QKL3VzcigvbG9jYWwpPy9zYmluL2tyYjVrZGMg
-ICAgICAJc3lzdGVtX3U6b2JqZWN0X3I6a3JiNWtkY19leGVjX3QKL3VzcigvbG9jYWwpPy9zYmlu
-L2thZG1pbmQJCXN5c3RlbV91Om9iamVjdF9yOmthZG1pbmRfZXhlY190Ci91c3IvbG9jYWwvdmFy
-L2tyYjVrZGMJCQlzeXN0ZW1fdTpvYmplY3RfcjprcmI1a2RjX2NvbmZfdAovdXNyL2xvY2FsL3Zh
-ci9rcmI1a2RjLy4qCQlzeXN0ZW1fdTpvYmplY3RfcjprcmI1a2RjX2NvbmZfdAovdXNyL2xvY2Fs
-L3Zhci9rcmI1a2RjL3ByaW5jaXBhbC4qCXN5c3RlbV91Om9iamVjdF9yOmtyYjVrZGNfcHJpbmNp
-cGFsX3QKL3Zhci9sb2cva3JiNWtkYy5sb2cJCQlzeXN0ZW1fdTpvYmplY3RfcjprcmI1a2RjX2xv
-Z190Ci92YXIvbG9nL2thZG1pbmQubG9nCQkJc3lzdGVtX3U6b2JqZWN0X3I6a2FkbWluZF9sb2df
-dAovdXNyKC9sb2NhbCk/L2Jpbi9rc3UJCQlzeXN0ZW1fdTpvYmplY3RfcjpzdV9leGVjX3QK
-------=_20030721153641_35304
-Content-Type: application/octet-stream; name="kerberos.te"
-Content-Disposition: attachment; filename="kerberos.te"
-Content-Transfer-Encoding: base64
-
-I0RFU0MgS2VyYmVyb3M1IC0gTUlUIEtlcmJlcm9zNQojIHN1cHBvcnRzIGtyYjVrZGMgYW5kIGth
-ZG1pbmQgZGFlbW9ucwojIGtpbml0LCBrZGVzdHJveSwga2xpc3QgY2xpZW50cwojIGtzdSBzdXBw
-b3J0IG5vdCBjb21wbGV0ZQojCiMgaW5jbHVkZXMgcnVsZXMgZm9yIE9wZW5TU0ggZGFlbW9uIGNv
-bXBpbGVkIHdpdGggYm90aAojIGtlcmJlcm9zNSBhbmQgU0VMaW51eCBzdXBwb3J0CiMKIyBOb3Qg
-c3VwcG9ydGVkIDogdGVsbmV0ZCwgZnRwZCwga3Byb3Ava3Byb3BkIGRhZW1vbnMKIwojIEF1dGhv
-cjogICBLZXJyeSBUaG9tcHNvbiA8a2VycnlAY3J5cHQuZ2VuLm56PgojIAoKIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjCiMKIyBSdWxlcyBmb3IgdGhlIGtyYjVrZGNfdCxrYWRtaW5k
-X3QgZG9tYWlucy4KIwp0eXBlIGtlcmJlcm9zX3BvcnRfdCwgcG9ydF90eXBlOwp0eXBlIGtlcmJl
-cm9zX2FkbWluX3BvcnRfdCwgcG9ydF90eXBlOwp0eXBlIGtlcmJlcm9zX21hc3Rlcl9wb3J0X3Qs
-IHBvcnRfdHlwZTsKCmRhZW1vbl9kb21haW4oa3JiNWtkYykKZGFlbW9uX2RvbWFpbihrYWRtaW5k
-KQoKY2FuX2V4ZWMoa3JiNWtkY190LCBrcmI1a2RjX2V4ZWNfdCkKY2FuX2V4ZWMoa2FkbWluZF90
-LCBrYWRtaW5kX2V4ZWNfdCkKCiMgdHlwZXMgZm9yIGdlbmVyYWwgY29uZmlndXJhdGlvbiBmaWxl
-cyBpbiAvZXRjCnR5cGUga3JiNV9jb25mX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZTsKdHlwZSBr
-cmI1X2tleXRhYl90LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGU7CgojIHR5cGVzIGZvciBLREMgY29u
-ZmlncyBhbmQgcHJpbmNpcGFsIGZpbGUocykKdHlwZSBrcmI1a2RjX2NvbmZfdCwgZmlsZV90eXBl
-LCBzeXNhZG1maWxlOwp0eXBlIGtyYjVrZGNfcHJpbmNpcGFsX3QsIGZpbGVfdHlwZSwgc3lzYWRt
-ZmlsZTsKCiMgVXNlIGNhcGFiaWxpdGllcy4gU3VycGx1cyBjYXBhYmlsaXRpZXMgbWF5IGJlIGFs
-bG93ZWQuCmFsbG93IGtyYjVrZGNfdCBrcmI1a2RjX3Q6Y2FwYWJpbGl0eSB7IHNldHVpZCBzZXRn
-aWQgbmV0X2JpbmRfc2VydmljZSBjaG93biBmb3duZXIgZGFjX292ZXJyaWRlIHN5c19uaWNlIH07
-CmFsbG93IGthZG1pbmRfdCBrYWRtaW5kX3Q6Y2FwYWJpbGl0eSB7IHNldHVpZCBzZXRnaWQgbmV0
-X2JpbmRfc2VydmljZSBjaG93biBmb3duZXIgZGFjX292ZXJyaWRlIHN5c19uaWNlIH07CgojIGty
-YjVrZGMgYW5kIGthZG1pbmQgY2FuIHVzZSBuZXR3b3JrCmNhbl9uZXR3b3JrKGtyYjVrZGNfdCkK
-Y2FuX25ldHdvcmsoa2FkbWluZF90KQoKIyBhbGxvdyBVRFAgdHJhbnNmZXIgdG8vZnJvbSBhbnkg
-cHJvZ3JhbQpjYW5fdWRwX3NlbmQoa2VyYmVyb3NfcG9ydF90LCBrcmI1a2RjX3QpCmNhbl91ZHBf
-c2VuZChrcmI1a2RjX3QsIGtlcmJlcm9zX3BvcnRfdCkKY2FuX3RjcF9jb25uZWN0KGtlcmJlcm9z
-X3BvcnRfdCwga3JiNWtkY190KQpjYW5fdGNwX2Nvbm5lY3Qoa2VyYmVyb3NfYWRtaW5fcG9ydF90
-LCBrYWRtaW5kX3QpCgojIEJpbmQgdG8gdGhlIGtlcmJlcm9zLCBrZXJiZXJvcy1hZG0gcG9ydHMu
-CmFsbG93IGtyYjVrZGNfdCBrZXJiZXJvc19wb3J0X3Q6dWRwX3NvY2tldCBuYW1lX2JpbmQ7CmFs
-bG93IGtyYjVrZGNfdCBrZXJiZXJvc19wb3J0X3Q6dGNwX3NvY2tldCBuYW1lX2JpbmQ7CmFsbG93
-IGthZG1pbmRfdCBrZXJiZXJvc19hZG1pbl9wb3J0X3Q6dGNwX3NvY2tldCBuYW1lX2JpbmQ7Cgoj
-CiMgR2VuZXJhbCBydWxlcyBmb3IgL2V0Yy9rcmI1LmNvbmYKYWxsb3cgdXNlcmRvbWFpbiBrcmI1
-X2NvbmZfdDpmaWxlIHsgZ2V0YXR0ciBpb2N0bCByZWFkIH07CmFsbG93IGxvY2FsX2xvZ2luX3Qg
-a3JiNV9jb25mX3Q6ZmlsZSB7IGdldGF0dHIgaW9jdGwgcmVhZCB9OwphbGxvdyBydW5faW5pdF90
-IGtyYjVfY29uZl90OmZpbGUgeyBnZXRhdHRyIHJlYWQgfTsKCiMgU29tZXRoaW5nIGluIHRoZSBL
-ZXJiZXJvczUgbGlicmFyeSBsaWtlcyB0byBvcGVuIGtyYjUuY29uZiBmb3Igd3JpdGluZwpkb250
-YXVkaXQgdXNlcmRvbWFpbiBrcmI1X2NvbmZfdDpmaWxlIHsgd3JpdGUgfTsKCiMKIyBSdWxlcyBm
-b3IgS2VyYmVyb3M1IEtEQyBkYWVtb24KYWxsb3cga3JiNWtkY190IGtyYjVrZGNfdDp1bml4X2Rn
-cmFtX3NvY2tldCB7IGNvbm5lY3QgY3JlYXRlIHdyaXRlIH07CmFsbG93IGtyYjVrZGNfdCBrcmI1
-X2NvbmZfdDpmaWxlIHsgZ2V0YXR0ciByZWFkIH07CmFsbG93IGtyYjVrZGNfdCBrcmI1a2RjX2Nv
-bmZfdDpkaXIgeyBzZWFyY2ggfTsKYWxsb3cga3JiNWtkY190IGtyYjVrZGNfY29uZl90OmZpbGUg
-eyBnZXRhdHRyIHJlYWQgfTsKYWxsb3cga3JiNWtkY190IGtyYjVrZGNfcHJpbmNpcGFsX3Q6Zmls
-ZSB7IGdldGF0dHIgbG9jayByZWFkIHdyaXRlIH07CmFsbG93IGtyYjVrZGNfdCBsb2NhbGVfdDpm
-aWxlIHsgZ2V0YXR0ciByZWFkIH07CmRvbnRhdWRpdCBrcmI1a2RjX3Qga3JiNV9jb25mX3Q6Zmls
-ZSB7IHdyaXRlIH07CmRvbnRhdWRpdCBrcmI1a2RjX3Qga3JiNWtkY19jb25mX3Q6ZmlsZSB7IHdy
-aXRlIH07CnRtcF9kb21haW4oa3JiNWtkYykKbG9nX2RvbWFpbihrcmI1a2RjKQoKIwojIFJ1bGVz
-IGZvciBLZXJiZXJvczUgS2FkbWluIGRhZW1vbgphbGxvdyBrYWRtaW5kX3Qga2FkbWluZF90OnVu
-aXhfZGdyYW1fc29ja2V0IHsgY29ubmVjdCBjcmVhdGUgd3JpdGUgfTsKYWxsb3cga2FkbWluZF90
-IGtyYjVfY29uZl90OmZpbGUgeyBnZXRhdHRyIHJlYWQgfTsKYWxsb3cga2FkbWluZF90IGtyYjVr
-ZGNfY29uZl90OmRpciB7IHNlYXJjaCB9OwphbGxvdyBrYWRtaW5kX3Qga3JiNWtkY19jb25mX3Q6
-ZmlsZSB7IGdldGF0dHIgbG9jayByZWFkIH07CmFsbG93IGthZG1pbmRfdCBrcmI1a2RjX3ByaW5j
-aXBhbF90OmZpbGUgeyBnZXRhdHRyIGxvY2sgcmVhZCB3cml0ZSBzZXRhdHRyIH07CmFsbG93IGth
-ZG1pbmRfdCBsb2NhbGVfdDpmaWxlIHsgZ2V0YXR0ciByZWFkIH07CmRvbnRhdWRpdCBrYWRtaW5k
-X3Qga3JiNWtkY19jb25mX3Q6ZmlsZSB7IHdyaXRlIH07CnRtcF9kb21haW4oa2FkbWluZCkKbG9n
-X2RvbWFpbihrYWRtaW5kKQoKIwojIEFsbG93IHVzZXIgcHJvZ3JhbXMgdG8gdGFsayB0byBLREMK
-YWxsb3cga3JiNWtkY190IHVzZXJkb21haW46dWRwX3NvY2tldCB7IHJlY3Zmcm9tIH07CmFsbG93
-IHVzZXJkb21haW4ga3JiNWtkY190OnVkcF9zb2NrZXQgeyByZWN2ZnJvbSB9OwoKaWZkZWYoYHNz
-aC50ZScsIGAKIwojIFJ1bGVzIGZvciBPcGVuU1NIIHNzaGQgc2VydmVyIGFuZCBzc2ggY2xpZW50
-IGNvbXBpbGVkCiMgd2l0aCBLZXJiZXJvcyBzdXBwb3J0CiMgc2VlIGFsc28gbWFjcm9zL3Byb2dy
-YW0vc3NoX21hY3Jvcy50ZQphbGxvdyBrcmI1a2RjX3Qgc3NoZF90OnVkcF9zb2NrZXQgeyByZWN2
-ZnJvbSB9OwphbGxvdyBzc2hkX3Qga3JiNWtkY190OnVkcF9zb2NrZXQgeyByZWN2ZnJvbSB9Owph
-bGxvdyBzc2hkX3Qga3JiNV9jb25mX3Q6ZmlsZSB7IGdldGF0dHIgaW9jdGwgcmVhZCB9OwphbGxv
-dyBzc2hkX3Qga3JiNV9rZXl0YWJfdDpmaWxlIHsgbG9jayByZWFkIH07CmRvbnRhdWRpdCBzc2hk
-X3Qga3JiNV9jb25mX3Q6ZmlsZSB7IHdyaXRlIH07CgojIHNzaGQgZGVzdHJveXMga2luaXQtY3Jl
-YXRlZCB0aWNrZXRzIG9uIGV4aXQKYWxsb3cgc3NoZF90IHVzZXJfdG1wX3Q6ZmlsZSB7IGdldGF0
-dHIgcmVhZCB3cml0ZSB1bmxpbmsgfTsKYWxsb3cgc3NoZF90IHRtcF90OmZpbGUgeyBnZXRhdHRy
-IHJlYWQgd3JpdGUgfTsKJykKCgo=
-------=_20030721153641_35304
-Content-Type: application/octet-stream; name="net_contexts.diff"
-Content-Disposition: attachment; filename="net_contexts.diff"
-Content-Transfer-Encoding: base64
-
-LS0tIG5ldF9jb250ZXh0cy5vcmlnCTIwMDMtMDctMTUgMTY6MjY6MDAuMDAwMDAwMDAwICsxMjAw
-CisrKyBuZXRfY29udGV4dHMJMjAwMy0wNy0xNSAxNTo0ODoxOC4wMDAwMDAwMDAgKzEyMDAKQEAg
-LTc1LDYgKzc1LDE3IEBACiBpZmRlZihgdXNlX2h0dHBfY2FjaGUnLCBgcG9ydGNvbiB0Y3AgODA4
-MCAgc3lzdGVtX3U6b2JqZWN0X3I6aHR0cF9jYWNoZV9wb3J0X3QnKQogaWZkZWYoYHRyYW5zcHJv
-eHkudGUnLCBgcG9ydGNvbiB0Y3AgODA4MSBzeXN0ZW1fdTpvYmplY3Rfcjp0cmFuc3Byb3h5X3Bv
-cnRfdCcpCiAKKyMKKyMgS2VyYmVyb3Mga3JiNWtkYywga2FkbWluZAorIworaWZkZWYoYGtlcmJl
-cm9zLnRlJywgYAorcG9ydGNvbiB1ZHAgODggc3lzdGVtX3U6b2JqZWN0X3I6a2VyYmVyb3NfcG9y
-dF90Citwb3J0Y29uIHRjcCA4OCBzeXN0ZW1fdTpvYmplY3RfcjprZXJiZXJvc19wb3J0X3QKK3Bv
-cnRjb24gdGNwIDc0OSBzeXN0ZW1fdTpvYmplY3RfcjprZXJiZXJvc19hZG1pbl9wb3J0X3QKK3Bv
-cnRjb24gdWRwIDc1MSBzeXN0ZW1fdTpvYmplY3RfcjprZXJiZXJvc19tYXN0ZXJfcG9ydF90Citw
-b3J0Y29uIHRjcCA3NTEgc3lzdGVtX3U6b2JqZWN0X3I6a2VyYmVyb3NfbWFzdGVyX3BvcnRfdAor
-JykKKwogIyBOZXR3b3JrIGludGVyZmFjZXMgKGRlZmF1bHQgPSBpbml0aWFsIFNJRCAnbmV0aWYn
-IGFuZCAnbmV0bXNnJykKICMKICMgaW50ZXJmYWNlIG5ldGlmX2NvbnRleHQgZGVmYXVsdF9tc2df
-Y29udGV4dAo=
-------=_20030721153641_35304
-Content-Type: application/octet-stream; name="ssh_macros.te.diff"
-Content-Disposition: attachment; filename="ssh_macros.te.diff"
-Content-Transfer-Encoding: base64
-
-LS0tIG1hY3Jvcy9wcm9ncmFtL3NzaF9tYWNyb3MudGUub3JpZwkyMDAzLTA3LTE2IDE0OjIzOjQ4
-LjAwMDAwMDAwMCArMTIwMAorKysgbWFjcm9zL3Byb2dyYW0vc3NoX21hY3Jvcy50ZQkyMDAzLTA3
-LTIwIDIwOjUxOjIyLjAwMDAwMDAwMCArMTIwMApAQCAtMTQ5LDYgKzE0OSwxNiBAQAogYWxsb3cg
-JDFfc3NoX3QgeGRtX3hzZXJ2ZXJfdG1wZnNfdDpmaWxlIHJlYWQ7CiAnKQogCitpZmRlZihga2Vy
-YmVyb3MudGUnLCBgCisjIEtlcmJlcm9zIGF1dGhlbnRpY2F0aW9uIGZvciBzc2gKK2FsbG93IGty
-YjVrZGNfdCAkMV9zc2hfdDp1ZHBfc29ja2V0IHsgcmVjdmZyb20gfTsKK2FsbG93ICQxX3NzaF90
-IGtyYjVrZGNfdDp1ZHBfc29ja2V0IHsgcmVjdmZyb20gfTsKK2FsbG93ICQxX3NzaF90IGtyYjVf
-Y29uZl90OmZpbGUgeyBnZXRhdHRyIHJlYWQgfTsKK2RvbnRhdWRpdCAkMV9zc2hfdCBrcmI1X2Nv
-bmZfdDpmaWxlIHsgd3JpdGUgfTsKK2FsbG93ICQxX3Qgc3NoZF90bXBfdDpmaWxlIHsgbG9jayBy
-ZWFkIHVubGluayB9OworYWxsb3cgJDFfc3NoX3QgdXNlcl90bXBfdDpmaWxlIHsgbG9jayB3cml0
-ZSB9OworJykKKwogJylkbmwgIGVuZCBvZiBpZmRlZiBzc2gudGUKIAogCg==
-------=_20030721153641_35304
-Content-Type: application/octet-stream; name="su_macros.te.diff"
-Content-Disposition: attachment; filename="su_macros.te.diff"
-Content-Transfer-Encoding: base64
-
-LS0tIG1hY3Jvcy9wcm9ncmFtL3N1X21hY3Jvcy50ZS5vcmlnCTIwMDMtMDctMTYgMTQ6MjQ6NTMu
-MDAwMDAwMDAwICsxMjAwCisrKyBtYWNyb3MvcHJvZ3JhbS9zdV9tYWNyb3MudGUJMjAwMy0wNy0y
-MSAxMDoyNTowMy4wMDAwMDAwMDAgKzEyMDAKQEAgLTY3LDYgKzY3LDE3IEBACiBkb21haW5fYXV0
-b190cmFucygkMV9zdV90LCB4YXV0aF9leGVjX3QsICQxX3hhdXRoX3QpCiAnKQogCisjIEFkZGl0
-aW9uYWwgcnVsZXMgZm9yIGtlcmJlcm9zIGF1dGgsIGFuZCBrc3UKK2lmZGVmKGBrZXJiZXJvcy50
-ZScsIGAKK2FsbG93ICQxX3N1X3Qga3JiNV9jb25mX3Q6ZmlsZSB7IGdldGF0dHIgaW9jdGwgcmVh
-ZCB9OworYWxsb3cgJDFfc3VfdCB0bXBfdDpkaXIgeyBhZGRfbmFtZSB3cml0ZSByZW1vdmVfbmFt
-ZSB9OworYWxsb3cgJDFfc3VfdCB0bXBfdDpmaWxlIHsgY3JlYXRlIHdyaXRlIHNldGF0dHIgdW5s
-aW5rIH07CithbGxvdyAkMV9zdV90IGtyYjVrZGNfdDp1ZHBfc29ja2V0IHsgcmVjdmZyb20gfTsK
-K2FsbG93IGtyYjVrZGNfdCAkMV9zdV90OnVkcF9zb2NrZXQgeyByZWN2ZnJvbSB9OworYWxsb3cg
-JDFfc3VfdCBrcmI1X2tleXRhYl90OmZpbGUgeyBsb2NrIHJlYWQgfTsKK2RvbnRhdWRpdCAkMV9z
-dV90IGtyYjVfY29uZl90OmZpbGUgeyB3cml0ZSB9OworJykKKwogIyBBY2Nlc3Mgc3NoZCBjb29r
-aWUgZmlsZXMuCiBhbGxvdyAkMV9zdV90IHNzaGRfdG1wX3Q6ZGlyIHJ3X2Rpcl9wZXJtczsKIGFs
-bG93ICQxX3N1X3Qgc3NoZF90bXBfdDpmaWxlIHJ3X2ZpbGVfcGVybXM7Cg==
-
-------=_20030721153641_35304--
 
 
 --
