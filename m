@@ -1,30 +1,22 @@
-From: K VAMSHI KRISHNA <Vamshi.Krishna@cmcltd.com>
-Message-ID: <1475.210.212.217.4.1037111289.squirrel@webmail>
-Date: Tue, 12 Nov 2002 19:58:09 +0530 (IST)
-Subject: SELinux and Tomcat web server
-To: <SELinux@tycho.nsa.gov>
+Message-Id: <200211121632.QAA06406@jazzswing.ncsc.mil>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: Update SuSE-Rules
+Date: Tue, 12 Nov 2002 18:32:50 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello friends,
-I am a newbie just getting my hands dirty with SELinux. We are presently
-planing to host a Jakarta Tomcat web server that hosts some JSPs on a
-SELinux system. So as evident, this requires configuring the server
-which is started using the command
-/usr/local/jakarta/tomcat.sh start
-The process listens at some port and respond by serving JSPs. This to my
-knowledge involves unzipping/extracting class files from some jar files
-in the lib and work folders under the jakarta folder. It also needs
-configuring the acess to the Java subsystem by Tomcat process.
-Before starting on this, I thought of inquiring if any of you have
-already gone through it. I would be grateful for any help in this
-context. Any pointers in configuring the Java subsystem will also be
-quite useful. Thanks in advance,
-Vamshi.
+Hi,
 
+today I update the SuSE specific rules on my Homepage
+http://www.carstengrohmann.de . They don't contains basic changes and they 
+should run without problems with the actuell SELinux Version from the nsa 
+and SuSE 7.3. If anybody have problems please send me a mail.
 
+Carsten
 
 
 --
