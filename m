@@ -1,26 +1,42 @@
-Date: Tue, 3 Jun 2003 08:32:37 +0200
+Date: Tue, 3 Jun 2003 08:30:59 +0200
 From: Tom <tom@lemuria.org>
 To: Russell Coker <russell@coker.com.au>
 Cc: SELinux@tycho.nsa.gov
-Subject: Re: some policy feedback
-Message-ID: <20030603083237.B4056@lemuria.org>
-References: <20030601222359.D31891@lemuria.org> <200306021037.21050.russell@coker.com.au> <20030602182422.D2944@lemuria.org> <200306031022.03152.russell@coker.com.au>
+Subject: Re: Default Policy question?
+Message-ID: <20030603083059.A4056@lemuria.org>
+References: <3EDB7585.8050308@redhat.com> <1054574512.1053.178.camel@moss-huskers.epoch.ncsc.mil> <20030602230314.C3637@lemuria.org> <200306030951.59964.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200306031022.03152.russell@coker.com.au>; from russell@coker.com.au on Tue, Jun 03, 2003 at 10:22:03AM +1000
+In-Reply-To: <200306030951.59964.russell@coker.com.au>; from russell@coker.com.au on Tue, Jun 03, 2003 at 09:51:59AM +1000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jun 03, 2003 at 10:22:03AM +1000, Russell Coker wrote:
-[user macros]
-> Nothing serious is being done at this time.  In the last two years it seems 
-> that I'm the only person to work in this area, and all I have wanted to do 
-> was get multiple user roles working properly (which is 99% done).
+On Tue, Jun 03, 2003 at 09:51:59AM +1000, Russell Coker wrote:
+> > * his home directory (environment)
+> > * policy and policy tools
+> > * kernel and kernel modules
 > 
-> Go for it!
+> So who runs debugfs/fdisk/mkfs?
 
-Going. Any input appreciated, otherwise I'll just keep the list in
-touch about my progress.
+Note that I'm not trying to protect against DESTRUCTION of the system,
+but against subversion.
+
+
+> > Other than that, all other tools are limited by the policy, aren't
+> > they? The sysadm_r can replace ls with a trojaned binary, but he can't
+> > make it do anything that the normal ls isn't allowed to do.
+> 
+> When "ls" is run by any userdomain it does not trigger a domain transition.  
+> If ls is compromised it's game-over, ls can do lots of interesting things 
+> other than list the stats of files if it wants to...
+
+But if I control the policy, I can add an auto_trans rule. bin_exec_t
+could auto_trans to sysadm_t so the sysadm gains nothing by trojaning
+any binary. :)
+
+I didn't say the default policy is good enough for this. I'm just
+trying to figure out whether it's possible at all.
+
 
 -- 
 http://web.lemuria.org/pubkey.html
