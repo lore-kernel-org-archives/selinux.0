@@ -1,56 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA27565
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 09:00:21 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA09333
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 12:59:46 GMT
-Received: from mail.ispko.com ([210.16.10.89])
-	by jazzswing.ncsc.mil  with ESMTP id MAA09329
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 12:59:44 GMT
-Message-ID: <3D2ADE5C.4000102@evoworks.evoserve.com>
-Date: Tue, 09 Jul 2002 21:00:12 +0800
-From: Debian User <rogelio@evoworks.evoserve.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tislabs.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: sshd_devpts_t
-References: <Pine.GSO.4.33.0207090849460.27193-100000@raven>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Tue, 9 Jul 2002 14:13:43 +0100
+From: Dale Amon <amon@vnl.com>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: comparison between SELinux and chroot
+Message-ID: <20020709131343.GG11373@vnl.com>
+References: <200207091109.LAA21173@jazzband.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200207091109.LAA21173@jazzband.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+On Tue, Jul 09, 2002 at 12:00:44PM +0200, Carsten Grohmann wrote:
+> I am looking for a paper with an comparison between SELinux and chroot.
+> Why should I install and use SELinux, if I could use a chroot call, who is 
+> possible simplier.
+> 
 
->On Tue, 9 Jul 2002, Debian User wrote:
->
->  
->
->>Has this been fixed yet? I cant ssh into my pc anymore. Where should
->>this be fixed?
->>    
->>
->
->I'm not sure what you are asking.  If you are using devfs, you will likely
->need some additional allow rules for access to devpts_t, since the
->per-domain pty labeling that we support for the devpts filesystem is not
->implemented for the devfs filesystem.  If people want more complete devfs
->support, the best way to get it would be to contribute some patches.
->  
->
-I added allow rules for devpts but i prefer adding complete devfs 
-support. Im not familiar with devfs but I guess there is no other way 
-but to dig in and try to fix it.
+That's sort of like comparing apples and rabbits. A chroot
+is a way of setting up an environment for testing or for
+a chroot jail... which can probably be broken out of, although
+you can improve this greatly with the grsec patches.
 
->--
->Stephen D. Smalley, NAI Labs
->ssmalley@nai.com
->
->
->  
->
+Selinux is security from the base up, built into the very
+operation of the system. It is MAC in the soul of the machine.
 
+There simply *isn't* any real comparison.
 
-
+-- 
+------------------------------------------------------
+    Nuke bin Laden:           Dale Amon, CEO/MD
+  improve the global          Islandone Society
+     gene pool.               www.islandone.org
+------------------------------------------------------
 
 --
 You have received this message because you are subscribed to the selinux list.
