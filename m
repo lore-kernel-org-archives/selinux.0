@@ -1,38 +1,43 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA18639
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 16:02:00 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA17566
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 20:00:49 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA18548
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 15:56:03 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA14605
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 19:54:17 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id UAA17558
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 20:00:49 GMT
-Date: Wed, 28 Aug 2002 16:01:37 -0400 (EDT)
+        by jazzband.ncsc.mil  with ESMTP id TAA14599 for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 19:54:16 GMT
+Date: Wed, 28 Aug 2002 15:55:52 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
-cc: Mark =?iso-8859-1?q?M=FCller?= <trusted@web.de>, <selinux@tycho.nsa.gov>
-Subject: Re: Direct logins (via local and ssh) as httpd_admin_r?
-In-Reply-To: <20020828132838.134948FDA@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0208281556070.25057-100000@raven>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: ipsec access to { sysadm_tty_device_t sysadm_devpts_t }
+In-Reply-To: <20020827213114.CD4302F61@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0208281554310.25057-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 28 Aug 2002, Russell Coker wrote:
+On Tue, 27 Aug 2002, Russell Coker wrote:
 
-> I think that the SE Linux log messages should be more verbose in such
-> situations, they should mention when it's a constraint or role issue rather
-> than the usual domain/type issues.
+> I have been having some discussions with Steve about access to {
+> sysadm_tty_device_t sysadm_devpts_t }.  We agree that giving all daemons
+> access to the administrator terminal is a bad idea in concept.
+>
+> However some programs seem to require it.  The PCMCIA cardmgr program does
+> not seem to start correctly unless it has such access.
+>
+> Now I'm working on ipsec which seems to require { read write ioctl getattr }
+> access to those device types for correct functioning.  As I am just learning
+> about IPSec I'm not in a good position to analyse this in detail, could
+> someone who knows it better please have a look and see if there's something
+> that can be done about it or whether it really needs such access.
 
-This has come up previously.  Unfortunately, it isn't that simple.  The
-AVC has no knowledge of the policy logic.  It only knows that a particular
-permission for a particular (SID, SID, class) triple wasn't set in the
-allowed access vector cached from the security server.  In the common case
-where the access vector is already in the cache due to a prior check on
-the same (SID, SID, class) triple, the security server is not involved at
-all in the permission check processing.
+I would expect that the IKE daemon would not need such access, so that if
+we put it into a separate domain from the IPSEC utilities, we could
+refrain from granting such access to that domain.  But I haven't tried
+this yet.
 
 --
 Stephen D. Smalley, NAI Labs
