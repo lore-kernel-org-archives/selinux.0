@@ -1,33 +1,64 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4IEBXRb001729
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 10:11:33 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4IEBUAT021997
-	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 14:11:31 GMT
-Date: Tue, 18 May 2004 14:08:53 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: list of permissions created by allow2audit: what do i do now?
-Message-ID: <20040518140852.GE24917@lkcl.net>
-References: <20040518104026.GC24333@lkcl.net> <1084884047.28966.59.camel@moss-spartans.epoch.ncsc.mil> <20040518130244.GB24917@lkcl.net> <1084886403.28966.76.camel@moss-spartans.epoch.ncsc.mil> <1084887058.28966.84.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1084887058.28966.84.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4IEQ7Rb001878
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 10:26:07 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4IENaB2018192
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 14:23:37 GMT
+Received: from mxlx1.surveysavvy.com (mxlx1.surveysavvy.com [63.108.92.46])
+	by jazzswing.ncsc.mil  with SMTP id i4IENawi018189
+	for <selinux@tycho.nsa.gov>; Tue, 18 May 2004 14:23:36 GMT
+Message-ID: <2613.68.6.187.64.1084889973.squirrel@mxlx1.surveysavvy.com>
+In-Reply-To: <200405190007.35107.russell@coker.com.au>
+References: <OFC9F6DDFC.10588DF6-ONCA256E98.00360A82@lesbell.com.au>
+    <200405190007.35107.russell@coker.com.au>
+Date: Tue, 18 May 2004 07:19:33 -0700 (PDT)
+Subject: Re: suggestion to help transition to selinux: dynamic loading of
+     libselinux
+From: "Chris Babcock" <cbabcock@luthresearch.com>
+To: russell@coker.com.au
+Cc: "Les Bell" <lesbell@lesbell.com.au>, selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, May 18, 2004 at 09:30:58AM -0400, Stephen Smalley wrote:
-> On Tue, 2004-05-18 at 09:20, Stephen Smalley wrote:
-> > On Tue, 2004-05-18 at 09:02, Luke Kenneth Casson Leighton wrote:
-> > >  ah.  then i will try.... xdm, and see what happens.
-> > > 
-> > >  (wdm is the patched one from daniel walsh).
-> > 
-> > Are you sure?  I'm not aware of any patched wdm from Dan Walsh, just one
-> > by Tom Vogt that was upstreamed.
- 
- oh, right: yes, it was referenced from selinux.lemuria.org/walsh
+> On Tue, 18 May 2004 19:50, "Les Bell" <lesbell@lesbell.com.au> wrote:
+>> "Chris Babcock" <cbabcock@luthresearch.com> wrote:
+>> > Does this sound dangerous to anybody else?
+>
+> If you can replace /lib/libselinux.so then you can surely compromise the
+> entire system in many other ways.
+>
+>> Does the design of SELinux depend on the state machine theory of
+>> security,
+>> i.e. if a system starts in a secure state, and all transitions are
+>> secure,
+>> then the system will remain secure? This design would seem unable to
+>> support that theory, i.e. until the selinux library is loaded, there are
+>> no
+>> constraints on the state of the machine. Just a thought. . .
+>
+> Until the policy is loaded there are no SE Linux constraints on the
+> machine
+> state.  However at that time only init is running so it shouldn't be a
+> problem.
+>
+
+The danger involved with replacement of /lib/libselinux.so on an selinux
+system is pretty obvious, however if the system is operating properly it
+shouldn't be too much of an issue.
+
+What I was thinking about was more along the lines of what happens on a
+system where a vendor distributes selinux enabled utilities (using dlopen
+as described) but doesn't install the library by default and leaves
+selinux disabled in kernel.
+
+In this case a bogus libselinux could be installed...  The vendor
+utilities, core libraries (glib etc), and kernel wouldn't even have to be
+modified, so they would still pass a signature check.
+
+I was just thinking that this idea may be opening up an interesting attack
+vector on some systems given the way some distros seem to be going.
 
 
 --
