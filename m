@@ -1,110 +1,65 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i523SHrT000755
-	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 23:28:17 -0400 (EDT)
-Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i533S2eD016756
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 23:28:02 -0400 (EDT)
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i523ZjrT000846
+	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 23:35:45 -0400 (EDT)
+Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i52BUGbn009884
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 07:30:16 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp804.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 08:41:35 -0000
-Date: Tue, 1 Jun 2004 08:39:01 +0000
+  by smtp803.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 08:49:04 -0000
+Date: Tue, 1 Jun 2004 08:46:31 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Russell Coker <russell@coker.com.au>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: installing x-window-system on my loovely minimalist system
-Message-ID: <20040601083901.GI8312@lkcl.net>
-References: <20040531215339.GR3170@lkcl.net> <200406011323.26802.russell@coker.com.au>
+Subject: Re: progress! ssh.
+Message-ID: <20040601084631.GJ8312@lkcl.net>
+References: <20040531212109.GQ3170@lkcl.net> <200406011312.48669.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406011323.26802.russell@coker.com.au>
+In-Reply-To: <200406011312.48669.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jun 01, 2004 at 01:23:26PM +1000, Russell Coker wrote:
-> On Tue, 1 Jun 2004 07:53, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > okay, just for fun, i began to install x-windows.
-> >
-> > bizarrely i get these (wheeee):
-> >
-> > allow initrc_t sysadm_tmp_t:file { read };
-> > 	#EXE=/bin/cat  NAME=XF86Config-4   :  read
-> >
-> > allow ldconfig_t lib_t:file { read };
-> > 	#EXE=/sbin/ldconfig  NAME=libXft.so.2.1.1   :  read
-> > 	#EXE=/sbin/ldconfig  NAME=libfontconfig.so.1.0.4   :  read
-> > 	#EXE=/sbin/ldconfig  NAME=libXft.so.2.1.1   :  read
+On Tue, Jun 01, 2004 at 01:12:48PM +1000, Russell Coker wrote:
+> On Tue, 1 Jun 2004 07:21, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > --- /usr/share/selinux/policy/default/domains/program/ssh.te	2004-05-30
+> > 07:06:13.000000000 +0100 +++ domains/program/ssh.te	2004-06-01
+> > 00:02:58.000000000 +0100
+> > @@ -231,3 +231,12 @@
+> >  allow ssh_keygen_t self:unix_stream_socket create_stream_socket_perms;
+> >  allow ssh_keygen_t sysadm_tty_device_t:chr_file { read write };
+> >  allow ssh_keygen_t urandom_device_t:chr_file { getattr read };
+> > +
+> > +# provide means for /sbin/unix_chkpwd to do some "stuff" with sshd, hey
+> > +# i don't pretend to understand...
+> > +allow system_chkpwd_t sshd_t:tcp_socket { read write };
+> > +allow system_chkpwd_t sshd_t:unix_stream_socket { read write };
 > 
-> When you use apt or dselect to install packages several packages will have 
-> their files installed at one pass, then the postinst scripts will be run for 
-> the packages.
-> 
-> In Debian file labelling is done just before the postinst, so you have files 
-> from packages liba and libb installed but not labeled, you run liba's 
-> postinst (which first correctly labels files in liba), but ldconfig tries 
-> reading the files from libb which fails.
-> 
-> Maybe I should just put a dontaudit rule in dpkg.te?
+> This is not necessary.  In the Fedora PAM package there is code to close those 
+> file handles before exec so those accesses are never attempted.  
+
+ oh, right.  *puzzled*.
+
+ if Fedora PAM has been patched, would you mind forwarding the patch
+ to me so i can ping pam-list with it?
+
  
- *shrug*  :)
 
-> > allow ldconfig_t usr_t:file { read };
-> > 	#EXE=/sbin/ldconfig  NAME=libXrandr.so.2.0   :  read
-> > 	#EXE=/sbin/ldconfig  NAME=libXTrap.so.6.4   :  read
-> >
-> > allow ldconfig_t usr_t:lnk_file { read unlink };
-> > 	#EXE=/sbin/ldconfig  NAME=libXrandr.so.2   :  read
-> > 	#EXE=/sbin/ldconfig  NAME=libXrandr.so.2   :  unlink
+> A dontaudit 
+> rule would be an OK work-around (but should not be in the distributed 
+> policy).
+
+ ah... ... okay.
+
+> > +# users can't ssh in!  or they _can_, they just can't run a shell (!)
+> > +allow user_t sshd_devpts_t:chr_file { ioctl read write };
 > 
-> That is wrong.  What directories are those files in?
-
-sez:~# locate libXrandr
-/usr/X11R6/lib/libXrandr.so.2
-/usr/X11R6/lib/libXrandr.so.2.0
-
-sez:~# locate libXTrap.so.6.4
-/usr/X11R6/lib/libXTrap.so.6.4
-sez:~# 
-
-> On my system it's in /usr/X11R6/lib and the following file_contexts entry 
-> correctly matches it:
-> 
-> /usr/X11R6/(.*/)?lib(64)?/.*\.so.* --   system_u:object_r:shlib_t
+> That's a bug in PAM or sshd.  I haven't got around to tracking it down.  It 
+> would be good if you could debug pam and find out why it doesn't relabel the 
+> controlling tty for some users.
  
-sez:~# ls --context /usr/X11R6/lib/libXTrap.so.6.4
--rw-r--r--  root     root     system_u:object_r:shlib_t
-/usr/X11R6/lib/libXTrap.so.6.4
-sez:~# ls --context /usr/X11R6/lib/libXrandr.so.2.0
--rw-r--r--  root     root     system_u:object_r:shlib_t
-/usr/X11R6/lib/libXrandr.so.2.0
-sez:~# ls --context /usr/X11R6/lib/libXrandr.so.2  
-lrwxrwxrwx  root     root     system_u:object_r:lib_t
-/usr/X11R6/lib/libXrandr.so.2
-sez:~# 
+ eek!  me??  *panic* :)
 
-well, somehow, one of them doesn't match - libXrandr.so.2 is
-a lib_t type (is that because it's a symbolic link?) and
-what happened to libXtrap.so.6 symbolic link??
-
-
-hey, i gotta question for you.
-
-is there possibly a delay in the journalling ext3 file system
-on extended attributes?
-
-is there any way that old extended attributes could be read from
-the filesystem because of delays in the journalling filesystem
-not writing them down immediately?
-
-> > allow xprint_t sysadm_xserver_tmp_t:dir { search };
-> > 	#EXE=/usr/bin/Xprt  NAME=.X11-unix   :  search
-> > 	#EXE=/usr/bin/Xprt  NAME=.X11-unix   :  search
-> 
-> I had been in a rush when I wrote the policy for xprint.  I've attached a new 
-> policy file which should work better, please try it out and let me know how 
-> it goes.
-
- ah ha, okie.
- 
- l.
+ okay.
 
 
 --
