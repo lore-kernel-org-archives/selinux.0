@@ -1,69 +1,54 @@
-Subject: Re: problem about boot
-From: Eamon Walsh <ewalsh@epoch.ncsc.mil>
-To: lky <lky77@sjtu.edu.cn>
-Cc: SELINUX <SELinux@tycho.nsa.gov>
-In-Reply-To: <001f01c398e2$c9efe980$5d38a8c0@lky>
-References: <006c01c398a0$5f436ef0$5d38a8c0@lky>
-	 <1066929761.22348.17.camel@moss-tarheels.epoch.ncsc.mil>
-	 <001f01c398e2$c9efe980$5d38a8c0@lky>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9OD0tWt014698
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 09:00:55 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9OD0gIS029669
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 13:00:42 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h9OD0fDc029666
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 13:00:41 GMT
+Subject: Re: [PATCH] checkpolicy/policy_scan.y
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20031023210410.GA21631@wavehammer.waldi.eu.org>
+References: <20031022175608.GB4531@hydra.joerghoh.de>
+	 <1066847603.32228.76.camel@moss-spartans.epoch.ncsc.mil>
+	 <20031022190241.GA4671@hydra.joerghoh.de>
+	 <1066855497.32228.150.camel@moss-spartans.epoch.ncsc.mil>
+	 <20031022211407.GC4671@hydra.joerghoh.de>
+	 <1066858032.32228.169.camel@moss-spartans.epoch.ncsc.mil>
+	 <20031023210410.GA21631@wavehammer.waldi.eu.org>
 Content-Type: text/plain
-Message-Id: <1066951180.22348.31.camel@moss-tarheels.epoch.ncsc.mil>
+Message-Id: <1067000452.4326.7.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 23 Oct 2003 19:19:41 -0400
+Date: 24 Oct 2003 09:00:52 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-You need new modutils for the 2.6 kernel.  You can get them from
-http://www.kernel.org/pub/linux/kernel/people/rusty/modules
-(I'd suggest using the SRPM at the bottom of the list).
+On Thu, 2003-10-23 at 17:04, Bastian Blank wrote:
+> On Wed, Oct 22, 2003 at 05:27:13PM -0400, Stephen Smalley wrote:
+> > I've merged this patch with the ~0UL -> ~0U fix.
+> 
+> I just find out that this patch have unpredictable side effects. It uses
+> integers of different size at the same time (op and roleop uses int,
+> cexpr and cexpr_prim uses uintptr_t).
+> 
+> this should work on 32bit machines (big and little), but breaks if
+> uintptr_t is larger than int, because accessing the int member only
+> writes the corresponding 32bit. the attached sources demonstrates this
+> problem.
 
-You also need to change /etc/rc.d/rc.sysinit to make the modules load
-automatically.  See the "Modules" section of:
-http://www.codemonkey.org.uk/post-halloween-2.5.txt
+Ok, so op and roleop need to be moved to <valptr> as well, with
+corresponding changes to the rest of the code.  Remind me again as to
+how this is any better than just using void* as in the original code?
+And note that truncation will still ultimately occur when the values are
+assigned to the fields of the constraint expression if they ever exceed
+a 32bit value, as I've mentioned previously.
 
-And looking ahead, once you get the 2.6 kernel working, rpm is not going
-to work.  To fix that, see the "Regressions" section of the same
-document.
-
---Eamon
-
-On Wed, 2003-10-22 at 17:23, lky wrote:
-> > Your kernel must be configured with built-in ext3 support if your root
-> > partition is ext3.
-> > 
-> > --Eamon
-> 
-> Right!I had configured the ext3 as a module at first.
-> Then I configured my kernel again with ext3 built-in the kernel.But when I make modules_install I found the following messages:
-> -------------------------------------------------------------------
-> depmod: QM_MODULES: Function not implemented
-> 
-> depmod: *** Unresolved symbols in /lib/modules/2.6.0-test6-selinux1/kernel/drivers/atm/eni.ko
-> depmod:  suni_init
-> depmod: *** Unresolved symbols in /lib/modules/2.6.0-test6-selinux1/kernel/drivers/atm/idt77252.ko
-> depmod:  suni_init
-> depmod: *** Unresolved symbols in /lib/modules/2.6.0-test6-selinux1/kernel/drivers/atm/iphase.ko
-> depmod:  suni_init
-> depmod: *** Unresolved symbols in /lib/modules/2.6.0-test6-selinux1/kernel/drivers/atm/nicstar.ko
-> depmod:  suni_init
-> depmod:  idt77105_init
-> depmod: *** Unresolved symbols in /lib/modules/2.6.0-test6-selinux1/kernel/drivers/atm/zatm.ko
-> depmod:  uPD98402_init
-> depmod: *** Unresolved symbols in /lib/modules/2.6.0-test6-selinux1/kernel/drivers/block/paride/aten.ko
-> depmod:  pi_register
-> ...........
-> ---------------------------------------------------------------------
-> However the installation didn't stop.This time I can reboot with the new kernel. But I found many modules such as my network card and loopback device can't be automatically loaded to work .Why can't I configure them as modules now? I can do that with 2.4 kernels before.
-> Thanks!
-> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
 -- 
-Eamon Walsh <ewalsh@epoch.ncsc.mil>
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
