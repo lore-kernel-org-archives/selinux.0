@@ -1,40 +1,41 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA21667
-	for <selinux@tycho.nsa.gov>; Sun, 8 Dec 2002 20:02:58 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA22901
+	for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 05:49:50 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id gB912vI06475
-	for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 01:02:57 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id gB912sf06471 for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 01:02:55 GMT
-Date: Mon, 9 Dec 2002 12:06:47 +1100
-From: Brian May <bam@snoopy.apana.org.au>
+	by jazzband.ncsc.mil  with ESMTP id gB9AnnI23376
+	for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 10:49:49 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id gB9Anlf23372 for <selinux@tycho.nsa.gov>; Mon, 9 Dec 2002 10:49:47 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 349A292668
+	for <selinux@tycho.nsa.gov>; Mon,  9 Dec 2002 21:49:46 +1100 (EST)
+Received: from lyta (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id AF747EC
+	for <selinux@tycho.nsa.gov>; Mon,  9 Dec 2002 11:49:38 +0100 (CET)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
 To: selinux@tycho.nsa.gov
-Subject: debian-installer
-Message-ID: <20021209010647.GC23588@snoopy.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: selinux-small/module/Makefile
+Date: Mon, 9 Dec 2002 11:49:36 +0100
+MIME-Version: 1.0
+Message-Id: <200212091149.36395.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In case anyone on this mailing list is interested, I created a
-debian-installer book disk with a SE-Linux kernel, last week.
+-e s/parisc64/parisc/
+I believe that the sed command for setting the architecture should have the 
+above added to it for HPPA.
 
-You can find it at
-<URL:http://www.microcomaustralia.com.au/debian/net-1440.img>
+With that added it builds for me on HPPA.
 
-It is unlikely that you will be able to install Debian with it just yet,
-thats because debian-installer is an entirely new modular approach that
-isn't complete yet.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-Also it keeps changing faster then I can keep up ;-).
-
-Debian-installer has the advantage in that it is modular, so it should
-be possible (in theory) just to create an SE-Linux kernel udeb, make a
-floppy disk with it (like I have), and then have a selinux udeb package
-that will install the appropriate policy and file labels when the
-installation proceeds.
---
-Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
