@@ -1,48 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA05998
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 06:46:59 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA22169
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 11:45:04 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id LAA22165 for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 11:45:02 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id B55D392713
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 22:46:44 +1100 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 5DF9D1BFF
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:46:37 +0100 (CET)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: strange problem
-Date: Thu, 31 Oct 2002 12:46:37 +0100
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA06078
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 07:05:40 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA19343
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:03:46 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id MAA19338
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:03:45 GMT
+Date: Thu, 31 Oct 2002 07:05:12 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Chris Wright <chris@wirex.com>
+cc: James W Carter <jwcart2@epoch.ncsc.mil>, <linux-security-module@wirex.com>,
+        <selinux@tycho.nsa.gov>
+Subject: Re: SELinux Kernel Oops
+In-Reply-To: <20021030152926.B8483@figure1.int.wirex.com>
+Message-ID: <Pine.GSO.4.33.0210310702140.23380-100000@raven>
 MIME-Version: 1.0
-Message-Id: <200210311246.37017.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-avc:  denied  { execute_no_trans } for  pid=11872 exe=/bin/bash 
-path=/usr/bin/tr dev=09:03 ino=459224 scontext=system_u:system_r:crack_t 
-tcontext=system_u:object_r:unlabeled_t tclass=file
-root@test:~# ls --context /usr/bin/tr
--rwxr-xr-x  root     root     system_u:object_r:bin_t          /usr/bin/tr
-root@test:~#
 
-The above is a problem that's happened twice to me now.  This time it happened 
-with all the SE patches applied, the previous time it happened without.
+On Wed, 30 Oct 2002, Chris Wright wrote:
 
-When I run "tr" from the command line it works!
+> Hmm, this is an ugly one.  Primarily because it touches into the fs
+> specific code.  I don't see a good way to do this any differently aside
+> from introducing a wrapper like f_release that just conditionally calls
+> f->release and ->file_free_security...
 
-So why is it being denied when run from crack_t?
+Yes, that would be straightforward.  Maybe a put_private_file function in
+fs/file_table.c that makes these two calls, analagous to fput?
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+> BTW, you missed the DTE instance of init_private_file.
+
+Shouldn't matter, since DTE doesn't allocate or use a security field for
+file structures, and it can't be stacked with SELinux.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
 
 
 --
