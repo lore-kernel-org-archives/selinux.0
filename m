@@ -1,23 +1,38 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA17100
-	for <selinux@tycho.nsa.gov>; Mon, 8 Apr 2002 11:20:24 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA12907
-	for <selinux@tycho.nsa.gov>; Mon, 8 Apr 2002 15:18:50 GMT
-Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
-	by jazzswing.ncsc.mil  with SMTP id PAA12903
-	for <selinux@tycho.nsa.gov>; Mon, 8 Apr 2002 15:18:49 GMT
-Message-ID: <72222DC86846D411ABD300A0C9EB08A101524333@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'McFarland, David M.'" <DMMcFa2@missi.ncsc.mil>,
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA17161
+	for <selinux@tycho.nsa.gov>; Mon, 8 Apr 2002 11:28:01 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA01963
+	for <selinux@tycho.nsa.gov>; Mon, 8 Apr 2002 15:26:53 GMT
+Received: from stingray.missi.ncsc.mil (stingray.missi.ncsc.mil [144.51.50.20])
+        by jazzband.ncsc.mil  with ESMTP id PAA01959 for <selinux@tycho.nsa.gov>; Mon, 8 Apr 2002 15:26:53 GMT
+Message-ID: <200204081527.g38FRGL00155@stingray.missi.ncsc.mil>
+From: "McFarland, David M." <DMMcFa2@missi.ncsc.mil>
+To: "'Westerman, Mark'" <Mark.Westerman@csoconline.com>,
         "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
 Subject: RE: SELinux in VMWare
-Date: Mon, 8 Apr 2002 10:20:35 -0500 
+Date: Mon, 8 Apr 2002 11:27:15 -0400 
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+The base install I am using is RedHat 7.1 so no ext3. The VM is supposedly
+virtualizing a Mylex (Buslogic) BT-958 
+SCSI controller, but adding the driver into the kernel produces the same
+results. The base 7.1 kernel detects the SCSI controller fine so I know it
+has the drivers somewhere. I even tried a blanket build where I included all
+the SCSI drivers but still got the same results. 
+
+Dave McFarland
+
+-----Original Message-----
+From: Westerman, Mark [mailto:Mark.Westerman@csoconline.com]
+Sent: Monday, April 08, 2002 11:21 AM
+To: 'McFarland, David M.'; 'selinux@tycho.nsa.gov'
+Subject: RE: SELinux in VMWare
+
 
 I have been using VMware with selinux for over a year now.
 Try:
