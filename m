@@ -1,239 +1,45 @@
-Subject: port of util-linux login patch to shadow-utils login.c
-From: Colin Walters <walters@verbum.org>
-To: SELinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-+lptQ62F+F9AZnrNO7CQ"
-Message-Id: <1057863925.10910.62.camel@columbia>
-Mime-Version: 1.0
-Date: 10 Jul 2003 15:05:27 -0400
+Message-ID: <3F0E0999.70405@cpcug.org>
+Date: Thu, 10 Jul 2003 20:49:29 -0400
+From: James Griffin <agriffin@cpcug.org>
+MIME-Version: 1.0
+To: SELinux <SELinux@tycho.nsa.gov>
+CC: Russell Coker <russell@coker.com.au>, Howard Holm <hdholm@epoch.ncsc.mil>
+Subject: Russell Coker is recognized for his contributions to the SELinux
+ project
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+In recognition for his selfless contributions to the SELinux program, 
+Mr. Russell Coker has been selected by board of the James and Charlotte 
+Griffin Foundation to receive an unrestricted grant of US$1,000.00.
 
---=-+lptQ62F+F9AZnrNO7CQ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+This grant is awarded to Mr. Coker on the basis of his significant 
+contributions to the advancement of the National Security Agency's 
+research program known as "Security Enhanced Linux" (SELinux).  The 
+extent and nature of Mr. Coker's voluntary contributions are exceptional 
+for their scope, duration, and especially their quality.  Specifically 
+Mr. Coker has provided: 1) numerous patches to both the base code and to 
+the policy configurations, 2) an additional distribution, i.e., Debian 
+based SELinux, 3) material, extensive, and ongoing participation in the 
+SELinux mailing list (25% of all messages), and 4) providing additional 
+educational support to others with his presentations and his publicly 
+available SELinux testbed.  Mr. Coker has shared freely of his 
+knowledge, talent, and time for the public good.
 
-Hello,
+The Foundation also wishes to acknowledge the contributions of the 
+National Security Agency (NSA), its employees and contractors, and the 
+other active participants.  Additionally, NSA is to be commended for 
+their efforts in transferring the results of the SELinux research into 
+the "commons" of public knowledge and for preserving and protecting this 
+transfer through the adoption of the GNU General Public License for SELinux.
 
-I've ported the SELinux 2.5 patch against the login in util-linux to the
-login.c in shadow-utils (which is what Debian uses).  This patch could
-probably just be appended to the SE patch for shadow-utils.
+James A Griffin
+Chairman
+James and Charlotte Griffin Foundation
 
-I've tested it and it appears to work.  
+*Linux is a Registered Trade Mark of Linus Torvalds
 
-
-
---=-+lptQ62F+F9AZnrNO7CQ
-Content-Disposition: attachment; filename=shadow-login-selinux.patch
-Content-Type: text/plain; name=shadow-login-selinux.patch; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
---- shadow-4.0.3.orig/src/login.c	2003-07-09 19:05:06.000000000 -0400
-+++ shadow-4.0.3/src/login.c	2003-07-09 18:58:02.000000000 -0400
-@@ -63,6 +63,17 @@
- #define MAXHOSTNAMELEN 64
- #endif
-=20
-+#ifdef WITH_SELINUX
-+#include <selinux/get_context_list.h>
-+#include <selinux/flask.h>
-+#include <selinux/selinux.h>
-+
-+security_context_t user_context=3DNULL;
-+security_context_t ttyn_context=3DNULL;  /* The current context of ttyn de=
-vice */
-+int selinux_enabled=3D0;
-+
-+#endif
-+
- #ifdef RADIUS
- /*
-  * Support for RADIUS authentication based on a hacked util-linux login
-@@ -164,6 +175,46 @@
- static struct faillog faillog;
- #endif
-=20
-+#ifdef WITH_SELINUX
-+
-+static security_context_t security_label_tty(char *tty, security_context_t=
- usercon) {
-+  security_context_t newdev_context=3DNULL; /* The new context of a device=
- */
-+  security_context_t prev_context=3DNULL; /* The new context of a device *=
-/
-+  if (getfilecon(tty, &prev_context) < 0)=20
-+    {
-+      fprintf(stderr, _("Warning!  Could not get current context for %s, n=
-ot relabeling.\n"), tty);
-+      syslog(LOG_NOTICE, _("Warning!  Could not get current context for %s=
-, not relabeling.\n"), tty);
-+      return NULL;
-+    }=09
-+  if( security_compute_relabel(usercon,prev_context,SECCLASS_CHR_FILE,&new=
-dev_context)!=3D0) {
-+    fprintf(stderr, _("Warning!  Could not get new context for %s, not rel=
-abeling.\n"), tty);
-+    syslog(LOG_NOTICE, _("Warning!  Could not get new context for %s, not =
-relabeling.\n"), tty);
-+      return NULL;
-+  }
-+  if (setfilecon(tty,newdev_context))=20
-+    {
-+      fprintf(stderr, _("Warning!  Could not relabel %s with %s, not relab=
-eling.\n"), tty,newdev_context);
-+      syslog(LOG_NOTICE, _("Warning!  Could not relabel %s with %s, not re=
-labeling.\n"), tty,newdev_context);
-+      return NULL;
-+    }
-+  freecon(newdev_context);
-+  return prev_context;
-+}
-+
-+static void security_restorelabel_tty(char *tty,security_context_t context=
-) {
-+  if (context=3D=3DNULL)
-+    return;
-+
-+  if (setfilecon(tty,context))=20
-+    {
-+      fprintf(stderr, _("Warning!  Could not relabel %s with %s, not relab=
-eling.\n"), tty,context);
-+      syslog(LOG_NOTICE, _("Warning!  Could not relabel %s with %s, not re=
-labeling.\n"), tty,context);
-+    }
-+  freecon(context);
-+  return;
-+}
-+#endif /* WITH_SELINUX */
-+
- /* local function prototypes */
- static void usage (void);
- static void setup_tty (void);
-@@ -176,6 +227,7 @@
- static void init_env (void);
- static RETSIGTYPE alarm_handler (int);
-=20
-+
- /*
-  * usage - print login command usage and exit
-  *
-@@ -892,6 +944,33 @@
- 		else
- 		        pwent =3D *pwd;
-=20
-+#ifdef WITH_SELINUX
-+		/* Make sure SELINUX is really running on this system */
-+		if ((selinux_enabled =3D is_selinux_enabled())) {
-+			int ret;
-+			security_context_t* contextlist;
-+			int num_contexts =3D get_ordered_context_list(pam_user, 0, &contextlist=
-);
-+			if (num_contexts > 0) {
-+				ret =3D query_user_context(contextlist, &user_context);
-+				freeconary(contextlist);
-+			=09
-+				if (ret < 0) {
-+					fprintf(stderr, "%s:  query_user_context failed\n", argv[0]);
-+					syslog (LOG_ERR,  "%s:  query_user_context failed\n", argv[0]);
-+					exit (1);
-+				}
-+			=09
-+			} else {
-+				fprintf(stderr, "login: unable to obtain context for %s.\n", pam_user)=
-;
-+				ret =3D manual_user_enter_context(pam_user, &user_context);
-+				if (ret < 0) {
-+					syslog (LOG_ERR, "UNABLE TO GET VALID CONTEXT FOR %s", username);
-+					exit (1);
-+				}
-+			}
-+		}
-+#endif /* WITH_SELINUX */
-+
- 		retcode =3D pam_setcred (pamh, PAM_ESTABLISH_CRED);
- 		PAM_FAIL_CHECK;
-=20
-@@ -943,6 +1022,7 @@
- 		} else {
- 			pwent =3D *pwd;
- 		}
-+
- #ifndef USE_PAM
- #ifdef SHADOWPWD
- 		spwd =3D NULL;
-@@ -1241,6 +1321,11 @@
- 	setup_limits (&pwent);	/* nice, ulimit etc. */
- #endif				/* ! USE_PAM */
- 	chown_tty (tty, &pwent);
-+#ifdef WITH_SELINUX
-+	if (is_selinux_enabled) {
-+		ttyn_context =3D security_label_tty (tty, user_context);
-+	}
-+#endif
-=20
- #ifdef LOGIN_FBTAB
- 	/*
-@@ -1378,6 +1463,18 @@
- 	signal (SIGALRM, SIG_DFL);	/* default alarm signal */
- 	signal (SIGHUP, SIG_DFL);	/* added this.  --marekm */
-=20
-+#ifdef WITH_SELINUX
-+	if (selinux_enabled) {
-+		if (setexeccon(user_context)) {
-+			fprintf(stderr, _("Error!  Unable to set executable context %s.\n"), us=
-er_context);
-+			syslog(LOG_ERR, _("Error!  Unable to set executable context %s.\n"), us=
-er_context);
-+			exit(3);=20
-+		}
-+		freecon(user_context);
-+	}
-+#endif
-+=09
-+
- #ifdef USE_PAM
- 	/*
- 	 * We must fork before setuid() because we need to call
-@@ -1407,6 +1504,10 @@
- 			 */
- 			wait (NULL);
- 			PAM_END;
-+#ifdef WITH_SELINUX
-+			fprintf(stderr, "restoring tty %s with context %s\n", tty, ttyn_context=
-);
-+			security_restorelabel_tty (tty, ttyn_context);
-+#endif
- 			exit (0);
- 		}
- 		/* child */
-@@ -1422,6 +1523,25 @@
- #ifdef	SHADOWGRP
- 	endsgent ();	/* stop access to shadow group file */
- #endif
-+#ifdef WITH_SELINUX
-+	if (selinux_enabled) {
-+		if (pwd->pw_uid =3D=3D 0) {
-+			if (hostname)
-+				syslog(LOG_NOTICE, _("ROOT LOGIN ON %s FROM %s USING %s"),
-+				       tty, fromhost, user_context);
-+			else
-+				syslog(LOG_NOTICE, _("ROOT LOGIN ON %s USING %s"),
-+				       tty, user_context);
-+		} else {
-+			if (hostname)=20
-+				syslog(LOG_INFO, _("LOGIN ON %s BY %s FROM %s USING %s"),
-+				       tty, pam_user, fromhost, user_context);
-+			else=20
-+				syslog(LOG_INFO, _("LOGIN ON %s BY %s USING %s"),
-+				       tty, pam_user, user_context);
-+		}
-+	} else
-+#endif
- 	if (pwent.pw_uid =3D=3D 0)
- 		SYSLOG ((LOG_NOTICE, "ROOT LOGIN %s", fromhost));
- 	else if (getdef_bool ("LOG_OK_LOGINS"))
-
---=-+lptQ62F+F9AZnrNO7CQ--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
