@@ -1,65 +1,51 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA22690
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 07:19:53 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id LAA16349
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 11:19:16 GMT
-Received: from web40009.mail.yahoo.com (web40009.mail.yahoo.com [66.218.78.27])
-	by jazzswing.ncsc.mil  with SMTP id LAA16345
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 11:19:15 GMT
-Message-ID: <20020712111941.30466.qmail@web40009.mail.yahoo.com>
-Date: Fri, 12 Jul 2002 04:19:41 -0700 (PDT)
-From: Brad Chapman <jabiru_croc@yahoo.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23250
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 08:49:37 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA07096
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 12:48:06 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id MAA07091 for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 12:48:05 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>, Brad Chapman <jabiru_croc@yahoo.com>
 Subject: Re: revising the su decision
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20020712020642.D58E442F2@lyta.coker.com.au>
+Date: Fri, 12 Jul 2002 14:49:22 +0200
+Cc: <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0207120725020.28541-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0207120725020.28541-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20020712124923.8A94A148A@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mr. Coker,
+On Fri, 12 Jul 2002 13:26, Stephen Smalley wrote:
+> On Fri, 12 Jul 2002, Brad Chapman wrote:
+> >           Why do you have to change your role to sysadm_r before su'ing
+> > to root? I was under the impression that becoming uid 0 by either logging
+> > in or su'ing was sufficient.....
+>
+> The Linux root uid is not privileged with respect to the SELinux
+> mandatory access controls.  Hence, in order to perform most administrative
+> operations, you have to be both sysadm_r:sysadm_t and have the Linux root
+> uid (or at least the proper Linux capabilities).
 
---- Russell Coker <russell@coker.com.au> wrote:
-> Up until now the su program was not modified, so changing to a different UID 
-> was a separate and independant operation from changing domain via newrole.
-> 
-> However now that the sshd policy has been set to default to not allow logins 
-> as sysadm_r:sysadm_t this causes some inconveniance.  I have to ssh in to my 
-> server as a non-root account with a non-sysadm_r context.  Then I have to use
+I think that Brad was asking why I login to a non-root account first.
 
-> newrole to change to sysadm_r (entering the password), and then I have to su 
-> to the root account (entering the root password).
-> 
-> This requires entering the password two times (or three if not using ssh 
-> authorized_keys).
-> 
-> This is excessively painful, and I think that to make SE Linux more usable we
+One issue is the lack of dotfile support you mentioned before, although I 
+could probably address that by having a PAM module that sets a different home 
+directory used by the ssh config.
 
-> need to address this issue, possibly by changing su to allow it to change 
-> roles too.
-> 
-> What do you think?
+Another issue is that of auditing.  Having a non-root identity makes many 
+things easy to solve when a number of people have root and sysadm_r access.
 
-          Why do you have to change your role to sysadm_r before su'ing to
-root? I was under the impression that becoming uid 0 by either logging in or
-su'ing was sufficient.....
-
-Brad
-
-
-=====
-Brad Chapman
-
-Permanent e-mails: kakadu_croc@yahoo.com
-		   jabiru_croc@yahoo.com
-		   tanami_croc@devel.lbsd.net
-
-__________________________________________________
-Do You Yahoo!?
-Sign up for SBC Yahoo! Dial - First Month Free
-http://sbc.yahoo.com
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
