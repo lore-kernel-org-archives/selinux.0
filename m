@@ -1,54 +1,61 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i85AjqrT017092
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 06:45:52 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i85Ajnt0027949
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 10:45:50 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i85CjwrT017412
+	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 08:45:58 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i85Cj5ia004896
+	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 12:45:06 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 6E1D761AFD
+	for <selinux@tycho.nsa.gov>; Sun,  5 Sep 2004 22:45:56 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 24743-03 for <selinux@tycho.nsa.gov>;
+	Sun, 5 Sep 2004 22:45:56 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 22E9961AFC
+	for <selinux@tycho.nsa.gov>; Sun,  5 Sep 2004 22:45:56 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 806F9B58F1
+	for <selinux@tycho.nsa.gov>; Sun,  5 Sep 2004 22:45:54 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Erich Schubert <erich@debian.org>
-Subject: Re: log file names (was Additional rule files)
-Date: Sun, 5 Sep 2004 20:45:46 +1000
-Cc: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com,
-   Debian Devel <debian-devel@lists.debian.org>
-References: <1094260356.29689.44.camel@wintermute.xmldesign.de>
-In-Reply-To: <1094260356.29689.44.camel@wintermute.xmldesign.de>
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: crontab -u
+Date: Sun, 5 Sep 2004 22:45:53 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409052045.46899.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200409052245.53741.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 4 Sep 2004 11:12, Erich Schubert <erich@debian.org> wrote:
-> The next two rule sets are for the statistic tools "bindgraph" and
-> "mailgraph". The first parses bind query logs and does nice graphs out
-> of them, the second does the same for postfix+amavis logs.
+--- macros/admin_macros.te      2004-09-03 05:14:42.000000000 +1000
++++ /root/admin_macros.te       2004-09-05 21:28:38.504868911 +1000
+@@ -67,7 +67,7 @@
 
-Do we need to have two different domains for programs that do the same thing?
+ # Manipulate other user crontab.
+ allow $1_t self:passwd crontab;
+-
++can_getsecurity(sysadm_crontab_t)
 
-Both bindgraph and mailgraph can read the same file types as input and their 
-output can be accessed by cgi-bin scripts.  It seems that there is little (if 
-any) benefit in isolating them.
+ # Change system parameters.
+ can_sysctl($1_t)
 
-If we were to assign different types to different log files (may require code 
-changes in syslogd) then we could deny the mailgraph program the ability to 
-read log files other than mail.log and deny the bindgraph program the ability 
-to read mail.log.
 
-Also note that in your policy both those programs can read /var/log/auth.log 
-(Debian) and /var/log/secure (Fedora).  This is not desirable, we probably 
-should make changes to the syslog setup.
+The above patch is needed to have crontab -u work as administrator.  The below 
+patch is needed to have rpm run crontab -u (IE installing mailman).
 
-One possible change is greater use of sub-directories in /var/log.  We could 
-have /var/log/security/ for auth.log, secure, and any other security critical 
-log files and /var/log/mail/ for mail server log files (including POP server, 
-and maybe webmail), etc.  Doing this would allow different types for the log 
-files with no code changes to syslogd, and this would make it more beneficial 
-to have separate domains for mailgraph and bindgraph.
 
-I've CC'd this to fedora-selinux and debian-devel because if we make such 
-changes then we want to get some cross-distribution agreement on file names.
+--- /root/rpm.te        2004-09-05 21:37:55.677133067 +1000
++++ domains/program/rpm.te      2004-09-05 21:39:08.658793880 +1000
+@@ -161,6 +161,7 @@
+ ')
+ ifdef(`crond.te', `
+ allow crond_t rpm_t:fifo_file r_file_perms;
++allow rpm_script_t self:passwd crontab;
+ ')
+
+ allow rpm_script_t proc_t:dir { search getattr };
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
