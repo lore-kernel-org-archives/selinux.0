@@ -1,61 +1,43 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB5A3NRb003653
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 05:03:24 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB5A2glU000170
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 10:02:42 GMT
-Received: from smtp01.net-yan.com (smtp01.net-yan.com [210.0.255.210])
-	by jazzswing.ncsc.mil  with ESMTP id hB5A2eSX000167
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 10:02:41 GMT
-Received: from unknown (HELO samgpj2wzuimme) (samwun@hgcbroadband.com@[218.189.140.94])
-          (envelope-sender <samwun@hgcbroadband.com>)
-          by localhost (qmail-ldap-1.03) with SMTP
-          for <selinux@tycho.nsa.gov>; 5 Dec 2003 10:03:19 -0000
-From: "samwun" <samwun@hgcbroadband.com>
-To: "'Colin Walters'" <walters@verbum.org>, <selinux@tycho.nsa.gov>
-Subject: RE: "new" SELinux 2.4.22 UML kernel patch + sample Debian filesystem
-Date: Fri, 5 Dec 2003 18:05:20 +0800
-Message-ID: <015701c3bb17$4ae15870$5801a8c0@samgpj2wzuimme>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB5AMkRb003719
+	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 05:22:46 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hB5AMjRV020309
+	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 10:22:46 GMT
+Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id hB5AMhta020301 for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 10:22:44 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Stephen" <mridion@hotmail.com>, <selinux@tycho.nsa.gov>
+Subject: Re: Debian Servers
+Date: Fri, 5 Dec 2003 21:22:30 +1100
+References: <EE5290A8F55F0C4B943C5940B6D73C8B442483@pusmde04.mt.pweh.com> <20031203195604.GC3442@hydra.joerghoh.de> <BAY1-DAV46Zim80P5hl00003221@hotmail.com>
+In-Reply-To: <BAY1-DAV46Zim80P5hl00003221@hotmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1070347847.12634.512.camel@nexus.verbum.private>
+  charset="iso-8859-1"
+Message-Id: <200312052122.30528.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 5 Dec 2003 20:21, "Stephen" <mridion@hotmail.com> wrote:
+> Wouldn't you be able to restrict execute access to unconfigured files and
+> therefore the attacker couldnt launch the exploit code in the first place?
 
-Hi,
+Yes, that can be done.  But preventing execution of files in user home 
+directories is a significant functionality loss, I doubt that it would be 
+possible to have the machines in question be usable if configured in such a 
+manner.
 
-I've merged the 2.4.22 LSM patch in Russell's Debian kernel patches with
-the latest 2.4.22 UML bits, and placed the result here:
+Also if running a machine in such a manner all that the attacker would need to 
+do is to exploit one binary to launch the attack.  Most binaries aren't 
+considered as important to system security and aren't audited for such bugs.
 
-http://web.verbum.org/selinux/uml/
-
-The URL is not accessible, do you mind send me a full instruction about
-how to create SELinux in yoru Debian system?
-
-Thanks
-Sam
-
-Additionally, I've created a roomy 350MB Debian sid image (which gzipped
-into just 370kb), set up with the latest Debian sid SELinux packages. 
-It seems to work fine even in enforcing mode.  I had to disable bootlogd
-though.
-
-It's a great way to play around with SELinux, especially if you use
-UML's copy-on-write filesystem bits.  That way if you mess something up,
-you can just delete your COW file and restart from the base image.
-
-One tip: you will likely want to give your UML at least 64MB of ram;
-setfiles seems to be summarily executed by the OOM killer with less. 
-Here's how I'm booting the UML:
-
-walters@nexus> ./linux enforcing=1 mem=64M
-ubd0=/build/uml/debian-se-work.img,/build/uml/debian-se.img
-eth0=tuntap,tap0
-
-Enjoy!
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
