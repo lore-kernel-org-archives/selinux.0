@@ -1,47 +1,42 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA03882
-	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 13:00:34 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA12789
-	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 16:59:05 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id QAA12779
-	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 16:59:03 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "david caplan" <dac@tresys.com>, <selinux@tycho.nsa.gov>
-Subject: Re: checkpolicy and login names
-Date: Tue, 24 Sep 2002 19:00:20 +0200
-References: <GBEAJBKHFOBIBBJBCGAGKEKGCFAA.dac@tresys.com>
-In-Reply-To: <GBEAJBKHFOBIBBJBCGAGKEKGCFAA.dac@tresys.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA01983
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 10:31:05 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA07536
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 14:29:17 GMT
+Received: from smails.tresys.com ([66.200.42.5])
+        by jazzband.ncsc.mil  with ESMTP id OAA07532 for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 14:29:16 GMT
+Received: from acme ([66.200.42.2])
+	(authenticated (0 bits))
+	by smails.tresys.com (8.12.5/8.11.6) with ESMTP id g8OEZ8Ca000981
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2002 10:35:08 -0400
+From: "david caplan" <dac@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Subject: checkpolicy and login names
+Date: Tue, 24 Sep 2002 10:32:00 -0400
+Message-ID: <GBEAJBKHFOBIBBJBCGAGKEKGCFAA.dac@tresys.com>
 MIME-Version: 1.0
-Message-Id: <200209241900.20427.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="US-ASCII"
+In-Reply-To: <001001c263cc$de4ef570$6600a8c0@columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 24 Sep 2002 16:32, david caplan wrote:
-> We just ran across the case where we were trying to add a login name with a
-> '.' in it.  When we tried to add the user to the policy, checkpolicy choked
-> on the '.' in the id.  The parser expects an Identifier, which is defined
-> to be a letter followed by a combination of letter|digit|_ of any length.
+We just ran across the case where we were trying to add a login name with a
+'.' in it.  When we tried to add the user to the policy, checkpolicy choked
+on the '.' in the id.  The parser expects an Identifier, which is defined to
+be a letter followed by a combination of letter|digit|_ of any length.
 
-What about "chown user.group file"?  I think that alone is a good enough 
-reason not to want to have a '.' in a user-name.
+Is there a compelling reason that this definition can't be changed?  I'm not
+sure if changing it would cause problems elsewhere in the policy mechanism.
+There don't appear to be problems with using '.'s and '-'s in login names as
+far as RedHat/Linux is concerned. I can't find any "standard" definition for
+what are valid characters in a login name.  Some applications, such as ps,
+that have problems with the characters just use the uid instead.  Others,
+such as sendmail/pop and ssh, don't have a problem (at least in the versions
+we're using).
 
-Of course there does not have to be any mapping between user-names and SE 
-identities, and the SE identities should not be limited in the same way as 
-Unix account names for this reason.
-
-I could imagine a model where you might have Unixname.something as the SE 
-identity...
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+david
 
 
 --
