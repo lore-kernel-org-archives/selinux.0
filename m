@@ -1,38 +1,63 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBPGlHIi011911
-	for <selinux@tycho.nsa.gov>; Sat, 25 Dec 2004 11:47:17 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBPGlHFA029452
-	for <selinux@tycho.nsa.gov>; Sat, 25 Dec 2004 16:47:19 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Zia Syed <zia.chacho@gmail.com>
-Subject: Re: fedora core 3, httpd and PHP exec()
-Date: Sun, 26 Dec 2004 03:47:13 +1100
-Cc: selinux@tycho.nsa.gov
-References: <41CCEEB5.3040200@gmail.com> <200412251702.17953.russell@coker.com.au> <41CD5AAB.80505@smartweb.rgu.ac.uk>
-In-Reply-To: <41CD5AAB.80505@smartweb.rgu.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200412260347.16199.russell@coker.com.au>
+Subject: Re: Overlay Filesystem and SELinux
+From: Jaspreet Singh <jsingh@ensim.com>
+Reply-To: jsingh@ensim.com
+To: Erich Schubert <erich@debian.org>
+Cc: nsa <SELinux@tycho.nsa.gov>
+In-Reply-To: <1104022405.29054.7.camel@wintermute.xmldesign.de>
+References: <1098274225.12118.20.camel@jsingh.india.ensim.com>
+	 <20041020151031.GB21185@lkcl.net>  <20041020174938.GL21185@lkcl.net>
+	 <1098887565.1620.15.camel@jsingh.india.ensim.com>
+	 <1104022405.29054.7.camel@wintermute.xmldesign.de>
+Content-Type: text/plain
+Date: Sun, 26 Dec 2004 14:11:00 +0530
+Message-Id: <1104050461.14672.6.camel@jsingh>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 25 December 2004 23:18, Zia Syed <zia.chacho@gmail.com> wrote:
-> Thanks for your reply. Where should I write this rule? I search for
-> documentation on selinux and according to them i need to put them in a
-> .te file. However, I dont have any .te file on my system.
+Hi,
 
-You need to install the package selinux-policy-X-sources where "X" is either 
-"targeted" or "strict" depending on what you installed (most likely 
-targeted).
+I was initially involved in creating a unionfs (of BSD) for Linux. This
+project was called "mini_fo". Search google for results.
 
+
+That project is now .. not maintained .. and now I am involved in a much
+more sophisticated implementation called - "unionfs" . Check this link -
+www.fsl.cs.sunysb.edu/project-unionfs.html
+
+Unionfs was initially only for 2.4 kernel, but i recently ported it to
+2.6. The port is not official yet. But, its working.
+
+> I'd love to use your overlay-fs when I needed to setup some virtual
+> boxes. This is a great tool for virtualization. You can use this to
+> manage a group of virtual hosts more easily (for example installing new
+> software on them or upgrading existing)
+> Do you also have some "hiding" features? With your concept right now,
+> none of the overlayed files can be deleted. Or do you have a way of
+> signalling that?
+> 
+
+Yups, it has all BSD unionfs/union-mount features. My 2.6 port is not
+selinux compatible yet .. but would be in some time.
+
+
+> How do you create the whole path? just by doing a number of mkdirs? IMHO
+> you should copy the xattr attributes from the overlayed directories
+> here. As long as you are inside the kernel, doing so shouldn't be too
+> hard.
+> 
+
+nope .. just union mount some already mounted directories(called
+branches) on a mount point and then any lookups/writes on mount-points
+would follow COW semantics. And changes would be written to the topmost
+RW branch. 
+
+Howz it.
+
+Greetings and Mary Christmas,
+Jaspreet
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
