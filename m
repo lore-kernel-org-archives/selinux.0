@@ -1,38 +1,60 @@
-Subject: Re: Unlabeled files
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Matthew R. Singer" <msinger@itac.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <8A61167D13CED411B3E500B0D079784703AAF1@mailserver.itac.reston>
-References: <8A61167D13CED411B3E500B0D079784703AAF1@mailserver.itac.reston>
-Content-Type: text/plain
-Date: 08 Apr 2003 16:30:05 -0400
-Message-Id: <1049833806.1231.29.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h390HYI4024772
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 20:17:34 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h390DqOv018325
+	for <selinux@tycho.nsa.gov>; Wed, 9 Apr 2003 00:13:52 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h390DSY1018317
+	for <selinux@tycho.nsa.gov>; Wed, 9 Apr 2003 00:13:50 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id 5266EBF47
+	for <selinux@tycho.nsa.gov>; Wed,  9 Apr 2003 10:16:52 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 08500-09
+ for <selinux@tycho.nsa.gov>; Wed,  9 Apr 2003 10:16:51 +1000 (EST)
+Received: from tsv.sws.net.au (unknown [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id EC949BF46
+	for <selinux@tycho.nsa.gov>; Wed,  9 Apr 2003 10:16:50 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id A408B92738
+	for <selinux@tycho.nsa.gov>; Wed,  9 Apr 2003 10:16:49 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 55658A05
+	for <selinux@tycho.nsa.gov>; Wed,  9 Apr 2003 10:16:49 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: Re: ptrace flaw
+Date: Wed, 9 Apr 2003 10:16:48 +1000
+References: <1049806561.1606.29.camel@moss-huskers.epoch.ncsc.mil>
+In-Reply-To: <1049806561.1606.29.camel@moss-huskers.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200304091016.48610.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-04-08 at 15:32, Matthew R. Singer wrote:
-> Can anyone tell me what selinux thinks is unlabeled below?
-> 
-> Thanks
-> 
-> Apr  8 14:07:11 localhost kernel: avc:  denied  { transition } for
-> pid=902 exe=/usr/bin/kdm path=/etc/X11/xdm/Xsession dev=08:02 ino=314289
-> scontext=root:sysadm_r:sysadm_t tcontext=system_u:object_r:unlabeled_t
-> tclass=process
-> Apr  8 14:07:11 localhost kernel: 
-> Apr  8 14:07:11 localhost kernel: avc:  denied  { transition } for
-> pid=902 exe=/usr/bin/kdm path=/bin/bash dev=08:02 ino=49420
-> scontext=root:sysadm_r:sysadm_t tcontext=system_u:object_r:unlabeled_t
-> tclass=process
+On Tue, 8 Apr 2003 22:56, Stephen Smalley wrote:
+> Just for your information, the patch for the ptrace flaw in the base
+> Linux kernel is _not_ included in the lsm-2.4 kernel tree or kernel
 
-This suggests that kdm is calling execve_secure with either the
-unlabeled SID or a SID that has been invalidated by a policy reload
-(e.g. the user, role, or type was removed from the policy).  Note that
-the tclass is process; you are dealing with an attempt to create an
-unlabeled process, not a file.
+I had added it to my Debian kernel patch package for LSM when it first came 
+out as the main Debian packages didn't include it fast enough.
 
+Now I am going to remove it from the next version of my kernel-patch package 
+(based on the new NSA release) because the main Debian kernel-source-2.4.20 
+package has included the ptrace patch and it made my patch not apply.
 
+People who apply the new version of my Debian LSM patch to an unpatched 2.4.20 
+will need to apply the ptrace patch separately.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
