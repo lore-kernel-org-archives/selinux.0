@@ -1,67 +1,48 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14621
-	for <selinux@tycho.nsa.gov>; Wed, 31 Jul 2002 12:49:09 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA19383
-	for <selinux@tycho.nsa.gov>; Wed, 31 Jul 2002 16:47:34 GMT
-Received: from vmmr1.verisignmail.com (vmmr1.verisignmail.com [216.168.230.137])
-        by jazzband.ncsc.mil  with ESMTP id QAA19379 for <selinux@tycho.nsa.gov>; Wed, 31 Jul 2002 16:47:34 GMT
-Reply-To: <nigel@forever-networks.com>
-From: "Nigel Clarke" <nigel@forever-networks.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Problem with install 
-Date: Wed, 31 Jul 2002 12:39:53 -0700
-Message-ID: <HGEEKCPKMCLEIOHFGKCNOEKNCAAA.nigel@forever-networks.com>
-MIME-Version: 1.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14703
+	for <selinux@tycho.nsa.gov>; Wed, 31 Jul 2002 12:55:31 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA20963
+	for <selinux@tycho.nsa.gov>; Wed, 31 Jul 2002 16:54:40 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id QAA20959
+	for <selinux@tycho.nsa.gov>; Wed, 31 Jul 2002 16:54:39 GMT
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: sshd mods
+Date: Wed, 31 Jul 2002 18:55:18 +0200
+Cc: matthew@debian.org
+MIME-Version: 1.0
+Message-Id: <20020731165519.087D01FC@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+With the current sshd on SE Linux a compromised sshd can't directly run 
+"/bin/rm", but it can run "sh -c rm -rf /home/user".
 
-I'm trying to install on a new server. I'm running Redhat 7.2 
+I think that we could probably benefit from a wrapper program that ssh would 
+run.  This wrapper would perhaps have a configuration method somewhat similar 
+to sudo to determine what programs ssh could run and what parameters can be 
+passed to them.  Then we could deny sshd access to change domain/role and 
+only allow this wrapper to do that, then sshd would only be able to execute 
+the wrapper (and hopefully the vast majority of ssh exploits would then be 
+unable to affect us).
 
-I started by following the instructions in the STEP-BY-STEP guide. 
+This should also benefit non-SE users, the ability to limit in detail what a 
+user can do with an ssh account is something that many people have been 
+asking for.  Having it implemented by a separate wrapper program (that will 
+hopefully be well audited and unlikely to contain bugs) will also give 
+advantages for security systems other than SE Linux (any MAC system should 
+benefit greatly from this).
 
-[root@localhost selinux]# make insert
-Patching the LSM tree.
-cd module && make insert LSMVER=-2.4
-make[1]: Entering directory `/usr/vault/nsa/selinux/module'
-cd ../../lsm-2.4; patch -p0 < ../selinux/module/lsm-2.4-patch
-(Stripping trailing CRs from patch.)
-patching file Makefile
-Hunk #1 FAILED at 1.
-1 out of 1 hunk FAILED -- saving rejects to file Makefile.rej
-(Stripping trailing CRs from patch.)
-patching file arch/i386/defconfig
-Hunk #1 FAILED at 154.
-Hunk #2 FAILED at 830.
-2 out of 2 hunks FAILED -- saving rejects to file
-arch/i386/defconfig.rej
-(Stripping trailing CRs from patch.)
-patching file net/netsyms.c
-Hunk #1 FAILED at 295.
-1 out of 1 hunk FAILED -- saving rejects to file net/netsyms.c.rej
-make[1]: *** [insert] Error 1
-make[1]: Leaving directory `/usr/vault/nsa/selinux/module'
-make: *** [insert] Error 2
-[root@localhost selinux]#
-
-Nigel Clarke
-Network Security Engineer
-Forever Networks
- 
-
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 7.0.3 for non-commercial use <http://www.pgp.com>
-
-iQA/AwUBPUg89tBDCv2bqVf3EQKFLACggCqBNf09r0XxeTIsCIvpLcDW8tAAoOuB
-UHU9+QSzcOWtexJ9VUNES0AA
-=nbxi
------END PGP SIGNATURE-----
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
