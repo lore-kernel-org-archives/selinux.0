@@ -1,55 +1,143 @@
-Subject: Re: Newrole in targeted mode
-From: Karsten Wade <kwade@redhat.com>
-Reply-To: kwade@redhat.com
-To: SELinux@tycho.nsa.gov
-In-Reply-To: <1104388628.3140.4.camel@jsingh>
-References: <1104259373.22401.0.camel@hawaii.grays-systems.com>
-	 <1104259847.21391.107.camel@moss-spartans.epoch.ncsc.mil>
-	 <1104388628.3140.4.camel@jsingh>
-Content-Type: text/plain
-Date: Sun, 02 Jan 2005 03:30:26 -0800
-Message-Id: <1104665427.9831.13.camel@erato.phig.org>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j02C43Ii012712
+	for <selinux@tycho.nsa.gov>; Sun, 2 Jan 2005 07:04:04 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j02C29Hg000756
+	for <selinux@tycho.nsa.gov>; Sun, 2 Jan 2005 12:02:11 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 37E7D61B6C
+	for <selinux@tycho.nsa.gov>; Sun,  2 Jan 2005 23:03:52 +1100 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 08879-10 for <selinux@tycho.nsa.gov>;
+	Sun, 2 Jan 2005 23:03:51 +1100 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 9AECE61B6A
+	for <selinux@tycho.nsa.gov>; Sun,  2 Jan 2005 23:03:51 +1100 (EST)
+Received: from aeon (aeon [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 51298A4
+	for <selinux@tycho.nsa.gov>; Sun,  2 Jan 2005 23:03:50 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: policy patches
+Date: Sun, 2 Jan 2005 23:03:47 +1100
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_lM+1BydU6+Tcpi/"
+Message-Id: <200501022303.49225.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-12-30 at 12:07 +0530, Jaspreet Singh wrote:
-> Hi,
-> 
-> I tried to search and couldn't find any threads on this question ..
-> 
-> What are the basic differences between targeted and strict policies ..
-> 
-> All I know is .. there are lesser targeted domains/roles in target
-> policy compared to strict and as a result most domains run in an
-> unconfined_t domain.
+--Boundary-00=_lM+1BydU6+Tcpi/
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Everything runs in unconfined_t unless there is a transition specified
-to go to the new domain.  This transition is specified for only a small
-number of daemons.
+network_macros.diff makes a cosmetic change to the network macros.
 
-Other things are simplified.  In the targeted policy, there are fewer
-rules overall, fewer file contexts, and so forth.
+quota.diff enables converting quota files from old format to new format and 
+adds access to raw disk devices which seems to be needed by the newer 
+versions of the quota utilities.
 
-> On Tue, 2004-12-28 at 13:50 -0500, Stephen Smalley wrote:
-> > newrole serves no purpose under targeted policy; users are unconfined.
-> > setenforce 0 should work for you as root (from unconfined_t, of course,
-> > which is what you should already be in for a user session).
-> 
-> You can add new users and roles in target policy also ... 
-> In that case newrole should work as per the modified policies .. I am wrong ??
+screen.diff allows screen access to proc files so that it can display the 
+uptime and other trivial stuff.  Screen can work without this, but it's handy 
+to have it and proc_t is hardly restricted anyway.
 
-Because processes at all levels, whether spawned by init or a user, run
-in the unconfined_t domain, the role has no meaning.  AIUI, a user does
-not need an elevated role for what they do.
-
-- Karsten
 -- 
-Karsten Wade, RHCE, Sr. Tech Writer
-a lemon is just a melon in disguise
-http://people.redhat.com/kwade/
-gpg fingerprint: 2680 DBFD D968 3141 0115  5F1B D992 0E06 AD0E 0C41
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
+--Boundary-00=_lM+1BydU6+Tcpi/
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="quota.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="quota.diff"
+
+--- /usr/src/se/policy/file_contexts/program/quota.fc	2004-11-20 01:18:22.000000000 +1100
++++ file_contexts/program/quota.fc	2005-01-02 22:52:18.000000000 +1100
+@@ -1,5 +1,10 @@
+ # quota system
+ /var/lib/quota(/.*)?		system_u:object_r:quota_flag_t
+ /sbin/quota(check|on)	--	system_u:object_r:quota_exec_t
++ifdef(`distro_redhat', `
++/usr/sbin/convertquota	--	system_u:object_r:quota_exec_t
++', `
++/sbin/convertquota	--	system_u:object_r:quota_exec_t
++')
+ HOME_ROOT/a?quota\.(user|group) -- system_u:object_r:quota_db_t
+ /var/a?quota\.(user|group) -- system_u:object_r:quota_db_t
+--- /usr/src/se/policy/domains/program/unused/quota.te	2004-11-13 03:56:03.000000000 +1100
++++ domains/program/unused/quota.te	2005-01-02 22:53:20.000000000 +1100
+@@ -10,7 +10,7 @@
+ #
+ # needs auth attribute because it has read access to shadow_t because checkquota
+ # is buggy
+-daemon_base_domain(quota, `, auth')
++daemon_base_domain(quota, `, auth, fs_domain')
+ 
+ # so the administrator can run quotacheck
+ domain_auto_trans(sysadm_t, quota_exec_t, quota_t)
+@@ -39,6 +39,8 @@
+ allow quota_t file_type:lnk_file { read getattr };
+ allow quota_t device_type:{ chr_file blk_file } getattr;
+ 
++allow quota_t fixed_disk_device_t:blk_file { getattr read };
++
+ # for /quota.*
+ allow quota_t quota_db_t:file { read write };
+ dontaudit unpriv_userdomain quota_db_t:file getattr;
+
+--Boundary-00=_lM+1BydU6+Tcpi/
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="network_macros.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="network_macros.diff"
+
+--- /usr/src/se/policy/macros/network_macros.te	2004-11-25 06:44:37.000000000 +1100
++++ macros/network_macros.te	2004-12-25 12:26:30.000000000 +1100
+@@ -79,11 +79,12 @@
+ # Permissions for accessing the network.
+ # See types/network.te for the network types.
+ # See net_contexts for security contexts for network entities.
++# Combination of can_network_client_tcp() and can_network_server_tcp()
+ #
+ define(`can_network_tcp',`
+ 
+ can_network_server_tcp($1, `$2')
+-can_network_client_tcp($1, `$2')
++allow $1 self:tcp_socket { connect };
+ 
+ ')
+ 
+
+--Boundary-00=_lM+1BydU6+Tcpi/
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="screen.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="screen.diff"
+
+--- /usr/src/se/policy/macros/program/screen_macros.te	2004-12-13 09:55:31.000000000 +1100
++++ macros/program/screen_macros.te	2004-12-31 10:34:39.000000000 +1100
+@@ -87,6 +87,7 @@
+ 
+ # get stats
+ allow $1_screen_t proc_t:dir search;
++allow $1_screen_t proc_t:file { getattr read };
+ allow $1_screen_t proc_t:lnk_file read;
+ allow $1_screen_t etc_t:{ file lnk_file } { read getattr };
+ allow $1_screen_t self:dir { search read };
+
+--Boundary-00=_lM+1BydU6+Tcpi/--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
