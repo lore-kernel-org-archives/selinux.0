@@ -1,42 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA08298
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 16:43:45 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA13496
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 20:43:15 GMT
-Received: from vorpal.mcs.drexel.edu (vorpal.mcs.drexel.edu [129.25.6.250])
-	by jazzband.ncsc.mil  with ESMTP id UAA13481
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 20:42:40 GMT
-Subject: A notion
-From: "Justin R. Smith" <jsmith@mcs.drexel.edu>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: 02 Oct 2001 04:42:53 -0400
-Message-Id: <1002012173.1248.12.camel@vorpal>
-Mime-Version: 1.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA08638
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 17:29:48 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id VAA18449
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 21:28:05 GMT
+Received: from biocserver.BIOC.CWRU.Edu (biocserver.BIOC.CWRU.Edu [129.22.208.36])
+	by jazzswing.ncsc.mil  with ESMTP id VAA18445
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 21:28:05 GMT
+Date: Mon, 1 Oct 2001 17:35:50 -0400 (EDT)
+From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
+To: "Justin R. Smith" <jsmith@mcs.drexel.edu>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: A notion
+In-Reply-To: <1002012173.1248.12.camel@vorpal>
+Message-ID: <Pine.LNX.4.30.0110011734330.20148-100000@biocserver.BIOC.CWRU.Edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It occurred to me that custom versions of software can be more secure
-than standard versions because various exploits (like stack smashing,
-etc.) require precise knowledge of certain sizes and distances in RAM
-(for instance, the distance from the end of a buffer to the return
-point...).
+On 2 Oct 2001, Justin R. Smith wrote:
 
-Isn't it possible to develop a "randomizing C compiler" that randomly
-varies these distances every time it compiles a program? No two compiles
-of the same source code would be exactly the same (but they would
-execute the same way).
+> Isn't it possible to develop a "randomizing C compiler" that randomly
+> varies these distances every time it compiles a program? No two
+> compiles of the same source code would be exactly the same (but they
+> would execute the same way).
 
-This might involve inserting small random-sized blocks of dead code, or
-doing returns from subroutines through a level of indirection (i.e.,
-putting the actual return at some random location in the object code
-with a branch to it).
+to the best of my knowledge morphing code, in a variety of fashions (stuff
+that changes every time it compiles, every time it runs, while it runs) is
+a hot topic of DARPA research right now. as such, look around various
+sites doing research for DARPA and see who is doing what, publicly. a lot
+of the technology may be hidden behind various closed doors (ie commercial
+interests).
 
-Done right, this might not degrade performance significantly.
-
-
--- 
+____________________________
+jose nazario						     jose@cwru.edu
+	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
+				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
 
 
 --
