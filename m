@@ -1,57 +1,55 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RFtHrT003133
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 11:55:17 -0400 (EDT)
-Received: from smtp802.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6RFtFup007431
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 15:55:16 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 27 Jul 2004 15:55:00 -0000
-Date: Tue, 27 Jul 2004 17:06:06 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RHHXrT004015
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 13:17:33 -0400 (EDT)
+Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6RHHWup010333
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 17:17:32 GMT
+Message-Id: <200407271717.i6RHHFdt008474@turing-police.cc.vt.edu>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: [idea] multiple contexts.
-Message-ID: <20040727160605.GG3392@lkcl.net>
-References: <20040724231154.GE3437@lkcl.net> <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux ML <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
+   Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: file_contexts patch 
+In-Reply-To: Your message of "Tue, 27 Jul 2004 09:38:03 EDT."
+             <1090935483.2448.71.camel@moss-spartans.epoch.ncsc.mil>
+From: Valdis.Kletnieks@vt.edu
+References: <20040716201531.GB4940@obadja.jmh.mhn.de> <200407170802.08072.russell@coker.com.au> <20040716224252.GD4940@obadja.jmh.mhn.de> <200407171159.00489.russell@coker.com.au> <20040717195326.GA16762@bern.cip.ifi.lmu.de> <1090873552.25761.28.camel@moss-spartans.epoch.ncsc.mil>
+            <1090935483.2448.71.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; boundary="==_Exmh_-2085497731P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Tue, 27 Jul 2004 13:17:15 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jul 26, 2004 at 12:12:03PM -0400, Stephen Smalley wrote:
-> On Sat, 2004-07-24 at 19:11, Luke Kenneth Casson Leighton wrote:
-> > i'd like to propose an extension to the SE/Linux system: it's quite
-> > straightforward and it could possibly be implemented in the macro
-> > system - maybe, maybe not.
-> > 
-> > the ultimate aim is to help simplify the production of policies.
-> > 
-> > the idea is simple: to be able to have more than one context, and
-> > to be able to make auditing decisions based on more than one context.
-> 
-> Not a good idea, and not necessary.  You can encode the entire call
-> chain in a single security context using the domain transitions, 
+--==_Exmh_-2085497731P
+Content-Type: text/plain; charset=us-ascii
 
- well, not entirely - not dynamically, anyway: at least i do not
- believe so.
+On Tue, 27 Jul 2004 09:38:03 EDT, Stephen Smalley said:
 
- i thought originally that it would be possible to do what i envisaged
- with m4, by extending the policy language.
+> Note that in addition to reviewing the contents of rpm.te and rpm.fc for
+> RedHat-specific customizations, this change would require reviewing all
+> uses of ifdef(`rpm.te') throughout the various .te files, as some of
+> those conditional blocks are for RedHat-specific customizations while
+> others are for rules that should always be included when the rpm domain
+> is enabled in the policy (and thus should still be included for other
+> rpm-using distros).
 
+But still.. <Insert sound clip of Wilford Brimley "It's the right thing to do"> :)
 
-> and can
-> then unwind as desired.  Fortunately, it sounds like the kdeinit problem
-> is easily solved anyway.
+--==_Exmh_-2085497731P
+Content-Type: application/pgp-signature
 
- i also seek to limit the programs that a KDE user may run.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
- if there is a simple way to do that which does not involve writing
- policy files for each and every single KDE program i intend to restrict
- users to use, i would be interested to hear it.
+iD8DBQFBBo4bcC3lWbTT17ARAmZiAKCSKoeOXC/7LMbCjAAFxwcrnvjk6wCcCxCg
+0Rk0RF03I3kh/exfnS/oRFA=
+=9Ace
+-----END PGP SIGNATURE-----
 
- l.
-
+--==_Exmh_-2085497731P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
