@@ -1,55 +1,31 @@
-Date: Tue, 10 Dec 2002 09:11:17 +1100
-From: Brian May <bam@snoopy.apana.org.au>
-To: Russell Coker <russell@coker.com.au>
-Cc: Richard Mayo <rmayo@caci.com>, SELinux@tycho.nsa.gov
-Subject: Re: Basic Question
-Message-ID: <20021209221117.GB19816@snoopy.apana.org.au>
-References: <OF86B3B9F3.740529F3-ON85256C8A.0058C879@caci.com> <200212091924.50565.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200212091924.50565.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA03551
+	for <selinux@tycho.nsa.gov>; Tue, 10 Dec 2002 07:42:14 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id gBACgCI05168
+	for <selinux@tycho.nsa.gov>; Tue, 10 Dec 2002 12:42:12 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id gBACgCf05164 for <selinux@tycho.nsa.gov>; Tue, 10 Dec 2002 12:42:12 GMT
+Message-Id: <200212101249.HAA29947@moss-shockers.ncsc.mil>
+Date: Tue, 10 Dec 2002 07:49:30 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: ia64
+To: selinux@tycho.nsa.gov, russell@coker.com.au
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Dec 09, 2002 at 07:24:50PM +0100, Russell Coker wrote:
-> In all other cases of access being denied the message will be logged in 
-> enforcing mode (subject to the usual rate limit).
 
-Just in case Russell didn't make it clear, in enforcing mode
-there is a rate limit; from the comment for avc_ratelimit:
+Thanks, but perhaps it would be cleaner to move these header files into
+the arch/* subdirectories, and simply provide separate versions of the
+files for ia64 vs. i386?
 
-/* 
- * This enforces a rate limit: not more than one kernel message
- * every 5secs to make a denial-of-service attack impossible.
- */ 
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
-This only takes affect in enforcing mode:
-
-static inline int check_avc_ratelimit(void)  
-{
-        if (selinux_enforcing)
-                return avc_ratelimit();
-        else {
-                /* If permissive, then never suppress messages. */
-                return 1;
-        }
-}
-
-Over messages are simply discarded:
-
-void avc_audit(...)
-{
-   ...
-
-        if (!check_avc_ratelimit())
-                return;
-
-   ...
-
-	print avc message here
-}
--- 
-Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
