@@ -1,106 +1,196 @@
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: patch makefiles
-Date: Sun, 23 Mar 2003 18:00:39 +0100
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2O0S1x6000375
+	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2003 19:28:03 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h2O0S0R1028141
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 00:28:00 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h2O0Rjj9028138 for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 00:27:56 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id 2C05DBF43
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 11:27:38 +1100 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 27817-06
+ for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 11:27:36 +1100 (EST)
+Received: from tsv.sws.net.au (unknown [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id C58A9BF42
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 11:27:36 +1100 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 4B0FB9253C
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 11:27:36 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id CB9C825B
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 01:27:24 +0100 (CET)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: essential patches
+Date: Mon, 24 Mar 2003 01:27:23 +0100
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_3LO759R74T0USSDZAEHP"
-Message-Id: <200303231800.39827.carstengrohmann@gmx.de>
+  boundary="Boundary-00=_rDlf+ECFO5ynOqA"
+Message-Id: <200303240127.23991.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---------------Boundary-00=_3LO759R74T0USSDZAEHP
+--Boundary-00=_rDlf+ECFO5ynOqA
 Content-Type: text/plain;
   charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Hi,
+The attached patch file is essential for getting a working system based on the 
+current CVS policy.
 
-last days I create new rpm files for SuSE 8.1 with the selinux version=20
-published in January. (This time I don't publish the new rpm's on my page=
-=2E=20
-I hope I can publish the packages in the first week of April.)
-Thereby I add in a lot of makefile $(PREFIX), $(INCDIR) and so on. With t=
-his=20
-changes it is simple to create packages from the source.
-The attached patch (against the current cvs) contains this changes.
+initrc_t needs r_dir_perms access to /dev for some startup scripts (and there 
+is no good reason to stop it).
 
-Carsten
---------------Boundary-00=_3LO759R74T0USSDZAEHP
-Content-Type: text/x-makefile;
+Any program that has access to create pty devices needs search access to 
+/dev/pts (without such access it can't create a pty which makes no sense).
+
+user_t needs search access to /boot and read access to the system.map files 
+for the wchan.
+
+Many programs in user_t request read access to sysctl_kernel_t dir and file, 
+and for var_lib_t.  We could probably survive without sysctl_kernel_t, but 
+var_lib_t access is essential to many programs (particularly some perl 
+scripts used for Debian package building).  If we deny this then we need to 
+add some new types for the things that should be allowed.
+
+For random_device_t writing by a hostile user apparently does no harm 
+according to all the best sources of information available to me.  There are 
+probably some people on this list who know more about cryptology than the 
+people who wrote the /dev/random code for Linux.  If an expert decrees that 
+we should not allow write access then I'll accept that.  As for read access, 
+too many programs break when user_t can't access it, EG all SSL clients...
+
+As for ifconfig, without udp_socket access it won't work when called from 
+dhclient (dhcpc_t) and therefore denying such access breaks every DHCP 
+system.  I'm not sure why ifconfig looks for access to sysctl_net_t:dir as it 
+doesn't seem to do anything to files under that dir.  But based on my 
+experience with that program I'm not inclined to turn things off without a 
+really good reason.  ifconfig can break any part of your network setup if it 
+runs amok, denying it access to sysctl_net_t doesn't make any sense to me.
+
+
+I've tried the current CVS policy on a few machines with different 
+configurations and they all failed to work correctly on several counts.
+
+
+This patch can be applied independantly of the other patches I've posted 
+recently.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_rDlf+ECFO5ynOqA
+Content-Type: text/x-diff;
   charset="us-ascii";
-  name="makefile.diff.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="makefile.diff.gz"
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="diff"
 
-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
-sbzVGqo9AAA=
+diff -ru /tmp/policy/domains/program/initrc.te ./domains/program/initrc.te
+--- /tmp/policy/domains/program/initrc.te	2003-03-22 21:52:23.000000000 +0100
++++ ./domains/program/initrc.te	2003-03-23 15:09:25.000000000 +0100
+@@ -32,6 +32,9 @@
+ allow initrc_t self:unix_stream_socket create_socket_perms;
+ allow initrc_t self:fifo_file rw_file_perms;
+ 
++# allow listing the contents of /dev
++allow initrc_t device_t:dir r_dir_perms;
++
+ # Read the root directory of a usbdevfs filesystem, and
+ # the devices and drivers files.  Permit stating of the
+ # device nodes, but nothing else.
+@@ -254,3 +259,4 @@
+ # Rules for the run_init_t domain.
+ #
+ run_program(sysadm_t, sysadm_r, init, initrc_exec_t, initrc_t)
++allow initrc_t privfd:fd use;
+diff -ru /tmp/policy/macros/global_macros.te ./macros/global_macros.te
+--- /tmp/policy/macros/global_macros.te	2003-03-22 21:52:43.000000000 +0100
++++ ./macros/global_macros.te	2003-03-23 14:53:05.000000000 +0100
+@@ -531,6 +546,9 @@
+ # Read and write my pty files.
+ allow $1_t $1_devpts_t:chr_file { setattr rw_file_perms };
+ 
++# allow searching /dev/pts
++allow $1_t devpts_t:dir search;
++
+ ifdef(`devfsd.te', `
+ allow $1_t device_t:filesystem getattr;
+ ')
+@@ -605,6 +623,11 @@
+ allow $1 self:msgq rw_msgq_perms;
+ allow $1 self:shm  rw_shm_perms;
+ 
++# Use descriptors created by login, sshd, or newrole.
++allow $1 privfd:fd use;
++
++# Use descriptors created by mount (e.g. NFS).
++allow $1 mount_t:fd use;
+ ')
+ 
+ #
+diff -ru /tmp/policy/macros/user_macros.te ./macros/user_macros.te
+--- /tmp/policy/macros/user_macros.te	2003-03-22 21:52:43.000000000 +0100
++++ ./macros/user_macros.te	2003-03-24 00:50:41.000000000 +0100
+@@ -78,6 +78,10 @@
+ allow $1_t sshd_t:unix_stream_socket rw_stream_socket_perms;
+ ')dnl end of ssh section
+ 
++allow $1_t boot_t:dir { getattr search };
++dontaudit $1_t boot_t:dir read;
++allow $1_t system_map_t:file { getattr read };
++
+ # Type for tmpfs/shm files.
+ type $1_tmpfs_t, file_type, sysadmfile, tmpfsfile;
+ # Use the type when creating files in tmpfs.
+@@ -286,6 +301,12 @@
+ allow $1_t var_run_t:dir r_dir_perms;
+ allow $1_t var_run_t:{ file lnk_file } r_file_perms;
+ 
++allow $1_t var_lib_t:dir r_dir_perms;
++allow $1_t var_lib_t:file r_file_perms;
++
++allow $1_t sysctl_kernel_t:dir search;
++allow $1_t sysctl_kernel_t:file { getattr read };
++
+ # Read /etc.
+ allow $1_t etc_t:dir r_dir_perms;
+ allow $1_t etc_t:notdevfile_class_set r_file_perms;
+@@ -301,7 +322,7 @@
+ 
+ # Read and write /dev/tty and /dev/null.
+ allow $1_t devtty_t:chr_file rw_file_perms;
+-allow $1_t { null_device_t zero_device_t }:chr_file rw_file_perms;
++allow $1_t { null_device_t zero_device_t random_device_t }:chr_file rw_file_perms;
+ 
+ # Do not audit write denials to /etc/ld.so.cache.
+ dontaudit $1_t ld_so_cache_t:file write;
+diff -ru /tmp/policy/domains/program/ifconfig.te ./domains/program/ifconfig.te
+--- /tmp/policy/domains/program/ifconfig.te	2003-03-22 21:52:23.000000000 +0100
++++ ./domains/program/ifconfig.te	2003-03-23 22:09:20.000000000 +0100
+@@ -48,8 +48,10 @@
+ 
+ allow ifconfig_t tun_tap_device_t:chr_file { read write };
+ 
++allow ifconfig_t fs_t:filesystem getattr;
++
+ # ifconfig attempts to create a UDP socket and search some sysctl entries.
+ # Don't audit those attempts; comment out these rules if it is desired to
+ # see the denials.
+-dontaudit ifconfig_t sysctl_t:dir search;
+-dontaudit ifconfig_t self:udp_socket create;
++allow ifconfig_t { sysctl_t sysctl_net_t }:dir search;
++allow ifconfig_t self:udp_socket create_socket_perms;
 
---------------Boundary-00=_3LO759R74T0USSDZAEHP--
+--Boundary-00=_rDlf+ECFO5ynOqA--
 
 
 --
