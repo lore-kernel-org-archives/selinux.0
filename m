@@ -1,52 +1,42 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Matthew R. Singer" <msinger@itac.com>, <SELinux@tycho.nsa.gov>
-Subject: Re: Default_Contexts
-Date: Thu, 10 Apr 2003 10:18:35 +1000
-References: <8A61167D13CED411B3E500B0D079784703AAF3@mailserver.itac.reston>
-In-Reply-To: <8A61167D13CED411B3E500B0D079784703AAF3@mailserver.itac.reston>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'SELinux'" <SELinux@tycho.nsa.gov>
+Cc: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: setools, version 0.8
+Date: Thu, 10 Apr 2003 12:52:28 -0400
+Message-ID: <004901c2ff81$959a32d0$6600a8c0@columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_bhLl+rEyexbk4re"
-Message-Id: <200304101018.35150.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+We just released version 0.8 of our setools packages.  The version of
+setools included in the latest NSA distribution (under
+selinux/tools/setools) was version 0.7, which we released in February of
+this year.  You can download the complete tar file for versions 0.8 at
+www.tresys.com/selinux.  I will separately send a (rather large) patch
+file to Steve to update the versions in the selinux sourceforge CVS
+tree.
 
---Boundary-00=_bhLl+rEyexbk4re
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+You can view the change log file on our web site to get a sense of the
+changes in this version.  The primary enhancements are in seuser and
+apol.  We've completely rewritten both the command line and GUI
+interfaces for seuser (user manager), to provide a single interface to
+manage both system user (ala the passwd file) and policy user i.e.,
+role) attributes.  We also included three scripts (seuseradd, seusermod,
+and seuserdel) that provides a single set of commands to do both from
+command line.
 
-On Thu, 10 Apr 2003 06:08, Matthew R. Singer wrote:
-> Can someone give me a sample users .default_contexts file?
->
-> I'm using get_ordered_sid_list() and it always returns 0.
+In our policy analysis tool (apol), we added the first high-level
+analysis capability: a domain transition analysis.  You can now view an
+entire domain transition "call tree", including all the rules and types
+allowing the transitions. 
 
-Here's one of mine that worked on the previous release.  I presume that 
-nothing has changed in this regard in the latest release, but it'll be at 
-least a week before I can test it properly.
+Many other minor changes and updated were made.  As always we welcome
+bug reports, complaints, and feedback at selinux@tresys.com.  All tools
+are distributed in source code form.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_bhLl+rEyexbk4re
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name=".default_contexts"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=".default_contexts"
-
-system_r:local_login_t  second_r:second_t
-system_r:sshd_t		second_r:second_t
-system_r:crond_t	second_r:second_crond_t
-
---Boundary-00=_bhLl+rEyexbk4re--
-
+Regards, Frank
 
 
 --
