@@ -1,59 +1,64 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38HeiRb019357
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 13:40:44 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i38HciUZ006912
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 17:38:44 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i38HchmT006907
-	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 17:38:43 GMT
-Subject: Re: strange labeling problem
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@redhat.com>
-Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <1081445224.3361.107.camel@nexus.verbum.private>
-References: <1081376404.9215.13.camel@nexus.verbum.private>
-	 <1081431133.6379.99.camel@moss-spartans.epoch.ncsc.mil>
-	 <1081445224.3361.107.camel@nexus.verbum.private>
-Content-Type: text/plain
-Message-Id: <1081446022.6379.193.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i38LMhRb021143
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 17:22:43 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i38LMdn0012197
+	for <selinux@tycho.nsa.gov>; Thu, 8 Apr 2004 21:22:42 GMT
+Message-Id: <200404082122.i38LMdWm026103@turing-police.cc.vt.edu>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Policy backward compatibility 
+In-Reply-To: Your message of "Thu, 08 Apr 2004 13:09:32 EDT."
+             <1081444172.6379.174.camel@moss-spartans.epoch.ncsc.mil>
+From: Valdis.Kletnieks@vt.edu
+References: <1081430495.6379.89.camel@moss-spartans.epoch.ncsc.mil> <200404081704.i38H4ncM017181@turing-police.cc.vt.edu>
+            <1081444172.6379.174.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 08 Apr 2004 13:40:22 -0400
+Content-Type: multipart/signed; boundary="==_Exmh_-1979546352P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Thu, 08 Apr 2004 17:22:39 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-04-08 at 13:27, Colin Walters wrote:
-> On Thu, 2004-04-08 at 09:32, Stephen Smalley wrote:
-> > chcon likely never called setfilecon at all, since getfilecon would have
-> > told it that the file already had the right context.  
-> 
-> Ok, and this is basically an optimization, so we don't have to rewrite
-> the xattr on disk?
+--==_Exmh_-1979546352P
+Content-Type: text/plain; charset=us-ascii
 
-Yes.  It would call getfilecon anyway to see whether the context is
-being changed for verbose mode, and to determine the full context if
-only a particular context field (e.g. -t) were specified.  Also avoids
-any spurious permission denial, e.g. you do a chcon -R on a tree, and
-lack permission to relabel a file in that tree, but the file already has
-the right label.
+On Thu, 08 Apr 2004 13:09:32 EDT, Stephen Smalley said:
 
-> It's kind of confusing that there can be this kind of desynchronization
-> between chcon and ls -Z.  It will probably be a pretty rare case - it'll
-> likely only hit people who are developing policy.  
+> Yes, I think so.  Might be a front-end wrapper for checkpolicy that
+> calls the right checkpolicy-{kernelrelease} binary to generate the
+> policy for that kernel release.
 
-Yes.  This is a result of migrating to the xattr API; the old SELinux
-API obtained the context from the actual inode SID, and was always
-consistent.  But the xattr API calls down into the filesystem code to
-obtain the context, not the security module.  The security module only
-gets to mediate access before the call to the filesystem, and to update
-its internal state (i.e. the inode SID) after a successful call to the
-filesystem.
+OK.. I can live with that, long as the tool can handle a kernel releasename
+like 2.6.8-mm3-mobytweaks ;)
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+> If you include the kernel release in the policy pathname (e.g.
+> /etc/security/selinux/`uname -r`/policy), as with kernel modules
+> (/lib/modules/`uname -r`), then the old policy should still be there and
+> should be used by the older kernel if you reboot it.
 
+That's workable too - and we probably don't need any modversions-style tweaks
+to make sure that the policy and kernel aren't affected by a mismatch (I figure
+if you live so far on the edge that anything more granular than 2.6.N-mm?
+matters, you're on your own. :)
+
+We just need to make sure that a released kernel doesn't create incompatible
+policies based on Kconfig changes...
+
+
+--==_Exmh_-1979546352P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAdcKecC3lWbTT17ARAowWAKChAaGOd7TtACOFYVt59lUAogGN/gCdG4hG
+XfxAOET7v+owUQRuYxAx6Pg=
+=hDuI
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1979546352P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
