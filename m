@@ -1,40 +1,47 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i55HkqrT026639
-	for <selinux@tycho.nsa.gov>; Sat, 5 Jun 2004 13:46:52 -0400 (EDT)
-Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i55Hkn22028619
-	for <selinux@tycho.nsa.gov>; Sat, 5 Jun 2004 13:46:49 -0400 (EDT)
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i560BWrT027530
+	for <selinux@tycho.nsa.gov>; Sat, 5 Jun 2004 20:11:32 -0400 (EDT)
+Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i560BURQ027790
+	for <selinux@tycho.nsa.gov>; Sat, 5 Jun 2004 20:11:30 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp804.mail.ukl.yahoo.com with SMTP; 5 Jun 2004 17:46:45 -0000
+  by smtp802.mail.ukl.yahoo.com with SMTP; 6 Jun 2004 00:11:30 -0000
 Received: from highfield ([192.168.0.223] helo=lkcl.net)
 	by hyd with esmtp (Exim 4.34)
-	id 1BWebW-0000qX-Q7
-	for selinux@tycho.nsa.gov; Sat, 05 Jun 2004 17:05:10 +0000
+	id 1BWkbv-0000tI-6F
+	for selinux@tycho.nsa.gov; Sat, 05 Jun 2004 23:29:59 +0000
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BWfDC-00020u-Tz
-	for selinux@tycho.nsa.gov; Sat, 05 Jun 2004 17:44:06 +0000
-Date: Sat, 5 Jun 2004 17:44:06 +0000
+	id 1BWlDZ-0001kJ-CI
+	for selinux@tycho.nsa.gov; Sun, 06 Jun 2004 00:08:53 +0000
+Date: Sun, 6 Jun 2004 00:08:53 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: kdm 3.2.2 patch looks like it _is_ required
-Message-ID: <20040605174406.GA7233@lkcl.net>
+Subject: successful cupsys admin: advantages of running pam_selinux
+Message-ID: <20040606000852.GA6673@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-i don't exactly know what's going on, but that patch to kdm looks like
-it's going to be necessary.
+it is with some amazement that, by adding pam_selinux to /etc/pam.d/cups
+and by adding an ordinary user to the lpadmin group that i was able
+to have that ordinary user set up a local printer and actually print
+to it (openoffice).
 
-i set up a system which logs in a user automatically via kdm.
+i am aware that there are concerns about pam_selinux being inappropriate
+for certain things - openssh being one of them due to ttys not being
+managed properly, and kdm when you set AutoLogin is another.
 
-with the unpatched kdm, and using pam_selinux, logins requiring
-passwords work fine but an AutoLogin doesn't.
+however the prospect of having to code up a policy for doing what i
+just managed to do fills me with some trepidation.
 
-with the patched kdm and pam_selinux removed, both scenarios work.
+i could not tell you where to begin to get the same effect as the
+lpadmin group.
 
-i don't pretend to know why, i just need a system that "works" that
-users can't do any damage to...
+six of one, half a dozen of the other.
+
+i mention all this just in case someone thought "i know, pam_selinux
+is bad, let's drop it entirely".
 
 l.
 
