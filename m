@@ -1,126 +1,34 @@
-Date: Fri, 25 Jan 2002 10:44:45 -0800
-From: paul krumviede <pwk@acm.org>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>,
-        "'Stephen Smalley'" <sds@tislabs.com>,
-        Timothy Wood <timothy@hallcomp.com>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Rules for SELinux in a vmware session
-Message-ID: <10470000.1011984285@zfc>
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A1015242B5@csoc-mail-box.csoconline.com>
-References: <72222DC86846D411ABD300A0C9EB08A1015242B5@csoc-mail-box.csoconli
- ne.com>
+Date: Fri, 25 Jan 2002 14:04:13 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Timothy Wood <timothy@hallcomp.com>
+cc: Paul Krumviede <pwk@acm.org>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: network and module problems
+In-Reply-To: <1011984582.1946.6.camel@phobos>
+Message-ID: <Pine.GSO.4.33.0201251401231.7127-100000@raven>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========1814859384=========="
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==========1814859384==========
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+
+On 25 Jan 2002, Timothy Wood wrote:
+
+> kernel: avc: denied { create } for pid=761 exe=/sbin/ip
+> scontext=root:sysadm_r:sysadm_t tcontext=root:sysadm_r:sysadm_t
+> tclass=netlink_socket
+
+Yes, at present, there isn't a domain transition from sysadm_t to
+netutils_t, so this isn't surprising.  But this wouldn't occur when run
+by the rc scripts, and it doesn't explain why you would have a problem
+when in permissive mode.   I still think you have a bad kernel
+configuration (missing one or both of the Netlink or Routing messages
+options).
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-
---On Friday, January 25, 2002 12:16:59 PM -0600 "Westerman, Mark" 
-<Mark.Westerman@csoconline.com> wrote:
-
->
->
-> I created the following rule for running selinux in a vmware session.
->
-> I currently have a prototype vmware domain for the host OS.
-
-i created something a bit more complex. i also attempted to make
-the policy file relatively self-contained (for example, the attached
-file adds the vmware_guestd_t type to the system_r role, rather than
-having to add it in the rbac file; this may be a matter of taste).
-the file is also extensively (excessively?) annotated.
-
-it isn't yet with the newest release (the 2.4.17 kernel one) or on a
-redhat 7.2 system; it was done with some of the earlier releases, up
-to and including the 2.4.16 kernel one, with VMware 2.04 and 3.0.
-
-
-> File: setfiles/file_contexts
-># Added for vmware session
-> /etc/modules.conf(|.*)          system_u:object_r:modules_conf_t
-
-i also added
-
-/etc/vmware-tools/vmware-guestd system_u:object_r:vmware_guestd_exec_t
-
-to setfiles/file_contexts.
-
--paul
-
---==========1814859384==========
-Content-Type: application/octet-stream; name="vmware.te"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="vmware.te"; size=3473
-
-IwojIGNyZWF0ZWQgYnkgcGF1bCBrcnVtdmllZGUgKHB3a0BhY20ub3JnKQojCiMgcGF1bCdzIGF0
-dGVtcHQgdG8gbWFrZSBhdCBsZWFzdCBzb21lIG9mIHRoZSB2bXdhcmUgc3R1ZmYgd29yayBmb3Ig
-dXNlCiMgb2YgbGludXggYXMgYSBndWVzdCBPUwoKIwojIHJ1bGVzIGZvciB0aGUgdm13YXJlIHRv
-b2xzIGRhZW1vbgojCiMgdm13YXJlX2d1ZXN0ZF90IGlzIHRoZSBkb21haW4gb2YgdGhlIHZtd2Fy
-ZSB0b29scyBndWVzdCBPUyBkYWVtb24KIyB2bXdhcmVfZ3Vlc3RkX2V4ZWNfdCBpcyB0aGUgdHlw
-ZSBvZiBpdHMgZXhlY3V0YWJsZQojCnR5cGUgdm13YXJlX2d1ZXN0ZF90LCBkb21haW4sIHByaXZs
-b2c7CnR5cGUgdm13YXJlX2d1ZXN0ZF9leGVjX3QsIGZpbGVfdHlwZSwgc3lzYWRtX2ZpbGUsIGV4
-ZWNfdHlwZTsKCnR5cGUgdm13YXJlX2d1ZXN0ZF92YXJfcnVuX3QsIGZpbGVfdHlwZSwgc3lzYWRt
-X2ZpbGUsIHBpZGZpbGU7CmZpbGVfdHlwZV9hdXRvX3RyYW5zKHZtd2FyZV9ndWVzdGRfdCwgdmFy
-X3J1bl90LCB2bXdhcmVfZ3Vlc3RkX3Zhcl9ydW5fdCkKCiMgaSBkb24ndCByZWFsbHkga25vdyB3
-aGljaCBjYXBhYmlsaXRpZXMgaXMgcmVhbGx5IG5lZWRzIG90aGVyIHRoYW4KIyBzeXNfdGltZSAo
-aSBzYXcgYXZjIGRlbmlhbHMgd2l0aG91dCBpdCkKYWxsb3cgdm13YXJlX2d1ZXN0ZF90IHNlbGY6
-Y2FwYWJpbGl0eSB7c3lzX2FkbWluIHN5c190aW1lfTsKCiMgZG8gd2UgcmVhbGx5IG5lZWQgdG8g
-aW5oZXJpdCBhbmQvb3IgdXNlIGRlc2NyaXB0b3JzIGZyb20gaW5pdD8KYWxsb3cgdm13YXJlX2d1
-ZXN0ZF90IGluaXRfdDpmZCBpbmhlcml0X2ZkX3Blcm1zOwoKIwojIG5lZWQgdG8gZG8gc29tZXRo
-aW5nIGdyb3NzIGFuZCBkaXNndXN0aW5nIHRvIG1ha2UgdGhlIG1vZHVsZSBoYW5kbGluZwojIGJp
-dHMgKHRoZSBrZXJuZWwgbW9kdWxlIGxvYWRlciwgbW9kcHJvYmUsIGFuZCBkZXBtb2QpIHdvcms6
-IHRoZSB2bXdhcmUKIyBpbnN0YWxsIGNyZWF0ZXMgYSBkdWFsY29uZiBpbml0IHNjcmlwdCwgd2hp
-Y2gsIGFtb25nIG90aGVyIHRoaW5ncywKIyBjcmVhdGVzIG1vZHVsZXMuY29uZiBhcyBhIHN5bWxp
-bmsgdG8gbW9kdWxlcy5jb25mLnt2bSxvcmd9CiMgYnV0IHRoaXMgbGVhdmVzIC9ldGMvbW9kdWxl
-cy5jb25mIGluIHRoZSBldGNfcnVudGltZV90IGRvbWFpbiwgYW5kCiMgdGhlIG1vZHVsZSBoYW5k
-bGluZyBzdHVmZiBjYW4ndCByZWFkIHRoZSBsaW5rLi4uCiMgc28gd2UnbGwgdHJ5IHRvIGZpeCB0
-aGlzIGJ5IGxldHRpbmcgdGhlbSByZWFkIGZyb20gdGhlIGV0Y19ydW50aW1lX3QKIyBkb21haW4s
-IGJ1dCBpdCBtaWdodCBiZSBiZXR0ZXIgdG8gY3JlYXRlIGEgZHVhbF9jb25mIGRvbWFpbiBmb3Ig
-dGhpcy4uLgphbGxvdyBtb2Rwcm9iZV90IGV0Y19ydW50aW1lX3Q6bG5rX2ZpbGUgcl9maWxlX3Bl
-cm1zOwphbGxvdyBkZXBtb2RfdCBldGNfcnVudGltZV90Omxua19maWxlIHJfZmlsZV9wZXJtczsK
-YWxsb3cga21vZF90IGV0Y19ydW50aW1lX3Q6bG5rX2ZpbGUgcl9maWxlX3Blcm1zOwoKIyBmcm9t
-IGxvb2tpbmcgYXQgc3lzbG9nIG1lc3NhZ2VzLCBpdCBzZWVtcyB0aGF0IGluc21vZCBhbHNvIHdh
-bnRzCiMgdG8gcmVhZCAoPykgbW9kdWxlcy5jb25mLCBidXQgdGhlcmUgZG9lc24ndCBzZWVtIHRv
-IGJlIGEgcnVsZQojIGFsbG93aW5nIHRoYXQgbm9ybWFsbHkuLi4gd2UnbGwgYWRkIHRoZSBhYmls
-aXR5IHRvIGF0IGxlYXN0CiMgcmVhZCB0aGUgc3ltbGluayBwb2ludGluZyB0byB0aGUgYXBwcm9w
-cmlhdGUgdmVyc2lvbi4KYWxsb3cgaW5zbW9kX3QgZXRjX3J1bnRpbWVfdDpsbmtfZmlsZSByX2Zp
-bGVfcGVybXM7CmFsbG93IGluc21vZF90IG1vZHVsZXNfY29uZl90Omxua19maWxlIHJfZmlsZV9w
-ZXJtczsKCiMgaGF2ZSBhIHNpbWlsYXIgcHJvYmxlbSB3aXRoIGR1YWxjb25mIGNyZWF0aW5nIC9l
-dGMvWDExL1ggYXMgYSAocnVudGltZSkKIyBzeW1saW5rOyBhbGxvdyB0aGUgWCBzZXJ2ZXIgdG8g
-cmVhZCB0aGUgbGluay4uLgphbGxvdyB1c2VyX3hzZXJ2ZXJfdCBldGNfcnVudGltZV90Omxua19m
-aWxlIHJfZmlsZV9wZXJtczsKYWxsb3cgc3lzYWRtX3hzZXJ2ZXJfdCBldGNfcnVudGltZV90Omxu
-a19maWxlIHJfZmlsZV9wZXJtczsKYWxsb3cgdXNlcl90IGV0Y19ydW50aW1lX3Q6bG5rX2ZpbGUg
-cl9maWxlX3Blcm1zOwoKYWxsb3cgZGVwbW9kX3QgbW9kdWxlc19jb25mX3Q6bG5rX2ZpbGUgcl9m
-aWxlX3Blcm1zOwoKIyBub3RlIHRoYXQgaWYgb25lIHJlbGFiZWxzIHRoaW5ncyBieSBydW5uaW5n
-ICJtYWtlIHJlbGFiZWwiCiMgdGhlbiB0aGUgY29udGV4dHMgb2YgL2V0Yy9tb2R1bGVzLmNvbmYg
-YW5kIC9ldGMvWDExL1gKIyBnZXRzIHJlc2V0IGZyb20gZXRjX3J1bnRpbWVfdCAod2hpY2ggaXMg
-aG93IHRoZXkgYXJlIHNldAojIHdoZW4gZHVhbGNvbmYgcnVucyBhdCBib290KSwgc28gd2UgbmVl
-ZCB0byBiZSBhYmxlIHRvCiMgZGVhbCB3aXRoIGFsbCB0aGF0IHJ1bnMgYmVmb3JlIGR1YWxjb25m
-IG9uIGEgc3Vic2VxdWVudAojIGJvb3QKYWxsb3cgaW5pdHJjX3QgbW9kdWxlc19jb25mX3Q6bG5r
-X2ZpbGUgcl9maWxlX3Blcm1zOwphbGxvdyBmc2FkbV90IG1vZHVsZXNfY29uZl90Omxua19maWxl
-IHJfZmlsZV9wZXJtczsKYWxsb3cgaW5pdHJjX3QgZXRjX3Q6bG5rX2ZpbGUgbGlua19maWxlX3Bl
-cm1zOwoKIyBsZXQgZHVhbGNvbmYgcmVtb3ZlIGFuZCBjcmVhdGUgdGhlIHN5bWxpbmtzCiMgcmVh
-bGx5IHNob3VsZCBjcmVhdGUgYSBzZXBhcmF0ZSBkb21haW4gZm9yIGR1YWxjb25mCmFsbG93IGlu
-aXRyY190IG1vZHVsZXNfY29uZl90Omxua19maWxlIGxpbmtfZmlsZV9wZXJtczsKCiMgbGV0IHVz
-ZXJzIHJlYWQgdGhlIHN5bWxpbmtzIGNyZWF0ZWQgYnkgZHVhbGNvbmYKYWxsb3cgdXNlcl90IGV0
-Y19ydW50aW1lX3Q6bG5rX2ZpbGUgcl9maWxlX3Blcm1zOwphbGxvdyBzeXNhZG1fdCBldGNfcnVu
-dGltZV90Omxua19maWxlIHJfZmlsZV9wZXJtczsKCiMgbGV0IHZtd2FyZV90b29sYm94IGNvbm5l
-Y3QgdG8gdGhlIFggc2VydmVyCiMgYWdhaW4sIHNob3VsZCBoYXZlIGEgc2VwYXJhdGUgZG9tYWlu
-IGZvciB0aGlzCmNhbl91bml4X2Nvbm5lY3QocHJpdmxvZywgdXNlcl94c2VydmVyX3QpCgojCiMg
-dHJ5IHRvIG1ha2UgdGhpcyBhIHNlbGYtY29udGFpbmVkIGZpbGUsIHJhdGhlciB0aGFuIHNjYXR0
-ZXJpbmcKIyB0aGluZ3MgYXJvdW5kIG90aGVyIGZpbGVzIChuYW1lbHkgcmJhYyBhbmQgaW5pdHJj
-LnRlKQojCnJvbGUgc3lzdGVtX3IgdHlwZXMgewoJdm13YXJlX2d1ZXN0ZF90Cn07CnR5cGVfdHJh
-bnNpdGlvbiBpbml0X3Qgdm13YXJlX2d1ZXN0ZF9leGVjX3Q6cHJvY2VzcyB2bXdhcmVfZ3Vlc3Rk
-X3Q7CgojIHJ1biB2bXdhcmUtZ3Vlc3RkIGluIGl0cyBvd24gZG9tYWluCmRvbWFpbl9hdXRvX3Ry
-YW5zKGluaXRyY190LCB2bXdhcmVfZ3Vlc3RkX2V4ZWNfdCwgdm13YXJlX2d1ZXN0ZF90KQo=
-
---==========1814859384==========--
 
 
 --
