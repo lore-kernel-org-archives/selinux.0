@@ -1,32 +1,39 @@
-Date: Thu, 24 Mar 2005 22:11:08 +0000
+Date: Thu, 24 Mar 2005 22:19:54 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>, Russell Coker <russell@coker.com.au>
-Subject: Re: I would like to propose some kind of consolidation of tmpfs_t and tmp_t
-Message-ID: <20050324221107.GD8553@lkcl.net>
-References: <4242CABC.70400@redhat.com> <1111675057.12486.39.camel@moss-spartans.epoch.ncsc.mil> <1111685458.13486.61.camel@moss-spartans.epoch.ncsc.mil>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+   "'KaiGai Kohei'" <kaigai@kaigai.gr.jp>,
+   "'SELinux Mail List'" <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
+Subject: Re: [RFC & PATCH] inherited type definition.
+Message-ID: <20050324221954.GE8553@lkcl.net>
+References: <20050322001439.GB8444@lkcl.net> <200503221353.j2MDrT8R010539@gotham.columbia.tresys.com> <20050324110438.GC13372@lkcl.net> <4242B32D.9050109@ak.jp.nec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1111685458.13486.61.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <4242B32D.9050109@ak.jp.nec.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Mar 24, 2005 at 12:30:58PM -0500, Stephen Smalley wrote:
-> On Thu, 2005-03-24 at 09:37 -0500, Stephen Smalley wrote:
-> > For /tmp, a fscontext= mount seems to have an issue in that it is still
-> > using type transitions for labeling inodes (including the root), so we
-> > end up with mount_tmp_t on /tmp at least under strict policy.  Possibly
-> > we could/should change the way that works for the root inode.
+On Thu, Mar 24, 2005 at 09:31:41PM +0900, Kaigai Kohei wrote:
+> Hello,
 > 
-> Possible workaround - mount with fscontext=, then run restorecon /tmp
-> (not recursively, just on the top-level directory) from rc.sysinit.
+> >  and your original question was: when you use A "extends" B and C
+> >  "extends" B, and B contains "@"s, how do you potentially make A
+> >  ignore the "@" but C _not_ ignore the "@"?
+> 
+> That means as follows, doesn't it ?
+> <type B>
+>  + <type A>
+>  + <type C>
+ 
+ yes.
 
- i found that i had to do this for /dev on debian, when running udev.
+> "allow foo_t @B - @C:file getattr ;" is rolled out to
+> "allow foo_t {B A}:file getattr ;" as you want.
 
- bearing in mind that udev on debian is NOT started from the
- initrd like wot it is in fedora, it's started from /etc/init.d
- very early on (priority 2 or 3).
+ ah ha!
+
+ great.
 
  l.
 
