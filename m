@@ -1,86 +1,66 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6P9kZrT019607
-	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 05:46:35 -0400 (EDT)
-Received: from smtp808.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6P9kYYd000720
-	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 09:46:35 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6PCoxrT019989
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 08:51:01 -0400 (EDT)
+Received: from smtp800.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6PCoQVH010367
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 12:50:30 GMT
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp808.mail.ukl.yahoo.com with SMTP; 25 Jul 2004 09:46:34 -0000
-Date: Sun, 25 Jul 2004 10:57:39 +0100
+  by smtp800.mail.ukl.yahoo.com with SMTP; 25 Jul 2004 12:50:51 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1Bohxr-0000KG-MS
+	for selinux@tycho.nsa.gov; Sun, 25 Jul 2004 12:18:51 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BoidX-0002cI-NO
+	for selinux@tycho.nsa.gov; Sun, 25 Jul 2004 14:01:55 +0100
+Date: Sun, 25 Jul 2004 14:01:55 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: pam-list@redhat.com, SE-Linux <selinux@tycho.nsa.gov>
-Subject: IDEA: /etc/pam.d/*/*
-Message-ID: <20040725095739.GH3437@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: kdeinit
+Message-ID: <20040725130155.GR3437@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-there is a minor issue of inter-dependence of packages that may
-be resolved by applying the usual debian approach of 
-"if-it-was-a-config-file-make-it-a-directory".
+as you've seen, i sent a message to the kde-devel list, stephan kindly
+responded by saying that it's possible to disable kdeinit by
+defining KDE_IS_PRELINKED.
 
-the issue is that Debian has to cater for SELinux being
-installed and not installed.
+i've modified startkde (possibly not the smartest thing to do) to
+have this at the top:
 
-openssh, login, kdm, gdm, su and several other packages all
-require "session pam_selinux.so required" to be added to
-their respective /etc/pam.d/XXX configurations in order for
-SE/Linux to operate correctly.
+	#!/bin/sh
+	#
+	#  DEFAULT KDE STARTUP SCRIPT ( KDE-3.2 )
+	#
 
-Redhat is solving the issue by always enabling SE/Linux by
-default.
+	KDE_IS_PRELINKED=1
+	export KDE_IS_PRELINKED
 
-Debian has no such luxury.
+and voila, it appears that i end up saving about 30mbyte of virtual
+memory - something that _could_ save a lot of time on a system that
+is pushed for physical ram.
 
-therefore, openssh etc. etc. cannot accept upstream patches
-to have /etc/pam.d/ssh include that line by default, because
-if you do, and pam_selinux.so is not installed, you're hosed.
+so it's a trade-off between saving some virtual memory and saving some
+speed in the library pre-loading.
 
-one possible solution is to turn, exactly as was done with
-pam.conf into pam.d several years ago, the contents of
-the pam.d files into directories.
-
-now, in this case, an ordering is required, and so the same
-thing can be done as with /etc/rc?.d/* and /etc/exim4/conf.d
-namely to have a number NN[N][N] at the front of the config.
-
-what this allows people to do is to install pam, and to install
-selinux, and for there to NOT be an inter-dependence between
-the two, and for there NOT to have to be a special openssh-selinux
-with only a single file different (a different /etc/pam.d/ssh)
-and likewise for all other packages.
-
-in other words, the contents of /etc/pam.d/ssh get split into
-a directory, /etc/pam.d/ssh, as follows:
-
-000_nonroot:
-	# Disallow non-root logins when /etc/nologin exists.
-	auth       required     pam_nologin.so
-
-100_stdunix:
-	# Standard Un*x authentication.
-	@include common-auth
-
-	# Standard Un*x authorization.
-	@include common-account
-
-	# Standard Un*x session setup and teardown.
-	@include common-session
-
-
-etc. etc.
-
-and then, you can install a separate pam-selinux package that
-blats into the mix:
-
-800_selinux:
-
-	session   required pam_selinux.so
-
-reckon?
+... but the important thing is that as far as SE/Linux is concerned
+it IS possible to remove kdeinit from the loop, and therefore it IS
+possible to write selinux policy files without kdeinit getting in
+the way.
 
 l.
+
+-- 
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility if acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
