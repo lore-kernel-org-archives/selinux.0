@@ -1,30 +1,52 @@
-Subject: Re: ftp long time connection
-From: Justin Smith <jsmith@mcs.drexel.edu>
-To: SELinux@tycho.nsa.gov
-In-Reply-To: <1707.192.168.1.12.1014138396.squirrel@192.168.1.2>
-References: <1707.192.168.1.12.1014138396.squirrel@192.168.1.2>
-Content-Type: text/plain
-Date: 19 Feb 2002 12:51:40 -0500
-Message-Id: <1014141100.1551.13.camel@jsmith.org>
-Mime-Version: 1.0
+Date: Tue, 19 Feb 2002 13:01:38 -0500 (EST)
+From: Noah silva <nsilva@atari-source.com>
+To: Metrix <metrix007@yahoo.com>
+cc: SELinux@tycho.nsa.gov
+Subject: Re: activity?
+In-Reply-To: <20020219150341.24693.qmail@web20607.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.21.0202191257290.20809-100000@sparcy.internal.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2002-02-19 at 12:06, Lonnie Cumberland wrote:
-> The problem is that when I try to connect to my SELinux server from
-> another Linux client that it takes about 2 - 3 minutes. I have even
-> tried to give the IP instead of the host name and it still take this
-> long time as well.
+I am not sure if I see the time between updates as making it
+non-viable.  I don't think anyone has attempted to keep it up to date with
+every 2.5.xprexx kernal out there.  Given that you can now find slackware,
+debian, and other profiles for it, I would say it's actually easier to set
+up than it has been in the past.  NSA says on their page however, that it
+isn't meant to be a "complete security solution", but I think it definatly
+adds quote a bit of additional secirity, mainly because it works a bit
+differently from the normal unix security, while leaving that intact.  In
+effect, non-root programs have to make it through two, seperate, security
+layers.  Root programs suddenly don't have "god" power over everything,
+but only power over what they need.  (assuming that profiles are set up
+appropriately).
+
+ As to wether SELinux is more appropriate or some other similar LSM
+project... I don't know myself.
+
+ -- noah silva 
+
+On Tue, 19 Feb 2002, Metrix wrote:
+
+> Hey all,
 > 
->
-
-Strange! I'd be inclined to think it has nothing to do with SELinux. I'm
-running a web server with Servlets and JSP (the URL is 
-http://vorpal.mcs.drexel.edu
-) and haven't noticed any increase in access time. My web server is very
-active, too (my students take exams via fill-out forms).
-
--- 
+> I was recently considering using SELinux, but going by
+> the time between updates, it does not seem a viable
+> option, so I am asking, is SELinux still being
+> developed/and or maintained?
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Yahoo! Sports - Coverage of the 2002 Olympic Games
+> http://sports.yahoo.com
+> 
+> --
+> You have received this message because you are subscribed to the selinux list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
 
 
 --
