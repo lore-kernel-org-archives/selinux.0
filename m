@@ -1,49 +1,50 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA06149
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 07:11:42 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA06229
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 07:21:59 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA19651
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:09:48 GMT
+	by jazzswing.ncsc.mil  with ESMTP id MAA20078
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:20:05 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id MAA19647
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:09:48 GMT
-Date: Thu, 31 Oct 2002 07:11:29 -0500 (EST)
+	by jazzswing.ncsc.mil  with ESMTP id MAA20074
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:20:05 GMT
+Date: Thu, 31 Oct 2002 07:21:39 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: Greg KH <greg@kroah.com>
-cc: <selinux@tycho.nsa.gov>, <linux-security-module@wirex.com>
-Subject: Re: SELinux Kernel Oops
-In-Reply-To: <20021030230034.GE3384@kroah.com>
-Message-ID: <Pine.GSO.4.33.0210310706350.23380-100000@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: strange problem
+In-Reply-To: <200210311246.37017.russell@coker.com.au>
+Message-ID: <Pine.GSO.4.33.0210310713590.23380-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 30 Oct 2002, Greg KH wrote:
+On Thu, 31 Oct 2002, Russell Coker wrote:
 
-> Shouldn't you also fix SELinux to handle NULL security fields :)
+> avc:  denied  { execute_no_trans } for  pid=11872 exe=/bin/bash
+> path=/usr/bin/tr dev=09:03 ino=459224 scontext=system_u:system_r:crack_t
+> tcontext=system_u:object_r:unlabeled_t tclass=file
+> root@test:~# ls --context /usr/bin/tr
+> -rwxr-xr-x  root     root     system_u:object_r:bin_t          /usr/bin/tr
+> root@test:~#
+>
+> The above is a problem that's happened twice to me now.  This time it happened
+> with all the SE patches applied, the previous time it happened without.
+>
+> When I run "tr" from the command line it works!
+>
+> So why is it being denied when run from crack_t?
 
-And how you would suggest that we handle them?  The old precondition
-approach was fundamentally flawed.  Failing closed (i.e. denying access)
-when the field is NULL will break normal operation.  Failing open (i.e.
-granting access) when the field is NULL opens a potential security
-vulnerability.
-
-> And wouldn't the proliferation of different fs types in 2.5 make this
-> patch a bit bigger?
-
-It doesn't appear that init_private_file is used much at present; I don't
-know what the future plans are for it.  We covered every existing use in
-the mainstream 2.4 and 2.5 kernels.  If an out-of-tree kernel patch
-or module uses init_private_file, then we'll end up with an allocated
-security field that is never freed, but I'd rather have a leak than an
-Oops (and out-of-tree kernel patches and modules should naturally be
-audited before using them with SELinux or any other security module).
+This is expected without the separate SELinux patch due to a gap in LSM,
+but should be addressed by the separate SELinux patch.  Please verify that
+this happens with the SELinux patch applied (and not your hacked version
+of the patch, but the original one).  Is this 2.4.19 or 2.5.44?
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
+
 
 
 
