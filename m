@@ -1,31 +1,30 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9Q9NqXZ010605
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 05:23:52 -0400 (EDT)
-Received: from kokytos.rz.informatik.uni-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9Q9NpT7000917
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 09:23:51 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9QC6TXZ011338
+	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 08:06:29 -0400 (EDT)
+Received: from kokytos.rz.informatik.uni-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9QC5BC0009882
+	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 12:05:12 GMT
 Received: from rom.cip.ifi.lmu.de (rom.cip.informatik.uni-muenchen.de [141.84.214.183])
-	by kokytos.rz.informatik.uni-muenchen.de (Postfix) with ESMTP id 25EA6435FF
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 11:23:51 +0200 (CEST)
-Date: Tue, 26 Oct 2004 11:23:51 +0200
+	by kokytos.rz.informatik.uni-muenchen.de (Postfix) with ESMTP id 95E87435C9
+	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 14:06:29 +0200 (CEST)
+Date: Tue, 26 Oct 2004 14:06:29 +0200
 From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Patch: small fix for sudo
-Message-ID: <20041026092350.GB24672@rom.cip.ifi.lmu.de>
+Subject: screen patch
+Message-ID: <20041026120629.GC24672@rom.cip.ifi.lmu.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="azLHFNyN32YCQGCU"
+Content-Type: multipart/mixed; boundary="QTprm0S8XgL7H0Dt"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---azLHFNyN32YCQGCU
+--QTprm0S8XgL7H0Dt
 Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
 
-Attached patch fixes one duplicate permission which is already in
-newrole_domain() and moves the exec type declaration out of the macro.
-The old policy generated types like staff_sudo_exec_t which is wrong, I
-think.
+The following patch allows users to start screen with some other program
+than the shell, e.g. "screen vim /some/file". The given command forms
+the first session inside of screen.
 
 Please apply.
 
@@ -35,48 +34,35 @@ Thomas
 http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
 GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
---azLHFNyN32YCQGCU
+--QTprm0S8XgL7H0Dt
 Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: attachment; filename="sudo_fix.patch"
+Content-Disposition: attachment; filename="screen.patch"
 
---- orig/domains/program/newrole.te
-+++ mod/domains/program/newrole.te
-@@ -8,6 +8,9 @@
- # secure mode means that newrole/sudo/su/userhelper cannot reach sysadm_t
- bool secure_mode false;
+--- orig/macros/program/screen_macros.te
++++ mod/macros/program/screen_macros.te
+@@ -42,7 +42,11 @@
+ allow $1_screen_t urandom_device_t:chr_file read;
  
-+type newrole_exec_t, file_type, exec_type, sysadmfile;
-+domain_auto_trans(userdomain, newrole_exec_t, newrole_t)
-+
- newrole_domain(newrole)
+ # Revert to the user domain when a shell is executed.
+-domain_auto_trans($1_screen_t, shell_exec_t, $1_t)
++domain_auto_trans($1_screen_t, { shell_exec_t bin_t }, $1_t)
++domain_auto_trans($1_screen_t, $1_home_t, $1_t)
++ifdef(`nfs_home_dirs', `
++domain_auto_trans($1_screen_t, nfs_t, $1_t)
++')
  
- # Write to utmp.
-
-
---- orig/macros/program/newrole_macros.te
-+++ mod/macros/program/newrole_macros.te
-@@ -23,9 +23,6 @@
- # for when the user types "exec newrole" at the command line
- allow $1_t privfd:process sigchld;
+ # Inherit and use descriptors from gnome-pty-helper.
+ ifdef(`gnome-pty-helper.te', `allow $1_screen_t $1_gph_t:fd use;')
+@@ -106,7 +110,6 @@
+ allow $1_screen_t self:unix_stream_socket create_socket_perms;
+ allow $1_screen_t self:unix_dgram_socket create_socket_perms;
  
--type $1_exec_t, file_type, exec_type, sysadmfile;
--domain_auto_trans(userdomain, $1_exec_t, $1_t)
--
- # Inherit descriptors from the current session.
- allow $1_t privfd:fd use;
- 
+-can_exec($1_screen_t, shell_exec_t)
+ allow $1_screen_t bin_t:dir search;
+ allow $1_screen_t bin_t:lnk_file read;
+ read_locale($1_screen_t)
 
-
---- orig/macros/program/sudo_macros.te
-+++ mod/macros/program/sudo_macros.te
-@@ -31,5 +31,4 @@
- rw_dir_create_file($1_sudo_t, $1_tmp_t)
- rw_dir_create_file($1_sudo_t, $1_home_t)
- domain_auto_trans($1_t, sudo_exec_t, $1_sudo_t)
--r_dir_file($1_sudo_t, selinux_config_t)
- ')
-
---azLHFNyN32YCQGCU--
+--QTprm0S8XgL7H0Dt--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
