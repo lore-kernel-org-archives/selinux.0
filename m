@@ -1,46 +1,46 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ID9nrT016564
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 09:09:49 -0400 (EDT)
-Received: from smtp-bedford.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5ID9krD016832
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 13:09:46 GMT
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (8.11.6/8.11.6) with ESMTP id i5ID9ll07181
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 09:09:47 -0400
-Received: from divan.mitre.org (divan.mitre.org [129.83.10.75])
-	by smtp-bedford.mitre.org (8.11.6/8.11.6) with ESMTP id i5ID9ls07175
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 09:09:47 -0400
-Received: from divan.mitre.org (localhost [127.0.0.1])
-	by divan.mitre.org (8.12.11/8.12.10) with ESMTP id i5ID9koY001923
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 09:09:46 -0400
-To: selinux@tycho.nsa.gov
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5IEDmrT017148
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 10:13:48 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5IEDcpw025911
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 14:13:38 GMT
 Subject: Re: Fedora Core 2 setools RPM
-References: <200406171535.i5HFZVSf032291@gotham.columbia.tresys.com>
-	<1087487902.25033.89.camel@moss-spartans.epoch.ncsc.mil>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 18 Jun 2004 09:09:46 -0400
-In-Reply-To: <1087487902.25033.89.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <ogtllil1085.fsf@mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "John D. Ramsdell" <ramsdell@mitre.org>
+Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <ogtpt7x10ni.fsf@mitre.org>
+References: <200406171847.i5HIlPSf000906@gotham.columbia.tresys.com>
+	 <ogtpt7x10ni.fsf@mitre.org>
+Content-Type: text/plain
+Message-Id: <1087567982.27697.47.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 18 Jun 2004 10:13:03 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@epoch.ncsc.mil> writes:
+On Fri, 2004-06-18 at 09:00, John D. Ramsdell wrote:
+> Great news.  I would greatly appreciate it if the libapol API includes
+> access to CONSTRAIN statements in a policy file.  I strongly suspect
+> the API could then be used to provide slat all the information it
+> needs to analyze a policy.
 
-> ...  I'd also think you would want both shared and static libraries,
-> and have most of the tools dynamically linked against the shared
-> library.
+I would think that this would be something you (John) could contribute
+to libapol, as slat would be the first user of such information.
 
-If Tresys is not completely sure that the libapol API is stable, they
-may want to only release a static library for now.  Changing the API
-used by a static library means that compilations may fail, but
-existing binaries will be not be effected by the change.  Changing the
-API used by a shared library means that existing binaries may fail.
-Tresys should commit itself to an API provided by a shared library
-only after careful thought.
+> I also noticed that it appears that none of the setools documentation
+> tells users that your flow analysis ignores CONSTRAIN statements in a
+> policy.  I think users should know this fact.
 
-John
+The apol information flow analysis is for flow among types; hence, it is
+only natural for it to only consider the TE configuration.  As a flow
+can only exist if allowed by the TE configuration, analysis of the TE
+configuration is sufficient to identify all flows.  We've discussed that
+issue previously.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
