@@ -1,35 +1,50 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i88LqsrT007732
-	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 17:52:54 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i88Lqrfe005960
-	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 21:52:53 GMT
-Date: Wed, 8 Sep 2004 23:04:01 +0100
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i88MTrrT007958
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 18:29:53 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i88MT0R0005993
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 22:29:01 GMT
+Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
+	by open.hands.com (Postfix) with ESMTP id 4B5A6BF28
+	for <selinux@tycho.nsa.gov>; Wed,  8 Sep 2004 23:29:48 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1C5B7k-00026t-9W
+	for selinux@tycho.nsa.gov; Wed, 08 Sep 2004 23:41:08 +0100
+Date: Wed, 8 Sep 2004 23:41:08 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Patch to make udev/tmpfs work and changes from colin  walters for dbus.
-Message-ID: <20040908220401.GF7717@lkcl.net>
-References: <413E1DE0.9050905@redhat.com> <1094645825.20215.33.camel@moss-spartans.epoch.ncsc.mil>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: for bootsplash to operate correctly...
+Message-ID: <20040908224108.GJ7717@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1094645825.20215.33.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Sep 08, 2004 at 08:17:05AM -0400, Stephen Smalley wrote:
-> On Tue, 2004-09-07 at 16:45, Daniel J Walsh wrote:
-> > Adding
-> > 
-> > restorecon /dev /dev/null
-> > restorecon /dev/*
-> 
-> Adding them where?  If you do this from /sbin/init immediately after the
-> initial policy load, 
+... i hacked in the three following permissions:
 
- oh.
- 
- that's a good idea.
+# this is to allow splash to write to /proc/splash
+allow initrc_t proc_t:file { write };
+
+
+# this is for /sbin/fbresolution to write to /dev/fb0
+allow initrc_t framebuf_device:t:chr_file { write };
+
+# this is for fbmngplay to do err... *clueless*
+allow initrc_t self:capability { sys_admin };
+
+i look forward to one day writing a policy for the bootsplash
+package :)
+
+l.
+
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
