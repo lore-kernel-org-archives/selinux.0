@@ -1,37 +1,42 @@
-Message-ID: <36282A1733C57546BE392885C0618592080BFA@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@tcs-sec.com>
-To: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
-Subject: minor structure usage bug
-Date: Tue, 30 Mar 2004 15:56:53 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2UMKrRb016893
+	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2004 17:20:53 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i2UMIxlU019869
+	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2004 22:19:00 GMT
+Received: from smtp-29.ig.com.br (smtp-29.ig.com.br [200.226.132.157])
+	by jazzswing.ncsc.mil  with SMTP id i2UMIwkh019860
+	for <selinux@tycho.nsa.gov>; Tue, 30 Mar 2004 22:18:59 GMT
+Subject: Problems to compile the src.rpm packages on Red Hat Linux 9.0
+From: "lcvleo@ig.com.br" <lcvleo@ig.com.br>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Message-Id: <1080685248.6780.5.camel@linux.linuxista.eti.br>
+Mime-Version: 1.0
+Date: 30 Mar 2004 19:20:49 -0300
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-We found the sk_free_security() function incorrectly types ssec to a
-task_security_struct instead of sk_security_struct. This has no current
-impact as the magic element is the top of each structure.
-
---- hooks.c.dist        2004-03-30 14:25:05.000000000 -0600
-+++ hooks.c     2004-03-30 14:25:31.000000000 -0600
-@@ -271,7 +271,7 @@
+       Dear friends,
+       I have problems when trying compile the packages coreutils,
+openssh, pam, vixie-cron, shadow-utils. Only this packages. This message
+error is present:
  
- static void sk_free_security(struct sock *sk)
- {
--       struct task_security_struct *ssec = sk->sk_security;
-+       struct sk_security_struct *ssec = sk->sk_security;
+ checking for i686-pc-linux-gnu-gcc... i686-pc-linux-gnu-gcc
+ checking for C compiler default output... configure: error: C compiler
+ cannot create executables
+ See `config.log' for more details.
+ erro: Csdigo de samda invalido do /var/tmp/rpm-tmp.66122 (%build)
  
-        if (sk->sk_family != PF_UNIX || ssec->magic != SELINUX_MAGIC)
-                return;
-
-
-_______________________________________________________________
-Chad Hanson				mailto:chanson@tcs-sec.com
-Trusted Computer Solutions		Phone: 217-384-0028 x12
-121 W Goose Alley			Fax: 217-384-0288
-Urbana IL 61801
+ 
+ Erros de criagco do RPM:
+     Csdigo de samda invalido do /var/tmp/rpm-tmp.66122 (%build)
+ 
+       Help please!!
+       Thanks!
+ 
+ Leonardo Cardozo Vargas
+ Nova Friburgo - Rio de janeiro - Brasil
 
 
 
