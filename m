@@ -1,39 +1,38 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBGKjLRb027680
-	for <selinux@tycho.nsa.gov>; Tue, 16 Dec 2003 15:45:21 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBHIUARb003171
+	for <selinux@tycho.nsa.gov>; Wed, 17 Dec 2003 13:30:10 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hBGKjKpn001941
-	for <selinux@tycho.nsa.gov>; Tue, 16 Dec 2003 20:45:20 GMT
-Received: from smtp-bedford.mitre.org (smtp-bedford-x.mitre.org [192.160.51.76])
-        by jazzband.ncsc.mil  with ESMTP id hBGKjKab001938 for <selinux@tycho.nsa.gov>; Tue, 16 Dec 2003 20:45:20 GMT
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (8.11.6/8.11.6) with ESMTP id hBGKjJU11034
-	for <selinux@tycho.nsa.gov>; Tue, 16 Dec 2003 15:45:19 -0500
-To: Carsten Grohmann <carstengrohmann@gmx.de>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: slat makefiles
-References: <200312161952.29595.carstengrohmann@gmx.de>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 16 Dec 2003 15:45:19 -0500
-In-Reply-To: <200312161952.29595.carstengrohmann@gmx.de>
-Message-ID: <ogthe007aqo.fsf@divan.mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by jazzband.ncsc.mil  with ESMTP id hBHIU3pn023963
+	for <selinux@tycho.nsa.gov>; Wed, 17 Dec 2003 18:30:03 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id hBHIU3ab023960 for <selinux@tycho.nsa.gov>; Wed, 17 Dec 2003 18:30:03 GMT
+Subject: Re: [patch] add source line numbers to checkpolicy
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Colin Walters <walters@verbum.org>
+Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
+   Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1071478020.17990.8.camel@nexus.verbum.private>
+References: <1071478020.17990.8.camel@nexus.verbum.private>
+Content-Type: text/plain
+Message-Id: <1071685779.1403.111.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 17 Dec 2003 13:29:39 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Carsten Grohmann <carstengrohmann@gmx.de> writes:
+On Mon, 2003-12-15 at 03:47, Colin Walters wrote:
+> Attached are two patches which have checkpolicy emit the source line
+> number where an error occurred, if available.  This would have been
+> fairly trivial, except it required rewriting the sample policy Makefile
+> to not invoke m4 multiple times.  
 
-> today I've problems to build a slat rpm with your spec file. The 
-> attached patch adds $DESTDIR
+Thanks, the checkpolicy patch and the updated policy Makefile patch have
+been merged into our CVS tree.
 
-I figured out what you are getting at.  You wanted to install into
-$(DESTDIR)$(bindir) and $(DESTDIR)$(pgkdatadir), but you wrote
-$(DESTDIR)/$(bindir) and $(DESTDIR)/$(pgkdatadir), which confused me.
-I have made the changes you requested and placed them into the
-repository.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-John
 
 --
 This message was distributed to subscribers of the selinux mailing list.
