@@ -1,39 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3EDUPI4020092
-	for <selinux@tycho.nsa.gov>; Mon, 14 Apr 2003 09:30:25 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h3EDQdOv022706
-	for <selinux@tycho.nsa.gov>; Mon, 14 Apr 2003 13:26:40 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3F97oI4025001
+	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2003 05:07:50 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h3F97n7R002236
+	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2003 09:07:49 GMT
 Received: from lyta.coker.com.au (c16702.sunsh1.vic.optusnet.com.au [210.49.228.68])
-	by jazzswing.ncsc.mil  with ESMTP id h3EDQMY1022617
-	for <selinux@tycho.nsa.gov>; Mon, 14 Apr 2003 13:26:39 GMT
+        by jazzband.ncsc.mil  with ESMTP id h3F97bKP002226 for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2003 09:07:48 GMT
 Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id C5E9F9109
-	for <selinux@tycho.nsa.gov>; Mon, 14 Apr 2003 23:29:56 +1000 (EST)
+	by lyta.coker.com.au (Postfix) with ESMTP id 01AC37ECD
+	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2003 19:07:25 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: OLS BOFs etc
-Date: Mon, 14 Apr 2003 23:29:56 +1000
+Subject: Re: OLS BOFs etc
+Date: Tue, 15 Apr 2003 19:07:25 +1000
+References: <200304142329.56120.russell@coker.com.au>
+In-Reply-To: <200304142329.56120.russell@coker.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200304142329.56120.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200304151907.25336.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am a bit confused about the status of the BOF I requested for OLS.  I think 
-that I may have a tutorial instead, but that's OK, I've got some good ideas 
-for that which involve taking my own server to run UML instances so ~15 
-people can do SE Linux administration while others can shoulder-surf.
+On Mon, 14 Apr 2003 23:29, Russell Coker wrote:
+> I am a bit confused about the status of the BOF I requested for OLS.  I
+> think that I may have a tutorial instead, but that's OK, I've got some good
+> ideas for that which involve taking my own server to run UML instances so
+> ~15 people can do SE Linux administration while others can shoulder-surf.
 
-I don't expect to get more people than that.
+It seems that I am now subscribed for running a SE Linux BOF as well as a SE 
+Linux tutorial.
 
-Also I let the email from the conference organizers get too low in my to-do 
-list so I may have missed the good time-slots for such events.  I plan to do 
-it regardless even if I have to print my own signs as I did at FOSDEM.
+Presenting a paper, a Tutorial, and a BOF is probably a bit much.
 
-I'll play this by ear, it should be fun whatever happens.  ;)
+Would someone else like to do a SE BOF?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
