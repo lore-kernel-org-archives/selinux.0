@@ -1,64 +1,98 @@
-Subject: Re: threads
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1072454081.827.103.camel@cube>
-References: <1072454081.827.103.camel@cube>
-Content-Type: text/plain
-Message-Id: <1072712224.845.66.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 29 Dec 2003 10:37:04 -0500
+Date: Mon, 29 Dec 2003 10:34:21 -0700
+From: "Loughry, Joe" <joe.loughry@lmco.com>
+Subject: RE: non-Linux behavior
+To: Albert Cahalan <albert@users.sourceforge.net>, SELinux@tycho.nsa.gov
+Message-id: <835AD41BA2589F49A8A34117D4C421DF02CA1E80@EMSS02M15.us.lmco.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-12-26 at 10:54, Albert Cahalan wrote:
-> Normal Linux security data (uid, capability bits)
-> is per-thread. There are at least two reasons for
-> this:
-> 
-> 1. Multi-threaded server daemons can rely on
->    kernel-enforced security.
-> 
-> 2. Race conditions are eliminated without locking.
->    This deals with the problem of two threads
->    simultaneously updating the security data, or
->    one thread updating while another thread uses.
-> 
-> I'm told that SE Linux enforces shared security
-> data. I suppose this is mostly required when
-> implementing a mandatory system. Is this race-free?
-> Is there a capability that would allow a suitably
-> privileged process to have per-thread contexts?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-For MAC, per-thread contexts make little sense since you cannot enforce
-any separation of the memory.
+I can help out with Trusted Solaris.  Which of the following versions
+would you like?
 
-> Also, I'm told that a security context can only
-> change during exec. WHAT???? Besides the case of
-> a suitably privileged process, what about the
-> need to move some sort of watermark? AFAIK, your
-> security context needs to be tainted when you
-> read low-integrity data and so on.
+Trusted Solaris 8 HW 7/03 (beta, not yet released)
+Trusted Solaris 8 HW 12/02 (with current patches)
+Trusted Solaris 8 4/01 (with current patches)
+Trusted Solaris 2.5.1 (with current patches)
 
-Limiting security context transitions to execve allows the inheritance
-of state between the contexts and the initialization of the process in
-the new security context to be precisely controlled, including the
-particular entrypoint program used to enter the new context. A
-setuid(2)-like call for contexts would lack such controls and would
-provide no real separation between the two contexts. Introducing such an
-operation into the system would yield two different sets of controls and
-behaviors for context transitions.
-The omission of such an operation from SELinux was noted in the original
-design documentation, and has been discussed on the list before.
+- -Joe
 
-With regard to "tainting", you are thinking about it the wrong way.  A
-high integrity process shouldn't be allowed to read low integrity data
-(if that is your security goal), not magically migrated to a low
-integrity label upon performing such a read.
+- -----Original Message-----
+From: owner-selinux@tycho.nsa.gov
+[mailto:owner-selinux@tycho.nsa.gov]On
+Behalf Of Albert Cahalan
+Sent: Friday, 26 December, 2003 08:41
+To: SELinux@tycho.nsa.gov
+Subject: non-Linux behavior
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+
+I've been adding SE Linux support to procps.
+The 3.1.15 release supports "--context" when
+run on a 2.6.0 kernel. (http://procps.sf.net/)
+
+I need some help. One of my goals is to be
+mostly compatible with both UNIX and BSD.
+I'm looking for people willing to try out
+security-related ps options on high-security
+systems. Better yet would be a trial account.
+
+I'm interested in whatever systems commonly
+in use or are likely to be of importance.
+I guess that means: Trusted IRIX, Cray's OS,
+Trusted Solaris, FreeBSD with LOMAC, and
+probably stuff from IBM or HP. Anything else?
+If you'd like Linux compatible with whatever
+it is you've been using, speak now.
+
+For those who can help only by typing commands
+themselves, feel free to change command names
+to "[x]", "x", or "x x" as appropriate. (I need
+to know if args are shown or if brakets are used)
+The same goes for user names, etc.
+
+I'd like to have output from at least:
+
+ps -Z
+ps -flZ
+ps -Zlf
+ps -ZelfLyPcj  (all the options you can do)
+ps Z
+
+Then again, replacing the 'Z' with 'z'.
+Then again, this time with 'M'.
+Then again, this time with 'x'.
+Then again, this time with 'C'.
+And so on, for every security-related option...
+
+Plus this one:
+
+ps -zMZ  (all available security options at once)
+
+The goal here is to determine column width,
+column order, interactions between options, etc.
+
+
+
+- --
+This message was distributed to subscribers of the selinux mailing
+list.
+If you no longer wish to subscribe, send mail to
+majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8
+Comment: Lockheed Martin Space Systems
+
+iQA/AwUBP/BlnecUeovsi/gzEQIcRQCfammALYgcz5BeS8hXJ0XbpGvvK3gAn0+j
+Bc7shb3HqcKQyqUZjQmd/ymg
+=kAGI
+-----END PGP SIGNATURE-----
 
 
 --
