@@ -1,35 +1,24 @@
-Subject: sepol_genusers
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Karl MacMillan <kmacmillan@tresys.com>
+Subject: Re: libselinux patch to add file_context.homedirs and remove
+	potential memory and fd leaks.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <420BD7E6.4000208@redhat.com>
+References: <420BD7E6.4000208@redhat.com>
 Content-Type: text/plain
-Message-Id: <1108656216.24494.65.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1108656384.24494.67.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 17 Feb 2005 11:03:36 -0500
+Date: Thu, 17 Feb 2005 11:06:24 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-As per the earlier discussions of improving user management, the
-genpolusers logic has been moved into a libsepol function,
-sepol_genusers(), that can act on an in-memory binary policy image prior
-to loading.  The genpolusers utility is now a trivial utility in
-libsepol rather than part of the checkpolicy package.  A
-selinux_users_path() function has been added to libselinux to allow
-programs to get the path to the directory
-(/etc/selinux/$SELINUXTYPE/users/) containing the runtime user
-configuration files (system.users, local.users) so that they can pass
-this path to sepol_genusers().  load_policy has been modified to call
-sepol_genusers() prior to policy load in a similar manner to how it
-already calls sepol_genbools().  /sbin/init still needs to be modified
-in the same manner.
+Thanks, merged as of libselinux 1.21.10.
 
-These changes are included in libsepol >= 1.3.5, checkpolicy >= 1.21.4,
-libselinux >= 1.21.10, and policycoreutils >= 1.21.16.  Note that the
-new load_policy depends on the new libselinux and libsepol for the
-selinux_users_path() and sepol_genusers() functions.
+Note that we still haven't merged the new genhomedircon yet, due to the
+compatibility issue.
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
+Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
 
 
