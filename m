@@ -1,50 +1,42 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA03102
-	for <selinux@tycho.nsa.gov>; Tue, 28 May 2002 11:19:26 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA03288
+	for <selinux@tycho.nsa.gov>; Tue, 28 May 2002 11:34:32 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA01114
-	for <selinux@tycho.nsa.gov>; Tue, 28 May 2002 15:18:06 GMT
+	by jazzband.ncsc.mil  with ESMTP id PAA01882
+	for <selinux@tycho.nsa.gov>; Tue, 28 May 2002 15:33:12 GMT
 Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id PAA01110 for <selinux@tycho.nsa.gov>; Tue, 28 May 2002 15:18:06 GMT
-Date: Tue, 28 May 2002 11:19:18 -0400 (EDT)
+        by jazzband.ncsc.mil  with ESMTP id PAA01878 for <selinux@tycho.nsa.gov>; Tue, 28 May 2002 15:33:11 GMT
+Date: Tue, 28 May 2002 11:34:24 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Frank Mayer <mayerf@tresys.com>
-cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
-Subject: Re: Proposal: install policy.conf
-In-Reply-To: <ACEHIKGIGFEDAIKEMMMIIENMKDAA.mayerf@tresys.com>
-Message-ID: <Pine.GSO.4.33.0205281109490.1315-100000@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: mini policy for initrd
+In-Reply-To: <20020524122608.989A28B9@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0205281133030.1315-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 24 May 2002, Frank Mayer wrote:
+On Fri, 24 May 2002, Russell Coker wrote:
 
-> What we'd like to see is /etc/security/policy.conf treated as the definitive
-> policy for a system, allowing all sorts of tools to change, create, or
-> otherwise manage all or portions of the installed policy.
+> I've developed a mini policy for an initrd, but now I have a problem.
+>
+> On boot after the root file system is mounted the mappings of PSIDs to SIDs
+> are made BEFORE the policy is loaded from the root file system.  This means
+> that 95% of all files on my root file system lose their labels...
+>
+> Is there any possibility of solving this in the kernel?  Or should I just
+> make sure that my initrd policy contains all the types for all files on the
+> root file system?
 
-Do we want to include something in the compiled policy (currently
-installed into /etc/security/selinux/policy.VERSION) that helps to
-associate it with a particular policy.conf?  For example, we could compute
-a message digest of the policy.conf file and include it in the compiled
-policy header.
-
-With regard to the issue of using policy.conf as the basis for tools that
-are used to create or change the policy, I'm somewhat concerned by the
-loss in modularity provided by the separation of .te files and the loss in
-higher level abstraction provided by the macros.  I suppose that we could
-extend the base language itself to provide direct constructs for "modules"
-and for some of the higher level abstractions currently expressed via
-macros.
+I'll try to look into solving this problem within the SELinux kernel
+module.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
-
-
 
 
 
