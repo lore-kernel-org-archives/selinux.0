@@ -1,47 +1,70 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA06304
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 16:52:35 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA06374
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 17:00:06 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0HLqPI27392
-	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 21:52:25 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id h0HLqMf27382 for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 21:52:23 GMT
-Date: Sat, 18 Jan 2003 08:52:08 +1100
-From: Brian May <bam@snoopy.apana.org.au>
-To: Tom <tom@lemuria.org>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: version mismatch in Debian packages
-Message-ID: <20030117215208.GA7599@snoopy.apana.org.au>
-References: <20030116160010.A2883@lemuria.org> <20030116221605.GA13472@snoopy.apana.org.au> <20030117080333.E18709@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20030117080333.E18709@lemuria.org>
+	by jazzband.ncsc.mil  with ESMTP id h0HM06I27751
+	for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 22:00:07 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h0HM06f27747 for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2003 22:00:06 GMT
+Message-Id: <200301172207.RAA00770@moss-shockers.ncsc.mil>
+Date: Fri, 17 Jan 2003 17:07:34 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: Problems compiling selinux release (2003011510) for 2.4.20 kernel
+To: selinux@tycho.nsa.gov, azeredo@qmc.ufsc.br
+MIME-Version: 1.0
+Content-Type: MULTIPART/mixed; BOUNDARY=Nest_of_Mice_835_000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jan 17, 2003 at 08:03:34AM +0100, Tom wrote:
-> I would have, but they don't show up in the package list (in dselect)
-> and I couldn't find them on the website, either.
-> 
-> Is there a reason for this, is that a bug, or am I missing something?
-> I'd love to use the prepatched kernels for my tutorial, because it will
-> obviously save a lot of time.
+--Nest_of_Mice_835_000
+Content-Type: TEXT/plain; charset=us-ascii
+Content-MD5: J5bsSgD1Ow5FT5RChM8Jlg==
 
-What is your /etc/apt/sources.list entry?
 
-Do you have a /etc/apt/preferences file (its not required, and might
-be causing problems if you have one thats incorrect)?
+>    I was trying to compile the updated release (2003011510) for 2.4.20 and
+> 2.5.58 kernels on  RedHat 8.0 and using  the same config got the following 
+error
+> for 2.4.20 kernel despite the fact that   it went fine for 2.5.58 kernel. 
+>   Has anyone run into the same problem?
+<snip>
+> kernel/kernel.o: In function `sys_acct':
+> kernel/kernel.o(.text+0xa3b9): undefined reference to `security_acct'
+> make: ** [vmlinux] Erro 1
 
-The package names in question are:
+Sorry, the attached patch (also committed to the sourceforge CVS tree) should
+fix this problem.  Save it to ~/acct.patch, cd lsm-2.4, patch -p1 < 
+~/acct.patch, rebuild your kernel.  Make sure that you've enabled the
+new CONFIG_SECURITY option (Enable different security models) in your
+kernel configuration.
 
-kernel-source-2.4.19 version 2.4.19-4.bam.9
-kernel-source-2.4.20 version 2.4.20-2.bam.2
-kernel-image-2.4.19-* version 1:2.4.19-4.bam.2
-kernel-image-2.4.20-* version 1:2.4.20-2.bam.2
-
-(replace * with the appropriate version).
 --
-Brian May <bam@snoopy.apana.org.au>
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
+
+--Nest_of_Mice_835_000
+Content-Type: TEXT/plain; name="acct.patch"; charset=us-ascii; x-unix-mode=0644
+Content-Description: acct.patch
+Content-MD5: HhR9mms6WuP6kmiHS//e8Q==
+
+Index: lsm-2.4/kernel/acct.c
+===================================================================
+RCS file: /cvsroot/selinux/nsa/lsm-2.4/kernel/acct.c,v
+retrieving revision 1.1.1.3
+diff -u -r1.1.1.3 acct.c
+--- lsm-2.4/kernel/acct.c	16 Jan 2003 13:37:58 -0000	1.1.1.3
++++ lsm-2.4/kernel/acct.c	17 Jan 2003 21:56:59 -0000
+@@ -54,7 +54,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/file.h>
+ #include <linux/tty.h>
+-
++#include <linux/security.h>
+ #include <asm/uaccess.h>
+ 
+ /*
+
+--Nest_of_Mice_835_000--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
