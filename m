@@ -1,42 +1,87 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0U1QORb016721
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2004 20:26:24 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i0U1QN1I024841
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 01:26:23 GMT
-Received: from smtp-4.llnl.gov (smtp-4.llnl.gov [128.115.41.84])
-        by jazzband.ncsc.mil  with ESMTP id i0U1QMbs024838 for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 01:26:22 GMT
-Received: from popcorn.llnl.gov (localhost [127.0.0.1])
-	by smtp-4.llnl.gov (8.12.3p2-20030917/8.12.3/LLNL evision: 1.13 $) with ESMTP id i0U1QFB3007306
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2004 17:26:21 -0800 (PST)
-Received: from [128.115.96.64] (account shakespeare2 [128.115.96.64] verified)
-  by popcorn.llnl.gov (CommuniGate Pro SMTP 4.0.6)
-  with ESMTP id 32443607 for selinux@tycho.nsa.gov; Thu, 29 Jan 2004 17:26:15 -0800
-Mime-Version: 1.0
-Message-Id: <p0602040dbc3f61470814@[128.115.96.64]>
-Date: Thu, 29 Jan 2004 17:26:14 -0800
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0U6jcRb017870
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 01:45:39 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i0U6iKVK002252
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 06:44:20 GMT
+Received: from ms1.nttdata.co.jp (ms1.nttdata.co.jp [163.135.193.232])
+	by jazzswing.ncsc.mil  with ESMTP id i0U6iIlx002248
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 06:44:19 GMT
+Received: from mail0.nttdata.co.jp ([163.135.10.20])
+	by ms1.nttdata.co.jp (8.12.10/3.7W-NTTDATA-TOP-10/23/03) with ESMTP id i0U6jJJ7017358
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 15:45:19 +0900 (JST)
+Received: from harpocrates.rd.nttdata.co.jp (localhost [127.0.0.1])
+	by mail0.nttdata.co.jp (8.12.9/3.7W-NTTDATA-TOP-10/22/03) with SMTP id i0U6jHdg016635
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 15:45:17 +0900 (JST)
+Received: from rd5.rd.nttdata.co.jp ([10.8.144.182])
+ by harpocrates.rd.nttdata.co.jp (SAVSMTP 3.1.0.29) with SMTP id M2004013015451600831
+ for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 15:45:16 +0900
+Received: from volcano.rd.nttdata.co.jp (volcano.rd.nttdata.co.jp [10.8.130.24])
+	by rd5.rd.nttdata.co.jp (Postfix) with ESMTP id A91F441E47
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 13:43:02 +0900 (JST)
+Subject: fork and security context transitions
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <bs-f-vazquez@bs.rd.nttdata.co.jp>
 To: selinux@tycho.nsa.gov
-From: Mark Shakespeare <mshakes@llnl.gov>
-Subject: 2.6.2-rc2 kernel...more comments
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=
+Message-Id: <1075437775.1088.144.camel@volcano.rd.nttdata.co.jp>
+Mime-Version: 1.0
+Date: Fri, 30 Jan 2004 13:42:55 +0900
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I downloaded and built the 2.6.2-rc2 kernel today. I installed it and booted
-with no problems. Looks like most everything works. I understand from
-Karl @Tresys.com that a version of Setools is coming. I'am also able 
-to use Sepcut and audit2allow at this point in time.
+Dear all,
 
-Things are looking better.
+I have just started using SELinux and so far I am really satisfied with
+the possibilities and quality of the project, but I have found what is
+either a missing feature or, otherwise, a feature.
+
+I working in the development of a server application whose client users
+must have an Unix Account (for authentication purposes) and an
+associated SELinux user account (every user is included in its own
+security context after login in).
+
+My intention was to fork a child of the server for every client
+successfully authenticated, assigning to that child a client specific
+security context different from the one of the server.
+
+It is at this point that my problem arose. After reading through the
+documentation, some white-papers and FAQs, I concluded that the only way
+to achieve this was using the "execve" function, which can be used to
+make a domain transition if the "setexeccon" has been previously
+executed and the adequate permissions have been granted in the policy. I
+understand that a child process inherits the parent's security context
+and that it can only be changed with the use of "execve". Furthermore,
+since a process cannot change its own security context I do not now any
+other way to reach my goal.
+
+Due to the latter, I have started to split my server into two
+executables so that there's a listening server that creates children in
+the required security context (using "execve").
+
+Anyway, I soon found that the resulting code is not as easy to maintain
+as the original one and that I have to make a fairly big amount of
+changes. Besides, I think this is not the right approach, since in this
+case, the use of SELinux is really having a big impact in the projects
+code.
+
+I was wandering if allowing to fork a child in a security context
+different from the parent's (without using execve) is a good idea or
+not, since I find it useful and, anyway, it can be achieved splitting a
+program in two and using "execv".
+
+I apologise in case I'm completely missing the point and I have
+misunderstood any of the underlying basic SELinux concepts.
+
+Best wishes from a SELinux newbie,
+
+Fernando Vázquez
+
 -- 
-******************************************
-* Mark Shakespeare			 *
-* Engineering Computer Operations Team   *
-* Lawrence Livermore National Laboratory *
-* 7000 East Ave		L-130            *
-* Livermore,Ca 94550			 *
-* 925-423-9922	      mshakes@llnl.gov   *
-******************************************
+ＮＴＴ Data Corporation, R&D Headquarters
+Open Systems Architecture Group
+Fernando Vázquez
+E-Mail: <bs-f-vazquez@bs.rd.nttdata.co.jp>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
