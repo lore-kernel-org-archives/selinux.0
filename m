@@ -1,75 +1,82 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6H1x6rT002991
-	for <selinux@tycho.nsa.gov>; Fri, 16 Jul 2004 21:59:06 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6H1wfbx012028
-	for <selinux@tycho.nsa.gov>; Sat, 17 Jul 2004 01:58:42 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6HA4crT004057
+	for <selinux@tycho.nsa.gov>; Sat, 17 Jul 2004 06:04:38 -0400 (EDT)
+Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6HA4FIR017319
+	for <selinux@tycho.nsa.gov>; Sat, 17 Jul 2004 10:04:15 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp803.mail.ukl.yahoo.com with SMTP; 17 Jul 2004 10:04:28 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BllWx-0007SF-EB
+	for selinux@tycho.nsa.gov; Sat, 17 Jul 2004 09:30:55 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BlmEA-0002PX-2e
+	for selinux@tycho.nsa.gov; Sat, 17 Jul 2004 11:15:34 +0100
+Date: Sat, 17 Jul 2004 11:15:34 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SELinux ML <selinux@tycho.nsa.gov>
 Subject: Re: file_contexts patch
-Date: Sat, 17 Jul 2004 11:59:00 +1000
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-References: <20040716201531.GB4940@obadja.jmh.mhn.de> <200407170802.08072.russell@coker.com.au> <20040716224252.GD4940@obadja.jmh.mhn.de>
-In-Reply-To: <20040716224252.GD4940@obadja.jmh.mhn.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200407171159.00489.russell@coker.com.au>
+Message-ID: <20040717101533.GB8887@lkcl.net>
+References: <20040716201531.GB4940@obadja.jmh.mhn.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040716201531.GB4940@obadja.jmh.mhn.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 17 Jul 2004 08:42, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
-wrote:
-> > Why does kdesktop_lock need to be labelled as screensaver_exec_t?  The
-> > problem that caused the creation of the screen saver policy has only been
-> > reported under GNOME, and kdesktop_lock has been working well for me for
-> > years without such policy.
->
-> The screensaver policy has auth_chkpwd which is needed when locking the
-> screen IIRC. The only problem is that kdesktop_lock doesn't use
-> unix_chkpwd but has its own program (kcheckpass). I have labeled it
-> chkpwd_exec_t which works fine, but unfortunately kcheckpass needs some
-> additional permissions (from macros/program/chkpwd_macros.te):
+thomas,
 
-kcheckpass should use PAM and therefore use unix_chkpwd.
+i note the addition of /var/run/usb here.
 
-> ifelse($1, `system', `', `allow $1_chkpwd_t $1_t:unix_stream_socket { read
-> write };') # read KDesktop
-> allow system_chkpwd_t $1_home_t:dir read;
-> # write to .xsession-errors
-> allow system_chkpwd_t $1_home_t:file write;
-> (Or something like that. I live on NFS and just converted the rules)
->
-> I do not know if this is mergable into mainline.
+is that because SuSE has modified the hotplug package
+to place state information in that directory?
 
-It's not something that we want to do if we can avoid it.
+please advise, because i have raised a bug-request with
+the debian hotplug maintainers, and i believe that the
+upstream maintainers favour the use of /etc/hotplug/run
+rather than /var/run/something.
 
-> > What is /dev/usbscanner?  It's not in devices.txt in the kernel source
-> > and not installed by default on any Debian or Fedora system.
->
-> Call it a SuSE oddity:
-> # ls -l /dev/usbscanner /dev/usb/scanner0
-> crw-rw----    1 root     root     180,  48 Sep  9  2002 /dev/usb/scanner0
-> crw-r--r--    1 root     root     180,  48 Sep  9  2002 /dev/usbscanner
-> (why they have different permissions there I can't imagine)
+the reason stated is because /var could be on a different partition
+that may not have been mounted (bearing in mind that
+/etc/init.d/mountall.sh is called first to mount local
+partitions, and hotplug is pretty much immediately next,
+and pretty much everything else is tertiary).
 
-Could you file a bug report in the SUSE bug tracking system about this?
+personally i think that reason is not good enough, because
+if say you have /var on a firmware-based usb memory stick
+(requiring a hotplug-generated event to load the firmware),
+or /var is nfs-mounted over a firmware-based usb network card,
+then you're really asking for a lot of trouble.
 
-I suggest that you request that /dev/usbscanner become a sym-link 
-to /dev/usb/scanner0.  Then it will match the devices.txt in the kernel 
-source, have no problems with consistency of permissions, and not need any 
-modifications to the SE Linux policy.
+so, _if_ SuSE have made that decision, it would be good to know
+the reasoning and to have some way of arm-twisting the hotplug
+maintainers to a more sensible decision [that is FHS compliant
+aside from anything else].
 
-Maybe we should have a suse.te and suse.fc for such things?  One thing we want 
-to avoid if possible is having entries in types.fc for distribution specific 
-names which bloat types.fc and make setfiles run more slowly.
+l.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+On Fri, Jul 16, 2004 at 10:15:31PM +0200, Thomas Bleher wrote:
+> The attached patch adds some file_contexts and most importantly labels
+> libs under /opt correctly.
+> 
+> Please apply.
+> 
+> Thomas
+> 
+> -- 
+> http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+> GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+
+> diff -urN orig/file_contexts/program/hotplug.fc mod/file_contexts/program/hotplug.fc
+> --- orig/file_contexts/program/hotplug.fc	2004-06-19 10:31:43.000000000 +0200
+> +++ mod/file_contexts/program/hotplug.fc	2004-07-16 22:10:08.000000000 +0200
+> @@ -5,4 +5,5 @@
+>  /etc/hotplug/.*agent	--	system_u:object_r:sbin_t
+>  /etc/hotplug/.*rc	-- 	system_u:object_r:sbin_t
+>  /etc/hotplug/hotplug.functions --	system_u:object_r:sbin_t
+> +/var/run/usb(/.*)?		system_u:object_r:hotplug_var_run_t
+>  
 
 --
 This message was distributed to subscribers of the selinux mailing list.
