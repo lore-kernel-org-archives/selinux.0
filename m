@@ -1,24 +1,35 @@
-Subject: genfscon problem
-From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-To: SELinux <SELinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-2
-Date: 18 Feb 2004 22:09:52 +0100
-Message-Id: <1077138592.6667.35.camel@kusturica>
+Subject: Re: genfscon problem
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1077138592.6667.35.camel@kusturica>
+References: <1077138592.6667.35.camel@kusturica>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1077139326.17849.197.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Wed, 18 Feb 2004 16:22:06 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+On Wed, 2004-02-18 at 16:09, MagosÃ¡nyi ÃrpÃ¡d wrote:
+> Hi!
+> 
+> I have this:
+> genfscon selinuxfs /user                    object_u:object_r:tcb_mod_t
+> 
+> But my /selinux/user file continues to be tcb_t.
+> 
+> Did I made some mistake or genfscon isn't updated on policy reload?
 
-I have this:
-genfscon selinuxfs /user                    object_u:object_r:tcb_mod_t
-
-But my /selinux/user file continues to be tcb_t.
-
-Did I made some mistake or genfscon isn't updated on policy reload?
-
+Read the last two paras of the comment header for genfs_contexts or the
+end of selinux-doc/PORTING. Also, even if genfs_contexts did support
+fine-grained labeling of selinuxfs, a policy reload does not walk the
+inode lists and reset the SIDs of incore inodes, so it wouldn't change
+the SID of an inode that was already incore.
+ 
 -- 
-GNU GPL: csak tiszta forrásból
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
