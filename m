@@ -1,46 +1,43 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA25736
-	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 11:32:41 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA25859
+	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 11:41:04 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1PGWeI17719
-	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 16:32:40 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h1PGWdf17715 for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 16:32:39 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Wayne Salamon <wsalamon@tislabs.com>
+	by jazzband.ncsc.mil  with ESMTP id h1PGf3I18151
+	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 16:41:03 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h1PGf2f18147 for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 16:41:02 GMT
+Message-Id: <200302251648.LAA15220@moss-shockers.ncsc.mil>
+Date: Tue, 25 Feb 2003 11:48:38 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
 Subject: Re: Core policy
-Date: Tue, 25 Feb 2003 17:32:25 +0100
-Cc: "'SE Linux'" <selinux@tycho.nsa.gov>
-References: <Pine.LNX.4.33.0302250628140.1479-100000@vox.gw.tislabs.com>
-In-Reply-To: <Pine.LNX.4.33.0302250628140.1479-100000@vox.gw.tislabs.com>
+To: wsalamon@tislabs.com
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200302251732.25555.russell@coker.com.au>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 25 Feb 2003 12:35, Wayne Salamon wrote:
-> I also thought of a #DEPENDS tag, but I'm not sure how well it would be
-> maintained by the policy writers. What would be nice is to have some way
-> of annotating policy file relationships in a modular way; possibly an
-> #IMPORTS tag that means something to the compiler. If a policy file uses a
-> type defined in another file, unless that file is imported, it's an error.
-> The goal is to have more control over the relationships between policy
-> components.
 
-Surely #IMPORTS or #DEPENDS would work equally well.
+Wayne Salamon wrote:
+>   I agree with the above. The macros that I was (mostly) referring to are
+> the ones in macros/program. The idea behind these seems to have
+> parameterized domain/type definitions. I'm not convinced they're a good
+> idea, and many have dependencies to types defined in other .te files.
 
-As for raising an error, it should be either treated as a warning, an error, 
-or ignored depending on command line options.  I think that most people won't 
-want to maintain such things when they modify their own policy files.
+Creating derived domains (and associated derived types) from the
+calling domain is actually good practice, as it allows you to maintain
+separation between the user domains.  Otherwise, you end up with an
+initial separation between the user domains that can be easily
+circumvented through shared program domains that have the same accesses
+to the same types.  I'd agree that all of the macros (including the
+global macros as well as the program macros) need a thorough audit and
+reduction, but I don't think you truly want to eliminate the use of
+program macros for instantiating program domains.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
 
 --
