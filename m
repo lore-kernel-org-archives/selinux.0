@@ -1,56 +1,60 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB66MfRb009679
-	for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 01:22:41 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB6FoPRb010725
+	for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 10:50:27 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB66MeRV025624
-	for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 06:22:40 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hB66Mbta025621 for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 06:22:39 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: nagray@austin.rr.com
-Subject: Re: ssh policy
-Date: Sat, 6 Dec 2003 17:22:15 +1100
-References: <1070587102.27071.159.camel@hawaii.efficax.net> <200312051307.48320.russell@coker.com.au> <1070651210.27071.290.camel@hawaii.efficax.net>
-In-Reply-To: <1070651210.27071.290.camel@hawaii.efficax.net>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200312061722.15059.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id hB6FoORV001879
+	for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 15:50:24 GMT
+Received: from wavehammer.waldi.eu.org (hornet.berlios.de [195.37.77.140])
+        by jazzband.ncsc.mil  with ESMTP id hB6FoIta001870 for <selinux@tycho.nsa.gov>; Sat, 6 Dec 2003 15:50:24 GMT
+Date: Sat, 6 Dec 2003 16:50:12 +0100
+From: Bastian Blank <bastian@waldi.eu.org>
+To: selinux@tycho.nsa.gov
+Subject: setfiles - should not fail on ro fs
+Message-ID: <20031206155012.GA19852@wavehammer.waldi.eu.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 6 Dec 2003 06:06, Nick <nagray@austin.rr.com> wrote:
-> > I don't get it either.  Usually sshd runs fine with that blocked, but
-> > sometimes it doesn't work correctly.  In my latest policy I have enabled
-> > that access, but it needs more review.
->
-> I took a look at the source for sshd. While the daemon is waiting for
-> connections it regenerates it's server key every hour. This is done
-> through a SIGALRM. I am trying to figure out why this would cause
-> intermittent failures on the daemon if it wasn't allowed.
->
-> I guess it really doesn't matter, it should be allowed. As the resident
-> expert on policies, can you tell me if we can restrict the signals down
-> to a type? I will look later.
 
-Strange.  In any case this has to be enabled for running as a daemon.
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-For the moment I will deny sshd_t access to send signals to itself when 
-running from inetd.
+hi folks
 
-> I just found out I don't need X at all, so for now this solves any
-> problem I have with that.
+setfiles should not fail on r/o filesystems:
 
-In that case it's best to disable X forwarding on both client and server.
+| /usr/sbin/setfiles:  labeling files under /boot301
+| /boot301: Read-only file system
+| /usr/sbin/setfiles:  unable to relabel /boot301 to system_u:object_r:file=
+_t
+| /usr/sbin/setfiles:  error while labeling files under /boot301
+| make: *** [relabel] Error 1
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+bastian
 
+--=20
+Genius doesn't work on an assembly line basis.  You can't simply say,
+"Today I will be brilliant."
+		-- Kirk, "The Ultimate Computer", stardate 4731.3
+
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iEYEARECAAYFAj/R+rQACgkQLkAIIn9ODhFshACgyeC+M9a3XTf8UoCSTNs0B+ug
+BBAAoMuXaZsC2TaIFZg7iIi/1WX3tPkM
+=3Wq1
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
