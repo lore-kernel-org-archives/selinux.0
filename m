@@ -1,112 +1,99 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA12963
-	for <selinux@tycho.nsa.gov>; Tue, 7 Jan 2003 11:31:42 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA07988
-	for <selinux@tycho.nsa.gov>; Tue, 7 Jan 2003 16:29:01 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id QAA07984
-	for <selinux@tycho.nsa.gov>; Tue, 7 Jan 2003 16:29:00 GMT
-Date: Tue, 7 Jan 2003 11:29:18 -0500 (EST)
-From: Chris Vance <cvance@tislabs.com>
-To: Joshua Brindle <JBrindle@snu.edu>
-cc: <selinux@tycho.nsa.gov>, Chris Vance <cvance@tislabs.com>
-Subject: Re: Trusted BSD is selinux compatible?
-In-Reply-To: <se183a46.027@atlas.snu.edu>
-Message-ID: <Pine.LNX.4.33.0301071054550.13740-100000@zorg.gw.tislabs.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA20691
+	for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2003 10:58:39 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h08FwdI23226
+	for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2003 15:58:39 GMT
+Received: from csoc-fire1.csoconline.com (csoc-mail-smtp.csoconline.com [140.169.2.146])
+        by jazzband.ncsc.mil  with SMTP id h08FwZf23222 for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2003 15:58:36 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A1015244A8@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Stephen D. Smalley'" <sds@epoch.ncsc.mil>, guttman@mitre.org,
+        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: RE: Policy Language
+Date: Wed, 8 Jan 2003 09:54:11 -0600 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Monday, January 06, 2003 11:52 AM Stephen D. Smalley  wrote:
 
-SEBSD is a on-going port of the SELinux FLASK and Type Enforcement
-implementations to run on top of the TrustedBSD MAC framework.  It will
-provide access to FLASK and the Type Enforcement implementations as a
-pluggable module for FreeBSD 5.0.
+>> On Mon 1/6/2003 11:06 AM Joshua D. Guttman wrote:
+>> Twiddles to the syntax would cause bad feeling for people who have
+>> already developed policy analysis tools, or have crafted their own
+>> policies.
 
-An SEBSD kernel module has been developed and integrated into the
-TrustedBSD MAC development tree; hooked directly into the kernel build.
-This module includes a ported version of the FLASK access vector cache and
-example security server.
+That why I am posting to the list to try and get a feel from the
+people who have created the tools. The changes so far only effect
+three files. 
 
-Using the interfaces provided by the TrustedBSD MAC framework, SEBSD
-currently supports labels and performs access control decisions for
-processes, vnodes (files), filesystem mount structures, and devfs entries.
-The interface allows labels to be registered and maintained for each of
-these kernel resources, as well as retrieved during access control checks.
-In addition, management of labels by user processes is permitted using the
-policy-agnostic MAC label interfaces provided by the MAC Framework.
+security_classes
+initial_sids
+rbac
 
-This is a rather long winded way of saying yes.  Since SEBSD was a port of
-the SELinux AVC and security server, the policy files are binary
-compatible.  In fact, when we began the porting effort, we hadn't ported
-the policy compiler so we used policy files that were compiled on a Linux
-box.  There are some differences at the OS integration layer due to
-different OS designs and hook placements, but the goal is to protect the
-objects in a consistent manner.
+Where security_classes and initial_sids don't change very much,
+while rbac only changes on the creations of new roles. The 
+general policy writer will hardly notice the change. 
 
-It's is important to note that even though everything is binary compatible
-and the source file formats are the same, there are quite a few changes
-necessary to correctly label the filesystem and to adequately control
-programs for a typical FreeBSD installation.
+>> 
+>> I see that you know how to do the parsing for the language as it
+>> currently exists, so please just do what's necessary...
 
-Another significant difference is the way that TrustedBSD provides generic
-interfaces to all loaded security modules.  Management of labels by user
-processes is permitted using the policy-agnostic MAC label interfaces
-provided by the MAC Framework, not by SEBSD/SELinux specific system calls
-and tools.  Basically TrustedBSD labels are always prepended with a
-target, for example: 'sebsd/system_u:object_r:root_t' or
-'biba/high,mls/equal'
+"kludges" ?
 
-
-To this end, the 'setfsmac' utility encapsulates regular expression-driven
-labeling of file system hierarchies, in a policy-agnostic form, but also
-provides backwards compatibility for the SELinux 'file context' format, by
-automagically prepending 'sebsd/' to all contexts.
-
-All of the necessary kernel changes to the MAC Framework required to
-support the current prototype SEBSD have been merged back into the main
-FreeBSD tree and will be present in FreeBSD 5.0 when it is released
-(should be fairly soon).
-
-We will provide a prototype SEBSD module for download via the Network
-Associates Laboratories open source web page suitable for use on FreeBSD
-5.0, and advertise this on FreeBSD and other relevant mailing lists.  In
-addition, we will provide an initial adaptation of the SELinux default
-policy sufficient to boot and make minimal use of the system.
-
-This is a bit of an overview, so if you have specific questions, please ask!
-
-chris.
-
-On Sun, 5 Jan 2003, Joshua Brindle wrote:
-
-> anyone here used trustedbsd?
 >
-> --- From www.trustedbsd.org
-> Mandatory access control modules based on the framework supporting a
-> variety of access control models, including fixed and floating label
-> Biba integrity policies, the MLS confidentiality policy, Type
-> Enforcement, and other customized policies designed for common FreeBSD
-> deployment scenarios. In addition, the SELinux FLASK and Type
-> Enforcement implementations will be provided via an SEBSD module,
-> providing access to the higher level FLASK service abstraction, and
-> mature TE implementation
-> ----
->
-> does this mean trusted bsd can use selinux policies? Are selinux policy
-> formats a pseudo standard? are there other projects like this?
->
-> Joshua Brindle
-> UNIX Administrator
-> Southern Nazarene University
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+>Yes, I agree.
+
+
+The problem I am having in trying to build a policy management
+system. The current te language and compiler build the policy.xx
+from a policy.conf file. While the language work great with a 
+policy.conf it will not check a te file named.te for example 
+(ignoring the macros for this example)
+  
+I would like to eventuality move to a database system that could 
+track many selinux policies for different systems. Such that the 
+system could look at inputs from different te files and
+import then and build policy.conf files for different systems. 
+
+Taking the CLASS rules for example. While the current
+definition work great on the policy.conf if does not work 
+well on fragments of a policy.conf or a te file that is used
+to build the policy.conf.
+
+...
+class_def      :  CLASS identifier
+...
+av_perms_def   :  CLASS identifier '{' identifier_list '}'
+               |  CLASS identifier INHERITS identifier
+               |  CLASS identifier INHERITS identifier '{' identifier_list
+'}'
+...
+
+What I need to do when parsing a te file.
+The class_def creates a key on identifier and the av_perms_def references a 
+a key created by class_def. This way order can be maintain with the
+class_def
+processing. By adding extra definitions backwards compatibility can be build
+into
+the language(i.e 
+
+class_def      :  CLASS identifier
+               |  CLASSDEF identifier
+
+
+I am asking to remove context sensitive meaning from tokens in the language.
+
+Taken from "info bison".
+
+"The Bison paradigm is to parse tokens first, then group them into
+larger syntactic units.  In many languages, the meaning of a token is
+affected by its context.  Although this violates the Bison paradigm,
+certain techniques (known as "kludges") may enable you to write Bison
+parsers for such languages."
+
+Mark
 
 
 
