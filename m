@@ -1,246 +1,89 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0SDs9Rb004877
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 08:54:09 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0SF3DRb005251
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 10:03:14 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0SDqqxr016295
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 13:52:52 GMT
-Received: from internode.on.net (bep1.adl2.internode.on.net [203.16.214.212])
-	by jazzswing.ncsc.mil  with ESMTP id i0SDqnYc016280
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 13:52:50 GMT
-From: "keen@internode.on.net" <keen@internode.on.net>
-Reply-to: keen@internode.on.net
-To: selinux@tycho.nsa.gov
-Subject: Problem with selinux configuration
-Date: Thu, 29 Jan 2004 00:50:45 +1100
-Message-id: <4017be35.30f.6615.1100265729@internode.on.net>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="-=_pop1.adl2.internode.on.net4017be3a"
+	by jazzswing.ncsc.mil  with ESMTP id i0SF1uxr020711
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 15:01:56 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id i0SF1tYc020708
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 15:01:56 GMT
+Subject: Re: login roles
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Timothy Wood <timothy@diyab.net>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
+   Russell Coker <russell@coker.com.au>
+In-Reply-To: <4015F1FB.4000902@diyab.net>
+References: <4015F1FB.4000902@diyab.net>
+Content-Type: multipart/mixed; boundary="=-qFHZ9UpOcoRl62IA34Bj"
+Message-Id: <1075302172.19427.22.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 28 Jan 2004 10:02:52 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
 
----=_pop1.adl2.internode.on.net4017be3a
-Content-Type: text/plain; charset="iso-8859-1"
+--=-qFHZ9UpOcoRl62IA34Bj
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Hi,
+On Tue, 2004-01-27 at 00:07, Timothy Wood wrote:
+> I set the pam_selinux module to multiple and now I'm seeing three roles 
+> instead of the two defined in policy/users.  The third context is 
+> <username>:staff_r:system_chkpwd_t, is this normal? I diffed my current 
+> policy against the 1.4 tarball from the NSA site and the only 
+> differences are a couple of changes I've made for slackware.  Of those 
+> few changes none of them have anything to do with system_chkpwd_t.
 
-I am trying to install selinux with a plain vanilla kernel
-2.6.0 (released 18 Dec 2003) from kernel.org using RH9
+This is due to the fact that system_chkpwd_t is authorized for
+<username>:staff_r and is also reachable from the login domains to
+perform authentication, so that context is reachable (but not enterable
+via the user shell, so it won't actually work when in enforcing mode). 
+I've tightened the constraints to reduce this problem, but we may need
+to change the getconlist logic to check entrypoint access to the shell
+as well to fully address it.  My patch to the policy/constraints file is
+attached, and this change is in the sourceforge CVS tree.
 
-I have downloaded
-http://www.nsa.gov/selinux/archives/selinux-usr-2003120509.tgz
-and followed the steps in selinux-usr/selinux-doc/README
-file.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-However I am particularly stuck at step 2, specifically:
+--=-qFHZ9UpOcoRl62IA34Bj
+Content-Disposition: attachment; filename=constraints.diff
+Content-Type: text/x-patch; name=constraints.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-"After installing the new SELinux packages (particularly
-libselinux),
-you can build and install the SELinux-patched packages as
-follows:
-	cd SRPMS
-	rpmbuild --rebuild *.src.rpm
-	rpm -Uvh --force /usr/src/redhat/RPMS/*/*.rpm"
+Index: policy/constraints
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/policy/constraints,v
+retrieving revision 1.2
+retrieving revision 1.4
+diff -u -r1.2 -r1.4
+--- policy/constraints	1 Jul 2003 13:35:42 -0000	1.2
++++ policy/constraints	21 Jan 2004 15:25:29 -0000	1.4
+@@ -34,14 +34,18 @@
+ #
+ 
+ constrain process transition
+-	( u1 == u2 or t1 == privuser
++	( u1 == u2 or ( t1 == privuser and t2 == userdomain )
+ ifdef(`crond.te', `
+          or (t1 == crond_t and t2 == user_crond_domain)
+ ')
+         );
+ 
+ constrain process transition 
+-	( r1 == r2 or t1 == privrole) ;
++	( r1 == r2 or ( t1 == privrole and t2 == userdomain )
++ifdef(`crond.te', `
++         or (t1 == crond_t and t2 == user_crond_domain)
++')
++        );
+ 
+ #
+ # Restrict the ability to label objects with other
 
-I have followed every part of the README including the
-"Note" about rebuilding SRPMS requiring the 4 packages from
-Fedora(libcroco-devel, sharutils, elfutils-devel,
-autoconf213), which I had downloaded and installed them as
-well. I have tried both the "rpmbuild --rebuild *.src.rpm"
-as well as "rpmbuild --define "WITH_SELINUX 1" --rebuild
-SRPMS/*.src.rpm" found in the comments of selinux-usr/build
-file both with similar error about the automake errors.
+--=-qFHZ9UpOcoRl62IA34Bj--
 
-Attached with this email is the output which shows the
-error. Could anyone point me in the right direction on what
-went wrong?
-
-Thank you for any useful suggestions in advance.
-
-Keen
-
----=_pop1.adl2.internode.on.net4017be3a
-Content-Type: application/octet-stream; name="rebuild-err.log"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="rebuild-err.log"
-
-W3Jvb3RAaG9zdCBzZWxpbnV4LXVzcl0jIHJwbWJ1aWxkIC0tZGVmaW5lICJX
-SVRIX1NFTElOVVggMSIgLS1yZWJ1aWxkIFNSUE1TLyouc3JjLnJwbQpJbnN0
-YWxsaW5nIFNSUE1TL2NvcmV1dGlscy01LjAtMzIuc2VsLnNyYy5ycG0KRXhl
-Y3V0aW5nKCVwcmVwKTogL2Jpbi9zaCAtZSAvdmFyL3RtcC9ycG0tdG1wLjk3
-ODUyCisgdW1hc2sgMDIyCisgY2QgL3Vzci9zcmMvcmVkaGF0L0JVSUxECisg
-TEFORz1DCisgZXhwb3J0IExBTkcKKyBjZCAvdXNyL3NyYy9yZWRoYXQvQlVJ
-TEQKKyBybSAtcmYgY29yZXV0aWxzLTUuMAorIC91c3IvYmluL2J6aXAyIC1k
-YyAvdXNyL3NyYy9yZWRoYXQvU09VUkNFUy9jb3JldXRpbHMtNS4wLnRhci5i
-ejIKKyB0YXIgLXhmIC0KKyBTVEFUVVM9MAorICdbJyAwIC1uZSAwICddJwor
-IGNkIGNvcmV1dGlscy01LjAKKysgL3Vzci9iaW4vaWQgLXUKKyAnWycgMCA9
-IDAgJ10nCisgL2Jpbi9jaG93biAtUmhmIHJvb3QgLgorKyAvdXNyL2Jpbi9p
-ZCAtdQorICdbJyAwID0gMCAnXScKKyAvYmluL2NoZ3JwIC1SaGYgcm9vdCAu
-CisgL2Jpbi9jaG1vZCAtUmYgYStyWCxnLXcsby13IC4KKyBlY2hvICdQYXRj
-aCAjMTAxIChmaWxldXRpbHMtNC4wLXNwYWNlZGlyLnBhdGNoKTonClBhdGNo
-ICMxMDEgKGZpbGV1dGlscy00LjAtc3BhY2VkaXIucGF0Y2gpOgorIHBhdGNo
-IC1wMSAtYiAtLXN1ZmZpeCAuc3BhY2UgLXMKKyBlY2hvICdQYXRjaCAjMTAy
-IChmaWxldXRpbHMtNC4wcy1zcGFyYy5wYXRjaCk6JwpQYXRjaCAjMTAyIChm
-aWxldXRpbHMtNC4wcy1zcGFyYy5wYXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0t
-c3VmZml4IC5zcGFyYyAtcworIGVjaG8gJ1BhdGNoICMxMDMgKGNvcmV1dGls
-cy00LjUuMi10cnVuYy5wYXRjaCk6JwpQYXRjaCAjMTAzIChjb3JldXRpbHMt
-NC41LjItdHJ1bmMucGF0Y2gpOgorIHBhdGNoIC1wMCAtYiAtLXN1ZmZpeCAu
-dHJ1bmMgLXMKKyBlY2hvICdQYXRjaCAjMTA1IChjb3JldXRpbHMtNC41LjIt
-Qy5wYXRjaCk6JwpQYXRjaCAjMTA1IChjb3JldXRpbHMtNC41LjItQy5wYXRj
-aCk6CisgcGF0Y2ggLXAwIC1iIC0tc3VmZml4IC5Db3B0aW9uIC1zCisgZWNo
-byAnUGF0Y2ggIzEwNyAoZmlsZXV0aWxzLTQuMS4xMC10aW1lc3R5bGUucGF0
-Y2gpOicKUGF0Y2ggIzEwNyAoZmlsZXV0aWxzLTQuMS4xMC10aW1lc3R5bGUu
-cGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAudGltZXN0eWxlIC1z
-CisgZWNobyAnUGF0Y2ggIzEwOCAoZmlsZXV0aWxzLTQuMS41LWFmcy5wYXRj
-aCk6JwpQYXRjaCAjMTA4IChmaWxldXRpbHMtNC4xLjUtYWZzLnBhdGNoKToK
-KyBwYXRjaCAtcDEgLWIgLS1zdWZmaXggLmFmcyAtcworIGVjaG8gJ1BhdGNo
-ICMxMTEgKGNvcmV1dGlscy00LjUuMi1kdW1idGVybS5wYXRjaCk6JwpQYXRj
-aCAjMTExIChjb3JldXRpbHMtNC41LjItZHVtYnRlcm0ucGF0Y2gpOgorIHBh
-dGNoIC1wMCAtYiAtLXN1ZmZpeCAuZHVtYnRlcm0gLXMKKyBlY2hvICdQYXRj
-aCAjMTEyIChmaWxldXRpbHMtNC4wdS1nbGliYzIyLnBhdGNoKTonClBhdGNo
-ICMxMTIgKGZpbGV1dGlscy00LjB1LWdsaWJjMjIucGF0Y2gpOgorIHBhdGNo
-IC1wMSAtYiAtLXN1ZmZpeCAuZ2xpYmMyMiAtcworIGVjaG8gJ1BhdGNoICMx
-MTQgKGZpbGV1dGlscy00LjEtcmVzdG9yZWNvbG9yLnBhdGNoKTonClBhdGNo
-ICMxMTQgKGZpbGV1dGlscy00LjEtcmVzdG9yZWNvbG9yLnBhdGNoKToKKyBw
-YXRjaCAtcDEgLWIgLS1zdWZmaXggLnJlc3RvcmUgLXMKKyBlY2hvICdQYXRj
-aCAjMTE1IChmaWxldXRpbHMtNC4xLjEtRkJvcHRpb25zLnBhdGNoKTonClBh
-dGNoICMxMTUgKGZpbGV1dGlscy00LjEuMS1GQm9wdGlvbnMucGF0Y2gpOgor
-IHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAuRkJvcHRzIC1zCisgZWNobyAnUGF0
-Y2ggIzExNTUgKGZpbGV1dGlscy00LjEtZm9yY2Utb3B0aW9uLS1vdmVycmlk
-ZS0taW50ZXJhY3RpdmUtb3B0aW9uLnBhdGNoKTonClBhdGNoICMxMTU1IChm
-aWxldXRpbHMtNC4xLWZvcmNlLW9wdGlvbi0tb3ZlcnJpZGUtLWludGVyYWN0
-aXZlLW9wdGlvbi5wYXRjaCk6CisgcGF0Y2ggLXAxIC1zCisgZWNobyAnUGF0
-Y2ggIzExNiAoZmlsZXV0aWxzLTQuMS1kaXJjb2xvcnNfYy5wYXRjaCk6JwpQ
-YXRjaCAjMTE2IChmaWxldXRpbHMtNC4xLWRpcmNvbG9yc19jLnBhdGNoKToK
-KyBwYXRjaCAtcDEgLXMKKyBlY2hvICdQYXRjaCAjMTE3IChmaWxldXRpbHMt
-NC4xLWxzX2MucGF0Y2gpOicKUGF0Y2ggIzExNyAoZmlsZXV0aWxzLTQuMS1s
-c19jLnBhdGNoKToKKyBwYXRjaCAtcDEgLXMKKyBlY2hvICdQYXRjaCAjMTE4
-IChmaWxldXRpbHMtNC4xLWxzX2gucGF0Y2gpOicKUGF0Y2ggIzExOCAoZmls
-ZXV0aWxzLTQuMS1sc19oLnBhdGNoKToKKyBwYXRjaCAtcDEgLXMKKyBlY2hv
-ICdQYXRjaCAjMTUzIChmaWxldXRpbHMtNC4xLjEwLXV0bXAucGF0Y2gpOicK
-UGF0Y2ggIzE1MyAoZmlsZXV0aWxzLTQuMS4xMC11dG1wLnBhdGNoKToKKyBw
-YXRjaCAtcDEgLXMKKyBlY2hvICdQYXRjaCAjMTgyIChjb3JldXRpbHMtNC41
-LjMtYWNsLnBhdGNoKTonClBhdGNoICMxODIgKGNvcmV1dGlscy00LjUuMy1h
-Y2wucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAuYWNsIC1zCisg
-ZWNobyAnUGF0Y2ggIzE4MyAoY29yZXV0aWxzLTQuNS4zLWFjbGNvbXBpbGUu
-cGF0Y2gpOicKUGF0Y2ggIzE4MyAoY29yZXV0aWxzLTQuNS4zLWFjbGNvbXBp
-bGUucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAuYWNsY29tcGls
-ZSAtcworIGVjaG8gJ1BhdGNoICMxODggKGNvcmV1dGlscy00LjUuMy1zdWlk
-ZmFpbC5wYXRjaCk6JwpQYXRjaCAjMTg4IChjb3JldXRpbHMtNC41LjMtc3Vp
-ZGZhaWwucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAuc3VpZGZh
-aWwgLXMKKyBlY2hvICdQYXRjaCAjMTg5IChjb3JldXRpbHMtNC41LjMtc3Rv
-bmVhZ2UucGF0Y2gpOicKUGF0Y2ggIzE4OSAoY29yZXV0aWxzLTQuNS4zLXN0
-b25lYWdlLnBhdGNoKToKKyBwYXRjaCAtcDEgLWIgLS1zdWZmaXggLnN0b25l
-YWdlIC1zCisgZWNobyAnUGF0Y2ggIzUwMCAodGV4dHV0aWxzLTIuMC4xNy1t
-ZW0ucGF0Y2gpOicKUGF0Y2ggIzUwMCAodGV4dHV0aWxzLTIuMC4xNy1tZW0u
-cGF0Y2gpOgorIHBhdGNoIC1wMSAtcworIGVjaG8gJ1BhdGNoICM1MDIgKHRl
-eHR1dGlscy0yLjAuMjEtbWFuLnBhdGNoKTonClBhdGNoICM1MDIgKHRleHR1
-dGlscy0yLjAuMjEtbWFuLnBhdGNoKToKKyBwYXRjaCAtcDEgLXMKKyBlY2hv
-ICdQYXRjaCAjNzAyIChzaC11dGlscy0yLjAtdXRtcC5wYXRjaCk6JwpQYXRj
-aCAjNzAyIChzaC11dGlscy0yLjAtdXRtcC5wYXRjaCk6CisgcGF0Y2ggLXAx
-IC1iIC0tc3VmZml4IC51dG1wIC1zCisgZWNobyAnUGF0Y2ggIzcwMyAoc2gt
-dXRpbHMtMi4wLjExLWRhdGVtYW4ucGF0Y2gpOicKUGF0Y2ggIzcwMyAoc2gt
-dXRpbHMtMi4wLjExLWRhdGVtYW4ucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAt
-LXN1ZmZpeCAuZGF0ZW1hbiAtcworIGVjaG8gJ1BhdGNoICM3MDQgKHNoLXV0
-aWxzLTEuMTYtcGF0aHMucGF0Y2gpOicKUGF0Y2ggIzcwNCAoc2gtdXRpbHMt
-MS4xNi1wYXRocy5wYXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0tc3VmZml4IC5w
-YXRocyAtcworIGVjaG8gJ1BhdGNoICM3MDYgKGNvcmV1dGlscy00LjUuMi1w
-YW0ucGF0Y2gpOicKUGF0Y2ggIzcwNiAoY29yZXV0aWxzLTQuNS4yLXBhbS5w
-YXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0tc3VmZml4IC5wYW0gLXMKKyBlY2hv
-ICdQYXRjaCAjNzEwIChzaC11dGlscy0yLjAtcmZjODIyLnBhdGNoKTonClBh
-dGNoICM3MTAgKHNoLXV0aWxzLTIuMC1yZmM4MjIucGF0Y2gpOgorIHBhdGNo
-IC1wMSAtYiAtLXN1ZmZpeCAucmZjODIyIC1zCisgZWNobyAnUGF0Y2ggIzcx
-MSAoY29yZXV0aWxzLTQuNS4zLWhuYW1lLnBhdGNoKTonClBhdGNoICM3MTEg
-KGNvcmV1dGlscy00LjUuMy1obmFtZS5wYXRjaCk6CisgcGF0Y2ggLXAxIC1i
-IC0tc3VmZml4IC5obmFtZSAtcworIGVjaG8gJ1BhdGNoICM3MTIgKGNvcmV1
-dGlscy00LjUuMy1jaGRpci5wYXRjaCk6JwpQYXRjaCAjNzEyIChjb3JldXRp
-bHMtNC41LjMtY2hkaXIucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZp
-eCAuY2hkaXIgLXMKKyBlY2hvICdQYXRjaCAjNzEzIChjb3JldXRpbHMtNC41
-LjMtbGFuZ2luZm8ucGF0Y2gpOicKUGF0Y2ggIzcxMyAoY29yZXV0aWxzLTQu
-NS4zLWxhbmdpbmZvLnBhdGNoKToKKyBwYXRjaCAtcDEgLWIgLS1zdWZmaXgg
-LmxhbmdpbmZvIC1zCisgZWNobyAnUGF0Y2ggIzcxNCAoY29yZXV0aWxzLTQu
-NS4zLXByaW50Zi1sbC5wYXRjaCk6JwpQYXRjaCAjNzE0IChjb3JldXRpbHMt
-NC41LjMtcHJpbnRmLWxsLnBhdGNoKToKKyBwYXRjaCAtcDEgLWIgLS1zdWZm
-aXggLnByaW50Zi1sbCAtcworIGVjaG8gJ1BhdGNoICM3MTUgKGNvcmV1dGls
-cy00LjUuMy1zeXNpbmZvLnBhdGNoKTonClBhdGNoICM3MTUgKGNvcmV1dGls
-cy00LjUuMy1zeXNpbmZvLnBhdGNoKToKKyBwYXRjaCAtcDEgLWIgLS1zdWZm
-aXggLnN5c2luZm8gLXMKKyBlY2hvICdQYXRjaCAjNzE2IChjb3JldXRpbHMt
-NC41LjMtbm9nZXRsaW5lLnBhdGNoKTonClBhdGNoICM3MTYgKGNvcmV1dGls
-cy00LjUuMy1ub2dldGxpbmUucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1
-ZmZpeCAubm9nZXRsaW5lIC1zCisgZWNobyAnUGF0Y2ggIzgwMCAoY29yZXV0
-aWxzLTQuNS4zLWkxOG4ucGF0Y2gpOicKUGF0Y2ggIzgwMCAoY29yZXV0aWxz
-LTQuNS4zLWkxOG4ucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAu
-aTE4biAtcworIGVjaG8gJ1BhdGNoICM5MDAgKGNvcmV1dGlscy00LjUuMy10
-ZXN0LWJ1Z3MucGF0Y2gpOicKUGF0Y2ggIzkwMCAoY29yZXV0aWxzLTQuNS4z
-LXRlc3QtYnVncy5wYXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0tc3VmZml4IC50
-ZXN0LWJ1Z3MgLXMKKyBlY2hvICdQYXRjaCAjOTAxIChjb3JldXRpbHMtNC41
-LjMtc2lnbmFsLnBhdGNoKTonClBhdGNoICM5MDEgKGNvcmV1dGlscy00LjUu
-My1zaWduYWwucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAuc2ln
-bmFsIC1zCisgZWNobyAnUGF0Y2ggIzkwMyAoY29yZXV0aWxzLTQuNS4zLW1h
-bnBhZ2UucGF0Y2gpOicKUGF0Y2ggIzkwMyAoY29yZXV0aWxzLTQuNS4zLW1h
-bnBhZ2UucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAubWFucGFn
-ZSAtcworIGVjaG8gJ1BhdGNoICM5MDQgKGNvcmV1dGlscy01LjAtYWxsb3df
-b2xkX29wdGlvbnMucGF0Y2gpOicKUGF0Y2ggIzkwNCAoY29yZXV0aWxzLTUu
-MC1hbGxvd19vbGRfb3B0aW9ucy5wYXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0t
-c3VmZml4IC5hbGxvd19vbGRfb3B0aW9ucyAtcworIGVjaG8gJ1BhdGNoICM5
-MDUgKGNvcmV1dGlscy01LjAtOTA1NjMucGF0Y2gpOicKUGF0Y2ggIzkwNSAo
-Y29yZXV0aWxzLTUuMC05MDU2My5wYXRjaCk6CisgcGF0Y2ggLXAwIC1iIC0t
-c3VmZml4IC45MDU2MyAtcworIGVjaG8gJ1BhdGNoICM5MDYgKGNvcmV1dGls
-cy01LjAtZGF0ZWFsaWduLnBhdGNoKTonClBhdGNoICM5MDYgKGNvcmV1dGls
-cy01LjAtZGF0ZWFsaWduLnBhdGNoKToKKyBwYXRjaCAtcDEgLWIgLS1zdWZm
-aXggLmRhdGVhbGlnbiAtcworIGVjaG8gJ1BhdGNoICM5MDcgKGNvcmV1dGls
-cy1sYXJnZWZpbGUucGF0Y2gpOicKUGF0Y2ggIzkwNyAoY29yZXV0aWxzLWxh
-cmdlZmlsZS5wYXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0tc3VmZml4IC5sYXJn
-ZWZpbGUgLXMKKyBlY2hvICdQYXRjaCAjOTA4IChjb3JldXRpbHMtc2VsaW51
-eC5wYXRjaCk6JwpQYXRjaCAjOTA4IChjb3JldXRpbHMtc2VsaW51eC5wYXRj
-aCk6CisgcGF0Y2ggLXAxIC1iIC0tc3VmZml4IC5zZWxpbnV4IC1zCisgcGVy
-bCAtcGkgLWUgcy9iYXNpYy0xLy9nIHRlc3RzL3N0dHkvTWFrZWZpbGUuYW0g
-dGVzdHMvc3R0eS9NYWtlZmlsZS5pbgorIGV4aXQgMApFeGVjdXRpbmcoJWJ1
-aWxkKTogL2Jpbi9zaCAtZSAvdmFyL3RtcC9ycG0tdG1wLjY2NTcwCisgdW1h
-c2sgMDIyCisgY2QgL3Vzci9zcmMvcmVkaGF0L0JVSUxECisgY2QgY29yZXV0
-aWxzLTUuMAorIExBTkc9QworIGV4cG9ydCBMQU5HCisgdG91Y2ggYWNsb2Nh
-bC5tNCBjb25maWd1cmUgY29uZmlnLmhpbiBNYWtlZmlsZS5pbiBkb2MvTWFr
-ZWZpbGUuaW4gbGliL01ha2VmaWxlLmluIG00L01ha2VmaWxlLmluIG1hbi9N
-YWtlZmlsZS5pbiAKc3JjL01ha2VmaWxlLmluIHRlc3RzL01ha2VmaWxlLmlu
-IHRlc3RzL2Jhc2VuYW1lL01ha2VmaWxlLmluIHRlc3RzL2NoZ3JwL01ha2Vm
-aWxlLmluIHRlc3RzL2NobW9kL01ha2VmaWxlLmluIAp0ZXN0cy9jaG93bi9N
-YWtlZmlsZS5pbiB0ZXN0cy9jcC9NYWtlZmlsZS5pbiB0ZXN0cy9jdXQvTWFr
-ZWZpbGUuaW4gdGVzdHMvZGF0ZS9NYWtlZmlsZS5pbiB0ZXN0cy9kZC9NYWtl
-ZmlsZS5pbiAKdGVzdHMvZGlyY29sb3JzL01ha2VmaWxlLmluIHRlc3RzL2R1
-L01ha2VmaWxlLmluIHRlc3RzL2V4cHIvTWFrZWZpbGUuaW4gdGVzdHMvZmFj
-dG9yL01ha2VmaWxlLmluIHRlc3RzL2ZtdC9NYWtlZmlsZS5pbiAKdGVzdHMv
-aGVhZC9NYWtlZmlsZS5pbiB0ZXN0cy9pbnN0YWxsL01ha2VmaWxlLmluIHRl
-c3RzL2pvaW4vTWFrZWZpbGUuaW4gdGVzdHMvbG4vTWFrZWZpbGUuaW4gdGVz
-dHMvbHMtMi9NYWtlZmlsZS5pbiAKdGVzdHMvbHMvTWFrZWZpbGUuaW4gdGVz
-dHMvbWQ1c3VtL01ha2VmaWxlLmluIHRlc3RzL21pc2MvTWFrZWZpbGUuaW4g
-dGVzdHMvbWtkaXIvTWFrZWZpbGUuaW4gdGVzdHMvbXYvTWFrZWZpbGUuaW4g
-CnRlc3RzL29kL01ha2VmaWxlLmluIHRlc3RzL3ByL01ha2VmaWxlLmluIHRl
-c3RzL3JtL01ha2VmaWxlLmluIHRlc3RzL3JtZGlyL01ha2VmaWxlLmluIHRl
-c3RzL3NlcS9NYWtlZmlsZS5pbiAKdGVzdHMvc2hhMXN1bS9NYWtlZmlsZS5p
-biB0ZXN0cy9zaHJlZC9NYWtlZmlsZS5pbiB0ZXN0cy9zb3J0L01ha2VmaWxl
-LmluIHRlc3RzL3N0dHkvTWFrZWZpbGUuaW4gdGVzdHMvc3VtL01ha2VmaWxl
-LmluIAp0ZXN0cy90YWMvTWFrZWZpbGUuaW4gdGVzdHMvdGFpbC0yL01ha2Vm
-aWxlLmluIHRlc3RzL3RhaWwvTWFrZWZpbGUuaW4gdGVzdHMvdGVzdC9NYWtl
-ZmlsZS5pbiB0ZXN0cy90b3VjaC9NYWtlZmlsZS5pbiAKdGVzdHMvdHIvTWFr
-ZWZpbGUuaW4gdGVzdHMvdHNvcnQvTWFrZWZpbGUuaW4gdGVzdHMvdW5leHBh
-bmQvTWFrZWZpbGUuaW4gdGVzdHMvdW5pcS9NYWtlZmlsZS5pbiB0ZXN0cy93
-Yy9NYWtlZmlsZS5pbgorIGNwIC91c3Ivc3JjL3JlZGhhdC9TT1VSQ0VTL2hl
-bHAybWFuIG1hbi9oZWxwMm1hbgorIGNobW9kICt4IG1hbi9oZWxwMm1hbgor
-KyBwd2QKKyBIRUxQMk1BTj0vdXNyL3NyYy9yZWRoYXQvQlVJTEQvY29yZXV0
-aWxzLTUuMC9tYW4vaGVscDJtYW4KKyBleHBvcnQgSEVMUDJNQU4KKyBhY2xv
-Y2FsIC1JIG00CisgYXV0b2NvbmYgLS1mb3JjZQorIGF1dG9tYWtlIC0tY29w
-eSAtLWZvcmNlCmNvbmZpZ3VyZS5hYzo2OiBgYXV0b21ha2UgcmVxdWlyZXMg
-YEFNX0NPTkZJR19IRUFERVInLCBub3QgYEFDX0NPTkZJR19IRUFERVInCmNv
-bmZpZ3VyZS5hYzo5OiByZXF1aXJlIHZlcnNpb24gMS42YiwgYnV0IGhhdmUg
-MS42LjMKZXJyb3I6IEJhZCBleGl0IHN0YXR1cyBmcm9tIC92YXIvdG1wL3Jw
-bS10bXAuNjY1NzAgKCVidWlsZCkKCgpSUE0gYnVpbGQgZXJyb3JzOgogICAg
-QmFkIGV4aXQgc3RhdHVzIGZyb20gL3Zhci90bXAvcnBtLXRtcC42NjU3MCAo
-JWJ1aWxkKQpbcm9vdEBob3N0IHNlbGludXgtdXNyXSMK
-
----=_pop1.adl2.internode.on.net4017be3a--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
