@@ -1,50 +1,65 @@
-Date: Wed, 23 Jan 2002 09:38:21 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Lonnie Cumberland <lonnie@outstep.com>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: Adding Accounts
-In-Reply-To: <1440.192.168.1.12.1011792535.squirrel@mail.outstep.com>
-Message-ID: <Pine.GSO.4.33.0201230929350.12859-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Wed, 23 Jan 2002 10:05:07 -0500
+From: forrest whitcher <fw@fwsystems.com>
+To: Stephen Smalley <sds@tislabs.com>
+Cc: <SELinux@tycho.nsa.gov>
+Subject: Re: switching between SE Linux utils - kernel versions ? ... also ntp
+Message-Id: <20020123100507.5af64cc5.fw@fwsystems.com>
+In-Reply-To: <Pine.GSO.4.33.0201230857580.12859-100000@raven>
+References: <20020122171507.060a9821.fw@fwsystems.com>
+	<Pine.GSO.4.33.0201230857580.12859-100000@raven>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 23 Jan 2002 09:24:39 -0500 (EST)
+Stephen Smalley <sds@tislabs.com> wrote:
 
-On Wed, 23 Jan 2002, Lonnie Cumberland wrote:
+> 
+> On Tue, 22 Jan 2002, forrest whitcher wrote:
+> 
+> > A note on NTP: ntpd / ntpdate on my selinux installation has (surprsingly) not
+> > raised any AVC: messages in develop/permissive mode. Does this suggest that
+> > setting system time is not LSM / SEL hooked?
+> 
+> No, it just means that ntpd is still running in the initrc_t domain.  You
+> need to define a domain for it if you want to run it safely.
+> 
 
-> Is there an easier way to add users now that I have SELinux installed
-> and running?
+That's not it. Ntpd was startd from the commandline - sysadm_r:sysadm_t role/domain
 
-At present, to add new users that are recognized by the SELinux policy,
-you must add an entry for the user to policy/users and reload the policy
-(run 'make load' in the policy directory), and you must add contexts for
-the user to the /etc/security/{default_context,cron_context} files.  The
-need for per-user entries in the /etc/security files will go away once
-we migrate to a new set of libsecure functions (see the
-/etc/security/default_context vs. /etc/security/default_contexts thread
-on the mailing list), pending on someone taking the time to finish that
-work.
+Syslog messages indicate that ntpd is choosing kernel/pll (I have systems on which
+ntpd uses tickadj() is the pll a kernel function that's not hooked?
 
-However, that will still leave the policy/users file.  Mark Westerman
-suggested adding a general unprivileged user to the SELinux policy that
-can be used for all unspecified users, and has been working on a patch to
-implement support for such a user - see the General Users thread on the
-mailing list.  This will work as long as you are ok with merely mapping
-all such users to the same set of authorized roles (i.e. you do not need
-the policy to separate such users) and you do not care about per-user
-accountability for such users.   Otherwise, you will need to update
-policy/users and reload the policy for new users.
+ hermes ntpd[3099]: using kernel phase-lock loop 0041
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+> > I'll be updating to 2.4.17 shortly, wondered what is the safe matrix for
+> > mixing versions?
+> >
+> > If I need to still sometimes boot the .12 kernel will it be able to deal
+> > with PSID's left by .17? and are the .17 version utils likely to cause
+> > problems on .12 kernel?
+> 
+> The on-disk persistent label mapping format hasn't changed, so that isn't
+> an issue.  However, the on-disk policydb format has changed, so the 2.4.12
+> kernel won't be able to use the same policy, and some of the new system
+> calls have undergone changes, so the newer utilities will not work on the
+> 2.4.12 kernel.  So you can't easily swap back and forth.  Also, when you
+> perform the build and install of the .17 release, remove
+> /usr/local/selinux/bin from your path to avoid trying to use the modified
+> utilities during the install.
 
+Thanks, that's useful to know.
 
+forrest
 
-
-
-
+> 
+> --
+> Stephen D. Smalley, NAI Labs
+> ssmalley@nai.com
+> 
+> 
+> 
 
 --
 You have received this message because you are subscribed to the selinux list.
