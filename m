@@ -1,40 +1,49 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBLLsNRb019407
-	for <selinux@tycho.nsa.gov>; Sun, 21 Dec 2003 16:54:23 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hBLLsLpn019432
-	for <selinux@tycho.nsa.gov>; Sun, 21 Dec 2003 21:54:22 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBLMQZRb019494
+	for <selinux@tycho.nsa.gov>; Sun, 21 Dec 2003 17:26:35 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hBLMPfjx020368
+	for <selinux@tycho.nsa.gov>; Sun, 21 Dec 2003 22:25:41 GMT
 Received: from zaphod.crypt.gen.nz (218-101-46-111.paradise.net.nz [218.101.46.111])
-        by jazzband.ncsc.mil  with ESMTP id hBLLsKab019429 for <selinux@tycho.nsa.gov>; Sun, 21 Dec 2003 21:54:21 GMT
-Message-ID: <2407.202.27.185.71.1072043647.squirrel@www.crypt.gen.nz>
-In-Reply-To: <20031219195045.4425635f.ynakam@ori.hitachi-sk.co.jp>
-References: 
-    <20031215190237.4f459090.ynakam@ori.hitachi-sk.co.jp><1071503117.28044.76.camel@moss-spartans.epoch.ncsc.mil><20031216133940.568e9795.ynakam@ori.hitachi-sk.co.jp><1071688353.1403.137.camel@moss-spartans.epoch.ncsc.mil>
-    <20031219195045.4425635f.ynakam@ori.hitachi-sk.co.jp>
-Date: Mon, 22 Dec 2003 10:54:07 +1300 (NZDT)
-Subject: Re: Apache on FedoraCore1(Was Re: log_domain macro)
+	by jazzswing.ncsc.mil  with ESMTP id hBLMPeSR020365
+	for <selinux@tycho.nsa.gov>; Sun, 21 Dec 2003 22:25:41 GMT
+Message-ID: <2665.202.27.185.71.1072045590.squirrel@www.crypt.gen.nz>
+In-Reply-To: <003201c3c72b$b32c6c60$5d38a8c0@lky>
+References: <001e01c3c65f$5849f320$5d38a8c0@lky>
+    <1071865851.11143.98.camel@moss-spartans.epoch.ncsc.mil>
+    <003201c3c72b$b32c6c60$5d38a8c0@lky>
+Date: Mon, 22 Dec 2003 11:26:30 +1300 (NZDT)
+Subject: Re: question about remote login
 From: "Kerry Thompson" <kerry@crypt.gen.nz>
-To: "Yuichi Nakamura" <ynakam@ori.hitachi-sk.co.jp>
-Cc: selinux@tycho.nsa.gov
+To: "lky" <lky77@sjtu.edu.cn>
+Cc: "SELINUX" <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Yuichi Nakamura said:
+lky said:
 
-> (3)
-> I defined new type krb5_conf_t for /etc/krb5.conf
-> because write access to /etc/krb5.conf was denied.
-> However, Apache worked when access to /etc/krb5.conf is denied.
-> So,"allow httpd_t krb5_conf_t:file rw_file_perms;" is commented out now.
+>
+> Sorry,I think I didn't express my meaning clearly.I just want to stop the
+> deny messages on screen but keep them in the log file such as messages.I
+> set the log level via the avc_log_level= kernel boot parameter.It did stop
+> the display of deny messages but disable the logging as well.Any advice?
+> Thanks!
+> lky
 >
 
-PAM ( and others ) make calls to the kerberos library which will always
-open /etc/krb5.conf in r/w mode, even though no apps should be writing to
-it. I suggest allowing read from all, and dontaudit for write.
+Basically:
+echo "7 7 1 7" >/proc/sys/kernel/printk
 
-Kerry
+from http://www.crypt.gen.nz/selinux/faq.html#L.1 :
+SELinux sends a lot of messages to the system console by default. This can
+be very annoying if you're busy on the console trying to solve some
+important problem. The following command will direct all messages of
+default priority away from the console. The default is "7 4 1 7". The
+second number is the priority of default messages, setting it to 7 makes
+default messages of too low a priority to be on the console.
+(Credits to Russell for this)
 
 
 -- 
