@@ -1,32 +1,32 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA02504
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2002 23:24:41 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id EAA26987
-	for <selinux@tycho.nsa.gov>; Sat, 9 Feb 2002 04:23:47 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA02670
+	for <selinux@tycho.nsa.gov>; Sat, 9 Feb 2002 00:11:17 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id FAA03697
+	for <selinux@tycho.nsa.gov>; Sat, 9 Feb 2002 05:10:25 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id EAA26977 for <selinux@tycho.nsa.gov>; Sat, 9 Feb 2002 04:23:46 GMT
+	by jazzswing.ncsc.mil  with ESMTP id FAA03693
+	for <selinux@tycho.nsa.gov>; Sat, 9 Feb 2002 05:10:23 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 565109265F
-	for <selinux@tycho.nsa.gov>; Sat,  9 Feb 2002 15:24:37 +1100 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 45FA39265F
+	for <selinux@tycho.nsa.gov>; Sat,  9 Feb 2002 16:11:12 +1100 (EST)
 Received: from there (lyta [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id AC5233A6AB2
-	for <selinux@tycho.nsa.gov>; Sat,  9 Feb 2002 14:25:33 +1000 (EST)
+	by lyta.coker.com.au (Postfix) with SMTP id 10FB23A6ACC
+	for <selinux@tycho.nsa.gov>; Sat,  9 Feb 2002 15:11:45 +1000 (EST)
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: run_init(8)
-Date: Sat, 9 Feb 2002 14:25:33 +1000
+Subject: changing a process SID
+Date: Sat, 9 Feb 2002 15:11:44 +1000
 MIME-Version: 1.0
-Message-Id: <20020209042533.AC5233A6AB2@lyta.coker.com.au>
+Message-Id: <20020209051145.10FB23A6ACC@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I think that the run_init man page should be in section 8.  There is (AFAIK) 
-no reason for a non-sysadm_r user to be running it and therefore the binary 
-belongs in /sbin and the man page should be in section 8.
+Is it possible for a process to change it's own SID?  Or is execve_secure() 
+the only way?
 
 -- 
 http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
