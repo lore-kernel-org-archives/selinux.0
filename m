@@ -1,55 +1,84 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB504kRb001721
-	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2003 19:04:46 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB5045lU007987
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 00:04:05 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id hB5043SX007972
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 00:04:04 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id 5154661BF1
-	for <selinux@tycho.nsa.gov>; Fri,  5 Dec 2003 11:04:37 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
-	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 26278-02 for <selinux@tycho.nsa.gov>;
-	Fri, 5 Dec 2003 11:04:36 +1100 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by ns.sws.net.au (Postfix) with ESMTP id DA7D361BF0
-	for <selinux@tycho.nsa.gov>; Fri,  5 Dec 2003 11:04:36 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id AEB58924C4
-	for <selinux@tycho.nsa.gov>; Fri,  5 Dec 2003 11:04:36 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id C01477F296
-	for <selinux@tycho.nsa.gov>; Fri,  5 Dec 2003 11:04:34 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB51IMRb001961
+	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2003 20:18:23 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hB51IMRV010020
+	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 01:18:22 GMT
+Received: from hawaii.efficax.net (rrcs-sw-24-153-230-186.biz.rr.com [24.153.230.186])
+        by jazzband.ncsc.mil  with ESMTP id hB51ILta010017 for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 01:18:21 GMT
+Received: from hawaii.efficax.net (localhost [127.0.0.1])
+	by hawaii.efficax.net (8.12.8/8.12.8) with ESMTP id hB51IMX0028518
+	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2003 19:18:22 -0600
+Received: (from nick@localhost)
+	by hawaii.efficax.net (8.12.8/8.12.8/Submit) id hB51IMvx028516
+	for selinux@tycho.nsa.gov; Thu, 4 Dec 2003 19:18:22 -0600
+Subject: 
+From: Nick <nagray@austin.rr.com>
+Reply-To: nagray@austin.rr.com
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Basic question on policy design
-Date: Fri, 5 Dec 2003 11:04:34 +1100
-References: <000401c3ba6a$ad593430$8100a8c0@columbia.tresys.com> <3FCF968B.3050504@diyab.net>
-In-Reply-To: <3FCF968B.3050504@diyab.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200312051104.34261.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1070587102.27071.159.camel@hawaii.efficax.net>
+Mime-Version: 1.0
+Date: Thu, 04 Dec 2003 19:18:22 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 5 Dec 2003 07:18, Diyab <diyab@diyab.net> wrote:
-> require the ability to speak to one another.  So for process to process
-> you might end up with something like:
+I rebooted the system and logged into the console
 
-can_tcp_connect(httpd_t, postgresql_t)
+newrole -r sysadm_r
+
+dmesg | grep ssh
+
+avc:  denied  { signal } for  pid=1002 exe=/usr/sbin/sshd
+scontext=system_u:system_r:sshd_t tcontext=system_u:system_r:sshd_t
+tclass=process
+
+I dont think I get this one at all, unless the process which is starting
+sshd is what is not able to send a signal or is it sshd can't send a
+signal out?
+
+now I walk over to a terminal and ssh in.
+
+newrole -r sysadm_r
+
+dmesg | grep ssh
+
+avc:  denied  { signal } for  pid=1002 exe=/usr/sbin/sshd
+scontext=system_u:system_r:sshd_t tcontext=system_u:system_r:sshd_t
+tclass=process
+
+avc:  denied  { getattr } for  pid=1055 exe=/usr/sbin/sshd name=xauth
+dev=03:02 ino=2261013 scontext=system_u:system_r:sshd_t
+tcontext=system_u:object_r:bin_t tclass=file
+
+avc:  denied  { name_bind } for  pid=1055 exe=/usr/sbin/sshd port=6010
+scontext=system_u:system_r:sshd_t tcontext=system_u:object_r:port_t
+tclass=tcp_socket
+
+The first one is the message that is still there from the startup. I'm
+not sure I understand the next two though.
+
+The daemon wants getattr access to xauth (Why) and it wants to bind to
+6010. (Why)
+
+More importantly the question is if these are normal why aren't the
+covered by the policy already in place? I certainly didn't go out of my
+way to change the behavior of SSH.
+
+A google search of "SSH" and 6010 indicates that this is normal behavior
+when the daemon is started with port forwarding turned on. So the
+question again is since this is "Normal" for Redhat, what is up with the
+policy??
+
+Nix
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Never give a cow a typewriter - Click, Clack, Moo
 
-
+Nick (Nix) Gray
+Senior Systems Engineer
+Bruzenak Inc.
+(512) 331-7998
 
 --
 This message was distributed to subscribers of the selinux mailing list.
