@@ -1,76 +1,56 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8N2jNrT006693
-	for <selinux@tycho.nsa.gov>; Wed, 22 Sep 2004 22:45:24 -0400 (EDT)
-Received: from maat.darkhonor.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8N2jMWF004436
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 02:45:22 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: SELinux  Doesn't Complete Initialization
-Date: Wed, 22 Sep 2004 22:48:51 -0400
-Message-ID: <A52BEA1D8EE8634B9196A136333637B130D4@maat.darkhonor.net>
-From: "Alex Ackerman" <alex@darkhonor.com>
-To: "Luke Kenneth Casson Leighton" <lkcl@lkcl.net>
-Cc: <selinux@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8N9WirT007868
+	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 05:32:44 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8N9Viv8004903
+	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 09:31:45 GMT
+Date: Thu, 23 Sep 2004 10:43:44 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Alex Ackerman <alex@darkhonor.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: SELinux  Doesn't Complete Initialization
+Message-ID: <20040923094344.GB5397@lkcl.net>
+References: <A52BEA1D8EE8634B9196A136333637B130D4@maat.darkhonor.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <A52BEA1D8EE8634B9196A136333637B130D4@maat.darkhonor.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-No luck.  I didn't see any additional logs.  Is the Cryptographic API
-required for the modules to complete initialization? Here are the
-relevant parts of the log files:
+On Wed, Sep 22, 2004 at 10:48:51PM -0400, Alex Ackerman wrote:
+> No luck.  I didn't see any additional logs.  
 
-Sep 22 21:25:07 seth kernel: Linux version 2.6.8-1.521
-(bhcompile@tweety.build.redhat.com) (gcc version 3.3.3 20040412 (Red Hat
-Linux 3.3.3-7)) #1 Mon Aug 16 09:01:18 EDT 2004
-Sep 22 21:25:07 seth kernel: Kernel command line: ro root=LABEL=/ quiet
-vga=792 audit=1 selinux=1 enforcing=0
-Sep 22 21:25:07 seth kernel: SELinux:  Initializing.
-Sep 22 21:25:07 seth kernel: SELinux:  Starting in permissive mode
-Sep 22 21:25:07 seth kernel: There is already a security framework
-initialized, register_security failed.
-Sep 22 21:25:07 seth kernel: selinux_register_security:  Registering
-secondary module capability
-Sep 22 21:25:07 seth kernel: Capability LSM initialized as secondary
-Sep 22 21:25:10 seth kernel: audit(1095888279.943:0): initialized
-Sep 22 21:25:11 seth kernel: SELinux:  Registering netfilter hooks
-Sep 22 21:25:11 seth kernel: Initializing Cryptographic API
-Sep 22 21:25:11 seth kernel: ksign: Installing public key data
-Sep 22 21:25:11 seth kernel: Loading keyring
-Sep 22 21:25:11 seth kernel: - Added public key 9488DB81FF525AA3
-Sep 22 21:25:11 seth kernel: - User ID: Red Hat, Inc. (Kernel Module GPG
-key)
-Sep 22 21:25:11 seth kernel: ksign: invalid packet (ctb=00)
-Sep 22 21:25:11 seth kernel: Unable to load default keyring: error=74
+ don't tell me everyone on the redhat team have done such
+ a good job that the strict policy doesn't get in the way :)
 
+ i _have_ seen this happen before (no audit messages) and
+ audit=1 worked for me, on advice from stephen.
 
------Original Message-----
-From: Luke Kenneth Casson Leighton [mailto:lkcl@lkcl.net] 
-Sent: Wednesday, September 22, 2004 5:51 PM
-To: Alex Ackerman
-Cc: selinux@tycho.nsa.gov
-Subject: Re: SELinux Doesn't Complete Initialization
+ you're running with the strict policy so console-logging in as root
+ should ask you if you want 1 or 2 for the context which is sysadm_r
+ or staff_r.
 
-On Wed, Sep 22, 2004 at 02:27:48PM -0400, Alex Ackerman wrote:
+ 
+ at this point my advice would be for you to track down russell's
+ tutorial notes with the step-by-step setup guide in it.
 
-> /boot/grub/grub.conf:
-> default=0
-> timeout=10
-> splashimage=(hd0,0)/grub/splash.xpm.gz
-> 
-> title SELinux (2.6.8-1.521)
->         root (hd0,0)
->         kernel /vmlinuz-2.6.8-1.521 ro root=LABEL=/ quiet vga=792
-selinux=1 enforcing=0
+ also now that you have the auditing switched on, cd to
+ /etc/selinux/src and just experiment with make clean
+ make install make reload that sort of thing.
 
-	add "audit=1" to this and you will see some loovely debug
-messages.
+ you did do a make install as well as a make relabel, yes?
 
-	[auditing was introduced around 2.6.6 or so]
+ to check, type the command "policyver" and then look for
+ /etc/selinux/policy/policy.<thatversionnum>
 
-    can't tell you about the options below but from what i understand
-	if you didn't have enforcing=0 above then the option
-	SELINUX=permissive would be read and used instead.
+ selinux is a game of two halves: step 1 is to have a binary version of
+ the policy, step 2 is to have labels on the filesystem [and all other
+ "objects" like networks n stuff].
+
+> Is the Cryptographic API
+> required for the modules to complete initialization? 
+
+ i wouldn't know but i doubt it.
 
  l.
 
@@ -82,12 +62,6 @@ around you, funnily and coincidentally enough, life gets a lot better.
 --
 <a href="http://lkcl.net">      lkcl.net      </a> <br />
 <a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
-
-
-
-
-
 
 
 --
