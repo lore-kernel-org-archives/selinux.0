@@ -1,39 +1,31 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Akshay Gangam <gvakshay@yahoo.com>
-Subject: Re: Hello !
-Date: Mon, 14 Apr 2003 11:16:02 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <20030413040819.61929.qmail@web20809.mail.yahoo.com>
-In-Reply-To: <20030413040819.61929.qmail@web20809.mail.yahoo.com>
+To: SELinux@tycho.nsa.gov
+Subject: df and getattr
+Date: Mon, 14 Apr 2003 14:32:46 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200304141116.02696.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200304141432.46560.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 13 Apr 2003 14:08, Akshay Gangam wrote:
-> At present I have a pc with Redhat 7.3 and selinux
-> version Rel: 2003011510 on my school machine
-> and Redhat 8.0 at home.
->
-> Is it better to work on the new releases and the great
-> tools, that come with them ? Were does one start from
-> ... ?
+In a recent version of coreutils (I suspect it was 4.5.9 from the changelog) 
+the actions of df changed.  It used to do a stat() of each mount point, and 
+now it appears not to do so.
 
-I recommend using the latest release.  Most people on the list are focussed on 
-the new release and you will probably get faster answers to your questions if 
-they concern the latest version.
+This is a change of note because df is something that gets run hundreds of 
+times per day, and everything it does must be covered by an allow or 
+dontaudit rule.
 
-When you have a suitable development machine running SE Linux in enforcing 
-mode the first learning task would be to try writing some new security policy 
-for a new daemon, or fixing some problems that are in the current policy.
-It's likely that some reasonable task you want to do is being prevented by 
-policy, so fixing that and sending the change to the list (if it's something 
-that's generally useful) would be a good first step.
+In my current policy tree I am not allowing user_t usbdevfs_t:dir getattr 
+access.  df from coreutils 4.5.7 requests this (although it runs fine without 
+it), df from coreutils 4.5.10 does not request this.  There are probably 
+other situations where similar things can arise.
 
-Apart from that, what you do depends on what your skills and interests are.
+IMHO  Upgrading coreutils/df is a better option than granting extra access 
+(but if you can't upgrade then it's not a difficult change to make in the 
+policy).
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
