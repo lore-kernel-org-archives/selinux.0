@@ -1,82 +1,87 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA03061
-	for <selinux@tycho.nsa.gov>; Thu, 19 Dec 2002 17:43:19 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id gBJMhJI28656
-	for <selinux@tycho.nsa.gov>; Thu, 19 Dec 2002 22:43:19 GMT
-Received: from khaipur.xiat.org (adsl-66-125-68-98.dsl.anhm01.pacbell.net [66.125.68.98])
-        by jazzband.ncsc.mil  with ESMTP id gBJMhHf28652 for <selinux@tycho.nsa.gov>; Thu, 19 Dec 2002 22:43:18 GMT
-Date: Thu, 19 Dec 2002 14:41:27 -0800
-From: Paul Krumviede <pwk@acm.org>
-To: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
-Subject: Re: [ISN] Music file flaws could threaten traders
-Message-ID: <18223383.1040308887@localhost>
-In-Reply-To: <200212192307.20386.russell@coker.com.au>
-References: <200212192307.20386.russell@coker.com.au>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Jesse Pollard <pollard@admin.navo.hpc.mil>
+Subject: Re: Domain transition -- enabling user_r in eklogin
+Date: Thu, 19 Dec 2002 23:33:12 +0100
+Cc: SELinux@tycho.nsa.gov
+References: <200212171725.MAA01304@moss-shockers.ncsc.mil> <200212191051.19213.russell@coker.com.au> <200212190802.33560.pollard@admin.navo.hpc.mil>
+In-Reply-To: <200212190802.33560.pollard@admin.navo.hpc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <200212192333.12008.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---On Thursday, 19 December, 2002 23:07 +0100 Russell Coker 
-<russell@coker.com.au> wrote:
+On Thu, 19 Dec 2002 15:02, Jesse Pollard wrote:
+> > It's the same thing.  If I can trick you into running some arbitary
+> > commands with your main role then I can get your ssh identity key and
+> > your gpg secret key.  These crypto keys are often worth more than the
+> > hardware that they are stored on...
+>
+> Only if access is permitted to be over an unsecured channel.
+>
+> The differentation between a local user and a remote user has to be
+> provided.
 
-> This type of thing could affect Linux in the same way as it affects
-> Windows.
+The "if I can trick you" part means that the distinction between local and 
+remote logins is probably not relevant.  Consider that you meet someone in 
+Starbucks and say "there's this really cool program at www.foo.com" which 
+they then download and run...
 
-i'm not so sure. the bugtraq posting about the windows XP bug
-indicated that it could be exploited even without downloading
-a file to the user's computer. if using explorer, the file had to be
-on the local machine, but didn't need to be "played" to allow
-an exploit. i don't think that either case is relevant to selinux
-(but would like to know if i'm wrong).
+Of course we could deny execute access to user_home_t but variations on the 
+same theme can always be used while there are users who can be tricked and 
+net access for easy back-channels.
 
-i haven't looked at the winamp report yet.
+> Access to the secret key(s) probably should not be permitted from an
+> unsecured location/connection. This does require network labels to work.
 
--paul
+I guess you could have different roles, and have sshd only allow transitioning 
+to a low security role which is prohibited from running ssh or gpg.  I wonder 
+whether a domain that only has full access to user_home_dir_t and user_home_t 
+can misdirect the actions of ssh or gpg...
 
-> Currently we have "risky" programs such as netscape, games, and IRC
-> clients in  their own domains that have types for read-only and for
-> read-write files (and  no ability to run gpg or other important programs).
->
-> The problem about doing the same for audio/video programs such as players
-> for  avi, mp3, and vob files is that their typical use involves
-> downloading files  from the net to play immediately so that denying them
-> read access to  user_home_t files will give a large decrease in
-> functionality.  I believe  that there are two major categories of SE
-> Linux users, those who will never  run such A/V programs on Linux, and
-> those who won't use any security software  that gets in the way of their
-> entertainment.
->
-> So I think that having a domain for A/V programs such as $1_av_t that has
-> read  access to $1_home_t and can create files with the type $1_home_av_t
-> may not  be as tightly secured as we might like, but the people who are
-> concerned  about that won't use it anyway.
->
-> On Thu, 19 Dec 2002 09:58, InfoSec News wrote:
->> http://news.com.com/2100-1001-978403.html?tag=fd_top
->>
->> By Robert Lemos
->> Staff Writer, CNET News.com
->> December 18, 2002, 5:12 PM PT
->>
->> A security firm on Wednesday warned that people using Windows XP or
->> popular music player WinAmp could fall prey to a vulnerability,
->> enabling a modified music file to take control of a person's PC.
->
-> --
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with the words "unsubscribe selinux" without quotes as the message.
->
+I don't think that network labels allow us to do anything productive in this 
+regard as network operations are so abstracted.  When a KDE ioslave can talk 
+to a http proxy to get access to the outside network then making real use of 
+network labels without seriously reducing functionality is almost impossible.
 
+For my aims a significant reduction in functionality is unacceptable.
+
+> It does mean that the plugin for checking PGP signatures (at a minimum the
+> one for generating signatures) would have to be sufficiently separate from
+> the netscape process to be labeled separately. It could not use loadable
+> modules, for  instance. It also means any scripts started should not have
+> access either.
+
+The problem is that if you can run GPG currently you can encrypt the secret 
+key to yourself with a password (IE not encrypting to a public key) and then 
+decrypt the result to get the key.  A future version of GPG will address 
+this.  I don't know how PGP performs in this regard.
+
+> This is not a 100% solution - If netscape is used to download an
+> application, then the user proceeds to configure/compile/run then all bets
+> are off since the users actions are overriding the labels. It should/could
+> prevent a trojan from passing the files out though - it would not be
+> authorized access to the secret key(s) or the Kerberos ticket cache. Only
+> trusted utilities would have that capability.
+
+However if the ticket can't be used on other machines then the concern is not 
+that it will be passed out, but that a process holding the ticked will be 
+controlled by a program that is a proxy running on behalf of a program 
+outside.
+
+One of my friends wrote a nifty set of CGI scripts to run a terminal session 
+through a web page using standard web forms functionality.  It wouldn't be 
+THAT much more difficult to do it the other way around and have machine 
+running bash be the HTTP client and the HTTP server have the client side of 
+the shell session.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
