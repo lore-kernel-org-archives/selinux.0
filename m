@@ -1,41 +1,53 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3I21nI4009468
-	for <selinux@tycho.nsa.gov>; Thu, 17 Apr 2003 22:01:49 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3I2bhI4009538
+	for <selinux@tycho.nsa.gov>; Thu, 17 Apr 2003 22:37:43 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h3I21mVf001101
-	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2003 02:01:48 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h3I2bgVf001604
+	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2003 02:37:42 GMT
 Received: from lyta.coker.com.au (c16702.sunsh1.vic.optusnet.com.au [210.49.228.68])
-	by jazzswing.ncsc.mil  with ESMTP id h3I21V4D001092
-	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2003 02:01:47 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 6800194C2
-	for <selinux@tycho.nsa.gov>; Thu, 17 Apr 2003 09:40:14 +1000 (EST)
+	by jazzswing.ncsc.mil  with ESMTP id h3I2be4D001601
+	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2003 02:37:41 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: uses_shlib() and device_t
-Date: Thu, 17 Apr 2003 09:40:13 +1000
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: auditallow
+Date: Fri, 18 Apr 2003 12:37:45 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <200304141822.43798.russell@coker.com.au> <1050416640.1051.12.camel@moss-huskers.epoch.ncsc.mil>
+In-Reply-To: <1050416640.1051.12.camel@moss-huskers.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200304170940.13881.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200304181237.45386.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In my tree I have just changed the uses_shlib() macro to include:
-allow $1 device_t:dir search;
+On Wed, 16 Apr 2003 00:24, Stephen Smalley wrote:
+> auditallow does not imply allow.  There are three kinds of access
+> vectors:
+> 1) allow - specifies the set of permissions that are granted, defaults
+> to none (deny everything unless explicitly allowed by an allow rule),
+> 2) auditallow - specifies the set of permissions that should be audited
+> when granted, defaults to none (audit no grantings unless explicitly
+> enabled by an auditallow rule),
+> 3) auditdeny - specifies the set of permissions that should be audited
+> when denied, defaults to all (audit all denials unless explicitly
+> disabled by a dontaudit rule, formerly handled by the auditdeny rules
+> with the complement).
+>
+> The policy compiler could automatically generate an allow vector for
+> each auditallow rule, but I'd rather not.  Add a separate allow rule to
+> the configuration.
 
-The rationale is that the macro allows access to null_device_t and it is 
-almost always necessary to allow search access on the directory to actually 
-open /dev/null (and it is necessary for the mmap /dev/null operations that 
-shared libraries use).
+Thanks for the explanation.  However I believe that the policy compiler is not 
+behaving correctly in this regard.
 
-I decided to do this after adding a huge number of allow rules for 
-device_t:dir search as part of the process of removing every_domain().
+I think that as a policy with auditallow rules and no matching allow rules 
+makes no sense the policy compiler should flag a warning about this at least.  
+Also an optional warning about auditdeny rules where there are matching allow 
+rules would be good.
 
-Steve, please let me know what you think of this.  If you think it's worthy of 
-inclusion in the CVS then I'll go through my policy tree and remove all the 
-redundant rules from the various .te files.
+This could be an optional feature, a "-v" option or something similar.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
