@@ -1,41 +1,57 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBLCB4Ii020615
-	for <selinux@tycho.nsa.gov>; Tue, 21 Dec 2004 07:11:04 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBLCB7um013173
-	for <selinux@tycho.nsa.gov>; Tue, 21 Dec 2004 12:11:07 GMT
-Subject: Re: User Space Auditing
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Linux <linux@linuon.com>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <1103598698.3953.25.camel@pc-1.linuon.co.jp>
-References: <200412182031.43836.linux@linuon.com>
-	 <1103570153.6674.58.camel@moss-spartans.epoch.ncsc.mil>
-	 <1103598698.3953.25.camel@pc-1.linuon.co.jp>
-Content-Type: text/plain
-Message-Id: <1103630743.19693.1.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBLKXEIi023643
+	for <selinux@tycho.nsa.gov>; Tue, 21 Dec 2004 15:33:14 -0500 (EST)
+Received: from h80ad2542.async.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBLKVRNU005603
+	for <selinux@tycho.nsa.gov>; Tue, 21 Dec 2004 20:31:28 GMT
+Message-Id: <200412212032.iBLKWDgV025367@turing-police.cc.vt.edu>
+To: russell@coker.com.au
+Cc: James Morris <jmorris@redhat.com>,
+   Casey Schaufler <casey@schaufler-ca.com>,
+   Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: [patch] selinux_capget() 
+In-Reply-To: Your message of "Mon, 20 Dec 2004 12:10:20 +1100."
+             <200412201210.25544.russell@coker.com.au>
+From: Valdis.Kletnieks@vt.edu
+References: <Xine.LNX.4.44.0412140104020.30724-100000@thoron.boston.redhat.com>
+            <200412201210.25544.russell@coker.com.au>
 Mime-Version: 1.0
-Date: Tue, 21 Dec 2004 07:05:43 -0500
+Content-Type: multipart/signed; boundary="==_Exmh_1467194476P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Tue, 21 Dec 2004 15:32:13 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-12-20 at 22:11, Linux wrote:
-> Thank you for your info. Though the mailing list seems not working
-> anymore, the readme file on Peter's page contains useful info. THX!
-> I realized that I'm gonna have to work on this audit stuff in kernel.
-> Maybe we need some unified logging facility with netfilter or
-> let them use audit.
-> Is there any discussion between you SELinux guys and netfilter guys
-> about this logging/auditing stuff and other overlapped part?
+--==_Exmh_1467194476P
+Content-Type: text/plain; charset=us-ascii
 
-The linux-audit mailing list is working, and has recently re-started
-active discussions.  We are engaged with others on the linux-audit list
-about enhancements to the kernel audit framework and tools.
+On Mon, 20 Dec 2004 12:10:20 +1100, Russell Coker said:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+> If program A calls capget() and determines that it does not have a certain 
+> capability then it does not need to drop that capability before executing 
+> program B which should not have it.
+> 
+> However if executing program B causes a domain transition to a domain that is
+> permitted the capability in question then it might suddenly acquire access to
+> a capability that program A thought was unavailable.
 
+On the other hand, in that case B would still have access to the capability
+in question, even if A *had* dropped the capability.
+
+--==_Exmh_1467194476P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFByIhMcC3lWbTT17ARAtkxAKCsBMF4c+ObtaBo83NfZ5pL2nOLTwCg2k15
+pZeAqgFx5feLB8QOjb/d4eM=
+=E0tU
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1467194476P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
