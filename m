@@ -1,40 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0KHxlRb026253
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 12:59:48 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i0KHxkiV023986
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 17:59:46 GMT
-Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
-        by jazzband.ncsc.mil  with ESMTP id i0KHvR06023760 for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 17:59:45 GMT
-Received: (from root@localhost)
-	by baitaca.ipen.br (8.12.9/8.12.9) id i0KHwW9d013431
-	for selinux@tycho.nsa.gov; Tue, 20 Jan 2004 15:58:32 -0200
-Received: from ipen.br ([10.0.12.47])
-	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id i0KHwPK3013406
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 15:58:26 -0200
-Message-ID: <400D6C11.8030003@ipen.br>
-Date: Tue, 20 Jan 2004 15:57:37 -0200
-From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0KKVYRb027166
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 15:31:34 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i0KKUMxr003175
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 20:30:22 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+	by jazzswing.ncsc.mil  with ESMTP id i0KKTsYc003054
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 20:30:22 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Carlos =?iso-8859-1?q?An=EDsio=20Monteiro?= <monteiro@ipen.br>,
+   selinux <selinux@tycho.nsa.gov>
+Subject: Re: Capabilities in SELinux
+Date: Wed, 21 Jan 2004 07:29:38 +1100
+References: <400D6C11.8030003@ipen.br>
+In-Reply-To: <400D6C11.8030003@ipen.br>
 MIME-Version: 1.0
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Capabilities in SELinux
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200401210729.38164.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Helo.
+On Wed, 21 Jan 2004 04:57, Carlos Anísio Monteiro <monteiro@ipen.br> wrote:
+> I have a doubt about the use of the capabilities in the SELinux.
+>
+> Why to use capabilities (setuid, setgid, etc) in the SELinux, if the
+> identity of the user is irrelevant ?
 
-I have a doubt about the use of the capabilities in the SELinux.
+The UID of the user is not relevant to SE Linux access controls.  SE Linux 
+maintains it's own concept of user "Identity" which is used as part of it's 
+process of determining when to grant access.
 
-Why to use capabilities (setuid, setgid, etc) in the SELinux, if the 
-identity of the user is irrelevant ?
-
-Very thanks.
+The UID is important for DAC (Unix permissions).  When running SE Linux you 
+will often want to have two users with different Unix UIDs in the same SE 
+Linux role, but not grant them full access to each other's files.  
+Restricting setuid and setgid is useful for this.
 
 -- 
-Carlos Anisio Monteiro  <monteiro@ipen.br>
-IPEN/CNEN-SP
-Sao Paulo - Brasil
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 
