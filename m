@@ -1,127 +1,46 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h98Ge0Wt020495
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 12:40:00 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h98GpbWt020627
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 12:51:37 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h98Gdx6g002176
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 16:39:59 GMT
-Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
-        by jazzband.ncsc.mil  with ESMTP id h98Gdudq002168 for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 16:39:57 GMT
-Received: from lky (mailwall.shnet.edu.cn [202.112.26.55])
-	by sjtu.edu.cn (WorldPost) with ESMTP id 7134334ADB2
-	for <selinux@tycho.nsa.gov>; Thu,  9 Oct 2003 00:39:46 +0800 (BEIST)
-Message-ID: <000e01c38dbb$d9841a60$5d38a8c0@lky>
-From: "lky" <lky77@sjtu.edu.cn>
-To: "SELINUX" <SELinux@tycho.nsa.gov>
-Subject: policy configuration problems
-Date: Thu, 9 Oct 2003 00:47:22 +0800
+	by jazzband.ncsc.mil  with ESMTP id h98Gpa6g002877
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 16:51:36 GMT
+Received: from tooheys.dsl.net (tooheys.dsl.net [65.84.81.1])
+        by jazzband.ncsc.mil  with ESMTP id h98GpZdq002871 for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 16:51:35 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
+   "'Vikram K'" <vikramatiitkdotacdotin@yahoo.com>
+Cc: <selinux@tycho.nsa.gov>
+Subject: RE: A few clarifications - SID, Precondition functions
+Date: Wed, 8 Oct 2003 12:51:32 -0400
+Message-ID: <004c01c38dbc$6ef51770$8100a8c0@columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000B_01C38DFE.E6D16CC0"
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <1065620356.8181.110.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Wednesday, October 08, 2003 9:39 AM,, owner-selinux@tycho.nsa.gov wrote:
 
-------=_NextPart_000_000B_01C38DFE.E6D16CC0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
+> Subject: Re: A few clarifications - SID, Precondition functions
+> I think that this is likely the wrong approach.  Rather than creating
+> yet another infrastructure within SELinux for loadable policy modules
+> (which is really what LSM is for), I'd suggest working on creating a
+> real module abstraction in the policy language and
+> implementing support
+> for policy modules that can be reasonably bounded and can be checked
+> for violations of properties of the base policy.  I'd suggest reading
+> the following paper as background:
+> T. Fraser and L. Badger, _Ensuring Continuity during Dynamic Security
+> Policy Reconfiguration in DTE_, Proceedings of the 1998 IEEE
+> Symposium on Security and Privacy,
+> http://www.computer.org/proceedings/s&p/8386/83860015abs.htm 
 
-SGksIEkgaGF2ZSBpbnN0YWxsZWQgMi40LWJhc2VkIFNFTGludXggb24gUmVkaGF0OS4wIGFuZCBJ
-IHdhbnQgdG8gZWxpbWluYXRlIHRoZSBkZW5pZWQgbWVzc2FnZXMgbm93LiBCdXQgdGhlcmUgYXJl
-IHNldmVyYWwgcHJvYmxlbXMgYWJvdXQgbXkgcG9saWN5IGNvbmZpZ3VyYXRpb24uDQpGaXJzdCx0
-aGVyZSBhcmUgc3RpbGwgc2V2ZXJhbCBzeXN0ZW0gcHJvY2Vzc2VzIHJ1biB3aXRoaW4gdGhlIGlu
-aXRyY190IGRvbWFpbi4gSSBoYXZlIG1vdmVkIHVwIHRoZSAudGUgZmlsZXMgZm9yIHRoZXNlIHBy
-b2dyYW1lcyBmcm9tIHRoZSBwb2xpY3kvZG9tYWlucy9wcm9ncmFtL3VudXNlZCBkaXJlY3Rvcnkg
-YmVmb3JlIGJ1aWxkaW5nIHRoZSBwb2xpY3kgYW5kIHRoZSBwYXRobmFtZSBmb3IgdGhlc2UgcHJv
-Z3JhbXMgaW4gdGhlIC5mYyBmaWxlcyBhcmUgcmlnaHQgYXMgd2VsbC4gQmVsb3cgaXMgdGhlIA0K
-YXNzb2NpYXRlZCBtZXNzYWdlcyB3aXRoIHRoZSBjb21tYW5kICJwcyAtZSAtLWNvbnRleHQiOg0K
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0NCiAgUElEIENPTlRFWFQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQ09NTUFO
-RA0KICA5MjUgc3lzdGVtX3U6c3lzdGVtX3I6aW5pdHJjX3QgICAgICAgICAgICAgICBwb3J0bWFw
-DQogIDk0NCBzeXN0ZW1fdTpzeXN0ZW1fcjppbml0cmNfdCAgICAgICAgICAgICAgIHJwYy5zdGF0
-ZA0KIDEwNTQgc3lzdGVtX3U6c3lzdGVtX3I6aW5pdHJjX3QgICAgICAgICAgICAgICB4aW5ldGQg
-LXN0YXlhbGl2ZSAtcmV1c2UgLXBpZGZpbGUNCiAxMDc0IHN5c3RlbV91OnN5c3RlbV9yOmluaXRy
-Y190ICAgICAgICAgICAgICAgc2VuZG1haWw6IGFjY2VwdGluZyBjb25uZWN0aW9ucw0KIDEwODMg
-c3lzdGVtX3U6c3lzdGVtX3I6aW5pdHJjX3QgICAgICAgICAgICAgICBzZW5kbWFpbDogUXVldWUg
-cnVubmVyQDAxOjAwOjAwIGYNCiAxMDkzIHN5c3RlbV91OnN5c3RlbV9yOmluaXRyY190ICAgICAg
-ICAgICAgICAgZ3BtIC10IGltcHMyIC1tIC9kZXYvbW91c2UNCiAxMTAzIHN5c3RlbV91OnN5c3Rl
-bV9yOmluaXRyY190ICAgICAgICAgICAgICAgL3Vzci9zYmluL2Nhbm5hc2VydmVyIC1zeXNsb2cg
-LXUgDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tDQoNClRoZSBzZWNvbmQgcHJvYmxlbSBpcyB0aGF0IEkgdXNlZCB0aGUgIm5ld3J1bGUu
-cGwgLWQiIGNvbW1hbmQgdG8gYXV0b21hdGljYWx5IGdlbmVyYXRlIHRoZSBhbGxvdyBydWxlcy5C
-dXQgdGhlcmUgaXMgbm8gZWZmZWN0IGFmdGVyIEkgYXBwZW5kIHRoZSBydWxlcyBpbiB0aGUgYXNz
-b2NpYXRlZCAudGUgZmlsZXMgYW5kIHJ1biB0aGUgY29tbWFuZCAibWFrZSBsb2FkIi4gVGhlIHNh
-bWUgZGVuaWVkIG1lc3NhZ2VzIGFyZSBzdGlsbCB0aGVyZS4NClRoYW5rcyBhIGxvdCENCg0K
+As Dave Caplan mentioned in a earlier message, we're currently designing an
+enhancement to do policy modules, which we plan to implement once we finish the
+conditional policy extensions.
 
-------=_NextPart_000_000B_01C38DFE.E6D16CC0
-Content-Type: text/html;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
-
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
-dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
-MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
-WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPkhpLCBJIGhh
-dmUgaW5zdGFsbGVkIDIuNC1iYXNlZCBTRUxpbnV4IG9uIFJlZGhhdDkuMCANCmFuZCBJJm5ic3A7
-d2FudCB0byBlbGltaW5hdGUgdGhlIGRlbmllZCBtZXNzYWdlcyBub3cuIEJ1dCB0aGVyZSBhcmUg
-c2V2ZXJhbCANCnByb2JsZW1zIGFib3V0IG15IHBvbGljeSBjb25maWd1cmF0aW9uLjwvRk9OVD48
-L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+Rmlyc3QsdGhlcmUgYXJlIHN0aWxs
-IHNldmVyYWwgc3lzdGVtIHByb2Nlc3NlcyBydW4gDQp3aXRoaW4gdGhlIGluaXRyY190IGRvbWFp
-bi4gSSBoYXZlIG1vdmVkIHVwIHRoZSAudGUgZmlsZXMmbmJzcDtmb3IgdGhlc2UgDQpwcm9ncmFt
-ZXMmbmJzcDtmcm9tIHRoZSBwb2xpY3kvZG9tYWlucy9wcm9ncmFtL3VudXNlZCBkaXJlY3Rvcnkg
-YmVmb3JlIGJ1aWxkaW5nIA0KdGhlIHBvbGljeSBhbmQgdGhlIHBhdGhuYW1lIGZvciB0aGVzZSBw
-cm9ncmFtcyBpbiZuYnNwO3RoZSAuZmMgZmlsZXMgYXJlIHJpZ2h0IA0KYXMgd2VsbC4gQmVsb3cg
-aXMgdGhlIDwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+YXNzb2Np
-YXRlZCBtZXNzYWdlcyB3aXRoIHRoZSBjb21tYW5kICJwcyAtZSANCi0tY29udGV4dCI6PC9GT05U
-PjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsIA0Kc2l6ZT0yPi0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tPC9GT05UPjwvRElWPg0K
-PERJVj48Rk9OVCBmYWNlPUFyaWFsIHNpemU9Mj4mbmJzcDsgUElEIA0KQ09OVEVYVCZuYnNwOyZu
-YnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNw
-OyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZu
-YnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNw
-OyZuYnNwOyZuYnNwOyZuYnNwOyANCkNPTU1BTkQ8L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZh
-Y2U9QXJpYWwgc2l6ZT0yPiZuYnNwOyA5MjUgDQpzeXN0ZW1fdTpzeXN0ZW1fcjppbml0cmNfdCZu
-YnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNw
-OyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyANCnBvcnRtYXA8QlI+Jm5ic3A7IDk0NCANCnN5c3Rl
-bV91OnN5c3RlbV9yOmluaXRyY190Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7
-Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IA0KcnBjLnN0
-YXRkPC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsIHNpemU9Mj4mbmJzcDsxMDU0
-IA0Kc3lzdGVtX3U6c3lzdGVtX3I6aW5pdHJjX3QmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJz
-cDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsg
-DQp4aW5ldGQgLXN0YXlhbGl2ZSAtcmV1c2UgLXBpZGZpbGU8QlI+Jm5ic3A7MTA3NCANCnN5c3Rl
-bV91OnN5c3RlbV9yOmluaXRyY190Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7
-Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IA0Kc2VuZG1h
-aWw6IGFjY2VwdGluZyBjb25uZWN0aW9uczxCUj4mbmJzcDsxMDgzIA0Kc3lzdGVtX3U6c3lzdGVt
-X3I6aW5pdHJjX3QmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJz
-cDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgDQpzZW5kbWFpbDogUXVldWUg
-PC9GT05UPjxBIGhyZWY9Im1haWx0bzpydW5uZXJAMDE6MDA6MDAiPjxGT05UIGZhY2U9QXJpYWwg
-DQpjb2xvcj0jMDAwMDAwIHNpemU9Mj5ydW5uZXJAMDE6MDA6MDA8L0ZPTlQ+PC9BPjxGT05UIGZh
-Y2U9QXJpYWwgc2l6ZT0yPiANCmY8QlI+Jm5ic3A7MTA5MyANCnN5c3RlbV91OnN5c3RlbV9yOmlu
-aXRyY190Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5i
-c3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IA0KZ3BtIC10IGltcHMyIC1tIC9kZXYv
-bW91c2U8QlI+Jm5ic3A7MTEwMyANCnN5c3RlbV91OnN5c3RlbV9yOmluaXRyY190Jm5ic3A7Jm5i
-c3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7
-Jm5ic3A7Jm5ic3A7Jm5ic3A7IA0KL3Vzci9zYmluL2Nhbm5hc2VydmVyIC1zeXNsb2cgLXUgPC9G
-T05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsIA0Kc2l6ZT0yPi0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS08L0ZPTlQ+PC9ESVY+
-DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPjwvRk9OVD4mbmJzcDs8L0RJVj4NCjxESVY+
-PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+VGhlIHNlY29uZCBwcm9ibGVtIGlzIHRoYXQgSSB1c2Vk
-IHRoZSAibmV3cnVsZS5wbCANCi1kIiBjb21tYW5kIHRvIGF1dG9tYXRpY2FseSBnZW5lcmF0ZSB0
-aGUgYWxsb3cgcnVsZXMuQnV0IHRoZXJlIGlzIG5vIGVmZmVjdCANCmFmdGVyIEkgYXBwZW5kIHRo
-ZSBydWxlcyBpbiB0aGUgYXNzb2NpYXRlZCAudGUgZmlsZXMgYW5kIHJ1biB0aGUgY29tbWFuZCAi
-bWFrZSANCmxvYWQiLiBUaGUgc2FtZSBkZW5pZWQgbWVzc2FnZXMgYXJlIHN0aWxsIHRoZXJlLjwv
-Rk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+VGhhbmtzIGEgbG90ITwv
-Rk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+PC9GT05UPiZuYnNwOzwv
-RElWPjwvQk9EWT48L0hUTUw+DQo=
-
-------=_NextPart_000_000B_01C38DFE.E6D16CC0--
-
+Frank
 
 
 --
