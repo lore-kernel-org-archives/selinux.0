@@ -1,46 +1,39 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA24424
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 14:02:36 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA24993
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 15:03:46 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA15995
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 19:01:15 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id TAA15991
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 19:01:13 GMT
-Date: Wed, 20 Mar 2002 14:02:15 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: "Leslie J. French" <ljf@semandex.net>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: SMP mode?
-In-Reply-To: <BFEMIIHKHLALNELLMPOMGEMDCAAA.ljf@semandex.net>
-Message-ID: <Pine.GSO.4.33.0203201355360.11981-100000@raven>
+	by jazzswing.ncsc.mil  with ESMTP id UAA19675
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 20:02:24 GMT
+Received: from c001.snv.cp.net (c001-h001.c001.snv.cp.net [209.228.32.115])
+	by jazzswing.ncsc.mil  with SMTP id UAA19671
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 20:02:24 GMT
+From: "Leslie J. French" <ljf@semandex.net>
+To: <selinux@tycho.nsa.gov>
+Subject: RE: SMP mode?
+Date: Wed, 20 Mar 2002 15:04:38 -0500
+Message-ID: <BFEMIIHKHLALNELLMPOMCEMFCAAA.ljf@semandex.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <Pine.GSO.4.33.0203201355360.11981-100000@raven>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen D. Smalley wrote:
 
-On Wed, 20 Mar 2002, Leslie J. French wrote:
+> As far as I know, SELinux _should_ work on SMP, but it hasn't been tested.
+> SELinux uses coarse-grained locking at present, but that shouldn't
+> manifest as denials.  What are your kernel config option settings,
+> particularly the CONFIG_SECURITY_* settings?
 
-> Is it known if SELinux works/doesn't work when installed on top of
-> RedHat7.1-smp? I'm running a dual-processor system and the apps (which are
-> very CPU & network intensive) work OK in the normal boot and fail
-> mysteriously in SELinux (e.g. "Operation not permitted" but with nothing in
-> the log, even in avc "permissive" mode). It's running 2002011718 version.
->
-> I'll repeat the experiment on a single-CPU box, since it is most likely my
-> fault, but I'd appreciate it if it's *known* that there are problems in this
-> area.
+I have =y on the following options (via modules/lsm-patch)
 
-As far as I know, SELinux _should_ work on SMP, but it hasn't been tested.
-SELinux uses coarse-grained locking at present, but that shouldn't
-manifest as denials.  What are your kernel config option settings,
-particularly the CONFIG_SECURITY_* settings?
+ _PACKET _NETLINK _RTNETLINK _NETFILTER _UNIX _INET
+ security: _CAPABILITIES _IP _SELINUX _SELINUX_DEVELOP
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+the errors are occuring on a UDP socket, at random positions in a dataflow.
 
+Leslie
 
 
 
