@@ -1,37 +1,34 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72EajrT012771
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 10:36:45 -0400 (EDT)
-Date: Mon, 2 Aug 2004 15:47:43 +0100
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72EbbrT012792
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 10:37:37 -0400 (EDT)
+Date: Mon, 2 Aug 2004 15:48:40 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: lkm rootkitted, or issue with selinux 2.6.7 kernel?
-Message-ID: <20040802144743.GD4194@lkcl.net>
-References: <20040801124138.GA15205@lkcl.net> <1091452021.23449.31.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: hacked Makefile to use 17 instead of 18
+Message-ID: <20040802144840.GE4194@lkcl.net>
+References: <20040731122835.GO3378@lkcl.net> <1091449694.23449.10.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1091452021.23449.31.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1091449694.23449.10.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Aug 02, 2004 at 09:07:02AM -0400, Stephen Smalley wrote:
-> On Sun, 2004-08-01 at 08:41, Luke Kenneth Casson Leighton wrote:
-> > hello, hello,
-> > 
-> > i have a slight situation with the fireflier and mysql packages:
-> > their use results in chkrootkit's lkm (linux kernel module) test
-> > showing a warning.
-> > 
-> > what i wondered was has anyone _else_ seen this issue, on debian/unstable,
-> > with a 2.6.7 kernel.
+On Mon, Aug 02, 2004 at 08:35:05AM -0400, Stephen Smalley wrote:
+> On Sat, 2004-07-31 at 08:28, Luke Kenneth Casson Leighton wrote:
+> > well, i'm about to find out if it's okay, but i hacked the 1.14-1
+> > Makefile to forcibly put policy file of type 18 into a file named
+> > policy.17.
 > 
-> I have no direct knowledge here, but I have seen discussions on various
-> lists indicating that chkrootkit is buggy/racy at least with respect to
-> Linux 2.6, yielding false positives.  
- 
- ah.  *whew*.  thanks.
+> Policy version number is put into the header of the binary policy as
+> well, and the kernel will reject a version it doesn't support (for good
+> reason).  Build with checkpolicy -c 17 if you want to generate
+> policy.17.
 
- l.
+ rats!  could have done with that tidbit at the w/e ah well i will
+ know for next time, 2.6.8 or 9 or so.
+
+ ta stephen.
 
 
 --
