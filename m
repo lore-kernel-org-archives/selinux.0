@@ -1,53 +1,46 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OMpKHa004237
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 18:51:20 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6P34kHa004751
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 23:04:47 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6OMoDFB008123
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 22:50:13 GMT
-Received: from mailrtr2.mailzone.edeltacom.com (mailrtr2.mailzone.edeltacom.com [216.248.176.138])
-	by jazzswing.ncsc.mil  with ESMTP id h6OMo9GD008120
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 22:50:12 GMT
-From: "Stephen Reese" <sreese@prcdigital.com>
+	by jazzswing.ncsc.mil  with ESMTP id h6P33dFB017541
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2003 03:03:39 GMT
+Received: from tiamat.obscure.org (w247.z064003036.was-dc.dsl.cnc.net [64.3.36.247])
+	by jazzswing.ncsc.mil  with ESMTP id h6P33YGD017533
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2003 03:03:38 GMT
+Received: from localhost (captain@localhost)
+	by tiamat.obscure.org (8.11.6/8.11.6) with ESMTP id h6P34dg12302
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 23:04:39 -0400
+Date: Thu, 24 Jul 2003 23:04:39 -0400 (EDT)
+From: Azeem Gopalani <captain@obscure.org>
 To: selinux@tycho.nsa.gov
-Subject: RE: grub/boot redhat9 problem
-Date: Thu, 24 Jul 2003 18:51:04 -0400
-Message-ID: <000001c35236$10b2f0e0$6401a8c0@inspiron>
+Subject: SeLinux
+Message-ID: <Pine.LNX.4.44.0307242257020.10164-100000@tiamat.obscure.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <200307241101.32102.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Well if that's the issue then I'll simply wait until redhat release the
-*.21 release for my system and then go from there. Thank you and
-everyone else for your time.
+Hello.
 
------Original Message-----
-From: Russell Coker [mailto:russell@coker.com.au] 
-Sent: Thursday, July 24, 2003 11:02 AM
-To: Stephen Reese; selinux@tycho.nsa.gov
-Subject: Re: grub/boot redhat9 problem
+	I'm Azeem, and I'm extremely impressed by the amount of activity 
+on this mailing list. I'm a Linux Newbie compared to you fellows, though I 
+do run and administrate a box of my own running Slackware 8.0. I'm 
+thinking of setting up a second system and contributing in some way to the 
+project, though I have no idea how, and know less than a quarter of what 
+you're talking about. I still believe introductions are a Good Thing(TM), 
+so that's me and information pertinent to you all.
 
+	You may now proceed to brilliantly lambaste me.
 
-On Wed, 23 Jul 2003 01:07, Stephen Reese wrote:
-> I ran the quickinstall, but I think missed something in the kernel 
-> configuration. I attempted to copy as many setting as I could from a 
-> stock functional kernel, but I think I missed a switch...
-
-The problem here is that 2.4.21 needs different settings to 2.4.20.
-This is 
-not a SE Linux issue, I strongly recommend that you ask on your local
-LUG 
-mailing list or another resource for solving general Linux problems.
+			--Azeem
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux
-packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Death twitches my ear. 
+"Live," he says, "I am coming."  
+~Virgil
+--
+                             Azeem Gopalani
+                                 captain@obscure.org
 
 
 --
