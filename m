@@ -1,39 +1,57 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "S. Patel" <spatel@elp.rr.com>, <SELinux@tycho.nsa.gov>
+Message-Id: <200302241842.NAA14593@moss-shockers.ncsc.mil>
+Date: Mon, 24 Feb 2003 13:42:41 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
 Subject: Re: Errors While Installing On Redhat 8.0
-Date: Mon, 24 Feb 2003 18:51:50 +0100
-References: <004601c2daca$dc53e5d0$6400a8c0@Comp1>
-In-Reply-To: <004601c2daca$dc53e5d0$6400a8c0@Comp1>
+To: spatel@elp.rr.com, SELinux@tycho.nsa.gov, russell@coker.com.au
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200302241851.50717.russell@coker.com.au>
+Content-Type: MULTIPART/mixed; BOUNDARY=Troop_of_Antelope_335_000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 23 Feb 2003 00:33, S. Patel wrote:
-> make[1]: Entering directory `/home/Devesh/Programs/SELinux/selinux/policy'
-> rm -rf /etc/security/selinux/src/policy.old
-> mv /etc/security/selinux/src/policy /etc/security/selinux/src/policy.old
-> mv: cannot stat `/etc/security/selinux/src/policy': No such file or
-> directory make[1]: *** [install-src] Error 1
-> make[1]: Leaving directory `/home/Devesh/Programs/SELinux/selinux/policy'
-> make: *** [quickinstall] Error 2
+--Troop_of_Antelope_335_000
+Content-Type: TEXT/plain; charset=us-ascii
+Content-MD5: 2TuK5x/HGupu7JcBwh5jaw==
 
-That looks like a bug in policy/Makefile in selinux-small.  The mv line in 
-question should probably be prefixed with '-' to tell make to ignore such 
-errors.
 
-BTW In such situations it's usually best to just send the relevant messages 
-and some context, the previous pages of successful operations is not needed.
+Russell Coker wrote:
+> That looks like a bug in policy/Makefile in selinux-small.  The mv line in 
+> question should probably be prefixed with '-' to tell make to ignore such 
+> errors.
+> 
+> BTW In such situations it's usually best to just send the relevant messages 
+> and some context, the previous pages of successful operations is not needed.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Yes, someone previously mentioned this on the list.  Patch attached.
 
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
+
+--Troop_of_Antelope_335_000
+Content-Type: TEXT/x-sun-Makefile; name="Makefile.patch"; charset=us-ascii; x-unix-mode=0644
+Content-Description: Makefile.patch
+Content-MD5: B0FSTtPGJhxfu8m1MRo0rg==
+
+Index: selinux/policy/Makefile
+===================================================================
+RCS file: /home/pal/CVS/selinux/policy/Makefile,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -u -r1.24 -r1.25
+--- selinux/policy/Makefile	10 Jan 2003 19:32:11 -0000	1.24
++++ selinux/policy/Makefile	24 Feb 2003 18:30:31 -0000	1.25
+@@ -67,7 +67,7 @@
+ 
+ install-src: 
+ 	rm -rf $(SRCINSTALLDIR)/policy.old
+-	mv $(SRCINSTALLDIR)/policy $(SRCINSTALLDIR)/policy.old
++	-mv $(SRCINSTALLDIR)/policy $(SRCINSTALLDIR)/policy.old
+ 	mkdir -p $(SRCINSTALLDIR)/policy
+ 	cp -R . $(SRCINSTALLDIR)/policy
+ 
+
+--Troop_of_Antelope_335_000--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
