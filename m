@@ -1,52 +1,44 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5C8IhrT009746
-	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:18:43 -0400 (EDT)
-Received: from smtp802.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5C8IeEu005225
-	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:18:40 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 12 Jun 2004 08:18:41 -0000
-Date: Sat, 12 Jun 2004 08:15:59 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5C8K7rT009770
+	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:20:07 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5C8JwP2017948
+	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:19:59 -0400 (EDT)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Greg Norris <haphazard@kc.rr.com>
 Subject: Re: SELinux on Debian (Sid)
-Message-ID: <20040612081559.GS2861@lkcl.net>
-References: <20040609144404.GJ5477@philips.com> <200406111413.40262.russell@coker.com.au> <20040611204001.GE2861@lkcl.net> <200406121211.32316.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406121211.32316.russell@coker.com.au>
+Date: Sat, 12 Jun 2004 18:19:57 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20040609144404.GJ5477@philips.com> <200406111413.40262.russell@coker.com.au> <20040611232613.GA10019@yggdrasil.localdomain>
+In-Reply-To: <20040611232613.GA10019@yggdrasil.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200406121819.57709.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Jun 12, 2004 at 12:11:32PM +1000, Russell Coker wrote:
-> On Sat, 12 Jun 2004 06:40, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > Why do you need a patched bsdutils?
-> >
-> > ?uhm, i don't, as i said it was part of my desperation "try it and
-> > ?see" policy two weeks ago and hey, it seems to work, so it ain't
-> > ?broke os i'm leaving it there unless you believe that i really
-> > ?shouldn't?
-> 
-> Did you compile it or did someone else?  Where did the patch come from?
-> 
-> I would like to know what this bsdutils patch does...
- 
- SORRY russell i replied without looking at who you were, i thought
- you were the other guy who originated this thread :)
- 
- l.
+On Sat, 12 Jun 2004 09:26, Greg Norris <haphazard@kc.rr.com> wrote:
+> Speaking of which, I'm trying to install this version (new install) on
+> one of my Debian sid systems.  It gets through all of the interactive
+> policy prompting OK, but then croaks with the following messages:
+>
+>    /usr/bin/checkpolicy:  loading policy configuration from policy.conf
+>    domains/user.te:42:ERROR 'unknown type user_xserver_tmp_t' at token ';'
+> on line 21459: #line 42
+>    allow user_uml_t user_xserver_tmp_t:sock_file { write };
+>    /usr/bin/checkpolicy:  error(s) encountered while parsing configuration
+>    make: *** [/etc/security/selinux/policy.17] Error 1
+
+What version of the policy package?  I think I've fixed that in recent 
+versions...
 
 -- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility for acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
