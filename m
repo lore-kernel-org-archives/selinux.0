@@ -1,78 +1,91 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8BKxkrT025918
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 16:59:47 -0400 (EDT)
-Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8BKxj6V009260
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 20:59:46 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sat, 11 Sep 2004 22:59:45 +0200
-Date: Sat, 11 Sep 2004 23:00:20 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: selinux@tycho.nsa.gov
-Subject: Re: PAM in suse9.1 (Re: SuSE 9.1 SELinux)
-Message-Id: <20040911210019.GB2557@jmh.mhn.de>
-References: <200409071747.i87HkxJ6012464@mms-r00.iijmio.jp> <OF0DD26E97.7776F6AA-ON49256F08.007DAD0E-49256F09.0007B661@jp.ibm.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="m51xatjYGsM+13rf"
-In-Reply-To: <OF0DD26E97.7776F6AA-ON49256F08.007DAD0E-49256F09.0007B661@jp.ibm.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8C7IxrT027422
+	for <selinux@tycho.nsa.gov>; Sun, 12 Sep 2004 03:19:00 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8C7IuBb016454
+	for <selinux@tycho.nsa.gov>; Sun, 12 Sep 2004 07:18:58 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Subject: Re: policy patch: some misc additions
+Date: Sun, 12 Sep 2004 17:18:46 +1000
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+References: <20040911133324.GA2557@jmh.mhn.de>
+In-Reply-To: <20040911133324.GA2557@jmh.mhn.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200409121718.46194.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 11 Sep 2004 23:33, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
+wrote:
+> The following patch against latest CVS adds some misc policy:
+>
+> logrotate.te: the suse version doesn't work without this
 
---m51xatjYGsM+13rf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think that this is a bug in logrotate.  Looking at the source to figure out 
+what the problem is would be a good idea.
 
-* Takuya Mishina <TMISHINA@jp.ibm.com> [2004-09-08 05:22]:
-> I don't know the difference of pam_unix.so and pam_unix2.so, but in my=20
-> test, it seems no problem using pam_unix.so instead of pam_unix2.so.
-> ( cat /etc/pam.d/newrole | sed 's/pam_unix/pam_unix2/' >=20
-> /etc/pam.d/newrole.new )
->=20
-> the best may be the combination use of pam_unix2.so and unix_chkpwd, but=
-=20
-> to be enable SELinux with SuSE 9.1, the easiest way is to setuid=20
-> /usr/bin/newrole or to patch pam_unix.so and use it.
+> modutil.te: I see no reason why user_r should ever touch insmod_t
 
-I have patched pam for suse 9.0 so only unix_chkpwd needs access to
-/etc/shadow. newrole et al can live with permission 0755.
-Looking at the pam package not much has changed between 9.0 and 9.1.
-I don't have a suse 9.1 machine here so I can't test this right now, but
-I have built the 9.1 package with my selinux patch (which was taken from
-debian) and it compiles ok. You can find the source package and the
-individual patch under
-http://www.cip.ifi.lmu.de/~bleher/selinux/suse/srpm-9.1/
-I would be interested to hear how it works.
-One caveat: You have to use pam_unix_auth.so, pam_unix_session.so and so
-on instead of pam_unix.so.
+I agree.  How does it happen?
 
-As for policy, you may want to look at my suse policy, available via
-arch (tbleher@gmx.de--selinux/policy--suse--0). This policy is currently
-only tested on 9.0 so you will probably have to tweak a few things, but
-most of the needed stuff should be there.
+> iptables.te: added tc (traffic control) to the iptables domain
 
-HTH,
-Thomas
+domain_auto_trans(initrc_t, iptables_exec_t, iptables_t) is already included 
+in daemon_base_domain().  Does SUSE have a change to daemon_base_domain()?
 
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+In either case this does not belong in the CVS policy.
 
---m51xatjYGsM+13rf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Why do you have tc labelled as iptables_exec_t?  On Debian and Fedora tc is 
+working well labelled as ifconfig_exec_t.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+> rpm.te: gpg doesn't want to verify signatures otherwise
 
-iD8DBQFBQ2djxWIrrrL0q+cRAgIMAJ49bvzRjhIJrls4y24jBYkUBwChRgCgnEDj
-kMicjbHsfr4tf78qsp0Nthk=
-=gUG/
------END PGP SIGNATURE-----
+I think it's best to unconditionally allow that, I've put it in my tree.
 
---m51xatjYGsM+13rf--
+> xdm.te: needed with XFree86 4.3, kdm 3.3 and nvidia
+
+Why would xdm_xserver_t need it but user_xserver_t not need it?  I've added it 
+to macros/program/xserver_macros.te in my tree.
+
+> types.fc: added file contexts for some kde and gnome libraries
+>           (filenames are like /opt/kde3/lib/kde3/kcalc.so)
+>           the nVidia libs need some extra file context, too
+
+I added /dev/usbscanner to my tree with the distro_suse ifdef.
+
+/opt/.*/lib/.*\.so     --      system_u:object_r:shlib_t
+
+I'm not sure if the above line needs to have ifdef distro_suse around it.  
+Comments anyone?
+
+> gpg_agent_macros.te: permission was needed because of wrongly labeled
+>                      files (see above)
+
+OK, in my tree.
+
+> ssh_agent_macros.te: make sure user_home_t and nfs_t behave the same;
+>                      also add my name (I'm the original author of this
+>                      policy)
+
+I made a minor change to that to make it more readable and removed my name 
+from the credits.
+
+> ssh-agent.te: ssh wants to create ~/.ssh if it doesn't exist
+
+I've put that in my tree.
+
+The things that I've put in my tree will be in the next patches against the 
+CVS that I send to the list.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
