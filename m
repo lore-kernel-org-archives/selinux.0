@@ -1,55 +1,49 @@
-Date: Wed, 14 May 2003 16:06:16 -0400 (EDT)
-From: <selinux@netgps.net>
-To: <SELinux@tycho.nsa.gov>
-Subject: Process Transition
-Message-ID: <Pine.LNX.4.33.0305141431210.16852-100000@GPS1.NETPGS.NET>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: <selinux@netgps.net>, <SELinux@tycho.nsa.gov>
+Subject: RE: Process Transition
+Date: Wed, 14 May 2003 21:10:15 -0400
+Message-ID: <000f01c31a7e$c6ac7be0$6701a8c0@columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <Pine.LNX.4.33.0305141431210.16852-100000@GPS1.NETPGS.NET>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am having an issue with policy configuration.  On a default install of 
-redhat, I compiled and installed the selinux kernel and associated tools.  
-I've probably spent about 5 hours familiarizing myself with the policy 
-language and the logic of type enforcement.  I browsed through the archive 
-for a bit, and didn't find a clear solution to my issue.
+> avc:  denied  { transition } for  pid=1 comm=swapper path=/sbin/init /
+> dev=08 :01 ino=229436 scontext=system_u:system_r:kernel_t /
+> tcontext=system_u:system_r:init_t tclass=process
+> 
+> I have the following line in the policy.conf (post make install-src
+> install, of course): 
+> 
+> allow kernel_t init_t:process transition;
 
-Upon booting the LSM kernel in permissive mode, I get many access denied 
-messages as the init process runs (as well as some other processes that 
-run at boot).  I am sure that once I have an understanding as to why one 
-of these occur, I should be able to rectify the remaining problems, so I 
-will post the first denied process transition.
+The deny audit message seems to indicate that the above rule is indeed
+*not* in the running policy???  Are you sure?  Perhaps there's a problem
+with role allow and/or user definitions, but I thought they just
+indicated an invalid context.
 
-avc:  denied  { transition } for  pid=1 comm=swapper path=/sbin/init /
-dev=08 :01 ino=229436 scontext=system_u:system_r:kernel_t /
-tcontext=system_u:system_r:init_t tclass=process
+> 
+> In Frank Mayer's post about domain transitions,
+> 
+> http://www.nsa.gov/selinux/list-archive/3984.html
+>
+> he states that program entry and program execute rules are also
+> required. I have the following rules:
 
-I have the following line in the policy.conf (post make install-src 
-install, of course):
+> allow init_t init_exec_t:file entrypoint;
+> allow init_t init_exec_t:file { read getattr lock execute ioctl };
 
-allow kernel_t init_t:process transition;
+I think you have a slight misunderstanding.  For a domain transition:
 
-In Frank Mayer's post about domain transitions,
+1. OLD domain has "file execute" access to entry type (i.e.,
+init_exec_t)
+2. NEW domain has "file entrypoint" access to entry type.
 
-http://www.nsa.gov/selinux/list-archive/3984.html
+in addition to the process transition permission above.
 
-he states that program entry and program execute rules are also required.  
-I have the following rules:
-
-allow init_t init_exec_t:file entrypoint;
-allow init_t init_exec_t:file { read getattr lock execute ioctl };
-
-Obviously, what I have is not sufficient (or perhaps wrong/irrelevant).  
-What else is required to allow the transition to occur?  I realize this a 
-developer's list, not a help-me spam list, but I haven't found any 
-other good sources.  
-
-Please advise me if this is inappropriate and where else I might look
-for some assistance.
-
-Much thanks,
-
-Jared
+Frank 
 
 
 --
