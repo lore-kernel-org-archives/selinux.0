@@ -1,39 +1,55 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ACJerT026787
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 08:19:40 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5ACJWP2020031
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 08:19:35 -0400 (EDT)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Ed Street" <edstreet@street-tek.com>
-Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Date: Thu, 10 Jun 2004 22:20:19 +1000
-Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
-References: <20040610114741.2796A3A4066@abyss.simplyaquatics.com>
-In-Reply-To: <20040610114741.2796A3A4066@abyss.simplyaquatics.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ADCPrT027125
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 09:12:25 -0400 (EDT)
+Received: from web51505.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5ADCKP2023737
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 09:12:20 -0400 (EDT)
+Message-ID: <20040610131223.35208.qmail@web51505.mail.yahoo.com>
+Date: Thu, 10 Jun 2004 06:12:23 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: What is dnl
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200406102220.19165.russell@coker.com.au>
+Content-Type: multipart/alternative; boundary="0-568778077-1086873143=:35131"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 10 Jun 2004 21:47, "Ed Street" <edstreet@street-tek.com> wrote:
-> Then shouldn't it be postfix_etc_t instead of etc_t?
+--0-568778077-1086873143=:35131
+Content-Type: text/plain; charset=us-ascii
 
-We could do something like that, although it would still require breaking the 
-design aim of "application should not have write access to it's own config 
-files".
+Hi,
+ 
+In 'selinux-usr\policy\tunable.te', there is something like:
+ 
+# uncomment to allow mozilla to read files in the user home directory
+dnl define(`readhome')
+... ...
+ 
+Then, what is the meaning of 'dnl'? 
+ 
+Thank you,
+ Park Lee
+2004-06-10
 
-I think that the ideal solution would be to have a better mechanism of turning 
-off chroot operation.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+		
+---------------------------------
+Do you Yahoo!?
+Friends.  Fun. Try the all-new Yahoo! Messenger
+--0-568778077-1086873143=:35131
+Content-Type: text/html; charset=us-ascii
+
+<DIV>Hi,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>In 'selinux-usr\policy\tunable.te', there is something like:</DIV>
+<DIV>&nbsp;</DIV>
+<DIV># uncomment to allow mozilla to read files in the user home directory<BR>dnl define(`readhome')<BR>... ...</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Then, what is the meaning of 'dnl'? </DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thank you,<BR>&nbsp;Park Lee<BR>2004-06-10<BR></DIV><p>
+		<hr size=1><font face=arial size=-1>Do you Yahoo!?<br>Friends.  Fun. <a href="http://messenger.yahoo.com/">Try the all-new Yahoo! Messenger</a>
+--0-568778077-1086873143=:35131--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
