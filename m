@@ -1,55 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA19156
-	for <selinux@tycho.nsa.gov>; Tue, 30 Oct 2001 12:35:49 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA04288
-	for <selinux@tycho.nsa.gov>; Tue, 30 Oct 2001 17:35:47 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id RAA04284
-	for <selinux@tycho.nsa.gov>; Tue, 30 Oct 2001 17:35:47 GMT
-Date: Tue, 30 Oct 2001 12:35:04 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Femitha Majeed <m_femitha@hotmail.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: RedHat 7.2
-In-Reply-To: <F153sB53WU1VOmmuoqf00017b23@hotmail.com>
-Message-ID: <Pine.GSO.4.33.0110301220200.4537-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA28496
+	for <selinux@tycho.nsa.gov>; Wed, 31 Oct 2001 16:54:10 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id VAA16621
+	for <selinux@tycho.nsa.gov>; Wed, 31 Oct 2001 21:53:35 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzband.ncsc.mil  with ESMTP id VAA16617
+	for <selinux@tycho.nsa.gov>; Wed, 31 Oct 2001 21:53:32 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 6CE7192602
+	for <selinux@tycho.nsa.gov>; Thu,  1 Nov 2001 08:53:58 +1100 (EST)
+Received: from there (lyta [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 1D3698D2
+	for <selinux@tycho.nsa.gov>; Wed, 31 Oct 2001 22:53:47 +0100 (CET)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: <selinux@tycho.nsa.gov>
+Subject: 2.4.13?
+Date: Wed, 31 Oct 2001 22:53:46 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20011031215347.1D3698D2@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Are you planning to release a 2.4.13 patch for selinux any time soon?
 
-On Tue, 30 Oct 2001, Femitha Majeed wrote:
+I am wondering whether I should delay my work and wait for it or whether I 
+should apply the 2.4.12 patch to 2.4.13 and keep going...
 
-> Is SELinux easily configurable on RedHat 7.2?
-
-We haven't tried RedHat 7.2 yet, so I don't know about what changes
-might be necessary in the example policy configuration.  However, there
-is at least one non-policy issue for RedHat 7.2 - the use of the ext3
-filesystem.  LSM is tracking Linus' kernel tree, and Linus' kernel tree
-does not yet include ext3.  Hopefully, ext3 will be merged into Linus'
-tree sometime soon.  As far as the SELinux security module is concerned,
-ext3 shouldn't present any problems, although you do need the patch that I
-posted a little while back (of course, it will be included in future
-releases) so that the security module will recognize ext3 as a legitimate
-filesystem type for persistent labeling.
-
-Another non-policy issue for RedHat 7.2 will be the base sources for our
-modified daemons and utilities.  Due to limited resources and the fact
-that many of the modified packages are non-essential, we only update these
-packages as necessary or when there is a serious bug.  We've internally
-updated to the latest util-linux and openssh SRPMS for RedHat 7.1, which
-should show up in the next release.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
-
-
+-- 
+http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
+http://www.coker.com.au/projects.html Projects I am working on
+http://www.coker.com.au/~russell/     My home page
 
 --
 You have received this message because you are subscribed to the selinux list.
