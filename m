@@ -1,59 +1,68 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i95LFcrT000153
-	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 17:15:38 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95LEUPe023096
-	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 21:14:30 GMT
-Date: Tue, 5 Oct 2004 22:26:44 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Patch to restorecon to add -R switch
-Message-ID: <20041005212644.GL25251@lkcl.net>
-References: <41584DCA.7030006@redhat.com> <1096999568.3878.126.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i95LphrT000418
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 17:51:43 -0400 (EDT)
+Received: from ms-smtp-03.rdc-kc.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95Lpg7h012575
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 21:51:42 GMT
+Received: from sasami.localdomain (CPE-24-163-154-106.kc.rr.com [24.163.154.106])
+	by ms-smtp-03.rdc-kc.rr.com (8.12.10/8.12.7) with ESMTP id i95LpajE021004
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 16:51:39 -0500 (CDT)
+Received: from localhost (localhost [127.0.0.1])
+	by sasami.localdomain (Postfix) with ESMTP id 248E84A658
+	for <selinux@tycho.nsa.gov>; Tue,  5 Oct 2004 16:51:36 -0500 (CDT)
+Received: from sasami.localdomain ([127.0.0.1])
+	by localhost (sasami [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 06309-05 for <selinux@tycho.nsa.gov>;
+	Tue, 5 Oct 2004 16:51:35 -0500 (CDT)
+Received: from yggdrasil.localdomain (yggdrasil.localdomain [192.168.0.2])
+	by sasami.localdomain (Postfix) with ESMTP id D8F694A650
+	for <selinux@tycho.nsa.gov>; Tue,  5 Oct 2004 16:51:35 -0500 (CDT)
+Date: Tue, 5 Oct 2004 16:51:35 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: need advice for ld_so_cache_t errors
+Message-ID: <20041005215135.GB24275@yggdrasil.localdomain>
+References: <20041001233554.GA26550@yggdrasil.localdomain> <20041002043740.GA28765@yggdrasil.localdomain> <20041002165041.GB30426@yggdrasil.localdomain> <200410040108.35839.russell@coker.com.au> <20041004014820.GA25896@yggdrasil.localdomain> <20041005003015.GA31681@yggdrasil.localdomain> <20041005010057.GA31754@yggdrasil.localdomain> <416218F1.2030105@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1096999568.3878.126.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
+In-Reply-To: <416218F1.2030105@comcast.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Oct 05, 2004 at 02:06:08PM -0400, Stephen Smalley wrote:
-> On Mon, 2004-09-27 at 13:28, Daniel J Walsh wrote:
-> > Also patch adds some fixed for fixfiles.
-> 
-> > --- policycoreutils-1.17.5/scripts/fixfiles.rhat	2004-08-30 11:46:47.000000000 -0400
-> > +++ policycoreutils-1.17.5/scripts/fixfiles	2004-09-24 18:46:15.672622592 -0400
-> > @@ -36,6 +36,8 @@
-> >  FILESYSTEMSRO=`mount | grep -v "context=" | egrep -v '\((|.*,)bind(,.*|)\)' | awk '/(ext[23]| xfs | reiserfs ).*\(ro/{print $3}';`
-> >  FILESYSTEMS="$FILESYSTEMSRW $FILESYSTEMSRO"
-> >  SELINUXTYPE="targeted"
-> > +FCFILE=`mktemp /var/tmp/file_contexts.XXXXXXXXXX`
-> > +trap "rm -f $FCFILE; exit 2" 1 2 3 5 15 
-> 
-> I thought we had agreed that generating a temporary FCFILE was
-> undesirable and unnecessary, given that:
-> a) it requires allow setfiles to take temporary files as input (not
-> allowed by strict policy),
-> b) /dev nodes are no longer touched by setfiles anyway due to use of
-> tmpfs and udev.
- 
-  could somebody _please_ explain to me why /.dev should
-  also not be touched (listed explicitly in files/types.fc),
-  _particularly_ when the xattrs could get damaged, such that
-  a system [which _doesn't_ do tmpfs+udev in initrd but _does_
-  do tmpfs+udev later] could be put into a non-bootable state?
 
-  l.
+--jI8keyz6grp/JLjh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+On Mon, Oct 04, 2004 at 08:45:53PM -0700, Tom London wrote:
+> see: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=3D133505
+>=20
+> Believe there is a bug in mprotect().
 
+That sounds like a very similar issue, but unfortunately the patch
+didn't seem to make any difference.  On the plus side, reverting from
+2.6.9-rc3 to 2.6.8.1 (plus the kernel patch from the NSA website) seems
+to have taken care of it... guess I'll try that first in the future. ;-)
+
+Thanx to everyone for your assistance.
+
+
+--jI8keyz6grp/JLjh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBYxdngrEMyr8Cx2YRAqfQAKDIzyibxkGoH7d5/5xgFpMu65BY5ACeMUzl
+nhCC/faIrrxnkBGMHSfVxsg=
+=oiy7
+-----END PGP SIGNATURE-----
+
+--jI8keyz6grp/JLjh--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
