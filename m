@@ -1,52 +1,56 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAR2R0Rb022829
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 21:27:00 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hAR2QPp5003733
-	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 02:26:25 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAR37mRb022925
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 22:07:48 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hAR37lqY002938
+	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 03:07:47 GMT
 Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id hAR2QOt0003730
-	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 02:26:24 GMT
+        by jazzband.ncsc.mil  with ESMTP id hAR37k0o002935 for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 03:07:46 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Diyab <diyab@diyab.net>, SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: BSD Secure levels for linux
-Date: Thu, 27 Nov 2003 13:26:53 +1100
-References: <3FC54560.5050303@diyab.net>
-In-Reply-To: <3FC54560.5050303@diyab.net>
+To: Dale Amon <amon@vnl.com>
+Subject: Re: mkinitrd setup script problem
+Date: Thu, 27 Nov 2003 14:07:36 +1100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <20031126231523.GX2718@vnl.com>
+In-Reply-To: <20031126231523.GX2718@vnl.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200311271326.53583.russell@coker.com.au>
+Message-Id: <200311271407.36409.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 27 Nov 2003 11:29, Diyab <diyab@diyab.net> wrote:
-> Has anyone else run across the kernel patch that implements something
-> similar to the BSD secure levels?  Has anyone tried to use this with
-> selinux?  I'm also curious what the general thought of the idea is.
-> Good idea? Bad idea?  What do you think?
+On Thu, 27 Nov 2003 10:15, Dale Amon <amon@vnl.com> wrote:
+> Installs
+> 	/sbin/load_policy
+> and a link
+> 	/usr/sbin/load_policy -> /sbin/load_policy
 
-The concept of secure levels is to have an option to put the system into a 
-mode where module loading and various other things are denied.
+This is because /sbin/init executes load_policy in the current Debian package.  
+When I update it to match Dan's new code this won't matter, but until then 
+load_policy needs to be on the root fs.  For the long term I think that 
+load_policy should be on the root fs to allow the most possible configuration 
+options for users.
 
-You could of course have a SE Linux configuration where you have multiple 
-policydb binaries, the one that loads on boot would have the current 
-functionality.  Other policydb's would have limited functionality (EG prevent 
-insmod_t from doing anything other than sending sigchld to init_t and 
-preventing load_policy).  Then loading a new policy would give a similar 
-result to changing a BSD secure level.
+> Installs
+> 	/etc/mkinitrd/scripts/selinux
+> which contains the line:
+> 	cp -a /usr/sbin/load_policy "$INITRDDIR/bin/load_policy
 
-If someone else wants to make a start on this then I would be interested in 
-merging patches into my policy tree as I think that the functionality is 
-useful.
+The next version of my policy package will fix this.  I haven't tested this 
+for a while as I don't use initrd any more.
+
+When compiling a kernel for your own use an initrd usually does not offer much 
+(except for unusual situations such as nfs-root - which often don't work with 
+SE Linux).  I have had some problems with the Debian mkinitrd script recently 
+and decided not to use it for any of my machines.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
 
 
 --
