@@ -1,43 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h839JkLa023583
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 05:19:46 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h839IDpQ001574
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 09:18:13 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-	by jazzswing.ncsc.mil  with ESMTP id h839IDQX001571
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 09:18:13 GMT
-Date: Wed, 3 Sep 2003 05:18:59 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Wu Yanjun <yanjunwu@sonata.iscas.ac.cn>
-cc: selinux@tycho.nsa.gov
-Subject: Re: Data type changed?
-In-Reply-To: <200309031100.47270.yanjunwu@sonata.iscas.ac.cn>
-Message-ID: <Pine.LNX.4.44.0309030514500.13795-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h83COTLa024609
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 08:24:29 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h83CORet011838
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 12:24:27 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h83COQlq011835 for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 12:24:27 GMT
+Subject: Re: Enable SELinux via boot parameter
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: James Morris <jmorris@redhat.com>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1062558452.1838.52.camel@chris.pebenito.net>
+References: 
+	 <Pine.LNX.4.44.0309021942550.11746-100000@thoron.boston.redhat.com>
+	 <1062558452.1838.52.camel@chris.pebenito.net>
+Content-Type: text/plain
+Message-Id: <1062591859.18568.313.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 03 Sep 2003 08:24:19 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 3 Sep 2003, Wu Yanjun wrote:
-
+On Tue, 2003-09-02 at 23:07, Chris PeBenito wrote:
+> There is one thing I don't like about this.  SELinux should be by
+> default on.  You should have to specify that its disabled, rather than
+> the opposite.  In general if people are compiling their own kernels, and
+> they want SELinux, they'll want it enabled by default, and shouldn't
+> need to specify extra kernel parameters.  The distributions shipping one
+> single kernel is more of a special case.
 > 
-> In Linux-2.6.0-test4, I see selinux changed the type of basic data structures 
-> significantly.  eg. turn security_id_t, access_vector_t, security_class_t, 
-> etc. back to their protoypes.Could any one tell me what's the reason? and 
-> will these changes be permanent?
+> I think this is one that should be left up to distributions to patch in
+> themselves.
 
-The reason these typedefs were removed was to help get SELinux accepted
-into the mainline kernel, where typedefs are generally frowned upon.
-
-The changes are expected to be permanent.
-
-
-- James
+We considered this option, but decided it would be preferable to provide
+a consistent behavior for upstream and distributions to avoid user
+confusion when moving between upstream kernels and distribution kernels.
+It isn't that different from having to specify "enforcing=1" to enable
+enforcing mode when development support is enabled.  It is true that you
+can disable development support, but how many people actually do so?
+ 
 -- 
-James Morris
-<jmorris@redhat.com>
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
