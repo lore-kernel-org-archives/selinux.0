@@ -1,100 +1,139 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA29394
-	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 17:07:20 -0500 (EST)
-From: azeredo@qmc.ufsc.br
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA29684
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 17:34:31 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA07323
-	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 22:05:21 GMT
-Received: from quark.qmc.ufsc.br (bohr-gw.qmc.ufsc.br [150.162.31.223])
-	by jazzswing.ncsc.mil  with ESMTP id WAA07319
-	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 22:05:19 GMT
-Received: (from wwwrun@localhost)
-	by quark.qmc.ufsc.br (8.11.3/8.11.3/SuSE Linux 8.11.1-0.5) id gA7MT4Y06467
-	for selinux@tycho.nsa.gov; Thu, 7 Nov 2002 20:29:04 -0200
-Message-ID: <1036708144.3dcae930a8fe4@qmc.ufsc.br>
-Date: Thu,  7 Nov 2002 20:29:04 -0200
-To: selinux@tycho.nsa.gov
-Subject: selinux in RH8
+	by jazzswing.ncsc.mil  with ESMTP id WAA08609
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 22:32:31 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id WAA08599
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 22:32:30 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: azeredo@qmc.ufsc.br, selinux@tycho.nsa.gov
+Subject: Re: selinux in RH8
+Date: Thu, 7 Nov 2002 23:33:18 +0100
+References: <1036708144.3dcae930a8fe4@qmc.ufsc.br>
+In-Reply-To: <1036708144.3dcae930a8fe4@qmc.ufsc.br>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_IB988ZLIT4LH3B2RQPF0"
+Message-Id: <200211072333.18908.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
+--------------Boundary-00=_IB988ZLIT4LH3B2RQPF0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
+On Thu, 7 Nov 2002 23:29, azeredo@qmc.ufsc.br wrote:
+> reboot and got only one error.
+>
+> avc: denied {write} for pid=396 exe=/bin/bash path=/etc/passwd dev=03:05
+> ino=231078 scontext=system_u:system_r:initrc_t
+> tcontext=system_u:object_r:etc_t tclass=file
 
-  I found the problems with the kernel and re-install all selinux from the
-beginning. Everything went fine, no compilations problems at all. All utils were
-built correctly. ....
+Strange.  There's no good reason for a shell script to try and write to 
+/etc/passwd.  I suggest that you look into this.  If you boot the machine in 
+enforcing mode then the script in question will probably tell you what it was 
+trying to do.
 
-make reset
+> make relabel
+>
+> and got the following
+>
+> avc:  denied  { read } for  pid=686 exe=/usr/local/selinux/bin/checkpolicy
+> path=/usr/src/selinux/policy/Makefile dev=03:05 ino=882701
+> scontext=root:sysadm_r:checkpolicy_t tcontext=system_u:object_r:src_t
 
+If you have the policy source in /etc/selinux, /etc/security/selinux/source, 
+/usr/share/selinux, or /usr/lib/selinux then it'll get labelled with 
+policy_src_t and this won't be a problem.
 
-reboot and got only one error.
+> avc:  denied  { read } for  pid=687 exe=/usr/local/selinux/bin/setfiles
+> path=/usr/src/selinux/policy/file_contexts/file_contexts dev=03:05
+> ino=883914 scontext=root:sysadm_r:setfiles_t
+> tcontext=system_u:object_r:src_t tclass=file
 
-avc: denied {write} for pid=396 exe=/bin/bash path=/etc/passwd dev=03:05 ino=231078
-scontext=system_u:system_r:initrc_t
-tcontext=system_u:object_r:etc_t tclass=file
+This should be the same as above.
 
-System booted ok and I logged as root and changed to system_r context and did a
+> avc:  denied  { write } for  pid=687 exe=/usr/local/selinux/bin/setfiles
+> path=/dev/tty1 dev=03:05 ino=39346 scontext=root:sysadm_r:setfiles_t
+> tcontext=system_u:object_r:tty_device_t tclass=chr_file
 
-make relabel
+The tty you used to login should not be labelled as tty_device_t, it should be 
+sysadm_tty_device_t, that usually indicates a problem with your login 
+program, however it assigned you the correct security context so it's 
+probably working OK.  Look for any error messages in auth.log or on the 
+console when you login as root.
 
-and got the following
+> /usr/local/selinux/bin/setfiles:  conflicting specifications for
+> /sbin/mkfs.ext3 and /sbin/mkfs.ext2, using system_u:object_r:fsadm_exec_t.
 
+I've attached a modified fsadm.fc file to solve this and a few other issues I 
+discovered while looking at it.  Steve, please commit this to CVS.
 
-avc:  denied  { read } for  pid=686 exe=/usr/local/selinux/bin/checkpolicy
-path=/usr/src/selinux/policy/Makefile dev=03:05 ino=882701
-scontext=root:sysadm_r:checkpolicy_t tcontext=system_u:object_r:src_t tclass=file
-/usr/local/selinux/bin/setfiles file_contexts/file_contexts `mount | awk
-'/(ext[23]|reiserfs)/{print $3}'`
-/usr/local/selinux/bin/setfiles:  Running on a SELinux kernel, using new system
-calls
+> Starting httpd:
+> avc:  denied  { name_bind } for  pid=802 exe=/usr/sbin/httpd port=80
+> scontext=root:sysadm_r:sysadm_t tcontext=system_u:object_r:http_port_t
+> tclass=tcp_socket
 
-avc:  denied  { read } for  pid=687 exe=/usr/local/selinux/bin/setfiles
-path=/usr/src/selinux/policy/file_contexts/file_contexts dev=03:05 ino=883914
-scontext=root:sysadm_r:setfiles_t tcontext=system_u:object_r:src_t tclass=file
-/usr/local/selinux/bin/setfiles:  read 846 specifications
-/usr/local/selinux/bin/setfiles:  labeling files under /
+Did you use run_init to start httpd?  It looks to me like you didn't.
 
+httpd is supposed to run in domain httpd_t not domain sysadm_t.  If you type 
+"httpd" at the command line you get sysadm_t, if you type the following you 
+should get the right domain:
+run_init /etc/init.d/apache start
 
-avc:  denied  { write } for  pid=687 exe=/usr/local/selinux/bin/setfiles
-path=/dev/tty1 dev=03:05 ino=39346 scontext=root:sysadm_r:setfiles_t
-tcontext=system_u:object_r:tty_device_t tclass=chr_file
-/usr/local/selinux/bin/setfiles:  conflicting specifications for /sbin/mkfs.ext3
-and /sbin/mkfs.ext2, using system_u:object_r:fsadm_exec_t.
-/usr/local/selinux/bin/setfiles:  hash table stats: 159697 elements, 30356/65536
-buckets used, longest chain length 14
-/usr/local/selinux/bin/setfiles:  labeling files under /home
-/usr/local/selinux/bin/setfiles:  hash table stats: 1182 elements, 1182/65536
-buckets used, longest chain length 1
-/usr/local/selinux/bin/setfiles:  Done.
+>       I believe I am almost there. What is missing?
+>        I read about OSDgroup and the SElinux distribution available as a
+> beta version. Why there is no comment  in the list about?
 
- Finally I started mysqld daemon that went  ok but when started apache got:
+There is, but maybe the message hadn't yet reached you when you asked the 
+question.  It takes quite a while for a message sent to this list to get 
+delivered, 5+ hour delays are not uncommon.
 
-Starting httpd:
-avc:  denied  { name_bind } for  pid=802 exe=/usr/sbin/httpd port=80
-scontext=root:sysadm_r:sysadm_t tcontext=system_u:object_r:http_port_t
-tclass=tcp_socket
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-ps -e --context
+--------------Boundary-00=_IB988ZLIT4LH3B2RQPF0
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="fsadm.fc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="fsadm.fc"
 
-execute as expected.
+# fs admin utilities
+/sbin/fsck.*			system_u:object_r:fsadm_exec_t
+/sbin/mkfs.*			system_u:object_r:fsadm_exec_t
+/sbin/e2fsck			system_u:object_r:fsadm_exec_t
+/sbin/reiserfs(ck|tune)		system_u:object_r:fsadm_exec_t
+/sbin/mkreiserfs		system_u:object_r:fsadm_exec_t
+/sbin/e2label			system_u:object_r:fsadm_exec_t
+/sbin/mkfs			system_u:object_r:fsadm_exec_t
+/sbin/mke2fs			system_u:object_r:fsadm_exec_t
+/sbin/mkswap			system_u:object_r:fsadm_exec_t
+/sbin/scsi_info			system_u:object_r:fsadm_exec_t
+/sbin/sfdisk			system_u:object_r:fsadm_exec_t
+/sbin/cfdisk			system_u:object_r:fsadm_exec_t
+/sbin/fdisk			system_u:object_r:fsadm_exec_t
+/sbin/tune2fs			system_u:object_r:fsadm_exec_t
+/sbin/dumpe2fs			system_u:object_r:fsadm_exec_t
+/sbin/swapon			system_u:object_r:fsadm_exec_t
+/sbin/hdparm			system_u:object_r:fsadm_exec_t
+/sbin/raidstart			system_u:object_r:fsadm_exec_t
+/sbin/mkraid			system_u:object_r:fsadm_exec_t
+/sbin/blockdev			system_u:object_r:fsadm_exec_t
+/sbin/losetup			system_u:object_r:fsadm_exec_t
+/usr/sbin/updfstab		system_u:object_r:fsadm_exec_t
+/usr/sbin/smart(d|ctl)		system_u:object_r:fsadm_exec_t
 
-      I believe I am almost there. What is missing?
-       I read about OSDgroup and the SElinux distribution available as a beta
-version. Why there is no comment  in the list about?
+--------------Boundary-00=_IB988ZLIT4LH3B2RQPF0--
 
-                                    Thanks a lot for  the help.
-
-                             Aldrovando Azeredo.
-                             Mathematics Department
-                             UFSC- Santa Catarina
-                             Brazil  
-                              
-
--------------------------------------------------
-This mail sent through IMP: http://horde.org/imp/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
