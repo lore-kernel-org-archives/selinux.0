@@ -1,45 +1,108 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA06126
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 09:59:55 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA17417
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 13:59:19 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id NAA17413
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 13:59:19 GMT
-Date: Wed, 10 Jul 2002 09:58:56 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Ed Street <blacknet@simplyaquatics.com>
-cc: "'Russell Coker'" <russell@coker.com.au>,
-        "'SE Linux'" <selinux@tycho.nsa.gov>
-Subject: RE: cleaning psidfiles database
-In-Reply-To: <007601c22818$6ee1e7a0$0a01a8c0@ed>
-Message-ID: <Pine.GSO.4.33.0207100952070.26546-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Wierdness with lsm 2.5
+From: Timothy Wood <timothy@hallcomp.com>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: 10 Jul 2002 10:04:04 -0400
+Message-Id: <1026309847.9320.67.camel@phobos>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Has anyone been using the 2.5 lsm since the last release?  I'm getting a
+whole lot of errors the 2.4 never gave me.  Here are some of them.
 
-On Wed, 10 Jul 2002, Ed Street wrote:
+-----md errors------
 
-> Speaking of make relabel.  Would it not be a good idea to run a relabel
-> at boot time?
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/md0
+dev=03:03 ino=66778 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
 
-Not unless you really want to reset the system to the initial state
-specified in file_contexts on each boot.  The persistent label mappings
-track runtime changes made since the initialization, like file type
-transitions for new files and individual relabels via chcon.  A 'make
-relabel' on each boot will lose such runtime changes unless you update
-your file contexts configuration or you exclude these files via <<none>>
-entries.  'make relabel' is also slow, as it must traverse the entire
-filesystem.
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/md10
+dev=03:03 ino=65551 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/md0
+dev=03:03 ino=66778 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/md1
+dev=03:03 ino=65550 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/md2
+dev=03:03 ino=66782 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/md3
+dev=03:03 ino=66792 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/md4
+dev=03:03 ino=66794 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/md5
+dev=03:03 ino=65554 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/md6
+dev=03:03 ino=65555 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/md7
+dev=03:03 ino=65556 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
+
+AVC: 501642 messages suppressed.
+
+--------some wierd device -----------
+(new thing in 2.5 kernel I guess, disks of some sort or another)
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck
+path=/dev/cciss/c2d4p14 dev=03:03 ino=2425518
+scontext=system_u:system_r:fsadm_t tcontext=system_u:object_r:device_t
+tclass=blk_file
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck
+path=/dev/cciss/c4d10p6 dev=03:03 ino=2425893
+scontext=system_u:system_r:fsadm_t tcontext=system_u:object_r:device_t
+tclass=blk_file
+
+AVC: 626927 messages suppressed.
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck
+path=/dev/cciss/c6d2p7 dev=03:03 ino=2426517
+scontext=system_u:system_r:fsadm_t tcontext=system_u:object_r:device_t
+tclass=blk_file
+
+AVC: 627109 messages suppressed.
+
+avc:  denied  { getattr } for  pid=121 exe=/sbin/fsck path=/dev/hitcd
+dev=03:03 ino=66633 scontext=system_u:system_r:fsadm_t
+tcontext=system_u:object_r:device_t tclass=blk_file
 
 
+-------some other wierd thing.
+
+avc:  denied  { sys_tty_config } for  pid=721 comm=sh capability=26
+scontext=system_u:system_r:checkpc_t
+tcontext=system_u:system_r:checkpc_t tclass=capability
+
+
+There are several other "messages suppressed" messages and several other
+things on the system that do not work.  for example I have two
+partitions on this test machine, a /boot and a /.  The / mounts fine but
+the /boot won't mount.  
+
+Does anyone know off the top of their head what the /dev/cciss is for? 
+I see a lot of disk devices noted in a solaris fashion (eg c0d0p0s2 etc
+etc instead of hda1 hda2 etc etc) 
+
+Any thoughts welcome.
+
+Timothy,
+
+BTW, I did install this overtop of my lsm2.4 so that maybe messed it up?
 
 
 --
