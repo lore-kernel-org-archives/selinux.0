@@ -1,56 +1,44 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HIMbrT015531
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 14:22:37 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7HIMZKV026115
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 18:22:36 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HIc5rT015618
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 14:38:05 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7HIbO2E010937
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 18:37:25 GMT
 Received: from localhost (localhost [127.0.0.1])
-	by open.hands.com (Postfix) with ESMTP id 8B341C0E6
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 19:22:35 +0100 (BST)
+	by open.hands.com (Postfix) with ESMTP id 32586C0E6
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 19:38:04 +0100 (BST)
 Received: from open.hands.com ([127.0.0.1])
 	by localhost (open [127.0.0.1]) (amavisd-new, port 10024) with LMTP
-	id 28639-05-4 for <selinux@tycho.nsa.gov>;
-	Tue, 17 Aug 2004 19:22:33 +0100 (BST)
+	id 29330-03-2 for <selinux@tycho.nsa.gov>;
+	Tue, 17 Aug 2004 19:38:02 +0100 (BST)
 Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 88E88C0E4
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 19:22:33 +0100 (BST)
+	by open.hands.com (Postfix) with ESMTP id E8866C0E4
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 19:38:01 +0100 (BST)
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1Bx8lj-0005UH-Ac
-	for selinux@tycho.nsa.gov; Tue, 17 Aug 2004 19:33:11 +0100
-Date: Tue, 17 Aug 2004 19:33:11 +0100
+	id 1Bx90h-0006F6-K5
+	for selinux@tycho.nsa.gov; Tue, 17 Aug 2004 19:48:39 +0100
+Date: Tue, 17 Aug 2004 19:48:39 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: policy for k3b (and cdrecord)
-Message-ID: <20040817183311.GR18321@lkcl.net>
+Subject: k3b finding files
+Message-ID: <20040817184839.GS18321@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-i'm writing a policy for k3b (kde cd burner) and cdrecord because
-write access by users to /dev/hdc is banned (policy violation) and
-because, well, because.
+... or, is there a different way to do file finding / listing?
 
-sadly, k3b uses find to search the ENTIRE drive e.g. /dev and /
-and stuff and so i get a whole stack of search and read permissions
-requested.
+why does konqueror manage to do file finding / listing?
 
-this i can put up with by banning with dontaudit: i can do this because
-i actually don't _want_ users to burn CDs with k3b except from anything from
-their home directory, and any excessive number of dontaudits i am
-personally quite happy with.
+is there some sort of filesystem monitoring service that could be used
+(such that famd could use it as well)?
 
-(and for backup purposes they can have a nice shiny button on the
-desktop, using a different program, which will get its own nice policy
-file).
+does anyone know of a DCOP-based KDE service (konqueror itself, even)
+that could track files?
 
-my question is, therefore:
-
-- for more generic use, obviously k3b must be allowed to access pretty
-  much anything on / so what should i put in place of all the
-  dontaudits and allow k3b_t user_home_t etc. stuff?
-
-ta,
+i'm thinking of modifications to k3b that could keep its file accessing
+under control.
 
 l.
 
