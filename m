@@ -1,43 +1,49 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB7E6BRb013009
-	for <selinux@tycho.nsa.gov>; Sun, 7 Dec 2003 09:06:11 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB8HULRb017542
+	for <selinux@tycho.nsa.gov>; Mon, 8 Dec 2003 12:30:21 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB7E5SlU003115
-	for <selinux@tycho.nsa.gov>; Sun, 7 Dec 2003 14:05:28 GMT
-Received: from unicorn.lemuria.org (d003196.adsl.hansenet.de [80.171.3.196])
-	by jazzswing.ncsc.mil  with ESMTP id hB7E5RSX003112
-	for <selinux@tycho.nsa.gov>; Sun, 7 Dec 2003 14:05:28 GMT
-Date: Sun, 7 Dec 2003 14:59:07 +0100
-From: Tom <tom@lemuria.org>
-To: Russell Coker <bofh@coker.com.au>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: policy under version control
-Message-ID: <20031207145906.D23499@lemuria.org>
-References: <20031129132619.GE26960@lukas.schuldei.com> <20031207123046.D22784@lemuria.org> <20031207134114.GK21303@lukas.schuldei.com> <200312080044.59439.bofh@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id hB8HTblU010703
+	for <selinux@tycho.nsa.gov>; Mon, 8 Dec 2003 17:29:37 GMT
+Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
+	by jazzswing.ncsc.mil  with ESMTP id hB8HTaSX010700
+	for <selinux@tycho.nsa.gov>; Mon, 8 Dec 2003 17:29:37 GMT
+Subject: policy problem with nfs mounting
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1070904612.15475.7.camel@chris.pebenito.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200312080044.59439.bofh@coker.com.au>; from bofh@coker.com.au on Mon, Dec 08, 2003 at 12:44:59AM +1100
+Date: Mon, 08 Dec 2003 11:30:12 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Dec 08, 2003 at 12:44:59AM +1100, Russell Coker wrote:
-> Yes, I can do that.  I'm not sure what the best way of managing this is, I 
-> want to read every patch before accepting it, so I don't want anything 
-> automated at my end.
+I was merging in the 1.4 policy changes into the Gentoo policy, when I
+experienced some odd nfs breakage.  NFS wouldn't mount on my 2.6 machine
+(cant try on 2.4, since its PPC):
 
-Russell, my suggestion would be this:
+nfs warning: mount version older than kernel
+SELinux: initialized (dev , type rpc_pipefs), not configured for labeling
+avc:  denied  { mount } for  pid=3123 exe=/bin/mount name=/ dev= ino=3189
+scontext=system_u:system_r:mount_t tcontext=system_u:object_r:unlabeled_t tclass=filesystem
+ 
+avc:  denied  { search } for  pid=3123 exe=/bin/mount dev= ino=3189
+scontext=system_u:system_r:mount_t tcontext=system_u:object_r:unlabeled_t tclass=dir
+SELinux: initialized (dev 0:b, type nfs), uses genfs_contexts
 
-Have one "default policy" repository, that only you a few people can
-write to, but other people can use as a base.
-
-I'd also set up a public repository with world-write access,
-essentially as an easy place to contribute.
-
+At first I thought it was NFS itself, but it turns out to be rpc_pipefs,
+as there are no denials on successive NFS mounts.  I set rpc_pipefs to
+be nfs_t in genfscon, and then the denials are cleared.  However, I'm
+not sure if this is the best choice of type.  Comments?
 
 -- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+ 
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
+Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
 --
 This message was distributed to subscribers of the selinux mailing list.
