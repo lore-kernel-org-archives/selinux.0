@@ -1,32 +1,38 @@
-Date: Tue, 1 Oct 2002 07:34:16 -0400 (EDT)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA01597
+	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 07:36:59 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id LAA12461
+	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 11:35:11 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id LAA12457 for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 11:35:11 GMT
+Date: Tue, 1 Oct 2002 07:36:35 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: trivial logging bug
-In-Reply-To: <200209302137.15850.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0210010733000.1579-100000@raven>
+cc: Brian May <bam@snoopy.apana.org.au>, <selinux@tycho.nsa.gov>
+Subject: Re: Editing crontabs
+In-Reply-To: <200210010017.34485.russell@coker.com.au>
+Message-ID: <Pine.GSO.4.33.0210010734350.1579-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 30 Sep 2002, Russell Coker wrote:
+On Tue, 1 Oct 2002, Russell Coker wrote:
 
-> On Mon, 30 Sep 2002 20:55, Stephen Smalley wrote:
-> > On Mon, 30 Sep 2002, Russell Coker wrote:
-> > This behavior is due to the security_ops->inode_rmdir hook being called
-> > after the d_unhash on the dentry in vfs_rmdir, so the dentry appears
-> > "deleted" to the pathname generation code.  To fix, we would need to move
-> > up the hook call in the LSM patch.  Other than potentially confusing
-> > output, I don't think that it is a real concern.
+> The same domain as them.  If you're sysadm_r then you should have permissions
+> to change to that role.
 >
-> OK, well just finding and removing the "(deleted)" string before displaying
-> the message will give a good result for the users...
+> Or I guess it would make sense to put the following in
+> macros/programs/crontab_macros.te:
+> allow sysadm_crontab_t $1_crontab_t:file { getattr read };
+>
+> Of course we must not give create or write access to the other user's crontab
+> file to prevent mistakes...
 
-No, I would expect us to submit a change to the LSM patch to move the hook
-call prior to the d_unhash.  I was simply noting that it isn't a security
-issue, so we don't need an immediate fix.
+As long as you assume that sysadm_t is the most privileged user domain,
+then this should be fine.
 
 --
 Stephen D. Smalley, NAI Labs
