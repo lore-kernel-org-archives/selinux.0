@@ -1,32 +1,44 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3KIjXZ018252
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 15:18:46 -0500 (EST)
-Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3KIjJZ019236
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 20:18:45 GMT
-Subject: Re: SELinux capable UML's (bonus: root_fs creation on Debian)
-From: Colin Walters <walters@verbum.org>
-To: Manoj Srivastava <manoj.srivastava@stdc.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <87mzxysvi1.fsf@glaurung.internal.golden-gryphon.com>
-References: <87mzxysvi1.fsf@glaurung.internal.golden-gryphon.com>
+Subject: Re: dynamic context transitions
+From: Colin Walters <walters@redhat.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   SELinux List <SELinux@tycho.nsa.gov>, Chad Hanson <chanson@TrustedCS.com>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1099405140.31739.59.camel@moss-spartans.epoch.ncsc.mil>
+References: <4182959B.4080503@trustedcs.com>
+	 <20041029211809.GJ8897@lkcl.net> <20041030090603.GK8897@lkcl.net>
+	 <1099315214.21386.13.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041101141025.GZ8897@lkcl.net>  <418662EE.5090001@trustedcs.com>
+	 <1099344460.23756.49.camel@pham.columbia.tresys.com>
+	 <1099402984.31739.17.camel@moss-spartans.epoch.ncsc.mil>
+	 <1099404989.23756.79.camel@pham.columbia.tresys.com>
+	 <1099405140.31739.59.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 03 Nov 2004 15:18:46 -0500
-Message-Id: <1099513127.3861.12.camel@nexus.verbum.private>
+Date: Wed, 03 Nov 2004 15:21:27 -0500
+Message-Id: <1099513287.3861.15.camel@nexus.verbum.private>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-03 at 11:16 -0600, Manoj Srivastava wrote:
+On Tue, 2004-11-02 at 09:19 -0500, Stephen Smalley wrote:
+> On Tue, 2004-11-02 at 09:16, Karl MacMillan wrote:
+> > It would certainly require some additional infrastructure and more
+> > invasive changes to init scripts, but it could be made to work. I think
+> > that others have raised the more important point - what real use case is
+> > there for this functionality?
+> 
+> A common problem in Fedora is that daemons expect to be able to display
+> output and possibly to get user input during startup (e.g. httpd ssl
+> requesting a passphrase),
 
-> 	I hope this document shall be useful. I find that this is
->  useful for running services on an otherwise insecure box, since in a
->  number of real world situations, a machine can not be run in
->  enforcing mode, possibly because it needs to run applications and
->  services for which MAC policy has not yet been written.
+Incidentally it turns out Apache already has a solution for this,
+http://httpd.apache.org/docs-2.0/mod/mod_ssl.html#sslpassphrasedialog
 
-There is the approach of simply marking the programs as
-unconfined_exec_t until policy is written.
+For Fedora our plan is to simply put this in the default Apache
+configuration, and write the little bit of policy necessary to have
+httpd_t exec httpd_passphrasedialog_t.
 
 
 
