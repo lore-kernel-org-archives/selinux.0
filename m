@@ -1,38 +1,57 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4EMf2Rb014752
-	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 18:41:02 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4EMexMi011895
-	for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 22:40:59 GMT
-Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
-        by jazzband.ncsc.mil  with ESMTP id i4EMexpI011887 for <selinux@tycho.nsa.gov>; Fri, 14 May 2004 22:40:59 GMT
-From: "Ed Street" <edstreet@street-tek.com>
-To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
-Cc: "'Selinux'" <selinux@tycho.nsa.gov>
-Subject: RE: Suse
-Date: Fri, 14 May 2004 18:40:53 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <1084540729.17741.61.camel@moss-spartans.epoch.ncsc.mil>
-Message-Id: <20040514224053.9377E3A404F@abyss.simplyaquatics.com>
+Date: Fri, 14 May 2004 22:30:20 -0500
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: policy questions and bugs
+Message-ID: <20040515033020.GA5060@balder>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+From: Chris Grier <grier@uiuc.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+I have a whole bunch of questions after reading the FAQ and some other
+random documents I found for selinux, here they are:
 
-As was suspected it appears that suse 9.1 pro (shipping) has all the selinux
-userland patches in place but no policy and no kernel support. I see the
-same startup in suse 9.1 as I do in fedora fc2t3 so it's disabled.
+The dpkg and rpm both have apt-get in their domain te files. fixfiles
+doesn't like having multiple contexts defined for a single file. This
+might be a bug.
 
-Ed
+Why do dmesg redirections (such as root running dmesg > ~/output) cause
+an audit deny? I'm not sure this is a dmesg specific error, I think it
+might be a little more general for other redirections too. Here's the
+message:
 
----
+avc:  denied  { write } for  pid=1953 exe=/bin/dmesg path=/root/test
+dev=md0 ino=740514 scontext=root:system_r:dmesg_t
+tcontext=root:object_r:staff_home_t tclass=file
 
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004
- 
+When running some services, I would like them to run as a non root uid
+and gid (ircd and oidentd are the services which I usually do this
+with), which I normally do with su. When we do this with selinux
+running, we are prompted to enter a role and type (not select from a
+list). Is this just a matter of defining a transition to acommodate for
+this to happen?
 
+Why do normal users have the option of changing to sysadm? I don't
+particularly like this, and I could remove it, but I'm looking for the
+reasoning behind the default being like this.
+
+What does this mean: 
+
+inode_doinit_with_dentry:  context_to_sid(system_u:object_r:apt_etc_t)
+returned 22 for dev=md0 ino=517610
+
+This is a "new" error (as in, in the last couple hours of getting things
+going, I had not seen it). I'm not sure what happened to make this error
+start.
+
+Last question for today, when creating my own fc and te files to build
+into the policy, is it safe to create them in the policy/src directory,
+or will future package updates simply overwrite them and kill all the
+stuff I'm writing? How about modifications of existing files in the
+policy source directory?
+
+-- 
+Chris Grier <grier@uiuc.edu>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
