@@ -1,58 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA17300
-	for <selinux@tycho.nsa.gov>; Tue, 9 Oct 2001 11:30:23 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA24844
-	for <selinux@tycho.nsa.gov>; Tue, 9 Oct 2001 15:28:36 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id PAA24840
-	for <selinux@tycho.nsa.gov>; Tue, 9 Oct 2001 15:28:35 GMT
-Date: Tue, 9 Oct 2001 11:30:09 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: "Justin R. Smith" <jsmith@mcs.drexel.edu>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: ssh, ad nauseum
-In-Reply-To: <1002639082.14315.3.camel@vorpal>
-Message-ID: <Pine.GSO.4.33.0110091121350.3214-100000@raven>
+Reply-To: <mayerf@tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: <SELinux@tycho.nsa.gov>
+Subject: Security policy analysis
+Date: Tue, 9 Oct 2001 15:49:31 -0400
+Message-ID: <ACEHIKGIGFEDAIKEMMMIAEMOJPAA.mayerf@tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+We're looking at SE Linux as a building block upon which we can build
+protected applications of various types.  One of the issues we are working
+through include identifying a core "baseline" Linux configuration and
+associated SE Linux policy for that baseline.  One means of doing this is to
+examine sample policies (like the one distributed with the source).  If
+anyone else is doing similar things, we'd like to like to hear more.  Also,
+is anyone else working on alternative sample policies, especially for a core
+Linux configuration?
 
-On 9 Oct 2001, Justin R. Smith wrote:
+We also find ourselves incrementally building tools to analyze policy.conf
+files (e.g., show all types with a given attribute, show all rules that
+involve a given type/attribute).  Essentially to help reverse engineer and
+analyze the intent of a given policy.  We have some capabilities built, and
+are writing additional ones as time and need allow (essentially by borrowing
+the lex/yacc source from checkpolicy, and building our own policy database
+and analysis logic).  Is anyone else building similar tools?  We'd be happy
+to share our source incrementally with members of the list as we build new
+capabilities if anyone is interested.
 
-> I rebooted my normal (i.e., non-selinux) kernel and ssh'ed to my office
-> machine from home and was asked for a password (so it didn't use my
-> 'authorized_users' file). Then I remembered that I didn't restore the
-> vanilla version of the sshd --- I was still using the selinux version.
->
-> I then replaced the selinux sshd with the original one and rebooted.
-> After this ssh worked normally. So, perhaps something in the selinux
-> sshd is responsible for my little problem (always having to type a
-> password to use ssh).
+PS- Please reply to the mail list; we'd like to start open discussions of
+policy analysis and development.
 
-This seems unlikely.  The SELinux openssh patch merely changes sshd to
-set the security context on the pty and to run the user process with
-an appropriate security context.
-
-What version of openssh are you running on the home machine and the office
-machine?  Are you using the stock RH7.1 programs or a newer openssh package?
-If the latter, did you try applying our openssh patch to the newer openssh
-package and then configuring, building, and installing that modified
-openssh in the same manner that you installed the original one?  The
-patch applies fine to openssh-2.9.9p2 aside from a reject on a spurious
-extra line.
-
-When you generated your keys, did you generate keys for protocol 1 or
-protocol 2 (default for ssh-keygen is 1, unless you use the -t option)?
-If you are using protocol 1, does 'ssh -1 machine' work for you?  What
-does 'ssh -v -1 machine' show?
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
+Regards,
+Frank Mayer
+mayerf@tresys.com
+Tresys Technology
 
 
 
