@@ -1,37 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA01985
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 17:33:36 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA01470
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 22:33:02 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA02114
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 17:52:30 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id WAA28793
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 22:51:39 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA01466
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 22:32:59 GMT
+	by jazzband.ncsc.mil  with ESMTP id WAA28789
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 22:51:38 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 1B50D92746
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2002 09:33:22 +1100 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 4B7F092746
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2002 09:52:25 +1100 (EST)
 Received: from there (lyta [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 8F7D715BBF
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 23:33:08 +0100 (CET)
+	by lyta.coker.com.au (Postfix) with SMTP id B2B9E35A0BD
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 23:52:15 +0100 (CET)
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: selinux@tycho.nsa.gov
-Subject: 2.4.17 support?
-Date: Wed, 16 Jan 2002 23:33:08 +0100
+Subject: policydb
+Date: Wed, 16 Jan 2002 23:52:15 +0100
 MIME-Version: 1.0
-Message-Id: <20020116223308.8F7D715BBF@lyta.coker.com.au>
+Message-Id: <20020116225215.B2B9E35A0BD@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The latest kernel patch for 2.4.17 from immunix uses version 8 of the Policy 
-DB, while the latest utilities on the NSA site are clearly designed for 
-version 7 only (compile errors when trying to compile with version 8 headers).
+I have just noticed that there is no magic number in the policy database!  
+This means that if something goes slightly wrong (say a file system error 
+replaces the file with some other file but keeps the same inode) then you 
+won't easily be able to tell (especially if it happens to start with 
+0x00080000 for 2.4.17 or 0x00070000 for 2.4.16).
 
-Could someone please post a patch to selinux-small to make it compile with 
-the latest headers?  I am anticipating that the NSA web site won't be updated 
-as quickly as we would like so it'd be good to get a patch on the list...
+Could we have a magic number for the next version?
+
+We could make the file start with the string "@SeLiNuX*PoLiCy@", as an 
+example (there are billions of strings which are easily identifiable even by 
+strings(1) which are also uniquely identifiable by file(1) and which are 
+extremely unlikely to occur by accident which would do just as well).  Then 
+we could have a magic entry for it which would allow easy display of the 
+version number, the number of items in the object context array, etc.
+
+Basically this would allow us to save lots of people all the effort of 
+reading through source code that I just went through before realising that I 
+was compiling against the old header file.
 
 -- 
 http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
