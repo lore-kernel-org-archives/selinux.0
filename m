@@ -1,77 +1,176 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2QHYWRb025106
-	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 12:34:33 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2QJvmRb025720
+	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 14:57:48 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i2QHYVFV005460
-	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 17:34:31 GMT
-Received: from thumbler.kulnet.kuleuven.ac.be (thumbler.kulnet.kuleuven.ac.be [134.58.240.45])
-        by jazzband.ncsc.mil  with ESMTP id i2QHYU36005451 for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 17:34:31 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by thumbler.kulnet.kuleuven.ac.be (Postfix) with ESMTP id 4E1DF137A26
-	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 18:34:30 +0100 (CET)
-Received: from lepidus.kulnet.kuleuven.ac.be (lepidus.kulnet.kuleuven.ac.be [134.58.240.72])
-	by thumbler.kulnet.kuleuven.ac.be (Postfix) with ESMTP id CA958137A13
-	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 18:34:29 +0100 (CET)
-Received: from [10.0.57.79] (zen.kotnet.org [10.0.57.79])
-	by lepidus.kulnet.kuleuven.ac.be (Postfix) with ESMTP id 65DEC38005A
-	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 18:34:29 +0100 (CET)
-Mime-Version: 1.0 (Apple Message framework v613)
-Message-Id: <D571AD7F-7F4B-11D8-A7FC-000A95D903E6@student.kuleuven.ac.be>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: selinux@tycho.nsa.gov
-From: Koen Vervloesem <koen.vervloesem@student.kuleuven.ac.be>
-Subject: make relabel: invalid context
-Date: Fri, 26 Mar 2004 18:34:28 +0100
+	by jazzband.ncsc.mil  with ESMTP id i2QJvkFV004422
+	for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 19:57:46 GMT
+Received: from gorn.pebenito.dhs.org (c-24-15-25-98.client.comcast.net [24.15.25.98])
+        by jazzband.ncsc.mil  with ESMTP id i2QJvj36004411 for <selinux@tycho.nsa.gov>; Fri, 26 Mar 2004 19:57:45 GMT
+Subject: Re: status tool
+From: Chris PeBenito <pebenito@gentoo.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1080310444.6559.81.camel@moss-spartans.epoch.ncsc.mil>
+References: <1080243007.12376.28.camel@gorn.pebenito.net>
+	 <1080310444.6559.81.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fO6GWhsAJJwIRoc5iitg"
+Message-Id: <1080331063.28488.19.camel@gorn.pebenito.net>
+Mime-Version: 1.0
+Date: Fri, 26 Mar 2004 13:57:44 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-I have installed the SELinux tools on Debian with the Linux 2.6.4 
-kernel with SELinux support. The package selinux-policy-default doens't 
-get installed, and gives very strange errors, so I decided to get the 
-NSA policy example (www.nsa.gov/selinux/code/download5.cfm). I did get 
-through make policy and make install, but when I execute make relabel I 
-get a bunch of errors:
+--=-fO6GWhsAJJwIRoc5iitg
+Content-Type: multipart/mixed; boundary="=-Jwk5iTOCZt6pcsnRTeIr"
 
-root@carnivore:/etc/selinux# make relabel
-/usr/sbin/setfiles file_contexts/file_contexts `mount | awk 
-'/ext[23]/{print $3}'`
-/usr/sbin/setfiles:  read 643 specifications
-/usr/sbin/setfiles:  invalid context system_u:object_r:file_t on line 
-number 39
-/usr/sbin/setfiles:  invalid context system_u:object_r:root_t on line 
-number 44
-/usr/sbin/setfiles:  invalid context system_u:object_r:var_t on line 
-number 49
-/usr/sbin/setfiles:  invalid context system_u:object_r:catman_t on line 
-number 50
-/usr/sbin/setfiles:  invalid context system_u:object_r:catman_t on line 
-number 51
-/usr/sbin/setfiles:  invalid context system_u:object_r:var_yp_t on line 
-number 52
-/usr/sbin/setfiles:  invalid context system_u:object_r:var_lib_t on 
-line number 53
-/usr/sbin/setfiles:  invalid context system_u:object_r:var_lib_nfs_t on 
-line number 54
-/usr/sbin/setfiles:  invalid context system_u:object_r:tetex_data_t on 
-line number 55
-/usr/sbin/setfiles:  invalid context system_u:object_r:tetex_data_t on 
-line number 56
-Exiting after 10 errors.
-make: *** [relabel] Fout 1
-root@carnivore:/etc/selinux#
 
-I can't find an error in the configuration files. Does anyone know 
-what's wrong here?
+--=-Jwk5iTOCZt6pcsnRTeIr
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thanks in advance,
+On Fri, 2004-03-26 at 08:14, Stephen Smalley wrote:
+> On Thu, 2004-03-25 at 14:30, Chris PeBenito wrote:
+> > Over the last couple weeks I've been working on a SELinux status tool.=20
+>
+> Thanks, this seems like a good idea.  Did you consider readlink of
+> /proc/pid/exe rather than read of /proc/pid/cmdline when trying to find
+> the process for a given program?  I suppose that might be a problem if
+> they can't become root on the system, but it would offer a more reliable
+> path for the executable.  Another possibility would be to scan
+> /proc/pid/maps.
 
-Koen
---
-"You do not truly know someone until you fight them. "  (Seraph , "The 
-Matrix Reloaded")
+Good idea; I revised it to readlink /proc/pid/exe.  Problems from not
+being root doesn't really concern me.  Its more of an administrative
+tool anyway, and you already have to be sysadm_r to read selinuxfs
+entries.
 
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+
+--=-Jwk5iTOCZt6pcsnRTeIr
+Content-Disposition: attachment; filename=sestatus.c
+Content-Type: text/x-c; name=sestatus.c; charset=iso-8859-1
+Content-Transfer-Encoding: base64
+
+LyoNCiAqIENvcHlyaWdodCAxOTk5LTIwMDQgR2VudG9vIFRlY2hub2xvZ2llcywgSW5jLg0KICog
+RGlzdHJpYnV0ZWQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGlj
+ZW5zZSB2Mg0KICogJEhlYWRlcjogL2hvbWUvY3Zzcm9vdC9nZW50b28tcHJvamVjdHMvaGFyZGVu
+ZWQvcG9saWN5Y29yZXV0aWxzLWV4dHJhL3NyYy9zZXN0YXR1cy5jLHYgMS4xMCAyMDA0LzAzLzI2
+IDE5OjI1OjUyIHBlYmVuaXRvIEV4cCAkDQogKi8NCg0KI2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5j
+bHVkZSA8ZXJybm8uaD4NCiNpbmNsdWRlIDxzZWxpbnV4L3NlbGludXguaD4NCiNpbmNsdWRlIDxz
+eXMvdHlwZXMuaD4NCiNpbmNsdWRlIDxzeXMvc3RhdC5oPg0KI2luY2x1ZGUgPGRpcmVudC5oPg0K
+I2luY2x1ZGUgPHVuaXN0ZC5oPg0KDQojZGVmaW5lIFBST0NfQkFTRSAiL3Byb2MiDQojZGVmaW5l
+IE1BWF9DSEVDSyA1MA0KI2RlZmluZSBDT05GICIvZXRjL3Nlc3RhdHVzLmNvbmYiDQoNCi8qIGNv
+bmYgZmlsZSBzZWN0aW9ucyAqLw0KI2RlZmluZSBQUk9DUyAiW3Byb2Nlc3NdIg0KI2RlZmluZSBG
+SUxFUyAiW2ZpbGVzXSINCg0KLyogYnVmZmVyIHNpemUgZm9yIGNtcF9jbWRsaW5lICovDQojZGVm
+aW5lIEJVRlNJWkUgMjU1DQoNCmV4dGVybiBjaGFyICpzZWxpbnV4X21udDsNCg0KaW50IGNtcF9j
+bWRsaW5lKGNvbnN0IGNoYXIgKmNvbW1hbmQsIGludCBwaWQpIHsNCg0KCWNoYXIgYnVmW0JVRlNJ
+WkVdOw0KCWNoYXIgZmlsZW5hbWVbQlVGU0laRV07DQoNCgltZW1zZXQoYnVmLCAnXDAnLCBCVUZT
+SVpFKTsNCg0KCS8qIGZpcnN0IHJlYWQgdGhlIHByb2MgZW50cnkgKi8NCglzcHJpbnRmKGZpbGVu
+YW1lLCIlcy8lZC9leGUiLFBST0NfQkFTRSxwaWQpOw0KDQoJaWYoIHJlYWRsaW5rKGZpbGVuYW1l
+LGJ1ZixCVUZTSVpFKSA8IDAgKQ0KCQlyZXR1cm4gMDsNCg0KCWlmKCBidWZbQlVGU0laRS0xXSAh
+PSAnXDAnICkNCgkJYnVmW0JVRlNJWkUtMV0gPSAnXDAnOw0KDQoJLyogY2hlY2sgaWYgdGhpcyBp
+cyB0aGUgY29tbWFuZCB3ZSdyZSBsb29raW5nIGZvci4gKi8NCglpZiggc3RybmNtcChjb21tYW5k
+LGJ1ZixzdHJsZW4oY29tbWFuZCkpID09IDAgKQ0KCQlyZXR1cm4gMTsNCgllbHNlDQoJCXJldHVy
+biAwOw0KfQ0KDQppbnQgcGlkb2YoY29uc3QgY2hhciAqY29tbWFuZCkgew0KLyogaW5zcGlyZWQg
+Ynkga2lsbGFsbDUuYyBmcm9tIHBzbWlzYyAqLw0KCURJUiAqZGlyOw0KCXN0cnVjdCBkaXJlbnQg
+KmRlOw0KCWludCBwaWQsIHJldD0tMSwgc2VsZj1nZXRwaWQoKTsNCg0KCWlmKCEoZGlyID0gb3Bl
+bmRpcihQUk9DX0JBU0UpKSkgew0KCQlwZXJyb3IoUFJPQ19CQVNFKTsNCgkJcmV0dXJuIC0xOw0K
+CX0NCg0KCXdoaWxlKCAoZGUgPSByZWFkZGlyKGRpcikpICE9IE5VTEwpIHsNCgkJaWYgKCEocGlk
+ID0gYXRvaSAoZGUtPmRfbmFtZSkpIHx8IHBpZCA9PSBzZWxmKQ0KCQkJY29udGludWU7DQoJCWlm
+KGNtcF9jbWRsaW5lKGNvbW1hbmQscGlkKSkgew0KCQkJcmV0PXBpZDsNCgkJCWJyZWFrOw0KCQl9
+DQoJfQ0KCWNsb3NlZGlyKGRpcik7DQoJcmV0dXJuIHJldDsNCn0NCg0Kdm9pZCBsb2FkX2NoZWNr
+cyhjaGFyICpwY1tdLCBpbnQgKm5wYywgY2hhciAqZmNbXSwgaW50ICpuZmMpIHsNCg0KCUZJTEUg
+KmZwPWZvcGVuKENPTkYsInIiKTsNCgljaGFyICBidWZbMjU1XSwgKmJ1ZnA7DQoJaW50IGJ1Zl9s
+ZW4sIHNlY3Rpb249LTE7DQoJaW50IHByb2NsZW49c3RybGVuKFBST0NTKTsNCglpbnQgZmlsZWxl
+bj1zdHJsZW4oRklMRVMpOw0KDQoJaWYoIGZwID09IE5VTEwgKSB7DQoJCXByaW50ZigiXG5VbmFi
+bGUgdG8gb3BlbiAlcy5cbiIsQ09ORik7DQoJCXJldHVybjsNCgl9DQoNCgl3aGlsZSghZmVvZihm
+cCkpIHsNCgkJaWYoIWZnZXRzKGJ1Ziwgc2l6ZW9mIGJ1ZiwgZnApKQ0KCQkJYnJlYWs7DQoNCgkJ
+YnVmX2xlbiA9IHN0cmxlbihidWYpOw0KCQlpZihidWZbYnVmX2xlbi0xXSA9PSAnXG4nKQ0KCQkJ
+YnVmW2J1Zl9sZW4tMV0gPSAwOw0KDQoJCWJ1ZnAgPSBidWY7DQoJCXdoaWxlKCpidWZwICYmIGlz
+c3BhY2UoKmJ1ZnApKQ0KCQkJYnVmcCsrOw0KDQoJCWlmKCpidWZwID09ICcjJykNCgkJCS8qIHNr
+aXAgY29tbWVudHMgKi8NCgkJCWNvbnRpbnVlOw0KDQoJCWlmKCAqYnVmcCApIHsNCgkJCWlmKCEo
+KmJ1ZnApKQ0KCQkJCWdvdG8gb3V0Ow0KDQoJCQlpZihzdHJuY21wKGJ1ZnAsUFJPQ1MscHJvY2xl
+bikgPT0gMCkNCgkJCQlzZWN0aW9uPTA7DQoJCQllbHNlIGlmKHN0cm5jbXAoYnVmcCxGSUxFUyxm
+aWxlbGVuKSA9PSAwKQ0KCQkJCXNlY3Rpb249MTsNCgkJCWVsc2Ugew0KCQkJCXN3aXRjaCggc2Vj
+dGlvbiApIHsNCgkJCQkJY2FzZSAwOg0KCQkJCQkJcGNbKm5wY109KGNoYXIqKW1hbGxvYygoYnVm
+X2xlbikqc2l6ZW9mKGNoYXIpKTsNCgkJCQkJCW1lbWNweShwY1sqbnBjXSxidWZwLGJ1Zl9sZW4p
+Ow0KCQkJCQkJKCpucGMpKys7DQoJCQkJCQlidWZwPU5VTEw7DQoJCQkJCQlicmVhazsNCgkJCQkJ
+Y2FzZSAxOg0KCQkJCQkJZmNbKm5mY109KGNoYXIqKW1hbGxvYygoYnVmX2xlbikqc2l6ZW9mKGNo
+YXIpKTsNCgkJCQkJCW1lbWNweShmY1sqbmZjXSxidWZwLGJ1Zl9sZW4pOw0KCQkJCQkJKCpuZmMp
+Kys7DQoJCQkJCQlidWZwPU5VTEw7DQoJCQkJCQlicmVhazsNCgkJCQkJZGVmYXVsdDoNCgkJCQkJ
+LyogaWdub3JlIGxpbmVzIGJlZm9yZSBhIHNlY3Rpb24gKi8NCgkJCQkJCXByaW50ZigiTGluZSBu
+b3QgaW4gYSBzZWN0aW9uOiAlcy5cbiIsYnVmKTsNCgkJCQkJCWJyZWFrOw0KCQkJCX0NCgkJCX0N
+CgkJfQ0KCX0NCm91dDoNCglmY2xvc2UoZnApOw0KCXJldHVybjsNCn0NCg0KDQppbnQgbWFpbihp
+bnQgYXJnYywgY2hhciAqKmFyZ3YpIHsNCgkvKiB0aGVzZSB2YXJzIGFyZSByZXVzZWQgc2V2ZXJh
+bCB0aW1lcyAqLw0KCWludCByYywgaSxqLGM7DQoJY2hhciAqY29udGV4dDsNCg0KCS8qIGZpbGVz
+IHRoYXQgbmVlZCBjb250ZXh0IGNoZWNrcyAqLw0KCWNoYXIgKmZjW01BWF9DSEVDS107DQoJY2hh
+ciAqY3Rlcm09dHR5bmFtZSgwKTsNCglpbnQgbmZjPTA7DQoJc3RydWN0IHN0YXQgbTsNCg0KCS8q
+IHByb2Nlc3NlcyB0aGF0IG5lZWQgY29udGV4dCBjaGVja3MgKi8NCgljaGFyICpwY1tNQVhfQ0hF
+Q0tdOw0KCWludCBucGM9MDsNCg0KCWM9Z2V0b3B0KGFyZ2MsIGFyZ3YsICJ2Iik7DQoNCglwcmlu
+dGYoIlNFTGludXggc3RhdHVzOlx0XHQiKTsNCglyYz1pc19zZWxpbnV4X2VuYWJsZWQoKTsNCg0K
+CXN3aXRjaChyYykgew0KCQljYXNlIDE6DQoJCQlwcmludGYoImVuYWJsZWRcbiIpOw0KCQkJYnJl
+YWs7DQoJCWNhc2UgMDoNCgkJCXByaW50ZigiZGlzYWJsZWRcbiIpOw0KCQkJcmV0dXJuIDA7DQoJ
+CQlicmVhazsNCgkJY2FzZSAtMToNCgkJCXBlcnJvcigidW5rbm93biIpOw0KCQkJcmV0dXJuIDA7
+DQoJCQlicmVhazsNCgkJZGVmYXVsdDoNCgkJCXByaW50ZigiVW5rbm93biBpc19zZWxpbnV4X2Vu
+YWJsZWQoKSByZXR1cm4gY29kZTogJWRcbiIscmMpOw0KCQkJcmV0dXJuIDA7DQoJCQlicmVhazsN
+Cgl9DQoNCglwcmludGYoIlNFTGludXhmcyBtb3VudDpcdCIpOw0KCWlmKCBzZWxpbnV4X21udCAh
+PSBOVUxMKSB7DQoJCXByaW50ZigiJXNcbiIsc2VsaW51eF9tbnQpOw0KCX0gZWxzZSB7DQoJCXBy
+aW50Zigibm90IG1vdW50ZWRcblxuIik7DQoJCXByaW50ZigiUGxlYXNlIG1vdW50IHNlbGludXhm
+cyBmb3IgcHJvcGVyIHJlc3VsdHMuXG4iKTsNCgkJcmV0dXJuIC0xOw0KCX0NCg0KCXByaW50Zigi
+Q3VycmVudCBNb2RlOlx0XHQiKTsNCglyYz1zZWN1cml0eV9nZXRlbmZvcmNlKCk7DQoJc3dpdGNo
+KHJjKSB7DQoJCWNhc2UgMToNCgkJCXByaW50ZigiZW5mb3JjaW5nXG4iKTsNCgkJCWJyZWFrOw0K
+CQljYXNlIDA6DQoJCQlwcmludGYoInBlcm1pc3NpdmVcbiIpOw0KCQkJYnJlYWs7DQoJCWRlZmF1
+bHQ6DQoJCQlwcmludGYoInVua25vd25cbiIpOw0KCQkJYnJlYWs7DQoJfQ0KDQoJcmMgPSBzZWN1
+cml0eV9wb2xpY3l2ZXJzKCk7DQoJcHJpbnRmKCJQb2xpY3kgdmVyc2lvbjpcdFx0JWRcbiIscmMp
+Ow0KDQoJLyogb25seSBzaG93IGNvbnRleHRzIGlmIC12IGlzIGdpdmVuICovDQoJaWYoYyAhPSAn
+dicpIHJldHVybiAwOw0KDQoJbG9hZF9jaGVja3MocGMsJm5wYyxmYywmbmZjKTsNCg0KCXByaW50
+ZigiXG5Qcm9jZXNzIGNvbnRleHRzOlxuIik7DQoJZ2V0Y29uKCZjb250ZXh0KTsNCglwcmludGYo
+IkN1cnJlbnQgY29udGV4dDpcdCVzXG4iLGNvbnRleHQpOw0KCWZyZWVjb24oY29udGV4dCk7DQoN
+CglnZXRwaWRjb24oMSwmY29udGV4dCk7DQoJcHJpbnRmKCIvc2Jpbi9pbml0XHRcdCVzXG4iLGNv
+bnRleHQpOw0KCWZyZWVjb24oY29udGV4dCk7DQoNCglmb3IoIGk9MCA7IGk8bnBjIDsgaSsrICkg
+ew0KCQlyYz1waWRvZihwY1tpXSk7DQoJCWlmKHJjID4gMCkgew0KCQkJZ2V0cGlkY29uKHJjLCZj
+b250ZXh0KTsNCg0KCQkJcHJpbnRmKCIlcyIscGNbaV0pOw0KDQoJCQkvKiBpbnNlcnQgdGhlIHJp
+Z2h0IG51bWJlciBvZiB0YWJzICovDQoJCQlyYz0oKDMyLXN0cmxlbihwY1tpXSkpLzgpOw0KCQkJ
+Zm9yKCBqPTAgOyBqPHJjIDsgaisrICkNCgkJCQlwcmludGYoIlx0Iik7DQoNCgkJCXByaW50Zigi
+JXNcbiIsY29udGV4dCk7DQoJCQlmcmVlY29uKGNvbnRleHQpOw0KCQl9DQoJfQ0KDQoJcHJpbnRm
+KCJcbkZpbGUgY29udGV4dHM6XG4iKTsNCg0KCS8qIGNvbnRyb2xsaW5nIHRlcm0gKi8NCglsZ2V0
+ZmlsZWNvbihjdGVybSwmY29udGV4dCk7DQoJcHJpbnRmKCJDb250cm9sbGluZyBUZXJtOlx0JXNc
+biIsY29udGV4dCk7DQoJZnJlZWNvbihjb250ZXh0KTsNCg0KCWZvciggaT0wIDsgaTxuZmMgOyBp
+KysgKSB7DQoJCWlmKCBsZ2V0ZmlsZWNvbihmY1tpXSwmY29udGV4dCkgPj0gMCApIHsNCgkJCXBy
+aW50ZigiJXMiLGZjW2ldKTsNCg0KCQkJLyogaW5zZXJ0IHRoZSByaWdodCBudW1iZXIgb2YgdGFi
+cyAqLw0KCQkJcmM9KCgzMi1zdHJsZW4oZmNbaV0pKS84KTsNCgkJCWZvciggaj0wIDsgajxyYyA7
+IGorKyApDQoJCQkJcHJpbnRmKCJcdCIpOw0KDQoJCQkvKiBjaGVjayBpZiB0aGlzIGlzIGEgc3lt
+bGluayAqLw0KCQkJbHN0YXQoZmNbaV0sJm0pOw0KCQkJaWYoIFNfSVNMTksobS5zdF9tb2RlKSAp
+IHsNCgkJCQkvKiBwcmludCBsaW5rIHRhcmdldCBjb250ZXh0ICovDQoJCQkJcHJpbnRmKCIlcyAt
+PiAiLGNvbnRleHQpOw0KCQkJCWZyZWVjb24oY29udGV4dCk7DQoJCQkJZ2V0ZmlsZWNvbihmY1tp
+XSwmY29udGV4dCk7DQoJCQl9DQoNCgkJCXByaW50ZigiJXNcbiIsY29udGV4dCk7DQoJCX0NCgkJ
+ZnJlZWNvbihjb250ZXh0KTsNCgl9DQoJcmV0dXJuIDA7DQp9DQo=
+
+--=-Jwk5iTOCZt6pcsnRTeIr--
+
+--=-fO6GWhsAJJwIRoc5iitg
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAZIs3vI7kLeavkkMRAkQUAJwK2W/Z6gKEDtpjah58DKUDreCg7QCfRujM
+5fmpMsR02Vs/k7lwteutgNM=
+=Hb2J
+-----END PGP SIGNATURE-----
+
+--=-fO6GWhsAJJwIRoc5iitg--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
