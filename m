@@ -1,42 +1,29 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4B0QWRb018784
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 20:26:32 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4B0OC5b016260
-	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 00:24:12 GMT
-Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
-	by jazzswing.ncsc.mil  with ESMTP id i4B0OCql016257
-	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 00:24:12 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by abyss.simplyaquatics.com (Postfix) with ESMTP id 873AD3A404E
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 19:26:25 -0500 (CDT)
-Received: from TECRAS1 (simplyaquatics.com [209.192.116.78])
-	by abyss.simplyaquatics.com (Postfix) with ESMTP id F39A33A404E
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 19:26:23 -0500 (CDT)
-From: "Ed Street" <edstreet@street-tek.com>
-To: "'Selinux'" <selinux@tycho.nsa.gov>
-Subject: presentation results
-Date: Mon, 10 May 2004 20:26:23 -0400
-MIME-Version: 1.0
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4B2YRRb019236
+	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 22:34:28 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4B2YPYW022220
+	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 02:34:25 GMT
+Received: from ercist.iscas.ac.cn ([159.226.5.94])
+        by jazzband.ncsc.mil  with ESMTP id i4B2YJBf022215 for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 02:34:24 GMT
+Date: Tue, 11 May 2004 10:36:25 +0800
+From: "=?gb2312?B?wO7A9sa8?=" <llp@ercist.iscas.ac.cn>
+To: "selinux" <selinux@tycho.nsa.gov>
+Subject: selopt  &   dsi
+Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <20040510075114.B7373@lemuria.org>
-Message-Id: <20040511002623.F39A33A404E@abyss.simplyaquatics.com>
+	charset="gb2312"
+Message-ID: <hoic78cgsptv81w.110520041038@ercist.iscas.ac.cn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
 
-Another question that was raised, someone ask if the file system is setup
-like NTFS.  Anyone care to comment on this one?
+How do you think about DSI (Distributed Security Infrastructure)? I think selopt can do better if it is developed to support labeled communication between different security perimeters. 
 
-Ed
+Is there any working still continue to develop SeLopt on distributed network area?
 
----
 
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004
- 
+
 
 
 --
