@@ -1,60 +1,57 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8OIcgsJ019685
-	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 14:38:42 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8OIjisJ019770
+	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 14:45:45 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8OI0AkG029139
-	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 18:38:39 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h8OEhg1A023516 for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 14:43:42 GMT
-Subject: [patch] Fix bug in SELinux convert_context
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-   lkml <linux-kernel@vger.kernel.org>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Message-Id: <1064414610.20804.54.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 24 Sep 2003 10:43:30 -0400
+	by jazzband.ncsc.mil  with ESMTP id h8OIitCg006749
+	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 18:45:38 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h8OEIs1A022764 for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 14:18:57 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Inger, Slav (S.B.)" <vinger@ford.com>,
+   "'russell@coker.com.au'" <russell@coker.com.au>,
+   "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Re: Sample SELinux policy that's equivalent to standard root?
+Date: Thu, 25 Sep 2003 00:18:48 +1000
+References: <F5441DDE18FFD9418974338018C522B718BDAC@na1fcm61.dearborn.ford.com>
+In-Reply-To: <F5441DDE18FFD9418974338018C522B718BDAC@na1fcm61.dearborn.ford.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200309250018.48101.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch fixes a bug introduced by earlier code cleanups in the
-SELinux convert_context code that manifests upon a policy reload that
-removes previously valid security attributes.  Thanks to Magosanyi Arpad
-for reporting the bug.
+On Wed, 24 Sep 2003 23:46, Inger, Slav (S.B.) wrote:
+> > Why would you want things to be other than they are in the default
+> > policy?
+>
+> Because, like I said in the earlier message, I'd like to start with full
+> root permissions and tighten up, instead of doing it the other way around. 
+> Basically, I'd like to put together a quick POC where I'd like to
+> demonstrate that while SE root can do everything a regular root can,
+> several files and processes will be off limits to root.  Enabling 99% of
+> typical root functionality manually is turning out to be a time consuming
+> process.
 
- security/selinux/ss/services.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
+sysadm_t has 99% of typical root functionality.
 
-Index: linux-2.6/security/selinux/ss/services.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/services.c,v
-retrieving revision 1.28
-diff -u -r1.28 services.c
---- linux-2.6/security/selinux/ss/services.c	17 Jul 2003 11:33:35 -0000	1.28
-+++ linux-2.6/security/selinux/ss/services.c	24 Sep 2003 13:08:40 -0000
-@@ -896,13 +896,15 @@
- 	struct user_datum *usrdatum;
- 	char *s;
- 	u32 len;
--	int rc = -EINVAL;
-+	int rc;
- 
- 	args = p;
- 
- 	rc = context_cpy(&oldc, c);
- 	if (rc)
- 		goto out;
-+
-+	rc = -EINVAL;
- 
- 	/* Convert the user. */
- 	usrdatum = hashtab_search(args->newp->p_users.table,
+Off the top of my head the things that sysadm_t can't do are:
+1) fdisk > file
 
+2) direct access to /etc/shadow (all the usual tools work with wrappers).
+
+3) Start daemon with usual scripts (have to use run_init).
+
+4) sysadm_crond_t has little access
+
+What things have been giving you problems?
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
