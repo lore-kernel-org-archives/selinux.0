@@ -1,46 +1,37 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CI7jIi017550
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 13:07:45 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CI90Ii017571
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 13:09:00 -0500 (EST)
 Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CI5m8I007775
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 18:05:49 GMT
-Date: Wed, 12 Jan 2005 18:18:14 +0000
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CI738I007860
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 18:07:04 GMT
+Date: Wed, 12 Jan 2005 18:19:31 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
-Subject: Re: Multiple contexts
-Message-ID: <20050112181814.GD26175@lkcl.net>
-References: <1105390249.8093.21.camel@cobra.ivg2.net> <20050110232312.GI6967@lkcl.net> <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil> <20050111214818.GE26175@lkcl.net> <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil> <20050112144411.GZ26175@lkcl.net> <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Colin Walters <walters@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+   SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Added is_context_configurable function
+Message-ID: <20050112181931.GE26175@lkcl.net>
+References: <41E2FEF4.5070604@redhat.com> <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil> <41E3FAF4.2060109@redhat.com> <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil> <1105481440.24748.22.camel@nexus.verbum.private> <1105539555.22495.28.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1105539555.22495.28.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jan 12, 2005 at 10:00:47AM -0500, Stephen Smalley wrote:
-> On Wed, 2005-01-12 at 09:44, Luke Kenneth Casson Leighton wrote:
-> >  ... how about encoding the file attributes in the policy files,
-> >  such that they are ACL-like?
+On Wed, Jan 12, 2005 at 09:19:15AM -0500, Stephen Smalley wrote:
+> On Tue, 2005-01-11 at 17:10, Colin Walters wrote:
+> > I've said this before, but I don't like the idea of having to edit
+> > file_contexts whenever I want to change the labels.  I feel that the 
+> > on-disk version should be canonical, and the file_contexts only used for
+> > system initialization.
 > 
-> I don't follow your line of thinking.  
+> That is also my view.  However, if people are going to run setfiles or
+> restorecon at runtime to check or set contexts (which is current
+> practice in Fedora), then we do need a way to distinguish legitimate
+> customizations 
 
- sorry.
-
- something simple:
-
- i am thinking along the lines of more than one file context being
- associated with a file - that sort of thing.
-
- and permission being checked and allowed on either of the contexts.
-
- in this way, someone can keep the default policy made for apache
- (both the .te and the .fc file)
-
- and can also create their own home-grown policy.
-
- the issue of creating a special "samba_apache_file_type_t" and
- deviating from two sets of standard policy files does seem...
- somewhat archaic.
+ ... so there _is_ actually a genuine requirement to minimise the
+ number of changes to policy files?
 
  l.
 
