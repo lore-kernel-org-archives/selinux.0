@@ -1,14 +1,41 @@
-Date: Wed, 28 Mar 2001 15:59:34 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Rajan Ravindran <rajancr@us.ibm.com>
-cc: SELinux@tycho.nsa.gov
+From: gawain.lynch@felicity-consulting.com.au
+To: SELinux@tycho.nsa.gov
 Subject: Re: Problem in installation...
-In-Reply-To: <OFD5847509.3CE84D5D-ON85256A1D.00715B88@pok.ibm.com>
-Message-ID: <Pine.SOL.3.95.1010328155612.13062K-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <OF47CED767.27D7E95D-ONCA256A1D.007D6A98@felicity.net.au>
+Date: Thu, 29 Mar 2001 08:57:41 +1000
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+I tracked one of the problems down.  A lot of people, myself included seem 
+to be trying to compile with Red Hat 7. 
+
+The RH7 install is missing egcs (provides 
+/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/), which I installed off 
+my RH6.2 CD, _reinstalled_ the updated gcc and no more stddef.h error!
+
+I still can't give anymore reasons as to the tools/build-kernel script 
+fails, but it will work if you have run make dep and commented that action 
+out of the script.
+
+Cheers,
+
+Gawain
+
+
+
+
+
+Stephen Smalley <sds@tislabs.com>
+Sent by: owner-selinux@tycho.nsa.gov
+03/29/01 06:59 AM
+
+ 
+        To:     Rajan Ravindran <rajancr@us.ibm.com>
+        cc:     SELinux@tycho.nsa.gov
+        Subject:        Re: Problem in installation...
+
 
 
 Several people have reported problems using the build-kernel script,
@@ -21,7 +48,7 @@ cd slinux
 ln -sf kernel-2.4 kernel
 cd kernel
 make xconfig
-	(Configure the kernel appropriately for your hardware.)
+                 (Configure the kernel appropriately for your hardware.)
 make dep
 make 
 make modules
@@ -48,9 +75,8 @@ On Wed, 28 Mar 2001, Rajan Ravindran wrote:
 > happening while running make xconfig itself (stddef.h is present
 > in kernel/linux/include directory). If anyone
 > knows the solution for this problem, please let me know.
-> 
-> Thanks,
-> Rajan.
+
+
 
 
 --
