@@ -1,51 +1,69 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1R1RODs018409
+	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 20:27:47 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1QAe8GK012082
+	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 10:41:23 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: fedora-devel-list@redhat.com
+To: Mihai Maties <mihai@xcyb.org>
 Subject: Re: writing zero bytes in bash
-Date: Sat, 26 Feb 2005 21:47:52 +1100
-Cc: Miloslav Trmac <mitr@volny.cz>, SELinux@tycho.nsa.gov
-References: <200502261832.16337.russell@coker.com.au> <20050226103915.GB28440@chrys.ms.mff.cuni.cz>
-In-Reply-To: <20050226103915.GB28440@chrys.ms.mff.cuni.cz>
+Date: Sat, 26 Feb 2005 21:39:42 +1100
+Cc: fedora-devel-list@redhat.com, "SE-Linux" <selinux@tycho.nsa.gov>
+References: <200502261832.16337.russell@coker.com.au> <200502261048.28448.mihai@xcyb.org>
+In-Reply-To: <200502261048.28448.mihai@xcyb.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200502262147.55747.russell@coker.com.au>
+Message-Id: <200502262139.45861.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Interesting comment.  I'm replying with the SE Linux list CC'd so everyone 
-who's involved can comment.
-
-Maybe a change to make "\n" equivalent to "" in the SE Linux kernel interfaces 
-in question would be appropriate then?  For the SE Linux interfaces in 
-question a '\n' character is not valid in any part of the input and the input 
-must contain three fields separated by colons, so a special case of "\n" 
-being equivalent to "" can not cause any confusion.
-
-Also as a side note, in the normal use only libselinux.so has any code which 
-does such zero byte writes.  Doing it from bash is only needed for testing, 
-debugging, and educational purposes.
-
-On Saturday 26 February 2005 21:39, Miloslav Trmac <mitr@volny.cz> wrote:
-> On Sat, Feb 26, 2005 at 06:32:13PM +1100, Russell Coker wrote:
-> > To unset the fscreate or exec context you have to write zero bytes
-> > to /proc/self/attr/fscreate or /proc/self/attr/exec respectively.
+On Saturday 26 February 2005 19:48, Mihai Maties <mihai@xcyb.org> wrote:
+> On Saturday 26 February 2005 09:32, Russell Coker wrote:
+> > It opens the file with O_CREAT (so if you were to do `echo -n "" >
+> > /tmp/flag` to create a flag file then it would work as expected), but
+> > never calls the write(2) system call.
+> >
+> > To unset the fscreate or exec context you have to call write(fd, X, 0)
+> > (the value of X doesn't seem to matter as the kernel code doesn't
+> > dereference it).
 >
-> I personally think this is the problem - no interface should require
-> writing 0 bytes.
+> As a sidenote, dd behaves the same. dd if=/dev/null of=something does not
+> call write(2) because it doesn't need to write anything. Since no records
+> were read it assumes that no records must be written. Again, the output
+> file would be created because of the open("something", O_CREAT) call.
+
+However dd bs=0 is an error, so dd refuses to operate in a situation where the 
+operater specifically requests a zero write.
+
+> > So it seems reasonable to me to consider this to be a bug in bash where
+> > it's optimisation of shell code results in the action requested by the
+> > user not being performed correctly.
 >
-> To quote the POSIX spec:
-> | Before  any  action described below is taken, and if nbyte is zero and
-> | the file is a regular file, the write() function may detect and return
-> | errors  as  described  below.  In  the  absence of errors, or if error
-> | detection is not performed, the write() function shall return zero and
-> | have no other results.  If nbyte is zero and the file is not a regular
-> | file, the results are unspecified.
+> It's quite logical since if you do not have something to write, to not try
+> to write it.
+
+That's one approach to the issue.  The other is that if the administrator 
+requests an operation then it should be completed.  In the majority of 
+situations where a user requests a strange operation Unix complies and does 
+as requested.  The expectation of a Unix system is that what you request will 
+be done even if it is bad for you, so why not do what is requested just 
+because it seems redundant?
+
+Someone who does "echo -n > foo" to create file foo could have just as easily 
+done "touch foo".
+
+> > I expect that the bash developers may disagree with this assessment so I
+> > would like some more input on the lists before I file a bug report.
 >
-> Files in /proc _are_ regular files, as far as stat() is concerned, so
-> I don't think you can require that portable programs give you the
-> possibility to write 0 bytes to these files.
->  Mirek
+> If I were a bash developer I would disagree with you :) You would ask me to
+> make a workaround in bash to solve an issue that has its roots somewhere
+> else...
+
+Actually I am not asking for a feature to be added, but for a feature to be 
+removed.  There is special-case code in bash if(size >0) write() and I am 
+merely suggesting that the if statement be removed.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
