@@ -1,50 +1,46 @@
-Subject: root and change of passwords
-From: DeadManMoving <sequel@neofreak.org>
-Reply-To: sequel@neofreak.org
-To: sds@epoch.ncsc.mil
-Cc: SELinux@tycho.nsa.gov
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j07L5TIi018520
+	for <selinux@tycho.nsa.gov>; Fri, 7 Jan 2005 16:05:29 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j07L3a0j015348
+	for <selinux@tycho.nsa.gov>; Fri, 7 Jan 2005 21:03:36 GMT
+Received: from [144.51.25.121] (moss-spartans [144.51.25.121])
+	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id j07L5lnL028605
+	for <selinux@tycho.nsa.gov>; Fri, 7 Jan 2005 16:05:47 -0500 (EST)
+Subject: Updated SELinux Release
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Fri, 07 Jan 2005 14:09:00 -0500
-Message-Id: <1105124940.27291.20.camel@sequel.info.polymtl.ca>
+Message-Id: <1105131588.28680.379.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 07 Jan 2005 15:59:48 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+An updated SELinux release is available from the NSA SELinux web site;
+see http://www.nsa.gov/selinux/news.cfm#R050107.  This release is based
+on Linux 2.6.10, but the current SELinux patch for the kernel includes a
+number of changes merged after 2.6.10 was released, including the AVC
+scalability work, AVC API and statistics support, dynamic context
+transition support, and enhanced controls over executable mappings.  The
+checkpolicy policy compiler has been updated to order node context
+entries and to support supplementary type attribute declarations. 
+Several improvements to libselinux, policycoreutils, and policy have
+been merged.  Updated versions of setools, slat, and polgen were added. 
+The selinux-doc CREDITS file
+and Contributors web page have been updated.
 
-i've recently find a bug in the implementation of SELinux in gentoo
-(http://bugs.gentoo.org/show_bug.cgi?id=76701) and debian (well, at
-least with md5 and shadow password enabled) that let root change other
-users passwords even when he's not in sysadm_r:sysadm_t context.
+As discussed on the list after the last release, we have reduced the NSA
+SELinux release to just the core SELinux code, dropping the patched
+userland packages, the prepatched kernel tarball, and the full userland
+tarball.  Information about obtaining patched userland packages for
+various distributions is available from the sourceforge selinux site
+(http://selinux.sf.net), and a reference set of SELinux userland patches
+is available in the public Fedora CVS tree.
 
-I've then contacted the gentoo hardened team and told them about it.
-They've asked me to fill a bug report and told me it was surely a
-problem with pam and the SELinux patch for pam.
-
-Willing to try to fix the problem by myself, i've made an ebuild for pam
-with the latest SRPM of fedora pam implementation. That did not solve
-the problem.
-
-So i went back to the gentoo hardened team and told them my experience
-with the fedora pam implementation. They then told me they were now
-thinking the problem was with the passwd program from the shadow suite.
-
-That was making a lot of sense since fedora do not use the passwd
-program from the shadow suite but instead use the passwd suite (passwd
-package and libuser package) from red hat.
-
-Still willing to fix that, i've given the red hat passwd suite a try on
-my gentoo installation and yes! it works quite well!
-
-I say quite well (and here's my question) cause i see that root is still
-able to change his own password even not in the sysadm_r:sysadm_t
-context. Is that a desired behavior? Would that be easy to implement and
-more secure if root could only change his own password when in the
-sysadm_r:sysadm_t context?
-
-Thanks a lot for your time,
-
-Tony Lapointe
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
