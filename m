@@ -1,60 +1,45 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1M6DRdW020898
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 01:13:28 -0500 (EST)
-Received: from mail02.infosat.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1M6BAZE017226
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 06:11:13 GMT
-Received: from [196.38.110.14] (HELO mail01.infosat.net)
-  by mail02.infosat.net (CommuniGate Pro SMTP 4.1.8)
-  with ESMTP id 207393770 for selinux@tycho.nsa.gov; Tue, 22 Feb 2005 08:10:54 +0200
-Received: from [66.18.72.157] (HELO hivsa.com)
-  by mail01.infosat.net (CommuniGate Pro SMTP 4.1.8)
-  with SMTP id 644353850 for selinux@tycho.nsa.gov; Tue, 22 Feb 2005 08:10:54 +0200
-From: Jayendren Anand Maduray <jayendren@hivsa.com>
-Reply-To: jayendren@mweb.co.za
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: fc3 - password change problem - syslog and portmapper
-Date: Tue, 22 Feb 2005 08:09:40 +0200
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1M6t4dW020989
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 01:55:04 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1M6qmZE017767
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 06:52:49 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: jayendren@mweb.co.za
+Subject: Re: fc3 - password change problem - syslog and portmapper
+Date: Tue, 22 Feb 2005 17:52:31 +1100
+Cc: "SE-Linux" <selinux@tycho.nsa.gov>
+References: <200502220809.40631.jayendren@hivsa.com>
+In-Reply-To: <200502220809.40631.jayendren@hivsa.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200502220809.40631.jayendren@hivsa.com>
+  charset="iso-8859-1"
+Message-Id: <200502221752.34349.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+On Tuesday 22 February 2005 17:09, Jayendren Anand Maduray 
+<jayendren@hivsa.com> wrote:
+> 1. however when i try to change my password, i get the ffg error:
+> SystemError: couldn't get security context of `/etc/passwd': No data
+> available
 
-Got FC3 running SELINUX in enforcing mode.
+Do you get any AVC messages?  If so what are they?
 
-1. however when i try to change my password, i get the ffg error:
-SystemError: couldn't get security context of `/etc/passwd': No data available
+What is the output of "ls -lZ /etc/passwd"?
 
-2. also, when i boot up, syslogd, and portmap cannot start, so i disabled it 
-in SELinux. i would like to get this to work, though.
+> 2. also, when i boot up, syslogd, and portmap cannot start, so i disabled
+> it in SELinux. i would like to get this to work, though.
 
-i am running kernel Linux shiva 2.6.10-1.741_FC3smp
-
-thanks in advance for ur time and co-operation.
-
-God bless.
-
+How are they unable to start?  Are there any AVC messages?  Is there something 
+in syslog?
 
 -- 
-Jayendren Anand Maduray
-Microsoft Certified Professional
-Network Plus
-IT Administrator  
-
-Perinatal HIV Research Unit
-Old Potch Road
-Chris Hani Baragwanath Hospital
-Soweto
-South Africa
-
-Tel: +27 11 989 9776
-Tel: +27 11 989 9999
-Fax: +27 11 938 3973
-Cel: 082 22 774 94
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
