@@ -1,39 +1,47 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA10380
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 09:28:07 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA11029
+	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 11:02:55 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA13654
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 13:26:56 GMT
+	by jazzband.ncsc.mil  with ESMTP id PAA19184
+	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 15:01:44 GMT
 Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id NAA13650 for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 13:26:56 GMT
-Date: Fri, 19 Apr 2002 09:27:13 -0400 (EDT)
+        by jazzband.ncsc.mil  with ESMTP id PAA19180 for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 15:01:44 GMT
+Date: Fri, 19 Apr 2002 11:02:34 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Tom <tom@lemuria.org>
 cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: initrc question and initrc+proftpd patch
-In-Reply-To: <20020419150046.A19154@lemuria.org>
-Message-ID: <Pine.GSO.4.33.0204190919571.18117-100000@raven>
+Subject: Re: policy question
+In-Reply-To: <20020418183258.B7029@lemuria.org>
+Message-ID: <Pine.GSO.4.33.0204191055190.18117-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 19 Apr 2002, Tom wrote:
+On Thu, 18 Apr 2002, Tom wrote:
 
-> That makes sense and leaves just one question: Why then do some of the
-> program.te files contain a domain transition for the sysadmin user?
-> snort is one example.
+> If that is so, then my question is answered. Is execution really the
+> only point for a domain transition? That would make sense, but I also
+> see reasons for doing transitions during other file access operations
+> (e.g. maybe you want to get a higher protection level while certain
+> files are open).
 
-Some programs are directly executed by administrators as utilities in
-addition to being executed from init scripts.  In that case, you can
-simply use a domain transition from sysadm_t to the program domain.
-However, I wouldn't be surprised if there are unnecessary transitions
-from sysadm_t to some of the program domains.
+I answered the more general question (can a process change its own SID) in
+the following message:
+http://marc.theaimsgroup.com/?l=selinux&m=101343633303503&w=2
+
+This is also discussed in the original design document, and is a criteria
+for secure systems identified in the background documents (in particular,
+the DTOS General System Security and Assurability Assessment Report,
+available from
+http://www.cs.utah.edu/flux/fluke/html/dtos/HTML/technical-docs.html).
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
+
+
 
 
 
