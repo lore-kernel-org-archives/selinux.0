@@ -1,50 +1,44 @@
-Date: Mon, 1 Apr 2002 09:34:45 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: <SeLinux@tycho.nsa.gov>
-Subject: Re: Troubles with 2.4.18 kernel
-In-Reply-To: <20020401135709.A7D9C46E@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0204010913010.20742-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA17239
+	for <selinux@tycho.nsa.gov>; Mon, 1 Apr 2002 14:23:38 -0500 (EST)
+From: belef24@ift.ulaval.ca
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA22614
+	for <selinux@tycho.nsa.gov>; Mon, 1 Apr 2002 19:22:31 GMT
+Received: from courriel.ift.ulaval.ca (courriel.ift.ulaval.ca [132.203.26.4])
+        by jazzband.ncsc.mil  with ESMTP id TAA22610 for <selinux@tycho.nsa.gov>; Mon, 1 Apr 2002 19:22:30 GMT
+Received: (from nobody@localhost)
+	by courriel.ift.ulaval.ca (8.10.1/8.10.1) id g31JN4s16425
+	for selinux@tycho.nsa.gov; Mon, 1 Apr 2002 14:23:04 -0500
+To: <selinux@tycho.nsa.gov>
+Subject: Problem with newrole && || login.c
+Message-ID: <1017688984.3ca8b39827d25@courriel.ift.ulaval.ca>
+Date: Mon, 01 Apr 2002 14:23:04 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Mon, 1 Apr 2002, Russell Coker wrote:
-
-> Yes, that is the case with the 2.4.18 kernel patches now.  However a kernel
-> compiled with the older patch seems to work fine with utilities compiled
-> against the headers from the new one (some of the current patches for
-> utilities require the latest kernel patch for the latest headers though).
-
-Yes, I think that the lsm-full-2002_02_25 patch against 2.4.18 from
-lsm.immunix.org is "compatible" with the current SELinux release.
-However, it lacks some of the newer developments in the SELinux kernel
-module included in the NSA SELinux 2002031409 release (e.g. merging the
-Selopt labeled networking support by James Morris, starting to adapt
-SELinux to use that support, minimal labeling support for usbdevfs).
-These newer developments were pushed to the LSM BitKeeper tree after the
-NSA release was made, showing up in revision 1.322 of the lsm-2.4
-BitKeeper tree.
-
-> I expect that when 2.4.19 comes out then Immunix will have a patch that
-> incorporates your latest code at least a week before the main NSA site gets
-> it.
-
-If "latest code" means the code from the 2002031409 release (plus
-subsequent bug fixes, plus some new LSM hooks, plus any necessary updates
-to address changes in 2.4.19), then you may be right.  But if "latest
-code" means our latest stable internal version of the SELinux kernel
-module, then that code should show up first at the NSA site as a new
-release and only subsequently at the LSM site.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+--- newrole problem ---
+hi, when i try to change my role, i got this ( in debug mode ) :
+bash-2.05# newrole -r user_r
+Your type will be user_t.
+Your old SID was 157
+Your old context was system_u:system_r:sysadm_t
+system_u
+cannot find your entry in the passwd file.
+the system_u line is what context_user_get(context) return.
+So, i dont have any system_u in my passwd ( my passwd is normal like any other
+unix system ) maybe im wrong here??
+--- login problem ----
+ok my login problem is that i dont use PAM so i change it in MCONFIG to no and
+no login.c are compiled...i dont understand why and i suppose i must have a
+new login to work with my shadow. ( i use slack its why i dont use pam :) )
+Someone can help me please or got any idea? thx.
 
 
-
+-------------------------------------------------
+Ce message a été envoyé par le serveur IMP du département d'informatique à l'université Laval: courriel.ift.ulaval.ca
 
 --
 You have received this message because you are subscribed to the selinux list.
