@@ -1,57 +1,48 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i525R2rT001625
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 01:27:02 -0400 (EDT)
-Received: from imf24aec.mail.bellsouth.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i535QkeD019687
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 01:26:47 -0400 (EDT)
-Message-ID: <40BD6515.2090802@bellsouth.net>
-Date: Wed, 02 Jun 2004 01:26:45 -0400
-From: Jim McCullough <jwmccull@bellsouth.net>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Ed Street" <edstreet@street-tek.com>
+Subject: Re: apache under debian
+Date: Wed, 2 Jun 2004 15:45:05 +1000
+Cc: "SELinux" <SELinux@tycho.nsa.gov>
+References: <20040531174331.874163A404E@abyss.simplyaquatics.com>
+In-Reply-To: <20040531174331.874163A404E@abyss.simplyaquatics.com>
 MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: Russell Coker <russell@coker.com.au>, SE-Linux
- <selinux@tycho.nsa.gov>
-Subject: Re: dpkg-reconfigure xserver-xfree86
-References: <20040601122114.GI8312@lkcl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200406021545.05822.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have noticed the same issue with woody on one build when using 
-xf86config to build the config file for X. Same system also gave me 
-errors out the wazzu with handling support for X11-forwarded sessions 
-over ssh. Rerunning the postinst script usually fixes anything i decide 
-to monkey around with and break. Plus checking iptables first to make 
-sure I didnt add any ports that I shouldnt have.
+On Tue, 1 Jun 2004 03:43, "Ed Street" <edstreet@street-tek.com> wrote:
+> To be able to read the /var/www/ directory I had to add the following line.
+> #http stuff
+>
+> allow httpd_t var_t:file { getattr read };
 
-Jim McCullough
+That should not be necessary.
 
+daemon_domain(httpd, `, privmail')
 
-Luke Kenneth Casson Leighton wrote:
+The above line from httpd.te expands to:
 
->russell, hi,
->
->ah ha, you missed one :)
->
->i frequently use dpkg-reconfigure xserver-xfree86 to reconfig X.
->
->and of course a run_init /etc/init.d/kdm restart throws a wobbly
->because the /etc/X11/XF86Config-4 file is owned by
->root:sysadm_r:sysadm_t instead of system_u:...
->
->so!
->
->the setfiles trigger, /etc/dpkg/postinst.d/selinux, needs to
->be re-run after people use dpkg-reconfigure.
->
->[luke smiles widely - or more specifically, turns corners of
-> mouth up and shows lots of teeth]
->
->  
->
+define(`daemon_domain', `
+daemon_base_domain($1, `$2', $3)
+# Create pid file.
+allow $1_t var_t:dir { getattr search };
+var_run_domain($1)
 
+> Yet /var/www is this.
+>
+> drwxrwxrwx  www-data www-data system_u:object_r:httpd_sys_content_t www
 
+That's bad, you don't want mode 777 even when using SE Linux.  Or are you 
+repeating my "chmod -R 777 /" experiment?
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
