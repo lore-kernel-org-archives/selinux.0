@@ -1,75 +1,120 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i141HERb009307
-	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 20:17:14 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i141HB1I022529
-	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 01:17:11 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i141H9bs022526 for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 01:17:10 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Dave Gilbert (Home)" <gilbertd@treblig.org>, selinux@tycho.nsa.gov
-Subject: Re: Problems finding working kernel/user land combination
-Date: Wed, 4 Feb 2004 12:16:54 +1100
-References: <401FF280.8070301@treblig.org>
-In-Reply-To: <401FF280.8070301@treblig.org>
-Cc: bam@snoopy.apana.org.au
+In-Reply-To: <401A5713.5010007@redhat.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: <SELinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402041216.54927.russell@coker.com.au>
+Subject: selUpgrade RPMs
+Message-ID: <OFB0E278F4.4A3FE8E5-ON49256E30.000A88B8-49256E30.000B740D@jp.ibm.com>
+From: Tim Ebringer <EB17151@jp.ibm.com>
+Date: Wed, 4 Feb 2004 11:05:05 +0900
+Content-Type: multipart/alternative; boundary="=_alternative 000B740949256E30_="
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 4 Feb 2004 06:12, "Dave Gilbert (Home)" <gilbertd@treblig.org> wrote:
-> I'm using Debian Woody and the 'stable' set of tools from Brian May
-> (www.microcomaustralia.com.au)
+This is a multipart message in MIME format.
+--=_alternative 000B740949256E30_=
+Content-Type: text/plain; charset="US-ASCII"
 
-It appears that the "stable" repository on Brian's site is for old SE Linux 
-and "unstable" is for new SE Linux.  I've updated my web site to describe 
-this.
+Hi Dan,
 
-Brian, what are your plans for this?  Do you plan to make the new SE Linux 
-packages migrate to "stable" on your site?
+I tried your selUpgrade script from a stock FC1 installation yesterday, 
+but I found that I first needed to upgrade the following 4 rpms:
+        tcl-8.4.5-3
+        tk-8.4.5-3
+        gaim-0.75-1
+        db4-4.2.52-2
+or else the non kernel RPM installation (line 45) choked on some 
+dependencies.
 
-> An strace of 'id' shows:
->
-> SYS_223(0xf97cff8c, 0xc, 0, 0x400135cc) = -1 ENOSYS (Function not
-> implemented)
+Cheers,
 
-SYS_223 is the LSM system call from the old SE Linux.
+Tim.
 
-> OK - so that doesn't work; and I'm thinking I need to try a different
-> kernel patch set.
-> So I download the patches from www.coker.com.au/newselinux/kern
->
-> and after battling through adding the ea, acl and nfsacl patches
-> I then patch the coker lsm patches on.
->
-> This has two problems:
->    1) A minor reject in tcp_ipv4.c that appears easy to fix
->    2) Line 666 (gulp!) of ip_output.c has:
->
->    security_ip_fragment(skb2, skb);
->
->    but there doesn't appear to be an skb2 in that context.
 
-Sounds like you aren't applying the patches to the Debian kernel source.  If 
-you get kernel-patch-debian-2.4.24 and apply it first then everything should 
-be fine.
 
-Regarding the skb2, that's because the patch gets applied to the wrong 
-function.  Look at the context after the added line and it should be easy to 
-manually put in.
 
-But using 2.6.1 is probably easier.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Daniel J Walsh <dwalsh@redhat.com>
+Sent by: owner-selinux@tycho.nsa.gov
+30/01/2004 10:07 PM
+ 
+        To:     SELinux <SELinux@tycho.nsa.gov>
+        cc: 
+        Subject:        FYI: Arjan Kernel does not support SELinux
 
+
+The latest kernel on people.redhat.com/~arjanv does not have the SELinux 
+code turned on.  This was turned off a couple of versions ago, since 
+SELinux will not be in RHEL4 Alpha1.  It will be in Alpha2 so it should 
+be turned back on soon.  For the time being I have pulled the FC2 2.6 
+kernel on to my people page which still supports SELinux.
+
+Dan
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
+with
+the words "unsubscribe selinux" without quotes as the message.
+
+
+--=_alternative 000B740949256E30_=
+Content-Type: text/html; charset="US-ASCII"
+
+
+<br><font size=2 face="sans-serif">Hi Dan,</font>
+<br>
+<br><font size=2 face="sans-serif">I tried your selUpgrade script from
+a stock FC1 installation yesterday, but I found that I first needed to
+upgrade the following 4 rpms:</font>
+<br><font size=2 face="sans-serif">&nbsp; &nbsp; &nbsp; &nbsp; tcl-8.4.5-3</font>
+<br><font size=2 face="sans-serif">&nbsp; &nbsp; &nbsp; &nbsp; tk-8.4.5-3</font>
+<br><font size=2 face="sans-serif">&nbsp; &nbsp; &nbsp; &nbsp; gaim-0.75-1</font>
+<br><font size=2 face="sans-serif">&nbsp; &nbsp; &nbsp; &nbsp; db4-4.2.52-2</font>
+<br><font size=2 face="sans-serif">or else the non kernel RPM installation
+(line 45) choked on some dependencies.</font>
+<br>
+<br><font size=2 face="sans-serif">Cheers,</font>
+<br>
+<br><font size=2 face="sans-serif">Tim.</font>
+<br>
+<br>
+<br>
+<br>
+<table width=100%>
+<tr valign=top>
+<td>
+<td><font size=1 face="sans-serif"><b>Daniel J Walsh &lt;dwalsh@redhat.com&gt;</b></font>
+<br><font size=1 face="sans-serif">Sent by: owner-selinux@tycho.nsa.gov</font>
+<p><font size=1 face="sans-serif">30/01/2004 10:07 PM</font>
+<td><font size=1 face="Arial">&nbsp; &nbsp; &nbsp; &nbsp; </font>
+<br><font size=1 face="sans-serif">&nbsp; &nbsp; &nbsp; &nbsp; To:
+&nbsp; &nbsp; &nbsp; &nbsp;SELinux &lt;SELinux@tycho.nsa.gov&gt;</font>
+<br><font size=1 face="sans-serif">&nbsp; &nbsp; &nbsp; &nbsp; cc:
+&nbsp; &nbsp; &nbsp; &nbsp;</font>
+<br><font size=1 face="sans-serif">&nbsp; &nbsp; &nbsp; &nbsp; Subject:
+&nbsp; &nbsp; &nbsp; &nbsp;FYI: Arjan Kernel does not support SELinux</font></table>
+<br>
+<br>
+<br><font size=2><tt>The latest kernel on people.redhat.com/~arjanv does
+not have the SELinux <br>
+code turned on. &nbsp;This was turned off a couple of versions ago, since
+<br>
+SELinux will not be in RHEL4 Alpha1. &nbsp;It will be in Alpha2 so it should
+<br>
+be turned back on soon. &nbsp;For the time being I have pulled the FC2
+2.6 <br>
+kernel on to my people page which still supports SELinux.<br>
+<br>
+Dan<br>
+<br>
+--<br>
+This message was distributed to subscribers of the selinux mailing list.<br>
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with<br>
+the words &quot;unsubscribe selinux&quot; without quotes as the message.<br>
+</tt></font>
+<br>
+--=_alternative 000B740949256E30_=--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
