@@ -1,53 +1,101 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA17454
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 10:02:31 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA17589
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 10:16:49 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA19026
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:02:04 GMT
-Received: from lyta.coker.com.au (n136.ols.wavesec.net [209.151.19.136])
-	by jazzswing.ncsc.mil  with ESMTP id OAA19022
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:02:04 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "david kelman" <capybara@linuxmail.org>, <sds@tislabs.com>,
-        <Abe.Oren@gd-decisionsystems.com>
-Subject: Re: SE Linux loading procedure.
-Date: Wed, 26 Jun 2002 10:02:24 -0400
-Cc: <selinux@tycho.nsa.gov>
-References: <20020626014343.27598.qmail@linuxmail.org>
-In-Reply-To: <20020626014343.27598.qmail@linuxmail.org>
+	by jazzswing.ncsc.mil  with ESMTP id OAA19844
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:16:23 GMT
+Received: from web40017.mail.yahoo.com (web40017.mail.yahoo.com [66.218.78.57])
+	by jazzswing.ncsc.mil  with SMTP id OAA19840
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:16:23 GMT
+Message-ID: <20020626141647.54183.qmail@web40017.mail.yahoo.com>
+Date: Wed, 26 Jun 2002 07:16:47 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Re: Configuration issues on a new installation
+To: Michael Nyika <nyix@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20020626122402.14675.qmail@web40204.mail.yahoo.com>
 MIME-Version: 1.0
-Message-Id: <20020626140224.C57FE1B0D@lyta.coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 25 Jun 2002 21:43, david kelman wrote:
-> 1. for debian and rpm-based distros that use apt
-> such as conectiva:
-> a) su
-> b)add the url of nsa's download page to
-> your apt source list
+Mr. Nyika,
 
-The NSA do not distribute Debian packages or RPM packages and are unlikely to 
-ever do so.  I will be strongly encouraging them not to distribute Debian 
-packages.
+--- Michael Nyika <nyix@yahoo.com> wrote:
+> Good-day, 
+> I have found that i found the same avc denied messages
+> on my 2.4.18 SElinux kernel. I manually edited the
+> specific te files, just by looking at the messages
+> from dmesg. i eliminated all but two. They are realted
+> to the kernel_t domain and have to do with write
+> permissions mainly.
 
-> c)#apt-get install selinux
-> 2. for rpm based distros without apt,
-> your going to recompile the kernel ( i think,
-> but get other advice, i use deb.) mandy and
-> RH users pls correct me if im wrong.
+       Could you elaborate on the exact files you edited and how you changed
+them, please?
 
-No.  See http://www.coker.com.au/selinux/ for Debian install docs and 
-packages.
+> 
+> 
+> --- Brad Chapman <jabiru_croc@yahoo.com> wrote:
+> > Everyone,
+> > 
+> >      I have just started using SELinux on my 2.4.18
+> > system. I found an enormous
+> > number of avc: denied messages in my dmesg and
+> > attempted to remove them. So far
+> > I have tweaked the devfs_contexts and the
+> > policy.conf files (using
+> > scripts/newrules.pl for policy.conf) since most of
+> > the errors were related to
+> > device files and system call commands. I have also
+> > installed the SELinux devfsd
+> > extension and added the config entries to my
+> > devfsd.conf, to no apparent avail.
+> > 
+> >      What is the fastest way to eliminate most (if
+> > not preferably all) of these
+> > messages and put me closer to activating enforcing
+> > mode?
+> > 
+> > Thanks,
+> > 
+> > Brad Chapman
+> > 
+> > =====
+> > Brad Chapman
+> > 
+> > Permanent e-mails: kakadu_croc@yahoo.com
+> > 		   jabiru_croc@yahoo.com
+> > 		   tanami_croc@devel.lbsd.net
+> > 
+> > 
+> > --
+> > You have received this message because you are
+> > subscribed to the selinux list.
+> > If you no longer wish to subscribe, send mail to
+> > majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as
+> > the message.
+> 
+> --
+> You have received this message because you are subscribed to the selinux
+> list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Brad
+
+
+=====
+Brad Chapman
+
+Permanent e-mails: kakadu_croc@yahoo.com
+		   jabiru_croc@yahoo.com
+		   tanami_croc@devel.lbsd.net
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com
 
 --
 You have received this message because you are subscribed to the selinux list.
