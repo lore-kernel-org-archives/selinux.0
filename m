@@ -1,37 +1,30 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Michael Reilly <michaelr@cisco.com>, SELinux@tycho.nsa.gov
-Subject: Re: How to get Xfree86 to run - old API
-Date: Sun, 12 Oct 2003 17:38:53 +1000
-References: <sf880644.030@atlas.snu.edu> <3F88FAEB.8000707@cisco.com>
-In-Reply-To: <3F88FAEB.8000707@cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310121738.53945.russell@coker.com.au>
+Date: Sun, 12 Oct 2003 15:27:56 +1000
+From: Brian May <bam@snoopy.apana.org.au>
+To: SELinux@tycho.nsa.gov
+Subject: Re: selinux from user POV
+Message-ID: <20031012052756.GB28033@snoopy.apana.org.au>
+References: <sf880644.030@atlas.snu.edu> <200310121309.27854.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200310121309.27854.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 12 Oct 2003 16:55, Michael Reilly wrote:
-> When trying to run the Xfree86 server using startx as
-> michaelr:sysadm_r:sysadm_t
+On Sun, Oct 12, 2003 at 01:09:27PM +1000, Russell Coker wrote:
+> > 2. Could give users access to a limited setfiles script with a limited
+> > read-only file_contexts file that they can use on their own directories,
+> 
+> Why make it read-only?  If they want to copy the file_contexts file and make 
+> changes then it's their issue.
 
-This is probably not something that is desirable.  startx often runs lots of 
-things that shouldn't have full access to the system.
-
-> the server does not startup.  This message is displayed
->
-> Fatal server error:
-> xf86OpenConsole: Cannot open /dev/tty0 (No such file or directory)
-
-Do you have startx.te compiled into your policy?
-
+... because for the general case, a user could assign any file to any
+type, and violate the system security policy (eg. a paranoid(?) security
+policy might include something along the lines of "users must not be
+allowed to view/execute files downloaded with Mozilla until after they
+are scanned with a virus scanner; this wouldn't work if users had full
+control over their file types).
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
