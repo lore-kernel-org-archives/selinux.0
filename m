@@ -1,45 +1,79 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1KHA2dW014228
-	for <selinux@tycho.nsa.gov>; Sun, 20 Feb 2005 12:10:02 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1KH83q7012886
-	for <selinux@tycho.nsa.gov>; Sun, 20 Feb 2005 17:08:03 GMT
-Date: Sun, 20 Feb 2005 17:17:43 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
-Subject: Re: Java Legacy problem
-Message-ID: <20050220171743.GJ14038@lkcl.net>
-References: <1108910713.3610.18.camel@cobra.ivg2.net> <20050220154458.GH14038@lkcl.net> <1108914838.5275.10.camel@cobra.ivg2.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1KJEBdW014595
+	for <selinux@tycho.nsa.gov>; Sun, 20 Feb 2005 14:14:11 -0500 (EST)
+Received: from vds-320151.amen-pro.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1KJ9pli028701
+	for <selinux@tycho.nsa.gov>; Sun, 20 Feb 2005 19:09:52 GMT
+Subject: RE: Bell & Lapadula Model
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: Juan Espino <jp_espino@hotmail.com>
+Cc: mayerf@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <BAY19-F67BE31277B62F3C14864B846F0@phx.gbl>
+References: <BAY19-F67BE31277B62F3C14864B846F0@phx.gbl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1nridniVdqskImdAq8OM"
+Date: Sun, 20 Feb 2005 20:11:39 +0100
+Message-Id: <1108926699.4100.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1108914838.5275.10.camel@cobra.ivg2.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Feb 20, 2005 at 10:53:58AM -0500, Ivan Gyurdiev wrote:
-> On Sun, 2005-02-20 at 15:44 +0000, Luke Kenneth Casson Leighton wrote:
-> >if i was dealing with it, i would create a macro - mozilla_java_domain
-> >with an argument $1 which takes the role (see usage of mozilla_domain).
-> 
-> Hi Luke. 
-> Perhaps my mail did not make it clear - I am interested in java usage
-> outside mozilla. The mozilla java policy already exists and works.
 
- ah, right.
+--=-1nridniVdqskImdAq8OM
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
- okayyy... well, you would do well to follow the same approach
- (but this time with a macro called java_domain),
- such that any program you intend to be capable of using java
- you could use the macro to give that program the rights it
- needs when executing java.
+El s=E1b, 19-02-2005 a las 17:29 +0000, Juan Espino escribi=F3:
+> Wao, Thanks for your explanations.  SELinux supports more applications th=
+an=20
+> RSBAC =BF?
 
- however, the point i believe that is being made is that 1) is
- user_t sufficient protection and if so don't bother 2) be
- careful if you create a new domain that you don't give it
- _more_ rights than user_t is normally allowed.
+Both frameworks / security suite in SELinux case support an huge amount
+of applications because this is independent of the framework/engine
+itself, instead, both use policies that can be handled in a fine-grained
+manner (most in SELinux case AFAIK).
 
- l.
+Sample/default policies such as NSA SELinux policy available for
+download from nsa.gov, make the installation easier, but the
+administrator is the person in charge of maintaining a concrete policy
+for his proper circumstances and case.
+They provide the minimal config. to make applications to work as *they
+are expected to do*, allowing only the default operations to make the
+app. just working, but this differs in personal and concrete
+circumstances as I commented above (ie. Fedora C3 & other RH's goodies
+policies), so, fine-tuning is needed if the administrator wants to take
+advantage of all the power that SELinux can provide.
+
+It's a decision up to you whatever solution to use, just that I don't
+want to enter in flames due to personal remarking, but I've used SELinux
+more than RSBAC and I think that with a good policy and knowledge
+(minimal I mean) on it, you can make even more profit than using RSBAC,
+among that SELinux is used under critical environments and developed by
+people who can't buy unexpected issues.
+
+Anyways, both are great solutions, so, the decision is up to you.
+RSBAC has an huge amount of documentation and well-explained models, and
+the people maintaining it are also good guys that do good work.
+
+I hope my comments could help you.
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+
+--=-1nridniVdqskImdAq8OM
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCGODrDcEopW8rLewRAvAiAKDVSTxWI6eafjdFzP9Ya0FNpfiV1QCgw3OH
+PwUxMITVeComKSpB9j7+VPU=
+=D339
+-----END PGP SIGNATURE-----
+
+--=-1nridniVdqskImdAq8OM--
 
 
 --
