@@ -1,44 +1,49 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA07585
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 11:40:42 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA26524
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 15:40:25 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA10685
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 19:01:11 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id WAA15419
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 22:59:49 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id PAA26519
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 15:40:23 GMT
+        by jazzband.ncsc.mil  with ESMTP id WAA15415 for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 22:59:47 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 82AE892461
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 09:01:06 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 71DDA1F38
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 01:00:56 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: richard offer <offer@sgi.com>, linux-security-module@wirex.com
-Subject: Re: XFS and LSM
-Date: Thu, 13 Jun 2002 17:40:11 +0200
-Cc: seth@arosa.nl, SE Linux <selinux@tycho.nsa.gov>
-References: <20020613081508.DF46C1CBC@lyta.coker.com.au> <597600000.1023980333@changeling.engr.sgi.com>
-In-Reply-To: <597600000.1023980333@changeling.engr.sgi.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: ichsid
+Date: Fri, 14 Jun 2002 01:00:56 +0200
 MIME-Version: 1.0
-Message-Id: <20020613154011.9D53D6D82@lyta.coker.com.au>
+Message-Id: <20020613230056.71DDA1F38@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 13 Jun 2002 16:58, richard offer wrote:
-> * frm russell@coker.com.au "06/13/02 10:15:08 +0200" | sed '1,$s/^/* /'
-> *
-> * I wanted to build a system running the XFS file system and Linux Security
-> * Modules (LSM), so I had a look at hacking the patch files to make them
-> * work.
-> *
-> * I found one issue where the patches severely conflict, system call 1217
-> * on  IA64 is sys_setxattr for XFS and is sys_security for LSM!
-> *
-> * One of the projects has to change the system call.
->
-> The official IA64 syscall number for sys_security will be 1233, as assigned
-> by David Mosberger on May 28 in response to an email I sent him.
+I believe that we need a program "ichsid" to change the SID of a file by 
+Inode instead of by name.
 
-OK, could we have another release incorporating the correct number in the 
-near future?
+The reason for this is for the mount points of /dev, /proc, /usr, and other 
+file systems that are not easily/conveniantly umountable.
+
+Providing this functionality as part of the setfiles ability to change the 
+context database directly when running on a non-SE kernel should not be 
+difficult, and would provide the minimum functionality for getting SE Linux 
+on a machine with a few reboots (boot into SE Linux, see messages such as the 
+following, boot into non-SE Linux to run setfiles, then boot SE again) or 
+with some debugfs work.
+
+Providing it as part of the kernel interface would be even more useful.
+
+avc:  denied  { mounton } for  pid=217 exe=/bin/mount path=/var/cache 
+dev=09:01 ino=144930 scontext=system_u:system_r:mount_t 
+tcontext=system_u:object_r:var_t tclass=dir
+
+Now if I want to change the SID of /var/cache I'll have to kill squid first...
 
 -- 
 I do not get viruses because I do not use MS software.
