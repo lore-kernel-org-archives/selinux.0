@@ -1,85 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9F0KMWt022561
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 20:20:22 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9F0KLmR008033
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 00:20:21 GMT
-Received: from remt23.cluster1.charter.net (remt23.cluster1.charter.net [209.225.8.33])
-        by jazzband.ncsc.mil  with ESMTP id h9F0KLjp008030 for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 00:20:21 GMT
-Received: from [68.116.1.217] (HELO eng21)
-  by remt23.cluster1.charter.net (CommuniGate Pro SMTP 4.0.6)
-  with ESMTP id 27154218 for selinux@tycho.nsa.gov; Tue, 14 Oct 2003 20:20:20 -0400
-From: "Robert Potter" <robertp72@charter.net>
-To: "'SE Linux'" <selinux@tycho.nsa.gov>
-Subject: RE: trusted vs untrusted packages
-Date: Tue, 14 Oct 2003 17:20:44 -0700
-Message-ID: <000001c392b2$2e780f40$d9017444@eng21>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <3F8C873B.30703@diyab.net>
+Date: Tue, 14 Oct 2003 17:26:17 -0700
+From: Michael Reilly <michaelr@cisco.com>
+To: russell@coker.com.au
+Cc: SELINUX <SELinux@tycho.nsa.gov>
+Subject: Re: can't start X window in enforce mode
+Message-Id: <20031014172617.58222abf.michaelr@cisco.com>
+In-Reply-To: <200310151018.09901.russell@coker.com.au>
+References: <000901c390ef$d8b3c770$5d38a8c0@lky>
+	<1066143647.5054.178.camel@moss-spartans.epoch.ncsc.mil>
+	<20031014120207.6a29818e.michaelr@cisco.com>
+	<200310151018.09901.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Calls to mind varying degrees of trust, which could be useful technology if
-implemented in an AI update scheme.
+Didn't try DAC_READ_SEARCH yet (that is part of this evenings project)  The
+dontaudit line was for DAC_OVERRIDE so I just commented out that line and
+added DAC_OVERRIDE to the other capabilities.
 
-Rob
+michael
+On Wed, 15 Oct 2003 10:18:09 +1000
+Russell Coker <russell@coker.com.au> wrote:
 
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-Behalf Of Diyab
-Sent: Tuesday, October 14, 2003 4:31 PM
-To: James Morris
-Cc: Russell Coker; SE Linux
-Subject: Re: trusted vs untrusted packages
-
-
-James Morris wrote:
-> On Tue, 14 Oct 2003, Russell Coker wrote:
+> On Wed, 15 Oct 2003 05:02, Michael Reilly wrote:
+> > I did find the problem - the X server needed DAC_OVERRIDE.  This was
+> > logged as soon as I removed the dontaudit's
 > 
+> Why did it need DAC_OVERRIDE?
 > 
->>Now this raises some interesting issues.  If a signed package has a 
->>program
->>which relies on some other program (and has a dependency), what happens if
+> Why not DAC_READ_SEARCH?
+> 
+> -- 
+> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+> http://www.coker.com.au/~russell/  My home page
 
->>the dependency is satisfied by an unsigned package?  Installing the
-unsigned 
->>package may not result in the system being fully functional (execution of
-the 
->>file in question may be denied).
-> 
-> 
-> This should be like enforcing vs. non-enforcing -- you either want all 
-> of your packages signed (and the above would fail) or not (just 
-> generate a warning).
-> 
-> 
-> - James
-
-How about trust based on the package requiring said untrusted or 
-temporarily untrusted package.  For example, you have package abc signed 
-by a trusted source.  The package contents have been verified as 
-legitimate through something like the package signature. A requirement 
-made by the verified abc package says you need package xyz.  The abc 
-package also gives you the option to install a public key for the 
-required xyz package, which is trusted by the abc package.  Therefore as 
-long as package xyz passes the basic signature/validity check then not 
-only are the contents valid but they are trusted by someone you trust.
-
-Timothy,
 
 -- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
-
-
---
-This message was distributed to subscribers of the selinux mailing list. If
-you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
-
-
+---- ---- ----
+Michael Reilly    michaelr@cisco.com
+    Cisco Systems, Santa Cruz, CA
 
 
 --
