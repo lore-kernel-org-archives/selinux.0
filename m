@@ -1,31 +1,38 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OB83rT025250
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 07:08:03 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OBNErT025317
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 07:23:14 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OB82CV028738
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 11:08:02 GMT
-Subject: Re: policy patch for tunable "/dev/hdc is removable drive"
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OBNDCV029015
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 11:23:13 GMT
+Subject: Re: patch for ssh-agent
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040824002244.GA25356@lkcl.net>
-References: <20040823214228.GA13677@lkcl.net>
-	 <20040824002244.GA25356@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
+   Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <20040823215904.GE13677@lkcl.net>
+References: <20040823215904.GE13677@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1093345601.1800.5.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1093346501.1800.23.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 24 Aug 2004 07:06:41 -0400
+Date: Tue, 24 Aug 2004 07:21:41 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-08-23 at 20:22, Luke Kenneth Casson Leighton wrote:
-> my apologies for the length of the patch which i had not correctly
-> observed: the /.?u?dev is there to deal with /.dev which on debian
-> linux with udev is the "real" /dev remounted (--bind?) to a different
-> point.
+On Mon, 2004-08-23 at 17:59, Luke Kenneth Casson Leighton wrote:
+> absolutely clueless as to what this is for, but at least it gets
+> rid of the audit warnings, which were bugging me.
 
-fixfiles and make relabel exclude bind mounts from the relabeling.  So
-if it is a bind mount, it shouldn't get relabeled anyway.
+libselinux constructors try to:
+- determine where selinuxfs is mounted via /proc/self/mounts for future
+use in libselinux calls that act on selinuxfs,
+- determine where the "active" policy is located via /etc/selinux/config
+for future use in libselinux calls that act on policy files.
+
+As a result, anything that links with libselinux will trigger these
+access attempts upon startup, even if the program never subsequently
+invokes any libselinux calls that would act on selinuxfs or a policy
+file.  If you know the program isn't using such calls, then you can just
+dontaudit these rules.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
