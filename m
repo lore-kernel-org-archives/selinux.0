@@ -1,55 +1,52 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CEruIi015795
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 09:53:56 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CErxgF019673
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 14:53:59 GMT
-Subject: Re: lots of execmem failures with 2.6.10
+Subject: Re: Multiple contexts
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Greg Norris <haphazard@kc.rr.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20050112112630.GA12730@yggdrasil.localdomain>
-References: <20050112112630.GA12730@yggdrasil.localdomain>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
+In-Reply-To: <20050112144411.GZ26175@lkcl.net>
+References: <1105390249.8093.21.camel@cobra.ivg2.net>
+	 <20050110232312.GI6967@lkcl.net>
+	 <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050111214818.GE26175@lkcl.net>
+	 <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050112144411.GZ26175@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1105541256.22495.57.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 12 Jan 2005 09:47:36 -0500
+Date: Wed, 12 Jan 2005 10:00:47 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-12 at 06:26, Greg Norris wrote:
-> When trying to boot a 2.6.10 kernel, with the SELinux patch from the NSA
-> website applied, I'm getting a LOT of denial messages such as the ones
-> shown below.  This hoses the boot process to the point where the box is
-> essentially unusable (no networking, impossible to logon at the console,
-> etc.).  Under 2.6.9, the same policy works just fine.
-> 
->    audit(1105293465.527:0): avc:  denied  { execmem } for  pid=237 comm=uname scontext=system_u:system_r:initrc_t tcontext=system_u:system_r:initrc_t tclass=process
->    audit(1105293465.663:0): avc:  denied  { execmem } for  pid=240 comm=touch scontext=system_u:system_r:initrc_t tcontext=system_u:system_r:initrc_t tclass=process
->    audit(1105293466.661:0): avc:  denied  { execmem } for  pid=259 comm=sync scontext=system_u:system_r:initrc_t tcontext=system_u:system_r:initrc_t tclass=process
->    audit(1105293466.716:0): avc:  denied  { execmem } for  pid=262 comm=uname scontext=system_u:system_r:initrc_t tcontext=system_u:system_r:initrc_t tclass=process
-> 
-> I haven't seen any mention of this on the list... any idea what's going
-> on?  My policy source files are from cvs, as of three weeks or so ago. 
-> I don't mind updating to current cvs if necessary, but don't see any
-> obvious updates relating to execmem.  The server is an old Pentium II
-> box (nothing at all unusual about it), running Debian sid.
-> 
-> I can update my policy to allow the execmem easily enough, but would
-> expect to find it already in cvs if this was an expected issue.  Any 
-> thoughts?
+On Wed, 2005-01-12 at 09:44, Luke Kenneth Casson Leighton wrote:
+>  ... how about encoding the file attributes in the policy files,
+>  such that they are ACL-like?
 
-The thread that discussed the new controls over executable mappings
-starts at http://marc.theaimsgroup.com/?l=selinux&m=110003195017130&w=2
-and the final submitted version was
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110200324503263&w=2.
+I don't follow your line of thinking.  The policy defines allowed
+interactions among security equivalence classes (types for TE, levels
+for MLS).  A file attribute (which is merely a tag identifying the
+security equivalence class into which the file falls) is stored in the
+filesystem, associated with the inode.  You don't want to move the
+file->type associations into the policy; you want them bound to the real
+objects and maintained properly at runtime.
 
-The question is why is your userland attempting to create executable
-anonymous mappings or executable writable private file mappings.  May be
-related to the legacy binary issue that came up earlier, where the
-mainline kernel enables read-implies-exec behavior if the binary is a
-"legacy" binary, i.e. lacks PT_GNU_STACK.  What does execstack -q `which
-uname` report?
+>  the ultimate aim of which would be to make it easier for
+>  administrators to add permissions and programs without going
+>  through a complete policy rebuild / reload.
+
+This functionality can all be built on top of the existing mechanism. 
+And we already have some incremental steps in this direction:
+- the conditional policy support developed by Tresys, included in the
+mainline SELinux, and used extensively now in Fedora, allows
+well-defined changes in policy based on policy boolean settings that can
+be manipulated from userspace and controlled at fine granularity,
+- the binary policy module support developed by Tresys allows policy
+modules to be constructed, built, and distributed without requiring a
+full policy source rebuild and providing proper dependency checking,
+- the policy daemon being developed by Tresys will allow policy
+management to be decomposed.
+
+See the mailing list archives if you haven't already read about it. 
+Obviously, there is much work to do in this space, and contributors are
+welcome.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
