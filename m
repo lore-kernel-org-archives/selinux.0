@@ -1,41 +1,49 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Brian May <bam@snoopy.apana.org.au>
-Subject: Re: general security lib (was: 2.6.0-test3)
-Date: Sun, 24 Aug 2003 00:09:57 +1000
-Cc: Magos?nyi ?rp?d <mag@bunuel.tii.matav.hu>, SELinux <SELinux@tycho.nsa.gov>
-References: <1061555921.1648.142.camel@kusturica> <200308230009.19552.russell@coker.com.au> <20030823092141.GB18656@snoopy.apana.org.au>
-In-Reply-To: <20030823092141.GB18656@snoopy.apana.org.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200308240009.57083.russell@coker.com.au>
+Subject: questions
+From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-2
+Date: 24 Aug 2003 00:11:54 +0200
+Message-Id: <1061676714.1648.281.camel@kusturica>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 23 Aug 2003 19:21, Brian May wrote:
-> On Sat, Aug 23, 2003 at 12:09:19AM +1000, Russell Coker wrote:
-> > Theodore Ts'o suggested to me that a new PAM call be added to run the
-> > shell which takes appropriate parameters about user-name etc.  Then a SE
-> > Linux version of this module could change the security context
-> > appropriately, thus requiring only one copy of the code to determine the
-> > context to use, and not requiring any on-going modification to
-> > applications.
->
-> Would this work properly with the chroot authentication stuff in sshd?
+Hi!
 
-As the shared object itself is not in the chroot environment it must be loaded 
-before the chroot(), therefore at that time it should be able to load and 
-cache any files it needs.
+I am experimenting with selinux. My previous experiments included
+RSBAC with its RC model. It was (is) a system where there are
+multiple chrooted environments, and there is an RC emulation
+of Bell&LaPadula within them. Compared to that, the default
+selinux configuration is _way_ complicated. Now I am thinking
+about implementing either the above setup or a setup which is
+a combination of the above and the default policy. I just have to
+get in sync, and figure out how one can handle this complexity
+in a secure manner. (I guess that constraints will help, but the
+whole picture is far from clear.) This is why I have several
+questions.
 
-This may need some modifications to the SE Linux library code, but it 
-shouldn't be too difficult.
+-What tools and techniques exist for analysing the policy?
+ For example how can I list domains besides using grep and friends
+ on the policy file?
+ I am also interested in techniques of analysing and designing MAC
+ policies in general, and using TE and RBAC in particular. I presume
+ that there is something newer than the Red and Aqua books on the
+ issue, but where?
+
+- Is polyinstantiation is put back to selinux yet? Having moldy
+ directories based on subject domain would be nice. If not, what
+ workarounds exist?
+
+- What about networking? I see that there is nodecon and portcom,
+ and someone has written that some networking functionality is
+ out because of rejection of the corresponding LSM hooks. Do
+ they work? Do we have an iptables context match module?
+ Will we?
+
+Thanx.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+GNU GPL: csak tiszta forrásból
 
 
 --
