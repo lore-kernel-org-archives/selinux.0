@@ -1,39 +1,87 @@
-Subject: Re: lilo and initrd
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Carsten Grohmann <carstengrohmann@gmx.de>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <200308161715.35442.carstengrohmann@gmx.de>
-References: <200308161715.35442.carstengrohmann@gmx.de>
-Content-Type: text/plain
-Message-Id: <1061212570.25048.98.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 18 Aug 2003 09:16:10 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7IHNUHa012849
+	for <selinux@tycho.nsa.gov>; Mon, 18 Aug 2003 13:23:30 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h7IHM7OD022792
+	for <selinux@tycho.nsa.gov>; Mon, 18 Aug 2003 17:22:07 GMT
+Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
+	by jazzswing.ncsc.mil  with ESMTP id h7IHM6KO022784
+	for <selinux@tycho.nsa.gov>; Mon, 18 Aug 2003 17:22:06 GMT
+Message-ID: <3F410B88.7090809@diyab.net>
+Date: Mon, 18 Aug 2003 13:23:20 -0400
+From: Diyab <diyab@diyab.net>
+MIME-Version: 1.0
+To: Kerry Thompson <kerry@crypt.gen.nz>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: SELinux on Slackware 9 with PAM
+References: <3F3896BD.5000307@diyab.net> <3357.202.27.185.71.1061177252.squirrel@www.crypt.gen.nz>
+In-Reply-To: <3357.202.27.185.71.1061177252.squirrel@www.crypt.gen.nz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-08-16 at 11:15, Carsten Grohmann wrote:
-> today I read in the SELinux README file, I should not use the 
-> initrd= option with the selinux entry. Knows anybody why? 
+Kerry Thompson wrote:
+> I just got around to reading this, after carrying it around with me for
+> almost a week now.
+> 
+> Its very useful document for anyone deploying SELinux on Slackware. The
+> document pretty much follows the README and describes what changes need to
+> be made for Slackware.
+> 
+> A few comments:
+> 
+> - you should mention that the Vixie crond in the SE release has been
+> modified for SELinux and really needs to be installed if you want cron.
+> Alternatively the user would need to modify Dillon's crond code to support
+> the SELinux extensions.
 
-That is an old note that is no longer accurate, even for the old
-2.4-based SELinux.  Prior to 2.4.19, if you booted a SELinux kernel with
-an initrd, the kernel would try to perform the initial policy load from
-the initrd itself, which would fail unless you had installed a policy
-onto the initrd.  The old 2.4-based SELinux should work fine now with an
-initrd; the SELinux kernel will not try to load the policy until the
-real root filesystem has been mounted.
+I do kind of mention how it is modified just not in the introduction 
+where I explain the changing of cronds.  I can fix that, it's just that 
+I don't imagine many people running a machine without a crond of some sort.
 
-In the 2.6-based SELinux and the new 2.4-based SELinux (back port of the
-2.6-based SELinux), the initial policy load has been pushed into
-userspace, and an initrd is specifically used for this purpose.  We have
-patched our mkinitrd script to copy load_policy and the binary policy
-file onto the initrd and to include commands in the /linuxrc script to
-load the policy from the initrd before the real root filesystem has been
-mounted.  See the README in selinux-doc.
+> 
+> - you don't seem to configure the kernel ( make menuconfig, or edit
+> .config ) before compiling it - which may cause problems if the user has
+> devices not in the standard config.
+> 
+
+In the instructions I direct the user to start at the "Step-by-Step 
+Building and Installing" section and continue until they hit step one. 
+The text between the step-by-step title and step one details applying 
+the SELinux patch to the kernel tree as well as configuring and building 
+the kernel.
+
+> - be careful about specifying line numbers when describing changes to
+> files - the line numbers will probably change in new releases of
+> Slack/SELinux.
+
+The line numbers won't be a problem even if the policies change since 
+the policy will still compile.  I don't really see a better way to do 
+this and still keep it simple for the reader though.  Did you have 
+something in mind?
+
+> 
+> - I recommend converting the document to HTML, even if you just wrap <Hx>
+> tages around the headers. Search engines give preference to keywords in
+> HTML files and headers.
+
+I had planned on this I just haven't had the time yet.  I made the 
+initial document text so that everyone could read it no matter what they 
+were using.  The PDF version is available now also.
+
+> All in all a very useful document. Anyone installing on Slackware will
+> save themselves a lot of time by referring to this.
+> 
+> Kerry
+> 
+
+Thanks for your feedback Kerry.
+
+Timothy,
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
 
 
 --
