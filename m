@@ -1,48 +1,40 @@
-Subject: Re: dynamic context transitions
+Subject: Re: [PATCH] checkpolicy - nodecon ordering
 From: Karl MacMillan <kmacmillan@tresys.com>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   Stephen Smalley <sds@epoch.ncsc.mil>, SELinux List <SELinux@tycho.nsa.gov>,
-   Chad Hanson <chanson@TrustedCS.com>, James Morris <jmorris@redhat.com>
-In-Reply-To: <418662EE.5090001@trustedcs.com>
-References: <4182959B.4080503@trustedcs.com>
-	 <20041029211809.GJ8897@lkcl.net> <20041030090603.GK8897@lkcl.net>
-	 <1099315214.21386.13.camel@moss-spartans.epoch.ncsc.mil>
-	 <20041101141025.GZ8897@lkcl.net>  <418662EE.5090001@trustedcs.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Chad Hanson <chanson@TrustedCS.com>, SELinux List <SELinux@tycho.nsa.gov>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1099332199.21386.160.camel@moss-spartans.epoch.ncsc.mil>
+References: <36282A1733C57546BE392885C06185924D8EEF@chaos.tcs.tcs-sec.com>
+	 <1099332199.21386.160.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 01 Nov 2004 16:27:40 -0500
-Message-Id: <1099344460.23756.49.camel@pham.columbia.tresys.com>
+Date: Mon, 01 Nov 2004 16:29:41 -0500
+Message-Id: <1099344581.23756.53.camel@pham.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-11-01 at 10:23 -0600, Darrel Goeddel wrote:
-> James,
->      I am hoping that this response will also address your question of 
-> applicability outside of the MLS policy.
-> 
-> Luke Kenneth Casson Leighton wrote:
-> >  this proposal is a little bit like seteuid-for-selinux, only not
-> >  really, because seteuid has the ability to switch to any uid and then
-> >  to any uid after that, ad infinitum.
+On Mon, 2004-11-01 at 13:03 -0500, Stephen Smalley wrote:
+> On Fri, 2004-10-29 at 10:07, Chad Hanson wrote:
+> > I have created a patch which orders nodecon rules from most specific to
+> > least specific.  We think this functionality can be useful for ease of
+> > administration and to protect against accidental misconfiguration.
 > > 
+> > I couldn't find any mention of this topic being brought up before, so I am
+> > interested in opinions on this subject.
 > 
-> That is correct.  We are looking at a well-defined (via the policy) set of 
-> available type transitions.  Note that you can also specify a one-way dynamic 
-> transition as well (type1_t can dynamically transition to type2_t, but type2_t 
-> has no dynamic transitions available).  This will allow a daemon process to 
-> initialize itself with one set of access rights (bind ports, read conf files, 
-> etc.), and then lock itself into a domain with less access rights for the 
-> duration of its execution.  This is similar, but *much* more powerful than, 
-> changing the uid, or even using the libcap interface to drop specific capabilities.
+> Good idea, but I don't think that the patch is correct.  Should be
+> sorting based on the number of bits set in each mask, not their integer
+> value, as the simple value may not reflect the actual specificity.  Code
+> could also be simplified a bit, e.g. setting of newc->next doesn't need
+> to be conditional.
 > 
 
-Dropping privileges after startup can already be accomplished with
-conditional policies, though it requires that only one process be
-running in a given domain.
+I agree that this is a good idea - currently it is not possible to put
+nodecon statements in modules because the ordering in the final policy
+can't be guarantee. This would make that feasible. I believe that genfs
+statements have the same problem.
 
 Karl
-
 
 -- 
 Karl MacMillan
