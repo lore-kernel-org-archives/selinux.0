@@ -1,48 +1,49 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2BEb7Rb025594
-	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2004 09:37:07 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i2BEai0F014292
-	for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2004 14:36:44 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i2BEahgZ014289 for <selinux@tycho.nsa.gov>; Thu, 11 Mar 2004 14:36:43 GMT
-Subject: Re: client and server identification
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: liliping <llp@ercist.iscas.ac.cn>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <006b01c4071b$040d52f0$3b00a8c0@llp>
-References: <006b01c4071b$040d52f0$3b00a8c0@llp>
-Content-Type: text/plain
-Message-Id: <1079015791.5752.19.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 11 Mar 2004 09:36:32 -0500
+Message-ID: <791924EBDA572C4FA970D4A94AA95DA3115410@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@tcs-sec.com>
+To: "Stephen Smalley (E-mail)" <sds@epoch.ncsc.mil>,
+   "SE Linux (E-mail)"
+	 <SELinux@tycho.nsa.gov>
+Subject: Process Transition
+Date: Thu, 11 Mar 2004 15:49:35 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-03-10 at 22:43, liliping wrote:
-> Look section 5.2.2 of "The Flask Security Architecture: System Support
-> for Diverse Security Policies".
->  
-> How does selinux  implement "client and server identification" based
-> on LSM? Is it necessary?
 
-Prior to the overhaul of SELinux for integration into mainline 2.6, this
-was provided by the extended socket call API and labeled networking; see
-the historical versions page if you want to see that code.  In the
-current code, peer identification is only supported for Unix (local)
-domain stream socket connections via getpeercon(3).
+We found a piece of process transition code that should be updated to work
+as expected.
 
-In Flask, client identification was more critical since the operating
-system services were provided as userspace servers on the microkernel,
-so even the filesystem code needed that service to identify its
-clients.  In SELinux, the in-kernel services have direct access to the
-current process' identification, so the client identification service is
-only crucial to userspace object managers such as security-enhanced X
-and security-enhanced dbus-daemon.
+In ss/services.c context_struct_compute_av() the following should be
+changed:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+	if (tclass == SECCLASS_PROCESS &&
+bug >>	    avd->allowed && PROCESS__TRANSITION &&
+	    scontext->role != tcontext->role) {
+		for (ra = policydb.role_allow; ra; ra = ra->next) {
+			if (scontext->role == ra->role &&
+			    tcontext->role == ra->new_role)
+				break;
+		}
+		if (!ra)
+			avd->allowed = (avd->allowed) &
+~(PROCESS__TRANSITION);
+	}
+
+it should be
+
+	if (tclass == SECCLASS_PROCESS &&
+	    avd->allowed & PROCESS__TRANSITION &&
+	    scontext->role != tcontext->role) {
+
+-Chad
+_______________________________________________________________
+Chad Hanson				mailto:chanson@tcs-sec.com
+Trusted Computer Solutions		Phone: 217-384-0028 x12
+121 W Goose Alley			Fax: 217-384-0288
+Urbana IL 61801
+
 
 
 --
