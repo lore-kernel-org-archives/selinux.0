@@ -1,38 +1,61 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA10296
-	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 06:55:58 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA10458
+	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 07:24:26 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id LAA05565
-	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 11:54:06 GMT
-Received: from nox.lemuria.org ([213.191.86.30])
-	by jazzswing.ncsc.mil  with ESMTP id LAA05561
-	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 11:54:05 GMT
-Date: Mon, 28 Oct 2002 12:55:55 +0100
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: dontaudit
-Message-ID: <20021028125555.A3585@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by jazzswing.ncsc.mil  with ESMTP id MAA06531
+	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 12:22:34 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id MAA06527
+	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 12:22:32 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
+Subject: Re: mysql policy
+Date: Mon, 28 Oct 2002 13:24:12 +0100
+References: <20021028110158.A1294@lemuria.org>
+In-Reply-To: <20021028110158.A1294@lemuria.org>
+MIME-Version: 1.0
+Message-Id: <200210281324.12898.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is there a way to globally turn off dontaudit ?
+On Mon, 28 Oct 2002 11:01, Tom wrote:
+> I have a few questions about the mysql policy:
 
-I have a very weird problem I don't understand which doesn't give any
-error messages, so I assume that some dontaudit rule suppresses them.
-However, I don't want to go through three or four policy files, disable
-all of them, recompile, find out that it must be somewhere else and
-repeat until I'm crazy.
+Firstly when discussing my policy files please CC me (otherwise I am not 
+guaranteed to receive the message).
 
-so what is the best way to globally turn off dontaudit? grep -v
-dontaudit policy.conf  ?
+> For me, starting it up via "run_init /etc/init.d/mysql start" doesn't
+> work. There's a lot of messages like these:
+>
+> Oct 28 12:47:23 nsa2 kernel: avc:  denied  { write } for  pid=1376
+> exe=/usr/bin/tee path=/lib/mysql dev=03:04 ino=3014657
+> scontext=system_u:system_r:initrc_t tcontext=system_u:object_r:mysqld_db_t
+> tclass=dir Oct 28 12:47:24 nsa2 kernel: avc:  denied  { read } for 
+> pid=1377 exe=/usr/bin/mysqladmin path=/etc/mysql/my.cnf dev=03:01 ino=32610
+> scontext=system_u:system_r:initrc_t tcontext=system_u:object_r:etc_mysqld_t
+> tclass=file
+>
+> Piped into newrules, it all boils down to:
+>
+> allow initrc_t etc_mysqld_t:file { read };
+> allow initrc_t mysqld_db_t:dir { write };
 
+It's not that uncommon for an init script to read the config file before 
+starting a daemon.  I'll change my policy in that regard.
+
+For the tee thing, I think that the startup scripts you use are using tee to 
+redirect stdout of the daemon to a file on disk as well.  What version of the 
+daemon are you using?
 
 -- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
