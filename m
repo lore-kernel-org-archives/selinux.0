@@ -1,41 +1,84 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72J2irT015291
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 15:02:44 -0400 (EDT)
-Received: from flame.hosts.ndo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i72J2hKV022842
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 19:02:43 GMT
-Date: Mon, 2 Aug 2004 20:10:45 +0100
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72J52rT015334
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 15:05:04 -0400 (EDT)
+Date: Mon, 2 Aug 2004 16:44:38 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: Erich Schubert <erich@debian.org>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: /etc/qt3/.qt*
-Message-ID: <20040802191045.GI4194@lkcl.net>
-References: <20040801194006.GF20103@lkcl.net> <1091391553.7861.17.camel@wintermute.xmldesign.de> <20040802144542.GC4194@lkcl.net> <200408030210.20528.russell@coker.com.au>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>
+Subject: Re: user-directory _is_ home directory
+Message-ID: <20040802154438.GH4194@lkcl.net>
+References: <20040801143236.GA15949@lkcl.net> <1091455567.23449.70.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200408030210.20528.russell@coker.com.au>
+In-Reply-To: <1091455567.23449.70.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Aug 03, 2004 at 02:10:20AM +1000, Russell Coker wrote:
-> On Tue, 3 Aug 2004 00:45, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > I don't have a /etc/qt3. And if i had it, it certainly would be mode
-> > > 0755, so no user can write there (and i don't think running qt apps as
-> > > root is a good idea) - something must be wrong with your setup.
-> >
-> >  this is very strange.
-> >
-> >  it's kde 3.2.2, bog-standard.
-> >
-> >  and it's root that's trying to write there (xdm_t and xdm_server_t).
+On Mon, Aug 02, 2004 at 10:06:07AM -0400, Stephen Smalley wrote:
+> On Sun, 2004-08-01 at 10:32, Luke Kenneth Casson Leighton wrote:
+
+> > okay, got a good one for you.
+> > 
+> > ... i notice that genhomedircon is working properly (hurrah)
+> > 
+> > however, it brings me a slight problem.
+> > 
+> > i've made /home _the_ home directory: there is one user, it's
+> > _the_ user.
+
+> > [... ]
+
+> > my question is: does anyone have any recommendations on how to deal
+> > with /home being a mount point, and also being a user's home directory.
+> > 
+> > naively i removed the HOME_ROOT macro from types.fc, and naturally,
+> > the /home mount point doesn't.  mount, that is.
 > 
-> xdm_t is for kdm as I previously mentioned.
-> 
-> Is xdm_xserver_t (the X server domain) REALLY trying to write to those files?  
-> Or is it just inheriting open file handles from kdm?
- 
- i'm on a building site today: i'll check the logs in the next
- couple days.  l.
+> Quite aside from the issue of whether or not you should directly use
+> /home in this manner, 
+
+ *grin*.
+
+> it would be interesting to understand exactly what
+> denial you are encountering and whether policy should be adjusted
+> accordingly.  e.g. it may well be true that mount is going to need
+> permission to directly mount on these directory types anyway for other
+> usage scenarios.
+
+ ah.  the problem that i had was that after i removed the line starting
+ HOME_ROOT from types.fc, coincidentally, /home would not mount.
+
+ now, whether these two things are interconnected i do not know.
+
+ but it _does_ remind me of an issue that i have tracked down.
+
+ i noticed that pump was not dying on shutdown.
+
+ it was keeping /var from being unmounted at shutdown.
+
+ at boot-up time, /var could NOT BE MOUNTED.
+
+ only after a second shutdown could it be mounted.
+
+ by replacing pump with dhclient3, i got rid of the symptoms, but
+ not the problem.
+
+
+ now, something happened to /home that likewise caused it to not
+ be mountable at startup time.
+
+ except that this time it was not clearable by a reboot.
+
+ only by manually mounting it could the problem be cleared.
+
+ subsequently, the problem has gone away.
+
+ .... except it worries me that i might have to wait for it to happen
+ again.
+
+ l.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
