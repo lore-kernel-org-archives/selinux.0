@@ -1,66 +1,90 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA14587
-	for <selinux@tycho.nsa.gov>; Sat, 6 Jul 2002 22:39:11 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA15053
+	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 02:31:10 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id CAA15562
-	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 02:38:38 GMT
-Received: from mail.simplyaquatics.com (66-0-92-223.deltacom.net [66.0.92.223])
-	by jazzswing.ncsc.mil  with ESMTP id CAA15558
-	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 02:38:37 GMT
-Reply-To: <blacknet@simplyaquatics.com>
-From: "Ed Street" <blacknet@simplyaquatics.com>
-To: "'Russell Coker'" <russell@coker.com.au>,
-        "'SE Linux'" <selinux@tycho.nsa.gov>
-Subject: RE: new packages
-Date: Sat, 6 Jul 2002 22:39:09 -0400
-Message-ID: <005101c2255f$78d8a520$0a01a8c0@ed>
+	by jazzswing.ncsc.mil  with ESMTP id GAA21398
+	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 06:30:37 GMT
+Received: from centauri.ee.ucla.edu (centauri.ee.ucla.edu [128.97.92.179])
+	by jazzswing.ncsc.mil  with ESMTP id GAA21394
+	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 06:30:36 GMT
+Date: Sat, 6 Jul 2002 23:28:39 -0700 (PDT)
+From: Simon Han <simonhan@ee.ucla.edu>
+To: Russell Coker <russell@coker.com.au>
+cc: selinux@tycho.nsa.gov
+Subject: Re: type_transition_rule
+In-Reply-To: <20020706200822.78D3A78EC@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.10.10207062255480.28907-100000@centauri.ee.ucla.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <20020706215515.B77322208@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
-
-Where is the kernel patch located at?
-
-Ed
-
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
-On Behalf Of Russell Coker
-Sent: Saturday, July 06, 2002 5:55 PM
-To: SE Linux
-Subject: new packages
-
-I've uploaded new packages to Debian for the latest SE Linux base code
-and 
-default policy.  I've also uploaded a new kernel-patch package for the
-latest 
-2.4.18 LSM patch that is on the NSA site.  NB This version of the kernel
-
-patch is needed for the latest utils and policy!
-
-Also I've put a copy of the latest OpenSSH with my latest patch
-(including 
-xauth support) on my site.
 
 
-Have fun!
+On Fri, 5 Jul 2002, Russell Coker wrote:
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+> On Wed, 3 Jul 2002 18:15, Simon Han wrote:
+> > 	I am new to selinux.  Please forgive me if the question is stupid.
+> > 	I am playing with the example security server included in selinux.
+> > I wonder if there is a way to do domain transition based on the file
+> > current domain is reading.  Please allow me to explain why I need this.
+> > Consider Java VM,
+> >
+> > I define a type 'java_t' for java domain.
+> > Now, I would like to transition to another domain when java_t is reading
+> > a_file.class file since java_t is about to load this class to the VM, and
+> > I don't trust this class.  It will be desirable to be able to transition
+> > to new domain, say java_insecure_t.  Then, I can config java_insecure_t to
+> > have very strict access rule.
+> 
+> The current model of SE Linux involves domain only changing at exec() time, 
+> this does offer benefits for security as it's easier to control domain 
+> transitions.
+> 
+> However I have also considered situations where a domain transition would be 
+> useful on situations other than exec(), chroot() is one example that springs 
+> to mind (for the GR Security functionality).
+> 
+> If we just add this extra method of changing domain then it makes it more 
+> complex to determine whether a policy is sensible (people are working on 
+> automated tools for validating policy).
+> 
+> My next thought was to restrict it to changing to a domain that has less 
+> privs than the parent domain (so we are only restricting privs and therefore 
+> not at risk).  However the SE Linux kernel code does not contain the concept 
+> of a sub-domain.
+> 
+> A potential solution to this would be to have checkpolicy validate that the 
+> target domain to be entered by means other than exec() would have a sub-set 
+> of the privs of the source domain.
+> 
+> To get Java fully integrating with MAC would require more than this though, 
+> probably some new research would need to be done on ways of extending the SE 
+> model.
+> 
+> Couldn't you just have two Java domains, one which can't execute untrusted 
+> code and another which can't read secret data?
+> 
+ 
+Russell,
+Thank you for your kindly reply.  The project I am working on involves
+securing Jini Network using Selinux.  Even though java has its own
+sandbox, we will assume that java/jini is insecure.  Therefore, we would
+like to use Selinux to bulid similiar sandbox.  One of sandbox model we
+think useful is java's Applet security policy (i.e.  only current working
+directory and socket source address are accessable).  When we adopt this
+policy and apply on Selinux, we found that this java applet sandbox will
+actually prevent java VM executing since the VM is using share library.
+On the other hand, if we allow java VM to execute, malicious class
+downloaded from other place will have exactly the same priv.  I personally
+agree that this problem can be solved easily with Java security model...  
 
---
-You have received this message because you are subscribed to the selinux
-list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
+By the way, I think shell scripts face similiar problem.  Could you
+kindly explain the idea Selinux used to prevent shell scripts accessing
+secret data?
+
+Thanks in advance,
+Simon 
 
 
 --
