@@ -1,69 +1,75 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8K6XGsJ002462
-	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 02:33:16 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8KCLEsJ002802
+	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 08:21:14 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8K6VYd0020813
-	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 06:31:34 GMT
-Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h8K6VWVY020810
-	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 06:31:33 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Dale Amon <amon@vnl.com>
+	by jazzswing.ncsc.mil  with ESMTP id h8KCJVd0001915
+	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 12:19:31 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id h8KCJVVY001912
+	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 12:19:31 GMT
+Date: Sat, 20 Sep 2003 13:21:08 +0100
+From: Dale Amon <amon@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: Dale Amon <amon@vnl.com>, SELinux Mail List <selinux@tycho.nsa.gov>
 Subject: Re: Boot time avc messages
-Date: Sat, 20 Sep 2003 16:32:59 +1000
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-References: <20030915214153.GE8988@vnl.com> <200309172245.18594.russell@coker.com.au> <20030919154123.GF22480@vnl.com>
-In-Reply-To: <20030919154123.GF22480@vnl.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200309201632.59282.russell@coker.com.au>
+Message-ID: <20030920122108.GE12158@vnl.com>
+References: <20030915214153.GE8988@vnl.com> <200309172245.18594.russell@coker.com.au> <20030919154123.GF22480@vnl.com> <200309201632.59282.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200309201632.59282.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 20 Sep 2003 01:41, Dale Amon wrote:
-> On Wed, Sep 17, 2003 at 10:45:18PM +1000, Russell Coker wrote:
-> > It will work on any recent policy tree of mine or of a NSA tree with the
-> > patches and revisions I have recently posted to the list.
-> > I am not sure of what is in Colin's tree at the moment.
->
-> Okay, I merged it, although I had to comment out the crond_log_t
-> dependance since that type isn't here.
+On Sat, Sep 20, 2003 at 04:32:59PM +1000, Russell Coker wrote:
+> > Still loads of messages from syslog-ng. I wonder if I'm the
+> > first user of this policy who actually uses the full capability
+> > of remote logging with syslog-ng? I'm going to see if I can
+> 
+> Probably.  Let me know what you are getting and I'll change my policy 
+> accordingly.
 
-For best results change that to cron_log_t or whatever the cron logfile type 
-is in your policy.
+The test machine is a particularly simple setup and doesn't
+use as much of the capabilities of the remote logging as some
+of my "real" machines. However, this is what I have at the moment:
 
-> Still loads of messages from syslog-ng. I wonder if I'm the
-> first user of this policy who actually uses the full capability
-> of remote logging with syslog-ng? I'm going to see if I can
+allow syslogd_t port_t:tcp_socket { name_bind };
+allow syslogd_t syslogd_t:capability { fsetid };
+allow syslogd_t tty_device_t:chr_file { setattr };
 
-Probably.  Let me know what you are getting and I'll change my policy 
-accordingly.
+avc:  denied  { name_bind } for  pid=221 
+      exe=/sbin/syslog-ng 
+      port=999 
+      scontext=system_u:system_r:syslogd_t 
+      tcontext=system_u:object_r:port_t 
+      tclass=tcp_socket
 
-> figure out how much of the error output is related to that.
-> I know at least the one complaining about port=999 is due
-> to that.
+avc:  denied  { fsetid } for  pid=221 
+      exe=/sbin/syslog-ng 
+      capability=4 
+      scontext=system_u:system_r:syslogd_t 
+      tcontext=system_u:system_r:syslogd_t 
+      tclass=capability
 
-Why does it use port 999?
+avc:  denied  { setattr } for  pid=221 
+      exe=/sbin/syslog-ng 
+      dev=sda2 
+      ino=946940 
+      scontext=system_u:system_r:syslogd_t 
+      tcontext=system_u:object_r:tty_device_t 
+      tclass=chr_file
 
-> Colin seems to have left out newrules.pl from his packages,
-> or else it's in one I don't know about.
+> Why does it use port 999?
 
-It should be named newrules-selinux.  Having binaries ending in .pl is a bad 
-idea, when you run a program you don't want to concern yourself with what 
-language it was written in.  Also when you upgrade to a new version of a 
-program you shouldn't be bothered by any change in language.
+There are 3 ports discussed in the manual
+(found at http://www.balabit.com/products/syslog_ng/reference/book1.html).
 
-Calling the program simply "newrules" is a bad idea, it's too ambiguous, there 
-could be hundreds of programs that require new rules.
+The internal default is to listen on 514 tcp and/or udp or send to
+that port. However it is also used by rshell, so many people
+use the document's example ports instead and place this line in 
+syslog-ng.conf:
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+	    destination d_tcp { tcp("10.1.2.3" port(1999); localport(999)); };
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
