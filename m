@@ -1,48 +1,51 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA18738
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 07:37:15 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA21837
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 11:35:48 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA18720
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 07:34:13 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id LAA07019
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 11:33:39 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id LAA21833 for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 11:35:47 GMT
-Date: Mon, 8 Jul 2002 07:36:52 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id LAA07015
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 11:33:39 GMT
+Date: Mon, 8 Jul 2002 07:33:46 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: JW <jw@centraltexasit.com>
+To: Debian User <rogelio@evoworks.evoserve.com>
 cc: <selinux@tycho.nsa.gov>
-Subject: Re: ReiserFS, ext3 and other file systems
-In-Reply-To: <200207060201.11154.jw@centraltexasit.com>
-Message-ID: <Pine.GSO.4.33.0207080734110.19100-100000@raven>
+Subject: Re: problem with "-" in libraries
+In-Reply-To: <20020706040722.CF93D814D2@coffeesaur2.evoserve.com>
+Message-ID: <Pine.GSO.4.33.0207080726530.19100-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Sat, 6 Jul 2002, JW wrote:
+On Sat, 6 Jul 2002, Debian User wrote:
 
-> I was just reading the install file and I saw the statment, that "if you're
-> usign ext3, be sure to enable support for it".
->
-> What exactly is the nature of "ext3" support? I would not think SE Linux
-> would care that much about what FS it was on.
->
-> I use ReiserFS, which I am rather fond of -- does SE Linux work on that?
+> Im developing a policy for a cramfs based selinux system. I cant specify the
+> contexts for libraries with a "-" in the names like "libpthread-0.9.11.so".
+> Checkpolicy does not accept such names int genfs_contexts. I am trying to work
+> around this by recompiling everything using modified library names. Can the
+> checkpolicy compiler be modified to accept this names?
 
-The default kernel configuration (the defconfig file that ships with the
-mainstream Linux kernel) doesn't enable the options for ext3 filesystem
-support.  Hence, you need to enable that option when you configure the
-kernel if you are using ext3 filesystems.  Likewise for reiserfs.
+This is a bug in the checkpolicy scanner's definition of a path token.
+We'll fix it.
 
-SELinux works with ext2, ext3, and (reportedly) reiserfs.  You need a
-filesystem type that provides unique and persistent inode numbers for
-files, so that SELinux can map inode numbers to security contexts
-(indirectly via persistent SIDs).
+> Is there a way to make a setfiles like program for genfs_contexts? Im
+> considering writing software to that.
+
+I'm not sure what you mean.  If you want genfs_contexts to be more like
+the file_contexts configuration, then you need something like regex(3)
+in the kernel security server to perform regular expression matching.
+genfs_contexts is part of the kernel policy configuration, and is used
+for filesystems that do not support persistent label mappings or one of
+the fixed schemes.  setfiles is an application program that creates or
+updates persistent label mappings in filesystems that support them.  It
+doesn't make sense to have a setfiles-like program for genfs_contexts.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
