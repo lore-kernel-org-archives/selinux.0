@@ -1,51 +1,73 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2ULoWDo019359
-	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 16:50:32 -0500 (EST)
-Received: from mail.lemuria.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2ULnJo4004854
-	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 21:49:19 GMT
-Date: Wed, 30 Mar 2005 23:50:11 +0200
-From: Tom <tom@lemuria.org>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2ULpqDo019392
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 16:51:53 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2ULm0ph013859
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 21:48:00 GMT
+Date: Wed, 30 Mar 2005 23:00:18 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Ivan Gyurdiev <ivg2@cornell.edu>
 Cc: Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov
 Subject: Re: Desktop apps interoperability
-Message-ID: <20050330235010.B622@lemuria.org>
-References: <20050330155207.58846.qmail@web31601.mail.mud.yahoo.com> <1112199204.8592.13.camel@cobra.ivg2.net>
+Message-ID: <20050330220018.GA9752@lkcl.net>
+References: <20050330170426.86197.qmail@web31606.mail.mud.yahoo.com> <20050330172630.GA10139@lkcl.net> <1112204662.8592.42.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1112199204.8592.13.camel@cobra.ivg2.net>; from ivg2@cornell.edu on Wed, Mar 30, 2005 at 11:13:24AM -0500
+In-Reply-To: <1112204662.8592.42.camel@cobra.ivg2.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Mar 30, 2005 at 11:13:24AM -0500, Ivan Gyurdiev wrote:
-> ... or am I missing something fundamental here? 
+On Wed, Mar 30, 2005 at 12:44:22PM -0500, Ivan Gyurdiev wrote:
+> On Wed, 2005-03-30 at 18:26 +0100, Luke Kenneth Casson Leighton wrote:
+> > On Wed, Mar 30, 2005 at 09:04:26AM -0800, Casey Schaufler wrote:
+> > 
+> > > Yes, and I'm sure that you can do a configuration
+> > > of most application defaults that will be good
+> > > enough to demo. Application developers tend to
+> > > have their own ideas regarding data storage and
+> > > it is a bad idea for a system developer to
+> > > interfere with said application developer's
+> > > freedom to inovate.
+> > 
+> >  ... application developer's freedom to impose insecurity,
+> >  through ignorance on the part of the app-developer, upon
+> >  the users?
+> > 
+> >  no offense intended: freedom in an abstract concept [e.g. "the american
+> >  way"] _always_ has limits - laws / rules / policy is defined to confine
+> >  that freedom, for good or worse.
+> 
+> I don't understand what this has to do with the application developer.
+ 
+ i must not understand the point, then.
 
-Yes.
+> This is a discussion of desktop applications that manipulate content
+> relevant to the user - not internal settings. 
 
-_my_ directory structure will certainly look differently. Jack has yet
-another one, Joe a third and Mary a fourth.
+ i believe it started out as internal settings [someone
+ suggested a ~/.etc / registry etc solution e.g. gconfd]
+ or maybe that was a different thread.  ... anyway.
 
-
-People who use Linux for their desktop usually enjoy one thing: That
-they can sort things according to _their_ needs, not according to
-whatever some "expert" in Redmond has prescribed.
-
-
-Define the roles, but don't define the directories. If I want my
-downloads in ~/Downloads/ and not in ~/content/downloads/ there is no
-reason not to allow me that.
+> All those apps *ask* you where to store the content. 
 
 
-Plus, I still don't dig your "content" idea. First, it's a marketing
-buzzword abstraction with zero meaning for regular folks. Two, are you
-kidding me? How much "non-content" do you think I store in my $HOME to
-give "content" it's own subdirectory?
+ not necessarily - and, additionally, they typically have
+ default locations where the content is asked to be stored,
+ and the majority of users go "duhhhhhh, *click*".
+
+ esp. windows users, for whom "duhhhh, *click*" means it ends
+ up in "My Documents", or "The Desktop", etc. etc. and then
+ they bitch like hell because they can't _find_ anything.
 
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+> Ok, some apps like gift don't ask where to save the content, 
+> but that's the exception and not the rule. 
+
+ some apps don't ask - but the "default" location is just as
+ important, imo, as not being asked at all.
+
+ l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
