@@ -1,66 +1,84 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA13341
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 11:05:20 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA13614
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 11:35:12 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA28052
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 16:04:44 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA28048
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 16:04:43 GMT
-Date: Thu, 11 Jan 2001 11:04:32 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-cc: selinux@tycho.nsa.gov, linux-privs-discuss@sourceforge.net
-Subject: Re: [Linux-privs-discuss] SELinux & Linux-privs projects
-In-Reply-To: <20010111164556.A2075@caldera.de>
-Message-ID: <Pine.SOL.3.95.1010111104920.23465S-100000@clipper.gw.tislabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA29621
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 16:34:35 GMT
+Received: from tomcat.admin.navo.hpc.mil (tomcat.admin.navo.hpc.mil [204.222.179.33])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA29617
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 16:34:35 GMT
+Date: Thu, 11 Jan 2001 10:34:50 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200101111634.KAA82194@tomcat.admin.navo.hpc.mil>
+To: bet@rahul.net, Stephen Smalley <sds@tislabs.com>
+Subject: Re: IPSEC integration (was Re: SELinux and covert channels)
+Cc: selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-
-On Thu, 11 Jan 2001, Christoph Hellwig wrote:
-
-> Linux-privs and other Posix1003.1e subsystems currenlty in development
-> for Linux provide a UNIXish way of trusted systems, while SELinux
-> implements ruleset-based security and is rather differnt and put
-> policy into the kernel, something that is dtringly disliked in UNIX.
+Bennett Todd <bet@rahul.net>:
+> 2001-01-11-09:01:41 Stephen Smalley:
+> > Additionally, although mandatory access controls have been
+> > implemented for sockets, the controls are currently limited
+> > because support for communicating packet labels across the network
+> > has not yet been implemented.  As discussed in the documentation,
+> > the intent is to use IPSEC security associations to implicitly
+> > label packets once IPSEC is integrated.
 > 
-> So they are two rather different ways to achieve the same goal.
+> This I thought was the most exciting single bit of the whole
+> announcement.
+> 
+> While any MAC implementation is certainly interesting, and the more
+> expressive ones are especially appealing for their potential for
+> sandboxing, the real hard problems we're fighting with now, and
+> expecting to be battling in the near future, center on defining
+> really tight security perimeters around distributed apps. The
+> ability to have a coherent enforcement of a centrally-specified
+> policy over all the data throughout a distribute app is very, very
+> exciting indeed.
+> 
+> Especially to me, since I've been telling people that it's the next
+> big step for some time now:-).
 
-Allow me to clarify about SELinux.  I'll respond to your points
-in reverse order.  SELinux and Linux-privs are NOT different ways
-to achieve the same goal.  SELinux provides a flexible mandatory
-access control architecture.  The architecture can enforce a wide
-variety of security policies.  It can enforce the separation of
-information based on confidentiality and integrity requirements.
-This is quite different from Linux Privs, which provides a mechanism
-for decomposing superuser privileges.  It is also quite different
-from POSIX.1e mandatory access controls, which are tied to a 
-specific kind of mandatory security policy.
+YES --
 
-It is also inaccurate to suggest that the issue is placing policy
-in the kernel.  SELinux provides clean separation of policy from
-enforcement, with the security policy cleanly encapsulated
-in a single component of the operating system called the
-security server with a general interface.  Many different
-security server implementations are possible, including
-implementations that consult user space servers.  The
-example security server implementation consists of a
-basic policy engine that consults a security policy configuration
-read from a file.  This is also a false comparison, because
-the POSIX.1e mandatory access control policy implementation would
-likewise involve a kernel component, and it is more likely to
-involve policy-specific code being used by other components of
-the kernel.
+I would also like to see the abiltity of a fully integrated
+IPSec with some "additional" abilities:
 
---
-Stephen D. Smalley, NAI Labs
-sds@tislabs.com
+1. identify the remote user (including the ability to do user id mapping
+   remote user -> local user)
+2. identify remote security labels (including label translation
+   remote lable ->local lable)
+3. Use the above information to authenticate/authorize socket connections.
+4. prevent local users from accessing sockets without authorization ("user"
+   daemon prevention, unauthorized communication with remote hosts...)
+5. Selectively enforce the use of encryption with remote hosts
+6. Have the security authorization data base (?? not sure this is the right
+   place) to handle/recognize various authentication methods - Kerberos,
+   PKI, SSL, ... perhaps via  a "PAM" definition. (I do mean PKI as separate
+   from SSL as a communications protocol.)
 
+It would seem to me that a complete handling of authentication would
+include IPSec and local logins as well. Merging this together should
+simplify a lot of application programming... It would be able to use
+simple socket code that would transparently provide authentication
+without the use of user level (and ignorable) libraries. If the remote
+(or local) user cannot be authenticated, then the communication will not
+be allowed.
 
+It will no longer be up to the user to protect data in transit. If the
+SA has the remote host marked as requiring encryption, then it will be.
+If the SA (at either end of the communication) doesn't allow something,
+then the link will be disallowed.
 
+At the cost of some redundancy - Users would not be able to open sockets
+that allow any form of unauthentication/unauthorized communication.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 
 --
 You have received this message because you are subscribed to the selinux list.
