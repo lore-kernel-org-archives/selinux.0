@@ -1,62 +1,88 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA07510
-	for <selinux@tycho.nsa.gov>; Tue, 28 May 2002 23:17:34 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA07418
+	for <selinux@tycho.nsa.gov>; Tue, 28 May 2002 23:09:43 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id DAA21727
-	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 03:17:27 GMT
-Received: from mail.tresys.com (mail.tresys.com [66.22.20.205])
-	by jazzswing.ncsc.mil  with ESMTP id DAA21722
-	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 03:17:27 GMT
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "Stephen Smalley" <sds@tislabs.com>
-Cc: "NSA Selinux Mailinglist" <selinux@tycho.nsa.gov>
-Subject: RE: Proposal: install policy.conf
-Date: Tue, 28 May 2002 23:21:07 -0400
-Message-ID: <ACEHIKGIGFEDAIKEMMMIMEOMKDAA.mayerf@tresys.com>
+	by jazzswing.ncsc.mil  with ESMTP id DAA21349
+	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 03:09:37 GMT
+Received: from web14311.mail.yahoo.com (web14311.mail.yahoo.com [216.136.224.61])
+	by jazzswing.ncsc.mil  with SMTP id DAA21345
+	for <selinux@tycho.nsa.gov>; Wed, 29 May 2002 03:09:36 GMT
+Message-ID: <20020529030941.3019.qmail@web14311.mail.yahoo.com>
+Date: Wed, 29 May 2002 04:09:41 +0100 (BST)
+From: =?iso-8859-1?q?vishwakarma=20singh?= <vsingh014@yahoo.com>
+Subject: Re: setuid problem
+To: Stephen Smalley <sds@tislabs.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <Pine.GSO.4.33.0205281138510.1315-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <Pine.GSO.4.33.0205281109490.1315-100000@raven>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> With regard to the issue of using policy.conf as the basis for tools that
-> are used to create or change the policy, I'm somewhat concerned by the
-> loss in modularity provided by the separation of .te files and the loss in
-> higher level abstraction provided by the macros.  I suppose that we could
-> extend the base language itself to provide direct constructs for "modules"
-> and for some of the higher level abstractions currently expressed via
-> macros.
+I like that all the setuid programs are executed even
+if  new sid  assigned to them fails to comply to the
+rules of the policy (in this case program will be 
+prevented  from executing ) . that is , i want to run
+all setuid programs  just like  simple linux . than
+what are the changes i should bring in ....
 
-I guess this is the real point.  The make directory structure is one, dare
-I say somewhat limited, structure for building policies.  I would hope we
-would not force compatibility at that level.
+thanx
+vishwakarma singh
 
-We're writing near-term tools (and others I understand are looking at longer
-term tools with richerlanguage semantics).  In either case, I think we will
-find
-compatibility with the make directory difficult and limiting.  For example,
-we
-considered adding a role management tab in our seuser tool.  However, given
-our
-attempt to maintain compatibility with the make directory, and given that
-that
-directory was recently restructured to scatter the role definitions
-throughout the
-directory structure (understandably for better management within the make
-structure), we gave up on roles.  Users on the other hand are placed in a
-single file in
-the make directory.
+ --- Stephen Smalley <sds@tislabs.com> wrote: > 
+> On Tue, 28 May 2002, [iso-8859-1] vishwakarma singh
+> wrote:
+> 
+> >  If i am not wrong than setuid does not work in
+> > selinux if they donot comply to the rules of
+> policy
+> > configuration . but since many programs and
+> utilities
+> > in normal linux uses setuid , i want to reenable
+> it .
+> > have anybody any idea , how to reenable it ?please
+> > give details.
+> > thanx
+> 
+> SElinux doesn't disable setuid.  It does perform a
+> parallel check to the
+> existing CAP_SETUID capability checks, but setuid
+> program execution only
+> requires CAP_SETUID under special conditions
+> (process tracing, shared
+> state via clone).  If you are encountering a setuid
+> capability denial from
+> SELinux, you can grant that permission to the
+> appropriate domain (or
+> define a new domain, as appropriate).
+> 
+> The SELinux access controls are orthogonal to the
+> Linux access controls,
+> and do not depend on the Linux identity attributes. 
+> Please read the
+> Configuring the SELinux Policy report, particularly
+> the security model
+> section.
+> 
+> --
+> Stephen D. Smalley, NAI Labs
+> ssmalley@nai.com
+> 
+> 
+> 
+> 
+> --
+> You have received this message because you are
+> subscribed to the selinux list.
+> If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as
+> the message. 
 
-What I would rather do is break backward compatibility with the make
-directory,
-and maintain separate, local copies of users and role definitions, and as
-part of the
-policy install/load/update process, put those definitions into policy.conf
-directly.
-
-Frank
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com
 
 --
 You have received this message because you are subscribed to the selinux list.
