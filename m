@@ -1,36 +1,57 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA14675
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 09:57:33 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA08901
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 13:56:09 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA14966
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 10:31:49 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA26962
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 14:31:27 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id NAA08897 for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 13:56:08 GMT
-Date: Thu, 20 Jun 2002 09:56:53 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id OAA26958
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 14:31:26 GMT
+Date: Thu, 20 Jun 2002 10:31:09 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
 cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: fd use rules
-In-Reply-To: <20020616143845.7480513F4@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0206200955130.16259-100000@raven>
+Subject: Re: new macro in users.te
+In-Reply-To: <20020620113520.040AA5B8@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0206201026150.16259-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Sun, 16 Jun 2002, Russell Coker wrote:
+On Thu, 20 Jun 2002, Russell Coker wrote:
 
-> For many programs (including most daemons) we need to have access to the fds
-> coming from the parent process (opened by sshd, newrole, or run_init).
+> In my policy tree I have the following in users.te:
 >
-> Would it make sense to do the following?
+> define(`in_user_role', `
+> role user_r types $1;
+> #role second_user_r types $1;
+> ')
 >
-> allow myprog_t privrole:fd use;
+> Then I replace this:
+> role user_r types foo_t;
+> with this:
+> in_user_role(foo_t)
+>
+> I want to have multiple user roles that each have their own primary domain,
+> but can change to other domains within their role, but can't access the
+> primary domain for other roles.
 
-Yes, this seems reasonable.  At present, these rules are individually
-specified in general_domain_access() for login, sshd, and newrole.  Using
-'privrole' would also pick up crond, run_init, and xdm.
+You might want to put the macro definition in user_macros.te instead of
+users.te.  My preference would be to keep all macros (or at least any
+macros that are not completely private to a single .te file) in the
+separate macros hierarchy.  In this case, ordering shouldn't be a problem,
+since users.te is read before any of the program domains, but I'd rather
+not rely on such ordering among the domain .te files.
+
+If you permit the different user domains to share program domains (rather
+than instantiating separate program domains for each user domain using a
+macro), then be careful that you don't end up with unexpected interactions
+among the user domains through these shared program domains.
+
+Is the diff for this change available?  I've merged up through your
+2002053110-3.diff.
 
 --
 Stephen D. Smalley, NAI Labs
