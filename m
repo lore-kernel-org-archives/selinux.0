@@ -1,54 +1,71 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7FD0wHa002886
-	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 09:00:58 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7FLu5Ha005554
+	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 17:56:06 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7FCxbOD008890
-	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 12:59:37 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h7FCxbKO008887
-	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 12:59:37 GMT
-Subject: Re: 2.6.0-test3 and UML
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200308141557.23034.russell@coker.com.au>
-References: <200308141557.23034.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1060952448.13964.120.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 15 Aug 2003 09:00:48 -0400
+	by jazzswing.ncsc.mil  with ESMTP id h7FLsiOD012479
+	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 21:54:44 GMT
+Received: from hotmail.com (bay8-dav5.bay8.hotmail.com [64.4.26.109])
+	by jazzswing.ncsc.mil  with ESMTP id h7FLshKO012476
+	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 21:54:44 GMT
+From: "Ripin Natani" <ripinfs@hotmail.com>
+To: <selinux@tycho.nsa.gov>
+Subject: iso image and smallest partition questions ...
+Date: Fri, 15 Aug 2003 17:55:58 -0400
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_013E_01C36356.7B5CEA50"
+Message-ID: <BAY8-DAV5vcSzLPMvY200038899@hotmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-08-14 at 01:57, Russell Coker wrote:
-> For 2.6.0-test3 to work with UML the following changes are necessary:
-> 
-> In security/selinux/avc.c add the following:
-> #include <linux/init.h>
+This is a multi-part message in MIME format.
 
-This is actually in the tree now, as part of Geert's patch to allow m68k
-compilation.
+------=_NextPart_000_013E_01C36356.7B5CEA50
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> In include/asm-um/common.lds.S add the following:
->   __security_initcall_start = .;
->   .security_initcall.init : { *(.security_initcall.init) }
->   __security_initcall_end = .;
-> 
-> This makes it compile and appear to run.  I'm fairly certain that adding 
-> init.h is OK, but I'm not sure if the initcall stuff is right.  Hopefully 
-> Steve can advise.
+Hi, couple of questions ...
+     1. Is there an SELinux ISO image available ? (I have an old version =
+of RH and compiling the SELinux is giving me a lot of errors )
+     2. What is the smallest partition size that I can create on SELinux =
+(with just network access). I think its about 2.5 MB but if someone else =
+has also experimented with this please enlighten me.
+Thanks,
+-Ripin.=20
 
-Use SECURITY_INIT, which is defined in
-include/asm-generic/vmlinux.lds.h.  This header is already included by
-arch/um/vmlinux.lds.S prior to including common.lds.S, so you should be
-able to use the SECURITY_INIT symbol.
+------=_NextPart_000_013E_01C36356.7B5CEA50
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-You should submit the change to the UML maintainer.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>
+<DIV><FONT face=3DArial size=3D2>Hi, couple of questions =
+...</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>&nbsp;&nbsp;&nbsp; &nbsp;1. Is =
+there&nbsp;an=20
+SELinux ISO image&nbsp;available ? (I have an old version of RH and =
+compiling=20
+the SELinux is giving me a lot of errors&nbsp;)</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. What =
+is=20
+the&nbsp;smallest partition size that&nbsp;I can create on SELinux (with =
+just=20
+network access). I think its about 2.5 MB but if someone else has also=20
+experimented with this please enlighten me.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Thanks,</FONT></DIV>
+<DIV><FONT face=3DArial=20
+size=3D2>-Ripin.&nbsp;<BR></FONT></DIV></FONT></DIV></BODY></HTML>
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+------=_NextPart_000_013E_01C36356.7B5CEA50--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
