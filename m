@@ -1,52 +1,46 @@
-Date: Mon, 17 Dec 2001 08:40:25 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Vanuxem <gvanuxem@club-internet.fr>
-cc: SELinux Mailing <SELinux@tycho.nsa.gov>
-Subject: Re: TR: Trans_domain and MLS (small error)
-In-Reply-To: <ADEEIKPBIEHIINPOFGAOAEFCCAAA.gvanuxem@club-internet.fr>
-Message-ID: <Pine.GSO.4.33.0112170832200.10438-100000@raven>
+Message-ID: <3C1E0279.7030102@namesys.com>
+Date: Mon, 17 Dec 2001 17:34:33 +0300
+From: Hans Reiser <reiser@namesys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Smalley <sds@tislabs.com>
+CC: forrest whitcher <fw@fwsystems.com>, SELinux@tycho.nsa.gov,
+        "Vladimir V. Saveliev" <monstr@namesys.com>,
+        Nikita Danilov <god@namesys.com>
+Subject: Re: persistent labelling on afs, jfs, xfs?
+References: <Pine.GSO.4.33.0112170709420.10438-100000@raven>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
 
-On Mon, 17 Dec 2001, Vanuxem wrote:
-
-> I have the pppd domain that work under the user or sysadm role for example :
+>On Sat, 15 Dec 2001, Hans Reiser wrote:
 >
-> 'greg:user_r:user_pppd_t'
+>>We currently have unique and persistent inode numbers (at least until we
+>>someday write a repacker that will optimize key assignments for better
+>>layout), but you can't use them for finding files that are not in the
+>>cache.  To find such files requires a key.
+>>
 >
-> I want allow to trans to the system role and system user:
-> system_u:system_r:portsentry_t
-> If  use the macro domain_auto_trans : domain_auto_trans ($1_pppd,
-> portsentry_exec_t,portsentry_t)
-> The resulting context is greg:user_r:portsentry_t
+>SELinux uses the inode number as an identifier for the file in the
+>persistent label mapping in each filesystem.   So it doesn't find files
+>based on the inode number, but it needs each file in a filesystem to have
+>a unique and persistent inode number.  It sounds like reiserfs does
+>currently provide this property.
 >
-> Is it possible without using newrole??
+>--
+>Stephen D. Smalley, NAI Labs
+>ssmalley@nai.com
+>
+>
+>
+>
+>
+>
 
-See the run_init utility program and its domain.  It transitions to the
-system_u:system_r:initrc_t domain and then runs the user-specified init
-script, which ensures that any daemons are started with the appropriate
-user identity, role, and domain (because domain transitions are already
-defined from initrc_t for the daemon processes).  The run_init program,
-like newrole, reauthenticates the user to ensure that the user wants to
-perform the transition (to help protect against invocation by malicious
-code).
+yes, so everything is easy for now.:)
 
-> -	I want to know if you continue your work about MLS
-
-We aren't actively developing the MLS code or policy at present.  To date,
-we have focused on the RBAC and TE policy components, since these are
-viewed as being of greater interest to the Linux community.  See the
-README.MLS file for a description of what needs to be done to make the MLS
-policy useable.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+Hans
 
 
 --
