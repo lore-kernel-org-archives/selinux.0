@@ -1,83 +1,43 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA20509
-	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2001 10:01:36 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA22142
+	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2001 14:00:57 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA19148
-	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2001 13:59:53 GMT
+	by jazzswing.ncsc.mil  with ESMTP id RAA01965
+	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2001 17:59:13 GMT
 Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id NAA19144
-	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2001 13:59:52 GMT
-Date: Wed, 3 Oct 2001 10:01:11 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id RAA01961
+	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2001 17:59:12 GMT
+Received: from localhost (sds@localhost)
+	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id f93I0EW03432
+	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2001 14:00:16 -0400 (EDT)
+Date: Wed, 3 Oct 2001 14:00:14 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: James Bishop <james.bishop@jrc.it>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Compiling for SuSE 7.2
-In-Reply-To: <3BBB0FF1.6060309@jrc.it>
-Message-ID: <Pine.GSO.4.33.0110030952140.20811-100000@raven>
+To: <selinux@tycho.nsa.gov>
+Subject: [PATCH] Bug fix for the dummy and SELinux netlink_send hooks
+Message-ID: <Pine.GSO.4.33.0110031351540.2339-300000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-758783491-1002131552=:2339"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On Wed, 3 Oct 2001, James Bishop wrote:
+---559023410-758783491-1002131552=:2339
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.GSO.4.33.0110031353031.2339@raven>
 
-> This is my first posting to this list, so "hello world!\n".
 
-Welcome to the list.  In case you aren't aware, you can obtain up-to-date
-mailing list archives either via email to majordomo@tycho.nsa.gov or
-online at http://marc.theaimsgroup.com/?l=selinux.  The hypermail archives
-at the NSA web site are only updated when the web site is updated, e.g.
-for a new release.
-
-> Compilation of the modified applications in the selinux/utils
-> sub-directory required commenting out the contents of the
-> fileutils-4.0/m4/isc-posix.m4 file (I don't know m4); and changing the
-> Makefile in psmisc to link pstree with the ncurses library instead of
-> the termcap library.
->
-> Now I'm up against the differences between the RedHat 7.1 and SuSE 7.2
-> distributions. The MCONFIG files of the util-linux package are different
-> (also SuSE 7.2 uses util-linux-2.11). I know from past experience that
-> getting things wrong with util-linux is "a bit of a bore".
-
-Most of the modified daemons and utility programs are not essential to
-SELinux but nice to have available.  The most critical one is the modified
-login program (to set the security context for user sessions), followed
-by the modified sshd and crond.  For non-RedHat distributions, you should
-really look into porting the SELinux utility patches to the corresponding
-source package provided with that distribution.  Blindly installing our
-modified utilities (which were typically based on the RedHat variants)
-could break your system.  Even if your distribution uses the same code
-base for some of the modified utilities, it may use different
-configuration options (e.g. disabling PAM) or its own set of additional
-patches, so even these utilities may need customization.
-
-> If I proceed to install the utils package as is, can anyone tell me
-> whether login will still work? Or could / should I modify the MCONFIG
-> file of SELinux to bring it closer into line with the SuSE 7.2 version?
-
-If you do this, I would definitely recommend modifying the MCONFIG file to
-be closer to the SuSE 7.2 version.  But you are likely to have greater
-success if you take the time to port the util-linux patch to the SuSE 7.2
-version.
-
-> I see that the SELinux Makefile moves the original /bin/login to
-> /bin/login.old and then installs the new /bin/login. If I could ensure
-> that /bin/login.old was used (perhaps on the basis of the result of the
-> uname command - SuSE 7.2 is kernel version 2.4.4)I would feel better.
-> How could I do this?
-
-I'm not sure about this, but you should be able to boot singleuser if
-necessary to recover.
-
-> Should I remove shadow passwords from the SuSE 7.2 system before
-> proceeding, or can I leave them in place?
-
-The SELinux modified login program runs fine on RedHat 7.1 systems with
-shadow passwords.  The MCONFIG HAVE_SHADOW=no is simply to force the login
-program to be built.  Since the login program uses PAM on RedHat, shadow
-passwords are handled transparently.
+The attached patches fix a bug that occurs in netlink_send hook functions
+for both the dummy security module and the SELinux security module.  This
+bug causes incorrect permission denials for netlink messages.  Thanks to
+James Morris for finding this bug.  To apply the first patch, save it to
+'lsm-netlink.patch', change to the lsm directory and run 'patch -p1 <
+~/lsm-netlink.patch'.  To apply the second patch, save it to
+'selinux-netlink.patch', change to the selinux directory, and run
+'patch -p1 < ~/selinux-netlink.patch'.  Then, rebuild and reinstall the
+kernel in the usual way.
 
 --
 Stephen D. Smalley, NAI Labs
@@ -85,6 +45,46 @@ ssmalley@nai.com
 
 
 
+
+---559023410-758783491-1002131552=:2339
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="lsm-netlink.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0110031352320.2339@raven>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="lsm-netlink.patch"
+
+SW5kZXg6IGxzbS9zZWN1cml0eS9kdW1teS5jDQpkaWZmIC11IGxzbS9zZWN1
+cml0eS9kdW1teS5jOjEuNCBsc20vc2VjdXJpdHkvZHVtbXkuYzoxLjYNCi0t
+LSBsc20vc2VjdXJpdHkvZHVtbXkuYzoxLjQJRnJpIFNlcCAyOCAxMToxNDoy
+NiAyMDAxDQorKysgbHNtL3NlY3VyaXR5L2R1bW15LmMJV2VkIE9jdCAgMyAx
+MzozNzo1NyAyMDAxDQpAQCAtMTM1LDcgKzEzNSw3IEBADQogc3RhdGljIGlu
+dCBkdW1teV9uZXRsaW5rX3NlbmQgKHN0cnVjdCBza19idWZmICpza2IpDQog
+ew0KIAlpZiAoY3VycmVudC0+ZXVpZCA9PSAwKQ0KLQkJTkVUTElOS19DQiAo
+c2tiKS5lZmZfY2FwID0gQ0FQX05FVF9BRE1JTjsNCisJCWNhcF9yYWlzZSAo
+TkVUTElOS19DQiAoc2tiKS5lZmZfY2FwLCBDQVBfTkVUX0FETUlOKTsNCiAJ
+ZWxzZQ0KIAkJTkVUTElOS19DQiAoc2tiKS5lZmZfY2FwID0gMDsNCiAJcmV0
+dXJuIDA7DQo=
+---559023410-758783491-1002131552=:2339
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="selinux-netlink.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0110031352321.2339@raven>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="selinux-netlink.patch"
+
+SW5kZXg6IHNlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9ob29rcy5jDQpk
+aWZmIC11IHNlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9ob29rcy5jOjEu
+MTQwIHNlbGludXgvbW9kdWxlL3NlbGludXhfcGx1Zy9ob29rcy5jOjEuMTQy
+DQotLS0gc2VsaW51eC9tb2R1bGUvc2VsaW51eF9wbHVnL2hvb2tzLmM6MS4x
+NDAJRnJpIFNlcCAyOCAxMToyMjoyMSAyMDAxDQorKysgc2VsaW51eC9tb2R1
+bGUvc2VsaW51eF9wbHVnL2hvb2tzLmMJV2VkIE9jdCAgMyAxMzozOTo0MSAy
+MDAxDQpAQCAtMTY5NSw3ICsxNjk1LDcgQEANCiBzdGF0aWMgaW50IHNlbGlu
+dXhfbmV0bGlua19zZW5kKHN0cnVjdCBza19idWZmICpza2IpICANCiB7DQog
+CWlmIChjYXBhYmxlKENBUF9ORVRfQURNSU4pKQ0KLQkJTkVUTElOS19DQihz
+a2IpLmVmZl9jYXAgPSBDQVBfTkVUX0FETUlOOw0KKwkJY2FwX3JhaXNlIChO
+RVRMSU5LX0NCIChza2IpLmVmZl9jYXAsIENBUF9ORVRfQURNSU4pOw0KIAll
+bHNlDQogCQlORVRMSU5LX0NCKHNrYikuZWZmX2NhcCA9IDA7DQogCXJldHVy
+biAwOw0K
+---559023410-758783491-1002131552=:2339--
 
 --
 You have received this message because you are subscribed to the selinux list.
