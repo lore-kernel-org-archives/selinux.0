@@ -1,43 +1,56 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA10905
-	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 08:38:57 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA11006
+	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 08:47:21 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA07552
-	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 13:37:02 GMT
-Received: from nox.lemuria.org ([213.191.86.30])
-        by jazzband.ncsc.mil  with ESMTP id NAA07548 for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 13:37:01 GMT
-Date: Mon, 28 Oct 2002 14:38:55 +0100
-From: Tom <tom@lemuria.org>
-To: Russell Coker <russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id NAA08088
+	for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 13:45:26 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id NAA08084 for <selinux@tycho.nsa.gov>; Mon, 28 Oct 2002 13:45:24 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Tom <tom@lemuria.org>
+Subject: Re: mysql policy
+Date: Mon, 28 Oct 2002 14:47:09 +0100
 Cc: selinux@tycho.nsa.gov
-Subject: Re: dontaudit
-Message-ID: <20021028143854.A5399@lemuria.org>
-References: <20021028125555.A3585@lemuria.org> <200210281357.29762.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200210281357.29762.russell@coker.com.au>; from russell@coker.com.au on Mon, Oct 28, 2002 at 01:57:29PM +0100
+References: <20021028110158.A1294@lemuria.org> <200210281324.12898.russell@coker.com.au> <20021028135809.A4521@lemuria.org>
+In-Reply-To: <20021028135809.A4521@lemuria.org>
+MIME-Version: 1.0
+Message-Id: <200210281447.09486.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Oct 28, 2002 at 01:57:29PM +0100, Russell Coker wrote:
-> > so what is the best way to globally turn off dontaudit? grep -v
-> > dontaudit policy.conf  ?
-> 
-> grep -v ^dontaudit policy.conf > p ; mv p policy.conf ; make load
-> 
-> I guess it might make sense to have an entry in the Makefile to allow "make 
-> dontaudit" for this...
+On Mon, 28 Oct 2002 13:58, Tom wrote:
+> On Mon, Oct 28, 2002 at 01:24:12PM +0100, Russell Coker wrote:
+> > It's not that uncommon for an init script to read the config file before
+> > starting a daemon.  I'll change my policy in that regard.
+>
+> Right. The thing is, this is the mysqladmin program, not mysqld -
+> mysqladmin is a commandline tool to administrate the database. Not sure
+> if they should run in the same domain. Right now, mysqladmin is just a
+> regular tool, i.e. bin_t.
 
-Actually, the more I work with policies the more I want various
-policies, i.e. "create a new one but keep the old". Should be possible
-right now with some manual work, but something like Lilo where you can
-also boot from a choice of kernels would be better.
+Being in bin_t means of course that there's no domain transition.
 
+Maybe the right thing to do would be to have a separate domain for mysql 
+admin, so initrc_t transitions to mysqld_admin_t which then transitions to 
+mysqld_t when it runs the database server.
+
+I haven't got into these things in any detail, you're probably the best person 
+to work on this.
+
+> Funny thing is, it worked flawlessly on friday. I made an update
+> earlier today, so maybe a recent change broke it?
+
+That's not uncommon.  Debian/unstable changes fast.
 
 -- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
