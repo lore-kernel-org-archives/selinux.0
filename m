@@ -1,37 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA01563
-	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2001 12:21:09 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA28320
-	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2001 17:21:06 GMT
-Received: from missioncriticallinux.com (mail.missioncriticallinux.com [208.51.139.18])
-	by jazzswing.ncsc.mil  with ESMTP id RAA28315
-	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2001 17:21:04 GMT
-To: "Matt Schroeder" <schroema@hotmail.com>
-cc: selinux@tycho.nsa.gov
-Subject: Re: Thoughts on the list... 
-In-Reply-To: Message from "Matt Schroeder" <schroema@hotmail.com>
-   of "Tue, 06 Mar 2001 11:26:19 CST." <OE39NY1SWoBDyseVwrb00001d32@hotmail.com>
-References: <Pine.SOL.3.95.1010306105403.22613B-100000@clipper.gw.tislabs.com>  <OE39NY1SWoBDyseVwrb00001d32@hotmail.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Mar 2001 12:22:00 -0500
-From: Jeffry Smith <smith@missioncriticallinux.com>
-Message-Id: <E14csUi-0001zH-00@localhost.localdomain>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA01865
+	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2001 12:47:14 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA03498
+	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2001 17:47:13 GMT
+Received: from la-mail02.lordabbett.com (zeus.lordabbett.com [204.128.232.11])
+	by jazzband.ncsc.mil  with ESMTP id RAA03494
+	for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2001 17:47:12 GMT
+Message-ID: <1126BD6BE31BD211B88C0090271591F301C0610F@la-mail02.lordabbett.com>
+From: "Laverty, James" <JLaverty@lordabbett.com>
+To: selinux@tycho.nsa.gov
+Subject: RE: Thoughts on the list...
+Date: Tue, 13 Mar 2001 12:47:08 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Matt Schroeder said:
-> Am I the only one who wishes the email list daemon added some recognizeable
-> text to the subject so as to filter the email easier?  For instance,
-> 
-> Subject: [selinux] Re: blah blah subject
-> 
+Filter based on e-mail from selinux@tycho.nsa.gov
 
-Nope.  Filter on the from / to / sender lines.  If your mail client is 
-stripping those off, get a new mail client.
+-----Original Message-----
+From: Matt Schroeder [mailto:schroema@hotmail.com]
+Sent: Tuesday, March 06, 2001 12:26 PM
+To: selinux@tycho.nsa.gov
+Subject: Thoughts on the list...
 
-jeff 
+
+Am I the only one who wishes the email list daemon added some recognizeable
+text to the subject so as to filter the email easier?  For instance,
+
+Subject: [selinux] Re: blah blah subject
+
+Just curious.
+
+
+
 
 
 --
