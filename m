@@ -1,46 +1,37 @@
-Date: Fri, 6 Jun 2003 10:06:11 -0700
-From: Rafal Wojtczuk <rafal@intruvert.com>
-To: SELinux@tycho.nsa.gov
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Rafal Wojtczuk <rafal@intruvert.com>, SELinux@tycho.nsa.gov
 Subject: Re: A vulnerability in SELinux (fwd)
-Message-ID: <20030606170611.GA701@emperor.intruvert.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Date: Sat, 7 Jun 2003 04:30:15 +1000
+References: <20030606170611.GA701@emperor.intruvert.com>
+In-Reply-To: <20030606170611.GA701@emperor.intruvert.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Message-Id: <200306070430.15501.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Sat, 7 Jun 2003 03:06, Rafal Wojtczuk wrote:
+> Russel> Over the last few days on the #selinux list there has been
+> Russel> discussion of these things.  The easiest implementation of such an
+> Russel> attack (which was successfully used in practise) was to create a
+> Russel> shell function named newrole() which gets
+> You mean, alter ~someuser/.bashrc ? At least in my setup (default policy),
+> root:user_r:user_t has no access to ~root.
 
-Vayne Salomon>   'Sorry about the previously terse note, the version below
-Vayne Salomon> was meant to be sent to an internal list first.
-Bravissimo. Very responsible indeed. Why not to slashdot ?
+If root has dac_override capability then it can over-write the .bashrc.
 
-Brian May> I had a feeling that LD_PRELOAD was somehow ignored if the exec
-Brian May> would trigger a change in domain?
-Obviously it is not. Obviously it should be.
+If you crack sshd then you can login with whichever UID you choose and the 
+ability to write the files in that user's home directory (with the current 
+default policy).
 
-Brian May> Can this be reproduced with 2.4.x? 
-Yes.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-Brian May> What is the label associated with libSegfault.so?
-Read the advisory, or recall how "make relabel" works.
-
-Brian May> IIRC A process needs exec rights in order to use a shared library.
-Correct. That is why simple "LD_PRELOAD=./my_evil_library.so schfn" does not
-work.
-
-Carsten Grohmann> This time I can't reproduce it the in section II
-Carsten Grohmann> descripted attack.
-The ulimit syntax may depend on your bash version; you may have to use 
-"ulimit -s 10".
-
-Russel> Over the last few days on the #selinux list there has been 
-Russel> discussion of these things.  The easiest implementation of such an 
-Russel> attack (which was successfully used in practise) was to create a 
-Russel> shell function named newrole() which gets
-You mean, alter ~someuser/.bashrc ? At least in my setup (default policy), 
-root:user_r:user_t has no access to ~root. 
-
-RW
 
 --
 This message was distributed to subscribers of the selinux mailing list.
