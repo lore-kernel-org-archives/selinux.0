@@ -1,73 +1,74 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OGsArT028643
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 12:54:10 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OGrMMZ020050
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 16:53:23 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: policy patch
-Date: Wed, 25 Aug 2004 02:54:04 +1000
-Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-References: <200408241818.40064.russell@coker.com.au> <1093350182.1800.71.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1093350182.1800.71.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_sK3KBnXYlJNICyT"
-Message-Id: <200408250254.04694.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OI9GrT029393
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 14:09:16 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OI8UMZ025290
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 18:08:31 GMT
+Subject: Re: named policy
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Jason Vas Dias <jvdias@redhat.com>,
+   Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <200408250249.01418.russell@coker.com.au>
+References: <200408241840.58207.russell@coker.com.au>
+	 <1093349343.1800.57.camel@moss-spartans.epoch.ncsc.mil>
+	 <200408250249.01418.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1093370858.1800.221.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 24 Aug 2004 14:07:38 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2004-08-24 at 12:49, Russell Coker wrote:
+> > 3) /var/named/chroot labeling changes seem wrong to me; the current .fc
+> > file provides consistent labels with a normal filesystem layout.
+> 
+> The .fc file in CVS does use more consistent labels with a normal file system.  
+> However I don't think that this is a benefit.
 
---Boundary-00=_sK3KBnXYlJNICyT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+If you were to remove named_t's access to base system types (like
+root_t, etc_t, var_t, tmp_t, ...) entirely and only support chroot'd
+operation, then it would make sense to only use named-specific types for
+the chroot environment and use the policy to prohibit any access by
+named outside of the chroot.  Otherwise, I think you want consistency
+between the chroot and non-chroot environment labeling for policy
+consistency between the two setups and to avoid overly permissive access
+to named even within the chroot. 
 
-On Tue, 24 Aug 2004 22:23, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> On Tue, 2004-08-24 at 04:18, Russell Coker wrote:
-> > diff1 removes some unnecessary dontaudit lines from syslogd.te, if there
-> > is to be one single domain accessing devpts_t:chr_file then syslogd_t is
-> > not it, and if a log file gets type unlabeled_t then it's something we
-> > want audited.
+Do you really want named_conf_t assigned to the chroot's /, /dev, /etc,
+/var, /var/run and any otherwise unspecified files within them?  Audit
+messages will be rather interesting there.  Nits:  Your .fc file also
+has no entries for /dev/zero or /var/named within the chroot.  Finally,
+I don't see why chroot'd named is redhat-specific.
+
+> For example using tmp_t for the tmp directory is a bad idea IMHO.  If somehow 
+> (due to a mistake in policy or a policy which matches a configuration that's 
+> significantly altered from the default) a process in another gets access to 
+> the chroot then it would be allowed to create temporary files there even 
+> though the policy may correctly prevent it writing to all types associated 
+> with named.  I think that tmp_t should be reserved for directories that are 
+> designed for use by a large number of domains for temporary files.
 >
-> Both rules were added by Dan, so please coordinate such changes with
-> him.  The dontaudit rules for devpts_t:chr_file are for the targeted
-> policy, which has no derived types for ptys or ttys; daemon restart will
+> The same applies for the dev directory, we don't need to allow all domains to 
+> search that directory, just named_t, sysadm_t, and a small number of others.
 
-In that case we should modify the daemon_core_rules() macro to solve it 
-properly.  I've attached a patch which should fix this.
+As above, if you wanted strong isolation, you could put each daemon into
+a chroot with its own set of types, not allow any access to any of the
+base system types or to another domain's types by the daemon's domain. 
+But if you are going to give them access to the base system types anyway
+(e.g. if they can access the system /tmp directory or the system /dev
+directory), then what does it matter?  They are unlikely to be able to
+reach each other's chroot environments anyway due to base protections on
+the containing directory (e.g. /var/named itself), but even if they did,
+they can't do any more harm than they can do to the base system (and
+your policy has to be written from that perspective anyway, as you are
+writing it for non-chroot setups as well as chroot setups). 
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---Boundary-00=_sK3KBnXYlJNICyT
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
---- /usr/src/se/policy/macros/global_macros.te	2004-08-24 16:01:30.000000000 +1000
-+++ macros/global_macros.te	2004-08-25 02:52:43.000000000 +1000
-@@ -292,6 +292,9 @@
- ifdef(`automount.te', `
- allow $1_t autofs_t:dir { search getattr };
- ')dnl end if automount.te
-+ifdef(`targeted_policy', `
-+dontaudit $1_t devpts_t:chr_file { read write };
-+')dnl end if targeted_policy
- 
- ')dnl end macro daemon_core_rules
- 
-
---Boundary-00=_sK3KBnXYlJNICyT--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
