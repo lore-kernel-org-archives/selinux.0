@@ -1,61 +1,45 @@
-Subject: Re: question about su and passwd
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: lky <lky77@sjtu.edu.cn>
-Cc: SELINUX <SELinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
-   Howard Holm <hdholm@epoch.ncsc.mil>
-In-Reply-To: <000c01c39cb7$e4e99f50$5d38a8c0@lky>
-References: <001401c39a74$ac06b370$5d38a8c0@lky>
-	 <1067266352.18818.51.camel@moss-spartans.epoch.ncsc.mil>
-	 <000c01c39cb7$e4e99f50$5d38a8c0@lky>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9RJNDWt027504
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 14:23:13 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9RJMvIS010881
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 19:22:57 GMT
+Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
+	by jazzswing.ncsc.mil  with ESMTP id h9RJMuDc010878
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 19:22:56 GMT
+Subject: Re: question about pam_selinux multiple option
+From: Chris PeBenito <pebenito@gentoo.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <3F9D33EC.8060705@redhat.com>
+References: <20031025134459.4fb0e536.ynakam@ori.hitachi-sk.co.jp>
+	 <3F9D33EC.8060705@redhat.com>
 Content-Type: text/plain
-Message-Id: <1067279528.18818.129.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1067282582.1077.16.camel@chris.pebenito.net>
 Mime-Version: 1.0
-Date: 27 Oct 2003 13:32:08 -0500
+Date: Mon, 27 Oct 2003 13:23:03 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-10-27 at 13:26, lky wrote:
-> On Monday, October 27, 2003 10:52 PM,Stephen Smalley wrote:
-> > - The kernel performs permission checks for the various kernel
-> > operations invoked by the passwd program, e.g. invoking cracklib
-> > to check the strength of the passwd, accessing the cracklib database,
-> > updating /etc/shadow, etc.  The policy or file contexts configurations
-> > may need to be adjusted to grant the appropriate permissions or set
-> > the appropriate file types.  Is crack.te enabled?
-> 
-> Sorry,I didn't enable crack.te.Now I can use passwd.Thanks a lot!
+On Mon, 2003-10-27 at 09:04, Daniel J Walsh wrote:
+> The multiple option was added to allow the user to select the security 
+> context they would be allowed to login in as.  We have decided to pull 
+> this functionality from login programs and only allow the user to login 
+> with the default context.
 
-I think that this is actually a "bug" in the policy, as you want the
-crack database correctly typed for pam_cracklib even if you aren't
-running the crack program itself.  I suspect we want the type definition
-and file contexts entries for the cracklib enabled even if crack.te is
-not.
-
-> > - The passwd program performs a permission check when the password for a
-> > user other than the current SELinux user identity would be changed, e.g.
-> > you ran passwd after doing a 'su' so that your SELinux user identity
-> > no longer matches your Linux uid or you ran passwd with a username
-> > argument other than your own.  This is to prevent someone with the
-> > Linux root uid from being able to change the passwords of other users
-> > unless they are also in an authorized role/domain.
-> 
-> But in enfoced mode I can still run passwd after doing a 'su' . For example,
-> I just login as root and then run 'su tom'(tom is a common user).Next I can 
-> run passwd and change the password of tom. And I can change other users' 
-> password after login as root.I shouldn't do that,right? But it happened.why?
-
-That's ok as long as you were in sysadm_r:sysadm_t prior to running
-passwd, as the policy grants that domain the permission to change other
-users' passwords.  We aren't trying to prevent a legitimate
-administrator from changing other users' passwords.  We are trying to
-prevent arbitrary uid 0 processes in other domains from doing that, e.g.
-try the same thing as root from user_r:user_t or staff_r:staff_t or any
-daemon domain.
+I'm curious what prompted this change?  Prompting the user for the
+context they want to login with, for local logins, has been there for as
+long as I've used SELinux (though thats only since March).  That is, in
+the older /bin/login patches.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer, SELinux
+Hardened Gentoo Linux
+ 
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
+Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
 --
 This message was distributed to subscribers of the selinux mailing list.
