@@ -1,90 +1,57 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB3EO9Rb021619
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 09:24:10 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB3EO9qY017285
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 14:24:09 GMT
-Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
-        by jazzband.ncsc.mil  with ESMTP id hB3EO40o017269 for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 14:24:07 GMT
-Received: from lky (mailwall.shnet.edu.cn [202.112.26.55])
-	by sjtu.edu.cn (WorldPost) with ESMTP id 163BD37772E
-	for <selinux@tycho.nsa.gov>; Wed,  3 Dec 2003 22:23:51 +0800 (BEIST)
-Message-ID: <014201c3b9a9$1c01d6c0$5d38a8c0@lky>
-From: "lky" <lky77@sjtu.edu.cn>
-To: "SELINUX" <SELinux@tycho.nsa.gov>
-Subject: question about booting webmin as different users
-Date: Wed, 3 Dec 2003 22:24:02 +0800
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_013F_01C3B9EC.2770F340"
+Subject: Re: policy under version control
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: SELinux List <SELinux@tycho.nsa.gov>, tom@lemuria.org
+Content-Type: text/plain
+Message-Id: <1070465788.3774.29.camel@colossus.columbia.tresys.com>
+Mime-Version: 1.0
+Date: Wed, 03 Dec 2003 10:36:28 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Mon, 2003-12-01 at 14:28, Tom wrote:
+> On Mon, Dec 01, 2003 at 10:13:35AM -0500, Stephen Smalley wrote:
+> > There is already a sourceforge CVS tree, and patches can be posted to
+> > the selinux list.
+> 
+> The problem I see with read-only CVS and a post-to-mailinglist approach 
+> is that it's non-trivial to maintain various sets of the same policy.
+> 
+> It seems that in the long run we won't be able to do with a single
+> default policy. We'll need a couple, or a modular approach. Something
+> very much like Debian's tasksel or other tools for other distributions
+> where you have 5-10 fields you can check what your machine is going to
+> be, and the relevant policy is then assembled automatically.
+> 
+> 
 
-------=_NextPart_000_013F_01C3B9EC.2770F340
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
+We are working on some general mechanisms to address this problem. The
+first is the ability to define booleans in policies that can be changed
+at runtime. This will allow you to turn on and off TE rules based on the
+values of the booleans. We posted some messages about this in the past
+and we are going to release a working snapshot of this in the next few
+days.
 
-SGksIEkganVzdCB3YW50IHRvIHNldCB1cCAzIHVzZXJzIHdpdGggZGlmZmVyZW50IHJpZ2h0cy5P
-bmUgZm9yIHN5c3RlbSBhZG1pbmlzdHJhdGlvbixvbmUgZm9yIGF1ZGl0IGFkbWluaXN0cmF0aW9u
-LHRoZSBsYXN0IGZvciBzZWN1cml0eSBhZG1pbnN0cmF0b3IuVGhlbiBJIGluc3RhbGxlZCAzIHdl
-Ym1pbnMgb24gMyBkaWZmZXJlbnQgcG9ydHM6MTAwMDAsMTEwMDAsMTIwMDAuIFRoZW4gSSBydW4g
-dGhlIHRocmVlIHdlYm1pbnMgb24gZGlmZmVyZW50IHBvcnRzIGJ5IHRoZSB0aHJlZSB1c2VycyBp
-bmRpdmlkdWFsbHkuDQpCZWNhdXNlIEkgaGF2ZSBjb25maWd1cmVkIGRpZmZlcmVudCByaWdodHMg
-Zm9yIHRoZSAzIHVzZXJzLk5vdyBJIGNhbiBvbmx5IHJ1biB0aGUgd2VibWluIGFzIHN5c3RlbSBh
-ZG1pbnN0cmF0b3IuV2hlbiBJIHJ1biB3ZWJtaW4gYXMgYXVkaXQgYWRtaW5pc3RyYXRvciBvciBz
-ZWN1cml0eSBhZG1pbmlzdHJhdG9yIHRoZSBlcnJvciBtZXNzYWdlcyBjb21lIGFzIGJlbG93Og0K
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQpTdGFydGluZyBXZWJtaW4gc2VydmVyIGlu
-IC91c3Ivc3JjL3dlYm1pbi1hdXRhZG0tMS4xMDANCmdldHNlcnZieW5hbWUgZmFpbGVkIGZvciB0
-Y3AgYXQgKGV2YWwgMykgbGluZSAxDQp1bml4IGRncmFtIGNvbm5lY3Q6IFBlcm1pc3Npb24gZGVu
-aWVkIGF0IChldmFsIDMpIGxpbmUgMQ0Kc3RyZWFtIC9kZXYvY29uc2xvZyBpcyBub3Qgd3JpdGFi
-bGUgYXQgKGV2YWwgMykgbGluZSAxDQpjb25zb2xlIGlzIG5vdCB3cml0YWJsZSBhdCAoZXZhbCAz
-KSBsaW5lIDENCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQpXaGF0IHJpZ2h0cyBzaG91
-bGQgSSBhZGQgdG8gYXVkaXQgYWRtaW5pc3RyYXRvciBhbmQgc2VjdXJpdHkgYWRtaW5pc3RyYXRv
-cj8NClRoYW5rcyBhIGxvdCENCmxreQ0K
+We are also working on binary policy modules, which more directly
+address what you are wanting I think. This will allow you to create
+small binary policy modules separately from a base policy. This is
+primarily for the purpose of adding or removing policy components for
+specific applications. The advantages of this system are that the
+requirement for the policy source and checkpolicy is removed, there will
+be language extensions to make the policy modules more loosely coupled
+to the core policy (i.e. 1 module will potentially work with a variety
+of base policies), and there will be provisions to handle labeling on
+installation or removal of the policy modules. Hopefully we will be able
+to post some more information about this in the near future (we are in
+the design phase of this project).
 
-------=_NextPart_000_013F_01C3B9EC.2770F340
-Content-Type: text/html;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
+Karl
 
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
-dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
-MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
-WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPkhpLCZuYnNw
-O0kganVzdCB3YW50IHRvIHNldCB1cCAzJm5ic3A7dXNlcnMgd2l0aCANCmRpZmZlcmVudCByaWdo
-dHMuT25lIGZvciBzeXN0ZW0gYWRtaW5pc3RyYXRpb24sb25lIGZvciBhdWRpdCBhZG1pbmlzdHJh
-dGlvbix0aGUgDQpsYXN0IGZvciBzZWN1cml0eSBhZG1pbnN0cmF0b3IuVGhlbiBJIGluc3RhbGxl
-ZCAzIHdlYm1pbnMgb24gMyBkaWZmZXJlbnQgDQpwb3J0czoxMDAwMCwxMTAwMCwxMjAwMC4gVGhl
-biBJIHJ1biB0aGUgdGhyZWUgd2VibWlucyBvbiBkaWZmZXJlbnQgcG9ydHMmbmJzcDtieSANCnRo
-ZSB0aHJlZSB1c2VycyBpbmRpdmlkdWFsbHkuDQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0y
-PkJlY2F1c2UgSSBoYXZlIGNvbmZpZ3VyZWQgZGlmZmVyZW50IHJpZ2h0cyBmb3IgdGhlIA0KMyB1
-c2Vycy5Ob3cgSSBjYW4gb25seSBydW4gdGhlIHdlYm1pbiBhcyBzeXN0ZW0gYWRtaW5zdHJhdG9y
-LldoZW4gSSBydW4gd2VibWluIA0KYXMgYXVkaXQgYWRtaW5pc3RyYXRvciBvciBzZWN1cml0eSBh
-ZG1pbmlzdHJhdG9yIHRoZSBlcnJvciBtZXNzYWdlcyBjb21lIGFzIA0KYmVsb3c6PC9GT05UPjwv
-RElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsIA0Kc2l6ZT0yPi0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLTwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+U3Rh
-cnRpbmcgV2VibWluIHNlcnZlciBpbiANCi91c3Ivc3JjL3dlYm1pbi1hdXRhZG0tMS4xMDA8QlI+
-Z2V0c2VydmJ5bmFtZSBmYWlsZWQgZm9yIHRjcCBhdCAoZXZhbCAzKSBsaW5lIA0KMTxCUj51bml4
-IGRncmFtIGNvbm5lY3Q6IFBlcm1pc3Npb24gZGVuaWVkIGF0IChldmFsIDMpIGxpbmUgMTxCUj5z
-dHJlYW0gDQovZGV2L2NvbnNsb2cgaXMgbm90IHdyaXRhYmxlIGF0IChldmFsIDMpIGxpbmUgMTxC
-Uj5jb25zb2xlIGlzIG5vdCB3cml0YWJsZSBhdCANCihldmFsIDMpIGxpbmUgMTwvRk9OVD48L0RJ
-Vj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCANCnNpemU9Mj4tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLTwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+V2hhdCBy
-aWdodHMgc2hvdWxkIEkgYWRkIHRvIGF1ZGl0IGFkbWluaXN0cmF0b3IgYW5kIA0Kc2VjdXJpdHkg
-YWRtaW5pc3RyYXRvcj88L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0y
-PlRoYW5rcyBhIGxvdCE8L0ZPTlQ+PC9ESVY+DQo8RElWPmxreTwvRElWPjwvRk9OVD48L0RJVj48
-L0JPRFk+PC9IVE1MPg0K
-
-------=_NextPart_000_013F_01C3B9EC.2770F340--
-
+-- 
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+http://www.tresys.com
+(410) 290-1411 x134
 
 
 --
