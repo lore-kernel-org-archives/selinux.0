@@ -1,55 +1,63 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i582C0rT009191
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jun 2004 22:12:00 -0400 (EDT)
-Received: from turing-police.cirt.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i582Bt22028953
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jun 2004 22:11:55 -0400 (EDT)
-Message-Id: <200406080212.i582C1uG013226@turing-police.cc.vt.edu>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: dpkg fails on installing nvidia-glx because /etc/init.d/nvidia-glx start is run 
-In-Reply-To: Your message of "Mon, 07 Jun 2004 23:15:56 -0000."
-             <20040607231556.GI3305@lkcl.net>
-From: Valdis.Kletnieks@vt.edu
-References: <20040607231556.GI3305@lkcl.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-765810165P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 07 Jun 2004 22:12:01 -0400
+Message-ID: <20040608043054.58295.qmail@web51505.mail.yahoo.com>
+Date: Mon, 7 Jun 2004 21:30:54 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Is SIDs no longer used?
+To: sds@epoch.ncsc.mil
+Cc: SELinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1849098909-1086669054=:57405"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-765810165P
+--0-1849098909-1086669054=:57405
 Content-Type: text/plain; charset=us-ascii
 
-On Mon, 07 Jun 2004 23:15:56 -0000, Luke Kenneth Casson Leighton <lkcl@lkcl.net>  said:
-> hiya (russell?)
-> 
-> i just installed the nvidia-glx package (don't ask :)
+Dear sir,
+ 
+       In <<Configuring the SELinux Policy>>, there was something about SIDs:
+ 
+"In order to better encapsulate security contexts and to provide greater
+efficiency, the policy enforcement code of SELinux typically handles security identifiers (SIDs) rather than security contexts."
+ 
+        But in <<Getting Started with SE Linux HOWTO: the new SE Linux>>, I saw the following:
+ 
+"SIDs and PSIDs no longer used
+SIDs (Security Identifiers) were used in the old SE Linux in the interface to the kernel (from userspace). PSIDs (Persistent SIDs) were used in the kernel code for  mapping files to contexts for files and directories on disk. In the new SE Linux, the extended attributes contain the context so SIDs and PSIDs are no longer necessary."
+ 
+        Then, I want to ask: Is SIDs really no longer used? If it's true, What does the policy enforcement code of SELinux typically handle?
+ 
+Thank you!
+ 
+Respectfully yours,
+Park Lee
+2004-06-08
 
-> i need to write an nvidia-glx policy, don't i?
 
-Not necessarily.  At least under Fedora, all the NVidia stuff ends up
-labelled correctly by the contents of file_contexts/program/xserver.fc
-(All the /usr/lib *.so's  end up as shlib_t, and the /dev/nvidia.* end
-up as xserver_misc_device_t, and you're ready to rock-n-roll...)
+		
+---------------------------------
+Do you Yahoo!?
+Friends.  Fun. Try the all-new Yahoo! Messenger
+--0-1849098909-1086669054=:57405
+Content-Type: text/html; charset=us-ascii
 
-You may just need to cd to /etc/<selinux-path> and do a 'make relabel'.
-
-
---==_Exmh_-765810165P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAxSBxcC3lWbTT17ARAoxMAKCdhN96acH9KJKHEUDRdxXBhxtJWACgjRHE
-BLVyT8y8JezRVEQ/iAsPrj0=
-=QFwI
------END PGP SIGNATURE-----
-
---==_Exmh_-765810165P--
+<DIV>Dear sir,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; In &lt;&lt;Configuring the SELinux Policy&gt;&gt;, there was something about SIDs:</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>"In order to better encapsulate security contexts and to provide greater<BR>efficiency, the policy enforcement code of SELinux typically handles security identifiers (SIDs) rather than security contexts."</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; But in &lt;&lt;Getting Started with SE Linux HOWTO: the new SE Linux&gt;&gt;, I saw the following:</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>"SIDs and PSIDs no longer used<BR>SIDs (Security Identifiers) were used in the old SE Linux in the interface to the kernel (from userspace). PSIDs (Persistent SIDs) were used in the kernel code for&nbsp; mapping files to contexts for files and directories on disk. In the new SE Linux, the extended attributes contain the context so SIDs and PSIDs are no longer necessary."</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Then, I want to ask: Is SIDs really no longer used? If it's true, What does the policy enforcement code of SELinux typically handle?</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thank you!</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Respectfully yours,</DIV>
+<DIV>Park Lee<BR>2004-06-08<BR></DIV><p>
+		<hr size=1><font face=arial size=-1>Do you Yahoo!?<br>Friends.  Fun. <a href="http://messenger.yahoo.com/">Try the all-new Yahoo! Messenger</a>
+--0-1849098909-1086669054=:57405--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
