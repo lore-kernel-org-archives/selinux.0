@@ -1,37 +1,28 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4QGXVRb027139
-	for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 12:33:31 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4QGXUAR027260
-	for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 16:33:30 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i4QGXUHn027257 for <selinux@tycho.nsa.gov>; Wed, 26 May 2004 16:33:30 GMT
-Subject: Re: mysql issues...
+Subject: Re: New design for policy on disk allowing multiple policy rpms to
+	be simultaniously installed.
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: fedora-selinux-list@redhat.com, Valdis.Kletnieks@vt.edu,
-   SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200405261417.40958.russell@coker.com.au>
-References: <200405250215.i4P2FFAe027848@turing-police.cc.vt.edu>
-	 <200405261417.40958.russell@coker.com.au>
+To: Jeff Johnson <n3npq@nc.rr.com>
+Cc: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+   SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <40B39C09.5040300@nc.rr.com>
+References: <40B394AF.2000801@redhat.com>  <40B39C09.5040300@nc.rr.com>
 Content-Type: text/plain
-Message-Id: <1085589112.31854.86.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1085590563.31854.95.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 26 May 2004 12:31:52 -0400
+Date: Wed, 26 May 2004 12:56:03 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-05-26 at 00:17, Russell Coker wrote:
-> Why have mysql_cmd_t instead of just allowing user_t directly?  What is the 
-> benefit in having a domain for client access?
+On Tue, 2004-05-25 at 15:18, Jeff Johnson wrote:
+> Well, the existing means to handle simultaneous installs of otherwise 
+> mutually exclusive packages is the
+> alternatives mechanism used to handle sendmail vs. postfix and lpd vs. cups.
+> 
+> Yes, symlinks, feeble, but that is the existing mechanism, might as well 
+> use if in the distro.
 
-Is the client program setgid or setuid presently to give it more
-access?  If so, then a separate domain is reasonable.  Regardless, there
-is a potential advantage in limiting access to the client program, e.g.
-you can ensure that only well-formed messages constructed by the client
-program are sent on that socket as opposed to arbitrary data from the
-user.  Naturally, it all depends on what you are trying to protect and
-what threats you want to counter.
+Can you elaborate on how this works presently?  How do you avoid
+conflicts among multiple packages owning those symlinks?
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
