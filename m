@@ -1,59 +1,44 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5DAoFrT013410
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2004 06:50:16 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5DAoCkj023020
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2004 06:50:13 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 13 Jun 2004 10:50:13 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BZRwG-0002ER-0U
-	for selinux@tycho.nsa.gov; Sun, 13 Jun 2004 10:10:08 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BZSWQ-0006Pf-Np
-	for selinux@tycho.nsa.gov; Sun, 13 Jun 2004 10:47:30 +0000
-Date: Sun, 13 Jun 2004 10:47:30 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: debian font manager (defoma) and true-type fonts
-Message-ID: <20040613104730.GH2861@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5DFeirT013954
+	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2004 11:40:45 -0400 (EDT)
+Received: from ms-smtp-01.rdc-kc.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5DFefkj026189
+	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2004 11:40:41 -0400 (EDT)
+Received: from sasami.localdomain (CPE-24-31-241-155.kc.rr.com [24.31.241.155])
+	by ms-smtp-01.rdc-kc.rr.com (8.12.10/8.12.7) with ESMTP id i5DFecBm000302
+	for <selinux@tycho.nsa.gov>; Sun, 13 Jun 2004 10:40:40 -0500 (CDT)
+Received: from yggdrasil.localdomain ([192.168.0.2])
+	by sasami.localdomain with esmtp (Exim 4.34)
+	id 1BZX61-0001RF-4r
+	for selinux@tycho.nsa.gov; Sun, 13 Jun 2004 10:40:33 -0500
+Received: from adric by yggdrasil.localdomain with local (Exim 4.34)
+	id 1BZX61-0002mP-40
+	for selinux@tycho.nsa.gov; Sun, 13 Jun 2004 10:40:33 -0500
+Date: Sun, 13 Jun 2004 10:40:33 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: SELinux on Debian (Sid)
+Message-ID: <20040613154033.GA10171@yggdrasil.localdomain>
+References: <20040609144404.GJ5477@philips.com> <200406121819.57709.russell@coker.com.au> <20040612143714.GA28996@yggdrasil.localdomain> <200406131029.35825.russell@coker.com.au> <20040613012852.GA4210@yggdrasil.localdomain> <20040613075427.GZ2861@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040613075427.GZ2861@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-russell, hi,
+On Sun, Jun 13, 2004 at 07:54:27AM +0000, Luke Kenneth Casson Leighton wrote:
+> if i was you i would, as i said, delete the original install and
+> use russell's 1.12-3 policy.
 
-another couple of debian font manager related ones, i think you
-said you added this already?
+That's the exact version I'm using already... this was a new
+installation, and 1.12-3 had already hit the archive by the time I
+first attempted it.
 
-allow xprint_t readable_t:dir { search };
-	#EXE=/usr/bin/Xprt  NAME=defoma   :  search
-
-allow xprint_t readable_t:file { getattr read };
-	#EXE=/usr/bin/Xprt  NAME=fonts.dir   :  read
-	#EXE=/usr/bin/Xprt
-	PATH=/var/lib/defoma/x-ttcidfont-conf.d/dirs/TrueType/fonts.dir :  getattr
-
-allow xprint_t var_lib_t:dir { search };
-	#EXE=/usr/bin/Xprt  NAME=lib   :  search
-
-i'm trying this out, in file_contexts/types.fc
-
-	/usr/lib/defoma(/.*)?  system_u:object_r:fonts_t
-
-
--- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+I did try purging and re-installing last night, but that didn't seem to
+change anything.  I'll go ahead and give it another shot, in case I
+overlooked some cleanup.  Do you know if anything other than
+/etc/selinux and /usr/share/selinux/policy needs to be removed
+manually?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
