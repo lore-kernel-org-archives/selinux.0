@@ -1,60 +1,76 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA20682
-	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 08:11:47 -0400 (EDT)
-From: pasi.kivikangas@nokia.com
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA10778
-	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 12:09:59 GMT
-Received: from mgw-x1.nokia.com (mgw-x1.nokia.com [131.228.20.21])
-        by jazzband.ncsc.mil  with ESMTP id MAA10750 for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 12:09:27 GMT
-Received: from esvir05nok.ntc.nokia.com (esvir05nokt.ntc.nokia.com [172.21.143.37])
-	by mgw-x1.nokia.com (Switch-2.2.1/Switch-2.2.0) with ESMTP id g8QCB5522785
-	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 15:11:05 +0300 (EET DST)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA20846
+	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 08:39:43 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA07153
+	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 12:38:13 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id MAA07149
+	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 12:38:13 GMT
+Date: Thu, 26 Sep 2002 08:39:25 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: <pasi.kivikangas@nokia.com>
+cc: <selinux@tycho.nsa.gov>
 Subject: RE: SELinux on UML
-Date: Thu, 26 Sep 2002 15:11:10 +0300
-Message-ID: <98C7D2E5BCD2374C9AAE0BCD2E9C1DD9BE8430@esebe013.ntc.nokia.com>
-To: <sds@tislabs.com>
-Cc: <selinux@tycho.nsa.gov>
+In-Reply-To: <98C7D2E5BCD2374C9AAE0BCD2E9C1DD9BE8430@esebe013.ntc.nokia.com>
+Message-ID: <Pine.GSO.4.33.0209260814420.12826-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: ext Stephen Smalley [mailto:sds@tislabs.com] Sent: 26 September, 2002 14:34
-> 
-> Could you provide the actual output from the failed kernel compilation?
-> I'd like to see the specific error.  Is the real issue the new SELinux
-> system calls?
 
-I think the real issue is UML ptrace support but I'm not sure about it.
+On Thu, 26 Sep 2002 pasi.kivikangas@nokia.com wrote:
 
-...snip...
-make[3]: Entering directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security/selinux'
-gcc -D__KERNEL__ -I/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common  -g  -U__i386__ -Ui386 -DUM_FASTCALL -D__arch_um__ -DSUBARCH="i386" -D_LARGEFILE64_SOURCE -I/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/arch/um/include -Derrno=kernel_errno    -Iinclude  -nostdinc -I /usr/lib/gcc-lib/i386-redhat-linux/2.96/include -DKBUILD_BASENAME=syscalls  -c -o syscalls.o syscalls.c
-In file included from syscalls.c:1035:
-include/asm/flask/syscalls.c: In function `sys_security_selinux':
-include/asm/flask/syscalls.c:180: structure has no member named `ebx'
-include/asm/flask/syscalls.c:181: structure has no member named `ecx'
-include/asm/flask/syscalls.c:182: structure has no member named `edx'
-make[3]: *** [syscalls.o] Error 1
-make[3]: Leaving directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security/selinux'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security/selinux'
-make[1]: *** [_subdir_selinux] Error 2
-make[1]: Leaving directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security'
-make: *** [_dir_security] Error 2
-...snip...
+> ...snip...
+> make[3]: Entering directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security/selinux'
+> gcc -D__KERNEL__ -I/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common  -g  -U__i386__ -Ui386 -DUM_FASTCALL -D__arch_um__ -DSUBARCH="i386" -D_LARGEFILE64_SOURCE -I/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/arch/um/include -Derrno=kernel_errno    -Iinclude  -nostdinc -I /usr/lib/gcc-lib/i386-redhat-linux/2.96/include -DKBUILD_BASENAME=syscalls  -c -o syscalls.o syscalls.c
+> In file included from syscalls.c:1035:
+> include/asm/flask/syscalls.c: In function `sys_security_selinux':
+> include/asm/flask/syscalls.c:180: structure has no member named `ebx'
+> include/asm/flask/syscalls.c:181: structure has no member named `ecx'
+> include/asm/flask/syscalls.c:182: structure has no member named `edx'
+> make[3]: *** [syscalls.o] Error 1
+> make[3]: Leaving directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security/selinux'
+> make[2]: *** [first_rule] Error 2
+> make[2]: Leaving directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security/selinux'
+> make[1]: *** [_subdir_selinux] Error 2
+> make[1]: Leaving directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security'
+> make: *** [_dir_security] Error 2
+> ...snip...
 
-> As a side note, one SELinux user has privately reported that 
-> in order to port SELinux to the arm architecture, he restructured the 
-> SELinux code to ease porting to other architectures, which might also help 
-> with UML.  I'm still waiting for him to actually submit patches with his changes.
+This is the entrypoint code for the new SELinux system calls.  The
+execve_secure call is architecture-specific and requires access to the
+registers on the stack in order to pass them to do_execve.  It isn't truly
+ptrace-related, just dependent on an architecture-specific definition of
+the way registers are stored on the stack during a system call in struct
+pt_regs.  I presume that you'll need some corresponding
+"architecture-specific" code for UML.
 
-Sounds like a good contribution if it shows up.
+The SELinux user who reported on porting SELinux to the arm architecture
+mentioned that he reorganized this code to more cleanly separate the
+architecture-specific elements, changed the code that inserts the
+SELinux-specific security call into the system call table to be portable,
+fixed support for cross-compilation and added support so that the register
+access code can be in assembly (particularly for arm).  He also had to fix
+cross-compilation support in libsecure and setfiles.
+
+Since he did provide a reasonably detailed description of his changes to
+ease porting of SELinux, I could try to re-create his changes myself, but
+I was expecting him to submit a patch.  If I don't get a patch from him
+soon, I'll try to make these changes when I have some time.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-	- Pasi
+
+
+
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
