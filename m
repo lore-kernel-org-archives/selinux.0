@@ -1,56 +1,84 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i816bnrT018624
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 02:37:49 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i816awY2013336
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 06:36:59 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i817r7rT018994
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 03:53:07 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i817r3eu022613
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 07:53:04 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id C650961AFE
+	for <selinux@tycho.nsa.gov>; Wed,  1 Sep 2004 17:53:03 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 15078-02 for <selinux@tycho.nsa.gov>;
+	Wed, 1 Sep 2004 17:53:03 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 6AFB761AFC
+	for <selinux@tycho.nsa.gov>; Wed,  1 Sep 2004 17:53:03 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 0BDCFB58DA
+	for <selinux@tycho.nsa.gov>; Wed,  1 Sep 2004 17:53:02 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Tom London <selinux@comcast.net>
-Subject: Re: Progress! .532 boots! -- but dbus/hotplug/udev problems remain?
-Date: Wed, 1 Sep 2004 16:37:41 +1000
-Cc: fedora-selinux-list@redhat.com, SE-Linux <selinux@tycho.nsa.gov>
-References: <4130CF1B.3090909@comcast.net> <200408291737.17497.russell@coker.com.au> <41322F5E.90409@comcast.net>
-In-Reply-To: <41322F5E.90409@comcast.net>
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: udev policy
+Date: Wed, 1 Sep 2004 17:53:01 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409011637.41952.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_d/XNB/InSTd7XTk"
+Message-Id: <200409011753.01483.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 30 Aug 2004 05:32, Tom London <selinux@comcast.net> wrote:
-> --- /root/src.package/policy/domains/program/dbusd.te   2004-08-29
-> 11:38:27.000000000 -0700
-> +++ dbusd.te    2004-08-29 12:19:25.000000000 -0700
-> @@ -32,3 +32,7 @@
->
->  # SE-DBus specific permissions
->  allow { dbus_client_domain userdomain } { dbusd_t self }:dbus { send_msg
-> }; +
-> +allow user_t etc_dbusd_t:dir { search };
-> +allow user_t etc_dbusd_t:file { getattr read };
-> +allow user_t user_t:netlink_selinux_socket { bind create };
 
-One thing to remember is that any time you see user_t in policy it's a local 
-customisation or a bug.
+--Boundary-00=_d/XNB/InSTd7XTk
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-In this case it seems to me that one correct way of writing policy for this is 
-the following:
-allow { dbus_client_domain userdomain } etc_dbusd_t:dir { search };
-allow { dbus_client_domain userdomain } etc_dbusd_t:file { getattr read };
-allow { dbus_client_domain userdomain } user_t:netlink_selinux_socket { bind 
-create };
-
-But then we are granting almost every domain that has any significance in the 
-security of the system read access.  So why not just label the files as etc_t 
-and remove the etc_dbusd_t type entirely?
+The attached patch allows udev in rawhide to work properly with no audit 
+messages.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_d/XNB/InSTd7XTk
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="udev.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="udev.diff"
+
+--- /usr/src/se/policy/domains/program/unused/udev.te	2004-09-01 10:52:36.000000000 +1000
++++ domains/program/unused/udev.te	2004-09-01 17:51:52.000000000 +1000
+@@ -43,7 +43,8 @@
+ allow udev_t { device_t device_type }:{chr_file blk_file} { relabelfrom relabelto create_file_perms };
+ 	
+ # to read the file_contexts file
+-r_dir_file(udev_t, { selinux_config_t file_context_t default_context_t } )
++allow udev_t { selinux_config_t default_context_t file_context_t }:dir search;
++allow udev_t { selinux_config_t file_context_t }:file { getattr read };
+ 
+ allow udev_t policy_config_t:dir { search };
+ allow udev_t proc_t:file { read };
+@@ -82,6 +83,11 @@
+ ifdef(`consoletype.te', `
+ can_exec(udev_t, consoletype_exec_t)
+ ')
++ifdef(`pamconsole.te', `
++allow udev_t pam_var_console_t:dir search;
++')
++allow udev_t var_lock_t:dir search;
++allow udev_t var_lock_t:file getattr;
+ domain_auto_trans(udev_t, ifconfig_exec_t, ifconfig_t)
+ ifdef(`hide_broken_symptoms', `
+ dontaudit ifconfig_t udev_t:unix_dgram_socket { read write };
+
+--Boundary-00=_d/XNB/InSTd7XTk--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
