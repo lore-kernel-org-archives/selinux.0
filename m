@@ -1,53 +1,48 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA01286
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:40:38 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA26492
+	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 19:38:35 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id TAA26486 for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 19:38:33 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Michael Alexander S Contr OO-ALC/YPVS <Alexander.Michael@HILL.af.mil>,
-        "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
-Subject: Re: Errors in SELinux compile
-Date: Mon, 2 Dec 2002 20:25:23 +0100
-References: <1C693F61F78ADA449B9FDAE7737665E001A0157C@fskrsm41.hill.af.mil>
-In-Reply-To: <1C693F61F78ADA449B9FDAE7737665E001A0157C@fskrsm41.hill.af.mil>
+To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
+Subject: Re: expect
+Date: Mon, 2 Dec 2002 20:40:26 +0100
+References: <200211292002.PAA23890@moss-shockers.ncsc.mil> <200212021558.27661.russell@coker.com.au> <20021202183420.A16247@lemuria.org>
+In-Reply-To: <20021202183420.A16247@lemuria.org>
 MIME-Version: 1.0
-Message-Id: <200212022025.23834.russell@coker.com.au>
+Message-Id: <200212022040.26257.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2 Dec 2002 19:51, Michael Alexander S Contr OO-ALC/YPVS wrote:
-> make[2]: Entering directory '/home/Alex/lsm-2.4/fs'
-> gcc -D__KERNEL__ -I/home/Alex/lsm-2.4/include -Wall -Wstrict-prototypes
-> -Wno-trigraphs -02 -fno-strict-aliasing -fno-common -fomit-frame-pointer
-> -pipe -mpreferred-stack-boundary=2 -march=i686    -nostdinc -I
-> /usr/lib/gcc-lib/i386-redhat-linux/3.2/include -DKBUILD_BASENAME=namei   -c
-> -o namei.o namei.c
-> namei.c: In function 'getname':
-> namei.c: 142: (Each undeclared identifier is reported only once
-> namei.c: 142: for each function is appears in.)
-> namei.c: 142: warning: passing arg 2 of pointer to function from
-> incompatible pointer type
+[having a session with the right context to run daemons rather than 
+start-stop-daemon for each one]
+> I like this idea a lot. It would make a real-life admin job much, much
+> easier. It's not just that sometimes you have several daemons to
+> (re)start, it is during development that you easily restart a given
+> service a couple dozen times. I know I considered the password request
+> a nuisance after the 5th or so time.
 
-I've just quickly checked the patch from the latest NSA release and it doesn't 
-have any code at that point in namei.c.  Are you certain that the compilation 
-failure was because of SE Linux?
+Good point.  When doing development you tend to have a dozen x-terms open at 
+once anyway, so reserving one for starting and stopping daemons should be OK.
 
-Do you have any other kernel patches applied that might have caused a problem?  
-The LSM kernel patch changes many things, there are lots of patches that 
-conflict with it to varying degrees...
+Although this is when having labelled X windows would be good.
 
-> Are these errors critical to the install?  I just wanted to make sure
-> before I finished the install and found out I needed to change some other
-> option in one of my files.
+> > I believe that this isn't as good as my solution with expect, and it
+> > isn't something that can be done in a hurry either.
+>
+> Actually, it may turn out to be a better solution, mostly because
+> expect is no longer required (and a couple of the recent postings here have
+> shown just why that may be a good thing).
 
-You can install the utilities etc without having compiled the kernel.
-
-The web site http://sourceforge.net/projects/selinux/ appears to have kernel 
-packages for 2.4.19 available which should mean that the latest version of 
-the policydb is supported.  So you could download one of those kernel RPMs 
-for experimenting.
-
-I recommend compiling your own kernel for serious use, but for your first 
-install it might be best to just use a kernel rpm.  Once you get it up and 
-running lots of things become much easier to understand.
+The only real problem we have with expect IMHO is the problem I discovered 
+where some daemons don't start because the parent exits too fast.  I expect 
+that I'll solve that soon though.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
