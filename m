@@ -1,68 +1,45 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i36CtHRb001087
-	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 08:55:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i36Eq1Rb002084
+	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 10:52:01 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i36CtGmw007409
-	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 12:55:16 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [144.51.25.4])
-        by jazzband.ncsc.mil  with ESMTP id i36CtG4w007406 for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 12:55:16 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i36BtFNU015887
-	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 07:55:15 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id i36BtFhX015885
-	for selinux@tycho.nsa.gov; Tue, 6 Apr 2004 07:55:15 -0400
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i35MuURb027988
-	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 18:56:30 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i35MsWUZ000790
-	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 22:54:32 GMT
-Received: from cirrus.av8.net (cirrus.av8.net [130.105.36.66])
-	by jazzswing.ncsc.mil  with ESMTP id i35MsVmT000763
-	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 22:54:32 GMT
-Date: Mon, 5 Apr 2004 18:56:08 -0400 (EDT)
-From: Dean Anderson <dean@av8.com>
-To: Valdis.Kletnieks@vt.edu
-cc: Bill Laut <wlsel@verizon.net>,
-   SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: Logo Artwork for SELinux? 
-In-Reply-To: <200404051424.i35EO7iR006379@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.44.0404051848280.7505-100000@cirrus.av8.net>
+	by jazzband.ncsc.mil  with ESMTP id i36Epomw016787
+	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 14:51:50 GMT
+Received: from mail.idtweb.com (mail.idtweb.com [63.140.241.100])
+        by jazzband.ncsc.mil  with ESMTP id i36Epn4w016780 for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 14:51:49 GMT
+From: "Dan Thomsen" <dthomsen@tresys.com>
+To: "'Michael Pender'" <michael.pender@nanochron.com>,
+   "'Bill McCarty'" <bmccarty@pt-net.net>,
+   "'Untitled'" <selinux@tycho.nsa.gov>
+Subject: RE: Logo Artwork for SELinux?
+Date: Tue, 6 Apr 2004 09:51:34 -0500
+Message-ID: <001801c41be6$a85bc0f0$0201a8c0@columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <BC97B31C.9AAC%michael.pender@nanochron.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Probably you shouldn't say anything, lest some flaw in SELinux be
-exploited. Real tripwires are attached to mines and flares. Flares let you
-detect the enemy, mines kill them.  You never paint your tripwires bright
-orange.  Nor do you put a sign up that says "Post protected by flares and
-mines." with arrows pointing to the tripwires.  
+> contest to design the best logo.  We can offer the winner kudos as the
+> graphic designer.  That should suffice to get some talented artists
+> involved.  I'm willing to handle the administrative details to make it
+> happen.
 
-SELinux merely gives you a chance to detect the cracker before they are
-successful.  If they know that going in, you've already lost one
-advantage.  
+Not having a lick of artistic talent, I'll just have to throw my idea
+out there for one of the talented artists to run with. :-)
 
-		--Dean
+How about Tux the penguin wearing dark man in black type sunglasses and
+an ear piece?  Sort of a secret service look.
 
-On Mon, 5 Apr 2004 Valdis.Kletnieks@vt.edu wrote:
+---
+Dan Thomsen
+Tresys Technology    www.tresys.com
+dthomsen@tresys.com  d.j.thomsen@ieee.org
+cell: 612 968-5178   home: 612 789-4082
 
-> On Sun, 04 Apr 2004 18:56:17 EDT, Bill Laut <wlsel@verizon.net>  said:
-> > to brag on my church's opening webpage that their site is "Powered by Apache, 
-> > Protected by SELinux."  (The "Secured by ..." is already taken by OpenSSL.) 
-> 
-> Gaak. :)
-> 
-> Although SELinux is a very slick and powerful tool, we have to keep in mind:
-> 
-> "Computers aren't secured by tools, they're secured by proper policies and
-> sysadmin vigilance".
-> 
-> On the other hand, a button that says "Webserver secured by an admin clued
-> enough to install and manage SELinux properly".. Now *THAT* is a statement. :)
-> 
-> 
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
