@@ -1,38 +1,32 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7DEkwHa023780
-	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2003 10:46:59 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7DEjbOD019383
-	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2003 14:45:37 GMT
-Received: from smtp4.poczta.onet.pl (smtp4.poczta.onet.pl [213.180.130.28])
-	by jazzswing.ncsc.mil  with ESMTP id h7DEjaKO019376
-	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2003 14:45:37 GMT
-Message-ID: <013a01c361a9$c57f7de0$260b0aac@MWPCNOWY>
-Reply-To: "Marcin Wasilewski" <marcinwasilewski@poczta.onet.pl>
-From: "Marcin Wasilewski" <marcinwasilewski@poczta.onet.pl>
-To: <selinux@tycho.nsa.gov>
-Subject: Policy problem
-Date: Wed, 13 Aug 2003 16:47:08 +0200
+Message-ID: <4BFB6FF40EDF44418F01C60A094D1E7010D33C@FSTDKA98>
+From: Lugg William H Civ OO-ALC /MASFE <William.Lugg@CISF.AF.MIL>
+To: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
+Subject: Linux Wipe Disk Utility
+Date: Wed, 13 Aug 2003 13:29:06 -0600
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-2"
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+We are currently exploring and Open Source approach to an application we
+maintain that is currently hosted under Windows 95 in MS Access.  One of the
+requirements is to provide a way to zeroize the classified HDD at operator
+request.  Is there an NSA certified utility to do this job under Linux?  I
+assume that some component of SELinux might do this job for us.
 
-I'm still trying to install the policy for selinux but could not find the
-right solution for my problem:
-make -C /etc/selinux policy - is OK
-make -C /etc/selinux install - is also OK
-make -C /etc/selinux load - gives an error:
+Thanks.
+----------------------------------------------------------------------------
+-------------------------------
+Bill Lugg
+Software Engineer, 
+     MilStar AF Command Post Terminal Software Support
+     OO-ALC/TISFE, Peterson AFB, CO
 
-/usr/sbin/load_policy /etc/security/selinux/policy.12
-security_load_policy: Function not implemented
-
-any idea why?
-Best regards
-Marcin
+William.Lugg@cisf.af.mil <mailto:william.lugg@cisf.af.mil>  or
+wlugg@sysmatrix.net <mailto:wlugg@sysmatrix.net> 
+The only difference between a tax man and a taxidermist is that the
+taxidermist leaves the skin. -- Mark Twain
 
 
 --
