@@ -1,31 +1,67 @@
-Date: Tue, 3 Jun 2003 19:20:34 +0200
-From: Tom <tom@lemuria.org>
-To: SELinux@tycho.nsa.gov
-Subject: Re: Default Policy question?
-Message-ID: <20030603192034.C5693@lemuria.org>
-References: <3EDB7585.8050308@redhat.com> <1054574512.1053.178.camel@moss-huskers.epoch.ncsc.mil> <20030602230314.C3637@lemuria.org> <1054642843.1053.276.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1054642843.1053.276.camel@moss-huskers.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Tue, Jun 03, 2003 at 08:20:44AM -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h53N6KI4019790
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jun 2003 19:06:20 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h53N4xtV028386
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jun 2003 23:04:59 GMT
+Received: from smtp-out.comcast.net (smtp-out.comcast.net [24.153.64.116])
+        by jazzband.ncsc.mil  with ESMTP id h53N4xal028383 for <selinux@tycho.nsa.gov>; Tue, 3 Jun 2003 23:04:59 GMT
+Received: from comcast.net (pcp830001pcs.nrockv01.md.comcast.net [68.50.129.6])
+ by mtaout04.icomcast.net
+ (iPlanet Messaging Server 5.2 HotFix 1.16 (built May 14 2003))
+ with ESMTP id <0HFX006Q2HBO5W@mtaout04.icomcast.net> for
+ selinux@tycho.nsa.gov; Tue, 03 Jun 2003 19:02:14 -0400 (EDT)
+Date: Tue, 03 Jun 2003 19:04:49 -0400
+From: John Wolff <jrwolff@comcast.net>
+Subject: Re: Compaq DL-360
+In-reply-to: <20030601223130.GA29681@snoopy.apana.org.au>
+To: Brian May <bam@snoopy.apana.org.au>
+Cc: selinux@tycho.nsa.gov
+Message-id: <3EDD2991.5050609@comcast.net>
+MIME-version: 1.0
+Content-type: text/html; charset=us-ascii
+References: <3ED7C88A.7060209@comcast.net>
+ <20030601223130.GA29681@snoopy.apana.org.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jun 03, 2003 at 08:20:44AM -0400, Stephen Smalley wrote:
-> secadm_r has far more dependencies than that short list.  What happens
-> if you let sysadm_r set other user's passwords?  What happens if
-> sysadm_r has any form of raw access to the disk or memory?  What happens
-> if sysadm_r can upgrade any of the authentication programs (e.g.
-> /bin/login, /usr/bin/sshd) or any of their dependencies (pam modules,
-> libc)?  What happens if sysadm_r can upgrade secadm_r's shell?  His
-> editor?  You get the idea.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
+  <title></title>
+</head>
+<body>
+Brian May wrote:<br>
+<blockquote type="cite"
+ cite="mid20030601223130.GA29681@snoopy.apana.org.au">
+  <pre wrap="">On Fri, May 30, 2003 at 05:09:30PM -0400, John Wolff wrote:
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">the boot sequence gets to the point where the OS attempts to mount the 
+SCSI drives.  I have downloaded and installed the latest drivers from 
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+Was the kernel able to mount the root filesystem?
 
-I get it. It seems my "core tools" idea won't work out.
+Did the kernel panic include any text messages like "Cannot mount root"?
+
+Reading your E-Mail, it is not very clear precisely when it crashes.
+  </pre>
+</blockquote>
+ok, there error I get is:<br>
+<br>
+<a class="moz-txt-link-freetext" href="Kmod:&nbsp;">Kmod:&nbsp;</a> failed to exec /sbin/modprobe -s -k block-major-72, errno=2<br>
+<a class="moz-txt-link-freetext" href="VFS:&nbsp;&nbsp;">VFS:&nbsp;&nbsp;</a>  Cannot open root device "4802" or 48:02<br>
+Please append a correct "root=" boot option<br>
+Kernel <a class="moz-txt-link-freetext" href="panic:&nbsp;">panic:&nbsp;</a> <a class="moz-txt-link-freetext" href="VFS:&nbsp;">VFS:&nbsp;</a> Unable tomount root fs on 48:02<br>
+<br>
+jc<br>
+</body>
+</html>
 
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
