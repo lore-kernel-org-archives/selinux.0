@@ -1,89 +1,101 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SA8TrT008712
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 06:08:29 -0400 (EDT)
-Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6SA7wAN029146
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 10:07:59 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 28 Jul 2004 10:08:28 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1Bpkru-0000n5-0T
-	for selinux@tycho.nsa.gov; Wed, 28 Jul 2004 09:37:02 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BplX3-0008TC-Jx
-	for selinux@tycho.nsa.gov; Wed, 28 Jul 2004 11:19:33 +0100
-Date: Wed, 28 Jul 2004 11:19:33 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: no access to /var/backups/infodir.bak (?)
-Message-ID: <20040728101933.GC32474@lkcl.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="5vNYLRcllDrimb99"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SCZ7rT009330
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 08:35:07 -0400 (EDT)
+Received: from oe-im2.bizmailsrvcs.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6SCYaAN004268
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 12:34:37 GMT
+Message-ID: <41079D11.40600@tresys.com>
+Date: Wed, 28 Jul 2004 08:33:21 -0400
+From: David Caplan <dac@tresys.com>
+MIME-Version: 1.0
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+CC: Valdis.Kletnieks@vt.edu, Stephen Smalley <sds@epoch.ncsc.mil>,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [idea] multiple contexts.
+References: <20040724231154.GE3437@lkcl.net> <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil> <20040727160605.GG3392@lkcl.net> <200407271940.i6RJebSp032388@turing-police.cc.vt.edu> <20040727212836.GA21236@lkcl.net>
+In-Reply-To: <20040727212836.GA21236@lkcl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Luke Kenneth Casson Leighton wrote:
+>  
+>  yes, sort-of: more that i only wish to limit what programs a user
+>  can run (and what programs _those_ programs can run).
+> 
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+That seems pretty straightforward using transition rules.
 
-i'm getting this on installation of gcc bison etc. has it been
-addressed for debian policy > 1.12 or is it just me?
+>  in particular, i want to stop people from being able to use the
+>  "Run" capability of Konqueror, etc.  STOP, not have the popup coming
+>  up with "are you sure you want to run this program?".
+> 
 
-l.
+You may not have to worry about that if you've defined, via policy, what 
+the user (i.e., the domain they are in when running Konqueror, etc.) is 
+allowed to run.
+
+> 
+>  setting up a kdeusers group, chgrp'ing the allowed programs
+>  to that group, and setting permissions to 0660 is what i really
+>  need...
+> 
+
+0660 is -rw-rw----, I think you meant 0550, -r-xr-x---, right?
+
+>  ... but i wondered if there was a way to do that same thing in
+>  SE/Linux...
+> 
+>  ... _without_ writing a whole stack of policies, one per program.
+> 
+
+That's your real issue.  You can accomplish the equivalent (of your 
+chgrp scenario) by defining a domain for all the allowed user programs 
+and causing a domain transition whenever a user (in your limited user 
+domain) executes an allowed program.  Then you only have to write a 
+policy that covers the needs of the set of allowed user applications. 
+That gets you the equivalent (actually it's possibly a _little_ better 
+because you limited the permissions to only what the group needs and you 
+removed excess permissions that the user may have had when they enter 
+the new domain).
+
+What you really _need_ is a whole stack of policies so that each program 
+is limited to only what it needs.  It's up to you to determine if your 
+intended environment requires the effort to do that. With some analysis 
+you may also find that you can define policies for subgroups of programs 
+instead of having individual policies for every program.
+
+>  a macro i could write that would let me do this:
+>  
+>  allow_user_kde_access(konqueror_exec_t)
+>  allow_user_kde_access(k3b_exec_t)
+> 
+>  with all that that implies.
+> 
+>  or, to simply set all the allowed kde executables into
+>  kde_user_exec_t type, and set this on /usr/bin/konqueror,
+>  /usr/bin/k3b, /usr/bin/koffice etc.
+> 
+
+You just need to be very careful that you don't end up granting so much 
+permission to a generic kde domain that you've accomplished nothing. 
+I'd recommend the judicious use of neverallows to ensure that you've not 
+accidentally allowed something you meant to deny.  I'd also recommend 
+the use of our analysis tool, apol (www.tresys.com/selinux ).
+
+David
+
 
 -- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+__________________________________
+
+David Caplan     410 290 1411 x105
+dac@tresys.com
+Tresys Technology, LLC
+8840 Stanford Blvd., Suite 2100
+Columbia, MD 21045
 
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=f
-
-npacking libtool (from .../libtool_1.5.6-2_i386.deb) ...
-Setting up gcc-3.3-base (3.3.4-5) ...
-Setting up bison (1.875a-1.1) ...
-cp: setting attribute `security.selinux' for `/var/backups/infodir.bak': Permission denied
-install-info(/usr/share/info/bison.info): couldn't backup /usr/share/info/dir in /var/backups/infodir.bak: Inappropriate ioctl for device
-
-Setting up cpp-3.3 (3.3.4-5) ...
-Setting up cpp (3.3.4-2) ...
-Setting up flex (2.5.31-27) ...
-cp: setting attribute `security.selinux' for `/var/backups/infodir.bak': Permission denied
-install-info(/usr/share/info/flex.info): couldn't backup /usr/share/info/dir in /var/backups/infodir.bak: Inappropriate ioctl for device
-cp: setting attribute `security.selinux' for `/var/backups/infodir.bak': Permission denied
-install-info(/usr/share/info/flex.info): couldn't backup /usr/share/info/dir in /var/backups/infodir.bak: Inappropriate ioctl for device
-
-Setting up gcc-3.3 (3.3.4-5) ...
-Setting up gcc (3.3.4-2) ...
-
-Setting up autoconf (2.59-7) ...
-cp: setting attribute `security.selinux' for `/var/backups/infodir.bak': Permission denied
-install-info(/usr/share/info/autoconf.info): couldn't backup /usr/share/info/dir in /var/backups/infodir.bak: Inappropriate ioctl for device
-cp: setting attribute `security.selinux' for `/var/backups/infodir.bak': Permission denied
-install-info(/usr/info/standards.info): couldn't backup /usr/share/info/dir in /var/backups/infodir.bak: Inappropriate ioctl for device
-cp: setting attribute `security.selinux' for `/var/backups/infodir.bak': Permission denied
-install-info(/usr/share/info/standards.info): couldn't backup /usr/share/info/dir in /var/backups/infodir.bak: Inappropriate ioctl for device
-cp: setting attribute `security.selinux' for `/var/backups/infodir.bak': Permission denied
-install-info(/usr/info/maintain.info): couldn't backup /usr/share/info/dir in /var/backups/infodir.bak: Inappropriate ioctl for device
-cp: setting attribute `security.selinux' for `/var/backups/infodir.bak': Permission denied
-install-info(/usr/share/info/maintain.info): couldn't backup /usr/share/info/dir in /var/backups/infodir.bak: Inappropriate ioctl for device
-
-Setting up autotools-dev (20040312.1) ...
-Setting up automake (1.4-p4-1.1) ...
-cp: setting attribute `security.selinux' for `/var/backups/infodir.bak': Permission denied
-install-info(/usr/share/info/automake.info): couldn't backup /usr/share/info/dir in /var/backups/infodir.bak: Inappropriate ioctl for device
-
-
---5vNYLRcllDrimb99--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
