@@ -1,40 +1,73 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8PLNRrT024994
-	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 17:23:27 -0400 (EDT)
-Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8PLMQsn004182
-	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 21:22:26 GMT
-Received: from [127.0.0.1] (localhost.localdomain [127.0.0.1])
-	by monk.area614.net (Postfix) with ESMTP id AA08441067B
-	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 17:23:29 -0400 (EDT)
-Subject: SELinux and Fedora talk at OhioLinux conference
-From: Colin Walters <walters@verbum.org>
-To: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Sat, 25 Sep 2004 17:25:02 -0400
-Message-Id: <1096147502.4452.83.camel@nexus.verbum.private>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8PM7CrT025092
+	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 18:07:13 -0400 (EDT)
+Received: from crisium.vnl.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8PM7BAk027346
+	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 22:07:11 GMT
+Date: Sat, 25 Sep 2004 23:07:08 +0100
+From: Dale Amon <amon@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: Remove unrestricted_admin
+Message-ID: <20040925220708.GB15912@vnl.com>
+References: <200409211526.37810.russell@coker.com.au> <200409252039.01196.russell@coker.com.au> <1096119005.11665.21.camel@gorn.pebenito.net> <200409260121.10665.russell@coker.com.au>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
+In-Reply-To: <200409260121.10665.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-Next Saturday, October 2, at the Ohio LinuxFest I'll be giving a talk
-about SELinux and Fedora.  Here's the current blurb:
+--tjCHc7DPkfUGtrlw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-"Establishing many of the important basics, our talk will begin with an
-introduction to a bit of the theory behind SELinux, mandatory access
-control, and why it's necessary for Linux security. After a basic
-understanding of SELinux is gained, we'll switch things up more
-practical and hands-on discussion, including SELinux installation and
-configuration. We'll create a policy for a sample program and hold a
-contest to crack a SELinux machine where the attacker already has root
-privileges."
+On Sun, Sep 26, 2004 at 01:21:10AM +1000, Russell Coker wrote:
+> Corner cases that happen to be a regular part of any sys-admin's job.
 
-If you're in the Ohio area and are interested in learning more about
-SELinux I hope you'll come (it is a free conference after all).
+I massively agree. Lots of people do 'ghosting'; lots
+of people back up entire disk images before doing
+something dangerous. Now I've got ways around a lot
+of the problems anyway because I've a root boot floppy
+I use. Boot a machine off an nfs root; mount a Real Big
+Disk over nfs, and then dd the whole frigging host
+system disk to the destination system where it
+can be worked on.=20
 
+Although it is not my primary use for this (mostly I
+do R&D), think forensics too. Think of all the various
+tools in use for setting up a master image and dupping
+it to N other machines.
 
+Also, dd with a decent block speed is an awesomely=20
+fast way to back up a disk.
+
+--=20
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
+
+--tjCHc7DPkfUGtrlw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBVewLZHES7UL0zXERAoBLAJ4rGFboGobidDL6rSWT9GMGSsqavQCfcbd+
+Q63an3+QVzulE5bHHsN3Qes=
+=HLHj
+-----END PGP SIGNATURE-----
+
+--tjCHc7DPkfUGtrlw--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
