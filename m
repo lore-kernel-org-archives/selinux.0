@@ -1,56 +1,78 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j11IgT53017392
-	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 13:42:29 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j11IeKrX000132
-	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 18:40:21 GMT
-Subject: Re: File Browsing apps and getattr
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1107264676.26936.63.camel@moss-spartans.epoch.ncsc.mil>
-References: <1107210369.1928.5.camel@cobra.ivg2.net>
-	 <1107259894.26936.27.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107263308.6722.5.camel@cobra.ivg2.net>
-	 <1107263499.26936.50.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107264384.6956.2.camel@cobra.ivg2.net>
-	 <1107264676.26936.63.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Latest diffs
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <41FA9717.2000609@redhat.com>
+References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FA9717.2000609@redhat.com>
 Content-Type: text/plain
-Date: Tue, 01 Feb 2005 11:42:34 -0700
-Message-Id: <1107283354.7117.13.camel@cobra.ivg2.net>
+Message-Id: <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Tue, 01 Feb 2005 13:45:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Merged.  Some comments below.
 
-> You can certainly propose allowing access to additional file types on a
-> case-by-case basis, possibly introducing new attributes to identify the
-> desired set of types, but adding permissions always requires a
-> justification, not just 'why not?'.  What is the functional requirement
-> that ls display the attributes of those subdirectories/files?  What is
-> the real benefit if you cannot search the subdirectories or read the
-> files?
+On Fri, 2005-01-28 at 14:48, Daniel J Walsh wrote:
+> Changes include
+> 
+> removal of ifdef automount.te
+> autofs is defined outside of automount.te so this is not necassary and 
+> was causing targeted policy problems.
+> 
+> Introduction of texrel_shlib_t which define shlib_t libraries that use 
+> text relocation (execmod).  I have only labeled a few of these so far,
+> as Red Hat is working to clean these up.  Also using a boolean to turn 
+> this feature off allow_execmod
+> 
+> Changes to make smbmount work
+> 
+> Fixes for tmpreaper
+> 
+> Changed postgres helper apps back to default context, running them in 
+> postgresql breaks alot.
+> 
+> Added HelixPlayer file_context
+> 
+> Modified the Makefile so that it defaults to
+> make -> make policy
+> 
+> make load and make reload no longer install the context files, only make 
+> install does.
+> 
+> This prevents people from overwriting the system context files if they 
+> have modified them.
+> 
 
-I've accepted that searching the subdirectories and reading the files
-is something we do not want to/need to do. I was just asking about the
-getattr check. 
+> diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mozilla_macros.te policy-1.21.5/macros/program/mozilla_macros.te
+> --- nsapolicy/macros/program/mozilla_macros.te	2005-01-28 11:50:50.000000000 -0500
+> +++ policy-1.21.5/macros/program/mozilla_macros.te	2005-01-28 14:02:57.000000000 -0500
+> @@ -25,7 +25,7 @@
+>  allow $1_mozilla_t $1_t:process signull;
+>  
+>  # Set resource limits and scheduling info.
+> -allow $1_mozilla_t self:process { setrlimit setsched };
+> +allow $1_mozilla_t self:process { execmem setrlimit setsched };
+>  
+>  allow $1_mozilla_t usr_t:{ lnk_file file } { getattr read };
+>  allow $1_mozilla_t var_lib_t:file { getattr read };
+Didn't merge this.
 
-I understand your arguments, however, and will agree this is not
-absolutely necessary. What needs to be done in that case is dontaudit,
-so that those denials go away.
-
-> dontaudit is appropriate if you just want to silence the warnings,
-> although you obviously don't want to do that for a file to which you
-> truly want to track attempted accesses.
-
-Would it be acceptable to have dontaudit getattr on dir_file_class_set
-for file browsing applications. I currently have a rule like that in the
-mplayer policy? If not, how would you suggest the denials be suppressed?
+> @@ -127,7 +125,7 @@
+>  #
+>  allow $1_mozilla_t ld_so_cache_t:file execute;
+>  allow $1_mozilla_t locale_t:file execute;
+> -dontaudit $1_mozilla_t device_type:{ chr_file file } execute;
+> +dontaudit $1_mozilla_t *:{ chr_file file } execute;
+>  dontaudit $1_t ld_so_cache_t:file execute;
+>  dontaudit $1_t locale_t:file execute;
+Can we be a little bit more specific here?
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 
 --
