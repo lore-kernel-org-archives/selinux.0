@@ -1,50 +1,54 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA18397
-	for <selinux@tycho.nsa.gov>; Mon, 10 Jun 2002 17:40:05 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA28324
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jun 2002 07:21:50 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA20116
-	for <selinux@tycho.nsa.gov>; Mon, 10 Jun 2002 21:39:49 GMT
-Received: from mailgw3a.lmco.com (mailgw3a.lmco.com [192.35.35.7])
-	by jazzswing.ncsc.mil  with ESMTP id VAA20112
-	for <selinux@tycho.nsa.gov>; Mon, 10 Jun 2002 21:39:49 GMT
-Received: from emss04g01.ems.lmco.com ([166.17.13.122])
-	by mailgw3a.lmco.com (8.11.6/8.11.6) with ESMTP id g5ALe3W05010
-	for <selinux@tycho.nsa.gov>; Mon, 10 Jun 2002 17:40:03 -0400 (EDT)
-Received: from CONVERSION-DAEMON by lmco.com (PMDF V5.2-33 #40649) id <0GXI00001ANW39@lmco.com> for selinux@tycho.nsa.gov;
- Mon, 10 Jun 2002 17:40:03 -0400 (EDT)
-Received: from emss04i00.ems.lmco.com ([166.17.13.135]) by lmco.com (PMDF V5.2-33 #40649)
- with ESMTP id <0GXI00FAMEH4O8@lmco.com> for selinux@tycho.nsa.gov; Mon, 10 Jun 2002 17:31:53 -0400 (EDT)
-Date: Mon, 10 Jun 2002 17:31:51 -0400
-From: "Boyne, Patrick J" <patrick.j.boyne@lmco.com>
-Subject: RE: auditing etc
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Message-id: <91A6D3929D6BD4119B8C0008C7E665640A4A3425@emss04m03.ems.lmco.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
+	by jazzswing.ncsc.mil  with ESMTP id LAA00116
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jun 2002 11:21:34 GMT
+Received: from mailout01.sul.t-online.com (mailout01.sul.t-online.com [194.25.134.80])
+	by jazzswing.ncsc.mil  with ESMTP id LAA00112
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jun 2002 11:21:33 GMT
+Message-ID: <3D073122.1100B64B@dr-baldeweg.de>
+Date: Wed, 12 Jun 2002 13:31:46 +0200
+From: Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>
+MIME-Version: 1.0
+To: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+Subject: Re: mingetty on SuSE
+References: <Pine.GSO.4.33.0206101259260.13767-100000@raven>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I have used the snare module for auditing extensively with SELinux
-> and it works well . I have not look into the IBM module yet, but
-> will check is out. Sound promising.
+I mean this is a SuSE specific problem. Today I rebuild the source rpm
+"mingetty-1.00-1.src.rpm" from rpmfind.net and replay the suse file with
+this package. It works fine. I do not get follow log entries:
+"May 10 07:51:07 myserver mingetty[231]: cannot open(/proc/2/maps):
+Permission denied"
+I recommend all SuSE users to replace the mingetty programm.
 
-I was thinking of testing this out on a development machine I have right
-now. I'm glad someone else has given it a shot. Is there more information on
-the IBM module somewhere? If so could someone please contact me with it? 
+Carsten
 
-Mostly I've been pondering the -types- of events a secure system might want
-to record (beyond what syslog already deals with), such as users changing
-their role, the audit limit being exceeded (partition fills, etc), and
-perhaps attempts to read the audit information or alter its configuration.
-
-My own thoughts on auditing are likely novice at best, and I'll ask you to
-please excuse me if I'm off base, but I was thinking that the current
-sysklogd would make a decent baseline for a more robust auditing facility.
-Might it be possible to add a facility and or priorities to the existing
-system to label something as 'audit' level, and then use syslog to direct it
-where it needs to go, be it a separate file or another machine?
-
-Patrick Boyne
+Stephen Smalley schrieb:
+> 
+> On Mon, 10 Jun 2002, Carsten Grohmann wrote:
+> 
+> > I use mingetty on my SuSE 7.1. Mingetty needs read access to many
+> > different types in the proc directory to run correct.
+> > Now me question: Is it possible to limit the access to the different
+> > types only to the proc directory? I think no, but I hope anyone has an
+> > solution. In the other case I can not get mingetty the permissions,
+> > because it can read to much files. What getty programs do you use?
+> 
+> mingetty also runs on our machines, but I don't see this behavior.
+> I assume that you mean that mingetty is probing the /proc/PID entries, and
+> thus you are seeing audit messages for the various domains.  Unless
+> mingetty truly needs access to other domains' /proc/PID files, I'd suggest
+> using dontaudit (or auditdeny, if you haven't applied the dontaudit
+> patch) rules to suppress the audit messages but continue denying access.
+> See the xdm.te file or the user_macros.te file for examples.
+> 
+> --
+> Stephen D. Smalley, NAI Labs
+> ssmalley@nai.com
 
 --
 You have received this message because you are subscribed to the selinux list.
