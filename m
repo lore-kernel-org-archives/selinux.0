@@ -1,57 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i35EOORb023854
-	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 10:24:24 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i35EOMmw009238
-	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 14:24:22 GMT
-Received: from turing-police.cirt.vt.edu (turing-police.cirt.vt.edu [128.173.54.129])
-        by jazzband.ncsc.mil  with ESMTP id i35EOM4w009235 for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 14:24:22 GMT
-Message-Id: <200404051424.i35EO7iR006379@turing-police.cc.vt.edu>
-To: Bill Laut <wlsel@verizon.net>
-Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: Logo Artwork for SELinux? 
-In-Reply-To: Your message of "Sun, 04 Apr 2004 18:56:17 EDT."
-             <200404041856.17745.wlsel@verizon.net>
-From: Valdis.Kletnieks@vt.edu
-References: <200404041856.17745.wlsel@verizon.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1329014986P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 05 Apr 2004 10:24:07 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i35FsDRb024492
+	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 11:54:13 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i35FqDUZ028629
+	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 15:52:13 GMT
+Received: from mail.idtweb.com (mail.idtweb.com [63.140.241.100])
+	by jazzswing.ncsc.mil  with ESMTP id i35FqCmT028624
+	for <selinux@tycho.nsa.gov>; Mon, 5 Apr 2004 15:52:12 GMT
+Reply-To: <mayerf@tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Bill Laut'" <wlsel@verizon.net>,
+   "'SELinux Mailing List'" <selinux@tycho.nsa.gov>
+Subject: RE: Logo Artwork for SELinux?
+Date: Mon, 5 Apr 2004 11:54:08 -0400
+Message-ID: <002101c41b26$3b356a00$020d010a@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <200404041856.17745.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1329014986P
-Content-Type: text/plain; charset=us-ascii
+Not that I would necessarily recommend this one, but we've been using the simple
+logon on our web site for a couple of years now:  http://www.tresys.com/selinux/
 
-On Sun, 04 Apr 2004 18:56:17 EDT, Bill Laut <wlsel@verizon.net>  said:
-> to brag on my church's opening webpage that their site is "Powered by Apache, 
-> Protected by SELinux."  (The "Secured by ..." is already taken by OpenSSL.) 
+owner-selinux@tycho.nsa.gov wrote:
+> My church recently obtained a DSL connection with the prospect I'll
+> be tasked with setting up their web/email/proxy servers.  As part of
+> protecting their internal LAN I'd like to migrate their existing
+> Linux server over to SELinux. 
+> 
+> Therefore, now that SELinux has gone mainstream (in v2.6) would this
+> be an appropriate time for NSA to consider designing a suitable logo
+> for SELinux? Specifically, something that can be incorporated into
+> Web pages that are hosted on servers protected by SELinux.
+> 
+> Since SELinux is rapidly becoming the next "ultra-cool" security
+> infrastructure within the Linux community, a tasteful "button" that
+> could be pasted onto webpages would be a great marketing boon.  I,
+> for one, would love to brag on my church's opening webpage that their
+> site is "Powered by Apache, Protected by SELinux."  (The "Secured by
+> ..." is already taken by OpenSSL.) 
+> 
+> An elegant, tasteful button modelled after the buttons at:
+> 
+                     http://www.modssl.org/docs/buttons.html
 
-Gaak. :)
-
-Although SELinux is a very slick and powerful tool, we have to keep in mind:
-
-"Computers aren't secured by tools, they're secured by proper policies and
-sysadmin vigilance".
-
-On the other hand, a button that says "Webserver secured by an admin clued
-enough to install and manage SELinux properly".. Now *THAT* is a statement. :)
 
 
---==_Exmh_1329014986P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAcWwHcC3lWbTT17ARAp1kAKCn+i7LT6ljkMxt5o6ukrgc24qbAQCg9Ut8
-ltUAxeLIPJjr28CUdbuW4CY=
-=3b0a
------END PGP SIGNATURE-----
-
---==_Exmh_1329014986P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
