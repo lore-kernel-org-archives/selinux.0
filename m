@@ -1,34 +1,37 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB6NdUIi025128
-	for <selinux@tycho.nsa.gov>; Mon, 6 Dec 2004 18:39:30 -0500 (EST)
-Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB6NbrHW015992
-	for <selinux@tycho.nsa.gov>; Mon, 6 Dec 2004 23:37:53 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 7 Dec 2004 00:39:31 +0100
-Date: Tue, 7 Dec 2004 00:39:33 +0100
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB6NgMIi025170
+	for <selinux@tycho.nsa.gov>; Mon, 6 Dec 2004 18:42:22 -0500 (EST)
+Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB6NgOoX027895
+	for <selinux@tycho.nsa.gov>; Mon, 6 Dec 2004 23:42:24 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 7 Dec 2004 00:42:24 +0100
+Date: Tue, 7 Dec 2004 00:42:26 +0100
 From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: patch: debian stuff
-Message-Id: <20041206233933.GE3678@jmh.mhn.de>
+Subject: patch: suse stuff
+Message-Id: <20041206234226.GF3678@jmh.mhn.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2FkSFaIQeDFoAt0B"
+	protocol="application/pgp-signature"; boundary="4LFBTxd4L5NLO6ly"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---2FkSFaIQeDFoAt0B
-Content-Type: multipart/mixed; boundary="SNIs70sCzqvszXB4"
+--4LFBTxd4L5NLO6ly
+Content-Type: multipart/mixed; boundary="Wtrm9ATX0sn6fFKv"
 Content-Disposition: inline
 
 
---SNIs70sCzqvszXB4
+--Wtrm9ATX0sn6fFKv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Mostly comment updates.
-The permissions in fsadm.te are needed when booting Debian.
+This patch corrects some issues from a previous patch. I looked over the
+acpi package again and noted that the /var/lib/acpi stuff was added by
+SuSE and is not included upstream. Thus the ifdefs.
+It also corrects the labeling in a few places.
+Please apply.
 
 Thomas
 
@@ -36,74 +39,94 @@ Thomas
 http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
 GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
---SNIs70sCzqvszXB4
+--Wtrm9ATX0sn6fFKv
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="debian.patch"
+Content-Disposition: attachment; filename="suse.patch"
 Content-Transfer-Encoding: quoted-printable
 
---- orig/domains/program/dmesg.te
-+++ mod/domains/program/dmesg.te
-@@ -2,6 +2,7 @@
- #
- # Author:  Dan Walsh dwalsh@redhat.com
- #
-+# X-Debian-Packages: util-linux
+diff -ur orig/domains/program/ldconfig.te mod/domains/program/ldconfig.te
+--- orig/domains/program/ldconfig.te	2004-12-04 00:46:49.000000000 +0100
++++ mod/domains/program/ldconfig.te	2004-12-07 00:27:15.000000000 +0100
+@@ -26,6 +26,7 @@
+ allow ldconfig_t lib_t:lnk_file create_lnk_perms;
 =20
- #################################
- #
---- orig/domains/program/fsadm.te
-+++ mod/domains/program/fsadm.te
-@@ -106,7 +105,7 @@
- allow fsadm_t { initrc_devpts_t admin_tty_type }:chr_file rw_file_perms;
- ifdef(`gnome-pty-helper.te', `allow fsadm_t sysadm_gph_t:fd use;')
- allow fsadm_t privfd:fd use;
--allow fsadm_t devpts_t:dir getattr;
-+allow fsadm_t devpts_t:dir { getattr search };
+ allow ldconfig_t userdomain:fd use;
++# unlink for when /etc/ld.so.cache is mislabeled
+ allow ldconfig_t etc_t:file { getattr read unlink };
+ allow ldconfig_t etc_t:lnk_file read;
 =20
- read_locale(fsadm_t)
+@@ -39,7 +40,7 @@
 =20
-@@ -116,4 +116,4 @@
- # Access to /initrd devices
- allow fsadm_t { file_t unlabeled_t }:dir rw_dir_perms;
- allow fsadm_t { file_t unlabeled_t }:blk_file rw_file_perms;
--allow fsadm_t usbfs_t:dir getattr;
-+allow fsadm_t usbfs_t:dir { getattr search };
---- orig/domains/program/unused/loadkeys.te
-+++ mod/domains/program/loadkeys.te
-@@ -1,6 +1,8 @@
- #DESC loadkeys - for changing to unicode at login time
- #
- # Author:  Russell Coker <russell@coker.com.au>
-+#
-+# X-Debian-Packages: console-tools
+ ifdef(`distro_suse', `
+ # because of libraries in /var/lib/samba/bin
+-allow ldconfig_t { var_lib_t bin_t }:dir search;
++allow ldconfig_t { var_t var_lib_t }:dir search;
+ ')
 =20
- #
- # loadkeys_exec_t is the type of the wrapper
---- orig/domains/program/unused/rpcd.te
-+++ mod/domains/program/rpcd.te
-@@ -3,7 +3,7 @@
- # Authors:  Stephen Smalley <sds@epoch.ncsc.mil> and Timothy Fraser =20
- #           Russell Coker <russell@coker.com.au>
- # Depends: portmap.te
--# X-Debian-Packages:
-+# X-Debian-Packages: nfs-common
- #
+ allow ldconfig_t proc_t:file read;
+diff -ur orig/domains/program/unused/apmd.te mod/domains/program/unused/apm=
+d.te
+--- orig/domains/program/unused/apmd.te	2004-11-20 10:04:13.000000000 +0100
++++ mod/domains/program/unused/apmd.te	2004-12-07 00:27:15.000000000 +0100
+@@ -45,7 +45,9 @@
+ # acpid also has a logfile
+ log_domain(apmd)
 =20
- #################################
---- orig/domains/program/sulogin.te
-+++ mod/domains/program/sulogin.te
-@@ -2,6 +2,7 @@
- #
- # Authors:  Dan Walsh <dwalsh@redhat.com>
- #
-+# X-Debian-Packages: sysvinit
++ifdef(`distro_suse', `
+ var_lib_domain(apmd)
++')
 =20
- #################################
- #=20
+ allow apmd_t self:file { getattr read ioctl };
+ allow apmd_t self:process getsession;
+diff -ur orig/file_contexts/distros.fc mod/file_contexts/distros.fc
+--- orig/file_contexts/distros.fc	2004-12-04 00:46:50.000000000 +0100
++++ mod/file_contexts/distros.fc	2004-12-07 00:27:15.000000000 +0100
+@@ -37,7 +37,7 @@
+ ')
+=20
+ ifdef(`distro_suse', `
+-/var/lib/samba/bin(/.*)?				system_u:object_r:bin_t
++/var/lib/samba/bin/.+					system_u:object_r:bin_t
+ /var/lib/samba/bin/.*\.so(\.[^/]*)*		-l	system_u:object_r:lib_t
+ /usr/lib/samba/classic/.*			--	system_u:object_r:bin_t
+ /usr/lib/samba/classic/[^/]*\.so(\.[^/]*)*	--	system_u:object_r:shlib_t
+diff -ur orig/file_contexts/program/apache.fc mod/file_contexts/program/apa=
+che.fc
+--- orig/file_contexts/program/apache.fc	2004-12-04 00:46:50.000000000 +0100
++++ mod/file_contexts/program/apache.fc	2004-12-07 00:27:15.000000000 +0100
+@@ -29,14 +29,14 @@
+ /var/lib/httpd(/.*)?		system_u:object_r:httpd_var_lib_t
+ /var/lib/php/session(/.*)?	system_u:object_r:httpd_var_run_t
+ /etc/apache-ssl(2)?(/.*)?	system_u:object_r:httpd_config_t
+-/usr/lib/apache-ssl(/.*)? --	system_u:object_r:httpd_exec_t
++/usr/lib/apache-ssl/.+ --	system_u:object_r:httpd_exec_t
+ /usr/sbin/apache-ssl(2)? --	system_u:object_r:httpd_exec_t
+ /var/log/apache-ssl(2)?(/.*)?	system_u:object_r:httpd_log_t
+ /var/run/apache-ssl(2)?\.pid.* -- system_u:object_r:httpd_var_run_t
+ /var/run/gcache_port	-s	system_u:object_r:httpd_var_run_t
+ ifdef(`distro_suse', `
+ # suse puts shell scripts there :-(
+-/usr/share/apache2/.*	--	system_u:object_r:bin_t
++/usr/share/apache2/[^/]*	--	system_u:object_r:bin_t
+ ')
+ /var/lib/squirrelmail/prefs(/.*)?	system_u:object_r:httpd_squirrelmail_t
+ /usr/bin/htsslpass --	system_u:object_r:httpd_helper_exec_t
+diff -ur orig/file_contexts/program/apmd.fc mod/file_contexts/program/apmd.=
+fc
+--- orig/file_contexts/program/apmd.fc	2004-11-20 10:04:13.000000000 +0100
++++ mod/file_contexts/program/apmd.fc	2004-12-07 00:28:04.000000000 +0100
+@@ -5,4 +5,7 @@
+ /var/run/apmd\.pid	--	system_u:object_r:apmd_var_run_t
+ /var/run/\.?acpid\.socket	-s	system_u:object_r:apmd_var_run_t
+ /var/log/acpid		--	system_u:object_r:apmd_log_t
++ifdef(`distro_suse', `
+ /var/lib/acpi(/.*)?		system_u:object_r:apmd_var_lib_t
++')
++
 
---SNIs70sCzqvszXB4--
+--Wtrm9ATX0sn6fFKv--
 
---2FkSFaIQeDFoAt0B
+--4LFBTxd4L5NLO6ly
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -111,12 +134,12 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBtO21xWIrrrL0q+cRAoUBAJsFfEPMcMdBLpjuqt3NKUPeTKbQlwCdECPL
-U6qTD/gcQZjZ4hmlFN6Hz7Y=
-=LObg
+iD8DBQFBtO5ixWIrrrL0q+cRAonaAJ0Uqp0WL2oXJDo1q8pPXbOdVw7UQgCgtQv+
+ZpLNb0vzmNl3mJOlgeq+aNM=
+=MJRc
 -----END PGP SIGNATURE-----
 
---2FkSFaIQeDFoAt0B--
+--4LFBTxd4L5NLO6ly--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
