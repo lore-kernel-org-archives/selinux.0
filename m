@@ -1,44 +1,46 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3J40XZ017437
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 14:04:00 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3J40JZ013641
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 19:04:00 GMT
-Subject: Re: selinux without sysvinit
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3JXSXZ017696
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 14:33:28 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3JW64w005835
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 19:32:06 GMT
+Subject: Re: learning about policies/transitions
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Alejandro Mery <amery@geeks.cl>
+To: Serge Hallyn <serge.hallyn@gmail.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4188E956.7020808@geeks.cl>
-References: <4188E956.7020808@geeks.cl>
+In-Reply-To: <46ce702f041103084530fe8539@mail.gmail.com>
+References: <46ce702f041103084530fe8539@mail.gmail.com>
 Content-Type: text/plain
-Message-Id: <1099508399.1213.188.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1099510181.1213.198.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 03 Nov 2004 14:00:00 -0500
+Date: Wed, 03 Nov 2004 14:29:41 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-03 at 09:21, Alejandro Mery wrote:
-> Hi, i am a complete newbie about selinux but i would like to use it on 
-> my machines.
+On Wed, 2004-11-03 at 11:45, Serge Hallyn wrote:
+> With my basic policy, though, boot_d will not transition to login_d
+> on execution of /bin/login.  ls -Z /bin/login shows that it is labeled
+> as login_et.  Since logging in doesn't work, I test by booting single
+> user mode, and running
 > 
-> the 'problem' is i don't use sysvinit. i use runit 
-> http://smarden.org/runit/ instead.
+> ps -Z
+> [everything is running under boot_d]
+> /bin/login & ps -Z
+> [login is running under boot_d]
 > 
-> runit has only 3 stages, and runs an script on each one.
-> stage 1: configures the machine
-> stage 2: run services and keep them supervised (like daemontools)
-> stage 3: stop services, umount and halt
-> 
-> on download page you said sysvinit patch can be replaced by initrd, how? 
-> how safe is it? may i need to patch runit in the same way?
+> What am I missing in the policy that would enable this automatic
+> domain transition to happen?
 
-You either need to load a policy prior to running your runit program
-(e.g. via an initrd, which is what we originally did), or modify your
-runit program to load a policy and re-exec itself into the correct
-security domain (as is done by the sysvinit patch).  Entirely up to you;
-cost of doing it from the initrd is that you have to rebuild the initrd
-if you need to change anything in that bootstrapping policy (you can
-always load a more complete policy later).
+Your policy looks sufficient for that purpose, although there are some
+oddities in it (e.g. you shouldn't be authorizing system_r for object
+types, you should be using object_r in file contexts, a file descriptor
+is not labeled with a file type).  A possible explanation would be an
+inconsistency between the on-disk xattr and the incore inode SID, e.g.
+type wasn't defined at the time that the inode was attached to a
+dentry.  Try setfilecon system_u:object_r:login_et /bin/login and then
+re-trying.  setfiles and chcon tend to not bother setting the context if
+it already appears to be correct, but they only can see the on-disk
+xattr via the xattr API, not the incore inode context. 
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
