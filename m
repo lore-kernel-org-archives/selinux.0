@@ -1,100 +1,101 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA26333
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2002 18:52:28 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA27234
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 01:15:43 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id XAA01889
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2002 23:51:39 GMT
-Received: from sendmail (savages.net [208.170.193.18] (may be forged))
-	by jazzband.ncsc.mil  with ESMTP id XAA01885
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2002 23:51:38 GMT
-Message-ID: <3C44BD78.4090205@pcez.com>
-Date: Tue, 15 Jan 2002 15:38:32 -0800
-From: Shaun Savage <savages@pcez.com>
-MIME-Version: 1.0
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>, selinux@tycho.nsa.gov
+	by jazzband.ncsc.mil  with ESMTP id GAA14363
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 06:14:54 GMT
+Received: from orngca-mls01.socal.rr.com (orngca-mls01.socal.rr.com [66.75.160.16])
+	by jazzband.ncsc.mil  with ESMTP id GAA14359
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 06:14:53 GMT
+Message-ID: <001501c19e55$b2bf6120$5357a518@hproject>
+From: "Donald Kasper" <kasper@1stconnect.com>
+To: "Shaun Savage" <savages@pcez.com>
+Cc: <selinux@tycho.nsa.gov>
+References: <72222DC86846D411ABD300A0C9EB08A101524289@csoc-mail-box.csoconline.com> <000c01c19df7$c08d4050$5357a518@hproject> <3C44A70A.4000602@pcez.com>
 Subject: Re: General Users
-References: <72222DC86846D411ABD300A0C9EB08A10152428B@csoc-mail-box.csoconline.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Tue, 15 Jan 2002 22:19:04 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Westerman, Mark wrote:
+To be released to the public at this point, no.  DISA has always hated
+Linux.  I pitched it to them for two years with no luck at all.  However I
+did compile the entire COE on Linux in 1999 and demonstrated the CDSEdit
+utility to them then.  This last Fall, I went directly to the Director of
+DISA and others in DOD to request a Linux port to support America's computer
+infrastructure security.  The argument was that one-third of the Internet
+backbone is based on Linux machines according to surveys, and that the COE
+as a major security tool should therefore be deployed commercially to
+protect the net and commercial computer systems.  This has apparently
+generated some interest, as I am now in touch with some folks who have been
+asked to cost a Linux port for DOD.
+If you want to see what the structure of the COE is, I have scanned the COE
+4.1.3.0 baseline source with my Juggernautsearch engine, and posted the
+results on www.opencoe.com.  You can download it from there.  Just reading
+the file listing you can see what the subsystems are.  I also scanned all
+the docs.  Without using the search engine HTML query interface, you can
+Grep through it.  This is not the full COE source, as the scan was set to
+remove common words.  4.1.3.0 works out to last September's build.
+Hey, name that security system that is the baseline for NSA computer system
+worldwide?  (A) SELinux, (B) The COE.   Answer: As of last September, it is
+the COE.
+Not only can the COE run accounts over a network, it can do so over mixed
+networks.  It runs cross-platform under UNIX (many flavors esp. HP and SUN),
+and Windows NT and 2000.  So you can sit on a SUN and administer PC's on the
+net.  If you use NT, it knows all about primary/backup domain controllers
+(PDC's and BDC's) that were used in that architecture to administer nets.
+The key limitation on use of the COE with SELinux is DISA mentality that
+releasing source code is not secure.  At least that is their justification
+for not doing so.  Amazing that NSA has just the opposite view.
+A Linux build of the COE may be in your future for 2002.
+As for network distribution and maintenance of software, the Jet Propulsion
+Laboratory in Pasadena, CA (they develop the COE Kernel) has had an ongoing
+Java Community Process project for a year or so to develop a Java app that
+can distribute software over a net.  It was supposed to be signed, sealed,
+and delivered to DOD at the first of this year for use in the COE.  I have
+not followed up on that.  My quick-and-simple solution was to write a
+utility called COEAnywhere, a tool that allows a client to compare all of
+its COE software segments to a master on a server.  A comparison table is
+built so the user can dowload desired segments.  All pure JPL software for
+DOD is 100% in the public domain, so I have posted that on my opencoe site.
+Maybe it will help you.
+Regards,
+Donald Kasper
 
-To sum it up you want dynamic user add or daily policy update.
+----- Original Message -----
+From: "Shaun Savage" <savages@pcez.com>
+To: "Donald Kasper" <kasper@1stconnect.com>
+Cc: <selinux@tycho.nsa.gov>
+Sent: Tuesday, January 15, 2002 2:02 PM
+Subject: Re: General Users
 
-here is a kluge idea:
-create a new push/pull program to down load the policy daily, using what 
-ever security you need.
-create a policy to allow this program to load the new policy.  here 
-again you define the security needed.
-create a script to generate the "user" file and make the new policy 
-ready to send
 
-now the get_user_sids would work in getting the default context/sid
-
-The problem here is this push/pull program would need to be protected. 
- by selinux policy and encryption.  
-
-The better way would be to allow dynamic user add.  When a user logins 
-in, the nis information sent back to the client has a selinux group. 
-this selinux group allows a user different user rights but the policy 
-lookup is dependent on the group and user.  group_sid + dymanic_user = sid
-
-user_group:user_r:user_t  where user is the user name and group is the 
-group name.
-
-user = zot and group = student
-zot_student:user_r:user_t
-thr group 'student' is defined in the  policy.
- 
-This would require new syscalls,  sid= new_user(name, group, context), 
-and del_user(sid)  
-
-Shaun
- 
-
->I am not worried about user Profile Management or any type 
->of group management.
+> Donald Kasper wrote:
 >
->The issues is the actual SELinux policy management.
->When you create the policy from the policy
->rules the binary file is store in /ss_policy. To add a 
->user to the system now you must:
->	1. Add the user to the system
->	2. Add the user to the file SELinux/policy/users
->		user xxxx roles { user_r };
->	3. Rebuild the policy file.
->		make install
->	4. Load the new policy into the kernel or reboot.
->		load_policy /ss_policy
->	5. Add the user to the /etc/security/default_context
->	6. Add the user to the /etc/security/cron_context
+> >You need a profile manager that is network aware.  See the Common
+Operating
+> >Environment (COE) DISA project, Account Profile Management (APM) utility
+to
+> >see how they do it.  NSA uses the COE, so its not foreign to them either.
+> >Donald Kasper
+> >
+> I would would like to find out more but some of the pages are
+> "restricted" and I can't get to them. I am at the COE Home page.  Also
+> is there a linux port or any work being done with linux?
 >
->
->Some of the problems I will have with this type of implementation is
->	1. I do not believe that the load_policy will be allowed on the 
->         general workstation (security reasons) . That leaves only reboot. 
->	2. Rebuild the policy file for hundred workstation is not a feasible
->
->	   implementation. 
->	3. The policy files will the same for each workstations so a push of
->         the policy files is ok. (this will be performed via encryption)
->	4. As stated early password will be distributed via NIS (legacy
->reasons
->         not an option to change).
->
->Any more Ideas or suggestions would be greatly appreciated
->
->Mark Westerman
->
->--
->You have received this message because you are subscribed to the selinux list.
->If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->the words "unsubscribe selinux" without quotes as the message.
+> Shaun
 >
 >
-
-
+>
+>
+> --
+> You have received this message because you are subscribed to the selinux
+list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
