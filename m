@@ -1,58 +1,59 @@
-Subject: Re: [patch] allow users of tmp_domain to read /usr/tmp
-From: Colin Walters <walters@verbum.org>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CMUYIi019971
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 17:30:35 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CMSc8I000922
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 22:28:38 GMT
+Date: Wed, 12 Jan 2005 22:41:05 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1105566103.23136.32.camel@moss-spartans.epoch.ncsc.mil>
-References: <1105565245.4415.29.camel@nexus.verbum.private>
-	 <1105566103.23136.32.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/6xDMP6UaCmnrhXTsD0w"
-Date: Wed, 12 Jan 2005 17:27:00 -0500
-Message-Id: <1105568820.4415.44.camel@nexus.verbum.private>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
+Subject: Re: Multiple contexts
+Message-ID: <20050112224105.GA11846@lkcl.net>
+References: <20050110232312.GI6967@lkcl.net> <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil> <20050111214818.GE26175@lkcl.net> <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil> <20050112144411.GZ26175@lkcl.net> <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil> <20050112181814.GD26175@lkcl.net> <1105552982.22495.169.camel@moss-spartans.epoch.ncsc.mil> <20050112182954.GF26175@lkcl.net> <1105565236.23136.12.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1105565236.23136.12.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, Jan 12, 2005 at 04:27:16PM -0500, Stephen Smalley wrote:
+> On Wed, 2005-01-12 at 13:29, Luke Kenneth Casson Leighton wrote:
+> >  i don't believe it does - or i am misunderstanding.
+> > 
+> >  having two policy files apache.fc and mymodifiedthing.fc which _both_
+> >  have a file context for the same file / directory, such that the
+> >  data that ends up in the security.selinux xattr is "apache_filetype_t,
+> >  "mymodifiedthing_filetype_t" doesn't mean, in my book "policy is in
+> >  filesystem state".
+> > 
+> >  ... does it?
+> > 
+> >  *lost*.
+> 
+> The file_contexts configuration is not part of the kernel policy.  It is
+> only used by userspace to set the contexts for files upon installation,
+> to recheck the state of the filesystem against the initial labeling
+> state, or to restore portions of the filesystem to the initial labeling
+> state.
+> 
+> If you change the SELinux module to support a list of file contexts
+> within the security.selinux attribute, and change its policy engine to
+> allow access if any access is allowed to any one of those contexts, then
+> the only way to truly identify what information flow is possible in the
+> system is by checking the current security.selinux attributes of all
+> files in the system for such combinations and collapsing them to a
+> single security equivalence class for analysis purposes.  
 
---=-/6xDMP6UaCmnrhXTsD0w
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+ ah, yuk.
 
-On Wed, 2005-01-12 at 16:41 -0500, Stephen Smalley wrote:
-> On Wed, 2005-01-12 at 16:27, Colin Walters wrote:
-> > Hi,
-> >=20
-> > On Fedora at least, /usr/tmp is a symlink to /var/tmp.  Users of
-> > tmp_domain get write access to tmp_t:dir, so I think it makes sense to
-> > automatically grant access to tmp_t:lnk_file as well, so that programs
-> > which refer to /usr/tmp work.  This should be safe since as discussed
-> > earlier no non-unconfined domain can create tmp_t:lnk_file.
-> >=20
-> > This came up on the #fedora-selinux channel where a user was trying to
-> > get their CGI script to work.
->=20
-> Hmm...I had thought that we had agreed that /usr/tmp should be dropped
-> from types.fc and left in usr_t, then just allow read to usr_t:lnk_file
-> as a safer approach.  In fact, the current types.fc file only assigns
-> tmp_t if /usr/tmp is a directory (via the -d flag), and it is labeled
-> usr_t on my FC3 systems (strict).
+ ... so, ultimately, it would be better to have some m4-macro-based
+ tools that do that, munging to an intermediate step (which is same
+ as what we have now) and then munging _that_ to a binary policy
+ file (exactly as is now).
 
-Ok, sounds reasonable.  So I just needed to relabel then with the latest
-policy.  Another reason we need automatic relabeling :)
-
-
---=-/6xDMP6UaCmnrhXTsD0w
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBB5aQ0OIkJWWp2WGURAmS2AJ0YGuy8qMZPRuJ4OWo8Z6DJvU6wCQCdFOF3
-427M/B9Op6AdUWcfbvO5kZ0=
-=tYNR
------END PGP SIGNATURE-----
-
---=-/6xDMP6UaCmnrhXTsD0w--
+ l.
+ 
 
 
 --
