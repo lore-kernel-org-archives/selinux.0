@@ -1,31 +1,51 @@
-Subject: Re: Java Policy
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <4203B048.5070607@redhat.com>
-References: <4203B048.5070607@redhat.com>
+Subject: [PATCH][SELINUX] Fix selinux_inode_setattr hook
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+   Chris Wright <chrisw@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+   selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Fri, 04 Feb 2005 13:02:22 -0500
-Message-Id: <1107540182.408.3.camel@cobra.ivg2.net>
+Message-Id: <1107539956.8078.109.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 04 Feb 2005 12:59:16 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This patch against 2.6.11-rc3 fixes the selinux_inode_setattr hook
+function to honor the ATTR_FORCE flag, skipping any permission checking
+in that case.  Otherwise, it is possible though unlikely for a denial
+from the hook to prevent proper updating, e.g. for remove_suid upon
+writing to a file.  This would only occur if the process had write
+permission to a suid file but lacked setattr permission to it.  Please
+apply.
 
-> #  java
-> /usr/java/jre.*/bin/java.+ --	system_u:object_r:java_exec_t
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: James Morris <jmorris@redhat.com>
 
-That's not where java is on my computer. Jpackage SRPM installs it in
-/usr/lib/jvm/jre-1.5.0_01-sun/bin/ 
+ security/selinux/hooks.c |    3 +++
+ 1 files changed, 3 insertions(+)
 
-and then it's linked through the alternatives system:
-/usr/bin/java -> /etc/alternatives/java -> 
-	/usr/lib/jvm/jre-1.5.0_01-sun/bin/java
+Index: linux-2.6/security/selinux/hooks.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
+retrieving revision 1.150
+diff -u -p -r1.150 hooks.c
+--- linux-2.6/security/selinux/hooks.c	26 Jan 2005 21:20:59 -0000	1.150
++++ linux-2.6/security/selinux/hooks.c	4 Feb 2005 16:39:23 -0000
+@@ -2142,6 +2142,9 @@ static int selinux_inode_setattr(struct 
+ 	if (rc)
+ 		return rc;
+ 
++	if (iattr->ia_valid & ATTR_FORCE)
++		return 0;
++
+ 	if (iattr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
+ 			       ATTR_ATIME_SET | ATTR_MTIME_SET))
+ 		return dentry_has_perm(current, NULL, dentry, FILE__SETATTR);
+
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
