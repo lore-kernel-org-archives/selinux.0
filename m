@@ -1,52 +1,41 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0KAXhRb023723
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 05:33:46 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0KHxlRb026253
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 12:59:48 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i0KAXaiV024646
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 10:33:36 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i0KAXH06024558 for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 10:33:28 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Brian May <bam@snoopy.apana.org.au>, selinux@tycho.nsa.gov
-Subject: Re: Samba and NFSv4 user-space server
-Date: Tue, 20 Jan 2004 21:29:39 +1100
-References: <200401131419.23834.russell@coker.com.au> <200401151619.58669.russell@coker.com.au> <84ptdft265.fsf@snoopy.apana.org.au>
-In-Reply-To: <84ptdft265.fsf@snoopy.apana.org.au>
+	by jazzband.ncsc.mil  with ESMTP id i0KHxkiV023986
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 17:59:46 GMT
+Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
+        by jazzband.ncsc.mil  with ESMTP id i0KHvR06023760 for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 17:59:45 GMT
+Received: (from root@localhost)
+	by baitaca.ipen.br (8.12.9/8.12.9) id i0KHwW9d013431
+	for selinux@tycho.nsa.gov; Tue, 20 Jan 2004 15:58:32 -0200
+Received: from ipen.br ([10.0.12.47])
+	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id i0KHwPK3013406
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 15:58:26 -0200
+Message-ID: <400D6C11.8030003@ipen.br>
+Date: Tue, 20 Jan 2004 15:57:37 -0200
+From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200401202129.39951.russell@coker.com.au>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Capabilities in SELinux
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 20 Jan 2004 20:11, Brian May <bam@snoopy.apana.org.au> wrote:
->     Russell> That won't work.  Samba supports having multiple
->     Russell> identities on a single TCP connection, and NFSv4 supports
->     Russell> similar things.
->
-> I may not have been very clear.
->
-> I am assuming that while the connection can have multiple identities,
-> each request can only have on identity. I think this is the case for
-> Samba, I could be mistaken.
+Helo.
 
-You are correct.
+I have a doubt about the use of the capabilities in the SELinux.
 
-> My suggestion was to have one connection go to one process, which
-> redirects the individual requests to other processes depending on the
-> identity of that request.
+Why to use capabilities (setuid, setgid, etc) in the SELinux, if the 
+identity of the user is irrelevant ?
 
-Yes, this can be done, but requires proxying the operation to another process.  
-It's something that we can look into, of course it will significantly 
-increase the number of processes, and unless some trickery with shared file 
-handles is done it will prevent using sendfile().
+Very thanks.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Carlos Anisio Monteiro  <monteiro@ipen.br>
+IPEN/CNEN-SP
+Sao Paulo - Brasil
+
 
 
 --
