@@ -1,27 +1,38 @@
-Subject: Re: What's the purpose of labeling packets
+Subject: Re: policycoreutils fixes
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: jaegert@us.ibm.com, SELinux@tycho.nsa.gov
-In-Reply-To: <20050223183429.19136.qmail@web51502.mail.yahoo.com>
-References: <20050223183429.19136.qmail@web51502.mail.yahoo.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <421C9750.4080402@redhat.com>
+References: <421C9750.4080402@redhat.com>
 Content-Type: text/plain
-Date: Wed, 23 Feb 2005 13:38:47 -0500
-Message-Id: <1109183927.17298.108.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 24 Feb 2005 09:14:52 -0500
+Message-Id: <1109254492.4217.19.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-02-23 at 10:34 -0800, Park Lee wrote:
-> Hi Trent,
->   I heard that you had implemented implicit packet
-> labeling using IPsec SAs in SELinux. I also hope to
-> see your great work.
->   But, Is there any necessary to label packets on
-> sending/receiving? 
->   What's the purpose of labeling a packet?
+On Wed, 2005-02-23 at 09:46 -0500, Daniel J Walsh wrote:
+> +	while read pattern ; do find $pattern -fstype ext2 -fstype ext3 -fstype reiserfs -fstype xfs -print; done 2> /dev/null | \
+> +	 ${RESTORECON} $2 -v -e /root -e /home -e /tmp -e /var/tmp -e /dev -f - 
+>  	rm -f ${TEMPFILE}
+>  fi
+>  }
 
-See the abstract for his talk at the upcoming SELinux Symposium,
-http://www.selinux-symposium.org/2005/abstracts/ipsec.php
+Per the find(1) man page, expr1 expr2 is an implied AND, i.e. both
+expressions must be true, so -fstype ext2 -fstype ext3 will always be
+false and you'll never print anything.
+
+Shouldn't this be:
+find $pattern \( -fstype ext2 -o -fstype ext3 -o -fstype xfs -o -fstype
+reiserfs \) -print
+
+Also, I'm not sure why you include reiserfs, as reiserfs xattr support
+is still broken for SELinux in the mainline kernel and policy fs_use
+doesn't use xattrs for reiserfs as a result.
+
+As of 2.6.11, jfs will have xattr security support, so we should be able
+to add it to policy/fs_use and start including it in fixfiles in the
+future.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
