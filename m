@@ -1,40 +1,40 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA24861
-	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 16:00:33 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA24908
+	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 16:25:07 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA28272
-	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 19:59:21 GMT
+	by jazzband.ncsc.mil  with ESMTP id UAA28791
+	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 20:23:55 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id TAA28268 for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 19:59:19 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 6296092460
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 06:01:30 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 717963850
-	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 22:00:27 +0200 (CEST)
+        by jazzband.ncsc.mil  with ESMTP id UAA28787 for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 20:23:54 GMT
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: "use"
-Date: Sun, 28 Apr 2002 22:00:27 +0200
+To: debian-dpkg@lists.debian.org
+Subject: Debian SE Linux support
+Date: Sun, 28 Apr 2002 22:25:06 +0200
+Cc: SE Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Message-Id: <20020428200027.717963850@lyta.coker.com.au>
+Message-Id: <20020428202507.3CDAB3813@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-What's the deal with the following section of the global macros file?  Why 
-are there three things aliased to use?  Is the plan to actually enforce a 
-distinction in a future version?  Or did a past version support a distinction 
-and is this a compatability thing?
+I have just got Debian package installation working properly on SE Linux.  I 
+can now upgrade any package on my system (even the tricky ones like "devfsd" 
+and "selinux") without any action being blocked by the security system, while 
+having all processes running in the correct domain, and with a quite 
+restrictive policy.
 
-#
-# Permissions to use file descriptions created by another domain.
-#
-define(`use_fd_perms', `use')
-define(`inherit_fd_perms', `use')
-define(`receive_fd_perms', `use')
+This is the subject of my paper for OLS.
+
+Unfortunately no-one else can achieve the same results at the moment because 
+I will not release my hacked version of dpkg as I am waiting for the dpkg 
+maintainers to decide the correct method of implementing 
+hooks/triggers/whatever.
+
+It would be really nice if we could get this feature in dpkg before someone 
+ports my code to rpm (rpm already has trigger functionality which I believe 
+to be adequate for this task).
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
