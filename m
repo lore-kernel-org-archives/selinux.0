@@ -1,46 +1,54 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0OCabFX026031
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 07:36:37 -0500 (EST)
-Subject: Re: [patch] enhanced MLS support
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <20050124034057.19326.qmail@web50204.mail.yahoo.com>
-References: <20050124034057.19326.qmail@web50204.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1106569823.19246.11.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 24 Jan 2005 07:30:24 -0500
+Message-ID: <41F521F0.7090108@redhat.com>
+Date: Mon, 24 Jan 2005 11:27:28 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SELinux <SELinux@tycho.nsa.gov>, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Change fixfiles to use file_context.local if it exists.
+Content-Type: multipart/mixed;
+ boundary="------------090906040402010702030407"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-01-23 at 22:40, Casey Schaufler wrote:
-> I would think that you couldn't call the
-> system flexible in any meaningful way if
-> it couldn't accomodate an integrity policy.
-> The Trix experience is that Biba integrity
-> is overkill. A binary integrity policy
-> distinguishing between TCB and User data and
-> processes is useful, but going beyond that
-> adds more complexity than anyone (sane) is
-> going to want to deal with.
+This is a multi-part message in MIME format.
+--------------090906040402010702030407
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-TE is preferable for integrity protection.  IMHO, there is no need to
-introduce a Biba model to SELinux.
 
-> Erg. Or handling caveats? Actually, the
-> above comment regarding the flexibility of
-> the system applies. If the system can't be
-> demonstrated to handle these, it probably
-> isn't very agile.
 
-Should be expressible using the category bitmaps.
+--------------090906040402010702030407
+Content-Type: text/x-patch;
+ name="policycoreutils-rhat.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="policycoreutils-rhat.patch"
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-1.21.1/scripts/fixfiles
+--- nsapolicycoreutils/scripts/fixfiles	2005-01-24 11:19:10.103136000 -0500
++++ policycoreutils-1.21.1/scripts/fixfiles	2005-01-24 11:19:28.998223000 -0500
+@@ -37,11 +37,19 @@
+ SELINUXTYPE="targeted"
+ if [ -e /etc/selinux/config ]; then
+     . /etc/selinux/config
+-    FC=/etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts
++    FC=`mktemp /var/tmp/file_contexts.XXXXXX`
++    cat /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts /etc/selinux/${SELINUXTYPE}/contexts/files/file_contexts.local > $FC 2> /dev/null
+ else
+     FC=/etc/security/selinux/file_contexts
+ fi
+ 
++cleanup() {
++    if [ -e /etc/selinux/config -a -f "$FC" ]; then
++	rm -f $FC
++    fi
++}
++trap "cleanup" 0 1 2 3 13 15
++
+ #
+ # Log to either syslog or a LOGFILE
+ #
 
+--------------090906040402010702030407--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
