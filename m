@@ -1,25 +1,28 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Michael Reilly <michaelr@cisco.com>
-Subject: Re: can't start X window in enforce mode
-Date: Wed, 15 Oct 2003 10:18:09 +1000
-Cc: SELINUX <SELinux@tycho.nsa.gov>
-References: <000901c390ef$d8b3c770$5d38a8c0@lky> <1066143647.5054.178.camel@moss-spartans.epoch.ncsc.mil> <20031014120207.6a29818e.michaelr@cisco.com>
-In-Reply-To: <20031014120207.6a29818e.michaelr@cisco.com>
+To: Michael Reilly <michaelr@cisco.com>, <SELinux@tycho.nsa.gov>
+Subject: Re: Anyone run mozilla in enforce mode?
+Date: Wed, 15 Oct 2003 10:16:43 +1000
+References: <20031014121148.4155015d.michaelr@cisco.com>
+In-Reply-To: <20031014121148.4155015d.michaelr@cisco.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200310151018.09901.russell@coker.com.au>
+Message-Id: <200310151016.43827.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 15 Oct 2003 05:02, Michael Reilly wrote:
-> I did find the problem - the X server needed DAC_OVERRIDE.  This was logged
-> as soon as I removed the dontaudit's
+On Wed, 15 Oct 2003 05:11, Michael Reilly wrote:
+> Now I have another problem - mozilla fails to start.  Nothing is logged
+> even with the dontaudit's removed from the policy.  Mozilla does complain
+> that it couldn't find one of its libraries (I do not recall which one and I
+> left my notes at home).
 
-Why did it need DAC_OVERRIDE?
+It's been working well for me.
 
-Why not DAC_READ_SEARCH?
+Please do the same things as you did for X, remove the dontaudits and see what 
+gets logged.  Then please send me an email with the exact changes you made to 
+the file_contexts (and anything else that needs changing).
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
