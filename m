@@ -1,18 +1,18 @@
-Message-ID: <72222DC86846D411ABD300A0C9EB08A101524432@csoc-mail-box.csoconline.com>
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524433@csoc-mail-box.csoconline.com>
 From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
 To: "'Stephen Smalley'" <sds@tislabs.com>,
         "Westerman, Mark"
 	 <Mark.Westerman@csoconline.com>
 Cc: SELinux@tycho.nsa.gov
 Subject: RE: initrd kernel panic
-Date: Wed, 16 Oct 2002 09:28:49 -0500
+Date: Wed, 16 Oct 2002 09:33:49 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Kernel build from a kernel check on Friday
+That should have been cvs check out on friday.
 
 > -----Original Message-----
 > From: Stephen Smalley [mailto:sds@tislabs.com]
