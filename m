@@ -1,67 +1,73 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i872PRrT023651
-	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 22:25:28 -0400 (EDT)
-Received: from wisconsin.yamato.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i872OZvL006521
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 02:24:36 GMT
-Received: from e19f2n15.jp.ibm.com (d19relay01.sagamino.japan.ibm.com [9.189.5.43])
-	by wisconsin.yamato.ibm.com (8.11.6p2-20030922/8.11.1) with ESMTP id i872PFx588318
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 11:25:15 +0900
-Received: from D19ML102.sagamino.japan.ibm.com (d19av02.sagamino.japan.ibm.com [9.189.5.91])
-	by e19f2n15.jp.ibm.com (8.12.10/NCO/VER6.6) with ESMTP id i872PEo5160538
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 11:25:14 +0900
-In-Reply-To: <200409061526.i86FQA6I003847@mms-r00.iijmio.jp>
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Subject: Re: PAM in suse9.1 (Re: SuSE 9.1 SELinux)
-From: Takuya Mishina <TMISHINA@jp.ibm.com>
-Message-ID: <OF296DC5F7.062BA6BF-ON49256F08.000B7FC4-49256F08.000D462A@jp.ibm.com>
-Date: Tue, 7 Sep 2004 11:25:10 +0900
-Content-Type: text/plain; charset="US-ASCII"
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i879TgrT024898
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 05:29:42 -0400 (EDT)
+Received: from crisium.vnl.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i879Tfll004034
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 09:29:41 GMT
+Date: Tue, 7 Sep 2004 10:29:39 +0100
+From: Dale Amon <amon@vnl.com>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: stefano.zanarini@yacme.com, SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: SuSE 9.1 SELinux
+Message-ID: <20040907092939.GA22688@vnl.com>
+References: <OF93C1DDD2.9FAF1403-ON49256F06.00517E1E-49256F07.0007F249@jp.ibm.com> <1094456102.2213.3.camel@pignoletto.cantina.yacme> <1094479285.11718.31.camel@gorn.pebenito.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
+In-Reply-To: <1094479285.11718.31.camel@gorn.pebenito.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
 
-Nakamura-san's patch for pam_unix module is useful to make newrole running 
-without setuid bit.
+--k1lZvvs/B4yU6o8G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I've changed my SuSE 9.1 to use Nakamura-san's patched pam_unix.so.
-(modify /etc/pam.d/newrole and install patched pam_unix.so to 
-/lib/security)
-After that newrole runs correctly without setuid bit.
+On Mon, Sep 06, 2004 at 10:01:25AM -0400, Chris PeBenito wrote:
+> > I'm interested in doing the same thing ,even in suse 9.0 with a custom
+> > kernel and in 9.1 with defoult one ,but this could be a real problem for
+> > me ... why doesn't it work with reiserfs ? is there a patch or a
+> > workaround to make it works ? have you tryed ?=20
+>=20
+> This same question was answered a few days ago.  There's a deadlock in
+> the reiserfs code, and there's no workaround.  To quote Steve:
+>=20
+> On Fri, 2004-09-03 at 09:53, Stephen Smalley wrote:=20
+> > reiserfs is known to not work with SELinux.  There is a deadlock in the
+> > reiserfs xattr code when interacting with SELinux, and there is no way
+> > presently for reiserfs to inform SELinux that it shouldn't try to
+> > mediate access to the internal directories and files used to store the
+> > xattrs.  reiserfs maintainers know about the issues, but not clear that
+> > they care...
 
+That explains the trouble I had with my xattr's patch
+I did here a year or two ago. It worked but I had, at=20
+the time, unexplicable problems.
 
-Yuichi Nakamura <himainu-ynakam@miomio.jp> wrote on 2004/09/07 00:25:59:
-> *In modules/pam_unix/support.c of FedoraCore3-test1
-> <snip>
->                 if (geteuid() || SELINUX_ENABLED) {
->                         /* we are not root perhaps this is the reason? 
-Run helpe
-> r */
->                         D(("running helper binary"));
->                         retval = _unix_run_helper_binary(pamh, p, ctrl, 
-name);
-> <snip>
-> 
-> *in modules/pam_unix/support.c of SUSE9.1
-> <snip>
->                 if (geteuid()) {
->                         /* we are not root perhaps this is the reason? 
-Run helpe
-> r */
->                         D(("running helper binary"));
->                         retval = _unix_run_helper_binary(pamh, p, ctrl, 
-name);
-> <snip>
+--=20
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
+--k1lZvvs/B4yU6o8G
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
----
-Takuya MISHINA
-IBM Research, Tokyo Research Laboratory
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFBPX+DZHES7UL0zXERAqJ0AJ9WGrtCjMCLaBre1SQSgS0cEo1OcgCggZ/G
+s/m8NK7QlOXGAwFE7uWAULM=
+=FyJC
+-----END PGP SIGNATURE-----
 
-
+--k1lZvvs/B4yU6o8G--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
