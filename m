@@ -1,35 +1,55 @@
-Subject: Re: concerns about object-inheritance wrt files/directories
+Subject: Re: [RFC & PATCH] inherited type definition.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050316135008.GA24000@lkcl.net>
-References: <20050316135008.GA24000@lkcl.net>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <4237B950.2090604@ak.jp.nec.com>
+References: <42346C17.3090301@kaigai.gr.jp>
+	 <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil>
+	 <4235C937.3030404@kaigai.gr.jp>
+	 <1110824712.21378.196.camel@moss-spartans.epoch.ncsc.mil>
+	 <4236CC03.5010104@kaigai.gr.jp>
+	 <1110897751.25947.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <4237B950.2090604@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Wed, 16 Mar 2005 08:45:48 -0500
-Message-Id: <1110980748.4802.61.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 16 Mar 2005 09:05:28 -0500
+Message-Id: <1110981928.4802.81.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-03-16 at 13:50 +0000, Luke Kenneth Casson Leighton wrote:
->  for file types, i have a major concern.
+On Wed, 2005-03-16 at 13:42 +0900, Kaigai Kohei wrote:
+> I have an idea that ALLOW statement is added an new option
+> For example:
+>   ALLOW @user_t @user_t:process {ptrace};
+>   ALLOW user_t @user_t:process {transition};
 > 
->  if not careful, we are going to be getting into the "multiple file
->  types" thing again, which it has already been discussed that, whilst
->  doable, has some hair-raising implications that make it too complex to
->  a) understand for implementation purposes b) understand the resultant
->  policy.
+> When '@' is added in front of the type name, this means source/target
+> type is only user_t, not including user_ext_t and descendant.
+> Above example is rolled out as follows:
+>   ALLOW user_t user_t:process {ptrace};
+>   ALLOW {user_t user_ext_t}:process {transition};
+> 
+> It restrains unlimited inheritance of permissions to child type/domain.
+> Can this approach solve such a concern ?
 
-No, I think you misunderstood.  The objection to multiple contexts on
-files is that you can't analyze the resulting policy without pulling in
-the entire filesystem state, and a modification to the filesystem state
-at any time can change the policy.  What KaiGai is proposing is an
-extension to the policy language to allow certain relationships among
-types to be expressed more easily, with the policy compiler taking care
-of generating the necessary TE rules based on those relationships.
-Thus, analysis is still feasible based solely on the centralized policy
-configuration and changing the policy requires changing that
-configuration.
+Note that at least in this case, even the ability to transition prevents
+any real separation between user_t and user_ext_t, because user_t and
+user_ext_t can be entered by a shell, so with transition permission,
+user_t can then run a shell in user_ext_t and perform arbitrary actions
+with those permissions.
+
+One obvious question is how @<attributename> would be interpreted;
+offhand, I would expect it to prevent expansion of the descendants of
+the individual types that have the attribute.  One concern with this
+approach is that you have to explicitly mark types in order to prevent
+expansion rather than having to explicitly mark types that you want to
+expand, which seems prone to accidental expansion.  Note that we have to
+consider not only rules that directly specify the type but rules that
+may indirectly include the type via attribute or set complement (~).
+Requiring explicit marking of types to allow expansion of descendants
+would presumably require more work by someone who wants to extend a
+type, but would avoid unintentional expansion.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
