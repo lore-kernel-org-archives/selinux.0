@@ -1,105 +1,83 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA17613
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 17:50:18 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA17691
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 18:00:10 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id VAA16965
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 21:48:14 GMT
-Received: from swan.mail.pas.earthlink.net (swan.mail.pas.earthlink.net [207.217.120.123])
-        by jazzband.ncsc.mil  with ESMTP id VAA16961 for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 21:48:14 GMT
+	by jazzband.ncsc.mil  with ESMTP id VAA17454
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 21:58:42 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id VAA17450 for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 21:58:41 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
-Subject: Sorry, read this one: Re: SELinux Dumb Questions
-From: JW <jw@centraltexasit.com> (by way of JW <jw@centraltexasit.com>)
-Date: Tue, 4 Jun 2002 16:49:25 -0500
-To: SE Linux <selinux@tycho.nsa.gov>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: jw@centraltexasit.com, selinux@tycho.nsa.gov
+Subject: Re: SELinux Dumb Questions
+Date: Tue, 4 Jun 2002 23:59:46 +0200
 Cc: "Haigh, Tom" <tom_haigh@securecomputing.com>,
         "'Admissions Office'" <admissions@internet.edu.nf>,
         Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>,
-        Russell Coker <russell@coker.com.au>
+        linux-security-module@wirex.com
+References: <200205281111.39926.jw@centraltexasit.com> <20020603153940.937033C34@lyta.coker.com.au> <E17FLsN-00072J-00@pintail.mail.pas.earthlink.net>
+In-Reply-To: <E17FLsN-00072J-00@pintail.mail.pas.earthlink.net>
 MIME-Version: 1.0
-Message-Id: <E17FMB5-0006Or-00@swan.prod.itd.earthlink.net>
+Message-Id: <20020604215946.DA32A748C@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry about that last empty message, I accidently hit ^[ENTER] when I meant 
-hit shift...
--------------------
-
-Something is really amiss with this and needs to be brought to a reasonable 
-conclusion soon. Read on for details...
-
-On Monday, 03 June Admissions Office wrote:
-> > Folks this may seem like a dumb question given the Open Source and
-> > postings on the site. Its just that we want to be sure....
+On Tue, 4 Jun 2002 23:30, JW wrote:
+> > On Mon, 3 Jun 2002 16:50, Admissions Office wrote:
+> > > Folks this may seem like a dumb question given the Open Source and
+> > > postings on the site. Its just that we want to be sure....
+> > >
+> > > Is there any reason why a Colo company cannot offer SELinux as a
+> > > standard product offering they would install on clients servers?
 > >
-> > Is there any reason why a Colo company cannot offer SELinux as a standard
-> > product offering they would install on clients servers?
-
-And on Monday 03 June Russell Coker replied:
-> As Mark stated there are no license or legal issues preventing such use.
-
-BUT;
-On Monday 03 June Tom Haigh wrote:
-
-> SELinux includes Type Enforcement technology developed and patented by the
-> Secure Computing Corporation, who still holds rights to all commercial use
-> of the technology.  Before a colo company, or anyone else uses the
-> technology commercially, it will be necessary to negotiate a license with
-> Secure Computing.  If anyone wants to do so, I can help get the ball
-> rolling with our Legal and BD folks.
+> > As Mark stated there are no license or legal issues preventing such use.
 >
-> --Tom
+> On Monday 03 June 2002 04:13 pm, Haigh, Tom wrote:
+> > SELinux includes Type Enforcement technology developed and patented by
+> > the Secure Computing Corporation, who still holds rights to all
+> > commercial use of the technology.  Before a colo company, or anyone else
+> > uses the technology commercially, it will be necessary to negotiate a
+> > license with Secure Computing.  If anyone wants to do so, I can help get
+> > the ball rolling with our Legal and BD folks.
+
+Let's look at the following URL:
+http://www.securecomputing.com/archive/press/2000/nsa_faq_secure_linux.html
+
+> Question 6: Will SCC use its patent on Type Enforcement TM to restrict use,
+> future development, derivative work, or release of the source code of the
+> system? 
 >
-> Dr. Tom Haigh, CTO
-> Secure Computing Corp.
-> 2675 Long Lake Road
-> Roseville, MN 55113
->
-> 651-628-2738 (V)
-> 651-628-2701 (F)
->
-> haigh@securecomputing.com
+> There will be no restrictions on the use of TE by the Linux open source
+> community. We believe that leveraging the resources of the Linux community
+> is the best way to develop robust security for Linux.
 
+That seems like a clear statement that we can do what we like with it!
 
-There is some severe misunderstanding here. 
+But Tom, if your company does want to go ahead with this patent plan then 
+please do the following:
 
-IANAL, but it is my understanding that you cannot restrict the use or 
-distribution of GPLd Free Software. It simply does not work that way, no 
-exceptions, no excuses. Once code is GPLd it is free for all to use. You can 
-change the license on future versions of the code, but you cannot go back and 
-restrict GPL's code "after the fact"
+1)  Change that misleading web page.
 
-Either:
+2)  Let me know so I can remove all SE Linux code from Debian, remove it from 
+my client's machines, and start work on a competing product.
 
- 1. Someone (at the NSA?) affixed the GPL to code they didn't have a right to 
-do so on, or
+3)  Make formal statements as to limitations of distribution etc, also 
+clarify to what extent you want SE Linux code removed from the world.  Should 
+I get the upstream maintainer of stat to remove the SE Linux code too?  Also 
+you'll have to get it removed from LSM which is under the GPL, and you had 
+better hope that the problems with building as a module are fixed quickly - 
+you can't ship code that links with the kernel unless it's under the GPL.
 
-2. (More likely) Secure Computing did not understand under what terms they 
-were developing Type Enforcment for the NSA under.
+PS  When does the patent expire?  If it's due to expire in 1 year or less we 
+can just wait until it's gone...
 
-I've got the flu right now so I'm too tried to reason it all through, but 
-_someone_ needs to very soon.
-
-Just a few implications that come to the top of my head if Secure COmputing 
-is right:
-
-1. SELinux patches cannot legally be applied to GPLd software or the Linux 
-kernel, because that would break the GPL itself (GPL forbids making non-free 
-changes to GPL'd code -- i.e., if you modify GPL'd code, the modifications 
-must be made available under the terms of the GPL).
-
-2. It will need to be removed from Debian's tree -- at least moved to 
-non-free, yet as I said before, if Secure Computing is correct, SE-Linux is 
-not legal to use with GPL'd software anyway (at least the way I see it).
-
-You'd better bet that GNU and other people who's code is being modified to 
-work with SE-Linux will have ten purple cows on anyone who mixes non-free 
-code with their GPLd code.
-
-Perhaps I'm totally misunderstanding something while I'm half-delirious with 
-the flu, but this needs to be clarified _soon_.
-
-	JW
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
