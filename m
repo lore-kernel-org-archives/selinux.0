@@ -1,49 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8FHkCLa015285
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 13:46:13 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8FHiWLY002890
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 17:44:32 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h8FHiVsG002887
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 17:44:32 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8FIjGLa015670
+	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 14:45:16 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h8FIjEmw009526
+	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 18:45:14 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+        by jazzband.ncsc.mil  with ESMTP id h8FIjE9d009499 for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 18:45:14 GMT
 Subject: Re: Problem relabeling journalfile
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
+From: Colin Walters <walters@verbum.org>
+To: Dale Amon <amon@vnl.com>
 Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <200309160251.25816.russell@coker.com.au>
-References: <20030915145004.GB8988@vnl.com> <20030915152948.GC8988@vnl.com>
-	 <1063640607.13311.156.camel@moss-spartans.epoch.ncsc.mil>
-	 <200309160251.25816.russell@coker.com.au>
+In-Reply-To: <20030915152948.GC8988@vnl.com>
+References: <20030915145004.GB8988@vnl.com>
+	 <1063637616.13311.110.camel@moss-spartans.epoch.ncsc.mil>
+	 <20030915152948.GC8988@vnl.com>
 Content-Type: text/plain
-Message-Id: <1063647964.13311.184.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1063651218.16854.6.camel@columbia>
 Mime-Version: 1.0
-Date: 15 Sep 2003 13:46:04 -0400
+Date: Mon, 15 Sep 2003 14:40:18 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-09-15 at 12:51, Russell Coker wrote:
-> Do you think it would be beneficial to have a method of specifying rules that 
-> apply relative to the root of a file system instead of to the root?
+On Mon, 2003-09-15 at 11:29, Dale Amon wrote:
+> On Mon, Sep 15, 2003 at 10:53:36AM -0400, Stephen Smalley wrote:
+> > Add an entry for it to your file_contexts configuration with the special
+> > notation "<<none>>" in place of the security context.  This tells
+> > setfiles to ignore it.
 > 
-> EG:
-> FS/.journal
-> FS/lost\+found
-> FS/quota.user
-> FS/quota.group
+> Sorted. Thanks.
 > 
-> With the current operation of setfiles for completeness we have to add such 
-> entries for every new mount point.  Having setfiles accept such a spec when 
-> labeling an entire file system would be easy to code, and it wouldn't be 
-> really difficult to manage the case of "setfiles -s".
+> This might be a reasonable thing to add to standard the file_contexts:
+> 
+> #
+> # Journal files
+> /.journal	<<none>>
 
-You might be able to leverage the altroot support contributed by the
-Hardened Gentoo developers to achieve the same effect without altering
-the specification itself.
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I ran into this same issue a while back, and someone (I forget who now)
+gave me the tip that if you boot from a different medium and run
+'tune2fs /dev/hdX' with a recent enough tune2fs, it will automatically
+hide the .journal inode.
 
 
 --
