@@ -1,45 +1,69 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RH58rT021437
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 13:05:08 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7RH4JpX007472
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 17:04:20 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Dale Amon <amon@vnl.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RHAjrT021476
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 13:10:45 -0400 (EDT)
+Received: from crisium.vnl.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7RH9wpX008033
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 17:09:59 GMT
+Date: Fri, 27 Aug 2004 18:10:45 +0100
+From: Dale Amon <amon@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: Dale Amon <amon@vnl.com>, SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: file_contexts/types.fc
-Date: Sat, 28 Aug 2004 03:05:02 +1000
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200408272141.36561.russell@coker.com.au> <20040827152538.GD8872@vnl.com>
-In-Reply-To: <20040827152538.GD8872@vnl.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408280305.02429.russell@coker.com.au>
+Message-ID: <20040827171045.GA18446@vnl.com>
+References: <200408272141.36561.russell@coker.com.au> <20040827152538.GD8872@vnl.com> <200408280305.02429.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
+In-Reply-To: <200408280305.02429.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 28 Aug 2004 01:25, Dale Amon <amon@vnl.com> wrote:
-> On Fri, Aug 27, 2004 at 09:41:36PM +1000, Russell Coker wrote:
-> > for /dev/mdsp (it's a DSP board whatever that means, not a hard disk).
->
-> It usually means Digital Signal Processor.
 
-Yes, the issue however is what a DSP board is.  Is it a software modem/sound 
-card device (like the MWave cards in older Thinkpads)?  Is it a numeric 
-co-processor for offloading some computations from the main CPU (useful for 
-sound/video processing)?
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What uses this board?  What does it use it for?
+On Sat, Aug 28, 2004 at 03:05:02AM +1000, Russell Coker wrote:
+> > It usually means Digital Signal Processor.
+>=20
+> Yes, the issue however is what a DSP board is.  Is it a software modem/so=
+und=20
+> card device (like the MWave cards in older Thinkpads)?  Is it a numeric=
+=20
+> co-processor for offloading some computations from the main CPU (useful f=
+or=20
+> sound/video processing)?
 
-Without answers to these questions we can't do anything about assigning a type 
-to it apart from determining that it's not a hard disk.  ;)
+The only ones I'm familiar with were boards that
+had one or more DSP chips on them for massive
+offboard general purpose signal processing. There
+was a dandy one for NeXT's from IRCAM many years
+back...=20
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--=20
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
+
+--5mCyUwZo2JvN/JJP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBL2sVZHES7UL0zXERAuDEAJ4wbxMpi3REaG9B8Gx6R7BVOGyc0wCgg4MU
+3ZS04ZWT6vr4Z6++HBu/98g=
+=HJnW
+-----END PGP SIGNATURE-----
+
+--5mCyUwZo2JvN/JJP--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
