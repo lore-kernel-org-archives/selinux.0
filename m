@@ -1,50 +1,50 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i91J0OrT003963
-	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 15:00:24 -0400 (EDT)
-Message-ID: <415DA941.4050500@redhat.com>
-Date: Fri, 01 Oct 2004 15:00:17 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Patch to restorecon to add -R switch
-References: <41584DCA.7030006@redhat.com>            <1096484920.3270.13.camel@moss-lions.epoch.ncsc.mil> <200410011828.i91ISrN6018074@turing-police.cc.vt.edu>
-In-Reply-To: <200410011828.i91ISrN6018074@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i91JhOrT004348
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 15:43:24 -0400 (EDT)
+Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i91JhGEb013041
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 19:43:23 GMT
+Message-Id: <200410011943.i91JhEUH001486@turing-police.cc.vt.edu>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to restorecon to add -R switch 
+In-Reply-To: Your message of "Fri, 01 Oct 2004 15:00:17 EDT."
+             <415DA941.4050500@redhat.com>
+From: Valdis.Kletnieks@vt.edu
+References: <41584DCA.7030006@redhat.com> <1096484920.3270.13.camel@moss-lions.epoch.ncsc.mil> <200410011828.i91ISrN6018074@turing-police.cc.vt.edu>
+            <415DA941.4050500@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_2098080852P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 01 Oct 2004 15:43:13 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Valdis.Kletnieks@vt.edu wrote:
+--==_Exmh_2098080852P
+Content-Type: text/plain; charset=us-ascii
 
->On Wed, 29 Sep 2004 15:08:40 EDT, James Carter said:
->  
->
->>Everything looks fine, but why does all the output just go to the log
->>file now?  
->>    
->>
->
->  
->
->>>-	rpm -q -l $i | restorecon ${OUTFILES} -n -v -f - 2>&1 | tee $LOGFILE
->>>+	rpm -q -l $i | restorecon ${OUTFILES} -n -v -f - 2>&1 > $LOGFILE
->>>      
->>>
->
->That (and a few other places '| tee' was removed) is the technical reason
->why it goes to the logfile only.  Dan would have to address the logic behind why
->the change was made.
->  
->
-It was changed because the the messages were flooding the roots mailer 
-and if you ran fixfiles by hand, it would slow down the process
-if you were on a slow terminal.  You can still see the output by doing a 
-fixfiles -l `tty`
+On Fri, 01 Oct 2004 15:00:17 EDT, Daniel J Walsh said:
 
-I think this all needs a redesign,  maybe to write its output to syslog, 
-but am trying to get test3 out the door now.
+> It was changed because the the messages were flooding the roots mailer 
+> and if you ran fixfiles by hand, it would slow down the process
+> if you were on a slow terminal.  You can still see the output by doing a 
+> fixfiles -l `tty`
 
-Dan
+Hmm.. what does `tty` do inside a cron job?  That might matter to some people...
+
+--==_Exmh_2098080852P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBXbNRcC3lWbTT17ARAkVaAJ4ja9ntjK1glOfZUnoVUjvUEul6AwCeNt0H
+Lfr8wNRNhbeFvEPgck1YvkA=
+=zeNa
+-----END PGP SIGNATURE-----
+
+--==_Exmh_2098080852P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
