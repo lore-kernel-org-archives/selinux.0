@@ -1,59 +1,79 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i89HOcrT013405
-	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 13:24:38 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i89HObVJ004322
-	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 17:24:37 GMT
-Date: Thu, 9 Sep 2004 18:35:54 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: at last: info regarding boot problems on multiple partitions
-Message-ID: <20040909173554.GC10046@lkcl.net>
-References: <20040908224949.GK7717@lkcl.net> <200409100233.47416.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i89IJurT013798
+	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 14:19:56 -0400 (EDT)
+Subject: Re: Patch to make udev/tmpfs work and changes from colin  walters
+	for dbus.
+From: Colin Walters <walters@redhat.com>
+To: jwcart2@epoch.ncsc.mil
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
+   SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1094734410.2895.45.camel@moss-lions.epoch.ncsc.mil>
+References: <413E1DE0.9050905@redhat.com>
+	 <1094734410.2895.45.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-r6ott23onXVubRSyHnum"
+Date: Thu, 09 Sep 2004 14:21:06 -0400
+Message-Id: <1094754066.28487.25.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200409100233.47416.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Sep 10, 2004 at 02:33:47AM +1000, Russell Coker wrote:
 
-> On Thu, 9 Sep 2004 08:49, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+--=-r6ott23onXVubRSyHnum
+Content-Type: multipart/mixed; boundary="=-Yvb4Sf9/L1iDof3aHWwh"
 
-> > FINALLY i got a useable system when i encountered a boot problem
-> > [well, i got a console login].
-> >
-> > the issue is that partitions fail to be mounted.
-> >
-> > i had noticed over a period of time that programs like pump and dhclient
-> > and some others would stop partitions from being unmounted during
-> > shutdown.
-> >
-> > [remember i have /boot, /, /usr, /var and /home]
-> >
-> > for some reason, this also caused the partitions to fail to MOUNT on
-> > startup.
-> 
-> I've seen a very similar problem, but it was intermittent and didn't occur 
-> enough to let me debug it.  I'm not certain that I saw the same problem but 
-> the result of file systems not being mounted was similar.
-> 
-> I would be very interested in any further information you may find on this.
 
- okay.
+--=-Yvb4Sf9/L1iDof3aHWwh
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
- i re-enabled fbmngplay.
+On Thu, 2004-09-09 at 08:53 -0400, James Carter wrote:
+> When I build the policy with this patch there is a conflict with two
+> type transitions.
+>=20
+> Because of the alias rule:
+> typealias system_dbusd_exec_t alias dbusd_exec_t;
+>=20
+> The following type transitions conflict:
+> type_transition sysadm_t dbusd_exec_t:process sysadm_dbusd_t;
+> type_transition sysadm_t system_dbusd_exec_t:process system_dbusd_t;
+>=20
+> The second transition is the one used when I build the policy.  I am not
+> sure if that is the desired transition.
 
- i also added ps ax and lsof /usr to /etc/init.d/umount
+Hm.  Yes, we actually want the former.  Can you try this patch?
 
- fbmngplay, the swine, has file handles open on /usr/lib/ - 
- libz, libmng, libjpeg and one other.
 
- fbmngplay is the program that does the animations.
+--=-Yvb4Sf9/L1iDof3aHWwh
+Content-Disposition: attachment; filename=se-dbus-nosysadm.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=se-dbus-nosysadm.patch; charset=utf-8
 
- it's enough to cause a reproducible case.
+LS0tIG1hY3Jvcy9wcm9ncmFtL2RidXNkX21hY3Jvcy50ZX4JMjAwNC0wOS0wOSAxNDowODoyMC4x
+OTI5NTExOTIgLTA0MDANCisrKyBtYWNyb3MvcHJvZ3JhbS9kYnVzZF9tYWNyb3MudGUJMjAwNC0w
+OS0wOSAxNDoxOTowNi43MDE2NjY5MjggLTA0MDANCkBAIC05LDcgKzksNyBAQA0KIA0KIGRlZmlu
+ZShgZGJ1c2RfZG9tYWluJywgYA0KIGlmZWxzZShgc3lzdGVtJywgYCQxJyxgDQotZGFlbW9uX2Rv
+bWFpbihzeXN0ZW1fZGJ1c2QsIGAsIHVzZXJzcGFjZV9vYmptZ3InKQ0KK2RhZW1vbl9kb21haW4o
+c3lzdGVtX2RidXNkLCBgLCB1c2Vyc3BhY2Vfb2JqbWdyJywgYG5vc3lzYWRtJykNCiAjIEZvciBi
+YWNrd2FyZHMgY29tcGF0aWJpbGl0eQ0KIHR5cGVhbGlhcyBzeXN0ZW1fZGJ1c2RfdCBhbGlhcyBk
+YnVzZF90Ow0KIHR5cGVhbGlhcyBzeXN0ZW1fZGJ1c2RfZXhlY190IGFsaWFzIGRidXNkX2V4ZWNf
+dDsNCg==
 
+
+--=-Yvb4Sf9/L1iDof3aHWwh--
+
+--=-r6ott23onXVubRSyHnum
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBQJ8SOIkJWWp2WGURAj5fAJ9AMW91x4yFlSdE2/4IjSTWddx0YACfV4ih
+9iBuNvJjxKPiWPTqEnUSg/I=
+=vK75
+-----END PGP SIGNATURE-----
+
+--=-r6ott23onXVubRSyHnum--
 
 
 --
