@@ -1,45 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1JLGhRb001458
-	for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2004 16:16:43 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1JLGec3022277
-	for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2004 21:16:41 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i1JLGeR0022274 for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2004 21:16:40 GMT
-Subject: Re: Backing out SeLinux on 2.4
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Shane Wegner <shane-keyword-selinux.9d5a25@cm.nu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20040219205445.GA22106@cm.nu>
-References: <20040219205445.GA22106@cm.nu>
-Content-Type: text/plain
-Message-Id: <1077225392.3526.125.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 19 Feb 2004 16:16:32 -0500
+To: SELinux@tycho.nsa.gov
+Subject: Announce: Slat 1.1.0 with policy deconditionalizer
+From: ramsdell@mitre.org (John D. Ramsdell)
+Date: 20 Feb 2004 06:21:18 -0500
+In-Reply-To: <000c01c3f265$9139f860$020d010a@columbia.tresys.com>
+Message-ID: <ogty8qyxahd.fsf@divan.mitre.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-02-19 at 15:54, Shane Wegner wrote:
-> I have decided to backout an installation of SeLinux and
-> using a regular 2.4 kernel, the system cannot mount the
-> root device, presumably due to the presence of ACLs. 
-> Applying the acl patch at acl.bestbits.at does fix the
-> problem.  Is there a way to remove the SeLinux ACLs such
-> that the system can once again be booted on a vanilla
-> kernel?  Maybe a dump/restore would work.  Anything that
-> could be done without taking the system offline?
+Slat version 1.1.0 has been committed into the nsa module of the
+selinux project on SourceForge.  This version reimplements some old
+fixes that somehow were left out of the repository at NSA, and
+provides a new program called poldecond.
 
-I think that the fast symlink detection fix went into vanilla 2.4.25, so
-you should be able to boot a vanilla 2.4.25 kernel.  You should also be
-able to boot your SELinux kernel with selinux disabled (selinux=0) and
-then use something like:
-	find / -exec setfattr -x security.selinux {} \;
-to remove the SELinux attributes.
+The poldecond program accepts policy configuration files that use the
+conditional policy extension.  The program extracts the
+conditional-less policy defined by using the default value for each
+boolean in the input.  For example, suppose ping.te contains the
+following boolean declaration:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+  bool user_ping false;
 
+The command
+
+  $ poldecond ping.te ping_false.te
+
+will produce a te file with user_ping = true branches elided.
+
+The value for the first boolean declaration overrides all others, so
+one can derive other policies by adding boolean declarations with
+different defaults at the beginning of the input.  For example, to
+produce a te file with user_ping = false branches elided, use the
+command:
+
+  $ echo 'bool user_ping true;' | cat - ping.te | poldecond - ping_true.te
+
+John
 
 --
 This message was distributed to subscribers of the selinux mailing list.
