@@ -1,60 +1,73 @@
-Message-ID: <72222DC86846D411ABD300A0C9EB08A101524303@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'Russell Coker'" <russell@coker.com.au>,
-        "Westerman, Mark"
-	 <Mark.Westerman@csoconline.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: RE: New Rease
-Date: Mon, 11 Mar 2002 11:40:03 -0600
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA22470
+	for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 12:44:19 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA12865
+	for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 17:43:17 GMT
+Received: from adams.patriot.net (IDENT:root@adams.patriot.net [209.249.176.2])
+        by jazzband.ncsc.mil  with ESMTP id RAA12861 for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 17:43:17 GMT
+Received: from localhost (pgreene@localhost)
+	by adams.patriot.net (8.10.1/8.10.1) with ESMTP id g2BHiHo16061
+	for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 12:44:17 -0500
+Date: Mon, 11 Mar 2002 12:44:17 -0500 (EST)
+From: Paul Greene <pgreene@patriot.net>
+To: <selinux@tycho.nsa.gov>
+Subject: Trouble with Selinux install
+Message-ID: <Pine.LNX.4.30.0203111242410.9199-100000@adams.patriot.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-OK 
-
-I fat fingered the release number 
-It was supposed to say 2.4.18
 
 
------Original Message-----
-From: Russell Coker [mailto:russell@coker.com.au]
-Sent: Monday, March 11, 2002 11:36 AM
-To: Westerman, Mark
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: New Rease
+I tried installing Selinux for the first time yesterday and have been
+having a little trouble.
+
+The kernel compile all seemed to go well; I didn't get any error messages.
+
+However, when I went to boot the system, I selected "selinux" from the
+lilo boot menu, the message "Loading selinux ...." came up, but then the
+system rebooted, and came back around again to the lilo prompt. I don't
+have any trouble getting into the standard kernel, but if I try to get
+into the selinux kernel, the system just reboots again.
+
+There's no obvious errors logged in /var/log/boot.log.
+
+The RedHat version is 7.1; I used the LSM sources tarball, version 2.4,
+"Option 1 - Everything in one Part".
+
+One possibility that came to mind was the CPU type. The system is a
+Pentium 166 w/ 64 megs of RAM; the only option for CPU type in .config was
+for a Pentium III.
+
+My lilo.conf file is listed below.
+
+Paul Greene
+
+______________________
+
+boot=/dev/hda
+map=/boot/map
+install=/boot/boot.b
+prompt
+timeout=50
+message=/boot/message
+linear
+default=linux
+
+image=/boot/vmlinuz-2.4.2-2
+        label=linux
+        read-only
+        root=/dev/hda6
+
+image=/boot/vmlinuz-2.4.17-selinux
+        label=selinux
+        read-only
+        root=/dev/hda6
 
 
-On Mon, 11 Mar 2002 16:59, Westerman, Mark wrote:
-> Now that 2.4.19 is out do you have any idea when
-> the we will have a new release ?
 
-What makes you think that 2.4.19 is out?
-
-finger @ftp.kernel.org
-[zeus.kernel.org]
-The latest stable version of the Linux kernel is:           2.4.18
-The latest prepatch for the stable Linux kernel tree is:    2.4.19-pre2
-The latest beta version of the Linux kernel is:             2.5.6
-The latest prepatch for the beta Linux kernel tree is:      2.5.6-pre3
-The latest 2.2 version of the Linux kernel is:              2.2.20
-The latest prepatch for the 2.2 Linux kernel tree is:       2.2.21-pre4
-The latest 2.0 version of the Linux kernel is:              2.0.39
-The latest prepatch for the 2.0 Linux kernel tree is:       2.0.40-rc3
-The latest -ac patch to the stable Linux kernels is:        2.4.19-pre2-ac4
-The latest -dj patch to the beta Linux kernels is:          2.5.5-dj3
-
-
-Actually if 2.4.19 was out it might delay the new release while they test it
-
-on 2.4.19.
-
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
