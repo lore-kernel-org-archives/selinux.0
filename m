@@ -1,16 +1,16 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2CnHXZ004849
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 07:49:17 -0500 (EST)
-Received: from oe-im2.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2CnCAw013918
-	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 12:49:16 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2CwZXZ004929
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 07:58:35 -0500 (EST)
+Received: from oe-im2.bizmailsrvcs.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2CvE4G002666
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 12:57:14 GMT
 From: "Frank Mayer" <mayerf@tresys.com>
 To: "'Chad Hanson'" <chanson@TrustedCS.com>,
    "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
    "'SE-Linux'" <selinux@tycho.nsa.gov>
 Subject: RE: dynamic context transitions - a seteuid parallel
-Date: Tue, 2 Nov 2004 07:49:12 -0500
-Message-ID: <00aa01c4c0da$5acdd960$1e0c010a@columbia.tresys.com>
+Date: Tue, 2 Nov 2004 07:58:31 -0500
+Message-ID: <00b201c4c0db$a9bdde20$1e0c010a@columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -18,34 +18,40 @@ In-Reply-To: <36282A1733C57546BE392885C06185924D91F1@chaos.tcs.tcs-sec.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> The DoD and associated communities have long requested and utilized
-> the privilege bracketing technique for information sharing solutions.
-> Thus the majority of existing applications are built to this
-> framework. TCS and other ISVs have a large existing code base of
-> fielded accredited solutions based on this framework.
+> The alternatives are to overprivilege the application which is not
+> acceptable or to rewrite all of the applications before they can be
+> used on this new platform. The latter is goal which can and should be
+> achieved or time. Applications can streamlined and reorganized to fit
+> into the modular framework and of cooperating applications. This is a
+> considerable effort and major roadblock to utilizing SELinux and
+> therefore Linux for these types of applications.
 
-To be fair, privilege bracketing came about primarily as a compromise of how to
-meet the B2 requirements.  The ideal was something like ring brackets from the
-Multics hardware, or even the simplified execution privilege levels from x86
-architecture.  I'm sure that on of the first places privilege bracketing
-argument was used was the B2 Trusted XENIX project, where we stretched greatly
-the B2 requirements of least privilege and separation of security relevant code,
-and successfully used the concept of privilege bracketing as en evaluation
-strategy.
+I think the case is not stated accurately.  What you want is to fundamentally
+change a key property of the most important security property of type
+enforcement (process type tranquility) in order to allow software the
+*discretion* to turn on and off some of its privileges, arbitrarily.  I
+certainly have no problem with software's ability to decide not to use its
+privileges, but I an quite concerned that achieving this small victory cause
+significant damage to the core mandatory security assurance.
 
-So I'll admit my culpability in weakening the B2 requirements, but that does not
-mean privilege bracketing is a good idea just because we used it in the pass as
-a means to expedite evaluations.  Rings and x86 privilege levels are truly
-separate, distinct security domains.  Privilege bracketing is not (all software
-in the process will typically have complete control over what privileges it
-desires to use).  Unfortunately, like Trusted XENIX (and any Unix), the only
-really distinct execution domains we have are processes, which has much greater
-overhead cost for switching than rings.  
+> The other main roadblocks are already being addressed with Linux
+> getting CAPP EAL3 and soon to be EAL4 certifications. Add LSPP and
+> RBAC and you have Linux system suitable to address secure information
+> sharing needs. 
 
-So if we were honest, the real reason we want to change security content is for
-performance reasons, not security assurance reason.
+No, privilege bracketing is not (or should not be) a concerned at EAL4 and
+below.  I try my best to forget the CC :-) but I'm quite sure of this.  Maybe if
+you're talking about EAL5 (the B2 like requirement), but again that's just an
+evaluation strategy, not necessarily "good."  I know for a fact that the EAL4
+evaluation strategy for a certain non-Unix OS never concerned itself with such
+an issue.  
+
+If the Linux guys are wrapped around privileges within a single process for an
+EAL4 evaluation, seek better advice!  This is simply the wrong issue to be
+focusing the evaluators on.
 
 Frank
+
 
 
 
