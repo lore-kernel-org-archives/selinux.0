@@ -1,36 +1,37 @@
-Subject: Re: [PATCH] Fixed & updated SELinux support patch for coreutils
-	5.2.1
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBRE72Ii017581
+	for <selinux@tycho.nsa.gov>; Mon, 27 Dec 2004 09:07:02 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBRE5ETv029754
+	for <selinux@tycho.nsa.gov>; Mon, 27 Dec 2004 14:05:14 GMT
+Subject: Re: [PATCH] Updated & fixed patch for Linux-PAM 0.78
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1103804036.27286.11.camel@localhost.localdomain>
-References: <1103804036.27286.11.camel@localhost.localdomain>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1103824445.27286.31.camel@localhost.localdomain>
+References: <1103824445.27286.31.camel@localhost.localdomain>
 Content-Type: text/plain; charset=UTF-8
-Message-Id: <1104155614.15615.47.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1104156067.15615.56.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 27 Dec 2004 08:53:34 -0500
+Date: Mon, 27 Dec 2004 09:01:07 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-12-23 at 07:13, Lorenzo Hernández García-Hierro wrote:
+On Thu, 2004-12-23 at 12:54, Lorenzo Hernández García-Hierro wrote:
 > Hi,
 > 
-> After trying to apply the SELinux support coreutils patch, it didn't
-> applied at all against GNU's coreutils-5.2.1.
+> I've fixed the old patch for Linux-PAM to make it applying to the latest
+> code version (0.78) from kernel.org.
 > 
-> I have fixed and updated the patch which applies without any problem
-> against 5.2.1 from gnu.org, also adds a little PACKAGE_STRING change
-> which explicitly says it has SELinux support to avoid any confusion.
+> A few fixes on pam_unix module were applied because of code lacks and
+> source changes during the development by upstreams.
 > 
-> The rest of things remain untouched and clean.
+> I haven't tested it further but it should work out the box.
 
-I'd recommend pulling the latest SELinux userspace patches from the
-Fedora Core CVS tree, see http://cvs.fedora.redhat.com/core.shtml.  The
-SELinux patch there is against coreutils 5.2.1, but with other patches
-also applied, which might explain why you had rejects.  Red Hat took
-over maintaining the SELinux userspace patches back in early 2003 when
-Dan Walsh ported them to the 2.6 SELinux API and started expanding them
-to more programs.
+As with the coreutils patch, please compare with what is in the Fedora
+CVS tree, as it is already updated for pam 0.78 (but again, it is
+relative to other patches in the Fedora package, and thus may not apply
+cleanly to the base tarball).
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
