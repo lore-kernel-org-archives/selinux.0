@@ -1,61 +1,49 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RB7nrT019019
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 07:07:49 -0400 (EDT)
-Message-ID: <011901c48c26$1c9c0790$f97d220a@linux.bs1.fc.nec.co.jp>
-From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
-To: "Stephen Smalley" <sds@epoch.ncsc.mil>
-Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
-   "James Morris" <jmorris@redhat.com>
-References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com> <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp> <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil> <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp> <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil> <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp> <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil> <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp> <1093526652.9280.104.camel@moss-spartans.epoch.ncsc.mil>
-Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
-Date: Fri, 27 Aug 2004 20:07:58 +0900
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RBP4rT019082
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 07:25:04 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7RBP0oM013380
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 11:25:02 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 47D7961AFE
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 21:24:56 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 19766-02 for <selinux@tycho.nsa.gov>;
+	Fri, 27 Aug 2004 21:24:56 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id D381361AFD
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 21:24:55 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id D5EC5B58B1
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 21:24:53 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: iptables device nodes
+Date: Fri, 27 Aug 2004 21:24:53 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-2022-jp"
+  charset="us-ascii"
+Message-Id: <200408272124.53303.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Stephen, thanks for your comments.
+ 95 char        IP filter
+                  0 = /dev/ipl          Filter control device/log file
+                  1 = /dev/ipnat        NAT control device/log file
+                  2 = /dev/ipstate      State information log file
+                  3 = /dev/ipauth       Authentication control device/log file
 
-> > By this method, the decision-making is available irrespective of
-> > the result of kmalloc(). Is it robustless?
-> > The original implementation has too many lock contensitons in Big-SMP
-> > environment. It is more positive to consider the method using RCU.
-> 
-> Yes, that would address my concern.  However, I'm still unclear as to
-> why using RCU mandates that we migrate from preallocated nodes to
-> dynamic allocation.  I certainly agree that the existing global spinlock
-> doesn't scale.  
 
-When avc_reclaim_node() is called, one or some nodes are reclaimed
-in both approachs(spinlock/RCU).
+I just noticed the above in devices.txt, the device nodes appear to be already 
+on systems running the latest rawhide.  What programs use them?
 
-But we can't use the reclaimed nodes immediately in RCU-approach,
-because it can't guarantee that nobody refers the nodes.
-(These nodes are released actually after non-deterministic period.)
-The success of avc_reclaim_node() does not mean that we can hold
-an avc_node object immediately!
-Therefore, we need to allocate a new avc_node object by kmalloc().
-
-In original spinlock implementation, the reclaimed node is chained
-to the 'avc_node_freelist' under the spinlock. Thus, we can use
-the reclaimed node immediately.
-
-Indeed, I had considered the RCU-approach with pre-allocation,
-but I faced to the above difficult problem, and gave up.
-Then, I make it with kmalloc() alternatively, so fine.
-
-> > Please wait for a patch, thanks.
-> 
-> Thanks for working on this.  Could you also supply updated performance
-> data when you have a newer patch?  Thanks.
-
-OK, the benchmark results will also be updated.
-Thanks.
---------
-Kai Gai <kaigai@ak.jp.nec.com>
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
