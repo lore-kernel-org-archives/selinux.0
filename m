@@ -1,35 +1,35 @@
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA17058
+	for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 19:24:27 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id AAA17500
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 00:22:20 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id AAA17496
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 00:22:18 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id E1B2E92668
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 11:24:22 +1100 (EST)
+Received: from lyta (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 03C2526D
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 01:24:06 +0100 (CET)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Brian May <bam@snoopy.apana.org.au>
-Subject: Re: Still problems with RedHat8.0
-Date: Wed, 20 Nov 2002 01:16:18 +0100
-Cc: azeredo@qmc.ufsc.br, SELinux@tycho.nsa.gov
-References: <1037722529.3dda63a114991@qmc.ufsc.br> <200211200033.35017.russell@coker.com.au> <20021120001641.GF28431@snoopy.apana.org.au>
-In-Reply-To: <20021120001641.GF28431@snoopy.apana.org.au>
+To: selinux@tycho.nsa.gov
+Subject: allow a_domain_t fs_t:filesystem getattr;
+Date: Wed, 20 Nov 2002 01:24:05 +0100
 MIME-Version: 1.0
-Message-Id: <200211200116.18933.russell@coker.com.au>
+Message-Id: <200211200124.05531.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 20 Nov 2002 01:16, Brian May wrote:
-> On Wed, Nov 20, 2002 at 12:33:35AM +0100, Russell Coker wrote:
-> > > avc:  denied  { read } for  pid=751 exe=/usr/bin/magicdev path=/dev/hdd
-> > > dev=03:05 ino=33539 scontext=root:sysadm_r:sysadm_t
-> > > tcontext=system_u:object_r:fixed_disk_device_t tclass=blk_file
-> >
-> > What is magicdev?
->
-> According to <URL:http://www.ccs.neu.edu/home/bchafy/magicdev.html>, it
-> is "an automount/autoplay package for CD's and floppy's under linux
-> redhat 6.1".
+It seems that almost everything wants to check for free space on file systems 
+occasionally.
 
-OK, that will require it's own policy if it's to work.  However I suspect that 
-anyone who wants security does not want such "features"...
-
-The autorun feature of inserting CDs in Windows has been the cause of quite a 
-few security issues.
+Is there any reason for not changing macros such as daemon_base_domain() and 
+general_domain_access() to include it instead?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
