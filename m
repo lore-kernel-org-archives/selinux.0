@@ -1,125 +1,132 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA08493
-	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2001 04:00:54 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id IAA25493
-	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2001 08:00:35 GMT
-Received: from mailout00.sul.t-online.com (mailout00.sul.t-online.com [194.25.134.16])
-	by jazzswing.ncsc.mil  with ESMTP id IAA25489
-	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2001 08:00:35 GMT
-From: Amon Ott <ao@rsbac.org>
-To: selinux@tycho.nsa.gov, rsbac@compuniverse.de
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA10335
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2001 09:37:38 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA03645
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2001 13:37:31 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzband.ncsc.mil  with ESMTP id NAA03641
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2001 13:37:31 GMT
+Date: Thu, 5 Apr 2001 09:36:12 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+Reply-To: Stephen Smalley <sds@tislabs.com>
+To: Amon Ott <ao@rsbac.org>
+cc: selinux@tycho.nsa.gov, rsbac@compuniverse.de
 Subject: Re: Rule Set Based Access Control (RSBAC)
-Date: Thu, 5 Apr 2001 09:33:27 +0200
-Content-Type: text/plain
-References: <Pine.SOL.3.95.1010404112221.13906D-100000@clipper.gw.tislabs.com>
-In-Reply-To: <Pine.SOL.3.95.1010404112221.13906D-100000@clipper.gw.tislabs.com>
+In-Reply-To: <01040509250501.00859@marvin>
+Message-ID: <Pine.SOL.3.95.1010405083125.16334D-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Message-Id: <01040510000003.00859@marvin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mit, 04 Apr 2001 Stephen Smalley wrote:
-> > The fixed RSBAC models were implemented in such a hardwired way, because it
-> > should be conceptually impossible to change them at runtime. Thus I saw no need
-> > for type abstraction, and sure the compiler type checks were useful for coding.
-> 
-> But this is contrary to being flexible in the ability to add, remove,
-> or completely replace policy modules in the ADF without affecting the rest
-> of the kernel or applications that deal with labels.
 
-No, you can always add or remove policies by kernel configuration, the
-unneeded attributes are then simply unused.
+Ok, let's look at them one by one:
 
-One advantage of keeping e.g. all user attributes in one struct is that for a
-run through all decision modules, only one full entry lookup is needed. For the
-second and following attribute readings or settings for this user, there is a
-shortcut pointer.
+1) Privacy Model (PM)
 
-> > After having another look into RSBAC code: The only such pointer really used is
-> > the dentry pointer. How do you handle attribute value inheritance in
-> > filesystems? Do you have such a concept?
-> > 
-> > Inheritance is an important RSBAC concept, because it greatly reduces the
-> > number of attribute structs ('labels') and makes administration easier.
-> 
-> By inheritance, do you simply mean the behavior when a file
-> is created and initially assigned a label or do you mean
-> an implicit labeling mechanism similar to the implicit
-> typing of DTE?  SELinux stores file labels explicitly,
-> but it allows labels to be managed using a higher-level
-> specification based on pathname regular expressions.
-> We support inheritance of attributes when files are
-> created, but each file has its own label.  However,
-> the technique used to store those labels only needs
-> to store each distinct label once.
+Requirements (from your '98 NISS paper):
+a) A user may only have access to personal data if this access is
+necessary to perform his current task.
 
-In RSBAC, each object can also have its own attribute struct object. However,
-in most cases all attribute settings are default values, e.g. 'inherit from
-parent'. Struct objects with default values only are regularly cleaned up to
-keep the lists small.
+This can be specified in the RBAC/TE configuration by defining 
+appropriate types for personal data and defining appropriate
+roles/domains for users and tasks.
 
-When a value is set, a new object is created. When a value is requested, but
-there is no struct object, the default values are returned.
+b) The user may only access data in controlled manner by performing
+a certified transformation procedure for which the user's current
+task is authorized.
 
-An attribute value of 'inherit from parent' means that the lookup recurses to
-the next higher object level, e.g. the directory a file is in. If there is no
-higher level, but also no struct object for the current object, real default
-values are returned.
+This can be specified in the RBAC/TE configuration by binding
+the domains that can access personal data to specific program
+types, and only labeling certified transformation procedures
+with those types.
 
-E.g. ACL model has another, more sophisticated inheritance scheme, with
-inheritance masks and accumulation of user, role and group rights.
+c) The purpose of the user's task must correspond to the purpose
+for which the personal data was obtained or there must be
+consent by the data subjects.
 
-With this inheritance and default scheme, a complicated setup for a server with
-a lot of services (like our Communication Server mentioned before) only needs a
-few hundred attribute structs. Most of these are necessary, because /lib and
-/usr/lib contain a mixture of libraries and non-libraries.
+This can be specified in the RBAC/TE configuration by encoding
+the purpose in the domains and types and only granting access
+when the purpose is consistent.  Consent can be expressed
+by relabeling the personal data to a type that is consistent
+with the desired purpose.
 
-> > And you are sure you do not want to use ACLs instead? How do you keep the
-> > overview over 70 domains and filesystems with 188 file types?
-> > How many domains are for single users only?
-> 
-> Most of the domains are simply for the various system daemons
-> and for programs that require special access rights.  For example,
-> we define domains for init, the rc scripts, getty, syslogd,
-> klogd, crond, login, inetd, tcpd, ftpd, etc.  For some
-> programs, we define multiple domains depending on the context
-> in which they were called, e.g. login runs in different domains
-> with different permissions depending on whether it was executed
-> by getty, rlogind, or sshd.  Programs that require special
-> access rights like insmod or fsck are placed into their
-> own domains, and we restrict the ability to enter these
-> domains.
+2) Malware Scan
 
-OK, I usually group these services into roles, or use the roles of the users
-they run for. As they can only run as certain users (AUTH capability
-restrictions), they cannot do much harm.
-   
-> For users, we currently just define two initial login domains, one 
-> for ordinary users and one for administrators.  However, as users
-> run programs, these domains automatically transition to derived
-> domains as needed to gain or shed access rights.  For example,
-> when users run netscape, they transition to a less privileged
-> domain so that any downloaded code is confined.  When users
-> run passwd, they transition to a more privileged domain that
-> can modify the passwd file.
+As you admit in your model descriptions, this model is not really
+an access control model.  We address the threat of malicious
+software using access control, i.e. controlling the execution of software 
+based on its label and automatically transitioning untrustworthy
+software into less privileged domains.  This model seems out of place
+with the rest of your models, and your web page notes that it is only
+a working demonstration model.  Also, I would argue that
+virus scanning is very poor in comparison to access control 
+techniques for addressing malicious software.
 
-This is usually done with RC using forced roles. Netscape gets its own role,
-which is used for all users and can only fully access /home dirs (with some
-exceptions, e.g. loading files marked as libraries). Home dirs are protected
-individually by either Linux flags or ACL entries with masks.
-   
-> > Out of interest: How is your binary policy representation protected against
-> > unwanted modification?
-> 
-> In the same way that any other file is protected - by labeling
-> appropriately and defining the policy so that write access 
-> is highly restricted.
+3) Role Compatibility
 
-So this is done by careful administration, and probably giving write
-access to your policy compiler run by special domains only.
+I'm not sure what your objection is here, since RC seems mostly
+isomorphic to Type Enforcement, with the substitution of roles for 
+domains, weaker controls over role changes, and special cases
+for inheritance.  Perhaps you mean the ability to authorize roles to
+administer other roles in RC.  If so, then that is true - we 
+haven't implemented such support in our TE implementation.
+But I'm not sure about the safety properties of your model.
+There has been published work in that area by Jonathan Tidswell and
+also by Tim Fraser for allowing dynamic changes to DTE configurations
+while ensuring that critical security properties are preserved.
 
-Amon.
+4) Access Control Lists
+
+SELinux provides support for flexible _mandatory_ access controls.
+Administratively-defined ACLs can be more efficiently represented
+and more easily managed using TE domains and types or RC
+roles and types.  If you are talking about discretionary ACLs,
+we view that as an orthogonal feature.
+
+5) Mandatory Access Controls
+
+You can express traditional MAC using an access matrix, so you
+can represent it using TE, with domains defined to represent
+clearances and types defined to represent classifications.  
+We also provide a separate MLS policy module that is a "native"
+implementation of traditional MAC.
+
+6) File Flags
+
+These flags can be represented in TE simply by defining types,
+assigning those types to the desired files, and limiting permissions to 
+those types appropriately.  Or, in RSBAC, you could achieve
+the same effect using RC.
+
+7) Auth
+
+This module is just a support module for your other modules.  
+The SELinux policy configuration allows boolean constraints to
+be imposed on permissions, and these constraints are used
+in the example configuration to limit the ability to change our 
+user identity attribute to authorized domains.  The constraints
+can be used with greater precision if desired, e.g. specifying
+that a particular domain can only change identity to a specific
+set of user identities.
+
+8) Functional Control
+
+You agreed that TE can represent this model.
+
+9) Security Information Modification
+
+You agreed that TE can represent this model.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
