@@ -1,38 +1,38 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98BQ9rT020796
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 07:26:09 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98BQ7Z2000437
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 11:26:07 GMT
-Date: Fri, 8 Oct 2004 12:37:10 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
-   lkml <linux-kernel@vger.kernel.org>, SELinux@tycho.nsa.gov,
-   Ingo Molnar <mingo@redhat.com>, netdev@oss.sgi.com,
-   linux-net@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm4-VP-S7 - ksoftirq and selinux oddity
-Message-ID: <20041008113710.GC5551@lkcl.net>
-References: <200410070542.i975gkHV031259@turing-police.cc.vt.edu> <1097157367.13339.38.camel@moss-spartans.epoch.ncsc.mil> <20041008093154.GA5089@lkcl.net> <1097234322.16641.3.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98DUCrT021427
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 09:30:12 -0400 (EDT)
+Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98DT3Bk027297
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 13:29:03 GMT
+Subject: Re: .fonts-cache being created as user_home_dir_t
+From: Colin Walters <walters@verbum.org>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20041008100458.GC5089@lkcl.net>
+References: <20041005091026.GB25251@lkcl.net>
+	 <200410071250.14304.russell@coker.com.au>  <20041008100458.GC5089@lkcl.net>
+Content-Type: text/plain
+Date: Fri, 08 Oct 2004 09:31:45 -0400
+Message-Id: <1097242305.6064.10.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1097234322.16641.3.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Oct 08, 2004 at 07:18:42AM -0400, Stephen Smalley wrote:
-> On Fri, 2004-10-08 at 05:31, Luke Kenneth Casson Leighton wrote:
-> >  an alternative possible solution is to get the packet _out_ from
-> >  the interrupt context and have the aux pid comm exe information added.
+On Fri, 2004-10-08 at 11:04 +0100, Luke Kenneth Casson Leighton wrote:
+> On Thu, Oct 07, 2004 at 12:50:14PM +1000, Russell Coker wrote:
+> > On Tue, 5 Oct 2004 19:10, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > > it looks like a file_auto_trans() is missing somewhere: i find
+> > > that ~/.fonts.cache-1 is set to type user_home_dir_t.
+> > 
+> > Is that being created by kdm?  
 > 
-> No, the network permission checks are intentionally layered to match the
-> network protocol implementation.  There is a process-to-socket check
-> performed in process context when the data is received from the socket
-> by an actual process, but there is also the socket-to-netif/node/port
-> check performed in softirq context when the packet is received on the
-> socket from the network.
- 
- ah.  oh well!
+>  i couldn't entirely say: let me see if i can find out...
+>  a search through all kdebase *.cpp,h only shows up
+>  something in kcontrol kio handler.  so that didn't work.
+
+The file is created by the fontconfig libraries.  Since Qt uses
+fontconfig, any process that uses Qt could potentially create that file.
+
 
 
 --
