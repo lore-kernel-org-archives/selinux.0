@@ -1,36 +1,42 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7A6jfrT000842
-	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 02:45:41 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7A6jVlU021787
-	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 06:45:39 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7A6kcrT000859
+	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 02:46:38 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7A6k0ET010322
+	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 06:46:01 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: lots of allow xxx_device_t device_t:filesystem { associate }
-Date: Tue, 10 Aug 2004 16:45:28 +1000
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, g@lkcl.net,
-   SE-Linux <selinux@tycho.nsa.gov>,
-   Linux Hotplug Dev List <linux-hotplug-devel@lists.sourceforge.net>
-References: <20040809175246.GK3868@lkcl.net> <1092078176.29199.179.camel@moss-spartans.epoch.ncsc.mil> <20040809194321.GO3868@lkcl.net>
-In-Reply-To: <20040809194321.GO3868@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: Now that SELinux supports booleans should we replace tunableswith booleans?
+Date: Tue, 10 Aug 2004 16:46:32 +1000
+Cc: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+   Daniel J Walsh <dwalsh@redhat.com>, selinux-dev@tresys.com
+References: <200404141453.i3EEr2Jx015745@gotham.columbia.tresys.com> <1091809200.8590.96.camel@moss-spartans.epoch.ncsc.mil> <1092082317.29199.205.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1092082317.29199.205.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200408101645.28470.russell@coker.com.au>
+Message-Id: <200408101646.32992.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 10 Aug 2004 05:43, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > /dev/null should show up as chr_file, and should be created with
-> > null_device_t anyway.  Is this actually an attempt to unlink udev.tbl?
+On Tue, 10 Aug 2004 06:11, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> > Under the proposed scheme, reboots and policy reloads would set the
+> > booleans to the values saved in /etc/selinux/$SELINUXTYPE/booleans
+> > (defaulting to the compile-time defaults if there was no value saved in
+> > that file for a given boolean).  Admins would edit that file (directly
+> > or using a tool) if they wanted the boolean setting to persist; if they
+> > only want a temporary change that will be reverted by a reboot or policy
+> > reload, then they would use setsebool to make that temporary change.
 >
-> no, it's definitely an attempt to unlink /dev/null (!).
->
-> and it's definitely saying device_t:file.
+> Karl has suggested that while /sbin/init should use this technique for
+> preserving booleans across reboots, /usr/sbin/load_policy should just
+> get the current boolean settings from selinuxfs and use them for policy
+> reloads, so that booleans do not change upon a policy reload by
+> default.  This is to ensure that booleans that represent system state
+> are not perturbed by policy reloads.  What do others think?
 
-In that case you probably have a non-SE Linux bug.  I guess that some program 
-is trying to send output to /dev/null when there is no /dev/null device.
+Sounds good.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
