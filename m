@@ -1,283 +1,288 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27118
-	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2001 11:58:17 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA13866
-	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2001 15:58:10 GMT
-Received: from mailout04.sul.t-online.com (mailout04.sul.t-online.com [194.25.134.18])
-	by jazzband.ncsc.mil  with ESMTP id PAA13862
-	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2001 15:58:09 GMT
-From: Amon Ott <ao@rsbac.org>
-To: selinux@tycho.nsa.gov, RSBAC List <rsbac@compuniverse.de>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA28212
+	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2001 15:32:12 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA01089
+	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2001 19:31:54 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id TAA01085
+	for <selinux@tycho.nsa.gov>; Tue, 3 Apr 2001 19:31:53 GMT
+Date: Tue, 3 Apr 2001 15:30:44 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+Reply-To: Stephen Smalley <sds@tislabs.com>
+To: Amon Ott <ao@rsbac.org>
+cc: selinux@tycho.nsa.gov, rsbac@compuniverse.de
 Subject: Re: Rule Set Based Access Control (RSBAC)
-Date: Tue, 3 Apr 2001 16:35:28 +0200
-Content-Type: text/plain
-References: <Pine.SOL.3.95.1010402145703.8569J-100000@clipper.gw.tislabs.com>
-In-Reply-To: <Pine.SOL.3.95.1010402145703.8569J-100000@clipper.gw.tislabs.com>
+In-Reply-To: <01040317572202.01693@marvin>
+Message-ID: <Pine.SOL.3.95.1010403133151.12927O-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Message-Id: <01040317572202.01693@marvin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
 
-As the main author of RSBAC, I will try to pick up some issues Stephen Smalley
-pointed out. In the end, we might both end up with some new ideas.
+>In the end, we might both end up with some new ideas.
 
-My main problem sure is the lack of detailed knowledge about the SELinux
-implementation, I just do not have the time to follow its development in detail.
+I think that this is a good perspective.  Both RSBAC and SELinux
+appear to have similar goals and features, and I'm sure that
+each project can learn from the other.
 
-On Mon, 02 Apr 2001 Stephen Smalley wrote:
-> We've looked at RSBAC, since it has a number of similarities
-> to SELinux.  In the following discussion, I'll try to summarize
-> some of our observations about how RSBAC compares with SELinux.
-> Of course, I'll welcome correction if I am in error about
-> some aspect of RSBAC.
+> All policy changes get into effect at once, so the next access control decision
+> will be based on the new settings. If you e.g. want to revoke file access, turn
+> on READ/WRITE interception, and after revoking the rights, all following read
+> attempts will fail.
 
-Here we are...
- 
-> RSBAC is based on the Generalized Framework for Access Control
-> (GFAC), while SELinux is based on the Flask security architecture.
-> Like the Flask architecture, the GFAC separates policy from
-> enforcement and can support a variety of security policies.
-> With regard to the specific policy modules implemented in
-> the two systems, RSBAC provides a Role Compatibility policy module 
-> that has similarities to the SELinux Type Enforcement policy module.
+Our paper from the 8th USENIX Security Symposium (available via
+http://www.nsa.gov/selinux/flask-abs.html) about the Flask
+security architecture talks at length about the difficulty
+in truly supporting dynamic security policies.  You need to
+address the potential interleaving of policy changes with
+the execution of controlled operations and provide an effective
+atomicity for policy changes so that you know when the new policy
+is truly in effect.  You also need a mechanism to revoke permissions that
+are implicitly retained in the state of the system, e.g. open file
+descriptions, memory-mapped files, established TCP connections,
+and even operations currently in progress that have already checked
+permissions.  The Flask architecture and interfaces were designed to
+address these issues, and the SELinux controls were designed to permit
+efficient revalidation of permissions on use for many services.  Although
+it is true that RSBAC now provides optional READ/WRITE interception on
+read/write calls, I don't think it fully addresses these issues.  SELinux
+isn't perfect in this area either, but it provides the basic
+infrastructure needed to support policy changes and it performs
+revalidation of permissions for many services.
+
+> This is true, there had been no need for them. I rather wanted to have the
+> compiler control all data types. For the extended runtime policy registration
+> (REG), generic data storage is in progress.
+
+This issue is also discussed further in the aforementioned paper.
+The content and format of security labels is dependent on the particular
+security policy, so you need policy-independent data types for labels
+in order to truly encapsulate the security policy.  In SELinux,
+the security server interfaces for the kernel, the new system calls,
+and the file labels make use of these policy-independent data types.
+Hence, the content and format of security labels can be radically
+revised without needing to change or even recompile anything other
+than the security server.  Also, since the security contexts for
+files are stored in each file system, human-readable and meaningful
+security information is available if the file system is moved to
+another system or the policy is changed, so translation of
+security attributes is feasible. 
+
+> Yes, there are pointers given, e.g. dentry pointers. This is necessary for
+> attribute value inheritance from parent objects (or do you know a better way?).
+> However, no data in kernel structs is ever modified. Most of these extra
+> attributes contain simple integer values, e.g. the uid for a CHANGE_OWNER
+> request.
+> You also have to provide kernel data somehow, because you want to decide about
+> subjects and objects identified by this data.
+
+I would encourage you to take a look at the SELinux/Flask interfaces
+described in the documentation.  We do not pass any pointers to
+any private kernel objects to the security server.  The security
+server only needs to know the security labels of the relevant
+subjects and objects, not kernel objects or identifiers.  
+In part, this difference is architectural - the GFAC subdivides
+the responsibility between the enforcement code and the decision
+facility differently than Flask.
+
+> Did you ever benchmark the access control overhead? RSBAC numbers told me to
+> rather spend work on other parts (see file benchmarks.htm).
+
+Yes, we have run benchmarks, and the results will be published at
+the upcoming Freenix.  Macrobenchmark tests (kernel compilation,
+WebStone) had almost no overhead, so they didn't really show
+the performance benefit of the cache.  But microbenchmark test suites
+(lmbench, UnixBench) showed that the cache has a significant benefit
+for the performance of individual operations.
+
+> For me, this is a clear RSBAC advantage. How many applications are you going to
+> change for your access control system? How will you keep up to date? How does
+> the user get support for arbitrary applications?
+
+Perhaps I was unclear.  SELinux is mostly transparent to applications
+(except upon access failures, of course).  We provide a set of
+extended and new API calls to allow modified and new applications
+to be developed that have some degree of awareness of the new
+security features.  But existing applications can certainly
+run unchanged on SELinux and appropriate default behaviors
+are applied when the ordinary API calls are used.  As an
+example, we provide a modified ps program that displays
+the security contexts of processes.  But you can run the
+ordinary ps program if you want - you just won't see the
+security contexts with it.  And notice that since we
+provide policy-independent data types for security labels,
+our modified ps program never needs to be changed even if
+the format or content of security labels is radically revised.
+
+> If the (small) time window is a problem, then you have an argument here. You
+> would have to create in a protected directory, set attributes and move the file
+> to its final destination.
+> BTW: For PM model, there are specific calls to create files of certain object
+> types - the model design does not provide default types.
+
+Ok, so you already have a case where a policy module requires the
+ability to allow applications to create files with a particular label.
+By using policy-independent data types for labels, you can have
+a single set of APIs (open_secure, mkdir_secure, etc) that can provide
+this functionality for any policy.  And yes, it is important to be
+able to create objects with a particular label rather than just
+creating them with a default and then relabeling them.  Relabeling
+has its own complications - do you fully address the revocation problem
+for open file descriptions and memory-mapped files?
+
+> As to subjects: User accounts are not (yet) controlled by the kernel anyway.
+> This has to be changed soon to get real kernel security.
+
+I'm not entirely sure what you mean by this statement.
+
+> So let's come to processes. Here you are wrong: Process attributes are
+> initialized by the decision modules directly after creation, and before control
+> is returned to the forking or the new process.
+
+Sure, process attributes are initialized on fork.  But I was talking
+about an extended form of execve to allow changes in attributes
+upon program execution.  That is the most natural point for
+a change in attributes, because you can easily control the
+inheritance of state and the initialization in the new label,
+and you can establish a binding between the new label and
+the executable.  RSBAC supports default label changes on execve
+(e.g. RC forced role transitions), but doesn't provide any
+way for an application to explicitly request such a transition.
+
+> > It also provides new API calls to allow applications to obtain
+> > security policy decisions from the security server in order to
+> > support application policy enforcers.  For example, a windowing
+> > system might be enhanced to provide labeling and separation of
+> > windows, with controlled cut-and-paste between windows, or
+> > a database management system might be enhanced to provide
+> > labeling and separation of individual database records maintained
+> > in a single file.  These application policy enforcers would
+> > still be controlled by the kernel, but could further refine
+> > the granularity of protection provided by the kernel.
 > 
-> However, RSBAC also differs from SELinux in a number of ways:
+> This has been thought about in RSBAC, too (see Nordsec paper on Malware
+> Scanning). What already exists is the request function itself, which can be
+> called from within the kernel. The necessary glue to user space can easily be
+> provided by a kernel module.    
+
+Ok.  This has actually been done with one of our prior prototypes (DTOS).
+One university integrated similar controls into the X Window System,
+and another university provides similar functionality in a database
+management system.
+
+> OK, if you think that security relevant *and* not sufficiently covered by
+> existing mechanisms.
+
+With regard to specific controls, I would encourage you to look at
+the Control Requirements sections in our design and implementation
+document (available via http://www.nsa.gov/selinux/slinux-abs.html).
+They specify the precise set of controls for each system call that
+we defined.
+
+> > controls on
+> > the use of Linux capabilities, 
 > 
-> 1) The GFAC does not specifically address the issue of atomic policy
-> changes, so RSBAC lacks the SELinux support for dynamic security 
-> policies and revocation.
+> What for? I do not mess with the existing discretionary access control, it is
+> completely independent. I only control access control data that is relevant for
+> RSBAC.
 
-All policy changes get into effect at once, so the next access control decision
-will be based on the new settings. If you e.g. want to revoke file access, turn
-on READ/WRITE interception, and after revoking the rights, all following read
-attempts will fail.
+A number of the capabilities are used to control highly privileged
+system operations.  We could define our own separate set of permissions
+and add checks to each such privileged operation, but it seems better
+to leverage the work being done by the Linux-Privs people and
+add a hook to the capable function to perform a permission check as well.
+That allows the security policy to control all capability usage, and
+thus control a large number of privileged operations with minimal
+code modifications.
 
-> 2) RSBAC does not appear to provide policy-independent data types for
-> security labels (the security context and security identifier in
-> Flask/SELinux),
+>  
+> > 6) RSBAC uses the Linux real user identity attribute for its decisions
+> > and must control changes to this attribute, so it is not completely
+> > orthogonal to the existing Linux access controls.
+> 
+> I believe that a common thing in all access control models that reside on a
+> single system is the identity of a user. This is what authentication is meant
+> to be about.
+> 
+> If users need more than one identity, the model is wrong. She should rather
+> need several roles, or transaction procedures with additional rights, or
+> whatever.
 
-This is true, there had been no need for them. I rather wanted to have the
-compiler control all data types. For the extended runtime policy registration
-(REG), generic data storage is in progress.
+The SELinux controls themselves are only based on a single user identity
+- the user identity in the security context.  By providing a separate
+usre identity attribute, we can enforce whatever controls we want
+over changes to it without affecting compatibility.  I agree
+that we want to establish the user's identity and then handle
+any needed changes in access rights by changing the role/domain
+rather than the user identity itself.  The concern with using the
+existing Linux real uid is that we must then balance between
+providing rigorous controls over changes to it and maintaining
+compatibility.  There is also an acceptability concern; it
+seems like the kernel developers would be more open to an
+access control scheme that is orthogonal to the existing scheme
+than one that is intermingled with it.
 
-> and it appears to expose policy-specific data types in
-> its kernel ADF interfaces (through attribute parameters), new system
-> calls, and on-disk file labels. 
+> I'll have to get a closer look into your model. We seem to have addressed
+> similar problems, e.g. transaction procedure support.
+> 
+> What do you think is weaker in the role/domain changes controls of RC?
 
-Each decision module controls, which if its attributes can be accessed (read or
-modified) by which subject. The attribute names are not hidden ('security by
-obscurity'), because there is no need to do that. On-disk attribute data is
-inaccessible for any user process.
+It appears that there are three ways a role change can occur in RSBAC RC:
+1) when the Linux real uid is changed (in which case the role is typically
+reset to the default role for the new uid), 2) by an explicit call to
+change roles, 3) by executing a forced role program.  The RC role compatibility 
+vector only controls role changes caused by an explicit system call to
+change roles.  The other two kinds of role changes are not constrained by
+this vector.
 
-> Furthermore, the kernel ADF depends on
-> private kernel data structures and data types, and even takes pointers to
-> private kernel objects as parameters through an attribute structure for
-> some decisions.  This weakens the separation between policy and
-> enforcement.
+With the SELinux TE module, a domain transition can only occur via an
+execve (or execve_secure), and is always controlled in a consistent
+manner.  The controls ensure that the old domain can start the
+program, that the old domain can transition to the new domain, and that
+the new domain can be entered via the program.  They also address
+issues such as inheritance of open file descriptions, continuance
+of any process tracing in progress, sharing of any state across
+the execve, and ultimately whether or not the new domain can
+return an exit status to the old domain.  
 
-Yes, there are pointers given, e.g. dentry pointers. This is necessary for
-attribute value inheritance from parent objects (or do you know a better way?).
-However, no data in kernel structs is ever modified. Most of these extra
-attributes contain simple integer values, e.g. the uid for a CHANGE_OWNER
-request.
+> This was a compromise with performance. Still, I won't agree to it being a
+> limitation until you give me an example, where you need more than 64 roles in a
+> single system, and do not think ACLs to be a better solution.
 
->  SELinux provides cleaner separation between the policy and
-> enforcement through its data types, interfaces, and even in its
-> security server implementation.  In part, this cleaner separation is a
-> historical consequence of the fact that the security server was
-> originally a user space server running on a microkernel in the
-> predecessors of SELinux (DTMach, DTOS, and Flask).  In SELinux,
-> the security server is a kernel subsystem, like the RSBAC ADF,
-> but the interface still provides the same separation as in its
-> predecessor systems.
+The example configuration provided with SELinux defines 70 domains,
+188 file types, and 38 other types (e.g. network-related types).
+I don't think that supporting arbitrary numbers of domains and types
+has much affect on the performance of our TE implementation.
 
-As stated above, I cannot comment on SELinux details. Still, while depending on
-some kernel values, this is only gathering data, not deciding anything.
+> > RSBAC does not appear to have an equivalent
+> > to the human-readable SELinux policy configuration files, and it requires
+> > that the policy be configured through a set of new utilities that use new
+> > system calls. 
+> 
+> As explained above, I believe separate mechanisms for RSBAC administration to
+> be a much better solution than hacking it into existing interfaces. What is the
+> problem with some extra system calls?
 
-You also have to provide kernel data somehow, because you want to decide about
-subjects and objects identified by this data.
-   
-> 3) RSBAC does not appear to have an equivalent to the SELinux
-> access vector cache (AVC) or AVC entry references in order
-> to minimize the performance overhead of its controls.
+I probably wasn't clear.  With SELinux, you edit the human-readable policy
+configuration files to set up your policy (starting with the example
+configuration we provide if you want), then compile that policy
+into a binary representation and install it.  You can then load
+the updated policy into your running kernel (if the policy authorizes
+such runtime changes) using a new system call, or you can reboot
+(in which case the kernel will load the new policy when it
+initializes).  My concern was with the need to run a special
+set of utilities that use a special set of system calls to
+customize the configuration, as opposed to being able to edit
+human-readable configuration files.
 
-Did you ever benchmark the access control overhead? RSBAC numbers told me to
-rather spend work on other parts (see file benchmarks.htm).
-  
-> 4) RSBAC appears to lack equivalents for the extended API calls and new
-> API calls of SELinux, instead only providing calls for setting and getting
-> attributes of existing subjects and objects.  SELinux provides
-> extended versions of existing system calls for creating new subjects
-> and objects with specified labels (execve_secure, mkdir_secure).
-
-For me, this is a clear RSBAC advantage. How many applications are you going to
-change for your access control system? How will you keep up to date? How does
-the user get support for arbitrary applications?
-
-Careful planning has been done in RSBAC design to *avoid* change of existing
-applications to new APIs. This has been done by providing several default value
-settings in RSBAC administration. If you need other settings, OK, you can still
-apply them after creation etc.
-
-If the (small) time window is a problem, then you have an argument here. You
-would have to create in a protected directory, set attributes and move the file
-to its final destination.
-
-BTW: For PM model, there are specific calls to create files of certain object
-types - the model design does not provide default types.
-
-As to subjects: User accounts are not (yet) controlled by the kernel anyway.
-This has to be changed soon to get real kernel security.
-
-So let's come to processes. Here you are wrong: Process attributes are
-initialized by the decision modules directly after creation, and before control
-is returned to the forking or the new process.
-
-[SELinux]
-> It also provides new API calls to allow applications to obtain
-> security policy decisions from the security server in order to
-> support application policy enforcers.  For example, a windowing
-> system might be enhanced to provide labeling and separation of
-> windows, with controlled cut-and-paste between windows, or
-> a database management system might be enhanced to provide
-> labeling and separation of individual database records maintained
-> in a single file.  These application policy enforcers would
-> still be controlled by the kernel, but could further refine
-> the granularity of protection provided by the kernel.
-
-This has been thought about in RSBAC, too (see Nordsec paper on Malware
-Scanning). What already exists is the request function itself, which can be
-called from within the kernel. The necessary glue to user space can easily be
-provided by a kernel module.    
-
-> 5) RSBAC appears to lack a number of the controls provided by SELinux for
-> each of the kernel subsystems.  Some examples of such gaps in its
-> controls include:  consistent controls on changes in process
-> labels,
-
-OK, if you think this is security relevant.
-
-> controls on the inheritance and transfer of open file
-> descriptions across execve or via local IPC,
-
-True, but reading from and writing to them is controlled, so what will you use
-them for?
-
-> control of asynchronous I/O
-> signals, control of receiving the exit status via wait,
-
-OK, if you think that security relevant *and* not sufficiently covered by
-existing mechanisms.
-
-> controls on
-> the use of Linux capabilities, 
-
-What for? I do not mess with the existing discretionary access control, it is
-completely independent. I only control access control data that is relevant for
-RSBAC.
-
-> failure to check permission to
-> all affected directories and files for several of the directory
-> operations,
-
-Which ones? If I missed some security relevant ones, those are bugs to be fixed.
-
-> and the lack of an equivalent to the layered networking
-> controls provided by SELinux.
-
-Real, subject and object based network access control has been designed and will
-be implemented for version 1.2.0. Clearly, the current network access control is
-insufficient.
-
->  Furthermore, the SELinux controls are
-> designed to address both the case where the ordinary API call is used
-> (e.g. execve) and the case where the extended API call is used (e.g.
-> execve_secure) in a consistent manner, while the RSBAC controls
-> only address the ordinary API calls.
-
-No argument, because there are (and will be) no extended APIs in RSBAC (s.a.).
- 
-> 6) RSBAC uses the Linux real user identity attribute for its decisions
-> and must control changes to this attribute, so it is not completely
-> orthogonal to the existing Linux access controls.
-
-It is not as independent as it could be. But at least, I do not mess with
-capabilities... ;)
-
-I believe that a common thing in all access control models that reside on a
-single system is the identity of a user. This is what authentication is meant
-to be about.
-
-If users need more than one identity, the model is wrong. She should rather
-need several roles, or transaction procedures with additional rights, or
-whatever.
-
-> There is
-> a configuration option for maintaining a separate user identity
-> attribute, but the option is not robust and is not recommended.
-> SELinux maintains a separate user identity attribute as part
-> of the process security context, and is not dependent on the Linux 
-> identity attributes for the correct enforcement of the mandatory 
-> security policy.
-
-For my above reasons, the option has been kept inactive. Stability was another
-reason which added in the decision, but would be no reason now. The option has
-not yet disappeared completely, because I thought about porting to other
-operating system types with possibly other user id concepts, e.g. name based.
-
-> 7) Most of the RSBAC policy modules are very hardwired in their
-> policy logic, and can be easily expressed using the SELinux Type
-> Enforcement (TE) configuration.
-
-I'd really like to see that expressed for PM or RC with ACLs. The logic is
-hardwired, because it expresses a fixed model. What is the difference to a
-model implemented in a description language other than C, e.g. your description
-files? For me it is mostly a significant speedup.
-
->  The RSBAC Role Compatibility (RC) module 
-> has many parallels to TE, but it seems to be weaker in its
-> controls over role/domain changes and it has special cases
-> that are more cleanly addressed in the TE configuration (e.g.
-> its special values for inheritance vs. TE transition rules).
-
-I'll have to get a closer look into your model. We seem to have addressed
-similar problems, e.g. transaction procedure support.
-
-What do you think is weaker in the role/domain changes controls of RC?
-
-> The RC module also has some implementation limitations (e.g.
-> limitation to 64 roles and types) while the SELinux TE module
-> has no such fixed limitation.
-
-This was a compromise with performance. Still, I won't agree to it being a
-limitation until you give me an example, where you need more than 64 roles in a
-single system, and do not think ACLs to be a better solution.
-
-To give you an example: Our Compuniverse communication server configurations
-with firewalling, proxies, Mail server, Webserver, several Web interfaces, Fax
-server, Internet application server (Netscape etc.), etc. currently use 13
-roles and 15 File/Dir types. I am running out of ideas what to use more roles
-and types for.
-
-Also, please do not forget that RSBAC is designed to *combine* different
-models - if RC is not suitable, also use MAC or ACL.
-
-> RSBAC does not appear to have an equivalent
-> to the human-readable SELinux policy configuration files, and it requires
-> that the policy be configured through a set of new utilities that use new
-> system calls. 
-
-As explained above, I believe separate mechanisms for RSBAC administration to
-be a much better solution than hacking it into existing interfaces. What is the
-problem with some extra system calls?
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-Hopefully, this text makes some ideas easier to understand.
 
-Amon.
 
 --
 You have received this message because you are subscribed to the selinux list.
