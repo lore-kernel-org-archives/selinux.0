@@ -1,73 +1,103 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2FBqMDo028353
-	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 06:52:23 -0500 (EST)
-Received: from mail-old.asahi-net.or.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2FBkUNq008531
-	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 11:46:31 GMT
-Message-ID: <4236CB3C.80606@kaigai.gr.jp>
-Date: Tue, 15 Mar 2005 20:47:08 +0900
+Message-ID: <4236CC03.5010104@kaigai.gr.jp>
+Date: Tue, 15 Mar 2005 20:50:27 +0900
 From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'SELinux Mail List'" <selinux@tycho.nsa.gov>, kaigai@ak.jp.nec.com,
-   selinux-dev@tresys.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>, kaigai@ak.jp.nec.com
 Subject: Re: [RFC & PATCH] inherited type definition.
-References: <200503141638.j2EGbx8R007648@gotham.columbia.tresys.com>
-In-Reply-To: <200503141638.j2EGbx8R007648@gotham.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <42346C17.3090301@kaigai.gr.jp>	 <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil>	 <4235C937.3030404@kaigai.gr.jp> <1110824712.21378.196.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1110824712.21378.196.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Karl, Thanks for your comments.
+Hi Stephen, Thanks for your comments.
 
- >> Interesting patch and I'm glad to see you use sediff for testing this - it has
- >> proven very valuable to use when doing work on checkpolicy for us as well. My
- >> concern for this (in addition to Steve's comments) is that it isn't general
- >> enough to solve many of the policy language problems that we commonly see. For
- >> example, this doesn't help with types that are derived on a per-role basis. This
- >> is a conceptually similar problem - I want user_ssh_t to be very similar
- >> staff_ssh_t with some differences - but requires some additional features. I am
- >> interested in extending this because right now it is not possible to easily add
- >> roles to binary policies, like the modules, because the per-role types are not
- >> correctly created.
+>> This makes sense for unifying file types, as in the earlier multiple
+>> contexts thread.  I'm not sure I see how it is useful for domains; any
+>> permissions allowed to the child domain can be indirectly gained by the
+>> parent domain (or any domain which can control the parent domain) and
+>> any program executables that can be used to enter the parent domain can
+>> be used to enter the child domain, so you might as well just directly
+>> allow the permissions to the parent domain.  As a trivial example, if
+>> you declare 'type user_ext_t extends user_t;', then user_t gets ptrace
+>> permission to user_ext_t because it has ptrace permission to itself, so
+>> any user_t process has full control over user_ext_t and can thus
+>> exercise its permissions at will.
 
-In my understanding, your concern is that child type/domain always inherit
-parent's attachments of roles, and this character make it hard to define
-similar type/domain which belong to different roles.
-
-It can be resolved by multi-layer type/domain inheritance.
-
+Does 'unifying file type' means as follows ?
 e.g)
-type generic_ssh_t;
-type user_ssh_t extends generic_ssh_t;
-type staff_ssh_t extends generic_ssh_t;
+ /var             ... var_t
+ /var/lib         ... var_lib_t extends var_t
+ /var/log         ... var_log_t extends var_t
+ /var/log/message ... var_log_message_t extends var_log_t
+Of course, such a usage is also possible.
 
-generic_ssh_t is attached some generic and necessary permissions and attributes,
-but generic_ssh_t does not belong to any roles.
-user_ssh_t and staff_ssh_t is defined as a child type of generic_ssh_t.
-Those are attached specific permissions and attributes, and each type belong to
-own roles.
+In user_t/user_ext_t example, user_ext_t is same as user_t without tiny difference.
+Thus, it is strange, if user_t process which has a permission to user_t does not
+have a same permission to user_ext_t.
+Common part of user_t and user_ext_t should have a permission for each other, I think.
+The outbounds part of user_ext_t from user_t should not have a permission
+for each other, indeed.
 
-This look like the usage of ATTRIBUTE. But we can't define multi-layer structure
-for attribute on current checkpolicy. My extension make it possible.
+>>>>I think definition of reductive permission child-type/domain is the next
+>>>>action assignment. If child does not need a part of the parent's permissions,
+>>>>those should be revoked by DENY statement for example.
+>
+>>
+>>
+>> Hmmm...given the way in which you are computing inheritance, it seems
+>> that it could be very easy to miss something being implicitly allowed
+>> and fail to define a corresponding deny statement.  Maintainability also
+>> becomes a problem as you have to reassess the deny rules whenever a new
+>> allow rule is added.  And we need to consider not only limiting the
+>> child, but limiting the parent from controlling the child, if we are
+>> going to allow more permissions to the child than the parent.
 
- >> I don't have a concrete suggestion, but an example would be a policy syntax that
- >> could duplicate the ssh_domain macro. Instead of creating a type based on
- >> another type, it would be creating a type based on a 'type template'. This would
- >> allow creating user_ssh_t and staff_ssh_t, for example, with similar access in
- >> many cases, but also differences (e.g., user_home_ssh_t and staff_home_ssh_t or
- >> a different transition from ssh_exec_t).
+I want to reserve this matter once for a certain time.
+Because there is a problem as you notice, and I noticed the amount of modification
+with DENY implementation is so large.
+Sorry, I want to concentrate the discussion for TYPE ... EXTENDS first.
 
-Indeed, we can also define such types by 'type template' macros, I think.
-But I wonder whether type configuration by multiple macros is enough easy
-for general end-user or not.
-My original motivation willing to implement TYPE ... EXTENDS is that
-making it easier to define original type/domain by using an existing
-correct type/domain definition, because defining a new type/domain from
-scratch is required so wide knowledge for application, kernel, SELinux and macros.
-(Education often requires massive cost.)
-In many case, an imitation of existing type/domain is easier than
-to enforce end-user learning about application, kernel, SELinux and macros.
+>>>>When child_t inherit parent_t, "allow parent_t parent_t:process sigkill;"
+>>>>is unrolled to "allow {parent_t child_t} {parent_t child_t}:process sigkill;"
+>>>>The number of conbination is 4.
+>>>>
+>>>>"allow parent_t self:process sigkill;" is unrolled as follows:
+>>>>  "allow parent_t parent_t:process sigkill;"
+>>>>  "allow parent_t child_t:process  sigkill;"
+>>>>  "allow child_t  child_t:process  sigkill;"
+>
+>>
+>>
+>> The latter is more in line with what I would expect, and regardless, I
+>> think that they should be unrolled consistently regardless of whether
+>> the allow rule was written with "self" or explicitly with the same
+>> domain (or an attribute that included the domain); self was purely
+>> intended as a convenience notation and a way to express the self
+>> relationship when using an attribute/set for the source type.
+
+I see.
+But I thought it may be unnaturalness that child_t doesn't have a permission to parent_t.
+What you say first is straightforward explanation.
+It's natual "allow parent_t self:..." is unrolled to
+"allow {parent_t child_t} {parent_t child_t}:...", and I'll fix it.
+
+>> Typically, when creating a derived domain (e.g. for a program run by a
+>> user domain), we don't want to inherit any of the transition rules of
+>> the base user domain.  A template-based approach as suggested by Karl
+>> seems necessary here, effectively turning the existing macro constructs
+>> into a language feature.
+
+In my implementation, derived domain inherit any of transition rules of
+the own parent domain in default. If we don't want to apply same type
+transition rules, we must define a different rules to derived domain
+explicitly.
+So, I can't decide whether this essence is advantage or disadvantage...
+
+In addition, it's possible not to decide a transition type/domain
+when a type has multiple parents. Should the number of parent
+types/domains be limited to one ?
 
 Thanks.
 -- 
