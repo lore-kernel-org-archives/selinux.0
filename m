@@ -1,69 +1,84 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA05553
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 08:29:55 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA19507
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 12:28:24 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id MAA19503 for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 12:28:24 GMT
-Received: from localhost (sds@localhost)
-	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id g6FCTCH01761
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 08:29:12 -0400 (EDT)
-Date: Mon, 15 Jul 2002 08:29:12 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: <selinux@tycho.nsa.gov>
-Subject: [patch] general_file_read_access
-Message-ID: <Pine.GSO.4.33.0207150826100.29432-200000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA05633
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 08:44:24 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA02743
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 12:43:45 GMT
+Received: from austin.bmh.com (austin.bmh.com [216.54.77.38])
+	by jazzswing.ncsc.mil  with ESMTP id MAA02739
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 12:43:44 GMT
+Received: (from root@localhost)
+	by austin.bmh.com (8.11.6/8.11.2) id g6FCfxP09118
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 08:41:59 -0400
+From: Natr Brazell <brazell@bmh.com>
+Message-ID: <63919.137.246.8.231.1026736919.squirrel@austin.bmh.com>
+Date: Mon, 15 Jul 2002 08:41:59 -0400 (EDT)
+Subject: =?iso-8859-1?Q?Re:_revising_the_su_decision?=
+To: tom@lemuria.org
+In-Reply-To: <20020712200607.C26001@lemuria.org>
+References: <20020712200607.C26001@lemuria.org>
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-33463914-1026736152=:29432"
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+This is a great idea for managing packages on the workstation however your 
+recommendation is a pull instead of a push.  I need something that allows 
+a developer the ability to push a single file or whole new software 
+distribution depending on the needs.  We work with developers on hand to 
+isolate and resolve issues on the fly (R&D remember).  Changes have to be 
+released en mass on the fly.
 
----559023410-33463914-1026736152=:29432
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Thanks,
+Your suggestion has definate value.  I will use it for managing system 
+related packages.
 
-
-The attached patch (also committed to the sourceforge CVS tree) fixes an
-error in the general_file_read_access macro that was introduced when the
-base_file_read_access macro was defined.  By using 'domain' instead of
-'$1', the macro was applying base_file_read_access to every domain rather
-than the parameter domain.  To apply, save the patch to ~/file_read.patch,
-cd selinux && patch -p0 < ~/file_read.patch.  Then rebuild and reload your
-policy.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Natr  
 
 
+> On Fri, Jul 12, 2002 at 01:10:19PM -0400, Natr Brazell wrote:
+>> facility I am at even though no one knows anything about selinux
+>> expect  how to spell it so I guess I am the expert.  (Haven't got the
+>> T-Shirt yet)  but I have got people looking at my configuration as a
+>> starting point for  future projects.  Now to my question...
+>> 
+>> ...  What is this lists proposal for how to manage and push to
+>> multiple  machines quickly and securely based on the above comments?
+> 
+> I'm probably about as much expert as you are (no T-shirt, either) so
+> don't trust me unless someone else says I got it right, but this is
+> what I think would be the right way to do it:
+> 
+> a) SELinux basic assumption is not to trust, especially not remote
+> parties. that's a Good Thing(tm).
+> 
+> b) so, what you need is a trusted process ON the machines. ideally,
+> with a policy crafted specifically for it. I'll call this process
+> instwa, the "install watcher". it could be as simple as a cronjob
+> called every 5 minutes that essentially does:
+> 
+> if ( any file in /var/install ) then ( rpm/dpkg/whatever -i $file )
+> 
+> c) give your remote/install user write priviledges for /var/install
+> 
+> d) voila. you can push software unto the machines and the instwa will
+> take care of the installation.
+> 
+> -- 
+> New GPG Key issued (old key expired):
+> http://web.lemuria.org/pubkey.html
+> pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+>      Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A
+>      04F5
+> 
+> --
+> You have received this message because you are subscribed to the
+> selinux list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
+> quotes as the message.
 
----559023410-33463914-1026736152=:29432
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="file_read.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0207150829120.29432@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="file_read.patch"
 
-SW5kZXg6IHBvbGljeS9tYWNyb3MvZ2xvYmFsX21hY3Jvcy50ZQ0KPT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290L3NlbGludXgv
-bnNhL3NlbGludXgvcG9saWN5L21hY3Jvcy9nbG9iYWxfbWFjcm9zLnRlLHYN
-CnJldHJpZXZpbmcgcmV2aXNpb24gMS40DQpkaWZmIC11IC1yMS40IGdsb2Jh
-bF9tYWNyb3MudGUNCi0tLSBwb2xpY3kvbWFjcm9zL2dsb2JhbF9tYWNyb3Mu
-dGUJOCBKdWwgMjAwMiAxMjoxNzowMCAtMDAwMAkxLjQNCisrKyBwb2xpY3kv
-bWFjcm9zL2dsb2JhbF9tYWNyb3MudGUJMTUgSnVsIDIwMDIgMTI6MjQ6MjUg
-LTAwMDANCkBAIC02NDIsNyArNjQyLDcgQEANCiAjIEdldCBhdHRyaWJ1dGVz
-IG9mIGZpbGUgc3lzdGVtcy4NCiBhbGxvdyAkMSBmc190eXBlOmZpbGVzeXN0
-ZW0gZ2V0YXR0cjsNCiANCi1iYXNlX2ZpbGVfcmVhZF9hY2Nlc3MoZG9tYWlu
-KQ0KK2Jhc2VfZmlsZV9yZWFkX2FjY2VzcygkMSkNCiANCiAjIFJlYWQgZGly
-ZWN0b3JpZXMgYW5kIGZpbGVzIHdpdGggdGhlIHJlYWRhYmxlX3QgdHlwZS4N
-CiAjIFRoaXMgdHlwZSBpcyBhIGdlbmVyYWwgdHlwZSBmb3IgIndvcmxkIi1y
-ZWFkYWJsZSBmaWxlcy4NCg==
----559023410-33463914-1026736152=:29432--
 
 --
 You have received this message because you are subscribed to the selinux list.
