@@ -1,172 +1,54 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA8LW8Ii019482
-	for <selinux@tycho.nsa.gov>; Mon, 8 Nov 2004 16:32:09 -0500 (EST)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA8LUkC6005835
-	for <selinux@tycho.nsa.gov>; Mon, 8 Nov 2004 21:30:46 GMT
-Subject: Re: gentoo diff for ipsec
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: petre rodan <kaiowas@gentoo.org>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <41650174.4090103@gentoo.org>
-References: <41650174.4090103@gentoo.org>
-Content-Type: multipart/mixed; boundary="=-ThldAxqRKZ3ozsLvmvHT"
-Message-Id: <1099949691.3215.39.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 08 Nov 2004 16:34:52 -0500
+Message-ID: <20041109105836.79902.qmail@web51503.mail.yahoo.com>
+Date: Tue, 9 Nov 2004 02:58:36 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Issue on getting security context of socket and message
+To: SELinux@tycho.nsa.gov
+Cc: sds@epoch.ncsc.mil
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-950518661-1099997916=:46859"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--0-950518661-1099997916=:46859
+Content-Type: text/plain; charset=us-ascii
 
---=-ThldAxqRKZ3ozsLvmvHT
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Hi,
+    In flask, as we know, sockets effectively serve as communication proxies for processes in the Flask control model. Consequently, sockets are labeled with the label of the creating process by default. Messages are associated with both the label of their sending socket and a separate message label. By default, this message label is the same as the sending socket label.
+    Then how can we get the security context of socket and message respectively in linux kernel space and user space respectively (i.e. what functions and commands could we use to achieve our goal)? 
+    And is messages here refer to packages in network?
+    Thanks.
 
-Merged.
-The ipsec stuff definitely needs some more work.
 
-I have attached is an ipsec.te file that uses daemon_domain for both the
-ipsec and ipsec_mgmt stuff, removes the rules covered by daemon_domain,
-removes all the comments so all of the allow rules can easily be seen,
-and groups the allow rules.
+--
+Best Regards,
+Park Lee <parklee_sel@yahoo.com> 
+ 
 
-Now, what can be eliminated?
 
-Petre posted on Oct 25th racoon te and fc files.  Maybe we should split
-out the key management stuff.
 
-Any thoughts?
 
-On Thu, 2004-10-07 at 04:42, petre rodan wrote:
-> Hi!
-> 
-> This policy was generated using the ipsec-tools that comes with gentoo [1]
-> setkey was used to set-up the Security Policy Database and Security Association Database and racoon to do the x509 certificate exchange.
-> 
-> the diff is needed because:
-> 
-> ipsec_conf_file_t is a directory structure, not a single file
-> 
-> ipsec_key_file_t is a directory structure that also contains symlinks (one of the ipsec_key_file_t directories must contain openssl hash-links to each certificate)
-> 
-> racoon is the IKE daemon that is started by initrc_t. so this is why the daemon_base_domain is used.
-> 
-> 
-> [1]. http://ipsec-tools.sourceforge.net/
-> 
-> bye,
-> peter
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
 
---=-ThldAxqRKZ3ozsLvmvHT
-Content-Disposition: attachment; filename=ipsec_new.te
-Content-Type: text/plain; name=ipsec_new.te; charset=UTF-8
-Content-Transfer-Encoding: base64
 
-I0RFU0MgaXBzZWMgLSBUQ1AvSVAgZW5jcnlwdGlvbg0KIw0KIyBBdXRob3JzOiBNYXJrIFdlc3Rl
-cm1hbiBtYXJrLndlc3Rlcm1hbkB3ZXN0Y2FtLmNvbQ0KIyBtYXNzaXZlbHkgYnV0Y2hlcmVkIGJ5
-IHBhdWwga3J1bXZpZWRlIDxwd2tAYWNtLm9yZz4NCiMgZnVydGhlciBtYXNzYWdlZCBieSBDaHJp
-cyBWYW5jZSA8Y3ZhbmNlQHRpc2xhYnMuY29tPg0KIyBYLURlYmlhbi1QYWNrYWdlczogZnJlZXN3
-YW4NCiMNCiMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNCiMNCiMgQm90
-aCBpcHNlY190IGFuZCBpcHNlY19tZ210X3QgDQojDQp0eXBlIGlwc2VjX2NvbmZfZmlsZV90LCBm
-aWxlX3R5cGUsIHN5c2FkbWZpbGU7DQp0eXBlIGlwc2VjX2tleV9maWxlX3QsIGZpbGVfdHlwZSwg
-c3lzYWRtZmlsZTsNCg0KIw0KIyBpcHNlY190DQojDQpkYWVtb25fZG9tYWluKGlwc2VjKQ0KDQpk
-b21haW5fYXV0b190cmFucyhpcHNlY190LCBzaGVsbF9leGVjX3QsIGlwc2VjX21nbXRfdCkNCmZp
-bGVfdHlwZV9hdXRvX3RyYW5zKGlwc2VjX3QsIHZhcl9ydW5fdCwgaXBzZWNfdmFyX3J1bl90LCBz
-b2NrX2ZpbGUpDQoNCmNhbl9leGVjKGlwc2VjX3QsIGJpbl90KQ0KY2FuX2V4ZWMoaXBzZWNfdCwg
-c2hlbGxfZXhlY190KQ0KY2FuX2V4ZWMoaXBzZWNfdCwgaXBzZWNfbWdtdF9leGVjX3QpDQpjYW5f
-bmV0d29yayhpcHNlY190KQ0KY2FuX3lwYmluZChpcHNlY190KQ0KZ2VuZXJhbF9wcm9jX3JlYWRf
-YWNjZXNzKGlwc2VjX3QpDQoNCmFsbG93IGlwc2VjX3Qgc2VsZjpjYXBhYmlsaXR5IHsgbmV0X2Fk
-bWluIG5ldF9iaW5kX3NlcnZpY2UgfTsNCmFsbG93IGlwc2VjX3Qgc2VsZjpjYXBhYmlsaXR5IHsg
-ZGFjX292ZXJyaWRlIGRhY19yZWFkX3NlYXJjaCB9Ow0KYWxsb3cgaXBzZWNfdCBzZWxmOmZpZm9f
-ZmlsZSB7IHJlYWQgZ2V0YXR0ciB9Ow0KYWxsb3cgaXBzZWNfdCBzZWxmOmtleV9zb2NrZXQgeyBj
-cmVhdGUgd3JpdGUgcmVhZCB9Ow0KYWxsb3cgaXBzZWNfdCBzZWxmOm5ldGxpbmtfeGZybV9zb2Nr
-ZXQgY3JlYXRlX3NvY2tldF9wZXJtczsNCmFsbG93IGlwc2VjX3Qgc2VsZjp1bml4X2RncmFtX3Nv
-Y2tldCB7IGNyZWF0ZSBjb25uZWN0IHdyaXRlIH07DQphbGxvdyBpcHNlY190IHNlbGY6dW5peF9z
-dHJlYW1fc29ja2V0IHtjcmVhdGUgc2V0b3B0IGJpbmQgbGlzdGVuIGFjY2VwdCByZWFkIHdyaXRl
-IH07DQoNCmFsbG93IGlwc2VjX3QgYmluX3Q6bG5rX2ZpbGUgcmVhZDsNCmFsbG93IGlwc2VjX3Qg
-YmluX3Q6ZGlyIHsgc2VhcmNoIH07DQphbGxvdyBpcHNlY190IGV0Y190Omxua19maWxlIHJlYWQ7
-DQphbGxvdyBpcHNlY190IGV0Y190OmZpbGUgeyByZWFkIGdldGF0dHIgfTsNCmFsbG93IGlwc2Vj
-X3QgY29uc29sZV9kZXZpY2VfdDpjaHJfZmlsZSByd19maWxlX3Blcm1zOw0KYWxsb3cgaXBzZWNf
-dCB7IGluaXRyY190IHByaXZmZCB9OmZkIHVzZTsNCmFsbG93IGlwc2VjX3QgaW5pdHJjX3Q6Zmlm
-b19maWxlIHsgd3JpdGUgfTsNCmFsbG93IGlwc2VjX3QgaW5pdHJjX2RldnB0c190OmNocl9maWxl
-IHsgZ2V0YXR0ciByZWFkIHdyaXRlIH07DQphbGxvdyBpcHNlY190IHJlc2VydmVkX3BvcnRfdDp1
-ZHBfc29ja2V0IHsgbmFtZV9iaW5kIH07DQphbGxvdyBpcHNlY190IHsgdXJhbmRvbV9kZXZpY2Vf
-dCByYW5kb21fZGV2aWNlX3QgfTpjaHJfZmlsZSByX2ZpbGVfcGVybXM7DQoNCmFsbG93IGlwc2Vj
-X3QgaXBzZWNfY29uZl9maWxlX3Q6ZmlsZSB7IGdldGF0dHIgcmVhZCBpb2N0bCB9Ow0Kcl9kaXJf
-ZmlsZShpcHNlY190LCBpcHNlY19rZXlfZmlsZV90KQ0KDQpkb250YXVkaXQgaXBzZWNfdCB0dHlm
-aWxlOmNocl9maWxlIHsgcmVhZCB3cml0ZSB9Ow0KDQphbGxvdyBzeXNhZG1fdCBpcHNlY190Omtl
-eV9zb2NrZXQgZ2V0YXR0cjsNCmFsbG93IHN5c2FkbV90IGlwc2VjX3Q6dW5peF9zdHJlYW1fc29j
-a2V0IGNvbm5lY3R0bzsNCg0KDQoNCiMNCiMgaXBzZWNfbWdtdF90DQojDQpkYWVtb25fZG9tYWlu
-KGlwc2VjX21nbXQsYCxhZG1pbiwgcHJpdm1vZHVsZScpDQoNCmRvbWFpbl9hdXRvX3RyYW5zKGlw
-c2VjX21nbXRfdCwgaWZjb25maWdfZXhlY190LCBpZmNvbmZpZ190KQ0KZG9tYWluX2F1dG9fdHJh
-bnMoaXBzZWNfbWdtdF90LCBpcHNlY19leGVjX3QsIGlwc2VjX3QpDQpmaWxlX3R5cGVfYXV0b190
-cmFucyhpcHNlY19tZ210X3QsIGV0Y190LCBpcHNlY19rZXlfZmlsZV90LCBmaWxlKQ0KZmlsZV90
-eXBlX2F1dG9fdHJhbnMoaXBzZWNfbWdtdF90LCBzeXNhZG1faG9tZV9kaXJfdCwgc3lzYWRtX2hv
-bWVfdCwgZmlsZSkNCmZpbGVfdHlwZV9hdXRvX3RyYW5zKGlwc2VjX21nbXRfdCwgdmFyX3J1bl90
-LCBpcHNlY192YXJfcnVuX3QsIHNvY2tfZmlsZSkNCg0KY2FuX2V4ZWMoaXBzZWNfbWdtdF90LCBi
-aW5fdCkNCmNhbl9leGVjKGlwc2VjX21nbXRfdCwgaXBzZWNfZXhlY190KQ0KY2FuX2V4ZWMoaXBz
-ZWNfbWdtdF90LCBpcHNlY19tZ210X2V4ZWNfdCkNCmNhbl9leGVjKGlwc2VjX21nbXRfdCwgc2hl
-bGxfZXhlY190KQ0KY2FuX2V4ZWMoaXBzZWNfbWdtdF90LCBzYmluX3QpDQpjYW5fZXhlYyhpcHNl
-Y19tZ210X3QsIGV0Y190KQ0KY2FuX2V4ZWMoaXBzZWNfbWdtdF90LCBpbml0cmNfZXhlY190KQ0K
-aWZkZWYoYGNvbnNvbGV0eXBlLnRlJywgYA0KY2FuX2V4ZWMoaXBzZWNfbWdtdF90LCBjb25zb2xl
-dHlwZV9leGVjX3QgKQ0KJykNCg0KZ2VuZXJhbF9wcm9jX3JlYWRfYWNjZXNzKGlwc2VjX21nbXRf
-dCkNCnJ3X2Rpcl9jcmVhdGVfZmlsZShpcHNlY19tZ210X3QsIGlwc2VjX2tleV9maWxlX3QpDQpy
-d19kaXJfY3JlYXRlX2ZpbGUoaXBzZWNfbWdtdF90LCBpcHNlY192YXJfcnVuX3QpDQoNCmFsbG93
-IGlwc2VjX21nbXRfdCBzZWxmOnVuaXhfZGdyYW1fc29ja2V0IHsgY3JlYXRlIGNvbm5lY3Qgd3Jp
-dGUgfTsNCmFsbG93IGlwc2VjX21nbXRfdCBzZWxmOmNhcGFiaWxpdHkgeyBuZXRfYWRtaW4gZGFj
-X292ZXJyaWRlIH07DQphbGxvdyBpcHNlY19tZ210X3Qgc2VsZjp1bml4X3N0cmVhbV9zb2NrZXQg
-Y3JlYXRlX3N0cmVhbV9zb2NrZXRfcGVybXM7DQphbGxvdyBpcHNlY19tZ210X3Qgc2VsZjpmaWZv
-X2ZpbGUgcndfZmlsZV9wZXJtczsNCmFsbG93IGlwc2VjX21nbXRfdCBzZWxmOnVkcF9zb2NrZXQg
-eyBjcmVhdGUgaW9jdGwgfTsNCmFsbG93IGlwc2VjX21nbXRfdCBzZWxmOmNhcGFiaWxpdHkgeyBz
-eXNfdHR5X2NvbmZpZyBkYWNfcmVhZF9zZWFyY2ggfTsNCmFsbG93IGlwc2VjX21nbXRfdCBzZWxm
-OmtleV9zb2NrZXQgeyBjcmVhdGUgc2V0b3B0IH07DQphbGxvdyBpcHNlY19tZ210X3Qgc2VsZjp7
-IHRjcF9zb2NrZXQgdWRwX3NvY2tldCB9IGNyZWF0ZV9zb2NrZXRfcGVybXM7DQoNCmFsbG93IGlw
-c2VjX21nbXRfdCBiaW5fdDpkaXIgeyBzZWFyY2ggfTsNCmFsbG93IGlwc2VjX21nbXRfdCBiaW5f
-dDpsbmtfZmlsZSByZWFkOw0KYWxsb3cgaXBzZWNfbWdtdF90IGJvb3RfdDpkaXIgc2VhcmNoOw0K
-YWxsb3cgaXBzZWNfbWdtdF90IGNvbnNvbGVfZGV2aWNlX3Q6Y2hyX2ZpbGUgcndfZmlsZV9wZXJt
-czsNCmFsbG93IGlwc2VjX21nbXRfdCBkZXZfZnM6ZmlsZV9jbGFzc19zZXQgZ2V0YXR0cjsNCmFs
-bG93IGlwc2VjX21nbXRfdCBkZXZpY2VfdDpkaXIgcmVhZDsNCmFsbG93IGlwc2VjX21nbXRfdCBl
-dGNfdDpsbmtfZmlsZSByZWFkOw0KYWxsb3cgaXBzZWNfbWdtdF90IGV0Y190OmZpbGUgeyByZWFk
-IGdldGF0dHIgfTsNCmFsbG93IGlwc2VjX21nbXRfdCBldGNfcnVudGltZV90OmZpbGUgeyByZWFk
-IGdldGF0dHIgfTsNCmFsbG93IGlwc2VjX21nbXRfdCBmc190OmZpbGVzeXN0ZW0gZ2V0YXR0cjsN
-CmFsbG93IGlwc2VjX21nbXRfdCB7IGluaXRyY190IHByaXZmZCB9OmZkIHVzZTsNCmFsbG93IGlw
-c2VjX21nbXRfdCB7IGluaXRyY19kZXZwdHNfdCBhZG1pbl90dHlfdHlwZSB9OmNocl9maWxlIHsg
-Z2V0YXR0ciByZWFkIHdyaXRlIGlvY3RsIH07DQphbGxvdyBpcHNlY19tZ210X3QgbW9kdWxlc19v
-YmplY3RfdDpkaXIgc2VhcmNoOw0KYWxsb3cgaXBzZWNfbWdtdF90IG1vZHVsZXNfb2JqZWN0X3Q6
-ZmlsZSBnZXRhdHRyOw0KYWxsb3cgaXBzZWNfbWdtdF90IHNiaW5fdDpsbmtfZmlsZSByZWFkOw0K
-YWxsb3cgaXBzZWNfbWdtdF90IHNiaW5fdDpkaXIgeyBzZWFyY2ggfTsNCmFsbG93IGlwc2VjX21n
-bXRfdCBzeXNjdGxfdDpmaWxlIHdyaXRlOw0KYWxsb3cgaXBzZWNfbWdtdF90IHN5c2N0bF9uZXRf
-dDpkaXIgeyBzZWFyY2ggfTsNCmFsbG93IGlwc2VjX21nbXRfdCBzeXNjdGxfbmV0X3Q6ZmlsZSB7
-IHdyaXRlIHNldGF0dHIgfTsNCmFsbG93IGlwc2VjX21nbXRfdCBzeXNjdGxfbmV0X3Q6ZmlsZSB7
-IGdldGF0dHIgcmVhZCB9Ow0KYWxsb3cgaXBzZWNfbWdtdF90IHN5c3RlbV9tYXBfdDpmaWxlIHsg
-cmVhZCBnZXRhdHRyIH07DQphbGxvdyBpcHNlY19tZ210X3QgeyB1cmFuZG9tX2RldmljZV90IHJh
-bmRvbV9kZXZpY2VfdCB9OmNocl9maWxlIHJfZmlsZV9wZXJtczsNCmFsbG93IGlwc2VjX21nbXRf
-dCB0bXBmc190OmRpciB7IGdldGF0dHIgcmVhZCB9Ow0KYWxsb3cgaXBzZWNfbWdtdF90IHZhcl9s
-b2NrX3Q6ZGlyIHJ3X2Rpcl9wZXJtczsNCmFsbG93IGlwc2VjX21nbXRfdCB2YXJfbG9ja190OmZp
-bGUgY3JlYXRlX2ZpbGVfcGVybXM7DQoNCmFsbG93IGlwc2VjX21nbXRfdCBpcHNlY190OmZkIHVz
-ZTsNCmFsbG93IGlwc2VjX21nbXRfdCBpcHNlY190OnsgZmlsZSBsbmtfZmlsZSB9IHJfZmlsZV9w
-ZXJtczsNCmFsbG93IGlwc2VjX21nbXRfdCBpcHNlY190OnVuaXhfZGdyYW1fc29ja2V0IHsgY3Jl
-YXRlIGNvbm5lY3Qgd3JpdGUgfTsNCmFsbG93IGlwc2VjX21nbXRfdCBpcHNlY190OnVuaXhfc3Ry
-ZWFtX3NvY2tldCB7IGNvbm5lY3R0byByZWFkIHdyaXRlIH07DQphbGxvdyBpcHNlY19tZ210X3Qg
-aXBzZWNfY29uZl9maWxlX3Q6ZmlsZSB7IGdldGF0dHIgcmVhZCBpb2N0bCB9Ow0KYWxsb3cgaXBz
-ZWNfbWdtdF90IGlwc2VjX21nbXRfZXhlY190Omxua19maWxlIHJlYWQ7DQphbGxvdyBpcHNlY19t
-Z210X3QgaXBzZWNfdmFyX3J1bl90OmZpbGUgeyBnZXRhdHRyIHJlYWQgfTsNCmFsbG93IGlwc2Vj
-X21nbXRfdCBpcHNlY192YXJfcnVuX3Q6c29ja19maWxlIHsgcmVhZCB3cml0ZSB9Ow0KDQpkb250
-YXVkaXQgaXBzZWNfbWdtdF90IGRlZmF1bHRfdDpkaXIgeyBnZXRhdHRyIH07DQpkb250YXVkaXQg
-aXBzZWNfbWdtdF90IGRlZmF1bHRfdDpmaWxlIHsgZ2V0YXR0ciB9Ow0KZG9udGF1ZGl0IGlwc2Vj
-X21nbXRfdCBkZXZpY2VfdDpsbmtfZmlsZSByZWFkOw0KZG9udGF1ZGl0IGlwc2VjX21nbXRfdCBk
-ZXZwdHNfdDpkaXIgZ2V0YXR0cjsNCmRvbnRhdWRpdCBpcHNlY19tZ210X3QgZG9tYWluOmRpciBy
-X2Rpcl9wZXJtczsNCmRvbnRhdWRpdCBpcHNlY19tZ210X3QgZG9tYWluOmtleV9zb2NrZXQgeyBy
-ZWFkIHdyaXRlIH07DQpkb250YXVkaXQgaXBzZWNfbWdtdF90IGRvbWFpbjp1ZHBfc29ja2V0IHsg
-cmVhZCB3cml0ZSB9Ow0KZG9udGF1ZGl0IGlwc2VjX21nbXRfdCB0dHlfZGV2aWNlX3Q6Y2hyX2Zp
-bGUgZ2V0YXR0cjsNCmRvbnRhdWRpdCBpcHNlY19tZ210X3Qgc2VsaW51eF9jb25maWdfdDpkaXIg
-eyBzZWFyY2ggfTsNCg0KY2FuX2V4ZWMoc3lzYWRtX3QsIGlwc2VjX21nbXRfZXhlY190KQ0KDQo=
+			
+---------------------------------
+Do you Yahoo!?
+ Check out the new Yahoo! Front Page. www.yahoo.com
+--0-950518661-1099997916=:46859
+Content-Type: text/html; charset=us-ascii
 
---=-ThldAxqRKZ3ozsLvmvHT--
+<DIV>Hi,</DIV>
+<DIV>&nbsp;&nbsp;&nbsp; In flask, as we know, sockets effectively serve as communication proxies for processes in the Flask control model. Consequently, sockets are labeled with the label of the creating process by default. Messages are associated with both the label of their sending socket and a separate message label. By default, this message label is the same as the sending socket label.<BR>&nbsp;&nbsp;&nbsp; Then how can we get the security context of socket and message respectively in linux kernel space and user space respectively (i.e. what functions and commands could we use to achieve our goal)? <BR>&nbsp;&nbsp;&nbsp; And is messages here refer to packages in network?</DIV>
+<DIV>&nbsp;&nbsp;&nbsp; Thanks.</DIV><BR><BR><DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>--<BR>Best Regards,<BR>Park Lee &lt;<A href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;YY=1156&amp;order=down&amp;sort=date&amp;pos=0"><FONT color=#003399>parklee_sel@yahoo.com</FONT></A>&gt; </DIV>
+<DIV>&nbsp;</DIV></DIV></DIV></DIV></DIV></DIV><p>
+	
+		<hr size=1>Do you Yahoo!?<br> 
+Check out the new Yahoo! Front Page. <a href="http://www.yahoo.com">www.yahoo.com</a>
+--0-950518661-1099997916=:46859--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
