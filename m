@@ -1,25 +1,20 @@
-From: cslater@wcnet.org
-Message-Id: <200106272310.f5RNAib05790@woody.wcnet.org>
-To: SELinux@tycho.nsa.gov
-Subject: Re: Slackware
-Date: Wed, 27 Jun 2001 19:10:20 US/Eastern
+Date: Thu, 28 Jun 2001 10:01:38 -0400 (EDT)
+From: Zachary Uram <zu22@andrew.cmu.edu>
+To: Milos Rancic <millosh@galeb.etf.bg.ac.yu>
+cc: SELinux@tycho.nsa.gov
+Subject: LIDS & MAC on Linux
+In-Reply-To: <Pine.LNX.4.21.0106271753540.6953-100000@galeb.etf.bg.ac.yu>
+Message-ID: <Pine.GSO.4.21L-021.0106281001250.3667-100000@unix7.andrew.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I tried it on slackware. I also killed my box flat dead. SELinux as far as i 
-can tell requires PAM. PAM Kills slackware. Do not use PAM and slackware. I 
-tried. Gave errors when you tried to login, refused to let you login. I 
-reformated and reinstalled. Ive been talking to people cin the forum and they 
-say that they are not going to support PAM till it becomes more developed and 
-mature. They say that there are too many security problems at the moment, and 
-that it requires a entire rebuild of most of the a1 and possible n1 series. I 
-would generaly stay away from SELinux.
+http://www.unixreview.com/articles/2001/0106/0106m/0106m.htm
 
 
----------------------------------------------
-This message was sent using Endymion MailMan.
-http://www.endymion.com/products/mailman/
-
+uram@cmu.edu
+"Blessed are those who have not seen and yet have faith." - John 20:29
 
 
 --
