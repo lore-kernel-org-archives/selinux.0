@@ -1,10 +1,10 @@
-Date: Fri, 20 Sep 2002 22:48:37 -0400 (EDT)
+Date: Fri, 20 Sep 2002 22:58:51 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Carsten Grohmann <carstengrohmann@gmx.de>
-cc: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: pppd and net_context
-In-Reply-To: <200209150931.CAA07926@lookout.la.tislabs.com>
-Message-ID: <Pine.GSO.4.33.0209202246050.2978-100000@raven>
+cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: some patches
+In-Reply-To: <200209151556.PAA17617@jazzswing.ncsc.mil>
+Message-ID: <Pine.GSO.4.33.0209202254480.2978-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -13,22 +13,30 @@ List-Id: selinux@tycho.nsa.gov
 
 On Sun, 15 Sep 2002, Carsten Grohmann wrote:
 
-> last week I add the isdn4linux devices to my selinux rules.
-> That do you think, is the attached patch correct?
-> The type declaration should be ok, also the netifcon entries. Both are
-> wrote on "Configure the SELinux Policy".
-> I am not sure with the two allow entries, because I don't found anything
-> about it in the documentation.
-> And why uses the loopback device the special node_lo_t ?
+> I've attached follow patches:
+> inetd.diff:
+>   add a type var_log_inetd_t for daemons logs
 
-Yes, this is fine, and is now merged.  I don't think that node_lo_t
-serves any real purpose in the example policy; it just shows that you can
-assign a different node type to particular addresses.
+Thanks, merged.
+
+> ldconfig.diff:
+>   dontaudit ldconfig_t device_t:dir { search };
+>   change { read write } for sysadm_devpts_t and sysadm_tty_device_t
+>   to rw_file_perms, because I need also getattr and ioctl for SuSE
+
+The first change is obsoleted by a patch from Russell that was merged
+earlier, granting that permission.
+I've merged the second change.
+
+> pppd.diff:
+>   allow pppd_t device_t:dir { search };
+
+This change is also obsoleted by a patch from Russell that was merged
+earlier, adding this permission to daemon_base_domain().
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
