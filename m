@@ -1,86 +1,51 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h47IBKI4011548
-	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 14:11:20 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h47J3xI4011920
+	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 15:03:59 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h47IBJ7R016784
-	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 18:11:19 GMT
-Received: from hal.istation.com (hal.istation.com [65.120.151.132])
-        by jazzband.ncsc.mil  with ESMTP id h47IBIKP016770 for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 18:11:19 GMT
-Reply-To: <kbottner@istation.com>
-From: "Keith Bottner" <kbottner@istation.com>
-To: "'Nick Gray'" <nagray@austin.rr.com>, <selinux@tycho.nsa.gov>
-Subject: RE: SELinux and LFS
-Date: Wed, 7 May 2003 13:09:40 -0500
-Message-ID: <000201c314c3$d433ab00$ae977841@istation.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-Reply-To: <1052323369.1487.46.camel@celestial>
+	by jazzband.ncsc.mil  with ESMTP id h47J3w7R020465
+	for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 19:03:58 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h47J3vKP020460 for <selinux@tycho.nsa.gov>; Wed, 7 May 2003 19:03:57 GMT
+Subject: Re: /dev/pts/* denials w/devfs
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Christopher J. PeBenito" <pebenito@ieee.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1052326645.13937.23.camel@chris.pebenito.net>
+References: <1052326645.13937.23.camel@chris.pebenito.net>
+Content-Type: text/plain
+Message-Id: <1052334230.1044.104.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 07 May 2003 15:03:50 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Nick,
+On Wed, 2003-05-07 at 12:57, Christopher J. PeBenito wrote:
+> I'm trying to integrate SELinux with Gentoo
+> (http://www.gentoo.org/proj/en/hardened/), however I'm encountering some
+> problems.  The problem surrounds /dev/pts/* denials.  Gentoo uses devfs,
+> so I have a feeling that it might be causing some problems.  For
+> example, the following are the denials I get when logging in via ssh. 
+> The ssh.te is still the stock from selinux-small, and openssh is
+> patched.  I also have the devfsd-se.so devfsd module running. 
+> Suggestions?
 
-I think this is a great idea. I am very interested in your results. I
-have been thinking of doing something similar but as of yet have had no
-time to pursue it. Please keep us informed of your progress.
+The devfs kernel code really needs to be patched to work properly with
+SELinux; your pty problem is just a small part of the problem.  Note
+that in 2.4, we have to patch devpts for it to properly set up the
+inode's security label; in 2.5, this is handled without patching because
+devpts_pty_new now calls d_instantiate, so we can set up the security
+label in the usual manner via the d_instantiate hook.  You could patch
+the devfs code similarly, but there isn't much point in doing so, as
+unix98 pty support has been removed from devfs in 2.5, so everyone needs
+to start using devpts anyway if they want unix98 ptys.  A more serious
+problem with using devfs with SELinux is preserving security labels on
+devfs entries when they are evicted from the dcache; if you don't patch
+devfs to preserve the security information, devfs entries will "lose"
+any security label when the entry is evicted.
 
-Keith Bottner
-kbottner@istation.com
-
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
-On Behalf Of Nick Gray
-Sent: Wednesday, May 07, 2003 11:03 AM
-To: selinux@tycho.nsa.gov
-Subject: SELinux and LFS
-
-
-All,
-
-I introduced myself several months back. I work on a MLS project for the
-ONI. We have been evaluating SELinux for awhile. A couple of months ago
-I raise a question, within our group, about the viability of using
-RedHat as a base for a secure system. I believe that certification of a
-system based on a (almost any) distribution would be rather difficult to
-achieve. This coupled with the fact that a Redhat server that was under
-scrutiny here at the lab, continued to contact Redhat via HTTPS despite
-my efforts to remove the software responsible. I actually found circular
-dependencies in the packages.
-
-This led me to the question, Does anyone remember when we used to build
-this things from scratch. In answer to that question, I found a web site
-which I have been playing with for the last couple of weeks called
-appropriately enough "Linux from Scratch" so far I have been able to use
-LFS as the starting point for a CDROM based Linux gateway/firewall.I
-started a build of SELinux on a LFS system, but had several problems
-including discovering what I believe are a couple bugs in the code.I
-have put it aside for the moment to work on a couple of other things,
-but I will return to this when I get the chance.
-
-I am interested in whether anyone on the list has used this as the
-starting point for SELinux and what the results where. 
-
-In the next day or so I will post the problem I found in the makefile.
-Perhaps it is either a known issue or doesn't come up on Redhat based
-systems. In a separate post I will address a problem I found in string.h
-(as soon as I get a chance to figure out what the problem is)
-
-Don't get me wrong, I have nothing against Redhat. I'm just not sure
-that I could keep a straight face when placing this in front of the
-accreditors.
-
-Any comments/discussion would be appreciated 
-
-Nick Gray
-Senior Network Engineer
-Bruzenak Inc.
-
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
