@@ -1,45 +1,246 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0S9fmRb004270
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 04:41:49 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0SDs9Rb004877
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 08:54:09 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0S9eWxr006189
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 09:40:32 GMT
-Received: from Cantor.suse.de (ns.suse.de [195.135.220.2])
-	by jazzswing.ncsc.mil  with ESMTP id i0S9eVYc006186
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 09:40:31 GMT
-Received: from Hermes.suse.de (Hermes.suse.de [195.135.221.8])
-	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
-	(No client certificate requested)
-	by Cantor.suse.de (Postfix) with ESMTP id 6BE43BDEDF
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 10:41:43 +0100 (CET)
-Date: Wed, 28 Jan 2004 10:41:42 +0100
-From: Thorsten Kukuk <kukuk@suse.de>
+	by jazzswing.ncsc.mil  with ESMTP id i0SDqqxr016295
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 13:52:52 GMT
+Received: from internode.on.net (bep1.adl2.internode.on.net [203.16.214.212])
+	by jazzswing.ncsc.mil  with ESMTP id i0SDqnYc016280
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 13:52:50 GMT
+From: "keen@internode.on.net" <keen@internode.on.net>
+Reply-to: keen@internode.on.net
 To: selinux@tycho.nsa.gov
-Subject: libselinux/getpeercon/compiler warning on 64bit Archs
-Message-ID: <20040128094142.GA24926@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Problem with selinux configuration
+Date: Thu, 29 Jan 2004 00:50:45 +1100
+Message-id: <4017be35.30f.6615.1100265729@internode.on.net>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="-=_pop1.adl2.internode.on.net4017be3a"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+
+---=_pop1.adl2.internode.on.net4017be3a
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
 Hi,
 
-On 64bit architectures, I get the follwoing compiler warnings:
+I am trying to install selinux with a plain vanilla kernel
+2.6.0 (released 18 Dec 2003) from kernel.org using RH9
 
-getpeercon.c:26: warning: passing arg 5 of `getsockopt' from incompatible pointer type
-getpeercon.c:36: warning: passing arg 5 of `getsockopt' from incompatible pointer type
+I have downloaded
+http://www.nsa.gov/selinux/archives/selinux-usr-2003120509.tgz
+and followed the steps in selinux-usr/selinux-doc/README
+file.
 
-The fix is simple, the variable "size" in getpeercon() should be from
-type "socklen_t", not "ssize_t".
+However I am particularly stuck at step 2, specifically:
 
-  Thorsten
+"After installing the new SELinux packages (particularly
+libselinux),
+you can build and install the SELinux-patched packages as
+follows:
+	cd SRPMS
+	rpmbuild --rebuild *.src.rpm
+	rpm -Uvh --force /usr/src/redhat/RPMS/*/*.rpm"
 
--- 
-Thorsten Kukuk       http://www.suse.de/~kukuk/        kukuk@suse.de
-SuSE Linux AG        Maxfeldstr. 5                 D-90409 Nuernberg
---------------------------------------------------------------------    
-Key fingerprint = A368 676B 5E1B 3E46 CFCE  2D97 F8FD 4E23 56C6 FB4B
+I have followed every part of the README including the
+"Note" about rebuilding SRPMS requiring the 4 packages from
+Fedora(libcroco-devel, sharutils, elfutils-devel,
+autoconf213), which I had downloaded and installed them as
+well. I have tried both the "rpmbuild --rebuild *.src.rpm"
+as well as "rpmbuild --define "WITH_SELINUX 1" --rebuild
+SRPMS/*.src.rpm" found in the comments of selinux-usr/build
+file both with similar error about the automake errors.
+
+Attached with this email is the output which shows the
+error. Could anyone point me in the right direction on what
+went wrong?
+
+Thank you for any useful suggestions in advance.
+
+Keen
+
+---=_pop1.adl2.internode.on.net4017be3a
+Content-Type: application/octet-stream; name="rebuild-err.log"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="rebuild-err.log"
+
+W3Jvb3RAaG9zdCBzZWxpbnV4LXVzcl0jIHJwbWJ1aWxkIC0tZGVmaW5lICJX
+SVRIX1NFTElOVVggMSIgLS1yZWJ1aWxkIFNSUE1TLyouc3JjLnJwbQpJbnN0
+YWxsaW5nIFNSUE1TL2NvcmV1dGlscy01LjAtMzIuc2VsLnNyYy5ycG0KRXhl
+Y3V0aW5nKCVwcmVwKTogL2Jpbi9zaCAtZSAvdmFyL3RtcC9ycG0tdG1wLjk3
+ODUyCisgdW1hc2sgMDIyCisgY2QgL3Vzci9zcmMvcmVkaGF0L0JVSUxECisg
+TEFORz1DCisgZXhwb3J0IExBTkcKKyBjZCAvdXNyL3NyYy9yZWRoYXQvQlVJ
+TEQKKyBybSAtcmYgY29yZXV0aWxzLTUuMAorIC91c3IvYmluL2J6aXAyIC1k
+YyAvdXNyL3NyYy9yZWRoYXQvU09VUkNFUy9jb3JldXRpbHMtNS4wLnRhci5i
+ejIKKyB0YXIgLXhmIC0KKyBTVEFUVVM9MAorICdbJyAwIC1uZSAwICddJwor
+IGNkIGNvcmV1dGlscy01LjAKKysgL3Vzci9iaW4vaWQgLXUKKyAnWycgMCA9
+IDAgJ10nCisgL2Jpbi9jaG93biAtUmhmIHJvb3QgLgorKyAvdXNyL2Jpbi9p
+ZCAtdQorICdbJyAwID0gMCAnXScKKyAvYmluL2NoZ3JwIC1SaGYgcm9vdCAu
+CisgL2Jpbi9jaG1vZCAtUmYgYStyWCxnLXcsby13IC4KKyBlY2hvICdQYXRj
+aCAjMTAxIChmaWxldXRpbHMtNC4wLXNwYWNlZGlyLnBhdGNoKTonClBhdGNo
+ICMxMDEgKGZpbGV1dGlscy00LjAtc3BhY2VkaXIucGF0Y2gpOgorIHBhdGNo
+IC1wMSAtYiAtLXN1ZmZpeCAuc3BhY2UgLXMKKyBlY2hvICdQYXRjaCAjMTAy
+IChmaWxldXRpbHMtNC4wcy1zcGFyYy5wYXRjaCk6JwpQYXRjaCAjMTAyIChm
+aWxldXRpbHMtNC4wcy1zcGFyYy5wYXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0t
+c3VmZml4IC5zcGFyYyAtcworIGVjaG8gJ1BhdGNoICMxMDMgKGNvcmV1dGls
+cy00LjUuMi10cnVuYy5wYXRjaCk6JwpQYXRjaCAjMTAzIChjb3JldXRpbHMt
+NC41LjItdHJ1bmMucGF0Y2gpOgorIHBhdGNoIC1wMCAtYiAtLXN1ZmZpeCAu
+dHJ1bmMgLXMKKyBlY2hvICdQYXRjaCAjMTA1IChjb3JldXRpbHMtNC41LjIt
+Qy5wYXRjaCk6JwpQYXRjaCAjMTA1IChjb3JldXRpbHMtNC41LjItQy5wYXRj
+aCk6CisgcGF0Y2ggLXAwIC1iIC0tc3VmZml4IC5Db3B0aW9uIC1zCisgZWNo
+byAnUGF0Y2ggIzEwNyAoZmlsZXV0aWxzLTQuMS4xMC10aW1lc3R5bGUucGF0
+Y2gpOicKUGF0Y2ggIzEwNyAoZmlsZXV0aWxzLTQuMS4xMC10aW1lc3R5bGUu
+cGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAudGltZXN0eWxlIC1z
+CisgZWNobyAnUGF0Y2ggIzEwOCAoZmlsZXV0aWxzLTQuMS41LWFmcy5wYXRj
+aCk6JwpQYXRjaCAjMTA4IChmaWxldXRpbHMtNC4xLjUtYWZzLnBhdGNoKToK
+KyBwYXRjaCAtcDEgLWIgLS1zdWZmaXggLmFmcyAtcworIGVjaG8gJ1BhdGNo
+ICMxMTEgKGNvcmV1dGlscy00LjUuMi1kdW1idGVybS5wYXRjaCk6JwpQYXRj
+aCAjMTExIChjb3JldXRpbHMtNC41LjItZHVtYnRlcm0ucGF0Y2gpOgorIHBh
+dGNoIC1wMCAtYiAtLXN1ZmZpeCAuZHVtYnRlcm0gLXMKKyBlY2hvICdQYXRj
+aCAjMTEyIChmaWxldXRpbHMtNC4wdS1nbGliYzIyLnBhdGNoKTonClBhdGNo
+ICMxMTIgKGZpbGV1dGlscy00LjB1LWdsaWJjMjIucGF0Y2gpOgorIHBhdGNo
+IC1wMSAtYiAtLXN1ZmZpeCAuZ2xpYmMyMiAtcworIGVjaG8gJ1BhdGNoICMx
+MTQgKGZpbGV1dGlscy00LjEtcmVzdG9yZWNvbG9yLnBhdGNoKTonClBhdGNo
+ICMxMTQgKGZpbGV1dGlscy00LjEtcmVzdG9yZWNvbG9yLnBhdGNoKToKKyBw
+YXRjaCAtcDEgLWIgLS1zdWZmaXggLnJlc3RvcmUgLXMKKyBlY2hvICdQYXRj
+aCAjMTE1IChmaWxldXRpbHMtNC4xLjEtRkJvcHRpb25zLnBhdGNoKTonClBh
+dGNoICMxMTUgKGZpbGV1dGlscy00LjEuMS1GQm9wdGlvbnMucGF0Y2gpOgor
+IHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAuRkJvcHRzIC1zCisgZWNobyAnUGF0
+Y2ggIzExNTUgKGZpbGV1dGlscy00LjEtZm9yY2Utb3B0aW9uLS1vdmVycmlk
+ZS0taW50ZXJhY3RpdmUtb3B0aW9uLnBhdGNoKTonClBhdGNoICMxMTU1IChm
+aWxldXRpbHMtNC4xLWZvcmNlLW9wdGlvbi0tb3ZlcnJpZGUtLWludGVyYWN0
+aXZlLW9wdGlvbi5wYXRjaCk6CisgcGF0Y2ggLXAxIC1zCisgZWNobyAnUGF0
+Y2ggIzExNiAoZmlsZXV0aWxzLTQuMS1kaXJjb2xvcnNfYy5wYXRjaCk6JwpQ
+YXRjaCAjMTE2IChmaWxldXRpbHMtNC4xLWRpcmNvbG9yc19jLnBhdGNoKToK
+KyBwYXRjaCAtcDEgLXMKKyBlY2hvICdQYXRjaCAjMTE3IChmaWxldXRpbHMt
+NC4xLWxzX2MucGF0Y2gpOicKUGF0Y2ggIzExNyAoZmlsZXV0aWxzLTQuMS1s
+c19jLnBhdGNoKToKKyBwYXRjaCAtcDEgLXMKKyBlY2hvICdQYXRjaCAjMTE4
+IChmaWxldXRpbHMtNC4xLWxzX2gucGF0Y2gpOicKUGF0Y2ggIzExOCAoZmls
+ZXV0aWxzLTQuMS1sc19oLnBhdGNoKToKKyBwYXRjaCAtcDEgLXMKKyBlY2hv
+ICdQYXRjaCAjMTUzIChmaWxldXRpbHMtNC4xLjEwLXV0bXAucGF0Y2gpOicK
+UGF0Y2ggIzE1MyAoZmlsZXV0aWxzLTQuMS4xMC11dG1wLnBhdGNoKToKKyBw
+YXRjaCAtcDEgLXMKKyBlY2hvICdQYXRjaCAjMTgyIChjb3JldXRpbHMtNC41
+LjMtYWNsLnBhdGNoKTonClBhdGNoICMxODIgKGNvcmV1dGlscy00LjUuMy1h
+Y2wucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAuYWNsIC1zCisg
+ZWNobyAnUGF0Y2ggIzE4MyAoY29yZXV0aWxzLTQuNS4zLWFjbGNvbXBpbGUu
+cGF0Y2gpOicKUGF0Y2ggIzE4MyAoY29yZXV0aWxzLTQuNS4zLWFjbGNvbXBp
+bGUucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAuYWNsY29tcGls
+ZSAtcworIGVjaG8gJ1BhdGNoICMxODggKGNvcmV1dGlscy00LjUuMy1zdWlk
+ZmFpbC5wYXRjaCk6JwpQYXRjaCAjMTg4IChjb3JldXRpbHMtNC41LjMtc3Vp
+ZGZhaWwucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAuc3VpZGZh
+aWwgLXMKKyBlY2hvICdQYXRjaCAjMTg5IChjb3JldXRpbHMtNC41LjMtc3Rv
+bmVhZ2UucGF0Y2gpOicKUGF0Y2ggIzE4OSAoY29yZXV0aWxzLTQuNS4zLXN0
+b25lYWdlLnBhdGNoKToKKyBwYXRjaCAtcDEgLWIgLS1zdWZmaXggLnN0b25l
+YWdlIC1zCisgZWNobyAnUGF0Y2ggIzUwMCAodGV4dHV0aWxzLTIuMC4xNy1t
+ZW0ucGF0Y2gpOicKUGF0Y2ggIzUwMCAodGV4dHV0aWxzLTIuMC4xNy1tZW0u
+cGF0Y2gpOgorIHBhdGNoIC1wMSAtcworIGVjaG8gJ1BhdGNoICM1MDIgKHRl
+eHR1dGlscy0yLjAuMjEtbWFuLnBhdGNoKTonClBhdGNoICM1MDIgKHRleHR1
+dGlscy0yLjAuMjEtbWFuLnBhdGNoKToKKyBwYXRjaCAtcDEgLXMKKyBlY2hv
+ICdQYXRjaCAjNzAyIChzaC11dGlscy0yLjAtdXRtcC5wYXRjaCk6JwpQYXRj
+aCAjNzAyIChzaC11dGlscy0yLjAtdXRtcC5wYXRjaCk6CisgcGF0Y2ggLXAx
+IC1iIC0tc3VmZml4IC51dG1wIC1zCisgZWNobyAnUGF0Y2ggIzcwMyAoc2gt
+dXRpbHMtMi4wLjExLWRhdGVtYW4ucGF0Y2gpOicKUGF0Y2ggIzcwMyAoc2gt
+dXRpbHMtMi4wLjExLWRhdGVtYW4ucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAt
+LXN1ZmZpeCAuZGF0ZW1hbiAtcworIGVjaG8gJ1BhdGNoICM3MDQgKHNoLXV0
+aWxzLTEuMTYtcGF0aHMucGF0Y2gpOicKUGF0Y2ggIzcwNCAoc2gtdXRpbHMt
+MS4xNi1wYXRocy5wYXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0tc3VmZml4IC5w
+YXRocyAtcworIGVjaG8gJ1BhdGNoICM3MDYgKGNvcmV1dGlscy00LjUuMi1w
+YW0ucGF0Y2gpOicKUGF0Y2ggIzcwNiAoY29yZXV0aWxzLTQuNS4yLXBhbS5w
+YXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0tc3VmZml4IC5wYW0gLXMKKyBlY2hv
+ICdQYXRjaCAjNzEwIChzaC11dGlscy0yLjAtcmZjODIyLnBhdGNoKTonClBh
+dGNoICM3MTAgKHNoLXV0aWxzLTIuMC1yZmM4MjIucGF0Y2gpOgorIHBhdGNo
+IC1wMSAtYiAtLXN1ZmZpeCAucmZjODIyIC1zCisgZWNobyAnUGF0Y2ggIzcx
+MSAoY29yZXV0aWxzLTQuNS4zLWhuYW1lLnBhdGNoKTonClBhdGNoICM3MTEg
+KGNvcmV1dGlscy00LjUuMy1obmFtZS5wYXRjaCk6CisgcGF0Y2ggLXAxIC1i
+IC0tc3VmZml4IC5obmFtZSAtcworIGVjaG8gJ1BhdGNoICM3MTIgKGNvcmV1
+dGlscy00LjUuMy1jaGRpci5wYXRjaCk6JwpQYXRjaCAjNzEyIChjb3JldXRp
+bHMtNC41LjMtY2hkaXIucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZp
+eCAuY2hkaXIgLXMKKyBlY2hvICdQYXRjaCAjNzEzIChjb3JldXRpbHMtNC41
+LjMtbGFuZ2luZm8ucGF0Y2gpOicKUGF0Y2ggIzcxMyAoY29yZXV0aWxzLTQu
+NS4zLWxhbmdpbmZvLnBhdGNoKToKKyBwYXRjaCAtcDEgLWIgLS1zdWZmaXgg
+LmxhbmdpbmZvIC1zCisgZWNobyAnUGF0Y2ggIzcxNCAoY29yZXV0aWxzLTQu
+NS4zLXByaW50Zi1sbC5wYXRjaCk6JwpQYXRjaCAjNzE0IChjb3JldXRpbHMt
+NC41LjMtcHJpbnRmLWxsLnBhdGNoKToKKyBwYXRjaCAtcDEgLWIgLS1zdWZm
+aXggLnByaW50Zi1sbCAtcworIGVjaG8gJ1BhdGNoICM3MTUgKGNvcmV1dGls
+cy00LjUuMy1zeXNpbmZvLnBhdGNoKTonClBhdGNoICM3MTUgKGNvcmV1dGls
+cy00LjUuMy1zeXNpbmZvLnBhdGNoKToKKyBwYXRjaCAtcDEgLWIgLS1zdWZm
+aXggLnN5c2luZm8gLXMKKyBlY2hvICdQYXRjaCAjNzE2IChjb3JldXRpbHMt
+NC41LjMtbm9nZXRsaW5lLnBhdGNoKTonClBhdGNoICM3MTYgKGNvcmV1dGls
+cy00LjUuMy1ub2dldGxpbmUucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1
+ZmZpeCAubm9nZXRsaW5lIC1zCisgZWNobyAnUGF0Y2ggIzgwMCAoY29yZXV0
+aWxzLTQuNS4zLWkxOG4ucGF0Y2gpOicKUGF0Y2ggIzgwMCAoY29yZXV0aWxz
+LTQuNS4zLWkxOG4ucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAu
+aTE4biAtcworIGVjaG8gJ1BhdGNoICM5MDAgKGNvcmV1dGlscy00LjUuMy10
+ZXN0LWJ1Z3MucGF0Y2gpOicKUGF0Y2ggIzkwMCAoY29yZXV0aWxzLTQuNS4z
+LXRlc3QtYnVncy5wYXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0tc3VmZml4IC50
+ZXN0LWJ1Z3MgLXMKKyBlY2hvICdQYXRjaCAjOTAxIChjb3JldXRpbHMtNC41
+LjMtc2lnbmFsLnBhdGNoKTonClBhdGNoICM5MDEgKGNvcmV1dGlscy00LjUu
+My1zaWduYWwucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAuc2ln
+bmFsIC1zCisgZWNobyAnUGF0Y2ggIzkwMyAoY29yZXV0aWxzLTQuNS4zLW1h
+bnBhZ2UucGF0Y2gpOicKUGF0Y2ggIzkwMyAoY29yZXV0aWxzLTQuNS4zLW1h
+bnBhZ2UucGF0Y2gpOgorIHBhdGNoIC1wMSAtYiAtLXN1ZmZpeCAubWFucGFn
+ZSAtcworIGVjaG8gJ1BhdGNoICM5MDQgKGNvcmV1dGlscy01LjAtYWxsb3df
+b2xkX29wdGlvbnMucGF0Y2gpOicKUGF0Y2ggIzkwNCAoY29yZXV0aWxzLTUu
+MC1hbGxvd19vbGRfb3B0aW9ucy5wYXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0t
+c3VmZml4IC5hbGxvd19vbGRfb3B0aW9ucyAtcworIGVjaG8gJ1BhdGNoICM5
+MDUgKGNvcmV1dGlscy01LjAtOTA1NjMucGF0Y2gpOicKUGF0Y2ggIzkwNSAo
+Y29yZXV0aWxzLTUuMC05MDU2My5wYXRjaCk6CisgcGF0Y2ggLXAwIC1iIC0t
+c3VmZml4IC45MDU2MyAtcworIGVjaG8gJ1BhdGNoICM5MDYgKGNvcmV1dGls
+cy01LjAtZGF0ZWFsaWduLnBhdGNoKTonClBhdGNoICM5MDYgKGNvcmV1dGls
+cy01LjAtZGF0ZWFsaWduLnBhdGNoKToKKyBwYXRjaCAtcDEgLWIgLS1zdWZm
+aXggLmRhdGVhbGlnbiAtcworIGVjaG8gJ1BhdGNoICM5MDcgKGNvcmV1dGls
+cy1sYXJnZWZpbGUucGF0Y2gpOicKUGF0Y2ggIzkwNyAoY29yZXV0aWxzLWxh
+cmdlZmlsZS5wYXRjaCk6CisgcGF0Y2ggLXAxIC1iIC0tc3VmZml4IC5sYXJn
+ZWZpbGUgLXMKKyBlY2hvICdQYXRjaCAjOTA4IChjb3JldXRpbHMtc2VsaW51
+eC5wYXRjaCk6JwpQYXRjaCAjOTA4IChjb3JldXRpbHMtc2VsaW51eC5wYXRj
+aCk6CisgcGF0Y2ggLXAxIC1iIC0tc3VmZml4IC5zZWxpbnV4IC1zCisgcGVy
+bCAtcGkgLWUgcy9iYXNpYy0xLy9nIHRlc3RzL3N0dHkvTWFrZWZpbGUuYW0g
+dGVzdHMvc3R0eS9NYWtlZmlsZS5pbgorIGV4aXQgMApFeGVjdXRpbmcoJWJ1
+aWxkKTogL2Jpbi9zaCAtZSAvdmFyL3RtcC9ycG0tdG1wLjY2NTcwCisgdW1h
+c2sgMDIyCisgY2QgL3Vzci9zcmMvcmVkaGF0L0JVSUxECisgY2QgY29yZXV0
+aWxzLTUuMAorIExBTkc9QworIGV4cG9ydCBMQU5HCisgdG91Y2ggYWNsb2Nh
+bC5tNCBjb25maWd1cmUgY29uZmlnLmhpbiBNYWtlZmlsZS5pbiBkb2MvTWFr
+ZWZpbGUuaW4gbGliL01ha2VmaWxlLmluIG00L01ha2VmaWxlLmluIG1hbi9N
+YWtlZmlsZS5pbiAKc3JjL01ha2VmaWxlLmluIHRlc3RzL01ha2VmaWxlLmlu
+IHRlc3RzL2Jhc2VuYW1lL01ha2VmaWxlLmluIHRlc3RzL2NoZ3JwL01ha2Vm
+aWxlLmluIHRlc3RzL2NobW9kL01ha2VmaWxlLmluIAp0ZXN0cy9jaG93bi9N
+YWtlZmlsZS5pbiB0ZXN0cy9jcC9NYWtlZmlsZS5pbiB0ZXN0cy9jdXQvTWFr
+ZWZpbGUuaW4gdGVzdHMvZGF0ZS9NYWtlZmlsZS5pbiB0ZXN0cy9kZC9NYWtl
+ZmlsZS5pbiAKdGVzdHMvZGlyY29sb3JzL01ha2VmaWxlLmluIHRlc3RzL2R1
+L01ha2VmaWxlLmluIHRlc3RzL2V4cHIvTWFrZWZpbGUuaW4gdGVzdHMvZmFj
+dG9yL01ha2VmaWxlLmluIHRlc3RzL2ZtdC9NYWtlZmlsZS5pbiAKdGVzdHMv
+aGVhZC9NYWtlZmlsZS5pbiB0ZXN0cy9pbnN0YWxsL01ha2VmaWxlLmluIHRl
+c3RzL2pvaW4vTWFrZWZpbGUuaW4gdGVzdHMvbG4vTWFrZWZpbGUuaW4gdGVz
+dHMvbHMtMi9NYWtlZmlsZS5pbiAKdGVzdHMvbHMvTWFrZWZpbGUuaW4gdGVz
+dHMvbWQ1c3VtL01ha2VmaWxlLmluIHRlc3RzL21pc2MvTWFrZWZpbGUuaW4g
+dGVzdHMvbWtkaXIvTWFrZWZpbGUuaW4gdGVzdHMvbXYvTWFrZWZpbGUuaW4g
+CnRlc3RzL29kL01ha2VmaWxlLmluIHRlc3RzL3ByL01ha2VmaWxlLmluIHRl
+c3RzL3JtL01ha2VmaWxlLmluIHRlc3RzL3JtZGlyL01ha2VmaWxlLmluIHRl
+c3RzL3NlcS9NYWtlZmlsZS5pbiAKdGVzdHMvc2hhMXN1bS9NYWtlZmlsZS5p
+biB0ZXN0cy9zaHJlZC9NYWtlZmlsZS5pbiB0ZXN0cy9zb3J0L01ha2VmaWxl
+LmluIHRlc3RzL3N0dHkvTWFrZWZpbGUuaW4gdGVzdHMvc3VtL01ha2VmaWxl
+LmluIAp0ZXN0cy90YWMvTWFrZWZpbGUuaW4gdGVzdHMvdGFpbC0yL01ha2Vm
+aWxlLmluIHRlc3RzL3RhaWwvTWFrZWZpbGUuaW4gdGVzdHMvdGVzdC9NYWtl
+ZmlsZS5pbiB0ZXN0cy90b3VjaC9NYWtlZmlsZS5pbiAKdGVzdHMvdHIvTWFr
+ZWZpbGUuaW4gdGVzdHMvdHNvcnQvTWFrZWZpbGUuaW4gdGVzdHMvdW5leHBh
+bmQvTWFrZWZpbGUuaW4gdGVzdHMvdW5pcS9NYWtlZmlsZS5pbiB0ZXN0cy93
+Yy9NYWtlZmlsZS5pbgorIGNwIC91c3Ivc3JjL3JlZGhhdC9TT1VSQ0VTL2hl
+bHAybWFuIG1hbi9oZWxwMm1hbgorIGNobW9kICt4IG1hbi9oZWxwMm1hbgor
+KyBwd2QKKyBIRUxQMk1BTj0vdXNyL3NyYy9yZWRoYXQvQlVJTEQvY29yZXV0
+aWxzLTUuMC9tYW4vaGVscDJtYW4KKyBleHBvcnQgSEVMUDJNQU4KKyBhY2xv
+Y2FsIC1JIG00CisgYXV0b2NvbmYgLS1mb3JjZQorIGF1dG9tYWtlIC0tY29w
+eSAtLWZvcmNlCmNvbmZpZ3VyZS5hYzo2OiBgYXV0b21ha2UgcmVxdWlyZXMg
+YEFNX0NPTkZJR19IRUFERVInLCBub3QgYEFDX0NPTkZJR19IRUFERVInCmNv
+bmZpZ3VyZS5hYzo5OiByZXF1aXJlIHZlcnNpb24gMS42YiwgYnV0IGhhdmUg
+MS42LjMKZXJyb3I6IEJhZCBleGl0IHN0YXR1cyBmcm9tIC92YXIvdG1wL3Jw
+bS10bXAuNjY1NzAgKCVidWlsZCkKCgpSUE0gYnVpbGQgZXJyb3JzOgogICAg
+QmFkIGV4aXQgc3RhdHVzIGZyb20gL3Zhci90bXAvcnBtLXRtcC42NjU3MCAo
+JWJ1aWxkKQpbcm9vdEBob3N0IHNlbGludXgtdXNyXSMK
+
+---=_pop1.adl2.internode.on.net4017be3a--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
