@@ -1,64 +1,77 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7PG9PrT006581
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 12:09:26 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7PG9OuQ014574
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 16:09:25 GMT
-Date: Wed, 25 Aug 2004 17:20:35 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: policy patch for tunable "/dev/hdc is removable drive"
-Message-ID: <20040825162035.GA7260@lkcl.net>
-References: <20040823214228.GA13677@lkcl.net> <200408252140.41362.russell@coker.com.au> <20040825135316.GF4241@lkcl.net> <200408252357.08855.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7PGD4rT006616
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 12:13:04 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7PGD3uQ014670
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 16:13:03 GMT
+Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
+References: 
+	 <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
+	 <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil>
+	 <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Message-Id: <1093450284.6743.194.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200408252357.08855.russell@coker.com.au>
+Date: Wed, 25 Aug 2004 12:11:24 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Aug 25, 2004 at 11:57:08PM +1000, Russell Coker wrote:
-> On Wed, 25 Aug 2004 23:53, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > > --- orig/Makefile
-> > > > +++ mod/Makefile
-> > > > @@ -145,6 +145,7 @@
-> > > >         @grep -v "^/root" $@.tmp > $@.root
-> > > >         @/usr/sbin/genhomedircon . $@.root  > $@
-> > > >         @grep "^/root" $@.tmp >> $@
-> > > > +       @for i in /proc/ide/hd*/media; do grep -q cdrom $$i && echo $$i
-> > > > | awk -F / '{ print
-> > > > "/dev/"$$4"\t-b\tsystem_u:object_r:removable_device_t"}'
-> > > >
-> > > > >> $@; done @-rm $@.tmp $@.root
-> > >
-> > > Good work, but there's one minor bug.
-> >
-> >  would it work with udev, too?
-> 
-> udev uses the same file_contexts file, so it should work.  The only possible 
-> problem I can think of is that if you have a machine which boots without IDE 
-> disk access and which has no IDE modules loaded at the time that it has the 
-> file_contexts file generated then this would not work (think of servers that 
-> have IDE CD-ROM or DVD drives but hardware RAID or SCSI for main storage).
-> 
-> Of course this is not necessarily a problem, Fedora kernels have the IDE 
-> drivers statically linked into the kernel, and there were some issues last 
-> time I tried building a Debian kernel with IDE as a module so the number of 
-> people who might get hit by this is very small.
+On Wed, 2004-08-25 at 11:50, Stephen Smalley wrote:
+> I haven't tracked down the cause yet, but a kernel built with all three
+> patches (list_replace_rcu, atomic_inc_return, and selinux.rcu take3) on
+> x86 doesn't allow an enforcing boot; it begins auditing denials _before_
+> the initial policy load (which should never happen, as
+> security_compute_av allows everything until the policy is loaded), and
+> prevents /sbin/init from loading the policy.
+
+-int avc_lookup(u32 ssid, u32 tsid, u16 tclass,
+-               u32 requested, struct avc_entry_ref *aeref)
++struct avc_node *avc_lookup(u32 ssid, u32 tsid, u16 tclass, u32 requested)
+ {
+ 	struct avc_node *node;
+-	int probes, rc = 0;
++	int probes;
  
- ... initrd.  initial ramdisk.  contains all ide drivers, 'n'stuff.
-
- i always always start from herbert's standard debian config files,
- add the selinux configs, then run make-kpkg --initrd kernel-image.
-
- then do a dpkg -i on the resultant .deb.
-
- that way i stand a good chance of minimising any potential problems
- with kernel/thingy inconsistencies.
-
- l.
+ 	avc_cache_stats_incr(AVC_CAV_LOOKUPS);
+ 	node = avc_search_node(ssid, tsid, tclass,&probes);
  
+ 	if (node && ((node->ae.avd.decided & requested) == requested)) {
+ 		avc_cache_stats_incr(AVC_CAV_HITS);
+ 		avc_cache_stats_add(AVC_CAV_PROBES,probes);
+-		aeref->ae = &node->ae;
+ 		goto out;
+ 	}
+ 
+ 	avc_cache_stats_incr(AVC_CAV_MISSES);
+-	rc = -ENOENT;
+ out:
+-	return rc;
++	return node;
++}
+
+Ah, I think the bug is here.  avc_search_node() can return a node that
+matches the (ssid,tsid,tclass) triple but doesn't include all of the
+necessary decisions (the decided vector), but your avc_lookup() code
+falls through nonetheless and returns it.  This happens normally during
+initialization prior to policy load, where security_compute_av is only
+adding decisions as they are requested.  Notice that the original code
+set rc to ENOENT on that path; in your case, you need to reset node to
+NULL.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
