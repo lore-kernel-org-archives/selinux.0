@@ -1,76 +1,52 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA24453
-	for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2002 06:49:56 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id LAA10481
-	for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2002 11:47:59 GMT
-Received: from web40008.mail.yahoo.com (web40008.mail.yahoo.com [66.218.78.26])
-	by jazzswing.ncsc.mil  with SMTP id LAA10477
-	for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2002 11:47:58 GMT
-Message-ID: <20021104114948.17224.qmail@web40008.mail.yahoo.com>
-Date: Mon, 4 Nov 2002 03:49:48 -0800 (PST)
-From: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: When should I upgrade SELinux?
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200211040224.48164.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA24589
+	for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2002 07:27:38 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA17232
+	for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2002 12:25:40 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id MAA17228 for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2002 12:25:39 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 1403A92713
+	for <selinux@tycho.nsa.gov>; Mon,  4 Nov 2002 23:27:34 +1100 (EST)
+Received: from lyta (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id B8F863530
+	for <selinux@tycho.nsa.gov>; Mon,  4 Nov 2002 13:27:26 +0100 (CET)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: can_network()
+Date: Mon, 4 Nov 2002 13:27:26 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <200211041327.26273.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+It's difficult to imagine a program that needs can_network() access but which 
+does not need to read /etc/resolv.conf.
 
---- Russell Coker <russell@coker.com.au> wrote:
-> On Mon, 4 Nov 2002 01:39, Brad Chapman wrote:
-> > I've been reading a lot on this list about changes to the core
-> > SELinux policy system. I've been trying to get 2.4.19 SELinux working
-> > with RH8, but haven't had very much time (been busy fixing hardware
-> > problems with other machines).
-> >
-> > Should I upgrade to the new version of SELinux, Russell's policy, and to
-> > 2.4.20 when it becomes available? Or should I upgrade now?
-> 
-> Currently my policy is not very different from the CVS policy, so it may be 
-> most conveniant for people who don't use Debian to get the policy from the 
-> Sourceforge CVS.
+Currently every time we write policy for such programs we have separate config 
+lines for resolv_conf_t and can_network.  This makes policy files longer and 
+more difficult to read, and when requirements change and entries are to be 
+removed from a policy file then it's more likely that something will be 
+missed.
 
-OK. I will try to get the CVS and use that to compile with.
+I think that we should either include a statement granting access to 
+resolv_conf_t in the can_network() macro, or we should have a separate macro 
+which calls can_network() and also grants access to resolv_conf_t.
 
-> 
-> I highly recommend getting the V12 policy.  Everyone who is actively doing 
-> things with SE Linux is tracking the latest versions, and not having the 
-> latest will make it more difficult for you to get support.
+I also suspect that access to etc_t files will be necessary for such a macro 
+too, but in the few minutes I've been thinking about this I haven't 
+determined a suitable case to prove this.
 
-ACK.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-> 
-> When 2.4.20 comes out I am not likely to support it as fast as I have 
-> supported previous versions due to the fact that the LSM kernel patch is not 
-> containing all the necessary code (so I will have to do more coding to get it
-
-> to work properly).  So full support for 2.4.20 may wait until the next NSA 
-> release after 2.4.20 is released, and therefore there's not much point in 
-> basing your upgrade decisions on the potential of installing 2.4.20 IMHO.
-
-All right. I was just wondering, since I would like to use 2.4.20, but don't
-have to if there will be issues with it and SELinux. I'll try upgrading some-
-time this week.
-
-> 
-> -- 
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
->
-
-Brad 
-
-
-__________________________________________________
-Do you Yahoo!?
-HotJobs - Search new jobs daily now
-http://hotjobs.yahoo.com/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
