@@ -1,44 +1,50 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA29320
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 04:02:16 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h2392FI04109
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 09:02:15 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA29302
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 04:01:09 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id IAA07260
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 08:57:52 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h2392Ef04105 for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 09:02:14 GMT
+	by jazzswing.ncsc.mil  with ESMTP id IAA07256
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 08:57:50 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id D39E39258D
+	for <selinux@tycho.nsa.gov>; Mon,  3 Mar 2003 20:00:48 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 45EE07C62
+	for <selinux@tycho.nsa.gov>; Sat,  1 Mar 2003 18:51:32 +0100 (CET)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: forrest whitcher <fw@fwsystems.com>, <selinux@tycho.nsa.gov>
-Subject: Re: SELinux and ReiserFS
-Date: Sat, 1 Mar 2003 18:58:13 +0100
-Cc: "Sherman Boyd" <ShermanB@clh.com>
-References: <D17BA970DE186447AD8A5A2A117C2C1503E00E@bulbasaur.internal.clh.com> <200303011015.35871.russell@coker.com.au> <20030301123458.5ff03d00.fw@fwsystems.com>
-In-Reply-To: <20030301123458.5ff03d00.fw@fwsystems.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: SE play machine
+Date: Sat, 1 Mar 2003 18:51:31 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200303011858.13333.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200303011851.31023.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 1 Mar 2003 18:34, forrest whitcher wrote:
-> Presently, as russell indicates ext[23] and reiserfs are coded into the
-> policy and scripts. I have done test installations using JFS and found
-> that PSID's seem to work fine, JFS developers assert that there are no
-> plans to change the inode semantics.
+Someone claimed to have "0wn3d" the machine.  They wrote a perl script that 
+did a "kill -9" on any process for a user that wasn't logged in from their 
+machine.
 
-I think that sounds like a good justification for including a JFS entry in the 
-default policy.
+That this "worked" is no great surprise, when you have several people logging 
+into the same account with the same privs then there's always the risk of 
+someone doing that.
 
-Is it's identifier just "jfs"?  I'll put it in the next release of my policy 
-tree.
 
-> BTW, as JFS is now incorporated into the mainline kernel it'd be
-> great to see that incorporated into the SEL patches (maybe it already
-> is, I'm still working with the 2.4.19 SEL kernel).
+Also I have noticed a couple of people trying to run X sessions from the play 
+machine!  In one case the user didn't realise that their ssh client had a 
+default configuration that permitted X tunneling, in another case the user 
+was deliberately trying to run an xterm on the box and tried several 
+different ways of doing it.
 
-Also it would be good if someone did some tests with XFS.  XFS is the other 
-major file system that's getting used at the moment.
+For reference, when you encounter someone who doesn't believe that X 
+forwarding is a security issue then you can install imagemagick and run 
+"import -window root file.jpg" to create a copy of what's on their screen to 
+show one part of the problem (the other part is reading the keyboard - for 
+which I have not found a conveniant demonstration program).
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
