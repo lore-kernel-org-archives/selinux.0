@@ -1,42 +1,45 @@
-Subject: Re: Proposed change to install
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: kwade@redhat.com
-Cc: SELinux <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1104246827.4370.6.camel@erato.phig.org>
-References: <41D00FE7.2070203@redhat.com>
-	 <1104158005.15615.84.camel@moss-spartans.epoch.ncsc.mil>
-	 <1104246827.4370.6.camel@erato.phig.org>
-Content-Type: text/plain
-Message-Id: <1104249590.21391.56.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Tue, 28 Dec 2004 10:59:50 -0500
+Message-ID: <20041228174155.26868.qmail@web51510.mail.yahoo.com>
+Date: Tue, 28 Dec 2004 09:41:55 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: Issue on labeling a packet? (was Re: Issue on getting security context of socket and message)
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <1104176897.15615.177.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-12-28 at 10:13, Karsten Wade wrote:
-> OTOH, not having some error to work with makes it more difficult to
-> troubleshoot, in the case where labeling is desired but the user doesn't
-> have permission to label.  Something that conveys this:
-> 
-> "Error - labeling the file(s) foo, bar, baz failed.  Either SELinux is
-> not installed, is not an option, or you do not have permissions to
-> label.  If you think this is an error, contact your system
-> administrator."
+On Mon, 27 Dec 2004 at 14:48, Stephen Smalley wrote:
+> > On Mon, 2004-12-27 at 14:48, Park Lee wrote:
+> > Do ping replies (ICMP echo replies) belong to
+> > forwarded packet? It seems that they are not
+> > associated with a socket.
+>
+> They are associated with a special kernel socket, 
+> created during initialization by the icmp_init() 
+> function.  In 2.6, SELinux just labels all such 
+> sockets with the kernel SID.
 
-Not really an option when this relabeling is attempted by default and is
-quite likely to fail in many cases.  If the user explicitly requested
-labeling (e.g. via the existing -P or -Z options to install), then it is
-reasonable and desirable to warn them upon failure.  But for a behavior
-that is always enabled and has a fair likelihood of failure, such an
-error message will generate far too much noise and produce more user
-confusion than it will help.
+In 2.6, where are these special kernel socket (i.e.
+icmp_socket and tcp_socket) labeled with the kernel
+SID? 
+Is there any more special kernel sockets in 2.6 except
+the two that are mentioned?
+  
+Thank you.
 
-Note BTW that the patch as posted was broken with respect to the
-existing -P and -Z options and must at least be fixed in that regard.
+=====
+Best Regards,
+Park Lee
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Meet the all-new My Yahoo! - Try it today! 
+http://my.yahoo.com 
+ 
 
 
 --
