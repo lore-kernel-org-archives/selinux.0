@@ -1,51 +1,59 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBA1L0Rb025794
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 20:21:01 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hBA1KGlU001340
-	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 01:20:16 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id hBA1KFSX001331
-	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 01:20:15 GMT
-Date: Wed, 10 Dec 2003 01:20:43 +0000
-From: Dale Amon <amon@vnl.com>
-To: Tom <tom@lemuria.org>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: the /etc/selinux problem
-Message-ID: <20031210012043.GF27704@vnl.com>
-References: <20031203111746.A27632@lemuria.org>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBA2S5Rb025995
+	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 21:28:06 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hBA2S4RX025053
+	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 02:28:05 GMT
+Subject: Questions: (was Updated Release)
+From: Nick <nagray@austin.rr.com>
+Reply-To: nagray@austin.rr.com
+To: Howard Holm <hdholm@epoch.ncsc.mil>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1070656123.844.16.camel@moss-huskies>
+References: <1070656123.844.16.camel@moss-huskies>
+Content-Type: text/plain
+Message-Id: <1071023275.4060.685.camel@hawaii.efficax.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20031203111746.A27632@lemuria.org>
+Date: Tue, 09 Dec 2003 20:27:55 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Dec 03, 2003 at 11:17:47AM +0100, Tom wrote:
-> There is a hen-egg problem in /etc/dpkg/postinst.d/selinux when you
-> upgrade (don't know about fresh installs). Here's what I did to get it
-> solved:
-> 
-> dpkg --purge selinux-policy-default
-> manually rm -r /etc/selinux and rm -r /usr/share/selinux/policy
-> now vi /etc/dpkg/postinst.d/selinux and put an exit 0 right at the
-> start.
-> now dpkg -i selinux-policy-default_1.2.real-13_all.deb
-> 
-> should now work. Remove the exit 0 from the script. You may have to
+Experts,
 
-Yeah, but there's got to be a better way. Hopefully
-Russell will figure out how to make his package work
-in these 'corner cases' like you and I have been 
-seeing lately.
+#1	
+	I have finally caught up with the current version. I downloaded the
+ISOs from a mirror site. And created CDs. The first thing I noticed is
+that when you select the packages, there doesn't seem to be a way to
+select individual packages anymore. This cause me several delays in
+installing SELinux. I had to install packages that I would have selected
+during the original install. The compilation process would fail and I
+would have to start it again.
+
+Did I miss a menu or are other people noticing the same thing?
+
+
+#2
+	The next thing I noticed was that when I boot up the system tries to
+mount /selinux IAW the entry I put in the fstab (as per the README). But
+the system is giving me an error about it being mounted or in use.
+
+Or am I missing something again?
+
+#3 
+	When I log in initially as root I have the staff_r role and staff_t
+domain. I immediately get the context error of trying to access my home
+dir which is  system_u:object_r:sysadm_home_dir_t.
+
+It seems to me that this dir should be set to
+system_u:object_r:staff_home_dir_t. or system_u:object_r:root_home_dir_t
+so that this isn't a context failure. Another way to do this is set the
+root account to sysadm_r:sysadm_t initially.
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+Nick (Nix) Gray
+Senior Systems Engineer
+Bruzenak Inc.
+(512) 331-7998
 
 --
 This message was distributed to subscribers of the selinux mailing list.
