@@ -1,34 +1,65 @@
-Subject: Re: Patching SRPM utilities produces rejects on RH9
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Kratzer, James R." <JamesK@xetron.com>
-Cc: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
-In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A35@s3cin>
-References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A35@s3cin>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8BJFOLa018613
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 15:15:24 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8BJDlLY017937
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 19:13:47 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h8BJDksG017934
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 19:13:46 GMT
+Received: from moss-huskies (moss-huskies [144.51.25.7])
+	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8BJFKLX006041
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 15:15:21 -0400 (EDT)
+Subject: Mail list reliability
+From: Howard Holm <hdholm@epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Message-Id: <1063305403.16884.82.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1063307722.29990.46.camel@moss-huskies>
 Mime-Version: 1.0
-Date: 11 Sep 2003 14:36:43 -0400
+Date: 11 Sep 2003 15:15:22 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-09-11 at 14:27, Kratzer, James R. wrote:
-> I'm running Red Hat 9 and I am using the SELinux userland archive
-> selinux-usr-2003081307.tgz which had been updated for Red Hat 9.
-> 
-> I am applying the patches to the SRPMs.  Both the patches and the SRPMs are
-> provided with the userland archive downloaded from the SELinux site.  When
-> applying the patches, I am getting some rejections, where the patch utility
-> can't find the code to patch.  Most of the hunks succeed but some are
-> rejected.  The hunks that fail are failing because the code to patch cannot
-> be found in the source file.  I would like to know if this is normal when
-> patching the SRPMs with the SELinux patches.  Could it be that the patches
-> were correct for an earlier version of Red Hat but have not been updated for
-> RH9?  After patching, the SRPMs build fine even with the rejections.  
+I'm seeing an increasing number of bounces from people who aren't
+receiving all the messages sent to the mailing list.  While this is a
+small minority of the list subscribers it is increasingly widespread and
+I suspect it will get worse.  These bounces are happening when mail
+servers along the route decide that a message has been through too many
+hops (has too many received headers) and must be in a loop through some
+set of hosts.  The vast majority of mail servers seem to have the
+maximum number of hops set to 25 (the default for sendmail, if I'm not
+mistaken.)  I've seen some set as low as 15.
 
-The SRPMS include the patches already.
+The problem is that as local networks grow, people are sending mail
+through more local hosts to get to the Internet.  There are now often
+extra hops through virus scanners and such on outbound mail.  It gets to
+the mail list processors here and our processing adds a few, and
+sometimes more than a few, hops before it gets sent out, then it gets to
+your local network and probably goes through virus scanners, maybe
+forwarded through hotmail or yahoo some other redirector and even more
+hops are added.
+
+The point of my message is that if you're experiencing dropped messages
+from the list, this is a very good place to start looking.  I'd suggest
+that hosts receiving mail a few hops down in their internal networks
+start thinking about maybe 30 hops or more as occasionally necessary
+rather than 25.  15 hops, in my humble opinion, is too few even for most
+edge systems these days and will probably result in your losing at least
+a few messages from this list that are sent "the long way around."
+
+If you find you're loosing messages (typically by seeing responses to
+messages you never got) and can't control the maximum number of hops
+configuration on your hosts, you may want to think about trying to
+minimize the route to you (i.e., not forwarding through hotmail, yahoo,
+acm, extra corporate domains, etc.)
+
+Hopefully this will help some people diagnose or avoid dropped SELinux
+messages.  Since mail server configuration isn't really an SELinux
+topic, send your comments and complaints to me not the list.  Thanks.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+Howard Holm <hdholm@epoch.ncsc.mil>
+Office of Defensive Computing Research
 National Security Agency
 
 
