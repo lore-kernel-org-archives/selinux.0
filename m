@@ -1,83 +1,56 @@
-Subject: Re: Overlay Filesystem and SELinux
-From: Jaspreet Singh <jsingh@ensim.com>
-Reply-To: jsingh@ensim.com
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Dale Amon <amon@vnl.com>, Erich Schubert <erich@debian.org>,
-   Stephen Smalley <sds@epoch.ncsc.mil>, nsa <SELinux@tycho.nsa.gov>
-In-Reply-To: <20041227102704.GB6750@lkcl.net>
-References: <1098274225.12118.20.camel@jsingh.india.ensim.com>
-	 <20041020151031.GB21185@lkcl.net> <20041020174938.GL21185@lkcl.net>
-	 <1098887565.1620.15.camel@jsingh.india.ensim.com>
-	 <1104022405.29054.7.camel@wintermute.xmldesign.de>
-	 <1104050461.14672.6.camel@jsingh> <20041226125404.GA2459@vnl.com>
-	 <1104086350.19031.13.camel@jsingh>  <20041227102704.GB6750@lkcl.net>
-Content-Type: text/plain
-Date: Mon, 27 Dec 2004 16:29:33 +0530
-Message-Id: <1104145173.20250.2.camel@jsingh>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBRCwNIi017124
+	for <selinux@tycho.nsa.gov>; Mon, 27 Dec 2004 07:58:23 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBRCwQJq025922
+	for <selinux@tycho.nsa.gov>; Mon, 27 Dec 2004 12:58:26 GMT
+Message-ID: <41D00639.10102@redhat.com>
+Date: Mon, 27 Dec 2004 07:55:21 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: zia.syed@smartweb.rgu.ac.uk, selinux@tycho.nsa.gov
+Subject: Re: fedora core 3, httpd and PHP exec()
+References: <41CCEEB5.3040200@gmail.com> <200412251702.17953.russell@coker.com.au>
+In-Reply-To: <200412251702.17953.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Luke,
+Russell Coker wrote:
 
-On Mon, 2004-12-27 at 10:27 +0000, Luke Kenneth Casson Leighton wrote:
-> are the knoppix team aware of it?
-> 
-well no ... I am in touch with Tomas Matejicek of www.linux-live.org I
-think i would mail and check response. Anyone in touch with them ???
-
-I am studying selinux implementation in 2.6 kernels .. anyone with
-revelent docs .. the one on nsa website is stale.
-
-Thanx,
-Jaspreet
-
-> On Mon, Dec 27, 2004 at 12:09:10AM +0530, Jaspreet Singh wrote:
-> 
-> > Hi,
-> > 
-> > On Sun, 2004-12-26 at 12:54 +0000, Dale Amon wrote:
-> > > > That project is now .. not maintained .. and now I am involved in a much
-> > > > more sophisticated implementation called - "unionfs" . Check this link -
-> > > > www.fsl.cs.sunysb.edu/project-unionfs.html
-> > > > 
-> > > > Unionfs was initially only for 2.4 kernel, but i recently ported it to
-> > > > 2.6. The port is not official yet. But, its working.
-> > > 
-> > > Brilliant. I have been waiting for this quite literally
-> > > for years. What are the chances it will go into the
-> > > main kernel tree?
-> > 
-> > Thanx :) , Yes the official maintainers can answer that question better.
-> > For all i know unionfs is been publicized at lkml and there are talks
-> > for the same.
-> > 
-> > Till recently, it just seemed to be an academic project. But now it has
-> > gained momentum. I have used and extended 3 overlay file-systems .. and
-> > this one seemed to be most promising and stable.
-> > 
-> > It has some very good features like - adding/removing branches (i.e
-> > directories ) from a union.
-> > 
-> > But, i am just a fresh grad .. probably people out there and judge this
-> > file-system better.
-> > 
-> > Currently my port works on 2.6.0 -to- 2.6.9 kernels .. but maintainers
-> > are reviewing it .. would work on it.
-> > 
-> > Thanx,
-> > Jaspreet
-> > 
-> > -- 
-> > 
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
-> 
--- 
-
+>On Saturday 25 December 2004 15:38, Zia Syed <zia.chacho@gmail.com> wrote:
+>  
+>
+>>I'm running PHP in safe mode, and trying to run system command (uptime)
+>>in exec() statement. When i turn off the selinux (via firewall settings
+>>in KDE), the script works fine, but when its enabled, i get the
+>>following error in /var/log/messages
+>>
+>>Dec 25 04:15:26 melville kernel: audit(1103948126.072:0): avc:  denied
+>>{ read }
+>> for  pid=5926 exe=/usr/sbin/httpd name=sh dev=hda2 ino=670441
+>>scontext=root:sys
+>>tem_r:httpd_t tcontext=system_u:object_r:bin_t tclass=lnk_file
+>>Dec 25 04:17:46 melville kernel: audit(1103948266.882:0): avc:  denied
+>>{ read }
+>> for  pid=5944 exe=/usr/sbin/httpd name=sh dev=hda2 ino=670441
+>>scontext=root:sys
+>>tem_r:httpd_t tcontext=system_u:object_r:bin_t tclass=lnk_file
+>>    
+>>
+>
+>We should allow it to read such sym-links.
+>
+>Probably the best thing to do for executing programs via system(3) (as it 
+>seems PHP is doing) is to have a domain_auto_trans() rule.
+>
+>Maybe domain_auto_trans(httpd_t, shell_exec_t, httpd_sys_script_t)?
+>
+>  
+>
+Reading the policy, it looks like if you set the boolean httpd_ssi_exec 
+you get this rule.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
