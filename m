@@ -1,39 +1,45 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA25155
-	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 10:43:24 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1PFhNI14837
-	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 15:43:23 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h1PFhNf14833 for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 15:43:23 GMT
-Message-Id: <200302251550.KAA15183@moss-shockers.ncsc.mil>
-Date: Tue, 25 Feb 2003 10:50:58 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA25531
+	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 11:16:09 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA22515
+	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 16:12:56 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id QAA22507
+	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 16:12:54 GMT
+Date: Tue, 25 Feb 2003 11:15:22 -0500 (EST)
+From: Wayne Salamon <wsalamon@tislabs.com>
+To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+cc: <selinux@tycho.nsa.gov>
 Subject: Re: Core policy
-To: ragnor@mitre.org, wsalamon@tislabs.com, russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200302251541.KAA15178@moss-shockers.ncsc.mil>
+Message-ID: <Pine.LNX.4.33.0302251050030.1479-100000@vox.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 25 Feb 2003, Stephen D. Smalley wrote:
 
-Russell Coker wrote:
-> I suggest that we make the second line of each .te file contain a comment 
-> stating which category it is in, with the possibility of policy being in 
-> multiple categories.
+>
+> With regard to macros, I think that they are helpful when they provide
+> a useful abstraction and are carefully limited to that abstraction
+> (i.e. no granting of permissions only weakly related to that
+> abstraction).  For example, domain_auto_trans and file_type_auto_trans
+> provide useful abstractions of the higher level concepts of domain
+> transitions and file type transitions, although we should audit them to
+> ensure that they are not being overly permissive.
 
-While this seems reasonable to me, I'd suggest that we first identify
-the core policy components, cleanly separate out the non-core
-components, and perform a thorough audit and reduction of the core
-macros and domains.  Then, we can incrementally work on a similar audit
-and reduction of each of the non-core policy components, including
-categorizing them and determining their interdependencies.
+  I agree with the above. The macros that I was (mostly) referring to are
+the ones in macros/program. The idea behind these seems to have
+parameterized domain/type definitions. I'm not convinced they're a good
+idea, and many have dependencies to types defined in other .te files.
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+
+ --
+Wayne Salamon
+wsalamon@tislabs.com
+
 
 
 --
