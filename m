@@ -1,27 +1,27 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00961
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 14:53:36 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00954
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 14:53:31 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA17274
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 19:52:46 GMT
+	by jazzband.ncsc.mil  with ESMTP id TAA17266
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 19:52:41 GMT
 Received: from orngca-mls03.socal.rr.com (orngca-mls03.socal.rr.com [66.75.160.18])
-	by jazzband.ncsc.mil  with ESMTP id TAA17270
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 19:52:45 GMT
-Message-ID: <004601c19ec7$f5640d60$5357a518@hproject>
+	by jazzband.ncsc.mil  with ESMTP id TAA17262
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 19:52:41 GMT
+Message-ID: <004201c19ec7$f2ba7130$5357a518@hproject>
 From: "Donald Kasper" <kasper@1stconnect.com>
 To: "Tony Stanco" <Tony@freedevelopers.net>, <selinux@tycho.nsa.gov>
 References: <007301c19e99$b2d9fd20$03bca9ac@oemcomputer>
 Subject: Re: GW's CPI and SELinux
-Date: Wed, 16 Jan 2002 11:56:59 -0800
+Date: Wed, 16 Jan 2002 11:56:54 -0800
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0043_01C19E84.E7209B30"
+	boundary="----=_NextPart_000_003F_01C19E84.E4729230"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0043_01C19E84.E7209B30
+------=_NextPart_000_003F_01C19E84.E4729230
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -109,7 +109,7 @@ just want to chat).=20
   http://www.cpi.seas.gwu.edu
 
 
-------=_NextPart_000_0043_01C19E84.E7209B30
+------=_NextPart_000_003F_01C19E84.E4729230
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -257,7 +257,7 @@ href=3D"http://www.cpi.seas.gwu.edu">http://www.cpi.seas.gwu.edu</A></FON=
 T></DIV>
   <DIV>&nbsp;</DIV></BLOCKQUOTE></BODY></HTML>
 
-------=_NextPart_000_0043_01C19E84.E7209B30--
+------=_NextPart_000_003F_01C19E84.E4729230--
 
 
 --
