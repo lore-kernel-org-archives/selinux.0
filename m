@@ -1,49 +1,68 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i14G0jRb012742
-	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 11:01:17 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i14G0E1I021193
-	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 16:00:15 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i14Fxpbs021117 for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 15:59:51 GMT
-Subject: Re: [PATCH] (2/3) SELinux context mount support - NFS
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-   Alexander Viro <aviro@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-   selinux@tycho.nsa.gov, Chris Wright <chrisw@osdl.org>,
-   trond.myklebust@fys.uio.no
-In-Reply-To: <20040204154608.A19702@infradead.org>
-References: <Xine.LNX.4.44.0402040931480.4796@thoron.boston.redhat.com>
-	 <Xine.LNX.4.44.0402040949010.4796-100000@thoron.boston.redhat.com>
-	 <20040204154608.A19702@infradead.org>
-Content-Type: text/plain
-Message-Id: <1075910184.3525.10.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i14JMwRb014027
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 14:22:58 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i14JLJVK025846
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 19:21:19 GMT
+Received: from Woody.fw.matav.hu ([145.236.241.98])
+	by jazzswing.ncsc.mil  with ESMTP id i14JLHlx025794
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2004 19:21:18 GMT
+Date: Wed, 4 Feb 2004 19:11:42 +0000
+From: =?iso-8859-2?B?TWFnb3PhbnlpIMFycOFk?= <mag@bunuel.tii.matav.hu>
+To: "Stephen C. Tweedie" <sct@redhat.com>, "Theodore Y. Ts'o" <tytso@mit.edu>
+Cc: Russell Coker <russell@coker.com.au>, Andreas Gruenbacher <agruen@suse.de>,
+   SE Linux <selinux@tycho.nsa.gov>, ACL devel list <acl-devel@bestbits.at>,
+   "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
+Subject: Re: FS crash
+Message-ID: <20040204191142.GA11886@bunuel.tii.matav.hu>
+References: <1074008995.7158.18.camel@kusturica> <200401142317.18958.russell@coker.com.au> <1075866064.19815.57.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Date: Wed, 04 Feb 2004 10:56:24 -0500
+Content-Type: text/plain; charset=iso-8859-2
+In-Reply-To: <1075866064.19815.57.camel@sisko.scot.redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-02-04 at 10:46, Christoph Hellwig wrote:
-> On Wed, Feb 04, 2004 at 10:31:51AM -0500, James Morris wrote:
-> > This patch modifies the kernel's NFS mount data structure to include 
-> > SELinux context mount data.  It allows NFS fileystems to be labeled on a 
-> > per-mountpoint basis, and should not affect existing versions of 
-> > userspace mount.
-> 
-> Wouldn't it better to integrate the NFS xattr code that SGI released under
-> the GPL  (it's IRIX, not linux code unfortunately)
+Hi!
 
-That won't help with the case where the NFS server doesn't support the
-protocol extensions for xattr or where the NFS client doesn't want to
-trust contexts provided by the server.  There is work in progress to add
-support for passing process and file contexts on NFS requests/replies,
-but that won't eliminate the need for this functionality for unmodified
-or untrusted NFS servers.
+Related to this same fs crash Theodore Y. Ts'o have found
+some endiannes problems in e2fslibs code. But I cannot
+get silo to use any symlinks, despite that I have recompiled
+it with the patched e2fslibs.
+
+Can it be due to this xattr bug?
+
+Thank you all for your marvellous help.
+
+A levelezõm azt hiszi, hogy Stephen C. Tweedie a következõeket írta:
+
+> Found it --- there's a bug in the xattr code.  And yes, apart from the
+> disk space leak, it's harmless --- *except* on symlinks.
+> 
+> When you have an EA block that is shared between multiple inodes; AND
+> you then change an attribute in that on one inode, AND the new attribute
+> value is the same as the old, then xattr computes the new EA block,
+> finds it still in the cache, bumps the reference count on it (and the
+> i_blocks field on the inode, incidentally), and leaves it incremented
+> because we haven't changed EA block so there's no need to drop the
+> refcount on the old block.
+> 
+> So *every* time you have more than one inode sharing an EA block and you
+> perform an identical write to an EA, you get a leak on both i_blocks and
+> the EA refcount.
+> 
+> This is a big problem for symlinks, which rely on correct i_blocks
+> accounting to determine the difference between fast and slow symlinks. 
+> With the leak, you end up thinking that a fast symlink (ie. one small
+> enough to be stored in the inode direct blocks) is slow, so you
+> dereference the ascii contents of the symlink as if they were a disk
+> block address.  That typically results in EIO all over the place.
+> 
+> The fix is really simple: just test for (old_bh != new_bh) before
+> incrementing the refcounts.  The patch below is for ext3, but ext2 needs
+> the same fix.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+GNU GPL: csak tiszta forrásból
 
 
 --
