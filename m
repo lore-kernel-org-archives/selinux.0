@@ -1,47 +1,63 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA16257
-	for <selinux@tycho.nsa.gov>; Sat, 9 Mar 2002 08:04:54 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA26249
-	for <selinux@tycho.nsa.gov>; Sat, 9 Mar 2002 13:03:41 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id NAA26245
-	for <selinux@tycho.nsa.gov>; Sat, 9 Mar 2002 13:03:39 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: automatic type transitions for pts in devfs
-Date: Sat, 9 Mar 2002 14:04:34 +0100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0203060828430.24985-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0203060828430.24985-100000@raven>
+To: "Samarth Sharma" <samarth7880@rediffmail.com>, SELinux@tycho.nsa.gov
+Subject: Re:
+Date: Sun, 10 Mar 2002 17:48:44 +0100
+References: <20020310093940.30150.qmail@mailFA9.rediffmail.com>
+In-Reply-To: <20020310093940.30150.qmail@mailFA9.rediffmail.com>
 MIME-Version: 1.0
-Message-Id: <20020309130435.3B011D12B@lyta.coker.com.au>
+Message-Id: <20020310164844.6FCAD3CDEA@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 6 Mar 2002 14:41, Stephen Smalley wrote:
-> On Wed, 6 Mar 2002, Russell Coker wrote:
-> > It seems that the automatic type transitions for /dev/pts don't work on
-> > devfs.  When the sshd (in sshd_t domain) opens /dev/pts/1 it does not get
-> > changed to sshd_devpts_t domain.
->
-> Right.  The initial labeling of pty nodes based on the allocating process
-> domain is only implemented for the devpts filesystem at present, not the
-[...]
-> At present, we don't use devfs on our systems, so it hasn't (yet) been a
-> priority to provide identical functionality in devfs.
+On Sun, 10 Mar 2002 10:39, Samarth  Sharma wrote:
+> 1.On login i get the following message :
+>   [ avc: denied {write} for pid=647 exe=/bin/login
+>   path=/var/log/wtmp dev=03:07 ino=182350
+>   scontext=system_u:system_r:local_login_t
+>   tcontext=system_u:object_r:cron_log_t tclass=file ]
+> what does this mean and how can i get around it.
+>   i get similar messages while loading 'atd'.
 
-I've tried patching that myself, but it seems that my skills are not up to it.
+wtmp is in the cron_log_t domain not the correct domain of 
+system_u:object_r:wtmp_t (see file_contexts for the correct context of each 
+file).
 
-It seems that the filp->f_owner.pid is being set in the devfs initialisation 
-code somehow at an earlier stage than in devpts, therefore by the time 
-tty_fasync() is called it's already done and the set_fowner() call is skipped.
+I guess that you had cron rename the old wtmp to wtmp.1 and then create a new 
+wtmp file, the new file gets a domain based on the domain that cron is 
+running in and the domain of the parent directory.
 
-Could you give me a clue as to where I should look next?  Or would you 
-recommend that I give up?
+One way of solving this would be to have an executable which has no purpose 
+other than to rotate the wtmp file (could be a wrapper for logrotate) with 
+the SE Linux setup to have an automatic domain transition for that program 
+into a domain that defaults to wtmp_t for the file type.
+
+> 2.Can u give me a specific example where SElinux is able to solve
+> a security flaw in normal Linux
+
+A buggy sshd can allow root logins without a root password which have full 
+administrator rights.  You can setup SE Linux to forbid sshd from changing 
+domain to sysadm_t and it will limit the damage from a buggy sshd.
+
+BIND does not have full functionality unless it can bind to ports <1024 at 
+will.  One solution to this is Authbind (to run BIND as non-root and allow 
+access to low ports, another is to have SE Linux rules to limit the damage it 
+can do.  BIND is one of those programs that has such a long history of being 
+buggy that no-one will ever trust it...
+
+I have a binary-only program from Alcatel to download the firmware to my USB 
+ADSL modem.  I don't trust Alcatel regarding security (do a web search on 
+them for a laugh).  So I want to limit what this program can do, but it needs 
+to be root to access USB (although GRSecurity and a chroot() environment 
+would be another suitable solution).
+
+> 4.how do u add a user to the system. i added a new user in the
+> ../policy/users file with appropriate context and compiled the
+> policy but security context for that user was not initialized.
+
+Did you load the policy as well as compile it?
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
