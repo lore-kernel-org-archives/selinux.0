@@ -1,51 +1,52 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAN6WgIi010079
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 01:32:42 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAN6WoIi010096
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 01:32:51 -0500 (EST)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAN6VA5q024651
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 06:31:11 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAN6VA5q024656
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 06:31:12 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Wolfgang Pfeiffer <roto@gmx.net>
-Subject: Re: Linux Journal Article
-Date: Tue, 23 Nov 2004 15:48:29 +1100
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <Xine.LNX.4.44.0411122147260.7482-100000@thoron.boston.redhat.com> <1100375928.1691.17.camel@debby>
-In-Reply-To: <1100375928.1691.17.camel@debby>
+To: Jiann-Ming Su <sujiannming@gmail.com>
+Subject: Re: MySQL Policy Patch
+Date: Tue, 23 Nov 2004 16:09:53 +1100
+Cc: selinux@tycho.nsa.gov
+References: <A52BEA1D8EE8634B9196A136333637B130F3@maat.darkhonor.net> <1098205374.29525.99.camel@moss-spartans.epoch.ncsc.mil> <561dc32604110511531fbd1e33@mail.gmail.com>
+In-Reply-To: <561dc32604110511531fbd1e33@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200411231548.32753.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200411231609.57657.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 14 November 2004 06:58, Wolfgang Pfeiffer <roto@gmx.net> wrote:
-> "Work also is being done on Security Enhanced X, where the aim is to
-> have control over the X sessions so that, for instance, a hostile X
-> program can't interfere with other X programs on the display."
+On Saturday 06 November 2004 06:53, Jiann-Ming Su <sujiannming@gmail.com> 
+wrote:
+> FC3T3 wouldn't install on my system, so I'm having to work through
+> FC2.  When I try to run "/etc/init.d/mysql start" as root, I get the
+> following in dmesg:
 >
-> Does this mean that SElinux currently can't have an impact on X-related
-> processes (gdm, Gnome, FVWM etc., and on Debian/unstable)?
+> audit(1099684144.872:0): avc:  denied  { read } for  pid=5099
+> exe=/bin/su name=.default_contexts dev=sda5 ino=213003
+> scontext=jms:user_r:user_su_t tcontext=root:object_r:staff_home_dir_t
+> tclass=file
 
-SE Linux prevents X access to X servers started from another user role.  So if 
-you had a dual-head machine and one user was logged in as user_r while 
-another was logged in as staff_r they would not be able to access each 
-other's X servers IF those X servers were started by entering "startx" from 
-the command line.
+It was never possible to get correct operation when su is used for starting 
+daemons.
 
-If the X servers were started by gdm or a similar program then there would be 
-nothing in SE Linux preventing the users from accessing each other's 
-displays.
+FC3 has a new program "runuser" for starting daemons in this situation, 
+hopefully the mysql packages for FC3 will use runuser instead of su (if not 
+it's a bug).
 
-Also within one user role there is nothing to prevent an X client running in 
-user_games_t from interfering with the X access of a program running in 
-user_t.  This interferance means sniffing the keyboard input (capturing 
-passwords), reading the contents of the window (copying confidential data), 
-and impersonating programs (making it appear that Kmail is asking for the GPG 
-pass-phrase to decrypt an email as part of an attack on GPG).
+> inode_doinit_with_dentry:
+> What do I need to do so that mysql will start on my system, and users
+> can access the mysql database?  I've tried adding mysqld_r to the
+> users file, but mysqld_r is not a role.  Sorry for being so slow with
+> this.  Thanks for any info.
 
-SE-X solves most of those issues.  However there are still some issues related 
-to sharing a pty device between programs running in different domains.
+If you install the policy from FC3 and compile runuser on FC3 then you can 
+modify the init.d script to use runuser instead of su and things should work.
+
+But it may be easier to fix the problem with installing FC3.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
