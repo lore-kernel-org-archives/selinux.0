@@ -1,72 +1,34 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FFUHHa017896
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 11:30:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FGe6Ha018280
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 12:40:06 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6FFTGnJ025827
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 15:29:16 GMT
-Received: from web10002.mail.yahoo.com (web10002.mail.yahoo.com [216.136.130.38])
-	by jazzswing.ncsc.mil  with SMTP id h6FFTFhr025824
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 15:29:15 GMT
-Message-ID: <20030715153015.77905.qmail@web10002.mail.yahoo.com>
-Date: Tue, 15 Jul 2003 08:30:15 -0700 (PDT)
-From: M E Robbins <merobbins@yahoo.com>
-Subject: lsm-2.4-selinux-2003071106 compile problem
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by jazzswing.ncsc.mil  with ESMTP id h6FGd4nJ000766
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 16:39:04 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+	by jazzswing.ncsc.mil  with ESMTP id h6FGd4hr000763
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 16:39:04 GMT
+Subject: Re: crash with 2.5.74 while loading policy
+From: Colin Walters <walters@verbum.org>
+To: James Morris <jmorris@intercode.com.au>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <Mutt.LNX.4.44.0307152306260.23933-100000@excalibur.intercode.com.au>
+References: 
+	 <Mutt.LNX.4.44.0307152306260.23933-100000@excalibur.intercode.com.au>
+Content-Type: text/plain
+Message-Id: <1058287194.15102.4.camel@columbia>
+Mime-Version: 1.0
+Date: 15 Jul 2003 12:39:54 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am trying to get the lsm-2.4-selinux-2003071106.tgz package to compile.
+On Tue, 2003-07-15 at 09:07, James Morris wrote:
 
-When compiling libsecure I get the error message listed below.  I checked the NSA
-mailing list archives and mention was made of a patch from May 02, which I got,
-but it appears that the newest selinux already has that patch installed.
+> I've not seen anything like this with 2.5.  And according to your report, 
+> it seems that dpkg was running when the oops occurred.
 
-My setup: glibc 2.3.1, gcc 3.2.3, slackware 9.x base, i386 pentium pro 200mhz.
-
-Any thoughts?  The nsa list archives made it sound as if it is a glibc problem
-but I'm afraid I don't know how to proceed.
-
-If I can't solve this in fairly short order, I'll install debian and go from
-there, but I am unreasonably fond of slackware and would like to make a go with
-what I have...
-
-Thank you,
-
-Mike Robbins
-
---- start error message ---
-
-cc -o execvp_secure.o -c -I../include -I/usr/local/selinux/include
-execvp_secure.c
-cc -o fchsid.o -c -I../include -I/usr/local/selinux/include fchsid.c
-cc -o fchsidfs.o -c -I../include -I/usr/local/selinux/include
-fchsidfs.c
-cc -o fstat_secure.o -c -I../include -I/usr/local/selinux/include
-fstat_secure.cIn file included from fstat_secure.c:5:
-xstat_conv.h: In function `xstat_conv':
-xstat_conv.h:59: structure has no member named `st_atim'
-xstat_conv.h:60: structure has no member named `st_atim'
-xstat_conv.h:61: structure has no member named `st_mtim'
-xstat_conv.h:62: structure has no member named `st_mtim'
-xstat_conv.h:63: structure has no member named `st_ctim'
-xstat_conv.h:64: structure has no member named `st_ctim'
-make[2]: *** [fstat_secure.o] Error 1
-make[2]: Leaving directory `/usr/src/selinux/libsecure/src'
-make[1]: *** [install] Error 2
-make[1]: Leaving directory `/usr/src/selinux/libsecure'
-make: *** [quickinstall] Error 2
-
---- end error message ---
-
-
-
-
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com
+That's true, but I think dpkg is not at fault; besides, any kind of
+crash is a kernel bug.  The only thing I can think of that's even
+slightly unusual about this machine is that it's SMP (dual PII-350).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
