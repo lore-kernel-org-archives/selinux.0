@@ -1,35 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA10550
-	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2003 11:34:53 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h24GYq912566
-	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2003 16:34:52 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id h24GYpR12559 for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2003 16:34:52 GMT
-Received: from localhost (wsalamon@localhost)
-	by vox.gw.tislabs.com (8.11.2/8.11.2) with ESMTP id h24GYGH15914
-	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2003 11:34:16 -0500
-Date: Tue, 4 Mar 2003 11:34:16 -0500 (EST)
-From: Wayne Salamon <wsalamon@tislabs.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Core policy on Sourceforge
-Message-ID: <Pine.LNX.4.33.0303041130180.15723-100000@vox.gw.tislabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <se67e0d0.047@atlas.snu.edu>
+Date: Thu, 06 Mar 2003 23:58:41 -0600
+From: "Joshua Brindle" <JBrindle@snu.edu>
+To: <SELinux@tycho.nsa.gov>
+Subject: selinux play machine
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  We've pushed the changes to Sourceforge to move non-core .te files
-into the unused directory.  We've tagged the selinux module with
-'before_core_policy' before making these changes.
+Russell, i don't know if you just messed up or forgot to set the sid on spasswd but...
 
-  We did make inetd part of non-core for now. That can be changed if
-necessary.
+Someone changed the root password, it's a pity they weren't responsible enough
+to change it back afterwards.  I've changed the SID of the spasswd program
+to prevent this happening again...
 
--- 
-Wayne Salamon
-wsalamon@tislabs.com
 
+root@cose:/# spasswd
+Enter new UNIX password: 
+Retype new UNIX password: 
+passwd: password updated successfully
+
+root@cose:/# newrole -r user_r
+Authenticating root.
+Password:  
+
+(with the new password)
+
+anyway, i changed it back
+just thought i'd let you know....
+
+
+Joshua Brindle
+UNIX Administrator
+Southern Nazarene University
 
 
 --
