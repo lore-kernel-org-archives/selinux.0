@@ -1,60 +1,51 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i560BWrT027530
-	for <selinux@tycho.nsa.gov>; Sat, 5 Jun 2004 20:11:32 -0400 (EDT)
-Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i560BURQ027790
-	for <selinux@tycho.nsa.gov>; Sat, 5 Jun 2004 20:11:30 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 6 Jun 2004 00:11:30 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BWkbv-0000tI-6F
-	for selinux@tycho.nsa.gov; Sat, 05 Jun 2004 23:29:59 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BWlDZ-0001kJ-CI
-	for selinux@tycho.nsa.gov; Sun, 06 Jun 2004 00:08:53 +0000
-Date: Sun, 6 Jun 2004 00:08:53 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: successful cupsys admin: advantages of running pam_selinux
-Message-ID: <20040606000852.GA6673@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i568FCrT028534
+	for <selinux@tycho.nsa.gov>; Sun, 6 Jun 2004 04:15:12 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i568F022007901
+	for <selinux@tycho.nsa.gov>; Sun, 6 Jun 2004 04:15:07 -0400 (EDT)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: [patch]
+Date: Sun, 6 Jun 2004 18:14:50 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040605161213.GA5998@lkcl.net>
+In-Reply-To: <20040605161213.GA5998@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200406061814.50731.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-it is with some amazement that, by adding pam_selinux to /etc/pam.d/cups
-and by adding an ordinary user to the lpadmin group that i was able
-to have that ordinary user set up a local printer and actually print
-to it (openoffice).
+On Sun, 6 Jun 2004 02:12, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> patch to exim4 to get it to change its name when it execve's on:
+>
+> - transport (-MC)
+> - smtp in
+> - alias (-bi)
+> - initial daemon startup
 
-i am aware that there are concerns about pam_selinux being inappropriate
-for certain things - openssh being one of them due to ttys not being
-managed properly, and kdm when you set AutoLogin is another.
+>From a quick inspection it appears that you missed some calls to 
+child_exec_exim(), for example the "exim -q" operation when starting exim.
 
-however the prospect of having to code up a policy for doing what i
-just managed to do fills me with some trepidation.
+> i don't know if it's possible to create domain auto transitions
+> on a symlink, but if it _was_ then the policy files could,
+> i imagine, have file_contexts for exim4_mc_exec_t etc just on
+> the symlinks.
 
-i could not tell you where to begin to get the same effect as the
-lpadmin group.
+No, domain_auto_trans() rules only apply to the executables and to script 
+files (but generally don't do transitions on scripts).
 
-six of one, half a dozen of the other.
-
-i mention all this just in case someone thought "i know, pam_selinux
-is bad, let's drop it entirely".
-
-l.
+For SE Linux we need small executables that will exec exim4 with the same 
+parameters to give the domain transition.
 
 -- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
