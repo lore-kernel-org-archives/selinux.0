@@ -1,58 +1,75 @@
-To: <mayerf@tresys.com>
-Cc: "'Karl MacMillan'" <kmacmillan@tresys.com>,
-   "'SELinux List'" <SELinux@tycho.nsa.gov>,
-   "'Stephen D. Smalley'" <sds@epoch.ncsc.mil>,
-   "'Amy L. Herzog'" <aherzog@mitre.org>,
-   "'John D. Ramsdell'" <ramsdell@mitre.org>,
-   "'Galen B. Williamson'" <gwilliam@mitre.org>,
-   "'Grant M. Wagner'" <gmw@tycho.ncsc.mil>, "'David Caplan'" <dac@tresys.com>,
-   guttman@mitre.org (Joshua D. Guttman)
-Subject: Re: Announce: SELinux conditional policy extensions
-Reply-To: guttman@mitre.org (Joshua D. Guttman disp: current)
-References: <000c01c3f265$9139f860$020d010a@columbia.tresys.com>
-From: guttman@mitre.org (Joshua D. Guttman)
-Date: 16 Feb 2004 16:20:32 -0500
-In-Reply-To: <000c01c3f265$9139f860$020d010a@columbia.tresys.com>
-Message-ID: <nhau11qk9gf.fsf@malabar.mitre.org>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1H09VRb012532
+	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 19:09:31 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i1H081lK017404
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 00:08:01 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+	by jazzswing.ncsc.mil  with ESMTP id i1H07xOX017374
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 00:08:00 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by ns.sws.net.au (Postfix) with ESMTP id 2E3BD61BEF
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 11:08:07 +1100 (EST)
+Received: from ns.sws.net.au ([127.0.0.1])
+	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 00689-02 for <selinux@tycho.nsa.gov>;
+	Tue, 17 Feb 2004 11:08:06 +1100 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by ns.sws.net.au (Postfix) with ESMTP id 63D0561B13
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 11:08:06 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id EED38B59DD
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2004 11:08:04 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Something seems to be self-contradictory
+Date: Tue, 17 Feb 2004 11:08:04 +1100
+References: <20040216175312.84847.qmail@web15205.mail.bjs.yahoo.com>
+In-Reply-To: <20040216175312.84847.qmail@web15205.mail.bjs.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="gb2312"
+Message-Id: <200402171108.04387.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When you refer to conflicting rules, what do you mean?  
+On Tue, 17 Feb 2004 04:53, Park Lee <parklee_2004@yahoo.com.cn> wrote:
+> You say that:
+> >A domain is a special type.
+> >When you define types they can have attributes, one >attribute is "domain"
+> > which indicates that it's possible to >use that type for labelling
+> > processes.
+>
+> Do you mean that program is assigned a domain?
 
-Thanks --
+Every running process has a domain.
 
-        Joshua 
+> Then what is the difference between a program and a common file?
+> There are some examples:
 
->From README-COND:
+The only files that can be labeled with a "domain" are under /proc.
 
->      - Policy conflicts with policy
->    
->          Non-conditional policy rules take preference over conditional 
->          rules.  In most cases, a conflicting conditional rule is 
->          discarded. In some cases, the policy compiler will exit with an 
->          error. The list below describes the conflicts and the results:
->    
->          - A conditional type rule conflicts with a non-conditional type 
->            rule
->    
->    	  The conditional type rule is discarded and the compiler issues
->    	a warning.
->    
->          - A conditional type rule in one conditional policy block 
->    	conflicts with 	a conditional type rule in a different 
->    	conditional policy block.
->    
->    	  The previously processed rule is kept, the second is discarded.
->    
+> # sshd_exec_t is the type of the sshd executable.
+> # sshd_key_t is the type of the ssh private key files
+> type sshd_exec_t, file_type, exec_type, sysadmfile;
+> type sshd_key_t, file_type, sysadmfile;
+> (in selinux-usr\policy\domains\program\ssh.te)
+>
+> In my opinion, the sshd executable is a program ,and the ssh private key
+> files are common files. But, Why Doesn't the type of sshd executable have a
+> domain attribute with it?
+
+In SE Linux as in regular Unix, there is nothing really special about a file 
+that can be executed.  In Unix permissions the difference between an 
+executable and a data file is 1 bit in the file mode.  In SE Linux the 
+difference is the presence of execute permission in the SE policy.
 
 -- 
-	Joshua D. Guttman		<guttman@mitre.org>
-	MITRE, Mail Stop S119		Office:	+1 781 271 2654
-	202 Burlington Rd.		Fax:	+1 781 271 8953
-	Bedford, MA 01730-1420 USA	Cell:	+1 781 526 5713
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
