@@ -1,83 +1,46 @@
-Message-ID: <001901c259a8$595621f0$0200a8c0@kevsta>
-Reply-To: "jj012a1662" <jj012a1662@blueyonder.co.uk>
-From: "jj012a1662" <jj012a1662@blueyonder.co.uk>
-To: "selinux" <SELinux@tycho.nsa.gov>
-Subject: Dialup connection
-Date: Wed, 11 Sep 2002 16:31:49 +0100
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA21587
+	for <selinux@tycho.nsa.gov>; Wed, 11 Sep 2002 11:54:02 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA23643
+	for <selinux@tycho.nsa.gov>; Wed, 11 Sep 2002 15:52:17 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id PAA23639 for <selinux@tycho.nsa.gov>; Wed, 11 Sep 2002 15:52:13 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: azeredo@qmc.ufsc.br
+Subject: Re: Problems compiling selinux on SuSe 7.2
+Date: Wed, 11 Sep 2002 17:53:37 +0200
+Cc: selinux@tycho.nsa.gov
+References: <1031756508.3d7f5adca337f@qmc.ufsc.br>
+In-Reply-To: <1031756508.3d7f5adca337f@qmc.ufsc.br>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0016_01C259B0.BA771E00"
+Message-Id: <200209111753.37846.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Wed, 11 Sep 2002 17:01, azeredo@qmc.ufsc.br wrote:
+>  I am trying to compile selinux on SuSe 7.2. I got the last package version
+> of lsm-2.4-selinux-2002082308.tgz with kernel 2.4.19 and got the following
+> error: I have tried with kerberos 5 from mandrake distribution and also
+> with heimdal that comes with suse. But the error is the same, namely
 
-------=_NextPart_000_0016_01C259B0.BA771E00
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Probably better to ask Brian than me, Brian's the Heimdal expert.
 
-Dear all,
+Do you REALLY need kerberos?  If not then it's probably best to compile 
+without support.
 
-I'm trying to refrain from posting questions such as this as i know alot =
-of you don't like to be answering silly non technical SELinux related =
-questions like these but i will ask it anyway. I have searched the =
-archives for related topics but i couldn't find any. I would like to =
-setup SELinux to share the internet which is a 56k dialup connection but =
-i'm not too sure how i would go about doing it as i've always had a GUI =
-to setup my connection to share the internet (such as the smoothwall web =
-interface) and run my command line computers (slackware) behind my =
-router which shares the internet.=20
+If you do need kerberos then you'll probably want SE support on the kerberos 
+ticket server first and we don't seem to have a policy for that yet, maybe 
+you or Brian should write it first...
 
-If anybody would be kind enough to help me get SELinux to share a dialup =
-connection, it will be very much appreciated. If i manage to get SELinux =
-to share my connection, i will try to ask alot more technical related =
-questions as Security is my main interest.
-
-Thank you for your time.
-
-Regards,
-Kevin.j=20
-
-
-------=_NextPart_000_0016_01C259B0.BA771E00
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2600.0" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT size=3D2>
-<P>Dear all,<BR><BR>I'm trying to refrain from posting questions such as =
-this as=20
-i know alot of you don't like to be answering silly non technical =
-SELinux=20
-related questions like these but i will ask it anyway. I have searched =
-the=20
-archives for related topics but i couldn't find any. I would like to =
-setup=20
-SELinux to share the internet which is a 56k dialup connection but i'm =
-not too=20
-sure how i would go about doing it as i've always had a GUI to setup my=20
-connection to share the internet (such as the smoothwall web interface) =
-and run=20
-my command line computers (slackware) behind my router which shares the=20
-internet. <BR><BR>If anybody would be kind enough to help me get SELinux =
-to=20
-share a dialup connection, it will be very much appreciated. If i manage =
-to get=20
-SELinux to share my connection, i will try to ask alot more technical =
-related=20
-questions as Security is my main interest.<BR><BR>Thank you for your=20
-time.<BR><BR>Regards,<BR>Kevin.j </P></FONT></DIV></BODY></HTML>
-
-------=_NextPart_000_0016_01C259B0.BA771E00--
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 
 --
