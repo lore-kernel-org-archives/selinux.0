@@ -1,28 +1,52 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6UFNIrT027872
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2004 11:23:18 -0400 (EDT)
-Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6UFNHAP013431
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2004 15:23:17 GMT
-Subject: Re: Building SE-ssh. Result: fakeroot: Permission denied
-From: Colin Walters <walters@verbum.org>
-To: Wolfgang Pfeiffer <roto@gmx.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1091187766.18595.153.camel@debby>
-References: <1091187766.18595.153.camel@debby>
-Content-Type: text/plain
-Date: Fri, 30 Jul 2004 11:23:07 -0400
-Message-Id: <1091200987.16684.2.camel@nexus.verbum.private>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6UJMLrT029554
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2004 15:22:21 -0400 (EDT)
+Received: from emepe3.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6UJLmTf014366
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2004 19:21:49 GMT
+Received: from [66.60.14.199] (helo=[192.168.0.101])
+	by emepe3.com with asmtp (Exim 3.35 #1 (Debian))
+	id 1BqdFP-0006Ji-00
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jul 2004 14:40:56 -0500
+Subject: Re: New or Old SELinux
+From: Martin Sarsale <martin@emepe3.net>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <200407281659.06601.russell@coker.com.au>
+References: <1090955044.1886.49.camel@allhosts>
+	 <200407281659.06601.russell@coker.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eyQP/z+m13psrVDNmj1q"
+Message-Id: <1091214924.12122.1.camel@kadaif>
 Mime-Version: 1.0
+Date: Fri, 30 Jul 2004 16:15:50 -0300
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-07-30 at 13:42 +0200, Wolfgang Pfeiffer wrote:
 
-> /usr/bin/fakeroot: line 146: debian/rules: Permission denied
+--=-eyQP/z+m13psrVDNmj1q
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Did you try: chmod a+x debian/rules ?
+> Sarge is about to be frozen, maybe it's best to wait for the Sarge freeze=
+ and=20
+> use it.
+that's what Im going to do.
+In the meanwhile I'll play on an unstable machine.
 
+Thanks for everything
+
+--=-eyQP/z+m13psrVDNmj1q
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBCp5MhruVGj+ub3MRAhibAKCJW8zgmolvXvPkm68wOC2Gf6KBygCgpXCy
+gL+OxBuZQLRTTl8dE0Ay0ts=
+=Hu+A
+-----END PGP SIGNATURE-----
+
+--=-eyQP/z+m13psrVDNmj1q--
 
 
 --
