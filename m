@@ -1,67 +1,56 @@
-Message-ID: <3F711241.2020101@diyab.net>
-Date: Tue, 23 Sep 2003 23:40:49 -0400
-From: Diyab <diyab@diyab.net>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8ODMgsJ018051
+	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 09:22:42 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8ODKwd0021253
+	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 13:20:58 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h8ODKtVY021237
+	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 13:20:57 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Inger, Slav (S.B.)" <vinger@ford.com>,
+   "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Re: Sample SELinux policy that's equivalent to standard root?
+Date: Wed, 24 Sep 2003 23:22:26 +1000
+References: <F5441DDE18FFD9418974338018C522B718BDAB@na1fcm61.dearborn.ford.com>
+In-Reply-To: <F5441DDE18FFD9418974338018C522B718BDAB@na1fcm61.dearborn.ford.com>
 MIME-Version: 1.0
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: postfix virtual delivery patch
-Content-Type: multipart/mixed;
- boundary="------------000204020207040404060803"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200309242322.26079.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------000204020207040404060803
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 24 Sep 2003 07:16, Inger, Slav (S.B.) wrote:
+> I hope this is the right mailing list to ask this question.  Here's my
+> setup:  a freshly compiled Linux 2.6.0-test3-selinux1, using a default
+> policy supplied in selinux-usr/policy.  What I would like to do is, instead
+> of starting with the most restrictive mode and easing my way to less
+> restrictive, I'd like to start with a relaxed root access policy (i.e.
+> start with root as "God" even in enforced mode, as is the case with
+> standard Linux) and tighten up from there.  So my question is, does anyone
+> know where I could get the configs for a policy with root rights equivalent
+> to that on a standard Linux system?  TIA.
 
-Attached is a patch to the current selinux userland archive.  It adds 
-two lines into postfix.te to allow virtual domain delivery to work and 
-one line in postfix.fc to relabel /usr/lib/postfix/virtual.
+The domain sysadm_t has 99% of the ability that "root" has on a non-SE 
+machine, of course you need to have both UID=0 and context 
+something:sysadm_r:sysadm_t to get full access.
 
-For some reason when it tries to apply the patch section for 
-selinux-usr/policy/file_contexts/program/postfix.fc it says that it can 
-not find the file but if you type in the exact same thing when it 
-prompts you it will work.
+Adding the ability to directly read /etc/shadow, block devices, and the few 
+things that are denied to sysadm_t is easy enough.  However in many cases 
+programs that you run will automatically transition to other domains which 
+have less access.  For example fdisk has no access files on a file system.  
+So if you want to do "fdisk < /root/commands > /tmp/output" then it will not 
+work.
 
-Timothy,
+Why would you want things to be other than they are in the default policy?
 
 -- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
-
---------------000204020207040404060803
-Content-Type: text/plain;
- name="postfix_virtual.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="postfix_virtual.diff"
-
-diff -ur src/policy/domains/program/unused/postfix.te selinux-usr/policy/domains/program/unused/postfix.te
---- src/policy/domains/program/unused/postfix.te	2003-09-23 22:03:57.000000000 -0400
-+++ selinux-usr/policy/domains/program/unused/postfix.te	2003-09-23 22:05:29.000000000 -0400
-@@ -150,6 +151,9 @@
- allow postfix_local_t postfix_public_t:sock_file write;
- can_exec(postfix_local_t, shell_exec_t)
- 
-+postfix_server_domain(virtual, `, mta_delivery_agent')
-+allow postfix_virtual_t postfix_spool_t:file rw_file_perms;
-+
- define(`postfix_public_domain',`
- postfix_server_domain($1)
- allow postfix_$1_t postfix_public_t:dir search;
-diff -ur src/policy/file_contexts/program/postfix.fc selinux-usr/policy/file_contexts/program/postfix.fc
---- src/policy/file_contexts/program/postfix.fc	2003-09-23 22:03:08.000000000 -0400
-+++ selinux-usr/policy/file_contexts/program/postfix.fc	2003-09-23 22:05:02.000000000 -0400
-@@ -13,6 +13,7 @@
- /usr/lib/postfix/smtpd		system_u:object_r:postfix_smtpd_exec_t
- /usr/lib/postfix/bounce		system_u:object_r:postfix_bounce_exec_t
- /usr/lib/postfix/pipe		system_u:object_r:postfix_pipe_exec_t
-+/usr/lib/postfix/virtual	system_u:object_r:postfix_virtual_exec_t
- /usr/sbin/postalias		system_u:object_r:postfix_master_exec_t
- /usr/sbin/postcat		system_u:object_r:postfix_master_exec_t
- /usr/sbin/postconf		system_u:object_r:postfix_master_exec_t
-
---------------000204020207040404060803--
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
