@@ -1,68 +1,49 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1Q78XRb005019
+	for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 02:08:34 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i1Q78XQQ002629
+	for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 07:08:33 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i1Q78LP0002532 for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 07:08:32 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Chris PeBenito <pebenito@gentoo.org>
+Subject: Re: [patch] etc type naming
+Date: Thu, 26 Feb 2004 18:06:45 +1100
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+References: <1072495081.4439.9.camel@chris.pebenito.net> <1073593716.28727.231.camel@moss-spartans.epoch.ncsc.mil> <1073614420.15555.1.camel@chris.pebenito.net>
+In-Reply-To: <1073614420.15555.1.camel@chris.pebenito.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Message-ID: <16445.7703.405805.975832@neuro.alephnull.com>
-Date: Wed, 25 Feb 2004 17:13:43 -0500
-From: Rik Faith <faith@redhat.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: Patch for auditing framework
-In-Reply-To: [Stephen Smalley <sds@epoch.ncsc.mil>] Wed 25 Feb 2004 16:33:22 -0500
-References: <16445.1966.74416.309923@neuro.alephnull.com>
-	<1077744801.22658.187.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200402261806.45980.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed 25 Feb 2004 16:33:22 -0500,
-   Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> On Wed, 2004-02-25 at 15:38, Rik Faith wrote:
-> > Enclosed is a patch against 2.6.3-bk7 that provides a system call
-> > auditing framework usable by SELinux.  Comments and testing would be
-> > greatly appreciated.
-> 
-> I'm not sure we actually need to extend the security_sid_to_context
-> interface, as opposed to just always using GFP_ATOMIC for that
-> allocation.  It already uses GFP_ATOMIC within the helper function
-> (context_struct_to_string), since the policy rdlock has been taken, so
-> there is no obvious reason not to change the !ss_initialized case to
-> also use GFP_ATOMIC.
+On Fri, 9 Jan 2004 13:13, Chris PeBenito <pebenito@gentoo.org> wrote:
+> On Thu, 2004-01-08 at 14:28, Stephen Smalley wrote:
+> > On Fri, 2003-12-26 at 22:18, Chris PeBenito wrote:
+> > > Attached is a hefty patch to change almost all of the etc type names to
+> > > be consistent with the rest of the policy naming.  Namely, the
+> > > daemon/program is prefixed.
+> > >
+> > > ex: etc_cupsd_t -> cupsd_etc_t
+> >
+> > The kinder, gentler way of making this kind of change is to introduce
+> > type aliases with the old type name so that people can easily migrate to
+> > the new type names on running systems, e.g.
+>
+> Ah, good point.  I updated the patch to add in the type aliases.
 
-I have made this change.  A new patch is at:
-    http://people.redhat.com/faith/audit/audit-20040225.1656.patch
+I've included that into my tree.  While I was at it I used the new typealias 
+directive, and I added some global macros etc_domain() and etcdir_domain().
 
-(Also note that you have to boot with audit=1 to get syscall auditing.)
-
-
-
-I'm CC'ing the list because this patch also includes a fix to a length
-computation that will make the audit record output much more readable:
-
-diff -rupP --exclude-from=ignore linux-2.6.3-old/kernel/audit.c linux-2.6.3/kernel/audit.c
---- linux-2.6.3-old/kernel/audit.c	2004-02-25 16:59:56.000000000 -0500
-+++ linux-2.6.3/kernel/audit.c	2004-02-25 16:49:19.000000000 -0500
-@@ -585,17 +585,17 @@ void audit_log_d_path(struct audit_buffe
- 	char *p;
- 	int  len, avail;
- 	
--	if (prefix) audit_log_format(ab, "%s", prefix);
-+	if (prefix) audit_log_format(ab, " %s", prefix);
- 
- 	if (ab->len > 128)
- 		audit_log_move(ab);
- 	avail = sizeof(ab->tmp) - ab->len;
- 	p = d_path(dentry, vfsmnt, ab->tmp + ab->len, avail);
- 	if (p == ERR_PTR(-ENAMETOOLONG)) {
--		audit_log_format(ab,"<toolong>");
-+		audit_log_format(ab, "<toolong>");
- 	} else {
- 				/* path isn't at start of buffer */
--		len        = p - (ab->tmp + ab->len);
-+		len        = (ab->tmp + sizeof(ab->tmp) - 1) - p;
- 		memmove(ab->tmp + ab->len, p, len);
- 		ab->len   += len;
- 		ab->total += len;
-
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
