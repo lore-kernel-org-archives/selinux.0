@@ -1,70 +1,74 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59MOvrT023283
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 18:24:57 -0400 (EDT)
-Received: from smtp801.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i59MOqP2029150
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 18:24:52 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp801.mail.ukl.yahoo.com with SMTP; 9 Jun 2004 22:24:51 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BYArc-0001dO-Du
-	for selinux@tycho.nsa.gov; Wed, 09 Jun 2004 21:44:04 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BYBST-0004z3-U1
-	for selinux@tycho.nsa.gov; Wed, 09 Jun 2004 22:22:09 +0000
-Date: Wed, 9 Jun 2004 22:22:09 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59NTjrT023604
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 19:29:46 -0400 (EDT)
+Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i59NTeP2000983
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 19:29:41 -0400 (EDT)
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 10 Jun 2004 01:29:42 +0200
+Date: Thu, 10 Jun 2004 01:29:32 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: [debian] - installation of mysqld requires chfn
-Message-ID: <20040609222209.GH5727@lkcl.net>
+Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
+Message-Id: <20040609232932.GD2142@jmh.mhn.de>
+References: <20040609214126.GF5727@lkcl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JgQwtEuHJzHdouWu"
+In-Reply-To: <20040609214126.GF5727@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
 
-i just installed (or tried to install) mysql-server with enforcing=1
-switched on.
+--JgQwtEuHJzHdouWu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-it failed because of adding the mysql user and the use of
-"chfn" to change the name to "MySql Server" in /etc/passwd.
+* Luke Kenneth Casson Leighton <lkcl@lkcl.net> [2004-06-10 01:06]:
+> hi,
+>=20
+> debian's postfix init.d script does a whole stackload of
+> things like copy over /etc/localtime, /etc/services.
+>=20
+> it's rather scary.
+>=20
+> ... and it doesn't work.
+>=20
+> by disabling the chroot (setting SYNC_CHROOT=3D"") i managed
+> to get postfix to start (and it works)
+>=20
+> i don't know if i was supposed to have these enabled
 
-i added the can_exec chfn_exec_t into domains/programs/dpkg.te:
+IIRC the consensus was that the chroot setup should be disabled. The
+reasoning was that SELinux can provide better protection than a chroot
+and it would just give postfix unnecessary permissions.
 
-	# mysqld is broken too
-	ifdef(`mysqld.te', `
-	can_exec(dpkg_t, chfn_exec_t)
-	domain_auto_trans(dpkg_t, mysqld_exec_t, mysqld_t)
-	can_unix_connect(dpkg_t, mysqld_t)
-	allow mysqld_t dpkg_tmp_t:file { getattr read };
-	')
+Thomas
 
-... but as it turns out, i can't use chfn at all (it doesn't
-have permission to write to /etc/shadow - this is version
-passwd-4.0.3-8.selinux1 from dan walters) so again i had to
-reboot with "enforcing=0".
+BTW:
+> 	allow postfix_cleanup_t postfix_cleanup_t:capability { sys_chroot };
+You can write these as
+        allow postfix_cleanup_t self:capability sys_chroot;
+which makes it both shorter and easier to read.
 
-so, summary:
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
-1) patch to dpkg.te needed to get mysqld to install.
+--JgQwtEuHJzHdouWu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-2) there's something i don't understand about why chfn is failing.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-l.
+iD8DBQFAx51cxWIrrrL0q+cRAj2OAJ9zAtCiDpxp7fmvg0UvmLOZMsNwlwCfd/kZ
+DyIzS4RcTmp+k2eOQ9V6d2Q=
+=oLVI
+-----END PGP SIGNATURE-----
 
--- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+--JgQwtEuHJzHdouWu--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
