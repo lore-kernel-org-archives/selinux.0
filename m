@@ -1,87 +1,60 @@
-Subject: Re: Re:
-From: kayo <kayo@pyra.ca>
-To: Russell Coker <russell@coker.com.au>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: kayo <kayo@pyra.ca>
+Subject: Re: spasswd.c
+Date: Mon, 17 Feb 2003 22:09:19 +0100
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <200302172106.05892.russell@coker.com.au>
-References: <1045508773.3e5132a538d6e@webmail.crazylinux.net>
-	 <200302172106.05892.russell@coker.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-il9t3zMECZszevrGU0BW"
-Message-Id: <1045513919.3407.13.camel@smeagol>
-Mime-Version: 1.0
-Date: 17 Feb 2003 14:31:59 -0600
+References: <DTCOIKAKKNB3NWCMMKNXKJCDHTEAEFP3JRHWOJAF@ziplip.com> <200302162251.40417.russell@coker.com.au> <1045507488.3079.5.camel@smeagol>
+In-Reply-To: <1045507488.3079.5.camel@smeagol>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200302172209.19215.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 17 Feb 2003 19:44, kayo wrote:
+> Your little play machine rocks, but in my insomnia one night i will find
+[...]
+> i would like to see what you did and why and how
 
---=-il9t3zMECZszevrGU0BW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+What I did was not particularly difficult by today's standards.  When I first 
+put a SE play machine online it took significant effort and triggered some 
+new developments in SE policy and utilities.  But now it's pretty much all 
+merged.  Below is the only noteworthy policy change that I made against MY SE 
+Linux policy tree for the play machine.  The NSA tree is slightly different, 
+but I believe that all the changes that I've made recently are being accepted 
+for the next NSA release.
 
-wow, so maybe we should try another cpu arch? i dont think it is
-possible in the way we think now but could a group of gifted individuals
-make it possible. let's even say the attacker had no physical access
-think about it... nothing is impossible=20
+So as of the next NSA release the policy difference between my SE play machine 
+and a regular production server will be one line, and that line isn't really 
+required.
 
+Of course it's strongly recommended that you don't provide root access to 
+hostile users on serious servers.  But the play machine is a good 
+demonstration that you can fully rely on SE permissions.
 
+diff -ru /usr/share/selinux/policy/default/macros/user_macros.te 
+/usr/share/selinux/policy/current/macros/user_macros.te
+--- /usr/share/selinux/policy/default/macros/user_macros.te     2003-02-16 
+00:57:04.000000000 +0100
++++ /usr/share/selinux/policy/current/macros/user_macros.te     2003-02-17 
+14:54:36.000000000 +0100
+@@ -15,7 +15,7 @@
+ undefine(`user_domain')
+ define(`user_domain',`
+ # Use capabilities
+-allow $1_t self:capability { setgid chown fowner };
++dontaudit $1_t self:capability { setgid chown fowner };
+ dontaudit $1_t self:capability { sys_nice fsetid };
 
-On Mon, 2003-02-17 at 14:06, Russell Coker wrote:
-> On Mon, 17 Feb 2003 20:06, dlambrou@crazylinux.net wrote:
-> > Kayo you could use the CryptoAPI for linux.www.kerneli.org
-> > I think is into 2.5 now as well.
->=20
-> Yes.  Encrypted block devices on Linux means CryptoAPI.
->=20
-> > With CryptoAPI though ,if we assume you use the hash of your
-> > passphrase as the symmetric key, noone can guarantee that
-> > a some sort of crypto attack will not reveal the plaindata.
-> > It really depends for how long you data is valuable :-)
->=20
-> There are some attacks on it.  One involves moving blocks if you get acce=
-ss to=20
-> the hard drive when the machine is off.  Also if you can determine the bl=
-ock=20
-> numbers for some files then you would have a good advantage (getting read=
-=20
-> access to the files lilo puts under /boot would help).
->=20
-> > Russell said:
-> > "Of course a trojan in a flash BIOS could still get past this, but it w=
-ould
-> > be a lot more difficult.  TCPA is supposed to address these issues (if =
-you
-> > trust TCPA).  Also the LinuxBIOS people are working on similar schemes =
-but
-> > their work in this regard was classified last time I checked their web
-> > site. "
-> >
-> > Russell would you trust TCPA if the core root of trust for measurement
-> > was Open Source ?
->=20
-> To a certain extent.  However you have to consider that a modern CPU is m=
-uch=20
-> more complex than a complete computer system was 10 years ago.  A second =
-CPU=20
-> with some flash memory could fit inside a modern CPU module.  Flash memor=
-y=20
-> could be detected, but a CPU with a small amount of RAM and ROM might not=
- be. =20
-> Do you trust Intel?
->=20
-> OpenCores is an interesting project...
+ # Type for home directory.
 
---=-il9t3zMECZszevrGU0BW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+UUa/+2nlubU9QZIRAj0pAJ4lrup8w41hsG42YH+SHN564BSiPACbBf/N
-jhvIFJTASx9dEly1SE2v9LI=
-=CI8p
------END PGP SIGNATURE-----
-
---=-il9t3zMECZszevrGU0BW--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
