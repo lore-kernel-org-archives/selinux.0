@@ -1,238 +1,213 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA18329
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 10:57:06 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA22457
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:56:40 GMT
-Received: from web40206.mail.yahoo.com (web40206.mail.yahoo.com [66.218.78.67])
-	by jazzswing.ncsc.mil  with SMTP id OAA22453
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:56:39 GMT
-Message-ID: <20020626145704.87984.qmail@web40206.mail.yahoo.com>
-Date: Wed, 26 Jun 2002 07:57:04 -0700 (PDT)
-From: Michael Nyika <nyix@yahoo.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA18097
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 10:47:51 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA05151
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:46:24 GMT
+Received: from zai.com (zeta2.zai.com [12.47.112.34])
+        by jazzband.ncsc.mil  with ESMTP id OAA05147 for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:46:23 GMT
 Subject: Re: Configuration issues on a new installation
-To: Brad Chapman <jabiru_croc@yahoo.com>
+From: Warren Lerner <wdl@zai.com>
+To: Michael Nyika <nyix@yahoo.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20020626145119.63606.qmail@web40007.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20020626122402.14675.qmail@web40204.mail.yahoo.com>
+References: <20020626122402.14675.qmail@web40204.mail.yahoo.com>
+Content-Type: multipart/alternative; boundary="=-U56anxpvi1NPbKqw57xj"
+Date: 26 Jun 2002 10:49:51 -0400
+Message-Id: <1025102991.1409.17.camel@montyburns>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mr Chapman, 
-For the most part, YES, the files will be found in the
 
-/policy/domains/programs directory, when system
-processes have permissions problems.
-Some of my dmesg avc-denied-messages contained lines
-with "sysadm_t",
-and the file in this case to edit was in 
-/policy/domains. It was a file called admin.te
-For normal users, look in the same directory for 
-user.te
+--=-U56anxpvi1NPbKqw57xj
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
---- Brad Chapman <jabiru_croc@yahoo.com> wrote:
-> Mr. Nyika,
-> 
-> --- Michael Nyika <nyix@yahoo.com> wrote:
-> > Certainly sir: 
-> > (Pardon me for not giving you a real concrete
-> example
-> > message). 
-> > 
-> > If your avc message contains, eg: avc denied {
-> write }
-> >
->
-path=(something)........scontext=system_u:system_r:kernel_t
-> > tcontext= (something):(something):file_t
-> tclass=file 
-> > 
-> > then: look for a file called kernel.te in
-> > /policy/domains/programs/
-> >  
-> > why there? because it is the kernel_t domain being
-> > denied "write" permission on a "file" of type
-> > "file_t". 
-> > If you look at the path statement (still in the
-> avc
-> > denied statement), i believe you'll see the
-> probable
-> > file that should have that  type.
-> > 
-> > Now: look for a line in the kernel.te file that
-> goes
-> > something like this:
-> > 
-> > allow kernel_t file_t:file { some_entry_here };
-> > 
-> > If this line exists, then add "write" between the
-> {}.
-> > If you cant see it, then create the entry. 
-> > 
-> > next, make sure you run "make load" from the
-> /policy
-> > directory. You should see the message displayed
-> > SUCCESS if you successfully updated the policy
-> > configuration.
-> 
->        ACK. And the same should be done for all
-> programs that generate avc:
-> denied messages in the dmesg? (i.e. edit files in
-> policy/domain/program/*.te
-> for make them)?
-> 
-> > 
-> > ** This is just so you can see that avc will NOT
-> deny
-> > the permission. It doesnt mean that you should (as
-> Mr
-> > Smalley says, add permissions blindly. It really
-> > depends on what you want as an administrator).
-> 
->         ACK. I examined them and found them to be OK
-> (so far), so I added them.
-> 
-> > 
-> > If you reboot and then run "dmesg | less" and
-> scroll
-> > down, you shouldnt see the SAME avc message again.
-> 
->         OK.
-> 
-> Brad
->   
-> > 
-> > --- Brad Chapman <jabiru_croc@yahoo.com> wrote:
-> > > Mr. Nyika,
-> > > 
-> > > --- Michael Nyika <nyix@yahoo.com> wrote:
-> > > > Good-day, 
-> > > > I have found that i found the same avc denied
-> > > messages
-> > > > on my 2.4.18 SElinux kernel. I manually edited
-> the
-> > > > specific te files, just by looking at the
-> messages
-> > > > from dmesg. i eliminated all but two. They are
-> > > realted
-> > > > to the kernel_t domain and have to do with
-> write
-> > > > permissions mainly.
-> > > 
-> > >        Could you elaborate on the exact files
-> you
-> > > edited and how you changed
-> > > them, please?
-> > > 
-> > > > 
-> > > > 
-> > > > --- Brad Chapman <jabiru_croc@yahoo.com>
-> wrote:
-> > > > > Everyone,
-> > > > > 
-> > > > >      I have just started using SELinux on my
-> > > 2.4.18
-> > > > > system. I found an enormous
-> > > > > number of avc: denied messages in my dmesg
-> and
-> > > > > attempted to remove them. So far
-> > > > > I have tweaked the devfs_contexts and the
-> > > > > policy.conf files (using
-> > > > > scripts/newrules.pl for policy.conf) since
-> most
-> > > of
-> > > > > the errors were related to
-> > > > > device files and system call commands. I
-> have
-> > > also
-> > > > > installed the SELinux devfsd
-> > > > > extension and added the config entries to my
-> > > > > devfsd.conf, to no apparent avail.
-> > > > > 
-> > > > >      What is the fastest way to eliminate
-> most
-> > > (if
-> > > > > not preferably all) of these
-> > > > > messages and put me closer to activating
-> > > enforcing
-> > > > > mode?
-> > > > > 
-> > > > > Thanks,
-> > > > > 
-> > > > > Brad Chapman
-> > > > > 
-> > > > > =====
-> > > > > Brad Chapman
-> > > > > 
-> > > > > Permanent e-mails: kakadu_croc@yahoo.com
-> > > > > 		   jabiru_croc@yahoo.com
-> > > > > 		   tanami_croc@devel.lbsd.net
-> > > > > 
-> > > > > 
-> > > > > --
-> > > > > You have received this message because you
-> are
-> > > > > subscribed to the selinux list.
-> > > > > If you no longer wish to subscribe, send
-> mail to
-> > > > > majordomo@tycho.nsa.gov with
-> > > > > the words "unsubscribe selinux" without
-> quotes
-> > > as
-> > > > > the message.
-> > > > 
-> > > > --
-> > > > You have received this message because you are
-> > > subscribed to the selinux
-> > > > list.
-> > > > If you no longer wish to subscribe, send mail
-> to
-> > > majordomo@tycho.nsa.gov with
-> > > > the words "unsubscribe selinux" without quotes
-> as
-> > > the message.
-> > > 
-> > > Brad
-> > > 
-> > > 
-> > > =====
-> > > Brad Chapman
-> > > 
-> > > Permanent e-mails: kakadu_croc@yahoo.com
-> > > 		   jabiru_croc@yahoo.com
-> > > 		   tanami_croc@devel.lbsd.net
-> > > 
-> > >
-> __________________________________________________
-> > > Do You Yahoo!?
-> > > Yahoo! - Official partner of 2002 FIFA World Cup
-> > > http://fifaworldcup.yahoo.com
-> > 
-> > 
-> > __________________________________________________
-> > Do You Yahoo!?
-> > Yahoo! - Official partner of 2002 FIFA World Cup
-> > http://fifaworldcup.yahoo.com
-> 
-> 
-> =====
-> Brad Chapman
-> 
-> Permanent e-mails: kakadu_croc@yahoo.com
-> 		   jabiru_croc@yahoo.com
-> 		   tanami_croc@devel.lbsd.net
-> 
-> __________________________________________________
-> Do You Yahoo!?
-> LAUNCH - Your Yahoo! Music Experience
-> http://launch.yahoo.com
+Granted messages are only generated if you have specified auditallow
+rules
+in the configuration.  Denied messages are always generated unless you
+specify auditdeny rules in the configuration.  A recently posted patch
+(also committed to the sourceforge CVS tree) changes the 'auditdeny'
+rules' to 'dontaudit' rules and provides more intuitive semantics.  See
+the "Configuring the SELinux Policy" report for the precise syntax, or
+look at examples in the example policy configuration.
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
+
+On Wed, 2002-06-26 at 08:24, Michael Nyika wrote:
+
+    Good-day, 
+    I have found that i found the same avc denied messages
+    on my 2.4.18 SElinux kernel. I manually edited the
+    specific te files, just by looking at the messages
+    from dmesg. i eliminated all but two. They are realted
+    to the kernel_t domain and have to do with write
+    permissions mainly.
+    
+    
+    --- Brad Chapman <jabiru_croc@yahoo.com> wrote:
+    > Everyone,
+    > 
+    >      I have just started using SELinux on my 2.4.18
+    > system. I found an enormous
+    > number of avc: denied messages in my dmesg and
+    > attempted to remove them. So far
+    > I have tweaked the devfs_contexts and the
+    > policy.conf files (using
+    > scripts/newrules.pl for policy.conf) since most of
+    > the errors were related to
+    > device files and system call commands. I have also
+    > installed the SELinux devfsd
+    > extension and added the config entries to my
+    > devfsd.conf, to no apparent avail.
+    > 
+    >      What is the fastest way to eliminate most (if
+    > not preferably all) of these
+    > messages and put me closer to activating enforcing
+    > mode?
+    > 
+    > Thanks,
+    > 
+    > Brad Chapman
+    > 
+    > =====
+    > Brad Chapman
+    > 
+    > Permanent e-mails: kakadu_croc@yahoo.com
+    > 		   jabiru_croc@yahoo.com
+    > 		   tanami_croc@devel.lbsd.net
+    > 
+    > __________________________________________________
+    > Do You Yahoo!?
+    > LAUNCH - Your Yahoo! Music Experience
+    > http://launch.yahoo.com
+    > 
+    > --
+    > You have received this message because you are
+    > subscribed to the selinux list.
+    > If you no longer wish to subscribe, send mail to
+    > majordomo@tycho.nsa.gov with
+    > the words "unsubscribe selinux" without quotes as
+    > the message.
+    
+    
+    __________________________________________________
+    Do You Yahoo!?
+    Yahoo! - Official partner of 2002 FIFA World Cup
+    http://fifaworldcup.yahoo.com
+    
+    --
+    You have received this message because you are subscribed to the selinux list.
+    If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+    the words "unsubscribe selinux" without quotes as the message.
+    
+    
+
+--=-U56anxpvi1NPbKqw57xj
+Content-Type: text/html; charset=utf-8
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 TRANSITIONAL//EN">
+<HTML>
+<HEAD>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=UTF-8">
+  <META NAME="GENERATOR" CONTENT="GtkHTML/1.0.2">
+</HEAD>
+<BODY>
+Granted messages are only generated if you have specified auditallow rules
+<BR>
+in the configuration.&nbsp; Denied messages are always generated unless you
+<BR>
+specify auditdeny rules in the configuration.&nbsp; A recently posted patch
+<BR>
+(also committed to the sourceforge CVS tree) changes the 'auditdeny'
+<BR>
+rules' to 'dontaudit' rules and provides more intuitive semantics.&nbsp; See
+<BR>
+the &quot;Configuring the SELinux Policy&quot; report for the precise syntax, or
+<BR>
+look at examples in the example policy configuration.
+<BR>
+
+<BR>
+
+<BR>
+
+<BR>
+On Wed, 2002-06-26 at 08:24, Michael Nyika wrote:
+    <BLOCKQUOTE>
+<PRE><FONT COLOR="#737373"><FONT SIZE="3"><I>Good-day, </FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>I have found that i found the same avc denied messages</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>on my 2.4.18 SElinux kernel. I manually edited the</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>specific te files, just by looking at the messages</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>from dmesg. i eliminated all but two. They are realted</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>to the kernel_t domain and have to do with write</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>permissions mainly.</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I></FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I></FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>--- Brad Chapman &lt;jabiru_croc@yahoo.com&gt; wrote:</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; Everyone,</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; </FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt;      I have just started using SELinux on my 2.4.18</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; system. I found an enormous</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; number of avc: denied messages in my dmesg and</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; attempted to remove them. So far</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; I have tweaked the devfs_contexts and the</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; policy.conf files (using</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; scripts/newrules.pl for policy.conf) since most of</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; the errors were related to</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; device files and system call commands. I have also</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; installed the SELinux devfsd</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; extension and added the config entries to my</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; devfsd.conf, to no apparent avail.</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; </FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt;      What is the fastest way to eliminate most (if</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; not preferably all) of these</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; messages and put me closer to activating enforcing</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; mode?</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; </FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; Thanks,</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; </FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; Brad Chapman</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; </FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; =====</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; Brad Chapman</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; </FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; Permanent e-mails: kakadu_croc@yahoo.com</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; 		   jabiru_croc@yahoo.com</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; 		   tanami_croc@devel.lbsd.net</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; </FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; __________________________________________________</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; Do You Yahoo!?</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; LAUNCH - Your Yahoo! Music Experience</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; http://launch.yahoo.com</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; </FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; --</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; You have received this message because you are</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; subscribed to the selinux list.</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; If you no longer wish to subscribe, send mail to</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; majordomo@tycho.nsa.gov with</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; the words &quot;unsubscribe selinux&quot; without quotes as</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>&gt; the message.</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I></FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I></FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>__________________________________________________</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>Do You Yahoo!?</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>Yahoo! - Official partner of 2002 FIFA World Cup</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>http://fifaworldcup.yahoo.com</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I></FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>--</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>You have received this message because you are subscribed to the selinux list.</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I>the words &quot;unsubscribe selinux&quot; without quotes as the message.</FONT></FONT></I>
+<FONT COLOR="#737373"><FONT SIZE="3"><I></FONT></FONT></I>
+</PRE>
+    </BLOCKQUOTE>
+</BODY>
+</HTML>
+
+--=-U56anxpvi1NPbKqw57xj--
+
 
 --
 You have received this message because you are subscribed to the selinux list.
