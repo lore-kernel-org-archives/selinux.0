@@ -1,105 +1,92 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i733InrT018045
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 23:18:50 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i733IEXV028845
-	for <selinux@tycho.nsa.gov>; Tue, 3 Aug 2004 03:18:15 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 6383561BD2
-	for <selinux@tycho.nsa.gov>; Tue,  3 Aug 2004 13:18:37 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 07874-09 for <selinux@tycho.nsa.gov>;
-	Tue, 3 Aug 2004 13:18:37 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id E69C861BBE
-	for <selinux@tycho.nsa.gov>; Tue,  3 Aug 2004 13:18:36 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 8F0C5B59A7
-	for <selinux@tycho.nsa.gov>; Tue,  3 Aug 2004 13:18:35 +1000 (EST)
-From: Russell Coker <rcoker@redhat.com>
-Reply-To: rcoker@redhat.com
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: postgrey policy
-Date: Tue, 3 Aug 2004 13:18:34 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_KQwDBIidJZizWWd"
-Message-Id: <200408031318.34469.rcoker@redhat.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i738IlrT019042
+	for <selinux@tycho.nsa.gov>; Tue, 3 Aug 2004 04:18:47 -0400 (EDT)
+Received: from snowstorm.hosts.ndo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i738ID6o003473
+	for <selinux@tycho.nsa.gov>; Tue, 3 Aug 2004 08:18:14 GMT
+Date: Tue, 3 Aug 2004 09:27:52 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: "Marco d'Itri" <md@Linux.IT>
+Cc: 263079@bugs.debian.org, linux-hotplug-devel@lists.sourceforge.net,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Bug#263079: udev: missing mknod on ppp
+Message-ID: <20040803082752.GA3504@lkcl.net>
+References: <E1Brl5k-0006Jd-1F@lkcl.net> <20040802224118.GA18849@wonderland.linux.it> <20040802231534.GB16238@lkcl.net> <20040802231148.GA19178@wonderland.linux.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040802231148.GA19178@wonderland.linux.it>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, Aug 03, 2004 at 01:11:48AM +0200, Marco d'Itri wrote:
+> On Aug 03, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> 
+> > thank you for pointing me at the README.Debian because it makes clear
+> > that for SE/Linux there are certain /dev entries that may not get
+> > fired up by udev, and consequently won't have se/linux permissions set!
+> On debian, *all* devices are supposed to be created by udev if udev is
+> installed (because /dev is a tmpfs).
+> I don't know why /dev/ppp is not being created on your system.
 
---Boundary-00=_KQwDBIidJZizWWd
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Attached is policy for the postgrey daemon for grey-listing in Postfix.
+this could have something to do with it: it looks like udev
+is not quick enough to create the device node in time for pppd
+to use it.
 
-Grey-listing means giving a 45x code in response to email the first time a 
-particular IP address or combination of IP address and email address attempts 
-to send mail to you.  Some minutes later the mail will be received.
 
-Spam machines generally don't re-try so greylisting stops lots of spam, and as 
-long as the delay is significantly less than 4 hours (usually only a few 
-minutes) someone who sends legit email will never notice any difference.
+Aug  3 09:18:49 localhost udev[3255]: creating device node '/dev/ttyUSB0'
+Aug  3 09:18:54 localhost pppd[3258]: pppd is unable to open the /dev/ppp device. You need to create the /dev/ppp device node by executing the following command as root: ^Imknod /dev/ppp c 108 0 
+Aug  3 09:19:02 localhost kernel: CSLIP: code copyright 1989 Regents of the University of California
+Aug  3 09:19:02 localhost kernel: PPP generic driver version 2.4.2
+Aug  3 09:19:02 localhost pppd[3270]: pppd 2.4.2 started by root, uid 0
+Aug  3 09:19:02 localhost udev[3269]: creating device node '/dev/ppp'
+> 
+> > i've had to modify /etc/init.d/udev to do a manual /sbin/restorecon on
+> > all entries listed in /etc/udev/links.conf.
+> This is a special-case, links.conf is supposed to be used *only* to
+> create some symlinks and directories. I do not know enough about SE
+> Linux to tell how it should be integrated with this.
 
--- 
-http://apac.redhat.com/disclaimer
-See above URL for disclaimer.
+ i do.
 
---Boundary-00=_KQwDBIidJZizWWd
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="postgrey.fc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="postgrey.fc"
+ i've patched my kernel to have tmpfs(shmfs) support se/linux
+ attributes.
 
-# postgrey - postfix grey-listing server
-/usr/sbin/postgrey	--	system_u:object_r:postgrey_exec_t
-/var/run/postgrey\.pid	--	system_u:object_r:postgrey_var_run_t
-/etc/postgrey(/.*)?		system_u:object_r:postgrey_etc_t
-/var/lib/postgrey(/.*)?		system_u:object_r:postgrey_var_lib_t
+ _anything_ that goes into the /dev-mounted tmpfs _must_ have selinux
+ attributes set on them.
 
---Boundary-00=_KQwDBIidJZizWWd
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="postgrey.te"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="postgrey.te"
+ in the case of a persistent filesystem (ext2 etc) those attributes can
+ be set once, and subsequently ignored.
 
-#DESC postgrey - Postfix Grey-listing server
-#
-# Author:  Russell Coker <russell@coker.com.au>
-# X-Debian-Packages: postgrey
+ of course, with a tmpfs, then it's a bit like saying it's okay to
+ create entries in /dev with chmod 0000 and not calling chgrp,
+ we'll do it later sort of thing.
 
-daemon_domain(postgrey)
+ so any symlinks and directories, also you _must_ call /sbin/restorecon
+ or some equivalent.
 
-allow postgrey_t urandom_device_t:chr_file { getattr read };
+ i've patched udev-0.030 to do likewise: all inodes, all directories
+ (including subdirectories) and all symlinks in fact all creates,
+ are now created with the correct selinux context.
 
-# for perl
-allow postgrey_t sbin_t:dir search;
-allow postgrey_t usr_t:{ file lnk_file } { getattr read };
-dontaudit postgrey_t usr_t:file ioctl;
 
-allow postgrey_t { etc_t etc_runtime_t }:file { getattr read };
-etcdir_domain(postgrey)
+> 
+> > i have some vague and rushed recollection of forcibly doing an
+> > /sbin/restorecon in /etc/init.d/modutils, too.
+> /etc/init.d/modutils is 2.4.x stuff.
+> 
+> > the issue is, therefore that /etc/init.d/modutils will endeavour to
+> > manually install modules at startup - even before udev is run - and
+> > it doesn't bother to set the selinux permissions.
+> No, it will not: udev is run S04 and module-init-tools at S20 of rcS.d.
 
-can_network(postgrey_t)
-allow postgrey_t self:unix_stream_socket create_stream_socket_perms;
-allow postgrey_t proc_t:file { getattr read };
+ hm, then should that order be reversed, or do you think that
+ module-init-tools should be fixed?
+ 
+ (or other)
 
-allow postgrey_t self:capability { chown setuid };
+ l.
 
-var_lib_domain(postgrey)
-
-allow postgrey_t tmp_t:dir getattr;
-
---Boundary-00=_KQwDBIidJZizWWd--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
