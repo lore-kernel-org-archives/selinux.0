@@ -1,25 +1,45 @@
-Subject: Re: glibc check errors
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Kratzer, James R." <JamesK@xetron.com>
+Message-ID: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A41@s3cin>
+From: "Kratzer, James R." <JamesK@xetron.com>
+To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
 Cc: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
-In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A40@s3cin>
-References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A40@s3cin>
-Content-Type: text/plain
-Message-Id: <1064939219.6364.8.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 30 Sep 2003 12:26:59 -0400
+Subject: RE: glibc check errors
+Date: Tue, 30 Sep 2003 13:30:22 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I am running the new 2.4 based SELinux kernel and userland archive on Red
+Hat 9.  If I understand you correctly, since the glibc changes have been
+upstreamed and were not SELinux specific, you will be releasing soon a new
+userland archive which will require an updated version of the glibc package.
+If this is correct, how soon do you anticipate the release of the new
+userland archive and the release of the new glibc package ( glibc-2.3.3
+maybe? )?  Can I use the current userland archive utilities without the
+patched glibc?
+
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@epoch.ncsc.mil]
+Sent: Tuesday, September 30, 2003 12:27 PM
+To: Kratzer, James R.
+Cc: 'SELinux@tycho.nsa.gov'
+Subject: Re: glibc check errors
+
+
 On Tue, 2003-09-30 at 11:34, Kratzer, James R. wrote:
-> I have built the glibc library with the SELinux patches.  When running "make
-> check", I get the following errors.  Any ideas what is going on here and how
+> I have built the glibc library with the SELinux patches.  When running
+"make
+> check", I get the following errors.  Any ideas what is going on here and
+how
 > I can resolve it because I'm at a loss?  Thanks for any help.
 > 
 > /bin/sh -e tst-gettext.sh /usr/src/redhat/BUILD/glibc-2.3.2-build/
 > /usr/src/redhat/BUILD/glibc-2.3.2-build/intl/ \
 > 	/usr/src/redhat/BUILD/glibc-2.3.2-build/intl/tst-gettext.mtrace
-> make[2]: *** [/usr/src/redhat/BUILD/glibc-2.3.2-build/intl/tst-gettext.out]
+> make[2]: ***
+[/usr/src/redhat/BUILD/glibc-2.3.2-build/intl/tst-gettext.out]
 > Error 1
 > make[2]: Leaving directory
 > '/usr/src/redhat/BUILD/glibc-2.3.2-200304020432/intl'
@@ -33,7 +53,6 @@ in newer glibc packages.
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
