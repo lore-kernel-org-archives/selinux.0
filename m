@@ -1,36 +1,71 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA12845
-	for <selinux@tycho.nsa.gov>; Tue, 30 Apr 2002 20:57:43 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA15579
+	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 12:07:31 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id AAA11037
-	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 00:55:52 GMT
-Received: from coffeesaur2.evoserve.com (evoworks.evoserve.com [210.16.10.5])
-	by jazzswing.ncsc.mil  with ESMTP id AAA11033
-	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 00:55:51 GMT
-Received: from evoworks.evoserve.com (localhost [127.0.0.1])
-	by coffeesaur2.evoserve.com (Postfix) with ESMTP id B6485812E3
-	for <selinux@tycho.nsa.gov>; Wed,  1 May 2002 08:57:34 +0800 (PHT)
+	by jazzswing.ncsc.mil  with ESMTP id QAA16306
+	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 16:05:40 GMT
+Received: from rj.sgi.com (rj.SGI.COM [192.82.208.96])
+	by jazzswing.ncsc.mil  with ESMTP id QAA16302
+	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 16:05:40 GMT
+Received: from cthulhu.engr.sgi.com (cthulhu.engr.sgi.com [192.26.80.2])
+	by rj.sgi.com (8.12.2/8.12.2/linux-outbound_gateway-1.2) with ESMTP id g41E7J1b016836
+	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 07:07:20 -0700
+Received: from morgaine.engr.sgi.com (morgaine.engr.sgi.com [163.154.6.121])
+	by cthulhu.engr.sgi.com (SGI-8.9.3/8.9.3) with ESMTP id JAA40448
+	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 09:07:28 -0700 (PDT)
+Received: from changeling.engr.sgi.com (changeling.engr.sgi.com [163.154.6.122])
+	by morgaine.engr.sgi.com (SGI-8.9.3/8.9.3) with ESMTP id JAA24538
+	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 09:07:28 -0700 (PDT)
+Date: Wed, 01 May 2002 09:07:28 -0700
+From: richard offer <offer@sgi.com>
 To: selinux@tycho.nsa.gov
-Subject: successfull avc_toggle
-Date: Wed, 01 May 2002 08:57:34 +0800
-From: Debian User <rogelio@evoworks.evoserve.com>
-Message-Id: <20020501005734.B6485812E3@coffeesaur2.evoserve.com>
+Subject: /usr/bin/checkpolicy ?
+Message-ID: <596920000.1020269248@changeling.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I can go into enforcing mode mode now without being logged out. The
-policy is too restrictive though and i added some allow lines to the 
-policy.
 
-domains/admin.te:
-allow sysadm_t getty_t:fd { use };
-allow sysadm_t devfs_t:chr_file { getattr };
 
-domains/programs/getty.te:
-allow getty_t devtty_t:lnk_file { read };
+I downloaded selinux-2.4.18-2002031409.src.rpm and tried to rebuild it (on
+a uptodate RH 7.2 machine)
 
-is this ok?
-ordiinary user can not login yet. root can use ssh.
+    rpm --rebuild selinux-2.4.18-2002031409.src.rpm
+
+and got
+
+....
+
+m4 -Imacros -s
+/var/tmp/selinux-2.4.18-root/usr/lib/selinux/security_classes
+/var/tmp/selinux-2.4.18-root/usr/lib/selinux/initial_sids
+/var/tmp/selinux-2.4.18-root/usr/lib/selinux/access_vectors all.te rbac
+users constraints initial_sid_contexts fs_contexts devfs_contexts
+net_contexts > policy.conf
+/usr/bin/checkpolicy -o policy policy.conf
+make: /usr/bin/checkpolicy: Command not found
+make: *** [policy] Error 127
+error: Bad exit status from /var/tmp/rpm-tmp.62266 (%build)
+
+
+RPM build errors:
+    Bad exit status from /var/tmp/rpm-tmp.62266 (%build)
+
+
+
+Shouldn't there be a BuildRequires: rule for checkpolicy ? And it so, it
+would need to be in a separate (tools ?) package.
+
+
+richard.
+
+-- 
+-----------------------------------------------------------------------
+Richard Offer                     Technical Lead, Trust Technology, SGI
+"Specialization is for insects"
+_______________________________________________________________________
+
 
 --
 You have received this message because you are subscribed to the selinux list.
