@@ -1,31 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA19368
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 07:54:45 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA13397
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 12:52:44 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA19404
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 07:57:21 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA16534
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 12:55:13 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id MAA13393 for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 12:52:44 GMT
-Message-Id: <200211201301.IAA16963@moss-shockers.ncsc.mil>
-Date: Wed, 20 Nov 2002 08:01:57 -0500 (EST)
+	by jazzswing.ncsc.mil  with ESMTP id MAA16530
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 12:55:13 GMT
+Message-Id: <200211201304.IAA16966@moss-shockers.ncsc.mil>
+Date: Wed, 20 Nov 2002 08:04:26 -0500 (EST)
 From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
 Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: allow a_domain_t fs_t:filesystem getattr;
-To: selinux@tycho.nsa.gov, russell@coker.com.au
+Subject: Re: conflicting header files
+To: selinux@tycho.nsa.gov, bam@snoopy.apana.org.au
 MIME-Version: 1.0
 Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> It seems that almost everything wants to check for free space on file systems 
-> occasionally.
-> 
-> Is there any reason for not changing macros such as daemon_base_domain() and 
-> general_domain_access() to include it instead?
+> In lsm-2.4/security/selinux/include/linux/flask/security.h, it has:
 
-It is already in general_file_read_acess(), as 'allow $1 fs_type:filesystem 
-getattr;'.
+These are the internal kernel interfaces to the security server.
+Application code shouldn't be including this file.
+
+> In selinux-small-2002102211/libsecure/include/ss.h, it has:
+
+These are the application interfaces to the security server.
+
+> I am guessing for now that one function is a internal function in the
+> kernel, and the other function is one defined in libsecure.a for
+> external use. Am I correct?
+
+Yes.
 
 --
 Stephen Smalley, NSA
