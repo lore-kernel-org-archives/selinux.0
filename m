@@ -1,56 +1,44 @@
-Date: Mon, 13 Aug 2001 08:09:16 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Ryan Senior <slax@ksni.net>
-cc: SELinux@tycho.nsa.gov
-Subject: Re: problems with checkpolicy.conf and make initinstall
-In-Reply-To: <3B740922.1B1A497@ksni.net>
-Message-ID: <Pine.SOL.3.95.1010813080840.13872B-100000@clipper.gw.tislabs.com>
+Message-ID: <011401c12464$842d10c0$020144c0@windows>
+From: "Eric Peters" <eric@peters.org>
+To: <SELinux@tycho.nsa.gov>
+Cc: "Stephen Smalley" <sds@tislabs.com>
+Subject: SE Linux II?
+Date: Mon, 13 Aug 2001 18:57:42 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Recently you (Stephen Smalley) wrote:
 
-This is a known bug - see the patch I posted on May 7th at
-http://marc.theaimsgroup.com/?l=selinux&m=98926011507312&w=2.
+To date, development on the LSM-based SELinux prototype (or SELinux II,
+if you prefer) has focused on providing the same functionality present
+in the original SELinux prototype (i.e. fine-grained and flexible
+nondiscretionary access controls) as a loadable kernel module that
+uses the LSM hooks rather than our own custom kernel patch.
+Currently, SELinux II seems to be stable enough for release, and
+does provide most of the functionality of the original prototype
+(we're still working on the network access controls).  It should
+be released soon on the NSA web site.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+We are currently working off of the LSM kernel patch
+(lsm-2001_08_07 against 2.4.7) from lsm.immunix.org, so you
+could investigate integrating that into your FOLK patch if
+you want to support SELinux II.
 
+-------
 
+Is there really any ETA on this release?
 
-On Fri, 10 Aug 2001, Ryan Senior wrote:
+I'm just looking at maybe a rough date of perhaps a week/two etc? So that I
+can do some planning for testin/moving some system over to it (so it would
+hopefully at that point be more "upgradeable" without excessive kernel
+recompiles correct?)
 
-> When I execute the command make initinstall I recieve this error.
-> 
-> ./checkpolicy:  loading policy configuration from
-> /usr/src/slinux/policy/initpolicy.conf
-> error in the statement ending on line 1054 (token ';'): unknown class
-> filesystem used in rule
-> 
-> I think that the following code is the code it is having difficulty with
-> 
-> #
-> # Allow each file type to be associated with
-> # the default file system type.
-> #
-> allow file_type fs_t:filesystem associate;
-> 
-> 
-> Is this a known error?  Is there an easy way to fix it?
-> I'm running Red Hat 7.1.
-> 
-> Thanks,
-> Ryan
-> 
-> 
-> 
-> --
-> You have received this message because you are subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+Thanks,
+
+Eric
 
 
 --
