@@ -1,32 +1,38 @@
-Message-ID: <72222DC86846D411ABD300A0C9EB08A101524364@csoc-mail-box.csoconline.com>
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524365@csoc-mail-box.csoconline.com>
 From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
 To: "'f980215'" <f980215@mailandnews.com>,
         "Westerman, Mark"
 	 <Mark.Westerman@csoconline.com>
 Cc: SELinux@tycho.nsa.gov
 Subject: RE: Install SELinux RPM
-Date: Thu, 25 Apr 2002 08:25:22 -0500
+Date: Thu, 25 Apr 2002 08:27:43 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I building the freeswan module for this rpm
-package I ran into a problem
-I name the Development Mode Kernel
-with an EXTRAVERSION -selinux-dev
 
-the -dev broke the rpm build of freeswan
+on Thursday, April 25, 2002 1:20 AM, f980215 wrote
+> 
+> I download selinux-2.4.18-2002031409.i386.rpm
+> 
+> When I install, found error infomation:
+> 
+> rpm -Uvh selinux-2.4.18-2002031409.i386.rpm
+> 
+> ========
+> error:unpacking of archive failed on file 
+> /lib/modules/2.4.18-selinux/kernel/drivers/char
+> /agp/agpgart.o;3cc79ba6: cpio: MD5 sum mismatch
 
-I have since rename the EXTRAVERSION to selinuxdev
+This was verified to be a problem. There was an
+error in the upload. I am fixing that and
+the EXTRAVERION today. The rpm package will
+be taken offline till the fix
 
-I will be uploading the new rpm package today.
 
 Mark
-
-PS: I also hope the upload the freeswan module
-today.
 
  
 
