@@ -1,56 +1,63 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Douglas Williams" <douglaswilliams@sympatico.ca>,
-   "SELinux" <SELinux@tycho.nsa.gov>
-Subject: Re: StrongArm port
-Date: Mon, 16 Feb 2004 16:52:32 +1100
-References: <005701c3f441$e13d7a20$6401a8c0@williams>
-In-Reply-To: <005701c3f441$e13d7a20$6401a8c0@williams>
+Message-ID: <20040216140245.87457.qmail@web15201.mail.bjs.yahoo.com>
+Date: Mon, 16 Feb 2004 22:02:45 +0800 (CST)
+From: =?gb2312?q?Park=20Lee?= <parklee_2004@yahoo.com.cn>
+Subject: Something seems to be self-contradictory
+To: SELinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402161652.32834.russell@coker.com.au>
+Content-Type: multipart/alternative; boundary="0-820003070-1076940165=:86726"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 16 Feb 2004 15:03, "Douglas Williams" <douglaswilliams@sympatico.ca> 
-wrote:
-> Does anyone know where I can get a good linux kernel for an IPAQ 3850. My
-> next robot must have a secure OS especially since it will use an RF data
-> link with relatively weak encryption.
+--0-820003070-1076940165=:86726
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: 8bit
 
-The new SE Linux requires XATTR support in the file system.
-
-The 2.4 kernels for the iPaQ do not have any XATTR code, if the patch was 
-merged (which is more difficult than you might imagine as Familiar uses 
-2.4.19 which is heavily modified) then support would still have to be written 
-for the JFFS2 file system.  I think that we will never see 2.4.x on the iPaQ 
-supporting XATTRs.
-
-2.6 on the iPaQ is a work in progress.  Whether they will back-port it to 
-older iPaQ's such as the 3800 series is something I'm unsure of.  I get the 
-impression that the key developers have moved on from the 3900 series and are 
-not going to do much more for it, so I'm not sure what that means for the 
-older 3800 series.
-
-When 2.6 is running on iPaQ's, then someone needs to write XATTR support for 
-JFFS2.  After that getting the new SE Linux running on iPaQ's should be easy.
-
-
-Old SE Linux works on iPaQ's, but there will not be much future support for 
-that.
+Hi,
+Today,I was reading some SELinux technical documents.I saw the following words, They seems to be self-contradictory:
+ 
+1.  ... ... A program,like any other object, is assigned a type,....      ( Page 4, subsection 3.1.TE Model,  Configuring the SELinux Policy).
+2. ... ...These transitions ensure that system processes and certain programs are placed into their own separate domains automatically. ......    ( Page 2, section 2 Overview,  A Security Policy Configuration for the Security-Enhanced Linux ).
+ 
+Then I was confused by such a problem:
+Whether a program is assigned a type or a domain ?
+ 
+Thanks,
+ 
+Yours,
+Park Lee
+2004-02-16
+ 
+ 
+ 
 
 
-If you use an IBM mini-disk formatted with Ext3 then you could use new SE 
-Linux on an iPaQ.  Of course you would still have to back-port the kernel 
-patches to 2.4.19...
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+---------------------------------
+Do You Yahoo!?
+完全免费的雅虎电邮，马上注册获赠额外60兆网络存储空间
+--0-820003070-1076940165=:86726
+Content-Type: text/html; charset=gb2312
+Content-Transfer-Encoding: 8bit
 
+<DIV>Hi,</DIV>
+<DIV>Today,I was reading some SELinux technical documents.I saw the following words, They seems to be self-contradictory:</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>1.&nbsp; ... ... A program,like any other object, is assigned a type,....&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;( Page 4, subsection 3.1.TE Model,&nbsp; Configuring the SELinux Policy).</DIV>
+<DIV>2. ... ...These transitions ensure that system processes and certain programs are placed into their own separate domains automatically. ......&nbsp;&nbsp;&nbsp; (&nbsp;Page 2,&nbsp;section 2 Overview,&nbsp; A Security Policy Configuration for the Security-Enhanced Linux ).</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Then I was confused by such a problem:</DIV>
+<DIV>Whether a program is assigned a type or a domain ?</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Yours,</DIV>
+<DIV>Park Lee</DIV>
+<DIV>2004-02-16</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV><p><br><hr size=1><b>Do You Yahoo!?</b><br>
+<a href="http://cn.rd.yahoo.com/mail_cn/tag/?http://cn.mail.yahoo.com" target=blank>完全免费的雅虎电邮，马上注册获赠额外60兆网络存储空间</a>
+--0-820003070-1076940165=:86726--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
