@@ -1,61 +1,75 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA08349
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 10:56:17 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA02590
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 14:54:39 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id OAA02586 for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 14:54:38 GMT
-Date: Mon, 19 Aug 2002 10:55:19 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: ptrace permissions
-In-Reply-To: <20020813134933.93C5D411@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0208191040170.14458-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA08567
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 11:27:40 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA20360
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 15:26:36 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id PAA20356
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 15:26:35 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
+Subject: Re: type_change rules
+Date: Mon, 19 Aug 2002 17:27:26 +0200
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0208190900150.14458-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0208190900150.14458-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020819152726.B3533267@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Tue, 13 Aug 2002, Russell Coker wrote:
-
-> I am trying to strace programs in my chroot environment.  I can trace a
-> syslogd, a sshd, but the child sshd and a bash login shell it spawned are
-> untracable.  Here's the AVC message:
+On Mon, 19 Aug 2002 15:04, Stephen Smalley wrote:
+> On Mon, 19 Aug 2002, Russell Coker wrote:
+> > In my case it appears that login exec's the user's shell and is gone from
+> > memory.
+> >
+> > So it seems that to get this working correctly I need some changes to the
+> > login program to make it hang around (as login programs apparently do in
+> > other distributions), and I need to make sure that the SAK is blocked
+> > from killing the login process.
 >
-> avc:  denied  { sys_ptrace } for  pid=31984 comm=strace capability=19
-> scontext=root:user_r:user_t tcontext=root:user_r:user_t tclass=capability
+> If compiled with PAM support, the util-linux login forks a child process
+> that waits for the user shell to exit and then cleans up the session
+> (including relabeling the tty back to its original SID, with the SELinux
+> patch).
+
+I'll have to look into that.  Debian is using the shadow utils login which is 
+different.
+
+> > rc scripts aren't involved.  Doing it in init is ugly.  Changing getty
+> > means changing 4 getty programs that I use on machines I run (and more
+> > getty programs for a comprehensive solution).  I don't think that this is
+> > the real fix.
 >
-> I'm using the latest SE Linux from the latest LSM kernel patch.
->
-> The bash process is UID!=0, but the sshd is UID==0.
+> I think it is.  Keep in mind that the same issue arises for the Linux
+> ownership and modes on ttys, and that this must be addressed somewhere in
+> getty or init.  But I concede that it may be a lot of work to support all
+> getty programs.
 
-SELinux performs a sys_ptrace permission check whenever the kernel checks
-the CAP_SYS_PTRACE capability.  The kernel checks this capability on
-ptrace_attach if:
-1) There is a mismatch between the current process' real uid and any of
-the target process' uids (real, effective, or saved), or
-2) There is a mismatch between the current process' real gid and any of
-the target process' gids, or
-3) The target process is no longer dumpable, e.g. due to a prior change in
-uid or gid or lack of read access to the executable.
+I think it's simply impractical to change all getty programs.  I think that 
+the solution is a wrapper that either:
+1)  Relabels the tty device based on a config file or command line parameter 
+and then exec's the real getty.
+2)  Monitors the real getty and changes the SID back after that session 
+finishes.
 
-On a successful ptrace_attach, the kernel will also check this capability
-and save the result in the ptrace flags (PT_PTRACE_CAP if granted) of the
-target task.  This result is subsequently used in the
-kernel must_not_trace_exec check to guard against tracing across set[ug]id
-program execution unless the tracer had the capability.
+Option 2 was what I first thought of, but it means more processes, and 
+there's the issue that init writes the PID to the utmp file (and code to 
+manage utmp is a PITA to write).
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I'll probably implement option 1 some time this week.  I think it'll make a 
+useful addition to selinux-small, I can imagine other uses for such a program 
+as well.
 
-
-
-
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
