@@ -1,50 +1,37 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23934
-	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 08:39:46 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA25982
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 12:25:57 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA08162
-	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 13:37:48 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id NAA08158 for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 13:37:47 GMT
-Message-Id: <200211071346.IAA06987@moss-shockers.ncsc.mil>
-Date: Thu, 7 Nov 2002 08:46:01 -0500 (EST)
-From: "Stephen D. Smalley" <sds@facesaver.epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@facesaver.epoch.ncsc.mil>
-Subject: Re: IOCTL from rm
-To: selinux@tycho.nsa.gov, russell@coker.com.au
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+	by jazzband.ncsc.mil  with ESMTP id RAA23037
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 17:24:00 GMT
+Received: from prserv.net (asmtp2.prserv.net [32.97.166.52])
+        by jazzband.ncsc.mil  with ESMTP id RAA23033 for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 17:24:00 GMT
+Message-Id: <200211071724.RAA23033@jazzband.ncsc.mil>
+Date: Thu, 7 Nov 2002 12:22:33 -0500
+From: "Subba Rao" <sailorn@attglobal.net>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: SELinux source
+Mime-Version: 1.0
+Content-Type: text/plain;
+      charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello again,
 
-> Some time ago Steve sent me a patch to display the IOCTL that is denied to 
-> help tracking down strange IOCTLs.  I applied the patch with the following 
-> results.
-> 
-> How do I proceed from here?
-> 
-> On Wed, 6 Nov 2002 15:02, System Administrator wrote:
-> > Nov  6 06:26:23 ivanova kernel: avc:  denied  { ioctl } for  pid=22219
-> > exe=/bin/rm path=/root dev=09:01 ino=176512
-> > scontext=system_u:system_r:system_crond_t
-> > tcontext=system_u:object_r:sysadm_home_dir_t tclass=dir Nov  6 06:26:23
-> > ivanova kernel: selinux_file_ioctl:  denied ioctl 5401 Nov  6 06:26:23
-> > ivanova kernel: avc:  denied  { ioctl } for  pid=22220 exe=/bin/rm
-> > path=/root dev=09:01 ino=176512 scontext=system_u:system_r:system_crond_t
-> > tcontext=system_u:object_r:sysadm_home_dir_t tclass=dir Nov  6 06:26:23
-> > ivanova kernel: selinux_file_ioctl:  denied ioctl 5401 Nov  6 06:26:23
-> > ivanova kernel: avc:  denied  { ioctl } for  pid=22221 exe=/bin/rm
-> > path=/root dev=09:01 ino=176512 scontext=system_u:system_r:system_crond_t
-> > tcontext=system_u:object_r:sysadm_home_dir_t tclass=dir Nov  6 06:26:23
-> > ivanova kernel: selinux_file_ioctl:  denied ioctl 5401
+I have question about SELinux source.  I have downloaded the entire package for 2.4.19 (which includes Linux source).
+Is this source modified for SELinux or is it the same as what I download from http://www.kernel.org? 
 
-include/asm-i386/ioctls.h defines TCGETS as 0x5401.  This should fail anyway on 
-a directory, with errno ENOTTY, even if the permission were granted.  Hence,
-we can probably just use a dontaudit rule to suppress this audit message.
+After extracting the compressed file, there are 2 directories.  One is LSM-2.4 and the other is SELINUX.  The LSM-2.4 tree looks
+similar to what I usually download from the kernel.org site.
 
+If it is similar, can I use "make xconfig" to configure SELinux?  (I am assuming X will work normally in SELinux).
 
+Is the compilation process different for the source in SELINUX directory? Will "make bzImage" take care of the source in SELINUX directory?                                                                                                                
 
+Subba Rao
+sailorn@attglobal.net
+2002-11-07
 
 
 
