@@ -1,42 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2VMTmDo000227
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 17:29:49 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2VMSQiv018795
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 22:28:26 GMT
-Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j2VMSQB9021571
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 17:28:27 -0500 (EST)
-Subject: Re: Further X client cleanups..questions
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j315TsDo009468
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2005 00:29:54 -0500 (EST)
+Received: from wproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j315PmhV017958
+	for <selinux@tycho.nsa.gov>; Fri, 1 Apr 2005 05:25:49 GMT
+Received: by wproxy.gmail.com with SMTP id 69so772691wra
+        for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 21:28:29 -0800 (PST)
+Message-ID: <a9951d2a050331212851af92d4@mail.gmail.com>
+Date: Fri, 1 Apr 2005 13:28:29 +0800
+From: Rogelio Serrano <rogelio.serrano@gmail.com>
+Reply-To: Rogelio Serrano <rogelio.serrano@gmail.com>
 To: selinux@tycho.nsa.gov
-In-Reply-To: <1112308113.17917.9.camel@cobra.ivg2.net>
-References: <1112308113.17917.9.camel@cobra.ivg2.net>
-Content-Type: text/plain
-Date: Thu, 31 Mar 2005 17:34:37 -0500
-Message-Id: <1112308477.17917.12.camel@cobra.ivg2.net>
+Subject: Re: Desktop apps interoperability
+In-Reply-To: <1112303152.11216.199.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <20050331160546.36303.qmail@web31615.mail.mud.yahoo.com>
+	 <1112285287.11216.114.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050331231259.B2607@lemuria.org>
+	 <1112303152.11216.199.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-03-31 at 17:28 -0500, Ivan Gyurdiev wrote:
-> I am wondering whether the following are needed:
+On Apr 1, 2005 5:05 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Thu, 2005-03-31 at 23:13 +0200, Tom wrote:
+> > He does have a point, though - sometimes the application can not be
+> > changed. It may be a legacy application and for all I care, those are
+> > the ones most in need of a protective cage.
 > 
-> allow $1_$2_t xdm_t:fd use;
-> allow $1_$2_t xdm_t:fifo_file rw_file_perms;
-> dontaudit $1_$2_t xdm_t:tcp_socket { read write };
+
+Unchangeable legacy apps should die.
+ 
+> Sure, and at that point, you just confine it as best as you can while
+> still allowing whatever functionality you require.  SELinux supports
+> that need just fine.  But you don't want to just accept that status quo
+> for all applications for all time, which seemed to be Casey's attitude.
 > 
-> allow $1_t $2_xserver_t:process signal;
+[snipped...]
 
-The $1 and $2 here are different from the other ones - 
+I think everybody agrees that aggressive refactorization of source
+code is a good thing. Therefore in an open source environment legacy
+apps dont exist.
 
-In the first case $1 is role, $2 is app, in the second
-$1 is role_app, $2 is role.
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
-
+Blood is thicker than water... and much tastier
+                                           John Davidorff Pell
 
 --
 This message was distributed to subscribers of the selinux mailing list.
