@@ -1,85 +1,35 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9CIT9Wt011522
-	for <selinux@tycho.nsa.gov>; Sun, 12 Oct 2003 14:29:09 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9CIT30p021089
-	for <selinux@tycho.nsa.gov>; Sun, 12 Oct 2003 18:29:03 GMT
-Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
-	by jazzswing.ncsc.mil  with ESMTP id h9CIT1r7021086
-	for <selinux@tycho.nsa.gov>; Sun, 12 Oct 2003 18:29:02 GMT
-Received: from lky (mailwall.shnet.edu.cn [202.112.26.55])
-	by sjtu.edu.cn (WorldPost) with ESMTP id 890DD13D119
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 02:29:04 +0800 (BEIST)
-Message-ID: <000901c390ef$d8b3c770$5d38a8c0@lky>
-From: "lky" <lky77@sjtu.edu.cn>
-To: "SELINUX" <SELinux@tycho.nsa.gov>
-Subject: can't start X window in enforce mode
-Date: Mon, 13 Oct 2003 02:37:09 +0800
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "lky" <lky77@sjtu.edu.cn>, "SELINUX" <SELinux@tycho.nsa.gov>
+Subject: Re: can't start X window in enforce mode
+Date: Mon, 13 Oct 2003 08:11:28 +1000
+References: <000901c390ef$d8b3c770$5d38a8c0@lky>
+In-Reply-To: <000901c390ef$d8b3c770$5d38a8c0@lky>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C39132.E696CA20"
+Content-Type: text/plain;
+  charset="gb2312"
+Message-Id: <200310130811.28355.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Mon, 13 Oct 2003 04:37, lky wrote:
+>-------------- Why the system didn't display the denied message if the
+> opration violate the policy? How should I configure my policy in order to
+> start the X window? Thanks!
 
-------=_NextPart_000_0006_01C39132.E696CA20
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
+# memory_device_t access is needed if not using the frame buffer
+dontaudit $1_xserver_t memory_device_t:chr_file read;
 
-SGksIEkgaGF2ZSBlbGltaW5hdGVkIGFsbCB0aGUgZGVuaWVkIG1lc3NhZ2VzIGluIHBlcm1pc3Np
-dmUgbW9kZS4gQnV0IHdoZW4gSSBjaGFuZ2UgdG8gdGhlIGVuZm9yY2UgbW9kZSBJIGNhbid0IHN0
-YXJ0IFggd2luZG93IG5vdy5UaGUgZXJyb3IgbWVzc2FnZSBpcyBiZWxvdzoNCi0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tDQouLi4uLi4uLi4uLi4uLi4NCihFRSkgTlYoMCk6IENhbm5v
-dCBvcGVuIC9kZXYvbWVtDQouLi4uLi4uLi4uLi4uLi4uDQpGYXRhbCBzZXJ2ZXIgZXJyb3I6DQp4
-Zjg2TWFwVmlkTWVtOiBmYWlsZWQgdG8gb3BlbiAvZGV2L21lbSAoUGVybWlzc2lvbiBkZW5pZWQp
-DQouLi4uLi4uLi4uLi4uLi4uDQpYSU86ICBmYXRhbCBJTyBlcnJvciAxMDQgKENvbm5lY3Rpb24g
-cmVzZXQgYnkgcGVlcikgb24gWCBzZXJ2ZXIgIjowLjAiDQogICAgICBhZnRlciAwIHJlcXVlc3Rz
-ICgwIGtub3duIHByb2Nlc3NlZCkgd2l0aCAwIGV2ZW50cyByZW1haW5pbmcuDQotLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KV2h5IHRoZSBzeXN0ZW0gZGlkbid0IGRpc3BsYXkgdGhl
-IGRlbmllZCBtZXNzYWdlIGlmIHRoZSBvcHJhdGlvbiB2aW9sYXRlIHRoZSBwb2xpY3k/IEhvdyBz
-aG91bGQgSSBjb25maWd1cmUgbXkgcG9saWN5IGluIG9yZGVyIHRvIHN0YXJ0IHRoZSBYIHdpbmRv
-dz8NClRoYW5rcyEgDQo=
+The above is the relevant section of policy in
+macros/program/xserver_macros.te.  The X server tries to access /dev/mem even 
+if it doesn't need to.  Change the dontaudit rule to an allow for 
+rw_file_perms and it should work.
 
-------=_NextPart_000_0006_01C39132.E696CA20
-Content-Type: text/html;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
-
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
-dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
-MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
-WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPkhpLCBJIGhh
-dmUgZWxpbWluYXRlZCBhbGwgdGhlIGRlbmllZCBtZXNzYWdlcyANCmluJm5ic3A7cGVybWlzc2l2
-ZSBtb2RlLiBCdXQgd2hlbiBJIGNoYW5nZSB0byB0aGUgZW5mb3JjZSBtb2RlIEkgY2FuJ3Qgc3Rh
-cnQgWCANCndpbmRvdyBub3cuVGhlIGVycm9yIG1lc3NhZ2UgaXMgYmVsb3c6PC9GT05UPjwvRElW
-Pg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsIA0Kc2l6ZT0yPi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tPC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsIHNpemU9Mj4uLi4u
-Li4uLi4uLi4uLi48L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPihF
-RSkgTlYoMCk6IENhbm5vdCBvcGVuIC9kZXYvbWVtPC9GT05UPjwvRElWPjxGT05UIA0KZmFjZT1B
-cmlhbCBzaXplPTI+DQo8RElWPi4uLi4uLi4uLi4uLi4uLi48QlI+PC9GT05UPjxGT05UIGZhY2U9
-QXJpYWwgc2l6ZT0yPkZhdGFsIHNlcnZlciANCmVycm9yOjxCUj54Zjg2TWFwVmlkTWVtOiBmYWls
-ZWQgdG8gb3BlbiAvZGV2L21lbSAoUGVybWlzc2lvbiANCmRlbmllZCk8QlI+PC9GT05UPjxGT05U
-IGZhY2U9QXJpYWwgc2l6ZT0yPi4uLi4uLi4uLi4uLi4uLi48L0ZPTlQ+PC9ESVY+DQo8RElWPjxG
-T05UIGZhY2U9QXJpYWwgc2l6ZT0yPlhJTzombmJzcDsgZmF0YWwgSU8gZXJyb3IgMTA0IChDb25u
-ZWN0aW9uIHJlc2V0IGJ5IA0KcGVlcikgb24gWCBzZXJ2ZXIgIjowLjAiPEJSPiZuYnNwOyZuYnNw
-OyZuYnNwOyZuYnNwOyZuYnNwOyBhZnRlciAwIHJlcXVlc3RzICgwIA0Ka25vd24gcHJvY2Vzc2Vk
-KSB3aXRoIDAgZXZlbnRzIA0KcmVtYWluaW5nLjxCUj4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLTwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+V2h5IHRo
-ZSBzeXN0ZW0gZGlkbid0IGRpc3BsYXkgdGhlIGRlbmllZCBtZXNzYWdlIGlmIA0KdGhlIG9wcmF0
-aW9uIHZpb2xhdGUgdGhlIHBvbGljeT8mbmJzcDtIb3cgc2hvdWxkJm5ic3A7SSBjb25maWd1cmUg
-bXkgDQpwb2xpY3kmbmJzcDtpbiBvcmRlciB0byBzdGFydCZuYnNwO3RoZSBYIHdpbmRvdz88L0ZP
-TlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPlRoYW5rcyE8L0ZPTlQ+Jm5i
-c3A7PC9ESVY+PC9CT0RZPjwvSFRNTD4NCg==
-
-------=_NextPart_000_0006_01C39132.E696CA20--
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
