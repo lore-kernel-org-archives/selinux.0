@@ -1,80 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA11338
-	for <selinux@tycho.nsa.gov>; Fri, 8 Mar 2002 08:46:14 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA23353
-	for <selinux@tycho.nsa.gov>; Fri, 8 Mar 2002 13:45:13 GMT
-Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
-        by jazzband.ncsc.mil  with SMTP id NAA23349 for <selinux@tycho.nsa.gov>; Fri, 8 Mar 2002 13:45:12 GMT
-Message-ID: <72222DC86846D411ABD300A0C9EB08A1015242FA@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'Russell Coker'" <russell@coker.com.au>,
-        "Westerman, Mark"
-	 <Mark.Westerman@csoconline.com>,
-        "'Stephen Smalley'" <sds@tislabs.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Debian Devel
-	 <debian-devel@lists.debian.org>
-Subject: RE: gdm
-Date: Fri, 8 Mar 2002 07:46:23 -0600 
-MIME-Version: 1.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA16257
+	for <selinux@tycho.nsa.gov>; Sat, 9 Mar 2002 08:04:54 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA26249
+	for <selinux@tycho.nsa.gov>; Sat, 9 Mar 2002 13:03:41 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id NAA26245
+	for <selinux@tycho.nsa.gov>; Sat, 9 Mar 2002 13:03:39 GMT
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
+Subject: Re: automatic type transitions for pts in devfs
+Date: Sat, 9 Mar 2002 14:04:34 +0100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0203060828430.24985-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0203060828430.24985-100000@raven>
+MIME-Version: 1.0
+Message-Id: <20020309130435.3B011D12B@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-My first thought was not to make the changes. For one I have no 
-idea of how the user might have modified there configuration.
-That make it hard on scripts to make changes. The idea of keeping
-a copy sound promising. I was thinking of writing a gdmb type database
-of all the rules in the file. Then I could cross link domains and rules
-to files such that I could say turn (off or on) domain and the database
-would know what rule to comment out. 
+On Wed, 6 Mar 2002 14:41, Stephen Smalley wrote:
+> On Wed, 6 Mar 2002, Russell Coker wrote:
+> > It seems that the automatic type transitions for /dev/pts don't work on
+> > devfs.  When the sshd (in sshd_t domain) opens /dev/pts/1 it does not get
+> > changed to sshd_devpts_t domain.
+>
+> Right.  The initial labeling of pty nodes based on the allocating process
+> domain is only implemented for the devpts filesystem at present, not the
+[...]
+> At present, we don't use devfs on our systems, so it hasn't (yet) been a
+> priority to provide identical functionality in devfs.
 
-We truly need to find a way of maintaining the rules.
+I've tried patching that myself, but it seems that my skills are not up to it.
 
+It seems that the filp->f_owner.pid is being set in the devfs initialisation 
+code somehow at an earlier stage than in devpts, therefore by the time 
+tty_fasync() is called it's already done and the set_fowner() call is skipped.
 
-Mark
-
------Original Message-----
-From: Russell Coker [mailto:russell@coker.com.au]
-Sent: Thursday, March 07, 2002 3:54 PM
-To: Westerman, Mark; 'Stephen Smalley'
-Cc: SE Linux; Debian Devel
-Subject: Re: gdm
-
-
-CC'd to the list because it's nothing confidential and something that needs 
-wider discussion.
-
-On Thu, 7 Mar 2002 16:36, Westerman, Mark wrote:
-> I am creating a rpm package for the gdm,
-> Should the install script make changes to
-> the policy files or inform the user of what
-> changes should be made ?
-
-This is a fundamental issue regarding SE Linux packaging.
-
-In the current version we have a problem in that the rbac file entry as well
-
-as the daemon.te file needs to be in place.  The next release will solve
-this 
-(which makes it easier to implement whichever policy we decide on).
-
-The problem is that many people will not want to have critical things such
-as 
-flask configuration touched by an upgrade.
-
-I am thinking of having the flask config files installed in a different 
-directory and then having a program that summarises the differences and 
-offers to copy changed files across.
-
-This differs from the regular Debian config file manipulation in that:
-Config files which the user has never modified will not be upgraded/changed 
-without the user's agreement.
-New config files will not be automatically added.
-
-What do you think?
+Could you give me a clue as to where I should look next?  Or would you 
+recommend that I give up?
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
