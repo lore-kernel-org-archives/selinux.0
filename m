@@ -1,55 +1,57 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA23686
-	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2001 18:28:19 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA14683
-	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2001 22:26:35 GMT
-Received: from ivanova.coker.com.au (ivanova.coker.com.au [203.36.46.209])
-	by jazzswing.ncsc.mil  with ESMTP id WAA14678
-	for <selinux@tycho.nsa.gov>; Wed, 3 Oct 2001 22:26:32 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>,
-        "John S. Gage" <jgage@epo.som.sunysb.edu>
-Subject: Re: Debian distribution of selinux
-Date: Thu, 4 Oct 2001 00:11:58 +0200
-Cc: <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0110021511290.14371-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0110021511290.14371-100000@raven>
+Reply-To: <sunil@liqwidkrystal.com>
+From: "sunil" <sunil@liqwidkrystal.com>
+To: <SELinux@tycho.nsa.gov>
+Subject: Question about SELinux
+Date: Thu, 4 Oct 2001 17:57:53 +0530
+Message-ID: <000501c14ccf$fe1031e0$5d01a8c0@liqwidkrystal.com>
 MIME-Version: 1.0
-Message-Id: <20011003222642.D78C0329539@lyta.coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2 Oct 2001 21:20, Stephen Smalley wrote:
-> On Tue, 2 Oct 2001, John S. Gage wrote:
-> > Is selinux going to be made into a Debian distribution?  That would be a
-> > good thing.
->
-> There seems to be some interest by some of the Debian developers in
-> creating a SELinux package for the Debian distribution, as evidenced by
-> the recent email by Manoj Srivastava and Russell Coker on the selinux
-> list.  See the current mailing list archives (available via email to
-> majordomo@tycho.nsa.gov or online at
-> http://marc.theaimsgroup.com/?l=selinux).
->
-> I agree that this would be a good thing, and we are trying to be helpful.
-> However, it will take a certain amount of work, even aside from packaging
-> issues, since the example policy and the modified daemons and utilities
-> were based on a RedHat distribution.
+Hello,
 
-I don't anticipate getting this done in time for the release of woody.  :(
+We have the following server requirement:
 
-I plan to get everything in unstable after woody is released and then create 
-an archive for back-ports to woody.
+1. Untrusted users can login into the system and run
+    programs that they have written in  a variety of programming languages
+    ranging from Java to C++, Ruby, Python, etc. These programs would
+    typically be small in size, written by people who are learning these
+    technologies. But they could be of all types:
+    Socket programs, UI programs, text-mode programs, etc.
 
--- 
-http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
-http://www.coker.com.au/projects.html Projects I am working on
-http://www.coker.com.au/~russell/     My home page
+2. The users should be able to run only well-behaved programs on the server.
+     A well-behaved program would be one that uses reasonable amounts of
+CPU,
+    disk, network and memory resources and does not try to compromise the
+security of the system.
+    Therefore, malicious programs of any kind should be quietly terminated.
+
+3. All of this should be possible with minimal overhead incurred from any
+monitoring
+    infrastructure.
+
+Can I achieve this using SELinux?
+
+Thanks & regards,
+
+Sunil Arvindam
+
+__________________________
+Sunil Arvindam
+Chief Architect,
+Liqwid Krystal,
+Pearl House, 9/3 Museum Road,
+Bangalore-560001,
+India.
+Ph: (91) 80-5091789
+Fax:(91) 80-5091794
+email:sunil@liqwidkrystal.com
+__________________________
+
+
+
 
 
 --
