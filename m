@@ -1,32 +1,40 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2VEsWDo025289
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 09:54:32 -0500 (EST)
-Received: from web51503.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j2VEoWTg024161
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 14:50:33 GMT
-Message-ID: <20050331145313.38541.qmail@web51503.mail.yahoo.com>
-Date: Thu, 31 Mar 2005 06:53:12 -0800 (PST)
-From: Steve G <linux_4ever@yahoo.com>
 Subject: Re: Getting the real task name in avc messages
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve G <linux_4ever@yahoo.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20050331145313.38541.qmail@web51503.mail.yahoo.com>
+References: <20050331145313.38541.qmail@web51503.mail.yahoo.com>
+Content-Type: text/plain
+Date: Thu, 31 Mar 2005 10:00:51 -0500
+Message-Id: <1112281251.11216.80.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->Steve, want to take the updated patch to linux-audit?
+On Thu, 2005-03-31 at 06:53 -0800, Steve G wrote:
+> >Steve, want to take the updated patch to linux-audit?
+> 
+> Ok. Let me compile it and see what the logs look like first.
 
-Ok. Let me compile it and see what the logs look like first.
+Ok.  I built and ran a kernel with it here, and ran some selinux tests,
+and it looked good.  It has some side benefits for SELinux even beyond
+the comm information, e.g. capturing the exe= upon syscall exit lets us
+get it cleanly without having to worry about mmap sem locking by the
+caller (which was an issue for mmap/mprotect previously) and moving the
+task-related audit handling to syscall exit should avoid having bogus
+information included for our networking checks that occur outside of
+process context.  Tools like seaudit may need to be updated to get the
+task-related info from the subsequent syscall audit record instead of
+from the avc-generated record, but they can correlate it based on the
+timestamp/serial.
 
-Thanks,
--Steve Grubb
+One further change that should be made is to use something like
+audit_log_untrustedstring on the comm and on the exe path.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
