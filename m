@@ -1,31 +1,31 @@
-Date: Tue, 11 Nov 2003 07:34:53 +0100
-From: Tom <tom@lemuria.org>
-To: "SELinux (E-mail)" <SELinux@tycho.nsa.gov>
-Subject: Re: Patched GDM?
-Message-ID: <20031111073452.B2597@lemuria.org>
-References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A5E@s3cin>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hABGvwSf009423
+	for <selinux@tycho.nsa.gov>; Tue, 11 Nov 2003 11:57:58 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hABGvXBb027563
+	for <selinux@tycho.nsa.gov>; Tue, 11 Nov 2003 16:57:33 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id hABGvX4o027560
+	for <selinux@tycho.nsa.gov>; Tue, 11 Nov 2003 16:57:33 GMT
+Date: Tue, 11 Nov 2003 16:57:52 +0000
+From: Dale Amon <amon@vnl.com>
+To: selinux@tycho.nsa.gov
+Subject: Policy error report for Russ
+Message-ID: <20031111165752.GO23277@vnl.com>
+References: <20031110143234.R16119@lemuria.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A5E@s3cin>; from JamesK@xetron.com on Mon, Nov 10, 2003 at 02:36:10PM -0500
+In-Reply-To: <20031110143234.R16119@lemuria.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Nov 10, 2003 at 02:36:10PM -0500, Kratzer, James R. wrote:
-> Anyone know where I may find a patched version of GDM which will correctly
-> set the context on login?
+This doesn't really matter to me since I don't use it, but
+I thought I'd pass it on:
 
-Write one. :)
+assertion on line 134090 violated by allow gatekeeper_t etc_t:lnk_file { write create setattr append unlink link rename };
 
-As of now, the only graphical login manager I'm aware of with SELinux
-support is the one I patched - wdm. You can find it on my website
-(http://selinux.lemuria.org) and the patch should soon be included in
-the upstream sources.
-
-
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+the particular policy is what results if you say yes
+to everything.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
