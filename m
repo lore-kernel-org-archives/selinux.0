@@ -1,49 +1,70 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0ND5rRb013900
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 08:05:53 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0ND4dxr020981
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 13:04:39 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i0ND4cYc020975
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 13:04:38 GMT
-Subject: Re: libselinux upgrade from 1.4-1 to 1.4-6 broke installwatch.so
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <20040123070039.GE11115051@niksula.cs.hut.fi>
-References: <20040123070039.GE11115051@niksula.cs.hut.fi>
-Content-Type: text/plain
-Message-Id: <1074863138.4931.8.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 23 Jan 2004 08:05:38 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0NFkCRb014801
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 10:46:12 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0NFkBCa014928
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 15:46:11 GMT
+Received: from s3cin.xetron.com (fw.xetron.com [216.68.89.2])
+        by jazzband.ncsc.mil  with ESMTP id i0NFk7VC014907 for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 15:46:11 GMT
+Message-ID: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A8A@s3cin>
+From: "Kratzer, James R." <JamesK@xetron.com>
+To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
+Cc: "SE Linux Mail List (E-mail)" <selinux@tycho.nsa.gov>
+Subject: RE: transition failure
+Date: Fri, 23 Jan 2004 10:46:02 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-01-23 at 02:00, Ville Herva wrote:
-> Also, I added this bug to redhat bugzilla:
-> http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=114067
-> 
-> So if anybody is interested enough, comments can be added there, too.
 
-Yes, Dan Walsh brought this to my attention, and I looked into it and
-sent him an explanation yesterday.  I used strace -f on installwatch to
-see where it fails, and then did some further debugging.  The relevant
-change to libselinux is the addition of the init_selinuxmnt()
-constructor function, which does an open("/proc/mounts", O_RDONLY) to
-find the selinuxfs mount point at runtime (RH asked that we add this
-rather than hardcoding the path to the selinuxfs mount point, so that
-they can change the mount point later without impacting existing code). 
-installwatch intercepts the open, and then subsequently tries to call
-true_open, which is supposed to refer to the real open function, but
-true_open seems to be NULL at this point.  So installwatch doesn't seem
-to be able to handle calls performed from library constructors, which
-would seem to be a defect in installwatch.
+Thanks Stephen.  The script's context was indeed the problem. Using chcon
+fixed the problem.  The context for the swatchd script was correct after a
+"make relabel", but I later edited the file with vi, and vi corrupted the
+context.  The chcon command corrected the context.  Is there a patched
+version of vi available that will preserve contexts of files?
+
+James
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@epoch.ncsc.mil]
+Sent: Thursday, January 22, 2004 10:14 AM
+To: James R. Kratzer
+Cc: 'russell@coker.com.au'; SE Linux Mail List (E-mail)
+Subject: RE: transition failure
+
+
+On Thu, 2004-01-22 at 09:56, Kratzer, James R. wrote:
+> Thanks Russ.  I was not aware of the constraints.  I'm am using "runcon"
+> because when I use "run_init" I get the following error:
+> 
+>     execvp: Permission Denied
+> 
+> I forgot to mention previously that the "runcon" command gives this same
+> error as well along with the "avc: denied { transition }" message.  
+> 
+> BTW, these errors only occur with enforcing=1 as run_init and runcon
+execute
+> swatch just fine with enforcing=0.
+> What does execvp mean?
+
+execvp(3) is a library function that is a front-end for execve(2);
+run_init calls it to execute the script.  The most likely cause for
+failure here is that the type on the /etc/rc.d/init.d/swatchd script is
+wrong; it needs to have the initrc_exec_t type.  Try 'chcon -t
+initrc_exec_t /etc/init.d/swatchd'.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
 
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
