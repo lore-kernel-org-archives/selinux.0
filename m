@@ -1,43 +1,34 @@
-Date: Mon, 30 Sep 2002 14:55:20 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
 Subject: Re: trivial logging bug
-In-Reply-To: <200209302004.38709.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0209301451040.7010-100000@raven>
+Date: Mon, 30 Sep 2002 21:37:15 +0200
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0209301451040.7010-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0209301451040.7010-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200209302137.15850.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 30 Sep 2002 20:55, Stephen Smalley wrote:
+> On Mon, 30 Sep 2002, Russell Coker wrote:
+> This behavior is due to the security_ops->inode_rmdir hook being called
+> after the d_unhash on the dentry in vfs_rmdir, so the dentry appears
+> "deleted" to the pathname generation code.  To fix, we would need to move
+> up the hook call in the LSM patch.  Other than potentially confusing
+> output, I don't think that it is a real concern.
 
-On Mon, 30 Sep 2002, Russell Coker wrote:
+OK, well just finding and removing the "(deleted)" string before displaying 
+the message will give a good result for the users...
 
-> avc:  denied  { rmdir } for  pid=9631 exe=/bin/rm path=/rjc/.ssh/old (deleted)
-> dev=03:07 ino=3406 scontext=rjc:user_r:user_t
-> tcontext=system_u:object_r:user_home_ssh_t tclass=dir
->
-> The above is from an rmdir operation.  It seems that the dentry gets updated
-> with the new name BEFORE the operation is permitted so we get (deleted) in
-> the log message which is confusing.
->
-> I think that perhaps the logging code should be changed to remove the last 10
-> characters of the file name.
->
-> However maybe it would be more correct in terms of code operation to have the
-> check earlier?  (I don't know I haven't looked at the code in question).
-
-This behavior is due to the security_ops->inode_rmdir hook being called
-after the d_unhash on the dentry in vfs_rmdir, so the dentry appears
-"deleted" to the pathname generation code.  To fix, we would need to move
-up the hook call in the LSM patch.  Other than potentially confusing
-output, I don't think that it is a real concern.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
