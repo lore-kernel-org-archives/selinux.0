@@ -1,41 +1,33 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAAE2BSf003641
-	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 09:02:11 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAAE4hSf003682
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 09:04:43 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAAE29Kl001479
-	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 14:02:09 GMT
+	by jazzband.ncsc.mil  with ESMTP id hAAE4bKl001684
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 14:04:37 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id hAAE285m001475 for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 14:02:08 GMT
-Subject: Re: Do we break POSIX?
+        by jazzband.ncsc.mil  with ESMTP id hAAE4a5m001679 for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 14:04:36 GMT
+Subject: Re: stripped static binaries
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Tom <tom@lemuria.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20031110143701.S16119@lemuria.org>
-References: <20031110143701.S16119@lemuria.org>
+To: Carsten Grohmann <carstengrohmann@gmx.de>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200311091638.15350.carstengrohmann@gmx.de>
+References: <200311091638.15350.carstengrohmann@gmx.de>
 Content-Type: text/plain
-Message-Id: <1068472925.32532.3.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1068473072.32532.5.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 10 Nov 2003 09:02:05 -0500
+Date: Mon, 10 Nov 2003 09:04:32 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-11-10 at 08:37, Tom wrote:
-> One point brought up by Theo DeRaadt during PacSec was that according
-> to POSIX, write operations can not return a permission denied error.
+On Sun, 2003-11-09 at 10:38, Carsten Grohmann wrote:
+> I think, we should strip the static binaries like load_policy. Thru 
+> this we could save space in the initrd. The patch for the 
+> policycoreutils is attached.
 > 
-> I could not argue with him on that because I have not actually read the
-> POSIX standard, but he has a valid point in that breaking standards
-> would be a big no.
-> 
-> Does anyone know immediately if this is so and if we are indeed
-> breaking POSIX? If nobody can answer that, I will find out myself, as
-> I've promised him to check.
+> What do you think about it?
 
-NFS can yield the same behavior.  If you are holding a file open on the
-client and writing to it, and someone changes the ownership of the file
-on the server, then subsequent write() requests will fail with
-Permission denied.  I just tested with a Linux client and server to
-verify, and this is what happens.
+With Dan's patched init program, it is not necessary to perform the load
+from an initrd.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
