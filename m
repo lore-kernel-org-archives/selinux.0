@@ -1,46 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBN3eRRb025259
-	for <selinux@tycho.nsa.gov>; Mon, 22 Dec 2003 22:40:27 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hBN3eQpn004903
-	for <selinux@tycho.nsa.gov>; Tue, 23 Dec 2003 03:40:26 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hBN3ePab004851 for <selinux@tycho.nsa.gov>; Tue, 23 Dec 2003 03:40:25 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Yuichi Nakamura <himainu_ynakam@yahoo.co.jp>, selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBN9gIRb026134
+	for <selinux@tycho.nsa.gov>; Tue, 23 Dec 2003 04:42:18 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hBN9fOjx025428
+	for <selinux@tycho.nsa.gov>; Tue, 23 Dec 2003 09:41:24 GMT
+Received: from dns10.mail.yahoo.co.jp (dns10.mail.yahoo.co.jp [210.81.151.143])
+	by jazzswing.ncsc.mil  with SMTP id hBN9fMSR025425
+	for <selinux@tycho.nsa.gov>; Tue, 23 Dec 2003 09:41:23 GMT
+Date: Tue, 23 Dec 2003 18:45:03 +0900
+From: Yuichi Nakamura <himainu_ynakam@yahoo.co.jp>
+To: russell@coker.com.au
+Cc: himainu_ynakam@ybb.ne.jp, selinux@tycho.nsa.gov
 Subject: Re: Apache on FedoraCore1(Was Re: log_domain macro)
-Date: Tue, 23 Dec 2003 14:38:59 +1100
-References: <3FE6EA56.7010708@redhat.com> <200312230005.hBN05Mab000127@jazzband.ncsc.mil>
-In-Reply-To: <200312230005.hBN05Mab000127@jazzband.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200312231438.59305.russell@coker.com.au>
+Message-Id: <20031223184503.721a10f5.himainu_ynakam@yahoo.co.jp>
+In-Reply-To: <200312231438.59305.russell@coker.com.au>
+References: <3FE6EA56.7010708@redhat.com>
+	<200312230005.hBN05Mab000127@jazzband.ncsc.mil>
+	<200312231438.59305.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 23 Dec 2003 11:01, Yuichi Nakamura <himainu_ynakam@yahoo.co.jp> wrote:
 
-I have added most of your patches to my tree, however I moved the type 
-definition for the /etc/krb5.conf file to file.fc and types.fc (most people 
-who use Kerberos won't use Apache on all servers).  We probably should make a 
-separate kerberos_client.te file or something.  But for the moment I've stuck 
-the allow and dontaudit rules in apache.te (it's easy to change them later).
+On Tue, 23 Dec 2003 14:38:59 +1100
+Russell Coker <russell@coker.com.au> wrote:
+> allow httpd_t httpd_t:netlink_socket { bind create getattr read write };
+> What is the reason for the above?
+It is added by using audit2allow.
+Apache seems to work without it, 
+but in some case these permissions may be required.
+I don't know whether Apache really requires these permissions.
 
-allow httpd_t httpd_t:netlink_socket { bind create getattr read write };
-What is the reason for the above?
-
-
-I've put a new policy archive on http://www.coker.com.au/selinux/policy.tgz 
-which contains this and some other changes (including some resulting from 
-apparent differences between 2.6.0-test11 and 2.6.0 kernels).
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+------
+Yuichi Nakamura
 
 
 --
