@@ -1,80 +1,64 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6996ZHa022310
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 05:06:35 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6996YH5025023
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 09:06:34 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h6996WRX025017 for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2003 09:06:33 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Colin Walters <walters@verbum.org>
-Subject: Re: context trouble with 2.5 bits
-Date: Wed, 9 Jul 2003 19:06:14 +1000
-Cc: selinux@tycho.nsa.gov
-References: <1057701768.25921.53.camel@columbia> <200307091017.42539.russell@coker.com.au> <1057716690.5878.25.camel@columbia>
-In-Reply-To: <1057716690.5878.25.camel@columbia>
+To: Bill Laut <wlsel@verizon.net>, SELinux@tycho.nsa.gov
+Subject: Re: SELinux, KDE, and honeypots
+Date: Wed, 9 Jul 2003 19:26:30 +1000
+References: <200307082303.22083.wlsel@verizon.net>
+In-Reply-To: <200307082303.22083.wlsel@verizon.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200307091906.14699.russell@coker.com.au>
+Message-Id: <200307091926.30842.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 9 Jul 2003 12:11, Colin Walters wrote:
-> > is expected.  Please tell me what "ls --context /dev/tty1" reports.
->
-> meta:/var/log# ls --context /dev/tty1
-> crw-------  root     tty      system_u:object_r:tty_device_t   /dev/tty1
-> meta:/var/log#
+On Wed, 9 Jul 2003 13:03, Bill Laut wrote:
+> (1)  Once I finish cleaning up my gateway/router's policy, I would like to
+> migrate my workstation to SELinux so that I can allow Mozilla to run
+> Javascripting and/or plugins without the fear of my workstation being
+> compromised.  In reading through the archive, it seems the only thing that
+> needs to be modified is kdm.  Is this a correct assumption, or should I
+> expect it to be more involved than that?
 
-That's what we want to see.
+Currently there is no usable patch for kdm.  The reason for this is that the 
+SE Linux header files do not compile in C++ mode (and kdm is mostly C++).  I 
+have been meaning to solve this but haven't had time.
 
-> Jul  8 21:41:52 meta sshd[642]: Accepted password for root from
-> ::ffff:192.168.1.100 port 36286 ssh2 Jul  8 21:41:52 meta sshd[642]: fatal:
-> Failed to get default security context for root.
->
-> The same thing happens with a normal user.
+If you can get a basic program compiled in C++ mode (source named file.cpp) 
+that can get it's process context and do an execve_secure() then that will be 
+99% of the work necessary to get a SE patched kdm.
 
-What is the line in the "users" file for root?  Is there a line in the "users" 
-file for the non-root user you tried?  If not is there a line for user_u?
+However kdm is not necessary to run KDE.  You can login at the console and run 
+"exec startx", which is what I do now.
 
-> > Also while in permissive mode do some tests at the command line, do:
-> > # echo user_u:user_r:user_t > /proc/whatever-it-is
-> > # id
-> >
-> > Then id should report a context of user_u:user_r:user_t if the context
-> > change is working correctly.
->
-> Here's what I get:
->
-> meta:/var/log# cat /proc/self/attr/current  && echo
-> system_u:system_r:user_t
-> meta:/var/log# echo root:system_r:sysadm_r > /proc/self/attr/current
-> meta:/var/log# cat /proc/self/attr/current  && echo
-> system_u:system_r:user_t
-> meta:/var/log#
+> The idea I had was to create a pseudo-device driver that leverages
+> NetFilter
 
-Sorry, you misunderstood my message.
+Why not just write an application that uses libpcap (tcpdump functionality)?
 
-I mean to echo a value to the file that specifies the context for the child 
-process (you can't change the context of a running process, not even in 
-permissive mode).
+> to output all traffic from all TCP streams to a user-mode daemon
+> that writes the packets for each stream into their own separate disk files
 
-> > Does your /etc/security/default_contexts have the right stuff?
->
-> It looks like this:
->
-> system_r:local_login_t  user_r:user_t staff_r:staff_t
-> system_r:sshd_t         user_r:user_t staff_r:staff_t
-> system_r:crond_t        user_r:user_crond_t staff_r:staff_crond_t
-> system_r:system_crond_t
+NB  Make sure you have SE Linux policy to make these files append-only.
 
-Have you checked that sshd is running as system_u:system_r:sshd_t and that the 
-"users" file permits the contexts user_r:user_t or staff_r:staff_t?  If you 
-configured "root" to only be permitted the context sysadm_r:sysadm_t then it 
-will be impossible to login as root via ssh (I have intentionally configured 
-it this way on my laptop).
+> If, however, any security violations are reported they are recorded into
+> the transcript file in sequence with the TCP packets, and then when the
+> stream is closed the completed file is moved into a permanent directory for
+> later analysis.
+
+Sounds like an interesting research idea.  It would be intersting to see the 
+results of this, it could even make a good paper for a conference such as 
+OLS.  I think it would be good if you do this and publish the code under the 
+GPL.  Even if you determine that it's not viable in the initial design form 
+it will be a good contribution to the code base and a report on it will be a 
+good contribution to the knowledge of network security.
+
+If it has been done before with SE Linux then it hasn't been published.  It 
+may have been done before with other MAC systems.
+
+
+PS I didn't see any reference to honeypots in your message, although I guess 
+any IDS technology could form part of a honeypot.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
