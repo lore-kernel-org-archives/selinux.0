@@ -1,117 +1,68 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82I0lrT001586
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 14:00:47 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82I0ev2019149
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 18:00:46 GMT
-Message-ID: <41375FBF.30008@redhat.com>
-Date: Thu, 02 Sep 2004 14:00:31 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: jwcart2@epoch.ncsc.mil, russell@coker.com.au,
-   SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Latest Patches
-References: <200408241818.40064.russell@coker.com.au>	 <1093640295.24188.29.camel@moss-lions.epoch.ncsc.mil>	 <200408282346.05926.russell@coker.com.au> <1093897455.3227.6.camel@moss-lions.epoch.ncsc.mil> <41371628.2020408@redhat.com> <41374AB7.70206@tresys.com>
-In-Reply-To: <41374AB7.70206@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: fedora-selinux-list Digest, Vol 7, Issue 1
+From: "Stanley A. Klein" <sklein@cpcug.org>
+To: fedora-selinux-list@redhat.com
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <20040901160021.BF91F742CF@hormel.redhat.com>
+References: <20040901160021.BF91F742CF@hormel.redhat.com>
+Content-Type: text/plain
+Message-Id: <1094149537.2094.81.camel@p500>
+Mime-Version: 1.0
+Date: 02 Sep 2004 14:25:39 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
+On Wed, 2004-09-01 at 12:00, Linas Vepstas <linas@austin.ibm.com> wrote:
 
-> Daniel J Walsh wrote:
->
->> Include some stuff from Russell,
->> Critical patch for tmpfs to get udev on tmpfs working
->>
->> You sent me a note saying some patches conflict with other changes, 
->> please point those out so I can remove them.
->>
->> Dan
->>
->
-> Why are you submitting a patch to the list that turns on all these 
-> tunables? These should definately not be turned on in the sample policy!
->
-> Joshua Brindle
->
-I am just submitting the patch that is currently being applied to the 
-Fedora package.  The tunables were always ignored in the past.
-I suppose I could edit them but up to now they have not been a problem 
-to ignore them.
+> 
+> Every now and then, I look at SELinux, and I get scared away by its
+> complexity.  This complexity makes it very hard to audit, and assure
+> oneself that its actually providing any real security, as opposed to
+> the illusion of security.  During this email thread, there are 
+> references to mysterious rules that neither party in the conversation 
+> fully understands; this scares me. 
+> 
 
-Dan
 
->> diff --exclude-from=exclude -N -u -r nsapolicy/tunables/tunable.tun 
->> policy-1.17.9/tunables/tunable.tun
->> --- nsapolicy/tunables/tunable.tun    2004-08-27 14:44:11.000000000 
->> -0400
->> +++ policy-1.17.9/tunables/tunable.tun    2004-09-02 
->> 08:15:02.755586567 -0400
->> @@ -5,50 +5,47 @@
->>  dnl define(`user_net_control')
->>  
->>  # Allow users to execute the mount command
->> -dnl define(`user_can_mount')
->> +define(`user_can_mount')
->>  
->>  # Allow rpm to run unconfined.
->> -dnl define(`unlimitedRPM')
->> +define(`unlimitedRPM')
->>  
->>  # Allow privileged utilities like hotplug and insmod to run unconfined.
->> -dnl define(`unlimitedUtils')
->> +define(`unlimitedUtils')
->>  
->>  # Support NFS home directories
->> -dnl define(`nfs_home_dirs')
->> +define(`nfs_home_dirs')
->>  
->>  # Allow users to run games
->> -dnl define(`use_games')
->> +define(`use_games')
->>  
->>  # Allow ypbind to run with NIS
->> -dnl define(`allow_ypbind')
->> +define(`allow_ypbind')
->>  
->>  # Allow rc scripts to run unconfined, including any daemon
->>  # started by an rc script that does not have a domain transition
->>  # explicitly defined.
->> -dnl define(`unlimitedRC')
->> +define(`unlimitedRC')
->>  
->>  # Allow sysadm_t to directly start daemons
->>  define(`direct_sysadm_daemon')
->>  
->>  # Do not audit things that we know to be broken but which
->>  # are not security risks
->> -dnl define(`hide_broken_symptoms')
->> +define(`hide_broken_symptoms')
->>  
->>  # Allow sysadm_t to do almost everything
->>  dnl define(`unrestricted_admin')
->>  
->>  # Allow the read/write/create on any NFS file system
->> -dnl define(`nfs_export_all_rw')
->> -
->> -# Allow users to unrestricted access
->> -dnl define(`unlimitedUsers')
->> +define(`nfs_export_all_rw')
->>  
->>  # Allow the reading on any NFS file system
->>  dnl define(`nfs_export_all_ro')
->>  
->>  # Allow user_r to reach sysadm_r via su, sudo, or userhelper.
->>  # Otherwise, only staff_r can do so.
->> -dnl define(`user_canbe_sysadm')
->> +define(`user_canbe_sysadm')
->>  
->>  # Allow xinetd to run unconfined, including any services it starts
->>  # that do not have a domain transition explicitly defined.
->
->
+This is not the first time I've heard about SELinux complexity.  A
+colleague attended a meeting of the DC area SELinux Users Group and came
+away repeating stories about 50000 rules that needed to be defined for a
+typical system.  His reaction was "How can you be sure you have done
+50000 rules right?".  I heard similar talk in the hallway at one of the
+EGOVOS conferences.
+
+I think the complexity derives from Mandatory Access Control rather than
+SELinux itself.  Thus far almost all of the attention regarding SELinux
+policies has been given to basic computer infrastructure and basic
+system administration.  Some of the packages in the basic infrastructure
+have hundreds of files.  MAC requires each file in each package to be
+considered and its access control rules defined.  The complexity in the
+rules is a consequence of the complexity in the infrastructure.
+
+The real issue is the adequacy of tools to manage the complexity. 
+
+Furthermore, although SELinux has the mechanisms for defining and
+enforcing access control rules beyond the basic infrastructure, trying
+to develop policies based on business process rules and business
+considerations looks like a daunting task right now.  By this I mean
+roles that get beyond sysadmin and user into areas such as bank teller
+or hospital primary care provider or control system operations shift
+supervisor, together with the rules appropriate to those roles in their
+business contexts.
+
+I think there are people working on tool concepts, but it seems we are a
+few years away from taming the complexity of MAC and SELinux
+sufficiently to allow users to easily and confidently define SELinux
+policies for applications based on business considerations.
+
+
+Stan Klein
+
+-- 
+
+Stanley A. Klein, D.Sc.
+Principal Consultant
+Stan Klein Associates, LLC
+301-881-4087
 
 
 --
