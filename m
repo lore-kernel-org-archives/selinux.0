@@ -1,81 +1,55 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3CF3BRb008931
-	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2004 11:03:13 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i3CF18UZ001854
-	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2004 15:01:09 GMT
-Received: from bimmer.dtmpower.net (bimmer.dtmpower.net [66.250.68.101])
-	by jazzswing.ncsc.mil  with ESMTP id i3CF18mT001840
-	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2004 15:01:08 GMT
-Message-ID: <3162.204.169.68.12.1081781856.squirrel@webmail.ods.org>
-In-Reply-To: <Pine.LNX.4.44.0404120322400.21241-100000@cirrus.av8.net>
-References: <20040410212453.GA19726@vnl.com>
-    <Pine.LNX.4.44.0404120322400.21241-100000@cirrus.av8.net>
-Date: Mon, 12 Apr 2004 09:57:36 -0500 (CDT)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3CFElRb009066
+	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2004 11:14:47 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i3CFEkmw020086
+	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2004 15:14:46 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id i3CFEj4w020081 for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2004 15:14:45 GMT
+Date: Mon, 12 Apr 2004 16:14:08 +0100
+From: Dale Amon <amon@vnl.com>
+To: Elvedin Trnjanin <elvedin@ods.org>
+Cc: Dean Anderson <dean@av8.com>, Dale Amon <amon@vnl.com>,
+   "Matthew J. Fanto" <mattjf@uncompiled.com>, russell@coker.com.au,
+   SELinux Mailing List <selinux@tycho.nsa.gov>
 Subject: Re: Logo Artwork for SELinux?
-From: "Elvedin Trnjanin" <elvedin@ods.org>
-To: "Dean Anderson" <dean@av8.com>
-Cc: "Dale Amon" <amon@vnl.com>, "Matthew J. Fanto" <mattjf@uncompiled.com>,
-   russell@coker.com.au, "SELinux Mailing List" <selinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+Message-ID: <20040412151408.GA27005@vnl.com>
+References: <20040410212453.GA19726@vnl.com> <Pine.LNX.4.44.0404120322400.21241-100000@cirrus.av8.net> <3162.204.169.68.12.1081781856.squirrel@webmail.ods.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <3162.204.169.68.12.1081781856.squirrel@webmail.ods.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I suggest we avoid any preference to a country or orginization (US or UN)
-and just perhaps go with some cryptography related thing, random numbers
-(1s, 0s) in the background or something of that sort.
+On Mon, Apr 12, 2004 at 09:57:36AM -0500, Elvedin Trnjanin wrote:
+> I suggest we avoid any preference to a country or orginization (US or UN)
+> and just perhaps go with some cryptography related thing, random numbers
+> (1s, 0s) in the background or something of that sort.
 
-Then again, everyone is free to use whatever button or banner they wish, I
-think it'll take quite a bit more time before everyone is fine with an
-official logo for SELinux.
+Although keep in mind that although it is open source, 
+they paid for it. There have been many good contributions
+from people all over, but it doesn't change the fact that
+the lions share of the work was done by persons working
+on an NSA research project. They get the credit for
+Selinux, not some amorphous 'us'.
 
-> I would suggest a United Nations Blue as the background color.
->
-> White, Red, and Blue have common symbolisms, which typically reflect
-> tears, blood, and hope for the future (I think).
->
-> SELinux is probably fairly described as an international collaborative
-> work on common security. So, it seems to me that U.N. Light Blue is the
-> symbolic color of international security.
->
-> My 2 cents.
->
-> 		--Dean
->
-> On Sat, 10 Apr 2004, Dale Amon wrote:
->
->> On Sat, Apr 10, 2004 at 12:08:46PM -0400, Matthew J. Fanto wrote:
->> > I also think a button for is necessary. I don't think Joshua was going
->> > for the dutch flag when he designed it, but rather the colors of the
->> US
->> > (the red, white and blue).  A flag of the US would not work in the
->> > background. I'm don't know how much those of you not living in the US
->> > would like such a color scheme though.
->>
->> Well, we're not slow to give blame and the NSA is the
->> key player behind it, so credit where credit is due.
->> Fair enough to let people know they do some good work
->> as well as the things we don't like ;-)
->>
->> Let it be red, white and blue with a taloned penguin
->> say I!
->>
->>
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
->
+I think the logo should reflect who paid... If there
+were to be votes on this, Smalley, Holm, etc al should
+get a hundred each, a few people like Russell and Colin 
+deserve a couple votes... I and some others might *barely*
+deserve one each.
 
+More practically though, I'd suggest the PI (Smalley) 
+has the final say. 
 
 -- 
-Elvedin Trnjanin
-elvedin@ods.org
-http://www.ods.org
-- ODS.org Team
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
