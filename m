@@ -1,71 +1,121 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SL1erT014385
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 17:01:40 -0400 (EDT)
-Received: from smtp812.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6SL1cXs015439
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 21:01:38 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp812.mail.ukl.yahoo.com with SMTP; 28 Jul 2004 21:01:23 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1Bpv3q-0000rd-9o
-	for selinux@tycho.nsa.gov; Wed, 28 Jul 2004 20:30:02 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1Bpviv-0004tC-Eo
-	for selinux@tycho.nsa.gov; Wed, 28 Jul 2004 22:12:29 +0100
-Date: Wed, 28 Jul 2004 22:12:29 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SL6drT014425
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 17:06:39 -0400 (EDT)
+Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6SL68Vb020555
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 21:06:09 GMT
+Subject: Re: SeLinux packages compiled smoothly on ppc (after some help ..)
+From: Wolfgang Pfeiffer <roto@gmx.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: pear-shaped behaviour after enough make reloads
-Message-ID: <20040728211229.GB18711@lkcl.net>
+Cc: russell@coker.com.au
+Content-Type: text/plain
+Message-Id: <1091048795.19088.100.camel@debby>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 28 Jul 2004 23:06:35 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-i thought i should report what might be quite a serious issue.
+Sorry I have to paste  below the content from the archives - By a stupid
+accident ("rm -rf *" in the wrong directory: I did this dozens of times
+the last 2 days: This time in the wrong dir :) I lost all my mails ... I
+had to let nsa Majordomo send me the archives of the messages from the
+last few days.
 
-the procedure i use for development of policy files is to do
-_stacks_ of edits, _stacks_ of make reloads, stacks of
-audit2allow -d -v -l > /tmp/foo, analyse the results and put
-the appropriate ones into the new policy.
+Here's Russell Cokers archived message that I will answer  below (I hope
+I didn't destroy the correct formatting of Russell's message):
 
-after enough make reloads, the behaviour of my system starts to get
-a bit wonky.
+######################################################
+On Wed, 28 Jul 2004 08:36, Wolfgang Pfeiffer <roto@gmx.net> wrote:
+> dpkg_1.10.22_powerpc.deb
+> ssh_3.8.1p1-7_powerpc.deb
 
-for example, i'm doing an executable that is used by hotplug, and
-a domain_auto_trans into that new executable's domain...
+Looks like you got the wrong version of these two.
 
-... yet occasionally i see what looks like evidence of the
-domain_auto_trans FAILING.
+> fakeroot apt-get source --compile dpkg=1.10.22-se1
+>
+> works not with 2.95, but with 3.4.
+> The build with 2.95 ended with:
+> ______________________________________
+> checking for initscr in -lncurses... yes
+> checking if TIOCNOTTY is defined in sys/ioctl.h... yes
+> checking for va_copy... no
+> checking for va_list assignment copy... configure: error: no
+> make: *** [/home/shorty/testone/dpkg-1.10.22/build/configure-stamp] Error 1
+> Build command 'cd dpkg-1.10.22 && dpkg-buildpackage -b -uc' failed.
+> E: Child process failed
+> ______________________________________
 
-the GUI users cannot run any programs when this happens.
+File a FTBFS bug against dpkg in the Debian BTS.
 
-sometimes if i switch to the GUI (from the console) the screen
-goes blank; although i can still use existing ssh connections,
-i cannot initiate any new ones.
 
-after a reboot in such circumstances, i find that my system
-is pretty much unusable: i have to run a ldconfig to fix a
-problem of libraries being not found - things like that.
+> And this:
+> I patched the openssh sources only with the openssh-selinux.patch.gz
+> and *not* with the
+> ssh.diff.gz
+> that can be found in the same directory on
+> http://www.coker.com.au/newselinux/
 
-sometimes i will do a make -C /etc/selinux relabel just to be
-sure.
+Then you need to run "autoconf" before building it, otherwise you don't get SE 
+Linux support.
 
-i have to say: this only occurs if i do about ten or twenty
-make reloads in a row.
+> And please let me know in case someone would like to upload ppc packages
+> like the ones above. With detailed guidance on how exactly to build them
+> I'd enjoy to help here, and make them available for others, too ...
 
-l.
+Please make them available for the benefit of other people.
+
+#########################################################
+
+
+I have a problem in downloading the openssh sources from
+http://selinux.lemuria.org/newselinux/ssh/
+with a 
+apt-get source openssh
+
+This command will download me a package from the debian mirrors I have
+in my sources list, but not the package from
+<http://selinux.lemuria.org/newselinux>
+that I also have in my sources list.
+
+Is there a possibility to downlowd the openssh sources from
+http://selinux.lemuria.org/newselinux manually and then create the
+debian/ dir in the unpacked openssh dir with dpkg-source, or a with
+similar tool?
+
+I know I could simply try replace the original 
+openssh_3.8.1p1-7.diff.gz from the debian mirror with the 
+http://selinux.lemuria.org/newselinux/ssh/openssh_3.8.1p1-7.se1.diff.gz
+
+But I'm not sure whether this will mess up the resulting binary ... so
+if possible I'd like to run a standard build with one of the
+apt/dpkg/whatever tools on Debian
+
+Second:
+The compile errors probably will disappear if I run "autoconf" as you
+told -- But is it neccessary to run "autoconf" for every build I was
+reporting yesterday, or definitely just for the 2 (dpkg, ssh) you were
+mentioning?
+
+Thanks in anticipation
+
+Note:
+Sorry for the slightly pedantic procedure here: But I'd like to make the
+resulting packages available for others, too ...
+
+Note 2:
+Those who sent me private mails the last 2 days are invited to send them
+again to me, if possible: I lost, as I said, all mails this afternoon: I
+have all mails that were double-sent to me *and* this list (Thanks to
+nsa Majordomo :) ...
+
+
+Thanks in anticipation
+
+Regards
+Wolfgang
 
 -- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
 
 
 --
