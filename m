@@ -1,40 +1,55 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA19456
-	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 01:49:42 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id FAA17120
-	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 05:47:44 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA19464
+	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 01:49:49 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id FAA18477
+	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 05:48:34 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id FAA17110
-	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 05:47:42 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id CB7E592462
-	for <selinux@tycho.nsa.gov>; Thu,  9 May 2002 15:49:36 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 0704B6E05
-	for <selinux@tycho.nsa.gov>; Thu,  9 May 2002 15:49:34 +1000 (EST)
+        by jazzband.ncsc.mil  with ESMTP id FAA18473 for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 05:48:31 GMT
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: setfiles -q option?
-Date: Thu, 9 May 2002 14:53:49 +1000
+To: Stephen Smalley <sds@tislabs.com>
+Subject: Re: kmod.te
+Date: Thu, 9 May 2002 15:22:14 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0205030812390.16931-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0205030812390.16931-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020509054935.0704B6E05@lyta.coker.com.au>
+Message-Id: <20020509054938.BC169310F@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Could we have a "-q" option to setfiles to make it not write out messages 
-such as the following?
+On Fri, 3 May 2002 22:19, Stephen Smalley wrote:
+> > I don't like that idea.  I have the following:
+> > domain_auto_trans(kmod_t,insmod_exec_t,insmod_t)
+> >
+> > My idea is that it's better to use domain_auto_trans to give access to
+> > the insmod_t domain than to give other domains extra privs (although
+> > kmod_t should be safe ;).
+>
+> If you perform a transition from kmod_t to insmod_t, then you can no
+> longer distinguish between module insertions initiated by the kernel vs.
+> module insertions initiated by some user process that can transition to
+> insmod_t.  Consider the scenario where someone wishes to prohibit all
+> insertions by user processes but is willing to allow insertions initiated
+> by the kernel.  Hence, it seems preferable to remain in kmod_t so that the
+> policy can distinguish these events if desired.
 
-/usr/sbin/setfiles:  Running on a SELinux kernel, using new system calls
-/usr/sbin/setfiles:  read 450 specifications
-/usr/sbin/setfiles:  Done.
+Fair point.
 
-Having it write out messages if it's not running on a SE Linux kernel would 
-still be useful.  But when you install 100 new packages having the above 
-three lines displayed 100 times is rather annoying...
+In that case I think that we should have a macro for the majority of the 
+insmod policy instead of duplicating policy code.  I suggest that the macro 
+be in the start of modutil.te and be used twice from there.  I think that 
+such policy belongs in modutil.te because the modules utilities are optional 
+(you can compile a kernel without module support), but kmod.te will always be 
+required.
+
+Also is there any system using a version of modutils that has separate 
+programs for insmod, rmmod, and modprobe but which runs the required versions 
+of all other software for running SE Linux?  If not then I suggest that we 
+remove all references to having separate programs from the policy.
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
