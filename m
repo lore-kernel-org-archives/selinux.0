@@ -1,53 +1,36 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA05046
-	for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2002 09:49:39 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA08240
+	for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2002 15:07:04 -0500 (EST)
+From: azeredo@qmc.ufsc.br
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA26457
-	for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2002 14:47:41 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id OAA26452
-	for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2002 14:47:40 GMT
-Date: Tue, 5 Nov 2002 09:49:22 -0500 (EST)
-From: Wayne Salamon <wsalamon@tislabs.com>
-To: Giorgio Zanin <giorgio.zanin@inwind.it>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: type transition
-In-Reply-To: <3DC6CAB2.3070008@inwind.it>
-Message-ID: <Pine.LNX.4.33.0211050916500.30663-100000@vox.gw.tislabs.com>
+	by jazzswing.ncsc.mil  with ESMTP id UAA16756
+	for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2002 20:05:07 GMT
+Received: from quark.qmc.ufsc.br (bohr-gw.qmc.ufsc.br [150.162.31.223])
+	by jazzswing.ncsc.mil  with ESMTP id UAA16752
+	for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2002 20:05:05 GMT
+Received: (from wwwrun@localhost)
+	by quark.qmc.ufsc.br (8.11.3/8.11.3/SuSE Linux 8.11.1-0.5) id gA5KSXw15343
+	for selinux@tycho.nsa.gov; Tue, 5 Nov 2002 18:28:33 -0200
+Message-ID: <1036528113.3dc829f18bb9c@qmc.ufsc.br>
+Date: Tue,  5 Nov 2002 18:28:33 -0200
+To: selinux@tycho.nsa.gov
+Subject: Selinux on RH8
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 4 Nov 2002, Giorgio Zanin wrote:
-
-> what's the difference between the following statements:
->
-> type_transition TYPE_A TYPE_B:process TYPE_C
->
-
-  This rule states how a process transitions. If a process is currently in
-domain TYPE_A, and execs a file of type TYPE_B, then the process will
-transition to domain TYPE_C. However, the policy must allow this
-transition, hence:
 
 
->
-> allow TYPE_A TYPE_C:process transition
+ Thank you guys for the help. But i still got some problems. I did
 
-  This rule states that a process in domain TYPE_A is allowed to
-transition to domain TYPE_C.
-  You should look at the SELinux Policy doc for more information, at
-http://www.nsa.gov/selinux/policy2-abs.html
-  You can also refer to the original SELinux report:
-http://www.nsa.gov/selinux/slinux-abs.html.
+make relabel after adding the Wasterman lines for the postfix policy and reboot
+and got the following messages:
 
-
- --
-Wayne Salamon
-wsalamon@tislabs.com
-
-
+Activating swap partitions
+/etc/rc.d/rc.sysinit: line 318 /etc/mtab: Read-only file system
+/etc/rc.d/rc.sysinit: line 324 Segmentation fault mount -f
+touch: creating '/var/lock/subsys/network/ ' Read-only file system
 
 --
 This message was distributed to subscribers of the selinux mailing list.
