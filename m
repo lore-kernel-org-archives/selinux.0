@@ -1,39 +1,32 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1DFiPRb028088
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2004 10:44:25 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1DFiNOi028044
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2004 15:44:23 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i1DFiNWW028041 for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2004 15:44:23 GMT
-Subject: Re: 2.4-based SELinux
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Miguel Bolanos <mike@linuxlabs.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1076438424.3450.7.camel@pyro>
-References: <1076427867.5910.162.camel@moss-spartans.epoch.ncsc.mil>
-	 <1076438424.3450.7.camel@pyro>
-Content-Type: text/plain
-Message-Id: <1076687053.10189.96.camel@moss-spartans.epoch.ncsc.mil>
+From: "R N" <rnmj44@hotmail.com>
+To: SELinux@tycho.nsa.gov
+Subject: SELinux and SystemImager
+Date: Fri, 13 Feb 2004 11:49:37 -0500
 Mime-Version: 1.0
-Date: Fri, 13 Feb 2004 10:44:13 -0500
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY9-F60HnYHraK2yR000043ec3@hotmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-02-10 at 13:40, Miguel Bolanos wrote:
-> Sure Compatibility is now an issue, but i do believe there is still
-> several people out whom will want to keep 2.4 for a while, that includes
-> myself.
-> If the 2.4-based SELinux is going to be maintained by people outside
-> NSA, I would like to contribute with the team doing this work.
+Hi All,
 
-Just to clarify, we don't mind updating the 2.4-based SELinux for newer
-base kernels for a little bit (e.g. until 2.4.26), but we don't plan on
-back porting changes to it from the 2.6-based SELinux any longer.
+Has anyone tried creating multiple SELinux systems using SystemImager (or 
+Symantec Ghost and like). We have been using SystemImager successfully to 
+clone Linux based system for our cluster. SystemImager is based on rsync. 
+Now I tried to clone a SELinux system, the initial steps of grabbing the 
+golden-client image at the server are successful and I could create a new 
+client using the same image from the server. But when I try to reboot the 
+new client, it gives all kinds of avc_denied errors. and doesn't boot.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Our requirement is to be able to clone SeLinux systems. Any help in this 
+regard would be appreciated.
+
+Thanks,
+-Rajeev
+
+_________________________________________________________________
+Choose now from 4 levels of MSN Hotmail Extra Storage - no more account 
+overload! http://click.atdmt.com/AVE/go/onm00200362ave/direct/01/
 
 
 --
