@@ -1,55 +1,71 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9GFBuWt003395
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 11:11:57 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9GFBg0p022693
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 15:11:42 GMT
-Received: from mail.speakeasy.net (mail10.speakeasy.net [216.254.0.210])
-	by jazzswing.ncsc.mil  with ESMTP id h9GFBfr7022688
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 15:11:42 GMT
-Date: Thu, 16 Oct 2003 11:13:14 -0400
-Mime-Version: 1.0 (Apple Message framework v552)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: Washington Area Users Group Meeting October 23
-From: Jonathan Stanton <jstanton@gwu.edu>
-To: selug@egovos.org, selinux@tycho.nsa.gov
-Message-Id: <43838A18-FFEB-11D7-99AB-00039375601C@gwu.edu>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9GFL9Wt003471
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 11:21:09 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9GFL8mR000793
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 15:21:08 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+        by jazzband.ncsc.mil  with ESMTP id h9GFL6jp000784 for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 15:21:07 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: genfscon and /boot
+Date: Fri, 17 Oct 2003 01:21:03 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <200310162109.25021.russell@coker.com.au> <200310170050.30444.russell@coker.com.au> <1066316470.25279.10.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1066316470.25279.10.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200310170121.03791.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Fri, 17 Oct 2003 01:01, Stephen Smalley wrote:
+> On Thu, 2003-10-16 at 10:50, Russell Coker wrote:
+> > OK.  Then how about an option to label all of /boot as boot_t?  There can
+> > be no confusion when all of a file system has the same label, and being
+> > overly restrictive should not be a problem.
+>
+> And we distinguish /boot from any other ext2 filesystem in what manner?
 
-Based on the interest expressed a few weeks ago a SE Linux Users Group 
-for the Washington DC area is being formed.
+Yes, that is a problem.  However the number of other ext2 file systems is 
+quite small.  The only ext2 file systems that I use are for /boot and for 
+some old CDs (of course labeling CDs as boot_t would be annoying too).
 
-We have an email list and web page and a first meeting is scheduled for 
-October 23rd at 7pm at George Washington's foggy bottom campus in 736 
-Academic Center. The campus is convenient to Metro (Orange/Blue line 
-Foggy Bottom stop - 1 block or Red Line Farragut North stop - 5 block 
-walk) and has visitor and street parking.
+Of course this can't be the default, but making it a readily accessible option 
+seems to add value IMHO.
 
-Frank Mayer has agreed to talk about how the security model of SELinux 
-differs from regular Linux and about some of the tools his company 
-Tresys has produced to help with SELinux.
+> Exactly what is broken by having xattrs on /boot?  Why does this
+> interfere with the ability of old boot loaders to access /boot?
 
-For more information, including directions, a map, and links to the 
-email list visit the website
+The kernel bug which prevents a 2.4 kernel without the XATTR patches from 
+mounting a file system which has XATTRs affects all the boot loaders that are 
+based on 2.4 kernel code.  AFAIK no-one is using a 2.6 kernel for a boot 
+loader and Cobalt may be the first organization to apply XATTR patches to 
+their 2.4 kernel based boot loader to fix this issue.
 
-http://www.ensl.cs.gwu.edu/selug/
+Given time all the boot loaders will be based on 2.6 kernels or newer 2.4 
+kernels with this bug fixed.  In the mean time it is nice to be able to work 
+around this.  For my personal use I have the choice between implementing this 
+work-around, discarding two perfectly good servers, or waiting for Sun to 
+release the new ROM.  I imagine that others will face a similar situation, 
+and they may not have the same abilities to implement work-arounds and 
+convince vendors to update their code as I do.
 
-or join the email list at http://www.egovos.org/mailman/listinfo/selug/
+But I agree that this is a difficult issue, and I am not committed to getting 
+it changed.
 
-If you plan to come I would appreciate a brief email so make sure the 
-room will be large enough.
+Finally the current plans (as I am aware of them) for Red Hat include having 
+ext2 drivers compiled into the kernel without XATTR support for the initrd.  
+Unless these plans are changed (which is another matter we should discuss 
+now) then we will have some issues related to unlabeled ext2 file systems.
 
-I'm looking forward to meeting everyone,
-
-Jonathan
-
--- ** -- ** -- ** -- ** -- ** -- ** -- ** -- ** -- ** --
-Jonathan Stanton  jstanton@gwu.edu
-Dept. of Computer Science
-George Washington University
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
