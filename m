@@ -1,59 +1,66 @@
-Subject: Re: setsebool and togglesebool patch
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: SELinux List <SELinux@tycho.nsa.gov>, Steve G <linux_4ever@yahoo.com>
-In-Reply-To: <1099679009.20150.150.camel@pham.columbia.tresys.com>
-References: <1099679009.20150.150.camel@pham.columbia.tresys.com>
-Content-Type: text/plain
-Message-Id: <1099682764.6373.254.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5JrJIi002617
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 14:53:19 -0500 (EST)
+Received: from wproxy.gmail.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5JrLF9007319
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 19:53:22 GMT
+Received: by wproxy.gmail.com with SMTP id 64so58616wri
+        for <selinux@tycho.nsa.gov>; Fri, 05 Nov 2004 11:53:19 -0800 (PST)
+Message-ID: <561dc32604110511531fbd1e33@mail.gmail.com>
+Date: Fri, 5 Nov 2004 14:53:19 -0500
+From: Jiann-Ming Su <sujiannming@gmail.com>
+Reply-To: Jiann-Ming Su <sujiannming@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: MySQL Policy Patch
+In-Reply-To: <1098205374.29525.99.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 05 Nov 2004 14:26:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+References: <A52BEA1D8EE8634B9196A136333637B130F3@maat.darkhonor.net>
+	 <561dc326041019095644afc579@mail.gmail.com>
+	 <1098205374.29525.99.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-11-05 at 13:23, Karl MacMillan wrote:
-> Unfortunately, this race isn't avoided entirely with your approach -
-> there is no guarantee that only one instance of the tools is running and
-> of course other processes can be toggling the booleans directly
-> via /selinux. Even if two processes are changing orthogonal booleans, a
-> commit by one of the processes in the middle of the other's transaction
-> can cause an inconsistent state.
+On Tue, 19 Oct 2004 13:02:54 -0400, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> 
+> IIRC, on FC2, you would do:
+> yum install policy-sources
+> cd /etc/security/selinux/src/policy
+> vi domains/program/mysqld.te
+> 
+> to look at the mysqld policy that shipped with FC2.  But you would
+> likely do better to update to FC3T3 if using SELinux, as much has
+> changed and FC2 policy hasn't had any updates AFAIK.
+> 
+FC3T3 wouldn't install on my system, so I'm having to work through
+FC2.  When I try to run "/etc/init.d/mysql start" as root, I get the
+following in dmesg:
 
-True, but I think they are particularly concerned about
-system-config-securitylevel using setsebool to set a collection of
-booleans as a single transaction, and this does help in that situation.
+audit(1099684144.872:0): avc:  denied  { read } for  pid=5099
+exe=/bin/su name=.default_contexts dev=sda5 ino=213003
+scontext=jms:user_r:user_su_t tcontext=root:object_r:staff_home_dir_t
+tclass=file
+inode_doinit_with_dentry: 
+context_to_sid(system_u:object_r:mysql_home_dir_t) returned 22 for
+dev=sda8 ino=1107617
+audit(1099684153.056:0): avc:  denied  { associate } for  pid=5163
+exe=/usr/sbin/mysqld-max name=booboo.lower-test
+scontext=root:object_r:unlabeled_t tcontext=system_u:object_r:fs_t
+tclass=filesystem
+audit(1099684153.094:0): avc:  denied  { associate } for  pid=5163
+exe=/usr/sbin/mysqld-max name=mysql.sock
+scontext=root:object_r:unlabeled_t tcontext=system_u:object_r:fs_t
+tclass=filesystem
 
-> Whom means linux username, SELinux username, process type, a
-> combination?
-
-At present, it appears that it only logs Linux username.  Should also
-include security context, IMHO, although one could correlate with the
-corresponding audit message to get that information.
-
-> > Does this mean the policy or the boolean configuration? 
-
-Looks like just the boolean configuration.  
-
-> This gives these
-> tools a lot of power that wasn't there before. You are essentially
-> requiring that setsebool have permission to change any bool, or if you
-> are writing the policy to disk permission to change anything.
-
-No; it still only sets the booleans specified on the command line, and
-it only writes the boolean configuration file if you specify that
-option.  Hence, you can still use it even with limited permissions.
-
-> This is work that needs to be done and I'm glad that you are tackling
-> it. Unfortunately, it seems to me that the full solution requires some
-> more engineering.
-
-Agreed, but it seems like a good start.  Committed to the sourceforge
-CVS tree.
+What do I need to do so that mysql will start on my system, and users
+can access the mysql database?  I've tried adding mysqld_r to the
+users file, but mysqld_r is not a role.  Sorry for being so slow with
+this.  Thanks for any info.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Jiann-Ming Su
+"I have to decide between two equally frightening options. 
+ If I wanted to do that, I'd vote." --Duckman
 
 --
 This message was distributed to subscribers of the selinux mailing list.
