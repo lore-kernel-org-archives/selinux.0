@@ -1,36 +1,33 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1GDEBL9015256
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 08:14:11 -0500 (EST)
-Subject: Re: dynamic context transitions
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1GDGIL9015286
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 08:16:18 -0500 (EST)
+Subject: Re: sshd transition points
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20050215213455.GF26294@lkcl.net>
-References: <20050215213455.GF26294@lkcl.net>
+In-Reply-To: <20050215225329.GH26294@lkcl.net>
+References: <20050215155323.GC23765@lkcl.net>
+	 <1108491293.17854.153.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050215191640.GA26294@lkcl.net>
+	 <1108495342.17854.200.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050215200355.GB26294@lkcl.net>  <20050215225329.GH26294@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1108559153.19756.49.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1108559280.19756.52.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 16 Feb 2005 08:05:53 -0500
+Date: Wed, 16 Feb 2005 08:08:00 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-15 at 16:34, Luke Kenneth Casson Leighton wrote:
-> i assume it _is_ necessary to perform dynamic auto transitions?
-> 
-> such that i can track to alternative contexts, yes?
+On Tue, 2005-02-15 at 17:53, Luke Kenneth Casson Leighton wrote:
+> on the setcon(), because i happened to be in sshd_privsep_t, and because
+> i happened to be setting the context to user_t, and because it was
+> sshd_exec_t doing the setting, i expect an "automatic" transition
+> to occur to sshd_privsep_user_t.
 
-No.  Dynamic transitions are always explicitly requested by
-applications, just like setuid(2) calls.  Since you must modify the
-application anyway to introduce the dynamic context transition (unlike
-an automatic transition upon an existing execve call), there is no such
-thing as an automatic dynamic transition.  Now, the issue of how to get
-the right new domain is another matter.  For user contexts, we want
-something akin to get_default_context().  But in this case, you are
-again dealing with two fixed domains that are not associated with a
-user, IIUC, so you might as well just create new appconfig files (under
-policy/appconfig) that are installed to
-/etc/selinux/$SELINUXTYPE/contexts and read by sshd upon startup to
-obtain the desired context for the monitor and unprivileged child.
+That makes no sense.  If you want to compute a derived context to pass
+to the setcon() call, you can use security_compute_create() to get one
+from policy, e.g. see the corresponding logic in rpm_execcon(3) in
+libselinux.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
