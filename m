@@ -1,65 +1,53 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1N5uNdW028236
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 00:56:23 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1N6nudW028417
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 01:49:56 -0500 (EST)
 Received: from mail02.infosat.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1N5pVrg004219
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 05:51:37 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1N6j6rg004951
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 06:45:10 GMT
 Received: from [196.38.110.14] (HELO mail01.infosat.net)
   by mail02.infosat.net (CommuniGate Pro SMTP 4.1.8)
-  with ESMTP id 208171756 for selinux@tycho.nsa.gov; Wed, 23 Feb 2005 07:53:38 +0200
+  with ESMTP id 208199205 for selinux@tycho.nsa.gov; Wed, 23 Feb 2005 08:47:13 +0200
 Received: from [66.18.72.157] (HELO hivsa.com)
   by mail01.infosat.net (CommuniGate Pro SMTP 4.1.8)
-  with SMTP id 646214973 for selinux@tycho.nsa.gov; Wed, 23 Feb 2005 07:53:36 +0200
+  with SMTP id 646271087 for selinux@tycho.nsa.gov; Wed, 23 Feb 2005 08:47:12 +0200
 From: Jayendren Anand Maduray <jayendren@hivsa.com>
 Reply-To: jayendren@mweb.co.za
-To: jayendren@mweb.co.za, SE-Linux <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Subject: Re: fc3 - password change problem - syslog and portmapper
-Date: Wed, 23 Feb 2005 09:52:18 +0200
-References: <200502220809.40631.jayendren@hivsa.com> <200502221244.44315.jayendren@hivsa.com> <20050222121127.GH14038@lkcl.net>
-In-Reply-To: <20050222121127.GH14038@lkcl.net>
+Date: Wed, 23 Feb 2005 08:45:41 +0200
+References: <200502220809.40631.jayendren@hivsa.com> <1109077449.2256.9.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1109077449.2256.9.camel@moss-spartans.epoch.ncsc.mil>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200502230952.18953.jayendren@hivsa.com>
+  charset="utf-8"
+Message-Id: <200502230845.41243.jayendren@hivsa.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 22 February 2005 14:11, Luke Kenneth Casson Leighton wrote:
+On Tuesday 22 February 2005 15:04, you wrote:
 thanks!
-i do have vmware, i will try that out.
+i shall stop bothering u guys!
 
-> On Tue, Feb 22, 2005 at 12:44:44PM +0200, Jayendren Anand Maduray wrote:
-> > On Tuesday 22 February 2005 12:21, you wrote:
-> > ic, well i did not compile it, and it does not work with the previous
-> > kernel - 2.6.9
+God bless.
+
+> On Tue, 2005-02-22 at 08:09 +0200, Jayendren Anand Maduray wrote:
+> > Got FC3 running SELINUX in enforcing mode.
+> >
+> > 1. however when i try to change my password, i get the ffg error:
+> > SystemError: couldn't get security context of `/etc/passwd': No data
+> > available
+> >
+> > 2. also, when i boot up, syslogd, and portmap cannot start, so i disabled
+> > it in SELinux. i would like to get this to work, though.
+> >
+> > i am running kernel Linux shiva 2.6.10-1.741_FC3smp
 >
->  are you saying that out-of-the-box, you installed FC3, selected
->  on the anaconda install program the option to enable selinux,
->  and that you selected to "enable" rather than "warn" i think
->  that's the option...
->
->  ... and having done that, it _didn't_ work?
->
->  because if so, that is very very odd, and you should resolve to
->  fix _that_ rather than going to other lengths such as installing
->  a 2.6.10 kernel or installing policy from source.
->
-> > do u suggest that i remove it, and compile it from scratch?
->
->  no, i'm suggesting that you resolve the initial problem with
->  your install (by reinstalling if necessary - do you have vmware
->  or a spare machine?)
->
->  and if necessary, raising a bug on redhat's bug tracking site.
->
->  l.
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with the words "unsubscribe selinux" without quotes as the message.
+> The most likely scenario is that you never labeled your filesystems, or
+> that you ran with SELinux disabled for some period of time and thus
+> ended up with some files without security labels.  Touch /.autorelabel
+> and reboot, or run /sbin/fixfiles relabel and reboot.  BTW, this kind of
+> question belongs on fedora-selinux-list, not here, IMHO.
 
 -- 
 Jayendren Anand Maduray
