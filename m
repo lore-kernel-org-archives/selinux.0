@@ -1,47 +1,67 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAHKwuRb008453
-	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2003 15:58:56 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAHLJlRb008606
+	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2003 16:19:47 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAHKwtqY013743
-	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2003 20:58:55 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id hAHKwt0o013740 for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2003 20:58:55 GMT
-Subject: Re: relabelling processes
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Reisse <areisse@nailabs.com>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <20031117144655.A25938@raven.rv.nailabs.com>
-References: <20031117144655.A25938@raven.rv.nailabs.com>
-Content-Type: text/plain
-Message-Id: <1069102734.4662.441.camel@moss-spartans.epoch.ncsc.mil>
+	by jazzband.ncsc.mil  with ESMTP id hAHLJkqY014952
+	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2003 21:19:46 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id hAHLJj0o014947 for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2003 21:19:46 GMT
+Date: Mon, 17 Nov 2003 21:19:25 +0000
+From: Dale Amon <amon@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: new PAM and policy to match
+Message-ID: <20031117211924.GA4838@vnl.com>
+References: <200311100849.52026.russell@coker.com.au> <200311121338.13459.russell@coker.com.au>
 Mime-Version: 1.0
-Date: Mon, 17 Nov 2003 15:58:54 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200311121338.13459.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-11-17 at 14:46, Andrew Reisse wrote:
-> For the SEdarwin project, we need a process to change its label during 
-> execution, because it acts as both a system service and a user session
-> manager. (Apple does not release the source). Is there a security risk
-> in allowing this for other processes as well, performing the relabelfrom/
-> relabelto checks as with file relabelling? If so, we will probably need
-> to introduce a new permission so that the window server can change its
-> label, but no user process can.
+Russ: We're getting there but I've finally got an
+selinux system using your packages that I can log into.
+That's the good news.
 
-I think that this is noted in the early SELinux documentation, and has
-come up a few times before on the list.  Limiting label transitions to
-execve allows the inheritance of state and the initialization of the
-process in the new label to be controlled.  setuid(2)-like label
-transitions lack such controls and enforce no real separation between
-the two labels.  Introducing such an operation will create an internal
-inconsistency in your security model, with domain transitions sometimes
-being subjected to one set of controls and behaviors and sometimes to
-another.
+The problem areas are:
+
+	* I had to delete later.te.
+	* redhat-config-users.te had no matching tc
+	  file. I didn't need it anyway so I deleted
+	  it
+
+With those mods I was able to build the policy file.
+After rolling in my image with rsync, I logged into
+the non-initrd choice and:
+
+	tune2fs -j /dev/hda2	# set up ext2->ext3
+	make load
+	make relabel
+
+which works. I can see the file contexts with ls. Then
+I reboot through the initrd version. This time, for the
+first time since I switched package repositories, I
+was able to login to the selinux enabled kernel. 
+
+Problem though... it is not giving a context or asking
+for a choice of initial contexts; and newrole doesn't
+recognize sysadm_r. 
+
+I'd guess there is/are still incorrect package version(s)
+being loaded out of 
+	coker
+	walters
+	sid
+but I'll be damned if I can figure out what and why.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
