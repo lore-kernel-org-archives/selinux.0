@@ -1,159 +1,50 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA17860
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 10:36:41 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA21146
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:36:14 GMT
-Received: from web40206.mail.yahoo.com (web40206.mail.yahoo.com [66.218.78.67])
-	by jazzswing.ncsc.mil  with SMTP id OAA21140
-	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:36:14 GMT
-Message-ID: <20020626143638.84363.qmail@web40206.mail.yahoo.com>
-Date: Wed, 26 Jun 2002 07:36:38 -0700 (PDT)
-From: Michael Nyika <nyix@yahoo.com>
-Subject: Re: Configuration issues on a new installation
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA18275
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 10:55:02 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA05681
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:53:36 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id OAA05677 for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2002 14:53:35 GMT
+Date: Wed, 26 Jun 2002 10:54:48 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
 To: Brad Chapman <jabiru_croc@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20020626141647.54183.qmail@web40017.mail.yahoo.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: Configuration issues on a new installation
+In-Reply-To: <20020626134354.53630.qmail@web40003.mail.yahoo.com>
+Message-ID: <Pine.GSO.4.33.0206261049110.13228-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Certainly sir: 
-(Pardon me for not giving you a real concrete example
-message). 
 
-If your avc message contains, eg: avc denied { write }
-path=(something)........scontext=system_u:system_r:kernel_t
-tcontext= (something):(something):file_t tclass=file 
+On Wed, 26 Jun 2002, Brad Chapman wrote:
 
-then: look for a file called kernel.te in
-/policy/domains/programs/
- 
-why there? because it is the kernel_t domain being
-denied "write" permission on a "file" of type
-"file_t". 
-If you look at the path statement (still in the avc
-denied statement), i believe you'll see the probable
-file that should have that  type.
+>        No. My base platform is RedHat 6.2 (heavily modified) with the 2.4.18
+> kernel (as mentioned previously) and the SELinux utils package dated 1000hrs
+> May 31, 2002.
 
-Now: look for a line in the kernel.te file that goes
-something like this:
+Ok.  The example policy configuration was originally developed based on
+RH6.1 and 6.2, and has been subsequently updated for RH7.1 and 7.2.  But
+if your platform is heavily modified, it isn't surprising that you are
+encountering plenty of audit messages.
 
-allow kernel_t file_t:file { some_entry_here };
+Have you verified that all of your system daemons are being placed into
+their own domains, as discussed in the README?  If not, then that is a
+natural first step.
 
-If this line exists, then add "write" between the {}.
-If you cant see it, then create the entry. 
+You can certainly post excerpts from your /var/log/messages or dmesg
+output and we can try to help you in updating your policy.  Try to avoid
+including lots of redundant audit messages or trivial audit messages that
+you already know how to fix.
 
-next, make sure you run "make load" from the /policy
-directory. You should see the message displayed
-SUCCESS if you successfully updated the policy
-configuration.
-
-** This is just so you can see that avc will NOT deny
-the permission. It doesnt mean that you should (as Mr
-Smalley says, add permissions blindly. It really
-depends on what you want as an administrator).
-
-If you reboot and then run "dmesg | less" and scroll
-down, you shouldnt see the SAME avc message again.  
-
---- Brad Chapman <jabiru_croc@yahoo.com> wrote:
-> Mr. Nyika,
-> 
-> --- Michael Nyika <nyix@yahoo.com> wrote:
-> > Good-day, 
-> > I have found that i found the same avc denied
-> messages
-> > on my 2.4.18 SElinux kernel. I manually edited the
-> > specific te files, just by looking at the messages
-> > from dmesg. i eliminated all but two. They are
-> realted
-> > to the kernel_t domain and have to do with write
-> > permissions mainly.
-> 
->        Could you elaborate on the exact files you
-> edited and how you changed
-> them, please?
-> 
-> > 
-> > 
-> > --- Brad Chapman <jabiru_croc@yahoo.com> wrote:
-> > > Everyone,
-> > > 
-> > >      I have just started using SELinux on my
-> 2.4.18
-> > > system. I found an enormous
-> > > number of avc: denied messages in my dmesg and
-> > > attempted to remove them. So far
-> > > I have tweaked the devfs_contexts and the
-> > > policy.conf files (using
-> > > scripts/newrules.pl for policy.conf) since most
-> of
-> > > the errors were related to
-> > > device files and system call commands. I have
-> also
-> > > installed the SELinux devfsd
-> > > extension and added the config entries to my
-> > > devfsd.conf, to no apparent avail.
-> > > 
-> > >      What is the fastest way to eliminate most
-> (if
-> > > not preferably all) of these
-> > > messages and put me closer to activating
-> enforcing
-> > > mode?
-> > > 
-> > > Thanks,
-> > > 
-> > > Brad Chapman
-> > > 
-> > > =====
-> > > Brad Chapman
-> > > 
-> > > Permanent e-mails: kakadu_croc@yahoo.com
-> > > 		   jabiru_croc@yahoo.com
-> > > 		   tanami_croc@devel.lbsd.net
-> > > 
-> > > 
-> > > --
-> > > You have received this message because you are
-> > > subscribed to the selinux list.
-> > > If you no longer wish to subscribe, send mail to
-> > > majordomo@tycho.nsa.gov with
-> > > the words "unsubscribe selinux" without quotes
-> as
-> > > the message.
-> > 
-> > --
-> > You have received this message because you are
-> subscribed to the selinux
-> > list.
-> > If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as
-> the message.
-> 
-> Brad
-> 
-> 
-> =====
-> Brad Chapman
-> 
-> Permanent e-mails: kakadu_croc@yahoo.com
-> 		   jabiru_croc@yahoo.com
-> 		   tanami_croc@devel.lbsd.net
-> 
-> __________________________________________________
-> Do You Yahoo!?
-> Yahoo! - Official partner of 2002 FIFA World Cup
-> http://fifaworldcup.yahoo.com
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
+
 
 --
 You have received this message because you are subscribed to the selinux list.
