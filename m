@@ -1,43 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3P40rRb015529
-	for <selinux@tycho.nsa.gov>; Sun, 25 Apr 2004 00:00:53 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i3P3wdW3012219
-	for <selinux@tycho.nsa.gov>; Sun, 25 Apr 2004 03:58:40 GMT
-Received: from smtp.sws.net.au ([61.95.69.6])
-	by jazzswing.ncsc.mil  with ESMTP id i3P3wcIx012175
-	for <selinux@tycho.nsa.gov>; Sun, 25 Apr 2004 03:58:39 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: mizu <michal@zimen.sk>
-Subject: Re: sshd, devpts, unix_chkpwd
-Date: Sun, 25 Apr 2004 13:59:10 +1000
-Cc: selinux@tycho.nsa.gov
-References: <20040418233735.GA22543@intrak.sk>
-In-Reply-To: <20040418233735.GA22543@intrak.sk>
+To: Colin Walters <walters@redhat.com>
+Subject: Re: chfn/passwd
+Date: Sun, 25 Apr 2004 22:24:16 +1000
+Cc: SELinux@tycho.nsa.gov
+References: <4088d1b8.2a5.1877.956371590@internode.on.net> <1082727010.6575.3.camel@nexus.verbum.private>
+In-Reply-To: <1082727010.6575.3.camel@nexus.verbum.private>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200404251359.10230.russell@coker.com.au>
+Message-Id: <200404252224.16624.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 19 Apr 2004 09:37, mizu <michal@zimen.sk> wrote:
->   I try to make debian to work with last SELinux packages (1.10)
->   with patch for 2.6.5 kernel.
+On Fri, 23 Apr 2004 23:30, Colin Walters <walters@redhat.com> wrote:
+> On Fri, 2004-04-23 at 04:20, keen@internode.on.net wrote:
+> > Hi, I am running the December release on a 2.6.2 kernel on a
+> > FC1. I have realised normal users could not change their
+> > finger name as well as changing password under enforcement
+> > mode.
 >
->
->   I still have too much messages like this:
->
->   Apr 19 01:20:36 fuxo kernel: avc:  denied  { read write } for  pid=312
->   exe=/sbin/unix_chkpwd path=/dev/pts/0 dev= ino=2
->   scontext=root:staff_r:system_chkpwd_t
->   tcontext=system_u:object_r:sshd_devpts_t tclass=chr_file
+> I remember fixing a bug like this in the FC2 policy a few weeks ago,
+> maybe it was also in the upstream policy.  After mining my email a bit,
+> here's the patch I came up with at the time.  Not sure if you're running
+> into the same problem, you'd need to post the exact AVC messages.
 
-That is a bug in the pam package for Debian.  Fixing it is on my to-do list, 
-in the mean time putting in a dontaudit rule to stop that will be OK.
+The original chfn policy was written when we used the "spasswd" wrapper 
+for /bin/passwd.  At that time there was no code called by chfn etc to set 
+types, so the chfn policy just defined automatic type transitions (which 
+resulted in the identity of the user in question being assigned 
+to /etc/passwd - so anyone could see who last changed their finger name).  
+Now that we have PAM code to relabel /etc/passwd (necessary to remove the 
+spasswd wrapper) we need privowner so that it can change the identity 
+of /etc/passwd.  Lack of this access should result in chfn failing when it 
+calls setfscreatecon().
 
-I don't know why your machine is hanging.
+I guess that no-one had tested chfn since the time of spasswd.  ;)
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
