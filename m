@@ -1,100 +1,39 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8HIc4xF002095
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 14:38:04 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8HIaMLY014523
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 18:36:23 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [144.51.25.4])
-	by jazzswing.ncsc.mil  with ESMTP id h8HIaMsG014520
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 18:36:22 GMT
-Subject: Re: Installation Problem
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: lky <lky77@sjtu.edu.cn>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <000a01c37d46$29ed8300$5d38a8c0@lky>
-References: <000a01c37d46$29ed8300$5d38a8c0@lky>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8HM25xF003093
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 18:02:05 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h8HM24mw014263
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 22:02:04 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h8HM249d014260 for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 22:02:04 GMT
+Received: from moss-huskies (moss-huskies [144.51.25.7])
+	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8HM23LX016004
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 18:02:04 -0400 (EDT)
+Subject: Hurricane Isabel
+From: Howard Holm <hdholm@epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Message-Id: <1063823878.7533.38.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1063836123.9714.210.camel@moss-huskies>
 Mime-Version: 1.0
-Date: 17 Sep 2003 14:37:58 -0400
+Date: 17 Sep 2003 18:02:03 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-SELinux uses extended attributes for file security contexts.  We (and
-others) have encountered problems booting unmodified 2.4 kernels after
-assigning extended attributes to the root filesystem.  
+The current track of hurricane Isabel is expected to result in very
+heavy rain and wind in this area.  Depending on the actual weather
+conditions, the NSA SELinux team expects that precautionary power-down
+of some equipment here may be required and could begin as early as 11:00
+AM EDT Thursday.  We anticipate that the SELinux mailing list, the NSA
+SELinux team, and perhaps the SELinux web site may be unavailable after
+mid-day Thursday.  We will do what we can to see these services are
+restored to the SELinux community as early as possible, perhaps as early
+as Friday morning.
 
-A 2.4 kernel with the Extended Attribute patch applied will boot.  The
-kernel source that you are using for SELinux has the EA patch, so you
-can use it to make a non-SELinux kernel.
-
- On Wed, 2003-09-17 at 14:04, lky wrote:
-> Hi, I am attempting to install the new 2.4-based SELinux at Redhat9.0.
-> But when I finished the installation I found I couldn't reboot the
-> Redhat9.0 any longer while I can boot with the SELinux kernel. When I
-> boot with the Redhat9.0 kernel I got the following error message:
-> ------------------------------------------------------------------------------------------------------------------------------------------------------
-> attempt to access beyond end of device
-> 03:09: rw=0, want=xxxxxxxxxx,limit=xxxxxxxxxx
-> kernel panic: No init found ,Try passing init=option to kernel
-> ------------------------------------------------------------------------------------------------------------------------------------------------------
->  
-> my harddisk statistics is below:
->  
-> ---------------------------------------------------------------------------------------------------------------------------------------------------------
-> Disk /dev/hda: 40.9 GB, 40982151168 bytes
-> 255 heads, 63 sectors/track, 4982 cylinders
-> Units = cylinders of 16065 * 512 = 8225280 bytes
->  
->    Device Boot    Start       End    Blocks   Id  System
-> /dev/hda1   *         1       634   5092573+   b  Win95 FAT32
-> /dev/hda2           635      4982  34925310    f  Win95 Ext'd (LBA)
-> /dev/hda5          1688      2550   6932016    7  HPFS/NTFS
-> /dev/hda6          2551      3825  10241406    b  Win95 FAT32
-> /dev/hda7          3826      4982   9293571    b  Win95 FAT32
-> /dev/hda8           635       647    104359+  83  Linux
-> /dev/hda9           648      1622   7831656   83  Linux
-> /dev/hda10         1623      1687    522081   82  Linux swap
->  
-> Partition table entries are not in disk order
-> ------------------------------------------------------------------------------------------------------------------------------------------------------------
->  
-> my grub.conf is listed too
->  
-> -----------------------------------------------------------------------------------------------------------------------------------------------------------
-> # grub.conf generated by anaconda
-> #
-> # Note that you do not have to rerun grub after making changes to this
-> file
-> # NOTICE:  You have a /boot partition.  This means that
-> #          all kernel and initrd paths are relative to /boot/, eg.
-> #          root (hd0,7)
-> #          kernel /vmlinuz-version ro root=/dev/hda9
-> #          initrd /initrd-version.img
-> #boot=/dev/hda
-> default=1
-> timeout=10
-> splashimage=(hd0,7)/grub/splash.xpm.gz
-> title Red Hat Linux (2.4.20-8)
->  root (hd0,7)
->  kernel /vmlinuz-2.4.20-8 ro root=LABEL=/
->  initrd /initrd-2.4.20-8.img
-> title SELinux (2.4.21)
->  root (hd0,7)
->  kernel /bzImage-2.4 ro root=LABEL=/
->  initrd /initrd-2.4.21.img
-> title DOS
->  rootnoverify (hd0,0)
->  chainloader +1
-> -------------------------------------------------------------------------------------------------------------------------------------------------------------------
->  
-> Is it a hardware trouble? How can I boot my Redhat 9.0 again?
-> Thanks!
->  
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
+Howard Holm <hdholm@epoch.ncsc.mil>
+Office of Defensive Computing Research
 National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
