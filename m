@@ -1,42 +1,37 @@
-Message-ID: <72222DC86846D411ABD300A0C9EB08A1015243F4@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: Jeremy Kusnetz <JKusnetz@nrtc.org>,
-        "'SELinux@tycho.nsa.gov'"
-	 <SELinux@tycho.nsa.gov>
-Subject: RE: New to SELinux
-Date: Mon, 19 Aug 2002 16:26:28 -0500
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA11558
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 18:01:36 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id WAA12441
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 22:00:33 GMT
+Received: from web40004.mail.yahoo.com (web40004.mail.yahoo.com [66.218.78.22])
+	by jazzswing.ncsc.mil  with SMTP id WAA12437
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 22:00:32 GMT
+Message-ID: <20020819220134.41324.qmail@web40004.mail.yahoo.com>
+Date: Mon, 19 Aug 2002 15:01:34 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Changing the default role/type of a user
+To: SELinux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-on Monday, August 19, 2002 3:47 PM, Russell Coker wrote:
+Everyone,
 
-> They always have new releases long before the NSA does. Steve often
-releases 
-> patches that will apply on top of the LSM release or the NSA release to
-add 
-> new SE Linux support.  I include these patches in my Debian package, so
-the 
-> Debian packages I release are the most current single release  files you
-can 
-> get.  I have them on my web site at 
-> http://www.coker.com.au/selinux/kern/ .
-> 
-The Sourceforge cvs tree is up to date. Every patch for SELinux Steve
-updates, he
-updates the sourceforge CVS tree.  The sourceforge cvs tree is the updated
-NSA release.
-When the NSA Releases a new release the sourceforge will be updated at about
-the same
-time. If you wish to follow close to the NSA releases use the sourceforge
-cvs tree,
-it only contains patches that have been applied to the SELinux project. 
+In my policy, my username of Brad is placed in the role user_r and the domain
+user_t. However, the login program has my username in the role sysadm_r and
+the domain sysadm_t, despite there being no such role configured in the users
+file. Why does the login program do this?
 
-http://sourceforge.net/projects/selinux/
+Thanks,
 
-Mark
+Brad
+
+__________________________________________________
+Do You Yahoo!?
+HotJobs - Search Thousands of New Jobs
+http://www.hotjobs.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
