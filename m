@@ -1,56 +1,141 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA29673
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 08:56:11 -0400 (EDT)
-From: pasi.kivikangas@nokia.com
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA29908
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 09:19:03 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA12105
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 12:54:40 GMT
-Received: from mgw-x1.nokia.com (mgw-x1.nokia.com [131.228.20.21])
-	by jazzswing.ncsc.mil  with ESMTP id MAA12095
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 12:54:39 GMT
-Received: from esvir01nok.ntc.nokia.com (esvir01nokt.ntc.nokia.com [172.21.143.33])
-	by mgw-x1.nokia.com (Switch-2.2.1/Switch-2.2.0) with ESMTP id g8RCtw507326
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 15:55:58 +0300 (EET DST)
-Received: from esebh001.NOE.Nokia.com (unverified) by esvir01nok.ntc.nokia.com
- (Content Technologies SMTPRS 4.2.5) with ESMTP id <T5d987b29a7ac158f210a1@esvir01nok.ntc.nokia.com> for <selinux@tycho.nsa.gov>;
- Fri, 27 Sep 2002 15:56:06 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: RE: SE Linux and UML compile problems...
-Date: Fri, 27 Sep 2002 15:56:00 +0300
-Message-ID: <98C7D2E5BCD2374C9AAE0BCD2E9C1DD9BE843B@esebe013.ntc.nokia.com>
+	by jazzswing.ncsc.mil  with ESMTP id NAA13239
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 13:17:32 GMT
+Received: from mx.nas-smoothtransition.com ([66.95.157.149])
+	by jazzswing.ncsc.mil  with ESMTP id NAA13235
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 13:17:32 GMT
+Received: from BATMAN ([66.200.42.3])
+	by mx.nas-smoothtransition.com (8.11.4/8.9.3) with ESMTP id g8RDLgK12466
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 09:21:42 -0400
+From: "Frank Mayer" <mayerf@tresys.com>
 To: <selinux@tycho.nsa.gov>
+Subject: FW: checkpolicy and login names [patch]
+Date: Fri, 27 Sep 2002 09:19:47 -0400
+Message-ID: <001a01c26628$90993580$6600a8c0@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_001B_01C26607.09879580"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: ext Russell Coker [mailto:russell@coker.com.au] Sent: 26 September, 2002 17:27
-> 
-> I haven't had time to try this yet...
-> 
-> ----------  Forwarded Message  ----------
-> Subject: Re: pt_regs
-> Date: Wed, 25 Sep 2002 20:32:30 -0500
-> From: Jeff Dike <jdike@karaya.com>
-> To: Russell Coker <russell@coker.com.au>
-> 
-> russell@coker.com.au said:
-> >        unsigned int magic = regs.ebx;
-> >        unsigned int call = regs.ecx;
-> 
-> unsigned int magic = regs.args[1];
-> unsigned int call = regs.args[2];
-> 
-> 				Jeff
+This is a multi-part message in MIME format.
 
-Maybe this way?
+------=_NextPart_000_001B_01C26607.09879580
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-	unsigned int magic = regs.regs.args[1];
-	unsigned int call = regs.regs.args[2];
-	unsigned long *args = (unsigned long *)regs.regs.args[3];
+This message with the correct patch apparently didn't make it through
+the list (at least no one here got it).  Frank
+
+-----Original Message-----
+From: Frank Mayer [mailto:mayerf@tresys.com] 
+Sent: Thursday, September 26, 2002 2:58 PM
+To: 'selinux@tycho.nsa.gov'
+Subject: RE: checkpolicy and login names [patch]
 
 
-	- Pasi
+> Ok, correct patch is attached.  The cexpr_prim stuff is a
+> little tricky; hopefully I got it right in this patch!  Frank
+
+It's just not my day.  I left the attachment off my last message.
+
+------=_NextPart_000_001B_01C26607.09879580
+Content-Type: application/octet-stream;
+	name="cp.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="cp.patch"
+
+diff -ruN checkpolicy/policy_parse.y checkpolicy.new/policy_parse.y=0A=
+--- checkpolicy/policy_parse.y	Thu Sep 26 14:39:14 2002=0A=
++++ checkpolicy.new/policy_parse.y	Thu Sep 26 14:24:48 2002=0A=
+@@ -99,6 +99,7 @@=0A=
+ %token U1 U2 R1 R2 T1 T2=0A=
+ %token NOT AND OR =0A=
+ %token IDENTIFIER=0A=
++%token USER_IDENTIFIER=0A=
+ %token NUMBER=0A=
+ %token EQUALS=0A=
+ %token NOTEQUAL=0A=
+@@ -322,10 +323,10 @@=0A=
+ 			| T1 op T2=0A=
+ 			{ $$ =3D (int) define_cexpr(CEXPR_ATTR, CEXPR_TYPE, $2);=0A=
+ 			  if ($$ =3D=3D 0) return -1; }=0A=
+-			| U1 op { if (insert_separator(1)) return -1; } names_push=0A=
++			| U1 op { if (insert_separator(1)) return -1; } user_names_push=0A=
+ 			{ $$ =3D (int) define_cexpr(CEXPR_NAMES, CEXPR_USER, $2);=0A=
+ 			  if ($$ =3D=3D 0) return -1; }=0A=
+-			| U2 op { if (insert_separator(1)) return -1; } names_push=0A=
++			| U2 op { if (insert_separator(1)) return -1; } user_names_push=0A=
+ 			{ $$ =3D (int) define_cexpr(CEXPR_NAMES, CEXPR_USER | CEXPR_TARGET, =
+$2);=0A=
+ 			  if ($$ =3D=3D 0) return -1; }=0A=
+ 			| R1 op { if (insert_separator(1)) return -1; } names_push=0A=
+@@ -377,7 +378,10 @@=0A=
+ users			: user_def=0A=
+ 			| users user_def=0A=
+ 			;=0A=
+-user_def		: USER identifier ROLES names opt_user_ranges ';'=0A=
++user_id			: identifier=0A=
++			| user_identifier=0A=
++			;=0A=
++user_def		: USER user_id ROLES names opt_user_ranges ';'=0A=
+ 	                {if (define_user()) return -1;}=0A=
+ 			;=0A=
+ opt_user_ranges		: RANGES user_ranges =0A=
+@@ -470,7 +474,7 @@=0A=
+ 			  $$ =3D addr;=0A=
+ 			}=0A=
+     			;=0A=
+-security_context_def	: identifier ':' identifier ':' identifier =
+opt_mls_range_def=0A=
++security_context_def	: user_id ':' identifier ':' identifier =
+opt_mls_range_def=0A=
+ 	                ;=0A=
+ opt_mls_range_def	: ':' mls_range_def=0A=
+ 			|	=0A=
+@@ -536,6 +540,23 @@=0A=
+ identifier		: IDENTIFIER=0A=
+ 			{ if (insert_id(yytext,0)) return -1; }=0A=
+ 			;=0A=
++user_identifier		: USER_IDENTIFIER=0A=
++			{ if (insert_id(yytext,0)) return -1; }=0A=
++			;=0A=
++user_identifier_push	: USER_IDENTIFIER=0A=
++			{ if (insert_id(yytext, 1)) return -1; }=0A=
++			;=0A=
++user_identifier_list_push : user_identifier_push=0A=
++			| identifier_list_push user_identifier_push=0A=
++			| user_identifier_list_push identifier_push=0A=
++			| user_identifier_list_push user_identifier_push=0A=
++			;=0A=
++user_names_push		: names_push=0A=
++			| user_identifier_push=0A=
++			| '{' user_identifier_list_push '}'=0A=
++			| tilde_push user_identifier_push=0A=
++			| tilde_push '{' user_identifier_list_push '}'=0A=
++			;=0A=
+ path     		: PATH=0A=
+ 			{ if (insert_id(yytext,0)) return -1; }=0A=
+ 			;=0A=
+diff -ruN checkpolicy/policy_scan.l checkpolicy.new/policy_scan.l=0A=
+--- checkpolicy/policy_scan.l	Thu Sep 26 14:39:14 2002=0A=
++++ checkpolicy.new/policy_scan.l	Thu Sep 26 14:19:29 2002=0A=
+@@ -132,6 +132,7 @@=0A=
+ T2				{ return(T2); }=0A=
+ "/"({letter}|{digit}|_|"."|"-"|"/")*	{ return(PATH); }=0A=
+ {letter}({letter}|{digit}|_)*	{ return(IDENTIFIER); }=0A=
++{letter}({letter}|{digit}|_|"."|"-")*	{ return(USER_IDENTIFIER); }=0A=
+ {digit}{digit}*                 { return(NUMBER); }=0A=
+ #[^\n]*                         { /* delete comments */ }=0A=
+ [ \t\f]+			{ /* delete whitespace */ }=0A=
+
+------=_NextPart_000_001B_01C26607.09879580--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
