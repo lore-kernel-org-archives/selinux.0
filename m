@@ -1,59 +1,59 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9G2CsWt000091
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 22:12:54 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9G2Ck0p010511
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 02:12:46 GMT
-Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
-	by jazzswing.ncsc.mil  with ESMTP id h9G2Cjr7010508
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 02:12:45 GMT
-Message-ID: <3F8DFEA3.5000701@diyab.net>
-Date: Wed, 15 Oct 2003 22:12:51 -0400
-From: Diyab <diyab@diyab.net>
-MIME-Version: 1.0
-To: Michael Reilly <michaelr@cisco.com>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: setfiles and /home labeling
-References: <20031015160109.7fbdbb12.michaelr@cisco.com>
-In-Reply-To: <20031015160109.7fbdbb12.michaelr@cisco.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Wed, 15 Oct 2003 19:17:16 -0700
+From: Michael Reilly <michaelr@cisco.com>
+To: SELinux@tycho.nsa.gov
+Subject: Yet another question - newrole and xterm's
+Message-Id: <20031015191716.5478c74b.michaelr@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Michael Reilly wrote:
-> I know I am missing something.  These are all of the lines from
-> file_contexts which reference the /home directories.  Notice the two lines
-> which reference /home/michaelr.  After running make relabel /home/michaelr
-> is labeled system_u:object_r:user_home_dir_t instead of
-> system_u:object_r:staff_home_dir_t and all of the files in /home/michaelr
-> and below (except the files special cased like .ssh, etc.) are labeled
-> system_u:object_r:user_home_t.
-> 
-> Why are the two lines for /home/michaelr being ignored?  What am I doing
-> wrong?
-> 
-> Thanks,
-> 
-> michael
-> # Ordinary user home directories.
-> /home				system_u:object_r:home_root_t
-> /home/[^/]+	-d		system_u:object_r:user_home_dir_t
-> /home/[^/]+/.+			system_u:object_r:user_home_t
-> # Other staff home directories, replace "jadmin" with appropriate name
-> /home/michaelr/(/.*)?		system_u:object_r:staff_home_t
-> /home/michaelr			system_u:object_r:staff_home_dir_t
+Sorry to keep asking questions - I am still relatively new to this and would
+like to make things as secure as possible.  I am hoping to run selinux on my
+laptop along with an encrypted file system when I travel.  (Disclaimers all
+read and understood - I know I am on my own and there are no guarantees,
+etc.)
 
-You have an extra / in the staff_home_t declaration.  Change it to read 
-like this:
+Anyway on my system in enforcing mode -
+%  id
+uid=200(michaelr) gid=200(staff)
+groups=200(staff),1(bin),6(disk),10(wheel),300(vmware)
+context=michaelr:staff_r:staff_t sid=287
+% newrole -r sysadm_r
+Authenticating michaelr.
+Password: 
+newrole: incorrect password for michaelr
+%  id
+uid=200(michaelr) gid=200(staff)
+groups=200(staff),1(bin),6(disk),10(wheel),300(vmware)
+context=michaelr:staff_r:staff_t sid=287
 
-/home/michaelr(/.*)?		system_u:object_r:staff_home_t
+I found this in newrole.te.
+# Failed reads to /proc cause no harm, so do not audit them
+dontaudit newrole_t proc_t:dir search;
 
-Timothy,
+changing the dontaudit line to this and reloading the policy
+allow newrole_t proc_t:dir search;
 
+% newrole -r sysadm_r
+Authenticating michaelr.
+Password: 
+% id
+uid=200(michaelr) gid=200(staff)
+groups=200(staff),1(bin),6(disk),10(wheel),300(vmware)
+context=michaelr:sysadm_r:sysadm_t sid=286
+%
+
+What is wrong on my system that I need to allow this instead of not auditing
+it?  USE_PAM is defined and I am using PAM for login, etc.
+
+Thanks,
+
+michael
 -- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
-
+---- ---- ----
+Michael Reilly    michaelr@cisco.com
+    Cisco Systems, Santa Cruz, CA
 
 --
 This message was distributed to subscribers of the selinux mailing list.
