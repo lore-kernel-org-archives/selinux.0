@@ -1,49 +1,53 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA21370
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 08:54:38 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA00982
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 12:54:16 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id MAA00978
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 12:54:14 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>,
-        Debian User <rogelio@evoworks.evoserve.com>
-Subject: Re: selinux cramfs
-Date: Fri, 21 Jun 2002 14:54:26 +0200
-Cc: <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0206210844000.12888-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0206210844000.12888-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA21513
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 09:09:10 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA16628
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 13:07:46 GMT
+Received: from mail.ispko.com ([210.16.10.89])
+        by jazzband.ncsc.mil  with ESMTP id NAA16624 for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 13:07:45 GMT
+Message-ID: <3D132564.1060307@evoworks.evoserve.com>
+Date: Fri, 21 Jun 2002 21:08:52 +0800
+From: Debian User <rogelio@evoworks.evoserve.com>
 MIME-Version: 1.0
-Message-Id: <20020621125427.228C41EE0@lyta.coker.com.au>
+To: Russell Coker <russell@coker.com.au>
+CC: selinux@tycho.nsa.gov
+Subject: Re: selinux cramfs
+References: <Pine.GSO.4.33.0206210844000.12888-100000@raven> <20020621125427.228C41EE0@lyta.coker.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 21 Jun 2002 14:45, Stephen Smalley wrote:
-> On Fri, 21 Jun 2002, Stephen Smalley wrote:
-> > You might be able to handle cramfs to some degree using the new
-> > genfs_contexts configuration, which is a generalization of
-> > devfs_contexts. That isn't in the current release, but will be in the
-> > next one.
+Russell Coker wrote:
+
+>On Fri, 21 Jun 2002 14:45, Stephen Smalley wrote:
 >
-> I just tried using genfs_contexts to specify a context for cramfs and
-> then mounting a cramfs image, and it appears to work correctly.  So this
-> will hopefully be addressed by the next public release.
+>>On Fri, 21 Jun 2002, Stephen Smalley wrote:
+>>
+>>>You might be able to handle cramfs to some degree using the new
+>>>genfs_contexts configuration, which is a generalization of
+>>>devfs_contexts. That isn't in the current release, but will be in the
+>>>next one.
+>>>
+>>I just tried using genfs_contexts to specify a context for cramfs and
+>>then mounting a cramfs image, and it appears to work correctly.  So this
+>>will hopefully be addressed by the next public release.
+>>
+>
+>Excellent!
+>
+>Howard, when is the next release scheduled?
+>
+>
+>Stephen,  I'm just about to test those patches you sent me.
+>
+>
+>
+>Russell Coker
+>
+Cool! My system is waiting. Lots of possibilities here.
 
-Excellent!
 
-Howard, when is the next release scheduled?
-
-
-Stephen,  I'm just about to test those patches you sent me.
-
-
-
-Russell Coker
 
 --
 You have received this message because you are subscribed to the selinux list.
