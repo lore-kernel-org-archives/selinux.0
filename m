@@ -1,83 +1,77 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i738RDrT019088
-	for <selinux@tycho.nsa.gov>; Tue, 3 Aug 2004 04:27:13 -0400 (EDT)
-Received: from snowstorm.hosts.ndo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i738Qd6o003625
-	for <selinux@tycho.nsa.gov>; Tue, 3 Aug 2004 08:26:40 GMT
-Date: Tue, 3 Aug 2004 09:35:48 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: "Marco d'Itri" <md@Linux.IT>, 263079@bugs.debian.org,
-   linux-hotplug-devel@lists.sourceforge.net, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Bug#263079: udev: missing mknod on ppp
-Message-ID: <20040803083548.GB3504@lkcl.net>
-References: <E1Brl5k-0006Jd-1F@lkcl.net> <20040802224118.GA18849@wonderland.linux.it> <20040802231534.GB16238@lkcl.net> <20040802231148.GA19178@wonderland.linux.it> <410EEFD9.2020902@ums.usu.ru>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i73BCurT019708
+	for <selinux@tycho.nsa.gov>; Tue, 3 Aug 2004 07:12:56 -0400 (EDT)
+Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i73BCM6o007076
+	for <selinux@tycho.nsa.gov>; Tue, 3 Aug 2004 11:12:22 GMT
+Subject: Re: gcc-2.95: checking for va_list assignment copy... configure:
+	error: no
+From: Wolfgang Pfeiffer <roto@gmx.net>
+To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200408022013.51748.russell@coker.com.au>
+References: <1091383127.1295.283.camel@debby>
+	 <200408021810.51884.russell@coker.com.au> <1091441074.1295.361.camel@debby>
+	 <200408022013.51748.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1091531568.1291.78.camel@debby>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <410EEFD9.2020902@ums.usu.ru>
+Date: Tue, 03 Aug 2004 13:12:48 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Aug 03, 2004 at 07:52:25AM +0600, Alexander E. Patrakov wrote:
-> Marco d'Itri wrote:
-> 
-> > On Aug 03, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+On Mon, 2004-08-02 at 12:13, Russell Coker wrote:
+> On Mon, 2 Aug 2004 20:04, Wolfgang Pfeiffer <roto@gmx.net> wrote:
+> > > Why not just use the latest GCC?
 > >
-> >> thank you for pointing me at the README.Debian because it makes
-> >> clear that for SE/Linux there are certain /dev entries that may not
-> >> get fired up by udev, and consequently won't have se/linux
-> >> permissions set!
+> > Because I thought it's a good idea to compile the SE-packages with the
+> > same gcc version as the one I will use to compile the kernel.
+> 
+> That's not necessary.  
+
+Good to know ... :)
+
+> Using a different version of GCC for the kernel 
+> shouldn't be a big deal (think of kgcc).
+> 
+> > And as, IINM, at least for Intel machines (I'm running ppc) gcc 2.95.3
+> > still seems to be the recommended version to compile 2.6 kernels I'm
+> > using 2.95 for compiling other packages, too ..
+> 
+> gcc 3.3.4 is working well for me when I compile my i386 kernels.
+
+Good news for me. Thanks for letting me know
+
+> 
+> > Compiler issues.
+> > ~~~~~~~~~~~~~~~~
+> > - The recommended compiler (for x86) is still 2.95.3.
+> > - When compiled with a modern gcc (Ie gcc 3.x), 2.6 will use additional
+> >   optimisations that 2.4 didn't. This may shake out compiler bugs that
+> >   2.4 didn't expose.
+> > - Do not use gcc 3.0.x on x86 due to a stack pointer handling bug.
+> > - gcc 2.96 is not supported with CONFIG_FRAME_POINTER=y due to a stack
+> >   pointer handling bug.
+> > ----------------------------------------------------
 > >
-> > On debian, *all* devices are supposed to be created by udev if udev
-> > is installed (because /dev is a tmpfs). I don't know why /dev/ppp is
-> > not being created on your system.
-> >
-> Bedause the ppp-generic module is not autoloaded (put it into 
-> /etc/modules or see below).
+> > I'll be happily using gcc-3.4 (this is the latest reliable gcc version:
+> > Is this correct?) for packages and kernels  if someone tells me that
+> > nowadays this is as safe as 2.95.
 > 
-> The same problem exists for all "non-hardware" modules. It can be solved 
-> by explicitly loading all these non-hardware modules at system startup. 
-> The following bootscriptlet loads all modules that potentially create 
-> devices and don't need hardware (i.e. exactly those drivers that are 
-> autoloaded on demand due to "char-major" aliases without udev):
-> 
->    KVERSION=`uname -r`
->    for module in `egrep '^alias (char|block)-major' \
->        /lib/modules/$KVERSION/modules.alias /etc/modprobe.conf | \
->        grep -v 1394 | awk '{print $3;}'`
->    do
->        modprobe $module
->    done
-> 
+> 3.3.4 works well for me.  I haven't tried 3.4 yet, but I will probably do so 
+> soon.
 
- okay.
+I'll probably try 3.4, but at least 3.3, for the packages and the 2.6
+kernel ... but not being quite sure on gcc-3.4 yet.
 
- in addition to calling modprobe, it is necessary to set selinux
- permissions.
+So the next steps will be building the packages, and then let's hope I
+could manage to find a place to offer them ... :)
 
- now, modprobe  has a pretty name, but the command to call up the module
- contains no information about what node is going to be created in /dev.
+Thanks again
 
- therefore, we have a problem.
-
- without the name of the inode, the only way to set the selinux file
- permissions is to either guess or to just... endeavour to set the
- whole lot with this:
- 
-	 setfiles /etc/selinux/.../file_contexts/file_contexts /dev
-
- this is totally yuk, but is a last resort measure.
-
- anyone got any better ideas?
-
- does anyone know whether doing the modprobe above will result in a
- hotplug event from the "non-hardware" devices, such that udev will
- be triggered, and a restorecon or createcon performed correctly?
-
- marco kindly mentioned to me that some devices haven't been hooked into
- the pci-hotplug stuff yet.
-
- l.
+Regards
+Wolfgang
+-- 
+Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
 
 
 --
