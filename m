@@ -1,55 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAJDf3Rb017753
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 08:41:03 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAJDf1qY029704
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 13:41:01 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hAJDet0o029695 for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 13:41:01 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "samwun" <samwun@hgcbroadband.com>, "'SELinux ML'" <selinux@tycho.nsa.gov>
-Subject: Re: where to download LSM-patched 2.4
-Date: Thu, 20 Nov 2003 00:40:43 +1100
-References: <013601c3ae97$e658a650$5801a8c0@samgpj2wzuimme>
-In-Reply-To: <013601c3ae97$e658a650$5801a8c0@samgpj2wzuimme>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311200040.43270.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAJElGRb018154
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 09:47:16 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAJEkjBb029768
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 14:46:45 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id hAJEki4o029765
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 14:46:45 GMT
+Date: Wed, 19 Nov 2003 14:47:08 +0000
+From: Dale Amon <amon@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Policy error of the day
+Message-ID: <20031119144708.GB8546@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 19 Nov 2003 23:23, "samwun" <samwun@hgcbroadband.com> wrote:
-> Before I used LSM 2.4 selinux source, I encountered problem when I was
-> trying to install SELinux.
-> The problem is the SELinux kernel is able to loaded up after a reboot,
-> but
-> whenever issuing a command
-> "ls --context" or whatever other SELinx related command options, it
-> always
-> said that the command ooptions needs SELinux kernel to support,  but I
-> have
+The policy build error for today is:
 
-The most likely explanation for this is that the version of the SE Linux 
-kernel code and the version of the user-space code does not match.  There are 
-two major versions of SE Linux in use, the old SE Linux has 52 system calls 
-multiplexed over the LSM system call.  The new SE Linux uses XATTR's and file 
-read/write operations on selinuxfs and /proc/pid/attr/*.  As the operation of 
-these versions of SE Linux is very different there are no programs that can 
-support both (it would be possible to write a program that supports both, but 
-no-one has done so).
-
-Does /proc/filesystems have an entry for "selinuxfs"?  If so you are running 
-the kernel for the new SE Linux, if not then you are running the old SE 
-Linux.
+ERROR 'unknown type mailman_queue_chkpwd_t' at token ';' on line 81971:
+#line 10047
+allow mailman_queue_su_t mailman_queue_chkpwd_t:process transition;
+/usr/bin/checkpolicy:  error(s) encountered while parsing configuration
+make: *** [/etc/security/selinux/policy.15] Error 1
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
