@@ -1,46 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA08489
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 08:54:50 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA03531
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 12:52:55 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id MAA03523 for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 12:52:54 GMT
-Date: Wed, 9 Oct 2002 08:54:32 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: luiztizei <luiztizei@terra.com.br>
-cc: selinux <selinux@tycho.nsa.gov>
-Subject: Re: What to do next?
-In-Reply-To: <H3OGTT$0A7DBB13E9FF323A8AA0A7184811E6BA@terra.com.br>
-Message-ID: <Pine.GSO.4.33.0210090851480.3804-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA09760
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 11:25:36 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA27584
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 15:23:56 GMT
+Received: from nox.lemuria.org ([213.191.86.30])
+	by jazzswing.ncsc.mil  with ESMTP id PAA27580
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 15:23:55 GMT
+Date: Wed, 9 Oct 2002 17:25:04 +0200
+From: Tom <tom@lemuria.org>
+To: selinux@tycho.nsa.gov
+Subject: Re: Apache 2 file contexts
+Message-ID: <20021009172503.A22321@lemuria.org>
+References: <20021008160033.A5253@lemuria.org> <200210081906.13285.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200210081906.13285.russell@coker.com.au>; from russell@coker.com.au on Tue, Oct 08, 2002 at 07:06:13PM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Apache2 requires some weird socket access, that I traced to the
+following (by disabling all the dontaudits in the apache.te):
 
-On Tue, 8 Oct 2002, luiztizei wrote:
+Oct  9 19:16:20 nsa2 kernel: avc:  denied  { read } for  pid=5347 exe=/usr/sbin/apache2 path=/1 dev=00:07 ino=3 scontext=system_u:system_r:httpd_t tcontext=tom:object_r:sysadm_devpts_t tclass=chr_file
 
->   I have succefully installed selinux kernel lsm-2.4 to my RH7.3
-> distro. I want to continue to explore this system. What should I do
-> next? Get the patches you are releasing and try them?
->   I am simply a newbie to the subject, but with time I might help :)
+piping that into newrules tells me:
 
-Did you perform a full install of SELinux, as per the selinux/README
-instructions?  You need more than just a patched kernel.  You may want to
-checkout a copy of the sourceforge selinux CVS tree and install from it to
-pick up patches that have been posted since the last public release.  You
-can access the sourceforge selinux CVS tree via:
-
-cvs -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux \
--z3 co nsa
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+allow httpd_t sysadm_devpts_t:chr_file { read };
 
 
+Which to my (still somewhat green) ears doesn't sound like a
+tremendously great idea.
+It uses this only during startup, so I'm not entirely sure what it's
+doing. Anyone else played with Apache2 already?
 
+
+-- 
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
