@@ -1,38 +1,65 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3BAP1Rb003516
-	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 06:25:01 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i3BAN0UZ009370
-	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 10:23:00 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i3BAMwmT009343
-	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 10:22:59 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Rogelio Serrano <rogelio@smsglobal.net>
-Subject: Re: booting in enforcing mode
-Date: Sun, 11 Apr 2004 20:23:36 +1000
-Cc: selinux@tycho.nsa.gov
-References: <f2d9139e96f439881364be08a8525159@debian>
-In-Reply-To: <f2d9139e96f439881364be08a8525159@debian>
+Message-ID: <40792555.7020808@snu.edu>
+Date: Sun, 11 Apr 2004 06:00:37 -0500
+From: Joshua Brindle <jbrindle@snu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200404112023.36970.russell@coker.com.au>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: audio-entropyd policy
+References: <4078835F.2030801@snu.edu> <200404112013.10012.russell@coker.com.au> <40791D2C.7010702@snu.edu>
+In-Reply-To: <40791D2C.7010702@snu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 11 Apr 2004 03:28, Rogelio Serrano <rogelio@smsglobal.net> wrote:
-> I rewrote mount, syslogd, and klogd to have the bare
-> minimum priviledges.
+oops, i forgot to include the list in this
 
-What did you change?
+Joshua Brindle wrote:
+> Russell Coker wrote:
+> 
+>> On Sun, 11 Apr 2004 09:29, Joshua Brindle <jbrindle@snu.edu> wrote:
+>>  
+>>
+>>> audio-entropyd available at http://www.vanheusden.com/aed/ adds entropy
+>>> from sound devices (after being cleansed and hashed). This is
+>>> particularly useful on headless servers which don't get any
+>>> mouse/keyboard related entropy. The policy was written by Chris 
+>>> Pebenito.
+>>>   
+>>
+>>
+>> Why is ipc_lock needed?  The random driver is designed such that 
+>> knowing all data which is written to it does not permit predicting the 
+>> output, and also if an attacker can access swap space then they can 
+>> probably do worse attacks than attempting to predict the next random 
+>> number.
+>>
+>> It seems to me that ipc_lock gives no benefit and just permits 
+>> marginally reducing the amount of pagable memory.
+>>
+>> It's really a pity that sys_admin is needed for writing to the random 
+>> device, that capability grants so much extra...
+>>
+>> I've added the policy to my tree, although I expect that any active 
+>> server will be getting hard disk and network interrupts to generate 
+>> some entropy.
+>>
+>>  
+>>
+> I'm not sure about the ipc_lock, pebenito will have to answer that one, 
+> but on the subject of entropy the reason I investigated and started 
+> using this is because ssp (formerly known as propolice) gets 32 bytes of 
+> entropy per exec during guard_setup to make canaries. This is obviously 
+> a huge drain on entropy. Network inturrupts only contribute to entropy 
+> on a few drivers, the majority of them don't (unless you patch in the 
+> netrand patches), disk access would contribute but not all servers have 
+> major disk access (web servers where the majority of the content is 
+> cached and/or on a remote database server for example). I found that 
+> many of my machines had no entropy available most of the time wheras 
+> with this I can set the poolsize to 8192 and consistantly have over 
+> 50000 bits of entropy available (with good audio input).
+> 
+> Joshua Brindle
+> 
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
