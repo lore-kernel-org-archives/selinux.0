@@ -1,42 +1,52 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAEDOSSf024120
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 08:24:28 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAEExjSf024749
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 09:59:45 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAEDORqY026968
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 13:24:27 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-        by jazzband.ncsc.mil  with ESMTP id hAEDOQ0o026965 for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 13:24:26 GMT
-Date: Fri, 14 Nov 2003 08:24:07 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: unix_chkpwd
-In-Reply-To: <200311141901.14660.russell@coker.com.au>
-Message-ID: <Xine.LNX.4.44.0311140823320.21499-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by jazzband.ncsc.mil  with ESMTP id hAEExiqY002137
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 14:59:44 GMT
+Received: from unthought.net (unthought.net [212.97.129.88])
+        by jazzband.ncsc.mil  with ESMTP id hAEExi0o002134 for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 14:59:44 GMT
+Date: Fri, 14 Nov 2003 15:59:37 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
+Subject: Re: Do we break POSIX?
+Message-ID: <20031114145937.GA4993@unthought.net>
+References: <20031110143701.S16119@lemuria.org> <1068472925.32532.3.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1068472925.32532.3.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 14 Nov 2003, Russell Coker wrote:
-
-> We can do one of three things:
-> 1)  dontaudit system_chkpwd_t inetd_t:fd use;
-> 2)  Change sshd to use fcntl() before doing any PAM stuff.
-> 3)  Put code in pam_unix.so to close all file handles after the fork().
+On Mon, Nov 10, 2003 at 09:02:05AM -0500, Stephen Smalley wrote:
+...
+> > 
+> > Does anyone know immediately if this is so and if we are indeed
+> > breaking POSIX? If nobody can answer that, I will find out myself, as
+> > I've promised him to check.
 > 
-> Which do you think is best?  2 seems most correct to me, but may be most 
-> difficult to get accepted upstream.
+> NFS can yield the same behavior.  If you are holding a file open on the
+> client and writing to it, and someone changes the ownership of the file
+> on the server, then subsequent write() requests will fail with
+> Permission denied.  I just tested with a Linux client and server to
+> verify, and this is what happens.
 
-Yes, 2 seems correct to me as well, what objections would they have 
-upstream?
+Yep.
 
+But NFS doesn't claim to have POSIX semantics.
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+I doubt there are any real-world programs that would treat a write
+returning -1 with errno set to an 'unknown error', as a successful
+write.
 
+(if such a program should exist, the author will be most thoroughly
+ dealt with when I take over  ;)
+
+So all in all I think that you are both correct, but the (my) conclusion
+is that it wouldn't matter if write returned EACCESS.
+
+ / jakob
 
 
 --
