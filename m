@@ -1,47 +1,45 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBKLfiIi017939
-	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 16:41:45 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBKLpxIi018031
+	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 16:51:59 -0500 (EST)
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBKLfleP000052
-	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 21:41:47 GMT
-Subject: Re: Latest patch
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBKLq1eP000389
+	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 21:52:01 GMT
+Subject: Re: [patch] misc. policy updates
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <41C1BCEF.7090508@redhat.com>
-References: <20041209174633.GA8179@jmh.mhn.de>
-	 <1103143388.31218.33.camel@moss-lions.epoch.ncsc.mil>
-	 <41C1BCEF.7090508@redhat.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: Greg Norris <haphazard@kc.rr.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200412201201.11825.russell@coker.com.au>
+References: <20041217012224.GA11330@yggdrasil.localdomain>
+	 <200412201201.11825.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1103579038.3220.19.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1103579643.3220.32.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 20 Dec 2004 16:43:58 -0500
+Date: Mon, 20 Dec 2004 16:54:04 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged, except for the removal of the user_can_mount tunable.
+Merged both Greg's and Russell's patches.
 
-Others are still using that tunable, and since it is a tunable it won't
-effect those that don't want to use it.
+Russell, I added "log_domain(ddclient)" as you mention below.  I also
+added "var_lib_domain(ddclient)" since your patch assigns a
+var_lib_ddclient_t.  Or did you do something different there?
 
-On Thu, 2004-12-16 at 11:50, Daniel J Walsh wrote:
-> Add winbind policy
-> 
-> Add transitionbool attribute. to indicate whether a domain should have a 
-> disable_trans boolean created for that domain.
-> (Mozilla and games in strict policy,  All network domains in targeted)
-> 
-> Added can_secsecparam
-> 
-> Fix httpd_sys_script_t to allow access to mysql sock file.
-> 
-> Began adding user configuration changes, to allow adding users in 
-> different roles without policy sources installed.
-> 
-> Remove user_can_mount tunable.
-> 
+I've removed ddt-client.te and ddt-client.fc from CVS.
 
+On Sun, 2004-12-19 at 20:01, Russell Coker wrote:
+> On Friday 17 December 2004 12:22, Greg Norris <haphazard@kc.rr.com> wrote:
+> > The attached diff against ddclient.te is necessary in order for it to
+> > work properly with the new networking macros.  Also, it updates my email
+> > address in the policy header.  The other two simply perform the latter
+> > update for the other policies I've submitted.
+> 
+> I've added them to my tree.  I also added "log_domain(ddclient)" at the end of 
+> the file (no patch attached as a patch for a patch is painful) and added the 
+> attached patch to the file_contexts.
+> 
+> This means that ddclient takes over the policy of ddt-client.  Please delete 
+> ddt-client.te and ddt-client.fc from the policy source.
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
