@@ -1,48 +1,49 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA15744
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 11:51:52 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA18019
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 15:53:46 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA02507
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 15:51:30 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id PAA02502
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 15:51:30 GMT
-Date: Thu, 20 Jun 2002 11:51:28 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: new macro in users.te
-In-Reply-To: <20020620152801.81DDB5B8@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0206201142380.16259-100000@raven>
+	by jazzswing.ncsc.mil  with ESMTP id TAA18722
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 19:53:24 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id TAA18718
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 19:53:21 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>,
+        Debian User <rogelio@evoworks.evoserve.com>
+Subject: Re: uclibc and selinux
+Date: Thu, 20 Jun 2002 21:53:24 +0200
+Cc: <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0206201054200.16259-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0206201054200.16259-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Message-Id: <20020620195324.7758AA6E@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Thu, 20 Jun 2002, Russell Coker wrote:
-
-> Also the following was sent to me in a private message in response to this
-> discussion on the list, I feel that I am not able to comment on it, Stephen,
-> could you respond?
+On Thu, 20 Jun 2002 16:57, Stephen Smalley wrote:
+> > Also whats the best way to isolate users from each other when the passwd
+> > file contains only "root" and "user" accounts?
 >
-> > You've probably already considered this.  Would this situation be a
-> > candidate for role dominance?  Tie the primary domain to the dominate
-> > role and the "sharable" domains to dominated roles.  I don't have the
-> > practical experience to recognize the impact of this setup.
+> You can't isolate users from each other using the SELinux policy without
+> maintaining separate user identities and roles in the policy.
 
-I think that this approach (using role dominance) would work, but I don't
-know whether it is really preferable.  The "dominated" roles for the
-shared programs domains would not be useful by themselves, only for
-defining the hierarchy.  There would be no reason to specify such roles in
-any user declarations or role allow statements.
+... when you are using the currently supplied patches for login programs.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+It would not be difficult to write new patches for sshd and login to use SE 
+Linux identities only to differentiate the different users.  Of course 
+there's the issue of whether that would be sane.  ;)
 
+My current project is to give the same end-result as you get with Linux/390 
+on VM but using SE Linux for partitioning.  I'm almost done.  ;)
 
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
