@@ -1,72 +1,39 @@
-Message-Id: <200404141453.i3EEr2Jx015745@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <russell@coker.com.au>
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
-   "'SELinux'" <SELinux@tycho.nsa.gov>,
-   "'Selinux Dev'" <selinux-dev@tresys.com>
-Subject: RE: Now that SELinux supports booleans should we replace tunables with booleans?
-Date: Wed, 14 Apr 2004 10:53:26 -0400
+Message-ID: <20040414151856.38593.qmail@web41409.mail.yahoo.com>
+Date: Wed, 14 Apr 2004 08:18:56 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Two questions about SELinux
+To: SELinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <200404142338.51788.russell@coker.com.au>
+Content-Type: multipart/alternative; boundary="0-1149425415-1081955936=:34712"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--0-1149425415-1081955936=:34712
+Content-Type: text/plain; charset=us-ascii
 
+Hi,
+ I have two questions about SELinux.
+ 1, Are SELinux and Linux itself written under ANSI C ?
+ 2, From the perspective of secure operating system,What are the security kernel and TCB (Trusted Computing Base) in SELinux ?
+ Would you please send me an answer? 
+ Thank you!
+Yours,
+Park Lee
+2004-04-14
 
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410)290-1411 ext 134 
+		
+---------------------------------
+Do you Yahoo!?
+Yahoo! Tax Center - File online by April 15th
+--0-1149425415-1081955936=:34712
+Content-Type: text/html; charset=us-ascii
 
-> -----Original Message-----
-> From: Russell Coker [mailto:russell@coker.com.au]
-> > Why is a reboot required?
-> 
-> If we have a tunable option to determine which domain processes run in
-> (such
-> as single_userdomain) or a tunable that determines the identity that
-> daemons
-> get (such as direct_sysadm_daemon) then restarting processes is necessary.
-> Some people find it difficult to do this successfully and find it easier
-> to
-> do a reboot.
-> 
-
-Sure.
-
-> 
-> The advantages of booleans are clear IMHO.  But they don't seem applicable
-> to
-> something that will be set at install time on a system that is capable of
-> building a policy.  Maybe for an iPaQ booleans for tunable options would
-> be
-> good.  For a desktop or server they seem to offer less benefits.
-> 
-
-If it is only set at install time, then maybe tunables.te makes sense.
-
-> Finally, for booleans both options have to be in the policydb and in the
-> kernel at run-time.  For tunable.te they aren't, and can significantly
-> reduce
-> the policy size.
-> 
-
-Again, if this is truly only set at install time this might be true. I'm not
-convinced that these things will only be set at install time, though, and in
-that case I think it might make sense to use the booleans. Also, the size
-overhead may be preferable to requiring administrators to build policy from
-source.
-
-Karl
-
-> --
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
-
+<DIV>Hi,<BR>&nbsp;I have two questions about SELinux.<BR>&nbsp;1, Are SELinux and Linux itself written under ANSI C ?<BR>&nbsp;2, From the perspective of secure operating system,What are the security kernel and TCB (Trusted Computing Base) in SELinux ?</DIV>
+<DIV>&nbsp;Would you please send me an answer? <BR>&nbsp;Thank you!</DIV>
+<DIV>Yours,<BR>Park Lee<BR>2004-04-14</DIV><p>
+		<hr size=1><font face=arial size=-1>Do you Yahoo!?<br>
+Yahoo! Tax Center - <a href="http://taxes.yahoo.com/filing.html">File online by April 15th</a>
+--0-1149425415-1081955936=:34712--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
