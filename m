@@ -1,53 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA01812
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 12:34:38 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA17727
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 17:32:34 GMT
-Received: from nox.lemuria.org (nox.lemuria.org [213.191.86.30])
-        by jazzband.ncsc.mil  with ESMTP id RAA17722 for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 17:32:33 GMT
-Date: Mon, 2 Dec 2002 18:34:21 +0100
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Cc: Russell Coker <russell@coker.com.au>
-Subject: Re: expect
-Message-ID: <20021202183420.A16247@lemuria.org>
-References: <200211292002.PAA23890@moss-shockers.ncsc.mil> <200212011308.58878.russell@coker.com.au> <200212020809.20563.pollard@admin.navo.hpc.mil> <200212021558.27661.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200212021558.27661.russell@coker.com.au>; from russell@coker.com.au on Mon, Dec 02, 2002 at 03:58:27PM +0100
+Message-ID: <1C693F61F78ADA449B9FDAE7737665E001A0157C@fskrsm41.hill.af.mil>
+From: Michael Alexander S Contr OO-ALC/YPVS
+	 <Alexander.Michael@HILL.af.mil>
+To: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
+Subject: Errors in SELinux compile
+Date: Mon, 2 Dec 2002 11:51:14 -0700 
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Dec 02, 2002 at 03:58:27PM +0100, Russell Coker wrote:
-> Allowing daemons the tty access could probably be addressed in another way.  
-> If we had a separate role and domain for starting daemons that could be 
-> entered with newrole (which then removes the need for run_init as the role 
-> would not have permission to do anything other than restarting daemons) we 
-> could then allow all daemons read/write/ioctl access to the terminal for it.  
-> Then if we deny the daemons read access to /dev (wherever possible) and 
-> /dev/pts (always) then after you exit the shell that newrole ran (relabelling 
-> your tty) the daemon won't be able to access your tty or open other ttys.
+While trying to build the SELinux kernel (2.4.19) I have a couple of errors
+pop up.  Here were the steps I used to install the kernel:
+
+make menuconfig (fine)
+make dep (fine)
+make
+
+errors:
+<snip>
+make[2]: Entering directory '/home/Alex/lsm-2.4/fs'
+gcc -D__KERNEL__ -I/home/Alex/lsm-2.4/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -02 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i686    -nostdinc -I
+/usr/lib/gcc-lib/i386-redhat-linux/3.2/include -DKBUILD_BASENAME=namei   -c
+-o namei.o namei.c
+namei.c: In function 'getname':
+namei.c: 142: (Each undeclared identifier is reported only once
+namei.c: 142: for each function is appears in.)
+namei.c: 142: warning: passing arg 2 of pointer to function from
+incompatible pointer type
+make[2]: *** [namei.o] Error1
+make[2]: Leaving directory '/home/Alex/lsm-2.4/fs'
+make[1]: *** [first_rule] Error2
+make[1]: *** Leaving directory '/home/Alex/lsm-2.4/fs'
+make: *** [_dir_fs] Error2
 
 
-I like this idea a lot. It would make a real-life admin job much, much
-easier. It's not just that sometimes you have several daemons to
-(re)start, it is during development that you easily restart a given
-service a couple dozen times. I know I considered the password request
-a nuisance after the 5th or so time.
+Are these errors critical to the install?  I just wanted to make sure before
+I finished the install and found out I needed to change some other option in
+one of my files.
 
-
-> I believe that this isn't as good as my solution with expect, and it isn't 
-> something that can be done in a hurry either.
-
-Actually, it may turn out to be a better solution, mostly because
-expect is no longer required (and a couple of the recent postings here have 
-shown just why that may be a good thing).
-
--- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+Also, as I am installing on RedHat 8.0, what option do I need to set my
+LOGROTATE_VAR definition to?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
