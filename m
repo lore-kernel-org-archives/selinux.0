@@ -1,50 +1,52 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0BEMfRb008655
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 09:22:42 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i0BEMfiV027556
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 14:22:41 GMT
-Received: from web41902.mail.yahoo.com (web41902.mail.yahoo.com [66.218.93.153])
-        by jazzband.ncsc.mil  with SMTP id i0BEMe06027551 for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 14:22:40 GMT
-Message-ID: <20040111142238.95679.qmail@web41902.mail.yahoo.com>
-Date: Sun, 11 Jan 2004 06:22:38 -0800 (PST)
-From: "kamal.r nair" <kamalrnair@yahoo.com>
-Subject: Re: compilation queries
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1073577362.31574.4356.camel@moss-huskies>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0BIZmRb009225
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 13:35:49 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i0BIYgxr001186
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 18:34:42 GMT
+Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
+	by jazzswing.ncsc.mil  with ESMTP id i0BIYfYc001183
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 18:34:41 GMT
+Message-ID: <40019781.80802@diyab.net>
+Date: Sun, 11 Jan 2004 13:35:45 -0500
+From: Timothy Wood <timothy@diyab.net>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-295007960-1073830958=:88740"
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+CC: selinux@tycho.nsa.gov, Park Lee <parklee_2004@yahoo.com.cn>
+Subject: Re: Questions about install SELinux in Fedora Core
+References: <20040111024703.62855.qmail@web15208.mail.bjs.yahoo.com> <200401112231.54137.russell@coker.com.au> <200401111426.08881.arekm@pld-linux.org>
+In-Reply-To: <200401111426.08881.arekm@pld-linux.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-295007960-1073830958=:88740
-Content-Type: text/plain; charset=us-ascii
+I've actually been working on this recently. I spent some time tracking 
+the problem down and it looks like a attribute namespace difference so 
+I'm talking to some people on the XFS mailing list. It should be working 
+before long, i hope.
 
-dear howard holm
-i have got the subscription from selinux.
- can u help me out in compiling the SELINUX 2.4.21source code into redhat 2.4 linux kernels.i did download the source from the website(www.nsa.gov/selinux) and copied into my linux system (/root) and started compiling using the normal kernel compilation steps.The compilation got over and the next time when i booted my system using the SELINUX kernel newly configured, the initial process got loaded and then followed by the error "no socket drivers loaded" and "cannot load root" and finally "kernel panic".
+Timothy,
 
- I kindly request you to give the compilation steps involved in the above process and the errors i have made while compiling the kernel.
- expecting your reply at the earliest.
- 
- Regds
- 
- Kamal.R.Nair
+Arkadiusz Miskiewicz wrote:
 
+> On Sunday 11 of January 2004 12:31, Russell Coker wrote:
+> 
+>>>>quotas? For xfsprogs, last I heard XFS support for SE Linux wasn't
+>>>>
+>>>>>quite ready.
+> 
+> [...]
+> 
+>>XFS isn't something I've had a need to learn about, and quota-tools isn't
+>>something I've used recently.  I don't know what the issues of upgrading
+>>them may be.
+> 
+> 
+> Labeling works with xfs on 2.6.1 patched using for example these patches
+> http://cvs.pld-linux.org/cgi-bin/cvsweb/SOURCES/linux-2.6-xfs-cvs-20040102.patch?rev=1.2.2.1
+> http://cvs.pld-linux.org/cgi-bin/cvsweb/SOURCES/linux-2.6-xfs-secure-attr.patch?rev=1.1
+> 
 
-
-
----------------------------------
-Do you Yahoo!?
-Yahoo! Hotjobs: Enter the "Signing Bonus" Sweepstakes
---0-295007960-1073830958=:88740
-Content-Type: text/html; charset=us-ascii
-
-<DIV>dear howard holm</DIV>
-<DIV>i have got the subscription from selinux.<BR>&nbsp;can u help me out in compiling the SELINUX 2.4.21source code into redhat 2.4 linux kernels.i did download the source from the website(www.nsa.gov/selinux) and copied into my linux system (/root) and started compiling using the normal kernel compilation steps.The compilation got over and the next time when i booted my system using the SELINUX kernel newly configured, the initial process got loaded and then followed by the error "no socket drivers loaded" and "cannot load root" and finally "kernel panic".<BR><BR>&nbsp;I kindly request you to give the compilation steps involved in the above process and the errors i have made while compiling the kernel.<BR>&nbsp;expecting your reply at the earliest.<BR>&nbsp;<BR> Regds<BR>&nbsp;<BR> Kamal.R.Nair<BR><BR></DIV><p><hr SIZE=1>
-Do you Yahoo!?<br>
-Yahoo! Hotjobs: <a href="http://pa.yahoo.com/*http://us.rd.yahoo.com/hotjobs/mail_footer_email/evt=21482/*http://hotjobs.sweepstakes.yahoo.com/signingbonus">Enter the "Signing Bonus" Sweepstakes</a>
---0-295007960-1073830958=:88740--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
