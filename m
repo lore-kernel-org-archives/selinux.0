@@ -1,32 +1,47 @@
-Subject: Re: I would like to propose some kind of consolidation of tmpfs_t
-	and tmp_t
+Subject: Re: [RFC] selinux-support (1.0.1) available
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>,
-   Russell Coker <russell@coker.com.au>
-In-Reply-To: <42431DB0.7040803@redhat.com>
-References: <4242CABC.70400@redhat.com>
-	 <1111675057.12486.39.camel@moss-spartans.epoch.ncsc.mil>
-	 <1111685458.13486.61.camel@moss-spartans.epoch.ncsc.mil>
-	 <42431DB0.7040803@redhat.com>
-Content-Type: text/plain
-Date: Fri, 25 Mar 2005 08:32:45 -0500
-Message-Id: <1111757565.15280.20.camel@moss-spartans.epoch.ncsc.mil>
+To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1111704432.27644.62.camel@localhost.localdomain>
+References: <1111704432.27644.62.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 25 Mar 2005 09:08:17 -0500
+Message-Id: <1111759697.15280.53.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-03-24 at 15:06 -0500, Daniel J Walsh wrote:
-> I don't think we have do do any of that.  It seems to work if you do a
-> restorecon /tmp
-> in the init scripts.
+On Thu, 2005-03-24 at 23:47 +0100, Lorenzo Hernández García-Hierro
+wrote:
+> I'm glad to announce the public availability of the selinux-support
+> (meta-)package which accomplishes the goal of installing the user-land
+> tools for Security-Enhanced Linux support and few configuration-related
+> files that will be used in a near future during the deployment of
+> SELinux within Ubuntu Linux.
 > 
-> I am running strict policy with tmpfs mounted on /tmp
+> The packages depending on selinux-support (which are subsequently
+> installed when installing it) are:
+> 
+> 	* selinux-doc
+> 	* slat
+> 	* selinux-utils
+> 	* libselinux1
+> 	* libselinux1-dev
+> 	* policycoreutils
+> 	* libsepol1
+> 	* checkpolicy
+> 	* selinux-policy-default
+> 
+> It also provides the Python bindings for libselinux, coming from the
+> Hardened Gentoo project and available in the Gentoo CVS:
+> http://www.gentoo.org/cgi-bin/viewcvs.cgi/dev-python/python-selinux
 
-Yes, that works as long as you have:
-	allow tmpfile tmpfs_t:filesystem associate;
-
-Right?
+Can you explain the purpose of this package?  I'm not sure I understand
+what you mean, or why the above packages would depend on it.  What is
+the purpose of the /etc/selinux.conf file in this package, and how does
+it compare to the already existing /etc/selinux/config file that is
+being used by libselinux and various scripts?  Do you expect this to
+remain Ubuntu-specific?
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
