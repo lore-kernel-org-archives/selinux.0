@@ -3,27 +3,29 @@ Content-Type: text/plain;
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SELinux <SELinux@tycho.nsa.gov>
-Subject: sysadm_devpts_t access for daemons
-Date: Fri, 13 Sep 2002 18:08:35 +0200
+Subject: /var/lock
+Date: Fri, 13 Sep 2002 20:39:59 +0200
 MIME-Version: 1.0
-Message-Id: <200209131808.35797.russell@coker.com.au>
+Message-Id: <200209132039.59879.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've found that the recent versions of slapd and named need to have write 
-access to their controlling terminal to correctly start.  I think that they 
-didn't need the access before so I guess there's been some change.
+Currently to run minicom you have to be in sysadm_r, minicom needs to create a 
+lock file under /var/lock which needs sysadm_t.
 
-It seems to me that an increasing number of daemons is needing such access.  
-So we are not giving any option for reporting startup errors for some 
-daemons, while giving inappropriate terminal access to others.
+This is wrong.
 
-I think that one of the options I suggested regarding creating a special 
-pseudo-tty for daemon start is necessary.
+I am thinking of adding a user_lock_t file type for this purpose.
 
-At the moment I think that having the code in run_initis the best solution.  I 
-will start coding this regardless of objections unless someone has a better 
-idea.
+Also it would need a userlock attribute for allowing appropriate programs to 
+unlink the lock files.
+
+I also thought of giving system programs (such as pppd) the ability to unlink 
+userlock files so that they can break locks.  However this would also require 
+access to kill the user_t processes which hold the locks, and is possibly 
+undesirable.
+
+What do you think?
 
 -- 
 I do not get viruses because I do not use MS software.
