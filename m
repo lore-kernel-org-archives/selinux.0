@@ -1,32 +1,36 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA10161
-	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 12:01:20 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA01592
-	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 15:59:45 GMT
-Received: from mail.tresys.com (mail.tresys.com [66.22.20.205])
-        by jazzband.ncsc.mil  with ESMTP id PAA01588 for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 15:59:44 GMT
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "NSA Selinux Mailinglist" <selinux@tycho.nsa.gov>
-Subject: updated setools
-Date: Mon, 5 Aug 2002 12:03:31 -0400
-Message-ID: <ACEHIKGIGFEDAIKEMMMIMECIKFAA.mayerf@tresys.com>
-MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Special directories and links
+Date: Mon, 5 Aug 2002 18:16:42 +0200
+References: <200208051530.PAA26262@jazzswing.ncsc.mil>
+In-Reply-To: <200208051530.PAA26262@jazzswing.ncsc.mil>
+MIME-Version: 1.0
+Message-Id: <20020805161643.23E4D3940@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For those of you who may use our selinux tools, we just posted an update
-(0.4.2) at www.tresys.com/selinx.  The primary motivation for the update is
-to make our analysis tool (apol) compatible with the policy syntax changes
-in the July 2002 release of SE Linux.  We also kept it backwards compatible
-with older policy syntax.  In addition, we added a policy for our seuser
-policy itself, and made the install process install the new policy update.
-Various other minor fixes.
+On Mon, 5 Aug 2002 17:30, Carsten Grohmann wrote:
+> on / I have 3 links and 2 directories without a correct security context.
+> The first direcory /mnt is for temporary mounted filesystems ( see FHS
+> too). It could be labelling also as root_t I guess. I don't see any
+> disadvantage if all people can read this directory.
+> And now a SuSE and newer Red Hat specific question:
+> On the root are follow links (/floppy, /cdrom and /cdrecorder) to
+> /media/(floppy|cdrom|cdrecorder). /media is the second directory.
+> In my oppinion, root_t is also a usable type to label this entries.
+>
+> What are you think?
 
-Frank
+Sounds reasonable to me.
 
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
