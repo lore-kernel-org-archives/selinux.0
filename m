@@ -1,31 +1,46 @@
-Subject: Re: A couple of patches to setfiles.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <415E9107.4030900@redhat.com>
-References: <415E9107.4030900@redhat.com>
-Content-Type: text/plain
-Message-Id: <1097000679.3878.132.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i95IUSrT028569
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 14:30:28 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95ITJPe011771
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 18:29:19 GMT
+Subject: Re: gentoo diff for mysqld
+From: Erich Schubert <erich@debian.org>
+To: petre rodan <kaiowas@gentoo.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <41625B74.2090503@gentoo.org>
+References: <41625B74.2090503@gentoo.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Tue, 05 Oct 2004 20:30:16 +0200
+Message-Id: <1097001016.15549.4.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Date: Tue, 05 Oct 2004 14:24:39 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2004-10-02 at 07:29, Daniel J Walsh wrote:
-> Added -e flag to exclude directories.
-> 
-> setfiles -e /home -e /tmp -v  -n 
-> /etc/selinux/strict/contexts/files/file_context /
-> 
-> Also added syslog to log differences. 
+Hi,
 
-You want to log always?  Should be based on an option, like the existing
-verbose option, and you likely only want to log if !only_changed_user as
-with the verbose case.
+> +# if controled by daemontools
+> +ifdef(`daemontools.te', `
+> +domain_auto_trans( svc_run_t, mysqld_exec_t, mysqld_t)
+> +allow svc_start_t mysqld_t:process signal;
+> +svc_ipc_domain(mysqld_t)
+> +')dnl end ifdef daemontools
 
+I think the "deamontools.te" ifdef is enough, why put this into the
+"gentoo" ifdef, too?
+Please don't use distro-ifdefs unneccessarily. Basically anything being
+in {FHS,upstream,best-practice} should be outside of such ifdefs.
+Only things dependant on non-generic domains or non-standard behaviour -
+for example the gentoo init - should be wrapped IMHO.
+
+Greetings,
+Erich Schubert
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+  A polar bear is a rectangular bear after a coordinate transform.   //\
+        Glück gleicht durch Höhe aus, was ihm an Länge fehlt.        V_/_
+                        --- Robert Lee Frost
+
 
 
 --
