@@ -1,45 +1,34 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5FJSGZ000567
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 10:19:28 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5FHCgk026120
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 15:17:12 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.12.11/8.12.11) with ESMTP id iA5FJrvK016719
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 10:19:53 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.12.11/8.12.11/Submit) id iA5FJrLn016718
+	for selinux@tycho.nsa.gov; Fri, 5 Nov 2004 10:19:53 -0500
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5FMrGh000665
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 10:23:26 -0500 (EST)
-Received: from smtp.puc.cl (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5EwsF9023639
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 14:59:07 GMT
-Received: from tayataf.puc.cl (HELO mx1.puc.cl) ([146.155.99.171])
-          (envelope-sender <amery@geeks.cl>)
-          by coihuin-smtp.puc.cl (qmail-ldap-1.03) with SMTP
-          for <selinux@tycho.nsa.gov>; 5 Nov 2004 14:58:54 -0000
-Message-ID: <418B9531.7090303@geeks.cl>
-Date: Fri, 05 Nov 2004 11:58:57 -0300
-From: Alejandro Mery <amery@geeks.cl>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: selinux@tycho.nsa.gov
-Subject: Re: selinux without sysvinit
-References: <4188E956.7020808@geeks.cl>	 <1099508399.1213.188.camel@moss-spa
-	r tans.epoch.ncsc.mil>	 <41897DD3.5060407@geeks.cl> <1099579644.3174.73.cam
-	el@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1099579644.3174.73.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5DAKXZ003364
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 08:10:22 -0500 (EST)
+Received: from obadja2.jmh.mhn.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5DAHF9019760
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 13:10:18 GMT
+Date: Fri, 5 Nov 2004 14:10:01 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Colin Walters <walters@verbum.org>, russell@coker.com.au,
+   jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>,
+   Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: Patch to make can_network stronger and remove nscd tunable.
+Message-ID: <20041105130959.GA2593@cip.ifi.lmu.de>
+References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de> <200411030248.49998.russell@coker.com.au> <4187AE44.40204@redhat.com> <200411031641.59816.russell@coker.com.au> <4189060A.1010003@redhat.com> <1099507502.3861.11.camel@nexus.verbum.private> <1099519994.3861.18.camel@nexus.verbum.private> <41896085.3080407@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
+In-Reply-To: <41896085.3080407@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-> Yes, that should work as well, and I think some people have actually
-> used that approach in the past.  But if you decide to move aside
-> /sbin/init and replace it with a small program that loads policy and
-> then runs the real init program, be careful that telinit is then
-> redirected to the real init program.
-
-i was thinking in a /sbin/seinit with proper init= on loader, hardcoded 
-to execve /sbin/init and /bin/sh after that.
-
-may this affect telinit?
-
-Alejandro
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
