@@ -1,46 +1,67 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA06642
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 22:00:09 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id BAA22446
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2001 01:59:54 GMT
-Received: from biocserver.BIOC.CWRU.Edu (biocserver.BIOC.CWRU.Edu [129.22.208.36])
-	by jazzband.ncsc.mil  with ESMTP id BAA22442
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2001 01:59:53 GMT
-Date: Tue, 24 Jul 2001 22:02:59 -0400 (EDT)
-From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
-To: Steve Eckmann <eckmann@computer.org>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: 8.3 filenames
-In-Reply-To: <4.3.2.7.2.20010724165057.00a965d0@mail1.abac.com>
-Message-ID: <Pine.LNX.4.30.0107242201140.16596-100000@biocserver.BIOC.CWRU.Edu>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA08843
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2001 10:26:26 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA16932
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2001 14:25:32 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id OAA16928
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2001 14:25:31 GMT
+Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA21757
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2001 10:26:23 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA06876
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 23:47:49 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id DAA24464
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2001 03:46:55 GMT
+Received: from relay2.nai.com (relay2.nai.com [161.69.3.67])
+	by jazzswing.ncsc.mil  with ESMTP id DAA24460
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jul 2001 03:46:55 GMT
+Received: from scwsout1.nai.com (undef-3-73.nai.com [161.69.3.73] (may be forged))
+	by relay2.nai.com (8.9.3/8.9.3) with SMTP id WAA14697
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jul 2001 22:47:47 -0500 (CDT)
+Message-ID: <DBF2F9C6F6BAD211BB1B00A0C99D97024D5BB3@dns-205.dhcp-77.nai.com>
+From: "Smalley, Stephen" <Stephen_Smalley@nai.com>
+To: "'Steve Eckmann'" <eckmann@computer.org>
+Cc: selinux@tycho.nsa.gov
+Subject: RE: running programs
+Date: Tue, 24 Jul 2001 20:39:02 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 24 Jul 2001, Steve Eckmann wrote:
 
-> My selinux kernel displays only 8.3 filenames for floppy and cdrom
-> drives, but non-selinux kernels display "longnames". I've encountered
-> this anomaly with every selinux installation that I've tried, over
-> RH6.2 and RH7.1. I've built a lot of linux kernels and haven't seen
-> this problem before. I guess I'm doing something wrong with filesystem
-> configuration, but what?
+>Yes, I hadn't looked for the avc denied message (I'm used to
+>seeing them when I run at the console but did the "ping" test
+>in an xterm), but it's there: create denied for rawip_socket.
 
-cat /proc/filesystems. you probably want vfat, iso9660, and such ... those
-are built based on kernel configurations. you can build them as modules
-now if you still have your kernel config lying around. make xconfig and in
-filesystems chose 'module' for each of those, then make modules_install
-for your kernel .. then insmod 'em.
+Right.  So you could define a special domain just for the ping
+program (and perhaps related utilities), say ping_t with an
+entrypoint type ping_exec_t, and authorize it to create and use
+raw IP sockets, e.g. allow ping_t self:rawip_socket rw_socket_perms;
 
-should be relatively easy.
+>It's not that I need to prevent ordinary users from executing
+>this particular program; I just thought that doing so would
+>increase my understanding of selinux configuration. After I turn
+>on security I can't execute tiger (a shell script) as root or as
+>an ordinary user. I think the interesting parts of the avc denied
+>message are:
 
-____________________________
-jose nazario						     jose@cwru.edu
-	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
-				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
+>  { execute }
+>  exe=/bin/bash
+>  path=/usr/local/src/tara-2.0.0/tiger
+>  tclass=file
 
+Actually, the scontext and tcontext information is very important - it
+shows the real reason for the failure (it shows the relevant domain and
+type for which execute permission was denied).  In this case, it seems
+likely that the type of files in /usr/local/src is not one of the types
+to which execute access is granted by the policy configuration,
+typically using the can_exec_any macro in macros.te.
 
 --
 You have received this message because you are subscribed to the selinux list.
