@@ -1,44 +1,34 @@
-From: "Leslie J. French" <ljf@semandex.net>
-To: "SELinux" <SELinux@tycho.nsa.gov>
-Subject: poweroff problem?
-Date: Sat, 6 Jul 2002 11:35:17 -0400
-Message-ID: <BFEMIIHKHLALNELLMPOMMEKBCBAA.ljf@semandex.net>
-MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <1025911273.8785.1.camel@phobos>
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Timothy Wood <timothy@hallcomp.com>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: named pt2
+Date: Thu, 4 Jul 2002 23:40:32 -0400
+References: <1025732909.3620.136.camel@phobos>
+In-Reply-To: <1025732909.3620.136.camel@phobos>
+MIME-Version: 1.0
+Message-Id: <20020706200822.5594276E1@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've just installed lsm 2-4 selinux 2002070313 on top of RH7.3 (2.4.18-3)
+On Wed, 3 Jul 2002 17:48, Timothy Wood wrote:
+> Can someone explain to my why bind works if I let init start it but it
+> does not start if I start it as root from the cli?
 
-I never tried on my older version, but I found that /sbin/poweroff doesn't
-work under SELinux as I configured/built it.  If I boot into the RH kernel,
-it works (turns off the machine power), but in SELinux it shuts down as far
-as "Powering off" message but leaves the machine running. In the config I
-set:
+You are supposed to use run_init to run the init script.  run_init causes the 
+script to be run as system_u:system_r:initrc_t, and then a 
+domain_auto_trans() rule transitions it to system_u:system_r:named_t which is 
+the correct context of the daemon.
 
-  ACPI support; APM-enable-at-boot, idle-when-idle and
-use-APM-bios-to-poweroff
+Running it in another context denies it access to port 53 (port 53 is only 
+for named_t).
 
-The system is running [kapmd] and apmd daemons, but I'm wondering if there
-is a conflict between the RH and LSM versions, since the boot log shows:
-
-   apm BIOS 1.2
-   ....
-   Capability LSM initialised
-   ACPI: APM is already active, exiting.
-
-And there are a lot of avc violations associated with killall from apmd_t to
-various other types (e.g. kernet_t).  This is as "out of the box" as I can
-make my system, none of my users or domains are in the system, and I'm using
-the .te and .fc files directly from the distribution.
-
-If a more knowledgable person could give me a hint as to what might be going
-wrong, I would appreciate it.  If you need the config/log files I will post
-them separately.
-
-Thanks,  Leslie
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 
 --
