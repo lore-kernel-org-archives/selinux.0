@@ -1,41 +1,60 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hASBfGRb026951
-	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 06:41:17 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hASD2mRb027246
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 08:02:48 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hASBfFqY029094
-	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 11:41:16 GMT
+	by jazzband.ncsc.mil  with ESMTP id hASD2lqY004391
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 13:02:48 GMT
 Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hASBfE0o029086 for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 11:41:15 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Carlos =?iso-8859-1?q?An=EDsio=20Monteiro?= <monteiro@ipen.br>,
-   selinux <selinux@tycho.nsa.gov>
-Subject: Re: Information about packages
-Date: Fri, 28 Nov 2003 22:41:05 +1100
-References: <3FC72C83.8050309@ipen.br>
-In-Reply-To: <3FC72C83.8050309@ipen.br>
+        by jazzband.ncsc.mil  with ESMTP id hASD2k0o004382 for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 13:02:47 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by ns.sws.net.au (Postfix) with ESMTP id E93D461BED
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 00:02:40 +1100 (EST)
+Received: from ns.sws.net.au ([127.0.0.1])
+	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 27886-01 for <selinux@tycho.nsa.gov>;
+	Sat, 29 Nov 2003 00:02:39 +1100 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by ns.sws.net.au (Postfix) with ESMTP id 3C16761BE6
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 00:02:39 +1100 (EST)
+Received: from kaos.lurking-grue.org (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id E2C3E924CC
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 00:02:38 +1100 (EST)
+Received: from kaos (kaos [127.0.0.1])
+	by kaos.lurking-grue.org (Postfix) with ESMTP id 3DDD847287
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 00:02:36 +1100 (EST)
+From: Faye Coker <faye@lurking-grue.org>
+Reply-To: faye@lurking-grue.org
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: HOWTO for the new SE Linux
+Date: Sat, 29 Nov 2003 00:02:34 +1100
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311282241.05097.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200311290002.34609.faye@lurking-grue.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 28 Nov 2003 22:07, Carlos Anísio Monteiro <monteiro@ipen.br> wrote:
-> Please, I would like to know what are the packages for SELinux more
-> appropriate and more "up-to-date" (in this moment) to install in a
-> *Debian/testing* with  *kernel 2.6.0* ?
+I have updated my "Getting Started with SE Linux HOWTO" document to cover the 
+new SE Linux.  I haven't tested the new-SElinux-from-scratch howto 
+instructions as much as I'd like (I need to scrape together a spare Debian 
+box and I'm currently having some issues with a Fedora SE Linux install), so 
+the document will probably need some tweaking.
 
-deb http://www.coker.com.au/newselinux/ ./
-If you add the above to your /etc/apt/sources.list file then you'll get 
-everything you need.  Kernel 2.6.0 doesn't need any patches, but you'll have 
-to compile it yourself.
+The document doesn't cover editing policy but I am working on a separate howto 
+which covers editing policy and other background knowledge stuff in more 
+detail, for people new to SE Linux.
 
+My revised Getting Started doc can be found at
+
+http://www.lurking-grue.org/gettingstarted_newselinuxHOWTO.html
+
+Once I do some fine tuning and more testing, I'll put it up on Sourceforge.
+
+
+faye
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Faye Coker
+faye@lurking-grue.org
 
 
 
