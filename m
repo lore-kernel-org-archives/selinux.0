@@ -1,73 +1,48 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "lky" <lky77@sjtu.edu.cn>
-Subject: Re: policy configuration problems
-Date: Fri, 10 Oct 2003 16:48:24 +1000
-Cc: "SELINUX" <SELinux@tycho.nsa.gov>
-References: <002201c38ecf$814345f0$5d38a8c0@lky>
-In-Reply-To: <002201c38ecf$814345f0$5d38a8c0@lky>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="gb2312"
-Message-Id: <200310101648.24204.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9A8SbWt001496
+	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 04:28:39 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9A8SaUb026361
+	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 08:28:36 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id h9A8SZhX026358 for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 08:28:36 GMT
+Date: Fri, 10 Oct 2003 09:28:34 +0100
+From: Dale Amon <amon@vnl.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: newrules.pl -o option
+Message-ID: <20031010082834.GA31227@vnl.com>
+References: <200310090124.AA01358@ilios104.ori.hitachi-sk.co.jp> <1065723279.53567.0.camel@vorpal.mcs.drexel.edu> <20031010090846.5bdaf336.ynakam@ori.hitachi-sk.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20031010090846.5bdaf336.ynakam@ori.hitachi-sk.co.jp>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 10 Oct 2003 11:40, lky wrote:
-> Absolutely right! The file contexts aren't labelled correctly. After make
-> relabel and append some allow rules the most programes run within their own
-> domains and denied messages have been eliminated. Thanks!
+Since the topic of newrules.pl has come up...
 
-What allow rules did you have to add?  Some of them may be worth adding to the 
-default policy (which will save you some effort in the future).
+Russ made a point some time back that it may be
+a bad idea for it to have the .pl extension as
+it might someday be rewritten in C or whatever.
+Not that it necessarily will, but it is generally
+a bad idea to put extensions on "binaries" that
+should end up in /sbin or /usr/sbin/.
 
->  I want to use webmin to configure the system remotely,but now the webmin
-> daemon still run within the initrc_t domain. I didn't find the .te and .fc
-> files under the policy/domain/program and /policy/file_context/
-> directories.
+Which also brings up the point, what is the most
+appropriate place for it to install? Would it be
+wise for it to be useable during early boot, thus in
+/sbin, or just later in /usr/sbin? Or should it be
+considered a user tool and be in /bin or /sbin?
 
-Correct, no-one has written policy for webmin.
-
-> Should I have to create a new domain and a new .fc file for
-> the program?
-
-Yes.
-
-> I think it's fairly hard for me because webmin is a
-> complicated program and I'm not very family with it. Is there any easier
-> way I can take or can I add the webmin program to an existing domain?
-
-Probably not.  I suggest giving it a go.  If you get stuck then ask for some 
-advice here.
-
-> -------------------------------------------------------------------------
-> Another question:
-> I'm not sure about my policy configuration steps.After changing the policy
-> I take the following steps: 1.make reload
-> 2.create the initrd-xx.img file
-> 3.reboot
-> 4.make relabel
-> 5.reboot
-
-1 is necessary to get the policy installed and have it take affect.
-
-2 is necessary to make it take affect on the next boot (but we are working on 
-solutions to this problem).
-
-3 should never be necessary unless you want to test things.
-
-4 is only needed if you add a new .te file (which adds the .fc file to 
-file_contexts) or if you edit any of the .fc files.  But in that case you can 
-probable use the -s option to setfiles to get the labelling you need done in 
-far less time.  Also the "reboot ; make relabel ; reboot" process is only 
-needed for an initial install.
+I'd personally tend to /usr/sbin since autogen
+of rule fixes during boot is not in general a 
+good idea...
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+------------------------------------------------------
+       IN MY NAME:            Dale Amon, CEO/MD
+  No Mushroom clouds over     Islandone Society
+    London and New York.      www.islandone.org
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
