@@ -1,52 +1,46 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAJM9YIi024532
-	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 17:09:34 -0500 (EST)
-Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAJM7ulH021689
-	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 22:09:36 GMT
-Message-Id: <200411192207.iAJM7u0t017814@turing-police.cc.vt.edu>
-To: Colin Walters <walters@verbum.org>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Greg Norris <haphazard@kc.rr.com>,
-   SE-Linux <selinux@tycho.nsa.gov>, Jim Carter <jwcart2@epoch.ncsc.mil>
-Subject: Re: using procmail under SE-Linux 
-In-Reply-To: Your message of "Fri, 19 Nov 2004 16:35:54 EST."
-             <1100900154.5454.38.camel@nexus.verbum.private>
-From: Valdis.Kletnieks@vt.edu
-References: <20041119013811.GA21001@yggdrasil.localdomain> <1100837214.23707.15.camel@nexus.verbum.private> <1100889824.15944.195.camel@moss-spartans.epoch.ncsc.mil> <200411192123.iAJLN2VL007405@turing-police.cc.vt.edu>
-            <1100900154.5454.38.camel@nexus.verbum.private>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAKKTWIi027955
+	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 15:29:32 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAKKS3LS026575
+	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 20:28:03 GMT
+Received: from lkcl.net (host81-153-247-118.range81-153.btcentralplus.com [81.153.247.118])
+	by open.hands.com (Postfix) with ESMTP id BFC0ABF76
+	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 20:29:28 +0000 (GMT)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1CVc1s-00077B-ML
+	for selinux@tycho.nsa.gov; Sat, 20 Nov 2004 20:40:20 +0000
+Date: Sat, 20 Nov 2004 20:40:20 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: http://sf.net/projects/xen
+Message-ID: <20041120204020.GB26761@lkcl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_287839507P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Fri, 19 Nov 2004 17:07:56 -0500
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_287839507P
-Content-Type: text/plain; charset=us-ascii
+for those people who do a lot of selinux testing, and am fed up
+of having stacks of machines, and who also don't want to pay for
+vmware, _and_ who also don't want the slowness or features of UML,
+there is xen.
 
-On Fri, 19 Nov 2004 16:35:54 EST, Colin Walters said:
+xen is NOT full pc emulation (like vmware, which even has its own
+phoenix bios), instead you have to compile in half-way-house tty and
+network drivers that allow communication between the first hosted guest
+OS (which is given control of the hardware) and all other guest OSes
+[which are given access to block devices via the first OS].
 
-> Ah.  I've only ever used the simple configuration then, I guess.  I'm
-> not sure the procmail code is going to be very amenable to more
-> extensive work though...
+i look forward to seeing what happens over the next couple of days
+in attempting to set up selinux 2.6.9 xen guest OSes
+(/etc/motd: "welcome to debian gnu/linux 2.6.9-selinux1-xen1"...)
 
-I'm quite positive the code will *not* be very amenable to modification.
+here goes nothing...
 
-Personally, I'm surprised it's even amenable to compiling correctly. :)
-
---==_Exmh_287839507P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBnm67cC3lWbTT17ARAvShAKCQ83HKcgn44jg+gnqNuMQU1UkGBQCgwipJ
-+sWmO+7AocB1tE4iEG7oAzA=
-=/TX1
------END PGP SIGNATURE-----
-
---==_Exmh_287839507P--
+-- 
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
