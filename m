@@ -1,25 +1,28 @@
-Reply-To: <mayerf@tresys.com>
-From: "Frank Mayer" <mayerf@tresys.com>
-To: <SELinux@tycho.nsa.gov>
-Subject: RE: Security policy analysis
-Date: Wed, 10 Oct 2001 10:39:42 -0400
-Message-ID: <ACEHIKGIGFEDAIKEMMMIIENFJPAA.mayerf@tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <000b01c15197$1b5ee540$ce164318@servers23.com>
+Subject: Vanilla unix policy
+From: "Justin R. Smith" <jsmith@mcs.drexel.edu>
+To: SELinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: 10 Oct 2001 12:50:44 -0400
+Message-Id: <1002732644.4547.11.camel@vorpal>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I will post a site where the current source can be downloaded within a day
-or two.
+Some thoughts:
 
-However, I still encourage folks who are looking at developing or analyzing
-security policies to share any insights you might have.  Thanks
+1. SeLinux implements a very nice GENERAL scripting language for
+security policies.
 
-Frank Mayer
-mayerf@tresys.com
-Tresys Technology
+2. Is there a simple policy that merely duplicates the one that
+implicitly exists in Linux already (i.e., user, group ownership and
+permissions)?  
+
+My thoughts are that one could begin with this and tighten it up one
+step at a time. This might be easier than trying to create a very
+fine-grained security policy from the outset.
+-- 
+
+
 
 
 --
