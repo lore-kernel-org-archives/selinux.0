@@ -1,51 +1,63 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7ICCtrT019710
-	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 08:12:55 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7ICCqRq016558
-	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 12:12:53 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Ian Campbell <icampbell@arcom.com>
-Subject: Re: [patch] setting default role from ssh
-Date: Wed, 18 Aug 2004 22:12:46 +1000
-Cc: Timothy Wood <timothy@diyab.net>, Colin Walters <walters@verbum.org>,
-   Stephen Smalley <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov,
-   Nalin The Nalinator Dahyabhai <nalin@redhat.com>,
-   Daniel J Walsh <dwalsh@redhat.com>
-References: <1092513257.4515.28.camel@nexus.verbum.private> <200408181750.19891.russell@coker.com.au> <1092821707.8246.30.camel@icampbell-debian>
-In-Reply-To: <1092821707.8246.30.camel@icampbell-debian>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408182212.46564.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7IDArrT020016
+	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 09:10:53 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7IDACho012260
+	for <selinux@tycho.nsa.gov>; Wed, 18 Aug 2004 13:10:12 GMT
+Date: Wed, 18 Aug 2004 14:21:56 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Erich Schubert <erich@debian.org>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: mozilla 0.9.3-2 crashing with tunables read and write homedir OFF
+Message-ID: <20040818132156.GB19646@lkcl.net>
+References: <20040817193823.GU18321@lkcl.net> <1092780620.6531.3.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1092780620.6531.3.camel@wintermute.xmldesign.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 18 Aug 2004 19:35, Ian Campbell <icampbell@arcom.com> wrote:
-> On Wed, 2004-08-18 at 08:50, Russell Coker wrote:
-> > This style option seems like a useful feature, I don't think that we want
-> > to have SE Linux conflict with it.
->
-> I assume you are talking about the ssh command line rather than anything
-> to do with the protocol itself. In which case what about just adding a
-> --role=XXX (or whatever name) option rather than trying to cram more
-> information into the limited number of meta-characters available for the
-> user/host on the command line?
+On Wed, Aug 18, 2004 at 12:10:20AM +0200, Erich Schubert wrote:
+> Hi,
+> 
+> > just in case anyone's curious about using mozilla with no read or write
+> > access to user-home: at present (policy 1.12-3 or 4 and mozilla 0.9.2-3)
+> > it don't work.
+> > 
+> > debian bugreport raised.
+> 
+> Waste of time. I guess that any mozilla developer will tell you they do
+> need write access to their profile directory.
 
-We could have a --role option on the command line, but that data needs to be 
-transmitted to the server somehow.  Munging an existing field (EG by adding 
-":role" to the end of the user name) allows preserving compatability with the 
-existing ssh implementation.
+ i believe you may be misunderstanding.
 
-Is there any way of adding such data to the ssh connection without breaking 
-the protocol?
+ access to profile directory is fine: they can have write access
+ to ~/.mozilla no problem, specifying some file contexts to
+ allow that [a $1_mozilla_profile_t where $1=user/sysadm/staff/whatever
+ which is placed on all files in ~/.mozilla]
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+ it's write access to home directories [file downloads, viruses,
+ exploits, security holes etc] that should be banned via the
+ tunable parameter mozilla_can_write.
+
+ instead, not setting this parameter causes mozilla to go pear-shaped.
+
+
+
+> Furthermore using an ancient version of mozilla doesn't help either.
+> Even Debian "woody" (aka "stable") has mozilla 1.0.0 because of security
+> issues... If you want to have a secure system you should at least
+> upgrade to the most recent security update.
+> 
+> And don't expect applications to behave differently than what they were designed for.
+> Mozilla was designed to have a writeable profile directory for its cache, configuration data etc.
+> I bet the developers will just drop your bug report and tell you to write your own browser using the gecko engine...
+ 
+  hah! 
+
+ when i am rich and no longer infamous.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
