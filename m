@@ -1,49 +1,38 @@
-Subject: SELinux Configuration Question
-To: SELinux@tycho.nsa.gov
-Message-ID: <OF166CCF9D.C3ACFF49-ON85256BFF.005A0CF7@hq.caci.com>
-From: "Richard Mayo" <rmayo@caci.com>
-Date: Tue, 23 Jul 2002 12:38:41 -0400
+Date: Tue, 23 Jul 2002 13:03:07 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Richard Mayo <rmayo@caci.com>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: SELinux Configuration Question
+In-Reply-To: <OF166CCF9D.C3ACFF49-ON85256BFF.005A0CF7@hq.caci.com>
+Message-ID: <Pine.GSO.4.33.0207231259030.4721-100000@raven>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm finalizing my configuration of SELinux at my location and there's one
-more change I'd like to make but haven't found a way:
 
-I want to put all of my SELinux policy changes into new files, while
-changing the default SELinux configuration as little as possible.  BTW, I'm
-locked into the 31 May 2002 version for the near term -- Hopefully, that
-won't make helping me difficult.
+On Tue, 23 Jul 2002, Richard Mayo wrote:
 
-Anyway,  here's what I've got:
+> 3)    Created /selinux/policy/file_contexts/program/jdw.fc to assign file
+> contexts to the appropriate files.
+>             This doesn't work -- the make relabel command ignores this
+> file, my software files are not re-typed.
 
-1)    Created /selinux/policy/types/jdw.te to define my custom file
-contexts.
-            This works.
+If you look at the definition of FCFILES in the policy Makefile, you'll
+see why.  FCFILES is defined to automatically pick up only those
+program .fc files for which there is a corresponding program .te file.
+That permits people to simply remove the program .te files that they do
+not want and automatically ignore the corresponding .fc files when they
+relabel.
 
-2)    Created /selinux/policy/macros/program/jdw_macros.te to assign the
-necessary permissions to my users.
-            This works.
+Notice that even for domains that are primarily defined via a macro, there
+is still at least a minimal .te file under domains/program with the type
+for the entrypoint executable, e.g. crontab.te.
 
-3)    Created /selinux/policy/file_contexts/program/jdw.fc to assign file
-contexts to the appropriate files.
-            This doesn't work -- the make relabel command ignores this
-file, my software files are not re-typed.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-4)    My work around has been to append the necessary lines from jdw.fc to
-the SELinux file /selinux/policy/file_contexts/types.fc.
-            This works, but strikes me as uncool.
-
-Can anyone tell me how to configure either my SELinux data or the
-compilation to use all three of my desired new file?
-
-BTW, I've also added two lines to /selinux/policy/macros/user_macros.te to
-include and then execute my macros -- no problems there.
-
-
-Thanks for helping,
-Rich Mayo
 
 
 
