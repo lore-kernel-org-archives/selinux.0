@@ -1,42 +1,68 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9EKDhWt021277
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 16:13:43 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9EKDa0p015229
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 20:13:36 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h9EKDar7015226
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 20:13:36 GMT
-Subject: Re: [Fwd: Re: trusted vs untrusted packages]
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1066162046.27911.47.camel@chris.pebenito.net>
-References: <1066162046.27911.47.camel@chris.pebenito.net>
-Content-Type: text/plain
-Message-Id: <1066162420.5054.395.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 14 Oct 2003 16:13:40 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9ELLsWt021765
+	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 17:21:54 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9ELLrmR001558
+	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 21:21:53 GMT
+Received: from zaphod.crypt.gen.nz (203-79-124-63.adsl.paradise.net.nz [203.79.124.63])
+        by jazzband.ncsc.mil  with ESMTP id h9ELLqjp001555 for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 21:21:52 GMT
+Received: from www.crypt.gen.nz (zaphod.crypt.gen.nz [192.168.1.5])
+	by zaphod.crypt.gen.nz (Postfix) with SMTP id 6A784FE9A
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 10:21:48 +1300 (NZDT)
+Message-ID: <2544.202.27.185.71.1066166508.squirrel@www.crypt.gen.nz>
+In-Reply-To: <1066145242.5054.213.camel@moss-spartans.epoch.ncsc.mil>
+References: <3F8BE8E5.9050006@ipen.br>
+    <1066145242.5054.213.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 15 Oct 2003 10:21:48 +1300 (NZDT)
+Subject: Re: avc_toggle and avc_enforcing
+From: "Kerry Thompson" <kerry@crypt.gen.nz>
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-10-14 at 16:07, Chris PeBenito wrote:
-> > I would think that some sort of trusted-path execution setup would be
-> > better.  I don't know much about TPE, but this sounds like one situation
-> > that it would be good for.  Then you could set it to not do domain
-> > transitions on untrusted stuff, and also require that sysadm_t only
-> > execute trusted stuff.  The status as trusted or untrusted could be
-> > handled by another xattr.  Then it also would not get overridden by a
-> > relabel.  But I'm getting ahead of myself, since there is no TPE in
-> > SELinux. </brainstorm>
-> > 
-> > Might there one day be TPE in SELinux, or is that beyond its scope?
+Speaking of which, I'd like to assemble a quick list of userland ( or more
+accurately, adminland ) changes between the current release and the
+previous non-/selinux release to update the documentation I've got, like
+the U-FAQ. The ones I've noticed so far :
 
-Use type enforcement instead.
+- avc_enforcing, avc_toggle replaced by /selinux/enforcing
+- id command requires -c to display context
+- ps command uses -Z to display context
+- initrd now mandatory
+- selinux kernel boot option
+- multiple changes to installation procedure
+- SRPMs added to installation image
+- new tools added ( Tresys tools, star )
+- binary RPMs available ( thanks Daniel )
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I've looked into the ChangeLog files, but there really isn't much info
+there, so I'd like to hear of any other changes that have been made which
+need to be documented.
+
+I'm still working on getting my test system up to the new 2.4 and 2.6,
+unfortunately I rendered it unbootable last night so it will take a little
+longer than expected ( note to self : make sure kernel can build an initrd
+before removing /boot/initrd* ).
+
+Kerry
+
+
+Stephen Smalley said:
+> On Tue, 2003-10-14 at 08:15, Carlos Anísio Monteiro wrote:
+>> Please, where I find the commands: avc_toggle and avc_enforcing. What
+>> are it the packages where it are?
+>
+> They no longer exist as programs.  With the new SELinux API, you can
+> simply 'cat /selinux/enforce' to see the current enforcing value,
+> 'echo 1 > /selinux/enforce' to switch into enforcing mode, and
+> 'echo  > /selinux/enforce' to switch into permissive mode (if permitted
+> by the policy).
+>
+> --
+> Stephen Smalley <sds@epoch.ncsc.mil>
+> National Security Agency
 
 
 --
