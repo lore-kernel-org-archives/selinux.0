@@ -1,59 +1,68 @@
-From: "Lamont R. Peterson" <lrp@xmission.com>
-Reply-To: lrp@xmission.com
-To: "L. Dean Risinger Jr." <deanr@acl.lanl.gov>, SELinux@tycho.nsa.gov
-Subject: Re: Possible bug in build for scsi
-Date: Wed, 2 Apr 2003 17:58:35 -0700
-Cc: kbintz@lanl.gov
-References: <20030402131736.A795@acl.lanl.gov>
-In-Reply-To: <20030402131736.A795@acl.lanl.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65]) by
+	tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3356ex6027497 for
+	<selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 00:06:40 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1]) by
+	jazzswing.ncsc.mil  with ESMTP id h3352qOv004465 for
+	<selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 05:02:52 GMT
+Received: from windowpane.com (ip57.gte1.rb1.bel.nwlink.com
+	[209.20.131.57]) by jazzswing.ncsc.mil  with ESMTP id h3352pY1004456 for
+	<selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 05:02:52 GMT
+Message-ID: <004301c2f99f$3f5ad970$398314d1@windowpane.com>
+From: "ccallen" <ccallen@windowpane.com>
+To: "Russell Coker" <russell@coker.com.au>
+Cc: <selinux@tycho.nsa.gov>
+References: <000d01c2f7fa$f3c67730$398314d1@windowpane.com>
+	 <200304022237.31539.russell@coker.com.au>
+	 <003501c2f962$231ba240$398314d1@windowpane.com>
+	 <200304030953.04862.russell@coker.com.au>
+Subject: Re: Motif for selinux?
+Date: Wed, 2 Apr 2003 21:09:47 -0800
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200304021758.35451.lrp@xmission.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 02 April 2003 01:17 pm, L. Dean Risinger Jr. wrote:
--SNIP-
-> OS: Redhat Linux 8.0 with kernel 2.4.18smp
+Whoops, I meant the LSM 2.5 based selinux.
+
+I'll try recompiling from source. The kde site only lists version 2.22, will
+that one work?
+
+Conan
+
+----- Original Message -----
+From: "Russell Coker" <russell@coker.com.au>
+To: "ccallen" <ccallen@windowpane.com>
+Cc: <selinux@tycho.nsa.gov>
+Sent: Wednesday, April 02, 2003 3:53 PM
+Subject: Re: Motif for selinux?
+
+
+> On Thu, 3 Apr 2003 07:52, ccallen wrote:
+> > I'll try out your KDE. I have RH 7.1 and selinux 2.5, will this work ok
+> > with your code?
 >
-> SELinux version: 2.4 LSM-based Prototype
+> There is no "selinux 2.5", SE Linux has never been released with any
+version
+> number other than the date (for at least the last two years).  I imagine
+that
+> you may be referring to Linux kernel 2.5.x, that should work as well as a
+> 2.4.x kernel provided you have the right kernel patches.
 >
-> SELinux Configuration: Default, with the addition of support for the
-> ext3 filesystem.  Trying to build kernel 2.4.20
-
-Have you double checked your paths?  is linux symlinked properly to the 2.4.20 
-kernel sources?  I hate it when I get to the end of a kernel build only to 
-discover that I did something stupid like this (though it's been a long time 
-since that's happened to me :-).
-
-> Steps followed:
->       unzipped/untarred source into /root
+> My kdm binary may not work with RH, KDE depends on lots of shared objects
+and
+> my package may depend on different versions of the libraries than you have
+> installed.
 >
->       cd /root/selinux
->       cd module
->       make insert
+> If you compile from source then it should be OK if RH 7.1 uses KDE 2.2.
 >
->       cd /root/lsm-2.4
->       make menuconfig
->       make dep
->       make
->       make modules
->       make install
+> --
+> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+> http://www.coker.com.au/~russell/  My home page
+>
+>
 
-I may be showing a lack of experience with Red Hat 8.0 (I've never even 
-touched it, yet), but shouldn't this list read:
-
-make dep
-make bzImage [or something similar]
-make modules
-make modules_install
-make install [I usually use cp to install my kernels]
-
--SNIP-
--- 
-Sincerely,
-Lamont R. Peterson <lrp@xmission.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
