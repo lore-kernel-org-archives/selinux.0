@@ -1,35 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8DKUBLa003384
-	for <selinux@tycho.nsa.gov>; Sat, 13 Sep 2003 16:30:12 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8DKSWLY024651
-	for <selinux@tycho.nsa.gov>; Sat, 13 Sep 2003 20:28:32 GMT
-Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
-	by jazzswing.ncsc.mil  with ESMTP id h8DKSWsG024562
-	for <selinux@tycho.nsa.gov>; Sat, 13 Sep 2003 20:28:32 GMT
-Subject: Re: Debian package: how to relabel
-From: Colin Walters <walters@verbum.org>
-To: Dale Amon <amon@vnl.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Russell Coker <russell@coker.com.au>,
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8DLRcLa003604
+	for <selinux@tycho.nsa.gov>; Sat, 13 Sep 2003 17:27:39 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h8DLRbn0005553
+	for <selinux@tycho.nsa.gov>; Sat, 13 Sep 2003 21:27:38 GMT
+Date: Sat, 13 Sep 2003 22:27:27 +0100
+From: Dale Amon <amon@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: Dale Amon <amon@vnl.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
+   Colin Walters <walters@verbum.org>,
    SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <20030913160546.GD16830@vnl.com>
-References: <20030913160546.GD16830@vnl.com>
-Content-Type: text/plain
-Message-Id: <1063484919.324.0.camel@columbia>
+Subject: Re: Debian package: how to relabel
+Message-ID: <20030913212727.GA28358@vnl.com>
+References: <20030913160546.GD16830@vnl.com> <20030913163259.GE16830@vnl.com> <20030913164219.GF16830@vnl.com> <200309140326.59834.russell@coker.com.au>
 Mime-Version: 1.0
-Date: Sat, 13 Sep 2003 16:28:39 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200309140326.59834.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-09-13 at 12:05, Dale Amon wrote:
-> Question for either one of you. How do I do the equiv
-> of a make relabel with the debian package install? I
-> have a man page for setfiles but can't seem to find
-> the command itself...
+On Sun, Sep 14, 2003 at 03:26:59AM +1000, Russell Coker wrote:
+> I guess there are problems with the dependencies for Debian packages.  
+> Reinstall is not necessary, just install policycoreutils (or is that what you 
+> meant?).
 
-You can relabel an individual package like this:
+No, a reinstall. There was a policycoreutils.list and etc already in
+the system and a setfiles.8 man page. I did a
 
-/etc/dpkg/postinst.d/selinux packagename
+	apt-get install --reinstall policycoreutils
+
+and just forced it. No idea why it gave me only a partial 
+install.
+
 
 
 --
