@@ -1,59 +1,54 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KCQVRb018069
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 08:26:31 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KCh2Rb018170
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 08:43:02 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4KCQRAR017739
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:26:27 GMT
-Received: from smtp804.mail.ukl.yahoo.com (smtp804.mail.ukl.yahoo.com [217.12.12.141])
-        by jazzband.ncsc.mil  with SMTP id i4KCQQHn017731 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:26:26 GMT
-Date: Thu, 20 May 2004 12:23:47 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Steve Greenland <steveg@moregruel.net>, SE-Linux <selinux@tycho.nsa.gov>,
-   193644@bugs.debian.org
-Subject: Re: Bug#193644: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=193644 (cron upstream patch)
-Message-ID: <20040520122347.GB8810@lkcl.net>
-References: <20040519091454.GL7348@lkcl.net> <1084973453.30873.76.camel@moss-spartans.epoch.ncsc.mil> <20040519140239.GF4221@lkcl.net> <20040519181120.GA6115@moregruel.net> <20040519200057.GD24597@lkcl.net> <20040519215409.GA7459@moregruel.net> <20040520060606.GG24597@lkcl.net> <1085054796.521.36.camel@moss-spartans.epoch.ncsc.mil>
+	by jazzband.ncsc.mil  with ESMTP id i4KCgxAR020144
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:42:59 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i4KCgxHn020141 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:42:59 GMT
+Subject: Re: FAM uses seteuid and setegid
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040520121538.GA8810@lkcl.net>
+References: <20040520121538.GA8810@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1085056946.521.65.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1085054796.521.36.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 20 May 2004 08:42:26 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, May 20, 2004 at 08:06:36AM -0400, Stephen Smalley wrote:
-
-> >  "system" is like... a privilege ABOVE root, and i presume its
-> >  closest equivalent is to the "SYSTEM" SID on the NT
-> >  (actually VAX/VMS) security model.
+On Thu, 2004-05-20 at 08:15, Luke Kenneth Casson Leighton wrote:
+> just taking a look at famd, which uses seteuid and setegid before
+> going and 'avin a look at files (Cred::Implementation::become_user())
 > 
-> No.  It is just a way of distinguishing system processes from user
-> processes.  
-
- oh, okay :)
-
- i stand corrected.
-
-> >  i think this can be resolved by adding an extra argument to
-> >  process_crontab.  to put that another way: if an extra
-> >  argument is added which is used solely the selinux context,
-> >  the issue you have, steve, over the change from *system*
-> >  to system_u goes away.
+> so, famd is designed to "effectively" set its user and group ids,
+> such that any file access is done as these, whilst still remaining
+> actually running as root.
 > 
-> I don't think that this is necessary; it sounds like we can use the
-> username field, assuming that it can be system_u for system cron jobs
-> (or something else that is easily recognizable and can be mapped to
-> system_u by the SELinux code).
+> ... so... what tricks can be done that are equivalent to this?
+> 
+> setfscreatecon doesn't apply because that's presumably for file
+> creation, and famd does file access not file creation.
+> 
+> setexeccon doesn't apply because there _are_ no relevant exec
+> calls that occur in famd, and the only forks() and execs()
+> are to run programs (e.g. "insmod imon").
 
- then that leaves the other approach, the one suggested by russell:
- to do a strcmp(fname, "*system*") == 0 in process_crontab, and
- in that specific case to call get_default_context("system_u", ...)
+You can either a) re-architect the application to use a
+fork/setexeccon/exec model or b) have the application perform access
+checking itself on behalf of the user context via avc_has_perm (but note
+the potential for TOCTTOU issues there, although this may be irrelevant
+for fam as it only monitors files for changes; it doesn't provide access
+to the files themselves).
 
- i don't think steve is going to allow any changes upstream to crond
- because the letters "system_u" _could_ be a valid username used
- by a NON selinux enabled system in /etc/passwd or other security
- system.
+Reasons why we don't support a setuid-like operation for security
+contexts have been discussed previously on the list a number of times.  
 
- l.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
