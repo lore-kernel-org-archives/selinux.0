@@ -1,49 +1,50 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14034
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 12:24:20 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14281
+	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 12:46:28 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1JHOJI28445
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 17:24:19 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h1JHOHf28437 for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 17:24:17 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Ask Holme <ask@eternal-newbie.dk>, selinux@tycho.nsa.gov
-Subject: Re: passwd, sysadm_t access shadow_t:file
-Date: Wed, 19 Feb 2003 18:24:08 +0100
-References: <20030219180615.23730649.ask@eternal-newbie.dk>
-In-Reply-To: <20030219180615.23730649.ask@eternal-newbie.dk>
+	by jazzband.ncsc.mil  with ESMTP id h1JHkSI29863
+	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 17:46:28 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id h1JHkRf29859 for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 17:46:27 GMT
+Date: Wed, 19 Feb 2003 12:39:25 -0500 (EST)
+From: Wayne Salamon <wsalamon@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Apache policy
+In-Reply-To: <200302191439.49511.russell@coker.com.au>
+Message-ID: <Pine.LNX.4.33.0302191214530.8893-100000@vox.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200302191824.08871.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 19 Feb 2003 18:06, Ask Holme wrote:
-> I just discovered that i can't use the passwd program an my debian --
-> the i get errors stating that the sysadm_t domain can't read/write/lock
-> the shadow file (shadow_t:file). However i fell that it's perfectly okay
-> that the sysadm can't do that, since only the passwd program should
-> could, a quick hack would be to edit the domain/programs/passwd.te file
-> and allow the sysadm_t domain access to the file however i would like to
-> just allow the passwd_t domain, but would i need a recode of passwd for
-> that ?
+On Wed, 19 Feb 2003, Russell Coker wrote:
 
-If you want to change your own password as a user then use "spasswd".  If you 
-as administrator (sysadm_t) want to change someone else's password then use 
-"sadminpassword".
+>
+> >   - Does $1_t need create permissions for script_exec_t? (around line 88)
+>
+> No.  I can't find that in the version I sent you or the one in my current tree
+> either.
+>
 
-If you change the policy to allow the administrator to write to or replace the 
-shadow file then it will probably be replaced by type etc_t and therefore SE 
-Linux won't prevent unauthorised access to it (you will be relying on Unix 
-permissions alone).  This is probably not what you want.
+  I meant, do we need to add this rule so users can relabel files as
+httpd_user_script_exec_t? We also need a rule for sysadm_r to create
+httpd_sys_script_exec_t, right?
 
+>
+> I've just removed httpadm.te entirely from my tree.  My changes remove the
+> need for it entirely.
+>
+
+  OK, but doing that requires a change to our rbac file, and yours and our
+openca-ca.te, I think. You want to remove httpd_admin_r and httpd_admin_t
+entirely, right?
+
+  Thanks,
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Wayne Salamon
+wsalamon@tislabs.com
+
 
 
 --
