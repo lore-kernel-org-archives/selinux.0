@@ -1,41 +1,39 @@
-Subject: Re: writing zero bytes in bash
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1109686814.10589.0.camel@moss-spartans.epoch.ncsc.mil>
-References: <200502261832.16337.russell@coker.com.au>
-	 <1109616468.28470.20.camel@moss-spartans.epoch.ncsc.mil>
-	 <200503010721.59865.russell@coker.com.au>
-	 <1109686814.10589.0.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Proposed policy feature: $1_domain attribute
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1109687748.10589.2.camel@moss-spartans.epoch.ncsc.mil>
+References: <1109685518.764.9.camel@cobra.ivg2.net>
+	 <1109687748.10589.2.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 01 Mar 2005 09:38:05 -0500
-Message-Id: <1109687885.10589.5.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 01 Mar 2005 09:53:46 -0500
+Message-Id: <1109688827.2205.8.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-03-01 at 09:20 -0500, Stephen Smalley wrote:
-> On Tue, 2005-03-01 at 07:21 +1100, Russell Coker wrote:
-> > /proc/self/attr/exec will give the same result as 
-> > runcon.  /proc/self/attr/fscreate works for operations such as
-> > "program > file".
-> > 
-> > We need to have a way to test these things.  If we can't make it possible to 
-> > do these things through the shell then someone (maybe me) has to write an 
-> > interactive program to exercise the SE Linux API.
-> 
-> You can already test them via runcon, mkdir -Z, etc.
+On Tue, 2005-03-01 at 09:35 -0500, Stephen Smalley wrote:
+>On Tue, 2005-03-01 at 08:58 -0500, Ivan Gyurdiev wrote:
+>> I'd like to mark all role-dependent domains with a new attribute
+>> $1_domain (analogous to $1_file_type), and then do the following in
+>> base_user_macros.te:
+>> 
+>> can_ps($1, $1_domain)
+>> can_ptrace($1, $1_domain)
+>> 
+>> Objections?
+>
+>can_ptrace?  You could easily end up allowing unintended permissions
+>directly to the user domain that were previously limited to a specific
+>program.
 
-BTW, we _could_ modify the kernel code to also accept a string
-containing only a newline as a variant way of expressing "clear
-attribute" for writes to /proc/pid/attr.  But such a change will
-obviously take time to get into an upstream kernel, and I don't even
-want to think about changing libselinux to start doing that (with the
-attendant dependency on the new kernel).
+Can you elaborate? I thought can_ptrace was needed for the proper
+operation of the strace command.
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
