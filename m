@@ -1,40 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA01642
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 16:11:47 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA13052
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 20:11:37 GMT
-Received: from biocserver.BIOC.CWRU.Edu (biocserver.BIOC.CWRU.Edu [129.22.208.36])
-	by jazzswing.ncsc.mil  with ESMTP id UAA13046
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 20:11:37 GMT
-Date: Wed, 23 May 2001 16:12:13 -0400 (EDT)
-From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
-To: Frank Zecca <frank@aimster.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Compiling Kernel, etc.
-In-Reply-To: <004f01c0e3c0$89a74280$9865fea9@darkbritannia.com>
-Message-ID: <Pine.LNX.4.30.0105231611530.20961-100000@biocserver.BIOC.CWRU.Edu>
+Message-ID: <3B0C9833.F32CAAF8@yingternet.com>
+Date: Wed, 23 May 2001 22:12:19 -0700
+From: Ying-Hung Chen <ying@yingternet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
+Subject: problem relabel the file system
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 23 May 2001, Frank Zecca wrote:
+Hi All,
 
-> Ok I'm a total SELinux newbie. Additionally, I'm fairly inexperienced
-> with compiling new kernels for linux. The information on nsa.gov
-> didn't help me much (I tried, and I failed :P). Is there a resource
-> for a total newbie out there? Or is anyone willing to help a newbie
-> out? ;)
+	I have installed SELinux on couple of my machines, it usually go
+through ok at the first time, but when i try to relabel again for any
+reason (i.e. change the policy/file_contexts) I always have some files
+that refuse to get relabel again and cause make file to fail.
 
-look in the Documentation directory. instructions are included there and
-are very good, surprisingly enough.
+	I did remove ALL the .../security for all the partitions and did a make
+initinstall in the policy (instruction 5 and 7 in the installation
+guide) but no luck.
 
-____________________________
-jose nazario						     jose@cwru.edu
-	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
-				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
+	I noticed on the installation guide, it mentioned:
 
+"Although this invalidates any existing file labels, it does not clear
+the persistent SID values in the inodes.  Consequently, some warnings
+are likely when the file system is relabeled in step 12.  A program
+will be provided in the future to clear the persistent SID values."
+
+does this cause the make relabel to fail since inodes never get clean
+up? are there any work arounds?
+
+Thanks,
+
+-Ying
 
 --
 You have received this message because you are subscribed to the selinux list.
