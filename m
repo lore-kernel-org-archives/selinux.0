@@ -1,22 +1,32 @@
-Date: 12 Mar 2002 14:34:47 -0000
-Message-ID: <20020312143447.315.qmail@mailFA10.rediffmail.com>
+Date: Tue, 12 Mar 2002 18:38:16 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Russell Coker <russell@coker.com.au>
+Cc: Reino Wallin <reino@oribium.com>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Firewall Policy
+In-Reply-To: <20020312111616.5EC06D16C@lyta.coker.com.au>
+Message-ID: <Pine.LNX.4.44L.0203121837220.2181-100000@imladris.surriel.com>
 MIME-Version: 1.0
-From: "Samarth  Sharma" <samarth7880@rediffmail.com>
-Reply-To: "Samarth  Sharma" <samarth7880@rediffmail.com>
-To: SELinux@tycho.nsa.gov
-Content-type: text/plain;
-	format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
---- how do you add new types to the SELinux system?
---- if you have written an application which requires specific 
-types . how will u ensure that only the relevant objects are 
-labelled. Can u tell me something on how exactly objects are 
-labelled in SELinux.
-thanks a ton
-samarth
+On Tue, 12 Mar 2002, Russell Coker wrote:
+
+> For my Debian packages I am going to use a separate type for
+> /etc/bind/secondary to allow named to write files to that directory but
+> not the other named config files.  No way do I want named writing to my
+> primary zone files!
+
+That's going to screw up dynamic DNS updates and is bound to
+piss off quite a few of your users. Better document it well ;)
+
+cheers,
+
+Rik
+-- 
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
 
 
 --
