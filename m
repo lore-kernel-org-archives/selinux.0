@@ -1,83 +1,70 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9NKP3Wt011957
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 16:25:03 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9NKZfWt012014
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 16:35:41 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9NKOnIS014985
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 20:24:49 GMT
-Received: from extern.mail.waldi.eu.org (wavehammer.waldi.eu.org [82.139.196.55])
-	by jazzswing.ncsc.mil  with ESMTP id h9NKOlDc014982
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 20:24:48 GMT
-Date: Thu, 23 Oct 2003 22:24:47 +0200
-From: Bastian Blank <bastian@waldi.eu.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] policy-1
-Message-ID: <20031023202447.GA31857@wavehammer.waldi.eu.org>
+	by jazzswing.ncsc.mil  with ESMTP id h9NKZQIS015784
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 20:35:27 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h9NKZQDc015781
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 20:35:26 GMT
+Subject: Re: selinux, openssh and users
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Ignacio Tripodi <ignaciot@unt.edu>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1066939944.3f9836281d4ed@eaglemail.unt.edu>
+References: <1066939944.3f9836281d4ed@eaglemail.unt.edu>
+Content-Type: text/plain
+Message-Id: <1066941339.8242.164.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QKdGvSO+nmPlgiQ/"
+Date: 23 Oct 2003 16:35:39 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2003-10-23 at 16:12, Ignacio Tripodi wrote:
+> I just finished setting up a 2.6 selinux kernel environment, and noticed that I
+> can't ssh to it.
 
---QKdGvSO+nmPlgiQ/
-Content-Type: multipart/mixed; boundary="7JfCtLOvnd9MIVvH"
-Content-Disposition: inline
+Did you label the filesystems and reboot (or at least restart sshd)?  If
+not, sshd is running in the wrong security domain and can't find a
+reachable user context for you.  What does ps -eZ (ps -e --context)
+show?
 
+>  I found in the list archives that you cannot ssh using an
+> admin_r user (is that still valid?)
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The example policy prohibits direct transitions from sshd_t to sysadm_t,
+but you should be able to login as staff_r:staff_t and then newrole to
+sysadm_r:sysadm_t.
 
-hi folks
+>  so I tried to create a regular user and
+> assign the user_r role to it. If I do a "seuser add -R user_r username" it says
+> that it couldn't modify the policy and failed to create the user. Do you know
+> where can I start looking for errors?
 
-this patch fixes the following problems:
-- fix type for shlibs in /usr/local/lib
-files: file_contexts/types.fc
+Your 'dmesg' output or /var/log/messages will show avc denied messages
+for SELinux access denials.  Is your kernel running in enforcing mode?
+It is a good idea to start with permissive mode until you have worked
+out any policy issues, as noted in the README.
 
-bastian
+> Also, once I am able to create a regular user, do I need to specify any
+> role/context parameters in order to ssh to this machine? How does the openssh
+> client get around this?
 
---=20
-The heart is not a logical organ.
-		-- Dr. Janet Wallace, "The Deadly Years", stardate 3479.4
+sshd (via libselinux) asks the kernel what contexts are reachable from
+its domain for your user identity (kernel determines this based on the
+policy) and then picks one of the reachable contexts based on either
+/etc/security/default_contexts or $HOME/.default_contexts.  There is no
+way to specify a context from the client.  
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=policy-1
-Content-Transfer-Encoding: quoted-printable
+Note that a patched sshd isn't necessary if you use Dan's pam_selinux
+module and alter your PAM sshd configuration to include it.  Not sure if
+his module allows user selection of contexts for ssh sessions (if using
+the 'multiple' option to the module).
 
-Index: file_contexts/types.fc
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- file_contexts/types.fc	(.../upstream/current/policy)	(revision 46)
-+++ file_contexts/types.fc	(.../trunk/policy)	(revision 46)
-@@ -322,7 +322,7 @@
- # /usr/local/lib
- #
- /usr/local/lib(/.*)?		system_u:object_r:lib_t
--/usr/local/lib/.*\.so		system_u:object_r:shlib_t
-+/usr/local/lib/.*\.so.*		system_u:object_r:shlib_t
-=20
- #
- # /usr/sbin
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---7JfCtLOvnd9MIVvH--
-
---QKdGvSO+nmPlgiQ/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iEYEARECAAYFAj+YOQ8ACgkQLkAIIn9ODhEPLwCg2AKMQMVAag0IhIdCRHtaws/h
-178An2yVovl5DpiqTSDaCBsNSRqebfuk
-=QryG
------END PGP SIGNATURE-----
-
---QKdGvSO+nmPlgiQ/--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
