@@ -1,37 +1,59 @@
-Date: Wed, 10 Sep 2003 17:46:26 +0200
-From: Tom <tom@lemuria.org>
-To: SELinux@tycho.nsa.gov
-Subject: Re: Another small SE presentation
-Message-ID: <20030910174623.C10394@lemuria.org>
-References: <20030909215414.K6475@lemuria.org> <3F5ED720.3090206@hotmail.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8AGmvLa010091
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 12:48:57 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h8AGmumw012961
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 16:48:56 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id h8AGmt9d012958 for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 16:48:55 GMT
+Date: Wed, 10 Sep 2003 17:48:54 +0100
+From: Dale Amon <amon@vnl.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: rfs xattr's, mkinitrd and other stories
+Message-ID: <20030910164854.GO5397@vnl.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3F5ED720.3090206@hotmail.com>; from jtl2nospamMUNGIEjump@hotmail.com on Wed, Sep 10, 2003 at 08:47:44AM +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Sep 10, 2003 at 08:47:44AM +0100, James de Lurker wrote:
-> A knoppix-like CD. A "kickstart" CD that can painlessly install a
-> command line only basic version of the most current selinux; doing all
-> the necessary tweaking and post config things automagically to bring
-> a basic installation to a known good state for testers and systems
-> folk: persuading "the boss" to put an se box in a realistic real world
-> environment when there is a straightforward point of reference that
-> management can understand and accept as a low risk support exercise.
+If anyone is interested, I've worked with Jeff Mahoney 
+and Steve Smalley and between us we've got what should
+be the necessary patches for using selinux with
+reiserfs on 2.6.0 kernels. They are availabe here and
+possibly on the Suse site by now:
 
-Definitely a good idea, but not likely very easy, is it?
+ http://www.unixthugs.org/~jeffm/technical/reiserfs/aclea/2.6.0-test4/
 
-SEKnoppix :)
+So I'm on to the next phase of getting a debian 
+system working with 2.6.0 (with devfs and a 
+reiserfs root)
 
+I've got to sort out the initrd next. I've not needed
+it before so I'm on a cold start. First question is
+how to do the least damage to the debian setup. If I
+just replace /usr/sbin/mkinitrd, it is going to get
+overwritten the next time I do an upgrade.
 
-In fact, Knoppix is SE-able. My notebook was installed as a Knoppix
-system, then I apt-updated to regular unstable, then added SELinux.
+Secondly, all of the examples I find are somewhat
+different. Steve's patch in the HOWTO is for a
+very different looking RH file so it's hard to
+tell what he actually needs. Colin's July 17 looks
+reasonable and I'll probably start with that... but
+I am worried about the issues with debian packages.
 
+Colin? Russ? What approach do you suggest?
+
+BTW: I'm using Colin's policy default with a few
+fixes to let syslog-ng work. Russell's set is too
+divergent from Colin's for me to use it unless they've
+synced up recently.
 
 -- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+------------------------------------------------------
+       IN MY NAME:            Dale Amon, CEO/MD
+  No Mushroom clouds over     Islandone Society
+    London and New York.      www.islandone.org
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
