@@ -1,39 +1,54 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1JICXZ029350
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 14:18:13 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1JGqCC027899
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 19:16:52 GMT
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 8DF37BF35
-	for <selinux@tycho.nsa.gov>; Mon,  1 Nov 2004 19:17:59 +0000 (GMT)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1COhrJ-0002cl-9b
-	for selinux@tycho.nsa.gov; Mon, 01 Nov 2004 19:28:53 +0000
-Date: Mon, 1 Nov 2004 19:28:53 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: dynamic context transitions - a seteuid parallel
-Message-ID: <20041101192853.GF9643@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1K4pXZ029667
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 15:04:51 -0500 (EST)
+Received: from oe-im2.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1K4pVW006251
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 20:04:51 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Chad Hanson'" <chanson@TrustedCS.com>,
+   "'Darrel Goeddel'" <DGoeddel@TrustedCS.com>, <selinux@tycho.nsa.gov>
+Cc: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
+Subject: RE: dynamic context transitions
+Date: Mon, 1 Nov 2004 15:04:46 -0500
+Message-ID: <004301c4c04e$0b8f0180$1e0c010a@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <36282A1733C57546BE392885C06185924D90DB@chaos.tcs.tcs-sec.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-okay, so this dynamic context transitions idea is pretty much
-identical to the seteuid equivalence proposals, and doing
-an equivalent of seteuid() it has been made abundantly clear
-[many times], and why, that it should not be done.
+Chad Hanson wrote:
+> If these are independent, TE would not be able to control/restrict
+> operations from the MLS policy. 
 
-... question: what it is about MLS that makes it so necessary to
-implement dynamic context transitions?
+I'm still not clear on why TE needs to control MLS.  It seems to me that both
+types of access control should be necessary, neither should be sufficient, in
+order to obtain access.    
 
-what are the alternatives?
+> The addition of a dynamic transition
+> provides an extra ability, only when necessary, to tighten the
+> security of a process.
 
-l.
+Let me try another approach.  We're in the process of designing language
+extensions that will be part of a policy management service (building upon the
+binary module work that Karl should release later tonight).  One aspect of these
+extension will introduce a name hierarchy  for types.  Implicit in this
+hierarchy is the idea that a subordinate type cannot exceed the access
+privileges of any of its higher types.  For example, take types 'foo' and
+'foo.bar' ("." represents a hierarchy).  In this case, what we're planning (so
+far) is that the type foo.bar can have the same or less, but not more, access
+permission than the type foo in the policy.  There are many reasons why such a
+semantic is useful.  
 
-p.s. not that i actually understand MLS enough to understand any answers
-[yet] but i'm just encouraging people to bounce ideas.
+So if we had such a semantic implemented and enforced now, I would feel a lot
+better if the type can only decrease down the hierarchy, and never laterally or
+up the hierarchy.  Would this meet the need?  This would certainly be more
+defensible in my mind [I know this is somewhat hypothetical since the language
+extension does not yet exist, and will be some time in coming].
+
+Frank
+
 
 
 --
