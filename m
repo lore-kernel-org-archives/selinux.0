@@ -1,41 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBBNDVRb006389
-	for <selinux@tycho.nsa.gov>; Thu, 11 Dec 2003 18:13:31 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hBBNDURV016295
-	for <selinux@tycho.nsa.gov>; Thu, 11 Dec 2003 23:13:30 GMT
-Received: from c007.snv.cp.net (h015.c007.snv.cp.net [209.228.33.243])
-        by jazzband.ncsc.mil  with SMTP id hBBNDUta016292 for <selinux@tycho.nsa.gov>; Thu, 11 Dec 2003 23:13:30 GMT
-From: "M. Pender" <michael.pender@nanochron.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Installing SELinux under Debian (resend)
-Date: Thu, 11 Dec 2003 18:13:23 -0500
-Message-ID: <NGBBKNIIGLLHCHJICCDAIEAIJDAA.michael.pender@nanochron.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBCCkQRb008282
+	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 07:46:26 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hBCCjdlU009304
+	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 12:45:39 GMT
+Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
+	by jazzswing.ncsc.mil  with ESMTP id hBCCjbSX009270
+	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 12:45:38 GMT
+Received: (from root@localhost)
+	by baitaca.ipen.br (8.12.9/8.12.9) id hBCCl2Vf001083
+	for selinux@tycho.nsa.gov; Fri, 12 Dec 2003 10:47:02 -0200
+Received: from ipen.br ([10.0.12.47])
+	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id hBCCkvjx001065
+	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 10:46:57 -0200
+Message-ID: <3FD9B8F2.7030100@ipen.br>
+Date: Fri, 12 Dec 2003 10:47:46 -0200
+From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Information about selinuxfs
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm planning to do a live workshop and demonstration of installing SE Linux
-at an upcoming CASEL user group meeting.
+Helo.
 
-I know the SELinux kernel was developed in parallel with Red Hat Linux and
-that another version is available for Debian.  I plan to do a workshop on
-either installing the Red Hat version on a Dell and another one installing
-with the Debian version on a Power Macintosh.  Does anyone have a preference
-as to which is conducted first?
+A information about the selinuxfs filesystem.
+The directory name and the path to mount o selinuxfs must be alway /selinux.
+A change on this name (/selinux) only affect the sysvinit and initrd, 
+what set the directory name and path, or it will cause others problems ?
 
-Are there any "lessons learned" I should be aware of with the Debian
-version?  I'm under the impression that it is less mature than the Red Hat
-version.
+Many thanks.
 
-Thanks,
 
-- Mike
-
-P.S. My apologies if anyone receives this twice, but I never received a
-confirmation copy.
+-- 
+Carlos Anisio Monteiro  <monteiro@ipen.br>
+IPEN/CNEN-SP
+Sao Paulo - Brasil
 
 
 
