@@ -1,46 +1,53 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA20210
-	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 12:33:56 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA22535
+	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 18:44:15 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA28725
-	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 17:33:54 GMT
-Received: from gopostal.digi.com (gopostal.digi.com [204.221.110.15])
-	by jazzband.ncsc.mil  with ESMTP id RAA28715
-	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 17:33:52 GMT
-Message-ID: <415A9F6DCFA0D211B78D0008C7A42FB305937418@gopostal.digi.com>
-From: Ben Breuninger <Ben_Breuninger@digi.com>
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: RE: Secure?
-Date: Thu, 15 Mar 2001 11:33:49 -0600
+	by jazzband.ncsc.mil  with ESMTP id XAA16935
+	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 23:44:13 GMT
+Received: from inconnu.isu.edu (inconnu.isu.edu [134.50.8.55])
+	by jazzband.ncsc.mil  with ESMTP id XAA16931
+	for <selinux@tycho.nsa.gov>; Thu, 15 Mar 2001 23:44:12 GMT
+Date: Thu, 15 Mar 2001 16:43:59 -0700 (MST)
+From: John Galt <galt@inconnu.isu.edu>
+To: Matt Schroeder <schroema@hotmail.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: The list is messed up...  Repeating threads...
+In-Reply-To: <OE19GDrPixj6ZTCVk8x000010bd@hotmail.com>
+Message-ID: <Pine.LNX.4.32.0103151641540.24216-100000@inconnu.isu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-I believe linux to be great challenge when it comes to making a secure distribution. However, i think the reason the NSA is chosing to make a secure linux model is due to compatibility with pretty much every hardware and software package (ie, wine for non-linux software even). Keep in mind tho, it is the compatibility and speed at which the army of linux coders code is what keeps linux from achieving security. Should they chose to forgo compatibility for security, linux could make a turning point. But, it would be a toss up.
-Now, i must note that i administrate both Linux (GNU/Debian) servers and OpenBSD servers. I use the linux for compatibility issues, and openbsd for security issues. This is why I question why the NSA chose linux over openbsd, but i believe the overlying feature is compatibility.
 
-am i wrong on the compatibility + non_secure vs. non_compatible + secure issue?
+Thank RoadRunner.  Some guy on another list told me that their
+austin mailer was queueing messages for weeks at a time and puking them
+back out to everyone in the to/CC list...  It's allegedly fixed.
 
-(forgive me if this sounds like random babble, i havent had my coffee yet)
+On Tue, 13 Mar 2001, Matt Schroeder wrote:
 
-Ben Breuninger
-DIGI International
+>We discussed and I solved my problem with email filters on March 6th.
+>
+>The thread ended and now for whatever reason the entire thing is repeating.
+>
+>It's not necessary to speak more of it.
+>
+>--Matt
+>
+>--
+>You have received this message because you are subscribed to the selinux list.
+>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>the words "unsubscribe selinux" without quotes as the message.
+>
 
------Original Message-----
-From: Kurth Bemis [mailto:kurth@usaexpress.net] 
-Sent: Thursday, March 15, 2001 7:52 AM
-To: selinux@tycho.nsa.gov
-Subject: Secure?
+-- 
 
+You have paid nothing for the preceding, therefore it's worth every penny
+you've paid for it: if you did pay for it, might I remind you of the
+immortal words of Phineas Taylor Barnum regarding fools and money?
 
-isn't the point of NSA ESL to be secure?  If so why are you using something 
-that is buggier than netscape code??  I referring to wu-FTP.  why not put 
-efforts toward something that is already secure (like OpenBSD)?  Is there 
-some reason that i'm missing as to why you choosing this route?
+Who is John Galt?  galt@inconnu.isu.edu, that's who!
 
-~kurth
 
 --
 You have received this message because you are subscribed to the selinux list.
