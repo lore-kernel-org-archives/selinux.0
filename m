@@ -1,37 +1,45 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0F5L3Rb000908
+	for <selinux@tycho.nsa.gov>; Thu, 15 Jan 2004 00:21:03 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0F5L2iV008579
+	for <selinux@tycho.nsa.gov>; Thu, 15 Jan 2004 05:21:02 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i0F5L106008535 for <selinux@tycho.nsa.gov>; Thu, 15 Jan 2004 05:21:01 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: =?iso-8859-2?q?Magos=E1nyi=20=C1rp=E1d?= <mag@bunuel.tii.matav.hu>,
-   SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: FS crash
-Date: Wed, 14 Jan 2004 23:17:18 +1100
-References: <1074008995.7158.18.camel@kusturica>
-In-Reply-To: <1074008995.7158.18.camel@kusturica>
+To: Brian May <bam@snoopy.apana.org.au>, selinux@tycho.nsa.gov
+Subject: Re: Samba and NFSv4 user-space server
+Date: Thu, 15 Jan 2004 16:19:58 +1100
+References: <200401131419.23834.russell@coker.com.au> <84zncs2xxt.fsf@snoopy.apana.org.au>
+In-Reply-To: <84zncs2xxt.fsf@snoopy.apana.org.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
-Message-Id: <200401142317.18958.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200401151619.58669.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 14 Jan 2004 02:49, Magosányi Árpád <mag@bunuel.tii.matav.hu> wrote:
-> Pass 1: Checking inodes, blocks, and sizes
-> Extended attribute block 246069 has reference count 1020, should be
-> 1018.  Fix<y>? yes
+On Tue, 13 Jan 2004 16:57, Brian May <bam@snoopy.apana.org.au> wrote:
+>     Russell> We don't want to allow wide and arbitary changing of
+>     Russell> context as setuid() allows.  But allowing transitions
+>     Russell> between samba_user_t and samba_staff_t should be OK.
+>
+> Could you have the incoming TCP request go to a "wrapper" service that
+> does nothing but redirect it to the "real" process that is already
+> running with the correct UID/SE-Linux domain?
+>
+> Not sure how feasible this is, or what sort of performance penalty
+> it might have though.
 
-I've seen this many times on i386 machines.  So far no problems have occurred, 
-so I conclude that it's moderately harmless.
-
-The other errors seem more serious, and a SEGV is a very serious problem.  Are 
-you in a position to build a e2fsck with debugging code and get a stack 
-trace?
+That won't work.  Samba supports having multiple identities on a single TCP 
+connection, and NFSv4 supports similar things.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
-
 
 
 --
