@@ -1,83 +1,64 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9BEkZrT006169
-	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 10:46:36 -0400 (EDT)
-Received: from mailrelay1.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9BEjOfG029031
-	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 14:45:25 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Mon, 11 Oct 2004 16:46:33 +0200
-Date: Mon, 11 Oct 2004 16:47:12 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: cleanup: domain self references
-Message-Id: <20041011144712.GE15844@jmh.mhn.de>
-References: <20041011085450.GA15844@jmh.mhn.de>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9BHA9rT006780
+	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 13:10:10 -0400 (EDT)
+Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i9BHA8WH029217
+	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 17:10:08 GMT
+Received: from localhost (shorty@debby [127.0.0.1])
+	by localhost.localdomain (8.13.1/8.13.1/Debian-15) with ESMTP id i9BH9vjC003226
+	for <selinux@tycho.nsa.gov>; Mon, 11 Oct 2004 19:09:58 +0200
+Subject: Re: Where to find libselinux-devel-1.11.4-1.src.rpm ?
+From: Wolfgang Pfeiffer <roto@gmx.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20041010190439.92095.qmail@web51510.mail.yahoo.com>
+References: <20041010190439.92095.qmail@web51510.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1097514597.1661.25.camel@debby>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VdOwlNaOFKGAtAAV"
-In-Reply-To: <20041011085450.GA15844@jmh.mhn.de>
+Date: Mon, 11 Oct 2004 19:09:57 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, 2004-10-10 at 21:04, Park Lee wrote:
+> Hi,
+>      I'm doing something in SELinux, and need the
+> libselinux-devel-1.11.4-1.src.rpm. I try to find it on the web, I've
+> tried to search it either in
+> http://fedora.redhat.com/projects/selinux/ or in  http://rpmfind.net/.
+> but I would only find libselinux-1.11.4-1.src.rpm,
+> libselinux-1.17.14-1.src.rpm,...... etc. 
+>    So, would you please tell me where
+> libselinux-devel-1.11.4-1.src.rpm is?
 
---VdOwlNaOFKGAtAAV
-Content-Type: multipart/mixed; boundary="mSxgbZZZvrAyzONB"
-Content-Disposition: inline
+a quick search on Google suggests there is no
+libselinux-devel-1.11.4-1.src.rpm.
 
+<http://fr.rpmfind.net/linux/rpm2html/search.php?query=libselinux-devel&submit=Search+...>
 
---mSxgbZZZvrAyzONB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+According to what I saw in some links above I'd guess you simply get
+some libselinux-1.11.4-1.src.rpm (that is,not necessarily one from the
+page above), compile it via the rpm routines, and then you probably have
+automagically something like a 
+libselinux-devel-1.11.4-1 RPM. Provided this is what you want in the
+end.
 
-* Thomas Bleher <bleher@informatik.uni-muenchen.de> [2004-10-11 12:15]:
-> I just did a global search and replace to clean up rules of the form
->         allow some_domain_t some_domain_t:capability setuid;
-> This makes the policy easier to read.
+But I don't use rpm based OS's any more, so please take this with the
+necessary grain of salt ...
 
-Attached is a small patch to audit2allow in order to make this ugliness
-less frequent in the future.
+>  
+>     And, now I'm using FC2,in which libselinux-1.11.4-1.i386.rpm is
+> installed. Then, can I use the newest libselinux-1.17.14-1.i386.rpm to
+> update my system, while don't update all the other rpm packages? and
+> if I do this, will my FC2 be damaged? 
 
-Please apply.
-Thomas
+I don't know.
 
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+Best Regards
+Wolfgang
+-- 
+Wolfgang Pfeiffer                           gpg ID: 0AA7E825 
+Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
 
---mSxgbZZZvrAyzONB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="audit2allow.diff"
-
---- audit2allow.old     2004-10-11 16:36:18.760329072 +0200
-+++ audit2allow 2004-10-11 16:37:20.472947328 +0200
-@@ -124,6 +124,9 @@
- foreach $k (sort keys %rules)
- {
-     my ($a,$scontext,$tcontext,$tclass) = split /\|/, $k;
-+    if ($scontext eq $tcontext) {
-+        $tcontext = 'self';
-+    }
-     print OUT  "allow $scontext $tcontext:$tclass {";
-
-     my $access_types = $rules{$k};
-
-
---mSxgbZZZvrAyzONB--
-
---VdOwlNaOFKGAtAAV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBapzwxWIrrrL0q+cRAjTBAKCw2U3DY9Cy9/tYN7iPbEFJyFBSUQCfd6Dr
-0fKzCBL2DpdfeAPVvxV3xUc=
-=Y/sf
------END PGP SIGNATURE-----
-
---VdOwlNaOFKGAtAAV--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
