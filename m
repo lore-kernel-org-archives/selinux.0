@@ -1,46 +1,39 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7H3HGrT011119
-	for <selinux@tycho.nsa.gov>; Mon, 16 Aug 2004 23:17:16 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7H3GYqL004449
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 03:16:35 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 1A33A61AF1
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 13:17:13 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 08117-06 for <selinux@tycho.nsa.gov>;
-	Tue, 17 Aug 2004 13:17:12 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id C905661AF0
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 13:17:12 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 57978B58B0
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 13:17:11 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: how does this port binding happen?
-Date: Tue, 17 Aug 2004 13:17:10 +1000
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7H5NKrT011516
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 01:23:20 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7H5NJKV006449
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 05:23:20 GMT
+Date: Tue, 17 Aug 2004 01:23:07 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: how does this port binding happen?
+In-Reply-To: <200408171317.10813.russell@coker.com.au>
+Message-ID: <Xine.LNX.4.44.0408170115060.7480-100000@dhcp83-76.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200408171317.10813.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-avc:  denied  { name_bind } for  pid=14909 exe=/usr/bin/kview src=669 
-scontext=rjc:staff_r:staff_t tcontext=system_u:object_r:port_t 
-tclass=tcp_socket
+On Tue, 17 Aug 2004, Russell Coker wrote:
 
-kview is a viewer for JPEG etc images.  It is never run as root.  How does it 
-get to the stage of an SE Linux access check?
+> avc:  denied  { name_bind } for  pid=14909 exe=/usr/bin/kview src=669 
+> scontext=rjc:staff_r:staff_t tcontext=system_u:object_r:port_t 
+> tclass=tcp_socket
+> 
+> kview is a viewer for JPEG etc images.  It is never run as root.  How does it 
+> get to the stage of an SE Linux access check?
 
+This check is done before the kernel DAC check.
+
+
+- James
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+James Morris
+<jmorris@redhat.com>
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
