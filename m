@@ -1,44 +1,33 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB5AW9Rb003761
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 05:32:10 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB5AVTlU001156
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 10:31:29 GMT
-Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
-	by jazzswing.ncsc.mil  with ESMTP id hB5AVRSX001153
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 10:31:28 GMT
-Received: (from root@localhost)
-	by baitaca.ipen.br (8.12.9/8.12.9) id hB5AWjGa027797
-	for selinux@tycho.nsa.gov; Fri, 5 Dec 2003 08:32:45 -0200
-Received: from ipen.br ([10.0.12.47])
-	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id hB5AWcjx027669
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 08:32:39 -0200
-Message-ID: <3FD05ED3.803@ipen.br>
-Date: Fri, 05 Dec 2003 08:32:51 -0200
-From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
+Date: Fri, 5 Dec 2003 09:21:26 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Karl MacMillan <kmacmillan@tresys.com>
+cc: SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: RFC Kernel interface to conditional policy
+In-Reply-To: <Xine.LNX.4.44.0312041549140.1571-100000@thoron.boston.redhat.com>
+Message-ID: <Xine.LNX.4.44.0312050918490.4181-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Debian servers attacks
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Helo.
+On Thu, 4 Dec 2003, James Morris wrote:
 
-I think that would be interesting a opinion about Debian servers fails, 
-of : Stephen Smalley, Russell Coker. Colin Walters and others with 
-profound knowledge of the SELinux.
+> On Thu, 4 Dec 2003, Karl MacMillan wrote:
+> 
+> > Netlink messaging won't give us the fine-grained labeling, correct?
+> 
+> Not as-is.
 
-I should take it very grateful.
-With all due respect.
+To clarify, increasing the granularity of Netlink access is something that
+would be done within SELinux (i.e. the Netlink code would not need to be 
+modified).  It may be generally useful in any case as a fine grained 
+user-kernel communication channel.
 
-Many Thanks.
 
-
+- James
 -- 
-Carlos Anisio Monteiro  <monteiro@ipen.br>
-IPEN/CNEN-SP
-Sao Paulo - Brasil
+James Morris
+<jmorris@redhat.com>
 
 
 
