@@ -1,78 +1,50 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27140
-	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 11:04:33 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA29458
+	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 15:05:30 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA20032
-	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 16:04:31 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id QAA20028
-	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 16:04:29 GMT
-Date: Fri, 16 Mar 2001 11:03:28 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Kurth Bemis <kurth@usaexpress.net>
-cc: selinux@tycho.nsa.gov
-Subject: Re: Secure?
-In-Reply-To: <4.3.2.7.2.20010315083635.02bb5068@mail.usaexpress.net>
-Message-ID: <Pine.SOL.3.95.1010316102520.7537D-100000@clipper.gw.tislabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by jazzband.ncsc.mil  with ESMTP id UAA02036
+	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 20:05:28 GMT
+Received: from dante.imagelinks.com (dante.imagelinks.com [208.24.120.33])
+	by jazzband.ncsc.mil  with ESMTP id UAA02032
+	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 20:05:27 GMT
+Received: from [208.24.120.15] (powerbook.imagelinks.com [208.24.120.15])
+	by dante.imagelinks.com (8.9.3/8.9.3) with ESMTP id PAA13217
+	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 15:05:17 -0500
+Mime-Version: 1.0
+Message-Id: <p04320404b6d82173b391@[208.24.120.15]>
+Date: Fri, 16 Mar 2001 15:04:04 -0500
+To: selinux@tycho.nsa.gov
+From: Mark Lucas <mlucas@imagelinks.com>
+Subject: seLinux and ReiserFS
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
+Is anyone looking into seLinux implementations working with the 
+Reiser File System?  I understand that the current implementation 
+supports ext2 only, is that correct?
 
-Security-Enhanced Linux is not a secure Linux distribution.
-It is a reference implementation of a flexible mandatory access 
-control architecture in the Linux kernel, and an example security policy
-configuration that shows how to use those controls.  The mandatory
-access controls can confine the actions of any process, so the 
-potential damage that can be done by exploiting a flaw in an
-application can be strictly limited.  The modified applications
-merely serve to help demonstrate some of the kernel features,
-but they are not integral to the system.  The ftpd modifications
-were an example of how to allow the ftp daemon to transition to a new
-security context after authenticating the user.  But even these
-transitions are controlled by the kernel in accordance with the security
-policy configuration, so a vulnerability in the ftp daemon is still
-confined to a limited set of accesses.  We simply used the ftpd sources
-that came with our RedHat 6.1 systems, which happened to be wu-ftpd.
+We are currently using a RAIDZONE for storage and as a master node 
+for a BeoWulf cluster.  It uses a modified Redhat distro with the 
+Reiser journaling file system.
 
-As has been mentioned earlier, Linux was simply viewed as the best
-platform for transferring the Flask flexible mandatory access control
-architecture to a larger developer and user community.  Since the 
-SELinux development team is small, it was not practical to create
-both a Linux-based and a BSD-based implementation simultaneously.
-The TrustedBSD project has expressed the intention of drawing ideas from
-the SELinux mandatory access control architecture, so a similar
-architecture will hopefully become available for BSD systems as well.
-The security portion of the OpenBSD project is really orthogonal to the
-SELinux or TrustedBSD projects - OpenBSD is focused on a BSD distribution
-that is free from known security problems and that incorporates
-cryptographic mechanisms.  The mandatory access controls of SELinux
-or TrustedBSD can provide strong security guarantees even in the
-presence of security flaws in applications.  Ideally, some of the
-TrustedBSD work will filter over to the OpenBSD project as well.
+Thanks in advance,
 
---
-Stephen D. Smalley, NAI Labs
-sds@tislabs.com
+Mark
+-- 
+**********************
+Mark R Lucas
+Chief Technical Officer
+ImageLinks Inc.
+4450 W Eau Gallie Blvd
+Suite 164
+Melbourne Fl 32934
 
+321 253 0011 (work)
+321 253 5559 (fax)
 
-On Thu, 15 Mar 2001, Kurth Bemis wrote:
-
-> isn't the point of NSA ESL to be secure?  If so why are you using something 
-> that is buggier than netscape code??  I referring to wu-FTP.  why not put 
-> efforts toward something that is already secure (like OpenBSD)?  Is there 
-> some reason that i'm missing as to why you choosing this route?
-> 
-> ~kurth
-> 
-> 
-> --
-> You have received this message because you are subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
-
+mlucas@imagelinks.com
+**********************
 
 --
 You have received this message because you are subscribed to the selinux list.
