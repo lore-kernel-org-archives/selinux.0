@@ -1,75 +1,65 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA24187
-	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 14:53:59 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA14270
-	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 19:51:31 GMT
-Received: from moss-sooners.epoch.ncsc.mil (moss-sooners.epoch.ncsc.mil [144.51.25.14])
-	by jazzswing.ncsc.mil  with ESMTP id TAA14266
-	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 19:51:31 GMT
-Received: from moss-sooners.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-sooners.epoch.ncsc.mil (8.12.5/8.12.5) with ESMTP id gBIJvdDA003654
-	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 14:57:39 -0500
-Received: (from hdholm@localhost)
-	by moss-sooners.epoch.ncsc.mil (8.12.5/8.12.5/Submit) id gBIJvciK003652
-	for selinux@tycho.nsa.gov; Wed, 18 Dec 2002 14:57:38 -0500
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA19234
-	for <selinux@tycho.nsa.gov>; Tue, 17 Dec 2002 22:34:32 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id gBI3YVI24939
-	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 03:34:31 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id gBI3YTf24935 for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 03:34:29 GMT
-Date: Wed, 18 Dec 2002 14:39:00 +1100
+Date: Thu, 19 Dec 2002 09:27:04 +1100
 From: Brian May <bam@snoopy.apana.org.au>
-To: selinux@tycho.nsa.gov
-Subject: SE-Linux Debian woody archive
-Message-ID: <20021218033900.GK3669@snoopy.apana.org.au>
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Domain transition -- enabling user_r in eklogin
+Message-ID: <20021218222704.GH10185@snoopy.apana.org.au>
+References: <200212171725.MAA01304@moss-shockers.ncsc.mil> <20021217192856.427b5d68.fw@fwsystems.com> <20021218012830.GC31462@snoopy.apana.org.au> <200212180845.22750.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200212180845.22750.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Wed, Dec 18, 2002 at 08:45:22AM +0100, Russell Coker wrote:
+> Which is something you could easily achieve through PAM configuration if that 
+> is what you desire, without any kerberos issues etc.
 
-I am about to update my archive to use the my DAK version. All files are
-copied now, I just need to update the Packages index files, this should
-take minutes at the most.
+How would you do it with PAM?
 
-It is located at:
+What security issues would this raise?
 
-deb http://www.microcomaustralia.com.au/debian/ unstable main selinux
+> Also I think that in most situations where a user could be tricked into 
+> running newrole then it's game-over anyway.
 
-OR
+OK. I was thinking more of scripts, etc.
 
-deb http://www.microcomaustralia.com.au/debian/ stable main selinux
+> > I am not yet sure how good SE-Linux will be at solving this type of
+> > problem, without duplicating a lot of domains, for instance
+> > a set of domains for programs with Kerberos ticket access, and
+> > a duplicate set for programs without Kerberos ticket access).
+> 
+> What exactly is "ticket access" and how does it conceptually differ from read 
+> access to /etc/shadow?  Couldn't we just treat ticket access in the same way 
+> as access to /etc/shadow?
 
-What this means:
+There are several differences:
 
-- some packages have been recompiled with newer version numbers, even
-  though nothing has changed; this is because the previous versions did
-  not include full source code, and DAK is rather fussy that all
-  packages must have full source code available.
+- the ticket is created by login/PAM or kinit, not sysadm_r.
 
-- if anyone is interested I can setup an announce mailing list
-  which will notify you automatically when a new package is installed.
+- the ticket has a limited life time, so if somebody accesses it,
+  its not quite as bad as somebody accessing one weak entry of the
+  shadow file.
 
-- as shown above, there are two distributions, a stable distribution and
-  a unstable distribution.
+- more importantly, there are no immediate security risks by proving a
+  trusted program access to the shadow file. It is not the
+  authentication key, it is the lock.
 
-Any new uploads will go straight to unstable. Packages in unstable may
-not have received any testing yet, so could be broken. When the package
-is tested, and seems to be working, I will move it to stable.
+However, a kerberos ticket is the key. So if you provide, say rsh access
+to the ticket, any process that has ability to run rsh, directly via
+exec, or indirectly, say via bash, can run commands like (note I don't
+have a man page handy, so I can't check the parameters for certain) "rsh
+remotehost rm -rf ."
 
-Eventually I could have a third stage, testing, to go inbetween stable
-and unstable. However, I haven't yet worked out when to use testing, so
-for now it remains empty.
+Even worse is if this ticket allows root access...
 
-If you encounter any problems with this new setup, please let me know.
+So you might need some instances of bash that can run rsh, and
+other instances that are used for running untrusted scripts that
+cannot run rsh.
 
-Otherwise, I will assume it is working without any problems and
-delete the files required by the old layout.
+I talk about Kerberos tickets here, the same thing would also apply to
+ssh-agent connections, with the exception that once the connection is
+closed, it is no longer a security threat.
 --
 Brian May <bam@snoopy.apana.org.au>
 
