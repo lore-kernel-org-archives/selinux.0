@@ -1,42 +1,62 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14Cgp53006771
-	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 07:42:51 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j14CeV3q023235
-	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 12:40:42 GMT
-Subject: Re: Latest diffs
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1107519821.8078.12.camel@moss-spartans.epoch.ncsc.mil>
-References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <41FA9717.2000609@redhat.com>
-	 <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>
-	 <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107349736.890.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107350272.890.82.camel@moss-spartans.epoch.ncsc.mil>
-	 <4200D68A.6030309@redhat.com>  <1107478728.4065.3.camel@cobra.ivg2.net>
-	 <1107519821.8078.12.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14CiC53006799
+	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 07:44:12 -0500 (EST)
+Subject: Re: Restart
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Subba Rao <castellan2004-member@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4202D376.7040009@yahoo.com>
+References: <4202D376.7040009@yahoo.com>
 Content-Type: text/plain
-Date: Fri, 04 Feb 2005 07:42:30 -0500
-Message-Id: <1107520950.30939.6.camel@cobra.ivg2.net>
+Message-Id: <1107520656.8078.25.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 04 Feb 2005 07:37:36 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2005-02-03 at 20:44, Subba Rao wrote:
+> Hello everyone,
+> 
+> In the past I have tried and droped building a SELinux system.   This 
+> time I want to get back into it and get it working right.  One of the 
+> primary reason for failure in the past was due to my choice of distro 
+> (Slackware).  I tried to compile in the kernel patches and got several 
+> errors or warnings.  I still use Slackware, however I will try to 
+> compile it on Debian or Fedora.
+> 
+> I want to build the SELinux kernel.  The big question I have is, what 
+> are the libaries or utilities that need to be installed?  Do you need 
+> PAM, Kerberos....etc?  My last compile attempt (years ago) on Debian 
+> prompted for several such packages.  I used apt_get and installed such 
+> packages but that did not resolve the issue.  Please let me know what 
+> are the basic requirements for building a SELinux patch kernel.
 
-> To be precise, X needs execmod when using nvidia, right?  Not everyone
-> using X needs it (I don't).  In any event, we want the execmod rules to
-> be added to the individual domain .te files, not put in a global macro
-> used by everything, and only allowed as needed.
+First, I think your dependency issues (on PAM, etc) had to do with the
+patched userland, not the kernel.  Status of SELinux for distros is
+summarized at http://selinux.sf.net.
 
-Right. I was suggesting it be added to x_server_domain, not global.
-I think it's only needed for nvidia.
+Fedora Core 3 (http://fedora.redhat.com) already includes SELinux
+support in the kernel and userland.  Hardened Gentoo likewise already
+includes SELinux support, see
+http://www.gentoo.org/proj/en/hardened/selinux/index.xml, although they
+only support SELinux for servers AFAIK.  Hence, with those two distros,
+you shouldn't need to rebuild the kernel or install any modified or
+extra userland packages outside of the main distro.  
 
+I believe that SELinux support was enabled in the Debian unstable
+kernels recently, but possibly defaulting to off, so you might have to
+boot with selinux=1.  Debian userland doesn't have SELinux support
+integrated yet; you still need separate packages, e.g. see
+http://www.coker.com.au/selinux and
+http://people.debian.org/~adric/selinux/coreutils/, but I think that
+there is an effort underway to get the SELinux support integrated into
+Debian post-sarge.  For SuSE, there was partial support included in SuSE
+Linux 9.x, and Thomas Bleher has a set of packages from
+http://www.cip.ifi.lmu.de/~bleher/selinux/.
+ 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
