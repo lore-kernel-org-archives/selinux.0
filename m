@@ -1,39 +1,57 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i75HcurT006965
-	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 13:38:56 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i75HcsZl027852
-	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 17:38:54 GMT
-Subject: Re: How to use other LSM modules
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20040805171955.71973.qmail@web51503.mail.yahoo.com>
-References: <20040805171955.71973.qmail@web51503.mail.yahoo.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i75HrKrT007075
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 13:53:20 -0400 (EDT)
+Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i75Hqjn4023815
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 17:52:45 GMT
+Subject: Build error pam on ppc
+From: Wolfgang Pfeiffer <roto@gmx.net>
+To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Message-Id: <1091727491.2583.106.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1091728350.2840.49.camel@debby>
 Mime-Version: 1.0
-Date: Thu, 05 Aug 2004 13:38:11 -0400
+Date: Thu, 05 Aug 2004 19:52:30 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-08-05 at 13:19, Park Lee wrote:
-> Do you mean that SELinux is not implemented as a LSM module as it was
-> described in <<Implementing SELinux as a Linux Security Module>>? 
-> Has this situation change now? and what about the capability module?
+Hi All
 
-SELinux is implementing using the LSM framework, and is a "security
-module", but it has to be built-in to the kernel; you cannot build it as
-a separate module and dynamically insert it into a running kernel.  The
-capability module can be built-in or a loadable module, but if you make
-it a loadable module, you still need to load it very early in the
-initialization process to avoid problems with pre-existing processes
-that lack proper capability assignment.  The technical report is out of
-date, as noted on the web site and in the introduction of the report.
+When I built *successfully* pam on ppc with
 
+fakeroot apt-get source --compile pam=0.77-0.se5
+
+I got this error, that I *ignored*:
+
+----------------------------------------
+
+mkdir -p /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib
+/usr/bin/install -m 755 libpamc.so /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib/libpamc.so.0.77
+/sbin/ldconfig
+/sbin/ldconfig: Can't create temporary cache file /etc/ld.so.cache~: Permission denied
+make[2]: *** [install] Error 1
+make[2]: Leaving directory `/home/shorty/russellpackages/pam/pam-0.77/Linux-PAM/libpamc'
+make[2]: Entering directory `/home/shorty/russellpackages/pam/pam-0.77/Linux-PAM/libpam_misc'
+mkdir -p dynamic
+mkdir -p static
+mkdir -p /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/usr/include/security
+/usr/bin/install -m 644 include/security/pam_misc.h /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/usr/include/security
+mkdir -p /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib
+/usr/bin/install -m 755 libpam_misc.so /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib/libpam_misc.so.0.77
+/sbin/ldconfig
+/sbin/ldconfig: Can't create temporary cache file /etc/ld.so.cache~: Permission denied
+make[2]: *** [install] Error 1
+____________________________________________________
+
+
+Is it okay to offer packages for downloading if they're built with that
+error?
+
+Thanks in anticipation
+
+Regards
+Wolfgang
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
 
 
 --
