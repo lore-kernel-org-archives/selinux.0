@@ -1,57 +1,56 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA17846
-	for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2001 20:00:07 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA20274
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2001 09:20:59 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id BAA23416
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2001 01:00:05 GMT
-Received: from ecstasy.ksu.ru (ecstasy.ksu.ru [193.232.252.41])
-	by jazzband.ncsc.mil  with ESMTP id BAA23412
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2001 01:00:03 GMT
-Received: from ksu.ru (ic29.soros.ksu.ru [194.85.244.129])
-	by ecstasy.ksu.ru (8.9.3/8.9.3) with ESMTP id DAA06203
-	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2001 03:56:23 +0300 (MSK)
-Message-ID: <3AB7FC36.1050007@ksu.ru>
-Date: Wed, 21 Mar 2001 03:56:22 +0300
-From: Pedro Rosa <Pedro.Rosa@ksu.ru>
-MIME-Version: 1.0
-To: selinux <selinux@tycho.nsa.gov>
+	by jazzband.ncsc.mil  with ESMTP id OAA20306
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2001 14:20:56 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
+	by jazzband.ncsc.mil  with ESMTP id OAA20302
+	for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2001 14:20:56 GMT
+Date: Wed, 21 Mar 2001 09:20:11 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+Reply-To: Stephen Smalley <sds@tislabs.com>
+To: Pedro Rosa <Pedro.Rosa@ksu.ru>
+cc: selinux <selinux@tycho.nsa.gov>
 Subject: Re: lids
-References: <Pine.SOL.3.95.1010320083916.9741B-100000@clipper.gw.tislabs.com> <3AB7CBBB.1060404@ksu.ru> <20010320163121.E17475@ultraviolet.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <3AB7FC36.1050007@ksu.ru>
+Message-ID: <Pine.SOL.3.95.1010321082240.12705E-100000@clipper.gw.tislabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Tracy R Reed wrote:
 
-> On Wed, Mar 21, 2001 at 12:29:31AM +0300, Pedro Rosa wrote:
-> 
->> Sorry but LIDS stands for Linux Intrusion Detection System. Its main 
->> purpose has nothing to do with what SELinux deals with. I don't know too 
-> 
-> 
-> The name is a misnomer. It doesn't have much to do with intrusion
-> detection. Even the portscanner is acknowledged as not really fitting in
-> with the rest of the system and most believe it should be elsewhere. They
-> have occasionally discussed changing the name on the LIDS list where I am
-> a subscriber. LIDS implements MACs much like SE Linux. It has little if
-> anything to do with NIDS. Would you please stop ranting so much and just
-> spend a few days reading and considering the opinions of others?
+As I mentioned earlier, the LIDS FAQ itself uses the term
+"mandatory access control" to describe some of the LIDS features.
+The LIDS ACLs and capability assignments are administratively-defined,
+so a system-wide security policy can be enforced on the granting of file
+accesses and capabilities.  The protections against killing certain
+processes in LIDS are a limited form of the general process-to-process
+signal access controls in SELinux.
 
-Please stop the flame ok? First tell me where are the MACs in LIDS? 
-Don't mess ACLs with MACs. MAC is mostly like an ACL but still needs 
-that central administrative mechanism that NSA docs tell a lot about. 
-And LIDS doesn't have such. Besides I did read LIDS before stating this 
-stuff. Yes, it was some monthes ago on 1.0.2 (October if I'm not 
-mistaken). And while I may not remember everything I read, I see that 
-comparing SELinux to LIDS is the same as comparing an elephant to a 
-rhinoceros.
+I'm not sure what you mean when you say that SELinux MAC is controlled
+from a central point and that LIDS is not controlled from any center.  If
+you are referring to the security server, keep in mind that the security
+server is merely a subsystem in the kernel that reads the policy
+configuration from a local file during startup (or during subsequent
+policy reloads). The lack of an equivalent to the security server in LIDS
+is simply a reflection of the fact that LIDS does not try to provide
+flexible support for security policies.  But both systems allow different
+policies to be defined for different machines if desired.
 
-Before teaching others, it is good to just make a pass by through the 
-specs, you know?
+I'm also not sure what you mean by your discussion of untrusted
+vs. trusted environments.  The mandatory access controls of SELinux
+are quite useful for limiting the damage that can be caused by
+flawed or malicious applications and for supporting different
+levels of trust among users.  So SELinux should be quite useful
+in the same environments where LIDS is useful.
 
-> 
+--
+Stephen D. Smalley, NAI Labs
+sds@tislabs.com
 
-Ektanoor
+
 
 
 --
