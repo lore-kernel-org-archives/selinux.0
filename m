@@ -1,41 +1,51 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA19184
-	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 16:30:28 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA19665
+	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 17:04:55 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA03831
-	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 21:27:16 GMT
+	by jazzswing.ncsc.mil  with ESMTP id WAA05774
+	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 22:01:42 GMT
 Received: from mx.nas-smoothtransition.com (nas-vm-195.nas-smoothtransition.com [66.95.157.195] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id VAA03827
-	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 21:27:15 GMT
+	by jazzswing.ncsc.mil  with ESMTP id WAA05768
+	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 22:01:41 GMT
+Received: from BATMAN ([66.200.42.3])
+	by mx.nas-smoothtransition.com (8.11.4/8.9.3) with ESMTP id h1OM4qC06873
+	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 17:04:52 -0500
 From: "Frank Mayer" <mayerf@tresys.com>
-To: "'Russell Coker'" <russell@coker.com.au>,
-        "'Clem Skorupka'" <ragnor@mitre.org>,
-        "'Wayne Salamon'" <wsalamon@tislabs.com>
-Cc: "'SE Linux'" <selinux@tycho.nsa.gov>
-Subject: RE: Core policy
-Date: Mon, 24 Feb 2003 16:29:57 -0500
-Message-ID: <004101c2dc4b$e93fddd0$6600a8c0@columbia.tresys.com>
+To: <selinux@tycho.nsa.gov>
+Subject: some random policy observations
+Date: Mon, 24 Feb 2003 17:04:47 -0500
+Message-ID: <004901c2dc50$c208b480$6600a8c0@columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-In-Reply-To: <200302242212.20796.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I suggest that we make the second line of each .te file contain a
-comment
-> stating which category it is in, with the possibility of policy being
-in
-> multiple categories.
+We've taught a couple of classes on policy development, coupled with
+some of our own analysis, which resulted with the following
+observations.  I haven't spent any time trying to validate these, but
+since others are crawling through the policy now perhaps someone can
+check these out.  (There were other observations I haven't dug out of my
+notes yet!) 
 
-Category names are a good idea (e.g., #CATEGORY <category name> ).  I
-can see all sorts of ways to use that in configuration tools.
+1. dpkg_t has load_policy access to security_t security object.
+Probably a legacy problem; seems like it should use the load_policy
+program, which is the only one that needs this access.  
 
-I'd like to suggest that the third list be #DEPENDS <list of .te file
-upon which this module depends> so we can also manage dependencies with
-configuration tools.
+2. checkpolicy_t and load_policy_t try hard to prevent their domain from
+being able to read from random file types (to avoid possible threats of
+them being convinced to read the incorrect data files as policy
+source/binary files).  Right now they both have read access to admin
+terminal devices; any reason why that access can't be changed to just
+write (e.g., for standard output/error only) to avoid potential of using
+stadin as their data source?
 
-Frank
+3. Related, we might want to change the compile option for some program
+(e.g., load_policy and checkpolicy) so they're statically linked.  This
+not only removes the potential threat of intercepting their linking
+process, but also allows us to remove the shared libraries as another
+type of file that can be read.
+
 
 
 
