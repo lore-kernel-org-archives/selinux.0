@@ -1,33 +1,39 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14CsW53006902
-	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 07:54:32 -0500 (EST)
-Subject: Re: How to install CVS wine
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14Cv653006963
+	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 07:57:06 -0500 (EST)
+Subject: Re: Latest diffs
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: ivg2@cornell.edu
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1107520773.8078.28.camel@moss-spartans.epoch.ncsc.mil>
-References: <1107499460.29033.7.camel@cobra.ivg2.net>
-	 <1107520773.8078.28.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1107520950.30939.6.camel@cobra.ivg2.net>
+References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FA9717.2000609@redhat.com>
+	 <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>
+	 <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107349736.890.72.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107350272.890.82.camel@moss-spartans.epoch.ncsc.mil>
+	 <4200D68A.6030309@redhat.com>  <1107478728.4065.3.camel@cobra.ivg2.net>
+	 <1107519821.8078.12.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107520950.30939.6.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Message-Id: <1107521277.8078.32.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1107521431.8078.36.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 04 Feb 2005 07:47:57 -0500
+Date: Fri, 04 Feb 2005 07:50:31 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-02-04 at 07:39, Stephen Smalley wrote:
-> We'd prefer to avoid having sysadm_t be able to execute anything
-> potentially untrustworthy.  So I think getting it to work from src_t
-> would be preferable, but doing your build as staff_t (so that we don't
-> have to allow arbitrary user_t access).
+On Fri, 2005-02-04 at 07:42, Ivan Gyurdiev wrote:
+> > To be precise, X needs execmod when using nvidia, right?  Not everyone
+> > using X needs it (I don't).  In any event, we want the execmod rules to
+> > be added to the individual domain .te files, not put in a global macro
+> > used by everything, and only allowed as needed.
+> 
+> Right. I was suggesting it be added to x_server_domain, not global.
+> I think it's only needed for nvidia.
 
-Other alternative would be to get it to work in a home directory labeled
-staff_home_dir_t/staff_home_t.  If you define a separate user entry for
-all users authorized for sysadm_r, and authorize them for staff_r
-sysadm_r, then this should be generated in file_contexts automatically
-upon building the policy.  At that point, you can disable
-user_canbe_sysadm in your tunables.  That is the preferred security
-setup; then only users authorized for staff_r can reach sysadm_r.
+Yes, adding it to the xserver_domain macro would be reasonable, under a
+boolean as usual.  Might be a candidate for its own boolean as well, as
+it can also be exposed remotely and subversion of X is fatal.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
