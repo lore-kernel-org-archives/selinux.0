@@ -1,49 +1,58 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9K1AOWt017291
-	for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2003 21:10:24 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9K228Wt017426
+	for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2003 22:02:08 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9K1ANmR017419
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 01:10:23 GMT
+	by jazzband.ncsc.mil  with ESMTP id h9K227mR018622
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 02:02:07 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-        by jazzband.ncsc.mil  with ESMTP id h9K0jPjp016502 for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 00:49:30 GMT
+        by jazzband.ncsc.mil  with ESMTP id h9K21ijp018578 for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 02:01:45 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 880CA924F5
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 01:58:25 +1000 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 15478924F3
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 01:48:18 +1000 (EST)
 Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 124977F06B
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 01:58:23 +1000 (EST)
+	by lyta.coker.com.au (Postfix) with ESMTP id 6C5477F06B
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2003 01:48:16 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: new SE Linux policy
-Date: Mon, 20 Oct 2003 01:58:23 +1000
+Subject: init patch for loading policy
+Date: Mon, 20 Oct 2003 01:48:15 +1000
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_fSrk/VMYLv9v51l"
-Message-Id: <200310200158.23385.russell@coker.com.au>
+  boundary="Boundary-00=_/Irk/hm0CNLT0oG"
+Message-Id: <200310200148.15852.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_fSrk/VMYLv9v51l
+--Boundary-00=_/Irk/hm0CNLT0oG
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-I've put a new policy archive on http://www.coker.com.au/selinux/policy.tgz 
-and also in Debian packages.  This has a few minor changes needed for init to 
-load policy.
+I've attached a patch for /sbin/init to load the policy and set enforcing 
+mode.  Here's a quick summary of the algorithm:
 
-I've attached a log from rebooting my test system.  It has a strange situation 
-where it appears that a hotplug script is running in kernel_t.  This would 
-mean that either it had started before the policy was loaded (surprising as I 
-didn't think that my system was capable of hotplug before init has run), or 
-that the domain_auto_trans() hadn't taken place for some inexplicable reason.  
-I'm still looking into this.
+0)  Only reach our code if the PIPE code for detecting "telinit u" does not 
+get a hit.  Therefore we know that we are executed on either a SEGV of the 
+original init or the initial boot.
+1)  Check for readability of /selinux/enforce, if it's readable then we have 
+just exec'd ourselves so go to FINISH.
+2)  Mount /selinux, if success then go to 5.
+3)  Mount /proc, if error then go to FINISH (*).
+4)  Check /proc/filesystems for selinuxfs entry, if it's not there then we 
+aren't running an SE Linux kernel so go to FINISH.  If it's there then we 
+have a serious error condition so go to ERR (I forgot to close a file handle, 
+not that it matters much - I'll fix it later).
+5)  load_policy - if error then go to ERR.
+6)  Set enforcing mode, if error then go to ERR.
+7)  Exec itself to get init_t, if can't exec then fall through to ERR.
+ERR) Sleep for 60 seconds after displaying message then halt machine (*).
+FINISH) Continue with regular init startup.
 
-Apart from this strange issue I have SE Linux working perfectly with nothing 
-special on the initrd.
+The (*)'s indicate issues that are open for discussion.  The exact actions may 
+be contentious.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -51,155 +60,83 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_fSrk/VMYLv9v51l
-Content-Type: application/x-gzip;
-  name="log.gz"
-Content-Transfer-Encoding: base64
+--Boundary-00=_/Irk/hm0CNLT0oG
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="init.diff"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="log.gz"
+	filename="init.diff"
 
-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
-AAA=
+diff -ru orig/sysvinit-2.85/src/init.c sysvinit-2.85/src/init.c
+--- orig/sysvinit-2.85/src/init.c	2003-10-19 20:25:32.000000000 +1000
++++ sysvinit-2.85/src/init.c	2003-10-20 01:00:47.000000000 +1000
+@@ -2508,6 +2508,7 @@
+ 	char			*p;
+ 	int			f;
+ 	int			isinit;
++	FILE			*fp;
+ 
+ 	/* Get my own name */
+ 	if ((p = strrchr(argv[0], '/')) != NULL)
+@@ -2551,6 +2552,55 @@
+ 		init_main();
+ 	}
+ 
++#ifdef WITH_SELINUX
++	if(!access("/selinux/enforce", R_OK))
++		goto finished;
++
++	if(system("mount -n none /selinux -t selinuxfs"))
++	{
++		char buf[64];
++		if(system("mount -n none /proc -t proc"))
++		{
++			fprintf(stderr, "Can't mount /selinux or /proc\n");
++			goto finished;
++		}
++		fp = fopen("/proc/filesystems", "r");
++		if(!fp)
++		{
++			fprintf(stderr, "Can't open /proc/filesystems");
++			goto err;
++		}
++		while(fgets(buf, sizeof(buf), fp))
++		{
++			if(strstr(buf, "selinuxfs"))
++			{
++				fprintf(stderr, "SE Linux is enabled but can't mount /selinux");
++				goto err;
++			}
++		}
++		fclose(fp); /* non-SE kernel */
++		goto finished;
++	}
++	if(system("/usr/sbin/load_policy /etc/security/selinux/policy.15"))
++	{
++		fprintf(stderr, "Can't load policy");
++		goto err;
++	}
++	fp = fopen("/selinux/enforce", "w");
++	if(!fp || 1 != fwrite("1", 1, 1, fp))
++	{
++		fprintf(stderr, "Can't set enforcing mode.\n");
++		goto err;
++	}
++	fclose(fp);
++	execv("/sbin/init", argv);
++	fprintf(stderr, "Can't re-exec init to get right context.\n");
++err:
++	sleep(60);
++	init_reboot(BMAGIC_HALT);
++finished:
++#endif
++
+   	/* Check command line arguments */
+ 	maxproclen = strlen(argv[0]) + 1;
+   	for(f = 1; f < argc; f++) {
 
---Boundary-00=_fSrk/VMYLv9v51l--
+--Boundary-00=_/Irk/hm0CNLT0oG--
 
 
 --
