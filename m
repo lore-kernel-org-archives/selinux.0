@@ -1,85 +1,67 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8JLTsrT013879
-	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 17:29:54 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8JLSs2w000217
-	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 21:28:55 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Joshua Brindle <method@gentoo.org>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8JM7grT014026
+	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 18:07:42 -0400 (EDT)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8JM7fNX012068
+	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 22:07:41 GMT
+Received: from [127.0.0.1] (localhost.localdomain [127.0.0.1])
+	by monk.area614.net (Postfix) with ESMTP id 1C03D41067B
+	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 18:07:48 -0400 (EDT)
 Subject: Re: [RFC] Upstream policy handling
-Date: Mon, 20 Sep 2004 07:29:50 +1000
-Cc: selinux <selinux@tycho.nsa.gov>,
-   "pebe >> Chris PeBenito" <pebenito@gentoo.org>
-References: <414DA0A7.1000708@gentoo.org> <200409200646.51865.russell@coker.com.au> <414DF5F2.9030700@gentoo.org>
-In-Reply-To: <414DF5F2.9030700@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409200729.50087.russell@coker.com.au>
+From: Colin Walters <walters@verbum.org>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <414DA0A7.1000708@gentoo.org>
+References: <414DA0A7.1000708@gentoo.org>
+Content-Type: text/plain
+Date: Sun, 19 Sep 2004 18:08:56 -0400
+Message-Id: <1095631736.4431.27.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 20 Sep 2004 07:11, Joshua Brindle <method@gentoo.org> wrote:
-> goal is to make the system secure, and if need be break legacy
-> behaviour. These are radical differences.
+On Sun, 2004-09-19 at 11:07 -0400, Joshua Brindle wrote:
 
-In Red Hat we are breaking legacy behaviour when necessary.  For example by 
-moving away from FAM.
+> The current upstream policy is a compositite of most changes made by 
+> distros and policy writers who may have different philosophies about
+> how the policy should work.
 
-> The Current CVS policy is heavily biased toward Redhat (and their
-> SELinux goals). This leaves no room for others (such is why I'm
-> suggesting this)
+Agreed, but we should take care in divergence; the upstream maintainers
+have a lot of experience here, and the current policy serves as a strong
+reference point.  I think Stephen's pointed out bugs in patches from
+pretty much everyone...
 
-I was writing SE Linux policy for Debian long before anyone who was employed 
-by Red Hat was doing any SE Linux work.  Now I work for Red Hat writing SE 
-Linux policy and write Debian policy in my spare time.
+> One example is our sysadmfile trim which happened a few weeks ago.
 
-I don't think that distributions other than Red Hat are being squeezed out.
+Maybe it's just me, but I wasn't all that convinced by Chris' arguments.
+For accidental damage, it seems better to encourage people to do as much
+as possible as staff_r.  As for malicious programs, I think if you've
+run any malicious program as sysadm_r you're pretty much hosed.
 
-The Debian goals are closer to Gentoo goals than that of Fedora.  For example 
-there is no targeted policy in Debian.
+How else does the Gentoo policy differ from the NSA example policy?
 
-> >OK, try maintaining a separate Gentoo policy patch for another year or so
-> > and see if you still think that distribution specific tunables are a bad
-> > idea.  ;)
->
-> PeBenito has maintained our policy for longer than that.  Distro
-> tunables (and indeed many many of the current tunables) are
-> fundamentally flawed.
-> Think about the difficulty of analyzing policy with X number of
-> tunables. To do it properly you'd have to analyze X! permutations. Then
-> take into account conditionals, and optional modules.
+> If there are any other suggestions or comments on this I'd like to hear 
+> them. Obviously the implementation details are up in the air here, and I 
+> know that some of you can't/won't use bk. 
 
-To be pedantic it would be 2^X not X!.
+Right, "can't" is the operative word here, at least for me.  The
+Bitkeeper license prohibits people who work on a competing system from
+using the gratis version of Bitkeeper.
 
-But you don't need to analyse those combinations.  The people who make the 
-distribution need to analyse the default options and the recommended 
-configurations (of which there should be a small number), and anyone who 
-wants to customise their policy has to analyse it themself.
+> If there are suggestions for a 
+>   better system and a way to host it (preferably neutrally) that would 
+> be great.
 
-> >The problem is that vendors will introduce bad patches.  Without the
-> >requirement to get the policy checked off by Steve the quality will drop
-> >while the number of unmerged patches steadily increases.
->
-> eh? vendors would introduce bad patches to their own policy. Obviously
-> this can already be done, I'm not sure what you are getting at here.
+If you are set on this, I suggest GNU Arch.  It is actually better than
+Bitkeeper in a number of ways (besides the obvious one of licensing);
+for example, it supports cherry-picking (applying individual
+changesets), and doesn't require anything other than an unmodified web
+server for read access. 
 
-If the difference between the vendor policy and the NSA policy is small then 
-there is less scope for error.
+As for hosting, unfortunately Sourceforge doesn't support anything
+except CVS.  There is sourcecontrol.net, sort of like the Arch
+equivalent of bkbits.net.
 
-> If vendors are concerned about their patches they'd still be able to
-> post them to the list (also the changesets would be available at a
-> specific central place for everyone so it would be far easier to see
-> what people are doing to the policies, and the differences, etc)
 
-How big are the patches between the Gentoo policy and the NSA policy?
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
