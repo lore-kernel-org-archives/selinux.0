@@ -1,57 +1,41 @@
-Date: Thu, 15 Apr 2004 00:00:07 +0200
-From: Thorsten Sauter <tsauter@gmx.net>
-To: SELinux Developers <SELinux@tycho.nsa.gov>
-Subject: pam_selinux.so question
-Message-ID: <20040414220007.GA15471@gmx.net>
-Reply-To: Thorsten Sauter <tsauter@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Michael Pender <michael.pender@nanochron.com>
+Subject: Re: Logo Artwork for SELinux?
+Date: Thu, 15 Apr 2004 15:26:07 +1000
+Cc: Untitled <SELinux@tycho.nsa.gov>
+References: <BCA3701A.9ED9%michael.pender@nanochron.com>
+In-Reply-To: <BCA3701A.9ED9%michael.pender@nanochron.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200404151526.07728.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 15 Apr 2004 12:47, Michael Pender <michael.pender@nanochron.com> 
+wrote:
+> IMO, SE-Linux is not going to be adopted based on technical superiority or
+> endorsement by the NSA if installing and using it too overwhelming.  In
+> fact, I think the association with the NSA is detrimental because people
+> think the NSA puts back doors in their software.  I really don't think this
+> is news to anyone who works in computer security.
 
-Hi all,
+Surely if someone at the NSA or some similar agency wanted to put a back-door 
+in Linux then what they would do is get a regular account with an ISP and 
+just start sending in kernel patches.  After their identity became known for 
+patching code (and thus receiving less checks before being included) they 
+could start slipping in mistakes in the code.
 
-I have installed a fresh Debian Sid system (powerpc) and compiled my own
-2.6.5 (vanilla kernel) with selinux support.
-
-All required packages for selinux are installed (simply rebuild the
-debian packages).
-
-But now, I have a mysterious behavior with the pam_selinux.so module,
-which is required in /etc/pam.d/login.
-
-If I login as root I got the normal info text:
-"Your default context is root:sysadm_r:sysadm_t." [...]
-
-But as soon as I try this as an normal user I got a new question:
-"Would you like to enter a security context? [y]"
-
-Hitting "n" will end with an "authentication failure" and logout this
-user.
-Using "y" and insering user_r/user_t will help, and allow the user to
-login.
-
-But why I get this "manual" question?
-
-Tia
-Thorsten
-
-p.s. System is not in enforceing mode
-
-<snip /etc/security/default_contexts>
-system_r:local_login_t sysadm_r:sysadm_t staff_r:staff_t user_r:user_t
-</snip>
-
-<snip /etc/selinux/users>
-user sar roles { user_r staff_r };
-</snip>
+People just have to ask themselves; is it better to trust NSA code that gets 
+checked by lots of people or some random kernel code that gets almost no 
+review?
 
 -- 
-Thorsten Sauter
-<tsauter@gmx.net>
-
-				(Is there life after /sbin/halt -p?)
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
