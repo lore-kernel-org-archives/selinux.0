@@ -1,54 +1,54 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA01286
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 14:40:38 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA26492
-	for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 19:38:35 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id TAA26486 for <selinux@tycho.nsa.gov>; Mon, 2 Dec 2002 19:38:33 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
-Subject: Re: expect
-Date: Mon, 2 Dec 2002 20:40:26 +0100
-References: <200211292002.PAA23890@moss-shockers.ncsc.mil> <200212021558.27661.russell@coker.com.au> <20021202183420.A16247@lemuria.org>
-In-Reply-To: <20021202183420.A16247@lemuria.org>
+Message-Id: <200212022037.PAA25379@moss-shockers.ncsc.mil>
+Date: Mon, 2 Dec 2002 15:37:11 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: Errors in SELinux compile
+To: SELinux@tycho.nsa.gov, Alexander.Michael@HILL.af.mil
 MIME-Version: 1.0
-Message-Id: <200212022040.26257.russell@coker.com.au>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[having a session with the right context to run daemons rather than 
-start-stop-daemon for each one]
-> I like this idea a lot. It would make a real-life admin job much, much
-> easier. It's not just that sometimes you have several daemons to
-> (re)start, it is during development that you easily restart a given
-> service a couple dozen times. I know I considered the password request
-> a nuisance after the 5th or so time.
 
-Good point.  When doing development you tend to have a dozen x-terms open at 
-once anyway, so reserving one for starting and stopping daemons should be OK.
+> While trying to build the SELinux kernel (2.4.19) I have a couple of errors
+> pop up.  Here were the steps I used to install the kernel:
 
-Although this is when having labelled X windows would be good.
+>From what source?  Are you using the last public release (2002102211) from 
+www.nsa.gov/selinux?  Or the CVS tree from sourceforge [and if so,
+when did you last update/checkout]?  Did you successfully apply the 
+SELinux-specific patch (cd selinux/module && make insert)?
 
-> > I believe that this isn't as good as my solution with expect, and it
-> > isn't something that can be done in a hurry either.
->
-> Actually, it may turn out to be a better solution, mostly because
-> expect is no longer required (and a couple of the recent postings here have
-> shown just why that may be a good thing).
+> namei.c: In function 'getname':
+> namei.c: 142: (Each undeclared identifier is reported only once
+> namei.c: 142: for each function is appears in.)
+> namei.c: 142: warning: passing arg 2 of pointer to function from
+> incompatible pointer type
+> make[2]: *** [namei.o] Error1
 
-The only real problem we have with expect IMHO is the problem I discovered 
-where some daemons don't start because the parent exits too fast.  I expect 
-that I'll solve that soon though.
+Can you show the actual offending line from namei.c?  And it looks like
+you are missing some of the error message.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+> Are these errors critical to the install?  I just wanted to make sure before
+> I finished the install and found out I needed to change some other option in
+> one of my files.
+
+Yes, that would be a fatal error above.  You have to successfully build
+the new kernel to install SELinux.
+
+> Also, as I am installing on RedHat 8.0, what option do I need to set my
+> LOGROTATE_VAR definition to?
+
+If you just want to try it out, you can use the RH7.2 base version
+(3.5.9).  We don't presently provide patched utilities/daemons based on the 
+RH8.0 base sources, and updating the utility/daemon patches is not a high 
+priority for us, as explained on the NSA web site.  If you want newer
+base versions, you might try Russell Coker's patches from 
+www.coker.com.au/selinux, but be aware that they are for his Debian selinux 
+package and might require a little tweaking for RH.
+
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
 
 --
