@@ -1,42 +1,47 @@
-Date: Thu, 8 Aug 2002 11:12:34 -0400 (EDT)
-From: Chris Vance <cvance@tislabs.com>
-To: Carsten Grohmann <carstengrohmann@gmx.de>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Install setfiles manpage
-In-Reply-To: <200207291738.RAA14908@jazzband.ncsc.mil>
-Message-ID: <Pine.LNX.4.33.0208081111280.19788-100000@zorg.gw.tislabs.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA05558
+	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 11:49:27 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA06211
+	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 15:47:51 GMT
+Received: from raven.eng.uiowa.edu (raven.eng.uiowa.edu [128.255.22.79])
+        by jazzband.ncsc.mil  with ESMTP id PAA06207 for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 15:47:51 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by raven.eng.uiowa.edu (Postfix) with ESMTP id DEA3F4537
+	for <selinux@tycho.nsa.gov>; Thu,  8 Aug 2002 10:49:16 -0500 (CDT)
+Date: Thu, 8 Aug 2002 10:49:16 -0500 (CDT)
+From: "Jesse D. Walters" <jwalters@eng.uiowa.edu>
+To: <selinux@tycho.nsa.gov>
+Subject: Console typing frequency authentication
+Message-ID: <Pine.LNX.4.33L2.0208081043240.11177-100000@raven.eng.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+	Hi, I am not sure if this is the correct mailing list for this
+topic, so pardon me in advance.
+	I was wondering if anyone is working on, or has investigated
+creating a authentication method that not only verifies a users password
+when logging in from the console, but also analyses the speed which a user
+types his or her password.
+	I already see a problem with a standard keyboard buffering the
+characters between interupts, but I thought it was an interesting idea,
+maybe for my Electrical Engineering senior design project.
+	Thank you.
 
-Thanks for catching this, your patch has been applied to our tree and will
-be included in the next NSA release.
+-- 
+**************************************************************************
+               Coordinated Laboratory for Computational Genomics
+Jesse Walters                              jwalters@eng.uiowa.edu
+5315SC                                     (319) 335-6432
+Iowa City, IA 52242		    http://tarzan.eng.uiowa.edu/~jwalters
 
-chris.
 
-On Mon, 29 Jul 2002, Carsten Grohmann wrote:
+I know I know.  I am alive.
+The gene pool could use a little chlorine.
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Today I am missing the sefiles man page. This patch change the Makefile to
-> install this man page.
-> I am sorry, but I can't commit this to the cvs. Can anybody do this for me?
->
-> Thanks
->
->   Carsten
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.0.6 (GNU/Linux)
-> Comment: For info see http://www.gnupg.org
->
-> iEYEARECAAYFAj1FeNQACgkQ4oaNQP0tWXCcnwCgnrugZcTKZV6My0yI/ta2bw2F
-> CEoAn1RyFYxSLKYZTZbi3mQlI1biWOd1
-> =QS53
-> -----END PGP SIGNATURE-----
->
+**************************************************************************
 
 
 --
