@@ -1,27 +1,32 @@
-Subject: Re: What is typealias and typeattribute
+Subject: Re: fc3 - password change problem - syslog and portmapper
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1109004990.3073.85.camel@selinux>
-References: <4219E45B.2020501@kaigai.gr.jp>
-	 <1109004990.3073.85.camel@selinux>
+To: jayendren@mweb.co.za
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200502220809.40631.jayendren@hivsa.com>
+References: <200502220809.40631.jayendren@hivsa.com>
 Content-Type: text/plain
-Date: Tue, 22 Feb 2005 08:01:36 -0500
-Message-Id: <1109077296.2256.6.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 22 Feb 2005 08:04:09 -0500
+Message-Id: <1109077449.2256.9.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-02-21 at 11:56 -0500, Christopher J. PeBenito wrote:
-> Typealias and typeattribute are recent additions, added since that
-> document was written.  The original syntax only allowed applying an
-> alias or an attribute on the type statement, as described in that doc.
+On Tue, 2005-02-22 at 08:09 +0200, Jayendren Anand Maduray wrote:
+> Got FC3 running SELINUX in enforcing mode.
+> 
+> 1. however when i try to change my password, i get the ffg error:
+> SystemError: couldn't get security context of `/etc/passwd': No data available
+> 
+> 2. also, when i boot up, syslogd, and portmap cannot start, so i disabled it 
+> in SELinux. i would like to get this to work, though.
+> 
+> i am running kernel Linux shiva 2.6.10-1.741_FC3smp
 
-Note btw that both the module and the policy technical reports have been
-updated in our sourceforge CVS tree to reflect the current state of
-SELinux and the updated reports will be included in the next release on
-nsa.gov.
+The most likely scenario is that you never labeled your filesystems, or
+that you ran with SELinux disabled for some period of time and thus
+ended up with some files without security labels.  Touch /.autorelabel
+and reboot, or run /sbin/fixfiles relabel and reboot.  BTW, this kind of
+question belongs on fedora-selinux-list, not here, IMHO.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
