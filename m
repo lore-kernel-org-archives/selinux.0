@@ -1,42 +1,53 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA03818
-	for <selinux@tycho.nsa.gov>; Sun, 2 Jun 2002 18:23:03 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA05337
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 06:13:51 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA27081
-	for <selinux@tycho.nsa.gov>; Sun, 2 Jun 2002 22:22:53 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA27077
-	for <selinux@tycho.nsa.gov>; Sun, 2 Jun 2002 22:22:51 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id AEE1F92461
-	for <selinux@tycho.nsa.gov>; Mon,  3 Jun 2002 08:22:47 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 747AC4A0
-	for <selinux@tycho.nsa.gov>; Mon,  3 Jun 2002 00:22:34 +0200 (CEST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: domain_auto_trans_read() macro
-Date: Mon, 3 Jun 2002 00:22:34 +0200
+	by jazzswing.ncsc.mil  with ESMTP id KAA17547
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 10:13:40 GMT
+Received: from mailout01.sul.t-online.com (mailout01.sul.t-online.com [194.25.134.80])
+	by jazzswing.ncsc.mil  with ESMTP id KAA17543
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 10:13:40 GMT
+Message-ID: <3CFB4398.97404F23@dr-baldeweg.de>
+Date: Mon, 03 Jun 2002 12:23:20 +0200
+From: Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>
 MIME-Version: 1.0
-Message-Id: <20020602222234.747AC4A0@lyta.coker.com.au>
+To: jw@centraltexasit.com, selinux@tycho.nsa.gov
+Subject: Re: SE-Linux on SuSE
+References: <200205281111.39926.jw@centraltexasit.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I suggest that we have a domain_auto_trans_read() macro which does the same 
-as the domain_auto_trans() but adds the following rule:
-allow $1 $2:file read;
+Hi Jonathan!
 
-I've written a line like that following a domain_auto_trans() about 100 times 
-and I think that the macro is necessary to save needless typing...
+I've install SE-Linux on SuSE (7.1). It is easy to install. You should
+run it a few days in the permissive mode to add a few new rules e.g. to
+add the blogd to the initrc domain. And you should remove a lot of cron
+jobs, if you like or you write rules for this jobs. And the mingettys,
+but SE-Linux works fine on SuSE too. 
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Carsten
+
+JW schrieb:
+> 
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Hello,
+> 
+> I am interested in running SE-Linux on SuSE.
+> 
+> I'd appreciate hearing from anyone who's tried it.
+> 
+> Esp. how hard/easy it was to install/configure, anything special you had to do to get it working, and what you like/dislike about it now that you have it working.
+> 
+> Thanks.
+> - --
+> 
+> - ----------------------------------------------------
+> Jonathan Wilson
+> System Administrator
+> Cedar Creek Software     http://www.cedarcreeksoftware.com
 
 --
 You have received this message because you are subscribed to the selinux list.
