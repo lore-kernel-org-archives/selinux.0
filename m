@@ -1,67 +1,49 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OIlorT029689
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 14:47:50 -0400 (EDT)
-Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OIlhCX015024
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 18:47:49 GMT
-Message-Id: <200408241847.i7OIlgRp001380@turing-police.cc.vt.edu>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Joshua Brindle <jbrindle@tresys.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: constraints and subtraction 
-In-Reply-To: Your message of "Tue, 24 Aug 2004 09:54:43 EDT."
-             <1093355682.1800.111.camel@moss-spartans.epoch.ncsc.mil>
-From: Valdis.Kletnieks@vt.edu
-References: <412A5BD0.8050606@tresys.com>
-            <1093355682.1800.111.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-2038982184P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Tue, 24 Aug 2004 14:47:42 -0400
+Message-ID: <20040824192527.8742.qmail@web60006.mail.yahoo.com>
+Date: Tue, 24 Aug 2004 12:25:27 -0700 (PDT)
+From: Justin Friel <capn_shoe@yahoo.com>
+Subject: Trouble building Policy-1.16
+To: SELinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-2038982184P
-Content-Type: text/plain; charset=us-ascii
+Hi All,
 
-On Tue, 24 Aug 2004 09:54:43 EDT, Stephen Smalley said:
-> On Mon, 2004-08-23 at 17:04, Joshua Brindle wrote:
-> > I was wondering if there was a specific reason that constraints don't 
-> > support subtraction but support attributes, sets, * and ~. For example 
-> > the following might be useful:
-> > 
-> > constrain dir_file_class_set { create relabelto relabelfrom }
-> >          ( u1 == u2 or t1 == { privowner -sysadm_t } );
-> 
-> Laziness and fear ;)  Feel free to change it, but it may be more
-> complicated than you expect.
+I am having a hard time getting policy-1.16 to compile
+on a "Linux from scratch" system.  When I try to
+compile the strict policy, I get the following output:
 
-Oh yes, fear.. ;)
+...
+/usr/bin/checkpolicy -o policy.18 policy.conf
+/usr/bin/checkpolicy:  loading policy configuration
+from policy.conf
+types/file.te:92:ERROR 'syntax error' at token ':f' on
+line 3066:
+allow auth shadow_t:file { getattr read };
+type shadow_t, file_type;
+/usr/bin/checkpolicy:  error(s) encountered while
+parsing configuration
+make: *** [policy.18] Error 1
 
-Attributes and sets are easy, * and ~ have reasonable definitions as well...
+Is this a problem with checkpolicy, m4 or the policy
+package itself?  All of the other packages (the
+patched kernel, libselinux-1.16, libsepol-1.0,
+checkpolicy-1.16 and policycoreutils-1.16) compiled
+without error, although checkpolicy gave a few
+warnings during compilation.
 
-Given two sets F1 = {A, B, C} and F2 = {B, D}, it's unclear to me
-what The Right Thing to do for (F1-F2) is.  Should the attempt to subtract
-D throw an error, or fail silently and create {A, C}, or create the set {A, C, ~D}?
+I'm entirely new to SELinux, so I'm not really sure
+where to start.  Any help is appreciated.
 
-I can make a case for any one of the three.  I'll even hypothesize that none of
-the 3 is clearly correct unless the reasons for both other alternatives being wrong
-are clear-cut enough even for an idiot like me to understand....
+Thanks
 
-Anybody got a 4th alternative? :)
 
---==_Exmh_-2038982184P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBK41NcC3lWbTT17ARAluCAKD+kC6mG0X6z8iAtJRHf0kbEJ9QhACeNmdE
-CPu83fZQfQXW6CFnUXTeX0E=
-=x3Zo
------END PGP SIGNATURE-----
-
---==_Exmh_-2038982184P--
+		
+__________________________________
+Do you Yahoo!?
+Take Yahoo! Mail with you! Get it on your mobile phone.
+http://mobile.yahoo.com/maildemo 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
