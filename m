@@ -1,54 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j06EnvIi009036
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 09:49:57 -0500 (EST)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j06Eo0oP011952
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 14:50:01 GMT
-Message-ID: <41DD5001.3010302@redhat.com>
-Date: Thu, 06 Jan 2005 09:49:37 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: Problem with SELinux and Squid+Winbind+Samba
+Date: Fri, 7 Jan 2005 02:06:00 +1100
+Cc: "Luis Fernando C. Talora" <luis.talora@iesa.com.br>,
+   " (SELinux@tycho.nsa.gov)" <SELinux@tycho.nsa.gov>
+References: <5D201EB6E3041946BC4F8F6A14296132607EE3@svnt4-5.inepar.com.br> <20041207204111.GC5153@lkcl.net>
+In-Reply-To: <20041207204111.GC5153@lkcl.net>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: [patch] screen_macros.te
-References: <20050104230149.GA10317@yggdrasil.localdomain> <20050104233401.GA11885@yggdrasil.localdomain> <41DBE9F1.50303@redhat.com> <200501062246.42763.russell@coker.com.au>
-In-Reply-To: <200501062246.42763.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200501070206.03854.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
+On Wednesday 08 December 2004 07:41, Luke Kenneth Casson Leighton 
+<lkcl@lkcl.net> wrote:
+>   the first thing is, ideally, to write a separate policy for winbindd,
+>   esp. making /var/run/winbindd have its own file context.
 
->On Thursday 06 January 2005 00:21, Daniel J Walsh <dwalsh@redhat.com> wrote:
->  
->
->>I would like to add a new file type cert_t for ssl cert files, since
->>these are defaulted to usr_t right now.
->>Shouldn't these be protected at a higher level?
->>    
->>
->
->Are you talking about protecting the integrity or the secrecy of data in such 
->files?
->
->If integrity then anything which can write to usr_t can break the system 
->anyway.  If secrecy then nothing in an rpm is secret anyway.
->
->If there are certificates that have any secret data then they should be 
->somewhere other than under /usr.
->
->  
->
-They are not in an RPM, and there has been discussions that they should 
-be moved under /var/ or /etc/.
-I think readability is the problem here.  Wherever they end up we need a 
-general case protecting the
-certificates so ever application that can read /usr or /etc/ or /var can 
-not read these files.   We are also going
-have to start looking at how we can protect Kerberos Key Files.  But 
-that is another conversation.
+Dan has just done so.
 
+>   then you can grant wb_ntlmmauth (or squid_t) the right to access
+>   /var/run/winbindd/pipe.
+>
+>  ... anyone got any opinions as to whether winbind should be creating a
+>  socket in /var/run?  is that FHS compliant?
 
+grep var_run.*sock_file policy.conf
+
+Sockets in /var/run are quite common as the above grep command will 
+illustrate.  Either the FHS is fine with that or there are many buggy 
+programs.  ;)
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
