@@ -4,34 +4,39 @@ From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: Stephen Smalley <sds@tislabs.com>
 Subject: Re: db conflict ?
-Date: Fri, 12 Apr 2002 17:15:01 +0200
+Date: Fri, 12 Apr 2002 17:12:52 +0200
 Cc: Tom <tom@lemuria.org>, <SELinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0204121030040.21729-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0204121030040.21729-100000@raven>
+References: <Pine.GSO.4.33.0204121042260.21729-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0204121042260.21729-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020412151501.4B3B923B16@lyta.coker.com.au>
+Message-Id: <20020412151252.D5E1D23B16@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 12 Apr 2002 16:40, Stephen Smalley wrote:
+On Fri, 12 Apr 2002 16:48, Stephen Smalley wrote:
 > On Fri, 12 Apr 2002, Russell Coker wrote:
-> > Having SE Linux code in /etc/magic for 0x6, 0x7, or 0x8, etc as the first
-> > long of the file is not viable, eventually we'll hit a conflict.
-> >
-> > This is why I have intentionally not submitted my /etc/magic changes to
-> > the maintainer of the "file" package.
+> > So what directory would we use?  /etc/selinux?
 >
-> Yes, you originally asked for a magic number back in January.  Sorry.  How
-> about the same magic number we use to distinguish the SELinux module's
-> system calls and security structures, 0xf97cff8c?  This number follows a
-> convention suggested by David Wheeler for security modules - see
-> http://marc.theaimsgroup.com/?l=linux-security-module&m=99842987214848&w=2.
+> Probably not.  You are using /etc/selinux to store the policy source
+> files, right (and using the policy_src_t type)?
 
-Sure, that sounds fine.
+I was not using policy_src_t as it's not referenced in file_contexts.  My 
+next version will change this.
 
-I suggest having that magic number followed by the string "SE Linux" (for 
-people with out of date /etc/magic who are forced to use strings(1)), then 
-the usual stuff.
+> It seems preferable to
+> keep the compiled policy in a separate directory and type
+> (policy_config_t).  That should ultimately allow us to set up a direct
+> pipeline enforced by the kernel from the policy sources through
+> checkpolicy to the compiled policy.  I was thinking of a direct
+> subdirectory of /, e.g. /selinux.
+
+OK, that'll do.
+
+Also while we're at it could we make the file names be 
+"/selinux/ss_policy.%d", policy_version?
+
+Then when we change policy versions we can easily switch between kernels that 
+implement different versions of policy.
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
