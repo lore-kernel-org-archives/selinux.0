@@ -1,37 +1,45 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA04026
-	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 15:30:20 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA07401
-	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 19:28:41 GMT
-Received: from sr1.terra.com.br (sr1.terra.com.br [200.176.3.16])
-	by jazzswing.ncsc.mil  with ESMTP id TAA07395
-	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 19:28:40 GMT
-Received: from smtp4-poa.terra.com.br (smtp4-poa.terra.com.br [200.176.3.35])
-	by sr1.terra.com.br (Postfix) with ESMTP id 6534B6F029
-	for <selinux@tycho.nsa.gov>; Tue,  8 Oct 2002 16:29:54 -0300 (EST)
-Received: from terra.com.br (webmail2.terra.com.br [200.176.3.177])
-	(authenticated user luiztizei)
-	by smtp4-poa.terra.com.br (Postfix) with ESMTP id 9F3D1AC5C3
-	for <selinux@tycho.nsa.gov>; Tue,  8 Oct 2002 16:29:53 -0300 (EST)
-Date: Tue,  8 Oct 2002 16:29:53 -0300
-Message-Id: <H3OGTT$0A7DBB13E9FF323A8AA0A7184811E6BA@terra.com.br>
-Subject: What to do next?
-MIME-Version: 1.0
-Content-Type: text/plain;charset="iso-8859-1"
-From: "luiztizei" <luiztizei@terra.com.br>
-To: "selinux" <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA04010
+	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 15:29:49 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA21548
+	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 19:27:58 GMT
+Received: from unicorn.lemuria.org (b067252.adsl.hansenet.de [62.109.67.252])
+        by jazzband.ncsc.mil  with ESMTP id TAA21543 for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 19:27:57 GMT
+Date: Tue, 8 Oct 2002 21:29:18 +0200
+From: Tom <tom@lemuria.org>
+To: selinux@tycho.nsa.gov
+Subject: Re: /proc woes
+Message-ID: <20021008212917.A6663@lemuria.org>
+References: <20021008171123.A6113@lemuria.org> <Pine.GSO.4.33.0210081439380.25356-100000@raven>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.GSO.4.33.0210081439380.25356-100000@raven>; from sds@tislabs.com on Tue, Oct 08, 2002 at 02:43:12PM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  I have succefully installed selinux kernel lsm-2.4 to my RH7.3 
-distro. I want to continue to explore this system. What should I do 
-next? Get the patches you are releasing and try them?
-  I am simply a newbie to the subject, but with time I might help :)
-  Thanks,
+On Tue, Oct 08, 2002 at 02:43:12PM -0400, Stephen Smalley wrote:
+> > Rebooting the machine fixed it, so this may have happened during either
+> > make relabel or make load (I installed a new policy today), though it's
+> > still a mystery to me how and I'm one of the people who believe that a
+> > reboot shouldn't be a valid solution. :)
+> 
+> I can't see any reason why a 'make relabel' or a 'make load' would yield
+> this behavior.  'make relabel' only runs setfiles on mounted ext[23] or
+> reiserfs filesystems to create or update the persistent label mappings.
+> 'make load' doesn't relabel anything, although it might invalidate
+> security contexts if you removed types (like proc_t), leaving existing
+> objects in unlabeled_t (but not file_t).
 
-         Luiz Tizei
+Well, I *am* somewhat puzzled myself, but I've seen it happen. I will
+experiment a little tomorrow afternoon to see if I can recreate it
+(probably by replaying the bash history) and find out what caused this.
 
+
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
