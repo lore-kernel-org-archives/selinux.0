@@ -1,80 +1,69 @@
-Subject: Re: Configuring kernel module for labeling ...
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: jsingh@ensim.com
-Cc: Russell Coker <russell@coker.com.au>, nsa <SELinux@tycho.nsa.gov>
-In-Reply-To: <1099420134.31739.250.camel@moss-spartans.epoch.ncsc.mil>
-References: <1099385154.11681.3.camel@jsingh>
-	 <200411030323.16648.russell@coker.com.au>
-	 <1099417545.12370.21.camel@jsingh>
-	 <1099420134.31739.250.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Message-Id: <1099420972.31739.269.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Tue, 02 Nov 2004 13:42:52 -0500
+Message-ID: <36282A1733C57546BE392885C06185924D92D7@chaos.tcs.tcs-sec.com>
+From: Chad Hanson <chanson@TrustedCS.com>
+To: Karl MacMillan <kmacmillan@tresys.com>,
+   Stephen Smalley
+	 <sds@epoch.ncsc.mil>
+Cc: Frank Mayer <mayerf@tresys.com>, Darrel Goeddel
+	 <DGoeddel@TrustedCS.com>,
+   SELinux List <SELinux@tycho.nsa.gov>, Chad Hanson <chanson@TrustedCS.com>
+Subject: RE: dynamic context transitions
+Date: Tue, 2 Nov 2004 13:49:07 -0500 
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-11-02 at 13:28, Stephen Smalley wrote:
-> Also, stacked filesystems might be a problem in general, as SELinux is
-> initializing the inode security state upon d_instantiate.  Natural
-> question is when does it perform the d_instantiate upon the underlying
-> inode vs. the virtual one?  And when does it copy state like the mode
-> from the underlying inode to the virtual one?
 
-Looking at mini_fo/main.c, I see that it doesn't copy the inode
-attributes (e.g. mode) until after the d_instantiate.  Not good for
-SELinux, as we want the mode at that time to determine the security
-class.  Might want to try the patch below.
+Karl MacMillan wrote: 
+> I admit that I was really trying to make it clear that this isn't a
+> transition mechanism, but something that would stay if introduced. Also,
+> where would you put the trust boundaries if not at process boundries? Is
+> it possible to truly reduce the trust between two sections of code in
+> the same process image? [these are not rhetorical questions - I'm really
+> asking for some clarification]
 
---- mini_fo/main.c.orig	2004-11-02 13:37:33.582234520 -0500
-+++ mini_fo/main.c	2004-11-02 13:38:26.116248136 -0500
-@@ -154,6 +154,9 @@
- 		inode->i_mapping->a_ops = master_inode->i_mapping->a_ops;
- 	}
- 
-+	/* all well, copy inode attributes */
-+	fist_copy_attr_all(inode, master_inode);
-+
- 	/* only (our) lookup wants to do a d_add */
- 	if (flag)
- 		d_add(dentry, inode);
-@@ -162,10 +165,6 @@
- 
- 
- 	ASSERT(DENTRY_TO_PRIVATE(dentry) != NULL);
--
--	/* all well, copy inode attributes */
--	fist_copy_attr_all(inode, master_inode);
--
-  out:
- 	print_exit_status(err);
- 	return err;
-@@ -246,6 +245,9 @@
- 		inode->i_mapping->a_ops = lower_inode->i_mapping->a_ops;
- 	}
- 
-+	/* all well, copy inode attributes */
-+	fist_copy_attr_all(inode, lower_inode);
-+
- 	/* only (our) lookup wants to do a d_add */
- 	if (flag)
- 		d_add(dentry, inode);
-@@ -253,10 +255,6 @@
- 		d_instantiate(dentry, inode);
- 
- 	ASSERT(DENTRY_TO_PRIVATE(dentry) != NULL);
--
--	/* all well, copy inode attributes */
--	fist_copy_attr_all(inode, lower_inode);
--
- out:
- 	print_exit_status(err);
- 	return err;
+You put the trust at the process boundary. This does not preclude you from
+trying increase the trust in the code. You clearly could reduce the trust
+within an application. The privilege bracketing approach goes hand in hand
+with secure programming techniques. An example would be that your program
+needs to open the kernel memory device. If your application does this action
+and has the needed information you should close the device. If you have
+incorrect source and forget to close this device, there are two methods of
+protection. One approach is the exec-based methodology and exec other
+programs to perform additional operations, thus reducing the footprint of
+the trusted code. The second approach would be using privilege bracketing to
+remove the ability to handle this resource. If you permanently remove your
+access to this device, even if the file descriptor is still open you will
+not be able to access this information.  Both of these approaches achieve
+the exact same goal, the implementations are just a bit different. 
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+> 
+> > On the other hand, what happens if we simply
+> > reject this functionality?  Will the developers of all of these "legacy"
+> > applications rush to restructure their applications to better support
+> > least privilege and isolation for SELinux?  Or will they just leave them
+> > as they are, either not running on SELinux at all or running in a single
+> > domain with the maximal set of permissions required for operation all
+> > the time?  Is that truly preferable?
+> > 
+> 
+> It is not a straightforward answer I don't think. One reason I am able
+> to work on SELinux is because of the compromises made to make this a
+> workable system for general purpose. My concern is that dynamic context
+> transitions will give people a false sense of security. I don't think
+> that it is necessarily the case that it is worse to run in a domain with
+> the maximal set of permissions. 
 
+I would disagree, running with the maximal set of permissions is exactly
+what we are trying to prevent by providing fine-grained privileges.  This
+shouldn't provide  a false sense of security, from a vulnerability point of
+view, because the process is capable of using all current privileges and
+misuse of what it can execute. The minimal use of permission can be used to
+verify that the application is behaving as intended without using unneeded
+permissions for an operation.
+
+-Chad
 
 --
 This message was distributed to subscribers of the selinux mailing list.
