@@ -1,70 +1,63 @@
-Message-ID: <3B24F822.B55E8098@watson.ibm.com>
-Date: Mon, 11 Jun 2001 12:56:03 -0400
-From: Reiner Sailer <sailer@watson.ibm.com>
+Date: Mon, 11 Jun 2001 14:13:02 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Reiner Sailer <sailer@watson.ibm.com>
+cc: SELinux@tycho.nsa.gov
+Subject: Re: Root file system over NFS
+In-Reply-To: <3B24F822.B55E8098@watson.ibm.com>
+Message-ID: <Pine.SOL.3.95.1010611140105.6023G-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: Root file system over NFS
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
 
-we are developing in an embedded environment (Linux / Walnut board).
-At least for development we need to mount the root file system  over
-nfs from a trusted server (no hard-drive, no flash etc.). SELinux is running
-in the embedded PowerPC environment.
+On Mon, 11 Jun 2001, Reiner Sailer wrote:
 
-PROBLEM with root over nfs and SELinux:
---> ALL files are assigned a default type (as it ships: nfs_t). This
-means for our embedded system, that no transitions will be made
-and basically all processes run as type init_t (which, e.g., makes the
-login etc. fail). The only occurring types for processes are kernel_t
-and init_t as those are explicitly chosen during startup.
+> we are developing in an embedded environment (Linux / Walnut board).
+> At least for development we need to mount the root file system  over
+> nfs from a trusted server (no hard-drive, no flash etc.). SELinux is running
+> in the embedded PowerPC environment.
 
-Example:
-Normally (on my conventional PC):
-INETD usually runs in context: system_u:system_r:inetd_t
-When started, the inetd binary with type inetd_t and transition rules in
-the policy will change the context from system_u:system_r:init_t to
-system_u:system_r:inetd_t
-Here (on the embedded system, mounting root fs over nfs):
-inetd binary will be assigned default-label: system_u:object_r:nfs_t,
--> no transition rule (as all files mounted over nfs have the same type,
-adding a transition rule does not help as this transition rule would be
-applied to all files of the nfs)
+SELinux doesn't really support NFS.  It provides some very minimal
+support for NFS clients, but it lacks general support for labeling
+and controls on NFS.  We did implement labeling and controls for
+NFS in a predecessor of SELinux, the DTOS prototype, and we
+have a similar design for SELinux.  But that involves modifying
+both the NFS client and server code, and it involves an extended
+version of the NFS protocol.  And since we're investigating
+transferring SELinux into the LSM framework, it doesn't seem
+worthwhile to implement that level of support in the current
+prototype at this point.
 
-Changing this default-type for trusted servers (although very useful in
-a normal environment) does not solve our problem.. We need fine-grained
-type-assignment as for a normal local  root file system.
+> Possible solutions I think of  in order of preference:
+> 
+> a) handling nfs as it were a local fs - i.e. no default type
+>     (how to label a nfs ?) [ assume we trust the server for the ss_policy
+>     file and verify via MACs]
 
-Possible solutions I think of  in order of preference:
+I don't think this is a practical option with the current SELinux
+prototype.  It involves changes to both the NFS client and server
+code, and an extended NFS protocol.
 
-a) handling nfs as it were a local fs - i.e. no default type
-    (how to label a nfs ?) [ assume we trust the server for the ss_policy
-    file and verify via MACs]
+> b) manually assign contexts on the client after mounting nfs root  and before
+>    any program is running (problem: chcon-command for changing contexts
+>    also has nfs_t  -> does not work out-of-the-box)
+>     -- good: different clients can specify policies independently
 
-b) manually assign contexts on the client after mounting nfs root  and before
-   any program is running (problem: chcon-command for changing contexts
-   also has nfs_t  -> does not work out-of-the-box)
-    -- good: different clients can specify policies independently
+This might work for setting the labels on files initially, but 
+you'll probably need to make changes to the kernel to deal
+with files created during system operation.  You can do a 'make relabel'
+in the policy directory after mounting the NFS root to initially
+set the labels.  Of course, you'll need a customized policy configuration
+to allow bootstrapping and relabeling.  You'll need to modify vfs_create,
+vfs_mkdir, etc. in kernel-2.4/fs/namei.c to set the SID on the inode
+after file creation.
 
-c)  dangerous but probably  for development (if it works at all):
-     (i) assign a new standard type for nfs_mounts from trusted servers (ok)
-     (ii) allow relabeling from there to any other type by some program  (?)
-     (iii) relabel the whole file system ("down") to the values needed during
-           system start-up (?)
-     (iv) security concerns with  this solution (e.g. nfs security ) that
-           I am aware of will be countered as good as possible;  e.g., using
-           IPSEC (Client-Server authentication and packet protection) in
-          combination with application level security (MACs, encryption etc.)
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-Please let me know any suggestions to this problem; even if the solution is
-not merely policy-based but might involve changes in the SELinux code
-kernel or utility programs.
 
-Thanks
-Reiner
 
 
 --
