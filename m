@@ -1,33 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAPJerIi026908
-	for <selinux@tycho.nsa.gov>; Thu, 25 Nov 2004 14:40:53 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAPJer4B028129
-	for <selinux@tycho.nsa.gov>; Thu, 25 Nov 2004 19:40:54 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: can_network patch.
-Date: Fri, 26 Nov 2004 06:40:43 +1100
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux <selinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
-References: <41741A2C.8040408@redhat.com> <41A3917F.30104@redhat.com> <1101240468.19785.298.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1101240468.19785.298.camel@moss-spartans.epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Subject: Re: dynamic context transitions
+Date: Fri, 26 Nov 2004 06:48:57 +1100
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+References: <4182959B.4080503@trustedcs.com> <1099402984.31739.17.camel@moss-spartans.epoch.ncsc.mil> <1099404989.23756.79.camel@pham.columbia.tresys.com>
+In-Reply-To: <1099404989.23756.79.camel@pham.columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
-Message-Id: <200411260640.49790.russell@coker.com.au>
+Message-Id: <200411260649.01922.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 24 November 2004 07:07, Stephen Smalley <sds@epoch.ncsc.mil> 
+On Wednesday 03 November 2004 01:16, Karl MacMillan <kmacmillan@tresys.com> 
 wrote:
-> If no one agrees with me about preserving can_network() semantics, then
-> I can be overruled.  But I thought that Russell had voiced a similar
-> concern earlier.
+> On Tue, 2004-11-02 at 08:43 -0500, Stephen Smalley wrote:
+> > On Mon, 2004-11-01 at 16:27, Karl MacMillan wrote:
+> > > Dropping privileges after startup can already be accomplished with
+> > > conditional policies, though it requires that only one process be
+> > > running in a given domain.
+> >
+> > Not sure that this works well in practice, e.g. daemon restart is an
+> > issue here, and as you note, it cannot distinguish among multiple
+> > instances of the domain.
+>
+> It would certainly require some additional infrastructure and more
+> invasive changes to init scripts, but it could be made to work. I think
+> that others have raised the more important point - what real use case is
+> there for this functionality?
 
-I still think that can_network() should keep it's traditional functionality.
+If you were to use a boolean to set the access of a daemon to "startup" or 
+"normal operation" then the big problem is to restart in the case that a 
+process is still running.
+
+If a running process has been cracked and does not have the same PID as the 
+original copy then the stop script will not stop it.  Then if the start 
+script changes the boolean to temporarily grant extra access then that access 
+will also be granted to the cracked process.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
