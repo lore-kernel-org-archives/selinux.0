@@ -1,73 +1,74 @@
-Date: Thu, 3 Jun 2004 19:57:38 +0000
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i53L7trT015256
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 17:07:55 -0400 (EDT)
+Received: from smtp801.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i54L7bls000592
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jun 2004 17:07:38 -0400 (EDT)
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
+  by smtp801.mail.ukl.yahoo.com with SMTP; 3 Jun 2004 21:07:53 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BVymj-0000Ut-Vw
+	for selinux@tycho.nsa.gov; Thu, 03 Jun 2004 20:25:58 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BVzOo-0004YB-0e
+	for selinux@tycho.nsa.gov; Thu, 03 Jun 2004 21:05:18 +0000
+Date: Thu, 3 Jun 2004 21:05:18 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'SELinux'" <SELinux@tycho.nsa.gov>,
-   "'Fedora SELinux support list for users & developers.'" <fedora-selinux-list@redhat.com>
-Subject: Re: Summary of Informal SELinux Meeting on May 6, 2004
-Message-ID: <20040603195738.GE3856@lkcl.net>
-References: <200406022032.i52KWuSf003348@gotham.columbia.tresys.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: [fedora-selinux-list-bounces@redhat.com: Your message to fedora-selinux-list awaits moderator approval]
+Message-ID: <20040603210517.GJ3856@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406022032.i52KWuSf003348@gotham.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jun 02, 2004 at 04:33:19PM -0400, Karl MacMillan wrote:
+could the person who has subscribed another mailing list to the
+selinux mailing list please stop these messages from occurring,
+thank you.
 
-> circumstance because of some details of the SMB/CIFS protocol. It was argued
-> that Samba is a trusted application and it would be appropriate, therefore,
-> to allow it to enforce SELinux access decisions by becoming a user-space
-> object manager. 
+----- Forwarded message from fedora-selinux-list-bounces@redhat.com -----
 
- samba is not a single "entity".
+Envelope-to: lkcl@localhost
+Delivery-date: Thu, 03 Jun 2004 21:04:19 +0000
+X-Sieve: CMU Sieve 2.2
+Subject: Your message to fedora-selinux-list awaits moderator approval
+From: fedora-selinux-list-bounces@redhat.com
+To: lkcl@lkcl.net
+X-BeenThere: fedora-selinux-list@redhat.com
+X-List-Administrivia: yes
+X-Virus-Scanned: by amavisd-new-20030616-p7 (Debian) at hands.com
 
- samba consists of approximately twenty to twenty five
- separate services, six or seven different network protocols,
- approximately FIVE different authentication systems or
- authentication modes, the list goes on.
+Your mail to 'fedora-selinux-list' with the subject
 
- that, in samba(3) they are implemented in only two daemons is
- both amazing and also, to be quite blunt, short-sighted.
+    Re: Summary of Informal SELinux Meeting on May 6, 2004
 
- at least in samba tng an effort was made to split out the
- DCE/RPC services into separate programs (with intended and
- planned work - that was shelved - to split out the Network
- Neighbourhood arena from the WINS Server from the browsing
- services)
+Is being held until the list moderator can review it for approval.
 
- 
- think of all of the services that NT has - NETLOGON, spool / printer,
- registry, SAM database, Local Security Authority, CMDAT (capability
- to run remote jobs), EventLog, WINS server, Browser Server to
- handle the Network Neighbourhood, File server.
+The reason it is being held:
 
- samba (at least, samba tng) has _all_ of these services, in incomplete
- form, in the same way that Wine has some of the Win32 API.
+    Post by non-member to a members-only list
+
+Either the message will get posted to the list, or you will receive
+notification of the moderator's decision.  If you would like to cancel
+this posting, please visit the following URL:
+
+    http://www.redhat.com/mailman/confirm/fedora-selinux-list/46788801b0294a342484fecaec40dbba370d78c4
 
 
- i just want you to be aware of this before making any recommendations
- that samba should be considered to be a "trusted application".
+----- End forwarded message -----
 
- think of it this way.
+-- 
+-- 
+expecting email to be received and understood is a bit like
+picking up the telephone and immediately dialing without
+checking for a dial-tone; speaking immediately without listening
+for either an answer or ring-tone; hanging up immediately and
+believing that you have actually started a conversation.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
- if somebody decided to implement:
-
- - lpd or cupsys
- - an nfs user-space file server
- - cron
- - a dhcp server
- - a dns server
- - a syslog server
- - KDE's DCOP server or Gnome's CORBA services
-
- all in the same single monolithic daemon that bound itself
- to several different ports and several different unix domain
- sockets, you wouldn't seriously consider saying that "this
- hybrid is a trusted application" would you?
- 
- l.
-
- 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
