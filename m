@@ -1,40 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA22614
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 15:10:19 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA08914
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 20:08:23 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA22535
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 15:07:17 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA07200
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 20:05:24 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id UAA08910 for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 20:08:22 GMT
-Date: Tue, 29 Oct 2002 15:09:47 -0500 (EST)
+	by jazzswing.ncsc.mil  with ESMTP id UAA07196
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 20:05:24 GMT
+Date: Tue, 29 Oct 2002 15:07:08 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: Tom <tom@lemuria.org>
 cc: <selinux@tycho.nsa.gov>
-Subject: Re: New configuration scheme
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A101524440@csoc-mail-box.csoconline.com>
-Message-ID: <Pine.GSO.4.33.0210291507370.29605-100000@raven>
+Subject: Re: mysql policy
+In-Reply-To: <20021029204914.B16084@lemuria.org>
+Message-ID: <Pine.GSO.4.33.0210291500350.29605-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 29 Oct 2002, Westerman, Mark wrote:
+On Tue, 29 Oct 2002, Tom wrote:
 
-> Since the configuration scheme has change (i.e. new default_context ....)
-> will that beak any program that were based on the old one or is it
-> backward compatible?
+> If I remember correctly, it's tee'ing any errors during startup to an
+> error log file that is located there. I'm working on this anyway, so if
+> you don't feel happy with it, just wait until I have a more refined
+> policy to offer. For some reason, though, adding this rule makes it
+> work on my system.
 
-The new default_context file has a different syntax and the new libsecure
-functions have different interfaces.  The old configuration files are no
-longer installed or used by the upstream SELinux.
-
-> IOW will I have to recode the gdm login sections.
-
-Yes, you will likely need to do that.  Notice that the new libsecure
-functions internally use security_get_user_sids to obtain the full list of
-legal SIDs for the user that are reachable from the current process and
-then determine a default based on the new config file.
+mysqld_db_t is assigned to /var/lib/mysql.  mysqld_log_t is assigned to
+/var/log/mysql.*.   So I'm not clear as to why a log file would be
+created in /var/lib/mysql.  If it is (re)creating a file in
+/var/lib/mysql, then it should require search, write, and add_name
+permission to mysqld_db_t:dir as well as create permission to
+mysqld_db_t:file.  If it is merely appending to an existing file, it
+should only need search permission to the directory and append permission
+to the file.
 
 --
 Stephen D. Smalley, NAI Labs
