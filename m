@@ -1,44 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h54C0rI4021708
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 08:00:53 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h54C0Jss013287
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 12:00:19 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h54E1uI4022391
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 10:01:56 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h54E1ttV016106
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 14:01:55 GMT
 Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h54C0HhY013284
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 12:00:18 GMT
+        by jazzband.ncsc.mil  with ESMTP id h54E1oal016102 for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 14:01:52 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id 93B59BF27
+	for <selinux@tycho.nsa.gov>; Thu,  5 Jun 2003 00:01:47 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 07493-08
+ for <selinux@tycho.nsa.gov>; Thu,  5 Jun 2003 00:01:46 +1000 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 546B6BF25
+	for <selinux@tycho.nsa.gov>; Thu,  5 Jun 2003 00:01:46 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 11B1092740
+	for <selinux@tycho.nsa.gov>; Thu,  5 Jun 2003 00:01:46 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 297C87778
+	for <selinux@tycho.nsa.gov>; Thu,  5 Jun 2003 00:00:59 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carsten.grohmann@raumbildsysteme.de>,
-   SELinux <selinux@tycho.nsa.gov>
-Subject: Re: file labels during init process
-Date: Wed, 4 Jun 2003 21:59:59 +1000
-References: <200306041048.19435.carsten.grohmann@raumbildsysteme.de>
-In-Reply-To: <200306041048.19435.carsten.grohmann@raumbildsysteme.de>
+To: selinux@tycho.nsa.gov
+Subject: executing /dev/zero
+Date: Thu, 5 Jun 2003 00:00:58 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200306042159.59076.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200306050000.58024.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 4 Jun 2003 18:48, Carsten Grohmann wrote:
-> Today I found this log message:
-> avc:  denied  { search } for  pid=1 exe=/sbin/init path=/var/log
-> dev=03:09 ino=6 scontext=system_u:system_r:init_t
-> tcontext=system_u:object_r:file_t tclass=dir
->
-> I have a problem with this entry. The complete filesystem is labeled
-> correct. The partition hda7 mounted as /var/log is also labled with
-> the correct type. Could it be that the init process access the
-> filesystem before the labels "grasp"?
+avc:  denied  { execute } for  pid=3927 exe=/usr/bin/mplayer path=/zero 
+dev=00:06 ino=12 scontext=faye:staff_r:staff_t 
+tcontext=system_u:object_r:zero_device_t tclass=chr_file
 
-It looks like init accessed /var/log before the /var/log filesystem was 
-mounted.  As you apparently labeled the /var filesystem when /var/log was 
-mounted it was not possible to label the /var/log mount-point directory.  
-Therefore it had the default of file_t.
+It seems that mplayer is requesting execute access to /dev/zero for some 
+reason.  I guess it's mmaping it to allocate memory and then executing code 
+in that memory region.
 
-Probably it's best to put in a dontaudit rule for that.
+It works OK without the access, but is there any reason for allowing it?  I'm 
+not sure whether I should give it an allow or dontaudit rule...
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
