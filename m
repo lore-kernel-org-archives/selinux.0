@@ -1,51 +1,40 @@
+Subject: RE: Security Enhanced Linux distro
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="Windows-1252"
-Date: Fri, 15 Nov 2002 06:25:05 -0600
-Message-ID: <862636C39A8D56448223B94D19757133015E90@server.westcam.com>
+Date: Fri, 15 Nov 2002 06:54:43 -0600
+Message-ID: <862636C39A8D56448223B94D19757133015E91@server.westcam.com>
 From: "Mark Westerman" <mark.westerman@westcam.com>
-To: <SELinux@tycho.nsa.gov>
+To: "Russell Coker" <russell@coker.com.au>, <SELinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri 11/15/2002 4:24 AM, Russell Coker wrote:
+On SELinux@tycho.nsa.gov, Russell Coker wrote:
+
+>OK.  Could you please tell us more about this distro.  What is it based on, 
+>what have you done to make is a "SE Linux distro"?
 >
->On Fri, 15 Nov 2002 05:55, Ben McGinnes wrote:
->> Russell Coker(russell@coker.com.au)@Thu, Nov 07, 2002 at 12:15:18PM +0100:
->> > http://www.securityenhancedlinux.com/
->> >
->> > So how do you go about becoming an "Authorized SE Linux Courseware
->> > Developer and Training Deliverer"?
->>
->> Well, based on the whois info for the domain, it looks like Mark
->> teaches candidates what he knows and, should he encounter he trouble, he
->> asks this list what in Hell to do.
->
-> I didn't think to check whois until long after I had raised the issue on the 
-> list.  Since noticing the whois information I had been waiting for Mark to 
-> respond.
+>Is the distro based on RPM or Debian packaging systems?
+>If RPM then have you solved the issues of upgrading a live system?  If so >then  please release it.
 
-We created the Security Enhanced Linux distro. I am working with the OSDGroup
-to promote and resale the distro. I only did a cursory look at the web page.
-After Russell comments (which is a very good point) I had then remove the
-"Authorized" and put in the disclaimer "... imply an endorsement or
-association with the National Security Agency or other government entities."
+The distro uses anaconda to load the OS onto the disk and is RPM based. No we
+still have not solved the upgrading a live system. One way we have been
+trying to approach the problem is to look at all the files in the package and
+relabel according to existing labels. The problem comes when there are new
+files, and the scripts in the rpm package uses to update any existing files.
+Still requires a relabel of the files system, which can take a while
+depending on CPU speed, Disk speed, and how much you have loaded on you
+system.
 
->> So why not just ask Mark directly what his intentions are, preferably
->> with the rest of the list getting the results.  Hell, if I were to
->
->Mark is doing some good things.  I'm surprised that he hasn't posted on this 
->topic yet.  I'm also surprised that he didn't announce his web site and keep 
->the list informed of progress on it.
 
-Thanks, Not to announce here was a mistake on my part. We have been really
-involved in the technical aspects and were letting OSDGroup handle the PR
-part.   
-
-The distro is planned for release in the first quarter of 2003. It is our
-intension to get SELinux in hands of more people. A securer Internet is a
-better Internet.
-
+We want SELinux to be in the hands of people that might not want compile and
+install kernel. The more use and feed back we get of the beta the better the
+overall product SELinux will become. All changes will be GPL and we do not
+plan write any non-GPL code on top of the system. We have even started to
+convert the rules to XML so update to policies can be handled more
+programmatically. The initial XML version uses XLST template to create the
+policy.conf file and uses the checkpolicy to compile the policy.conf file.
+The XML stuff is not near ready for public consumption.
 
 Mark
 
