@@ -1,46 +1,35 @@
+Message-Id: <200209151801.SAA20964@jazzswing.ncsc.mil>
 Content-Type: text/plain;
   charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: some patches
-Date: Sun, 15 Sep 2002 19:25:40 +0200
-References: <200209151556.PAA17617@jazzswing.ncsc.mil>
-In-Reply-To: <200209151556.PAA17617@jazzswing.ncsc.mil>
+Date: Sun, 15 Sep 2002 20:02:42 +0200
+References: <200209151556.PAA17617@jazzswing.ncsc.mil> <200209151925.40549.russell@coker.com.au>
+In-Reply-To: <200209151925.40549.russell@coker.com.au>
 MIME-Version: 1.0
-Message-Id: <200209151925.40549.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 15 Sep 2002 17:56, Carsten Grohmann wrote:
-> I've attached follow patches:
-> inetd.diff:
->   add a type var_log_inetd_t for daemons logs
+Am Sonntag, 15. September 2002 19:25 schrieb Russell Coker:
+> On Sun, 15 Sep 2002 17:56, Carsten Grohmann wrote:
+> > I've attached follow patches:
+> > inetd.diff:
+> >   add a type var_log_inetd_t for daemons logs
+>
+> That must be a SUSE specific thing.  I haven't seen a need for it it in
+> Debian and the policy indicates that there's no need for it in Red Hat
+> either...
+>
+> I suggest putting it in suse.te.
 
-That must be a SUSE specific thing.  I haven't seen a need for it it in Debian 
-and the policy indicates that there's no need for it in Red Hat either...
+I am not your opinion. 
+The xinetd have two log options the first use syslog and the second use 
+seperate files. Which variant the sysadm use is his problem, I think we 
+should support both. Also I don't have security objecttion. Other domain 
+uses logfiles too.
 
-I suggest putting it in suse.te.
-
-> ldconfig.diff:
->   dontaudit ldconfig_t device_t:dir { search };
->   change { read write } for sysadm_devpts_t and sysadm_tty_device_t
->   to rw_file_perms, because I need also getattr and ioctl for SuSE
-
-I've put that in my tree.
-
-> pppd.diff:
->   allow pppd_t device_t:dir { search };
-
-In my tree I have the daemon_domain() macro grant search and getattr access to 
-device_t...
-
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
-
+Carsten
 
 --
 This message was distributed to subscribers of the selinux mailing list.
