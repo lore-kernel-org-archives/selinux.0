@@ -1,45 +1,63 @@
-Message-ID: <02a601c34764$5e8df850$4e02020a@dc.jason.com>
-From: "Jason Anderssen" <jna@vasco.com>
-To: "James Griffin" <agriffin@cpcug.org>, "SELinux" <SELinux@tycho.nsa.gov>
-Cc: "Russell Coker" <russell@coker.com.au>,
-   "Howard Holm" <hdholm@epoch.ncsc.mil>
-References: <3F0E0999.70405@cpcug.org>
-Subject: Re: Russell Coker is recognized for his contributions to the SELinux project
-Date: Fri, 11 Jul 2003 14:24:43 +1000
-MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+From: Bill Laut <wlsel@verizon.net>
+To: Russell Coker <russell@coker.com.au>
+Subject: Re: Russell Coker is recognized for his contributions to the SELinux project
+Date: Fri, 11 Jul 2003 02:58:28 -0400
+Cc: Howard Holm <hdholm@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
+References: <3F0E0999.70405@cpcug.org>
+In-Reply-To: <3F0E0999.70405@cpcug.org>
+MIME-Version: 1.0
+Message-Id: <200307110258.28184.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-To all on the list, I am new to selinux, and use the mailing list as a
-resource to understand selinux.  I have successfully set it up and practise
-using it, and use the list to improve my knowledge.
 
-I have to give a huge congratulations to Russell, as watching and learning
-selinux, would not of been as easy with out his input into the list, and
-also his selinux box on the web/website dedicated to the growth of selinux.
+As a relative newcomer to SELinux, I, too, would like to congratulate Russell 
+on his being recognized with this award.  As a consultant with 23 years 
+experience, I've seen my share of "varporware," hyped by equally vapid 
+snake-oil peddlers.  Products whose engineering really stand out well are so 
+far and few between that they become a veritable oasis in a desert of 
+mediocrity.
 
-Since I have been a quiet member of the list, and also not for a long time
-either, I felt that I have to say a thankyou.
+SELinux is one such oasis.  After the OpenVMS operating system went into 
+decline (after DEC self-destructed), what succeeded it in the marketplace was 
+naked purgatory:  Windows.  No security whatsoever.  At least Linux made the 
+attempt by segregating superuser vs. normal user, along with distinguishing 
+one user from another.  But it still was no comparison to VMS with its 
+concept of a "privilege mask" and Access Control Lists.  And always was the 
+fear that somehow a daemon might be compromised and an attacker would gain 
+root access to the system.
 
-Keep up the good work.
+Enter SELinux:   -Professional grade- security returns to a mainstream OS,  to 
+where we can now uniquely tailor access to system resources for each 
+individual application and/or server on the system like a glove fitting a 
+hand, making setSUID and its vulnerabilities history.
 
-Jason
-Vasco Data Security
-Australian Office.
+With little exaggeration, after the wasteland of Microsoft offerings (and Unix 
+not much better), my reaction to SELinux was to break out singing, "Sweet 
+Mystery of Life, at Last I've Found You."  Someone finally *got it right* 
+about system security.  This goes far beyond what DEC achieved with OpenVMS.
+
+To Russell, my hearty congratulations for being recognized on your 
+contributions.
+
+To the NSA and all the contributors combined, thank you for pushing Linux into 
+becoming the best damned OS available, and especially for releasing the 
+source code under the GNU General Public License.  In creating the tools to 
+make the computing world safe from attack, the service you have rendered is 
+incalculable, and all of you deserve to take a bow.
+
+You have a clear and unmistakable winner in SELinux.  It's time is about to 
+come.
 
 
------ Original Message -----
-From: "James Griffin" <agriffin@cpcug.org>
-To: "SELinux" <SELinux@tycho.nsa.gov>
-Cc: "Russell Coker" <russell@coker.com.au>; "Howard Holm"
-<hdholm@epoch.ncsc.mil>
-Sent: Friday, July 11, 2003 10:49 AM
-Subject: Russell Coker is recognized for his contributions to the SELinux
-project
+Kindest regards,
+
+Bill Laut
 
 
+On Thursday 10 July 2003 08:49 pm, James Griffin wrote:
 > In recognition for his selfless contributions to the SELinux program,
 > Mr. Russell Coker has been selected by board of the James and Charlotte
 > Griffin Foundation to receive an unrestricted grant of US$1,000.00.
@@ -63,20 +81,13 @@ project
 > their efforts in transferring the results of the SELinux research into
 > the "commons" of public knowledge and for preserving and protecting this
 > transfer through the adoption of the GNU General Public License for
-SELinux.
+> SELinux.
 >
 > James A Griffin
 > Chairman
 > James and Charlotte Griffin Foundation
 >
 > *Linux is a Registered Trade Mark of Linus Torvalds
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
