@@ -1,38 +1,50 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i09E1ZRb029659
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 09:01:35 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i09E0Uxr024650
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 14:00:30 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i09E9SRb029742
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 09:09:28 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i09E9RiV000753
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 14:09:27 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i09E0UYc024647
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 14:00:30 GMT
-Subject: Re: load_policy atomicity
+        by jazzband.ncsc.mil  with ESMTP id i09E9Q06000749 for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 14:09:26 GMT
+Subject: Re: aliases
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Tim Ebringer <EB17151@jp.ibm.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <OF9293072A.D07D7FEF-ON49256E16.00015505-49256E16.000193AF@jp.ibm.com>
-References: 
-	 <OF9293072A.D07D7FEF-ON49256E16.00015505-49256E16.000193AF@jp.ibm.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200401092218.47912.russell@coker.com.au>
+References: <200401092218.47912.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1073656882.29816.52.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1073657357.29816.60.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 09 Jan 2004 09:01:22 -0500
+Date: Fri, 09 Jan 2004 09:09:17 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-01-08 at 19:17, Tim Ebringer wrote:
-> Assuming there are no logical problems with a new policy, can a reload
-> generate any nasty side effects within the policy enforcement module
-> (race conditions, deadlocks, etc.)? In other words, is a policy reload
-> atomic such that it will not try and load a new policy halfway through
-> an access control or relabelling decision?
+On Fri, 2004-01-09 at 06:18, Russell Coker wrote:
+> I believe that we need a minor change in the policy language to deal with 
+> aliases.
+> 
+> The current setup requires that all aliases be specified on the type 
+> declaration line.  One significant problem with this is that if a type is 
+> declared by a macro there is no way to add aliases to it.  Because of this we 
+> have at various times had aliases specified in macros when they weren't 
+> needed for 95% of the cases.
+> 
+> I believe that a declaration of the form is necessary:
+> typealias foo_t aliases { bar_t baz_t };
+> 
+> That would mean that I could do:
+> 
+> var_run_domain(foo)
+> typealias foo_var_run_t alias var_run_foo_t;
+> 
+> Instead of having the current alias in the var_run_domain() macro.  Of course 
+> it's no big deal for the var_run_domain() macro (and I'll remove the alias 
+> from my tree because it's been there too long anyway).  But there are other 
+> situations which are more difficult to manage (such as renaming netscape to 
+> mozilla).
 
-It should be atomic.  The new policy is loaded into temporary structures
-initially, then certain sanity checks are applied to it, and then it is
-installed as the active policy, with the last step performed while
-holding the policy write lock.  The access vector cache is then reset
-and provided with the new policy sequence number.
+Aside from preserving old type names for compatibility, type aliases
+seem to have little use, and significant potential for confusion.  
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
