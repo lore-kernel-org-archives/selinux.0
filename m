@@ -1,29 +1,38 @@
-Subject: Re: question about su and passwd
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9RFOkWt025488
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 10:24:46 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9RFOjIE012722
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 15:24:45 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h9RFOi1J012719 for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2003 15:24:44 GMT
+Subject: Re: question about pam_selinux multiple option
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Diyab <diyab@diyab.net>
-Cc: lky <lky77@sjtu.edu.cn>, SELINUX <SELinux@tycho.nsa.gov>
-In-Reply-To: <3F9AFDB0.1020406@diyab.net>
-References: <001401c39a74$ac06b370$5d38a8c0@lky>
-	 <3F9AFDB0.1020406@diyab.net>
+To: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <20031025134459.4fb0e536.ynakam@ori.hitachi-sk.co.jp>
+References: <20031025134459.4fb0e536.ynakam@ori.hitachi-sk.co.jp>
 Content-Type: text/plain
-Message-Id: <1067268199.18818.59.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1067268273.18818.61.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 27 Oct 2003 10:23:19 -0500
+Date: 27 Oct 2003 10:24:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-10-25 at 18:48, Diyab wrote:
-> passwd, like most of the other user management tools, requires a
-> selinux specific version called spasswd.  There are some file labeling
-> issues which the normal passwd program can not handle and that is why
-> the modified version was made.  If you search the list archives you can
-> find out more information about that.
+On Sat, 2003-10-25 at 00:44, Yuichi Nakamura wrote:
+> When I saw the man page of pam_selinux, 
+> there is a option "multiple". I think it is convenient.
+> However, in pam-selinux.patch, the code about "multiple" is commented out,like this.
+> +    /*    if (strcmp(argv[i], "multiple") == 0) {
+> +      multiple = 1;
+> +      }*/
+> When I enabled it, the "multiple" option seemed to work.
+> Why is it commented out ? 
+> Will "multiple" option be enabled in the future?
 
-The spasswd wrappers were replaced with direct patches to the base
-programs by Dan Walsh when the code was ported to the new SELinux API.
-This allows the files to be directly created in the right context and
-eliminates the window where the passwd file is in a more restrictive
-context than necessary.
+I don't see any reason to omit the code either, as you can always just
+omit the option in your PAM configuration if you don't want that
+functionality.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
