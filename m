@@ -1,76 +1,119 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA19467
-	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 01:49:50 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id FAA18484
-	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 05:48:35 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id FAA18472 for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 05:48:31 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: ppp
-Date: Thu, 9 May 2002 14:41:38 +1000
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0205080836480.23293-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0205080836480.23293-100000@raven>
+Message-ID: <B51F0C636E578A4E832D3958690CD73EBB102D@es04snlnt>
+From: "Davies, James E" <jedavie@sandia.gov>
+To: "'Selinux@tycho.nsa.gov'" <Selinux@tycho.nsa.gov>
+Subject: new selinux install
+Date: Thu, 9 May 2002 07:38:08 -0600
 MIME-Version: 1.0
-Message-Id: <20020509054932.AD7AA6E11@lyta.coker.com.au>
+Content-Type: text/plain;
+ charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 8 May 2002 23:13, Stephen Smalley wrote:
-> > In my policy I already have a user_t transition to pppd_t.  The issue is
-> > that pppd should not be running in user_r because the ip-up scripts will
-> > start other daemons which should be in domains that aren't permitted in
-> > user_r (EG the mail server).
-> >
-> > Basically preserving the current mode of operation of pppd for manual
-> > call-out and keeping it in user_r means removing system_r because most
-> > things that belong in system_r will end up in user_r!
->
-> Right.  But it isn't clear that creating a wrapper as you suggested offers
-> any real security benefit in this situation, and it may simply obscure the
-> fact that the user_r/system_r role separation would then be illusory.  You
+I've just installed the selinux 2.4.(18) kernel on redhat 7.2 from the nsa
+site and have the following problems. All I've done so far is to add 2
+users. I have not modified any context or .te files yet.
 
-No it would not be illusory!  It would be that there would be two ways of 
-entering system_r, one of which is run_init (by the system administrator) and 
-the other is the ppp wrapper which can be called by a user.
+ps -e --context returns the following:
 
-> might as well just add all of the system_r domains into user_r.  In either
-> case, the TE model provides the real control over transitions and
-> interactions among user and system processes based on their domains.
+ PID    SID CONTEXT                                  COMMAND
+   1      1 system_u:system_r:kernel_t               init [3]
+   2      1 system_u:system_r:kernel_t               [keventd]
+   3      1 system_u:system_r:kernel_t               [ksoftirqd_CPU0]
+   4      1 system_u:system_r:kernel_t               [kswapd]
+   5      1 system_u:system_r:kernel_t               [bdflush]
+   6      1 system_u:system_r:kernel_t               [kupdated]
+   9      1 system_u:system_r:kernel_t               [khubd]
+  10      1 system_u:system_r:kernel_t               [kjournald]
+ 135      1 system_u:system_r:kernel_t               [kjournald]
+ 136      1 system_u:system_r:kernel_t               [kjournald]
+ 137      1 system_u:system_r:kernel_t               [kjournald]
+ 138      1 system_u:system_r:kernel_t               [kjournald]
+ 533      1 system_u:system_r:kernel_t               syslogd -m 0
+ 538      1 system_u:system_r:kernel_t               klogd -2
+ 558      1 system_u:system_r:kernel_t               portmap
+ 586      1 system_u:system_r:kernel_t               rpc.statd
+ 737      1 system_u:system_r:kernel_t               /usr/sbin/sshd
+ 770      1 system_u:system_r:kernel_t               xinetd -stayalive
+-reuse -
+ 810      1 system_u:system_r:kernel_t               sendmail: accepting
+connec
+ 829      1 system_u:system_r:kernel_t               gpm -t ps/2 -m
+/dev/mouse
+ 847      1 system_u:system_r:kernel_t               crond
+ 899      1 system_u:system_r:kernel_t               xfs -droppriv -daemon
+ 935      1 system_u:system_r:kernel_t               /usr/sbin/atd
+ 943      1 system_u:system_r:kernel_t               /sbin/mingetty tty2
+ 944      1 system_u:system_r:kernel_t               /sbin/mingetty tty3
+ 945      1 system_u:system_r:kernel_t               /sbin/mingetty tty4
+ 946      1 system_u:system_r:kernel_t               /sbin/mingetty tty5
+ 947      1 system_u:system_r:kernel_t               /sbin/mingetty tty6
+1047      1 system_u:system_r:kernel_t               /sbin/mingetty tty1
+1048      1 system_u:system_r:kernel_t               in.telnetd: 172.16.1.18
+1049      1 system_u:system_r:kernel_t               login -- jedavie
+1050    138 jedavie:sysadm_r:sysadm_t                -bash
+1087    138 jedavie:sysadm_r:sysadm_t                ps -e --context
 
-I don't like the idea of moving all the system_r domains into user_r.
+Most of the processes are labeled as type kernel_t with a sid of 1. I
+suppose this means they're not transitioning to their proper domain.
+AVC_toggle to enforcing mode hangs the system console session, forcing a
+reboot.
 
-> In general, the RBAC model provides no improvement in security over the TE
-> model, just a higher level of abstraction to ease user management.  It can
-> potentially bound the set of domains that are reachable based on the
-> role (as long as role transitions are not completely unconstrained, as it
-> appears that they are becoming), but the same effect can be achieved
-> simply by controlling domain transitions and defining derived domains as
-> necessary to maintain separation.  If role transitions will typically be
-> unconstrained, then one might argue that roles and the RBAC logic should
-> be removed entirely to avoid confusing the security model.
+/var/log/messages show the following:(partial file immediately after reboot)
 
-I take your point, however I am definately not proposing totally 
-uncontstrained role transitions.  I am merely suggesting a wrapper program to 
-solve one particular instance of role transitions.
+May  9 04:47:03 bilbo kernel: security:  6 users, 5 roles, 406 types
+May  9 04:47:03 bilbo kernel: security:  29 classes, 43869 rules
+May  9 04:47:03 bilbo kernel: task_precondition:  assigning context
+system_u:sys
+tem_r:kernel_t to pid 0 exe=none
+May  9 04:47:03 bilbo kernel: task_precondition:  assigning context
+system_u:sys
+tem_r:kernel_t to pid 1 exe=none
+May  9 04:47:03 bilbo kernel: Freeing unused kernel memory: 248k freed
+May  9 04:47:03 bilbo kernel:
+May  9 04:47:03 bilbo kernel: avc:  denied  { read write } for  pid=1
+path=/dev/
+console dev=48:06 ino=8241 scontext=system_u:system_r:kernel_t
+tcontext=system_u
+:object_r:file_t tclass=chr_file
+May  9 04:47:04 bilbo kernel:
+May  9 04:47:04 bilbo kernel: avc:  denied  { execute } for  pid=1
+path=/sbin/in
+it dev=48:06 ino=71490 scontext=system_u:system_r:kernel_t
+tcontext=system_u:obj
+ect_r:file_t tclass=file
+May  9 04:47:04 bilbo kernel:
+May  9 04:47:04 bilbo kernel: avc:  denied  { execute_no_trans } for  pid=1
+path
+=/sbin/init dev=48:06 ino=71490 scontext=system_u:system_r:kernel_t
+tcontext=sys
+tem_u:object_r:file_t tclass=file
+May  9 04:47:04 bilbo kernel:
 
-How else should we approach this problem?  I guess I could have a pppd which 
-is always running, and have a SUID-root helper program which tells it when to 
-connect or disconnect.  Then the helper program would only need permissions 
-to send signals or write to a Unix domain socket.  I can get this done (I 
-have commit access to the PPP CVS) if it's considered the right thing to do, 
-although it will take time.
+t path=/dev/initctl dev=48:06 ino=23412 scontext=system_u:system_r:kernel_t
+tcon
+text=system_u:object_r:file_t tclass=fifo_file
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+
+init path=/dev/initctl dev=48:06 ino=23412
+scontext=system_u:system_r:kernel_t t
+context=system_u:object_r:file_t tclass=fifo_file
+
+Any ideas or help as to how to track down this problem  would be greatly
+appreciated.
+Thanks,
+Jim
+
+
+Jim Davies                        
+Sandia National Laboratories
+jedavie@sandia.gov 
+Voice (505)845-8374
+Pager (505)540-6179
+FAX (505)844-4568
+
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
