@@ -1,62 +1,44 @@
 Subject: Re: Multiple contexts
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
-In-Reply-To: <20050112182954.GF26175@lkcl.net>
+From: Stephen Bennett <spb@gentoo.org>
+To: ivg2@cornell.edu
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux@tycho.nsa.gov
+In-Reply-To: <1105560687.11135.26.camel@cobra.ivg2.net>
 References: <1105390249.8093.21.camel@cobra.ivg2.net>
-	 <20050110232312.GI6967@lkcl.net>
-	 <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050111214818.GE26175@lkcl.net>
-	 <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050112144411.GZ26175@lkcl.net>
-	 <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050112181814.GD26175@lkcl.net>
-	 <1105552982.22495.169.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050112182954.GF26175@lkcl.net>
+	 <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil>
+	 <1105560687.11135.26.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Message-Id: <1105565236.23136.12.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 12 Jan 2005 21:40:46 +0000
+Message-Id: <1105566046.3933.5.camel@localhost>
 Mime-Version: 1.0
-Date: Wed, 12 Jan 2005 16:27:16 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-12 at 13:29, Luke Kenneth Casson Leighton wrote:
->  i don't believe it does - or i am misunderstanding.
+On Wed, 2005-01-12 at 13:11 -0700, Ivan Gyurdiev wrote:
+> > Because then policy would be encoded in the file attributes, not in a
+> > centralized security policy.  Hence, one would be unable to analyze
+> > information flow in the system based solely on the policy and would have
+> > to also analyze the complete filesystem state, and that state is much
+> > more subject to change at runtime than the policy itself (one would
+> > hope).
 > 
->  having two policy files apache.fc and mymodifiedthing.fc which _both_
->  have a file context for the same file / directory, such that the
->  data that ends up in the security.selinux xattr is "apache_filetype_t,
->  "mymodifiedthing_filetype_t" doesn't mean, in my book "policy is in
->  filesystem state".
-> 
->  ... does it?
-> 
->  *lost*.
+> Please explain this some more - Luke also seems confused about this
+> (unless I misunderstand). I don't understand how the change from one
+> context to multiple contexts stored per file translates into policy
+> being encoded in the file attributes.
 
-The file_contexts configuration is not part of the kernel policy.  It is
-only used by userspace to set the contexts for files upon installation,
-to recheck the state of the filesystem against the initial labeling
-state, or to restore portions of the filesystem to the initial labeling
-state.
+AIUI, the issue is something like this: 
 
-If you change the SELinux module to support a list of file contexts
-within the security.selinux attribute, and change its policy engine to
-allow access if any access is allowed to any one of those contexts, then
-the only way to truly identify what information flow is possible in the
-system is by checking the current security.selinux attributes of all
-files in the system for such combinations and collapsing them to a
-single security equivalence class for analysis purposes.  Think:  policy
-says allow P1 F1:file read; allow P2 F2:file write;, policy analysis
-says that there is no allowed information flow from P2 to P1, but
-someone does a chcon -t F1,F2 foobar and now P2 can write to foobar and
-P1 can read from it, so information flow is now possible.  If you want
-to control information flow throughout the system to prevent leakage of
-information or to protect trusted processes against being corrupted by
-untrustworthy input, you can't ignore the issue.
+With only one type per file, it's possible to look at the policy and be
+certain (for example) that domain1 can't affect domain2 in any way,
+because there are no interactions allowed between the two, and the file
+types they can access don't overlap. If you allow multiple contexts per
+file, that ability goes out of the window, and you have to look at which
+files have multiple contexts and what contexts they are before you can
+figure out where information can and can't flow.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Of course I may be off here, and I may have missed more subtleties, but
+that's the problem I can see with multiple types per file. Someone
+correct me if I'm wrong here. :)
 
 
 --
