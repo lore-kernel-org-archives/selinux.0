@@ -1,62 +1,67 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4JFp8I4004438
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 11:51:08 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4JFp7tV028650
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 15:51:07 GMT
-Received: from mclmx.mail.saic.com (mclmx.mail.saic.com [149.8.64.10])
-        by jazzband.ncsc.mil  with ESMTP id h4JFp5al028646 for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 15:51:06 GMT
-Received: from mcl-its-ieg02.mail.saic.com by mclmx.mail.saic.com for selinux@tycho.nsa.gov; Mon, 19 May 2003 11:48:43 -0400
-Received: from mcl-its-exig01.mail.saic.com ([149.8.64.12])
- by mcl-its-ieg02.mail.saic.com (NAVGW 2.5.2.17) with SMTP id M2003051911520512564
- for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 11:52:05 -0400
-Message-Id: <C540EABA36FDD41189FD00508BAF8E850149266A@atsgroup.saic.com>
-From: "Guerra, Kamuela D." <KAMUELA.D.GUERRA@saic.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: RE: matrix
-Date: Mon, 19 May 2003 11:50:11 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4JHfQI4005192
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 13:41:26 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4JHf4Qj013386
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 17:41:04 GMT
+Received: from datas-world.dyndns.org (dsl-213-023-225-006.arcor-ip.net [213.23.225.6])
+	by jazzswing.ncsc.mil  with ESMTP id h4JHf1xS013377
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 17:41:03 GMT
+From: Torsten Knodt <tk-selinux@datas-world.de>
+To: selinux@tycho.nsa.gov
+Subject: Re: Thinking about an extension to the cron patch
+Date: Mon, 19 May 2003 19:37:22 +0200
+References: <200305181707.00953.tk-selinux@datas-world.de> <1053345240.4729.931.camel@moss-huskers.epoch.ncsc.mil>
+In-Reply-To: <1053345240.4729.931.camel@moss-huskers.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <200305191940.55964.tk-selinux@datas-world.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It's also been spotted here:
-http://www.theregister.co.uk/content/55/30747.html
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It's great to know that Hollywood has gone l33t.
+> > I already had a mail conversation with the cron maintainer about some
+> > changes to the patch. The patch is now a little smaller, because we don't
+> > need the *system* hack any more.
+> > But we are also thinking about another change. In the system
+> > crontab's, there are the users. We could split them with a delimiter like
+> > : and allow to set the SE Linux user for this line. As long this isn't
+> > used, the jobs run under system_u. With this change, we could clean up
+> > the crond policy. I don't feel very good allowing all system cronjobs all
+> > this. Also it would allow to get these policy parts back into the package
+> > policies owning these jobs.
+> Rather than specifying different SELinux users, why not just specify the
+> domain for the system cron job?
+Sorry, that's what I wanted to say. I thought one thing and wrote the other.
 
------Original Message-----
-From: Russell Coker [mailto:russell@coker.com.au]
-Sent: Monday, May 19, 2003 9:22 AM
-To: SE Linux
-Subject: matrix
+> Also, please note that the SELinux API is undergoing significant changes
+> as part of integration into mainline 2.5, so the patches for the daemons
+> and utilities are also being reworked.  You can get a reasonably current
+> snapshot of the ongoing 2.5 work from http://www.nsa.gov/selinux/lk; in
+> particular, see the API being exported by libselinux from
+> selinux-2.5.tgz.
+Russell already pointed out this to me. I'm currently working on a 2.5 test 
+environment for me.
+
+Regards
+	Torsten
+
+- -- 
+Domain in provider transition, hope for smoothness. Planed date is 24.7.2003
+pub 1024D/4CD29A2C 2001-01-12 Torsten Knodt <torstenknodt@datas-world.de>
+ Schl.-Fingerabdruck = A2B1 C626 F819 7C58 B2F9 4F4C BF16 64B6 4CD2 9A2C
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+yRcmvxZktkzSmiwRAgSOAJ4mBVSNBnOIrPA5D6QX8G3r50Nu4gCffpkV
+FmOQZezY8hpnn4kY3hE+bHk=
+=MAVH
+-----END PGP SIGNATURE-----
 
 
-http://news.bbc.co.uk/2/hi/technology/3039329.stm
-
-Above is an article about hacking in the movie Matrix Reloaded.
-
-> In the film Trinity gets the highest level of access to the target machine
-> by using a real-world loophole called "SSH1 CRC32".
-
-Fortunately for Trinity the power company wasn't using SE Linux.  When using
-
-SE Linux the loophole would not grant the highest level of access and the 
-movie would have a very different ending.  ;)
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
