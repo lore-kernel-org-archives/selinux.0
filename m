@@ -1,110 +1,73 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4SE1srU007683
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 12:33:43 -0400 (EDT)
-Received: from smtp814.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i71GXA52024363
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 16:33:10 GMT
-Date: Sun, 1 Aug 2004 17:44:41 +0100
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71GcMrT007708
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 12:38:22 -0400 (EDT)
+Received: from smtp801.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i71Gbn52024415
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 16:37:49 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp801.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 16:38:21 -0000
+Date: Sun, 1 Aug 2004 17:49:25 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-hotplug-devel@lists.sourceforge.net,
-   SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: hotplug 0.030 not setting selinux permissions on /dev/tty*
-Message-ID: <20040801164440.GD15949@lkcl.net>
-References: <20040801160019.GC15949@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: udev, tmp_t (on tmpfs on /dev), and matchpathcon failing
+Message-ID: <20040801164925.GA20103@lkcl.net>
+References: <20040801135209.GC15205@lkcl.net> <200408020044.08954.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040801160019.GC15949@lkcl.net>
+In-Reply-To: <200408020044.08954.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-GOT IT!  gotit,gotit,gotit.
+On Mon, Aug 02, 2004 at 12:44:08AM +1000, Russell Coker wrote:
+> On Sun, 1 Aug 2004 23:52, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > russell (someone?), the debian 1.14 (or greater) selinux-policy-default
+> > package could uhm, do with um, updating to match what the rpm spec
+> > does :)
+> 
+> No, it does not.
+> 
+> The needs of Debian are different from the needs of Red Hat.  I don't think 
+> that Debian has any need for the targeted policy, but if someone does wish to 
+> produce such a policy then they can make a selinux-policy-targeted package to 
+> provide it which would conflict with selinux-policy-default.  I planned it 
+> this way YEARS ago.
+> 
+> The design of Debian has some significant differences from the Red Hat design.  
+> One such difference is that packages which provide conflicting ways of 
+> performing the same task can not be installed at the same time in Debian.  In 
+> Debian it is impossible to install Sendmail and Postfix at the same time.  If 
+> there is a selinux-policy-targeted package for Debian then it will conflict 
+> with selinux-policy-default for the same reason.
+> 
+> The upgrade path from the older version of the SE Linux packages 
+> (before /etc/selinux/config) is extremely painful.  But once you get there it 
+> will all work fine.
+> 
+> If you start rm'ing trees of files that my packages install and then replacing 
+> them with trees taken from other places then you can expect difficulty.  In 
+> fact you will probably end up repeating some of the work I did in 2001 when I 
+> first started working on SE Linux.
+> 
+> Also when you have problems please report the first error that occurs.  Not 
+> the error that occurs after you have tried ten different methods of working 
+> around the first error.
+ 
+ sorry, russell.
 
-watching stuff go by during boot-up, i observed the same
-"matchpathcon cannot find file" error that i - fortunately -
-observed earlier today.
+ i'm again moving rather quickly through one thing to the next, not
+ really understanding why things are failing, and just trying something
+ else until it works.
 
-the [unnamed] file it's searching for is of course
-/etc/selinux/something/file_contexts/file_contexts
+ my apologies for throwing up a large number of [post-analysis]
+ irrelevant issues.
 
-this file is on /usr/share/selinux and has a symlink to it from
-/etc/selinux.
+ i've pretty much abandoned all of my [heavily-modified] 1.12 stuff
+ in favour of starting from scratch on the 1.14 stuff, and adding
+ things as necessary (fireflier.te, usbmount.te, mods to fsadm.te
+ to support usbmount.te using diskinfo and sg_map).
 
-and, of course, i have /usr on a different partition.
-
-so i am .... err.. buggered.
-
-i suppose i could move the entire /usr/share/selinux/current/* into
-/etc/selinux!!!
-
-*sigh*.
-
-okay, so it's nothing to do with udev per-se, but it _does_ mean that
-if someone wants to use udev on se/linux, it's going to be a bit
-awkward.
-
-some changes in either matchpathcon or where the selinux contexts
-are set up..
-
-l.
-
-On Sun, Aug 01, 2004 at 05:00:19PM +0100, Luke Kenneth Casson Leighton wrote:
-> hi there,
-> 
-> i've got udev up-and-running, with an selinux kernel 2.6.7.
-> 
-> i've added se-linux temporary attributes to tmpfs in order for
-> the tmpfs /dev to "remember" the selinux settings that udev would
-> make (without the patch, it's guaranteed to fail).
-> 
-> [see http://hands.com/~lkcl/selinux/2.6.6]
-> 
-> the issue is that i am not seeing any execution of
-> /etc/dev.d/default/selinux.dev on /dev/tty[absolutelyanything].
-> 
-> so as a temporary hack i am going to have to do a manual restorecon
-> or a setfiles /etc/selinux/src/file_contexts/file_contexts /dev.
-> 
-> which defeats the object of having the /etc/dev.d/default/selinux.dev
-> stuff in the first place.
-> 
-> i really don't know enough about the operation of udev to say where
-> the creation of /dev/tty1, /dev/tty2 etc etc etc are coming from,
-> or why /etc/dev.d/default/selinux.dev would not be called.
-> 
-> does anyone know why?
-> 
-> what is going on: /dev/tty1...N are all in /dev/.udev.tdb, and
-> they are all created in /dev, so... why wouldn't they have the
-> permissions set?
-> 
-> could it be because.... they are copied from somewhere else?
-> 
-> e.g. the initrd scripts?
-> 
-> i am at a loss.
-> 
-> l.
-> 
-> -- 
-> -- 
-> Information I post is with honesty, integrity, and the expectation that
-> you will take full responsibility if acting on the information contained,
-> and that, should you find it to be flawed or even mildly useful, you
-> will act with both honesty and integrity in return - and tell me.
-> --
-> <a href="http://lkcl.net">      lkcl.net      </a> <br />
-> <a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-> 
-
--- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+ l.
 
 
 --
