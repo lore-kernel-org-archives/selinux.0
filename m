@@ -1,32 +1,73 @@
-Date: Fri, 6 Jul 2001 17:02:24 -0400 (EDT)
-From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
-To: Thomas Sjogren <thomas@northernsecurity.net>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: developing.
-In-Reply-To: <5.1.0.14.0.20010706212907.009ec040@mail.carambole.com>
-Message-ID: <Pine.LNX.4.30.0107061701530.18577-100000@biocserver.BIOC.CWRU.Edu>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA17700
+	for <selinux@tycho.nsa.gov>; Fri, 6 Jul 2001 23:57:39 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id DAA09351
+	for <selinux@tycho.nsa.gov>; Sat, 7 Jul 2001 03:57:27 GMT
+Received: from mail.harborside.com (mail.harborside.com [12.45.56.18])
+	by jazzband.ncsc.mil  with SMTP id DAA09347
+	for <selinux@tycho.nsa.gov>; Sat, 7 Jul 2001 03:57:26 GMT
+From: "Randy -Harborside Internet" <randymb@harborside.com>
+To: <selinux@tycho.nsa.gov>
+Cc: <mcclellr@oit.edu>
+Subject: SELinux + Engarde
+Date: Fri, 6 Jul 2001 20:52:30 -0700
+Message-ID: <JMECKPIMOJNMLPBBEGBDAEIJCAAA.randymb@harborside.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 6 Jul 2001, Thomas Sjogren wrote:
+ 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> we´re working on a passwd patch that will force root/users to choose
-> acceptable login passwords and we want to use this with SELinux. is
-> there any recommendations, requirements for this sort of thing?
+I'm currently putting together an engarde linux box
+(www.engardelinux.org), and am going to attempt to compile the
+SElinux kernel into it.
+So far the only complications that I've run across is that the
+default engarde installation comes with no compilers, etc.
+whatsoever, so I'm brute-forcing those into the installation using
+older Redhat RPMS. It didn't seem to like some of them, but it looks
+like it will work with some tweaking.
 
-solar designer has a pluggable on'the-fly password routine that plugs into
-PAM.
+My two questions are this:
 
-http://www.openwall.com/
+1. There isn't a way to combine the LIDS kernel module with SELinux,
+correct? I remember seeing something about LIDS earlier on the
+mailing list, but didn't think it regarded to combining the two into
+one kernel.
 
-that may work for you. check it out.
+2. Has anyone played around with this, and if so...did it work or
+fail disasterously? I'm trying it on a non-production server we have
+laying around, so there's no worries if I mess up something, but I
+was just checking so I'm prepared.
 
-____________________________
-jose nazario						     jose@cwru.edu
-	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
-				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
+So far I've gotten the kernel configured, and I'll work on the build
+tomorrow or after I get back from my week vacation starting Sunday.
+If anyone replies and I don't respond, I've already left, but I'll
+send something out to the list to let everyone know if I could get it
+working or not, and what the results and performance of the kernel
+integrated with that distro is.
+
+Thanks,
+
+Randy McClelland-Bane
+Harborside Internet Network Operations
+- --------------------------------------
+1.866.435.3394 -- 469.8844 ext 409 
+Mobile 541.290-8849
+"Sed Quis Custodiet Ipsos Custodes?"
+- --------------------------------------
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 7.0.3 for non-commercial use <http://www.pgp.com>
+
+iQA/AwUBO0aHfsXIY+0JvubyEQI5LwCfeZka0zUgyS7oDlNu/+f9GRmCYv0AoPac
+Cjglz1ZnQr1FfUg/g2sZFK9O
+=Bve7
+-----END PGP SIGNATURE-----
 
 
 --
