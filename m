@@ -1,10 +1,10 @@
-Date: Thu, 27 May 2004 13:38:44 -0400
+Date: Thu, 27 May 2004 13:43:44 -0400
 Subject: Re: XP as a base for NetTop
 From: "Dr. Eugene D. Myers" <edm@tycho.ncsc.mil>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
    Chris Babcock <cbabcock@luthresearch.com>
 CC: <mayerf@tresys.com>, SELinux <selinux@tycho.nsa.gov>
-Message-ID: <BCDB9FE4.10B67%edm@tycho.ncsc.mil>
+Message-ID: <BCDBA110.10B6A%edm@tycho.ncsc.mil>
 In-Reply-To: <20040527080750.GA13687@lkcl.net>
 Mime-version: 1.0
 Content-type: text/plain; charset="US-ASCII"
@@ -30,6 +30,13 @@ On 5/27/04 04:07, "Luke Kenneth Casson Leighton" <lkcl@lkcl.net> wrote:
 > so it's completely compartmentalised and you do not need to add
 > in any security into the host OS other than banning it from
 > network access.
+> 
+> this is a _goooood_ thing: with the focus on speed and functionality
+> (e.g the screen driver redirection layer being removed from
+> nt 3.51 for the nt 4.0 release) NT has gone downhill to the
+> quality and security of windows 3.1 - but for worse, because
+> of the hundred fold increase in code to audit.
+> 
 
 
 Not true.  VMWare executes as an application and it uses the host OS for
@@ -47,8 +54,8 @@ virtual disks.
 
 In NetTop, the SELinux policy is written such that -->Only<-- only a VM can
 access a virtual disk and only its associated virtual disk.  No other
-process (including other VM's) has permission to access a VM's virtual disk.
-This includes processes that execute with root permission.
+process (including other VM's) have permission to access a VM's virtual
+disk.  This includes processes that execute with root permission.
 
 This is a significant point.  In systems, where data separation is
 important, being able to show that data cannot flow (in this case from one
@@ -57,13 +64,6 @@ disk) is an important property of a mandatory policy.  In the NetTop policy,
 the VMware virtual machines are isolated from the rest of the system and
 data flows into and out of a virtual machine, only if the policy allows it.
 
-> 
-> this is a _goooood_ thing: with the focus on speed and functionality
-> (e.g the screen driver redirection layer being removed from
-> nt 3.51 for the nt 4.0 release) NT has gone downhill to the
-> quality and security of windows 3.1 - but for worse, because
-> of the hundred fold increase in code to audit.
-> 
 > 
 > another hint is that they are focussing on network access so
 > presumably that means writing a special / modified VMware network
