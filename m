@@ -1,77 +1,63 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SCf7rT009370
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 08:41:07 -0400 (EDT)
-Received: from smtp800.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6SCeaAN004600
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 12:40:36 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp800.mail.ukl.yahoo.com with SMTP; 28 Jul 2004 12:41:05 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BpnFY-0000oJ-6L
-	for selinux@tycho.nsa.gov; Wed, 28 Jul 2004 12:09:36 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1Bpnug-0000pq-DW
-	for selinux@tycho.nsa.gov; Wed, 28 Jul 2004 13:52:06 +0100
-Date: Wed, 28 Jul 2004 13:52:06 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: modifications to cups policy (maybe debian specific)
-Message-ID: <20040728125206.GA3158@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SDAtrT009563
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 09:10:55 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6SDAPAN006435
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 13:10:25 GMT
+Subject: Re: Problem: myscript, crontab and policy rules for this
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Tanel Kokk <tanel.kokk@eyp.ee>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <41077AFE.3050306@eyp.ee>
+References: <41077AFE.3050306@eyp.ee>
+Content-Type: text/plain
+Message-Id: <1091020020.6886.26.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 28 Jul 2004 09:07:01 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-FHS policy violation in cupsys daemon where certs were stored in
-/etc/cups has been fixed - in debian version 1.1.20final+rcSomething.
+On Wed, 2004-07-28 at 06:07, Tanel Kokk wrote:
+> I have Fedora Core 2 with SElinux. I added a script into the crontab 
+> /etc/cron.d/myscript (it includes a line:
+> 0 * * * *		/usr/local/bin/myscript > /dev/null 2>&1)
+> 
+> selinux logs following audit message:
+> avc:  denied  { transition } for  pid=17845 exe=/usr/sbin/crond 
+> path=/bin/bash dev=dm-0 ino=2850852 scontext=root:system_r:crond_t 
+> tcontext=user_u:sysadm_r:sysadm_t tclass=process
+> 
+> I use program audit2allow to generate correct rule to policy:
+> allow crond_t sysadm_t:process { transition };
+> 
+> I put it into the file domains/misc/local.te and 'make load'
+> 
+> Unfortunately it won't help because same audit log message will appear, 
+> when cron will try execute myscript.
+> 
+> What I have to do? Why audit2allow won't generate correct rules?
 
-i added the following, also removing the /etc/cups/certs references which
-are set to cupsd_rw_etc_t.
+First, the transition is wrong, so you don't want to allow it.  It
+should be transitioning to system_r:system_crond_t for system cron
+jobs.  Try restarting crond via run_init, i.e. run_init
+/etc/init.d/crond restart.  That should place it into the proper
+starting security context (system_u:system_r:crond_t); yours was running
+in root:system_r:crond_t, presumably due to a manual restart without
+using run_init.  In FC3 devel, we have also amended the
+policy/constraints to allow proper transitioning from
+root:system_r:crond_t, so that manual restarts will work without
+run_init.
 
-	/var/lib/cups/certs		-d	system_u:object_r:cupsd_var_t
-	/var/lib/cups/certs/.*	--	system_u:object_r:cupsd_var_t
-
-i also added the following, but i did NOT remove or try to remove the
-allow for cupsd_t to write to cupsd_rw_etc_t in case there are other
-things going on.
-
-	type cupsd_var_t, file_type, sysadmfile, usercanread;
-	file_type_auto_trans(cupsd_t, var_lib_t, cupsd_var_t, file)
-	allow cupsd_t cupsd_var_t:dir { setattr rw_dir_perms };
-
-these are the minimum requirements to Get It Working (tm) and it's
-probably not a good idea to remove the write-perms to etc_rw_t for a
-while until people have thought to have completely upgraded.
-
-unless it is thought to be sensible to add in a dependency of policy
-1.15(?) (16?) on cupsys1.1.20finalrcN but of course that means you _must_
-install cupsys1.1.20finalrcN so probably not a good idea.
-
-so, how is package updating / changes to be handled?
-
-* detect versions of <package> and install different policy files?
-
-* split out policy files into their own packages, and then have
-  these packages depend on selinux-policy-default and also on the
-  correct version of the package for which they are relevant?
-
-* leave it, it's not really that crucial: people can just... upgrade
-  to latest, and Like It.
-
-* other.
-
-l.
-
+Second, a denial may occur due to a component of the policy other than
+the TE rules, as noted in the selinux-doc README and the Configuring the
+SELinux Policy report, due to the RBAC configuration or a constraint. 
+This is particularly true when changing the SELinux user identity or
+role in some manner.  audit2allow just generates TE allow rules from the
+audit message; it doesn't try to infer other causes.
+  
 -- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
