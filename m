@@ -1,67 +1,57 @@
-Message-Id: <200404141718.i3EHIpJx016309@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: <russell@coker.com.au>
-Cc: "'Tom Mitchell'" <mitch48@sbcglobal.net>,
+Message-Id: <200404141950.i3EJoFSM021953@turing-police.cc.vt.edu>
+To: russell@coker.com.au
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   "'Tom Mitchell'" <mitch48@sbcglobal.net>,
    "'SELinux'" <SELinux@tycho.nsa.gov>,
    "'Selinux Dev'" <selinux-dev@tresys.com>
-Subject: RE: Now that SELinux supports booleans should we replace tunables with booleans?
-Date: Wed, 14 Apr 2004 13:19:15 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <200404150219.27857.russell@coker.com.au>
+Subject: Re: Now that SELinux supports booleans should we replace tunables with booleans? 
+In-Reply-To: Your message of "Thu, 15 Apr 2004 02:19:27 +1000."
+             <200404150219.27857.russell@coker.com.au>
+From: Valdis.Kletnieks@vt.edu
+References: <200404141315.i3EDFkJx015414@gotham.columbia.tresys.com>
+            <200404150219.27857.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1276102797P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Wed, 14 Apr 2004 15:50:15 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Russell Coker [mailto:russell@coker.com.au]
-> I think that the issue with performance is kernel memory use.  Currently
-> for
-> FC2T2 we have 7M policydb files which roughly equates to 7M of kernel
-> memory
-> reserved, which has a huge impact on older hardware!  Most of this is due
-> to
-> compiling in support for every .te file.
-> 
-> For a typical machine compiling only the .te files that we need should get
-> this down to around 2M.  So obviously for space the correct selection of
-> .te
-> files is a much more significant issue than booleans.  However such
-> selection
-> of .te files requires a full environment for building policy on each
-> machine
-> (which removes one of the advantages you stated for using booleans instead
-> of
-> tunables).  As configuration of policy features in ways other than removal
-> of
-> unwanted .te files becomes more popular, the volume of policy (and
-> therefore
-> size of policydb) will depend much more on such things.  I expect that in
-> the
-> not too distant future we will have a factor of 2-3 in policydb size
-> determined by tunables.  If this is all done in booleans then there will
-> be
-> some significant amounts of wasted space.
-> 
+--==_Exmh_-1276102797P
+Content-Type: text/plain; charset=us-ascii
 
-This definitely is a problem, especially since this kernel memory is not
-swappable. If this amount of policy is controlled by the tunables (much more
-than I thought) then I agree that it is best left as tunables for now.
+On Thu, 15 Apr 2004 02:19:27 +1000, Russell Coker said:
 
-Karl
+> For a typical machine compiling only the .te files that we need should get 
+> this down to around 2M.  So obviously for space the correct selection of .te 
+> files is a much more significant issue than booleans.  However such selection 
+> of .te files requires a full environment for building policy on each machine
+
+Would a return to the policy/*.te and policy/unused/*.te split, with a
+really silly shell script that does the moral equiv of:
+
+for i in unused/*.te; do rpm -qf $i && mv $i .; done
+
+(i.e. if the program is installed, move the .te out of unused)
+
+be a short-term direction we want to look at?  Longer term,
+a similar "tweak the tunables to match the installed software" program
+would probably be needed....
 
 
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410)290-1411 ext 134
+--==_Exmh_-1276102797P
+Content-Type: application/pgp-signature
 
-> --
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFAfZX3cC3lWbTT17ARAkWuAKDpxK0UBRxLFVZ2EeQaLRWqOpyuPACfS+sa
+JpjEamlX90NYVsOQ3R1htyk=
+=m0wj
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1276102797P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
