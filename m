@@ -1,49 +1,46 @@
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Bill Laut <wlsel@verizon.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Subject: Re: Q on nonuniform "recvfrom" avc message
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Bill Laut <wlsel@verizon.net>
+Date: Tue, 8 Jul 2003 16:04:44 -0400
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <200307081224.41939.wlsel@verizon.net>
-References: <200307081224.41939.wlsel@verizon.net>
-Content-Type: text/plain
-Message-Id: <1057687509.12912.100.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 08 Jul 2003 14:05:09 -0400
+References: <200307081224.41939.wlsel@verizon.net> <1057687509.12912.100.camel@moss-huskers.epoch.ncsc.mil>
+In-Reply-To: <1057687509.12912.100.camel@moss-huskers.epoch.ncsc.mil>
+MIME-Version: 1.0
+Message-Id: <200307081604.44315.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-07-08 at 12:24, Bill Laut wrote:
-> Sporadically, I'm seeing an AVC message which suggests that kjournald is 
-> trying to receive the packet.  Below is a snippet from my syslog:
+On Tuesday 08 July 2003 02:05 pm, Stephen Smalley wrote:
+> On Tue, 2003-07-08 at 12:24, Bill Laut wrote:
+> >
+> > [...]
+> >
+> > Why is SELinux reporting that kjournald is trying to receive this packet?
+> >  Is it because the violation occured in the kernel while kjournald
+> > happened to be the currently executing process?  Or is SELinux telling me
+> > that there's a possible Trojan/BO/whatever buried inside of kjournald?
+>
+> The former.   The avc_audit code simply tests current and current->pid
+> and includes the corresponding process information in the audit message
+> if they are non-zero.  Not useful in the case of 'recvfrom' or other
+> checks performed on network input processing.
+>
 
-> Jul  8 01:57:26 vortex kernel: avc:  denied  { recvfrom } for  pid=11
->    comm=kjournald saddr=209.244.127.6 source=17664 daddr=4.46.245.145 dest=339
->    netif=eth1 scontext=system_u:system_r:initrc_t
->    tcontext=system_u:object_r:netmsg_eth1_t tclass=packet_socket
-> 
-> Why is SELinux reporting that kjournald is trying to receive this packet?  Is 
-> it because the violation occured in the kernel while kjournald happened to be 
-> the currently executing process?  Or is SELinux telling me that there's a 
-> possible Trojan/BO/whatever buried inside of kjournald?
+Upon reading your reply, it occured to me that one of my sentences could have 
+been misunderstood.  When I speculated "... that there's a possible 
+Trojan/BO/whatever buried inside of kjournald," I did not mean to suggest 
+that SELinux has NSA "spyware" buried in it.  I was thinking of something 
+else entirely unrelated to NSA while typing that sentence, and therefore 
+didn't catch and filter out the inference before submitting the post.
 
-The former.   The avc_audit code simply tests current and current->pid
-and includes the corresponding process information in the audit message
-if they are non-zero.  Not useful in the case of 'recvfrom' or other
-checks performed on network input processing.
+To anyone at NSA who might have been offended at my sentence, I sincerely 
+apologize for my faulty editing.  From a security perspective, SELinux is, 
+imho, the greatest thing since sliced bread and all of the Linux community 
+owes NSA a debt of gratitude for having nurtured it into fruition.
 
-> So far, this has occured in only two processes:  kjournald and klogd.  That's 
-> what sent my antennae up.
-> 
-> Finally, what is the "source=" and "dest=" reporting?  Are they supposed to be 
-> the source/destination port numbers?  It appears that there might be an error 
-> as the dest= number appears to be the packet length.
-
-Yes, they are supposed to be the port numbers.  In this case, they would
-be extracted by avc_audit from skb->h.uh->source and skb->h.uh->dest. 
-Not sure about the discrepancy that you are seeing.
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Thanks again for all of your help.
 
 
 --
