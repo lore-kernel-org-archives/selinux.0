@@ -1,64 +1,68 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6VNTPHa006351
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 19:29:26 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6VNSEFB005185
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 23:28:14 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h6VNSCGD005182
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 23:28:13 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
-Subject: Re: SELinux Workshop at CCC
-Date: Fri, 1 Aug 2003 09:29:13 +1000
-References: <20030731174126.A16353@lemuria.org>
-In-Reply-To: <20030731174126.A16353@lemuria.org>
+To: Bill Laut <wlsel@verizon.net>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: X-Windows and Client-side Buffer Overruns (was Re: Updated Release)
+Date: Fri, 1 Aug 2003 09:41:55 +1000
+References: <1057952464.5561.322.camel@moss-sooners.epoch.ncsc.mil> <200308010126.58444.russell@coker.com.au> <200307311226.14299.wlsel@verizon.net>
+In-Reply-To: <200307311226.14299.wlsel@verizon.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200308010929.13392.russell@coker.com.au>
+Message-Id: <200308010941.55431.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 1 Aug 2003 01:41, Tom wrote:
-> Carsten and myself will be holding a 2 hour SELinux presentation and
-> workshop at the Chaos Computer Camp near Berlin on August 7th. We will
-> be presenting SELinux to the audience, giving them an opportunity to
-> upgrade or install their own systems under guidance, and answer
-> questions.
+On Fri, 1 Aug 2003 02:26, Bill Laut wrote:
+> > Using IRC without X access is no great hardship, while using a text based
+> > MUA loses significant functionality.  X is currently the main area that
+> > SE Linux does not address yet.
+>
+> And, IMO, one of the greater dangers since it is/can be installed with
+> privilege, so that a latent buffer overrun exploit there could allow an
+> attacker unrestrained write access to the kernel itself.
 
-http://www.linux-kongress.org/2002/tutorials/index.html#selinux
-Sounds like something similar to what I did at Linux Kongress last year.
+I think that you misunderstood my message.  I was referring to the fact that 
+it is impossible to restrict an application which has X access from snooping 
+the windows of other X programs or reading the keyboard buffer.
 
-The notes for that are on 
-http://www.coker.com.au/selinux/talks/lk-2002/tutorial/ .  That tutorial 
-lasted for just over 6 hours and I did not complete the material.  The 
-tutorial was run on a network of identical machines which made things 
-significantly easier than they might have been.  All hardware was the same 
-and all machines ran Debian so only Debian package installation was required.
+As for the access that the X server program gets, I run X with the FrameBuffer 
+driver and it has no access to kernel memory and the only capabilities it has 
+which are of note are sys_rawio and sys_admin.  I'm not sure why sys_admin is 
+needed, and sys_rawio should not be needed for framebuffer (but the X server 
+wants it anyway - probably a bug in the X server).
 
-There was a wide range of skill levels among the people in my LK tutorial, 
-some of the people could have completed it in as little as 4 hours if the 
-rest of the group had the same experience.
+If we fix these issues then a compromise of the X server should not grant any 
+access other than the ability to have total control over the screen and 
+keyboard (which is still quite bad).
 
-Even if the CCC people have more experience than the people who attended my LK 
-tutorial I doubt that you will talk them through upgrading their own systems 
-in as little as 2 hours.  You will face issues of kernel compilation, 
-conflicts of kernel patches, different file locations when using different 
-distributions (and heavily customised distributions), and the stat issue with 
-different versions of libc6.
+> > A mail client wants to access mail files under the user's home directory,
+> > this means that the files in question need a separate type as you don't
+> > want the mail client to access all the other files in the home directory.
+> > This gives the usual issues of mv followed by file creation giving a
+> > different type and preventing things working in a way that novice users
+> > can't debug...
+>
+> Or, perhaps, what is needed all along is a security-aware mail client
+> that's been properly designed and tested against buffer overruns, so that
+> it can specify the type for the files it creates/maintains while at least
+> attempting to protect itself from being compromised by an exploit, along
+> with existing files being properly relabeled.
 
-If you are interested I could provide the UML image and documentation that I 
-prepared for OLS (which was not used due to numerous technical problems).  
-That would allow them to install SE Linux in an environment of a known state 
-and with clear documentation for every step.  With such a setup almost 
-everyone should be able to get a basic SE Linux install running within the 
-two hours.  Once they have learned how it works through that it should be 
-easier for them to get a real server working.
+If we're going to do such things then the best first step would be to have an 
+external program establish the POP/IMAP connection and then pass the file 
+handle back to the main MUA.  Then the MUA would not have the passwords.  
+Also something similar needs to be done for GPG.  Currently MUA's get the 
+POP/IMAP passwords and the GPG pass-phrase in normal operation...
 
+> > From what I've seen, KDE is
+> > way too integrated with itself to behave nicely with SE without changes
+> > in the KDE code itself.
+>
+> I've been looking for an excuse to learn the internals of KDE, so it looks
+> like I've found one.  Perhaps the first thing to do is tackle X before
+> going after KDE?
 
-PS  The UML image is the 200M file I want to host on your server.  ;)
+KDE is a much easier thing to work on...
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
