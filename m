@@ -1,64 +1,90 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AKiTrT001267
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:44:29 -0400 (EDT)
-Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5AKiOP2026491
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:44:24 -0400 (EDT)
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AKx9rT001371
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:59:09 -0400 (EDT)
+Received: from smtp801.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5AKx6aH024146
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:59:06 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 20:44:27 -0000
-Date: Thu, 10 Jun 2004 20:41:47 +0000
+  by smtp801.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 20:59:06 -0000
+Date: Thu, 10 Jun 2004 20:56:22 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: [debian] - installation of mysqld requires chfn
-Message-ID: <20040610204147.GE2861@lkcl.net>
-References: <20040609222209.GH5727@lkcl.net> <200406101220.53966.russell@coker.com.au>
+To: Ed Street <edstreet@street-tek.com>
+Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
+Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
+Message-ID: <20040610205622.GF2861@lkcl.net>
+References: <20040609214126.GF5727@lkcl.net> <20040610004455.15C043A4063@abyss.simplyaquatics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406101220.53966.russell@coker.com.au>
+In-Reply-To: <20040610004455.15C043A4063@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-russell, steven - just a thought.
-
-if you look at dpkg.te, and presumably rpm.te too, are you at all
-concerned about the ever-increasing permission set that's added to
-these two packages' policies?
-
-it doesn't seem right to me that dpkg's policy file has to grant
-permission to run passwd.te in order to install oh, say, foomatic-db.
-
-it just goes against the grain of granting least privilege.
-
-i'm just concerned that dpkg.te and rpm.te turn into these
-pretty-much-everything "monsters".
-
-so, let's see... is it possible to add something into dpkg
-(se_dpkg?) to make it call run_init or do a domain_auto_trans
-just before calling the postinstall / prerm etc. scripts,
-to move it from dpkg.te into dpkg_<PACKAGENAME>.te?
-
-l.
-
-On Thu, Jun 10, 2004 at 12:20:53PM +1000, Russell Coker wrote:
-> On Thu, 10 Jun 2004 08:22, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > i added the can_exec chfn_exec_t into domains/programs/dpkg.te:
-
-> > [ to make it possible to install mysqld ]
-
-> ifdef(`passwd.te', `
-> domain_auto_trans(dpkg_t, chfn_exec_t, chfn_t)
-> ')
-
-> The above is what you want.  You don't want to allow dpkg_t direct access 
-> to /etc/shadow because it will probably mess it up (replace it with a copy 
-> labelled as etc_t).
+On Wed, Jun 09, 2004 at 08:44:54PM -0400, Ed Street wrote:
+> Hello,
 > 
-> -- 
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
+> I know under SID the stock postfix rules works 100% correctly with no
+> augmentation.
+ 
+ hi ed,
+
+ okay, so you have a system which works out-the-box, and i don't.
+
+ so we should compare notes to work out what the differences are.
+
+ i have russell's 1.12 selinux policy files (slightly modified
+ to get various other packages working, but not, i don't believe,
+ in areas that impact on postfix / postfix installation).
+
+ i have a kernel 2.6.6-selinux1 (which is at
+ http://hands.com/~lkcl/selinux).
+
+ i have postfix 2.1.1-3.
+
+ i am installing it as a "local mailer only" - no networking.
+ (is that important?)
+
+ i also installed exim, and replaced it with exim4.
+ then i replaced that with sendmail.
+ 40 seconds later i replaced that with postfix.
+ then three days later i replaced that with exim4.
+ then yesterday i replaced it with postfix.
+
+ so i've done quite a lot of install and deinstalling.
+
+ on the first install of postfix, if my memory serves me
+ correctly, i did not know at that time about se_apt_get
+ or se_dpkg.
+
+ so i _may_ have installed it using apt-get, possibly even
+ with "enforcing=0" and since then i have run make relabel
+ countless times (which should, in theory, correct any
+ policy file mislabelling that would have occurred by
+ using apt-get rather than se_apt-get).
+
+ on the second install, and this time i definitely used
+ se_apt-get, se_apt-get postfix FAILED due to
+ this inability of /etc/init.d/postfix to overwrite anything
+ in etc_t or log_t context (examine /etc/init.d/postfix
+ and you notice that "start" tries to do ln and cp into
+ /var/spool/postfix/etc and .../lib).
+
+ on both the first and second installs, i get this:
+
+ Jun  9 23:24:03 sez kernel: audit(1086819843.982:0): avc:  denied  {
+ sys_chroot } for  pid=1979 exe=/usr/lib/postfix/trivial-rewrite
+ capability=18 scontext=system_u:system_r:postfix_master_t
+ tcontext=system_u:system_r:postfix_master_t tclass=capability
+
+ 
+ only by creating an /etc/default/postfix with the contents
+ SYNC_CHROOT=""
+
+ do i manage to get a working postfix 2.1.1-3.
+
+ what do you have?
+
+ l.
+
 
 -- 
 -- 
