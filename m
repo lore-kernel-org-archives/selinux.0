@@ -1,46 +1,50 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA4ESAXZ023201
-	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 09:28:12 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA4EeLXZ023284
+	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 09:40:21 -0500 (EST)
 Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA4EQmCH019940
-	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 14:26:48 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA4EcxCH020896
+	for <selinux@tycho.nsa.gov>; Thu, 4 Nov 2004 14:39:00 GMT
 Subject: Re: Updated SELinux Release
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: dgami@uncc.edu
+To: Manoj Srivastava <manoj.srivastava@stdc.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <Pine.LNX.4.58.0411031908500.12297@d10systems.homelinux.com>
+In-Reply-To: <87k6t2qepg.fsf@glaurung.internal.golden-gryphon.com>
 References: <1099496380.1213.111.camel@moss-spartans.epoch.ncsc.mil>
 	 <Pine.LNX.4.58.0411031908500.12297@d10systems.homelinux.com>
+	 <1099534538.3875.6.camel@nexus.verbum.private>
+	 <87k6t2qepg.fsf@glaurung.internal.golden-gryphon.com>
 Content-Type: text/plain
-Message-Id: <1099578261.3174.46.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1099578952.3174.59.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 04 Nov 2004 09:24:21 -0500
+Date: Thu, 04 Nov 2004 09:35:52 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-03 at 14:21, Dhruv Gami wrote:
-> He might not be 
-> aware of everything, but if he wants to try out something like SELinux 
-> that could make his system more secure, and if a single tarball is 
-> available to him, he can simply download that, compile it and be up and 
-> running with a SELinux system. 
-> 
-> I agree with Stephen that having the tarballs would be redundant as most 
-> of us prefer to get individual patches and patch our kernels, but I'm just 
-> thinking of the whole situation from a newbie's point of view. Old users 
-> sometimes don't realise it, but it can get intriguing for someone just 
-> starting out. Having something simple to use can be very helpful.
+On Thu, 2004-11-04 at 02:02, Manoj Srivastava wrote:
+> 	Moving waaay forward. I asked the Debian kernel team to
+>  consider  compiling in SELinux (perhaps disabled by default, for
+>  starters), and was told that that is not going to fly because of
+>  "significant performance hit" one takes by compiling SELinux in.  I
+>  did not have any data to refute the claim, so  that is where we sit.
 
-I would agree with this rationale (and indeed, it is why we originally
-provided these tarballs) if it wasn't for the fact that any end user of
-SELinux can now get both binary and source SELinux kernel and userland
-packages for their distribution (at least Debian, Gentoo, Fedora, and
-SuSE) from elsewhere (and in the cases of Fedora and Hardened Gentoo,
-the SELinux code is already integrated into the distro for them), and
-that will always be easier for end users than building from our source
-tarballs.  At this point, I think that only people packaging SELinux for
-the distros and reasonably skilled users will be directly using our
-downloads, and I don't see any value in the complete tarballs to them.
+Given that SELinux supports disabling both at boot time (via selinux=0)
+and at runtime (via /selinux/disable, only useable prior to the initial
+policy load, used by the patched /sbin/init when /etc/selinux/config
+specifies disabled), the only performance impact they can truly claim is
+fundamental to enabling SELinux at compile-time is the overhead of LSM
+itself.  So ask for measurements showing that LSM in 2.6 imposes a
+significant overhead by itself, and don't accept measurements based on
+old versions of LSM prior to 2.6.
+
+> 	While a laudable long term goal, the reality is that most
+>  distributions do not ship these utilities today, and in the case of
+>  Debian, progress, while it is happening, is slow enough that
+>  pragmatism requires we consider the reality that SELinux shall _not_
+>  be the default in the near term.
+
+Fedora (and RHEL4) and Hardened Gentoo have extensive SELinux
+integration, and SuSE 9.x had the SELinux code included in the kernel
+and a subset of the userland, just disabled by default.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
