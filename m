@@ -1,34 +1,35 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iANL4rIi015209
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 16:04:54 -0500 (EST)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iANL3OuA011756
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 21:03:24 GMT
-Subject: Re: gentoo policy for dante
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iANL6rIi015235
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 16:06:53 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iANL6uau003892
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 21:06:56 GMT
+Subject: Re: gentoo diff for ntpd, gpm
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
-To: Daniel J Walsh <dwalsh@redhat.com>
+To: petre rodan <kaiowas@gentoo.org>
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <41A02530.3070505@redhat.com>
-References: <4198E94B.8070008@gentoo.org>
-	 <1100808438.26930.28.camel@moss-lions.epoch.ncsc.mil>
-	 <419D1ABD.4020901@gentoo.org>
-	 <1100893919.31793.32.camel@moss-lions.epoch.ncsc.mil>
-	 <41A02530.3070505@redhat.com>
+In-Reply-To: <419E0D54.3000409@gentoo.org>
+References: <419E0D54.3000409@gentoo.org>
 Content-Type: text/plain
-Message-Id: <1101244051.7273.34.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1101244176.7273.36.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 23 Nov 2004 16:07:31 -0500
+Date: Tue, 23 Nov 2004 16:09:36 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged, except for the stunnel.te part.
+Merged.
 
-On Sun, 2004-11-21 at 00:18, Daniel J Walsh wrote:
-> Small change on previous patch.
+On Fri, 2004-11-19 at 10:12, petre rodan wrote:
+> gpm:
+> gpm_conf_t label for /etc/gpm(/.*)?
 > 
-> Please ignore previous patch and use this one.
-
+> ntpd:
+> logrotate_exec_t has been added in a ifdef('logrotate some time ago
+> 2 file contexts tweaked to support gentoo file locations
+> 
+> bye,
+> peter
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
