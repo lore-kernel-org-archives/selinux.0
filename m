@@ -1,22 +1,28 @@
-Subject: Re: Process Transition
-From: Stephen Smalley <sds@epoch.ncsc.mil>
+Message-ID: <4051FB0A.8060909@tresys.com>
+Date: Fri, 12 Mar 2004 13:01:46 -0500
+From: David Caplan <dac@tresys.com>
+MIME-Version: 1.0
 To: Chad Hanson <chanson@tcs-sec.com>
-Cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
-In-Reply-To: <791924EBDA572C4FA970D4A94AA95DA3115410@chaos.tcs.tcs-sec.com>
+CC: "Stephen Smalley (E-mail)" <sds@epoch.ncsc.mil>,
+   "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
+Subject: Re: Process Transition
 References: <791924EBDA572C4FA970D4A94AA95DA3115410@chaos.tcs.tcs-sec.com>
-Content-Type: multipart/mixed; boundary="=-48nsYsLsKn+WypGqCJ3C"
-Message-Id: <1079113956.8203.13.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 12 Mar 2004 12:52:36 -0500
+In-Reply-To: <791924EBDA572C4FA970D4A94AA95DA3115410@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Luckily it doesn't have any effect on the computation of the access 
+vector.  If the transition permission bit was _not_ set (and some other 
+permission was set to make avd->allowed evaluate to non zero, i.e. the 
+bug case), and the other conditions were true, the net effect is no 
+different than if the code were correct.  A little extra code is run, 
+but no access is granted or illegal transition permitted.
 
---=-48nsYsLsKn+WypGqCJ3C
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Nice find!  (It's also present in checkpolicy's version of services.c, 
+where it also has no net effect).
 
-On Thu, 2004-03-11 at 15:49, Chad Hanson wrote:
+Chad Hanson wrote:
 > We found a piece of process transition code that should be updated to work
 > as expected.
 > 
@@ -41,39 +47,20 @@ On Thu, 2004-03-11 at 15:49, Chad Hanson wrote:
 > 	if (tclass == SECCLASS_PROCESS &&
 > 	    avd->allowed & PROCESS__TRANSITION &&
 > 	    scontext->role != tcontext->role) {
-
-Thanks; patch attached.  The existing buggy code will still produce the
-right access computation; it just causes unnecessary processing to occur
-when the transition permission wasn't granted in the first place by the
-TE configuration.
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
---=-48nsYsLsKn+WypGqCJ3C
-Content-Disposition: attachment; filename=selinux-fixtrans.patch
-Content-Type: text/x-patch; name=selinux-fixtrans.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: linux-2.6/security/selinux/ss/services.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/services.c,v
-retrieving revision 1.34
-diff -u -r1.34 services.c
---- linux-2.6/security/selinux/ss/services.c	18 Feb 2004 14:26:06 -0000	1.34
-+++ linux-2.6/security/selinux/ss/services.c	12 Mar 2004 13:37:44 -0000
-@@ -262,7 +262,7 @@
- 	 * pair.
- 	 */
- 	if (tclass == SECCLASS_PROCESS &&
--	    avd->allowed && PROCESS__TRANSITION &&
-+	    (avd->allowed & PROCESS__TRANSITION) &&
- 	    scontext->role != tcontext->role) {
- 		for (ra = policydb.role_allow; ra; ra = ra->next) {
- 			if (scontext->role == ra->role &&
-
---=-48nsYsLsKn+WypGqCJ3C--
+> 
+> -Chad
+> _______________________________________________________________
+> Chad Hanson				mailto:chanson@tcs-sec.com
+> Trusted Computer Solutions		Phone: 217-384-0028 x12
+> 121 W Goose Alley			Fax: 217-384-0288
+> Urbana IL 61801
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
