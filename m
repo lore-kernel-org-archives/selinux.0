@@ -1,53 +1,39 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA09706
-	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2002 06:50:46 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA11111
+	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2002 09:26:00 -0400 (EDT)
+From: pasi.kivikangas@nokia.com
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id KAA26570
-	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2002 10:47:56 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id KAA26566
-	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2002 10:47:54 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brian May <bam@snoopy.apana.org.au>
-Subject: Re: checkpolicy and login names
-Date: Wed, 25 Sep 2002 12:49:00 +0200
-References: <GBEAJBKHFOBIBBJBCGAGKEKGCFAA.dac@tresys.com> <200209241900.20427.russell@coker.com.au> <20020925092730.GB17419@snoopy.apana.org.au>
-In-Reply-To: <20020925092730.GB17419@snoopy.apana.org.au>
-Cc: selinux@tycho.nsa.gov
+	by jazzswing.ncsc.mil  with ESMTP id NAA03682
+	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2002 13:24:31 GMT
+Received: from mgw-x4.nokia.com (mgw-x4.nokia.com [131.228.20.27])
+	by jazzswing.ncsc.mil  with ESMTP id NAA03678
+	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2002 13:24:30 GMT
+Received: from esvir03nok.nokia.com (esvir03nokt.ntc.nokia.com [172.21.143.35])
+	by mgw-x4.nokia.com (Switch-2.2.1/Switch-2.2.0) with ESMTP id g8PDQQF27893
+	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2002 16:26:26 +0300 (EET DST)
+Received: from esebh002.NOE.Nokia.com (unverified) by esvir03nok.nokia.com
+ (Content Technologies SMTPRS 4.2.5) with ESMTP id <T5d8e49bfa1ac158f23157@esvir03nok.nokia.com> for <selinux@tycho.nsa.gov>;
+ Wed, 25 Sep 2002 16:25:56 +0300
 MIME-Version: 1.0
-Message-Id: <200209251249.00585.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: SELinux on UML
+Date: Wed, 25 Sep 2002 16:25:54 +0300
+Message-ID: <98C7D2E5BCD2374C9AAE0BCD2E9C1DD9BE8429@esebe013.ntc.nokia.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 25 Sep 2002 11:27, Brian May wrote:
-> On Tue, Sep 24, 2002 at 07:00:20PM +0200, Russell Coker wrote:
-> > On Tue, 24 Sep 2002 16:32, david caplan wrote:
-> > > We just ran across the case where we were trying to add a login name
-> > > with a '.' in it.  When we tried to add the user to the policy,
-> > > checkpolicy choked on the '.' in the id.  The parser expects an
-> > > Identifier, which is defined to be a letter followed by a combination
-> > > of letter|digit|_ of any length.
-> >
-> > What about "chown user.group file"?  I think that alone is a good enough
-> > reason not to want to have a '.' in a user-name.
->
-> ns has a number of userids with '.' in them.
->
-> Required for cgi-wrap I think.
+Hi,
 
-Oh yes, I forgot about that.  If you want to have a DNS domain name as a Unix 
-account name (needed for cgiwrap and some other wrapper programs for cgi-bin 
-scripts) then you need the dots.
+I wanted to try out SELinux on UML (User Mode Linux). What I did was, I patched Linux kernel 2.4.19 with LSM- then with SELinux- and finally with UML-patches. Everything went quite well and I didn't have to do too much manual work.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Anyhow, UML kernel compilation didn't succeed because SELinux seems to rely on some ptrace stuff (I'm not quite familiar with that) and UML doesn't seem to provide that.
 
+Just wanted to ask if somebody around have done some experiments with SELinux on UML and got it working somehow?
+
+
+	- Pasi
 
 --
 This message was distributed to subscribers of the selinux mailing list.
