@@ -1,38 +1,45 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j11DI853015028
-	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 08:18:08 -0500 (EST)
-Subject: Re: File Browsing apps and getattr
+Subject: Re: slapd_db_t database inaccessable to domain like shadow_t
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: ivg2@cornell.edu
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1107263308.6722.5.camel@cobra.ivg2.net>
-References: <1107210369.1928.5.camel@cobra.ivg2.net>
-	 <1107259894.26936.27.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107263308.6722.5.camel@cobra.ivg2.net>
+To: mailinglist.selinux@ifsaudiovisueel.nl
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <E1CvyAL-0006Gq-SZ@server.intranet.ifsaudiovisueel.nl>
+References: <E1CvyAL-0006Gq-SZ@server.intranet.ifsaudiovisueel.nl>
 Content-Type: text/plain
-Message-Id: <1107263499.26936.50.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1107263962.26936.53.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 01 Feb 2005 08:11:39 -0500
+Date: Tue, 01 Feb 2005 08:19:22 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-01 at 08:08, Ivan Gyurdiev wrote:
-> Why? I don't see why it's necessary to get all those denials,
-> and why ls doesn't show me the file properties for restricted types. 
-> It seems reasonable to me that if you can search the parent directory
-> you should be permitted to stat the files in it.
+On Tue, 2005-02-01 at 08:34, mailinglist.selinux@ifsaudiovisueel.nl
+wrote:
+> policy writing question (newbie).
 > 
-> Even the manpage of stat() says so:
+> I tried to make the databases (and /etc/ldap.secret) of slapd just as inaccessable as the shadow-file (except for backup related processes etc).
+> Ofcourse it would be silly to make the databases more accessable than the shadow file, since one could introduce a user name.
+> root to the database with a different password if access to it.
+> Now my problem is that it doesn't seem to allow me to do this, or actually, my brain doesn't allow me yet.
 > 
-> "These  functions  return information about the specified file.  You do
-> not need any access rights to the file to get this information but you
-> need search rights to all directories named in the path leading to the
-> file."
+> Any ideas on how to do this?.
+> I tried adding '-slapd_db_t' at the points where is says -shadow_t, but that won't do.
+> I get m4 compilation errors telling me that different rules are violating this rule.
+> 
+> <snippet.
+> assertion on line 72498 violated by allow sysadm_t slapd_db_t:file { write create setattr append unlink link rename }.
+> assertion on line 72498 violated by allow portage_t slapd_db_t:file { write create setattr append unlink link rename }.
+> assertion on line 72498 violated by allow setfiles_t slapd_db_t:file { relabelfrom relabelto }.
+> assertion on line 72497 violated by allow sysadm_t slapd_db_t:file { ioctl read write create setattr lock append unlink link rename }.
+> assertion on line 72497 violated by allow portage_t slapd_db_t:file { ioctl read write create setattr lock append unlink link rename }.
+> assertion on line 72497 violated by allow portage_sandbox_t slapd_db_t:file { ioctl read lock }.
+> assertion on line 72497 violated by allow setfiles_t slapd_db_t:file { relabelfrom relabelto }.
+> </snippet.
+> 
+> I am not able to locate these rules. It must be a macro of a macro of a macro thing, but I don't have the knowledge to trace it back.
+> Probably you can give me a clue.
 
-Yes, that is in the absence of mandatory access control.  Properties of
-the file should be protected in accordance with the security label of
-the file, not the parent directory.  The name is part of the directory
-state, but the stat(2) information is part of the inode state.
+Use apol (yum install setools setools-gui if you don't have them
+already) to search for matching rules, then it will give you the
+traceback at least to policy.conf.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
