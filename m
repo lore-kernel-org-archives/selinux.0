@@ -1,43 +1,45 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA12834
-	for <selinux@tycho.nsa.gov>; Sat, 6 Jul 2002 05:24:18 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id JAA06775
-	for <selinux@tycho.nsa.gov>; Sat, 6 Jul 2002 09:22:48 GMT
-Received: from mail.gmx.net (mail.gmx.net [213.165.64.20])
-        by jazzband.ncsc.mil  with SMTP id JAA06771 for <selinux@tycho.nsa.gov>; Sat, 6 Jul 2002 09:22:47 GMT
-Message-Id: <200207060922.JAA06771@jazzband.ncsc.mil>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: jw@centraltexasit.com
-Subject: Re: ReiserFS, ext3 and other file systems
-Date: Sat, 6 Jul 2002 11:24:23 +0200
-References: <200207060201.11154.jw@centraltexasit.com>
-In-Reply-To: <200207060201.11154.jw@centraltexasit.com>
-Cc: selinux@tycho.nsa.gov
+From: "Leslie J. French" <ljf@semandex.net>
+To: "SELinux" <SELinux@tycho.nsa.gov>
+Subject: poweroff problem?
+Date: Sat, 6 Jul 2002 11:35:17 -0400
+Message-ID: <BFEMIIHKHLALNELLMPOMMEKBCBAA.ljf@semandex.net>
 MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <1025911273.8785.1.camel@phobos>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Am Samstag, 6. Juli 2002 09:01 schrieb JW:
-> Hello,
->
-> I was just reading the install file and I saw the statment, that "if you're
-> usign ext3, be sure to enable support for it".
+I've just installed lsm 2-4 selinux 2002070313 on top of RH7.3 (2.4.18-3)
 
-I think it's mean the kernel support in the SELinux kernel.
+I never tried on my older version, but I found that /sbin/poweroff doesn't
+work under SELinux as I configured/built it.  If I boot into the RH kernel,
+it works (turns off the machine power), but in SELinux it shuts down as far
+as "Powering off" message but leaves the machine running. In the config I
+set:
 
-> What exactly is the nature of "ext3" support? I would not think SE Linux
-> would care that much about what FS it was on.
->
-> I use ReiserFS, which I am rather fond of -- does SE Linux work on that?
+  ACPI support; APM-enable-at-boot, idle-when-idle and
+use-APM-bios-to-poweroff
 
-Yes, SELInux works on ext2, ext3 and ReiserFS fine. 
+The system is running [kapmd] and apmd daemons, but I'm wondering if there
+is a conflict between the RH and LSM versions, since the boot log shows:
 
-> Thanks,
->
->       JW
+   apm BIOS 1.2
+   ....
+   Capability LSM initialised
+   ACPI: APM is already active, exiting.
+
+And there are a lot of avc violations associated with killall from apmd_t to
+various other types (e.g. kernet_t).  This is as "out of the box" as I can
+make my system, none of my users or domains are in the system, and I'm using
+the .te and .fc files directly from the distribution.
+
+If a more knowledgable person could give me a hint as to what might be going
+wrong, I would appreciate it.  If you need the config/log files I will post
+them separately.
+
+Thanks,  Leslie
+
 
 --
 You have received this message because you are subscribed to the selinux list.
