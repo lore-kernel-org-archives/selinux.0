@@ -1,58 +1,49 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6T1rRrT015670
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 21:53:27 -0400 (EDT)
-Received: from smtp814.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6T1quVb000058
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 01:52:56 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp814.mail.ukl.yahoo.com with SMTP; 29 Jul 2004 01:53:26 -0000
-Date: Thu, 29 Jul 2004 03:04:31 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: temporary hack to use udev in selinux
-Message-ID: <20040729020431.GA10044@lkcl.net>
-References: <20040728232043.GF18711@lkcl.net> <410844F9.3010203@gentoo.org> <20040729013510.GC4335@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040729013510.GC4335@lkcl.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6T6aWrT016622
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 02:36:32 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6T6aPCb026716
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 06:36:28 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Milan P. Stanic" <mps@rns-nis.co.yu>
+Subject: Re: New or Old SELinux
+Date: Thu, 29 Jul 2004 16:35:56 +1000
+Cc: selinux@tycho.nsa.gov
+References: <1090955044.1886.49.camel@allhosts> <20040728094631.GA2977@rns-nis.co.yu>
+In-Reply-To: <20040728094631.GA2977@rns-nis.co.yu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200407291635.56038.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-okay, i've added in some stuff for tmpfs, just like chris did,
-joshua.
+On Wed, 28 Jul 2004 19:46, "Milan P. Stanic" <mps@rns-nis.co.yu> wrote:
+> On Tue, Jul 27, 2004 at 04:04:05PM -0300, Martin Sarsale wrote:
+> > I would like to stay in stable but I couldn't find any of the New
+> > SELinux (coreutils, procps, etc) enabled packages for deb stable, so I
+> > guess I'll have to stick with the old SELinux (on kernels 2.4.x).
+>
+> Which kernel version you have on stable, 2.4 or 2.6?
+>
+> I have backport (it is far from perfect, but it works) for woody with
+> 2.6 kernels at http://www.rns-nis.co.yu/~mps/
+> It is few months old, though.
 
-if anyone would like to play with this (aside from kicking the
-udev developer) then you can find the code at
-http://hands.com/~lkcl/selinux/2.6.6.
+It might be better if you use the backports.org repository if you are going to 
+develop packages to share with others.
 
-it's too late in the morning to go making patches, sorry: help yourself.
-i'll sort patches later.
+> Backporting SE Linux utilities and libraries isn't hard at all,
+> thanks to the excellent work of the Debian maintainer.
 
-i added, like chris did, some "special" inodes stuff, and some stuff
-to do symlinks too.
+If you could maintain a back-port repository then that would be really good!
 
-of course, the default policy files all expect the root filesystem
-to be a hard drive not a tmpfs_t so boot poos up.
-
-i started adding in selinux permissions to udev.te.
-
-... i get the impression that i need to do stuff like create a
-new initrd that has /selinux in it and things.
-
-but what i _can_ do that's fairly easy is write a message to the
-nice udev developer :)
-
-l.
-
-On Thu, Jul 29, 2004 at 02:35:10AM +0100, Luke Kenneth Casson Leighton wrote:
-> > >i have a requirement (use of usb-mount, see
-> > >http://users.actrix.co.nz/michael/usbmount.html) that forces the use
-> > >of udev on an selinux system.
-
-> > Chris PeBenito made this patch for Gentoo when we were evalutating udev 
-> > on selinux
-> > 
-> > http://dev.gentoo.org/~method/1330_linux-2.6.5-ramfs-xattr.patch
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
