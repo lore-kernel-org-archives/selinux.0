@@ -1,33 +1,31 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j35DssDo008330
-	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 09:54:54 -0400 (EDT)
-Subject: Re: Tweaks to the amavis policy
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j35DtBDo008353
+	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 09:55:12 -0400 (EDT)
+Subject: Re: New policy for razor
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: David Hampton <hampton-rh@rainbolthampton.net>
 Cc: SELinux <selinux@tycho.nsa.gov>, fedora-selinux-list@redhat.com
-In-Reply-To: <1110979100.20316.18.camel@hampton-pc.rainbolthampton.net>
-References: <1110979100.20316.18.camel@hampton-pc.rainbolthampton.net>
+In-Reply-To: <1111454590.18940.52.camel@hampton-pc.rainbolthampton.net>
+References: <1111454590.18940.52.camel@hampton-pc.rainbolthampton.net>
 Content-Type: text/plain
-Date: Tue, 05 Apr 2005 09:53:56 -0400
-Message-Id: <1112709236.1883.10.camel@moss-lions.epoch.ncsc.mil>
+Date: Tue, 05 Apr 2005 09:54:13 -0400
+Message-Id: <1112709253.1883.12.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Merged into the SELinux policy CVS tree at sourceforge.
 
-On Wed, 2005-03-16 at 08:18 -0500, David Hampton wrote:
-> I've added support to the (unused) amavis policy to allow interaction
-> with additional mail filters, and added a new type specifically for
-> quarantined spam and viruses.  I also tweaked the network access to
-> limit ports that can be used by amavisd.  I'd appreciate any feedback on
-> these changes or tips on how to write better policies.  Thanks.
+On Mon, 2005-03-21 at 20:23 -0500, David Hampton wrote:
+> This is a new strict policy for the razor spam filter.  It is based on
+> the selinux-policy-strict-sources-1.23.2-1 fedora RPM.  This policy
+> requires the definition of a razor reserved port that was in the
+> net_contexts diff I sent last Wednesday.  Please let me know if there
+> are any problems with or changes needed to this policy.
 > 
 > David
 > 
-> P.S.  These diffs are based on the files from the selinux-policy-strict-
-> sources-1.22.1-2 rpm.
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
