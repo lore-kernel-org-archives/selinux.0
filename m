@@ -1,42 +1,42 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA10693
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 18:30:43 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA10770
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 18:44:16 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA24489
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 22:30:33 GMT
+	by jazzswing.ncsc.mil  with ESMTP id WAA25091
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 22:44:05 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA24485
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 22:30:31 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 262B492461
-	for <selinux@tycho.nsa.gov>; Tue,  4 Jun 2002 08:30:38 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 44BC568D
-	for <selinux@tycho.nsa.gov>; Tue,  4 Jun 2002 00:30:26 +0200 (CEST)
+	by jazzswing.ncsc.mil  with ESMTP id WAA25087
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 22:44:04 GMT
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: auditdeny is painful
-Date: Tue, 4 Jun 2002 00:30:26 +0200
+To: Stephen Smalley <sds@tislabs.com>
+Subject: Re: Updated Release
+Date: Tue, 4 Jun 2002 00:44:04 +0200
+Cc: Howard Holm <hdholm@epoch.ncsc.mil>, <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0206030849470.25105-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0206030849470.25105-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020603223026.44BC568D@lyta.coker.com.au>
+Message-Id: <20020603224404.B7C1E7272@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I think that auditdeny is misdesigned.  Having to specify that we want to 
-audit the opposite of what we don't want to audit is really confusing when 
-you first start, and even with some practise it can result in results other 
-than what you expect.  Consider the situation where you want to specify in 
-one file to not audit getattr while in another file you want to specify not 
-to audit search (this has seemed to be impossible in my tests).
+On Mon, 3 Jun 2002 14:53, Stephen Smalley wrote:
+> On Sat, 1 Jun 2002, Russell Coker wrote:
+> > For 2.4.18 the kernel patch doesn't have the recent patches for
+> > security_get_sids or the patch for sleeping allocation during a policy
+> > load.
+>
+> I'm not sure what you mean.  I just downloaded the complete lsm-2.4 tree
+> and the lsm patch from the NSA SELinux web site, and they did include
+> these patches.
 
-Also I am having problems with the following:
-auditdeny apmd_t { file_type fs_type }:dir_file_class_set ~getattr;
-auditdeny apmd_t user_home_t:dir ~{ search getattr };
+I have checked it again, it seems that I made a mistake.  I may have 
+mistakenly used the latest LSM release when comparing instead.
 
-The result is that "apmd_t user_home_t:dir search" is audited.
+It seems that the version on the NSA site has all the patches plus some new 
+socket and MLS support.  I'll have it in Debian tomorrow.
 
 -- 
 I do not get viruses because I do not use MS software.
