@@ -1,44 +1,38 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j27IVODo012398
-	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2005 13:31:25 -0500 (EST)
-Received: from ms-smtp-01.rdc-kc.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j27IQoZd029340
-	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2005 18:26:50 GMT
-Received: from sasami.localdomain (CPE-67-48-98-59.kc.rr.com [67.48.98.59])
-	by ms-smtp-01.rdc-kc.rr.com (8.12.10/8.12.7) with ESMTP id j27IPoWZ022416
-	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2005 12:26:20 -0600 (CST)
-Received: from localhost (localhost [127.0.0.1])
-	by sasami.localdomain (Postfix) with ESMTP id 030914A626
-	for <selinux@tycho.nsa.gov>; Mon,  7 Mar 2005 12:25:50 -0600 (CST)
-Received: from sasami.localdomain ([127.0.0.1])
-	by localhost (sasami [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 29274-03 for <selinux@tycho.nsa.gov>;
-	Mon, 7 Mar 2005 12:25:49 -0600 (CST)
-Received: from yggdrasil.localdomain (yggdrasil.localdomain [192.168.0.2])
-	by sasami.localdomain (Postfix) with ESMTP id BFDDB4A624
-	for <selinux@tycho.nsa.gov>; Mon,  7 Mar 2005 12:25:49 -0600 (CST)
-Date: Mon, 7 Mar 2005 12:25:49 -0600
-From: Greg Norris <haphazard@kc.rr.com>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: conferences
-Message-ID: <20050307182549.GA21087@yggdrasil.localdomain>
-References: <200503061741.44076.russell@coker.com.au>
+Subject: Re: Question - dac_override/dac_read_search
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1109931547.5232.1.camel@cobra.ivg2.net>
+References: <1109931547.5232.1.camel@cobra.ivg2.net>
+Content-Type: text/plain
+Date: Mon, 07 Mar 2005 16:03:10 -0500
+Message-Id: <1110229390.3964.1.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200503061741.44076.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Mar 06, 2005 at 05:41:43PM +1100, Russell Coker wrote:
-> Before the conference I went to the NSA crypto museum with some friends.  It's 
-> a really good museum where you can play with a working Enigma machine and 
-> touch many other things including Crays.  The museum was more crowded than 
-> usual in the afternoon, I saw as many as three visitors in the museum who 
-> weren't in my group.  It's good and it's free, I recommend that everyone 
-> visit it.
+On Fri, 2005-03-04 at 05:19 -0500, Ivan Gyurdiev wrote:
+> I've seen these before, and here they are again.
+> What causes those denials, and how can I fix them in general?
+> 
+> This specific case is running depmod -a as root.
+> 
+> audit(1109930761.807:0): avc:  denied  { dac_override } for  pid=4678
+> exe=/sbin/depmod capability=1 scontext=root:sysadm_r:depmod_t
+> tcontext=root:sysadm_r:depmod_t tclass=capability
+> 
+> audit(1109930761.807:0): avc:  denied  { dac_read_search } for  pid=4678
+> exe=/sbin/depmod capability=2 scontext=root:sysadm_r:depmod_t
+> tcontext=root:sysadm_r:depmod_t tclass=capability
 
-I've gotta agree with Russell... the Crypto Museum was quite slick.  
-Well worth a visit! ;-)
+Happens when the program attempts to access a file in a way that
+violates the DAC permissions, i.e. file mode bits.  Commonly occurs when
+a root process is running in a user directory or operating on a user
+file, as it may need to override DAC to access the directory or file.
+
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
