@@ -1,100 +1,63 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3SDxWRb006645
-	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2004 09:59:32 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i3SDvJa1000198
-	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2004 13:57:20 GMT
-Subject: Re: preserving user-set contexts
-From: Colin Walters <walters@verbum.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1083152961.25987.20.camel@moss-spartans.epoch.ncsc.mil>
-References: <1082752649.12608.111.camel@nexus.verbum.private>
-	 <1082989812.22940.43.camel@moss-spartans.epoch.ncsc.mil>
-	 <1083116682.3390.34.camel@nexus.verbum.private>
-	 <1083152961.25987.20.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EjCeEaG40qNC9n8k71wn"
-Message-Id: <1083157990.8370.19.camel@nexus.verbum.private>
-Mime-Version: 1.0
-Date: Wed, 28 Apr 2004 09:13:10 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3SKS1Rb009896
+	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2004 16:28:01 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i3SKRxYW019550
+	for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2004 20:27:59 GMT
+Received: from smtp.sws.net.au ([61.95.69.6])
+        by jazzband.ncsc.mil  with ESMTP id i3SKRlBf019397 for <selinux@tycho.nsa.gov>; Wed, 28 Apr 2004 20:27:58 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 799BC61C5B
+	for <selinux@tycho.nsa.gov>; Thu, 29 Apr 2004 06:26:24 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 07229-02 for <selinux@tycho.nsa.gov>;
+	Thu, 29 Apr 2004 06:26:24 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id E488661BD6
+	for <selinux@tycho.nsa.gov>; Thu, 29 Apr 2004 06:26:23 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id A312DB586F
+	for <selinux@tycho.nsa.gov>; Thu, 29 Apr 2004 06:26:26 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: type for less trusted files
+Date: Thu, 29 Apr 2004 06:26:26 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200404290626.26073.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I have been involved in some discussions of packaging issues.
 
---=-EjCeEaG40qNC9n8k71wn
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+There is a desire to have support for treating packages differently depending 
+on signature status.  If a package is signed by a trusted key then things 
+operate in the current manner.  If the package is unsigned or the key is 
+untrusted then things will be different, we want rpm to decline to install 
+such files to certain directories (discussion on how to do this is continuing 
+- but it looks like having rpm query the kernel as to whether the SE Linux 
+policy permits an untrusted version of itself to write to the directories etc 
+is best).
 
-On Wed, 2004-04-28 at 07:49, Stephen Smalley wrote:
-> On Tue, 2004-04-27 at 21:44, Colin Walters wrote:
-> > Well, users should still be stopped by DAC in setting xattrs on files
-> > they didn't own, which covers all the practical cases I can think of
-> > right now.
->=20
-> DAC isn't applied to the security namespace.  SELinux controls access to
-> its attributes (including an identity-based restriction on
-> relabelfrom/relabelto via policy/constraints).  Other attributes in the
-> security namespace are presently limited to CAP_SYS_ADMIN.
->=20
-> And relying on DAC to prevent the ability to _block_ a MAC policy from
-> being applied is not a good idea anyway.
+For files from an untrusted package we want different labelling.  Maybe 
+untrusted_bin_t for files that might otherwise be labelled as bin_t, and have 
+an attribute untrusted_file for all such types.
 
-I agree.
+Then we want a "make relabel" operation to not change untrusted_bin_t to 
+bin_t.  We could do this by having setfiles know about the types that it 
+should not relabel (some policy query), or we could simply deny it 
+relabelfrom access.
 
-> That's debatable.  Many MAC policies aren't going to allow ordinary
-> users to relabel _anything_. =20
+What do you think?
 
-Well, presently the sample policy does.  I recently added another
-user-customizable type to the Red Hat policy, e.g.
-staff_mount_source_t.  I think that other types like this will be
-created in the future as well.
-
-> And allowing users to export arbitrary
-> data to the web server is not a good idea, if you want to enforce any
-> kind of confidentiality policy.
-
-True.  But it seems to me that without something like MLS, it is
-currently difficult to enforce a reasonable and strong confidentiality
-policy using SELinux anyways.
-
-> setfiles already skips files that have no matching specification.  But
-> at present, every file matches at least the /.* regex at the beginning
-> of types.fc.  So you can achieve the above by simply removing that
-> pattern (but I wouldn't recommend this).  Note that even if you do this,
-> you'll still want some context applied for the initial install.  So
-> you'll need two variants of the file_contexts configuration; one for
-> installation and one for runtime relabels (which isn't necessarily a bad
-> idea anyway).
-
-Yes, the two variants idea sounds reasonable to me for the /build
-problem.
-
-> >   For the
-> > httpd_user_content_t problem, we could add an attribute e.g.
-> > "customizable_type".  setfiles would by default not relabel that have
-> > this type.
->=20
-> And how do you control the ability to set this attribute?
-
-Ah, sorry; I meant a SELinux policy attribute, not an xattr.  So
-checkpolicy could gather these and perhaps write out a separate
-"customizable_types" file.  setfiles would parse this and by default not
-relabel files with one of these types.
-
-
---=-EjCeEaG40qNC9n8k71wn
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAj63mOIkJWWp2WGURAoZxAJ9n+UVLjsdmBPcezLTaBLnrkOHStwCfUJGx
-R7RdDge8dlH+zREeiKaVHww=
-=yW5e
------END PGP SIGNATURE-----
-
---=-EjCeEaG40qNC9n8k71wn--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
