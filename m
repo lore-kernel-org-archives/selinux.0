@@ -1,158 +1,163 @@
-Message-ID: <5D201EB6E3041946BC4F8F6A14296132607EE3@svnt4-5.inepar.com.br>
-From: "Luis Fernando C. Talora" <luis.talora@iesa.com.br>
-To: " (SELinux@tycho.nsa.gov)" <SELinux@tycho.nsa.gov>
-Subject: Problem with SELinux and Squid+Winbind+Samba
-Date: Tue, 7 Dec 2004 09:19:14 -0200 
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB7FOpIi028515
+	for <selinux@tycho.nsa.gov>; Tue, 7 Dec 2004 10:24:52 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB7FOsmm015523
+	for <selinux@tycho.nsa.gov>; Tue, 7 Dec 2004 15:24:55 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id iB7FOtBe002015
+	for <selinux@tycho.nsa.gov>; Tue, 7 Dec 2004 10:24:55 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id iB7FOtr09698
+	for <selinux@tycho.nsa.gov>; Tue, 7 Dec 2004 10:24:55 -0500
+Message-ID: <41B5CB46.4020407@redhat.com>
+Date: Tue, 07 Dec 2004 10:24:54 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C4DC4E.9523D5D0"
+To: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: Yee-HAH! 'smartd' issues 70 avc's when it tries to send mail...
+References: <200412032012.iB3KCjaT030175@turing-police.cc.vt.edu>
+In-Reply-To: <200412032012.iB3KCjaT030175@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Valdis.Kletnieks@vt.edu wrote:
 
-------_=_NextPart_001_01C4DC4E.9523D5D0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-Fellows,
-=20
-I=B4m trying to put a server running Squid with Microsoft Windows Active
-Directory integrated authentication (using Samba 3 and Winbind). When I
-start the squid service, I get the following message (it repeats itself m=
-any
-times):
-=20
-Dec  7 08:48:56 svux8-250 kernel: audit(1102416536.028:0): avc:  denied  =
-{
-getattr } for  pid=3D3825 exe=3D/usr/lib/squid/wb_ntlmauth
-path=3D/var/run/winbindd/pipe dev=3Dhda7 ino=3D627398
-scontext=3Droot:system_r:squid_t tcontext=3Droot:object_r:var_run_t
-tclass=3Dsock_file
-=20
-Since I=B4m new in SELinux, I have no idea how to solve this. Could someo=
-ne
-give some help?
-=20
-Thank you all!
-=20
-Regards,
-=20
-_____________________
-Luis Fernando C. Talora
-Support Analyst
-=20
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Esta mensagem pode conter informa=E7=E3o confidencial e/ou privilegiada.
-Se voc=EA n=E3o for o destinat=E1rio ou a pessoa autorizada a receber est=
-a=20
-mensagem, n=E3o dever=E1 utilizar, copiar, alterar, divulgar a informa=E7=
-=E3o=20
-nela contida ou tomar qualquer a=E7=E3o baseada nessas informa=E7=F5es. S=
-e=20
-voc=EA recebeu esta mensagem por engano, por favor avise imediatamente=20
-o remetente, respondendo o e-mail e em seguida apague-o.Agradecemos=20
-sua coopera=E7=E3o.=20
-
-This message may contain confidential and/or privileged information.=20
-If you are not the addressee or authorized to receive this for the=20
-addressee, you must not use, copy, disclose, change, take any action=20
-based on this message or any information herein. If you have received
-this message in error, please advise the sender immediately by reply=20
-e-mail and delete this message. Thank you for your cooperation.
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-------_=_NextPart_001_01C4DC4E.9523D5D0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-885=
-9-1">
-
-
-<META content=3D"MSHTML 6.00.3790.0" name=3DGENERATOR></HEAD>
-<BODY>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
-size=3D2>Fellows,</FONT></SPAN></DIV>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
-size=3D2></FONT></SPAN>&nbsp;</DIV>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial size=3D2>I=B4m t=
-rying to put a=20
-server running Squid with Microsoft Windows Active Directory integrated=20
-authentication (using Samba 3 and Winbind). When I start the squid servic=
-e, I=20
-get the following message (it repeats itself many times):</FONT></SPAN></=
-DIV>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
-size=3D2></FONT></SPAN>&nbsp;</DIV>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial size=3D2>Dec&nbs=
-p; 7 08:48:56=20
-svux8-250 kernel: audit(1102416536.028:0): avc:&nbsp; denied&nbsp; { geta=
-ttr }=20
-for&nbsp; pid=3D3825 exe=3D/usr/lib/squid/wb_ntlmauth path=3D/var/run/win=
-bindd/pipe=20
-dev=3Dhda7 ino=3D627398 scontext=3Droot:system_r:squid_t=20
-tcontext=3Droot:object_r:var_run_t tclass=3Dsock_file</FONT></SPAN></DIV>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
-size=3D2></FONT></SPAN>&nbsp;</DIV>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial size=3D2>Since I=
-=B4m new in=20
-SELinux, I have no idea how to solve this. Could someone give some=20
-help?</FONT></SPAN></DIV>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
-size=3D2></FONT></SPAN>&nbsp;</DIV>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial size=3D2>Thank y=
-ou=20
-all!</FONT></SPAN></DIV>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
-size=3D2></FONT></SPAN>&nbsp;</DIV>
-<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
-size=3D2>Regards,</FONT></SPAN></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2>
-<DIV align=3Dleft><FONT face=3DArial size=3D2>_____________________</FONT=
-></DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2>Luis Fernando C. Talora</FO=
-NT></DIV>
-<DIV align=3Dleft><FONT face=3DArial size=3D2>Support Analyst</FONT></DIV=
+>Running Fedora Core Rawhide as of the other night, so fairly recent.
+>Using 'strict/permissive' at the moment...
 >
-<DIV align=3Dleft><FONT face=3DArial=20
-size=3D2></FONT>&nbsp;</DIV></FONT></DIV>
-<FONT SIZE=3D3 COLOR=3DBLUE><PRE>
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Esta mensagem pode conter informa=E7=E3o confidencial e/ou privilegiada.
-Se voc=EA n=E3o for o destinat=E1rio ou a pessoa autorizada a receber est=
-a=20
-mensagem, n=E3o dever=E1 utilizar, copiar, alterar, divulgar a informa=E7=
-=E3o=20
-nela contida ou tomar qualquer a=E7=E3o baseada nessas informa=E7=F5es. S=
-e=20
-voc=EA recebeu esta mensagem por engano, por favor avise imediatamente=20
-o remetente, respondendo o e-mail e em seguida apague-o.Agradecemos=20
-sua coopera=E7=E3o.=20
+>So I set up 'smartd' to monitor the hard drive in my laptop - I *know* there's
+>one bad spot of about 10 blocks long on it, and want to be told if it decides
+>to start getting bigger.  And sure enough, at boot it tries to e-mail me and
+>tell me there's bad blocks.  Unfortunately, it seems to invoke 'sh -c mail' or
+>something like that, so even the ugly hack of adding an
+>exec_auto_trans(sendmail_t) doesn't look like it will help.  Any good ideas on
+>how to deal with this one?
+>
+>(And I have *NO* idea why it pops the first 5-6 while trying to find resolv.conf)
+>
+>Is it trying to open port 25 to send the mail, and if there's no sendmail running,
+>it invokes 'sh -c mail'?  If so, the solution (or part of it) would simply be to
+>have smartd start after sendmail does.....
+>
+>Oddly curious - the failed read for pipe:[9756] - both ends appear to be fsdaemon_t ;)
+>
+>  
+>
+Can you try this patch
 
-This message may contain confidential and/or privileged information.=20
-If you are not the addressee or authorized to receive this for the=20
-addressee, you must not use, copy, disclose, change, take any action=20
-based on this message or any information herein. If you have received
-this message in error, please advise the sender immediately by reply=20
-e-mail and delete this message. Thank you for your cooperation.
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-</PRE></FONT>
-</BODY></HTML>
-------_=_NextPart_001_01C4DC4E.9523D5D0--
+ diff fs_daemon.te~ fs_daemon.te
+6c6
+< daemon_domain(fsdaemon, `, fs_domain')
+---
+ > daemon_domain(fsdaemon, `, fs_domain, privmail')
+15a16
+ > can_exec(fsdaemon_t, { sbin_t bin_t shell_exec_t }
+[root@laptop program]# diff -u fs_daemon.te~ fs_daemon.te
+--- fs_daemon.te~       2004-12-02 15:06:58.000000000 -0500
++++ fs_daemon.te        2004-12-07 10:18:53.437845410 -0500
+@@ -3,7 +3,7 @@
+ # Author:  Russell Coker <russell@coker.com.au>
+ # X-Debian-Packages: smartmontools
+
+-daemon_domain(fsdaemon, `, fs_domain')
++daemon_domain(fsdaemon, `, fs_domain, privmail')
+ allow fsdaemon_t self:unix_dgram_socket create_socket_perms;
+
+ # for config
+@@ -13,3 +13,4 @@
+ allow fsdaemon_t fixed_disk_device_t:blk_file rw_file_perms;
+ allow fsdaemon_t self:capability { sys_rawio sys_admin };
+ allow fsdaemon_t etc_runtime_t:file { getattr read };
++can_exec(fsdaemon_t, { sbin_t bin_t shell_exec_t }
+
+
+>The messages (almost 70 of them):
+>Dec  3 11:07:42 turing-police kernel: audit(1102089972.656:0): avc:  denied  { search } for  pid=17328 exe=/usr/sbin/smartd name=/ dev=tmpfs ino=3131 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmpfs_t tclass=dir
+>Dec  3 11:07:42 turing-police kernel: audit(1102089972.697:0): avc:  denied  { write } for  pid=17328 exe=/usr/sbin/smartd name=log dev=tmpfs ino=9084 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmpfs_t tclass=sock_file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089974.784:0): avc:  denied  { read } for  pid=17328 exe=/usr/sbin/smartd name=resolv.conf dev=dm-5 ino=24648 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:net_conf_t tclass=file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089974.784:0): avc:  denied  { getattr } for  pid=17328 exe=/usr/sbin/smartd path=/etc/resolv.conf dev=dm-5 ino=24648 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:net_conf_t tclass=file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089974.839:0): avc:  denied  { create } for  pid=17328 exe=/usr/sbin/smartd scontext=system_u:system_r:fsdaemon_t tcontext=system_u:system_r:fsdaemon_t tclass=unix_stream_socket
+>Dec  3 11:07:42 turing-police kernel: audit(1102089974.839:0): avc:  denied  { connect } for  pid=17328 exe=/usr/sbin/smartd scontext=system_u:system_r:fsdaemon_t tcontext=system_u:system_r:fsdaemon_t tclass=unix_stream_socket
+>Dec  3 11:07:42 turing-police kernel: audit(1102089974.947:0): avc:  denied  { search } for  pid=8202 exe=/usr/sbin/smartd name=bin dev=dm-5 ino=26670 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:bin_t tclass=dir
+>Dec  3 11:07:42 turing-police kernel: audit(1102089974.947:0): avc:  denied  { read } for  pid=8202 exe=/usr/sbin/smartd name=sh dev=dm-5 ino=57489 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:bin_t tclass=lnk_file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.002:0): avc:  denied  { execute } for  pid=8202 exe=/usr/sbin/smartd name=bash dev=dm-5 ino=26747 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:shell_exec_t tclass=file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.002:0): avc:  denied  { execute_no_trans } for  pid=8202 exe=/usr/sbin/smartd path=/bin/bash dev=dm-5 ino=26747 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:shell_exec_t tclass=file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.058:0): avc:  denied  { read } for  pid=8202 exe=/usr/sbin/smartd path=/bin/bash dev=dm-5 ino=26747 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:shell_exec_t tclass=file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.089:0): avc:  denied  { read } for  pid=8202 exe=/bin/bash name=meminfo dev=proc ino=-268435454 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:proc_t tclass=file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.089:0): avc:  denied  { getattr } for  pid=8202 exe=/bin/bash path=/proc/meminfo dev=proc ino=-268435454 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:proc_t tclass=file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.149:0): avc:  denied  { search } for  pid=8202 exe=/bin/bash name=sbin dev=dm-5 ino=47195 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:sbin_t tclass=dir
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.149:0): avc:  denied  { getattr } for  pid=8202 exe=/bin/bash path=/bin/bash dev=dm-5 ino=26747 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:shell_exec_t tclass=file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.213:0): avc:  denied  { getattr } for  pid=17328 exe=/usr/sbin/smartd path=pipe:[9756] dev=pipefs ino=9756 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:system_r:fsdaemon_t tclass=fifo_file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.213:0): avc:  denied  { read } for  pid=17328 exe=/usr/sbin/smartd path=pipe:[9756] dev=pipefs ino=9756 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:system_r:fsdaemon_t tclass=fifo_file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.280:0): avc:  denied  { getattr } for  pid=8202 exe=/bin/bash path=/bin/mail dev=dm-5 ino=26730 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:bin_t tclass=file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.280:0): avc:  denied  { execute } for  pid=8202 exe=/bin/bash name=mail dev=dm-5 ino=26730 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:bin_t tclass=file
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.346:0): avc:  denied  { getattr } for  pid=7644 exe=/bin/bash path=/tmp dev=dm-10 ino=2 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=dir
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.346:0): avc:  denied  { search } for  pid=7644 exe=/bin/bash name=/ dev=dm-10 ino=2 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=dir
+>Dec  3 11:07:42 turing-police kernel: audit(1102089975.415:0): avc:  denied  { write } for  pid=7644 exe=/bin/bash name=/ dev=dm-10 ino=2 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.449:0): avc:  denied  { add_name } for  pid=7644 exe=/bin/bash name=sh-thd-1102109337 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.449:0): avc:  denied  { create } for  pid=7644 exe=/bin/bash name=sh-thd-1102109337 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.517:0): avc:  denied  { write } for  pid=7644 exe=/bin/bash path=/tmp/sh-thd-1102109337 dev=dm-10 ino=6150 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.567:0): avc:  denied  { read } for  pid=7644 exe=/bin/bash name=sh-thd-1102109337 dev=dm-10 ino=6150 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.610:0): avc:  denied  { remove_name } for  pid=7644 exe=/bin/bash name=sh-thd-1102109337 dev=dm-10 ino=6150 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.610:0): avc:  denied  { unlink } for  pid=7644 exe=/bin/bash name=sh-thd-1102109337 dev=dm-10 ino=6150 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.679:0): avc:  denied  { execute_no_trans } for  pid=7644 exe=/bin/bash path=/bin/mail dev=dm-5 ino=26730 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:bin_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.679:0): avc:  denied  { read } for  pid=7644 exe=/bin/bash path=/bin/mail dev=dm-5 ino=26730 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:bin_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.783:0): avc:  denied  { setgid } for  pid=7644 exe=/bin/mail capability=6 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:system_r:fsdaemon_t tclass=capability
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.831:0): avc:  denied  { ioctl } for  pid=7644 exe=/bin/mail path=/tmp/sh-thd-1102109337 (deleted) dev=dm-10 ino=6150 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.866:0): avc:  denied  { ioctl } for  pid=7644 exe=/bin/mail path=pipe:[9756] dev=pipefs ino=9756 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:system_r:fsdaemon_t tclass=fifo_file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089975.901:0): avc:  denied  { getattr } for  pid=7644 exe=/bin/mail path=/tmp/Rsx6eaR5 dev=dm-10 ino=6151 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089976.007:0): avc:  denied  { execute } for  pid=13925 exe=/bin/mail name=sendmail dev=dm-1 ino=41557 scontext=system_u:system_r:fsdaemon_t tcontext=root:object_r:sbin_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089976.007:0): avc:  denied  { execute_no_trans } for  pid=13925 exe=/bin/mail path=/usr/sbin/sendmail dev=dm-1 ino=41557 scontext=system_u:system_r:fsdaemon_t tcontext=root:object_r:sbin_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089976.091:0): avc:  denied  { read } for  pid=13925 exe=/bin/mail path=/usr/sbin/sendmail dev=dm-1 ino=41557 scontext=system_u:system_r:fsdaemon_t tcontext=root:object_r:sbin_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089976.683:0): avc:  denied  { create } for  pid=13925 exe=/usr/sbin/sendmail scontext=system_u:system_r:fsdaemon_t tcontext=system_u:system_r:fsdaemon_t tclass=tcp_socket
+>Dec  3 11:07:43 turing-police kernel: audit(1102089976.813:0): avc:  denied  { search } for  pid=13925 exe=/usr/sbin/sendmail name=mail dev=dm-5 ino=43015 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:etc_mail_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089976.865:0): avc:  denied  { getattr } for  pid=13925 exe=/usr/sbin/sendmail path=/etc/mail/submit.cf dev=dm-5 ino=43033 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:etc_mail_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089976.865:0): avc:  denied  { getattr } for  pid=13925 exe=/usr/sbin/sendmail path=/etc/mail dev=dm-5 ino=43015 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:etc_mail_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089976.947:0): avc:  denied  { read } for  pid=13925 exe=/usr/sbin/sendmail name=submit.cf dev=dm-5 ino=43033 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:etc_mail_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.097:0): avc:  denied  { setuid } for  pid=13925 exe=/usr/sbin/sendmail capability=7 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:system_r:fsdaemon_t tclass=capability
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.174:0): avc:  denied  { search } for  pid=13925 exe=/usr/sbin/sendmail name=spool dev=dm-3 ino=34821 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:var_spool_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.218:0): avc:  denied  { search } for  pid=13925 exe=/usr/sbin/sendmail name=clientmqueue dev=dm-3 ino=55307 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.218:0): avc:  denied  { getattr } for  pid=13925 exe=/usr/sbin/sendmail path=/var/spool/clientmqueue dev=dm-3 ino=55307 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.371:0): avc:  denied  { getattr } for  pid=13925 exe=/usr/sbin/sendmail path=/var/spool dev=dm-3 ino=34821 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:var_spool_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.466:0): avc:  denied  { write } for  pid=13925 exe=/usr/sbin/sendmail name=clientmqueue dev=dm-3 ino=55307 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.509:0): avc:  denied  { add_name } for  pid=13925 exe=/usr/sbin/sendmail name=dfiB3G6HJS013925 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.509:0): avc:  denied  { create } for  pid=13925 exe=/usr/sbin/sendmail name=dfiB3G6HJS013925 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.580:0): avc:  denied  { getattr } for  pid=13925 exe=/usr/sbin/sendmail path=/var/spool/clientmqueue/dfiB3G6HJS013925 dev=dm-3 ino=55324 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.580:0): avc:  denied  { lock } for  pid=13925 exe=/usr/sbin/sendmail path=/var/spool/clientmqueue/dfiB3G6HJS013925 dev=dm-3 ino=55324 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.678:0): avc:  denied  { write } for  pid=13925 exe=/usr/sbin/sendmail path=/var/spool/clientmqueue/dfiB3G6HJS013925 dev=dm-3 ino=55324 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.771:0): avc:  denied  { read } for  pid=13925 exe=/usr/sbin/sendmail name=dfiB3G6HJS013925 dev=dm-3 ino=55324 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.809:0): avc:  denied  { connect } for  pid=13925 exe=/usr/sbin/sendmail scontext=system_u:system_r:fsdaemon_t tcontext=system_u:system_r:fsdaemon_t tclass=tcp_socket
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.809:0): avc:  denied  { tcp_send } for  pid=13925 exe=/usr/sbin/sendmail saddr=127.0.0.1 src=51192 daddr=127.0.0.1 dest=25 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:netif_lo_t tclass=netif
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.879:0): avc:  denied  { tcp_send } for  pid=13925 exe=/usr/sbin/sendmail saddr=127.0.0.1 src=51192 daddr=127.0.0.1 dest=25 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:node_lo_t tclass=node
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.879:0): avc:  denied  { send_msg } for  pid=13925 exe=/usr/sbin/sendmail saddr=127.0.0.1 src=51192 daddr=127.0.0.1 dest=25 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:smtp_port_t tclass=tcp_socket
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.948:0): avc:  denied  { tcp_recv } for  pid=3 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=51192 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:netif_lo_t tclass=netif
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.948:0): avc:  denied  { tcp_recv } for  pid=3 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=51192 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:node_lo_t tclass=node
+>Dec  3 11:07:43 turing-police kernel: audit(1102089977.948:0): avc:  denied  { recv_msg } for  pid=3 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=51192 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:smtp_port_t tclass=tcp_socket
+>Dec  3 11:07:43 turing-police kernel: audit(1102089978.263:0): avc:  denied  { remove_name } for  pid=13925 exe=/usr/sbin/sendmail name=tfiB3G6HJS013925 dev=dm-3 ino=55327 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089978.263:0): avc:  denied  { rename } for  pid=13925 exe=/usr/sbin/sendmail name=tfiB3G6HJS013925 dev=dm-3 ino=55327 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089978.263:0): avc:  denied  { unlink } for  pid=13925 exe=/usr/sbin/sendmail name=qfiB3G6HJS013925 dev=dm-3 ino=55326 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=file
+>Dec  3 11:07:43 turing-police kernel: audit(1102089978.366:0): avc:  denied  { read } for  pid=13925 exe=/usr/sbin/sendmail name=clientmqueue dev=dm-3 ino=55307 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:mqueue_spool_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089978.595:0): avc:  denied  { getattr } for  pid=10722 exe=/bin/bash path=/tmp dev=dm-10 ino=2 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089978.633:0): avc:  denied  { search } for  pid=10722 exe=/bin/bash name=/ dev=dm-10 ino=2 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=dir
+>Dec  3 11:07:43 turing-police kernel: audit(1102089978.633:0): avc:  denied  { write } for  pid=10722 exe=/bin/bash name=/ dev=dm-10 ino=2 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=dir
+>Dec  3 11:07:44 turing-police kernel: audit(1102089978.701:0): avc:  denied  { add_name } for  pid=10722 exe=/bin/bash name=sh-thd-1102111169 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=dir
+>Dec  3 11:07:44 turing-police kernel: audit(1102089978.701:0): avc:  denied  { remove_name } for  pid=10722 exe=/bin/bash name=sh-thd-1102111169 dev=dm-10 ino=6150 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmp_t tclass=dir
+>Dec  3 11:36:19 turing-police kernel: audit(1102091779.951:0): avc:  denied  { search } for  pid=16629 exe=/usr/sbin/smartd name=/ dev=tmpfs ino=3131 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmpfs_t tclass=dir
+>Dec  3 11:36:20 turing-police kernel: audit(1102091780.816:0): avc:  denied  { write } for  pid=16629 exe=/usr/sbin/smartd name=log dev=tmpfs ino=9084 scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:tmpfs_t tclass=sock_file
+>
+>  
+>
+>------------------------------------------------------------------------
+>
+>--
+>fedora-selinux-list mailing list
+>fedora-selinux-list@redhat.com
+>http://www.redhat.com/mailman/listinfo/fedora-selinux-list
+>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
