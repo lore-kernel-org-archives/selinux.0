@@ -1,66 +1,54 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAJIncIi022764
-	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 13:49:38 -0500 (EST)
-Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAJInelF014556
-	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 18:49:40 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAJIrLIi022808
+	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 13:53:21 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAJIpr3F023773
+	for <selinux@tycho.nsa.gov>; Fri, 19 Nov 2004 18:51:53 GMT
 Subject: Re: using procmail under SE-Linux
-From: Colin Walters <walters@verbum.org>
-To: Valdis.Kletnieks@vt.edu
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Colin Walters <walters@verbum.org>
 Cc: Greg Norris <haphazard@kc.rr.com>, SE-Linux <selinux@tycho.nsa.gov>,
-   sds@epoch.ncsc.mil, jwcart2@epoch.ncsc.mil
-In-Reply-To: <200411191838.iAJIcB3E006019@turing-police.cc.vt.edu>
+   Jim Carter <jwcart2@epoch.ncsc.mil>
+In-Reply-To: <1100837214.23707.15.camel@nexus.verbum.private>
 References: <20041119013811.GA21001@yggdrasil.localdomain>
 	 <1100837214.23707.15.camel@nexus.verbum.private>
-	 <200411191838.iAJIcB3E006019@turing-police.cc.vt.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-grOr+aMm4+lOw6/gdU6P"
-Date: Fri, 19 Nov 2004 13:49:36 -0500
-Message-Id: <1100890176.5454.1.camel@nexus.verbum.private>
+Content-Type: text/plain
+Message-Id: <1100889824.15944.195.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 19 Nov 2004 13:43:45 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2004-11-18 at 23:06, Colin Walters wrote:
+> However, I've learned a lot about SELinux since then, and I think a
+> better approach would be to use security_compute_relabel.  Then the
+> policy itself can specify the type to use, via type_transition.  For
+> example:
+> 
+> type_transition postfix_local_t user_home_dir_t:dir user_procmail_t.
+> 
+> So procmail would compute the domain to use like this, in pseudocode:
+> 
+> newcon = security_compute_relabel (getcon (), 
+>                                    getfilecon (getpwent (getuid ())->pw_dir))
+> setexeccon(newcon)
+> 
+> To do this right, you create a postfix_user_domain($1) macro, call it
+> from base_user_macros.te (and probably ifdef(`procmail.te')).
+> 
+> I think this is arguably cleaner than having another config file
+> in /etc.
 
---=-grOr+aMm4+lOw6/gdU6P
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Nit:  That would be security_compute_create(), which internally consults
+type_transition rules.  security_compute_relabel() is for relabeling and
+consults type_change rules.
 
-On Fri, 2004-11-19 at 13:38 -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 18 Nov 2004 23:06:54 EST, Colin Walters said:
->=20
-> > type_transition postfix_local_t user_home_dir_t:dir user_procmail_t.
-> >=20
-> > So procmail would compute the domain to use like this, in pseudocode:
-> >=20
-> > newcon =3D security_compute_relabel (getcon (),
-> >                                    getfilecon (getpwent (getuid ())->pw=
-_dir))
-> > setexeccon(newcon)
->=20
-> This would apply only to things that procmail exec'ed, and not to any
-> file access/etc done by procmail itself, correct? (i.e. this would fix
-> a call to mh's "rcvstore", but not a misuse of 'LOG=3D' in the procmailrc=
-)...
+However, I think you would actually just use get_default_context(), and
+define appropriate entries in default_contexts for procmail.
 
-I meant for this to go into a procmail wrapper program.  Move the
-existing procmail to /usr/bin/procmail.real, and just put the above code
-in /usr/bin/procmail, then have it exec /usr/bin/procmail.real after
-doing the setexeccon.  Sorry about being unclear.
-
-
---=-grOr+aMm4+lOw6/gdU6P
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBnkBAOIkJWWp2WGURAq/NAJ9mXK2/mac3+LL6M7NrMnCq1cjnXACffYOe
-QH+btSfDS5cLcvzPhBPDvk4=
-=99PN
------END PGP SIGNATURE-----
-
---=-grOr+aMm4+lOw6/gdU6P--
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
