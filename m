@@ -1,117 +1,104 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8O12brT014331
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 21:02:37 -0400 (EDT)
-Received: from rwcrmhc12.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8O11bv8024746
-	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 01:01:37 GMT
-Subject: [patch] types.fc
-From: Chris PeBenito <pebenito@gentoo.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YVpp1s29YZtahFmBSb7u"
-Date: Thu, 23 Sep 2004 21:02:29 -0400
-Message-Id: <1095987749.7142.6.camel@gorn.pebenito.net>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8O6iarT015436
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 02:44:37 -0400 (EDT)
+Received: from mail-router02.qut.edu.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8O6iXrq014839
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 06:44:35 GMT
+Date: Fri, 24 Sep 2004 16:44:26 +1000
+From: Mark Huth <mc.huth@qut.edu.au>
+Subject: file context patches
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Message-Id: <4ed82715.84b7e17d.81fae00@mail-msgstore01.qut.edu.au>
+Content-Type: multipart/mixed;
+	boundary="-----d87fb3e36c0fbab622756044dd8f81c2"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-YVpp1s29YZtahFmBSb7u
-Content-Type: multipart/mixed; boundary="=-JjQfUR9x+6CFtPsL8oTe"
+-------d87fb3e36c0fbab622756044dd8f81c2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
+Hi 
 
---=-JjQfUR9x+6CFtPsL8oTe
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I'm currently experimenting with running User Mode Linux under
+SELinux (on Fedora) and found a small change that needs to be
+made to the uml.fc file.  See the included patch.  Also found
+some updates that need to be made to the zebra.fc and
+nagios.fc files.
 
-Here's an update of types.fc with a some Gentoo-specific entries,
-against CVS.  Also enclose a few entries with other distro tunables.
+Now for some other stuff:
 
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-Embedded Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+I was wondering what are the differences between policy 17 and
+policy 18?  I found some info on the hardened gentoo site
+about the policies up to 17 but see we are now up to 18.
 
+Also, I've just done a yum update against the development
+tree, relabelled and tried booting into SELinux enforcing mode
+but it failed with heaps of denied messages regarding tmpfs_t.
+ A couple of other errors of note were:
 
---=-JjQfUR9x+6CFtPsL8oTe
-Content-Disposition: attachment; filename=types.fc.diff
+/sbin/restorecon get context on /dev failed: 'Operation not
+supported'
+/sbin/restorecon get context on /dev/null failed: 'Operation
+not supported'
+
+Soon after that the boot process stops with a 'Give root
+password for maintainence' message.  Any ideas on what might
+be wrong?
+
+Thanks
+
+-------d87fb3e36c0fbab622756044dd8f81c2
+Content-Type: text/plain;
+	name="diff.txt"
+Content-Disposition: inline;
+	filename="diff.txt"
 Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=types.fc.diff; charset=ISO-8859-1
 
-SW5kZXg6IGZpbGVfY29udGV4dHMvdHlwZXMuZmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvY3Zz
-cm9vdC9zZWxpbnV4L25zYS9zZWxpbnV4LXVzci9wb2xpY3kvZmlsZV9jb250ZXh0cy90eXBlcy5m
-Yyx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuNDANCmRpZmYgLXUgLXIxLjQwIHR5cGVzLmZjDQot
-LS0gZmlsZV9jb250ZXh0cy90eXBlcy5mYwkyMyBTZXAgMjAwNCAxOTowODo1OSAtMDAwMAkxLjQw
-DQorKysgZmlsZV9jb250ZXh0cy90eXBlcy5mYwkyNCBTZXAgMjAwNCAwMTowMDo1OSAtMDAwMA0K
-QEAgLTI3NSw2ICsyNzUsMTEgQEANCiAvZXRjL3N5c2NvbmZpZy9maXJzdGJvb3QgLS0Jc3lzdGVt
-X3U6b2JqZWN0X3I6ZXRjX3J1bnRpbWVfdA0KIC9ldGMvYXNvdW5kXC5zdGF0ZQktLQlzeXN0ZW1f
-dTpvYmplY3RfcjpldGNfcnVudGltZV90DQogL2V0Yy9wdGFsL3B0YWwtcHJpbnRkLWxpa2UgLS0g
-CXN5c3RlbV91Om9iamVjdF9yOmV0Y19ydW50aW1lX3QNCitpZmRlZihgZGlzdHJvX2dlbnRvbycs
-IGANCisvZXRjL3Byb2ZpbGVcLmVudgktLQlzeXN0ZW1fdTpvYmplY3RfcjpldGNfcnVudGltZV90
-DQorL2V0Yy9jc2hcLmVudgkJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6ZXRjX3J1bnRpbWVfdA0KKy9l
-dGMvZW52XC5kLy4qCQktLQlzeXN0ZW1fdTpvYmplY3RfcjpldGNfcnVudGltZV90DQorJykNCiAv
-ZXRjL2xkXC5zb1wuY2FjaGUJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6bGRfc29fY2FjaGVfdA0KIC9l
-dGMvbGRcLnNvXC5wcmVsb2FkCS0tCXN5c3RlbV91Om9iamVjdF9yOmxkX3NvX2NhY2hlX3QNCiAv
-ZXRjL3lwXC5jb25mLioJCS0tCXN5c3RlbV91Om9iamVjdF9yOm5ldF9jb25mX3QNCkBAIC0zMDMs
-NiArMzA4LDkgQEANCiAvbGliKDY0KT8vc2VjdXJpdHkvW14vXSpcLnNvKFwuW14vXSopKgktLQlz
-eXN0ZW1fdTpvYmplY3RfcjpzaGxpYl90DQogL2xpYig2NCk/L3Rscy9pNjg2L2Ntb3YvW14vXSpc
-LnNvKFwuW14vXSopKiAtLQlzeXN0ZW1fdTpvYmplY3RfcjpzaGxpYl90DQogL2xpYig2NCk/L3Rs
-cy9pLjg2L1teL10qXC5zbyhcLlteL10qKSogLS0Jc3lzdGVtX3U6b2JqZWN0X3I6c2hsaWJfdA0K
-K2lmZGVmKGBkaXN0cm9fZ2VudG9vJywgYA0KKy9saWIoNjQpPy9yY3NjcmlwdHMvLipcLnNvLioJ
-CS0tCXN5c3RlbV91Om9iamVjdF9yOnNobGliX3QNCisnKQ0KIA0KICMNCiAjIC9zYmluDQpAQCAt
-MzI3LDcgKzMzNSw5IEBADQogL3Vzci9zaGFyZS9tYW4oLy4qKT8JCXN5c3RlbV91Om9iamVjdF9y
-Om1hbl90DQogL3Vzci9zaGFyZS9tYy9leHRmcy8uKgktLQlzeXN0ZW1fdTpvYmplY3RfcjpiaW5f
-dA0KIC91c3Ivc2hhcmUvdGV4bWYvdGVUZVgvYmluKC8uKik/CXN5c3RlbV91Om9iamVjdF9yOmJp
-bl90DQoraWZkZWYoYGRpc3Ryb19kZWJpYW4nLCBgDQogL3Vzci9zaGFyZS9zZWxpbnV4KC8uKik/
-CXN5c3RlbV91Om9iamVjdF9yOnBvbGljeV9zcmNfdA0KKycpDQogDQogIw0KICMgL3Vzci9iaW4N
-CkBAIC0zNTIsMTEgKzM2MiwxNCBAQA0KIC91c3IvLipnbGliYy4qLWxpbnV4L2xpYig2NCk/L2xk
-W14vXSpcLnNvKFwuW14vXSopKgktLQlzeXN0ZW1fdTpvYmplY3RfcjpsZF9zb190DQogL3Vzci8u
-KmdsaWJjLiotbGludXgvbGliKDY0KT8vbGliW14vXSpcLnNvKFwuW14vXSopKgktLQlzeXN0ZW1f
-dTpvYmplY3RfcjpzaGxpYl90DQogDQorIw0KICMgL3Vzci8uKnJlZGhhdC1saW51eC9saWIoNjQp
-Pw0KICMNCitpZmRlZihgZGlzdHJvX3JlZGhhdCcsIGANCiAvdXNyLy4qcmVkaGF0LWxpbnV4L2xp
-Yig2NCk/KC8uKik/CXN5c3RlbV91Om9iamVjdF9yOmxpYl90DQogL3Vzci8uKnJlZGhhdC1saW51
-eC9saWIoNjQpPy9sZFteL10qXC5zbyhcLlteL10qKSoJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6bGRf
-c29fdA0KIC91c3IvLipyZWRoYXQtbGludXgvbGliKDY0KT8vbGliW14vXSpcLnNvKFwuW14vXSop
-KgktLQlzeXN0ZW1fdTpvYmplY3RfcjpzaGxpYl90DQorJykNCiANCiAjDQogIyAvdXNyLy4qbGlu
-dXgtbGliYy4qL2xpYig2NCk/DQpAQCAtMzY2LDYgKzM3OSwxNCBAQA0KIC91c3IvLipsaW51eC1s
-aWJjLiovbGliKDY0KT8vbGliW14vXSpcLnNvKFwuW14vXSopKgktLSBzeXN0ZW1fdTpvYmplY3Rf
-cjpzaGxpYl90DQogDQogIw0KKyMgL3Vzci8uKi0uKi1saW51eC1nbnUNCisjDQoraWZkZWYoYGRp
-c3Ryb19nZW50b28nLCBgDQorL3Vzci8uKi0uKi1saW51eC1nbnUvYmluKC8uKik/CQlzeXN0ZW1f
-dTpvYmplY3RfcjpiaW5fdA0KKy91c3IvLiotLiotbGludXgtZ251L2djYy1iaW4vLiooLy4qKT8J
-c3lzdGVtX3U6b2JqZWN0X3I6YmluX3QNCisnKQ0KKw0KKyMNCiAjIC91c3IvbG9jYWwNCiAjDQog
-L3Vzci9sb2NhbC9ldGMoLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOmV0Y190DQpAQCAtNDkzLDEw
-ICs1MTQsMTIgQEANCiAjDQogIyBUaGUgU3VuIEphdmEgZGV2ZWxvcG1lbnQga2l0LCBSUE0gaW5z
-dGFsbA0KICMNCitpZmRlZihgZGlzdHJvX3JlZGhhdCcsIGANCiAvdXNyL2phdmEvajIuKi9iaW4o
-Ly4qKT8JCXN5c3RlbV91Om9iamVjdF9yOmJpbl90DQogL3Vzci9qYXZhL2oyLiovanJlL2xpYig2
-NCk/L2kzODYoLy4qKT8Jc3lzdGVtX3U6b2JqZWN0X3I6bGliX3QNCiAvdXNyL2phdmEvajIuKi9q
-cmUvbGliKDY0KT8vaTM4NigvLiopP1teL10qXC5zbyhcLlteL10qKSogLS0gc3lzdGVtX3U6b2Jq
-ZWN0X3I6c2hsaWJfdA0KIC91c3IvamF2YS9qMi4qL3BsdWdpbi9pMzg2KC8uKik/L2xpYlteL10q
-XC5zbyhcLlteL10qKSogLS0gc3lzdGVtX3U6b2JqZWN0X3I6c2hsaWJfdA0KKycpDQogDQogIw0K
-ICMgIFRoZSBrcmI1LmNvbmYgZmlsZSBpcyBhbHdheXMgYmVpbmcgdGVzdGVkIGZvciB3cml0YWJp
-bGl0eSwgc28NCg==
+ZGlmZiAtdSAvZXRjL3NlbGludXgvc3RyaWN0L3NyYy9wb2xpY3kvZmlsZV9jb250ZXh0cy9w
+cm9ncmFtL25hZ2lvcy5mYyBmaWxlX2NvbnRleHRzL3Byb2dyYW0vbmFnaW9zLmZjCi0tLSAv
+ZXRjL3NlbGludXgvc3RyaWN0L3NyYy9wb2xpY3kvZmlsZV9jb250ZXh0cy9wcm9ncmFtL25h
+Z2lvcy5mYwkyMDA0LTA5LTIyIDA2OjUwOjUzLjAwMDAwMDAwMCArMTAwMAorKysgZmlsZV9j
+b250ZXh0cy9wcm9ncmFtL25hZ2lvcy5mYwkyMDA0LTA5LTI0IDE0OjE1OjQxLjAwMDAwMDAw
+MCArMTAwMApAQCAtNSwzICs1LDkgQEAKIC92YXIvbG9nL25ldHNhaW50KC8uKik/CQkJc3lz
+dGVtX3U6b2JqZWN0X3I6bmFnaW9zX2xvZ190CiAvdXNyL2xpYig2NCk/L25ldHNhaW50L3Bs
+dWdpbnMoLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOmJpbl90CiAvdXNyL2xpYig2NCk/L2Nn
+aS1iaW4vbmV0c2FpbnQvLisJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6bmFnaW9zX2NnaV9leGVj
+X3QKKyMgbmFnaW9zCisvdXNyL2Jpbi9uYWdpb3MJCQktLQlzeXN0ZW1fdTpvYmplY3Rfcjpu
+YWdpb3NfZXhlY190CisvZXRjL25hZ2lvcygvLiopPwkJCXN5c3RlbV91Om9iamVjdF9yOm5h
+Z2lvc19ldGNfdAorL3Zhci9sb2cvbmFnaW9zKC8uKik/CQkJc3lzdGVtX3U6b2JqZWN0X3I6
+bmFnaW9zX2xvZ190CisvdXNyL2xpYig2NCk/L25hZ2lvcy9wbHVnaW5zKC8uKik/CXN5c3Rl
+bV91Om9iamVjdF9yOmJpbl90CisvdXNyL2xpYig2NCk/L25hZ2lvcy9jZ2kvLisJLS0Jc3lz
+dGVtX3U6b2JqZWN0X3I6bmFnaW9zX2NnaV9leGVjX3QKZGlmZiAtdSAvZXRjL3NlbGludXgv
+c3RyaWN0L3NyYy9wb2xpY3kvZmlsZV9jb250ZXh0cy9wcm9ncmFtL3VtbC5mYyBmaWxlX2Nv
+bnRleHRzL3Byb2dyYW0vdW1sLmZjCi0tLSAvZXRjL3NlbGludXgvc3RyaWN0L3NyYy9wb2xp
+Y3kvZmlsZV9jb250ZXh0cy9wcm9ncmFtL3VtbC5mYwkyMDA0LTA5LTIyIDA2OjUwOjUzLjAw
+MDAwMDAwMCArMTAwMAorKysgZmlsZV9jb250ZXh0cy9wcm9ncmFtL3VtbC5mYwkyMDA0LTA5
+LTI0IDE0OjA3OjQ0LjAwMDAwMDAwMCArMTAwMApAQCAtMSw0ICsxLDQgQEAKICMgVXNlciBN
+b2RlIExpbnV4CiAvdXNyL2Jpbi91bWxfc3dpdGNoCS0tCXN5c3RlbV91Om9iamVjdF9yOnVt
+bF9zd2l0Y2hfZXhlY190CiAvdmFyL3J1bi91bWwtdXRpbGl0aWVzKC8uKik/CXN5c3RlbV91
+Om9iamVjdF9yOnVtbF9zd2l0Y2hfdmFyX3J1bl90Ci0vaG9tZS9bXi9dKy8udW1sKC8uKik/
+CQlzeXN0ZW1fdTpvYmplY3Rfcjp1c2VyX3VtbF9yd190CitIT01FX0RJUi9cLnVtbCgvLiop
+PwkJc3lzdGVtX3U6b2JqZWN0X3I6Uk9MRV91bWxfcndfdApkaWZmIC11IC9ldGMvc2VsaW51
+eC9zdHJpY3Qvc3JjL3BvbGljeS9maWxlX2NvbnRleHRzL3Byb2dyYW0vemVicmEuZmMgZmls
+ZV9jb250ZXh0cy9wcm9ncmFtL3plYnJhLmZjCi0tLSAvZXRjL3NlbGludXgvc3RyaWN0L3Ny
+Yy9wb2xpY3kvZmlsZV9jb250ZXh0cy9wcm9ncmFtL3plYnJhLmZjCTIwMDQtMDktMjIgMDY6
+NTA6NTMuMDAwMDAwMDAwICsxMDAwCisrKyBmaWxlX2NvbnRleHRzL3Byb2dyYW0vemVicmEu
+ZmMJMjAwNC0wOS0yNCAxNDoxMjowOC4wMDAwMDAwMDAgKzEwMDAKQEAgLTUsMyArNSw5IEBA
+CiAvZXRjL3plYnJhKC8uKik/CQlzeXN0ZW1fdTpvYmplY3Rfcjp6ZWJyYV9jb25mX3QKIC92
+YXIvcnVuLy56c2VydgkJLXMJc3lzdGVtX3U6b2JqZWN0X3I6emVicmFfdmFyX3J1bl90CiAv
+dmFyL3J1bi8uemVicmEJCS1zCXN5c3RlbV91Om9iamVjdF9yOnplYnJhX3Zhcl9ydW5fdAor
+IyBRdWFnZ2EKKy91c3Ivc2Jpbi9yaXAuKiAgCS0tCXN5c3RlbV91Om9iamVjdF9yOnplYnJh
+X2V4ZWNfdAorL3Vzci9zYmluL29zcGYuKiAgCS0tCXN5c3RlbV91Om9iamVjdF9yOnplYnJh
+X2V4ZWNfdAorL2V0Yy9xdWFnZ2EoLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOnplYnJhX2Nv
+bmZfdAorL3Zhci9sb2cvcXVhZ2dhKC8uKik/CQlzeXN0ZW1fdTpvYmplY3Rfcjp6ZWJyYV9s
+b2dfdAorL3Zhci9ydW4vcXVhZ2dhKC8uKik/CQlzeXN0ZW1fdTpvYmplY3Rfcjp6ZWJyYV92
+YXJfcnVuX3QK
 
+-------d87fb3e36c0fbab622756044dd8f81c2--
 
---=-JjQfUR9x+6CFtPsL8oTe--
-
---=-YVpp1s29YZtahFmBSb7u
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBU3IlvI7kLeavkkMRAlg0AJ4pYcwpBkR8Z5aSKPzjbxmsx5B0nACfbJoA
-uQ107zrItKxMbccMwO4OZ4s=
-=f0h+
------END PGP SIGNATURE-----
-
---=-YVpp1s29YZtahFmBSb7u--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
