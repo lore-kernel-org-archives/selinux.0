@@ -1,46 +1,56 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBGKpDIi027625
-	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2004 15:51:13 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBGKnUNH008571
-	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2004 20:49:30 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBGLcxIi028038
+	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2004 16:38:59 -0500 (EST)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBGLd1qv002148
+	for <selinux@tycho.nsa.gov>; Thu, 16 Dec 2004 21:39:02 GMT
 Subject: Re: Tomcat policy
-From: Stephen Smalley <sds@epoch.ncsc.mil>
+From: Colin Walters <walters@verbum.org>
 To: Nick Gray <nick-lists@austin.rr.com>
 Cc: SELinux ML <selinux@tycho.nsa.gov>
 In-Reply-To: <1103224127.32688.49.camel@hawaii.grays-systems.com>
 References: <1103224127.32688.49.camel@hawaii.grays-systems.com>
-Content-Type: text/plain
-Message-Id: <1103229973.1463.145.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GJ323XiQMfL6NzubYbCl"
+Date: Thu, 16 Dec 2004 16:39:02 -0500
+Message-Id: <1103233142.12552.77.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Date: Thu, 16 Dec 2004 15:46:13 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-12-16 at 14:08, Nick Gray wrote:
-> So why can't I use tomcat_t to label directories?
 
-Because you have defined it as a domain, not a file type.  Domains are
-for processes, and are also applied to the /proc/pid entries of that
-process.  You aren't supposed to use them for other files, and the
-filesystem associate permission check enforces the restriction.
+--=-GJ323XiQMfL6NzubYbCl
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-You do need to label the entrypoint program for the daemon with
-tomcat_exec_t.
+On Thu, 2004-12-16 at 13:08 -0600, Nick Gray wrote:
+
+> #/usr/local/tomcat/5.0.28(/.*)?         system_u:object_r:tomcat_t
+
+You want tomcat_exec_t.
 
 > I think I understand how to protect the daemon from the system, how do I
 > protect the system from the daemon.
+>=20
+> The example I can come up with is a jsp page that opens
+> the /etc/passwd/file and prints it. I want to keep the tomcat process
+> encapsulated in it own space
 
-Under targeted policy, the "system" (i.e. unconfined processes) can do
-whatever it wants to the daemon.  By defining a domain for tomcat, you
-are merely controlling what it can do to the system, and isolating it
-from other confined domains.  The daemon (if you have set it up properly
-to run in the tomcat_t domain) can only do what you allow tomcat_t to do
-in the policy, nothing else.
+Simply don't allow tomcat_t access to passwd_t.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+
+--=-GJ323XiQMfL6NzubYbCl
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBwgB1OIkJWWp2WGURAgfgAJ9fFV29xDEa+2WSIDJpbFKhL/idHwCePxc0
+x5cE9w7UZnBtCl7z1VnZt2k=
+=C40s
+-----END PGP SIGNATURE-----
+
+--=-GJ323XiQMfL6NzubYbCl--
 
 
 --
