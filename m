@@ -2,27 +2,39 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: $1_cupsd_spool_t in lpr_macros.te
-Date: Mon, 30 Sep 2002 15:24:21 +0200
-Cc: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0209300814270.15004-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0209300814270.15004-100000@raven>
+To: Stephen Smalley <sds@tislabs.com>, Chris Vance <cvance@tislabs.com>
+Subject: Re: [patch] label /home directory, create suserdel
+Date: Mon, 30 Sep 2002 16:58:58 +0200
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0209300756230.15004-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0209300756230.15004-100000@raven>
 MIME-Version: 1.0
-Message-Id: <200209301524.21731.russell@coker.com.au>
+Message-Id: <200209301658.58246.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 30 Sep 2002 14:16, Stephen Smalley wrote:
-> On Mon, 30 Sep 2002, Russell Coker wrote:
-> > I've added such a change to my tree to make it use $1_lpr_spool_t. 
-> > Although it has occurred to me that perhaps the best thing to do is to
-> > remove cupsd_spool_t and replace it with lpd_spool_t instead.  What do
-> > you think?
+On Mon, 30 Sep 2002 14:00, Stephen Smalley wrote:
+> On Sun, 29 Sep 2002, Chris Vance wrote:
+> > Attached are two patches (also committed to the sourceforge CVS tree)
+> > that define a new label for the /home directory and allow access as
+> > necessary. The first patch defines the new label and adds permissions. 
+> > The second patch add the suserdel program in the utils/spasswd directory.
 >
-> Do you mean $1_lpd_spool_t?  There is no $1_lpr_spool_t in my policy.
+> Just to elaborate, the policy patch also defines a separate domain for
+> suseradd/suserdel with appropriate permissions and type transitions for
+> managing user home directories, and the spasswd patch also extends the
+> utilities to reset the security context on /etc/group and /etc/gshadow,
+> since these files are also re-created by the RedHat useradd to add a group
+> for each new user by default.
 
-Yes, I put $1_lpd_spool_t in my policy tree.  Late night...
+The Debian useradd also likes to add groups, but it's something I forgot about 
+because I turn that feature off.  I don't like the "one group per user" 
+thing.
+
+The new suseradd doesn't deal with multiple user roles.  Ideally we would have 
+a program that would add an entry to the users file, add a new user-role 
+definition to user.te (with appropriate role transitions), and add a default 
+type and a cron context as well.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
