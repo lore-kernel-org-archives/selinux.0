@@ -1,65 +1,48 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9QEDXXZ012488
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 10:13:33 -0400 (EDT)
-Received: from tcsfw2.tcs-sec.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9QECFC0020762
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 14:12:15 GMT
-Received: (from smmsp@localhost)
-	by tcsfw2.tcs-sec.com (8.12.2/8.12.2) id i9QEDXsS024401
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 10:13:33 -0400 (EDT)
-Message-ID: <417E5BB5.1010300@trustedcs.com>
-Date: Tue, 26 Oct 2004 09:14:13 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
-MIME-Version: 1.0
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: [PATCH] devpts xattr support
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Proposed patch for libselinux
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>,
+   Colin Walters <walters@redhat.com>
+In-Reply-To: <20041026142126.GC8053@lkcl.net>
+References: <41782BBA.9090101@redhat.com>
+	 <1098449318.7614.13.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041022155639.GA4986@lkcl.net> <41796C01.4060909@redhat.com>
+	 <1098715957.13491.157.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041026142126.GC8053@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1098799981.27060.17.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 26 Oct 2004 10:13:01 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Below is a patch (against the SourceForge CVS) that will give xattr 
-support to directories in a devpts filesystem.  This will allow the 
-context of the root node to be retrieved and modified.  Note that there 
-are other filesystems using the simple_dir_inode_operations that may 
-need to be changed later as xattr support is spread to more filesystems 
-(devpts is the only one causing a problem right now), so a more general 
-fix may be wanted/needed later.  Any comments are appreciated.
+On Tue, 2004-10-26 at 10:21, Luke Kenneth Casson Leighton wrote:
+>  it would appear, therefore, that no provision has been made for
+>  filesystem recovery.
 
-Darrel Goeddel
-Senior Secure Systems Engineer
+star and (recently patched) rsync supports backing up security
+attributes from live filesystems.
 
-Trusted Computer Solutions             E: dgoeddel@trustedcs.com
-121 West Goose Alley                   V: 217.384.0028 x19
-Urbana, IL  61801                      F: 217.384.0288
+>  i find frequently that ext3 filesystem damage results in fsck.ext3
+>  going "the extended attributes aren't valid: truncating".
 
+I've never seen this.  Easily reproducible?
 
---- inode.c     12 Oct 2004 18:07:40 -0000      1.1.1.3
-+++ inode.c     25 Oct 2004 17:41:43 -0000      1.2
-@@ -40,6 +40,16 @@
-  #endif
-  };
+>  this leaves you with a (null) for an selinux access, as if you had
+>  run your system with a non-selinux kernel and written some files.
+> 
+>  under such circumstances, i find that the only [simple] means
+>  at present to recover such a damaged system is to run setfiles.
 
-+struct inode_operations devpts_dir_inode_operations = {
-+       .lookup         = simple_lookup,
-+#ifdef CONFIG_DEVPTS_FS_XATTR
-+       .setxattr       = generic_setxattr,
-+       .getxattr       = generic_getxattr,
-+       .listxattr      = generic_listxattr,
-+       .removexattr    = generic_removexattr,
-+#endif /* CONFIG_DEVPTS_FS_XATTR */
-+};
-+
-  static struct vfsmount *devpts_mnt;
-  static struct dentry *devpts_root;
+It seems that in that case, you would just want to relabel files that
+have no label at all, not any files that already have labels.  It might
+be reasonable to have an option to setfiles to cause it to only relabel
+files that lack a SELinux attribute and leave all others intact.
 
-@@ -113,7 +123,7 @@
-         inode->i_blksize = 1024;
-         inode->i_uid = inode->i_gid = 0;
-         inode->i_mode = S_IFDIR | S_IRUGO | S_IXUGO | S_IWUSR;
--       inode->i_op = &simple_dir_inode_operations;
-+       inode->i_op = &devpts_dir_inode_operations;
-         inode->i_fop = &simple_dir_operations;
-         inode->i_nlink = 2;
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
