@@ -1,60 +1,127 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9JTqIi015273
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 14:29:52 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9JTrEj006395
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 19:29:54 GMT
-Subject: RE: Single home directory type for all roles.
-From: Russell Coker <rcoker@redhat.com>
-To: Alex Ackerman <alex@darkhonor.com>
-Cc: Colin Walters <walters@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-   Stephen Smalley <sds@epoch.ncsc.mil>, SE Linux list <selinux@tycho.nsa.gov>,
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9JccIi015377
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 14:38:38 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9JaxPU019187
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 19:37:01 GMT
+Message-ID: <41B8A9BF.2080405@redhat.com>
+Date: Thu, 09 Dec 2004 14:38:39 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Colin Walters <walters@redhat.com>
+CC: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux ML <selinux@tycho.nsa.gov>,
    Joshua Brindle <jbrindle@snu.edu>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   Nalin Dahyabhai <nalin@redhat.com>
-In-Reply-To: <A52BEA1D8EE8634B9196A136333637B13115@maat.darkhonor.net>
-References: <A52BEA1D8EE8634B9196A136333637B13115@maat.darkhonor.net>
-Content-Type: text/plain
-Date: Fri, 10 Dec 2004 06:29:50 +1100
-Message-Id: <1102620591.4509.79.camel@aeon>
-Mime-Version: 1.0
+   Russell Coker <rcoker@redhat.com>, Nalin Dahyabhai <nalin@redhat.com>
+Subject: Re: Single home directory type for all roles.
+References: <20041207000805.GH3678@jmh.mhn.de>	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>	 <41B8826D.30105@redhat.com> <1102613299.10785.21.camel@nexus.verbum.private>
+In-Reply-To: <1102613299.10785.21.camel@nexus.verbum.private>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-12-09 at 13:50 -0500, Alex Ackerman wrote:
-> > On Thur, December 09, 2004 1:02 PM, Russell Coker wrote:
-> > A bug IMHO.  If we have two roles that become almost equivalent then
-> > the sensible thing to do is remove one.  If we decide that for Fedora
-> > strict policy we don't want to have any regular users be denied the ability
-> > perform administrative tasks then the correct thing to do is to make
-> > staff_r the default user role.
-> > 
-> > It's easy enough for anyone to add a new role if they need more roles
-> > than the default policy provides.
-> 
-> As a novice Fedora SELinux user, this sounds like a bad idea (even if it
-> was only hypothetical). There is currently a boolean in the strict
-> policy which disables the ability for normal user_r users from
-> transitioning to the sysadm_r, thus requiring only those users who may
-> have need of sysadm_r functions to be a member of staff_r. Any default
-> changes to this (by eliminating one role or the other) would require
-> users, like myself, who are not overly comfortable with developing new
-> user roles to regenerate a restricted user_r-type role for non-trusted
-> users.
+Colin Walters wrote:
 
-I agree that it's not desirable to remove a role for an untrusted user
-from the default install.  However that is the way things are going with
-recent policy changes.  I think it's better to remove the user_r role
-entirely than to make it almost the same as staff_r and give people who
-are novices at reading policy the wrong idea.
+>On Thu, 2004-12-09 at 11:50 -0500, Daniel J Walsh wrote:
+>
+>  
+>
+>>1.  Causes problems with sharing files between users,   IE a staff user 
+>>coping a file to tmp and then the user
+>>can't read it, because it has the wrong type. 
+>>    
+>>
+>
+>I feel that what we really need is an explicit file sharing area; for
+>example the gnome-user-share program uses /home/$USER/Public.  Having a
+>special label for public files like this will also allow us to write
+>policy for the gnome-user-share Apache daemon.  It does seem wrong to me
+>for any user_t to have access to my staff_t temporary files, and also
+>the other way around (remember that user_t/staff_t prevents /tmp race
+>conditions).  I run a strict server on which I have several users who I
+>don't *entirely* trust.  The extra assurance the user_t/staff_t
+>distinction brings is nice.
+>
+>  
+>
+Currently few people use staff, because user can do everything staff can 
+do so you are not protected by this protection.
+You also do not protect yourself from staff users attacking other staff 
+users.
 
-Currently if you want a really restricted user_r role then you need to
-change tunables.tun and comment out the definition of user_canbe_sysadm
-(this requires having the policy source installed and that you are
-capable of editing and compiling policy).  I believe that a better
-option would be to have staff_r be the default role for all users in the
-default policy and then let someone who wants to create accounts for
-untrusted users assign them to user_r.  As part of that they can assign
-user_u to user_r (user_u would have to default to staff_r too).
+>>2.  Requirement that selinux-policy-strict-sources be installed and a 
+>>rebuild of policy in order to change the roles of a user.
+>>    
+>>
+>
+>I'm not sure I see what's so bad about this.  I would assume that most
+>people running strict will have to customize policy anyways.
+>  
+>
+My goal is to get more people using strict, not just the ones capable of 
+writing policy.
+
+>  
+>
+>>3.  But the number one problem I have is with relabeling files.  If I 
+>>were to implement roles management in
+>>system-config-securitylevel/adduser, I would need to trigger a relabel 
+>>any time a role of a user was changed.  This
+>>relabel would have to be inteligent enough to figure out not only the 
+>>home directories, but also the files in /tmp and potentially
+>>files in html files scattered over the system.  I find this an 
+>>unworkable situation.
+>>    
+>>
+>
+>Hmm.  But the fact that in the default strict policy user_r and staff_r
+>are nearly equivalent in terms of functionality is really a special
+>case, no?  I imagine most people really using RBAC will be defining
+>specialized roles such as webmaster_r, nurse_r, developer_r, etc.  In
+>this situation it seems to me that it would be unusual for a person to
+>switch roles entirely; much more likely they would gain a role.  And if
+>they *did* switch roles, it seems likely that they would not have access
+>to their old files at all.  
+>
+>  
+>
+If we move to this plan, we would turn off the compatability between 
+user and staff.
+So only staff users could su, usermod, newrole.  The reason they are the 
+same now is because
+of the labeling problem, and the inability to easily change from a user 
+to a staff role.  Why would
+you not have access to your old files, if you switch roles.  I agree 
+this might be good in some cases
+but can't we develop a less stringent rule that does not require relabeling.
+
+>>So yesterday I went though the policy and created a new tunable 
+>>single_user_file_type, that causes the policy to share a common
+>>filetypes between staff and users.  (Haven't completed this for http yet). 
+>>    
+>>
+>
+>I'm not saying it's not useful to have an option, but before
+>recommending this, I'd like to think a bit more about any other possible
+>solutions.  I don't have any good ideas about how to handle user_r ->
+>staff_r in general right now though.
+>
+>  
+>
+>>With SELinux Policy Modules, can I build an system-config-user/adduser 
+>>that would modify a file under /etc/selinux/strict/roles/
+>>(the users file) and then reload just that policy?
+>>    
+>>
+>
+>I haven't looked in detail at binary policy modules, but my guess is
+>that they can't *delete* a role, type, or permission.  So it seems
+>difficult to use a binary policy module to change a user's role, e.g.
+>from user_r to staff_r as you suggest.
+>
+>
+>  
+>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
