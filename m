@@ -1,41 +1,45 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA05000
-	for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2002 10:10:24 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA00655
-	for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2002 14:09:13 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id OAA00651 for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2002 14:09:13 GMT
-Date: Wed, 24 Apr 2002 10:09:39 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Tom <tom@lemuria.org>
-cc: SE Linux <selinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA05165
+	for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2002 10:27:53 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA03690
+	for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2002 14:26:07 GMT
+Received: from nox.lemuria.org ([213.191.86.30])
+	by jazzswing.ncsc.mil  with ESMTP id OAA03686
+	for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2002 14:26:06 GMT
+Date: Wed, 24 Apr 2002 16:28:23 +0200
+From: Tom <tom@lemuria.org>
+To: Stephen Smalley <sds@tislabs.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: split admins
-In-Reply-To: <20020424154523.B14453@lemuria.org>
-Message-ID: <Pine.GSO.4.33.0204241007550.17117-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020424162823.B14745@lemuria.org>
+References: <20020424154523.B14453@lemuria.org> <Pine.GSO.4.33.0204240955190.17117-100000@raven>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.GSO.4.33.0204240955190.17117-100000@raven>; from sds@tislabs.com on Wed, Apr 24, 2002 at 09:59:37AM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, Apr 24, 2002 at 09:59:37AM -0400, Stephen Smalley wrote:
+> When the example policy was originally being developed, there was an
+> initial attempt to provide such a distinction between a system
+> administrator and a security administrator, but the separate role was
+> discarded because it turns out to be very difficult to truly enforce a
+> separation between these two roles without severely limiting the system
+> administrator role, making it relatively useless.  The topic has also come
+> up previously on the list, e.g. see
+> http://marc.theaimsgroup.com/?l=selinux&m=100799744813965&w=2.
 
-On Wed, 24 Apr 2002, Tom wrote:
-
-> one problem I encountered was that newrole -r secadm_r didn't work,
-> kicking me out with:
-> arkham:~# newrole -r secadm_r
-> Couldn't get default type.
-
-By the way, if you specify a type explicitly to newrole (via the -t
-option), it won't bother with /etc/security/default_type.  Naturally,
-if the type isn't authorized for the role, it will fail.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
+I'll check that discussion and give it a go. I'm happy with not doing
+away root=god. I'm more interested in having, say, an application-level
+admin (control over the daemons, network services, whatever). Just
+thought a security admin would be a useful thing to start this with.
 
 
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/D88D35A6 2001-11-14 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = 276B B7BB E4D8 FCCE DB8F  F965 310B 811A D88D 35A6
 
 --
 You have received this message because you are subscribed to the selinux list.
