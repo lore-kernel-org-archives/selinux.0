@@ -1,1209 +1,940 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFEHMIi023016
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 09:17:22 -0500 (EST)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFEHOuA004060
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 14:17:25 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.12.11/8.12.11) with ESMTP id iAFEK6Xf024613
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 09:20:06 -0500
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.12.11/8.12.11/Submit) id iAFEK6ux024612
-	for selinux@tycho.nsa.gov; Mon, 15 Nov 2004 09:20:06 -0500
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAANC1Ii003547
-	for <selinux@tycho.nsa.gov>; Wed, 10 Nov 2004 18:12:02 -0500 (EST)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAANAYxb011751
-	for <selinux@tycho.nsa.gov>; Wed, 10 Nov 2004 23:10:37 GMT
-Message-ID: <4192A029.5050909@redhat.com>
-Date: Wed, 10 Nov 2004 18:11:37 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: jwcart2@epoch.ncsc.mil
-CC: Russell Coker <russell@coker.com.au>,
-   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux <selinux@tycho.nsa.gov>
-Subject: Patches without the can_network patch.
-References: <41741A2C.8040408@redhat.com>	 <200410260138.19426.russell@coker.com.au>	 <20041025213122.GA2535@jmh.mhn.de>	 <200410270036.14935.russell@coker.com.au> <1099690788.16488.52.camel@moss-lions.epoch.ncsc.mil>
-In-Reply-To: <1099690788.16488.52.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------070506050508080702070506"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFEJ0Ii023041
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 09:19:01 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFEHYvq020133
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 14:17:34 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.12.11/8.12.11) with ESMTP id iAFELnqm024652
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 09:21:49 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.12.11/8.12.11/Submit) id iAFELnfh024651
+	for selinux@tycho.nsa.gov; Mon, 15 Nov 2004 09:21:49 -0500
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAC07mIi008224
+	for <selinux@tycho.nsa.gov>; Thu, 11 Nov 2004 19:07:48 -0500 (EST)
+Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAC06Mq2007980
+	for <selinux@tycho.nsa.gov>; Fri, 12 Nov 2004 00:06:22 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Fri, 12 Nov 2004 01:07:45 +0100
+Date: Fri, 12 Nov 2004 01:07:33 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: cleanup patch: fix wrong use of dot in file_contexts
+Message-Id: <20041112000732.GE2544@jmh.mhn.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wtjvnLv0o8UUzur2"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070506050508080702070506
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Removal of alot of kerberos and can_ypbind calls.  (Centralized under 
-the auth call).
-
-Several apache fixes to make squirrelmail work as well as mod_perl and 
-mod_python.
-
-Fixes to dovecot to get it to work with squirrelmail
-
-Fixes to hal to allow it to create a chr_file device for pcmcia card 
-communication.
-
-Added lockdev policy
-
-Fixes for mailman policy
-
-A few more nscd_client_domains
+--wtjvnLv0o8UUzur2
+Content-Type: multipart/mixed; boundary="tVmo9FyGdCe4F4YN"
+Content-Disposition: inline
 
 
+--tVmo9FyGdCe4F4YN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---------------070506050508080702070506
-Content-Type: text/x-patch;
- name="policy-small.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policy-small.patch"
+In a lot of places, a simple . was used in the file_contexts file, when
+\. was intended. Attached patch fixes this.
+It also fixes one or two places where a path specification was
+duplicated.
 
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/crond.te policy-1.19.1/domains/program/crond.te
---- nsapolicy/domains/program/crond.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/crond.te	2004-11-10 17:30:03.409889426 -0500
-@@ -23,7 +23,6 @@
- 
- # Type for temporary files.
- tmp_domain(crond)
--can_ypbind(crond_t)
- 
- crond_domain(system)
- 
-@@ -114,6 +113,8 @@
- # Use capabilities.
- allow system_crond_t self:capability { dac_read_search chown setgid setuid fowner net_bind_service fsetid };
- 
-+allow crond_t urandom_device_t:chr_file { getattr read };
-+
- # Read the system crontabs.
- allow system_crond_t system_cron_spool_t:file r_file_perms;
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/initrc.te policy-1.19.1/domains/program/initrc.te
---- nsapolicy/domains/program/initrc.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/initrc.te	2004-11-10 17:30:03.410889314 -0500
-@@ -303,8 +303,8 @@
+Please apply.
+Thomas
+
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+
+--tVmo9FyGdCe4F4YN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="dot-cleanup.patch"
+Content-Transfer-Encoding: quoted-printable
+
+diff -ur orig/file_contexts/distros.fc mod/file_contexts/distros.fc
+--- orig/file_contexts/distros.fc	2004-10-06 22:21:13.000000000 +0200
++++ mod/file_contexts/distros.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -1,34 +1,34 @@
+ ifdef(`distro_redhat', `
+-/usr/share/system-config-network(/netconfig)?/[^/]+.py -- system_u:object_=
+r:bin_t
+-/etc/sysconfig/networking/profiles/.*/resolv.conf -- system_u:object_r:net=
+_conf_t
+-/etc/sysconfig/network-scripts/.*resolv.conf -- system_u:object_r:net_conf=
+_t
+-/usr/share/rhn/rhn_applet/applet.py -- system_u:object_r:bin_t
+-/usr/share/rhn/rhn_applet/eggtrayiconmodule.so -- system_u:object_r:shlib_t
+-/usr/share/rhn/rhn_applet/needed-packages.py	--	system_u:object_r:bin_t
+-/usr/share/authconfig/authconfig-gtk.py -- system_u:object_r:bin_t
++/usr/share/system-config-network(/netconfig)?/[^/]+\.py -- system_u:object=
+_r:bin_t
++/etc/sysconfig/networking/profiles/.*/resolv\.conf -- system_u:object_r:ne=
+t_conf_t
++/etc/sysconfig/network-scripts/.*resolv\.conf -- system_u:object_r:net_con=
+f_t
++/usr/share/rhn/rhn_applet/applet\.py -- system_u:object_r:bin_t
++/usr/share/rhn/rhn_applet/eggtrayiconmodule\.so -- system_u:object_r:shlib=
+_t
++/usr/share/rhn/rhn_applet/needed-packages\.py	--	system_u:object_r:bin_t
++/usr/share/authconfig/authconfig-gtk\.py -- system_u:object_r:bin_t
+ /usr/share/hwbrowser/hwbrowser -- system_u:object_r:bin_t
+ /usr/share/system-config-httpd/system-config-httpd -- system_u:object_r:bi=
+n_t
+ /usr/share/system-config-services/system-config-services -- system_u:objec=
+t_r:bin_t
+-/usr/share/system-logviewer/system-logviewer.py -- system_u:object_r:bin_t
+-/usr/share/system-config-date/system-config-date.py -- system_u:object_r:b=
+in_t
++/usr/share/system-logviewer/system-logviewer\.py -- system_u:object_r:bin_t
++/usr/share/system-config-date/system-config-date\.py -- system_u:object_r:=
+bin_t
+ /usr/share/system-config-display/system-config-display -- system_u:object_=
+r:bin_t
+ /usr/share/system-config-keyboard/system-config-keyboard -- system_u:objec=
+t_r:bin_t
+ /usr/share/system-config-language/system-config-language -- system_u:objec=
+t_r:bin_t
+ /usr/share/system-config-mouse/system-config-mouse -- system_u:object_r:bi=
+n_t
+-/usr/share/system-config-netboot/system-config-netboot.py -- system_u:obje=
+ct_r:bin_t
+-/usr/share/system-config-netboot/pxeos.py -- system_u:object_r:bin_t
+-/usr/share/system-config-netboot/pxeboot.py -- system_u:object_r:bin_t
+-/usr/share/system-config-nfs/system-config-nfs.py -- system_u:object_r:bin=
+_t
++/usr/share/system-config-netboot/system-config-netboot\.py -- system_u:obj=
+ect_r:bin_t
++/usr/share/system-config-netboot/pxeos\.py -- system_u:object_r:bin_t
++/usr/share/system-config-netboot/pxeboot\.py -- system_u:object_r:bin_t
++/usr/share/system-config-nfs/system-config-nfs\.py -- system_u:object_r:bi=
+n_t
+ /usr/share/system-config-rootpassword/system-config-rootpassword -- system=
+_u:object_r:bin_t
+-/usr/share/system-config-samba/system-config-samba.py -- system_u:object_r=
+:bin_t
+-/usr/share/system-config-securitylevel/system-config-securitylevel.py -- s=
+ystem_u:object_r:bin_t
+-/usr/share/system-config-services/serviceconf.py -- system_u:object_r:bin_t
++/usr/share/system-config-samba/system-config-samba\.py -- system_u:object_=
+r:bin_t
++/usr/share/system-config-securitylevel/system-config-securitylevel\.py -- =
+system_u:object_r:bin_t
++/usr/share/system-config-services/serviceconf\.py -- system_u:object_r:bin=
+_t
+ /usr/share/system-config-soundcard/system-config-soundcard -- system_u:obj=
+ect_r:bin_t
+ /usr/share/system-config-users/system-config-users -- system_u:object_r:bi=
+n_t
+-/usr/share/switchdesk/switchdesk-gui.py	--	system_u:object_r:bin_t
+-/usr/share/system-config-network/neat-control.py	--	system_u:object_r:bin_t
+-/usr/share/system-config-nfs/nfs-export.py	--	system_u:object_r:bin_t
+-/usr/share/pydict/pydict.py	--	system_u:object_r:bin_t
++/usr/share/switchdesk/switchdesk-gui\.py	--	system_u:object_r:bin_t
++/usr/share/system-config-network/neat-control\.py	--	system_u:object_r:bin=
+_t
++/usr/share/system-config-nfs/nfs-export\.py	--	system_u:object_r:bin_t
++/usr/share/pydict/pydict\.py	--	system_u:object_r:bin_t
+ /usr/share/cvs/contrib/rcs2log	--	system_u:object_r:bin_t
  ')
- 
- # for lsof in shutdown scripts
--allow initrc_t krb5_conf_t:file read;
--dontaudit initrc_t krb5_conf_t:file write;
-+can_kerberos(initrc_t)
-+
- #
- # Wants to remove udev.tbl
- #
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/login.te policy-1.19.1/domains/program/login.te
---- nsapolicy/domains/program/login.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/login.te	2004-11-10 17:30:03.411889201 -0500
-@@ -117,8 +117,6 @@
- allow $1_login_t mail_spool_t:file getattr;
- allow $1_login_t mail_spool_t:lnk_file read;
- 
--dontaudit $1_login_t krb5_conf_t:file write;
--allow $1_login_t krb5_conf_t:file { getattr read };
- # Get security policy decisions.
- can_getsecurity($1_login_t)
- 
-@@ -127,8 +125,6 @@
- allow $1_login_t default_context_t:dir search;
- r_dir_file($1_login_t, selinux_config_t)
- 
--can_ypbind($1_login_t)
--
- allow $1_login_t mouse_device_t:chr_file { getattr setattr };
- dontaudit $1_login_t init_t:fd use;
- ')dnl end login_domain macro
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/ssh.te policy-1.19.1/domains/program/ssh.te
---- nsapolicy/domains/program/ssh.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/ssh.te	2004-11-10 17:34:01.995972995 -0500
-@@ -70,9 +70,8 @@
- 
- can_network($1_t)
- 
--allow $1_t self:capability { sys_chroot sys_resource chown dac_override fowner fsetid setgid setuid sys_tty_config };
-+allow $1_t self:capability { kill sys_chroot sys_resource chown dac_override fowner fsetid setgid setuid sys_tty_config };
- allow $1_t { home_root_t home_dir_type }:dir { search getattr };
--can_ypbind($1_t)
- if (use_nfs_home_dirs) {
- ifdef(`automount.te', `
- allow $1_t autofs_t:dir { search getattr };
-@@ -213,8 +212,6 @@
- ifdef(`automount.te', `
- allow sshd_t autofs_t:dir search;
- ')
--dontaudit sshd_t krb5_conf_t:file write;
--allow sshd_t krb5_conf_t:file { getattr read };
- 
- # ssh_keygen_t is the type of the ssh-keygen program when run at install time
- # and by sysadm_t
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/syslogd.te policy-1.19.1/domains/program/syslogd.te
---- nsapolicy/domains/program/syslogd.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/syslogd.te	2004-11-10 17:34:55.342954578 -0500
-@@ -96,4 +96,4 @@
- dontaudit syslogd_t file_t:dir search;
- allow syslogd_t { tmpfs_t devpts_t }:dir search;
- dontaudit syslogd_t unlabeled_t:file read;
--dontaudit syslogd_t devpts_t:chr_file getattr;
-+dontaudit syslogd_t { userpty_type devpts_t }:chr_file getattr;
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/anaconda.te policy-1.19.1/domains/program/unused/anaconda.te
---- nsapolicy/domains/program/unused/anaconda.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/anaconda.te	2004-11-10 17:30:03.411889201 -0500
-@@ -242,8 +242,7 @@
- ifdef(`udev.te', `
- domain_auto_trans(anaconda_t, udev_exec_t, udev_t)
- ')
--allow anaconda_t krb5_conf_t:file read;
--dontaudit anaconda_t krb5_conf_t:file write;
-+can_kerberos(anaconda_t)
- 
- ifdef(`ssh-agent.te', `
- role system_r types sysadm_ssh_agent_t;
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/apache.te policy-1.19.1/domains/program/unused/apache.te
---- nsapolicy/domains/program/unused/apache.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/apache.te	2004-11-10 17:56:47.888877824 -0500
-@@ -133,6 +133,7 @@
- # execute perl
- allow httpd_t { bin_t sbin_t }:dir r_dir_perms;
- can_exec(httpd_t, { bin_t sbin_t })
-+allow httpd_t bin_t:lnk_file read;
- 
- can_network(httpd_t)
- can_ypbind(httpd_t)
-@@ -201,6 +202,10 @@
- if (httpd_ssi_exec) {
- domain_auto_trans(httpd_t, shell_exec_t, httpd_sys_script_t)
- }
-+r_dir_file(httpd_t, httpd_sys_script_ro_t)
-+create_dir_file(httpd_t, httpd_sys_script_rw_t)
-+ra_dir_file(httpd_t, httpd_sys_script_ra_t)
-+allow httpd_sys_script_t httpd_t:tcp_socket { read write };
- 
- ##################################################
- #
-@@ -269,8 +274,7 @@
- ##################################################
- dontaudit httpd_t admin_tty_type:chr_file rw_file_perms;
- 
--allow httpd_t krb5_conf_t:file { getattr read };
--dontaudit httpd_t krb5_conf_t:file write;
-+can_kerberos(httpd_t)
- 
- ifdef(`targeted_policy', `
- typealias httpd_sys_content_t alias httpd_user_content_t;
-@@ -298,5 +302,13 @@
- # Customer reported the following
- #
- ifdef(`snmpd.te', `
-+dontaudit httpd_t snmpd_var_lib_t:dir search;
- dontaudit httpd_t snmpd_var_lib_t:file { getattr write read };
- ')
-+
-+# Running squirrelmail requires this permissions
-+ifdef(`mta.te', `
-+allow system_mail_t httpd_log_t:file { append getattr };
-+allow system_mail_t httpd_sys_script_rw_t:file { append read };
-+allow system_mail_t httpd_t:tcp_socket { read write };
-+')
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/arpwatch.te policy-1.19.1/domains/program/unused/arpwatch.te
---- nsapolicy/domains/program/unused/arpwatch.te	2004-11-05 23:24:16.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/arpwatch.te	2004-11-10 17:30:03.412889088 -0500
-@@ -27,6 +27,7 @@
- 
- allow arpwatch_t sbin_t:dir search;
- allow arpwatch_t sbin_t:lnk_file read;
-+r_dir_file(arpwatch_t, etc_t)
- can_ypbind(arpwatch_t)
- allow system_mail_t arpwatch_tmp_t:file rw_file_perms;
- ifdef(`postfix.te', `
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/bluetooth.te policy-1.19.1/domains/program/unused/bluetooth.te
---- nsapolicy/domains/program/unused/bluetooth.te	2004-11-05 23:24:16.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/bluetooth.te	2004-11-10 17:30:03.412889088 -0500
-@@ -22,7 +22,10 @@
- # Use the network.
- can_network(bluetooth_t)
- can_ypbind(bluetooth_t)
-+ifdef(`dbusd.te', `
- dbusd_client(system, bluetooth)
-+allow bluetooth_t system_dbusd_t:dbus send_msg;
-+')
- allow bluetooth_t self:socket { create setopt ioctl bind listen };
- allow bluetooth_t self:unix_dgram_socket create_socket_perms;
- allow bluetooth_t self:unix_stream_socket create_stream_socket_perms;
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/courier.te policy-1.19.1/domains/program/unused/courier.te
---- nsapolicy/domains/program/unused/courier.te	2004-08-27 09:30:29.000000000 -0400
-+++ policy-1.19.1/domains/program/unused/courier.te	2004-11-10 17:30:03.413888975 -0500
-@@ -47,7 +47,6 @@
- 
- # Use the network.
- can_network(courier_$1_t)
--can_ypbind(courier_$1_t)
- allow courier_$1_t self:fifo_file { read write getattr };
- allow courier_$1_t self:unix_stream_socket create_stream_socket_perms;
- allow courier_$1_t self:unix_dgram_socket create_socket_perms;
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/cups.te policy-1.19.1/domains/program/unused/cups.te
---- nsapolicy/domains/program/unused/cups.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/cups.te	2004-11-10 17:36:49.019130037 -0500
-@@ -19,7 +19,6 @@
- typealias cupsd_rw_etc_t alias etc_cupsd_rw_t;
- 
- can_network(cupsd_t)
--can_ypbind(cupsd_t)
- logdir_domain(cupsd)
- 
- tmp_domain(cupsd)
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/dovecot.te policy-1.19.1/domains/program/unused/dovecot.te
---- nsapolicy/domains/program/unused/dovecot.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/dovecot.te	2004-11-10 17:38:35.374131445 -0500
-@@ -31,10 +31,14 @@
- allow dovecot_t { self proc_t }:file { getattr read };
- allow dovecot_t self:fifo_file rw_file_perms;
- 
--dontaudit dovecot_t krb5_conf_t:file write;
--allow dovecot_t krb5_conf_t:file { getattr read };
-+can_kerberos(dovecot_t)
- 
--daemon_sub_domain(dovecot_t, dovecot_auth, `, auth')
-+allow dovecot_t tmp_t:dir search;
-+rw_dir_file(dovecot_t, mail_spool_t)
-+allow dovecot_t mail_spool_t:lnk_file read;
-+allow dovecot_t var_spool_t:dir { search };
-+
-+daemon_sub_domain(dovecot_t, dovecot_auth, `, auth, auth_chkpwd')
- allow dovecot_auth_t self:process { fork signal_perms };
- allow dovecot_auth_t dovecot_t:unix_stream_socket { getattr accept read write ioctl };
- allow dovecot_auth_t self:unix_dgram_socket create_socket_perms;
-@@ -47,3 +51,5 @@
- allow dovecot_auth_t sysctl_kernel_t:dir search;
- allow dovecot_auth_t sysctl_kernel_t:file read;
- allow dovecot_auth_t sysctl_t:dir search;
-+dontaudit dovecot_auth_t selinux_config_t:dir search;
-+
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ftpd.te policy-1.19.1/domains/program/unused/ftpd.te
---- nsapolicy/domains/program/unused/ftpd.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/ftpd.te	2004-11-10 17:39:19.706130067 -0500
-@@ -16,7 +16,6 @@
- typealias ftpd_etc_t alias etc_ftpd_t;
- 
- can_network(ftpd_t)
--can_ypbind(ftpd_t)
- allow ftpd_t self:unix_dgram_socket { sendto create_socket_perms };
- allow ftpd_t self:unix_stream_socket create_socket_perms;
- allow ftpd_t self:process { getcap setcap setsched setrlimit };
-@@ -85,9 +84,7 @@
- allow ftpd_t proc_t:file { getattr read };
- 
- dontaudit ftpd_t sysadm_home_dir_t:dir getattr;
--dontaudit ftpd_t krb5_conf_t:file write;
- dontaudit ftpd_t selinux_config_t:dir search;
--allow ftpd_t krb5_conf_t:file { getattr read };
- ifdef(`automount.te', `
- allow ftpd_t autofs_t:dir search;
- ')
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/hald.te policy-1.19.1/domains/program/unused/hald.te
---- nsapolicy/domains/program/unused/hald.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/hald.te	2004-11-10 17:40:15.314856488 -0500
-@@ -31,12 +31,13 @@
- 
- allow hald_t bin_t:file getattr;
- allow hald_t self:netlink_route_socket r_netlink_socket_perms;
--allow hald_t self:capability { net_admin sys_admin dac_override dac_read_search };
-+allow hald_t self:capability { net_admin sys_admin dac_override dac_read_search mknod };
- can_network(hald_t)
- can_ypbind(hald_t)
- 
- allow hald_t device_t:lnk_file read;
- allow hald_t { fixed_disk_device_t removable_device_t }:blk_file { getattr read ioctl };
-+allow hald_t removable_device_t:blk_file write;
- allow hald_t event_device_t:chr_file { getattr read ioctl };
- allow hald_t printer_device_t:chr_file rw_file_perms;
- allow hald_t urandom_device_t:chr_file read;
-@@ -64,3 +65,7 @@
- allow hald_t initrc_t:dbus send_msg;
- allow initrc_t hald_t:dbus send_msg;
- allow hald_t etc_runtime_t:file rw_file_perms;
-+allow hald_t var_lib_t:dir search;
-+allow hald_t device_t:dir create_dir_perms;
-+allow hald_t device_t:chr_file create_file_perms;
-+tmp_domain(hald)
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/lockdev.te policy-1.19.1/domains/program/unused/lockdev.te
---- nsapolicy/domains/program/unused/lockdev.te	1969-12-31 19:00:00.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/lockdev.te	2004-11-10 17:59:50.581267119 -0500
-@@ -0,0 +1,11 @@
-+#DESC Lockdev - libblockdev helper application
-+#
-+# Authors:  Daniel Walsh <dwalsh@redhat.com> 
-+#
-+
-+
-+# Type for the lockdev
-+type lockdev_exec_t, file_type, sysadmfile, exec_type;
-+
-+# Everything else is in the lockdev_domain macro in
-+# macros/program/lockdev_macros.te.
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/mailman.te policy-1.19.1/domains/program/unused/mailman.te
---- nsapolicy/domains/program/unused/mailman.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/mailman.te	2004-11-10 17:44:21.526079815 -0500
-@@ -20,7 +20,7 @@
- can_exec_any(mailman_$1_t)
- allow mailman_$1_t { proc_t sysctl_t sysctl_kernel_t }:dir search;
- allow mailman_$1_t { proc_t sysctl_kernel_t }:file { read getattr };
--allow mailman_$1_t var_lib_t:dir { getattr search };
-+allow mailman_$1_t var_lib_t:dir { getattr search read };
- allow mailman_$1_t var_lib_t:lnk_file read;
- allow mailman_$1_t device_t:dir search;
- allow mailman_$1_t etc_runtime_t:file { read getattr };
-@@ -29,7 +29,6 @@
- allow mailman_$1_t mailman_lock_t:dir rw_dir_perms;
- allow mailman_$1_t fs_t:filesystem getattr;
- can_network(mailman_$1_t)
--can_ypbind(mailman_$1_t)
- allow mailman_$1_t self:unix_stream_socket create_socket_perms;
- allow mailman_$1_t var_t:dir r_dir_perms;
- ')
-@@ -72,8 +71,9 @@
- domain_auto_trans({ httpd_t httpd_suexec_t }, mailman_cgi_exec_t, mailman_cgi_t)
- # should have separate types for public and private archives
- r_dir_file(httpd_t, mailman_archive_t)
--allow httpd_t mailman_data_t:dir search;
--r_dir_file(mailman_cgi_t, mailman_archive_t)
-+rw_dir_file(mailman_cgi_t, mailman_archive_t)
-+allow mailman_cgi_t mailman_archive_t:lnk_file create_lnk_perms;
-+allow httpd_t mailman_data_t:dir { getattr search };
- 
- dontaudit mailman_cgi_t httpd_log_t:file append;
- allow httpd_t mailman_cgi_t:process signal;
-@@ -83,6 +83,8 @@
- allow mailman_cgi_t httpd_sys_script_t:dir search;
- allow mailman_cgi_t devtty_t:chr_file { read write };
- allow mailman_cgi_t self:process { fork sigchld };
-+allow mailman_cgi_t var_spool_t:dir search;
-+dontaudit mailman_cgi_t src_t:dir search;
- ')
- 
- allow mta_delivery_agent mailman_data_t:dir search;
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ntpd.te policy-1.19.1/domains/program/unused/ntpd.te
---- nsapolicy/domains/program/unused/ntpd.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/ntpd.te	2004-11-10 17:45:02.917410193 -0500
-@@ -12,7 +12,10 @@
- type ntp_drift_t, file_type, sysadmfile;
- type ntp_port_t, port_type, reserved_port_type;
- 
-+type ntpdate_exec_t, file_type, sysadmfile, exec_type;
-+domain_auto_trans(initrc_t, ntpdate_exec_t, ntpd_t)
-+
- logdir_domain(ntpd)
- 
- allow ntpd_t var_lib_t:dir r_dir_perms;
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ping.te policy-1.19.1/domains/program/unused/ping.te
---- nsapolicy/domains/program/unused/ping.te	2004-06-16 13:33:36.000000000 -0400
-+++ policy-1.19.1/domains/program/unused/ping.te	2004-11-10 17:45:38.999339558 -0500
-@@ -54,4 +54,6 @@
- 
- # it tries to access /var/run
- dontaudit ping_t var_t:dir search;
-+dontaudit ping_t devtty_t:chr_file { read write };
-+dontaudit ping_t ping_t:capability sys_tty_config;
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/postgresql.te policy-1.19.1/domains/program/unused/postgresql.te
---- nsapolicy/domains/program/unused/postgresql.te	2004-10-13 22:41:57.000000000 -0400
-+++ policy-1.19.1/domains/program/unused/postgresql.te	2004-11-10 17:46:14.180370560 -0500
-@@ -13,6 +13,7 @@
- type postgresql_port_t, port_type;
- daemon_domain(postgresql)
- allow initrc_t postgresql_exec_t:lnk_file read;
-+allow postgresql_t usr_t:file { getattr read };
- 
- allow postgresql_t postgresql_var_run_t:sock_file create_file_perms;
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/procmail.te policy-1.19.1/domains/program/unused/procmail.te
---- nsapolicy/domains/program/unused/procmail.te	2004-10-13 22:41:57.000000000 -0400
-+++ policy-1.19.1/domains/program/unused/procmail.te	2004-11-10 17:30:03.458883899 -0500
-@@ -11,7 +11,7 @@
- # procmail_exec_t is the type of the procmail executable.
- #
- # privhome only works until we define a different type for maildir
--type procmail_t, domain, privlog, privhome;
-+type procmail_t, domain, privlog, privhome, nscd_client_domain;
- type procmail_exec_t, file_type, sysadmfile, exec_type;
- 
- role system_r types procmail_t;
-@@ -70,8 +70,9 @@
- 
- ifdef(`sendmail.te', `
- r_dir_file(procmail_t, etc_mail_t)
-+allow procmail_t sendmail_t:tcp_socket { read write };
- ')
- 
- ifdef(`hide_broken_symptoms', `
--dontaudit procmail_t mqueue_spool_t:file { getattr read };
-+dontaudit procmail_t mqueue_spool_t:file { getattr read write };
- ')
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/rlogind.te policy-1.19.1/domains/program/unused/rlogind.te
---- nsapolicy/domains/program/unused/rlogind.te	2004-10-19 16:03:06.000000000 -0400
-+++ policy-1.19.1/domains/program/unused/rlogind.te	2004-11-10 17:30:03.459883786 -0500
-@@ -14,7 +14,6 @@
- role system_r types rlogind_t;
- uses_shlib(rlogind_t)
- can_network(rlogind_t)
--can_ypbind(rlogind_t)
- type rlogind_exec_t, file_type, sysadmfile, exec_type;
- domain_auto_trans(inetd_t, rlogind_exec_t, rlogind_t)
- ifdef(`tcpd.te', `
-@@ -75,8 +74,6 @@
- # Modify /var/log/wtmp.
- allow rlogind_t var_log_t:dir search;
- allow rlogind_t wtmp_t:file rw_file_perms;
--allow rlogind_t krb5_conf_t:file { getattr read };
--dontaudit rlogind_t krb5_conf_t:file write;
- allow rlogind_t urandom_device_t:chr_file { getattr read };
- dontaudit rlogind_t selinux_config_t:dir search;
- allow rlogind_t staff_home_dir_t:dir search;
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/rshd.te policy-1.19.1/domains/program/unused/rshd.te
---- nsapolicy/domains/program/unused/rshd.te	2004-10-19 16:03:06.000000000 -0400
-+++ policy-1.19.1/domains/program/unused/rshd.te	2004-11-10 17:30:03.459883786 -0500
-@@ -31,8 +31,9 @@
- allow rshd_t self:unix_dgram_socket create_socket_perms;
- allow rshd_t self:unix_stream_socket create_stream_socket_perms;
- allow rshd_t { home_root_t home_dir_type }:dir { search getattr };
--allow rshd_t krb5_conf_t:file { getattr read };
--dontaudit rshd_t krb5_conf_t:file write;
-+can_kerberos(rshd_t)
- allow rshd_t tmp_t:dir { search };
-+ifdef(`rlogind.te', `
- allow rshd_t rlogind_tmp_t:file rw_file_perms;
-+')
- allow rshd_t urandom_device_t:chr_file { getattr read };
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/samba.te policy-1.19.1/domains/program/unused/samba.te
---- nsapolicy/domains/program/unused/samba.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/samba.te	2004-11-10 17:30:03.460883673 -0500
-@@ -49,7 +49,6 @@
- 
- # Use the network.
- can_network(smbd_t)
--can_ypbind(smbd_t)
- 
- allow smbd_t urandom_device_t:chr_file { getattr read };
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/swat.te policy-1.19.1/domains/program/unused/swat.te
---- nsapolicy/domains/program/unused/swat.te	2004-10-06 09:18:32.000000000 -0400
-+++ policy-1.19.1/domains/program/unused/swat.te	2004-11-10 17:30:03.460883673 -0500
-@@ -2,6 +2,7 @@
- #
- # Author:  Dan Walsh <dwalsh@redhat.com>
- #
-+# Depends: inetd.te
- 
- #################################
- #
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/uwimapd.te policy-1.19.1/domains/program/unused/uwimapd.te
---- nsapolicy/domains/program/unused/uwimapd.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/uwimapd.te	2004-11-10 17:30:03.461883561 -0500
-@@ -9,7 +9,6 @@
- tmp_domain(imapd)
- 
- can_network(imapd_t)
--can_ypbind(imapd_t)
- 
- #declare our own services
- allow imapd_t self:capability { dac_override net_bind_service setgid setuid sys_resource };
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/xdm.te policy-1.19.1/domains/program/unused/xdm.te
---- nsapolicy/domains/program/unused/xdm.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/xdm.te	2004-11-10 17:47:38.531854326 -0500
-@@ -46,7 +46,6 @@
- allow xdm_t default_context_t:file { read getattr };
- 
- can_network(xdm_t)
--can_ypbind(xdm_t)
- allow xdm_t self:unix_stream_socket { connectto create_stream_socket_perms };
- allow xdm_t self:unix_dgram_socket create_socket_perms;
- allow xdm_t self:fifo_file rw_file_perms;
-@@ -287,7 +286,7 @@
- }
- 
- # for .dmrc
--allow xdm_t user_home_dir_type:dir search;
-+allow xdm_t user_home_dir_type:dir { getattr search };
- allow xdm_t user_home_type:file { getattr read };
- 
- allow xdm_t mnt_t:dir { getattr read search };
-@@ -309,8 +308,6 @@
- ')
- 
- allow xdm_t var_log_t:file read;
--dontaudit xdm_t krb5_conf_t:file write;
--allow xdm_t krb5_conf_t:file { getattr read };
- allow xdm_t self:capability { sys_nice sys_rawio net_bind_service };
- allow xdm_t self:process setrlimit;
- allow xdm_t wtmp_t:file { getattr read };
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ypbind.te policy-1.19.1/domains/program/unused/ypbind.te
---- nsapolicy/domains/program/unused/ypbind.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/domains/program/unused/ypbind.te	2004-11-10 17:47:51.590381109 -0500
-@@ -12,8 +12,6 @@
- #
- daemon_domain(ypbind)
- 
--bool allow_ypbind true;
--
- tmp_domain(ypbind)
- 
- # Use capabilities.
-diff --exclude-from=exclude -N -u -r nsapolicy/domains/user.te policy-1.19.1/domains/user.te
---- nsapolicy/domains/user.te	2004-11-05 23:24:16.000000000 -0500
-+++ policy-1.19.1/domains/user.te	2004-11-10 17:30:03.462883448 -0500
-@@ -15,6 +15,9 @@
- # and may change other protocols 
- bool user_tcp_server false;
- 
-+# Allow system to run with NIS
-+bool allow_ypbind false;
-+
- # Allow users to rw usb devices
- bool user_rw_usb false;
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/apache.fc policy-1.19.1/file_contexts/program/apache.fc
---- nsapolicy/file_contexts/program/apache.fc	2004-10-14 23:25:19.000000000 -0400
-+++ policy-1.19.1/file_contexts/program/apache.fc	2004-11-10 17:30:03.463883335 -0500
-@@ -37,3 +37,4 @@
+=20
+diff -ur orig/file_contexts/program/apache.fc mod/file_contexts/program/apa=
+che.fc
+--- orig/file_contexts/program/apache.fc	2004-10-17 13:07:14.000000000 +0200
++++ mod/file_contexts/program/apache.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -22,16 +22,16 @@
+ /usr/lib(64)?/apache(2)?/suexec(2)? -- system_u:object_r:httpd_suexec_exec=
+_t
+ /var/log/httpd(/.*)?		system_u:object_r:httpd_log_t
+ /var/log/apache(2)?(/.*)?	system_u:object_r:httpd_log_t
+-/var/log/cgiwrap.log.*	--	system_u:object_r:httpd_log_t
++/var/log/cgiwrap\.log.*	--	system_u:object_r:httpd_log_t
+ /var/cache/ssl.*\.sem	--	system_u:object_r:httpd_cache_t
+ /var/cache/mod_ssl(/.*)?	system_u:object_r:httpd_cache_t
+-/var/run/apache(2)?.pid.* --	system_u:object_r:httpd_var_run_t
++/var/run/apache(2)?\.pid.* --	system_u:object_r:httpd_var_run_t
+ /var/lib/httpd(/.*)?		system_u:object_r:httpd_var_lib_t
+ /etc/apache-ssl(2)?(/.*)?	system_u:object_r:httpd_config_t
+ /usr/lib/apache-ssl(/.*)? --	system_u:object_r:httpd_exec_t
+ /usr/sbin/apache-ssl(2)? --	system_u:object_r:httpd_exec_t
+ /var/log/apache-ssl(2)?(/.*)?	system_u:object_r:httpd_log_t
+-/var/run/apache-ssl(2)?.pid.* -- system_u:object_r:httpd_var_run_t
++/var/run/apache-ssl(2)?\.pid.* -- system_u:object_r:httpd_var_run_t
+ /var/run/gcache_port	-s	system_u:object_r:httpd_var_run_t
+ ifdef(`distro_suse', `
  # suse puts shell scripts there :-(
- /usr/share/apache2/.*	--	system_u:object_r:bin_t
- ')
-+/var/lib/squirrelmail/prefs(/.*)?	system_u:object_r:httpd_sys_script_rw_t
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/bootloader.fc policy-1.19.1/file_contexts/program/bootloader.fc
---- nsapolicy/file_contexts/program/bootloader.fc	2004-08-18 08:42:50.000000000 -0400
-+++ policy-1.19.1/file_contexts/program/bootloader.fc	2004-11-10 17:30:03.463883335 -0500
-@@ -9,4 +9,3 @@
+diff -ur orig/file_contexts/program/apmd.fc mod/file_contexts/program/apmd.=
+fc
+--- orig/file_contexts/program/apmd.fc	2004-02-13 19:53:37.000000000 +0100
++++ mod/file_contexts/program/apmd.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -3,5 +3,5 @@
+ /usr/sbin/acpid		--	system_u:object_r:apmd_exec_t
+ /usr/bin/apm		--	system_u:object_r:apm_exec_t
+ /var/run/apmd\.pid	--	system_u:object_r:apmd_var_run_t
+-/var/run/.?acpid.socket	-s	system_u:object_r:apmd_var_run_t
++/var/run/\.?acpid\.socket	-s	system_u:object_r:apmd_var_run_t
+ /var/log/acpid		--	system_u:object_r:apmd_log_t
+diff -ur orig/file_contexts/program/bootloader.fc mod/file_contexts/program=
+/bootloader.fc
+--- orig/file_contexts/program/bootloader.fc	2004-09-11 14:31:47.000000000 =
++0200
++++ mod/file_contexts/program/bootloader.fc	2004-11-12 00:59:53.000000000 +=
+0100
+@@ -9,4 +9,4 @@
  /etc/mkinitrd/scripts/.* --	system_u:object_r:bootloader_exec_t
  /sbin/ybin.*		--	system_u:object_r:bootloader_exec_t
  /etc/yaboot\.conf.*	--	system_u:object_r:bootloader_etc_t
 -/boot/grub/menu.lst	--	system_u:object_r:boot_runtime_t
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/lockdev.fc policy-1.19.1/file_contexts/program/lockdev.fc
---- nsapolicy/file_contexts/program/lockdev.fc	1969-12-31 19:00:00.000000000 -0500
-+++ policy-1.19.1/file_contexts/program/lockdev.fc	2004-11-10 17:30:03.464883222 -0500
-@@ -0,0 +1,2 @@
-+# lockdev 
-+/usr/sbin/lockdev	--	system_u:object_r:lockdev_exec_t
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/ntpd.fc policy-1.19.1/file_contexts/program/ntpd.fc
---- nsapolicy/file_contexts/program/ntpd.fc	2004-10-09 21:06:15.000000000 -0400
-+++ policy-1.19.1/file_contexts/program/ntpd.fc	2004-11-10 17:30:03.464883222 -0500
-@@ -3,7 +3,7 @@
- /etc/ntp(d)?\.conf		--	system_u:object_r:net_conf_t
- /etc/ntp/step-tickers		--	system_u:object_r:net_conf_t
- /usr/sbin/ntpd			--	system_u:object_r:ntpd_exec_t
--/usr/sbin/ntpdate		--	system_u:object_r:ntpd_exec_t
-+/usr/sbin/ntpdate		--	system_u:object_r:ntpdate_exec_t
++/boot/grub/menu\.lst	--	system_u:object_r:boot_runtime_t
+diff -ur orig/file_contexts/program/cardmgr.fc mod/file_contexts/program/ca=
+rdmgr.fc
+--- orig/file_contexts/program/cardmgr.fc	2004-06-19 10:31:43.000000000 +02=
+00
++++ mod/file_contexts/program/cardmgr.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -2,6 +2,6 @@
+ /sbin/cardmgr		--	system_u:object_r:cardmgr_exec_t
+ /sbin/cardctl		--	system_u:object_r:cardctl_exec_t
+ /var/run/stab		--	system_u:object_r:cardmgr_var_run_t
+-/var/run/cardmgr.pid	--	system_u:object_r:cardmgr_var_run_t
++/var/run/cardmgr\.pid	--	system_u:object_r:cardmgr_var_run_t
+ /etc/apm/event\.d/pcmcia --	system_u:object_r:cardmgr_exec_t
+ /var/lib/pcmcia(/.*)?		system_u:object_r:cardmgr_var_run_t
+diff -ur orig/file_contexts/program/clamav.fc mod/file_contexts/program/cla=
+mav.fc
+--- orig/file_contexts/program/clamav.fc	2004-09-11 14:31:47.000000000 +0200
++++ mod/file_contexts/program/clamav.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -4,9 +4,9 @@
+ /usr/sbin/clamav-freshclam-handledaemon	-- system_u:object_r:freshclam_exe=
+c_t
+ /usr/sbin/clamd		--	system_u:object_r:clamd_exec_t
+ /var/lib/clamav(/.*)?		system_u:object_r:clamav_var_lib_t
+-/var/log/clam-update.log --	system_u:object_r:freshclam_log_t
+-/var/log/clamav-freshclam.log.* -- system_u:object_r:freshclam_log_t
+-/var/run/clamd.ctl	-s	system_u:object_r:clamd_var_run_t
+-/var/run/clamd.pid	--	system_u:object_r:clamd_var_run_t
++/var/log/clam-update\.log --	system_u:object_r:freshclam_log_t
++/var/log/clamav-freshclam\.log.* -- system_u:object_r:freshclam_log_t
++/var/run/clamd\.ctl	-s	system_u:object_r:clamd_var_run_t
++/var/run/clamd\.pid	--	system_u:object_r:clamd_var_run_t
+ /var/log/clamav(/.*)?		system_u:object_r:freshclam_log_t
+ /var/run/clamav(/.*)?		system_u:object_r:clamd_var_run_t
+diff -ur orig/file_contexts/program/comsat.fc mod/file_contexts/program/com=
+sat.fc
+--- orig/file_contexts/program/comsat.fc	2004-09-27 21:04:36.000000000 +0200
++++ mod/file_contexts/program/comsat.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -1,2 +1,2 @@
+ # biff server
+-/usr/sbin/in.comsat	--	system_u:object_r:comsat_exec_t
++/usr/sbin/in\.comsat	--	system_u:object_r:comsat_exec_t
+diff -ur orig/file_contexts/program/courier.fc mod/file_contexts/program/co=
+urier.fc
+--- orig/file_contexts/program/courier.fc	2004-09-11 14:31:47.000000000 +02=
+00
++++ mod/file_contexts/program/courier.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -8,7 +8,7 @@
+ /usr/lib(64)?/courier/courier/pcpd	--	system_u:object_r:courier_pcp_exec_t
+ /usr/lib(64)?/courier/imapd		--	system_u:object_r:courier_pop_exec_t
+ /usr/lib(64)?/courier/pop3d		--	system_u:object_r:courier_pop_exec_t
+-/usr/lib(64)?/courier/sqwebmail/cleancache.pl -- system_u:object_r:sqwebma=
+il_cron_exec_t
++/usr/lib(64)?/courier/sqwebmail/cleancache\.pl -- system_u:object_r:sqwebm=
+ail_cron_exec_t
+ /var/lib/courier(/.*)?			system_u:object_r:courier_var_lib_t
+ /usr/bin/imapd			--	system_u:object_r:courier_pop_exec_t
+ /usr/sbin/courierlogger		--	system_u:object_r:courier_exec_t
+diff -ur orig/file_contexts/program/crond.fc mod/file_contexts/program/cron=
+d.fc
+--- orig/file_contexts/program/crond.fc	2004-06-19 10:31:43.000000000 +0200
++++ mod/file_contexts/program/crond.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -16,9 +16,9 @@
+ /usr/sbin/fcron		--	system_u:object_r:crond_exec_t
+ /var/spool/fcron	-d	system_u:object_r:cron_spool_t
+ /var/spool/fcron/.*		<<none>>
+-/var/spool/fcron/systab.orig --	system_u:object_r:system_cron_spool_t
++/var/spool/fcron/systab\.orig --	system_u:object_r:system_cron_spool_t
+ /var/spool/fcron/systab	 --	system_u:object_r:system_cron_spool_t
+-/var/spool/fcron/new.systab --	system_u:object_r:system_cron_spool_t
++/var/spool/fcron/new\.systab --	system_u:object_r:system_cron_spool_t
+ /var/run/fcron\.fifo	-s	system_u:object_r:crond_var_run_t
+ /var/run/fcron\.pid	--	system_u:object_r:crond_var_run_t
+ # atd
+diff -ur orig/file_contexts/program/cups.fc mod/file_contexts/program/cups.=
+fc
+--- orig/file_contexts/program/cups.fc	2004-10-17 13:07:14.000000000 +0200
++++ mod/file_contexts/program/cups.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -1,18 +1,18 @@
+ # cups printing
+ /etc/cups(/.*)?			system_u:object_r:cupsd_etc_t
+ /usr/share/cups(/.*)?		system_u:object_r:cupsd_etc_t
+-/etc/alchemist/namespace/printconf/local.adl system_u:object_r:cupsd_rw_et=
+c_t
++/etc/alchemist/namespace/printconf/local\.adl system_u:object_r:cupsd_rw_e=
+tc_t
+ /var/cache/alchemist/printconf.* system_u:object_r:cupsd_rw_etc_t
+ /etc/cups/client\.conf	--	system_u:object_r:etc_t
+-/etc/cups/cupsd.conf.* --	system_u:object_r:cupsd_rw_etc_t
++/etc/cups/cupsd\.conf.* --	system_u:object_r:cupsd_rw_etc_t
+ /etc/cups/lpoptions	--	system_u:object_r:cupsd_rw_etc_t
+-/etc/cups/printers.conf.* --	system_u:object_r:cupsd_rw_etc_t
++/etc/cups/printers\.conf.* --	system_u:object_r:cupsd_rw_etc_t
+ /etc/cups/ppd/.*	--	system_u:object_r:cupsd_rw_etc_t
+ /etc/cups/certs		-d	system_u:object_r:cupsd_rw_etc_t
+ /etc/cups/certs/.*	--	system_u:object_r:cupsd_rw_etc_t
+ /var/lib/cups/certs	-d	system_u:object_r:cupsd_rw_etc_t
+ /var/lib/cups/certs/.*	--	system_u:object_r:cupsd_rw_etc_t
+-/etc/cups/ppds.dat	--	system_u:object_r:cupsd_rw_etc_t
++/etc/cups/ppds\.dat	--	system_u:object_r:cupsd_rw_etc_t
+ /etc/cups/lpoptions.* 	--	system_u:object_r:cupsd_rw_etc_t
+ /etc/printcap.* 	--	system_u:object_r:cupsd_rw_etc_t
+ /usr/lib(64)?/cups/backend/.* --	system_u:object_r:cupsd_exec_t
+@@ -26,9 +26,9 @@
+ /var/run/cups/printcap	--	system_u:object_r:cupsd_var_run_t
+ /usr/lib(64)?/cups/filter/.*	--	system_u:object_r:bin_t
+ /usr/lib(64)?/cups/cgi-bin/.* --	system_u:object_r:bin_t
+-/usr/bin/lpr.cups	--	system_u:object_r:lpr_exec_t
+-/usr/bin/lpq.cups	--	system_u:object_r:lpr_exec_t
+-/usr/bin/lprm.cups	--	system_u:object_r:lpr_exec_t
++/usr/bin/lpr\.cups	--	system_u:object_r:lpr_exec_t
++/usr/bin/lpq\.cups	--	system_u:object_r:lpr_exec_t
++/usr/bin/lprm\.cups	--	system_u:object_r:lpr_exec_t
+ /usr/sbin/ptal-printd	--	system_u:object_r:ptal_exec_t
+ /usr/sbin/ptal-mlcd	--	system_u:object_r:ptal_exec_t
+ /var/run/ptal-printd(/.*)?	system_u:object_r:ptal_var_run_t
+diff -ur orig/file_contexts/program/ddclient.fc mod/file_contexts/program/d=
+dclient.fc
+--- orig/file_contexts/program/ddclient.fc	2004-10-29 20:33:17.000000000 +0=
+200
++++ mod/file_contexts/program/ddclient.fc	2004-11-12 00:59:53.000000000 +01=
+00
+@@ -1,5 +1,5 @@
+ # ddclient
+-/etc/ddclient.conf		--	system_u:object_r:ddclient_etc_t
++/etc/ddclient\.conf		--	system_u:object_r:ddclient_etc_t
+ /usr/sbin/ddclient		--	system_u:object_r:ddclient_exec_t
+ /var/cache/ddclient(/.*)?	--	system_u:object_r:ddclient_var_t
+ /var/run/ddclient\.pid		--	system_u:object_r:ddclient_var_run_t
+diff -ur orig/file_contexts/program/dhcpc.fc mod/file_contexts/program/dhcp=
+c.fc
+--- orig/file_contexts/program/dhcpc.fc	2004-07-12 23:41:14.000000000 +0200
++++ mod/file_contexts/program/dhcpc.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -1,5 +1,5 @@
+ # dhcpcd=20
+-/etc/dhcpc.*(/.*)?		system_u:object_r:dhcp_etc_t
++/etc/dhcpc.*			system_u:object_r:dhcp_etc_t
+ /etc/dhcp3?/dhclient.*		system_u:object_r:dhcp_etc_t
+ /etc/dhclient.*conf	--	system_u:object_r:dhcp_etc_t
+ /etc/dhclient-script	--	system_u:object_r:dhcp_etc_t
+@@ -7,7 +7,7 @@
+ /sbin/dhclient.*	--	system_u:object_r:dhcpc_exec_t
+ /var/lib/dhcp(3)?/dhclient.*	system_u:object_r:dhcpc_state_t
+ /var/run/dhclient.*\.pid --	system_u:object_r:dhcpc_var_run_t
+-/var/run/dhclient.*.leases --	system_u:object_r:dhcpc_var_run_t
++/var/run/dhclient.*\.leases --	system_u:object_r:dhcpc_var_run_t
+ # pump
+ /sbin/pump		--	system_u:object_r:dhcpc_exec_t
+ ifdef(`dhcp_defined', `', `
+diff -ur orig/file_contexts/program/dhcpd.fc mod/file_contexts/program/dhcp=
+d.fc
+--- orig/file_contexts/program/dhcpd.fc	2004-06-19 10:31:43.000000000 +0200
++++ mod/file_contexts/program/dhcpd.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -1,5 +1,5 @@
+ # dhcpd
+-/etc/dhcpd.conf		--	system_u:object_r:dhcp_etc_t
++/etc/dhcpd\.conf	--	system_u:object_r:dhcp_etc_t
+ /etc/dhcp3(/.*)?		system_u:object_r:dhcp_etc_t
+ /usr/sbin/dhcpd.*	--	system_u:object_r:dhcpd_exec_t
+ /var/lib/dhcp(3)?/dhcpd\.leases.* -- system_u:object_r:dhcpd_state_t
+diff -ur orig/file_contexts/program/dictd.fc mod/file_contexts/program/dict=
+d.fc
+--- orig/file_contexts/program/dictd.fc	2004-06-19 10:31:43.000000000 +0200
++++ mod/file_contexts/program/dictd.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -1,4 +1,4 @@
+ # dictd
+-/etc/dictd.conf		--	system_u:object_r:dictd_etc_t
++/etc/dictd\.conf		--	system_u:object_r:dictd_etc_t
+ /usr/sbin/dictd		--	system_u:object_r:dictd_exec_t
+ /var/lib/dictd(/.*)?		system_u:object_r:var_lib_dictd_t
+diff -ur orig/file_contexts/program/dovecot.fc mod/file_contexts/program/do=
+vecot.fc
+--- orig/file_contexts/program/dovecot.fc	2004-09-11 14:31:47.000000000 +02=
+00
++++ mod/file_contexts/program/dovecot.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -5,9 +5,8 @@
+ ')
+ ifdef(`distro_debian', `
+ /usr/lib/dovecot/dovecot-auth	--	system_u:object_r:dovecot_auth_exec_t
+-/usr/lib/dovecot/.+		--	system_u:object_r:bin_t
+ ')
+-/usr/share/ssl/certs/dovecot.pem --	system_u:object_r:dovecot_cert_t
+-/usr/share/ssl/private/dovecot.pem --	system_u:object_r:dovecot_cert_t
++/usr/share/ssl/certs/dovecot\.pem --	system_u:object_r:dovecot_cert_t
++/usr/share/ssl/private/dovecot\.pem --	system_u:object_r:dovecot_cert_t
+ /var/run/dovecot(-login)?(/.*)?		system_u:object_r:dovecot_var_run_t
+ /usr/lib/dovecot/.+	--		system_u:object_r:bin_t
+diff -ur orig/file_contexts/program/dpkg.fc mod/file_contexts/program/dpkg.=
+fc
+--- orig/file_contexts/program/dpkg.fc	2004-09-11 14:31:47.000000000 +0200
++++ mod/file_contexts/program/dpkg.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -37,8 +37,8 @@
+ /var/run/update-menus\.pid --	system_u:object_r:install_menu_var_run_t
+ /usr/share/openoffice\.org-debian-files/install-hook -- system_u:object_r:=
+bin_t
+ /usr/share/dlint/digparse --	system_u:object_r:bin_t
+-/usr/share/gimp/1.2/user_install -- system_u:object_r:bin_t
+-/usr/share/openoffice.org-debian-files/install-hook -- system_u:object_r:b=
+in_t
++/usr/share/gimp/1\.2/user_install -- system_u:object_r:bin_t
++/usr/share/openoffice\.org-debian-files/install-hook -- system_u:object_r:=
+bin_t
+ /var/lib/defoma(/.*)?		system_u:object_r:fonts_t
+ /usr/lib(64)?/doc-rfc/register-doc-rfc-docs -- system_u:object_r:bin_t
+ /usr/share/intltool-debian/.* -- system_u:object_r:bin_t
+diff -ur orig/file_contexts/program/fingerd.fc mod/file_contexts/program/fi=
+ngerd.fc
+--- orig/file_contexts/program/fingerd.fc	2004-03-03 21:53:51.000000000 +01=
+00
++++ mod/file_contexts/program/fingerd.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -1,6 +1,6 @@
+ # fingerd
+ /usr/sbin/in\.fingerd	--	system_u:object_r:fingerd_exec_t
+ /usr/sbin/[cef]fingerd	--	system_u:object_r:fingerd_exec_t
+-/etc/cron.weekly/(c)?fingerd -- system_u:object_r:fingerd_exec_t
++/etc/cron\.weekly/(c)?fingerd -- system_u:object_r:fingerd_exec_t
+ /etc/cfingerd(/.*)?		system_u:object_r:fingerd_etc_t
+ /var/log/cfingerd\.log.* --	system_u:object_r:fingerd_log_t
+diff -ur orig/file_contexts/program/firstboot.fc mod/file_contexts/program/=
+firstboot.fc
+--- orig/file_contexts/program/firstboot.fc	2004-09-11 14:31:47.000000000 +=
+0200
++++ mod/file_contexts/program/firstboot.fc	2004-11-12 00:59:53.000000000 +0=
+100
+@@ -1,4 +1,4 @@
+ # firstboot
+ /usr/sbin/firstboot	-- system_u:object_r:firstboot_exec_t
+ /usr/share/firstboot	system_u:object_r:firstboot_rw_t
+-/usr/share/firstboot/firstboot.py --	system_u:object_r:firstboot_exec_t
++/usr/share/firstboot/firstboot\.py --	system_u:object_r:firstboot_exec_t
+diff -ur orig/file_contexts/program/fs_daemon.fc mod/file_contexts/program/=
+fs_daemon.fc
+--- orig/file_contexts/program/fs_daemon.fc	2004-10-14 13:09:54.000000000 +=
+0200
++++ mod/file_contexts/program/fs_daemon.fc	2004-11-12 00:59:53.000000000 +0=
+100
+@@ -1,4 +1,4 @@
+ # fs admin daemons
+ /usr/sbin/smartd	--	system_u:object_r:fsdaemon_exec_t
+-/var/run/smartd.pid	--	system_u:object_r:fsdaemon_var_run_t
+-/etc/smartd.conf	--	system_u:object_r:etc_runtime_t
++/var/run/smartd\.pid	--	system_u:object_r:fsdaemon_var_run_t
++/etc/smartd\.conf	--	system_u:object_r:etc_runtime_t
+diff -ur orig/file_contexts/program/ftpd.fc mod/file_contexts/program/ftpd.=
+fc
+--- orig/file_contexts/program/ftpd.fc	2004-10-19 21:15:26.000000000 +0200
++++ mod/file_contexts/program/ftpd.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -7,7 +7,7 @@
+ /usr/sbin/vsftpd	--	system_u:object_r:ftpd_exec_t
+ /etc/proftpd\.conf	--	system_u:object_r:ftpd_etc_t
+ /var/run/proftpd/proftpd-inetd -- system_u:object_r:ftpd_var_run_t
+-/var/run/proftpd/proftpd.scoreboard -- system_u:object_r:ftpd_var_run_t
++/var/run/proftpd/proftpd\.scoreboard -- system_u:object_r:ftpd_var_run_t
+ /var/log/muddleftpd\.log.* --	system_u:object_r:xferlog_t
+ /var/log/xferlog.*	--	system_u:object_r:xferlog_t
+ /var/log/xferreport.*	--	system_u:object_r:xferlog_t
+diff -ur orig/file_contexts/program/hald.fc mod/file_contexts/program/hald.=
+fc
+--- orig/file_contexts/program/hald.fc	2004-09-23 11:38:29.000000000 +0200
++++ mod/file_contexts/program/hald.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -1,5 +1,5 @@
+ # hald - hardware information daemon
+ /usr/sbin/hald		--	system_u:object_r:hald_exec_t
+ /usr/libexec/hal-hotplug-map -- system_u:object_r:hald_exec_t
+-/etc/hal/device.d/printer_remove.hal -- system_u:object_r:hald_exec_t
+-/etc/hal/capability.d/printer_update.hal -- system_u:object_r:hald_exec_t
++/etc/hal/device\.d/printer_remove\.hal -- system_u:object_r:hald_exec_t
++/etc/hal/capability\.d/printer_update\.hal -- system_u:object_r:hald_exec_t
+diff -ur orig/file_contexts/program/hotplug.fc mod/file_contexts/program/ho=
+tplug.fc
+--- orig/file_contexts/program/hotplug.fc	2004-10-19 21:15:26.000000000 +02=
+00
++++ mod/file_contexts/program/hotplug.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -6,5 +6,5 @@
+ /etc/netplug.d(/.*)? 	 	system_u:object_r:sbin_t
+ /etc/hotplug/.*agent	--	system_u:object_r:sbin_t
+ /etc/hotplug/.*rc	-- 	system_u:object_r:sbin_t
+-/etc/hotplug/hotplug.functions --	system_u:object_r:sbin_t
++/etc/hotplug/hotplug\.functions --	system_u:object_r:sbin_t
+ /var/run/usb(/.*)?		system_u:object_r:hotplug_var_run_t
+diff -ur orig/file_contexts/program/howl.fc mod/file_contexts/program/howl.=
+fc
+--- orig/file_contexts/program/howl.fc	2004-08-06 14:23:52.000000000 +0200
++++ mod/file_contexts/program/howl.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -1,3 +1,3 @@
+ /usr/bin/nifd	--	system_u:object_r:howl_exec_t
+ /usr/bin/mDNSResponder	--	system_u:object_r:howl_exec_t
+-/var/run/nifd.pid --	system_u:object_r:howl_var_run_t
++/var/run/nifd\.pid --	system_u:object_r:howl_var_run_t
+diff -ur orig/file_contexts/program/imazesrv.fc mod/file_contexts/program/i=
+mazesrv.fc
+--- orig/file_contexts/program/imazesrv.fc	2004-02-11 20:11:28.000000000 +0=
+100
++++ mod/file_contexts/program/imazesrv.fc	2004-11-12 00:59:53.000000000 +01=
+00
+@@ -1,4 +1,4 @@
+ #  imazesrv
+ /usr/share/games/imaze(/.*)?	system_u:object_r:imazesrv_data_t
+ /usr/games/imazesrv --	system_u:object_r:imazesrv_exec_t
+-/var/log/imaze.log --	system_u:object_r:imazesrv_log_t
++/var/log/imaze\.log --	system_u:object_r:imazesrv_log_t
+diff -ur orig/file_contexts/program/initrc.fc mod/file_contexts/program/ini=
+trc.fc
+--- orig/file_contexts/program/initrc.fc	2004-10-17 13:07:14.000000000 +0200
++++ mod/file_contexts/program/initrc.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -20,8 +20,8 @@
+ ifdef(`distro_gentoo', `
+ /sbin/rc		--	system_u:object_r:initrc_exec_t
+ /sbin/runscript		--      system_u:object_r:initrc_exec_t
+-/sbin/runscript.sh	--	system_u:object_r:initrc_exec_t
+-/var/lib/init.d(/.*)?		system_u:object_r:initrc_state_t
++/sbin/runscript\.sh	--	system_u:object_r:initrc_exec_t
++/var/lib/init\.d(/.*)?		system_u:object_r:initrc_state_t
+ ')
+=20
+ # run_init
+diff -ur orig/file_contexts/program/innd.fc mod/file_contexts/program/innd.=
+fc
+--- orig/file_contexts/program/innd.fc	2004-11-09 08:45:55.000000000 +0100
++++ mod/file_contexts/program/innd.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -7,7 +7,7 @@
+ /var/log/news(/.*)?		system_u:object_r:innd_log_t
+ /var/lib/news(/.*)?		system_u:object_r:innd_var_lib_t
+ /var/run/news(/.*)?	 	system_u:object_r:innd_var_run_t
+-/usr/sbin/in.nnrpd	--	system_u:object_r:innd_exec_t
++/usr/sbin/in\.nnrpd	--	system_u:object_r:innd_exec_t
+ /usr/bin/inews		--	system_u:object_r:innd_exec_t
+ /usr/bin/rnews		--	system_u:object_r:innd_exec_t
+ /usr/lib(64)?/news/bin(/.*)?		system_u:object_r:bin_t
+diff -ur orig/file_contexts/program/irc.fc mod/file_contexts/program/irc.fc
+--- orig/file_contexts/program/irc.fc	2004-03-09 16:31:36.000000000 +0100
++++ mod/file_contexts/program/irc.fc	2004-11-12 00:59:53.000000000 +0100
+@@ -2,4 +2,4 @@
+ /usr/bin/[st]irc	--	system_u:object_r:irc_exec_t
+ /usr/bin/ircII		--	system_u:object_r:irc_exec_t
+ /usr/bin/tinyirc	--	system_u:object_r:irc_exec_t
+-HOME_DIR/.ircmotd	--	system_u:object_r:ROLE_home_irc_t
++HOME_DIR/\.ircmotd	--	system_u:object_r:ROLE_home_irc_t
+diff -ur orig/file_contexts/program/kerberos.fc mod/file_contexts/program/k=
+erberos.fc
+--- orig/file_contexts/program/kerberos.fc	2004-10-19 21:15:26.000000000 +0=
+200
++++ mod/file_contexts/program/kerberos.fc	2004-11-12 00:59:53.000000000 +01=
+00
+@@ -6,7 +6,7 @@
+ /usr/local/var/krb5kdc(/.*)?		system_u:object_r:krb5kdc_conf_t
+ /var/kerberos/krb5kdc/principal.*	system_u:object_r:krb5kdc_principal_t
+ /usr/local/var/krb5kdc/principal.*	system_u:object_r:krb5kdc_principal_t
+-/var/log/krb5kdc.log			system_u:object_r:krb5kdc_log_t
+-/var/log/kadmind.log			system_u:object_r:kadmind_log_t
++/var/log/krb5kdc\.log			system_u:object_r:krb5kdc_log_t
++/var/log/kadmind\.log			system_u:object_r:kadmind_log_t
+ /usr(/local)?/bin/ksu		--	system_u:object_r:su_exec_t
+-/usr/kerberos/sbin/login.krb5	--	system_u:object_r:login_exec_t
++/usr/kerberos/sbin/login\.krb5	--	system_u:object_r:login_exec_t
+diff -ur orig/file_contexts/program/logrotate.fc mod/file_contexts/program/=
+logrotate.fc
+--- orig/file_contexts/program/logrotate.fc	2004-09-11 14:31:47.000000000 +=
+0200
++++ mod/file_contexts/program/logrotate.fc	2004-11-12 01:00:09.000000000 +0=
+100
+@@ -5,7 +5,7 @@
+ /usr/bin/savelog	--	system_u:object_r:logrotate_exec_t
+ ')
+ /etc/cron\.(daily|weekly)/sysklogd -- system_u:object_r:logrotate_exec_t
+-/var/lib/logrotate.status --	system_u:object_r:logrotate_var_lib_t
++/var/lib/logrotate\.status --	system_u:object_r:logrotate_var_lib_t
+ /var/lib/logcheck(/.*)?		system_u:object_r:logrotate_var_lib_t
+ # using a hard-coded name under /var/tmp is a bug - new version fixes it
+ /var/tmp/logcheck	-d	system_u:object_r:logrotate_tmp_t
+diff -ur orig/file_contexts/program/lvm.fc mod/file_contexts/program/lvm.fc
+--- orig/file_contexts/program/lvm.fc	2004-09-15 19:01:07.000000000 +0200
++++ mod/file_contexts/program/lvm.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -38,7 +38,7 @@
+ /sbin/vgcfgbackup	--	system_u:object_r:lvm_exec_t
+ /sbin/vgcfgrestore	--	system_u:object_r:lvm_exec_t
+ /sbin/vgchange		--	system_u:object_r:lvm_exec_t
+-/sbin/vgchange.static	--	system_u:object_r:lvm_exec_t
++/sbin/vgchange\.static	--	system_u:object_r:lvm_exec_t
+ /sbin/vgck		--	system_u:object_r:lvm_exec_t
+ /sbin/vgcreate		--	system_u:object_r:lvm_exec_t
+ /sbin/vgdisplay		--	system_u:object_r:lvm_exec_t
+@@ -51,14 +51,14 @@
+ /sbin/vgremove		--	system_u:object_r:lvm_exec_t
+ /sbin/vgrename		--	system_u:object_r:lvm_exec_t
+ /sbin/vgscan		--	system_u:object_r:lvm_exec_t
+-/sbin/vgscan.static	--	system_u:object_r:lvm_exec_t
++/sbin/vgscan\.static	--	system_u:object_r:lvm_exec_t
+ /sbin/vgsplit		--	system_u:object_r:lvm_exec_t
+ /sbin/vgwrapper		--	system_u:object_r:lvm_exec_t
+ /sbin/cryptsetup	--	system_u:object_r:lvm_exec_t
+ /sbin/dmsetup      --      system_u:object_r:lvm_exec_t
+-/sbin/dmsetup.static --    system_u:object_r:lvm_exec_t
++/sbin/dmsetup\.static --    system_u:object_r:lvm_exec_t
+ /sbin/lvm          --      system_u:object_r:lvm_exec_t
+-/sbin/lvm.static   --      system_u:object_r:lvm_exec_t
++/sbin/lvm\.static   --      system_u:object_r:lvm_exec_t
+ /usr/sbin/lvm		--	system_u:object_r:lvm_exec_t
+ /sbin/lvresize     --      system_u:object_r:lvm_exec_t
+ /sbin/lvs          --      system_u:object_r:lvm_exec_t
+diff -ur orig/file_contexts/program/modutil.fc mod/file_contexts/program/mo=
+dutil.fc
+--- orig/file_contexts/program/modutil.fc	2004-03-17 19:26:06.000000000 +01=
+00
++++ mod/file_contexts/program/modutil.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -1,7 +1,7 @@
+ # module utilities
+ /etc/modules\.conf.*	--	system_u:object_r:modules_conf_t
+ /etc/modprobe\.conf.*	--	system_u:object_r:modules_conf_t
+-/lib(64)?/modules/modprobe.conf --	system_u:object_r:modules_conf_t
++/lib(64)?/modules/modprobe\.conf --	system_u:object_r:modules_conf_t
+ /lib(64)?/modules(/.*)?		system_u:object_r:modules_object_t
+ /lib(64)?/modules/[^/]+/modules\..+ -- system_u:object_r:modules_dep_t
+ /lib(64)?/modules/modprobe\.conf.* -- system_u:object_r:modules_conf_t
+@@ -11,4 +11,4 @@
+ /sbin/insmod_ksymoops_clean --	system_u:object_r:sbin_t
+ /sbin/rmmod.*		--	system_u:object_r:insmod_exec_t
+ /sbin/update-modules	--	system_u:object_r:update_modules_exec_t
+-/sbin/generate-modprobe.conf -- system_u:object_r:update_modules_exec_t
++/sbin/generate-modprobe\.conf -- system_u:object_r:update_modules_exec_t
+diff -ur orig/file_contexts/program/monopd.fc mod/file_contexts/program/mon=
+opd.fc
+--- orig/file_contexts/program/monopd.fc	2004-02-11 20:11:28.000000000 +0100
++++ mod/file_contexts/program/monopd.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -1,4 +1,4 @@
+ # monopd
+-/etc/monopd.conf	--	system_u:object_r:etc_monopd_t
++/etc/monopd\.conf	--	system_u:object_r:etc_monopd_t
+ /usr/sbin/monopd	--	system_u:object_r:monopd_exec_t
+ /usr/share/monopd/games(/.*)?	system_u:object_r:share_monopd_t
+diff -ur orig/file_contexts/program/mozilla.fc mod/file_contexts/program/mo=
+zilla.fc
+--- orig/file_contexts/program/mozilla.fc	2004-10-11 10:03:25.000000000 +02=
+00
++++ mod/file_contexts/program/mozilla.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -12,7 +12,7 @@
+ /usr/bin/epiphany-bin   --	system_u:object_r:mozilla_exec_t
+ /usr/bin/mozilla-[0-9].* --	system_u:object_r:mozilla_exec_t
+ /usr/bin/mozilla-bin-[0-9].* --	system_u:object_r:mozilla_exec_t
+-/usr/lib(64)?/netscape/.+/communicator/communicator-smotif.real -- system_=
+u:object_r:mozilla_exec_t
++/usr/lib(64)?/netscape/.+/communicator/communicator-smotif\.real -- system=
+_u:object_r:mozilla_exec_t
+ /usr/lib(64)?/netscape/base-4/wrapper -- system_u:object_r:mozilla_exec_t
+ /usr/lib(64)?/mozilla[^/]*/reg.+	--	system_u:object_r:mozilla_exec_t
+ /usr/lib(64)?/mozilla[^/]*/mozilla-.* --	system_u:object_r:mozilla_exec_t
+diff -ur orig/file_contexts/program/mrtg.fc mod/file_contexts/program/mrtg.=
+fc
+--- orig/file_contexts/program/mrtg.fc	2004-06-19 10:31:43.000000000 +0200
++++ mod/file_contexts/program/mrtg.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -3,5 +3,5 @@
+ /var/lib/mrtg(/.*)?		system_u:object_r:var_lib_mrtg_t
+ /var/lock/mrtg(/.*)?		system_u:object_r:mrtg_lock_t
+ /etc/mrtg.*			system_u:object_r:mrtg_etc_t
+-/etc/mrtg/mrtg.ok	--	system_u:object_r:mrtg_lock_t
++/etc/mrtg/mrtg\.ok	--	system_u:object_r:mrtg_lock_t
+ /var/log/mrtg(/.*)?		system_u:object_r:mrtg_log_t
+diff -ur orig/file_contexts/program/mysqld.fc mod/file_contexts/program/mys=
+qld.fc
+--- orig/file_contexts/program/mysqld.fc	2004-09-11 14:31:47.000000000 +0200
++++ mod/file_contexts/program/mysqld.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -4,7 +4,7 @@
+ /var/run/mysqld(/.*)?		system_u:object_r:mysqld_var_run_t
+ /var/log/mysql.*	--	system_u:object_r:mysqld_log_t
+ /var/lib/mysql(/.*)?		system_u:object_r:mysqld_db_t
+-/var/lib/mysql/mysql.sock -s	system_u:object_r:mysqld_var_run_t
++/var/lib/mysql/mysql\.sock -s	system_u:object_r:mysqld_var_run_t
+ /etc/my\.cnf		--	system_u:object_r:mysqld_etc_t
+ /etc/mysql(/.*)?		system_u:object_r:mysqld_etc_t
+ ifdef(`distro_debian', `
+diff -ur orig/file_contexts/program/nrpe.fc mod/file_contexts/program/nrpe.=
+fc
+--- orig/file_contexts/program/nrpe.fc	2004-06-16 19:38:16.000000000 +0200
++++ mod/file_contexts/program/nrpe.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -1,5 +1,5 @@
+ # nrpe
+ /usr/bin/nrpe		--	system_u:object_r:nrpe_exec_t
+-/etc/nagios/nrpe.cfg	--	system_u:object_r:nrpe_etc_t
++/etc/nagios/nrpe\.cfg	--	system_u:object_r:nrpe_etc_t
+ /usr/lib/netsaint/plugins(/.*)?	--	system_u:object_r:bin_t
+ /usr/lib/nagios/plugins(/.*)?	--	system_u:object_r:bin_t
+diff -ur orig/file_contexts/program/nsd.fc mod/file_contexts/program/nsd.fc
+--- orig/file_contexts/program/nsd.fc	2004-09-11 14:31:47.000000000 +0200
++++ mod/file_contexts/program/nsd.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -2,9 +2,9 @@
+ /etc/nsd(/.*)?       		system_u:object_r:nsd_conf_t
+ /etc/nsd/primary(/.*)?		system_u:object_r:nsd_zone_t
+ /etc/nsd/secondary(/.*)?	system_u:object_r:nsd_zone_t
+-/etc/nsd/nsd.db		--	system_u:object_r:nsd_db_t
++/etc/nsd/nsd\.db		--	system_u:object_r:nsd_db_t
+ /var/lib/nsd(/.*)?		system_u:object_r:nsd_zone_t
+-/var/lib/nsd/nsd.db	--	system_u:object_r:nsd_db_t
++/var/lib/nsd/nsd\.db	--	system_u:object_r:nsd_db_t
+ /usr/sbin/nsd      	--	system_u:object_r:nsd_exec_t
+ /usr/sbin/nsdc      	--	system_u:object_r:nsd_exec_t
+ /usr/sbin/nsd-notify	--	system_u:object_r:nsd_exec_t
+diff -ur orig/file_contexts/program/ntpd.fc mod/file_contexts/program/ntpd.=
+fc
+--- orig/file_contexts/program/ntpd.fc	2004-10-11 10:03:25.000000000 +0200
++++ mod/file_contexts/program/ntpd.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -7,6 +7,6 @@
  /var/log/ntpstats(/.*)?			system_u:object_r:ntpd_log_t
  /var/log/ntpd.*			--	system_u:object_r:ntpd_log_t
  /var/log/xntpd.*		--	system_u:object_r:ntpd_log_t
-diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/types.fc policy-1.19.1/file_contexts/types.fc
---- nsapolicy/file_contexts/types.fc	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/file_contexts/types.fc	2004-11-10 17:30:03.465883109 -0500
-@@ -111,7 +111,6 @@
+-/var/run/ntpd.pid		--	system_u:object_r:ntpd_var_run_t
++/var/run/ntpd\.pid		--	system_u:object_r:ntpd_var_run_t
+ /etc/cron\.(daily|weekly)/ntp-simple -- system_u:object_r:ntpd_exec_t
+ /etc/cron\.(daily|weekly)/ntp-server -- system_u:object_r:ntpd_exec_t
+diff -ur orig/file_contexts/program/portslave.fc mod/file_contexts/program/=
+portslave.fc
+--- orig/file_contexts/program/portslave.fc	2004-02-02 16:17:23.000000000 +=
+0100
++++ mod/file_contexts/program/portslave.fc	2004-11-12 01:00:09.000000000 +0=
+100
+@@ -2,4 +2,4 @@
+ /usr/sbin/portslave	--	system_u:object_r:portslave_exec_t
+ /usr/sbin/ctlportslave	--	system_u:object_r:portslave_exec_t
+ /etc/portslave(/.*)?		system_u:object_r:portslave_etc_t
+-/var/run/radius.((id)|(seq)) -- system_u:object_r:pppd_var_run_t
++/var/run/radius\.(id|seq) -- system_u:object_r:pppd_var_run_t
+diff -ur orig/file_contexts/program/pppd.fc mod/file_contexts/program/pppd.=
+fc
+--- orig/file_contexts/program/pppd.fc	2004-10-30 10:30:04.000000000 +0200
++++ mod/file_contexts/program/pppd.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -16,5 +16,5 @@
+ /etc/ppp/ip-up.*	--	system_u:object_r:bin_t
+ /etc/ppp/ipv6-up	--	system_u:object_r:bin_t
+ /etc/ppp/ipv6-down	--	system_u:object_r:bin_t
+-/etc/ppp/plugins/rp-pppoe.so 	--	system_u:object_r:shlib_t
++/etc/ppp/plugins/rp-pppoe\.so 	--	system_u:object_r:shlib_t
+ /etc/ppp/resolv\.conf 	--   system_u:object_r:pppd_etc_rw_t
+diff -ur orig/file_contexts/program/prelink.fc mod/file_contexts/program/pr=
+elink.fc
+--- orig/file_contexts/program/prelink.fc	2004-09-11 14:31:47.000000000 +02=
+00
++++ mod/file_contexts/program/prelink.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -3,6 +3,6 @@
+ ifdef(`distro_debian', `
+ /usr/sbin/prelink\.bin		--	system_u:object_r:prelink_exec_t
+ ')
+-/etc/prelink.conf		--	system_u:object_r:etc_prelink_t
+-/var/log/prelink.log		--	system_u:object_r:prelink_log_t
+-/etc/prelink.cache		--	system_u:object_r:prelink_cache_t
++/etc/prelink\.conf		--	system_u:object_r:etc_prelink_t
++/var/log/prelink\.log		--	system_u:object_r:prelink_log_t
++/etc/prelink\.cache		--	system_u:object_r:prelink_cache_t
+diff -ur orig/file_contexts/program/pxe.fc mod/file_contexts/program/pxe.fc
+--- orig/file_contexts/program/pxe.fc	2004-03-17 19:26:06.000000000 +0100
++++ mod/file_contexts/program/pxe.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -1,5 +1,5 @@
+ # pxe network boot server
+ /usr/sbin/pxe		--	system_u:object_r:pxe_exec_t
+-/var/log/pxe.log	--	system_u:object_r:pxe_log_t
+-/var/run/pxe.pid	--	system_u:object_r:pxe_var_run_t
++/var/log/pxe\.log	--	system_u:object_r:pxe_log_t
++/var/run/pxe\.pid	--	system_u:object_r:pxe_var_run_t
+=20
+diff -ur orig/file_contexts/program/quota.fc mod/file_contexts/program/quot=
+a.fc
+--- orig/file_contexts/program/quota.fc	2004-06-19 10:31:43.000000000 +0200
++++ mod/file_contexts/program/quota.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -1,5 +1,5 @@
+ # quota system
+ /var/lib/quota(/.*)?		system_u:object_r:quota_flag_t
+ /sbin/quota(check|on)	--	system_u:object_r:quota_exec_t
+-HOME_ROOT/a?quota.(user|group) -- system_u:object_r:quota_db_t
+-/var/a?quota.(user|group) -- system_u:object_r:quota_db_t
++HOME_ROOT/a?quota\.(user|group) -- system_u:object_r:quota_db_t
++/var/a?quota\.(user|group) -- system_u:object_r:quota_db_t
+diff -ur orig/file_contexts/program/resmgrd.fc mod/file_contexts/program/re=
+smgrd.fc
+--- orig/file_contexts/program/resmgrd.fc	2004-10-29 20:33:17.000000000 +02=
+00
++++ mod/file_contexts/program/resmgrd.fc	2004-11-12 01:01:07.000000000 +0100
+@@ -2,5 +2,5 @@
+ /sbin/resmgrd		--	system_u:object_r:resmgrd_exec_t
+ /etc/resmgr\.conf	--	system_u:object_r:resmgrd_etc_t
+ /var/run/resmgr\.pid	--	system_u:object_r:resmgrd_var_run_t
+-/var/run/\.resmgr_socket	system_u:object_r:resmgrd_var_run_t
++/var/run/\.resmgr_socket	-s	system_u:object_r:resmgrd_var_run_t
+=20
+diff -ur orig/file_contexts/program/rpcd.fc mod/file_contexts/program/rpcd.=
+fc
+--- orig/file_contexts/program/rpcd.fc	2004-07-12 23:41:19.000000000 +0200
++++ mod/file_contexts/program/rpcd.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -4,6 +4,6 @@
+ /usr/sbin/rpc\.nfsd	--	system_u:object_r:nfsd_exec_t
+ /usr/sbin/exportfs	--	system_u:object_r:nfsd_exec_t
+ /usr/sbin/rpc\.mountd	--	system_u:object_r:nfsd_exec_t
+-/var/run/rpc.statd.pid	--	system_u:object_r:rpcd_var_run_t
+-/var/run/rpc.statd(/.*)?	system_u:object_r:rpcd_var_run_t
++/var/run/rpc\.statd\.pid	--	system_u:object_r:rpcd_var_run_t
++/var/run/rpc\.statd(/.*)?	system_u:object_r:rpcd_var_run_t
+ /etc/exports		--	system_u:object_r:exports_t
+diff -ur orig/file_contexts/program/rpm.fc mod/file_contexts/program/rpm.fc
+--- orig/file_contexts/program/rpm.fc	2004-10-11 10:03:25.000000000 +0200
++++ mod/file_contexts/program/rpm.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -11,7 +11,7 @@
+ /usr/lib(64)?/rpm/rpmk	-- 	system_u:object_r:bin_t
+ /usr/lib(64)?/rpm/rpmv	-- 	system_u:object_r:bin_t
+ /var/log/rpmpkgs.*	--	system_u:object_r:rpm_log_t
+-/var/log/yum.log	--	system_u:object_r:rpm_log_t
++/var/log/yum\.log	--	system_u:object_r:rpm_log_t
+ ifdef(`distro_redhat', `
+ /usr/sbin/up2date	--	system_u:object_r:rpm_exec_t
+ /usr/sbin/rhn_check	--	system_u:object_r:rpm_exec_t
+diff -ur orig/file_contexts/program/sendmail.fc mod/file_contexts/program/s=
+endmail.fc
+--- orig/file_contexts/program/sendmail.fc	2004-10-11 10:03:25.000000000 +0=
+200
++++ mod/file_contexts/program/sendmail.fc	2004-11-12 01:00:09.000000000 +01=
+00
+@@ -3,5 +3,5 @@
+ /var/spool/(client)?mqueue(/.*)?	system_u:object_r:mqueue_spool_t
+ /var/log/sendmail\.st		--	system_u:object_r:sendmail_log_t
+ /var/log/mail(/.*)?			system_u:object_r:sendmail_log_t
+-/var/run/sendmail.pid		--	system_u:object_r:sendmail_var_run_t
+-/var/run/sm-client.pid		--	system_u:object_r:sendmail_var_run_t
++/var/run/sendmail\.pid		--	system_u:object_r:sendmail_var_run_t
++/var/run/sm-client\.pid		--	system_u:object_r:sendmail_var_run_t
+diff -ur orig/file_contexts/program/seuser.fc mod/file_contexts/program/seu=
+ser.fc
+--- orig/file_contexts/program/seuser.fc	2004-09-11 14:31:47.000000000 +0200
++++ mod/file_contexts/program/seuser.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -1,4 +1,4 @@
+ # seuser
+ /usr/bin/seuser	--	system_u:object_r:seuser_exec_t
+-/usr/apol/seuser.conf system_u:object_r:seuser_conf_t
++/usr/apol/seuser\.conf system_u:object_r:seuser_conf_t
+=20
+diff -ur orig/file_contexts/program/slapd.fc mod/file_contexts/program/slap=
+d.fc
+--- orig/file_contexts/program/slapd.fc	2004-06-19 10:31:43.000000000 +0200
++++ mod/file_contexts/program/slapd.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -4,5 +4,4 @@
+ /var/lib/ldap/replog(/.*)?	system_u:object_r:slapd_replog_t
+ /var/run/slapd\.args	--	system_u:object_r:slapd_var_run_t
+ /etc/ldap/slapd\.conf	--	system_u:object_r:slapd_etc_t
+-/usr/lib(64)?/ldap/back.*so.* --	system_u:object_r:shlib_t
+ /var/run/slapd\.pid	--	system_u:object_r:slapd_var_run_t
+diff -ur orig/file_contexts/program/slocate.fc mod/file_contexts/program/sl=
+ocate.fc
+--- orig/file_contexts/program/slocate.fc	2004-06-19 10:31:43.000000000 +02=
+00
++++ mod/file_contexts/program/slocate.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -1,4 +1,4 @@
+ # locate - file locater
+ /usr/bin/slocate		--	system_u:object_r:locate_exec_t
+ /var/lib/slocate(/.*)?			system_u:object_r:var_lib_locate_t
+-/etc/updatedb.conf		--	system_u:object_r:locate_etc_t
++/etc/updatedb\.conf		--	system_u:object_r:locate_etc_t
+diff -ur orig/file_contexts/program/snmpd.fc mod/file_contexts/program/snmp=
+d.fc
+--- orig/file_contexts/program/snmpd.fc	2004-10-19 21:15:26.000000000 +0200
++++ mod/file_contexts/program/snmpd.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -6,4 +6,4 @@
+ /var/run/snmpd\.pid	--	system_u:object_r:snmpd_var_run_t
+ /var/run/snmpd		-d	system_u:object_r:snmpd_var_run_t
+ /var/net-snmp(/.*)		system_u:object_r:snmpd_var_lib_t
+-/var/log/snmpd.log	--	system_u:object_r:snmpd_log_t
++/var/log/snmpd\.log	--	system_u:object_r:snmpd_log_t
+diff -ur orig/file_contexts/program/udev.fc mod/file_contexts/program/udev.=
+fc
+--- orig/file_contexts/program/udev.fc	2004-10-14 13:09:55.000000000 +0200
++++ mod/file_contexts/program/udev.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -6,7 +6,7 @@
+ /usr/bin/udevinfo --	system_u:object_r:udev_exec_t
+ /etc/dev\.d/.+	--	system_u:object_r:udev_helper_exec_t
+ /etc/udev/scripts/.+	-- system_u:object_r:udev_helper_exec_t
+-/etc/hotplug.d/default/udev.* -- system_u:object_r:udev_helper_exec_t
++/etc/hotplug\.d/default/udev.* -- system_u:object_r:udev_helper_exec_t
+ /dev/udev\.tbl	--	system_u:object_r:udev_tbl_t
+ /dev/\.udev\.tdb --	system_u:object_r:udev_tbl_t
+ /sbin/wait_for_sysfs -- system_u:object_r:udev_exec_t
+diff -ur orig/file_contexts/program/uptimed.fc mod/file_contexts/program/up=
+timed.fc
+--- orig/file_contexts/program/uptimed.fc	2004-02-02 17:58:19.000000000 +01=
+00
++++ mod/file_contexts/program/uptimed.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -1,4 +1,4 @@
+ # uptimed
+-/etc/uptimed.conf	--	system_u:object_r:etc_uptimed_t
++/etc/uptimed\.conf	--	system_u:object_r:etc_uptimed_t
+ /usr/sbin/uptimed	--	system_u:object_r:uptimed_exec_t
+ /var/spool/uptimed(/.*)?        system_u:object_r:uptimed_spool_t
+diff -ur orig/file_contexts/program/ypserv.fc mod/file_contexts/program/yps=
+erv.fc
+--- orig/file_contexts/program/ypserv.fc	2004-02-02 17:58:19.000000000 +0100
++++ mod/file_contexts/program/ypserv.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -1,3 +1,3 @@
+ # ypserv
+ /usr/sbin/ypserv		--	system_u:object_r:ypserv_exec_t
+-/etc/ypserv.conf		--	system_u:object_r:ypserv_conf_t
++/etc/ypserv\.conf		--	system_u:object_r:ypserv_conf_t
+diff -ur orig/file_contexts/program/zebra.fc mod/file_contexts/program/zebr=
+a.fc
+--- orig/file_contexts/program/zebra.fc	2004-10-11 10:03:25.000000000 +0200
++++ mod/file_contexts/program/zebra.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -3,8 +3,8 @@
+ /usr/sbin/bgpd		--	system_u:object_r:zebra_exec_t
+ /var/log/zebra(/.*)?		system_u:object_r:zebra_log_t
+ /etc/zebra(/.*)?		system_u:object_r:zebra_conf_t
+-/var/run/.zserv		-s	system_u:object_r:zebra_var_run_t
+-/var/run/.zebra		-s	system_u:object_r:zebra_var_run_t
++/var/run/\.zserv	-s	system_u:object_r:zebra_var_run_t
++/var/run/\.zebra	-s	system_u:object_r:zebra_var_run_t
+ # Quagga
+ /usr/sbin/rip.*  	--	system_u:object_r:zebra_exec_t
+ /usr/sbin/ospf.*  	--	system_u:object_r:zebra_exec_t
+diff -ur orig/file_contexts/types.fc mod/file_contexts/types.fc
+--- orig/file_contexts/types.fc	2004-11-09 08:45:55.000000000 +0100
++++ mod/file_contexts/types.fc	2004-11-12 01:00:09.000000000 +0100
+@@ -54,7 +54,7 @@
+ HOME_DIR		-d	system_u:object_r:ROLE_home_dir_t
+ HOME_DIR/.+			system_u:object_r:ROLE_home_t
+=20
+-/root/.default_contexts	-- 	system_u:object_r:default_context_t
++/root/\.default_contexts	-- 	system_u:object_r:default_context_t
+=20
  #
- /boot(/.*)?			system_u:object_r:boot_t
- /boot/System\.map-.*	--	system_u:object_r:system_map_t
--/boot/kernel\.h.*	--	system_u:object_r:boot_runtime_t
- 
- #
- # /dev
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/admin_macros.te policy-1.19.1/macros/admin_macros.te
---- nsapolicy/macros/admin_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/admin_macros.te	2004-11-10 17:30:03.466882997 -0500
-@@ -17,6 +17,7 @@
- # Type for home directory.
- type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type;
- type $1_home_t, file_type, sysadmfile, home_type;
-+attribute $1_homedirfile;
- 
- # Type and access for pty devices.
- can_create_pty($1)
-@@ -106,6 +107,7 @@
- allow $1_t tty_device_t:chr_file rw_file_perms;
- allow $1_t ttyfile:chr_file rw_file_perms;
- allow $1_t ptyfile:chr_file rw_file_perms;
-+allow $1_t serial_device:chr_file setattr;
- 
- # allow setting up tunnels
- allow $1_t tun_tap_device_t:chr_file rw_file_perms;
-@@ -155,6 +157,7 @@
- allow xdm_t $1_home_t:lnk_file read;
- allow xdm_t $1_home_t:dir search;
- }
-+allow $1_t xdm_t:fifo_file rw_file_perms;
- ')dnl end ifdef xauth.te
- ')dnl end ifdef xdm.te
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/base_user_macros.te policy-1.19.1/macros/base_user_macros.te
---- nsapolicy/macros/base_user_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/base_user_macros.te	2004-11-10 17:48:49.047898957 -0500
-@@ -197,6 +197,12 @@
- can_network($1_t)
- can_ypbind($1_t)
- 
-+ifdef(`pamconsole.te', `
-+allow $1_t pam_var_console_t:dir search;
-+')
-+
-+allow $1_t var_lock_t:dir search;
-+
- # Grant permissions to access the system DBus
- ifdef(`dbusd.te', `
- dbusd_client(system, $1)
-@@ -269,7 +275,8 @@
- allow $1_t xdm_xserver_tmp_t:sock_file { read write };
- allow $1_t xdm_xserver_tmp_t:dir search;
- allow $1_t xdm_xserver_t:unix_stream_socket connectto;
--allow $1_t xdm_var_run_t:dir search;
-+# certain apps want to read xdm.pid file
-+r_dir_file($1_t, xdm_var_run_t)
- allow $1_t xdm_var_lib_t:file { getattr read };
- allow xdm_t $1_home_dir_t:dir getattr;
- ifdef(`xauth.te', `
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/global_macros.te policy-1.19.1/macros/global_macros.te
---- nsapolicy/macros/global_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/global_macros.te	2004-11-10 17:49:34.622757364 -0500
-@@ -271,6 +271,7 @@
- define(`daemon_core_rules', `
- type $1_t, domain, privlog, daemon $2;
- type $1_exec_t, file_type, sysadmfile, exec_type;
-+dontaudit $1_t self:capability sys_tty_config;
- 
- role system_r types $1_t;
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/network_macros.te policy-1.19.1/macros/network_macros.te
---- nsapolicy/macros/network_macros.te	1969-12-31 19:00:00.000000000 -0500
-+++ policy-1.19.1/macros/network_macros.te	2004-11-10 17:50:28.419688186 -0500
-@@ -0,0 +1,5 @@
-+define(`can_kerberos',`
-+can_network($1)
-+dontaudit $1 krb5_conf_t:file write;
-+allow $1 krb5_conf_t:file { getattr read };
-+')
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/apache_macros.te policy-1.19.1/macros/program/apache_macros.te
---- nsapolicy/macros/program/apache_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/apache_macros.te	2004-11-10 17:30:03.467882884 -0500
-@@ -3,7 +3,7 @@
- 
- #This type is for webpages
- #
--type httpd_$1_content_t, file_type, homedirfile, httpdcontent, sysadmfile;
-+type httpd_$1_content_t, file_type, ifelse($1, sys, `', `$1_homedirfile, ') httpdcontent, sysadmfile;
- ifelse($1, sys, `
- typealias httpd_sys_content_t alias httpd_sysadm_content_t;
- ')
-@@ -17,7 +17,7 @@
- type httpd_$1_script_exec_t, file_type, sysadmfile;
- 
- # Type that CGI scripts run as
--type httpd_$1_script_t, domain, privmail;
-+type httpd_$1_script_t, domain, privmail, nscd_client_domain;
- role system_r types httpd_$1_script_t;
- 
- if (httpd_enable_cgi) {
-@@ -91,7 +91,7 @@
- #########################################################################
- can_exec(httpd_$1_script_t, { bin_t shell_exec_t })
- allow httpd_$1_script_t { bin_t sbin_t }:dir { getattr search };
--allow httpd_$1_script_t bin_t:lnk_file read;
-+allow httpd_$1_script_t { sbin_t bin_t }:lnk_file read;
- allow httpd_$1_script_t etc_t:file { getattr read };
- 
- ############################################################################
-@@ -178,6 +178,6 @@
- ############################################
- # Allow scripts to append to http logs
- #########################################
--allow httpd_$1_script_t httpd_log_t:file append;
-+allow httpd_$1_script_t httpd_log_t:file { getattr append };
- 
- ')
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/chkpwd_macros.te policy-1.19.1/macros/program/chkpwd_macros.te
---- nsapolicy/macros/program/chkpwd_macros.te	2004-10-09 21:06:15.000000000 -0400
-+++ policy-1.19.1/macros/program/chkpwd_macros.te	2004-11-10 17:54:43.803876651 -0500
-@@ -15,19 +15,22 @@
- ifdef(`chkpwd.te', `
- define(`chkpwd_domain',`
- # Derived domain based on the calling user domain and the program.
--type $1_chkpwd_t, domain, privlog, auth;
-+type $1_chkpwd_t, domain, privlog, nscd_client_domain, auth;
- 
- # is_selinux_enabled
- allow $1_chkpwd_t proc_t:file read;
- can_getcon($1_chkpwd_t)
- can_ypbind($1_chkpwd_t)
-+can_kerberos($1_chkpwd_t)
- # Transition from the user domain to this domain.
- ifelse($1, system, `
- domain_auto_trans(auth_chkpwd, chkpwd_exec_t, system_chkpwd_t)
- role system_r types system_chkpwd_t;
- dontaudit auth_chkpwd shadow_t:file { getattr read };
- allow auth_chkpwd sbin_t:dir search;
--dontaudit $1_chkpwd_t tty_device_t:chr_file rw_file_perms;
-+dontaudit $1_chkpwd_t { user_tty_type tty_device_t }:chr_file rw_file_perms;
-+can_ypbind(auth_chkpwd)
-+can_kerberos(auth_chkpwd)
- ', `
- domain_auto_trans($1_t, chkpwd_exec_t, $1_chkpwd_t)
- allow $1_t sbin_t:dir search;
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/gpg_macros.te policy-1.19.1/macros/program/gpg_macros.te
---- nsapolicy/macros/program/gpg_macros.te	2004-11-05 23:24:17.000000000 -0500
-+++ policy-1.19.1/macros/program/gpg_macros.te	2004-11-10 17:30:03.468882771 -0500
-@@ -19,7 +19,7 @@
- define(`gpg_domain', `
- # Derived domain based on the calling user domain and the program.
- type $1_gpg_t, domain, privlog;
--type $1_gpg_secret_t, file_type, homedirfile, sysadmfile;
-+type $1_gpg_secret_t, file_type, $1_homedirfile, sysadmfile;
- 
- # Transition from the user domain to the derived domain.
- domain_auto_trans($1_t, gpg_exec_t, $1_gpg_t)
-@@ -82,6 +82,7 @@
- 
- allow $1_gpg_t self:capability { ipc_lock setuid };
- allow $1_gpg_t devtty_t:chr_file rw_file_perms;
-+rw_dir_create_file($1_gpg_t, $1_homedirfile)
- 
- allow $1_gpg_t { etc_t usr_t }:dir r_dir_perms;
- allow $1_gpg_t fs_t:filesystem getattr;
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/inetd_macros.te policy-1.19.1/macros/program/inetd_macros.te
---- nsapolicy/macros/program/inetd_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/inetd_macros.te	2004-11-10 17:30:03.469882658 -0500
-@@ -43,8 +43,7 @@
- allow $1_t home_root_t:dir search;
- allow $1_t self:dir search;
- allow $1_t self:file { getattr read };
--allow $1_t krb5_conf_t:file r_file_perms;
--dontaudit $1_t krb5_conf_t:file write;
-+can_kerberos($1_t)
- allow $1_t urandom_device_t:chr_file { getattr read };
- type $1_port_t, port_type, reserved_port_type;
- # Use sockets inherited from inetd.
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/irc_macros.te policy-1.19.1/macros/program/irc_macros.te
---- nsapolicy/macros/program/irc_macros.te	2004-11-05 23:24:17.000000000 -0500
-+++ policy-1.19.1/macros/program/irc_macros.te	2004-11-10 17:30:03.469882658 -0500
-@@ -20,7 +20,7 @@
- define(`irc_domain',`
- # Derived domain based on the calling user domain and the program.
- type $1_irc_t, domain;
--type $1_home_irc_t, file_type, homedirfile, sysadmfile;
-+type $1_home_irc_t, file_type, $1_homedirfile, sysadmfile;
- type $1_irc_exec_t, file_type, sysadmfile;
- 
- ifdef(`slocate.te', `
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/lockdev_macros.te policy-1.19.1/macros/program/lockdev_macros.te
---- nsapolicy/macros/program/lockdev_macros.te	1969-12-31 19:00:00.000000000 -0500
-+++ policy-1.19.1/macros/program/lockdev_macros.te	2004-11-10 17:30:03.470882545 -0500
-@@ -0,0 +1,46 @@
-+#
-+# Macros for lockdev domains.
-+#
-+
-+#
-+# Authors:  Daniel Walsh <dwalsh@redhat.com> 
-+#
-+
-+#
-+# lockdev_domain(domain_prefix)
-+#
-+# Define a derived domain for the lockdev programs when executed
-+# by a user domain.
-+#
-+# The type declaration for the executable type for this program is
-+# provided separately in domains/program/lockdev.te. 
-+#
-+undefine(`lockdev_domain')
-+define(`lockdev_domain',`
-+# Derived domain based on the calling user domain and the program
-+type $1_lockdev_t, domain, privlog;
-+# Transition from the user domain to the derived domain.
-+domain_auto_trans($1_t, lockdev_exec_t, $1_lockdev_t)
-+
-+# The user role is authorized for this domain.
-+role $1_r types $1_lockdev_t;
-+# Use capabilities.
-+allow $1_lockdev_t self:capability setgid;
-+allow $1_lockdev_t $1_t:process signull;
-+
-+allow $1_lockdev_t var_t:dir search;
-+
-+lock_domain($1_lockdev)
-+
-+r_dir_file($1_lockdev_t, lockfile)
-+
-+allow $1_lockdev_t device_t:dir search;
-+allow $1_lockdev_t null_device_t:chr_file rw_file_perms;
-+allow $1_lockdev_t { $1_tty_device_t $1_devpts_t }:chr_file rw_file_perms;
-+dontaudit $1_lockdev_t root_t:dir search;
-+
-+uses_shlib($1_lockdev_t)
-+allow $1_lockdev_t fs_t:filesystem getattr;
-+
-+')dnl end macro definition
-+
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mount_macros.te policy-1.19.1/macros/program/mount_macros.te
---- nsapolicy/macros/program/mount_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/mount_macros.te	2004-11-10 17:30:03.470882545 -0500
-@@ -81,7 +81,7 @@
- # mount domain. 
- #
- define(`mount_loopback_privs',`
--type $1_$2_source_t, file_type, sysadmfile, homedirfile;
-+type $1_$2_source_t, file_type, sysadmfile, $1_homedirfile;
- allow $1_t $1_$2_source_t:file create_file_perms;
- allow $1_t $1_$2_source_t:file { relabelto relabelfrom };
- allow $2_t $1_$2_source_t:file rw_file_perms;
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mozilla_macros.te policy-1.19.1/macros/program/mozilla_macros.te
---- nsapolicy/macros/program/mozilla_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/mozilla_macros.te	2004-11-10 17:51:41.396455207 -0500
-@@ -78,7 +78,7 @@
- #
- if (mozilla_readhome || mozilla_writehome) {
- r_dir_file($1_mozilla_t, $1_home_t)
--dontaudit $1_mozilla_t homedirfile:{ file dir } getattr;
-+dontaudit $1_mozilla_t $1_homedirfile:{ file dir } getattr;
- file_type_auto_trans($1_mozilla_t, tmp_t, $1_tmp_t)
- } else {
- file_type_auto_trans($1_mozilla_t, tmp_t, $1_mozilla_rw_t)
-@@ -112,6 +112,7 @@
- # Eliminate errors from scanning with the 
- #
- dontaudit $1_mozilla_t file_type:dir getattr;
-+allow $1_mozilla_t self:sem create_sem_perms;
- 
- ifdef(`xdm.te', `
- allow $1_mozilla_t xdm_t:fifo_file { write read };
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mta_macros.te policy-1.19.1/macros/program/mta_macros.te
---- nsapolicy/macros/program/mta_macros.te	2004-11-05 23:24:17.000000000 -0500
-+++ policy-1.19.1/macros/program/mta_macros.te	2004-11-10 17:51:56.986696371 -0500
-@@ -20,7 +20,7 @@
- undefine(`mail_domain')
- define(`mail_domain',`
- # Derived domain based on the calling user domain and the program.
--type $1_mail_t, domain, privlog, user_mail_domain;
-+type $1_mail_t, domain, privlog, user_mail_domain, nscd_client_domain;
- 
- ifdef(`sendmail.te', `
- sendmail_user_domain($1)
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/newrole_macros.te policy-1.19.1/macros/program/newrole_macros.te
---- nsapolicy/macros/program/newrole_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/newrole_macros.te	2004-11-10 17:30:03.493879951 -0500
-@@ -34,9 +34,6 @@
- allow $1_t bin_t:lnk_file read;
- allow $1_t shell_exec_t:file r_file_perms;
- 
--can_ypbind($1_t)
--dontaudit $1_t krb5_conf_t:file write;
--allow $1_t krb5_conf_t:file { getattr read };
- allow $1_t urandom_device_t:chr_file { getattr read };
- 
- # Allow $1_t to transition to user domains.
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/screen_macros.te policy-1.19.1/macros/program/screen_macros.te
---- nsapolicy/macros/program/screen_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/screen_macros.te	2004-11-10 17:30:03.494879838 -0500
-@@ -22,7 +22,7 @@
- define(`screen_domain',`
- # Derived domain based on the calling user domain and the program.
- type $1_screen_t, domain, privlog, privfd;
--type $1_home_screen_t, file_type, homedirfile, sysadmfile;
-+type $1_home_screen_t, file_type, $1_homedirfile, sysadmfile;
- 
- # Transition from the user domain to this domain.
- domain_auto_trans($1_t, screen_exec_t, $1_screen_t)
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/spamassassin_macros.te policy-1.19.1/macros/program/spamassassin_macros.te
---- nsapolicy/macros/program/spamassassin_macros.te	2004-10-13 22:41:58.000000000 -0400
-+++ policy-1.19.1/macros/program/spamassassin_macros.te	2004-11-10 17:30:03.495879725 -0500
-@@ -80,7 +80,7 @@
- dontaudit $1_spamassassin_t { sysctl_t sysctl_kernel_t }:dir search;
- 
- # The type of ~/.spamassassin
--type $1_home_spamassassin_t, file_type, homedirfile, sysadmfile;
-+type $1_home_spamassassin_t, file_type, $1_homedirfile, sysadmfile;
- create_dir_file($1_t, $1_home_spamassassin_t)
- allow $1_t $1_home_spamassassin_t:notdevfile_class_set { relabelfrom relabelto };
- allow $1_t $1_home_spamassassin_t:dir { relabelfrom relabelto };
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/ssh_macros.te policy-1.19.1/macros/program/ssh_macros.te
---- nsapolicy/macros/program/ssh_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/ssh_macros.te	2004-11-10 17:52:36.231268938 -0500
-@@ -22,7 +22,7 @@
- define(`ssh_domain',`
- # Derived domain based on the calling user domain and the program.
- type $1_ssh_t, domain, privlog, nscd_client_domain;
--type $1_home_ssh_t, file_type, homedirfile, sysadmfile;
-+type $1_home_ssh_t, file_type, $1_homedirfile, sysadmfile;
- 
- ifdef(`automount.te', `
- allow $1_ssh_t autofs_t:dir { search getattr };
-@@ -157,8 +157,7 @@
- allow $1_ssh_t xdm_xserver_t:shm r_shm_perms;
- allow $1_ssh_t xdm_xserver_t:fd use;
- allow $1_ssh_t xdm_xserver_tmpfs_t:file read;
--allow $1_ssh_t krb5_conf_t:file { getattr read };
--dontaudit $1_ssh_t krb5_conf_t:file write;
-+can_kerberos($1_ssh_t)
- ')dnl end if xdm.te
- ')dnl end macro definition
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/su_macros.te policy-1.19.1/macros/program/su_macros.te
---- nsapolicy/macros/program/su_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/su_macros.te	2004-11-10 17:30:03.495879725 -0500
-@@ -87,8 +87,7 @@
- # Write to utmp.
- allow $1_su_t { var_t var_run_t }:dir search;
- allow $1_su_t initrc_var_run_t:file rw_file_perms;
--dontaudit $1_su_t krb5_conf_t:file write;
--allow $1_su_t krb5_conf_t:file { getattr read };
-+can_kerberos($1_su_t)
- ') dnl end su_restricted_domain
- 
- define(`su_mini_domain', `
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/tvtime_macros.te policy-1.19.1/macros/program/tvtime_macros.te
---- nsapolicy/macros/program/tvtime_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/tvtime_macros.te	2004-11-10 17:30:03.496879613 -0500
-@@ -19,7 +19,7 @@
- ifdef(`tvtime.te', `
- define(`tvtime_domain',`
- # Derived domain based on the calling user domain and the program.
--type $1_home_tvtime_t, file_type, homedirfile, sysadmfile;
-+type $1_home_tvtime_t, file_type, $1_homedirfile, sysadmfile;
- 
- x_client_domain($1, tvtime)
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/userhelper_macros.te policy-1.19.1/macros/program/userhelper_macros.te
---- nsapolicy/macros/program/userhelper_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/userhelper_macros.te	2004-11-10 17:30:03.496879613 -0500
-@@ -123,7 +123,6 @@
- ')
- allow $1_userhelper_t sysctl_t:dir search;
- role system_r types $1_userhelper_t;
--allow $1_userhelper_t krb5_conf_t:file { getattr read };
- r_dir_file($1_userhelper_t, nfs_t)
- 
- ifdef(`xdm.te', `
-@@ -139,6 +138,9 @@
- domain_auto_trans($1_userhelper_t, xauth_exec_t, $1_xauth_t)
- allow $1_userhelper_t $1_home_xauth_t:file { getattr read };
- ')
-+
-+ifdef(`pamconsole.te', `
- allow $1_userhelper_t pam_var_console_t:dir { search };
-+')
- 
- ')dnl end userhelper macro
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/vmware_macros.te policy-1.19.1/macros/program/vmware_macros.te
---- nsapolicy/macros/program/vmware_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/program/vmware_macros.te	2004-11-10 17:30:03.497879500 -0500
-@@ -23,10 +23,10 @@
- role $1_r types $1_vmware_t;
- 
- # The user file type is for files created when the user is running VMWare
--type $1_vmware_file_t, homedirfile, file_type, sysadmfile;
-+type $1_vmware_file_t, $1_homedirfile, file_type, sysadmfile;
- 
- # The user file type for the VMWare configuration files
--type $1_vmware_conf_t, homedirfile, file_type, sysadmfile;
-+type $1_vmware_conf_t, $1_homedirfile, file_type, sysadmfile;
- 
- # for compatibility with older policy versions
- typealias $1_vmware_t alias vmware_$1_t;
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/xauth_macros.te policy-1.19.1/macros/program/xauth_macros.te
---- nsapolicy/macros/program/xauth_macros.te	2004-11-05 23:24:17.000000000 -0500
-+++ policy-1.19.1/macros/program/xauth_macros.te	2004-11-10 17:30:03.497879500 -0500
-@@ -20,7 +20,7 @@
- define(`xauth_domain',`
- # Derived domain based on the calling user domain and the program.
- type $1_xauth_t, domain;
--type $1_home_xauth_t, file_type, homedirfile, sysadmfile;
-+type $1_home_xauth_t, file_type, $1_homedirfile, sysadmfile;
- 
- ifdef(`slocate.te', `
- allow $1_locate_t $1_home_xauth_t:file { getattr read };
-@@ -48,6 +48,7 @@
- ')
- 
- allow $1_xauth_t privfd:fd use;
-+allow $1_xauth_t ptmx_t:chr_file { read write };
- 
- # allow ps to show xauth
- allow $1_t $1_xauth_t:dir { search getattr read };
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/x_client_macros.te policy-1.19.1/macros/program/x_client_macros.te
---- nsapolicy/macros/program/x_client_macros.te	2004-11-05 23:24:17.000000000 -0500
-+++ policy-1.19.1/macros/program/x_client_macros.te	2004-11-10 17:30:03.498879387 -0500
-@@ -25,9 +25,9 @@
- # Derived domain based on the calling user domain and the program.
- type $1_$2_t, domain $3;
- # Type for files that are writeable by this domain.
--type $1_$2_rw_t, file_type, homedirfile, sysadmfile, tmpfile;
-+type $1_$2_rw_t, file_type, $1_homedirfile, sysadmfile, tmpfile;
- # Type for files that are read-only for this domain
--type $1_$2_ro_t, file_type, homedirfile, sysadmfile;
-+type $1_$2_ro_t, file_type, $1_homedirfile, sysadmfile;
- 
- # Transition from the user domain to the derived domain.
- ifelse($2, games, `
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/ypbind_macros.te policy-1.19.1/macros/program/ypbind_macros.te
---- nsapolicy/macros/program/ypbind_macros.te	2004-10-13 22:41:58.000000000 -0400
-+++ policy-1.19.1/macros/program/ypbind_macros.te	2004-11-10 17:32:37.064554655 -0500
-@@ -4,12 +4,15 @@
- can_network($1)
- r_dir_file($1,var_yp_t)
- allow $1 { reserved_port_t port_t }:{ tcp_socket udp_socket } name_bind;
-+dontaudit $1 self:capability net_bind_service;
- ')
- 
- define(`can_ypbind', `
- ifdef(`ypbind.te', `
- if (allow_ypbind) {
- uncond_can_ypbind($1)
-+} else {
-+dontaudit $1 var_yp_t:dir search;
- }
- ') dnl ypbind.te
- ') dnl can_ypbind
-diff --exclude-from=exclude -N -u -r nsapolicy/macros/user_macros.te policy-1.19.1/macros/user_macros.te
---- nsapolicy/macros/user_macros.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/macros/user_macros.te	2004-11-10 17:30:03.499879274 -0500
-@@ -56,8 +56,9 @@
- # user domains.
- ifdef(`apache.te', `apache_domain($1)')
- ifdef(`slocate.te', `locate_domain($1)')
-+ifdef(`lockdev.te', `lockdev_domain($1)')
- 
--allow $1_t krb5_conf_t:file { getattr read };
-+can_kerberos($1_t)
- # allow port_t name binding for UDP because it is not very usable otherwise
- allow $1_t port_t:udp_socket name_bind;
- 
-@@ -123,9 +124,14 @@
- undefine(`full_user_role')
- define(`full_user_role', `
- 
-+# certain apps ask for this priv kdesu, fetchmail
-+# dac controls force the user to only lower priority
-+allow $1_t self:process setrlimit;
-+
- # user_t/$1_t is an unprivileged users domain.
- type $1_t, domain, userdomain, unpriv_userdomain, web_client_domain, nscd_client_domain, privfd;
- 
-+attribute $1_homedirfile;
- # Grant read/search permissions to some of /proc.
- allow $1_t proc_t:dir r_dir_perms;
- allow $1_t proc_t:{ file lnk_file } r_file_perms;
-@@ -142,11 +148,6 @@
- # Stat lost+found.
- allow $1_t lost_found_t:dir getattr;
- 
--# Read the /tmp directory and any /tmp files with the base type.
--# Temporary files created at runtime will typically use derived types.
--allow $1_t tmp_t:dir r_dir_perms;
--allow $1_t tmp_t:{ file lnk_file } r_file_perms;
--
- # Read /var, /var/spool, /var/run.
- allow $1_t var_t:dir r_dir_perms;
- allow $1_t var_t:notdevfile_class_set r_file_perms;
-@@ -224,15 +225,17 @@
- allow $1_mount_t iso9660_t:filesystem relabelfrom;
- allow $1_mount_t removable_t:filesystem { mount relabelto };
- allow $1_mount_t removable_t:dir mounton;
-+ifdef(`xdm.te', `
- allow $1_mount_t xdm_t:fd use;
- allow $1_mount_t xdm_t:fifo_file write;
- ')
-+')
- 
- #
- # Rules used to associate a homedir as a mountpoint
- #
- allow $1_home_t $1_home_t:filesystem associate;
--allow homedirfile $1_home_t:filesystem associate;
-+allow $1_homedirfile $1_home_t:filesystem associate;
- ')
- 
- undefine(`in_user_role')
-diff --exclude-from=exclude -N -u -r nsapolicy/net_contexts policy-1.19.1/net_contexts
---- nsapolicy/net_contexts	2004-11-09 13:35:11.000000000 -0500
-+++ policy-1.19.1/net_contexts	2004-11-10 17:30:03.500879161 -0500
-@@ -113,7 +113,6 @@
- portcon tcp 631 system_u:object_r:ipp_port_t
- portcon udp 631 system_u:object_r:ipp_port_t
- ')
--ifdef(`kerberos.te', `
- portcon tcp 88 system_u:object_r:kerberos_port_t
- portcon udp 88 system_u:object_r:kerberos_port_t
- portcon tcp 749 system_u:object_r:kerberos_admin_port_t
-@@ -121,7 +120,6 @@
- portcon udp 750 system_u:object_r:kerberos_port_t
- portcon tcp 4444 system_u:object_r:kerberos_master_port_t
- portcon udp 4444 system_u:object_r:kerberos_master_port_t
--')
- ifdef(`spamd.te', `portcon tcp 783 system_u:object_r:spamd_port_t')
- ifdef(`rsync.te', `
- portcon tcp 873 system_u:object_r:rsync_port_t
-diff --exclude-from=exclude -N -u -r nsapolicy/targeted/domains/unconfined.te policy-1.19.1/targeted/domains/unconfined.te
---- nsapolicy/targeted/domains/unconfined.te	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/targeted/domains/unconfined.te	2004-11-10 17:30:03.501879048 -0500
-@@ -42,4 +42,7 @@
- # Support NFS home directories
- bool use_nfs_home_dirs false;
- 
-+# Allow system to run with NIS
-+bool allow_ypbind false;
-+
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/tunables/distro.tun policy-1.19.1/tunables/distro.tun
---- nsapolicy/tunables/distro.tun	2004-08-20 13:57:29.000000000 -0400
-+++ policy-1.19.1/tunables/distro.tun	2004-11-10 17:30:03.501879048 -0500
-@@ -5,7 +5,7 @@
- # appropriate ifdefs.
- 
- 
--dnl define(`distro_redhat')
-+define(`distro_redhat')
- 
- dnl define(`distro_suse')
- 
-diff --exclude-from=exclude -N -u -r nsapolicy/tunables/tunable.tun policy-1.19.1/tunables/tunable.tun
---- nsapolicy/tunables/tunable.tun	2004-11-09 13:35:13.000000000 -0500
-+++ policy-1.19.1/tunables/tunable.tun	2004-11-10 17:30:03.502878936 -0500
-@@ -1,27 +1,27 @@
- # Allow users to execute the mount command
--dnl define(`user_can_mount')
-+define(`user_can_mount')
- 
- # Allow rpm to run unconfined.
--dnl define(`unlimitedRPM')
-+define(`unlimitedRPM')
- 
- # Allow privileged utilities like hotplug and insmod to run unconfined.
--dnl define(`unlimitedUtils')
-+define(`unlimitedUtils')
- 
- # Allow rc scripts to run unconfined, including any daemon
- # started by an rc script that does not have a domain transition
- # explicitly defined.
--dnl define(`unlimitedRC')
-+define(`unlimitedRC')
- 
- # Allow sysadm_t to directly start daemons
- define(`direct_sysadm_daemon')
- 
- # Do not audit things that we know to be broken but which
- # are not security risks
--dnl define(`hide_broken_symptoms')
-+define(`hide_broken_symptoms')
- 
- # Allow user_r to reach sysadm_r via su, sudo, or userhelper.
- # Otherwise, only staff_r can do so.
--dnl define(`user_canbe_sysadm')
-+define(`user_canbe_sysadm')
- 
- # Allow xinetd to run unconfined, including any services it starts
- # that do not have a domain transition explicitly defined.
+ # Mount points; do not relabel subdirectories, since
+@@ -283,7 +283,7 @@
+ /etc/issue		--	system_u:object_r:etc_runtime_t
+ /etc/issue\.net		--	system_u:object_r:etc_runtime_t
+ /etc/sysconfig/hwconf	--	system_u:object_r:etc_runtime_t
+-/etc/sysconfig/iptables.save -- system_u:object_r:etc_runtime_t
++/etc/sysconfig/iptables\.save -- system_u:object_r:etc_runtime_t
+ /etc/sysconfig/firstboot --	system_u:object_r:etc_runtime_t
+ /etc/asound\.state	--	system_u:object_r:etc_runtime_t
+ /etc/ptal/ptal-printd-like -- 	system_u:object_r:etc_runtime_t
 
---------------070506050508080702070506--
+--tVmo9FyGdCe4F4YN--
+
+--wtjvnLv0o8UUzur2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBk/7ExWIrrrL0q+cRAjFkAJ9O/f6ojGymKnGfuu+KaCdWc9uQ8wCgt9pg
+6Th6aGVOm5mT9l6NH6vkIi4=
+=ddIt
+-----END PGP SIGNATURE-----
+
+--wtjvnLv0o8UUzur2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
