@@ -1,55 +1,43 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3HRXXZ016475
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 12:27:33 -0500 (EST)
-Received: from glaurung.internal.golden-gryphon.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3HRWJZ005757
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 17:27:33 GMT
-Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
-	by glaurung.internal.golden-gryphon.com (8.13.1/8.13.1/Debian-16) with ESMTP id iA3HMsA7022973
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 11:22:54 -0600
-To: selinux@tycho.nsa.gov
-Subject: selinux-doc problems
-From: Manoj Srivastava <manoj.srivastava@stdc.com>
-Date: Wed, 03 Nov 2004 11:22:54 -0600
-Message-ID: <87is8msv81.fsf@glaurung.internal.golden-gryphon.com>
-MIME-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3HgJXZ016587
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 12:42:19 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3Hev4w026335
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 17:40:57 GMT
+Date: Wed, 3 Nov 2004 17:53:06 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
+   "'Darrel Goeddel'" <dgoeddel@TrustedCS.com>, selinux@tycho.nsa.gov,
+   "'Chad Hanson'" <chanson@TrustedCS.com>
+Subject: Re: dynamic context transitions
+Message-ID: <20041103175306.GF5061@lkcl.net>
+References: <000501c4bf9b$a157d2e0$6701a8c0@columbia.tresys.com> <1099316236.21386.31.camel@moss-spartans.epoch.ncsc.mil> <4186DCE7.9030401@tresys.com> <1099409596.31739.150.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1099409596.31739.150.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Tue, Nov 02, 2004 at 10:33:17AM -0500, Stephen Smalley wrote:
 
-	While trying to package selinux-doc 1.16 for Debian, I ran
- into a bunch of jade errors:
+> Yet even the exec-based transitions are strongly influenced by
+> application compatibility concerns; otherwise, we would be purging the
+> entire environment, resetting the namespace, etc.  Some would argue that
+> exec-based transitions are fundamentally flawed in any case where the
+> new domain is more privileged than the calling domain due to the ability
+> of the caller to influence the new domain via the implicitly inherited
+> state, and an IPC-based model would be preferable so that all
+> untrustworthy input is explicitly passed and can be vetted rather than
+> implicitly conveyed and so that the initial state of the more trusted
+> domain is always setup by a trustworthy process.  
 
-	Firstly, "_"  in ID's:
-----------------------------------------------------------------------
-jade:selinux-doc-1.14/module/changes.sgml:107:11:E: character "_" is not allowed in the value of attribute "ID"
-jade:selinux-doc-1.14/module/changes.sgml:139:15:E: character "_" is not allowed in the value of attribute "LINKEND"
-jade:selinux-doc-1.14/module/changes.sgml:140:9:E: character "_" is not allowed in the value of attribute "LINKEND"
-jade:selinux-doc-1.14/module/changes.sgml:148:11:E: character "_" is not allowed in the value of attribute "ID"
-----------------------------------------------------------------------
 
-	And then there are the missing quotes on attribute values:
-----------------------------------------------------------------------
-jade:selinux-doc-1.14/module/task.sgml:29:13:E: an attribute value specification must be an attribute value literal unless SHORTTAG YES is specified
-jade:selinux-doc-1.14/module/task.sgml:31:13:E: an attribute value specification must be an attribute value literal unless SHORTTAG YES is specified
-jade:selinux-doc-1.14/module/task.sgml:31:21:E: an attribute value specification must be an attribute value literal unless SHORTTAG YES is specified
-----------------------------------------------------------------------
+ well... that applies in the instance where selinux isn't involved
+ _anyway_ - take any setuid root program as a classic example.
 
-        Is there an effort underway to update the selinux-doc package?
- If so, I'll hold off fixing up the SGML issues and wait for the new
- version (I lack the knowledge to actually update the contents).
+ l.
 
-	thanks
-
-	manoj
--- 
-All progress is based on a universal innate desire on the part of
-every organism to live beyond its income.  -- Samuel Butler
-Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
