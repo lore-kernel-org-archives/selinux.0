@@ -1,49 +1,71 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1G3bjL9013349
-	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 22:37:46 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1G3Y9w0022693
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 03:34:10 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: Best way to label a filesystem for another system
-Date: Wed, 16 Feb 2005 14:36:02 +1100
-Cc: "Villalovos, John L" <john.l.villalovos@intel.com>,
-   SE-Linux <selinux@tycho.nsa.gov>
-References: <60C14C611F1DDD4198D53F2F43D8CA3B036A31B3@orsmsx410> <1107816234.11907.115.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1107816234.11907.115.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1G7VdL9014128
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 02:31:40 -0500 (EST)
+Received: from mcfeely.r00td0wn.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1G7UQfs000716
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 07:30:26 GMT
+Message-ID: <4212F68B.2010509@diyab.net>
+Date: Wed, 16 Feb 2005 02:30:19 -0500
+From: Timothy Wood <timothy@diyab.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200502161436.06019.russell@coker.com.au>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: Bootup problems
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 08 February 2005 09:43, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> 2) Retain SELinux on the host development system, but change its policy
-> such that all of the desired file contexts for the embedded system are
-> legal in its policy.  The simplest way to do this is to use the same
-> policy.  An alternative is to just to add stub type definitions for all
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Using the same policy for a workstation and a PDA is not practical.  A policy 
-that works well for a workstation will be too large for the RAM of a PDA.
+Do you ever look further into this issue Stephen?  The reason I ask is
+that I'm still seeing it on the current kernel.
 
-A targeted policy might work on a workstation and a PDA, but there's not much 
-point.  PDAs have almost no daemons so a policy that only affects daemons 
-will do little good.
+Timothy,
 
-Probably the easiest thing to do would be to write a little Perl program to 
-read through two policy.conf files and list all user identities and type 
-declarations with the file_type attribute that are in one policy but not 
-another.  The result could be put in domains/misc/custom.te on the 
-workstation to allow labelling for the PDA image.
+| On Sun, 2004-05-23 at 14:13, Thomas Bleher wrote:
+|> The attached dmesg (non-relevant lines before and after snipped) is the
+|> bootlog of a 2.6.6er-kernel on a SuSE 9.0 system. No initrd, no special
+|> modules (only sound as module, everything else compiled in).
+|> The system works fine afterwards, the filesystem is properly labeled.
+|> It just seems like it is the file labels are initialized to late.
+|> Anyone knows why this is happening or where I should look?
+|
+| The sequence appears to be:
+| 1) policy load is started (from /sbin/init, right?),
+| 2) usb device is detected,
+| 3) policy load completes,
+| 4) security initialization of already created superblocks and inodes is
+| started (this was deferred until the policy was loaded),
+| 5) kernel invokes hotplug due to device detection,
+| 6) security state for hotplug inode has not yet been initialized, thus
+| it is still marked with unlabeled_t,
+| 7) no domain transition occurs on hotplug execution due to lack of
+| proper file type, so hotplug runs in kernel_t, yielding a series of
+| denials,
+| 8) some other inodes are also not yet initialized, so they also have
+| unlabeled_t,
+| 9) security initialization of hda3 inodes completes, so hotplug and
+| other inodes now have the right security context (but the running
+| hotplug process is still in kernel_t),
+| 10) various denials due to the fact that the filesystems have not yet
+| been mounted, so you are just accessing the empty mount point
+| directories that are left in file_t.
+|
+| The interleaving of the device detection / hotplug execution and policy
+| load / inode initialization is not good; requires further investigation.
+|
+| --
+| Stephen Smalley <sds@epoch.ncsc.mil>
+| National Security Agency
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFCEvaLPT0XLCkCs2ARAu3qAJ9Ldo1z2goPr7cCntUIOzJlizJ41ACfciAO
+enBPFxF31kF0NzE3LlamXVU=
+=oBiX
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
