@@ -1,40 +1,37 @@
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6MK6nHa022086
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 16:06:50 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6MK5iFB001810
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 20:05:44 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h6MK5gGD001807
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 20:05:43 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Tobias <CoUnt3r@gmx.net>, SELinux@tycho.nsa.gov
-Subject: Re: hidden files and se linux?
-Date: Tue, 22 Jul 2003 16:03:29 -0400
-References: <20030721223849.GA2579@gmx.net>
-In-Reply-To: <20030721223849.GA2579@gmx.net>
+To: Charlie Watts <st_possenti@yahoo.com>, selinux@tycho.nsa.gov
+Subject: Re: Linuxfromscratch.org
+Date: Tue, 22 Jul 2003 16:06:42 -0400
+References: <20030722014248.34651.qmail@web40613.mail.yahoo.com>
+In-Reply-To: <20030722014248.34651.qmail@web40613.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200307221603.29847.russell@coker.com.au>
+Message-Id: <200307221606.42540.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 21 Jul 2003 18:38, Tobias wrote:
-> is it possible to hide files under selinux?
+On Mon, 21 Jul 2003 21:42, Charlie Watts wrote:
+> I want to make a linux system from scratch. I have never compiled my
+> own kernel, but I was wondering if i could start with the SE Linux
+> kernel. I am using the instructions from linuxfromscratch.org to make
+> the system on my laptop, which is running Mandrake 9, on a i686, 512Mb
+> ram, and a 1.13 GHz P IV. Ext3 file system. Any advice would be great.
 
-To do that properly requires poly-instantiated directories.  AFAIK no-one will 
-do that in the near future, more important file system related things such as 
-NFS file labeling have not been done yet...
-
-SE Linux allows you to deny "getattr" access (IE a stat() system call fails), 
-but "ls *" will still show the existance of files.
-
-It is my understanding that LIDS allows the files to be hidden (so a readdir() 
-will not show them).  But this is not fully adequate, a hostile user can 
-guess at file names and try to create them, if a file creation fails and 
-there are no other issues (such as lack of disk space) then you can infer the 
-existance of the file name.  Polyinstantiated directories is the solution to 
-this problem.
-
-I think that the consensus of opinion of people on this list is that hidden 
-files without polyinstantiated directories is of little use.
-
-There has been some previous discussion of this matter, checking the list 
-archives (see my web site for the link) will provide you with more 
-information.
+I recommend that you compile your own kernel without SE Linux first, and then 
+try using SE Linux after you have had some practise at building your own 
+kernel.  Otherwise if you have a problem you won't know whether it's SE Linux 
+related or just a general kernel build issue.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
