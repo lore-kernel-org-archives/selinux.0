@@ -1,8 +1,8 @@
 From: "Frank Mayer" <mayerf@tresys.com>
 To: <selinux@netgps.net>, <SELinux@tycho.nsa.gov>
 Subject: RE: Process Transition
-Date: Wed, 14 May 2003 21:10:15 -0400
-Message-ID: <000f01c31a7e$c6ac7be0$6701a8c0@columbia.tresys.com>
+Date: Wed, 14 May 2003 21:13:25 -0400
+Message-ID: <001001c31a7f$33327760$6701a8c0@columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -22,7 +22,7 @@ List-Id: selinux@tycho.nsa.gov
 The deny audit message seems to indicate that the above rule is indeed
 *not* in the running policy???  Are you sure?  Perhaps there's a problem
 with role allow and/or user definitions, but I thought they just
-indicated an invalid context.
+indicated an invalid context not a transition permission denied.
 
 > 
 > In Frank Mayer's post about domain transitions,
