@@ -1,71 +1,93 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAFKtnRb000828
-	for <selinux@tycho.nsa.gov>; Sat, 15 Nov 2003 15:55:49 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAFKtmqY014343
-	for <selinux@tycho.nsa.gov>; Sat, 15 Nov 2003 20:55:48 GMT
-Received: from sj-iport-2.cisco.com (sj-iport-2-in.cisco.com [171.71.176.71])
-        by jazzband.ncsc.mil  with ESMTP id hAFKtm0o014340 for <selinux@tycho.nsa.gov>; Sat, 15 Nov 2003 20:55:48 GMT
-Date: Sat, 15 Nov 2003 12:55:04 -0800
-From: Michael Reilly <michaelr@cisco.com>
-To: David Caplan <dac@tresys.com>
-Cc: Miguel Guirao <thinkfreemx@yahoo.com.mx>,
-   SELinux NSA <selinux@tycho.nsa.gov>, "Frank Mayer" <mayerf@tresys.com>
-Subject: Re: SELinux slides by Frank
-Message-Id: <20031115125504.129ca0e0.michaelr@cisco.com>
-In-Reply-To: <3FAAA5E7.2040901@tresys.com>
-References: <20031106161301.36981.qmail@web12603.mail.yahoo.com>
-	<3FAAA5E7.2040901@tresys.com>
+Subject: Installation problems and a web based set of instructions.
+From: Nick <nagray@austin.rr.com>
+To: SELINUX <SELinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: 15 Nov 2003 22:34:20 -0600
+Message-Id: <1068957264.955.1498.camel@marquesas>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Just an FYI -
+All,
 
-Someone posted a messages saying the slides were posted under the Other Se
-Linux link on the www.tresys.com/selinux page.
+I have been a member of this list for probably 2-3 years.On my todo list
+was set up a SELinux box for evaluation. Due to other considerations I
+haven't been able to do this until now.
 
-Note that the web site is a bit messed up in some Mozilla based browsers. 
-The Copyright at the bottom of the page over-writes the bottom "Other SE
-Linux Info" link so all that is visible is "Other SE L" followed by the
-copyright.  Clicking on the Other SE L portion doesn't work.  Clicking on
-the Copyright goes to the copyright page.
+Recently I have been task to set up SELinux test boxes for ONI, document
+the installations, and begin work on MLS in order to evaluate the
+possibility of SELinux as a CMW.
 
-Thus some browsers cannot get to the Other Se Linux Info page without the
-full URL included in the message I quoted below.
+I have created a web page to document the process so far and act as a
+guide to the installation/evaluation process.
 
-michael
+The web site can be found at.
 
- On Thu, 06 Nov 2003 14:49:59 -0500
-David Caplan <dac@tresys.com> wrote:
+https://www.efficax.net/Open/SELinux/build.php
 
-> Miguel Guirao wrote:
-> > Hi!!
-> > 
-> > Who knows the URL where Frank posted the slides of the
-> > SELinux conference he imparted at ACM in Washington?
-> > 
-> > There are other interesting tools at this site but
-> > can't remember the URL!!
-> > 
-> 
-> Try this page:
-> 
-> http://www.tresys.com/selinux/selinux-other-info.html
-> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with the words "unsubscribe selinux" without quotes as the message.
+This is two days into the process and I am working on Saturday, which I
+don't want to do. If anyone has comments about the site (in particular
+mistakes). Feel free to let me know.
+
+I started my first installation on Thursday and everything went
+relatively well. I converted the notes I took to the web page and
+embarked on a rather frustrating attempt to create a kickstart floppy
+that I could use to create a standard baseline for my SELinux
+installations.
+
+I got the kickstart working friday (with a caveat that I haven't updated
+on the page yet) And progressed to install SELinux as per the documented
+procedure.
+
+I must admit that the second, third, and fourth installations are not
+going as well.
+
+# Everytime I get to step 6 now I lose network connectivity. Here is
+what is in the logs regarding networking/selinux.
+
+#1
+Nov 15 15:33:50 selinux kernel: Security Scaffold v1.0.0 initialized
+Nov 15 15:33:50 selinux kernel: SELinux:  Initializing.
+Nov 15 15:33:50 selinux kernel: SELinux:  Starting in permissive mode
+Nov 15 15:33:50 selinux kernel: There is already a security framework
+initialized, register_security
+failed.
+Nov 15 15:33:50 selinux kernel: Failure registering capabilities with
+the kernel
+Nov 15 15:33:50 selinux kernel: selinux_register_security:  Registering
+secondary module capability
+
+Nov 15 15:33:51 selinux kernel: e100: eth0 NIC Link is Up 100 Mbps Half
+duplex
+
+Nov 15 15:33:49 selinux network: Setting network parameters:  succeeded
+Nov 15 15:33:49 selinux modprobe: modprobe: Can't locate module
+net-pf-17
+Nov 15 15:33:49 selinux ifup: arping: socket: Address family not
+supported by protocol
+Nov 15 15:33:49 selinux ifup: Error, some other host already uses
+address 127.0.0.1.
+Nov 15 15:33:49 selinux network: Bringing up loopback interface:  failed
+Nov 15 15:33:49 selinux modprobe: modprobe: Can't locate module
+net-pf-17
+Nov 15 15:33:49 selinux ifup: arping: socket: Address family not
+supported by protocol
+Nov 15 15:33:49 selinux ifup: Error, some other host already uses
+address 24.153.230.188.
+Nov 15 15:33:49 selinux network: Bringing up interface eth0:  failed
+
+If I boot the stock kernel again it works just fine.
+
+I am hoping that these errors are common enough for people to pop me
+quick answers to whatever blunder I may have made.
 
 
 -- 
----- ---- ----
-Michael Reilly    michaelr@cisco.com
-    Cisco Systems, Santa Cruz, CA
+Nick Gray
+Senior Network Engineer
+Bruzenak Inc.
+nagray@bruzenak.com
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
