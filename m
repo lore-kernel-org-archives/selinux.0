@@ -1,63 +1,31 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1MAIXZ001123
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 17:10:18 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1MAIfG011355
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 22:10:18 GMT
-Date: Mon, 1 Nov 2004 22:21:11 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-   Chad Hanson <chanson@TrustedCS.com>, samba-technical@samba.org
-Subject: Re: dynamic context transitions
-Message-ID: <20041101222111.GN9643@lkcl.net>
-References: <418662EE.5090001@trustedcs.com> <Xine.LNX.4.44.0411011508210.5409-100000@thoron.boston.redhat.com> <20041101203524.GJ9643@lkcl.net> <1099340721.21386.223.camel@moss-spartans.epoch.ncsc.mil> <20041101210038.GL9643@lkcl.net> <1099342233.21386.233.camel@moss-spartans.epoch.ncsc.mil>
+Subject: avc: denied with kernel module
+From: Jaspreet Singh <jsingh@ensim.com>
+Reply-To: jsingh@ensim.com
+To: nsa <SELinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1099347144.9776.3.camel@jsingh>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1099342233.21386.233.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 02 Nov 2004 03:42:25 +0530
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Nov 01, 2004 at 03:50:33PM -0500, Stephen Smalley wrote:
-> On Mon, 2004-11-01 at 16:00, Luke Kenneth Casson Leighton wrote:
-> > > Except that SELinux mediates access to file descriptors upon transfer
-> > > via local socket IPC as well as attempted use for read/write, so SELinux
-> > > is still going to apply a permission check to the parent smbd process in
-> > > that situation.  
-> > 
-> >  that i would expect.
-> 
-> So you are ok with allowing smbd_t the union of all smbd_$1_t
-> permissions?
+Hi,
 
- i haven't analysed the samba.te policy in enough detail to be able to
- say.
+I am using a overlay-fs module .. and tried setting security context on
+files and got this message ....
 
-> > > Not to mention that this no doubt has a significant
-> > > cost.
-> > 
-> >  that i was not expecting.
-> 
-> Not the cost of the mediation, the cost of fork+exec'ing these children
-> for each client.  
+ avc:  denied  { associate } for  pid=1530 exe=/usr/sbin/setfiles
+name=public_html dev=overlay_fs ino=42
+scontext=site1-admin:object_r:httpd_site1_content_t
+tcontext=system_u:object_r:unlabeled_t tclass=filesystem
 
- oh right!
+setenforce 0 .. allows it (obviously ;-)
 
-> Isn't that likely to add significant overhead?
+I understand the message .. but don't know the steps to avoid it.
 
- that can be mitigated against by using techniques already in place in
- apache: pre-forking.
+Jaspreet
 
- i am genuinely surprised that, several years after apache deployed the
- technique of pre-forking (which wasn't new then), samba doesn't do
- likewise.
 
- ... so that would leave russell's and andrew's technique still as the
- top simplest solution, with pre-forking as a possible way to reduce
- latency.
-
- l.
 
 
 --
