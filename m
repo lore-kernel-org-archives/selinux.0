@@ -1,44 +1,42 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6S9qErT008618
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 05:52:14 -0400 (EDT)
-Received: from sq.rns-nis.co.yu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6S9pdAN028795
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 09:51:44 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sq.rns-nis.co.yu (Postfix) with ESMTP id 106966BBEB
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 11:48:54 +0200 (CEST)
-Received: from sq.rns-nis.co.yu ([127.0.0.1])
-	by localhost (sq [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 31249-06 for <selinux@tycho.nsa.gov>;
-	Wed, 28 Jul 2004 11:48:49 +0200 (CEST)
-Received: from dl.oss.co.yu (mps.rns-nis.co.yu [194.247.213.6])
-	by sq.rns-nis.co.yu (Postfix) with ESMTP id A9A166BA59
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 11:48:48 +0200 (CEST)
-Date: Wed, 28 Jul 2004 11:46:31 +0200
-From: "Milan P. Stanic" <mps@rns-nis.co.yu>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SAA3rT008730
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 06:10:03 -0400 (EDT)
+Received: from mx2.eyp.ee (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6SA9WAN029205
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 10:09:33 GMT
+Received: from internal by mx2.eyp.ee;
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 13:07:59 +0300
+Message-ID: <41077AFE.3050306@eyp.ee>
+Date: Wed, 28 Jul 2004 13:07:58 +0300
+From: Tanel Kokk <tanel.kokk@eyp.ee>
+MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Subject: Re: New or Old SELinux
-Message-ID: <20040728094631.GA2977@rns-nis.co.yu>
-References: <1090955044.1886.49.camel@allhosts>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1090955044.1886.49.camel@allhosts>
+Subject: Problem: myscript, crontab and policy rules for this
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jul 27, 2004 at 04:04:05PM -0300, Martin Sarsale wrote:
-> I would like to stay in stable but I couldn't find any of the New
-> SELinux (coreutils, procps, etc) enabled packages for deb stable, so I
-> guess I'll have to stick with the old SELinux (on kernels 2.4.x).
+I have Fedora Core 2 with SElinux. I added a script into the crontab 
+/etc/cron.d/myscript (it includes a line:
+0 * * * *		/usr/local/bin/myscript > /dev/null 2>&1)
 
-Which kernel version you have on stable, 2.4 or 2.6?
+selinux logs following audit message:
+avc:  denied  { transition } for  pid=17845 exe=/usr/sbin/crond 
+path=/bin/bash dev=dm-0 ino=2850852 scontext=root:system_r:crond_t 
+tcontext=user_u:sysadm_r:sysadm_t tclass=process
 
-I have backport (it is far from perfect, but it works) for woody with
-2.6 kernels at http://www.rns-nis.co.yu/~mps/
-It is few months old, though.
+I use program audit2allow to generate correct rule to policy:
+allow crond_t sysadm_t:process { transition };
 
-Backporting SE Linux utilities and libraries isn't hard at all,
-thanks to the excellent work of the Debian maintainer.
+I put it into the file domains/misc/local.te and 'make load'
+
+Unfortunately it won't help because same audit log message will appear, 
+when cron will try execute myscript.
+
+What I have to do? Why audit2allow won't generate correct rules?
+
+Tanel
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
