@@ -1,71 +1,49 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7U5krrT002774
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 01:46:53 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7U5k3AE011150
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 05:46:04 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id E970461AFA
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 15:46:49 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 30431-03 for <selinux@tycho.nsa.gov>;
-	Mon, 30 Aug 2004 15:46:49 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 8670661AF9
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 15:46:49 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 59F12B58DA
-	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 15:46:42 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: rpm policy
-Date: Mon, 30 Aug 2004 15:46:41 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_B9rMBVdT1aLXsjG"
-Message-Id: <200408301546.41790.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7U9N7rT003534
+	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 05:23:07 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7U9MJAE014135
+	for <selinux@tycho.nsa.gov>; Mon, 30 Aug 2004 09:22:19 GMT
+Date: Mon, 30 Aug 2004 10:34:14 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: selinux and kde
+Message-ID: <20040830093414.GA3712@lkcl.net>
+References: <20040823234320.GC12720@lkcl.net> <20040824085633.GD11911@rom.cip.ifi.lmu.de> <20040824144947.GC4698@lkcl.net> <200408300327.02313.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200408300327.02313.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, Aug 30, 2004 at 03:27:02AM +1000, Russell Coker wrote:
+> On Wed, 25 Aug 2004 00:49, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > > Yes, I do.
+> > > All machines here are using KDE without problems. My policy is currently
+> > > based on Fedora policy 1.15.7-something (haven't come around to updating
+> > > for a while). I don't do CD burning here, so no comment on that, but
+> > > everything else should work[0].
+> > > What problems are you seeing?
+> >
+> >  well, a lot of sysadm_chkpwd_t stuff, i'm seeing audit messages
+> >  after logging in on a console as a user that are indicative of
+> >  the tty not being returned to the correct context...
+> 
+> A change to PAM is needed to fix most of that.  New Debian packages have to be 
+> compiled with the same code as has been in the Red Hat pam packages for a 
+> while.  The problem is a lack of time.
+ 
+ ah, okay: as long as i know.  [e.g., console ttys don't get
+ relabelled on exit, such that they are the wrong security context
+ for the next login... ]
 
---Boundary-00=_B9rMBVdT1aLXsjG
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+ okay.
 
-When running strict policy without unlimitedrpm the attached patch is 
-necessary to permit upgrading package "dev" if someone has ever logged in at 
-the console since the last relabel.
+ so which packages are these, so i can give it a shot?
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+ l.
 
---Boundary-00=_B9rMBVdT1aLXsjG
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="rpm.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="rpm.diff"
-
---- /usr/src/se/policy/domains/program/unused/rpm.te	2004-08-30 15:44:20.000000000 +1000
-+++ domains/program/unused/rpm.te	2004-08-30 15:44:13.000000000 +1000
-@@ -110,6 +110,7 @@
- dontaudit rpm_t shadow_t:file { getattr read };
- allow rpm_t urandom_device_t:chr_file read;
- allow rpm_t { device_t device_type }:{ chr_file blk_file } { create_file_perms relabelfrom relabelto };
-+allow rpm_t ttyfile:chr_file unlink;
- allow rpm_script_t tty_device_t:chr_file getattr;
- allow rpm_script_t devpts_t:dir { search };
- allow rpm_script_t {devpts_t devtty_t}:chr_file rw_file_perms;
-
---Boundary-00=_B9rMBVdT1aLXsjG--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
