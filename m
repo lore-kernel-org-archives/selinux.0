@@ -1,39 +1,37 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA03702
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 10:43:31 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA05390
+	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 13:25:00 -0500 (EST)
+From: j.logsdon@lancaster.ac.uk
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1CFhUI17681
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 15:43:30 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h1CFhTf17677 for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 15:43:29 GMT
-Received: from moss-gators.epoch.ncsc.mil (moss-gators [144.51.25.9])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA18981
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 10:43:29 -0500 (EST)
-Message-Id: <200302121537.KAA29971@moss-gators.epoch.ncsc.mil>
-Date: Wed, 12 Feb 2003 10:37:13 -0500 (EST)
-From: Pete Loscocco <pal@epoch.ncsc.mil>
-Reply-To: Pete Loscocco <pal@epoch.ncsc.mil>
-Subject: SELinux patent issue
+	by jazzband.ncsc.mil  with ESMTP id h1CIOxI00936
+	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 18:24:59 GMT
+Received: from parmenides.zen.co.uk (parmenides.zen.co.uk [212.23.8.69])
+        by jazzband.ncsc.mil  with SMTP id h1CIOvf00932 for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 18:24:58 GMT
+Received: from localhost (j.logsdon@localhost)
+	by quantex-research.com (8.8.7/8.8.7) with ESMTP id SAA29046
+	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 18:32:53 GMT
+Date: Wed, 12 Feb 2003 18:32:52 +0000 (GMT)
 To: selinux@tycho.nsa.gov
+Subject: Simple question
+Message-ID: <Pine.LNX.4.10.10302121830350.25327-100000@mercury.quantex>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Last week the topic of SELinux and patents was raised on the Linux
-kernel mailing list. Because I think that my response would be of
-interest to many on this list, I am reposting it here:
+Hi
 
-    Despite recent speculation concerning patents, we remain confident that
-    we had the necessary rights to release SELinux in the manner and
-    under the conditions in which we did and that SELinux may be used,
-    copied, distributed, and modified in accordance with the terms and
-    conditions of the GPL.
+In general terms, what does SEL do that I can't do (even if more
+complicated) by Access Control Lists?  If I can control the users and
+groups that can access files (and these are all properly set) what
+advantage do I have in running SEL?
 
---
-Peter Loscocco
-SELinux Project Leader
-National Security Agency
+I'm not being rude - just trying to understand the difference and to see
+whether it is really necessary to run a bespoke kernel.
+
+TIA
+
+John
 
 
 --
