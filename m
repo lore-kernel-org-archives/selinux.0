@@ -1,42 +1,68 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6M2xFHa018107
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 22:59:15 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6M2wAFB007832
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 02:58:10 GMT
-Received: from zaphod.crypt.gen.nz (203-79-74-204.adsl.paradise.net.nz [203.79.74.204])
-	by jazzswing.ncsc.mil  with ESMTP id h6M2w9GD007829
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 02:58:10 GMT
-Message-ID: <2689.202.27.185.71.1058842752.squirrel@www.crypt.gen.nz>
-Date: Tue, 22 Jul 2003 14:59:12 +1200 (NZST)
-Subject: RE: make quickinstall redhat9 problem
-From: "Kerry Thompson" <kerry@crypt.gen.nz>
-To: <sreese@prcdigital.com>
-In-Reply-To: <000101c34ff6$558b0870$6601a8c0@inspiron>
-References: <20030722020704.78395.qmail@a.mx.rapturesecurity.com>
-        <000101c34ff6$558b0870$6601a8c0@inspiron>
-Cc: <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6M33LHa018143
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 23:03:21 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h6M33KDW017646
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 03:03:20 GMT
+Received: from mgr1.xmission.com (mgr1.xmission.com [198.60.22.201])
+        by jazzband.ncsc.mil  with ESMTP id h6M33JeN017643 for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 03:03:20 GMT
+Received: from mail by mgr1.xmission.com with spam-scanned (Exim 3.35 #1)
+	id 19enQr-0007nj-01
+	for selinux@tycho.nsa.gov; Mon, 21 Jul 2003 21:03:18 -0600
+From: "Lamont R. Peterson" <lrp@xmission.com>
+Reply-To: lrp@xmission.com
+To: "Kerry Thompson" <kerry@crypt.gen.nz>, <selinux@tycho.nsa.gov>
+Subject: Re: make quickinstall redhat9 problem
+Date: Mon, 21 Jul 2003 21:03:03 -0600
+Cc: <sreese@prcdigital.com>
+References: <000001c34fe6$c761e5a0$6601a8c0@inspiron> <2332.202.27.185.71.1058836061.squirrel@www.crypt.gen.nz>
+In-Reply-To: <2332.202.27.185.71.1058836061.squirrel@www.crypt.gen.nz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <200307212103.09775.lrp@xmission.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Reese said:
-> installing tk and tcl was the trick thanks for the help now I get to
-> figure out where I went wrong with the kernel complile =)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Monday 21 July 2003 07:07 pm, Kerry Thompson wrote:
+> Stephen Reese said:
+> > make[1]: Entering directory `/home/installs/selinux/tools'
+> > make[2]: Entering directory `/home/installs/selinux/tools/setools' cd
+> > apol; make install
+> > make[3]: Entering directory `/home/installs/selinux/tools/setools/apol'
+> > gcc  -Wall -g -I/usr/include -DUSE_SORTING  -c apol_gui.c
+> > apol_gui.c:14:17: tcl.h: No such file or directory
+> > apol_gui.c:15:16: tk.h: No such file or directory
 >
-> VFS: cannot open root device "Label=/"
+> [snip]
+>
+> SETools requires the TCL and TK libraries to be installed. You can either
+> install TCL & TK packages or just build without these tools. SELinux will
 
-Change your bootloader ( /boot/grub/grub.conf for GRUB ) to use
-root=/dev/hda1 or wherever your root is rather than using Label=/
+Oops, I decided to read the message from the bottom up, and stopped reading 
+before I go to here.  Just shows how trying to debug in a hurry is not a good 
+idea :-).
 
-Kerry
+> install just fine without the tools, just comment out the line which
+> builds and installs the tools from the top-level Makefile:
+>
+>   # @echo "Building and installing SELinux tools"
+>   # cd tools && make install
 
+Good advice.
+- -- 
+Sincerely,
+Lamont R. Peterson <lrp@xmission.com>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
--- 
-Kerry Thompson, CCNA CISSP
-Information Systems Security Consultant
-http://www.crypt.gen.nz  kerry@crypt.gen.nz
+iD8DBQE/HKlsg5LkF3+ZgzARAnfUAJ0Yv6cwXBGAkk8VDzJf/YeFppr9JQCfY7Qa
+JsKDAoYrm/H0vzqRKYdHXrI=
+=xWYK
+-----END PGP SIGNATURE-----
 
 
 
