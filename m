@@ -1,69 +1,64 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA05855
-	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 20:55:27 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA07154
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 04:04:09 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id AAA23587
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 00:53:48 GMT
-Received: from edmond.crypt.gen.nz (203-79-74-240.adsl.paradise.net.nz [203.79.74.240])
-	by jazzswing.ncsc.mil  with ESMTP id AAA23583
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 00:53:46 GMT
-Received: from crypt.gen.nz (localhost.localdomain [127.0.0.1])
-	by edmond.crypt.gen.nz (Postfix) with SMTP id 750C513924
-	for <selinux@tycho.nsa.gov>; Wed,  9 Oct 2002 13:55:20 +1300 (NZDT)
-Message-ID: <23483.202.6.84.11.1034124921.squirrel@www.crypt.gen.nz>
-Date: Wed, 9 Oct 2002 13:55:21 +1300 (NZDT)
-Subject: Re: What to do next?
-From: "Kerry Thompson" <kerry@crypt.gen.nz>
-To: <selinux@tycho.nsa.gov>
-In-Reply-To: <H3OGTT$0A7DBB13E9FF323A8AA0A7184811E6BA@terra.com.br>
-References: <H3OGTT$0A7DBB13E9FF323A8AA0A7184811E6BA@terra.com.br>
+	by jazzswing.ncsc.mil  with ESMTP id IAA09113
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 08:02:30 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id IAA09105
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 08:02:29 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
+Subject: Re: /proc woes
+Date: Tue, 8 Oct 2002 19:13:17 +0200
+References: <20021008163245.A5508@lemuria.org> <Pine.GSO.4.33.0210081037410.25356-100000@raven> <20021008171123.A6113@lemuria.org>
+In-Reply-To: <20021008171123.A6113@lemuria.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <200210081913.17017.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I suggest getting Russell's latest policy files from
-http://www.coker.com.au/selinux/policy.tgz and installing them.
-
-Also, read the last page or so of the README file, there's some handy tips
-there on things that you can do.
-
-Then, start using your system in the way that you want to : as a web
-server, dns server, Email server, or maybe just as a workstation. While
-doing this, monitor the "avc" messages that will be appearing in
-/var/log/messages and try to understand what is causing them based on the
-policy configuration, the tagging of files, etc.
-
-The aim is to get your system running properly in *enforcing mode*. By
-default after installation your system will only be logging operations
-which aren't allowed, and allowing them to go ahead anyway. By running the
-avc_toggle utility you can switch your system into enforcing mode which
-will actually do the job of disallowing these operations.
-
-If you find problems testing the policies then try to figure out what is
-causing them and post some patches back here.
-
-Try configuring new policies for programs which don't already have a
-policy - then post your new policies to this list for the rest of us to
-look at and use.
-
-Kerry
-
-luiztizei said:
->   I have succefully installed selinux kernel lsm-2.4 to my RH7.3
-> distro. I want to continue to explore this system. What should I do
-> next? Get the patches you are releasing and try them?
->   I am simply a newbie to the subject, but with time I might help :)
-> Thanks,
+On Tue, 8 Oct 2002 17:11, Tom wrote:
+> On Tue, Oct 08, 2002 at 10:40:30AM -0400, Stephen Smalley wrote:
+> > > So instead of having a patch, I have a question: My /proc is file_t:
+> > >
+> > > dr-xr-xr-x  root     root     system_u:object_r:file_t         proc
+> >
+> > This implies that your /proc is an empty mountpoint and is thus unused.
 >
->          Luiz Tizei
+> No, it was populated and in use. (mount showed it mounted, and umount
+> failed with busy).
+>
+>
+> Rebooting the machine fixed it, so this may have happened during either
+> make relabel or make load (I installed a new policy today), though it's
+> still a mystery to me how and I'm one of the people who believe that a
+> reboot shouldn't be a valid solution. :)
+
+If you do the following:
+echo /proc | setfiles -s -v /etc/selinux/file_contexts/file_contexts
+Then it will be relabelled to file_t.
+
+The Debian package base-files "owns" /proc and therefore it will be relabelled 
+in the fashion shown above if you upgrade your base-files package.
+
+The solution to this is to add an entry to file_contexts for /proc.
+
+In my tree I added the following as line 147 of types.fc to avoid this 
+happening in future.  Steve, please include something equivalent in the CVS, 
+although it's only used by Debian now, the same issue will probably be faced 
+by RPM distributions when they support SE Linux (and in any case it does no 
+harm).
+/proc(/.*)?                     <<none>>
 
 -- 
-Kerry Thompson, CCNA CISSP
-Information Systems Security Consultant
-http://www.crypt.gen.nz  kerry@crypt.gen.nz
-
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
