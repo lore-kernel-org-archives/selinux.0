@@ -1,135 +1,94 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8FH8erT019137
-	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 13:08:40 -0400 (EDT)
-Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8FH7eHF027335
-	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 17:07:44 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Wed, 15 Sep 2004 19:08:35 +0200
-Date: Wed, 15 Sep 2004 19:09:10 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Patch: Kill duplicate permissions
-Message-Id: <20040915170909.GA2560@jmh.mhn.de>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8FIO7rT019605
+	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 14:24:07 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8FIO1hP011882
+	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 18:24:04 GMT
+Subject: Re: [patch] don't relabel sub-subdirectories of /mnt, /media by
+	default
+From: Colin Walters <walters@redhat.com>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: James Carter <jwcart2@epoch.ncsc.mil>, SELinux <selinux@tycho.nsa.gov>,
+   Daniel J Walsh <dwalsh@redhat.com>, rcoker@redhat.com
+In-Reply-To: <20040913232841.GB30524@lkcl.net>
+References: <1094828936.7061.20.camel@nexus.verbum.private>
+	 <1095106896.2161.21.camel@moss-lions.epoch.ncsc.mil>
+	 <20040913232841.GB30524@lkcl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rOnf35b6NEIOZ67S6Fu+"
+Date: Wed, 15 Sep 2004 14:25:23 -0400
+Message-Id: <1095272723.4231.38.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="v9Ux+11Zm5mwPlX6"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---v9Ux+11Zm5mwPlX6
-Content-Type: multipart/mixed; boundary="a8Wt8u1KmwUX3Y2C"
-Content-Disposition: inline
-
-
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-rOnf35b6NEIOZ67S6Fu+
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Kill a few duplicate permissions, plus some small cleanup.
+On Tue, 2004-09-14 at 00:28 +0100, Luke Kenneth Casson Leighton wrote:
 
-crond.te: already defined in logrotate.te
-xserver_macros.te: already defined in xdm.te
+>  GREAT idea, because i am having the same difficulty with
+>  usbmount + autofs.
+>=20
+>  yes, this is essential.
+>=20
+>  colin, what do you propose _be_ in the removable_context because i
+>  guessed about putting {username}:object_r:home_dir_t in there, where
+>  {username} is determined by who owns /dev/console or simply by
+>  an over-ride in /etc/usb-mount.conf.
 
-Others have duplicate permissions in the same file.
+Dan, John Palmieri and I talked about this, and we agreed that it is bad
+that currently file contexts on removable ext3 media is trusted.=20
 
-Please apply.
+Right now when a device is inserted HAL generates an fstab entry for it,
+and includes "nosuid, noexec, nodev" (actually these are implied by the
+"user" option).
 
-Thomas
+So I think what we want is a single context for all removable media by
+default.  Previously I suggested HAL could grab the context from a
+policy config file, and add that to the fstab entry for it, similarly to
+how it adds nosuid.  Let's say it's
+system_u:object_r:removable_content_t by default. Then we'd want a
+boolean for whether users can read it or not.  At this point we don't
+need the "noexattrfile" attribute anymore.
 
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+However, this doesn't give an easy solution for someone who does want to
+use the contexts on removable media, because then you get into the very
+thorny issue of identifying removable media.  One idea John suggested
+during the discussion was for the removable media to have an identifying
+cryptographic key on it, and HAL could verify this key, and then use it
+with a policy config file to map to either a particular context, or
+"trusted".
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kill_duplicates.patch"
-Content-Transfer-Encoding: quoted-printable
+I don't think the cryptographic key is doable anytime soon, so I suggest
+for now we simply go with a single config file with a single context in
+it, and patch HAL.
 
---- orig/domains/program/checkpolicy.te
-+++ mod/domains/program/checkpolicy.te
-@@ -55,7 +55,7 @@
- ##########################
- # Allow users to execute checkpolicy without a domain transition
- # so it can be used without privilege to write real binary policy file
--can_exec(user_t, checkpolicy_exec_t)
-+can_exec(unpriv_userdomain, checkpolicy_exec_t)
-=20
- allow checkpolicy_t { userdomain privfd }:fd use;
-=20
---- orig/domains/program/crond.te
-+++ mod/domains/program/crond.te
-@@ -139,11 +139,6 @@
- allow crond_t mail_spool_t:lnk_file read;
- allow crond_t mail_spool_t:dir search;
-=20
--# Run logrotate in the logrotate_t domain.
--ifdef(`logrotate.te', `
--system_crond_entry(logrotate_exec_t, logrotate_t)
--')
--
- ifdef(`mta.te', `
- r_dir_file(system_mail_t, crond_tmp_t)
- ')
---- orig/domains/program/hostname.te
-+++ mod/domains/program/hostname.te
-@@ -1,4 +1,4 @@
--#DESC Initrc - System initialization scripts
-+#DESC hostname - show or set the system's host name
- #
- # Author: Russell Coker <russell@coker.com.au>
- # X-Debian-Packages: hostname
---- orig/domains/program/unused/postfix.te
-+++ mod/domains/program/unused/postfix.te
-@@ -92,7 +93,6 @@
- file_type_auto_trans({ sysadm_mail_t system_mail_t }, etc_t, etc_aliases_t)
- allow postfix_master_t sendmail_exec_t:file r_file_perms;
- allow postfix_master_t sbin_t:lnk_file { getattr read };
--domain_auto_trans(initrc_t, postfix_master_exec_t, postfix_master_t)
- ifdef(`pppd.te', `
- domain_auto_trans(pppd_t, postfix_master_exec_t, postfix_master_t)
- ')
---- orig/domains/program/unused/quota.te
-+++ mod/domains/program/unused/quota.te
-@@ -17,10 +17,6 @@
- role sysadm_r types quota_t;
- allow quota_t admin_tty_type:chr_file { read write };
-=20
--domain_auto_trans(sysadm_t, quota_exec_t, quota_t)
--role sysadm_r types quota_t;
--allow quota_t admin_tty_type:chr_file { read write };
--
- type quota_flag_t, file_type, sysadmfile;
- type quota_db_t, file_type, sysadmfile;
-=20
---- orig/macros/program/xserver_macros.te
-+++ mod/macros/program/xserver_macros.te
-@@ -43,7 +43,6 @@
- ifdef(`xdm.te', `
- domain_auto_trans(xdm_t, xserver_exec_t, xdm_xserver_t)
- ')
--domain_auto_trans(initrc_t, xserver_exec_t, xdm_xserver_t)
- ', `
- domain_auto_trans($1_t, xserver_exec_t, $1_xserver_t)
- ')dnl end ifelse xdm
+So to summarize, what we need from SELinux is a new libselinux function:
+const char * get_media_type (void)
+which would just read from a config file like initrc_context.
 
---a8Wt8u1KmwUX3Y2C--
+Luke: I'm not sure how this would fit in your usbmount+autofs setup.
+But if you figure out which component is mounting the device, you can
+modify that in the same way we'll modify HAL.  Then you could simply
+modify your policy to allow users access to removable_content_t.
 
---v9Ux+11Zm5mwPlX6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+
+--=-rOnf35b6NEIOZ67S6Fu+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFBSHc1xWIrrrL0q+cRAsM1AKCh3eeQ/dbB8ThBw4ffkLn2W3j9WQCeOJ84
-u5GaxJIMCwlZAEHrU8qfj3E=
-=lIPY
+iD8DBQBBSIkTOIkJWWp2WGURAp8hAJ4kd6mLmWDkJtl+4fEOE8rPQ8U7AwCeOoJ3
+NDHlxGM0da9H1WFtHLrSDOc=
+=kJcM
 -----END PGP SIGNATURE-----
 
---v9Ux+11Zm5mwPlX6--
+--=-rOnf35b6NEIOZ67S6Fu+--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
