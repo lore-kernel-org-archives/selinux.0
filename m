@@ -1,55 +1,66 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA13276
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 18:22:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA13323
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 18:38:21 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA19027
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 22:22:11 GMT
-Received: from mail.aimster.com ([64.124.173.11])
-	by jazzband.ncsc.mil  with ESMTP id WAA19022
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 22:22:11 GMT
-Received: from Cassius (lsrtr.intranaut.com [208.136.5.178])
-	by mail.aimster.com (8.11.0/8.11.0) with SMTP id f58MGxA03824
-	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 18:17:00 -0400
-Message-ID: <002d01c0f069$853af600$7b01a8c0@darkbritannia.com>
-From: "Frank Zecca" <frank@aimster.com>
+	by jazzband.ncsc.mil  with ESMTP id WAA19573
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 22:38:15 GMT
+Received: from mg03.austin.ibm.com (mg03.austin.ibm.com [192.35.232.20])
+	by jazzband.ncsc.mil  with ESMTP id WAA19557
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 22:38:14 GMT
+Received: from austin.ibm.com (netmail1.austin.ibm.com [9.53.250.96])
+	by mg03.austin.ibm.com (AIX4.3/8.9.3/8.9.3) with ESMTP id RAA34958
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 17:39:24 -0500
+Received: from spiff.austin.ibm.com (spiff.austin.ibm.com [9.53.216.123])
+	by austin.ibm.com (AIX4.3/8.9.3/8.9.3) with ESMTP id RAA39268
+	for <selinux@tycho.nsa.gov>; Fri, 8 Jun 2001 17:38:18 -0500
+Date: Fri, 8 Jun 2001 17:41:08 -0500 (CDT)
+From: Emily Ratliff <ratliff@austin.ibm.com>
 To: <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.21L.0106081818360.5848-100000@unix7.andrew.cmu.edu>
 Subject: Re: setting up selinux
-Date: Fri, 8 Jun 2001 18:21:55 -0400
+In-Reply-To: <Pine.SOL.3.95.1010608152411.15810N-100000@clipper.gw.tislabs.com>
+Message-ID: <Pine.LNX.4.33L2.0106081735430.12933-100000@spiff.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hmha!
+Hi,
 
-I figured out my problem. Thanks Stephen, I was only using the kernel
-tarball, not the full release.
+I'm having a problem compiling SELinux. The machine has an Adaptec 7899P
+SCSI controller, so I have configured that in, but the SELinux compile is
+barfing on it. I would suspect a problem with that code, except that when
+I copy the .config file over to an unpatched kernel and compile that after
+running make oldconfig, the compile completes beautifully.
 
-Zach: You need to get the full release package from nsa.gov and extract it
-to your linux box. Then the installation guide they have on their site will
-make perfect sense and everything should work OK. Let me know if its
-otherwise, I'll do my best to help you out. Keep in mind I'm fairly new to
-this too :)
+Here is the relevant output from the compile:
 
-   Frank
+make[4]: Entering directory `/usr/src/slinux/kernel-2.4/drivers/scsi/aic7xxx'
+make -C aicasm
+make[5]: Entering directory `/usr/src/slinux/kernel-2.4/drivers/scsi/aic7xxx/aicasm'
+yacc -d aicasm_gram.y
+mv -f y.tab.c aicasm_gram.c
+lex  -t aicasm_scan.l > aicasm_scan.c
+gcc -I/usr/include -ldb1 aicasm_gram.c aicasm_scan.c aicasm.c
+aicasm_symbol.c -o aicasm
+aicasm_symbol.c:39:20: db1/db.h: No such file or directory
+make[5]: *** [aicasm] Error 1
+make[5]: Leaving directory `/usr/src/slinux/kernel-2.4/drivers/scsi/aic7xxx/aicasm'
+make[4]: *** [aicasm/aicasm] Error 2
+make[4]: Leaving directory `/usr/src/slinux/kernel-2.4/drivers/scsi/aic7xxx'
+make[3]: *** [first_rule] Error 2
+make[3]: Leaving directory `/usr/src/slinux/kernel-2.4/drivers/scsi/aic7xxx'
+make[2]: *** [_subdir_aic7xxx] Error 2
+make[2]: Leaving directory `/usr/src/slinux/kernel-2.4/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/slinux/kernel-2.4/drivers'
+make: *** [_dir_drivers] Error 2
 
------ Original Message -----
-From: "Zachary Uram" <zu22@andrew.cmu.edu>
-To: "Frank Zecca" <frank@aimster.com>
-Sent: Friday, June 08, 2001 6:18 PM
-Subject: Re: setting up selinux
 
+Any suggestions?
 
-> frank i cant even compile the kernel
-> plz help me
->
->
->
-> uram@cmu.edu
-> "Blessed are those who have not seen and yet have faith." - John 20:29
->
+Thanks,
+
+Emily
 
 
 --
