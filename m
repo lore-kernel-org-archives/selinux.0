@@ -1,40 +1,56 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23202
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 08:36:37 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA22483
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 13:35:31 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id NAA22479
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 13:35:30 GMT
-Date: Wed, 27 Feb 2002 08:36:01 -0500 (EST)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23322
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 08:53:42 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA04239
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 13:52:44 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id NAA04235 for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 13:52:43 GMT
+Date: Wed, 27 Feb 2002 08:53:16 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: Metrix <metrix007@yahoo.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: your mail
-In-Reply-To: <20020227113121.20222.qmail@web20604.mail.yahoo.com>
-Message-ID: <Pine.GSO.4.33.0202270831060.12300-100000@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: <wakkerma@debian.org>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: straceing SE Linux
+In-Reply-To: <20020227101339.9FAA5F8E3@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0202270836300.12300-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 27 Feb 2002, Metrix wrote:
+On Wed, 27 Feb 2002, Russell Coker wrote:
 
-> Hey people, just wanted to compliment you on the good
-> job, I will actualy be using RSBAC as it suits my
-> needs a bit better...
+> Firstly what name should I use to refer to this syscall?  lsm() as the
+> library code uses or security() after the sys_security() definition in the
+> kernel?
+
+I'd use the 'security' name, since it is the name used in unistd.h
+(__NR_security).  We were using 'lsm' as the name of the system call
+before there was any unistd.h definition, and it is now just an alias
+for the security call.
+
+> The next issue is that there is one system call defined for LSM (number 223
+> on Intel).  The first parameter of this call is the id of the security
+> service to manage.  I would like to display selinux() for a SE system call
+> lids() for a LIDS call, etc.  However it seems that this would require a
+> change to the strace structure.
 >
-> My question is, what are the diferences of RSBAC
-> [rsbac.org] and SELinux from a technical standpoint?
+> Should I do so, or am I on the wrong track by wanting to display these as
+> different function calls depending on the id parameter?
 
-This has been previously discussed on the mailing list, and is also
-summarized in the related work section of the Freenix '01 paper.  The
-mailing list thread starts at
-http://marc.theaimsgroup.com/?l=selinux&m=98618795624462&w=2 and the
-Freenix '01 paper is available at
-http://www.nsa.gov/selinux/freenix01-abs.html.
+I'd suggest looking at how strace handles the socketcall call, since the
+security call is similar to it in form, with an additional module
+identifier parameter to identify the security module.  strace does appear
+to interpret the call value and the argument array for socketcall,
+displaying socket operations with the corresponding call name and
+interpreted argument list.
+
+I suppose a first step for making strace aware of security calls would be
+to translate the 'id' parameter to the security call and display the
+corresponding module name.  However, the longer term goal would be to
+actually display a name based on both the 'id' and the 'call' parameter
+and to interpret the argument array based on the (id, call) pair.
 
 --
 Stephen D. Smalley, NAI Labs
