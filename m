@@ -1,39 +1,53 @@
-Subject: Re: You mentioned somewhere there is a step by step guide
-	to	getting the MLS policy installed on a machine?
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2NINuDo024683
+	for <selinux@tycho.nsa.gov>; Wed, 23 Mar 2005 13:23:56 -0500 (EST)
+Subject: Re: Latest diff.
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>, Chad Hanson <chanson@TrustedCS.com>
-In-Reply-To: <424175DA.9040804@redhat.com>
-References: <41EC4682.8050807@trustedcs.com>
-	 <41F6D30D.9070904@trustedcs.com>
-	 <1106771757.23386.348.camel@moss-spartans.epoch.ncsc.mil>
-	 <42408CAB.4030007@redhat.com>
-	 <1111583468.21107.15.camel@moss-spartans.epoch.ncsc.mil>
-	 <424175DA.9040804@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <424062D4.8090708@redhat.com>
+References: <424062D4.8090708@redhat.com>
 Content-Type: text/plain
-Date: Wed, 23 Mar 2005 09:03:35 -0500
-Message-Id: <1111586615.21107.60.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 23 Mar 2005 13:25:17 -0500
+Message-Id: <1111602317.3856.10.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-03-23 at 08:57 -0500, Daniel J Walsh wrote:
-> If I follow those instructions with the Current Rawhide kernel and the 
-> soon to be released selinux-policy-mls, can I get a SELinux/MLS machine
-> up and running or do I need addtional packages from TCS?
+Merged, including your diff of diffs.
 
-You should be able to get a basic system working without any further
-packages (I did).  But you will need to make the home directory and /tmp
-ranged (as mentioned in README.MLS) in order to allow access by multiple
-levels since the polyinstantiated directory support is not in the
-mainline kernel, and are likely to encounter various denials when trying
-to operate at multiple levels.  For a fully operational MLS system,
-there will have to be further userspace work.
+On Tue, 2005-03-22 at 13:24 -0500, Daniel J Walsh wrote:
+> Fixed assert.te to allow unrestricted domains full access.
+> 
+> Added httpd_unconfined_t so that if a user has a script that can not run 
+> under SELinux protection, he can label just this script
+> with httpd_unconfined_script_t and it will run in an unconfined domain.  
+> The rest of the scripts and httpd itself will run under
+> normal apache policy. I am not sure if we want this protected via a 
+> boolean or not.  The user has to set httpd_unconfined_script_t on
+> a script for it to take place.  Maybe should be placed under a boolean.  
+> This is better than the current solution which is to turn off
+> protection for all of apache.
+> 
+> Merged in changes to get ready for name_connect.
+> 
+> Also added liberal allow rules for all domains that
+> have can_network or can_network_tcp.  Allowing them to connect to port_type.
+> I need help from people to go through these network controls and tighten 
+> them up.   IE we need to specify the only ports that
+> dhcp, or named or xserver etc can connect to.
+> 
+> Alot of port_type definitions need to be moved out of their individual 
+> te files into types/network.te
+> 
+> I also changed can_kerberos, can_portmap, can_resolv, can_ldap to use 
+> the named ports.
+> 
+> Dan
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
 
 
