@@ -1,82 +1,59 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7VGO3rT013586
-	for <selinux@tycho.nsa.gov>; Tue, 31 Aug 2004 12:24:03 -0400 (EDT)
-Received: from linux.local (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7VGN8QD001915
-	for <selinux@tycho.nsa.gov>; Tue, 31 Aug 2004 16:23:09 GMT
-Date: Tue, 31 Aug 2004 09:20:03 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
-   "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
-   James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH]SELinux performance improvement by RCU (Re: RCU issue with SELinux)
-Message-ID: <20040831162003.GD1241@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp> <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil> <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp> <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil> <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp> <1093526652.9280.104.camel@moss-spartans.epoch.ncsc.mil> <066f01c48e82$f4ec3530$f97d220a@linux.bs1.fc.nec.co.jp> <1093880119.5447.87.camel@moss-spartans.epoch.ncsc.mil> <20040830161328.GC1243@us.ibm.com> <00ee01c48f13$acb88160$f97d220a@linux.bs1.fc.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <00ee01c48f13$acb88160$f97d220a@linux.bs1.fc.nec.co.jp>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7VGQBrT013612
+	for <selinux@tycho.nsa.gov>; Tue, 31 Aug 2004 12:26:11 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7VGP9QF002209
+	for <selinux@tycho.nsa.gov>; Tue, 31 Aug 2004 16:25:22 GMT
+Message-ID: <4134A695.9060008@tresys.com>
+Date: Tue, 31 Aug 2004 12:25:57 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: banning copying of binaries (e.g. mozilla etc).
+References: <20040830222355.GI31497@lkcl.net>	 <1093951787.8517.11.camel@moss-spartans.epoch.ncsc.mil>	 <20040831122506.GE11456@lkcl.net>	 <1093955694.8517.51.camel@moss-spartans.epoch.ncsc.mil>	 <20040831132756.GH11456@lkcl.net> <1093958949.8517.81.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1093958949.8517.81.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Aug 31, 2004 at 01:33:33PM +0900, Kaigai Kohei wrote:
-> Hi Stephen, Paul, thanks for your comments.
-> 
-> > > > The attached take-4 patches replace the avc_lock in security/selinux/avc.c
-> > > > by the lock-less read access with RCU.
-> > > 
-> > > Thanks.  Was there a reason you didn't move the rcu_read_lock call after
-> > > the avc_insert call per the suggestion of Paul McKenney, or was that
-> > > just an oversight?  No need to send a new patch, just ack whether or not
-> > > you meant to switch the order there.
-> > 
-> > One reason might be because I called it out in the text of my message,
-> > but failed to put it in my patch.  :-/  Of course, if there is some reason
-> > why moving the rcu_read_lock() call is bad, I would like to know for
-> > my own education.
-> 
-> In my understanding, the issue is the Paul's suggestion as follows:
-> 
-> > So I do not believe that avc_insert() needs rcu_read_lock().
-> > Unless I am missing something, the rcu_read_lock() acquired
-> > in avc_has_perm_noaudit() should be moved after the call to
-> > avc_insert().
-> 
-> I don't move the rcu_read_lock() because of the possibility of preemption
-> between the spin_unlock_irqrestore() in avc_insert() and the rcu_read_lock()
-> which may be inserted after avc_insert() in avc_has_perm_noaudit().
-> 
-> When it's returning from avc_insert(), we can't ignore the possibility
-> that execution is preempted in this timing.
-> Therefore, I didn't move rcu_read_lock() in spite of its redundancy.
-> 
-> If rcu_read_lock() was moved after avc_insert()
-> [ in avc_insert() ]----------------------------
->                 :
->         spin_lock_irqsave(&avc_cache.slots_lock[hvalue], flag);
->         list_for_each_entry(pos, &avc_cache.slots[hvalue], list) {
->                 :
->         }
->         list_add_rcu(&node->list, &avc_cache.slots[hvalue]);
-> found:
->         spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flag);  ---------
->         //  +--> including preempt_enable()                               |
->                 It has the danger of releasing the 'node'.                V
->     }                                                                preemption
-> out:                                                                     is
->     return node;                                                       possible
-> }
-> -----------------------------------------------
-> Because it's legal to hold the rcu_read_lock() twice as Paul says,
-> we should do it for safety.
-> It's the reason that I didn't move rcu_read_lock() at this point,
-> and it might be lack of my explanation, sorry.
+Stephen Smalley wrote:
 
-Works for me!  Might be worth adding a comment, though.
+> On Tue, 2004-08-31 at 09:27, Luke Kenneth Casson Leighton wrote:
+> 
+>> ... so port type equates to port number.
+> 
+> 
+> The net_contexts configuration maps port numbers to port types, so you
+> can group them into equivalence classes.  Note that there has been a
+> recent change to checkpolicy (in the sourceforge CVS tree) in this area
+> to preserve the specified ordering for matching so that you can have
+> overlapping port ranges, and a general entry for ports 1-1023 has been
+> added to net_contexts to map them all to reserved_port_t if not
+> otherwise specified.
+> 
+> 
+>> ... but it would be easy to, say, deny users the ability to execute
+>> user_u:object_r:user_t binaries, or default_t binaries etc. yes?
+> 
+> 
+> user_home_t?  Yes.  If you look at macros/base_user_macros.te, you'll
+> see the specific can_exec() rules that allow the user domains to execute
+> files in their home directories and their own temporary files in the
+> current policy.  You would want to go through and remove all such rules
+> for any type that the user can create/write.  apol is your friend for
+> such analysis, as it can quickly find all cases including those covered
+> by rules that use type attributes.
+> 
+It's worth noting that this will not stop execution of said binaries 
+entirely. One only needs to know enough to use /lib/ld.so to run any 
+dynamically linked binary which he doesn't have execute access on. 
+Unfortunatly disabling user domains access to ld.so would make him 
+unable to run any dynamically linked apps whatsoever, sounds like we 
+need a userland enforcer in glibc ;)
 
-							Thanx, Paul
+Joshua Brindle
 
 --
 This message was distributed to subscribers of the selinux mailing list.
