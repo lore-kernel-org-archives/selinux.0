@@ -1,38 +1,35 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j05GeoIi003094
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jan 2005 11:40:50 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j05GhOIi003125
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jan 2005 11:43:24 -0500 (EST)
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j05GeqBa010458
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jan 2005 16:40:52 GMT
-Subject: Re: iptables and assertions
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j05GhRBa010576
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jan 2005 16:43:27 GMT
+Subject: Re: policy patches
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: Russell Coker <russell@coker.com.au>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200412250435.28809.russell@coker.com.au>
-References: <200412250435.28809.russell@coker.com.au>
+In-Reply-To: <200501022303.49225.russell@coker.com.au>
+References: <200501022303.49225.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1104943357.1511.2.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1104943533.1511.5.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 05 Jan 2005 11:42:37 -0500
+Date: Wed, 05 Jan 2005 11:45:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-12-24 at 12:35, Russell Coker wrote:
-> allow iptables_t bin_t:file { execute execute_no_trans };
-> 
+Merged quota and screen patches.
 
-I've removed this rule for now.
-
-> The above line has been in the iptables policy for ages (I think since it was 
-> ipchains_t).  Is it still needed?  My tests seem to indicate that it is not 
-> needed any more.
+On Sun, 2005-01-02 at 07:03, Russell Coker wrote:
+> network_macros.diff makes a cosmetic change to the network macros.
 > 
-> If we remove the above line we can add the following to assert.te:
-> ifdef(`iptables.te', `assert_execute(iptables)')
+> quota.diff enables converting quota files from old format to new format and 
+> adds access to raw disk devices which seems to be needed by the newer 
+> versions of the quota utilities.
 > 
-> Also the following seems appropriate for assert.te:
-> ifdef(`ifconfig.te', `assert_execute(ifconfig)')
+> screen.diff allows screen access to proc files so that it can display the 
+> uptime and other trivial stuff.  Screen can work without this, but it's handy 
+> to have it and proc_t is hardly restricted anyway.
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
