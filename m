@@ -1,27 +1,40 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA13332
-	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 13:56:46 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1RIukI04973
-	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 18:56:46 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA13298
+	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 13:55:42 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA15144
+	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 18:52:24 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h1RIujf04969 for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 18:56:45 GMT
-Message-Id: <200302271904.OAA16292@moss-shockers.ncsc.mil>
-Date: Thu, 27 Feb 2003 14:04:11 -0500 (EST)
+	by jazzswing.ncsc.mil  with ESMTP id SAA15140
+	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 18:52:23 GMT
+Message-Id: <200302271903.OAA16289@moss-shockers.ncsc.mil>
+Date: Thu, 27 Feb 2003 14:03:09 -0500 (EST)
 From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
 Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: Fwd: [ols-announce] Accepting Proposals for BOFS, Tutorials, and Meetings.
-To: selinux@tycho.nsa.gov, russell@coker.com.au
+Subject: Re: Core policy, second pass
+To: russell@coker.com.au, wsalamon@tislabs.com
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
 Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-Russell Coker wrote:
-> Any plans for SE Linux things?  Should we have a SE BOF?
+Wayne Salamon wrote:
+> Or, do we require some
+> customization for the user to be able to run, to enable base
+> functionality?
 
-Yes, I think that a SELinux BOF at OLS would be a good idea.
+I don't think that this is unreasonable, and it is already true for
+many users of SELinux (i.e. it is rarely the case that someone can just
+use the example policy as is).  We should note in the README that
+people are likely to find it necessary to enable additional policy
+program modules whether via sepcut or manually to have a fully
+functional system.
+
+I am more interested in having the core policy be a safe starting point
+for policy developers than in having it provide a highly functional
+system to end users.  
 
 --
 Stephen Smalley, NSA
