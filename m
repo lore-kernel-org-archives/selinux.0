@@ -1,43 +1,44 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA09221
-	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 12:44:47 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA09311
+	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 12:53:05 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA25587
-	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 17:42:30 GMT
+	by jazzswing.ncsc.mil  with ESMTP id RAA26069
+	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 17:50:49 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id RAA25582
-	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 17:42:28 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id AA77592668
-	for <selinux@tycho.nsa.gov>; Wed,  4 Dec 2002 04:44:41 +1100 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id E3B71BE30
-	for <selinux@tycho.nsa.gov>; Tue,  3 Dec 2002 18:44:32 +0100 (CET)
+	by jazzswing.ncsc.mil  with ESMTP id RAA26065
+	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 17:50:47 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: Re: get_ordered_sid_list
-Date: Tue, 3 Dec 2002 18:44:32 +0100
-References: <200212031600.LAA26035@moss-shockers.ncsc.mil>
-In-Reply-To: <200212031600.LAA26035@moss-shockers.ncsc.mil>
+To: Justin Smith <jsmith@mcs.drexel.edu>, selinux@tycho.nsa.gov
+Subject: Re: Systrace
+Date: Tue, 3 Dec 2002 18:52:52 +0100
+References: <1038930973.2041.2.camel@jsmith.org>
+In-Reply-To: <1038930973.2041.2.camel@jsmith.org>
 MIME-Version: 1.0
-Message-Id: <200212031844.32531.russell@coker.com.au>
+Message-Id: <200212031852.52199.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 3 Dec 2002 17:00, Stephen D. Smalley wrote:
-> get_ordered_sid_list only returns legal SIDs for the user that
-> are reachable from the specified from_sid (or the current SID
-> by default when from_sid is 0).  In the example policy, xdm_t
-> can only transition to unpriv_userdomain, so it can reach user_t
-> but not sysadm_t.
+On Tue, 3 Dec 2002 16:56, Justin Smith wrote:
+> I came across the Systrace site
+>
+> http://www.citi.umich.edu/u/provos/systrace/
+>
+> and it strikes me as somewhat similar to SELinux: although it lacks
+> roles, it does intercept system calls and file accesses and apply access
+> criteria. It seems to me that the most significant difference between
+> systrace and SELinux is the lack of domains for running processes. On
+> the other hand, one can specify which programs to monitor.
 
-Before anyone asks, this was done for a reason.  An xdm login runs all sorts 
-of scripts that you probably don't want to have running with full 
-administrative privs.  Also after looking through the xdm/kdm source it's not 
-something I'd trust as much as /bin/login...
+One thing that I think would be interesting would be to have a panel 
+discussion at a conference comparing the different MAC systems for Linux.  I 
+would like to talk about SE Linux at such a discussion.
+
+I think that such a panel would be really good for the people developing the 
+various security systems as well as the audience (we could ask each other 
+questions such as "my system does X, how does your's get that result").
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
