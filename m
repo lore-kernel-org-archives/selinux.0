@@ -1,25 +1,43 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j26CS6Do005804
-	for <selinux@tycho.nsa.gov>; Sun, 6 Mar 2005 07:28:06 -0500 (EST)
-Received: from crisium.vnl.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j26CLJbb017918
-	for <selinux@tycho.nsa.gov>; Sun, 6 Mar 2005 12:21:19 GMT
-Date: Sun, 6 Mar 2005 12:23:41 +0000
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2727eDo007849
+	for <selinux@tycho.nsa.gov>; Sun, 6 Mar 2005 21:07:40 -0500 (EST)
+Received: from iron1-mx.tops.gwu.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2723DgZ011009
+	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2005 02:03:13 GMT
+From: Shyaam Sundhar Rajamadam Srinivasan <shyaam@gwu.edu>
+To: Dale Amon <amon@vnl.com>
+Cc: Russell Coker <russell@coker.com.au>, SE-Linux
+ <selinux@tycho.nsa.gov>
+Message-ID: <fae8df5fd0.f5fd0fae8d@gwu.edu>
+Date: Sun, 06 Mar 2005 21:03:13 -0500
+MIME-Version: 1.0
 Subject: Re: conferences
-Message-ID: <20050306122341.GA28612@vnl.com>
-References: <200503061741.44076.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-In-Reply-To: <200503061741.44076.russell@coker.com.au>
+Content-Type: multipart/mixed; boundary="--24656146bc37b05"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
 
---azLHFNyN32YCQGCU
+----24656146bc37b05
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+Hi,
+Is there a possibility that we can maintain a site for a list of activities.
+Some site where information about,
+- Comferences
+- Local meetings(Local Chapters)
+- New arivals
+- new projects
+- Employment for SELinux
+- Research & Development
+Kindly, let me know if there is a site existing for these activities.
+Thank you in advance for your time and consideration.
+Yours Sincerely,
+R.S.Shyaam Sundhar
+
+----24656146bc37b05
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -42,20 +60,7 @@ I'd have loved to see the light side of SeLinux admin :-)
 	      "Have Laptop, Will Travel"
 ------------------------------------------------------
 
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCKvZNZHES7UL0zXERAs11AJ4p4sYeR4T65OYN9L6nUXDUnxoBIQCfTFIQ
-nmxBh2hn2cTsdUBVP6/k+ik=
-=L9f4
------END PGP SIGNATURE-----
-
---azLHFNyN32YCQGCU--
+----24656146bc37b05--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
