@@ -1,135 +1,131 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7Q7XNrT011402
-	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 03:33:25 -0400 (EDT)
-Received: from moutng.kundenserver.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7Q7XL0g005361
-	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 07:33:22 GMT
-Received: from [212.227.126.206] (helo=mrelayng.kundenserver.de)
-	by moutng.kundenserver.de with esmtp (Exim 3.35 #1)
-	id 1C0El8-0004n3-00
-	for selinux@tycho.nsa.gov; Thu, 26 Aug 2004 09:33:22 +0200
-Received: from pd953a87a.dip.t-dialin.net ([217.83.168.122] helo=localhost)
-	by mrelayng.kundenserver.de with asmtp (TLSv1:DES-CBC3-SHA:168)
-	(Exim 3.35 #1)
-	id 1C0El6-0008Tn-00
-	for selinux@tycho.nsa.gov; Thu, 26 Aug 2004 09:33:20 +0200
-Date: Thu, 26 Aug 2004 09:33:21 +0200
-From: Stefan SF <stefan@sf-net.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: policy for scponly - need help
-Message-ID: <20040826073321.GA16772@crux.sternplastic>
-References: <20040819173620.GA8543@crux.localdomain> <1092967183.29540.30.camel@nexus.verbum.private> <20040820080156.GA8602@crux.sternplastic> <1093009277.4336.11.camel@nexus.verbum.private> <20040820162215.GA15914@crux.sternplastic>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
-In-Reply-To: <20040820162215.GA15914@crux>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7Q7r4rT011494
+	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 03:53:04 -0400 (EDT)
+Message-ID: <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp>
+From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
+To: "Stephen Smalley" <sds@epoch.ncsc.mil>
+Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
+   "James Morris" <jmorris@redhat.com>
+References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com> <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp> <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil> <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp> <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil> <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp> <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
+Date: Thu, 26 Aug 2004 16:53:02 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi Stephen, thanks for your comments.
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> A few other comments on the patch:
+> 
+> + new = kmalloc(sizeof(struct avc_node), GFP_ATOMIC);
+> + if (!new)
+> + return NULL;
+> 
+> Dynamically allocating the nodes at runtime (rather than pre-allocating
+> them and then just reclaiming them as necessary as in the current AVC)
+> worries me, as it introduces a new failure case for avc_has_perm. 
+> Denying permission to a resource due to transient memory shortage is not
+> good for robustness.  And changing the GFP_ATOMIC is not an option, as
+> calling context may not allow blocking.  Hence, pre-allocation seems
+> desirable, regardless of the locking scheme.
 
-Hi,
+In my understanding, your worry about robustness is the execution path
+when kmalloc() returns NULL.
+The most significant point is there.
+--[ in the original kernel-2.6.8.1 ]--
+    :
+  rc = avc_insert(ssid,tsid,tclass,&entry,aeref);
+  if (rc) {
+    spin_unlock_irqrestore(&avc_lock,flags);
+    goto out;
+  }
+    :
+--------------------------------------
+In the original implementation, avc_insert() returns -ENOMEM when we can't
+hold a avc_entry by avc_claim_node(), then avc_has_perm_noaudit() denies
+the requested permition check by the reason an avc_node is not allocated.
+(But avc_insert() always returns 0, because avc_insert() reclaim a avc_node
+ under the spinlock when free_list is empty.)
+However, allocating an avc_node and making the decision according to
+the policy of SELinux should be separated in considering.
 
-ok, I've altered the rules and hope that there is no big hole in it ;-)
-So here are the files:
+In my approach with RCU, avc_insert() can actually return NULL.
+Currently, avc_has_perm_noaudit() returns -ENOMEM without the decision-making
+like as the original implementation.
+But we can make an decision according to the policy of SELinux by a suitable
+recover processing.
 
+My proposal is as follows:
+- Normaly, decision-making is performed to the entry on AVC.
+  These entries are allocated by kmalloc()
+- When kmalloc() called by the extension of avc_insert() returns NULL,
+  the decision-making is performed to the entry on stack variable,
+  then the entry is not hold on AVC.
 
+-- e.g. in avc_has_perm_noaudit() --------------
+    :
+  struct avc_entry local_ae, *ae;
+    :
+  node = avc_insert(....);
+  if (!node) {
+    SETUP_LOCAL_AE(&local_ae,&entry.avd);
+    ae = &local_ae;
+  } else {
+    ae = &node->ae;
+  }
+  
+  if (avd)
+    memcpy(avd, &ae->avd, sizeof(*avd));
+    :
+------------------------------------------------
+By this method, the decision-making is available irrespective of
+the result of kmalloc(). Is it robustless?
+The original implementation has too many lock contensitons in Big-SMP
+environment. It is more positive to consider the method using RCU.
 
-domains/program/scponly.te
-#DESC scponly - A shell which provides only scp/sftp access
-#
-# It's based on Colin Walters "rssh" policy
+> In trying to merge the logic related to latest_notif, you've introduced
+> a bug - latest_notif should only be increased, never decreased.  See the
+> original logic from avc_control and avc_ss_reset prior to your patch. 
+> Those functions update the latest notif based on a policy change event. 
+> In the insert case, you are checking that the entry is not stale, i.e.
+> has a smaller seqno than the latest notification due to an interleaving
+> with a policy change event.
 
-type scponly_exec_t, file_type, exec_type, sysadmfile;
+Ooooooops!
+It is toooooo trivial BUG!
+I'll fix them very soon.
 
-ifdef(`ssh.te',`
-allow sshd_t scponly_exec_t:file { getattr execute read };
-allow trade_t scponly_exec_t:file { entrypoint };
-')
+> + if (node->ae.avd.allowed != (node->ae.avd.allowed|requested))
+> + avc_update_node(AVC_CALLBACK_GRANT
+> +                 ,requested,ssid,tsid,tclass);
+>   }
+> 
+> The test seems unnecessary, as the function has already determined that
+> not all of the requested permissions were granted, so you should be able
+> to just unconditionally call avc_update_node here, and you only need to
+> pass it the denied set that has already been computed, as any other
+> permissions in requested were already allowed.
 
+Indeed, it is right. I'll fix them soon.
+avc_update_node() is in the section between rcu_read_lock() and rcu_read_unlock().
 
+> - rc = -ENOENT;
+>  out:
+> - return rc;
+> + return node;
+> +}
+> 
+> Ah, I think the bug is here.
 
-macros/program/scponly_macros.te
-#DESC scponly - A shell which provides only scp/sftp access
-#
-# It's based on Colin Walters "rssh" policy
+Oops!
+I agree, and fix this soon.
 
-undefine(`scponly_domain')
-ifdef(`scponly.te', `
-define(`scponly_domain',`
-type scponly_$1_t, domain, userdomain, privlog, privfd;
-role scponly_$1_r types scponly_$1_t;
-allow system_r scponly_$1_r;
-
-# types for correct labeling
-type scponly_$1_home_dir_t, file_type, sysadmfile;
-type scponly_$1_home_t, file_type, sysadmfile;
-type scponly_$1_home_ssh_t, file_type, sysadmfile;
-
-# types for read and write
-type scponly_$1_rw_t, file_type, sysadmfile;
-type scponly_$1_ro_t, file_type, sysadmfile;
-
-general_domain_access(scponly_$1_t);
-uses_shlib(scponly_$1_t);
-base_file_read_access(scponly_$1_t);
-r_dir_file(scponly_$1_t, etc_t);
-r_dir_file(scponly_$1_t, etc_runtime_t);
-can_exec(scponly_$1_t, bin_t);
-
-# basic read/write
-r_dir_file(scponly_$1_t, scponly_$1_ro_t);
-create_dir_file(scponly_$1_t, scponly_$1_rw_t);
-
-# scponlyc needs to chroot
-allow scponly_$1_t scponly_$1_t:capability { dac_override dac_read_search setuid sys_chroot };
-allow scponly_$1_t scponly_$1_home_dir_t:dir { getattr read search };
-allow scponly_$1_t scponly_$1_ro_t:file { execute execute_no_trans };
-
-ifdef(`ssh.te',`
-allow scponly_$1_t sshd_t:unix_stream_socket rw_stream_socket_perms;
-r_dir_file(sshd_t, scponly_$1_ro_t);
-domain_trans(sshd_t, scponly_exec_t, scponly_$1_t);
-')
-')
-
-', `
-
-define(`scponly_domain',`')
-
-')
-
-
-
-file_contexts/program/scponly.fc
-/usr/bin/scponly                system_u:object_r:scponly_exec_t
-/usr/sbin/scponlyc              system_u:object_r:scponly_exec_t
-
-
-
-domains/misc/local.te
-scponly_domain(user)
-
-
-
-ciao, Stefan
-
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBLZJBUEn3BeoPvtwRAjSdAJ9luFYYZyHigmzbhgaAKL5rxYdrSQCeIhVO
-tX32fchEsBMziFAVm/fJdYo=
-=rIgU
------END PGP SIGNATURE-----
-
---mYCpIKhGyMATD0i+--
+Please wait for a patch, thanks.
+--------
+Kai Gai <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
