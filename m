@@ -1,70 +1,81 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2SDuAx6029767
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 08:56:11 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h2SDqalY017265
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 13:52:37 GMT
-Received: from RelayDAL.nai.com (relaydal.nai.com [205.227.136.197])
-	by jazzswing.ncsc.mil  with ESMTP id h2SDqaKX017262
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 13:52:36 GMT
-Received: from txwsout1.nai.com ([161.69.216.92])
-	by RelayDAL.nai.com (Switch-2.2.5/Switch-2.2.5) with SMTP id h2SDrkN05561
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 07:53:46 -0600 (CST)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2SECFx6029888
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 09:12:15 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h2SECER1001217
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 14:12:14 GMT
+Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h2SECEj9001214 for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 14:12:14 GMT
+Received: from moss-shockers.ncsc.mil (moss-shockers [144.51.25.21])
+	by facesaver.epoch.ncsc.mil (8.12.8/8.12.8) with SMTP id h2SECDNL010353
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2003 09:12:13 -0500 (EST)
+Message-Id: <200303281419.JAA04415@moss-shockers.ncsc.mil>
+Date: Fri, 28 Mar 2003 09:19:54 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Using kernel SID (kernel_t domain) in reparent_to_init
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: RE: general policy stuff
-Date: Fri, 28 Mar 2003 07:58:29 -0600
-Message-ID: <8894CA1F87A5D411BD24009027EE783801C14D09@md-exchange1.na.nai.com>
-From: <Kelly_Djahandari@nai.com>
-To: <russell@coker.com.au>, <selinux@tycho.nsa.gov>
+Content-Type: MULTIPART/mixed; BOUNDARY=Cluster_of_Spiders_522_000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker's diff patch have been applied to the files on sourceforge, and the spelling error corrected. Thanks Russell for the changes.
+--Cluster_of_Spiders_522_000
+Content-Type: TEXT/plain; charset=us-ascii
+Content-MD5: G+rw0I+TIWvNSoWG1VyZjQ==
 
-Kelly Djahandari
-Network Associates Laboratories
 
------Original Message-----
-From: Russell Coker
-To: SE Linux
-Sent: 3/16/03 3:36 PM
-Subject: general policy stuff
+In recent discussions on this list
+(http://marc.theaimsgroup.com/?l=selinux&m=104852427209286&w=2) and on
+the linux-security-module list
+(http://marc.theaimsgroup.com/?l=linux-security-module&m=104861921931879&w=2),
+it has come up that SELinux should be assigning the kernel SID
+(kernel_t domain) to kernel threads in reparent_to_init rather than the
+init SID, and that in 2.5, the kmod logic was been reworked to use
+keventd, which uses reparent_to_init, so the kmod SID (kmod_t domain)
+will be obsolete in 2.5.  The attached patch for lsm-2.4 changes
+SELinux to use the kernel SID for both reparent_to_init and kmod for
+consistency.  This will require corresponding updates to the policy to
+fold the kmod_t domain into kernel_t.  This change also means that
+certain permissions currently granted to init_t can be moved into
+kernel_t.
 
-The Makefile for the policy has constraints mis-spelled in the following
-line:
-POLICYFILES += tmp/contraints-contexts.m4
+--
+Stephen Smalley, NSA
 
-Temporary files don't matter much how they are spelled, but I still
-think it 
-should be right.
 
-Recently the line
-allow $2_t console_device_t:chr_file rw_file_perms;
-was added to the daemon_sub_domain() macro.  I don't think that this is 
-desired as the ability to read/write to the console can allow a daemon a
+--Cluster_of_Spiders_522_000
+Content-Type: TEXT/plain; name="kthread.patch"; charset=us-ascii; x-unix-mode=0644
+Content-Description: kthread.patch
+Content-MD5: r4X86guDCf88kwlHD78PvQ==
 
-dangerous level of access (maybe offering a trojan login prompt).
+Index: lsm-2.4/security/selinux/hooks.c
+===================================================================
+RCS file: /cvsroot/selinux/nsa/lsm-2.4/security/selinux/hooks.c,v
+retrieving revision 1.28
+diff -u -r1.28 hooks.c
+--- lsm-2.4/security/selinux/hooks.c	18 Mar 2003 16:08:45 -0000	1.28
++++ lsm-2.4/security/selinux/hooks.c	28 Mar 2003 14:00:59 -0000
+@@ -2474,7 +2474,7 @@
+ 
+ 	tsec = current->security;
+ 	tsec->osid = tsec->sid;
+-	tsec->sid = SECINITSID_KMOD;
++	tsec->sid = SECINITSID_KERNEL;
+ 	return;
+ }
+ 
+@@ -2486,7 +2486,7 @@
+ 
+ 	tsec = p->security;
+ 	tsec->osid = tsec->sid;
+-	tsec->sid = SECINITSID_INIT; 
++	tsec->sid = SECINITSID_KERNEL; 
+ 	return;
+ }
+ 
 
-Although there are probably some other things that need to be considered
-
-regarding the console (last time I wanted to run a getty on a serial
-console 
-I found the default policy incapable of it).
-
-I have attached the diff between my policy and the CVS policy for the
-core 
-files and the .fc files.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux
-packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
- <<diff>> 
-
+--Cluster_of_Spiders_522_000--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
