@@ -1,54 +1,59 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1G1m3Rb007864
-	for <selinux@tycho.nsa.gov>; Sun, 15 Feb 2004 20:48:04 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1G1m3c3013312
-	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 01:48:03 GMT
-Received: from smtp013.mail.yahoo.com (smtp013.mail.yahoo.com [216.136.173.57])
-        by jazzband.ncsc.mil  with SMTP id i1G1m2R0013309 for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 01:48:02 GMT
-Date: Sun, 15 Feb 2004 19:47:40 -0600
-Subject: Re: Policy configuration question
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v553)
-Cc: selinux@tycho.nsa.gov
-To: Colin Walters <walters@verbum.org>
-From: Ignacio Tripodi <ignaciot@unt.edu>
-In-Reply-To: <1076888807.5934.0.camel@nexus.verbum.private>
-Message-Id: <1B26BF5E-6022-11D8-BD7E-000393013D1A@unt.edu>
+Message-ID: <005701c3f441$e13d7a20$6401a8c0@williams>
+Reply-To: "Douglas Williams" <douglaswilliams@sympatico.ca>
+From: "Douglas Williams" <douglaswilliams@sympatico.ca>
+To: "SELinux" <SELinux@tycho.nsa.gov>
+Subject: StrongArm port
+Date: Sun, 15 Feb 2004 23:03:48 -0500
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0054_01C3F417.F84A4D30"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
 
-Thank you Colin, apparently I forgot to apply that patch because it 
-works now.
+------=_NextPart_000_0054_01C3F417.F84A4D30
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Ignacio
+Does anyone know where I can get a good linux kernel for an IPAQ 3850. =
+My next robot must have a secure OS especially since it will use an RF =
+data link with relatively weak encryption.=20
 
+www.pda-robotics.com
 
-On Sunday, February 15, 2004, at 05:46 PM, Colin Walters wrote:
+Thanks.
+Doug.
+------=_NextPart_000_0054_01C3F417.F84A4D30
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> On Sun, 2004-02-15 at 12:58, Ignacio Tripodi wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> I'm trying to tune up the policy because I'm getting many "avc: 
->> denied"
->> log entries for almost every single command I try to run. The source
->> context seems to be the same (system_u:system_r:local_login_t),
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2800.1276" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>Does anyone know where I can get a good =
+linux=20
+kernel for an IPAQ 3850. My next robot <STRONG>must</STRONG> have a =
+secure OS=20
+especially since it will use an RF data link with relatively weak =
+encryption.=20
+</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><A=20
+href=3D"http://www.pda-robotics.com">www.pda-robotics.com</A></FONT></DIV=
 >
-> Did you add pam_selinux.so to your login and sshd PAM configuration
-> files?
->
-> <signature.asc>
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (Darwin)
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Thanks.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Doug.</FONT></DIV></BODY></HTML>
 
-iD8DBQFAMCFBwGqh0xtlFYsRAjHdAJsEGm1Ai1VeQwJGrwif7NESf2bjYgCdGK4k
-Ft396wMgUKV2zy+M/U/jDwU=
-=oZ/a
------END PGP SIGNATURE-----
+------=_NextPart_000_0054_01C3F417.F84A4D30--
 
 
 --
