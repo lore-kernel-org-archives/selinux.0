@@ -1,106 +1,93 @@
-Message-ID: <0D2F5426C26FD511A1C400B0D0D05968159831@deliverance.tycho.ncsc.mil>
-From: "Wagner, Grant" <gmw@tycho.ncsc.mil>
-To: Manoj Srivastava <manoj.srivastava@stdc.com>, selinux@tycho.nsa.gov
-Subject: RE: Clarification about distribution terms on the software
-Date: Wed, 26 Sep 2001 12:50:51 -0400
+Date: Thu, 27 Sep 2001 09:35:49 -0400 (EDT)
+From: Chris Vance <cvance@tislabs.com>
+To: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>
+cc: SELinuxML <SELinux@tycho.nsa.gov>, Chris Vance <cvance@tislabs.com>
+Subject: Re: I can ' t use named on LSM-based Prototype. Why?
+In-Reply-To: <002401c14595$5d1a8fb0$68026c85@ilios104>
+Message-ID: <Pine.LNX.4.33.0109270904260.12723-100000@zorg.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
 
-The NSA lawyers tell us that the Warranty Exclusion and Limitation of
-Liability wording in the relevant open source licenses (i.e., GNU GPL and
-BSD) are sufficient for our needs relative to indirect recipients (i.e.,
-those that do not get the code from the NSA web site directly). The wording
-on http://www.nsa.gov/selinux/src-disclaim.html need not be propagated to
-such indirect recipients as long as all the relevant licenses are
-propagated.
+With RedhHat 7.1, the default configuration for named uses the '-u' flag
+to tell named to run as the specified user.  For Linux, named uses the
+kernel's capability mechanism to drop all root privileges except the
+ability to bind() to a privileged port.
 
--- Grant
+As a result, the '-u' option requires Linux kernel capability checks.
+While the prior SELinux prototype retained these checks, the current
+LSM-based kernel removes the capabilities checks from the kernel and
+places them in a separately configurable LSM module.
 
-Grant M. Wagner
-Technical Director 
-Secure Systems Research Office
-National Security Agency
+We are currently investigating ways to compose the SELinux module with the
+capabilities module or reproduce the capabilities checks in SELinux, so
+that we can retain all of the original Linux kernel checks. However, the
+current LSM-based SELinux distribution does not perform kernel capability
+checks.
 
-gmw@tycho.nsa.gov
+In the mean time, if you start named without that option, it should run
+normally.  Since the default SELinux policy does not contain support for
+named, I would recommend adding a domain and appropriate permissions.
 
+Has anyone on this list already created a policy for named?
 
-> -----Original Message-----
-> From: Manoj Srivastava [mailto:manoj.srivastava@stdc.com]
-> Sent: Tuesday, September 25, 2001 1:29 PM
-> To: selinux@tycho.nsa.gov
-> Subject: Clarification about distribution terms on the software
-> 
-> 
->  Hi,
-> 	[This is a repost from the address I am subscribed with, and
-> 	hence some people on the internal list shall see this as a
-> 	duplicate. I apologize for the inconvenience]
->  
->          A number of developers for the Debian Project 
-> (http://www.debian.org/)
->   have expressed an interest in rolling in a kernel-patch-selinux
->   package, for inclusion in the Debian GNU?Linux distribution.
->  
->  	The criteria for inclusion of a package in the project are
->   defined by the ``Debian Free Software Guidelines'' contained in the
->   ``Social Contract'' (http://www.debian.org/social_contract). 
->  
->  	The initial impressions were good: The License terms at
->   http://www.nsa.gov/selinux/license.html makes it very clear that the
->   license terms are DFSG compliant. 
->  
->  	The confusion arises as one tries to download the sources, and
->   is presented with  http://www.nsa.gov/selinux/src-disclaim.html; one
->   is now required to agree to a legal agreement (I am not a lawyer, it
->   seems to be a restatement of the standard lack of warranty
->   clauses. However, I am not a lawyer).
->  
->  	One of the questions that arise from this is: Whom does the
->   NSA want this agreement from? Me, as a packager, the Debian Project,
->   as the distributor, or the end user of the software who is going to
->   install it on their machines, and may be impacted by any 
-> flaws in the
->   process of doing so?  If indeed the end user agreement is required,
->   SELinux would not meet the DFSG.
->  
->  	Arguably, since the software itself is licensed under the GPL,
->   on may, after downloading the software, further redistribute it as
->   provided for by the GPL.
->  
->  	However, Debian is not in the business of not adhering to
->   upstream author wishes, and we would like to honour the intent, as
->   opposed to the letter, of the license.  Given that, the simplest
->   process was to come to the horses mouth and ask the authors what
->   their intent when putting a click-through legal agreement (which may
->   well be binding in the state where jurisdiction lies) on 
-> the software
->   download? Is agreement of the end users required, or is 
-> this only for
->   the initial download?  
->  
->  	manoj
-> 
-> -- 
->  No animal should ever jump on the dining room furniture unless
->  absolutely certain he can hold his own in conversation. Fran Lebowitz
-> Manoj Srivastava   <manoj.srivastava@stdc.com>    
-> <srivasta@debian.org> 
-> 1024R/C7261095 print CB D9 F4 12 68 07 E4 05  CC 2D 27 12 1D F5 E8 6E
-> 1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB 
-> BF24 424C
-> 
-> --
-> You have received this message because you are subscribed to 
-> the selinux list.
-> If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+chris.
+
+On Tue, 25 Sep 2001, Yuichi Nakamura wrote:
+
+> I found that named(bind 9.1.0) didn't work on SELinux(LSM-based Prototype)
+> even if the kernel was flask development mode.
+>
+> Named doesn't response to nslookup.
+>
+> I can use other services(httpd,sendmail,ftpd).
+> And,Named works on usual Linux(2.4.3,2.4.9) and on original SELinux
+> prototype.
+>
+> I installed SELinux (LSM-based Prototype) as development mode in RH7.1.
+> And the kernel configration option is following,
+> CONFIG_NETFILTER="Y"
+> CONFIG_CAPABILITIES ="N"
+> CONFIG_SELINUX="Y"
+> CONFIG_LSM_IP="Y".
+>
+> The  startup log of named is following.
+> --------------------------------------------------------
+> Sep 25 15:11:54 myhost named[797]: starting BIND 9.1.0 -u named
+> Sep 25 15:11:54 myhost named[797]: using 1 CPU
+> Sep 25 15:11:54 myhost named: named startup succeeded
+> Sep 25 15:11:54 myhost named[801]: loading configuration from
+> '/etc/named.conf'
+> Sep 25 15:11:54 myhost named[801]: the default for the 'auth-nxdomain'
+> option is now 'no'
+> Sep 25 15:11:54 myhost named[801]: no IPv6 interfaces found
+> Sep 25 15:11:54 myhost named[801]: listening on IPv4 interface lo,
+> 127.0.0.1#53
+>
+> Sep 25 15:11:54 myhost named[801]: could not listen on UDP socket:
+> permission denied
+>
+> Sep 25 15:11:54 myhost named[801]: creating IPv4 interface lo failed;
+> interface ignored
+> Sep 25 15:11:54 myhost named[801]: listening on IPv4 interface eth0,
+> 133.xxx.x.75#53
+>
+> Sep 25 15:11:54 myhost named[801]: could not listen on UDP socket:
+> permission denied
+>
+> Sep 25 15:11:54 myhost named[801]: creating IPv4 interface eth0 failed;
+> interface ignored
+> Sep 25 15:11:54 myhost named[801]: not listening on any interfaces
+> -------------------------------------------------------------
+>
+> Why named doesn't work on LSM based prototype?
+>
+> Did I miss kernel configuration or else?
+>
+> Please tell me.
+
 
 --
 You have received this message because you are subscribed to the selinux list.
