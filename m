@@ -1,67 +1,58 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i92INjrT009385
-	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 14:23:45 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i92IMdnE029523
-	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 18:22:39 GMT
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 8884EBFAC
-	for <selinux@tycho.nsa.gov>; Sat,  2 Oct 2004 19:23:37 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1CDoia-0001cj-RD
-	for selinux@tycho.nsa.gov; Sat, 02 Oct 2004 19:34:52 +0100
-Date: Sat, 2 Oct 2004 19:34:52 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: fuse + selinux
-Message-ID: <20041002183452.GA5827@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i92KF6rT009698
+	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 16:15:06 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i92KF2lM005843
+	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 20:15:04 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: policy patches
+Date: Sun, 3 Oct 2004 06:14:57 +1000
+Cc: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>
+References: <200409292354.15227.russell@coker.com.au> <200410021042.15371.russell@coker.com.au> <415E8019.6000100@redhat.com>
+In-Reply-To: <415E8019.6000100@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200410030614.57157.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-okay, i tried rewriting fuse + the fusexmp userspace program into a
-kernel module called "fsproxy".  i got as far as doing everything but
-moving the userspace-inode-allocation code into the kernel, and at
-that point i tried examining how smbfs does pseudo-and-on-demand inode
-creation, and it's all gone slightly pear-shaped.
+On Sat, 2 Oct 2004 20:16, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Russell Coker wrote:
+> >On Sat, 2 Oct 2004 06:45, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> >>Cleaned up patch with some of russells changes.
+> >>
+> >>chage has been updated to do a checkPasswdAccess(PASSWD__ROOTOK) now.
+> >
+> >+allow getty_t initrc_devpts_t:chr_file { read write };
+> >
+> >What is this for?
+>
+> I have been getting AVC messages for it.
 
-fuse really doesn't do a good job of allocating inodes because
-the code does the allocation in userspace instead of using a
-dentry-to-inode thing what like it _should_ be doing.
+Please show me the AVC messages.
 
+> >-# /usr/sbin/sendmail asks for w access to utmp, but it will operate
+> >-# correctly without it.  Do not audit write and lock denials to utmp.
+> >-allow sendmail_t initrc_var_run_t:file { getattr read };
+> >-dontaudit sendmail_t initrc_var_run_t:file { lock write };
+> >+# /usr/sbin/sendmail asks for w access to utmp
+> >+allow sendmail_t initrc_var_run_t:file { getattr read lock write };
+> >
+> >You missed my fix for this problem.
+>
+> No I know about it but Need to wait for sendmail to be fixed to revert
+> this change.
 
-so what i have gone back to is the original hacks to fuse... but adding
-in-kernel redirection of any xattr calls to the same locations that the
-fusexmp code does.
-
-so what i have is a partial hacked combination of userspace +
-kernelspace which i could really do without... but it works, it actually
-works.
-
-so, bearing that in mind, i have a question:
-
-if i view an autofs-mount point /media through the real filesystem, it
-shows up as (null) selinux permissions.
-
-if i view the same mount mount through my modified-fuse system [which
-is a bit like mount --rbind /Documents / only with a totally different
-inode set] the same point - /Documents/media - shows up as unlabeled_t.
-
-could the reason for that be that my code is, instead of showing the
-filesystem that is mounted on /media, it's showing the _mountpoint_?
-
-l.
+The patch I sent needs no changes to sendmail.  Please apply it.
 
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
