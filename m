@@ -1,73 +1,223 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h63MadHa004478
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 18:36:39 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h63MZknJ002758
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 22:35:46 GMT
-Received: from smtp0.libero.it (smtp0.libero.it [193.70.192.33])
-	by jazzswing.ncsc.mil  with ESMTP id h63MZkhr002755
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 22:35:46 GMT
-Received: from mylaptop (151.27.191.146) by smtp0.libero.it (7.0.012)
-        id 3ECC83C400E04BB9 for selinux@tycho.nsa.gov; Fri, 4 Jul 2003 00:36:37 +0200
-Date: Fri, 4 Jul 2003 00:36:31 +0200
-From: Mauro Chiarugi <vlaovic@libero.it>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h63Mb5Ha004495
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 18:37:05 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h63MawH5001478
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 22:36:58 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+        by jazzband.ncsc.mil  with ESMTP id h63MawRX001473 for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2003 22:36:58 GMT
+Subject: build patches for checkpolicy, libselinux, policycoreutils
+From: Colin Walters <walters@verbum.org>
 To: selinux@tycho.nsa.gov
-Subject: Policies.. but where there are?
-Message-Id: <20030704003631.01287961.vlaovic@libero.it>
+Cc: Russell Coker <russell@coker.com.au>
+Content-Type: multipart/mixed; boundary="=-msKd4DvGPXb8S7UegmOY"
+Message-Id: <1057271791.24843.13.camel@columbia>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.Kcp?9zfM?7.av="
+Date: 03 Jul 2003 18:36:32 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---=.Kcp?9zfM?7.av=
-Content-Type: multipart/mixed;
- boundary="Multipart_Fri__4_Jul_2003_00:36:31_+0200_086a6b70"
 
-
---Multipart_Fri__4_Jul_2003_00:36:31_+0200_086a6b70
-Content-Type: text/plain; charset=US-ASCII
+--=-msKd4DvGPXb8S7UegmOY
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Hi,
-i've just read come docs about SELinux, but i don't have unsterstood
-where these policy (domains, etc.) are saved.. when i compile the
-policy, where are recordered this information? In the kernel? In a file?
-In the filesystem? 
+Hi, 
 
-thanks
+I'm working on getting a 2.5 SELinux system going so I can update my
+coreutils patch, and as part of that I'm making Debian packages of the
+various bits at:
+http://www.nsa.gov/selinux/lk/
 
-bye bye
+I've so far only got packages of checkpolicy, selinux, and
+policycoreutils, but if anyone's interested, they're up at:
 
-sracatus
+http://web.verbum.org/selinux/
 
---Multipart_Fri__4_Jul_2003_00:36:31_+0200_086a6b70
-Content-Type: application/pgp-signature;
- name="00000000.mimetmp"
-Content-Disposition: attachment;
- filename="00000000.mimetmp"
-Content-Transfer-Encoding: base64
+I'm going to work on updating the various other Debian packages with the
+SELinux patches next.
 
-LS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0tLS0KVmVyc2lvbjogR251UEcgdjEuMC42IChHTlUv
-TGludXgpCgppRDhEQlFFL0JLU1duSGZPeWh0SzNyZ1JBZ2ppQUo5OHZDaCtpaDk1Nk84TERlcFNL
-NUQwUDdTMTB3Q2VOTnduCm54QTVnV3dyNTZMNHZMeXVFdEhDYnpVPQo9R2ZuagotLS0tLUVORCBQ
-R1AgU0lHTkFUVVJFLS0tLS0KDQo=
+One thing I ran into is that my Debian package build system
+automatically passes CFLAGS to make like:  
+make CFLAGS='-g -Wall -O2'
 
---Multipart_Fri__4_Jul_2003_00:36:31_+0200_086a6b70--
+However the various makefiles have important things like -I../includes
+in CFLAGS, which would otherwise be overridden by the command line
+argument.  Thus the fix is to use the 'override' keyword so the include
+flags are always added, while the other CFLAGS like -Wall can be changed
+by the user.
 
---=.Kcp?9zfM?7.av=
-Content-Type: application/pgp-signature
+Also one Makefile was calling /sbin/ldconfig in the install rule, which
+broke my Debian package builds.  Admins should just have to know to run
+ldconfig after installing libraries.  Or maybe we could turn it into a
+libtool-style notice.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+Finally, newrole.c was missing an #include <errno.h>, and we need to
+create $(DESTDIR)/etc/pam.d if it doesn't exist.
 
-iD8DBQE/BK/znHfOyhtK3rgRAgsSAJ97uKHZ21pxNpL34gfznQV4Pp4lagCdGyOV
-gnLJa50PuTP+61IY4dFBGfg=
-=15Z9
------END PGP SIGNATURE-----
+There should be 5 patches attached.
 
---=.Kcp?9zfM?7.av=--
 
+--=-msKd4DvGPXb8S7UegmOY
+Content-Disposition: attachment; filename=checkpolicy-makefile.patch
+Content-Type: text/x-makefile; name=checkpolicy-makefile.patch; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+--- Makefile	2003-06-03 16:50:53.000000000 -0400
++++ Makefile.new	2003-07-03 17:18:17.000000000 -0400
+@@ -4,7 +4,8 @@
+ PREFIX ?=3D ${DESTDIR}/usr
+ BINDIR ?=3D $(PREFIX)/bin
+=20
+-CFLAGS =3D -g -Wall -O2 -pipe -include global.h -I. -Iinclude
++CFLAGS =3D -g -Wall -O2
++INCLUDES =3D -include global.h -I. -Iinclude
+=20
+ OBJS =3D ebitmap.o hashtab.o symtab.o sidtab.o avtab.o policydb.o services=
+.o y.tab.o lex.yy.o queue.o write.o checkpolicy.o
+=20
+@@ -16,13 +17,13 @@
+ 	$(CC) -o $@ $^ $(LIBS)
+=20
+ %.o: %.c=20
+-	$(CC) $(CFLAGS) -o $@ -c $<
++	$(CC) $(CFLAGS) $(INCLUDES) -o $@ -c $<
+=20
+ y.tab.o: y.tab.c
+-	$(CC) $(CFLAGS) -o $@ -c $<
++	$(CC) $(CFLAGS) $(INCLUDES) -o $@ -c $<
+=20
+ lex.yy.o: lex.yy.c
+-	$(CC) $(CFLAGS) -o $@ -c $<
++	$(CC) $(CFLAGS) $(INCLUDES) -o $@ -c $<
+=20
+ y.tab.c: policy_parse.y
+ 	$(YACC) -d policy_parse.y
+
+--=-msKd4DvGPXb8S7UegmOY
+Content-Disposition: attachment; filename=libselinux-buildfixes.patch
+Content-Type: text/plain; name=libselinux-buildfixes.patch; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+--- utils/Makefile~	2003-06-12 15:31:47.000000000 -0400
++++ utils/Makefile	2003-07-03 17:26:44.000000000 -0400
+@@ -2,7 +2,8 @@
+ PREFIX ?=3D $(DESTDIR)/usr
+ BINDIR ?=3D $(PREFIX)/bin
+=20
+-CFLAGS +=3D -Wall -I../include
++CFLAGS =3D -Wall
++override CFLAGS +=3D -I../include
+ LDLIBS +=3D -L../src -lselinux -lattr
+=20
+ TARGETS=3D$(patsubst %.c,%,$(wildcard *.c))
+--- src/Makefile~	2003-06-09 15:22:57.000000000 -0400
++++ src/Makefile	2003-07-03 17:45:32.000000000 -0400
+@@ -9,7 +9,8 @@
+ TARGET=3Dlibselinux.so
+ LIBSO=3D$(TARGET).$(LIBVERSION)
+ OBJS=3D $(patsubst %.c,%.o,$(wildcard *.c))
+-CFLAGS =3D -fPIC -Wall -I../include=20
++CFLAGS =3D -Wall
++override CFLAGS +=3D -fPIC -I../include=20
+=20
+ all: $(LIBA) $(LIBSO)
+=20
+@@ -29,7 +30,6 @@
+ 	install -m 644 -o root -g root $(LIBA) $(LIBDIR)
+ 	install -m 755 -o root -g root $(LIBSO) $(LIBDIR)
+ 	cd $(LIBDIR) && ln -sf $(LIBSO) $(TARGET)
+-	/sbin/ldconfig
+=20
+ clean:=20
+ 	rm -f $(OBJS) $(LIBA) $(LIBSO) $(TARGET)=20
+
+--=-msKd4DvGPXb8S7UegmOY
+Content-Disposition: attachment; filename=newrole-includes.patch
+Content-Type: text/plain; name=newrole-includes.patch; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+--- newrole/newrole.c~	2003-06-13 10:15:54.000000000 -0400
++++ newrole/newrole.c	2003-07-03 18:08:15.000000000 -0400
+@@ -57,6 +57,7 @@
+ #include <getopt.h>               /* for getopt_long() form of getopt() */
+ #include <fcntl.h>
+ #include <string.h>
++#include <errno.h>
+ #include <selinux/selinux.h>      /* for is_selinux_enabled() */
+ #include <selinux/flask.h>        /* for SECCLASS_CHR_FILE */
+ #include <selinux/context.h>      /* for context-mangling functions */
+
+--=-msKd4DvGPXb8S7UegmOY
+Content-Disposition: attachment; filename=newrole-makefile.patch
+Content-Type: text/x-makefile; name=newrole-makefile.patch; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+--- newrole/Makefile~	2003-06-19 15:33:12.000000000 -0400
++++ newrole/Makefile	2003-07-03 18:09:29.000000000 -0400
+@@ -4,7 +4,8 @@
+ MANDIR ?=3D $(PREFIX)/share/man
+ ETCDIR ?=3D $(DESTDIR)/etc
+=20
+-CFLAGS +=3D -Wall -DUSE_PAM
++CFLAGS =3D -Wall=20
++override CFLAGS +=3D -DUSE_PAM
+ LDLIBS +=3D -lselinux -lattr -ldl -lpam -lpam_misc
+=20
+ TARGETS=3D$(patsubst %.c,%,$(wildcard *.c))
+@@ -13,6 +14,7 @@
+=20
+ install: all
+ 	test -d $(BINDIR)      || install -m 755 -o root -g root -d $(BINDIR)
++	test -d $(ETCDIR)/pam.d || install -m 755 -o root -g root -d $(ETCDIR)/pa=
+m.d
+ 	test -d $(MANDIR)/man1 || install -m 755 -o root -g root -d $(MANDIR)/man=
+1
+ 	install -m 555 -o root -g root newrole $(BINDIR)
+ 	install -m 644 -o root -g root newrole.1 $(MANDIR)/man1/
+
+--=-msKd4DvGPXb8S7UegmOY
+Content-Disposition: attachment; filename=policycoreutils-cflags.patch
+Content-Type: text/plain; name=policycoreutils-cflags.patch; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+--- load_policy/Makefile~	2003-06-03 16:50:56.000000000 -0400
++++ load_policy/Makefile	2003-07-03 17:51:02.000000000 -0400
+@@ -2,7 +2,7 @@
+ PREFIX ?=3D ${DESTDIR}/usr
+ SBINDIR ?=3D $(PREFIX)/sbin
+=20
+-CFLAGS +=3D -Wall=20
++CFLAGS =3D -Wall=20
+ LDLIBS +=3D -lselinux
+=20
+ # Build static so that we can put it on an initrd.
+--- run_init/Makefile~	2003-06-19 15:36:02.000000000 -0400
++++ run_init/Makefile	2003-07-03 17:51:20.000000000 -0400
+@@ -4,7 +4,8 @@
+ MANDIR ?=3D $(PREFIX)/share/man
+ ETCDIR ?=3D $(DESTDIR)/etc
+=20
+-CFLAGS +=3D -Wall -DUSE_PAM
++CFLAGS =3D -Wall
++override CFLAGS +=3D -DUSE_PAM
+ LDLIBS +=3D -lselinux -lattr -ldl -lpam -lpam_misc
+=20
+ TARGETS=3D$(patsubst %.c,%,$(wildcard *.c))
+--- setfiles/Makefile~	2003-06-19 15:33:14.000000000 -0400
++++ setfiles/Makefile	2003-07-03 17:51:50.000000000 -0400
+@@ -3,7 +3,8 @@
+ SBINDIR ?=3D $(PREFIX)/sbin
+ MANDIR =3D $(PREFIX)/share/man
+=20
+-CFLAGS +=3D -Wall -D_FILE_OFFSET_BITS=3D64
++CFLAGS =3D -Wall
++override CFLAGS +=3D -D_FILE_OFFSET_BITS=3D64
+ LDLIBS +=3D -lselinux -lattr
+=20
+ all: setfiles
+
+--=-msKd4DvGPXb8S7UegmOY--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
