@@ -1,59 +1,67 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i92GourT009094
-	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 12:50:56 -0400 (EDT)
-Received: from ms-smtp-01.rdc-kc.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i92GoslM003131
-	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 16:50:55 GMT
-Date: Sat, 2 Oct 2004 11:50:41 -0500
-From: Greg Norris <haphazard@kc.rr.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: need advice for ld_so_cache_t errors
-Message-ID: <20041002165041.GB30426@yggdrasil.localdomain>
-References: <20041001233554.GA26550@yggdrasil.localdomain> <200410021309.46413.russell@coker.com.au> <20041002043740.GA28765@yggdrasil.localdomain>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i92INjrT009385
+	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 14:23:45 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i92IMdnE029523
+	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 18:22:39 GMT
+Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
+	by open.hands.com (Postfix) with ESMTP id 8884EBFAC
+	for <selinux@tycho.nsa.gov>; Sat,  2 Oct 2004 19:23:37 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1CDoia-0001cj-RD
+	for selinux@tycho.nsa.gov; Sat, 02 Oct 2004 19:34:52 +0100
+Date: Sat, 2 Oct 2004 19:34:52 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: fuse + selinux
+Message-ID: <20041002183452.GA5827@lkcl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
-In-Reply-To: <20041002043740.GA28765@yggdrasil.localdomain>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+okay, i tried rewriting fuse + the fusexmp userspace program into a
+kernel module called "fsproxy".  i got as far as doing everything but
+moving the userspace-inode-allocation code into the kernel, and at
+that point i tried examining how smbfs does pseudo-and-on-demand inode
+creation, and it's all gone slightly pear-shaped.
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+fuse really doesn't do a good job of allocating inodes because
+the code does the allocation in userspace instead of using a
+dentry-to-inode thing what like it _should_ be doing.
 
-I'm not sure if this will help, but here's a quick look at the generated=20
-rules.  There are a lot more entries, of course, but they all seem to be=20
-granting the exact same privileges against ld_so_cache_t (except for=20
-ldconfig_t itself, of course).
 
-   $ grep ld_so_cache_t policy.conf | head -5
-   # ld_so_cache_t is the type of /etc/ld.so.cache.
-   type ld_so_cache_t, file_type, sysadmfile;
-   allow sysadm_t ld_so_cache_t:file { read getattr lock ioctl };
-   allow sysadm_chkpwd_t ld_so_cache_t:file { read getattr lock ioctl };
-   allow sysadm_mail_t ld_so_cache_t:file { read getattr lock ioctl };
+so what i have gone back to is the original hacks to fuse... but adding
+in-kernel redirection of any xattr calls to the same locations that the
+fusexmp code does.
 
-Could you check one of your Debian machines, and see if "execute" is=20
-being included somehow?  I'm not sure how we'd have different results,=20
-tho, as I'm using your selinux-policy-default package (1.14-2).
+so what i have is a partial hacked combination of userspace +
+kernelspace which i could really do without... but it works, it actually
+works.
 
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+so, bearing that in mind, i have a question:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+if i view an autofs-mount point /media through the real filesystem, it
+shows up as (null) selinux permissions.
 
-iD8DBQFBXtxhgrEMyr8Cx2YRAuS8AJwOXlVCRhGjLa7D/dgZcLV4ZVL6IACg3hCs
-mgbyiEv68TzXTEjJ6TWA0bs=
-=xc6O
------END PGP SIGNATURE-----
+if i view the same mount mount through my modified-fuse system [which
+is a bit like mount --rbind /Documents / only with a totally different
+inode set] the same point - /Documents/media - shows up as unlabeled_t.
 
---yrj/dFKFPuw6o+aM--
+could the reason for that be that my code is, instead of showing the
+filesystem that is mounted on /media, it's showing the _mountpoint_?
+
+l.
+
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
