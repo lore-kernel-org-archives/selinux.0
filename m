@@ -1,49 +1,42 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82JOHrT002326
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:24:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82JbMrT002449
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:37:23 -0400 (EDT)
 Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82JNM3w006872
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 19:23:27 GMT
-Date: Thu, 2 Sep 2004 18:19:35 +0100
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82JaP3w008036
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 19:36:33 GMT
+Date: Thu, 2 Sep 2004 20:48:22 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: fedora-selinux-list@redhat.com, Linas Vepstas <linas@austin.ibm.com>,
-   Nigel Kukard <nkukard@lbsd.net>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: [OT] SELinux vs. other systems [was Re: [idea] udev + selinux]
-Message-ID: <20040902171935.GH5745@lkcl.net>
-References: <20040830173744.GD10151@lbsd.net> <20040831191809.GC4375@lkcl.net> <20040831224447.GA4964@austin.ibm.com> <200409022215.20830.russell@coker.com.au>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Russell Coker <russell@coker.com.au>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Latest Patches
+Message-ID: <20040902194822.GI5745@lkcl.net>
+References: <200408241818.40064.russell@coker.com.au> <1093640295.24188.29.camel@moss-lions.epoch.ncsc.mil> <200408282346.05926.russell@coker.com.au> <1093897455.3227.6.camel@moss-lions.epoch.ncsc.mil> <41371628.2020408@redhat.com> <1094129654.17265.30.camel@moss-spartans.epoch.ncsc.mil> <41373AEE.1040206@redhat.com> <1094139993.17265.232.camel@moss-spartans.epoch.ncsc.mil> <41374200.3000005@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200409022215.20830.russell@coker.com.au>
+In-Reply-To: <41374200.3000005@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 02, 2004 at 10:15:20PM +1000, Russell Coker wrote:
+On Thu, Sep 02, 2004 at 11:53:36AM -0400, Daniel J Walsh wrote:
 
-> > Compare that to this thread, where we are talking about atomic vs.
-> > non-atomic restoration of context for udev-mounted temp file systems.
-> > Shudder. This seems to be begging for an exploit to be discovered.
-> > Are we sure that SELinux is really on the right track here?
-> 
-> The original udev implementation had the device nodes relabelled after 
-> creation.  As of recent times (since 2002) the default SE Linux policy has 
-> denied almost all domains (only two system domains) access to device nodes 
-> labelled as device_t.  This means that there is no window of opportunity for 
-> an attacker to access a device before it is correctly labelled.
-> 
-> The worst race condition attack would be a DOS attack, cause an access at the 
-> wrong time and have it be denied when otherwise it would be permitted.  This 
-> is the least serious of all possible problems related to device labelling.
+> >That doesn't make it correct.  You can't just change the existing
+> >labeling behavior and superblock type for the tmpfs internal mount for
+> >shmem.  As per prior discussions on this list with Luke, you want to:
+> >- mount tmpfs on /dev with fscontext=system_u:object_r:device_t (James
+> >sent Arjan the necessary patch for that along with the xattr handler
+> >based on the earlier patches by Luke)
+> > 
+> >
+> We can't do that because the file system is mounted in the initrd before 
+> context is loaded
 
- ... and with the use of matchpathcon() followed by setfscreatecon(),
- it isn't even that: inode, symlink and directory
- creation-plus-filecontext-setting are done as an atomic operation.
+ um.  why?  *curious*.
 
- problem goes away.
+ i mean, why mount the /dev filesystem in the initrd ?
 
- the _old_ selinux udev support (0.024), on the other hand, suffered
- from the big-deal-DOS-attack that russell describes above.
-
+ and, also, why before running /sbin/init? [hope i'm right about that]
+ 
  l.
 
 
