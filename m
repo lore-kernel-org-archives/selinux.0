@@ -1,23 +1,23 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59LiBrT023064
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 17:44:12 -0400 (EDT)
-Received: from smtp800.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i59Li9Qd016961
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 17:44:09 -0400 (EDT)
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59MOvrT023283
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 18:24:57 -0400 (EDT)
+Received: from smtp801.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i59MOqP2029150
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 18:24:52 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp800.mail.ukl.yahoo.com with SMTP; 9 Jun 2004 21:44:06 -0000
+  by smtp801.mail.ukl.yahoo.com with SMTP; 9 Jun 2004 22:24:51 -0000
 Received: from highfield ([192.168.0.223] helo=lkcl.net)
 	by hyd with esmtp (Exim 4.34)
-	id 1BYAEC-0001dB-25
-	for selinux@tycho.nsa.gov; Wed, 09 Jun 2004 21:03:20 +0000
+	id 1BYArc-0001dO-Du
+	for selinux@tycho.nsa.gov; Wed, 09 Jun 2004 21:44:04 +0000
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BYAp4-0004up-5r
-	for selinux@tycho.nsa.gov; Wed, 09 Jun 2004 21:41:26 +0000
-Date: Wed, 9 Jun 2004 21:41:26 +0000
+	id 1BYBST-0004z3-U1
+	for selinux@tycho.nsa.gov; Wed, 09 Jun 2004 22:22:09 +0000
+Date: Wed, 9 Jun 2004 22:22:09 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Message-ID: <20040609214126.GF5727@lkcl.net>
+Subject: [debian] - installation of mysqld requires chfn
+Message-ID: <20040609222209.GH5727@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
@@ -25,30 +25,34 @@ List-Id: selinux@tycho.nsa.gov
 
 hi,
 
-debian's postfix init.d script does a whole stackload of
-things like copy over /etc/localtime, /etc/services.
+i just installed (or tried to install) mysql-server with enforcing=1
+switched on.
 
-it's rather scary.
+it failed because of adding the mysql user and the use of
+"chfn" to change the name to "MySql Server" in /etc/passwd.
 
-... and it doesn't work.
+i added the can_exec chfn_exec_t into domains/programs/dpkg.te:
 
-by disabling the chroot (setting SYNC_CHROOT="") i managed
-to get postfix to start (and it works)
+	# mysqld is broken too
+	ifdef(`mysqld.te', `
+	can_exec(dpkg_t, chfn_exec_t)
+	domain_auto_trans(dpkg_t, mysqld_exec_t, mysqld_t)
+	can_unix_connect(dpkg_t, mysqld_t)
+	allow mysqld_t dpkg_tmp_t:file { getattr read };
+	')
 
-i don't know if i was supposed to have these enabled, but
-i have added them to the end of the postfix.te file (which
-came up during an "enforcing=no" boot)
+... but as it turns out, i can't use chfn at all (it doesn't
+have permission to write to /etc/shadow - this is version
+passwd-4.0.3-8.selinux1 from dan walters) so again i had to
+reboot with "enforcing=0".
 
-	allow postfix_cleanup_t postfix_cleanup_t:capability { sys_chroot };
-	allow postfix_local_t mail_spool_t:dir { remove_name };
-	allow postfix_local_t mail_spool_t:file { create unlink };
-	allow postfix_master_t postfix_master_t:capability { sys_chroot };
-	allow postfix_pickup_t postfix_pickup_t:capability { sys_chroot };
-	allow postfix_qmgr_t postfix_qmgr_t:capability { sys_chroot };
+so, summary:
 
+1) patch to dpkg.te needed to get mysqld to install.
 
-p.s. yes i tried an exim4 setup with those execve child renaming
-tricks and it's all got horribly pear-shaped...
+2) there's something i don't understand about why chfn is failing.
+
+l.
 
 -- 
 -- 
