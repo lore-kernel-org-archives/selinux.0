@@ -1,58 +1,90 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h64K2OHa006942
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 16:02:24 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h64K1UnJ010513
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 20:01:31 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h674POHa011347
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2003 00:25:25 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h674PHH5008461
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2003 04:25:17 GMT
 Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
-	by jazzswing.ncsc.mil  with ESMTP id h64K1Uhr010510
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jul 2003 20:01:30 GMT
-Received: from columbia (h-66-134-23-16.SFLDMIDN.covad.net [66.134.23.16])
-	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
-	(Client CN "columbia.verbum.org", Issuer "verbum.org CA" (verified OK))
-	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id CD12141402D
-	for <selinux@tycho.nsa.gov>; Fri,  4 Jul 2003 16:02:38 -0400 (EDT)
-Subject: Re: build patches for checkpolicy, libselinux, policycoreutils
+        by jazzband.ncsc.mil  with ESMTP id h674PHRX008458 for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2003 04:25:17 GMT
+Subject: rssh.{te,fc}
 From: Colin Walters <walters@verbum.org>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1057271791.24843.13.camel@columbia>
-References: <1057271791.24843.13.camel@columbia>
-Content-Type: multipart/mixed; boundary="=-rBNECZCsuUs8rFxmzh0L"
-Message-Id: <1057299613.31326.9.camel@columbia>
+To: SE Linux <selinux@tycho.nsa.gov>
+Cc: Russell Coker <russell@coker.com.au>
+Content-Type: multipart/mixed; boundary="=-47VJpgPtu7NHM8rcP/tP"
+Message-Id: <1057551740.1241.10.camel@columbia>
 Mime-Version: 1.0
-Date: 04 Jul 2003 02:20:13 -0400
+Date: 07 Jul 2003 00:22:20 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-rBNECZCsuUs8rFxmzh0L
+--=-47VJpgPtu7NHM8rcP/tP
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Oops, sorry, the first patch (for checkpolicy) was not the correct fix. 
-An updated patch is attached.
+I've written a quick rssh.te; this is for the rssh program:
+http://pizzashack.org/rssh/
 
+Basically rssh is a restricted shell that just allows people to execute
+scp.
 
---=-rBNECZCsuUs8rFxmzh0L
-Content-Disposition: attachment; filename=makefile-cflags.patch
-Content-Type: text/x-makefile; name=makefile-cflags.patch; charset=UTF-8
+This is my first from-scratch .te file, so I'd appreciate if people
+could give it a sanity check.  To set this all up, I added another user
+(in this case named haskelluser), then added:
+
+user haskelluser roles { rssh_r };
+
+to /etc/selinux/users.  Make sense?
+
+--=-47VJpgPtu7NHM8rcP/tP
+Content-Disposition: attachment; filename=rssh.te
+Content-Type: text/plain; name=rssh.te; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
---- Makefile~	2003-07-03 17:52:32.000000000 -0400
-+++ Makefile	2003-07-04 02:17:24.000000000 -0400
-@@ -4,7 +4,8 @@
- PREFIX ?=3D ${DESTDIR}/usr
- BINDIR ?=3D $(PREFIX)/bin
-=20
--CFLAGS =3D -g -Wall -O2 -pipe -include global.h -I. -Iinclude
-+CFLAGS =3D -g -Wall -O2 -pipe
-+override CFLAGS +=3D -include global.h -I. -Iinclude
-=20
- OBJS =3D ebitmap.o hashtab.o symtab.o sidtab.o avtab.o policydb.o services=
-.o y.tab.o lex.yy.o queue.o write.o checkpolicy.o
-=20
+#DESC Rssh - Restricted (scp/sftp) only shell
+#
+# Authors: Colin Walters <walters@verbum.org>
+# X-Debian-Package: rssh
+#
 
---=-rBNECZCsuUs8rFxmzh0L--
+type rssh_t, domain, privlog, privfd;
+
+role rssh_r types rssh_t;
+allow system_r rssh_r;
+
+type rssh_exec_t, file_type, sysadmfile, exec_type;
+type rssh_archive_t, file_type, sysadmfile;
+type rssh_home_t, file_type, sysadmfile;
+
+general_domain_access(rssh_t);
+uses_shlib(rssh_t);
+base_file_read_access(rssh_t);
+r_dir_file(rssh_t, etc_t);
+r_dir_file(rssh_t, etc_runtime_t);
+r_dir_file(rssh_t, locale_t);
+can_exec(rssh_t, bin_t);
+
+r_dir_file(rssh_t, rssh_home_t);
+rw_dir_create_file(rssh_t, rssh_archive_t);
+
+ifdef(`ssh.te',`
+allow rssh_t sshd_t:fd use;
+allow rssh_t sshd_t:tcp_socket rw_stream_socket_perms;
+allow rssh_t sshd_t:unix_stream_socket rw_stream_socket_perms;
+domain_auto_trans(sshd_t, rssh_exec_t, rssh_t);
+r_dir_file(sshd_t, rssh_home_t);
+')
+
+
+--=-47VJpgPtu7NHM8rcP/tP
+Content-Disposition: attachment; filename=rssh.fc
+Content-Type: text/plain; name=rssh.fc; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+# rssh
+/usr/bin/rssh			system_u:object_r:rssh_exec_t
+
+--=-47VJpgPtu7NHM8rcP/tP--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
