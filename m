@@ -1,66 +1,39 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i88DWfrT003384
-	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 09:32:41 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i88DVkR0028509
-	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 13:31:47 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: debian-devel@lists.debian.org
-Subject: Re: dpkg and selinux
-Date: Wed, 8 Sep 2004 23:32:36 +1000
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   Scott James Remnant <scott@netsplit.com>, SE-Linux <selinux@tycho.nsa.gov>,
-   Dpkg Development <debian-dpkg@lists.debian.org>
-References: <20040831234115.GZ4375@lkcl.net> <200409072220.53751.russell@coker.com.au> <20040907123930.GD17760@lkcl.net>
-In-Reply-To: <20040907123930.GD17760@lkcl.net>
+Message-ID: <413F1DD8.2000201@redhat.com>
+Date: Wed, 08 Sep 2004 10:57:28 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409082332.36104.russell@coker.com.au>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Patch to make udev/tmpfs work and changes from colin  walters
+ for dbus.
+References: <413E1DE0.9050905@redhat.com> <1094645825.20215.33.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1094645825.20215.33.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 7 Sep 2004 22:39, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > This is already catered for.  The only move which could lose the SE Linux
-> > context is one that crosses file systems.  This doesn't work for package
-> > installation anyway (imagine if /bin/bash or /usr/bin/perl was being
-> > replaced and half way through copying over the new file there was a power
-> > failure).
+Stephen Smalley wrote:
+
+>On Tue, 2004-09-07 at 16:45, Daniel J Walsh wrote:
+>  
 >
->  so... if i have /usr, /var, / and /boot on separate partitions, and move
->  files around, is the selinux context lost or kept?
-
-It's kept by default with the modified coreutils.  Other programs that perform 
-similar functions to mv will operate differently.
-
-> > >  2) the linux kernel could be "prepped" by the functions in libselinux
-> > >      such that the correct file contexts be applied at move time (i
-> > > think!)
-> >
-> > No kernel changes.
+>>Adding
+>>
+>>restorecon /dev /dev/null
+>>restorecon /dev/*
+>>    
+>>
 >
->  [i mean by using libselinux1 in standard way]
-
-Yes, we can make dpkg call functions in libselinux1.
-
-> > >  well, under most circumstances, i believe that can be catered for
-> > >  (with /etc/init.d/xfs creating /tmp/.font-unix being a notable
-> > >   exception).
-> >
-> > test -s /sbin/restorecon && /sbin/restorecon /tmp/.font-unix
+>Adding them where?  If you do this from /sbin/init immediately after the
+>initial policy load, then I would have expected that you wouldn't need
+>to insert tmpfs_t in as many places, as only init and restorecon would
+>then need to temporarily access /dev while it was still labeled tmpfs_t.
 >
->  (in /etc/init.d/xfs i've used if [ -x /sbin/restorecon ]; then /sbin....
->   but hey it's all the same)
-
-Yes.  Now we just need to get that into the init script.  Please file an 
-appropriate bug report requesting that either method be used.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+>  
+>
+It is the fealing here to keep the init program as simple as possible 
+for maintainability, bugs in it are very difficult to debug, so the
+restorecon will remain in the rc.sysinit scripts.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
