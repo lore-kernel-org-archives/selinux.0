@@ -1,60 +1,54 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAJCLfRb017476
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 07:21:41 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAJDf3Rb017753
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 08:41:03 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAJCLeqY026796
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 12:21:40 GMT
-Received: from smtp01.net-yan.com (smtp01.net-yan.com [210.0.255.210])
-        by jazzband.ncsc.mil  with ESMTP id hAJCLZ0o026776 for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 12:21:39 GMT
-Received: from unknown (HELO samgpj2wzuimme) (samwun@hgcbroadband.com@[218.189.140.202])
-          (envelope-sender <samwun@hgcbroadband.com>)
-          by localhost (qmail-ldap-1.03) with SMTP
-          for <selinux@tycho.nsa.gov>; 19 Nov 2003 12:21:29 -0000
-From: "samwun" <samwun@hgcbroadband.com>
-To: "'SELinux ML'" <selinux@tycho.nsa.gov>
-Subject: RE: where to download LSM-patched 2.4 
-Date: Wed, 19 Nov 2003 20:23:12 +0800
-Message-ID: <013601c3ae97$e658a650$5801a8c0@samgpj2wzuimme>
+	by jazzband.ncsc.mil  with ESMTP id hAJDf1qY029704
+	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 13:41:01 GMT
+Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id hAJDet0o029695 for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 13:41:01 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "samwun" <samwun@hgcbroadband.com>, "'SELinux ML'" <selinux@tycho.nsa.gov>
+Subject: Re: where to download LSM-patched 2.4
+Date: Thu, 20 Nov 2003 00:40:43 +1100
+References: <013601c3ae97$e658a650$5801a8c0@samgpj2wzuimme>
+In-Reply-To: <013601c3ae97$e658a650$5801a8c0@samgpj2wzuimme>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <1069238207.1811.11.camel@kola localhost>
+  charset="iso-8859-1"
+Message-Id: <200311200040.43270.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dear all,
+On Wed, 19 Nov 2003 23:23, "samwun" <samwun@hgcbroadband.com> wrote:
+> Before I used LSM 2.4 selinux source, I encountered problem when I was
+> trying to install SELinux.
+> The problem is the SELinux kernel is able to loaded up after a reboot,
+> but
+> whenever issuing a command
+> "ls --context" or whatever other SELinx related command options, it
+> always
+> said that the command ooptions needs SELinux kernel to support,  but I
+> have
 
-Where can I download LSM-patched 2.4 for lsm-2.4-selinux-2003040709.tgz
-kernel source?
+The most likely explanation for this is that the version of the SE Linux 
+kernel code and the version of the user-space code does not match.  There are 
+two major versions of SE Linux in use, the old SE Linux has 52 system calls 
+multiplexed over the LSM system call.  The new SE Linux uses XATTR's and file 
+read/write operations on selinuxfs and /proc/pid/attr/*.  As the operation of 
+these versions of SE Linux is very different there are no programs that can 
+support both (it would be possible to write a program that supports both, but 
+no-one has done so).
 
-Before I used LSM 2.4 selinux source, I encountered problem when I was
-trying to install SELinux.
-The problem is the SELinux kernel is able to loaded up after a reboot,
-but
-whenever issuing a command
-"ls --context" or whatever other SELinx related command options, it
-always
-said that the command ooptions needs SELinux kernel to support,  but I
-have
-verified the /var/log/messages file and uname command telling the
-SELinux
-kernel is loaded successfully. What could be missing from my
-installation?
+Does /proc/filesystems have an entry for "selinuxfs"?  If so you are running 
+the kernel for the new SE Linux, if not then you are running the old SE 
+Linux.
 
-That's why I decided to use LSM selinux source instead the one from
-http://www.nsa.gov/selinux/download.html
-
-I downloaded LSM source from
-http://www.hakin9.org/fr/attachments/nr1/materials/selinux/download/
-
-What are the difference between the LSM source with the one from nsa?
-
-Is there any updated document about how to install selinux on kernel
-2.4?
-
-Thanks
-Sam
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
