@@ -1,51 +1,59 @@
-Date: Sun, 26 May 2002 23:00:19 +0200
-From: Tom <tom@lemuria.org>
-To: SELinux@tycho.nsa.gov
-Subject: Re: RH cds from RH Linux 7.2 Bible Unlimited Ed.
-Message-ID: <20020526230019.C28410@lemuria.org>
-References: <200205261433.g4QEXLQ21791@mail2.iserv.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200205261433.g4QEXLQ21791@mail2.iserv.net>; from tgland@iserv.net on Sun, May 26, 2002 at 10:40:55AM -0400
+Return-Path: <owner-selinux@tycho.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA01151
+	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 03:12:05 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id HAA16339
+	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 07:12:00 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id HAA16335
+	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 07:11:59 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Debian User <rogelio@evoworks.evoserve.com>
+Subject: Re: new Debian package
+Date: Sun, 26 May 2002 09:11:52 +0200
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <20020525195638.734D015EB@lyta.coker.com.au> <3CF03C25.1050803@evoworks.evoserve.com> 
+MIME-Version: 1.0
+Message-Id: <20020526071153.488F71C0F@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, May 26, 2002 at 10:40:55AM -0400, Thomas G Land wrote:
-> I think it is just a matter of time before linux becomes popular enough to be 
-> a better target for the bad guys. Especially default installs. 
+On Sun, 26 May 2002 08:45, Russell Coker wrote:
+> On Sun, 26 May 2002 03:36, Debian User wrote:
+> > >I've just uploaded a new Debian package, this one has the latest patches
+> > > and new policy that works a lot better.  I now have a Debian machine
+> > > running in enforcing mode with a policy that is not much different from
+> > > the default in my package.  It's running as an ADSL gateway machine
+> > > (pppoatm with SpeedTouch USB driver), a web server, and has the courier
+> > > POP server running.
+> > >
+> > >As the basic stuff is working it won't be too difficult for you to add
+> > >support for other daemons etc.
+> >
+> > I tried it just now policy compilation fails with:
+> >
+> > /usr/sbin/checkpolicy -o policy.9 policy.conerror in the statement
+> > ending on line 13924 (token ';'): unknown type ipsec_file_t
+> >
+> > /usr/sbin/checkpolicy: error(s) encountered while parsing configuration
+>
+> This means that some file you are using has a rule involving the
+> ipsec_file_t while you have not included the ipsec.te file.  Including
+> ipsec.te is one way of solving the problem, but a better solution (if you
+> don't want ipsec) is to find the file in question and fix it.
 
-don't worry, it already is. I've seen mass scans and automated exploits
-for a ton of Linux holes already.
-
-
-> 1) Does any one know if this RH cd version can be used with selinux?
-
-it should. any missing packages can be downloaded from the net.
-
-
-> 2) RH 7.3 is all I can find in the stores here. Should I get that and wait 
-> for selinux to catch up?
-
-sorry, can't answer that one.
-
-
-> 3) Is selinux generally only to be used by very experienced people.
-
-right now, yes. but it's getting better. I've found Russell's latest
-releases (haven't tried the very latest yet) very easy to setup, and
-with the tools coming around now, it's getting easier to write a policy
-and all that.
-
-the main problem is understanding the flask concept. it took me three
-readings to get it down, and I'm still somewhat unsure about the
-details.
-
+As a follow up to this, that turned out to be a bug in my sample policy.  
+Just remove the lines in question from initrc.te.
 
 -- 
-New GPG Key issued (old key expired):
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
