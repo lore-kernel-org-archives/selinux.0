@@ -1,50 +1,66 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2LFxhx6022574
-	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 10:59:43 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h2LFwMR1019755
-	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 15:58:22 GMT
-Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h2LFwMj9019752 for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 15:58:22 GMT
-Message-Id: <200303211604.LAA20617@moss-shockers.ncsc.mil>
-Date: Fri, 21 Mar 2003 11:04:32 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: SE-Linux and 2.4.20
-To: selinux@tycho.nsa.gov, bam@snoopy.apana.org.au
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2LGWfx6022745
+	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 11:32:42 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h2LGTClY022839
+	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 16:29:12 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h2LGT9KX022832
+	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 16:29:10 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id 88B51BF44
+	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 03:32:36 +1100 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 17568-04
+ for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 03:32:35 +1100 (EST)
+Received: from tsv.sws.net.au (unknown [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 43796BF41
+	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 03:32:35 +1100 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id E38D19253C
+	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 03:32:36 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id E4E866C5E
+	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 17:32:26 +0100 (CET)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: executables under /usr/share
+Date: Fri, 21 Mar 2003 17:32:25 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200303211732.26002.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+In correctly labelling the files on a SE Linux system I have come across one 
+significant problem, executables under /usr/share.
 
-Brian May wrote:
-> I have found I simply cannot use a 2.4.20 kernel with SE-Linux
-> support on my laptop computer with out it "hanging" after a while.
-> 
-> By this I mean random processes hang, and cannot be killed, even with
-> kill -9, and rebooting doesn't work.
-> 
-> Combinations tested:
-> 
-> 2.4.19 + older selinux patch (v12) = OK
-> 2.4.20 with SE-Linux (accidently) disabled = OK
-> 2.4.20 with new SE-Linux patch (v12) = crashed before 30 minutes.
-> (was doing nothing but downloading files at the time with apt-get).
-> 
-> In all cases I have the same policy installed.
-> 
-> Any ideas on how to debug this problem further?
+Many packages want to install such executables and expects that they can be 
+executed by regular users, cron jobs, and/or daemons.
 
-I haven't seen this behavior myself.  Was there anything useful in
-/var/log/messages or the dmesg output, e.g. a kernel Oops message?  As
-a reminder, we don't incorporate other bug fix patches in the
-LSM/SELinux patches, so you do need to apply any other bug fix patches
-that you want for the base kernel, e.g. the ext3 fixes for 2.4.20.
+Labelling them correctly is unreasonably difficult with the current 
+file_contexts method as there is no coherent naming scheme, and I would have 
+to list all the files individually.
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+The only practical solutions at the moment seem to be the following:
+
+1)  Label all files with the execute bit set under /usr/share as bin_t.
+
+2)  Allow execute access to usr_t.
+
+3)  Create a new share_t type of file that user_t and user_crond_t can execute 
+and label all files under /usr/share with it.
+
+
+If anyone has any better ideas then I would be very interested to hear them.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
