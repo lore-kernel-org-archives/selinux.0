@@ -1,61 +1,54 @@
-Message-ID: <005901c1518a$48d3c7a0$0101000a@praefect>
-From: "Julien Palardy" <palj@praefect-sys.com>
-To: "Carl Carpenter" <ccarpenter@hillcountry.org>,
-        "SELinux" <SELinux@tycho.nsa.gov>
-References: <DIECIJMLKGOOCPBJIBKJAELJCEAA.ccarpenter@hillcountry.org>
-Subject: Re: Problems with eth0
-Date: Wed, 10 Oct 2001 14:47:36 +0200
+Date: Wed, 10 Oct 2001 15:04:53 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Jon Crowley <jonathan@mitre.org>
+cc: Frank Mayer <mayerf@tresys.com>, <SELinux@tycho.nsa.gov>,
+        <slinux@scotty.mitre.org>
+Subject: Re: Security policy analysis
+In-Reply-To: <3BC47F1C.B24952C4@mitre.org>
+Message-ID: <Pine.GSO.4.33.0110101456450.16839-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have been working on kernel-lsm with both SELinux patch and kernel module,
-and in both ways there does not seem to be any problem with the network
-interfaces.
 
-Maybe you should take a look at your kernel config. May have missed a driver
-or something.
+On Wed, 10 Oct 2001, Jon Crowley wrote:
 
-And yes, you do see good. SELinux provides terrific security ;)
+> Steve also suggested incorporating these functions into checkpolicy.
+> With the interactive query front-end, this would become the policy
+> analysis tool.  However, our take on checkpolicy is that it is intended
+> to compile policies and to assist in debugging specific to security
+> identifiers.  We are thinking it might be cleaner to keep policy
+> analysis tools separate from a policy compiling/debugging tool.  Though
+> perhaps we have the wrong take on checkpolicy.  More thoughts on this?
 
----
-Julien Palardy <palj@praefect-sys.com>
-1AC7 1DB0 FEA6 93C2 6731  0AB1 07BA B3C7 458E E234
+The -d option to the checkpolicy progam can be used to determine how the
+security server would respond if it were using the policy without actually
+loading the policy into the kernel security server.  Currently, it simply
+allows you to exercise the security server functions, which are
+essentially primitive queries on the policy.  I don't see why you wouldn't
+want to add additional support for more complex queries to it.  Creating
+separate tools (with their own code and data structures) will make
+maintenance harder and increase the likelihood that the policy analysis
+tools will have a different interpretation of the policy than the security
+server.
+
+> The problem with building a separate tool is that both tools will share
+> some of the same code.  Does it makes sense to pull out commonly-used
+> code in checkpolicy, specifically the code that reads in the binary and
+> text versions of the policy into data structures, and put this code into
+> some sort of library?  It seems this code may be useful to future
+> applications, and it would be easier to maintain and more accessible if
+> it was in a library.
+
+This could be done, but it isn't necessary if you merge your tools into
+checkpolicy.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-> I have discovered how SELinux provides such terrific security--it doesn't
-> load the eth0 drivers, thereby keeping the server off the network.
-> Seriously, I have a problem when running the SELinux kernel in that the
-eth0
-> module can't be found during bootup (modprobe:  can't locate module eth0).
-> I'm running 2.4.10-lsm on RH 7.1 (I386).  It works fine in normal mode.  I
-> followed the install instructions step-for-step, selecting the preferred
-> method of building the SELinux module as part of the kernel.  If I got any
-> error messages, I didn't see them with all the other messages on the
-screen.
-> I'm fairly new to Linux, so this may be an easy fix, but it's beyond me at
-> the moment.  Thanks in advance for any help.
->
-> Carl Carpenter
-> IT Manager
-> Hill Country Community MHMR Center
-> "Hiroshima 1945, Chernobyl 1986, Windows 2000"
->
-> ---
-> Outgoing mail is certified Virus Free.
-> Checked by AVG anti-virus system (http://www.grisoft.com).
-> Version: 6.0.285 / Virus Database: 151 - Release Date: 10/5/2001
->
->
->
-> --
-> You have received this message because you are subscribed to the selinux
-list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
