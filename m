@@ -1,33 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h77Jf9Ha002458
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2003 15:41:10 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h77JERTZ004871
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2003 19:41:03 GMT
-Received: from zok.sgi.com (zok.sgi.com [204.94.215.101])
-        by jazzband.ncsc.mil  with ESMTP id h77HqweN000959 for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2003 17:52:59 GMT
-Date: Thu, 7 Aug 2003 10:51:47 -0700 (PDT)
-From: Casey Schaufler <casey@anchovy.engr.sgi.com>
-Message-Id: <200308071751.h77HplDV009169@anchovy.engr>
-To: russell@coker.com.au, Florian Weimer <fw@deneb.enyo.de>
-Subject: Re: Fwd: [JS] Suse on IBM eServer achieves EAL2+ security
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200308061046.16095.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h77Kk6Ha003049
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2003 16:46:06 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h77KioOD024792
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2003 20:44:50 GMT
+Received: from gw.enyo.de (sinma-gmbh.17.mind.de [212.21.92.17])
+	by jazzswing.ncsc.mil  with ESMTP id h77KinKO024788
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2003 20:44:49 GMT
+To: "David Eaves" <deaves@plansys.com>
+Cc: <selinux@tycho.nsa.gov>
+Subject: Re: Fw: [ISN] IBM earns Linux certification
+References: <01d001c35d11$ca9deb00$6418a8c0@PSIMONT2>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Thu, 07 Aug 2003 22:45:45 +0200
+In-Reply-To: <01d001c35d11$ca9deb00$6418a8c0@PSIMONT2> (David Eaves's
+ message of "Thu, 7 Aug 2003 11:29:08 -0700")
+Message-ID: <87brv1w612.fsf@deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+"David Eaves" <deaves@plansys.com> writes:
 
-> ... that is, no ACLs on anything ...
+> The Windows product lines already have EAL4+ (what the plus means I
+> don't know)
 
-Believe it or not, ACLs are a very minor feature.
-They provide descretionary access control, a
-facility for which mode bits are (close to)
-sufficent. The big thing required by all relevent
-protection profiles is the security audit trail.
+EAL 4 plus flaw remediation procedures.
 
+> versus CAPP, which as a protection profile is next to worthless from
+> my pov.
 
-Casey Schaufler				Manager, Trust Technology, SGI
-casey@sgi.com				650.933.1634
+I agree.
+
+> Solutions I need will have to address the MDSPP and MNISPP profiles, which
+> are much wider in scope and more difficult to assure.
+
+Are the profiles already fully defined and available for
+certification, and can they be applied to software which wasn't
+designed from the beginning to meet those criteria?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
