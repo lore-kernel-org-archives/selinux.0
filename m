@@ -1,59 +1,54 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i912ATrT028605
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 22:10:29 -0400 (EDT)
-Received: from smtp807.mail.sc5.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i9129Nng022442
-	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 02:09:24 GMT
-Mime-Version: 1.0 (Apple Message framework v619)
-In-Reply-To: <200410010510.41928.russell@coker.com.au>
-References: <C21693A0-1240-11D9-B045-000A95EED7F6@nall.com> <200410010510.41928.russell@coker.com.au>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <03D69134-134F-11D9-B045-000A95EED7F6@nall.com>
-From: Joe Nall <joe@nall.com>
-Subject: Re: Representing releasibilities in SELinux
-Date: Thu, 30 Sep 2004 21:10:07 -0500
-To: SELinux Mail List <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i919DVrT029973
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 05:13:32 -0400 (EDT)
+Received: from web51503.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i919CQ4L029048
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 09:12:26 GMT
+Message-ID: <20041001091332.34378.qmail@web51503.mail.yahoo.com>
+Date: Fri, 1 Oct 2004 02:13:32 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: purpose of the staff_r role?
+To: ram25@gwu.edu
+Cc: selinux@tycho.nsa.gov, russell@coker.com.au
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1804137939-1096622012=:33690"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--0-1804137939-1096622012=:33690
+Content-Type: text/plain; charset=us-ascii
 
-On Sep 30, 2004, at 2:10 PM, Russell Coker wrote:
+Thu, 30 Sep 2004 18:54 Kodungallur Varma wrote:
+ 
+>I am pretty new to selinux. I was setting up a selinux machine. I 
+>installed the OS and I installed the latest packages policy packages 
+>with the 'yum' command. I later rebooted with the enforcing=0 option 
+>during the boot. I later 'make relabel' ed it. I rebooted the machine >again with the enforcing=0 mode and checked the /var/log/messages >for avc:access denied messages. there are too many of them and I >just dont know how to fix them. any help on this would be excellent. 
 
-> On Thu, 30 Sep 2004 03:55, Joe Nall <joe@nall.com> wrote:
->> We have an application that we are considering porting from a
->> Compartmented Mode Workstation (like Trusted Solaris) to SELinux. One 
->> of
->> the issues we need to address is representing releasability 
->> information.
->> We have a significant amount of data that is current marked with
->> variations of 'releasable to country1, country2 and country3'. Data
->> marked like this is releasable to any permutation of the countries
->> involved. There are a few hundred countries, so any approach needs
->> to scale to that level.
->
-> In SE Linux every process has exactly one domain and every resource 
-> that a
-> process may access (IE file) has exactly one type.
->
-> If you had options to release to 5 different groups (EG continents) 
-> then you
-> could have 2^5-1 types to represent all the different combinations.
-> Obviously having 2^200-1 types isn't going to work though.
+After installed the packages policy packages, You'd better reboot in singleuser mode, and then try 'make relabel'.
+ 
+Hope this helps,
+ 
+Park Lee
 
-Exactly my problem :) I'm hoping that those with a better understanding 
-of
-Flask can help me recast the problem into something more reasonable.
+		
+---------------------------------
+Do you Yahoo!?
+vote.yahoo.com - Register online to vote today!
+--0-1804137939-1096622012=:33690
+Content-Type: text/html; charset=us-ascii
 
-> How do you do this on Trusted Solaris?  Does TSOL support multiple 
-> labels on
-> one object?
-
-There is a MAC label type with a bitmap for releasabilities. This 
-bitmap can
-represent membership in many 'country' domains.
-
-joe
-
+<DIV>Thu, 30 Sep 2004 18:54 Kodungallur Varma wrote:</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&gt;I am pretty new to selinux. I was setting up a selinux machine. I <BR>&gt;installed the OS and I installed the latest packages policy packages <BR>&gt;with the 'yum' command. I later rebooted with the enforcing=0 option <BR>&gt;during the boot. I later 'make relabel' ed it. I rebooted the machine &gt;again with the enforcing=0 mode and checked the /var/log/messages &gt;for avc:access denied messages. there are too many of them and I &gt;just dont know how to fix them. any help on this would be excellent. <BR></DIV>
+<DIV>After installed the packages policy packages, You'd better reboot in singleuser mode, and then try 'make relabel'.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Hope this helps,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Park Lee</DIV><p>
+		<hr size=1>Do you Yahoo!?<br><a
+href="http://vote.yahoo.com">vote.yahoo.com</a> - Register online to vote today!
+--0-1804137939-1096622012=:33690--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
