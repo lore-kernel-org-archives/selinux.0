@@ -1,45 +1,76 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i378bERb007972
-	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 04:37:14 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i37A8kRb008304
+	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 06:08:46 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i378ZFUZ013635
-	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 08:35:15 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id i378ZEmT013632
-	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 08:35:14 GMT
-Date: Wed, 7 Apr 2004 09:36:33 +0100
-From: Dale Amon <amon@vnl.com>
-To: Bill Laut <wlsel@verizon.net>
-Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: Logo Artwork for SELinux?
-Message-ID: <20040407083633.GI5282@vnl.com>
-References: <001801c41be6$a85bc0f0$0201a8c0@columbia.tresys.com> <200404070122.41978.wlsel@verizon.net>
+	by jazzswing.ncsc.mil  with ESMTP id i37A6lUZ016557
+	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 10:06:47 GMT
+Received: from turing-police.cc.vt.edu (turing-police.cc.vt.edu [128.173.14.107])
+	by jazzswing.ncsc.mil  with ESMTP id i37A6lmT016554
+	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 10:06:47 GMT
+Message-Id: <200404071008.i37A8d9U011172@turing-police.cc.vt.edu>
+To: Mark Shakespeare <mshakes@llnl.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Sepcut Relabel problem 
+In-Reply-To: Your message of "Tue, 06 Apr 2004 16:31:12 PDT."
+             <p06100503bc98ecccb8c1@[128.115.96.64]>
+From: Valdis.Kletnieks@vt.edu
+References: <p06100503bc98ecccb8c1@[128.115.96.64]>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200404070122.41978.wlsel@verizon.net>
+Content-Type: multipart/signed; boundary="==_Exmh_1587838220P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Wed, 07 Apr 2004 06:08:39 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Apr 07, 2004 at 01:22:41AM -0400, Bill Laut wrote:
-> Perhaps I'm revealing more of my psyche than is appropriate (:-), but my 
-> thinking was that the initial artwork should practically scream "Hideous 
-> Wicked Evil Death" to all who dare step outside of the Policy's boundaries; 
-> and which is why I suggested the motif of an Eagle (or even a fire-breathing 
-> dragon) with an attitude guarding the sole entrance, glowering supremely at 
-> the approaching viewer with a look that says, "Make my day.  Fool."
+--==_Exmh_1587838220P
+Content-Type: text/plain; charset=us-ascii
 
-Sort of like the Belfast LUG Tux? :-)
+On Tue, 06 Apr 2004 16:31:12 PDT, Mark Shakespeare <mshakes@llnl.gov>  said:
+> --============_-1130828223==_ma============
+> Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+> 
+> Trying to relabel file system from within Sepcut ( most current version )
+> 
+> getting a weird error....
+> 
+> 
+> couldn't open "/tmp/sepcut-zrqWs8Ew": no such file or directory
+> couldn't open "/tmp/sepcut-zrqWs8Ew": no such file or directory
 
-http://www.orkut.com/klein/16/8616.jpg
+> Sepcut hangs....then no other X-based apps can run. A reboot clears things.
+> 
+> Any ideas?
 
--- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+Seen in /etc/security/selinux/src/policy/Makefile:
+
+relabel:  $(FC) $(SETFILES)
+        @echo "Cleaning out /tmp"
+        -rm -rf /tmp/.??* /tmp/*
+
+which is where your /tmp/sepcut-* and /tmp/.X11-unix/ went (the first
+explaining your sepcut error, the second explaining your X11 problem).
+
+I'll let somebody else address the question of whether that 'rm' command
+is over-zealous, as I'm not sure what it's trying to do.  If it's trying to
+make sure there's no symlink attacks, it's going about it wrongly, as all
+that does is close down the race conditions a bit.
+
+Most likely, what it *should* be doing is a mkdir and working inside that
+directory for temp files.
+
+--==_Exmh_1587838220P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAc9MmcC3lWbTT17ARAhQNAKCUMTzjGDfxKCGcwCrkRL0pTXf08wCgozr6
+rNYxiwyRxf7GXZZPQBX+He0=
+=Ox6G
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1587838220P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
