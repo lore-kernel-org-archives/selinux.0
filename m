@@ -1,55 +1,46 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA18546
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2001 08:59:30 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id NAA11558
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2001 13:57:58 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id NAA11554
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2001 13:57:57 GMT
-Received: from localhost by clipper.gw.tislabs.com (8.9.3/8.9.1) with SMTP id IAA17221
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2001 08:58:47 -0500 (EST)
-Date: Thu, 18 Jan 2001 08:58:47 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-Reply-To: Stephen Smalley <sds@tislabs.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Re: porting to 2.4?
-In-Reply-To: <Pine.LNX.4.21.0101011054260.7964-100000@mail.thesportsregister.com>
-Message-ID: <Pine.SOL.3.95.1010118083037.16394C-100000@clipper.gw.tislabs.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA06839
+	for <selinux@tycho.nsa.gov>; Mon, 22 Jan 2001 12:45:22 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA29325
+	for <selinux@tycho.nsa.gov>; Mon, 22 Jan 2001 17:44:43 GMT
+Received: from ms1-mdi-com.mdi.com ([64.90.21.69])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA29320
+	for <selinux@tycho.nsa.gov>; Mon, 22 Jan 2001 17:44:42 GMT
+Received: from mdi.com ([10.0.0.91]) by ms1-mdi-com.mdi.com
+          (Post.Office MTA v3.1.2 release (PO205-101c)
+          ID# 0-45717U300L100S0) with ESMTP id AAA340
+          for <selinux@tycho.nsa.gov>; Mon, 22 Jan 2001 12:45:45 -0500
+Message-ID: <3A6C72B5.CD6911AC@mdi.com>
+Date: Mon, 22 Jan 2001 12:49:41 -0500
+From: "Ron W. Auld" <rauld@mdi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: File system security
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
+I've been attempting to follow the various discussions here for
+the last couple of weeks and I must admit I'm not having a great
+deal of luck. However, what drew me to the list was the idea of
+a Security Enhanced Linux. I was interested because of my
+involvement in the development of the Secure UDF (Universal
+Disk Format) file system. The UDF file system is most commonly
+found on DVD-ROM's but is designed to allow media (primarily
+optical) interchange among different operating systems. Some
+of the features included in Secure UDF are: access control based
+on various combinations of user, media, computer, and drive;
+logging of operations pertaining to a given file and/or directory;
+and data encryption. I can provide a more complete presentation
+on the features if anyone desires it. My question is whether or
+not there is a need for a secure file system in SELinux.
 
-We have started work on porting to the 2.4 kernel.  The new 
-operating system components added by the Flask architecture
-(the security server and the access vector cache) have been ported.
-The support for labeling processes and file-related objects
-has also been ported.  The port of process and file-related 
-mandatory access controls is underway, as is the port of the
-network-related labeling.  So far, the port has been relatively
-straightforward.
-
-If you have reviewed the design and implementation of the Flask 
-security changes for the 2.2 kernel and have any constructive
-suggestions (or even improved implementations) for future versions, let us
-know. Likewise, if you have experimented with using the system and have
-any constructive suggestions, let us know.
-
-If you want to tackle some aspect of the port, whether porting
-existing code, improving the implementation of some existing code,
-designing and implementing similar controls for some aspect of the kernel
-that we haven't covered (especially new features in the 2.4 kernel
-like devfs), then let us know.
-
---
-Stephen D. Smalley, NAI Labs
-sds@tislabs.com
-
-
-
-
+-- 
+Ron W. Auld - Principal Software Engineer
+Micro Design International, Inc.
+mailto:rauld@mdi.com  PH:407.472.6000 x312
+http://www.mdi.com       800.228.0891 x312
 
 --
 You have received this message because you are subscribed to the selinux list.
