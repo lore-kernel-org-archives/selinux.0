@@ -1,69 +1,62 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA02178
-	for <selinux@tycho.nsa.gov>; Wed, 6 Mar 2002 14:10:27 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA02389
+	for <selinux@tycho.nsa.gov>; Wed, 6 Mar 2002 14:35:30 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA09338
-	for <selinux@tycho.nsa.gov>; Wed, 6 Mar 2002 19:09:25 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id TAA09328 for <selinux@tycho.nsa.gov>; Wed, 6 Mar 2002 19:09:23 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: Re: NSA SE enabled devfsd
-Date: Wed, 6 Mar 2002 19:06:41 +0100
-Cc: SE Linux <selinux@tycho.nsa.gov>, devfs@oss.sgi.com
-References: <20020306121639.699FC2158@lyta.coker.com.au> <200203061639.g26GdN312918@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <200203061639.g26GdN312918@vindaloo.ras.ucalgary.ca>
+	by jazzband.ncsc.mil  with ESMTP id TAA10781
+	for <selinux@tycho.nsa.gov>; Wed, 6 Mar 2002 19:34:29 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id TAA10773 for <selinux@tycho.nsa.gov>; Wed, 6 Mar 2002 19:34:28 GMT
+Date: Wed, 6 Mar 2002 14:34:27 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: invalid contaxt
+In-Reply-To: <20020306191008.AB1B41F08D@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0203061422310.15401-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020306191008.948291F082@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 6 Mar 2002 17:39, Richard Gooch wrote:
-> > > I have hacked support for SE Linux into devfsd.
-> >
-> > I have found one problem with my current code.  devfsd wants to
-> > re-apply it's permissions to device nodes whenever it's restarted
-> > and whenever you do "killall -1 devfsd" to tell it to reload it's
-> > config.
+
+On Wed, 6 Mar 2002, Russell Coker wrote:
+
+> When I load a new policy I get the following message in syslog:
+> Mar  6 19:18:05 lyta kernel: security:  context
+> system_u:system_r:sysadm_ssh_t is invalid
 >
-> I'm open to (clean) suggestions on what to do about this. Perhaps a
-> separate signal to reload the config file but don't generate the
-> synthetic events?
-
-Sounds reasonable.
-
-> But before I make such a change, tell me why you're reloading the
-> config file, but don't want to change permissions? Normally, you just
-> send SIGHUP when /var is mounted (if that's where your permissions
-> have been saved).
-
-If you decide to change your policy or add support for some type of device 
-node that was not previously supported then you have to reload the config.
-
-Changing the policy does not necessarily require that existing permissions 
-need to be changed.
-
-> > Also this is not an issue that is restricted to SE Linux.  Currently
-> > if I run "killall -1 devfsd" it will be equivalent to "mesg n" for
-> > all users!
+> Here is how I try and find the cause of the message:
+> root@lyta:/etc/flask# list_sids |grep sysadm_ssh_t
+> SID 256 -> Scontext  system_u:system_r:sysadm_ssh_t
+> root@lyta:/etc/flask# ps ax --secsid  | grep 256
+> 13654    248 grep 256
+> root@lyta:/etc/flask#
 >
-> But in general devfsd should be configured to *not* touch permissions
-> for PTY's, so this shouldn't be a problem. What are you doing?
+> So it seems that I have not process using SID 256!
+>
+> What am I doing wrong?
 
-The following is in my devfsd.conf to change the group of the pts devices to 
-group tty:
-REGISTER        ^pts/.*         PERMISSIONS     -1.tty  0600
+Look for a message in the log of the form:
+	security_compute_sid:  invalid context %s for scontext=%s tcontext=%s tclass=%s
 
-Is there any better way to do this?
+When in permissive mode, the kernel will log such a message but permit the
+SID to be created anyway.  Then, on subsequent policy reloads, you'll get
+another warning about the context (as in your message) being invalid.
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+sysadm_ssh_t is a domain entered when a sysadm_t process runs the ssh
+program.  The example policy only authorizes the sysadm_r role for this
+domain, since ssh is typically run from a user session whose user identity
+and role have been set by login (or sshd).  If you ran ssh from a
+single-user shell or you aren't using a modified login/sshd, then you'll
+still have the system_u:system_r user identity and role, so you'll get
+this error.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
