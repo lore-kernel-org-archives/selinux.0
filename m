@@ -1,13 +1,39 @@
-Date: Thu, 15 Apr 2004 18:16:59 -0500
-From: tdbrown@uiuc.edu
-To: SELinux@tycho.nsa.gov
-Cc: Michael Ihde <ihde@uiuc.edu>
-Subject: SELinux security in the face of single bit errors
-Message-ID: <20040415231659.GG4773@peach.ece.utexas.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: "Ed Street" <edstreet@street-tek.com>
+To: <tdbrown@uiuc.edu>, <SELinux@tycho.nsa.gov>
+Cc: "'Michael Ihde'" <ihde@uiuc.edu>
+Subject: RE: SELinux security in the face of single bit errors
+Date: Fri, 16 Apr 2004 08:44:22 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+In-Reply-To: <20040415231659.GG4773@peach.ece.utexas.edu>
+Message-Id: <20040416124423.1858C3A404F@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+Hello,
+
+Here are a few quick observation notes to ask.
+
+Are you planning on sharing the info you collect on this list?
+
+Will you be testing it with execshield and pax?
+
+It would seem to me that running it as init would be incorrect. A more
+realistic approach would be to run it as user_r:user_t because in the real
+world that's where your penetrations will likely happen at.
+
+If a file is 'protected' then why is it 777?
+
+Ed
+
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+Behalf Of tdbrown@uiuc.edu
+Sent: Thursday, April 15, 2004 7:17 PM
+To: SELinux@tycho.nsa.gov
+Cc: Michael Ihde
+Subject: SELinux security in the face of single bit errors
 
 I'm taking a graduate level Fault Tolerant Computing course.  My partner 
 and I intend on injecting single bit faults into the data and text 
@@ -50,6 +76,14 @@ save traffic on the mailing list you can add your comments to
 http://www.randomwalking.com/cgi-bin/kwiki/index.cgi?ECE442OutsideComments
 
 ~Michael Ihde & Tom Brown
+
+
+
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.656 / Virus Database: 421 - Release Date: 4/9/2004
+ 
 
 
 --
