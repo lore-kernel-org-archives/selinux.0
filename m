@@ -1,77 +1,52 @@
-Reply-To: <blacknet@simplyaquatics.com>
-From: "Ed Street" <blacknet@simplyaquatics.com>
-To: "'Russell Coker'" <russell@coker.com.au>, <jw@centraltexasit.com>,
-        "'SELinux'" <SELinux@tycho.nsa.gov>
-Subject: RE: Trivial question bout EXTRAVERSION and install destination
-Date: Tue, 9 Jul 2002 18:51:43 -0400
-Message-ID: <005f01c2279b$32609600$0a01a8c0@ed>
-MIME-Version: 1.0
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA04394
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 03:46:02 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id HAA19305
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 07:44:33 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id HAA19301 for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 07:44:31 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 87D9492462
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 17:45:58 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id C3E6D106
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2002 09:45:50 +0200 (CEST)
 Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <20020709205637.692F51A7@lyta.coker.com.au>
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: audit bug in fd handling
+Date: Wed, 10 Jul 2002 09:45:50 +0200
+MIME-Version: 1.0
+Message-Id: <20020710074550.C3E6D106@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+It seems that when a file handle open read/write is inherited by a domain 
+that is permitted read access only, an error about write access will be 
+logged - even if there is a dontaudit rule!
 
-One issue does arise with the EXTRAVERSION, some future patches will not
-install correctly.
+Here's the dmesg log:
+avc:  denied  { write } for  pid=4731 exe=/usr/sbin/sendmail 
+path=/spool/fcron/fcrjob-Ldo3Uf (deleted) dev=03:08 ino=27923 
+scontext=system_u:system_r:system_mail_t 
+tcontext=system_u:object_r:system_crond_tmp_t tclass=file
 
-Ed
+Here's a grep from policy.conf:
+dontaudit system_mail_t system_crond_tmp_t:file write;
 
-=> -----Original Message-----
-=> From: owner-selinux@tycho.nsa.gov
-[mailto:owner-selinux@tycho.nsa.gov] On
-=> Behalf Of Russell Coker
-=> Sent: Tuesday, July 09, 2002 4:57 PM
-=> To: jw@centraltexasit.com; SELinux
-=> Subject: Re: Trivial question bout EXTRAVERSION and install
-destination
-=> 
-=> On Mon, 8 Jul 2002 20:15, JW wrote:
-=> >  You can determine the name of the new kernel by
-=> > looking in /boot.  The new kernel's name will end in "-selinux"
-=> > (example: "vmlinuz-2.4.18-selinux").
-=> >
-=> > SuSE kernels always install into /boot, but all othe end up in /,
-with
-=> > generic names, including selinux's:
-=> >
-=> > 1. What is wrong that's causing EXTRAVERSION to be ignored
-=> > 2 Why are System.map and vmlinuz edning up in / instead of /boot ?
-=> 
-=> Debian kernels end up in /boot with extraversion included in the
-names.
-=> 
-=> Also I have been convinced to remove the EXTRAVERSION from the
-patches I
-=> package for Debian to avoid conflicts, but the Debian package build
-=> system
-=> allows specifying it at compile time.
-=> 
-=> > It's not a huge problem, but it's rather perplexing, especially
-since I
-=> had
-=> > the exact same issue with a grsecurity-patched kernel
-=> 
-=> Not a problem for Debian...
-=> 
-=> --
-=> I do not get viruses because I do not use MS software.
-=> If you use Outlook then please do not put my email address in your
-=> address-book so that WHEN you get a virus it won't use my address in
-the
-=> >From field.
-=> 
-=> --
-=> You have received this message because you are subscribed to the
-selinux
-=> list.
-=> If you no longer wish to subscribe, send mail to
-majordomo@tycho.nsa.gov
-=> with
-=> the words "unsubscribe selinux" without quotes as the message.
 
+Incidentally I'm changing the way mail sending operates.  Having daemons send 
+mail as sysadm_mail_t is ugly, and having them send mail as user_mail_t is 
+wrong.  I've created a new system_mail_t for this.
+
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
