@@ -1,242 +1,90 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA11945
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 07:27:36 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA26170
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 12:24:11 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id MAA26166
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 12:24:11 GMT
-Date: Wed, 19 Feb 2003 07:27:05 -0500 (EST)
-From: Wayne Salamon <wsalamon@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA12211
+	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 08:40:05 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h1JDe4I14806
+	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 13:40:04 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id h1JDe2f14795 for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 13:40:02 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Wayne Salamon <wsalamon@tislabs.com>
 Subject: Re: Apache policy
-In-Reply-To: <200302181259.59668.russell@coker.com.au>
-Message-ID: <Pine.LNX.4.33.0302190715330.8753-200000@vox.gw.tislabs.com>
+Date: Wed, 19 Feb 2003 14:39:49 +0100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <Pine.LNX.4.33.0302190715330.8753-200000@vox.gw.tislabs.com>
+In-Reply-To: <Pine.LNX.4.33.0302190715330.8753-200000@vox.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="554330684-419563829-1045657625=:8753"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200302191439.49511.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
---554330684-419563829-1045657625=:8753
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-On Tue, 18 Feb 2003, Russell Coker wrote:
-
-> I've been working on re-writing the Apache policy.
+On Wed, 19 Feb 2003 13:27, Wayne Salamon wrote:
+> On Tue, 18 Feb 2003, Russell Coker wrote:
+> > I've been working on re-writing the Apache policy.
 >
+>   I haven't been able to test this yet, but here's some comments:
+>
+> apache_macros.te:
+>   - lines 61 and 67 domain_auto_trans via httpd_$1_script_t to
+>     httpd_$1_script_t. Should trans through script_exec_t or script_r?_t.
+>   - line 74 allows user to create file with label httpd_$1_script_t.
+>     Should be exec_t, r?_t, etc.
 
-  I haven't been able to test this yet, but here's some comments:
+I've already fixed those.  I'll put a new archive on my web site on 
+http://www.coker.com.au/selinux/policy.tgz in a few minutes.
 
-apache_macros.te:
-  - lines 61 and 67 domain_auto_trans via httpd_$1_script_t to
-    httpd_$1_script_t. Should trans through script_exec_t or script_r?_t.
-  - line 74 allows user to create file with label httpd_$1_script_t.
-    Should be exec_t, r?_t, etc.
-  - Why does httpd_t need access to httpd_$1_script_t (line 110)?
-  - Does $1_t need create permissions for script_exec_t? (around line 88)
-  - Uses ra_dir_file() macro; I've added global_macros (see patch)
+>   - Why does httpd_t need access to httpd_$1_script_t (line 110)?
 
-apache.te
-  - Uses lock_domain() macro, not currently present in our tree.
+httpd_t needs to be able to read files that cgi-bin scripts write such as 
+httpd_$1_script_rw_t.  This is so that cgi-bin scripts can change other parts 
+of the web site.  It may be a bad idea though, perhaps I should comment it 
+out and just leave it as a suggestion for those who need it?
 
-I've attached a patch that fixes up some of the other policy files
-affected by your changes. However, for httpadm.te, this problem is
-created:
-httpadm.te
-  - type httpd_sys_script_exec_t is an exec_type; this rule in the
-    httpd_admin_domain() macro:
-     allow $1_t httpd_sys_script_exec_t:file create_file_perms
-    violates this assertion in assert.te:
-      neverallow ~{ldconfig_t admin} { exec_type ld_so_t shlib_t }:file {
-        write append unlink rename };
+>   - Does $1_t need create permissions for script_exec_t? (around line 88)
 
-Thanks,
+No.  I can't find that in the version I sent you or the one in my current tree 
+either.
+
+>   - Uses ra_dir_file() macro; I've added global_macros (see patch)
+
+Yes.
+
+> apache.te
+>   - Uses lock_domain() macro, not currently present in our tree.
+
+I put the following in global_macros.te:
+define(`lock_domain', `
+type $1_lock_t, file_type, sysadmfile, lockfile;
+file_type_auto_trans($1_t, var_lock_t, $1_lock_t)
+')
+
+> I've attached a patch that fixes up some of the other policy files
+> affected by your changes. However, for httpadm.te, this problem is
+> created:
+
+I've just removed httpadm.te entirely from my tree.  My changes remove the 
+need for it entirely.
+
+The local administrator can define a new role in user.te for Apache 
+administration and allow it to write to httpd_sys_script_exec_t and other 
+similar file types.  I'll probably write a macro to allow such access (so you 
+can easily permit samba to perform such modifications etc).
+
+
+PS  There is still quite a bit of work to be done before this is release 
+quality.  This is a job I had been avoiding for about a year because it was 
+so painful and because the problems with the previous version hadn't bitten 
+me badly enough.
 
 -- 
-Wayne Salamon
-wsalamon@tislabs.com
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-
-
---554330684-419563829-1045657625=:8753
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="apache_other.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0302190727050.8753@vox.gw.tislabs.com>
-Content-Description: 
-Content-Disposition: attachment; filename="apache_other.patch"
-
-ZGlmZiAtdSAtciBwb2xpY3kvZG9tYWlucy9odHRwYWRtLnRlIHBvbGljeS5u
-ZXcvZG9tYWlucy9odHRwYWRtLnRlDQotLS0gcG9saWN5L2RvbWFpbnMvaHR0
-cGFkbS50ZQlGcmkgU2VwIDIwIDEzOjA3OjUwIDIwMDINCisrKyBwb2xpY3ku
-bmV3L2RvbWFpbnMvaHR0cGFkbS50ZQlUdWUgRmViIDE4IDE4OjE0OjAwIDIw
-MDMNCkBAIC0yNCwxMCArMjQsMTAgQEANCiAjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNCiAjIEFsbG93
-IHRoZSBodHRwZF9hZG1pbl90IHRvIHZpZXcgb3IgZWRpdCB0aGUgd2ViIHNl
-cnZlciBsb2cgZmlsZXMNCiAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQotYWxsb3cgJDFfdCBodHRw
-ZF9sb2dfZmlsZXNfdDpmaWxlIGNyZWF0ZV9maWxlX3Blcm1zOw0KLWFsbG93
-ICQxX3QgaHR0cGRfbG9nX2ZpbGVzX3Q6ZGlyIHJ3X2Rpcl9wZXJtcyA7DQot
-YWxsb3cgJDFfdCBodHRwZF9sb2dfZmlsZXNfdDpzZWN1cml0eSB7IHNpZF90
-b19jb250ZXh0IH07DQotYWxsb3cgJDFfdCBodHRwZF9sb2dfZmlsZXNfdDps
-bmtfZmlsZSBsaW5rX2ZpbGVfcGVybXM7DQorYWxsb3cgJDFfdCBodHRwZF9s
-b2dfdDpmaWxlIGNyZWF0ZV9maWxlX3Blcm1zOw0KK2FsbG93ICQxX3QgaHR0
-cGRfbG9nX3Q6ZGlyIHJ3X2Rpcl9wZXJtcyA7DQorYWxsb3cgJDFfdCBodHRw
-ZF9sb2dfdDpzZWN1cml0eSB7IHNpZF90b19jb250ZXh0IH07DQorYWxsb3cg
-JDFfdCBodHRwZF9sb2dfdDpsbmtfZmlsZSBsaW5rX2ZpbGVfcGVybXM7DQog
-DQogIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMNCiAjIEFsbG93IHRoZSBodHRwZF9hZG1pbl90IHRvIHZpZXcg
-ZmlsZXMgaW4gL2V0Yy9odHRwZC9tb2R1bGVzDQpAQCAtNTYsMjAgKzU2LDIw
-IEBADQogYWxsb3cgJDFfdCBodHRwZF9zeXNfY29udGVudF90Omxua19maWxl
-IHtjcmVhdGV9Ow0KIGFsbG93ICQxX3QgaHR0cGRfdXNlcl9jb250ZW50X3Q6
-bG5rX2ZpbGUge2NyZWF0ZX07DQogDQotYWxsb3cgJDFfdCBodHRwZF9zeXNf
-c2NyaXB0X3Q6ZmlsZSBjcmVhdGVfZmlsZV9wZXJtczsNCi1hbGxvdyAkMV90
-IGh0dHBkX3N5c19zY3JpcHRfdDpkaXIgY3JlYXRlX2Rpcl9wZXJtczsNCi1h
-bGxvdyAkMV90IGh0dHBkX3N5c19zY3JpcHRfdDpsbmtfZmlsZSB7Y3JlYXRl
-fTsNCithbGxvdyAkMV90IGh0dHBkX3N5c19zY3JpcHRfZXhlY190OmZpbGUg
-Y3JlYXRlX2ZpbGVfcGVybXM7DQorYWxsb3cgJDFfdCBodHRwZF9zeXNfc2Ny
-aXB0X2V4ZWNfdDpkaXIgY3JlYXRlX2Rpcl9wZXJtczsNCithbGxvdyAkMV90
-IGh0dHBkX3N5c19zY3JpcHRfZXhlY190Omxua19maWxlIHtjcmVhdGV9Ow0K
-IA0KIGFsbG93ICQxX3QgaHR0cGRfc3lzX2h0YWNjZXNzX3Q6ZmlsZSBjcmVh
-dGVfZmlsZV9wZXJtczsNCiBhbGxvdyAkMV90IGh0dHBkX3N5c19odGFjY2Vz
-c190Omxua19maWxlIHtjcmVhdGV9Ow0KIA0KLWFsbG93ICQxX3QgaHR0cGRf
-c3lzX3NjcmlwdF9yX3Q6ZmlsZSBjcmVhdGVfZmlsZV9wZXJtczsNCi1hbGxv
-dyAkMV90IGh0dHBkX3N5c19zY3JpcHRfcl90Omxua19maWxlIHtjcmVhdGV9
-Ow0KLWFsbG93ICQxX3QgaHR0cGRfc3lzX3NjcmlwdF9yX3Q6ZGlyIGNyZWF0
-ZV9kaXJfcGVybXM7DQotDQotYWxsb3cgJDFfdCBodHRwZF91c2VyX3Njcmlw
-dF9yX3Q6ZmlsZSBjcmVhdGVfZmlsZV9wZXJtczsNCi1hbGxvdyAkMV90IGh0
-dHBkX3VzZXJfc2NyaXB0X3JfdDpsbmtfZmlsZSB7Y3JlYXRlfTsNCi1hbGxv
-dyAkMV90IGh0dHBkX3VzZXJfc2NyaXB0X3JfdDpkaXIgY3JlYXRlX2Rpcl9w
-ZXJtczsNCithbGxvdyAkMV90IGh0dHBkX3N5c19zY3JpcHRfcm9fdDpmaWxl
-IGNyZWF0ZV9maWxlX3Blcm1zOw0KK2FsbG93ICQxX3QgaHR0cGRfc3lzX3Nj
-cmlwdF9yb190Omxua19maWxlIHtjcmVhdGV9Ow0KK2FsbG93ICQxX3QgaHR0
-cGRfc3lzX3NjcmlwdF9yb190OmRpciBjcmVhdGVfZGlyX3Blcm1zOw0KKw0K
-K2FsbG93ICQxX3QgaHR0cGRfdXNlcl9zY3JpcHRfcm9fdDpmaWxlIGNyZWF0
-ZV9maWxlX3Blcm1zOw0KK2FsbG93ICQxX3QgaHR0cGRfdXNlcl9zY3JpcHRf
-cm9fdDpsbmtfZmlsZSB7Y3JlYXRlfTsNCithbGxvdyAkMV90IGh0dHBkX3Vz
-ZXJfc2NyaXB0X3JvX3Q6ZGlyIGNyZWF0ZV9kaXJfcGVybXM7DQogDQogYWxs
-b3cgJDFfdCBodHRwZF9zeXNfc2NyaXB0X3J3X3Q6ZmlsZSByd19maWxlX3Bl
-cm1zOw0KIGFsbG93ICQxX3QgaHR0cGRfc3lzX3NjcmlwdF9yd190Omxua19m
-aWxlIHtjcmVhdGV9Ow0KQEAgLTc5LDEzICs3OSwxMyBAQA0KIGFsbG93ICQx
-X3QgaHR0cGRfdXNlcl9zY3JpcHRfcndfdDpsbmtfZmlsZSB7Y3JlYXRlfTsN
-CiBhbGxvdyAkMV90IGh0dHBkX3VzZXJfc2NyaXB0X3J3X3Q6ZGlyIHJ3X2Rp
-cl9wZXJtczsNCiANCi1hbGxvdyAkMV90IGh0dHBkX3N5c19zY3JpcHRfYV90
-OmZpbGUgcmFfZmlsZV9wZXJtczsNCi1hbGxvdyAkMV90IGh0dHBkX3N5c19z
-Y3JpcHRfYV90Omxua19maWxlIHtjcmVhdGV9Ow0KLWFsbG93ICQxX3QgaHR0
-cGRfc3lzX3NjcmlwdF9hX3Q6ZGlyIHJhX2Rpcl9wZXJtczsNCi0NCi1hbGxv
-dyAkMV90IGh0dHBkX3VzZXJfc2NyaXB0X2FfdDpmaWxlIHJhX2ZpbGVfcGVy
-bXM7DQotYWxsb3cgJDFfdCBodHRwZF91c2VyX3NjcmlwdF9hX3Q6bG5rX2Zp
-bGUge2NyZWF0ZX07DQotYWxsb3cgJDFfdCBodHRwZF91c2VyX3NjcmlwdF9h
-X3Q6ZGlyIHJhX2Rpcl9wZXJtczsNCithbGxvdyAkMV90IGh0dHBkX3N5c19z
-Y3JpcHRfcmFfdDpmaWxlIHJhX2ZpbGVfcGVybXM7DQorYWxsb3cgJDFfdCBo
-dHRwZF9zeXNfc2NyaXB0X3JhX3Q6bG5rX2ZpbGUge2NyZWF0ZX07DQorYWxs
-b3cgJDFfdCBodHRwZF9zeXNfc2NyaXB0X3JhX3Q6ZGlyIHJhX2Rpcl9wZXJt
-czsNCisNCithbGxvdyAkMV90IGh0dHBkX3VzZXJfc2NyaXB0X3JhX3Q6Zmls
-ZSByYV9maWxlX3Blcm1zOw0KK2FsbG93ICQxX3QgaHR0cGRfdXNlcl9zY3Jp
-cHRfcmFfdDpsbmtfZmlsZSB7Y3JlYXRlfTsNCithbGxvdyAkMV90IGh0dHBk
-X3VzZXJfc2NyaXB0X3JhX3Q6ZGlyIHJhX2Rpcl9wZXJtczsNCiANCiAjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNCiAjIEFsbG93IGEg
-ZG9tYWluIGNoYW5nZSB0byBodHRwZF9hZG1pbl90IHZpYSB0aGUgbmV3cm9s
-ZSBjb21tYW5kDQpAQCAtOTcsMjYgKzk3LDI2IEBADQogYWxsb3cgbmV3cm9s
-ZV90ICQxX3Q6cHJvY2VzcyB7dHJhbnNpdGlvbn07DQogDQogIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNCi0jIEFsbG93IHRoZSBodHRwZCBh
-ZG1pbiB0byB1c2UgY2hjb24gdG8gY2hhbmdlIGNvbnRleHRzICBvbiBzY3Jp
-cHRzLCB3ZWIgcGFnZXMsDQorIyBBbGxvdyB0aGUgaHR0cGQgYWRtaW4gdG8g
-dXNlIGNoY29uIHRvIGNoYW5nZSBjb250ZXh0cyBvbiBzY3JpcHRzLCB3ZWIg
-cGFnZXMsDQogIyBhbmQgaHRhY2Nlc3MgZmlsZXMuIA0KICMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIw0KLWFsbG93ICQxX3QgaHR0cGRfc3lzX3Nj
-cmlwdF90OmRpciAge3JlbGFiZWx0b307DQotYWxsb3cgJDFfdCBodHRwZF9z
-eXNfc2NyaXB0X2FfdDpkaXIgIHtyZWxhYmVsdG99Ow0KLWFsbG93ICQxX3Qg
-aHR0cGRfc3lzX3NjcmlwdF9yX3Q6ZGlyICB7cmVsYWJlbHRvfTsNCithbGxv
-dyAkMV90IGh0dHBkX3N5c19zY3JpcHRfZXhlY190OmRpciAge3JlbGFiZWx0
-b307DQorYWxsb3cgJDFfdCBodHRwZF9zeXNfc2NyaXB0X3JhX3Q6ZGlyICB7
-cmVsYWJlbHRvfTsNCithbGxvdyAkMV90IGh0dHBkX3N5c19zY3JpcHRfcm9f
-dDpkaXIgIHtyZWxhYmVsdG99Ow0KIGFsbG93ICQxX3QgaHR0cGRfc3lzX3Nj
-cmlwdF9yd190OmRpciAge3JlbGFiZWx0b307DQogDQotYWxsb3cgJDFfdCBo
-dHRwZF91c2VyX3NjcmlwdF90OmRpciAge3JlbGFiZWx0b307DQotYWxsb3cg
-JDFfdCBodHRwZF91c2VyX3NjcmlwdF9hX3Q6ZGlyICB7cmVsYWJlbHRvfTsN
-Ci1hbGxvdyAkMV90IGh0dHBkX3VzZXJfc2NyaXB0X3JfdDpkaXIgIHtyZWxh
-YmVsdG99Ow0KK2FsbG93ICQxX3QgaHR0cGRfdXNlcl9zY3JpcHRfZXhlY190
-OmRpciAge3JlbGFiZWx0b307DQorYWxsb3cgJDFfdCBodHRwZF91c2VyX3Nj
-cmlwdF9yYV90OmRpciAge3JlbGFiZWx0b307DQorYWxsb3cgJDFfdCBodHRw
-ZF91c2VyX3NjcmlwdF9yb190OmRpciAge3JlbGFiZWx0b307DQogYWxsb3cg
-JDFfdCBodHRwZF91c2VyX3NjcmlwdF9yd190OmRpciAge3JlbGFiZWx0b307
-DQogDQotYWxsb3cgJDFfdCBodHRwZF9zeXNfc2NyaXB0X2FfdDpmaWxlICB7
-cmVsYWJlbHRvfTsNCi1hbGxvdyAkMV90IGh0dHBkX3N5c19zY3JpcHRfcl90
-OmZpbGUgIHtyZWxhYmVsdG99Ow0KK2FsbG93ICQxX3QgaHR0cGRfc3lzX3Nj
-cmlwdF9yYV90OmZpbGUgIHtyZWxhYmVsdG99Ow0KK2FsbG93ICQxX3QgaHR0
-cGRfc3lzX3NjcmlwdF9yb190OmZpbGUgIHtyZWxhYmVsdG99Ow0KIGFsbG93
-ICQxX3QgaHR0cGRfc3lzX3NjcmlwdF9yd190OmZpbGUgIHtyZWxhYmVsdG99
-Ow0KIA0KLWFsbG93ICQxX3QgaHR0cGRfdXNlcl9zY3JpcHRfcl90OmZpbGUg
-IHtyZWxhYmVsdG99Ow0KK2FsbG93ICQxX3QgaHR0cGRfdXNlcl9zY3JpcHRf
-cm9fdDpmaWxlICB7cmVsYWJlbHRvfTsNCiBhbGxvdyAkMV90IGh0dHBkX3Vz
-ZXJfc2NyaXB0X3J3X3Q6ZmlsZSAge3JlbGFiZWx0b307DQotYWxsb3cgJDFf
-dCBodHRwZF91c2VyX3NjcmlwdF9hX3Q6ZmlsZSAge3JlbGFiZWx0b307DQor
-YWxsb3cgJDFfdCBodHRwZF91c2VyX3NjcmlwdF9yYV90OmZpbGUgIHtyZWxh
-YmVsdG99Ow0KIA0KIGFsbG93ICQxX3QgaHR0cGRfc3lzX2NvbnRlbnRfdDpk
-aXIge3JlbGFiZWx0b307DQogYWxsb3cgJDFfdCBodHRwZF91c2VyX2NvbnRl
-bnRfdDpkaXIge3JlbGFiZWx0b307DQpkaWZmIC11IC1yIHBvbGljeS9kb21h
-aW5zL3Byb2dyYW0vbWFpbG1hbi50ZSBwb2xpY3kubmV3L2RvbWFpbnMvcHJv
-Z3JhbS9tYWlsbWFuLnRlDQotLS0gcG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9t
-YWlsbWFuLnRlCUZyaSBKYW4gIDMgMTM6Mjg6MjQgMjAwMw0KKysrIHBvbGlj
-eS5uZXcvZG9tYWlucy9wcm9ncmFtL21haWxtYW4udGUJVHVlIEZlYiAxOCAx
-ODoyNzoyMyAyMDAzDQpAQCAtNTksMTcgKzU5LDE3IEBADQogbWFpbG1hbl9k
-b21haW4oY2dpKQ0KIA0KICMgZm9yIGNnaXdyYXANCi1kb21haW5fYXV0b190
-cmFucyhodHRwZF90LCBodHRwZF91c2VyX3NjcmlwdF90LCBodHRwZF91c2Vy
-X3NjcmlwdF9wcm9jZXNzX3QpDQotY2FuX2V4ZWMoaHR0cGRfdXNlcl9zY3Jp
-cHRfcHJvY2Vzc190LCBodHRwZF91c2VyX3NjcmlwdF90KQ0KLWFsbG93IGh0
-dHBkX3VzZXJfc2NyaXB0X3Byb2Nlc3NfdCBodHRwZF91c2VyX3NjcmlwdF90
-OmRpciBnZXRhdHRyOw0KK2RvbWFpbl9hdXRvX3RyYW5zKGh0dHBkX3QsIGh0
-dHBkX3VzZXJfc2NyaXB0X2V4ZWNfdCwgaHR0cGRfdXNlcl9zY3JpcHRfdCkN
-CitjYW5fZXhlYyhodHRwZF91c2VyX3NjcmlwdF90LCBodHRwZF91c2VyX3Nj
-cmlwdF9leGVjX3QpDQorYWxsb3cgaHR0cGRfdXNlcl9zY3JpcHRfdCBodHRw
-ZF91c2VyX3NjcmlwdF9leGVjX3Q6ZGlyIGdldGF0dHI7DQogDQotZG9tYWlu
-X2F1dG9fdHJhbnMoaHR0cGRfdXNlcl9zY3JpcHRfcHJvY2Vzc190LCBtYWls
-bWFuX2NnaV9leGVjX3QsIG1haWxtYW5fY2dpX3QpDQorZG9tYWluX2F1dG9f
-dHJhbnMoaHR0cGRfdXNlcl9zY3JpcHRfdCwgbWFpbG1hbl9jZ2lfZXhlY190
-LCBtYWlsbWFuX2NnaV90KQ0KICMgc2hvdWxkIGhhdmUgc2VwYXJhdGUgdHlw
-ZXMgZm9yIHB1YmxpYyBhbmQgcHJpdmF0ZSBhcmNoaXZlcw0KIHJfZGlyX2Zp
-bGUoaHR0cGRfdCwgbWFpbG1hbl9hcmNoaXZlX3QpDQogYWxsb3cgaHR0cGRf
-dCBtYWlsbWFuX2RhdGFfdDpkaXIgc2VhcmNoOw0KIHJfZGlyX2ZpbGUobWFp
-bG1hbl9jZ2lfdCwgbWFpbG1hbl9hcmNoaXZlX3QpDQogDQotZG9udGF1ZGl0
-IG1haWxtYW5fY2dpX3QgaHR0cGRfbG9nX2ZpbGVzX3Q6ZmlsZSBhcHBlbmQ7
-DQorZG9udGF1ZGl0IG1haWxtYW5fY2dpX3QgaHR0cGRfbG9nX3Q6ZmlsZSBh
-cHBlbmQ7DQogZG9tYWluX2F1dG9fdHJhbnMoaHR0cGRfdCwgbWFpbG1hbl9j
-Z2lfZXhlY190LCBtYWlsbWFuX2NnaV90KQ0KIGFsbG93IGh0dHBkX3QgbWFp
-bG1hbl9jZ2lfdDpwcm9jZXNzIHNpZ25hbDsNCiBhbGxvdyBtYWlsbWFuX2Nn
-aV90IGh0dHBkX3Q6cHJvY2VzcyBzaWdjaGxkOw0KZGlmZiAtdSAtciBwb2xp
-Y3kvZG9tYWlucy9wcm9ncmFtL29wZW5jYS1jYS50ZSBwb2xpY3kubmV3L2Rv
-bWFpbnMvcHJvZ3JhbS9vcGVuY2EtY2EudGUNCi0tLSBwb2xpY3kvZG9tYWlu
-cy9wcm9ncmFtL29wZW5jYS1jYS50ZQlGcmkgSmFuICAzIDEzOjI4OjI0IDIw
-MDMNCisrKyBwb2xpY3kubmV3L2RvbWFpbnMvcHJvZ3JhbS9vcGVuY2EtY2Eu
-dGUJVHVlIEZlYiAxOCAxODoyNzoxMiAyMDAzDQpAQCAtODQsNyArODQsNyBA
-QA0KICMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjDQogIyBBbGxvdyBzY3JpcHRzIHRvIGFwcGVuZCB0byBodHRwIGxvZ3MN
-CiAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0K
-LWFsbG93IG9wZW5jYV9jYV90IGh0dHBkX2xvZ19maWxlc190OmZpbGUgeyBh
-cHBlbmQgZ2V0YXR0ciB9Ow0KK2FsbG93IG9wZW5jYV9jYV90IGh0dHBkX2xv
-Z190OmZpbGUgeyBhcHBlbmQgZ2V0YXR0ciB9Ow0KIA0KICMNCiAjIEFsbG93
-IGFjY2VzcyB0byB3cml0ZWFibGUgZmlsZXMgdW5kZXIgL2V0Yy9vcGVuY2EN
-CmRpZmYgLXUgLXIgcG9saWN5L21hY3Jvcy9nbG9iYWxfbWFjcm9zLnRlIHBv
-bGljeS5uZXcvbWFjcm9zL2dsb2JhbF9tYWNyb3MudGUNCi0tLSBwb2xpY3kv
-bWFjcm9zL2dsb2JhbF9tYWNyb3MudGUJVHVlIEphbiAyMSAxMToxNjoxNSAy
-MDAzDQorKysgcG9saWN5Lm5ldy9tYWNyb3MvZ2xvYmFsX21hY3Jvcy50ZQlU
-dWUgRmViIDE4IDE3OjE1OjUxIDIwMDMNCkBAIC0xNzgsNiArMTc4LDExIEBA
-DQogYWxsb3cgJDEgJDI6eyBmaWxlIGxua19maWxlIH0gcl9maWxlX3Blcm1z
-Ow0KICcpDQogDQorZGVmaW5lKGByYV9kaXJfZmlsZScsIGANCithbGxvdyAk
-MSAkMjpkaXIgcmFfZGlyX3Blcm1zOw0KK2FsbG93ICQxICQyOnsgZmlsZSBs
-bmtfZmlsZSB9IHJhX2ZpbGVfcGVybXM7DQorJykNCisNCiBkZWZpbmUoYHJ3
-X2Rpcl9maWxlJywgYA0KIGFsbG93ICQxICQyOmRpciByd19kaXJfcGVybXM7
-DQogYWxsb3cgJDEgJDI6eyBmaWxlIGxua19maWxlIH0gcndfZmlsZV9wZXJt
-czsNCg==
---554330684-419563829-1045657625=:8753--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
