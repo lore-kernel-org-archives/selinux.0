@@ -1,46 +1,85 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9N1h6Wt007031
-	for <selinux@tycho.nsa.gov>; Wed, 22 Oct 2003 21:43:06 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9N1h5IE019615
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 01:43:05 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-        by jazzband.ncsc.mil  with ESMTP id h9N1h31J019606 for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 01:43:05 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Joubert Berger <joubert@berger-family.org>,
-   Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: init patch for loading policy
-Date: Thu, 23 Oct 2003 11:42:52 +1000
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200310200148.15852.russell@coker.com.au> <3F957200.9040201@redhat.com> <1066861893.7534.10.camel@localhost.localdomain>
-In-Reply-To: <1066861893.7534.10.camel@localhost.localdomain>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9NDJfWt008890
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 09:19:41 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9NDJPIS008000
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 13:19:26 GMT
+Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
+	by jazzswing.ncsc.mil  with ESMTP id h9NDJNDc007990
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 13:19:24 GMT
+Received: from lky (mailwall.shnet.edu.cn [202.112.26.55])
+	by sjtu.edu.cn (WorldPost) with ESMTP id D6EFE34A9A4
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 21:19:32 +0800 (BEIST)
+Message-ID: <006c01c398a0$5f436ef0$5d38a8c0@lky>
+From: "lky" <lky77@sjtu.edu.cn>
+To: "SELINUX" <SELinux@tycho.nsa.gov>
+Subject: problem about boot
+Date: Wed, 22 Oct 2003 21:28:21 +0800
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310231142.52699.russell@coker.com.au>
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0069_01C398E3.6AC1A6A0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 23 Oct 2003 08:31, Joubert Berger wrote:
-> Could you not hard code enough of a policy in the kernel to get init(8)
-> up and running?  Then let init run a script that loads the complete
-> policy and then runs /etc/rc.d/rc.sysinit or just have rc.sysinit load
-> it as it's first step.
+This is a multi-part message in MIME format.
 
-This would demand that the kernel be hard coded for init to run in init_t, for 
-it's executable to be init_exec_t, and policy to allow init to execute 
-load_policy.
+------=_NextPart_000_0069_01C398E3.6AC1A6A0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
 
-This wouldn't necessarily be a good thing, there have already been discussions 
-of SE policies that don't have init_t, such policies would conflict with 
-hard-coding of the nature which you suggest.
+SGksSSBpbnN0YWxsZWQgMi42LWJhc2VkIFNFTGludXggKGxpbnV4LTIuNi0yMDAzMTAwMTEwLnRn
+eikgb24gUmVkaGF0OS4wLkJ1dCB3aGVuIEkgcmVib290IHdpdGggdGhlIGluaXRyZCBJIGdvdCB0
+aGUga2VybmVsIHBhbmljLGFzIGJlbG93Og0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tDQpNb3VudGluZyAvcHJvYyBmaWxlc3lzdGVtDQpDcmVhdGluZyBibG9jayBkZXZpY2VzDQpD
+cmVhdGluZyByb290IGRldmljZQ0KTW91bnRpbmcgcm9vdCBmaWxlc3lzdGVtDQptb3VudDogZXJy
+b3IgMTkgbW91bnRpbmcgZXh0Mw0KcGl2b3Ryb290OiBwaXZvdF9yb290ICgvc3lzcm9vdCwgL3N5
+c3Jvb3QvaW5pdHJkKSBmYWlsZWQgOiAyDQp1bW91bnQgL2luaXRyZC9wcm9jIGZhaWxlZCA6IDIN
+CkZyZWVpbmcgdW51c2VkIGtlcm5lbCBtZW1vcnkgOiAyMzJrIGZyZWVkDQprZXJuZWwgcGFuaWMg
+OiBObyBpbml0IGZvdW5kIC4gVHJ5IHBhc3NpbmcgaW5pdCA9IG9wdGlvbiB0byBrZXJuZWwNCi0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLQ0KVGhlIHBvbGljeSBoYXMgYmVlbiBsb2FkZWQgYmVmb3JlIHRo
+aXMuIEFuZCBJIGdvdCB0aGUgc2FtZSByZXN1bHQgaWYgSSByZWJvb3QgdGhlIGtlcm5lbCB3aXRo
+IGl0J3Mgb3duIGluaXRyZC4gU28gSSB0aGluayB0aGUgaW5pdHJkIGlzbid0IHRoZSByZWFzb24u
+IEhhdmUgSSB3cm9uZ2x5IGNvbmZpZ3VyZWQgdGhlIGtlcm5lbD8NClRoYW5rcyENCg==
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+------=_NextPart_000_0069_01C398E3.6AC1A6A0
+Content-Type: text/html;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
+
+PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
+L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
+dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
+MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
+WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+SGksSSBpbnN0YWxsZWQg
+Mi42LWJhc2VkIFNFTGludXggDQoobGludXgtMi42LTIwMDMxMDAxMTAudGd6KSBvbiBSZWRoYXQ5
+LjAuQnV0IHdoZW4gSSByZWJvb3Qgd2l0aCB0aGUgaW5pdHJkIEkgZ290IA0KdGhlIGtlcm5lbCBw
+YW5pYyxhcyBiZWxvdzo8L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgDQpzaXpl
+PTI+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tPC9GT05UPjwvRElWPg0KPERJVj4N
+CjxESVY+PEZPTlQgZmFjZT1BcmlhbD5Nb3VudGluZyAvcHJvYyBmaWxlc3lzdGVtPC9GT05UPjwv
+RElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPkNyZWF0aW5nIGJsb2NrIGRldmljZXM8L0ZPTlQ+
+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+Q3JlYXRpbmcgcm9vdCBkZXZpY2U8L0ZPTlQ+
+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+TW91bnRpbmcgcm9vdCBmaWxlc3lzdGVtPC9G
+T05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPm1vdW50OiBlcnJvciAxOSBtb3VudGlu
+ZyBleHQzPC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPnBpdm90cm9vdDogcGl2
+b3Rfcm9vdCAoL3N5c3Jvb3QsIC9zeXNyb290L2luaXRyZCkgZmFpbGVkIDogDQoyPC9GT05UPjwv
+RElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPnVtb3VudCAvaW5pdHJkL3Byb2MgZmFpbGVkIDog
+MjwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbD5GcmVlaW5nIHVudXNlZCBrZXJu
+ZWwgbWVtb3J5IDogMjMyayBmcmVlZDwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1Bcmlh
+bD5rZXJuZWwgcGFuaWMgOiBObyBpbml0IGZvdW5kIC4gVHJ5IHBhc3NpbmcgaW5pdCA9IG9wdGlv
+biANCnRvIGtlcm5lbDwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgDQpmYWNlPUFyaWFsPi0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLTwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbD5UaGUg
+cG9saWN5IGhhcyBiZWVuIGxvYWRlZCBiZWZvcmUgdGhpcy4gQW5kIEkgZ290IHRoZSBzYW1lIA0K
+cmVzdWx0Jm5ic3A7aWYgSSByZWJvb3QgdGhlIGtlcm5lbCB3aXRoJm5ic3A7aXQncyBvd24gaW5p
+dHJkLiBTbyBJIHRoaW5rIHRoZSANCmluaXRyZCBpc24ndCB0aGUgcmVhc29uLiBIYXZlIEkgd3Jv
+bmdseSBjb25maWd1cmVkIHRoZSBrZXJuZWw/PC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNl
+PUFyaWFsPlRoYW5rcyE8L0ZPTlQ+PC9ESVY+PC9ESVY+PC9CT0RZPjwvSFRNTD4NCg==
+
+------=_NextPart_000_0069_01C398E3.6AC1A6A0--
 
 
 
