@@ -1,38 +1,40 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBCKlgRb011103
-	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 15:47:42 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBD19DRb012111
+	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 20:09:13 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hBCKlfAH024828
-	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 20:47:41 GMT
-Received: from hawaii.efficax.net (rrcs-sw-24-153-230-186.biz.rr.com [24.153.230.186])
-        by jazzband.ncsc.mil  with ESMTP id hBCKleZA024825 for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 20:47:40 GMT
-Received: from hawaii.efficax.net (localhost [127.0.0.1])
-	by hawaii.efficax.net (8.12.8/8.12.8) with ESMTP id hBCKlYQd029915
-	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 14:47:34 -0600
-Received: (from nick@localhost)
-	by hawaii.efficax.net (8.12.8/8.12.8/Submit) id hBCKlYO6029913
-	for selinux@tycho.nsa.gov; Fri, 12 Dec 2003 14:47:34 -0600
-Subject: Tomcat or SOAP
-From: Nick <nagray@austin.rr.com>
-Reply-To: nagray@austin.rr.com
-To: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1071262053.24193.163.camel@hawaii.efficax.net>
-Mime-Version: 1.0
-Date: Fri, 12 Dec 2003 14:47:34 -0600
+	by jazzband.ncsc.mil  with ESMTP id hBD192AH002675
+	for <selinux@tycho.nsa.gov>; Sat, 13 Dec 2003 01:09:02 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id hBD18oZA002628 for <selinux@tycho.nsa.gov>; Sat, 13 Dec 2003 01:09:01 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: nagray@austin.rr.com, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Tomcat or SOAP
+Date: Sat, 13 Dec 2003 12:07:27 +1100
+References: <1071262053.24193.163.camel@hawaii.efficax.net>
+In-Reply-To: <1071262053.24193.163.camel@hawaii.efficax.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200312131207.27330.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Has anyone done any work on domains for Tomcat and/or SOAP.
+On Sat, 13 Dec 2003 07:47, Nick <nagray@austin.rr.com> wrote:
+> Has anyone done any work on domains for Tomcat and/or SOAP.
 
-You can contact me off list, since this may not interest the general
-group.
+Why would SOAP require policy?  I was under the impression that SOAP is merely 
+a protocol, and therefore not something that directly requires policy.
+
+As for Tomcat, I'm not aware of any work on that.  Send me a detailed 
+description of what it does and I'll write policy to match.
 
 -- 
-Nick (Nix) Gray
-Senior Systems Engineer
-Bruzenak Inc.
-(512) 331-7998
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
