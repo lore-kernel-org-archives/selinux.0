@@ -1,23 +1,41 @@
-Message-ID: <3B34C7A1.DBBD5E6F@pegasys.cc>
-Date: Sat, 23 Jun 2001 09:45:21 -0700
-From: Darrell McGuire <dmcguire@pegasys.cc>
+Date: Mon, 25 Jun 2001 10:54:41 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Darrell McGuire <dmcguire@pegasys.cc>
+cc: SELinux@tycho.nsa.gov
+Subject: Re: SELinux with acl.bestbits.at ext2fs patch
+In-Reply-To: <3B34C7A1.DBBD5E6F@pegasys.cc>
+Message-ID: <Pine.SOL.3.95.1010625103236.28102H-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: SELinux with acl.bestbits.at ext2fs patch
-References: <Pine.SOL.3.95.1010622155240.10847O-100000@clipper.gw.tislabs.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Have any of you attempted a dual patch of both the POSIX ACL patch
-from Andreas Gruenbacher (acl.bestbits.at) and SELinux?
 
-Second question, as a follow up, does the dev. team for SELinux
-few this technology as a way to help harden a firewall, or as more
-of a general purpose OS security tool?
+On Sat, 23 Jun 2001, Darrell McGuire wrote:
 
-Thank you for your time,
-   Darrell McGuire
+> Have any of you attempted a dual patch of both the POSIX ACL patch
+> from Andreas Gruenbacher (acl.bestbits.at) and SELinux?
+
+We have not.  SELinux currently provides its own support for
+binding security attributes to files.  If support for extended
+attributes were integrated into the mainstream kernel, then
+we would naturally investigate using that support instead.
+
+> Second question, as a follow up, does the dev. team for SELinux
+> few this technology as a way to help harden a firewall, or as more
+> of a general purpose OS security tool?
+
+You can configure the SELinux access controls to meet a variety of
+needs.  So you can use SELinux to harden a firewall or a web/mail/DNS
+server.  You can also use SELinux on client systems to protect users
+against malicious code.  However, it will naturally be easier to
+configure the security policy for firewalls and dedicated server systems
+than for client systems.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
 
 
 
