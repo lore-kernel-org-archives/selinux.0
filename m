@@ -1,58 +1,40 @@
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: Russell Coker <russell@coker.com.au>
-Subject: postfix policy
-Date: Sat, 9 Aug 2003 16:26:49 +0200
-Cc: SELinux <SELinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7ACO7Ha011448
+	for <selinux@tycho.nsa.gov>; Sun, 10 Aug 2003 08:24:07 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h7ACMnOD018013
+	for <selinux@tycho.nsa.gov>; Sun, 10 Aug 2003 12:22:49 GMT
+Received: from blackbird.intercode.com.au (blackbird.intercode.com.au [203.32.101.10])
+	by jazzswing.ncsc.mil  with ESMTP id h7ACMkKO018010
+	for <selinux@tycho.nsa.gov>; Sun, 10 Aug 2003 12:22:48 GMT
+Date: Sun, 10 Aug 2003 22:23:47 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Diyab <diyab@diyab.net>
+cc: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: execute_no_trans
+In-Reply-To: <3F34314D.90806@diyab.net>
+Message-ID: <Mutt.LNX.4.44.0308102217200.7105-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_P4WC3C3L49QAXCPQH56N"
-Message-Id: <200308091626.49541.carstengrohmann@gmx.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 8 Aug 2003, Diyab wrote:
 
---------------Boundary-00=_P4WC3C3L49QAXCPQH56N
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+> Can anyone tell me what the execute_no_trans permission does.  I have 
+> run across it used in both policy files and the access_vectors file and 
+> although I see it is part of the kernel I do not find anything that 
+> explains exactly what it does.
 
-Hi Russel,
+See the following:
+http://www.nsa.gov/selinux/doc/module/x103.html#EXEC_PERMS_CHANGES
+http://www.nsa.gov/selinux/doc/module/x693.html#BPRM_SET_SECURITY
 
-some systems have /usr/lib/sendmail as an link to=20
-/usr/sbin/sendmail. The attached patch contains the changes.
-Would you like to add it to your postfix policy?
 
-Greetings
-
-Carsten
---------------Boundary-00=_P4WC3C3L49QAXCPQH56N
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="postfix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="postfix.diff"
-
---- mta.orig.fc	2003-03-14 21:08:47.000000000 +0100
-+++ mta.fc	2003-08-09 16:20:19.000000000 +0200
-@@ -1,5 +1,6 @@
- # types for general mail servers
- /usr/sbin/sendmail(.sendmail)?  system_u:object_r:sendmail_exec_t
-+/usr/lib/sendmail               system_u:object_r:sendmail_exec_t
- /etc/aliases                    system_u:object_r:etc_aliases_t
- /etc/aliases\.db                system_u:object_r:etc_aliases_t
- /var/spool/mail(/.*)?           system_u:object_r:mail_spool_t
---- postfix.orig.te	2003-07-29 21:15:09.000000000 +0200
-+++ postfix.te	2003-08-09 16:22:04.000000000 +0200
-@@ -75,6 +75,7 @@
- allow postfix_master_t sysctl_kernel_t:file r_file_perms;
- allow postfix_master_t self:fifo_file rw_file_perms;
- allow postfix_master_t usr_t:file r_file_perms;
-+allow postfix_master_t sendmail_exec_t:lnk_file { read };
- can_exec(postfix_master_t, { shell_exec_t bin_t postfix_exec_t })
- # chown is to set the correct ownership of queue dirs
- allow postfix_master_t self:capability { chown dac_override kill setgid setuid net_bind_service };
-
---------------Boundary-00=_P4WC3C3L49QAXCPQH56N--
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
 
 --
