@@ -1,9 +1,9 @@
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C2FED3.D7618AE6"
+	boundary="----_=_NextPart_001_01C2FEDB.625B78D0"
 Subject: Default_Contexts
-Date: Wed, 9 Apr 2003 16:08:52 -0400
-Message-ID: <8A61167D13CED411B3E500B0D079784703AAF3@mailserver.itac.reston>
+Date: Wed, 9 Apr 2003 17:02:52 -0400
+Message-ID: <8A61167D13CED411B3E500B0D079784703AAF4@mailserver.itac.reston>
 From: "Matthew R. Singer" <msinger@itac.com>
 To: <SELinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
@@ -11,7 +11,7 @@ List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C2FED3.D7618AE6
+------_=_NextPart_001_01C2FEDB.625B78D0
 Content-Type: text/plain;
 	charset="US-ASCII"
 Content-Transfer-Encoding: quoted-printable
@@ -30,7 +30,7 @@ msinger@itac.com
 703-453-7760
 
 
-------_=_NextPart_001_01C2FED3.D7618AE6
+------_=_NextPart_001_01C2FEDB.625B78D0
 Content-Type: text/html;
 	charset="US-ASCII"
 Content-Transfer-Encoding: quoted-printable
@@ -76,7 +76,7 @@ Applications Corporation</FONT>
 
 </BODY>
 </HTML>
-------_=_NextPart_001_01C2FED3.D7618AE6--
+------_=_NextPart_001_01C2FEDB.625B78D0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
