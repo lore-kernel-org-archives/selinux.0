@@ -1,45 +1,35 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2EKNCDo025038
-	for <selinux@tycho.nsa.gov>; Mon, 14 Mar 2005 15:23:12 -0500 (EST)
-Subject: Re: Latest patches
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <423253FB.6090602@redhat.com>
-References: <423253FB.6090602@redhat.com>
+Subject: Re: [RFC & PATCH] inherited type definition.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
+   SELinux Mail List <selinux@tycho.nsa.gov>, kaigai@ak.jp.nec.com
+In-Reply-To: <20050314160158.GD1246@lkcl.net>
+References: <42346C17.3090301@kaigai.gr.jp>
+	 <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050314151351.GC1246@lkcl.net>
+	 <1110813732.21378.91.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050314160158.GD1246@lkcl.net>
 Content-Type: text/plain
-Date: Mon, 14 Mar 2005 15:18:55 -0500
-Message-Id: <1110831535.3182.9.camel@moss-lions.epoch.ncsc.mil>
+Date: Mon, 14 Mar 2005 15:10:50 -0500
+Message-Id: <1110831050.21378.232.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
+On Mon, 2005-03-14 at 16:01 +0000, Luke Kenneth Casson Leighton wrote:
+> what is the one significant distinct advantage that the proposed
+> inheritance thing gives you that macro refactoring cannot?
 
-Also:
-- Made sysadm_r the first role for root, so root's home will be labled
-as sysadm_home_dir_t instead of staff_home_dir_t.
-- Modified fs_use and Makefile to reflect jfs now supporting security
-xattrs.
-- Added an ifdef to nrpe.fc to prevent duplicate nagios and netsaint
-rules.
-
-On Fri, 2005-03-11 at 21:29 -0500, Daniel J Walsh wrote:
-> Fixed to Makefile to better handle local.users
-> 
-> Ivan's Gift policy
-> 
-> Fixes to expand targeted policy.  (Adding dhcpc, ifconfig, hostname, 
-> consoletype)
-> 
-> Fixes to fs_daemon
-> 
-> Added a bunch of dontaudit of net_admin for many policies.
-
+Direct expression of certain type relationships in the language would
+allow tools to manipulate such relationships without having to deal with
+the much less constrained world of m4 macros.  I can understand that
+desire; I just want to make sure that it is done in a way that will be
+practically useful.  The not-yet-merged binary policy modules support
+has no way today to deal with e.g. instantiation of program domains for
+each user role/domain.
 
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
+Stephen Smalley <sds@tycho.nsa.gov>
 National Security Agency
 
 
