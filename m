@@ -1,68 +1,50 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Howard Holm <hdholm@epoch.ncsc.mil>,
-   Douglas Phillipson <phillipd@oem.doe.gov>
-Subject: Re: Opinions on installing SeLinux on different distros
-Date: Fri, 21 Mar 2003 11:57:00 +0100
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <3E7A0B04.4090502@oem.doe.gov> <1048195831.24500.119.camel@moss-sooners.epoch.ncsc.mil>
-In-Reply-To: <1048195831.24500.119.camel@moss-sooners.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2LFxhx6022574
+	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 10:59:43 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h2LFwMR1019755
+	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 15:58:22 GMT
+Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h2LFwMj9019752 for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2003 15:58:22 GMT
+Message-Id: <200303211604.LAA20617@moss-shockers.ncsc.mil>
+Date: Fri, 21 Mar 2003 11:04:32 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: SE-Linux and 2.4.20
+To: selinux@tycho.nsa.gov, bam@snoopy.apana.org.au
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200303211157.00904.russell@coker.com.au>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 20 Mar 2003 22:30, Howard Holm wrote:
-> Russell Coker has done much excellent work in bringing SELinux to
-> Debian, and provides the appropriate set of patched applications (which
-> are very close to the Red Hat applications) and a Debian specific
-> example policy.  Again, you'll probably need to modify the policy to
-> meet your specific needs.
 
-Thanks for the nice reference.
+Brian May wrote:
+> I have found I simply cannot use a 2.4.20 kernel with SE-Linux
+> support on my laptop computer with out it "hanging" after a while.
+> 
+> By this I mean random processes hang, and cannot be killed, even with
+> kill -9, and rebooting doesn't work.
+> 
+> Combinations tested:
+> 
+> 2.4.19 + older selinux patch (v12) = OK
+> 2.4.20 with SE-Linux (accidently) disabled = OK
+> 2.4.20 with new SE-Linux patch (v12) = crashed before 30 minutes.
+> (was doing nothing but downloading files at the time with apt-get).
+> 
+> In all cases I have the same policy installed.
+> 
+> Any ideas on how to debug this problem further?
 
-My work on SE Debian is aimed at making it an integral part of the OS.  So 
-basic functionality of the OS such as package upgrades on a running server 
-will still work.  I believe that if you prevent usual operation of the system 
-then you reduce security by limiting the number of machines that can run SE 
-Linux, and by preventing the administrator from performing important tasks 
-such as prompt application of patches.
+I haven't seen this behavior myself.  Was there anything useful in
+/var/log/messages or the dmesg output, e.g. a kernel Oops message?  As
+a reminder, we don't incorporate other bug fix patches in the
+LSM/SELinux patches, so you do need to apply any other bug fix patches
+that you want for the base kernel, e.g. the ext3 fixes for 2.4.20.
 
-The aim is that you should be able to install Debian with SE Linux and for the 
-base functionality and commonly used programs it should all just work with 
-minimal changes.
-
-When changes to policy are required I am very interested in merging any policy 
-contributed by users.
-
-> See the README in the SELinux distribution on the NSA web site
-> http://www.nsa.gov/selinux/ for Red Hat instructions.  I'm sure Russell
-> could provide Debian instructions.
-
-My web site http://www.coker.com.au/selinux/ provides some basic info, but 
-I've been too busy coding to do much.
-
-Faye's document is mostly focussed on Debian.  Go to 
-http://sourceforge.net/projects/selinux , go to the "Docs" section and Faye's 
-document is the first entry.
-
-> > 8) I understand that  the "Secure Computing" corporation had a hand in
-> > this.  Do they have a commercial version available or one planned?
->
-> I'm not aware of any currently available commercial version of SELinux.
-
-Some commercial distributions have been looking into the issue.  However since 
-the dot-com crash no-one has wanted to do any speculative development.  If a 
-big customer was to approach a commercial distribution with a demand for SE 
-Linux support then maybe something could be arranged.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
 
 --
