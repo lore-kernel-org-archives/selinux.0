@@ -1,42 +1,50 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9DJR4Wt015037
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 15:27:04 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9DJR3ZK006773
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 19:27:03 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-        by jazzband.ncsc.mil  with ESMTP id h9DJR3FF006770 for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 19:27:03 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.11.6/8.11.6) with ESMTP id h9DJR3M13467
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 15:27:03 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.64.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id h9DJR2r11699
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 15:27:02 -0400
-Received: from redhat.com (celtics.boston.redhat.com [172.16.65.39])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id h9DJR1nv013284
-	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 15:27:02 -0400
-Message-ID: <3F8AFC86.5030100@redhat.com>
-Date: Mon, 13 Oct 2003 15:27:02 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9DLtkWt015622
+	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 17:55:46 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9DLte0p029183
+	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 21:55:40 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+	by jazzswing.ncsc.mil  with ESMTP id h9DLtcr7029180
+	for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2003 21:55:39 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Carlos =?iso-8859-1?q?An=EDsio=20Monteiro?= <monteiro@ipen.br>,
+   selinux@tycho.nsa.gov
+Subject: Re: avc: denied messages
+Date: Tue, 14 Oct 2003 07:55:36 +1000
+References: <3F8AEBBE.7070602@ipen.br>
+In-Reply-To: <3F8AEBBE.7070602@ipen.br>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Updated packages available on people.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200310140755.36112.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have finished updating my files on ftp://people.redhat.com/dwalsh/SELinux.
+On Tue, 14 Oct 2003 04:15, Carlos Anísio Monteiro wrote:
+> When system boot process is running up a lot of messages "avc: denied"
+> are displayed, in permissive mode e enforcing mode. In permissive mode,
+> for all the messages "avc: denied" the boot process is completed and the
+> login prompt is showed. However, in enforcing mode, it displayed the
+> messages "avc: denied", but also displayed others messages: "INIT: Id
+> "runlevel number" respawning too fast: disable for 5 minutes", "INIT: no
+> more processes left in this runlevel"; and stop the boot process.
+> Please, how I resolve this ?
 
-Packages are available for both Fedora and RHEL3.  You can use the 
-selUpgrade script to
-upgrade a previously installed system.   I have also added some example 
-kickstart files to allow you
-to install and upgrade a system automatically.  This is very 
-experimental, but seems to be working
-fairly well.
+To answer this question we need to know the exact messages in question, both 
+the AVC messages and which ID init says is respawning too fast.
 
-Dan
+> PS. I appended the line "/.journal <<none>>" in the file_context file,
+> because one error message is displayed when compiling the rules.
 
+What error?
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 
