@@ -1,62 +1,43 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14260
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 12:36:00 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14610
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 12:56:44 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA14750
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:34:33 GMT
-Received: from deliverator.sgi.com (deliverator.sgi.com [204.94.214.10])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA14746
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:34:33 GMT
-Message-ID: <3A5DEEFB.6C988852@sgi.com>
-Date: Thu, 11 Jan 2001 09:35:55 -0800
-From: Casey Schaufler <casey@sgi.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tislabs.com>
-CC: Christoph Hellwig <hch@ns.caldera.de>, selinux@tycho.nsa.gov,
-        linux-privs-discuss@sourceforge.net
-Subject: Re: [Linux-privs-discuss] SELinux & Linux-privs projects
-References: <Pine.SOL.3.95.1010111111746.23465T-100000@clipper.gw.tislabs.com>
-Content-Type: text/plain; charset=us-ascii
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA15802
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:55:12 GMT
+Received: from gnat.inet.org (209-9-249-62.sdsl.cais.net [209.9.249.62])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA15792
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:55:11 GMT
+Message-Id: <5.0.0.25.2.20010111124540.01be6940@gnat.inet.org>
+Date: Thu, 11 Jan 2001 12:47:34 -0500
+To: Johnathon Day <jcday@mail.thesportsregister.com>
+From: RJ Atkinson <rja@inet.org>
+Subject: Re: Security enhancements, et al
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <Pine.LNX.4.21.0101100924010.5905-100000@mail.thesportsregi
+ ster.com>
+References: <3A5C118F.36583E35@occamnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Stephen Smalley wrote:
+At 09:41 10/01/01, Johnathon Day wrote:
 
-> The POSIX.1e MAC tightly couples policy and enforcement because
-> it is designed for a particular kind of security policy.
-> It assumes a certain kind of security label.
+>The "Open Source" IPSECs I know of are: NIST (Linux), FreeS/WAN (Linux),
+>CISCO (BSD), MIT (BSD) and DOD (BSD). 
 
-I don't know who told you that, but it certainly wasn't
-anyone who worked on the standard. The 1e MAC specification
-is explicitly devoid of any such assumptions. That's one
-reason there's no specification on Moldy directories, for
-example.
+Aside:
+        I don't think there exists an MIT (BSD) IPsec.  I think
+you meant the "NRL (BSD) IPsec" that happens to be distributed
+by MIT as a service to the community, at the request of ARPA,
+(done because getting NRL management to distribute crypto code 
+online was too administratively painful).
 
-> It assumes hierarchical relationships among labels.
+Cheers,
 
-It assumes that there are two relationships, equality
-and dominance, between labels. I can easily show labeling
-schemes which are cyclic, but which can be represented
-in terms of these relationships.
+Ran
+rja@inet.org
 
-> It assumes that it is
-> sufficient to treat all operations as being read, write, or execute.
-
-That's because those are the only operations POSIX systems
-support! It's implicit in being a POSIX (DRAFT) standard.
-
-> In order to support Type Enforcement or Role-Based Access
-> Control or other kinds of mandatory security, you are very likely
-> to need to change or at least recompile the file system code,
-> the networking code, etc.
-
-Yes, and?
-
--- 
-
-Casey Schaufler				Manager, Trust Technology, SGI
-casey@sgi.com				voice: 650.933.1634
-casey_p@pager.sgi.com			Pager: 888.220.0607
 
 --
 You have received this message because you are subscribed to the selinux list.
