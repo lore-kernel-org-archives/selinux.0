@@ -1,42 +1,52 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA01437
-	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 05:59:37 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA01400
+	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 05:47:16 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id JAA19841
-	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 09:59:33 GMT
+	by jazzswing.ncsc.mil  with ESMTP id JAA19547
+	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 09:47:11 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id JAA19837
-	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 09:59:31 GMT
+	by jazzswing.ncsc.mil  with ESMTP id JAA19543
+	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 09:47:10 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 01ABD92452
-	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 19:59:33 +1000 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id E368492452
+	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 19:47:11 +1000 (EST)
 Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 5C1852657
-	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 11:59:25 +0200 (CEST)
+	by lyta.coker.com.au (Postfix) with SMTP id 3993625BF
+	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 11:47:02 +0200 (CEST)
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: can_tcp_connect_to() macro
-Date: Sun, 26 May 2002 11:59:25 +0200
+Subject: controlling policy at a high level
+Date: Sun, 26 May 2002 11:47:01 +0200
 MIME-Version: 1.0
-Message-Id: <20020526095926.5C1852657@lyta.coker.com.au>
+Message-Id: <20020526094702.3993625BF@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-What do you think about the following?
+When configuring SE Linux there are a number of decisions which need to be 
+made in the balance of security vs usability.
 
-#################################
-#
-# can_tcp_connect_to(client, server)
-#
-# Permissions for establishing a TCP connection TO a domain.
-#
-define(`can_tcp_connect_to',`
-allow $1 $2:tcp_socket connectto;
-allow $2 $1:tcp_socket recvfrom;
-')
+Here are some examples:
+
+Can a regular user do "ps ax" and see everyone's processes?
+
+Can a rgular user stat terminal device files from other users (needed for 
+"w")?
+
+These are essentially arbitary decisions, and decisions that are likely to be 
+changed reasonably often.
+
+So I am thinking of having a special configuration file to define macros for 
+such things maybe called policy/config_settings.
+
+Then it would have something like:
+dnl define(`config_allow_ps_ax')
+dnl define(`config_allow_stat_tty')
+
+
+Plus anything else of a similar nature.
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
