@@ -1,35 +1,30 @@
-Subject: Updated SELinux Release
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Wed, 09 Mar 2005 16:02:20 -0500
-Message-Id: <1110402140.6299.22.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <20050310102738.85071.qmail@web51503.mail.yahoo.com>
+Date: Thu, 10 Mar 2005 02:27:38 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Question about packet_socket class?
+To: SELinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-An updated SELinux release is available from the NSA SELinux web site;
-see http://www.nsa.gov/selinux/news.cfm#R050309. 
+Hi,
+  In security_classes file, we can see a security
+class named packet_socket. 
+then, What is this security class used for? What's the
+meaning of it?
 
-This release is based on Linux 2.6.11.  The SELinux kernel patch for
-2.6.11 includes enhanced MLS support, changes to the execute-related
-permission checking for legacy binaries, and an extension to the
-/proc/pid/attr API to allow use by scripts.  Enhanced MLS support has
-been merged into the userspace libraries and tools.  The libraries and
-tools have been modified to allow local customization of file contexts
-and users without requiring policy sources, and to preserve certain
-types that are marked as being customizable upon relabels.  A helper
-for running init scripts under a pty from run_init was merged.
-setfiles was rewritten to use the matchpathcon library function.  The
-technical reports in the selinux-doc package were updated to reflect
-the current SELinux code.  The contributors page was updated.
-Numerous patches for the userspace libraries, tools, and policy were
-merged.  Updated versions of setools, slat, and polgen were added.
+Thank you.
 
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Best Regards,
+Park Lee
 
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Small Business - Try our new resources site!
+http://smallbusiness.yahoo.com/resources/ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
