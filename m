@@ -1,56 +1,40 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9SLRaXZ003438
-	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2004 17:27:39 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9SLRWW1027960
-	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2004 21:27:33 GMT
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id AEE73BF25
-	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2004 22:27:15 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1CNHyM-0001P0-QA
-	for selinux@tycho.nsa.gov; Thu, 28 Oct 2004 22:38:18 +0100
-Date: Thu, 28 Oct 2004 22:38:18 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: http://www.ogc.gov.uk/oss/Report-v8c.htm
-Message-ID: <20041028213818.GH4885@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9SM9AXZ003708
+	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2004 18:09:10 -0400 (EDT)
+Received: from wgimx02.wgint.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9SM7oba002127
+	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2004 22:07:51 GMT
+From: "Richard Simpson" <richard.simpson@wgint.com>
+To: "Thomas Bleher" <bleher@informatik.uni-muenchen.de>
+Cc: "Selinux@Tycho. Nsa. Gov" <selinux@tycho.nsa.gov>
+Subject: RE: wrong context for ntpd.pid
+Date: Thu, 28 Oct 2004 16:11:45 -0600
+Message-ID: <BJENLMGHDPAAAGKKPOFOAEHDCFAA.richard.simpson@wgint.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-15"
+In-Reply-To: <20041028165529.GE27776@rom.cip.ifi.lmu.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-5.1       Security
+> -----Original Message-----
+> From: Thomas Bleher [mailto:bleher@informatik.uni-muenchen.de]
+...
+> Add the following line to /etc/init.d/ntpd directly after the chown:
+>         [ -e /sbin/restorecon ] && /sbin/restorecon /var/run/ntpd.pid
+>
+> This should be all that is needed.
+>
 
-	There is no definitive answer on the relative security
-	merits of open- or closed-source software.
+I filed a bug report on this problem:
+http://bugs.gentoo.org/show_bug.cgi?id=69288
+They chose to fix it by revising the init script to not create the pid file
+in the first place. If the daemon creates the file it should be in the
+correct context. I will test it tonight.
 
-	[...]
+Thanks for the help,
+Richard.
 
-	... not investigated these claims in any detail
-	either way.  In practice, correct configuration
-	and patching of any system is the first essential,
-	whether based on open- or closed-source software.
-	Recent developments such as the U.S. National Security
-	Agency's security extensions to Linux (also being
-	developed as TrustedBSD [lkcl: http://trustedbsd.org])
-	are, however, generating significant interest as they
-	make 'high-end' security mechanisms available to a
-	much wider community than hitherto.
-
-oo!  cool!  
-
-info on trustedbsd: http://en.wikipedia.org/wiki/TrustedBSD
-bbc on linux      : http://news.bbc.co.uk/1/hi/business/3960025.stm
-
-
- 
--- 
---
-you don't have to BE MAD   | this space    | my brother wanted to join mensa,
-  to work, but   IT HELPS  |   for rent    | for an ego trip - and get kicked 
- you feel better!  I AM    | can pay cash  | out for a even bigger one.
---
 
 --
 This message was distributed to subscribers of the selinux mailing list.
