@@ -1,58 +1,141 @@
-Subject: RE: dynamic context transitions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Frank Mayer <mayerf@tresys.com>
-Cc: "'Colin Walters'" <walters@verbum.org>,
-   "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
-   "'Chad Hanson'" <chanson@TrustedCS.com>,
-   "'Karl MacMillan'" <kmacmillan@tresys.com>,
-   "'Darrel Goeddel'" <DGoeddel@TrustedCS.com>,
-   "'SELinux List'" <SELinux@tycho.nsa.gov>
-In-Reply-To: <01fd01c4c359$e70c5fb0$1e0c010a@columbia.tresys.com>
-References: <01fd01c4c359$e70c5fb0$1e0c010a@columbia.tresys.com>
+Subject: Re: setsebool and togglesebool patch
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: SELinux List <SELinux@tycho.nsa.gov>
 Content-Type: text/plain
-Message-Id: <1099676893.6373.227.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 05 Nov 2004 13:23:29 -0500
+Message-Id: <1099679009.20150.150.camel@pham.columbia.tresys.com>
 Mime-Version: 1.0
-Date: Fri, 05 Nov 2004 12:48:13 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-11-05 at 12:07, Frank Mayer wrote:
-> Adding/removing permissions?  That's not mandatory security, flexible or not.
-> Dropping permissions permanently can only be achieved securely (or as secure as
-> Linux possible) by exec'ing into a new, lower domain so that's covered.  And I
-> thought the need was privilege bracketing, allowing software the arbitrary
-> ability to add/drop base privileges, which the hierarchy does naturally.
+This was truncated by the list mail server - full message below.
 
-Mandatory in what sense?  As we have always used the term, it signifies:
-admin-controlled policy, control over all subjects and objects,
-decisions based on all security-relevant information.  Dynamic
-transitions would be subject to the control of the policy.
+Karl
 
-TCS has clearly expressed the desire to be able to shed permissions
-permanently within an application.  The samba discussion talked about an
-orthogonal transformation with three types, starting in a domain with
-access to samba configuration files only, transitioning to a domain with
-access to user files only, and then transitioning to a domain with
-access to nothing for cleanup before transitioning back to the initial
-domain.  Such orthogonal transformations are common for the exec-based
-domain transitions today, for least privilege purposes.
-
-> If this mechanism is implemented as proposed, I do not think we can implement a
-> hierarchy at all, in the compiler or anywhere.  There will be no way to allow a
-> process to start at a point in the hierarchy, and allow it move down *and* up
-> again.  For example, take the hierarchy: A, A.1, A.1.1, A.1.2 where each are a
-> type.  If I want to allow a process that starts in A to change to any type A.*
-> and back again and between any types in the tree, I have to allow A.* to change
-> to any other A.*.  If that's the case then I can't have a process start at A.1
-> and not be allowed to get to A, since the rules would allow A.* to change to any
-> other A.*.
-
-I'm not sure I understand your point.  The "if" part seems to be a
-strawman that forces your conclusion.  
-
+-------- Forwarded Message --------
+> From: Karl MacMillan <kmacmillan@tresys.com>
+> To: Steve G <linux_4ever@yahoo.com>
+> Cc: SELinux List <SELinux@tycho.nsa.gov>
+> Subject: Re: setsebool and togglesebool patch
+> Date: Fri, 05 Nov 2004 10:20:19 -0500
+> On Thu, 2004-11-04 at 11:41 -0800, Steve G wrote:
+> > Hi,
+> > 
+> > I've been reviewing the tools distributed in Fedora and have a patch that makes a
+> > few changes. Booleans have a transaction-like interface. But the tools do not do
+> > a rollback if they blow up in the middle of something. For example, suppose I
+> > type in a list of 4 apache booleans I want to toggle, but make a typo in one. 3
+> > of them will get set. Until I correct it, apache would be running with one bool
+> > in the opposite state.
+> > 
+> > Also, setsebool is used by scripts to set the state of a boolean to a particular
+> > value. As its stands, it is not done in a transactional way because it does not
+> > take a list of name/value pairs. So, there can be a race as parts of a program
+> > get the boolean changed.
+> > 
+> 
+> Unfortunately, this race isn't avoided entirely with your approach -
+> there is no guarantee that only one instance of the tools is running and
+> of course other processes can be toggling the booleans directly
+> via /selinux. Even if two processes are changing orthogonal booleans, a
+> commit by one of the processes in the middle of the other's transaction
+> can cause an inconsistent state.
+> 
+> The full solution seems to require a locking scheme in the tools and
+> policy that only allows changing of booleans by the tools. This policy
+> could be:
+> 
+> 1) only giving the domain for the tools the security.setbool permission.
+> 2) making the tools a user-space object manager that enforces the fine-
+> grained permissions on setting booleans.
+> 3) controlling setting booleans by other domains through
+> execute/type_transition for the tools and permissions on the boolean
+> files.
+> 
+> This puts a lot of trust in the tools - they would be enforcing the
+> permissions on changing individual bools, which like all policy changes
+> is a powerful privilege.
+> 
+> > Also, an audit record is written by the kernel saying ALL the current values
+> > during a commit, but you don't have a good way of seeing only the changes that
+> > were made by a user.
+> > 
+> 
+> This was a deliberate design choice to make certain that determining the
+> state of all of the policy booleans didn't require more than one log
+> message. Otherwise, it would not really be possible to determine the
+> overall state (especially because the policy load message doesn't print
+> the state of the booleans). It seems more important to know that overall
+> state, but I agree that this is sometimes not what you want. Your
+> approach of logging from userspace tools is probably sufficient, but of
+> course it only works if the tools are used (ignoring the suggestions
+> above). Maybe the kernel could print out both what changed and the
+> current state.
+> 
+> 
+> > I've attempted to fix these issues with the attached patch.
+> > 
+> > togglesebool is updated to do the following:
+> > 
+> > * It is now all or nothing. Meaning that it toggles all booleans passed or 
+> > none at all.
+> > * It logs to syslog what was done and by whom.
+> > 
+> 
+> Whom means linux username, SELinux username, process type, a
+> combination?
+> 
+> > In order to make the rollback code simple, I needed a change to src/booleans.c  
+> > so that it would reject anything except 0 or 1.
+> > 
+> > setsebool had more changes. Rather than review the patch, you might apply it and
+> > then review the resulting code. setsebool is used by a configuration 
+> > tool to write all booleans to memory. The config tool then writes them to disk. 
+> > So, it was updated to do the following:
+> > 
+> > * It now takes lists of booleans and treats them in an all or nothing manner. 
+> > All get set or none at all.
+> > * It takes a -P option to tell it to write the configuration to disk
+> 
+> Does this mean the policy or the boolean configuration? This gives these
+> tools a lot of power that wasn't there before. You are essentially
+> requiring that setsebool have permission to change any bool, or if you
+> are writing the policy to disk permission to change anything. Also, is
+> there a corresponding policy for the new tool variants? Before they
+> intentionally ran in the callers domain to naturally let the ability to
+> change bools be governed by the calling domain. Now, unless some policy
+> is written for setsebool, all of the calling domains would need to be
+> given permission to change the config file and/or policy (and therefore
+> any bool).
+> 
+> > * It logs to syslog what was changed and by whom.
+> > * Preserves the old syntax. Scripts using it as 'setsebool bool value' will 
+> > continue to work.
+> > 
+> > I also updated all affected man pages to document the new syntax.
+> > 
+> 
+> This is work that needs to be done and I'm glad that you are tackling
+> it. Unfortunately, it seems to me that the full solution requires some
+> more engineering.
+> 
+> Karl
+> 
+> > Thanks,
+> > -Steve Grubb
+> > 
+> > 
+> > 		
+> > __________________________________ 
+> > Do you Yahoo!? 
+> > Check out the new Yahoo! Front Page. 
+> > www.yahoo.com 
+> > 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+http://www.tresys.com
 
 
 --
