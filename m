@@ -1,81 +1,68 @@
-Subject: Re: [OT] SELinux vs. other systems [was Re: [idea] udev + selinux]
-From: Colin Walters <walters@verbum.org>
-To: linas@austin.ibm.com
-Cc: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
-   Nigel Kukard <nkukard@lbsd.net>, linux-hotplug-devel@lists.sourceforge.net,
-   SELinux <SELinux@tycho.nsa.gov>, harald@redhat.com,
-   Bill Nottingham <notting@redhat.com>
-In-Reply-To: <20040831224447.GA4964@austin.ibm.com>
-References: <20040830173744.GD10151@lbsd.net>
-	 <20040831160750.GM11456@lkcl.net> <20040831164635.GK10151@lbsd.net>
-	 <20040831191809.GC4375@lkcl.net>  <20040831224447.GA4964@austin.ibm.com>
-Content-Type: text/plain
-Date: Wed, 01 Sep 2004 10:29:34 -0400
-Message-Id: <1094048975.11084.9.camel@nexus.verbum.private>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81EaWrT021455
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 10:36:32 -0400 (EDT)
+Received: from web51505.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i81EZgY2004056
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 14:35:43 GMT
+Message-ID: <20040901143631.18080.qmail@web51505.mail.yahoo.com>
+Date: Wed, 1 Sep 2004 07:36:31 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Interpret security context
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1521672489-1094049391=:16018"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[ The CC list here is rather nuts, someone needs to trim it...]
+--0-1521672489-1094049391=:16018
+Content-Type: text/plain; charset=us-ascii
 
-On Tue, 2004-08-31 at 17:44 -0500, Linas Vepstas wrote:
+Hi,
 
-> Every now and then, I look at SELinux, and I get scared away by its
-> complexity.  
-
-It is actually not that complicated, but if you're unfamiliar with
-mandatory access control (as I was when I first started learning about
-SELinux), it does require understanding some theory before you dive in.
-
-> This complexity makes it very hard to audit, and assure
-> oneself that its actually providing any real security, as opposed to
-> the illusion of security.  During this email thread, there are 
-> references to mysterious rules that neither party in the conversation 
-> fully understands; this scares me. 
-
-Because two people in a thread don't understand SELinux, that means that
-it's too complex?  I can certainly find plenty of examples of people not
-understanding Linux on linux-kernel; does that imply Linux is too
-complex?
-
-> Compare this to less complex security provided by e.g. the Linux 
-> VServer project.  VServer is intended to allow an ISP to pretend they
-> have a rack of 100 cpu's all running linux, when in fact they have just
-> one.  
-
-VServer isn't solving the same problem as SELinux.  VServer is really a
-virtualization solution.  For example, it would make sense to run *both*
-a virtualization solution like VServer (or Xen, which looks more
-promising), and SELinux at the same time.  That way, if e.g. the bind
-daemon running in one of the virtualized servers gets cracked, it
-doesn't mean a compromise of the whole virtual server.
-
-Now, you can use a virtualization technology as a primitive form of
-separation by running e.g. your MTA in one virtual server, your name
-server in another, etc.  But that's rather painful, and is only an
-approximation to least privilege.
-
-> Another example: Way back in the kernel-2.2 timeframe, I hacked on 
-> something neat: 'LOMAC': if you came in from a network connection, 
-> you lost permission to do almost anything, other than to e.g. webserve. 
-> The system was simple, worked well, the kernel patches were easy to audit, 
-> you could go home without worrying about priveledge escalation.  
-
-That's also a rather blunt tool; SELinux is much more flexible.
-
-> Compare that to this thread, where we are talking about atomic vs.
-> non-atomic restoration of context for udev-mounted temp file systems.
-> Shudder. This seems to be begging for an exploit to be discovered.
-
-I doubt it.  Files created in /dev should have a default type like
-device_t which most domains will not have access to.
-
-> Are we sure that SELinux is really on the right track here?
-
-Given the amount of research behind SELinux, and the amount of work
-being done on it, I think so, yes.
+In subsection 5.2.1 Object Labeling of <<The Flask Security Architecture: System Support for Diverse Security Policies>>, it says:
+   A security context, the first policy-independent data type, is a variable-length string which can be interpreted by any application or user with an understanding of the security policy.
+ 
+        While, In subsection 2.1.Flask Concepts of <<Configuring the SELinux Policy>>, it says:
+   The content and format of a security context depends on the particular security model, so a security context is only interpreted by the security server.
+ 
+        Then, Who can interpret the security context except security server? Can any application or user with an understanding of the security policy interpret the security context in the end?
+ 
 
 
+--
+Best Regards,
+Park Lee <parklee_sel@yahoo.com> 
+ 
+
+
+
+
+
+
+		
+---------------------------------
+Do you Yahoo!?
+Win 1 of 4,000 free domain names from Yahoo! Enter now.
+--0-1521672489-1094049391=:16018
+Content-Type: text/html; charset=us-ascii
+
+<DIV>Hi,</DIV>
+<DIV><BR>In <EM>subsection 5.2.1 Object Labeling</EM> of &lt;&lt;The Flask Security Architecture: System Support for Diverse Security Policies&gt;&gt;, it says:<BR>&nbsp;&nbsp; A <STRONG>security context</STRONG>, the first policy-independent data type, is a variable-length string <STRONG>which can be interpreted by any application or user with an understanding of the security policy.</STRONG></DIV>
+<DIV><STRONG></STRONG>&nbsp;</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; While, In <EM>subsection 2.1.Flask Concepts</EM> of &lt;&lt;Configuring the SELinux Policy&gt;&gt;, it says:<BR>&nbsp;&nbsp; The content and format of a security context depends on the particular security model, so a <STRONG>security context is only interpreted by the security server</STRONG>.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Then, Who can interpret the security context except security server? Can any application or user with an understanding of the security policy interpret the security context in the end?</DIV>
+<DIV>&nbsp;</DIV><BR><BR><DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>--<BR>Best Regards,<BR>Park Lee &lt;<A href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;YY=1156&amp;order=down&amp;sort=date&amp;pos=0"><FONT color=#003399>parklee_sel@yahoo.com</FONT></A>&gt; </DIV>
+<DIV>&nbsp;</DIV></DIV></DIV></DIV></DIV></DIV><p>
+		<hr size=1>Do you Yahoo!?<br>
+Win 1 of 4,000 free domain names from Yahoo! <a
+href="http://us.rd.yahoo.com/evt=26640/*http://promotions.yahoo.com/goldrush">Enter now</a>.
+--0-1521672489-1094049391=:16018--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
