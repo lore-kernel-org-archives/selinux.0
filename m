@@ -1,85 +1,97 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA00453
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 11:05:55 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA02239
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 16:05:19 GMT
-Received: from relay2.nai.com (relay2.nai.com [161.69.3.67])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA02221
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 16:05:08 GMT
-Received: from scwsout1 (webshield2.nai.com [161.69.3.73])
-	by relay2.nai.com (8.9.3/8.9.3) with SMTP id IAA23443
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 08:05:12 -0800 (PST)
-Message-ID: <DBF2F9C6F6BAD211BB1B00A0C99D970233AD5D@dns-205.dhcp-77.nai.com>
-From: "Badger, Lee" <Lee_Badger@nai.com>
-To: "'open-source@csl.sri.com'" <open-source@csl.sri.com>,
-        "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: RE: Ros: Re: enhanced security for Linux, from Stephen Smalley
-Date: Wed, 10 Jan 2001 07:58:30 -0800
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA00750
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 11:27:48 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA16042
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 16:26:22 GMT
+Received: from dit2.state.va.us (dit2.state.va.us [165.176.32.4])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA16034
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 16:26:21 GMT
+Received: from ditmis8.state.va.us (ditmis8 [165.176.61.18])
+	by dit2.state.va.us (8.9.3+Sun/8.9.3) with ESMTP id LAA18356
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 11:25:46 -0500 (EST)
+Message-ID: <A0669F3E0A6B3448A962DC6141E6C7A6144156@mis1>
+From: "Belmonte, Christopher" <cbelmonte@dit.state.va.us>
+To: selinux@tycho.nsa.gov
+Subject: RE: Security enhancements, et al
+Date: Wed, 10 Jan 2001 11:27:43 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Casey,
+Is anyone currently using the Rule Set Based Access Control linux security
+extension? I am curious on how it compares to SELinux. You can get the
+extension at:
 
-I have to strongly disagree.
+www.rsbac.de
 
-> Unfortunately, I see no way that the industry can take
-> advantage of it. We've been pushing B1 (now LSPP) as the
-> ultimate COTS security solution since the late 1980's
-> and we're not going to drop that investment any time
+I am currently using Debian/GNU linux w/ kernel 2.2.17 + RSBAC security
+extension on an SMP machine.
 
-As one of the creators of Domain and Type Enforcement (DTE), I have to
-tell you that type enforcement is pretty different from MLS.  It is
-highly configurable.  It allows us to trust but still confine programs
-that must generate high-integrity data, or that must write "down" in
-the sensitivity lattice.  It allows us to sandbox critical processes
-in highly restrictive access control environments while leaving most
-of the other processes unaffected.  It can support Biba, and
-Clark/Wilson style integrity policies.  It can support notions such as
-controlled execution.  It can of course support assured pipelines.
-These are all capabilities that are natural for Security-Enhanced
-Linux (SELinux), and that are very important for commercial
-applications, but which are difficult, at best, with B1-like systems.
-The confidentiality lattice just wasn't designed with these things in
-mind.
+I have not had the opportunity to try out SELinux, but I have been using the
+RSBAC security extension for sometime now. Having used and involved in the
+testing of DG/UX with the B2 and C2 security options, I think this security
+extension is by far the best one available for linux. (When you compare what
+this security extension does for linux as opposed to a commercial OS with an
+evaluated security package) 
 
-I see many ways that industry can use these capabilities.  Just
-consider any web farm.  Any 24x7 server.  Any organization that uses
-servers that could be penetrated externally (e.g., the buffer overflow
-attacks documented by CERT).  SELinux can and should also be applied
-within organizations.  Firewall perimeters are getting weaker, and
-there is an increased need to harden all host systems.  The label
-lattice of the orange book doesn't help much there, but a system like
-SELinux provides a very appropriate set of tools for applying access
-controls so as to appropriately harden interior systems.  This makes
-lots of sense for servers, today.  Client workstations are harder to
-configure, but, ultimately, this approach may help there as well.
+Does anyone have any idea why it has taken so long the release of SELinux?
+I'm assuming that maybe it was due to a source code audit... the man pages
+for many of the commands added by SELinux show updates from 1997-1999 (sorry
+if this has been changed in the current version).
 
-> throw that away, even for a vastly superior technology
-> (Hey! I *AM* Dilbert's Boss!) which DE does not appear
-> to be.
+I am willing to give SELinux a try, but with security extensions such as
+RSBAC for linux being effective for information security on a linux
+platform, I am in interested to see in how this product will continue to
+develop, given the pace it is at right now and the list of improvements that
+still need to be made. 
 
-I would not claim superiority for SELinux in the area of
-confidentiality or in the area of general assurance.  But for
-integrity and flexibility and the ability to support confinement
-policies of interest to commercial customers (i.e., like confining
-those CGI scripts), SELinux provides a _much_ more useful set of tools
-than Orange Book systems.  For these kinds of problems, SELinux
-deserves a close look.  It has different goals from those of the
-Orange Book, and is not an equivalent to B1.
+- Chris Belmonte
 
-Lee
+-----Original Message-----
+From: Johnathon Day [mailto:jcday@mail.thesportsregister.com]
+Sent: Wednesday, January 10, 2001 9:41 AM
+To: selinux@tycho.nsa.gov
+Subject: Security enhancements, et al
 
-Lee Badger
-Chief Scientist
-NAI Labs, Network Associates
-443.259.2382 voice
-301.854.4731 fax
-lbadger@nai.com
 
+Hi,
+
+   First off, a quick question. Is there any code in SGI's Open B1 release
+that could be sensibly utilised in SELinux? (I've not gone right the way
+through OB1, but it seems silly to have a comprehensive resource just
+sitting there. On the other hand, if SELinux covers everything of interest
+in OB1 and/or the effort of writing from specs would be easier than a port
+then trying to force chunks of OB1 into SELinux would be stupid beyond
+belief.)
+
+   Secondly, I've not seen a mention of SELinux on Freshmeat. The Slashdot
+article probably did wonders for interest, but Freshmeat is a great tool
+for maintaining the momentum. It'd be "better" if one of the core team
+could post it, but that's an implementation issue. Getting it posted is
+the main thing.
+
+   Lastly, the reply to my question on IPSEC wasn't terribly clear. (But
+that might just have been me.) I couldn't figure out if SELinux will have
+it's own IPSEC implementation or a 3rd-party one. And, if 3rd-party, who.
+The "Open Source" IPSECs I know of are: NIST (Linux), FreeS/WAN (Linux),
+CISCO (BSD), MIT (BSD) and DOD (BSD). There are bound to be others. This
+is not exhaustive. It'd be possible for SELinux to fork off any of these,
+with various levels of effort, or to merge in diffs to support the SELinux
+API.
+
+Jonathan Day
+
+
+
+--
+You have received this message because you are subscribed to the selinux
+list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 You have received this message because you are subscribed to the selinux list.
