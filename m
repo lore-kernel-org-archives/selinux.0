@@ -1,39 +1,58 @@
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: default user role
-Date: Tue, 15 Oct 2002 21:15:45 +0200
+Message-ID: <7B2A7784F4B7F0409947481F3F3FEF8304ACC385@eammlnt051.lmc.ericsson.se>
+From: "Eric Gingras (LMC)" <Eric.Gingras@ericsson.ca>
+To: "'Stephen Smalley'" <sds@tislabs.com>,
+        "Eric Gingras (LMC)"
+	 <Eric.Gingras@lmc.ericsson.se>
+Cc: "SELinux Mailing list (E-mail)" <SELinux@tycho.nsa.gov>
+Subject: RE: terminals permissions
+Date: Tue, 15 Oct 2002 17:30:58 -0400
 MIME-Version: 1.0
-Message-Id: <200210152115.45180.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I believe that the identity "user_u" should not be permitted any roles but the 
-least priviledged.  So that means that the "user_r" role should not be the 
-one for typical logins that matter.
 
-I propose that we change the default policy to have the following:
-full_user_role(user_unpriv)
+Problem solved...
 
-And then change the in_user_role() macro in macros/user_macros.te to use 
-user_unpriv_r.
+Thank you.
 
-Then the users file needs to have:
-user user_u roles user_unpriv_r;
-
-The default contexts and cron_contexts files also need to be modified 
-accordingly.
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tislabs.com]
+Sent: Tuesday, October 15, 2002 1:58 PM
+To: Eric Gingras (LMC)
+Cc: SELinux Mailing list (E-mail)
+Subject: Re: terminals permissions
 
 
-I have some good reasons for this that I don't want to discuss right now...
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+On Tue, 15 Oct 2002, Eric Gingras (LMC) wrote:
+
+> I'm trying to give to some domains access to terminal writing... without
+> success.
+>
+> In "enforcing" mode, when I execute ifconfig or ping nothing is written to
+> the current terminal in answer.  Is that normal behavior ?
+>
+> How can I give my applications permission to write to the terminal.
+>
+> PS: I've try :
+>                allow ifconfig_t sysadm_tty_device_t:chr_file
+rw_file_perms;
+>                allow ifconfig_t sysadm_devpts_t:chr_file rw_file_perms;
+
+Those rules are already in the example policy, in ifconfig.te.
+Check the type on your terminal device, e.g.
+ls --context `tty`
+
+Are you running ifconfig and ping from a sysadm_r:sysadm_t shell?
+What does the SELinux-patched 'id' program show when you run it from your
+shell?
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
 
 
 --
