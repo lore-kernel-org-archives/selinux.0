@@ -1,19 +1,20 @@
-Subject: Re: [patch] libselinux malloc return value checking
+Subject: Re: [patch] libselinux MLS category bug
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Chad Hanson <chanson@TrustedCS.com>
 Cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
-In-Reply-To: <36282A1733C57546BE392885C0618592364669@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592364669@chaos.tcs.tcs-sec.com>
+In-Reply-To: <36282A1733C57546BE392885C061859236466D@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C061859236466D@chaos.tcs.tcs-sec.com>
 Content-Type: text/plain
-Message-Id: <1093291028.27211.266.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1093291039.27211.268.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 23 Aug 2004 15:57:08 -0400
+Date: Mon, 23 Aug 2004 15:57:19 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-08-23 at 13:51, Chad Hanson wrote:
-> The attached patch (against libselinux-1.16) adds return value checking
-> to malloc, strdup, etc.
+On Mon, 2004-08-23 at 13:52, Chad Hanson wrote:
+> The attached patch (against libselinux-1.16) fixes a bug in the
+> "context_range_set" function.  This function was rejecting
+> any MLS range which contained an MLS category.
 
 Thanks, merged.
 
