@@ -1,108 +1,54 @@
-Message-ID: <7B2A7784F4B7F0409947481F3F3FEF8304ACC386@eammlnt051.lmc.ericsson.se>
-From: "Eric Gingras (LMC)" <Eric.Gingras@ericsson.ca>
-To: "SELinux Mailing list (E-mail)" <SELinux@tycho.nsa.gov>
-Subject: Sockets permissions
-Date: Tue, 15 Oct 2002 17:59:22 -0400
+Date: Tue, 15 Oct 2002 18:18:42 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: "Eric Gingras (LMC)" <Eric.Gingras@ericsson.ca>
+cc: "SELinux Mailing list (E-mail)" <SELinux@tycho.nsa.gov>
+Subject: Re: Sockets permissions
+In-Reply-To: <7B2A7784F4B7F0409947481F3F3FEF8304ACC386@eammlnt051.lmc.ericsson.se>
+Message-ID: <Pine.GSO.4.33.0210151809490.11172-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-I'm trying to configure a small and simple Client/Server application.
-Basically, the server create a socket and print the messages he receive on
-it. The client connect to the socket and send "Hello Server" in repetition.
-The code of those two applications is at the end of this message.
+On Tue, 15 Oct 2002, Eric Gingras (LMC) wrote:
 
-I've created a new domain for each of them. Running them as
-sysadm_u:sysadm_r in permissive mode they work fine. In enforcing mode, they
-both start and execute, but the messages don't achieve destination.  If I
-start them both and shift between permissive and enforcing, messages go
-through when in permissive and don't when in enforcing...
+> I've created a new domain for each of them. Running them as
+> sysadm_u:sysadm_r in permissive mode they work fine. In enforcing mode, they
+> both start and execute, but the messages don't achieve destination.  If I
+> start them both and shift between permissive and enforcing, messages go
+> through when in permissive and don't when in enforcing...
 
-I've give the following permissions to the Client:
+Then you should see avc denied audit messages in your /var/log/messages
+file that indicate what permissions are being denied.  You can then use
+that information to fix your policy, optionally using the newrules.pl
+script to generate allow rules from the audit messages.
 
-	can_network(HTTPClient_t)
-	allow HTTPClient_t HTTPServer_t:socket_class_set rw_socket_perms;
+> 	allow HTTPClient_t HTTPServer_t:socket_class_set rw_socket_perms;
 
-And the following permissions to the Server:
+You don't want to authorize the client to directly access a socket labeled
+with the server's type, so the above rule is wrong.  Try the following
+macro instead:
+	can_udp_send(HTTPClient_t, HTTPServer_t)
 
-	can_network(HTTPServer_t)
-	allow HTTPServer_t HTTPClient_t:socket_class_set
-create_socket_perms;
+Of course, this is only meaningful for loopback or labeled networking.
 
-where HTTPClient_t is the type of the client and HTTPServer_t is the type of
-the server.
+> 	allow HTTPServer_t HTTPClient_t:socket_class_set
+> create_socket_perms;
 
+Likewise, you don't want to authorize the server to directly create and
+access a socket labeled with the client's type.  You want:
+	can_udp_send(HTTPServer_t, HTTPClient_t)
 
-What am I missing ???
+Again, the direct check between the client and server types is only
+possible on loopback or with labeled networking between the hosts.
 
-Thank you,
-
-Eric Gingras
-
-
-
-Server Code :
-
-int main()
-{
-	int sock;
-	int err;
-	struct sockaddr_in ad;
-	char buff[20];
-
-	printf("Listen side\n");
-	sock = socket(PF_INET, SOCK_DGRAM,0);
-	printf("listen socket = %d\n",sock);
-
-	memset(&ad,0,sizeof(ad));
-	ad.sin_family = AF_INET;
-	ad.sin_port = htons(50001);
-	ad.sin_addr.s_addr = inet_addr("127.0.0.1");
-	err = bind(sock,(struct sockaddr *)&ad,sizeof(ad));
-	printf("bind = %d\n",err);
-
-	while(1)
-	{
-		err = recv(sock,buff,12,MSG_WAITALL);
-		if(err <= 0) break;
-		buff[12] = 0;
-		printf("%s\n",buff);
-	}
-	return 0;
-}
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-Client Code :
 
-int main()
-{
-	int sock;
-	int connid;
-	struct sockaddr_in ad;
-
-	sock = socket(PF_INET, SOCK_DGRAM,0);
-
-	printf("socket = %d\n",sock);
-	memset(&ad,0,sizeof(ad));
-	ad.sin_family = AF_INET;
-	ad.sin_port = htons(50001);
-	ad.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-	printf("addr = %x\n", ad.sin_addr.s_addr);
-	connid = connect(sock,(struct sockaddr*)&ad,sizeof(ad));
-	printf("connect = %d\n",connid);
-
-	while(1)
-	{
-		send(sock,"Hello Server",12,0);
-		sleep(1);
-	}
-	return 0;
-}
 
 --
 This message was distributed to subscribers of the selinux mailing list.
