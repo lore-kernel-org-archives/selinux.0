@@ -1,57 +1,65 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9AHbsrT002265
-	for <selinux@tycho.nsa.gov>; Sun, 10 Oct 2004 13:37:54 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9AHboWN004833
-	for <selinux@tycho.nsa.gov>; Sun, 10 Oct 2004 17:37:52 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: policy patches
-Date: Mon, 11 Oct 2004 03:37:46 +1000
-Cc: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>
-References: <200409292354.15227.russell@coker.com.au> <200410030614.57157.russell@coker.com.au> <41640F34.6090705@redhat.com>
-In-Reply-To: <41640F34.6090705@redhat.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9AJ4irT002511
+	for <selinux@tycho.nsa.gov>; Sun, 10 Oct 2004 15:04:44 -0400 (EDT)
+Received: from web51510.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i9AJ4hWN006147
+	for <selinux@tycho.nsa.gov>; Sun, 10 Oct 2004 19:04:43 GMT
+Message-ID: <20041010190439.92095.qmail@web51510.mail.yahoo.com>
+Date: Sun, 10 Oct 2004 12:04:39 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Where to find libselinux-devel-1.11.4-1.src.rpm ?
+To: fedora-selinux-list@redhat.com
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200410110337.46190.russell@coker.com.au>
+Content-Type: multipart/alternative; boundary="0-334201320-1097435079=:91734"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 7 Oct 2004 01:28, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Russell Coker wrote:
-> >On Sat, 2 Oct 2004 20:16, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> >>Russell Coker wrote:
-> >>>On Sat, 2 Oct 2004 06:45, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> >>>>Cleaned up patch with some of russells changes.
-> >>>>
-> >>>>chage has been updated to do a checkPasswdAccess(PASSWD__ROOTOK) now.
-> >>>
-> >>>+allow getty_t initrc_devpts_t:chr_file { read write };
-> >>>
-> >>>What is this for?
-> >>
-> >>I have been getting AVC messages for it.
-> >
-> >Please show me the AVC messages.
+--0-334201320-1097435079=:91734
+Content-Type: text/plain; charset=us-ascii
 
-That's strange.  How do you reproduce this?
+Hi,
+     I'm doing something in SELinux, and need the libselinux-devel-1.11.4-1.src.rpm. I try to find it on the web, I've tried to search it either in http://fedora.redhat.com/projects/selinux/ or in  http://rpmfind.net/. but I would only find libselinux-1.11.4-1.src.rpm, libselinux-1.17.14-1.src.rpm,...... etc. 
+   So, would you please tell me where libselinux-devel-1.11.4-1.src.rpm is? 
+    And, now I'm using FC2,in which libselinux-1.11.4-1.i386.rpm is installed. Then, can I use the newest libselinux-1.17.14-1.i386.rpm to update my system, while don't update all the other rpm packages? and if I do this, will my FC2 be damaged? 
+ 
+Thanks in advance
+ 
+ 
 
-initrc_devpts_t can only be created by initrc_t, and getty_t can only be 
-entered from init_t.  Somehow getty or init must be trying to open /dev/pts/0 
-for some reason.
 
-Something must have a bug, it would be good if we could track it down.
+--
+Best Regards,
+Park Lee <parklee_sel@yahoo.com> 
+ 
 
-In the mean time if this entry is to be included in the policy it should have 
-ifdef(`distro_redhat' or ifdef(`hide_broken_symptoms' around it.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
+--0-334201320-1097435079=:91734
+Content-Type: text/html; charset=us-ascii
+
+<DIV>Hi,</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp; I'm doing something in SELinux, and need the libselinux-devel-1.11.4-1.src.rpm. I try to find it on the web, I've tried to search it either in <A href="http://fedora.redhat.com/projects/selinux/">http://fedora.redhat.com/projects/selinux/</A>&nbsp;or in &nbsp;<A href="http://rpmfind.net/">http://rpmfind.net/</A>. but I would only find libselinux-1.11.4-1.src.rpm, libselinux-1.17.14-1.src.rpm,...... etc. </DIV>
+<DIV>&nbsp;&nbsp; So, would you please tell me where&nbsp;libselinux-devel-1.11.4-1.src.rpm is? </DIV>
+<DIV>&nbsp;&nbsp;&nbsp; And, now I'm using FC2,in which libselinux-1.11.4-1.i386.rpm is installed. Then, can I use the newest libselinux-1.17.14-1.i386.rpm to update my system, while don't update all the other rpm packages? and if I do this, will my FC2 be damaged? </DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks in advance</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV><BR><BR><DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>--<BR>Best Regards,<BR>Park Lee &lt;<A href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;YY=1156&amp;order=down&amp;sort=date&amp;pos=0"><FONT color=#003399>parklee_sel@yahoo.com</FONT></A>&gt; </DIV>
+<DIV>&nbsp;</DIV></DIV></DIV></DIV></DIV></DIV><p>__________________________________________________<br>Do You Yahoo!?<br>Tired of spam?  Yahoo! Mail has the best spam protection around <br>http://mail.yahoo.com 
+--0-334201320-1097435079=:91734--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
