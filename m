@@ -1,36 +1,36 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FHMYHa018655
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 13:22:34 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FHOKHa018687
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 13:24:20 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6FHLWnJ004102
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 17:21:33 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h6FHNInJ004181
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 17:23:19 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h6FHLWhr004098
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 17:21:32 GMT
-Subject: Re: crash with 2.5.74 while loading policy
+	by jazzswing.ncsc.mil  with ESMTP id h6FHNIhr004178
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 17:23:18 GMT
+Subject: Re: lsm-2.4-selinux-2003071106 compile problem
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
+To: M E Robbins <merobbins@yahoo.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1058249829.24843.13.camel@columbia>
-References: <1058249829.24843.13.camel@columbia>
+In-Reply-To: <20030715153015.77905.qmail@web10002.mail.yahoo.com>
+References: <20030715153015.77905.qmail@web10002.mail.yahoo.com>
 Content-Type: text/plain
-Message-Id: <1058289749.13738.711.camel@moss-huskers.epoch.ncsc.mil>
+Message-Id: <1058289856.13738.714.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 15 Jul 2003 13:22:30 -0400
+Date: 15 Jul 2003 13:24:16 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-07-15 at 02:17, Colin Walters wrote:
-> Linux oopsed while loading a policy today on my SELinux 2.5.74 machine. 
-> It doesn't offhand look directly related to SELinux, but I was curious
-> if anyone here had seen it before.
+On Tue, 2003-07-15 at 11:30, M E Robbins wrote:
+> I am trying to get the lsm-2.4-selinux-2003071106.tgz package to compile.
+> 
+> When compiling libsecure I get the error message listed below.  I checked the NSA
+> mailing list archives and mention was made of a patch from May 02, which I got,
+> but it appears that the newest selinux already has that patch installed.
+> 
+> My setup: glibc 2.3.1, gcc 3.2.3, slackware 9.x base, i386 pentium pro 200mhz.
 
-I haven't seen it, but that doesn't mean it isn't our fault ;)  You
-might want to try with 2.6.0-test1-selinux1, get it from
-http://www.nsa.gov/selinux/lk/2.6.0-test1-selinux1.patch.gz.  The other
-patch files in the lk directory are simply the individual logical change
-sets, i.e. one to address a problem with setxattr and one to add the
-selinux module.  
+Reverse the patch from May 02 if you want to use glibc 2.3.1, as it has
+the old stat structure definition.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
