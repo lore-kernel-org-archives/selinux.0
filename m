@@ -1,66 +1,64 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAKMZqIi028254
-	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 17:35:52 -0500 (EST)
-Received: from smtp-bedford.mitre.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAKMYOLS028131
-	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 22:34:24 GMT
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (8.11.6/8.11.6) with SMTP id iAKMZub06216
-	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 17:35:56 -0500
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (Postfix) with ESMTP id 1302DBF7C
-	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 17:35:56 -0500 (EST)
-Subject: SELinux enhanced strace patch
-To: selinux@tycho.nsa.gov
-References: <20041118191131.87032.qmail@web50601.mail.yahoo.com>
-	<ogtsm76lwjh.fsf@divan.mitre.org>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 20 Nov 2004 17:35:55 -0500
-In-Reply-To: <ogtsm76lwjh.fsf@divan.mitre.org>
-Message-ID: <ogt1xeojghg.fsf_-_@divan.mitre.org>
-MIME-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAL0sqIi028579
+	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 19:54:52 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAL0ssqv012498
+	for <selinux@tycho.nsa.gov>; Sun, 21 Nov 2004 00:54:54 GMT
+Received: from lkcl.net (host81-153-247-118.range81-153.btcentralplus.com [81.153.247.118])
+	by open.hands.com (Postfix) with ESMTP id CFD75BF76
+	for <selinux@tycho.nsa.gov>; Sun, 21 Nov 2004 00:54:48 +0000 (GMT)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1CVgAg-0007Zd-Fa
+	for selinux@tycho.nsa.gov; Sun, 21 Nov 2004 01:05:42 +0000
+Date: Sun, 21 Nov 2004 01:05:42 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: http://sf.net/projects/xen
+Message-ID: <20041121010542.GA28925@lkcl.net>
+References: <20041120204020.GB26761@lkcl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20041120204020.GB26761@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I finally tracked down and resolved all the issues with the SELinux
-enhancement patch for strace 4.5.8, and placed an updated patch here:
+On Sat, Nov 20, 2004 at 08:40:20PM +0000, Luke Kenneth Casson Leighton wrote:
 
-http://simp.mitre.org/selinux
+> for those people who do a lot of selinux testing, and am fed up
+> of having stacks of machines, and who also don't want to pay for
+> vmware, _and_ who also don't want the slowness or features of UML,
+> there is xen.
 
-The new patch updates the strace(1) manual page so that it describes
-the -X option, the one that requests that security contexts be printed
-whenever possible.
+ okay - i am having difficulties with the network bridging and the
+ allocation of DHCP addresses: other than that, i have an selinux
+ "guest" kernel OS now up and running.
 
-The copyright issue has also been resolved.  It turns out that in the
-strace project's CVS repository on SourceForge, the strace module has
-no COPYING file in its root directory.  It does, however, have a file
-named COPYRIGHT.  This file contains what appears to me to be a BSD
-license, although it's not identical to the BSD license on
-http://opensource.org.
+ the ext3 filesystem is in a file (mounted loopback automagically by xen)
+ make relabel seems happy...
 
-So why does a standard strace distribution include a copy of the GPL
-in a file named COPYING?  I suspect the answer is this.
+ [DAMN IT i shut down the master linux os AGAIN by mistake. 
+  kids, don't try this at home...]
 
-When checked out, strace module does not have several files that must
-be included in a distribution.  These files are created with:
+ in the config file, e.g /etc/xen/xen-selinux-1, you will need
+ to place what they call "extra" parameters into the
+ config option extra="..."  e.g
 
-  $ autoreconf -i
+ extra="selinux=1 enforcing=1 audit=1"
 
-The -i option installs missing auxiliary files.  If no file exists
-called COPYING, it will install a version of that file that contains
-the GPL.  As a result, a distribution contains two incompatible
-licenses!  As near as I can tell, someone receiving the distribution
-has no way of knowing the conditions of using the software.  The file
-COPYRIGHT should be renamed to COPYING.
+ that sort of thing...
 
-There is one more odd thing about what is in the strace module.  It
-contains the files config.guess, config.sub, and install-sh.  The
-files are also installed by autoreconf when missing.  It's a good idea
-to let it install these files so that distributions get the latest
-versions of them.
+ oh _great_ i know selinux is working absolutely fine when i
+ can't damn well log in to the machine!!!  log in as root, cannot
+ execute /bin/bash - greeeaat.
 
-John
+ [oops, pressing ctrl-alt-delete isn't caught / passed over to
+  the guest OS - that's _another_ accidental reboot.]
+
+ 
+ conclusion: it looks hopeful that xen will happily run selinux OSes.
+
+ l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
