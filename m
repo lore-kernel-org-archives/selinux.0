@@ -1,129 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA07517
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 11:36:14 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA01605
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 15:36:04 GMT
-Received: from www.cabledns.net (internet.edu.nf [64.42.232.109])
-	by jazzswing.ncsc.mil  with ESMTP id PAA01601
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 15:36:03 GMT
-Message-ID: <00fa01c20b14$34238630$91c03b8e@OK>
-From: "Admissions Office" <admissions@internet.edu.nf>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>, <selinux@tycho.nsa.gov>
-References: <72222DC86846D411ABD300A0C9EB08A10152438F@csoc-mail-box.csoconline.com>
-Subject: Re: SELinux Dumb Questions
-Date: Mon, 3 Jun 2002 09:34:48 -0600
-MIME-Version: 1.0
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA07694
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 11:54:37 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA20628
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 15:53:16 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id PAA20624 for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 15:53:15 GMT
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: LinuxTag
+Date: Mon, 3 Jun 2002 17:54:25 +0200
+Cc: linux-security-module@wirex.com
+MIME-Version: 1.0
+Message-Id: <20020603155426.5C4747255@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks to All. We would not says SELinux offered by the NSA !  People have
-really been asking about it once we tell them such a thing exists. Many are
-just interested so we point them to the site. Our mission would be to start
-providing support to clients who ask for it.
+At LinuxTag in Germany http://www.linuxtag.de/ I will give a talk on SE Linux 
+during the Debian track.  Also every day I plan to give a demo of SE Linux at 
+12:00 (providing that there is an audience).
 
-Again, thanks to all...
+Also the SE Linux demo machine will be available to all without a root 
+password and everyone at the conference will be able to login as root without 
+a password (including over the wireless network).  Also I'll probably set up 
+a few root accounts with different domains for people who have a special 
+interest so that an idiot who logs in as UID=0 can't kill their processes.
 
+I will also consider putting the machine on the net and announcing it here, 
+but that will be subject to the rules of the conference management who may 
+ban such things.
 
------ Original Message -----
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'Admissions Office'" <admissions@internet.edu.nf>;
-<selinux@tycho.nsa.gov>
-Sent: Monday, June 03, 2002 09:00
-Subject: RE: SELinux Dumb Questions
+In my SE Debian work I'm 99.9% to the stage of having all the features for 
+the above in the standard configuration (including support for multiple user 
+domains), so a few hours of quick hacking before the conference should see it 
+done.
 
-
-> None
->
-> > -----Original Message-----
-> > From: Admissions Office [mailto:admissions@internet.edu.nf]
-> > Sent: Monday, June 03, 2002 9:51 AM
-> > To: Carsten Grohmann; jw@centraltexasit.com; selinux@tycho.nsa.gov
-> > Subject: Re: SELinux Dumb Questions
-> >
-> >
-> > Folks this may seem like a dumb question given the Open
-> > Source and postings
-> > on the site. Its just that we want to be sure....
-> >
-> > Is there any reason why a Colo company cannot offer SELinux
-> > as a standard
-> > product offering they would install on clients servers?
-> >
-> > That's all. I try to limit my dumb questions.
-> >
-> > Ian McBeth
-> > Sys Admin
-> >
-> >
-> > ----- Original Message -----
-> > From: "Carsten Grohmann" <carsten.grohmann@dr-baldeweg.de>
-> > To: <jw@centraltexasit.com>; <selinux@tycho.nsa.gov>
-> > Sent: Monday, June 03, 2002 04:23
-> > Subject: Re: SE-Linux on SuSE
-> >
-> >
-> > > Hi Jonathan!
-> > >
-> > > I've install SE-Linux on SuSE (7.1). It is easy to install.
-> > You should
-> > > run it a few days in the permissive mode to add a few new
-> > rules e.g. to
-> > > add the blogd to the initrc domain. And you should remove a
-> > lot of cron
-> > > jobs, if you like or you write rules for this jobs. And the
-> > mingettys,
-> > > but SE-Linux works fine on SuSE too.
-> > >
-> > > Carsten
-> > >
-> > > JW schrieb:
-> > > >
-> > > > -----BEGIN PGP SIGNED MESSAGE-----
-> > > > Hash: SHA1
-> > > >
-> > > > Hello,
-> > > >
-> > > > I am interested in running SE-Linux on SuSE.
-> > > >
-> > > > I'd appreciate hearing from anyone who's tried it.
-> > > >
-> > > > Esp. how hard/easy it was to install/configure, anything
-> > special you had
-> > to do to get it working, and what you like/dislike about it
-> > now that you
-> > have it working.
-> > > >
-> > > > Thanks.
-> > > > - --
-> > > >
-> > > > - ----------------------------------------------------
-> > > > Jonathan Wilson
-> > > > System Administrator
-> > > > Cedar Creek Software     http://www.cedarcreeksoftware.com
-> > >
-> > > --
-> > > You have received this message because you are subscribed
-> > to the selinux
-> > list.
-> > > If you no longer wish to subscribe, send mail to
-> > majordomo@tycho.nsa.gov
-> > with
-> > > the words "unsubscribe selinux" without quotes as the message.
-> > >
-> >
-> >
-> > --
-> > You have received this message because you are subscribed to
-> > the selinux list.
-> > If you no longer wish to subscribe, send mail to
-> > majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
-> >
->
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
