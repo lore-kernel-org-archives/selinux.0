@@ -1,61 +1,90 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8KGaOsJ003318
-	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 12:36:24 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8KGaN2R024891
-	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 16:36:23 GMT
-Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
-        by jazzband.ncsc.mil  with ESMTP id h8KGaN1A024888 for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 16:36:23 GMT
-Subject: run_init patch
-From: Chris PeBenito <pebenito@gentoo.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary="=-Z9VI2cdjvAu2CK/pMsaK"
-Message-Id: <1064075776.2834.9.camel@chris.pebenito.net>
-Mime-Version: 1.0
-Date: Sat, 20 Sep 2003 11:36:17 -0500
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8KJd7sJ003630
+	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 15:39:08 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8KJYkdI018400
+	for <selinux@tycho.nsa.gov>; Sat, 20 Sep 2003 19:37:21 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h8J2KlVY013328
+	for <selinux@tycho.nsa.gov>; Fri, 19 Sep 2003 02:22:09 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: privsep in ssh
+Date: Fri, 19 Sep 2003 12:22:15 +1000
+Cc: Colin Watson <cjwatson@debian.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Xhma/RRq3GCAQKg"
+Message-Id: <200309191222.15919.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-Z9VI2cdjvAu2CK/pMsaK
-Content-Type: text/plain
+--Boundary-00=_Xhma/RRq3GCAQKg
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Here is a patch for policycoreutils (against 1.1) which closes the file
-descriptor in run_init on successfully getting the context out of
-/etc/security/initrc_context.  It is closed on a failed read, but was
-missing on the successful read.
+#ifdef DISABLE_FD_PASSING
+        if (1) {
+#else
+        if (authctxt->pw->pw_uid == 0 || options.use_login) {
+#endif
+                /* File descriptor passing is broken or root login */
+                monitor_apply_keystate(pmonitor);
+                use_privsep = 0;
+                return;
+        }
 
-This prevents a denial similar to:
-avc:  denied  { use } for  pid=13041 exe=/usr/sbin/smbd
-path=/etc/security/initrc_context dev=03:03 ino=722489
-scontext=system_u:system_r:smbd_t tcontext=pebenito:sysadm_r:run_init_t
-tclass=fd
+When browsing the ssh source I noticed the above in sshd.c.  It appears from a 
+casual inspection that we should change this and remove the check for
+pw_uid == 0.  Logging in as root in SE Linux does not mean that we have full 
+administrative privs, so I think that we should have privsep enabled all the 
+time.
+
+I have compiled a sshd with privsep for root logins and it seems to work fine.
+
+I have attached the patch against ssh 3.6.1p2, I expect that the same thing 
+would be necessary in 3.7.1 and the same patch probably applies (but I 
+haven't checked).
+
+I believe that this patch is worthy of inclusion in the standard distribution 
+of ssh.  The only drawback is that it uses a small amount of extra CPU power 
+for root logins, and on systems such as SE Linux it provides security 
+benefits.
+
+Anyone who wants to use the SE Linux PAM module for sshd probably wants this.
 
 -- 
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer, SELinux
-Hardened Gentoo Linux
- 
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
-Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---=-Z9VI2cdjvAu2CK/pMsaK
-Content-Disposition: attachment; filename=policycoreutils-1.1-close_init_fp.diff
-Content-Type: text/x-patch; name=policycoreutils-1.1-close_init_fp.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
+--Boundary-00=_Xhma/RRq3GCAQKg
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
 
-ZGlmZiAtdXJOIHBvbGljeWNvcmV1dGlscy0xLjEub3JpZy9ydW5faW5pdC9ydW5faW5pdC5jIHBv
-bGljeWNvcmV1dGlscy0xLjEvcnVuX2luaXQvcnVuX2luaXQuYw0KLS0tIHBvbGljeWNvcmV1dGls
-cy0xLjEub3JpZy9ydW5faW5pdC9ydW5faW5pdC5jCTIwMDMtMDYtMDIgMTU6MjM6MDcuMDAwMDAw
-MDAwIC0wNTAwDQorKysgcG9saWN5Y29yZXV0aWxzLTEuMS9ydW5faW5pdC9ydW5faW5pdC5jCTIw
-MDMtMDktMjAgMTE6MjE6NDQuMDAwMDAwMDAwIC0wNTAwDQpAQCAtMjg4LDYgKzI4OCw3IEBADQog
-ICAgICAgKmNvbnRleHQgPSBzdHJkdXAoYnVmcCk7DQogICAgICAgaWYgKCEoKmNvbnRleHQpKQ0K
-IAlnb3RvIG91dDsNCisgICAgICBmY2xvc2UoZnApOw0KICAgICAgIHJldHVybiAwOw0KICAgICB9
-DQogICB9DQo=
+--- orig/openssh-3.6.1p2/sshd.c	2003-09-18 15:16:41.000000000 +1000
++++ openssh-3.6.1p2/sshd.c	2003-09-19 12:00:15.000000000 +1000
+@@ -636,7 +636,7 @@
+ #ifdef DISABLE_FD_PASSING
+ 	if (1) {
+ #else
+-	if (authctxt->pw->pw_uid == 0 || options.use_login) {
++	if (options.use_login) {
+ #endif
+ 		/* File descriptor passing is broken or root login */
+ 		monitor_apply_keystate(pmonitor);
 
---=-Z9VI2cdjvAu2CK/pMsaK--
+--Boundary-00=_Xhma/RRq3GCAQKg--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
