@@ -1,11 +1,11 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7TJWrrT000884
-	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 15:32:53 -0400 (EDT)
-Received: from rwcrmhc13.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7TJWpis003237
-	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 19:32:52 GMT
-Message-ID: <41322F5E.90409@comcast.net>
-Date: Sun, 29 Aug 2004 12:32:46 -0700
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7TJrHrT000957
+	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 15:53:17 -0400 (EDT)
+Received: from rwcrmhc11.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7TJqTwc002122
+	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 19:52:30 GMT
+Message-ID: <41323421.7050904@comcast.net>
+Date: Sun, 29 Aug 2004 12:53:05 -0700
 From: Tom London <selinux@comcast.net>
 MIME-Version: 1.0
 To: russell@coker.com.au
@@ -19,23 +19,25 @@ List-Id: selinux@tycho.nsa.gov
 
 Russell,
 
-Thanks, but it didn't quite work. The following change to dbusd.te seems
-to make graphical login work under strict/enforcing.
+The following changes to udev.te seem needed....
+(If udev shouldn't be reading file_contexts, then dontaudit?)
 
-Please correct/improve... :)
+Please correct/improve,
    tom
 
---- /root/src.package/policy/domains/program/dbusd.te   2004-08-29 
-11:38:27.000000000 -0700
-+++ dbusd.te    2004-08-29 12:19:25.000000000 -0700
-@@ -32,3 +32,7 @@
+--- /tmp/patches/udev.te        2004-08-29 11:35:48.000000000 -0700
++++ udev.te     2004-08-29 12:40:58.000000000 -0700
+@@ -44,7 +44,9 @@
 
- # SE-DBus specific permissions
- allow { dbus_client_domain userdomain } { dbusd_t self }:dbus { send_msg };
-+
-+allow user_t etc_dbusd_t:dir { search };
-+allow user_t etc_dbusd_t:file { getattr read };
-+allow user_t user_t:netlink_selinux_socket { bind create };
+ # to read the file_contexts file
+ allow udev_t { selinux_config_t default_context_t }:dir search;
+-allow udev_t default_context_t:file { getattr read };
++allow udev_t { selinux_config_t default_context_t }:file { getattr read };
++allow udev_t file_context_t:dir { search };
++allow udev_t file_context_t:file { getattr read };
+
+ allow udev_t policy_config_t:dir { search };
+ allow udev_t proc_t:file { read };
 
 
 Russell Coker wrote:
@@ -53,8 +55,6 @@ Russell Coker wrote:
 >for udev changes which fix this and address some other issues as well.
 >
 >Please try it out and let me know how it goes.
->
->  
 >
 
 --
