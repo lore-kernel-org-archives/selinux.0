@@ -1,106 +1,33 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3INcGRb025903
-	for <selinux@tycho.nsa.gov>; Sun, 18 Apr 2004 19:38:16 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i3INcBmw015319
-	for <selinux@tycho.nsa.gov>; Sun, 18 Apr 2004 23:38:11 GMT
-Received: from alfa.intrak.tuke.sk ([147.232.151.3])
-        by jazzband.ncsc.mil  with ESMTP id i3INcA4w015316 for <selinux@tycho.nsa.gov>; Sun, 18 Apr 2004 23:38:10 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by alfa.intrak.tuke.sk (Postfix) with ESMTP id 778F0F167
-	for <selinux@tycho.nsa.gov>; Mon, 19 Apr 2004 01:38:08 +0200 (CEST)
-Received: from alfa.intrak.tuke.sk ([127.0.0.1])
-	by localhost (alfa [127.0.0.1]) (amavisd-new, port 10024) with SMTP
-	id 30712-06 for <selinux@tycho.nsa.gov>;
-	Mon, 19 Apr 2004 01:38:08 +0200 (CEST)
-Received: from mizu (mizu.intrak.tuke.sk [147.232.156.11])
-	by alfa.intrak.tuke.sk (Postfix) with ESMTP id 20CBAEF19
-	for <selinux@tycho.nsa.gov>; Mon, 19 Apr 2004 01:38:06 +0200 (CEST)
-Date: Mon, 19 Apr 2004 01:37:35 +0200
-From: mizu <michal@zimen.sk>
-To: selinux@tycho.nsa.gov
-Subject: sshd, devpts, unix_chkpwd
-Message-ID: <20040418233735.GA22543@intrak.sk>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3KAxJRb012380
+	for <selinux@tycho.nsa.gov>; Tue, 20 Apr 2004 06:59:19 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i3KAvDKr014313
+	for <selinux@tycho.nsa.gov>; Tue, 20 Apr 2004 10:57:13 GMT
+Received: from narya.grin.hu (Narya.grin.hu [195.38.113.130])
+	by jazzswing.ncsc.mil  with ESMTP id i3KAvCvW014307
+	for <selinux@tycho.nsa.gov>; Tue, 20 Apr 2004 10:57:13 GMT
+Received: from grin by narya.grin.hu with local (Exim 4.32)
+	id 1BFsxw-0006Cw-FE
+	for selinux@tycho.nsa.gov; Tue, 20 Apr 2004 12:59:00 +0200
+Date: Tue, 20 Apr 2004 12:59:00 +0200
+From: Peter Gervai <grin@tolna.net>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: exim4 policy
+Message-ID: <20040420105900.GS7634@narya.grin.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello,
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Is there a working exim4 policy somewhere? It was posted on the list, got
+some comments, and the thread seem to have died away. It seem not to be a
+part of the distribution.
 
-Hi
-
-  I try to make debian to work with last SELinux packages (1.10)
-  with patch for 2.6.5 kernel.
-
-   =20
-  I still have too much messages like this:
- =20
-  Apr 19 01:20:36 fuxo kernel: avc:  denied  { read write } for  pid=3D312
-  exe=3D/sbin/unix_chkpwd path=3D/dev/pts/0 dev=3D ino=3D2
-  scontext=3Droot:staff_r:system_chkpwd_t
-  tcontext=3Dsystem_u:object_r:sshd_devpts_t tclass=3Dchr_file
- =20
-
-  It is from sshd daemon....
-
-  #cat  /etc/pam.d/ssh
-
-  auth       required     pam_nologin.so
-  auth       required     pam_env.so # [1]
-  @include common-auth
-  @include common-account
-  @include common-session
-  session    optional     pam_motd.so # [1]
-  session    optional     pam_mail.so standard noenv # [1]
-  session    required     pam_limits.so
-  @include common-password
-  session required        pam_selinux.so
-
-
-=20
- [ssh version: 3.8p1-3 (debian sid)]
- =20
-  How can i setUp correct access of unix_chkpwd to devpts ?
-
-=20
-  Is it possible, that my debian hangs after too much noise of syslogd
-  messages ? (my last message is ....* --MARK-- )
-
-  How can i get know the true reason of hang my machine?
-
- =20
-  Thank's a lot
-
-  				mizu
- =20
---=20
-              mizu
-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D
-[-> E-mail:michal_AT_zimen_DOT_sk   =20
-[-> ICQ:97165392
-[-> WWW: http://michal.zimen.sk
-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D-=3D
-
---XsQoSWH+UP9D9v3l
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAgxE/9kFXwDL4DRkRAoMiAJ9HeUln3eDyQAWW7qHsHCs2IoH0CwCfY8Nu
-1DRh0FaTaQoPNkZskYko/Kg=
-=wgbY
------END PGP SIGNATURE-----
-
---XsQoSWH+UP9D9v3l--
+Thanks,
+Peter
 
 --
 This message was distributed to subscribers of the selinux mailing list.
