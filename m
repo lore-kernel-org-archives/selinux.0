@@ -1,44 +1,46 @@
-Subject: Re: System hangup after installing glibc-rpms
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: sMoTo <smoto@gmx.de>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <000001c377c8$79b670f0$02000a0a@lady>
-References: <000001c377c8$79b670f0$02000a0a@lady>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1063219880.14458.64.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8AJ3RLa011217
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 15:03:27 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8AJ1oLY025921
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 19:01:50 GMT
+Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
+	by jazzswing.ncsc.mil  with ESMTP id h8AJ1nsG025918
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 19:01:50 GMT
+Subject: Re: rfs xattr's, mkinitrd and other stories
+From: Chris PeBenito <pebenito@gentoo.org>
+To: Dale Amon <amon@vnl.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <20030910164854.GO5397@vnl.com>
+References: <20030910164854.GO5397@vnl.com>
+Content-Type: text/plain
+Message-Id: <1063220599.29764.6.camel@chris.pebenito.net>
 Mime-Version: 1.0
-Date: 10 Sep 2003 14:51:20 -0400
+Date: Wed, 10 Sep 2003 14:03:19 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-09-10 at 14:22, sMoTo wrote:
-> I have installed the source-rpms provided by
-> selinux-usr-2003081307.tgz. On a single Processor machine I have built
-> the glibc-* rpms for i386 (Redhat 9). 
+Is there going to be any work getting the handler for the 2.4?  I tried
+to add it on to Jeff's 2.4 patches on ftp.suse.com, but was
+unsuccessful.
+
+On Wed, 2003-09-10 at 11:48, Dale Amon wrote:
+> If anyone is interested, I've worked with Jeff Mahoney 
+> and Steve Smalley and between us we've got what should
+> be the necessary patches for using selinux with
+> reiserfs on 2.6.0 kernels. They are availabe here and
+> possibly on the Suse site by now:
 > 
-> I installed them and got an error that says: %post install error.
-> Further on I rebooted the machine, but while shuting down, the
-> runlevel-scripts can’t be accessed. When starting up the kernel boots
-> and the root partion can be accessed, but when it comes to start the
-> first runlevel the system hangs and says: ID X respawning too fast.
->
-> How can I slove this problem? I can’t find a hint what is running
-> wrong. I thought the selinux-glibc should be compatible to the
-> original one.
-
-Same issue arises for RH9 errata glibc, see https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=88456.
-
-You should have built glibc with --target=i686 as well as --target=i386,
-then installed the i686 glibc RPM along with the other i386 glibc-*
-RPMS, excluding the i386 glibc RPM.  If you can boot from rescue, you
-may be able to delete /lib/i686 on the disk and get it working
-again...it is trying to use the old i686 libs since they weren't deleted
-by the upgrade.
+>  http://www.unixthugs.org/~jeffm/technical/reiserfs/aclea/2.6.0-test4/
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer, SELinux
+Hardened Gentoo Linux
+ 
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
+Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
 --
 This message was distributed to subscribers of the selinux mailing list.
