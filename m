@@ -1,59 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA10753
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 12:14:32 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA07949
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:13:42 GMT
-Received: from smtp-server1.tampabay.rr.com (smtp-server1.tampabay.rr.com [65.32.1.34])
-        by jazzband.ncsc.mil  with ESMTP id RAA07945 for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:13:42 GMT
-Message-ID: <3C4857EB.1090503@netzero.net>
-Date: Fri, 18 Jan 2002 12:14:19 -0500
-From: Paul Kronenwetter <kronenpj@netzero.net>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tislabs.com>
-CC: Justin Smith <jsmith@mcs.drexel.edu>, selinux@tycho.nsa.gov
-Subject: Re: ext3 file system
-References: <Pine.GSO.4.33.0201181023090.3743-100000@raven>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: questions for upcoming article in Information Security Magazine
+From: Pete Loshin <pete@loshin.com>
+To: SELinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: 18 Jan 2002 12:24:11 -0500
+Message-Id: <1011374651.1196.1205.camel@elmo.loshin.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Actually the .journal files are only visible when they're created on a 
-mounted filesystem.  If they're created by mke2fs -j they're made invisible.
+Hi--I'm technical editor at Information Security Magazine, and working
+on an article about SE Linux, and the impact it's had over the past
+year. The material online explains very nicely how the technologies
+work, but we're looking for some input from people directly involved in
+the project or using it.
 
-So Stephen's machine was a clean install of Red Hat 7.2 and Justin's was 
-an upgrade or a manual enhancement of an ext2 fs.
+In particular, we're looking for answers to these questions, and others:
 
--Paul
+- It's been over a year since the initial release of Security Enhanced
+Linux. How much affect, if any, has SE Linux had on the mainstream Linux
+community?
 
-Stephen Smalley wrote:
+- Where can SE Linux best be applied? How is it being used now? Does
+anyone have any success stories to relate about using it?
 
->On 17 Jan 2002, Justin Smith wrote:
->
->>When trying to label files with the setfiles utilities, the process
->>crashes when they encounter the .journal files. These are user-visible,
->>but are not regular files (they are immutable in the sense that even
->>root cannot change them in any way). The setfiles utilities issue a
->>warning that they cannot write to .journal and quit.
->>
->>Any ideas?
->>
->>Perhaps there should be some way of exempting the .journal files from
->>the labelling process. It is unfortunate that they are visible to users
->>(since users cannot actually use them for anything).
->>
->
->
->
->
->
->--
->You have received this message because you are subscribed to the selinux list.
->If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->the words "unsubscribe selinux" without quotes as the message.
->
+- What progress is being made in the stated future directions published
+on the www.nsa.gov/selinux/todo.html page?
+
+- At what point will SE Linux be considered "complete"?
+
+I appreciate any and all feedback; I will be contacting appropriate
+press contacts as well, but any comments from project participants or
+users is most welcome.
+
+I've joined the list, so responses to the list are fine with me (as is
+direct email or even a phone call).
+
+Thanks very much in advance!
+
+regards,
+-pl
 
 
+-- 
++-------------------------------------------------------+
+| Pete Loshin                           pete@loshin.com |
+| +1 781/646-6318             www.Internet-Standard.com |
+|                                                       |
+|      writing about Internet protocols since 1988      |
++-------------------------------------------------------+
 
 
 --
