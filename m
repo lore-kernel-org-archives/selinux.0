@@ -1,34 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB1MrXRb011289
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 17:53:34 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB1Mqrp5018204
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 22:52:53 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id hB1Mqrt0018201
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 22:52:53 GMT
-Date: Mon, 1 Dec 2003 22:53:31 +0000
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB20hNRb011648
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 19:43:23 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hB20hMqa006709
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 00:43:22 GMT
+Date: Tue, 2 Dec 2003 00:43:21 +0000
 From: Dale Amon <amon@vnl.com>
-To: Tom <tom@lemuria.org>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: policy under version control
-Message-ID: <20031201225331.GR11972@vnl.com>
-References: <20031129132619.GE26960@lukas.schuldei.com> <1070291615.12270.120.camel@moss-spartans.epoch.ncsc.mil> <20031201202813.I16359@lemuria.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Dale Amon <amon@vnl.com>, Russell Coker <russell@coker.com.au>,
+   SE Linux <selinux@tycho.nsa.gov>, Jim Carter <jwcart2@epoch.ncsc.mil>
+Subject: Re: setfiles and non-SE systems
+Message-ID: <20031202004321.GS11972@vnl.com>
+References: <200312012102.00554.russell@coker.com.au> <1070289743.12270.91.camel@moss-spartans.epoch.ncsc.mil> <20031201191456.GO11972@vnl.com> <1070306592.12270.216.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20031201202813.I16359@lemuria.org>
+In-Reply-To: <1070306592.12270.216.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Dec 01, 2003 at 08:28:14PM +0100, Tom wrote:
-> It seems that in the long run we won't be able to do with a single
-> default policy. We'll need a couple, or a modular approach. Something
-> very much like Debian's tasksel or other tools for other distributions
-> where you have 5-10 fields you can check what your machine is going to
-> be, and the relevant policy is then assembled automatically.
+On Mon, Dec 01, 2003 at 02:23:13PM -0500, Stephen Smalley wrote:
+> The handlers are already in 2.6.  So you can build a 2.6 kernel with the
+> handlers and no SELinux without any patching (or you can just take a 2.6
+> SELinux kernel and boot with selinux=0).  For 2.4, Jim Carter does have
+> separate patches to add the xattr security handlers for ext2 and ext3 to
+> the EA/ACL patches, so if you want those patches, he can just send them
+> to you.  Or, you can just build a 2.4 SELinux kernel and boot with
+> selinux=0.
 
-I keep my own patch diff file between mine and Russell's default
-package.
+I'll probably go the 2.6.0-test10 route. I'm in the
+process of upgrading my workstation and some other
+machines to debian sarge dist so since I'll probably
+break everything tonight anyway, I might as well do
+that at the same time.
 
 -- 
 ------------------------------------------------------
