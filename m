@@ -1,50 +1,61 @@
-Message-Id: <200409172007.i8HK7W3w005709@turing-police.cc.vt.edu>
-To: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
-Cc: "George C. Wilson" <ltcgcw@us.ibm.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Boolean utilities segv's 
-In-Reply-To: Your message of "Fri, 17 Sep 2004 15:56:19 EDT."
-             <1095450979.17932.317.camel@moss-spartans.epoch.ncsc.mil>
-From: Valdis.Kletnieks@vt.edu
-References: <20040917193839.GA3020@us.ibm.com>
-            <1095450979.17932.317.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8HK8orT005250
+	for <selinux@tycho.nsa.gov>; Fri, 17 Sep 2004 16:08:50 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8HK7rNM014111
+	for <selinux@tycho.nsa.gov>; Fri, 17 Sep 2004 20:07:54 GMT
+Subject: Re: Strange Associate bug
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
+In-Reply-To: <414B4091.5030500@redhat.com>
+References: <414B4091.5030500@redhat.com>
+Content-Type: text/plain
+Message-Id: <1095451597.17932.332.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-269912029P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Fri, 17 Sep 2004 16:07:31 -0400
+Date: Fri, 17 Sep 2004 16:06:37 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-269912029P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 2004-09-17 at 15:52, Daniel J Walsh wrote:
+> If I mount an NFS filesystem and then try to move a file to it,
+> I get permission denied and end up with an associate error
+> 
+>  >mount remote:/vol/vol1/home /mnt/dwalsh
+>  >touch /home/dwalsh/foo
+>  >mv /home/dwalsh/foo /mnt/dwalsh
+> mv: cannot create regular file `./foo': Permission denied
+> Sep 17 15:48:19 celtics kernel: audit(1095450499.359:0): avc:  denied  { 
+> associate } for  pid=19797 exe=/bin/mv name=foo 
+> scontext=user_u:object_r:user_home_t tcontext=system_u:object_r:nfs_t 
+> tclass=filesystem
+> 
+> allow user_home_t nfs_t:filesystem { associate };
+> 
+> Do I need to change mv to be able to handle this or do we need
+> 
+> allow domain nfs_t:filesystem associate;
 
-On Fri, 17 Sep 2004 15:56:19 EDT, Stephen Smalley said:
+You mean:
+allow file_type nfs_t:filesystem associate;
 
-> Ok, we can certainly fix this, but note that these functions are not
-> going to work on a non-SELinux system regardless; you shouldn't even be
-> calling them (or running those utilities) on a non-SELinux system.
+Options are:
+1) Change the kernel code to ignore the fscreate context when the
+filesystem uses genfs_contexts, similar to the existing mount context=
+handling, or
+2) Change mv to reset the fscreate context to NULL and retry if the file
+creation fails with EACCES, thereby falling back to the default labeling
+behavior,
+3) Allow the association, as above.
 
-Probably should put in code like this:
+Allowing the association is a bit misleading, because the file is going
+to revert to the base type ultimately, even if the incore inode happens
+to be temporarily labeled with the fscreate context.
 
-	fprintf(stderr,"%0: running on non-SELinux system, aborting", argv[0]);
-	exit(1);
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-in case some script or other doesn't do the check itself. I can imagine a package
-that includes some SELinux policies that include a bool or two - and the package
-installer software getting this wrong....
-
---==_Exmh_-269912029P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBS0QDcC3lWbTT17ARAktmAKD7J0pR7SY6Op51tnTvMxX0iwgPSwCg0Mwr
-K62FYedEvps9mIvN3tKpFYk=
-=3fuy
------END PGP SIGNATURE-----
-
---==_Exmh_-269912029P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
