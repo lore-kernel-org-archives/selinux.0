@@ -1,59 +1,55 @@
-Subject: Re: new LSM ver
-From: Timothy Wood <timothy@hallcomp.com>
-To: Stephen Smalley <sds@tislabs.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <Pine.GSO.4.33.0207081029490.19100-100000@raven>
-References: <Pine.GSO.4.33.0207081029490.19100-100000@raven>
-Content-Type: text/plain; charset=koi8-r
-Date: 08 Jul 2002 11:19:55 -0400
-Message-Id: <1026141595.1724.71.camel@phobos>
-Mime-Version: 1.0
-Sender: owner-selinux@tycho.nsa.gov
-List-Id: selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA06766
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 17:52:18 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id VAA21122
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 21:51:46 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id VAA21116
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 21:51:44 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Linux Security Module <linux-security-module@wirex.com>
+Subject: Re: OLS: Packaging NSA SELinux for Debian
+Date: Sun, 30 Jun 2002 00:41:30 -0400
+References: <3D1E051B.1020500@wirex.com>
+In-Reply-To: <3D1E051B.1020500@wirex.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Message-Id: <20020704214517.C94FF2B9D@lyta.coker.com.au>
+List-ID: <selinux@tycho.nsa.gov>
 
-В Пнд, 08.07.2002, в 10:39, Stephen Smalley написал:
-> 
-> On 8 Jul 2002, Timothy Wood wrote:
-> 
-> > So what is going ot be done about root permissions and such since you
-> > are restricting them now?  I mean there are just some things you have to
-> > be root and have root permissions to run.  Are you rewriting everything
-> > to run based on security context instead of user?  That would be ideal,
-> > no I take that back, that would be awesome if things would run based on
-> > security context of the user running them.  Then you could get rid of
-> > root altogether.
-> >
-> > Anywho (sorry for the rant) a really good/simple example of the new
-> > default context is this.  Lets say you want to add a new user... oh
-> > wait, you can't!  Why?  No one but root can do this and now, not even
-> > root can't do it.  Did a primary service, such as named, bail out for
-> > some reason?  Too bad!  You do not have any way to restart it except by
-> > rebooting the server.  Same reason, root only.
-> >
-> > But don't get me wrong.  Getting rid of root is a good idea but it's too
-> > early in the game to make changes like this.  It pretty much breaks the
-> > system in enforcing mode.
-> 
-> I think you've misunderstood what we've done.  We have merely changed the
-> default login context for root to the user_r role, and prohibited direct
-> ssh logins in the sysadm_r role.  For administration, you can still login
-> as yourself, run newrole to change to sysadm_r, and run su to obtain the
-> Linux root user identity.  Or, you can login as root if you permit direct
-> root logins and then run newrole to change to sysadm_r.
-> 
-> The change simply ensures that a vulnerability in sshd does not open a
-> direct path to sysadm_r.  The attacker will not be able to reach sysadm_r
-> without authenticating to newrole.
+>     * Q: [Alan Cox] should dpkg create files in a super-secure mode to
+>       prevent install-time tampering, and some stuff about /tmp handling
+>       that I couldn't hear
+>     * A: couldn't hear Russ' answer either
 
-This is true.  You can also merely change the context when you login (if
-you log in as root).  I suppose I jumpped the gun a little there,
-however I do like the idea of severely restricting root or removing root
-altogether.  Would I be correct in that pretty much everything would
-have to be rewritten if this were to be accomplished (the removal of
-root, that is)?
+Apparently there are some potential race conditions regarding files in /tmp, 
+I have made a change to my policy tree to address one this which I will 
+release soon.
 
-Timothy,
+Most of the stuff about /tmp was about how when user_t domain processes 
+create files in /tmp they get type user_tmp_t while sysadm_t processes create 
+files as sysadm_tmp_t.  This means that users can't read files from the 
+administrator, but as the administrator can read files from the users we will 
+be vulnerable to symlink race conditions.
 
+In some situations it may be desirable to prevent sysadm_t from reading links 
+that have type user_tmp_t to avoid such sym-link attacks (although stacking 
+OpenWall would probably be a better solution).
+
+
+I will put my slides on http://www.coker.com.au/selinux/ols/ in the near 
+future, however reading Crispin's notes is probably a good idea too, he noted 
+quite a few things that aren't in my slides...
+
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 
 --
