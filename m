@@ -1,55 +1,57 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9U5sQWt011405
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 00:54:26 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9U5s9Uf013809
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 05:54:09 GMT
-Received: from mail.rollinghorse.com (dsl093-033-002.snd1.dsl.speakeasy.net [66.93.33.2])
-	by jazzswing.ncsc.mil  with ESMTP id h9U5s8tU013806
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 05:54:08 GMT
-Message-Id: <5.2.1.1.2.20031029220923.0a743d10@Shire>
-Date: Wed, 29 Oct 2003 22:11:13 -0800
-To: russell@coker.com.au, "SE Linux" <selinux@tycho.nsa.gov>
-From: "Carsten P. Gehrke" <Carsten@rollinghorse.com>
-Subject: Re: When to use SEL kernel
-In-Reply-To: <200310271010.40888.russell@coker.com.au>
-References: <5.2.1.1.2.20031024155304.0c94a990@Shire>
- <5.2.1.1.2.20031024155304.0c94a990@Shire>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9UFMFWt013357
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 10:22:15 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9UFMDKl027915
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 15:22:14 GMT
+Received: from lyta.coker.com.au (nat-pool-bos.redhat.com [66.187.230.200])
+        by jazzband.ncsc.mil  with ESMTP id h9UFMD5m027909 for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 15:22:13 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Diyab <diyab@diyab.net>, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: Diamond Rio 500 and other device nodes
+Date: Fri, 31 Oct 2003 01:33:36 +1100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <200310300227.27364.russell@coker.com.au> <3FA08C65.2020309@diyab.net>
+In-Reply-To: <3FA08C65.2020309@diyab.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200310310133.36055.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-At 15:13 26-10-03, Russell Coker wrote:
->On Sat, 25 Oct 2003 08:58, Carsten P. Gehrke wrote:
-> > to this system (notably iptables).  My question is:  Does it matter if I
-> > install additional packages before or after I install (and use) the SE
-> > Linux kernel?
+On Thu, 30 Oct 2003 14:58, Diyab wrote:
+> Russell Coker wrote:
+> > What do you think is the correct type for the device node for the
+> > "Diamond Rio 500" (/dev/usb/rio500)?
+> >
+> > It's a portable MP3 player and storage device with a USB interface, so I
+> > think that removable_device_t is appropriate, in concept it's similar to
+> > a floppy disk drive.
 >
->When you install a new package (or upgrade an existing package) on a live SE
->Linux system then after installing the package you must relabel all files in
->it.  Discovering which files were installed from the source will be a
->challenge for you on a source-based distribution, so relabeling the root file
->system might be easier.
->
->If you do all your package installation before going live on SE Linux then it
->may be easier.
->
->--
->http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
->http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
->http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
->http://www.coker.com.au/~russell/  My home page
+> Just curious, but how will the files on the device be labeled once the
+> device is mounted?  For example if I plug in my digital camera and mount
+> it so that I can copy the pictures from it am I going to have access to
+> read the files?  Will I even be able to mount it as a normal user?  Is
+> this going to be a problem since we can't label the device filesystem?
 
-Thank you Kamal and Russel.  I'll install the SE Linux package after I have 
-installed everything else.  Then I'll probably have more questions... :-)
+I don't anticipate any need for things to operate differently to floppy disks.
 
+Device nodes for floppy disks don't change type when they are mounted.
 
---
-========================================================================
-                             Carsten P. Gehrke
-                      mailto:Carsten@RollingHorse.com
-======================================================================== 
+However there is a more important issue, we can't allow anyone other than an 
+administrator to mount a ext3 file system from a floppy disk or other 
+removable media.  If we do then it would be trivial to create a file system 
+with a file of type newrole_exec_t and take over the system.
+
+Steve, any ideas on how to solve this?
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
