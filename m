@@ -1,239 +1,239 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>
-Subject: Re: Your policy
-Date: Thu, 10 Jul 2003 19:10:02 +1000
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <200307100901.59003.carstengrohmann@gmx.de>
-In-Reply-To: <200307100901.59003.carstengrohmann@gmx.de>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_q1SD//w8s9+UgEd"
-Message-Id: <200307101910.02205.russell@coker.com.au>
+Subject: port of util-linux login patch to shadow-utils login.c
+From: Colin Walters <walters@verbum.org>
+To: SELinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary="=-+lptQ62F+F9AZnrNO7CQ"
+Message-Id: <1057863925.10910.62.camel@columbia>
+Mime-Version: 1.0
+Date: 10 Jul 2003 15:05:27 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_q1SD//w8s9+UgEd
-Content-Type: text/plain;
-  charset="iso-8859-1"
+--=-+lptQ62F+F9AZnrNO7CQ
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Thu, 10 Jul 2003 17:01, Carsten Grohmann wrote:
-> for my Linuxtag workshop tomorrow, I use the policy snapshot from
-> your homepage.
-> I think you have a little mistake in your ifdef condition for
-> inetd.te.
+Hello,
 
-Correct, I have attached an amended ssh.te file.  The change is already in my 
-policy tree and Howard has a similar change in his tree.
+I've ported the SELinux 2.5 patch against the login in util-linux to the
+login.c in shadow-utils (which is what Debian uses).  This patch could
+probably just be appended to the SE patch for shadow-utils.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_q1SD//w8s9+UgEd
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="ssh.te"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="ssh.te"
-
-#DESC SSH - SSH daemon
-#
-# Authors:  Anthony Colatrella (NSA) <amcolat@epoch.ncsc.mil>
-# Modified by: Russell Coker <russell@coker.com.au>
-#
-
-type ssh_port_t, port_type;
-
-define(`sshd_program_domain', `
-type $1, domain, privuser, privrole, privlog, privowner, privfd, auth;
-role system_r types $1;
-uses_shlib($1)
-allow $1 self:unix_dgram_socket create_socket_perms;
-allow $1 self:unix_stream_socket create_stream_socket_perms;
-allow $1 self:fifo_file rw_file_perms;
-allow $1 self:process { fork sigchld setsched };
-
-# Read system information files in /proc.
-allow $1 proc_t:dir r_dir_perms;
-allow $1 proc_t:notdevfile_class_set r_file_perms;
-allow $1 self:dir search;
-allow $1 self:lnk_file read;
-
-# Get attributes of file systems.
-allow $1 fs_type:filesystem getattr;
-
-base_file_read_access($1)
-
-# Read /var.
-allow $1 var_t:dir search;
-
-# Read /var/log.
-allow $1 var_log_t:dir search;
-
-# Read /etc.
-allow $1 etc_t:dir r_dir_perms;
-allow $1 etc_t:notdevfile_class_set r_file_perms;
-allow $1 etc_runtime_t:{ file lnk_file } r_file_perms;
-allow $1 resolv_conf_t:{ file lnk_file } r_file_perms;
-
-# Read the linker, shared library, and executable types.
-allow $1 ld_so_t:{ file lnk_file } r_file_perms;
-allow $1 shlib_t:{ file lnk_file } r_file_perms;
-allow $1 exec_type:{ file lnk_file } r_file_perms;
-
-# Read and write /dev/tty and /dev/null.
-allow $1 devtty_t:chr_file rw_file_perms;
-allow $1 { null_device_t zero_device_t }:chr_file rw_file_perms;
-
-# Read /dev/random and /dev/zero.
-allow $1 random_device_t:chr_file r_file_perms;
-
-allow $1 security_t:security { sid_to_context context_to_sid };
-can_network($1)
-
-allow $1 self:capability { chown dac_override fowner fsetid setgid setuid net_bind_service sys_tty_config };
-allow $1 { home_root_t user_home_dir_type sysadm_home_dir_t }:dir { search getattr };
-
-# Run shells in user_t by default
-domain_auto_trans($1, shell_exec_t, user_t)
-domain_trans($1, shell_exec_t, unpriv_userdomain)
-
-# Allow shells to be run in sysadm_t as well.
-# Commented out.  Use newrole rather than directly entering sysadm_t.
-#domain_trans($1, shell_exec_t, sysadm_t)
-
-# Update utmp.
-allow $1 initrc_var_run_t:file rw_file_perms;
-
-# Update wtmp.
-allow $1 wtmp_t:file rw_file_perms;
-
-# Obtain the SID to use for relabeling ptys
-allow $1 security_t:security change_sid;
-
-# Allow read access to login context
-allow $1 default_context_t:file r_file_perms;
-
-# Determine the set of legal user SIDs that can be reached.
-allow $1 security_t:security get_user_sids;
-
-')dnl end sshd_program_domain
-
-#################################
-#
-# Rules for the sshd_t domain, et al.
-#
-# sshd_t is the domain for the sshd program.
-# sshd_login_t is the domain for sshds login spawn
-# sshd_exec_t is the type of the sshd executable.
-# sshd_key_t is the type of the ssh private key files
-#
-sshd_program_domain(sshd_t)
-type sshd_exec_t, file_type, exec_type, sysadmfile;
-
-ifdef(`inetd.te', `
-ifdef(`run_ssh_inetd', `
-define(`using_ssh_inetd', `')
-')
-')
-
-ifdef(`using_ssh_inetd', `
-allow inetd_t ssh_port_t:tcp_socket name_bind;
-domain_auto_trans_read(inetd_t, sshd_exec_t, sshd_t)
-allow sshd_t inetd_t:tcp_socket { ioctl setopt getopt getattr read write };
-', `
-allow sshd_t initrc_devpts_t:chr_file rw_file_perms;
-allow sshd_t ssh_port_t:tcp_socket name_bind;
-domain_auto_trans(initrc_t, sshd_exec_t, sshd_t)
-')
-sshd_program_domain(sshd_login_t)
-undefine(`sshd_program_domain')
-type sshd_key_t, file_type, sysadmfile;
-
-# so a tunnel can point to another ssh tunnel...
-can_tcp_connect(sshd_t, sshd_t)
-
-type sshd_tmp_t, file_type, sysadmfile, tmpfile;
-file_type_auto_trans(sshd_t, tmp_t, sshd_tmp_t)
-
-# Inherit and use descriptors from init.
-allow sshd_t init_t:fd use;
-
-# Can create ptys
-can_create_pty(sshd)
-
-# Execute Login
-domain_auto_trans(sshd_t, login_exec_t, sshd_login_t)
-
-# Use capabilities.
-allow sshd_t self:capability { sys_chroot sys_resource };
-
-# Create /var/run/sshd.pid
-var_run_domain(sshd)
-
-# Access key files
-allow sshd_t sshd_key_t:file { getattr read };
-
-# Update /var/log/lastlog.
-allow sshd_t lastlog_t:file rw_file_perms;
+I've tested it and it appears to work.  
 
 
 
-# Signal the user domains.
-allow sshd_t unpriv_userdomain:process signal;
+--=-+lptQ62F+F9AZnrNO7CQ
+Content-Disposition: attachment; filename=shadow-login-selinux.patch
+Content-Type: text/plain; name=shadow-login-selinux.patch; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-# Relabel and access ptys created by sshd
-allow sshd_t sshd_devpts_t:chr_file { setattr getattr relabelfrom relabelto };
-allow sshd_t userpty_type:chr_file { setattr relabelto rw_file_perms };
+--- shadow-4.0.3.orig/src/login.c	2003-07-09 19:05:06.000000000 -0400
++++ shadow-4.0.3/src/login.c	2003-07-09 18:58:02.000000000 -0400
+@@ -63,6 +63,17 @@
+ #define MAXHOSTNAMELEN 64
+ #endif
+=20
++#ifdef WITH_SELINUX
++#include <selinux/get_context_list.h>
++#include <selinux/flask.h>
++#include <selinux/selinux.h>
++
++security_context_t user_context=3DNULL;
++security_context_t ttyn_context=3DNULL;  /* The current context of ttyn de=
+vice */
++int selinux_enabled=3D0;
++
++#endif
++
+ #ifdef RADIUS
+ /*
+  * Support for RADIUS authentication based on a hacked util-linux login
+@@ -164,6 +175,46 @@
+ static struct faillog faillog;
+ #endif
+=20
++#ifdef WITH_SELINUX
++
++static security_context_t security_label_tty(char *tty, security_context_t=
+ usercon) {
++  security_context_t newdev_context=3DNULL; /* The new context of a device=
+ */
++  security_context_t prev_context=3DNULL; /* The new context of a device *=
+/
++  if (getfilecon(tty, &prev_context) < 0)=20
++    {
++      fprintf(stderr, _("Warning!  Could not get current context for %s, n=
+ot relabeling.\n"), tty);
++      syslog(LOG_NOTICE, _("Warning!  Could not get current context for %s=
+, not relabeling.\n"), tty);
++      return NULL;
++    }=09
++  if( security_compute_relabel(usercon,prev_context,SECCLASS_CHR_FILE,&new=
+dev_context)!=3D0) {
++    fprintf(stderr, _("Warning!  Could not get new context for %s, not rel=
+abeling.\n"), tty);
++    syslog(LOG_NOTICE, _("Warning!  Could not get new context for %s, not =
+relabeling.\n"), tty);
++      return NULL;
++  }
++  if (setfilecon(tty,newdev_context))=20
++    {
++      fprintf(stderr, _("Warning!  Could not relabel %s with %s, not relab=
+eling.\n"), tty,newdev_context);
++      syslog(LOG_NOTICE, _("Warning!  Could not relabel %s with %s, not re=
+labeling.\n"), tty,newdev_context);
++      return NULL;
++    }
++  freecon(newdev_context);
++  return prev_context;
++}
++
++static void security_restorelabel_tty(char *tty,security_context_t context=
+) {
++  if (context=3D=3DNULL)
++    return;
++
++  if (setfilecon(tty,context))=20
++    {
++      fprintf(stderr, _("Warning!  Could not relabel %s with %s, not relab=
+eling.\n"), tty,context);
++      syslog(LOG_NOTICE, _("Warning!  Could not relabel %s with %s, not re=
+labeling.\n"), tty,context);
++    }
++  freecon(context);
++  return;
++}
++#endif /* WITH_SELINUX */
++
+ /* local function prototypes */
+ static void usage (void);
+ static void setup_tty (void);
+@@ -176,6 +227,7 @@
+ static void init_env (void);
+ static RETSIGTYPE alarm_handler (int);
+=20
++
+ /*
+  * usage - print login command usage and exit
+  *
+@@ -892,6 +944,33 @@
+ 		else
+ 		        pwent =3D *pwd;
+=20
++#ifdef WITH_SELINUX
++		/* Make sure SELINUX is really running on this system */
++		if ((selinux_enabled =3D is_selinux_enabled())) {
++			int ret;
++			security_context_t* contextlist;
++			int num_contexts =3D get_ordered_context_list(pam_user, 0, &contextlist=
+);
++			if (num_contexts > 0) {
++				ret =3D query_user_context(contextlist, &user_context);
++				freeconary(contextlist);
++			=09
++				if (ret < 0) {
++					fprintf(stderr, "%s:  query_user_context failed\n", argv[0]);
++					syslog (LOG_ERR,  "%s:  query_user_context failed\n", argv[0]);
++					exit (1);
++				}
++			=09
++			} else {
++				fprintf(stderr, "login: unable to obtain context for %s.\n", pam_user)=
+;
++				ret =3D manual_user_enter_context(pam_user, &user_context);
++				if (ret < 0) {
++					syslog (LOG_ERR, "UNABLE TO GET VALID CONTEXT FOR %s", username);
++					exit (1);
++				}
++			}
++		}
++#endif /* WITH_SELINUX */
++
+ 		retcode =3D pam_setcred (pamh, PAM_ESTABLISH_CRED);
+ 		PAM_FAIL_CHECK;
+=20
+@@ -943,6 +1022,7 @@
+ 		} else {
+ 			pwent =3D *pwd;
+ 		}
++
+ #ifndef USE_PAM
+ #ifdef SHADOWPWD
+ 		spwd =3D NULL;
+@@ -1241,6 +1321,11 @@
+ 	setup_limits (&pwent);	/* nice, ulimit etc. */
+ #endif				/* ! USE_PAM */
+ 	chown_tty (tty, &pwent);
++#ifdef WITH_SELINUX
++	if (is_selinux_enabled) {
++		ttyn_context =3D security_label_tty (tty, user_context);
++	}
++#endif
+=20
+ #ifdef LOGIN_FBTAB
+ 	/*
+@@ -1378,6 +1463,18 @@
+ 	signal (SIGALRM, SIG_DFL);	/* default alarm signal */
+ 	signal (SIGHUP, SIG_DFL);	/* added this.  --marekm */
+=20
++#ifdef WITH_SELINUX
++	if (selinux_enabled) {
++		if (setexeccon(user_context)) {
++			fprintf(stderr, _("Error!  Unable to set executable context %s.\n"), us=
+er_context);
++			syslog(LOG_ERR, _("Error!  Unable to set executable context %s.\n"), us=
+er_context);
++			exit(3);=20
++		}
++		freecon(user_context);
++	}
++#endif
++=09
++
+ #ifdef USE_PAM
+ 	/*
+ 	 * We must fork before setuid() because we need to call
+@@ -1407,6 +1504,10 @@
+ 			 */
+ 			wait (NULL);
+ 			PAM_END;
++#ifdef WITH_SELINUX
++			fprintf(stderr, "restoring tty %s with context %s\n", tty, ttyn_context=
+);
++			security_restorelabel_tty (tty, ttyn_context);
++#endif
+ 			exit (0);
+ 		}
+ 		/* child */
+@@ -1422,6 +1523,25 @@
+ #ifdef	SHADOWGRP
+ 	endsgent ();	/* stop access to shadow group file */
+ #endif
++#ifdef WITH_SELINUX
++	if (selinux_enabled) {
++		if (pwd->pw_uid =3D=3D 0) {
++			if (hostname)
++				syslog(LOG_NOTICE, _("ROOT LOGIN ON %s FROM %s USING %s"),
++				       tty, fromhost, user_context);
++			else
++				syslog(LOG_NOTICE, _("ROOT LOGIN ON %s USING %s"),
++				       tty, user_context);
++		} else {
++			if (hostname)=20
++				syslog(LOG_INFO, _("LOGIN ON %s BY %s FROM %s USING %s"),
++				       tty, pam_user, fromhost, user_context);
++			else=20
++				syslog(LOG_INFO, _("LOGIN ON %s BY %s USING %s"),
++				       tty, pam_user, user_context);
++		}
++	} else
++#endif
+ 	if (pwent.pw_uid =3D=3D 0)
+ 		SYSLOG ((LOG_NOTICE, "ROOT LOGIN %s", fromhost));
+ 	else if (getdef_bool ("LOG_OK_LOGINS"))
 
-# for when the network connection breaks after running newrole -r sysadm_r
-dontaudit sshd_t sysadm_devpts_t:chr_file setattr;
-
-#################################
-#
-# Rules for the sshd_login_t domain
-#
-# sshd_login_t is the domain of a login process
-# spawned by sshd
-
-# Use the pty created by sshd
-allow sshd_login_t sshd_devpts_t:chr_file { setattr rw_file_perms };
-
-# Write to /var/log/lastlog
-allow sshd_login_t lastlog_t:file rw_file_perms;
-
-# Relabel ptys created by sshd
-allow sshd_login_t sshd_devpts_t:chr_file { relabelfrom relabelto };
-allow sshd_login_t userpty_type:chr_file { getattr relabelfrom relabelto };
-
-read_locale(sshd_t)
-
-# Allow checking users mail at login
-allow sshd_t { var_spool_t mail_spool_t }:dir search;
-allow sshd_t mail_spool_t:lnk_file read;
-allow sshd_t mail_spool_t:file getattr;
-#
-# Author:  Stephen Smalley <sds@epoch.ncsc.mil>
-#
-
-# Type for the ssh executable.
-type ssh_exec_t, file_type, exec_type, sysadmfile;
-
-allow sysadm_ssh_t user_home_dir_type:dir search;
-r_dir_file(sysadm_ssh_t, user_home_ssh_t)
-
-# Everything else is in the ssh_domain macro in
-# macros/program/ssh_macros.te.
-
-
---Boundary-00=_q1SD//w8s9+UgEd--
-
+--=-+lptQ62F+F9AZnrNO7CQ--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
