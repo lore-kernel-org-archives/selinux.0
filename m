@@ -1,50 +1,44 @@
-Date: Mon, 10 Dec 2001 12:26:20 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Shaun Savage <savages@pcez.com>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: New security policy
-In-Reply-To: <3C14E66E.10405@pcez.com>
-Message-ID: <Pine.GSO.4.33.0112101211460.13300-100000@raven>
+Message-ID: <3C14EE14.1090505@pcez.com>
+Date: Mon, 10 Dec 2001 09:17:08 -0800
+From: Shaun Savage <savages@pcez.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Smalley <sds@tislabs.com>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: New security policy
+References: <Pine.GSO.4.33.0112101059130.13300-100000@raven>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
 
-On Mon, 10 Dec 2001, Shaun Savage wrote:
+>On Sun, 9 Dec 2001, Shaun Savage wrote:
+>
+>>I have compiled some of the selinux utils for RH7.2, I hope to do the
+>>rest this week.
+>>this is how I did it
+>>
+>>I first did  >rpm -bp XXXX.spec
+>>the patched the XXXX directory using the patch
+>>on some XXXX i needed to autoconf  (caution: the autoconf that comes
+>>with RH7.2 is bad upgrade to 2.52 from GNU.org)
+>>I then go back to the SPEC directory and rpm -bc --short-circuit XXXX.spec
+>>then rpm -bi --short-circuit XXXX.spec
+>>
+>
+>In our work in upgrading the utilities, we've encountered a fair number of
+>rejects from the existing patches that have required manual merging, and
+>at least some of those manual merges were non-trivial.  We also had to add
+>stat64 variants of the stat_secure system calls, with transparent
+>redirection, in order to support the new fileutils package.  Are you
+>actually dealing with any of these kinds of issues in your patches?
+>
+I entered most of patches by hand,  I thought most the manual patches 
+easy.  The issue of stat_secure calls with transparent redirection,  I 
+don't know.  I have only working on selinux for about 3 days.  I want to 
+get the support programs ported first.  If you want I can make RPM's.  
 
-> The sysadm_r is see as the every day admin.  checking logs, add/del
-> users,accounts using system-tools.
-> But the secoff_r locks down system. if the secoff_r unlocks the system
-> then sysadm_r can then a administrator the whole system.  The reason I
-> like this is that an unknow root exploit can't comprimise the whole system.
-
-I'm not sure what you mean.  A root exploit isn't significant, because
-the SELinux nondiscretionary access controls aren't based on the Linux
-identity attributes.  If someone exploits a flaw in a daemon that runs as
-root, they are still limited to the permissions granted to the domain
-assigned to that daemon.  If an unprivileged user (e.g. user_t) exploits a
-flaw in a setuid program to become root, they are still limited to the
-permissions granted to the user_t domain.  You don't need a separate
-secoff_r role to protect against such exploits.
-
-But feel free to add such a role if you like.  Just be sure that you are
-really enforcing the kind of separation that you want.
-
-> Where can I get the work that has been done already?
-
-There should be a new release very soon.  We'll look over your patches and
-try to incorporate them into future releases (but it is too late to put
-them into the next one) if they are correct.  It looks like we only
-duplicated each others' work for the fileutils patch.  We are currently
-up-to-date with respect to the fileutils, logrotate, openssh, procps,
-sh-utils, util-linux, and vixie-cron patches.  We'll see how your
-updated fileutils patch differs from ours, and also look at your updated
-patches for findutils, stat, and tar.   That just leaves the psmisc patch.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Shaun Savage
 
 
 
