@@ -1,43 +1,57 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00873
-	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 14:49:40 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA06148
-	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 18:47:57 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id SAA06142 for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 18:47:56 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
-Subject: Re: uml policy
-Date: Thu, 12 Sep 2002 20:49:27 +0200
-References: <20020912201240.B2594@lemuria.org>
-In-Reply-To: <20020912201240.B2594@lemuria.org>
+To: <rwashington@crucialsecurity.com>
+Subject: Re: http domain
+Date: Thu, 12 Sep 2002 21:06:19 +0200
+References: <DPEPJAJGOCGHICPODIHPGEFGCBAA.rwashington@crucialsecurity.com>
+In-Reply-To: <DPEPJAJGOCGHICPODIHPGEFGCBAA.rwashington@crucialsecurity.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Message-Id: <200209122049.27617.russell@coker.com.au>
+Message-Id: <200209122106.19445.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 12 Sep 2002 20:12, Tom wrote:
-> During Linux Kongress, I had a little chat with Russell about uml
-> (user-mode-linux) on top of SELinux (for now, I'll leave the
-> mindboggling involved with SE-UML-Linux to someone else :) ).
+As you are replying to a public message, and you don't appear to be discussing 
+anything remotely secret I'll reply to the list.  I hope you don't mind.
 
-Oh, there's no mind-boggling of SE-UML-SE.
+On Thu, 12 Sep 2002 20:49, Ryan Washington wrote:
+> if i were to do anything serious and configure the http domain
+> specifically, which file(s) should i change? i can't seem to locate any
+> user friendly documentation anywhere.
 
-I've been thinking of setting up some UML instances on cose running SE to 
-allow people to play with setting up their own SE policy inside their own 
-UML.
+True.  The documentation is not as user friendly as it should be.  Things are 
+improving, but slowly.  There's plenty of work to do in base functionality 
+yet which keeps people from writing documentation.
+
+> With the domains, are they set up to lock down directories? such as http.
+> can you isolate it so that http only sees/uses the necessary directories?
+
+The general aim of the policy is to lock things down as much as possible.  The 
+httpd_t domain however needs to do lots of things and generally gets more 
+access than you want, in my tree it gets read access to all of the user home 
+directories!!!  Ideally this should be changed to only allow it access to 
+files/directories that the user specifies.  However I haven't developed 
+suitable methods for managing this yet.
+
+In my SE policy Apache is only granted read access to home directories, which 
+is a big improvement over a typical configuration of non-SE Linux!
+
+> also, where can i get documentation to make a domain? i checked out the
+> website, but everything starts jumbling together after a few days of
+> reading. which paper is the best for a new guy trying to build a new
+> domain? thanks again,
+
+Just copy a domain that is similar and do ":%s/oldname/newname/g", that's what 
+I do.
+
+Also make sure you copy a domain that is simple and new.  Some of the earlier 
+domains are a bit crufty and really should be tidied up.
 
 
 Russell Coker
 
-
-PS  Everyone on this list should try and get a GPG key signing with other 
-people on the list, so that we have short lines in the web of trust in case 
-we need to encrypt/sign emails to each other.  I've signed Tom's key...
 
 --
 This message was distributed to subscribers of the selinux mailing list.
