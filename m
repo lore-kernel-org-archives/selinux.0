@@ -1,115 +1,73 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA29906
-	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 12:04:06 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA00542
-	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 17:02:49 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id RAA00538
-	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 17:02:48 GMT
-Date: Fri, 15 Mar 2002 12:03:14 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Updated Release
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A10152430C@csoc-mail-box.csoconline.com>
-Message-ID: <Pine.GSO.4.33.0203151200030.15480-200000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA01094
+	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 15:22:16 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA02313
+	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 20:21:14 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id UAA02306 for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 20:21:12 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
+Subject: Re: stat now supports SE Linux in the upstream
+Date: Fri, 15 Mar 2002 21:21:55 +0100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0203150900430.15480-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0203150900430.15480-100000@raven>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-351212254-1016211794=:15480"
+Message-Id: <20020315202156.23F471ECB1@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
----559023410-351212254-1016211794=:15480
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-
-On Fri, 15 Mar 2002, Westerman, Mark wrote:
-
-> There is a problem with the build in the updated release.
+On Fri, 15 Mar 2002 15:10, Stephen Smalley wrote:
+> > The latest version of stat has SE Linux support, so there's probably no
+> > need for the patch on the NSA site, just a reference that version 3.1 is
+> > needed.
 >
-> I was to quick and did not figure out the what was causing the
-> problem. When doing a make quickinstall (on a clean install of
-> RedHat) some install program create install itself as
-> /usr/local/selinux/sbin. Since sbin was a program and not
-> a directory the make failed
+> This is good to hear - I take it that you submitted the SELinux changes to
+> the stat maintainer?  If so, then thanks.  One caveat:  the utility
 
-Thanks for the bug report.  The selinux/selopt Makefiles assume that the
-/usr/local/selinux hierarchy has been created, and end up installing
-binaries as /usr/local/selinux/sbin if that directory has not already been
-created.  That was a reasonable assumption for James, because selopt was
-originally intended to be installed after an initial install of SELinux.
-When we merged it, we didn't fix this.  Sorry.  The attached patch moves
-the selopt install after the utils install, at which point this assumption
-holds.  Longer term, we should just fix the selopt Makefiles to create
-the target directories if necessary.
+Not sure whether this was directly related to me.  The code is mostly the 
+same and it seems unlikely that they got it from somewhere else (and the bug 
+in the current iteration suggests that the upstream maintainer is not running 
+SE Linux).  But it could have been due to someone else.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I just sent my patches to the Debian maintainer and let them send it to the 
+upstream.
 
+> modifications aren't necessarily in the form that I would like to see
+> mainstreamed (many of them were done as quick learning exercises by
+> others, and we haven't cleaned them up).  For example, some of the modified
+> utilities use a fixed size buffer for the security context and fail if the
+> buffer size is too small rather than resizing and trying again.  See the
+> sid_to_context test program for how to correctly handle this.
 
+I'll have to look into that.
 
----559023410-351212254-1016211794=:15480
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="install.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0203151203140.15480@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="install.patch"
+> We're likely to continue distributing our modified stat until the new
+> version is picked up by RedHat as a convenience to our users.
 
-SW5kZXg6IE1ha2VmaWxlDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQpSQ1Mg
-ZmlsZTogL2N2cy9sc20vc2VsaW51eC9NYWtlZmlsZSx2DQpyZXRyaWV2aW5n
-IHJldmlzaW9uIDEuOA0KcmV0cmlldmluZyByZXZpc2lvbiAxLjkNCmRpZmYg
-LXUgLXIxLjggLXIxLjkNCi0tLSBNYWtlZmlsZQkyMDAyLzAzLzE1IDE1OjM4
-OjI1CTEuOA0KKysrIE1ha2VmaWxlCTIwMDIvMDMvMTUgMTY6MjY6NDcJMS45
-DQpAQCAtMjIsMTAgKzIyLDEwIEBADQogCWNkIHBvbGljeSAmJiBtYWtlIGlu
-c3RhbGwNCiAJQGVjaG8gIkJ1aWxkaW5nIGFuZCBpbnN0YWxsaW5nIGxpYnNl
-Y3VyZS4iDQogCWNkIGxpYnNlY3VyZSAmJiBtYWtlIGluc3RhbGwNCi0JQGVj
-aG8gIkJ1aWxkaW5nIGFuZCBpbnN0YWxsaW5nIHRoZSBTRUxPUFQgdXRpbHMu
-Ig0KLQljZCBzZWxvcHQgJiYgbWFrZSBMU01WRVI9JChMU01WRVIpICYmIG1h
-a2UgaW5zdGFsbA0KIAlAZWNobyAiQnVpbGRpbmcgYW5kIGluc3RhbGxpbmcg
-dGhlIG1vZGlmaWVkIGRhZW1vbnMgYW5kIHRoZSBuZXcgb3IgbW9kaWZpZWQg
-dXRpbGl0aWVzLiINCiAJY2QgdXRpbHMgJiYgbWFrZSBpbnN0YWxsDQorCUBl
-Y2hvICJCdWlsZGluZyBhbmQgaW5zdGFsbGluZyB0aGUgU0VMT1BUIHV0aWxz
-LiINCisJY2Qgc2Vsb3B0ICYmIG1ha2UgTFNNVkVSPSQoTFNNVkVSKSAmJiBt
-YWtlIGluc3RhbGwNCiAJQGVjaG8gIkluc3RhbGxpbmcgdGhlIGFwcGxpY2F0
-aW9uIGNvbnRleHQgY29uZmlndXJhdGlvbiBmaWxlcy4iDQogCWlmIFsgISAt
-ZiAvZXRjL3NlY3VyaXR5L2RlZmF1bHRfY29udGV4dCBdOyB0aGVuIGluc3Rh
-bGwgLW0gNjQ0IHV0aWxzL2FwcGNvbmZpZy9kZWZhdWx0X2NvbnRleHQgL2V0
-Yy9zZWN1cml0eTsgZmkNCiAJaWYgWyAhIC1mIC9ldGMvc2VjdXJpdHkvZGVm
-YXVsdF90eXBlIF07IHRoZW4gaW5zdGFsbCAtbSA2NDQgdXRpbHMvYXBwY29u
-ZmlnL2RlZmF1bHRfdHlwZSAvZXRjL3NlY3VyaXR5OyBmaQ0KSW5kZXg6IFJF
-QURNRQ0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnMv
-bHNtL3NlbGludXgvUkVBRE1FLHYNCnJldHJpZXZpbmcgcmV2aXNpb24gMS42
-MA0KcmV0cmlldmluZyByZXZpc2lvbiAxLjYxDQpkaWZmIC11IC1yMS42MCAt
-cjEuNjENCi0tLSBSRUFETUUJMjAwMi8wMy8xNSAxNTozODoyNQkxLjYwDQor
-KysgUkVBRE1FCTIwMDIvMDMvMTUgMTY6MjY6NDcJMS42MQ0KQEAgLTE4MCwy
-MSArMTgwLDIxIEBADQogICAgbWFrZSBpbnN0YWxsDQogICAgY2QgLi4NCiAN
-Ci03KSBJZiB5b3Ugd2FudCB0byBleHBlcmltZW50IHdpdGggdGhlIGxhYmVs
-ZWQgbmV0d29ya2luZyBzdXBwb3J0LCB0aGVuDQotICAgYnVpbGQgYW5kIGlu
-c3RhbGwgdGhlIFNlbG9wdCB1dGlsaXRpZXM6DQotICAgY2Qgc2Vsb3B0DQot
-ICAgbWFrZSAob3IgbWFrZSBMU01WRVI9LTIuNSkNCi0gICBzdSAoaWYgbm90
-IGFscmVhZHkgcm9vdCkNCi0gICBtYWtlIGluc3RhbGwNCi0gICBjZCAuLg0K
-LQ0KLTgpIEJ1aWxkIGFuZCBpbnN0YWxsIHRoZSBtb2RpZmllZCBhcHBsaWNh
-dGlvbnMuDQorNykgQnVpbGQgYW5kIGluc3RhbGwgdGhlIG1vZGlmaWVkIGFw
-cGxpY2F0aW9ucy4NCiAgICBJZiB5b3UgYXJlIHJ1bm5pbmcgUkg3LjEsIHRo
-ZW4gZmlyc3QgZWRpdCB0aGUgdXRpbHMvTWFrZWZpbGUsDQogICAgY29tbWVu
-dGluZyBvdXQgdGhlIExPR1JPVEFURV9WRVIgZGVmaW5pdGlvbiBmb3IgUkg3
-LjIgYW5kIHVuY29tbWVudGluZyANCiAgICB0aGUgY29ycmVzcG9uZGluZyBk
-ZWZpbml0aW9uIGZvciBSSDcuMS4NCiANCiAgICBjZCB1dGlscw0KICAgIG1h
-a2UNCisgICBzdSAoaWYgbm90IGFscmVhZHkgcm9vdCkNCisgICBtYWtlIGlu
-c3RhbGwNCisgICBjZCAuLg0KKw0KKzgpIElmIHlvdSB3YW50IHRvIGV4cGVy
-aW1lbnQgd2l0aCB0aGUgbGFiZWxlZCBuZXR3b3JraW5nIHN1cHBvcnQsIHRo
-ZW4NCisgICBidWlsZCBhbmQgaW5zdGFsbCB0aGUgU2Vsb3B0IHV0aWxpdGll
-czoNCisgICBjZCBzZWxvcHQNCisgICBtYWtlIChvciBtYWtlIExTTVZFUj0t
-Mi41KQ0KICAgIHN1IChpZiBub3QgYWxyZWFkeSByb290KQ0KICAgIG1ha2Ug
-aW5zdGFsbA0KICAgIGNkIC4uDQo=
----559023410-351212254-1016211794=:15480--
+It might be quite some time before RH do that.  IMHO just telling users where 
+to get a suitable version is enough, but it's your call.
+
+> > There is a bug in displaying the context though, the following patch
+> > fixes it.
+>
+> I assume that you've submitted this patch to the stat maintainer.
+
+Yes.  The reason why my message was corrupted is that kmail has a bug related 
+to copying from one message to another.  I did a cut/paste from the 
+confirmation message of my Debian bug report.
+
+It should be fixed in Debian RSN, and in upstream not long after.
+
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
