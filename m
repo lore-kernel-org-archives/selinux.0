@@ -1,31 +1,34 @@
-Subject: Re: [patch] newrole  and libselinux
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chad Hanson <chanson@TrustedCS.com>
-Cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
-In-Reply-To: <36282A1733C57546BE392885C061859231E505@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C061859231E505@chaos.tcs.tcs-sec.com>
-Content-Type: text/plain
-Message-Id: <1092319468.16219.49.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7CEDKrT016873
+	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 10:13:20 -0400 (EDT)
+Received: from nox.lemuria.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7CECgQo014252
+	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 14:12:43 GMT
+Date: Thu, 12 Aug 2004 16:13:13 +0200
+From: Tom <tom@lemuria.org>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Lemuria Mirror
+Message-ID: <20040812161313.B6569@lemuria.org>
 Mime-Version: 1.0
-Date: Thu, 12 Aug 2004 10:04:28 -0400
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2004-08-07 at 16:24, Chad Hanson wrote:
-> I have attached a patch which adds additional error checking into the
-> newrole command to prevent seg faults. Also, I have attached a patch to
-> libselinux to correct the handling the MLS contexts when used with
-> categories.
+Just a short announcement:
 
-Thanks, merged.  However, I suspect that there may be other bugs in
-handling MLS ranges properly, e.g. it looks like context_range_set()
-will reject a MLS component that includes a colon, e.g. one that
-contains a compartment set.
+For at least several days now, I haven't been able to sync with the
+verbum.org distribution site. So if you are using the lemuria.org
+mirror to pull your Debian SELinux packages, note that those from
+verbum.org (selinux uml packages only, I think) may be outdated.
+
+
+Does anyone know about the state of verbum.org? Is it coming back or
+should I remove it?
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
