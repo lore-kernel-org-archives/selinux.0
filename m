@@ -1,47 +1,47 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h986ApWt017095
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 02:10:51 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h986ofWt017220
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 02:50:41 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h986Ao7d009705
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 06:10:50 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-        by jazzband.ncsc.mil  with ESMTP id h986AnRn009702 for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 06:10:49 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: alexn@telia.com, selinux@tycho.nsa.gov
-Subject: Re: Version mismatch in selinux-usr?
-Date: Wed, 8 Oct 2003 16:10:34 +1000
-References: <200310080216.03233.alexn@telia.com>
-In-Reply-To: <200310080216.03233.alexn@telia.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310081610.34337.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id h986od7f010337
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 06:50:40 GMT
+Date: Wed, 8 Oct 2003 06:41:49 +0000
+To: Russell Coker <russell@coker.com.au>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [selinux] init
+Message-ID: <20031008064149.GA22314@bunuel.tii.matav.hu>
+References: <200310080111.50210.russell@coker.com.au> <1065558422.7696.106.camel@kusturica> <200310081424.19249.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+In-Reply-To: <200310081424.19249.russell@coker.com.au>
+From: mag@bunuel.tii.matav.hu (Magosányi Árpád)
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 8 Oct 2003 10:16, Alex wrote:
-> The load_policy in Brian May's source is a version 12 match, but I needed
-> to build a static binary for an initrd image, and the apt-get source
-> selinux didn't appear to contain the load_policy files.
+A levelezõm azt hiszi, hogy Russell Coker a következõeket írta:
+> On Wed, 8 Oct 2003 06:27, Magosányi Árpád wrote:
+> > I would vote for 5 being
+> > < 5) if policy isn't loaded and we don't have [some indication that we
+> > do not insist on selinux], halt the system with an appropriate message.
+> >
+> > The indication could be that there is no selinux support in the kernel,
+> > or some boot option.
+> 
+> Currently we have been working towards making a SE Linux system be usable if 
+> booted with a non-SE kernel.  We could have a compile option to do what you 
 
-Brian's packages are all for the old SE Linux, which has policy version 12.  
-If you use the new (xattr based) SE Linux then you need Colin's packages for 
-version 15.
+This is the very reason I proposed checking selinux support in the kernel.
+What you have proposed is a fail-open solution. The theoretically
+correct solution would be fail-safe. A good compromise would be to
+assume if theadministrator boots a non-se kernel or gives a special
+boot option, then she knows what she does.
 
-> Also, I think Russel Coker sent a message earlier about a mkinitrd script
-> which I would gladly have a look at, I didn't receive it and the archives
-> don't appear to updated every day, so if someone would send it to me I
-> would appreciate it.
+> request, but I doubt that we want it on by default.  We certainly don't want 
+> it in RPMs that we ship!
 
-See the link in my .sig.  On that page there is a link to list archives that 
-are updated immediately when new messages are posted.
+Fortunately I have no RPM based systems, I am just interested in upstream.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+GNU GPL: csak tiszta forrásból
 
 
 --
