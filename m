@@ -1,107 +1,57 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9A1WmWt000163
-	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2003 21:32:48 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9A5rUWt000955
+	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 01:53:30 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9A1WlUb017567
-	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 01:32:47 GMT
-Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
-        by jazzband.ncsc.mil  with ESMTP id h9A1WjhX017564 for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 01:32:45 GMT
-Message-ID: <002201c38ecf$814345f0$5d38a8c0@lky>
-From: "lky" <lky77@sjtu.edu.cn>
-To: "Tom" <tom@lemuria.org>
-Cc: "SELINUX" <SELinux@tycho.nsa.gov>
-Subject: Re: policy configuration problems
-Date: Fri, 10 Oct 2003 09:40:33 +0800
+	by jazzband.ncsc.mil  with ESMTP id h9A5rTUb023626
+	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 05:53:29 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+        by jazzband.ncsc.mil  with ESMTP id h9A5rShX023609 for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 05:53:28 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: init
+Date: Fri, 10 Oct 2003 15:53:20 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <200310080111.50210.russell@coker.com.au> <1065708008.8181.219.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1065708008.8181.219.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_001F_01C38F12.8CC30440"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200310101553.20047.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Fri, 10 Oct 2003 00:00, Stephen Smalley wrote:
+> While I'm willing to concede the point, I would like to note that
+> performing the policy load from an initrd (or initramfs) has the
+> advantage of allowing a security-enhanced boot loader to verify the
+> kernel and policy before kernel startup.
 
-------=_NextPart_000_001F_01C38F12.8CC30440
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
+What verification are you referring to?  Is this something like a TCPA 
+verification?
 
-PiBDaGVjayBpZiB0aGUgYmluYXJpZXMgYXJlIGxhYmVsbGVkIGNvcnJlY3RseSwgaS5lLiBkbyBz
-b21ldGhpbmcgbGlrZToNCj4gDQo+IGxzIC0tY29udGV4dCAvdXNyL3NiaW4veGluZXRkIA0KPiAo
-b3Igd2hlcmV2ZXIgaXQgaXMgaW5zdGFsbGVkIGluIHJlZGhhdCkNCj4gDQo+IGl0IHNob3VsZCBi
-ZSBzeXN0ZW1fdTpzeXN0ZW1fcjppbmV0ZF9leGVjX3QgaWYgSSByZW1lbWJlciBjb3JyZWN0bHku
-IElmDQo+IGl0J3MgdGhlIGdlbmVyaWMgOnNiaW5fdCB0aGVuIG5vIHRyYW5zaXRpb24gaGFwcGVu
-cy4NCj4gDQo+IHNhbWUgZm9yIHRoZSBvdGhlciBwcm9ncmFtcy4NCg0KQWJzb2x1dGVseSByaWdo
-dCEgVGhlIGZpbGUgY29udGV4dHMgYXJlbid0IGxhYmVsbGVkIGNvcnJlY3RseS4gQWZ0ZXIgbWFr
-ZSByZWxhYmVsIGFuZCBhcHBlbmQgc29tZSBhbGxvdyBydWxlcyB0aGUgbW9zdCBwcm9ncmFtZXMg
-cnVuIHdpdGhpbiB0aGVpciBvd24gZG9tYWlucyBhbmQgZGVuaWVkIG1lc3NhZ2VzIGhhdmUgYmVl
-biBlbGltaW5hdGVkLiBUaGFua3MhDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCkFub3RoZXIgcHJvYmxlbToN
-CiBJIHdhbnQgdG8gdXNlIHdlYm1pbiB0byBjb25maWd1cmUgdGhlIHN5c3RlbSByZW1vdGVseSxi
-dXQgbm93IHRoZSB3ZWJtaW4gZGFlbW9uIHN0aWxsIHJ1biB3aXRoaW4gdGhlIGluaXRyY190IGRv
-bWFpbi4gSSBkaWRuJ3QgZmluZCB0aGUgLnRlIGFuZCAuZmMgZmlsZXMgdW5kZXIgdGhlIHBvbGlj
-eS9kb21haW4vcHJvZ3JhbSBhbmQgL3BvbGljeS9maWxlX2NvbnRleHQvIGRpcmVjdG9yaWVzLiBT
-aG91bGQgSSBoYXZlIHRvIGNyZWF0ZSBhIG5ldyBkb21haW4gYW5kIGEgbmV3IC5mYyBmaWxlIGZv
-ciB0aGUgcHJvZ3JhbT8gIEkgdGhpbmsgaXQncyBmYWlybHkgaGFyZCBmb3IgbWUgYmVjYXVzZSB3
-ZWJtaW4gaXMgYSBjb21wbGljYXRlZCBwcm9ncmFtIGFuZCBJJ20gbm90IHZlcnkgZmFtaWx5IHdp
-dGggaXQuIElzIHRoZXJlIGFueSBlYXNpZXIgd2F5IEkgY2FuIHRha2Ugb3IgY2FuIEkgYWRkIHRo
-ZSB3ZWJtaW4gcHJvZ3JhbSB0byBhbiBleGlzdGluZyBkb21haW4/IA0KLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LQ0KQW5vdGhlciBxdWVzdGlvbjoNCkknbSBub3Qgc3VyZSBhYm91dCBteSBwb2xpY3kgY29uZmln
-dXJhdGlvbiBzdGVwcy5BZnRlciBjaGFuZ2luZyB0aGUgcG9saWN5IEkgdGFrZSB0aGUgZm9sbG93
-aW5nIHN0ZXBzOg0KMS5tYWtlIHJlbG9hZA0KMi5jcmVhdGUgdGhlIGluaXRyZC14eC5pbWcgZmls
-ZQ0KMy5yZWJvb3QNCjQubWFrZSByZWxhYmVsDQo1LnJlYm9vdA0KSXMgdGhpcyB0aGUgb25seSB3
-YXkgaWYgSSB3YW50IHRvIHJlYm9vdCB3aXRoIHRoZSBuZXcgcG9saWN5PyBDYW4gSSBvbWl0IHRo
-ZSA0IGFuZCA1IHN0ZXBzIGlmIEkganVzdCBtb3ZlIHVwIHRoZSAudGUgZmlsZSBmcm9tIHRoZSB1
-bnVzZWQgZGlyZWN0b3J5IGFuZCBhZGQgc29tZSBhbGxvdyBwZXJtaXNzaW9ucz8gSSBkb24ndCBr
-bm93IGNsZWFybHkgd2hlbiBJIG11c3QgdXNlICJtYWtlIHJlbGFiZWwiLg0KVGhhbmtzIGEgbG90
-IQ0KDQoNCg==
+In any case, I can't imagine any verification being done that can't be done at 
+least as easily from /sbin/init.
 
-------=_NextPart_000_001F_01C38F12.8CC30440
-Content-Type: text/html;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
+> > An idea that came up was to modify init so that it would do the
+> > following:
+>
+> Note that Magosanyi Arpad previously posted to the list a similar
+> solution that he implemented by renaming the real /sbin/init and
+> replacing it with a small program that exec'd a shell script to perform
+> the policy load and then executed the real init program.
 
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
-dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
-MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
-WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPjxGT05UIHNp
-emU9Mz4mZ3Q7IENoZWNrIGlmIHRoZSBiaW5hcmllcyBhcmUgDQpsYWJlbGxlZCBjb3JyZWN0bHks
-IGkuZS4gZG8gc29tZXRoaW5nIGxpa2U6PEJSPiZndDsgPEJSPiZndDsgbHMgLS1jb250ZXh0IA0K
-L3Vzci9zYmluL3hpbmV0ZCA8QlI+Jmd0OyAob3Igd2hlcmV2ZXIgaXQgaXMgaW5zdGFsbGVkIGlu
-IHJlZGhhdCk8QlI+Jmd0OyANCjxCUj4mZ3Q7IGl0IHNob3VsZCBiZSBzeXN0ZW1fdTpzeXN0ZW1f
-cjppbmV0ZF9leGVjX3QgaWYgSSByZW1lbWJlciBjb3JyZWN0bHkuIA0KSWY8QlI+Jmd0OyBpdCdz
-IHRoZSBnZW5lcmljIDpzYmluX3QgdGhlbiBubyB0cmFuc2l0aW9uIGhhcHBlbnMuPEJSPiZndDsg
-PEJSPiZndDsgDQpzYW1lIGZvciB0aGUgb3RoZXIgcHJvZ3JhbXMuPEJSPjxCUj5BYnNvbHV0ZWx5
-IHJpZ2h0ISBUaGUgZmlsZSBjb250ZXh0cyBhcmVuJ3QgDQpsYWJlbGxlZCBjb3JyZWN0bHkuIEFm
-dGVyIG1ha2UgcmVsYWJlbCBhbmQgYXBwZW5kIHNvbWUgYWxsb3cgcnVsZXMgdGhlIG1vc3QgDQpw
-cm9ncmFtZXMgcnVuIHdpdGhpbiB0aGVpciBvd24gZG9tYWlucyBhbmQgZGVuaWVkIG1lc3NhZ2Vz
-IGhhdmUgYmVlbiBlbGltaW5hdGVkLiANClRoYW5rcyE8QlI+LS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tPEJSPkFu
-b3RoZXIgDQpwcm9ibGVtOjxCUj4mbmJzcDtJIHdhbnQgdG8gdXNlIHdlYm1pbiB0byBjb25maWd1
-cmUgdGhlIHN5c3RlbSByZW1vdGVseSxidXQgbm93IA0KdGhlIHdlYm1pbiBkYWVtb24gc3RpbGwg
-cnVuIHdpdGhpbiB0aGUgaW5pdHJjX3QgZG9tYWluLiBJIGRpZG4ndCBmaW5kIHRoZSAudGUgDQph
-bmQgLmZjIGZpbGVzIHVuZGVyIHRoZSBwb2xpY3kvZG9tYWluL3Byb2dyYW0gYW5kIC9wb2xpY3kv
-ZmlsZV9jb250ZXh0LyANCmRpcmVjdG9yaWVzLiBTaG91bGQgSSBoYXZlIHRvIGNyZWF0ZSBhIG5l
-dyBkb21haW4gYW5kIGEgbmV3IC5mYyBmaWxlIGZvciB0aGUgDQpwcm9ncmFtPyZuYnNwOyBJIHRo
-aW5rIGl0J3MgZmFpcmx5IGhhcmQgZm9yIG1lIGJlY2F1c2Ugd2VibWluIGlzIGEgY29tcGxpY2F0
-ZWQgDQpwcm9ncmFtIGFuZCBJJ20gbm90IHZlcnkgZmFtaWx5IHdpdGggaXQuIElzIHRoZXJlIGFu
-eSBlYXNpZXIgd2F5IEkgY2FuIHRha2Ugb3IgDQpjYW4gSSBhZGQgdGhlIHdlYm1pbiBwcm9ncmFt
-IHRvIGFuIGV4aXN0aW5nIGRvbWFpbj8gDQo8QlI+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLTxCUj5Bbm90aGVy
-IA0KcXVlc3Rpb246PEJSPkknbSBub3Qgc3VyZSBhYm91dCBteSBwb2xpY3kgY29uZmlndXJhdGlv
-biBzdGVwcy5BZnRlciBjaGFuZ2luZyB0aGUgDQpwb2xpY3kgSSB0YWtlIHRoZSBmb2xsb3dpbmcg
-c3RlcHM6PEJSPjEubWFrZSByZWxvYWQ8QlI+Mi5jcmVhdGUgdGhlIA0KaW5pdHJkLXh4LmltZyBm
-aWxlPEJSPjMucmVib290PEJSPjQubWFrZSByZWxhYmVsPEJSPjUucmVib290PEJSPklzIHRoaXMg
-dGhlIG9ubHkgDQp3YXkgaWYgSSB3YW50IHRvIHJlYm9vdCB3aXRoIHRoZSBuZXcgcG9saWN5PyBD
-YW4gSSBvbWl0IHRoZSA0IGFuZCA1IHN0ZXBzIGlmIEkgDQpqdXN0IG1vdmUgdXAgdGhlIC50ZSBm
-aWxlIGZyb20gdGhlIHVudXNlZCBkaXJlY3RvcnkgYW5kIGFkZCBzb21lIGFsbG93IA0KcGVybWlz
-c2lvbnM/IEkgZG9uJ3Qga25vdyBjbGVhcmx5IHdoZW4gSSBtdXN0IHVzZSAibWFrZSByZWxhYmVs
-Ii48QlI+VGhhbmtzIGEgDQpsb3QhPC9GT05UPjxCUj48QlI+PC9GT05UPjwvRElWPjwvQk9EWT48
-L0hUTUw+DQo=
+I've done that before too.  However correctly handling "telinit u" (and some 
+similar things that happen when you run "reboot") is a bit fiddly in a shell 
+script.  I currently have a check for "if [ ! -f /selinux/load ]" in my 
+script for such configurations.  Also when running bash in init_t you need 
+some extra allow or dontaudit rules...
 
-------=_NextPart_000_001F_01C38F12.8CC30440--
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
