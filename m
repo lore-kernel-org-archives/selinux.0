@@ -1,73 +1,46 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA07353
-	for <selinux@tycho.nsa.gov>; Mon, 6 May 2002 17:19:41 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA07746
+	for <selinux@tycho.nsa.gov>; Mon, 6 May 2002 19:36:38 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id VAA20561
-	for <selinux@tycho.nsa.gov>; Mon, 6 May 2002 21:18:20 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id VAA20557 for <selinux@tycho.nsa.gov>; Mon, 6 May 2002 21:18:20 GMT
-Date: Mon, 6 May 2002 17:19:08 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: Debian User <rogelio@evoworks.evoserve.com>, <selinux@tycho.nsa.gov>
-Subject: Re: context for /dev/.devfsd?
-In-Reply-To: <20020504222752.C61EA35C4@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0205061716210.20696-200000@raven>
+	by jazzband.ncsc.mil  with ESMTP id XAA26446
+	for <selinux@tycho.nsa.gov>; Mon, 6 May 2002 23:35:24 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id XAA26442 for <selinux@tycho.nsa.gov>; Mon, 6 May 2002 23:35:23 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 2C11992452
+	for <selinux@tycho.nsa.gov>; Tue,  7 May 2002 09:38:56 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 8198F312B
+	for <selinux@tycho.nsa.gov>; Tue,  7 May 2002 09:35:51 +1000 (EST)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: ppp
+Date: Tue, 7 May 2002 08:23:07 +1000
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1254324197-1020719948=:20696"
+Message-Id: <20020506233551.8198F312B@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+It is common to install pppd in such a fashion that it can be run as 
+"pppd call server" by a regular user.
 
----559023410-1254324197-1020719948=:20696
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+The problem is that it often starts daemons from it's ip-up script once it 
+connects, and such daemons aren't allowed to be in user_r!
 
+I notice that the policy directive for doing an automatic role transition is 
+now deprecated.
 
-On Sat, 4 May 2002, Russell Coker wrote:
+I am thinking of writing a pppd wrapper program which runs it as 
+"system_u:system_r:pppd_t", what do you think?
 
-> While playing around I added the following to devfs_contexts on a test
-> machine:
-> /.devfsd                system_u:object_r:devfs_control_t
->
-> Then I discovered that /.devfsd is invalid syntax for policy.conf.
->
-> Can this be fixed?
-
-Patch attached, also committed to sourceforge CVS.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
----559023410-1254324197-1020719948=:20696
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="policy_path.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0205061719080.20696@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="policy_path.patch"
-
-SW5kZXg6IG1vZHVsZS9jaGVja3BvbGljeS9wb2xpY3lfc2Nhbi5sDQo9PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2cy9sc20vc2VsaW51
-eC9tb2R1bGUvY2hlY2twb2xpY3kvcG9saWN5X3NjYW4ubCx2DQpyZXRyaWV2
-aW5nIHJldmlzaW9uIDEuNA0KcmV0cmlldmluZyByZXZpc2lvbiAxLjUNCmRp
-ZmYgLXUgLXIxLjQgLXIxLjUNCi0tLSBtb2R1bGUvY2hlY2twb2xpY3kvcG9s
-aWN5X3NjYW4ubAkyMDAxLzExLzA5IDIyOjM5OjUxCTEuNA0KKysrIG1vZHVs
-ZS9jaGVja3BvbGljeS9wb2xpY3lfc2Nhbi5sCTIwMDIvMDUvMDYgMjE6MTA6
-NTQJMS41DQpAQCAtMTAyLDcgKzEwMiw3IEBADQogVDEJCQkJeyByZXR1cm4o
-VDEpOyB9DQogdDIgfA0KIFQyCQkJCXsgcmV0dXJuKFQyKTsgfQ0KLSIvIih7
-bGV0dGVyfXx7ZGlnaXR9fF98Ii8iKSoJeyByZXR1cm4oUEFUSCk7IH0NCisi
-LyIoe2xldHRlcn18e2RpZ2l0fXxffCIuInwiLyIpKgl7IHJldHVybihQQVRI
-KTsgfQ0KIHtsZXR0ZXJ9KHtsZXR0ZXJ9fHtkaWdpdH18XykqCXsgcmV0dXJu
-KElERU5USUZJRVIpOyB9DQoge2RpZ2l0fXtkaWdpdH0qICAgICAgICAgICAg
-ICAgICB7IHJldHVybihOVU1CRVIpOyB9DQogI1teXG5dKiAgICAgICAgICAg
-ICAgICAgICAgICAgICB7IC8qIGRlbGV0ZSBjb21tZW50cyAqLyB9DQo=
----559023410-1254324197-1020719948=:20696--
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
