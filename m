@@ -1,41 +1,42 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KGWuRb020461
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:32:56 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4KGUQB2008693
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 16:30:26 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i4KGUQwi008690
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 16:30:26 GMT
-Subject: Re: FAM uses seteuid and setegid
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KGm9Rb020584
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:48:10 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4KGm7AR010816
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 16:48:07 GMT
+Received: from smtp802.mail.ukl.yahoo.com (smtp802.mail.ukl.yahoo.com [217.12.12.139])
+        by jazzband.ncsc.mil  with SMTP id i4KGm6Hn010813 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 16:48:06 GMT
+Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
+  by smtp802.mail.ukl.yahoo.com with SMTP; 20 May 2004 16:48:05 -0000
+Date: Thu, 20 May 2004 16:45:16 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: Russell Coker <rcoker@redhat.com>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040520162445.GM8810@lkcl.net>
-References: <20040520121538.GA8810@lkcl.net>
-	 <200405210114.53119.rcoker@redhat.com>  <20040520162445.GM8810@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1085070739.521.201.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: is this pretty much it (to patch kdm 3.2.2)?
+Message-ID: <20040520164516.GA17553@lkcl.net>
+References: <20040519074242.GK7348@lkcl.net> <1085057380.521.70.camel@moss-spartans.epoch.ncsc.mil> <20040520145258.GF8810@lkcl.net> <200405210139.49261.rcoker@redhat.com> <20040520161423.GJ8810@lkcl.net> <1085070386.521.198.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 20 May 2004 12:32:19 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1085070386.521.198.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-05-20 at 12:24, Luke Kenneth Casson Leighton wrote:
-> > Famd is badly designed for security.  There has been talk of replacing that 
-> > functionality with other code, the general concept is that for a local FAM 
-> > you just have the first process to call it fork off a child process which 
-> > executes a famd in the user context, then other processes with the same UID 
-> > can connect to the same famd.
->  
->  that's much more sensible.
+On Thu, May 20, 2004 at 12:26:26PM -0400, Stephen Smalley wrote:
+> On Thu, 2004-05-20 at 12:14, Luke Kenneth Casson Leighton wrote:
+> >  sadly i cannot tell.  i have been meaning to ask:
+> > 
+> >  is it possible to run things to present more debug info at the TIME
+> >  that an avc message is placed in the logs?
+> 
+> You might get more information by enabling syscall auditing in your
+> kernel.  Boot with audit=1.
 
-Yes, but unfortunately it doesn't help with remote FAM usage, which
-isn't uncommon.
+ ta.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+> You could patch the audit daemon (if you are running one) or syslogd to
+> run whatever you want as it receives audit messages.
+ 
+  ah ha!
 
 
 --
