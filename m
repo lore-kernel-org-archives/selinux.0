@@ -1,45 +1,35 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA23077
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 11:41:45 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA08294
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:40:24 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id QAA08290
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:40:23 GMT
-Date: Wed, 20 Mar 2002 11:41:14 -0500 (EST)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA23088
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 11:42:45 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA29978
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:41:42 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id QAA29974 for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:41:41 GMT
+Date: Wed, 20 Mar 2002 11:42:34 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: file_contexts
-In-Reply-To: <20020319174854.18E9E2387@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0203201134310.11981-100000@raven>
+cc: selinux <selinux@tycho.nsa.gov>
+Subject: Re: general_file_read_access
+In-Reply-To: <20020320102215.A54A1232F@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0203201141260.11981-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 19 Mar 2002, Russell Coker wrote:
+On Wed, 20 Mar 2002, Russell Coker wrote:
 
-> I think that the solution is to remove the need for ordering dependencies!
+> Could this macro be split into a number of smaller macros?
 >
-> If you change the definition of the format to not have the regex's
-> automatically be right-anchored (which requires inserting '$' at appropriate
-> places in the current fc file) then you can check for the regular expression
-> which gives the largest rm_eo value!
+> I'd like to have a macro for reading the root directory, /usr, /usr/bin,
+> /usr/sbin, /bin, and /sbin without allowing reading of any var_log_t files.
 
-I haven't looked into this closely, but it isn't clear to me how that
-would solve the problem.  I would expect the /.* entry to then take
-precedence over all other entries.  Even without that entry, you would
-have the same problem with other entries that provide a default for a
-given directory tree, e.g. /var(|/.*), that are overridden by more
-specific entries that occur later.  I'm also not sure how that would
-address the multiple hard link problem.
-
-In any event, it appears that we only need to set up ordering properly in
-the types.fc file and within each individual domain .fc file, and that the
-ordering among the domain .fc files is irrelevant.
+Yes, my intent is to gradually partition each of the macros into
+increasingly finer-grained macros and then rewrite domains to use the new
+macros.  Other suggestions for the finer-grained macros are welcome, of
+course.
 
 --
 Stephen D. Smalley, NAI Labs
