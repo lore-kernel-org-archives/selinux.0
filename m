@@ -1,49 +1,37 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3KIHSI4017633
-	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 14:17:28 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3L1rpI4018236
+	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 21:53:51 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3KIHR7R017612
-	for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 18:17:27 GMT
-Received: from mail11.atl.registeredsite.com (mail11.atl.registeredsite.com [64.224.219.85])
-        by jazzband.ncsc.mil  with ESMTP id h3KIHGKP017609 for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2003 18:17:26 GMT
-Date: Sun, 20 Apr 2003 20:17:05 +0200
-Subject: Re: SELinux ISO...
-From: "adf--at--Code511.com" <adf@code511.com>
-To: Lu=?ISO-8859-1?B?7Q==?=s Miguel Silva <lms@ispgaya.pt>,
-   <selinux@tycho.nsa.gov>
-Message-ID: <BAC8B0C1.14A0F%adf@code511.com>
-In-Reply-To: <3478.81.84.84.159.1050851180.squirrel@webmail.ispgaya.pt>
-Mime-version: 1.0
-Content-type: text/plain; charset="ISO-8859-1"
+	by jazzband.ncsc.mil  with ESMTP id h3L1ro7R020467
+	for <selinux@tycho.nsa.gov>; Mon, 21 Apr 2003 01:53:50 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h3L1rmKP020462 for <selinux@tycho.nsa.gov>; Mon, 21 Apr 2003 01:53:49 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Dale Amon <amon@vnl.com>
+Subject: Re: OLS BOFs etc
+Date: Mon, 21 Apr 2003 11:53:37 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <200304142329.56120.russell@coker.com.au> <20030420150958.GD14564@vnl.com>
+In-Reply-To: <20030420150958.GD14564@vnl.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200304211153.37541.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Le 20/04/03 5:06 PM, « Luís Miguel Silva » <lms@ispgaya.pt> a écrit :
+On Mon, 21 Apr 2003 01:09, Dale Amon wrote:
+> Russell: When is the OLS? It looks like I will be spending a
 
-> Hello everybody,
-> 
-> Why isnt there a ISO of the SELinux available?
-> 
-> Is the "groups" policy not to make an ISO available?
-> 
-> I just subscribed this list a couple a days ago, so, im sorry if my
-> question is kind of stupid.
-Read FAQ : http://www.nsa.gov/selinux/faq.html#I6
+http://www.linuxsymposium.org/2003/
+The above URL has all the details.
 
-"Yes.  You actually need to have an existing Linux system."
-SeLinux is a number utilities with enhanced security functionality, iso
-would be useless.
-
-Alexandre Da Fonseca aka Deepquest
-"If you know the enemy and you know yourself, you
-need not fear the result of a hundred battles."
-                                           --Sun Tzu
--------------------------------------------------------------
-Code511            
-http://www.code511.com
-PGP DH/DSS http://www.code511.com/pgp   fax :+33-14225-8590
--------------------------------------------------------------
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
