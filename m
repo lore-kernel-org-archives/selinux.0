@@ -1,252 +1,90 @@
-Message-ID: <41E2FEF4.5070604@redhat.com>
-Date: Mon, 10 Jan 2005 17:17:24 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Added is_context_configurable function
-Content-Type: multipart/mixed;
- boundary="------------070905030200060904080405"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0ANwjIi003551
+	for <selinux@tycho.nsa.gov>; Mon, 10 Jan 2005 18:58:45 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0ANwhe6020793
+	for <selinux@tycho.nsa.gov>; Mon, 10 Jan 2005 23:58:48 GMT
+Date: Mon, 10 Jan 2005 23:23:12 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Multiple contexts
+Message-ID: <20050110232312.GI6967@lkcl.net>
+References: <1105390249.8093.21.camel@cobra.ivg2.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1105390249.8093.21.camel@cobra.ivg2.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070905030200060904080405
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-This patch defines two functions.
-
-is_context_configurable(scontext) 
-This returns if if the context is in the 
-/etc/selinux/*/contexts/configurable_contexts file.
-0 If not and -1 on error.
-
-Internally this calls get_configurable_context_list which returns a 
-contextarray of the contexts of that file.
-
-I have also patched the policy makefile to populate that file, but 
-looking for all contexts marked as configurable.
-
-Now I would like to use this function in restorecon/setfiles, so that by 
-default they will leave configurable contexts alone.
-
-Dan
-
-is_context_configurable(3) SELinux API 
-documentationis_context_configurable(3)
-
-
-
-NAME
-       is_context_configurable  - check whether context is configurable 
-by the
-       administrator.
-
-SYNOPSIS
-       #include <selinux/selinux.h>
-
-       int is_context_configurable(security_context_t scon);
-
-
-DESCRIPTION
-       is_context_configurable
-       This function checks  whether  scon  is  in  the  
-/etc/selinux/SELINUX-
-       TYPE/context/configurable_contexts  file.  A 
-configurable_contexts is a
-       file contexts that administrators set on the  file  system  
-usually  to
-       allow  certain  domains  to share the file content. restorecon 
-and set-
-       files by default leave these context in place.
-
-
-
-RETURN VALUE
-       returns 1 if security context is  configurable  or  0  if  it  
-is  not.
-       returns -1 on error
-
-
-FILE
-       /etc/selinux/SELINUXTYPE/context/configurable_contexts
-
-
-
-
-dwalsh@redhat.com               10 January 2005     
-is_context_configurable(3)
-
-
---------------070905030200060904080405
-Content-Type: text/x-patch;
- name="libselinux-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libselinux-rhat.patch"
-
-diff --exclude-from=exclude -N -u -r nsalibselinux/include/selinux/selinux.h libselinux-1.20.1/include/selinux/selinux.h
---- nsalibselinux/include/selinux/selinux.h	2004-12-03 14:40:05.000000000 -0500
-+++ libselinux-1.20.1/include/selinux/selinux.h	2005-01-10 17:12:13.775893740 -0500
-@@ -226,6 +226,7 @@
- extern const char *selinux_media_context_path(void);
- extern const char *selinux_contexts_path(void);
- extern const char *selinux_booleans_path(void);
-+extern const char *selinux_configurable_contexts_path(void);
+On Mon, Jan 10, 2005 at 01:50:49PM -0700, Ivan Gyurdiev wrote:
+> Why doesn't SElinux support multiple contexts per file?
+> It seems to me that this feature would be very useful. 
+> Is this technically not feasible?
+> 
+> I've been trying to get the following setup working on FC3 (rawhide):
+> 
+> /var/www/html.userX  - 
+> 	virtual server for userX.mydomain labeled httpd_sys_content_t
+> /home/userX - 
+> 	home folder for userX, exported via Samba (not yet, but
+> 	it will be, once dwalsh puts in booleans for samba reading home)
+> 
+> /home/userX/webserver - symlink to /var/www/html.userX 
+> 
+> Now, /var/www/html.userX needs to be accessed both by smbd and httpd.
+> I need to label it with both samba_share_t and httpd_sys_content_t.
  
- /* Check a permission in the passwd class.
-    Return 0 if granted or -1 otherwise. */
-@@ -242,6 +243,10 @@
- 		       const char *filename, 
- 		       char *const argv[], char *const envp[]);
- 
-+/* Returns whether a file context is configurable, and should not 
-+   be relabeled . */
-+extern int is_context_configurable (security_context_t scontext);
-+
- #ifdef __cplusplus
- }
- #endif
-diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/is_context_configurable.3 libselinux-1.20.1/man/man3/is_context_configurable.3
---- nsalibselinux/man/man3/is_context_configurable.3	1969-12-31 19:00:00.000000000 -0500
-+++ libselinux-1.20.1/man/man3/is_context_configurable.3	2005-01-10 17:12:39.279014613 -0500
-@@ -0,0 +1,22 @@
-+.TH "is_context_configurable" "3" "10 January 2005" "dwalsh@redhat.com" "SELinux API documentation"
-+.SH "NAME"
-+is_context_configurable \- check whether context is configurable by the administrator.
-+.SH "SYNOPSIS"
-+.B #include <selinux/selinux.h>
-+.sp
-+.B int is_context_configurable(security_context_t scon);
-+
-+.SH "DESCRIPTION"
-+.B is_context_configurable
-+.br
-+This function checks whether scon is in the /etc/selinux/SELINUXTYPE/context/configurable_contexts file.  A configurable_contexts is a file contexts that
-+administrators set on the file system usually to allow certain domains to share the file content. restorecon and setfiles by default leave these context in place.
-+
-+ 
-+.SH "RETURN VALUE"
-+returns 1 if security context is configurable or 0 if it is not. 
-+returns -1 on error
-+
-+.SH "FILE"
-+/etc/selinux/SELINUXTYPE/context/configurable_contexts
-+
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/file_path_suffixes.h libselinux-1.20.1/src/file_path_suffixes.h
---- nsalibselinux/src/file_path_suffixes.h	2004-10-20 16:31:36.000000000 -0400
-+++ libselinux-1.20.1/src/file_path_suffixes.h	2005-01-10 17:12:13.776893627 -0500
-@@ -9,3 +9,4 @@
- S_(BOOLEANS, "/booleans")
- S_(MEDIA_CONTEXTS, "/contexts/files/media")
- S_(REMOVABLE_CONTEXT, "/contexts/removable_context")
-+S_(CONFIGURABLE_CONTEXTS, "/contexts/configurable_contexts")
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/is_configurable_context.c libselinux-1.20.1/src/is_configurable_context.c
---- nsalibselinux/src/is_configurable_context.c	1969-12-31 19:00:00.000000000 -0500
-+++ libselinux-1.20.1/src/is_configurable_context.c	2005-01-10 17:12:13.777893514 -0500
-@@ -0,0 +1,61 @@
-+#include <unistd.h>
-+#include <errno.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <ctype.h>
-+#include <pwd.h>
-+#include <selinux/selinux.h>
-+
-+static int get_configurable_context_list (security_context_t **retlist)
-+{
-+	FILE *fp;
-+	char buf[4097];
-+	int ctr=0, i;
-+	security_context_t *list=NULL;
-+
-+	fp = fopen(selinux_configurable_contexts_path(), "r");
-+	if (!fp)
-+		return -1;
-+
-+	while (fgets_unlocked(buf, 4096, fp)) {
-+		ctr++;
-+	}
-+	rewind(fp);
-+	if (ctr) {
-+		list=(security_context_t *) calloc(sizeof(security_context_t *), ctr+1);
-+		if (list) {
-+		  i=0;
-+		  while (fgets_unlocked(buf, 4096, fp)) {
-+		    buf[strlen(buf)-1]=0;
-+		    list[i++]=(security_context_t) strdup(buf);
-+		    if (i>ctr) { 
-+		      /* Should never happen */
-+		      free(list);
-+		      list=NULL;
-+		      break;
-+		    }
-+		  }
-+		}
-+	}
-+	fclose(fp);
-+	if (!list)
-+		return -1;
-+	*retlist=list;
-+	return 0;
-+}
-+
-+static security_context_t *configurable_list=NULL;
-+
-+int is_context_configurable (security_context_t scontext) {
-+  int i;
-+  if (! configurable_list) {
-+    if (get_configurable_context_list(&configurable_list)!=0) 
-+      return -1;
-+  }
-+  
-+  for (i = 0; configurable_list[i]; i++) {
-+    if (strcmp(configurable_list[i],scontext) == 0) return 1;
-+  }
-+  return 0;
-+}
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinux_config.c libselinux-1.20.1/src/selinux_config.c
---- nsalibselinux/src/selinux_config.c	2004-10-20 16:31:36.000000000 -0400
-+++ libselinux-1.20.1/src/selinux_config.c	2005-01-10 17:12:13.779893288 -0500
-@@ -26,7 +26,8 @@
- #define BOOLEANS          7
- #define MEDIA_CONTEXTS    8
- #define REMOVABLE_CONTEXT 9
--#define NEL               10
-+#define CONFIGURABLE_CONTEXTS    10
-+#define NEL               11
- 
- /* New layout is relative to SELINUXDIR/policytype. */
- static char *file_paths[NEL];
-@@ -211,6 +212,10 @@
-   return get_path(MEDIA_CONTEXTS);
- }
- 
-+const char *selinux_configurable_contexts_path() {
-+  return get_path(CONFIGURABLE_CONTEXTS);
-+}
-+
- const char *selinux_contexts_path() {
-   return get_path(CONTEXTS_DIR);
- }
+ i understand the mindset of selinux enough now to be able to say that
+ the recommended approach would be for you to create a file type
+ samba_share_httpd_sys_content_t and then for you to modify the
+ selinux policy to grant the programs requiring access to those
+ filetypes in the samba.te and the apache.te policy files.
 
---------------070905030200060904080405
-Content-Type: text/plain;
- name="configurable_contexts"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="configurable_contexts"
+> I have to edit the cryptic m4 policy file to add a type that's
+> accessible by both. Why is this necessary? Why can't selinux
+> either
 
-httpd_sys_content_t
-httpd_sys_script_exec_t
-httpd_sys_script_ro_t
-httpd_sys_script_rw_t
-httpd_sys_script_ra_t
-ftpd_anon_t
-samba_share_t
+> 	(1) Label the file with both contexts, and permit
+> 	the operation if any context permits it
+> 
+> 	or
+> 		
+> 	(2) Create a type with the properties of both
+> 	with less user interaction (without needing to 
+> 	modify the policy manually)
+> 
+> Since I'm unfamiliar with how SElinux works internally,
+> this might be a stupid question, but it seems to me that 
+> the user should not be required to understand how a policy
+> file works to label a file for use by two restricted programs.
 
---------------070905030200060904080405--
+ yes, it does seem a little curious: taking NT security descriptors
+ (actually VMS SDs) as an example, and ignoring the fact that NT/VMS
+ SDs contain DAC (discretionary) ACLs - each ACL is just that - an
+ access control LIST.
+
+ whereas in NT, the SD contains ACLs and the ACLs can be extended,
+ modified and edited (and are better understood!), SElinux turns things
+ roundabout somewhat: providing a reference (handle) into a binary
+ policy.
+
+ what i _am_ aware of is that by having the policies in a structured
+ language, formal analysis tools can be applied to make certain
+ guarantees and proofs.
+
+ in paranoid security environments, it's far more important
+ to be able to prove that someone _could_ break in than to
+ not _know_ if they could break in (!)
+
+ i can only hazard a hazardous guess therefore that the more
+ "normal" ACL system [that we are used to seeing] was rejected
+ because it makes the formal proof methodology more difficult.
+
+ *shrug*.  *clueless*.  anyone know?
+
+ l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
