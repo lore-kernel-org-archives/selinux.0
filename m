@@ -1,135 +1,39 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5N2wBrT013493
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jun 2004 22:58:11 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5N2w79A004428
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jun 2004 02:58:07 GMT
-Subject: kerberos policy
-From: Colin Walters <walters@verbum.org>
-To: selinux@tycho.nsa.gov
-Cc: dwalsh@redhat.com, russell@coker.com.au
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ygHONR0dQAjnPNt8me76"
-Date: Tue, 22 Jun 2004 22:56:57 -0400
-Message-Id: <1087959417.24644.8.camel@optimus-prime.boston.redhat.com>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5N35erT013546
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jun 2004 23:05:40 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5N35QAb018081
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jun 2004 03:05:27 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Colin Walters <walters@verbum.org>
+Subject: Re: generic pam authentication
+Date: Wed, 23 Jun 2004 13:05:28 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <1087940480.17038.96.camel@optimus-prime.boston.redhat.com>
+In-Reply-To: <1087940480.17038.96.camel@optimus-prime.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200406231305.28609.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 23 Jun 2004 07:41, Colin Walters <walters@verbum.org> wrote:
+> What I think might be nice is a generic macro, say uses_pam(passwd)
+> which would grant any privileges necessary to use the libraries in the
+> PAM stack.  This macro would be defined in domains/pam.te, and would be
+> intended for customization by the administrator.  For example, if the
+> administrator decided to use PostgreSQL for holding user data, they
+> could insert the necessary privileges to talk to postgresql_port_t.
 
---=-ygHONR0dQAjnPNt8me76
-Content-Type: multipart/mixed; boundary="=-zMXHdNUWVq7y4YdHF1FX"
+That sounds like the correct approach.
 
-
---=-zMXHdNUWVq7y4YdHF1FX
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-Here's the current Kerberos policy I'm using.  It's basically just a
-somewhat cleaned-up version of Kerry Thompson's work.  Some things need
-more investigation, particularly kerberos tickets issued via pam_krb5.
-
-
---=-zMXHdNUWVq7y4YdHF1FX
-Content-Disposition: attachment; filename=kerberos.te
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; name=kerberos.te; charset=UTF-8
-
-I0RFU0MgS2VyYmVyb3M1IC0gTUlUIEtlcmJlcm9zNQ0KIyBzdXBwb3J0cyBrcmI1a2RjIGFuZCBr
-YWRtaW5kIGRhZW1vbnMNCiMga2luaXQsIGtkZXN0cm95LCBrbGlzdCBjbGllbnRzDQojIGtzdSBz
-dXBwb3J0IG5vdCBjb21wbGV0ZQ0KIw0KIyBpbmNsdWRlcyBydWxlcyBmb3IgT3BlblNTSCBkYWVt
-b24gY29tcGlsZWQgd2l0aCBib3RoDQojIGtlcmJlcm9zNSBhbmQgU0VMaW51eCBzdXBwb3J0DQoj
-DQojIE5vdCBzdXBwb3J0ZWQgOiB0ZWxuZXRkLCBmdHBkLCBrcHJvcC9rcHJvcGQgZGFlbW9ucw0K
-Iw0KIyBBdXRob3I6ICAgS2VycnkgVGhvbXBzb24gPGtlcnJ5QGNyeXB0Lmdlbi5uej4NCiMgTW9k
-aWZpZWQgYnkgQ29saW4gV2FsdGVycyA8d2FsdGVyc0ByZWRoYXQuY29tPg0KIyANCg0KIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQojDQojIFJ1bGVzIGZvciB0aGUga3JiNWtkY190
-LGthZG1pbmRfdCBkb21haW5zLg0KIw0KdHlwZSBrZXJiZXJvc19wb3J0X3QsIHBvcnRfdHlwZTsN
-CnR5cGUga2VyYmVyb3NfYWRtaW5fcG9ydF90LCBwb3J0X3R5cGU7DQp0eXBlIGtlcmJlcm9zX21h
-c3Rlcl9wb3J0X3QsIHBvcnRfdHlwZTsNCg0KZGFlbW9uX2RvbWFpbihrcmI1a2RjKQ0KZGFlbW9u
-X2RvbWFpbihrYWRtaW5kKQ0KDQpjYW5fZXhlYyhrcmI1a2RjX3QsIGtyYjVrZGNfZXhlY190KQ0K
-Y2FuX2V4ZWMoa2FkbWluZF90LCBrYWRtaW5kX2V4ZWNfdCkNCg0KIyB0eXBlcyBmb3IgZ2VuZXJh
-bCBjb25maWd1cmF0aW9uIGZpbGVzIGluIC9ldGMNCnR5cGUga3JiNV9rZXl0YWJfdCwgZmlsZV90
-eXBlLCBzeXNhZG1maWxlOw0KDQojIHR5cGVzIGZvciBLREMgY29uZmlncyBhbmQgcHJpbmNpcGFs
-IGZpbGUocykNCnR5cGUga3JiNWtkY19jb25mX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZTsNCnR5
-cGUga3JiNWtkY19wcmluY2lwYWxfdCwgZmlsZV90eXBlLCBzeXNhZG1maWxlOw0KDQojIFVzZSBj
-YXBhYmlsaXRpZXMuIFN1cnBsdXMgY2FwYWJpbGl0aWVzIG1heSBiZSBhbGxvd2VkLg0KYWxsb3cg
-a3JiNWtkY190IHNlbGY6Y2FwYWJpbGl0eSB7IHNldHVpZCBzZXRnaWQgbmV0X2FkbWluIG5ldF9i
-aW5kX3NlcnZpY2UgY2hvd24gZm93bmVyIGRhY19vdmVycmlkZSBzeXNfbmljZSB9Ow0KYWxsb3cg
-a2FkbWluZF90IHNlbGY6Y2FwYWJpbGl0eSB7IHNldHVpZCBzZXRnaWQgbmV0X2JpbmRfc2Vydmlj
-ZSBjaG93biBmb3duZXIgZGFjX292ZXJyaWRlIHN5c19uaWNlIH07DQoNCiMga3JiNWtkYyBhbmQg
-a2FkbWluZCBjYW4gdXNlIG5ldHdvcmsNCmNhbl9uZXR3b3JrKGtyYjVrZGNfdCkNCmNhbl9uZXR3
-b3JrKGthZG1pbmRfdCkNCg0KIyBhbGxvdyBVRFAgdHJhbnNmZXIgdG8vZnJvbSBhbnkgcHJvZ3Jh
-bQ0KY2FuX3VkcF9zZW5kKGtlcmJlcm9zX3BvcnRfdCwga3JiNWtkY190KQ0KY2FuX3VkcF9zZW5k
-KGtyYjVrZGNfdCwga2VyYmVyb3NfcG9ydF90KQ0KY2FuX3RjcF9jb25uZWN0KGtlcmJlcm9zX3Bv
-cnRfdCwga3JiNWtkY190KQ0KY2FuX3RjcF9jb25uZWN0KGtlcmJlcm9zX2FkbWluX3BvcnRfdCwg
-a2FkbWluZF90KQ0KDQojIEJpbmQgdG8gdGhlIGtlcmJlcm9zLCBrZXJiZXJvcy1hZG0gcG9ydHMu
-DQphbGxvdyBrcmI1a2RjX3Qga2VyYmVyb3NfcG9ydF90OnVkcF9zb2NrZXQgbmFtZV9iaW5kOw0K
-YWxsb3cga3JiNWtkY190IGtlcmJlcm9zX3BvcnRfdDp0Y3Bfc29ja2V0IG5hbWVfYmluZDsNCmFs
-bG93IGthZG1pbmRfdCBrZXJiZXJvc19hZG1pbl9wb3J0X3Q6dGNwX3NvY2tldCBuYW1lX2JpbmQ7
-DQoNCiMNCiMgUnVsZXMgZm9yIEtlcmJlcm9zNSBLREMgZGFlbW9uDQphbGxvdyBrcmI1a2RjX3Qg
-c2VsZjp1bml4X2RncmFtX3NvY2tldCBjcmVhdGVfc29ja2V0X3Blcm1zOw0KYWxsb3cga3JiNWtk
-Y190IHNlbGY6dW5peF9zdHJlYW1fc29ja2V0IGNyZWF0ZV9zb2NrZXRfcGVybXM7DQphbGxvdyBr
-cmI1a2RjX3Qga3JiNWtkY19jb25mX3Q6ZGlyIHsgc2VhcmNoIH07DQphbGxvdyBrcmI1a2RjX3Qg
-a3JiNWtkY19jb25mX3Q6ZmlsZSByX2ZpbGVfcGVybXM7DQphbGxvdyBrcmI1a2RjX3Qga3JiNWtk
-Y19wcmluY2lwYWxfdDpmaWxlIHJfZmlsZV9wZXJtczsNCmRvbnRhdWRpdCBrcmI1a2RjX3Qga3Ji
-NWtkY19wcmluY2lwYWxfdDpmaWxlIHsgd3JpdGUgfTsNCmFsbG93IGtyYjVrZGNfdCBsb2NhbGVf
-dDpmaWxlIHsgZ2V0YXR0ciByZWFkIH07DQpkb250YXVkaXQga3JiNWtkY190IGtyYjVrZGNfY29u
-Zl90OmZpbGUgeyB3cml0ZSB9Ow0KYWxsb3cga3JiNWtkY190IGV0Y190OmRpciB7IGdldGF0dHIg
-c2VhcmNoIH07DQphbGxvdyBrcmI1a2RjX3QgZXRjX3Q6ZmlsZSB7IGdldGF0dHIgcmVhZCB9Ow0K
-YWxsb3cga3JiNWtkY190IGtyYjVfY29uZl90OmZpbGUgcl9maWxlX3Blcm1zOw0KZG9udGF1ZGl0
-IGtyYjVrZGNfdCBrcmI1X2NvbmZfdDpmaWxlIHsgd3JpdGUgfTsNCnRtcF9kb21haW4oa3JiNWtk
-YykNCmxvZ19kb21haW4oa3JiNWtkYykNCmFsbG93IGtyYjVrZGNfdCB1cmFuZG9tX2RldmljZV90
-OmNocl9maWxlIHsgZ2V0YXR0ciByZWFkIH07DQphbGxvdyBrcmI1a2RjX3Qgc2VsZjpuZXRsaW5r
-X3NvY2tldCB7IGNyZWF0ZSBiaW5kIGdldGF0dHIgcmVhZCB3cml0ZSB9Ow0KYWxsb3cga3JiNWtk
-Y190IHByb2NfdDpkaXIgcl9kaXJfcGVybXM7DQphbGxvdyBrcmI1a2RjX3QgcHJvY190OmZpbGUg
-eyBnZXRhdHRyIHJlYWQgfTsNCg0KIw0KIyBSdWxlcyBmb3IgS2VyYmVyb3M1IEthZG1pbiBkYWVt
-b24NCmFsbG93IGthZG1pbmRfdCBrYWRtaW5kX3Q6dW5peF9kZ3JhbV9zb2NrZXQgeyBjb25uZWN0
-IGNyZWF0ZSB3cml0ZSB9Ow0KYWxsb3cga2FkbWluZF90IGtyYjVrZGNfY29uZl90OmRpciB7IHNl
-YXJjaCB9Ow0KYWxsb3cga2FkbWluZF90IGtyYjVrZGNfY29uZl90OmZpbGUgcl9maWxlX3Blcm1z
-Ow0KYWxsb3cga2FkbWluZF90IGtyYjVrZGNfcHJpbmNpcGFsX3Q6ZmlsZSB7IGdldGF0dHIgbG9j
-ayByZWFkIHdyaXRlIHNldGF0dHIgfTsNCnJlYWRfbG9jYWxlKGthZG1pbmRfdCkNCmRvbnRhdWRp
-dCBrYWRtaW5kX3Qga3JiNWtkY19jb25mX3Q6ZmlsZSB7IHdyaXRlIH07DQp0bXBfZG9tYWluKGth
-ZG1pbmQpDQpsb2dfZG9tYWluKGthZG1pbmQpDQoNCiMNCiMgQWxsb3cgdXNlciBwcm9ncmFtcyB0
-byB0YWxrIHRvIEtEQw0KYWxsb3cga3JiNWtkY190IHVzZXJkb21haW46dWRwX3NvY2tldCB7IHJl
-Y3Zmcm9tIH07DQphbGxvdyB1c2VyZG9tYWluIGtyYjVrZGNfdDp1ZHBfc29ja2V0IHsgcmVjdmZy
-b20gfTsNCg==
-
-
---=-zMXHdNUWVq7y4YdHF1FX
-Content-Disposition: attachment; filename=kerberos.fc
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; name=kerberos.fc; charset=UTF-8
-
-IyBNSVQgS2VyYmVyb3Mga3Jia2RjLCBrYWRtaW5kDQovZXRjL2tyYjVcLmtleXRhYiAgICAgICAJ
-CXN5c3RlbV91Om9iamVjdF9yOmtyYjVfa2V5dGFiX3QNCi91c3IoL2xvY2FsKT8oL2tlcmJlcm9z
-KT8vc2Jpbi9rcmI1a2RjIAlzeXN0ZW1fdTpvYmplY3RfcjprcmI1a2RjX2V4ZWNfdA0KL3Vzcigv
-bG9jYWwpPygva2VyYmVyb3MpPy9zYmluL2thZG1pbmQJc3lzdGVtX3U6b2JqZWN0X3I6a2FkbWlu
-ZF9leGVjX3QNCi92YXIva2VyYmVyb3Mva3JiNWtkYygvLiopPwkJc3lzdGVtX3U6b2JqZWN0X3I6
-a3JiNWtkY19jb25mX3QNCi91c3IvbG9jYWwvdmFyL2tyYjVrZGMoLy4qKT8JCXN5c3RlbV91Om9i
-amVjdF9yOmtyYjVrZGNfY29uZl90DQovdmFyL2tlcmJlcm9zL2tyYjVrZGMvcHJpbmNpcGFsLioJ
-c3lzdGVtX3U6b2JqZWN0X3I6a3JiNWtkY19wcmluY2lwYWxfdA0KL3Vzci9sb2NhbC92YXIva3Ji
-NWtkYy9wcmluY2lwYWwuKglzeXN0ZW1fdTpvYmplY3RfcjprcmI1a2RjX3ByaW5jaXBhbF90DQov
-dmFyL2xvZy9rcmI1a2RjLmxvZwkJCXN5c3RlbV91Om9iamVjdF9yOmtyYjVrZGNfbG9nX3QNCi92
-YXIvbG9nL2thZG1pbmQubG9nCQkJc3lzdGVtX3U6b2JqZWN0X3I6a2FkbWluZF9sb2dfdA0KL3Vz
-cigvbG9jYWwpPy9iaW4va3N1CQkJc3lzdGVtX3U6b2JqZWN0X3I6c3VfZXhlY190DQo=
-
-
---=-zMXHdNUWVq7y4YdHF1FX--
-
---=-ygHONR0dQAjnPNt8me76
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA2PF5OIkJWWp2WGURAjIcAJ9+L7uFsPDxvzBnnbcKoNasaEeqywCcC/Sx
-y6fFqNAkuCqD0ytOnC952WE=
-=Wzx0
------END PGP SIGNATURE-----
-
---=-ygHONR0dQAjnPNt8me76--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
