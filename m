@@ -1,38 +1,25 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA02228
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 17:04:17 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA20582
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 22:02:20 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id WAA20574 for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 22:02:19 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 451A992713
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 09:04:13 +1100 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 9EC658630
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 23:04:05 +0100 (CET)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: new packages
-Date: Wed, 30 Oct 2002 23:04:05 +0100
-MIME-Version: 1.0
-Message-Id: <200210302304.05207.russell@coker.com.au>
+Date: Thu, 31 Oct 2002 09:08:06 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: Stephen Smalley <sds@tislabs.com>
+Cc: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: kernel warning
+Message-ID: <20021030220806.GB16395@snoopy.apana.org.au>
+References: <200210301613.51096.russell@coker.com.au> <Pine.GSO.4.33.0210301441331.12970-100000@raven>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.GSO.4.33.0210301441331.12970-100000@raven>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have put new versions online of my 2.4 kernel patch package and the 
-selinux-small packages with the changes discussed.
+On Wed, Oct 30, 2002 at 02:48:12PM -0500, Stephen Smalley wrote:
+> For the separate SELinux patch to work for LIDS and DTE users, you would
+> need to drop those changes as well as #ifdef the initialization call.  You
+> would also need to add stub hook functions for inode_init to the LIDS and
+> DTE modules.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+What parts of the seperate SELinux patch would break LIDS and DTE users?
+--
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
