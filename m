@@ -1,53 +1,52 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7O9LBrT024680
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 05:21:11 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7O9UerT024721
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 05:30:41 -0400 (EDT)
 Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7O9L9CV026886
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 09:21:09 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by open.hands.com (Postfix) with ESMTP id DF7A5BF88
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 10:21:09 +0100 (BST)
-Received: from open.hands.com ([127.0.0.1])
-	by localhost (open [127.0.0.1]) (amavisd-new, port 10024) with LMTP
-	id 24231-05-2 for <selinux@tycho.nsa.gov>;
-	Tue, 24 Aug 2004 10:21:08 +0100 (BST)
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id F365FBF7A
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 10:21:07 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BzXem-0008Gk-Cw
-	for selinux@tycho.nsa.gov; Tue, 24 Aug 2004 10:31:56 +0100
-Date: Tue, 24 Aug 2004 10:31:56 +0100
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7O9UdCV027072
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 09:30:39 GMT
+Date: Tue, 24 Aug 2004 10:41:57 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: file_contexts in kernel
-Message-ID: <20040824093156.GE25356@lkcl.net>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Greg KH <greg@kroah.com>, russell@coker.com.au,
+   SE Linux <selinux@tycho.nsa.gov>, fedora-selinux-list@redhat.com
+Subject: Re: Fedora and udev
+Message-ID: <20040824094157.GF25356@lkcl.net>
+References: <200408222125.38169.russell@coker.com.au> <4128B637.8040900@tresys.com> <20040822173457.GD13842@lkcl.net> <20040823224444.GI4694@kroah.com> <412A74A6.9070206@tresys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <412A74A6.9070206@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-stephen, russell et al,
+dear fedora-selinux people,
 
-how about uploading file_contexts in some pre-munged format that
-is suitable for use by some much simplified regexp code, along
-with moving the cache into the kernel too?
+i am not subscribed to the fedora-selinux list so am just going through
+the archives looking for bits i may have missed.
 
-or... how about just moving the cache into the kernel?
+regarding this:
 
-or... how about having a persistent user-space process that is
-accessible via libselinux that performs the file contexts cacheing?
+> >  udev is so completely full of race conditions - known to the
+> >  developers even _without_ selinux - that the general consensus
+> >  seems to be that a few more really won't hurt.
+
+> Huh?  I know of no such thing.
+
+> Without SELinux, and with the recent patch on the hotplug mailing list,
+> I know of no race conditions in the current udev code.
+
+the present (0.030's /etc/udev.d/default/selinux script and past
+(0.024 built-in)selinux udev support allows for a race condition
+in between the creation of the inode (with its default, per-directory
+selinux context being used) and the context being properly set
+(with /sbin/restorecon in the case of 0.030 and with setfilecon()
+in the case of 0.024).
+
+that's why i added code to use setfscreatecon().
+
+the debian maintainer for udev is under the impression that udev has
+stacks of race conditions: if that isn't actually the case, then great!
 
 l.
-
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
