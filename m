@@ -1,60 +1,41 @@
-Message-ID: <20050324204100.87156.qmail@web31613.mail.mud.yahoo.com>
-Date: Thu, 24 Mar 2005 12:41:00 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: Do you trust X server?
-To: Tom <tom@lemuria.org>, Casey Schaufler <casey@schaufler-ca.com>
+Date: Thu, 24 Mar 2005 22:02:57 +0100
+From: Tom <tom@lemuria.org>
+To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: 6667
-MIME-Version: 1.0
+Subject: Re: Do you trust X server?
+Message-ID: <20050324220257.O13605@lemuria.org>
+References: <20050324204100.87156.qmail@web31613.mail.mud.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20050324204100.87156.qmail@web31613.mail.mud.yahoo.com>; from casey@schaufler-ca.com on Thu, Mar 24, 2005 at 12:41:00PM -0800
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, Mar 24, 2005 at 12:41:00PM -0800, Casey Schaufler wrote:
+> Login and ssh are policy enforcing programs. As I
+> noted above, the X server is not.
 
---- Tom <tom@lemuria.org> wrote:
+No, but it may nevertheless be "like login or ssh" in the respect that
+it needs to be modified.
 
-> > If you
-> > chose to use the X server as a component of
-> > your policy enforcement that is your affair,
-> > but the appropriate use of that code is your
-> > responsibility, not that of the X server.
-> 
-> That depends. As far as we can provide policy
-> enforcement externally,
-> the X server doesn't have to care.
-
-Yes, that is correct.
-
-> However, it has
-> been noted in past
-> discussions that the X server is, like login or ssh,
-
-Excuse me, but the X server is not like login or ssh.
-Login and ssh are policy enforcing programs. As I
-noted above, the X server is not.
-
-> one of the
-> programs that cannot fulfill their role within an
-> SELinux environment
-> without either endangering said environment or
-> becoming policy-aware.
-
-If this is true it is a problem with the SELinux
-environment, not the X server. The SGI Irix B1
-evaluation of 1995 used an unmodified X server
-that did no policy enforcement. The environment
-was not endangered by the presence of the X server.
+Please refer to the archives for the in-depths discussion of the
+necessity and its reasons.
 
 
-Casey Schaufler
-casey@schaufler-ca.com
+> If this is true it is a problem with the SELinux
+> environment, not the X server. The SGI Irix B1
+> evaluation of 1995 used an unmodified X server
+> that did no policy enforcement. The environment
+> was not endangered by the presence of the X server.
+
+I am not familiar with the details of the evaluation, so I can not
+argue about it.
 
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Small Business - Try our new resources site!
-http://smallbusiness.yahoo.com/resources/ 
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
