@@ -1,38 +1,24 @@
-Subject: Re: /dev/pts/x use denials
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: fix for segfault in getconlist of libselinux-1.22
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andreas Steinmetz <ast@domdv.de>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1112627593.7629.89.camel@moss-spartans.epoch.ncsc.mil>
-References: <1112569241.21383.37.camel@cobra.ivg2.net>
-	 <1112627593.7629.89.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <425029B0.3070208@domdv.de>
+References: <425029B0.3070208@domdv.de>
 Content-Type: text/plain
-Date: Mon, 04 Apr 2005 11:43:00 -0400
-Message-Id: <1112629380.29574.6.camel@cobra.ivg2.net>
+Date: Mon, 04 Apr 2005 11:30:01 -0400
+Message-Id: <1112628601.7629.99.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, 2005-04-03 at 19:36 +0200, Andreas Steinmetz wrote:
+> fix for segfault in case of non-exisiting user attached.
 
-> I don't see sysadm_tmp_t anywhere above. 
-
-Right, that was a typo.. I'm sure I meant sysadm_devpts_t 
-(or at least I hope I did - sysadm_tmp_t doesn't make sense)
-
-> I do see staff_t fd's, but that
-> just shows that the descriptor was opened by a staff_t process and then
-> inherited across the su, nothing surprising there.  Earlier versions of
-> pam_selinux did try closing and re-opening descriptors 0-2 as newrole
-> does, but that proved problematic.  su likely just needs to be directly
-> patched rather than using pam_selinux.
-
-What was the problem?
-I remember another message about this, but I didn't understand it then -
-I see what you mean now.
+Thanks, merged as of libselinux 1.23.4.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
