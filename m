@@ -1,31 +1,33 @@
-To: russell@coker.com.au
-Cc: Bill Laut <wlsel@verizon.net>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: X-Windows and Client-side Buffer Overruns
-References: <1057952464.5561.322.camel@moss-sooners.epoch.ncsc.mil>
-	<200308010126.58444.russell@coker.com.au>
-	<200307311226.14299.wlsel@verizon.net>
-	<200308010941.55431.russell@coker.com.au>
-From: Florian Weimer <fw@deneb.enyo.de>
-Date: Fri, 08 Aug 2003 22:05:52 +0200
-In-Reply-To: <200308010941.55431.russell@coker.com.au> (Russell Coker's
- message of "Fri, 1 Aug 2003 09:41:55 +1000")
-Message-ID: <87adaj3of3.fsf@deneb.enyo.de>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h78NP7Ha008292
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2003 19:25:07 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h78NNoOD016599
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2003 23:23:50 GMT
+Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
+	by jazzswing.ncsc.mil  with ESMTP id h78NNnKO016596
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2003 23:23:49 GMT
+Message-ID: <3F34314D.90806@diyab.net>
+Date: Fri, 08 Aug 2003 19:25:01 -0400
+From: Diyab <diyab@diyab.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: execute_no_trans
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker <russell@coker.com.au> writes:
+Can anyone tell me what the execute_no_trans permission does.  I have 
+run across it used in both policy files and the access_vectors file and 
+although I see it is part of the kernel I do not find anything that 
+explains exactly what it does.
 
-> I think that you misunderstood my message.  I was referring to the
-> fact that it is impossible to restrict an application which has X
-> access from snooping the windows of other X programs or reading the
-> keyboard buffer.
+Timothy,
 
-There are some X Security Extensions which restrict access to the root
-window, windows of other client connections, and potentially dangerous
-interfaces.  But I have never seen them in action, and these
-restrictions are just an afterthought (added around 1996).
+-- 
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
