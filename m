@@ -1,49 +1,36 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h911dAsJ022237
-	for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2003 21:39:10 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h911bMZt024028
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 01:37:22 GMT
-Received: from out006.verizon.net (out006pub.verizon.net [206.46.170.106])
-	by jazzswing.ncsc.mil  with ESMTP id h911bLM3024025
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 01:37:21 GMT
-Received: from scanner.gici.com ([4.64.156.165]) by out006.verizon.net
-          (InterMail vM.5.01.05.33 201-253-122-126-133-20030313) with ESMTP
-          id <20031001013908.HRCA5302.out006.verizon.net@scanner.gici.com>
-          for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2003 20:39:08 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Bill Laut <wlsel@verizon.net>
-To: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: SE-X and Crypto Discussions
-Date: Tue, 30 Sep 2003 21:41:31 -0400
-MIME-Version: 1.0
-Message-Id: <200309302141.31559.wlsel@verizon.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h914xZsJ022913
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 00:59:35 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h914xYCG021890
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 04:59:34 GMT
+Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
+        by jazzband.ncsc.mil  with ESMTP id h914xXqJ021887 for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 04:59:34 GMT
+Subject: file_labels_t
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1064984367.1511.30.camel@chris.pebenito.net>
+Mime-Version: 1.0
+Date: Tue, 30 Sep 2003 23:59:27 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I was doing some cleaning (goodbye devfsd.{te.fc}), and I was thinking
+that file_labels_t could be removed in new api policy, since psid is
+gone.  However, when I was going through looking for the rules that had
+it, I realized that it is still an initial sid.  Why is the initial sid
+still around if psid is gone?  Because it requires a bit of a kernel
+modification?
 
-I think this question is likely best directed to either Stephen or Howard.
-
-I'm breaking this specific question out of the "X Windows Discussion" thread 
-so that it can be addressed separately by the appropriate authority.  Namely, 
-it is my understanding that NSA employees are forbidden from discussing 
-cryptology in forums such as this one.  Unfortunately, the X Windows thread 
-will eventually have to address such topics if we are to have meaningful 
-dialog on how best to transmit policy data over potentially untrustworthy 
-networks.
-
-It's not my desire to inject subject matter Eamon cannot participate in.  
-Therefore, if my understanding of the prohibition is correct, could I then 
-implore either of you two gentlemen to discuss this with the appropriate 
-authority over there in the hopes that we can obtain a waiver on the crypto 
-prohibition, with the proviso that any such discussions are strictly limited 
-to the problems of transmitting label data over an untrusted network?
-
-Thank you in advance.
-
-Bill
-
+-- 
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer, SELinux
+Hardened Gentoo Linux
+ 
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
+Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
 --
 This message was distributed to subscribers of the selinux mailing list.
