@@ -1,66 +1,65 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SMgHrT014826
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 18:42:17 -0400 (EDT)
-Received: from smtp807.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6SMfkVb024612
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 22:41:46 GMT
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SN9erT014932
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 19:09:41 -0400 (EDT)
+Received: from smtp808.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6SN9AVb025433
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 23:09:10 GMT
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp807.mail.ukl.yahoo.com with SMTP; 28 Jul 2004 22:42:16 -0000
+  by smtp808.mail.ukl.yahoo.com with SMTP; 28 Jul 2004 23:09:39 -0000
 Received: from highfield ([192.168.0.223] helo=lkcl.net)
 	by hyd with esmtp (Exim 4.34)
-	id 1BpwdU-0000sL-7Q
-	for selinux@tycho.nsa.gov; Wed, 28 Jul 2004 22:10:56 +0000
+	id 1Bpx3y-0000sW-Bb
+	for selinux@tycho.nsa.gov; Wed, 28 Jul 2004 22:38:18 +0000
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BpxIY-00051S-T4
-	for selinux@tycho.nsa.gov; Wed, 28 Jul 2004 23:53:22 +0100
-Date: Wed, 28 Jul 2004 23:53:22 +0100
+	id 1Bpxj1-00054p-Vp
+	for selinux@tycho.nsa.gov; Thu, 29 Jul 2004 00:20:43 +0100
+Date: Thu, 29 Jul 2004 00:20:43 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: pear-shaped behaviour after enough make reloads
-Message-ID: <20040728225322.GE18711@lkcl.net>
-References: <20040728211229.GB18711@lkcl.net>
+Subject: temporary hack to use udev in selinux
+Message-ID: <20040728232043.GF18711@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040728211229.GB18711@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jul 28, 2004 at 10:12:29PM +0100, Luke Kenneth Casson Leighton wrote:
+i have a requirement (use of usb-mount, see
+http://users.actrix.co.nz/michael/usbmount.html) that forces the use
+of udev on an selinux system.
 
-> i thought i should report what might be quite a serious issue.
-> 
-> the procedure i use for development of policy files is to do
-> _stacks_ of edits, _stacks_ of make reloads, stacks of
-> audit2allow -d -v -l > /tmp/foo, analyse the results and put
-> the appropriate ones into the new policy.
-> 
-> after enough make reloads, the behaviour of my system starts to get
-> a bit wonky.
+fighting with it for a day, and after seeing some clues in the
+file contexts (/(u)dev/....) i decided to try editing
+/etc/udev/udev.conf to set it to use /udev instead of /dev.
 
-> after a reboot in such circumstances, i find that my system
-> is pretty much unusable: i have to run a ldconfig to fix a
-> problem of libraries being not found - things like that.
+other than a warning about udev not starting up, well, everything
+seems to work hunky-dory.
 
- this problem reoccurred just now.
- 
- for absolutely no reason that i can think of, whilst staring
- at a random config file with vi, cupsys started to be unable
- to access its config files.
+somehow i do _get_ a udevd running, i could not tell you how it got
+there.
 
- then i tried to do a ldconfig and got selinux permissions denied
- access to write /etc/ld.so.cache~!
+i notice the following message 
 
- i could not even do a shutdown - permission was banned to access
- /dev/initctl.
+	http://www.redhat.com/archives/fedora-devel-list/2004-March/msg00888.html
 
- i had to kill off processes manually one by one, umount the partitions
- manually, poweroff, and i chose to boot with enforcing=0 init 1 in
- order to safely run ldconfig and make relabel.
+in which steven (hi steven :) says that support for udev "fake"
+attributes for ramfs and tmpfs, just like for devpts.
 
- i find this all a bit odd, i haven't a clue what's causing it.
+is that literally as simple as cut/paste the devpts code...
+the xattr stuff?
 
- l.
+cos if so, i _like_ cut/paste :)
 
+l.
+
+-- 
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility if acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
