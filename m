@@ -1,67 +1,59 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5IHR0rT018684
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 13:27:01 -0400 (EDT)
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5IHpYrT018873
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 13:51:34 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5IHpVrD002620
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 17:51:31 GMT
+Subject: Re: Fedora Core 2 setools RPM
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Joshua D. Guttman disp: current" <guttman@mitre.org>
 Cc: "John D. Ramsdell" <ramsdell@mitre.org>,
    Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
-   guttman@mitre.org (Joshua D. Guttman), aherzog@mitre.org (Amy L. Herzog)
-Subject: Re: Fedora Core 2 setools RPM
-Reply-To: guttman@mitre.org (Joshua D. Guttman disp: current)
+   Amy L Herzog <aherzog@mitre.org>
+In-Reply-To: <nhak6y43hgj.fsf@malabar.mitre.org>
 References: <200406171847.i5HIlPSf000906@gotham.columbia.tresys.com>
-	<ogtpt7x10ni.fsf@mitre.org>
-	<1087567982.27697.47.camel@moss-spartans.epoch.ncsc.mil>
-From: guttman@mitre.org (Joshua D. Guttman)
-Date: 18 Jun 2004 13:26:52 -0400
-In-Reply-To: <1087567982.27697.47.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <nhak6y43hgj.fsf@malabar.mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	 <ogtpt7x10ni.fsf@mitre.org>
+	 <1087567982.27697.47.camel@moss-spartans.epoch.ncsc.mil>
+	 <nhak6y43hgj.fsf@malabar.mitre.org>
+Content-Type: text/plain
+Message-Id: <1087581080.27697.132.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 18 Jun 2004 13:51:20 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@epoch.ncsc.mil> writes:
+On Fri, 2004-06-18 at 13:26, Joshua D. Guttman wrote:
+> I can see that analysis of the TE configuration is sufficient to
+> identify a set of flows that includes all the possible flows among
+> security contexts.  But if one wants more exact information about the
+> set of flows among security contexts that are permitted by a
+> particular configuration, wouldn't one need to consider any
+> constraints?  
 
->   > I also noticed that it appears that none of the setools documentation
->   > tells users that your flow analysis ignores CONSTRAIN statements in a
->   > policy.  I think users should know this fact.
->   
->   The apol information flow analysis is for flow among types; hence,
->   it is only natural for it to only consider the TE configuration.
->   As a flow can only exist if allowed by the TE configuration,
->   analysis of the TE configuration is sufficient to identify all
->   flows.
+User identity and role seem largely irrelevant when it comes to
+analyzing information flow in the system; that is essentially controlled
+by the TE policy (and if MLS were enabled, by their combination).  At
+most, I would incorporate constraints and other factors (e.g. role allow
+rules) as a refinement _after_ determining the set of flows based on
+types; constructing a complete graph among entire security contexts
+seems costly and unnecessary.  And I don't think you want user identity
+in the picture at all, as it just adds noise.
 
-May I raise a small question here?  
+> I take it that "flow among types" is a bit less precise than "flow
+> among security contexts".  Presumably there's flow from t_1 to t_2 if
+> there exist any u_1,r_1 and u_2,r_2 such that there's flow 
+> 
+>         u_1:r_1:t_1 --> u_2:r_2:t_2.  
+> 
+> Is this an accurate interpretation?
 
-I can see that analysis of the TE configuration is sufficient to
-identify a set of flows that includes all the possible flows among
-security contexts.  But if one wants more exact information about the
-set of flows among security contexts that are permitted by a
-particular configuration, wouldn't one need to consider any
-constraints?  
+If there is a flow from t_1 to t_2 in the TE policy, but no
+corresponding flow among contexts that include t_1 and t_2 in the
+policy, then that is likely a bug in the policy.
 
-I take it that "flow among types" is a bit less precise than "flow
-among security contexts".  Presumably there's flow from t_1 to t_2 if
-there exist any u_1,r_1 and u_2,r_2 such that there's flow 
-
-        u_1:r_1:t_1 --> u_2:r_2:t_2.  
-
-Is this an accurate interpretation?
-
-I think it would be great if libapol became a common access point for
-many analysis methods to get information about the facts of the
-configuration.  This should be easier if we have an agreement on all
-the info that could be relevant.  
-
-        Joshua 
-
- 
 -- 
-	Joshua D. Guttman		<guttman@mitre.org>
-	MITRE, Mail Stop S119		Office:	+1 781 271 2654
-	202 Burlington Rd.		Fax:	+1 781 271 8953
-	Bedford, MA 01730-1420 USA	Cell:	+1 781 526 5713
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
