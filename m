@@ -1,55 +1,61 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RHHXrT004015
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 13:17:33 -0400 (EDT)
-Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6RHHWup010333
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 17:17:32 GMT
-Message-Id: <200407271717.i6RHHFdt008474@turing-police.cc.vt.edu>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux ML <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
-   Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: file_contexts patch 
-In-Reply-To: Your message of "Tue, 27 Jul 2004 09:38:03 EDT."
-             <1090935483.2448.71.camel@moss-spartans.epoch.ncsc.mil>
-From: Valdis.Kletnieks@vt.edu
-References: <20040716201531.GB4940@obadja.jmh.mhn.de> <200407170802.08072.russell@coker.com.au> <20040716224252.GD4940@obadja.jmh.mhn.de> <200407171159.00489.russell@coker.com.au> <20040717195326.GA16762@bern.cip.ifi.lmu.de> <1090873552.25761.28.camel@moss-spartans.epoch.ncsc.mil>
-            <1090935483.2448.71.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RHXjrT004145
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 13:33:45 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6RHXFmJ029346
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 17:33:16 GMT
+Subject: Re: [idea] multiple contexts.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040727160605.GG3392@lkcl.net>
+References: <20040724231154.GE3437@lkcl.net>
+	 <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil>
+	 <20040727160605.GG3392@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1090949595.2448.180.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-2085497731P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Tue, 27 Jul 2004 13:17:15 -0400
+Date: Tue, 27 Jul 2004 13:33:15 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-2085497731P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 2004-07-27 at 12:06, Luke Kenneth Casson Leighton wrote:
+>  well, not entirely - not dynamically, anyway: at least i do not
+>  believe so.
+> 
+>  i thought originally that it would be possible to do what i envisaged
+>  with m4, by extending the policy language.
 
-On Tue, 27 Jul 2004 09:38:03 EDT, Stephen Smalley said:
+There are already plenty of cases where derived domains are defined via
+macros, so that the new domain expresses information about both the
+caller and the newly executed program.  Even in your example, kde_user_t
+is an example of a derived domain that can implicitly indicate that the
+caller was user_t, without needing multiple contexts at all.
 
-> Note that in addition to reviewing the contents of rpm.te and rpm.fc for
-> RedHat-specific customizations, this change would require reviewing all
-> uses of ifdef(`rpm.te') throughout the various .te files, as some of
-> those conditional blocks are for RedHat-specific customizations while
-> others are for rules that should always be included when the rpm domain
-> is enabled in the policy (and thus should still be included for other
-> rpm-using distros).
+Introducing multiple contexts per process would have a significant
+impact on the security model and analysis of a policy.
 
-But still.. <Insert sound clip of Wilford Brimley "It's the right thing to do"> :)
+>  i also seek to limit the programs that a KDE user may run.
+> 
+>  if there is a simple way to do that which does not involve writing
+>  policy files for each and every single KDE program i intend to restrict
+>  users to use, i would be interested to hear it.
 
---==_Exmh_-2085497731P
-Content-Type: application/pgp-signature
+I'm not sure why this is a problem; you can already define what program
+types can be executed by a given domain.  Possibly I just don't
+understand, as I haven't used KDE myself.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+With regard to the exim4 example, it would seem to make sense to have
+exim4 use the policy API to compute contexts based on a configuration
+and setexeccon() to these contexts explicitly to avoid having to
+maintain all of the different wrapper programs.  But it isn't that it is
+picking up an extra context; it is changing to a new context, one that
+has its own particular set of permissions in the policy.
 
-iD8DBQFBBo4bcC3lWbTT17ARAmZiAKCSKoeOXC/7LMbCjAAFxwcrnvjk6wCcCxCg
-0Rk0RF03I3kh/exfnS/oRFA=
-=9Ace
------END PGP SIGNATURE-----
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---==_Exmh_-2085497731P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
