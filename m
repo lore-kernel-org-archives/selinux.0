@@ -1,82 +1,66 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA24697
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 09:02:10 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA08030
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 13:01:45 GMT
-Received: from blackbird.intercode.com.au (blackbird.intercode.com.au [203.32.101.10])
-	by jazzband.ncsc.mil  with ESMTP id NAA08026
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 13:01:42 GMT
-Received: from localhost (jmorris@localhost)
-	by blackbird.intercode.com.au (8.9.3/8.9.3) with ESMTP id XAA28173
-	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 23:02:01 +1000
-Date: Thu, 6 Sep 2001 23:02:01 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: <selinux@tycho.nsa.gov>
-Subject: [PATCH] safe memory allocation flags
-Message-ID: <Pine.LNX.4.31.0109062231390.28083-100000@blackbird.intercode.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA25379
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 10:26:27 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA04400
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 14:25:03 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id OAA04395
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 14:25:02 GMT
+Received: from localhost by clipper.gw.tislabs.com (8.9.3/8.9.1) with SMTP id KAA19120
+	for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2001 10:25:38 -0400 (EDT)
+Date: Thu, 6 Sep 2001 10:25:38 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] Bug fix for file alloc_security hook call
+Message-ID: <Pine.SOL.3.95.1010906102335.12491G-200000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-5916492-999721568=:8103"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The patch below allows netdev_precondition() to be called safely from
-interrupt context.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-This can occur, for example, in the IP networking input path, which runs
-under a softirq.  Under these conditions, kernel memory needs to be
-allocated with the GFP_ATOMIC flag.  If anyone has seen an oops upon
-network traffic immedately after booting, this may have been the cause.
+---559023410-5916492-999721568=:8103
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.SOL.3.95.1010906102335.12491I@clipper.gw.tislabs.com>
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
 
-diff -urN -X /tmp/xmdiff module.orig/selinux_plug/hooks.c module/selinux_plug/hooks.c
---- module.orig/selinux_plug/hooks.c	Thu Aug 23 14:20:50 2001
-+++ module/selinux_plug/hooks.c	Thu Sep  6 21:57:33 2001
-@@ -308,7 +308,7 @@
- {
- 	struct netdev_security_struct *nsec = dev->security;
+The attached patch fixes a bug in the LSM kernel patch
+that was causing the security attributes on struct file
+objects to be immediately clobbered after allocation
+(and a memory leak).  To apply, save the patch to file_table.patch,
+change to the lsm directory and run 'patch -p1 < file_table.patch'.
 
--	nsec = kmalloc(sizeof(struct netdev_security_struct), GFP_KERNEL);
-+	nsec = kmalloc(sizeof(struct netdev_security_struct), SAFE_ALLOC);
- 	if (!nsec)
- 		return -ENOMEM;
- 	memset(nsec, 0, sizeof(struct netdev_security_struct));
-diff -urN -X /tmp/xmdiff module.orig/selinux_plug/include/linux/flask/flask_types.h module/selinux_plug/include/linux/flask/flask_types.h
---- module.orig/selinux_plug/include/linux/flask/flask_types.h	Thu Jul 19 06:38:10 2001
-+++ module/selinux_plug/include/linux/flask/flask_types.h	Thu Sep  6 21:58:37 2001
-@@ -76,5 +76,15 @@
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
- #define CUR_SID current->sid
 
-+#ifdef __KERNEL__
-+/*
-+ * Use this for memory allocation flags (e.g. for kmalloc()) when the interrupt
-+ * state is unknown.
-+ */
-+#include <linux/interrupt.h>
-+
-+#define SAFE_ALLOC (in_interrupt () ? GFP_ATOMIC : GFP_KERNEL)
-+#endif
-+
- #endif
 
-diff -urN -X /tmp/xmdiff module.orig/selinux_plug/ss/global.h module/selinux_plug/ss/global.h
---- module.orig/selinux_plug/ss/global.h	Thu Jul 19 06:38:07 2001
-+++ module/selinux_plug/ss/global.h	Thu Sep  6 22:19:22 2001
-@@ -77,7 +77,7 @@
- #include <asm/uaccess.h>
- #include "selinux_plug.h"
+---559023410-5916492-999721568=:8103
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="file_table.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.SOL.3.95.1010905162608.8103m@clipper.gw.tislabs.com>
+Content-Description: 
 
--#define malloc(size) kmalloc(size, GFP_ATOMIC)
-+#define malloc(size) kmalloc(size, SAFE_ALLOC)
- #define free(ptr) kfree(ptr)
-
- typedef struct file FILE;
-
+SW5kZXg6IGxzbS9mcy9maWxlX3RhYmxlLmMNCmRpZmYgLXUgbHNtL2ZzL2Zp
+bGVfdGFibGUuYzoxLjMgbHNtL2ZzL2ZpbGVfdGFibGUuYzoxLjQNCi0tLSBs
+c20vZnMvZmlsZV90YWJsZS5jOjEuMwlXZWQgSnVuIDEzIDEyOjIwOjI4IDIw
+MDENCisrKyBsc20vZnMvZmlsZV90YWJsZS5jCVdlZCBTZXAgIDUgMTY6MTI6
+NDEgMjAwMQ0KQEAgLTQxLDEzICs0MSwxMyBAQA0KIAkJbGlzdF9kZWwoJmYt
+PmZfbGlzdCk7DQogCQlmaWxlc19zdGF0Lm5yX2ZyZWVfZmlsZXMtLTsNCiAJ
+bmV3X29uZToNCisJCW1lbXNldChmLCAwLCBzaXplb2YoKmYpKTsNCiAJCWlm
+IChzZWN1cml0eV9vcHMtPmZpbGVfb3BzLT5hbGxvY19zZWN1cml0eShmKSkg
+ew0KIAkJCWxpc3RfYWRkKCZmLT5mX2xpc3QsICZmcmVlX2xpc3QpOw0KIAkJ
+CWZpbGVzX3N0YXQubnJfZnJlZV9maWxlcysrOw0KIAkJCWZpbGVfbGlzdF91
+bmxvY2soKTsNCiAJCQlyZXR1cm4gTlVMTDsNCiAJCX0NCi0JCW1lbXNldChm
+LCAwLCBzaXplb2YoKmYpKTsNCiAJCWF0b21pY19zZXQoJmYtPmZfY291bnQs
+MSk7DQogCQlmLT5mX3ZlcnNpb24gPSArK2V2ZW50Ow0KIAkJZi0+Zl91aWQg
+PSBjdXJyZW50LT5mc3VpZDsNCg==
+---559023410-5916492-999721568=:8103--
 
 --
 You have received this message because you are subscribed to the selinux list.
