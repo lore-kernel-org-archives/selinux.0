@@ -1,54 +1,62 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA25964
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 08:35:19 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA13919
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 12:33:42 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id MAA13913 for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 12:33:40 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: /bin/login
-Date: Fri, 16 Aug 2002 14:35:06 +0200
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0208160728480.29385-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0208160728480.29385-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA26719
+	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 10:11:12 -0400 (EDT)
+From: jbyrd@vspacegroup.com
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA06833
+	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 14:10:10 GMT
+Received: from sprout.phpwebhosting.com ([216.218.184.226])
+	by jazzswing.ncsc.mil  with SMTP id OAA06829
+	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 14:10:10 GMT
+Message-ID: <001001c2452e$c4364ba0$0100a8c0@vspaceprs2>
+To: <selinux@tycho.nsa.gov>
+Subject: Re: Needing some direction
+Date: Fri, 16 Aug 2002 10:11:06 -0400
 MIME-Version: 1.0
-Message-Id: <20020816123506.D4DEB3EDC@lyta.coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 16 Aug 2002 13:39, Stephen Smalley wrote:
-> On Fri, 16 Aug 2002, Russell Coker wrote:
-> > During the login process we see the following prompts for a non-default
-> > security context.  Shouldn't the last prompt be "Enter domain" not
-> > "Enter type"?
->
-> Yes and no.  As explained in the Security Model section of the Configuring
-> the SELinux Policy report (as well as in the older policy report and in
-> the Ottawa paper), the SELinux TE model does not internally distinguish
-> domains from types and uses a single type attribute in the security
-> context for both processes and objects.  Hence, "Enter type" is
-> legitimate, as is name for the /etc/security/default_type file.  However,
-> if we want to use the language of the traditional TE model, we could make
-> this "Enter domain" and /etc/security/default_domain.  No big deal either
-> way.
+Thanks for responding to my post.
 
-It's not just the issue of the language of the traditional TE model in this 
-case.  All through the documentation we refer to "domain", so then having the 
-login program refer to it as a type is confusing for users.
+I think the *first* fatal mistake was to inflate the gzipped file under
+windows. Seems to have confused the issue with carriage returns, linefeeds
+and end of line. Luckily, I had burned the CD with the downloaded gzip
+intact along with the inflated one. I had remembered some issues relating to
+that, but mistakenly assumed the gzip-ported package I was using under
+Cygwin would resolve those issues.
 
-I am writing documentation for my SE Linux tutorial and this is something 
-that will require extra explanation for the users...
+I used ARK in KDE to inflate the package, and no more immediate errors. I
+put the whole package in ../selinux directory I created and rebooted Linux
+in text-only mode, logged-in, changed to SU and the "make quickinstall"
+command happily executed and, to my amazement I was presented with the
+configuration menu. I made appropriate changes and saved the config and
+watched as lines flew on the screen opening, patching, etc. Unfortunately
+EVERY time in the 3 attempts, compiler errors in various lines were reported
+when it came time to work on Linux Telephony support. I duplicated the issue
+2 more times and, not needing the support for my intended purpose, rebuilt
+the config file disabling Telephony support and it seemed to bypass that
+problem.
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+About 3 mins after it reports it is building the selinux kernal, errors fly
+... from undefined references in modules to gcc compiler errors. I am left
+with the following:
+
+30+ lines of "undefined reference in function 'xxxxxxxx' (in
+/selinux/selinux/module/checkpolicy)
+collect2:  ld returned exit status
+make[2]:  *** [checkpolicy] Error 1
+make[2]:  Leaving directory 'selinux/selinux/module'
+make:  *** [quickinstall] Error 2
+
+What am I missing here? I only have 2 users (root & admin) setup on this
+particular installation. I am guessing it's something simple I didn't edit
+somewhere. I DID go back and make sure all the required files to edit were
+properly done.
+
+Once again, any help/insight would be appreciated.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
