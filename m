@@ -1,82 +1,75 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7JDXfrT026852
-	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 09:33:41 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7JDWqpw012885
-	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 13:32:55 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id B379261AF7
-	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 23:33:32 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 17786-02 for <selinux@tycho.nsa.gov>;
-	Thu, 19 Aug 2004 23:33:32 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 508FA61AF6
-	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 23:33:32 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id DC704B57D9
-	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 23:33:25 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: distro.tun
-Date: Thu, 19 Aug 2004 23:33:25 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_lwKJBaH64hYifvp"
-Message-Id: <200408192333.25072.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7JHaSrT028394
+	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 13:36:31 -0400 (EDT)
+Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7JHZgpw000976
+	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 17:35:47 GMT
+Received: from [212.227.126.155] (helo=mrelayng.kundenserver.de)
+	by moutng.kundenserver.de with esmtp (Exim 3.35 #1)
+	id 1Bxqpq-00005K-00
+	for selinux@tycho.nsa.gov; Thu, 19 Aug 2004 19:36:22 +0200
+Received: from pd953a685.dip.t-dialin.net ([217.83.166.133] helo=localhost)
+	by mrelayng.kundenserver.de with asmtp (TLSv1:DES-CBC3-SHA:168)
+	(Exim 3.35 #1)
+	id 1Bxqpp-0003yx-00
+	for selinux@tycho.nsa.gov; Thu, 19 Aug 2004 19:36:21 +0200
+Date: Thu, 19 Aug 2004 19:36:20 +0200
+From: Stefan SF <stefan@sf-net.com>
+To: selinux@tycho.nsa.gov
+Subject: policy for scponly - need help
+Message-ID: <20040819173620.GA8543@crux.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_lwKJBaH64hYifvp
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-The attached patch makes the distro tunable macros define to their same 
-values.  This is useful because distributions have many files named after the 
-distribution and sometimes the file needs a different label to other files in 
-the same directory.
+Hi,
 
-Of course we could have names like (r)edhat in file names, but I think that 
-this is the most convenient solution which will cause the least confusion.
+I'm trying to build a policy for a program called "scponly". The rudimentary things went all right! Here are the files:
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+# domains/program/scponly.te
+type scponly_exec_t, file_type, exec_type, sysadmfile;
 
---Boundary-00=_lwKJBaH64hYifvp
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="distro.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="distro.diff"
+ifdef(`ssh.te',`
+allow sshd_t scponly_exec_t:file { getattr execute read };
+allow user_t scponly_exec_t:file { entrypoint };
+')
 
---- /usr/src/se/policy/tunables/distro.tun	2004-07-31 06:03:21.000000000 +1000
-+++ tunables/distro.tun	2004-08-19 17:42:49.000000000 +1000
-@@ -5,10 +5,10 @@
- # appropriate ifdefs.
- 
- 
--dnl define(`redhat')
-+dnl define(`redhat', `redhat')
- 
--dnl define(`suse')
-+dnl define(`suse', `suse')
- 
--dnl define(`gentoo')
-+dnl define(`gentoo', `gentoo')
- 
--dnl define(`debian')
-+dnl define(`debian', `debian')
 
---Boundary-00=_lwKJBaH64hYifvp--
+# file_contexts/program/scponly.fc
+/usr/bin/scponly                system_u:object_r:scponly_exec_t
+/usr/sbin/scponlyc              system_u:object_r:scponly_exec_t
+
+
+When I'm using the scponly program all things went fine, but when I'm trying to use the scponlyc program I get this message:
+
+audit(1092936373.217:0): avc:  denied  { dac_override } for  pid=5220 exe=/usr/sbin/scponlyc capability=1 scontext=test:user_r:user_t tcontext=test:user_r:user_t tclass=capability
+audit(1092936373.217:0): avc:  denied  { dac_read_search } for  pid=5220 exe=/usr/sbin/scponlyc capability=2 scontext=test:user_r:user_t tcontext=test:user_r:user_t tclass=capability
+
+
+Is there a way to put the restrictions dac_* to the scponly-policy or do I have to modify the user-policy? Because the scontext and the tcontext belongs alway to the user-policy.
+
+ciao, Stefan
+
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBJOUUUEn3BeoPvtwRAuLdAJ97PHPhJidWWPBMx4oDdwWVRPNQsgCdFR7b
+HDpjHAX4ym4eH/nd5RtbLB8=
+=JSqx
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
