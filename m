@@ -1,57 +1,54 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i523xRrT001087
-	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 23:59:27 -0400 (EDT)
-Received: from smtp801.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i52Brwbn010365
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 07:53:59 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5241KrT001115
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 00:01:20 -0400 (EDT)
+Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i52Btpbn010384
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 07:55:51 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp801.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 09:12:46 -0000
-Date: Tue, 1 Jun 2004 09:10:12 +0000
+  by smtp802.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 09:14:38 -0000
+Date: Tue, 1 Jun 2004 09:12:04 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: exim (running from cron) attempting to write to logs under system_cron_t
-Message-ID: <20040601091012.GN8312@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: progress! ssh.
+Message-ID: <20040601091204.GO8312@lkcl.net>
+References: <20040531212109.GQ3170@lkcl.net> <200406011312.48669.russell@coker.com.au> <20040601084631.GJ8312@lkcl.net> <200406011909.07645.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200406011909.07645.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hiya russell,
+On Tue, Jun 01, 2004 at 07:09:07PM +1000, Russell Coker wrote:
+> On Tue, 1 Jun 2004 18:46, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > > This is not necessary.  In the Fedora PAM package there is code to close
+> > > those file handles before exec so those accesses are never attempted.
+> >
+> >  oh, right.  *puzzled*.
+> >
+> >  if Fedora PAM has been patched, would you mind forwarding the patch
+> >  to me so i can ping pam-list with it?
+> 
+> http://download.fedora.redhat.com/pub/fedora/linux/core/2/i386/os/SRPMS/
+> 
+> The PAM source at the above URL has it.  pam-list seems to be dead however.  
+> PAM development continues independently in Debian and Red Hat.  
 
-what's this one about?
+ oh, bugger.
 
-allow system_crond_t var_log_t:file { append };
-        #EXE=/usr/sbin/exim  NAME=mainlog   :  append
-		#EXE=/usr/sbin/exim  NAME=mainlog   :  append
+ oh joy.
 
-i've installed exim as default, and i've not included
-the attempts to write to the paniclog as it is banned
-from writing to mainlog.
+> If you want a 
+> new upstream version of PAM then the best thing to do would be to fork it.  
 
-exim runs as a cron job and as an inetd.conf entry.
+ hm, it's in sf.  i wonder if andrew's responsive.
 
-_exim4_ runs as a daemon.
+> Forking PAM will get less resistance from upstream than forking Samba...
 
-both also run from /etc/ppp/ip-up.d triggers.
+ so that explains why there are FIFTY patches to pam 0.76 in the
+ debian/patches directory.
 
-i do have cron-3.0pl1-selinux installed (newselinux .deb)
-
-what should i be looking for?
-
-sincerely,
-
-l.
-
--- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+ l.
 
 
 --
