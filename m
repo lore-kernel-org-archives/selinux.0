@@ -1,70 +1,61 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB9IhvRb024203
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 13:43:57 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB9J5HRb024329
+	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 14:05:17 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB9IgglU005639
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 18:42:42 GMT
+	by jazzswing.ncsc.mil  with ESMTP id hB9J4XlU007647
+	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 19:04:33 GMT
 Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id hB9IgfSX005629
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 18:42:41 GMT
-Date: Tue, 9 Dec 2003 18:42:53 +0000
+	by jazzswing.ncsc.mil  with ESMTP id hB9J4VSX007643
+	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 19:04:32 GMT
+Date: Tue, 9 Dec 2003 19:05:03 +0000
 From: Dale Amon <amon@vnl.com>
 To: Russell Coker <russell@coker.com.au>
 Cc: Dale Amon <amon@vnl.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: More on selinux-default policy install probs
-Message-ID: <20031209184253.GZ3812@vnl.com>
+Subject: Re: More on selinux-default policy install probs
+Message-ID: <20031209190503.GA3812@vnl.com>
+References: <20031209184253.GZ3812@vnl.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20031209184253.GZ3812@vnl.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russ, I've a few minutes free this evening to dig into
-the package problems and as a starter I suggest you experiment
-with a way around this:
+Just so you can see what I'm seeing... first to make
+sure all is virgin, I purge the files:
 
-Attempt to install any old package after selinux-default-policy fails:
-
-# dpkg -i dpkg-dev_1.10.18_all.deb 
+# dpkg --purge selinux-policy-default                         
 (Reading database ... 15591 files and directories currently installed.)
-Preparing to replace dpkg-dev 1.10.18 (using dpkg-dev_1.10.18_all.deb) ...
-Unpacking replacement dpkg-dev ...
-Setting up dpkg-dev (1.10.18) ...
+Removing selinux-policy-default ...
+Purging configuration files for selinux-policy-default ...
+
+Okay, now we are in a clean state. I attempt to install
+the policy package:
+
+# dpkg -i selinux-policy-default_1%3a1.2.real-13_all.deb 
+Selecting previously deselected package selinux-policy-default.
+(Reading database ... 15228 files and directories currently installed.)
+Unpacking selinux-policy-default (from selinux-policy-default_1%3a1.2.real-13_all.deb) ...
+Setting up selinux-policy-default (1.2.real-13) ...
 /etc/selinux does not exist, aborting!
 run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
-"/bin/run-parts --arg=dpkg-dev /etc/dpkg/postinst.d" failed: 256
-dpkg: error processing dpkg-dev (--install):
+"/bin/run-parts --arg=selinux-policy-default /etc/dpkg/postinst.d" failed: 256
+dpkg: error processing selinux-policy-default (--install):
  1Error running trigger postinst: No such file or directory
 Errors were encountered while processing:
- dpkg-dev
+ selinux-policy-default
 
-This happens because for some reason because /etc/selinux doesn't 
-exist... in fact there is only a /usr/share/selinux/policy/default 
-and no current left behind. Your postint.d script explicitely
-forces a fail on every package install because of it.
+And it fails... and leaves the postinit.d hook 
+behind just to make sure all other package
+installs will fail too!
 
-Removing just the post install hook:
+It looks to me like the postinst.d hook might run
+before selinux-policy-default.postinst creates the
+link. But that doesn't make sense because that 
+would happen on any system and always fail the
+first time around.
 
-# mv /etc/dpkg/postinst.d/selinux /root/selinux
-
-Allows normal dpkg installing to work again:
-
-# dpkg -i dpkg-dev_1.10.18_all.deb 
-(Reading database ... 15591 files and directories currently installed.)
-Preparing to replace dpkg-dev 1.10.18 (using dpkg-dev_1.10.18_all.deb) ...
-Unpacking replacement dpkg-dev ...
-Setting up dpkg-dev (1.10.18) ...
-
--------------------------------
-
-I'll try to dig deeper... for one I'd like to figure out why
-the policy package install didn't create the link. As you can
-probably guess I was installing dpkg-dev on the loopback image
-so I can figure out what you've done to me ;-)
-
-If this is something that could happen to anyone
-who "just tries" installing selinux-default-policy
-for the hell of it on a normal debian machine, it
-could cause a bit of a problem for them.
+Next I guess I'll have to try debugging these
+scripts to see why this happens...
 
 -- 
 ------------------------------------------------------
