@@ -1,67 +1,41 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8P3X8sJ021996
-	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 23:33:08 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8P6pIsJ022524
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 02:51:18 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8P3X7CG027527
-	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 03:33:07 GMT
-Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h8P3X4qJ027524 for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 03:33:05 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Dale Amon <amon@vnl.com>, SELinux Mail List <selinux@tycho.nsa.gov>
+	by jazzband.ncsc.mil  with ESMTP id h8P6pHCG001754
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 06:51:17 GMT
+Received: from unicorn.lemuria.org (c152245.adsl.hansenet.de [213.39.152.245])
+        by jazzband.ncsc.mil  with ESMTP id h8P6pGqJ001747 for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 06:51:16 GMT
+Date: Thu, 25 Sep 2003 08:46:17 +0200
+From: Tom <tom@lemuria.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Subject: Re: ssh policy hassles
-Date: Thu, 25 Sep 2003 13:32:53 +1000
-References: <20030923150926.GG21997@vnl.com> <200309242334.55203.russell@coker.com.au> <20030924203129.GQ21997@vnl.com>
-In-Reply-To: <20030924203129.GQ21997@vnl.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200309251332.53496.russell@coker.com.au>
+Message-ID: <20030925084613.H11866@lemuria.org>
+References: <F5441DDE18FFD9418974338018C522B718BDB0@na1fcm61.dearborn.ford.com> <20030924221157.GS21997@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20030924221157.GS21997@vnl.com>; from amon@vnl.com on Wed, Sep 24, 2003 at 11:11:57PM +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 25 Sep 2003 06:31, Dale Amon wrote:
-> avc:  denied  { search } for  pid=654 exe=/usr/sbin/sshd dev=sda2
-> ino=903169 scontext=system_u:system_r:sshd_t
-> tcontext=system_u:object_r:var_lib_t tclass=dir
+On Wed, Sep 24, 2003 at 11:11:57PM +0100, Dale Amon wrote:
+> > Don't know if this helps much, but the only reference I see to /var/lib in the trace is sshd doing a stat on directory /var/lib/empty.
+> 
+> It certainly does. I wonder why I can't find it via a source grep? 
 
-What is in /etc/passwd for the sshd account?
+Because it is not hard-coded. It's whatever home-directory you set in
+/etc/passwd for the privsep account.
 
-> The only thing I see that looks even vaguely like a possible
-> target there is /var/lib/urandom.
+That's also why others don't see that access. On Debian, for example,
+it defaults to /var/empty
 
-That's not something that sshd should be accessing.
-
-Does sshd work well without the access?  If so then a dontaudit rule is in 
-order.
-
-> Okay, now I've still one more, and this one is really
-> confusing because ino=48726022 seems not to exist:
->
-> 	48726022        <inode not found>
->
-> I half wonder if I've got a bad link somewhere. It would
-> be easy enough to add an allow for this, but I'd like
-> to figure out why rather than blindly add things.
->
-> avc:  denied  { read } for  pid=743 exe=/usr/sbin/sshd dev= ino=48726022
-> scontext=system_u:system_r:sshd_t tcontext=system_u:system_r:sshd_t
-> tclass=lnk_file
-
-When you see that a domain is listed as the target (sshd_t is the tcontext) 
-for a file/dir/link_file access then it's an access to /proc/pid .  In this 
-case it's probably access to /proc/self/cwd or something.  In my latest 
-policy I have the following:
-dontaudit sshd_t proc_t:dir search;
-
-Nothing else is permitted under /proc.
+You might want to define a special type for the empty dir, so you can
+move it around and don't have to give sshd access to all of /var
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
