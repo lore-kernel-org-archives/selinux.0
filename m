@@ -1,49 +1,53 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j06En3Ii009015
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 09:49:03 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j06ElAww008190
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 14:47:10 GMT
-Subject: Re: passwd using getprevcon() for enforcement
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Joshua Brindle <method@gentoo.org>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1105022304.24438.60.camel@moss-spartans.epoch.ncsc.mil>
-References: <1105021782.972.9.camel@twoface>
-	 <1105022304.24438.60.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Message-Id: <1105022599.24438.63.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 06 Jan 2005 09:43:19 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j06EnvIi009036
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 09:49:57 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j06Eo0oP011952
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 14:50:01 GMT
+Message-ID: <41DD5001.3010302@redhat.com>
+Date: Thu, 06 Jan 2005 09:49:37 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: russell@coker.com.au
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: [patch] screen_macros.te
+References: <20050104230149.GA10317@yggdrasil.localdomain> <20050104233401.GA11885@yggdrasil.localdomain> <41DBE9F1.50303@redhat.com> <200501062246.42763.russell@coker.com.au>
+In-Reply-To: <200501062246.42763.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-01-06 at 09:38, Stephen Smalley wrote:
-> On Thu, 2005-01-06 at 09:29, Joshua Brindle wrote:
-> > I was wondering why Fedora's passwd is patched to use getprevcon()? It
-> > seems to me that enforcing policy on a types previous context is very
-> > broken behavior. Shouldn't the patch enforce on the current context and
-> > have different passwd types for privileged users (i seem to remember
-> > that there was a passwd_t and sysadm_passwd_t but that might have been
-> > old-api).
-> 
-> It is performing a check of the caller's permissions, so it wants the
-> domain of the caller (the previous context), not its own context.  It is
-> asking the question "Can the caller perform a privileged passwd
-> operation?", not the question "Can I perform a privileged passwd
-> operation?".   Parallel:  When the kernel performs a permission check,
-> it uses the credentials of the current process, not the kernel's own
-> credentials.  s/kernel/passwd program/
+Russell Coker wrote:
 
-The other parallel to consider is for a client/server model, where
-client programs send requests to a server passwd program.  There you
-want the server passwd program to check permissions against the client's
-credentials (obtained via getpeercon in that case).  The use of
-getprevcon() for exec-based invocation is equivalent.
+>On Thursday 06 January 2005 00:21, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>  
+>
+>>I would like to add a new file type cert_t for ssl cert files, since
+>>these are defaulted to usr_t right now.
+>>Shouldn't these be protected at a higher level?
+>>    
+>>
+>
+>Are you talking about protecting the integrity or the secrecy of data in such 
+>files?
+>
+>If integrity then anything which can write to usr_t can break the system 
+>anyway.  If secrecy then nothing in an rpm is secret anyway.
+>
+>If there are certificates that have any secret data then they should be 
+>somewhere other than under /usr.
+>
+>  
+>
+They are not in an RPM, and there has been discussions that they should 
+be moved under /var/ or /etc/.
+I think readability is the problem here.  Wherever they end up we need a 
+general case protecting the
+certificates so ever application that can read /usr or /etc/ or /var can 
+not read these files.   We are also going
+have to start looking at how we can protect Kerberos Key Files.  But 
+that is another conversation.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
 
 
 --
