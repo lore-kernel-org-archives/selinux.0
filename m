@@ -1,75 +1,35 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA04429
-	for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2001 09:58:38 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA04893
+	for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2001 11:12:42 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA03253
-	for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2001 13:58:29 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id NAA03249
-	for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2001 13:58:29 GMT
-Date: Mon, 16 Apr 2001 09:57:31 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: gawain.lynch@felicity-consulting.com.au
-cc: selinux@tycho.nsa.gov
-Subject: Re: Policy configuration errors
-In-Reply-To: <OF482CDDC7.7FD39A91-ONCA256A30.00238056@felicity.net.au>
-Message-ID: <Pine.SOL.3.95.1010416094433.10460A-100000@clipper.gw.tislabs.com>
+	by jazzband.ncsc.mil  with ESMTP id PAA06815
+	for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2001 15:12:33 GMT
+Received: from mx03.uni-tuebingen.de (mx03.uni-tuebingen.de [134.2.3.13])
+	by jazzband.ncsc.mil  with ESMTP id PAA06811
+	for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2001 15:12:32 GMT
+Received: from linux45.zdv.uni-tuebingen.de (linux45.zdv.uni-tuebingen.de [134.2.18.45])
+	by mx03.uni-tuebingen.de (8.9.3/8.9.3) with ESMTP id RAA15939
+	for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2001 17:12:40 +0200
+Date: Mon, 16 Apr 2001 17:12:39 +0200 (CEST)
+From: Jan Petranek <jan.petranek@student.uni-tuebingen.de>
+To: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+Subject: CC-Evaluation for Flask?
+Message-ID: <Pine.LNX.4.30.0104161709190.32603-100000@linux45.zdv.uni-tuebingen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello there,
 
-The same error was reported by Rajan Ravindran in a message to
-the mailing list on March 29th.  He sent me a copy of his policy
-configuration, and I was unable to reproduce the error on our
-systems (running RedHat 6.1 and 6.2).  I suggested that he
-make sure that he had installed the gcc and glibc updates
-from RedHat for RedHat 7, and then do a clean rebuild of the
-checkpolicy program.  I don't know if that solved his problem
-or not.
+I know the question of CC is one of the FAQ's and that SELinux is not
+currently evaluated. But how about the related systems, namely the
+Flask-architecture? If Flask can pass CC, then the Linux-based
+implementation will probably be able too.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Thank you,
 
-
-
-On Mon, 16 Apr 2001 gawain.lynch@felicity-consulting.com.au wrote:
-
-> I am building an SRPM which is now fully functional, bar the following 
-> error received during ``make initpolicy'' 
-> 
->         error in the statement ending on line 1054 (token ';'): unknown 
-> class filesystem used in rule
->  
->         ../kernel/security/checkpolicy:  error(s) encountered while 
-> parsing configuration
->         make: *** [initpolicy] Error 1
-> 
->         ...
-> 
->         $ rgrep filesystem policy/
-> 
->         %{errlog}:error in the statement ending on line 1054 (token ';'): 
-> unknown class filesystem used in rule
->         access_vectors:class filesystem
->         domains/every.te:allow domain fs_type:filesystem getattr;
->         init.te:allow initial_boot_t fs_type:filesystem *;
->         macros.te:allow $1_devpts_t devpts_t:filesystem associate;
->         mls:class filesystem
->         security_classes:class filesystem
->         types/file.te:allow file_type fs_t:filesystem associate;
->         types/nfs.te:allow nfs_t nfs_t:filesystem associate;
->         types/nfs.te:allow nfs_clipper_t nfs_clipper_t:filesystem 
-> associate;
-> 
-> Can someone please point me in some sort of direction as I am very close 
-> to finishing and this is just plain annoying.
-> 
-> Thanks,
-> 
-> Gawain
+JanP
 
 
 --
