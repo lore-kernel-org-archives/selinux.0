@@ -1,75 +1,81 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA04637
-	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2001 13:09:49 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA26666
-	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2001 17:08:06 GMT
-Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
-	by jazzswing.ncsc.mil  with SMTP id RAA26662
-	for <selinux@tycho.nsa.gov>; Fri, 5 Oct 2001 17:08:05 GMT
-Message-ID: <72222DC86846D411ABD300A0C9EB08A10152420E@csoc-mail-box.csoconline.com>
+Message-ID: <72222DC86846D411ABD300A0C9EB08A10152420D@csoc-mail-box.csoconline.com>
 From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'Stephen Smalley'" <sds@tislabs.com>,
-        Russell Coker
-	 <russell@coker.com.au>
-Cc: James Bishop <james.bishop@jrc.it>, selinux@tycho.nsa.gov
-Subject: RE: Compiling for SuSE 7.2
-Date: Fri, 5 Oct 2001 12:09:54 -0500 
+To: SELinux@tycho.nsa.gov
+Subject: Cron
+Date: Fri, 5 Oct 2001 12:07:20 -0500 
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The gdm program is working, I have modified it for the
-lsm-selinux. I any body wi=ould like a copy please let me know.
+Crontab
 
-Work ok for me.
+I have a small problem. I am creating a new domain for the amanda 
+backup. I created the user amanda and have created an amanda domain.
+
+I can login on as the user amanda and backup what I need ok.
+When I place the back up in the crontab It will not execute.
+I get an ENTRYPOINT error on the crontab file for amanda.
+
+Looking at the modified source for the crontab the selinux 
+is checking permisssion on the execute permission.
+
+The questions is What permission is it looking for. The 
+amanda user can execute the program with no error messages.
 
 Mark
 mark.westerman@csoconline.com
 
 -----Original Message-----
 From: Stephen Smalley [mailto:sds@tislabs.com]
-Sent: Friday, October 05, 2001 10:35 AM
-To: Russell Coker
-Cc: James Bishop; selinux@tycho.nsa.gov
-Subject: Re: Compiling for SuSE 7.2
+Sent: Friday, October 05, 2001 8:57 AM
+To: Justin R. Smith
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Some questions
 
 
 
-On Fri, 5 Oct 2001, Russell Coker wrote:
+On 5 Oct 2001, Justin R. Smith wrote:
 
-> /bin/login is for console logins, telnetd, and I think rshd.  sshd doesn't
-> use it (but there's a patch to sshd).  X logins use an X program, options
-> include xdm, kdm, gdm, and many others.  I intend to develop a patch for
-kdm
-> after getting everything else working (if no-one beats me to it).
+> I've installed the latest version of SELinux in permissive mode.
+>
+> 1. I've noticed no unusual messages in dmesg or /var/log/messages. Does
+> this mean that my normal activities do not violate any of the new access
+> restrictions? (So enabling secure mode would not disrupt any of the
+> things I normally do)?
 
-The simplest approach is to obtain the default security context for the
-user (via the get_default_user_sid function in libsecure) and use it in
-the appropriate exec*_secure call, and then let the user run newrole if
-necessary to change roles after login.  Also, as with login, the ?dm
-program should set the security context for the user's terminal device.
-Mark Westerman experimented with a patch for gdm that is available on
-his sourceforge selinux project site, but I'm not sure how far he got.
+Possibly.  Please check the 'ps -e --context' output and verify that each
+system process is running in the correct security context.  Also, please
+verify that your security context is set properly when you login (run
+'id' or 'ps --context').  And make sure that you aren't running a X
+Display Manager, as I mentioned in my prior email to James Bishop.
 
-Note that some policy customization will be necessary to properly support
-the use of the ?dm programs.  A separate domain should be defined for
-these programs, and some of their helper programs may also need separate
-domains to provide least privilege.
+> 2. If I toggle fully secure mode, can I reverse this remotely (i.e., ssh
+> to the host, su, and execute the toggle command again)?
 
-Longer term, it would be nice to change ?dm and its helper programs to
-permit users to specify a security context upon login.  But this would
-be more complicated and require a more invasive patch.
+You don't need to 'su' - you need to run 'newrole -r sysadm_r'.  SELinux
+doesn't care whether you are root.  It cares about your role and domain.
+Yes, this should work remotely (unless you change the policy to prohibit
+it).  You can test it while still in permissive mode - simply try it and
+check /var/log/messages and the output of dmesg for any messages.
 
-> Initially using startx after logging in on the console is easiest.
+> 3. SSH no longer recognizes my authorized keys --- I must always enter a
+> password to use it. I've regenerated the keys several times (putting the
+> appropriate public keys in 'authorized_keys') without success. I know
+> the sshd on my system was replaced by another. Does it function
+> differently?
 
-Yes, this is what we recommend if you want to run X.  However, please note
-that you must uncomment some allow rules in the
-policy/domains/program/xserver.te file to grant the X server the necessary
-permissions.  And note that this is dangerous - X is far too privileged,
-and needs to be restructured to support least privilege.
+The utils Makefile only installs the modified sshd, not the rest of the
+package, since we only modified sshd.  So if you were using a different
+version of OpenSSH, you might have a compatibility problem.  The openssh
+package provided with SELinux is the default one provided with RedHat 7.1
+with the SELinux modifications.  If you are using a newer version of
+OpenSSH, then I would suggest porting the SELinux patch forward to the
+newer version (and please feed the resulting patch back to us).  If you are
+using an older version of OpenSSH, then I would suggest doing a 'make
+install' in the openssh-2.5.2p2-5 directory and then doing a 'make
+relabel' in the utils directory.
 
 --
 Stephen D. Smalley, NAI Labs
