@@ -1,69 +1,47 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA08567
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 11:27:40 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA10766
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 16:31:33 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA20360
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 15:26:36 GMT
+	by jazzswing.ncsc.mil  with ESMTP id UAA07764
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 20:30:29 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id PAA20356
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 15:26:35 GMT
+	by jazzswing.ncsc.mil  with ESMTP id UAA07754
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 20:30:28 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 0D3B59246F
+	for <selinux@tycho.nsa.gov>; Tue, 20 Aug 2002 06:31:28 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 82719129F
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 22:31:19 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: type_change rules
-Date: Mon, 19 Aug 2002 17:27:26 +0200
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0208190900150.14458-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0208190900150.14458-100000@raven>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: tcp_socket messages
+Date: Mon, 19 Aug 2002 22:31:16 +0200
 MIME-Version: 1.0
-Message-Id: <20020819152726.B3533267@lyta.coker.com.au>
+Message-Id: <20020819203119.82719129F@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 19 Aug 2002 15:04, Stephen Smalley wrote:
-> On Mon, 19 Aug 2002, Russell Coker wrote:
-> > In my case it appears that login exec's the user's shell and is gone from
-> > memory.
-> >
-> > So it seems that to get this working correctly I need some changes to the
-> > login program to make it hang around (as login programs apparently do in
-> > other distributions), and I need to make sure that the SAK is blocked
-> > from killing the login process.
->
-> If compiled with PAM support, the util-linux login forks a child process
-> that waits for the user shell to exit and then cleans up the session
-> (including relabeling the tty back to its original SID, with the SELinux
-> patch).
+I've started getting the following messages recently, I think it's from a 
+kernel upgrade but as I've been changing my policy so much recently.
 
-I'll have to look into that.  Debian is using the shadow utils login which is 
-different.
+It doesn't seem to stop anything from working...
 
-> > rc scripts aren't involved.  Doing it in init is ugly.  Changing getty
-> > means changing 4 getty programs that I use on machines I run (and more
-> > getty programs for a comprehensive solution).  I don't think that this is
-> > the real fix.
->
-> I think it is.  Keep in mind that the same issue arises for the Linux
-> ownership and modes on ttys, and that this must be addressed somewhere in
-> getty or init.  But I concede that it may be a lot of work to support all
-> getty programs.
-
-I think it's simply impractical to change all getty programs.  I think that 
-the solution is a wrapper that either:
-1)  Relabels the tty device based on a config file or command line parameter 
-and then exec's the real getty.
-2)  Monitors the real getty and changes the SID back after that session 
-finishes.
-
-Option 2 was what I first thought of, but it means more processes, and 
-there's the issue that init writes the PID to the utmp file (and code to 
-manage utmp is a PITA to write).
-
-I'll probably implement option 1 some time this week.  I think it'll make a 
-useful addition to selinux-small, I can imagine other uses for such a program 
-as well.
+Aug 19 21:02:30 lyta kernel: avc: ?denied ?{ connectto } for ?pid=13505 
+exe=/usr/bin/kdeinit saddr=127.0.0.1 source=8080 daddr=127.0.0.1 dest=34572 
+netif=lo scontext=rjc:user_r:user_t tcontext=system_u:system_r:tcp_socket_t 
+tclass=tcp_socket
+Aug 19 21:02:30 lyta kernel: avc: ?denied ?{ connectto } for ?pid=13506 
+exe=/usr/bin/kdeinit saddr=127.0.0.1 source=8080 daddr=127.0.0.1 dest=34573 
+netif=lo scontext=rjc:user_r:user_t tcontext=system_u:system_r:tcp_socket_t 
+tclass=tcp_socket
+Aug 19 21:02:34 lyta kernel: avc: ?denied ?{ connectto } for ?pid=13505 
+exe=/usr/bin/kdeinit saddr=127.0.0.1 source=8080 daddr=127.0.0.1 dest=34582 
+netif=lo scontext=rjc:user_r:user_t tcontext=system_u:system_r:tcp_socket_t 
+tclass=tcp_socket
 
 -- 
 I do not get viruses because I do not use MS software.
