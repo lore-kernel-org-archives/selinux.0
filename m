@@ -1,53 +1,58 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RJAwrT004980
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 15:10:59 -0400 (EDT)
-Received: from emepe3.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6RJAvup015134
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 19:10:58 GMT
-Received: from [200.114.214.6] (helo=[192.168.0.101])
-	by emepe3.com with asmtp (Exim 3.35 #1 (Debian))
-	id 1BpXdS-0006e6-00
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 14:29:15 -0500
-Subject: New or Old SELinux
-From: Martin Sarsale <martin@emepe3.net>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7tSt6xv+yq0PMS5u4zeI"
-Message-Id: <1090955044.1886.49.camel@allhosts>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RJeerT005177
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 15:40:40 -0400 (EDT)
+Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6RJe7mL009038
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 19:40:10 GMT
+Message-Id: <200407271940.i6RJebSp032388@turing-police.cc.vt.edu>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [idea] multiple contexts. 
+In-Reply-To: Your message of "Tue, 27 Jul 2004 17:06:06 BST."
+             <20040727160605.GG3392@lkcl.net>
+From: Valdis.Kletnieks@vt.edu
+References: <20040724231154.GE3437@lkcl.net> <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil>
+            <20040727160605.GG3392@lkcl.net>
 Mime-Version: 1.0
-Date: Tue, 27 Jul 2004 16:04:05 -0300
+Content-Type: multipart/signed; boundary="==_Exmh_-1712670068P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Tue, 27 Jul 2004 15:40:37 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--==_Exmh_-1712670068P
+Content-Type: text/plain; charset=us-ascii
 
---=-7tSt6xv+yq0PMS5u4zeI
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Tue, 27 Jul 2004 17:06:06 BST, Luke Kenneth Casson Leighton said:
 
-Dear All:=20
-Im trying to install SELinux on a debian stable box.=20
+>  i also seek to limit the programs that a KDE user may run.
+> 
+>  if there is a simple way to do that which does not involve writing
+>  policy files for each and every single KDE program i intend to restrict
+>  users to use, i would be interested to hear it.
 
-I would like to stay in stable but I couldn't find any of the New
-SELinux (coreutils, procps, etc) enabled packages for deb stable, so I
-guess I'll have to stick with the old SELinux (on kernels 2.4.x).
+Are there KDE programs that don't require anything but user permissions, but
+that you want to restrict anyhow?
 
-How old is the old SELinux? Is it insecure?
+Or are all the programs to be limited already require more permission?
 
-Thanks in advance
+Or are you trying to secure a kiosk?
 
---=-7tSt6xv+yq0PMS5u4zeI
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+The answers will probably depend on what problem you're trying to solve?
+
+--==_Exmh_-1712670068P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQBBBqcjhruVGj+ub3MRAgRuAJ9xFw1pBurOHt9+5k6AJefDrTQNlACffemz
-zVrEoapG2ETMYUkGcQQZnio=
-=oeI0
+iD8DBQFBBq+0cC3lWbTT17ARAsb2AKCnkThOy4eRxmGG8PdC4+Abzan4dACfSdfX
+3qSXpcldWMhwN16cLmevDd0=
+=lGK/
 -----END PGP SIGNATURE-----
 
---=-7tSt6xv+yq0PMS5u4zeI--
-
+--==_Exmh_-1712670068P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
