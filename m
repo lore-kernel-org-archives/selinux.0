@@ -1,57 +1,47 @@
-From: "Ed Street" <edstreet@street-tek.com>
-To: "'Edin Dizdarevic'" <edin.dizdarevic@interactive-systems.de>,
-   <SELinux@tycho.nsa.gov>
-Subject: RE: Local LUG Presentation
-Date: Fri, 23 Apr 2004 08:47:23 -0400
+Message-ID: <4089131D.5040905@interActive-Systems.de>
+Date: Fri, 23 Apr 2004 14:59:09 +0200
+From: Edin Dizdarevic <edin.dizdarevic@interactive-systems.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <4088E98C.9040806@interActive-Systems.de>
-Message-Id: <20040423124723.B6FA23A404F@abyss.simplyaquatics.com>
+To: Ed Street <edstreet@street-tek.com>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Local LUG Presentation
+References: <20040423124723.B6FA23A404F@abyss.simplyaquatics.com>
+In-Reply-To: <20040423124723.B6FA23A404F@abyss.simplyaquatics.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
-
-Yes these text boxes are available.  As for the comments on those 2 site I
-guess the official response is no comment :)  We are not forcing them to use
-lsm.
-
-Ed
-
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-Behalf Of Edin Dizdarevic
-Sent: Friday, April 23, 2004 6:02 AM
-To: SELinux@tycho.nsa.gov
-Subject: Re: Local LUG Presentation
-
 Hi,
 
-looks good. Are those testboxes allready available?
+I don't even want to think of beginning thinking in terms of "us" and 
+"them" ;) . If we stick to facts why there should be a problem in 
+formulating some kind of technically based discussion, which has almost 
+always been constitutional in similar cases before. So everybody can 
+build his/her opinion. Sitting things out leaves some kind of vacuum. At 
+least for me. Fact is: More and more distribution will come up with LSM 
+more or less activated. So these questions have to be answered, if we or 
+them want it or not.
 
-I was also wondering, if there are any comments on 
-http://www.grsecurity.net/lsm.php and http://www.rsbac.org/lsm.htm
-from the "LSM-community"?
+Just my 2c.
 
-Best regards,
+Regards,
 Edin
+
+
+
 
 Ed Street schrieb:
 
 > Hello,
-> ...
+> 
+> Yes these text boxes are available.  As for the comments on those 2 site I
+> guess the official response is no comment :)  We are not forcing them to use
+> lsm.
+> 
+> Ed
 
 -- 
 Edin Dizdarevic
-
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.662 / Virus Database: 425 - Release Date: 4/20/2004
- 
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
