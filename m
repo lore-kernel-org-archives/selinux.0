@@ -1,74 +1,54 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA19303
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 08:38:18 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA24192
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 12:36:50 GMT
-Received: from mail.ispko.com ([210.16.10.89])
-        by jazzband.ncsc.mil  with ESMTP id MAA24188 for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 12:36:48 GMT
-Message-ID: <3D2987B0.9010703@evoworks.evoserve.com>
-Date: Mon, 08 Jul 2002 20:38:08 +0800
-From: Debian User <rogelio@evoworks.evoserve.com>
-MIME-Version: 1.0
+Subject: Re: new LSM ver
+From: Timothy Wood <timothy@hallcomp.com>
 To: Stephen Smalley <sds@tislabs.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [patch] Re: problem with "-" in libraries
-References: <Pine.GSO.4.33.0207080820340.19100-200000@raven>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <Pine.GSO.4.33.0207080720350.19100-100000@raven>
+References: <Pine.GSO.4.33.0207080720350.19100-100000@raven>
+Content-Type: text/plain; charset=koi8-r
+Date: 08 Jul 2002 10:31:52 -0400
+Message-Id: <1026138712.1724.23.camel@phobos>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+В Пнд, 08.07.2002, в 07:24, Stephen Smalley написал: 
+> 
+> On 5 Jul 2002, Timothy Wood wrote:
+> 
+> > Anyone notice that the default context for root in the new lsm package
+> > is a user_r and not sysadm_r?  Any specific reason for this change or is
+> > it a mistake?
+> 
+> This is mentioned in the selinux/ChangeLog, so it is a safe bet that it
 
->On Sat, 6 Jul 2002, Debian User wrote:
->
->  
->
->>Im developing a policy for a cramfs based selinux system. I cant specify the
->>contexts for libraries with a "-" in the names like "libpthread-0.9.11.so".
->>Checkpolicy does not accept such names int genfs_contexts. I am trying to work
->>around this by recompiling everything using modified library names. Can the
->>checkpolicy compiler be modified to accept this names?
->>    
->>
->
->The attached patch fixes the checkpolicy scanner to accept "-" in path
->tokens.  This patch has also been committed to the sourceforge CVS tree.
->  
->
-Will apply thanks. I discovered that genfs_context  are used as 
-prefixes. My policy worked somewhat by specifying only the names before 
-the dash. I was able to make my system work but this is much better.
+Whoops.  I guess I should read those things more often. 
 
->--
->Stephen D. Smalley, NAI Labs
->ssmalley@nai.com
->
->
->  
->
->------------------------------------------------------------------------
->
->Index: module/checkpolicy/policy_scan.l
->===================================================================
->RCS file: /cvsroot/selinux/nsa/selinux/module/checkpolicy/policy_scan.l,v
->retrieving revision 1.5
->diff -u -r1.5 policy_scan.l
->--- module/checkpolicy/policy_scan.l	3 Jul 2002 20:39:47 -0000	1.5
->+++ module/checkpolicy/policy_scan.l	8 Jul 2002 12:17:16 -0000
->@@ -130,7 +130,7 @@
-> T1				{ return(T1); }
-> t2 |
-> T2				{ return(T2); }
->-"/"({letter}|{digit}|_|"."|"/")*	{ return(PATH); }
->+"/"({letter}|{digit}|_|"."|"-"|"/")*	{ return(PATH); }
-> {letter}({letter}|{digit}|_)*	{ return(IDENTIFIER); }
-> {digit}{digit}*                 { return(NUMBER); }
-> #[^\n]*                         { /* delete comments */ }
->  
->
+> wasn't a mistake.  As mentioned earlier on the list in discussing the
+> recent sshd bugs, I removed direct transitions from sshd_t to sysadm_t
+> from the sshd.te file, thus requiring an explicit newrole.  Hence, it was
+> only logical to also change the default login context for root to user_r.
+> This is also simply safer as a default behavior.
 
+So what is going ot be done about root permissions and such since you
+are restricting them now?  I mean there are just some things you have to
+be root and have root permissions to run.  Are you rewriting everything
+to run based on security context instead of user?  That would be ideal,
+no I take that back, that would be awesome if things would run based on
+security context of the user running them.  Then you could get rid of
+root altogether.  
 
+Anywho (sorry for the rant) a really good/simple example of the new
+default context is this.  Lets say you want to add a new user... oh
+wait, you can't!  Why?  No one but root can do this and now, not even
+root can't do it.  Did a primary service, such as named, bail out for
+some reason?  Too bad!  You do not have any way to restart it except by
+rebooting the server.  Same reason, root only.
+
+But don't get me wrong.  Getting rid of root is a good idea but it's too
+early in the game to make changes like this.  It pretty much breaks the
+system in enforcing mode.
+
+Timothy,
 
 
 --
