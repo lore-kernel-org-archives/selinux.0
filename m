@@ -1,133 +1,144 @@
-Message-ID: <3F74CAE9.70604@bah.com>
-Date: Fri, 26 Sep 2003 19:25:29 -0400
-From: "McDonald Patrick" <mcdonald_patrick@bah.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8R27CsJ004483
+	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2003 22:07:12 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8R25RZt003922
+	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 02:05:27 GMT
+Received: from out002.verizon.net (out002pub.verizon.net [206.46.170.141])
+	by jazzswing.ncsc.mil  with ESMTP id h8R25QM3003916
+	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 02:05:26 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Bill Laut <wlsel@verizon.net>
+To: Eamon Walsh <ewalsh@epoch.ncsc.mil>
+Subject: Re: Emacs major mode for policy editing
+Date: Fri, 26 Sep 2003 22:09:36 -0400
+References: <1064504193.3885.14.camel@moss-tarheels.epoch.ncsc.mil> <200309261743.58567.wlsel@verizon.net> <1064614177.5342.7.camel@moss-tarheels.epoch.ncsc.mil>
+In-Reply-To: <1064614177.5342.7.camel@moss-tarheels.epoch.ncsc.mil>
+Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-To: K Rob <kdrobins@engineer.com>
-CC: Dale Amon <amon@vnl.com>, Michael Pender <michael.pender@nanochron.com>,
-   Howard Holm <hdholm@epoch.ncsc.mil>, Subba Rao <subba9@cablespeed.com>,
-   "NSA's SELinux" <SELinux@tycho.nsa.gov>
-Subject: Re: SELinux meetings??
-References: <20030926223656.65755.qmail@mail.com>
-In-Reply-To: <20030926223656.65755.qmail@mail.com>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms090907090704080709030605"
+Message-Id: <200309262209.36797.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a cryptographically signed message in MIME format.
-
---------------ms090907090704080709030605
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-All,
-
-I would be interested in forming an SELinux user group as well.  I work 
-in Tyson's Corner doing Multi-Level Security work for the US 
-government.  There are several other people I work with who would be 
-interested in attending as well.
-
-Pat
-
-K Rob wrote:
-
->Greetings everyone.
+On Friday 26 September 2003 06:09 pm, you wrote:
+> On Fri, 2003-09-26 at 17:43, Bill Laut wrote:
+> > On Thursday 25 September 2003 11:36 am, Eamon Walsh wrote:
+> > > My name is Eamon Walsh; I recently joined the NSA selinux team.
+> > > I will be working on putting policy enforcement into XFree86.
+> >
+> > When do you anticipate having security-enhanced X completed?
+> >
+> > Bill
 >
->I just wanted to put my vote and interest in forming a SELINUX user group here in the D.C. area.
->
->I work downtown D.C. in the Northwest Area. I do some administration on Dell Poweredge servers running RH Linux 7.2, 8.0. We will be implementing the SELinux kernel as well and I would like to participate, and even help organize a group in the area here. Please keep me informed as to development of the group in D.C.
->  
+> I just came on board and have been studying the problem; no definite
+> implementation strategy exists yet.
 >
 
+I've been looking at it off and on for a few months.  I used to heavily hack X 
+about 10 to 13 years ago, so this is largely "old stomping grounds" for me.  
+Bringing myself up to speed on the internals of SELinux is the bigger 
+challenge to me.  
 
---------------ms090907090704080709030605
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+>
+> We talked with an experienced X person who claims he can solve the
+> problem (which consists of two parts: policy enforcement in the X server
+> and "labeling" of windows by the window manager) in six months.  This
+> person might get hired as well as myself.  I will be working on this for
+> 8 months or so.
+>
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIOajCC
-A4UwggJtoAMCAQICAgKCMA0GCSqGSIb3DQEBBQUAMFExCzAJBgNVBAYTAlVTMQwwCgYDVQQK
-EwNCQUgxEzARBgNVBAsTCkNvbXBvbmVudHMxHzAdBgNVBAMTFkJvb3ogQWxsZW4gSGFtaWx0
-b24gQ0EwHhcNMDIxMjA5MTM0MDEyWhcNMDUwNjA5MTM0MDEyWjBFMQswCQYDVQQGEwJVUzEM
-MAoGA1UEChMDQkFIMQ0wCwYDVQQLEwRTTVRQMRkwFwYDVQQDExBNY0RvbmFsZCBQYXRyaWNr
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDfD4NG0swrq4nyHc3RoYL1+bZFzfCmc7FN
-QaEuCTwALs/pmEjwp0rU15IJoODXmJoE8sCd2m1V+0FOwRxznOpe3K1+1v6oVvnwZWddP5FV
-b90TI/6Btmr8XFzkdsxly90JzjBvQNrXmV2vsaoafZJDx+D6UbTiDLICmBC83GyrlQIDAQAB
-o4H2MIHzMA4GA1UdDwEB/wQEAwIFoDAdBgNVHQ4EFgQUr9UuMkgpXdL4uNDGbHsPmBfHQ4sw
-GAYDVR0gBBEwDzANBgsrBgEEAd4AAQMCATBiBgNVHR8EWzBZMFegVaBThlFsZGFwOi8vZGly
-c3luYy51c2FlLmJhaC5jb20vY249Qm9veiBBbGxlbiBIYW1pbHRvbiBDQSwgb3U9Q29tcG9u
-ZW50cywgbz1CQUgsIGM9VVMwIwYDVR0RBBwwGoEYbWNkb25hbGRfcGF0cmlja0BiYWguY29t
-MB8GA1UdIwQYMBaAFOB9hMW8tGVT8qJdm4A40Gwcnp3CMA0GCSqGSIb3DQEBBQUAA4IBAQAf
-Z3UJ2UZ1+UbW2PoOdIsk54a12VSTsYUOPOMtcjD3besRIxJ6NsIHTqV9RsBVW/UdtYgAmqc/
-xxmdCgcQ1ka/ktjD2AzYxSJltZHi7sWog+5+AtPm0t7PVNs7fxQUir3mPdXAkDqHnwS3aHvP
-Ixzsz77xygTSqUMmeUOpsGLt/QuNhs5EojL+iqIPuaKT/oUrKe/bNAGFUq3A46sjemVKKISg
-LDaxdHfEqJtr+AnbC2vmxvEtOGGS7IeeoYZiGViTz1quOrswJbDbHpwW+/ZSs7DqkBrP0hs5
-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
-YYJdG7J/O15tXBZo4+cucQAAAAAAAA==
---------------ms090907090704080709030605--
+An estimate of six months strikes me as "contingency planning" and which is 
+certainly acceptable.  My personal implementation schedule, however, will be 
+considerably more aggressive.
+
+Of course, I'm not under contract to NSA and therefore you cannot depend on me 
+hitting my time estimate.  If I'm successful, great!  My stuff will get 
+released under the GPL for all to benefit.  If not, well, you have eight 
+months to get it working.
+
+>
+> I have been looking at the X Security extension and trying to figure out
+> if this code could be used as a starting point.  It seems pretty good so
+> far, but I'm concerned about how other extensions interact with it
+> (notably Xag and XTrap).
+>
+
+I think you're going too far up the tree.  You want to be closer to the root.  
+
+X has a well-defined protocol interfacing the client's Xlib and the XServer 
+via a "Transport Layer" that implements the Event and Request Queues.  In 
+fact, with some implementations (such as DECWindows under VMS) there is a 
+bona fide formal Transport Layer in which you can implement your own 
+Transports to handle whatever abstraction you want to speak X over.
+
+Everything going into and out of the XServer (with the obvious exception of 
+the monitor, keyboard, and mouse, etc.) goes through those Queues via that 
+Transport layer.  Therefore, it makes more sense to install the "gatehouse" 
+at the XServer's main dispatcher because (1) we can enforce policy on ALL 
+Requests and Events to/from ALL Xclients, local and remote; and (2) in so 
+doing minimize the changes needed to XFree86.
+
+As an "extra homework assignment," this could also be a good excuse to go 
+through the code to hunt down potential buffer overruns and nail them in the 
+Gatehouse, but that could be for another topic.
+
+Of course, there will undoubtedly be some things that won't fit this paradigm 
+and will have to be handled within their own modules.  However, the majority 
+of tasks will fit within the "gatehouse" and so it makes sense to "kill as 
+many birds with one stone" as is possible.
+
+>
+> I think the hardest part will be cut & paste, which seems to be a big hack
+> in X overall.
+>
+
+I'm suspecting it will depend on how "messy" you want to get with it.  
+Personally, for now, I don't think it will be a major issue.
+
+The scenario I consider a paradox is how to enforce policy on remote clients.  
+To wit, where all the clients are local on the same box with the XServer, it 
+is trivial to independently authenticate each client via the kernel.  Kind of 
+like Kerberos' use of the "trusted third-party" model, but where our 
+third-party is the kernel itself.  Piece of cake:  The XServer doesn't use 
+anything the client could possibly say about itself to decide whether or not 
+to allow a given Request to be accepted, because the authenticating data was 
+never within the client's reach to possibly taint.
+
+On the other hand, what do we do with remote clients connecting via the 
+network?  Anything more than a summary policy decision will require 
+authentication data not stored on the XServer's box.  How do we protect 
+ourselves from being spoofed?
+
+Furthermore, this requirement, in turn, could conceivably lead into 
+discussions of crypto (to protect the TCP stream) that NSA employees may or 
+may not be allowed to discuss within a mailing list.  This may be a point 
+that an appropriate echelon should investigate and mention for our benefit at 
+this project's outset, so that we don't violate any rules.
+
+>
+> Did you post to the list earlier this month and say you were also
+> working on this problem?  Someone did and I lost the e-mail.
+> Once the project gets rolling there will be more list traffic, for sure.
+>
+> --Eamon
+
+Yes, I had posted to the list that I was working on Security-Enhanced X (or 
+"s-ex," as Russell puckishly termed it) some time ago.
+
+I have one other committment that I'm finishing this week, and then I can 
+devote more time to s-ex.  In my last posting to the list I committed myself 
+to delivering a first draft of an implementation strategy by mid-October, and 
+I'm still shooting for that target.
+
+The purpose of the document is to give everyone on the mailing list a chance 
+to review it and identify errors, omissions.  Shoot arrows at it.  That sort 
+of thing.  All contributions, ideas, suggestions are welcomed.  Then, once 
+everything is identified I want to get started implementing the controls 
+within X.
+
+
+Bill
 
 
 --
