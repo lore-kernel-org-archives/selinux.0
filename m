@@ -1,47 +1,39 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9TJX8XZ011081
-	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 15:33:08 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9TJVnMb022311
-	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 19:31:49 GMT
-Subject: Re: cdrecord patch [was: Re: cdrecord deadlocks linux 2.6.8.1
-	(problem in setscheduler)]
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9TJZeXZ011109
+	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 15:35:40 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9TJZasx021626
+	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 19:35:37 GMT
+Subject: Re: [patch] give userspace_objmgr access to default_context_t
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Colin Walters <walters@verbum.org>
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20041018215802.GD2536@jmh.mhn.de>
-References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de>
-	 <20041018143842.GP19398@lkcl.net>  <20041018215802.GD2536@jmh.mhn.de>
+In-Reply-To: <1098556843.8447.30.camel@x-infinity.verbum.private>
+References: <1098556843.8447.30.camel@x-infinity.verbum.private>
 Content-Type: text/plain
-Message-Id: <1099078308.12321.96.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1099078466.12321.98.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 29 Oct 2004 15:31:48 -0400
+Date: Fri, 29 Oct 2004 15:34:26 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Merged.
 
-On Mon, 2004-10-18 at 17:58, Thomas Bleher wrote:
-> * Luke Kenneth Casson Leighton <lkcl@lkcl.net> [2004-10-18 17:47]:
-> > ah ha!  thomas, thank you v. much: i [badly] hacked up something
-> > for k3b to use some time ago.
-> > 
-> > On Mon, Oct 18, 2004 at 02:43:32PM +0200, Thomas Bleher wrote:
-> > 
-> > > I have just written selinux policy for cdrecord. While writing this 
-> > > policy cdrecord constantly locked up the computer (even in permissive
-> > > mode). When booting with selinux=0 the problem went away.
+On Sat, 2004-10-23 at 14:40, Colin Walters wrote:
+> Hi,
 > 
-> Attached is an updated policy for inclusion into CVS. The previous
-> version missed some permissions. With the current version I have
-> successfully burnt a CD in enforcing mode.
+> Most userspace object managers (e.g. D-BUS) will need access to default
+> contexts files.  I think these used to just be selinux_config_t but seem
+> to have switched recently.
 > 
-> Thomas
+> I noticed two domains, updfstab and udev are both likely candidates for
+> the userspace_objmgr attribute, since they have this:
 > 
-> PS: This patch uses the can_resmgrd_connect() macro which was posted a
-> while but is not yet in CVS. It can be removed if the other patch is not
-> merged.
+> domains/program/updfstab.te:r_dir_file(updfstab_t, { selinux_config_t file_context_t default_context_t } )
+> 
+> Right now neither of them get security decisions, but it doesn't seem
+> unlikely in the future.
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
