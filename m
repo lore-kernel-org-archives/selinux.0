@@ -1,65 +1,56 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA03186
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 09:06:47 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1QE6kI29144
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 14:06:46 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id h1QE6kf29140 for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 14:06:46 GMT
-Date: Wed, 26 Feb 2003 09:06:18 -0500 (EST)
-From: Wayne Salamon <wsalamon@tislabs.com>
-To: Clem Skorupka <ragnor@mitre.org>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Core policy
-In-Reply-To: <3E5A7BBC.63AF1F96@mitre.org>
-Message-ID: <Pine.LNX.4.33.0302260900300.3682-100000@vox.gw.tislabs.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA04389
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 11:08:00 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA28514
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 16:04:46 GMT
+Received: from babylon.swishmail.com (babylon.swishmail.com [209.10.110.2])
+	by jazzswing.ncsc.mil  with SMTP id QAA28484
+	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 16:04:44 GMT
+From: "Leslie J. French" <ljf@semandex.net>
+To: "SE Linux" <selinux@tycho.nsa.gov>
+Subject: RE: Core policy
+Date: Wed, 26 Feb 2003 11:08:39 -0500
+Message-ID: <BFEMIIHKHLALNELLMPOMOEDLCDAA.ljf@semandex.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+In-Reply-To: <Pine.LNX.4.33.0302260836250.3682-100000@vox.gw.tislabs.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 24 Feb 2003, Clem Skorupka wrote:
+There are probably as many definitions of "core" as there are people
+actively working on SELinux.
 
-> Basically think of core as the minimum services/policy that any stripped-down
-> "specialty" server would want.
+I've put a SELinux box into a secured network that required that the box
+pass a vulnerability/lockdown test.  Since the box acts as a server where
+the only visible application is the one we put on it, my "core" is certainly
+minimal!  It sounds similar to the other "hardened" systems people are
+reporting.
 
-  We're trying to define 'core' as what a SELinux experimenter needs to
-get up and running. I'd say basic workstation functionality, sshd, the
-policy tools, but not X Windows.
+The only "optional" component I have is sshd. I have no ftpd, telnetd, mail,
+printing etc.  Since it took me a lot of trial-and-error to see which policy
+files I could safely exclude, I certainly support the idea of a cleaner
+hierarchy and a better notion of "linkage" between policies (try removing
+crond and working backwards to clean up the errors).
 
-> So if I was building a hardened dns server, I would have no need of printing, or an
-> apache web server.  Or inetd/xinetd.
-> I wouldn't need sound.  Or dhcp client.
->
+However, for 95% of you (the other 19 active people?) I doubt if that
+minimal a policy is any use.  Even so, I think that approach that the "core"
+should only get the system booted is valid.  I'm thinking that "CPU+DISK"
+makes a core. +NET makes a usable core, after that it's service-by-service
+until you get to a full-blown installation running apache etc.
 
-  I've done that for another project. A hardened server (a comm router)
-that doesn't even allow remote administration. Policy can be very small.
-That larger challenge is integrating SELinux policy with other policies
-that affect the operation of the server.
+If "core" is the minimal system to get an experimenter up and running, then
+it's already too big for me, but I managed to experiment with the "full" set
+of policies.
 
-> After that I'd create some category of "server" policy, to cover the webservers,
-> ftp servers, dns, et al.
-> Some might want to slice this up into internal servers (e.g. printing, databases)
-> vs. external servers (e.g. web).  I'd follow common industry practices such as
-> keeping servers "headless".
->
-> Another category would be "user-workstation/gui", which would include dhcp client,
-> x-windows, sound, web browsers.
->
+So, does anyone have a list that might support only the "CPU+DISK" policy
+list?
 
-  I don't mind the ideas of categories, but how do we want to distribute
-such things as part of the SELinux distribution? Is it a build option
-('make workstation'), is it a set of guidelines? Suggestions?
+Leslie French
+Semandex Networks Inc.
 
-  For now, though, the focus is on defining the core as described above,
-then cleaning up this policy to provide least privilege, removing some
-macros, cleaning up the dependencies between policy files, etc.
 
-Thanks for the suggestions.
-
- --
-Wayne Salamon
-wsalamon@tislabs.com
 
 
 --
