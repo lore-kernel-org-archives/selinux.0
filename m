@@ -1,69 +1,78 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAG94VIi028951
-	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 04:04:31 -0500 (EST)
-Received: from passage.avira.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAG934Aa011615
-	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 09:03:04 GMT
-Message-ID: <4199C9BD.1020806@gentoo.org>
-Date: Tue, 16 Nov 2004 11:34:53 +0200
-From: petre rodan <kaiowas@gentoo.org>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAGDhRIi000091
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 08:43:27 -0500 (EST)
+Received: from smtp-bedford-dr.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAGDhTFO010323
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 13:43:29 GMT
+Received: from smtp-bedford-dr.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford-dr.mitre.org (8.11.6/8.11.6) with SMTP id iAGDhUg06072
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 08:43:30 -0500
+Received: from smtp-bedford-dr.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford-dr.mitre.org (Postfix) with ESMTP id 8D2014F8E1
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 08:43:30 -0500 (EST)
+Received: from linus.mitre.org (rcf-smtp.mitre.org [129.83.10.1])
+	by smtp-bedford-dr.mitre.org (8.11.6/8.11.6) with ESMTP id iAGDhUH06046
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 08:43:30 -0500
+Received: from divan.mitre.org (divan.mitre.org [129.83.10.75])
+	by linus.mitre.org (8.12.10/8.12.10) with ESMTP id iAGDhUVt008157
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 08:43:30 -0500 (EST)
+To: selinux@tycho.nsa.gov
+Subject: Re: polgen and strace
+References: <87fz3ajhex.fsf@glaurung.internal.golden-gryphon.com>
+From: ramsdell@mitre.org (John D. Ramsdell)
+Date: 16 Nov 2004 08:43:30 -0500
+In-Reply-To: <87fz3ajhex.fsf@glaurung.internal.golden-gryphon.com>
+Message-ID: <ogty8h16ha5.fsf@divan.mitre.org>
 MIME-Version: 1.0
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-CC: selinux@tycho.nsa.gov
-Subject: Re: gentoo policy for stunnel
-References: <4198D4CA.3020708@gentoo.org> <20041116082800.GB2546@jmh.mhn.de>
-In-Reply-To: <20041116082800.GB2546@jmh.mhn.de>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig96833B869901C3025B03B20C"
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig96833B869901C3025B03B20C
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Manoj Srivastava <manoj.srivastava@stdc.com> writes:
 
+>         While poking around in polgen (in preparation for packaging
+>  it for Debian), I noticed that it has the full set of sources for
+>  strace!
 
-Hi,
+The strace that is part of polgen has been changed so that when one
+specifies the -X option, it adds security context information to its
+output.  This added output is essential to the analysis that follows.
 
-Thomas Bleher wrote:
-> * petre rodan <kaiowas@gentoo.org> [2004-11-15 17:51]:
-[..]
->>type stunnel_port_t, port_type;
-> Are there any default ports for stunnel? If yes, can you provide a patch
-> to net_contexts? If no, it would be nice to have a line like "to use
-> stunnel for IMAP, add the following line to net_contexts..." and so on.
+Polgen 0.8 has a version of strace based on version 4.5.6.  Late last
+week, I noticed Polgen's strace died a horrible death when tracing
+Java programs.  I found out that the standard 4.5.6 release has the
+same problem, but the version that comes with FC3 works.
 
-as you have correctly guessed, there is no default port whatsoever for this daemon.
+I have a new version of SE Linux enhanced strace based on version
+4.5.8 in my CVS repository, and this version allows us to analyze Java
+programs.  Let me simply say, there is a lot going on in a Java VM!
+People interested in policies that implement the principle of least
+privileges have a lot to do.  A new polgen release that includes this
+improvement is coming soon.
 
-since it's up to the user to assign the label to his particular port net_contexts might contain a
-#ifdef(`stunnel.te', `portcon tcp xxxx system_u:object_r:stunnel_port_t')
+> 	Would polgen work with a vanilla strace? Are there plans for
+> pushing strace changes upstream?
 
-bye,
-peter
+Polgen would not work with vanilla strace.  We have offered the
+changes to the strace maintainers, but have not received a word one
+way or the other as to their interest in supporting the -X option.  
 
--- 
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux
+> 	I might be able to get strace patched, though, if the patches
+> were not too intrusive., but I was not able to find a canonical
+> location for strace patches.
 
---------------enig96833B869901C3025B03B20C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+I can make up the patch, but I'm not sure it would help.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+By the way, the polgen program strace2tsv transforms strace output
+into tab separated values.  It should be useful to anyone analyzing
+strace output with another program.  It works with vanilla strace too.
+Polgen has a manual page for this program.
 
-iD8DBQFBmcm9GSBEIeh4AEYRAnNSAJ9h2sV4UQYe9MYUb9C5VlSDHYdf/gCeNerW
-mP7Zqmoar2ktpCz4WWOK6KE=
-=RMUD
------END PGP SIGNATURE-----
+What does one do to package polgen for Debian?  Is there something I
+can add to the polgen sources that would facilitate this process.  I
+don't know much about Debian packaging, so hand holding is in order.
 
---------------enig96833B869901C3025B03B20C--
+John
 
 --
 This message was distributed to subscribers of the selinux mailing list.
