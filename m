@@ -1,33 +1,45 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA03507
-	for <selinux@tycho.nsa.gov>; Wed, 28 Feb 2001 19:27:32 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id AAA23772
-	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2001 00:27:10 GMT
-Received: from smtpproxy1.mitre.org (mb-20-100.mitre.org [129.83.20.100])
-	by jazzswing.ncsc.mil  with ESMTP id AAA23768
-	for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2001 00:27:09 GMT
-Date: Wed, 28 Feb 2001 19:26:50 -0500 (EST)
-From: bede@mitre.org (Bede McCall)
-Message-Id: <200103010026.TAA07781@idiot-savant.mitre.org>
-To: art_pagano@tds.com
-CC: sds@tislabs.com, selinux@tycho.nsa.gov
-In-reply-to: <7408C3158945264B85D07250D7A2C8010C797A@satxmail.tds.com> (art_pagano@tds.com)
-Subject: RE: Is This a bad thing....
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14084
+	for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2001 12:34:36 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA26125
+	for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2001 17:34:28 GMT
+Received: from mailhub.iastate.edu (mailhub.iastate.edu [129.186.1.102])
+	by jazzband.ncsc.mil  with ESMTP id RAA26121
+	for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2001 17:34:25 GMT
+Message-ID: <3A9FD9A4.D05B301E@iastate.edu>
+Date: Fri, 02 Mar 2001 11:34:28 -0600
+From: Mark Slagell <ms@iastate.edu>
+MIME-Version: 1.0
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Adding users
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Just a suggestion, Art, but try starting over from scratch.
-Sometimes, I cope with this sort of bug by reinstalling everything
-to make sure I actually have a "clean" machine and that random cruft
-hasn't crept into various files following some tanglefinger editing.
-This includes reinstalling Red Hat 6.1.  The process of doing this,
-including building/installing the Flask kernel from the distribution
-shouldn't take more than an hour plus a little.  This tactic helps
-reboot my brain sometimes, too.
+Hi all,
+
+Just tried adding a new user, the first one besides those that were in
+place when installing SELinux. Did useradd -m username, then added the
+relevant info to policy/users and to /etc/security/default_context. 
+When logging the user on for the first time it would prompt with the
+correct default context, but then say "That security context is invalid"
+regardless of whether the default was used or something else entered. 
+Tried doing "make install" in the policy directory, no effect. Then
+rebooted and everything was fine, the new user could log in normally.
+
+Surely the reboot shouldn't have been necessary (this ain't Windows) -
+what did I miss?
+
+  Mark
 
 
---Bede
+
+-- 
+"If once a man indulges himself in murder, very soon he comes to think
+little of robbing; and from robbing he next comes to drinking and
+Sabbath-breaking, and from that to incivility and procrastination."
+                -- Thomas De Quincey (1785 - 1859)
 
 --
 You have received this message because you are subscribed to the selinux list.
