@@ -1,46 +1,66 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAKKTWIi027955
-	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 15:29:32 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAKKS3LS026575
-	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 20:28:03 GMT
-Received: from lkcl.net (host81-153-247-118.range81-153.btcentralplus.com [81.153.247.118])
-	by open.hands.com (Postfix) with ESMTP id BFC0ABF76
-	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 20:29:28 +0000 (GMT)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1CVc1s-00077B-ML
-	for selinux@tycho.nsa.gov; Sat, 20 Nov 2004 20:40:20 +0000
-Date: Sat, 20 Nov 2004 20:40:20 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: http://sf.net/projects/xen
-Message-ID: <20041120204020.GB26761@lkcl.net>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAKMZqIi028254
+	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 17:35:52 -0500 (EST)
+Received: from smtp-bedford.mitre.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAKMYOLS028131
+	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 22:34:24 GMT
+Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford.mitre.org (8.11.6/8.11.6) with SMTP id iAKMZub06216
+	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 17:35:56 -0500
+Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-bedford.mitre.org (Postfix) with ESMTP id 1302DBF7C
+	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 17:35:56 -0500 (EST)
+Subject: SELinux enhanced strace patch
+To: selinux@tycho.nsa.gov
+References: <20041118191131.87032.qmail@web50601.mail.yahoo.com>
+	<ogtsm76lwjh.fsf@divan.mitre.org>
+From: ramsdell@mitre.org (John D. Ramsdell)
+Date: 20 Nov 2004 17:35:55 -0500
+In-Reply-To: <ogtsm76lwjh.fsf@divan.mitre.org>
+Message-ID: <ogt1xeojghg.fsf_-_@divan.mitre.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-for those people who do a lot of selinux testing, and am fed up
-of having stacks of machines, and who also don't want to pay for
-vmware, _and_ who also don't want the slowness or features of UML,
-there is xen.
+I finally tracked down and resolved all the issues with the SELinux
+enhancement patch for strace 4.5.8, and placed an updated patch here:
 
-xen is NOT full pc emulation (like vmware, which even has its own
-phoenix bios), instead you have to compile in half-way-house tty and
-network drivers that allow communication between the first hosted guest
-OS (which is given control of the hardware) and all other guest OSes
-[which are given access to block devices via the first OS].
+http://simp.mitre.org/selinux
 
-i look forward to seeing what happens over the next couple of days
-in attempting to set up selinux 2.6.9 xen guest OSes
-(/etc/motd: "welcome to debian gnu/linux 2.6.9-selinux1-xen1"...)
+The new patch updates the strace(1) manual page so that it describes
+the -X option, the one that requests that security contexts be printed
+whenever possible.
 
-here goes nothing...
+The copyright issue has also been resolved.  It turns out that in the
+strace project's CVS repository on SourceForge, the strace module has
+no COPYING file in its root directory.  It does, however, have a file
+named COPYRIGHT.  This file contains what appears to me to be a BSD
+license, although it's not identical to the BSD license on
+http://opensource.org.
 
--- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+So why does a standard strace distribution include a copy of the GPL
+in a file named COPYING?  I suspect the answer is this.
+
+When checked out, strace module does not have several files that must
+be included in a distribution.  These files are created with:
+
+  $ autoreconf -i
+
+The -i option installs missing auxiliary files.  If no file exists
+called COPYING, it will install a version of that file that contains
+the GPL.  As a result, a distribution contains two incompatible
+licenses!  As near as I can tell, someone receiving the distribution
+has no way of knowing the conditions of using the software.  The file
+COPYRIGHT should be renamed to COPYING.
+
+There is one more odd thing about what is in the strace module.  It
+contains the files config.guess, config.sub, and install-sh.  The
+files are also installed by autoreconf when missing.  It's a good idea
+to let it install these files so that distributions get the latest
+versions of them.
+
+John
 
 --
 This message was distributed to subscribers of the selinux mailing list.
