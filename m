@@ -1,34 +1,37 @@
-Date: Tue, 14 Oct 2003 17:26:17 -0700
+Date: Tue, 14 Oct 2003 17:27:45 -0700
 From: Michael Reilly <michaelr@cisco.com>
 To: russell@coker.com.au
-Cc: SELINUX <SELinux@tycho.nsa.gov>
-Subject: Re: can't start X window in enforce mode
-Message-Id: <20031014172617.58222abf.michaelr@cisco.com>
-In-Reply-To: <200310151018.09901.russell@coker.com.au>
-References: <000901c390ef$d8b3c770$5d38a8c0@lky>
-	<1066143647.5054.178.camel@moss-spartans.epoch.ncsc.mil>
-	<20031014120207.6a29818e.michaelr@cisco.com>
-	<200310151018.09901.russell@coker.com.au>
+Cc: <SELinux@tycho.nsa.gov>
+Subject: Re: Anyone run mozilla in enforce mode?
+Message-Id: <20031014172745.20156864.michaelr@cisco.com>
+In-Reply-To: <200310151016.43827.russell@coker.com.au>
+References: <20031014121148.4155015d.michaelr@cisco.com>
+	<200310151016.43827.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Didn't try DAC_READ_SEARCH yet (that is part of this evenings project)  The
-dontaudit line was for DAC_OVERRIDE so I just commented out that line and
-added DAC_OVERRIDE to the other capabilities.
+As I mentioned, nothing is logged even with the dontaudit lines removed.
+
+The only error message at all is one from mozilla itself saying it can't
+find to a library.  I'll find out which one tonight.
 
 michael
-On Wed, 15 Oct 2003 10:18:09 +1000
+On Wed, 15 Oct 2003 10:16:43 +1000
 Russell Coker <russell@coker.com.au> wrote:
 
-> On Wed, 15 Oct 2003 05:02, Michael Reilly wrote:
-> > I did find the problem - the X server needed DAC_OVERRIDE.  This was
-> > logged as soon as I removed the dontaudit's
+> On Wed, 15 Oct 2003 05:11, Michael Reilly wrote:
+> > Now I have another problem - mozilla fails to start.  Nothing is logged
+> > even with the dontaudit's removed from the policy.  Mozilla does
+> > complain that it couldn't find one of its libraries (I do not recall
+> > which one and I left my notes at home).
 > 
-> Why did it need DAC_OVERRIDE?
+> It's been working well for me.
 > 
-> Why not DAC_READ_SEARCH?
+> Please do the same things as you did for X, remove the dontaudits and see
+> what gets logged.  Then please send me an email with the exact changes you
+> made to the file_contexts (and anything else that needs changing).
 > 
 > -- 
 > http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
