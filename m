@@ -1,96 +1,50 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: =?iso-8859-2?q?Magos=E1nyi=20=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Subject: Re: [selinux] Re: SElinux vs. Grsecruity vs. RSBAC (vs. TrustedBSD?)
-Date: Tue, 26 Aug 2003 21:06:21 +1000
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com> <20030825170259.GB4409@rahul.net> <1061889339.1665.1548.camel@kusturica>
-In-Reply-To: <1061889339.1665.1548.camel@kusturica>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Message-Id: <200308262106.21978.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7QCTiLa001790
+	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2003 08:29:44 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h7QCTafF012344
+	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2003 12:29:37 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h7QCTYHd012334 for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2003 12:29:34 GMT
+Subject: Re: SElinux vs. Grsecruity vs. RSBAC
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Bennett Todd <bet@rahul.net>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20030825170259.GB4409@rahul.net>
+References: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com>
+	 <20030825170259.GB4409@rahul.net>
+Content-Type: text/plain
+Message-Id: <1061900971.23880.26.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 26 Aug 2003 08:29:31 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 26 Aug 2003 19:15, Magosányi Árpád wrote:
-> It is too much connected to Redhat.
+On Mon, 2003-08-25 at 13:02, Bennett Todd wrote:
+> I'd be interested in that too. And if anybody wanted to include
+> RSBAC in the overview that'd be neat.
 
-It always annoys me when people say that.  Try using Debian SE Linux systems 
-and Red Hat SE Linux systems at any time over tha past 18 months and you 
-won't say that.
+There was a lengthy thread comparing SELinux and RSBAC a long time ago
+on this mailing list, and author of RSBAC was involved in that
+discussion.  The thread begins at
+http://marc.theaimsgroup.com/?l=selinux&m=98618795624462&w=2.
+We also provided a brief summary of differences (from our perspective)
+in the related work section of our paper published at Freenix '01,
+available from http://www.nsa.gov/selinux/docs.html.
 
-There is much sample policy that has not been tested properly on Red Hat 
-systems, and no work has been done on upgrading live servers with RPM.
+We haven't done a detailed comparison with grsecurity.  At the time
+SELinux was developed and released, I don't think that grsecurity
+included any notion of mandatory access controls, which are the focus of
+SELinux.  I see that the grsecurity features page now claims to provide
+role based access control and mandatory access control, but it isn't
+clear what their access control model is.  
 
-Just because the NSA has always released patches against Red Hat versions of 
-the various packages does not mean much.  You don't generally expect the 
-upstream maintainers of any software to provide patches against all 
-distributions' code.  You merely expect them to support what they use.
-
-Red Hat has recently announced support for SE Linux in a future version of the 
-AS product and have hired me to work on it.  This means that in the next 
-couple of weeks I will get my policy working as well on Red Hat as it does on 
-Debian, and then I will work on adding RPM specific features as well as 
-policy for all software that is in the AS product.  This will give an 
-advantage for Red Hat as there are no plans to write policy for all 
-applications in Debian.  One thing that makes this task possible for Red Hat 
-AS is that they don't have four different choices for every task.
-
-> It makes an unnecessary
-> inconvenience for a lot of users; why the userspace changes are given
-> as srpms instead of patches to the upstream? (I guess this can be drawn
-
-The patches are in some cases large and in some cases weren't done in the way 
-the upstream desired.  With the new SE Linux a focus will be made by me and 
-other people who are involved in getting the patches accepted upstream.  This 
-does not have to require that much work by the NSA people.  The NSA have 
-limited resources to spend on this, I think it's best for everyone if they 
-concentrate on kernel work and other things that they are best at, while 
-people from distributions deal with getting patches merged upstream (what 
-they are best at).
-
-> from the fact that the authors are americans; considering other
-> cultures
-
-Let's not be offensive.  There are lots of other lists that are better suited 
-to nationalistic flames.
-
-> Fortunately
-> there are good debian maintainers for the selinux packages.
-> Not a directly technical but very important consideration: selinux
-> is the first and yet only MAC model in the upstream kernel, and is
-
-Along with DTE.  But DTE does not have the level of support that SE Linux has.
-
-> supported by the NSA. It means that selinux have very great probability
-> to be the winner implementation, like Apache in web servers.
-
-Also SE Linux is supported by Red Hat, Debian, and Gentoo.  Having the two 
-major distributions in English-speaking countries and the distribution that's 
-getting the largest amount of users wanting to try new things supporting SE 
-Linux puts it in a very good position.
-
-> It might be interesting to include TrustedBSD in the comparison, but I
-> know very few of it. It seems that it is a DoD MAC implementation,
-
-It also has support for the SE Linux model.  I've been meaning to install a 
-TrustedBSD machine to play with it, but haven't had time.  If someone could 
-setup a TBSD play machine then it would be really good.
-
-I suspect that SE Linux would not work out of the box on TBSD.  SE Linux 
-configuration needs to know the locations of files and device names.  There 
-is no support for TBSD device and file names in the sample policy, so either 
-the TBSD people have been holding back on us or they don't have good policy 
-support yet.  I would be happy to assist anyone who wants to develop sample 
-policy for TBSD and/or to run a TBSD play machine.
+See http://www.nsa.gov/selinux/faq.html#I18 for a general statement of
+some of the distinctives of SELinux.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
