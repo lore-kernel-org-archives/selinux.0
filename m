@@ -1,66 +1,75 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA06967
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 08:32:00 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA07018
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 08:36:53 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA25027
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 12:30:22 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id MAA24986 for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 12:30:19 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: psidfiles_init errors
-Date: Mon, 19 Aug 2002 14:31:46 +0200
-Cc: Brad Chapman <jabiru_croc@yahoo.com>, SELinux <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0208190812330.14458-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0208190812330.14458-100000@raven>
+	by jazzband.ncsc.mil  with ESMTP id MAA25278
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 12:35:15 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id MAA25274 for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 12:35:14 GMT
+Date: Mon, 19 Aug 2002 08:36:14 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Brad Chapman <jabiru_croc@yahoo.com>
+cc: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: entrypoint permission
+In-Reply-To: <20020817125827.67159.qmail@web40017.mail.yahoo.com>
+Message-ID: <Pine.GSO.4.33.0208190738530.14458-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020819123146.CC96F2D5@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 19 Aug 2002 14:19, Stephen Smalley wrote:
-> On Mon, 19 Aug 2002, Russell Coker wrote:
-> > These are file types that existed in old versions of the policy but which
-> > don't exist any more.  They still have entries in the ...security
-> > database because there's no code to clean them up (IMHO they should be
-> > removed when there are no files of that context on the file system any
-> > more).
-> >
-> > To avoid the messages add the following to your policy:
-> > type dummy_file_t alias { dmesg_exec_t xdm_log_t minilogd_exec_t ... };
->
-> You can run 'make reset' in your policy directory and then reboot to
-> eliminate dead entries from the persistent label mapping.
 
-That option is too nasty to consider.
+On Sat, 17 Aug 2002, Brad Chapman wrote:
 
-> With regard to
-> automatically removing such entries, it isn't clear that it would be
-> desirable and it would require maintaining persistent reference counts on
-> the PSIDs within each filesystem.  As to why it might not be desirable,
-> consider the following:
->
-> 1) Transient files (e.g. temporary files) with derived types may be
-> frequently created and destroyed.  Adding the overhead of re-creating the
-> PSID/context entry for each such create/destroy cycle would be
-> undesirable.
->
-> 2) File deletion doesn't truly destroy the data.  It may be desirable to
-> be able to check the set of contexts that have _ever_ been used for files
-> within a filesystem to determine whether the disk needs to be scrubbed.
+>       What does the 'entrypoint' permission do? It seems to be related to
+> domains transfer and program execution, but not in an intuitive way.
 
-In that case why not just remove the error message on boot?  If this is the 
-desired functionality then surely our log files don't need to get filled 
-because of it.
+As an aside, the meaning of each SELinux permission was originally
+described in the old technical report available from
+http://www.nsa.gov/selinux/slinux-abs.html.  Changes to the SELinux
+permissions for LSM are described in the module technical report available
+in selinux/doc/module or from http://www.nsa.gov/selinux/module-abs.html.
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+For the TE model, the entrypoint permission controls what program types
+can be executed to initially enter a given domain.  It is typically
+granted via the domain_trans macro or domain_auto_trans macro, except for
+the special check performed by crond to deal with crontab files [since
+crontabs are "interpreted", not executed].  In the policy configuration, a
+distinct xxx_exec_t type is usually (but not always) defined for each
+domain and used as that domain's entrypoint type.  This type should only
+be assigned to programs used to enter the domain, and should preferably
+be limited to a single program for each domain whenever possible.  The
+entrypoint permission in combination with the process transition
+permission provides strong control over domain transitions based on the
+initial domain, the program type, and the new domain.
+
+In contrast to entrypoint permission, the execute_no_trans permission
+controls what program types by a domain can be executed without
+transitioning to another domain.  For example, although the login process
+can execute a user shell, it should always change its SID at the same
+time, so it does not need execute_no_trans permission to the shell
+program.  The execute_no_trans permission is typically granted via the
+can_exec* macros.  can_exec access for any kind of privileged domain
+should also be minimized when possible to reduce risk (e.g. it is
+preferable that daemons not be able to execute shells without at least
+changing to another domain).
+
+The execute permission is checked whenever Linux would perform an execute
+check via the kernel permission() function, as well as in mmap or mprotect
+when execute access is requested (e.g. for shared libraries).  This
+permission provides coarse-grained control over the full set of types that
+can be executed by a domain.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
