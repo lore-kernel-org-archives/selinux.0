@@ -1,129 +1,77 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59HqmrT021496
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 13:52:48 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i59HqjQd006260
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 13:52:46 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 9 Jun 2004 17:52:41 -0000
-Date: Wed, 9 Jun 2004 17:50:01 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Magnus Therning <magnus-work@therning.org>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: SELinux on Debian (Sid)
-Message-ID: <20040609175001.GC5727@lkcl.net>
-References: <20040609144404.GJ5477@philips.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59JbxrT022332
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 15:37:59 -0400 (EDT)
+Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i59JbtP2019919
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 15:37:55 -0400 (EDT)
+Message-Id: <200406091937.i59Jbpmq025810@turing-police.cc.vt.edu>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: too many sysadmfile? 
+In-Reply-To: Your message of "Wed, 09 Jun 2004 11:58:03 CDT."
+             <1086800282.19414.26.camel@gorn.pebenito.net>
+From: Valdis.Kletnieks@vt.edu
+References: <1086800282.19414.26.camel@gorn.pebenito.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040609144404.GJ5477@philips.com>
+Content-Type: multipart/signed; boundary="==_Exmh_840008494P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Wed, 09 Jun 2004 15:37:51 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ha ha, another debian victiiim .
+--==_Exmh_840008494P
+Content-Type: text/plain; charset=us-ascii
 
-0) make sure you're really a debian/unstable (apt-get dist-upgrade?)
+On Wed, 09 Jun 2004 11:58:03 CDT, Chris PeBenito <pebenito@gentoo.org>  said:
+> Its true that since sysadm_t can already relabel almost everything, it
+> makes this change moot from a security perspective, since it can relabel
+> a file to something it can modify.  However, by limiting normal access,
+> it affords some protection against accidental overwrites and deletions,
+> and from malicious programs a sysadmin might accidentally run.  In my
+> opinion, the packagers (rpm_t, etc) should be the only ones with access
+> all file_types.
 
-1) install, at your own risk of course, the 2.6.6-selinux1 kernel
-from http://hands.com/~lkcl/selinux.
+Well... yes... True in theory, but... ;)
 
-2) DO NOT add selinux.lemuria.org/newselinux to your /etc/apt/sources.list
+The other side of the coin is system manageability - let's say that rpm_t is
+able to write all file types, but the admin can't.
 
-3) DO add selinux.lemuria.org/walters to your /etc/apt/sources.list
+Now, assume you do this:   "rpm -Fvh prog1.rpm prog2.rpm". and that the two
+RPMs have pre-req chains  so you have to do both, and that create .rpmold (or
+worse, .rpmnew) files when they install with diferent foo_t labels.
 
-4) DO install the (probably downgraded) cron, logrotate, coreutils etc.
-   from /walters
-   
-5) use the 1.12 .debs for libselinux1 and selinux-policy-default
-   and selinux-utils policycoreutils etc. they are the latest and they
-   ARE in [ftp/http].*.debian.org
+How many times do you need to 'newrole' to deal with all the .rpmnew files?
 
-6) once you have installed the 1.12 selinux-policy-default and stuff,
-   YOU MUST go to http://sf.net/projects/selinux and download a
-   replacement genhomedircon from the
-   selinux-usr/policycoreutils//scripts/ directory.
+In the real world, the additional security it buys is limited, because the
+admin *can* manage to newrole to each foo_t (unless you run with very strict
+compartmentalization and can afford enough admins so you can give each one only
+a few foo_t).  Those sites are probably the sort of military/spook systems
+where newrole has been modified(*) to require a counter-password from the SSO or
+similar on each newrole.. ;)
 
-   the version presently released is brain-dead and does something
-   different and unexpected.
+In any other environment, all it does is annoy the sysadmin and potentially
+make them not bother installing a patch because the resulting afternoon of
+newrole hell convinces them not to do it...
 
-i recommend you clean out everything you can find prior to doing all
-this.
-
-i ALSO recommend that you DO NOT install SE/Linux on an ext2 filesystem.
-
-make sure you use ext3 for all partitions (well, i get away with /boot
-as an ext2) how do i put this this is REALLY IMPORTANT there is a bug
-somewhere in the extended attributes stuff and i got a repeatable and
-quite seriously corrupted filesystem.
-
-if you really really can't get it to work let me know and i can upload
-a set of pre-installed tar.gz'd partitions which only come to 124 mbytes
-total, there are only about 160 packages preinstalled.
-
-l.
-
-On Wed, Jun 09, 2004 at 04:44:04PM +0200, Magnus Therning wrote:
-> I have run into some problems with getting a Debian box up and running
-> with SELinux. Maybe someone can offer some insights?
-> 
-> Installing selinux-default-policy failed, make complains about 'chsid'
-> not being present. These are the problems I run into when trying to
-> complete the installation of the policies:
-> 
->  1. The makefile in /etc/selinux uses 'chsid'. This is the line:
-> 
->       chsid system_u:object_r:policy_config_t /ss_policy
-> 
->     Apparently that tool has been replaced by 'chcon'.
-> 
->       chcon -u system_u -r object_r -t policy_config_t /ss_policy
-> 
->     On a standard kernel this gave the following error message:
->       
->       chcon: invalid security context
-> 
->  2. The path to 'load_policy' is wrong in /etc/selinux/Makefile it now
->     lives in /usr/sbin rather than /usr/bin. Also the variable
->     LOADPOLICY isn't used at all, instead every reference to
->     'load_policy' is written like this:
-> 
->       $(BINDIR)/load_policy
-> 
->     A little silly (-:
-> 
->  3. 'make relabel' fails on a standard kernel:
-> 
->       load_policy: security_load_policy failed
-> 
->     After rebooting using my SE-kernel 'make relabel' also fails:
-> 
->       security:  policydb magic number 0x8 does not match expected magic number 0xf97cff8c
->       load_policy: security_load_policy failed
-> 
-> Now I am stuck :-( I simply don't know where to look for a thread to
-> pull to clean up the mess.
-> 
-> /M
-> 
-> -- 
-> Magnus Therning  mailto:therning@sourceforge.natlab.research.philips.com
-> +31-40-2745179  http://pww.innersource.philips.com/magnus/
-> OpenPGP:0x4FBB2C40
-> 
-> X-Windows: ...The art of incompetence. 
+(*) IBM's AIX documents how to create a two-password logon sequence, where for
+user A to get on, they have to enter A's password, and then B has to enter B's
+password - amybody willing to admit to a pam module or similar hook for login/
+su/newrole?
 
 
+--==_Exmh_840008494P
+Content-Type: application/pgp-signature
 
--- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFAx2cOcC3lWbTT17ARArg2AKCFAgWjyTFocJ8E7A6rV2UmxvvTZgCgqAeG
+rL82IMZLfwHWrUrOywBP4vU=
+=qIlg
+-----END PGP SIGNATURE-----
+
+--==_Exmh_840008494P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
