@@ -1,36 +1,25 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CGwtIi016920
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 11:58:55 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CGwwgF025361
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 16:58:58 GMT
-Subject: Re: transition denied
+Subject: Re: Starting applications from initrc in a user's context?
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: johans@gnu.hu
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1105283615.3146.25.camel@medeia.home.hu>
-References: <1105283615.3146.25.camel@medeia.home.hu>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1105548781.22495.134.camel@moss-spartans.epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: mike@theptrgroup.com, SElinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <200501042103.15885.russell@coker.com.au>
+References: <41CAE132.3020504@theptrgroup.com>
+	 <200501042103.15885.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1105548854.22495.136.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 12 Jan 2005 11:53:01 -0500
+Date: Wed, 12 Jan 2005 11:54:14 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-01-09 at 10:13, Milus János wrote:
-> I modified the user file:
-> 
-> user system_u roles { system_r games_r }
-> 
-> And I added the privovner and privrole attribute to initrc_t domain.
-> (but I'm not absolutly sure, that this is necessary)
-> 
-> What am I miss?
+On Tue, 2005-01-04 at 05:03, Russell Coker wrote:
+> Allowing the role to be changed requires adding privrole to the attributes of 
+> domain initrc_t.  In that case either the identity system_u must be permitted 
+> to have the role user1_r or initrc_t also needs the privuser attribute so it 
+> can launch a process with a different identity.
 
-privuser, not privowner.  privuser == ability to transition to other
-user identities, privowner == ability to create/relabel files with other
-user identities.  Also, games_t needs the userdomain attribute as well
-as the domain attribute in order to satisfy the constraint.
+Role changes also require a role allow rule, e.g.
+allow foo_r bar_r;
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
