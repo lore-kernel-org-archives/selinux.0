@@ -1,57 +1,33 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i75HrKrT007075
-	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 13:53:20 -0400 (EDT)
-Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i75Hqjn4023815
-	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 17:52:45 GMT
-Subject: Build error pam on ppc
-From: Wolfgang Pfeiffer <roto@gmx.net>
-To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1091728350.2840.49.camel@debby>
-Mime-Version: 1.0
-Date: Thu, 05 Aug 2004 19:52:30 +0200
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i75I36rT007196
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 14:03:06 -0400 (EDT)
+Received: from smtp.polymtl.ca (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i75I2Vn4024484
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 18:02:32 GMT
+Received: from fugusec.net (dsl-207-112-20-65.tor.primus.ca [207.112.20.65])
+	by smtp.polymtl.ca (8.13.0/8.13.0) with ESMTP id i75I2rsx009516
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 14:02:59 -0400
+Message-ID: <41127650.5060007@fugusec.net>
+Date: Thu, 05 Aug 2004 14:02:56 -0400
+From: Alexis Wagner <venon@fugusec.net>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: netifcon
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi All
+Hi,
 
-When I built *successfully* pam on ppc with
+I have read this comment in the file attrib.te : ... operations on the 
+interface (XXX obsolete, not supported via LSM) .
 
-fakeroot apt-get source --compile pam=0.77-0.se5
+I would like to know if I define a security context for an interface via 
+netifcon would it be supported by SELinux ?
 
-I got this error, that I *ignored*:
+Thank you,
 
-----------------------------------------
-
-mkdir -p /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib
-/usr/bin/install -m 755 libpamc.so /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib/libpamc.so.0.77
-/sbin/ldconfig
-/sbin/ldconfig: Can't create temporary cache file /etc/ld.so.cache~: Permission denied
-make[2]: *** [install] Error 1
-make[2]: Leaving directory `/home/shorty/russellpackages/pam/pam-0.77/Linux-PAM/libpamc'
-make[2]: Entering directory `/home/shorty/russellpackages/pam/pam-0.77/Linux-PAM/libpam_misc'
-mkdir -p dynamic
-mkdir -p static
-mkdir -p /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/usr/include/security
-/usr/bin/install -m 644 include/security/pam_misc.h /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/usr/include/security
-mkdir -p /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib
-/usr/bin/install -m 755 libpam_misc.so /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib/libpam_misc.so.0.77
-/sbin/ldconfig
-/sbin/ldconfig: Can't create temporary cache file /etc/ld.so.cache~: Permission denied
-make[2]: *** [install] Error 1
-____________________________________________________
-
-
-Is it okay to offer packages for downloading if they're built with that
-error?
-
-Thanks in anticipation
-
-Regards
-Wolfgang
--- 
-Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
+Alexis Wagner
 
 
 --
