@@ -1,59 +1,58 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5QM8JrT006023
-	for <selinux@tycho.nsa.gov>; Sat, 26 Jun 2004 18:08:19 -0400 (EDT)
-Received: from smtp800.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5QM85AP022970
-	for <selinux@tycho.nsa.gov>; Sat, 26 Jun 2004 22:08:06 GMT
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5R8DQrT007202
+	for <selinux@tycho.nsa.gov>; Sun, 27 Jun 2004 04:13:26 -0400 (EDT)
+Received: from smtp809.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5R8DD5h004185
+	for <selinux@tycho.nsa.gov>; Sun, 27 Jun 2004 08:13:13 GMT
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp800.mail.ukl.yahoo.com with SMTP; 26 Jun 2004 22:07:17 -0000
+  by smtp809.mail.ukl.yahoo.com with SMTP; 27 Jun 2004 08:12:10 -0000
 Received: from highfield ([192.168.0.223] helo=lkcl.net)
 	by hyd with esmtp (Exim 4.34)
-	id 1BeKk7-00041h-Qg
-	for selinux@tycho.nsa.gov; Sat, 26 Jun 2004 21:29:47 +0000
+	id 1BeUBY-00049i-W6
+	for selinux@tycho.nsa.gov; Sun, 27 Jun 2004 07:34:45 +0000
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BeLH9-0001Xc-Dj
-	for selinux@tycho.nsa.gov; Sat, 26 Jun 2004 22:03:55 +0000
-Date: Sat, 26 Jun 2004 22:03:55 +0000
+	id 1BeUie-00036y-2t
+	for selinux@tycho.nsa.gov; Sun, 27 Jun 2004 08:08:56 +0000
+Date: Sun, 27 Jun 2004 08:08:56 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: fsck deleting extended attributes
-Message-ID: <20040626220355.GL3559@lkcl.net>
+Subject: is there a way to express permission to access any tcp or udp socket?
+Message-ID: <20040627080856.GB11890@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
+hi, i'm in the process of getting this fireflier policy right, and
+it (like lsof) reads /proc/NNNN/fd/N to obtain the name of the program
+that's actually using a tcp or udp socket - and then allowing the user
+the option of banning or allowing that program to send or receive
+tcp or udp traffic (on demand.  it's really cool).
 
-i was wondering if anyone had any ideas about how to deal with
-fsck deleting extended attributes in order to repair the filesystem?
+of course, fireflier needs to do a stat of /proc/NNNN/fd/N in order
+to find out its inode - hence the getattr.
 
-the issue is that if a system is switched off without shutdown and
-the filesystem is damaged, such that some extended attributes are
-deleted on an fsck, that's it - the file cannot be accessed!
+i've patched fireflierd to stop it doing a stat of EVVEERRYY single
+damn file descriptor (!!!) but there are still
 
+i don't want to have to add permission for postfix_t, sendmail_t,
+exim_t, nntp_t, sshd_t, lpd_t, 
+every_single_server_i_can_think_of_and_all_those_that_i_can't_t:
 
-i am setting up a system where the users will NOT be told what
-the root password is, nor will they be given a user login
-(they will be given an automatic KDE login), and there is
-ABSOLUTELY no chance of either user support or admin support.
+	allow fireflier_t rpcd_t:tcp_socket { getattr };
+	allow fireflier_t rpcd_t:udp_socket { getattr };
+	allow fireflier_t sshd_t:tcp_socket { getattr };
+	allow fireflier_t user_t:udp_socket { getattr };
+	allow fireflier_t user_t:tcp_socket { getattr };
 
-[someone might crack the root password, well, good luck to them].
+does anyone know of a way to do something like, oh, this:
 
-in other words, if it breaks, and i haven't thought of a way to fix
-it (by adding a "recovery" option) then it's Game Over.
+	allow fireflier_t absolutely_everything_t:tcp_socket { getattr };
+	allow fireflier_t absolutely_everything_t:udp_socket { getattr };
 
+what should i put in the absolutely_everything_t?
 
-what should i do?
-
-a) get fsck.ext2 fixed?
-
-b) forcibly run make -C /etc/selinux relabel from /etc/init.d/checkfs.sh
-
-c) other.
-
-i am sure that other people are / will come across this one, at some
-point...
+much appreciated,
 
 l.
 
