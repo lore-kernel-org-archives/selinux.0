@@ -1,62 +1,75 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0VDem53007257
-	for <selinux@tycho.nsa.gov>; Mon, 31 Jan 2005 08:40:48 -0500 (EST)
-Subject: Re: Updated version of open_init_pty
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Manoj Srivastava <manoj.srivastava@stdc.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <873bwil68n.fsf@glaurung.internal.golden-gryphon.com>
-References: <873bwil68n.fsf@glaurung.internal.golden-gryphon.com>
+Subject: Re: Patch to policycoreutils
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41FA9FA8.7010008@redhat.com>
+References: <1106927779.32737.59.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FA6861.6080505@redhat.com>
+	 <1106941913.32737.138.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FA9FA8.7010008@redhat.com>
 Content-Type: text/plain
-Message-Id: <1107178461.24654.35.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1107180899.24654.67.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 31 Jan 2005 08:34:21 -0500
+Date: Mon, 31 Jan 2005 09:14:59 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-01-30 at 20:47, Manoj Srivastava wrote:
-> Hi,
-> 
->         This patch removes the unused functions tty_cbreak() and
->  tty_raw(). I have also nailed down the cause of the error that caused
->  truncated out put (I was able to reproduce the problem by running
->  "open_init_pty ls" in  a small directory -- the problem was faulty
->  handling of the SIG_CHLD signal, where I was not draining the last
->  bits stuck in the pipe.
-> 
-> 	Also fixed are partial writes (which could happen if the write
->  was interrupted), now we resume the write from where we left off
->  until all the bits are written. This could have resulted in lost
->  characters as well.
-> 
-> 	This is not perfect, since it does not work very well for
->  interactive scripts that do not take full control f the screen -- but
->  it works for init scripts, it works with dselect, aptitude, and the
->  lot, so this is good enough for this iteration.
-> 
-> 	I have also increased the time the program sits in select, as
->  opposed to running around the loop; but even setting the last
->  argument of select to NULL (and waiting forever) shows 
->   "open_init_pty top" taking up a large chunk of CPU. I have made
->  open_init_pty nice the parent process after executing the child
->  process, but before moving any data around, to help with this
->  situation.
-> 
-> 	Ideally, open_init_pty should track the child process setting
->  of the pseudo pty settings (like local echo settings, and so on) and
->  transferring that to the controlling tty, so that local echo is only
->  turned off when the child process wants it that way. More testing is
->  needed for that.
-> 
-> 	Anyway, a patch from the last version I sent in is
->  attached. Please let me know if I should send in the current version
->  of the file.
+On Fri, 2005-01-28 at 15:25, Daniel J Walsh wrote:
+> diff_filecontext() {
+> if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
+> 	TEMPFILE=`mktemp ${FILE_CONTEXT}.XXXXXXXXXX`
+> 	test -z "$TEMPFILE" && exit
+> 	/usr/bin/diff $PREFC $FILE_CONTEXT | egrep '^[<>]'|cut -c3-| grep ^/ | \
+>         sed -e 's,\\.*,*,g' -e 's,(.*,*,g' -e 's,\[.*,*,g' -e 's,\..*,*,g' \
+>             -e 's,[[:blank:]].*,,g' -e 's,\?.*,*,g' | sort -u | \
+>         while read pattern ; do if ! echo "$pattern" | grep -q -f ${TEMPFILE} 2>/dev/null ; then echo "$pattern"; case "$pattern" in *"*") echo "$pattern" |sed 's,\*$,,g'>> ${TEMPFILE};;  esac; fi; done | \
+> 	while read pattern ; do find $pattern -maxdepth 0 -print; done 2> /dev/null | \
+> 	${RESTORECON} $2 -v -f -R - 
+> 	rm -f ${TEMPFILE}
+> fi
+> }
 
-Thanks, merged into sourceforge CVS as of policycoreutils 1.21.10.
-> 
-> ______________________________________________________________________
+To try to understand this better, I split the pipeline and wrote each
+stage into a separate temporary file, then looked at diffs between each
+pair of stages.  I'm not sure if the filter pipline is functioning as
+you intend, e.g.:
+
+1) The first sed substitution changes:
+/var/tmp/vi\.recover  -d      system_u:object_r:tmp_t
+to:
+/var/tmp/vi*
+
+A \. is not a regex; it is a regular dot character, so I would have
+expected you to just remove the backslash for passing along to
+restorecon. 
+
+2) The second sed substitution changes:
+/usr/lib(64)?/[^/]*thunderbird[^/]*/thunderbird --      system_u:object_r:bin_t
+to:
+/usr/lib*
+
+This is due to sed itself performing regex matching for the .* sequence,
+i.e. it consumes anything after an open parens.  Possibly you could
+escape it if that is what you intended, e.g. \.\*.
+
+Similar issues with the other substitutions that are using .*, I think,
+e.g. changing:
+/usr/bin/[xgkw]dm     --      system_u:object_r:xdm_exec_t
+to:
+/usr/bin/*
+
+But the shell would have correctly handled /usr/bin/[xgkw]dm without any
+change at all.
+
+Also seems to have a problem with the /u?dev entries, changing:
+/u?dev/microcode
+to:
+/u*
+
+which won't actually catch /dev nodes.
+
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+Stephen Smalley <sds@tycho.nsa.gov>
 National Security Agency
 
 
