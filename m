@@ -1,40 +1,37 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5LFhsrT002991
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 11:43:54 -0400 (EDT)
-Received: from smtp-mclean.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5LFhpeh029114
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 15:43:51 GMT
-Received: from smtp-mclean.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-mclean.mitre.org (8.11.6/8.11.6) with ESMTP id i5LFqrG03670
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 11:52:53 -0400
-Received: from divan.mitre.org (divan.mitre.org [129.83.10.75])
-	by smtp-mclean.mitre.org (8.11.6/8.11.6) with ESMTP id i5LFqr303664
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 11:52:53 -0400
-Received: from divan.mitre.org (localhost [127.0.0.1])
-	by divan.mitre.org (8.12.11/8.12.10) with ESMTP id i5LFhpXi006964
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 11:43:51 -0400
-To: selinux@tycho.nsa.gov
-Subject: Re: Fedora Core 2 setools RPM
-References: <003f01c45790$6a3cc090$4d0c010a@columbia.tresys.com>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 21 Jun 2004 11:43:51 -0400
-In-Reply-To: <003f01c45790$6a3cc090$4d0c010a@columbia.tresys.com>
-Message-ID: <ogt3c4o9ars.fsf@mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5LKffrT005291
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 16:41:41 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5LKfceh012632
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 20:41:38 GMT
+Subject: Re: sched_setscheduler()
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: James Morris <jmorris@redhat.com>
+Cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <Xine.LNX.4.44.0406210043150.22018-100000@thoron.boston.redhat.com>
+References: 
+	 <Xine.LNX.4.44.0406210043150.22018-100000@thoron.boston.redhat.com>
+Content-Type: text/plain
+Message-Id: <1087850479.4567.175.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 21 Jun 2004 16:41:20 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-"Frank Mayer" <mayerf@tresys.com> writes:
+On Mon, 2004-06-21 at 00:49, James Morris wrote:
+> setschedluler denials are not audited by the kernel, as doing so causes a 
+> deadlock with printk (the kernel logging function).  I believe this can be 
+> fixed with an asynchronous feature of the new audit framework, but am not 
+> sure if it's been looked into.
 
-> We are positive that the API is not stable, and guarantee that it
-> will change a lot between releases.
+I haven't looked into it.  We could add a flag to the avc_audit_data to
+indicate that avc_audit() should call audit_log_end_irq() rather than
+audit_log_end().
 
-Yeah, I suspected as such.  I fully understand why Tresys wouldn't
-want to install a shared library version of libapol at this stage of
-its development.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-John
 
 --
 This message was distributed to subscribers of the selinux mailing list.
