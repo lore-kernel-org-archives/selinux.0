@@ -1,42 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8CEMELa024566
-	for <selinux@tycho.nsa.gov>; Fri, 12 Sep 2003 10:22:14 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8CEMCmw024485
-	for <selinux@tycho.nsa.gov>; Fri, 12 Sep 2003 14:22:13 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id h8CEMC9d024476 for <selinux@tycho.nsa.gov>; Fri, 12 Sep 2003 14:22:12 GMT
-Date: Fri, 12 Sep 2003 15:21:31 +0100
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8CF1eLa024818
+	for <selinux@tycho.nsa.gov>; Fri, 12 Sep 2003 11:01:40 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8CF02LY013193
+	for <selinux@tycho.nsa.gov>; Fri, 12 Sep 2003 15:00:02 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h8CExxsG013190
+	for <selinux@tycho.nsa.gov>; Fri, 12 Sep 2003 15:00:01 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Dale Amon <amon@vnl.com>
+Subject: Re: rfs xattr's, mkinitrd and other stories
+Date: Sat, 13 Sep 2003 01:00:49 +1000
 Cc: Dale Amon <amon@vnl.com>, Colin Walters <walters@verbum.org>,
    SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: rfs xattr's, mkinitrd and other stories
-Message-ID: <20030912142131.GA4648@vnl.com>
-References: <20030910164854.GO5397@vnl.com> <20030910230519.GU5397@vnl.com> <20030910233424.GV5397@vnl.com> <200309111048.16590.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200309111048.16590.russell@coker.com.au>
+References: <20030910164854.GO5397@vnl.com> <200309111048.16590.russell@coker.com.au> <20030912142131.GA4648@vnl.com>
+In-Reply-To: <20030912142131.GA4648@vnl.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200309130100.49934.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 11, 2003 at 10:48:16AM +1000, Russell Coker wrote:
-> are other file systems that do it better.  I suggest using a gzip compressed 
-> romfs, it will be considerably smaller than cramfs for the same file storage 
-> and work more reliably.
-> 
-> The Debian mkinitrd is more flexible than the Red Hat one.  So once you have 
-> the correct scripts dropped in place (as Colin's package does) then you just 
-> create an initrd in the regular fashion.  For Red Hat a patch to mkinitrd was 
-> shipped because there is no other way to do it.
+On Sat, 13 Sep 2003 00:21, Dale Amon wrote:
+> Do you edit /etc/mkinitrd/mkinitrd.conf to change
+> 	MKIMAGE='mkcramfs %s %s > /dev/null'
+> to
+> 	MKIMAGE='genromfs -d %s -f %s > /dev/null'
 
-Do you edit /etc/mkinitrd/mkinitrd.conf to change
-	MKIMAGE='mkcramfs %s %s > /dev/null'
-to
-	MKIMAGE='genromfs -d %s -f %s > /dev/null'
+MKIMAGE='genromfs -f /dev/fd/1 -d %s | gzip -9 > %s'
 
-then? Or do you just do it all manually?
+I use the above to gzip compress it in the same command (an uncompressed gzip 
+is no good).
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
