@@ -1,82 +1,69 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h98MmhWt022804
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 18:48:43 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h997VJWt023936
+	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2003 03:31:19 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h98Mme0p010497
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 22:48:40 GMT
-Received: from ms-smtp-03.texas.rr.com (ms-smtp-03.texas.rr.com [24.93.36.231])
-	by jazzswing.ncsc.mil  with ESMTP id h98Mmdr7010494
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 22:48:40 GMT
-Received: from [192.168.0.3] (cs6710200-176.houston.rr.com [67.10.200.176])
-	by ms-smtp-03.texas.rr.com (8.12.10/8.12.2) with ESMTP id h98MmYhO023594
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 17:48:41 -0500 (CDT)
-Subject: SE Linux User Group
-From: "Brian L. Simonin" <brian.simonin@ghg.net>
-To: National Security Agency SE Linux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary="=-LFFZWlydhV5LTsY78U4+"
-Message-Id: <1065653313.10815.49.camel@simonin-lx>
-Mime-Version: 1.0
-Date: 08 Oct 2003 17:48:33 -0500
+	by jazzswing.ncsc.mil  with ESMTP id h997VG0p000907
+	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2003 07:31:16 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+	by jazzswing.ncsc.mil  with ESMTP id h997V9r7000899
+	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2003 07:31:14 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov, walters@verbum.org
+Subject: Re: Policy patch: /dev/input devices
+Date: Thu, 9 Oct 2003 17:31:01 +1000
+References: <20031008140226.A12565@lemuria.org> <200310082252.13122.russell@coker.com.au> <20031008211316.E14104@lemuria.org>
+In-Reply-To: <20031008211316.E14104@lemuria.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200310091731.01304.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 9 Oct 2003 05:13, Tom wrote:
+> > Why have two different types for mouse devices?  Why have
+> > /dev/input/mouse* labeled differently to /dev/psaux?
+>
+> That was a good question I fought with myself for a while.
+> In the end, I opted for local consistency - this way, all devices in
+> /dev/input are labelled identically.
+> The other alternative would have been to add a new type for the other
+> specific devices (keyboard, joystick, etc.) and one for the generic
+> event devices. I didn't want that many types for devices that
+> essentially all do the same.
+>
+> We could, of course, relabel all mouse devices to input_device_t - I
+> didn't want to make such a massive change.
+>
+> > > While this does lump the /dev/input/[mouse*|mice] devices into it as
+> > > well, I don't think there is much problem with that. I don't see what's
+> > > to gain in, say, seperating mouse and keyboard devices, and besides,
+> > > /dev/input/event* munge them as well.
+> >
+> > What about /dev/input/ttyACM*?  Are they in the same category?  If so
+> > why?
+>
+> I don't think the keyboard input devices are named tty* but I'm not
+> sure.
 
---=-LFFZWlydhV5LTsY78U4+
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On one of my systems I have some /dev/input/ttyACM* devices and I am not sure 
+of how to deal with them.
 
-I am interested to know if there is an SE Linux user group in Texas. I
-do most of my research on the web concerning SE Linux. However, there
-are things I would like to talk about in a scholarly exchange. For
-instance what Application Servers are suggested to run under the OS (for
-instance Oracle 9i/10g, IBM WebSphere or other options.
+> Yes, I believe they belong to the same category. My reason is that the
+> event* devices already grant a second path to them. In other words: All
+> these devices share a backdoor - why label the front doors differently?
 
-I have been reading the email notes concerning certification as well. I
-have high interest. 
+This makes sense.  I think that we should also give the same label to
+/dev/psaux, there is no reason for a USB mouse to have a different label to a 
+PS/2 mouse IMHO.  I'll do that in my tree soon if no-one gives a reason for 
+doing otherwise.
 
-Your input would be appreciated.
-
-Have a great day,
-
-
-Brian L. Simonin
-Email: brian.simonin@ghg.net
-Website: http://www.ghg.net/simonin/
-
---=-LFFZWlydhV5LTsY78U4+
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 TRANSITIONAL//EN">
-<HTML>
-<HEAD>
-  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=UTF-8">
-  <META NAME="GENERATOR" CONTENT="GtkHTML/1.1.9">
-</HEAD>
-<BODY>
-I am interested to know if there is an SE Linux user group in Texas. I do most of my research on the web concerning SE Linux. However, there are things I would like to talk about in a scholarly exchange. For instance what Application Servers are suggested to run under the OS (for instance Oracle 9i/10g, IBM WebSphere or other options.<BR>
-<BR>
-I have been reading the email notes concerning certification as well. I have high interest. <BR>
-<BR>
-Your input would be appreciated.<BR>
-<BR>
-<TABLE CELLSPACING="0" CELLPADDING="0" WIDTH="100%">
-<TR>
-<TD>
-Have a great day,<BR>
-<BR>
-<BR>
-Brian L. Simonin<BR>
-Email: <A HREF="mailto:brian.simonin@ghg.net"><FONT COLOR="#003366">brian.simonin@ghg.net</FONT></A><BR>
-Website: <A HREF="http://www.ghg.net/simonin/"><FONT COLOR="#003366">http://www.ghg.net/simonin/</FONT></A>
-</TD>
-</TR>
-</TABLE>
-
-</BODY>
-</HTML>
-
---=-LFFZWlydhV5LTsY78U4+--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
