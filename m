@@ -1,37 +1,42 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8NFfJrT009925
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 11:41:20 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8NFeHv8024907
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 15:40:18 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8NFlorT009988
+	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 11:47:50 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8NFllUk021612
+	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 15:47:48 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id E6D7F61B01
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 01:47:43 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 13088-08 for <selinux@tycho.nsa.gov>;
+	Fri, 24 Sep 2004 01:47:43 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 9142361AFB
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 01:47:43 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 729E7B58CC
+	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 01:47:42 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: patch needed by latest rawhide
-Date: Fri, 24 Sep 2004 01:41:09 +1000
-Cc: Daniel J Walsh <dwalsh@redhat.com>
+Subject: hald.te
+Date: Fri, 24 Sep 2004 01:47:41 +1000
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_V6uUBmb4IY7Ul3/"
-Message-Id: <200409240141.09473.russell@coker.com.au>
+  boundary="Boundary-00=_dAvUBJ+Mk2Af85F"
+Message-Id: <200409240147.41865.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_V6uUBmb4IY7Ul3/
+--Boundary-00=_dAvUBJ+Mk2Af85F
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-The attached patch does a domain_auto_trans for when firstboot runs the 
-xserver so that /tmp/.X11-unix gets the correct type.
-
-It allows iptables to write to the pipe that firstboot creates.
-
-It puts in a dontaudit rule for passwd_t and chfn_t access to 
-selinux_config_t, which I am not entirely sure about.  The same thing is 
-currently there for sysadm_passwd_t, and things work fine with the dontaudit.
+The attached patch removes duplicate rules (also in hotplug.te).
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -39,7 +44,7 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_V6uUBmb4IY7Ul3/
+--Boundary-00=_dAvUBJ+Mk2Af85F
 Content-Type: text/x-diff;
   charset="us-ascii";
   name="diff"
@@ -47,40 +52,20 @@ Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
 	filename="diff"
 
---- /usr/src/se/policy/domains/program/passwd.te	2004-08-21 13:19:07.000000000 +1000
-+++ domains/program/passwd.te	2004-09-24 00:56:28.000000000 +1000
-@@ -140,7 +140,7 @@
- # for /proc/meminfo
- allow sysadm_passwd_t proc_t:file { getattr read };
- 
--dontaudit sysadm_passwd_t selinux_config_t:dir search;
-+dontaudit { chfn_t passwd_t sysadm_passwd_t } selinux_config_t:dir search;
- dontaudit sysadm_passwd_t devpts_t:dir search;
- 
- # make sure that getcon succeeds
---- /usr/src/se/policy/domains/program/unused/firstboot.te	2004-08-25 13:21:22.000000000 +1000
-+++ domains/program/unused/firstboot.te	2004-09-24 00:57:41.000000000 +1000
-@@ -14,6 +14,10 @@
- type firstboot_rw_t, file_type, sysadmfile;
- role system_r types firstboot_t;
- 
-+ifdef(`xserver.te', `
-+domain_auto_trans(firstboot_t, xserver_exec_t, xdm_xserver_t)
-+')
-+
- etc_domain(firstboot)
- typealias firstboot_etc_t alias etc_firstboot_t;
- 
-@@ -107,6 +111,7 @@
- ifdef(`iptables.te', `
- allow iptables_t devtty_t:chr_file { read write };
- allow iptables_t firstboot_t:fd { use };
-+allow iptables_t firstboot_t:fifo_file write;
+--- /usr/src/se/policy/domains/program/unused/hald.te	2004-09-23 22:31:16.000000000 +1000
++++ domains/program/unused/hald.te	2004-09-24 01:47:04.000000000 +1000
+@@ -50,9 +50,6 @@
+ allow hald_t udev_tbl_t:file { getattr read };
  ')
- can_network(firstboot_t)
- can_ypbind(firstboot_t)
+ 
+-ifdef(`udev.te', `
+-r_dir_file(hald_t, hotplug_etc_t)
+-')
+ allow hald_t usbdevfs_t:dir search;
+ allow hald_t usbdevfs_t:file { getattr read };
+ allow hald_t usbfs_t:dir search;
 
---Boundary-00=_V6uUBmb4IY7Ul3/--
+--Boundary-00=_dAvUBJ+Mk2Af85F--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
