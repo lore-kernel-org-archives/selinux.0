@@ -1,51 +1,56 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0SG25Rb005695
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 11:02:05 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0SG0kVK025189
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 16:00:47 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i0SG0jlx024950
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 16:00:46 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: keen@internode.on.net, "keen@internode.on.net" <keen@internode.on.net>,
-   selinux@tycho.nsa.gov
-Subject: Re: Problem with selinux configuration
-Date: Thu, 29 Jan 2004 03:00:33 +1100
-References: <4017be35.30f.6615.1100265729@internode.on.net>
-In-Reply-To: <4017be35.30f.6615.1100265729@internode.on.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200401290300.33895.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0SG9URb005753
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 11:09:31 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0SG9T1I022483
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 16:09:29 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i0SG9Sbs022479 for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 16:09:28 GMT
+Subject: Re: Must SELinux have a initrd image and RAM disk when it boots
+	up? and...
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Park Lee <parklee_2004@yahoo.com.cn>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20040128155450.12205.qmail@web15207.mail.bjs.yahoo.com>
+References: <20040128155450.12205.qmail@web15207.mail.bjs.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1075306166.19427.61.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 28 Jan 2004 11:09:27 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 29 Jan 2004 00:50, "keen@internode.on.net" <keen@internode.on.net> 
-wrote:
-> I am trying to install selinux with a plain vanilla kernel
-> 2.6.0 (released 18 Dec 2003) from kernel.org using RH9
->
-> I have downloaded
-> http://www.nsa.gov/selinux/archives/selinux-usr-2003120509.tgz
-> and followed the steps in selinux-usr/selinux-doc/README
-> file.
+On Wed, 2004-01-28 at 10:54, Park Lee wrote:
+>  and download 2.6.0-test11 kernel with SELinux patch applied and
+> SELinux Full Userland Archive from NSA's SELinux web site.
 
-Why are you building RPMs?  For Red Hat or Fedora you are best advised to use 
-Dan Walsh's packages: ftp://people.redhat.com/dwalsh/SELinux
+I'd use 2.6.2-rc2 from kernel.org.  Or the Fedora Core development
+kernel.
 
-Dan's packages are the official packages that are going into FC2.
+> When I configured the kernel,I have chosen the following options in
+> the Block Devices :
+>  <*> RAM disk support
+>  (4096) Default RAM disk size
+>  [*] Initial RAM disk (initrd) support
 
-If you are using SUSE then you can probably find someone who has RPMs for it.  
-The German people seem interested in such things, and Paul Dwerryhouse has 
-also done some SUSE SE Linux work.
+Try increasing the default ram disk size, e.g. to 8192.
+CONFIG_BLK_DEV_RAM_SIZE=8192.
+>  
+>  and Must SELinux have a two boot-up 
+> phase using a initrd RAM disk?
+
+Not anymore.  The modified init program will load the policy from the
+disk and then re-exec itself.
+>  
+> Thus, prelink-0.3.0-16.sel.src.rpm can't be done.
+> Why? Is there some errors in it or in the Fedora core 1 system?
+
+Odd; this worked for me.  If you can't build a patched prelink, then you
+should disable prelink on your system.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
