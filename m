@@ -1,48 +1,63 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11060
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 12:51:20 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA11313
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 13:30:44 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA09739
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:50:31 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id RAA09735 for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:50:30 GMT
-Date: Fri, 18 Jan 2002 12:50:46 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: devfs_contexts
-In-Reply-To: <20020118171920.F3E3C3918E4@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0201181241010.3743-100000@raven>
+	by jazzband.ncsc.mil  with ESMTP id SAA11744
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 18:29:54 GMT
+Received: from khaipur.xiat.org ([66.125.68.98])
+        by jazzband.ncsc.mil  with ESMTP id SAA11735 for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 18:29:53 GMT
+Date: Fri, 18 Jan 2002 10:25:12 -0800
+From: Paul Krumviede <pwk@acm.org>
+To: "Westerman, Mark" <Mark.Westerman@csoconline.com>,
+        selinux <selinux@tycho.nsa.gov>
+Subject: RE: 2.4.16 release, ipsec, roles and ECHILD errors
+Message-ID: <485645491.1011349512@localhost>
+In-Reply-To: <72222DC86846D411ABD300A0C9EB08A1015242A0@csoc-mail-box.csoconline.com>
+References: <72222DC86846D411ABD300A0C9EB08A1015242A0@csoc-mail-box.csoconli
+ ne.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--On Friday, 18 January, 2002 07:39 -0600 "Westerman, Mark" 
+<Mark.Westerman@csoconline.com> wrote:
 
-On Fri, 18 Jan 2002, Russell Coker wrote:
+> The 1.94 version  has bugs that make non-usable
 
-> OK.  I've just used chsid as I can't find chcon.  Is chcon still in the
-> source distribution?  If so where?
+that is a bit of an overstatement. i've patched the 1.94
+version to fix the most egregious bug (the one that
+could leave a connection in %hold). and it does work
+with kernels that don't have selinux compiled in and
+earlier versions of selinux: i can see the IKE exchanges
+take place and instantiate the desired tunnel and eroute.
+traffic between machines does get routed through the
+tunnel (as determined with a sniffer).
 
-chcon is in the modified fileutils package.  But you can also use chsid or
-setfiles to label existing devfs nodes - all three programs invoke the
-chsid system call to set the label on a file when run on a SELinux kernel.
-chcon is merely a nicer interface than chsid that is derived from the
-existing chmod/chown programs in fileutils.
+> From: freeswan web page
+> "While freeswan-1.94 has shipped, there are serious known bugs
+> in it that make it unsuitable for use. You have two choices,
+> use the latest snapshot (snap2001dec25b seems ok) where the
+> show stopper bugs seem fixed or use an older 'stable' release
+> like 1.91 or maybe 1.92 from this "
+>
+> Try a different version and see if you have the same problem
 
-For filesystems that use the persistent label mapping (e.g. ext2, ext3,
-reiserfs), the label will set by the chsid call be retained across reboots
-since it is stored in that mapping.  For pseudo filesystems like devfs,
-the label won't be retained across reboots unless you also add it to
-devfs_contexts, because there is no persistent storage of the label.  So,
-if you want the labels to persist, you'll need to update devfs_contexts
-and then reboot.
+i already tried it with 1.91: same symptoms.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+and the failure mode i'm seeing when i login with the
+user_r role, use newrole to change to the sysadm_r role,
+su to root, and start the ipsec processes is a failure mode
+independent of recent frees/wan versions: they all attempt
+to invoke the _updown script using popen() and use pclose()
+to get the status. the serious bug with 1.94 is in klips, the
+kernel stuff, the pclose failure is with pluto.
 
+and the fact that it (pclose) doesn't fail if i login with the
+sysadm_r role, then su to root and proceed, implies a
+problem somewhere other than in the frees/wan stuff.
 
+-paul
 
 
 --
