@@ -1,71 +1,66 @@
-From: "Michael Pender" <michael.pender@nanochron.com>
-To: "Howard Holm" <hdholm@epoch.ncsc.mil>, "Subba Rao" <subba9@cablespeed.com>
-Cc: "NSA's SELinux" <SELinux@tycho.nsa.gov>
-Subject: RE: SELinux meetings??
-Date: Thu, 25 Sep 2003 16:56:31 -0400
-Message-ID: <LDELJCIJPDOBAGCDJLGJCEHJDGAA.michael.pender@nanochron.com>
+Message-ID: <3F7361F8.1080603@tresys.com>
+Date: Thu, 25 Sep 2003 17:45:28 -0400
+From: David Caplan <dac@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <1064508912.14150.116.camel@moss-huskies>
+To: "NSA's SELinux" <SELinux@tycho.nsa.gov>
+Subject: policy language extensions
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-There might be enough people here in the DC-metro area with an interest in
-Secure Linux to get a user group started.  I live and work in the Ballston
-area of Arlington, and I'm not inclined to drive 40+ miles to Columbia.
-However, I would be interested in a group in Arlington or DC.
+We are currently working on a couple of policy language extensions for 
+which we'd like to let the group comment on.  Both grew out of the 
+motivations that drove our previous work in developing a binary policy 
+patch tool (see 
+http://www.ultraviolet.org/mail-archives/selinux.2003/0768.html). We 
+expect all changes to be eventually incorporated into the manline SE 
+Linux package.
 
-I expect that there are others who feel the same way.  I think it would be
-annoying to post e-mails to the newsgroup expressing interest, but we could
-set up an e-mail address to collect responses and then give it a go if we
-get a few dozen interested people.
+We're working on two enhancements:  conditional policy statements, and 
+loadable binary policy modules.  The first is extending the policy 
+language to allow conditional blocks of policy depending on the state of 
+boolean variables (also defined in the policy).  The booleans are 
+defined in a similar fashion to types and the conditional policy 
+statements are of the form:
 
-Shall we put it to a vote?
+if (expression) then { policy_block } else { policy_block }
 
-- Mike
+where 'expression' is any number of defined boolean variables joined 
+with the standard operators (e.g., &&, ||, ==, !=, !, etc.) and the 
+policy blocks are made up of any number of AV and Type rules with the 
+'else' block being optional.
 
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
-Behalf Of Howard Holm
-Sent: Thursday, September 25, 2003 12:55 PM
-To: Subba Rao
-Cc: NSA's SELinux
-Subject: Re: SELinux meetings??
+We've implemented an initial version of the user space portion of this 
+(i.e., modifications to checkpolicy) and are porting the data structures 
+and functionality to the kernel/security server.  We are planning to use 
+  sysctl as the kernel interface to export the booleans.  A patch 
+against the current version of checkpolicy is available at 
+http://www.tresys.com/selinux/cond_policy_patch.gz for your perusal. 
+Please note that policies built with this version of checkpolicy should 
+_not_ be used (i.e., loaded) in an SE Linux kernel.  You can examine 
+binary conditional policies with 'checkpolicy -d', and there is a test 
+directory under the checkpolicy directory as well with a small utility 
+that allows the setting of the booleans and displaying various parts of 
+a binary policy.
 
+The second extension we are currently designing is a mechanism to allow 
+policy modules to be built independant of a base policy.  These modules 
+could then be loaded and unloaded into a running policy.  They could be 
+integrated into software packages, an rpm for example, so that if the 
+software were installed on an selinux system  the appropriate policy 
+would also be loaded.
 
-I'm not aware of any SELinux specific user's group meeting face-to-face
-anywhere.  If you know of one let me know.  I'm not sure that there are
-a sufficient number of people in the area interested in regular user's
-meetings to make it viable.
+Comments and contributions are welcome.
 
-There are Linux user's groups in the area, including the Columbia Linux
-user's group (http://www.calug.com) where Pete and Steve gave a overview
-of SELinux in March 2001.  But, I don't believe anyone from the SELinux
-team regularly attends those meetings.
+David
+-- 
+__________________________________
 
-On Mon, 2003-09-22 at 07:59, Subba Rao wrote:
-> Hi,
->
-> I would like to know if there is any SELinux users group meeting in the DC
-> metro area.  If so could someone please let me know where and how often
-does
-> the team meet.
->
-> Thank you in advance.
-
---
-Howard Holm <hdholm@epoch.ncsc.mil>
-Office of Defensive Computing Research
-National Security Agency
-
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
-
+David Caplan     410 290 1411 x105
+dac@tresys.com
+Tresys Technology, LLC
+8840 Stanford Blvd., Suite 2100
+Columbia, MD 21045
 
 
 --
