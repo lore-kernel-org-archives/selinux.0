@@ -1,52 +1,51 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72DNsrT012149
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 09:23:54 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i72DNJXV018521
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 13:23:20 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: selinux-policy-default 1.14 is missing _stacks_ of stuff
-Date: Mon, 2 Aug 2004 23:23:48 +1000
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72E14rT012368
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 10:01:04 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i72E12KV011327
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 14:01:03 GMT
+Subject: Re: matchfilecon (the program) vs matchfilecon (the libselinux1 fn)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040801103252.GC7384@lkcl.net> <200408012254.15553.russell@coker.com.au> <1091452092.23449.33.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1091452092.23449.33.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408022323.48941.russell@coker.com.au>
+In-Reply-To: <20040801172751.GD20103@lkcl.net>
+References: <20040801172751.GD20103@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1091455223.23449.66.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 02 Aug 2004 10:00:23 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2 Aug 2004 23:08, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> On Sun, 2004-08-01 at 08:54, Russell Coker wrote:
-> > There is no support for targeted in Debian, only strict and it has the
-> > directory name "." .
-> >
-> > > so, i can't use run_init because targeted/contexts/initrc_context
-> > > doesn't exist.
-> >
-> > Your /etc/selinux/config file should have the following line:
-> > SELINUXTYPE=.
->
-> What does this mean for supporting multiple policies in Debian?
+On Sun, 2004-08-01 at 13:27, Luke Kenneth Casson Leighton wrote:
+> hi,
+> 
+> does anyone know: the matchfilecon program reads
+> /etc/selinux/.../file_contexts/file_contexts.
+> 
+> does the matchfilecon libselinux1 api does the same?
+> 
+> or does it read a binary policy from somewhere?
+> 
+> the reason i ask is because if i were to code up stuff into
+> udev, it might solve the problem of having to move
+> /usr/share/selinux/stuff off of /usr and onto /etc.
 
-This means that you do it in the Debian way.  You install a package that 
-supplies what you want to do.
-
-Having two conflicting packages installed at once is not the Debian way.
-
-Of course changing a system from one policy package to another will be 
-awkward, but I think I can make it no more painful than it has to be (relabel 
-and reboot).  Not that it really matters while there's only one policy 
-available in Debian.
+Do you mean matchpathcon?  No matchfilecon here.  matchpathcon(1) is
+just a trivial test program that invokes the matchpathcon(3) library
+function on its arguments and reports the result.  matchpathcon(3) reads
+the installed file_contexts configuration
+(/etc/selinux/$SELINUXTYPE/contexts/files/file_contexts), not the one
+from the policy source tree, as policy sources are optional.  Binary
+policy isn't relevant here, as it doesn't contain file contexts.  BTW,
+policy does live in /etc/selinux in Fedora Core 3 (or
+/etc/security/selinux in Fedora Core 2), and sounds like Russell has
+likewise moved it there in Debian.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
