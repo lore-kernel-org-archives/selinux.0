@@ -1,66 +1,57 @@
-Subject: Re: [ PATCH ] hal - create netlink socket
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <1112016475.2914.16.camel@moss-spartans.epoch.ncsc.mil>
-References: <1111905173.3520.8.camel@cobra.ivg2.net>
-	 <1112016475.2914.16.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Desktop apps interoperability
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Tom <tom@lemuria.org>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>,
+   "Fedora SELinux support list for users &amp;  developers." <fedora-selinux-list@redhat.com>,
+   selinux@tycho.nsa.gov
+In-Reply-To: <20050328174753.D29441@lemuria.org>
+References: <1111985855.1514.70.camel@cobra.ivg2.net>
+	 <1111986213.1514.77.camel@cobra.ivg2.net>
+	 <1111987652.1514.97.camel@cobra.ivg2.net>
+	 <20050328132653.F27857@lemuria.org>
+	 <1112012129.1514.187.camel@cobra.ivg2.net>
+	 <20050328151126.B28232@lemuria.org>
+	 <1112017584.1514.239.camel@cobra.ivg2.net>
+	 <20050328160935.B28563@lemuria.org>
+	 <1112022358.5811.47.camel@cobra.ivg2.net>
+	 <1112022750.2914.65.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050328174753.D29441@lemuria.org>
 Content-Type: text/plain
-Date: Mon, 28 Mar 2005 11:08:49 -0500
-Message-Id: <1112026129.3040.1.camel@cobra.ivg2.net>
+Date: Mon, 28 Mar 2005 11:04:26 -0500
+Message-Id: <1112025866.2914.88.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-03-28 at 08:27 -0500, Stephen Smalley wrote:
-> On Sun, 2005-03-27 at 01:32 -0500, Ivan Gyurdiev wrote:
-> > Makes hal work again on my system....sort of
-> > 
-> > /usr/libexec/hald-probe-input denied { read } on mouse_device_t:chr_file
-> > /usr/libexec/hald-addon-acpi denied { write } on acpid.socket
-> > (apmd_var_run_t)
-> > /usr/libexec/hald-add-selinux-mount-option denied { search } on /selinux
-> > (security_t)
-> > /usr/sbin/hald denied { getattr } on /dev/mapper/control (lvm_control_t)
-> > /usr/sbin/dmidecode denied { read } on /dev/mem (memory_device_t)
-> 
-> Class 'netlink_socket' is the catch-all for netlink protocols that have
-> no individual security class.  Can you remove this permission from your
-> policy and enable syscall auditing via auditctl (or boot with audit=1)
-> and try again so we can see the actual netlink protocol value that was
-> used?
+On Mon, 2005-03-28 at 17:47 +0200, Tom wrote:
+> Not so sure about the pointlessness here. The point is that it makes it
+> more difficult to leverage exploits. Maybe I can break into Firefox,
+> but with that in place I can't jump from there to mplayer by forcing it
+> to play something I know will break it.
 
-Interesting, I hadn't actually used auditd until now. Is the daemon
-supposed to be on or off by default?
-
-type=DAEMON msg=auditd(1112025664) auditd start, ver=0.6.9, format=raw,
-pid=2130, uid=0
-type=KERNEL msg=audit(1112025664.871:799895): syscall=102 exit=48 a0=b
-a1=bfeb0150 a2=8050248 a3=0 items=0 pid=2130 loginuid=-1 uid=0 gid=0
-euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0
-type=KERNEL msg=audit(1112025664.871:799895): audit_enabled=1 old=1
-type=KERNEL msg=audit(1112025664.667:799550): syscall=102 exit=48 a0=b
-a1=bfeafc60 a2=8050248 a3=0 items=0 pid=2130 loginuid=-1 uid=0 gid=0
-euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0
-type=KERNEL msg=audit(1112025683.444:848288): syscall=125 exit=-13
-a0=bfb76000 a1=1000 a2=1000007 a3=f8c000 items=0 pid=2355 loginuid=-1
-uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0
-type=KERNEL msg=audit(1112025683.444:848288): avc:  denied  { execmem }
-for  pid=2355 comm=httpd scontext=system_u:system_r:httpd_t
-tcontext=system_u:system_r:httpd_t tclass=process
-type=KERNEL msg=audit(1112025688.522:863505): syscall=102 exit=-13 a0=1
-a1=bfa3acf0 a2=80712ac a3=8075a60 items=0 pid=2512 loginuid=-1 uid=0
-gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0
-type=KERNEL msg=audit(1112025688.522:863505): avc:  denied  { create }
-for  pid=2512 exe=/usr/sbin/hald scontext=system_u:system_r:hald_t
-tcontext=system_u:system_r:hald_t tclass=netlink_socket
-
+I'm not sure I understand your intent.  There are two scenarios:
+1) mplayer directly launched by firefox.  As the attacker already has
+control of the firefox process, the only possible benefit of
+compromising a mplayer process launched by firefox is if it has further
+permissions needed to achieve his end goal.  And how you prevent such
+abuse of a directly launched mplayer is unclear, e.g. do you intend
+firefox to engage in an IPC interaction with a process in the desktop
+session to ask for the downloaded file to be relabeled prior to
+launching mplayer on it?
+2) mplayer launched by something other than firefox, e.g. user shell,
+nautilus, after prior download of content via firefox.  At this point,
+the user has explicitly selected the downloaded file, thus expressing
+his intent (modulo any subversion of the user process itself, which is a
+separate issue), and can hopefully be trusted not to open files that he
+didn't download explicitly (if not, then how can he be trusted to make
+decisions about relabeling)?  Hence, in this scenario, the relabeling
+doesn't express the user intent any better than the selection by the
+user of the downloaded file.  Naturally, what you really want there is a
+trusted path mechanism.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
