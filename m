@@ -1,45 +1,37 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23250
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 08:49:37 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA07096
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 12:48:06 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA23974
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 10:36:30 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA26268
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 14:35:53 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id MAA07091 for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 12:48:05 GMT
+	by jazzswing.ncsc.mil  with ESMTP id OAA26264
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 14:35:51 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 836CA92462
+	for <selinux@tycho.nsa.gov>; Sat, 13 Jul 2002 00:36:26 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 5BF33CAD
+	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 16:36:18 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>, Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: revising the su decision
-Date: Fri, 12 Jul 2002 14:49:22 +0200
-Cc: <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0207120725020.28541-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0207120725020.28541-100000@raven>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: chattr
+Date: Fri, 12 Jul 2002 16:36:18 +0200
 MIME-Version: 1.0
-Message-Id: <20020712124923.8A94A148A@lyta.coker.com.au>
+Message-Id: <20020712143618.5BF33CAD@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 12 Jul 2002 13:26, Stephen Smalley wrote:
-> On Fri, 12 Jul 2002, Brad Chapman wrote:
-> >           Why do you have to change your role to sysadm_r before su'ing
-> > to root? I was under the impression that becoming uid 0 by either logging
-> > in or su'ing was sufficient.....
->
-> The Linux root uid is not privileged with respect to the SELinux
-> mandatory access controls.  Hence, in order to perform most administrative
-> operations, you have to be both sysadm_r:sysadm_t and have the Linux root
-> uid (or at least the proper Linux capabilities).
+It seems that chattr depends on the "write" permission and that lsattr 
+depends on the "read" permission.  I think that they should depend on 
+"setattr" and "getattr" permissions respectively.
 
-I think that Brad was asking why I login to a non-root account first.
-
-One issue is the lack of dotfile support you mentioned before, although I 
-could probably address that by having a PAM module that sets a different home 
-directory used by the ssh config.
-
-Another issue is that of auditing.  Having a non-root identity makes many 
-things easy to solve when a number of people have root and sysadm_r access.
+jmorris@blackbird.intercode.com.au pointed out that it is possible to chattr 
+/tmp on my SE play machine, "chattr +i /tmp /var/tmp /var/tmp/*" would be 
+rather annoying...
 
 -- 
 I do not get viruses because I do not use MS software.
