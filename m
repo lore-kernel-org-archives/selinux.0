@@ -1,52 +1,74 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA14403
-	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 10:58:12 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA15356
+	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 12:30:23 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA05095
-	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 15:56:16 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id PAA05089
-	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 15:56:14 GMT
-Date: Fri, 1 Nov 2002 10:57:41 -0500 (EST)
-From: Wayne Salamon <wsalamon@tislabs.com>
-To: Koichi ONOUE <koichi@osss.is.tsukuba.ac.jp>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: MLS
-In-Reply-To: <20021101073100.066b9899.koichi@osss.is.tsukuba.ac.jp>
-Message-ID: <Pine.LNX.4.33.0211011053240.16058-100000@vox.gw.tislabs.com>
+	by jazzswing.ncsc.mil  with ESMTP id RAA10133
+	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 17:27:18 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id RAA10081
+	for <selinux@tycho.nsa.gov>; Fri, 1 Nov 2002 17:26:16 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Westerman, Mark" <Mark.Westerman@csoconline.com>, selinux@tycho.nsa.gov
+Subject: Re: Problems with policy in RH8
+Date: Fri, 1 Nov 2002 18:27:30 +0100
+References: <72222DC86846D411ABD300A0C9EB08A10152444C@csoc-mail-box.csoconline.com>
+In-Reply-To: <72222DC86846D411ABD300A0C9EB08A10152444C@csoc-mail-box.csoconline.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200211011827.30404.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 1 Nov 2002, Koichi ONOUE wrote:
+On Fri, 1 Nov 2002 16:15, Westerman, Mark wrote:
+> On Friday, November 01, 2002 9:03 AM Russell Coker wrote:
+> > I don't think that the Postfix policy is related to the  problem reported
+> > by Aldrovando.  They report problems aith atd and other
+> > programs that will never access files under /var/spool/postfix.
+>
+> The problem I was talking about is in Red Hat, the files
+> /var/spool/postfix/lib are hard linked (shareing the same
+> inode) to the orginal location.
 
-> I try to build and install example policy configuration with MLS.
-> I add "policy/user" to below line.
->
->
+Well that's one reason for not using hard-links to put files in a chroot!  The 
+other reason is that a process that has root access in the chroot environment 
+will be able to write to them...
 
-  The user file is not part of this problem.
+> The setfile utilities uses
+> the last defination and was relabeling the libs with var_spool_t
+> adding the label definations to the postfix.fs fix the problem.
 
-> but below error
->
-> /usr/local/selinux/bin/checkpolicy: loading policy configuration from
-> /etc/security/selinux/src/policy.conf
-> ERROR 'permission transition is not defined for common file' at toke '}' on line 471:
-> 	mounton		:	{ read write }
-> /usr/local/selinux/bin/checkpolicy: error(s) encountered while parsing configuraion
-> make: *** [/etc/security/selinux/policy.12-mls] Error 1
->
->
-> Please tell me what I have to fix.
->
+What happens if you add the following:
+/var/spool/postfix/(lib)|(etc)(/.*)? <<null>>
 
-  In policy/mls, remove the line 'transition      :       write' that is
-in the 'common file' class, at line 48 in the current distribution.
+That should result in the files under the chroot not being considered as part 
+of file labelling decisions (which among other things means that if you 
+change the entries for the libs you only need to make a change in one place).
+
+> I was having same problem about the libs being labeled var_spool_t
+> and the previous Information I supplied correctd the problem
+
+Or alternately Red Hat could be fixed to not use hard links and to not do 
+anything about the chroot unless master.cf references chroot environments.  
+The Debian package of Postfix is so much better.
+
+> PS: This should be added into the distribution as a patch
+>
+> file: file_contexts/program/postfix.fc
+> /var/spool/postfix/flush(/.*)? system_u:object_r:postfix_spool_flush_t
+> /var/spool/postfix/lib(/.*)?                    system_u:object_r:lib_t
+> /var/spool/postfix/lib/ld.*\.so.*               system_u:object_r:ld_so_t
+> /var/spool/postfix/lib/lib.*\.so.*              system_u:object_r:shlib_t
+> /var/spool/postfix/lib/[^/]*/lib.*\.so.*        system_u:object_r:shlib_t
+> /var/spool/postfix/lib/devfsd/.*\.so.*  system_u:object_r:shlib_t
+> /var/spool/postfix/etc/services         system_u:object_r:etc_t
 
 -- 
-Wayne Salamon
-wsalamon@tislabs.com
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
