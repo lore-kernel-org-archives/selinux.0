@@ -1,38 +1,52 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA07274
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 11:09:23 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA07563
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 11:39:58 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA00155
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 15:09:12 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id PAA00150
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 15:09:12 GMT
-Date: Mon, 3 Jun 2002 11:08:41 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Howard Holm <hdholm@epoch.ncsc.mil>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Updated Release
-In-Reply-To: <200205312132.RAA17842@coalpipe.epoch.ncsc.mil>
-Message-ID: <Pine.GSO.4.33.0206031107100.25105-100000@raven>
+	by jazzswing.ncsc.mil  with ESMTP id PAA01736
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 15:39:48 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id PAA01732
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 15:39:46 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Admissions Office" <admissions@internet.edu.nf>
+Subject: Re: SELinux Dumb Questions
+Date: Mon, 3 Jun 2002 17:39:40 +0200
+References: <200205281111.39926.jw@centraltexasit.com> <3CFB4398.97404F23@dr-baldeweg.de> <00c501c20b0e$037b5fe0$91c03b8e@OK>
+In-Reply-To: <00c501c20b0e$037b5fe0$91c03b8e@OK>
+Cc: SE Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020603153940.937033C34@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 3 Jun 2002 16:50, Admissions Office wrote:
+> Folks this may seem like a dumb question given the Open Source and postings
+> on the site. Its just that we want to be sure....
+>
+> Is there any reason why a Colo company cannot offer SELinux as a standard
+> product offering they would install on clients servers?
 
-The updated release (2002053110) has been imported and merged into the
-sourceforge selinux CVS tree, under the 'nsa' module.  As usual, you can
-access it via:
+As Mark stated there are no license or legal issues preventing such use.
 
-export
-CVSROOT=:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux
-cvs -z3 co nsa
+In fact SE Linux is very desirable as an option for a hosting company as it 
+allows safer sharing of recources.  I believe that the requirements that JW 
+plans to solve with SE Linux are along the lines of partitioning a server for 
+several users (who don't necessarily trust each other and aren't trusted by 
+the administrator) to bind to ports <1024.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Of course as a practical measure you probably want to offer a non-SE service 
+too, people get paranoid when the NSA is mentioned and some customers will 
+probably pay extra to have a dedicated server without NSA software rather 
+than a shared server with the NSA software...
 
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
