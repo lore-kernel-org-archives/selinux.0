@@ -1,171 +1,58 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UDTxrT022967
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 09:30:15 -0400 (EDT)
-Received: from obadja2.jmh.mhn.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UDTwog019841
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 13:29:59 GMT
-Date: Thu, 30 Sep 2004 15:07:57 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: policy for resmgrd
-Message-ID: <20040930130757.GD2773@cip.ifi.lmu.de>
-References: <20040926204642.GC2529@jmh.mhn.de> <200409292136.42039.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="C+ts3FVlLX8+P6JN"
-In-Reply-To: <200409292136.42039.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UEIhrT023302
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 10:18:43 -0400 (EDT)
+Received: from web51503.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i8UEHbng010687
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 14:17:38 GMT
+Message-ID: <20040930141837.5407.qmail@web51503.mail.yahoo.com>
+Date: Thu, 30 Sep 2004 07:18:37 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: where is the modified login program's source code 
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-927085488-1096553917=:1879"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---C+ts3FVlLX8+P6JN
-Content-Type: multipart/mixed; boundary="i7F3eY7HS/tUJxUd"
-Content-Disposition: inline
-
-
---i7F3eY7HS/tUJxUd
+--0-927085488-1096553917=:1879
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-* Russell Coker <russell@coker.com.au> [2004-09-29 14:43]:
-> On Mon, 27 Sep 2004 06:46, Thomas Bleher <bleher@informatik.uni-muenchen.=
-de>=20
-> wrote:
-> > Resmgrd is a daemon which is used on SuSE Linux to mediate access to
-> > devices. Clients can ask resmgrd to open a specific device, resmgrd
-> > checks if the app has appropriate permission and opens the device on
-> > behalf of the client. Resmgrd should probably be a userspace SELinux
-> > enforcer, but for now the attached policy allows it to work on a SELinux
-> > system.
->=20
-> allow resmgrd_t self:unix_dgram_socket { connect create write };
->=20
-> I suggest that the above be replace by:
->=20
-> allow resmgrd_t self:unix_dgram_socket create_socket_perms;
->=20
-> There's no real reason to restrict it's unix domain socket access to itse=
-lf.
+Hi,
+  I know that login is a modified daemon program. Now, I want to do some work with the login program in SELinux. But, Where could I found the modified login program's source code? It seems that it isn't contained in Fedora Core 2.
+  If you know the matter, please tell me about it.
+ 
+  Thank you.
 
-Agreed.
-New version of the patch attached.
 
-Thomas
+--
+Best Regards,
+Park Lee <parklee_sel@yahoo.com> 
+ 
 
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
---i7F3eY7HS/tUJxUd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="resmgrd.patch"
-Content-Transfer-Encoding: quoted-printable
 
-diff -urN orig/domains/program/unused/resmgrd.te mod/domains/program/unused=
-/resmgrd.te
---- orig/domains/program/unused/resmgrd.te	1970-01-01 01:00:00.000000000 +0=
-100
-+++ mod/domains/program/unused/resmgrd.te	2004-09-26 22:30:47.000000000 +02=
-00
-@@ -0,0 +1,25 @@
-+# DESC resmgrd - resource manager daemon
-+#
-+# Author: Thomas Bleher <ThomasBleher@gmx.de>
-+=20
-+daemon_base_domain(resmgrd)
-+var_run_domain(resmgrd, { file sock_file })
-+etc_domain(resmgrd)
-+read_locale(resmgrd_t)
-+allow resmgrd_t self:capability { dac_override dac_read_search sys_admin s=
-ys_rawio };
-+
-+allow resmgrd_t etc_t:file { getattr read };
-+allow resmgrd_t self:unix_stream_socket create_stream_socket_perms;=20
-+allow resmgrd_t self:unix_dgram_socket create_socket_perms;
-+
-+# hardware access
-+allow resmgrd_t device_t:lnk_file { getattr read };
-+# not sure if it needs write access, needs to be investigated further...
-+allow resmgrd_t removable_device_t:blk_file { getattr ioctl read write };
-+allow resmgrd_t scsi_generic_device_t:chr_file { getattr ioctl read };
-+allow resmgrd_t scanner_device_t:chr_file { getattr };
-+# I think a dontaudit should be enough there
-+dontaudit resmgrd_t fixed_disk_device_t:blk_file { getattr ioctl read };
-+
-+# there is a macro can_resmgrd_connect() in macros/program/resmgrd_macros.=
-te
-+
-diff -urN orig/domains/program/unused/xdm.te mod/domains/program/unused/xdm=
-=2Ete
---- orig/domains/program/unused/xdm.te	2004-09-11 14:31:47.000000000 +0200
-+++ mod/domains/program/unused/xdm.te	2004-09-26 22:30:06.000000000 +0200
-@@ -130,6 +130,7 @@
- allow xdm_t v4l_device_t:chr_file { setattr getattr };
- allow xdm_t scanner_device_t:chr_file { setattr getattr };
- allow xdm_t tty_device_t:chr_file { ioctl read write setattr getattr };
-+can_resmgrd_connect(xdm_t)
-=20
- # Access xdm log files.
- file_type_auto_trans(xdm_t, var_log_t, xserver_log_t, file)
-diff -urN orig/file_contexts/program/resmgrd.fc mod/file_contexts/program/r=
-esmgrd.fc
---- orig/file_contexts/program/resmgrd.fc	1970-01-01 01:00:00.000000000 +01=
-00
-+++ mod/file_contexts/program/resmgrd.fc	2004-09-26 22:30:38.000000000 +0200
-@@ -0,0 +1,6 @@
-+# resmgrd
-+/sbin/resmgrd		--	system_u:object_r:resmgrd_exec_t
-+/etc/resmgr\.conf	--	system_u:object_r:resmgrd_etc_t
-+/var/run/resmgr\.pid	--	system_u:object_r:resmgrd_var_run_t
-+/var/run/\.resmgr_socket	system_u:object_r:resmgrd_var_run_t
-+
-diff -urN orig/macros/base_user_macros.te mod/macros/base_user_macros.te
---- orig/macros/base_user_macros.te	2004-09-25 19:52:50.000000000 +0200
-+++ mod/macros/base_user_macros.te	2004-09-26 22:30:22.000000000 +0200
-@@ -177,6 +177,8 @@
- allow $1_t misc_device_t:{ chr_file blk_file } rw_file_perms;
- allow $1_t device_t:lnk_file { getattr read };
-=20
-+can_resmgrd_connect($1_t)
-+
- #
- # evolution and gnome-session try to create a netlink socket
- #
-diff -urN orig/macros/program/resmgrd_macros.te mod/macros/program/resmgrd_=
-macros.te
---- orig/macros/program/resmgrd_macros.te	1970-01-01 01:00:00.000000000 +01=
-00
-+++ mod/macros/program/resmgrd_macros.te	2004-09-26 22:33:31.000000000 +0200
-@@ -0,0 +1,10 @@
-+# Macro for resmgrd
-+
-+define(`can_resmgrd_connect', `
-+ifdef(`resmgrd.te', `=20
-+allow $1 resmgrd_t:unix_stream_socket connectto;
-+allow $1 resmgrd_var_run_t:sock_file write;
-+allow $1 resmgrd_t:fd use;
-+')
-+')
-+
 
---i7F3eY7HS/tUJxUd--
 
---C+ts3FVlLX8+P6JN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+		
+---------------------------------
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+--0-927085488-1096553917=:1879
+Content-Type: text/html; charset=us-ascii
 
-iD8DBQFBXAUtxWIrrrL0q+cRAvC9AJ44ucCwRq/Tbwge5hlClVVIjmFiRwCeIoi2
-9A19iaJ4qOySfnLNt1lMglo=
-=ZE1G
------END PGP SIGNATURE-----
-
---C+ts3FVlLX8+P6JN--
+<DIV>Hi,<BR>&nbsp; I know that login is a modified daemon program. Now, I want to do some work&nbsp;with the login program in SELinux. But, Where could I found the modified login program's source code? It seems that it isn't contained in Fedora Core 2.<BR>&nbsp; If you know the matter, please tell me about it.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp; Thank you.</DIV><BR><BR><DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>--<BR>Best Regards,<BR>Park Lee &lt;<A href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;YY=1156&amp;order=down&amp;sort=date&amp;pos=0"><FONT color=#003399>parklee_sel@yahoo.com</FONT></A>&gt; </DIV>
+<DIV>&nbsp;</DIV></DIV></DIV></DIV></DIV></DIV><p>
+		<hr size=1>Do you Yahoo!?<br>
+<a href="http://us.rd.yahoo.com/mail_us/taglines/50x/*http://promotions.yahoo.com/new_mail/static/efficiency.html">Yahoo! Mail</a> - 50x more storage than other providers!
+--0-927085488-1096553917=:1879--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
