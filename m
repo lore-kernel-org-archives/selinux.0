@@ -1,56 +1,54 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9QEkFXZ012752
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 10:46:16 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9QEiwC0023586
-	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 14:44:58 GMT
-Subject: Re: [PATCH] devpts xattr support
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <417E5BB5.1010300@trustedcs.com>
-References: <417E5BB5.1010300@trustedcs.com>
-Content-Type: text/plain
-Message-Id: <1098801765.27060.39.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Tue, 26 Oct 2004 10:42:46 -0400
+Message-ID: <20041026150450.82663.qmail@web90108.mail.scd.yahoo.com>
+Date: Tue, 26 Oct 2004 08:04:50 -0700 (PDT)
+From: Philip Leo <phlpleo@yahoo.com>
+Subject: Re: SELinux with IPSec - something going on ?
+To: jaegert@us.ibm.com
+Cc: SELinux@tycho.nsa.gov, sds@epoch.ncsc.mil, lkcl@lkcl.net,
+   rusinskystanislas@yahoo.fr, parklee_sel@yahoo.com
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-240948826-1098803090=:82445"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-10-26 at 10:14, Darrel Goeddel wrote:
-> Below is a patch (against the SourceForge CVS) that will give xattr 
-> support to directories in a devpts filesystem.  This will allow the 
-> context of the root node to be retrieved and modified.  Note that there 
-> are other filesystems using the simple_dir_inode_operations that may 
-> need to be changed later as xattr support is spread to more filesystems 
-> (devpts is the only one causing a problem right now), so a more general 
-> fix may be wanted/needed later.  Any comments are appreciated.
+--0-240948826-1098803090=:82445
+Content-Type: text/plain; charset=us-ascii
 
-Thanks.  Let's step back for a moment from the implementation and talk
-about the general issue IIUC:  you want userspace to be able to get and
-set the file context of any file (as seen internally by the SELinux
-module), regardless of the underlying filesystem type, using a single
-API.  That is what we had with the original SELinux API; stat_secure and
-friends always returned the incore inode SID directly.  In contrast,
-using the xattr API and framework, we must add xattr handlers to each
-filesystem implementation (and for each kind of inode, as in your patch)
-in order to export file contexts to userspace, even when those handlers
-do nothing more than call into the security module to map an incore
-inode SID to a context (as with devpts and tmpfs).  IIRC,
-TrustedBSD/FreeBSD approached this issue differently, with separate and
-orthogonal APIs for xattrs vs. MAC labels so that you could get the MAC
-label of a file independently of whether or not the filesystem supported
-extended attributes (e.g. singe-level filesystems).  So now would be a
-good time to confirm that we want to proceed down this path of adding
-more fake xattr handlers wherever the filesystem does not natively
-support xattrs so that userspace can have a single consistent interface
-for getting file contexts.
+On Mon, 25 Oct 2004 at 10:59, Trent Jaeger wrote:
+>Yes, we are working on integration of IPSec with SELinux.  Hope
+>to have something for the community soon. 
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Could you please tell us what Linux IPsec implementation you are using? Is it FreeS/WAN?
+Is Fedora Core itself include an IPsec implementation? or does it use a third-party Linux IPsec implementation?
 
+
+--
+Best regards,
+Philip Leo  <phlpleo@yahoo.com> 
+
+
+
+				
+---------------------------------
+Do you Yahoo!?
+ Yahoo! Mail – CNET Editors' Choice 2004.  Tell them what you think.
+--0-240948826-1098803090=:82445
+Content-Type: text/html; charset=us-ascii
+
+<DIV><FONT face=Tahoma>On Mon, 25 Oct 2004 at 10:59, Trent Jaeger wrote:</FONT></DIV>
+<DIV><FONT face=Tahoma>&gt;Yes, we are working on integration of IPSec with SELinux. &nbsp;Hope</FONT></DIV>
+<DIV><FONT face=Tahoma>&gt;to have something for the community soon.</FONT> <BR></DIV>
+<DIV>Could you please tell us what Linux IPsec implementation you are using? Is it FreeS/WAN?</DIV>
+<DIV>Is Fedora Core itself include an IPsec implementation? or does it use a third-party Linux IPsec implementation?</DIV><BR><BR><DIV>
+<DIV>
+<DIV>--</DIV>
+<DIV>Best regards,</DIV>
+<DIV>Philip Leo&nbsp; &lt;<A href="mailto:phlpleo@yahoo.com">phlpleo@yahoo.com</A>&gt; </DIV></DIV></DIV><p>
+	
+	
+		<hr size=1>Do you Yahoo!?<br> 
+Yahoo! Mail – CNET Editors' Choice 2004. <a href="http://reviews.cnet.com/Yahoo_Mail/4852-9236_7-30980704.html?part=editchoice"> Tell them what you think</a>.
+
+--0-240948826-1098803090=:82445--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
