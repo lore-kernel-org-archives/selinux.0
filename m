@@ -1,42 +1,52 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Today's diffs
-Date: Sat, 2 Oct 2004 03:57:05 +1000
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <415CAFC5.8020505@redhat.com> <415D799B.3060406@redhat.com> <200410020236.22248.russell@coker.com.au>
-In-Reply-To: <200410020236.22248.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200410020357.06006.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i91ITArT003682
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 14:29:10 -0400 (EDT)
+Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i91ISuEb010363
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 18:29:08 GMT
+Message-Id: <200410011828.i91ISrN6018074@turing-police.cc.vt.edu>
+To: jwcart2@epoch.ncsc.mil
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to restorecon to add -R switch 
+In-Reply-To: Your message of "Wed, 29 Sep 2004 15:08:40 EDT."
+             <1096484920.3270.13.camel@moss-lions.epoch.ncsc.mil>
+From: Valdis.Kletnieks@vt.edu
+References: <41584DCA.7030006@redhat.com>
+            <1096484920.3270.13.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1949317072P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 01 Oct 2004 14:28:53 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2 Oct 2004 02:36, Russell Coker <russell@coker.com.au> wrote:
-> On Sat, 2 Oct 2004 01:36, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > >+# /usr/sbin/sendmail asks for w access to utmp
-> > >+allow sendmail_t initrc_var_run_t:file { getattr read lock write };
-> > >
-> > >Why does sendmail need lock and write access to initrc_var_run_t?
-> >
-> > sm-client will not work without this.
->
-> That turned out to be a bug in sendmail.fc.  I have attached a patch which
-> fixes sendmail.fc and also removes the unnecessary rules from sendmail.te.
+--==_Exmh_1949317072P
+Content-Type: text/plain; charset=us-ascii
 
-After further consideration I think that the correct solution is to have those 
-files created under /var/run/sendmail/ .
+On Wed, 29 Sep 2004 15:08:40 EDT, James Carter said:
+> Everything looks fine, but why does all the output just go to the log
+> file now?  
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=134363
+> > -	rpm -q -l $i | restorecon ${OUTFILES} -n -v -f - 2>&1 | tee $LOGFILE
+> > +	rpm -q -l $i | restorecon ${OUTFILES} -n -v -f - 2>&1 > $LOGFILE
 
-I have created a bugzilla entry about this.
+That (and a few other places '| tee' was removed) is the technical reason
+why it goes to the logfile only.  Dan would have to address the logic behind why
+the change was made.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--==_Exmh_1949317072P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBXaHkcC3lWbTT17ARAtUqAKDAKXTN7sEGRJXkwSi3M+bju/sykQCgqex7
+YlyeS+mVJz6HZdr3dVJBgFc=
+=bel9
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1949317072P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
