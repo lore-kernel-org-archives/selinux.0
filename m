@@ -1,32 +1,25 @@
-Subject: Re: New design for policy on disk allowing multiple policy rpms to
-	be simultaniously installed.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Jeff Johnson <n3npq@nc.rr.com>
-Cc: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
-   SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <40B39C09.5040300@nc.rr.com>
-References: <40B394AF.2000801@redhat.com>  <40B39C09.5040300@nc.rr.com>
-Content-Type: text/plain
-Message-Id: <1085590563.31854.95.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Wed, 26 May 2004 12:56:03 -0400
+Reply-To: <mayerf@tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'SELinux List'" <SELinux@tycho.nsa.gov>
+Subject: FW: XP as a base for NetTop
+Date: Wed, 26 May 2004 17:15:52 -0400
+Message-ID: <004901c44366$a0f3bd70$9a0c010a@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-05-25 at 15:18, Jeff Johnson wrote:
-> Well, the existing means to handle simultaneous installs of otherwise 
-> mutually exclusive packages is the
-> alternatives mechanism used to handle sendmail vs. postfix and lpd vs. cups.
+Stephen Smalley wrote:
+> Looks like Microsoft is indeed pushing an XP-based NetTop
+> called Trusted Multi-Net/Typhon XP, e.g.:
 > 
-> Yes, symlinks, feeble, but that is the existing mechanism, might as well 
-> use if in the distro.
+> http://www.computerweekly.com/Article123730.htm
+>
+http://download.microsoft.com/download/4/f/8/4f89f896-f020-46d1-adc0-08a18c8432d
+5/Trusted%20Multi-Net%20for%20SSE%202003.ppt
 
-Can you elaborate on how this works presently?  How do you avoid
-conflicts among multiple packages owning those symlinks?
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
 
 
 --
