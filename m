@@ -1,6 +1,6 @@
 From: K VAMSHI KRISHNA <Vamshi.Krishna@cmcltd.com>
-Message-ID: <1138.172.16.16.31.1037107565.squirrel@webmail>
-Date: Tue, 12 Nov 2002 18:56:05 +0530 (IST)
+Message-ID: <1475.210.212.217.4.1037111289.squirrel@webmail>
+Date: Tue, 12 Nov 2002 19:58:09 +0530 (IST)
 Subject: SELinux and Tomcat web server
 To: <SELinux@tycho.nsa.gov>
 MIME-Version: 1.0
