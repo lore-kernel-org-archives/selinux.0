@@ -1,40 +1,38 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OHQpHa002132
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 13:26:51 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OHUEHa002162
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 13:30:14 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6OHPhFB016569
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 17:25:43 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h6OHPfGD016566
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 17:25:42 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Stephen Reese" <sreese@prcdigital.com>, selinux@tycho.nsa.gov
-Subject: Re: grub/boot redhat9 problem
-Date: Thu, 24 Jul 2003 11:01:32 -0400
-References: <000001c350d8$42e0c290$6601a8c0@inspiron>
-In-Reply-To: <000001c350d8$42e0c290$6601a8c0@inspiron>
+	by jazzswing.ncsc.mil  with ESMTP id h6OHT7FB016816
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 17:29:07 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+	by jazzswing.ncsc.mil  with ESMTP id h6OHT7GD016813
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 17:29:07 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.11.6/8.11.6) with ESMTP id h6OHUCH15390
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 13:30:12 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.64.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id h6OHUCI31555
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 13:30:12 -0400
+Received: from redhat.com (dwalsh.cipe.redhat.com [10.0.2.138])
+	by mail.boston.redhat.com (8.11.6/8.11.6) with ESMTP id h6OHUB432195
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 13:30:11 -0400
+Message-ID: <3F20182C.1090902@redhat.com>
+Date: Thu, 24 Jul 2003 13:32:28 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200307241101.32102.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: Slides from Red Hat webcast on SELinux
+References: <3F1C1B4D.6080102@redhat.com> <1058893583.7990.45.camel@localhost.localdomain> <3F1D71F6.3080105@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 23 Jul 2003 01:07, Stephen Reese wrote:
-> I ran the quickinstall, but I think missed something in the kernel
-> configuration. I attempted to copy as many setting as I could from a
-> stock functional kernel, but I think I missed a switch...
+For those who asked, the session was not recorded but will be repeated 
+August 20th.
 
-The problem here is that 2.4.21 needs different settings to 2.4.20.  This is 
-not a SE Linux issue, I strongly recommend that you ask on your local LUG 
-mailing list or another resource for solving general Linux problems.
+ftp://people.redhat.com/dwalsh/SELinux/SecurityWebCast-SELinux.pdf
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Dan
 
 
 --
