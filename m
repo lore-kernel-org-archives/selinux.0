@@ -1,109 +1,43 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: fegler@bigfoot.com, SELinux@tycho.nsa.gov
-Subject: Re: kde rules
-Date: Mon, 4 Nov 2002 19:21:55 +0100
-References: <200210181642.34552.fegler@bigfoot.com> <200210190114.47251.russell@coker.com.au>
-In-Reply-To: <200210190114.47251.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA29247
+	for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2002 14:27:05 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA10012
+	for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2002 19:25:08 GMT
+Received: from segalo.cs.poste.it ([62.241.4.185])
+        by jazzband.ncsc.mil  with ESMTP id TAA10002 for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2002 19:25:07 GMT
+Message-ID: <3DC6CAB2.3070008@inwind.it>
+Date: Mon, 04 Nov 2002 20:29:54 +0100
+From: Giorgio Zanin <giorgio.zanin@inwind.it>
 MIME-Version: 1.0
-Message-Id: <200211041921.55071.russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>, selinux@tycho.nsa.gov
+Subject: type transition
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am being forced to look further into this matter.
+what's the difference between the following statements:
 
-One issue I have with my games domain is that it is denied access to ~/.qt and 
-~/.kde for KDE games.
+type_transition TYPE_A TYPE_B:process TYPE_C
 
-So now I am thinking of labelling those directories (and all subdirectories 
-and files) with a type that allows full access by user_t, and read-only 
-access by user_games_t.
+and
 
-However this raises one problem.  In a typical /etc/skel we don't have any .qt 
-and .kde directories, so at the time SE Linux is installed there's a good 
-chance that many users will not have those directories (and therefore they 
-won't be labelled).  If the directories get created with user_home_t then the 
-games won't work properly.
+allow TYPE_A TYPE_C:process transition
+?
 
-So I think that we need some sort of relablling program.  Firstly we need to 
-have setfiles use the correct identity for the files, for this I was thinking 
-of using regular expression substitution to map the identity in (which needs 
-to have some fallback code for the case of a user who's identity isn't 
-compiled into the policy and therefore gets user_u and therefore system_u for 
-the files).  Then once we have ensured that all files and directories will 
-have the correct identity we can have a tool to allow the user to check the 
-types of the files under their home directory against a setfiles type config 
-file and then be offered the opportunity to relabel files to match (if they 
-can).
+If I am  not wrong the first statement forces a new process, created by
+TYPE_A, to belong to TYPE_C, i.e. everytime TYPE_A creates a process
+(with respect to TYPE_B) this process is made member of TYPE_C.
+The second statement allows TYPE_A to change to TYPE_C.
+Does both occur upon an execve()? If so, what's the difference between
+them? It seems the first requires a call to fork(), while the second
+does not; probably I am wrong but it's the only difference I can argue.
+Can anyone explain how these type transitions occur (possibly everything
+about type transitions in SELinux....)?
 
-What do you think?
+Thanks
+Giorgio
 
-On Sat, 19 Oct 2002 01:14, Russell Coker wrote:
-> On Sat, 19 Oct 2002 00:42, Brian Fegler wrote:
-> > I am working on locking down kde. I would like to have a rule set that
-> > would not allow any user initiated kde related processes to write or read
-> > from the user's directory.
->
-> If you want to try such things then look at my games domain and the
-> netscape domain in the current CVS policy tree.  They have most of what you
-> need.
->
-> Now one thing you haven't explained is why you want to do this.
->
-> We have a separate domain for Netscape because of it's significant network
-> actions (which are a risk) and because it has had a history of security
-> problems.  I have recently created a separate domain for games because
-> games don't need any access to important files, and are generally written
-> by people who aren't too bothered by security issues.
->
-> Why make separate domains for KDE?  KDE by it's nature is dealing with your
-> files and processes.  If you want to have full KDE functionality then it
-> probably all needs to be in the main domain.
->
-> I've been thinking of making a separate domain for kmail because kmail has
-> sharply defined tasks and is easy to limit (it will require some hacking of
-> KDE code and then some negotiation to try and get the changes into the KDE
-> source tree).  But for the rest I've given up.
->
-> Konqueror is one program that you would like to have running in a different
-> domain, but there are two problems.  One problem is that it's used as a
-> local file browser (which requires full read and write access to all your
-> files) as well as a web browser (when you would like to restrict the
-> access).  Now it's quite common to have Konq being used to browse files, to
-> read a local .html file, and then to click on a link on a web page.  So you
-> have it going from a local file manager to the web browser use.
->
-> When you want to have a terminal process KDE will run a konsole for you
-> which runs bash.  So if you have a domain for the main KDE programs then it
-> would have to have an auto-trans rule to transition to user_t when running
-> either the konsole program or the shell_exec_t.  In either case it would be
-> possible for /bin/bash to be executed in such a way that it performs some
-> action on files that you are trying to deny from kde.
->
-> Due to the way it works I think that KDE has to be "trusted".  I've read
-> the source and having KDE be trusted doesn't exactly thrill me, so if you
-> can solve these problems then I'll be happy to help you implement the
-> solution.
->
-> > Some exceptions would be:
-> > kde_kmail_t => full permissions on user_mailbox_t
->
-> We don't have a user_mailbox_t yet, it has to be done though.
->
-> > xauth, dcop*, iceauth and kdeinit all write, read, create and delete from
-> > the home directory extensively.
-> >
-> > I had wanted to have different types for .qt*, .DCOP*, .Xauthority, ...,
->
-> I've already created a type for .Xauthority and it's in the CVS.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 
 --
