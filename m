@@ -1,187 +1,64 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FJ0EHa019337
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 15:00:15 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6FJ0DH5001279
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 19:00:13 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6FJIpHa019563
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 15:18:51 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6FJHonJ012311
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 19:17:50 GMT
 Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
-        by jazzband.ncsc.mil  with ESMTP id h6FJ0CRX001276 for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 19:00:13 GMT
-Subject: first pass at a spamassassin/spamc/spamd policy
+	by jazzswing.ncsc.mil  with ESMTP id h6FJHnhr012308
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2003 19:17:49 GMT
+Received: from columbia (dhcp024-208-189-249.columbus.rr.com [24.208.189.249])
+	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
+	(Client CN "columbia.verbum.org", Issuer "verbum.org CA" (verified OK))
+	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id 1E7DF32A6BB
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2003 03:23:39 -0400 (EDT)
+Subject: spamassassin file context files
 From: Colin Walters <walters@verbum.org>
 To: selinux@tycho.nsa.gov
-Cc: Russell Coker <russell@coker.com.au>
-Content-Type: multipart/mixed; boundary="=-oq1st1zYjtfai2Ksh4/T"
-Message-Id: <1058295391.15102.97.camel@columbia>
+Content-Type: multipart/mixed; boundary="=-qLSwdEbwNGjeykDOzXdW"
+Message-Id: <1058296722.15102.123.camel@columbia>
 Mime-Version: 1.0
-Date: 15 Jul 2003 14:56:32 -0400
+Date: 15 Jul 2003 15:18:42 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-oq1st1zYjtfai2Ksh4/T
+--=-qLSwdEbwNGjeykDOzXdW
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
 Hi,
 
-Attached is a first attempt at a spamassassin policy.  It is not going
-to be sufficient for most typical users though, because we don't
-currently have a clean way to transition from procmail_t to e.g.
-user_spamc_t.
-
-Russell and I discussed this issue on IRC last night, and he was of the
-opinion that we should create a shell script wrapper for procmail which
-looked at the type of the home directory of the user we're delivering
-to, and computing and transitioning to a new type (e.g. user_procmail_t)
-based on that.  Once that's in place, we would have a rule like:
-
-ifdef(`procmail.te',`
-domain_auto_trans($1_procmail_t, spamc_exec_t, $1_spamc_t)
-')
-in spamassassin_macros.te.
-
-One other issue I ran into; what's a good way to specify that a program
-may interact with the user?  Right now I'm doing:
-
-allow $1_$2_t privfd:fd use;
-allow $1_$2_t userpty_type:chr_file rw_file_perms;
-
-But this seems a bit unclean.  Any suggestions?
+I realized I forgot the spamassassin .fc files.  They're pretty trivial,
+but anyways here they are.
 
 
 
---=-oq1st1zYjtfai2Ksh4/T
-Content-Disposition: attachment; filename=spamassassin_macros.te
-Content-Type: text/plain; name=spamassassin_macros.te; charset=UTF-8
+--=-qLSwdEbwNGjeykDOzXdW
+Content-Disposition: attachment; filename=spamassassin.fc
+Content-Type: text/plain; name=spamassassin.fc; charset=UTF-8
 Content-Transfer-Encoding: base64
 
-Iw0KIyBNYWNyb3MgZm9yIHNwYW1hc3Nhc3NpbiBkb21haW5zLg0KIw0KIyBBdXRob3I6IENvbGlu
-IFdhbHRlcnMgPHdhbHRlcnNAdmVyYnVtLm9yZz4NCg0KIyBzcGFtYXNzYXNzaW5fZG9tYWluKGRv
-bWFpbl9wcmVmaXgpDQojDQojIERlZmluZSBkZXJpdmVkIGRvbWFpbnMgZm9yIHZhcmlvdXMgc3Bh
-bWFzc2Fzc2luIHRvb2xzIHdoZW4gZXhlY3V0ZWQNCiMgYnkgYSB1c2VyIGRvbWFpbi4NCiMNCiMg
-VGhlIHR5cGUgZGVjbGFyYXRpb25zIGZvciB0aGUgZXhlY3V0YWJsZSB0eXBlcyBvZiB0aGVzZSBw
-cm9ncmFtcyBhcmUNCiMgcHJvdmlkZWQgc2VwYXJhdGVseSBpbiBkb21haW5zL3Byb2dyYW0vc3Bh
-bWFzc2Fzc2luLnRlIGFuZA0KIyBkb21haW5zL3Byb2dyYW0vc3BhbWMudGUuDQojDQp1bmRlZmlu
-ZShgc3BhbWFzc2Fzc2luX2RvbWFpbicpDQppZmRlZihgc3BhbWFzc2Fzc2luLnRlJywgYGRlZmlu
-ZShgdXNpbmdfc3BhbWFzc2Fzc2luJywgYCcpJykNCmlmZGVmKGBzcGFtZC50ZScsIGBkZWZpbmUo
-YHVzaW5nX3NwYW1hc3Nhc3NpbicsIGAnKScpDQppZmRlZihgc3BhbWMudGUnLCBgZGVmaW5lKGB1
-c2luZ19zcGFtYXNzYXNzaW4nLCBgJyknKQ0KDQppZmRlZihgdXNpbmdfc3BhbWFzc2Fzc2luJyxg
-DQoNCiMjIyMjIyMNCiMgTWFjcm9zIHVzZWQgaW50ZXJuYWxseSBpbiB0aGVzZSBzcGFtYXNzYXNz
-aW4gbWFjcm9zLg0KIw0KDQojIyMNCiMgRGVmaW5lIGEgZG9tYWluIGZvciBhIHNwYW1hc3Nhc3Np
-bi1saWtlIHByb2dyYW0gKHNwYW1jL3NwYW1hc3Nhc3NpbikuDQojDQojIE5vdGU6IG1vc3Qgb2Yg
-dGhpcyBzaG91bGQgcmVhbGx5IGJlIGluIGEgZ2VuZXJpYyBtYWNybyBsaWtlDQojIGJhc2VfdXNl
-cl9wcm9ncmFtKCQxLCBmb28pDQpkZWZpbmUoYHNwYW1hc3Nhc3Npbl9wcm9ncmFtX2RvbWFpbics
-YA0KdHlwZSAkMV8kMl90LCBkb21haW4sIHByaXZsb2c7DQpkb21haW5fYXV0b190cmFucygkMV90
-LCAkMl9leGVjX3QsICQxXyQyX3QpDQoNCnJvbGUgJDFfciB0eXBlcyAkMV8kMl90Ow0KZ2VuZXJh
-bF9kb21haW5fYWNjZXNzKCQxXyQyX3QpDQoNCmJhc2VfZmlsZV9yZWFkX2FjY2VzcygkMV8kMl90
-KQ0Kbm9ybWFsX2NvbmZpZ19maWxlX3JlYWRfYWNjZXNzKCQxXyQyX3QpDQp1c2VzX3NobGliKCQx
-XyQyX3QpDQpyZWFkX2xvY2FsZSgkMV8kMl90KQ0KZG9udGF1ZGl0ICQxXyQyX3QgdmFyX3Q6ZGly
-IHNlYXJjaDsNCmFsbG93ICQxXyQyX3QgcHJpdmZkOmZkIHVzZTsNCmFsbG93ICQxXyQyX3QgdXNl
-cnB0eV90eXBlOmNocl9maWxlIHJ3X2ZpbGVfcGVybXM7DQonKSBkbmwgZW5kIHNwYW1hc3Nhc3Np
-bl9wcm9ncmFtX2RvbWFpbg0KDQojIyMNCiMgR2l2ZSBwcml2aWxlZ2VzIHRvIGEgZG9tYWluIGZv
-ciBhY2Nlc3Npbmcgfi8uc3BhbWFzc2Fzc2luDQojIGFuZCBhIGZldyBvdGhlciBtaXNjIHRoaW5n
-cyBsaWtlIC9kZXYvcmFuZG9tLg0KIyBUaGlzIGlzIGdyYW50ZWQgdG8gL3Vzci9iaW4vc3BhbWFz
-c2Fzc2luIGFuZA0KIyAvdXNyL3NiaW4vc3BhbWQsIGJ1dCBOT1Qgc3BhbWMgKGJlY2F1c2UgaXQg
-ZG9lcyBub3QgbmVlZCBpdCkuDQojDQpkZWZpbmUoYHNwYW1hc3Nhc3Npbl9hZ2VudF9wcml2cycs
-YA0KYWxsb3cgJDEgeyBob21lX3Jvb3RfdCB1c2VyX2hvbWVfZGlyX3R5cGUgc3lzYWRtX2hvbWVf
-ZGlyX3QgfTpkaXIgeyBzZWFyY2ggZ2V0YXR0ciB9Ow0KZmlsZV90eXBlX2F1dG9fdHJhbnMoJDEs
-ICQyX2hvbWVfZGlyX3QsICQyX2hvbWVfc3BhbWFzc2Fzc2luX3QpDQpjcmVhdGVfZGlyX2ZpbGUo
-JDEsICQyX2hvbWVfc3BhbWFzc2Fzc2luX3QpDQoNCmFsbG93ICQxIHJhbmRvbV9kZXZpY2VfdDpj
-aHJfZmlsZSByX2ZpbGVfcGVybXM7DQonKQ0KDQojIyMjIyMjDQojIERlZmluZSB0aGUgbWFpbiBz
-cGFtYXNzYXNzaW4gbWFjcm8uICBUaGlzIGl0c2VsZiBjcmVhdGVzIGENCiMgZG9tYWluIGZvciAv
-dXNyL2Jpbi9zcGFtYXNzYXNzaW4sIGFuZCBhbHNvIHNwYW1jL3NwYW1kIGlmDQojIGFwcGxpY2Fi
-bGUuDQojDQpkZWZpbmUoYHNwYW1hc3Nhc3Npbl9kb21haW4nLGANCnNwYW1hc3Nhc3Npbl9wcm9n
-cmFtX2RvbWFpbigkMSwgc3BhbWFzc2Fzc2luKQ0KDQojIEZvciBwZXJsIGxpYnJhcmllcy4NCmFs
-bG93ICQxX3NwYW1hc3Nhc3Npbl90IGxpYl90OmZpbGUgcnhfZmlsZV9wZXJtczsNCiMgSWdub3Jl
-IHBlcmwgZGlnZ2luZyBpbiAvcHJvYyBhbmQgL3Zhci4NCmRvbnRhdWRpdCAkMV9zcGFtYXNzYXNz
-aW5fdCBwcm9jX3Q6ZGlyIHNlYXJjaDsNCmRvbnRhdWRpdCAkMV9zcGFtYXNzYXNzaW5fdCB7IHN5
-c2N0bF90IHN5c2N0bF9rZXJuZWxfdCB9OmRpciBzZWFyY2g7DQoNCiMgVGhlIHR5cGUgb2Ygfi8u
-c3BhbWFzc2Fzc2luDQp0eXBlICQxX2hvbWVfc3BhbWFzc2Fzc2luX3QsIGZpbGVfdHlwZSwgc3lz
-YWRtZmlsZTsNCmNyZWF0ZV9kaXJfZmlsZSgkMV90LCAkMV9ob21lX3NwYW1hc3Nhc3Npbl90KQ0K
-YWxsb3cgJDFfdCAkMV9ob21lX3NwYW1hc3Nhc3Npbl90Om5vdGRldmZpbGVfY2xhc3Nfc2V0IHsg
-cmVsYWJlbGZyb20gcmVsYWJlbHRvIH07DQphbGxvdyAkMV90ICQxX2hvbWVfc3BhbWFzc2Fzc2lu
-X3Q6ZGlyIHsgcmVsYWJlbGZyb20gcmVsYWJlbHRvIH07DQoNCnNwYW1hc3Nhc3Npbl9hZ2VudF9w
-cml2cygkMV9zcGFtYXNzYXNzaW5fdCwgJDEpDQoNCiMgVW5jb21tZW50IGlmIHlvdSBoYXZlIHNw
-YW1hc3Nhc3NpbiBkbyBETlMgbG9va3Vwcw0KI2Nhbl9uZXR3b3JrKCQxX3NwYW1hc3Nhc3Npbl90
-KQ0KDQojIyMNCiMgRGVmaW5lIHRoZSBkb21haW4gZm9yIC91c3IvYmluL3NwYW1jDQojDQppZmRl
-Zihgc3BhbWMudGUnLGANCnNwYW1hc3Nhc3Npbl9wcm9ncmFtX2RvbWFpbigkMSwgc3BhbWMpDQpj
-YW5fbmV0d29yaygkMV9zcGFtY190KQ0KDQojIEFsbG93IGNvbm5lY3RpbmcgdG8gYSBsb2NhbCBz
-cGFtZA0KaWZkZWYoYHNwYW1kLnRlJyxgDQpjYW5fdGNwX2Nvbm5lY3QoJDFfc3BhbWNfdCwgc3Bh
-bWRfdCkNCicpIGRubCBlbmRpZiBzcGFtZC50ZQ0KJykgZG5sIGVuZGlmIHNwYW1jLnRlDQoNCiMj
-Iw0KIyBEZWZpbmUgdGhlIGRvbWFpbiBmb3IgL3Vzci9zYmluL3NwYW1kDQojDQppZmRlZihgc3Bh
-bWQudGUnLGANCg0Kc3BhbWFzc2Fzc2luX2FnZW50X3ByaXZzKHNwYW1kX3QsICQxKQ0KDQonKSBk
-bmwgZW5kaWYgc3BhbWQudGUNCg0KJykgZG5sIGVuZCBzcGFtYXNzYXNzaW5fZG9tYWluDQoNCics
-IGANCg0KZGVmaW5lKGBzcGFtYXNzYXNzaW5fZG9tYWluJyxgJykNCg0KJykNCg==
+L3Vzci9iaW4vc3BhbWFzc2Fzc2luCQlzeXN0ZW1fdTpvYmplY3RfcjpzcGFtYXNzYXNzaW5fZXhl
+Y190DQoNCi9yb290L1wuc3BhbWFzc2Fzc2luKC8uKik/CXN5c3RlbV91Om9iamVjdF9yOnN0YWZm
+X2hvbWVfc3BhbWFzc2Fzc2luX3QNCi9ob21lL1teL10rL1wuc3BhbWFzc2Fzc2luKC8uKik/CXN5
+c3RlbV91Om9iamVjdF9yOnVzZXJfaG9tZV9zcGFtYXNzYXNzaW5fdA0K
 
---=-oq1st1zYjtfai2Ksh4/T
-Content-Disposition: attachment; filename=spamassassin.te
-Content-Type: text/plain; name=spamassassin.te; charset=UTF-8
+--=-qLSwdEbwNGjeykDOzXdW
+Content-Disposition: attachment; filename=spamc.fc
 Content-Transfer-Encoding: base64
+Content-Type: text/plain; name=spamc.fc; charset=UTF-8
 
-I0RFU0MgU3BhbUFzc2Fzc2luDQojDQojIEF1dGhvcjogQ29saW4gV2FsdGVycyA8d2FsdGVyc0Bk
-ZWJpYW4ub3JnPg0KIyBYLURlYmlhbi1QYWNrYWdlczogc3BhbWFzc2Fzc2luDQoNCnR5cGUgc3Bh
-bWFzc2Fzc2luX2V4ZWNfdCwgZmlsZV90eXBlLCBzeXNhZG1maWxlLCBleGVjX3R5cGU7DQoNCiMg
-RXZlcnl0aGluZyBlbHNlIGlzIGluIHNwYW1hc3Nhc3Npbl9tYWNyb3MudGUuDQo=
+L3Vzci9iaW4vc3BhbWMJCXN5c3RlbV91Om9iamVjdF9yOnNwYW1jX2V4ZWNfdA0K
 
---=-oq1st1zYjtfai2Ksh4/T
-Content-Disposition: attachment; filename=spamc.te
-Content-Type: text/plain; name=spamc.te; charset=UTF-8
+--=-qLSwdEbwNGjeykDOzXdW
+Content-Disposition: attachment; filename=spamd.fc
 Content-Transfer-Encoding: base64
+Content-Type: text/plain; name=spamd.fc; charset=UTF-8
 
-I0RFU0MgU3BhbWMgLSBTcGFtYXNzYXNzaW4gY2xpZW50DQojDQojIEF1dGhvcjogQ29saW4gV2Fs
-dGVycyA8d2FsdGVyc0BkZWJpYW4ub3JnPg0KIyBYLURlYmlhbi1QYWNrYWdlczogc3BhbWMNCiMN
-Cg0KdHlwZSBzcGFtY19leGVjX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZSwgZXhlY190eXBlOw0K
-DQojIEV2ZXJ5dGhpbmcgZWxzZSBpcyBpbiBzcGFtYXNzYXNzaW5fbWFjcm9zLnRlLg0K
+L3Vzci9zYmluL3NwYW1kCQlzeXN0ZW1fdTpvYmplY3RfcjpzcGFtZF9leGVjX3QNCg==
 
---=-oq1st1zYjtfai2Ksh4/T
-Content-Disposition: attachment; filename=spamd.te
-Content-Type: text/plain; name=spamd.te; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-I0RFU0MgU3BhbWQgLSBTcGFtYXNzYXNzaW4gZGFlbW9uDQojDQojIEF1dGhvcjogQ29saW4gV2Fs
-dGVycyA8d2FsdGVyc0BkZWJpYW4ub3JnPg0KIyBYLURlYmlhbi1QYWNrYWdlczogc3BhbWFzc2Fz
-c2luDQojDQoNCmRhZW1vbl9kb21haW4oc3BhbWQpDQoNCnRtcF9kb21haW4oc3BhbWQpDQphbGxv
-dyBzcGFtZF90IHRtcF90OmRpciB7IGdldGF0dHIgcmVhZCB9Ow0KDQp0eXBlIHNwYW1kX3BvcnRf
-dCwgcG9ydF90eXBlOw0KYWxsb3cgc3BhbWRfdCBzcGFtZF9wb3J0X3Q6dGNwX3NvY2tldCBuYW1l
-X2JpbmQ7DQoNCmdlbmVyYWxfZG9tYWluX2FjY2VzcyhzcGFtZF90KQ0KYmFzZV9maWxlX3JlYWRf
-YWNjZXNzKHNwYW1kX3QpDQpub3JtYWxfY29uZmlnX2ZpbGVfcmVhZF9hY2Nlc3Moc3BhbWRfdCkN
-CnVzZXNfc2hsaWIoc3BhbWRfdCkNCg0KIyBWYXJpb3VzIFBlcmwgYml0cw0KYWxsb3cgc3BhbWRf
-dCBsaWJfdDpmaWxlIHJ4X2ZpbGVfcGVybXM7DQpkb250YXVkaXQgc3BhbWRfdCB7IHN5c2N0bF90
-IHN5c2N0bF9rZXJuZWxfdCB9OmRpciBzZWFyY2g7DQpkb250YXVkaXQgc3BhbWRfdCB7IHNoYWRv
-d190IH06ZmlsZSByZWFkOw0KZG9udGF1ZGl0IHNwYW1kX3Qgc3lzYWRtX2RldnB0c190OmNocl9m
-aWxlIHsgcmVhZCB3cml0ZSB9Ow0KZG9udGF1ZGl0IHNwYW1kX3QgaW5pdHJjX3Zhcl9ydW5fdDpm
-aWxlIHsgcmVhZCB3cml0ZSBsb2NrIH07DQoNCmNhbl9uZXR3b3JrKHNwYW1kX3QpDQphbGxvdyBz
-cGFtZF90IHNlbGY6Y2FwYWJpbGl0eSB7IG5ldF9iaW5kX3NlcnZpY2UgfTsNCg0KIyBTcGFtYXNz
-YXNzaW4sIHdoZW4gcnVuIGFzIHJvb3QgYW5kIHVzaW5nIHBlci11c2VyIGNvbmZpZyBmaWxlcywN
-CiMgc2V0dWlkcyB0byB0aGUgdXNlciBydW5uaW5nIHNwYW1jLiAgQ29tbWVudCB0aGlzIGlmIHlv
-dSBhcmUgbm90DQojIHVzaW5nIHRoaXMgYWJpbGl0eS4NCmFsbG93IHNwYW1kX3Qgc2VsZjpjYXBh
-YmlsaXR5IHsgc2V0dWlkIHNldGdpZCBkYWNfb3ZlcnJpZGUgZGFjX3JlYWRfc2VhcmNoIH07DQo=
-
---=-oq1st1zYjtfai2Ksh4/T
-Content-Disposition: attachment; filename=spamassassin-general.patch
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; name=spamassassin-general.patch; charset=UTF-8
-
-LS0tIHBvbGljeS0xLjAvbWFjcm9zL3VzZXJfbWFjcm9zLnRlCTIwMDMtMDctMDcgMDk6MTk6Mjgu
-MDAwMDAwMDAwIC0wNDAwDQorKysgc2VsaW51eC1wb2xpY3ktMS4wL21hY3Jvcy91c2VyX21hY3Jv
-cy50ZQkyMDAzLTA3LTE1IDAzOjA0OjM0LjAwMDAwMDAwMCAtMDQwMA0KQEAgLTE1NSw2ICsxNTUs
-NyBAQA0KIGlmZGVmKGBjcm9udGFiLnRlJywgYGNyb250YWJfZG9tYWluKCQxKScpDQogaWZkZWYo
-YHNzaC50ZScsIGBzc2hfZG9tYWluKCQxKScpDQogaWZkZWYoYGlyYy50ZScsIGBpcmNfZG9tYWlu
-KCQxKScpDQoraWZkZWYoYHVzaW5nX3NwYW1hc3Nhc3NpbicsIGBzcGFtYXNzYXNzaW5fZG9tYWlu
-KCQxKScpDQogaWZkZWYoYHVtbC50ZScsIGB1bWxfZG9tYWluKCQxKScpDQogaWZkZWYoYGNsYW1h
-di50ZScsIGB1c2VyX2NsYW1zY2FuX2RvbWFpbigkMSknKQ0KIGlmZGVmKGBmaW5nZXJkLnRlJywg
-YGZpbmdlcmRfbWFjcm8oJDEpJykNCi0tLSBwb2xpY3ktMS4wL25ldF9jb250ZXh0cwkyMDAzLTA3
-LTEwIDEwOjQ0OjU5LjAwMDAwMDAwMCAtMDQwMA0KKysrIHNlbGludXgtcG9saWN5LTEuMC9uZXRf
-Y29udGV4dHMJMjAwMy0wNy0xNSAxMzoyNzo1Ni4wMDAwMDAwMDAgLTA0MDANCkBAIC03NSw2ICs3
-NSw3IEBADQogcG9ydGNvbiB1ZHAgNTMyMyBzeXN0ZW1fdTpvYmplY3RfcjppbWF6ZV9wb3J0X3QN
-CiAnKQ0KIGlmZGVmKGBpcmNkLnRlJywgYHBvcnRjb24gdGNwIDY2Njcgc3lzdGVtX3U6b2JqZWN0
-X3I6aXJjZF9wb3J0X3QnKQ0KK2lmZGVmKGBzcGFtZC50ZScsIGBwb3J0Y29uIHRjcCA3ODMgc3lz
-dGVtX3U6b2JqZWN0X3I6c3BhbWRfcG9ydF90JykNCiBpZmRlZihgYXBhY2hlLnRlJywgYGRlZmlu
-ZShgdXNlX2h0dHBfY2FjaGUnKScpDQogaWZkZWYoYHNxdWlkLnRlJywgYGRlZmluZShgdXNlX2h0
-dHBfY2FjaGUnKScpDQogaWZkZWYoYHVzZV9odHRwX2NhY2hlJywgYHBvcnRjb24gdGNwIDgwODAg
-IHN5c3RlbV91Om9iamVjdF9yOmh0dHBfY2FjaGVfcG9ydF90JykNCg==
-
---=-oq1st1zYjtfai2Ksh4/T--
+--=-qLSwdEbwNGjeykDOzXdW--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
