@@ -1,63 +1,89 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7Q35fLa029081
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 23:05:41 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7Q34E4F016544
-	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2003 03:04:14 GMT
-Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h7Q34BFC016525
-	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2003 03:04:12 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Pisupati, Ajay" <ajay.pisupati@pw.utc.com>,
-   SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SElinux vs. Grsecruity
-Date: Tue, 26 Aug 2003 13:04:49 +1000
+Subject: Re: [selinux] Re: SElinux vs. Grsecruity vs. RSBAC (vs. TrustedBSD?)
+From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+To: Bennett Todd <bet@rahul.net>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20030825170259.GB4409@rahul.net>
 References: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com>
-In-Reply-To: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200308261304.49538.russell@coker.com.au>
+	<20030825170259.GB4409@rahul.net>
+Content-Type: text/plain; charset=ISO-8859-2
+Date: 26 Aug 2003 11:15:39 +0200
+Message-Id: <1061889339.1665.1548.camel@kusturica>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 26 Aug 2003 00:43, Pisupati, Ajay wrote:
-> 	I just started reading about SE Linux and grsecurity.  Having used
-> neither one (and wanting to learn), I wanted to find out the differences
-> (advantages and disadvantes) between both.  I am not looking for a detailed
-> explanation of how things work but just an introduction on a conceptual
-> level.
+Hi!
 
-GR Security includes PaX for protection against stack smashing and other 
-similar attacks.  But it also has an ACL system of it's own and limited 
-chroot's (IE process in chroot can't touch the outside environment or other 
-chroot's).
+Grsecurity is for those who not really informed in trusted systems,
+but need some security. It have some mechanisms to prevent usual
+programming errors to escalate (stack protection, chroot protection),
+and some security functionality (execution log, acl). I would say
+that it is the unix style; it is easily understandable for any unix
+admin. You can do domain separation in that model with CAPless
+chroots.
 
-SE Linux is an implementation of the domain-type security model.  The domain a 
-process is in determines that access it is given.  Domains can change 
-automatically on execution of certain processes (eg getty, login, and ping) 
-or when executing a process a SE Linux aware program can specify the security 
-context of the child process (within a certain range), login, sshd, and cron 
-do this.
+RSBAC implements nearly every MAC model which can be found in the
+research papers. The models are implemented with the german precision.
+It also means that they take little care fo things which are needed
+in real life. As they have a big user base (I guess their user base is
+the greatest of linux MAC implementations), these shortcomings are
+compensated for, to some extent. One example is the polyinstantiation
+support, implemented by "moldy symlinks". They now have it for RC (it is
+a DTE+RBAC variant), and maybe for
+DoD MAC. Actually the main focus is on the RC model twisted with AUTH;
+the other model implementations count not much more than reference
+implementations (however Amon recently told that he has a user who
+insist on using DoD MAC, so that model also have rapidly evolved
+recently. I didn't checked it yet, I stick now with an RC approximation
+of MAC). Ah, and their JAIL model is also useable to some extent,
+only too hardcoded in some aspects.
+The main drawback with RSBAC is that german precisity: don't even
+think about policy-aware userspace applications (X, rdbms, logging
+security attributes from userspace programs, etc). The network
+support is better than selinux, but still criminally primitive.
+Amon is yet to realize how important the handling of security attributes
+in packet filter.
 
-The grsec ACL system and RSBAC don't support modifying applications to specify 
-the security context, so they don't support giving different access to 
-different non-root users.
+Selinux inside is a flexible security architecture, very well tought
+out and the ideas tested for a long time on a fairly modern OS research
+kernel implementation. Outside it is a DTE+RBAC variant with user
+identities unrelated to the OS uid. So it is fairly close to the most
+used RSBAC setup, the biggest conceptual difference being that rsbac
+AUTH do connected with unix uid (sometimes a bit inconveniently).
+Selinux have a flexible configuration language, with all of its power
+to describe and problems to understand. This is partly because the
+default policy is very detailed, and cares about nearly all aspects
+of the mechanisms of a modern Linux. And yes, selinux have tools to
+analize and design the policy (I have yet to try them).
+Selinux have a well thought-out userspace API, which makes creating
+security-aware applications easy. Actually Selinux in most uses
+depends on at least the login mechanism being security-aware.
+The drawbacks: lack of polyinstantiation support (once it did have
+it in the FLASK microkernel), and that network support is even more
+primitive than that of RSBAC. I'm afraid even Stephen is yet to realize
+how important the handling of security attributes in packet filter.
+It is too much connected to Redhat. It makes an unnecessary
+inconvenience for a lot of users; why the userspace changes are given
+as srpms instead of patches to the upstream? (I guess this can be drawn
+from the fact that the authors are americans; considering other
+cultures (like Debian or moslim:) is a bit hard to them.) Fortunately
+there are good debian maintainers for the selinux packages.
+Not a directly technical but very important consideration: selinux
+is the first and yet only MAC model in the upstream kernel, and is
+supported by the NSA. It means that selinux have very great probability
+to be the winner implementation, like Apache in web servers.
 
-I think that Grsec has better support for some aspects of IP networking 
-control, such as controlling which IP address a process can bind to 
-(currently SE Linux only supports controlling bind access by port).
-
-RSBAC has lots of options for a huge number of things as they take the kitchen 
-sink approach.  You have to answer about 40 questions at kernel configuration 
-time, and it's not clear which combinations of options are viable.
+It might be interesting to include TrustedBSD in the comparison, but I
+know very few of it. It seems that it is a DoD MAC implementation,
+cares about every aspect (like network, polyinstantiation, etc), and
+uses all the experience of engineers of "The Only Real Unix" :).
+Its drawbacks might be its inflexibility (in SELinux you write a new
+security server, and you have implemented a new model), and -for those
+who do not like them- that it is DoD MAC, and BSD.
+(I might err in the facts above about TrustedBSD).
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+GNU GPL: csak tiszta forrásból
 
 
 --
