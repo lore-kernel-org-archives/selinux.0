@@ -1,33 +1,64 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3BAJ8Rb003479
-	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 06:19:08 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i3BAH6UZ009207
-	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 10:17:06 GMT
-Received: from dl.oss.co.yu (mps.rns-nis.co.yu [194.247.213.6])
-	by jazzswing.ncsc.mil  with ESMTP id i3BAGmmT009204
-	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 10:16:58 GMT
-Date: Sun, 11 Apr 2004 12:18:35 +0200
-From: "Milan P. Stanic" <mps@rns-nis.co.yu>
-To: selinux@tycho.nsa.gov
-Subject: Re: Problems finding working kernel/user land combination
-Message-ID: <20040411101835.GC2310@rns-nis.co.yu>
-References: <88042458.1081270777@[192.168.0.3]> <20040407075405.D19421@lemuria.org> <20040409204356.GA6027@rns-nis.co.yu> <36722574.1081629509@[192.168.0.3]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <36722574.1081629509@[192.168.0.3]>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3BAOkRb003499
+	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 06:24:46 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i3BAOimw014253
+	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 10:24:45 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i3BAOW4w014204 for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 10:24:43 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Rogelio Serrano <rogelio@smsglobal.net>
+Subject: Re: booting in enforcing mode
+Date: Sun, 11 Apr 2004 20:23:07 +1000
+Cc: selinux@tycho.nsa.gov
+References: <edb0cd3759adb044522304e91946929a@debian>
+In-Reply-To: <edb0cd3759adb044522304e91946929a@debian>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200404112023.07189.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Apr 10, 2004 at 08:38:29PM -0700, Bill McCarty wrote:
-> I gave it a go; but dpkg reports that libselinux1 depends on libattr1 >= 
-> 2.4.4-1, which is not part of Woody. Did I take a wrong turn?
+On Sun, 11 Apr 2004 00:53, Rogelio Serrano <rogelio@smsglobal.net> wrote:
+> I see. I think i have to remove some of those that i added. the
+> hotplug scripts are the noisiest. i will fix /bin/login first.
+> its the login fom util-linux 2.12 and im not using PAM. i need
 
-Oh, sorry. I forgot to note that it depends on libattr1 and attr which
-can be downloaded from http://www.backports.org/
+Not using PAM is a problem.  I have written policy to prevent /bin/login from 
+accessing /etc/shadow directly.  When using PAM the helper program 
+unix_chkpwd is granted read access to /etc/shadow and /bin/login will spawn 
+unic_chkpwd to check the password.
 
-In my original announce to debian-security I mentioned that, but here
-I made a mistake. Sorry for inconvenience.
+When not using PAM you would have to put the following in login.te:
+allow $1_login_t shadow_t:file { getattr read };
+
+Then in the domain declaration change auth_chkpwd to auth.
+
+> to label the tty properly. i can login but not into
+
+That's another thing, if you use a non-PAM login program then you have to 
+patch it to relabel the tty.
+
+I think that an option to consider is using pam-login.  It's source code is 
+apparently very clean, partly because it's only designed to use PAM and has 
+no options for doing other things.
+
+> /User/Admin. login drops me into / then i can just "cd" and im
+> in sysadm_home_dir. all home directories are in /Users and
+> admins home dir is /Users/Admin alongside the other users. The
+> context for /Users is system_u:object_r:file_t. Is that ok?
+> Shouldnt it be root_t? Or should i create a totally new type.
+
+Best thing to do would be sed -e s/^\/home\//\/Users\// on the file_contexts 
+file.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
