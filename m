@@ -1,45 +1,66 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3RFg7Rb028548
-	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 11:42:07 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i3RFdeW3025006
-	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 15:39:40 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i3RFddIx025001
-	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 15:39:39 GMT
-Subject: Re: /etc/passwd labeling issues
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: Ed Street <edstreet@street-tek.com>, Selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200404271325.58348.russell@coker.com.au>
-References: <20040426224500.7F3B83A4053@abyss.simplyaquatics.com>
-	 <200404271325.58348.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1083080493.24445.117.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3RJCiRb000128
+	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 15:12:45 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i3RJAmZC014304
+	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 19:12:42 GMT
+Received: from turing-police.cirt.vt.edu (turing-police.cirt.vt.edu [128.173.54.129])
+        by jazzband.ncsc.mil  with ESMTP id i3RHqKJP006548 for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 17:52:20 GMT
+Message-Id: <200404271752.i3RHqC8E015562@turing-police.cc.vt.edu>
+To: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
+Subject: Policy file for 'aide' and/or 'tripwire'?
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Date: Tue, 27 Apr 2004 11:41:34 -0400
+Content-Type: multipart/signed; boundary="==_Exmh_-2076588404P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Tue, 27 Apr 2004 13:52:12 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-04-26 at 23:25, Russell Coker wrote:
-> On Tue, 27 Apr 2004 08:44, "Ed Street" <edstreet@street-tek.com> wrote:
-> > So we have 2 choices for our debian users.  A) Change the password, change
-> 
-> No, we have only one realistic choice.  To fix PAM and make it work correctly 
-> as it does in Fedora.
+--==_Exmh_-2076588404P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <15547.1083088324.1@turing-police.cc.vt.edu>
 
-Or use the wrapper-based approach of the older SELinux, i.e. spasswd and
-friends.
+Has anybody already done a policy file for Tripwire or its
+open-sourced replacement 'aide'?
 
-As I recall, Fedora includes more than just a modified pam for this
-purpose; it also required modifications to libuser, shadow-utils, and
-components of util-linux to preserve contexts on /etc/passwd and
-/etc/shadow.
+Trying to run 'tripwire --check' from a cron job gets this:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Apr 27 04:03:37 orange kernel: audit(1083053017.355:0): avc:  denied  { write }                     
+for  pid=14045 exe=/usr/sbin/tripwire name=tripwire dev=dm-5 ino=22529
+scontext=system_u:system_r:system_crond_t tcontext=system_u:object_r:var_t tclass=dir
 
+when trying to open the TEMPDIRECTORY directory:
+
+#  ls -ld --context /var/tripwire/
+drwx------+ root     root     system_u:object_r:var_t          /var/tripwire/
+
+(The actual database files are here:
+
+# ls --context /var/lib/tripwire
+-rw-------+ root     root     system_u:object_r:var_lib_t      orange.cirt.vt.edu.twd
+-rw-------  root     root     system_u:object_r:var_lib_t      orange.cirt.vt.edu.twd.bak
+drwxr-xr-x+ root     root     system_u:object_r:var_lib_t      report
+
+It occurs to me that it would be simple but incorrect to just use setfilecon
+to coerce the contexts into something that works, and that a separate
+set of tripwire_t and/or aide_t contexts is probably desired.  Having no wish
+to reinvent the wheel, has anybody done this already?
+
+
+--==_Exmh_-2076588404P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAjp3McC3lWbTT17ARAkXvAKD8AD1w9mOnUfvfYDeUFfgWDi0ttQCdHb+e
+3B3CMTMDDwKQoXUTTkoqj8E=
+=zqtz
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-2076588404P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
