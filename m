@@ -1,68 +1,49 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA13312
-	for <selinux@tycho.nsa.gov>; Thu, 14 Mar 2002 16:07:24 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id VAA03943
-	for <selinux@tycho.nsa.gov>; Thu, 14 Mar 2002 21:06:22 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id VAA03932 for <selinux@tycho.nsa.gov>; Thu, 14 Mar 2002 21:06:20 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id C2AA992443
-	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 08:07:19 +1100 (EST)
-Received: from there (lyta [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id E851B1A005
-	for <selinux@tycho.nsa.gov>; Thu, 14 Mar 2002 22:07:21 +0100 (CET)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: stat now supports SE Linux in the upstream
-Date: Thu, 14 Mar 2002 22:07:19 +0100
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA28422
+	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 09:01:11 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA20102
+	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 13:59:53 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id NAA20098
+	for <selinux@tycho.nsa.gov>; Fri, 15 Mar 2002 13:59:53 GMT
+Date: Fri, 15 Mar 2002 09:00:32 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: package configuration (for dpkg - rpm will have the same issues)
+In-Reply-To: <20020314203149.4BB5519FE7@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0203150854350.15480-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020314210721.E851B1A005@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The latest version of stat has SE Linux support, so there's probably no need 
-for the patch on the NSA site, just a reference that version 3.1 is needed.
 
-There is a bug in displaying the context though, the following patch fixes it.
+On Thu, 14 Mar 2002, Russell Coker wrote:
 
+> To solve this I was thinking of having an automatic transition from sysadm_t
+> to dpkg_t when dpkg_exec_t programs are run.  Then there would be an
+> automatic transition from dpkg_t when running initrc_exec_t binaries (all the
+> start scripts) which stops run_init from needing a password.
+>
+> What do you think of this idea?
 
-diff -ru stat-3.1/stat.c stat-3.1.patched/stat.c
---- stat-3.1/stat.c ? ? Sun Mar ?3 12:58:22 2002
-+++ stat-3.1.patched/stat.c ? ? Thu Mar 14 21:52:23 2002
-@@?-745,7 +745,7 @@
-? ? ? ? ? ? ? ? ? ? ? ? ? ?"Device: %Dh/%dd\tInode: %-10i ?Links: %-5h"
-? ? ? ? ? ? ? ? ? ? ? ? ? ?" Device type: %t,%T\n"
-? ? ? ? ? ? ? ? ? ? ? ? ? ?"Access: (%04a/%10.10A) ?Uid: (%5u/%8U) ? Gid: 
-(%5g/%8G)\n"
-- ? ? ? ? ? ? ? ? ? ? ? ? ?" ? SID: %-14S ?S_Context: %c\n"
-+ ? ? ? ? ? ? ? ? ? ? ? ? ?" ? SID: %-14S ?S_Context: %C\n"
-? ? ? ? ? ? ? ? ? ? ? ? ? ?"Access: %x\n"
-? ? ? ? ? ? ? ? ? ? ? ? ? ?"Modify: %y\n"
-? ? ? ? ? ? ? ? ? ? ? ? ? ?"Change: %z\n";
-@@?-770,7 +770,7 @@
-? ? ? ? ? ? ? ? ? ? ? ? ? ?" ?Size: %-10s\tBlocks: %-10b IO Block: %-6o %F\n"
-? ? ? ? ? ? ? ? ? ? ? ? ? ?"Device: %Dh/%dd\tInode: %-10i ?Links: %-5h\n"
-? ? ? ? ? ? ? ? ? ? ? ? ? ?"Access: (%04a/%10.10A) ?Uid: (%5u/%8U) ? Gid: 
-(%5g/%8G)\n"
-- ? ? ? ? ? ? ? ? ? ? ? ? ?" ? SID: %-14S ?S_Context: %c\n"
-+ ? ? ? ? ? ? ? ? ? ? ? ? ?" ? SID: %-14S ?S_Context: %C\n"
-? ? ? ? ? ? ? ? ? ? ? ? ? ?"Access: %x\n"
-? ? ? ? ? ? ? ? ? ? ? ? ? ?"Modify: %y\n"
-? ? ? ? ? ? ? ? ? ? ? ? ? ?"Change: %z\n";
+I'm not sure I understand.  run_init (or something similar) still needs to
+be used when running the init scripts so that they are executed from the
+proper security context.  run_init re-authenticates for the same reason as
+newrole - to ensure that the user really wants to perform the transition,
+as opposed to some malicious code run by the user.  If you eliminate the
+user interaction for dpkg, how do you provide the same guarantee?  Or, if
+you are willing to give up that guarantee, then why not just drop the
+authentication out of your copy of run_init entirely.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-PS Is the NSA web site suffering a DOS attack?  It seems unusually slow while 
-all the other American sites I've tried work normally...
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
