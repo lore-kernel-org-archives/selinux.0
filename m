@@ -1,31 +1,27 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA17987
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 07:16:05 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA10382
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 12:14:12 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA18121
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 07:41:51 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA11713
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 12:39:56 GMT
 Received: from nox.lemuria.org ([213.191.86.30])
-	by jazzswing.ncsc.mil  with ESMTP id MAA10378
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 12:14:11 GMT
-Date: Tue, 29 Oct 2002 13:15:43 +0100
+        by jazzband.ncsc.mil  with ESMTP id MAA11709 for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 12:39:56 GMT
+Date: Tue, 29 Oct 2002 13:41:49 +0100
 From: Tom <tom@lemuria.org>
 To: selinux@tycho.nsa.gov
-Subject: patches to policy question
-Message-ID: <20021029131543.C24527@lemuria.org>
+Subject: recovery docs starter
+Message-ID: <20021029134149.A25150@lemuria.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've posted a few patches against Russell's default policy, but I've
-started to wonder about the general workflow.
+As promised when I had some trouble, I've started a "SELinux failures
+and recovery" document. It's very small right now, but nevertheless
+here's the first draft and please give feedback, as I'm sure I have
+missed stuff and made some mistakes.
 
-Is Russell's policy worked into the NSA CVS, so the workflow would be
-3rd Part -> Russell -> NSA ?
-Or would it be better if I (or anyone else) would also diff changes
-against the latest NSA release and post those patches?
-
-Is posting here the right way to submit patches anyway?
+http://web.lemuria.org/se-recovery.html
 
 
 -- 
