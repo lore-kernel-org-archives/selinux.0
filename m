@@ -1,48 +1,44 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i39E2URb024868
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 10:02:30 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i39E8qRb024951
+	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 10:08:52 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i39E0UUZ000065
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 14:00:30 GMT
-Received: from vsmtp3.tin.it (vsmtp3alice.tin.it [212.216.176.143])
-	by jazzswing.ncsc.mil  with ESMTP id i39E09mT000012
-	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 14:00:28 GMT
-Received: from laptop (80.180.149.168) by vsmtp3.tin.it (7.0.027)
-        id 4061BA23003477A8 for selinux@tycho.nsa.gov; Fri, 9 Apr 2004 16:02:09 +0200
-From: Vincenzo Ciaglia <ciaglia@netwosix.org>
-To: selinux@tycho.nsa.gov
-Subject: Netwosix- Selinux
-Date: Fri, 9 Apr 2004 16:01:11 +0200
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Message-Id: <200404091601.24087.ciaglia@netwosix.org>
+	by jazzswing.ncsc.mil  with ESMTP id i39E6aUZ000560
+	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 14:06:36 GMT
+Received: from mail.lemuria.org (web.lemuria.org [213.191.85.3])
+	by jazzswing.ncsc.mil  with ESMTP id i39E6ZmT000550
+	for <selinux@tycho.nsa.gov>; Fri, 9 Apr 2004 14:06:36 GMT
+Date: Fri, 9 Apr 2004 15:59:18 +0200
+From: Tom <tom@lemuria.org>
+To: Bill McCarty <bmccarty@pt-net.net>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Problems finding working kernel/user land combination
+Message-ID: <20040409155916.A21924@lemuria.org>
+References: <401FF280.8070301@treblig.org> <88042458.1081270777@[192.168.0.3]> <20040407075405.D19421@lemuria.org> <280262546.1081462998@[192.168.0.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <280262546.1081462998@[192.168.0.3]>; from bmccarty@pt-net.net on Thu, Apr 08, 2004 at 10:23:19PM -0700
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Apr 08, 2004 at 10:23:19PM -0700, Bill McCarty wrote:
+> However, I ran into a snag. Sid's SSH package has been updated to require 
+> libpam-runtime 0.76-14 or greater, and the latest libpam-runtime having 
+> SELinux mods is only 0.76-13.
+> 
+> Although I was once familiar with Debian, I no longer know my way around 
+> it. Is there a way to instruct apt-get to ignore such a package dependency? 
+> I haven't been able to find an appropriate option in the man pages. I 
+> suppose that I could manually download the SSH package and install it via 
+> dpkg, which has a --force option. Is that the way to go?
 
-Dear friends,
-I'm Vincenzo Ciaglia, the main developer of Linux Netwosix, a new linux distro 
-security oriented. I'm writing you  becouse in the next release i think that 
-i will use the linux kernel 2.6.5 with Selinux included.
+Yes. Just to be sure I usually keep a full copy of the package archive
+locally (just the SE progs) and then do something like dpkg -i * after
+every upgrade.
 
-Congratulations for your work.
-Now i'm also following your works throught this list.
-
-- -- 
-Vincenzo Ciaglia
-Linux Netwosix Team - [ Keyid: 0x6BB3E24A]
-Key fingerprint = 4B3E A25F 2A7A 0C19 1A97  616B EA3C FDA4 6BB3 E24A
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAdqyq6jz9pGuz4koRAle6AJ46f/+1wOkRbgb7AqyOsIdZVIqtkwCfecV0
-uM5mGgs9yAPPZJTm8U5ST7A=
-=NJcU
------END PGP SIGNATURE-----
-
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
