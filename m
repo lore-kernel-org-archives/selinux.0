@@ -1,27 +1,29 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1DHECRb028808
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2004 12:14:13 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i1DHCiQk020856
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2004 17:12:45 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i1DHC4Yo020705
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2004 17:12:26 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1DHQ7Rb028911
+	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2004 12:26:07 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i1DHQ6Oi007176
+	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2004 17:26:06 GMT
+Received: from home.nightdaughter.de (home.nightdaughter.de [194.95.224.141])
+        by jazzband.ncsc.mil  with ESMTP id i1DHPqWW007145 for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2004 17:26:06 GMT
+Received: from hydra.joerghoh.de (unknown [192.168.0.14])
+	by home.nightdaughter.de (Postfix) with SMTP id 96A8517003A
+	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2004 18:39:11 +0100 (CET)
+Date: Fri, 13 Feb 2004 18:31:16 +0100
+From: Joerg Hoh <joerg@devone.org>
+To: selinux@tycho.nsa.gov
 Subject: Re: Patched userland packages
-Date: Sat, 14 Feb 2004 04:12:05 +1100
+Message-ID: <20040213173116.GB3966@hydra.joerghoh.de>
 References: <1076686854.10189.93.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 In-Reply-To: <1076686854.10189.93.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402140412.05834.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 14 Feb 2004 02:40, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+On Fri, Feb 13, 2004 at 10:40:55AM -0500, Stephen Smalley wrote:
+> Hi,
+> 
 > As the SELinux userland patches have been ported to many distributions
 > by various people, and most of the real activity in further maintaining
 > and developing them has migrated to those people, we'd like to drop them
@@ -34,28 +36,23 @@ On Sat, 14 Feb 2004 02:40, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
 > appropriate locations for the patched userland components for various
 > distributions in the selinux-doc README.  Does this sound reasonable?
 
-In the long-term, yes, but I don't think that it would be a good idea to do so 
-with all patches now.
+I think you can remove the patches, which are already contained in the
+upstream packages. People, who get the patch into the upstream package,
+can notify you, and you can then remove the patch from the repository.
 
-procps is now done, it's in the upstream package, in Debian, and now Red Hat 
-also uses the same procps.  So there's no benefit doing anything for procps.
+But until then please keep all patches in the sf-repository. It's easier
+to get these patches from sf than to extract them from distribution
+packages.
 
-For other patches such as coreutils I think it would be good to keep them on 
-your site for the moment.  While we are still working at getting patches 
-accepted upstream it makes things a little easier if you have a patch online.  
-Often when I am talking to an upstream author about a patch to their code 
-they prefer to see other patches for the same code.
+I'll try to send some patches to their upstream and ask if they could be
+integrated.
 
-Once Fedora is released with full SE Linux support (planned for FC2) there 
-will be less need for the patches to be on the NSA site.  In some ways the 
-Fedora repository can become an authoritative site for the patches.
+Joerg
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Fachbegriffe der Informatik (Nr 320): Softwarewartung
+- Flags putzen, Strukturen nachrichten und Variablen mit Öl auffüllen. 
+	Hans Bonfigt
 
 --
 This message was distributed to subscribers of the selinux mailing list.
