@@ -1,62 +1,38 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i53L7trT015256
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 17:07:55 -0400 (EDT)
-Received: from smtp801.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i54L7bls000592
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jun 2004 17:07:38 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp801.mail.ukl.yahoo.com with SMTP; 3 Jun 2004 21:07:53 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BVymj-0000Ut-Vw
-	for selinux@tycho.nsa.gov; Thu, 03 Jun 2004 20:25:58 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BVzOo-0004YB-0e
-	for selinux@tycho.nsa.gov; Thu, 03 Jun 2004 21:05:18 +0000
-Date: Thu, 3 Jun 2004 21:05:18 +0000
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i53L6prT015229
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 17:06:51 -0400 (EDT)
+Received: from smtp804.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5451L8m002963
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jun 2004 01:01:21 -0400 (EDT)
+Date: Thu, 3 Jun 2004 21:04:13 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: [fedora-selinux-list-bounces@redhat.com: Your message to fedora-selinux-list awaits moderator approval]
-Message-ID: <20040603210517.GJ3856@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>, samba-technical@samba.org,
+   tng-technical@lists.samba-tng.org
+Subject: Re: samba
+Message-ID: <20040603210413.GI3856@lkcl.net>
+References: <200406031543.15551.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200406031543.15551.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-could the person who has subscribed another mailing list to the
-selinux mailing list please stop these messages from occurring,
-thank you.
+just to _really_ put the cat among the pigeons: remember that
+there is also "svcctl" - a DCE/RPC service that allows the
+creation (including under which user context), management,
+starting and stopping of services.
 
------ Forwarded message from fedora-selinux-list-bounces@redhat.com -----
+in other words, if this service was implemented under samba(3),
+(i am not privy to the designs of samba(4)) then the SE/Linux
+policy required would have to pretty much allow everything.
 
-Envelope-to: lkcl@localhost
-Delivery-date: Thu, 03 Jun 2004 21:04:19 +0000
-X-Sieve: CMU Sieve 2.2
-Subject: Your message to fedora-selinux-list awaits moderator approval
-From: fedora-selinux-list-bounces@redhat.com
-To: lkcl@lkcl.net
-X-BeenThere: fedora-selinux-list@redhat.com
-X-List-Administrivia: yes
-X-Virus-Scanned: by amavisd-new-20030616-p7 (Debian) at hands.com
+whereas, with the samba tng approach, you only need give the
+svcctld - the service control daemon - sufficient privileges
+to be able to exec "run_init /etc/init.d/startstopscript"
+without requiring a password.
 
-Your mail to 'fedora-selinux-list' with the subject
-
-    Re: Summary of Informal SELinux Meeting on May 6, 2004
-
-Is being held until the list moderator can review it for approval.
-
-The reason it is being held:
-
-    Post by non-member to a members-only list
-
-Either the message will get posted to the list, or you will receive
-notification of the moderator's decision.  If you would like to cancel
-this posting, please visit the following URL:
-
-    http://www.redhat.com/mailman/confirm/fedora-selinux-list/46788801b0294a342484fecaec40dbba370d78c4
-
-
------ End forwarded message -----
+l.
 
 -- 
 -- 
