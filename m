@@ -1,94 +1,48 @@
-Subject: Re: Opinions on installing SeLinux on different distros
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2KLtmx6019332
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 16:55:48 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h2KLqJn8029160
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 21:52:19 GMT
+Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h2KLijpk028680
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 21:46:26 GMT
+Received: from moss-sooners (moss-sooners [144.51.25.14])
+	by facesaver.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2KLmCNL017402
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 16:48:13 -0500 (EST)
+Subject: SELinux List Administrative Notes
 From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: Douglas Phillipson <phillipd@oem.doe.gov>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <3E7A0B04.4090502@oem.doe.gov>
-References: <3E7A0B04.4090502@oem.doe.gov>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <3E7A1FA6.1030604@oem.doe.gov>
+References: <3E7A1FA6.1030604@oem.doe.gov>
 Content-Type: text/plain
-Message-Id: <1048195831.24500.119.camel@moss-sooners.epoch.ncsc.mil>
+Message-Id: <1048196891.24500.141.camel@moss-sooners.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 20 Mar 2003 16:30:31 -0500
+Date: 20 Mar 2003 16:48:12 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-03-20 at 13:40, Douglas Phillipson wrote:
-> I have been monitoring this list for a few months and as a SELinux newby 
-> I have a few questions for those that have braved the attempt to use 
-> SELinux.  I hope to use it myself in the DOE community shortly.
-> 
-> 1) I see lots of problems with SELinux, by the posts I read.  Is there 
-> any release version, by number, with known problems for each release. Or 
-> is this just a evolving "Thing" where bugs are fixed and new capability 
-> is added on the fly?
+Just a couple of quick reminders from your friendly mailing list
+administrator.  There are many hundreds of subscribers on this list. 
+That means it can take several hours for a message to get to everyone,
+depending on many variable factors.
 
-The NSA SELinux team fixes bugs as they arise, ports to new kernel
-version and new application level utilities, and releases whatever is
-ready for release in website updates every month or two.  The core
-SELinux development is done as part of research and "customer support"
-isn't part of that mission.  That said, we try to respond as much as
-we're able to problems and have been IMNSHO pretty responsive.
+Also, on those occasions when you think there might be a list problem,
+please:
 
-> 2) Is it best to start from non-distro raw kernel source or is patching 
-> one of the major distros, redhat, Suse, Mandrake, Debian compatible, better.
+Do Not - Do nothing
+Do Not - Send a test message to the list
+Do Not - Start a conspiracy theory about the demise of the SELinux team
 
-SELinux is a combination of a Linux kernel patch with most of the
-enhanced core functionality, a series of application/utility patches to
-provide key support in some areas (e.g., assigning users to roles at
-login) and an example system policy.
+Do - Send me, hdholm@epoch.ncsc.mil, private mail explaining why you
+think there's a problem.  I'll track it down.
 
-Typically, an SELinux installation would completely replace the kernel
-for a distribution with an SELinux modified kernel, replace appropriate
-applications/utilities with patched versions and construct a policy
-specific to the local system.  Since each distribution chooses a
-different collection of utilities to include, the appropriate utilities
-for a given distribution may not have SELinux patches.  The SELinux
-development team at NSA uses Red Hat, and so that is often the easiest
-distribution to update with SELinux.  It is also the one that the
-instruction in the README assume you are using.  The provided example
-policy is designed to work with Red Hat linux, although your specific
-policy needs may vary.
+P.S. I'm not trying to take Douglas to task, his message just reminded
+me that it was about time to say all this again.
 
-Russell Coker has done much excellent work in bringing SELinux to
-Debian, and provides the appropriate set of patched applications (which
-are very close to the Red Hat applications) and a Debian specific
-example policy.  Again, you'll probably need to modify the policy to
-meet your specific needs.  Carsten Grohmann has done some work on SuSE
-policy changes.Other SELinux specific distributions have been mentioned
-in the past, but I'm not certain about the current availability of any
-of them. See http://selinux.sourceforge.net/distros.
-
-> 3) Are there recommended  distros and or kernel versions to use SELinux 
-> with?  Perhaps a FAQ for each supported Distro or version of kernel?
-
-I won't recommend any specific distribution, but the SELinux development
-team at NSA uses Red Hat as I said above, and thus the instructions we
-provide in how to install SELinux are based on that.
-
-> 4) Has anyone compiled a installation procedure that was successful for 
-> their distro that you could share with others?  Perhaps even a list of 
-> "gotchas" to avoid.
-
-See the README in the SELinux distribution on the NSA web site
-http://www.nsa.gov/selinux/ for Red Hat instructions.  I'm sure Russell
-could provide Debian instructions.
-
-> 5) Has anyone had SELinux approved for use in a classified network?  If 
-> so do you have a security plan I could look at?
-> 
-> 6) Does there exist a "White Paper" on SeLinux's security 
-> features/enhancements.
-
-There is extensive documentation at http://www.nsa.gov/selinux/ under
-both "Documentation" and "Background"
-
-> 7) Does SeLinux add and "C2" auditing functionality.
-
-No.  Please see http://www.nsa.gov/selinux/faq.html#I12
-
-> 8) I understand that  the "Secure Computing" corporation had a hand in 
-> this.  Do they have a commercial version available or one planned?
-
-I'm not aware of any currently available commercial version of SELinux.
+On Thu, 2003-03-20 at 15:08, Douglas Phillipson wrote:
+> I'm sorry if this gets posted twice.  The first time I didn't see it get 
+> posted...
 
 -- 
 Howard Holm <hdholm@epoch.ncsc.mil>
