@@ -1,245 +1,79 @@
-From: "Ed Street" <edstreet@street-tek.com>
-To: "SELinux" <SELinux@tycho.nsa.gov>
-Subject: uw-imapd policy
-Date: Thu, 20 May 2004 21:10:34 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4L3pnRb025135
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 23:51:49 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4L3pkAR023080
+	for <selinux@tycho.nsa.gov>; Fri, 21 May 2004 03:51:47 GMT
+Received: from web41013.mail.yahoo.com (web41013.mail.yahoo.com [66.218.93.12])
+        by jazzband.ncsc.mil  with SMTP id i4L3pkHn023077 for <selinux@tycho.nsa.gov>; Fri, 21 May 2004 03:51:46 GMT
+Message-ID: <20040521035145.81148.qmail@web41013.mail.yahoo.com>
+Date: Thu, 20 May 2004 20:51:45 -0700 (PDT)
+From: K Vikram <vikramatiitkdotacdotin@yahoo.com>
+Subject: Loadable Policy Modules and a Generic MAC Policy Language
+To: SE-Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_01D0_01C43EAE.E41C0650"
-Message-Id: <20040521011034.637103A4054@abyss.simplyaquatics.com>
+Content-Type: multipart/alternative; boundary="0-1874603885-1085111505=:79008"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+--0-1874603885-1085111505=:79008
+Content-Type: text/plain; charset=us-ascii
 
-------=_NextPart_000_01D0_01C43EAE.E41C0650
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_001_01D1_01C43EAE.E41C0650"
-
-
-------=_NextPart_001_01D1_01C43EAE.E41C0650
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
 
 Hello,
+A few months ago we had become interested in SELinux and began experimenting with it. While working with it, we got particularly interested in the policy specification process and how cumbersome or unwieldy it could turn out for a high level policy model. We felt that the restriction to the TE language was complicating things a little and went on to investigate what would happen if we remove this restriction.
+We worked out a design with three key mechanisms that we felt would be useful, but not too powerful. We are now finally done with the implementation of these mechanisms. We have made the necessary changes in the code of SELinux and the use of any of these mechanisms does not require any further change in SELinux code.The first mechanism is that of being able to associate arbitrary security related information, other than user:role:type, with each subject/object in the system. This would be useful, for instance, if we would want an MLS enforcement. Here we would simply associate the appropriate levels and categories with each subject/object.
+The second mechanism is the ability to express what operations should be allowed and what should not, by expressing it as C code. This C code would be in the form of definitions of certain specified interface functions and is written as a loadable kernel module. The interface is fixed and has been designed to be just powerful enough to be able to express most MAC policies and simple enough so that writing definitions for it does not require detailed knowledge of SELinux internals.
+The C code written would also contain information as to what kind/type of data should be associated with a subject/object (refer the first mechanism discussed above). The precise value of the data and the other system specific configuration values could be optionally stored in a configuration file and loaded into memory so that the module can read it when required. This configuration file would be analogous to the policy binary file in SELinux.
+The third mechanism helps us to compose the decisions of many such modules. The mode of composition has been kept flexible and could be in the form of an arbitrary boolean function with as many variables as the number of modules.
+Being able to express policies as C code did seem to have certain advantages. For instance, the expression of the MLS model or the Biba model was made fairly succinct with the help of less-than and greater-than operators. This succintness also made it easier for us to understand and analyze such C-code policy specifications ourselves.
+The feature of composition of modules also seemed to work neatly. We implemented Lipner's Integrity Matrix Model, simply as an AND combination of BLP and Biba modules without expending any extra effort.
+However, we did feel that C code for expressing policies is certainly overkill. So we also began working on a high level language that could express most MAC policies and a translator would translate this to C code. This C code can then be compiled into a loadable kernel module that could be attached to the kernel. This part of the work is yet not complete, but we hope to finish it soon.Nevertheless, some key features of such a language would be that it would have just a couple of data types such as integers and strings (these would be the types of data that could be associated with a subject/object) and few operators on such data types such as relational and logical operators, a few simple set operators and maybe a couple of simple string related operators. The language would also contain constructs to compose the decisions of many such modules. There would be no recursion in the language so that the generated module would execute efficiently.
+The above mechanisms are definitely not a replacement to the TE model. Rather it acts as a supplement. The TE language is good enough for a lot of cases, but cases where TE is not powerful enough or does not seem appropriate, a more generic MAC policy language might be necessary. That is what we intend to provide. The motto is "Use TE where appropriate, and use a more generic MAC policy language where it is not." Note that using the above mechanisms is completely optional. If and only if a policy writer finds TE unwieldy, would he use the more generic language.
+It has to be investigated where this would be useful. For one thing, we found such a generic MAC policy language much more convenient than TE, for MLS and Biba kind of security models.
+Another area of investigation would be that of policy analysis. Policy analysis in this generic language seems difficult but definitely doable. At least for a human, analysis might seem easier, but whether automated analysis can be done efficiently has to be looked at.
+We would eager to have comments/suggestions/criticisms from the group about our work. If people are interested, we can share our code as well, but it would take a couple of days before we can package it well. As aforesaid, the three basic mechanisms have been implemented and we can share that code. However, the generic language details and the translator have still not been worked out completely but they are not crucial to the use of the three mechanisms.
+Other than kernel code, relevant patches to userspace programs such as login, init, setfiles, etc. and loadable kernel modules for Biba, BLP and Lipner models are also included. These patches were required to fully implement and use the above mechanisms.
+		
+---------------------------------
+Do you Yahoo!?
+Yahoo! Domains - Claim yours for only $14.70/year
+--0-1874603885-1085111505=:79008
+Content-Type: text/html; charset=us-ascii
 
-=20
+<p>Hello,
 
-This is the uw-imapd policy files that I created under debian SID.  The =
-only
-snag I ran into was some mislabeled files in net_contexts. Namely when
-labeling ports 143 tcp, 220 tcp, and 993 tcp.  Some of these are =
-currently
-labeled as pop_* shouldn=92t=92 these be labeled as imapd_* ?
+<p>A few months ago we had become interested in SELinux and began experimenting with it. While working with it, we got particularly interested in the policy specification process and how cumbersome or unwieldy it could turn out for a high level policy model. We felt that the restriction to the TE language was complicating things a little and went on to investigate what would happen if we remove this restriction.
 
-=20
+<p>We worked out a design with three key mechanisms that we felt would be useful, but not too powerful. We are now finally done with the implementation of these mechanisms. We have made the necessary changes in the code of SELinux and the use of any of these mechanisms does not require any further change in SELinux code.
+The first mechanism is that of being able to associate arbitrary security related information, other than user:role:type, with each subject/object in the system. This would be useful, for instance, if we would want an MLS enforcement. Here we would simply associate the appropriate levels and categories with each subject/object.
 
-Ed
+<p>The second mechanism is the ability to express what operations should be allowed and what should not, by expressing it as C code. This C code would be in the form of definitions of certain specified interface functions and is written as a loadable kernel module. The interface is fixed and has been designed to be just powerful enough to be able to express most MAC policies and simple enough so that writing definitions for it does not require detailed knowledge of SELinux internals.
 
+<p>The C code written would also contain information as to what kind/type of data should be associated with a subject/object (refer the first mechanism discussed above). The precise value of the data and the other system specific configuration values could be optionally stored in a configuration file and loaded into memory so that the module can read it when required. This configuration file would be analogous to the policy binary file in SELinux.
 
----
+<p>The third mechanism helps us to <i>compose</i> the decisions of many such modules. The mode of composition has been kept flexible and could be in the form of an arbitrary boolean function with as many variables as the number of modules.
 
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.687 / Virus Database: 448 - Release Date: 5/16/2004
-=20
- =20
+<p>Being able to express policies as C code did seem to have certain advantages. For instance, the expression of the MLS model or the Biba model was made fairly succinct with the help of less-than and greater-than operators. This succintness also made it easier for us to understand and analyze such C-code <i>policy specifications</i> ourselves.
 
-------=_NextPart_001_01D1_01C43EAE.E41C0650
-Content-Type: text/html;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+<p>The feature of composition of modules also seemed to work neatly. We implemented Lipner's Integrity Matrix Model, simply as an AND combination of BLP and Biba modules without expending any extra effort.
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
+<p>However, we did feel that C code for expressing policies is certainly overkill. So we also began working on a high level language that could express most MAC policies and a translator would translate this to C code. This C code can then be compiled into a loadable kernel module that could be attached to the kernel. This part of the work is yet not complete, but we hope to finish it soon.
+Nevertheless, some key features of such a language would be that it would have just a couple of data types such as integers and strings (these would be the types of data that could be associated with a subject/object) and few operators on such data types such as relational and logical operators, a few simple set operators and maybe a couple of simple string related operators. The language would also contain constructs to compose the decisions of many such modules. There would be no recursion in the language so that the generated module would execute efficiently.
 
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3DWindows-1252">
+<p>The above mechanisms are definitely not a replacement to the TE model. Rather it acts as a supplement. The TE language is good enough for a lot of cases, but cases where TE is not powerful enough or does not seem appropriate, a more generic MAC policy language might be necessary. That is what we intend to provide. The motto is "Use TE where appropriate, and use a more generic MAC policy language where it is not." Note that using the above mechanisms is completely optional. If and only if a policy writer finds TE unwieldy, would he use the more generic language.
 
+<p>It has to be investigated where this would be useful. For one thing, we found such a generic MAC policy language much more convenient than TE, for MLS and Biba kind of security models.
 
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:Arial;
-	color:windowtext;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+<p>Another area of investigation would be that of policy analysis. Policy analysis in this generic language seems difficult but definitely doable. At least for a human, analysis might seem easier, but whether automated analysis can be done efficiently has to be looked at.
 
-</head>
+<p>We would eager to have comments/suggestions/criticisms from the group about our work. If people are interested, we can share our code as well, but it would take a couple of days before we can package it well. As aforesaid, the three basic mechanisms have been implemented and we can share that code. However, the generic language details and the translator have still not been worked out completely but they are not crucial to the use of the three mechanisms.
 
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+<p>Other than kernel code, relevant patches to userspace programs such as login, init, setfiles, etc. and loadable kernel modules for Biba, BLP and Lipner models are also included. These patches were required to fully implement and use the above mechanisms.
 
-<div class=3DSection1>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Hello,<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>This is the uw-imapd policy files that I created =
-under
-debian SID.&nbsp; The only snag I ran into was some mislabeled files in =
-net_contexts.
-Namely when labeling ports 143 tcp, 220 tcp, and 993 tcp.&nbsp; Some of =
-these are
-currently labeled as pop_* shouldn&#8217;t&#8217; these be labeled as =
-imapd_* ?<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Ed<o:p></o:p></span></font></p>
-
-</div>
-
-</body>
-
-</html>
-<BR>
-
-<P><FONT SIZE=3D2>---<BR>
-<BR>
-Checked by AVG anti-virus system (http://www.grisoft.com).<BR>
-Version: 6.0.687 / Virus Database: 448 - Release Date: 5/16/2004<BR>
-</FONT> </P>
-
-<P><FONT SIZE=3D2 FACE=3D"Arial"> </FONT> </P>
-
-------=_NextPart_001_01D1_01C43EAE.E41C0650--
-
-------=_NextPart_000_01D0_01C43EAE.E41C0650
-Content-Type: application/octet-stream;
-	name="uw-imapd.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="uw-imapd.patch"
-
-diff -urN current-orig/domains/program/uwimapd.te =
-current/domains/program/uwimapd.te
---- current-orig/domains/program/uwimapd.te	1969-12-31 =
-19:00:00.000000000 -0500
-+++ current/domains/program/uwimapd.te	2004-05-20 20:14:53.000000000 =
--0400
-@@ -0,0 +1,62 @@
-+#DESC uw-imapd-ssl server
-+#
-+# Author:  Ed Street <edstreet@street-tek.com>
-+# X-Debian-Packages: uw-imapd (was uw-imapd-ssl)
-+#
-+
-+#we are using ports
-+type imapd_port_t, port_type;
-+
-+daemon_domain(imapd, `, auth_chkpwd')
-+tmp_domain(imapd)
-+
-+can_network(imapd_t)
-+can_ypbind(imapd_t)
-+
-+#declare our own services
-+allow imapd_t self:capability { dac_override net_bind_service setgid =
-setuid sys_resource };
-+allow imapd_t imapd_port_t:tcp_socket name_bind;
-+
-+#allow inetd to bind to us
-+allow inetd_t imapd_port_t:tcp_socket { name_bind };
-+
-+#declare this a socket from inetd
-+allow imapd_t self:unix_dgram_socket { sendto create_socket_perms };
-+allow imapd_t self:unix_stream_socket create_socket_perms;
-+domain_auto_trans(inetd_t, imapd_exec_t, imapd_t)
-+ifdef(`tcpd.te', `domain_auto_trans(tcpd_t, imapd_exec_t, imapd_t)')
-+
-+#friendly stuff we dont want to see :)
-+dontaudit imapd_t etc_t:file { getattr };
-+dontaudit imapd_t net_conf_t:file { getattr };
-+dontaudit system_chkpwd_t system_chkpwd_t:file { getattr };
-+dontaudit imapd_t mail_spool_t:dir { getattr };
-+dontaudit imapd_t bin_t:dir { search };
-+
-+#read /etc/ for hostname nsswitch.conf
-+allow imapd_t etc_t:file { read };
-+
-+#socket i/o stuff
-+allow imapd_t inetd_t:tcp_socket { read write ioctl getattr };
-+
-+#read resolv.conf
-+allow imapd_t net_conf_t:file { read };
-+
-+#urandom, for ssl
-+allow system_chkpwd_t urandom_device_t:chr_file { read };
-+allow imapd_t random_device_t:chr_file { read };
-+allow imapd_t urandom_device_t:chr_file { read getattr };
-+
-+#verify password
-+allow system_chkpwd_t inetd_t:fd { use };
-+allow system_chkpwd_t inetd_t:tcp_socket { read write };
-+
-+allow imapd_t imapd_t:fifo_file { write read };
-+
-+#mail directory
-+create_dir_file(imapd_t mail_spool_t)
-+
-+#home directory
-+allow imapd_t home_root_t:dir { search };
-+create_dir_file(imapd_t, user_home_type)
-+allow imapd_t imapd_t:file { read getattr };
-diff -urN current-orig/file_contexts/program/uwimapd.fc =
-current/file_contexts/program/uwimapd.fc
---- current-orig/file_contexts/program/uwimapd.fc	1969-12-31 =
-19:00:00.000000000 -0500
-+++ current/file_contexts/program/uwimapd.fc	2004-04-21 =
-19:31:56.000000000 -0400
-@@ -0,0 +1,2 @@
-+# uw-imapd and uw-imapd-ssl
-+/usr/sbin/imapd		-- system_u:object_r:imapd_exec_t
-diff -urN current-orig/net_contexts current/net_contexts
---- current-orig/net_contexts	2004-05-20 20:07:14.000000000 -0400
-+++ current/net_contexts	2004-05-20 20:54:21.000000000 -0400
-@@ -37,6 +37,12 @@
- portcon udp 892 system_u:object_r:inetd_port_t
- portcon tcp 901 system_u:object_r:biff_port_t
- ')
-+ifdef(`uwimapd.te', `
-+portcon tcp 993 system_u:object_r:imapd_port_t
-+portcon tcp 143 system_u:object_r:imapd_port_t
-+portcon tcp 220 system_u:object_r:imapd_port_t
-+')
-+
- ifdef(`courier.te', `define(`use_pop')')
- ifdef(`perdition.te', `define(`use_pop')')
- ifdef(`cyrus.te', `define(`use_pop')')
-
-------=_NextPart_000_01D0_01C43EAE.E41C0650--
-
+<p>
+		<hr size=1><font face=arial size=-1>Do you Yahoo!?<br>Yahoo! Domains - <a href="http://us.rd.yahoo.com/evt=23613/*http://smallbusiness.promotions.yahoo.com/offer">Claim yours for only $14.70/year</a>
+--0-1874603885-1085111505=:79008--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
