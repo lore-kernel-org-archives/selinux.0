@@ -1,42 +1,47 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ALP6rT001690
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:25:06 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5ALP1P2028609
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:25:01 -0400 (EDT)
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ALWorT001764
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:32:50 -0400 (EDT)
+Received: from smtp802.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5ALWlaH025289
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:32:47 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 21:25:04 -0000
-Date: Thu, 10 Jun 2004 21:22:24 +0000
+  by smtp802.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 21:32:48 -0000
+Date: Thu, 10 Jun 2004 21:30:03 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ed Street <edstreet@street-tek.com>
-Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
-Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Message-ID: <20040610212224.GJ2861@lkcl.net>
-References: <200406102220.19165.russell@coker.com.au> <20040610193218.8DD243A4066@abyss.simplyaquatics.com>
+To: Ian Campbell <ijc@hellion.org.uk>
+Cc: Park Lee <parklee_sel@yahoo.com>, russell@coker.com.au,
+   selinux@tycho.nsa.gov
+Subject: Re: What is dnl
+Message-ID: <20040610213002.GL2861@lkcl.net>
+References: <20040610142122.83017.qmail@web51508.mail.yahoo.com> <1086881934.629.22.camel@icampbell-debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040610193218.8DD243A4066@abyss.simplyaquatics.com>
+In-Reply-To: <1086881934.629.22.camel@icampbell-debian>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> On Thu, 10 Jun 2004 21:47, "Ed Street" <edstreet@street-tek.com> wrote:
+ian - be nice!
 
-> > Then shouldn't it be postfix_etc_t instead of etc_t?
+not everyone knows how to google, it just doesn't occur to them.
+
+On Thu, Jun 10, 2004 at 04:38:54PM +0100, Ian Campbell wrote:
+> On Thu, 2004-06-10 at 15:21, Park Lee wrote:
+> > Then, as my previous letter to selinux@tycho.nsa.gov,
+> > Would you please tell me: How to read and understand M4 macro? Is it
+> > specific to SELinux? 
 > 
-> We could do something like that, although it would still require breaking
-> the 
-> design aim of "application should not have write access to it's own config 
-> files".
-> 
-> I think that the ideal solution would be to have a better mechanism of
-> turning 
-> off chroot operation.
+> Did you even try and find out for yourself? The first link on google for
+> 'm4' is http://www.gnu.org/software/m4/, complete with online manual.
 
- i've raised a debian wishlist bugreport asking them to consider
- adding in a question "if installing under se/linux i really should
- set SYNC_CHROOT="" in /etc/default/postfix for you".
-
- l.
+-- 
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility for acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
