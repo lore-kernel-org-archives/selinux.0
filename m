@@ -1,37 +1,29 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA13252
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 16:20:12 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA14179
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 19:23:00 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id VAA08191
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 21:20:11 GMT
-Received: from femail21.sdc1.sfba.home.com (femail21.sdc1.sfba.home.com [24.0.95.146])
-	by jazzband.ncsc.mil  with ESMTP id VAA08187
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 21:20:11 GMT
-Received: from c783838-b.croltn1.tx.home.com ([24.15.240.109])
-          by femail21.sdc1.sfba.home.com
-          (InterMail vM.4.01.03.00 201-229-121) with SMTP
-          id <20010309212010.WPOS653.femail21.sdc1.sfba.home.com@c783838-b.croltn1.tx.home.com>
-          for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 13:20:10 -0800
-Date: Fri, 9 Mar 2001 15:20:09 -0600
-From: Dustin Reyes <crusader@linuxgames.com>
+	by jazzband.ncsc.mil  with ESMTP id AAA15531
+	for <selinux@tycho.nsa.gov>; Sat, 10 Mar 2001 00:22:59 GMT
+Received: from drpepper.mit.edu (DRPEPPER.MIT.EDU [18.244.1.195])
+	by jazzband.ncsc.mil  with ESMTP id AAA15527
+	for <selinux@tycho.nsa.gov>; Sat, 10 Mar 2001 00:22:58 GMT
+Message-Id: <200103100022.f2A0Mvh16498@drpepper.mit.edu>
 To: selinux@tycho.nsa.gov
-Subject: FYI: IBM Article
-Message-ID: <20010309152009.A28950@linuxgames.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Justin Ramos" <j_ramos@mit.edu>
+Subject: 2.4.x porting
+Date: Fri, 09 Mar 2001 19:22:57 EST
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-IBM's developerWorks has an overview of SE Linux up in the event
-anyone is interested:
 
-http://www-106.ibm.com/developerworks/library/s-selinux/?n-s-381
+I'd like to be involved with porting SE Linux to the Linux 2.4.x kernel.
+I have extensive knowledge of the C programming language, the Linux
+kernel, and coding for Linux systems, and would like to contribute in
+any way possible to this project. Any information as to how to go about 
+doing this would be greatly appreciated. Thank you.
 
--- 
----------------------------------------------------------------
-Dustin Reyes - crusader@linuxgames.com "Freedom is the right of
-LinuxGames - http://www.linuxgames.com   all sentient beings"
----------------------------------------------------------------
+
+--Justin Ramos
 
 --
 You have received this message because you are subscribed to the selinux list.
