@@ -1,60 +1,42 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9GB9TWt001799
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 07:09:29 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9GB9L0p002777
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 11:09:21 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by jazzswing.ncsc.mil  with ESMTP id h9GB9Jr7002774
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 11:09:20 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 05DF6924F3
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 21:09:26 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 9DB537F07C
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 21:09:25 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: genfscon and /boot
-Date: Thu, 16 Oct 2003 21:09:25 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200310162109.25021.russell@coker.com.au>
+Subject: Re: Yet another question - newrole and xterm's
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Michael Reilly <michaelr@cisco.com>
+Cc: SELinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
+In-Reply-To: <20031015191716.5478c74b.michaelr@cisco.com>
+References: <20031015191716.5478c74b.michaelr@cisco.com>
+Content-Type: text/plain
+Message-Id: <1066307222.24561.7.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 16 Oct 2003 08:27:02 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently the Red Hat kernels are compiled with Ext2 having no support for 
-XATTR or ACLs.  This is convenient when dealing with boot loaders that don't 
-support XATTR (such as the old Cobalt boot ROMs) as you can make /boot an 
-ext2 file system and not risk making the machine unbootable.
+On Wed, 2003-10-15 at 22:17, Michael Reilly wrote:
+> I found this in newrole.te.
+> # Failed reads to /proc cause no harm, so do not audit them
+> dontaudit newrole_t proc_t:dir search;
+> 
+> changing the dontaudit line to this and reloading the policy
+> allow newrole_t proc_t:dir search;
 
-The Sun/Cobalt people are aware of this issue and it will hopefully be 
-resolved soon, but we still want a solution to this as probably not all 
-hardware will get the bugs fixed soon enough.  Also some people who own 
-Cobalt hardware may not desire a ROM upgrade.
+This is peculiar, as newrole.te also includes:
+	can_setexec(newrole_t)
 
-Now for /boot to have appropriate labels we need genfs entries for it.  
-Currently the genfs does not seem to support giving a different label to 
-System.map* files (needed for ps to display the wchan and for kogd) and the 
-other files (which need restricted access).  I tried the following genfs 
-lines to no avail:
+and can_setexec() includes:
+	allow $1 proc_t:dir search;
 
-genfscon ext2 /                        system_u:object_r:boot_t
-genfscon ext2 /System.map-             system_u:object_r:system_map_t
+So this permission should already be allowed.  In fact, I see the
+following result in policy.conf without making any change:
+$ grep 'allow newrole_t proc_t:dir' /etc/security/selinux/src/policy.conf
+allow newrole_t proc_t:dir search;
 
-To get this working as desired we need to either change genfs to support 
-appropriate labeling, or to change distributions to have System.map in 
-another file system.  Having the System.map in a different file system may 
-make sense anyway as we would probably prefer not to have /boot mounted in 
-normal operation, but we do want to have System.map available all the time.
+I assume that the dontaudit rule is a legacy from the old SELinux,
+before the /proc/pid/attr API, where newrole did not have a legitimate
+need to access it.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
