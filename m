@@ -1,16 +1,23 @@
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524360@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
 To: SELinux@tycho.nsa.gov
-Subject: How to fix configuration 
-Date: Wed, 24 Apr 2002 23:11:43 +0800
-From: Debian User <rogelio@evoworks.evoserve.com>
-Message-Id: <20020424151143.4AF0D815C8@coffeesaur2.evoserve.com>
+Subject: SELinux RPM
+Date: Wed, 24 Apr 2002 12:19:12 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Im getting lots of error messages when i use my pc after installing
-selinux. How do I fix the configs? Where should i start? Are the error
-messages enough to be able to fix my configuration?
+The RedHat rpm version of selinux
+has been release to sourceforge
 
-Im using Debian Woody.
+www.sourceforge.net/projects/selinux
+
+This a beta release and feedback will
+only make it better
+
+Mark
 
 --
 You have received this message because you are subscribed to the selinux list.
