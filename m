@@ -1,70 +1,42 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i88DP6rT003317
-	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 09:25:07 -0400 (EDT)
-Received: from oe-im1.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i88DOvfe016489
-	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 13:25:06 GMT
-Received: from mm-ismta3.bizmailsrvcs.net ([192.168.133.28])
-          by oe-im1.bizmailsrvcs.net
-          (InterMail vM.5.01.06.05 201-253-122-130-105-20030824) with ESMTP
-          id <20040908132458.HNNL10836.oe-im1.bizmailsrvcs.net@mm-ismta3.bizmailsrvcs.net>
-          for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 08:24:58 -0500
-Received: from ICEMAN ([151.196.62.58]) by mm-ismta3.bizmailsrvcs.net
-          (InterMail vM.5.01.06.05 201-253-122-130-105-20030824) with ESMTP
-          id <20040908132458.SOHZ1729.mm-ismta3.bizmailsrvcs.net@ICEMAN>
-          for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 08:24:58 -0500
-Reply-To: <don.patterson@tresys.com>
-From: "Don Patterson" <don.patterson@tresys.com>
-To: <selinux@tycho.nsa.gov>
-Subject: RE: Users writting to home directory
-Date: Wed, 8 Sep 2004 09:24:57 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i88DUJrT003351
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 09:30:19 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i88DTKR0028332
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 13:29:26 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Erich Schubert <erich@debian.org>
+Subject: Re: domains/local/*.te file_contexts/local/*.fc
+Date: Wed, 8 Sep 2004 23:29:56 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <1094489141.3973.40.camel@wintermute.xmldesign.de> <200409072209.43296.russell@coker.com.au> <1094561496.23173.1.camel@wintermute.xmldesign.de>
+In-Reply-To: <1094561496.23173.1.camel@wintermute.xmldesign.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Message-Id: <20040908132458.SOHZ1729.mm-ismta3.bizmailsrvcs.net@ICEMAN>
+  charset="iso-8859-1"
+Message-Id: <200409082329.56168.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> ----- Original Message -----
-> From: "James R. Marcus" <jmarcus@mvalent.net>
-> To: "Stephen Smalley" <sds@epoch.ncsc.mil>
-> Cc: <selinux@tycho.nsa.gov>
-> Sent: Tuesday, August 24, 2004 2:14 PM
-> Subject: RE: Users writting to home directory
-> 
-> 
-> > Okay I tried just creating a user under home.  While in permissive 
-> > mode they can login to the ftp server and upload and download.
-> > However when I turn on enforced mode they get this message:
-> >
-> > C:\Documents and Settings\jmarcus\Desktop>ftp ftp Connected to 
-> > ftp.mvalent.local.
-> > 220 Welcome to mValent, Inc. FTP service.
-> > User (ftp.mvalent.local:(none)): jmarcus7
-> > 331 Please specify the password.
-> > Password:
-> > 500 OOPS: cannot change directory:/home/jmarcus7 500 OOPS: child 
-> > died Connection closed by remote host.
-> >
-> > C:\Documents and Settings\jmarcus\Desktop>
-> >
-> > ftp policy # seuseradd -g users -d /home/jmarcus7 -m -s /bin/bash -c 
-> > "James R. Marcus" jmarcus7 loading new policy...
-> >
-> > Error relabeling users home directory files: User is not defined in 
-> > the policy.
-> >
-> 
-In case anyone sees a similar problem, this bug was fixed in setools 1.4.x.
-To upgrade use the commands:
+On Tue, 7 Sep 2004 22:51, Erich Schubert <erich@debian.org> wrote:
+> > Why not use domains/misc and file_contexts/misc?  They do everything you
+> > seem to want to do.
+>
+> I used to, but they are loaded before the other rules. Which is a
+> problem for file contexts: for example i cannot use a different context
+> for something in /usr/local/sbin when i place the rule in
+> file_contexts/misc/local.fc - it will be overridden by the other file
+> contexts.
 
-Fedora - 'yum update setools'
-Gentoo - 'emerge setools'
+OK, maybe we should just change that to have file_contexts/misc/* included 
+last.  What do you think?
 
-Don Patterson
-Tresys Technology
-www.tresys.com
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
