@@ -1,57 +1,69 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8BFNYrT024803
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 11:23:34 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8BFMc9R022766
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 15:22:39 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: policy patch against latest CVS
-Date: Sun, 12 Sep 2004 01:23:28 +1000
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200409111954.15823.russell@coker.com.au> <20040911115308.GB24787@lkcl.net>
-In-Reply-To: <20040911115308.GB24787@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8BG30rT024929
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 12:03:00 -0400 (EDT)
+Received: from web51502.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i8BG279R023558
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 16:02:07 GMT
+Message-ID: <20040911160301.54915.qmail@web51502.mail.yahoo.com>
+Date: Sat, 11 Sep 2004 09:03:01 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Type or domain for module utility?
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409120123.28663.russell@coker.com.au>
+Content-Type: multipart/alternative; boundary="0-937436075-1094918581=:52861"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 11 Sep 2004 21:53, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> On Sat, Sep 11, 2004 at 07:54:15PM +1000, Russell Coker wrote:
-> > +file_type_auto_trans(init_t, device_t, initctl_t, fifo_file)
-> > +ifdef(`distro_redhat', `
-> > +file_type_auto_trans(init_t, tmpfs_t, initctl_t, fifo_file)
-> > +')
->
->  debian will need this too, yes?
+--0-937436075-1094918581=:52861
+Content-Type: text/plain; charset=us-ascii
 
-[...]
+Hi,
+ Today, I'm rereading the article <<A Security Policy Configuration for the Security-Enhanced Linux>>. I found in the paragraph of the second goal of the security policy configuration in subsection 2, It says:
+ 
+The second goal is to protect the integrity of the kernel. The policy configuration defines distinct types for the boot files,......, module utilities, ......  .It defines separate domains for the module utilities, .......  .It only allows a small set of privileged domains to transition 
+to he module utility domains.
+ 
+Then, does it means that the policy configuration defines both type and domain for module utility?
+Is there some thing wrong?
+ 
+Thanks,
 
->  and this?
->
->  if this is as you say to support tmpfs_t in udev, and i am to keep
->  current with the present selinux policy, i'll need these in debian
->  not just redhat!
 
-That is for tmpfs in initrd.  If tmpfs is just mounted AFTER the root fs is 
-mounted (which implies that a basic /dev already exists) then udev can (and 
-should) arrange it such that there is never a /dev labelled as tmpfs_t.
+--
+Best Regards,
+Park Lee <parklee_sel@yahoo.com> 
+ 
 
-As far as I am aware there are no plans to ever use udev in an initrd in 
-Debian.  This is partially driven by the fact that a large portion of Debian 
-users choose not to use initrd at all.
 
-If there are ever plans for udev in initrd on Debian then please let me know 
-and I'll change policy appropriately.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+
+
+		
+---------------------------------
+Do you Yahoo!?
+New and Improved Yahoo! Mail - 100MB free storage!
+--0-937436075-1094918581=:52861
+Content-Type: text/html; charset=us-ascii
+
+<DIV>Hi,<BR>&nbsp;Today, I'm rereading the article &lt;&lt;A Security Policy Configuration for the Security-Enhanced Linux&gt;&gt;. I found in the paragraph of the second goal of the security policy configuration in subsection 2, It says:</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>The second goal is to protect the integrity of the kernel. The policy configuration <STRONG>defines distinct types</STRONG> for the boot files,......, <STRONG>module utilities</STRONG>, ......&nbsp; .It <STRONG>defines separate domains for the module utilities</STRONG>, .......&nbsp; .It only allows a small set of privileged domains to transition </DIV>
+<DIV>to he module utility domains.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Then, does it means that the policy configuration defines both type and domain for module utility?</DIV>
+<DIV>Is there some thing wrong?</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks,</DIV><BR><BR><DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>
+<DIV>--<BR>Best Regards,<BR>Park Lee &lt;<A href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;YY=1156&amp;order=down&amp;sort=date&amp;pos=0"><FONT color=#003399>parklee_sel@yahoo.com</FONT></A>&gt; </DIV>
+<DIV>&nbsp;</DIV></DIV></DIV></DIV></DIV></DIV><p>
+		<hr size=1>Do you Yahoo!?<br>
+<a href="http://us.rd.yahoo.com/mail_us/taglines/100/*http://promotions.yahoo.com/new_mail/static/efficiency.html">New and Improved Yahoo! Mail</a> - 100MB free storage!
+--0-937436075-1094918581=:52861--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
