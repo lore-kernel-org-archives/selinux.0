@@ -1,72 +1,46 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6JEckrT012807
-	for <selinux@tycho.nsa.gov>; Mon, 19 Jul 2004 10:38:46 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6K9aqrT018704
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jul 2004 05:36:52 -0400 (EDT)
 Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6JEchF4014280
-	for <selinux@tycho.nsa.gov>; Mon, 19 Jul 2004 14:38:44 GMT
-Date: Mon, 19 Jul 2004 16:38:57 +0200
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6K9aoYW016068
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jul 2004 09:36:51 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by localhost (Postfix) with ESMTP id 761E8C4C0A4
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jul 2004 11:36:45 +0200 (CEST)
+Received: from legolas.drinsama.de ([127.0.0.1])
+	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
+	with SMTP id 19299-08 for <selinux@tycho.nsa.gov>;
+	Tue, 20 Jul 2004 11:36:44 +0200 (CEST)
+Received: from wintermute.xmldesign.de (pD9E4F11C.dip.t-dialin.net [217.228.241.28])
+	by legolas.drinsama.de (Postfix) with ESMTP id 004A0C4C09B
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jul 2004 11:36:44 +0200 (CEST)
+Date: Tue, 20 Jul 2004 11:37:04 +0200
 From: Erich Schubert <erich@debian.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov, bam@snoopy.apana.org.au
-Subject: Re: SELinux Policy patches
-Message-ID: <20040719143857.GD13205@wintermute.xmldesign.de>
-References: <20040716002210.GA1081@wintermute.xmldesign.de> <200407161234.03434.russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Troubles with etc/passwd being relabeled to shadow_t upon useradd/usermod
+Message-ID: <20040720093704.GD21906@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200407161234.03434.russell@coker.com.au>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-
-> > # I also added (don't remember what that was needed for):
-> > can_exec(logrotate_t, logrotate_exec_t)
-> 
-> Can you find out what it is needed for?
-
-For executing /usr/bin/savelog:
-
-denied  { execute_no_trans } for  pid=21289 exe=/bin/dash
-path=/usr/bin/savelog dev=sda3 ino=299540
-scontext=system_u:system_r:logrotate_t
-tcontext=system_u:object_r:logrotate_exec_t tclass=file
-
-I do have some weird behaviour with logrotate OR logcheck on this box:
-
-denied  { search } for  pid=21251 exe=/usr/sbin/logrotate name=selinux
-dev=sda3 ino=274182 scontext=system_u:system_r:logrotate_t
-tcontext=system_u:object_r:selinux_config_t tclass=dir
-
-denied  { search } for  pid=21251 exe=/usr/sbin/logrotate name=root
-dev=sda3 ino=318865 scontext=system_u:system_r:logrotate_t
-tcontext=root:object_r:staff_home_dir_t tclass=dir
-
-Seems like some logrotate cron job is doing a "find"?
-
-Also i do get this error message frequently:
-
-denied  { relabelfrom } for  pid=4768 exe=/bin/cp name=checked dev=md0
-ino=160726 scontext=system_u:system_r:logrotate_t
-tcontext=system_u:object_r:logrotate_tmp_t tclass=file
-denied  { relabelto } for  pid=4768 exe=/bin/cp name=checked dev=md0
-ino=160726 scontext=system_u:system_r:logrotate_t
-tcontext=system_u:object_r:logrotate_tmp_t tclass=file
-
-What is happening here?
-This appears to be logcheck, which currently is running in the
-"logrotate" domain. Has some written a policy for logcheck yet?
-OTOH,
-/usr/sbin/logcheck      --      system_u:object_r:logrotate_exec_t
-appears to be intentional.
+Hello,
+i'm using SELinux from Russels Debian packages.
+Whenever i (or an dpkg postinst script) modifies the etc/passwd,
+or etc/group files they are transferred to the
+  "root:object_r:shadow_t" type, thus being unable to be read
+even by root.
+What is causing this, and how can i prevent this?
+(doing a "make relabel" is the only way i found to solve this)
 
 Greetings,
 Erich Schubert
 -- 
-    erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C     (o_
-           There are only 10 types of people in the world:           //\
-           Those who understand binary and those who don't           V_/_
-  Wenn zwei gute Freunde sind, die einander kennen, Sonn' und Mond
-    begegnen sich, ehe sie sich trennen. --- Clemens von Brentano
+    erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C    (o_
+   There was never a good war or a bad peace. - Benjamin Franklin   //\
+               Für jedes Problem gibt es eine Lösung,               V_/_
+                  die einfach, klar und falsch ist.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
