@@ -1,62 +1,31 @@
-Message-Id: <200404141315.i3EDFkJx015414@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Tom Mitchell'" <mitch48@sbcglobal.net>,
-   "'SELinux'" <SELinux@tycho.nsa.gov>
-Cc: "'Selinux Dev'" <selinux-dev@tresys.com>
-Subject: RE: Now that SELinux supports booleans should we replace tunables with booleans?
-Date: Wed, 14 Apr 2004 09:16:10 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <20040413175338.GA713@xtl1.xtl.tenegg.com>
+Subject: RE: Now that SELinux supports booleans should we replace tunables
+	with booleans?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: Russell Coker <russell@coker.com.au>,
+   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <SELinux@tycho.nsa.gov>,
+   "'Selinux Dev'" <selinux-dev@tresys.com>
+In-Reply-To: <200404141310.i3EDAlJx015401@gotham.columbia.tresys.com>
+References: <200404141310.i3EDAlJx015401@gotham.columbia.tresys.com>
+Content-Type: text/plain
+Message-Id: <1081949423.23747.32.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 14 Apr 2004 09:30:23 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2004-04-14 at 09:11, Karl MacMillan wrote:
+> As far as preserving boolean values, this doesn't seem any different from
+> other runtime kernel values and there are mechanism that can be easily
+> extended to handle this.
 
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-> Behalf Of Tom Mitchell
-> Sent: Tuesday, April 13, 2004 1:54 PM
-> To: SELinux
-> Subject: Re: Now that SELinux supports booleans should we replace tunables
-> with booleans?
-> 
-> On Tue, Apr 13, 2004 at 09:59:42AM -0400, Daniel J Walsh wrote:
-> 
-> > Ideas?
-> 
-> The fewer decisions the kernel needs to make the better.  i.e. The
-> more decisions and analysis that can be make in advance of loading
-> policy the better.
-> 
+So you are suggesting something akin to /etc/sysctl.conf for boolean
+values and running something akin to sysctl -p from /etc/rc.d/rc.sysinit
+to set the boolean value during initialization?
 
-I'm not certain this is the case. Booleans allow for fine-grained control
-over policy changes by domains without full policy privileges (see my other
-recent mail in this thread for more on this). This makes it easier to
-analyze a policy ahead of time to make certain that it meats your security
-goals in all configurations.
-
-If you are concerned about performance, I don't think that is a problem
-either. The conditional support adds minimal overhead that is probably taken
-care of by the avc cache anyway.
-
-Karl
-
-Karl MacMillan
-Tresys Technology
-http://www.tresys.com
-(410)290-1411 ext 134
-
-> 
-> --
-> 	T o m  M i t c h e l l
-> 	/dev/null the ultimate in secure storage.
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
