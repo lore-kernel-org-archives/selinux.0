@@ -1,16 +1,16 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA02912
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 14:55:44 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA02835
+	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 14:45:35 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA27963
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 19:53:41 GMT
+	by jazzband.ncsc.mil  with ESMTP id TAA27447
+	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 19:43:31 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id TAA27959 for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 19:53:40 GMT
-Message-Id: <200211292002.PAA23890@moss-shockers.ncsc.mil>
-Date: Fri, 29 Nov 2002 15:02:59 -0500 (EST)
+        by jazzband.ncsc.mil  with ESMTP id TAA27443 for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 19:43:31 GMT
+Message-Id: <200211291952.OAA23878@moss-shockers.ncsc.mil>
+Date: Fri, 29 Nov 2002 14:52:49 -0500 (EST)
 From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
 Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: expect
+Subject: Re: 2.4.20
 To: selinux@tycho.nsa.gov, russell@coker.com.au
 MIME-Version: 1.0
 Content-Type: TEXT/plain; charset=us-ascii
@@ -18,14 +18,26 @@ Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> Due to what I believe to be bugs in expect, the new open_init_pty program will 
-> not work correctly with old versions of expect.  Version 5.38.0 works fine, 
-> version 5.32.2 is broken.  I don't know when the bug was fixed exactly.
+On Fri 29 Nov 2002, Russell Coker wrote:
+ 
+> However there is a problem that I suspect to be a bug in the 2.4.20 kernel.  
+> It seems to allow a file handle for the root directory of the initrd to be 
+> inherited to all processes.
+> 
+> I've attached a log of the avc messages.
 
-I've backed out the open_init_pty changes to our internal copy of
-run_init.   I'd rather not have the base run_init functionality dependent
-on a particular version of expect, and I'm not even sure that it is
-wise to depend on having expect installed at all.  
+Yes, this appears to be an oversight.  Notice that 2.5 correctly closes
+the file descriptors (old_fd, root_fd) in handle_initrd():
+
+http://linus.bkbits.net:8080/linux-2.5/diffs/init/do_mounts.c@1.23?nav=index.htm
+l|src/.|src/init|hist/init/do_mounts.c
+
+whereas 2.4 does not:
+
+http://linux.bkbits.net:8080/linux-2.4/diffs/init/do_mounts.c@1.29?nav=index.htm
+l|src/.|src/init|hist/init/do_mounts.c
+
+Please report this omission to Al Viro.
 
 --
 Stephen Smalley, NSA
