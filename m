@@ -1,49 +1,38 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5CUWXZ002658
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 07:30:35 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5CYAXZ002709
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 07:34:12 -0500 (EST)
 Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5CUXKf017905
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 12:30:33 GMT
-Subject: Re: learning about policies/transitions
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5CYBKf018199
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 12:34:11 GMT
+Subject: Re: Updated SELinux Release
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Serge Hallyn <serge.hallyn@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <46ce702f041104182352cbcd1@mail.gmail.com>
-References: <46ce702f041103084530fe8539@mail.gmail.com>
-	 <1099510181.1213.198.camel@moss-spartans.epoch.ncsc.mil>
-	 <46ce702f041104082042e4c02a@mail.gmail.com>
-	 <1099588265.3174.158.camel@moss-spartans.epoch.ncsc.mil>
-	 <46ce702f041104182352cbcd1@mail.gmail.com>
+To: Colin Walters <walters@verbum.org>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Manoj Srivastava <manoj.srivastava@stdc.com>, selinux@tycho.nsa.gov,
+   debian-devel@lists.debian.org
+In-Reply-To: <1099627566.25416.6.camel@nexus.verbum.private>
+References: <1099496380.1213.111.camel@moss-spartans.epoch.ncsc.mil>
+	 <Pine.LNX.4.58.0411031908500.12297@d10systems.homelinux.com>
+	 <1099534538.3875.6.camel@nexus.verbum.private>
+	 <87k6t2qepg.fsf@glaurung.internal.golden-gryphon.com>
+	 <20041104131544.GC5461@lkcl.net>
+	 <1099627566.25416.6.camel@nexus.verbum.private>
 Content-Type: text/plain
-Message-Id: <1099657575.6373.5.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1099657758.6373.8.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 05 Nov 2004 07:26:15 -0500
+Date: Fri, 05 Nov 2004 07:29:18 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-11-04 at 21:23, Serge Hallyn wrote:
-> Addendum:  running setfilecon works once.  After each reboot, I must again run
-> setfilecon.before /bin/login will cause the transition to login_d. 
-> Again, running
-> /bin/ls -Z /bin/login shows no difference before and after the
-> setifilecon - it is always
-> of type login_et.
+On Thu, 2004-11-04 at 23:06, Colin Walters wrote:
+> Why don't we just run say EROS (http://www.eros-
+> os.org/) instead?  A: Because what makes SELinux interesting is that it
+> can run all of our legacy software.  By not shipping it on everywhere,
+> we're not tapping that ability.
 
-Two scenarios:
-1) At boot time (e.g. usual policy load by /sbin/init), you are loading
-a policy that does not define login_et, /bin/login inode is brought
-incore and mapped to the unlabeled SID, and you then load a policy that
-does define login_et, but this doesn't automatically fix the incore
-inode SID.
-2) At boot time, you are loading a policy that does define login_et,
-/bin/login inode is brought incore and mapped to the correct SID, you
-then load a policy that does not define login_et (e.g. Fedora policy),
-invalidating that SID, and you later reload a policy that does define
-login_et, but this doesn't automatically fix the incore inode SID.
-
-While it would be possible to walk the inode lists upon a policy reload
-and retry mapping of the on-disk xattr for any inode with the unlabeled
-SID, I'm not sure it is worthwhile to do so.
+Some of us might argue that the EROS security model is inadequate...
+See DTMach/DTOS/Flask papers and reports for discussion of why
+capability-based models leave something to be desired.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
