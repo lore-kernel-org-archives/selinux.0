@@ -1,40 +1,42 @@
+Message-ID: <424C1562.5060108@trustedcs.com>
+Date: Thu, 31 Mar 2005 09:21:06 -0600
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: James Morris <jmorris@redhat.com>, Steve G <linux_4ever@yahoo.com>,
+   selinux@tycho.nsa.gov
 Subject: Re: Getting the real task name in avc messages
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20050331145313.38541.qmail@web51503.mail.yahoo.com>
-References: <20050331145313.38541.qmail@web51503.mail.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 31 Mar 2005 10:00:51 -0500
-Message-Id: <1112281251.11216.80.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+References: <Xine.LNX.4.44.0503301704130.15296-100000@thoron.boston.redhat.com>	 <424B27BA.8060706@trustedcs.com> <1112272239.11216.9.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1112272239.11216.9.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-03-31 at 06:53 -0800, Steve G wrote:
-> >Steve, want to take the updated patch to linux-audit?
+Stephen Smalley wrote:
+> On Wed, 2005-03-30 at 16:27 -0600, Darrel Goeddel wrote:
+>>You could also just do:
+>>
+>>	task_lock(current);
+>>	audit_log_format(ab, " comm=%s", current->comm);
+>>	task_unlock(current);
+>>
+>>This avoids an unnecessary copy since we have no use the data after the
+>>audit_log_format call.
 > 
-> Ok. Let me compile it and see what the logs look like first.
+> 
+> Is this locking truly necessary when accessing current->comm (as opposed
+> to accessing the comm of another task)?  Can it be set by any other
+> task?  We don't presently hold the lock when accessing it in avc_audit.
+> 
+> 
 
-Ok.  I built and ran a kernel with it here, and ran some selinux tests,
-and it looked good.  It has some side benefits for SELinux even beyond
-the comm information, e.g. capturing the exe= upon syscall exit lets us
-get it cleanly without having to worry about mmap sem locking by the
-caller (which was an issue for mmap/mprotect previously) and moving the
-task-related audit handling to syscall exit should avoid having bogus
-information included for our networking checks that occur outside of
-process context.  Tools like seaudit may need to be updated to get the
-task-related info from the subsequent syscall audit record instead of
-from the avc-generated record, but they can correlate it based on the
-timestamp/serial.
-
-One further change that should be made is to use something like
-audit_log_untrustedstring on the comm and on the exe path.
+I didn't not think so, but I wasn't 100% sure.  I only did a quick glance before 
+and thought it best to be safe.  Upon further investigation, it sure looks to be 
+fine without holding the task lock.
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
 
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
