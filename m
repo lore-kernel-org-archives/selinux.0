@@ -1,41 +1,129 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11715
-	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 12:10:24 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0JHAOI07665
-	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 17:10:24 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h0JHANf07661 for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 17:10:23 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov,
-        tom@lemuria.org
-Subject: Re: KDM login trouble
-Date: Sun, 19 Jan 2003 18:10:15 +0100
-References: <200301171418.JAA00475@moss-shockers.ncsc.mil>
-In-Reply-To: <200301171418.JAA00475@moss-shockers.ncsc.mil>
+Message-Id: <200301191750.h0JHoMf08676@jazzband.ncsc.mil>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: regular expressions
+Date: Sun, 19 Jan 2003 18:29:23 +0100
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200301191810.15992.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_ZW1Z6ESKHCHTWLWMSTPJ"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 17 Jan 2003 15:18, Stephen D. Smalley wrote:
-> Offhand, I would guess that the SELinux patch for kdm was never updated
-> for the newer libsecure functions and default_contexts configuration,
 
-I have not made such an update, and I guess that Brian hasn't either.
+--------------Boundary-00=_ZW1Z6ESKHCHTWLWMSTPJ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-I've been waiting for KDE 3.1 to enter Debian.  KDE 2.2 is still the latest 
-supported version in Debian.
+Hi,
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+a few fc-files used the regexp [^/]* to label exact one file system entry=
+=2E=20
+I think sometimes it is better to use [^/]+ to mark one entry instead of=20
+"zero and more".
+An good example is the entry for the .ssh directory /home/[^/]*/.ssh(/.*)=
+?
+matched the user specific ssh directories but also /home/.ssh.
+This time I don't see no way to use this to compromise the system, but I'=
+m=20
+in two minds as to whether it is potential unsecure or not.
 
+The attached patch change it. I also change some /home resp. /root entrie=
+s=20
+in this way too.
+
+I don't  now enouph about the directory structure of dpkg.fc so I don't=20
+change it. Could anybody do it?
+
+Carsten
+
+--------------Boundary-00=_ZW1Z6ESKHCHTWLWMSTPJ
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="patch.regexp"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch.regexp"
+
+PyBwYXRjaC5yZWdleHAKSW5kZXg6IHR5cGVzLmZjCj09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KUkNTIGZpbGU6IC9jdnNy
+b290L3NlbGludXgvbnNhL3NlbGludXgvcG9saWN5L2ZpbGVfY29udGV4dHMvdHlwZXMuZmMsdgpy
+ZXRyaWV2aW5nIHJldmlzaW9uIDEuMTQKZGlmZiAtdSAtcjEuMTQgdHlwZXMuZmMKLS0tIHR5cGVz
+LmZjCTMgRGVjIDIwMDIgMTQ6Mjk6NDMgLTAwMDAJMS4xNAorKysgdHlwZXMuZmMJMTkgSmFuIDIw
+MDMgMTc6NDg6MDMgLTAwMDAKQEAgLTg2LDcgKzg2LDcgQEAKIC9ob21lCQkJCXN5c3RlbV91Om9i
+amVjdF9yOmhvbWVfcm9vdF90CiAvaG9tZS9bXi9dKgktZAkJc3lzdGVtX3U6b2JqZWN0X3I6dXNl
+cl9ob21lX2Rpcl90CiAvaG9tZS8uKi8uKgkJCXN5c3RlbV91Om9iamVjdF9yOnVzZXJfaG9tZV90
+Ci0vaG9tZS9bXi9dKi8uc3NoKC8uKik/CQlzeXN0ZW1fdTpvYmplY3Rfcjp1c2VyX2hvbWVfc3No
+X3QKKy9ob21lL1teL10rLy5zc2goLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOnVzZXJfaG9tZV9z
+c2hfdAogCiAjCiAjIC9iaW4KSW5kZXg6IHByb2dyYW0vZ3BnLmZjCj09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KUkNTIGZp
+bGU6IC9jdnNyb290L3NlbGludXgvbnNhL3NlbGludXgvcG9saWN5L2ZpbGVfY29udGV4dHMvcHJv
+Z3JhbS9ncGcuZmMsdgpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMgpkaWZmIC11IC1yMS4yIGdwZy5m
+YwotLS0gcHJvZ3JhbS9ncGcuZmMJMTIgSnVsIDIwMDIgMTU6MTk6NDQgLTAwMDAJMS4yCisrKyBw
+cm9ncmFtL2dwZy5mYwkxOSBKYW4gMjAwMyAxNzo0ODowMyAtMDAwMApAQCAtMSw0ICsxLDQgQEAK
+ICMgZ3BnCi0vaG9tZS8uKi9cLmdudXBnKC8uKik/CQlzeXN0ZW1fdTpvYmplY3Rfcjp1c2VyX2dw
+Z19zZWNyZXRfdAotL3Jvb3QvLiovXC5nbnVwZygvLiopPwkJc3lzdGVtX3U6b2JqZWN0X3I6c3lz
+YWRtX2dwZ19zZWNyZXRfdAorL2hvbWUvW14vXSsvXC5nbnVwZygvLiopPwkJc3lzdGVtX3U6b2Jq
+ZWN0X3I6dXNlcl9ncGdfc2VjcmV0X3QKKy9yb290L1wuZ251cGcoLy4qKT8JCXN5c3RlbV91Om9i
+amVjdF9yOnN5c2FkbV9ncGdfc2VjcmV0X3QKIC91c3IvYmluL2dwZwkJCXN5c3RlbV91Om9iamVj
+dF9yOmdwZ19leGVjX3QKSW5kZXg6IHByb2dyYW0vbW9kdXRpbC5mYwo9PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ClJDUyBm
+aWxlOiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9zZWxpbnV4L3BvbGljeS9maWxlX2NvbnRleHRzL3By
+b2dyYW0vbW9kdXRpbC5mYyx2CnJldHJpZXZpbmcgcmV2aXNpb24gMS4zCmRpZmYgLXUgLXIxLjMg
+bW9kdXRpbC5mYwotLS0gcHJvZ3JhbS9tb2R1dGlsLmZjCTEzIERlYyAyMDAyIDIwOjU1OjQ2IC0w
+MDAwCTEuMworKysgcHJvZ3JhbS9tb2R1dGlsLmZjCTE5IEphbiAyMDAzIDE3OjQ4OjAzIC0wMDAw
+CkBAIC0xLDcgKzEsNyBAQAogIyBtb2R1bGUgdXRpbGl0aWVzCiAvZXRjL21vZHVsZXMuY29uZigu
+b2xkKT8Jc3lzdGVtX3U6b2JqZWN0X3I6bW9kdWxlc19jb25mX3QKIC9saWIvbW9kdWxlcygvLiop
+PwkJc3lzdGVtX3U6b2JqZWN0X3I6bW9kdWxlc19vYmplY3RfdAotL2xpYi9tb2R1bGVzL1teL10q
+L21vZHVsZXNcLi4qIHN5c3RlbV91Om9iamVjdF9yOm1vZHVsZXNfZGVwX3QKKy9saWIvbW9kdWxl
+cy9bXi9dKy9tb2R1bGVzXC4uKiBzeXN0ZW1fdTpvYmplY3Rfcjptb2R1bGVzX2RlcF90CiAvc2Jp
+bi9kZXBtb2QuKgkJCXN5c3RlbV91Om9iamVjdF9yOmRlcG1vZF9leGVjX3QKIC9zYmluL21vZHBy
+b2JlLioJCXN5c3RlbV91Om9iamVjdF9yOmluc21vZF9leGVjX3QKIC9zYmluL2luc21vZC4qCQkJ
+c3lzdGVtX3U6b2JqZWN0X3I6aW5zbW9kX2V4ZWNfdApJbmRleDogcHJvZ3JhbS9uZXRzY2FwZS5m
+Ywo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09ClJDUyBmaWxlOiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9zZWxpbnV4L3BvbGlj
+eS9maWxlX2NvbnRleHRzL3Byb2dyYW0vbmV0c2NhcGUuZmMsdgpyZXRyaWV2aW5nIHJldmlzaW9u
+IDEuMwpkaWZmIC11IC1yMS4zIG5ldHNjYXBlLmZjCi0tLSBwcm9ncmFtL25ldHNjYXBlLmZjCTEg
+T2N0IDIwMDIgMTY6NDI6MTIgLTAwMDAJMS4zCisrKyBwcm9ncmFtL25ldHNjYXBlLmZjCTE5IEph
+biAyMDAzIDE3OjQ4OjAzIC0wMDAwCkBAIC0xLDggKzEsOCBAQAogIyAgbmV0c2NhcGUvbW96aWxs
+YQogL3Jvb3QvXC5uZXRzY2FwZSgvLiopPwkJc3lzdGVtX3U6b2JqZWN0X3I6c3lzYWRtX25ldHNj
+YXBlX3J3X3QKIC9yb290L1wubW96aWxsYSgvLiopPwkJc3lzdGVtX3U6b2JqZWN0X3I6c3lzYWRt
+X25ldHNjYXBlX3J3X3QKLS9ob21lLy4qL1wubmV0c2NhcGUoLy4qKT8Jc3lzdGVtX3U6b2JqZWN0
+X3I6dXNlcl9uZXRzY2FwZV9yd190Ci0vaG9tZS8uKi9cLm1vemlsbGEoLy4qKT8Jc3lzdGVtX3U6
+b2JqZWN0X3I6dXNlcl9uZXRzY2FwZV9yd190CisvaG9tZS9bXi9dKy9cLm5ldHNjYXBlKC8uKik/
+CXN5c3RlbV91Om9iamVjdF9yOnVzZXJfbmV0c2NhcGVfcndfdAorL2hvbWUvW14vXSsvXC5tb3pp
+bGxhKC8uKik/CXN5c3RlbV91Om9iamVjdF9yOnVzZXJfbmV0c2NhcGVfcndfdAogL3Vzci9iaW4v
+bmV0c2NhcGUJCXN5c3RlbV91Om9iamVjdF9yOm5ldHNjYXBlX2V4ZWNfdAogL3Vzci9iaW4vbW96
+aWxsYQkJc3lzdGVtX3U6b2JqZWN0X3I6bmV0c2NhcGVfZXhlY190CiAvdXNyL2Jpbi9tb3ppbGxh
+LVswLTldLioJc3lzdGVtX3U6b2JqZWN0X3I6bmV0c2NhcGVfZXhlY190CkluZGV4OiBwcm9ncmFt
+L3Ztd2FyZS5mYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09ClJDUyBmaWxlOiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9zZWxp
+bnV4L3BvbGljeS9maWxlX2NvbnRleHRzL3Byb2dyYW0vdm13YXJlLmZjLHYKcmV0cmlldmluZyBy
+ZXZpc2lvbiAxLjMKZGlmZiAtdSAtcjEuMyB2bXdhcmUuZmMKLS0tIHByb2dyYW0vdm13YXJlLmZj
+CTExIFNlcCAyMDAyIDE4OjIyOjEyIC0wMDAwCTEuMworKysgcHJvZ3JhbS92bXdhcmUuZmMJMTkg
+SmFuIDIwMDMgMTc6NDg6MDQgLTAwMDAKQEAgLTQ4LDYgKzQ4LDYgQEAKICMgVGhlIHJ1bGVzIGJl
+bG93IGFzc3VtZSB0aGF0IHRoZSB1c2VyJ3MgVk1XYXJlIHZpcnR1YWwgZGlza3MgYXJlIGluIHRo
+ZQogIyB+L3Ztd2FyZSwgYW5kIHRoZSBwcmVmZXJlbmNlcyBhbmQgbGljZW5zZSBmaWxlcyBhcmUg
+aW4gfi8udm13YXJlLgogIwotL2hvbWUvLiovXC52bXdhcmUoLy4qKT8JICAgICAgICAgc3lzdGVt
+X3U6b2JqZWN0X3I6dm13YXJlX3VzZXJfZmlsZV90Ci0vaG9tZS8uKi9cdm13YXJlKC8uKik/CSAg
+ICAgICAgIHN5c3RlbV91Om9iamVjdF9yOnZtd2FyZV91c2VyX2ZpbGVfdAotL2hvbWUvLiovXHZt
+d2FyZVteL10qLy4qXC5jZmcgICAgc3lzdGVtX3U6b2JqZWN0X3I6dm13YXJlX3VzZXJfY29uZl90
+CisvaG9tZS9bXi9dKy9cLnZtd2FyZSgvLiopPwkgICAgICAgICBzeXN0ZW1fdTpvYmplY3Rfcjp2
+bXdhcmVfdXNlcl9maWxlX3QKKy9ob21lL1teL10rL1x2bXdhcmUoLy4qKT8JICAgICAgICAgc3lz
+dGVtX3U6b2JqZWN0X3I6dm13YXJlX3VzZXJfZmlsZV90CisvaG9tZS9bXi9dKy9cdm13YXJlW14v
+XSovLipcLmNmZyAgICBzeXN0ZW1fdTpvYmplY3Rfcjp2bXdhcmVfdXNlcl9jb25mX3QKSW5kZXg6
+IHByb2dyYW0veGF1dGguZmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpSQ1MgZmlsZTogL2N2c3Jvb3Qvc2VsaW51eC9u
+c2Evc2VsaW51eC9wb2xpY3kvZmlsZV9jb250ZXh0cy9wcm9ncmFtL3hhdXRoLmZjLHYKcmV0cmll
+dmluZyByZXZpc2lvbiAxLjIKZGlmZiAtdSAtcjEuMiB4YXV0aC5mYwotLS0gcHJvZ3JhbS94YXV0
+aC5mYwkxIE9jdCAyMDAyIDE3OjE5OjQyIC0wMDAwCTEuMgorKysgcHJvZ3JhbS94YXV0aC5mYwkx
+OSBKYW4gMjAwMyAxNzo0ODowNCAtMDAwMApAQCAtMSw0ICsxLDQgQEAKICMgeGF1dGgKIC91c3Iv
+WDExUjYvYmluL3hhdXRoCQlzeXN0ZW1fdTpvYmplY3Rfcjp4YXV0aF9leGVjX3QKLS9ob21lL1te
+L10qLy5YYXV0aG9yaXR5LioJc3lzdGVtX3U6b2JqZWN0X3I6dXNlcl9ob21lX3hhdXRoX3QKKy9o
+b21lL1teL10rLy5YYXV0aG9yaXR5LioJc3lzdGVtX3U6b2JqZWN0X3I6dXNlcl9ob21lX3hhdXRo
+X3QKIC9yb290Ly5YYXV0aG9yaXR5LioJCXN5c3RlbV91Om9iamVjdF9yOnN5c2FkbV9ob21lX3hh
+dXRoX3QK
+
+--------------Boundary-00=_ZW1Z6ESKHCHTWLWMSTPJ--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
