@@ -1,23 +1,21 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h836d3La023014
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 02:39:03 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h837D6La023184
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 03:13:07 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h836bVpQ022327
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 06:37:31 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-	by jazzswing.ncsc.mil  with ESMTP id h836bQQX022324
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 06:37:26 GMT
-Date: Wed, 3 Sep 2003 16:38:53 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: James Morris <jmorris@redhat.com>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
+	by jazzswing.ncsc.mil  with ESMTP id h837BYpQ024298
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 07:11:34 GMT
+Received: from nox.lemuria.org ([213.191.86.35])
+	by jazzswing.ncsc.mil  with ESMTP id h837BXQX024295
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 07:11:34 GMT
+Date: Wed, 3 Sep 2003 09:12:59 +0200
+From: Tom <tom@lemuria.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Subject: Re: Enable SELinux via boot parameter
-Message-ID: <20030903063853.GA8326@snoopy.apana.org.au>
+Message-ID: <20030903091258.L30963@lemuria.org>
 References: <Pine.LNX.4.44.0309021942550.11746-100000@thoron.boston.redhat.com> <1062558452.1838.52.camel@chris.pebenito.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1062558452.1838.52.camel@chris.pebenito.net>
+In-Reply-To: <1062558452.1838.52.camel@chris.pebenito.net>; from pebenito@gentoo.org on Tue, Sep 02, 2003 at 10:07:32PM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -29,16 +27,22 @@ On Tue, Sep 02, 2003 at 10:07:32PM -0500, Chris PeBenito wrote:
 > need to specify extra kernel parameters.  The distributions shipping one
 > single kernel is more of a special case.
 
-I don't see this as being a big problem, just that existing selinux
-users will need to change lilo.conf or whatever to add the extra
-parameter.
+The broad public will not be using SELinux for now, so I'm afraid it's
+not really a special case.
 
-I think adding this extra parameter (whatever the default happens to be)
-is a good thing, it means you can still boot even if the selinux policy
-gets badly broken (eg.  due to disk curruption), or just breaks root
-logins for instance.
+There should, however, be a kernel config option to turn it on by
+default and FORCE it on. (i.e. no way to boot that kernel without SE
+enabled). Otherwise we have a trivial boot security problem.
+
+I know securing physical access to the system isn't really the scope of
+SE, but it shouldn't be THAT easy.
+
+
+
 -- 
-Brian May <bam@snoopy.apana.org.au>
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
