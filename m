@@ -1,129 +1,204 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBE5BfRb015341
-	for <selinux@tycho.nsa.gov>; Sun, 14 Dec 2003 00:11:42 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hBE5ArYV025406
-	for <selinux@tycho.nsa.gov>; Sun, 14 Dec 2003 05:10:53 GMT
-Received: from mail.simplyaquatics.com ([209.192.59.11])
-	by jazzswing.ncsc.mil  with ESMTP id hBE5ArBN025403
-	for <selinux@tycho.nsa.gov>; Sun, 14 Dec 2003 05:10:53 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by mail.simplyaquatics.com (Postfix) with ESMTP id 473A445001D
-	for <selinux@tycho.nsa.gov>; Sun, 14 Dec 2003 00:11:41 -0500 (EST)
-Received: from ed (ed1 [192.168.1.10])
-	by mail.simplyaquatics.com (Postfix) with ESMTP id ED60A45001D
-	for <selinux@tycho.nsa.gov>; Sun, 14 Dec 2003 00:11:38 -0500 (EST)
-From: "Ed Street" <edstreet@street-tek.com>
-To: "Selinux" <selinux@tycho.nsa.gov>
-Subject: audit2allow
-Date: Sun, 14 Dec 2003 00:16:28 -0500
-Message-ID: <000901c3c201$6f1922e0$0a01a8c0@ed>
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000A_01C3C1D7.86431AE0"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBF8mgRb018689
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 03:48:43 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hBF8mfpn013705
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 08:48:41 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+        by jazzband.ncsc.mil  with ESMTP id hBF8mfab013702 for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 08:48:41 GMT
+Received: from nexus.verbum.private (dhcp024-208-187-170.columbus.rr.com [24.208.187.170])
+	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
+	(Client CN "nexus.verbum.org", Issuer "monk.verbum.org" (verified OK))
+	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id AE00D32A6C9
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 03:49:35 -0500 (EST)
+Subject: [patch] add source line numbers to checkpolicy
+From: Colin Walters <walters@verbum.org>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-R/6Gh66PJHLXg7EG2iCV"
+Message-Id: <1071478020.17990.8.camel@nexus.verbum.private>
+Mime-Version: 1.0
+Date: Mon, 15 Dec 2003 03:47:00 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_000A_01C3C1D7.86431AE0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
-Hello,
-
- 
-
-Is there anyway we can add the user in the audit2allow -v -d listings?
-That would make the admin job a whole lot easier.  Say there's multiple
-pages of listings but the admin is looking for a specific one, he/she
-could search by username in | less 
-
- 
-
-Ed
+--=-R/6Gh66PJHLXg7EG2iCV
+Content-Type: multipart/mixed; boundary="=-IKKdx2ui9nJK4CN/qbMc"
 
 
-------=_NextPart_000_000A_01C3C1D7.86431AE0
-Content-Type: text/html;
-	charset="us-ascii"
+--=-IKKdx2ui9nJK4CN/qbMc
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-<html>
+Hi,
 
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Dus-ascii">
+Attached are two patches which have checkpolicy emit the source line
+number where an error occurred, if available.  This would have been
+fairly trivial, except it required rewriting the sample policy Makefile
+to not invoke m4 multiple times. =20
+
+It all seems to work fine, but the changes to the Makefile should
+probably be looked at carefully - I don't understand why it wasn't
+written like this in the first place, so I'm wondering if I'm missing
+something.
+
+Here's what it looks like:
+
+walters@nexus> echo spork >> domains/program/mount.te
+walters@nexus> make policy CHECKPOLICY=3D../checkpolicy-1.4/checkpolicy
+mkdir -p tmp
+[...]
+mv policy.conf.tmp policy.conf
+../checkpolicy-1.4/checkpolicy -o policy.15 policy.conf
+../checkpolicy-1.4/checkpolicy:  loading policy configuration from policy.c=
+onf
+domains/program/mount.te:62:ERROR 'syntax error' at token 'spork' on line 2=
+2895:
+allow mount_t unlabeled_t:dir search;
+spork
+../checkpolicy-1.4/checkpolicy:  error(s) encountered while parsing configu=
+ration
+make: *** [policy.15] Error 1
 
 
-<meta name=3DGenerator content=3D"Microsoft Word 10 (filtered)">
+--=-IKKdx2ui9nJK4CN/qbMc
+Content-Disposition: attachment; filename=checkpolicy-lineno.patch
+Content-Type: text/x-patch; name=checkpolicy-lineno.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{font-family:Arial;
-	color:windowtext;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+ZGlmZiAtdXIgY2hlY2twb2xpY3ktMS40Lm9yaWcvY2hlY2twb2xpY3kuYyBjaGVja3BvbGljeS0x
+LjQvY2hlY2twb2xpY3kuYw0KLS0tIGNoZWNrcG9saWN5LTEuNC5vcmlnL2NoZWNrcG9saWN5LmMJ
+MjAwMy0xMi0wMSAxNDoyNDo1Ny4wMDAwMDAwMDAgLTA1MDANCisrKyBjaGVja3BvbGljeS0xLjQv
+Y2hlY2twb2xpY3kuYwkyMDAzLTEyLTE1IDAyOjUwOjQ4LjAwMDAwMDAwMCAtMDUwMA0KQEAgLTQ1
+LDYgKzQ1LDggQEANCiBleHRlcm4gcXVldWVfdCBpZF9xdWV1ZTsNCiBleHRlcm4gdW5zaWduZWQg
+aW50IHBvbGljeWRiX2Vycm9yczsNCiBleHRlcm4gdW5zaWduZWQgbG9uZyBwb2xpY3lkYl9saW5l
+bm87DQorZXh0ZXJuIHVuc2lnbmVkIGxvbmcgc291cmNlX2xpbmVubzsNCitleHRlcm4gY2hhciBz
+b3VyY2VfZmlsZVtdOw0KIGV4dGVybiB1bnNpZ25lZCBpbnQgcGFzczsNCiBleHRlcm4gdW5zaWdu
+ZWQgaW50IHNzX2luaXRpYWxpemVkOw0KIA0KQEAgLTQwMCw2ICs0MDIsOCBAQA0KIAkJfQ0KIAkJ
+cmV3aW5kKHl5aW4pOw0KIAkJcG9saWN5ZGJfbGluZW5vID0gMTsNCisJCXNvdXJjZV9maWxlWzBd
+ID0gJ1wwJzsNCisJCXNvdXJjZV9saW5lbm8gPSAxOw0KIAkJeXlyZXN0YXJ0KHl5aW4pOw0KIAkJ
+cGFzcyA9IDI7DQogCQlpZiAoeXlwYXJzZSgpIHx8IHBvbGljeWRiX2Vycm9ycykgew0KZGlmZiAt
+dXIgY2hlY2twb2xpY3ktMS40Lm9yaWcvcG9saWN5X3BhcnNlLnkgY2hlY2twb2xpY3ktMS40L3Bv
+bGljeV9wYXJzZS55DQotLS0gY2hlY2twb2xpY3ktMS40Lm9yaWcvcG9saWN5X3BhcnNlLnkJMjAw
+My0xMC0yNCAxMDoyMzowOS4wMDAwMDAwMDAgLTA0MDANCisrKyBjaGVja3BvbGljeS0xLjQvcG9s
+aWN5X3BhcnNlLnkJMjAwMy0xMi0xNSAwMjozMDo1OS4wMDAwMDAwMDAgLTA1MDANCkBAIC0xOCw2
+ICsxOCw4IEBADQogcG9saWN5ZGJfdCAqcG9saWN5ZGJwOw0KIHF1ZXVlX3QgaWRfcXVldWUgPSAw
+Ow0KIHVuc2lnbmVkIGludCBwYXNzOw0KK2NoYXIgKmN1cmZpbGUgPSAwOw0KK3Vuc2lnbmVkIGlu
+dCBjdXJsaW5lOyANCiANCiBleHRlcm4gdW5zaWduZWQgbG9uZyBwb2xpY3lkYl9saW5lbm87DQog
+DQpkaWZmIC11ciBjaGVja3BvbGljeS0xLjQub3JpZy9wb2xpY3lfc2Nhbi5sIGNoZWNrcG9saWN5
+LTEuNC9wb2xpY3lfc2Nhbi5sDQotLS0gY2hlY2twb2xpY3ktMS40Lm9yaWcvcG9saWN5X3NjYW4u
+bAkyMDAzLTA2LTI2IDEzOjIzOjEyLjAwMDAwMDAwMCAtMDQwMA0KKysrIGNoZWNrcG9saWN5LTEu
+NC9wb2xpY3lfc2Nhbi5sCTIwMDMtMTItMTUgMDI6NTE6MTguMDAwMDAwMDAwIC0wNTAwDQpAQCAt
+MTEsNiArMTEsOSBAQA0KIHN0YXRpYyBjaGFyIGxpbmVidWZbMl1bMjU1XTsNCiBzdGF0aWMgdW5z
+aWduZWQgaW50IGxubyA9IDA7DQogDQorY2hhciBzb3VyY2VfZmlsZVsyNTVdOw0KK3Vuc2lnbmVk
+IGxvbmcgc291cmNlX2xpbmVubyA9IDE7DQorDQogdW5zaWduZWQgbG9uZyBwb2xpY3lkYl9saW5l
+bm8gPSAxOw0KIA0KIHVuc2lnbmVkIGludCBwb2xpY3lkYl9lcnJvcnMgPSAwOw0KQEAgLTIzLDYg
+KzI2LDcgQEANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbGluZWJ1Zltsbm9d
+WzI1NF0gPSAwOw0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsbm8gPSAxIC0g
+bG5vOyANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcG9saWN5ZGJfbGluZW5v
+Kys7DQorCQkJCSAgc291cmNlX2xpbmVubysrOw0KICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICB5eWxlc3MoMSk7IH0NCiBDTE9ORSB8DQogY2xvbmUJCQkJeyByZXR1cm4oQ0xPTkUp
+OyB9DQpAQCAtMTMwLDYgKzEzNCw4IEBADQoge2xldHRlcn0oe2xldHRlcn18e2RpZ2l0fXxfKSoJ
+eyByZXR1cm4oSURFTlRJRklFUik7IH0NCiB7bGV0dGVyfSh7bGV0dGVyfXx7ZGlnaXR9fF98Ii4i
+fCItIikqCXsgcmV0dXJuKFVTRVJfSURFTlRJRklFUik7IH0NCiB7ZGlnaXR9e2RpZ2l0fSogICAg
+ICAgICAgICAgICAgIHsgcmV0dXJuKE5VTUJFUik7IH0NCisjbGluZVsgXTFbIF1cIlteXG5dKlwi
+CQl7IHNvdXJjZV9saW5lbm8gPSAxOyBzdHJuY3B5KHNvdXJjZV9maWxlLCB5eXRleHQrOSwgMjU1
+KTsgc291cmNlX2ZpbGVbc3RybGVuKHNvdXJjZV9maWxlKS0xXSA9ICdcMCc7IH0NCisjbGluZVsg
+XXtkaWdpdH17ZGlnaXR9KgkJeyBzb3VyY2VfbGluZW5vID0gYXRvaSh5eXRleHQrNiktMTsgfQ0K
+ICNbXlxuXSogICAgICAgICAgICAgICAgICAgICAgICAgeyAvKiBkZWxldGUgY29tbWVudHMgKi8g
+fQ0KIFsgXHRcZl0rCQkJeyAvKiBkZWxldGUgd2hpdGVzcGFjZSAqLyB9DQogIj09IiAJCQkJeyBy
+ZXR1cm4oRVFVQUxTKTsgfQ0KQEAgLTE1NCw2ICsxNjAsMTEgQEANCiAlJQ0KIGludCB5eWVycm9y
+KGNoYXIgKm1zZykNCiB7DQorCWlmIChzb3VyY2VfZmlsZVswXSkNCisJCWZwcmludGYoc3RkZXJy
+LCAiJXM6JWxkOiIsDQorCQkJc291cmNlX2ZpbGUsIHNvdXJjZV9saW5lbm8pOw0KKwllbHNlDQor
+CQlmcHJpbnRmKHN0ZGVyciwgIih1bmtub3duIHNvdXJjZSk6OiIpOw0KIAlmcHJpbnRmKHN0ZGVy
+ciwgIkVSUk9SICclcycgYXQgdG9rZW4gJyVzJyBvbiBsaW5lICVsZDpcbiVzXG4lc1xuIiwNCiAJ
+CQltc2csDQogCQkJeXl0ZXh0LA0KQEAgLTE2NSw2ICsxNzYsMTEgQEANCiANCiBpbnQgeXl3YXJu
+KGNoYXIgKm1zZykNCiB7DQorCWlmIChzb3VyY2VfZmlsZVswXSkNCisJCWZwcmludGYoc3RkZXJy
+LCAiJXM6JWxkOiIsDQorCQkJc291cmNlX2ZpbGUsIHNvdXJjZV9saW5lbm8pOw0KKwllbHNlDQor
+CQlmcHJpbnRmKHN0ZGVyciwgIih1bmtub3duIHNvdXJjZSk6OiIpOw0KIAlmcHJpbnRmKHN0ZGVy
+ciwgIldBUk5JTkcgJyVzJyBhdCB0b2tlbiAnJXMnIG9uIGxpbmUgJWxkOlxuJXNcbiVzXG4iLA0K
+IAkJCW1zZywNCiAJCQl5eXRleHQsDQpAQCAtMTcyLDUgKzE4OCwzIEBADQogCQkJbGluZWJ1Zlsw
+XSwgbGluZWJ1ZlsxXSk7DQogCXJldHVybiAwOw0KIH0NCi0NCi0NCg==
 
-</head>
+--=-IKKdx2ui9nJK4CN/qbMc
+Content-Disposition: attachment; filename=policy-makefile.patch
+Content-Type: text/x-patch; name=policy-makefile.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+LS0tIHBvbGljeS0xLjQvTWFrZWZpbGUJMjAwMy0xMS0yNiAxMTozMToyMC4wMDAwMDAwMDAgLTA1
+MDANCisrKyBwb2xpY3ktMS40LmhhY2tlZC9NYWtlZmlsZQkyMDAzLTEyLTE1IDAzOjM0OjU4LjAw
+MDAwMDAwMCAtMDUwMA0KQEAgLTI5LDEzICsyOSwyMSBAQA0KIFNSQ0lOU1RBTExESVIgPSAkKElO
+U1RBTExESVIpL3NyYw0KIFBPTElDWUNPTkYgPSAkKFNSQ0lOU1RBTExESVIpL3BvbGljeS5jb25m
+DQogDQorQUxMX1BST0dSQU1fTUFDUk9TIDo9ICQod2lsZGNhcmQgbWFjcm9zL3Byb2dyYW0vKi50
+ZSkNCitBTExfTUFDUk9TIDo9ICQoQUxMX1BST0dSQU1fTUFDUk9TKSAkKHdpbGRjYXJkIG1hY3Jv
+cy8qLnRlKQ0KK0FMTF9UWVBFUyA6PSAkKHdpbGRjYXJkIHR5cGVzLyoudGUpDQorQUxMX0RPTUFJ
+TlMgOj0gJCh3aWxkY2FyZCBkb21haW5zLyoudGUgZG9tYWlucy9taXNjLyoudGUgZG9tYWlucy9w
+cm9ncmFtLyoudGUpDQorQUxMVEVGSUxFUyA6PSBhdHRyaWIudGUgdG1wL3Byb2dyYW1fdXNlZF9m
+bGFncy50ZSAkKEFMTF9NQUNST1MpICQoQUxMX1RZUEVTKSAkKEFMTF9ET01BSU5TKSBhc3NlcnQu
+dGUgDQorVEVfUkJBQ19GSUxFUyA6PSAkKEFMTFRFRklMRVMpIHJiYWMNCitDT05TVFJBSU5UX0NP
+TlRFWFRfTUFDUk9fRklMRVMgOj0gdG1wL3Byb2dyYW1fdXNlZF9mbGFncy50ZSAkKEFMTF9NQUNS
+T1MpIGNvbnN0cmFpbnRzIGluaXRpYWxfc2lkX2NvbnRleHRzIGZzX3VzZSBnZW5mc19jb250ZXh0
+cyBuZXRfY29udGV4dHMNCisNCiBQT0xJQ1lGSUxFUyA9ICQoYWRkcHJlZml4ICQoRkxBU0tESVIp
+LHNlY3VyaXR5X2NsYXNzZXMgaW5pdGlhbF9zaWRzIGFjY2Vzc192ZWN0b3JzKQ0KIGlmZXEgKCQo
+TUxTKSx5KQ0KIFBPTElDWUZJTEVTICs9IG1scw0KIGVuZGlmDQotUE9MSUNZRklMRVMgKz0gdG1w
+L3RlLXJiYWMubTQNCitQT0xJQ1lGSUxFUyArPSAkKFRFX1JCQUNfRklMRVMpDQogUE9MSUNZRklM
+RVMgKz0gdXNlcnMgDQotUE9MSUNZRklMRVMgKz0gdG1wL2NvbnN0cmFpbnRzLWNvbnRleHRzLm00
+DQorUE9MSUNZRklMRVMgKz0gJChDT05TVFJBSU5UX0NPTlRFWFRfTUFDUk9fRklMRVMpDQogDQog
+VU5VU0VEX1RFX0ZJTEVTIDo9ICQod2lsZGNhcmQgZG9tYWlucy9wcm9ncmFtL3VudXNlZC8qLnRl
+KQ0KIA0KQEAgLTg2LDcgKzk0LDggQEANCiANCiBwb2xpY3kuY29uZjogJChQT0xJQ1lGSUxFUykg
+DQogCW1rZGlyIC1wIHRtcA0KLQljYXQgJF4gPiAkQA0KKwltNCAkKE00UEFSQU0pIC1JbWFjcm9z
+IC1zICReID4gJEAudG1wDQorCW12ICRALnRtcCAkQA0KIA0KIGluc3RhbGwtc3JjOiANCiAJcm0g
+LXJmICQoU1JDSU5TVEFMTERJUikvcG9saWN5Lm9sZA0KQEAgLTk0LDM1ICsxMDMsMTEgQEANCiAJ
+bWtkaXIgLXAgJChTUkNJTlNUQUxMRElSKS9wb2xpY3kNCiAJY3AgLVIgLiAkKFNSQ0lOU1RBTExE
+SVIpL3BvbGljeQ0KIA0KLUFMTFRFRklMRVMgOj0gYXR0cmliLnRlIHRtcC9wcm9ncmFtX3VzZWRf
+ZmxhZ3MudGUgdG1wL2FsbF9tYWNyb3MudGUgdG1wL2FsbF90eXBlcy50ZSB0bXAvYWxsX2RvbWFp
+bnMudGUgYXNzZXJ0LnRlIA0KLVRFX1JCQUNfTUFDUk9fRklMRVMgOj0gdG1wL2FsbC50ZSByYmFj
+DQotQ09OU1RSQUlOVF9DT05URVhUX01BQ1JPX0ZJTEVTIDo9IHRtcC9wcm9ncmFtX3VzZWRfZmxh
+Z3MudGUgdG1wL2FsbF9tYWNyb3MudGUgY29uc3RyYWludHMgaW5pdGlhbF9zaWRfY29udGV4dHMg
+ZnNfdXNlIGdlbmZzX2NvbnRleHRzIG5ldF9jb250ZXh0cw0KLQ0KLXRtcC90ZS1yYmFjLm00OiAk
+KFRFX1JCQUNfTUFDUk9fRklMRVMpDQotCW00ICQoTTRQQVJBTSkgLUltYWNyb3MgLXMgJF4gPiAk
+QA0KLQ0KLXRtcC9jb25zdHJhaW50cy1jb250ZXh0cy5tNDogJChDT05TVFJBSU5UX0NPTlRFWFRf
+TUFDUk9fRklMRVMpDQotCW00ICQoTTRQQVJBTSkgLUltYWNyb3MgLXMgJF4gPiAkQA0KLQ0KLXRt
+cC9hbGwudGU6ICQoQUxMVEVGSUxFUykNCi0JY2F0ICReID4gJEANCi0NCiB0bXAvcHJvZ3JhbV91
+c2VkX2ZsYWdzLnRlOiAkKHdpbGRjYXJkIGRvbWFpbnMvcHJvZ3JhbS8qLnRlKSBkb21haW5zL3By
+b2dyYW0NCiAJbWtkaXIgLXAgdG1wDQotCSggY2QgZG9tYWlucy9wcm9ncmFtLyA7IGZvciBuIGlu
+ICoudGUgOyBkbyBlY2hvICJkZWZpbmUoXGAkJG4nKSI7IGRvbmUgKSA+ICRADQotCSggY2QgZG9t
+YWlucy9taXNjLyA7IGZvciBuIGluICoudGUgOyBkbyBlY2hvICJkZWZpbmUoXGAkJG4nKSI7IGRv
+bmUgKSA+PiAkQA0KLQ0KLXRtcC9hbGxfbWFjcm9zLnRlOiAgbWFjcm9zICQod2lsZGNhcmQgbWFj
+cm9zLyoudGUpIHRtcC9hbGxfcHJvZ3JhbV9tYWNyb3MudGUNCi0JY2F0ICQod2lsZGNhcmQgbWFj
+cm9zLyoudGUpIHRtcC9hbGxfcHJvZ3JhbV9tYWNyb3MudGUgPiAkQA0KLQ0KLXRtcC9hbGxfcHJv
+Z3JhbV9tYWNyb3MudGU6IG1hY3Jvcy9wcm9ncmFtICQod2lsZGNhcmQgbWFjcm9zL3Byb2dyYW0v
+Ki50ZSkNCi0JY2F0ICQod2lsZGNhcmQgbWFjcm9zL3Byb2dyYW0vKi50ZSkgPiAkQA0KLQ0KLXRt
+cC9hbGxfdHlwZXMudGU6ICQod2lsZGNhcmQgdHlwZXMvKi50ZSkgdHlwZXMNCi0JY2F0IHR5cGVz
+LyoudGUgPiAkQA0KLQ0KLXRtcC9hbGxfZG9tYWlucy50ZTogJCh3aWxkY2FyZCBkb21haW5zLyou
+dGUgZG9tYWlucy9taXNjLyoudGUgZG9tYWlucy9wcm9ncmFtLyoudGUpIGRvbWFpbnMgZG9tYWlu
+cy9taXNjIGRvbWFpbnMvcHJvZ3JhbQ0KLQljYXQgZG9tYWlucy8qLnRlIGRvbWFpbnMvbWlzYy8q
+LnRlIGRvbWFpbnMvcHJvZ3JhbS8qLnRlID4gJEANCisJKCBjZCBkb21haW5zL3Byb2dyYW0vIDsg
+Zm9yIG4gaW4gKi50ZSA7IGRvIGVjaG8gImRlZmluZShcYCQkbicpIjsgZG9uZSApID4gJEAudG1w
+DQorCSggY2QgZG9tYWlucy9taXNjLyA7IGZvciBuIGluICoudGUgOyBkbyBlY2hvICJkZWZpbmUo
+XGAkJG4nKSI7IGRvbmUgKSA+PiAkQC50bXANCisJbXYgJEAudG1wICRADQogDQogcmVsYWJlbDog
+ICQoRkMpICQoU0VURklMRVMpDQogCSQoU0VURklMRVMpICQoRkMpIGBtb3VudCB8IGF3ayAnL2V4
+dFsyM10ve3ByaW50ICQkM30nYA0KQEAgLTEzNCw3ICsxMTksOCBAQA0KIAlta2RpciAtcCBmaWxl
+X2NvbnRleHRzL21pc2MNCiANCiAkKEZDKTogJChGQ0ZJTEVTKSBkb21haW5zL3Byb2dyYW0gZG9t
+YWlucy9taXNjIGZpbGVfY29udGV4dHMvcHJvZ3JhbSBmaWxlX2NvbnRleHRzL21pc2MNCi0JY2F0
+ICQoRkNGSUxFUykgPiAkQA0KKwljYXQgJChGQ0ZJTEVTKSA+ICRALnRtcA0KKwltdiAkQC50bXAg
+JEANCiANCiBjbGVhbjoNCiAJcm0gLWYgcG9saWN5LmNvbmYNCg==
 
-<div class=3DSection1>
+--=-IKKdx2ui9nJK4CN/qbMc--
 
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Hello,</span></font></p>
+--=-R/6Gh66PJHLXg7EG2iCV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>&nbsp;</span></font></p>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Is there anyway we can add the user in the =
-audit2allow &#8211;v
-&#8211;d listings?&nbsp; That would make the admin job a whole lot =
-easier.&nbsp; Say
-there&#8217;s multiple pages of listings but the admin is looking for a
-specific one, he/she could search by username in | less =
-</span></font></p>
+iD8DBQA/3XUEOIkJWWp2WGURAnUhAJwK2TVG9l4sJFnDYmiIsOJ4gkaxhQCeJRwy
+DVVUzbhIe/lduVibldl4teU=
+=5pg0
+-----END PGP SIGNATURE-----
 
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>&nbsp;</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Ed</span></font></p>
-
-</div>
-
-</body>
-
-</html>
-
-------=_NextPart_000_000A_01C3C1D7.86431AE0--
-
+--=-R/6Gh66PJHLXg7EG2iCV--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
