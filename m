@@ -1,62 +1,93 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i76Ef0rT012511
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 10:41:00 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i76EeJpu003796
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 14:40:25 GMT
-Message-ID: <41139870.9090203@redhat.com>
-Date: Fri, 06 Aug 2004 10:40:48 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
-   selinux-dev@tresys.com
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i76F3wrT012693
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 11:03:58 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i76F3vO0025001
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 15:03:57 GMT
 Subject: Re: Now that SELinux supports booleans should we replace tunables
- with booleans?
-References: <200404141453.i3EEr2Jx015745@gotham.columbia.tresys.com>	 <1091472796.23449.248.camel@moss-spartans.epoch.ncsc.mil> <1091802227.8590.58.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1091802227.8590.58.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	with booleans?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
+   selinux-dev@tresys.com
+In-Reply-To: <41139870.9090203@redhat.com>
+References: <200404141453.i3EEr2Jx015745@gotham.columbia.tresys.com>
+	 <1091472796.23449.248.camel@moss-spartans.epoch.ncsc.mil>
+	 <1091802227.8590.58.camel@moss-spartans.epoch.ncsc.mil>
+	 <41139870.9090203@redhat.com>
+Content-Type: text/plain
+Message-Id: <1091804570.8590.80.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 06 Aug 2004 11:02:50 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+On Fri, 2004-08-06 at 10:40, Daniel J Walsh wrote:
+> I have not studied the booleans that closely.  But I it seems to me that 
+> booleans are something
+> that Admins would like to work with, versus tunables being something 
+> that distributions are going
+> to make decisions on.  Of course it is not that clean.  The  best thing 
+> about booleans is that the source
+> code is not required.
+> 
+> I think there are several tunables that can be removed.
 
->On Mon, 2004-08-02 at 14:53, Stephen Smalley wrote:
->  
->
->>Of the remaining base tunables from tunable.tun, I believe that either
->>they are not amenable to the use of policy booleans (i.e. affect type
->>declarations or role-based statements) or they would activate many
->>additional rules when enabled and it would thus bloat the policy to make
->>them runtime conditionals.  However, I'm open to reconsidering some of
->>the latter cases, and even to re-thinking how we approach some of the
->>former cases to allow us to leverage booleans to some degree.
->>    
->>
->
->BTW, I was hoping for a bit more discussion about which tunables should
->remain as compile-time tunables, and which ones should be runtime
->booleans.  I've converted about half of the base tunables and all of the
->named and apache tunables to booleans.  There are still at least some
->tunables that I can envision admins wanting to be able to change as
->booleans, but would require further reworking of the policy to split out
->the parts that cannot be made conditional, and there may be some
->booleans I've created that would be better to keep as static tunables. 
->Comments are welcome.
->
->  
->
-I have not studied the booleans that closely.  But I it seems to me that 
-booleans are something
-that Admins would like to work with, versus tunables being something 
-that distributions are going
-to make decisions on.  Of course it is not that clean.  The  best thing 
-about booleans is that the source
-code is not required.
+Ok, so it would be helpful to review the current set of booleans and
+tunables to see how well they match up against this general criteria,
+and to also check which ones can be removed entirely.  The present
+breakdown is really only based on whether or not the existing tunable
+could be easily converted to a boolean (i.e. only covered TE avtab
+rules, relatively localized, small number of affected rules).
 
-I think there are several tunables that can be removed.
+Current set of booleans (strict policy) are:
+allow_xserver_home_fonts
+cron_can_relabel
+ftpd_is_daemon
+ftp_home_dir
+httpd_enable_cgi
+httpd_enable_homedirs
+httpd_ssi_exec
+mozilla_readhome
+mozilla_writehome
+named_write_master_zones
+read_default_t
+run_ssh_inetd
+secure_mode
+ssh_sysadm_login
+staff_read_sysadm_file
+user_direct_mouse
+user_dmesg
+user_ping
+user_rw_noexattrfile
+user_rw_usb
+user_tcp_server
+user_ttyfile_stat
+xdm_sysadm_login
 
-Dan
+Current set of policy tunables are:
+nscd_all_connect
+user_net_control
+user_can_mount
+unlimitedRPM
+unlimitedUtils
+nfs_home_dirs
+use_games
+allow_ypbind
+unlimitedRC
+direct_sysadm_daemon
+hide_broken_symptoms
+unrestricted_admin
+nfs_export_all_rw
+unlimitedUsers
+nfs_export_all_ro
+user_canbe_sysadm
+unlimitedInetd
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
