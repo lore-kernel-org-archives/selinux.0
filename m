@@ -1,48 +1,35 @@
-Subject: Re: [PATCH] policy defined range transitions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>,
-   Chad Hanson <chanson@TrustedCS.com>
-In-Reply-To: <4213C04F.1000307@trustedcs.com>
-References: <4213C04F.1000307@trustedcs.com>
+Subject: sepol_genusers
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Karl MacMillan <kmacmillan@tresys.com>
 Content-Type: text/plain
-Message-Id: <1108655434.24494.52.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1108656216.24494.65.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 17 Feb 2005 10:50:34 -0500
+Date: Thu, 17 Feb 2005 11:03:36 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-02-16 at 16:51, Darrel Goeddel wrote:
-> Attached are patches that implement range_transition statements for the policy. 
->   The range_transitions will be used for admin users invoking certain programs. 
->   Examples include starting/stopping daemons, working with log files, etc.  This 
-> allows the admin to perform tasks that need to be done at a certain MLS level 
-> without the need to manually switch level before doing so.  It is the MLS 
-> counterpart to type_transition and role_transition (more akin to role_transition 
-> because it only deals with process transitions).  The syntax is:
-> 
-> range_transition "process domain" "executable type" "new range";
-> 
-> The mlsconstraints (for process transition) requires either that the current 
-> domain has the privilege to change its level (mlsprocsetsl), or that the current 
-> domain has the privilege to "use" a range_transition (privrangetrans) AND that 
-> the new domain has the mlsrangetrans attribute.  The patch does not currently 
-> add the privrangetrans to any domains (a likely candidate is sysadm_t).  The MLS 
-> range that is transitioned to is also subject to the usual restriction of 
-> falling within the user's allowed MLS range.
-> 
-> PLEASE NOTE:  This patch changes the binary policy format.  However, it does not 
-> change the binary policy version.  The binary policy version was bumped to 19 
-> for the previous mls changes and has not yet been included in an official 
-> release - these changes would become a part of the version 18 to 19 update. 
-> People keeping up with the latest CVS snapshot will need to recompile the 
-> kernel, libsepol, checkpolicy, and the policy.
+As per the earlier discussions of improving user management, the
+genpolusers logic has been moved into a libsepol function,
+sepol_genusers(), that can act on an in-memory binary policy image prior
+to loading.  The genpolusers utility is now a trivial utility in
+libsepol rather than part of the checkpolicy package.  A
+selinux_users_path() function has been added to libselinux to allow
+programs to get the path to the directory
+(/etc/selinux/$SELINUXTYPE/users/) containing the runtime user
+configuration files (system.users, local.users) so that they can pass
+this path to sepol_genusers().  load_policy has been modified to call
+sepol_genusers() prior to policy load in a similar manner to how it
+already calls sepol_genbools().  /sbin/init still needs to be modified
+in the same manner.
 
-Thanks, merged into sourceforge CVS (kernel >= 2.6.10-selinux6, libsepol
->= 1.3.5, checkpolicy >= 1.21.4).
+These changes are included in libsepol >= 1.3.5, checkpolicy >= 1.21.4,
+libselinux >= 1.21.10, and policycoreutils >= 1.21.16.  Note that the
+new load_policy depends on the new libselinux and libsepol for the
+selinux_users_path() and sepol_genusers() functions.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+Stephen Smalley <sds@tycho.nsa.gov>
 National Security Agency
 
 
