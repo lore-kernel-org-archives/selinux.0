@@ -1,69 +1,52 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA01369
-	for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 12:06:54 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA05475
+	for <selinux@tycho.nsa.gov>; Sun, 1 Dec 2002 07:06:49 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA19617
-	for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 17:04:52 GMT
-Received: from prserv.net (asmtp2.prserv.net [32.97.166.52])
-        by jazzband.ncsc.mil  with ESMTP id RAA19613 for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 17:04:51 GMT
-Message-Id: <200211301704.RAA19613@jazzband.ncsc.mil>
-Date: Sat, 30 Nov 2002 12:3:14 -0500
-From: "Subba Rao" <sailorn@attglobal.net>
-To: Russell Coker <russell@coker.com.au>, selinux <selinux@tycho.nsa.gov>,
-        selinux <selinux@tycho.nsa.gov>
-Subject: Re: SELinux compile errors
-Mime-Version: 1.0
+	by jazzband.ncsc.mil  with ESMTP id MAA18470
+	for <selinux@tycho.nsa.gov>; Sun, 1 Dec 2002 12:04:45 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id MAA18465 for <selinux@tycho.nsa.gov>; Sun, 1 Dec 2002 12:04:44 GMT
 Content-Type: text/plain;
-      charset="us-ascii"
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+Subject: Re: executing a sock_file
+Date: Sun, 1 Dec 2002 13:06:14 +0100
+References: <200211292010.PAA23902@moss-shockers.ncsc.mil>
+In-Reply-To: <200211292010.PAA23902@moss-shockers.ncsc.mil>
+MIME-Version: 1.0
+Message-Id: <200212011306.14961.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I will first try the SSH without the kerberos option.  If it works then I will  file a bug report for Slackware.
-
-Thank you.
-
-Subba Rao
-sailorn@attglobal.net
-2002-11-30
-
-
-======= At 2002-11-30, 17:58:00 you wrote: =======
-
->On Sat, 30 Nov 2002 17:45, Subba Rao wrote:
->> /usr/include/bits/string2.h:446: warning: pointer of type `void *' used in
->> arithmetic /usr/include/bits/string2.h:448: warning: pointer of type `void
->> *' used in arithmetic /usr/include/bits/string2.h:453: warning: pointer of
->> type `void *' used in arithmetic
+On Fri, 29 Nov 2002 21:10, Stephen D. Smalley wrote:
+> > Nov 28 15:50:18 lyta kernel: avc:  denied  { execute } for  pid=4084
+> > exe=/usr/lib/openoffice/program/soffice.bin
+> > path=/tmp/OSL_PIPE_1001_SingleOfficeIPC_-383479802 dev=03:02 ino=900
+> > scontext=rjc:user_r:user_t tcontext=rjc:object_r:user_tmp_t
+> > tclass=sock_file
+> >
+> > What does it mean by executing a sock_file?
+> >
+> > Star Office seems to run OK anyway...
 >
->That looks like a bug in the string2.h file, but it might be a bug in 
->something else that it depends on.
->
->Does Slackware have a bug tracking system?  If so file a bug report about 
->this.
->
->> gcc -g -O2 -Wall -Wpointer-arith
->> -Wno-uninitialized -DWITH_SELINUX -I/usr/local/selinux/include -I. -I. 
->> -I/usr/kerberos/include -DSSHDIR=\"/etc/ssh\"
->> -D_PATH_SSH_PROGRAM=\"/usr/bin/ssh\"
->> -D_PATH_SSH_ASKPASS_DEFAULT=\"/usr/libexec/openssh/ssh-askpass\"
->> -D_PATH_SFTP_SERVER=\"/usr/libexec/openssh/sftp-server\"
->> -D_PATH_SSH_KEY_SIGN=\"/usr/libexec/openssh/ssh-keysign\"
->> -D_PATH_SSH_PIDDIR=\"/var/run\" -D_PATH_PRIVSEP_CHROOT_DIR=\"/var/empty\"
->> -DSSH_RAND_HELPER=\"/usr/libexec/openssh/ssh-rand-helper\" -DHAVE_CONFIG_H
->> -c monitor_wrap.c In file included from monitor_wrap.c:36:
->> auth.h:42: krb5.h: No such file or directory
->> make[1]: *** [monitor_wrap.o] Error 1
->> make[1]: Leaving directory `/usr/src/selinux/utils/openssh-3.4p1'
->> make: *** [xopenssh] Error 2
->>  --------------------------------------
->
->Have you tried adding --without-kerberos5 to the ./configure for ssh?
->
-= = = = = = = = = = = = = = = = = = = =
-			
+> Can you reproduce this denial reliably?  For normal file execution, the
+> base kernel should deny attempts to execute any non-regular file before
+> LSM/SELinux is ever invoked.  Possibly a check on a mmap, but that doesn't
+> make a lot of sense to me either for a sock file.
 
+I've tried a few times to do this, under both 2.4.19 and 2.4.20, but I can't 
+get it to happen again.
 
+For the moment I've given up, if I see such a thing in future I'll have to 
+make careful notes about the state of my machine.
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
