@@ -1,30 +1,39 @@
-Date: Wed, 3 Mar 2004 08:35:39 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
+Subject: RE: [patch] policydb - MLS
+From: Karl MacMillan <kmacmillan@tresys.com>
 To: Chad Hanson <chanson@tcs-sec.com>
-cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
-Subject: Re: [Announce][Patch] Enhanced MLS support
-In-Reply-To: <791924EBDA572C4FA970D4A94AA95DA309E3BA@chaos.tcs.tcs-sec.com>
-Message-ID: <Xine.LNX.4.44.0403030835120.1101-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
+   "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
+In-Reply-To: <791924EBDA572C4FA970D4A94AA95DA309E3DB@chaos.tcs.tcs-sec.com>
+References: <791924EBDA572C4FA970D4A94AA95DA309E3DB@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain
+Message-Id: <1078321457.9541.23.camel@colossus.columbia.tresys.com>
+Mime-Version: 1.0
+Date: Wed, 03 Mar 2004 08:44:18 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2 Mar 2004, Chad Hanson wrote:
-
+On Tue, 2004-03-02 at 17:19, Chad Hanson wrote:
+> Please disregard the earlier patch. 
 > 
-> Attached are patches to enable the detection of MLS on a SELinux system. 
+> These new patches will fix the problem and provide compatibility to
+> policy15-mls files.
 > 
->  <<linux-2.6.3_mls.patch>> 
+> -Chad
+> 
 
-This patch does not apply to 2.6.3.
+This looks correct to me and looks like it will work for both version 15
+and 16 mls files.
 
+Thanks,
 
-- James
+Karl
+
 -- 
-James Morris
-<jmorris@redhat.com>
-
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+http://www.tresys.com
+(410) 290-1411 x134
 
 
 --
