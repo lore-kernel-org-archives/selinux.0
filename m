@@ -1,39 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6ECCrHa011752
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 08:12:54 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6ECCqH5006835
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:12:52 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h6ECCqRX006832 for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:12:52 GMT
-Subject: Re: [patch] uninitialized values in setfiles/psid.c
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1058077234.10673.68.camel@columbia>
-References: <1058077234.10673.68.camel@columbia>
-Content-Type: text/plain
-Message-Id: <1058184770.13738.575.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 14 Jul 2003 08:12:51 -0400
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: James Griffin <agriffin@cpcug.org>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Russell Coker is recognized for his contributions to the SELinux project
+Date: Mon, 14 Jul 2003 22:14:27 +1000
+References: <3F0E0999.70405@cpcug.org>
+In-Reply-To: <3F0E0999.70405@cpcug.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200307142214.27873.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2003-07-13 at 02:20, Colin Walters wrote:
-> While updating to the newer policycoreutils release, I noticed the
-> following gcc warnings:
-> 
-> psid.c: In function `chpsid':
-> psid.c:609: warning: `off' might be used uninitialized in this function
-> psid.c:610: warning: `len' might be used uninitialized in this function
-> 
-> I believe the patch below should fix the problem.
+On Fri, 11 Jul 2003 10:49, James Griffin wrote:
+> In recognition for his selfless contributions to the SELinux program,
+> Mr. Russell Coker has been selected by board of the James and Charlotte
+> Griffin Foundation to receive an unrestricted grant of US$1,000.00.
 
-The psid code in setfiles is actually obsolete now, and can be dropped.
+James, thanks for this grant.  I appreciate the recognition for my work.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Also I would like to thank all the people who sent me private email over the 
+last few days expressing similar sentiments, I am glad that so many people 
+like what I am doing.
+
+Finally I would like to note that one of the positive aspects of this work is 
+that there are so many smart people who are interested in it.  Through my 
+involvement in this project I have conversed with many intelligent and 
+knowledgable people (both those who are listed as contributors or are known 
+from the list, and those who just read the list and don't post) and learned a 
+lot.
+
+I encourage people who have some time to spare for open source work to join in 
+the SE Linux project.  There are plenty of opportunities to contribute 
+productively and learn from experts along the way.
+
+
+Russell Coker
 
 
 --
