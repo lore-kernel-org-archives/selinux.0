@@ -1,53 +1,51 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA20401
-	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2002 19:39:18 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA21920
+	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2002 07:53:33 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id AAA00077
-	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2002 00:38:27 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id AAA00073
-	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2002 00:38:22 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id E29B69266B
-	for <selinux@tycho.nsa.gov>; Thu,  7 Feb 2002 11:39:00 +1100 (EST)
-Received: from there (lyta [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id D5D1C364E8A
-	for <selinux@tycho.nsa.gov>; Thu,  7 Feb 2002 10:39:36 +1000 (EST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: stat_secure()
-Date: Thu, 7 Feb 2002 09:52:08 +1000
+	by jazzswing.ncsc.mil  with ESMTP id MAA23197
+	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2002 12:52:42 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id MAA23193
+	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2002 12:52:42 GMT
+Date: Thu, 7 Feb 2002 07:53:18 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: stat_secure()
+In-Reply-To: <20020207003936.D5D1C364E8A@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0202070744460.6028-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020207003936.D5D1C364E8A@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The man page for stat_secure() does not document it's behaviour when SE Linux 
-is not enabled (IE you booted a non-SE kernel).
 
-The current behaviour is not what I expected.  I first expected that 
-stat_secure() would return -1 when run on a non-SE kernel.  Then when I 
-discovered that it works for the regular stat() functionality I expected that 
-the security_id_t *sid parameter would not be changed.
+On Thu, 7 Feb 2002, Russell Coker wrote:
 
-Then I had to read the docs to discover that *sid would be set to 
-SECINITSID_UNLABELED.
+> The current behaviour is not what I expected.  I first expected that
+> stat_secure() would return -1 when run on a non-SE kernel.  Then when I
+> discovered that it works for the regular stat() functionality I expected that
+> the security_id_t *sid parameter would not be changed.
+>
+> I think that it would be preferrable for the call to return -1 or to set *sid
+> to -1 to indicate that a non-SE kernel is running.  There is a big difference
+> between a file being truely unlabled and the system just not supporting SE!
 
-I think that it would be preferrable for the call to return -1 or to set *sid 
-to -1 to indicate that a non-SE kernel is running.  There is a big difference 
-between a file being truely unlabled and the system just not supporting SE!
+This is a compatibility hack for the modified utilities.  At present, they
+always call the *stat_secure interfaces when built with Flask/SELinux.
+The original implementation of stat_secure permitted that approach,
+because it simply used the existing stat call and a spare field in the
+stat structure, but that wasn't portable.  When stat_secure was
+reimplemented as a separate call, this compatibility hack was added to the
+library functions to permit the utilities to continue working on a
+non-SELinux kernel.  If/when someone has time to fix the modified
+utilities, we'll drop the hack from the library routines.
 
-For my latest stat program I am forced to use is_flask_enabled() to get 
-correct functionality.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
--- 
-http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
-http://www.coker.com.au/projects.html Projects I am working on
-http://www.coker.com.au/~russell/     My home page
+
 
 
 --
