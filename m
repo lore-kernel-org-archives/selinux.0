@@ -1,79 +1,40 @@
-Subject: Re: [RFC] selinux-support (1.0.1) available
-From: Colin Walters <walters@verbum.org>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, ubuntu-hardened@lists.ubuntu.com,
-   selinux@tycho.nsa.gov
-In-Reply-To: <1111761662.27644.121.camel@localhost.localdomain>
-References: <1111704432.27644.62.camel@localhost.localdomain>
-	 <1111759697.15280.53.camel@moss-spartans.epoch.ncsc.mil>
-	 <1111761662.27644.121.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-J0l8xmLkzDNZvO0kvmW5"
-Date: Fri, 25 Mar 2005 10:31:32 -0500
-Message-Id: <1111764692.3932.45.camel@nexus.verbum.private>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2PHOXDo010459
+	for <selinux@tycho.nsa.gov>; Fri, 25 Mar 2005 12:24:33 -0500 (EST)
+Subject: Re: New policy for pyzor
+From: David Hampton <hampton-rh@rainbolthampton.net>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>,
+   fedora-selinux-list@redhat.com
+In-Reply-To: <20050324103556.GD7999@lkcl.net>
+References: <1111454594.18940.54.camel@hampton-pc.rainbolthampton.net>
+	 <1111605242.3856.24.camel@moss-lions.epoch.ncsc.mil>
+	 <1111610253.26996.16.camel@hampton-pc.rainbolthampton.net>
+	 <20050324103556.GD7999@lkcl.net>
+Content-Type: text/plain
+Date: Fri, 25 Mar 2005 12:24:05 -0500
+Message-Id: <1111771445.26996.31.camel@hampton-pc.rainbolthampton.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2005-03-24 at 10:35 +0000, Luke Kenneth Casson Leighton wrote:
 
---=-J0l8xmLkzDNZvO0kvmW5
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+>  ... btw just as an aside, what the heck is razor doing
+>  attempting to create /razor.log and /root/razor.log?
 
-On Fri, 2005-03-25 at 15:41 +0100, Lorenzo Hern=C3=A1ndez Garc=C3=ADa-Hierr=
-o
-wrote:
+The first time you run razor it can't find a config file telling it
+where to put its log, so it drops the log into the current working
+directory.  It then attempts to create a ~/.razor home directory and
+default config file.  All subsequent invocations of razor will find the
+just created config file and put the log where it specifies (which is
+~/.razor by default).
 
-> In my opinion, it's going to be Ubuntu specific until it's back-accepted
-> in Debian, anyways, I expect to have, at least, the user-land ready for
-> SELinux support within the Ubuntu Linux distribution, for the Hoary+1
-> release (Breezy).
+The /razor.log is probably from the first invocation by a system daemon,
+and the /root/razor.log from the first time you tested it as root.
 
-That's probably reasonable.  If Ubuntu can get SELinux working well on a
-Debian-derived system out of the box, it will probably be easier for
-Debian to then pull all of the current patches into their distribution.
+David
 
-Nevertheless, I encourage you to work with Debian on this as much as
-possible.  SELinux, like any access control system worth something,
-requires extensive integration with the rest of the OS.  And core parts
-of the OS at that.  You do not want to be deviating much from the Debian
-core for packages such as dpkg and coreutils in the long term. =20
-
-Also, I strongly suggest that you look at the "targeted" policy shipping
-with Fedora.  I had a glance at the Ubuntu wiki page for SELinux and it
-seems the proposed policy is "selinux-policy-default", which IIRC is the
-"strict" policy.  The experience with Fedora is that strict is not yet
-workable as the default for a general-purpose OS, as Ubuntu is.  If you
-can get the targeted policy as the Ubuntu default and most importantly
-*on* by default, then "Hardened Ubuntu" becomes just s/targeted/strict/,
-and perhaps a few other features.  Much less work for the "Hardened"
-team.  Getting as many features of "Hardened" into the core should be
-your goal anyways; I think that permanently-forked "Hardened" variants
-are basically wrong.  They're kind of inherently doomed to be only used
-by a very small subset of users.  You want it to be more of a proving
-ground or staging area than a fork.
-
-We're doing a lot of work in Fedora to make targeted work well, and I
-think we could work together on it to good effect.
-
-I haven't really done any Debian development in a year, but I think I
-still remember much of how things work, so I'd be happy to help with any
-integration issues you might have.  I'm sure the same is true of
-Russell.  Posting to selinux@tycho.nsa.gov is probably your best bet.
-
-
---=-J0l8xmLkzDNZvO0kvmW5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCRC7UOIkJWWp2WGURApdgAJ0U5gwbrr20wUplcpD+eF7NTgi+QwCcC3JL
-1Zbu90ywQjqV7BRIe2N+Xu4=
-=kSm1
------END PGP SIGNATURE-----
-
---=-J0l8xmLkzDNZvO0kvmW5--
 
 
 --
