@@ -1,43 +1,33 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA20872
-	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 10:10:37 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA06469
-	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 14:09:23 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id OAA06465 for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 14:09:22 GMT
-Date: Thu, 9 May 2002 10:09:55 -0400 (EDT)
+Date: Thu, 9 May 2002 10:31:55 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: setfiles -q option?
-In-Reply-To: <20020509054935.0704B6E05@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0205091008290.1046-100000@raven>
+To: "Davies, James E" <jedavie@sandia.gov>
+cc: "'Selinux@tycho.nsa.gov'" <Selinux@tycho.nsa.gov>
+Subject: Re: new selinux install
+In-Reply-To: <B51F0C636E578A4E832D3958690CD73EBB102D@es04snlnt>
+Message-ID: <Pine.GSO.4.33.0205091026000.1046-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 9 May 2002, Russell Coker wrote:
+On Thu, 9 May 2002, Davies, James E wrote:
 
-> Could we have a "-q" option to setfiles to make it not write out messages
-> such as the following?
->
-> /usr/sbin/setfiles:  Running on a SELinux kernel, using new system calls
-> /usr/sbin/setfiles:  read 450 specifications
-> /usr/sbin/setfiles:  Done.
->
-> Having it write out messages if it's not running on a SE Linux kernel would
-> still be useful.  But when you install 100 new packages having the above
-> three lines displayed 100 times is rather annoying...
+> May  9 04:47:03 bilbo kernel: security:  6 users, 5 roles, 406 types
+> May  9 04:47:03 bilbo kernel: security:  29 classes, 43869 rules
 
-We could certainly add such an option.  Or you could just redirect stdout
-to /dev/null.
+Actually, looking at this output, I'd guess that you are not using the
+latest release (May 2nd - 2002050211) but are instead using the previous
+release (March 14th - 2002031409).  If so, you need to do a 'make relabel'
+in selinux/setfiles, not selinux/policy, in order to label your filesystem.
+The file contexts configuration was moved between those two releases.  Of
+course, you may simply want to upgrade to the latest release and install
+again.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
+
 
 
 
