@@ -1,69 +1,57 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7N35prT015514
-	for <selinux@tycho.nsa.gov>; Sun, 22 Aug 2004 23:05:52 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7N35nV1017117
-	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 03:05:50 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: deleting all files in /var/log
-Date: Mon, 23 Aug 2004 13:05:47 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040822174424.GE13842@lkcl.net>
-In-Reply-To: <20040822174424.GE13842@lkcl.net>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_L8VKBYSpATqgU/k"
-Message-Id: <200408231305.47042.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7N8jZrT016608
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 04:45:36 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7N8jXwb021051
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 08:45:34 GMT
+Date: Mon, 23 Aug 2004 09:56:48 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: Alexandre Oliva <aoliva@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+   fedora-selinux-list@redhat.com
+Subject: Re: Fedora and udev
+Message-ID: <20040823085648.GC15972@lkcl.net>
+References: <200408222125.38169.russell@coker.com.au> <orzn4nuval.fsf@livre.redhat.lsd.ic.unicamp.br> <200408231209.01521.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200408231209.01521.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, Aug 23, 2004 at 12:09:01PM +1000, Russell Coker wrote:
+> On Mon, 23 Aug 2004 00:00, Alexandre Oliva <aoliva@redhat.com> wrote:
+> > On Aug 22, 2004, Russell Coker <russell@coker.com.au> wrote:
+> > > It seems that udev is now virtually mandatory as of the latest
+> > > rawhide update.
+> >
+> > This is what makes it, like, mandatory:
+> >
+> > /etc/udev/udev.conf:
+> > UDEV_INITRD="yes"
+> >
+> > Change it to `no' and hopefully everything will work again.  It breaks
+> > more than SELinux.
+> 
+> Thanks for that advice.  Once I looked at that I noticed that there's an 
+> option UDEV_RAMFS in the same file which must be set to "no".  I'm not sure 
+> whether UDEV_RAMFS="no" would allow it to work on SE Linux with 
+> UDEV_INITRD="yes" but don't have any plans to test this at the moment.
 
---Boundary-00=_L8VKBYSpATqgU/k
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+ where does that option come from?  on debian, all the options in
+ 0.030's config file are lower-case, and there's no udev_initrd="yes"
+ or "no".
 
-On Mon, 23 Aug 2004 03:44, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> has anyone tried this?
->
-> because i have... and things like /var/log/dmesg cannot be recreated
-> under the present selinux policy, which bans initrc_t from write and
-> add_name permissions to /var/log.
-
-That's bizarre.  On my machine initrc_t doesn't get any access to 
-var_log_t:dir so I wonder how it gets to do anything to the file.
-
-The attached patch fixes it.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_L8VKBYSpATqgU/k
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
---- /usr/src/se/policy/domains/program/initrc.te	2004-08-21 13:19:06.000000000 +1000
-+++ domains/program/initrc.te	2004-08-23 13:04:33.000000000 +1000
-@@ -139,6 +139,7 @@
+> We either need to get ramfs working in the Fedora kernels or make some changes 
+> to the udev plans.
+> 
+> One option would be to use an ext2 file system on a ram disk for udev.  It 
+> would do all the same stuff as ramfs (at a slightly higher memory cost) and 
+> work perfectly with SE Linux.
  
- # Update /var/log/wtmp and /var/log/dmesg.
- allow initrc_t wtmp_t:file { setattr rw_file_perms };
-+allow initrc_t var_log_t:dir rw_dir_perms;
- allow initrc_t var_log_t:file { setattr rw_file_perms };
- allow initrc_t lastlog_t:file { setattr rw_file_perms };
- 
+ *whew*.
 
---Boundary-00=_L8VKBYSpATqgU/k--
+ l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
