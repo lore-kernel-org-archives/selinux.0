@@ -1,42 +1,47 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBK1ARIi012204
-	for <selinux@tycho.nsa.gov>; Sun, 19 Dec 2004 20:10:27 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBK1GPIi012245
+	for <selinux@tycho.nsa.gov>; Sun, 19 Dec 2004 20:16:25 -0500 (EST)
 Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBK1ASKh005414
-	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 01:10:29 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBK1GPKh005470
+	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 01:16:26 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: James Morris <jmorris@redhat.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: [patch] selinux_capget()
-Date: Mon, 20 Dec 2004 12:10:20 +1100
-Cc: Casey Schaufler <casey@schaufler-ca.com>,
-   Darrel Goeddel <dgoeddel@TrustedCS.com>,
+Date: Mon, 20 Dec 2004 12:16:19 +1100
+Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
    "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <Xine.LNX.4.44.0412140104020.30724-100000@thoron.boston.redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0412140104020.30724-100000@thoron.boston.redhat.com>
+References: <20041214162207.5089.qmail@web50205.mail.yahoo.com>
+In-Reply-To: <20041214162207.5089.qmail@web50205.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200412201210.25544.russell@coker.com.au>
+Message-Id: <200412201216.23660.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 14 December 2004 17:09, James Morris <jmorris@redhat.com> wrote:
-> How does the application determine the real effective set?
-> (confusing enough terms ? :-)
+On Wednesday 15 December 2004 03:22, Casey Schaufler <casey@schaufler-ca.com> 
+wrote:
+> > How does the application determine the real
+> > effective set?
 >
-> Surely it is a reasonable thing to expect to be able to do.  I'm not sure
-> that your example is valid here as euid==0 doesn't mean anything in
-> SELinux (if it did, the application could check that first and infer that
-> it has all capabilities).
+> The short answer is that it doesn't. How do you
+> determine if you can really open a file for write
+> access? The real world behavior is to check what
+> you know about (e.g. UID, mode bits) and hope that
+> you'll pass any additinoal constraints (e.g. ACLS,
+> capabilities, mount options) that might apply. Then
+> try it and check the error return.
 
-If program A calls capget() and determines that it does not have a certain 
-capability then it does not need to drop that capability before executing 
-program B which should not have it.
+Doesn't access(2) deal with ACLs and mount options?
 
-However if executing program B causes a domain transition to a domain that is 
-permitted the capability in question then it might suddenly acquire access to 
-a capability that program A thought was unavailable.
+> which is a generalized version of access(2), that
+> notoriously unuseful syscall. Needless to say, such
+> an inferface is impracticle and would still yield
+> false positives.
+
+A faccess(2) syscall would be handy if you are contributing to further POSIX 
+standards...
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
