@@ -1,33 +1,39 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6THQsrT020735
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 13:26:54 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6THQNbB004801
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 17:26:23 GMT
-Subject: Re: temporary hack to use udev in selinux
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TIeWrT021301
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 14:40:32 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TIeVCb016897
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 18:40:31 GMT
+Subject: Re: Dominance rules
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: James Morris <jmorris@redhat.com>
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <Xine.LNX.4.44.0407291305360.16390-100000@dhcp83-76.boston.redhat.com>
-References: 
-	 <Xine.LNX.4.44.0407291305360.16390-100000@dhcp83-76.boston.redhat.com>
+To: dgami@uncc.edu
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <Pine.LNX.4.58.0407281623110.18839@d10systems.homelinux.com>
+References: <Pine.LNX.4.58.0407281623110.18839@d10systems.homelinux.com>
 Content-Type: text/plain
-Message-Id: <1091121776.21971.132.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1091126399.21971.156.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 29 Jul 2004 13:22:56 -0400
+Date: Thu, 29 Jul 2004 14:40:00 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-07-29 at 13:06, James Morris wrote:
-> This could be done by simply allowing context= to override any other 
-> behavior, right?
+On Wed, 2004-07-28 at 12:55, Dhruv Gami wrote:
+> Hello Everyone,
+> 
+> I had been playing with role dominance, and seem to be unable to get it to 
+> work. From what I understood, dominance rules basically grant the same 
+> permissions to the dominating role as were given to the dominating role.
+> 
+> I set up a test system in the following way:
+> 
+> 1. created 2 new roles, X_r and Y_r
+> 2. in rbac, i wrote 'dominance { role X_r; role Y_r; }'
 
-context= only lets you map all inodes in the filesystem to a single
-security context and prohibits getxattr/setxattr/setfscreatecon.  For
-tmpfs, we want to allow individual inode labeling and
-getxattr/setxattr/setfscreatecon, so that tmpfs can be used for /tmp or
-/dev or shmem in differing ways.
+That should be:
+dominance { role X_r { role Y_r; } } 
+if you want to have X_r dominate Y_r.
+
+Your statement just defined two roles that are incomparable.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
