@@ -1,64 +1,78 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i62H1prT014784
-	for <selinux@tycho.nsa.gov>; Fri, 2 Jul 2004 13:01:51 -0400 (EDT)
-Received: from p15107633.pureserver.info (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i62H1ndS007624
-	for <selinux@tycho.nsa.gov>; Fri, 2 Jul 2004 17:01:50 GMT
-Date: Fri, 2 Jul 2004 19:01:46 +0200
-From: Jan Gehring <pr0gm4@linoratix.com>
-To: selinux@tycho.nsa.gov
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i62I6mrT015184
+	for <selinux@tycho.nsa.gov>; Fri, 2 Jul 2004 14:06:48 -0400 (EDT)
+Received: from sccrmhc11.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i62I6ldS009593
+	for <selinux@tycho.nsa.gov>; Fri, 2 Jul 2004 18:06:47 GMT
 Subject: Re: Compiling error - sysvinit
-Message-Id: <20040702190146.78697fe7.pr0gm4@linoratix.com>
-In-Reply-To: <20040702092526.GD3277@lkcl.net>
+From: Chris PeBenito <pebenito@gentoo.org>
+To: Jan Gehring <pr0gm4@linoratix.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <20040702190146.78697fe7.pr0gm4@linoratix.com>
 References: <20040702134850.353b2f51.pr0gm4@linoratix.com>
-	<20040702071544.GA3277@lkcl.net>
-	<20040702092526.GD3277@lkcl.net>
+	 <20040702071544.GA3277@lkcl.net> <20040702092526.GD3277@lkcl.net>
+	 <20040702190146.78697fe7.pr0gm4@linoratix.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XU6YRlLA2rewpTVXnoa1"
+Message-Id: <1088791604.6478.6.camel@gorn.pebenito.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Fri, 02 Jul 2004 13:06:45 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Luke,
-> > under what system are you doing the compiling, if debian,
-> > have you done apt-get build-dep sysvinit?
-I have build my system by own. Some parts are from the linux-from-scratch project.
-(http://www.linoratix.com)
 
-> 
->  jan, you will need to install the package libselinux1-dev
->  (if debian) or equivalent for whatever-system-you-have.
-well i have build und installed libselinux.
+--=-XU6YRlLA2rewpTVXnoa1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-$ ls /lib/libselinux.so.1
-/lib/libselinux.so.1
+On Fri, 2004-07-02 at 12:01, Jan Gehring wrote:
+> > > > i tried to compile sysvinit-2.85 but i get the following error.
+> > > >=20
+> > > > root@maracuja src # make LDFLAGS=3D"-s -lselinux" CFLAGS=3D"-D_GNU_=
+SOURCE"
+> > > > cc -c -D_GNU_SOURCE -DWITH_SELINUX init.c
+> > > > [...]
+> > > > init.c:97: error: `SELINUXMNT' undeclared (first use in this functi=
+on)
+> > > > [...]
+> > > > init.c:123: error: `SELINUXPOLICY' undeclared (first use in this fu=
+nction)
+> > > > make: *** [init.o] Error 1
 
-$ ls /usr/lib/libselinux.*
-/usr/lib/libselinux.a	/usr/lib/libselinux.so
+Most likely you are trying to compile an older sysvinit patch against
+libselinux-1.14.  I saw this myself a few days ago.  These two #defines
+are gone in 1.14.  Best bet is to update your sysvinit patch.  I added
+back these two #defines back into Gentoo's libselinux-1.14 selinux.h for
+compatibility, which is another option.
 
-/usr/lib/libselinux.so is a symlink to /lib/libselinux.so.1
+The #defines were:
 
-perhaps i have to add some other some other symlinks?
+#define SELINUXMNT "/selinux/"
+#define SELINUXPOLICY "/etc/security/selinux/policy"
 
-> > On Fri, Jul 02, 2004 at 01:48:50PM +0200, Jan Gehring wrote:
-> > > Hello ml,
-> > > 
-> > > i tried to compile sysvinit-2.85 but i get the following error.
-> > > 
-> > > root@maracuja src # make LDFLAGS="-s -lselinux" CFLAGS="-D_GNU_SOURCE"
-> > > cc -c -D_GNU_SOURCE -DWITH_SELINUX init.c
-> > > [...]
-> > > init.c:97: error: `SELINUXMNT' undeclared (first use in this function)
-> > > [...]
-> > > init.c:123: error: `SELINUXPOLICY' undeclared (first use in this function)
-> > > make: *** [init.o] Error 1
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
-[cut]
+--=-XU6YRlLA2rewpTVXnoa1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Thanks for any help
-Jan
+iD8DBQBA5aQ0vI7kLeavkkMRAlsIAJ9N5RaoihLVz6/4vTHjwZM9BbDr4ACaAxv4
+cvJbiqxQDRQu49TrbgzQq+s=
+=c0tU
+-----END PGP SIGNATURE-----
 
-
+--=-XU6YRlLA2rewpTVXnoa1--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
