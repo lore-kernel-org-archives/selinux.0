@@ -1,30 +1,41 @@
-Subject: Re: [PATCH] checkpolicy - nodecon ordering
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1IHfXZ028514
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 13:17:41 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1IGKCC021828
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 18:16:20 GMT
+Subject: Re: patch: add assert statement for syslog
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chad Hanson <chanson@TrustedCS.com>
-Cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <36282A1733C57546BE392885C06185924D8EEF@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C06185924D8EEF@chaos.tcs.tcs-sec.com>
+To: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
+Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux ML <selinux@tycho.nsa.gov>
+In-Reply-To: <200411011745.iA1HjGZ0004102@turing-police.cc.vt.edu>
+References: <20041101102345.GA3377@jmh.mhn.de>
+	 <200411011745.iA1HjGZ0004102@turing-police.cc.vt.edu>
 Content-Type: text/plain
-Message-Id: <1099332199.21386.160.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1099332844.21386.170.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 01 Nov 2004 13:03:19 -0500
+Date: Mon, 01 Nov 2004 13:14:05 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-10-29 at 10:07, Chad Hanson wrote:
-> I have created a patch which orders nodecon rules from most specific to
-> least specific.  We think this functionality can be useful for ease of
-> administration and to protect against accidental misconfiguration.
+On Mon, 2004-11-01 at 12:45, Valdis.Kletnieks@vt.edu wrote:
+> Unless I'm missing a 'privlog' entry on a 'type' line someplace, this
+> basically means that unless you write some policy, an arbitrary program can't
+> syslog() at all.  This does help prevent "flood the syslog" attacks, but
+> I'm not sure we want to be *that* draconian without a site-settable flag.
 > 
-> I couldn't find any mention of this topic being brought up before, so I am
-> interested in opinions on this subject.
+> It sort of renders /usr/bin/logger in a shell script useless, for starters...
 
-Good idea, but I don't think that the patch is correct.  Should be
-sorting based on the number of bits set in each mask, not their integer
-value, as the simple value may not reflect the actual specificity.  Code
-could also be simplified a bit, e.g. setting of newc->next doesn't need
-to be conditional.
+The patch merely adds an assertion to verify what should already be true
+in the policy, i.e. that every domain authorized to write to the
+/dev/log socket has the privlog attribute. syslogd.te includes the
+following rules that allow this to happen for such domains:
+
+# Domains with the privlog attribute may log to syslogd.
+allow privlog devlog_t:sock_file rw_file_perms;
+can_unix_send(privlog,syslogd_t)
+can_unix_connect(privlog,syslogd_t)
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
