@@ -1,48 +1,48 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA10770
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 18:44:16 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA11072
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 20:05:14 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA25091
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 22:44:05 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA25087
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 22:44:04 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: Updated Release
-Date: Tue, 4 Jun 2002 00:44:04 +0200
-Cc: Howard Holm <hdholm@epoch.ncsc.mil>, <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0206030849470.25105-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0206030849470.25105-100000@raven>
-MIME-Version: 1.0
-Message-Id: <20020603224404.B7C1E7272@lyta.coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id AAA28409
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 00:05:03 GMT
+Received: from rj.sgi.com (rj.SGI.COM [192.82.208.96])
+	by jazzswing.ncsc.mil  with ESMTP id AAA28405
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 00:05:03 GMT
+Received: from relay1.corp.sgi.com (ether-spindle.corp.sgi.com [192.26.51.29])
+	by rj.sgi.com (8.12.2/8.12.2/linux-outbound_gateway-1.2) with ESMTP id g53M55il018901
+	for <@external-mail-relay.sgi.com:selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 15:05:05 -0700
+Received: from stantz.corp.sgi.com (stantz.corp.sgi.com [130.62.4.42]) by relay1.corp.sgi.com (980427.SGI.8.8.8/970903.SGI.AUTOCF) via ESMTP id RAA43007 for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 17:05:11 -0700 (PDT)
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by stantz.corp.sgi.com (Postfix) with ESMTP id 3788F1363FB
+	for <selinux@tycho.nsa.gov>; Mon,  3 Jun 2002 17:05:11 -0700 (PDT)
+Subject: SELinux RPMs + Red Hat installer
+From: Florin Andrei <florin@sgi.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: 03 Jun 2002 17:05:11 -0700
+Message-Id: <1023149111.5701.32.camel@stantz.corp.sgi.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 3 Jun 2002 14:53, Stephen Smalley wrote:
-> On Sat, 1 Jun 2002, Russell Coker wrote:
-> > For 2.4.18 the kernel patch doesn't have the recent patches for
-> > security_get_sids or the patch for sleeping allocation during a policy
-> > load.
->
-> I'm not sure what you mean.  I just downloaded the complete lsm-2.4 tree
-> and the lsm patch from the NSA SELinux web site, and they did include
-> these patches.
+According to the TODO list, there's still a need to create RPM packages
+for the SELinux project.
 
-I have checked it again, it seems that I made a mistake.  I may have 
-mistakenly used the latest LSM release when comparing instead.
+I think i can do that, and besides i want to create a modified Red Hat
+installer (perhaps v7.3) based on SELinux.
+It shouldn't be difficult, i created customised RH installers in the
+past and, besides, at SGI we already have a customised installer for the
+XFS-enabled Red Hat distribution. So, i won't miss either experience or
+know-how. ;-)
 
-It seems that the version on the NSA site has all the patches plus some new 
-socket and MLS support.  I'll have it in Debian tomorrow.
+If anyone is already doing that, please tell me, in order to not
+duplicate efforts.
 
 -- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Florin Andrei
+
+"You can get excited about just any subject if you study it enough.
+It's the deep knowledge that makes a topic interesting." - Larry McVoy
+
 
 --
 You have received this message because you are subscribed to the selinux list.
