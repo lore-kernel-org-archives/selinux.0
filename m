@@ -1,57 +1,57 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3HI9rI4007333
-	for <selinux@tycho.nsa.gov>; Thu, 17 Apr 2003 14:09:53 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h3HI9pVf019171
-	for <selinux@tycho.nsa.gov>; Thu, 17 Apr 2003 18:09:51 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h3HI9p4D019168
-	for <selinux@tycho.nsa.gov>; Thu, 17 Apr 2003 18:09:51 GMT
-Subject: Re: logging messages
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <3E9EB10C.8010409@redhat.com>
-References: <200303132210.40371.russell@coker.com.au>
-	 <3E9EB10C.8010409@redhat.com>
-Content-Type: text/plain
-Message-Id: <1050545410.1076.9.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 16 Apr 2003 22:10:10 -0400
+From: "Lamont R. Peterson" <lrp@xmission.com>
+Reply-To: lrp@xmission.com
+To: Stephen Smalley <sds@epoch.ncsc.mil>,
+   Christof Rath <rath@sbox.tu-graz.ac.at>
+Subject: Re: installing SELinux on Trustix
+Date: Thu, 17 Apr 2003 12:35:46 -0600
+Cc: SELinux@tycho.nsa.gov
+References: <000801c303a8$4622a310$3700a8c0@wind> <1050508220.1143.21.camel@moss-huskers.epoch.ncsc.mil>
+In-Reply-To: <1050508220.1143.21.camel@moss-huskers.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200304171235.46749.lrp@xmission.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-04-17 at 09:50, Daniel J Walsh wrote:
-> How do I get the kernel to log a message again.  Seems like the SELinux 
-> kernel on
-> logs a denial message a single time after a reboot.  When I change the 
-> policy and
-> rerun the offending command I would like to see a new error message in 
-> /var/log/messages.
-> 
-> Is there a way to turn this on?
+Christof:
 
-When in permissive mode, SELinux logs each denial once and then adds the
-corresponding permission to the cache so that you don't end up with a
-flood of identical messages.  The denial won't show up again until the
-cache entry is reclaimed.  You can reset the cache by reloading your
-policy (e.g. running 'make reload' in the policy directory) or by
-switching into enforcing mode (and then optionally back into permissive
-mode) by using 'avc_toggle' (assuming that you are in a domain that can
-do this).
+<SNIP>
 
-When in enforcing mode, SELinux applies a rate limit to audit messages
-to avoid flooding attacks.  This is necessary even with benign
-applications, because many applications don't bother checking error
-codes on certain calls so they will generate a huge stream of repeat
-denials.  Long term, we would like to see the SELinux audit data handled
-by a separate kernel auditing subsystem rather than the existing logging
-facility.
+On Wednesday 16 April 2003 09:50 am, Stephen Smalley wrote:
+> Boot with your old kernel and follow the step-by-step instructions for
+> installing SELinux, since the quickinstall aborted for you.
 
+It sounded like you might not have that old kernel installed still.  For just 
+such situations, I always test new kernels using a separate boot selection 
+first, without changing my default.  Personally, I like lilo better than 
+grub, so I will use that "terminology".
+
+I create a section in my lilo.conf that looks like this:
+	image = /boot/bzImage.test
+	root = /dev/[whatever your root partition is]
+	label = Test
+	read-only
+	append = "[which whatever boot option(s) you need to pass to the kernel]"
+	optional
+
+Then, all I have to do move my testing kernel to /boot/bzImage.test and run 
+lilo.  I boot it, test it and so on until I am happy with it.  Then I rename 
+it bzImage (usually moving the old to bzImage.YYYY-MM-DD, run lilo and I am 
+set!
+
+Now, if you can not boot, then I might suggest you go to 
+http://www.gentoo.org/ and get one of the installation iso images.  The 
+1.4_rc? series are just great.  You can just download the smallest one.  Burn 
+the CD and boot with it.  There is a file named INSTALL.TXT (if I am 
+remembering correctly) in the root of the CD that is helpful.  This makes a 
+super emergency/recovery/diagnostic CD to use.  Keep it handy when you need 
+to fix other people's linux installs, whether or not they are Gentoo.
+
+Hope that helps some of you out there.
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Sincerely,
+Lamont R. Peterson <lrp@xmission.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
