@@ -1,57 +1,53 @@
-Subject: Re: user_trans/user_trans_boolean macro
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <1110825077.21378.199.camel@moss-spartans.epoch.ncsc.mil>
-References: <1110692016.29852.77.camel@cobra.ivg2.net>
-	 <1110804353.21378.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <1110820329.16850.8.camel@cobra.ivg2.net>
-	 <1110820795.21378.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <1110824399.16850.21.camel@cobra.ivg2.net>
-	 <1110825077.21378.199.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 14 Mar 2005 13:56:12 -0500
-Message-Id: <1110826572.16850.33.camel@cobra.ivg2.net>
+Message-Id: <200503141927.j2EJRssk022147@turing-police.cc.vt.edu>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
+   SELinux Mail List <selinux@tycho.nsa.gov>, kaigai@ak.jp.nec.com
+Subject: Re: [RFC & PATCH] inherited type definition. 
+In-Reply-To: Your message of "Mon, 14 Mar 2005 16:01:58 GMT."
+             <20050314160158.GD1246@lkcl.net>
+From: Valdis.Kletnieks@vt.edu
+References: <42346C17.3090301@kaigai.gr.jp> <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil> <20050314151351.GC1246@lkcl.net> <1110813732.21378.91.camel@moss-spartans.epoch.ncsc.mil>
+            <20050314160158.GD1246@lkcl.net>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1110828474_5890P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Mon, 14 Mar 2005 14:27:54 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-03-14 at 13:31 -0500, Stephen Smalley wrote:
-> On Mon, 2005-03-14 at 13:19 -0500, Ivan Gyurdiev wrote:
-> > 3) Remove boolean macro - declare boolean in the app .te file
-> > 
-> > Well, declaring the boolean in the .te file doesn't work because of duplicates..
-> > So, I'll make a macro called user_boolean that just declares that boolean
-> > conditional on the if statement.
-> 
-> Sorry, why can't you declare the boolean in the allow_trans macro?  And
-> what do you mean declares it conditional?
+--==_Exmh_1110828474_5890P
+Content-Type: text/plain; charset=us-ascii
 
-Too many booleans... 
-Ignore the conditional part, and the other stupid email I sent.
-There must be an if statement to only declare the boolean once,
-and not for every macro call. This is what I meant to write.
+On Mon, 14 Mar 2005 16:01:58 GMT, Luke Kenneth Casson Leighton said:
+> seriously considering the provision of some partial inheritance
+> reminds me of the spoof languages article that was making the
+> rounds in about 1989 - the one with "SLOBOL" - which amongst
+> other things described some extensions to BASIC.  a "GO FROM"
+> construct, 
 
-ifdef($1, user,`
-bool disable_user_games_transition false;
-')
+I believe INTERCAL had the 'COME FROM' construct before 1989, and the IBM
+Fortran IV F, G and H compilers had the 'DEBUG' facility in the mid-70s, which
+allowed the use of 'AT NNNN' blocks that did a 'COME FROM' functionality to
+steal control and presumably do debugging-type stuff.  Pretty slick, actually -
+you could have a source deck of cards that you didn't change, and you stuck the
+appropriate debugging 'AT' stuff on the end rather than have to insert code
+with 'WRITE (6,*) N,I,FOO' where you wanted it.  Incredibly useful if you were
+doing debugging with an IBM 029 card punch and a fat deck of source code... ;)
 
 
-> > Anyway, what is the purpose of those booleans? Why do we not want to transition
-> > to the target domain?
-> 
-> I think that Dan set them up to allow the option of running programs
-> directly in the user's domain, similar to how daemon transitions can be
-> disabled to leave them unconfined in the targeted policy.
+--==_Exmh_1110828474_5890P
+Content-Type: application/pgp-signature
 
-Well, I think the allow_trans macro, with if statements like the above
-will work well - seems simple to me. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
--- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+iD8DBQFCNeW6cC3lWbTT17ARAqSyAKCGQxKlqd+tO/4suizjDcPwlIz2ggCg5lK6
+GUpbn43m82Qqz+X/Q7XP310=
+=6uJo
+-----END PGP SIGNATURE-----
 
+--==_Exmh_1110828474_5890P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
