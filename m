@@ -1,33 +1,46 @@
-Subject: Re: mv and cp behavior.
-From: Erich Schubert <erich@debian.org>
-To: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1098121436.6101.56.camel@decepticon.boston.redhat.com>
-References: <41712EEF.9090402@redhat.com>
-	 <1098105487.27895.40.camel@moss-spartans.epoch.ncsc.mil>
-	 <1098115678.6101.30.camel@decepticon.boston.redhat.com>
-	 <1098119648.27895.150.camel@moss-spartans.epoch.ncsc.mil>
-	 <1098121436.6101.56.camel@decepticon.boston.redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9IJAirT024082
+	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 15:10:45 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9IJAhhM013711
+	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 19:10:44 GMT
+Subject: Re: cdrecord deadlocks linux 2.6.8.1 (problem in setscheduler)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Crispin Cowan <crispin@immunix.com>
+Cc: James Morris <jmorris@redhat.com>,
+   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   lsm <linux-security-module@wirex.com>, SELinux ML <selinux@tycho.nsa.gov>,
+   john johansen <johansen@immunix.com>
+In-Reply-To: <4173F737.1070204@immunix.com>
+References: 
+	 <Xine.LNX.4.44.0410181102350.22995-100000@thoron.boston.redhat.com>
+	 <4173F737.1070204@immunix.com>
 Content-Type: text/plain
-Date: Mon, 18 Oct 2004 20:22:09 +0200
-Message-Id: <1098123729.10216.6.camel@wintermute.xmldesign.de>
+Message-Id: <1098126442.27895.159.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Mon, 18 Oct 2004 15:07:22 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-btw: an easy way of doing a "cp" without changing destination file
-properties (unix and selinux) is using "cat sourcefile > destfile"
+On Mon, 2004-10-18 at 13:02, Crispin Cowan wrote:
+> We (Immunix) discovered this bug a few weeks ago. At first we thought it 
+> was a bug in our SubDomain module, but then determined that any attempt 
+> to printk from within the scheduler hook was at risk of locking the kernel.
+> 
+> John Johansen (cc'd) has prepared a patch that fixes the problem, and we 
+> just yesterday sent it to Andrea Arcangeli (scheduler maintainer) for 
+> comment.
+> 
+> JJ, you wanna share your patch with the LSM list?
 
-Sure, this is not the most efficient, but for example on text files it
-really doesn't matter.
-
-Greetings,
-Erich Schubert
+Does the patch address both the security_task_setscheduler() hook call
+and the capable(CAP_SYS_NICE) calls by the setscheduler function? 
+SELinux was already suppressing audit from its setscheduler hook to
+avoid this deadlock, but was not doing so for the CAP_SYS_NICE check.
+  
 -- 
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
- A man doesn't know what he knows until he knows what he doesn't know. //\
-         Es gibt kein idiotensicheres Programm, weil Idioten so        V_/_
-                       genial sind. -- E. Murphy
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
