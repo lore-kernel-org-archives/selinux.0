@@ -1,59 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA11476
-	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 11:30:28 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA08505
-	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 16:29:59 GMT
-Received: from toe1.terreactive.ch ([212.28.148.18])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with SMTP id QAA08490
-	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 16:29:53 GMT
-Received: from tac.ch (zar.terreactive.ch [172.23.2.30])
-	by terreactive.ch (8.9.2/8.8.8) with ESMTP id RAA17585
-	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 17:30:15 +0100 (MET)
-Message-ID: <3A438196.C01DD9B3@tac.ch>
-Date: Fri, 22 Dec 2000 17:30:14 +0100
-From: ratz <ratz@tac.ch>
-MIME-Version: 1.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA13694
+	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 14:32:01 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id TAA08532
+	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 19:30:50 GMT
+Received: from penguincomputing.com ([209.24.233.229])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with SMTP id TAA08528
+	for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2000 19:30:49 GMT
+Date: Fri, 22 Dec 2000 11:31:44 -0800
+From: Jeremiah Johnson <jjohnson@penguincomputing.com>
 To: selinux@tycho.nsa.gov
-Subject: Re: NSA's Security-enchanced Linux now available
-References: <200012221403.JAA11433@coalstack.epoch.ncsc.mil>
-Content-Type: text/plain; charset=iso-8859-15
+Subject: well.. stuff doesnt build.
+Message-ID: <20001222113144.A18856@mailserver.penguincomputing.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 Reply-To: selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Hi Pete,
+Ok, 
 
-Pete Loscocco wrote:
-> 
-> Security-enhanced Linux is now available at http://www.nsa.gov/selinux. We
-> welcome any feedback and look forward working with the community to
-> continue to improve the system.
+	So I was attempting to build this stuff into rpm's.  But some of the include files reference files that don't seem to exist.  ie:
 
-I'll definitely have a closer look at it during the christmas days. However
-would it be possible for you to make some comparisons between other open source
-or not open source implementations of MAC or/and rule based access controls
-such as referred to in the Orange Book, in POSIX1e or various thesis? I would
-like to get some information about the implementation model used (although I
-can and will of course glance at the code) and what is different to other 
-models like the ones used in:
+include/fs_secure.h
+include/proc_secure.h
+include/socket_secure.h
+include/ss_types.h
 
-RSBAC           (http://www.rsbac.org)
-argus-B1        (http://www.argus-systems.com/)
-Trusted Solaris (somewhere in the depth of http://www.sun.com)
-Trusted Irix    (http://oss.sgi.com/projects/ob1/)
+  all reference
 
-and lots of others...
- 
-> Pete Loscocco
-> Information Assurance Research Office
-> National Security Agency
+#include <linux/flask/flask.h>
 
-Best regards,
-Roberto Nibali, ratz
+"flask.h" doesnt exist in the distro.  I tried replacing "linux/flask/flask.h" with "flask_util.h" and compiling fileutils and it errors in building.  I can print the error if it would help.  But since I dont think flask.h and flask_util.h are the same its probably not related to that.
 
--- 
-mailto: `echo NrOatSz@tPacA.cMh | sed 's/[NOSPAM]//g'`
+Jeremiah Johnson
+Linux Security Analyst
+Penguin Computing
+
 You have received this message because you are subscribed to the selinux list.
 If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 the words "unsubscribe selinux" without quotes as the message.
