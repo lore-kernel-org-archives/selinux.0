@@ -1,33 +1,46 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OFp4rT027860
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 11:51:04 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OFp2CV008186
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 15:51:02 GMT
-Date: Tue, 24 Aug 2004 15:58:45 +0100
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OFpRrT027894
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 11:51:27 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OFofMZ015293
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 15:50:41 GMT
+Date: Tue, 24 Aug 2004 15:53:15 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: policy patch for tunable "/dev/hdc is removable drive"
-Message-ID: <20040824145845.GH4698@lkcl.net>
-References: <20040823214228.GA13677@lkcl.net> <20040824002244.GA25356@lkcl.net> <1093345601.1800.5.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: running make relabel from a cronjob
+Message-ID: <20040824145315.GD4698@lkcl.net>
+References: <20040824110741.GI25356@lkcl.net> <1093348538.1800.45.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1093345601.1800.5.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1093348538.1800.45.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Aug 24, 2004 at 07:06:41AM -0400, Stephen Smalley wrote:
-> On Mon, 2004-08-23 at 20:22, Luke Kenneth Casson Leighton wrote:
-> > my apologies for the length of the patch which i had not correctly
-> > observed: the /.?u?dev is there to deal with /.dev which on debian
-> > linux with udev is the "real" /dev remounted (--bind?) to a different
-> > point.
+On Tue, Aug 24, 2004 at 07:55:38AM -0400, Stephen Smalley wrote:
+> On Tue, 2004-08-24 at 07:07, Luke Kenneth Casson Leighton wrote:
+> > the following patches allow the attached /etc/cron.d/selinux program
+> > to successfully run.
+> > 
+> > this is for a user-only system where root access will not be given
+> > out, and there won't be any maintenance or support, either.
+> > 
+> > i heard from someone that Fedora also has a cronjob doing a make
+> > relabel too, so i am slightly confused that the strict selinux policy
+> > doesn't presently have this already oh well.
 > 
-> fixfiles and make relabel exclude bind mounts from the relabeling.  So
-> if it is a bind mount, it shouldn't get relabeled anyway.
+> See the cron_can_relabel boolean in crond.te and the fixfiles.cron
+> script in policycoreutils.  If CRONTYPE=relabel is in
+> /etc/selinux/config and the cron_can_relabel boolean is enabled, then
+> cron will (and can) relabel.  Otherwise, cron will merely check file
+> contexts and mail a report about incorrect contexts.  It doesn't need to
+> access policy sources; there is an installed file_contexts file in
+> /etc/selinux/$SELINUXTYPE/contexts/files that is used at runtime for
+> restorecon, fixfiles, etc.
  
- it was.  this is with a 2.6.7 kernel.
+ ah ha!
+
+ great.  thank you v. much.
 
  l.
 
