@@ -1,82 +1,57 @@
-Reply-To: <jayendren@hivsa.com>
-From: "Jayendren Anand Maduray" <jayendren@hivsa.com>
-To: "'steven harp'" <steven.harp@adventiumlabs.org>,
-   "'SELinux'" <SELinux@tycho.nsa.gov>
-Subject: RE: Limiting the power of can_network, improving the security of strict policy.
-Date: Wed, 27 Oct 2004 19:27:48 +0200
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAqur+5IHVuUGKlxy5XOOGrsKAAAAQAAAAtvBgX3z5LkOux3E0aOx0UAEAAAAA@hivsa.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9RIAIXZ023126
+	for <selinux@tycho.nsa.gov>; Wed, 27 Oct 2004 14:10:18 -0400 (EDT)
+Received: from tcsfw2.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9RI9xFj013491
+	for <selinux@tycho.nsa.gov>; Wed, 27 Oct 2004 18:10:15 GMT
+Message-ID: <417FE499.3040405@trustedcs.com>
+Date: Wed, 27 Oct 2004 13:10:33 -0500
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <200410271017.59218.steven.harp@adventiumlabs.org>
+To: James Morris <jmorris@redhat.com>
+CC: Stephen Smalley <sds@epoch.ncsc.mil>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   Chad Hanson <chanson@TrustedCS.com>
+Subject: Re: [PATCH] devpts xattr support
+References: <Xine.LNX.4.44.0410271028050.9447-100000@thoron.boston.redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0410271028050.9447-100000@thoron.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi ppl!
-
-Just wondering about SELinux,
-Are there n e plans to incorporate biometrics as well as VOS (Virtual
-Operating System) architecture to allow a more secure method of
-authentication?
-God bless. 
-
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-Behalf Of steven harp
-Sent: 27 October 2004 05:18 PM
-To: SELinux
-Subject: Re: Limiting the power of can_network, improving the security of
-strict policy.
-
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Wednesday 27 October 2004 10:04 am, Daniel J Walsh wrote:
-> We have been talking about ways of improving the security of strict 
-> policy.  So I have been working
-> ...
-> Finally we are looking into limiting the power of can_network.  
-> Currently any daemon that has can_network can receive
-> and establish TCP/UDP connections.  The only thing not provided is 
-> name_bind.  I want to break this out to eliminate the
-> ability for daemons also to connect.  So an incoming only daemon, can 
-> not establish a connection back out.  To do this
-> I have modified create_socket_perms and eliminated the connect call.  I 
-> have added a connect_socket_perms which includes
-> the create_socket_perms.  This has caused many changes to be made in 
-> policy, and I am not sure if it was a good idea?
+James Morris wrote:
+> What other filesystems are likely to need xattr handlers?  It is (now 
+> especially) very simple to add them as needed.
 > 
-> Also I modified can_network to take a second parameter of the type of 
-> the connection (udp or tcp).  This allows you to turn off tcp, connections
-> on a UDP application.  (I am not sure you can do this for a tcp only app 
-> if they are going to use name service.)
-> 
-> Is this a good idea or am I wasting my time?
 
-I like the direction of suggested mods to can_network.  I've mostly
-abandoned 
-use of this macro for a suite of distributed applications I'm working
-on since it does usually offer more than any one of the apps really needs.
-Providing more modular connection-oriented constructions would be useful.
+All filesystems (and file types) will need that support.  Basically, 
+getfilecon should never be unable to retrieve a context for a valid file 
+because there actually *is* a context associated with every file, and it 
+is being used for access decisions.
+Just think if every file had the standard DAC info, but you could only 
+see/modify that info on certain filesystems - you may scratch your head 
+for a while trying to figure out what is causing access denials.
 
-Steven Harp
+> I think we should stick with the xattr API, it is "the" way to manage
+> extra-inode data under Linux.  Perhaps what we should do instead is fix
+> the core xattr code so that it can do what we need it do to.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+I'm all for that.  I will play around with a few ideas and see if I can 
+come with anything useful.  I'm thinking along the lines of the 
+permission call which uses i_op->permission if it exists and falls back 
+to vfs_permission if it does not.  Maybe we can create a fallback for 
+*xattr...
 
-iD8DBQFBf7whPcFX9H2zuSkRAkH5AJ4k9QD/ORwZMIwVRMHdOP3BRb322gCeJzH1
-y7M2WZa0BwL14wz8/gwbPn8=
-=p0WO
------END PGP SIGNATURE-----
+Thanks everyone for the feedback.
 
+-- 
 
+Darrel Goeddel
+Senior Secure Systems Engineer
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
-
+Trusted Computer Solutions             E: dgoeddel@trustedcs.com
+121 West Goose Alley                   V: 217.384.0028 x19
+Urbana, IL  61801                      F: 217.384.0288
 
 --
 This message was distributed to subscribers of the selinux mailing list.
