@@ -1,52 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7F7U2Ha002252
-	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 03:30:02 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7F7U1j6020080
-	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 07:30:01 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-        by jazzband.ncsc.mil  with ESMTP id h7F7TtNN020070 for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 07:30:00 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id EF71E92719
-	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 17:29:46 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 5F69E7F06D
-	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 17:29:39 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Depends:
-Date: Fri, 15 Aug 2003 17:29:38 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200308151729.38711.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7FD0wHa002886
+	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 09:00:58 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h7FCxbOD008890
+	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 12:59:37 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h7FCxbKO008887
+	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 12:59:37 GMT
+Subject: Re: 2.6.0-test3 and UML
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200308141557.23034.russell@coker.com.au>
+References: <200308141557.23034.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1060952448.13964.120.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 15 Aug 2003 09:00:48 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I propose that whenever we have a Depends: line in a policy file then we don't 
-use an ifdef() for the policy file in question.
+On Thu, 2003-08-14 at 01:57, Russell Coker wrote:
+> For 2.6.0-test3 to work with UML the following changes are necessary:
+> 
+> In security/selinux/avc.c add the following:
+> #include <linux/init.h>
 
-For example the Qmail policy has never been usable without inetd.te.  The 
-policy had numerous assumptions regarding Qmail running from inetd (no matter 
-how you run Qmail the process that receives SMTP connections must be run by a 
-program that is equivalent to inetd, so may as well run as inetd_t).
+This is actually in the tree now, as part of Geert's patch to allow m68k
+compilation.
 
-The 2.6 policy branch currently has some ifdef(`inetd.te' lines, this will 
-guarantee that the policy always compiles, but does not mean that you will 
-actually be able to use the programs.  In my tree I just put in
-"Depends: inetd.te" instead.  This will give the same result of having a 
-compilable policy for any system which respects the Depends lines, and the 
-policy will be shorter, easier to read and debug.
+> In include/asm-um/common.lds.S add the following:
+>   __security_initcall_start = .;
+>   .security_initcall.init : { *(.security_initcall.init) }
+>   __security_initcall_end = .;
+> 
+> This makes it compile and appear to run.  I'm fairly certain that adding 
+> init.h is OK, but I'm not sure if the initcall stuff is right.  Hopefully 
+> Steve can advise.
 
-Another possibility would be to have ifdef(`inetd.te' around the entire file, 
-because Qmail is virtually useless without inetd.
+Use SECURITY_INIT, which is defined in
+include/asm-generic/vmlinux.lds.h.  This header is already included by
+arch/um/vmlinux.lds.S prior to including common.lds.S, so you should be
+able to use the SECURITY_INIT symbol.
+
+You should submit the change to the UML maintainer.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
