@@ -1,33 +1,35 @@
-Date: Tue, 19 Feb 2002 10:18:48 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Metrix <metrix007@yahoo.com>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: activity?
-In-Reply-To: <20020219150341.24693.qmail@web20607.mail.yahoo.com>
-Message-ID: <Pine.GSO.4.33.0202191014360.9757-100000@raven>
+Message-ID: <1707.192.168.1.12.1014138396.squirrel@192.168.1.2>
+Date: Tue, 19 Feb 2002 12:06:36 -0500 (EST)
+Subject: ftp long time connection
+From: "Lonnie Cumberland" <lonnie@outstep.com>
+To: <SELinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello All,
 
-On Tue, 19 Feb 2002, Metrix wrote:
+I have my systems behind a firewall and am using ftp for a specific
+project.
 
-> I was recently considering using SELinux, but going by
-> the time between updates, it does not seem a viable
-> option, so I am asking, is SELinux still being
-> developed/and or maintained?
+The problem is that when I try to connect to my SELinux server from
+another Linux client that it takes about 2 - 3 minutes. I have even
+tried to give the IP instead of the host name and it still take this
+long time as well.
 
-SELinux is still being actively developed and maintained.  I'm not sure
-what you mean by "the time between updates."  There have been updated
-public releases of SELinux every month for the last six months, with the
-most recent only a month ago on January 18th.  That release was up-to-date
-with the latest stable version of the Linux kernel (2.4.17).  See
-http://www.nsa.gov/selinux/news.html.
+Any ideas on how to fix this would be greatly appreciated,
+Cheers,
+Lonnie
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+-- 
+ Lonnie Cumberland
+ OutStep Technologies Incorporated
+ (313) 832-7366
+
+ URL: http://www.outstep.com
+ EMAIL: Lonnie@OutStep.com
+      : Lonnie_Cumberland@yahoo.com
 
 
 
