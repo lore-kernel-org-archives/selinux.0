@@ -1,48 +1,64 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8Q9rHrT026757
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 05:53:17 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8Q9rGhU003248
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 09:53:17 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: Remove unrestricted_admin
-Date: Sun, 26 Sep 2004 19:53:10 +1000
-Cc: Dale Amon <amon@vnl.com>, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QAOUrT026850
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 06:24:30 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QAOThU003492
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 10:24:30 GMT
+Date: Sun, 26 Sep 2004 11:35:33 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Dale Amon <amon@vnl.com>
+Cc: Russell Coker <russell@coker.com.au>,
+   "Christopher J. PeBenito" <cpebenito@tresys.com>,
    SELinux Mail List <selinux@tycho.nsa.gov>
-References: <200409211526.37810.russell@coker.com.au> <20040925220708.GB15912@vnl.com> <415609AD.5000808@tresys.com>
-In-Reply-To: <415609AD.5000808@tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409261953.10585.russell@coker.com.au>
+Subject: Re: Remove unrestricted_admin
+Message-ID: <20040926103533.GA26338@lkcl.net>
+References: <200409211526.37810.russell@coker.com.au> <200409252039.01196.russell@coker.com.au> <1096119005.11665.21.camel@gorn.pebenito.net> <200409260121.10665.russell@coker.com.au> <20040925220708.GB15912@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040925220708.GB15912@vnl.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 26 Sep 2004 10:13, Joshua Brindle <jbrindle@tresys.com> wrote:
-> I _really_ hope you aren't suggesting that you do a dd from a host disk
-> to something else while a machine is in production. This _will_ lead to
-> an inconsistant image and I don't think I need to explain why.
+On Sat, Sep 25, 2004 at 11:07:08PM +0100, Dale Amon wrote:
+> On Sun, Sep 26, 2004 at 01:21:10AM +1000, Russell Coker wrote:
+> > Corner cases that happen to be a regular part of any sys-admin's job.
+> 
+> I massively agree. Lots of people do 'ghosting'; lots
+> of people back up entire disk images before doing
+> something dangerous. Now I've got ways around a lot
+> of the problems anyway because I've a root boot floppy
+> I use. Boot a machine off an nfs root; mount a Real Big
+> Disk over nfs, and then dd the whole frigging host
+> system disk to the destination system where it
+> can be worked on. 
 
-Unless you use LVM snapshots or a split RAID-1.
+ i'm doing something similar using rsync to do backups and restores
+ (i did use dd but had to save space).
 
-> This corner case shouldn't determine what is in the default policy, but
-> I'm not even sure that is what we are talking about here, Russell never
-> said how he wants this implemented (keep the unrestricted_admin macro or
-> put that unrestricted fixed disk access in the standard policy. At any
-> rate, I hope very much that noone expects or desires that this be put in
-> unconditionally. Raw disk access is a very obvious attack vector and
-> must be treated as such, period.
+ it's a boot cd, and on a restore it runs in "permissive" mode,
+ sets up the partitions on /target/, /target/boot, /target/var etc.
+ chroots to /target and then does a make -C /etc/selinux/src relabel.
 
-Restrictions don't matter that much to any domain which can do
-"echo 0 > /selinux/enforce".
+ that seems to "do the job".
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+ i am certain that lots of people can come up with alternative schemes,
+ all of which will work "offline" where you have physical access to the
+ machine.
+
+ what i believe russell to be concerned about is that there _are_ so
+ many "alternative" schemes that people use [during live operation]
+ e.g. _yes_ people really do do "dd backups" usually at 3am on a cron
+ job to a spare disk.
+
+ therefore, making a decision about, how do we say "which
+ one(s)" - if at all - should go into the "strict" policy is
+ of some concern.
+
+ ...if this was microsoft, you'd write your own backup program and then
+ lock the OS to that.
+
+ l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
