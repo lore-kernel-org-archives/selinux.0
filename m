@@ -1,78 +1,75 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RDrhrT019979
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 09:53:43 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7RDrgoM017636
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 13:53:42 GMT
-Subject: Re: Latest Diffs.
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <412CAE6B.30006@redhat.com>
-References: <412CAE6B.30006@redhat.com>
-Content-Type: text/plain
-Message-Id: <1093614774.24188.23.camel@moss-lions.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7REFCrT020164
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 10:15:12 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7REEOpX026229
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 14:14:25 GMT
+Date: Fri, 27 Aug 2004 15:26:22 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Justin Friel <capn_shoe@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Trouble building Policy-1.16
+Message-ID: <20040827142622.GB3850@lkcl.net>
+References: <20040826225356.GC6058@lkcl.net> <20040826235737.3261.qmail@web60007.mail.yahoo.com>
 Mime-Version: 1.0
-Date: Fri, 27 Aug 2004 09:52:54 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040826235737.3261.qmail@web60007.mail.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks.  Merged with some slight variations in named.te as follows.
+On Thu, Aug 26, 2004 at 04:57:37PM -0700, Justin Friel wrote:
+> 
+> --- Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+> wrote:
+> 
+> > On Wed, Aug 25, 2004 at 03:23:22PM -0700, Justin
+> > Friel wrote:
+> > 
+> > > Sorry if this is a repost, I sent this in earlier
+> > this
+> > > morning and haven't seen it hit the list yet. 
+> > 
+> >  GOOD, that means i won't have my time wasted twice.
+> 
+> If you read the timestamp on the email, I sent the
+> second one in at 3:23PM.  The first post, which
+> _still_ hasn't hit the board, was mailed at 9:14AM.  I
+> think it's safe to say it's not going to get posted. 
+> Also, you didn't even have to waste your time once. 
+> Don't bother reading emails you think are going to be
+> a waste of time.
+ 
+ it's not a matter of reading, it's a matter of having no
+ choice.
 
-On Wed, 2004-08-25 at 11:21, Daniel J Walsh wrote:
-> We now have named booleans working with named master updates.
 > 
-> Added can_ypbind to lots of te files to support NIS environments.
+> >  a 341k file which took several minutes for me - who
+> > has no choice _but_ -
+> >  to download.
 > 
-> Dan
-> 
-> 
-> 
-> ______________________________________________________________________
-> diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/named.te policy-1.17.3/domains/program/unused/named.te
-> --- nsapolicy/domains/program/unused/named.te	2004-08-22 20:55:02.000000000 -0400
-> +++ policy-1.17.3/domains/program/unused/named.te	2004-08-25 11:05:14.054851490 -0400
-> @@ -32,10 +32,10 @@
->  type named_conf_t, file_type, sysadmfile;
->  typealias named_conf_t alias rndc_conf_t;
->  
-> -# for zone files
-> +# for primary zone files
->  type named_zone_t, file_type, sysadmfile;
->  
-> -# named.ca files
-> +# for secondary zone files
->  type named_cache_t, file_type, sysadmfile;
->  
->  # Use capabilities. Surplus capabilities may be allowed.
-> @@ -68,7 +68,8 @@
->  #read zone files
->  r_dir_file(named_t, named_zone_t)
->  
-> -r_dir_file(named_t, named_cache_t)
-> +#write cache for secondary zones
-> +rw_dir_create_file(named_t, named_cache_t)
->  
->  allow named_t self:unix_stream_socket create_stream_socket_perms;
->  allow named_t self:unix_dgram_socket create_socket_perms;
-> @@ -100,7 +101,14 @@
->  can_ypbind(ndc_t)
->  read_locale(ndc_t)
->  can_tcp_connect(ndc_t, named_t)
-> -allow { named_t ndc_t initrc_t } rndc_conf_t:file { getattr read };
-> +dontaudit ndc_t unlabeled_t:file read;
-Didn't include the above line
+> First, I was asked to send the file to the list. 
 
-> +allow ndc_t var_t:dir search;
-added:
-allow ndc_t var_run_t:dir search;
-and put both statements just before this statement:
-allow ndc_t named_var_run_t:sock_file rw_file_perms;
+ well you should not have been asked: you should have been asked
+ to place in on an available web site.
 
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+ if people intend to send large files to this list,
+ i will simply unsubscribe.
+
+
+
+> Second, I made every effort to make the post as small
+> as possible by bzipping the file.  I hardly think 341k
+> is something worth crying about.  
+
+ yes it bloody well is i'm paying MONEY i CAN'T AFFORD to
+ download crap i don't want and don't have any choice about,
+ and it is EXTREMELY RUDE of you to assume that i have the
+ money to afford to be able to download your crap.
+
+ if you don't think 5 mins of my money wasted "isn't worth crying"
+ about", to whom and where do i send the bill?
+ 
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
