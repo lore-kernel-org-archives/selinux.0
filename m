@@ -1,34 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA15866
-	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 12:56:35 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA18814
-	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 16:55:21 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id QAA18810 for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 16:55:21 GMT
-Date: Wed, 1 May 2002 12:56:15 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA15933
+	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 13:04:33 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id RAA19738
+	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 17:02:41 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id RAA19734
+	for <selinux@tycho.nsa.gov>; Wed, 1 May 2002 17:02:41 GMT
+Date: Wed, 1 May 2002 13:03:28 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: f980215 <f980215@mailandnews.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: help: about boot message
-In-Reply-To: <001a01c1ee54$093c60e0$780aa8c0@r213>
-Message-ID: <Pine.GSO.4.33.0205011251290.1601-100000@raven>
+To: Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>
+cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+Subject: Re: Security Context of nscd_socket
+In-Reply-To: <3CCE4CFC.D18FF4E4@dr-baldeweg.de>
+Message-ID: <Pine.GSO.4.33.0205011300330.1601-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Sun, 28 Apr 2002, f980215 wrote:
+On Tue, 30 Apr 2002, Carsten Grohmann wrote:
 
-> * /var/log/messages
->   =================
->   Apr 28 16:13:57 sea2 kernel:
->   Apr 28 16:13:57 sea2 /sbin/mingetty[892]: /dev/tty2: Permission denied
->   Apr 28 16:13:57 sea2 kernel: avc:  denied  { setattr } for  pid=881 exe=/sbin/mingetty path=/dev/tty3 dev=03:43 ino=36350 scontext=system_u:system_r:getty_t tcontext=system_u:object_r:file_t tclass=chr_file
+> Yesterday I rebuild the file security context and after this the nscd
+> did not work, because the security context of the file
+> /var/run/.nscd_socket was set to var_run_t and not to nscd_var_run_t.
+> The policy denied the unlink of this file.
+> A solution is to add follow line in the file file_context
+> /var/run/.nscd_socket   system_u:object_r:nscd_var_run_t.
+>
+> Could anybody add this to the source code?
 
-The tty has the wrong type (file_t instead of tty_device_t).  Did you run
-'make relabel' before booting the SELinux kernel?
+I'd suggest using <<none>> rather than a particular context for this type
+of object in file_contexts, since the socket file should be recreated each
+time by the daemon.  Notice that such an entry exists for the pid files.
 
 --
 Stephen D. Smalley, NAI Labs
