@@ -1,130 +1,56 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2HMVTx6002573
-	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 17:31:29 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h2HMVS9P028218
-	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 22:31:28 GMT
-Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h2HMVRP7028215 for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 22:31:27 GMT
-Received: from moss-shockers.ncsc.mil (moss-shockers [144.51.25.21])
-	by facesaver.epoch.ncsc.mil (8.12.8/8.12.8) with SMTP id h2HMVPNL008436
-	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 17:31:25 -0500 (EST)
-Message-Id: <200303172239.RAA26135@moss-shockers.ncsc.mil>
-Date: Mon, 17 Mar 2003 17:39:07 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: ptrace flaw
-To: selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2IBK7x6004700
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 06:20:07 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h2IBGdn8002516
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 11:16:39 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h2IBGbpk002509
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 11:16:38 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id E328FBF52
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 21:56:46 +1100 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 15486-09
+ for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 21:56:45 +1100 (EST)
+Received: from tsv.sws.net.au (unknown [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 90BF6BF41
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 21:56:45 +1100 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 6DDDA9253C
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 21:56:46 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 30E84790D
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2003 11:56:36 +0100 (CET)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: file_type_auto_trans(initrc_t, etc_t, etc_runtime_t) 
+Date: Tue, 18 Mar 2003 11:56:34 +0100
 MIME-Version: 1.0
-Content-Type: MULTIPART/mixed; BOUNDARY=Ostentation_of_Peacocks_479_000
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200303181156.34723.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Ostentation_of_Peacocks_479_000
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: R4GwR3TtzsU/mNLTaaoN7w==
+I think that the above policy line should be changed to:
+file_type_auto_trans(initrc_t, etc_t, etc_runtime_t, file)
 
+Currently I have a script that creates a symlink under /etc which doesn't need 
+to be in etc_runtime_t.  I don't think that there's any need for enabling all 
+file types to be created in etc_runtime_t (especially as there isn't policy 
+to allow other programs to access those types).
 
-As some of you may have already noticed, Alan Cox has posted a patch
-for a flaw in ptrace in the Linux 2.4 kernel to the linux-kernel
-mailing list.  See
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104791735604202&w=2.
-That patch has been merged into the sourceforge lsm-2.4 CVS tree, along
-with a corresponding change to the SELinux kernel code.  The patch to
-the SELinux kernel code (not including the patch posted by Alan) is
-also attached to this message as the first attachment.
+I have also changed all other instances of type transitions to etc_runtime_t 
+to refer to "file" class objects in my tree.
 
-A short term workaround if you can't immediately update your kernel
-would be to disable ptrace permission in the policy entirely, as in the
-second attached patch.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
-
---Ostentation_of_Peacocks_479_000
-Content-Type: TEXT/plain; name="selinux-ptrace.patch"; charset=us-ascii; x-unix-mode=0644
-Content-Description: selinux-ptrace.patch
-Content-MD5: CnTcMx0v08PU+iF9h8g8JA==
-
-Index: lsm-2.4/security/selinux/hooks.c
-diff -u lsm-2.4/security/selinux/hooks.c:1.80 lsm-2.4/security/selinux/hooks.c:1.85
---- lsm-2.4/security/selinux/hooks.c:1.80	Fri Feb 14 15:34:46 2003
-+++ lsm-2.4/security/selinux/hooks.c	Mon Mar 17 16:58:06 2003
-@@ -1652,13 +1652,17 @@
- 		/* Check ptrace permission between the parent and 
- 		   the new SID for this process if this process is 
- 		   being traced. */
-+		task_lock(current);
- 		if (current->ptrace & PT_PTRACED) {
- 			psec = current->p_pptr->security;
- 			rc = avc_has_perm(psec->sid, newsid, 
- 					  SECCLASS_PROCESS, PROCESS__PTRACE);
--			if (rc)
-+			if (rc) {
-+				task_unlock(current);
- 				return rc;
-+			}
- 		}
-+		task_unlock(current);
- 
- 		/* Check share permission between the old and new SIDs
- 		   of the process if the process will share state. */
-@@ -1730,8 +1734,9 @@
- 
- static void selinux_bprm_compute_creds(struct linux_binprm *bprm)
- {
--	struct task_security_struct *tsec;
-+	struct task_security_struct *tsec, *psec;
- 	security_id_t sid;
-+	int rc;
- 
- 	secondary_ops->bprm_compute_creds(bprm);
- 
-@@ -1743,6 +1748,19 @@
- 
- 	tsec->osid = tsec->sid;
- 	if (tsec->sid != sid) {
-+		task_lock(current);
-+		current->mm->dumpable = 0;
-+		if (current->ptrace & PT_PTRACED) {
-+			psec = current->p_pptr->security;
-+			rc = avc_has_perm(psec->sid, sid, 
-+					  SECCLASS_PROCESS, PROCESS__PTRACE);
-+			if (rc) {
-+				task_unlock(current);
-+				return;
-+			}
-+		}
-+		task_unlock(current);
-+
- 		tsec->sid = sid;
- 
- 		flush_unauthorized_files(current->files);
-
---Ostentation_of_Peacocks_479_000
-Content-Type: TEXT/plain; name="noptrace.patch"; charset=us-ascii; x-unix-mode=0644
-Content-Description: noptrace.patch
-Content-MD5: 3fLEfEsl+M//8R2lWuDaGw==
-
-Index: selinux/policy/macros/global_macros.te
-===================================================================
-RCS file: /cvsroot/selinux/nsa/selinux/policy/macros/global_macros.te,v
-retrieving revision 1.20
-diff -u -r1.20 global_macros.te
---- selinux/policy/macros/global_macros.te	16 Jan 2003 14:05:50 -0000	1.20
-+++ selinux/policy/macros/global_macros.te	17 Mar 2003 22:15:04 -0000
-@@ -582,7 +582,7 @@
- #
- define(`general_domain_access',`
- # Access other processes in the same domain.
--allow $1 self:process *;
-+allow $1 self:process ~ptrace;
- 
- # Access /proc/PID files for processes in the same domain.
- allow $1 self:dir r_dir_perms;
-
---Ostentation_of_Peacocks_479_000--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
