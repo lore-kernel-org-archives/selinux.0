@@ -1,45 +1,60 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1M6t4dW020989
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 01:55:04 -0500 (EST)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1M6qmZE017767
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 06:52:49 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: jayendren@mweb.co.za
-Subject: Re: fc3 - password change problem - syslog and portmapper
-Date: Tue, 22 Feb 2005 17:52:31 +1100
-Cc: "SE-Linux" <selinux@tycho.nsa.gov>
-References: <200502220809.40631.jayendren@hivsa.com>
-In-Reply-To: <200502220809.40631.jayendren@hivsa.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200502221752.34349.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1M7YEdW021123
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 02:34:16 -0500 (EST)
+Received: from oe-im1.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1M7VuZE018243
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 07:32:00 GMT
+Subject: Re: What is typealias and typeattribute
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <4219E45B.2020501@kaigai.gr.jp>
+References: <4219E45B.2020501@kaigai.gr.jp>
+Content-Type: text/plain
+Date: Mon, 21 Feb 2005 11:56:30 -0500
+Message-Id: <1109004990.3073.85.camel@selinux>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 22 February 2005 17:09, Jayendren Anand Maduray 
-<jayendren@hivsa.com> wrote:
-> 1. however when i try to change my password, i get the ffg error:
-> SystemError: couldn't get security context of `/etc/passwd': No data
-> available
+On Mon, 2005-02-21 at 22:38 +0900, KaiGai Kohei wrote:
+> I noticed some sentence structures not to understand the meaning well,
+> when I read policy_parse.y in checkpolicy.tgz.
+> 
+> I think we can replace 'typealias' and 'typeattribute' with
+> 'type ...' sentence structure completely.
+> So, It's not writen in 'Configuring the SELinux Policy', orz.
+> 
+> Is it historical syntax? or does it have another purpose?
+> Please tell me.
 
-Do you get any AVC messages?  If so what are they?
+Typealias and typeattribute are recent additions, added since that
+document was written.  The original syntax only allowed applying an
+alias or an attribute on the type statement, as described in that doc.
+For example:
 
-What is the output of "ls -lZ /etc/passwd"?
+type etc_dhcp_t alias { etc_dhcpc_t etc_dhcpd_t }, file_type, sysadmfile;
 
-> 2. also, when i boot up, syslogd, and portmap cannot start, so i disabled
-> it in SELinux. i would like to get this to work, though.
+However this is problematic if this is type statement is inside a macro,
+since you might not want to add aliases and attributes in general, or
+there are many types declared in the macro.  So typealias and
+typeattribute were created so aliases and attributes could be added
+outside the type statement.  If we wanted to add an alias and an
+attribute to a type created by the tmpfs_domain macro, it would look
+like this:
 
-How are they unable to start?  Are there any AVC messages?  Is there something 
-in syslog?
+tmpfs_domain(foo)
+typealias foo_tmpfs_t alias foo_shm_t;
+typeattribute foo_tmpfs_t myattribute;
+
+We do want to keep both syntaxes, since both are used in the policy.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
