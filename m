@@ -1,42 +1,57 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i895c9rT009656
-	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 01:38:09 -0400 (EDT)
-In-Reply-To: <1094646254.20215.42.camel@moss-spartans.epoch.ncsc.mil>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Subject: Re: PAM in suse9.1 (Re: SuSE 9.1 SELinux)
-From: Takuya Mishina <TMISHINA@jp.ibm.com>
-Message-ID: <OFC58E16A0.3A91101C-ON49256F0A.000830A1-49256F0A.001EE78D@jp.ibm.com>
-Date: Thu, 9 Sep 2004 14:37:44 +0900
-Content-Type: text/plain; charset="US-ASCII"
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i899kUrT010370
+	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 05:46:30 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i899kUVJ019179
+	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 09:46:30 GMT
+Date: Thu, 9 Sep 2004 10:57:42 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: for bootsplash to operate correctly...
+Message-ID: <20040909095742.GC12629@lkcl.net>
+References: <20040908224108.GJ7717@lkcl.net> <1094698870.14648.19.camel@gorn.pebenito.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1094698870.14648.19.camel@gorn.pebenito.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi, 
+On Wed, Sep 08, 2004 at 11:01:11PM -0400, Chris PeBenito wrote:
+> On Wed, 2004-09-08 at 18:41, Luke Kenneth Casson Leighton wrote:
+> > ... i hacked in the three following permissions:
+> > 
+> > # this is to allow splash to write to /proc/splash
+> > allow initrc_t proc_t:file { write };
+> 
+> > # this is for fbmngplay to do err... *clueless*
+> > allow initrc_t self:capability { sys_admin };
+> > 
+> > i look forward to one day writing a policy for the bootsplash
+> > package :)
+> > 
+> 
+> I threw together a bootsplash policy several months ago to get the
+> Gentoo LiveCD going.  I always forget about it since I only use
+> bootsplash on the LiveCD.  I didn't encounter that sys_admin capability
+> that you have, but it might be a result of the bootsplash setings.  We
+> probably should label /proc/splash differently, now that I think about
+> it.
+ 
+ fbmngplay is the "animations" program.
 
+ [change of topic]
 
-Stephen Smalley <sds@epoch.ncsc.mil> wrote on 2004/09/08 21:24:14:
-> Did you look at Thomas Bleher's SELinux packages (and policy) for SuSE
-> 9.0?  Available from  http://www.cip.ifi.lmu.de/~bleher/selinux/suse/.
+ i had to disable that for other reasons: because it is running,
+ it seems to lock out the /usr partition.  because of that,
+ umount at shutdown actually remounts it as read-only.  because
+ of _that_, stupid-debian-selinux can't stupid-remount the
+ stupid-/usr partition and you end up with an unusable system.
 
-Thanks, I've seen this page, but most packages are older than SuSE 9.1 
-default packages.
-(e.g., checkpolicy 1.8-17 vs. 1.8-1)
+ if i disable selinux before one of these boots (permissive) then
+ it boots up fine.
 
-SuSE 9.1 RPM packages are older than Fedora Core 2 or patched version in 
-nsa.gov. But many problems with SuSE are caused by the conflict between 
-SuSE's software behavior and SELinux's assumption. (authentication, etc.) 
-I've felt that a little modification of policy and some authentication 
-configuration leads SuSE to SELinux-enable distribution.
-
-
----
-Takuya MISHINA
-IBM Research, Tokyo Research Laboratory
-
-
-
+ l.
 
 
 --
