@@ -1,49 +1,40 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA15020
-	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 12:29:19 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA16222
+	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 15:00:24 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA25327
-	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 16:28:02 GMT
+	by jazzband.ncsc.mil  with ESMTP id SAA03224
+	for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 18:59:03 GMT
 Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id QAA25315 for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 16:27:57 GMT
-Date: Tue, 14 May 2002 12:28:53 -0400 (EDT)
+        by jazzband.ncsc.mil  with ESMTP id SAA03220 for <selinux@tycho.nsa.gov>; Tue, 14 May 2002 18:59:03 GMT
+Date: Tue, 14 May 2002 14:59:37 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>
-cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
-Subject: Re: avtab: out of memory
-In-Reply-To: <3CE134C4.68A5B77A@dr-baldeweg.de>
-Message-ID: <Pine.GSO.4.33.0205141211560.25712-100000@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: run_init and chdir()
+In-Reply-To: <20020507121156.390C36C13@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0205141459050.25712-200000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-630072926-1021402777=:25712"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On Tue, 14 May 2002, Carsten Grohmann wrote:
+---559023410-630072926-1021402777=:25712
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> May 14 17:27:43 cvs kernel: ss:  loading policy configuration from
-> /etc/security/selinux/policy.9
-> May 14 17:27:43 cvs kernel: security: avtab: out of memory
-> ....
-> May 14 17:37:47 cvs kernel: security:  5 users, 8 roles, 542 types
-> May 14 17:37:47 cvs kernel: security:  29 classes, 65787 rules
+
+On Tue, 7 May 2002, Russell Coker wrote:
+
+> Would it make sense to have run_init do "chdir /" before executing it's
+> program?
 >
-> The load faild without the rules of cups und courier too.
-> Now my policy file has only a size of 1.6 mb. I added only a few rules
-> for cvs and amanda and I think its not to great.
-> MS-like: After the reboot it works fine without problems.
->
-> I don't know whats my misstake. Could anyone help me?
+> It's annoying when you accidentally execute a daemon with a current directory
+> that it can't read...
 
-The security server uses atomic allocation, so it will fail if the
-allocation would sleep.  We could permit blocking allocation in the case
-of a policy reload by a userspace process, which might help.  Was your
-machine under heavy load?
-
-I've loaded policies twice that size via make load without any problem,
-and switched back and forth repeatedly.  If you can reproduce the problem
-reliably and you're willing to send me the policy that triggers the
-behavior, I can also try it here.
+Patch attached, and committed to the sourceforge CVS tree.
 
 --
 Stephen D. Smalley, NAI Labs
@@ -51,7 +42,29 @@ ssmalley@nai.com
 
 
 
+---559023410-630072926-1021402777=:25712
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="run_init.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0205141459370.25712@raven>
+Content-Description: 
+Content-Disposition: attachment; filename="run_init.patch"
 
+SW5kZXg6IHV0aWxzL3J1bl9pbml0L3J1bl9pbml0LmMNCj09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT0NClJDUyBmaWxlOiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9z
+ZWxpbnV4L3V0aWxzL3J1bl9pbml0L3J1bl9pbml0LmMsdg0KcmV0cmlldmlu
+ZyByZXZpc2lvbiAxLjEuMS4yDQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMw0K
+ZGlmZiAtdSAtcjEuMS4xLjIgLXIxLjMNCi0tLSB1dGlscy9ydW5faW5pdC9y
+dW5faW5pdC5jCTMgTWF5IDIwMDIgMTI6Mjg6MTIgLTAwMDAJMS4xLjEuMg0K
+KysrIHV0aWxzL3J1bl9pbml0L3J1bl9pbml0LmMJMTQgTWF5IDIwMDIgMTg6
+NTQ6MjUgLTAwMDAJMS4zDQpAQCAtMzgxLDYgKzM4MSwxMSBAQA0KICAgICog
+U3RlcCA0OiBSdW4gdGhlIGNvbW1hbmQgaW4gdGhlIGNvcnJlY3QgY29udGV4
+dC4NCiAgICAqLw0KIA0KKyAgaWYgKGNoZGlyKCIvIikpIHsNCisJICBwZXJy
+b3IoImNoZGlyIik7DQorCSAgZXhpdCgtMSk7DQorICB9DQorDQogICBpZiAo
+IGV4ZWN2cF9zZWN1cmUoYXJndlsxXSwgc2lkLCBhcmd2ICsgMSkgKSB7DQog
+ICAgIHBlcnJvcigiZXhlY3ZwX3NlY3VyZSIpOw0KICAgICBleGl0KC0xKTsN
+Cg==
+---559023410-630072926-1021402777=:25712--
 
 --
 You have received this message because you are subscribed to the selinux list.
