@@ -1,46 +1,46 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1AM1oL9015053
-	for <selinux@tycho.nsa.gov>; Thu, 10 Feb 2005 17:01:51 -0500 (EST)
-Message-ID: <420BD99C.8050508@redhat.com>
-Date: Thu, 10 Feb 2005 17:01:00 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1AMW7L9015225
+	for <selinux@tycho.nsa.gov>; Thu, 10 Feb 2005 17:32:07 -0500 (EST)
+Message-ID: <420BDFCC.1060609@redhat.com>
+Date: Thu, 10 Feb 2005 17:27:24 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SE Linux <selinux@tycho.nsa.gov>, Nalin Dahyabhai <nalin@redhat.com>
-Subject: Re: Rewrite of genhomedircon
-References: <420BC588.4@redhat.com> <1108071785.22172.270.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1108071785.22172.270.camel@moss-spartans.epoch.ncsc.mil>
+To: ivg2@cornell.edu
+CC: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: TTY question
+References: <1107915334.6602.1.camel@cobra.ivg2.net>	 <1107954368.17568.25.camel@moss-spartans.epoch.ncsc.mil>	 <1108000939.5241.10.camel@cobra.ivg2.net>	 <1108039573.22172.37.camel@moss-spartans.epoch.ncsc.mil>	 <1108043320.326.1.camel@cobra.ivg2.net>	 <1108058666.3808.2.camel@cobra.ivg2.net>	 <1108062931.4443.3.camel@cobra.ivg2.net>	 <1108063884.22172.231.camel@moss-spartans.epoch.ncsc.mil>	 <1108067400.5249.10.camel@cobra.ivg2.net>	 <1108067486.22172.251.camel@moss-spartans.epoch.ncsc.mil>	 <1108069944.3689.9.camel@cobra.ivg2.net>	 <1108070175.22172.262.camel@moss-spartans.epoch.ncsc.mil> <1108071217.3689.14.camel@cobra.ivg2.net>
+In-Reply-To: <1108071217.3689.14.camel@cobra.ivg2.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+Ivan Gyurdiev wrote:
 
->On Thu, 2005-02-10 at 15:35, Daniel J Walsh wrote:
+>>>P.S. The java policy had dontaudit tty rules and not allow.
+>>>I changed them by accident. Should they be changed back, or 
+>>>do you think allow is correct?
+>>>      
+>>>
+>>I don't have that policy in our tree.  Is it for the java plugin run
+>>    
+>>
+>>from mozilla or for java run by a user domain?  If the former, likely
 >  
 >
->>genhomedircon will generate only one HOME_ROOT based off the location in 
->>the /etc/default/useradd.
+>>want dontaudit.  If the latter, likely want/need allow.
 >>    
 >>
 >
->Is this limitation (to a single HOME_ROOT) going to be a problem in
->practice?
+>Well, it's the one Daniel Walsh has been writing, and he said it's for
+>a java plugin, so I guess I'll revert to dontaudit for now.
 >
+>
+>Thank you for the input - will send patches against FC.
 >  
 >
-It is causing problems in other unexpected ways.  We are seeing 
-potential conflicts
-where a user account gets created say on /var/ and now we end up with 
-/var being labeled
-home_root_t.  The reason for having home_root_t is so that directories 
-that get created under
-it will automatically get created with the correct context.  We have 
-also seen conflicts where
-users create some directories in /home and /home/devel where they could 
-conflict. 
-
-Dan
+Java policy is just for running from mozilla.  IE Plugin, A full java 
+policy as I stated before does not
+make much sense.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
