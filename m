@@ -1,56 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA01419
-	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 06:41:55 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id KAA20831
-	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 10:40:19 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA01594
+	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 07:08:53 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id LAA17724
+	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 11:07:57 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id KAA20827 for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 10:40:13 GMT
+	by jazzswing.ncsc.mil  with ESMTP id LAA17720
+	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 11:07:56 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 18A4E92469
-	for <selinux@tycho.nsa.gov>; Thu,  8 Aug 2002 20:41:46 +1000 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 6C69792469
+	for <selinux@tycho.nsa.gov>; Thu,  8 Aug 2002 21:08:49 +1000 (EST)
 Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 23C2F2FE8
-	for <selinux@tycho.nsa.gov>; Thu,  8 Aug 2002 12:41:38 +0200 (CEST)
+	by lyta.coker.com.au (Postfix) with SMTP id D247E3C7C
+	for <selinux@tycho.nsa.gov>; Thu,  8 Aug 2002 13:08:41 +0200 (CEST)
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: new policy
-Date: Thu, 8 Aug 2002 12:41:37 +0200
+Subject: Re: new policy
+Date: Thu, 8 Aug 2002 13:08:41 +0200
 MIME-Version: 1.0
-Message-Id: <20020808104138.23C2F2FE8@lyta.coker.com.au>
+Message-Id: <20020808110841.D247E3C7C@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am developing a new policy for chroot environments.  It consists of two 
-domains, $2_super_t and $2_t.
+On Thu, 8 Aug 2002 12:41, Russell Coker wrote:
+> I am developing a new policy for chroot environments.  It consists of two
+> domains, $2_super_t and $2_t.
 
-$2_super_t is used for administration and can write to all files and 
-directories in the chroot.
+I've just added a new type that's like $2_ro_t called $2_dropdown_t with the 
+following:
+domain_auto_trans($2_super_t, $2_dropdown_t, $2_t)
 
-$2_t is used for all programs that are not involved in installation of new 
-software.  $2_t can write to $2_rw_t type files and directories but can only 
-read from $2_ro_t files and directories.
+This is for /etc/init.d/* for example, so that when a package installation 
+(which has to run as $2_super_t to write to /usr/bin etc) runs a daemon then 
+the daemon will run as $2_t.  This is so that if you have an sshd to provide 
+user accounts in the chroot then the sshd will run as $2_t and the users will 
+get $2_t.
 
-There is a domain_auto_trans rule specifying that when $2_super_t executes 
-$2_rw_t files then it transitions to $2_t.
-
-This policy is to achieve the following aims:
-Not being excessively complex and allowing the user to do all the things that 
-they reasonably need to do without my involvement.
-
-Supporting moderate numbers of chroot environments without blowing out the 
-policy database size too much.
-
-Being simple enough that a typical Unix admin can understand it after reading 
-a 2-3 page document.
-
-
-This is going to be a part of my paper for Linux Kongress which is due in 4 
-days, so if you have any comments or suggestions then I would appreciate them 
-quickly...
+The only way of entering $2_super_t will be from the user_t domain (or 
+whatever domain the user in question has as their main domain) so there's no 
+way of increasing privs from inside the chroot.
 
 -- 
 I do not get viruses because I do not use MS software.
