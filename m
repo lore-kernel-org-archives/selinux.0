@@ -1,105 +1,77 @@
-Date: Fri, 28 Sep 2001 15:14:44 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SELinux@tycho.nsa.gov
-Subject: [PATCH] Re: install parameters
-In-Reply-To: <20010928180802.58DC4369FB6@lyta.coker.com.au>
-Message-ID: <Pine.SOL.3.95.1010928151302.624T-200000@clipper.gw.tislabs.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-162216788-1001704484=:624"
+Date: Fri, 28 Sep 2001 14:41:17 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200109281941.OAA50738@tomcat.admin.navo.hpc.mil>
+To: russell@coker.com.au, SELinux@tycho.nsa.gov
+Subject: Re: distribution of kernel patches
+In-Reply-To: <20010928180800.00E31334E9@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
----559023410-162216788-1001704484=:624
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-
-On Fri, 28 Sep 2001, Russell Coker wrote:
-
-> Is there any reason why selinux/module/Makefile runs "install" without using 
-> the "-m" parameter to specify the permissions?
+Russell Coker <russell@coker.com.au>:
 > 
-> I think that installing /usr/local/selinux/flask/* mode 755 is a bad idea, 
-> executing them could lead to unexpected results (yes I know that people 
-> should be smart enough to not execute them, but it's easy for us to get the 
-> permissions right).
+> I believe that the current method of distributing the kernel code could be
+> improved by supplying it as either a single patch, or a tar file with a tiny
+> patch.
+> 
+> Most kernel code is distributed in the form of a unified diff.  This form is
+> easy to separate from other related code (often we need kernel code and
+> user-space code separate for compilation on different machines).  It is easy
+> to manipulate in scripts (such as for the Debian packages I am preparing),
+> and is easy to combine with other patches.
+> 
+> A tar file and a small patch would also be easy to deal with.
+> 
+> The current situation of having a Makefile which applies a patch, creates
+> sym-links, etc makes it virtually impossible to automatically do anything
+> with the code.  This means I can't use pure upstream source in my
+> kernel-patch package which adds a risk of error, and makes it more difficult 
+> for anyone who wants to audit my work.
+> 
+> Could the management of the kernel patch be changed in the next release?
+> 
+> 
+> Also could the kernel patch please change the EXTRAVERSION variable in the 
+> top-level makefile?  Currently the kernel-patch package I am playing with 
+> changes it from "-lsm" to "-selinux", but it would be equally valid to change 
+> it to "-lsm-selinux" instead.  I believe that a change to the EXTRAVERSION is 
+> necessary for anyone who is attempting to manage kernel builds for 
+> dis-similar machines.  The results of installing a non-SE kernel when you 
+> want a SE kernel or of installing a SE kernel when you want a non-SE kernel 
+> are both unpleasant!
 
-The attached patch adds the appropriate -m options to the selinux
-Makefiles.  To apply, save this patch to Makefile.patch, change to
-the selinux directory, and run 'patch -p1 < Makefile.patch'.
+Actually, I would prefer the "EXTRAVERSION" be left alone and/or add a new
+form of EXTRAVERSION (I'll call it "LOCALVERSION") be made generally available.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+That way patches could modify "EXTRAVERSION" and I can use "LOCALVERSION" to
+hold whatever the local site chose.
 
+Currently, I'm using EXTRAVERSION to have thinks like:
+	-RSBAC
+	-RSBAC.MAINT
+	-RSBAC.SMP
+	-SMP
 
+I would also suggest that the name string have a defined format:
+	Linux-MAJORVERSION.PATCHLEVEL.SUBLEVEL-EXTRAVERSION-LOCALVERSION
+That way it would also be possible to see other items - something like:
+	Linux-2.4.10-ac3-SMP
 
+And any missing fields be null:
+	Linux-2.4.10--
 
----559023410-162216788-1001704484=:624
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="Makefile.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.SOL.3.95.1010928151444.624U@clipper.gw.tislabs.com>
-Content-Description: 
+It is easy to get carried away with naming things:
 
-SW5kZXg6IHNlbGludXgvbGlic2VjdXJlL2luY2x1ZGUvTWFrZWZpbGUNCmRp
-ZmYgLXUgc2VsaW51eC9saWJzZWN1cmUvaW5jbHVkZS9NYWtlZmlsZToxLjEu
-MS4xIHNlbGludXgvbGlic2VjdXJlL2luY2x1ZGUvTWFrZWZpbGU6MS4yDQot
-LS0gc2VsaW51eC9saWJzZWN1cmUvaW5jbHVkZS9NYWtlZmlsZToxLjEuMS4x
-CUZyaSBKdW4gIDEgMTE6NTE6NDAgMjAwMQ0KKysrIHNlbGludXgvbGlic2Vj
-dXJlL2luY2x1ZGUvTWFrZWZpbGUJRnJpIFNlcCAyOCAxNTowNDoyMyAyMDAx
-DQpAQCAtMiw0ICsyLDQgQEANCiANCiBpbnN0YWxsOg0KIAlta2RpciAtcCAk
-KElOQ0RJUikNCi0JaW5zdGFsbCAkKHdpbGRjYXJkICouaCkgL3Vzci9sb2Nh
-bC9zZWxpbnV4L2luY2x1ZGUNCisJaW5zdGFsbCAtbSA2NDQgJCh3aWxkY2Fy
-ZCAqLmgpIC91c3IvbG9jYWwvc2VsaW51eC9pbmNsdWRlDQpJbmRleDogc2Vs
-aW51eC9saWJzZWN1cmUvc3JjL01ha2VmaWxlDQpkaWZmIC11IHNlbGludXgv
-bGlic2VjdXJlL3NyYy9NYWtlZmlsZToxLjIgc2VsaW51eC9saWJzZWN1cmUv
-c3JjL01ha2VmaWxlOjEuMw0KLS0tIHNlbGludXgvbGlic2VjdXJlL3NyYy9N
-YWtlZmlsZToxLjIJTW9uIEp1biAgNCAxMjoxMTozMyAyMDAxDQorKysgc2Vs
-aW51eC9saWJzZWN1cmUvc3JjL01ha2VmaWxlCUZyaSBTZXAgMjggMTU6MDQ6
-MjMgMjAwMQ0KQEAgLTE0LDcgKzE0LDcgQEANCiANCiBpbnN0YWxsOg0KIAlt
-a2RpciAtcCAkKExJQkRJUikNCi0JaW5zdGFsbCAkKFRBUkdFVCkgJChMSUJE
-SVIpDQorCWluc3RhbGwgLW0gNjQ0ICQoVEFSR0VUKSAkKExJQkRJUikNCiAN
-CiBjbGVhbiA6IA0KIAlybSAtZiAqLm8gJChUQVJHRVQpDQpJbmRleDogc2Vs
-aW51eC9saWJzZWN1cmUvdGVzdC9NYWtlZmlsZQ0KZGlmZiAtdSBzZWxpbnV4
-L2xpYnNlY3VyZS90ZXN0L01ha2VmaWxlOjEuMiBzZWxpbnV4L2xpYnNlY3Vy
-ZS90ZXN0L01ha2VmaWxlOjEuMw0KLS0tIHNlbGludXgvbGlic2VjdXJlL3Rl
-c3QvTWFrZWZpbGU6MS4yCU1vbiBKdW4gIDQgMTI6MTE6MzMgMjAwMQ0KKysr
-IHNlbGludXgvbGlic2VjdXJlL3Rlc3QvTWFrZWZpbGUJRnJpIFNlcCAyOCAx
-NTowNDoyMyAyMDAxDQpAQCAtMTEsNCArMTEsNCBAQA0KIA0KIGluc3RhbGw6
-IA0KIAlta2RpciAtcCAkKEJJTkRJUikNCi0JaW5zdGFsbCAkKFRBUkdFVFMp
-ICQoQklORElSKQ0KKwlpbnN0YWxsIC1tIDc1NSAkKFRBUkdFVFMpICQoQklO
-RElSKQ0KSW5kZXg6IHNlbGludXgvbW9kdWxlL01ha2VmaWxlDQpkaWZmIC11
-IHNlbGludXgvbW9kdWxlL01ha2VmaWxlOjEuMTAgc2VsaW51eC9tb2R1bGUv
-TWFrZWZpbGU6MS4xMQ0KLS0tIHNlbGludXgvbW9kdWxlL01ha2VmaWxlOjEu
-MTAJV2VkIFNlcCAxOSAxMTozMDozOCAyMDAxDQorKysgc2VsaW51eC9tb2R1
-bGUvTWFrZWZpbGUJRnJpIFNlcCAyOCAxNTowNDoyMyAyMDAxDQpAQCAtMzMs
-MTEgKzMzLDExIEBADQogCW1rZGlyIC1wICQoSU5DRElSKS9hc20tJChBUkNI
-KS9mbGFzaw0KIAlta2RpciAtcCAkKEJJTkRJUikNCiAJKCBjZCAkKElOQ0RJ
-Uik7IGxuIC1zZiBhc20tJChBUkNIKSBhc20pDQotCWNkIHNlbGludXhfcGx1
-Zy9mbGFzazsgaW5zdGFsbCBhY2Nlc3NfdmVjdG9ycyBzZWN1cml0eV9jbGFz
-c2VzIGluaXRpYWxfc2lkcyAkKEZMQVNLRElSKQ0KLQljZCBzZWxpbnV4X3Bs
-dWcvaW5jbHVkZS9saW51eC9mbGFzazsgaW5zdGFsbCAqLmggJChJTkNESVIp
-L2xpbnV4L2ZsYXNrDQotCWNkIHNlbGludXhfcGx1Zy9pbmNsdWRlL2FzbS9m
-bGFzazsgaW5zdGFsbCAqLmggJChJTkNESVIpL2FzbS9mbGFzaw0KLQljZCAu
-Li8uLi9sc20vaW5jbHVkZS9hc207IGluc3RhbGwgdW5pc3RkLmggJChJTkNE
-SVIpL2FzbQ0KLQljZCBzZWxpbnV4X3BsdWcvc3M7IGluc3RhbGwgY2hlY2tw
-b2xpY3kgJChCSU5ESVIpDQorCWNkIHNlbGludXhfcGx1Zy9mbGFzazsgaW5z
-dGFsbCAtbSA2NDQgYWNjZXNzX3ZlY3RvcnMgc2VjdXJpdHlfY2xhc3NlcyBp
-bml0aWFsX3NpZHMgJChGTEFTS0RJUikNCisJY2Qgc2VsaW51eF9wbHVnL2lu
-Y2x1ZGUvbGludXgvZmxhc2s7IGluc3RhbGwgLW0gNjQ0ICouaCAkKElOQ0RJ
-UikvbGludXgvZmxhc2sNCisJY2Qgc2VsaW51eF9wbHVnL2luY2x1ZGUvYXNt
-L2ZsYXNrOyBpbnN0YWxsIC1tIDY0NCAqLmggJChJTkNESVIpL2FzbS9mbGFz
-aw0KKwljZCAuLi8uLi9sc20vaW5jbHVkZS9hc207IGluc3RhbGwgLW0gNjQ0
-IHVuaXN0ZC5oICQoSU5DRElSKS9hc20NCisJY2Qgc2VsaW51eF9wbHVnL3Nz
-OyBpbnN0YWxsIC1tIDc1NSBjaGVja3BvbGljeSAkKEJJTkRJUikNCiANCiBj
-bGVhbjoNCiAJZmluZCBzZWxpbnV4X3BsdWcgXCggLW5hbWUgTWFrZWZpbGUg
-LW8gLW5hbWUgKi5vIC1vIC1uYW1lIGNoZWNrcG9saWN5IC1vIC1uYW1lICcu
-Ki5mbGFncycgXCkgLXR5cGUgZiAtZXhlYyBybSAtZiB7fSBcOw0K
----559023410-162216788-1001704484=:624--
+	Linux-2.4.10-ac3-lsm.27-SMP
+
+(calls for multiple layers of extraversion, one for the ac levels, one
+for the lsm number, one for localversion..."When I name a thing it means
+what I mean, and nothing more" (((or something like that))) :-)
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 
 --
 You have received this message because you are subscribed to the selinux list.
