@@ -1,49 +1,54 @@
-Message-Id: <200406021856.i52IuNV8000745@turing-police.cc.vt.edu>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: issue on binary & source compatibility 
-In-Reply-To: Your message of "Tue, 01 Jun 2004 06:34:57 PDT."
-             <20040601133457.24158.qmail@web51508.mail.yahoo.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20040601133457.24158.qmail@web51508.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1382351162P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Wed, 02 Jun 2004 14:56:23 -0400
+Message-Id: <200406021932.i52JWCSf003064@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'SELinux'" <SELinux@tycho.nsa.gov>,
+   "'Fedora SELinux support list for users & developers.'" <fedora-selinux-list@redhat.com>
+Cc: <selinux-dev@tresys.com>
+Subject: [ANNOUNCE] Setools version 1.4 released
+Date: Wed, 2 Jun 2004 15:32:35 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1382351162P
-Content-Type: text/plain; charset=us-ascii
+Tresys Setools version 1.4 has been released. It is available from the
+SELinux sourceforge cvs repository and the Tresys webpage:
 
-On Tue, 01 Jun 2004 06:34:57 PDT, Park Lee <parklee_sel@yahoo.com>  said:
+http://www.tresys.com/selinux/
 
-> It says: At present SE Linux provides binary compatibility with existing
-> applications, and source compatibility with kernel modules.
+This release includes several new features including:
 
-> Then, I want to ask what the meaning and differences of 'binary compatibility'
-> and 'source compatibility' are? and why it said so?
+- Support for binary policies in addition to source policies in libapol.
+This allows almost all of the tools, including Apol, Seaudit, sesearch, and
+seinfo, to work with a binary policy. This is especially important as more
+SELinux systems are deployed without a full policy source tree.
 
-Binary compatibility means that you don't have to recompile user programs to
-take advantage of the support (as opposed to, for instance some range-checking
-extensions to GCC which require a recompile, or the PaX stuff that doesn't add
-any protection to binaries that weren't linked with a modified binutils to add
-the PaX-defined elf header....
+- GUI updates to Apol and Seaudit to correctly support binary policies.
+
+- Seaudit, sesearch, and seinfo will now load a binary policy by default if
+no source policy is found.
+
+- Numerous bug fixes and policy updates for Seuser allowing it to run
+correctly under Fedora Core 2.
+
+- The installation of policy and labeling of files has been removed from the
+'make install' target in order to support systems with policies that are
+significantly different from the default NSA policy. The new target 'make
+install-policy' will install the Setools policy files and label the
+applications and configuration files.
+
+- Seinfo now supports conditional policies.
+
+- The results tabs in Apol can now be renamed by the user to make them
+easier to distinguish when many tabs are open simultaneously.
 
 
---==_Exmh_1382351162P
-Content-Type: application/pgp-signature
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410)290-1411 ext 134 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFAviLXcC3lWbTT17ARAjODAKCWq0XJYkTRSXRHCYuOwiF8HmGzGwCfQagd
-ir9u620vsg5PaDnmu3vV+7c=
-=ss2D
------END PGP SIGNATURE-----
-
---==_Exmh_1382351162P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
