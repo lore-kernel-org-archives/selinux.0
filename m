@@ -1,68 +1,59 @@
-Message-ID: <41E537C8.8060101@redhat.com>
-Date: Wed, 12 Jan 2005 09:44:24 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: Colin Walters <walters@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Added is_context_configurable function
-References: <41E2FEF4.5070604@redhat.com>	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>	 <41E3FAF4.2060109@redhat.com>	 <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>	 <1105481440.24748.22.camel@nexus.verbum.private> <1105539555.22495.28.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1105539555.22495.28.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CEruIi015795
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 09:53:56 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CErxgF019673
+	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 14:53:59 GMT
+Subject: Re: lots of execmem failures with 2.6.10
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Greg Norris <haphazard@kc.rr.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20050112112630.GA12730@yggdrasil.localdomain>
+References: <20050112112630.GA12730@yggdrasil.localdomain>
+Content-Type: text/plain
+Message-Id: <1105541256.22495.57.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 12 Jan 2005 09:47:36 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+On Wed, 2005-01-12 at 06:26, Greg Norris wrote:
+> When trying to boot a 2.6.10 kernel, with the SELinux patch from the NSA
+> website applied, I'm getting a LOT of denial messages such as the ones
+> shown below.  This hoses the boot process to the point where the box is
+> essentially unusable (no networking, impossible to logon at the console,
+> etc.).  Under 2.6.9, the same policy works just fine.
+> 
+>    audit(1105293465.527:0): avc:  denied  { execmem } for  pid=237 comm=uname scontext=system_u:system_r:initrc_t tcontext=system_u:system_r:initrc_t tclass=process
+>    audit(1105293465.663:0): avc:  denied  { execmem } for  pid=240 comm=touch scontext=system_u:system_r:initrc_t tcontext=system_u:system_r:initrc_t tclass=process
+>    audit(1105293466.661:0): avc:  denied  { execmem } for  pid=259 comm=sync scontext=system_u:system_r:initrc_t tcontext=system_u:system_r:initrc_t tclass=process
+>    audit(1105293466.716:0): avc:  denied  { execmem } for  pid=262 comm=uname scontext=system_u:system_r:initrc_t tcontext=system_u:system_r:initrc_t tclass=process
+> 
+> I haven't seen any mention of this on the list... any idea what's going
+> on?  My policy source files are from cvs, as of three weeks or so ago. 
+> I don't mind updating to current cvs if necessary, but don't see any
+> obvious updates relating to execmem.  The server is an old Pentium II
+> box (nothing at all unusual about it), running Debian sid.
+> 
+> I can update my policy to allow the execmem easily enough, but would
+> expect to find it already in cvs if this was an expected issue.  Any 
+> thoughts?
 
->On Tue, 2005-01-11 at 17:10, Colin Walters wrote:
->  
->
->>I've said this before, but I don't like the idea of having to edit
->>file_contexts whenever I want to change the labels.  I feel that the 
->>on-disk version should be canonical, and the file_contexts only used for
->>system initialization.
->>    
->>
->
->That is also my view.  However, if people are going to run setfiles or
->restorecon at runtime to check or set contexts (which is current
->practice in Fedora), then we do need a way to distinguish legitimate
->customizations from what are essentially bugs in the policy (e.g. lack
->of a file type transition rule) or applications (e.g. failure to
->preserve or set context on a file where file type transition rules are
->insufficient).  The file contexts configuration seemed like a reasonable
->way to capture that distinction to me.  Two questions:
->1) Is it sufficient to identify legitimate customizations based solely
->on the TE type of the file?  If not, what other information should be
->taken into account, irrespective of whether this is done via
->file_contexts or via a different config file?
->  
->
-I think we can somewhat do that now.  I am not looking at the ability to 
-put general
-files in random location, just based off the wim of the Administrator.  
-IE putting
-/var/named some where else is not what we are considering, in this case 
-a secondary
-file_context.local file should be required.  But the usual case of 
-labeling file for sharing
-IE samba_share_t, http*, ftp_anon_t.  These will be come common, and the 
-admin should not
-be required to update file_context in this case.  (We had considered 
-calling them sharables)
+The thread that discussed the new controls over executable mappings
+starts at http://marc.theaimsgroup.com/?l=selinux&m=110003195017130&w=2
+and the final submitted version was
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110200324503263&w=2.
 
->2) Is it feasible for the policy writer to identify all such TE types a
->priori in the policy without covering such a large set as to make
->setfiles/restorecon completely useless by default? If not, what
->mechanism will be provided to allow users/admins to easily mark
->additional types without conflicting with future policy updates?
->
->  
->
-I believe so as long as we confine it to shareable types of context, not 
-files that have standard locations,
-that an admin might decide to change.
+The question is why is your userland attempting to create executable
+anonymous mappings or executable writable private file mappings.  May be
+related to the legacy binary issue that came up earlier, where the
+mainline kernel enables read-implies-exec behavior if the binary is a
+"legacy" binary, i.e. lacks PT_GNU_STACK.  What does execstack -q `which
+uname` report?
 
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
