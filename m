@@ -1,87 +1,103 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2T3uxDo002248
-	for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2005 22:57:14 -0500 (EST)
-Received: from wproxy.gmail.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2T3u51g021285
-	for <selinux@tycho.nsa.gov>; Tue, 29 Mar 2005 03:56:05 GMT
-Received: by wproxy.gmail.com with SMTP id 68so491546wri
-        for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2005 19:56:00 -0800 (PST)
-Message-ID: <fa8ec5d8050328195571c9d4fc@mail.gmail.com>
-Date: Mon, 28 Mar 2005 22:55:57 -0500
-From: Kodungallur Varma <ramgwu@gmail.com>
-Reply-To: Kodungallur Varma <ramgwu@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: problems using setcon()
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1110812772.21378.79.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2TBYPDo004121
+	for <selinux@tycho.nsa.gov>; Tue, 29 Mar 2005 06:34:25 -0500 (EST)
+Received: from crisium.vnl.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2TBUma7026010
+	for <selinux@tycho.nsa.gov>; Tue, 29 Mar 2005 11:30:48 GMT
+Date: Tue, 29 Mar 2005 12:33:21 +0100
+From: Dale Amon <amon@vnl.com>
+To: Rogelio Serrano <rogelio.serrano@gmail.com>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>,
+   "Fedora SELinux support list for users &amp, developers." <fedora-selinux-list@redhat.com>,
+   selinux@tycho.nsa.gov
+Subject: Re: Desktop apps interoperability
+Message-ID: <20050329113321.GC24833@vnl.com>
+References: <1111985855.1514.70.camel@cobra.ivg2.net> <1111986213.1514.77.camel@cobra.ivg2.net> <1111987652.1514.97.camel@cobra.ivg2.net> <20050328100140.GB3430@lkcl.net> <a9951d2a0503280217234c3f65@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <fa8ec5d80503082008161e5619@mail.gmail.com>
-	 <20050309084655.GC5236@thorium.jmh.mhn.de>
-	 <fa8ec5d805031118353197f745@mail.gmail.com>
-	 <1110812772.21378.79.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kVXhAStRUZ/+rrGn"
+In-Reply-To: <a9951d2a0503280217234c3f65@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Stephen and all,
 
-       the following setconexample.c(attachment) really did help me,
-but I have one more issue. I dont have the context_str() function. I
-installed the 2.6.11.5 kernel and tried to apply patches mentioned in
-the NSA website. I updated to the checkpolicy-1.22, libselinux-1.22,
-policycoreutils-1.22, ibsepol-1.4. I dont know if I am supposed to
-upgrade to the above.  I wanted to update to apply the patch-2.6.11.6.
-but I could not execute it and I dont know how to apply it. I wonder
-why I dont have just the context_str().
+--kVXhAStRUZ/+rrGn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-also, when I make load from the directory
-/etc/selinux/strict/src/policy/, I have the following errors:
+On Mon, Mar 28, 2005 at 06:17:14PM +0800, Rogelio Serrano wrote:
+> On Mon, 28 Mar 2005 11:01:40 +0100, Luke Kenneth Casson Leighton
+> <lkcl@lkcl.net> wrote:
+> > On Mon, Mar 28, 2005 at 12:27:31AM -0500, Ivan Gyurdiev wrote:
+> >=20
+> > > Now Windows' approach of having "My Documents" and the like is starti=
+ng
+> > > to make a lot of sense (even though I absolutely hate those names).
+> >=20
+> >  and the concept of a registry, too.
+> >=20
+> >  unix has a lot of legacy headaches to answer for that make its
+> >  useability as a desktop system a pain in the neck.
+> >=20
+> >  perhaps this is one that's worthwhile raising with the linux
+> >  standards base people?
+> >=20
+> >  if it doesn't present a solution "now" it might at least get one into
+> >  the pipeline and start to make a difference in five to ten years time.
+> >=20
+> >  l.
+> >=20
+>=20
+> NextStep and Mac OS X solved this problem very elegantly. IMHO. =20
 
-Validating file_contexts ...
-/usr/sbin/setfiles -q -c /etc/selinux/strict/policy/policy.19
-/etc/selinux/strict/contexts/files/file_contexts
-/usr/sbin/load_policy /etc/selinux/strict/policy/policy.19
-sepol_genusers: Can't load system.users:  No such file or directory
-/usr/sbin/load_policy:  Error while setting user configuration from
-/etc/selinux/strict/users//{local.users,system.users}:  No such file
-or directory
-/usr/sbin/load_policy:  security_load_policy failed
-make: *** [tmp/load] Error 3
+I will run screaming if someone imports the registry
+concept into Unix. You'll need full AI to get it right.
+I managed a moderate size university network of NeXT's.
+The admin interface seems nice at first... but it sucks
+you in and then you find the problems with upgrades of
+software; the problem that if you pulled the plug on=20
+UFS open files got corrupted... and guess what? The
+netinfo files were almost always open!=20
 
-why is the above occuring?? 
+Keep it ASCII; keep it in seperate files. By all means
+try to get application and daemon writers to standardize
+on their parsing. Not that you ever will.
 
-any help would do a great deal to completion of my thesis. thanx in advance..
+And has to My Documents? Yech. Every user has their
+own private idea of what setups should exist. Users
+are users and have their own little worlds; Root
+is Root and never the twain shall meet. Except perhaps
+with proper selinux controls...
 
-Ram
+Now I do wish there were a dotfile directory in each
+home directory and everyone put the dotfiles in it
+when they are created... but if wishes were fishes
+I'd have a life time supply of fish'n'chips.
 
+--=20
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
-On Mon, 14 Mar 2005 10:06:12 -0500, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Fri, 2005-03-11 at 21:35 -0500, Kodungallur Varma wrote:
-> >        I came to know that I cant simply cast a string into a security
-> > identifier as shown below. insted I found out that I have to use
-> > security_compute_create().
-> 
-> No, you can directly construct context strings; you just have to ensure
-> that they are valid contexts or the kernel will reject them.  The
-> easiest approach is to use getcon() to get the current context, then use
-> the context_new(), context_type_set(), context_str() functions to create
-> a context string with a modified type field, and then call setcon() on
-> the resulting context string.  security_compute_create() is appropriate
-> when you want to get a context based on a type_transition rule in the
-> policy (for an exec-based process transition or a file creation), but
-> that is not what you are doing.  Sample program below should work for
-> you, assuming appropriate policy and a kernel that supports dynamic
-> context transitions (>= 2.6.11 for the mainline kernel).  Policy would
-> need can_setcon() for the domain and allow <olddomain>
-> <newdomain>:process dyntransition; (the domain_auto_trans rules are for
-> exec-based transitions only).
-> 
-> --
-> Stephen Smalley <sds@tycho.nsa.gov>
-> National Security Agency
-> 
-> 
->
+--kVXhAStRUZ/+rrGn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCST0BZHES7UL0zXERAsFjAJ9qeG33ssmUmuR4JOQK9hmzQeyVlwCeMS6E
++oWIocrwpPYhE3NsiDRoxkQ=
+=ySOE
+-----END PGP SIGNATURE-----
+
+--kVXhAStRUZ/+rrGn--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
