@@ -1,51 +1,39 @@
-Message-ID: <3C1B64C5.4000207@namesys.com>
-Date: Sat, 15 Dec 2001 17:57:09 +0300
-From: Hans Reiser <reiser@namesys.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tislabs.com>
-CC: forrest whitcher <fw@fwsystems.com>, SELinux@tycho.nsa.gov
-Subject: Re: persistent labelling on afs, jfs, xfs?
-References: <Pine.GSO.4.33.0112141652360.17166-100000@raven>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Sun, 16 Dec 2001 03:24:08 +0000
+From: Dale Amon <amon@vnl.com>
+To: SELinux@tycho.nsa.gov
+Subject: No consistancy in Make variable names
+Message-ID: <20011216032408.GA9250@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+I'm trying to modify the Makefile's for building
+to a target build directory and/or an install time
+selected destination, ie /usr vs /usr/local.
 
->On Fri, 14 Dec 2001, forrest whitcher wrote:
->
->>This is Reiserfs related.  The problem is that Reiserfs breaks the
->>inode-number assumption (the assumption is that a file is uniquely
->>represented by a device number for the partition and an inode number).
->>Unfortunately reiserfs doesn't do this, so AFS cache wont work.
->>
->
->We haven't tested SELinux with reiserfs, but others have claimed that it
->works.  However, if it is true that reiserfs doesn't have unique and
->persistent inode numbers for files, then SELinux will have problems with
->it.
->
->--
->Stephen D. Smalley, NAI Labs
->ssmalley@nai.com
->
->
->
->
->--
->You have received this message because you are subscribed to the selinux list.
->If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->the words "unsubscribe selinux" without quotes as the message.
->
->
-We currently have unique and persistent inode numbers (at least until we 
-someday write a repacker that will optimize key assignments for better 
-layout), but you can't use them for finding files that are not in the 
-cache.  To find such files requires a key.
+The biggest difficulty I'm having is a lack of
+consistancy in labeling. DESTDIR means one thing
+in one of the makefiles and something entirely
+different in another.
 
-Hans
+It really would be a good idea to clean up this
+nomenclature.
 
+I was going to use DESTDIR for the target root
+and BASEDIR for the location of selinux; I've just
+run into other uses of DESTDIR that will force me
+to start over with a less standard labelling.
 
+util is the biggest hassle to modify needless to
+say.
+
+-- 
+------------------------------------------------------
+    Nuke bin Laden:           Dale Amon, CEO/MD
+  improve the global          Islandone Society
+     gene pool.               www.islandone.org
+------------------------------------------------------
 
 --
 You have received this message because you are subscribed to the selinux list.
