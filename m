@@ -1,40 +1,37 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Christopher Carney" <ccarney@seacorp.com>, <SELinux@tycho.nsa.gov>
 Subject: Re: Configure: error: *** libwrap missing
-Date: Fri, 2 May 2003 13:22:21 +1000
-References: <001401c3101b$2287ea80$e501a8c0@CarneyC>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Christopher Carney <ccarney@seacorp.com>
+Cc: SELinux@tycho.nsa.gov
 In-Reply-To: <001401c3101b$2287ea80$e501a8c0@CarneyC>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200305021322.21126.russell@coker.com.au>
+References: <001401c3101b$2287ea80$e501a8c0@CarneyC>
+Content-Type: text/plain
+Message-Id: <1051875234.1377.405.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 02 May 2003 07:33:55 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2 May 2003 05:52, Christopher Carney wrote:
+On Thu, 2003-05-01 at 15:52, Christopher Carney wrote:
 > "checking for libwrap. configure: error: *** libwrap missing
+> 
+> make[1]: *** [xopenssh-config] Error 1
 
-The best thing to do is to install the package that provides the libwrap 
-header files and libwrap.a.  libwrap allows control over which IP addresses 
-and domains can connect to sshd, this is desirable functionality.
+If you look at the xopenssh-config target in the selinux/utils/Makefile,
+you'll see that it specifies a number of options to configure, including
+--with-tcp-wrappers.  If you don't have that package, you can either get
+it or you can drop that option from the configure command line.
 
 > So I went ahead and ran. /configure for XOpenSSH which worked fine.
 
-./configure should detect the lack of libwrap and you should then be able to 
-compile it with the SE patch.  You can compile the patched programs without 
-using the supplied scripts, it requires a little more effort but the result 
-will be equally good.
-
-Probably the best thing to do however would be to create rpms of the patched 
-software for Mandrake.  Or maybe Carsten has some SuSE rpms that would work 
-for you.
+Except that running ./configure without specifying any other options
+will yield a sshd that doesn't include the SELinux support, and likely
+won't be installed where you want it either.  I'd suggest just trimming
+the --with-tcp-wrappers option from the configure line in
+utils/Makefile.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
