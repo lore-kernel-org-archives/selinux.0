@@ -1,69 +1,60 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3UH2JI4005639
-	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 13:02:20 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3UHhtI4005879
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 13:43:55 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3UH2J7R021730
-	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 17:02:19 GMT
+	by jazzband.ncsc.mil  with ESMTP id h3UHhs7R024296
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 17:43:54 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h3UH2IKP021727 for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 17:02:18 GMT
-Subject: Re: truncate(2) and setattr
+        by jazzband.ncsc.mil  with ESMTP id h3UHhrKP024293 for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 17:43:53 GMT
+Subject: Re: SUDO package
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
+To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200305010016.04155.russell@coker.com.au>
-References: <200304301034.38073.russell@coker.com.au>
-	 <200304302231.13209.russell@coker.com.au>
-	 <1051708617.1118.173.camel@moss-huskers.epoch.ncsc.mil>
-	 <200305010016.04155.russell@coker.com.au>
+In-Reply-To: <3EAFEECA.1090107@redhat.com>
+References: <00d801c303f1$9fef2f00$398314d1@windowpane.com>
+	 <200304181408.55003.russell@coker.com.au>  <3EA021A5.4020603@redhat.com>
+	 <1051021175.14761.61.camel@moss-huskers.epoch.ncsc.mil>
+	 <3EA5A040.40107@redhat.com>
+	 <1051199603.20300.33.camel@moss-huskers.epoch.ncsc.mil>
+	 <3EAFEECA.1090107@redhat.com>
 Content-Type: text/plain
-Message-Id: <1051722122.1028.12.camel@moss-huskers.epoch.ncsc.mil>
+Message-Id: <1051724624.1028.65.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 30 Apr 2003 13:02:03 -0400
+Date: 30 Apr 2003 13:43:45 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-04-30 at 10:16, Russell Coker wrote:
-> Yes.  I believe that using write permission checks for this is the appropriate 
-> thing to do.  I think that a CTIME change does not deserve much attention, 
-> and size is a direct function of write/append.
+On Wed, 2003-04-30 at 11:42, Daniel J Walsh wrote:
+> I have a hard time with the previous two.  Just seems to me SELinux
+> needs some sort
+> of dontallow functionality to handle these situation.  Otherwise every
+> time I add a policy 
+> that has a somewhat global effect on files/dir, I need to change the
+> all the file/directory attributes 
+> in the policy.  Has this been discussed previously?
 
-truncate sets the ATTR_SIZE and ATTR_CTIME flags before calling
-notify_change; that is why ATTR_CTIME was included in the test. 
-However, in thinking about this further, I think it is lacking in two
-respects:  1) We should recheck write permission in
-selinux_inode_setattr in the truncate case to ensure revalidation in the
-ftruncate case (e.g. in case the file was relabeled or the policy was
-changed after the open), and 2) We should handle utimes(p,NULL) in the
-same manner, only checking write permission for it, as it merely sets
-the timestamps to the current time.  For changes to the mode, uid, gid,
-or explicit setting of timestamps via utimes(p,&times), we should still
-check setattr permission.  We could split the utimes(p,&times) case into
-a separate permission to distinguish it from changes to the DAC
-protection state of the file, but this will require adding a new
-permission to the file class.  The patch below does everything except
-split utimes(p,&times) into a separate permission:
+True.  The problem is more severe for exec_type than for the directory
+access; IMHO, it isn't too much to ask you to enumerate the major
+directory types in which binaries to be executed by sudo might live, and
+most (all?) of those types should be part of the basic policy
+definition, not package-specific, e.g. bin_t, sbin_t, etc.  You don't
+even need to define an attribute for that purpose; you can just list
+them in your allow rule, or pull them from a macro definition added to
+the global macros.
 
-Index: lsm-2.4/security/selinux/hooks.c
-===================================================================
-RCS file: /home/pal/CVS/lsm-2.4/security/selinux/hooks.c,v
-retrieving revision 1.89
-diff -u -r1.89 hooks.c
---- lsm-2.4/security/selinux/hooks.c	27 Mar 2003 20:05:18 -0000	1.89
-+++ lsm-2.4/security/selinux/hooks.c	30 Apr 2003 16:49:34 -0000
-@@ -2034,7 +2034,11 @@
- 
- static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
- {
--	return dentry_has_perm(current, dentry, FILE__SETATTR, NULL);
-+	if (iattr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID | 
-+			       ATTR_ATIME_SET | ATTR_MTIME_SET))
-+		return dentry_has_perm(current, dentry, FILE__SETATTR, NULL);
-+
-+	return dentry_has_perm(current, dentry, FILE__WRITE, NULL);
- }
- 
- static int selinux_inode_stat(struct inode *inode)
+> This is a problem since with Sudo you are sharing the same terminal
+> between the process that rand sudo
+> and the sudo process.  So if you change the privs of the terminal one
+> process or the other could have 
+> more privs.  I would prefer to leave the terminal with the current
+> privs (Usually lower) and make the 
+> application run by sudo change the terminal privs if it has to. 
+> (probably seldom).  Any other ideas?
 
+I'm not clear as to why you can't implement something akin to what
+newrole does.  Otherwise, what prevents another process of lower
+privilege from arbitrarily accessing the privileged process' terminal?
+You can't rely on the DAC protections.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
