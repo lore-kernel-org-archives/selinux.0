@@ -1,189 +1,53 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAI9XIi022102
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 13:09:33 -0500 (EST)
-Message-ID: <41B9E654.1080206@redhat.com>
-Date: Fri, 10 Dec 2004 13:09:24 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAIBMIi022137
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 13:11:22 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAI9gwg012864
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 18:09:43 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: can_network patch.
+Date: Sat, 11 Dec 2004 05:11:07 +1100
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux <selinux@tycho.nsa.gov>
+References: <41741A2C.8040408@redhat.com> <1102698638.1628.148.camel@moss-spartans.epoch.ncsc.mil> <41B9E48A.8010204@redhat.com>
+In-Reply-To: <41B9E48A.8010204@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux ML <selinux@tycho.nsa.gov>, Nalin Dahyabhai <nalin@redhat.com>
-Subject: Re: Manipulating user roles without policy-sources installed
-References: <20041207000805.GH3678@jmh.mhn.de>	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>	 <41B8826D.30105@redhat.com>	 <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil>	 <1102614049.32175.168.camel@moss-spartans.epoch.ncsc.mil>	 <41B9CD6A.2030008@redhat.com> <1102696635.1628.132.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1102696635.1628.132.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------040302000609040406030707"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200412110511.12960.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040302000609040406030707
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Saturday 11 December 2004 05:01, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Stephen Smalley wrote:
+> >On Fri, 2004-12-10 at 12:06, Daniel J Walsh wrote:
+> >>When installing a package within firefox, it attemps to exec
+> >>system-config-packages which blows up because
+> >>*-mozilla-t can not run userhelper apps.
+> >
+> >Installing a package within firefox?  If you are talking about something
+> >firefox downloaded, then why does it use system-config-packages?  And I
+> >would expect that you would end up installing any such packages local to
+> >the user's home directory at most (and even then only if policy allows
+> >writing to it), not on a system-wide basis.
+>
+> You can trigger it by executing
+>  firefox selinux-policy-strict-1.19.12-1.src.rpm
 
-Stephen Smalley wrote:
+We have mozilla running in it's own domain to limit the risk of exploits of 
+mozilla taking over the rest of the system.  Allowing mozilla to install 
+packages seems to directly contradict this aim.
 
->On Fri, 2004-12-10 at 11:23, Daniel J Walsh wrote:
->  
->
->>I want to change genpolusers syntax to be
->>
->>genpolusers inpolicy outpolicy userfile1 [userfile2 ... ]
->>    
->>
->
->Yes, that's easy enough to do, and as no one has used genpolusers to
->date AFAIK, changing the interface is ok with me.
->
->________________________________________________________________________
->  
->
->>diff --exclude-from=exclude -N -u -r nsapolicy/local.users policy-1.19.12/local.users
->>--- nsapolicy/local.users	1969-12-31 19:00:00.000000000 -0500
->>+++ policy-1.19.12/local.users	2004-12-10 10:59:20.750916770 -0500
->>+# or if you want to be able to directly start daemons 
->>+
->>+#user jadmin roles { staff_r sysadm_r system_r };
->>    
->>
->
->Rather than just have this as a comment in the file, why not use an
->ifdef in the source file here and apply m4 to it as well so that there
->is a single line in the installed file that either includes system_r or
->does not based on what tunables were set when the policy was built? 
->Reduces user confusion, particularly since you are always enabling
->direct_sysadm_daemon for FC and it is also needed for rpm %post
->scriptlet processing in a number of cases.
->
->  
->
-Ok, I did that, but had to hack a little to get it to work.   Basically 
-had to uncomment it in the original source and
-sed it back to a comment for the final version.
+Maybe we should just remove the mozilla policy?
 
->>diff --exclude-from=exclude -N -u -r nsapolicy/Makefile policy-1.19.12/Makefile
->>--- nsapolicy/Makefile	2004-10-25 14:01:13.000000000 -0400
->>+++ policy-1.19.12/Makefile	2004-12-10 10:54:18.524901686 -0500
->>+$(USERPATH)/system.users: $(ALL_TUNABLES) $(USER_FILES) policy.conf
->>+	@mkdir -p $(USERPATH)
->>+	@echo "# " > tmp/system.users
->>+	@echo "# Do not edit this file. " >> tmp/system.users
->>+	@echo "# This file is replaced on reinstalls of this policy." >> tmp/system.users
->>+	@echo "# Please edit users.custom to make local changes." >> tmp/system.users
->>+	@echo "#" >> tmp/system.users
->>+	m4 $(ALL_TUNABLES) tmp/program_used_flags.te $(USER_FILES) | grep -h -v "^#" | grep [a-zA-Z] >> tmp/system.users
->>+	install -m 644 tmp/system.users $@
->>    
->>
->
->The comment says "users.custom", but you've named it "local.users".
->  
->
-Fixed
-
->I'm also unclear on the purpose of the grep's - just to make it more
->readable?  
->
-Yes, but more importantly to get rid of misleading comments.  I removed 
-the last grep since that could eliminate some info,  So now it is a
-hard to read file, but at least it does not have bad comments.
-
->If you just want the user statement, you could just grep for
->lines beginning with user unless you are worried about multi-line user
->statements in the base policy (which is allowed by checkpolicy, since it
->uses a semicolon terminator).
->  
->
-Yes so I will just remove lines that begin with #.
-
-Dan
-
---------------040302000609040406030707
-Content-Type: text/x-patch;
- name="policy-users.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policy-users.patch"
-
-diff --exclude-from=exclude -N -u -r nsapolicy/local.users policy-1.19.12/local.users
---- nsapolicy/local.users	1969-12-31 19:00:00.000000000 -0500
-+++ policy-1.19.12/local.users	2004-12-10 12:22:56.485903999 -0500
-@@ -0,0 +1,21 @@
-+##################################
-+#
-+# User configuration.
-+#
-+# This file defines additional users recognized by the system security policy.
-+# Only the user identities defined in this file and the users.system file
-+# may be used as the user attribute in a security context.
-+#
-+# Each user has a set of roles that may be entered by processes
-+# with the users identity.  The syntax of a user declaration is:
-+#
-+# 	user username roles role_set [ ranges MLS_range_set ];
-+#
-+# The MLS range set should only be specified if MLS was enabled
-+# for the module and checkpolicy.
-+
-+# sample for administrative user
-+user jadmin roles { staff_r sysadm_r ifdef(`direct_sysadm_daemon', `system_r') };
-+
-+# sample for regular user
-+#user jdoe roles { user_r }; 
-diff --exclude-from=exclude -N -u -r nsapolicy/Makefile policy-1.19.12/Makefile
---- nsapolicy/Makefile	2004-10-25 14:01:13.000000000 -0400
-+++ policy-1.19.12/Makefile	2004-12-10 12:25:23.282396928 -0500
-@@ -26,6 +26,7 @@
- INSTALLDIR = $(DESTDIR)/etc/selinux/strict
- POLICYPATH = $(INSTALLDIR)/policy
- SRCPATH = $(INSTALLDIR)/src
-+USERPATH = $(INSTALLDIR)/users
- CONTEXTPATH = $(INSTALLDIR)/contexts
- LOADPATH = $(POLICYPATH)/$(POLICYVER)
- FCPATH = $(CONTEXTPATH)/files/file_contexts
-@@ -37,13 +38,13 @@
- ALLTEFILES := attrib.te tmp/program_used_flags.te $(ALL_MACROS) $(ALL_TYPES) $(ALL_DOMAINS) assert.te 
- TE_RBAC_FILES := $(ALLTEFILES) rbac
- ALL_TUNABLES := $(wildcard tunables/*.tun )
--
-+USER_FILES := users serviceusers
- POLICYFILES = $(addprefix $(FLASKDIR),security_classes initial_sids access_vectors)
- ifeq ($(MLS),y)
- POLICYFILES += mls
- endif
- POLICYFILES += $(ALL_TUNABLES) $(TE_RBAC_FILES)
--POLICYFILES += users serviceusers
-+POLICYFILES += $(USER_FILES)
- POLICYFILES += constraints initial_sid_contexts fs_use genfs_contexts net_contexts
- 
- UNUSED_TE_FILES := $(wildcard domains/program/unused/*.te)
-@@ -54,9 +55,24 @@
- APPDIR=$(CONTEXTPATH)
- APPFILES = $(addprefix $(APPDIR)/,default_contexts default_type initrc_context failsafe_context userhelper_context removable_context dbus_contexts) $(CONTEXTPATH)/files/media
- 
-+$(USERPATH)/system.users: $(ALL_TUNABLES) $(USER_FILES) policy.conf
-+	@mkdir -p $(USERPATH)
-+	@echo "# " > tmp/system.users
-+	@echo "# Do not edit this file. " >> tmp/system.users
-+	@echo "# This file is replaced on reinstalls of this policy." >> tmp/system.users
-+	@echo "# Please edit local.users to make local changes." >> tmp/system.users
-+	@echo "#" >> tmp/system.users
-+	m4 $(ALL_TUNABLES) tmp/program_used_flags.te $(USER_FILES) | grep -v "^#" >> tmp/system.users
-+	install -m 644 tmp/system.users $@
-+
-+$(USERPATH)/local.users: local.users
-+	@mkdir -p $(USERPATH)
-+	m4 $(ALL_TUNABLES) tmp/program_used_flags.te $(USERPATH)/local.users | sed 's/^user/#user/g' >> tmp/local.users
-+	install -m 644 tmp/local.users $@
-+
- ROOTFILES = $(addprefix $(APPDIR)/users/,root)
- 
--install: $(APPFILES) $(ROOTFILES) $(LOADPATH) $(FCPATH) 
-+install: $(APPFILES) $(ROOTFILES) $(LOADPATH) $(FCPATH) $(USERPATH)/system.users $(USERPATH)/local.users
- 	@echo "Validating file_contexts ..."	
- 	$(SETFILES) -q -c $(LOADPATH) $(FCPATH)
- 
-
---------------040302000609040406030707--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
