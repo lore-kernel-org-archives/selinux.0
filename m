@@ -1,41 +1,42 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA02499
-	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 19:02:25 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id XAA02198
-	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 23:01:26 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA02538
+	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 19:10:36 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id XAA09080
+	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 23:08:59 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id XAA02194
-	for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 23:01:25 GMT
+        by jazzband.ncsc.mil  with ESMTP id XAA09076 for <selinux@tycho.nsa.gov>; Mon, 12 Aug 2002 23:08:57 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 15C559246C
-	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 09:02:22 +1000 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 516EF9246C
+	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 09:10:32 +1000 (EST)
 Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 7CAF68734
-	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 01:02:09 +0200 (CEST)
+	by lyta.coker.com.au (Postfix) with SMTP id C437E873F
+	for <selinux@tycho.nsa.gov>; Tue, 13 Aug 2002 01:10:24 +0200 (CEST)
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: sendmail policy
-Date: Tue, 13 Aug 2002 01:02:09 +0200
+Subject: changing open mode of file handle
+Date: Tue, 13 Aug 2002 01:10:24 +0200
 MIME-Version: 1.0
-Message-Id: <20020812230209.7CAF68734@lyta.coker.com.au>
+Message-Id: <20020812231024.C437E873F@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->From sendmail.te:
-# When sendmail runs as user_mail_domain, it needs some extra permissions.
-allow user_mail_domain etc_mail_t:file rw_file_perms;
+Currently I have cron jobs that create a temporary file in read-only mode, 
+delete the file, then use the file descriptor as standard input for a process 
+that runs "mail root".
 
->From sendmail.fc:
-/etc/mail(|/.*)                 system_u:object_r:etc_mail_t
+The problem is that I don't want to give the mail program write access to the 
+temporary file type, so I currently have to dontaudit the writes.
 
-Does sendmail REALLY need to write files in /etc/mail on behalf of the user?
+But I don't really like this, I'd rather just change the mode of the file 
+handle to be read-only.
 
-Maybe we should make our sendmail policy be "install postfix or qmail 
-instead"? :-#
+How can I change the open mode of a file handle for a deleted file to be 
+read-only instead of read-write?  I'm sure it's possible but can't work out 
+how.
 
 -- 
 I do not get viruses because I do not use MS software.
