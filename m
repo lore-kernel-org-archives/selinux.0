@@ -1,101 +1,96 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7K4xtrT001581
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 00:59:55 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7K4xrQ4017126
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 04:59:54 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 3CAC761AF7
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 14:59:52 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 20643-05 for <selinux@tycho.nsa.gov>;
-	Fri, 20 Aug 2004 14:59:52 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id D262E61AF6
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 14:59:51 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id E88B7B57DB
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 14:59:47 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: distro.tun
-Date: Fri, 20 Aug 2004 14:59:47 +1000
-References: <200408192333.25072.russell@coker.com.au>
-In-Reply-To: <200408192333.25072.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_DVYJBlADMYWP0av"
-Message-Id: <200408201459.47366.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7K821rT002221
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 04:02:01 -0400 (EDT)
+Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7K81J4v026838
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 08:01:19 GMT
+Date: Fri, 20 Aug 2004 10:01:56 +0200
+From: Stefan SF <stefan@sf-net.com>
+To: Colin Walters <walters@verbum.org>
+Cc: Stefan SF <stefan@sf-net.com>, selinux@tycho.nsa.gov
+Subject: Re: policy for scponly - need help
+Message-ID: <20040820080156.GA8602@crux.sternplastic>
+References: <20040819173620.GA8543@crux.localdomain> <1092967183.29540.30.camel@nexus.verbum.private>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+In-Reply-To: <1092967183.29540.30.camel@nexus.verbum.private>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_DVYJBlADMYWP0av
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Thu, 19 Aug 2004 23:33, Russell Coker <russell@coker.com.au> wrote:
-> The attached patch makes the distro tunable macros define to their same
-> values.  This is useful because distributions have many files named after
-> the distribution and sometimes the file needs a different label to other
-> files in the same directory.
->
-> Of course we could have names like (r)edhat in file names, but I think that
-> this is the most convenient solution which will cause the least confusion.
+Hi!
 
-My previous patch was bogus, I should know better than to send a patch 
-untested late at night even if it's trivial.
+> scponly seems similar to rssh.  You may want to try my rssh policy:
+> http://verbum.org/files/rssh_macros.te
+> http://verbum.org/files/rssh.te
+> http://verbum.org/files/rssh.fc
 
-It put m4 into an infinite loop.
+Hmm I can't make head or tail of this. I think the scponly-problem is another one. Because you don't have to transit or anything else in the rssh-policy (user -> role).
 
-Now we can do a macro definition such as the following:
-define(redhat, `redhat')
+> It would likely be sufficient to just add a regexp for scponly to
+> rssh.fc.
 
-But this means that if you pass "redhat" without the `' M4 quotes to a macro 
-it can still go into an infinite loop.  To get this to work with 
-full_user_role(redhat) we need to change most instances of "$1" to "`$1'" in 
-the macros files.
+For what? I think this is not a problem of correct labeling.
 
-By using "redhat", "debian", "gentoo", and "suse" as flag macros we are 
-essentially making them reserved words.  I think that the most practical 
-solution to this problem is to use "USING_REDHAT" etc as the flag macros.  
-The chance of someone wanting a user role named USING_REDHAT_r is quite low, 
-while the incidence of people wanting a redhat_r role is much higher.
+> Hmmm, odd.  Are you logging in as root?
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_DVYJBlADMYWP0av
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="distro.tun"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="distro.tun"
-
-# Distro-specific customizations.
-
-# Comment out all but the one that matches your distro.
-# The policy .te files can then wrap distro-specific customizations with
-# appropriate ifdefs.
+No, the program is only to /usr/sbin installed because it uses some functions which are only to priviliged peoples related, I think.
 
 
-dnl define(redhat, `redhat')
+I've created policies all the time ;-) but nothing right was coming out! I've still the same problem, that I can't allow the user_t capabilities, without edeting the uesr.te files! It would be great, if I only have to edit the scponly-policy-files. I think all permissions for the program should go there.
 
-dnl define(suse, `suse')
+Here is on of my tries:
 
-dnl define(gentoo, `gentoo')
+# domains/program/scponly.te
+type scponly_t, domain, privowner;
+type scponly_exec_t, file_type, exec_type, sysadmfile;
 
-dnl define(debian, `debian')
+domain_auto_trans(user_t, scponly_exec_t, scponly_t)
+domain_auto_trans(sysadm_t, scponly_exec_t, scponly_t)
 
---Boundary-00=_DVYJBlADMYWP0av--
+role user_r types scponly_t;
+role sysadm_r types scponly_t;
+
+ifdef(`ssh.te',`
+allow sshd_t scponly_exec_t:file { getattr execute read };
+allow user_t scponly_exec_t:file { entrypoint };
+')
+
+ifdef(`user.te',`
+allow user_t:capability { dac_override dac_read_search };
+domain_auto_trans(user_t, scponly_exec_t, scponly_$1_t);
+')
+
+
+I thought with a domain_auto_trans the problem should get fixed, but the output from avc is still the same.
+
+audit(1092988519.353:0): avc:  denied  { dac_override } for  pid=7088 exe=/usr/sbin/scponlyc capability=1 scontext=test:user_r:user_t tcontext=trade:user_r:user_t tclass=capability
+audit(1092988519.353:0): avc:  denied  { dac_read_search } for  pid=7088 exe=/usr/sbin/scponlyc capability=2 scontext=test:user_r:user_t tcontext=trade:user_r:user_t tclass=capability
+
+
+Any hints, tipps or related policy-files would be great! ;-)
+
+
+ciao, Stefan
+
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBJa/0UEn3BeoPvtwRApWaAJ9/dIZOnUDQ+y0BO8CLgk+5kfARVgCfTuKx
+wuHOdxY1ESCDdp9zrc0PA2g=
+=VOYs
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
