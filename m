@@ -1,54 +1,60 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA21792
-	for <selinux@tycho.nsa.gov>; Sun, 9 Dec 2001 00:18:18 -0500 (EST)
-From: lonnie@outstep.com
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA25307
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2001 09:59:42 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id FAA05265
-	for <selinux@tycho.nsa.gov>; Sun, 9 Dec 2001 05:17:37 GMT
-Received: from mail.outstep.com (a904j637.tower.wayne.edu [141.217.140.65])
-	by jazzband.ncsc.mil  with ESMTP id FAA05261
-	for <selinux@tycho.nsa.gov>; Sun, 9 Dec 2001 05:17:36 GMT
+	by jazzband.ncsc.mil  with ESMTP id OAA28000
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2001 14:59:01 GMT
+Received: from angusbay.vnl.com ([194.46.8.33])
+	by jazzband.ncsc.mil  with ESMTP id OAA27996
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2001 14:59:00 GMT
+Date: Mon, 10 Dec 2001 15:05:38 +0000
+From: Dale Amon <amon@vnl.com>
 To: selinux@tycho.nsa.gov
-Subject: User Level Security Policies
-Message-ID: <1007874114.3c12f042364c3@mail.outstep.com>
-Date: Sun, 09 Dec 2001 00:01:54 -0500 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Selecting build target root path
+Message-ID: <20011210150538.GD22266@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello All,
+The discussion came up earlier wrt Debian dist paths.
+I'd like to generalize the discussion and suggest
+that all the selinux Makefiles have as their default
 
-Hope that you are all doing well today.
+	ROOT=/usr/local
+	LSMDIR=../../lsm
+	MODDIR=../../selinux/module
+	FLASKDIR=$ROOT/selinux/flask
+	INCDIR=$ROOT/selinux/include
+	BINDIR=$ROOT/selinux/bin
 
-I am new to this list and have looked briefly over the archives regarding 
-suppoer for Redhat 7.2 and see that SELinux does not yet support it.
+This actually a very common way of doing things so that
+you can do things like:
 
-I have two question that I hope someone could please answer for me, ok.
+	* build for a target machine:
+		make ROOT=/usr/src/MyTargetRoot install
 
-First the easy one.
-1.) Is there some estimation as to when RH 7.2 might be supported?
+	* build for a local host or a tgz install:
+		make install
 
-Now the harder one.
-2.) We have been looking at various security methods such as "restricted 
-shells", "chroot", etc... to find a method of locking a user into their HOME 
-directory. While this may sound a little restrictive, the current special 
-project that we are working on required that we allow the user to login via kdm 
-after which a simple window manager (fvwm95) would be started and then the user 
-could select an application to run.
+	* build it for a debian package:
+		make ROOT=/usr install
 
-The catch is that the user would really never have a shell available to them 
-and only be able to run one of the applications that we have pre-configured for 
-them. 
+	* build it for a chrooted test
+		make ROOT=/testroot install
 
-Also, we would like to prevent the user from navigating out of their HOME 
-directory at all times.
+I find a need for all of these procedures at one time
+or another, and I notice it in particular now because
+I'm building an selinux that I'm not going to install
+on the machine doing the building... so I'll have to
+modify the Makefile to do the above.
 
-My question is "Can SELinux implement these types of security policies for our 
-needs?"
-
-Best Regards,
-Lonnie Cumberland
+-- 
+------------------------------------------------------
+    Nuke bin Laden:           Dale Amon, CEO/MD
+  improve the global          Islandone Society
+     gene pool.               www.islandone.org
+------------------------------------------------------
 
 --
 You have received this message because you are subscribed to the selinux list.
