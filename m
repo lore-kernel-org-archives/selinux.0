@@ -1,51 +1,61 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8337cLa021687
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 23:07:38 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h83366pQ007760
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 03:06:06 GMT
-Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
-	by jazzswing.ncsc.mil  with ESMTP id h83365QX007757
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 03:06:06 GMT
-Subject: Re: Enable SELinux via boot parameter
-From: Chris PeBenito <pebenito@gentoo.org>
-To: James Morris <jmorris@redhat.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <Pine.LNX.4.44.0309021942550.11746-100000@thoron.boston.redhat.com>
-References: 
-	 <Pine.LNX.4.44.0309021942550.11746-100000@thoron.boston.redhat.com>
-Content-Type: text/plain
-Message-Id: <1062558452.1838.52.camel@chris.pebenito.net>
-Mime-Version: 1.0
-Date: Tue, 02 Sep 2003 22:07:32 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h835nCLa022744
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 01:49:13 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h835nBet017552
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 05:49:12 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h835n9lq017546 for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2003 05:49:10 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@epoch.ncsc.mil>,
+   Nick Davis <nicholas-davis@utulsa.edu>
+Subject: Re: glibc rpm install error
+Date: Wed, 3 Sep 2003 15:49:17 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <3F54CF05.8050608@utulsa.edu> <1062523542.18568.130.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1062523542.18568.130.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200309031549.17859.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-There is one thing I don't like about this.  SELinux should be by
-default on.  You should have to specify that its disabled, rather than
-the opposite.  In general if people are compiling their own kernels, and
-they want SELinux, they'll want it enabled by default, and shouldn't
-need to specify extra kernel parameters.  The distributions shipping one
-single kernel is more of a special case.
+On Wed, 3 Sep 2003 03:25, Stephen Smalley wrote:
+> On Tue, 2003-09-02 at 13:10, Nick Davis wrote:
+> > Error: %postun(glibc-2.3.2-27.9.selinux.0) scriptlet failed, exit status
+> > 121
+> >
+> >  From that point on, any command I run gives a Segmentation Fault.  I
+> > tried installing the glibc RPMs last, after all of the other utils, but
+> > the same thing happens.
+> >
+> > Has anyone run into this problem before, or have an idea on what the
+> > problem might be?
+>
+> Yes.  The problem isn't specific to SELinux; it also occurs when
+> installing the original RHL errata RPMs if you install the i386 glibc on
 
-I think this is one that should be left up to distributions to patch in
-themselves.
+There are also other potential problems.
 
-On Tue, 2003-09-02 at 18:46, James Morris wrote:
-> This patch against 2.6.0-test4 adds an 'selinux' boot parameter which must 
-> be used to actually enable SELinux.  It has been sent to Andrew Morton and 
+When I tried compiling that for Debian I got the same result (of everything 
+SEGV'ing) even though Debian does not have CPU optimised versions of glibc.
 
-> Without specifying selinux=1 as a boot parameter, SELinux will not
-> register with LSM and selinuxfs will not be registered as a filesystem.  
+There must have been some subtle difference between my compiler and that which 
+was used to originally build libc6, because I could not build one that worked 
+in any reasonable amount of time.
+
+If programs such as newrole etc are statically linked then you can get by 
+without the patched libc6, and I'm planning to wait for it to get into the 
+standard package (I've already spent excessive time fiddling with it).
 
 -- 
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer, SELinux
-Hardened Gentoo Linux
- 
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
-Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
