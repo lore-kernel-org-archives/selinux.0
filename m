@@ -1,35 +1,68 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA10500
-	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2001 05:11:38 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id KAA07613
-	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2001 10:10:59 GMT
-Received: from unirel.unirel.it (unirel.unirel.it [194.91.224.65])
-	by jazzband.ncsc.mil  with ESMTP id KAA07609
-	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2001 10:10:56 GMT
-Received: from there ([10.1.1.2])
-	by unirel.unirel.it (8.11.2/linuxconf) with SMTP id fANAAHL25950
-	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2001 11:10:17 +0100
-Message-Id: <200111231010.fANAAHL25950@unirel.unirel.it>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Giovanni Mugnai <giovanni@unirel.it>
-To: selinux@tycho.nsa.gov
-Subject: Security policies change prevention!
-Date: Fri, 23 Nov 2001 11:13:15 +0100
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA12369
+	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2001 21:27:45 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id CAA12479
+	for <selinux@tycho.nsa.gov>; Sat, 24 Nov 2001 02:27:24 GMT
+Received: from smacky.thistledown.org ([207.121.1.137])
+	by jazzswing.ncsc.mil  with ESMTP id CAA12475
+	for <selinux@tycho.nsa.gov>; Sat, 24 Nov 2001 02:27:23 GMT
+Received: from localhost (olmy@localhost)
+	by smacky.thistledown.org (8.11.2/8.11.2) with ESMTP id fAO2UD927164
+	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2001 21:30:13 -0500
+Date: Fri, 23 Nov 2001 21:30:13 -0500 (EST)
+From: jeff burson <olmy@thistledown.org>
+To: <selinux@tycho.nsa.gov>
+Subject: selinux, openssh, ipv6
+In-Reply-To: <3BFCD537.8080100@namesys.com>
+Message-ID: <Pine.LNX.4.33.0111232052040.26754-100000@smacky.thistledown.org>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have begun reading about selinux lately, i have read the security policy 
-configuration could be changed at runtime by the security_load_policy call.
-I would like to know if it's possible to prevent from security policy 
-configuration runtime changes, e.g. by a suitable kernel configuration, and 
-where i could read something about.
 
-thanks
+Hello,
 
-Giovanni Mugnai, UniRel 
+I've recently installed selinux on my rh7.1 system using the
+full lsm-selinux-200110161355 tarball (opt.1). I'm playing
+around with it, learning the system, exploring, etc.
+
+First, my congratulations and gratitude to those who have
+put this together: a VERY impressive system (and one of the
+best documented installs of an open-source OS security system
+I've run across).
+
+A problem I've run into is regarding IPv6. At lsm kernel compile
+time, I compiled for IPv6 support and having it successfully
+running. The interface is listening on an assigned IPv6
+address and is pingable from another IPv6 device. However,
+the selinux install of OpenSSH does not appear to be listening
+on the IPv6 address (it is listening on the IPv4 address).
+
+I have not run into this problem with manual builds (or rpms)
+of regular openssh recently, so am trying to figure out what's
+wrong.
+
+here's the relevant output from configure:
+
+struct sockaddr_in6... (cached) yes
+checking for struct in6_addr... (cached) yes
+checking for ut_addr_v6 field in utmp.h... (cached) yes
+checking for ut_addr_v6 field in utmpx.h... (cached) yes
+checking if we need to convert IPv4 in IPv6-mapped addresses... yes
+(default)
+      Use IPv4 by default hack: no
+       Translate v4 in v6 hack: yes
+
+
+Any ideas or suggestions?
+
+jeff
+
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
