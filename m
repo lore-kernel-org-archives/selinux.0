@@ -1,41 +1,55 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h38CSLI4020530
-	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 08:28:21 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h38CtnI4020689
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 08:55:49 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h38COdOv009238
-	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 12:24:40 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h38Cq8Ov010820
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 12:52:08 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h38COdY1009235
-	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 12:24:39 GMT
-Subject: Re: NTFS / bitkeeper problem
+	by jazzswing.ncsc.mil  with ESMTP id h38Cq8Y1010817
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 12:52:08 GMT
+Received: from moss-huskers.epoch.ncsc.mil (moss-huskers [144.51.25.140])
+	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h38Ctku1011354
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 08:55:46 -0400 (EDT)
+Subject: Re: ptrace flaw
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: ccallen <ccallen@windowpane.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <001d01c2fd77$1721c5a0$398314d1@windowpane.com>
-References: <001d01c2fd77$1721c5a0$398314d1@windowpane.com>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: 08 Apr 2003 08:28:31 -0400
-Message-Id: <1049804912.1606.23.camel@moss-huskers.epoch.ncsc.mil>
+Date: 08 Apr 2003 08:56:00 -0400
+Message-Id: <1049806561.1606.29.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-04-07 at 22:32, ccallen wrote:
-> I kicked off bitkeeper with "bk clone bk://lsm.bkbits.net:lsm-2.5", it made
-> it as far as "include/linux/netfilter_ipv4/SCCS/s.ipt_dscp.h" and displayed
-> the message below. Is it going to be impossible to clone the repository to
-> NTFS, or is there a way to do this? I could put my linux machine online, but
-> I wanted to get selinux configured first.
+Stephen Smalley wrote:
+> As some of you may have already noticed, Alan Cox has posted a patch
+> for a flaw in ptrace in the Linux 2.4 kernel to the linux-kernel
+> mailing list.  See
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=104791735604202&w=2.
+> That patch has been merged into the sourceforge lsm-2.4 CVS tree, along
+> with a corresponding change to the SELinux kernel code.
 
-Sorry, I don't know if there is a workaround for the lack of case
-sensitivity in NTFS.  
+Hi all,
 
-> Is the Mainline 2.5 basically the same thing as the lsm-2.5 bits, just
-> cleaned up in preperation for release with the kernel?
+Just for your information, the patch for the ptrace flaw in the base
+Linux kernel is _not_ included in the lsm-2.4 kernel tree or kernel
+patch in the new release.  Including the patch posted by Alan Cox for
+the ptrace flaw in our tree is not consistent with our usual practice,
+i.e.  only maintaining the LSM/SELinux patches in our tree, not
+committing other bug fix patches for the base kernel like the ptrace
+fix or the earlier ext3 fixes for 2.4.20 (until they happen to be
+picked up by mainline, e.g. when 2.4.21 is released).  As a reminder,
+NSA SELinux is _not_ a Linux distribution (although one could certainly
+integrate it into a Linux distribution), and we simply track the
+mainline kernels with the LSM/SELinux patches.
 
-No, there are fairly major changes taking place as part of preparing
-SELinux for submission to mainline 2.5, as described in the
-selinux-2.5/README file, and this is still a work in progress.  
+At present, the patch for the ptrace flaw is merged into the
+sourceforge CVS tree, since I merged it when Alan posted it without
+thinking about the fact that doing so wasn't really consistent with our
+usual practice.  I'd prefer to remove it from the sourceforge CVS tree
+for consistency with our release, but am open to being argued into
+waiting until 2.4.21 is merged, at which point the patch will be included
+as part of the base kernel.
+
 
 
 
