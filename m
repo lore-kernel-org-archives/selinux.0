@@ -1,92 +1,69 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2ALtFDo004325
-	for <selinux@tycho.nsa.gov>; Thu, 10 Mar 2005 16:55:15 -0500 (EST)
-Message-ID: <4230C076.9000905@redhat.com>
-Date: Thu, 10 Mar 2005 16:47:34 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: jwcart2@epoch.ncsc.mil
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: ***SPAM*** Re: Latest policy
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2AMBrDo004447
+	for <selinux@tycho.nsa.gov>; Thu, 10 Mar 2005 17:11:53 -0500 (EST)
+Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2AM4ITk001138
+	for <selinux@tycho.nsa.gov>; Thu, 10 Mar 2005 22:04:18 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 10 Mar 2005 23:06:47 +0100
+Date: Thu, 10 Mar 2005 23:06:46 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: James Carter <jwcart2@epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Latest policy
+Message-Id: <20050310220646.GC5242@thorium.jmh.mhn.de>
 References: <422E893D.1020802@redhat.com> <1110489782.662.15.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
 In-Reply-To: <1110489782.662.15.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Carter wrote:
 
->Merged.
->
->I did notice that some of the changes to use read_sysctl() replaced
->statements like:
->allow foo_t sysctl_kernel_t:file r_file_perms;
->allow foo_t sysctl_kernel_t:dir r_dir_perms;
->instead of ones like:
->allow foo_t sysctl_kernel_t:dir search;
->allow foo_t sysctl_kernel_t:file read;
->This was the case for the following: fsadm.te, backup.te, clamav.te,
->gatekeeper.te, lvm.te, named.te, and clamav_macros.te.
->
->I didn't notice any problems though, so maybe they didn't need those
->permissions.
->
->  
->
-Yes I have not heard any complaints about this yet.
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->Do we need to add this?
->cy-1.21.15/file_contexts/program/nrpe.fc
->--- nsapolicy/file_contexts/program/nrpe.fc	2005-02-24 14:51:09.000000000 -0500
->+++ policy-1.21.15/file_contexts/program/nrpe.fc	2005-03-07 09:36:55.000000000 -0500
->@@ -1,3 +1,5 @@
-> # nrpe
-> /usr/bin/nrpe		--	system_u:object_r:nrpe_exec_t
-> /etc/nagios/nrpe\.cfg	--	system_u:object_r:nrpe_etc_t
->+/usr/lib(64)?/netsaint/plugins(/.*)?	--	system_u:object_r:bin_t
->+/usr/lib(64)?/nagios/plugins(/.*)?	--	system_u:object_r:bin_t
->
->  
->
-This is probably me missing a removal, since I have done nothing with 
-nrpe.   So eliminate this.
+* James Carter <jwcart2@epoch.ncsc.mil> [2005-03-10 22:39]:
+> Do we need to add this?
+> cy-1.21.15/file_contexts/program/nrpe.fc
+> --- nsapolicy/file_contexts/program/nrpe.fc	2005-02-24 14:51:09.000000000=
+ -0500
+> +++ policy-1.21.15/file_contexts/program/nrpe.fc	2005-03-07 09:36:55.0000=
+00000 -0500
+> @@ -1,3 +1,5 @@
+>  # nrpe
+>  /usr/bin/nrpe		--	system_u:object_r:nrpe_exec_t
+>  /etc/nagios/nrpe\.cfg	--	system_u:object_r:nrpe_etc_t
+> +/usr/lib(64)?/netsaint/plugins(/.*)?	--	system_u:object_r:bin_t
+> +/usr/lib(64)?/nagios/plugins(/.*)?	--	system_u:object_r:bin_t
+>=20
+> These same statements are also in nagios.fc
 
->These same statements are also in nagios.fc
->
->
->On Wed, 2005-03-09 at 00:27 -0500, Daniel J Walsh wrote:
->  
->
->>Lots of policy cleanup via Ivan's Patches
->>       Use read_sysctl
->>       Cleanup of homedir macros
->>      
->>Fixes to allow amanda to read file system
->>
->>Change apache stream sockets to use create_stream_socket_perms
->>
->>Eliminate cyrus_r
->>
->>Cleanup dhcpc.te so it can be used in targeted policy
->>
->>Add ftpd_anon_rw_t so that upload can be made to work with anonymous ftp 
->>sites.
->>
->>Additional rules to allow postfix to work correctly in targeted policy
->>
->>Allow snmpd to communicate with its own fifo_file
->>
->>    
->>
->
->
->  
->
+Probably yes. Both nagios and nrpe want to execute these plugins, but
+they are independent from each other (need not be installed on the same
+machine).
 
+Thomas
 
--- 
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
+--YiEDa0DAkWCtVeE4
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCMMT2D9qpeVMU938RAtiFAJ98QKfv6jvmzCFeXSLx67ntMGMRdQCcCS/n
+qudhVtjaN1NlT+16dQyd1FI=
+=lJO0
+-----END PGP SIGNATURE-----
+
+--YiEDa0DAkWCtVeE4--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
