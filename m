@@ -1,31 +1,32 @@
-Subject: Re: Logrotate, ssh_agent - read selinux_config_t
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, selinux@tycho.nsa.gov
-In-Reply-To: <424C56C9.60603@redhat.com>
-References: <1112295975.12948.72.camel@cobra.ivg2.net>
-	 <1112295549.11216.162.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112298109.12948.80.camel@cobra.ivg2.net>
-	 <1112297844.11216.178.camel@moss-spartans.epoch.ncsc.mil>
-	 <424C56C9.60603@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2VKIpDo028947
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 15:18:51 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2VKHTiv008828
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 20:17:29 GMT
+Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j2VKHNB9020377
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 15:17:23 -0500 (EST)
+Subject: userhelper + xauth files - staff vs sysadm
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 31 Mar 2005 14:58:34 -0500
-Message-Id: <1112299114.11216.183.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 31 Mar 2005 15:23:34 -0500
+Message-Id: <1112300614.12948.98.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-03-31 at 15:00 -0500, Daniel J Walsh wrote:
-> logrotate patch is fixed, will be in tomorrow's build.  I believe 
-> logrotate will need to read these files,
-> not sshd. 
+userhelper (staff_userhelper_t) and xauth (staff_xauth_t) 
+fail to create/delete/write .xauth files under /root 
+when I try to run the system-config-* tools.
 
-If the patch is fixed, then logrotate shouldn't need access
-to /etc/selinux/config or the policy paths either.
+What should be done?
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
