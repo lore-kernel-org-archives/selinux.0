@@ -1,53 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9K3ZIi015593
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 15:03:36 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9K3dEj007841
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 20:03:39 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9K2wIi015576
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 15:02:58 -0500 (EST)
+Received: from web50204.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id iB9K1LPS021178
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 20:01:21 GMT
+Message-ID: <20041209200301.59535.qmail@web50204.mail.yahoo.com>
+Date: Thu, 9 Dec 2004 12:03:00 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: Single home directory type for all roles.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Colin Walters <walters@redhat.com>, SELinux ML <selinux@tycho.nsa.gov>,
+To: Russell Coker <rcoker@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux list <selinux@tycho.nsa.gov>,
    Joshua Brindle <jbrindle@snu.edu>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   Russell Coker <rcoker@redhat.com>, Nalin Dahyabhai <nalin@redhat.com>
-In-Reply-To: <41B8A9BF.2080405@redhat.com>
-References: <20041207000805.GH3678@jmh.mhn.de>
-	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
-	 <41B8826D.30105@redhat.com>
-	 <1102613299.10785.21.camel@nexus.verbum.private>
-	 <41B8A9BF.2080405@redhat.com>
-Content-Type: text/plain
-Message-Id: <1102622320.32175.230.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Thu, 09 Dec 2004 14:58:40 -0500
+   Colin Walters <walters@redhat.com>, Nalin Dahyabhai <nalin@redhat.com>
+In-Reply-To: <1102615951.4509.50.camel@aeon>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-12-09 at 14:38, Daniel J Walsh wrote:
-> Currently few people use staff, because user can do everything staff can 
-> do so you are not protected by this protection.
-> You also do not protect yourself from staff users attacking other staff 
-> users.
 
-Few Fedora SELinux users use staff_r because user_canbe_sysadm is
-enabled by default in the Fedora policy.  Disable it, and they'll start
-using staff_r, because they will have to do so.  Colin has separation
-between staff_r and user_r if he has disabled that tunable, which I
-expect he has.  As for staff vs. staff, SELinux can only separate
-different security contexts; otherwise, you are relying on DAC (of
-course, SELinux does control the Linux capabilities, so your ability to
-override DAC controls can be limited by SELinux).
+--- Russell Coker <rcoker@redhat.com> wrote:
 
-If you disabled user_canbe_sysadm, and provided integrated user
-management so that people could update their policy users configuration
-(whether via policy sources or using genpolusers) easily when they
-update their regular users databases, then you'd see greater use of
-staff_r.
+> The problem with such a change is that it interferes
+> with the operation
+> of "ls -l /tmp" (which is IMHO a fairly important
+> operation for a system
+> administrator).  I can imagine a situation where one
+> user is trying a
+> race condition against another user but the
+> administrator doesn't notice
+> because "ls -l /tmp" doesn't display full
+> information.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I apologize in advance for missing any discussions
+regrading /tmp over the past year or so. ...
 
+In the U2X world the issue of /tmp was solved
+using a variety of implementations of "moldy"
+directories. An attribute (in some cases a seperate
+file type) was used that identified certain
+directories, /tmp in particular, as moldy. The lookup
+processing was modified such that when a moldy
+directory is encountered an additional path component
+based on the process's label is inserted, as:
+
+    /tmp becomes /tmp/<labelname>
+
+and then resolution continues. A process with a
+"moldy" attribute of it's own is does not have the
+additional component added, addressing the admin
+issue. Some systems created the subdirectories on
+reference, others required it be done
+administratively. There are similar tricks that
+can be played with variable symlinks.
+
+
+=====
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - 250MB free storage. Do more. Manage less. 
+http://info.mail.yahoo.com/mail_250
 
 --
 This message was distributed to subscribers of the selinux mailing list.
