@@ -1,52 +1,55 @@
-Subject: Re: dynamic context transitions
+Subject: Re: Configuring kernel module for labeling ...
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: Frank Mayer <mayerf@tresys.com>,
-   "'Darrel Goeddel'" <dgoeddel@TrustedCS.com>,
-   SELinux List <SELinux@tycho.nsa.gov>,
-   "'Chad Hanson'" <chanson@TrustedCS.com>
-In-Reply-To: <1099417155.23756.112.camel@pham.columbia.tresys.com>
-References: <000501c4bf9b$a157d2e0$6701a8c0@columbia.tresys.com>
-	 <1099316236.21386.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <4186DCE7.9030401@tresys.com>
-	 <1099409596.31739.150.camel@moss-spartans.epoch.ncsc.mil>
-	 <1099417155.23756.112.camel@pham.columbia.tresys.com>
+To: jsingh@ensim.com
+Cc: Russell Coker <russell@coker.com.au>, nsa <SELinux@tycho.nsa.gov>
+In-Reply-To: <1099417545.12370.21.camel@jsingh>
+References: <1099385154.11681.3.camel@jsingh>
+	 <200411030323.16648.russell@coker.com.au>
+	 <1099417545.12370.21.camel@jsingh>
 Content-Type: text/plain
-Message-Id: <1099418564.31739.208.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1099420134.31739.250.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 02 Nov 2004 13:02:44 -0500
+Date: Tue, 02 Nov 2004 13:28:54 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-11-02 at 12:39, Karl MacMillan wrote:
-> Also,
-> where would you put the trust boundaries if not at process boundries? Is
-> it possible to truly reduce the trust between two sections of code in
-> the same process image? [these are not rhetorical questions - I'm really
-> asking for some clarification]
+On Tue, 2004-11-02 at 12:45, Jaspreet Singh wrote:
+> > Your problem is that the filesystem has type unlabeled_t.
+> 
+> How can i change that ???
 
-I agree that the trust boundary has to be at the process boundary.  What
-I was saying is that merely re-factoring your application code into
-multiple helpers doesn't necessarily establish a real barrier to
-arbitrary mis-use of the helpers by the calling application.  You have
-to think carefully about the interface between them.  Of course, if they
-aren't separate processes, then that interface is obviously arbitrarily
-wide and uncontrolled, as you say.
+I think you already handled that problem by defining a fs_use entry for
+the filesystem type.
 
-> I don't think
-> that it is necessarily the case that it is worse to run in a domain with
-> the maximal set of permissions. What are the real benefits to converting
-> samba, for example, to use dynamic context transitions instead of making
-> it a user-space object manager? It doesn't seem to reduce the amount of
-> trust placed in samba, but I may be missing something.
+> One interesting thing was .. whenever i used to change xattrs of a
+> directory of the underlying filesys directly using
+> dentry->d_inode->i_op->setxattr the selinux used to refuse any
+> type_transitions for any file creating in that changed directory.
+> Although the xattrs of the dir used to be perfect.
 
-The amount of trust placed in samba is the same, but the dynamic context
-transition allows the kernel to handle the mediation directly and
-atomically with respect to the file access.  Otherwise, you have to
-duplicate the checking in samba (which will still ultimately get the
-decisions from the kernel via selinuxfs) and deal in some way with race
-conditions.  Keep in mind that we are talking about user-writable
-directories that are being exported by samba.
+Yes, this makes sense.  SELinux gets the xattr when the inode is
+attached to a dentry, maps it to a SID, and caches that SID in the
+incore inode.  Note that fs/xattr.c:setxattr() calls a
+security_inode_post_setxattr() hook function upon successful setting of
+the attribute to tell SELinux to update its incore inode SID as well. 
+You need to do likewise.
+
+> How can i check if the inode is exposing itself correctly or not ..
+> given the fact .. everything appears to be fine with unconfined_t and
+> problematic with httpd_t :-(
+
+Possibly a permissions problem, e.g. if your stacked filesystem calls
+VFS functions that internally trigger security hook calls, it may run
+afoul of a SELinux permission check (which will be performed against the
+current process context) and possibly denied to httpd_t while allowed to
+unconfined_t, thereby preventing further progress in setting up the
+state.
+
+Also, stacked filesystems might be a problem in general, as SELinux is
+initializing the inode security state upon d_instantiate.  Natural
+question is when does it perform the d_instantiate upon the underlying
+inode vs. the virtual one?  And when does it copy state like the mode
+from the underlying inode to the virtual one?
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
