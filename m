@@ -1,58 +1,38 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0G1rmIi010164
-	for <selinux@tycho.nsa.gov>; Sat, 15 Jan 2005 20:53:54 -0500 (EST)
-Date: Sat, 15 Jan 2005 19:53:32 -0600
-From: Greg Norris <haphazard@kc.rr.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <selinux@tycho.nsa.gov>,
-   Ingo Molnar <mingo@elte.hu>
-Subject: Re: lots of execmem failures with 2.6.10
-Message-ID: <20050116015332.GA9811@yggdrasil.localdomain>
-References: <20050112112630.GA12730@yggdrasil.localdomain> <1105541256.22495.57.camel@moss-spartans.epoch.ncsc.mil> <20050113030755.GA24828@yggdrasil.localdomain>
+Received: from jazzdrum.ncsc.mil ([144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0GIG9Ii012163
+	for <selinux@tycho.nsa.gov>; Sun, 16 Jan 2005 13:16:09 -0500 (EST)
+Received: from hotmail.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0GIGBXU022966
+	for <selinux@tycho.nsa.gov>; Sun, 16 Jan 2005 18:16:11 GMT
+Message-ID: <BAY101-F18255CE2DCD9B803428707B48D0@phx.gbl>
+From: "Albretch Mueller" <lbrtchx@hotmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Java and SELinux
+Date: Sun, 16 Jan 2005 18:15:54 +0000
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-In-Reply-To: <20050113030755.GA24828@yggdrasil.localdomain>
+Content-Type: text/plain; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I have been reading about SELinux, how to design a Trusted Computing Base 
+(TCB) with it and the difficulties of setting up an OS-based ruled based 
+security framework to control 'virtual machines' which basically take much 
+of the responsibilities of a TCB off the Operating System.
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am more of an application developer kind of guy, but contrary to people's 
+opinions I think you can indeed make SELinux and the JVM dance together 
+pretty nicely, even better than regular OS-based applications since you 
+would be instead of one, actually two walls by:
 
-On Wed, Jan 12, 2005 at 09:07:55PM -0600, Greg Norris wrote:
-> The difference is caused by the former box getting the "coreutils"
-> package (and a handful of others) from Russell's SELinux archive, which=
-=20
-> I guess has gotten somewhat out of date.  I'll try rebuilding the=20
-> relevant packages over the next few days, and see if that resolves my=20
-> problem... if so, I'll post the updated packages under=20
-> "http://people.debian.org/~adric/".
+1._ actually using java security policies within the JVM
 
-I've built a SELinux-enabled coreutils 5.2.1 package for Debian, and I'm
-happy to report that it does indeed resolve my issue.  I want to do a
-bit more testing before making the package generally available (I just
-rebooted to 2.6.10 about 15 minutes ago), but I'll upload it either
-tomorrow or Monday if no show-stoppers turn up.
+2._ constraining all native calls from the JVM to the actual OS through 
+SELinux
 
-Thanx again for your help!
+I find this straightforward and doable with much difficulty or . . . what is 
+it I am missing here?
 
 
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB6ckcgrEMyr8Cx2YRAgDxAKCxxlRTyqByDrR+PLJE4P5yPW3yRACgr4I0
-gq3so962BCVJRKRiDDAonqY=
-=RjrK
------END PGP SIGNATURE-----
-
---J/dobhs11T7y2rNN--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
