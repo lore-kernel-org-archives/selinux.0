@@ -1,40 +1,45 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA06078
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 07:05:40 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA06149
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 07:11:42 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA19343
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:03:46 GMT
+	by jazzswing.ncsc.mil  with ESMTP id MAA19651
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:09:48 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id MAA19338
-	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:03:45 GMT
-Date: Thu, 31 Oct 2002 07:05:12 -0500 (EST)
+	by jazzswing.ncsc.mil  with ESMTP id MAA19647
+	for <selinux@tycho.nsa.gov>; Thu, 31 Oct 2002 12:09:48 GMT
+Date: Thu, 31 Oct 2002 07:11:29 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: Chris Wright <chris@wirex.com>
-cc: James W Carter <jwcart2@epoch.ncsc.mil>, <linux-security-module@wirex.com>,
-        <selinux@tycho.nsa.gov>
+To: Greg KH <greg@kroah.com>
+cc: <selinux@tycho.nsa.gov>, <linux-security-module@wirex.com>
 Subject: Re: SELinux Kernel Oops
-In-Reply-To: <20021030152926.B8483@figure1.int.wirex.com>
-Message-ID: <Pine.GSO.4.33.0210310702140.23380-100000@raven>
+In-Reply-To: <20021030230034.GE3384@kroah.com>
+Message-ID: <Pine.GSO.4.33.0210310706350.23380-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 30 Oct 2002, Chris Wright wrote:
+On Wed, 30 Oct 2002, Greg KH wrote:
 
-> Hmm, this is an ugly one.  Primarily because it touches into the fs
-> specific code.  I don't see a good way to do this any differently aside
-> from introducing a wrapper like f_release that just conditionally calls
-> f->release and ->file_free_security...
+> Shouldn't you also fix SELinux to handle NULL security fields :)
 
-Yes, that would be straightforward.  Maybe a put_private_file function in
-fs/file_table.c that makes these two calls, analagous to fput?
+And how you would suggest that we handle them?  The old precondition
+approach was fundamentally flawed.  Failing closed (i.e. denying access)
+when the field is NULL will break normal operation.  Failing open (i.e.
+granting access) when the field is NULL opens a potential security
+vulnerability.
 
-> BTW, you missed the DTE instance of init_private_file.
+> And wouldn't the proliferation of different fs types in 2.5 make this
+> patch a bit bigger?
 
-Shouldn't matter, since DTE doesn't allocate or use a security field for
-file structures, and it can't be stacked with SELinux.
+It doesn't appear that init_private_file is used much at present; I don't
+know what the future plans are for it.  We covered every existing use in
+the mainstream 2.4 and 2.5 kernels.  If an out-of-tree kernel patch
+or module uses init_private_file, then we'll end up with an allocated
+security field that is never freed, but I'd rather have a leak than an
+Oops (and out-of-tree kernel patches and modules should naturally be
+audited before using them with SELinux or any other security module).
 
 --
 Stephen D. Smalley, NAI Labs
