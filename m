@@ -1,40 +1,37 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82DeIrT029031
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 09:40:18 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82DeGv0008974
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 13:40:17 GMT
-Subject: Re: what to do with matchpathcon on S_IFCHR, S_IFBLK, hard links
-	and fifos
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82Em2rT029645
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 10:48:02 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82ElC3w007537
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 14:47:13 GMT
+Subject: Re: Latest Patches
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040902134454.GC5745@lkcl.net>
-References: <20040901174909.GF4400@lkcl.net>
-	 <1094126565.17265.9.camel@moss-spartans.epoch.ncsc.mil>
-	 <20040902134454.GC5745@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200409022338.20644.russell@coker.com.au>
+References: <200408241818.40064.russell@coker.com.au>
+	 <41371628.2020408@redhat.com>
+	 <1094130607.17265.47.camel@moss-spartans.epoch.ncsc.mil>
+	 <200409022338.20644.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1094132316.17265.53.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1094136369.17265.128.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 02 Sep 2004 09:38:36 -0400
+Date: Thu, 02 Sep 2004 10:46:09 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-09-02 at 09:44, Luke Kenneth Casson Leighton wrote:
->  okay, second question, if i may.
-> 
->  if i have set up file contexts on some files in a temporary
->  directory (of course, using matchpathcon to set the context
->  of where the file is _going_ to be not where it _is_), then
->  will the "/bin/mv" command preserve those file contexts
->  even across filesystem boundaries - without any extra arguments?
+On Thu, 2004-09-02 at 09:38, Russell Coker wrote:
+> Also something to note is that we really don't want to use this when producing 
+> a file_contexts file for distributing to other machines.  It would be likely 
+> to grant inappropriate access to block devices.
 
-With a SELinux-patched coreutils, yes; mv attempts to preserve the
-security context on the file even when moving across filesystem
-boundaries.  But it cannot always succeed, e.g. the filesystem may not
-support xattrs or the policy may deny access due to file create
-permission or filesystem associate permission.
-
+But with the current Makefile patch, this is precisely what will happen
+for anyone who does not have policy sources installed, right?  And last
+I checked, policy sources are only installed by explicit request, not by
+default.  Seems to require separate Makefile targets for local build vs.
+rpm build.
+  
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
