@@ -1,44 +1,35 @@
-Date: Fri, 5 Sep 2003 10:32:38 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: Diyab <diyab@diyab.net>
-Cc: Colin Walters <walters@verbum.org>, max barwell <maxb@paradise.net.nz>,
-   SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: libselinux.so: cannot open shared object file
-Message-ID: <20030905003238.GB23799@snoopy.apana.org.au>
-References: <1062637188.565.7.camel@orac.lite.net.nz> <1062690102.15712.16.camel@columbia> <3F57A7FA.8050806@diyab.net>
+Date: Sat, 6 Sep 2003 08:34:11 -0400
+From: Subba Rao <subba9@cablespeed.com>
+To: "NSA's SELinux" <SELinux@tycho.nsa.gov>
+Subject: Enterprise Linux and SELinux presentation
+Message-ID: <20030906123411.GI7359@cablespeed.com>
+Reply-To: Subba Rao <subba9@cablespeed.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3F57A7FA.8050806@diyab.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 04, 2003 at 05:00:42PM -0400, Diyab wrote:
-> >Hm, for some reason the binaries are getting linked against
-> >libselinux.so instead of libselinux.so.1.  I'll investigate this.  In
-> >the meantime it should be sufficient to install libselinux1-dev. 
-> 
-> Why not just link libselinux.so to libselinux.so.1 ?  That would at 
-> least temporarily fix the problem would it not?
+Hello everyone,
 
-I would assume that this is what the libselinux1-dev package does?
-(otherwise that might be the problem).
+I was wondering if anyone in this forum would be attending the Enterprise
+Linux conference in DC this year.  There is a presentation on SELinux at this
+conference and would like to look at the presentation.  The conference timing
+is conflicting with my vacation.  If anyone is attending this conference (in
+the DC Metro area) I would like to ask you for a copy of the SELinux
+presentation.
 
-I haven't seen the packages in question, but what normally happens
-(assuming this hasn't changed, I don't think it has):
+http://www.jupiterevents.com/elf/fall03/glance.html
 
-libselinux.so ---> libselinux.so.1   (symlink, for development)
-libselinux.so.1                      (shared library).
+Please let me know if anyone is will to do this request for me.  I live in
+Northern VA.
 
-You link against libselinux.so; The linker realizes that this points
-to libselinux.so.1, and encodes libselinux.so.1 into the resultant
-executable (and not libselinux.so).
-
-So you can run the programs with only libselinux.so.1 present, and
-libselinux.so is only needed for initial linking.
-
-What is the output of "ldd filename"?
+Thank you in advance.
 -- 
-Brian May <bam@snoopy.apana.org.au>
+Subba Rao
+subba9@cablespeed.com
+------------------------------------------------------------------------------
+Old American Wild West saying:       God created men but Colt made them equal.
+Today:                  Linus created Linux and Linux made IT companies equal.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
