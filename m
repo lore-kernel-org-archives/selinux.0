@@ -8,27 +8,24 @@ In-Reply-To: <1111675057.12486.39.camel@moss-spartans.epoch.ncsc.mil>
 References: <4242CABC.70400@redhat.com>
 	 <1111675057.12486.39.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 24 Mar 2005 09:44:06 -0500
-Message-Id: <1111675446.12486.41.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 24 Mar 2005 12:30:58 -0500
+Message-Id: <1111685458.13486.61.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Thu, 2005-03-24 at 09:37 -0500, Stephen Smalley wrote:
-> The concern with collapsing tmpfs_t and tmp_t together (and $1_tmpfs_t
-> and $1_tmp_t as well, to avoid type transition conflicts, which would
-> occur quite extensively with strict policy) is that it means that policy
-> can no longer distinguish between a domain's ability to act on /tmp
-> files versus its ability to act on shared memory objects (aside from the
-> additional controls on System V shared memory).  If everyone were using
-> tmpfs /tmp, that might be less of a concern, as a tmpfs file is
-> effectively a shared memory object too.  But if some people still want
-> to use a traditional /tmp, then they might care about the distinction.
+> For /tmp, a fscontext= mount seems to have an issue in that it is still
+> using type transitions for labeling inodes (including the root), so we
+> end up with mount_tmp_t on /tmp at least under strict policy.  Possibly
+> we could/should change the way that works for the root inode.
 
-The other point to note is that programs sometimes create /tmp files
-purely for private state with no intent of sharing it with anyone else,
-whereas they create shared memory objects for the purpose of sharing, so
-collapsing the two together in policy would prevent such distinctions.
+Possible workaround - mount with fscontext=, then run restorecon /tmp
+(not recursively, just on the top-level directory) from rc.sysinit.
+That would get us tmp_t on the superblock and tmp_t on the root
+directory.  Then you just need a few policy modifications like allow
+tmpfile_t tmp_t:filesystem associate;, and you still can perform
+[gs]etfilecon and setfscreatecon on the filesystem.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
