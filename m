@@ -1,89 +1,62 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA13962
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 12:10:13 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14260
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 12:36:00 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA13480
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:08:46 GMT
-Received: from og.latency.net (og.latency.net [209.123.200.27])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA13476
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:08:45 GMT
-Date: Thu, 11 Jan 2001 12:10:00 -0500
-From: Bennett Todd <bet@rahul.net>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: Stephen Smalley <sds@tislabs.com>, selinux@tycho.nsa.gov
-Subject: Re: IPSEC integration (was Re: SELinux and covert channels)
-Message-ID: <20010111120959.I21255@rahul.net>
-References: <200101111634.KAA82194@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="CDSQlumANh/CoDwR"
-In-Reply-To: <200101111634.KAA82194@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Thu, Jan 11, 2001 at 10:34:50AM -0600
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA14750
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:34:33 GMT
+Received: from deliverator.sgi.com (deliverator.sgi.com [204.94.214.10])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA14746
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:34:33 GMT
+Message-ID: <3A5DEEFB.6C988852@sgi.com>
+Date: Thu, 11 Jan 2001 09:35:55 -0800
+From: Casey Schaufler <casey@sgi.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tislabs.com>
+CC: Christoph Hellwig <hch@ns.caldera.de>, selinux@tycho.nsa.gov,
+        linux-privs-discuss@sourceforge.net
+Subject: Re: [Linux-privs-discuss] SELinux & Linux-privs projects
+References: <Pine.SOL.3.95.1010111111746.23465T-100000@clipper.gw.tislabs.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
+Stephen Smalley wrote:
 
---CDSQlumANh/CoDwR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> The POSIX.1e MAC tightly couples policy and enforcement because
+> it is designed for a particular kind of security policy.
+> It assumes a certain kind of security label.
 
-Sounds like you're thinking along the same lines I am.
+I don't know who told you that, but it certainly wasn't
+anyone who worked on the standard. The 1e MAC specification
+is explicitly devoid of any such assumptions. That's one
+reason there's no specification on Moldy directories, for
+example.
 
-Seems to me like there are a few very, very hard parts to this
-problem.
+> It assumes hierarchical relationships among labels.
 
-One is designing a database capable of flexibly representing the
-sort of permission and delegation relationships that show up in real
-organizations. That's a currently open problem, and I know lots of
-people are working on it. I kinda suspect by the time it gets
-solved, the other bits will be all lined up.
+It assumes that there are two relationships, equality
+and dominance, between labels. I can easily show labeling
+schemes which are cyclic, but which can be represented
+in terms of these relationships.
 
-Another piece to the puzzle is providing facilities for a
-centralized policy specification database to be consistently
-enforced with a single mechanism; it seems like it's within the
-bounds of possibility that selinux, with some suitable integration
-with ipsec, may possibly provide the needed mechanism.
+> It assumes that it is
+> sufficient to treat all operations as being read, write, or execute.
 
-I could believe that a PK database of some sort may provide the glue
-required to associate identities as specified in the above policy
-database with real entities. I'd be happier if it didn't look so
-likely that the PK database will end up being based on the
-ugliest-of-all-possible-worlds design X.509, but I suppose that can
-be lived with.
+That's because those are the only operations POSIX systems
+support! It's implicit in being a POSIX (DRAFT) standard.
 
-Another component I've been thinking about is more a piece of
-plumbing that'll be needed to make things work as they should,
-rather than a fundamentally separate security component. The fantasy
-of a fine-grained integration of ipsec security associations with
-fine-grained, user/app level security policy specification, implies
-that ipsec security associations are going to be coming up and going
-down in a very fluid fashion. It seems to me that making working
-distributed apps is going to end up requiring dynamic routing
-through these transient tunnels. I'm still pondering that one,
-though. On the one hand it seems like OSPF's dynamically
-self-configuring, multicast flooding nature would be the responsive
-and maintainable approach to desire; on the other hand it seems like
-BGP4's simplicity of running through straight TCP connections is
-more likely to actually _work_ over ipsec. I'm hoping that this new
-evolution won't require actually inventing another working dynamic
-routing protocol, but I've not yet gotten a really happy feeling
-about that question.
+> In order to support Type Enforcement or Role-Based Access
+> Control or other kinds of mandatory security, you are very likely
+> to need to change or at least recompile the file system code,
+> the networking code, etc.
 
--Bennett
+Yes, and?
 
---CDSQlumANh/CoDwR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-- 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6XejnHZWg9mCTffwRAgBTAJ9i0jCgrv9gaSABnnGXXu5GfTr/zwCfTK/K
-KjfPhkTU9PqHY0DYcmlIC6M=
-=VdaA
------END PGP SIGNATURE-----
-
---CDSQlumANh/CoDwR--
+Casey Schaufler				Manager, Trust Technology, SGI
+casey@sgi.com				voice: 650.933.1634
+casey_p@pager.sgi.com			Pager: 888.220.0607
 
 --
 You have received this message because you are subscribed to the selinux list.
