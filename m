@@ -1,57 +1,100 @@
-Date: Fri, 14 May 2004 22:30:20 -0500
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: policy questions and bugs
-Message-ID: <20040515033020.GA5060@balder>
+Subject: Re: policy questions and bugs
+From: Colin Walters <walters@verbum.org>
+To: Chris Grier <grier@uiuc.edu>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20040515033020.GA5060@balder>
+References: <20040515033020.GA5060@balder>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CduxR1q8OCPoRCnOpecR"
+Message-Id: <1084640772.10945.9.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-From: Chris Grier <grier@uiuc.edu>
+Date: Sat, 15 May 2004 13:06:13 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have a whole bunch of questions after reading the FAQ and some other
-random documents I found for selinux, here they are:
 
-The dpkg and rpm both have apt-get in their domain te files. fixfiles
-doesn't like having multiple contexts defined for a single file. This
-might be a bug.
+--=-CduxR1q8OCPoRCnOpecR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Why do dmesg redirections (such as root running dmesg > ~/output) cause
-an audit deny? I'm not sure this is a dmesg specific error, I think it
-might be a little more general for other redirections too. Here's the
-message:
+On Fri, 2004-05-14 at 23:30, Chris Grier wrote:
+> I have a whole bunch of questions after reading the FAQ and some other
+> random documents I found for selinux, here they are:
+>=20
+> The dpkg and rpm both have apt-get in their domain te files. fixfiles
+> doesn't like having multiple contexts defined for a single file. This
+> might be a bug.
 
-avc:  denied  { write } for  pid=1953 exe=/bin/dmesg path=/root/test
-dev=md0 ino=740514 scontext=root:system_r:dmesg_t
-tcontext=root:object_r:staff_home_t tclass=file
+Sounds like it, yes.
 
-When running some services, I would like them to run as a non root uid
-and gid (ircd and oidentd are the services which I usually do this
-with), which I normally do with su. When we do this with selinux
-running, we are prompted to enter a role and type (not select from a
-list). Is this just a matter of defining a transition to acommodate for
-this to happen?
+> Why do dmesg redirections (such as root running dmesg > ~/output) cause
+> an audit deny? I'm not sure this is a dmesg specific error, I think it
+> might be a little more general for other redirections too. Here's the
+> message:
+>=20
+> avc:  denied  { write } for  pid=3D1953 exe=3D/bin/dmesg path=3D/root/tes=
+t
+> dev=3Dmd0 ino=3D740514 scontext=3Droot:system_r:dmesg_t
+> tcontext=3Droot:object_r:staff_home_t tclass=3Dfile
 
-Why do normal users have the option of changing to sysadm? I don't
-particularly like this, and I could remove it, but I'm looking for the
-reasoning behind the default being like this.
+Under normal operation, the dmesg program doesn't need write access to
+your home directory.  Thus using the principle of least privilege, any
+write operations will be denied by the SELinux policy.
 
-What does this mean: 
+Allowing arbitrary redirections of program output through the shell, but
+denying otherwise is, I believe, not possible using SELinux currently.
 
-inode_doinit_with_dentry:  context_to_sid(system_u:object_r:apt_etc_t)
-returned 22 for dev=md0 ino=517610
+> When running some services, I would like them to run as a non root uid
+> and gid (ircd and oidentd are the services which I usually do this
+> with), which I normally do with su. When we do this with selinux
+> running, we are prompted to enter a role and type (not select from a
+> list). Is this just a matter of defining a transition to acommodate for
+> this to happen?
 
-This is a "new" error (as in, in the last couple hours of getting things
-going, I had not seen it). I'm not sure what happened to make this error
-start.
+You run "su" interactively from a root shell?  I'd suggest instead using
+init scripts. =20
 
-Last question for today, when creating my own fc and te files to build
-into the policy, is it safe to create them in the policy/src directory,
-or will future package updates simply overwrite them and kill all the
-stuff I'm writing? How about modifications of existing files in the
-policy source directory?
+> Why do normal users have the option of changing to sysadm?
 
--- 
-Chris Grier <grier@uiuc.edu>
+That's a Red Hat addition to the policy.
+
+>  I don't
+> particularly like this, and I could remove it, but I'm looking for the
+> reasoning behind the default being like this.
+
+Basically to make the SELinux experience more like a "normal" Linux
+system.
+
+> What does this mean:=20
+>=20
+> inode_doinit_with_dentry:  context_to_sid(system_u:object_r:apt_etc_t)
+> returned 22 for dev=3Dmd0 ino=3D517610
+
+That means that the context system_u:object_r:apt_etc_t is not defined
+in the policy.  Probably the apt_etc_t type got deleted somehow from
+your policy.
+
+> Last question for today, when creating my own fc and te files to build
+> into the policy, is it safe to create them in the policy/src directory,
+> or will future package updates simply overwrite them and kill all the
+> stuff I'm writing? How about modifications of existing files in the
+> policy source directory?
+
+Under Red Hat, they will be moved to .rpmsave, AIUI.
+
+
+--=-CduxR1q8OCPoRCnOpecR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBApk4EOIkJWWp2WGURAo01AJ9hANvRfe/QvyrjMYaJe0n8IMlEtgCfXBRJ
+0xZokGKHbTPmZhlg5RKLMaY=
+=Smqy
+-----END PGP SIGNATURE-----
+
+--=-CduxR1q8OCPoRCnOpecR--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
