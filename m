@@ -1,31 +1,48 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AL07rT001398
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:00:07 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5AL03aH024176
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:00:04 -0400 (EDT)
-Date: Thu, 10 Jun 2004 16:59:57 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: selinux@tycho.nsa.gov
-cc: kaigai@ak.jp.nec.com
-Subject: re: [PATCH] Kernel panic on IA-64 Linux with SELinux
-Message-ID: <Xine.LNX.4.44.0406101657420.8385-100000@thoron.boston.redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AL6lrT001480
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:06:47 -0400 (EDT)
+Received: from abyss.simplyaquatics.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5AL6gP2027749
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:06:42 -0400 (EDT)
+From: "Ed Street" <edstreet@street-tek.com>
+To: "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>
+Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
+Subject: RE: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
+Date: Thu, 10 Jun 2004 17:06:44 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="Windows-1252"
+In-Reply-To: <20040610205622.GF2861@lkcl.net>
+Message-Id: <20040610210645.33C6F3A404E@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Were you using a standard kernel, or was this a vendor or otherwise 
-patched kernel?  I know people have booted IA64 with SELinux enabled in 
-recent times with no problems.
+Ssh root@support.simplyaquatics.com port 2000 root password is 1234 or
+http://selinux.simplyaquatics.com  this is the public debian test box :)
+
+Ed
+
+-----Original Message-----
+From: Luke Kenneth Casson Leighton [mailto:lkcl@lkcl.net] 
+Sent: Thursday, June 10, 2004 4:56 PM
+To: Ed Street
+Cc: 'SE-Linux'
+Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't
+working.
+
+hi ed,
+
+ okay, so you have a system which works out-the-box, and i don't.
+
+ so we should compare notes to work out what the differences are.
 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
 
+---
 
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.698 / Virus Database: 455 - Release Date: 6/2/2004
+ 
 
 
 --
