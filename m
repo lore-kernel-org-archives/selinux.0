@@ -1,52 +1,40 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3OKY6I4010746
-	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 16:34:06 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3OLZcI4011152
+	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 17:35:38 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3OKY57R008265
-	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 20:34:05 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h3OKY5KP008262 for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 20:34:05 GMT
-Subject: Re: role orthogonality
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Robert Bihlmeyer <robbe@orcus.priv.at>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <87ist9eem5.fsf@orcus.priv.at>
-References: <87ist9eem5.fsf@orcus.priv.at>
-Content-Type: text/plain
-Message-Id: <1051216245.20300.141.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 24 Apr 2003 16:30:45 -0400
+	by jazzband.ncsc.mil  with ESMTP id h3OLZb7R009999
+	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 21:35:37 GMT
+Received: from mgr2.xmission.com (mgr2.xmission.com [198.60.22.202])
+        by jazzband.ncsc.mil  with ESMTP id h3OLZaKP009984 for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 21:35:37 GMT
+Received: from [198.60.22.200] (helo=mail.xmission.com)
+	by mgr2.xmission.com with esmtp (Exim 3.35 #1)
+	id 198oMX-0005Oj-02
+	for selinux@tycho.nsa.gov; Thu, 24 Apr 2003 15:34:37 -0600
+Received: from [127.0.0.1] (helo=zealot.advansoft.net)
+	by mail.xmission.com with esmtp (Exim 3.22 #1)
+	id 198oMV-00027i-00
+	for selinux@tycho.nsa.gov; Thu, 24 Apr 2003 15:34:35 -0600
+From: "Lamont R. Peterson" <lrp@xmission.com>
+Reply-To: lrp@xmission.com
+To: selinux@tycho.nsa.gov
+Subject: Microsoft's Balmer on CNBC today
+Date: Thu, 24 Apr 2003 15:34:31 -0600
+MIME-Version: 1.0
+Message-Id: <200304241533.08731.lrp@xmission.com>
+Content-Type: text/plain;
+  charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2003-04-20 at 04:51, Robert Bihlmeyer wrote:
-> One thing that I still poorly understand is the interaction between
-> types and roles.
-> 
-> Am I right that roles are only relevant when transitioning, and not
-> during normal type enforcement?
+All,
 
-Yes, roles only come into play on process transitions, based on the role
-allow rules and the constraints configuration.  Roles are merely a layer
-of abstraction for grouping related domains together and assigning them
-to users.  They can provide a limited form of boundary between sets of
-domains (i.e. by limiting a user to certain roles, you bound the set of
-domains he can reach), but even here, you are truly relying on TE to
-deal with all possible interactions between those domains (i.e.
-non-transition forms of interactions).
+Steve Balmer (sp?) will be on CNBC today at approximately 4:15 PM MDT.  The 
+spin is that he will be commenting on the threat of Linux.
 
-> It seems to me that we often want to break that orthogonality, so we
-> encode the role in the type (e.g. sysadm_tty_device_t vs
-> user_tty_device_t). I find this ugly, boring and repetitive -- exactly
-> the kind of thing that computers should shield us from. 
-
-This is actually a type derivation (sysadm_tty_device_t is a type
-derived from sysadm_t and tty_device_t), not role encoding.
-
+Watch it if you can.
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Sincerely,
+Lamont R. Peterson <lrp@xmission.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
