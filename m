@@ -1,40 +1,36 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i07N0pRb018767
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jan 2004 18:00:51 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i07N0oiV013943
-	for <selinux@tycho.nsa.gov>; Wed, 7 Jan 2004 23:00:50 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0832kRb019475
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jan 2004 22:02:46 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i0831gxr029213
+	for <selinux@tycho.nsa.gov>; Thu, 8 Jan 2004 03:01:42 GMT
 Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i07N0b06013831 for <selinux@tycho.nsa.gov>; Wed, 7 Jan 2004 23:00:49 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id B975961C44
-	for <selinux@tycho.nsa.gov>; Thu,  8 Jan 2004 09:59:03 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
-	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 00909-10 for <selinux@tycho.nsa.gov>;
-	Thu, 8 Jan 2004 09:59:03 +1100 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by ns.sws.net.au (Postfix) with ESMTP id 52D4E61BD9
-	for <selinux@tycho.nsa.gov>; Thu,  8 Jan 2004 09:59:03 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 0183B924F5
-	for <selinux@tycho.nsa.gov>; Thu,  8 Jan 2004 09:59:01 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 026D7B5988
-	for <selinux@tycho.nsa.gov>; Thu,  8 Jan 2004 09:58:43 +1100 (EST)
+	by jazzswing.ncsc.mil  with ESMTP id i0831eYc029178
+	for <selinux@tycho.nsa.gov>; Thu, 8 Jan 2004 03:01:41 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: post_create:  setxattr failed, rc=122 (dev=09:03 ino=992086)
-Date: Thu, 8 Jan 2004 09:58:42 +1100
+Subject: Kerberos
+Date: Thu, 8 Jan 2004 14:01:18 +1100
+Cc: bam@snoopy.apana.org.au
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
-Message-Id: <200401080958.42958.russell@coker.com.au>
+Message-Id: <200401081401.18967.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-What is the meaning of the above error?
+For Kerberos we have a /etc/krb5.conf file that has the configuration.  How 
+sensitive is the contents of this file?
+
+What is the best way of managing Kerberos access?  I get the impression that 
+anything which requires getpwnam(3) access will need to read /etc/krb5.conf 
+and access the network.  This means that when kerberos is enabled we need to 
+allow almost all programs to have network access and read access to 
+krb5.conf .
+
+Would it be possible to change the kerberos libraries to spawn a child process 
+similar in nature to unix_chkpwd to perform the kerberos functions?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
