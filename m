@@ -1,100 +1,100 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA07928
-	for <selinux@tycho.nsa.gov>; Sun, 2 Sep 2001 18:06:47 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA08439
+	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2001 00:36:31 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA15183
-	for <selinux@tycho.nsa.gov>; Sun, 2 Sep 2001 22:06:22 GMT
+	by jazzband.ncsc.mil  with ESMTP id EAA24095
+	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2001 04:36:07 GMT
 Received: from windowpane.com (ip56.gte1.rb1.bel.nwlink.com [209.20.131.56])
-	by jazzband.ncsc.mil  with ESMTP id WAA15179
-	for <selinux@tycho.nsa.gov>; Sun, 2 Sep 2001 22:06:21 GMT
-Message-ID: <001b01c133fb$8d6e0490$3a8314d1@nwlink.com>
+	by jazzband.ncsc.mil  with ESMTP id EAA24091
+	for <selinux@tycho.nsa.gov>; Mon, 3 Sep 2001 04:36:06 GMT
+Message-ID: <003401c13432$00288830$3a8314d1@nwlink.com>
 Reply-To: "Conan Callen" <ccallen@windowpane.com>
 From: "Conan Callen" <ccallen@windowpane.com>
 To: <selinux@tycho.nsa.gov>
-References: <200109021627.SAA09636@donald.oleane.net>
-Subject: Re: Question regarding security policy configuration
-Date: Sun, 2 Sep 2001 15:06:44 -0700
+Subject: checkpolicy creates core file
+Date: Sun, 2 Sep 2001 21:36:29 -0700
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0031_01C133F7.538FB470"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Paul,
+This is a multi-part message in MIME format.
 
-I too am new to selinux. I had it installed, and everything was working fine
-until Friday. I had two hard-drives go out on me! (there old timers).
-Stephen Smalley sent me the message below on fixing the errors you have
-encountered. I havent had a chance to work through it yet. I've finally got
-some replacement hard-drives working and am now building the new kernel.
+------=_NextPart_000_0031_01C133F7.538FB470
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-My first time through I had missed a step or two, and had some other strange
-problems. This time I am going very carefully.
+I get a core file whenever checkpolicy is executed. While running step 4 =
+(build and install the example policy configuration) the core occurs.
 
-Conan
+During the first install, today, I got this error. I thought I may had =
+made a mistake, so I started over from scrath (deleted (rm -rf) both =
+/root/lsm & /root/selinux then untared the distribution again). Once =
+again I got the same error.=20
 
+Im going to continue with the install. I brought the core up in gdb, but =
+its going to take a while for me to figure out whats going on. Im hoping =
+that I can fix it after I get it installed.=20
 
---- Message from Stephen Smalley ---
-
-
-Ok, let's go through these:
-
-avc:  denied  { write search } for  pid=1504 exe=/usr/sbin/sendmail
-path=/var/spool/mqueue dev=03:41 ino=32194
-      scontext=system_u:system_r:system_crond_t
-      tcontext=system_u:object_r:mqueue_spool_t
-      tclass=dir
-
-The root cause of this access denial (and several of the subsequent
-denials) is that crond is running sendmail without transitioning into
-an appropriate domain.  The question is why is sendmail being run
-from one of your system cron jobs?  Anyway, if you want to do this,
-just add the following to policy/domains/system/crond.te and
-do a 'make load' in your policy directory:
-domain_auto_trans(system_crond_t, sendmail_exec_t, user_mail_t)
-
-avc:  denied  { getattr } for  pid=1932 exe=/usr/bin/slocate dev=00:06
-ino=1582
-      kernel:    scontext=system_u:system_r:system_crond_t
-      kernel:    tcontext=system_u:object_r:unlabeled_t
-      kernel:    tclass=dir
-
-This is probably because you are running the automounter.  Unless you
-really need it, shut it off.
-
-avc:  denied  { write } for  pid=2003 exe=/usr/local/bin/logtail
-path=/var/log/messages.offset dev=03:41 ino=81507
-      scontext=system_u:system_r:system_crond_t
-      tcontext=system_u:object_r:var_log_t
-      tclass=file
-
-So, what is /usr/local/bin/logtail?  And why is it run from crond,
-and why is it trying to write to /var/log?  Anyway, if you want to
-allow this, you can use the logrotate_t domain as an example.
-You can either label /usr/local/bin/logtail with logrotate_exec_t
-if it just needs the same permissions as logrotate, or you can
-define a separate domain for it that is similar.
-
-avc:  denied  { execute } for  pid=2327 exe=/bin/bash path=/usr/bin/which
-dev=03:41 ino=351008
-      scontext=system_u:system_r:atd_t
-      tcontext=system_u:object_r:bin_t
-      tclass=file
-
-The atd domain is just a stub, because we don't use it for anything (why
-not just use cron?).  If you really want to use atd, then you'll need to
-add some permissions to it.  Also, you may even want to extend atd in the
-same way that we changed crond so that it runs in different security
-contexts depending on what it is doing.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I started with =
+http://www.nsa.gov/selinux/lsm/archives/lsm-200108221537.tgz. I just =
+installed a fresh RedHat 7.1.=20
 
 
+I had installed selinux successfully before, but I got a "Kernel Panic" =
+that looked like it was caused by a harddisk error. So I started with a =
+new couple new harddrives and reinstalled linux.=20
 
+------=_NextPart_000_0031_01C133F7.538FB470
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 5.50.4522.1800" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>I get a core file whenever checkpolicy =
+is executed.=20
+While running step 4 (build and install the example policy =
+configuration) the=20
+core occurs.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>During the first install,&nbsp;today, =
+I&nbsp;got=20
+this error. I thought I may had made a mistake, so I started over from =
+scrath=20
+(deleted (rm -rf)&nbsp;both /root/lsm &amp; /root/selinux then untared =
+the=20
+distribution again). Once again I got the same error. </FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>Im going to continue with the install. =
+I brought=20
+the core up in gdb, but its going to take a while for me to figure out =
+whats=20
+going on. Im hoping that I can fix it after I get it installed. =
+</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>I started with <A=20
+href=3D"http://www.nsa.gov/selinux/lsm/archives/lsm-200108221537.tgz">htt=
+p://www.nsa.gov/selinux/lsm/archives/lsm-200108221537.tgz</A>.=20
+I just installed a fresh RedHat 7.1. </FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>I had installed selinux successfully =
+before, but I=20
+got a "Kernel Panic" that looked like it was caused by a harddisk error. =
+So I=20
+started with a new couple new harddrives and reinstalled linux.=20
+</FONT></DIV></BODY></HTML>
 
+------=_NextPart_000_0031_01C133F7.538FB470--
 
 
 --
