@@ -1,148 +1,63 @@
-Subject: Attached File
-From: Eamon Walsh <ewalsh@epoch.ncsc.mil>
-To: selinux@tycho.ncsc.mil
-Content-Type: multipart/mixed; boundary="=-bLy7b6fxA5BcG+EVoUo/"
-Message-Id: <1064504248.3885.16.camel@moss-tarheels.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 25 Sep 2003 11:37:28 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8PGlusJ025200
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 12:47:57 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8PGkCZt008035
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 16:46:12 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h8PGkAM3008026
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 16:46:11 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Diyab <diyab@diyab.net>
+Subject: Re: ssh policy hassles
+Date: Fri, 26 Sep 2003 02:47:39 +1000
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+References: <F5441DDE18FFD9418974338018C522B718BDB0@na1fcm61.dearborn.ford.com> <20030925102955.GC10234@vnl.com> <3F72E5DC.20603@diyab.net>
+In-Reply-To: <3F72E5DC.20603@diyab.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200309260247.39337.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 25 Sep 2003 22:55, Diyab wrote:
+> Dale Amon wrote:
+> > On Thu, Sep 25, 2003 at 08:46:17AM +0200, Tom wrote:
+> >>You might want to define a special type for the empty dir, so you can
+> >>move it around and don't have to give sshd access to all of /var
+>
+> I did this when I installed it on slackware.  In ssh.fc I added
+>
+> 	/var/empty	system_u:object_r:sshd_privsep_dir_t
+>
+> and in sshd.te I added
+>
+> 	type sshd_privsep_dir_t, file_type, sysadmfile;
+>
+> and
+>
+> 	allow sshd_t sshd_privsep_dir_t:dir { getattr search };
 
---=-bLy7b6fxA5BcG+EVoUo/
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Why not just label it as var_run_t?
 
-doh, Here's the file.
+In my latest policy I have the privsep directory (which is under /var/run in 
+Debian) labeled as var_run_t.  In the case of sshd as a daemon it can create 
+files under that, but in the case of sshd run from inetd (which is what you 
+will be doing if you want to lock down sshd) then it gets { getattr search } 
+access.
 
---=-bLy7b6fxA5BcG+EVoUo/
-Content-Disposition: attachment; filename=selinux-policy.el
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-emacs-lisp; name=selinux-policy.el; charset=UTF-8
+NB  The privsep process will be prevented from creating files by Unix 
+permissions anyway.  Sshd does not have permissions to change the mode on the 
+directory and the privsep process can not change it's UID.
 
-;; Defines major mode for editing SELinux TE-RBAC ("sample")
-;; policy definitions.  Mostly used to get nice color.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-;; Author: Eamon Walsh <ewalsh@epoch.ncsc.mil>
-
-;; Instructions for use:
-;; place in your emacs library path (e.g. "site-lisp" directory,
-;; look for .el and .elc files).  Then, add the following to your
-;; ~/.emacs: (load-library "selinux-policy")
-
-;; Use M-x selinuxpolicy-mode in Emacs to enter the mode (editing
-;; a .te file enters the mode automatically).
-
-;; Note: make sure font-lock mode is enabled in Emacs or you won't
-;; get the color highlighting.
-
-(require 'compile)
-
-(defvar selinuxpolicy-mode-syntax-table nil
-  "Syntax table for use in SELinuxPolicy-mode buffers.")
-
-(if selinuxpolicy-mode-syntax-table
-    ()
-  (setq selinuxpolicy-mode-syntax-table (make-syntax-table))
-  (modify-syntax-entry ?# "<"   selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?\n ">"  selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?{ "(}"  selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?} "){"  selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?( "()"  selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?) ")("  selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?\; "."  selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?, "."   selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?=3D "."   selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?~ "."   selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?* "."   selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?_ "w"   selinuxpolicy-mode-syntax-table)
-  (modify-syntax-entry ?. "_"   selinuxpolicy-mode-syntax-table)
-)
-
-(define-derived-mode selinuxpolicy-mode fundamental-mode "SELinuxPolicy"
-  "Major mode for editing SELinux TE-RBAC policies."
-
-  (kill-all-local-variables)
-
-  (set-syntax-table selinuxpolicy-mode-syntax-table)
-  (make-local-variable 'comment-start)
-  (setq comment-start "#")
-  (make-local-variable 'comment-start-skip)
-  (setq comment-start-skip "#")
-  (make-local-variable 'comment-end)
-  (setq comment-end "")
-
-  ;; Font-lock stuff
-  (make-local-variable 'font-lock-defaults)
-  (setq font-lock-defaults selinuxpolicy-font-lock-defaults)
-  )
-
-(defvar selinuxpolicy-font-lock-defaults
-  `(selinuxpolicy-font-lock-keywords
-    nil		; do fontify strings and comments
-    t		; case is INsignificant
-    nil
-;;    ,(mapcar (function (lambda (c) (cons c "w")))
-;;	     "[]$_.:#") ; make these word syntax for font-lock
-    nil
-    ))
-
-(defconst selinuxpolicy-font-lock-keywords '(
-   "\\<type\\>"
-   "\\<allow\\>"
-   "\\<types\\>"
-   "\\<self\\>"
-   "\\<type_transition\\>"
-   "\\<role_transition\\>"
-   "\\<type_change\\>"
-   "\\<alias\\>"
-   "\\<role\\>"
-   "\\<roles\\>"
-   "\\<common\\>"
-   "\\<inherits\\>"
-   "\\<class\\>"
-   "\\<user\\>"
-   "\\<attribute\\>"
-   "\\<auditallow\\>"
-   "\\<dontaudit\\>"
-   "\\<dominance\\>"
-   "\\<constrain\\>"
-   "\\<dom\\>"
-   "\\<domby\\>"
-   "\\<incomp\\>"
-   "\\<not\\>"
-   "\\<or\\>"
-   "\\<and\\>"
-   "\\<u1\\>"
-   "\\<u2\\>"
-   "\\<t1\\>"
-   "\\<t2\\>"
-   "\\<r1\\>"
-   "\\<r2\\>"
-   "\\<sid\\>"
-   "\\<fs_use_xattr\\>"
-   "\\<fs_use_psid\\>"
-   "\\<fs_use_task\\>"
-   "\\<fs_use_trans\\>"
-   "\\<genfscon\\>"
-   "\\<portcon\\>"
-   "\\<netifcon\\>"
-   "\\<nodecon\\>"
-   ("\\<\\w+?_t\\>" 0 font-lock-type-face keep t)
-   ("\\<\\w+?_u\\>" 0 font-lock-constant-face keep t)
-   ("\\<\\w+?_r\\>" 0 font-lock-builtin-face keep t)
-   ("\\<\\(\\w+?\\)\\>\\s-*(" 1 font-lock-warning-face keep t)
-   ("\\s." 0 font-lock-string-face keep t)
-   )
-  "Fontification for SELinux TE-RBAC policy code.")
-
-(setq auto-mode-alist (cons '("\\.te$" . selinuxpolicy-mode) auto-mode-alis=
-t))
-(provide 'selinuxpolicy-mode)
-
-
-
---=-bLy7b6fxA5BcG+EVoUo/--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
