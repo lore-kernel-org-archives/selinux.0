@@ -1,54 +1,47 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81GevrT022432
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 12:40:57 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i81Ge8Y2013649
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 16:40:08 GMT
-Subject: Re: DBus session bus -> separate security class?
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81GoSrT022561
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 12:50:29 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i81GoReu009166
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 16:50:27 GMT
+Subject: Re: Interpret security context
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@redhat.com>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-   Russell Coker <rcoker@redhat.com>
-In-Reply-To: <1094054625.11084.34.camel@nexus.verbum.private>
-References: <1094054625.11084.34.camel@nexus.verbum.private>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20040901143631.18080.qmail@web51505.mail.yahoo.com>
+References: <20040901143631.18080.qmail@web51505.mail.yahoo.com>
 Content-Type: text/plain
-Message-Id: <1094056754.13328.73.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1094057331.13328.83.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 01 Sep 2004 12:39:14 -0400
+Date: Wed, 01 Sep 2004 12:48:52 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-09-01 at 12:03, Colin Walters wrote:
-> I'm working on updating the DBus policy to handle the addition of the
-> user session DBus instance.
+On Wed, 2004-09-01 at 10:36, Park Lee wrote:
+> Hi,
+> In subsection 5.2.1 Object Labeling of <<The Flask Security
+> Architecture: System Support for Diverse Security Policies>>, it says:
+>    A security context, the first policy-independent data type, is a
+> variable-length string which can be interpreted by any application or
+> user with an understanding of the security policy.
+>  
+>         While, In subsection 2.1.Flask Concepts of <<Configuring the
+> SELinux Policy>>, it says:
+>    The content and format of a security context depends on the
+> particular security model, so a security context is only interpreted
+> by the security server.
+>  
+>         Then, Who can interpret the security context except security
+> server? Can any application or user with an understanding of the
+> security policy interpret the security context in the end?
 
-In its own derived domain, using a macro, I hope.  $1_dbusd_t for $1 in
-userdomain.
-
-> So I think we really want:
-> 
-> allow cupsd_t userdomain:system_dbus { send_msg };
-> allow user_mozilla_t user_networkmanager_t:session_dbus { send_msg };
-
-Not clear that even this is what you want, as you may want to allow
-different flows through the different user session bus instances.
-
-It seems like a more general solution would be to alter the manner in
-which dbusd labels its connections.  Instead of simply labeling them
-with the peer context, you could call security_compute_create (which
-internally maps to the kernel's security_transition_sid interface and
-uses type_transition rules) on the peer context and the bus context, and
-define type transition rules to map to derived types based on the pair
-of contexts.
-
-> I think unfortunately it's a bit late to change this for Fedora Core 3,
-> so likely what we'll do is just not have the session bus be a userspace
-> policy enforcer, or just run as user_t.  But long term I think we need
-> separate security classes.
-
-I don't think you want it to run in user_t or dbusd_t.  You want a
-derived domain.
-
+No conflict there.  The context _can_ be interpreted by anything that
+understands the policy; the context _is_ only interpreted by the
+security server in the Flask architecture (i.e. it is _not_ interpreted
+by the object managers).  The point is that the context intepretation
+requires knowledge of the policy, while the object managers are policy
+neutral.  
+  
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
