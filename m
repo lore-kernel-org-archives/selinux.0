@@ -1,35 +1,27 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA01533
-	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 13:47:22 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA29035
-	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 17:45:43 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id RAA29030 for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 17:45:42 GMT
-Received: from localhost (sds@localhost)
-	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id g7QHkac01322
-	for <selinux@tycho.nsa.gov>; Mon, 26 Aug 2002 13:46:36 -0400 (EDT)
-Date: Mon, 26 Aug 2002 13:46:36 -0400 (EDT)
+Date: Mon, 26 Aug 2002 13:51:27 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: <selinux@tycho.nsa.gov>
-Subject: [patch] chkpwd domain
-Message-ID: <Pine.GSO.4.33.0208261343380.24426-200000@raven>
+To: Timothy Wood <timothy@hallcomp.com>
+cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: openssh (run_init messages)
+In-Reply-To: <1030380325.29145.92.camel@phobos>
+Message-ID: <Pine.GSO.4.33.0208261350320.24426-100000@raven>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-824023566-1030383996=:24426"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----559023410-824023566-1030383996=:24426
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On 26 Aug 2002, Timothy Wood wrote:
 
+> avc:  denied  { transition } for  pid=1125
+> exe=/usr/local/selinux/sbin/run_init path=/etc/rc.d/init.d/sshd
+> dev=03:06 ino=18409 scontext=timothy:sysadm_r:sysadm_t
+> tcontext=system_u:system_r:initrc_t tclass=process
 
-The attached patch (also committed to the sourceforge CVS tree) adds
-domains for the /sbin/*_chkpwd utilities that have the necessary read
-access to /etc/shadow for checking passwords.
+This implies that run_init isn't labeled properly.  To fix by hand, use
+chcon system_u:object_r:run_init_exec_t /usr/local/selinux/sbin/run_init.
+As I recall, I posted a patch for run_init.fc for the prior release long
+ago that fixed this error.
 
 --
 Stephen D. Smalley, NAI Labs
@@ -37,115 +29,6 @@ ssmalley@nai.com
 
 
 
----559023410-824023566-1030383996=:24426
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="chkpwd.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0208261346360.24426@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="chkpwd.patch"
-
-ZGlmZiAtWCAvaG9tZS9zZHMvZG9udGRpZmYgLU5ydSBwb2xpY3kuMjAwMjA4
-MjMwOC9kb21haW5zL3Byb2dyYW0vY2hrcHdkLnRlIHBvbGljeS9kb21haW5z
-L3Byb2dyYW0vY2hrcHdkLnRlDQotLS0gcG9saWN5LjIwMDIwODIzMDgvZG9t
-YWlucy9wcm9ncmFtL2Noa3B3ZC50ZQlXZWQgRGVjIDMxIDE5OjAwOjAwIDE5
-NjkNCisrKyBwb2xpY3kvZG9tYWlucy9wcm9ncmFtL2Noa3B3ZC50ZQlNb24g
-QXVnIDI2IDEzOjQyOjA1IDIwMDINCkBAIC0wLDAgKzEsMTEgQEANCisjDQor
-IyBEb21haW5zIGZvciB0aGUgL3NiaW4vLipfY2hrcHdkIHV0aWxpdGllcy4N
-CisjDQorDQorIw0KKyMgY2hrcHdkX2V4ZWNfdCBpcyB0aGUgdHlwZSBvZiB0
-aGUgL3NiaW4vLipfY2hrcHdkIGV4ZWN1dGFibGVzLg0KKyMNCit0eXBlIGNo
-a3B3ZF9leGVjX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZSwgZXhlY190eXBl
-Ow0KKw0KKyMgRXZlcnl0aGluZyBlbHNlIGlzIGluIHRoZSBjaGtwd2RfZG9t
-YWluIG1hY3JvIGluDQorIyBtYWNyb3MvcHJvZ3JhbS9jaGtwd2RfbWFjcm9z
-LnRlLg0KZGlmZiAtWCAvaG9tZS9zZHMvZG9udGRpZmYgLU5ydSBwb2xpY3ku
-MjAwMjA4MjMwOC9maWxlX2NvbnRleHRzL3Byb2dyYW0vY2hrcHdkLmZjIHBv
-bGljeS9maWxlX2NvbnRleHRzL3Byb2dyYW0vY2hrcHdkLmZjDQotLS0gcG9s
-aWN5LjIwMDIwODIzMDgvZmlsZV9jb250ZXh0cy9wcm9ncmFtL2Noa3B3ZC5m
-YwlXZWQgRGVjIDMxIDE5OjAwOjAwIDE5NjkNCisrKyBwb2xpY3kvZmlsZV9j
-b250ZXh0cy9wcm9ncmFtL2Noa3B3ZC5mYwlNb24gQXVnIDI2IDEzOjQyOjA1
-IDIwMDINCkBAIC0wLDAgKzEsMiBAQA0KKyMgY2hrcHdkDQorL3NiaW4vLipf
-Y2hrcHdkCQkJc3lzdGVtX3U6b2JqZWN0X3I6Y2hrcHdkX2V4ZWNfdA0KZGlm
-ZiAtWCAvaG9tZS9zZHMvZG9udGRpZmYgLU5ydSBwb2xpY3kuMjAwMjA4MjMw
-OC9maWxlX2NvbnRleHRzL3R5cGVzLmZjIHBvbGljeS9maWxlX2NvbnRleHRz
-L3R5cGVzLmZjDQotLS0gcG9saWN5LjIwMDIwODIzMDgvZmlsZV9jb250ZXh0
-cy90eXBlcy5mYwlNb24gQXVnIDI2IDEzOjQwOjU0IDIwMDINCisrKyBwb2xp
-Y3kvZmlsZV9jb250ZXh0cy90eXBlcy5mYwlNb24gQXVnIDI2IDEzOjQyOjA1
-IDIwMDINCkBAIC0xODAsNyArMTgwLDYgQEANCiAjIC9zYmluDQogIw0KIC9z
-YmluKC8uKik/CQkJc3lzdGVtX3U6b2JqZWN0X3I6c2Jpbl90DQotL3NiaW4v
-LipfY2hrcHdkCQkJc3lzdGVtX3U6b2JqZWN0X3I6Y2hrcHdkX2V4ZWNfdA0K
-IA0KICMNCiAjIC90bXANCmRpZmYgLVggL2hvbWUvc2RzL2RvbnRkaWZmIC1O
-cnUgcG9saWN5LjIwMDIwODIzMDgvbWFjcm9zL3Byb2dyYW0vY2hrcHdkX21h
-Y3Jvcy50ZSBwb2xpY3kvbWFjcm9zL3Byb2dyYW0vY2hrcHdkX21hY3Jvcy50
-ZQ0KLS0tIHBvbGljeS4yMDAyMDgyMzA4L21hY3Jvcy9wcm9ncmFtL2Noa3B3
-ZF9tYWNyb3MudGUJV2VkIERlYyAzMSAxOTowMDowMCAxOTY5DQorKysgcG9s
-aWN5L21hY3Jvcy9wcm9ncmFtL2Noa3B3ZF9tYWNyb3MudGUJTW9uIEF1ZyAy
-NiAxMzo0MjowNSAyMDAyDQpAQCAtMCwwICsxLDUwIEBADQorIw0KKyMgTWFj
-cm9zIGZvciBjaGtwd2QgZG9tYWlucy4NCisjDQorDQorIw0KKyMgY2hrcHdk
-X2RvbWFpbihkb21haW5fcHJlZml4KQ0KKyMNCisjIERlZmluZSBhIGRlcml2
-ZWQgZG9tYWluIGZvciB0aGUgKl9jaGtwd2QgcHJvZ3JhbSB3aGVuIGV4ZWN1
-dGVkDQorIyBieSBhIHVzZXIgZG9tYWluLg0KKyMNCisjIFRoZSB0eXBlIGRl
-Y2xhcmF0aW9uIGZvciB0aGUgZXhlY3V0YWJsZSB0eXBlIGZvciB0aGlzIHBy
-b2dyYW0gaXMNCisjIHByb3ZpZGVkIHNlcGFyYXRlbHkgaW4gZG9tYWlucy9w
-cm9ncmFtL3N1LnRlLiANCisjDQordW5kZWZpbmUoYGNoa3B3ZF9kb21haW4n
-KQ0KK2lmZGVmKGBjaGtwd2QudGUnLCBgDQorZGVmaW5lKGBjaGtwd2RfZG9t
-YWluJyxgDQorIyBEZXJpdmVkIGRvbWFpbiBiYXNlZCBvbiB0aGUgY2FsbGlu
-ZyB1c2VyIGRvbWFpbiBhbmQgdGhlIHByb2dyYW0uDQordHlwZSAkMV9jaGtw
-d2RfdCwgZG9tYWluLCBwcml2bG9nLCBhdXRoOw0KKw0KKyMgVHJhbnNpdGlv
-biBmcm9tIHRoZSB1c2VyIGRvbWFpbiB0byB0aGlzIGRvbWFpbi4NCitkb21h
-aW5fYXV0b190cmFucygkMV90LCBjaGtwd2RfZXhlY190LCAkMV9jaGtwd2Rf
-dCkNCisNCisjIFRoZSB1c2VyIHJvbGUgaXMgYXV0aG9yaXplZCBmb3IgdGhp
-cyBkb21haW4uDQorcm9sZSAkMV9yIHR5cGVzICQxX2Noa3B3ZF90Ow0KKw0K
-KyMgVGhpcyBkb21haW4gaXMgZ3JhbnRlZCBwZXJtaXNzaW9ucyBjb21tb24g
-dG8gbW9zdCBkb21haW5zLg0KK2V2ZXJ5X2RvbWFpbigkMV9jaGtwd2RfdCkN
-CisNCisjIFVzZSBjYXBhYmlsaXRpZXMuDQorYWxsb3cgJDFfY2hrcHdkX3Qg
-c2VsZjpjYXBhYmlsaXR5IHNldHVpZDsNCisNCisjIEluaGVyaXQgYW5kIHVz
-ZSBkZXNjcmlwdG9ycyBmcm9tIGdub21lLXB0eS1oZWxwZXIuDQoraWZkZWYo
-YGdub21lLXB0eS1oZWxwZXIudGUnLGBhbGxvdyAkMV9jaGtwd2RfdCAkMV9n
-cGhfdDpmZCB1c2U7JykNCisNCisjIEluaGVyaXQgYW5kIHVzZSBkZXNjcmlw
-dG9ycyBmcm9tIG5ld3JvbGUuDQoraWZkZWYoYG5ld3JvbGUudGUnLCBgYWxs
-b3cgJDFfY2hrcHdkX3QgbmV3cm9sZV90OmZkIHVzZTsnKQ0KKw0KKyMgVXNl
-IHRoZSBuZXR3b3JrLg0KK2Nhbl9uZXR3b3JrKCQxX2Noa3B3ZF90KQ0KKw0K
-KyMgV3JpdGUgdG8gdGhlIHVzZXIgZG9tYWluIHR0eS4NCithbGxvdyAkMV9j
-aGtwd2RfdCAkMV90dHlfZGV2aWNlX3Q6Y2hyX2ZpbGUgcndfZmlsZV9wZXJt
-czsNCithbGxvdyAkMV9jaGtwd2RfdCAkMV9kZXZwdHNfdDpjaHJfZmlsZSBy
-d19maWxlX3Blcm1zOw0KKycpDQorDQorJywgYA0KKw0KK2RlZmluZShgY2hr
-cHdkX2RvbWFpbicsYCcpDQorDQorJykNCmRpZmYgLVggL2hvbWUvc2RzL2Rv
-bnRkaWZmIC1OcnUgcG9saWN5LjIwMDIwODIzMDgvbWFjcm9zL3VzZXJfbWFj
-cm9zLnRlIHBvbGljeS9tYWNyb3MvdXNlcl9tYWNyb3MudGUNCi0tLSBwb2xp
-Y3kuMjAwMjA4MjMwOC9tYWNyb3MvdXNlcl9tYWNyb3MudGUJTW9uIEF1ZyAy
-NiAxMzo0MDo1NCAyMDAyDQorKysgcG9saWN5L21hY3Jvcy91c2VyX21hY3Jv
-cy50ZQlNb24gQXVnIDI2IDEzOjQyOjA1IDIwMDINCkBAIC05Niw2ICs5Niw3
-IEBADQogIyB1c2VyIGRvbWFpbnMuDQogaWZkZWYoYGdub21lLXB0eS1oZWxw
-ZXIudGUnLCBgZ3BoX2RvbWFpbigkMSknKQ0KIGlmZGVmKGBzdS50ZScsIGBz
-dV9kb21haW4oJDEpJykNCitpZmRlZihgY2hrcHdkLnRlJywgYGNoa3B3ZF9k
-b21haW4oJDEpJykNCiBpZmRlZihgc2NyZWVuLnRlJywgYHNjcmVlbl9kb21h
-aW4oJDEpJykNCiBpZmRlZihgbmV0c2NhcGUudGUnLCBgbmV0c2NhcGVfZG9t
-YWluKCQxKScpDQogaWZkZWYoYGdwZy50ZScsIGBncGdfZG9tYWluKCQxKScp
-DQpkaWZmIC1YIC9ob21lL3Nkcy9kb250ZGlmZiAtTnJ1IHBvbGljeS4yMDAy
-MDgyMzA4L3BvbGljeS9kb21haW5zL3Byb2dyYW0vY2hrcHdkLnRlIHBvbGlj
-eS9wb2xpY3kvZG9tYWlucy9wcm9ncmFtL2Noa3B3ZC50ZQ0KLS0tIHBvbGlj
-eS4yMDAyMDgyMzA4L3BvbGljeS9kb21haW5zL3Byb2dyYW0vY2hrcHdkLnRl
-CVdlZCBEZWMgMzEgMTk6MDA6MDAgMTk2OQ0KKysrIHBvbGljeS9wb2xpY3kv
-ZG9tYWlucy9wcm9ncmFtL2Noa3B3ZC50ZQlNb24gQXVnIDI2IDEzOjQxOjU2
-IDIwMDINCkBAIC0wLDAgKzEsMTEgQEANCisjDQorIyBEb21haW5zIGZvciB0
-aGUgL3NiaW4vLipfY2hrcHdkIHV0aWxpdGllcy4NCisjDQorDQorIw0KKyMg
-Y2hrcHdkX2V4ZWNfdCBpcyB0aGUgdHlwZSBvZiB0aGUgL3NiaW4vLipfY2hr
-cHdkIGV4ZWN1dGFibGVzLg0KKyMNCit0eXBlIGNoa3B3ZF9leGVjX3QsIGZp
-bGVfdHlwZSwgc3lzYWRtZmlsZSwgZXhlY190eXBlOw0KKw0KKyMgRXZlcnl0
-aGluZyBlbHNlIGlzIGluIHRoZSBjaGtwd2RfZG9tYWluIG1hY3JvIGluDQor
-IyBtYWNyb3MvcHJvZ3JhbS9jaGtwd2RfbWFjcm9zLnRlLg0KZGlmZiAtWCAv
-aG9tZS9zZHMvZG9udGRpZmYgLU5ydSBwb2xpY3kuMjAwMjA4MjMwOC90eXBl
-cy9maWxlLnRlIHBvbGljeS90eXBlcy9maWxlLnRlDQotLS0gcG9saWN5LjIw
-MDIwODIzMDgvdHlwZXMvZmlsZS50ZQlNb24gQXVnIDI2IDEzOjQwOjU0IDIw
-MDINCisrKyBwb2xpY3kvdHlwZXMvZmlsZS50ZQlNb24gQXVnIDI2IDEzOjQy
-OjA1IDIwMDINCkBAIC0xMjksMTEgKzEyOSw2IEBADQogdHlwZSBsc19leGVj
-X3QsIGZpbGVfdHlwZSwgZXhlY190eXBlLCBzeXNhZG1maWxlOw0KIA0KICMN
-Ci0jIGNoa3B3ZF9leGVjX3QgaXMgdGhlIHR5cGUgb2YgdGhlIHB3ZGJfY2hr
-cHdkIHByb2dyYW0uDQotIw0KLXR5cGUgY2hrcHdkX2V4ZWNfdCwgZmlsZV90
-eXBlLCBleGVjX3R5cGUsIHN5c2FkbWZpbGU7DQotDQotIw0KICMgc2Jpbl90
-IGlzIHRoZSB0eXBlIG9mIGZpbGVzIGluIHRoZSBzeXN0ZW0gc2JpbiBkaXJl
-Y3Rvcmllcy4NCiAjDQogdHlwZSBzYmluX3QsIGZpbGVfdHlwZSwgc3lzYWRt
-ZmlsZTsNCg==
----559023410-824023566-1030383996=:24426--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
