@@ -1,56 +1,45 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7TDG9rT029896
-	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 09:16:09 -0400 (EDT)
-Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7TDFLwc026155
-	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 13:15:22 GMT
-Subject: Re: policy patch for tunable "/dev/hdc is removable drive"
-From: Colin Walters <walters@verbum.org>
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200408282354.35395.russell@coker.com.au>
-References: <20040823214228.GA13677@lkcl.net>
-	 <200408252140.41362.russell@coker.com.au>
-	 <1093453663.5092.84.camel@nexus.verbum.private>
-	 <200408282354.35395.russell@coker.com.au>
-Content-Type: text/plain
-Date: Sun, 29 Aug 2004 09:17:07 -0400
-Message-Id: <1093785427.12727.14.camel@nexus.verbum.private>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7THRDrT000616
+	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 13:27:13 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7THQMwc029747
+	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 17:26:24 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: selinux and kde
+Date: Mon, 30 Aug 2004 03:27:02 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040823234320.GC12720@lkcl.net> <20040824085633.GD11911@rom.cip.ifi.lmu.de> <20040824144947.GC4698@lkcl.net>
+In-Reply-To: <20040824144947.GC4698@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200408300327.02313.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2004-08-28 at 23:54 +1000, Russell Coker wrote: 
-> On Thu, 26 Aug 2004 03:07, Colin Walters <walters@verbum.org> wrote:
-> > I guess genhomedircon is a precendent here, but: I don't think this
-> > makes sense, because then the policy is dependent on the machine where
-> > you build the policy, which may be different from the machine to which
-> > the policy is ultimately installed.
-> >
-> > This kind of calculation should probably be done in the policy post-
-> > installation step.
-> 
-> We could do that.
-> 
-> Another possibility may be to have udev do this and create a /dev/cdroms 
-> directory or something similar.
+On Wed, 25 Aug 2004 00:49, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > Yes, I do.
+> > All machines here are using KDE without problems. My policy is currently
+> > based on Fedora policy 1.15.7-something (haven't come around to updating
+> > for a while). I don't do CD burning here, so no comment on that, but
+> > everything else should work[0].
+> > What problems are you seeing?
+>
+>  well, a lot of sysadm_chkpwd_t stuff, i'm seeing audit messages
+>  after logging in on a console as a user that are indicative of
+>  the tty not being returned to the correct context...
 
-Yes, having this kind of logic in udev makes more sense to me.
-Fundamentally the SELinux policy is a static entity, and devices are
-dynamic.  I could plug in a USB mass-storage disk one minute, have that
-be /dev/sda, then unplug it and plug in a CD-ROM the next.
+A change to PAM is needed to fix most of that.  New Debian packages have to be 
+compiled with the same code as has been in the Red Hat pam packages for a 
+while.  The problem is a lack of time.
 
-I think what we need is a mapping in the policy from device *types* to
-contexts.  E.g. something like:
-
-disk system_u:object_r:fixed_disk_device_t
-cdrom system_u:object_r:removable_device_t
-
-Then udev can read this and do the labeling itself.  I think this will
-be sufficient for most people, but I wonder if it's worth implementing a
-more specific matching, so I could put e.g. PCI ids or USB manufacturers
-on the left side.
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
