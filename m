@@ -1,34 +1,31 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i87C9mrT025526
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 08:09:48 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i87CDqrT025575
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 08:13:53 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i87C9jll006926
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 12:09:46 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i87CDoll007122
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 12:13:51 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Erich Schubert <erich@debian.org>
-Subject: Re: domains/local/*.te file_contexts/local/*.fc
-Date: Tue, 7 Sep 2004 22:09:43 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <1094489141.3973.40.camel@wintermute.xmldesign.de>
-In-Reply-To: <1094489141.3973.40.camel@wintermute.xmldesign.de>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: dpkg and selinux
+Date: Tue, 7 Sep 2004 22:13:47 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>, debian-dpkg@lists.debian.org
+References: <20040831234115.GZ4375@lkcl.net> <20040901101921.GC5882@lkcl.net> <20040901174718.GE4400@lkcl.net>
+In-Reply-To: <20040901174718.GE4400@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200409072209.43296.russell@coker.com.au>
+Message-Id: <200409072213.47126.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 7 Sep 2004 02:45, Erich Schubert <erich@debian.org> wrote:
-> Hi,
-> the patch below adds support for domains/local/*.te and
-> file_contexts/local/*.fc to the Makefile.
->
-> I prefer having my local policy modifications in there, instead of
-> cluttering the "programs" part.
+On Thu, 2 Sep 2004 03:47, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> consequently, in short, it's probably best to patch dpkg's
+> "tarobject()" function to set the SE/Linux file permissions,
+> and to have those permissions preserved as the unpacked
+> archive is then moved into place.
 
-Why not use domains/misc and file_contexts/misc?  They do everything you seem 
-to want to do.
+That's probably correct.  Code contributions are welcome...
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
