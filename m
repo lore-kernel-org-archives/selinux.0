@@ -1,53 +1,78 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5BKgtrT007440
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 16:42:55 -0400 (EDT)
-Received: from smtp800.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5BKgnP2006567
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 16:42:49 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp800.mail.ukl.yahoo.com with SMTP; 11 Jun 2004 20:42:42 -0000
-Date: Fri, 11 Jun 2004 20:40:01 +0000
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5BKsrrT007498
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 16:54:54 -0400 (EDT)
+Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5BKsmP2006860
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 16:54:48 -0400 (EDT)
+Date: Fri, 11 Jun 2004 20:52:03 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: SELinux on Debian (Sid)
-Message-ID: <20040611204001.GE2861@lkcl.net>
-References: <20040609144404.GJ5477@philips.com> <20040610120344.GM5477@philips.com> <20040610215418.GR2861@lkcl.net> <200406111413.40262.russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, samba-technical@samba.org,
+   tng-technical@lists.samba-tng.org
+Subject: Re: se-samba - a possible way to get round no seteuid
+Message-ID: <20040611205203.GF2861@lkcl.net>
+References: <20040609100345.GA5727@lkcl.net> <200406101731.39235.russell@coker.com.au> <20040610201327.GA2861@lkcl.net> <200406111356.08287.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406111413.40262.russell@coker.com.au>
+In-Reply-To: <200406111356.08287.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 11, 2004 at 02:13:40PM +1000, Russell Coker wrote:
-> On Fri, 11 Jun 2004 07:54, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > The selinux-default-policy came from the apt-repository mentioned above.
+On Fri, Jun 11, 2004 at 01:56:08PM +1000, Russell Coker wrote:
+> On Fri, 11 Jun 2004 06:13, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > > > instead of doing a seteuid back to root, you do an execve to
+> > > > an executable named samba-root.
+> > >
+> > > That doesn't work.  There are more possible UIDs than the root file
+> > > system may have Inodes...
 > >
-> >  ah, there _isn't_ one in newselinux, you mean the one from
-> >  ftp.uk.debian.org.
+> >  ? i am confused.  by execve'ing back to a context, shall we call it
+> >  smbd_as_root_t, what connection does that have to UIDs?
 > 
-> Or whichever Debian mirror is most convenient.
+> The idea for Exim is that you have a set of wrapper binaries already there on 
+> disk.  If a particular installation of Exim doesn't use one of the ~6 
+> wrappers that are installed then it's only a waste of 4K of disk space.
 > 
-> >  check that you have 1.12-1
+> If we do the same mechanism for each UID then we have many more executables, 
+
+ nono, i definitely didn't mean to suggest to have executables per UID.
+
+
+> or we have to allow the daemon to create new executables which also adds more 
+> coding.
 > 
-> 1.12-2 has been out for a while, and yesterday I uploaded 1.12-3 which fixes 
-> some issues discussed in this thread.
+> >  ah, remember that you can have several UIDs over the same TCP
+> >  connection (and multiple SMBsessionsetupX's to represent each
+> >  and you get these SMB-MIDs - multiplexing ids - to represent
+> >  each SMB session over the same TCP session),
+> 
+> [...]
+> 
+> >  i thought that instead of having the seteuid and back to root,
+> >  you could execve back to the "smbd_as_root_t context".
+> 
+> True, but re-execing requires serialising all the data to a file, shared 
+> memory region, or something else that will survive past an exec.  
+
+ in samba, locks are already in shared memory because of the way that
+ SMB file locking has to be done (e.g. global "opportunistic locks"
+ whic are more of a write-cache plus notification of other people
+ wanting write access to the same file thing)
+
+ iirc correctly, the only things that need to be passed over
+ are the open file handles.
+
+> How about just smbd_the_daemon which can transition to smbd_as_a_user?
  
- great!
-
-> >  tell y'what, here's a list of packages i have installed:
-> >
-> >  sez:/boot# dpkg -l | grep selinux
-> >  ii  bsdutils       2.11z-4.selinu Basic utilities from 4.4BSD-Lite
-> 
-> Why do you need a patched bsdutils?
-
- uhm, i don't, as i said it was part of my desperation "try it and
- see" policy two weeks ago and hey, it seems to work, so it ain't
- broke os i'm leaving it there unless you believe that i really
- shouldn't?
+ fine for non-multi-connection stuff.
 
  l.
+
+> -- 
+> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+> http://www.coker.com.au/~russell/  My home page
 
 -- 
 -- 
