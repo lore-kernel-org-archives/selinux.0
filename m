@@ -1,46 +1,76 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0OLTnsj029954
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 16:29:49 -0500 (EST)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0OLRasm026154
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 21:27:42 GMT
-Subject: OpenOffice Problems with Strict Policy
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Russell Coker <russell@coker.com.au>, Daniel J Walsh <dwalsh@redhat.com>,
-   Steve Smalley <sds@epoch.ncsc.mil>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1106601818.3298.56.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 24 Jan 2005 16:23:38 -0500
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0P8Ytsj002208
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jan 2005 03:34:57 -0500 (EST)
+Received: from moutng.kundenserver.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0P8WkcF017396
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jan 2005 08:32:50 GMT
+Received: from [212.227.126.208] (helo=mrelayng.kundenserver.de)
+	by moutng.kundenserver.de with esmtp (Exim 3.35 #1)
+	id 1CtM9r-0006cS-00
+	for selinux@tycho.nsa.gov; Tue, 25 Jan 2005 09:34:43 +0100
+Received: from [80.229.223.243] (helo=[192.168.1.2])
+	by mrelayng.kundenserver.de with asmtp (Exim 3.35 #1)
+	id 1CtM9r-0003SC-00
+	for selinux@tycho.nsa.gov; Tue, 25 Jan 2005 09:34:43 +0100
+Message-ID: <41F6048C.1010309@tomaw.org>
+Date: Tue, 25 Jan 2005 08:34:20 +0000
+From: Tom Wesley <tom@tomaw.org>
+MIME-Version: 1.0
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: Problem logging into GDM after SELinux enable
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigB3B6843F8DC06DF5FDD7988F"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-OpenOffice will not run with the current strict policy that is in CVS. 
-It needs: 
-allow $1_t dri_device_t:chr_file { getattr read write ioctl };
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigB3B6843F8DC06DF5FDD7988F
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Any ideas when it stopped working?  Any suggestions?  
-I would prefer not to give everyone rw access.
+Hi,
 
-Short history of rules in the base_user_domain macro:
-allow $1_t dri_device_t:chr_file getattr; - Added in November 04
-dontaudit $1_t dri_device_t:chr_file rw_file_perms; - Added in April 04
+Hopefully I've managed to follow the "conversion guide" on the Gentoo 
+website and have run into a problem after the initial setup.
 
-Related messages from dmesg when trying to start OpenOffice:
-audit(1106599201.710:0): avc:  denied  { read write } for  pid=4792
-exe=/usr/lib/ooo-1.1/program/soffice.bin name=card0 dev=tmpfs ino=9677
-scontext=user_u:user_r:user_t tcontext=system_u:object_r:dri_device_t
-tclass=chr_file
-audit(1106599201.710:0): avc:  denied  { read write } for  pid=4792
-exe=/usr/lib/ooo-1.1/program/soffice.bin name=card0 dev=tmpfs ino=9677
-scontext=user_u:user_r:user_t tcontext=system_u:object_r:dri_device_t
-tclass=chr_file
+When logging in using GDM I get a message saying "Unable to set default 
+execution context" and it returns me to the login screen.
+
+I'm also getting
+
+Jan 21 22:54:08 tom GDM[30170]: SELinux GDM login: unable to obtain 
+default security context for tom.
+
+in /var/log/messages.
+
+I have
+
+   user tom roles { staff_r staff_r sysadm_r };
+
+in my users file and have rebuilt the profile, loaded it and relabeled 
+the file system but am still getting the same message.
+
+Does anyone have any ideas what I should try next?
 
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+Tom Wesley <tom@tomaw.org>
+
+--------------enigB3B6843F8DC06DF5FDD7988F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB9gSPVYNIRGKYOlIRAklhAJ9HNiYNKtNyO08KvOvff4c93lAxlACeOMzR
+iVNFN5oKGXVAnjeJlctewWQ=
+=ImSa
+-----END PGP SIGNATURE-----
+
+--------------enigB3B6843F8DC06DF5FDD7988F--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
