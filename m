@@ -1,131 +1,47 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8NILorT011600
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 14:21:51 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8NILnUk027634
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 18:21:50 GMT
-Message-ID: <4153143C.2090405@redhat.com>
-Date: Thu, 23 Sep 2004 14:21:48 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8NJB9rT011965
+	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 15:11:09 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8NJB7Uk029871
+	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 19:11:08 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [RFC] Upstream policy handling
+Date: Fri, 24 Sep 2004 05:10:58 +1000
+Cc: Colin Walters <walters@verbum.org>,
+   "Christopher J. PeBenito" <cpebenito@tresys.com>,
+   Joshua Brindle <method@gentoo.org>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+References: <414DA0A7.1000708@gentoo.org> <1095695627.4431.157.camel@nexus.verbum.private> <4152FD20.4020302@redhat.com>
+In-Reply-To: <4152FD20.4020302@redhat.com>
 MIME-Version: 1.0
-To: "James R. Marcus" <jmarcus@mvalent.net>
-CC: selinux@tycho.nsa.gov
-Subject: Re: bash_profile: Permission denied
-References: <E6E16A6D4277CD459BBDE6713766033CB71F9E@exchange.mvalent.local>
-In-Reply-To: <E6E16A6D4277CD459BBDE6713766033CB71F9E@exchange.mvalent.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200409240510.58045.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James R. Marcus wrote:
+On Fri, 24 Sep 2004 02:43, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> >I'd need to see your patch, but if sysadmfile is really as close to
+> >{ file_type -shadow_t } as you say, then that sounds fine too.
+>
+> With russells latest patches sysadmfile is the same as file_type
+> -shadow_t , so we should be able to have a
+> tunable to restrict sysadm_r access to sysadmfile.
 
->What is the right way to deal with this issue?  When root logs in should
->they automatically be in the sysadm_r role or should these files be
->labeled with staff_r?
->
->  
->
-It is working the way it was designed.  In Fedora Core, we changed to  
-use staff_* for the home directory, because
-we thought it was too confusing for the users.  There is a security risk 
-to having the root account owned by staff*
-Basically if I can some how modify .bash_profile as a staff user, then 
-get the sysadm to login as sysadm_r he will execute
-my code as sysadm_r.
+Alternatively we could change sysadmfile to be more restrictive and use 
+{ file_type -shadow_t } when the need the current sysadmfile behaviour.
 
-Dan
+The aim of my patch was not to have an attribute that gave the same result as 
+{ file_type -shadow_t } but to make things more regular so we've got a 
+consistent base for the next stage of development.
 
->Do I need to change this in /etc/security/selinux/file_contexts ?
->
->This is what I have in file_contexts:
->#
-># User-specific file contexts
->#
->/root           -d      root:object_r:sysadm_home_dir_t
->/root/.+                        root:object_r:sysadm_home_t
->/root/\.ssh(/.*)?               root:object_r:sysadm_home_ssh_t
->/root/.default_contexts --      system_u:object_r:default_context_t
->/root/.ccache(/.*)?             system_u:object_r:sysadm_ccache_t
->
->
->Thanks,
->James
->-----Original Message-----
->From: Daniel J Walsh [mailto:dwalsh@redhat.com] 
->Sent: Thursday, September 23, 2004 1:31 PM
->To: James R. Marcus
->Cc: selinux@tycho.nsa.gov
->Subject: Re: bash_profile: Permission denied
->
->James R. Marcus wrote:
->
->  
->
->>When I login in enforced mode I get this error as root:
->>-bash: /root/.bash_profile: Permission denied
->>ftp root # pwd       
->>/root
->>ftp root # ls -aZ
->>ls: .: Permission denied
->>ftp root #
->>
->>I thought it might be a labeling issue so I ran this command:
->>ftp domains # newrole -r sysadm_r
->>Authenticating root.
->>Password: 
->>ftp domains # cd /
->>ftp / # setfiles /etc/security/selinux/file_contexts /root/
->>setfiles:  read 575 specifications
->>setfiles:  labeling files under /root/
->>setfiles:  hash table stats: 5 elements, 5/65536 buckets used, longest
->>chain length 1
->>setfiles:  Done.
->>
->>I'm not getting any messages in /var/log/messages when I avc_toggle.
->>
->>
->>Am I on the right track?
->>
->>James
->> 
->>
->>    
->>
->The problem is probably that you are logging as staff_r and the 
->directory is sysadm_r.
->At login do an id -Z to see what context you have,
->then do the newrole -r sysadm_r and see if you have access to the
->directory.
->
->Dan
->
->  
->
->>
->>
->>--
->>This message was distributed to subscribers of the selinux mailing
->>    
->>
->list.
->  
->
->>If you no longer wish to subscribe, send mail to
->>    
->>
->majordomo@tycho.nsa.gov with
->  
->
->>the words "unsubscribe selinux" without quotes as the message.
->> 
->>
->>    
->>
->
->
->  
->
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
