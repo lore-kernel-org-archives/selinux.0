@@ -1,57 +1,48 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h97KUqWt014661
-	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 16:30:52 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h97KUo7f021651
-	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 20:30:51 GMT
-Date: Tue, 7 Oct 2003 16:31:04 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-cc: Vikram K <vikramatiitkdotacdotin@yahoo.com>, <selinux@tycho.nsa.gov>
-Subject: Re: A few clarifications - SID, Precondition functions
-In-Reply-To: <1065555072.3919.292.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.44.0310071614220.6227-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h97L99Wt015021
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 17:09:09 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h97L970p008955
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 21:09:07 GMT
+Received: from unicorn.lemuria.org (c152019.adsl.hansenet.de [213.39.152.19])
+	by jazzswing.ncsc.mil  with ESMTP id h97L96r7008952
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 21:09:06 GMT
+Date: Tue, 7 Oct 2003 23:03:52 +0200
+From: Tom <tom@lemuria.org>
+To: selinux@tycho.nsa.gov
+Subject: 2.6.0-test6 boot process failures
+Message-ID: <20031007230348.E11325@lemuria.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 7 Oct 2003, Stephen Smalley wrote:
+I have a few weird dynamic linker "libselinux.so not found" errors during 
+bootup, even though libselinux.so is on the initrd image, the policy
+loads correctly and everything seems to work fine.
 
-> On Tue, 2003-10-07 at 13:28, Vikram K wrote:
+The only thing I can think about is that libselinux.so is in /usr/lib
+and that is on a seperate partition, (/usr is).
 
-> > 1. The need for having a SID ( instead of having a
-> > struct context* ) in
-> > each of the *_security_struct structures. (* = task,
-> > inode, etc.) As we
-> > see it, the SID is just a means of referring to the
-> > corresponding context
-> > structure and seems to have no other utility.
-> 
-> You might want to read the Flask architecture paper available
-> from http://www.nsa.gov/selinux/background.html to understand the
-> original motivation for SIDs.  However, I'll grant that the elimination
-> of SIDs from the userspace API makes them a less useful abstraction, so
-> it might be reasonable to investigate replacing them with direct
-> references to context structures (while continuing to keep the structure
-> definition private to the security server to encapsulate the policy).
+Is it possible - I'm not familiar with the details of the boot process
+- that somewhere inbetween it loses access to the initrd /usr/lib but
+before it has mounted all the other partitions?
 
-It's not clear to me that there would be any e.g. performance advantage
-from doing this.  There is a potential to eliminate sidtab lookups,
-although these are generally cached via the AVC and do not significantly 
-impact on performance.
-
-It would be a major job to remove SIDs from the kernel code, and given the
-risk of introducing bugs, there would need to be strong justification for 
-this kind of change.
+If so - how do I work around this?
 
 
-- James
+Btw: Russel, I tried to mail you directly, but your mailserver doesn't
+like my dialup-IP: Collin already made a script and that works just
+fine. I tried replacing it with yours and that broke my initrd, but
+that may as well have been my mistake. Well, at least it's not
+drop-in-be-happy - should I do more testing? Tell me what to do, boot
+details are beyond me.
+
+
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
