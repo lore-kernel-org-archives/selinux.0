@@ -1,35 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA12960
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2001 18:35:27 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA02057
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2001 22:34:23 GMT
-Received: from hawk.mail.pas.earthlink.net (hawk.mail.pas.earthlink.net [207.217.120.22])
-	by jazzswing.ncsc.mil  with ESMTP id WAA02053
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2001 22:34:22 GMT
-Received: from zion (CBL-dataefx.hs.earthlink.net [207.217.173.155])
-	by hawk.mail.pas.earthlink.net (EL-8_9_3_3/8.9.3) with SMTP id PAA20917
-	for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2001 15:35:24 -0700 (PDT)
-From: "JohnScroggins" <dataefx@earthlink.net>
-To: <selinux@tycho.nsa.gov>
-Subject: new to list 
-Date: Tue, 7 Aug 2001 15:28:59 -0700
-Message-ID: <AGEMJJFIEKIAAOJCCEIGCEBFCDAA.dataefx@earthlink.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA15407
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2001 09:40:42 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA00549
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2001 13:40:23 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
+	by jazzband.ncsc.mil  with ESMTP id NAA00545
+	for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2001 13:40:22 GMT
+Date: Wed, 8 Aug 2001 09:39:47 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: JohnScroggins <dataefx@earthlink.net>
+cc: selinux@tycho.nsa.gov
+Subject: Re: new to list 
+In-Reply-To: <AGEMJJFIEKIAAOJCCEIGCEBFCDAA.dataefx@earthlink.net>
+Message-ID: <Pine.SOL.3.95.1010808093435.5634I-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-G'day all...
 
-Is anyone one working on the documentation elements of the project,
-specifically the Admin Guide, User Guide, and API docs?
+On Tue, 7 Aug 2001, JohnScroggins wrote:
+
+> Is anyone one working on the documentation elements of the project,
+> specifically the Admin Guide, User Guide, and API docs?
+
+Not as far as I know.  
+
+FYI, since you are new to the list, you'll find an up-to-date archive 
+of the mailing list at http://marc.theaimsgroup.com/?l=selinux (or by
+sending index/get commands to majordomo).  The archive on the NSA
+web site only gets updated when other information is added.
+
+Also FYI, we've been developing a new SELinux implementation based 
+on the Linux Security Modules (LSM) framework.  See lsm.immunix.org
+for information about LSM.  The new LSM-based SELinux prototype should
+be available soon.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-Cheers,
 
-John
 
 
 --
