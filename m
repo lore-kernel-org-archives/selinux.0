@@ -1,57 +1,55 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9U41UWt010953
-	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 23:01:35 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9U41TXK011522
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 04:01:29 GMT
-Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
-        by jazzband.ncsc.mil  with ESMTP id h9U40Jj4011509 for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 04:00:43 GMT
-Message-ID: <3FA08C65.2020309@diyab.net>
-Date: Wed, 29 Oct 2003 22:58:29 -0500
-From: Diyab <diyab@diyab.net>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Diamond Rio 500 and other device nodes
-References: <200310300227.27364.russell@coker.com.au>
-In-Reply-To: <200310300227.27364.russell@coker.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9U5sQWt011405
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 00:54:26 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9U5s9Uf013809
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 05:54:09 GMT
+Received: from mail.rollinghorse.com (dsl093-033-002.snd1.dsl.speakeasy.net [66.93.33.2])
+	by jazzswing.ncsc.mil  with ESMTP id h9U5s8tU013806
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2003 05:54:08 GMT
+Message-Id: <5.2.1.1.2.20031029220923.0a743d10@Shire>
+Date: Wed, 29 Oct 2003 22:11:13 -0800
+To: russell@coker.com.au, "SE Linux" <selinux@tycho.nsa.gov>
+From: "Carsten P. Gehrke" <Carsten@rollinghorse.com>
+Subject: Re: When to use SEL kernel
+In-Reply-To: <200310271010.40888.russell@coker.com.au>
+References: <5.2.1.1.2.20031024155304.0c94a990@Shire>
+ <5.2.1.1.2.20031024155304.0c94a990@Shire>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
+At 15:13 26-10-03, Russell Coker wrote:
+>On Sat, 25 Oct 2003 08:58, Carsten P. Gehrke wrote:
+> > to this system (notably iptables).  My question is:  Does it matter if I
+> > install additional packages before or after I install (and use) the SE
+> > Linux kernel?
+>
+>When you install a new package (or upgrade an existing package) on a live SE
+>Linux system then after installing the package you must relabel all files in
+>it.  Discovering which files were installed from the source will be a
+>challenge for you on a source-based distribution, so relabeling the root file
+>system might be easier.
+>
+>If you do all your package installation before going live on SE Linux then it
+>may be easier.
+>
+>--
+>http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+>http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+>http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+>http://www.coker.com.au/~russell/  My home page
 
-> What do you think is the correct type for the device node for the "Diamond Rio 
-> 500" (/dev/usb/rio500)?
-> 
-> It's a portable MP3 player and storage device with a USB interface, so I think 
-> that removable_device_t is appropriate, in concept it's similar to a floppy 
-> disk drive.
-> 
-> Also I've used scanner_device_t for USB digital cameras, I think of a camera 
-> as a portable scanner.  ;)  But I guess a case could be made for considering 
-> digital cameras to be removable storage.
-> 
-> 
-> I have been considering whether I should merge the v4l_device_t device nodes 
-> with those for scanners.  However I think that although the concept is the 
-> same the likely use is different.  Having one program to use v4l to control a 
-> security system while another program acts as a scanner server is likely, 
-> while it's likely that a program which is authorised for accessing a scanner 
-> will also be authorised for digital cameras.
-> 
+Thank you Kamal and Russel.  I'll install the SE Linux package after I have 
+installed everything else.  Then I'll probably have more questions... :-)
 
-Just curious, but how will the files on the device be labeled once the 
-device is mounted?  For example if I plug in my digital camera and mount 
-it so that I can copy the pictures from it am I going to have access to 
-read the files?  Will I even be able to mount it as a normal user?  Is 
-this going to be a problem since we can't label the device filesystem?
 
-Timothy,
-
--- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
+--
+========================================================================
+                             Carsten P. Gehrke
+                      mailto:Carsten@RollingHorse.com
+======================================================================== 
 
 
 --
