@@ -1,45 +1,39 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i88KGTrT007201
-	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 16:16:29 -0400 (EDT)
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i88KFaR0029587
-	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 20:15:37 GMT
-Subject: Re: domains/local/*.te file_contexts/local/*.fc
-From: Erich Schubert <erich@debian.org>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200409082329.56168.russell@coker.com.au>
-References: <1094489141.3973.40.camel@wintermute.xmldesign.de>
-	 <200409072209.43296.russell@coker.com.au>
-	 <1094561496.23173.1.camel@wintermute.xmldesign.de>
-	 <200409082329.56168.russell@coker.com.au>
-Content-Type: text/plain
-Date: Wed, 08 Sep 2004 22:16:21 +0200
-Message-Id: <1094674581.4181.6.camel@wintermute.xmldesign.de>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i88LoqrT007712
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 17:50:52 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i88Lopfe005904
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 21:50:51 GMT
+Date: Wed, 8 Sep 2004 23:02:08 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: debian-devel@lists.debian.org, Scott James Remnant <scott@netsplit.com>,
+   SE-Linux <selinux@tycho.nsa.gov>,
+   Dpkg Development <debian-dpkg@lists.debian.org>
+Subject: Re: dpkg and selinux
+Message-ID: <20040908220208.GD7717@lkcl.net>
+References: <20040831234115.GZ4375@lkcl.net> <200409072220.53751.russell@coker.com.au> <20040907123930.GD17760@lkcl.net> <200409082332.36104.russell@coker.com.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200409082332.36104.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Wed, Sep 08, 2004 at 11:32:36PM +1000, Russell Coker wrote:
 
-> OK, maybe we should just change that to have file_contexts/misc/* included 
-> last.  What do you think?
+> > > >  well, under most circumstances, i believe that can be catered for
+> > > >  (with /etc/init.d/xfs creating /tmp/.font-unix being a notable
+> > > >   exception).
+> > >
+> > > test -s /sbin/restorecon && /sbin/restorecon /tmp/.font-unix
+> >
+> >  (in /etc/init.d/xfs i've used if [ -x /sbin/restorecon ]; then /sbin....
+> >   but hey it's all the same)
+> 
+> Yes.  Now we just need to get that into the init script.  Please file an 
+> appropriate bug report requesting that either method be used.
 
-Basically yes. but be careful: I havn't checked the contents of the misc
-files, but somewhere default contexts such as /bin, /usr/bin etc. need
-to be defined. So we need something to be listed first, too.
-Where is this done currently, i havn't checked.
-
-Maybe we should name them appropriately: first and last, or "defaults"
-and "overrides"?
-
-Greetings,
-Erich Schubert
--- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C   (o_
-   There was never a good war or a bad peace. - Benjamin Franklin   //\
-         Humor sollte immmer dabeisein, auch bei Problemen.         V_/_
-
+ done.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
