@@ -1,42 +1,49 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA18394
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 08:08:56 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA18452
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 08:11:48 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA12455
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 13:07:04 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id NAA12451
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 13:07:03 GMT
-Date: Tue, 29 Oct 2002 08:08:41 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Tom <tom@lemuria.org>
-cc: <selinux@tycho.nsa.gov>
+	by jazzswing.ncsc.mil  with ESMTP id NAA12651
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 13:09:55 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id NAA12645
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 13:09:54 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>, Tom <tom@lemuria.org>
 Subject: Re: patches to policy question
-In-Reply-To: <20021029140234.C25150@lemuria.org>
-Message-ID: <Pine.GSO.4.33.0210290805320.29605-100000@raven>
+Date: Tue, 29 Oct 2002 14:11:35 +0100
+Cc: <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0210290743010.29605-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0210290743010.29605-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200210291411.35967.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 29 Oct 2002 13:47, Stephen Smalley wrote:
+> Yes, posting here is the right way to submit patches.  Russell does submit
+> policy patches to us for merging, but we also consider other directly
+> submitted policy patches.  A diff against the sourceforge selinux CVS tree
+> is optimal for us, but may not always be reasonable for Debian selinux
+> users if the Debian policy deviates too much.
 
-On Tue, 29 Oct 2002, Tom wrote:
+You can be certain that I'll incorporate everything from the CVS into my tree 
+at the time of the next release (if not before).
 
-> Great. Should I repost my Subversion policy or has it been considered
-> already? I believe it is finished, while I'm still working on apache
-> and mysql and will submit more refined versions of those in the future.
->
-> (Subversion is a CVS replacement, i.e. an advanced revision control
-> system.)
+Also when patches are posted against the CVS I often merge them, but it 
+sometimes depends on how interested I am in that area and whether it's 
+something I think can wait for the next release.
 
-Unless it has changed since your last posting, you don't need to repost.
-It is in the queue for review.
+Also there was one occasion that I refused a patch and advised the author to 
+try Steve because I would never accept it otherwise.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
