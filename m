@@ -1,60 +1,63 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2GIDkRb021441
-	for <selinux@tycho.nsa.gov>; Tue, 16 Mar 2004 13:13:46 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i2GIC16Q017796
-	for <selinux@tycho.nsa.gov>; Tue, 16 Mar 2004 18:12:01 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i2GIC05t017793
-	for <selinux@tycho.nsa.gov>; Tue, 16 Mar 2004 18:12:01 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2HBSPRb025374
+	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2004 06:28:25 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i2HBSO0F013300
+	for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2004 11:28:24 GMT
+Received: from mail.gmx.net (mail.gmx.de [213.165.64.20])
+        by jazzband.ncsc.mil  with SMTP id i2HBSNgZ013297 for <selinux@tycho.nsa.gov>; Wed, 17 Mar 2004 11:28:23 GMT
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Subject: Re: newrole failed in enforcing mode
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Carsten Grohmann <carstengrohmann@gmx.de>
+Date: Wed, 17 Mar 2004 12:27:52 +0100
 Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <200403161839.13748.carstengrohmann@gmx.de>
-References: <200403101650.07042.carstengrohmann@gmx.de>
-	 <200403161839.13748.carstengrohmann@gmx.de>
-Content-Type: text/plain
-Message-Id: <1079460805.4583.50.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Tue, 16 Mar 2004 13:13:25 -0500
+References: <200403101650.07042.carstengrohmann@gmx.de> <200403161839.13748.carstengrohmann@gmx.de> <1079460805.4583.50.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1079460805.4583.50.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_4YDWA0nbfSZY0qa"
+Message-Id: <200403171227.52632.carstengrohmann@gmx.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-03-16 at 12:39, Carsten Grohmann wrote:
-> Today I used strace to localize my pam problem and I get follow 
-> output:
-> 2226  execve("/usr/bin/newrole", ["/usr/bin/newrole", "-r", 
-> "staff_r"], [/* 20 vars */]) = 0
-> 2226  +++ killed by SIGKILL ++
-> 
-> "killed by SIGKILL" - which process send a sigkill only in the 
-> enforcing mode? In the permissive mode it runs and I don't get avc 
-> messages.
 
-SELinux controls process tracing across domain transitions, for obvious
-reasons.  On a ptrace permission failure during a domain-changing exec,
-SELinux will not perform the domain transition and will also send
-SIGKILL to the process to abort it, as this is the only way to convey an
-error from compute_creds.
+--Boundary-00=_4YDWA0nbfSZY0qa
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> I use strace with various prgrams successfull:
-> - strace newrole in permissive mode
-> - strace ps ax --context in permissive and enforcing mode
-> But an strace of passwd failed in the enforcing mode with an similar 
-> output?
-> 
-> Could it be that the pam libraries are reason of this behavior?
-> Have anybody an idea to encircle this problem?
+On Dienstag, 16. M=E4rz 2004 19:13, Stephen Smalley wrote:
+> To debug the newrole failure in enforcing mode, do a 'make
+> enableaudit reload' in policy and then try using newrole, and
 
-To debug the newrole failure in enforcing mode, do a 'make enableaudit
-reload' in policy and then try using newrole, and review the audit
-messages.  Some will be noise (and normally suppressed by dontaudit
-rules) but some may be relevant.
+"make enableaudit" was a good hint. The newrole domain needs read=20
+access to shadow_t. The attached patch grant this by using the auth=20
+attribute.=20
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Greetings
+
+Carsten
+--Boundary-00=_4YDWA0nbfSZY0qa
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="newrole.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="newrole.patch"
+
+--- macros/program/newrole_macros.te.orig	2004-03-03 13:53:26.000000000 +0100
++++ macros/program/newrole_macros.te	2004-03-17 11:47:25.506094000 +0100
+@@ -10,7 +10,7 @@
+ # $1_t is the domain for the program.
+ # $1_exec_t is the type of the executable.
+ #
+-type $1_t, domain, privrole, privowner, privlog, auth_chkpwd, privfd $2;
++type $1_t, domain, privrole, privowner, privlog, auth_chkpwd, auth, privfd $2;
+ in_user_role($1_t)
+ role sysadm_r types $1_t;
+ 
+
+--Boundary-00=_4YDWA0nbfSZY0qa--
 
 
 --
