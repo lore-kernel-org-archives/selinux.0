@@ -1,51 +1,45 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA21999
-	for <selinux@tycho.nsa.gov>; Wed, 4 Sep 2002 10:02:28 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA22220
+	for <selinux@tycho.nsa.gov>; Wed, 4 Sep 2002 10:25:24 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA16298
-	for <selinux@tycho.nsa.gov>; Wed, 4 Sep 2002 14:01:13 GMT
-Received: from meryl.it.uu.se (meryl.it.uu.se [130.238.12.42])
-	by jazzswing.ncsc.mil  with ESMTP id OAA16290
-	for <selinux@tycho.nsa.gov>; Wed, 4 Sep 2002 14:01:11 GMT
-Received: from meretrix.it.uu.se (dhcp-8-192.it.uu.se [130.238.8.192])
-	by meryl.it.uu.se (8.8.5/8.8.5) with ESMTP id QAA10992
-	for <selinux@tycho.nsa.gov>; Wed, 4 Sep 2002 16:02:24 +0200 (MET DST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Magnus Johansson <magnusj@it.uu.se>
-To: selinux@tycho.nsa.gov
-Subject: Buildproblems
-Date: Wed, 4 Sep 2002 16:01:07 +0000
+	by jazzswing.ncsc.mil  with ESMTP id OAA17842
+	for <selinux@tycho.nsa.gov>; Wed, 4 Sep 2002 14:24:09 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id OAA17838
+	for <selinux@tycho.nsa.gov>; Wed, 4 Sep 2002 14:24:08 GMT
+Date: Wed, 4 Sep 2002 10:24:51 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Magnus Johansson <magnusj@it.uu.se>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: Buildproblems
+In-Reply-To: <200209041601.07772.magnusj@it.uu.se>
+Message-ID: <Pine.GSO.4.33.0209041022160.18204-100000@raven>
 MIME-Version: 1.0
-Message-Id: <200209041601.07772.magnusj@it.uu.se>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
 
-I just tried to build the latest tarball, but ran into problems compiling
-'more'. However, I found both the problem and the solution in the
-mailinglist archive from January. I just want to point out that the problem
-still exists in the current tar-ball (lsm-2.4-selinux-2002082308.tgz).
+On Wed, 4 Sep 2002, Magnus Johansson wrote:
 
-Regards,
-Magnus Johansson
+> I just tried to build the latest tarball, but ran into problems compiling
+> 'more'. However, I found both the problem and the solution in the
+> mailinglist archive from January. I just want to point out that the problem
+> still exists in the current tar-ball (lsm-2.4-selinux-2002082308.tgz).
 
-Here is the original message:
+This is only an issue if you don't have libtermcap installed on your
+system (in which case the configure script will fall back to using
+libcurses).  In any event, this is an issue with the base util-linux
+package, not in the SELinux patch to it.  Builds fine for us on RH7.1 and
+RH7.2.
 
->Hi, 
->
->I came across this problem as well. A library is missing in the Makefile 
->(utils/util-linux-2.11f/text-utils) for building 'more'. 
->
->more: more.o $(LIB)/xstrncpy.o 
->        $(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LIBTERMCAP) 
->
->
->I added $(LIBCURSES) at the end of this line and 'more' built properly. 
->
->
->Trent. 
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
 
 
 --
