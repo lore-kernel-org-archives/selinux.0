@@ -1,66 +1,110 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3FB6VRb005977
-	for <selinux@tycho.nsa.gov>; Thu, 15 Apr 2004 07:06:31 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i3FB4SUZ021528
-	for <selinux@tycho.nsa.gov>; Thu, 15 Apr 2004 11:04:28 GMT
-Received: from linda-1.paradise.net.nz (bm-1a.paradise.net.nz [202.0.58.20])
-	by jazzswing.ncsc.mil  with ESMTP id i3FB4RmT021504
-	for <selinux@tycho.nsa.gov>; Thu, 15 Apr 2004 11:04:28 GMT
-Received: from smtp-3.paradise.net.nz (smtp-3b.paradise.net.nz [202.0.32.212])
- by linda-1.paradise.net.nz (Paradise.net.nz)
- with ESMTP id <0HW7000UELI9PS@linda-1.paradise.net.nz> for
- selinux@tycho.nsa.gov; Thu, 15 Apr 2004 23:06:10 +1200 (NZST)
-Received: from 210-246-25-106.paradise.net.nz
- (210-246-25-106.paradise.net.nz [210.246.25.106])	by smtp-3.paradise.net.nz
- (Postfix) with ESMTP id 3416EADFD3	for <selinux@tycho.nsa.gov>; Thu,
- 15 Apr 2004 23:06:07 +1200 (NZST)
-Date: Thu, 15 Apr 2004 23:05:35 +1200
-From: Wesley Parish <wes.parish@paradise.net.nz>
-Subject: Re: Fedora Core 2 Test 2
-In-reply-to: <20040414110242.C26635@lemuria.org>
-To: selinux@tycho.nsa.gov
-Message-id: <200404152305.35647.wes.parish@paradise.net.nz>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-References: <1081459652.24857.33.camel@hawaii.efficax.net>
- <200404121728.59270.russell@coker.com.au> <20040414110242.C26635@lemuria.org>
+Message-ID: <407E7111.506@snu.edu>
+Date: Thu, 15 Apr 2004 06:25:05 -0500
+From: Joshua Brindle <jbrindle@snu.edu>
+MIME-Version: 1.0
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: extra secondary_ops for digsig
+Content-Type: multipart/mixed;
+ boundary="------------060603030305010508040703"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 14 Apr 2004 21:02, Tom wrote:
-> On Mon, Apr 12, 2004 at 05:28:59PM +1000, Russell Coker wrote:
-> > On Fri, 9 Apr 2004 10:11, "Kerry Thompson" <kerry@crypt.gen.nz> wrote:
-> > > I'm advising people that if they're not interested in SELinux or are
-> > > installing a desktop for their granny then disable with selinux=0.
-> >
-> > I think that a granny's desktop system is an ideal machine for SE Linux. 
-> > Such machines often don't get upgraded as often as you might like and you
-> > want as many security options as possible!
->
-> Plus granny is unlikely to fool around and thus can comfortably live in
-> a restricted environment.
+This is a multi-part message in MIME format.
+--------------060603030305010508040703
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Precisely, someone should get on the blower to the Lindash (formerly known as 
-Lindows) people and suggest it to them.  It would be one of their strongest 
-selling points, after all - give it to your granny and forget about the 
-script-kiddies and digital intruders.
+I started playing with digsig and quickly found out that selinux doesn't 
+support all the secondary ops that it requires (it isn't even set up to 
+be a secondary module, I had to fix that too so this is expected)..
 
->
-> I know that for me, my own machines are the ones with the most relaxed
-> security settings, because I constantly install, tweak, tune, and
-> generally mess with stuff.
+Digsig is an LSM that verifies signatures on ELF binaries before they 
+are allowed to run. It requires inode_permission, file_mmap, 
+bprm_check_security and inode_unlink, I've attached a patch to add 
+these, it'd be nice to get it upstream so that this module will run as a 
+secondary to selinux without hacking (I'll send the patch for digsig to 
+their authors as well)
 
--- 
-Wesley Parish
-* * *
-Clinersterton beademung - in all of love.  RIP James Blish
-* * *
-Mau e ki, "He aha te mea nui?"
-You ask, "What is the most important thing?"
-Maku e ki, "He tangata, he tangata, he tangata."
-I reply, "It is people, it is people, it is people."
+Just out of curiousity, why are there so few secondary_ops available? 
+Was it just decided to add them as they were required or is there a 
+different reason?
 
+Joshua Brindle
+
+
+
+--------------060603030305010508040703
+Content-Type: text/plain;
+ name="extra_sec_ops.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="extra_sec_ops.patch"
+
+--- linux-2.6.4/security/selinux/hooks.c	2004-04-13 00:51:48.225259424 -0500
++++ linux-2.6.5-hardened/security/selinux/hooks.c	2004-04-13 00:34:15.067464600 -0500
+@@ -1673,6 +1673,11 @@
+ 
+ static int selinux_bprm_check_security (struct linux_binprm *bprm)
+ {
++	int rc;
++
++	rc = secondary_ops->bprm_check_security(bprm);
++	if (rc) 
++		return rc;
+ 	return 0;
+ }
+ 
+@@ -2013,6 +2018,11 @@
+ 
+ static int selinux_inode_unlink(struct inode *dir, struct dentry *dentry)
+ {
++	int rc;
++	
++	rc = secondary_ops->inode_unlink(dir, dentry);
++	if (rc)
++		return rc;
+ 	return may_link(dir, dentry, MAY_UNLINK);
+ }
+ 
+@@ -2081,11 +2091,17 @@
+ static int selinux_inode_permission(struct inode *inode, int mask,
+ 				    struct nameidata *nd)
+ {
++	int rc;
++
+ 	if (!mask) {
+ 		/* No permission to check.  Existence test. */
+ 		return 0;
+ 	}
+ 
++	rc = secondary_ops->inode_permission(inode, mask, nd);
++	if (rc)
++		return rc;
++
+ 	return inode_has_perm(current, inode,
+ 			       file_mask_to_av(inode->i_mode, mask), NULL, NULL);
+ }
+@@ -2358,6 +2374,7 @@
+ static int selinux_file_mmap(struct file *file, unsigned long prot, unsigned long flags)
+ {
+ 	u32 av;
++	int rc;
+ 
+ 	if (file) {
+ 		/* read access is always possible with a mapping */
+@@ -2369,6 +2386,10 @@
+ 
+ 		if (prot & PROT_EXEC)
+ 			av |= FILE__EXECUTE;
++	
++		rc = secondary_ops->file_mmap(file, prot, flags);
++		if (rc)
++			return rc;
+ 
+ 		return file_has_perm(current, file, av);
+ 	}
+
+--------------060603030305010508040703--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
