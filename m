@@ -1,145 +1,158 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB7081Ii025362
-	for <selinux@tycho.nsa.gov>; Mon, 6 Dec 2004 19:08:01 -0500 (EST)
-Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB7082oX028559
-	for <selinux@tycho.nsa.gov>; Tue, 7 Dec 2004 00:08:03 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 7 Dec 2004 01:08:03 +0100
-Date: Tue, 7 Dec 2004 01:08:05 +0100
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: patch: add can_create() macro, allow file_type_auto_trans(a,b,c, { file dir })
-Message-Id: <20041207000805.GH3678@jmh.mhn.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5VuzLDXibKSJvVYD"
+Message-ID: <5D201EB6E3041946BC4F8F6A14296132607EE3@svnt4-5.inepar.com.br>
+From: "Luis Fernando C. Talora" <luis.talora@iesa.com.br>
+To: " (SELinux@tycho.nsa.gov)" <SELinux@tycho.nsa.gov>
+Subject: Problem with SELinux and Squid+Winbind+Samba
+Date: Tue, 7 Dec 2004 09:19:14 -0200 
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C4DC4E.9523D5D0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
---5VuzLDXibKSJvVYD
-Content-Type: multipart/mixed; boundary="M0YLxmUXciMpOLPE"
-Content-Disposition: inline
-
-
---M0YLxmUXciMpOLPE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+------_=_NextPart_001_01C4DC4E.9523D5D0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-After the boring cleanup stuff, now for something a little bit more
-interesting :-)
+Fellows,
+=20
+I=B4m trying to put a server running Squid with Microsoft Windows Active
+Directory integrated authentication (using Samba 3 and Winbind). When I
+start the squid service, I get the following message (it repeats itself m=
+any
+times):
+=20
+Dec  7 08:48:56 svux8-250 kernel: audit(1102416536.028:0): avc:  denied  =
+{
+getattr } for  pid=3D3825 exe=3D/usr/lib/squid/wb_ntlmauth
+path=3D/var/run/winbindd/pipe dev=3Dhda7 ino=3D627398
+scontext=3Droot:system_r:squid_t tcontext=3Droot:object_r:var_run_t
+tclass=3Dsock_file
+=20
+Since I=B4m new in SELinux, I have no idea how to solve this. Could someo=
+ne
+give some help?
+=20
+Thank you all!
+=20
+Regards,
+=20
+_____________________
+Luis Fernando C. Talora
+Support Analyst
+=20
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Esta mensagem pode conter informa=E7=E3o confidencial e/ou privilegiada.
+Se voc=EA n=E3o for o destinat=E1rio ou a pessoa autorizada a receber est=
+a=20
+mensagem, n=E3o dever=E1 utilizar, copiar, alterar, divulgar a informa=E7=
+=E3o=20
+nela contida ou tomar qualquer a=E7=E3o baseada nessas informa=E7=F5es. S=
+e=20
+voc=EA recebeu esta mensagem por engano, por favor avise imediatamente=20
+o remetente, respondendo o e-mail e em seguida apague-o.Agradecemos=20
+sua coopera=E7=E3o.=20
 
-The goal of the following patch is to allow one to write
-file_type_auto_trans(foo_t, var_run_t, foo_var_run_t, { dir file sock_file =
-})=20
-
-This makes it much easier to eg lock down /tmp (this will follow later
-as a separate patch)
-
-How does it work? The m4 magic inside can_create() parses its last=20
-parameter via a regex into separate tokens which it passes to=20
-can_create_internal() one by one and recurses over the rest.
-
-The interface to file_type_{,auto_}trans() is unchanged, except that the
-fourth parameter can now contain multiple object classes.
-
-Thomas
-
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-
---M0YLxmUXciMpOLPE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="can_create.patch"
+This message may contain confidential and/or privileged information.=20
+If you are not the addressee or authorized to receive this for the=20
+addressee, you must not use, copy, disclose, change, take any action=20
+based on this message or any information herein. If you have received
+this message in error, please advise the sender immediately by reply=20
+e-mail and delete this message. Thank you for your cooperation.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+------_=_NextPart_001_01C4DC4E.9523D5D0
+Content-Type: text/html;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
---- orig/macros/core_macros.te
-+++ mod/macros/core_macros.te
-@@ -445,6 +445,31 @@
- allow $1 $2:file { rx_file_perms execute_no_trans };
- ')
-=20
-+# this is an internal macro used by can_create
-+define(`can_create_internal', `
-+ifelse(`$3', `dir', `
-+allow $1 $2:$3 create_dir_perms;
-+', `$3', `lnk_file', `
-+allow $1 $2:$3 create_lnk_perms;
-+', `
-+allow $1 $2:$3 create_file_perms;
-+')dnl end if dir
-+')dnl end can_create_internal
-+
-+
-+#################################
-+#
-+# can_create(domain, file_type, object_class)
-+#
-+# Permissions for creating files of the specified type and class
-+#
-+define(`can_create', `
-+ifelse(regexp($3, `\w'), -1, `', `
-+can_create_internal($1, $2, regexp($3, `\(\w+\)', `\1'))
-+
-+can_create($1, $2, regexp($3, `\w+\(.*\)', `\1'))
-+')
-+')
- #################################
- #
- # file_type_trans(domain, dir_type, file_type)
-@@ -463,19 +488,9 @@
- # Allow the process to create the file.
- #
- ifelse(`$4', `', `
--allow $1 $3:{ file sock_file fifo_file } create_file_perms;
--allow $1 $3:lnk_file create_lnk_perms;
--allow $1 $3:dir create_dir_perms;
-+can_create($1, $3, `{ file lnk_file sock_file fifo_file dir }')
- ', `
--ifelse(`$4', `dir', `
--allow $1 $3:$4 create_dir_perms;
--', `
--ifelse(`$4', `lnk_file', `
--allow $1 $3:$4 create_lnk_perms;
--', `
--allow $1 $3:$4 create_file_perms;
--')dnl end ifelse lnk_file
--')dnl end if dir
-+can_create($1, $3, $4)
- ')dnl end if param 4 specified
-=20
- ')
---- orig/macros/program/crontab_macros.te
-+++ mod/macros/program/crontab_macros.te
-@@ -45,8 +45,7 @@
- dontaudit $1_crontab_t selinux_config_t:dir search;
-=20
- # Type for temporary files.
--file_type_auto_trans($1_crontab_t, tmp_t, $1_tmp_t, file)
--file_type_auto_trans($1_crontab_t, tmp_t, $1_tmp_t, dir)
-+file_type_auto_trans($1_crontab_t, tmp_t, $1_tmp_t, { dir file })
-=20
- # Use the type when creating files in /var/spool/cron.
- allow sysadm_crontab_t $1_cron_spool_t:file { getattr read };
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-885=
+9-1">
 
---M0YLxmUXciMpOLPE--
 
---5VuzLDXibKSJvVYD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+<META content=3D"MSHTML 6.00.3790.0" name=3DGENERATOR></HEAD>
+<BODY>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
+size=3D2>Fellows,</FONT></SPAN></DIV>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial size=3D2>I=B4m t=
+rying to put a=20
+server running Squid with Microsoft Windows Active Directory integrated=20
+authentication (using Samba 3 and Winbind). When I start the squid servic=
+e, I=20
+get the following message (it repeats itself many times):</FONT></SPAN></=
+DIV>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial size=3D2>Dec&nbs=
+p; 7 08:48:56=20
+svux8-250 kernel: audit(1102416536.028:0): avc:&nbsp; denied&nbsp; { geta=
+ttr }=20
+for&nbsp; pid=3D3825 exe=3D/usr/lib/squid/wb_ntlmauth path=3D/var/run/win=
+bindd/pipe=20
+dev=3Dhda7 ino=3D627398 scontext=3Droot:system_r:squid_t=20
+tcontext=3Droot:object_r:var_run_t tclass=3Dsock_file</FONT></SPAN></DIV>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial size=3D2>Since I=
+=B4m new in=20
+SELinux, I have no idea how to solve this. Could someone give some=20
+help?</FONT></SPAN></DIV>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial size=3D2>Thank y=
+ou=20
+all!</FONT></SPAN></DIV>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D337440611-07122004><FONT face=3DArial=20
+size=3D2>Regards,</FONT></SPAN></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>_____________________</FONT=
+></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Luis Fernando C. Talora</FO=
+NT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Support Analyst</FONT></DIV=
+>
+<DIV align=3Dleft><FONT face=3DArial=20
+size=3D2></FONT>&nbsp;</DIV></FONT></DIV>
+<FONT SIZE=3D3 COLOR=3DBLUE><PRE>
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Esta mensagem pode conter informa=E7=E3o confidencial e/ou privilegiada.
+Se voc=EA n=E3o for o destinat=E1rio ou a pessoa autorizada a receber est=
+a=20
+mensagem, n=E3o dever=E1 utilizar, copiar, alterar, divulgar a informa=E7=
+=E3o=20
+nela contida ou tomar qualquer a=E7=E3o baseada nessas informa=E7=F5es. S=
+e=20
+voc=EA recebeu esta mensagem por engano, por favor avise imediatamente=20
+o remetente, respondendo o e-mail e em seguida apague-o.Agradecemos=20
+sua coopera=E7=E3o.=20
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBtPRlxWIrrrL0q+cRAsFIAJ0ZYQTHfXkMPJOBVsUF/EBt75EbhgCeO1L8
-uI9VagLRmao8XEsuSVGTuQg=
-=MhSP
------END PGP SIGNATURE-----
-
---5VuzLDXibKSJvVYD--
+This message may contain confidential and/or privileged information.=20
+If you are not the addressee or authorized to receive this for the=20
+addressee, you must not use, copy, disclose, change, take any action=20
+based on this message or any information herein. If you have received
+this message in error, please advise the sender immediately by reply=20
+e-mail and delete this message. Thank you for your cooperation.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+</PRE></FONT>
+</BODY></HTML>
+------_=_NextPart_001_01C4DC4E.9523D5D0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
