@@ -1,44 +1,66 @@
-Subject: Re: Multiple contexts
-From: Stephen Bennett <spb@gentoo.org>
-To: ivg2@cornell.edu
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux@tycho.nsa.gov
-In-Reply-To: <1105560687.11135.26.camel@cobra.ivg2.net>
-References: <1105390249.8093.21.camel@cobra.ivg2.net>
-	 <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil>
-	 <1105560687.11135.26.camel@cobra.ivg2.net>
-Content-Type: text/plain
-Date: Wed, 12 Jan 2005 21:40:46 +0000
-Message-Id: <1105566046.3933.5.camel@localhost>
+Subject: [patch] allow users of tmp_domain to read /usr/tmp
+From: Colin Walters <walters@verbum.org>
+To: SELinux@tycho.nsa.gov
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-U1fRGsAqUtKFHUpBnjHe"
+Date: Wed, 12 Jan 2005 16:27:25 -0500
+Message-Id: <1105565245.4415.29.camel@nexus.verbum.private>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-12 at 13:11 -0700, Ivan Gyurdiev wrote:
-> > Because then policy would be encoded in the file attributes, not in a
-> > centralized security policy.  Hence, one would be unable to analyze
-> > information flow in the system based solely on the policy and would have
-> > to also analyze the complete filesystem state, and that state is much
-> > more subject to change at runtime than the policy itself (one would
-> > hope).
-> 
-> Please explain this some more - Luke also seems confused about this
-> (unless I misunderstand). I don't understand how the change from one
-> context to multiple contexts stored per file translates into policy
-> being encoded in the file attributes.
 
-AIUI, the issue is something like this: 
+--=-U1fRGsAqUtKFHUpBnjHe
+Content-Type: multipart/mixed; boundary="=-LeDWl+nJLxwYihFlzai4"
 
-With only one type per file, it's possible to look at the policy and be
-certain (for example) that domain1 can't affect domain2 in any way,
-because there are no interactions allowed between the two, and the file
-types they can access don't overlap. If you allow multiple contexts per
-file, that ability goes out of the window, and you have to look at which
-files have multiple contexts and what contexts they are before you can
-figure out where information can and can't flow.
 
-Of course I may be off here, and I may have missed more subtleties, but
-that's the problem I can see with multiple types per file. Someone
-correct me if I'm wrong here. :)
+--=-LeDWl+nJLxwYihFlzai4
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+On Fedora at least, /usr/tmp is a symlink to /var/tmp.  Users of
+tmp_domain get write access to tmp_t:dir, so I think it makes sense to
+automatically grant access to tmp_t:lnk_file as well, so that programs
+which refer to /usr/tmp work.  This should be safe since as discussed
+earlier no non-unconfined domain can create tmp_t:lnk_file.
+
+This came up on the #fedora-selinux channel where a user was trying to
+get their CGI script to work.
+
+
+
+
+
+--=-LeDWl+nJLxwYihFlzai4
+Content-Disposition: attachment; filename=tmp-domain-usr-tmp.patch
+Content-Type: text/x-patch; name=tmp-domain-usr-tmp.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+LS0tIHBvbGljeS0xLjIxLjEvbWFjcm9zL2dsb2JhbF9tYWNyb3MudGV+CTIwMDUtMDEtMTIgMTY6
+MTk6MTYuMDAwMDAwMDAwIC0wNTAwDQorKysgcG9saWN5LTEuMjEuMS9tYWNyb3MvZ2xvYmFsX21h
+Y3Jvcy50ZQkyMDA1LTAxLTEyIDE2OjIwOjU0LjAwMDAwMDAwMCAtMDUwMA0KQEAgLTQwOSw2ICs0
+MDksNyBAQA0KIGlmZWxzZSgkMywgYCcsDQogYGZpbGVfdHlwZV9hdXRvX3RyYW5zKCQxX3QsIHRt
+cF90LCAkMV90bXBfdCwgYHsgZmlsZSBkaXIgfScpJywNCiBgZmlsZV90eXBlX2F1dG9fdHJhbnMo
+JDFfdCwgdG1wX3QsICQxX3RtcF90LCBgJDMnKScpDQorYWxsb3cgJDFfdCB0bXBfdDpsbmtfZmls
+ZSB7IGdldGF0dHIgcmVhZCB9Ow0KICcpDQogDQogZGVmaW5lKGB0bXBmc19kb21haW4nLCBgDQo=
+
+
+--=-LeDWl+nJLxwYihFlzai4--
+
+--=-U1fRGsAqUtKFHUpBnjHe
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBB5ZY9OIkJWWp2WGURAtbJAKCElcr0N0EDkhcsjBaM4Cc0uhgeLgCfaL06
+I0Kc0TomGoMsNTJUN886COE=
+=4OIv
+-----END PGP SIGNATURE-----
+
+--=-U1fRGsAqUtKFHUpBnjHe--
 
 
 --
