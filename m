@@ -1,48 +1,36 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TCWurT017983
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 08:32:56 -0400 (EDT)
-Received: from rwcrmhc12.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TCWPbB014593
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 12:32:26 GMT
-Message-ID: <4108EE75.6040109@gentoo.org>
-Date: Thu, 29 Jul 2004 08:32:53 -0400
-From: Joshua Brindle <method@gentoo.org>
-MIME-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TCbGrT018042
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 08:37:16 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TCbFCb002933
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 12:37:15 GMT
+Subject: Re: temporary hack to use udev in selinux
+From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: udev and .dev...
-References: <20040729091423.GC6443@lkcl.net>
-In-Reply-To: <20040729091423.GC6443@lkcl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040728232043.GF18711@lkcl.net>
+References: <20040728232043.GF18711@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1091104600.21971.8.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Thu, 29 Jul 2004 08:36:41 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Luke Kenneth Casson Leighton wrote:
+On Wed, 2004-07-28 at 19:20, Luke Kenneth Casson Leighton wrote:
+> fighting with it for a day, and after seeing some clues in the
+> file contexts (/(u)dev/....) i decided to try editing
+> /etc/udev/udev.conf to set it to use /udev instead of /dev.
 
->dear selinux people,
->
->ah ha!  okay, the reason why my hard drive was inaccessible
->is because /.dev/* had all been set to default_t :)
->
->soooo... to fix that [rather than a patch, a sed command]:
->
->	:%s/u?dev/.?u?dev/g
->
->this will allow setfiles to set up the security contexts on
->the /.dev which is the _real_ filesystem /dev stuff which will
->allow things like, oh, init (!!) to access the hard drive.
->
->argh :)
->
->l.
->
->  
->
-Why not have a minimal /dev for init and friends and mount the ramfs for 
-udev on top of it? it's much easier to deal with 1 /dev and this is 
-pretty standard anyway.
+I don't know which policy version you are using, but in the current
+policy, the regexes are of the form "/u?dev", so it works with either a
+/dev or /udev.  Requires using a xattr-supporting filesystem for udev,
+naturally.
 
-Joshua
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
