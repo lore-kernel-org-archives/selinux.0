@@ -1,51 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA26316
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2002 04:05:04 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id JAA06968
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2002 09:04:13 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id JAA06951 for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2002 09:04:11 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: <selinux@tycho.nsa.gov>
-Subject: Re: devfs_contexts
-Date: Wed, 23 Jan 2002 00:48:21 +1100
-Cc: rgooch@ras.ucalgary.ca
-References: <Pine.GSO.4.33.0201181241010.3743-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0201181241010.3743-100000@raven>
+Message-ID: <1440.192.168.1.12.1011792535.squirrel@mail.outstep.com>
+Date: Wed, 23 Jan 2002 08:28:55 -0500 (EST)
+Subject: Adding Accounts
+From: "Lonnie Cumberland" <lonnie@outstep.com>
+To: <SELinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Message-Id: <20020123020122.13E9F330083@lyta.coker.com.au>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 19 Jan 2002 04:50, Stephen Smalley wrote:
-> For filesystems that use the persistent label mapping (e.g. ext2, ext3,
-> reiserfs), the label will set by the chsid call be retained across reboots
-> since it is stored in that mapping.  For pseudo filesystems like devfs,
-> the label won't be retained across reboots unless you also add it to
-> devfs_contexts, because there is no persistent storage of the label.  So,
-> if you want the labels to persist, you'll need to update devfs_contexts
-> and then reboot.
+Hello All,
 
-Do you think it would make sense to have a SE version of devfsd that applied 
-SE SID's at the same time as applying regular permissions to devfs managed 
-device nodes?  It makes sense to me to have both regular file system 
-permissions and SE sids applied at the same time.
+Hope that you are all doing well today.
 
-I could do the devfsd patch in a small amount of time if desired (I've 
-written plenty of patches for devfsd already so I know the code reasonably 
-well).
+I was just wondering about adding new user accounts, ok.
 
-NB  I've CC'd Richard Gooch to get his opinions on this matter.
+With standard Linux we just do "useradd", but with SELinux I had to
+edit some files by hand before I did the "make quickinstall"
+
+I am guessing that ran the "make relabel" which generated the
+security policy.
+
+Is there an easier way to add users now that I have SELinux installed
+and running?
+
+Cheers,
+Lonnie
 
 -- 
-http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
-http://www.coker.com.au/projects.html Projects I am working on
-http://www.coker.com.au/~russell/     My home page
+ Lonnie Cumberland
+ OutStep Technologies Incorporated
+ (313) 832-7366
+
+ URL: http://www.outstep.com
+ EMAIL: Lonnie@OutStep.com
+      : Lonnie_Cumberland@yahoo.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
