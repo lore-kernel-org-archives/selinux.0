@@ -1,68 +1,43 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8RKLrsJ006754
-	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 16:21:53 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8RN0ZsJ007000
+	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 19:00:35 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8RKLqCG020645
-	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 20:21:52 GMT
-Received: from out003.verizon.net (out003pub.verizon.net [206.46.170.103])
-        by jazzband.ncsc.mil  with ESMTP id h8RKLpqJ020642 for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 20:21:52 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Bill Laut <wlsel@verizon.net>
-To: russell@coker.com.au
-Subject: Re: Emacs major mode for policy editing
-Date: Sat, 27 Sep 2003 16:24:17 -0400
-Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
-References: <1064504193.3885.14.camel@moss-tarheels.epoch.ncsc.mil> <200309262209.36797.wlsel@verizon.net> <200309272024.54251.russell@coker.com.au>
-In-Reply-To: <200309272024.54251.russell@coker.com.au>
-MIME-Version: 1.0
-Message-Id: <200309271624.17976.wlsel@verizon.net>
+	by jazzband.ncsc.mil  with ESMTP id h8RN0YCG023122
+	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 23:00:34 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id h8RN0XqJ023119 for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 23:00:33 GMT
+Date: Sun, 28 Sep 2003 00:00:28 +0100
+From: Dale Amon <amon@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: Dale Amon <amon@vnl.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: ssh policy hassles
+Message-ID: <20030927230028.GG22582@vnl.com>
+References: <20030923150926.GG21997@vnl.com> <20030927133244.GC22582@vnl.com> <20030927133352.GD22582@vnl.com> <200309280013.29258.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200309280013.29258.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 27 September 2003 06:24 am, Russell Coker wrote:
-> On Sat, 27 Sep 2003 12:09, Bill Laut wrote:
-> > Yes, I had posted to the list that I was working on Security-Enhanced X
-> > (or "s-ex," as Russell puckishly termed it) some time ago.
->
-> Surely I can't have been the first person to notice the SE-X acronym!
->
+On Sun, Sep 28, 2003 at 12:13:29AM +1000, Russell Coker wrote:
+> But your error message seems to indicate that the setattr is required for your 
+> sshd.
+> 
+> I have attached my latest ssh policy, please try it out as-is and try changing 
+> the "dontaudit" to "allow" for the setattr operation.
 
-Yours is the first use of it that I'm aware of.  I probably noticed it at some 
-unconcious level, but didn't pay it much attention until you used it.  One of 
-the signs of approaching middle age on my part, no doubt!  :-(
+Results:
 
->
-> At this point I should mention that Security Enhanced X is an important
-> development for Linux, it's something that we've been waiting far too long
-> for, and when it's available I'm sure we won't be able to get enough of it.
->
+with latest policy.tgz		FAIL
+add  your new ssh.te		FAIL
+add  staff_devpts_t 		SUCCESS
 
-I couldn't agree with you more.  That's why, for my contribution, I want 
-everyone who is interested to review it and tell me where I'm in error, or 
-where something could be better designed, so that what I eventually release 
-to the group is a polished gem.
+This single line does it:
 
-I have no ego problems with peer review/criticism whatsoever.
+	allow sshd_t staff_devpts_t:chr_file { ioctl setattr }
 
->
-> We just have to make sure that it's correctly implemented to avoid viruses
-> and unwanted child processes.
->
-
-That's also why I threw in the reference to "extra homework" in my previous 
-post.  For example, this could be a good excuse to go through XFree86 and 
-insure that there aren't any unrecognized buffer-overflow vulnerabilities.  
-It would be embarassing to say the least to release SE-X, only to have it 
-contain exploitable BO vulnerabilities--the very thing that SELinux is 
-advertised as protecting against.
-
-The tact I intend to take is to break the implementation down into small, 
-manageable pieces that can progressively be built upon, until the project is 
-finally completed.  This should help making the "lessons learned" from each 
-piece easier to integrate as well as speed up the overall implementation.
-
-Bill
+I don't know yet if both attributes are required. It's getting
+late and it's a night...
 
 
 --
