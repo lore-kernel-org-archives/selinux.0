@@ -1,80 +1,77 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7DIYZrT025688
-	for <selinux@tycho.nsa.gov>; Fri, 13 Aug 2004 14:34:35 -0400 (EDT)
-Received: from oe-im2.bizmailsrvcs.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7DIXqUu022875
-	for <selinux@tycho.nsa.gov>; Fri, 13 Aug 2004 18:33:52 GMT
-From: "Frank Mayer" <mayerf@tresys.com>
-To: <selinux@tycho.nsa.gov>, <fedora-selinux-list@redhat.com>
-Subject: Preliminary Announce: First SELinux Symposium
-Date: Fri, 13 Aug 2004 14:34:22 -0400
-Message-ID: <005001c48164$27ff4510$ee0c010a@columbia.tresys.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7DL0DrT026596
+	for <selinux@tycho.nsa.gov>; Fri, 13 Aug 2004 17:00:13 -0400 (EDT)
+Received: from mail.mvalent.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7DKxZUu000548
+	for <selinux@tycho.nsa.gov>; Fri, 13 Aug 2004 20:59:35 GMT
+Subject: RE: vsftpd and security labels
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
+Date: Fri, 13 Aug 2004 17:00:13 -0400
+Message-ID: <E6E16A6D4277CD459BBDE6713766033CA50DF8@exchange.mvalent.local>
+From: "James R. Marcus" <jmarcus@mvalent.net>
+To: "Joshua Brindle" <jbrindle@tresys.com>,
+   "Stephen Smalley" <sds@epoch.ncsc.mil>, <selinux@tycho.nsa.gov>
+Cc: "Joshua Brindle" <jbrindle@snu.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-                       Preliminary Announcement 
-                      
-               FIRST SECURITY ENHANCED LINUX SYMPOSIUM
-                           
- 
-The inaugural symposium on Security Enhanced Linux (SELinux) is being 
-planned for March 2005 in the Washington, D.C., USA area. SELinux 
-brings the power of type enforcement (TE), a flexible mandatory access 
-control mechanism, to Linux. This announcement is to make the 
-community aware of the preliminary plans for the symposium, and 
-solicit interests in participation.  The symposium will be an 
-opportunity to learn about SELinux and share technical and application 
-experiences.  
+Does that mean there is a bug?
 
-The tentative format for the symposium is a 3-day conference, with one 
-day for tutorials and two days for technical presentations and 
-interchange.  Those interested in submitting presentation or tutorial 
-proposals may do so at sel-symposium@tresys.com. Topics of interest 
-include:
+James
 
-	+ History and design of SELinux
-	+ Use and application of TE Enforcement in securing systems
-	+ TE policy development and analysis
-	+ Use and Configuration of MLS and RBAC in securing systems
-	+ Updates on the various Linux distributions using SELinux
-	+ Practical "root"-less system administration policies
-	+ Example system solutions using SELinux, case studies
-	+ On-going and planed enhancements to SELinux
-	+ On-going research and development activities
-	+ Tools and products supporting/using SELinux
-	+ Security evaluation and certification issues
-	+ Tutorials
+-----Original Message-----
+From: Joshua Brindle [mailto:jbrindle@tresys.com] 
+Sent: Friday, August 13, 2004 4:52 PM
+To: Stephen Smalley
+Cc: James R. Marcus; Joshua Brindle
+Subject: Re: vsftpd and security labels
 
-The exact dates, location, and cost of the symposium are to be 
-determined. Future information will be posted in the following web 
-site: www.tresys.com/selinux/symposium 
+A quick glance over the ftpd.te shows that you are right, there is no 
+transition from initrc_t to ftpd_t, the only auto_trans specified in 
+ftpd.te (which I believe I got from the nsa policy) is from inetd_t and 
+tcpd_t.
 
-The organizing committees for the symposium are as follows:
+Joshua Brindle
 
-Technical Committee:
- 
-	Joshua Brindle, Tresys
-	Russell Coker, Red Hat
-	Chad Hanson, TCS
-	Howard Holm, NSA
-	Trent Jaeger, IBM
-	Karl MacMillan, Tresys
-	Frank Mayer, Tresys
-	James Morris, Red Hat
-	Ed Reed, Novell
-	Doc Shankar, IBM
-	Stephen Smalley, NSA
-	Daniel Walsh, Red Hat
- 
- 
-Tutorial Committee:
+Stephen Smalley wrote:
 
-	David Caplan, Tresys
-	Howard Holm, NSA
-	Karl MacMillan, Tresys
+> On Fri, 2004-08-13 at 16:30, James R. Marcus wrote:
+> 
+>>ftp root # audit2allow -l -d -v
+>>ftp root # /etc/init.d/vsftpd restart
+>>Authenticating root.
+>>Password: 
+>> * Stopping vsftpd...
+>>[ ok ]
+>> * Starting vsftpd...
+>>[ ok ]
+>>ftp root # ps -eZ | grep vsftpd
+>>29019 system_u:system_r:initrc_t               /usr/sbin/vsftpd
+>>/etc/vsftpd/vsftpd.conf
+>>ftp root #
+>>
+>>ftp root # ls -Z /usr/sbin/vsftpd 
+>>-rwxr-xr-x  root root system_u:object_r:ftpd_exec_t /usr/sbin/vsftpd
+>>ftp root #
+>>
+>>I was planning to write up some documentation once resolved.
+>>Should I send these emails to the SElinux list?
+> 
+> 
+> So, vsftpd is labeled correctly, but /etc/init.d/vsftpd restart is not
+> putting it into the correct domain (ftpd_t).  Is the type transition
+> rule defined in your policy, e.g.
+> 	grep 'type_transition initrc_t ftpd_exec_t' policy.conf
+> 
+> If it is, then try restarting via run_init by hand,
+> 	run_init /etc/init.d/vftpd restart
+> 
+> That shouldn't be necessary on Gentoo, since run_init is directly
+> integrated, but might be worth trying.
+> 
+
 
 
 --
