@@ -1,37 +1,62 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8FK3GrT020348
-	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 16:03:16 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8FK2KHF010058
-	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 20:02:20 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.11/8.12.10) with ESMTP id i8FK3GSR007495
-	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 16:03:16 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id i8FK3Gr16601
-	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 16:03:16 -0400
-Message-ID: <4148A003.6080309@redhat.com>
-Date: Wed, 15 Sep 2004 16:03:15 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>,
-   "ivg2@cornell.edu" <"Ivan Gyurdiev"@redhat.com>
-Subject: SELinux policy discussion.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8FK2ZrT020326
+	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 16:02:35 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8FK1XHH010004
+	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 20:01:39 GMT
+Subject: Re: More fixes for nscd in targeted policy
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1095261243.28981.185.camel@moss-spartans.epoch.ncsc.mil>
+References: <41475DEA.90907@redhat.com>
+	 <1095253977.28981.80.camel@moss-spartans.epoch.ncsc.mil>
+	 <41484CFE.3050804@redhat.com>
+	 <1095261243.28981.185.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Message-Id: <1095278501.13380.5.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 15 Sep 2004 16:01:41 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev (ivg2@cornell.edu) Has reported a bug that several files 
-in /etc/ are world readable and yet SELinux is
-preventing them from being read.  Should we add usercanread attribute to 
-most of these files (/etc/exports, /etc/yp.servers) ?
-Any file in /etc/ that has a security_context other than etc_t and 
-doesn't have an attribute of usercanread, is a problem.
+Merged the patch with dontaudit rules as Steve suggests below.
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=129584
-
-
-Dan
+On Wed, 2004-09-15 at 11:14, Stephen Smalley wrote:
+> On Wed, 2004-09-15 at 10:09, Daniel J Walsh wrote:
+> > diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/nscd.te policy-1.17.16/domains/program/unused/nscd.te
+> > --- nsapolicy/domains/program/unused/nscd.te	2004-09-10 16:10:36.000000000 -0400
+> > +++ policy-1.17.16/domains/program/unused/nscd.te	2004-09-15 10:05:36.390612619 -0400
+> > @@ -26,23 +26,27 @@
+> >  allow domain nscd_var_run_t:sock_file rw_file_perms;
+> >  allow domain { var_run_t var_t }:dir search;
+> >  allow domain nscd_t:nscd { getpwd getgrp gethost };
+> > +allow domain nscd_t:fd { use };
+> > +dontaudit domain nscd_var_run_t:file { getattr read };
+> >  dontaudit domain nscd_t:nscd { shmempwd shmemgrp shmemhost };
+> 
+> No, the nscd_t:fd use should also be dontaudit'd for that case; only
+> domains with nscd_shmem_domain need to accept fds from nscd for mapping
+> the cache.  And I don't understand why you need the dontaudit rule, as
+> the lack of shmempwd/shmemgrp/shmemhost permissions should prevent it
+> from ever reaching that point at all - bug report on nscd, I'd suggest.
+> 
+> >  ', `
+> >  can_unix_connect(nscd_client_domain, nscd_t)
+> > -allow nscd_client_domain var_run_nscd_t:sock_file rw_file_perms;
+> > +allow nscd_client_domain nscd_var_run_t:sock_file rw_file_perms;
+> >  allow nscd_client_domain { var_run_t var_t }:dir search;
+> >  allow nscd_client_domain nscd_t:nscd { getpwd getgrp gethost };
+> > +allow nscd_client_domain nscd_t:fd { use };
+> > +dontaudit nscd_client_domain nscd_var_run_t:file { getattr read };
+> >  dontaudit nscd_client_domain nscd_t:nscd { shmempwd  shmemgrp shmemhost };
+> >  ')dnl nscd_all_connect
+> 
+> ditto.
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
