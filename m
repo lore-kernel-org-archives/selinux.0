@@ -1,42 +1,36 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98A0rrT020393
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 06:00:53 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98A0pZ2028693
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 10:00:52 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
+Subject: Re: 2.6.9-rc2-mm4-VP-S7 - ksoftirq and selinux oddity
+From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: .fonts-cache being created as user_home_dir_t
-Date: Fri, 8 Oct 2004 20:00:39 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20041005091026.GB25251@lkcl.net> <200410071250.14304.russell@coker.com.au> <20041008100458.GC5089@lkcl.net>
-In-Reply-To: <20041008100458.GC5089@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200410082000.40125.russell@coker.com.au>
+Cc: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
+   lkml <linux-kernel@vger.kernel.org>, SELinux@tycho.nsa.gov,
+   Ingo Molnar <mingo@redhat.com>, netdev@oss.sgi.com,
+   linux-net@vger.kernel.org
+In-Reply-To: <20041008093154.GA5089@lkcl.net>
+References: <200410070542.i975gkHV031259@turing-police.cc.vt.edu>
+	 <1097157367.13339.38.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041008093154.GA5089@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1097234322.16641.3.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 08 Oct 2004 07:18:42 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 8 Oct 2004 20:04, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > it looks like a file_auto_trans() is missing somewhere: i find
-> > > that ~/.fonts.cache-1 is set to type user_home_dir_t.
-> >
-> > Is that being created by kdm?
->
->  i couldn't entirely say: let me see if i can find out...
->  a search through all kdebase *.cpp,h only shows up
->  something in kcontrol kio handler.  so that didn't work.
+On Fri, 2004-10-08 at 05:31, Luke Kenneth Casson Leighton wrote:
+>  an alternative possible solution is to get the packet _out_ from
+>  the interrupt context and have the aux pid comm exe information added.
 
-Put in:
-auditallow domain user_home_dir_t:file *;
+No, the network permission checks are intentionally layered to match the
+network protocol implementation.  There is a process-to-socket check
+performed in process context when the data is received from the socket
+by an actual process, but there is also the socket-to-netif/node/port
+check performed in softirq context when the packet is received on the
+socket from the network.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
