@@ -1,51 +1,61 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7THTWrT000637
-	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 13:29:32 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7THSgwc029779
-	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 17:28:43 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Andreas Schuldei <andreas@schuldei.org>
-Subject: Re: selinux and kde
-Date: Mon, 30 Aug 2004 03:29:27 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040823234320.GC12720@lkcl.net> <20040824122646.GA1655@lukas.schuldei.com>
-In-Reply-To: <20040824122646.GA1655@lukas.schuldei.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7TJWrrT000884
+	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 15:32:53 -0400 (EDT)
+Received: from rwcrmhc13.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7TJWpis003237
+	for <selinux@tycho.nsa.gov>; Sun, 29 Aug 2004 19:32:52 GMT
+Message-ID: <41322F5E.90409@comcast.net>
+Date: Sun, 29 Aug 2004 12:32:46 -0700
+From: Tom London <selinux@comcast.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408300329.27393.russell@coker.com.au>
+To: russell@coker.com.au
+CC: fedora-selinux-list@redhat.com, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Progress! .532 boots! -- but dbus/hotplug/udev problems remain?
+References: <4130CF1B.3090909@comcast.net> <200408291737.17497.russell@coker.com.au>
+In-Reply-To: <200408291737.17497.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 24 Aug 2004 22:26, Andreas Schuldei <andreas@schuldei.org> wrote:
-> the amount of avc messages i got when running normal operation
-> without any special stuff (postfix mostly, where spam filtering
-> with spamd is the most advanced operation i do) discouraged me
-> slightly to pursue this path right now.
+Russell,
 
-Give me a list of AVC messages, some are probably things that should go into 
-the main policy.
+Thanks, but it didn't quite work. The following change to dbusd.te seems
+to make graphical login work under strict/enforcing.
 
-> i conclude that debian is not a viable platform for selinux for
-> non-selinux development right now. this is a real tragedy since
-> both russel and colins were working on it some time ago as their
-> prime platform, pushing it hard on debian, but i guess the
-> enormous debian initeria and the reluctance to include their lib
-> into base along with their jobs at redhat killed it for now.
+Please correct/improve... :)
+   tom
 
-The lib will go into base post-sarge.  The Debian inertia is the main problem.
+--- /root/src.package/policy/domains/program/dbusd.te   2004-08-29 
+11:38:27.000000000 -0700
++++ dbusd.te    2004-08-29 12:19:25.000000000 -0700
+@@ -32,3 +32,7 @@
 
-I am continuing to develop Debian packages in my spare time, I just have much 
-less spare time.  This means I can't spend so much time recompiling packages 
-because of Debian developers being unwilling to accept patches.
+ # SE-DBus specific permissions
+ allow { dbus_client_domain userdomain } { dbusd_t self }:dbus { send_msg };
++
++allow user_t etc_dbusd_t:dir { search };
++allow user_t etc_dbusd_t:file { getattr read };
++allow user_t user_t:netlink_selinux_socket { bind create };
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+Russell Coker wrote:
+
+>On Sun, 29 Aug 2004 04:29, Tom London <selinux@comcast.net> wrote:
+>  
+>
+>>Newest Rawhide updates (including udev-030-10, mkinitrd-4.1.8-1,
+>>kernel-2.6.8-1.532, and selinux-policy-strict-1.17.5-2)
+>>now boots in strict/enforcing.
+>>    
+>>
+>
+>I've attached a diff against the CVS policy as well as the .te and .fc files 
+>for udev changes which fix this and address some other issues as well.
+>
+>Please try it out and let me know how it goes.
+>
+>  
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
