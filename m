@@ -1,46 +1,51 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6B90drT026891
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 05:00:39 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6B94VrT026911
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 05:04:31 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6B90ZSC017266
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 09:00:36 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id BBB2261C9E
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 19:00:35 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 18827-05 for <selinux@tycho.nsa.gov>;
-	Sun, 11 Jul 2004 19:00:35 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 32FAA61C9D
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 19:00:35 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id E068DB5A98
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 19:00:33 +1000 (EST)
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6B94RSC017299
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 09:04:28 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: device_type vs file_type
-Date: Sun, 11 Jul 2004 19:00:33 +1000
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: policy to allow upgrade of nfs-utils
+Date: Sun, 11 Jul 2004 19:04:24 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <200407081319.05138.russell@coker.com.au> <200407092252.08749.russell@coker.com.au> <1089392030.11726.66.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1089392030.11726.66.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_xGQ8AH5pCW7r2tk"
-Message-Id: <200407111900.33374.russell@coker.com.au>
+  boundary="Boundary-00=_YKQ8ALs1orNti8d"
+Message-Id: <200407111904.24856.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_xGQ8AH5pCW7r2tk
+--Boundary-00=_YKQ8ALs1orNti8d
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-The attached patch removes the file_type attribute from the types for device 
-nodes.
+On Sat, 10 Jul 2004 02:53, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> On Fri, 2004-07-09 at 08:52, Russell Coker wrote:
+> > On Thu, 8 Jul 2004 23:14, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> > > On Wed, 2004-07-07 at 23:19, Russell Coker wrote:
+> > > > The attached policy patch is needed to allow nfs-utils to be upgraded
+> > > > to the latest version on a rawhide system.
+> > >
+> > > Should /etc/exports get its own type?
+> >
+> > I guess so.  nfsd_etc_t or exports_t?
+>
+> Doesn't matter to me, but it could be problematic to preserve the type
+> on the file, given that it is directly edited.
 
-In most cases rules using file_type are not intended to catch the types for 
-device nodes as well so this should make things simpler.
+A patched version of vi should solve that.  In any case if the file gets etc_t 
+then it is just readable to everyone which isn't so bad.  The only potential 
+problem is if you edit the file with an unpatched editor and delete all 
+content so that initrc_t will want to append "#" to it.
+
+What do you think of the attached patch?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -48,189 +53,45 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_xGQ8AH5pCW7r2tk
+--Boundary-00=_YKQ8ALs1orNti8d
 Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="device.diff"
+  charset="iso-8859-1";
+  name="diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="device.diff"
+	filename="diff"
 
-diff -ru types/device.te types/device.te
---- types/device.te	2004-05-12 05:10:56.000000000 +1000
-+++ types/device.te	2004-07-09 12:41:01.000000000 +1000
-@@ -15,127 +15,127 @@
- #
- # null_device_t is the type of /dev/null.
- #
--type null_device_t, file_type, device_type, mlstrustedobject;
-+type null_device_t, device_type, mlstrustedobject;
+diff -ru /usr/src/se/policy/domains/program/unused/rpcd.te ./domains/program/unused/rpcd.te
+--- /usr/src/se/policy/domains/program/unused/rpcd.te	2004-07-11 17:37:11.000000000 +1000
++++ ./domains/program/unused/rpcd.te	2004-07-11 17:04:51.000000000 +1000
+@@ -23,6 +23,8 @@
+ allow $1_t var_lib_nfs_t:file create_file_perms;
+ ')
  
++type exports_t, file_type, sysadmfile;
++
+ # rpcd_t is the domain of rpc daemons.
+ # rpcd_exec_t is the type of rpc daemon programs.
  #
- # zero_device_t is the type of /dev/zero.
- #
--type zero_device_t, file_type, device_type, mlstrustedobject;
-+type zero_device_t, device_type, mlstrustedobject;
+@@ -51,6 +53,8 @@
  
- #
- # console_device_t is the type of /dev/console.
- #
--type console_device_t, file_type, device_type;
-+type console_device_t, device_type;
+ ifdef(`rpm.te', `
+ allow rpcd_t self:capability { chown dac_override setgid setuid };
++# for /etc/rc.d/init.d/nfs to create /etc/exports
++allow initrc_t exports_t:file rw_file_perms;
+ ')
  
- #
- # memory_device_t is the type of /dev/kmem,
- # /dev/mem, and /dev/port.
- #
--type memory_device_t, file_type, device_type;
-+type memory_device_t, device_type;
- 
- #
- # random_device_t is the type of /dev/random
- # urandom_device_t is the type of /dev/urandom
- #
--type random_device_t, file_type, device_type;
--type urandom_device_t, file_type, device_type;
-+type random_device_t, device_type;
-+type urandom_device_t, device_type;
- 
- #
- # devtty_t is the type of /dev/tty.
- #
--type devtty_t, file_type, device_type, mlstrustedobject;
-+type devtty_t, device_type, mlstrustedobject;
- 
- #
- # tty_device_t is the type of /dev/*tty*
- #
--type tty_device_t, file_type, serial_device, device_type;
-+type tty_device_t, serial_device, device_type;
- 
- #
- # usbtty_device_t is the type of /dev/usr/tty*
- #
--type usbtty_device_t, file_type, serial_device, device_type;
-+type usbtty_device_t, serial_device, device_type;
- 
- #
- # fixed_disk_device_t is the type of 
- # /dev/hd* and /dev/sd*.
- #
--type fixed_disk_device_t, file_type, device_type;
-+type fixed_disk_device_t, device_type;
- 
- #
- # scsi_generic_device_t is the type of /dev/sg*
- # it gives access to ALL SCSI devices (both fixed and removable)
- #
--type scsi_generic_device_t, file_type, device_type;
-+type scsi_generic_device_t, device_type;
- 
- #
- # removable_device_t is the type of
- # /dev/scd* and /dev/fd*.
- #
--type removable_device_t, file_type, device_type;
-+type removable_device_t, device_type;
- 
- #
- # clock_device_t is the type of
- # /dev/rtc.
- #
--type clock_device_t, file_type, device_type;
-+type clock_device_t, device_type;
- 
- #
- # tun_tap_device_t is the type of /dev/net/tun/* and /dev/net/tap/*
- #
--type tun_tap_device_t, file_type, device_type;
-+type tun_tap_device_t, device_type;
- 
- #
- # misc_device_t is the type of miscellaneous devices.
- # XXX:  FIXME!  Appropriate access to these devices need to be identified.
- #
--type misc_device_t, file_type, device_type;
-+type misc_device_t, device_type;
- 
- #
- # A more general type for mouse devices.
- #
--type mouse_device_t, file_type, device_type;
-+type mouse_device_t, device_type;
- 
- #
- # For generic /dev/input/event* event devices
- #
--type event_device_t, file_type, device_type;
-+type event_device_t, device_type;
- 
- #
- # Not sure what these devices are for, but X wants access to them.
- #
--type agp_device_t, file_type, device_type;
--type dri_device_t, file_type, device_type;
-+type agp_device_t, device_type;
-+type dri_device_t, device_type;
- 
- # Type for sound devices.
--type sound_device_t, file_type, device_type;
-+type sound_device_t, device_type;
- 
- # Type for /dev/ppp.
--type ppp_device_t, file_type, device_type;
-+type ppp_device_t, device_type;
- 
- # Type for frame buffer /dev/fb/*
--type framebuf_device_t, file_type, device_type;
-+type framebuf_device_t, device_type;
- 
- # Type for /dev/.devfsd
--type devfs_control_t, file_type, device_type;
-+type devfs_control_t, device_type;
- 
- # Type for /dev/cpu/mtrr
--type mtrr_device_t, file_type, device_type;
-+type mtrr_device_t, device_type;
- 
- 
- # Type for /dev/apm_bios
--type apm_bios_t, file_type, device_type;
-+type apm_bios_t, device_type;
- 
- # Type for v4l
--type v4l_device_t, file_type, device_type;
-+type v4l_device_t, device_type;
- 
- # tape drives
--type tape_device_t, file_type, device_type;
-+type tape_device_t, device_type;
- 
- # scanners
--type scanner_device_t, file_type, device_type;
-+type scanner_device_t, device_type;
- 
- # cpu control devices /dev/cpu/0/*
--type cpu_device_t, file_type, device_type;
-+type cpu_device_t, device_type;
- 
- # for other device nodes such as the NVidia binary-only driver
--type xserver_misc_device_t, file_type, device_type;
-+type xserver_misc_device_t, device_type;
-diff -ru types/file.te types/file.te
---- types/file.te	2004-07-08 13:09:38.000000000 +1000
-+++ types/file.te	2004-07-11 18:07:24.000000000 +1000
-@@ -257,7 +257,7 @@
- # Allow each file type to be associated with 
- # the default file system type.
- #
--allow file_type fs_t:filesystem associate;
-+allow { file_type device_type } fs_t:filesystem associate;
- 
- # Allow the pty to be associated with the file system.
- allow devpts_t devpts_t:filesystem associate;
+ allow rpcd_t self:file { getattr read };
+diff -ru /usr/src/se/policy/file_contexts/program/rpcd.fc ./file_contexts/program/rpcd.fc
+--- /usr/src/se/policy/file_contexts/program/rpcd.fc	2004-01-24 12:15:53.000000000 +1100
++++ ./file_contexts/program/rpcd.fc	2004-07-11 17:05:33.000000000 +1000
+@@ -6,3 +6,4 @@
+ /usr/sbin/rpc\.mountd	--	system_u:object_r:nfsd_exec_t
+ /var/run/rpc.statd.pid	--	system_u:object_r:rpcd_var_run_t
+ /var/run/rpc.statd(/.*)?	system_u:object_r:rpcd_var_run_t
++/etc/exports		--	system_u:object_r:exports_t
 
---Boundary-00=_xGQ8AH5pCW7r2tk--
+--Boundary-00=_YKQ8ALs1orNti8d--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
