@@ -1,73 +1,87 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA01055
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2001 16:14:39 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id VAA17658
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2001 21:13:09 GMT
-Received: from mail.thesportsregister.com (mail.thesportsregister.com [208.53.250.138])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id VAA17654
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2001 21:13:08 GMT
-Date: Mon, 15 Jan 2001 16:18:16 -0500 (EST)
-From: Johnathon Day <jcday@mail.thesportsregister.com>
-To: Bennett Todd <bet@rahul.net>
-Cc: Jan Petranek <jan@petranek.de>, selinux@tycho.nsa.gov
-Subject: Re: Goal / Danger: Attack by malicious root
-In-Reply-To: <20010115141903.S8565@rahul.net>
-Message-ID: <Pine.LNX.4.21.0101151453430.18627-100000@mail.thesportsregister.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA03200
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2001 04:21:17 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id JAA21922
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2001 09:20:40 GMT
+Received: from rhenium (rhenium.btinternet.com [194.73.73.93])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id JAA21918
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2001 09:20:39 GMT
+Received: from [213.1.153.114] (helo=security1)
+	by rhenium with smtp (Exim 3.03 #83)
+	id 14ISIj-0004mM-00
+	for selinux@tycho.nsa.gov; Tue, 16 Jan 2001 09:21:14 +0000
+Reply-To: <mpemble@isintegration.com>
+From: "Matthew Pemble" <mpemble@isintegration.com>
+To: <selinux@tycho.nsa.gov>
+Subject: RE: Goal / Danger: Attack by malicious root
+Date: Tue, 16 Jan 2001 09:22:45 -0000
+Message-ID: <004801c07f9d$e2d86780$0a02a8c0@pemble.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <Pine.LNX.4.21.0101151453430.18627-100000@mail.thesportsregister.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Hi again,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	The problem is this. Let your innermost layer of defence be
-defined as "L".
+Consider, for a moment, the irony here. 
 
-	If there exists any "legit" method of bypassing "L", there exists
-a malicious method of bypassing "L".
+For the record, the "boot from your own device" solution, I agree
+with, as the only way of establishing trust in your OS (although
+keystroke loggers that don't use OS functions, video capture devices
+etc in tampered hardware can still get you).
 
-	So, yes, if someone can bypass the OS by running their own, or
-tampering with the HW, anything that is actively prohibited by the OS can
-be done.
+Take a step back - we are assuming an attacker, whether a legitimate
+holder of super-user privileges whom you do not want to have access
+to your data or protection against an "Evil Minded Toad" who has
+stolen root.  In the former case, limiting the privileges of the root
+user through MAC is good protection (assuming you can generate or
+request your own MAC labels and root is not the MAC privilege
+assigner.)  In the latter case, if the lab environment allows you to
+boot a CD, they don't need to "hack", they can craft a malicious
+version of the OS and boot that.
 
-	The trick is to NOT rely on active defences, but to also use some
-form of passive defence, where the OS doesn't prevent the unauthorised as
-actively permit the authorised. That way, bypassing the OS achieves
-nothing.
+You, a specialist user who reads a security mailing list may be safe,
+but the vast majority of users will be at greater risk than if
+booting from a CD was prevented.  Who are we trying to protect?  Us
+or the normal user - consider, when your boss is writing your annual
+report, will (s)he take these precautions.  Mine won't.
 
-	The "usual" way to do this is to use encrypted storage space. The
-problem there is that you've got to have an unprotected way for the system
-to bootstrap. Catch-22.
+Matthew Pemble, Principal Consultant, IS Integration,
+Preston Technology Management Centre, Marsh Lane, PRESTON,
+Lancashire, PR1 8UD
 
-	This is usually dealt with by placing the unprotected component on
-a removable device. Then, it's only vulnerable at the time when an
-authorised person is present. In theory. In reality, all you're doing is
-shifting the problem, not solving it.
+Tel: +44 (0)1324 820690  Fax: +44 (0)1324 826034
 
-	How to solve the problem? This isn't as hard as it sounds. Trying
-to stop the unstoppable is an obvious impossibility. So, instead of being
-a follower of King Canute, it makes more sense to =assume= that someone
-can/has tampered with the HW, and figure out how to limit the damage.
+Head Office: 
+Tel: +44 (0)1772 885850  Fax: +44 (0)1772 558881
+Mobile: +44 (0)7050 128620
+Mailto:mpemble@isintegration.com  Web: http://www.isintegration.com
 
-	That -is- a solvable problem. If the OS is segmented, with each
-segment itself constrained by mandatory access controls, then tampering
-with the OS won't achieve much, without disabling the MAC first. And if
-the MAC is part of the mechanism which permits the OS to do anything, then
-disabling it disables the OS. Hmmm.
+This email and any files transmitted with it are confidential and
+intended
+solely for the use of the individual or entity to whom they are
+addressed.
+If you have received this email in error please notify your system
+manager
+or IS Integration Limited on +44 (0) 1772 885850
 
-	It's true that NO protection, however good, will be 100%
-effective. That's why it's better to concentrate on damage limitation
-systems and compartmentalization, so that damage is always confined.
+Any Views expressed in this e-mail message are those of the
+individual
+sending the message, except where the sender specifically states them
+to be
+the views of IS Integration Limited. 
 
-	In summary, the DEFAULT privilage, regardless of the method of
-access, or what OS is used, should be that the user cannot read the data
-on the disk. ONLY through active, specific, deliberate permission should
-any other privilage be possible. THEN, you have as much security as you
-can realistically achieve.
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.5.8 for non-commercial use <http://www.pgp.com>
 
-Jonathan Day
-
+iQA/AwUBOmQOhGrvMjpl5yaUEQLQwQCgjiquMMxqV4j54RiMZF0kptVtl2sAoOQm
+NmCkT9tsDvLjwn6OyNGlMAlF
+=/MHf
+-----END PGP SIGNATURE-----
 
 
 --
