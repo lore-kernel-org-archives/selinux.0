@@ -1,52 +1,92 @@
-Date: Wed, 19 Dec 2001 13:34:21 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Noah silva <nsilva@atari-source.com>
-cc: SELinux Mailing <SELinux@tycho.nsa.gov>
-Subject: Re: Debian SE Linux ?
-In-Reply-To: <Pine.LNX.4.21.0112191302320.26475-100000@sparcy.internal.lan>
-Message-ID: <Pine.GSO.4.33.0112191314530.5056-100000@raven>
+From: lonnie@outstep.com
+To: SELinux Mailing <SELinux@tycho.nsa.gov>
+Subject: Re: setting up new test user domain?
+Message-ID: <1008786485.3c20dc3520535@mail.outstep.com>
+Date: Wed, 19 Dec 2001 13:28:05 -0500 (EST)
+References: <Pine.GSO.4.33.0112190955150.5056-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0112190955150.5056-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Actually I found out that I had to use the original unchanged every.te as well 
+as changing the be_domain back to domain in the be_user.te file.
 
-> looking back on the list, I saw some people have discussed using Debian
-> Linux with the SELinux patch.  I was wondering if that ever came to
-> anything other than talk.  I am currently working on setting up a test
-> machine with Debian Testing (on x86) and SE Linux.  (ATM, I am still
-> sorting out ext3 + initrd... can't believe there isn't a cleaner
-> solution).
+My next questions will then be on how to use this new domain and create a new 
+user with it's attributes. After that is done then I will try to edit the 
+be_user.te file and try to start turning off things until I can effectively 
+keep the user in their directory.
 
-Russell Coker has a Debian kernel-patch package for SELinux at
-http://www.coker.com.au/selinux.  I don't know whether the Debian folks
-have made any progress with the daemon and utility patches or the example
-policy configuration.  I'm not sure what you mean when you say
-"I am still sorting out ext3 + initrd."  The current release of SELinux
-works fine with ext3 - we were just waiting for ext3 to be merged into the
-mainstream kernel, and it is present in the 2.4.16 kernel.  As far as
-initrd is concerned, you can probably make it work if you really need it.
-I think you just need to create an initrd image that includes a copy of the
-compiled policy configuration so that it is available.
+Would this be a proper methodology for this task?
 
-> Looking at the way SELinux works, I assume I will have at least to alter
-> the policies because of the differences in paths?
+cheers,
+Lonnie
 
-You will need to adapt the daemon and utility patches to the corresponding
-Debian packages, although only a few of these patches are critical (login,
-sshd, crond).  You will have to customize setfiles/file_contexts for your
-filesystem layout.  If you build with NSA SELinux Development Module
-option, then you can run your system in permissive mode for a while to
-collect audit messages, and can then work on customizing the policy
-configuration based on those audit messages, possibly using Justin Smith's
-perl script.
+Quoting Stephen Smalley <sds@tislabs.com>:
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+> 
+> On Wed, 19 Dec 2001 lonnie@outstep.com wrote:
+> 
+> > I have made a copy of the user.te to be_user.te and have changes all
+> instances
+> > of "user" ti "be_user" and changed the "domain" to "be_domain"
+> inside
+> > be_user.te.
+> 
+> You should leave the "domain" type attribute unchanged.  Since you are
+> changing every.te, you can leave this attribute unmodified.  You only
+> need
+> to modify the domain attribute if you aren't changing every.te.  As I
+> mentioned earlier, if you change the attribute, you have to remove an
+> assertion to avoid the error you are encountering.
+> 
+> > the problem that I am getting now is an assertion error:
+> >
+> > assertion fail: allow be_user_su_t be_user_t:process { transition }
+> was granted
+> >
+> > could you please tell me what these assertion errors mean and, in
+> general, how
+> > to fix them?
+> 
+> In this case, you just need to restore the "domain" type attribute for
+> your new domain.  This assertion is the first one in the assert.te
+> file,
+> and it verifies that every type that can be associated with a process
+> is
+> also tagged as a domain.
+> 
+> If you haven't already done so, you might want to read the Policy
+> Configuration Language description from the first technical report
+> skim the second technical report, and read the "Meeting Critical
+> Security
+> Objectives..." published paper available from
+> http://www.nsa.gov/selinux/docs.html.  These reports and papers
+> provide
+> quite a bit of information, but it is admittedly difficult to get
+> started.
+> We plan on writing a new policy document that is better suited for
+> people
+> who want to customize their policy, define new roles, domains and/or
+> types, or even create a new policy from scratch, but this will take
+> some
+> time.
+> 
+> --
+> Stephen D. Smalley, NAI Labs
+> ssmalley@nai.com
+> 
+> 
+> 
+> 
+> --
+> You have received this message because you are subscribed to the selinux
+> list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
 
 --
 You have received this message because you are subscribed to the selinux list.
