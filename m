@@ -1,53 +1,59 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1EFxPL9000971
-	for <selinux@tycho.nsa.gov>; Mon, 14 Feb 2005 10:59:25 -0500 (EST)
-Subject: Re: shm denials
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: ivg2@cornell.edu
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1108395654.11637.3.camel@cobra.ivg2.net>
-References: <1108222744.23018.5.camel@cobra.ivg2.net>
-	 <1108393789.15437.53.camel@moss-spartans.epoch.ncsc.mil>
-	 <1108395654.11637.3.camel@cobra.ivg2.net>
-Content-Type: text/plain
-Message-Id: <1108396290.15437.67.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1FFiRL9008215
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 10:44:28 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1FFf3w0015657
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 15:41:03 GMT
+Received: from lkcl.net (host81-155-76-60.range81-155.btcentralplus.com [81.155.76.60])
+	by open.hands.com (Postfix) with ESMTP id 9CA32C48E
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 15:43:10 +0000 (GMT)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1D150t-0006Pw-Gn
+	for selinux@tycho.nsa.gov; Tue, 15 Feb 2005 15:53:23 +0000
+Date: Tue, 15 Feb 2005 15:53:23 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: sshd transition points
+Message-ID: <20050215155323.GC23765@lkcl.net>
 Mime-Version: 1.0
-Date: Mon, 14 Feb 2005 10:51:30 -0500
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-02-14 at 10:40, Ivan Gyurdiev wrote:
-> True, this seems to cut OpenGL performance in half. 
-> 
-> Enforcing mode:
-> 
-> 8071 frames in 5.0 seconds = 1614.200 FPS
-> 9480 frames in 5.0 seconds = 1896.000 FPS
-> 9480 frames in 5.0 seconds = 1896.000 FPS
-> 
-> Permissive mode / Enforcing mode with this allowed:
-> 
-> 13682 frames in 5.0 seconds = 2736.400 FPS
-> 14729 frames in 5.0 seconds = 2945.800 FPS
-> 14694 frames in 5.0 seconds = 2938.800 FPS
-> 14718 frames in 5.0 seconds = 2943.600 FPS
-> 14640 frames in 5.0 seconds = 2928.000 FPS
-> 
-> audit(1108395306.088:0): avc:  denied  { write } for  pid=11720
-> comm=glxgears path=/SYSV00000000 (deleted) dev=tmpfs ino=38338560
-> scontext=user_u:user_r:user_t
-> tcontext=system_u:object_r:xdm_xserver_tmpfs_t tclass=file
+hi,
 
-Yes, no surprise there.  Again, someone would need to assess the risk
-posed by allowing it (e.g. does X create any shared memory objects that
-should not be directly writable by the user domains, what safeguards
-does X apply in handling the potentially malicious data from the shared
-memory object, etc).  Possibly a candidate for a boolean.
+i'm just in the process of setting up a rather paranoid selinux
+environment involving sshd, on a Redhat FC3 system.
+
+the execution of ordinary shells (/bin/bash) is banned - or at
+least must be restricted / tracked by selinux.
+
+i am running the sftp subsystem.
+
+therein lies part of the problem - sshd appears to be running
+/bin/bash for a user - in the sshd_t domain - as part of the
+process of firing up /usr/libexec/ssh/sftp-server.
+
+which is a bit weird and annoying, because what i _wanted_ to do
+was to associate a user with a net_context, such that only
+a particular user may sftp in from a certain IP address.
+
+... and that's not possible, because by the time sftp-server is
+being run, there's a disconnect: sftp-server is in the correct
+domain but it only has a unix-domain-socket to contact a forked
+sshd, which has the TCP connection open but is still running
+in the domain sshd_t.
+
+so basically, my question boils down to this:
+
+* _should_ sshd, after a fork, be still running in sshd_t?
+
+l.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+--
+<a href="http://lkcl.net">http://lkcl.net</a>
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
