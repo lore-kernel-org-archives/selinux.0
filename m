@@ -1,52 +1,31 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAANZ9Sf006889
-	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 18:35:09 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hAANYjBb015840
-	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 23:34:45 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-	by jazzswing.ncsc.mil  with ESMTP id hAANYj4o015837
-	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 23:34:45 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.11.6/8.11.6) with ESMTP id hAANZ8M20047
-	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 18:35:08 -0500
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.64.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id hAANZ7624041
-	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 18:35:07 -0500
-Received: from thoron.boston.redhat.com (thoron.boston.redhat.com [172.16.65.238])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id hAANZ4DJ013069
-	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2003 18:35:06 -0500
-Date: Mon, 10 Nov 2003 18:35:04 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: Do we break POSIX?
-In-Reply-To: <Xine.LNX.4.44.0311101653490.5261-100000@thoron.boston.redhat.com>
-Message-ID: <Xine.LNX.4.44.0311101830520.5670-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Tue, 11 Nov 2003 07:34:53 +0100
+From: Tom <tom@lemuria.org>
+To: "SELinux (E-mail)" <SELinux@tycho.nsa.gov>
+Subject: Re: Patched GDM?
+Message-ID: <20031111073452.B2597@lemuria.org>
+References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A5E@s3cin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A5E@s3cin>; from JamesK@xetron.com on Mon, Nov 10, 2003 at 02:36:10PM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Also, here is the relevant quote from IEEE Std 1003.1:
+On Mon, Nov 10, 2003 at 02:36:10PM -0500, Kratzer, James R. wrote:
+> Anyone know where I may find a patched version of GDM which will correctly
+> set the context on login?
 
-  Implementations may support additional errors not included in this list, 
-  may generate errors included in this list under circumstances other than 
-  those described here, or may contain extensions or limitations that 
-  prevent some errors from occurring. The ERRORS section on each reference 
-  page specifies whether an error shall be returned, or whether it may be 
-  returned. Implementations shall not generate a different error number 
-  from the ones described here for error conditions described in this volume of 
-  IEEE Std 1003.1-2001, but may generate additional errors unless 
-  explicitly disallowed for a particular function.
+Write one. :)
 
+As of now, the only graphical login manager I'm aware of with SELinux
+support is the one I patched - wdm. You can find it on my website
+(http://selinux.lemuria.org) and the patch should soon be included in
+the upstream sources.
 
 
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
