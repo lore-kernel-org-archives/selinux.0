@@ -1,63 +1,49 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OMGjrT001317
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 18:16:45 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OMFxMZ009449
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 22:15:59 GMT
-Date: Tue, 24 Aug 2004 23:19:04 +0100
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OMGerT001312
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 18:16:41 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OMGcCV021713
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 22:16:38 GMT
+Date: Tue, 24 Aug 2004 23:23:04 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Andreas Schuldei <andreas@schuldei.org>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: selinux and kde
-Message-ID: <20040824221904.GD12140@lkcl.net>
-References: <20040823234320.GC12720@lkcl.net> <20040824122646.GA1655@lukas.schuldei.com>
+To: Russell Coker <russell@coker.com.au>, Joshua Brindle <jbrindle@tresys.com>,
+   Greg KH <greg@kroah.com>, SE Linux <selinux@tycho.nsa.gov>,
+   fedora-selinux-list@redhat.com
+Subject: Re: Fedora and udev
+Message-ID: <20040824222304.GE12140@lkcl.net>
+References: <200408222125.38169.russell@coker.com.au> <412A74A6.9070206@tresys.com> <20040824092853.GD25356@lkcl.net> <200408242006.41591.russell@coker.com.au> <20040824141828.GA4698@lkcl.net> <20040824160126.GA19197@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040824122646.GA1655@lukas.schuldei.com>
+In-Reply-To: <20040824160126.GA19197@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Aug 24, 2004 at 02:26:46PM +0200, Andreas Schuldei wrote:
+On Tue, Aug 24, 2004 at 05:01:26PM +0100, Luke Kenneth Casson Leighton wrote:
 
-> * Luke Kenneth Casson Leighton (lkcl@lkcl.net) [040824 03:46]:
-> > ... does anyone ever actually _use_ strict selinux policy enforcing
-> > and successfully run kde under it??
-> > 
-> > i mean, i know i've been doing a lot of messing about trying
-> > to get things to work, including perhaps unnecessarily adding
-> > a policy for k3b (and cdrecord) and one for usbmount, and
-> > fireflier too, but a 1,800 line patch to the default 1.14
-> > policy is a heck of a lot of messing.
-> 
-> i agree. i set up a debian unstable server some weeks ago and
-> installed (quite painfully) selinux, running into most of the
-> problems you encountered before. when it was up it crashed
-> regularly at least every other day, since i compiled a kernel
-> without apm (following a hunch), which improved the situation
-> drastically and the server reaches uptimes of up to seven days
-> now.
+> diff -Naur 
+> --- default.1.14/domains/program/udev.te	2004-08-02 08:28:37.000000000 +0100
+> +++ current/domains/program/udev.te	2004-08-06 19:20:29.000000000 +0100
+> @@ -79,3 +83,15 @@
+>  domain_auto_trans(udev_t, ifconfig_exec_t, ifconfig_t)
+>  
+>  dontaudit udev_t file_t:dir search;
+> +
+> +# hacked stuff...
+> +
+> +can_ps(udev_t, domain)
+> +
+> +# for /etc/dev.d/net/hotplug.dev
+> +
+> +allow udev_t etc_runtime_t:file { append lock write };
+> +can_exec(udev_t hotplug_etc_t)
+            ^^^^^^
 
- whoa.  that's useful to know because i could do without headaches
- like that.
+	yes my policy _does_ really have this (spotted it just now)
+	without the comma.
 
- ... then again, i haven't seen any major crashes...
+	no, the policy compiler _doesn't_ spot it.
 
- ... then again, i'm working on a desktop machine and i haven't
- been significantly hammering it.
-
-> i conclude that debian is not a viable platform for selinux for
-> non-selinux development right now. this is a real tragedy since
-> both russel and colins were working on it some time ago as their
-> prime platform, pushing it hard on debian, but i guess the
-> enormous debian initeria and the reluctance to include their lib
-> into base along with their jobs at redhat killed it for now.
- 
- sarge release unfreezes that, fortunately.
-
- chicken and egg.
-
- l.
-
+	l.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
