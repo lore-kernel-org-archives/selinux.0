@@ -1,46 +1,61 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j12DFT53021895
-	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 08:15:30 -0500 (EST)
-Subject: Re: Latest diffs
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Jim Carter <jwcart2@epoch.ncsc.mil>, SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
-References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <41FA9717.2000609@redhat.com>
-	 <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>
-	 <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j12DJb53021931
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 08:19:37 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j12DHQVb027717
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 13:17:29 GMT
+Subject: Re: File Browsing apps and getattr
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1107345834.890.9.camel@moss-spartans.epoch.ncsc.mil>
+References: <1107210369.1928.5.camel@cobra.ivg2.net>
+	 <1107259894.26936.27.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107263308.6722.5.camel@cobra.ivg2.net>
+	 <1107263499.26936.50.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107264384.6956.2.camel@cobra.ivg2.net>
+	 <1107264676.26936.63.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107283354.7117.13.camel@cobra.ivg2.net>
+	 <1107287529.26936.231.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107301148.3429.10.camel@cobra.ivg2.net>
+	 <1107345834.890.9.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Message-Id: <1107349736.890.72.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 02 Feb 2005 06:19:40 -0700
+Message-Id: <1107350380.7449.2.camel@cobra.ivg2.net>
 Mime-Version: 1.0
-Date: Wed, 02 Feb 2005 08:08:56 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-01 at 14:48, Stephen Smalley wrote:
-> After Jim's merge of some of your changes, I've committed the patch
-> below, which introduces an allow_execmem boolean for all execmem allow
-> rules, wraps some additional execmod allow rules with your boolean,
-> removes execmod permission to shlib_t entirely (should only be allowed
-> to texrel_shlib_t except for special domains for programs like java),
-> and assigns texrel_shlib_t to libGL.  Actually, some of the individual
-> execmod allow rules may now be redundant with the conditional rule you
-> put in uses_shlib.  I think that we may need to further break up these
-> booleans to allow certain programs to have these permissions without
-> granting them more widely.
+On Wed, 2005-02-02 at 07:03 -0500, Stephen Smalley wrote:
+> On Tue, 2005-02-01 at 18:39, Ivan Gyurdiev wrote:
+> > On Tue, 2005-02-01 at 14:52 -0500, Stephen Smalley wrote:
+> > > On Tue, 2005-02-01 at 13:42, Ivan Gyurdiev wrote:
+> > > > Would it be acceptable to have dontaudit getattr on dir_file_class_set
+> > > > for file browsing applications. I currently have a rule like that in the
+> > > > mplayer policy? If not, how would you suggest the denials be suppressed?
+> > > 
+> > > I think we want to avoid suppressing the audit for all file types, i.e.
+> > > not use file_type by itself.  Possibly a file_type - security_type as
+> > > per Dan's suggestion.  Also, we may be able to legitimately add
+> > > permission for some of these types, possibly adding usercanread to them,
+> > > but it just requires a case-by-case review.
+> > 
+> > But the audit message can be triggered by legitimate usage (ls -l /etc,
+> > ls -l /var). It doesn't make sense to me to log legitimate usage of a
+> > program as an error. 
+> 
+> etc_t and var_t are unlikely to fall under "security_type", so file_type
+> - security_type would cover them.
 
-BTW, I think that putting the conditional rule in uses_shlib() is likely
-not what you want, as it means that if you allow execmod at all to
-texrel_shlib_t, you essentially allow it for all domains.  In practice,
-I think you will only want to allow it where needed, and especially not
-for daemon domains.  Hence, I would recommend removing it from
-uses_shlib() and instead add it selectively to domains that have a
-legitimate need, as has already been done for a few cases as well as the
-user domains.
+It was a general question, regardless of the specific type. 
+I thought perhaps shadow_t would be a security type, and would produce
+denials when I do ls -l /etc. What would you consider a
+security type?
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
