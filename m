@@ -1,23 +1,24 @@
-Message-ID: <20020328192000.79981.qmail@web14603.mail.yahoo.com>
-Date: Thu, 28 Mar 2002 11:20:00 -0800 (PST)
-From: John Doe <r2q2@rocketmail.com>
-Subject: kernel compilation on mandrake
-To: SeLinux@tycho.nsa.gov
+Message-ID: <72222DC86846D411ABD300A0C9EB08A106C52D23@csoc-mail-box.csoconline.com>
+From: "Walker, Jason" <Jason.Walker@csoconline.com>
+To: "'SeLinux@tycho.nsa.gov'" <SeLinux@tycho.nsa.gov>
+Subject: Troubles with 2.4.18 kernel
+Date: Thu, 28 Mar 2002 15:21:29 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I was able to compile the kernel on Mandrake 2.4.3. I think I didn't
-follow the directions though. 
+My VMWare installation is having some problems with the 2.4.18 kernel.
+Specifically, the IDE CD-ROM drive is causing lockups in the virtual
+machine.  This is happening with both a 'stock' 2.4.18 kernel and with the
+SELinux version.
 
-=====
-Fly like a bee sting like a butterfly.
+Problem is, I can't find older releases of LSM/SELinux on the nsa.gov
+website...where are older releases kept?
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Movies - coverage of the 74th Academy Awards®
-http://movies.yahoo.com/
+Thank you,
+
+Jason Walker
 
 --
 You have received this message because you are subscribed to the selinux list.
