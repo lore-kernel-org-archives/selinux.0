@@ -1,39 +1,31 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA13460
-	for <selinux@tycho.nsa.gov>; Thu, 28 Jun 2001 16:42:07 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA24226
-	for <selinux@tycho.nsa.gov>; Thu, 28 Jun 2001 20:41:56 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzband.ncsc.mil  with ESMTP id UAA24222
-	for <selinux@tycho.nsa.gov>; Thu, 28 Jun 2001 20:41:56 GMT
-Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA05612
-	for <selinux@tycho.nsa.gov>; Thu, 28 Jun 2001 16:42:05 -0400 (EDT)
-Message-ID: <001801c10010$4cb34ba0$9c34e9c0@sahad1>
-From: "Pranav Saha" <psaha@bbn.com>
-To: <SELinux@tycho.nsa.gov>
-References: <Pine.SOL.3.95.1010626154408.20459K-100000@clipper.gw.tislabs.com>
-Subject: More install issues
-Date: Thu, 28 Jun 2001 16:24:14 -0400
+Date: Thu, 28 Jun 2001 17:30:26 -0400 (EDT)
+From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
+To: Pranav Saha <psaha@bbn.com>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: More install issues
+In-Reply-To: <001801c10010$4cb34ba0$9c34e9c0@sahad1>
+Message-ID: <Pine.LNX.4.30.0106281729200.32758-100000@biocserver.BIOC.CWRU.Edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi -
+On Thu, 28 Jun 2001, Pranav Saha wrote:
 
-Looks like I have an (almost) functional install of SELinux.  However, after
-rebooting into SELinux, all of my network connections were hosed.  I keep
-getting a "YPBINDPROC_DOMAIN: Domain Not Bound" error and the machine fails
-on boot when "bringing up interface eth0".  Don't know if the SELinux
-install wrote over some of my network drivers or if it was a problem with my
-config??
-Any suggestions would be much appreciated.
+> I keep getting a "YPBINDPROC_DOMAIN: Domain Not Bound" error and the
+> machine fails on boot when "bringing up interface eth0".  Don't know
+> if the SELinux install wrote over some of my network drivers or if it
+> was a problem with my config??
 
-Thanks.
+ypbind is an NIS/yp (yp is the old name for it) service. it shouldn't have
+anything to do with SELinux/FLASK i think. are you sure you need it?
 
+does it run when you're running a normal kernel?
+
+____________________________
+jose nazario						     jose@cwru.edu
+	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
+				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
 
 
 --
