@@ -1,64 +1,62 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8N6qSsJ011366
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 02:52:28 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8N8jbsJ011563
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 04:45:37 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8N6ojd0001872
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 06:50:45 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h8N8hsd0006395
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 08:43:54 GMT
 Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h8N6oiVY001869
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 06:50:44 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h8N8hqVY006392
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 08:43:53 GMT
 Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 59BE6C16A
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 16:52:25 +1000 (EST)
+	by sat.sws.net.au (Postfix) with ESMTP id 215A6BF3F
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 18:45:34 +1000 (EST)
 Received: from sat.sws.net.au ([127.0.0.1])
  by localhost (sat [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
- id 12640-01 for <selinux@tycho.nsa.gov>;
- Tue, 23 Sep 2003 16:52:23 +1000 (EST)
+ id 13228-09 for <selinux@tycho.nsa.gov>;
+ Tue, 23 Sep 2003 18:45:33 +1000 (EST)
 Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id CDBD5BF3F
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 16:52:23 +1000 (EST)
+	by sat.sws.net.au (Postfix) with ESMTP id 3DCDDC164
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 18:45:33 +1000 (EST)
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 90534924D6
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 16:52:23 +1000 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id F2B80924D6
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 18:45:32 +1000 (EST)
 Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 3384C7F004
-	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 16:52:22 +1000 (EST)
+	by lyta.coker.com.au (Postfix) with ESMTP id A02387F005
+	for <selinux@tycho.nsa.gov>; Tue, 23 Sep 2003 18:45:31 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: setfiles performance patch
-Date: Tue, 23 Sep 2003 16:52:21 +1000
-References: <200309231522.25749.russell@coker.com.au> <200309231623.41712.russell@coker.com.au>
-In-Reply-To: <200309231623.41712.russell@coker.com.au>
+Subject: please delete kcheckpass.te
+Date: Tue, 23 Sep 2003 18:45:31 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200309231652.21595.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200309231845.31131.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 23 Sep 2003 16:23, Russell Coker wrote:
-> Now my version takes 15:45 CPU to check 157K files and 1:46 to check 102K
-> files.  That is a rate of 166 files per second on a P3-650 and 962 on a
-> P-166.  Either the operations that setfiles performs are seriously
-> optimised for the original Pentium, the GCC 2.9.5 I used to compile for the
-> P1 is better than the gcc 3.3.2 used for for the P2, or we have some
-> performance issues whereby setfiles does not scale linearly to the number
-> of files in the file system.  I will investigate this next and post again
-> soon.
+Please delete the policy for kcheckpass.
 
-I've just tested the gcc 2.9.5 version on my P3-650 machine and found it to 
-give almost exactly the same performance as the gcc 3.3.2 version (3 seconds 
-difference in elapsed time out of 5M).
+The problem with kcheckpass was that it is SUID root in Debian.  This is a bug 
+as it can run fine without being SUID, if kcheckpass is run from your UID 
+then the SUID helper program unix_chkpwd will be run (which has appropriate 
+policy support).  This is better than granting kcheckpass direct access to /
+etc/shadow as it means that we have less programs with access to the shadow 
+file so an attacker who wants to obtain a copy of it has less potential 
+targets.
 
-Next I will do some more tests on different file system sizes.
+Debian users should give kcheckpass mode 0755 (I have filed a Debian bug 
+report about this already).  Red Hat appears to not have this bug.
+
+Once kcheckpass is not run UID==0 then the pam_unix.so code will automatically 
+run unix_chkpwd.  Currently the pam_unix.so code will abort if it can't 
+read /etc/shadow and it's UID==0, I consider this a bug in pam.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
 
 
 --
