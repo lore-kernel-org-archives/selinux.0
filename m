@@ -1,41 +1,35 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA01758
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 20:14:40 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA01807
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 20:17:55 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id AAA20731
-	for <selinux@tycho.nsa.gov>; Fri, 28 Jun 2002 00:13:13 GMT
+	by jazzband.ncsc.mil  with ESMTP id AAA20853
+	for <selinux@tycho.nsa.gov>; Fri, 28 Jun 2002 00:16:29 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id AAA20727 for <selinux@tycho.nsa.gov>; Fri, 28 Jun 2002 00:13:12 GMT
+        by jazzband.ncsc.mil  with ESMTP id AAA20849 for <selinux@tycho.nsa.gov>; Fri, 28 Jun 2002 00:16:27 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: "Ryan Bergauer" <privateryan@mindspring.com>, <selinux@tycho.nsa.gov>
-Subject: Re: Configuration issues on a new installation
-Date: Thu, 27 Jun 2002 20:14:48 -0400
-References: <001201c21e29$28ce5b20$6501a8c0@donkey>
-In-Reply-To: <001201c21e29$28ce5b20$6501a8c0@donkey>
+To: Debian User <rogelio@evoworks.evoserve.com>, selinux@tycho.nsa.gov
+Subject: Re: initctl create denied
+Date: Thu, 27 Jun 2002 20:18:07 -0400
+References: <3D1BA3B4.2030404@evoworks.evoserve.com>
+In-Reply-To: <3D1BA3B4.2030404@evoworks.evoserve.com>
 MIME-Version: 1.0
-Message-Id: <20020628001449.268C12CE3@lyta.coker.com.au>
+Message-Id: <20020628001808.3ACD82CE3@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 27 Jun 2002 18:22, Ryan Bergauer wrote:
-> On 6/27/02, Russell Coker wrote:
-> > Using a single file does not require using a single domain.  You can
+On Thu, 27 Jun 2002 19:45, Debian User wrote:
+> I cant boot into enforcing mode after I made the update for screen.
+> I used the latest debian packages. This is because init is denied access
+> to initctl which has the wrong label.
 >
-> have
->
-> > separate domains for nmbd and smbd in the same file.
->
-> Good point. Although they require very close to the same privileges, so
-> I don't believe it matters too much in this case.
+> Jun 28 06:29:51 coffeesaur2 kernel: avc:  denied  { create } for  pid=1
+> exe=/sbin/init path=/initctl scontext=system_u:system_r:init_t
+> tcontext=system_u:object_r:tmpfs_t tclass=fifo_file
 
-nmbd needs UDP, smbd needs TCP.  smbd needs read/write access to all user 
-files, nmbd doesn't.
-
-If nmbd has a bug (it's had one before) then you're better off with different 
-domains.
+What is happening here?  Is it creating it under /tmp?
 
 -- 
 I do not get viruses because I do not use MS software.
