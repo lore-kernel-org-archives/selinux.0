@@ -1,33 +1,53 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3TMrCI4001884
-	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2003 18:53:13 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h3TMr3Vf014585
-	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2003 22:53:03 GMT
-Received: from virgo.spawar.navy.mil (virgo.nosc.mil [128.49.241.137])
-	by jazzswing.ncsc.mil  with ESMTP id h3TMr24D014582
-	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2003 22:53:03 GMT
-Message-ID: <FDD01C0F1766ED4AA96EC8A81C15ADE309D5DE@virgo.nosc.mil>
-From: "Tusson, Mr. John R." <jtusson@spawar.navy.mil>
-To: selinux@tycho.nsa.gov
-Subject: Redhat 8.0
-Date: Tue, 29 Apr 2003 15:53:07 -0700
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3U0ZXI4002315
+	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2003 20:35:33 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h3U0ZW7R011528
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 00:35:32 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h3U0ZNKP011512 for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 00:35:24 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id ABB52BF3E
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 10:35:11 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 09057-10
+ for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 10:35:10 +1000 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 53FDCBF3D
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 10:35:10 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id E5140924AD
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 10:35:09 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id A9F3B3908
+	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2003 10:34:38 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: truncate(2) and setattr
+Date: Wed, 30 Apr 2003 10:34:38 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
+Message-Id: <200304301034.38073.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello:
+Why does truncate(2) require setattr access to the file?
 
-I am about to install SELinux on my Redhat 8.0 laptop and was wondering if
-there are any gotchas with 8.0 that I should know about before I proceed.  I
-looked through the old messages for the list and nothing seemed to suggest
-that there were any major hurdles.  I plan on using the version on
-sourceforge.
+Using truncate(file, len + 1) to increase the size of the file by 1 byte has 
+exactly the same affect on the file attributes as seeking to the end and 
+writing one byte.
 
-Thank You,
-John Tusson
+Using truncate to make a file smaller has no greater affect on the file 
+attributes.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
