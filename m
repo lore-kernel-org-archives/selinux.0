@@ -1,49 +1,40 @@
-Subject: Re: What policy is the system running?
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <20041103160311.51639.qmail@web50604.mail.yahoo.com>
-References: <20041103160311.51639.qmail@web50604.mail.yahoo.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3Ij7XZ017277
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 13:45:07 -0500 (EST)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3Ij7JZ011828
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 18:45:07 GMT
+Subject: Re: Patch to make can_network stronger and remove nscd tunable.
+From: Colin Walters <walters@verbum.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: russell@coker.com.au, jwcart2@epoch.ncsc.mil,
+   SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@epoch.ncsc.mil>
+In-Reply-To: <4189060A.1010003@redhat.com>
+References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de>
+	 <200411030248.49998.russell@coker.com.au> <4187AE44.40204@redhat.com>
+	 <200411031641.59816.russell@coker.com.au>  <4189060A.1010003@redhat.com>
 Content-Type: text/plain
-Date: Wed, 03 Nov 2004 13:37:39 -0500
-Message-Id: <1099507059.20150.47.camel@pham.columbia.tresys.com>
+Date: Wed, 03 Nov 2004 13:45:02 -0500
+Message-Id: <1099507502.3861.11.camel@nexus.verbum.private>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-03 at 08:03 -0800, Steve G wrote:
-> >We could do an md5 checksum of the binary policy as it is written to 
-> >/selinuxfs/load then export this via /selinux/policy_md5sum.
-> 
-> I'm not sure I like this approach...they may have just recompiled a policy
-> (overwriting the one in memory) and have either no policy that matches or perhaps
-> multiple policies that match.
-> 
+On Wed, 2004-11-03 at 11:23 -0500, Daniel J Walsh wrote:
 
-This would be case for setting boolean states on policy load, correct?
+> Not true.  pam_kerberos, pam_ldap require network access.
 
-Karl
+I still think we should be expressing this at a higher level - these
+PAM-related permissions seem more logically a part of the "auth"
+attribute, not individual daemon domains.  In particular, using
+pam_kerberos for some daemon domains but not others would be unusual -
+Kerberos really only has value if you're using it for every login.
+Similarly for pam_ldap.
 
-> -Steve Grubb
-> 
-> 
-> 		
-> __________________________________ 
-> Do you Yahoo!? 
-> Check out the new Yahoo! Front Page. 
-> www.yahoo.com 
-> 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-http://www.tresys.com
+Once we have Russell's change to add the "daemon" attribute, I think
+that can_ypbind should be keyed off that too, rather than being
+something we add to essentially every daemon domain's .te file.  If you
+want to use YP, you're going to want it everywhere.
 
 
 --
