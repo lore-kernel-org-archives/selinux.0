@@ -1,44 +1,51 @@
-Message-Id: <200205261433.g4QEXLQ21791@mail2.iserv.net>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Thomas G Land <tgland@iserv.net>
-Reply-To: tgland@iserv.net
+Date: Sun, 26 May 2002 23:00:19 +0200
+From: Tom <tom@lemuria.org>
 To: SELinux@tycho.nsa.gov
-Subject: RH cds from RH Linux 7.2 Bible Unlimited Ed.
-Date: Sun, 26 May 2002 10:40:55 -0400
-MIME-Version: 1.0
+Subject: Re: RH cds from RH Linux 7.2 Bible Unlimited Ed.
+Message-ID: <20020526230019.C28410@lemuria.org>
+References: <200205261433.g4QEXLQ21791@mail2.iserv.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200205261433.g4QEXLQ21791@mail2.iserv.net>; from tgland@iserv.net on Sun, May 26, 2002 at 10:40:55AM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I recently purchased this book which includes 3 cd's including RH7.2. 
-This book is pubolished by Hungry Minds (a div of Wiley & sons).
+On Sun, May 26, 2002 at 10:40:55AM -0400, Thomas G Land wrote:
+> I think it is just a matter of time before linux becomes popular enough to be 
+> a better target for the bad guys. Especially default installs. 
 
-I recall reading that the versions of RH included in books come stripped of 
-many features. 
+don't worry, it already is. I've seen mass scans and automated exploits
+for a ton of Linux holes already.
 
-My linux experience is 1.5 years with SuSE trying to learn. I am not on 
-expert.
 
-I think it is just a matter of time before linux becomes popular enough to be 
-a better target for the bad guys. Especially default installs. 
+> 1) Does any one know if this RH cd version can be used with selinux?
 
-My system is for my own small business and consists of 10 pcs, 2 printers, 
-hub, DSL modem, scanner, fax etc.,etc.. All boxex now have internet access. I 
-kept it alive(?) for years using windows. I prefer to have everything linux.
+it should. any missing packages can be downloaded from the net.
 
-1) Does any one know if this RH cd version can be used with selinux?
-2) RH 7.3 is all I can find in the stores here. Should I get that and wait 
-for selinux to catch up?
-3) Is selinux generally only to be used by very experienced people.
 
-Eventually I want to use SuSE with selinux but for now most developement and 
-information avail seems to center around RH.
+> 2) RH 7.3 is all I can find in the stores here. Should I get that and wait 
+> for selinux to catch up?
 
-Any answers to my questions will be welcome.
+sorry, can't answer that one.
 
-Tom
+
+> 3) Is selinux generally only to be used by very experienced people.
+
+right now, yes. but it's getting better. I've found Russell's latest
+releases (haven't tried the very latest yet) very easy to setup, and
+with the tools coming around now, it's getting easier to write a policy
+and all that.
+
+the main problem is understanding the flask concept. it took me three
+readings to get it down, and I'm still somewhat unsure about the
+details.
+
+
 -- 
-Linux SuSE 7.3 Pro   Kmail
+New GPG Key issued (old key expired):
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 You have received this message because you are subscribed to the selinux list.
