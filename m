@@ -1,47 +1,82 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7C7QtHa018038
-	for <selinux@tycho.nsa.gov>; Tue, 12 Aug 2003 03:26:55 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7C7PaOD007511
-	for <selinux@tycho.nsa.gov>; Tue, 12 Aug 2003 07:25:37 GMT
-Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
-	by jazzswing.ncsc.mil  with ESMTP id h7C7PaKO007508
-	for <selinux@tycho.nsa.gov>; Tue, 12 Aug 2003 07:25:36 GMT
-Message-ID: <3F3896BD.5000307@diyab.net>
-Date: Tue, 12 Aug 2003 03:26:53 -0400
-From: Diyab <diyab@diyab.net>
+Message-ID: <20030813075008.81593.qmail@web13702.mail.yahoo.com>
+Date: Wed, 13 Aug 2003 00:50:08 -0700 (PDT)
+From: shravan kumar <shravanincosmos@yahoo.com>
+Subject: Installation Problem
+To: SELinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: SELinux on Slackware 9 with PAM
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/alternative; boundary="0-8853002-1060761008=:81541"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello all,
+--0-8853002-1060761008=:81541
+Content-Type: text/plain; charset=us-ascii
 
-      I just finished writing up a howto style document that explains 
-how to install SELinux on Slackware 9 along with the installation of 
-PAM.  Thus far you will be able to boot into enforcing mode with some 
-minimal services like ssh but I have not tested much else.  So mainly 
-all I have to do now is to try running some services and alter the 
-policy as needed.  I would appreciate some feedback if anyone has time 
-to look at it, suggestions always welcome.  Also I would be more than 
-happy to add policy changes that anyone else who might be using 
-slackware has made.
+I have problem in Installation of SE Linux at Red Hat 9 Linux. Please help.
+ 
+Details are :
+ 
+I downloaded linux-2.5-selinux-2003071106.tgz ( containing linux-2.5.74 kernel and selinux) option1 for downloading.
+ 
+While compiling the kernel , I am getting error messages :
+ 
+on doing # make modules
+               make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+               CC [M]  drivers/char/riscom8.o
+               In file included from drivers/char/riscom8.c:51: 
+              drivers/char/riscom8.h:85: field `tqueue' has incomplete type
+              drivers/char/riscom8.h:86: field `tqueue_hangup' has incomplete type   
+              drivers/char/riscom8.c:84: warning: type defaults to `int' in declaration of   
+             `DECLARE_TASK_QUEUE'
+              drivers/char/riscom8.c:84: warning: parameter names (without types) in           function  declaration
+              drivers/char/riscom8.c:135: confused by earlier errors, bailing out
+               make[2]: *** [drivers/char/riscom8.o] Error 1
+              make[1]: *** [drivers/char] Error 2 
+              make: *** [drivers] Error 2
+ 
+---------------------------------------------------
+ 
+I used:
+ 
+gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+GNU Make version 3.79.1
+ 
+ 
+ 
 
-The document is available in plain text format here:
-http://www.diyab.net/selinux/SELinux_on_Slackware9.txt
 
-A PDF version is soon to follow.  Check my selinux page in a couple of 
-days for the PDF version.
-http://www.diyab.net/selinux/index.html
+---------------------------------
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+--0-8853002-1060761008=:81541
+Content-Type: text/html; charset=us-ascii
 
-Timothy,
-
--- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
-
+<DIV>I have problem in Installation of SE Linux at Red Hat 9 Linux. Please help.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Details are :</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>I downloaded linux-2.5-selinux-2003071106.tgz ( containing linux-2.5.74 kernel and selinux) option1 for downloading.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>While&nbsp;compiling the kernel , I am getting&nbsp;error messages :</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>on doing # make modules</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CC [M]&nbsp; drivers/char/riscom8.o<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; In file included from drivers/char/riscom8.c:51:&nbsp;</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  &nbsp;drivers/char/riscom8.h:85: field `tqueue' has incomplete&nbsp;type</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; drivers/char/riscom8.h:86: field `tqueue_hangup' has incomplete type&nbsp;&nbsp;&nbsp;</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  drivers/char/riscom8.c:84: warning: type defaults to `int' in declaration of &nbsp;&nbsp;</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  `DECLARE_TASK_QUEUE'</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; drivers/char/riscom8.c:84: warning: parameter names (without types) in&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;&nbsp;declaration<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drivers/char/riscom8.c:135: confused by earlier errors, bailing out<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;make[2]: *** [drivers/char/riscom8.o] Error 1<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; make[1]: *** [drivers/char] Error 2&nbsp;<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; make: *** [drivers] Error 2</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>---------------------------------------------------</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>I used:</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)<BR>GNU Make version 3.79.1</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV><p><hr SIZE=1>
+Do you Yahoo!?<br>
+<a href="http://us.rd.yahoo.com/evt=10469/*http://sitebuilder.yahoo.com">Yahoo! SiteBuilder</a> - Free, easy-to-use web site design software
+--0-8853002-1060761008=:81541--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
