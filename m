@@ -1,69 +1,43 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA24064
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 03:28:09 -0400 (EDT)
-From: gdsmarshall@hushmail.com
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id HAA18768
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 07:27:43 GMT
-Received: from smtp3.hushmail.com (smtp3.hushmail.com [64.40.111.33])
-	by jazzswing.ncsc.mil  with ESMTP id HAA18764
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 07:27:42 GMT
-Message-Id: <200206270727.g5R7Rxh45977@mailserver4.hushmail.com>
+Date: Thu, 27 Jun 2002 11:56:28 +0200
+From: Tom <tom@lemuria.org>
 To: Russell Coker <russell@coker.com.au>
-Cc: blacknet@simplyaquatics.com, Selinux <selinux@tycho.nsa.gov>
-Subject: Re: Re: file system support
-Date: Thu, 27 Jun 2002 00:27:59 -0700
+Cc: Selinux@tycho.nsa.gov
+Subject: Re: Configuration issues on a new installation
+Message-ID: <20020627115628.A7747@lemuria.org>
+References: <20020626211034.13432.qmail@web40007.mail.yahoo.com> <20020626224924.43C026E2@lyta.coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20020626224924.43C026E2@lyta.coker.com.au>; from russell@coker.com.au on Wed, Jun 26, 2002 at 06:49:23PM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, Jun 26, 2002 at 06:49:23PM -0400, Russell Coker wrote:
+> Yes, they probably have.  But most of them seem to have suffered in silence.  
+> It seems that I'm the only SE Linux user who is spending any time writing 
+> policy files and then publishing them.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+almost. :)
 
+we had a short flurry of "hey, everyone post their greatest policy
+files" on the list some time back, but not much came of it if I
+remember.
 
-I am converting from RH to debian.  On RH I ran cipe, I know there are packages under debian, does anyone know if there are major changes to get it to work with SELinux, or if anyone has done it before?
+Selinux is a tough topic, and hard to understand. plus the sheer volume
+of options is deafening. getting the system too boot in enforcing mode
+is a challenge.
 
-Many thanks,
-
-Spencer
-
-On Wed, 26 Jun 2002 15:15:26 -0400, Russell Coker <russell@coker.com.au> wrote:
->On Tue, 25 Jun 2002 17:20, Ed Street wrote:
->> Today while reviewing one of my clients network I had an interesting
->> idea. What if there was some type of encrypted file system support for
->> selinux.  Since one often overlooked area of computer security is
->> physical security it would only make sense.  Any thought on this idea?
->
->It shouldn't be difficult to use CryptoAPI and SE Linux on the same machine.
->I will be doing that to my machines soon.
->
->--
->I do not get viruses because I do not use MS software.
->If you use Outlook then please do not put my email address in your
->address-book so that WHEN you get a virus it won't use my address in the
->From field.
->
->--
->You have received this message because you are subscribed to the selinux list.
->If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->the words "unsubscribe selinux" without quotes as the message.
->
-
------BEGIN PGP SIGNATURE-----
-Version: Hush 2.1
-Note: This signature can be verified at https://www.hushtools.com
-
-wmAEARECACAFAj0ayooZHGdkc21hcnNoYWxsQGh1c2htYWlsLmNvbQAKCRC4zrK67KP4
-z+z0AJ9TrorvIrnBW4DIyaGD14VCAtoQYQCgvbpjzPJl+opkCuyKO0L5hnkooic=
-=A1K0
------END PGP SIGNATURE-----
+I guess the worst problem is that it takes so much time to dive into
+selinux. most of us interested in it professionally (i.e. with the
+necessary drive to go through it no matter the hassle) are probably
+swamped with other projects and lack the time required.
 
 
-Communicate in total privacy.
-Get your free encrypted email at https://www.hushmail.com/?l=2
 
-Looking for a good deal on a domain name? http://www.hush.com/partners/offers.cgi?id=domainpeople
-
+-- 
+New GPG Key issued (old key expired):
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 You have received this message because you are subscribed to the selinux list.
