@@ -1,44 +1,34 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92NtosJ007370
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 19:55:50 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h92Ntm7d025251
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 23:55:49 GMT
-Received: from zaphod.crypt.gen.nz (202-0-43-137.adsl.paradise.net.nz [202.0.43.137])
-        by jazzband.ncsc.mil  with ESMTP id h92NtgRn025240 for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 23:55:48 GMT
-Received: from www.crypt.gen.nz (zaphod.crypt.gen.nz [192.168.1.5])
-	by zaphod.crypt.gen.nz (Postfix) with SMTP id 5B286FEA2
-	for <selinux@tycho.nsa.gov>; Fri,  3 Oct 2003 11:55:34 +1200 (NZST)
-Message-ID: <2582.202.27.185.71.1065138934.squirrel@www.crypt.gen.nz>
-Date: Fri, 3 Oct 2003 11:55:34 +1200 (NZST)
-Subject: OneBase TCB - SELinux and IPSec
-From: "Kerry Thompson" <kerry@crypt.gen.nz>
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+Date: Fri, 3 Oct 2003 02:55:57 +0200
+From: Tom <tom@lemuria.org>
+To: "Fleischman, Eric" <eric.w.fleischman@boeing.com>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Security Officer and System Administrator Separation of Duties
+Message-ID: <20031003025553.C28424@lemuria.org>
+References: <5B58696DB20B9140AD20E0685C573A6402992E48@xch-nw-09.nw.nos.boeing.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5B58696DB20B9140AD20E0685C573A6402992E48@xch-nw-09.nw.nos.boeing.com>; from eric.w.fleischman@boeing.com on Thu, Oct 02, 2003 at 03:42:30PM -0700
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I just wandered into this web page :
+On Thu, Oct 02, 2003 at 03:42:30PM -0700, Fleischman, Eric wrote:
+> I hope to be able to configure SELinux so that it would have policies that correspond to the traditional DoD Separation of Duties with Least Privilege practice of establishing different roles/functions for Network Administrators than for Security Officers. Specifically, I'd like the Security Officer to be solely able to establish/modify accounts and passwords, establish group memberships, establish user role memberships, etc. However, the Security Officer must not be able to perform any other traditional sysadm_r:sysadm_t functions. Similarly, I want the sysadm_r:sysadm_t to no longer be able to perform the functionalities that have now become within the sole auspices of the Security Officer. Is this possible to do? If so, how can I do this? 
 
-http://www.finallysoftware.com/onenet/OneBase.htm
+This should be possible, in theory. In a practical implementation,
+there are possibly a lot of holes that might be used to elevate
+priviledges.
 
-They seem to be integrating SELinux and IPSec, with some sort of GUI
-management on top. The site has a bit of marketing fluff, but mentions the
-following significant areas:
+The most obvious example is, of course, that if the security officer
+can modify the policy, he can grant himself additional rights.
 
- - GUI interface for administration and management of SELinux policies
- - Labelling of IPSec packets by SELinux components
 
-Looks like a commercial product based on SELinux.
-Does anyone have any information ( or demo copies ) for this stuff? Is
-there anyone on this list from Finally Software that can give details?
-
+What you certainly can do is create a sysadm_r that is limited in the
+respect you wish, i.e. can not add/edit users or modify the policy.
 
 -- 
-Kerry Thompson, CCNA CISSP
-Information Systems Security Consultant
-http://www.crypt.gen.nz  kerry@crypt.gen.nz
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
