@@ -1,42 +1,36 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA17058
-	for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 19:24:27 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id AAA17500
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 00:22:20 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id AAA17496
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 00:22:18 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id E1B2E92668
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 11:24:22 +1100 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 03C2526D
-	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 01:24:06 +0100 (CET)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: allow a_domain_t fs_t:filesystem getattr;
-Date: Wed, 20 Nov 2002 01:24:05 +0100
-MIME-Version: 1.0
-Message-Id: <200211200124.05531.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA17358
+	for <selinux@tycho.nsa.gov>; Tue, 19 Nov 2002 20:34:27 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id BAA17394
+	for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 01:32:25 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+        by jazzband.ncsc.mil  with ESMTP id BAA17390 for <selinux@tycho.nsa.gov>; Wed, 20 Nov 2002 01:32:23 GMT
+Date: Wed, 20 Nov 2002 12:37:11 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: Brad Chapman <jabiru_croc@yahoo.com>, Joshua Brindle <JBrindle@snu.edu>,
+        Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+Subject: Re: SELinux distro building
+Message-ID: <20021120013711.GA32740@snoopy.apana.org.au>
+References: <sdd11fd2.035@atlas.snu.edu> <20021113005009.53937.qmail@web40018.mail.yahoo.com> <20021113013123.GA21921@snoopy.apana.org.au> <20021113082902.GA26850@snoopy.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20021113082902.GA26850@snoopy.apana.org.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It seems that almost everything wants to check for free space on file systems 
-occasionally.
+On Wed, Nov 13, 2002 at 07:29:03PM +1100, Brian May wrote:
 
-Is there any reason for not changing macros such as daemon_base_domain() and 
-general_domain_access() to include it instead?
+I have updated this file:
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+> <URL:http://www.microcomaustralia.com.au/debian/selinux-small-2002102211.tar.gz>
 
+It should now be able to include the LSM include files correctly.
+
+Also, the configure script will now do a simple check to ensure that the
+LSM directory given is correct.
+--
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
