@@ -1,54 +1,36 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Joshua Brindle" <JBrindle@snu.edu>, <kayo@pyra.ca>,
-        <bam@snoopy.apana.org.au>
+Date: Mon, 17 Feb 2003 12:54:00 +0100
+From: Tom <tom@lemuria.org>
+To: kayo <kayo@pyra.ca>
+Cc: SELinux@tycho.nsa.gov
 Subject: Re: user transparent encryption
-Date: Mon, 17 Feb 2003 10:18:25 +0100
-Cc: <SELinux@tycho.nsa.gov>
-References: <se502174.064@atlas.snu.edu>
-In-Reply-To: <se502174.064@atlas.snu.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200302171018.25601.russell@coker.com.au>
+Message-ID: <20030217125359.D3272@lemuria.org>
+References: <1045448295.28041.15.camel@smeagol> <1045460612.1408.9.camel@smeagol>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1045460612.1408.9.camel@smeagol>; from kayo@pyra.ca on Sun, Feb 16, 2003 at 11:43:32PM -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 17 Feb 2003 06:40, Joshua Brindle wrote:
-> I've pondered this myself, suppose you have a great selinux setup
-> very secure, no easy way to compromise it, but the machine itself
-> was in a hostile environment (not able to be protected from others
-> well). What is to stop someone from booting up a non-selinux kernel
-> and having at it with your filesystems? Nothing. I've often wondered
-> if there is a way to lock down the drive contents so it is not
-> accessible
-> (at least easily) by a non-selinux kernel, or even the encrypted fs
+On Sun, Feb 16, 2003 at 11:43:32PM -0600, kayo wrote:
+> What I mean in a way creating a situation in which the admin could
+> revolk an account or even delete the files but not be able to view the
+> encrypted data. Maybe the entire users home directory. Could something
+> like this be done at a kernel level. I am toying with the concept of
+> absolute privacy for the systems users.
 
-The solution is to have a kernel and initrd on removable media and use that to 
-setup an encrypted loopback device for root.
+Obviously can't be done. If you do it at the kernel level, the sysadmin
+can replace the kernel...
 
-The encryption key has to be on removable media for obvious reasons, and the 
-kernel and initrd have to be on removable media so that an attacker can't 
-trojan them.
+You can STORE data on a remote machine without the admin being able to
+read it. Just encrypt it. But as soon as the key needs to be entered on
+a machine where you can't trust the admin, it is potentially
+compromised.
 
-Of course a trojan in a flash BIOS could still get past this, but it would be 
-a lot more difficult.  TCPA is supposed to address these issues (if you trust 
-TCPA).  Also the LinuxBIOS people are working on similar schemes but their 
-work in this regard was classified last time I checked their web site.
-
-
-Now once the machine is running the administrator can ptrace all programs and 
-get at all the user's data, I don't think that there is any way around this.
-
-This discussion is probably getting off-topic for this list.  If we are to 
-continue it I'll have to resurrect my SE Linux list for it.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
