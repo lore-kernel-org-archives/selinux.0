@@ -1,57 +1,91 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KID2Rb021432
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 14:13:02 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KIDERb021469
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 14:13:16 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4KID0AR019974
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 18:13:00 GMT
+	by jazzband.ncsc.mil  with ESMTP id i4KIDBAR020007
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 18:13:11 GMT
 Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
-        by jazzband.ncsc.mil  with ESMTP id i4KICxHn019971 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 18:12:59 GMT
+        by jazzband.ncsc.mil  with ESMTP id i4KIDAHn020001 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 18:13:10 GMT
 Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KICvWG026063
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 14:12:57 -0400
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KID9WG026093
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 14:13:09 -0400
 Received: (from hdholm@localhost)
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id i4KICvR4026061
-	for selinux@tycho.nsa.gov; Thu, 20 May 2004 14:12:57 -0400
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id i4KID93u026091
+	for selinux@tycho.nsa.gov; Thu, 20 May 2004 14:13:09 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KI5CRd021358
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 14:05:13 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4KHZwAR015071
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 17:35:58 GMT
+Received: from smtp.sws.net.au ([61.95.69.6])
+        by jazzband.ncsc.mil  with ESMTP id i4KHYiHn014667 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 17:34:45 GMT
 From: Russell Coker <rcoker@redhat.com>
 Reply-To: rcoker@redhat.com
-To: "Bush, Daniel" <Daniel.Bush@boeing.com>
-Subject: Re: Policy compiler issues.
-Date: Thu, 20 May 2004 13:22:23 +1000
-Cc: "SELinux" <SELinux@tycho.nsa.gov>
-References: <E7E29FA7C732D146887C784B34AEF6A0044E3FD7@xch-ne-01.ne.nos.boeing.com>
-In-Reply-To: <E7E29FA7C732D146887C784B34AEF6A0044E3FD7@xch-ne-01.ne.nos.boeing.com>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: start of patch to dpkg's start-stop-daemon
+Date: Fri, 21 May 2004 03:33:37 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040520084306.GL24597@lkcl.net> <200405210132.17391.russell@coker.com.au> <20040520162343.GL8810@lkcl.net>
+In-Reply-To: <20040520162343.GL8810@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200405201322.23573.rcoker@redhat.com>
+Message-Id: <200405210333.37234.rcoker@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 20 May 2004 08:10, "Bush, Daniel" <Daniel.Bush@boeing.com> wrote:
-> It's my
-> understanding that whenever the users' list changes (aside from default
-> users)in a SELinux system, that the policy files and security labels need
-> to be re-compiled. Is there any way around that? Can a user be assigned a
-> set of (non-default user) roles without re-compiling the security system?
+On Fri, 21 May 2004 02:23, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > > it's a patch to dpkg 1.10.21's utils/start-stop-daemon.c
+> > > which causes a context switch just before
+> > > the setuid/setgid calls.
+> >
+> > What is the benefit in that?
+>
+>  it's easier than breaking pre-existing /etc/init.d/* scripts where
+>  people expect the -u option to act as it should?
 
-You can add new users to the policy database or permit existing users to use 
-more roles without any significant cost.  You have to build and install a new 
-policydb which isn't a significant cost (but may be on embedded systems - I 
-never got M4 to work on an iPaQ, and the >3M of storage required is a problem 
-when you only have 32M on the system).
+How is it broken?  initrc_t has setuid and setgid capabilities so SE Linux 
+does not stop the regular function of start-stop-daemon.
 
-If you want to remove a user then you will need to relabel any files that they 
-may have created.  That is usually limited to their home 
-directory, /tmp, /var/tmp, and /var/run (shouldn't be a huge cost).  Removing 
-roles from a user does not necessarily require relabelling any files (but may 
-deny that user access to files that they had created if you don't relabel).
+In fact it's good for start-stop-daemon to be used to run a daemon as UID != 
+0, that means that the daemon domain does not need setuid capability.
 
->   Another question: Can SELinux be compiled under uClibc? I'm not having
-> much luck at that, and I was wondering if something special needed to be
-> done, or if anybody had any tips.
+>  in other words, the benefit in patching start-stop-daemon is to
+>  provide legacy transition support.
 
-What compile errors do you get?  It should work but AFAIK no-one has bothered 
-trying to do it before.
+My systems have been working fine with a non-patched start-stop-daemon for two 
+years.  When I first started working on SE Linux I had a similar idea to 
+avoid the use of run_init, that turned out to be a bad idea and I've been 
+using the regular start-stop-daemon since then.
+
+>  i _really_ don't want the -u option on my custom /etc/init.d/custom
+>  script to suddenly start running the daemon as root.
+
+Why not?
+
+If root is the appropriate UID for Unix permissions to allow all required 
+operations, then this is OK as SE Linux can still prevent it from doing 
+anything bad.
+
+>  as an inexperienced SE/Linux user i might not _know_ that i have to
+>  write a domain_auto_trans() rule in the /etc/selinux policy.
+>
+>  therefore all of a sudden, by upgrading to SE/Linux i suddenly have
+>  my -u option effectively ignored.
+
+No, if you install a daemon which has no policy and you don't write any then 
+the daemon will run as initrc_t.  This may allow the daemon to work or may 
+prevent it from operating depending on what the daemon does.
+
+>  under which circumstances, what you are saying is that
+>  because the script will run as system_u:system_r:initrc_t,
+>  and because that context will not have (shouldn't have!)
+>  permission to do anything outrageous, my startup script will
+>  break.
+
+initrc_t has a lot of access to the system.  It's designed for startup scripts 
+and breaks very few of them.
 
 -- 
 http://apac.redhat.com/disclaimer
