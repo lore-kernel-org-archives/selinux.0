@@ -1,202 +1,64 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i638YLrT018140
-	for <selinux@tycho.nsa.gov>; Sat, 3 Jul 2004 04:34:21 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i638Xvwn028227
-	for <selinux@tycho.nsa.gov>; Sat, 3 Jul 2004 08:34:03 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Greg Norris <haphazard@kc.rr.com>
-Subject: Re: dnsmasq policy advice
-Date: Sat, 3 Jul 2004 18:34:02 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040703032852.GA23857@yggdrasil.localdomain>
-In-Reply-To: <20040703032852.GA23857@yggdrasil.localdomain>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_69m5AFHu130a6fa"
-Message-Id: <200407031834.02192.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i638jrrT018215
+	for <selinux@tycho.nsa.gov>; Sat, 3 Jul 2004 04:45:53 -0400 (EDT)
+Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i638jp4K024702
+	for <selinux@tycho.nsa.gov>; Sat, 3 Jul 2004 08:45:52 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
+  by smtp804.mail.ukl.yahoo.com with SMTP; 3 Jul 2004 08:45:46 -0000
+Date: Sat, 3 Jul 2004 08:42:42 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Kenshi Muto <kmuto@debian.org>
+Cc: 254153@bugs.debian.org, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Bug#254153: cupsys: SE/Linux required to give user permission to read /var/spool/cups/certs/0
+Message-ID: <20040703084242.GA3099@lkcl.net>
+References: <E1BZS5b-0006MZ-FE@lkcl.net> <20040703020944.116BF222FA0@mail.topstudio.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040703020944.116BF222FA0@mail.topstudio.co.jp>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, Jul 03, 2004 at 11:09:43AM +0900, Kenshi Muto wrote:
+> Hi,
+> 
+> Sorry for my late response,
+> 
+> At Sun, 13 Jun 2004 10:19:47 +0000,
+> Luke Kenneth Casson Leighton wrote:
+> > the permissions on SE/Linux are starting from scratch
+> > "everything-is-banned".
+> > 
+> > therefore, a quite thorough audit is underway as applications are
+> > run and users of Debian / SE/Linux find that they "can't do X".
+> > 
+> > in this instance, "i can't add a printer from KDE's print manager
+> > because ordinary users are not given permission to do ANY kind of
+> > access to /var/spool/cups."
+> > 
+> > therefore, please could you consider moving the /var/spool/cups/certs
+> > to somewhere more appropriate where ordinary can be given read access
+> > to it?
+> 
+> Hmm, upstream source uses '/etc/cups/certs', but previous cups
+> maintainer changed this by:
+>   * Moved /etc/cups/certs to /var/spool/cups/certs.  Closes: #144887.
+> 
+> I don't know what's best location for this cert file, but how about
+> '/var/lib/cups/certs'?
+ 
+ given that cups writes to the certs file every 5 mins, as #144887
+ says, it's inappropriate for it to be in /etc.
 
---Boundary-00=_69m5AFHu130a6fa
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+ /var/spool/cups is not accessible except by sysadmin.
 
-On Sat, 3 Jul 2004 13:28, Greg Norris <haphazard@kc.rr.com> wrote:
-> Anyone willing to take a look at the attached policy for dnsmasq (it's
-> quite short), and give me your opinion?  I've finally got to a point
-> where I'm happy with the beastie, and would like to verify that I
-> haven't overlooked anything obvious... this being my first SE-Linux
-> policy, and all.
->
-> Basically, I'm hoping to hear "You didn't do anything blindingly
-> stupid". ;-)
+ /var/lib/cups can be created and made user-read-accessible so
+ that /var/lib/cups/certs can be accessed.
 
-I've attached a modified version of types/network.te to make the dns_port_t 
-declaration more sane and modified your dnsmask.te to work with other policy 
-and not multiply declare types.
+ yep, i reckon that's a more appropriate location.
 
-Also at the end I put in a file_type_auto_trans() rule because that seems to 
-map to what you want to do.
+ l.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_69m5AFHu130a6fa
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="network.te"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="network.te"
-
-#
-# Authors:  Stephen Smalley <sds@epoch.ncsc.mil> and Timothy Fraser  
-#
-
-# Modified by Reino Wallin <reino@oribium.com>
-# Multi NIC, and IPSEC features
-
-# Modified by Russell Coker
-# Move port types to their respective domains, add ifdefs, other cleanups.
-
-# generally we do not want to define port types in this file, but some things
-# are insanely difficult to do elsewhere, xserver_port_t is a good example
-# getting the type defined is the easy part for X, conditional code for many
-# other domains (including one that starts with a) is the hard part.
-ifdef(`xdm.te', `define(`use_x_ports')')
-ifdef(`startx.te', `define(`use_x_ports')')
-ifdef(`xauth.te', `define(`use_x_ports')')
-ifdef(`xserver.te', `define(`use_x_ports')')
-ifdef(`use_x_ports', `
-type xserver_port_t, port_type;
-')
-#
-# Defines used by the te files need to be defined outside of net_constraints
-#
-ifdef(`named.te', `define(`use_dns')')
-ifdef(`nsd.te', `define(`use_dns')')
-ifdef(`tinydns.te', `define(`use_dns')')
-ifdef(`dnsmasq.te', `define(`use_dns')')
-ifdef(`use_dns', `
-type dns_port_t, port_type;
-')
-
-ifdef(`named.te', `define(`use_dns')')
-ifdef(`cyrus.te', `define(`use_pop')')
-ifdef(`courier.te', `define(`use_pop')')
-ifdef(`perdition.te', `define(`use_pop')')
-ifdef(`dovecot.te', `define(`use_pop')')
-ifdef(`use_pop', `
-type pop_port_t, port_type;
-')
-ifdef(`apache.te', `define(`use_http_cache')')
-ifdef(`squid.te', `define(`use_http_cache')')
-
-############################################
-#
-# Network types
-#
-
-#
-# port_t is the default type of INET port numbers.
-# The *_port_t types are used for specific port
-# numbers in net_contexts or net_contexts.mls.
-#
-type port_t, port_type;
-
-#
-# netif_t is the default type of network interfaces.
-# The netif_*_t types are used for specific network
-# interfaces in net_contexts or net_contexts.mls.
-#
-type netif_t, netif_type;
-type netif_eth0_t, netif_type;
-type netif_eth1_t, netif_type;
-type netif_eth2_t, netif_type;
-type netif_lo_t, netif_type;
-type netif_ippp0_t, netif_type;
-
-type netif_ipsec0_t, netif_type;
-type netif_ipsec1_t, netif_type;
-type netif_ipsec2_t, netif_type;
-
-#
-# node_t is the default type of network nodes.
-# The node_*_t types are used for specific network
-# nodes in net_contexts or net_contexts.mls.
-#
-type node_t, node_type;
-type node_lo_t, node_type;
-type node_internal_t, node_type;
-type node_inaddr_any_t, node_type;
-type node_unspec_t, node_type;
-type node_link_local_t, node_type;
-type node_site_local_t, node_type;
-type node_multicast_t, node_type;
-type node_mapped_ipv4_t, node_type;
-type node_compat_ipv4_t, node_type;
-
-# Kernel-generated traffic, e.g. ICMP replies.
-allow kernel_t netif_type:netif { rawip_send rawip_recv };
-allow kernel_t node_type:node { rawip_send rawip_recv };
-
-# Kernel-generated traffic, e.g. TCP resets.
-allow kernel_t netif_type:netif { tcp_send tcp_recv };
-allow kernel_t node_type:node { tcp_send tcp_recv };
-
---Boundary-00=_69m5AFHu130a6fa
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="dnsmasq.te"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="dnsmasq.te"
-
-#DESC dnsmasq - DNS forwarder and DHCP server
-#
-# Author: Greg Norris <adric@debian.org>
-# X-Debian-Packages: dnsmasq
-#
-
-#################################
-#
-# Rules for the dnsmasq_t domain.
-#
-daemon_domain(dnsmasq);
-type dnsmasq_lease_t, file_type, sysadmfile;
-ifdef(`dhcpd.te', `', `
-type dhcpd_port_t, port_type;
-')
-
-# misc. requirements
-allow dnsmasq_t self:capability { net_bind_service net_raw setgid setuid };
-allow dnsmasq_t urandom_device_t:chr_file { read };
-
-# network-related goodies
-can_network(dnsmasq_t)
-allow dnsmasq_t self:packet_socket create_socket_perms;
-allow dnsmasq_t self:unix_dgram_socket create_socket_perms;
-allow dnsmasq_t self:unix_stream_socket create_stream_socket_perms;
-
-# UDP ports 53 and 67
-allow dnsmasq_t dhcpd_port_t:udp_socket name_bind;
-allow dnsmasq_t dns_port_t:udp_socket name_bind;
-
-# allow access to dnsmasq.conf
-allow dnsmasq_t etc_t:file r_file_perms;
-
-# dhcp leases
-file_type_auto_trans(dnsmasq_t, var_lib_t, dnsmasq_lease_t)
-
---Boundary-00=_69m5AFHu130a6fa--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
