@@ -1,67 +1,57 @@
 Subject: Re: Added is_context_configurable function
 From: Colin Walters <walters@redhat.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41E43DD8.5000306@redhat.com>
 References: <41E2FEF4.5070604@redhat.com>
 	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>
 	 <41E3FAF4.2060109@redhat.com>
 	 <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <41E43784.2060406@redhat.com>
+	 <1105475738.20566.150.camel@moss-spartans.epoch.ncsc.mil>
+	 <41E43DD8.5000306@redhat.com>
 Content-Type: text/plain
-Date: Tue, 11 Jan 2005 17:10:40 -0500
-Message-Id: <1105481440.24748.22.camel@nexus.verbum.private>
+Date: Tue, 11 Jan 2005 17:25:49 -0500
+Message-Id: <1105482350.4614.8.camel@nexus.verbum.private>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-01-11 at 15:00 -0500, Stephen Smalley wrote:
-> On Tue, 2005-01-11 at 11:12, Daniel J Walsh wrote:
-> > I think this is more flexible, in that it allows users to specify the 
-> > location of these files versus policy.
-> > IE I create a new top level directory /rsync which I want to label 
-> > ftp_anon_t, I don't want to have to specify
-> > ftp_anon_t is an alternative to default_t.
-> 
-> You could certainly specify a /rsync/(/.*)? entry in file_contexts that
-> had both contexts listed.  Ordinary user shouldn't be able to
-> create/populate /rsync anyway without administrative setup.
+On Tue, 2005-01-11 at 15:58 -0500, Daniel J Walsh wrote:
 
-I've said this before, but I don't like the idea of having to edit
-file_contexts whenever I want to change the labels.  I feel that the 
-on-disk version should be canonical, and the file_contexts only used for
-system initialization.  One major reason for this is that right now,
-practically speaking, it's difficult to maintain a local system policy
-delta, *particularly* with files/file_contexts.  file_contexts is a
-machine-generated file; in Fedora it's included in the 
-selinux-policy-targeted package.  If you change it you get .rpmnew files
-which you have to manually merge on every package update.  This could be
-solved to some extent if we also had matchpathcon read from
-file_contexts.local or something.  Even if we implemented that though,
-it is still painful for administrators to e.g. use a non-default Apache
-DocumentRoot; they will have to remember to create an entry in their
-file_contexts.local file with a regexp matching the path and all of the
-possible alternate types, which is pretty unintuitive.  Although the
-obvious merge conflict is gone, you still have to manually keep this
-line in sync with any Apache policy updates.
+> This might be a conflict between strict and relaxed policy.  I am 
+> getting bugs from users who setup the apache web servers
+> with files in different locations than the preordaned.  I am looking for 
+> an easy way for them to configure their system and make
+> it survive a restoration of file labels. 
 
-> Failing to associate the context with a location in any manner means
-> that setfiles/restorecon will fail to fix the label on e.g. /etc/shadow
-> if it happens to get one of these configurable types at some point. 
-> Admittedly, getting to that point requires some kind of serious error in
-> the first place,
+Now, part of this problem is that we're asking users to run "fixfiles
+relabel" so often.  This is really a quite drastic measure, and we
+should be solving some of these cases automatically.  For example, when
+PostgreSQL was added to the targeted policy, or when we move files
+around between FC3 and FC4, and users want to upgrade.  One approach
+here might be to have an idea of file system label "versions".  Let's
+call the contexts in the current rawhide to be version 0.  This version
+is stored in /.label_version.  Then let's say we add postgres, and we
+need to ensure that it's labeled correctly.  We call this version 1.
+Inside the postinst, we have code like this:
 
-To say the least.
+# Increase this on every incompatible change to file_contexts
+curver=1
 
->  but running fixfiles relabel will no longer correct
-> such errors for you.
+fsver=$(cat /.label_version)
+if test $fsver -lt 1; then
+  relabel_package postgresql
+fi
 
-If your /etc/shadow is somehow mislabeled, I would think that you likely
-have larger problems than a fixfiles relabel could solve; e.g. you
-accidentally untarred an old system snapshot onto /.
+Then later, we move the dhcpd files around, so we just suffix this code:
 
-> BTW, customizable or alternatives seems better than configurable.
+if test $fsver -lt 2; then
+  relabel_package dhcpd
+fi
 
-Yeah, I like customizable, but it's not a strong preference.
+etc.
+
 
 
 --
