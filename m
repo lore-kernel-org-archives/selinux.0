@@ -1,22 +1,23 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9RFIWXZ021628
-	for <selinux@tycho.nsa.gov>; Wed, 27 Oct 2004 11:18:32 -0400 (EDT)
-Subject: Re: Limiting the power of can_network, improving the security of
-	strict policy.
-From: Russell Coker <rcoker@redhat.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, sgrubb@redhat.com,
-   Colin Walters <walters@redhat.com>, SE Linux list <selinux@tycho.nsa.gov>
-In-Reply-To: <417FB917.8030109@redhat.com>
+From: steven harp <steven.harp@adventiumlabs.org>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Limiting the power of can_network, improving the security of strict policy.
+Date: Wed, 27 Oct 2004 10:17:38 -0500
 References: <417FB917.8030109@redhat.com>
-Content-Type: text/plain
-Date: Thu, 28 Oct 2004 01:18:17 +1000
-Message-Id: <1098890298.16430.145.camel@aeon>
-Mime-Version: 1.0
+In-Reply-To: <417FB917.8030109@redhat.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <200410271017.59218.steven.harp@adventiumlabs.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-10-27 at 11:04 -0400, Daniel J Walsh wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Wednesday 27 October 2004 10:04 am, Daniel J Walsh wrote:
+> We have been talking about ways of improving the security of strict 
+> policy.  So I have been working
+> ...
 > Finally we are looking into limiting the power of can_network.  
 > Currently any daemon that has can_network can receive
 > and establish TCP/UDP connections.  The only thing not provided is 
@@ -27,23 +28,30 @@ On Wed, 2004-10-27 at 11:04 -0400, Daniel J Walsh wrote:
 > have added a connect_socket_perms which includes
 > the create_socket_perms.  This has caused many changes to be made in 
 > policy, and I am not sure if it was a good idea?
-
-I think it might be better to leave create_socket_perms as it is and
-have another macro connected_socket_perms which doesn't have create
-access.
-
+> 
 > Also I modified can_network to take a second parameter of the type of 
 > the connection (udp or tcp).  This allows you to turn off tcp, connections
 > on a UDP application.  (I am not sure you can do this for a tcp only app 
 > if they are going to use name service.)
-
-What if we have two new macros can_tcp_network() and can_udp_network()
-which can_network() invokes.
-
+> 
 > Is this a good idea or am I wasting my time?
 
-It's a great idea!  But I think some minor changes to the way that
-backward compatability works would be good.
+I like the direction of suggested mods to can_network.  I've mostly abandoned 
+use of this macro for a suite of distributed applications I'm working
+on since it does usually offer more than any one of the apps really needs.
+Providing more modular connection-oriented constructions would be useful.
+
+Steven Harp
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQFBf7whPcFX9H2zuSkRAkH5AJ4k9QD/ORwZMIwVRMHdOP3BRb322gCeJzH1
+y7M2WZa0BwL14wz8/gwbPn8=
+=p0WO
+-----END PGP SIGNATURE-----
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
