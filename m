@@ -1,74 +1,68 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA08975
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 18:43:45 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA21285
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 22:42:02 GMT
-Received: from EXCH-FE-AB.EXCHPROD.USA.NET ([165.212.49.201])
-	by jazzswing.ncsc.mil  with ESMTP id WAA21281
-	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 22:42:02 GMT
-From: "Phillip H. Zakas" <pzakas@toucancapital.com>
-To: "Jose Nazario" <jose@biocserver.bioc.cwru.edu>,
-        "Justin R. Smith" <jsmith@mcs.drexel.edu>
-Cc: <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA09179
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 19:46:17 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id XAA21669
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 23:45:47 GMT
+Received: from relay.cigital.com (relay.cigital.com [64.80.176.5])
+	by jazzband.ncsc.mil  with ESMTP id XAA21665
+	for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2001 23:45:46 GMT
+Message-ID: <4BC10D47D7ACD3119FA800104B1F8836C4AA6D@exchange.cigital.com>
+From: Tim Hollebeek <thollebeek@cigital.com>
+To: "'Justin R. Smith'" <jsmith@mcs.drexel.edu>, selinux@tycho.nsa.gov
 Subject: RE: A notion
-Date: Mon, 1 Oct 2001 18:47:49 -0400
-Message-ID: <GPEALCPFLNHDAABJENOFCEJHCIAA.pzakas@toucancapital.com>
+Date: Mon, 1 Oct 2001 19:46:10 -0400 
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-In-Reply-To: <Pine.LNX.4.30.0110011734330.20148-100000@biocserver.BIOC.CWRU.Edu>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-polymorphic code usually follows one (or a combo) of three paths: 1)
-randomly insert NOPs into the code; 2) break codes into pieces (sort of like
-objects) and randomize placement and use JMP commands to keep the code in
-proper order; 3) develop a 'translation' mechanism and use tokens to
-represent code instructions...as code is executed, the translation code
-interprets and translates each token.  not sure this is completely on-topic
-for SELINUX, but it does have application.
-
-cheers-
-phillip
+I don't know if Crispin Cowan watches the selinux list, but this is
+exactly the sort of thinking that inspired stackguard.  To paraphrase
+a recent comment of his, it seems that whenever you investigate a method
+of enhancing security using randomization, similar thinking will provide a
+protection mechanism which will perform even better than the randomization.
 
 > -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
-> Behalf Of Jose Nazario
-> Sent: Monday, October 01, 2001 5:36 PM
-> To: Justin R. Smith
-> Cc: selinux@tycho.nsa.gov
-> Subject: Re: A notion
->
->
-> On 2 Oct 2001, Justin R. Smith wrote:
->
-> > Isn't it possible to develop a "randomizing C compiler" that randomly
-> > varies these distances every time it compiles a program? No two
-> > compiles of the same source code would be exactly the same (but they
-> > would execute the same way).
->
-> to the best of my knowledge morphing code, in a variety of fashions (stuff
-> that changes every time it compiles, every time it runs, while it runs) is
-> a hot topic of DARPA research right now. as such, look around various
-> sites doing research for DARPA and see who is doing what, publicly. a lot
-> of the technology may be hidden behind various closed doors (ie commercial
-> interests).
->
-> ____________________________
-> jose nazario						     jose@cwru.edu
-> 	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
-> 				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
->
->
+> From: Justin R. Smith [mailto:jsmith@mcs.drexel.edu]
+> Sent: Tuesday, October 02, 2001 4:43 AM
+> To: selinux@tycho.nsa.gov
+> Subject: A notion
+> 
+> 
+> It occurred to me that custom versions of software can be more secure
+> than standard versions because various exploits (like stack smashing,
+> etc.) require precise knowledge of certain sizes and distances in RAM
+> (for instance, the distance from the end of a buffer to the return
+> point...).
+> 
+> Isn't it possible to develop a "randomizing C compiler" that randomly
+> varies these distances every time it compiles a program? No 
+> two compiles
+> of the same source code would be exactly the same (but they would
+> execute the same way).
+> 
+> This might involve inserting small random-sized blocks of 
+> dead code, or
+> doing returns from subroutines through a level of indirection (i.e.,
+> putting the actual return at some random location in the object code
+> with a branch to it).
+> 
+> Done right, this might not degrade performance significantly.
+> 
+> 
+> -- 
+> 
+> 
 > --
-> You have received this message because you are subscribed to the
-> selinux list.
-> If you no longer wish to subscribe, send mail to
+> You have received this message because you are subscribed to 
+> the selinux list.
+> If you no longer wish to subscribe, send mail to 
 > majordomo@tycho.nsa.gov with
 > the words "unsubscribe selinux" without quotes as the message.
-
+> 
 
 --
 You have received this message because you are subscribed to the selinux list.
