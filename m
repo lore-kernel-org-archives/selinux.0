@@ -1,51 +1,45 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA05126
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 07:33:48 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA17355
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 11:32:17 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA05322
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 08:01:51 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA00824
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 12:01:12 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id LAA17351 for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 11:32:17 GMT
-Date: Mon, 15 Jul 2002 07:33:42 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id MAA00820
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 12:01:11 GMT
+Date: Mon, 15 Jul 2002 08:01:10 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Belch <belch76@libero.it>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Compiling a simple policy
-In-Reply-To: <200207131142.51302.belch76@libero.it>
-Message-ID: <Pine.GSO.4.33.0207150729140.29432-100000@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: Brian May <bam@snoopy.apana.org.au>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: currupt policy.11 file
+In-Reply-To: <20020715042551.A39C7424F@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0207150756180.29432-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Sat, 13 Jul 2002, Belch wrote:
+On Mon, 15 Jul 2002, Russell Coker wrote:
 
-> /usr/local/selinux/bin/checkpolicy -o tmp/policy.11-mls policy.conf
-> /usr/local/selinux/bin/checkpolicy:  loading policy configuration from policy.conf
-> ERROR 'no range for user' at token ';' on line 126447:
-> #
-> user system_u roles system_r ;
-> /usr/local/selinux/bin/checkpolicy:  error(s) encountered while parsing configuration
-> make: *** [policy.11-mls] Error 1
-> [root@localhost policy]#
->
-> Line 126447:
-> user system_u roles system_r ;
+> On Mon, 15 Jul 2002 03:43, you wrote:
+> > I accidently currupted my policy.11 file, probably by loading it before
+> > it had been fully written (yes, stupid thing to do).
+> >
+> > Anyway, the effect of this was my computer promptly crashed.
+> > By this I mean it was running extremely slowly, and eventually
+> > refused to respond to any user input.
 
-To use the experimental MLS policy option, you must also follow the
-instructions in selinux/README.MLS.   I suspect that you forgot to set
-MLS=y in the policy/Makefile, and you should define MLS ranges for at
-least one user.  Please note that the MLS policy option is experimental,
-and that you do not need to enable it to use SELinux with the RBAC and TE
-logic.  Don't enable it unless you truly want to experiment with the MLS
-support.
+I'd be interested in obtaining a copy of the corrupted policy.11 file so
+that I can try to reproduce the error.  I just tried loading a truncated
+policy.11 file (both a truncated compressed policy.11 and a truncated
+uncompressed policy.11), and in both cases, the security server reported
+an appropriate error during the load and continued operating under the old
+policy.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
-
 
 
 
