@@ -1,46 +1,69 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA25572
-	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 08:25:53 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA24217
-	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 12:24:07 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id MAA24213
-	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 12:24:07 GMT
-Date: Tue, 23 Apr 2002 08:25:14 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Chad Nantais <cnantais@rednaxel.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: NSA Web Site - available?
-In-Reply-To: <3CC46C1F.1000103@rednaxel.com>
-Message-ID: <Pine.GSO.4.33.0204230818140.18931-100000@raven>
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524357@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Russell Coker'" <russell@coker.com.au>,
+        "Westerman, Mark"
+	 <Mark.Westerman@csoconline.com>,
+        "'Howard Holm'" <hdholm@epoch.ncsc.mil>, SELinux@tycho.nsa.gov
+Subject: RE: SELinux RPM Version
+Date: Tue, 23 Apr 2002 07:24:44 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 22 Apr 2002, Chad Nantais wrote:
+On Monday, April 22, 2002 4:38 PM Russell Coker wrote:
 
-> I have been trying to reach the NSA web site for days.  Is it down from
-> anyone else's point of view?
+> On Mon, 22 Apr 2002 14:40, Westerman, Mark wrote:
+> > Current SELinux package
+> > 	selinux-<kernel version>-<NSA Release number>
+> > 	Current planed release:
+> > 		selinux-2.4.18-2002031409.i386.rpm
+> > 		selinux-dev-2.4.18-2002031409.i838.rpm
+> 
+> Why have the kernel version in the package name?  The NSA is  only making 
+> releases for the latest kernel.  I've backported a couple of  the changes
+to 
+> an older kernel, but AFAIK no-one else is doing so.
 
-Yes, the NSA site seems inaccessible from here as well.  Until they get
-it fixed, if you need to obtain a copy of the last public release of
-SELinux, you can download a copy from the sourceforge selinux
-project site's CVS tree, e.g.
+While it is true that the NSA is only making releases for the latest kernel
+we might need in the future the older version. A user might not want to
+upgrade there kernel version. If is not to hard to keep the kernel version
+I think it just adds to less confusion.
 
-CVSROOT=:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux
-cvs -z3 co nsa
+> Also the relevant thing is not the kernel version but the 
+> policy version.  
+> 
+> What we need to eventually do is split checkpolicy out into a 
+> separate package so we can have multiple versions installed, then we 
+> need to have the ability to compile multiple versions and load the version
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+> that matches the  kernel (how do we determine the policy version in the
+running 
+> kernel?).
+> 
+> Maybe the load_policy program should be able to look at a  directory full
+of 
+> policy files and load the one that matches the kernel policy version?
+> 
+> > If future releases of selinux I think we should sub-divided into
+> > more packages
+> > 	selinux-kernel-<kernel version>-<NSA Release number>
+> > 	selinux-policy-<version number>-<release>
+> > 	selinxu-utils-<version number>-<release>
+> > 		To include newrole, run_init and ......
+> > 		Or a separate rpm for utility ?
+> 
+> Why split the sample policy from the utilities?  Why would 
+> you use one 
+> without the other?
+>
 
-
-
-
-
+There might be different verions of a policy. Such as a policy
+for just bind (i.e. a DNS server only). If we have package for
+policy then maybe different policies will be built. 
+  
 
 --
 You have received this message because you are subscribed to the selinux list.
