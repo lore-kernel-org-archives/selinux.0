@@ -1,174 +1,108 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA02183
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 17:30:02 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA18727
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 22:27:12 GMT
-Received: from unicorn.lemuria.org (b069097.adsl.hansenet.de [62.109.69.97])
-	by jazzswing.ncsc.mil  with ESMTP id WAA18722
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 22:27:10 GMT
-Date: Tue, 21 Jan 2003 23:24:52 +0100
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: Apache/mysql policy status ?
-Message-ID: <20030121232452.E24908@lemuria.org>
-References: <200301211848.NAA02352@moss-shockers.ncsc.mil> <200301212042.11953.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="KsGdsel6WgEHnImy"
-In-Reply-To: <200301212042.11953.russell@coker.com.au>; from russell@coker.com.au on Tue, Jan 21, 2003 at 08:42:11PM +0100
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA02258
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 17:38:02 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h0LMc2I08899
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 22:38:02 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id h0LMc0f08895 for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 22:38:00 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+Subject: Re: Cambridge Security Group talk
+Date: Tue, 21 Jan 2003 23:37:50 +0100
+References: <200301211742.MAA02301@moss-shockers.ncsc.mil>
+In-Reply-To: <200301211742.MAA02301@moss-shockers.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200301212337.50756.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 21 Jan 2003 18:42, Stephen D. Smalley wrote:
+> > One issue that drew a number of comments from the audence was the length
+> > of security contexts and the amount of typing that it can involve.  One
+> > audience member said "space in an Xterm is precious", another audience
+> > member mentioned having three servers without X that were not
+> > administered remotely (IE everything is done at the console without even
+> > an X based cut/paste facility).
+>
+> How often does a user need to type a context?  Typically, labeling of
+> processes and objects is handled transparently to the user.  newrole
 
---KsGdsel6WgEHnImy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+There are times when you boot in single-user mode and need to relabel files.
 
-On Tue, Jan 21, 2003 at 08:42:11PM +0100, Russell Coker wrote:
-> mysqld was permitted to write to var_log_t files and initrc_t was permitted to 
-> write to mysqld_log_t files.
+> only requires you to enter the new role name.  Editing the policy
+> configuration or file contexts configuration can be done offline,
+> and shouldn't be too frequent anyway.
 
-As I recall, the later is necessary because the wrapper script insists
-on putting some startup information into the mysql logfiles. I don't
-remember the reason for the prior one, but I'm fairly sure I didn't
-just put random stuff in there. :)
+True, policy editing can usually be done from an xterm, although there are 
+people who don't have this luxuary.
 
-I have the policy attached. Check it and tell me which parts make you
-unhappy.
+Another thing, when using a keyboard displayed on a 240x320 TFT display with a 
+stylus typing in the current context names is going to be painful...
 
+> > Another suggestion was to remove some parts of the context when they
+> > aren't needed (such as object_r).  I tried this once but Steve convinced
+> > me to revert it.  I am now thinking that perhaps we should review this
+> > matter.
+>
+> libsecure provides some functions for manipulating security context
+> fields that are used by newrole and runas.  In general, you want to
+> encapsulate any logic that knows about the syntax and semantics of the
+> security context in a library and avoid policy-specific knowledge in the
+> application unless the application is fundamentally policy-specific.
+
+What about a bash plugin for it?  I believe that bash supports writing plugins 
+for the TAB key to complete various operations, which could probably be 
+extended for this.
+
+> > Also an audience member asked me if it would be possible to run a machine
+> > with all files and processes UID=0, which was a strange co-incidence as I
+> > have been planning to do that for play machine ][ (but I may have
+> > mentioned it on a mailing list or something and the word may have got
+> > around).  This idea seemed to get a lot of interest from the audience,
+> > who seemed to actually want to do it as a serious way of running a system
+> > (rather than as a fun demonstration of the power of SE Linux).  But I can
+> > oblige.
+>
+> I can't recommend this.  You would need to audit your policy
+> configuration very carefully in light of the fact that SELinux would be
+> providing the sole authoritative decision for Linux capabilities
+> (similar to
+> http://marc.theaimsgroup.com/?l=selinux&m=102614635816689&w=2), and you
+> would need to audit any applications that make hardcoded assumptions
+> about uid 0.  Also, if your system is intended to be multi-user, you will
+> still want a DAC mechanism for user-defined restrictions.
+
+I agree in concept, however we have to consider the following three issues:
+
+Embedded devices run everything as root and so does Lindows.  SE Linux on such 
+machines can only do good.
+
+If we independantly verify that both SE permissions and Unix permissions are 
+each capable of meeting the base security goals on their own then the result 
+of combining the two of them will be better still.
+
+In many production systems it's necessary to have SUID root programs for tasks 
+such as starting chroot environments.  Not all of them will be written by 
+good programmers.  If we design SE Linux to withstand free root access then 
+it will stand up to the inevitable failures of SUID root programs.
+
+
+That said, I have a SE machine online right now with everything as root.  It 
+is a very untrusted machine, it has no passwords that are similar to 
+passwords on trusted hosts, and it has firewalls to stop it attacking 
+machines inside or outside my network.  I recommend that machines with such a 
+configuration be locked down in such a fashion.
 
 -- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---KsGdsel6WgEHnImy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="mysqld.te"
-
-#DESC mysql database server
-#
-# Authors:  Russell Coker <russell@coker.com.au>
-#           Tom Vogt <tom@lemuria.org>
-#
-
-#################################
-#
-# Rules for the mysqld_t domain.
-#
-# mysqld_t is the type of the mysql daemon
-#
-daemon_domain(mysqld)
-domain_auto_trans(initrc_t, mysqld_exec_t, mysqld_t)
-
-type etc_mysqld_t, file_type, sysadmfile;
-type mysqld_db_dir_t, file_type, sysadmfile;
-type mysqld_db_t, file_type, sysadmfile;
-type mysqld_log_t, file_type, sysadmfile, logfile;
-
-#
-# Permissions required by the initrc script and safe_mysqld wrapper
-# (both running in initrc_t)
-#
-allow initrc_t etc_mysqld_t:file { read };
-
-# create error startup log in /var/lib/mysql
-allow initrc_t mysqld_db_dir_t:dir { write };
-file_type_auto_trans(initrc_t, mysqld_db_dir_t, mysqld_db_t)
-
-# touch /var/log/mysql and chown it to the mysql user
-allow initrc_t mysqld_log_t:dir rw_dir_perms;
-allow initrc_t mysqld_log_t:file create_file_perms;
-
-# mysqladmin wants to talk to mysqld
-allow initrc_t var_run_mysqld_t:sock_file { write };
-allow initrc_t mysqld_t:unix_stream_socket { connectto };
-
-#
-# Permissions for the daemon itself (mysqld)
-#
-general_proc_read_access(mysqld_t)
-general_file_read_access(mysqld_t)
-allow mysqld_t self:unix_stream_socket create_stream_socket_perms;
-allow mysqld_t self:fifo_file rw_file_perms;
-allow mysqld_t self:process { getsched };
-
-# read config files
-allow mysqld_t etc_mysqld_t:dir r_dir_perms;
-allow mysqld_t etc_t:lnk_file r_file_perms;
-allow mysqld_t etc_t:file r_file_perms;
-allow mysqld_t etc_mysqld_t:file r_file_perms;
-
-# temp and log files
-allow mysqld_t var_log_t:dir { search };
-allow mysqld_t var_log_t:file { append };
-allow mysqld_t mysqld_log_t:file { create append };
-file_type_auto_trans(mysqld_t, var_log_t, mysqld_log_t)
-allow mysqld_t tmp_t:dir r_dir_perms;
-
-# drop uid/gid
-allow mysqld_t self:capability { setgid setuid };
-
-# read /etc/mtab
-allow mysqld_t etc_runtime_t:file r_file_perms;
-
-# access the console
-allow mysqld_t admin_tty_type:chr_file { read write };
-
-
-#
-# The databases
-#
-file_type_auto_trans(mysqld_t, mysqld_db_dir_t, mysqld_db_t)
-allow mysqld_t mysqld_db_dir_t:dir create_dir_perms;
-allow mysqld_t mysqld_db_t:dir create_dir_perms;
-allow mysqld_t mysqld_db_t:file create_file_perms;
-
-# Let dpkg install the default DB correctly and start/stop the server
-ifdef(`dpkg.te', `
-allow dpkg_t mysqld_exec_t:file { execute };
-domain_auto_trans(dpkg_t, mysqld_exec_t, mysqld_t)
-file_type_auto_trans(dpkg_t, mysqld_db_dir_t, mysqld_db_t)
-')
-
-
-#
-# Client tools, for the sysadm role, this is easy:
-#
-allow sysadm_t mysqld_t:unix_stream_socket { connectto };
-
-# for normal users, we need to give them some other
-# access rights, too:
-allow user_t mysqld_t:unix_stream_socket { connectto };
-allow user_t var_run_mysqld_t:sock_file { write };
-allow user_t etc_mysqld_t:dir { search };
-allow user_t etc_mysqld_t:file { read };
-allow user_t mysqld_db_dir_t:dir { search };
-allow user_t var_run_mysqld_t:dir { search };
-
-
-ifdef(`logrotate.te', `
-r_dir_file(logrotate_t, etc_mysqld_t)
-allow logrotate_t mysqld_db_dir_t:dir search;
-allow logrotate_t var_run_mysqld_t:dir search;
-allow logrotate_t var_run_mysqld_t:sock_file write;
-can_unix_connect(logrotate_t, mysqld_t)
-')
-
---KsGdsel6WgEHnImy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="mysqld.fc"
-
-# mysql database server
-/usr/sbin/mysqld		system_u:object_r:mysqld_exec_t
-/var/run/mysqld(/.*)?		system_u:object_r:var_run_mysqld_t
-/var/log/mysql.*		system_u:object_r:mysqld_log_t
-/var/lib/mysql	        	system_u:object_r:mysqld_db_dir_t
-/var/lib/mysql/.*		system_u:object_r:mysqld_db_t
-/etc/my.cnf			system_u:object_r:etc_mysqld_t
-/etc/mysql(/.*)?		system_u:object_r:etc_mysqld_t
-
---KsGdsel6WgEHnImy--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
