@@ -1,31 +1,33 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1FGg5L9008722
-	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 11:42:05 -0500 (EST)
-Subject: Re: Determining if SELinux is installed
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1FGlNL9008791
+	for <selinux@tycho.nsa.gov>; Tue, 15 Feb 2005 11:47:23 -0500 (EST)
+Subject: Re: Setting loginuid
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Scott Cain <cain@cshl.org>
+To: Steve G <linux_4ever@yahoo.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1108484321.3297.45.camel@localhost.localdomain>
-References: <1108484321.3297.45.camel@localhost.localdomain>
+In-Reply-To: <20050215155312.45937.qmail@web50601.mail.yahoo.com>
+References: <20050215155312.45937.qmail@web50601.mail.yahoo.com>
 Content-Type: text/plain
-Message-Id: <1108485238.17854.110.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1108485556.17854.116.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 15 Feb 2005 11:33:58 -0500
+Date: Tue, 15 Feb 2005 11:39:17 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-15 at 11:18, Scott Cain wrote:
-> Hello,
-> 
-> Is there a programmatic way to determine if SELinux is installed and
-> enabled?  I would like to know so that I can let the installer I've
-> written take appropriate action if it detects that it is there.
+On Tue, 2005-02-15 at 10:53, Steve G wrote:
+> 1) Use pam to set the information "pre-fork" and let the child inherit the
+> loginuid from the parent process. This muddies up the entry point program's
+> information, but is easier to do.
 
-The libselinux function is is_selinux_enabled(3).
-There is also a libselinux utility called selinuxenabled(1) that can be
-used in a conditional, e.g. if selinuxenabled; then echo Yes; fi.
-Finally, you can also manually check for presence of selinuxfs in
-/proc/filesystems.
+One caveat with this approach: any pam modules run (and any helpers that
+they run) after the pam_audit module will then execute with this
+loginuid.  We had an issue in this regard for pam_selinux that was
+resolved by bracketing the module stack with two instances of
+pam_selinux with separate open/close arguments to indicate whether each
+instance should perform its processing upon session open or close.  This
+then ensured that the exec security context wasn't set until after all
+other pam modules (and their helpers) had run upon session open, and
+that it was cleared before any other pam modules upon session close.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
