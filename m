@@ -1,43 +1,50 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8BHKdrT025241
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 13:20:39 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8BHnNrT025328
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 13:49:23 -0400 (EDT)
 Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8BHKc6V005955
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 17:20:38 GMT
-Date: Sat, 11 Sep 2004 18:31:52 +0100
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8BHnM6V006335
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 17:49:22 GMT
+Date: Sat, 11 Sep 2004 19:00:28 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: policy patch against latest CVS
-Message-ID: <20040911173152.GB12835@lkcl.net>
-References: <200409111954.15823.russell@coker.com.au> <20040911115308.GB24787@lkcl.net> <200409120123.28663.russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: initscripts sysv se2
+Message-ID: <20040911180028.GE12835@lkcl.net>
+References: <20040910181322.GS14060@lkcl.net> <200409120253.02597.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200409120123.28663.russell@coker.com.au>
+In-Reply-To: <200409120253.02597.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Sep 12, 2004 at 01:23:28AM +1000, Russell Coker wrote:
-> On Sat, 11 Sep 2004 21:53, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > On Sat, Sep 11, 2004 at 07:54:15PM +1000, Russell Coker wrote:
-> > > +file_type_auto_trans(init_t, device_t, initctl_t, fifo_file)
-> > > +ifdef(`distro_redhat', `
-> > > +file_type_auto_trans(init_t, tmpfs_t, initctl_t, fifo_file)
-> > > +')
-> >
-> >  debian will need this too, yes?
+On Sun, Sep 12, 2004 at 02:53:02AM +1000, Russell Coker wrote:
+> On Sat, 11 Sep 2004 04:13, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > i raised the bug about /etc/mtab on debian, they said it's not
+> > critical to debian because i'm using patched versions of initscripts.
 > 
-> [...]
+> What patches are you using on the init scripts?  My patch to sysvinit only 
+> changes /sbin/init itself, the scripts remain the same.
 > 
-> >  and this?
-> >
-> >  if this is as you say to support tmpfs_t in udev, and i am to keep
-> >  current with the present selinux policy, i'll need these in debian
-> >  not just redhat!
-> 
-> That is for tmpfs in initrd.  
+> Who said that it's not critical to Debian?  
 
-any chance of a comment in the policy to that effect?
+ non-critical to non-selinux systems.
+
+> Where did they say it?
+ 
+ Miquel van Smoorenburg 
+
+ http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=270919
+
+ l.
+
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
