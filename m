@@ -1,38 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA24339
-	for <selinux@tycho.nsa.gov>; Sun, 28 Jul 2002 03:31:19 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id HAA08836
-	for <selinux@tycho.nsa.gov>; Sun, 28 Jul 2002 07:29:46 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA24451
+	for <selinux@tycho.nsa.gov>; Sun, 28 Jul 2002 04:12:08 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id IAA10680
+	for <selinux@tycho.nsa.gov>; Sun, 28 Jul 2002 08:11:20 GMT
 Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id HAA08832 for <selinux@tycho.nsa.gov>; Sun, 28 Jul 2002 07:29:44 GMT
-Date: Sun, 28 Jul 2002 17:31:12 +1000
+	by jazzswing.ncsc.mil  with ESMTP id IAA10676
+	for <selinux@tycho.nsa.gov>; Sun, 28 Jul 2002 08:11:18 GMT
+Date: Sun, 28 Jul 2002 18:12:00 +1000
 From: Brian May <bam@snoopy.apana.org.au>
-To: "Edward J. Huff" <edward.huff@acm.org>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Message from Secure Computing
-Message-ID: <20020728073112.GF7217@snoopy.apana.org.au>
-References: <72222DC86846D411ABD300A0C9EB08A1015243CF@csoc-mail-box.csoconline.com> <1027833846.15983.127.camel@ducks.huff20may77.us>
+To: Russell Coker <russell@coker.com.au>
+Cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+Subject: Re: IDENTIFIER
+Message-ID: <20020728081200.GA11093@snoopy.apana.org.au>
+References: <20020726032129.GD27354@snoopy.apana.org.au> <20020726102225.C748D155E@lyta.coker.com.au> <20020727030922.GB18313@snoopy.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1027833846.15983.127.camel@ducks.huff20may77.us>
+In-Reply-To: <20020727030922.GB18313@snoopy.apana.org.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Jul 28, 2002 at 01:24:06AM -0400, Edward J. Huff wrote:
-> patent rights.  The copyright owner (Linus Torvalds in this case) has
+On Sat, Jul 27, 2002 at 01:09:22PM +1000, Brian May wrote:
+> Better make that list: !@%&-=/
 
-find  /usr/src/linux -type f | xargs grep -i copyright
+Second thoughts: None of those characters can appear in M4 macro names,
+so maybe this isn't such a good idea...
 
-You will see that Linus Torvalds isn't the only copyright holder...
+In fact the current definition seems to be the same as the definition
+for M4 names.
 
-I believe that the license could not be changed without permission of
-each and every one of the numerous copyright holders. Unless of course
-you get rid of the code in question.
+Even if I just used this other character in type names, there is the
+risk that M4 will get confused and expand the wrong thing.
 
-Its not just individuals either, I see a number of references to HP,
-IBM, and Silicon Graphics here. That is with only a quick 5 second
-glance.
+For now I will simply use the (perhaps more ugly looking) '__' instead.
 -- 
 Brian May <bam@snoopy.apana.org.au>
 
