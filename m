@@ -1,42 +1,79 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0KGFfIi005653
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2005 11:15:41 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0KGDdbQ027708
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2005 16:13:39 GMT
-Subject: Re: Error building libsepol with gcc 4.0
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Manoj Srivastava <manoj.srivastava@stdc.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <87hdlmuoeq.fsf@glaurung.internal.golden-gryphon.com>
-References: <87hdlmuoeq.fsf@glaurung.internal.golden-gryphon.com>
-Content-Type: text/plain
-Message-Id: <1106235589.26753.87.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0KGtVIi005986
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2005 11:55:31 -0500 (EST)
+Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0KGrTbQ001931
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2005 16:53:29 GMT
+Message-Id: <200501201655.j0KGtNan001364@turing-police.cc.vt.edu>
+To: SELinux <selinux@tycho.nsa.gov>, fedora-selinux-list@redhat.com
+Subject: quota files oddity...
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Date: Thu, 20 Jan 2005 10:39:49 -0500
+Content-Type: multipart/signed; boundary="==_Exmh_1106240122_12559P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Thu, 20 Jan 2005 11:55:23 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-12 at 20:07, Manoj Srivastava wrote:
->         There is a problem building 'libsepol' on amd64 with gcc-4.0:
-> 
-> cc -O2 -I. -I../include -c -o policydb.o policydb.c
-> policydb.c:29: error: static declaration of 'policydb_compat' follows non-static declaration
-> private.h:27: error: previous declaration of 'policydb_compat' was here
-> make[2]: *** [policydb.o] Error 1
-> make[2]: Leaving directory `/libsepol-1.2/src'
-> 
-> 	Which is indeed a problem (though gcc used to ignore it in the
->  past). Looking at it, policydb_compat is only used in policydb.c, so
->  it can remain a static array of struct policydb_compat_info, and we
->  can just remove the extern declaration from private.h.
+--==_Exmh_1106240122_12559P
+Content-Type: text/plain; charset=us-ascii
 
-Thanks, merged into sourceforge CVS as of libsepol version 1.2.1.
+Running FC from the devel tree as of last night, and a 2.6.10-mm1-RT kernel.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+OK.. So I go and put user and group quotas on all the R/W file systems (it's
+a lot quicker to run 'repquota /full.fs' than to run 'du' and similar when you're
+sitting at 99%.. ;)
 
+Then quite some time later I run setfiles because I was pretty sure that I
+had a lot of files that hadn't been installed by rpm and thus didn't have
+the right contexts on them, and I get:
+
+/usr/sbin/setfiles:  relabeling /aquota.user from system_u:object_r:quota_db_t to system_u:object_r:default_t
+/aquota.user: Operation not permitted
+/usr/sbin/setfiles:  unable to relabel /aquota.user to system_u:object_r:default_t
+/usr/sbin/setfiles:  relabeling /aquota.group from system_u:object_r:quota_db_t to system_u:object_r:default_t
+/aquota.group: Operation not permitted
+/usr/sbin/setfiles:  unable to relabel /aquota.group to system_u:object_r:default_t
+
+/usr/sbin/setfiles:  relabeling /boot/aquota.user from system_u:object_r:quota_db_t to system_u:object_r:boot_t
+/boot/aquota.user: Operation not permitted
+/usr/sbin/setfiles:  unable to relabel /boot/aquota.user to system_u:object_r:boot_t
+/usr/sbin/setfiles:  relabeling /boot/aquota.group from system_u:object_r:quota_db_t to system_u:object_r:boot_t
+/boot/aquota.group: Operation not permitted
+/usr/sbin/setfiles:  unable to relabel /boot/aquota.group to system_u:object_r:boot_t
+
+/usr/sbin/setfiles:  relabeling /usr/aquota.user from root:object_r:quota_db_t to system_u:object_r:usr_t
+/usr/aquota.user: Operation not permitted
+/usr/sbin/setfiles:  unable to relabel /usr/aquota.user to system_u:object_r:usr_t
+/usr/sbin/setfiles:  relabeling /usr/aquota.group from system_u:object_r:quota_db_t to system_u:object_r:usr_t
+/usr/aquota.group: Operation not permitted
+/usr/sbin/setfiles:  unable to relabel /usr/aquota.group to system_u:object_r:usr_t
+
+Is there any way to express:
+
+$MOUNTPOINT/aquota\.(user|group)$ -- system_u:object_r:quota_db_t
+
+in the .fc files, or do we need to settle for '/.*/aquota\.(user|group)' as
+the regexp?
+
+(And no, I have no idea how I ended up with 'root:object_r:quota_db_t' on
+/usr/aquota.user, but the other ones were system_u....)
+
+
+
+--==_Exmh_1106240122_12559P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFB7+J6cC3lWbTT17ARAooQAKDM6kGj9sEtZw9xHJMK2T7A/JeBqACdEoWH
+E5FE0JJts3B3Ry4bEPuiLLo=
+=qV5r
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1106240122_12559P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
