@@ -1,33 +1,55 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA07633
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 06:30:58 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA07608
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 06:29:37 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id KAA27567
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 10:29:07 GMT
+	by jazzband.ncsc.mil  with ESMTP id KAA27528
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 10:27:46 GMT
 Received: from nox.lemuria.org ([213.191.86.30])
-        by jazzband.ncsc.mil  with ESMTP id KAA27563 for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 10:29:07 GMT
-Date: Wed, 9 Oct 2002 12:30:56 +0200
+        by jazzband.ncsc.mil  with ESMTP id KAA27524 for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 10:27:46 GMT
+Date: Wed, 9 Oct 2002 12:29:35 +0200
 From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: /proc woes
-Message-ID: <20021009123056.C18828@lemuria.org>
-References: <20021008163245.A5508@lemuria.org> <Pine.GSO.4.33.0210081037410.25356-100000@raven> <20021008171123.A6113@lemuria.org> <200210081913.17017.russell@coker.com.au>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Apache 2 file contexts
+Message-ID: <20021009122935.B18828@lemuria.org>
+References: <20021008160033.A5253@lemuria.org> <200210081906.13285.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200210081913.17017.russell@coker.com.au>; from russell@coker.com.au on Tue, Oct 08, 2002 at 07:13:17PM +0200
+In-Reply-To: <200210081906.13285.russell@coker.com.au>; from russell@coker.com.au on Tue, Oct 08, 2002 at 07:06:13PM +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Oct 08, 2002 at 07:13:17PM +0200, Russell Coker wrote:
-> If you do the following:
-> echo /proc | setfiles -s -v /etc/selinux/file_contexts/file_contexts
-> Then it will be relabelled to file_t.
-> 
-> The Debian package base-files "owns" /proc and therefore it will be relabelled 
-> in the fashion shown above if you upgrade your base-files package.
+On Tue, Oct 08, 2002 at 07:06:13PM +0200, Russell Coker wrote:
+> Good work!  You not only got it working with apache2 but fixed a couple of 
+> things I missed in getting it to work properly with Debian!
 
-That sounds like it's what happened, since I did indeed do a major
-update that most likely included base-files.
+Thought so, but I wasn't sure. :)
+
+
+> If you'd like to make Apache your thing then you could start working on the 
+> policy for Apache, there's quite a few things that could be improved.  For 
+> starters a set of macros for different features commonly used with Apache 
+> would be good.  Something like define(`apache_php') for using PHP, etc would 
+> be really handy to have.  Also we'll probably need support for multiple user 
+> domains for cgi-bin scripts.
+
+I will definitely work further on Apache, especially the PHP/CGI part
+and interaction with proftpd (so users can upload stuff and it
+automatically gets the right types).
+
+
+> Anyway I've updated my tree with the equivalent code to your patch (I've 
+> changed the order a bit but it's essentially what you wrote).  I'll send in a 
+> patch to Steve tomorrow.
+> 
+> > + /etc/vhosts                   system_u:object_r:httpd_config_t
+> 
+> What is /etc/vhosts?  I've never used Apache2...
+
+I have no idea, actually. I've just started working with Apache2. I
+will find out soon, though, and then decide if it warrants its own
+type.
+(I know for sure that it's part of Apache2)
 
 
 -- 
