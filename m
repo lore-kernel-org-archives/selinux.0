@@ -1,81 +1,80 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72EfRrT012842
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 10:41:27 -0400 (EDT)
-Received: from moss-huskies.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i72EetXV024523
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 14:40:55 GMT
-Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72EfEJQ032460
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 10:41:14 -0400
-Received: (from hdholm@localhost)
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id i72EfEXP032458
-	for selinux@tycho.nsa.gov; Mon, 2 Aug 2004 10:41:14 -0400
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71KGerT008452
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 16:16:40 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i71KG852027668
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 20:16:08 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 20:16:36 -0000
-Date: Sun, 1 Aug 2004 21:27:40 +0100
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72EkQrT012898
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 10:46:26 -0400 (EDT)
+Date: Mon, 2 Aug 2004 15:57:24 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Erich Schubert <erich@vitavonni.de>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: user-directory _is_ home directory
-Message-ID: <20040801202740.GG20103@lkcl.net>
-References: <20040801143236.GA15949@lkcl.net> <1091388560.7861.7.camel@wintermute.xmldesign.de>
+Subject: Re: matchfilecon (the program) vs matchfilecon (the libselinux1 fn)
+Message-ID: <20040802145724.GG4194@lkcl.net>
+References: <20040801172751.GD20103@lkcl.net> <1091455223.23449.66.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1091388560.7861.7.camel@wintermute.xmldesign.de>
+In-Reply-To: <1091455223.23449.66.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Aug 01, 2004 at 09:29:20PM +0200, Erich Schubert wrote:
-> Hi,
+On Mon, Aug 02, 2004 at 10:00:23AM -0400, Stephen Smalley wrote:
+> On Sun, 2004-08-01 at 13:27, Luke Kenneth Casson Leighton wrote:
+> > hi,
+> > 
+> > does anyone know: the matchfilecon program reads
+> > /etc/selinux/.../file_contexts/file_contexts.
+> > 
+> > does the matchfilecon libselinux1 api does the same?
+> > 
+> > or does it read a binary policy from somewhere?
+> > 
+> > the reason i ask is because if i were to code up stuff into
+> > udev, it might solve the problem of having to move
+> > /usr/share/selinux/stuff off of /usr and onto /etc.
 > 
-> > my question is: does anyone have any recommendations on how to deal
-> > with /home being a mount point, and also being a user's home directory.
-> 
-> why would you want to do so?
+> Do you mean matchpathcon?  
 
- this is almost entirely off-topic, but i'm explaining it in case anyone
- who would otherwise be discouraged from answering if they didn't feel
- that there was a reasonable justification for removing /home/XXXX.
+ yes.
 
- background:
+> No matchfilecon here.  matchpathcon(1) is
+> just a trivial test program that invokes the matchpathcon(3) library
+> function on its arguments and reports the result.  matchpathcon(3) reads
+> the installed file_contexts configuration
+> (/etc/selinux/$SELINUXTYPE/contexts/files/file_contexts), not the one
+> from the policy source tree, as policy sources are optional.  
 
- there is only one user: they do not have a password, they will not
- be given a password.  they will not be given the root password, they
- will most likely not know what a root password _is_, the target users
- are in fact extremely unlikely to CARE about passwords [which is the
- whole reason why i'm using selinux, because such people are scarey]
+ ack, ta.
 
- i'm installing usb-mount and autofs with --timeout 5 and
- integrating the two so that they don't have to deal with
- umount.  this is for people who don't know what umount is,
- and don't really care, but _do_ care about their files getting
- corrupted on their usb memory cards and usb floppy drives.
+> Binary
+> policy isn't relevant here, as it doesn't contain file contexts.  BTW,
+> policy does live in /etc/selinux in Fedora Core 3 (or
+> /etc/security/selinux in Fedora Core 2), and sounds like Russell has
+> likewise moved it there in Debian.
 
- answer:
+ yes, i believe so - this is 1.14.
 
- in kde's devices, the user is presented with /boot, /usr, /var, / and
- /home.
+ so, conclusion, it's almost irrelevant as to whether matchpathcon(1)
+ or matchpathcon(3) are used.
 
- none of these things are in the SLIGHTEST bit useful to a user that
- doesn't know and doesn't care, and i wish there was a way to damn well
- get rid of them ALL from konqueror.
+ therefore, i might as well leave udev's code alone.
 
- in order to minimise the amount of impact on such users - think c:\ - 
- i decided to get rid of the concept of /home/XXXX.
+ ... one thing though: running udev, it can only generate about 4
+ device inodes per second when having to do
+ /etc/dev.d/defaults/selinux.dev (which calls restorecon $DEVICENAME).
 
- after all, if there's only one user (with no password), what's the point?
+ that's _awfully_ slow.
 
- so, if i create a /MyDocuments and symlink it to
- /home/theoneandonlyuser, then that STILL leaves them with
- /home/theoneandonlyuser in the kde devices's list.
- 
+ especially when creating 64 /dev/ttyxx nodes, 64 /dev/ttySxx nodes,
+ and then a few /dev/ramX nodes too.
+
+ it delays boot-time by over 30 seconds, basically.
+
+ what, if anything, could be done about this?
+
+ run a restorecon asynchronous service?
+
+ yes, i realise that sounds a bit mad, but if people are going to throw
+ 150 device inodes up at boot-time, it's got to be quick.
+
  l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
