@@ -1,54 +1,72 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9KeoIi016061
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 15:40:50 -0500 (EST)
-Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9KdCPS024115
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 20:39:12 GMT
-Message-Id: <200412092040.iB9KelRx032136@turing-police.cc.vt.edu>
-To: Russell Coker <rcoker@redhat.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Daniel J Walsh <dwalsh@redhat.com>,
-   SE Linux list <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@snu.edu>,
-   Jim Carter <jwcart2@epoch.ncsc.mil>, Colin Walters <walters@redhat.com>,
-   Nalin Dahyabhai <nalin@redhat.com>
-Subject: Re: Single home directory type for all roles. 
-In-Reply-To: Your message of "Fri, 10 Dec 2004 05:12:31 +1100."
-             <1102615951.4509.50.camel@aeon>
-From: Valdis.Kletnieks@vt.edu
-References: <20041207000805.GH3678@jmh.mhn.de> <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil> <41B8826D.30105@redhat.com> <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil> <1102614445.4509.25.camel@aeon> <1102614805.32175.176.camel@moss-spartans.epoch.ncsc.mil>
-            <1102615951.4509.50.camel@aeon>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9KlPIi016156
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 15:47:25 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9KjhPS024572
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 20:45:47 GMT
+Subject: Re: Adding a new user domain
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Nick Gray <nick-lists@austin.rr.com>
+Cc: SE Linux list <selinux@tycho.nsa.gov>
+In-Reply-To: <1102624510.24067.8.camel@hawaii.grays-systems.com>
+References: <1102624510.24067.8.camel@hawaii.grays-systems.com>
+Content-Type: text/plain
+Message-Id: <1102624952.32175.249.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1204841214P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Thu, 09 Dec 2004 15:40:47 -0500
+Date: Thu, 09 Dec 2004 15:42:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1204841214P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 2004-12-09 at 15:35, Nick Gray wrote:
+> I am stuck!
+> 
+> System: Core 3 Strict/Targeted
+> Added: selinux-policy-targeted-sources-1.17.30-2.19.noarch.rpm
+> 
+> Problem 1: I am trying to use the instructions s"Getting started with
+> SELinux" and there are a lot of inconsistencies
+> 
+> There was no user.te file so I created one
+> in /etc/selinux/targeted/src/policy, with the contents:
+> 
+> full_user_role(tomcat)
+> allow system_r (tomcat)
+> allow sysadm_r (tomcat)
+> 
+> Then I went into
+> the /etc/selinux/targeted/src/policy/macros/user_macros.te and added 
+> 
+> role tomcat_r types $1;
+> 
+> to this file. I cd'd back up to the policy directory and did a 'make
+> policy' I didn't see any errors.
+> 
+> I am assuming from any user who has user_u:system_r:unconfined_t I
+> should be able to do this:
+> 
+> newrole -r tomcat_r
+> 
+> When I do I get:
+> 
+> Couldn't get default type.
+> 
+> Are there updated instructions that make this less of a hunt and peck
+> operation?
 
-On Fri, 10 Dec 2004 05:12:31 +1100, Russell Coker said:
+If you want the strict policy, then do:
+yum install selinux-policy-strict selinux-policy-strict-sources
+run system-config-securitylevel and change to strict or manually:
+	change SELINUXTYPE to strict in /etc/selinux/config
+	touch /.autorelabel
+reboot
 
-> The solution then would be to have a separate domain for the
-> administrator to run ls which can read all sym-links while other
-> programs the administrator may run (rm, cp, mv, etc) will be denied
-> access to read many types of sym-link.  Is this a good idea?
+targeted policy was introduced by FC3, so none of the sourceforge
+documentation or NSA documentation is likely to mention it yet.
 
-Probably not - then you get into a situation where you try to mv/rm/cp
-something, it fails, and when you run ls, it looks like it should work....
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---==_Exmh_1204841214P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBuLhOcC3lWbTT17ARApycAJ9xz7at2ZkNn8q+NKJ6vACKv7OPfwCeIRCY
-r9rwoULJpvp4Znm+6lzV1YA=
-=baj9
------END PGP SIGNATURE-----
-
---==_Exmh_1204841214P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
