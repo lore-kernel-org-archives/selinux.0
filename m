@@ -1,81 +1,271 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA26132
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 10:17:05 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA15499
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:15:38 GMT
-Received: from web40017.mail.yahoo.com (web40017.mail.yahoo.com [66.218.78.57])
-        by jazzband.ncsc.mil  with SMTP id OAA15495 for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:15:38 GMT
-Message-ID: <20020627141702.89849.qmail@web40017.mail.yahoo.com>
-Date: Thu, 27 Jun 2002 07:17:02 -0700 (PDT)
-From: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: Configuration issues on a new installation
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20020626224924.43C026E2@lyta.coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA26047
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 10:11:21 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA05901
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:10:54 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id OAA05897
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:10:53 GMT
+Date: Thu, 27 Jun 2002 10:10:18 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Michael Nyika <nyix@yahoo.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: Type Attribute Declarations
+In-Reply-To: <20020627135246.74377.qmail@web40204.mail.yahoo.com>
+Message-ID: <Pine.GSO.4.33.0206271003140.1331-200000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1297389768-1025187018=:1331"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mr. Coker,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---- Russell Coker <russell@coker.com.au> wrote:
-> On Wed, 26 Jun 2002 17:10, Brad Chapman wrote:
-> > > It is impossible to answer your question as asked.
-> >
-> >       I apologize for my ambiguity. I assumed that people who had
-> > previously installed SELInux on this list had experienced the same
-> > difficulties setting up a good policy, and that they would have some good
-> > "generic" guidelines for me to follow.
-> 
-> Yes, they probably have.  But most of them seem to have suffered in silence. 
-> 
-> It seems that I'm the only SE Linux user who is spending any time writing 
-> policy files and then publishing them.
-> 
-> > > I suggest that you should start by sending email to this list with
-> > > examples of the operations that are being denied along with the new rules
-> > > that you plan to resolve the issue.  Then Steve and I can advise you on
-> > > whether you are on the correct path towards good SE policy.
-> >
-> >        Attached (MIME) is the output of dmesg with kernel messages edited
-> > out. I have used the newrules.pl utility, manually edited some of the files
-> > under policy/domains/program and policy/file_contexts, and followed some of
-> > the instructions given my others on this list. So far, I have had no luck:
-> > the same messages at the same time for the same reasons.
-> 
-> OK.  At a quick glance these appear to be issues I've already solved in my 
-> tree.  In a few hours I'll update my web site 
-> http://www.coker.com.au/selinux/ with my latest policy (although the version 
-> that's currently there should solve the vast majority of it).
-
-       Could you please help me fix your Makefile for my system? I can't seem
-to make it compile the policy; it keeps failing with this error:
-
-( cd macros/program/ ; for n in *.te ; do echo "define(\`$n')"; done ) >
-tmp/macro_used_flags.te
-/bin/sh: tmp/macro_used_flags.te: No such file or directory
-make: *** [tmp/macro_used_flags.te] Error 1
-
-       I'm running RedHat 6.2 with SELinux installed in /usr/local/selinux. 
-
-Thanks, 
-
-Brad
+---559023410-1297389768-1025187018=:1331
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-=====
-Brad Chapman
+On Thu, 27 Jun 2002, Michael Nyika wrote:
 
-Permanent e-mails: kakadu_croc@yahoo.com
-		   jabiru_croc@yahoo.com
-		   tanami_croc@devel.lbsd.net
+> Related to this, i am also trying to resolve the
+> identifiers given to types.
+>
+> Your document "Security Policy Configuration for the
+> Security-Enhanced Linux" outlines some on page 5, such
+> as "privuser", "privrole" and others. (I understand
+> "domain" as an important attribute in defining a
+> domain ). Where are "privuser" and the rest in the
+> document defined?
+>
+> Also, looking at policy/types/network.te , i come
+> across "socket_type", "port_type" and others. They
+> must have been defined somewhere, right? OR is that
+> just a way of GROUPING types with one's own identifers
+> (and leaving it at that) so that that particular SET
+> of type-attributes must exist/not-exist for certain
+> permissions to be granted?...........????
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
+These identifiers are "type attributes", which are explained in both the
+newer Configuring the SELinux Polcy report and in the older report you
+mention.  The meaning of a type attribute is entirely defined by how it is
+used within the rules in the configuration - a type attribute is merely a
+way of easily representing a type set with a single name.
+
+In the current release of SELinux, type attributes are implicitly declared
+when they are used in a type declaration.  However, in response to recent
+discussions on this list, we have now added (and made mandatory) explicit
+declarations for the type attributes along with comment lines explaining
+their intended purpose within the configuration.  This will be in the next
+public release.  I've attached the new attrib.te file so you can see these
+declarations and their comments.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+---559023410-1297389768-1025187018=:1331
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="attrib.te"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0206271010180.1331@raven>
+Content-Description: 
+Content-Disposition: attachment; filename="attrib.te"
+
+Iw0KIyBEZWNsYXJhdGlvbnMgZm9yIHR5cGUgYXR0cmlidXRlcy4NCiMgDQoN
+CiMgQSB0eXBlIGF0dHJpYnV0ZSBjYW4gYmUgdXNlZCB0byBpZGVudGlmeSBh
+IHNldCBvZiB0eXBlcyB3aXRoIGEgc2ltaWxhcg0KIyBwcm9wZXJ0eS4gIEVh
+Y2ggdHlwZSBjYW4gaGF2ZSBhbnkgbnVtYmVyIG9mIGF0dHJpYnV0ZXMsIGFu
+ZCBlYWNoDQojIGF0dHJpYnV0ZSBjYW4gYmUgYXNzb2NpYXRlZCB3aXRoIGFu
+eSBudW1iZXIgb2YgdHlwZXMuICBBdHRyaWJ1dGVzIGFyZQ0KIyBleHBsaWNp
+dGx5IGRlY2xhcmVkIGhlcmUsIGFuZCBjYW4gdGhlbiBiZSBhc3NvY2lhdGVk
+IHdpdGggcGFydGljdWxhcg0KIyB0eXBlcyBpbiB0eXBlIGRlY2xhcmF0aW9u
+cy4gIEF0dHJpYnV0ZSBuYW1lcyBjYW4gdGhlbiBiZSB1c2VkIHRocm91Z2hv
+dXQgDQojIHRoZSBjb25maWd1cmF0aW9uIHRvIGV4cHJlc3MgdGhlIHNldCBv
+ZiB0eXBlcyB0aGF0IGFyZSBhc3NvY2lhdGVkIHdpdGggDQojIHRoZSBhdHRy
+aWJ1dGUuICBFeGNlcHQgZm9yIHRoZSBNTFMgYXR0cmlidXRlcywgYXR0cmli
+dXRlcyBoYXZlIG5vIGltcGxpY2l0DQojIG1lYW5pbmcgdG8gU0VMaW51eC4g
+IFRoZSBtZWFuaW5nIG9mIGFsbCBvdGhlciBhdHRyaWJ1dGVzIGFyZSBjb21w
+bGV0ZWx5IA0KIyBkZWZpbmVkIHRocm91Z2ggdGhlaXIgdXNhZ2Ugd2l0aGlu
+IHRoZSBjb25maWd1cmF0aW9uLCBidXQgc2hvdWxkIGJlIA0KIyBkb2N1bWVu
+dGVkIGhlcmUgYXMgY29tbWVudHMgcHJlY2VkaW5nIHRoZSBhdHRyaWJ1dGUg
+ZGVjbGFyYXRpb24uICANCg0KIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQojIEF0
+dHJpYnV0ZXMgZm9yIE1MUzoNCiMNCg0KIyBUaGUgbWxzdHJ1c3RlZHJlYWRl
+ciBhdHRyaWJ1dGUgaWRlbnRpZmllcyBldmVyeSBkb21haW4gdGhhdCBjYW4N
+CiMgb3ZlcnJpZGUgdGhlIG5vcm1hbCBNTFMgcmVzdHJpY3Rpb25zIG9uIHJl
+YWRpbmcgKGkuZS4gZG9tYWlucw0KIyB0aGF0IGNhbiByZWFkIHVwKS4gIA0K
+YXR0cmlidXRlIG1sc3RydXN0ZWRyZWFkZXI7DQoNCiMgVGhlIG1sc3RydXN0
+ZWR3cml0ZXIgYXR0cmlidXRlIGlkZW50aWZpZXMgZXZlcnkgZG9tYWluIHRo
+YXQgY2FuDQojIG92ZXJyaWRlIHRoZSBub3JtYWwgTUxTIHJlc3RyaWN0aW9u
+cyBvbiB3cml0aW5nIChpLmUuIGRvbWFpbnMNCiMgdGhhdCBjYW4gd3JpdGUg
+ZG93bikuICANCmF0dHJpYnV0ZSBtbHN0cnVzdGVkd3JpdGVyOw0KDQojIFRo
+ZSBtbHN0cnVzdGVkb2JqZWN0IGF0dHJpYnV0ZSBpZGVudGlmaWVzIGV2ZXJ5
+IHR5cGUgdGhhdCBjYW4NCiMgYmUgYWNjZXNzZWQgd2l0aG91dCBub3JtYWwg
+TUxTIHJlc3RyaWN0aW9ucyAoaS5lLiBwcm9jZXNzZXMgY2FuDQojIHJlYWQg
+b3Igd3JpdGUgb2JqZWN0cyB3aXRoIHRoaXMgdHlwZSByZWdhcmRsZXNzIG9m
+IE1MUyBsZXZlbCkuICANCiMgRXhhbXBsZXM6ICAvZGV2L251bGwsIGRlc2Ny
+aXB0b3JzIGNyZWF0ZWQgYnkgbG9naW4NCmF0dHJpYnV0ZSBtbHN0cnVzdGVk
+b2JqZWN0Ow0KDQoNCiMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNCiMgQXR0
+cmlidXRlcyBmb3IgZG9tYWluczoNCiMNCg0KIyBUaGUgZG9tYWluIGF0dHJp
+YnV0ZSBpZGVudGlmaWVzIGV2ZXJ5IHR5cGUgdGhhdCBjYW4gYmUgDQojIGFz
+c2lnbmVkIHRvIGEgcHJvY2Vzcy4gIFRoaXMgYXR0cmlidXRlIGlzIHVzZWQg
+aW4gVEUgcnVsZXMgDQojIHRoYXQgc2hvdWxkIGJlIGFwcGxpZWQgdG8gYWxs
+IGRvbWFpbnMsIGUuZy4gcGVybWl0dGluZyANCiMgaW5pdCB0byBraWxsIGFs
+bCBwcm9jZXNzZXMgb3IgcGVybWl0dGluZyBhbGwgcHJvY2Vzc2VzDQojIHRv
+IHJlYWQgYSBwYXJ0aWN1bGFyIGZpbGUuDQphdHRyaWJ1dGUgZG9tYWluOw0K
+DQojIFRoZSBwcml2dXNlciBhdHRyaWJ1dGUgaWRlbnRpZmllcyBldmVyeSBk
+b21haW4gdGhhdCBjYW4gDQojIGNoYW5nZSBpdHMgU0VMaW51eCB1c2VyIGlk
+ZW50aXR5LiAgVGhpcyBhdHRyaWJ1dGUgaXMgdXNlZCANCiMgaW4gdGhlIGNv
+bnN0cmFpbnRzIGNvbmZpZ3VyYXRpb24uICBOT1RFOiAgVGhpcyBhdHRyaWJ1
+dGUNCiMgaXMgbm90IHJlcXVpcmVkIGZvciBkb21haW5zIHRoYXQgbWVyZWx5
+IGNoYW5nZSB0aGUgTGludXgNCiMgdWlkIGF0dHJpYnV0ZXMsIG9ubHkgZm9y
+IGRvbWFpbnMgdGhhdCBtdXN0IGNoYW5nZSB0aGUNCiMgU0VMaW51eCB1c2Vy
+IGlkZW50aXR5Lg0KYXR0cmlidXRlIHByaXZ1c2VyOw0KDQojIFRoZSBwcml2
+cm9sZSBhdHRyaWJ1dGUgaWRlbnRpZmllcyBldmVyeSBkb21haW4gdGhhdCBj
+YW4gDQojIGNoYW5nZSBpdHMgU0VMaW51eCByb2xlLiAgVGhpcyBhdHRyaWJ1
+dGUgaXMgdXNlZCBpbiB0aGUgDQojIGNvbnN0cmFpbnRzIGNvbmZpZ3VyYXRp
+b24uDQphdHRyaWJ1dGUgcHJpdnJvbGU7DQoNCiMgVGhlIHByaXZvd25lciBh
+dHRyaWJ1dGUgaWRlbnRpZmllcyBldmVyeSBkb21haW4gdGhhdCBjYW4gDQoj
+IGFzc2lnbiBhIGRpZmZlcmVudCBTRUxpbnV4IHVzZXIgaWRlbnRpdHkgdG8g
+YSBmaWxlLiAgVGhpcyANCiMgYXR0cmlidXRlIGlzIHVzZWQgaW4gdGhlIGNv
+bnN0cmFpbnRzIGNvbmZpZ3VyYXRpb24uDQphdHRyaWJ1dGUgcHJpdm93bmVy
+Ow0KDQojIFRoZSBwcml2bG9nIGF0dHJpYnV0ZSBpZGVudGlmaWVzIGV2ZXJ5
+IGRvbWFpbiB0aGF0IGNhbiANCiMgY29tbXVuaWNhdGUgd2l0aCBzeXNsb2dk
+IHRocm91Z2ggaXRzIFVuaXggZG9tYWluIHNvY2tldC4NCiMgVGhpcyBhdHRy
+aWJ1dGUgaXMgdXNlZCBpbiB0aGUgVEUgcnVsZXMgaW4gDQojIGRvbWFpbnMv
+cHJvZ3JhbS9zeXNsb2dkLnRlIHRvIGdyYW50IHN1Y2ggYWNjZXNzLiAgDQoj
+IFhYWCBJZiB5b3Ugd2FudCB0byBtYW5kYXRlIHRoZSB1c2Ugb2YgdGhpcyBh
+dHRyaWJ1dGUgZm9yIGFsbCANCiMgWFhYIGRvbWFpbnMgdGhhdCBjYW4gbG9n
+LCB0aGVuIHlvdSBzaG91bGQgYWxzbyB3cml0ZSBjb3JyZXNwb25kaW5nIA0K
+IyBYWFggYXNzZXJ0aW9ucyBpbiBhc3NlcnQudGUgdG8gZW5mb3JjZSB0aGlz
+IHJlc3RyaWN0aW9uLiAgT3RoZXJ3aXNlLA0KIyBYWFggaXQgaXMganVzdCBh
+biBvcHRpb25hbCBjb252ZW5pZW5jZSBmb3IgZG9tYWluIHdyaXRlcnMuDQph
+dHRyaWJ1dGUgcHJpdmxvZzsNCg0KIyBUaGUgcHJpdm1lbSBhdHRyaWJ1dGUg
+aWRlbnRpZmllcyBldmVyeSBkb21haW4gdGhhdCBjYW4gDQojIGFjY2VzcyBr
+ZXJuZWwgbWVtb3J5IGRldmljZXMuDQojIFRoaXMgYXR0cmlidXRlIGlzIHVz
+ZWQgaW4gdGhlIFRFIGFzc2VydGlvbnMgdG8gdmVyaWZ5DQojIHRoYXQgc3Vj
+aCBhY2Nlc3MgaXMgbGltaXRlZCB0byBkb21haW5zIHRoYXQgYXJlIGV4cGxp
+Y2l0bHkNCiMgdGFnZ2VkIHdpdGggdGhpcyBhdHRyaWJ1dGUuDQphdHRyaWJ1
+dGUgcHJpdm1lbTsNCg0KIyBUaGUgYXV0aCBhdHRyaWJ1dGUgaWRlbnRpZmll
+cyBldmVyeSBkb21haW4gdGhhdCBuZWVkcw0KIyB0byBwZXJmb3JtIHVzZXIg
+YXV0aGVudGljYXRpb24gYW5kIHJlcXVpcmVzIGFjY2VzcyB0bw0KIyB0aGUg
+Y29ycmVzcG9uZGluZyBhdXRoZW50aWNhdGlvbiBkYXRhLiAgDQojIFhYWCBU
+aGlzIGF0dHJpYnV0ZSBpcyBubyBsb25nZXIgaW4gdXNlIGV4Y2VwdCBpbiB0
+eXBlIGRlY2xhcmF0aW9ucy4NCiMgWFhYIEl0IHdhcyBpbnRyb2R1Y2VkIGZv
+ciB0aGUgb3JpZ2luYWwgYXR0ZW1wdCB0byBwdXQgL2V0Yy9zaGFkb3cgaW50
+bw0KIyBYWFggYSBzZXBhcmF0ZSB0eXBlIGFuZCB0byBsaW1pdCByZWFkIGFj
+Y2VzcyB0byBjZXJ0YWluIGRvbWFpbnMuICANCiMgWFhYIERvaW5nIHNvIHRy
+YW5zcGFyZW50bHkgdG8gYXBwbGljYXRpb25zIGlzIHByb2JsZW1hdGljIGR1
+ZSB0bw0KIyBYWFggdGhlIGZhY3QgdGhhdCBib3RoIC9ldGMvcGFzc3dkIGFu
+ZCAvZXRjL3NoYWRvdyBhcmUgcmVjcmVhdGVkDQojIFhYWCBieSB0aGUgc2Ft
+ZSBwcm9jZXNzZXMgYW5kIGxpdmUgaW4gdGhlIHNhbWUgZGlyZWN0b3J5LCBz
+byBmaWxlIHR5cGUNCiMgWFhYIHRyYW5zaXRpb24gcnVsZXMgY2Fubm90IHNw
+ZWNpZnkgZGlmZmVyZW50IGRlZmF1bHQgdHlwZXMuICBSZWxvY2F0aW5nDQoj
+IFhYWCAvZXRjL3NoYWRvdyB0byBhIHNlcGFyYXRlIHN1YmRpcmVjdG9yeSB3
+YXMgdHJpZWQsIGJ1dCByZXF1aXJlZA0KIyBYWFggbW9kaWZpY2F0aW9ucyB0
+byBhIGxvdCBvZiBhcHBsaWNhdGlvbnMgZXZlbiBhZnRlciBjaGFuZ2luZw0K
+IyBYWFggdGhlIHB3ZGIgc2hhcmVkIGxpYnJhcnkuDQphdHRyaWJ1dGUgYXV0
+aDsNCg0KIyBUaGUgYWRtaW4gYXR0cmlidXRlIGlkZW50aWZpZXMgZXZlcnkg
+YWRtaW5pc3RyYXRvciBkb21haW4uDQojIEl0IGlzIHVzZWQgaW4gVEUgYXNz
+ZXJ0aW9ucyB3aGVuIHZlcmlmeWluZyB0aGF0IG9ubHkgYWRtaW5pc3RyYXRv
+ciANCiMgZG9tYWlucyBoYXZlIGNlcnRhaW4gcGVybWlzc2lvbnMuICANCiMg
+VGhpcyBhdHRyaWJ1dGUgaXMgcHJlc2VudGx5IGFzc29jaWF0ZWQgd2l0aCBz
+eXNhZG1fdCBhbmQgDQojIGNlcnRhaW4gYWRtaW5pc3RyYXRvciB1dGlsaXR5
+IGRvbWFpbnMuICANCiMgWFhYIFRoZSB1c2Ugb2YgdGhpcyBhdHRyaWJ1dGUg
+c2hvdWxkIGJlIHJldmlld2VkIGZvciBjb25zaXN0ZW5jeS4NCiMgWFhYIE1p
+Z2h0IHdhbnQgdG8gcGFydGl0aW9uIGludG8gc2V2ZXJhbCBmaW5lci1ncmFp
+bmVkIGF0dHJpYnV0ZXMgDQojIFhYWCB1c2VkIGluIGRpZmZlcmVudCBhc3Nl
+cnRpb25zIHdpdGhpbiBhc3NlcnQudGUuDQphdHRyaWJ1dGUgYWRtaW47DQoN
+CiMgVGhlIHVzZXJkb21haW4gYXR0cmlidXRlIGlkZW50aWZpZXMgZXZlcnkg
+dXNlciBkb21haW4sIHByZXNlbnRseQ0KIyB1c2VyX3QgYW5kIHN5c2FkbV90
+LiAgSXQgaXMgdXNlZCBpbiBURSBydWxlcyB0aGF0IHNob3VsZCBiZSBhcHBs
+aWVkDQojIHRvIGFsbCB1c2VyIGRvbWFpbnMuDQphdHRyaWJ1dGUgdXNlcmRv
+bWFpbjsNCg0KIyBUaGUgZ3BoZG9tYWluIGF0dHJpYnV0ZSBpZGVudGlmaWVz
+IGV2ZXJ5IGdub21lLXB0eS1oZWxwZXIgZGVyaXZlZA0KIyBkb21haW4uICBJ
+dCBpcyB1c2VkIGluIFRFIHJ1bGVzIHRvIHBlcm1pdCBpbmhlcml0YW5jZSBh
+bmQgdXNlIG9mDQojIGRlc2NyaXB0b3JzIGNyZWF0ZWQgYnkgdGhlc2UgZG9t
+YWlucy4NCmF0dHJpYnV0ZSBncGhkb21haW47DQoNCg0KIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIw0KIyBBdHRyaWJ1dGVzIGZvciBmaWxlIHR5cGVz
+Og0KIw0KDQojIFRoZSBmaWxlX3R5cGUgYXR0cmlidXRlIGlkZW50aWZpZXMg
+YWxsIHR5cGVzIGFzc2lnbmVkIHRvIGZpbGVzIA0KIyBpbiBwZXJzaXN0ZW50
+IGZpbGVzeXN0ZW1zLiAgSXQgaXMgdXNlZCBpbiBURSBydWxlcyB0byBwZXJt
+aXQNCiMgdGhlIGFzc29jaWF0aW9uIG9mIGFsbCBzdWNoIGZpbGUgdHlwZXMg
+d2l0aCBwZXJzaXN0ZW50IGZpbGVzeXN0ZW0NCiMgdHlwZXMsIGFuZCB0byBw
+ZXJtaXQgY2VydGFpbiBkb21haW5zIHRvIGFjY2VzcyBhbGwgc3VjaCB0eXBl
+cyBhcyANCiMgYXBwcm9wcmlhdGUuDQphdHRyaWJ1dGUgZmlsZV90eXBlOw0K
+DQojIFRoZSBzeXNhZG1maWxlIGF0dHJpYnV0ZSBpZGVudGlmaWVzIGFsbCB0
+eXBlcyBhc3NpZ25lZCB0byBmaWxlcyANCiMgdGhhdCBzaG91bGQgYmUgY29t
+cGxldGVseSBhY2Nlc3NpYmxlIHRvIGFkbWluaXN0cmF0b3JzLiAgSXQgaXMg
+dXNlZA0KIyBpbiBURSBydWxlcyB0byBncmFudCBzdWNoIGFjY2VzcyBmb3Ig
+YWRtaW5pc3RyYXRvciBkb21haW5zLg0KYXR0cmlidXRlIHN5c2FkbWZpbGU7
+DQoNCiMgVGhlIGZzX3R5cGUgYXR0cmlidXRlIGlkZW50aWZpZXMgYWxsIHR5
+cGVzIGFzc2lnbmVkIHRvIGZpbGVzeXN0ZW1zDQojIChub3QgbGltaXRlZCB0
+byBwZXJzaXN0ZW50IGZpbGVzeXN0ZW1zKS4NCiMgSXQgaXMgdXNlZCBpbiBU
+RSBydWxlcyB0byBwZXJtaXQgY2VydGFpbiBkb21haW5zIHRvIG1vdW50DQoj
+IGFueSBmaWxlc3lzdGVtIGFuZCB0byBwZXJtaXQgbW9zdCBkb21haW5zIHRv
+IG9idGFpbiB0aGUNCiMgb3ZlcmFsbCBmaWxlc3lzdGVtIHN0YXRpc3RpY3Mu
+DQphdHRyaWJ1dGUgZnNfdHlwZTsNCg0KIyBUaGUgcm9vdF9kaXJfdHlwZSBh
+dHRyaWJ1dGUgaWRlbnRpZmllcyBhbGwgdHlwZXMgYXNzaWduZWQgdG8gDQoj
+IHJvb3QgZGlyZWN0b3JpZXMgb2YgZmlsZXN5c3RlbXMgKG5vdCBsaW1pdGVk
+IHRvIHBlcnNpc3RlbnQNCiMgZmlsZXN5c3RlbXMpLg0KIyBYWFggVGhpcyBh
+dHRyaWJ1dGUgd2FzIHVzZWQgdG8gZ3JhbnQgbW91bnRhc3NvY2lhdGUgcGVy
+bWlzc2lvbiwNCiMgWFhYIGJ1dCB0aGlzIHBlcm1pc3Npb24gaXMgbm8gbG9u
+Z2VyIGRlZmluZWQuICBXZSBjYW4gbGlrZWx5DQojIFhYWCByZW1vdmUgdGhp
+cyBhdHRyaWJ1dGUuDQphdHRyaWJ1dGUgcm9vdF9kaXJfdHlwZTsNCg0KIyBU
+aGUgZXhlY190eXBlIGF0dHJpYnV0ZSBpZGVudGlmaWVzIGFsbCB0eXBlcyBh
+c3NpZ25lZA0KIyB0byBlbnRyeXBvaW50IGV4ZWN1dGFibGVzIGZvciBkb21h
+aW5zLiAgVGhpcyBhdHRyaWJ1dGUgaXMgDQojIHVzZWQgaW4gVEUgcnVsZXMg
+YW5kIGFzc2VydGlvbnMgdGhhdCBzaG91bGQgYmUgYXBwbGllZCB0byBhbGwg
+DQojIHN1Y2ggZXhlY3V0YWJsZXMuDQphdHRyaWJ1dGUgZXhlY190eXBlOw0K
+DQojIFRoZSB0bXBmaWxlIGF0dHJpYnV0ZSBpZGVudGlmaWVzIGFsbCB0eXBl
+cyBhc3NpZ25lZCB0byB0ZW1wb3JhcnkgDQojIGZpbGVzLiAgVGhpcyBhdHRy
+aWJ1dGUgaXMgdXNlZCBpbiBURSBydWxlcyB0byBncmFudCBjZXJ0YWluIA0K
+IyBkb21haW5zIHRoZSBhYmlsaXR5IHRvIHJlbW92ZSBhbGwgc3VjaCBmaWxl
+cyAoZS5nLiBpbml0LCBjcm9uZCkuDQphdHRyaWJ1dGUgdG1wZmlsZTsNCg0K
+IyBUaGUgdG1wZnNmaWxlIGF0dHJpYnV0ZSBpZGVudGlmaWVzIGFsbCB0eXBl
+cyBkZWZpbmVkIGZvciB0bXBmcyANCiMgdHlwZSB0cmFuc2l0aW9ucy4gDQoj
+IEl0IGlzIHVzZWQgaW4gVEUgcnVsZXMgdG8gZ3JhbnQgY2VydGFpbiBkb21h
+aW5zIHRoZSBhYmlsaXR5IHRvDQojIGFjY2VzcyBhbGwgc3VjaCBmaWxlcy4N
+CmF0dHJpYnV0ZSB0bXBmc2ZpbGU7DQoNCiMgVGhlIGhvbWVfdHlwZSBhdHRy
+aWJ1dGUgaWRlbnRpZmllcyBhbGwgdHlwZXMgYXNzaWduZWQgdG8gaG9tZQ0K
+IyBkaXJlY3Rvcmllcy4gIFRoaXMgYXR0cmlidXRlIGlzIHVzZWQgaW4gVEUg
+cnVsZXMgdG8gZ3JhbnQgY2VydGFpbg0KIyBkb21haW5zIHRoZSBhYmlsaXR5
+IHRvIGFjY2VzcyBhbGwgaG9tZSBkaXJlY3RvcnkgdHlwZXMuDQphdHRyaWJ1
+dGUgaG9tZV90eXBlOw0KDQojIFRoZSB0dHlmaWxlIGF0dHJpYnV0ZSBpZGVu
+dGlmaWVzIGFsbCB0eXBlcyBhc3NpZ25lZCB0byB0dHlzLg0KIyBJdCBpcyB1
+c2VkIGluIFRFIHJ1bGVzIHRvIGdyYW50IGNlcnRhaW4gZG9tYWlucyB0aGUg
+YWJpbGl0eSB0bw0KIyBhY2Nlc3MgYWxsIHR0eXMuDQphdHRyaWJ1dGUgdHR5
+ZmlsZTsNCg0KIyBUaGUgcHR5ZmlsZSBhdHRyaWJ1dGUgaWRlbnRpZmllcyBh
+bGwgdHlwZXMgYXNzaWduZWQgdG8gcHR5cy4NCiMgSXQgaXMgdXNlZCBpbiBU
+RSBydWxlcyB0byBncmFudCBjZXJ0YWluIGRvbWFpbnMgdGhlIGFiaWxpdHkg
+dG8NCiMgYWNjZXNzIGFsbCBwdHlzLg0KYXR0cmlidXRlIHB0eWZpbGU7DQoN
+CiMgVGhlIHBpZGZpbGUgYXR0cmlidXRlIGlkZW50aWZpZXMgYWxsIHR5cGVz
+IGFzc2lnbmVkIHRvIHBpZCBmaWxlcy4NCiMgSXQgaXMgdXNlZCBpbiBURSBy
+dWxlcyB0byBncmFudCBjZXJ0YWluIGRvbWFpbnMgdGhlIGFiaWxpdHkgdG8N
+CiMgYWNjZXNzIGFsbCBzdWNoIGZpbGVzLg0KYXR0cmlidXRlIHBpZGZpbGU7
+DQoNCg0KIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0KIyBBdHRyaWJ1
+dGVzIGZvciBuZXR3b3JrIHR5cGVzOg0KIw0KDQojIFRoZSBzb2NrZXRfdHlw
+ZSBhdHRyaWJ1dGUgaWRlbnRpZmllcyBhbGwgdHlwZXMgYXNzaWduZWQgdG8g
+DQojIGtlcm5lbC1jcmVhdGVkIHNvY2tldHMuICBPcmRpbmFyeSBzb2NrZXRz
+IGFyZSBhc3NpZ25lZCB0aGUgDQojIGRvbWFpbiBvZiB0aGUgY3JlYXRpbmcg
+cHJvY2Vzcy4NCiMgWFhYIFRoaXMgYXR0cmlidXRlIGlzIHVudXNlZC4gIFJl
+bW92ZT8NCmF0dHJpYnV0ZSBzb2NrZXRfdHlwZTsNCg0KIyBJZGVudGlmaWVz
+IGFsbCB0eXBlcyBhc3NpZ25lZCB0byBwb3J0IG51bWJlcnMgdG8gY29udHJv
+bCBiaW5kaW5nLg0KYXR0cmlidXRlIHBvcnRfdHlwZTsNCg0KIyBJZGVudGlm
+aWVzIGFsbCB0eXBlcyBhc3NpZ25lZCB0byBuZXR3b3JrIGludGVyZmFjZXMg
+dG8gY29udHJvbA0KIyBvcGVyYXRpb25zIG9uIHRoZSBpbnRlcmZhY2UgKFhY
+WCBvYnNvbGV0ZSwgbm90IHN1cHBvcnRlZCB2aWEgTFNNKSANCiMgYW5kIHRv
+IGNvbnRyb2wgdHJhZmZpYyBzZW50IG9yIHJlY2VpdmVkIG9uIHRoZSBpbnRl
+cmZhY2UuDQphdHRyaWJ1dGUgbmV0aWZfdHlwZTsNCg0KIyBJZGVudGlmaWVz
+IGFsbCBkZWZhdWx0IHR5cGVzIGFzc2lnbmVkIHRvIHBhY2tldHMgcmVjZWl2
+ZWQgDQojIG9uIG5ldHdvcmsgaW50ZXJmYWNlcy4gIA0KYXR0cmlidXRlIG5l
+dG1zZ190eXBlOw0KDQojIElkZW50aWZpZXMgYWxsIHR5cGVzIGFzc2lnbmVk
+IHRvIG5ldHdvcmsgbm9kZXMvaG9zdHMgdG8gY29udHJvbA0KIyB0cmFmZmlj
+IHNlbnQgdG8gb3IgcmVjZWl2ZWQgZnJvbSB0aGUgbm9kZS4NCmF0dHJpYnV0
+ZSBub2RlX3R5cGU7DQoNCg==
+---559023410-1297389768-1025187018=:1331--
 
 --
 You have received this message because you are subscribed to the selinux list.
