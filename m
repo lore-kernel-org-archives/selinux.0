@@ -1,80 +1,68 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA15985
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 17:27:42 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA18326
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 21:27:24 GMT
-Received: from rj.sgi.com (rj.SGI.COM [192.82.208.96])
-	by jazzswing.ncsc.mil  with ESMTP id VAA18322
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 21:27:23 GMT
-Date: Fri, 14 Jun 2002 14:27:04 -0700
-From: richard offer <offer@sgi.com>
-To: Russell Coker <russell@coker.com.au>, forrest whitcher <fw@fwsystems.com>
-cc: Robert Hartley <rhartley@ics.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: What is the story on patents and SELinux?
-Message-ID: <1109210000.1024090024@changeling.engr.sgi.com>
-In-Reply-To: <20020614202749.418E7779B@lyta.coker.com.au>
-References: <3D098B97.7030903@evoworks.evoserve.com>
- <20020614165205.E804676C9@lyta.coker.com.au>
- <20020614153011.43908d6c.fw@fwsystems.com>
- <20020614202749.418E7779B@lyta.coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA20315
+	for <selinux@tycho.nsa.gov>; Sun, 16 Jun 2002 04:59:05 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id IAA12703
+	for <selinux@tycho.nsa.gov>; Sun, 16 Jun 2002 08:57:42 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id IAA12699 for <selinux@tycho.nsa.gov>; Sun, 16 Jun 2002 08:57:40 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: <blacknet@simplyaquatics.com>
+Subject: Re: grsec
+Date: Sun, 16 Jun 2002 10:58:39 +0200
+References: <000001c214e8$a7672c40$0a01a8c0@ed>
+In-Reply-To: <000001c214e8$a7672c40$0a01a8c0@ed>
+Cc: SE Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20020616085839.A75D4129F@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, 16 Jun 2002 05:48, you wrote:
+> I noticed that you have done some work with grsecurity.  Was wondering
+> what you thought about it and if you could compare it with selinux and
+> tell me your opinions on the two.
 
+If you want a quick and easy security improvement then grsec is a good 
+option.  Simply rebuild your kernel with the patch and everything will work 
+as before.  It's got a simple MAC implementation which will solve some basic 
+requirements and is easy to setup.  Also it's got a number of other patches 
+for security which aren't in LSM such as the patches for randomising various 
+numbers used by the network stack.
 
-* frm russell@coker.com.au "06/14/02 22:27:48 +0200" | sed '1,$s/^/* /'
-*
-* On Fri, 14 Jun 2002 21:30, forrest whitcher wrote:
-*> On Fri, 14 Jun 2002 18:52:05 +0200 (unchecked - local sync NTPstrat4)
-*> 
-*> Russell Coker <russell@coker.com.au> did inscribe thusly:
-*> > Any patent rights that the NSA had were given away by the GPL release.
-*> 
-*> I rather doubt this is the inevitable outcome. GPL is clear that where
-*> there is a conflict between patent and GPL - which are unrelated areas
-*> of the law - the requirements of GPL are essentially a disjoint set
-*> wrt patent requirements and each must be separately addressed.
-* 
-* GPL makes it clear that anyone can use the software for any cause without 
-* payment or license conditions.  It is incompatable with anything that 
-* prevents that (including patents).  So if you own a patent that covers
-* some  software and then later release the software in question under the
-* GPL then  the patent will not be enforcable.  
+But the real feature of grsec is the chroot environment you can't escape 
+from.  A chroot in grsec is like a different domain in SE Linux, programs in 
+different chroot's can't affect each other or the rest of the system.  I plan 
+to write a policy file for SE Linux to give the same result as this is a good 
+feature!
 
-If you use the exact text from the GPL this is true, but it is possible to
-have patents release code that uses them as GPL and still limit it (I
-think). This is the text in XFS
+Grsec lacks domain-type enforcement, and the identity and role tracking, so 
+it doesn't try to do the things that SE Linux does.  So for controlling 
+access to files, processes, etc it's not as powerful as SE.  But it does many 
+things that SE doesn't do.
 
-/* 
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- */
+I'd prefer to have both, maybe when LSM becomes part of the standard kernel 
+I'll be able to have SE Linux plus grsec for it's network operations.
 
-I read that as, if the code is patented, then you can use in in this
-product. If you take the code and re-use it in another product, you then
-need a patent license.
+Here are some of the things from grsec I'd like to see in LSM:
+fork() rate limiting, various network limiting and randomizing options, 
+memory page protection on IA32, restricting mprotect(), random PIDs, random 
+mmap(), and secure keymap loading.
 
-
-According to http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/, this
-has FSF approval.
-
-
-richard.
-
+I'm replying publically because this is something that will interest many 
+people.  Also if someone decides that SE Linux is too difficult for them (it 
+is too difficult for most people) then it's best that they choose an easier 
+option for improving security such as grsec, openwall, or others rather than 
+just skipping kernel options for improving security entirely.
 
 -- 
------------------------------------------------------------------------
-Richard Offer                     Technical Lead, Trust Technology, SGI
-"Specialization is for insects"
-_______________________________________________________________________
-
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
