@@ -1,66 +1,188 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i79KDCrT028350
-	for <selinux@tycho.nsa.gov>; Mon, 9 Aug 2004 16:13:12 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i79KDBIn008374
-	for <selinux@tycho.nsa.gov>; Mon, 9 Aug 2004 20:13:11 GMT
-Subject: Re: Now that SELinux supports booleans should we replace
-	tunableswith booleans?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
-   Daniel J Walsh <dwalsh@redhat.com>, selinux-dev@tresys.com
-In-Reply-To: <1091809200.8590.96.camel@moss-spartans.epoch.ncsc.mil>
-References: <200404141453.i3EEr2Jx015745@gotham.columbia.tresys.com>
-	 <1091472796.23449.248.camel@moss-spartans.epoch.ncsc.mil>
-	 <1091709011.11061.44.camel@moss-spartans.epoch.ncsc.mil>
-	 <1091709228.11061.47.camel@moss-spartans.epoch.ncsc.mil>
-	 <002201c47bce$22783840$0102a8c0@DESKTOP>
-	 <1091809200.8590.96.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Message-Id: <1092082317.29199.205.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 09 Aug 2004 16:11:57 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7A5dOrT000659
+	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 01:39:25 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7A5dLlU020982
+	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 05:39:22 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id F0BD061BCC
+	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 15:39:17 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 19306-09 for <selinux@tycho.nsa.gov>;
+	Tue, 10 Aug 2004 15:39:17 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 42BB661BB4
+	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 15:39:17 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 6B32BB59AA
+	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 15:39:15 +1000 (EST)
+From: Russell Coker <rcoker@redhat.com>
+Reply-To: rcoker@redhat.com
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: device types
+Date: Tue, 10 Aug 2004 15:39:14 +1000
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_C+FGBM3kdcMLPRv"
+Message-Id: <200408101539.14895.rcoker@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-08-06 at 12:20, Stephen Smalley wrote:
-> Yes, it shouldn't be difficult to create a genpolbools utility similar
-> to the recently created genpolusers utility.  However, I think that Dan
-> would want the functionality available as a library function that
-> operates entirely in-memory rather than on files, so that load_policy
-> can directly invoke it on the mmap'd policy file to rewrite the binary
-> policy in memory based on the separate saved boolean settings prior to
-> loading it into the kernel.
 
-This has now been implemented in the sourceforge CVS tree; the
-checkpolicy core logic has been moved into a libsepol library, a
-sepol_genbools() function for rewriting a binary policy in memory for
-new boolean definitions has been added to libsepol, and load_policy has
-been changed to use this function prior to reloading the policy.  A
-separate genpolbools utility that performs the same transformation but
-with files as input and output has also been added to the checkpolicy
-tree.
+--Boundary-00=_C+FGBM3kdcMLPRv
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Under the proposed scheme, reboots and policy reloads would set the
-> booleans to the values saved in /etc/selinux/$SELINUXTYPE/booleans
-> (defaulting to the compile-time defaults if there was no value saved in
-> that file for a given boolean).  Admins would edit that file (directly
-> or using a tool) if they wanted the boolean setting to persist; if they
-> only want a temporary change that will be reverted by a reboot or policy
-> reload, then they would use setsebool to make that temporary change.
+/u?dev/irlpt[0-9]+     -c      system_u:object_r:tty_device_t
 
-Karl has suggested that while /sbin/init should use this technique for
-preserving booleans across reboots, /usr/sbin/load_policy should just
-get the current boolean settings from selinuxfs and use them for policy
-reloads, so that booleans do not change upon a policy reload by
-default.  This is to ensure that booleans that represent system state
-are not perturbed by policy reloads.  What do others think?
+Wouldn't it be more appropriate to have irlpt be printer_device_t?
+
+/u?dev/md.*            -c      system_u:object_r:fixed_disk_device_t
+
+In what situation will a /dev/md* device node be a character device?  The 
+block devices are already labelled.  The only device nodes of class chr_file 
+labelled with fixed_disk_device_t are for raw devices and a flash device, 
+probably neither of which will work properly due to lack of policy.
+
+
+I have attached a patch which fixes these problems and a couple of other minor 
+issues (including making the /dev/*nrft* entries only take one line) and 
+adding an entry for /dev/dm-* (which LVM on Fedora seems to create).
+
+Finally I've added a solution to the BSD pty issue.  I've labelled all the 
+device nodes as bsdpty_device_t and made domains that don't use such nodes 
+have dontaudit rules for them.  This stops programs like sshd from trying all 
+of the BSD pty's first and filling the audit logs for no good cause.
+
+I've also filed a bugzilla requesting that the BSD pty nodes be moved to a 
+separate package so that SE Linux users can easily remove them.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://apac.redhat.com/disclaimer
+See above URL for disclaimer.
 
+--Boundary-00=_C+FGBM3kdcMLPRv
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
+
+diff -ru /usr/src/se/policy/file_contexts/types.fc ./file_contexts/types.fc
+--- /usr/src/se/policy/file_contexts/types.fc	2004-08-06 19:08:13.000000000 +1000
++++ ./file_contexts/types.fc	2004-08-10 15:24:51.000000000 +1000
+@@ -127,16 +127,17 @@
+ /u?dev/urandom		-c	system_u:object_r:urandom_device_t
+ /u?dev/capi.*		-c	system_u:object_r:tty_device_t
+ /u?dev/dcbri[0-9]+	-c	system_u:object_r:tty_device_t
+-/u?dev/irlpt[0-9]+	-c	system_u:object_r:tty_device_t
++/u?dev/irlpt[0-9]+	-c	system_u:object_r:printer_device_t
+ /u?dev/ircomm[0-9]+	-c	system_u:object_r:tty_device_t
+ /u?dev/isdn.*		-c	system_u:object_r:tty_device_t
+ /u?dev/.*tty[^/]*	-c	system_u:object_r:tty_device_t
++/u?dev/[pt]ty[abcdepqrstuvwxyz][0-9a-f]	-c system_u:object_r:bsdpty_device_t
+ /u?dev/cu.*		-c	system_u:object_r:tty_device_t
+ /u?dev/vcs[^/]*		-c	system_u:object_r:tty_device_t
+ /u?dev/ip2[^/]*		-c	system_u:object_r:tty_device_t
+-/u?dev/pty.*		-c	system_u:object_r:tty_device_t
+ /u?dev/tty		-c	system_u:object_r:devtty_t
+ /u?dev/[shmx]d[^/]*	-b	system_u:object_r:fixed_disk_device_t
++/u?dev/dm-[0-9]+	-b	system_u:object_r:fixed_disk_device_t
+ /u?dev/sg[0-9]+		-c	system_u:object_r:scsi_generic_device_t
+ /u?dev/rd.*		-b	system_u:object_r:fixed_disk_device_t
+ /u?dev/i2o/hd[^/]*	-b	system_u:object_r:fixed_disk_device_t
+@@ -145,7 +146,6 @@
+ /u?dev/ida/[^/]*	-b	system_u:object_r:fixed_disk_device_t
+ /u?dev/dasd[^/]*	-b	system_u:object_r:fixed_disk_device_t
+ /u?dev/flash[^/]*	-b	system_u:object_r:fixed_disk_device_t
+-/u?dev/md.*		-c	system_u:object_r:fixed_disk_device_t
+ /u?dev/nb[^/]+		-b	system_u:object_r:fixed_disk_device_t
+ /u?dev/ataraid/.*	-b	system_u:object_r:fixed_disk_device_t
+ /u?dev/loop.*		-b	system_u:object_r:fixed_disk_device_t
+@@ -212,17 +212,13 @@
+ /u?dev/amidi.*		-c	system_u:object_r:sound_device_t
+ /u?dev/amixer.*		-c	system_u:object_r:sound_device_t
+ /u?dev/snd/.*		-c	system_u:object_r:sound_device_t
+-/u?dev/rawrft[0-9]	-c	system_u:object_r:tape_device_t
+-/u?dev/rft[0-9]		-c	system_u:object_r:tape_device_t
+-/u?dev/rmt[0-9].*	-c	system_u:object_r:tape_device_t
+ /u?dev/n?[hs]t[0-9].*	-c	system_u:object_r:tape_device_t
+-/u?dev/(n?raw)?qft[0-3]	-c	system_u:object_r:tape_device_t
++/u?dev/(n?raw)?[qr]ft[0-3] -c	system_u:object_r:tape_device_t
+ /u?dev/n?z?qft[0-3]	-c	system_u:object_r:tape_device_t
+ /u?dev/n?tpqic[12].*	-c	system_u:object_r:tape_device_t
+ /u?dev/ht[0-1]		-b	system_u:object_r:tape_device_t
+ /u?dev/n?osst[0-3].*	-c	system_u:object_r:tape_device_t
+ /u?dev/n?pt[0-9]+	-c	system_u:object_r:tape_device_t
+-/u?dev/nrft[0-9]+	-c	system_u:object_r:tape_device_t
+ /u?dev/tape.*		-c	system_u:object_r:tape_device_t
+ /u?dev/usb/scanner.*	-c	system_u:object_r:scanner_device_t
+ /u?dev/usb/dc2xx.*	-c	system_u:object_r:scanner_device_t
+@@ -230,7 +226,7 @@
+ /u?dev/usb/tty.*	-c	system_u:object_r:usbtty_device_t
+ /u?dev/mmetfgrab	-c	system_u:object_r:scanner_device_t
+ /u?dev/nvidia.*		-c	system_u:object_r:xserver_misc_device_t
+-/u?dev/dri(/.*)?	-c	system_u:object_r:dri_device_t
++/u?dev/dri/.+		-c	system_u:object_r:dri_device_t
+ /u?dev/radeon		-c	system_u:object_r:dri_device_t
+ /u?dev/agpgart		-c	system_u:object_r:agp_device_t
+ 
+@@ -254,7 +250,7 @@
+ /etc/group\.lock	--	system_u:object_r:shadow_t
+ /etc/shadow.*		--	system_u:object_r:shadow_t
+ /etc/gshadow.*		--	system_u:object_r:shadow_t
+-/etc/blkid.tab		--	system_u:object_r:etc_runtime_t
++/etc/blkid\.tab		--	system_u:object_r:etc_runtime_t
+ /etc/fstab\.REVOKE	--	system_u:object_r:etc_runtime_t
+ /etc/HOSTNAME		--	system_u:object_r:etc_runtime_t
+ /etc/ioctl\.save	--	system_u:object_r:etc_runtime_t
+@@ -318,6 +314,7 @@
+ /usr/share/man(/.*)?		system_u:object_r:man_t
+ /usr/share/mc/extfs/.*	--	system_u:object_r:bin_t
+ /usr/share/texmf/teTeX/bin(/.*)?	system_u:object_r:bin_t
++/usr/share/selinux(/.*)?	system_u:object_r:policy_src_t
+ 
+ #
+ # /usr/bin
+@@ -495,4 +492,4 @@
+ #  The krb5.conf file is always being tested for writability, so
+ #  we defined a type to dontautit
+ #
+-/etc/krb5.conf		--	system_u:object_r:krb5_conf_t
++/etc/krb5\.conf		--	system_u:object_r:krb5_conf_t
+diff -ru /usr/src/se/policy/macros/core_macros.te ./macros/core_macros.te
+--- /usr/src/se/policy/macros/core_macros.te	2004-07-13 09:08:07.000000000 +1000
++++ ./macros/core_macros.te	2004-08-10 13:37:44.000000000 +1000
+@@ -556,6 +556,9 @@
+ 
+ # allow searching /dev/pts
+ allow $1_t devpts_t:dir { getattr read search };
++
++# ignore old BSD pty devices
++dontaudit $1_t bsdpty_device_t:chr_file { getattr read write };
+ ')
+ 
+ 
+diff -ru /usr/src/se/policy/types/device.te ./types/device.te
+--- /usr/src/se/policy/types/device.te	2004-07-12 23:37:30.000000000 +1000
++++ ./types/device.te	2004-08-10 13:35:56.000000000 +1000
+@@ -51,6 +51,10 @@
+ type tty_device_t, serial_device, device_type;
+ 
+ #
++# bsdpty_device_t is the type of /dev/[tp]ty[abcdepqrstuvwxyz][0-9a-f]
++type bsdpty_device_t, device_type;
++
++#
+ # usbtty_device_t is the type of /dev/usr/tty*
+ #
+ type usbtty_device_t, serial_device, device_type;
+
+--Boundary-00=_C+FGBM3kdcMLPRv--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
