@@ -1,47 +1,40 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBL3BiIi019227
-	for <selinux@tycho.nsa.gov>; Mon, 20 Dec 2004 22:11:44 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBLCB4Ii020615
+	for <selinux@tycho.nsa.gov>; Tue, 21 Dec 2004 07:11:04 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBLCB7um013173
+	for <selinux@tycho.nsa.gov>; Tue, 21 Dec 2004 12:11:07 GMT
 Subject: Re: User Space Auditing
-From: Linux <linux@linuon.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Linux <linux@linuon.com>
 Cc: SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <1103570153.6674.58.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1103598698.3953.25.camel@pc-1.linuon.co.jp>
 References: <200412182031.43836.linux@linuon.com>
 	 <1103570153.6674.58.camel@moss-spartans.epoch.ncsc.mil>
+	 <1103598698.3953.25.camel@pc-1.linuon.co.jp>
 Content-Type: text/plain
-Date: Tue, 21 Dec 2004 12:11:38 +0900
-Message-Id: <1103598698.3953.25.camel@pc-1.linuon.co.jp>
+Message-Id: <1103630743.19693.1.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Tue, 21 Dec 2004 07:05:43 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> There is a mailing list for discussions of the Linux audit framework,
-> see http://www.redhat.com/mailman/listinfo/linux-audit.  Peter
-> Martucelli has taken over from Rik Faith, who originally developed the
-> framework (I don't know anything about any connection with hert.org),
-> and has the sample auditd code at
-> http://people.redhat.com/peterm/audit/, but I believe that there is
-> ongoing work to significantly enhance both the kernel framework and the
-> userspace tools.  If you aren't running an auditd, then the audit data
-> is just channeled to klogd in the usual manner.  Please see the
-> linux-audit mailing list archives.
+On Mon, 2004-12-20 at 22:11, Linux wrote:
+> Thank you for your info. Though the mailing list seems not working
+> anymore, the readme file on Peter's page contains useful info. THX!
+> I realized that I'm gonna have to work on this audit stuff in kernel.
+> Maybe we need some unified logging facility with netfilter or
+> let them use audit.
+> Is there any discussion between you SELinux guys and netfilter guys
+> about this logging/auditing stuff and other overlapped part?
 
-Hi Stephen,
+The linux-audit mailing list is working, and has recently re-started
+active discussions.  We are engaged with others on the linux-audit list
+about enhancements to the kernel audit framework and tools.
 
-Thank you for your info. Though the mailing list seems not working
-anymore, the readme file on Peter's page contains useful info. THX!
-I realized that I'm gonna have to work on this audit stuff in kernel.
-Maybe we need some unified logging facility with netfilter or
-let them use audit.
-Is there any discussion between you SELinux guys and netfilter guys
-about this logging/auditing stuff and other overlapped part?
-
-Thank you,
-
--- Junji Kanemaru
-Linuon Inc.
-Tokyo Japan
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
