@@ -1,46 +1,48 @@
-Message-ID: <20050118061124.94277.qmail@web51506.mail.yahoo.com>
-Date: Mon, 17 Jan 2005 22:11:24 -0800 (PST)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: How SELinux label packet by default?
-To: SELinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0ICMYIi019179
+	for <selinux@tycho.nsa.gov>; Tue, 18 Jan 2005 07:22:34 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0ICMbY7019583
+	for <selinux@tycho.nsa.gov>; Tue, 18 Jan 2005 12:22:37 GMT
+Subject: Re: lots of execmem failures with 2.6.10
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Greg Norris <haphazard@kc.rr.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
+   Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Manoj Srivastava <manoj.srivastava@stdc.com>
+In-Reply-To: <20050116015332.GA9811@yggdrasil.localdomain>
+References: <20050112112630.GA12730@yggdrasil.localdomain>
+	 <1105541256.22495.57.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050113030755.GA24828@yggdrasil.localdomain>
+	 <20050116015332.GA9811@yggdrasil.localdomain>
+Content-Type: text/plain
+Message-Id: <1106050532.18274.7.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 18 Jan 2005 07:15:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-  In initial_sid_contexts, there seems no default
-packet SID. Then, 
-  (here, let's don't take IPsec protection into
-account)
-  1) When a packet is sending or receiving, Does
-SELinux label the packet and then control the
-sending/receiving packet according to the label? or
-just ignore it?
-  2) When an unlabeled packet is received from a node,
-What default packet SID will SELinux set to the packet
-? 
-  Is it still be as "When a message is sent on a
-socket, it inherits the SID of the sending socket by
-default. When the network component receives a message
-from the network, the SID of the message is initially
-set to a default message SID associated with the
-receiving network interface." as is described in
-subsection 8.1.1 of "Integrating Flexible Support for
-Security Policies into the Linux Operating System"
+On Sat, 2005-01-15 at 20:53, Greg Norris wrote:
+> I've built a SELinux-enabled coreutils 5.2.1 package for Debian, and I'm
+> happy to report that it does indeed resolve my issue.  I want to do a
+> bit more testing before making the package generally available (I just
+> rebooted to 2.6.10 about 15 minutes ago), but I'll upload it either
+> tomorrow or Monday if no show-stoppers turn up.
 
-  Thank you.
+Good, glad to hear it.  BTW, when/if people get around to submitting
+SELinux userland patches for inclusion in Debian (or upstream, for
+packages that have upstream maintainers), please recheck against the
+latest SELinux patches in the public Fedora CVS tree to see whether
+anything has changed there.  See http://cvs.fedora.redhat.com/core.shtml
+for information about the public Fedora CVS tree.  Note also that not
+all SELinux-related changes are patches in that tree, as some SELinux
+functionality has been folded into the base packages, e.g. libuser,
+logrotate, passwd, prelink, glibc, rpm, initscripts, ...
 
-=====
-Best Regards,
-Park Lee
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - now with 250MB free storage. Learn more.
-http://info.mail.yahoo.com/mail_250
 
 --
 This message was distributed to subscribers of the selinux mailing list.
