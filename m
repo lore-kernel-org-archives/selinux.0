@@ -1,55 +1,70 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9FFFrrT006565
-	for <selinux@tycho.nsa.gov>; Fri, 15 Oct 2004 11:15:53 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9FFFrxT005847
-	for <selinux@tycho.nsa.gov>; Fri, 15 Oct 2004 15:15:53 GMT
-Subject: Re: Asterisk on SELinux
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Russell Coker <russell@coker.com.au>
-Cc: Erich Schubert <erich@debian.org>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200410151827.05984.russell@coker.com.au>
-References: <1097499317.16758.40.camel@wintermute.xmldesign.de>
-	 <200410151827.05984.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1097853280.3472.7.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 15 Oct 2004 11:14:41 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9G9SArT011809
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 05:28:10 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9G9Qui9010043
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 09:26:57 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 07CAA627BB
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 19:28:04 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 29465-10 for <selinux@tycho.nsa.gov>;
+	Sat, 16 Oct 2004 19:28:03 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 982D361E02
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 19:28:03 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 68661B5AB3
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 19:28:01 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: insmod
+Date: Sat, 16 Oct 2004 19:28:00 +1000
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_gmOcBsw7ytVk3ZT"
+Message-Id: <200410161928.00867.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
+--Boundary-00=_gmOcBsw7ytVk3ZT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Fri, 2004-10-15 at 04:27, Russell Coker wrote:
-> On Mon, 11 Oct 2004 22:55, Erich Schubert <erich@debian.org> wrote:
-> > # the debian standard installation hasn't got all dirs needed
-> > allow asterisk_t asterisk_spool_t:dir create_dir_perms;
-> 
-> This is what create_dir_file() is for.
-> 
-> > # some helper apps are probably there
-> > allow asterisk_t { bin_t sbin_t }:dir search;
-> 
-> There seems little point in allowing directory search without allowing it to 
-> do anything under that directory.  This needs more investigation.
-> 
-> > Unfortunately, while asterisk does now start (as root only, not as
-> > non-root-user... not sure why, but i think the user/group setup isn't
-> > right yet... how do i change a unix users primary group in selinux?)
-> > my test SIP call didn't get properly accepted.
-> 
-> UID/GID stuff works the same way in SE Linux as in regular Linux, except that 
-> sometimes what you want is not permitted.  ;)
-> 
-> vipw/vigr do the usual stuff.
-> 
-> I've attached a patch for asterisk which includes the parts of your policy 
-> changes that I think are ready for inclusion.  I don't think that the sbin_t 
-> part is complete and therefore it shouldn't go in yet.
+It seems that we can't get insmod changed to not open the module read/write 
+for locking, so the attached patch permits this access.
+
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_gmOcBsw7ytVk3ZT
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
+
+--- /usr/src/se/policy/domains/program/modutil.te	2004-09-21 14:39:14.000000000 +1000
++++ domains/program/modutil.te	2004-10-16 19:16:43.000000000 +1000
+@@ -107,6 +108,8 @@
+ 
+ # Read module objects.
+ r_dir_file(insmod_t, modules_object_t)
++# for locking
++allow insmod_t modules_object_t:file write;
+ 
+ allow insmod_t { var_t var_log_t }:dir search;
+ ifdef(`xserver.te', `
+
+--Boundary-00=_gmOcBsw7ytVk3ZT--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
