@@ -1,74 +1,60 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA12663
-	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 07:35:47 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA15433
+	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 13:51:51 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id LAA25781
-	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 11:34:47 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id LAA25777
-	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 11:34:45 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 8EA6D92466
-	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 21:35:42 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 0DCBF18C
-	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 13:35:34 +0200 (CEST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: logcheck
-Date: Wed, 14 Aug 2002 13:35:33 +0200
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_970U60JHF8QAU08IPE9T"
-Message-Id: <20020814113534.0DCBF18C@lyta.coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id RAA15932
+	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 17:50:50 GMT
+Received: from hotmail.com (f92.law14.hotmail.com [64.4.21.92])
+	by jazzswing.ncsc.mil  with ESMTP id RAA15928
+	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 17:50:50 GMT
+From: "M. H." <metalhead00@hotmail.com>
+To: wsalamon@tislabs.com
+Cc: selinux@tycho.nsa.gov
+Subject: Re: socket_secure fails with "Function not implemented"
+Date: Wed, 14 Aug 2002 10:50:49 -0700
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F92VHt8fddAkOhw2RlC000009e1@hotmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+What is the status of the secure socket calls? What issues remain unresolved 
+(I am most interested in finding out the sid of a UNIX domain socket peer.)
 
---------------Boundary-00=_970U60JHF8QAU08IPE9T
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+Thanks.
 
-I have attached the /etc/logcheck/ignore.d.server/selinux and the 
-/etc/logcheck/violations.ignore.d/selinux that I am using.
 
-This makes SE Linux messages only appear in the violations section (I don't 
-need to see them twice), skips the messages about unlabeled_t on a network 
-socket (which appear to have stopped so I'll probably remove it from the next 
-version), skips devfsd messages about nodes that are already labelled, and 
-those messages about "denied null" that you get when running Apache.
 
-These files will be automatically installed as part of my next Debian package.
+>From: Wayne Salamon <wsalamon@tislabs.com>
+>To: "M. H." <metalhead00@hotmail.com>
+>CC: <selinux@tycho.nsa.gov>
+>Subject: Re: socket_secure fails with "Function not implemented"
+>Date: Tue, 13 Aug 2002 13:34:24 -0400 (EDT)
+>
+>On Tue, 13 Aug 2002, M. H. wrote:
+> >
+> > I was trying to write a little test program using socket_secure(), 
+>however
+> > it never succeeds and sets errno to "Function not implemented."
+>
+>   Did you enable the 'NSA SELinux extended socket calls (EXPERIMENTAL)'
+>option when you configured the kernel.  This option is under the
+>'NSA SELinux Support' option in the Security options panel.
+>
+>By default, extended socket calls are not built as they are considered
+>experimental.
+>
+>
+>--
+>Wayne Salamon
+>wsalamon@tislabs.com
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
 
---------------Boundary-00=_970U60JHF8QAU08IPE9T
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="ignore"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="ignore"
 
-IGRldmZzZC4qOiBOb2RlLiogYWxyZWFkeSBoYXMgYSBzZWN1cml0eSBjb250ZXh0CiBkZW5pZWQg
-LiByYXdpcF9zZW5kLip1bmxhYmVsZWRfdAoga2VybmVsOiAkCiBrZXJuZWw6IGF2YzogIGRlbmll
-ZAo=
 
---------------Boundary-00=_970U60JHF8QAU08IPE9T
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="violations.ignore"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="violations.ignore"
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
 
-IGtlcm5lbDogYXZjOiAgZGVuaWVkICBudWxsIGZvciAgcGlkCg==
-
---------------Boundary-00=_970U60JHF8QAU08IPE9T--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
