@@ -1,54 +1,37 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i919DVrT029973
-	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 05:13:32 -0400 (EDT)
-Received: from web51503.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i919CQ4L029048
-	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 09:12:26 GMT
-Message-ID: <20041001091332.34378.qmail@web51503.mail.yahoo.com>
-Date: Fri, 1 Oct 2004 02:13:32 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: purpose of the staff_r role?
-To: ram25@gwu.edu
-Cc: selinux@tycho.nsa.gov, russell@coker.com.au
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1804137939-1096622012=:33690"
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i919OmrT000037
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 05:24:48 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i919OkEZ023809
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 09:24:47 GMT
+Date: Fri, 1 Oct 2004 10:35:58 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Colin Walters <walters@verbum.org>
+Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: Access to xdm_t
+Message-ID: <20041001093558.GB4932@lkcl.net>
+References: <20040929163222.GA4125@rom.cip.ifi.lmu.de> <1096561927.4957.15.camel@nexus.verbum.private> <20040930192935.GA6063@lkcl.net> <1096591648.5736.3.camel@nexus.verbum.private>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1096591648.5736.3.camel@nexus.verbum.private>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1804137939-1096622012=:33690
-Content-Type: text/plain; charset=us-ascii
+On Thu, Sep 30, 2004 at 08:47:28PM -0400, Colin Walters wrote:
 
-Thu, 30 Sep 2004 18:54 Kodungallur Varma wrote:
- 
->I am pretty new to selinux. I was setting up a selinux machine. I 
->installed the OS and I installed the latest packages policy packages 
->with the 'yum' command. I later rebooted with the enforcing=0 option 
->during the boot. I later 'make relabel' ed it. I rebooted the machine >again with the enforcing=0 mode and checked the /var/log/messages >for avc:access denied messages. there are too many of them and I >just dont know how to fix them. any help on this would be excellent. 
+> >  /usr/bin/startkde for example?
+> 
+> I think the idea with doing it inside ?dm was to keep common
+> functionality inside the display manager; also it ensures you get an
+> error log even if your session script fails early on (and gdm will offer
+> to display the error log for example if your session lasts less than 10
+> seconds, which it can really only do if it knows the name of the error
+> log).
 
-After installed the packages policy packages, You'd better reboot in singleuser mode, and then try 'make relabel'.
- 
-Hope this helps,
- 
-Park Lee
+ if the log file goes into a common directory, that same functionality
+ can be achieved.
 
-		
----------------------------------
-Do you Yahoo!?
-vote.yahoo.com - Register online to vote today!
---0-1804137939-1096622012=:33690
-Content-Type: text/html; charset=us-ascii
-
-<DIV>Thu, 30 Sep 2004 18:54 Kodungallur Varma wrote:</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&gt;I am pretty new to selinux. I was setting up a selinux machine. I <BR>&gt;installed the OS and I installed the latest packages policy packages <BR>&gt;with the 'yum' command. I later rebooted with the enforcing=0 option <BR>&gt;during the boot. I later 'make relabel' ed it. I rebooted the machine &gt;again with the enforcing=0 mode and checked the /var/log/messages &gt;for avc:access denied messages. there are too many of them and I &gt;just dont know how to fix them. any help on this would be excellent. <BR></DIV>
-<DIV>After installed the packages policy packages, You'd better reboot in singleuser mode, and then try 'make relabel'.</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Hope this helps,</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Park Lee</DIV><p>
-		<hr size=1>Do you Yahoo!?<br><a
-href="http://vote.yahoo.com">vote.yahoo.com</a> - Register online to vote today!
---0-1804137939-1096622012=:33690--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
