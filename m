@@ -1,39 +1,63 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i88MTrrT007958
-	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 18:29:53 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i88MT0R0005993
-	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 22:29:01 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i88McWrT008037
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 18:38:33 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i88McVfe006977
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 22:38:31 GMT
 Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 4B5A6BF28
-	for <selinux@tycho.nsa.gov>; Wed,  8 Sep 2004 23:29:48 +0100 (BST)
+	by open.hands.com (Postfix) with ESMTP id 3767CBFCC
+	for <selinux@tycho.nsa.gov>; Wed,  8 Sep 2004 23:38:29 +0100 (BST)
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1C5B7k-00026t-9W
-	for selinux@tycho.nsa.gov; Wed, 08 Sep 2004 23:41:08 +0100
-Date: Wed, 8 Sep 2004 23:41:08 +0100
+	id 1C5BG9-00027c-8M
+	for selinux@tycho.nsa.gov; Wed, 08 Sep 2004 23:49:49 +0100
+Date: Wed, 8 Sep 2004 23:49:49 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: for bootsplash to operate correctly...
-Message-ID: <20040908224108.GJ7717@lkcl.net>
+Subject: at last: info regarding boot problems on multiple partitions
+Message-ID: <20040908224949.GK7717@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-... i hacked in the three following permissions:
+FINALLY i got a useable system when i encountered a boot problem
+[well, i got a console login].
 
-# this is to allow splash to write to /proc/splash
-allow initrc_t proc_t:file { write };
+the issue is that partitions fail to be mounted.
 
+i had noticed over a period of time that programs like pump and dhclient
+and some others would stop partitions from being unmounted during
+shutdown.
 
-# this is for /sbin/fbresolution to write to /dev/fb0
-allow initrc_t framebuf_device:t:chr_file { write };
+[remember i have /boot, /, /usr, /var and /home]
 
-# this is for fbmngplay to do err... *clueless*
-allow initrc_t self:capability { sys_admin };
+for some reason, this also caused the partitions to fail to MOUNT on
+startup.
 
-i look forward to one day writing a policy for the bootsplash
-package :)
+just now i was able to log in.
+
+audit2allow shows these:
+
+	allow local_login_t file_t:dir { search }
+	allow rpcd_t file_t:dir { search }.
+
+and, sure enough, doing a ls -Z /usr shows that it is, in fact, set to
+file_t.
+
+the question is, therefore... why?
+
+i figure it must be because i have that partition mounted.
+
+consequently, the context of the mount point, /usr, never gets set
+to a correct context because, of course, make relabel is only ever
+run with all partitions mounted.
+
+so.
+
+my question is:
+
+	how do i restore the context of a mount-point....
+	whilst it's actually mounted!
 
 l.
 
