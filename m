@@ -1,51 +1,33 @@
-Subject: Re: Add a new class
+Received: from jazzdrum.ncsc.mil ([144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j03E88Ii017017
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 09:08:08 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j03E8A6C027326
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jan 2005 14:08:10 GMT
+Subject: Re: modules needed to be compiled in for selinux to work
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Trent Jaeger <jaegert@us.ibm.com>,
-   Luke Kenneth Casson Leighton <lkcl@lkcl.net>, SELinux@tycho.nsa.gov
-In-Reply-To: <20050102071707.53956.qmail@web51504.mail.yahoo.com>
-References: <20050102071707.53956.qmail@web51504.mail.yahoo.com>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050102104530.GG6142@lkcl.net>
+References: <20050102104530.GG6142@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1104760886.16598.51.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1104760954.16598.53.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 03 Jan 2005 09:01:26 -0500
+Date: Mon, 03 Jan 2005 09:02:34 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-01-02 at 02:17, Park Lee wrote:
-> Now, I'm using FC2. 
+On Sun, 2005-01-02 at 05:45, Luke Kenneth Casson Leighton wrote:
+> hi,
+> 
+> debian's 2.6.9 kernel has selinux - and capabilities - as modules.
 
-FC3 is strongly recommended over FC2 for SELinux users.
+SELinux cannot be built as a module.  
 
-> I've added a new class to security_classes and the
-> permissions to access_vectors (In
-> /etc/security/selinux/src/policy/flask), after that,
-> rebuilt the headers with the Makefile in the flask
-> directory and put them in
-> /usr/src/linux-2.6.5-1.358/security/selinux/include as
-> Joshua Brindle have mentioned.
+> in other words, is CONFIG_CAPABILITY=m stopping selinux from
+> working in debian's 2.6.9 kernel?
 
-When adding new classes, you should typically work off of our
-sourceforge CVS tree, as that will have the latest definitions.
-Or at the very least, you should work off of the latest kernel, i.e.
-2.6.10 + 2.6.10-mm1 from kernel.org.  Note that until you submit a patch
-reserving your classes to us and until we accept such a patch into our
-tree, the class value may be re-used at any time for some other purpose,
-forcing you to re-base, much like adding a new syscall to the kernel. 
-We have already reserved a new class and permissions for Trent Jaeger's
-IPSEC work, as you can see in our sourceforge CVS tree.
-
-> What confused me here is that: MUST we also copy the
-> headers to libselinux/include/selinux directory, and
-> regenerate a new libselinux.so for the new class and
-> its permissions? can we ignore this step?
-
-It isn't required unless some application needs to reference the new
-class, but we do update them when we merge new classes into our tree to
-keep them in sync.  In the long term, it is expected that there will be
-a separate mechanism for userspace object managers to dynamically
-register security classes and permissions for their own use, e.g. see
-the SELinux Policy Server project by Tresys.
+No, it shouldn't be an issue.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
