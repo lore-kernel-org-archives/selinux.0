@@ -1,51 +1,47 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4N8CsI4026026
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 04:12:54 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4NBRZI4026531
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 07:27:35 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4N8CTuO028389
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 08:12:29 GMT
-Received: from venere.mat.uniroma1.it ([151.100.50.3])
-	by jazzswing.ncsc.mil  with ESMTP id h4N8CSlV028373
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 08:12:29 GMT
-Message-ID: <3ECDD727.7030905@yahoo.it>
-Date: Fri, 23 May 2003 10:09:11 +0200
-From: Giorgio Zanin <selinux_list@yahoo.it>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+	by jazzswing.ncsc.mil  with ESMTP id h4NBRAuO004085
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 11:27:10 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h4NBR9lV004082
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 11:27:09 GMT
 Subject: Re: about security contexts for objects
-References: <3ECCDA52.5010802@yahoo.it>	 <200305230235.50512.russell@coker.com.au> <1053631371.1032.43.camel@moss-huskers.epoch.ncsc.mil>
-In-Reply-To: <1053631371.1032.43.camel@moss-huskers.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Giorgio Zanin <selinux_list@yahoo.it>
+Cc: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+In-Reply-To: <3ECDD727.7030905@yahoo.it>
+References: <3ECCDA52.5010802@yahoo.it>
+	 <200305230235.50512.russell@coker.com.au>
+	 <1053631371.1032.43.camel@moss-huskers.epoch.ncsc.mil>
+	 <3ECDD727.7030905@yahoo.it>
+Content-Type: text/plain
+Message-Id: <1053689210.1082.1.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 23 May 2003 07:26:50 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+On Fri, 2003-05-23 at 04:09, Giorgio Zanin wrote:
+> Stephen Smalley wrote:
+> >>Not all of them.  The file_type attribute is limited to files associated
+> >>with conventional (disk-based) filesystems and is used in allow rules
+> >>permitting the association of such types with those filesystems.  It
+> >>doesn't cover types associated with pseudo filesystems.
+> >>
+> what are exactly all the kinds of pseudo files? Do they cover every  
+> object class  other than  file-related ones (file, filesystem, dir, 
+> fifo_file, ...) and process?
 
->>Look at the policy for all types that have the attribute file_type, that 
->>should catch all of them.
->>
+No.  Pseudo files (e.g. /proc entries, devpts entries) have one of the
+file classes.  So your approach of checking all allow rules that involve
+a file class will capture these kinds of files as well as conventional
+files, unlike the file_type attribute.
 
-Actually file_type, as it is just an attribute with no semantics with 
-respect to the configuration language, is not the thing I would look at.
-I mean, attributes are just names associated with types with no 
-semantics from a language point of view. What I need is something with 
-semantics in the configuration language context.
-I wouldn't use attributes values fot infering any property of a 
-configuration, becouse I can think at an attribute just as a collection 
-of types (attributes are useful but they are not necessary).
-
->>Not all of them.  The file_type attribute is limited to files associated
->>with conventional (disk-based) filesystems and is used in allow rules
->>permitting the association of such types with those filesystems.  It
->>doesn't cover types associated with pseudo filesystems.
->>
-what are exactly all the kinds of pseudo files? Do they cover every  
-object class  other than  file-related ones (file, filesystem, dir, 
-fifo_file, ...) and process?
-
-Giorgio
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
