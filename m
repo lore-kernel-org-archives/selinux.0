@@ -1,150 +1,111 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4P94IRb016366
-	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 05:04:18 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4P976Rb016392
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 05:07:06 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4P91mar025481
-	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 09:01:48 GMT
-Received: from mailrelay2.lrz-muenchen.de (mailrelay2.lrz-muenchen.de [129.187.254.102])
-	by jazzswing.ncsc.mil  with ESMTP id i4P91lQu025478
-	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 09:01:47 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.99.1] [192.168.99.1]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 25 May 2004 11:04:13 +0200
-Date: Tue, 25 May 2004 11:03:58 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: [patch] policy for nrpe
-Message-Id: <20040525090358.GA3379@jmh.mhn.de>
-References: <20040523214406.GB6147@jmh.mhn.de> <200405251248.23006.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id i4P94aar025588
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 09:04:36 GMT
+Received: from smtp800.mail.ukl.yahoo.com (smtp800.mail.ukl.yahoo.com [217.12.12.142])
+	by jazzswing.ncsc.mil  with SMTP id i4P94ZQu025585
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 09:04:35 GMT
+Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
+  by smtp800.mail.ukl.yahoo.com with SMTP; 25 May 2004 09:06:52 -0000
+Received: from highfield ([192.168.0.223]:32778 helo=lkcl.net)
+	by lkcl.net with esmtp (Exim 4.34 #1)
+	id 1BSXFD-00069f-Ls
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 08:25:07 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BSXqq-00012C-MC
+	for selinux@tycho.nsa.gov; Tue, 25 May 2004 09:04:00 +0000
+Date: Tue, 25 May 2004 09:04:00 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: merging of SuSE stuff into sf.net cvs
+Message-ID: <20040525090400.GD3264@lkcl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
-In-Reply-To: <200405251248.23006.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+hiya russell/steve et al,
 
---5/uDoXvLw7AC5HRs
-Content-Type: multipart/mixed; boundary="k+w/mQv8wyuph6w0"
-Content-Disposition: inline
+when that nice suse man sent those patches i applied them from
+his original message, now i do a cvs update i find they're already
+incorporated...
 
+except for these, and i noticed that you commented about not doing
+/tmp stuff already but the ifdef unconfined one appears to have
+been missed and i thought i should mention it.  l.
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+also the mkdir ROOTDIR i added because on a first install that directory
+doesn't exist (!)
 
-* Russell Coker <russell@coker.com.au> [2004-05-25 06:37]:
-> On Mon, 24 May 2004 07:44, Thomas Bleher <bleher@informatik.uni-muenchen.=
-de>=20
-> wrote:
-> > The attached patch adds policy support for nrpe.
-> > (nrpe stands for Nagios Remote Plugin Execution and is a client called
-> > from inetd which performs checks on a client on behalf of a Nagios
-> > server)
->=20
-> I have made a couple of changes.  I have labeled the port as inetd_port_t=
-,=20
-> there seems to be no benefit in having a different type as only inetd is =
-used=20
-> for binding to the port.  I have added support for running directly from=
-=20
-> inetd without tcpd (my personal preference for such things is to run nagi=
-os=20
-> on the internal network and use netfilter to control access).
+l.
 
-This looks good to me. I have attached the modified patch.
-
-Thanks,
-Thomas
-
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="nrpe.patch"
-
-diff -urN orig/domains/program/nrpe.te mod/domains/program/nrpe.te
---- orig/domains/program/nrpe.te	1970-01-01 01:00:00.000000000 +0100
-+++ mod/domains/program/nrpe.te	2004-05-25 10:59:25.558086504 +0200
-@@ -0,0 +1,38 @@
-+# DESC nrpe - Nagios Remote Plugin Execution
-+#
-+# Author: Thomas Bleher <ThomasBleher@gmx.de>
-+#
-+# X-Debian-Packages: nagios-nrpe-server
-+#
-+# This policy assumes that nrpe is called from inetd
-+
-+daemon_base_domain(nrpe)
-+ifdef(`tcpd.te', `
-+domain_auto_trans(tcpd_t, nrpe_exec_t, nrpe_t)
+Index: Makefile
+===================================================================
+RCS file: /cvsroot/selinux/nsa/selinux-usr/policy/Makefile,v
+retrieving revision 1.25
+diff -u -u -r1.25 Makefile
+--- Makefile	11 May 2004 17:55:37 -0000	1.25
++++ Makefile	25 May 2004 08:23:35 -0000
+@@ -68,6 +70,7 @@
+ 	install -m 644 $< $@
+ 
+ $(ROOTDIR)/.default_contexts: appconfig/root_default_contexts
++	mkdir -p $(ROOTDIR)
+ 	install -m 644 $< $@
+ 
+ 
+Index: domains/program/unused/inetd.te
+===================================================================
+RCS file: /cvsroot/selinux/nsa/selinux-usr/policy/domains/program/unused/inetd.te,v
+retrieving revision 1.6
+diff -u -u -r1.6 inetd.te
+--- domains/program/unused/inetd.te	4 May 2004 19:35:53 -0000	1.6
++++ domains/program/unused/inetd.te	25 May 2004 08:23:36 -0000
+@@ -118,7 +118,9 @@
+ dontaudit inetd_child_t krb5_conf_t:file write;
+ allow inetd_child_t urandom_device_t:chr_file { getattr read };
+ 
++ifdef(`unconfined.te', `
+ domain_auto_trans(inetd_t, unconfined_exec_t, unconfined_t)
 +')
-+domain_auto_trans(inetd_t, nrpe_exec_t, nrpe_t)
-+
-+allow nrpe_t urandom_device_t:chr_file { getattr ioctl read };
-+
-+allow nrpe_t self:fifo_file rw_file_perms;
-+# use sockets inherited from inetd
-+allow nrpe_t inetd_t:tcp_socket { ioctl read write };
-+allow nrpe_t devtty_t:chr_file { read write };
-+
-+allow nrpe_t self:process setpgid;
-+
-+etc_domain(nrpe)
-+
-+# permissions for the scripts executed by nrpe
-+#
-+# call shell programs
-+can_exec(nrpe_t, { bin_t shell_exec_t ls_exec_t })
-+allow nrpe_t { bin_t sbin_t }:dir search;
-+# for /bin/sh
-+allow nrpe_t bin_t:lnk_file read;
-+
-+# read /proc/meminfo, /proc/self/mounts and /etc/mtab
-+allow nrpe_t { self proc_t etc_runtime_t }:file { getattr read };
-+
-+# you will have to add more permissions here, depending on the scripts you call!
-+
-diff -urN orig/file_contexts/program/nrpe.fc mod/file_contexts/program/nrpe.fc
---- orig/file_contexts/program/nrpe.fc	1970-01-01 01:00:00.000000000 +0100
-+++ mod/file_contexts/program/nrpe.fc	2004-05-25 10:59:34.238766840 +0200
-@@ -0,0 +1,6 @@
-+# nrpe
-+/usr/bin/nrpe		--	system_u:object_r:nrpe_exec_t
-+/etc/nagios/nrpe.cfg	--	system_u:object_r:nrpe_etc_t
-+/usr/lib/netsaint/plugins(/.*)?	--	system_u:object_r:bin_t
-+/usr/lib/nagios/plugins(/.*)?	--	system_u:object_r:bin_t
-+
-diff -urN orig/net_contexts mod/net_contexts
---- orig/net_contexts	2004-05-25 10:58:52.402126976 +0200
-+++ mod/net_contexts	2004-05-25 10:43:06.000000000 +0200
-@@ -142,6 +142,7 @@
- portcon tcp 5269 system_u:object_r:jabber_interserver_port_t
- ')
- ifdef(`postgresql.te', `portcon tcp 5432 system_u:object_r:postgresql_port_t')
-+ifdef(`nrpe.te', `portcon tcp 5666 system_u:object_r:inetd_port_t')
- ifdef(`use_x_ports', `
- portcon tcp 6000  system_u:object_r:xserver_port_t
- portcon tcp 6001  system_u:object_r:xserver_port_t
+ 
+ ifdef(`unlimitedServices', `
+ unconfined_domain(inetd_t) 
+Index: file_contexts/program/screen.fc
+===================================================================
+RCS file: /cvsroot/selinux/nsa/selinux-usr/policy/file_contexts/program/screen.fc,v
+retrieving revision 1.4
+diff -u -u -r1.4 screen.fc
+--- file_contexts/program/screen.fc	21 May 2004 20:12:22 -0000	1.4
++++ file_contexts/program/screen.fc	25 May 2004 08:23:36 -0000
+@@ -3,7 +3,14 @@
+ HOME_DIR/\.screenrc	--	system_u:object_r:ROLE_home_screen_t
+ /var/run/screen/S-[^/]+	-d	system_u:object_r:screen_dir_t
+ /var/run/screen/S-[^/]+/.*	<<none>>
++<<<<<<< screen.fc
++# SuSE puts this under /tmp ...
++/tmp/uscreens		-d	system_u:object_r:var_run_t
++/tmp/uscreens/S-[^/]+	-d	system_u:object_r:screen_dir_t
++/tmp/uscreens/S-[^/]+/.*	<<none>>
++=======
+ # SuSE puts this under /tmp ...
+ #/tmp/uscreens		-d	system_u:object_r:var_run_t
+ #/tmp/uscreens/S-[^/]+	-d	system_u:object_r:screen_dir_t
+ #/tmp/uscreens/S-[^/]+/.*	<<none>>
++>>>>>>> 1.4
+-- 
+-- 
+expecting email to be received and understood is a bit like
+picking up the telephone and immediately dialing without
+checking for a dial-tone; speaking immediately without listening
+for either an answer or ring-tone; hanging up immediately and
+believing that you have actually started a conversation.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
---k+w/mQv8wyuph6w0--
-
---5/uDoXvLw7AC5HRs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAswv+xWIrrrL0q+cRAu96AJ0ZPk2Ha1b/GAS6IqzO50w01TrIrwCfbNq/
-rttjKM7gjmaCYIY+i9VHIhw=
-=5FbK
------END PGP SIGNATURE-----
-
---5/uDoXvLw7AC5HRs--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
