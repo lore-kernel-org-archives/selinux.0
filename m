@@ -1,66 +1,57 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5IJVJrT019588
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 15:31:19 -0400 (EDT)
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5IK9crT019878
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 16:09:38 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5IK9Spw015256
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 20:09:28 GMT
+Subject: Re: Fedora Core 2 setools RPM
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Joshua D. Guttman disp: slinux" <guttman@mitre.org>
 Cc: "John D. Ramsdell" <ramsdell@mitre.org>,
    Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
-   Amy L Herzog <aherzog@mitre.org>, guttman@mitre.org (Joshua D. Guttman)
-Subject: Re: Fedora Core 2 setools RPM
-Reply-To: guttman@mitre.org (Joshua D. Guttman disp: slinux)
+   Amy L Herzog <aherzog@mitre.org>
+In-Reply-To: <nhabrjg3bpe.fsf@malabar.mitre.org>
 References: <200406171847.i5HIlPSf000906@gotham.columbia.tresys.com>
-	<ogtpt7x10ni.fsf@mitre.org>
-	<1087567982.27697.47.camel@moss-spartans.epoch.ncsc.mil>
-	<nhak6y43hgj.fsf@malabar.mitre.org>
-	<1087581080.27697.132.camel@moss-spartans.epoch.ncsc.mil>
-	<nhafz8s3f2y.fsf@malabar.mitre.org>
-	<1087584215.27697.173.camel@moss-spartans.epoch.ncsc.mil>
-From: guttman@mitre.org (Joshua D. Guttman)
-Date: 18 Jun 2004 15:31:09 -0400
-In-Reply-To: <1087584215.27697.173.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <nhabrjg3bpe.fsf@malabar.mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	 <ogtpt7x10ni.fsf@mitre.org>
+	 <1087567982.27697.47.camel@moss-spartans.epoch.ncsc.mil>
+	 <nhak6y43hgj.fsf@malabar.mitre.org>
+	 <1087581080.27697.132.camel@moss-spartans.epoch.ncsc.mil>
+	 <nhafz8s3f2y.fsf@malabar.mitre.org>
+	 <1087584215.27697.173.camel@moss-spartans.epoch.ncsc.mil>
+	 <nhabrjg3bpe.fsf@malabar.mitre.org>
+Content-Type: text/plain
+Message-Id: <1087589345.27697.195.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 18 Jun 2004 16:09:05 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Steve --
+On Fri, 2004-06-18 at 15:31, Joshua D. Guttman wrote:
+> So in some sense the bottom line is that you think the type relations
+> give the essential core of the policy info, and to a first
+> approximation one can focus on that.
 
-So in some sense the bottom line is that you think the type relations
-give the essential core of the policy info, and to a first
-approximation one can focus on that.
+I'd put it a bit more strongly, but close enough.
 
-Of course, it's still desirable to have access to the supplementary
-information (and an idea how to interpret it) so that the further
-refinement will eventually work out.  
+> Of course, it's still desirable to have access to the supplementary
+> information (and an idea how to interpret it) so that the further
+> refinement will eventually work out.  
 
-A different point is that the main value added of slat is much more
-expressive security goals (even when restricted to the types info).
-You're not just talking about accessibility of a type to information
-flow from another, but also whether all the possible flows go through
-a desired gate type.  And the key fact you mentioned at the end of
-your last message
+Fair.
 
-Stephen Smalley <sds@epoch.ncsc.mil> writes:
+> A different point is that the main value added of slat is much more
+> expressive security goals (even when restricted to the types info).
+> You're not just talking about accessibility of a type to information
+> flow from another, but also whether all the possible flows go through
+> a desired gate type.  And the key fact you mentioned at the end of
+> your last message
 
->   But from an information flow perspective, you simply want to prove
->   that user_t can only reach sysadm_t through specific gate domains
->   like newrole_t.
-
-is of this form:  It's apparently not expressible as a simple
-information flow accessibility assertion.
-
-Cheers --
-
-        Joshua 
-
-
+I may be wrong, but I think that you can determine this information via
+libapol as well.
 
 -- 
-	Joshua D. Guttman		<guttman@mitre.org>
-	MITRE, Mail Stop S119		Office:	+1 781 271 2654
-	202 Burlington Rd.		Fax:	+1 781 271 8953
-	Bedford, MA 01730-1420 USA	Cell:	+1 781 526 5713
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
