@@ -1,87 +1,59 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA03200
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2001 04:21:17 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id JAA21922
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2001 09:20:40 GMT
-Received: from rhenium (rhenium.btinternet.com [194.73.73.93])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id JAA21918
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2001 09:20:39 GMT
-Received: from [213.1.153.114] (helo=security1)
-	by rhenium with smtp (Exim 3.03 #83)
-	id 14ISIj-0004mM-00
-	for selinux@tycho.nsa.gov; Tue, 16 Jan 2001 09:21:14 +0000
-Reply-To: <mpemble@isintegration.com>
-From: "Matthew Pemble" <mpemble@isintegration.com>
-To: <selinux@tycho.nsa.gov>
-Subject: RE: Goal / Danger: Attack by malicious root
-Date: Tue, 16 Jan 2001 09:22:45 -0000
-Message-ID: <004801c07f9d$e2d86780$0a02a8c0@pemble.net>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA03727
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2001 07:54:07 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id MAA16809
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2001 12:52:36 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
+	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id MAA16805
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2001 12:52:35 GMT
+Date: Tue, 16 Jan 2001 07:53:14 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Jan Petranek <jan@petranek.de>
+cc: selinux@tycho.nsa.gov
+Subject: Re: Goal / Danger: Attack by malicious root 
+In-Reply-To: <01011516091701.13938@linux16>
+Message-ID: <Pine.SOL.3.95.1010116073832.3967B-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <Pine.LNX.4.21.0101151453430.18627-100000@mail.thesportsregister.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Consider, for a moment, the irony here. 
+On Mon, 15 Jan 2001, Jan Petranek wrote:
 
-For the record, the "boot from your own device" solution, I agree
-with, as the only way of establishing trust in your OS (although
-keystroke loggers that don't use OS functions, video capture devices
-etc in tampered hardware can still get you).
+> did You consider the possibility of an malicious root attacks? In most
+> Linuxdistributions, the priviliged user can read & manipulate all of the user's
+> data. 
 
-Take a step back - we are assuming an attacker, whether a legitimate
-holder of super-user privileges whom you do not want to have access
-to your data or protection against an "Evil Minded Toad" who has
-stolen root.  In the former case, limiting the privileges of the root
-user through MAC is good protection (assuming you can generate or
-request your own MAC labels and root is not the MAC privilege
-assigner.)  In the latter case, if the lab environment allows you to
-boot a CD, they don't need to "hack", they can craft a malicious
-version of the OS and boot that.
+In SELinux, the root user has no special privileges with respect to the
+mandatory access controls.  Neither the Unix superuser identity nor the
+Linux capabilities override the mandatory access controls.  Hence,
+a root process can be confined like any other process.  Furthermore,
+in contrast to typical multi-level secure systems, there are no
+"trusted subjects" in SELinux that are authorized to violate the
+mandatory access control policy.  As I explained in the thread about
+how SELinux compares with the Linux-Privs project, there is no
+need for a mechanism to override the SELinux mandatory access
+controls because the security policy can be configured as
+needed to support fine-grained privileges for processes wtith
+respect to the mandatory controls.
 
-You, a specialist user who reads a security mailing list may be safe,
-but the vast majority of users will be at greater risk than if
-booting from a CD was prevented.  Who are we trying to protect?  Us
-or the normal user - consider, when your boss is writing your annual
-report, will (s)he take these precautions.  Mine won't.
+System processes and setuid programs can be placed into very
+fine-grained protection domains in SELinux that are granted
+only those privileges that they truly require.  The example
+security policy configuration provides a number of examples
+of how to do this for various system daemons and programs.
+The example security policy configuration also shows how to
+ensure that the legitimate administrator domain can be protected
+from various threats, including the threat of executing
+untrustworthy code.
 
-Matthew Pemble, Principal Consultant, IS Integration,
-Preston Technology Management Centre, Marsh Lane, PRESTON,
-Lancashire, PR1 8UD
+--
+Stephen D. Smalley, NAI Labs
+sds@tislabs.com
 
-Tel: +44 (0)1324 820690  Fax: +44 (0)1324 826034
 
-Head Office: 
-Tel: +44 (0)1772 885850  Fax: +44 (0)1772 558881
-Mobile: +44 (0)7050 128620
-Mailto:mpemble@isintegration.com  Web: http://www.isintegration.com
-
-This email and any files transmitted with it are confidential and
-intended
-solely for the use of the individual or entity to whom they are
-addressed.
-If you have received this email in error please notify your system
-manager
-or IS Integration Limited on +44 (0) 1772 885850
-
-Any Views expressed in this e-mail message are those of the
-individual
-sending the message, except where the sender specifically states them
-to be
-the views of IS Integration Limited. 
-
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 6.5.8 for non-commercial use <http://www.pgp.com>
-
-iQA/AwUBOmQOhGrvMjpl5yaUEQLQwQCgjiquMMxqV4j54RiMZF0kptVtl2sAoOQm
-NmCkT9tsDvLjwn6OyNGlMAlF
-=/MHf
------END PGP SIGNATURE-----
 
 
 --
