@@ -9,30 +9,20 @@ References: <1110692016.29852.77.camel@cobra.ivg2.net>
 	 <1110820329.16850.8.camel@cobra.ivg2.net>
 	 <1110820795.21378.141.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 14 Mar 2005 13:13:39 -0500
-Message-Id: <1110824019.16850.19.camel@cobra.ivg2.net>
+Date: Mon, 14 Mar 2005 13:19:59 -0500
+Message-Id: <1110824399.16850.21.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ok, how about this instead - seems more useful
-
-1) Renamed: user_trans -> allow_trans
-2) Added role as a separate argument for flexibility
 3) Remove boolean macro - declare boolean in the app .te file
 
-#####################################################
-#
-# allow_trans(prefix, role_prefix, app_prefix)
-#
-# Transition user:$2_r:$1_t to user:$2_r:$1_$3_t
-#
-define(`allow_trans', `
-role $2_r types $1_$3_t;
-if (! disable_$1_$3_transition) {
-domain_auto_trans($1_t, $3_exec_t, $1_$3_t)
-}
-')
+Well, declaring the boolean in the .te file doesn't work because of duplicates..
+So, I'll make a macro called user_boolean that just declares that boolean
+conditional on the if statement.
+
+Anyway, what is the purpose of those booleans? Why do we not want to transition
+to the target domain?
 
 -- 
 Ivan Gyurdiev <ivg2@cornell.edu>
