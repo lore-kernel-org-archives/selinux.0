@@ -1,68 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAK3tlRb021800
-	for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2003 22:55:47 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAK3tkqY010509
-	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 03:55:46 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hAK3tg0o010505 for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 03:55:43 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "samwun" <samwun@hgcbroadband.com>, "'SELinux ML'" <selinux@tycho.nsa.gov>
-Subject: Re: where to download LSM-patched 2.4
-Date: Thu, 20 Nov 2003 14:55:29 +1100
-References: <029a01c3af19$4d549d60$5801a8c0@samgpj2wzuimme>
-In-Reply-To: <029a01c3af19$4d549d60$5801a8c0@samgpj2wzuimme>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311201455.29570.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAKA4PRb022736
+	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 05:04:25 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hAKA3rp5011254
+	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 10:03:53 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id hAKA3qt0011251
+	for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2003 10:03:53 GMT
+Date: Thu, 20 Nov 2003 10:04:09 +0000
+From: Dale Amon <amon@vnl.com>
+To: Bill Laut <wlsel@verizon.net>
+Cc: russell@coker.com.au, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: calling Bill Laut
+Message-ID: <20031120100409.GD32764@vnl.com>
+References: <200311200308.38077.russell@coker.com.au> <200311192217.34777.wlsel@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200311192217.34777.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 20 Nov 2003 14:49, "samwun" <samwun@hgcbroadband.com> wrote:
-> I found that command "make install" failed in selinux 2.6 kernel source:
->
-> # make install
-> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   CHK     include/linux/compile.h
-> Kernel: arch/i386/boot/bzImage is ready
-> sh /usr/local/linux-2.6/arch/i386/boot/install.sh 2.6.0-test6-selinux1
-> arch/i386/boot/bzImage System.map ""
-> No module advansys found for kernel 2.6.0-test6-selinux1
+On Wed, Nov 19, 2003 at 10:17:34PM -0500, Bill Laut wrote:
+> Unfortunately, my involvement in SE-X was frustratingly, temporarily 
+> side-lined for a number of weeks because of other obligations.  I *will* be 
+> back at it with a vengeance after our Thanksgiving holiday, with the goal of 
+> having an experimental prototype available sometime in December.
 
-This is a problem with the kernel build proceedure not with SE Linux as such.  
-Generally you want to follow the usual proceedures for building a kernel 
-package for your OS but have the SE Linux options enabled.  This has been 
-tested to work with both Debian and Red Hat kernel images.
-
-I suggest that as a first step you build a kernel without SE Linux.  Once you 
-get that working you can then move on to getting SE Linux working.  The 
-changes from 2.4.20 to 2.6.0 are immense and you can expect your first 
-attempt to not be successful regardles of SE Linux.
-
-Probably the best thing to do is to ask for help at your local Linux Users 
-Group.
-
-> image=/boot/vmlinuz-2.6.0-test6-selinux1
->         label=selinux2.6
->         initrd=/boot/initrd-2.4.20-8.img
-
-That would not work because a 2.6.0 kernel can not load modules from a 2.4.20 
-kernel.  You have to create an initrd for 2.6.0-test6 or build a kernel that 
-does not need an initrd.
-
-Recently I have ceased using initrd's on my machines.  The range of hardware 
-that I own is not large enough to justify an initrd so I just compile in 
-every driver that may be needed for booting any of my machines.  It makes 
-things a lot easier to manage.
+Hmmm... S-EX for Christmas then? ;-)
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
