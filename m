@@ -1,53 +1,33 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA79WISf022266
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2003 04:32:18 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hA79WHKl007017
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2003 09:32:17 GMT
-Received: from zurdle.zonnet.net (zurdle.zonnet.net [62.58.50.80])
-        by jazzband.ncsc.mil  with ESMTP id hA79WG5m007013 for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2003 09:32:17 GMT
-Received: from rosso.dwerryhouse.com.au (localhost [127.0.0.1])
-	by zurdle.zonnet.net (Postfix) with ESMTP id 2320A16629
-	for <selinux@tycho.nsa.gov>; Fri,  7 Nov 2003 10:32:10 +0100 (CET)
-Date: Fri, 7 Nov 2003 10:32:10 +0100
-From: Paul Dwerryhouse <paul@dwerryhouse.com.au>
-To: selinux@tycho.nsa.gov
-Subject: SELinux kernel RPMs for SuSE.
-Message-ID: <20031107093210.GA1052@localhost>
+Date: Fri, 7 Nov 2003 13:15:19 +0000
+From: Dale Amon <amon@vnl.com>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: Setools 1.0.1 released
+Message-ID: <20031107131519.GF22435@vnl.com>
+References: <1067890582.1269.32.camel@colossus.columbia.tresys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1067890582.1269.32.camel@colossus.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, Nov 03, 2003 at 03:16:22PM -0500, Karl MacMillan wrote:
+> We have just released version 1.0.1 of setools. This is a minor update
 
-Hi all,
+Karl, I've not used your tools yet because I'm only
+working with selinux on servers and firewalls with 
+minimal package sets, ie no X. 
 
-In September, I built a bunch of SELinux userspace RPMs for SuSE Linux
-8.2. I have now ported the 2.4 backport of the 'new' SELinux code to Hubert
-Mantel's SuSE default kernel 2.4.21-121, and subsequently have built an
-RPM of the kernel itself.
-
-I've cheated in a couple of places: the Mantel release had a patch for a
-variable HZ value, but I hardcoded it to 100 because I didn't know how
-to work around a patch conflict it caused; also I really doubt the
-sonypi code will work now because of a kludge I used to make it compile.
-
-The patch, kernel binary and patched kernel sources can all be
-downloaded from here:
-
-http://leapster.org/linux/selinux/suse/
-
-I have not thoroughly tested this patch. The new kernel boots fine on my
-machine and it hasn't crashed and burned (yet), but I do _not_ recommend
-anyone try it on production machines.
-
-Cheers,
-
-Paul
+Do your tools allow study of policy files on the
+non-selinux build system? Or are there command line
+tools useable directly on the target system?
 
 -- 
-Paul Dwerryhouse						| PGP Key ID: 
-Amsterdam, The Netherlands (X) <-> Melbourne, Australia ( )	| 0x6B91B584
+------------------------------------------------------
+       IN MY NAME:            Dale Amon, CEO/MD
+  No Mushroom clouds over     Islandone Society
+    London and New York.      www.islandone.org
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
