@@ -3,51 +3,38 @@ Content-Type: text/plain;
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: New SuSE rules -- opt file type
-Date: Fri, 2 Aug 2002 13:33:56 +0200
-References: <200208010657.GAA28694@jazzband.ncsc.mil> <20020801195618.D8D9D76C7@lyta.coker.com.au> <20020802112058.6D33EFA93@ivanova.coker.com.au>
-In-Reply-To: <20020802112058.6D33EFA93@ivanova.coker.com.au>
+Subject: Re: system_r and apm_t
+Date: Fri, 2 Aug 2002 13:37:27 +0200
+References: <200208020910.JAA06405@jazzband.ncsc.mil> <20020802095109.3403F7FB9@lyta.coker.com.au> <20020802105144.A01F0FA93@ivanova.coker.com.au>
+In-Reply-To: <20020802105144.A01F0FA93@ivanova.coker.com.au>
 MIME-Version: 1.0
-Message-Id: <20020802113357.98388181@lyta.coker.com.au>
+Message-Id: <20020802113727.99614181@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2 Aug 2002 13:20, Carsten Grohmann wrote:
-> Am Donnerstag, 1. August 2002 21:56 schrieb Russell Coker:
-> > > > > # Access to file_t (/opt)
-> > > > > allow ldconfig_t file_t:dir { getattr read search };
-> > > > > allow ldconfig_t file_t:{ file lnk_file } { getattr read };
-> > > >
-> > > > You should never grant anything access to file_t.  The existance of
-> > > > file_t labelled objects indicates a deficiency in yout file_contexts.
-> > >
-> > > The NSA distribution have not a type for /opt. Next days I will send a
-> > > patch to correct this.
-> >
-> > I suggest making opt root_t as it's likely to be the root of a different
-> > file system (and it's not something you'll restrict access to unless
-> > you're restricting access to the root directory).  Then have rules
-> > labelling /opt/.*/bin(|/.*) bin_t, etc.
->
-> Why root_t?
+On Fri, 2 Aug 2002 12:49, Carsten Grohmann wrote:
+> This time I write rules to adapt SuSE on the original SELinux rules. I
+> don't want rewrite SuSE to become it more secure.
 
-In what way is my explanation in the preceeding paragraph unclear?
+You will probably discover that it's impossible to do that without 
+compromising security in some ways.
 
-> The standard policy labled follow directories as file_t:
-> opt, swap, mnt and some links.
+> In this case I need for a cronjob access to apm_t via domain_auto_trans.
 
-What is "swap" directory?
+Cronjob as sysadm_crond_t I guess?
 
-Nothing should have type file_t on a properly configured system.  Any 
-existance of file_t indicates inadequacies in the file_contexts.
+So:
+domain_auto_trans(sysadm_crond_t, apm_exec_t, apm_t)
 
-> This entries should be not labelling in the same type. If several file
-> system entries have the same security context, I need only grand access to
-> one directory and all other can also access. That's why I think we should
-> use different types.
+Let me know how it goes, I'll add it to my policy if it works.
 
-In what situation might you want to grant access to / but not /opt?
-In what situation might you want to grant access to /opt but not /?
+> Your policy and the nsa policy are different. Do you merge you policy to
+> the nsa policy periodical?
+
+Periodically Steven Smalley examines my tree and copies things that he 
+considers worthy.  Also when I make a change that I think it particularly 
+useful or interesting (or something that breaks some degree of compatability) 
+then I post to the list, and Steve often makes a matching change to his tree.
 
 -- 
 I do not get viruses because I do not use MS software.
