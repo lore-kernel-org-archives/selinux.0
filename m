@@ -1,27 +1,40 @@
-Date: Tue, 13 Apr 2004 10:53:38 -0700
-From: Tom Mitchell <mitch48@sbcglobal.net>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Now that SELinux supports booleans should we replace tunables with booleans?
-Message-ID: <20040413175338.GA713@xtl1.xtl.tenegg.com>
-References: <407BF24E.90901@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <407BF24E.90901@redhat.com>
+From: "Ed Street" <edstreet@street-tek.com>
+To: <russell@coker.com.au>
+Cc: "'SELinux'" <SELinux@tycho.nsa.gov>
+Subject: RE: courier mods for Debian
+Date: Tue, 13 Apr 2004 17:25:43 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+In-Reply-To: <200404132128.15421.russell@coker.com.au>
+Message-Id: <20040413212543.F095B3A404F@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Apr 13, 2004 at 09:59:42AM -0400, Daniel J Walsh wrote:
+Hello,
 
-> Ideas?
+For run_init /etc/init.d/courier-imap I had to add the following to get it
+to start.
 
-The fewer decisions the kernel needs to make the better.  i.e. The
-more decisions and analysis that can be make in advance of loading
-policy the better.
+allow initrc_t initrc_t:process { setrlimit };
+
+ 
+Also it looks like allow httpd_t var_run_t:sock_file { write }; is needed
+for this.
+
+avc:  denied  { write } for  pid=27683 exe=/usr/sbin/apache-ssl
+name=gcache_port dev=hda3 ino=2539533 scontext=system_u:system_r:httpd_t
+tcontext=system_u:object_r:var_run_t tclass=sock_file
+
+Ed
 
 
--- 
-	T o m  M i t c h e l l 
-	/dev/null the ultimate in secure storage.
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.656 / Virus Database: 421 - Release Date: 4/9/2004
+ 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
