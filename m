@@ -1,65 +1,70 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA28648
-	for <selinux@tycho.nsa.gov>; Thu, 5 Sep 2002 09:37:18 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA22395
-	for <selinux@tycho.nsa.gov>; Thu, 5 Sep 2002 13:35:36 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id NAA22391 for <selinux@tycho.nsa.gov>; Thu, 5 Sep 2002 13:35:36 GMT
-Date: Thu, 5 Sep 2002 09:36:38 -0400 (EDT)
+Date: Thu, 5 Sep 2002 11:01:19 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>, <linux-security-module@wirex.com>
-Subject: Re: bug in SE Linux / LSM
-In-Reply-To: <200209051047.55917.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0209050912260.13061-100000@raven>
+To: Carsten Grohmann <carstengrohmann@gmx.de>
+cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: isdn and script problem
+In-Reply-To: <200209041823.SAA02819@jazzswing.ncsc.mil>
+Message-ID: <Pine.GSO.4.33.0209051042140.17915-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 5 Sep 2002, Russell Coker wrote:
+On Wed, 4 Sep 2002, Carsten Grohmann wrote:
 
-> In my tutorial yesterday a Robert Dorn <selinux@rddorn.net>
-> discovered a bug in the way SE Linux/LSM operates.
+> this time I write rules to use isdn with SELinux.
+> The rules for isdnlog and isdnctrl are additional.
 >
-> If you login to a virtual console as an unpriviledged user you can use
-> "loadkeys" to change the keyboard mapping for everything apart from the SAK
-> sequence.
->
-> But it would be better if we could just catch such remappings in SE policy, in
-> 99% of all machines there is no cause for the user to remap the keyboard.
+> I've follow 2 problems:
+> 1.
+>   I add entries for ippp to net_contexts and types/network.te. The entries
+>   based on the eth0-entries and the patch patch_ifippp0 contains this
+>   changes.
+>   I don't know how can I garant user_r, sysadm_r and system_r access to the
+>   network interfaces. I think follow rule is not the way to go
+>     allow netmsg_t netif_t:netif { tcp_recv udp_recv };
+>   This are the correspond log messages:
+>    Sep  4 15:13:09 max kernel: avc:  denied  { udp_recv } for
+>    saddr=192.76.144.66 source=17664 daddr=213.6.81.177 dest=244 netif=ippp0
+>    scontext=system_u:object_r:netmsg_t tcontext=system_u:object_r:netif_t
+>    tclass=netif
+>    Sep  4 15:13:09 max kernel: avc:  denied  { tcp_recv } for
+>    saddr=81.88.35.41 source=17664 daddr=213.6.81.177 dest=44 netif=ippp0
+>    scontext=system_u:object_r:netmsg_t tcontext=system_u:object_r:netif_t
+>    tclass=netif
 
-This issue is mentioned in the BUGS section of the loadkeys(1) man page,
-although it doesn't appear to be entirely accurate.  If I understand
-correctly, the relevant kernel code is the handling of the KDSKBENT ioctl
-in drivers/char/vt.c.  The base kernel code appears to permit the use of
-this ioctl as long as the process is the owner of the tty or the process
-has CAP_SYS_TTY_CONFIG (2.5) or the process is root (2.4, legacy
-superuser check).  The base kernel code further limits the ability to
-remap the SAK by requiring CAP_SYS_ADMIN.
+It looks like your changes to net_contexts haven't taken effect, since the
+above log messages are still showing netmsg_t and netif_t.  The SELinux
+kernel module only obtains the network interface SID and default message
+SID from the security server when the device is first
+initialized/accessed.  The SIDs are then cached in the network device's
+security structure as long as the device remains registered.  Try
+rebooting with the new policy.
 
-LSM hooks capable() and SELinux performs a parallel check for each
-capability check, but that doesn't affect the code path when no capability
-is checked (any non-SAK remapping by the owner or root in 2.4, any non-SAK
-remapping by the owner of the tty in 2.5).  LSM does provide a hook in
-sys_ioctl could be used to control this operation based on the file and
-command (but not the argument, as it is a userspace pointer in this case).
-At present, SELinux only implements specific permission checks for a small
-set of ioctls that are generic operations or ext[23]-specific.  All other
-ioctls merely cause a check of the generic 'ioctl' permission to the file.
+> 2.
+>   The ipppd runs at start and stop a shell script. This script runs in the
+>   ipppd_t domain and start different programms most with can_exec.
+> . Two of this route and ifconfig runs via daemon_auto_trans(ipppd_t,
+>    ..., ....) in his own domain.
+>   After this I recive this log entry:
+>   Sep  4 15:13:30 max kernel: avc:  denied  { read } for  pid=1991
+>   exe=/sbin/ifconfig path=/etc/ppp/pap-secrets dev=03:0a ino=102578
+>   scontext=system_u:system_r:ifconfig_t
+>   tcontext=system_u:object_r:pppd_secret_t tclass=file
+>   And I don't understand why needs ifconfig access to the ppp password
+>   files?
 
-We could implement an additional check for this particular ioctl in the
-SELinux ioctl hook function, either using an existing capability or
-defining a new permission for this purpose.  More generally, you would
-really want to perform an audit of all ioctls relevant to your kernel
-configuration.
+It probably doesn't need such access.  A possible cause for the log
+message is that ipppd failed to close an open descriptor to pap-secrets
+[or mark the descriptor as close-on-exec] before exec'ing ifconfig, so
+SELinux is checking access on the descriptor inheritance.  I'd suggest
+using a dontaudit rule to suppress the log message without allowing
+access.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
