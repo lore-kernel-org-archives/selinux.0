@@ -1,44 +1,50 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5BNE2rT007962
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 19:14:03 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5BNDvP2009622
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 19:13:57 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 11 Jun 2004 23:14:00 -0000
-Date: Fri, 11 Jun 2004 23:11:19 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: Ed Street <edstreet@street-tek.com>, "'SE-Linux'" <selinux@tycho.nsa.gov>
-Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Message-ID: <20040611231119.GL2861@lkcl.net>
-References: <20040610022221.7796D3A4063@abyss.simplyaquatics.com> <200406101510.31547.russell@coker.com.au> <20040610202134.GB2861@lkcl.net> <200406111046.51540.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5BNQOrT008014
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 19:26:27 -0400 (EDT)
+Received: from ms-smtp-01.rdc-kc.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5BNQJP2009875
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 19:26:19 -0400 (EDT)
+Received: from sasami.localdomain (CPE-24-31-241-155.kc.rr.com [24.31.241.155])
+	by ms-smtp-01.rdc-kc.rr.com (8.12.10/8.12.7) with ESMTP id i5BNQKBm027162
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 18:26:20 -0500 (CDT)
+Received: from yggdrasil.localdomain ([192.168.0.2])
+	by sasami.localdomain with esmtp (Exim 4.34)
+	id 1BYvPZ-000191-SN
+	for selinux@tycho.nsa.gov; Fri, 11 Jun 2004 18:26:13 -0500
+Received: from adric by yggdrasil.localdomain with local (Exim 4.34)
+	id 1BYvPZ-0002cV-P4
+	for selinux@tycho.nsa.gov; Fri, 11 Jun 2004 18:26:13 -0500
+Date: Fri, 11 Jun 2004 18:26:13 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: SELinux on Debian (Sid)
+Message-ID: <20040611232613.GA10019@yggdrasil.localdomain>
+References: <20040609144404.GJ5477@philips.com> <20040610120344.GM5477@philips.com> <20040610215418.GR2861@lkcl.net> <200406111413.40262.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406111046.51540.russell@coker.com.au>
+In-Reply-To: <200406111413.40262.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 11, 2004 at 10:46:51AM +1000, Russell Coker wrote:
-> On Fri, 11 Jun 2004 06:21, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > issue in version 1.1.7-5 by making the files not be copied to the chroot
-> > > if master.cf does not specify any services to be chrooted.
-> >
-> > ?ah - ah... do you know if he addressed the issue of the context of
-> > ?those files being copied over from /etc/ to /var/spool/postfix/etc
-> 
-> Of course not.  He just made the scripts not copy them if they are not needed.
+On Fri, Jun 11, 2004 at 02:13:40PM +1000, Russell Coker wrote:
+> 1.12-2 has been out for a while, and yesterday I uploaded 1.12-3 which fixes 
+> some issues discussed in this thread.
 
- ah!  great.
+Speaking of which, I'm trying to install this version (new install) on
+one of my Debian sid systems.  It gets through all of the interactive
+policy prompting OK, but then croaks with the following messages:
 
-> > ?as well, such that of course initrd_t then needs to have permission
-> > ?to rm etc_t and such?
-> 
-> There is no initrd_t, I presume you mean initrc_t.
- 
- *blink*.  yes.  i really must apologise for rushing that set of
- messages a couple of days ago.
+   /usr/bin/checkpolicy:  loading policy configuration from policy.conf
+   domains/user.te:42:ERROR 'unknown type user_xserver_tmp_t' at token ';' on line 21459:
+   #line 42
+   allow user_uml_t user_xserver_tmp_t:sock_file { write };
+   /usr/bin/checkpolicy:  error(s) encountered while parsing configuration
+   make: *** [/etc/security/selinux/policy.17] Error 1
 
+Any idea what I need to fix here?  I've tried to sort it out myself,
+but am still finding it somewhat difficult to follow...
+
+Thanx!
 
 --
 This message was distributed to subscribers of the selinux mailing list.
