@@ -1,36 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA06412
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 02:14:47 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id GAA23652
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 06:14:26 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA07231
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 07:37:52 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id LAA20974
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 11:36:29 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id GAA23648
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 06:14:25 GMT
+        by jazzband.ncsc.mil  with ESMTP id LAA20970 for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 11:36:27 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 2BB4292461
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 16:14:44 +1000 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 96F2D92461
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 21:37:48 +1000 (EST)
 Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id B75DC3F4
-	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 08:14:36 +0200 (CEST)
+	by lyta.coker.com.au (Postfix) with SMTP id 9045569D
+	for <selinux@tycho.nsa.gov>; Wed, 19 Jun 2002 13:37:40 +0200 (CEST)
 Content-Type: text/plain;
   charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: irc.openprojects.net
-Date: Wed, 19 Jun 2002 08:14:36 +0200
+Subject: new policy changes
+Date: Wed, 19 Jun 2002 13:37:40 +0200
 MIME-Version: 1.0
-Message-Id: <20020619061436.B75DC3F4@lyta.coker.com.au>
+Message-Id: <20020619113740.9045569D@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-= JOIN #selinux
-*** Now talking in #selinux
-332 #selinux The Russell Coker's Box Appreciation Society
-*** #selinux topic set by zx64 on Wed Jun 19 02:08:54 2002
+/dev/nvram (/dev/misc/nvram) needs a context, I've given it memory_device_t 
+for the moment.
 
-;)
+Some of the users on my play box discovered this and wrote some random data 
+to it.  They expressed the option that it won't complete it's next boot (I'm 
+now discussing the matter with the hardware vendor).
+
+I've changed /dev/console to be writable only by the admin domains not by 
+every_domain().
+
+This means of course that if you login at the console you have to do so as an 
+administrator, this is fair IMHO, there's no cause for regular users to login 
+at the console.
+
+
+
+When's the next version due?
+
+Is any progress being made to get devfs to maintain it's contexts?
 
 -- 
 I do not get viruses because I do not use MS software.
