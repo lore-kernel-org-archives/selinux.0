@@ -1,45 +1,60 @@
-Date: Mon, 16 Dec 2002 21:46:15 +0100
-From: Tom <tom@lemuria.org>
-To: Richard Mayo <rmayo@caci.com>
-Cc: SELinux@tycho.nsa.gov
+Message-Id: <200212162125.QAA00730@moss-shockers.ncsc.mil>
+Date: Mon, 16 Dec 2002 16:25:26 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
 Subject: Re: Domain transition
-Message-ID: <20021216214614.A32716@lemuria.org>
-References: <OF0E5EECFE.7EB8F6E6-ON85256C91.006E1E8E@caci.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <OF0E5EECFE.7EB8F6E6-ON85256C91.006E1E8E@caci.com>; from rmayo@caci.com on Mon, Dec 16, 2002 at 03:09:59PM -0500
+To: SELinux@tycho.nsa.gov, rmayo@caci.com
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Dec 16, 2002 at 03:09:59PM -0500, Richard Mayo wrote:
+
 > 1)    What is "domain transition"?  I've configured my system such that it
 > doesn't happen, but I'm wondering if it's the best way to go.
 
-It's not. Domain transitions are necessary. It's something like the
-SELinux equivalent of setuid. For example, when init starts apache, you
-definitely do want the initrc domain to change into the apache domain.
+Read the Configuring the SELinux Policy report, available in the
+distribution (selinux/doc/policy) or from the NSA SELinux web site.
+You might also want to read a background paper on Type Enforcement (TE).
 
+A domain is a security attribute associated with a process.  Processes with the 
+same domain have the same set of permissions to the same set of objects. A 
+domain transition occurs when a process changes its domain, conventionally by 
+executing a program with a particular entrypoint type.  Domain transitions 
+provide a controlled mechanism for changes in permissions, whether to gain 
+permissions, shed permissions, or switch to a completely orthogonal set of 
+permissions.  I doubt that you really configured away domain transitions. If you 
+did, you might as well not use SELinux.
 
 > 2)    Is there a text file on my system with the list of user roles or is
 > that information stored some other way?
 
-look into /etc/security. it has changed around a little recently, but
-there should be something like default_* in there with the information
-you are looking for.
+In the source distribution's selinux tree, the policy/users file specifies the 
+set of roles authorized for each user.  Obtaining the full set of defined roles
+is not entirely straightforward because role declarations are now distributed
+among the domain .te files.  Roles for user processes are typically defined
+in policy/domains/user.te or policy/domains/admin.te.  You may want to look at 
+the Tresys policy tools as a way of more easily viewing the policy or managing 
+users.
 
+In an installed form, the policy sources are typically placed into 
+/etc/security/selinux/src/policy.
 
 > 3)    Can I configure the operating system NOT to ask for a user role on
 > login?  I would much prefer to have user role determined BY the login.
 
-I'm sure it's possibly to skip the check, e.g. if the user is only
-allowed to be in a single domain anyway. But I believe you would need
-to patch the login code for this.
+The user will be limited to the roles authorized for that user in
+policy/users.  If you authorize the user for multiple roles, then he
+can choose one of those roles at login time or subsequently via newrole.
+What's the point of limiting the user to a single role at login time if he can 
+change it subsequently via newrole?  Of course, you could limit login
+to transition to a single user domain if you want to force all users to
+initially login with a certain role/domain.
 
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
