@@ -1,33 +1,32 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6EC06Ha011666
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 08:00:06 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6EC79Ha011718
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 08:07:09 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6EC05H5006429
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:00:06 GMT
+	by jazzband.ncsc.mil  with ESMTP id h6EC78H5006637
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:07:08 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h6EC05RX006426 for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:00:05 GMT
-Subject: Re: Updated Release
+        by jazzband.ncsc.mil  with ESMTP id h6EC77RX006634 for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:07:07 GMT
+Subject: Re: patch for new release
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Christopher J. PeBenito" <pebenito@ieee.org>
-Cc: Howard Holm <hdholm@epoch.ncsc.mil>, selinux@tycho.nsa.gov
-In-Reply-To: <1057966291.1514.50.camel@chris.pebenito.net>
-References: <1057952464.5561.322.camel@moss-sooners.epoch.ncsc.mil>
-	 <1057966291.1514.50.camel@chris.pebenito.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200307122059.52553.russell@coker.com.au>
+References: <200307122059.52553.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1058183994.13738.564.camel@moss-huskers.epoch.ncsc.mil>
+Message-Id: <1058184423.13738.572.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 14 Jul 2003 07:59:55 -0400
+Date: 14 Jul 2003 08:07:03 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-07-11 at 19:31, Christopher J. PeBenito wrote:
-> I've been trying out the updated kernel patches, and I'm noticing a some
-> different behavior with the nfs lockd and rpciod.  With this release,
-> they're starting up in kernel_t:
-> Is this intended?
+On Sat, 2003-07-12 at 06:59, Russell Coker wrote:
+> The attached patch from Carsten was omitted from the new release.
+> 
+> I think that this patch is worthy of inclusion for the next release.
 
-Yes, these are kernel threads, and they call reparent_to_init, so their
-SID is changed to the kernel SID.  This isn't new to this release.
+libsecure and the old 2.4-based SELinux userland will be obsoleted by
+libselinux and the new 2.5-based SELinux userland as soon as the new API
+and xattr support have been back ported.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
