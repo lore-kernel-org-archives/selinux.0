@@ -1,48 +1,32 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1AKfpRb011532
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2004 15:41:51 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i1AKeQQk024935
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2004 20:40:26 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i1AKePYo024930
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2004 20:40:25 GMT
-Subject: Re: 2.4-based SELinux
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andreas Schuldei <andreas@schuldei.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20040210203254.GD24541@lukas.schuldei.com>
-References: <1076427867.5910.162.camel@moss-spartans.epoch.ncsc.mil>
-	 <20040210203254.GD24541@lukas.schuldei.com>
-Content-Type: text/plain
-Message-Id: <1076445706.5910.319.camel@moss-spartans.epoch.ncsc.mil>
+Subject: dumb auditdeny question
+From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-2
+Date: 11 Feb 2004 09:03:15 +0100
+Message-Id: <1076486595.2415.134.camel@kusturica>
 Mime-Version: 1.0
-Date: Tue, 10 Feb 2004 15:41:46 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-02-10 at 15:32, Andreas Schuldei wrote:
-> * Stephen Smalley (sds@epoch.ncsc.mil) [040210 20:46]:
-> > Someone else could certainly seek to maintain
-> > it, but I'm not sure that it would be worthwhile, as Fedora Core 2
-> > appears to only be 2.6-based.
-> 
-> i would not set up new boxes with 2.4 kernels today, and with
-> that in mind i follow your overall reasoning.
-> 
-> But would you please rethink what you seem to imply about the
-> linux world in this last sentence (and final justification) of
-> your mail? that there is nothing besides Fendora/RedHat is simply
-> not true and is in fact a considerable limitation of your target
-> group. Is this company policy or could you please consider to
-> broaden your perspective?
+Hi!
 
-Ah, sorry - I didn't intend to imply that, nor is that my viewpoint.
-Poor choice of words on my part.
- 
+I wanted to get rid of the following message:
+
+ avc:  denied  { create } for  pid=400 exe=/usr/bin/vim
+scontext=kernel_u:kernel_r:kernel_d tcontext=kernel_u:object_r:tcb_t
+tclass=file
+
+so I have the following in my policy:
+
+auditdeny kernel_d tcb_t:{ file lnk_file sock_file fifo_file chr_file }
+        { ioctl append rename create };
+
+But I still get the message.
+
+What did I do wrong?
+
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+GNU GPL: csak tiszta forrásból
 
 
 --
