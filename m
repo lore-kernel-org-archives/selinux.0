@@ -1,69 +1,51 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1R1QWDo018369
-	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 20:26:32 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1Q7ixlw003175
-	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 07:46:10 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 1C1C661B03
-	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 18:47:18 +1100 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 12328-10 for <selinux@tycho.nsa.gov>;
-	Sat, 26 Feb 2005 18:47:17 +1100 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id B2C1661AFE
-	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 18:47:17 +1100 (EST)
-Received: from aeon (aeon [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 0DFB9C8
-	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 18:46:57 +1100 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: missing features in user-land tools
-Date: Sat, 26 Feb 2005 18:46:53 +1100
+To: fedora-devel-list@redhat.com
+Subject: Re: writing zero bytes in bash
+Date: Sat, 26 Feb 2005 21:47:52 +1100
+Cc: Miloslav Trmac <mitr@volny.cz>, SELinux@tycho.nsa.gov
+References: <200502261832.16337.russell@coker.com.au> <20050226103915.GB28440@chrys.ms.mff.cuni.cz>
+In-Reply-To: <20050226103915.GB28440@chrys.ms.mff.cuni.cz>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200502261846.55490.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200502262147.55747.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-While working on my tutorial for the SE Linux symposium I noticed that there 
-is some functionality that is missing from the utilities.
+Interesting comment.  I'm replying with the SE Linux list CC'd so everyone 
+who's involved can comment.
 
-One thing is the display of the parent context.  ps could be modified to have 
-the option of displaying the parent context of every process, it's not 
-absolutely required (things have been working well without that 
-functionality), but it could be handy to have it.
+Maybe a change to make "\n" equivalent to "" in the SE Linux kernel interfaces 
+in question would be appropriate then?  For the SE Linux interfaces in 
+question a '\n' character is not valid in any part of the input and the input 
+must contain three fields separated by colons, so a special case of "\n" 
+being equivalent to "" can not cause any confusion.
 
-Another is the possibility of creating a file with a specified context from a 
-shell script.  Of course it would be possible to do:
+Also as a side note, in the normal use only libselinux.so has any code which 
+does such zero byte writes.  Doing it from bash is only needed for testing, 
+debugging, and educational purposes.
 
-echo $CONTEXT > /proc/self/attr/fscreate
-echo -n > $FILE
-
-But that is a hack, even without the issue that it's impossible to unset it 
-(see my previous message) this is not a desirable way of doing it.
-
-
-I believe that for ideal functionality we want a program that will create a 
-file with a specified context.  It seems to me that modifying chcon would be 
-a good way of doing this as chcon already supports specifying the context and 
-the desired sym-link functionality.  Something like "chcon -n $CONTEXT $FILE" 
-with "-n" meaning that the file should be created if it doesn't exist (not 
-sure whether we would want chcon to abort if the file doesn't already exist - 
-maybe another option for that).
-
-The precedent for that is touch(1) which will change the time-stamp or create 
-the file if it doesn't exist.
-
-
-I think it would also be good if mktemp(1) was modified to allow specifying 
-the context of the file being created.  Often a script creates a temp file 
-which will be written to by a program running in a different context.  Sure 
-it could call chcon(1) after creating the temp file, but I think that having 
-mktemp do it all would be better.
+On Saturday 26 February 2005 21:39, Miloslav Trmac <mitr@volny.cz> wrote:
+> On Sat, Feb 26, 2005 at 06:32:13PM +1100, Russell Coker wrote:
+> > To unset the fscreate or exec context you have to write zero bytes
+> > to /proc/self/attr/fscreate or /proc/self/attr/exec respectively.
+>
+> I personally think this is the problem - no interface should require
+> writing 0 bytes.
+>
+> To quote the POSIX spec:
+> | Before  any  action described below is taken, and if nbyte is zero and
+> | the file is a regular file, the write() function may detect and return
+> | errors  as  described  below.  In  the  absence of errors, or if error
+> | detection is not performed, the write() function shall return zero and
+> | have no other results.  If nbyte is zero and the file is not a regular
+> | file, the results are unspecified.
+>
+> Files in /proc _are_ regular files, as far as stat() is concerned, so
+> I don't think you can require that portable programs give you the
+> possibility to write 0 bytes to these files.
+>  Mirek
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
