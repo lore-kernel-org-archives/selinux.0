@@ -1,38 +1,47 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5P99urT028733
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jun 2004 05:09:57 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5P99TVL024093
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jun 2004 09:09:43 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Magnus Therning <magnus-work@therning.org>
-Subject: Re: SELinux on Debian (Sid), second try
-Date: Fri, 25 Jun 2004 19:08:56 +1000
-Cc: selinux@tycho.nsa.gov
-References: <20040624163900.GB3290@philips.com>
-In-Reply-To: <20040624163900.GB3290@philips.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200406251908.56334.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5QHoarT005460
+	for <selinux@tycho.nsa.gov>; Sat, 26 Jun 2004 13:50:36 -0400 (EDT)
+Received: from smtp807.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5QHoMAP017458
+	for <selinux@tycho.nsa.gov>; Sat, 26 Jun 2004 17:50:22 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
+  by smtp807.mail.ukl.yahoo.com with SMTP; 26 Jun 2004 17:49:19 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1BeGiR-00040L-DD
+	for selinux@tycho.nsa.gov; Sat, 26 Jun 2004 17:11:47 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BeHFt-0000yM-Vh
+	for selinux@tycho.nsa.gov; Sat, 26 Jun 2004 17:46:21 +0000
+Date: Sat, 26 Jun 2004 17:46:21 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: [DEBIAN] module-init-tools 3.1-pre2 WATCH OUT - write permission requested!
+Message-ID: <20040626174621.GE3559@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 25 Jun 2004 02:39, Magnus Therning <magnus-work@therning.org> wrote:
-> Should they be installed in some specific order (i.e. SELinux packages
-> before the others, or the other way around)?
->
-> Does it matter when I install the kernel with SELinux support?
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=255242
 
-Install everything apart from selinux-policy-default and then boot the SE 
-Linux kernel.  Then install selinux-policy-default last and reboot.
+debian users, beware: apparently this has been fixed, some people
+will have missed it, but if you find that your system doesn't
+load _any_ modules, it's because certain versions of modprobe
+try to open modules with write permission!
+
+l.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility if acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
