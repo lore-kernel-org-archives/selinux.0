@@ -1,60 +1,71 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5OMes3E026194
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 18:40:54 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5ONLT3E026350
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 19:21:29 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h5OMer5e008173
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 22:40:53 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h5OMep92008166 for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 22:40:52 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Dean Anderson <dean@av8.com>, selinux@tycho.nsa.gov
+	by jazzband.ncsc.mil  with ESMTP id h5ONLS5e009136
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 23:21:28 GMT
+Received: from citation.av8.net ([130.105.12.4])
+        by jazzband.ncsc.mil  with ESMTP id h5ONLS92009133 for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 23:21:28 GMT
+Date: Tue, 24 Jun 2003 19:18:13 -0400 (EDT)
+From: Dean Anderson <dean@av8.com>
+To: Russell Coker <russell@coker.com.au>
+cc: selinux@tycho.nsa.gov
 Subject: Re: proftpd
-Date: Wed, 25 Jun 2003 08:40:43 +1000
-References: <Pine.LNX.4.44.0306241457400.11428-100000@vista.av8.net>
-In-Reply-To: <Pine.LNX.4.44.0306241457400.11428-100000@vista.av8.net>
+In-Reply-To: <200306250840.43592.russell@coker.com.au>
+Message-ID: <Pine.LNX.4.44.0306241911350.11879-100000@vista.av8.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200306250840.43592.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 25 Jun 2003 05:15, Dean Anderson wrote:
-> I'm having some trouble with the proftpd program, specifically, it won't
-> seem to transition from the initrc domain to the ftpd_t domain
+I was trying to fire up binaries (that I planned to put in rc.local)
+directly using run_init.  I figured out why this doesn't work just now.
+The run_init can make transition the rc scripts to the initrc_t domain,
+and then things they start can be transitioned from initrc_t to their
+domain. The documentation says this, but I wasn't reading the
+documentation closely enough.
 
-The daemon_domain() macro should take care of this.
+		--Dean
 
-> I relabeled the files (after changing the path to the proftpd binary to
-> /usr/local/sbin/proftpd in file_contexts/programs/ftpd.fc
+On Wed, 25 Jun 2003, Russell Coker wrote:
+
+> On Wed, 25 Jun 2003 05:15, Dean Anderson wrote:
+> > I'm having some trouble with the proftpd program, specifically, it won't
+> > seem to transition from the initrc domain to the ftpd_t domain
 >
-> ls --context /usr/local/sbin/proftpd
-> shows system_u:object_r:ftpd_exec_t
+> The daemon_domain() macro should take care of this.
 >
-> grep ftpd_exec_t policy.conf shows a type transition line:
-> type_transition initrc_t ftpd_exec_t:process ftpd_t
+> > I relabeled the files (after changing the path to the proftpd binary to
+> > /usr/local/sbin/proftpd in file_contexts/programs/ftpd.fc
+> >
+> > ls --context /usr/local/sbin/proftpd
+> > shows system_u:object_r:ftpd_exec_t
+> >
+> > grep ftpd_exec_t policy.conf shows a type transition line:
+> > type_transition initrc_t ftpd_exec_t:process ftpd_t
+> >
+> > Yet, no effect. Rebooting also has no effect.
 >
-> Yet, no effect. Rebooting also has no effect.
-
-It seems that you've done all the right checks.  I'm not sure what's going 
-wrong here.
-
-> Interestingly, the radius.te file has this:
+> It seems that you've done all the right checks.  I'm not sure what's going
+> wrong here.
 >
-> domain_auto_trans(system_crond_t, radiusd_exec_t, radiusd_t)
+> > Interestingly, the radius.te file has this:
+> >
+> > domain_auto_trans(system_crond_t, radiusd_exec_t, radiusd_t)
+> >
+> > However, radius is not started by cron. What is up with this?
 >
-> However, radius is not started by cron. What is up with this?
-
-This is so that cron jobs for maintaining RADIUS run in the same domain.  It 
-may be worth putting the cron job into a different domain, maybe 
-radius_crond_t.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+> This is so that cron jobs for maintaining RADIUS run in the same domain.  It
+> may be worth putting the cron job into a different domain, maybe
+> radius_crond_t.
+>
+> --
+> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+> http://www.coker.com.au/~russell/  My home page
+>
+>
 
 
 --
