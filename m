@@ -1,75 +1,127 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3NHaVI4003271
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 13:36:32 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3NHaU7R020100
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 17:36:31 GMT
-Received: from MOZART.PatioEnclosuresInc.com (mail.patioenclosuresinc.com [206.183.7.174])
-        by jazzband.ncsc.mil  with ESMTP id h3NHaRKP020091 for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 17:36:29 GMT
-Message-ID: <B4E788FBFCD6844F96A017F337797AE13B402F@mozart.patioenclosuresinc.com>
-From: "Rottura, Steven" <SRottura@patioenclosuresinc.com>
-To: selinux@tycho.nsa.gov
-Subject: RE: A different view of the Theo de Raadt funding question
-Date: Wed, 23 Apr 2003 13:32:38 -0400
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: patch libsecure
+Date: Wed, 23 Apr 2003 20:48:16 +0200
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_G88T81GP59MH80XCVKVD"
+Message-Id: <200304232048.16402.carstengrohmann@gmx.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Not understanding a criticism of DARPA on an NSA majordomo / mail-list.
-Thought Howard Holm's message previous took care of that.
 
-On a separate note: I was interested in whether development of 
-private-key algorithms was still interesting in today's world
-of public key schemes, for example assymetrical ones layered piecemeal
-with different keys, used to secure individual sessions -- etc... 
-Or, is most of the work going on (i.e. here with SELinux) *not*
-involving encryption but rather general system security / app. priveledges,
-etc.?
+--------------Boundary-00=_G88T81GP59MH80XCVKVD
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-thanks & sorry to be long-winded
+Hi,
 
------Original Message-----
-From: Dale Amon [mailto:amon@vnl.com]
-Sent: Wednesday, April 23, 2003 9:50 AM
-To: Matthew S. Hamrick
-Cc: Joshua Brindle; selinux@tycho.nsa.gov; ccallen@windowpane.com;
-larrycohen99@yahoo.com
-Subject: Re: A different view of the Theo de Raadt funding question
+I missing some free calls in the libsecure test files. The attached patch=
+=20
+insert this calls.
 
+Carsten
+--------------Boundary-00=_G88T81GP59MH80XCVKVD
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch.libsecure"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch.libsecure"
 
-On Wed, Apr 23, 2003 at 06:57:29AM -0400, Matthew S. Hamrick wrote:
-> others. Then when the mandatory review came at the 85% funding level, 
-> this along with the fact that he was a Canadian (while the TrustedBSD 
-> team was based in ... uh... Maryland, I think) might have been the 
-> cause for DARPA's concerns. I would guess that the program manager at 
+? patch.libsecure
+Index: test/getsecsid.c
+===================================================================
+RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/getsecsid.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 getsecsid.c
+--- test/getsecsid.c	20 Dec 2001 23:24:58 -0000	1.1.1.1
++++ test/getsecsid.c	23 Apr 2003 18:43:19 -0000
+@@ -51,6 +51,6 @@
+ 	}
+ 
+ 	printf("Context:  %s\n", scontext);
+-
++	free(scontext);
+ 	exit(0);
+ }
+Index: test/lstat_s.c
+===================================================================
+RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/lstat_s.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 lstat_s.c
+--- test/lstat_s.c	20 Dec 2001 23:24:58 -0000	1.1.1.1
++++ test/lstat_s.c	23 Apr 2003 18:43:19 -0000
+@@ -48,6 +48,7 @@
+ 		}
+ 
+ 		printf("Context:  %s\n", context);
++		free(context);
+ 	}
+ 
+ 	exit(0);
+Index: test/sid_to_context.c
+===================================================================
+RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/sid_to_context.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 sid_to_context.c
+--- test/sid_to_context.c	20 Dec 2001 23:24:58 -0000	1.1.1.1
++++ test/sid_to_context.c	23 Apr 2003 18:43:19 -0000
+@@ -43,5 +43,6 @@
+ 	}
+ 
+ 	printf("%s\n", buf);
++	free(buf);
+ 	exit(0);
+ }
+Index: test/stat_s.c
+===================================================================
+RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/stat_s.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 stat_s.c
+--- test/stat_s.c	20 Dec 2001 23:24:58 -0000	1.1.1.1
++++ test/stat_s.c	23 Apr 2003 18:43:19 -0000
+@@ -48,6 +48,7 @@
+ 		}
+ 
+ 		printf("Context:  %s\n", context);
++		free(context);
+ 	}
+ 
+ 	exit(0);
+Index: test/statfs_s.c
+===================================================================
+RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/statfs_s.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 statfs_s.c
+--- test/statfs_s.c	20 Dec 2001 23:24:58 -0000	1.1.1.1
++++ test/statfs_s.c	23 Apr 2003 18:43:19 -0000
+@@ -48,6 +48,7 @@
+ 		}
+ 
+ 		printf("Context:  %s\n", context);
++		free(context);
+ 	}
+ 
+ 	exit(0);
+Index: test/arch/i386/stat64_s.c
+===================================================================
+RCS file: /cvsroot/selinux/nsa/selinux/libsecure/test/arch/i386/stat64_s.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 stat64_s.c
+--- test/arch/i386/stat64_s.c	15 Mar 2002 13:01:17 -0000	1.1.1.1
++++ test/arch/i386/stat64_s.c	23 Apr 2003 18:43:19 -0000
+@@ -49,6 +49,7 @@
+ 		}
+ 
+ 		printf("Context:  %s\n", context);
++		free(context);
+ 	}
+ 
+ 	exit(0);
 
-This could have a great deal to do with it. I've run
-up against it myself. I'm a US citizen but resident
-in the UK. I was looking into to some SBIR's with
-a friend in Pittsburgh and we found that it is required
-that funds may not be used outside of the US. Not
-even if the non-resident is a citizen. I doubt DARPA
-grants are that much different from SBIR's. I've 
-worked under both at various times.
+--------------Boundary-00=_G88T81GP59MH80XCVKVD--
 
-I'm surprised they didn't hit the school with a 
-request to return part of the funds used outside
-of the United States.
-
--- 
-------------------------------------------------------
-       IN MY NAME:            Dale Amon, CEO/MD
-  No Mushroom clouds over     Islandone Society
-    London and New York.      www.islandone.org
-------------------------------------------------------
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
