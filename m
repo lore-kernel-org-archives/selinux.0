@@ -1,47 +1,58 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6EGUCHa013202
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:30:12 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6EGUBH5017796
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 16:30:11 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h6EGUBRX017793 for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 16:30:11 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6EGuQHa013390
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:56:26 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6EGtQnJ019963
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 16:55:26 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h6EGtOhr019948
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 16:55:25 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Subject: Re: another patch for the new release
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
+Date: Tue, 15 Jul 2003 02:56:11 +1000
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200307122201.06936.russell@coker.com.au>
-References: <200307122201.06936.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1058200198.13738.652.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 14 Jul 2003 12:29:59 -0400
+References: <200307122201.06936.russell@coker.com.au> <1058200198.13738.652.camel@moss-huskers.epoch.ncsc.mil>
+In-Reply-To: <1058200198.13738.652.camel@moss-huskers.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200307150256.11377.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-07-12 at 08:01, Russell Coker wrote:
-> I think that it is desirable that when a user is authorized for user_r and 
-> staff_r that staff_r is the default.
+On Tue, 15 Jul 2003 02:29, Stephen Smalley wrote:
+> On Sat, 2003-07-12 at 08:01, Russell Coker wrote:
+> > I think that it is desirable that when a user is authorized for user_r
+> > and staff_r that staff_r is the default.
+>
+> It doesn't really work to authorize a user for user_r and staff_r;
 
-It doesn't really work to authorize a user for user_r and staff_r;
-expected role declarations would be either user_r for ordinary users
-(using user_home_*_t on the home directory) or { staff_r sysadm_r } for
-admins (using staff_home_*_t on the home directory).  An admin won't be
-able to access his home directory if logged in as user_r, and will be
-vulnerable to attack by ordinary users.
+So does this mean that we don't support the idea of changing to a less 
+priviledged role to run untrusted programs?
 
-> xstat_conv.h doesn't work for me, it seems that struct kern_stat not struct 
-> stat is required.  Haven't fully tested this yet but at least it makes it 
-> compile.
+I guess that using a different Unix account for such things will work, as 
+anyone who is in staff_r can surely have their request for an extra account 
+granted.
 
-I don't think that this is what you want.  If you are using older glibc
-with the old stat definitions, try using the older libsecure, i.e. the
-one prior to this release.  In any event, this will be obsoleted by the
-new API.
+> > xstat_conv.h doesn't work for me, it seems that struct kern_stat not
+> > struct stat is required.  Haven't fully tested this yet but at least it
+> > makes it compile.
+>
+> I don't think that this is what you want.  If you are using older glibc
+> with the old stat definitions, try using the older libsecure, i.e. the
+> one prior to this release.  In any event, this will be obsoleted by the
+> new API.
+
+I'm using glibc 2.3.1, is it required to use 2.3.2 to get this to compile 
+correctly?
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
