@@ -1,56 +1,42 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA24500
-	for <selinux@tycho.nsa.gov>; Mon, 16 Sep 2002 18:52:02 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA27166
+	for <selinux@tycho.nsa.gov>; Tue, 17 Sep 2002 09:17:55 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA26326
-	for <selinux@tycho.nsa.gov>; Mon, 16 Sep 2002 22:50:39 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA26322
-	for <selinux@tycho.nsa.gov>; Mon, 16 Sep 2002 22:50:38 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-Subject: Fwd: Re: Any assured channel work for Linux
-Date: Tue, 17 Sep 2002 00:51:51 +0200
-To: tim@bird.org
-Cc: selinux@tycho.nsa.gov
+	by jazzswing.ncsc.mil  with ESMTP id NAA27640
+	for <selinux@tycho.nsa.gov>; Tue, 17 Sep 2002 13:16:31 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id NAA27634
+	for <selinux@tycho.nsa.gov>; Tue, 17 Sep 2002 13:16:30 GMT
+Date: Tue, 17 Sep 2002 09:17:15 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Ryan Washington <rwashington@crucialsecurity.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: http domain
+In-Reply-To: <DPEPJAJGOCGHICPODIHPGEFFCBAA.rwashington@crucialsecurity.com>
+Message-ID: <Pine.GSO.4.33.0209170915410.11411-100000@raven>
 MIME-Version: 1.0
-Message-Id: <200209170051.51285.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 17 Sep 2002 00:45, Tim Bird wrote:
-> Yes, this is basically what I was asking about.
->
-> I seem to recall reading in one of the SELinux
-> papers that they weren't tackling confidentiality
-> yet (just really MAC (via DTE, et al)).  But I believe
-> that what you have described meets the needs I
-> was enquiring about.
->
-> Is confidentiality (ie encrypted data transfer)
-> over a channel like a pipe left as an excersize
-> to the application, or are such IPCs deemed to
-> be non-snoopable by other processes on the same
-> machine, using just the LSM/SELinux mechanisms?
 
-If everything is working correctly and if the administrator is trustworthy
-then the SE Linux mechanisms should be adequate for the basic IPC mechanisms.
+On Thu, 12 Sep 2002, Ryan Washington wrote:
 
-If things are not working correctly or if the administrator is untrustworthy
-then you are stuffed.
+> Does the standard install of SELinux already have the domain set for http?
+> If so, to get it started, all I need to do is to enforce the default policy?
 
-Encryption over a pipe makes no sense to me.  Anyone who can intercept the
-pipe can work aroun decryption by using ptrace on the applications, or other
-methods.
+Yes, although you may require some customization of the domain for your
+particular setup.  There is an example policy for Apache originally
+contributed by MITRE in selinux/policy/domains/program/apache.te.  The
+policy is described in a paper available from
+http://www.mitre.org/support/papers/tech_papers_01/gosselin_apache/index.shtml.
 
-For secure networking you need encryption of course.  SE Linux apparently has
-some support for labelled networking over IPSec, but I haven't got IPSec
-working yet so I don't know what it does exactly.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-Russell Coker
+
 
 
 --
