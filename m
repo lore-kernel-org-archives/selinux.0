@@ -1,41 +1,58 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2SGqCDo028080
+	for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2005 11:52:12 -0500 (EST)
+Received: from web31603.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j2SGpM1g013890
+	for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2005 16:51:22 GMT
+Message-ID: <20050328165109.60425.qmail@web31603.mail.mud.yahoo.com>
+Date: Mon, 28 Mar 2005 08:51:09 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: Desktop apps interoperability
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Tom <tom@lemuria.org>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>,
-   "Fedora SELinux support list for users &amp;  developers." <fedora-selinux-list@redhat.com>,
+To: Tom <tom@lemuria.org>, Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: "Fedora SELinux support list for users &amp,  developers." <fedora-selinux-list@redhat.com>,
    selinux@tycho.nsa.gov
-In-Reply-To: <20050328182020.A29887@lemuria.org>
-References: <1111987652.1514.97.camel@cobra.ivg2.net>
-	 <20050328132653.F27857@lemuria.org>
-	 <1112012129.1514.187.camel@cobra.ivg2.net>
-	 <20050328151126.B28232@lemuria.org>
-	 <1112017584.1514.239.camel@cobra.ivg2.net>
-	 <20050328160935.B28563@lemuria.org>
-	 <1112022358.5811.47.camel@cobra.ivg2.net>
-	 <1112022750.2914.65.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050328174753.D29441@lemuria.org>
-	 <1112025866.2914.88.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050328182020.A29887@lemuria.org>
-Content-Type: text/plain
-Date: Mon, 28 Mar 2005 11:39:33 -0500
-Message-Id: <1112027973.2914.98.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-03-28 at 18:20 +0200, Tom wrote:
-> I think you are right. I did forget about programs launching other
-> programs. On the other hand, doesn't that give us another option within
-> SELinux? Can't we make mplayer-launched-by-firefox run in a different
-> domain than mplayer-run-by-user? In that domain, it would have access
-> to the downloaded files, but not to the remainder of the user data.
 
-Yes, that would make sense to me.
+--- Tom <tom@lemuria.org> wrote:
+> On Mon, Mar 28, 2005 at 12:27:31AM -0500, Ivan
+> Gyurdiev wrote:
+> > Part of the problem seems to be the way Linux apps
+> treat /home, as the
+> > place for everything. 
+> 
+> It doesn't. It treats $HOME as the only place that
+> the user has
+> permission to store his stuff. On a well-configured
+> system, that
+> assumption is correct.
 
--- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Windows and MacOS are designed as single user systems.
+Unix and Linux are designed as multiuser systems.
+Configuring a Windows system for multiple 
+concurrent users is quite painful. Configuring
+unix for a single user seems unnecessarily difficult.
 
+Interestly, when we did the B1/LSPP versions of 
+unix the home directory model helped reduce the
+problem of user sensitivity restrictions by
+isolating the part of the directory hierarchy
+that had to be customized for the user.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Small Business - Try our new resources site!
+http://smallbusiness.yahoo.com/resources/ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
