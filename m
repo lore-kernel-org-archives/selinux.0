@@ -1,61 +1,106 @@
-Date: Mon, 14 Mar 2005 15:13:51 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
-   SELinux Mail List <selinux@tycho.nsa.gov>, kaigai@ak.jp.nec.com
-Subject: Re: [RFC & PATCH] inherited type definition.
-Message-ID: <20050314151351.GC1246@lkcl.net>
-References: <42346C17.3090301@kaigai.gr.jp> <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: problems using setcon()
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Kodungallur Varma <ramgwu@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <fa8ec5d805031118353197f745@mail.gmail.com>
+References: <fa8ec5d80503082008161e5619@mail.gmail.com>
+	 <20050309084655.GC5236@thorium.jmh.mhn.de>
+	 <fa8ec5d805031118353197f745@mail.gmail.com>
+Content-Type: multipart/mixed; boundary="=-YSeUOUBgVrI6HrUwLcW8"
+Date: Mon, 14 Mar 2005 10:06:12 -0500
+Message-Id: <1110812772.21378.79.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Mar 14, 2005 at 08:50:02AM -0500, Stephen Smalley wrote:
 
-> 3) What should happen with rules between the parent and itself?  It
-> looks like you are translating "self" rules to only involve the child
-> and its descendants, but this would still mean that any explicit rule of
-> the form "allow parent_t parent_t:process sigkill;" would be inherited
-> by the child, i.e. "allow child_t parent_t:process sigkill;", right?
- 
- i would expect syntax allow parent_t self:process sigkill to
- be inherited to "allow child_t self:process sigkill"
+--=-YSeUOUBgVrI6HrUwLcW8
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
- and expect "allow parent_t parent_t:process sigkill to
- be inherited to "allow child_t parent_t:process sigkill"
+On Fri, 2005-03-11 at 21:35 -0500, Kodungallur Varma wrote:
+>        I came to know that I cant simply cast a string into a security
+> identifier as shown below. insted I found out that I have to use
+> security_compute_create().
 
- except that wouldn't work if there's a "special" meaning given
- to "self:".
- 
- there's no special meaning given to self: is there?
+No, you can directly construct context strings; you just have to ensure
+that they are valid contexts or the kernel will reject them.  The
+easiest approach is to use getcon() to get the current context, then use
+the context_new(), context_type_set(), context_str() functions to create
+a context string with a modified type field, and then call setcon() on
+the resulting context string.  security_compute_create() is appropriate
+when you want to get a context based on a type_transition rule in the
+policy (for an exec-based process transition or a file creation), but
+that is not what you are doing.  Sample program below should work for
+you, assuming appropriate policy and a kernel that supports dynamic
+context transitions (>= 2.6.11 for the mainline kernel).  Policy would
+need can_setcon() for the domain and allow <olddomain>
+<newdomain>:process dyntransition; (the domain_auto_trans rules are for
+exec-based transitions only).
 
- it's just for convenience in case you want to change the name
- of the domain, isn't it?
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
+--=-YSeUOUBgVrI6HrUwLcW8
+Content-Disposition: attachment; filename=setconexample.c
+Content-Type: text/x-csrc; name=setconexample.c; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-> 4) What should happen with transition rules that involve the parent?  In
-> some cases, you will likely want to inherit them, but in others, you may
-> want the child to transition to a separate derived domain from the one
-> used by the parent. 
- 
- subdivide the parent domain into rules which you do want to be
- inherited, and those that you do not.
+#include <stdio.h>
+#include <selinux/selinux.h>
+#include <selinux/context.h>
 
- derive a child domain that gives you the original one, so you
- don't have any code uses to change.
+int main(int argc, char **argv)
+{
+	int rc;
+	security_context_t scon;
+	context_t con;
 
- derive other domains from the smaller parent one.
+	if (argc != 2) {
+		fprintf(stderr, "usage: %s newtype\n", argv[0]);
+		exit(1);
+	}
 
+	rc = getcon(&scon);
+	if (rc < 0) {
+		perror("getcon");
+		exit(1);
+	}
+	con = context_new(scon);
+	freecon(scon);
+	rc = context_type_set(con, argv[1]);
+	if (rc) {
+		perror("context_type_set");
+		exit(1);
+	}
+	scon = context_str(con);
+	if (!scon) {
+		perror("context_str");
+		exit(1);
+	}
+	if (security_check_context(scon) < 0) {
+		fprintf(stderr, "%s is not a valid context in the policy\n",
+			scon);
+		exit(1);
+	}
+	rc = setcon(scon);
+	if (rc < 0) {
+		perror("setcon");
+		exit(1);
+	}
+	context_free(con);
+	scon = NULL;
+	rc = getcon(&scon);
+	if (rc < 0) {
+		perror("getcon");
+		exit(1);
+	}
+	printf("Changed to %s\n", scon);
+	exit(0);
+}
 
- 5) what about multiple inheritance?
-
-    syntax should allow for such - to combine two parent
-    sets into one child domain.
-
- l.
-
+--=-YSeUOUBgVrI6HrUwLcW8--
 
 
 --
