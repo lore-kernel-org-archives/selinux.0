@@ -1,52 +1,59 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6VDJ3rT002880
-	for <selinux@tycho.nsa.gov>; Sat, 31 Jul 2004 09:19:03 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6VDIxlX005735
-	for <selinux@tycho.nsa.gov>; Sat, 31 Jul 2004 13:19:01 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: temporary hack to use udev in selinux
-Date: Sat, 31 Jul 2004 11:43:19 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <Xine.LNX.4.44.0407291305360.16390-100000@dhcp83-76.boston.redhat.com> <20040729200502.GF9950@lkcl.net> <1091131752.21971.191.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1091131752.21971.191.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200407311143.19746.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6VE7erT003005
+	for <selinux@tycho.nsa.gov>; Sat, 31 Jul 2004 10:07:41 -0400 (EDT)
+Received: from smtp808.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6VE78Hs004936
+	for <selinux@tycho.nsa.gov>; Sat, 31 Jul 2004 14:07:09 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp808.mail.ukl.yahoo.com with SMTP; 31 Jul 2004 14:07:39 -0000
+Received: from highfield ([192.168.0.223] helo=lkcl.net)
+	by hyd with esmtp (Exim 4.34)
+	id 1Bqu2c-0001Pf-UW
+	for selinux@tycho.nsa.gov; Sat, 31 Jul 2004 13:36:51 +0000
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BquhB-0002Hr-1j
+	for selinux@tycho.nsa.gov; Sat, 31 Jul 2004 15:18:45 +0100
+Date: Sat, 31 Jul 2004 15:18:45 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: policy version jumped to 18
+Message-ID: <20040731141841.GQ3378@lkcl.net>
+References: <20040731120634.GK3378@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040731120634.GK3378@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 30 Jul 2004 06:09, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> On Thu, 2004-07-29 at 16:05, Luke Kenneth Casson Leighton wrote:
-> > On Thu, Jul 29, 2004 at 01:22:56PM -0400, Stephen Smalley wrote:
-> > > For
-> > > tmpfs, we want to allow individual inode labeling and
-> > > getxattr/setxattr/setfscreatecon,
-> >
-> >  patch done that.  for dirs, files, symlinks and "special" inodes,
-> > whatever _they_ are.
->
-> The patch allows for getxattr/setxattr, but still doesn't address the
-> issue of SELinux treating different instances of tmpfs in different
-> ways.  That why we need mount option support.  It may be sufficient to
-> just extend fscontext= semantics (set superblock security context)
-> beyond xattr-supporting filesystems, so that we can assign a different
-> superblock security context to each instance and then set up type
-> transition rules appropriately, using fs_use_trans in all cases for the
-> initial labeling.
+On Sat, Jul 31, 2004 at 01:06:34PM +0100, Luke Kenneth Casson Leighton wrote:
 
-This shouldn't even need kernel code.  As long as the default type is not 
-overly permissive the mount program can relabel the root directory of a tmpfs 
-file system after mounting it.
+> arg, wot a pain.
+> 
+> i am doing an install on another machine, just for fun
+> (and prior to doing an upgrade on another).
+> 
+> this is with my lovely 2.6.6-selinux1 kernel.
+> 
+> policy version being reported by the kernel i am using is 17.
+> 
+> checkpolicy is being a pain and reporting that it does version 18.
+> 
+> therefore, a make install does this:
+> 
+> creates a policy.conf file, and creates a .17 file (somewhere) because
+> that's what the kernel supports.
+> 
+> checkpolicy is then used to find what to check, which says "i do version 18".
+> 
+> consequently, i don't get anywhere.
+> 
+> hack-time...
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+ nope, didn't work.  boot-up of the 2.6.6 kernel went "eek, i
+ only support versions 15-17".
+
+ oh well.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
