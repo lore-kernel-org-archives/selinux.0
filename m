@@ -1,36 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8HAPgLa024125
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 06:25:42 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8HAO1LY008142
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 10:24:01 GMT
-Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h8HANxsG008139
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 10:24:00 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Dale Amon <amon@vnl.com>, SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: Mod to Makefile for reiserfs
-Date: Wed, 17 Sep 2003 20:25:28 +1000
-References: <20030916212747.GQ8988@vnl.com>
-In-Reply-To: <20030916212747.GQ8988@vnl.com>
+To: Karl MacMillan <kmacmillan@tresys.com>,
+   SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: Policy source and initial ramdisk
+Date: Wed, 17 Sep 2003 20:32:56 +1000
+References: <1063747354.25176.44.camel@colossus.columbia.tresys.com>
+In-Reply-To: <1063747354.25176.44.camel@colossus.columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200309172025.28079.russell@coker.com.au>
+Message-Id: <200309172032.56257.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 17 Sep 2003 07:27, Dale Amon wrote:
-> Is there any way to deal with this other than just
-> telling folk "If you use the reiserfs patch on your
-> kernel, you'll have to edit the selinux Makefile"?
+On Wed, 17 Sep 2003 07:22, Karl MacMillan wrote:
+> It appears that users are required to call mkinitrd whenever the policy
+> is modified. If this is the case it seems that users might be unaware
+> that make install /etc/security/selinux/src/policy doesn't change the
+> policy loaded during the next boot. Additionally, it is problematic for
+> tools that modify the policy source. The quickest solution would be to
+> modify the install target to call mkinitrd, but this has some issues
+> (like reliably determining the name of the ramdisk image). Does anyone
+> have any thoughts about the best way to approach this problem?
 
-Why not just tell them to do "setfiles file_contexts/file_contexts /" instead 
-of changing the Makefile.
+My solution to this is to have a base policy in the initrd which defines every 
+type for a file that may be accessed in the early stages of the boot process 
+(up until the root fs is re-mounted read-write), and all the policy for those 
+parts of the boot.
 
-If someone is capable of getting those ReiserFS patches working then it 
-shouldn't be difficult for them to manage this.
+Then in the early stage of boot the real policy will be loaded from the root 
+fs.
+
+This avoids re-building an initrd every time the policy is changed (which 
+incurs danger of making the maching non-bootable if there is an error and 
+which is difficult in the case of updating several kernels at the same time).
+
+I'll release some sample policy for this soon.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
