@@ -1,58 +1,49 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0UDeLRb019099
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 08:40:21 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0UDcwVK018401
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 13:38:58 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i0UDcvlx018398
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 13:38:57 GMT
-Subject: Re: fork and security context transitions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <bs-f-vazquez@bs.rd.nttdata.co.jp>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1075437775.1088.144.camel@volcano.rd.nttdata.co.jp>
-References: <1075437775.1088.144.camel@volcano.rd.nttdata.co.jp>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1075469989.22930.19.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 30 Jan 2004 08:39:49 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0UIEmRb020954
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 13:14:48 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0UIEc1K000799
+	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 18:14:42 GMT
+Date: Fri, 30 Jan 2004 13:14:21 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Chris Wright <chrisw@osdl.org>
+cc: linux-security-module@wirex.com, Stephen Smalley <sds@epoch.ncsc.mil>,
+   <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH][RFC] Security mount data & sb_copy_data hook.
+In-Reply-To: <20040130100208.A28565@osdlab.pdx.osdl.net>
+Message-ID: <Xine.LNX.4.44.0401301312070.16488-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-01-29 at 23:42, Fernando Luis Vázquez Cao wrote:
-> Due to the latter, I have started to split my server into two
-> executables so that there's a listening server that creates children in
-> the required security context (using "execve").
+On Fri, 30 Jan 2004, Chris Wright wrote:
 
-Good.
+> > Any feedback on this will be most appreciated.
+> 
+> Hrm, I'm not really fond of the extra page, and extra hook.
+> Unfortunately, it doesn't seem like doing something generic in
+> lib/parser.c is feasible since not each fs uses it, and touching each
+> fs to find this is even uglier.
 
-> Anyway, I soon found that the resulting code is not as easy to maintain
-> as the original one and that I have to make a fairly big amount of
-> changes. Besides, I think this is not the right approach, since in this
-> case, the use of SELinux is really having a big impact in the projects
-> code.
+The extra page isn't really an issue as mounting a fileystem is not 
+performance critical.
 
-Restructuring applications to support least privilege and isolation is a
-good thing.
+>  Would it be possible to handle it all
+> in the module with something like:
+> 
+> mount -tselinux -oreal_type=$fstype,context=foo,the_fs_opts dev mntpnt
 
-> I was wandering if allowing to fork a child in a security context
-> different from the parent's (without using execve) is a good idea or
-> not, since I find it useful and, anyway, it can be achieved splitting a
-> program in two and using "execv".
+I'm not sure how this could be done cleanly without further reaching into 
+the vfs (e.g. to hijack the real filesystem ops etc.).  Perhaps better 
+when we have a proper filesystem stacking mechanism available.
 
-It isn't a good idea.  Some prior discussions of this issue can be found
-at the below links:
- 
-http://marc.theaimsgroup.com/?l=selinux&m=107272253121858&w=2
-http://marc.theaimsgroup.com/?l=selinux&m=106910931928255&w=2
-http://marc.theaimsgroup.com/?l=selinux&m=104939744006086&w=2
-http://marc.theaimsgroup.com/?l=selinux&m=102587211414608&w=2
-http://marc.theaimsgroup.com/?l=selinux&m=101343633303503&w=2
 
+- James
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
