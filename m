@@ -1,40 +1,71 @@
-Message-Id: <sede7897.092@atlas.snu.edu>
-Date: Wed, 04 Jun 2003 22:53:52 -0500
-From: "Joshua Brindle" <JBrindle@snu.edu>
-To: <SELinux@tycho.nsa.gov>
-Subject: Gentoo Selinux demo machine
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h55AuHI4027014
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2003 06:56:17 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h55Au5tV022398
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2003 10:56:05 GMT
+Received: from a.mx.rapturesecurity.com ([66.113.84.53])
+        by jazzband.ncsc.mil  with ESMTP id h55Au4al022395 for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2003 10:56:05 GMT
+Subject: Re: executing /dev/zero
+From: Jack <jack@rapturesecurity.com>
+Reply-To: jack@rapturesecurity.com
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200306050000.58024.russell@coker.com.au>
+References: <200306050000.58024.russell@coker.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WwTv+1Pg3JkbDPEPXiSF"
+Message-Id: <1054810345.4056.7.camel@bubbles.eatflamingdeath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: 05 Jun 2003 03:52:26 -0700
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-As many of you probably know us on the Hardened Gentoo have been
-working hard to bring you superior security implementations. 
-We have done quite a bit of work on the SELinux implementation
-in Gentoo and have gotton a significant amount of work done. 
-Thanks to Chris PeBenito on our team for all his hard work with
-the SELinux policies we are now very excited to offer a 
-demonstration machine for everyone's enjoyment. 
 
-This machine is hardened with SELinux, no other security 
-precautions have been done so that you can see the power of 
-SELinux.
+--=-WwTv+1Pg3JkbDPEPXiSF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-With no further ado please visit http://selinux.dev.gentoo.org
-for root login information. 
+allow local_user_t zero_device_t:chr_file { execute };
 
-Please enjoy the machine, but don't DoS it or try to cause
-problems for others who also wish to check it out. 
+I had to do the same thing for something i cant recall on my
+slackware X workstation, I tracked it down to the exact same
+thing, but its not mplayer ;) Ill see if i can backtrace and
+see what it was that needed this. It could very well be quake3
+or some opengl application, but ill check this. On a side note
+the Owl TCB implementation for pam is working great with selinux,
+we have at least 3 workstations running this daily now.
 
-For questions, comments or help please join #gentoo-hardened
-on irc.freenode.net or look at the project webpage at 
-http://www.gentoo.org/proj/en/hardened
+On Wed, 2003-06-04 at 07:00, Russell Coker wrote:
+> avc:  denied  { execute } for  pid=3D3927 exe=3D/usr/bin/mplayer path=3D/=
+zero=20
+> dev=3D00:06 ino=3D12 scontext=3Dfaye:staff_r:staff_t=20
+> tcontext=3Dsystem_u:object_r:zero_device_t tclass=3Dchr_file
+>=20
+> It seems that mplayer is requesting execute access to /dev/zero for some=20
+> reason.  I guess it's mmaping it to allocate memory and then executing co=
+de=20
+> in that memory region.
+>=20
+> It works OK without the access, but is there any reason for allowing it? =
+ I'm=20
+> not sure whether I should give it an allow or dontaudit rule...
+--=20
+Jack <jack@rapturesecurity.com>
+RaptureSecurity
 
+--=-WwTv+1Pg3JkbDPEPXiSF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Thanks from the Hardened Gentoo team.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Joshua Brindle
+iD8DBQA+3yDpCNDQVeieV0YRAhJGAKCGOdcB3xphqy8wUQ17a+K6k+bj2ACgrNNz
+bgUHkZGMofFlurjJk7mn3V0=
+=h6G1
+-----END PGP SIGNATURE-----
 
+--=-WwTv+1Pg3JkbDPEPXiSF--
 
 
 --
