@@ -1,46 +1,42 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0DH7CIi025272
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jan 2005 12:07:13 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0DH5BPs013408
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jan 2005 17:05:12 GMT
-Date: Thu, 13 Jan 2005 17:17:32 +0000
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0DH8mIi025297
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jan 2005 12:08:48 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0DH8odk004619
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jan 2005 17:08:51 GMT
+Date: Thu, 13 Jan 2005 17:19:21 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
+Cc: ivg2@cornell.edu, SELinux@tycho.nsa.gov
 Subject: Re: Multiple contexts
-Message-ID: <20050113171732.GK17414@lkcl.net>
-References: <20050111214818.GE26175@lkcl.net> <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil> <20050112144411.GZ26175@lkcl.net> <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil> <20050112181814.GD26175@lkcl.net> <1105552982.22495.169.camel@moss-spartans.epoch.ncsc.mil> <20050112182954.GF26175@lkcl.net> <1105565236.23136.12.camel@moss-spartans.epoch.ncsc.mil> <20050112230148.GC11846@lkcl.net> <1105634671.24406.59.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <20050113171921.GL17414@lkcl.net>
+References: <1105390249.8093.21.camel@cobra.ivg2.net> <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil> <1105560687.11135.26.camel@cobra.ivg2.net> <1105566461.23136.40.camel@moss-spartans.epoch.ncsc.mil> <20050112233241.GF11846@lkcl.net> <1105632966.24406.34.camel@moss-spartans.epoch.ncsc.mil> <20050113164827.GI17414@lkcl.net> <1105634238.24406.55.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1105634671.24406.59.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1105634238.24406.55.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jan 13, 2005 at 11:44:31AM -0500, Stephen Smalley wrote:
-> On Wed, 2005-01-12 at 18:01, Luke Kenneth Casson Leighton wrote:
-> >  2 ) even if they did chcon -t "F1,F2" foobar, you would still expect
-> >      them to be doing that as an "interim" measure whilst they were
-> >      testing something _pending_ formal analysis by putting that
-> >      into the policy files.
+On Thu, Jan 13, 2005 at 11:37:18AM -0500, Stephen Smalley wrote:
+> On Thu, 2005-01-13 at 11:48, Luke Kenneth Casson Leighton wrote:
+> >   i believed that it would be acceptable to have as part of the
+> >   intermediate stage a full filesystem traversal, but as i mentioned
+> >   in the reply to james, i woke up with an insight into a flaw of
+> >   what i am advocating and cannot now remember what it is!
 > 
-> BTW, idle question:  how do you decide whether to allow setting such
-> combinations on a file?  
+> Having to analyze the complete filesystem state:
+> 1) doesn't scale.  Think of a site with millions of files.
 
- i thought that it would be because the "intermediate" stage would have
- generated a filetype called "F1,F2" which may actually only require
- some extensions etc. to simply add "," as an allowed character in the
- file types and the policy compiler.
+ ... setfiles?
 
- and there would therefore be in the policy.conf file lots of things
- like "allow F1,F2 such-and-such".
+> 2) isn't stable.  Think of runtime changes occuring all the time as
+> files are created, destroyed, relabeled, etc.
+> 
+> In any event, I consider the topic (of multiple contexts per object)
+> closed.
+ 
+ ack.  likewise.  wish i could remember what the flaw was.
 
- i thought that the only tricky bit would be at policy compile-time to
- have to run through the complete list of files on the filesystem (which
- is done by setfiles _anyway) making a distinction between the overlap
- of the regexp associated with F1 and the regexp associated with F2.
-
- l.
 
 
 --
