@@ -1,89 +1,70 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0QJM4Rb026292
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jan 2004 14:22:04 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0QJY7Rb026335
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jan 2004 14:34:07 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0QJKmxr017233
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jan 2004 19:20:49 GMT
-Received: from smtp-1.llnl.gov (smtp-1.llnl.gov [128.115.250.81])
-	by jazzswing.ncsc.mil  with ESMTP id i0QJKmYc017230
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jan 2004 19:20:48 GMT
-Received: from popcorn.llnl.gov (localhost [127.0.0.1])
-	by smtp-1.llnl.gov (8.12.3p2-20030917/8.12.3/LLNL evision: 1.13 $) with ESMTP id i0QJM1ev027001
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jan 2004 11:22:02 -0800 (PST)
-Received: from [128.115.96.64] (account shakespeare2 [128.115.96.64] verified)
-  by popcorn.llnl.gov (CommuniGate Pro SMTP 4.0.6)
-  with ESMTP id 32140750 for selinux@tycho.nsa.gov; Mon, 26 Jan 2004 11:22:01 -0800
+	by jazzswing.ncsc.mil  with ESMTP id i0QJWpxr017949
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jan 2004 19:32:51 GMT
+Received: from chris.pebenito.dhs.org (c-24-15-24-15.client.comcast.net [24.15.24.15])
+	by jazzswing.ncsc.mil  with ESMTP id i0QJWpYc017946
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jan 2004 19:32:51 GMT
+Subject: Gentoo SELinux LiveCD
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9uYvTg/sYvsSuxjaD7XK"
+Message-Id: <1075145644.1235.93.camel@chris.pebenito.net>
 Mime-Version: 1.0
-Message-Id: <p06020419bc3b1448ee02@[128.115.96.64]>
-Date: Mon, 26 Jan 2004 11:22:00 -0800
-To: selinux@tycho.nsa.gov
-From: Mark Shakespeare <mshakes@llnl.gov>
-Subject: Has something changed on Dan Walsh's site?
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Date: Mon, 26 Jan 2004 13:34:05 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I tried a fresh install of SeLinux on top of a new Fedora build.
-Using Dan Walsh's selUpgrade script.....used to work a week ago.
 
-Now I get many errors....
+--=-9uYvTg/sYvsSuxjaD7XK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-error: Failed dependencies:
+Announcing the Gentoo SELinux LiveCD
 
-	glibc-headers = 2.3.3 is needed by glibc-devel-2.3.3-1
-	db4 = 4.2.52 is needed by pam-0.77-24
-	libproc.so.2.0.17 is needed by rusers-server-0.17-34.sel
-	libtcl8.4.so is needed by setools-gui-1.1.1-1
-	libtk8.4.so is needed by setools-gui-1.1.1-1
-	glibc = 2.3.2 is needed by ( installed ) glibc-headers-2.3.2-101
-
-it then down loads the newest 2.6.1-1.141 kernel......
-
-starts to build the kernel...
-
-then fails......
-
-./selUpgrade: line 55: cd: /etc/security/selinux/src/policy/domains: 
-no such file or directory
-
-cp: cannot stat `program/unused/*': no such file or directory
-rm: cannot remove `program/dpkg*': no such file or directory
-rm: cannot remove `program/qmail*': no such file or directory
-rm: cannot remove `program/gatekeeper*': no such file or directory
-cp: cannot stat `misc/unused/*': no such file or directory
-
-./selUpgrade: line 65: cd: /etc/security/selinux/src/policy: no such 
-file or directory
-
-make: *** no targets specified and no makefile found.  Stop.
+The Hardened Gentoo SELinux team has put out an experimental SELinux
+LiveCD (108MB).  This is primarily meant for Gentoo users to install
+SELinux from scratch, but also it can be used to try out SELinux.  I
+have been able to successfully boot the CD in enforcing.  The main
+requirement is at least a pentium pro machine, since it is compiled with
+-march=3Di686.  Please keep in mind its experimental, and if you find bugs
+please report them to me, or Gentoo bugzilla (bugs.gentoo.org).  The
+only issue I know of is some denials with dhcpcd.
 
 
+http://gentoo.oregonstate.edu/experimental/x86/livecd/gentoo-selinux-2004.0=
+-i686-20040125.iso
 
-Any help would be greatly appreciated.
+MD5:
 
-I had this working fine a week ago....
+a4ae323152948633082f5ddf9272f677  gentoo-selinux-2004.0-i686-20040125.iso
 
-Now it is broke. Looks like the SeLinux directory is not being created.
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
+--=-9uYvTg/sYvsSuxjaD7XK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQBAFWusvI7kLeavkkMRArwxAKCFh8eSd1pmmEcHWNna3M2Ya/aJsQCeLXzH
+sIutPO2deMG6bTZh7g+uQ3A=
+=R3Kp
+-----END PGP SIGNATURE-----
 
-								Mark
-
-
-
-
-
-
--- 
-******************************************
-* Mark Shakespeare			 *
-* Engineering Computer Operations Team   *
-* Lawrence Livermore National Laboratory *
-* 7000 East Ave		L-130            *
-* Livermore,Ca 94550			 *
-* 925-423-9922	      mshakes@llnl.gov   *
-******************************************
+--=-9uYvTg/sYvsSuxjaD7XK--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
