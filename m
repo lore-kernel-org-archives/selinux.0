@@ -1,40 +1,45 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HBnBrT012866
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 07:49:12 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HBxrrT012951
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 07:59:53 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7HBnAKV011793
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 11:49:11 GMT
-Subject: Re: udev and capabilities
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7HBxqKV012092
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 11:59:52 GMT
+Subject: Re: how does this port binding happen?
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
-In-Reply-To: <200408170925.36215.russell@coker.com.au>
-References: <200408170925.36215.russell@coker.com.au>
+Cc: James Morris <jmorris@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200408171610.16785.russell@coker.com.au>
+References: 
+	 <Xine.LNX.4.44.0408170115060.7480-100000@dhcp83-76.boston.redhat.com>
+	 <200408171610.16785.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1092743231.25650.22.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1092743906.25650.31.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 17 Aug 2004 07:47:12 -0400
+Date: Tue, 17 Aug 2004 07:58:26 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-08-16 at 19:25, Russell Coker wrote:
-> avc:  denied  { dac_read_search } for  pid=4079 exe=/bin/bash capability=2 
-> scontext=system_u:system_r:udev_t tcontext=system_u:system_r:udev_t 
-> tclass=capability
+On Tue, 2004-08-17 at 02:10, Russell Coker wrote:
+> On Tue, 17 Aug 2004 15:23, James Morris <jmorris@redhat.com> wrote:
+> > On Tue, 17 Aug 2004, Russell Coker wrote:
+> > > avc:  denied  { name_bind } for  pid=14909 exe=/usr/bin/kview src=669
+> > > scontext=rjc:staff_r:staff_t tcontext=system_u:object_r:port_t
+> > > tclass=tcp_socket
+> > >
+> > > kview is a viewer for JPEG etc images.  It is never run as root.  How
+> > > does it get to the stage of an SE Linux access check?
+> >
+> > This check is done before the kernel DAC check.
 > 
-> I notice the above in my log files with the latest rawhide.  However udev.te 
-> has the following policy.  I was under the impression that dac_override was 
-> checked before dac_read_search and it was redundant to have dac_read_search 
-> if you already had dac_override.  Did I misunderstand this or have things 
-> changed in this regard?
-> 
-> allow udev_t self:capability { chown dac_override fowner fsetid sys_admin 
-> mknod};
+> Is it practical to get that changed?
 
-Looks like fs/ext3/acl.c:ext3_permission() is inconsistent with
-fs/namei.c:vfs_permission(), not in a way that affects the final
-outcome, but in performing the capable() call prior to other tests that
-would short circuit the logic and avoid the spurious audit.
+I doubt it.  SELinux is using one of the general socket layer hooks to
+implement the name_bind check; the kernel performs its check in the
+ipv4/af_inet.c code.  Getting a hook accepted in the ipv4 code is
+unlikely, and moving the kernel check to the general socket layer is
+likewise unlikely.  Simplest solution for us would be to reproduce the
+kernel check in the SELinux hook prior to performing the SELinux check. 
+That wouldn't be difficult, just duplicative.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
