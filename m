@@ -1,54 +1,79 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92HWgsJ004800
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 13:32:43 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h92HWf7d008273
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 17:32:42 GMT
-Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
-        by jazzband.ncsc.mil  with ESMTP id h92HWfRn008270 for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 17:32:41 GMT
-Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92HWf0F028753
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 13:32:41 -0400
-Received: (from hdholm@localhost)
-	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h92HWfP4028751
-	for selinux@tycho.nsa.gov; Thu, 2 Oct 2003 13:32:41 -0400
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92HDMsJ004592
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 13:13:22 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h92HBXZt013600
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 17:11:33 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h92HBXM3013597
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 17:11:33 GMT
-Received: from moss-huskies (moss-huskies [144.51.25.7])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h92HDLRL022009
-	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2003 13:13:21 -0400 (EDT)
-Subject: Updated Release
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-List-Id: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Message-Id: <1065114741.27477.3042.camel@moss-huskies>
+Message-Id: <6.0.0.14.0.20031002110848.01fa2438@192.168.1.25>
+Date: Thu, 02 Oct 2003 11:11:04 -0700
+To: "Tony Stanco" <Tony@egovos.org>, <SELinux@tycho.nsa.gov>,
+   "Terry S. Arnold" <Terry.Arnold@merdan.com>
+From: "Terry S. Arnold" <Terry.Arnold@merdan.com>
+Subject: Re: SELinux Certification
+In-Reply-To: <05df01c3884e$bf356500$d8742244@DJHB9G21>
+References: <6.0.0.14.0.20030930132200.01f98580@192.168.1.25>
 Mime-Version: 1.0
-Date: 02 Oct 2003 13:13:20 -0400
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The SELinux web site <http://www.nsa.gov/selinux/> including the mail
-list archive has been updated.  SELinux kernel patches for 2.6.0-test6
-and 2.4.21 are available.  The updated kernel patches include support
-for an selinux boot parameter and improved auditing.  A number of
-bugfixes and improvements have been integrated into the user space tools
-and utilities.  SRPMs for newer Red Hat packages are available.  The
-star package has been added.  The example policy has been updated. 
-Improvements have been made to existing policy tools, and a new policy
-analysis tool has been added.
+Tony
 
--- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Office of Defensive Computing Research
-National Security Agency
+What PP, if any, is being used for these "evaluations"?
+
+What versions of Linux/SELinux are involved?
+
+Terry
+
+At 12:03 PM 10/1/2003, Tony Stanco wrote:
+>Oracle is in the process of getting Red Hat certified in the UK to eal2.
+>Both IBM and Oracle are going for eal4 in the next year or so. IBM is
+>already working on eal3.
+>
+>Best regards,
+>
+>Tony Stanco
+>Founding Director
+>The Center of Open Source & Government
+>http://www.eGovOS.org
+>tony@egovos.org
+>
+>Associate Director
+>Open Source and eGovernment
+>Cyber Security Policy and Research Institute
+>George Washington University
+>[NSA Center of Excellence in Information Assurance]
+>2033 K Street, NW, Suite 340
+>Washington, DC 20006
+>tel        202-994-5513
+>fax       202-994-5505
+>http://www.cpi.seas.gwu.edu
+>Stanco@gwu.edu
+>----- Original Message -----
+>From: "Terry S. Arnold" <Terry.Arnold@merdan.com>
+>To: <SELinux@tycho.nsa.gov>
+>Sent: Tuesday, September 30, 2003 4:25 PM
+>Subject: SELinux Certification
+>
+>
+> > Has anybody aware of the certification of SELinux, or any other Linux for
+> > that matter, against Common Criteria? I know about the SuSE evaluation,
+>but
+> > are there any others?
+> >
+> > Terry
+> >
+> > _Terry S. Arnold Merdan Group
+> >     4010 Morena Blvd., Suite 224 San Diego, CA 92117-4547
+> >     Terry.Arnold@merdan.com 858-373-2521 (voice) 858-272-6791 (fax)
+> >
+> >
+> >
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+>with
+> > the words "unsubscribe selinux" without quotes as the message.
+
+_Terry S. Arnold Merdan Group
+    4010 Morena Blvd., Suite 224 San Diego, CA 92117-4547
+    Terry.Arnold@merdan.com 858-373-2521 (voice) 858-272-6791 (fax) 
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
