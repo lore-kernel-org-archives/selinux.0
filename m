@@ -1,60 +1,64 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1M7YEdW021123
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 02:34:16 -0500 (EST)
-Received: from oe-im1.bizmailsrvcs.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1M7VuZE018243
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 07:32:00 GMT
-Subject: Re: What is typealias and typeattribute
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <4219E45B.2020501@kaigai.gr.jp>
-References: <4219E45B.2020501@kaigai.gr.jp>
-Content-Type: text/plain
-Date: Mon, 21 Feb 2005 11:56:30 -0500
-Message-Id: <1109004990.3073.85.camel@selinux>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1M9rkdW021578
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 04:53:47 -0500 (EST)
+Received: from mail02.infosat.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1M9n7MK003715
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 09:49:10 GMT
+Received: from [196.38.110.14] (HELO mail01.infosat.net)
+  by mail02.infosat.net (CommuniGate Pro SMTP 4.1.8)
+  with ESMTP id 207527722 for selinux@tycho.nsa.gov; Tue, 22 Feb 2005 11:51:12 +0200
+Received: from [66.18.72.157] (HELO hivsa.com)
+  by mail01.infosat.net (CommuniGate Pro SMTP 4.1.8)
+  with SMTP id 644660205 for selinux@tycho.nsa.gov; Tue, 22 Feb 2005 11:51:11 +0200
+From: Jayendren Anand Maduray <jayendren@hivsa.com>
+Reply-To: jayendren@mweb.co.za
+To: selinux@tycho.nsa.gov
+Subject: Re: fc3 - password change problem - syslog and portmapper
+Date: Tue, 22 Feb 2005 11:49:59 +0200
+Cc: jayendren@mweb.co.za
+References: <200502220809.40631.jayendren@hivsa.com> <20050222091553.GD14038@lkcl.net>
+In-Reply-To: <20050222091553.GD14038@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200502221149.59288.jayendren@hivsa.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-02-21 at 22:38 +0900, KaiGai Kohei wrote:
-> I noticed some sentence structures not to understand the meaning well,
-> when I read policy_parse.y in checkpolicy.tgz.
-> 
-> I think we can replace 'typealias' and 'typeattribute' with
-> 'type ...' sentence structure completely.
-> So, It's not writen in 'Configuring the SELinux Policy', orz.
-> 
-> Is it historical syntax? or does it have another purpose?
-> Please tell me.
-
-Typealias and typeattribute are recent additions, added since that
-document was written.  The original syntax only allowed applying an
-alias or an attribute on the type statement, as described in that doc.
-For example:
-
-type etc_dhcp_t alias { etc_dhcpc_t etc_dhcpd_t }, file_type, sysadmfile;
-
-However this is problematic if this is type statement is inside a macro,
-since you might not want to add aliases and attributes in general, or
-there are many types declared in the macro.  So typealias and
-typeattribute were created so aliases and attributes could be added
-outside the type statement.  If we wanted to add an alias and an
-attribute to a type created by the tmpfs_domain macro, it would look
-like this:
-
-tmpfs_domain(foo)
-typealias foo_tmpfs_t alias foo_shm_t;
-typeattribute foo_tmpfs_t myattribute;
-
-We do want to keep both syntaxes, since both are used in the policy.
+On Tuesday 22 February 2005 11:15, Luke Kenneth Casson Leighton 
+<lkcl@lkcl.net>
+wrote:
+> On Tue, Feb 22, 2005 at 08:09:40AM +0200, Jayendren Anand Maduray wrote:
+> > Hi!
+> >
+> > Got FC3 running SELINUX in enforcing mode.
+>
+>  you brave person :)
+>
+>  which policy - targetted or strict?
+>
+>  [remember to tell the list not me]
+....
+brave, i prefer fc3 to other distros, second best is redhat, hence fc3.
+it is targeted.
+;)
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Jayendren Anand Maduray
+Microsoft Certified Professional
+Network Plus
+IT Administrator  
 
+Perinatal HIV Research Unit
+Old Potch Road
+Chris Hani Baragwanath Hospital
+Soweto
+South Africa
 
+Tel: +27 11 989 9776
+Tel: +27 11 989 9999
+Fax: +27 11 938 3973
+Cel: 082 22 774 94
 
 --
 This message was distributed to subscribers of the selinux mailing list.
