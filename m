@@ -1,24 +1,32 @@
-From: "hariharanjayaraman" <hariharanjayaraman@indiatimes.com>
-Message-Id: <200210161432.UAA09112@WS0005.indiatimes.com>
-To: "SELinux Mailing list E-mail"<SELinux@tycho.nsa.gov>
-Reply-To: "hariharanjayaraman"<hariharanjayaraman@indiatimes.com>
-Subject: where to find archieves
-Date: Wed, 16 Oct 2002 20:15:39 +0530
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524434@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'hariharanjayaraman'" <hariharanjayaraman@indiatimes.com>,
+        SELinux Mailing list E-mail <SELinux@tycho.nsa.gov>
+Subject: RE: where to find archieves
+Date: Wed, 16 Oct 2002 10:03:03 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
-  I want to know where can i find archieves of all the patched kernel so far..
 
-Thanks 
-Hariharan Jayaraman
-Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+on Wednesday, October 16, 2002 9:46 AM hariharanjayaraman wrote:
+> hi,
+>   I want to know where can i find archieves of all the 
+> patched kernel so far..
+>
 
- Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
+The best was is to use the CVS tree at sourceforge
 
-Change the way you talk. Indiatimes presents Valufon, Your PC to Phone service with clear voice at rates far less than the normal ISD rates. Go to http://www.valufon.indiatimes.com. Choose your plan. BUY NOW.
+cvs -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux login
 
+hit return at the password prompt
+
+cvs -z3 -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux co
+nsa
+
+Mark  
 
 --
 This message was distributed to subscribers of the selinux mailing list.
