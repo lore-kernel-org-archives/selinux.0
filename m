@@ -1,51 +1,71 @@
-Message-Id: <200404141410.i3EEA0Jx015621@gotham.columbia.tresys.com>
+Message-Id: <200404141453.i3EEr2Jx015745@gotham.columbia.tresys.com>
 From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
-Cc: "'Russell Coker'" <russell@coker.com.au>,
-   "'Daniel J Walsh'" <dwalsh@redhat.com>, "'SELinux'" <SELinux@tycho.nsa.gov>,
+To: <russell@coker.com.au>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>,
+   "'SELinux'" <SELinux@tycho.nsa.gov>,
    "'Selinux Dev'" <selinux-dev@tresys.com>
-Subject: RE: Now that SELinux supports booleans should we replace tunableswith booleans?
-Date: Wed, 14 Apr 2004 10:10:24 -0400
+Subject: RE: Now that SELinux supports booleans should we replace tunables with booleans?
+Date: Wed, 14 Apr 2004 10:53:26 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-In-Reply-To: <1081949423.23747.32.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <200404142338.51788.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@epoch.ncsc.mil]
-> Sent: Wednesday, April 14, 2004 9:30 AM
-> To: Karl MacMillan
-> Cc: Russell Coker; 'Daniel J Walsh'; 'SELinux'; 'Selinux Dev'
-> Subject: RE: Now that SELinux supports booleans should we replace
-> tunableswith booleans?
-> 
-> On Wed, 2004-04-14 at 09:11, Karl MacMillan wrote:
-> > As far as preserving boolean values, this doesn't seem any different
-> from
-> > other runtime kernel values and there are mechanism that can be easily
-> > extended to handle this.
-> 
-> So you are suggesting something akin to /etc/sysctl.conf for boolean
-> values and running something akin to sysctl -p from /etc/rc.d/rc.sysinit
-> to set the boolean value during initialization?
-> 
 
-Sure - init should have the privileges to do this. The only detail is that
-this should be done before any daemons are started - is rc.sysinit run early
-enough?
-
-Karl
 
 Karl MacMillan
 Tresys Technology
 http://www.tresys.com
-(410)290-1411 ext 134
+(410)290-1411 ext 134 
+
+> -----Original Message-----
+> From: Russell Coker [mailto:russell@coker.com.au]
+> > Why is a reboot required?
+> 
+> If we have a tunable option to determine which domain processes run in
+> (such
+> as single_userdomain) or a tunable that determines the identity that
+> daemons
+> get (such as direct_sysadm_daemon) then restarting processes is necessary.
+> Some people find it difficult to do this successfully and find it easier
+> to
+> do a reboot.
+> 
+
+Sure.
+
+> 
+> The advantages of booleans are clear IMHO.  But they don't seem applicable
+> to
+> something that will be set at install time on a system that is capable of
+> building a policy.  Maybe for an iPaQ booleans for tunable options would
+> be
+> good.  For a desktop or server they seem to offer less benefits.
+> 
+
+If it is only set at install time, then maybe tunables.te makes sense.
+
+> Finally, for booleans both options have to be in the policydb and in the
+> kernel at run-time.  For tunable.te they aren't, and can significantly
+> reduce
+> the policy size.
+> 
+
+Again, if this is truly only set at install time this might be true. I'm not
+convinced that these things will only be set at install time, though, and in
+that case I think it might make sense to use the booleans. Also, the size
+overhead may be preferable to requiring administrators to build policy from
+source.
+
+Karl
 
 > --
-> Stephen Smalley <sds@epoch.ncsc.mil>
-> National Security Agency
+> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+> http://www.coker.com.au/~russell/  My home page
 
 
 --
