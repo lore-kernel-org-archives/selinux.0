@@ -1,37 +1,34 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27448
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 11:55:40 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA24266
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 15:54:02 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA27593
+	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 12:05:55 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA12979
+	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 16:04:53 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id PAA24252 for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 15:54:01 GMT
-Date: Fri, 16 Aug 2002 11:55:11 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id QAA12975
+	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 16:04:53 GMT
+Date: Fri, 16 Aug 2002 12:05:03 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Ryan Bergauer <privateryan@mindspring.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: CVS install error
-In-Reply-To: <001201c23cc7$ef2bd1a0$0300a8c0@donkey>
-Message-ID: <Pine.GSO.4.33.0208161153510.29385-100000@raven>
+To: Frank Mayer <mayerf@tresys.com>
+cc: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
+Subject: RE: proposed patch: policy management
+In-Reply-To: <ACEHIKGIGFEDAIKEMMMICEGBKFAA.mayerf@tresys.com>
+Message-ID: <Pine.GSO.4.33.0208161203270.29385-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 5 Aug 2002, Ryan Bergauer wrote:
+On Thu, 15 Aug 2002, Frank Mayer wrote:
 
-> Making all in po
-> make[3]: Entering directory `/usr/src/selinux/utils/tar-1.13.19/po'
-> file=./`echo ko | sed 's,.*/,,'`.gmo \
->   && rm -f $file && PATH=../src:$PATH /usr/bin/msgfmt -o $file ko.po
-> ko.po:1431:17: invalid multibyte sequence
-> ko.po:1434:6: invalid multibyte sequence
-> /usr/bin/msgfmt: found 2 fatal errors
-> make[3]: *** [ko.gmo] Error 1
+> It's been pointed out to me that I mistakenly posted the original proposed
+> policy patch rather than the updated version.  I've (hopefully) attached the
+> correct patch file here.  Sorry for the mix up!
 
-This should now be fixed in the CVS tree.  Thanks to David Caplan of
-Tresys for the fix.
+This patch has been committed to the sourceforge CVS tree, with a few
+revisions.  The installation procedure has also been updated to install
+the policy sources via the new install-src target.
 
 --
 Stephen D. Smalley, NAI Labs
