@@ -1,73 +1,47 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAHB9Ii021663
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 12:11:10 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAHG4Ii021710
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 12:16:04 -0500 (EST)
 Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAH9Wwg008984
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 17:09:32 GMT
-Subject: Re: Single home directory type for all roles.
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAHEQwg009299
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 17:14:26 GMT
+Subject: Re: can_network patch.
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
-Cc: Casey Schaufler <casey@schaufler-ca.com>,
-   SE Linux list <selinux@tycho.nsa.gov>
-In-Reply-To: <200412101700.iBAH06eq019975@turing-police.cc.vt.edu>
-References: <20041210161940.57421.qmail@web50204.mail.yahoo.com>
-	 <200412101700.iBAH06eq019975@turing-police.cc.vt.edu>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Jim Carter <jwcart2@epoch.ncsc.mil>, Russell Coker <russell@coker.com.au>,
+   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <41B9D79F.9060801@redhat.com>
+References: <41741A2C.8040408@redhat.com>
+	 <200410260138.19426.russell@coker.com.au>
+	 <20041025213122.GA2535@jmh.mhn.de>
+	 <200410270036.14935.russell@coker.com.au>
+	 <1099690788.16488.52.camel@moss-lions.epoch.ncsc.mil>
+	 <4192A029.5050909@redhat.com>
+	 <1100722524.22035.18.camel@moss-lions.epoch.ncsc.mil>
+	 <419CB2A8.7020504@redhat.com>
+	 <1101235934.7273.24.camel@moss-lions.epoch.ncsc.mil>
+	 <41A4B54F.3070709@redhat.com>
+	 <1101314370.22014.198.camel@moss-spartans.epoch.ncsc.mil>
+	 <41A4BCC9.10604@redhat.com>
+	 <1102693385.1628.102.camel@moss-spartans.epoch.ncsc.mil>
+	 <41B9D79F.9060801@redhat.com>
 Content-Type: text/plain
-Message-Id: <1102698383.1628.144.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1102698638.1628.148.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 10 Dec 2004 12:06:23 -0500
+Date: Fri, 10 Dec 2004 12:10:38 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-12-10 at 12:00, Valdis.Kletnieks@vt.edu wrote:
-> Why am I making a point about this?  Because we're presumably working on
-> something that will be in the *mainline* kernel, and have support in the
-> default .ISO images shipped by vendors - and I don't know of any Unix vendor
-> who's shipped this stuff in their *mainline* product.
-> 
-> And *that* is uncharted territory indeed.  VMS is probably the closest thing to
-> Unix/Linux that actually used stuff like SYS$WHATEVER inside a filename to get
-> a similar effect to moldy directories *and* carry it through all the way for
-> the base system...
+On Fri, 2004-12-10 at 12:06, Daniel J Walsh wrote:
+> When installing a package within firefox, it attemps to exec 
+> system-config-packages which blows up because
+> *-mozilla-t can not run userhelper apps.
 
-My view on this is that we need to build a mechanism that leverages the
-existing per-process namespace and bind mount support in Linux.  If
-implementing it in userspace using only those existing kernel
-mechanisms, the basic idea would be something like:
-
-1) login-style programs would consult a configuration file that
-specifies the list of candidate directories for polyinstantiation (e.g.
-/tmp, $HOME),
-2) The programs would then invoke security_compute_member() (the SELinux
-interface for selecting a member of a polyinstantiated object) between
-the user context and the top-level directory context for each of these
-directories,
-3) If security_compute_member() returns a different context than the
-context on the top-level directory, then this indicates that
-polyinstantiation of that directory is specified by the policy.  In that
-case, the program would lookup or create the member subdirectory with
-the returned member context, using a function of the member context as
-the name of the member subdirectory (e.g. a hash of it).
-4) If any polyinstantiation was indicated, then the program would clone
-a child with a separate namespace rather than just using fork for
-creating the child.
-5) For each directory for which polyinstantiation was indicated the
-child would bind mount the original directory under a different name to
-allow referencing by security-aware applications that need to access
-multiple members (if allowed by policy), then bind mount the member
-subdirectory over the original directory location.
-6) The child process can then exec the user shell, which will operate in
-the new namespace.
-
-Some thought would have to be given into how to handle programs like
-su/newrole/newlevel, where you then need to re-bind to a different
-member.  Since the original directory will be accessible under a
-different name (e.g. /tmp -> /.tmp) if allowed by policy, it should be
-possible to have them perform such re-binding.
-
-This will also have implication for other software that presently
-assumes a global namespace, e.g. autofs/automount won't work properly in
-an environment where most user sessions have their own namespace.
+Installing a package within firefox?  If you are talking about something
+firefox downloaded, then why does it use system-config-packages?  And I
+would expect that you would end up installing any such packages local to
+the user's home directory at most (and even then only if policy allows
+writing to it), not on a system-wide basis.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
