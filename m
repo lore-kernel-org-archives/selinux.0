@@ -1,32 +1,32 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA01739
-	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 07:43:02 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA12708
-	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 11:41:14 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id LAA12704 for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 11:41:14 GMT
-Date: Tue, 1 Oct 2002 07:42:22 -0400 (EDT)
+Date: Tue, 1 Oct 2002 07:34:16 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: /dev/pty*
-In-Reply-To: <200210011045.07733.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0210010740110.1579-100000@raven>
+cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: trivial logging bug
+In-Reply-To: <200209302137.15850.russell@coker.com.au>
+Message-ID: <Pine.GSO.4.33.0210010733000.1579-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 1 Oct 2002, Russell Coker wrote:
+On Mon, 30 Sep 2002, Russell Coker wrote:
 
-> What's the correct type for /dev/pty*?  devpts_t?
+> On Mon, 30 Sep 2002 20:55, Stephen Smalley wrote:
+> > On Mon, 30 Sep 2002, Russell Coker wrote:
+> > This behavior is due to the security_ops->inode_rmdir hook being called
+> > after the d_unhash on the dentry in vfs_rmdir, so the dentry appears
+> > "deleted" to the pathname generation code.  To fix, we would need to move
+> > up the hook call in the LSM patch.  Other than potentially confusing
+> > output, I don't think that it is a real concern.
+>
+> OK, well just finding and removing the "(deleted)" string before displaying
+> the message will give a good result for the users...
 
-Possibly, but you are likely to need some additional rules.  We've always
-used the devpts pseudo filesystem (or alternatively, devfs now that
-Rogelio's patch has been merged) and haven't tried using SELinux with
-traditional /dev/pty* nodes.
+No, I would expect us to submit a change to the LSM patch to move the hook
+call prior to the d_unhash.  I was simply noting that it isn't a security
+issue, so we don't need an immediate fix.
 
 --
 Stephen D. Smalley, NAI Labs
