@@ -1,41 +1,57 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i76FVKrT012875
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 11:31:20 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i76FVJO0026133
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 15:31:19 GMT
-Subject: Re: Now that SELinux supports booleans should we replace tunables
-	with booleans?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i76FaxrT012940
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 11:36:59 -0400 (EDT)
+Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i76FaOps007774
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 15:36:24 GMT
+Date: Fri, 6 Aug 2004 11:36:39 -0400 (EDT)
+From: kmacmillan@tresys.com
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov,
-   Russell Coker <russell@coker.com.au>, selinux-dev@tresys.com
+cc: Stephen Smalley <sds@epoch.ncsc.mil>, Joshua Brindle <jbrindle@tresys.com>,
+   <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
+   <selinux-dev@tresys.com>
+Subject: Re: Now that SELinux supports booleans should we replace tunables
+ with booleans?
 In-Reply-To: <411397C9.2010606@redhat.com>
-References: <200404141453.i3EEr2Jx015745@gotham.columbia.tresys.com>
-	 <1091472796.23449.248.camel@moss-spartans.epoch.ncsc.mil>
-	 <1091800968.8590.39.camel@moss-spartans.epoch.ncsc.mil>
-	 <411393AB.6020305@tresys.com>
-	 <1091802482.8590.62.camel@moss-spartans.epoch.ncsc.mil>
-	 <411397C9.2010606@redhat.com>
-Content-Type: text/plain
-Message-Id: <1091806214.8590.83.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 06 Aug 2004 11:30:15 -0400
+Message-ID: <Pine.LNX.4.44.0408061133310.4557-100000@gotham.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-08-06 at 10:38, Daniel J Walsh wrote:
-> show_bools should be getsebool -a.
+On Fri, 6 Aug 2004, Daniel J Walsh wrote:
 
-Ok, committed.
+> Stephen Smalley wrote:
+> 
+> >On Fri, 2004-08-06 at 10:20, Joshua Brindle wrote:
+> >  
+> >
+> >>If they are going to be changed they should probably also be changed to 
+> >>match the get/set convention used by most other selinux apps.
+> >>    
+> >>
+> >
+> >I can see renaming change_bool to setsebool or something similar, and
+> >adding a new getsebool <boolean> that just displays the value of the
+> >specified boolean.  show_bools is a little different in that it shows
+> >all booleans and their values, so possibly listsebools.  toggle_sebool
+> >has no equivalent.
+> >  
+> >
+> 
+> show_bools should be getseboo -a.
+> 
 
-show_bools -> getsebool -a or getsebool boolean...
-change_bool -> setsebool
-toggle_bool -> togglesebool
+This sounds like a good solution to me:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+	change_bool	->	setsebool
+	show_bools	->	getsebool (with -a showing all)
+	toogle_bool	->	togglesebool
+
+Karl
+
+> Dan
+> 
 
 
 --
