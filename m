@@ -1,33 +1,41 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i922h7rT006591
-	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 22:43:07 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9239xrT006724
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 23:09:59 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i922h4EZ021593
-	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 02:43:04 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9239oEZ022011
+	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 03:09:57 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Tom Anderson <granite217@yahoo.com>
-Subject: Re: purpose of the staff_r role?
-Date: Sat, 2 Oct 2004 12:43:02 +1000
-Cc: selinux@tycho.nsa.gov
-References: <20041002011030.68972.qmail@web14924.mail.yahoo.com>
-In-Reply-To: <20041002011030.68972.qmail@web14924.mail.yahoo.com>
+To: Greg Norris <haphazard@kc.rr.com>
+Subject: Re: need advice for ld_so_cache_t errors
+Date: Sat, 2 Oct 2004 13:09:46 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20041001233554.GA26550@yggdrasil.localdomain>
+In-Reply-To: <20041001233554.GA26550@yggdrasil.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200410021243.02995.russell@coker.com.au>
+Message-Id: <200410021309.46413.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2 Oct 2004 11:10, Tom Anderson <granite217@yahoo.com> wrote:
-> --- Russell Coker <russell@coker.com.au> wrote:
-> > r_dir_file(staff_t, logfile)
+On Sat, 2 Oct 2004 09:35, Greg Norris <haphazard@kc.rr.com> wrote:
+> OK, I've finally reached a point where I'm switching my system from
+> permissive to enforcing mode (and there was much rejoicing! ;-).  Things
+> seem to be working pretty well, but I'm noticing a number of
+> ld_so_cache_t errors logged...  in particular, restarting postfix causes
+> an absolute FLOOD of messages such as the one below (reformatted for my
+> own sanity).
 >
-> Thank you.  Is there a similar trick for seeing the full process
-> information under ps?  I see there's a "can_ps" macro, but so far I
-> haven't managed to get the arguments right.
+>    Oct  1 17:16:34 sasami kernel: audit(1096668994.071:0): avc:
+>      denied  { execute } for  pid=3039 path=/etc/ld.so.cache
+>      dev=hda5 ino=1022 scontext=system_u:system_r:postfix_master_t
+>      tcontext=system_u:object_r:ld_so_cache_t tclass=file
 
-can_ps(staff_t, domain) probably does what you want.
+I have installed the same versions of libc6 and postfix as you but can not 
+reproduce this.
+
+Please show me the output of "ls -li /etc/ld.so.cache" on that machine.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
