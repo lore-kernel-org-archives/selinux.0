@@ -1,53 +1,62 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i69HUgrT020858
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2004 13:30:42 -0400 (EDT)
-Received: from turing-police.cirt.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i69HUbNT013479
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2004 17:30:40 GMT
-Message-Id: <200407091730.i69HUMZG030402@turing-police.cc.vt.edu>
-To: Bradley Chapman <kakadu@gmail.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov,
-   russell@coker.com.au
-Subject: Re: An SELinux policy for Red Hat 9 
-In-Reply-To: Your message of "Fri, 09 Jul 2004 15:52:00 BST."
-             <e294b46e0407090752b199eeb@mail.gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <e294b46e040708131736c57b6@mail.gmail.com> <200407092111.55045.russell@coker.com.au> <e294b46e0407090443663d55c4@mail.gmail.com> <1089375253.11726.34.camel@moss-spartans.epoch.ncsc.mil>
-            <e294b46e0407090752b199eeb@mail.gmail.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6AI35rT025117
+	for <selinux@tycho.nsa.gov>; Sat, 10 Jul 2004 14:03:05 -0400 (EDT)
+Date: Sat, 10 Jul 2004 13:02:39 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: Russell Coker <russell@coker.com.au>, Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: small dhcpc.fc patch
+Message-ID: <20040710180239.GA16267@yggdrasil.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-748311580P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Fri, 09 Jul 2004 13:30:21 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-748311580P
+
+--61jdw2sOBCFtR2d/
+Content-Type: multipart/mixed; boundary="EVF5PPMfhYS0aIcm"
+Content-Disposition: inline
+
+
+--EVF5PPMfhYS0aIcm
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fri, 09 Jul 2004 15:52:00 BST, Bradley Chapman said:
+Please consider applying the attached dhcpc.fc patch to CVS.  It's
+needed by the dhcp3-client package in Debian.  Thanx!
 
-> If I do decide to move to FC2, how difficult will it then become to
-> adapt the SELinux policy
-> to my needs?
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="dhcpc.fc.diff"
+Content-Transfer-Encoding: quoted-printable
 
-This will of course depend on how divergent your needs are from either
-the 'targeted' or 'strict' policies already in the tree.  The biggest issue
-is whether you have a custom application that needs policy written (and
-there's tools to assist in that).
+--- dhcpc.fc.orig	2004-07-10 12:33:24.000000000 -0500
++++ dhcpc.fc	2004-07-10 12:38:04.000000000 -0500
+@@ -1,5 +1,6 @@
+ # dhcpcd=20
+ /etc/dhcpc.*(/.*)?		system_u:object_r:dhcp_etc_t
++/etc/dhcp3?/dhclient.*		system_u:object_r:dhcp_etc_t
+ /etc/dhclient.*conf	--	system_u:object_r:dhcp_etc_t
+ /etc/dhclient-script	--	system_u:object_r:dhcp_etc_t
+ /sbin/dhcpcd		--	system_u:object_r:dhcpc_exec_t
 
---==_Exmh_-748311580P
-Content-Type: application/pgp-signature
+--EVF5PPMfhYS0aIcm--
+
+--61jdw2sOBCFtR2d/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFA7tYtcC3lWbTT17ARAtY8AJ4782spWkflWHhZeRjS2Uh2zZrAhACgoY++
-W4R8sRvftypiCfF/IcofybM=
-=5Jjy
+iD8DBQFA8C8/grEMyr8Cx2YRAnmKAKDQetq/mSjUzzyhD2Gp2ipvjqNm9gCg0oL4
+U+OlW0O/Dt5KU5mvqarzypM=
+=CWoR
 -----END PGP SIGNATURE-----
 
---==_Exmh_-748311580P--
+--61jdw2sOBCFtR2d/--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
