@@ -1,49 +1,60 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA13172
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jan 2001 13:12:59 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id SAA14860
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jan 2001 18:11:23 GMT
-Received: from mailgate1.darpa.mil (mailgate1.darpa.mil [192.5.18.61])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id SAA14856
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jan 2001 18:11:22 GMT
-Received: from mailhub1.darpa.mil (mailhub1.darpa.mil [158.63.2.41])
-	by mailgate1.darpa.mil (8.10.1/8.10.1) with ESMTP id f0NI9FY25905
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jan 2001 13:09:15 -0500 (EST)
-Received: from MSX-SMTP2.darpa.mil (msx-smtp2.darpa.mil [158.63.1.61])
-	by mailhub1.darpa.mil (8.9.1/8.9.1) with SMTP id NAA01676
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jan 2001 13:09:22 -0500 (EST)
-Message-ID: <32D3609E0ED18D4BA8EA845B3C26CA4019E293@exchange5.darpa.mil>
-From: dmaughan <dmaughan@darpa.mil>
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: DARPA Research Initiative
-Date: Tue, 23 Jan 2001 13:12:49 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA24925
+	for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2001 11:59:35 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA14157
+	for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2001 16:58:55 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA14153
+	for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2001 16:58:55 GMT
+Received: from localhost by clipper.gw.tislabs.com (8.9.3/8.9.1) with SMTP id LAA11582
+	for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2001 11:58:26 -0500 (EST)
+Date: Thu, 25 Jan 2001 11:58:25 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+Reply-To: Stephen Smalley <sds@tislabs.com>
+To: selinux@tycho.nsa.gov
+Subject: error in fs/attr.c
+Message-ID: <Pine.SOL.3.95.1010125115110.4491K-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-For those of you interested in the NSA Secure Linux project, you might find
-the URL below of interest. DARPA has developed an entire research program in
-the area of Trusted Open Source Operating Systems and has been coordinating
-the research agenda with NSA. The URL below describes the first round of
-research solicitations. Most of it is aimed at improving existing open
-source operating systems. You'll want to get both the CBD Reference and the
-Proposer Information Pamphlet.
 
-http://www.darpa.mil/ito/Solicitations/CBD_01-24.html
+While porting to the 2.4 kernel, I noticed an error in my changes
+to the inode_change_ok function in fs/attr.c.  The return value
+(retval) is initialized on entry to -EPERM, and the normal Linux access
+checks simply return this value if an access check fails.  However, the
+Flask permission checks that were inserted into this function
+use retval, and consequently reset it to zero if the Flask
+permissions are granted.  Consequently, successful Flask permission
+checks in this function have an accidental side effect of overriding 
+any failure in the normal Linux access checks in this function.  My
+apologies for this error.
 
-Regards,
+The following patch should address the issue.  You can apply this
+patch to either the 2.2.12 version or the 2.2.17 version.  The
+release on the web pages will reflect this change the next time the
+release is updated.
 
-Dr. Douglas Maughan
-Program Manager
-DARPA/ITO
-3701 Fairfax Drive
-Arlington, VA.  22203
-Phone: 703-696-2373
-Fax: 703-696-4534
-dmaughan@darpa.mil
+--- attr.c.old	Thu Jan 25 10:43:36 2001
++++ attr.c	Thu Jan 25 10:43:41 2001
+@@ -69,6 +69,8 @@
+ 		if (retval)
+ 			goto error;
+ 	}
++
++	retval = -EPERM;
+ #endif
+ 
+ 	/* Make sure a caller can chown. */
+
+--
+Stephen D. Smalley, NAI Labs
+sds@tislabs.com
+
+
+
 
 
 --
