@@ -1,62 +1,56 @@
-Message-Id: <200404151452.i3FEqjOd013530@turing-police.cc.vt.edu>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Now that SELinux supports booleans should we replace tunables with booleans? 
-In-Reply-To: Your message of "Wed, 14 Apr 2004 22:29:44 EDT."
-             <407DF398.4010405@redhat.com>
-From: Valdis.Kletnieks@vt.edu
-References: <200404141315.i3EDFkJx015414@gotham.columbia.tresys.com> <200404150219.27857.russell@coker.com.au> <200404141950.i3EJoFSM021953@turing-police.cc.vt.edu>
-            <407DF398.4010405@redhat.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3FHQYRb009113
+	for <selinux@tycho.nsa.gov>; Thu, 15 Apr 2004 13:26:34 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i3FHQXmw026832
+	for <selinux@tycho.nsa.gov>; Thu, 15 Apr 2004 17:26:33 GMT
+Received: from smtp-4.llnl.gov (smtp-4.llnl.gov [128.115.41.84])
+        by jazzband.ncsc.mil  with ESMTP id i3FHQW4w026829 for <selinux@tycho.nsa.gov>; Thu, 15 Apr 2004 17:26:32 GMT
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1470930448P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Thu, 15 Apr 2004 10:52:45 -0400
+Message-Id: <p06100505bca4727973a5@[128.115.96.64]>
+Date: Thu, 15 Apr 2004 10:26:25 -0700
+To: selinux@tycho.nsa.gov
+From: Mark Shakespeare <mshakes@llnl.gov>
+Subject: Setools 1.2.1 broken after upgrading to NSA release 2.6.5
+Cc: kmacmillan@tresys.com
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-1470930448P
-Content-Type: text/plain; charset=us-ascii
+I recently upgraded my kernel and packages to 2.6.5 from the NSA 
+site. ( Apr 8 )
 
-On Wed, 14 Apr 2004 22:29:44 EDT, you said:
+The package included Setools 1.2.1, and was installed as well.
 
-> >really silly shell script that does the moral equiv of:
-> >
-> >for i in unused/*.te; do rpm -qf $i && mv $i .; done
-> >  
-> >
-> There is not a 1-1 relationship between rpm names and policy names.
+Now only Sepcut works,  .....Apol,SeuserX,Seinfo and Seaudit complain about
+bad policy files and other things.
 
-Right.  That's why I said "the moral equivalent of".  Any other
-equivalent means of trimming out .te files for software that isn't even
-installed would work too.
+What exact components/Libraries are needed to have this function again?
 
-I liked Russell's suggestion that we have a separate rpm that contains
-the .te for the package - appropriate %postinstall scripting magic
-would make all the policy rebuilding/reloading and file labelling happen
-when you installed the package....
+Any help would be greatly appreciated.
 
-> I would prefer not to use unused at all, but some macro version to 
-> indicate whether to include a te
-> file or not.  Moving files around on the fly is not a great solution.
+I currently have...
 
-Wrapping all of them in m4 ifdef() blocks and a front end that sets
-control variables would be OK too.  If m4 can deal with Sendmail's
-.mc/.cf file wierdness, it can do this... :)
+policy-1.11.2-3
+policy-sources-1.11.2-3
+setools-1.2-1
+kernel-2.6.5-selinux1
+libselinux-1.10.1
+libselinux-devel-1.10-1
+
+Thanks.
 
 
---==_Exmh_-1470930448P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAfqG8cC3lWbTT17ARAgLNAKDq2o8gzE0MFIEEaxYWtgvbvxNODACgjfhG
-wqR+djT8BBdE8e/2QhSw57Y=
-=VCuF
------END PGP SIGNATURE-----
-
---==_Exmh_-1470930448P--
+							Mark
+-- 
+******************************************
+* Mark Shakespeare			 *
+* Engineering Computer Operations Team   *
+* Lawrence Livermore National Laboratory *
+* 7000 East Ave		L-130            *
+* Livermore,Ca 94550			 *
+* 925-423-9922	      mshakes@llnl.gov   *
+******************************************
 
 --
 This message was distributed to subscribers of the selinux mailing list.
