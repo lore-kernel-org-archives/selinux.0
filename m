@@ -1,165 +1,101 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4P2n7Rb015063
-	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 22:49:07 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4P2n3AR001219
-	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 02:49:03 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4P2uPRb015112
+	for <selinux@tycho.nsa.gov>; Mon, 24 May 2004 22:56:25 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4P2rsar016797
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 02:53:55 GMT
 Received: from smtp.sws.net.au ([61.95.69.6])
-        by jazzband.ncsc.mil  with ESMTP id i4P2n1Hn001160 for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 02:49:02 GMT
-From: Russell Coker <rcoker@redhat.com>
-Reply-To: rcoker@redhat.com
+	by jazzswing.ncsc.mil  with ESMTP id i4P2rXQu016744
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 02:53:54 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
 To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 Subject: Re: [patch] policy for nrpe
-Date: Tue, 25 May 2004 12:41:22 +1000
+Date: Tue, 25 May 2004 12:48:22 +1000
 Cc: SELinux ML <selinux@tycho.nsa.gov>
-References: <20040523214406.GB6147@jmh.mhn.de> <200405241056.58596.rcoker@redhat.com> <20040524090907.GA15439@thebe.cip.ifi.lmu.de>
-In-Reply-To: <20040524090907.GA15439@thebe.cip.ifi.lmu.de>
+References: <20040523214406.GB6147@jmh.mhn.de>
+In-Reply-To: <20040523214406.GB6147@jmh.mhn.de>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_SJrsAJW6r09l4qo"
-Message-Id: <200405251241.22708.rcoker@redhat.com>
+  boundary="Boundary-00=_2PrsA/zB1Vk8iJk"
+Message-Id: <200405251248.23006.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_SJrsAJW6r09l4qo
+--Boundary-00=_2PrsA/zB1Vk8iJk
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-On Mon, 24 May 2004 19:09, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
+On Mon, 24 May 2004 07:44, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
 wrote:
-> > We currently have a netsaint.te in the policy, should we change that to
-> > nagios.te?
->
-> Yes, I think it would be best to change the name.
+> The attached patch adds policy support for nrpe.
+> (nrpe stands for Nagios Remote Plugin Execution and is a client called
+> from inetd which performs checks on a client on behalf of a Nagios
+> server)
 
-OK, I've attached nagios.te and nagios.fc to replace netsaint.te and 
-netsaint.fc.  I have not made any changes other than the renaming.  I have 
-not put in typealias rules because I don't believe that my netsaint policy 
-got enough use to make compatibility an issue.
+I have made a couple of changes.  I have labeled the port as inetd_port_t, 
+there seems to be no benefit in having a different type as only inetd is used 
+for binding to the port.  I have added support for running directly from 
+inetd without tcpd (my personal preference for such things is to run nagios 
+on the internal network and use netfilter to control access).
 
 -- 
-http://apac.redhat.com/disclaimer
-See above URL for disclaimer.
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_SJrsAJW6r09l4qo
+--Boundary-00=_2PrsA/zB1Vk8iJk
 Content-Type: text/plain;
-  charset="iso-8859-15";
-  name="nagios.fc"
+  charset="iso-8859-1";
+  name="nrpe.te"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="nagios.fc"
+	filename="nrpe.te"
 
-# netsaint - network monitoring server
-/usr/sbin/netsaint		--	system_u:object_r:nagios_exec_t
-#/var/run/netsaint(/.*)?		system_u:object_r:nagios_var_run_t
-/etc/netsaint(/.*)?			system_u:object_r:nagios_etc_t
-/var/log/netsaint(/.*)?			system_u:object_r:nagios_log_t
-/usr/lib(64)?/netsaint/plugins(/.*)?		system_u:object_r:bin_t
-/usr/lib(64)?/cgi-bin/netsaint/.+	--	system_u:object_r:nagios_cgi_exec_t
-
---Boundary-00=_SJrsAJW6r09l4qo
-Content-Type: text/plain;
-  charset="iso-8859-15";
-  name="nagios.te"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="nagios.te"
-
-#DESC Net Saint / NAGIOS - network monitoring server
+# DESC nrpe - Nagios Remote Plugin Execution
 #
-# Author:  Russell Coker <russell@coker.com.au>
-# X-Debian-Packages: netsaint, nagios
-# Depends: mta.te
+# Author: Thomas Bleher <ThomasBleher@gmx.de>
 #
-
-#################################
+# Depends: tcpd.te
+# X-Debian-Packages: nagios-nrpe-server
 #
-# Rules for the nagios_t domain.
-#
-# nagios_exec_t is the type of the netsaint/nagios executable.
-#
-daemon_domain(nagios, `, privmail')
+# This policy assumes that nrpe is called from inetd
 
-etcdir_domain(nagios)
-typealias nagios_etc_t alias etc_nagios_t;
-
-logdir_domain(nagios)
-allow nagios_t nagios_log_t:fifo_file create_file_perms;
-allow initrc_t nagios_log_t:dir rw_dir_perms;
-
-tmp_domain(nagios)
-allow system_mail_t nagios_tmp_t:file { getattr read };
-# for open file handles
-dontaudit system_mail_t nagios_etc_t:file read;
-dontaudit system_mail_t nagios_log_t:fifo_file read;
-
-# Use the network.
-allow nagios_t self:fifo_file rw_file_perms;
-allow nagios_t self:unix_stream_socket create_socket_perms;
-allow nagios_t self:unix_dgram_socket create_socket_perms;
-
-# Use capabilities
-allow nagios_t self:capability { dac_override setgid setuid };
-allow nagios_t self:process setpgid;
-
-allow nagios_t { bin_t sbin_t }:dir search;
-allow nagios_t bin_t:lnk_file read;
-can_exec(nagios_t, { shell_exec_t bin_t })
-
-allow nagios_t proc_t:file { getattr read };
-
-can_network(nagios_t)
-
-# read config files
-allow nagios_t { etc_t etc_runtime_t }:file { getattr read };
-allow nagios_t etc_t:lnk_file read;
-
-allow nagios_t etc_t:dir r_dir_perms;
-
-# for ps
-r_dir_file(nagios_t, domain)
-allow nagios_t boot_t:dir search;
-allow nagios_t system_map_t:file { getattr read };
-
-# for who
-allow nagios_t initrc_var_run_t:file { getattr read lock };
-
-system_domain(nagios_cgi)
-allow nagios_cgi_t device_t:dir search;
-r_dir_file(nagios_cgi_t, nagios_etc_t)
-allow nagios_cgi_t var_log_t:dir search;
-r_dir_file(nagios_cgi_t, nagios_log_t)
-allow nagios_cgi_t self:process { fork signal_perms };
-allow nagios_cgi_t self:fifo_file rw_file_perms;
-allow nagios_cgi_t bin_t:dir search;
-can_exec(nagios_cgi_t, bin_t)
-read_locale(nagios_cgi_t)
-
-# for ps
-allow nagios_cgi_t { etc_runtime_t etc_t }:file { getattr read };
-r_dir_file(nagios_cgi_t, { proc_t self nagios_t })
-allow nagios_cgi_t boot_t:dir search;
-allow nagios_cgi_t system_map_t:file { getattr read };
-dontaudit nagios_cgi_t domain:dir getattr;
-allow nagios_cgi_t self:unix_stream_socket create_socket_perms;
-
-ifdef(`apache.te', `
-r_dir_file(httpd_t, nagios_etc_t)
-domain_auto_trans({ httpd_t httpd_suexec_t }, nagios_cgi_exec_t, nagios_cgi_t)
-allow nagios_cgi_t httpd_log_t:file append;
+daemon_base_domain(nrpe)
+ifdef(`tcpd.te', `
+domain_auto_trans(tcpd_t, nrpe_exec_t, nrpe_t)
 ')
+domain_auto_trans(inetd_t, nrpe_exec_t, nrpe_t)
 
-ifdef(`ping.te', `
-domain_auto_trans(nagios_t, ping_exec_t, ping_t)
-allow nagios_t ping_t:process { sigkill signal };
-dontaudit ping_t nagios_etc_t:file read;
-dontaudit ping_t nagios_log_t:fifo_file read;
-')
+allow nrpe_t urandom_device_t:chr_file { getattr ioctl read };
 
---Boundary-00=_SJrsAJW6r09l4qo--
+allow nrpe_t self:fifo_file rw_file_perms;
+# use sockets inherited from inetd
+allow nrpe_t inetd_t:tcp_socket { ioctl read write };
+allow nrpe_t devtty_t:chr_file { read write };
+
+allow nrpe_t self:process setpgid;
+
+etc_domain(nrpe)
+
+# permissions for the scripts executed by nrpe
+#
+# call shell programs
+can_exec(nrpe_t, { bin_t shell_exec_t ls_exec_t })
+allow nrpe_t { bin_t sbin_t }:dir search;
+# for /bin/sh
+allow nrpe_t bin_t:lnk_file read;
+
+# read /proc/meminfo, /proc/self/mounts and /etc/mtab
+allow nrpe_t { self proc_t etc_runtime_t }:file { getattr read };
+
+# you will have to add more permissions here, depending on the scripts you call!
+
+--Boundary-00=_2PrsA/zB1Vk8iJk--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
