@@ -1,62 +1,35 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6AI35rT025117
-	for <selinux@tycho.nsa.gov>; Sat, 10 Jul 2004 14:03:05 -0400 (EDT)
-Date: Sat, 10 Jul 2004 13:02:39 -0500
-From: Greg Norris <haphazard@kc.rr.com>
-To: Russell Coker <russell@coker.com.au>, Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: small dhcpc.fc patch
-Message-ID: <20040710180239.GA16267@yggdrasil.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6B5DorT026282
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 01:13:51 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6B5DkSC015138
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jul 2004 05:13:48 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Greg Norris <haphazard@kc.rr.com>
+Subject: Re: small dhcpc.fc patch
+Date: Sun, 11 Jul 2004 15:13:37 +1000
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
+References: <20040710180239.GA16267@yggdrasil.localdomain>
+In-Reply-To: <20040710180239.GA16267@yggdrasil.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200407111513.37618.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, 11 Jul 2004 04:02, Greg Norris <haphazard@kc.rr.com> wrote:
+> Please consider applying the attached dhcpc.fc patch to CVS.  It's
+> needed by the dhcp3-client package in Debian.  Thanx!
 
---61jdw2sOBCFtR2d/
-Content-Type: multipart/mixed; boundary="EVF5PPMfhYS0aIcm"
-Content-Disposition: inline
+OK, it's in my tree.
 
-
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Please consider applying the attached dhcpc.fc patch to CVS.  It's
-needed by the dhcp3-client package in Debian.  Thanx!
-
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dhcpc.fc.diff"
-Content-Transfer-Encoding: quoted-printable
-
---- dhcpc.fc.orig	2004-07-10 12:33:24.000000000 -0500
-+++ dhcpc.fc	2004-07-10 12:38:04.000000000 -0500
-@@ -1,5 +1,6 @@
- # dhcpcd=20
- /etc/dhcpc.*(/.*)?		system_u:object_r:dhcp_etc_t
-+/etc/dhcp3?/dhclient.*		system_u:object_r:dhcp_etc_t
- /etc/dhclient.*conf	--	system_u:object_r:dhcp_etc_t
- /etc/dhclient-script	--	system_u:object_r:dhcp_etc_t
- /sbin/dhcpcd		--	system_u:object_r:dhcpc_exec_t
-
---EVF5PPMfhYS0aIcm--
-
---61jdw2sOBCFtR2d/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA8C8/grEMyr8Cx2YRAnmKAKDQetq/mSjUzzyhD2Gp2ipvjqNm9gCg0oL4
-U+OlW0O/Dt5KU5mvqarzypM=
-=CWoR
------END PGP SIGNATURE-----
-
---61jdw2sOBCFtR2d/--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
