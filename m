@@ -1,42 +1,55 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j049uSIi023074
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jan 2005 04:56:28 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j049uUA9022970
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jan 2005 09:56:31 GMT
-Date: Tue, 4 Jan 2005 10:06:35 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: Erich Schubert <erich@debian.org>, SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: tty files, console login on debian
-Message-ID: <20050104100635.GI10906@lkcl.net>
-References: <1100024374.18347.5.camel@wintermute.xmldesign.de> <200501041937.21843.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200501041937.21843.russell@coker.com.au>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: mike@theptrgroup.com
+Subject: Re: Starting applications from initrc in a user's context?
+Date: Tue, 4 Jan 2005 21:03:12 +1100
+Cc: SElinux <SELinux@tycho.nsa.gov>
+References: <41CAE132.3020504@theptrgroup.com>
+In-Reply-To: <41CAE132.3020504@theptrgroup.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200501042103.15885.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jan 04, 2005 at 07:37:18PM +1100, Russell Coker wrote:
-> > Since the type of the staff/user ttys is "ttyfile", but no longer
-> > "device_type". Maybe you'll prefer a different fix, though.
-> > It is also possible that the mountpoint or so needs to be relabeled?
-> > (redhat appears to have tmpfs_t there, not fs_t)
-> 
-> In Fedora now the terminal device nodes are only on tmpfs_t for a udev managed 
-> tmpfs on /dev.  In Debian the normal use is to have ext2/3 file systems for 
-> root which includes /dev.
- 
- and the abnormal use (for mad people like me) is to hand-patch
- the /etc/init.d debian scripts like makevirtfs etc. and also
- the selinux strict policy to cope with an initrd.
+On Friday 24 December 2004 02:16, Mike Anderson <mike@theptrgroup.com> wrote:
+>   I'm trying to run a series of applications from the init scripts that
+> I want to run in separate user contexts. Four separate init scripts all
+> run from a master script that runs the user code only if tripwire says
+> that the file system is kosher.  The actual launching of the four
+> separate scripts is working well.  However, I'm trying to use the runcon
+> command to run the applications in the separate user contexts and  I'm
+> getting a transition error from the initrc domain to the user domain.
+> I've added the
+>
+> allow initrc_t user1_t:process { transition };
 
- none of which stands a dog's chance of being accepted until sarge is
- released because libselinux1 is presently "optional" and all the
- critical packages must have "optional" dependencies.
+Use:
+domain_trans(initrc_t, shell_exec_t, user1_t)
 
- l.
+Also you need to either allow domain user1_t to run in role system_r or allow 
+a role transition from system_r to user1_r by initrc_t.
 
+Allowing the domain user1_t in role system_r is done by:
+role system_r types user1_t;
+
+Allowing the role to be changed requires adding privrole to the attributes of 
+domain initrc_t.  In that case either the identity system_u must be permitted 
+to have the role user1_r or initrc_t also needs the privuser attribute so it 
+can launch a process with a different identity.
+
+> What am I missing?  Or, is there a better way of running the four
+> applications in their respective user domains from the init scripts?
+
+Maybe have cron launch them.  Cron has all privs needed to launch processes on 
+behalf of users.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
