@@ -1,38 +1,41 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: draper7@ziplip.com, SELinux@tycho.nsa.gov
-Subject: Re: spasswd.c
-Date: Sun, 16 Feb 2003 22:51:40 +0100
-References: <DTCOIKAKKNB3NWCMMKNXKJCDHTEAEFP3JRHWOJAF@ziplip.com>
-In-Reply-To: <DTCOIKAKKNB3NWCMMKNXKJCDHTEAEFP3JRHWOJAF@ziplip.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200302162251.40417.russell@coker.com.au>
+Subject: user transparent encryption
+From: kayo <kayo@pyra.ca>
+To: SELinux@tycho.nsa.gov
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VsWz+J2lYA0YElNY7Mtn"
+Message-Id: <1045448295.28041.15.camel@smeagol>
+Mime-Version: 1.0
+Date: 16 Feb 2003 20:18:16 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 16 Feb 2003 22:36, Dusty Hall wrote:
->   Thanks for the fix, it worked like a champ.  Although now I'm having
-> problems compiling disk-utils, specifically raw.c.  The following is the
-> error message:
->
-> cc -O -pipe -O2 -m486 -fomit-frame-pointer -I../lib -Wall
-> -Wmissing-prototypes -Wstrict-prototypes -I/usr/include/ncurses -DNCH=0
-> -I/usr/include/slang -D_FILE_OFFSET_BITS=64 -DSBINDIR=\"/sbin\"
-> -DUSRSBINDIR=\"/usr/sbin\" -DLOGDIR=\"/var/log\" -DVARPATH=\"/var\"
-> -DLOCALEDIR=\"/usr/share/locale\"  -s  raw.c   -o raw raw.c:22:
-> linux/raw.h: No such file or directory
 
-It seems that your system doesn't have the latest headers.  Login to my play 
-machine and copy the headers you need.  The login details are in my SE Linux 
-web site.
+--=-VsWz+J2lYA0YElNY7Mtn
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I am wondering if any of you have heard of a file system encryption
+service that is or close to transparent to users in which couldnt be
+easily compramised even if root was. Or have any ideas on how this could
+be done. I know using a loopback type scheam that once mounted or while
+mounting root could steal the key or the data that should be private.
+Has any one heard of a group that are brainstorming simular concepts?
+
+Thank you,
+Jason
+
+--=-VsWz+J2lYA0YElNY7Mtn
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+UEZn+2nlubU9QZIRAoN5AJ9QQ2mWvpaNsljYB1bgqKqRANUf1wCeKi6u
+/tBq6IpBGBWW+2kEbSx71uI=
+=hDXt
+-----END PGP SIGNATURE-----
+
+--=-VsWz+J2lYA0YElNY7Mtn--
 
 
 --
