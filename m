@@ -1,46 +1,49 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3DEaMRb016622
-	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 10:36:22 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i3DEaLmw014549
-	for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 14:36:21 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i3DEaJ4w014412 for <selinux@tycho.nsa.gov>; Tue, 13 Apr 2004 14:36:20 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Rogelio Serrano <rogelio@smsglobal.net>
-Subject: Re: udevd domain
-Date: Wed, 14 Apr 2004 00:34:55 +1000
-Cc: selinux@tycho.nsa.gov
-References: <5611c19c4dd1b4dfb943b46765fb5cac@debian>
-In-Reply-To: <5611c19c4dd1b4dfb943b46765fb5cac@debian>
+Message-ID: <187711B80DB3334B97BBC3AD87859D3D02210FE7@nor-msg7.stortek.com>
+From: "Dowd, Alan S" <DowdAS@NORTHAMERICA.Stortek.com>
+To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
+   "'SELinux'"
+	 <SELinux@tycho.nsa.gov>
+Subject: RE: Logo Artwork for SELinux?
+Date: Tue, 13 Apr 2004 10:57:44 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200404140034.55526.russell@coker.com.au>
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 10 Apr 2004 17:05, Rogelio Serrano <rogelio@smsglobal.net> wrote:
-> What domain should udevd run in? udev_t or hotplug_t
+Three cheers for M. Smalley!
 
-If we are to create a new domain for udevd then it would probably be best to 
-look at the devfsd policy for inspiration.
+This whole thread reminds me of a scene near the end of the TV broadcast
+version of "The Hitchhikers Guide to the Galaxy." Our protagonists are
+stranded on Neolithic Earth with a spaceship (Galgafringian Arkship B) full
+of "middlemen," among them marketing executives. The marketing executives
+have formed a committee to reinvent the wheel. Their major concern is "What
+color should it be?" We're all demonstrating our outstanding qualifications
+for Arkship B here.
 
-But does udev ever run as a daemon or is it always run from hotplug?  As 
-hotplug already has mknod capability it seems that having udev run in it's 
-context would not involve adding significant privs.  So it may be best to 
-stick with hotplug_t.
+Perhaps we should settle for a penguin in a bathtub, playing with a rubber
+duck, and get back to security-enhanced Linux.
 
-I need to know more about udev to decide.  Or if you write some policy I'll 
-look at it and decide what to do (I can get a good idea of what a program 
-does from the policy it needs).
+	Al D.
+
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+Behalf Of Stephen Smalley
+Sent: Monday, April 12, 2004 10:35 AM
+To: Dale Amon
+Cc: Elvedin Trnjanin; Dean Anderson; Matthew J. Fanto; Russell Coker;
+SELinux Mailing List
+Subject: Re: Logo Artwork for SELinux?
+[...snip...]
+
+Thanks for the thought, but I have absolutely no interest in helping to
+design a logo for SELinux, nor do I particularly care whether SELinux
+ever has a logo.  Let's leave the marketing to the marketers, and focus
+on improving the code...
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
