@@ -1,260 +1,86 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9HDVIi013976
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 12:13:32 -0500 (EST)
-Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9HDYEj000884
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 17:13:35 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 9 Dec 2004 18:13:33 +0100
-Date: Thu, 9 Dec 2004 18:13:34 +0100
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: patch: stricter /tmp handling
-Message-Id: <20041209171333.GD5074@jmh.mhn.de>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9HPfIi014066
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 12:25:41 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9HO3PS007823
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 17:24:03 GMT
+Subject: Re: Single home directory type for all roles.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux ML <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@snu.edu>,
+   Jim Carter <jwcart2@epoch.ncsc.mil>, Russell Coker <rcoker@redhat.com>,
+   Colin Walters <walters@redhat.com>, Nalin Dahyabhai <nalin@redhat.com>
+In-Reply-To: <41B8826D.30105@redhat.com>
+References: <20041207000805.GH3678@jmh.mhn.de>
+	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
+	 <41B8826D.30105@redhat.com>
+Content-Type: text/plain
+Message-Id: <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
+Date: Thu, 09 Dec 2004 12:20:28 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2004-12-09 at 11:50, Daniel J Walsh wrote:
+> One problem I still have with RBAC though is the labeling of files based 
+> on the role of the user.  IE (staff_home_t versus
+> user_home_t).  I believe this causes many problems, without much benefit.
 
---Pd0ReVV5GZGQvF3a
-Content-Type: multipart/mixed; boundary="6c2NcOVqGQ03X4Wi"
-Content-Disposition: inline
+The benefit is providing separation among the roles.  If user_t can
+write to staff_home_t, then the only thing preventing a user_t process
+from injecting arbitrary commands into a staff user's .bashrc file or
+otherwise corrupting a staff user's data or reading arbitrary files
+created by the staff user is DAC.    
 
+> 1.  Causes problems with sharing files between users,   IE a staff user 
+> coping a file to tmp and then the user
+> can't read it, because it has the wrong type. 
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If you want to share files, you just need to define a file type that is
+accessible to both domains and label the shared directory with it.  Then
+users from both roles can create and modify content under that shared
+directory without losing protection on their own data.  Note that
+unifying the home directory type doesn't solve #1 for you, because cp
+/home/user/foo /tmp/foo will create /tmp/foo in the default type, e.g.
+staff_tmp_t; cp only preserves contexts when explicitly told to do so. 
+And unifying the temporary types would again open a vulnerability
+between the roles, classical insecure tmp file issues.
 
-This patches uses my latest changes to file_type_auto_trans() to make
-/tmp more strict.
-Right now, any process with tmp_domain() can create any file type under
-/tmp except chr_file and blk_file. But most domains only need file and
-dir.
-This patch changes tmp_domain() so that normally, only file and dir
-access is allowed. It also adds a third parameter to the macro, so
-domains which need more access can get it.
-I have run this patch for a few weeks on all my machines so most things
-should work, but I don't have any server machines running SELinux ATM,
-so some daemons probably need additional permissions.
-This patch also removes the tmpfile attribute from tetex_data_t, since
-these are not really tmpfiles.
+> 2.  Requirement that selinux-policy-strict-sources be installed and a 
+> rebuild of policy in order to change the roles of a user.
 
-Thomas
+You mean to update the file_contexts?  One could certainly build a tool
+to apply selective modifications to an existing file_contexts
+configuration without requiring the full sources.
 
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+> 3.  But the number one problem I have is with relabeling files.  If I 
+> were to implement roles management in
+> system-config-securitylevel/adduser, I would need to trigger a relabel 
+> any time a role of a user was changed.  This
+> relabel would have to be inteligent enough to figure out not only the 
+> home directories, but also the files in /tmp and potentially
+> files in html files scattered over the system.  I find this an 
+> unworkable situation.
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="tmp_domain.patch"
-Content-Transfer-Encoding: quoted-printable
+Not clear that such relabeling should be automatic anyway.  Some
+review/sanitization may be necessary.
 
-diff -urN orig/domains/program/ssh.te mod/domains/program/ssh.te
---- orig/domains/program/ssh.te	2004-11-18 09:57:21.000000000 +0100
-+++ mod/domains/program/ssh.te	2004-12-09 17:57:30.000000000 +0100
-@@ -203,7 +203,7 @@
- # so a tunnel can point to another ssh tunnel...
- can_tcp_connect(sshd_t, sshd_t)
-=20
--tmp_domain(sshd)
-+tmp_domain(sshd, `', { dir file sock_file })
- ifdef(`pam.te', `
- can_exec(sshd_t, pam_exec_t)
- ')
-diff -urN orig/domains/program/unused/kudzu.te mod/domains/program/unused/k=
-udzu.te
---- orig/domains/program/unused/kudzu.te	2004-12-09 17:05:15.000000000 +0100
-+++ mod/domains/program/unused/kudzu.te	2004-12-09 17:57:30.000000000 +0100
-@@ -84,8 +84,7 @@
- allow kudzu_t sysfs_t:lnk_file read;
- file_type_auto_trans(kudzu_t, etc_t, etc_runtime_t, file)
- allow kudzu_t tape_device_t:chr_file r_file_perms;
--tmp_domain(kudzu)
--file_type_auto_trans(kudzu_t, tmp_t, kudzu_tmp_t, chr_file)
-+tmp_domain(kudzu, `', `{ file dir chr_file }')
-=20
- # for file systems that are not yet mounted
- dontaudit kudzu_t file_t:dir search;
-diff -urN orig/domains/program/unused/postgresql.te mod/domains/program/unu=
-sed/postgresql.te
---- orig/domains/program/unused/postgresql.te	2004-12-04 00:46:50.000000000=
- +0100
-+++ mod/domains/program/unused/postgresql.te	2004-12-09 17:57:30.000000000 =
-+0100
-@@ -48,7 +48,7 @@
- system_crond_entry(postgresql_exec_t, postgresql_t)
- ')
-=20
--tmp_domain(postgresql);
-+tmp_domain(postgresql, `', `{ dir file sock_file }')
- file_type_auto_trans(postgresql_t, tmpfs_t, postgresql_tmp_t)
-=20
- # Use the network.
-diff -urN orig/domains/program/unused/xdm.te mod/domains/program/unused/xdm=
-=2Ete
---- orig/domains/program/unused/xdm.te	2004-11-20 10:04:13.000000000 +0100
-+++ mod/domains/program/unused/xdm.te	2004-12-09 17:57:30.000000000 +0100
-@@ -31,7 +31,7 @@
- file_type_auto_trans(xdm_t, var_run_t, xdm_var_run_t, fifo_file)
- file_type_auto_trans(xdm_t, var_run_t, xdm_var_run_t, dir)
-=20
--tmp_domain(xdm)
-+tmp_domain(xdm, `', `{ file dir sock_file }')
- var_lib_domain(xdm)
- # NB we do NOT allow xdm_xserver_t xdm_var_lib_t:dir, only access to an op=
-en
- # handle of a file inside the dir!!!
-diff -urN orig/domains/program/unused/xfs.te mod/domains/program/unused/xfs=
-=2Ete
---- orig/domains/program/unused/xfs.te	2004-10-17 13:07:14.000000000 +0200
-+++ mod/domains/program/unused/xfs.te	2004-12-09 17:57:30.000000000 +0100
-@@ -20,7 +20,7 @@
- allow xfs_t tmp_t:dir search;
- file_type_auto_trans(xfs_t, initrc_tmp_t, xfs_tmp_t, sock_file)
- ', `
--tmp_domain(xfs)
-+tmp_domain(xfs, `', sock_file)
- ')
-=20
- allow xfs_t { etc_t etc_runtime_t }:file { getattr read };
-diff -urN orig/domains/program/unused/zebra.te mod/domains/program/unused/z=
-ebra.te
---- orig/domains/program/unused/zebra.te	2004-12-04 00:46:50.000000000 +0100
-+++ mod/domains/program/unused/zebra.te	2004-12-09 17:57:30.000000000 +0100
-@@ -20,8 +20,7 @@
- logdir_domain(zebra)
-=20
- # /tmp/.bgpd is such a bad idea!
--type zebra_tmp_t, file_type, sysadmfile, tmpfile;
--file_type_auto_trans(zebra_t, tmp_t, zebra_tmp_t, sock_file)
-+tmp_domain(zebra, `', sock_file)
-=20
- allow zebra_t self:unix_dgram_socket create_socket_perms;
- allow zebra_t self:unix_stream_socket { connectto create_stream_socket_per=
-ms };
-diff -urN orig/macros/admin_macros.te mod/macros/admin_macros.te
---- orig/macros/admin_macros.te	2004-12-04 00:46:50.000000000 +0100
-+++ mod/macros/admin_macros.te	2004-12-09 17:57:30.000000000 +0100
-@@ -22,7 +22,7 @@
- # Type and access for pty devices.
- can_create_pty($1)
-=20
--tmp_domain($1)
-+tmp_domain($1, `, $1_file_type', `{ file dir lnk_file sock_file fifo_file =
-}')
-=20
- # Type for tty devices.
- type $1_tty_device_t, sysadmfile, ttyfile, dev_fs;
-diff -urN orig/macros/global_macros.te mod/macros/global_macros.te
---- orig/macros/global_macros.te	2004-12-09 17:05:15.000000000 +0100
-+++ mod/macros/global_macros.te	2004-12-09 17:59:50.000000000 +0100
-@@ -396,10 +396,14 @@
- allow $2_t device_t:dir getattr;
- ')
-=20
--
-+# grant access to /tmp
-+# by default, only plain files and dirs may be stored there.
-+# This can be overridden with a third parameter
- define(`tmp_domain', `
- type $1_tmp_t, file_type, sysadmfile, tmpfile $2;
--file_type_auto_trans($1_t, tmp_t, $1_tmp_t)
-+ifelse($3, `',
-+`file_type_auto_trans($1_t, tmp_t, $1_tmp_t, `{ file dir }')',
-+`file_type_auto_trans($1_t, tmp_t, $1_tmp_t, `$3')')
- ')
-=20
- define(`tmpfs_domain', `
-diff -urN orig/macros/program/gpg_agent_macros.te mod/macros/program/gpg_ag=
-ent_macros.te
---- orig/macros/program/gpg_agent_macros.te	2004-11-20 10:04:13.000000000 +=
-0100
-+++ mod/macros/program/gpg_agent_macros.te	2004-12-09 17:58:59.000000000 +0=
-100
-@@ -56,7 +56,7 @@
- allow $1_gpg_agent_t self:fifo_file { getattr read write };
-=20
- # create /tmp files
--tmp_domain($1_gpg_agent)
-+tmp_domain($1_gpg_agent, `', `{ file dir sock_file }')
-=20
- # gpg connect
- allow $1_gpg_t $1_gpg_agent_tmp_t:dir search;
-diff -urN orig/macros/program/screen_macros.te mod/macros/program/screen_ma=
-cros.te
---- orig/macros/program/screen_macros.te	2004-11-30 16:19:26.000000000 +0100
-+++ mod/macros/program/screen_macros.te	2004-12-09 17:57:30.000000000 +0100
-@@ -27,7 +27,7 @@
- # Transition from the user domain to this domain.
- domain_auto_trans($1_t, screen_exec_t, $1_screen_t)
-=20
--tmp_domain($1_screen)
-+tmp_domain($1_screen, `', `{ dir file fifo_file }')
- base_file_read_access($1_screen_t)
- # The user role is authorized for this domain.
- role $1_r types $1_screen_t;
-diff -urN orig/macros/program/xserver_macros.te mod/macros/program/xserver_=
-macros.te
---- orig/macros/program/xserver_macros.te	2004-12-04 00:46:50.000000000 +01=
-00
-+++ mod/macros/program/xserver_macros.te	2004-12-09 17:57:30.000000000 +0100
-@@ -138,7 +138,7 @@
- allow $1_xserver_t zero_device_t:chr_file { read write execute };
-=20
- # Type for temporary files.
--tmp_domain($1_xserver)
-+tmp_domain($1_xserver, `', `{ dir file sock_file }')
- file_type_auto_trans($1_xserver_t, xdm_xserver_tmp_t, $1_xserver_tmp_t, so=
-ck_file)
-=20
- ifelse($1, xdm, `
-diff -urN orig/macros/user_macros.te mod/macros/user_macros.te
---- orig/macros/user_macros.te	2004-12-09 17:05:15.000000000 +0100
-+++ mod/macros/user_macros.te	2004-12-09 17:57:30.000000000 +0100
-@@ -21,7 +21,7 @@
- type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type, user_=
-home_dir_type;
- type $1_home_t, file_type, sysadmfile, home_type, user_home_type, $1_file_=
-type;
-=20
--tmp_domain($1, `, user_tmpfile, $1_file_type')
-+tmp_domain($1, `, user_tmpfile, $1_file_type', `{ file lnk_file dir sock_f=
-ile fifo_file }')
-=20
- # Type and access for pty devices.
- can_create_pty($1, `, userpty_type, user_tty_type')
-diff -urN orig/types/file.te mod/types/file.te
---- orig/types/file.te	2004-12-04 00:46:51.000000000 +0100
-+++ mod/types/file.te	2004-12-09 17:57:30.000000000 +0100
-@@ -178,7 +178,7 @@
- type var_lock_t, file_type, sysadmfile, lockfile;
- type var_lib_t, file_type, sysadmfile;
- # for /var/{spool,lib}/texmf index files
--type tetex_data_t, file_type, sysadmfile, tmpfile;
-+type tetex_data_t, file_type, sysadmfile;
- type var_spool_t, file_type, sysadmfile;
- type var_yp_t, file_type, sysadmfile;
-=20
+> With SELinux Policy Modules, can I build an system-config-user/adduser 
+> that would modify a file under /etc/selinux/strict/roles/
+> (the users file) and then reload just that policy?
 
---6c2NcOVqGQ03X4Wi--
+You can actually do that today without policy modules.  Recall that I
+created a genpolusers utility a while back that takes an existing binary
+policy and a new users text configuration and generates a new binary
+policy that is identical except it has the new user declarations.  So
+you only need a copy of the users source file on the machine, and you
+can then modify it, use genpolusers to rebuild the binary policy against
+it, and then load the new binary policy.
+ 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---Pd0ReVV5GZGQvF3a
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBuIe9xWIrrrL0q+cRAr6aAKCubQxpHFPPFaT7+dBNlXTNGokYoACeLzrE
-LQni8RTw6Kqd6Lcoc5ijE6s=
-=vbAG
------END PGP SIGNATURE-----
-
---Pd0ReVV5GZGQvF3a--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
