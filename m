@@ -1,51 +1,62 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27372
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 11:38:30 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA20984
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:37:03 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id PAA20980 for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:37:02 GMT
-Date: Thu, 27 Jun 2002 11:37:49 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Michael Nyika <nyix@yahoo.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: RE: System.te ?
-In-Reply-To: <20020627152451.37794.qmail@web40208.mail.yahoo.com>
-Message-ID: <Pine.GSO.4.33.0206271129420.11979-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27565
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 11:57:06 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA12590
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:56:39 GMT
+Received: from web40012.mail.yahoo.com (web40012.mail.yahoo.com [66.218.78.30])
+	by jazzswing.ncsc.mil  with SMTP id PAA12585
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:56:38 GMT
+Message-ID: <20020627155703.10654.qmail@web40012.mail.yahoo.com>
+Date: Thu, 27 Jun 2002 08:57:03 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Re: Configuration issues on a new installation
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20020627152533.6E99B7CBA@lyta.coker.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Mr. Coker,
 
-On Thu, 27 Jun 2002, Michael Nyika wrote:
+--- Russell Coker <russell@coker.com.au> wrote:
+> On Thu, 27 Jun 2002 10:17, Brad Chapman wrote:
+> >        Could you please help me fix your Makefile for my system? I can't
+> > seem to make it compile the policy; it keeps failing with this error:
+> >
+> > ( cd macros/program/ ; for n in *.te ; do echo "define(\`$n')"; done ) >
+> > tmp/macro_used_flags.te
+> > /bin/sh: tmp/macro_used_flags.te: No such file or directory
+> > make: *** [tmp/macro_used_flags.te] Error 1
+> >
+> >        I'm running RedHat 6.2 with SELinux installed in /usr/local/selinux.
+> 
+> mkdir /usr/local/selinux/tmp
+> 
+> I think that Steve fixed this when merging my code into his tree.  I'll merge
+> 
+> his fix when I get the next NSA release.
 
-> true: but what about "new" system processes, or
-> rather, those that do NOT appear in
-> /policy/domains/programs ? I'm thinking that if there
-> is an undefined process, it should take on default
-> behaviour found in a file i mentioned earlier?
+      Sorry, it doesn't work. I get the exact same error. I also tried mkdir
+/usr/local/selinux/flask/tmp since I had to modify the Makefile to look in that
+dir for some of the context files it needed, but I still didn't have any luck.
 
-See step 18 of the README.  System processes will end up in initrc_t
-if you do not define a domain and assign the executable type to the
-corresponding program.  As noted in the README, you should either define a
-domain for all such processes, or you should disable them.
-
-Setting up a default behavior as you describe is problematic.  A daemon
-that doesn't have a specific executable type assigned to it will typically
-be labeled with sbin_t, the default type for programs in /sbin.  But
-utility programs in /sbin are also labeled with this type, and we do not
-want the rc scripts to transition to a special domain for those utilities.
-Hence, we cannot define a default transition to some safe domain for
-unrecognized system processes.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
+Brad
 
 
+=====
+Brad Chapman
+
+Permanent e-mails: kakadu_croc@yahoo.com
+		   jabiru_croc@yahoo.com
+		   tanami_croc@devel.lbsd.net
+
+__________________________________________________
+Do You Yahoo!?
+LAUNCH - Your Yahoo! Music Experience
+http://launch.yahoo.com
 
 --
 You have received this message because you are subscribed to the selinux list.
