@@ -1,54 +1,115 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6IF6bHa004204
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2003 11:06:37 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6IKeAHa006064
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2003 16:40:10 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6IF5YFB024499
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2003 15:05:34 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h6IF5RGD024484
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2003 15:05:33 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 9B35BBF5A
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2003 01:06:28 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 07803-04
- for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2003 01:06:27 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 77E68BF5C
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2003 01:06:21 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 4A440925ED
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2003 01:06:20 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 3AE4D7F26B
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2003 00:45:17 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: ipc_owner
-Date: Sat, 19 Jul 2003 00:45:16 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200307190045.16701.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h6IKd7FB016208
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2003 20:39:07 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+	by jazzswing.ncsc.mil  with ESMTP id h6IKd6GD016205
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2003 20:39:06 GMT
+Received: from columbia (rrcs-central-24-123-136-65.biz.rr.com [24.123.136.65])
+	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
+	(Client CN "columbia.verbum.org", Issuer "verbum.org CA" (verified OK))
+	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id 7424532A6CB
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2003 04:45:04 -0400 (EDT)
+Subject: Re: [patch] policy regression tester and various fixes
+From: Colin Walters <walters@verbum.org>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <1058330471.1389.255.camel@columbia>
+References: <1058330471.1389.255.camel@columbia>
+Content-Type: multipart/mixed; boundary="=-JAXFti0RczZqR5XrBx/e"
+Message-Id: <1058560759.6070.2.camel@columbia>
+Mime-Version: 1.0
+Date: 18 Jul 2003 16:39:19 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-avc:  denied  { ipc_owner } for  pid=1008 exe=/usr/X11R6/bin/XFree86 
-capability=15 scontext=rjc:user_r:user_xserver_t 
-tcontext=rjc:user_r:user_xserver_t tclass=capability
 
-The above is an access I have not noticed before.  Should I allow it or 
-dontaudit it?
+--=-JAXFti0RczZqR5XrBx/e
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-It seems to work OK being denied.
+One thing I didn't realize about the regression tester is that it
+requires GNU Make 3.80 or better, because it uses $(eval ...).  Sorry
+about that.  eval is really great for this kind of thing though.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I've attached an updated patch which fixes the recursive dependency
+handling, and also bombs out a little more gracefully if the version of
+GNU Make in use is < 3.80.
 
+Oh, and you can also say e.g.:
+
+make checkunused/postfix.te
+ 
+to check an individual file.
+
+
+--=-JAXFti0RczZqR5XrBx/e
+Content-Disposition: attachment; filename=Makefile.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-makefile; name=Makefile.patch; charset=UTF-8
+
+LS0tIHBvbGljeS0xLjAvTWFrZWZpbGUJMjAwMy0wNy0wMSAwOTozODoxMS4wMDAwMDAwMDAgLTA0
+MDANCisrKyBzZWxpbnV4LXBvbGljeS0xLjAvTWFrZWZpbGUJMjAwMy0wNy0xOCAxNjozMzo1NS4w
+MDAwMDAwMDAgLTA0MDANCkBAIC0zNyw2ICszNyw4IEBADQogUE9MSUNZRklMRVMgKz0gdXNlcnMg
+DQogUE9MSUNZRklMRVMgKz0gdG1wL2NvbnN0cmFpbnRzLWNvbnRleHRzLm00DQogDQorVU5VU0VE
+X1RFX0ZJTEVTIDo9ICQod2lsZGNhcmQgZG9tYWlucy9wcm9ncmFtL3VudXNlZC8qLnRlKQ0KKw0K
+IEZDID0gZmlsZV9jb250ZXh0cy9maWxlX2NvbnRleHRzDQogRkNGSUxFUz1maWxlX2NvbnRleHRz
+L3R5cGVzLmZjICQocGF0c3Vic3QgZG9tYWlucy9wcm9ncmFtLyUudGUsZmlsZV9jb250ZXh0cy9w
+cm9ncmFtLyUuZmMsICQod2lsZGNhcmQgZG9tYWlucy9wcm9ncmFtLyoudGUpKQ0KIA0KQEAgLTEy
+OCwzICsxMzAsNzQgQEANCiAJcm0gLWYgcG9saWN5LmNvbmYNCiAJcm0gLWYgdG1wLyoNCiAJcm0g
+LWYgJChGQykNCisjIGZvciB0aGUgcG9saWN5IHJlZ3Jlc3Npb24gdGVzdGVyDQorCWZpbmQgImRv
+bWFpbnMvcHJvZ3JhbS8iIC1tYXhkZXB0aCAxIC10eXBlIGwgLWV4ZWMgcm0ge30gXDsgOyBcDQor
+DQorIyBQb2xpY3kgcmVncmVzc2lvbiB0ZXN0ZXIuDQorIyBXcml0dGVuIGJ5IENvbGluIFdhbHRl
+cnMgPHdhbHRlcnNAZGViaWFuLm9yZz4NCitjdXJfdGUgPSAkKGZpbHRlci1vdXQgJS8sJChzdWJz
+dCAvLC8gLCRAKSkNCisNCitURVNURURfVEVfRklMRVMgOj0gJChub3RkaXIgJChVTlVTRURfVEVf
+RklMRVMpKQ0KKw0KK2RlZmluZSBjb21wdXRlX2RlcGVuZHMNCisgIGV4cG9ydCBURV9ERVBFTkRT
+XyQoMSkgOj0gJChzaGVsbCBlZ3JlcCAnXiNbWzpzcGFjZTpdXSpEZXBlbmRzOiAnIGRvbWFpbnMv
+cHJvZ3JhbS91bnVzZWQvJCgxKSB8IGhlYWQgLTEgfCBzZWQgLWUgJ3MvXi4qRGVwZW5kczogLy8n
+KQ0KK2VuZGVmDQorDQorDQoraWZlcSAoJChURV9ERVBFTkRTX0RFRklORUQpLCkNCitpZmVxICgk
+KE1BS0VDTURHT0FMUyksY2hlY2stYWxsKQ0KKyAgR0VOUlVMRVMgOj0gJChURVNURURfVEVfRklM
+RVMpDQorICBleHBvcnQgVEVfREVQRU5EU19ERUZJTkVEIDo9IHllcw0KK2Vsc2UNCisgICMgSGFu
+ZGxlIHRoZSBjYXNlIHdoZXJlIGNoZWNrdW51c2VkL2JsYWgudGUgaXMgcnVuIGRpcmVjdGx5Lg0K
+KyAgaWZuZXEgKCQoZmluZHN0cmluZyBjaGVja3VudXNlZC8sJChNQUtFQ01ER09BTFMpKSwpDQor
+ICAgIEdFTlJVTEVTIDo9ICQoVEVTVEVEX1RFX0ZJTEVTKQ0KKyAgICBleHBvcnQgVEVfREVQRU5E
+U19ERUZJTkVEIDo9IHllcw0KKyAgZW5kaWYNCitlbmRpZg0KK2VuZGlmDQorDQorIyBUZXN0IGZv
+ciBhIG5ldyBlbm91Z2ggdmVyc2lvbiBvZiBHTlUgTWFrZS4NCiskKGV2YWwgaGF2ZV9ldmFsIDo9
+IHllcykNCitpZm5lcSAoJChHRU5SVUxFUyksKQ0KKyAgaWZlcSAoJChoYXZlX2V2YWwpLCkNCisk
+KGVycm9yIE5lZWQgR05VIE1ha2UgMy44MCBvciBiZXR0ZXIhKQ0KK05lZWQgR05VIE1ha2UgMy44
+MCBvciBiZXR0ZXINCisgIGVuZGlmDQorZW5kaWYNCiskKGZvcmVhY2ggZiwkKEdFTlJVTEVTKSwk
+KGV2YWwgJChjYWxsIGNvbXB1dGVfZGVwZW5kcywkKGYpKSkpDQorDQorUEhPTklFUyA6PQ0KKw0K
+K2RlZmluZSBjb21wdXRlX3ByZXN5bWxpbmtzDQorUEhPTklFUyArPSBwcmVzeW1saW5rLyQoMSkN
+CitwcmVzeW1saW5rLyQoMSk6OiAkKHBhdHN1YnN0ICUscHJlc3ltbGluay8lLCQoVEVfREVQRU5E
+U18kKDEpKSkNCisJQGlmICEgdGVzdCAtTCBkb21haW5zL3Byb2dyYW0vJCgxKTsgdGhlbiBcDQor
+CSAgY2QgZG9tYWlucy9wcm9ncmFtICYmIGxuIC1zIHVudXNlZC8kKDEpIC47IFwNCisJZmkNCitl
+bmRlZg0KKw0KKyMgQ29tcHV0ZSBkZXBlbmRlbmNpZXMuDQorJChmb3JlYWNoIGYsJChURVNURURf
+VEVfRklMRVMpLCQoZXZhbCAkKGNhbGwgY29tcHV0ZV9wcmVzeW1saW5rcywkKGYpKSkpDQorDQor
+UEhPTklFUyArPSAkKHBhdHN1YnN0ICUsY2hlY2t1bnVzZWQvJSwkKFRFU1RFRF9URV9GSUxFUykp
+DQorJChwYXRzdWJzdCAlLGNoZWNrdW51c2VkLyUsJChURVNURURfVEVfRklMRVMpKSA6OiBjaGVj
+a3VudXNlZC8lIDogDQorCUAkKE1BS0UpIC1zIGNsZWFuDQorDQorJChwYXRzdWJzdCAlLGNoZWNr
+dW51c2VkLyUsJChURVNURURfVEVfRklMRVMpKSA6OiBjaGVja3VudXNlZC8lIDogcHJlc3ltbGlu
+ay8lDQorCUBpZiB0ZXN0IC1uICIkKFRFX0RFUEVORFNfJChjdXJfdGUpKSI7IHRoZW4gXA0KKwkg
+IGVjaG8gIkRlcGVuZGVuY2llcyBmb3IgJChjdXJfdGUpOiAkKFRFX0RFUEVORFNfJChjdXJfdGUp
+KSI7IFwNCisJZmkNCisJQGVjaG8gIlRlc3RpbmcgJChjdXJfdGUpLi4uIjsNCisJQGlmICEgbWFr
+ZSAtcyBwb2xpY3kgMT4vZGV2L251bGw7IHRoZW4gXA0KKwkgIGVjaG8gIlRlc3RpbmcgJChjdXJf
+dGUpLi4uRkFJTEVEIjsgXA0KKwkgIGV4aXQgMTsgXA0KKwlmaTsNCisJQGVjaG8gIlRlc3Rpbmcg
+JChjdXJfdGUpLi4uc3VjY2Vzcy4iOyBcDQorDQorY2hlY2stYWxsOg0KKwlAZm9yIGdvYWwgaW4g
+ICQocGF0c3Vic3QgJSxjaGVja3VudXNlZC8lLCQoVEVTVEVEX1RFX0ZJTEVTKSk7IGRvIFwNCisJ
+ICAkKE1BS0UpIC0tbm8tcHJpbnQtZGlyZWN0b3J5ICQkZ29hbDsgXA0KKwlkb25lDQorDQorLlBI
+T05ZOiBjbGVhbiAkKFBIT05JRVMpDQotLS0gcG9saWN5LTEuMC9SRUFETUUJMjAwMy0wNS0zMCAx
+MDoyNjoyOC4wMDAwMDAwMDAgLTA0MDANCisrKyBzZWxpbnV4LXBvbGljeS0xLjAvUkVBRE1FCTIw
+MDMtMDctMTggMTY6MzU6MjEuMDAwMDAwMDAwIC0wNDAwDQpAQCAtMyw2ICszLDggQEANCiBpbnN0
+YWxsIC0gY29tcGlsZSBhbmQgaW5zdGFsbCB0aGUgcG9saWN5IGNvbmZpZ3VyYXRpb24uDQogbG9h
+ZCAgICAtIGNvbXBpbGUsIGluc3RhbGwsIGFuZCBsb2FkIHRoZSBwb2xpY3kgY29uZmlndXJhdGlv
+bi4NCiByZWxhYmVsIC0gcmVsYWJlbCB0aGUgZmlsZXN5c3RlbS4NCitjaGVjay1hbGwgLSBjaGVj
+ayBpbmRpdmlkdWFsIGFkZGl0aW9uYWwgcG9saWN5IGZpbGVzIGluIGRvbWFpbnMvcHJvZ3JhbS91
+bnVzZWQuDQorY2hlY2t1bnVzZWQvRklMRS50ZSAtIGNoZWNrIGluZGl2aWR1YWwgZmlsZSBGSUxF
+IGZyb20gZG9tYWlucy9wcm9ncmFtL3VudXNlZC4NCiANCiBJZiB5b3UgaGF2ZSBjb25maWd1cmVk
+IE1MUyBpbnRvIHlvdXIgbW9kdWxlLCB0aGVuIHNldCBNTFM9eSBpbiB0aGUNCiBNYWtlZmlsZSBw
+cmlvciB0byBidWlsZGluZyB0aGUgcG9saWN5LiAgT2YgY291cnNlLCB5b3UgbXVzdCBoYXZlIGFs
+c28NCg==
+
+--=-JAXFti0RczZqR5XrBx/e--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
