@@ -1,66 +1,38 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA16050
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 18:27:19 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA02838
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 22:25:32 GMT
-Received: from gw.oribium.com (h163n2fls32o973.telia.com [213.67.221.163])
-	by jazzswing.ncsc.mil  with ESMTP id WAA02834
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 22:25:31 GMT
-Subject: RE: newrules
-From: Reino Wallin <reino@oribium.com>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-Cc: "'Russell Coker'" <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: 
-	<72222DC86846D411ABD300A0C9EB08A10152436C@csoc-mail-box.csoconline.com>
-References: 
-	<72222DC86846D411ABD300A0C9EB08A10152436C@csoc-mail-box.csoconline.com>
-Content-Type: text/plain
-Date: 25 Apr 2002 23:31:05 +0200
-Message-Id: <1019770266.27628.133.camel@matilda.oribium.com>
-Mime-Version: 1.0
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA16273
+	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 19:21:43 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id XAA02676
+	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 23:20:31 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id XAA02672 for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 23:20:29 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id DFC9492457
+	for <selinux@tycho.nsa.gov>; Fri, 26 Apr 2002 09:22:04 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id C32464646
+	for <selinux@tycho.nsa.gov>; Fri, 26 Apr 2002 01:21:29 +0200 (CEST)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: crond_domain()
+Date: Fri, 26 Apr 2002 01:21:29 +0200
+MIME-Version: 1.0
+Message-Id: <20020425232129.C32464646@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-tor 2002-04-25 klockan 19.59 skrev Westerman, Mark:
-> on Thursday, April 25, 2002 12:44 PM, Russell Coker wrote: 
-> 
-> > > if a program does not need a permission such as lock, poll and ioctl
-> > > don't grant that permission. As we develop more finer grained access
-> > > rules program should only be granted the permission they need
-> > > and nothing else. In security terms only grant what is need.
-> > 
-> > I understand the point, however with the current sample 
-> > policy I'm working on it is already over 10K lines of code.  The 
-> > more code the harder it is to audit...
-> 
-> 
-> You have a very good point, and its only going to get worse. 
-> We need a program to handle the policies. (To all those lurking
-> on the list wanting something to do)
-> 
-> Are you going to include apol ?
-> 
-> Mark
-> 
-Both of you have very good points here. I totally agree with Mark to
-only grant what is needed. However, it's getting complex and ugly to
-maintain. Wouldn't it be good to add a few very useful, and very
-finegrained, macros? I am thinking of macros like:
+In the crond_domain() macro, shouldn't we have the following line?
 
-can_network_dns_only
+file_type_auto_trans($1_crond_t, tmp_t, $1_tmp_t)
 
-to permit the domian to do networking, but only what is needed for name
-resolution service. Somehow, I feel we will save time, and bring better
-type enforcement files to the community with a set of new macros. I like
-the new macros that was introduced in the current version of the example
-policy and hope work is in progress to add new ones.
-
-Reino
-
-
-
-
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
