@@ -1,75 +1,55 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB8ID3Ii006806
-	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 13:13:04 -0500 (EST)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB8ID6u3027602
-	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 18:13:06 GMT
-Subject: Re: patch: general cleanup
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <20041206234358.GG3678@jmh.mhn.de>
-References: <20041206233528.GD3678@jmh.mhn.de>
-	 <20041206234358.GG3678@jmh.mhn.de>
-Content-Type: text/plain
-Message-Id: <1102529738.30962.13.camel@moss-lions.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB8IjkIi007076
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 13:45:46 -0500 (EST)
+Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB8Ijmu3028846
+	for <selinux@tycho.nsa.gov>; Wed, 8 Dec 2004 18:45:48 GMT
+Message-Id: <200412080203.iB823Mhd023488@turing-police.cc.vt.edu>
+To: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Yee-HAH! 'smartd' issues 70 avc's when it tries to send mail... 
+In-Reply-To: Your message of "Tue, 07 Dec 2004 11:50:27 EST."
+             <200412071650.iB7GoSQs014629@turing-police.cc.vt.edu>
+From: Valdis.Kletnieks@vt.edu
+References: <200412032012.iB3KCjaT030175@turing-police.cc.vt.edu> <41B5CB46.4020407@redhat.com>
+            <200412071650.iB7GoSQs014629@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Date: Wed, 08 Dec 2004 13:15:38 -0500
+Content-Type: multipart/signed; boundary="==_Exmh_639221094P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Tue, 07 Dec 2004 21:03:22 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-12-06 at 18:43, Thomas Bleher wrote:
-> * Thomas Bleher <bleher@informatik.uni-muenchen.de> [2004-12-07 00:35]:
-> > Remove some duplicated permissions and attributes.
-> > 
-> > Adds a few permissions:
-> > * initrc can setattr xconsole_device_t
-> > * mount can read device_t:lnk_file and read xdm_t:fifo_file
-> 
-> Oops, forgot to attach patch.
-> Here it is.
-> 
-> Thomas
+--==_Exmh_639221094P
+Content-Type: text/plain; charset=us-ascii
 
-> --- orig/macros/program/sudo_macros.te
-> +++ mod/macros/program/sudo_macros.te
-> @@ -31,7 +31,6 @@
->  rw_dir_create_file($1_sudo_t, $1_tmp_t)
->  rw_dir_create_file($1_sudo_t, $1_home_t)
->  domain_auto_trans($1_t, sudo_exec_t, $1_sudo_t)
-> -r_dir_file($1_sudo_t, selinux_config_t)
->  ')
+On Tue, 07 Dec 2004 11:50:27 EST, Valdis.Kletnieks@vt.edu said:
 
-This doesn't look like a duplicate rule to me.
+> I'm wondering if it would make more sense to push a patch upstream to the
+> kernel-utils crew.  Reading the smartd manpage in more detail, it looks like
+> feeding it a '-M exec /usr/sbin/sendmail' (or building with that as the
+> default) would let us only have to add sendmail_exec_t rather than all those.
 
->  # arch-tag: 67418b54-b56c-44d7-841c-5c895e795cd8
-> --- orig/macros/user_macros.te
-> +++ mod/macros/user_macros.te
-> @@ -221,22 +222,22 @@
->  #  Allow users to mount file systems like floppies and cdrom
->  #
->  mount_domain($1, $1_mount, `, fs_domain')
-> -role $1_r types $1_mount_t;
->  r_dir_file($1_t, mnt_t)
-> +allow $1_mount_t device_t:lnk_file read;
->  allow $1_mount_t removable_device_t:blk_file read;
->  allow $1_mount_t iso9660_t:filesystem relabelfrom;
->  allow $1_mount_t removable_t:filesystem { mount relabelto };
->  allow $1_mount_t removable_t:dir mounton;
->  ifdef(`xdm.te', `
->  allow $1_mount_t xdm_t:fd use;
-> -allow $1_mount_t xdm_t:fifo_file write;
-> +allow $1_mount_t xdm_t:fifo_file { read write };
->  ')
->  ')
+Or that *would* work, if the smartd code didn't use popen() to actually run it,
+giving us a gratuitous '/bin/sh -c'.  Looks like some fairly hefty reworking to
+make it do the whole pipe()/fork()/exec() thing itself.
 
-Same with the role $1_r types $1_mount_t rule.  I see similar role rules
-elsewhere for system_r and sysadm_r, but not for user_r and staff_r.
+Blech. ;)
 
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+
+--==_Exmh_639221094P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBtmDqcC3lWbTT17ARAr4RAKCpmoKl7+F4EZcKBuxsi+kNO06EigCghHnN
+IwTnVCmRbelw5qz8zDjj2sI=
+=9I4Z
+-----END PGP SIGNATURE-----
+
+--==_Exmh_639221094P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
