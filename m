@@ -1,47 +1,45 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA07856
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 07:21:06 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA08489
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 08:54:50 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA29394
-	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 11:19:15 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id LAA29390 for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 11:19:14 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "luiztizei" <luiztizei@terra.com.br>, "selinux" <selinux@tycho.nsa.gov>
+	by jazzband.ncsc.mil  with ESMTP id MAA03531
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 12:52:55 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id MAA03523 for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 12:52:54 GMT
+Date: Wed, 9 Oct 2002 08:54:32 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: luiztizei <luiztizei@terra.com.br>
+cc: selinux <selinux@tycho.nsa.gov>
 Subject: Re: What to do next?
-Date: Wed, 9 Oct 2002 13:20:54 +0200
-References: <H3OGTT$0A7DBB13E9FF323A8AA0A7184811E6BA@terra.com.br>
 In-Reply-To: <H3OGTT$0A7DBB13E9FF323A8AA0A7184811E6BA@terra.com.br>
+Message-ID: <Pine.GSO.4.33.0210090851480.3804-100000@raven>
 MIME-Version: 1.0
-Message-Id: <200210091320.54708.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 8 Oct 2002 21:29, luiztizei wrote:
+
+On Tue, 8 Oct 2002, luiztizei wrote:
+
 >   I have succefully installed selinux kernel lsm-2.4 to my RH7.3
 > distro. I want to continue to explore this system. What should I do
 > next? Get the patches you are releasing and try them?
 >   I am simply a newbie to the subject, but with time I might help :)
 
-You need a kernel compiled with SE Linux (I'm not sure from your message if 
-you compiled the support in).
+Did you perform a full install of SELinux, as per the selinux/README
+instructions?  You need more than just a patched kernel.  You may want to
+checkout a copy of the sourceforge selinux CVS tree and install from it to
+pick up patches that have been posted since the last public release.  You
+can access the sourceforge selinux CVS tree via:
 
-Then you need to run patched versions of essential programs, this means login, 
-crond, and logrotate as the most important ones, procps, psmisc, fileutils, 
-and shellutils are optional.
+cvs -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux \
+-z3 co nsa
 
-Finally you need to install a SE Linux policy.  Both my policy and the CVS 
-policy are reasonable options, but the release version on the NSA site will 
-work too.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
 
 
 --
