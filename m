@@ -1,46 +1,143 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i09EonRb000022
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 09:50:50 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i09Enjxr028671
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 14:49:45 GMT
-Received: from smtp-1.llnl.gov (smtp-1.llnl.gov [128.115.250.81])
-	by jazzswing.ncsc.mil  with ESMTP id i09EniYc028668
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 14:49:44 GMT
-Received: from popcorn.llnl.gov (localhost [127.0.0.1])
-	by smtp-1.llnl.gov (8.12.3p2-20030917/8.12.3/LLNL evision: 1.13 $) with ESMTP id i09EojLZ016892
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 06:50:45 -0800 (PST)
-Received: from [128.115.96.64] (account shakespeare2 [128.115.96.64] verified)
-  by popcorn.llnl.gov (CommuniGate Pro SMTP 4.0.6)
-  with ESMTP id 31155888 for selinux@tycho.nsa.gov; Fri, 09 Jan 2004 06:50:44 -0800
-Mime-Version: 1.0
-Message-Id: <p0602040ebc246ef12509@[128.115.96.64]>
-Date: Fri, 9 Jan 2004 06:50:43 -0800
-To: selinux@tycho.nsa.gov
-From: Mark Shakespeare <mshakes@llnl.gov>
-Subject: using Resin instead of Apache
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i09FdlRb000423
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 10:39:47 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i09FdkiV005172
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 15:39:46 GMT
+Received: from thoron.boston.redhat.com (nat-pool-bos.redhat.com [66.187.230.200])
+        by jazzband.ncsc.mil  with ESMTP id i09Fdd08005159 for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 15:39:46 GMT
+Date: Fri, 9 Jan 2004 10:39:39 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
+   <selinux@tycho.nsa.gov>
+Subject: [PATCH][SELINUX] 3/7 Add node controls
+In-Reply-To: <Xine.LNX.4.44.0401091012460.21309@thoron.boston.redhat.com>
+Message-ID: <Xine.LNX.4.44.0401091017250.21309-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Has anyone used Resin with SeLinux?
+This patch against 2.6.1-mm2 adds 'node' access controls for SELinux,
+which allows network traffic to be controlled on the basis of remote 
+address.
+  
+Like the previous patch, similar functionality was present in earlier
+SELinux implementations; this is a rework within the constraints of the
+LSM hooks present in the mainline kernel.
+  
+Please apply.
 
-I've been asked to install SeLinux on a Server using Resin.
+ hooks.c |   36 ++++++++++++++++++++++++++++++++----
+ 1 files changed, 32 insertions(+), 4 deletions(-)
 
-Do I just modify the Apache.te file?
+diff -urN -X dontdiff linux-2.6.1-rc2.pending/security/selinux/hooks.c linux-2.6.1-rc2.w1/security/selinux/hooks.c
+--- linux-2.6.1-rc2.pending/security/selinux/hooks.c	2004-01-07 11:46:47.687890256 -0500
++++ linux-2.6.1-rc2.w1/security/selinux/hooks.c	2004-01-07 11:48:08.107664592 -0500
+@@ -2668,10 +2668,11 @@
+ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ {
+ 	int err = 0;
+-	u32 netif_perm;
++	u32 netif_perm, node_perm, node_sid;
+ 	struct socket *sock;
+ 	struct inode *inode;
+ 	struct net_device *dev;
++	struct iphdr *iph;
+ 	struct sel_netif *netif;
+ 	struct netif_security_struct *nsec;
+ 	struct inode_security_struct *isec;
+@@ -2707,14 +2708,17 @@
+ 	switch (isec->sclass) {
+ 	case SECCLASS_UDP_SOCKET:
+ 		netif_perm = NETIF__UDP_RECV;
++		node_perm = NODE__UDP_RECV;
+ 		break;
+ 	
+ 	case SECCLASS_TCP_SOCKET:
+ 		netif_perm = NETIF__TCP_RECV;
++		node_perm = NODE__TCP_RECV;
+ 		break;
+ 	
+ 	default:
+ 		netif_perm = NETIF__RAWIP_RECV;
++		node_perm = NODE__RAWIP_RECV;
+ 		break;
+ 	}
+ 
+@@ -2724,8 +2728,18 @@
+ 
+ 	err = avc_has_perm(isec->sid, nsec->if_sid, SECCLASS_NETIF,
+ 	                   netif_perm, &nsec->avcr, &ad);
+-
+ 	sel_netif_put(netif);
++	if (err)
++		goto out;
++	
++	/* Fixme: this lookup is inefficient */
++	iph = skb->nh.iph;
++	err = security_node_sid(PF_INET, &iph->saddr, sizeof(iph->saddr), &node_sid);
++	if (err)
++		goto out;
++	
++	err = avc_has_perm(isec->sid, node_sid, SECCLASS_NODE, node_perm, NULL, &ad);
++
+ out:	
+ 	return err;
+ }
+@@ -2738,9 +2752,10 @@
+                                               int (*okfn)(struct sk_buff *))
+ {
+ 	int err = NF_ACCEPT;
+-	u32 netif_perm;
++	u32 netif_perm, node_perm, node_sid;
+ 	struct socket *sock;
+ 	struct inode *inode;
++	struct iphdr *iph;
+ 	struct sel_netif *netif;
+ 	struct sk_buff *skb = *pskb;
+ 	struct netif_security_struct *nsec;
+@@ -2771,14 +2786,17 @@
+ 	switch (isec->sclass) {
+ 	case SECCLASS_UDP_SOCKET:
+ 		netif_perm = NETIF__UDP_SEND;
++		node_perm = NODE__UDP_SEND;
+ 		break;
+ 	
+ 	case SECCLASS_TCP_SOCKET:
+ 		netif_perm = NETIF__TCP_SEND;
++		node_perm = NODE__TCP_SEND;
+ 		break;
+ 	
+ 	default:
+ 		netif_perm = NETIF__RAWIP_SEND;
++		node_perm = NODE__RAWIP_SEND;
+ 		break;
+ 	}
+ 
+@@ -2788,8 +2806,18 @@
+ 
+ 	err = avc_has_perm(isec->sid, nsec->if_sid, SECCLASS_NETIF,
+ 	                   netif_perm, &nsec->avcr, &ad) ? NF_DROP : NF_ACCEPT;
+-
+ 	sel_netif_put(netif);
++	if (err != NF_ACCEPT)
++		goto out;
++		
++	/* Fixme: this lookup is inefficient */
++	iph = skb->nh.iph;
++	err = security_node_sid(PF_INET, &iph->daddr, sizeof(iph->daddr), &node_sid);
++	if (err)
++		goto out;
++	
++	err = avc_has_perm(isec->sid, node_sid, SECCLASS_NODE,
++	                   node_perm, NULL, &ad) ? NF_DROP : NF_ACCEPT;
+ out:
+ 	return err;
+ }
 
-Any help would be appreciated.
 
-Thanks.
--- 
-******************************************
-* Mark Shakespeare			 *
-* Engineering Computer Operations Team   *
-* Lawrence Livermore National Laboratory *
-* 7000 East Ave		L-130            *
-* Livermore,Ca 94550			 *
-* 925-423-9922	      mshakes@llnl.gov   *
-******************************************
 
 --
 This message was distributed to subscribers of the selinux mailing list.
