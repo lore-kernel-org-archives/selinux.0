@@ -1,63 +1,56 @@
-Subject: Re: Overlay Filesystem and SELinux
-From: Jaspreet Singh <jsingh@ensim.com>
-Reply-To: jsingh@ensim.com
-To: Erich Schubert <erich@debian.org>
-Cc: nsa <SELinux@tycho.nsa.gov>
-In-Reply-To: <1104022405.29054.7.camel@wintermute.xmldesign.de>
-References: <1098274225.12118.20.camel@jsingh.india.ensim.com>
-	 <20041020151031.GB21185@lkcl.net>  <20041020174938.GL21185@lkcl.net>
-	 <1098887565.1620.15.camel@jsingh.india.ensim.com>
-	 <1104022405.29054.7.camel@wintermute.xmldesign.de>
-Content-Type: text/plain
-Date: Sun, 26 Dec 2004 14:11:00 +0530
-Message-Id: <1104050461.14672.6.camel@jsingh>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBQAvgIi013758
+	for <selinux@tycho.nsa.gov>; Sun, 26 Dec 2004 05:57:43 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBQAtqEM006619
+	for <selinux@tycho.nsa.gov>; Sun, 26 Dec 2004 10:55:54 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 2A44161AFD
+	for <selinux@tycho.nsa.gov>; Sun, 26 Dec 2004 21:57:39 +1100 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 17703-04 for <selinux@tycho.nsa.gov>;
+	Sun, 26 Dec 2004 21:57:38 +1100 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id BF45961AF9
+	for <selinux@tycho.nsa.gov>; Sun, 26 Dec 2004 21:57:38 +1100 (EST)
+Received: from aeon (aeon [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id D70BBA4
+	for <selinux@tycho.nsa.gov>; Sun, 26 Dec 2004 21:57:37 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: r_dir_file() and sym-links
+Date: Sun, 26 Dec 2004 21:57:34 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200412262157.36359.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+In retrospect it was a mistake to make r_dir_file() and friends operate on 
+lnk_file types as well.  We should have had separate macros for sym-links and 
+without sym-link access.
 
-I was initially involved in creating a unionfs (of BSD) for Linux. This
-project was called "mini_fo". Search google for results.
+Currently there are many instances in the policy of r_dir_file() being used 
+for cases where sym-links are not possible (EG for some parts of /proc).
 
+Also r_dir_perms and r_file_perms grant more access than is usually required.  
+Maybe we should have a macro like the following:
 
-That project is now .. not maintained .. and now I am involved in a much
-more sophisticated implementation called - "unionfs" . Check this link -
-www.fsl.cs.sunysb.edu/project-unionfs.html
+define(`s_dir_r_file', `
+allow $1 $2:dir search;
+allow $1 $2:file { getattr read };
+')
 
-Unionfs was initially only for 2.4 kernel, but i recently ported it to
-2.6. The port is not official yet. But, its working.
+What do you think?
 
-> I'd love to use your overlay-fs when I needed to setup some virtual
-> boxes. This is a great tool for virtualization. You can use this to
-> manage a group of virtual hosts more easily (for example installing new
-> software on them or upgrading existing)
-> Do you also have some "hiding" features? With your concept right now,
-> none of the overlayed files can be deleted. Or do you have a way of
-> signalling that?
-> 
-
-Yups, it has all BSD unionfs/union-mount features. My 2.6 port is not
-selinux compatible yet .. but would be in some time.
-
-
-> How do you create the whole path? just by doing a number of mkdirs? IMHO
-> you should copy the xattr attributes from the overlayed directories
-> here. As long as you are inside the kernel, doing so shouldn't be too
-> hard.
-> 
-
-nope .. just union mount some already mounted directories(called
-branches) on a mount point and then any lookups/writes on mount-points
-would follow COW semantics. And changes would be written to the topmost
-RW branch. 
-
-Howz it.
-
-Greetings and Mary Christmas,
-Jaspreet
 -- 
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
