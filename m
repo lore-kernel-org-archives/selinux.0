@@ -1,47 +1,48 @@
-From: "CHEN Mike" <wofong@hotmail.com>
-To: treed@ultraviolet.org, SELinux@tycho.nsa.gov
-Subject: Re: Documentation! (Was: Re: activity?)
-Date: Thu, 21 Feb 2002 11:27:46 +0800
-Mime-Version: 1.0
-Content-Type: text/plain; charset=gb2312; format=flowed
-Message-ID: <F124eruQsLbtbS8oLhW00018344@hotmail.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA23925
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2002 00:28:41 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id FAA00411
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2002 05:27:41 GMT
+Received: from sendmail (savages.net [208.170.193.18])
+	by jazzswing.ncsc.mil  with ESMTP id FAA00405
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2002 05:27:40 GMT
+Message-ID: <3C748541.6050708@pcez.com>
+Date: Wed, 20 Feb 2002 21:27:29 -0800
+From: Shaun Savage <savages@pcez.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: SELinux
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->From: Tracy R Reed <treed@ultraviolet.org>
->To: SELinux@tycho.nsa.gov
->Subject: Documentation! (Was: Re: activity?)
->Date: Wed, 20 Feb 2002 18:39:47 -0800
->
->On Tue, Feb 19, 2002 at 01:01:38PM -0500, Noah silva wrote:
-> > debian, and other profiles for it, I would say it's actually easier to 
-set
-> > up than it has been in the past.  NSA says on their page however, that 
-it
->
->It is easier to set up than in the past. But what it REALLY needs to be
->useful to me is some good documentation aimed at the system administrator.
->I've read the papers on the site but I still just can't get it in my head
->how to do much with it. I would love to see some examples of how to alter
->policies, add new domains for new software, etc. I would like to see a
->good glossary of all of the terminology used also. LIDS was easy to figure
->out compared to SE Linux. I just know SE Linux is the better solution for
->me but I am having problems figuring out how to actually customize it to
->my system requirements!
->
->Please, someone, write some docs!
->
-There are some examples given if you try to build the selinux kernel.
-But it's quite brief. There are documentations for policy config also.
-You might want to refer to that one.
+I have been customizing the policy now for about three months.  If you 
+think of writing new policy as designing a state machine thing are easier.
+the questions you need to ask is
+1> How do you get to the execution of the program.  What domain should 
+you allow to start this program?
+2> What protections are required? This is the biggest issue.  Is there a 
+  log file?  Does the program acceses any sockets? Is there user 
+communcation?  Detail knowledge of the application is needed.  I tend to 
+be paranoid so I create too many sub domains and make the policy difficult.
+3> What programs are allowed to access this application data?
 
----
-There's nothing left to say,
-     Just walk away...
+Read the policy/macros.te file
+The linux/security/selinux/include/flask/*.h
+av_permissions.h gives the bit pattern of all the permissions
+av_perm_to_string.h & common_perm_to_string.h is some of the string
+    permissions
+class_to_string.h is most of the objects
+flask.h gives the object classes
 
+The main thing is to understand the application. Know what files, 
+sockets, are being accesed and how.
 
-_________________________________________________________________
-√‚∑—œ¬‘ÿ MSN Explorer£∫http://explorer.msn.com/lccn/intl.asp°£
+I do agree that there needs to be a more documentation, but if there 
+isn't the you can earn big dollars if you know it, I hope ;-).
+
+Shaun Savage
 
 
 --
