@@ -1,35 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA22536
-	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 08:43:21 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA22580
-	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 12:41:39 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA22603
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 08:46:25 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA24366
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 12:45:15 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id MAA22576 for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 12:41:39 GMT
-Date: Thu, 29 Aug 2002 08:42:52 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id MAA24362
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 12:45:14 GMT
+Date: Thu, 29 Aug 2002 08:45:48 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
 cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: more patches, another small patch
-In-Reply-To: <20020827181256.37200311@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0208290838190.2189-100000@raven>
+Subject: Re: makefile patch
+In-Reply-To: <20020828141944.7F9263F5F@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0208290844400.2189-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-These patches have been merged and are available in the sourceforge CVS
-tree.  I replaced the allow rule granting mrtg_t access to
-sysadm_home_dir_t with a dontaudit rule.  I omitted two changes from
-postgresql.te: granting the domain setattr permission to etc_t:file and
-granting the domain write and lock permission to initrc_var_run_t:file.
+On Wed, 28 Aug 2002, Russell Coker wrote:
+
+> In the post-install script of my selinux-policy-default package I have the
+> following:
+>   make -s -C /etc/selinux install
+>   make -s -C /etc/selinux load || true
+>
+> This results in the policy being compiled twice when using the NSA Makefile,
+> I've attached a patch to fix this.
+
+This breaks if you don't already have a tmp directory pre-created.  Try
+removing your tmp directory and doing a make (or a make policy.conf).
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
-
 
 
 
