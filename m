@@ -1,56 +1,43 @@
-Date: Fri, 12 Apr 2002 11:11:16 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Tom <tom@lemuria.org>
-cc: <SELinux@tycho.nsa.gov>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
 Subject: Re: db conflict ?
-In-Reply-To: <20020412170130.A30042@lemuria.org>
-Message-ID: <Pine.GSO.4.33.0204121108290.21729-100000@raven>
+Date: Fri, 12 Apr 2002 17:15:01 +0200
+Cc: Tom <tom@lemuria.org>, <SELinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0204121030040.21729-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0204121030040.21729-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020412151501.4B3B923B16@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 12 Apr 2002 16:40, Stephen Smalley wrote:
+> On Fri, 12 Apr 2002, Russell Coker wrote:
+> > Having SE Linux code in /etc/magic for 0x6, 0x7, or 0x8, etc as the first
+> > long of the file is not viable, eventually we'll hit a conflict.
+> >
+> > This is why I have intentionally not submitted my /etc/magic changes to
+> > the maintainer of the "file" package.
+>
+> Yes, you originally asked for a magic number back in January.  Sorry.  How
+> about the same magic number we use to distinguish the SELinux module's
+> system calls and security structures, 0xf97cff8c?  This number follows a
+> convention suggested by David Wheeler for security modules - see
+> http://marc.theaimsgroup.com/?l=linux-security-module&m=99842987214848&w=2.
 
-On Fri, 12 Apr 2002, Tom wrote:
+Sure, that sounds fine.
 
-> Analysis: Logging in via ssh as root works, as a user not. i.e. "ssh
-> -l tom testmachine" fails, "ssh -l root testmachine" works.
->
-> The error message in /var/log/auth.log is:
->
-> fatal: Could not obtain SID for user tom
->
->
-> The piece of code that triggers this appears to be:
->
-> if (!get_default_user_sid(pw->pw_name,
-> 			  strlen(pw->pw_name),
-> 			  &scontext,
-> 			  &sid)) {
-> 	fprintf(stderr, "Could not obtain SID for user %s\n",
-> 		pw->pw_name);
-> 	exit(1);
-> }
->
-> so I wonder why this fails, because my /etc/selinux/users says:
->
-> user user_u roles user_r;
-> user root roles { user_r sysadm_r };
-> user tom roles { user_r sysadm_r };
->
-> so tom should be more than covered. or am I just being dumb again?
+I suggest having that magic number followed by the string "SE Linux" (for 
+people with out of date /etc/magic who are forced to use strings(1)), then 
+the usual stuff.
 
-You also need an entry for tom in /etc/security/default_context.  This
-configuration file will be obsoleted in the future, but we're still
-waiting on a developer at NSA to finish the support necessary to eliminate
-it.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
