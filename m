@@ -1,47 +1,82 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h98JoLWt021940
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 15:50:21 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h98JoJ6g013179
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 19:50:19 GMT
-Received: from Woody.fw.matav.hu (matav-1.matav.hu [145.236.241.98])
-        by jazzband.ncsc.mil  with ESMTP id h98JoIdq013169 for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 19:50:19 GMT
-Date: Wed, 8 Oct 2003 19:41:34 +0000
-To: "Artur M. Piwko" <pipen@pu.kielce.pl>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [selinux] SElinux and chroot
-Message-ID: <20031008194133.GC8789@bunuel.tii.matav.hu>
-References: <20031008091650.GA19270@sabat.tu.kielce.pl>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h98MmhWt022804
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 18:48:43 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h98Mme0p010497
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 22:48:40 GMT
+Received: from ms-smtp-03.texas.rr.com (ms-smtp-03.texas.rr.com [24.93.36.231])
+	by jazzswing.ncsc.mil  with ESMTP id h98Mmdr7010494
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 22:48:40 GMT
+Received: from [192.168.0.3] (cs6710200-176.houston.rr.com [67.10.200.176])
+	by ms-smtp-03.texas.rr.com (8.12.10/8.12.2) with ESMTP id h98MmYhO023594
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 17:48:41 -0500 (CDT)
+Subject: SE Linux User Group
+From: "Brian L. Simonin" <brian.simonin@ghg.net>
+To: National Security Agency SE Linux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary="=-LFFZWlydhV5LTsY78U4+"
+Message-Id: <1065653313.10815.49.camel@simonin-lx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-In-Reply-To: <20031008091650.GA19270@sabat.tu.kielce.pl>
-From: mag@bunuel.tii.matav.hu (Magosányi Árpád)
+Date: 08 Oct 2003 17:48:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
 
-It is a bit hard to parse your question, so I try to give
-a hard to parse answer;)
-There is no direct relationship between chroot and SELinux.
+--=-LFFZWlydhV5LTsY78U4+
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-It is another question that chrooted environments have some other
-benefits than selinux. Those benefits today are mostly to do with ease
-of system administration, but you can also implement a very coarsely grained
-MACish policy based on chroot as a domain separation method. See bsd jail
-for an example, and some papers on relationship on lattice-based policies,
-Mr. Clark and Mr. Wilson for details:)
+I am interested to know if there is an SE Linux user group in Texas. I
+do most of my research on the web concerning SE Linux. However, there
+are things I would like to talk about in a scholarly exchange. For
+instance what Application Servers are suggested to run under the OS (for
+instance Oracle 9i/10g, IBM WebSphere or other options.
 
-My favourite mania nowadays is to build a system with multiple chrooted
-sandboxen and SELinux, with a dip of Bell&LaPadula. The very thinkpad
-I write this email on is built this way but with rsbac.
+I have been reading the email notes concerning certification as well. I
+have high interest. 
 
-A levelezõm azt hiszi, hogy Artur M. Piwko a következõeket írta:
-> Do I have to install selinux base into chrooted environment in addition
-> to the system part out of it?
+Your input would be appreciated.
 
--- 
-GNU GPL: csak tiszta forrásból
+Have a great day,
+
+
+Brian L. Simonin
+Email: brian.simonin@ghg.net
+Website: http://www.ghg.net/simonin/
+
+--=-LFFZWlydhV5LTsY78U4+
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 TRANSITIONAL//EN">
+<HTML>
+<HEAD>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=UTF-8">
+  <META NAME="GENERATOR" CONTENT="GtkHTML/1.1.9">
+</HEAD>
+<BODY>
+I am interested to know if there is an SE Linux user group in Texas. I do most of my research on the web concerning SE Linux. However, there are things I would like to talk about in a scholarly exchange. For instance what Application Servers are suggested to run under the OS (for instance Oracle 9i/10g, IBM WebSphere or other options.<BR>
+<BR>
+I have been reading the email notes concerning certification as well. I have high interest. <BR>
+<BR>
+Your input would be appreciated.<BR>
+<BR>
+<TABLE CELLSPACING="0" CELLPADDING="0" WIDTH="100%">
+<TR>
+<TD>
+Have a great day,<BR>
+<BR>
+<BR>
+Brian L. Simonin<BR>
+Email: <A HREF="mailto:brian.simonin@ghg.net"><FONT COLOR="#003366">brian.simonin@ghg.net</FONT></A><BR>
+Website: <A HREF="http://www.ghg.net/simonin/"><FONT COLOR="#003366">http://www.ghg.net/simonin/</FONT></A>
+</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>
+
+--=-LFFZWlydhV5LTsY78U4+--
 
 
 --
