@@ -1,28 +1,81 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAS5a8Rb026121
-	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 00:36:09 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAS5a7qY024929
-	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 05:36:08 GMT
-Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
-        by jazzband.ncsc.mil  with ESMTP id hAS5a70o024926 for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 05:36:07 GMT
-Message-ID: <3FC6DEC6.7020501@diyab.net>
-Date: Fri, 28 Nov 2003 00:36:06 -0500
-From: Diyab <diyab@diyab.net>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hASB8RRb026775
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 06:08:27 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hASB7op5007569
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 11:07:50 GMT
+Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
+	by jazzswing.ncsc.mil  with ESMTP id hASB7nt0007566
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 11:07:50 GMT
+Received: (from root@localhost)
+	by baitaca.ipen.br (8.12.9/8.12.9) id hASB95EZ002830
+	for selinux@tycho.nsa.gov; Fri, 28 Nov 2003 09:09:05 -0200
+Received: from ipen.br ([10.0.12.47])
+	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id hASB8weE002782
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 09:08:59 -0200
+Message-ID: <3FC72C83.8050309@ipen.br>
+Date: Fri, 28 Nov 2003 09:07:47 -0200
+From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
 MIME-Version: 1.0
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: glibc
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Information about packages
+Content-Type: multipart/alternative;
+ boundary="------------000102010404060600090706"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is there any specific way to check for AT_SECURE functionality in glibc?
 
-Timothy,
+--------------000102010404060600090706
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Helo.
+
+How SELinux is on the development process and therefore happen any changes.
+
+Please, I would like to know what are the packages for SELinux more 
+appropriate and more "up-to-date" (in this moment) to install in a 
+*Debian/testing* with  *kernel 2.6.0* ?
+
+Best regards.
+Many Thanks.
 
 -- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
+Carlos Anisio Monteiro  <monteiro@ipen.br>
+IPEN/CNEN-SP
+Sao Paulo - Brasil
+
+
+--------------000102010404060600090706
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+Helo.<br>
+<br>
+How SELinux is on the development process and therefore happen any changes.<br>
+<br>
+Please, I would like to know what are the packages for SELinux more appropriate
+and more "up-to-date" (in this moment) to install in a <b>Debian/testing</b>
+with&nbsp; <b>kernel 2.6.0</b> ?<br>
+<br>
+Best regards.<br>
+Many Thanks.<br>
+<br>
+<pre class="moz-signature" cols="$mailwrapcol">-- 
+Carlos Anisio Monteiro  <a class="moz-txt-link-rfc2396E" href="mailto:monteiro@ipen.br">&lt;monteiro@ipen.br&gt;</a>
+IPEN/CNEN-SP
+Sao Paulo - Brasil
+</pre>
+</body>
+</html>
+
+--------------000102010404060600090706--
 
 
 --
