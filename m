@@ -1,56 +1,44 @@
-Date: Wed, 20 Feb 2002 02:15:51 +0000
-From: Dale Amon <amon@vnl.com>
-To: SELinux@tycho.nsa.gov
+Message-ID: <3C73078F.A962A59A@quantumtek.net>
+Date: Tue, 19 Feb 2002 21:18:55 -0500
+From: George Fouse <gfouse@quantumtek.net>
+MIME-Version: 1.0
+To: Metrix <metrix007@yahoo.com>
+CC: SELinux@tycho.nsa.gov
 Subject: Re: 2.2 kernel series
-Message-ID: <20020220021551.GB29004@vnl.com>
 References: <20020220005027.31760.qmail@web20602.mail.yahoo.com>
-Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020220005027.31760.qmail@web20602.mail.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Feb 19, 2002 at 04:50:27PM -0800, Metrix wrote:
+I'm afraid that I would have to completely disagree with the stated
+premise  
+"most people are sticking with 2.2 in a production enviroment". 
+While there are (more accurately, have been) some issues with the 2.4
+series, the obvious advantages predominate.
+Given that premise, though, I understand his questions.
+'Nough said.
+
+Metrix wrote:
+> 
 > why develop 2.4, 2.5 even? 2.4 has had quite a lot of
 > problems, most people are sticking with 2.2 in a
-> production enviroment,
-
-Hardly, or at least no more than the delay for really
-mission critical applications that occurred between
-2.0.36 and 2.2.17 jump. 
-
-2.4.x has been more than stable enough for reasonably
-critical applications for many months now, and I and
-many, many others are so using it.
-
-Changing from 2.2.17 to 2.2.17-se in a mission critical
-system is exactly as risky (fixing what ain't broken) 
-as going to 2.4.x. I can't see any admin going to that
-much trouble to recertify a 2.2.x. Same amount of work
-to make the transition to 2.4.x-selinux.
-
-> it would seem that the 2.2
+> production enviroment, it would seem that the 2.2
 > selinux patches are not being updated, which is a
-> shame. 
+> shame. also, does selinux audit there code ala openbsd?
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Yahoo! Sports - Coverage of the 2002 Olympic Games
+> http://sports.yahoo.com
+> 
 
-I don't think there are very many new systems going
-up with 2.2.x. Selinux is still experimental anyway,
-and by the time it's "done" we'll probably be using
-2.6.x kernels with the conservative applications
-hanging back on 2.4.x
-
-> also, does selinux audit there code ala openbsd?
-
-All of the kernel is pretty well audited if you
-ask me; and I think Russ Coker has gone through 
-the security critical apps as well as Dr. Smalley.
-
--- 
-------------------------------------------------------
-    Nuke bin Laden:           Dale Amon, CEO/MD
-  improve the global          Islandone Society
-     gene pool.               www.islandone.org
-------------------------------------------------------
+--
+------------------------------
+George Fouse, 
+President
+Quantum Technology Associates
+System and Network Services
+------------------------------
 
 --
 You have received this message because you are subscribed to the selinux list.
