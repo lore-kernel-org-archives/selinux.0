@@ -1,78 +1,38 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14J6v53010744
-	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 14:06:57 -0500 (EST)
+Message-ID: <4203C9D7.5050306@redhat.com>
+Date: Fri, 04 Feb 2005 14:15:35 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: Best way to label a filesystem for another system
-Date: Fri, 4 Feb 2005 11:06:54 -0800
-Message-ID: <60C14C611F1DDD4198D53F2F43D8CA3B0365AD08@orsmsx410>
-From: "Villalovos, John L" <john.l.villalovos@intel.com>
-To: "Stephen Smalley" <sds@epoch.ncsc.mil>
-Cc: "SE-Linux" <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Java Policy
+References: <4203B048.5070607@redhat.com>	 <1107538571.8078.98.camel@moss-spartans.epoch.ncsc.mil>	 <4203C18F.8030609@redhat.com> <1107543502.8078.136.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1107543502.8078.136.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> setfiles -r allows you to specify an alternate root path.  Don't
-> reinvent the logic for processing file_contexts; we have been
-> moving in
-> the opposite direction, centralizing it all in the matchpathcon()
-> function in libselinux and rewriting all programs to use it.  In the
-> sourceforge CVS tree (and thus the next release on nsa.gov), setfiles
-> has also been rewritten in this manner.
+Added to global_macros
 
-Thanks for the info :)
+# Define legacy_domain  for legacy binaries (java)
+# "legacy" binary == lacks PT_GNU_STACK header, i.e. built with an old
+# toolchain.  They cause the kernel to automatically start translating all
+# read protection requests to read|execute for backward compatibility on
+# x86.  They will all need execmem and execmod, including execmod to
+# shlib_t and ld_so_t unlike non-legacy binaries.
 
-I tried it by doing:
-
-[root@linuxjohn4 iq80310]# mount -o loop root_fs_arm mnt/
-
-[root@linuxjohn4 iq80310]# setfiles -r mnt/ -v
-mnt/etc/selinux/targeted/contexts/files/file_contexts mnt/
-setfiles:  read 463 specifications
-setfiles:  invalid context system_u:object_r:checkpolicy_exec_t on line
-number 526
-setfiles:  invalid context system_u:object_r:chkpwd_exec_t on line
-number 528
-setfiles:  invalid context system_u:object_r:chkpwd_exec_t on line
-number 529
-setfiles:  invalid context system_u:object_r:system_cron_spool_t on line
-number 532
-setfiles:  invalid context system_u:object_r:system_cron_spool_t on line
-number 533
-setfiles:  invalid context system_u:object_r:crond_exec_t on line number
-534
-setfiles:  invalid context system_u:object_r:anacron_exec_t on line
-number 535
-setfiles:  invalid context system_u:object_r:sysadm_cron_spool_t on line
-number 539
-setfiles:  invalid context system_u:object_r:sysadm_cron_spool_t on line
-number 540
-Exiting after 10 errors.
-
-
-I am using Fedora Core 3 as my development system and it has all the
-current updates applied.
-
-I am using policy-1.20.tgz from the NSA website for the code I am using
-for the target system.
-
-If I use my local file_contexts file it works fine:
-[root@linuxjohn4 iq80310]# setfiles -r mnt/ -v
-/etc/selinux/targeted/contexts/files/file_contexts mnt/
-setfiles:  read 573 specifications
-setfiles:  labeling files, pretending mnt is /
-setfiles:  labeling files under mnt/
-setfiles:  hash table stats: 505 elements, 505/65536 buckets used,
-longest chain length 1
-setfiles:  Done.
-
-
-Any ideas on how to make the first method work?
-
-Thanks,
-John
+define(`legacy_domain', `
+bool allow_$1_legacy false;
+if (allow_$1_legacy && allow_execmem) {
+allow $1_t self:process { execmem };
+}
+if (allow_$1_legacy && allow_execmod) {
+#Required when starting with /lib/tls/libc-
+allow $1_t { texrel_shlib_t shlib_t }:file execmod;
+allow $1_t ld_so_t:file execmod;
+}
+')
+Java_macro now calls
+legacy_domain($2_java)
 
 
 --
