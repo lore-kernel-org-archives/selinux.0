@@ -1,40 +1,38 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UKftrT026883
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 16:41:56 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UKemng010961
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 20:40:49 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UKhOrT026903
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 16:43:24 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UKhMog009024
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 20:43:23 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: Access to xdm_t
-Date: Fri, 1 Oct 2004 06:41:51 +1000
-Cc: Colin Walters <walters@verbum.org>,
-   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux ML <selinux@tycho.nsa.gov>
-References: <20040929163222.GA4125@rom.cip.ifi.lmu.de> <1096561927.4957.15.camel@nexus.verbum.private> <20040930192935.GA6063@lkcl.net>
-In-Reply-To: <20040930192935.GA6063@lkcl.net>
+To: Tom Anderson <granite217@yahoo.com>
+Subject: Re: purpose of the staff_r role?
+Date: Fri, 1 Oct 2004 06:43:20 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20040930193153.22233.qmail@web14926.mail.yahoo.com>
+In-Reply-To: <20040930193153.22233.qmail@web14926.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200410010641.51462.russell@coker.com.au>
+Message-Id: <200410010643.20408.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 1 Oct 2004 05:29, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> On Thu, Sep 30, 2004 at 12:32:07PM -0400, Colin Walters wrote:
-> > On Wed, 2004-09-29 at 18:32 +0200, Thomas Bleher wrote:
-> > > If yes, should xdm_t get the attribute privfd?
-> >
-> > Actually even moving the log to /tmp you'll still get programs wanting
-> > access to the xdm_t fd.  Ideally we would have a little program run in
-> > its own domain (xdm_launcher_t say) that would simply close all of its
-> > file descriptors, open up the tmp file itself for logging and exec the
-> > user session.
+On Fri, 1 Oct 2004 05:31, Tom Anderson <granite217@yahoo.com> wrote:
+> > It's the role that a person who can become sysadm_r should do their
+> > daily work in like reading mail, working on source code, etc.  The
+> > reason is because it basically isn't allowed to interact with user_t
+> > at all; for example, staff_t can't read user_tmp_t.  This prevents
+> > /tmp races from working.
 >
->  /usr/bin/startkde for example?
+> Ah, that makes sense.  But I'd like my staff_t user able to read
+> logfiles, without needing to become sysadm_r first ('cuz I can do some
+> real damage inadvertently).  Is there a "correct" way to do this?  I've
+> tried granting read access to var_log_t, but several daemons have their
+> own logfile types.
 
-Yes, that sounds good for it.
+r_dir_file(staff_t, logfile)
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
