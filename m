@@ -1,47 +1,56 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3ALkJRb001799
-	for <selinux@tycho.nsa.gov>; Sat, 10 Apr 2004 17:46:19 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i3ALkImw029099
-	for <selinux@tycho.nsa.gov>; Sat, 10 Apr 2004 21:46:18 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id i3ALkI4w029096 for <selinux@tycho.nsa.gov>; Sat, 10 Apr 2004 21:46:18 GMT
-Date: Sat, 10 Apr 2004 22:24:53 +0100
-From: Dale Amon <amon@vnl.com>
-To: "Matthew J. Fanto" <mattjf@uncompiled.com>
-Cc: russell@coker.com.au, SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: Logo Artwork for SELinux?
-Message-ID: <20040410212453.GA19726@vnl.com>
-References: <200404041856.17745.wlsel@verizon.net> <200404102107.06368.russell@coker.com.au> <1081613326.456.11.camel@nemesis>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1081613326.456.11.camel@nemesis>
+Message-ID: <4078835F.2030801@snu.edu>
+Date: Sat, 10 Apr 2004 18:29:35 -0500
+From: Joshua Brindle <jbrindle@snu.edu>
+MIME-Version: 1.0
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: audio-entropyd policy
+Content-Type: multipart/mixed;
+ boundary="------------070507050404070400090708"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Apr 10, 2004 at 12:08:46PM -0400, Matthew J. Fanto wrote:
-> I also think a button for is necessary. I don't think Joshua was going
-> for the dutch flag when he designed it, but rather the colors of the US
-> (the red, white and blue).  A flag of the US would not work in the
-> background. I'm don't know how much those of you not living in the US
-> would like such a color scheme though. 
+This is a multi-part message in MIME format.
+--------------070507050404070400090708
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well, we're not slow to give blame and the NSA is the 
-key player behind it, so credit where credit is due.
-Fair enough to let people know they do some good work
-as well as the things we don't like ;-)
+audio-entropyd available at http://www.vanheusden.com/aed/ adds entropy 
+from sound devices (after being cleansed and hashed). This is 
+particularly useful on headless servers which don't get any 
+mouse/keyboard related entropy. The policy was written by Chris Pebenito.
 
-Let it be red, white and blue with a taloned penguin
-say I!
+Joshua Brindle
 
--- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+--------------070507050404070400090708
+Content-Type: text/plain;
+ name="audio-entropyd.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="audio-entropyd.te"
+
+#DESC audio-entropyd - Generate entropy from audio input
+#
+# Author: Chris PeBenito <pebenito@gentoo.org>
+#
+
+daemon_domain(entropyd)
+
+allow entropyd_t self:capability { ipc_lock sys_admin };
+
+allow entropyd_t random_device_t:chr_file rw_file_perms;
+allow entropyd_t device_t:dir r_dir_perms;
+allow entropyd_t sound_device_t:chr_file r_file_perms;
+
+--------------070507050404070400090708
+Content-Type: text/plain;
+ name="audio-entropyd.fc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="audio-entropyd.fc"
+
+/usr/sbin/audio-entropyd	--	system_u:object_r:entropyd_exec_t
+
+--------------070507050404070400090708--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
