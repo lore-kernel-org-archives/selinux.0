@@ -1,74 +1,62 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j11Dc753015260
-	for <selinux@tycho.nsa.gov>; Tue, 1 Feb 2005 08:38:07 -0500 (EST)
-Subject: Re: File Browsing apps and getattr
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: ivg2@cornell.edu
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1107264384.6956.2.camel@cobra.ivg2.net>
-References: <1107210369.1928.5.camel@cobra.ivg2.net>
-	 <1107259894.26936.27.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107263308.6722.5.camel@cobra.ivg2.net>
-	 <1107263499.26936.50.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107264384.6956.2.camel@cobra.ivg2.net>
+Subject: Re: Patch to policycoreutils
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41FE7DB2.1000101@redhat.com>
+References: <1106927779.32737.59.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FA6861.6080505@redhat.com>
+	 <1106941913.32737.138.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FA9FA8.7010008@redhat.com>
+	 <1107180899.24654.67.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FE4B16.1050206@redhat.com>
+	 <1107185236.24654.97.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FE7DB2.1000101@redhat.com>
 Content-Type: text/plain
-Message-Id: <1107264676.26936.63.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1107267771.26936.111.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 01 Feb 2005 08:31:16 -0500
+Date: Tue, 01 Feb 2005 09:22:51 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-01 at 08:26, Ivan Gyurdiev wrote:
-> Why is the stat() information so important for security?
+On Mon, 2005-01-31 at 13:49, Daniel J Walsh wrote:
+> +	/usr/bin/diff $PREFC $FC | grep '^[<>]'|cut -c3-| grep ^/ | \
+> +	grep -v -e ^/root -e ^/home -e ^/tmp -e ^/var/tmp | \
+> +	sed -r -e 's|\(([/?[:alnum:]]+)\)\?|{\1,}|g' \
+> +	       -e 's|([[:alnum:]])\?|{\1,}|g' \
+> +	       -e 's,\(.*,*,g' -e 's,\[.*,*,g' \
+> +	       -e 's,[[:blank:]].*,,g' \
+> +               -e 's,\?.*,*,g' \
+> +               -e 's,\.\*,*,g' \
+> +	       -e 's,\(.*,*,g' \
+> +	       -e 's,\[.*,*,g' | \
 
-It depends on the particular file, obviously.  The point is that it
-represents an information flow that conveys possibly sensitive
-information about the object, and should be controlled in accordance
-with the security properties of the object.
+Minor:  You have duplicate \(.* and \[.* substitutions above, once with
+both on the same line and then separately immediately above.
 
-> If you won't do this, how do you plan to address the denials I have
-> posted about? 
-> 
-> Will you leave ls in this state:
-> 
-> [phantom@cobra ~]$ ls -l /var
-> total 112
-> ?---------   ? ?    ?       ?            ? account
-> drwxr-xr-x  10 root root 4096 Jan 16 05:33 cache
-> drwxr-xr-x   3 root root 4096 Oct 19 13:20 db
-> drwxr-xr-x   3 root root 4096 Aug 12 11:02 empty
-> ?---------   ? ?    ?       ?            ? gdm
-> drwxr-xr-x  24 root root 4096 Jan 16 05:33 lib
-> drwxr-xr-x   2 root root 4096 Aug 12 11:02 local
-> ?---------   ? ?    ?       ?            ? lock
-> drwxr-xr-x  13 root root 4096 Feb  1 04:02 log
-> ?---------   ? ?    ?       ?            ? mail
-> ?---------   ? ?    ?       ?            ? named
-> drwx------   2 root root 4096 Dec  1 13:49 net-snmp
-> drwxr-xr-x   2 root root 4096 Aug 12 11:02 nis
-> drwxr-xr-x   2 root root 4096 Aug 12 11:02 opt
-> drwxr-xr-x   2 root root 4096 Aug 12 11:02 preserve
-> drwxr-xr-x  18 root root 4096 Feb  1 06:16 run
-> drwxr-xr-x  14 root root 4096 Aug 12 11:02 spool
-> drwxrwxrwt   2 root root 4096 Feb  1 06:16 tmp
-> drwxr-xr-x  12 root root 4096 Jan 11 19:28 www
-> ?---------   ? ?    ?       ?            ? yp
-> [phantom@cobra ~]$
+> +	sort -u | \
+>          while read pattern ; do if ! echo "$pattern" | grep -q -f ${TEMPFILE} 2>/dev/null ; then echo "$pattern"; case "$pattern" in *"*") echo "$pattern" |sed 's,\*$,,g'>> ${TEMPFILE};;  esac; fi; done | \
+>  	while read pattern ; do find $pattern -maxdepth 0 -print; done 2> /dev/null | \
 
-You can certainly propose allowing access to additional file types on a
-case-by-case basis, possibly introducing new attributes to identify the
-desired set of types, but adding permissions always requires a
-justification, not just 'why not?'.  What is the functional requirement
-that ls display the attributes of those subdirectories/files?  What is
-the real benefit if you cannot search the subdirectories or read the
-files?
+The find command can end up re-introducing /root, /tmp, and /home if /
+is in the input patterns, so you may want to move the grep -v command
+down to the end of the pipeline.  tmp directories are likely ok anyway,
+as file_contexts specifies <<none>> for them already (so restorecon
+shouldn't relabel them even if they are passed).  Further, the find
+command ends up re-introducing duplication; even though / was included
+in my test, it also ended up generating a list of other directories
+directly in / that were not separate filesystems.
 
-dontaudit is appropriate if you just want to silence the warnings,
-although you obviously don't want to do that for a file to which you
-truly want to track attempted accesses.
+As a side note, I experimented with this by splitting the pipeline up
+and writing the output of each stage to a separate temporary file, then
+diff'ing each pair of temporary files to see the effect of each stage. 
+I wanted to force it to be applied to all file_contexts entries as a
+degenerate case, so I initially tried passing -C /dev/null, but that
+didn't seem to work (possibly fails the -f test), so I instead use a MLS
+vs. non-MLS file_contexts to ensure that every line differed (due to the
+MLS level field).
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+Stephen Smalley <sds@tycho.nsa.gov>
 National Security Agency
 
 
