@@ -1,40 +1,39 @@
-Message-Id: <200410050149.i951n1uH010040@turing-police.cc.vt.edu>
-To: fedora-selinux-list@redhat.com
-Cc: SELinux@tycho.nsa.gov
-Subject: 
-From: Valdis.Kletnieks@vt.edu
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_961487124P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 04 Oct 2004 21:49:00 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9537BrT023336
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 23:07:11 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95363YE029067
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 03:06:03 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.10) with ESMTP id i9537A58022508
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 23:07:10 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id i9537Ar03565
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 23:07:10 -0400
+Date: Mon, 4 Oct 2004 23:07:10 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: selinux@tycho.nsa.gov
+cc: fedora-selinux-list@redhat.com
+Subject: Filesystem Labeling article online
+Message-ID: <Xine.LNX.4.44.0410042304400.25086-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_961487124P
-Content-Type: text/plain; charset=us-ascii
+I thought it might be useful to mention that an article I've had published
+in Linux Journal on Filesystem Labeling is online at:
 
-(Not sure if this is a fedora-selinux or upstream issue, posting to both lists)
+http://www.linuxjournal.com/article.php?sid=7426
 
-OK, I see where in recent Fedora-devel RPM's the screensaver is deprecated (as
-per comments in domains/misc/screensaver.te) .  All the same, we probably want
-the following line in file_contexts to make these binaries be 'bin_t' instead
-of 'lib_t'...
 
-/usr/X11R6/lib/xscreensaver/.*      --      system_u:object_r:bin_t
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
---==_Exmh_961487124P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFBYf2McC3lWbTT17ARAlupAJ9fPnHuQGkFybHa1HgET0ieqPoLywCgilTZ
-9xxxy24fKok7iDngib1mdxU=
-=oM2L
------END PGP SIGNATURE-----
-
---==_Exmh_961487124P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
