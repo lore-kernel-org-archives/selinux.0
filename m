@@ -1,44 +1,35 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA08084
-	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 15:10:58 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA13682
-	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 19:09:54 GMT
-Received: from ducks.huff20may77.us ([63.147.7.154])
-	by jazzswing.ncsc.mil  with ESMTP id TAA13678
-	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 19:09:53 GMT
-Subject: Re: A 'Statement of Assurance' on SELinux patents
-From: "Edward J. Huff" <edward.huff@acm.org>
-To: "Joshua D. Guttman" <guttman@mitre.org>
-Cc: Russell Coker <russell@coker.com.au>,
-        Ben McGinnes
-	 <bmcginnes@enternet.com.au>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <nhafzxpquq9.fsf@banjara.mitre.org>
-References: <000f01c23d4a$e938e750$0a01a8c0@ed>
-	<3D5114BB.D45BAD57@cpcug.org> <20020808235352.B4737@mail.enternet.com.au>
-	<20020808142256.7DBB620B@lyta.coker.com.au>
-	<nhafzxpquq9.fsf@banjara.mitre.org>
-Content-Type: text/plain
-Date: 08 Aug 2002 15:08:31 -0400
-Message-Id: <1028833711.16359.95.camel@ducks.huff20may77.us>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA09352
+	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 17:12:38 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id VAA24891
+	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 21:11:01 GMT
+Received: from gricklegrass.epoch.ncsc.mil (gricklegrass.epoch.ncsc.mil [144.51.25.138])
+        by jazzband.ncsc.mil  with ESMTP id VAA24887 for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 21:11:01 GMT
+Received: (from hdholm@localhost)
+	by gricklegrass.epoch.ncsc.mil (8.11.6/8.11.6) id g78LCa402994
+	for selinux@tycho.nsa.gov; Thu, 8 Aug 2002 17:12:36 -0400
+Date: Thu, 8 Aug 2002 17:12:36 -0400
+From: Howard Holm <hdholm@epoch.ncsc.mil>
+To: SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: Gentle Reminder
+Message-ID: <20020808171236.A2943@gricklegrass.epoch.ncsc.mil>
+References: <Pine.LNX.4.33L2.0208081043240.11177-100000@raven.eng.uiowa.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.LNX.4.33L2.0208081043240.11177-100000@raven.eng.uiowa.edu>; from jwalters@eng.uiowa.edu on Thu, Aug 08, 2002 at 10:49:16AM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2002-08-08 at 10:40, Joshua D. Guttman wrote:
-> Has anybody checked how long it will be before the patents expire?
-> Maybe it's not too many years.
-> 
->         Joshua 
+OK folks, I'm not trying to beat up anyone in particular, but it seems
+like its time for a gentle reminder.  This list is for topics directly related
+to SELinux only.  Please try to keep the discussion focused.
 
-          Publication   / Filing        / Likely expiration
-US4713753 Dec. 15, 1987 / Feb. 21, 1985 / Feb. 21, 2005
-US4621321 Nov.  4, 1986 / Feb. 16, 1984 / Feb. 16, 2004
-US4701840 Oct. 20, 1987 / June 20, 1986 / June 20, 2006
-
--- Ed Huff
-
+--
+Howard Holm <hdholm@epoch.ncsc.mil>
+SELinux Mailing List Maintainer
+Secure Systems Research Office
+National Security Agency
 
 --
 You have received this message because you are subscribed to the selinux list.
