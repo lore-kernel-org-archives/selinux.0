@@ -1,46 +1,34 @@
-Message-ID: <55267.202.6.84.11.1036007034.squirrel@www.crypt.gen.nz>
-Date: Thu, 31 Oct 2002 08:43:54 +1300 (NZDT)
+Date: Wed, 30 Oct 2002 14:48:12 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: Brian May <bam@snoopy.apana.org.au>, SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: kernel warning
-From: "Kerry Thompson" <kerry@crypt.gen.nz>
-To: <SELinux@tycho.nsa.gov>
-In-Reply-To: <Pine.GSO.4.33.0210280741410.29887-100000@raven>
-References: <20021027042301.GA18290@snoopy.apana.org.au>
-        <Pine.GSO.4.33.0210280741410.29887-100000@raven>
+In-Reply-To: <200210301613.51096.russell@coker.com.au>
+Message-ID: <Pine.GSO.4.33.0210301441331.12970-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The 'Everything in one Part' download at
-http://www.nsa.gov/selinux/archives/lsm-2.4-selinux-2002102211.tgz doesn't
-seem to have this patch included, and the NSA site isn't very clear that
-the patch is required. Could we please have the patch added to the next
-all-in-one snapshot?
 
-Kerry
+On Wed, 30 Oct 2002, Russell Coker wrote:
 
-Stephen Smalley said:
->
-> SELinux has always included a separate SELinux-specific kernel patch to
-> be applied on top of the LSM patch, although the precise purpose of the
-> patch has varied over time.  In the current release, the patch is
-> available in the SELinux archive in selinux/module/selinux-2.4.patch or
-> directly from
-> http://www.nsa.gov/selinux/patches/selinux-2.4-2002102211.patch.gz.  In
-> the latest release, the dependence of the SELinux module on this patch
-> has increased due to the elimination of precondition functions.  Some of
-> the changes in this patch may find their way back into the mainstream
-> LSM patch in a more general form in the future (they have all been
-> discussed on the LSM mailing list), but some changes are likely to
-> remain
-> SELinux-specific.
+> This means that I can't produce a single kernel-patch package that can be used
+> by SE Linux, LIDS, and DTE users...
 
+That isn't new; in prior releases, the SELinux-specific patch set the
+SELinux option defaults in defconfig and set EXTRAVERSION to -selinux in
+the top-level Makefile, so it wasn't appropriate for LIDS or DTE users
+anyway.  [Are LIDS users now using the LSM kernel patch package, or are
+they still using the separate LIDS package?  Are there any DTE users?]
+For the separate SELinux patch to work for LIDS and DTE users, you would
+need to drop those changes as well as #ifdef the initialization call.  You
+would also need to add stub hook functions for inode_init to the LIDS and
+DTE modules.
 
-
--- 
-Kerry Thompson, CCNA CISSP
-Information Systems Security Consultant
-http://www.crypt.gen.nz  kerry@crypt.gen.nz
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
 
