@@ -1,70 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA22470
-	for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 12:44:19 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA12865
-	for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 17:43:17 GMT
-Received: from adams.patriot.net (IDENT:root@adams.patriot.net [209.249.176.2])
-        by jazzband.ncsc.mil  with ESMTP id RAA12861 for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 17:43:17 GMT
-Received: from localhost (pgreene@localhost)
-	by adams.patriot.net (8.10.1/8.10.1) with ESMTP id g2BHiHo16061
-	for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 12:44:17 -0500
-Date: Mon, 11 Mar 2002 12:44:17 -0500 (EST)
-From: Paul Greene <pgreene@patriot.net>
-To: <selinux@tycho.nsa.gov>
-Subject: Trouble with Selinux install
-Message-ID: <Pine.LNX.4.30.0203111242410.9199-100000@adams.patriot.net>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA22737
+	for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 13:03:24 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA25583
+	for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 18:02:09 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id SAA25579
+	for <selinux@tycho.nsa.gov>; Mon, 11 Mar 2002 18:02:08 GMT
+Date: Mon, 11 Mar 2002 13:02:26 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Paul Greene <pgreene@patriot.net>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: Trouble with Selinux install
+In-Reply-To: <Pine.LNX.4.30.0203111242410.9199-100000@adams.patriot.net>
+Message-ID: <Pine.GSO.4.33.0203111250380.25401-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
+On Mon, 11 Mar 2002, Paul Greene wrote:
 
-I tried installing Selinux for the first time yesterday and have been
-having a little trouble.
+> One possibility that came to mind was the CPU type. The system is a
+> Pentium 166 w/ 64 megs of RAM; the only option for CPU type in .config was
+> for a Pentium III.
 
-The kernel compile all seemed to go well; I didn't get any error messages.
+You can change that option's value by selecting the "Processor family"
+entry under the "Processor type and features" submenu while configuring
+your kernel.  The default value in the mainstream kernel tree is Pentium
+III, and that won't produce a useable kernel for a Pentium Classic.  Run
+'make menuconfig' or 'make xconfig' again in the lsm directory, and fix
+your configuration.  Also, be sure that you enabled the driver for your
+network card and that you enabled ext3 filesystem support if you want it
+(e.g. if you are using RH7.2 with ext3 filesystems).  Then save your new
+configuration, rebuild your kernel, and install the new kernel.
 
-However, when I went to boot the system, I selected "selinux" from the
-lilo boot menu, the message "Loading selinux ...." came up, but then the
-system rebooted, and came back around again to the lilo prompt. I don't
-have any trouble getting into the standard kernel, but if I try to get
-into the selinux kernel, the system just reboots again.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-There's no obvious errors logged in /var/log/boot.log.
 
-The RedHat version is 7.1; I used the LSM sources tarball, version 2.4,
-"Option 1 - Everything in one Part".
 
-One possibility that came to mind was the CPU type. The system is a
-Pentium 166 w/ 64 megs of RAM; the only option for CPU type in .config was
-for a Pentium III.
-
-My lilo.conf file is listed below.
-
-Paul Greene
-
-______________________
-
-boot=/dev/hda
-map=/boot/map
-install=/boot/boot.b
-prompt
-timeout=50
-message=/boot/message
-linear
-default=linux
-
-image=/boot/vmlinuz-2.4.2-2
-        label=linux
-        read-only
-        root=/dev/hda6
-
-image=/boot/vmlinuz-2.4.17-selinux
-        label=selinux
-        read-only
-        root=/dev/hda6
 
 
 
