@@ -1,67 +1,39 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0TCBoRb011001
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2004 07:11:52 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0TCAWVK027325
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2004 12:10:32 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i0TCAFlx027273
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2004 12:10:31 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: keen@internode.on.net, "keen@internode.on.net" <keen@internode.on.net>,
-   selinux@tycho.nsa.gov
-Subject: Re: Problem with selinux configuration
-Date: Thu, 29 Jan 2004 23:10:05 +1100
-References: <40186cf7.274.6f79.443726088@internode.on.net>
-In-Reply-To: <40186cf7.274.6f79.443726088@internode.on.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200401292310.05430.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0TDruRb011615
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2004 08:53:56 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0TDrt1I013145
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2004 13:53:55 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i0TDrtbs013142 for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2004 13:53:55 GMT
+Subject: Re: Compiling a 2.6 UML kernel
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Ignacio Tripodi <ignaciot@unt.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <D578F80A-5212-11D8-9EEB-000393013D1A@unt.edu>
+References: <D578F80A-5212-11D8-9EEB-000393013D1A@unt.edu>
+Content-Type: text/plain
+Message-Id: <1075384433.21044.29.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Thu, 29 Jan 2004 08:53:54 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 29 Jan 2004 13:16, "keen@internode.on.net" <keen@internode.on.net> 
-wrote:
-> So does that leave me with going onto Fedora on setting it
-> up? (or perhaps try it on gentoo?) What if i used the
+On Wed, 2004-01-28 at 23:23, Ignacio Tripodi wrote:
+> I'm trying to compile a 2.6 kernel with User Mode Linux support, using 
+> the latest 2.6 available on the website (linux-2.6-2003120509.tgz). 
+> After selecting the modules I need ("make menuconfig ARCH=um"), this is 
+> the error I get when I do a "make ARCH=um":
 
-As Steve mentioned, Dan's packages currently require rawhide.
-
-For starting on using Fedora with SE Linux it might be easiest to wait for the 
-release of FC2.  FC2 will come with full SE Linux support out of the box and 
-save you from a lot of this.
-
-> selinux-usr-2003100110.tgz package released 1 Oct 2003? It
-> would be for RH9 right? Would there be any undesirable
-> effects with 2.6.0 kernel? Which option would be a better
-> way to get SELinux up and running?
-
-The stock 2.6.0 and 2.6.1 kernels will run fine with SE Linux.  There are some 
-new features that have been added recently, but you probably don't need them 
-immediately.
-
-If using Fedora then it's easiest to just use Arjan's 2.6.x kernel packages.  
-By the time you finish your tests and are ready for a serious deployment of 
-SE Linux, FC2 will be out and will have a kernel package that has all the 
-patches.
-
-
-What exactly are your aims?  Do you want to try out SE Linux on Red Hat or 
-Fedora before running a serious server on Red Hat?  Or do you just want to 
-try out SE Linux without any particular preference to distribution.
-
-If you just want to try out SE Linux without any distribution preference then 
-the Gentoo people are apparently working on a live CD image.  That will allow 
-you to boot SE Linux from a CD and try it out without risk of messing with 
-anything on your hard disk.
+I'd recommend using 2.6.2-rc2 from kernel.org, or the rawhide kernel. 
+It contains the latest SELinux code, and may have resolved the UML build
+issue (but I don't know, as I don't use UML myself).
+You will then need a more up-to-date policy, either from the sourceforge
+CVS tree or from Dan Walsh's packages.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
