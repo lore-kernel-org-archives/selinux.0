@@ -1,62 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1MCYddW022194
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 07:34:39 -0500 (EST)
-Received: from mail.ardley.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1MCWKZE022886
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 12:32:22 GMT
-Received: from [203.31.40.3] (ws3.electrosilk.net [203.31.40.3])
-	by mail.ardley.org (Postfix) with ESMTP id 03D48608001
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 20:32:20 +0800 (WST)
-Message-ID: <421B2654.4000305@ardley.org>
-Date: Tue, 22 Feb 2005 20:32:20 +0800
-From: Jeremy Ardley <jeremy@ardley.org>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1MCnXdW022302
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 07:49:34 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1MCitMK012745
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 12:44:56 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: jayendren@mweb.co.za
+Subject: Re: fc3 - password change problem - syslog and portmapper
+Date: Tue, 22 Feb 2005 23:46:59 +1100
+Cc: "SE-Linux" <selinux@tycho.nsa.gov>
+References: <200502220809.40631.jayendren@hivsa.com> <200502221752.34349.russell@coker.com.au> <200502221151.19612.jayendren@hivsa.com>
+In-Reply-To: <200502221151.19612.jayendren@hivsa.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: squirrelmail, Fedora Core 3, Apache, mail not sent
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200502222347.02398.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Tuesday 22 February 2005 20:51, Jayendren Anand Maduray 
+<jayendren@hivsa.com> wrote:
+> syslogd reports it is unable to start, error:
+> ´Access Denied´
+> the same message for portmapper.
+>
+> do u want a copy of the syslog?
 
-I have recently installed Fedora Core 3 and enabled squirrelmail under 
-apache. I am using postfix as my mail agent
+Not the entire syslog.  Just run "dmesg" and look for entries that seem 
+relevant.
 
-Everything I have done has been straight out of the FC3 install kit.
+>From your other message it seems that /etc/passwd has lost it's label somehow.  
+Please try running "restorecon /etc/passwd" and see if things work properly 
+after that.
 
-My squirrelmail works to read mail but when I send mail, the mail is 
-listed as sent but just disappears. When I check /var/log/messages I see 
-entries like
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-Feb 22 13:46:26 mail kernel: audit(1109051186.061:0): avc:  denied  { 
-search } for  pid=12910 exe=/usr/sbin/httpd name=spool dev=dm-0 
-ino=4030501 scontext=root:system_r:httpd_t Feb 22 13:45:01 mail kernel: 
-audit(1109051101.245:0): avc:  denied  { search } for  pid=12831 
-exe=/usr/sbin/httpd name=spool dev=dm-0 ino=4030501 
-scontext=root:system_r:httpd_t tcontext=system_u:object_r:var_spool_t 
-tclass=dir
-Feb 22 13:45:01 mail kernel: audit(1109051101.285:0): avc:  denied  { 
-search } for  pid=12831 exe=/usr/sbin/httpd name=spool dev=dm-0 
-ino=4030501 scontext=root:system_r:httpd_t 
-tcontext=system_u:object_r:var_spool_t tclass=dir
-Feb 22 13:46:14 mail kernel: audit(1109051174.991:0): avc:  denied  { 
-getattr } for  pid=12908 exe=/usr/sbin/httpd path=/var/spool dev=dm-0 
-ino=4030501 scontext=root:system_r:httpd_t 
-tcontext=system_u:object_r:var_spool_t tclass=dir
-Feb 22 13:46:14 mail kernel: audit(1109051174.991:0): avc:  denied  { 
-search } for  pid=12908 exe=/usr/sbin/httpd name=spool dev=dm-0 
-ino=4030501 scontext=root:system_r:httpd_t 
-tcontext=system_u:object_r:var_spool_t tclass=dir
-Feb 22 13:46:15 mail kernel: audit(1109051175.511:0): avc:  denied  { 
-search } for  pid=12909 exe=/usr/sbin/httpd name=spool dev=dm-0 
-ino=4030501 scontext=root:system_r:httpd_t 
-tcontext=system_u:object_r:var_spool_t tclass=dir
-
-I strongly suspect selinux. What do I need to do to make squirrelmail work?
-
-Thanks
-
-Jeremy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
