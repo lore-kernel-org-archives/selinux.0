@@ -1,34 +1,63 @@
-Subject: RE: questions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: awilson@tresys.com
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <AFECILBIKCHPGNOEDGNCGEOHDOAA.awilson@tresys.com>
-References: <AFECILBIKCHPGNOEDGNCGEOHDOAA.awilson@tresys.com>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1061836213.28086.550.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 25 Aug 2003 14:30:13 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7Q35fLa029081
+	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 23:05:41 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h7Q34E4F016544
+	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2003 03:04:14 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h7Q34BFC016525
+	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2003 03:04:12 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Pisupati, Ajay" <ajay.pisupati@pw.utc.com>,
+   SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: SElinux vs. Grsecruity
+Date: Tue, 26 Aug 2003 13:04:49 +1000
+References: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com>
+In-Reply-To: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200308261304.49538.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-08-25 at 10:54, Art Wilson wrote:
-> Magosányi, Tresys has developed (and is continuing to develop) a number
-> of tools for analyzing SELinux policy. These tools are included in the
-> SELinux distribution, and are also available from www.tresys.com: apol is
-> the primary policy analysis tool; sepcut allows
-> you to look at the various policy files and directories; seuser assists in
-> managing users on an SELinux system.
+On Tue, 26 Aug 2003 00:43, Pisupati, Ajay wrote:
+> 	I just started reading about SE Linux and grsecurity.  Having used
+> neither one (and wanting to learn), I wanted to find out the differences
+> (advantages and disadvantes) between both.  I am not looking for a detailed
+> explanation of how things work but just an introduction on a conceptual
+> level.
 
-Just as an aside, the Tresys setools aren't yet included in the new
-userland tree for the 2.6-based SELinux and the new 2.4-based SELinux
-(back port of the 2.6-based SELinux).  They still need to be transferred
-over to the new tree and the Makefiles might need a little adjustment,
-since everything is now installed into standard locations rather than
-under /usr/local/selinux.
+GR Security includes PaX for protection against stack smashing and other 
+similar attacks.  But it also has an ACL system of it's own and limited 
+chroot's (IE process in chroot can't touch the outside environment or other 
+chroot's).
+
+SE Linux is an implementation of the domain-type security model.  The domain a 
+process is in determines that access it is given.  Domains can change 
+automatically on execution of certain processes (eg getty, login, and ping) 
+or when executing a process a SE Linux aware program can specify the security 
+context of the child process (within a certain range), login, sshd, and cron 
+do this.
+
+The grsec ACL system and RSBAC don't support modifying applications to specify 
+the security context, so they don't support giving different access to 
+different non-root users.
+
+I think that Grsec has better support for some aspects of IP networking 
+control, such as controlling which IP address a process can bind to 
+(currently SE Linux only supports controlling bind access by port).
+
+RSBAC has lots of options for a huge number of things as they take the kitchen 
+sink approach.  You have to answer about 40 questions at kernel configuration 
+time, and it's not clear which combinations of options are viable.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
