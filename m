@@ -1,66 +1,43 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h53N6KI4019790
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jun 2003 19:06:20 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h53N4xtV028386
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jun 2003 23:04:59 GMT
-Received: from smtp-out.comcast.net (smtp-out.comcast.net [24.153.64.116])
-        by jazzband.ncsc.mil  with ESMTP id h53N4xal028383 for <selinux@tycho.nsa.gov>; Tue, 3 Jun 2003 23:04:59 GMT
-Received: from comcast.net (pcp830001pcs.nrockv01.md.comcast.net [68.50.129.6])
- by mtaout04.icomcast.net
- (iPlanet Messaging Server 5.2 HotFix 1.16 (built May 14 2003))
- with ESMTP id <0HFX006Q2HBO5W@mtaout04.icomcast.net> for
- selinux@tycho.nsa.gov; Tue, 03 Jun 2003 19:02:14 -0400 (EDT)
-Date: Tue, 03 Jun 2003 19:04:49 -0400
-From: John Wolff <jrwolff@comcast.net>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h541blI4020155
+	for <selinux@tycho.nsa.gov>; Tue, 3 Jun 2003 21:37:47 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h541Zrss023127
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 01:35:53 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h541ZZhY023118
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2003 01:35:52 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: John Wolff <jrwolff@comcast.net>, Brian May <bam@snoopy.apana.org.au>
 Subject: Re: Compaq DL-360
-In-reply-to: <20030601223130.GA29681@snoopy.apana.org.au>
-To: Brian May <bam@snoopy.apana.org.au>
+Date: Wed, 4 Jun 2003 11:35:09 +1000
 Cc: selinux@tycho.nsa.gov
-Message-id: <3EDD2991.5050609@comcast.net>
-MIME-version: 1.0
-Content-type: text/html; charset=us-ascii
-References: <3ED7C88A.7060209@comcast.net>
- <20030601223130.GA29681@snoopy.apana.org.au>
+References: <3ED7C88A.7060209@comcast.net> <20030601223130.GA29681@snoopy.apana.org.au> <3EDD2991.5050609@comcast.net>
+In-Reply-To: <3EDD2991.5050609@comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200306041135.09286.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
-  <title></title>
-</head>
-<body>
-Brian May wrote:<br>
-<blockquote type="cite"
- cite="mid20030601223130.GA29681@snoopy.apana.org.au">
-  <pre wrap="">On Fri, May 30, 2003 at 05:09:30PM -0400, John Wolff wrote:
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">the boot sequence gets to the point where the OS attempts to mount the 
-SCSI drives.  I have downloaded and installed the latest drivers from 
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->
-Was the kernel able to mount the root filesystem?
+On Wed, 4 Jun 2003 09:04, John Wolff wrote:
+> Kmod:  failed to exec /sbin/modprobe -s -k block-major-72, errno=2
+>  VFS:   Cannot open root device "4802" or 48:02
+>  Please append a correct "root=" boot option
+>  Kernel panic:  VFS:  Unable tomount root fs on 48:02
 
-Did the kernel panic include any text messages like "Cannot mount root"?
+It seems that you are using a Compaq Intelligent Drive Array and you failed to 
+either compile the driver into the kernel or put it on the initrd.
 
-Reading your E-Mail, it is not very clear precisely when it crashes.
-  </pre>
-</blockquote>
-ok, there error I get is:<br>
-<br>
-<a class="moz-txt-link-freetext" href="Kmod:&nbsp;">Kmod:&nbsp;</a> failed to exec /sbin/modprobe -s -k block-major-72, errno=2<br>
-<a class="moz-txt-link-freetext" href="VFS:&nbsp;&nbsp;">VFS:&nbsp;&nbsp;</a>  Cannot open root device "4802" or 48:02<br>
-Please append a correct "root=" boot option<br>
-Kernel <a class="moz-txt-link-freetext" href="panic:&nbsp;">panic:&nbsp;</a> <a class="moz-txt-link-freetext" href="VFS:&nbsp;">VFS:&nbsp;</a> Unable tomount root fs on 48:02<br>
-<br>
-jc<br>
-</body>
-</html>
+It's probably easiest for you to just compile the driver into the kernel.
 
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
