@@ -1,38 +1,35 @@
-Subject: xfs
-From: Timothy Wood <timothy@hallcomp.com>
-To: SELinux <SELinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-77KUn6Wxcq+umgsPIY4u"
-Date: 06 Feb 2002 09:16:39 -0500
-Message-Id: <1013005000.30726.3.camel@phobos>
-Mime-Version: 1.0
+Date: Wed, 6 Feb 2002 09:34:28 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Justin Smith <jsmith@mcs.drexel.edu>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: Running sshd shells in sysadm_t
+In-Reply-To: <1012958279.1816.3.camel@jsmith.org>
+Message-ID: <Pine.GSO.4.33.0202060932200.27827-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-77KUn6Wxcq+umgsPIY4u
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On 5 Feb 2002, Justin Smith wrote:
 
-I noticed from the archives that SELinux does not work with the XFS
-filesystem.  Has this changed or does anyone know if anyone is working
-on it?
+> I noticed that sshd shells are, by default, run in user_t and are
+> allowed to be run in sysadm_t as well.
+>
+> Is there some way to make them run in sysadm_t by default when certain
+> users log in?
 
-Timothy,
+This is determined by the /etc/security/default_context file.  At present,
+sshd simply uses the default security context for the user (rather than
+prompting for a context), since it can be used non-interactively for
+remote commands or remote copies.
 
---=-77KUn6Wxcq+umgsPIY4u
-Content-Type: application/pgp-signature
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQA8YTrHf/PqxrKarmgRAr7jAKCDsptcTfFu1dCj4OlI3IynVfH/JwCfc4XC
-CreCWgwGIHa+tKqyJxVzLKU=
-=5vZ2
------END PGP SIGNATURE-----
 
---=-77KUn6Wxcq+umgsPIY4u--
 
 
 --
