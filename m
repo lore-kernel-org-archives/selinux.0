@@ -1,50 +1,39 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j27GfwDo011482
-	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2005 11:41:59 -0500 (EST)
-Received: from web50206.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j27GbPZd019824
-	for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2005 16:37:25 GMT
-Message-ID: <20050307163727.53411.qmail@web50206.mail.yahoo.com>
-Date: Mon, 7 Mar 2005 08:37:26 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: SELinux Design Documentation
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: SELinux Design Documentation
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20050307163727.53411.qmail@web50206.mail.yahoo.com>
+References: <20050307163727.53411.qmail@web50206.mail.yahoo.com>
+Content-Type: text/plain
+Date: Mon, 07 Mar 2005 11:41:02 -0500
+Message-Id: <1110213662.2282.10.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2005-03-07 at 08:37 -0800, Casey Schaufler wrote:
+> So, where is the "official" design
+> documentation for SELinux kept?
 
-At last weeks SELinux Symposium* the topic
-of a common criteria evaluation came up
-several times. Great idea, methinks, as a
-CC evaluation is expected of a "secure" OS
-these days. So now I'd like to read over
-the design documentation to get a feel for
-how close it might be to sufficient for the
-purposes of evaluation, and I'm having the
-dickens of a time finding anything more
-detailed than a white paper or a FAQ.
+The original design and implementation technical report is available
+from 
+http://www.nsa.gov/selinux/papers/slinux-abs.cfm, which describes the
+design and implementation of the original SELinux kernel patch.  A
+follow-on report describing the LSM-based SELinux is available from
+http://www.nsa.gov/selinux/papers/module-abs.cfm, but the copy presently
+on the NSA web site is out of date with respect to the 2.6 SELinux;
+we've just updated it to reflect the current code in the CVS tree
+(available from the sourceforge site), and that will show up on the NSA
+site when we make an updated release based on 2.6.11, likely later this
+week.  However, I don't expect any of this to be sufficient for
+evaluation; as with the already completed CAPP/EAL3 and CAPP/EAL4
+evaluations done for Linux, I expect there to be a lot of further
+documentation to have to be created for evaluation of SELinux.
 
-So, where is the "official" design
-documentation for SELinux kept? I know
-that y'all won't say "the code is the
-documentation" as that fallacy is so
-easily demonstrated.
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
-------
-* The symposium was fabulous, by the way.
-  Good job to all involved.
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
