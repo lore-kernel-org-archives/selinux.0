@@ -1,79 +1,68 @@
-Message-ID: <3F7362FC.6050302@tresys.com>
-Date: Thu, 25 Sep 2003 17:49:48 -0400
-From: David Caplan <dac@tresys.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8Q0GDsJ027821
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 20:16:14 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8Q0ETZt011086
+	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2003 00:14:29 GMT
+Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
+	by jazzswing.ncsc.mil  with ESMTP id h8Q0ESM3011083
+	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2003 00:14:28 GMT
+Message-ID: <3F73854B.1080408@diyab.net>
+Date: Thu, 25 Sep 2003 20:16:11 -0400
+From: Diyab <diyab@diyab.net>
 MIME-Version: 1.0
-To: David Caplan <dac@tresys.com>
-Cc: "NSA's SELinux" <SELinux@tycho.nsa.gov>
-Subject: Re: policy language extensions
-References: <3F7361F8.1080603@tresys.com>
-In-Reply-To: <3F7361F8.1080603@tresys.com>
+To: russell@coker.com.au
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: ssh policy hassles
+References: <F5441DDE18FFD9418974338018C522B718BDB0@na1fcm61.dearborn.ford.com> <20030925102955.GC10234@vnl.com> <3F72E5DC.20603@diyab.net> <200309260247.39337.russell@coker.com.au>
+In-Reply-To: <200309260247.39337.russell@coker.com.au>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry, that link should have been:
+Russell Coker wrote:
+> On Thu, 25 Sep 2003 22:55, Diyab wrote:
+> 
+>>Dale Amon wrote:
+>>
+>>>On Thu, Sep 25, 2003 at 08:46:17AM +0200, Tom wrote:
+>>>
+>>>>You might want to define a special type for the empty dir, so you can
+>>>>move it around and don't have to give sshd access to all of /var
+>>
+>>I did this when I installed it on slackware.  In ssh.fc I added
+>>
+>>	/var/empty	system_u:object_r:sshd_privsep_dir_t
+>>
+>>and in sshd.te I added
+>>
+>>	type sshd_privsep_dir_t, file_type, sysadmfile;
+>>
+>>and
+>>
+>>	allow sshd_t sshd_privsep_dir_t:dir { getattr search };
+> 
+> 
+> Why not just label it as var_run_t?
 
-http://www.tresys.com/checkpolicy_prototype.html
+When I initially setup sshd with the default setting of /var/empty I 
+decided to just give it it's own type in case there was ever a need to 
+change the privsep location or the permissions it needs.
 
-which is also accessible from
+> In my latest policy I have the privsep directory (which is under /var/run in 
+> Debian) labeled as var_run_t.  In the case of sshd as a daemon it can create 
+> files under that, but in the case of sshd run from inetd (which is what you 
+> will be doing if you want to lock down sshd) then it gets { getattr search } 
+> access.
 
-http://www.tresys.com/selinux/index.html
+What do you get by running sshd through inetd that you don't get by 
+running sshd alone?
 
-David Caplan wrote:
-> We are currently working on a couple of policy language extensions for 
-> which we'd like to let the group comment on.  Both grew out of the 
-> motivations that drove our previous work in developing a binary policy 
-> patch tool (see 
-> http://www.ultraviolet.org/mail-archives/selinux.2003/0768.html). We 
-> expect all changes to be eventually incorporated into the manline SE 
-> Linux package.
-> 
-> We're working on two enhancements:  conditional policy statements, and 
-> loadable binary policy modules.  The first is extending the policy 
-> language to allow conditional blocks of policy depending on the state of 
-> boolean variables (also defined in the policy).  The booleans are 
-> defined in a similar fashion to types and the conditional policy 
-> statements are of the form:
-> 
-> if (expression) then { policy_block } else { policy_block }
-> 
-> where 'expression' is any number of defined boolean variables joined 
-> with the standard operators (e.g., &&, ||, ==, !=, !, etc.) and the 
-> policy blocks are made up of any number of AV and Type rules with the 
-> 'else' block being optional.
-> 
-> We've implemented an initial version of the user space portion of this 
-> (i.e., modifications to checkpolicy) and are porting the data structures 
-> and functionality to the kernel/security server.  We are planning to use 
->  sysctl as the kernel interface to export the booleans.  A patch against 
-> the current version of checkpolicy is available at 
-> http://www.tresys.com/selinux/cond_policy_patch.gz for your perusal. 
-> Please note that policies built with this version of checkpolicy should 
-> _not_ be used (i.e., loaded) in an SE Linux kernel.  You can examine 
-> binary conditional policies with 'checkpolicy -d', and there is a test 
-> directory under the checkpolicy directory as well with a small utility 
-> that allows the setting of the booleans and displaying various parts of 
-> a binary policy.
-> 
-> The second extension we are currently designing is a mechanism to allow 
-> policy modules to be built independant of a base policy.  These modules 
-> could then be loaded and unloaded into a running policy.  They could be 
-> integrated into software packages, an rpm for example, so that if the 
-> software were installed on an selinux system  the appropriate policy 
-> would also be loaded.
-> 
-> Comments and contributions are welcome.
-> 
-> David
+Timothy,
 
 -- 
-__________________________________
-
-David Caplan     410 290 1411 x105
-dac@tresys.com
-Tresys Technology, LLC
-8840 Stanford Blvd., Suite 2100
-Columbia, MD 21045
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
 
 
 --
