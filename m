@@ -2,33 +2,32 @@ Subject: Re: build fixes for selinux-doc-1.18
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Andreas Steinmetz <ast@domdv.de>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4252D7EA.9050500@domdv.de>
+In-Reply-To: <1112795269.24058.45.camel@moss-spartans.epoch.ncsc.mil>
 References: <42512DC5.8060102@domdv.de>
 	 <1112645570.7629.183.camel@moss-spartans.epoch.ncsc.mil>
 	 <4252D39F.1070203@domdv.de>
 	 <1112724337.15041.134.camel@moss-spartans.epoch.ncsc.mil>
 	 <4252D7EA.9050500@domdv.de>
+	 <1112795269.24058.45.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 06 Apr 2005 09:47:49 -0400
-Message-Id: <1112795269.24058.45.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 06 Apr 2005 09:55:48 -0400
+Message-Id: <1112795748.24058.47.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-04-05 at 20:24 +0200, Andreas Steinmetz wrote:
-> Stephen Smalley wrote:
-> > Wouldn't it just be easier to add db2html to the distribution?  It
+On Wed, 2005-04-06 at 09:47 -0400, Stephen Smalley wrote:
+> By "distribution", I mean the Linux distribution you are using, not our
+> distribution of selinux-doc ;)
 > 
-> Fine with me.
+> But I see that patches have been submitted on linux-kernel to change the
+> kernel DocBook Makefile to use xmlto rather than db2*.  Do you have
+> xmlto in your distro?  See http://marc.theaimsgroup.com/?l=linux-
+> kernel&m=111278927418714&w=2.  I haven't tried xmlto yet myself, so I
+> don't know what impact this has on the generated output.
 
-By "distribution", I mean the Linux distribution you are using, not our
-distribution of selinux-doc ;)
-
-But I see that patches have been submitted on linux-kernel to change the
-kernel DocBook Makefile to use xmlto rather than db2*.  Do you have
-xmlto in your distro?  See http://marc.theaimsgroup.com/?l=linux-
-kernel&m=111278927418714&w=2.  I haven't tried xmlto yet myself, so I
-don't know what impact this has on the generated output.
+Ah, just tried xmlto on one of the reports, and it didn't like it very
+much.  Oh well.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
