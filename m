@@ -1,35 +1,33 @@
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAPJerIi026908
+	for <selinux@tycho.nsa.gov>; Thu, 25 Nov 2004 14:40:53 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAPJer4B028129
+	for <selinux@tycho.nsa.gov>; Thu, 25 Nov 2004 19:40:54 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: policy patch
-Date: Fri, 26 Nov 2004 06:05:09 +1100
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-References: <200411260027.41899.russell@coker.com.au> <20041125163232.GA26737@lkcl.net>
-In-Reply-To: <20041125163232.GA26737@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: can_network patch.
+Date: Fri, 26 Nov 2004 06:40:43 +1100
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux <selinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
+References: <41741A2C.8040408@redhat.com> <41A3917F.30104@redhat.com> <1101240468.19785.298.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1101240468.19785.298.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200411260605.12580.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200411260640.49790.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 26 November 2004 03:32, Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
+On Wednesday 24 November 2004 07:07, Stephen Smalley <sds@epoch.ncsc.mil> 
 wrote:
-> On Fri, Nov 26, 2004 at 12:27:39AM +1100, Russell Coker wrote:
-> > The attached patch makes some trivial policy changes.
-> >
-> > Allows Debian systems to touch /etc from an init script.
->
->  i fixed the /etc/init.d script which does the /etc touching,
->  sent a patch to the maintainer of initscripts.
+> If no one agrees with me about preserving can_network() semantics, then
+> I can be overruled.  But I thought that Russell had voiced a similar
+> concern earlier.
 
-Great!  Now when will that patch go into Debian/main?
-
->  afaik, this is the only reason for allowing debian init
->  scripts to write to /etc and it's not a very good one!
-
-I agree.  But until the script gets fixed I think I have to do this to stop 
-systems failing to correctly boot.
+I still think that can_network() should keep it's traditional functionality.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
