@@ -1,45 +1,43 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA11363
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 08:37:20 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA18483
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 12:35:37 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA12016
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 10:12:43 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA20306
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 14:12:14 GMT
 Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id MAA18479
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 12:35:37 GMT
-Date: Tue, 2 Oct 2001 08:36:40 -0400 (EDT)
+	by jazzband.ncsc.mil  with ESMTP id OAA20302
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 14:12:14 GMT
+Date: Tue, 2 Oct 2001 10:11:57 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: "Justin R. Smith" <jsmith@mcs.drexel.edu>
+To: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>
 cc: <selinux@tycho.nsa.gov>
-Subject: Re: Questions
-In-Reply-To: <1002012936.1248.15.camel@vorpal>
-Message-ID: <Pine.GSO.4.33.0110020822190.2296-100000@raven>
+Subject: [PATCH] Re: I can ' t use named on LSM-based Prototype. Why?
+In-Reply-To: <004801c14af9$5d7ed5b0$68026c85@ilios104>
+Message-ID: <Pine.GSO.4.33.0110020952530.2296-200000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-684387517-1002031879=:2296"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On 2 Oct 2001, Justin R. Smith wrote:
+---559023410-684387517-1002031879=:2296
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.GSO.4.33.0110021011541.2296@raven>
 
-> I am considering installing SELinux on my system and have a few
-> questions:
->
-> 1. Is extensive reconfiguration required whenever one adds new software
-> to ones machine?
 
-That depends on the software and your security objectives.  For example,
-if the software package includes a program that must run with privilege,
-then you will likely need to add a domain for the program or at least put
-the program into an existing domain for similar programs.  If you want
-to limit your software to least privilege, then you will naturally need to
-define a domain and types for it.
+On Tue, 2 Oct 2001, Yuichi Nakamura wrote:
 
-> 2. Has anyone run SELinux with Tomcat and JSP and servlets?
+> The policy files for named which I used are following(for RH 7.1). I created
+> named.te and modified file_contexts,initrc.te,network.te,net_contexts,rbac.
 
-We have not tried this.  I would expect that you would want to define
-a domain and types for the Tomcat server, as has been done for apache by
-MITRE.
+Thanks for the named policy configuration.  I've attached a patch relative
+to the 9/26 release that updates the example policy to include your named
+domain.  To apply this patch, save it to named.patch, change to your
+selinux directory, and run 'patch -p1 < named.patch'.  Then, do a 'make
+load' in the policy directory and a 'make relabel' in the setfiles directory.
 
 --
 Stephen D. Smalley, NAI Labs
@@ -48,6 +46,115 @@ ssmalley@nai.com
 
 
 
+---559023410-684387517-1002031879=:2296
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="named.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0110021011190.2296@raven>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="named.patch"
+
+SW5kZXg6IHNlbGludXgvcG9saWN5L25ldF9jb250ZXh0cw0KZGlmZiAtdSBz
+ZWxpbnV4L3BvbGljeS9uZXRfY29udGV4dHM6MS4zIHNlbGludXgvcG9saWN5
+L25ldF9jb250ZXh0czoxLjQNCi0tLSBzZWxpbnV4L3BvbGljeS9uZXRfY29u
+dGV4dHM6MS4zCVdlZCBBdWcgIDggMTM6MjU6NTkgMjAwMQ0KKysrIHNlbGlu
+dXgvcG9saWN5L25ldF9jb250ZXh0cwlUdWUgT2N0ICAyIDA4OjU3OjAzIDIw
+MDENCkBAIC0xOSw2ICsxOSw3IEBADQogdGNwIDUxNCBzeXN0ZW1fdTpvYmpl
+Y3Rfcjpyc2hfcG9ydF90DQogdGNwIDUxNSBzeXN0ZW1fdTpvYmplY3Rfcjpw
+cmludGVyX3BvcnRfdA0KIHRjcCA4MDgwICBzeXN0ZW1fdTpvYmplY3Rfcjpo
+dHRwX3BvcnRfdA0KK3VkcCA1MyBzeXN0ZW1fdTpvYmplY3RfcjpuYW1lZF9w
+b3J0X3QNCiANCiANCiAjIE5ldHdvcmsgaW50ZXJmYWNlcyAoZGVmYXVsdCA9
+IGluaXRpYWwgU0lEICduZXRpZicgYW5kICduZXRtc2cnKQ0KSW5kZXg6IHNl
+bGludXgvcG9saWN5L3JiYWMNCmRpZmYgLXUgc2VsaW51eC9wb2xpY3kvcmJh
+YzoxLjEwIHNlbGludXgvcG9saWN5L3JiYWM6MS4xMQ0KLS0tIHNlbGludXgv
+cG9saWN5L3JiYWM6MS4xMAlGcmkgU2VwIDI4IDEyOjUzOjAzIDIwMDENCisr
+KyBzZWxpbnV4L3BvbGljeS9yYmFjCVR1ZSBPY3QgIDIgMDg6NTc6MDMgMjAw
+MQ0KQEAgLTc0LDYgKzc0LDcgQEANCiAJcHVtcF90DQogCWNoZWNrcGNfdA0K
+IAlod2Nsb2NrX3QNCisJbmFtZWRfdCAgIA0KIH07DQogDQogIw0KSW5kZXg6
+IHNlbGludXgvcG9saWN5L2RvbWFpbnMvc3lzdGVtL2luaXRyYy50ZQ0KZGlm
+ZiAtdSBzZWxpbnV4L3BvbGljeS9kb21haW5zL3N5c3RlbS9pbml0cmMudGU6
+MS4xNyBzZWxpbnV4L3BvbGljeS9kb21haW5zL3N5c3RlbS9pbml0cmMudGU6
+MS4xOA0KLS0tIHNlbGludXgvcG9saWN5L2RvbWFpbnMvc3lzdGVtL2luaXRy
+Yy50ZToxLjE3CVR1ZSBTZXAgMjUgMTc6MDc6NTkgMjAwMQ0KKysrIHNlbGlu
+dXgvcG9saWN5L2RvbWFpbnMvc3lzdGVtL2luaXRyYy50ZQlUdWUgT2N0ICAy
+IDA4OjU3OjAzIDIwMDENCkBAIC01Myw2ICs1Myw3IEBADQogZG9tYWluX2F1
+dG9fdHJhbnMoaW5pdHJjX3QsIGF1dG9tb3VudF9leGVjX3QsIGF1dG9tb3Vu
+dF90KQ0KIGRvbWFpbl9hdXRvX3RyYW5zKGluaXRyY190LCBodHRwZF9leGVj
+X3QsIGh0dHBkX3QpDQogZG9tYWluX2F1dG9fdHJhbnMoaW5pdHJjX3QsIHB1
+bXBfZXhlY190LCBwdW1wX3QpDQorZG9tYWluX2F1dG9fdHJhbnMoaW5pdHJj
+X3QsIG5hbWVkX2V4ZWNfdCxuYW1lZF90KQ0KIA0KICMgUnVuIGFuYWNyb24g
+aW4gdGhlIHN5c3RlbSBjcm9uZCBkb21haW4gZm9yIG5vdy4NCiAjIE5lZWQg
+dG8gc3R1ZHkgYW5hY3JvbiBmdXJ0aGVyIGZvciBwcm9wZXIgcnVsZXMuDQpJ
+bmRleDogc2VsaW51eC9wb2xpY3kvZG9tYWlucy9zeXN0ZW0vbmFtZWQudGUN
+CmRpZmYgLXUgL2Rldi9udWxsIHNlbGludXgvcG9saWN5L2RvbWFpbnMvc3lz
+dGVtL25hbWVkLnRlOjEuMQ0KLS0tIC9kZXYvbnVsbAlUdWUgT2N0ICAyIDA5
+OjU2OjM5IDIwMDENCisrKyBzZWxpbnV4L3BvbGljeS9kb21haW5zL3N5c3Rl
+bS9uYW1lZC50ZQlUdWUgT2N0ICAyIDA4OjU3OjAzIDIwMDENCkBAIC0wLDAg
+KzEsNDYgQEANCisjDQorIyBBdXRob3I6ICBZdWljaGkgTmFrYW11cmEgPHlu
+YWthbUBvcmkuaGl0YWNoaS1zay5jby5qcD4NCisjDQorDQorIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorIw0KKyMgUnVsZXMgZm9yIHRo
+ZSBuYW1lZF90IGRvbWFpbi4NCisjDQorDQorI25hbWVkX3QgaXMgZ2VuZXJh
+bCBkb21haW4gbGFiZWwgYW5kIGNhbiBjb21tdW5pY2F0ZSB3aXRoIHN5c2xv
+Zy4NCit0eXBlIG5hbWVkX3QsIGRvbWFpbiwgcHJpdmxvZzsNCisNCisjQSB0
+eXBlIGZvciAvdXNyL3NiaW4vbmFtZWQNCit0eXBlIG5hbWVkX2V4ZWNfdCwg
+ZmlsZV90eXBlLHN5c2FkbWZpbGUsIGV4ZWNfdHlwZTsNCisNCisjIEEgdHlw
+ZSBmb3IgY29uZmlndXJhdGlvbiBmaWxlcyBvZiBuYW1lZC4NCit0eXBlIG5h
+bWVkX2NvbmZfdCwgZmlsZV90eXBlLHN5c2FkbWZpbGU7DQorDQorIyBBIHR5
+cGUgZm9yIGZpbGVzIGluIC92YXIvcnVuIHNwZWNpZmljIHRvIG5hbWVkDQor
+dHlwZSBuYW1lZF92YXJfcnVuX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZTsN
+CisNCisjIFVzZSBjYXBhYmlsaXRpZXMuIFN1cnBsdXMgY2FwYWJpbGl0aWVz
+IG1heSBiZSBhbGxvd2VkLg0KK2FsbG93IG5hbWVkX3QgbmFtZWRfdDpjYXBh
+YmlsaXR5IHsgc2V0dWlkIHNldGdpZCBuZXRfYmluZF9zZXJ2aWNlIH07DQor
+DQorIyBJbmhlcml0IGFuZCB1c2UgZGVzY3JpcHRvcnMgZnJvbSBpbml0Lg0K
+K2FsbG93IG5hbWVkX3QgaW5pdF90OmZkIGluaGVyaXRfZmRfcGVybXM7DQor
+DQorI05hbWVkIGNhbiB1c2UgbmV0d29yaw0KK2Nhbl9uZXR3b3JrKG5hbWVk
+X3QpDQorDQorIyBCaW5kIHRvIHRoZSBuYW1lZCBwb3J0Lg0KK2FsbG93IG5h
+bWVkX3QgbmFtZWRfcG9ydF90OnVkcF9zb2NrZXQgbmFtZV9iaW5kOw0KKw0K
+KyMgQWxsb3cgbmFtZWRfdCB0byBwdXQgYSBwaWQgZmlsZSBpbiAvdmFyL3J1
+bg0KK2ZpbGVfdHlwZV9hdXRvX3RyYW5zKG5hbWVkX3QsIHZhcl9ydW5fdCwg
+bmFtZWRfdmFyX3J1bl90KQ0KKw0KKyNuYW1lZCBjYW4gYXBwZW5kIHRvIGxv
+ZyBmaWxlcy4NCithbGxvdyBuYW1lZF90IHZhcl9sb2dfdDpmaWxlIHJhX2Zp
+bGVfcGVybXM7DQorDQorI3JlYWQgY29uZmlndXJhdGlvbiBmaWxlcw0KK2Fs
+bG93IG5hbWVkX3QgbmFtZWRfY29uZl90OmZpbGUgcl9maWxlX3Blcm1zOw0K
+K2FsbG93IG5hbWVkX3QgbmFtZWRfY29uZl90OmRpciBzZWFyY2g7DQorDQor
+I3doZW4gc3lzYWRtX3QgcnVucyBuYW1lZC4NCisjRG9uJ3QgZm9yZ2V0IHRv
+IGFkZCBlbnRyeSBpbiByYmFjKHJvbGUgc3lzYWRtX3IgdHlwZXN7bmFtZWRf
+dH0pLg0KKyNkb21haW5fYXV0b190cmFucyhzeXNhZG1fdCwgbmFtZWRfZXhl
+Y190LG5hbWVkX3QpDQpJbmRleDogc2VsaW51eC9wb2xpY3kvdHlwZXMvbmV0
+d29yay50ZQ0KZGlmZiAtdSBzZWxpbnV4L3BvbGljeS90eXBlcy9uZXR3b3Jr
+LnRlOjEuNCBzZWxpbnV4L3BvbGljeS90eXBlcy9uZXR3b3JrLnRlOjEuNQ0K
+LS0tIHNlbGludXgvcG9saWN5L3R5cGVzL25ldHdvcmsudGU6MS40CUZyaSBB
+dWcgMjQgMTQ6MTY6MTggMjAwMQ0KKysrIHNlbGludXgvcG9saWN5L3R5cGVz
+L25ldHdvcmsudGUJVHVlIE9jdCAgMiAwODo1NzowMyAyMDAxDQpAQCAtMzgs
+NiArMzgsNyBAQA0KIHR5cGUgcmxvZ2luX3BvcnRfdCwgcG9ydF90eXBlOw0K
+IHR5cGUgcnNoX3BvcnRfdCwgcG9ydF90eXBlOw0KIHR5cGUgcHJpbnRlcl9w
+b3J0X3QsIHBvcnRfdHlwZTsNCit0eXBlIG5hbWVkX3BvcnRfdCxwb3J0X3R5
+cGU7DQogDQogIw0KICMgbmV0aWZfdCBpcyB0aGUgZGVmYXVsdCB0eXBlIG9m
+IG5ldHdvcmsgaW50ZXJmYWNlcy4NCkluZGV4OiBzZWxpbnV4L3NldGZpbGVz
+L2ZpbGVfY29udGV4dHMNCmRpZmYgLXUgc2VsaW51eC9zZXRmaWxlcy9maWxl
+X2NvbnRleHRzOjEuMjggc2VsaW51eC9zZXRmaWxlcy9maWxlX2NvbnRleHRz
+OjEuMjkNCi0tLSBzZWxpbnV4L3NldGZpbGVzL2ZpbGVfY29udGV4dHM6MS4y
+OAlGcmkgU2VwIDI4IDEyOjUzOjMxIDIwMDENCisrKyBzZWxpbnV4L3NldGZp
+bGVzL2ZpbGVfY29udGV4dHMJVHVlIE9jdCAgMiAwODo1NzoxNyAyMDAxDQpA
+QCAtNjQsNiArNjQsNyBAQA0KIC92YXIvd3d3L3BlcmwofC8uKikJCXN5c3Rl
+bV91Om9iamVjdF9yOmh0dHBkX3N5c19zY3JpcHRfdA0KIC92YXIvd3d3L2lj
+b25zKHwvLiopCQlzeXN0ZW1fdTpvYmplY3RfcjpodHRwZF9zeXNfY29udGVu
+dF90DQogL3Zhci9jYWNoZS9odHRwZCh8Ly4qKQkJc3lzdGVtX3U6b2JqZWN0
+X3I6aHR0cGRfY2FjaGVfdA0KKy92YXIvbmFtZWQofC8uKikgICAgICAJCXN5
+c3RlbV91Om9iamVjdF9yOm5hbWVkX2NvbmZfdA0KIA0KICMNCiAjIC92YXIv
+ZnRwDQpAQCAtMTcxLDYgKzE3Miw3IEBADQogL2V0Yy9odHRwZC9tb2R1bGVz
+CQlzeXN0ZW1fdTpvYmplY3RfcjpodHRwZF9tb2R1bGVzX3QNCiAvZXRjL3Jl
+c29sdi5jb25mCQlzeXN0ZW1fdTpvYmplY3RfcjpyZXNvbHZfY29uZl90DQog
+L2V0Yy9hZGp0aW1lICAgICAgICAgICAgICAgICAgICBzeXN0ZW1fdTpvYmpl
+Y3RfcjphZGp0aW1lX3QNCisvZXRjL25hbWVkLmNvbmYgICAgICAgCQlzeXN0
+ZW1fdTpvYmplY3RfcjpuYW1lZF9jb25mX3QNCiANCiAjDQogIyAvbGliDQpA
+QCAtMzM5LDYgKzM0MSw3IEBADQogL3Vzci9zYmluL2F1dG9tb3VudAkJc3lz
+dGVtX3U6b2JqZWN0X3I6YXV0b21vdW50X2V4ZWNfdA0KIC91c3Ivc2Jpbi9h
+bmFjcm9uCQlzeXN0ZW1fdTpvYmplY3RfcjphbmFjcm9uX2V4ZWNfdA0KIC91
+c3Ivc2Jpbi9zdWV4ZWMJCXN5c3RlbV91Om9iamVjdF9yOmh0dHBkX3N1ZXhl
+Y19leGVjX3QNCisvdXNyL3NiaW4vbmFtZWQgICAgICAgCQlzeXN0ZW1fdTpv
+YmplY3RfcjpuYW1lZF9leGVjX3QNCiANCiAjDQogIyAvdXNyL1gxMVI2L2Jp
+bg0K
+---559023410-684387517-1002031879=:2296--
 
 --
 You have received this message because you are subscribed to the selinux list.
