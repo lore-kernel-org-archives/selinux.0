@@ -1,90 +1,48 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2F0TRb014828
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 10:00:29 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB2F0SqY027731
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 15:00:28 GMT
-Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
-        by jazzband.ncsc.mil  with ESMTP id hB2F0S0o027725 for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 15:00:28 GMT
-Received: from nexus.verbum.private (dhcp024-208-187-170.columbus.rr.com [24.208.187.170])
-	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
-	(Client CN "nexus.verbum.org", Issuer "monk.verbum.org" (verified OK))
-	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id 78C1F32A6C0
-	for <selinux@tycho.nsa.gov>; Tue,  2 Dec 2003 10:00:40 -0500 (EST)
-Subject: Re: policy under version control
-From: Colin Walters <walters@verbum.org>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <20031202080830.E17580@lemuria.org>
-References: <20031129132619.GE26960@lukas.schuldei.com>
-	 <1070291615.12270.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <20031201202813.I16359@lemuria.org>
-	 <200312021430.51186.russell@coker.com.au>
-	 <20031202080830.E17580@lemuria.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yVr5MD7db68F9AC6Fvn6"
-Message-Id: <1070377124.16958.13.camel@nexus.verbum.private>
-Mime-Version: 1.0
-Date: Tue, 02 Dec 2003 09:58:45 -0500
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2ExqRb014791
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 09:59:52 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hB2ExBp5002892
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 14:59:11 GMT
+Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
+	by jazzswing.ncsc.mil  with ESMTP id hB2ExAt0002882
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 14:59:11 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Chris Vanden Berghe <vbc@zurich.ibm.com>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: selinux-policy-default
+Date: Wed, 3 Dec 2003 01:59:41 +1100
+References: <3FCC831A.1070002@zurich.ibm.com>
+In-Reply-To: <3FCC831A.1070002@zurich.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200312030159.41676.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2 Dec 2003 23:18, Chris Vanden Berghe <vbc@zurich.ibm.com> wrote:
+> dpkg --install
+> /var/cache/apt/archives/selinux-policy-default_1%3a1.2.real-13_all.deb
+> (Reading database ... 112169 files and directories currently installed.)
+> Preparing to replace selinux-policy-default 1:1.2.real-13 (using
+> .../selinux-policy-default_1%3a1.2.real-13_all.deb) ...
+> Unpacking replacement selinux-policy-default ...
+> Setting up selinux-policy-default (1.2.real-13) ...
+> /etc/selinux does not exist, aborting!
 
---=-yVr5MD7db68F9AC6Fvn6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+/etc/selinux is a sym-link to /usr/share/selinux/policy/current/ and is 
+created on installation of the selinux-policy-default package.
 
-[We're kind of drifting offtopic here; if anyone has questions about
-arch/tla, gnu-arch-users@gnu.org is a better place]
+Did you remove and re-install the package?
 
-On Tue, 2003-12-02 at 02:08, Tom wrote:
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-> That's exactly where a more modern replacement of 20-year-old CVS would
-> help. From what I read about arch, it would be well possible to define,
-> say:
-
-When I was maintaining my own policy tree over the summer, I used arch.=20
-(As I do for everything nowadays).  It's in=20
-
-Archive: walters@debian.org--2003-debian=20
-Location: http://arch.verbum.org/arch-debian
-
-if you're curious.
-
-> This is Tom's Whatever Policy Repository
-> all macros and these and these file_contexts and domain/program files
-> are identical to the upstream policy (*)
-> these 2 files are different (**)
-> these 4 files replace their counterparts upstream
-> these 12 files are new
->
-> (*) this definition is very much like a network-aware symlink
-> (**) very much like a diff, with a built-in pointer to the URL of the
-> original
-
-You shouldn't think in terms of changes to individual files with arch.=20
-All changesets in arch are atomic modifications to an entire tree. =20
-So you don't really explicitly define what files are identical or
-whatever; instead, if you don't modify them, they simply aren't included
-in your changesets.
-
-Also, instead of thinking of the distributed nature as a "network-aware
-symlink", I think the most important thing is that it's a truly global
-namespace of changesets (composed mostly of just simple patches), which
-have archives which map to URLs.
-
-
---=-yVr5MD7db68F9AC6Fvn6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/zKikOIkJWWp2WGURAtMiAJ44jchlwb9r5W6dhvWaXB0CtgoLHgCfQWqA
-d/4Qvu7AvOqIhEDL6FzFN20=
-=bDfL
------END PGP SIGNATURE-----
-
---=-yVr5MD7db68F9AC6Fvn6--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
