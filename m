@@ -1,108 +1,150 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4P8flRb016260
-	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 04:41:47 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4P94IRb016366
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 05:04:18 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4P8d2ar024957
-	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 08:39:02 GMT
-Received: from smtp801.mail.ukl.yahoo.com (smtp801.mail.ukl.yahoo.com [217.12.12.138])
-	by jazzswing.ncsc.mil  with SMTP id i4P8d1Qu024954
-	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 08:39:01 GMT
-Date: Tue, 25 May 2004 08:37:44 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Timothy <timothy@diyab.net>, Russell Coker <russell@coker.com.au>,
-   Valdis.Kletnieks@vt.edu, selinux@tycho.nsa.gov,
-   Daniel J Walsh <dwalsh@redhat.com>, selinux-dev@tresys.com
-Subject: Re: [PATCH][RFC] Allow administrator control over per-user default_contexts
-Message-ID: <20040525083744.GB3264@lkcl.net>
-References: <1085155374.2789.131.camel@moss-spartans.epoch.ncsc.mil> <200405240612.15645.russell@coker.com.au> <1085402633.26446.45.camel@moss-spartans.epoch.ncsc.mil> <200405241004.07827.timothy@diyab.net> <1085408849.26446.98.camel@moss-spartans.epoch.ncsc.mil>
+	by jazzswing.ncsc.mil  with ESMTP id i4P91mar025481
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 09:01:48 GMT
+Received: from mailrelay2.lrz-muenchen.de (mailrelay2.lrz-muenchen.de [129.187.254.102])
+	by jazzswing.ncsc.mil  with ESMTP id i4P91lQu025478
+	for <selinux@tycho.nsa.gov>; Tue, 25 May 2004 09:01:47 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.99.1] [192.168.99.1]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Tue, 25 May 2004 11:04:13 +0200
+Date: Tue, 25 May 2004 11:03:58 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: [patch] policy for nrpe
+Message-Id: <20040525090358.GA3379@jmh.mhn.de>
+References: <20040523214406.GB6147@jmh.mhn.de> <200405251248.23006.russell@coker.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1085408849.26446.98.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
+In-Reply-To: <200405251248.23006.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
 
-uhm, not being funny or anything but is there a simpler approach
-to all this?
-
-might i make a suggestion based on what i know of NT security
-descriptors (formerly known as VAX/VMS security before dave cutler
-went to work for microsoft it's a long story :)
-
-NT security descriptors are not 32-bits but can vary between
-about 5 bytes and approx 16.  they consist of a prefix which
-is the domain and the very last word (suffix) represents a
-user or a group.  btw i am very surprised that the opportunity
-to extend the size of security descriptors to a world-size
-view (i.e. outside of a single machine) i.e. beyond 32-bit
-and to 128-bit or more.  but i digress.
-
-in NT 4.0 SD model, the concept of "local groups" was introduced
-but for NT 5.0 (aka 2000) the distinction was removed at the
-risk of also introducing circular group membership dependencies.
-
-the important bit that i wanted to mention to you is that in
-the NT security model GROUPS can own objects (files, processes
-etc).
-
-this is distinctly different from unix, whereby only users can
-own files (and it causes a lot of problems for anyone implementing
-an SMB server if they choose to map direct to any kind of
-unix file system rather than provide their own)
- 
-
-groups being able to own objects means greatly simplified management.
-
-so, what i was wondering: is there a similar such concept in
-SE/Linux, with domains?
+--5/uDoXvLw7AC5HRs
+Content-Type: multipart/mixed; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
 
 
-On Mon, May 24, 2004 at 10:27:29AM -0400, Stephen Smalley wrote:
-> On Mon, 2004-05-24 at 10:04, Timothy wrote:
-> > How about check for /etc/security/default_contexts.user/username and if it 
-> > exists, ignore $HOME/.default_contexts.  Next 
-> > check /etc/security/default_contexts.user/username for a valid context that 
-> > is allowed by policy and if it does exist, then use that.  Otherwise use the 
-> > system default. Then if an administrator wants to disable user set contexts 
-> > an not set a specific one he can just create an empty file for that username 
-> > in the /etc/security/default_contexts.user directory and no extra file would 
-> > be needed.
-> 
-> The logic already allows for leaving the per-user default_contexts file
-> empty or incomplete; it always pulls the context lists from both the
-> per-user default_contexts file and the system default_contets file (with
-> the latter given lower precedence) and omits any contexts that would be
-> invalid for the user or unreachable from the calling context.  But the
-> approach you suggest still requires the admin to at least create an
-> empty file for every user account simply to disable use of
-> $HOME/.default_contexts, which is burdensome and error-prone if the
-> admin simply wants to disallow all use of $HOME/.default_contexts.  I
-> think we want a simple mechanism for the admin to express that goal
-> without needing to maintain per-user files at all, even empty ones.
-> 
-> -- 
-> Stephen Smalley <sds@epoch.ncsc.mil>
-> National Security Agency
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+* Russell Coker <russell@coker.com.au> [2004-05-25 06:37]:
+> On Mon, 24 May 2004 07:44, Thomas Bleher <bleher@informatik.uni-muenchen.=
+de>=20
+> wrote:
+> > The attached patch adds policy support for nrpe.
+> > (nrpe stands for Nagios Remote Plugin Execution and is a client called
+> > from inetd which performs checks on a client on behalf of a Nagios
+> > server)
+>=20
+> I have made a couple of changes.  I have labeled the port as inetd_port_t=
+,=20
+> there seems to be no benefit in having a different type as only inetd is =
+used=20
+> for binding to the port.  I have added support for running directly from=
+=20
+> inetd without tcpd (my personal preference for such things is to run nagi=
+os=20
+> on the internal network and use netfilter to control access).
 
+This looks good to me. I have attached the modified patch.
+
+Thanks,
+Thomas
+
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nrpe.patch"
+
+diff -urN orig/domains/program/nrpe.te mod/domains/program/nrpe.te
+--- orig/domains/program/nrpe.te	1970-01-01 01:00:00.000000000 +0100
++++ mod/domains/program/nrpe.te	2004-05-25 10:59:25.558086504 +0200
+@@ -0,0 +1,38 @@
++# DESC nrpe - Nagios Remote Plugin Execution
++#
++# Author: Thomas Bleher <ThomasBleher@gmx.de>
++#
++# X-Debian-Packages: nagios-nrpe-server
++#
++# This policy assumes that nrpe is called from inetd
++
++daemon_base_domain(nrpe)
++ifdef(`tcpd.te', `
++domain_auto_trans(tcpd_t, nrpe_exec_t, nrpe_t)
++')
++domain_auto_trans(inetd_t, nrpe_exec_t, nrpe_t)
++
++allow nrpe_t urandom_device_t:chr_file { getattr ioctl read };
++
++allow nrpe_t self:fifo_file rw_file_perms;
++# use sockets inherited from inetd
++allow nrpe_t inetd_t:tcp_socket { ioctl read write };
++allow nrpe_t devtty_t:chr_file { read write };
++
++allow nrpe_t self:process setpgid;
++
++etc_domain(nrpe)
++
++# permissions for the scripts executed by nrpe
++#
++# call shell programs
++can_exec(nrpe_t, { bin_t shell_exec_t ls_exec_t })
++allow nrpe_t { bin_t sbin_t }:dir search;
++# for /bin/sh
++allow nrpe_t bin_t:lnk_file read;
++
++# read /proc/meminfo, /proc/self/mounts and /etc/mtab
++allow nrpe_t { self proc_t etc_runtime_t }:file { getattr read };
++
++# you will have to add more permissions here, depending on the scripts you call!
++
+diff -urN orig/file_contexts/program/nrpe.fc mod/file_contexts/program/nrpe.fc
+--- orig/file_contexts/program/nrpe.fc	1970-01-01 01:00:00.000000000 +0100
++++ mod/file_contexts/program/nrpe.fc	2004-05-25 10:59:34.238766840 +0200
+@@ -0,0 +1,6 @@
++# nrpe
++/usr/bin/nrpe		--	system_u:object_r:nrpe_exec_t
++/etc/nagios/nrpe.cfg	--	system_u:object_r:nrpe_etc_t
++/usr/lib/netsaint/plugins(/.*)?	--	system_u:object_r:bin_t
++/usr/lib/nagios/plugins(/.*)?	--	system_u:object_r:bin_t
++
+diff -urN orig/net_contexts mod/net_contexts
+--- orig/net_contexts	2004-05-25 10:58:52.402126976 +0200
++++ mod/net_contexts	2004-05-25 10:43:06.000000000 +0200
+@@ -142,6 +142,7 @@
+ portcon tcp 5269 system_u:object_r:jabber_interserver_port_t
+ ')
+ ifdef(`postgresql.te', `portcon tcp 5432 system_u:object_r:postgresql_port_t')
++ifdef(`nrpe.te', `portcon tcp 5666 system_u:object_r:inetd_port_t')
+ ifdef(`use_x_ports', `
+ portcon tcp 6000  system_u:object_r:xserver_port_t
+ portcon tcp 6001  system_u:object_r:xserver_port_t
+
+--k+w/mQv8wyuph6w0--
+
+--5/uDoXvLw7AC5HRs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAswv+xWIrrrL0q+cRAu96AJ0ZPk2Ha1b/GAS6IqzO50w01TrIrwCfbNq/
+rttjKM7gjmaCYIY+i9VHIhw=
+=5FbK
+-----END PGP SIGNATURE-----
+
+--5/uDoXvLw7AC5HRs--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
