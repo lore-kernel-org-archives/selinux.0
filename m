@@ -1,28 +1,40 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8FEoHLa013486
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 10:50:18 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8FEreLa013524
+	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 10:53:41 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8FEmaLa017932
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 14:48:37 GMT
-Date: Mon, 15 Sep 2003 15:50:04 +0100
-From: Dale Amon <amon@vnl.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Dale Amon <amon@vnl.com>, SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Problem relabeling journalfile
-Message-ID: <20030915145004.GB8988@vnl.com>
+	by jazzswing.ncsc.mil  with ESMTP id h8FEq0LY018276
+	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 14:52:00 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h8FEq0sG018273
+	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2003 14:52:00 GMT
+Subject: Re: Problem relabeling journalfile
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Dale Amon <amon@vnl.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <20030915145004.GB8988@vnl.com>
+References: <20030915145004.GB8988@vnl.com>
+Content-Type: text/plain
+Message-Id: <1063637616.13311.110.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: 15 Sep 2003 10:53:36 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've upgraded an ext2 to an ext3 file and while make relabeling
-I get an error message:
+On Mon, 2003-09-15 at 10:50, Dale Amon wrote:
+> I've upgraded an ext2 to an ext3 file and while make relabeling
+> I get an error message:
+> 
+> /usr/sbin/setfiles: unable to relabel /.journal to system_u:object_r:file_t
+> 
+> suggestions?
 
-/usr/sbin/setfiles: unable to relabel /.journal to system_u:object_r:file_t
+Add an entry for it to your file_contexts configuration with the special
+notation "<<none>>" in place of the security context.  This tells
+setfiles to ignore it.
 
-suggestions?
-
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
