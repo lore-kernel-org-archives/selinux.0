@@ -1,148 +1,73 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i53JEFrT014281
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 15:14:15 -0400 (EDT)
-Received: from smtp801.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5438joJ025874
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 23:08:46 -0400 (EDT)
-Date: Thu, 3 Jun 2004 19:11:32 +0000
+Date: Thu, 3 Jun 2004 19:57:38 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>, samba-tng@lists.samba-tng.org,
-   samba-technical@samba.org
-Subject: Re: samba
-Message-ID: <20040603191131.GC3856@lkcl.net>
-References: <200406031543.15551.russell@coker.com.au>
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: "'SELinux'" <SELinux@tycho.nsa.gov>,
+   "'Fedora SELinux support list for users & developers.'" <fedora-selinux-list@redhat.com>
+Subject: Re: Summary of Informal SELinux Meeting on May 6, 2004
+Message-ID: <20040603195738.GE3856@lkcl.net>
+References: <200406022032.i52KWuSf003348@gotham.columbia.tresys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406031543.15551.russell@coker.com.au>
+In-Reply-To: <200406022032.i52KWuSf003348@gotham.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-uhm.
+On Wed, Jun 02, 2004 at 04:33:19PM -0400, Karl MacMillan wrote:
 
-my apologies for being sufficiently rusty on samba stuff for it to take
-several days to remember things.
+> circumstance because of some details of the SMB/CIFS protocol. It was argued
+> that Samba is a trusted application and it would be appropriate, therefore,
+> to allow it to enforce SELinux access decisions by becoming a user-space
+> object manager. 
 
-it occurred to me that there are other locations where seteuid() calls
-will be used: in the emulation of NT's DCE/RPC services.
+ samba is not a single "entity".
 
-under certain circumstances, for example in an NT printer client,
-an NT program will cause an NT system to make an authenticated
-DCE/RPC connection over an already authenticated SMB connection.
+ samba consists of approximately twenty to twenty five
+ separate services, six or seven different network protocols,
+ approximately FIVE different authentication systems or
+ authentication modes, the list goes on.
 
-there are two circumstances in which i definitely know that this
-occurs: as mentioned already the first is when viewing a print job:
-one thread does the printing and another thread deals with print
-monitoring (like famd only in a polling fashion).
+ that, in samba(3) they are implemented in only two daemons is
+ both amazing and also, to be quite blunt, short-sighted.
 
-the two threads use DIFFERENT security contexts.
+ at least in samba tng an effort was made to split out the
+ DCE/RPC services into separate programs (with intended and
+ planned work - that was shelved - to split out the Network
+ Neighbourhood arena from the WINS Server from the browsing
+ services)
 
-the other circumstance that i am aware of is when a user presses
-ctrl-alt-delete and then changes their password: _any_ user may
-use that dialog to change their password, and so you get an
-authenticated DCE/RPC connection made over someone else's
-authenticated SMB session.
+ 
+ think of all of the services that NT has - NETLOGON, spool / printer,
+ registry, SAM database, Local Security Authority, CMDAT (capability
+ to run remote jobs), EventLog, WINS server, Browser Server to
+ handle the Network Neighbourhood, File server.
 
-_there may be other circumstances where this is done_.
-
-now, why am i mentioning this?
-
-the reason is because not only is there a seteuid done in the
-SMB connection, but also due to the authenticated DCE/RPC connection
-which is piggy-backed over the SMB authenticated transport, there
-is also ANOTHER seteuid in the DCE/RPC layer.
+ samba (at least, samba tng) has _all_ of these services, in incomplete
+ form, in the same way that Wine has some of the Win32 API.
 
 
-therefore, it is necessary to consider context separation at the
-DCE/RPC level as well.
+ i just want you to be aware of this before making any recommendations
+ that samba should be considered to be a "trusted application".
 
-and funnily enough, the Samba TNG design has already split out
-all of its DCE/RPC services into separate daemons.
+ think of it this way.
 
-therefore, the way to guarantee a working secure se-samba system
-with an absolute minimum of coding is:
+ if somebody decided to implement:
 
-- to use samba(4) as the front-end
+ - lpd or cupsys
+ - an nfs user-space file server
+ - cron
+ - a dhcp server
+ - a dns server
+ - a syslog server
+ - KDE's DCOP server or Gnome's CORBA services
 
-- to use samba-tng as the back-end
+ all in the same single monolithic daemon that bound itself
+ to several different ports and several different unix domain
+ sockets, you wouldn't seriously consider saying that "this
+ hybrid is a trusted application" would you?
+ 
+ l.
 
-- to use samba-tng's NT domain DCE/RPC services.
-
-
-samba(3) is a monolithic design which runs all DCE/RPC services in a
-single process.
-
-therefore, as it stands, it cannot be used for se-samba without
-also taking care of the seteuid calls in the DCE/RPC layer as well.
-
-
-On Thu, Jun 03, 2004 at 03:43:15PM +1000, Russell Coker wrote:
-> When discussing SE Linux and Samba with Andrew Tridgell last night we came up 
-> with an idea that should work reasonably well without hurting performance 
-> much.
-> 
-> Firstly we consider Samba to be a trusted object manager, so there is no plan 
-> to prevent any Samba process from exceeding it's access (IE we are not 
-> protecting against a buffer overflow or other attack to make the Samba daemon 
-> perform inappropriate actions).
-> 
-> For operations which require access to a directory tree (IE every operation 
-> that does not involve an open file handle - open, creat, unlink, rename, 
-> stat, chmod, chown, truncate, etc) we can have a separate samba process 
-> that's run in a different context (eg smbd_user_t, smbd_staff_t, etc).  The 
-> operations that result in an open file handle (open() and creat()) can then 
-> pass back a file handle to the parent process over a Unix domain socket.  For 
-> read/write/ioctl/fstat/ftruncate operations the main Samba process can query 
-> the SE Linux kernel (or maybe use user space AVC code) as to whether the 
-> operations are permitted.
-> 
-> This was one of many possible ways of doing this that we discussed.  I don't 
-> think it was Andrew's favourite, but I think it works best with what we are 
-> trying to do.
-
- as i have mentioned before, andrew's knowledge of unix system
- programming is extremely comprehensive, and if anyone can implement
- it in a secure manner, it's going to be andrew.
-
-
- it's not the simplest "get-it-working" approach.  using samba(4)
- as the front-end and samba-tng as the back-end is definitely the
- simplest.
-
-
-> Another possibility is to just not permit multiple SMB identities over the 
-> same TCP socket, there's apparently a registry setting that can be used on 
-> each SMB client machine to make it use a separate TCP socket per connection.  
-
- that does not take care of DCE/RPC services which cannot be stopped
- from using the SMB layer to seteuid or provide threaded  support.
-
-
-> In which case we just need to change the Samba code from fork/setuid to 
-> fork/setuid/exec (which will not be fun).
-> 
-> -- 
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-
--- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
