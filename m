@@ -1,42 +1,49 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i569kYrT028778
-	for <selinux@tycho.nsa.gov>; Sun, 6 Jun 2004 05:46:34 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i569kTRQ003724
-	for <selinux@tycho.nsa.gov>; Sun, 6 Jun 2004 05:46:30 -0400 (EDT)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: successful cupsys admin: advantages of running pam_selinux
-Date: Sun, 6 Jun 2004 19:46:26 +1000
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i56AP9rT028893
+	for <selinux@tycho.nsa.gov>; Sun, 6 Jun 2004 06:25:10 -0400 (EDT)
+Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i56AP7RQ004114
+	for <selinux@tycho.nsa.gov>; Sun, 6 Jun 2004 06:25:07 -0400 (EDT)
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
+  by smtp802.mail.ukl.yahoo.com with SMTP; 6 Jun 2004 10:24:52 -0000
+Date: Sun, 6 Jun 2004 10:22:15 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040606000852.GA6673@lkcl.net>
-In-Reply-To: <20040606000852.GA6673@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200406061946.26814.russell@coker.com.au>
+Subject: Re: successful cupsys admin: advantages of running pam_selinux
+Message-ID: <20040606102215.GC9675@lkcl.net>
+References: <20040606000852.GA6673@lkcl.net> <200406061946.26814.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200406061946.26814.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 6 Jun 2004 10:08, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> it is with some amazement that, by adding pam_selinux to /etc/pam.d/cups
-> and by adding an ordinary user to the lpadmin group that i was able
-> to have that ordinary user set up a local printer and actually print
-> to it (openoffice).
+On Sun, Jun 06, 2004 at 07:46:26PM +1000, Russell Coker wrote:
+> On Sun, 6 Jun 2004 10:08, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > it is with some amazement that, by adding pam_selinux to /etc/pam.d/cups
+> > and by adding an ordinary user to the lpadmin group that i was able
+> > to have that ordinary user set up a local printer and actually print
+> > to it (openoffice).
+> 
+> How does cups use pam_selinux?
+ 
+  umm....
 
-How does cups use pam_selinux?
+> Cups doesn't spawn a shell, and even if it tried the policy does not permit 
+> domain transitions to user domains.
+> 
+> Cups doesn't have any terminal devices to relabel.
 
-Cups doesn't spawn a shell, and even if it tried the policy does not permit 
-domain transitions to user domains.
+ i'll do an experiment: i'll remove the entry pam_selinux from
+ /etc/pam.d/cups and see if i can add a printer...
+ 
+ ... and it works.  hey, that's even better.
 
-Cups doesn't have any terminal devices to relabel.
+ thanks!
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+ l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
