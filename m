@@ -1,45 +1,70 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA04010
-	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 15:29:49 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA21548
-	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 19:27:58 GMT
-Received: from unicorn.lemuria.org (b067252.adsl.hansenet.de [62.109.67.252])
-        by jazzband.ncsc.mil  with ESMTP id TAA21543 for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 19:27:57 GMT
-Date: Tue, 8 Oct 2002 21:29:18 +0200
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: /proc woes
-Message-ID: <20021008212917.A6663@lemuria.org>
-References: <20021008171123.A6113@lemuria.org> <Pine.GSO.4.33.0210081439380.25356-100000@raven>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.GSO.4.33.0210081439380.25356-100000@raven>; from sds@tislabs.com on Tue, Oct 08, 2002 at 02:43:12PM -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA05855
+	for <selinux@tycho.nsa.gov>; Tue, 8 Oct 2002 20:55:27 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id AAA23587
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 00:53:48 GMT
+Received: from edmond.crypt.gen.nz (203-79-74-240.adsl.paradise.net.nz [203.79.74.240])
+	by jazzswing.ncsc.mil  with ESMTP id AAA23583
+	for <selinux@tycho.nsa.gov>; Wed, 9 Oct 2002 00:53:46 GMT
+Received: from crypt.gen.nz (localhost.localdomain [127.0.0.1])
+	by edmond.crypt.gen.nz (Postfix) with SMTP id 750C513924
+	for <selinux@tycho.nsa.gov>; Wed,  9 Oct 2002 13:55:20 +1300 (NZDT)
+Message-ID: <23483.202.6.84.11.1034124921.squirrel@www.crypt.gen.nz>
+Date: Wed, 9 Oct 2002 13:55:21 +1300 (NZDT)
+Subject: Re: What to do next?
+From: "Kerry Thompson" <kerry@crypt.gen.nz>
+To: <selinux@tycho.nsa.gov>
+In-Reply-To: <H3OGTT$0A7DBB13E9FF323A8AA0A7184811E6BA@terra.com.br>
+References: <H3OGTT$0A7DBB13E9FF323A8AA0A7184811E6BA@terra.com.br>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Oct 08, 2002 at 02:43:12PM -0400, Stephen Smalley wrote:
-> > Rebooting the machine fixed it, so this may have happened during either
-> > make relabel or make load (I installed a new policy today), though it's
-> > still a mystery to me how and I'm one of the people who believe that a
-> > reboot shouldn't be a valid solution. :)
-> 
-> I can't see any reason why a 'make relabel' or a 'make load' would yield
-> this behavior.  'make relabel' only runs setfiles on mounted ext[23] or
-> reiserfs filesystems to create or update the persistent label mappings.
-> 'make load' doesn't relabel anything, although it might invalidate
-> security contexts if you removed types (like proc_t), leaving existing
-> objects in unlabeled_t (but not file_t).
+I suggest getting Russell's latest policy files from
+http://www.coker.com.au/selinux/policy.tgz and installing them.
 
-Well, I *am* somewhat puzzled myself, but I've seen it happen. I will
-experiment a little tomorrow afternoon to see if I can recreate it
-(probably by replaying the bash history) and find out what caused this.
+Also, read the last page or so of the README file, there's some handy tips
+there on things that you can do.
 
+Then, start using your system in the way that you want to : as a web
+server, dns server, Email server, or maybe just as a workstation. While
+doing this, monitor the "avc" messages that will be appearing in
+/var/log/messages and try to understand what is causing them based on the
+policy configuration, the tagging of files, etc.
+
+The aim is to get your system running properly in *enforcing mode*. By
+default after installation your system will only be logging operations
+which aren't allowed, and allowing them to go ahead anyway. By running the
+avc_toggle utility you can switch your system into enforcing mode which
+will actually do the job of disallowing these operations.
+
+If you find problems testing the policies then try to figure out what is
+causing them and post some patches back here.
+
+Try configuring new policies for programs which don't already have a
+policy - then post your new policies to this list for the rest of us to
+look at and use.
+
+Kerry
+
+luiztizei said:
+>   I have succefully installed selinux kernel lsm-2.4 to my RH7.3
+> distro. I want to continue to explore this system. What should I do
+> next? Get the patches you are releasing and try them?
+>   I am simply a newbie to the subject, but with time I might help :)
+> Thanks,
+>
+>          Luiz Tizei
 
 -- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+Kerry Thompson, CCNA CISSP
+Information Systems Security Consultant
+http://www.crypt.gen.nz  kerry@crypt.gen.nz
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
