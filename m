@@ -1,49 +1,79 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2CHjdRb002687
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 12:45:39 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i2CHhu6Q012043
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 17:43:56 GMT
-Received: from mutemail.com (mutemail.com [24.244.170.124])
-	by jazzswing.ncsc.mil  with SMTP id i2CHht5t012028
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 17:43:55 GMT
-Date: Fri, 12 Mar 2004 09:45:09 -0800
-From: Bill McCarty <bmccarty@pt-net.net>
-To: see.the.sig.2.reply.by.email.offlist@hotmail.com
-cc: selinux@tycho.nsa.gov
-Subject: Re: grsecurity / LSM issue
-Message-ID: <5343153.1079084709@[192.168.0.2]>
-In-Reply-To: <404EE624.7010901@hotmail.com>
-References: <20040308043522.GA4760@coker.com.au>
- <404EE624.7010901@hotmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: Process Transition
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chad Hanson <chanson@tcs-sec.com>
+Cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
+In-Reply-To: <791924EBDA572C4FA970D4A94AA95DA3115410@chaos.tcs.tcs-sec.com>
+References: <791924EBDA572C4FA970D4A94AA95DA3115410@chaos.tcs.tcs-sec.com>
+Content-Type: multipart/mixed; boundary="=-48nsYsLsKn+WypGqCJ3C"
+Message-Id: <1079113956.8203.13.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 12 Mar 2004 12:52:36 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi James and all,
 
---On Wednesday, March 10, 2004 9:55 AM +0000 James de Lurker 
-<jtl2nospamMUNGIEjump@hotmail.com> wrote:
+--=-48nsYsLsKn+WypGqCJ3C
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> Would it be possible to make a snapshot clone of the disk and make that
-> available to people experienced with forensics? I was thinking of the
-> honeypot/net project folks and the competition to analyse a rooted system
-> a
-> few years back.
+On Thu, 2004-03-11 at 15:49, Chad Hanson wrote:
+> We found a piece of process transition code that should be updated to work
+> as expected.
+> 
+> In ss/services.c context_struct_compute_av() the following should be
+> changed:
+> 
+> 	if (tclass == SECCLASS_PROCESS &&
+> bug >>	    avd->allowed && PROCESS__TRANSITION &&
+> 	    scontext->role != tcontext->role) {
+> 		for (ra = policydb.role_allow; ra; ra = ra->next) {
+> 			if (scontext->role == ra->role &&
+> 			    tcontext->role == ra->new_role)
+> 				break;
+> 		}
+> 		if (!ra)
+> 			avd->allowed = (avd->allowed) &
+> ~(PROCESS__TRANSITION);
+> 	}
+> 
+> it should be
+> 
+> 	if (tclass == SECCLASS_PROCESS &&
+> 	    avd->allowed & PROCESS__TRANSITION &&
+> 	    scontext->role != tcontext->role) {
 
-I'm the director of a Honeynet Alliance project and work with the Honeynet 
-Project, having been the lead on Scan of the Month #27. If Russell wants to 
-pursue the possibility of using his data as the basic for a Honeynet 
-Project Forensic Challenge, I'd be happy to make the proper introductions. 
-Seeing his SELinux machine as a honeypot might be pushing the envelope a 
-bit; but doing so makes sense to me.
+Thanks; patch attached.  The existing buggy code will still produce the
+right access computation; it just causes unnecessary processing to occur
+when the transition permission wasn't granted in the first place by the
+TE configuration.
 
-Cheers,
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
----------------------------------------------------
-Bill McCarty
+--=-48nsYsLsKn+WypGqCJ3C
+Content-Disposition: attachment; filename=selinux-fixtrans.patch
+Content-Type: text/x-patch; name=selinux-fixtrans.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
+Index: linux-2.6/security/selinux/ss/services.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/services.c,v
+retrieving revision 1.34
+diff -u -r1.34 services.c
+--- linux-2.6/security/selinux/ss/services.c	18 Feb 2004 14:26:06 -0000	1.34
++++ linux-2.6/security/selinux/ss/services.c	12 Mar 2004 13:37:44 -0000
+@@ -262,7 +262,7 @@
+ 	 * pair.
+ 	 */
+ 	if (tclass == SECCLASS_PROCESS &&
+-	    avd->allowed && PROCESS__TRANSITION &&
++	    (avd->allowed & PROCESS__TRANSITION) &&
+ 	    scontext->role != tcontext->role) {
+ 		for (ra = policydb.role_allow; ra; ra = ra->next) {
+ 			if (scontext->role == ra->role &&
+
+--=-48nsYsLsKn+WypGqCJ3C--
 
 
 --
