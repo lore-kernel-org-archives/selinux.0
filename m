@@ -1,72 +1,90 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAHHr6Ii008145
-	for <selinux@tycho.nsa.gov>; Wed, 17 Nov 2004 12:53:06 -0500 (EST)
-Received: from glaurung.internal.golden-gryphon.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAHHr8A9026274
-	for <selinux@tycho.nsa.gov>; Wed, 17 Nov 2004 17:53:08 GMT
-Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
-	by glaurung.internal.golden-gryphon.com (8.13.1/8.13.1/Debian-17) with ESMTP id iAHHhNU0010606
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Wed, 17 Nov 2004 11:43:37 -0600
-To: selinux@tycho.nsa.gov
-Subject: Re: polgen and strace
-References: <87fz3ajhex.fsf@glaurung.internal.golden-gryphon.com>
-	<ogty8h16ha5.fsf@divan.mitre.org>
-From: Manoj Srivastava <manoj.srivastava@stdc.com>
-Date: Wed, 17 Nov 2004 11:43:02 -0600
-In-Reply-To: <ogty8h16ha5.fsf@divan.mitre.org> (John D. Ramsdell's message
- of
-	"16 Nov 2004 08:43:30 -0500")
-Message-ID: <87r7msv0bd.fsf@glaurung.internal.golden-gryphon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAHKD8Ii009359
+	for <selinux@tycho.nsa.gov>; Wed, 17 Nov 2004 15:13:08 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAHKBfkh027362
+	for <selinux@tycho.nsa.gov>; Wed, 17 Nov 2004 20:11:41 GMT
+Subject: Re: Patches without the can_network patch.
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Russell Coker <russell@coker.com.au>,
+   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <4192A029.5050909@redhat.com>
+References: <41741A2C.8040408@redhat.com>
+	 <200410260138.19426.russell@coker.com.au>
+	 <20041025213122.GA2535@jmh.mhn.de>
+	 <200410270036.14935.russell@coker.com.au>
+	 <1099690788.16488.52.camel@moss-lions.epoch.ncsc.mil>
+	 <4192A029.5050909@redhat.com>
+Content-Type: text/plain
+Message-Id: <1100722524.22035.18.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 17 Nov 2004 15:15:24 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 16 Nov 2004 08:43:30 -0500, John D Ramsdell <ramsdell@mitre.org> said: 
+Merged with some changes.
+- Changed the attribute $1_homedirfile to $1_file_type
+- Removed the attribute homedirfile since it is not being used.
+- Moved can_kerberos to a new file named kerberos_macros.te instead of
+network_macros.te
+- Added "ifdef(`kerberos.te', `" to the can_kerberos macro.
+- Did not remove the "ifdef`kerberos.te', `" in net_contexts.
 
-> Manoj Srivastava <manoj.srivastava@stdc.com> writes:
->> While poking around in polgen (in preparation for packaging it for
->> Debian), I noticed that it has the full set of sources for strace!
+On Wed, 2004-11-10 at 18:11, Daniel J Walsh wrote:
+> Removal of alot of kerberos and can_ypbind calls.  (Centralized under 
+> the auth call).
+> 
+> Several apache fixes to make squirrelmail work as well as mod_perl and 
+> mod_python.
+> 
+> Fixes to dovecot to get it to work with squirrelmail
+> 
+> Fixes to hal to allow it to create a chr_file device for pcmcia card 
+> communication.
+> 
+> Added lockdev policy
+> 
+> Fixes for mailman policy
+> 
+> A few more nscd_client_domains
+> 
+<snip>
+> diff --exclude-from=exclude -N -u -r nsapolicy/macros/network_macros.te policy-1.19.1/macros/network_macros.te
+> --- nsapolicy/macros/network_macros.te	1969-12-31 19:00:00.000000000 -0500
+> +++ policy-1.19.1/macros/network_macros.te	2004-11-10 17:50:28.419688186 -0500
+> @@ -0,0 +1,5 @@
+> +define(`can_kerberos',`
+> +can_network($1)
+> +dontaudit $1 krb5_conf_t:file write;
+> +allow $1 krb5_conf_t:file { getattr read };
+> +')
+<snip>
+> diff --exclude-from=exclude -N -u -r nsapolicy/net_contexts policy-1.19.1/net_contexts
+> --- nsapolicy/net_contexts	2004-11-09 13:35:11.000000000 -0500
+> +++ policy-1.19.1/net_contexts	2004-11-10 17:30:03.500879161 -0500
+> @@ -113,7 +113,6 @@
+>  portcon tcp 631 system_u:object_r:ipp_port_t
+>  portcon udp 631 system_u:object_r:ipp_port_t
+>  ')
+> -ifdef(`kerberos.te', `
+>  portcon tcp 88 system_u:object_r:kerberos_port_t
+>  portcon udp 88 system_u:object_r:kerberos_port_t
+>  portcon tcp 749 system_u:object_r:kerberos_admin_port_t
+> @@ -121,7 +120,6 @@
+>  portcon udp 750 system_u:object_r:kerberos_port_t
+>  portcon tcp 4444 system_u:object_r:kerberos_master_port_t
+>  portcon udp 4444 system_u:object_r:kerberos_master_port_t
+> -')
+>  ifdef(`spamd.te', `portcon tcp 783 system_u:object_r:spamd_port_t')
+>  ifdef(`rsync.te', `
+>  portcon tcp 873 system_u:object_r:rsync_port_t
 
-> The strace that is part of polgen has been changed so that when one
-> specifies the -X option, it adds security context information to its
-> output.  This added output is essential to the analysis that
-> follows.
-
->> Would polgen work with a vanilla strace? Are there plans for
->> pushing strace changes upstream?
-
-> Polgen would not work with vanilla strace.  We have offered the
-> changes to the strace maintainers, but have not received a word one
-> way or the other as to their interest in supporting the -X option.
-
-	I see. However, I could still try to get the patch accepted by
- Debian, which would be good. Oh, and Debian's strasce is also 4.5.8
- at this point.
-
->> I might be able to get strace patched, though, if the patches were
->> not too intrusive., but I was not able to find a canonical location
->> for strace patches.
-
-> I can make up the patch, but I'm not sure it would help.
-
-	A clean patch would make the task of convincing the Debian
- strace maintainer a lot easier.
-
-> What does one do to package polgen for Debian?  Is there something I
-> can add to the polgen sources that would facilitate this process.  I
-> don't know much about Debian packaging, so hand holding is in order.
-
-	Oh, there is no technical issue with regards to packaging
- strace itself, the problem lies in integration into the Debian
- distribution, and adherence to debian technical policy. 
-
-	manoj
 -- 
-Any given program, when running, is obsolete.
-Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
