@@ -1,64 +1,44 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8BG0frT024910
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 12:00:41 -0400 (EDT)
-Received: from web51510.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i8BFxl9R023548
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 15:59:47 GMT
-Message-ID: <20040911160041.6314.qmail@web51510.mail.yahoo.com>
-Date: Sat, 11 Sep 2004 09:00:41 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: how to understand the defense-in-depth and ease of assurance of Flask security architecture?
-To: selinux@tycho.nsa.gov
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8BGK6rT025016
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 12:20:06 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8BGK46V005224
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 16:20:05 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: at last: info regarding boot problems on multiple partitions
+Date: Sun, 12 Sep 2004 02:20:02 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040908224949.GK7717@lkcl.net> <20040909183823.GJ10046@lkcl.net> <20040909234320.GA7328@lkcl.net>
+In-Reply-To: <20040909234320.GA7328@lkcl.net>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1408188417-1094918441=:5963"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200409120220.02379.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1408188417-1094918441=:5963
-Content-Type: text/plain; charset=us-ascii
+On Fri, 10 Sep 2004 09:43, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> consequently, the test fails, and only if the test _succeeds_ does
+> mountvirtfs.sh delete /etc/mtab. (with :> $MTAB_PATH)
+>
+> so, as a temporary hack, i removed the "if dir_writable ${MTAB_PATH%/*}"
+> check.
+>
+> result?
+>
+>  /etc/mtab gets deleted.
+>
+> bugreporting time.
 
-Hi,
-In subsection 5.1 of <<The Flask Security Architecture: System Support for Diverse Security Policies>>, It says:
- 
-Secondary goals for the architecture include application transparency, defense-in-depth, ease of assurance, and minimal performance impact.
- 
-I can understand the application transparency and minimal performance impact. But how to understand the defense-in-depth and ease of assurance of Flask security architecture?
- 
-Thanks,
+Good work!  Let me know if you need help convincing the package maintainer.
 
-
---
-Best Regards,
-Park Lee <parklee_sel@yahoo.com> 
- 
-
-
-
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
---0-1408188417-1094918441=:5963
-Content-Type: text/html; charset=us-ascii
-
-<DIV>Hi,</DIV>
-<DIV>In subsection 5.1 of &lt;&lt;The Flask Security Architecture: System Support for Diverse Security Policies&gt;&gt;, It says:</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Secondary goals for the architecture include application transparency, defense-in-depth, ease of assurance, and minimal performance impact.</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>I can understand the application transparency and minimal performance impact. But how to understand the defense-in-depth and ease of assurance of Flask security architecture?</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Thanks,</DIV><BR><BR><DIV>
-<DIV>
-<DIV>
-<DIV>
-<DIV>
-<DIV>--<BR>Best Regards,<BR>Park Lee &lt;<A href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;YY=1156&amp;order=down&amp;sort=date&amp;pos=0"><FONT color=#003399>parklee_sel@yahoo.com</FONT></A>&gt; </DIV>
-<DIV>&nbsp;</DIV></DIV></DIV></DIV></DIV></DIV><p>__________________________________________________<br>Do You Yahoo!?<br>Tired of spam?  Yahoo! Mail has the best spam protection around <br>http://mail.yahoo.com 
---0-1408188417-1094918441=:5963--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
