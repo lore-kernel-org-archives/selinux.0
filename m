@@ -1,82 +1,70 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i59GwArT020950
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 12:58:10 -0400 (EDT)
-Received: from rwcrmhc12.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i59Gw3Qd003922
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jun 2004 12:58:08 -0400 (EDT)
-Subject: too many sysadmfile?
-From: Chris PeBenito <pebenito@gentoo.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y5++qA8vIyU+FdUQYJRq"
-Message-Id: <1086800282.19414.26.camel@gorn.pebenito.net>
-Mime-Version: 1.0
-Date: Wed, 09 Jun 2004 11:58:03 -0500
+Message-ID: <40C7472E.80607@redhat.com>
+Date: Wed, 09 Jun 2004 13:21:50 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: russell@coker.com.au, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: issue with SE/Linux - sshd not giving access to /dev/pts/[n]
+References: <20040601090345.GM8312@lkcl.net> <1086266468.17657.19.camel@moss-spartans.epoch.ncsc.mil> <1086268467.17657.53.camel@moss-spartans.epoch.ncsc.mil> <200406042132.40136.russell@coker.com.au>
+In-Reply-To: <200406042132.40136.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Russell Coker wrote:
 
---=-y5++qA8vIyU+FdUQYJRq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>On Thu, 3 Jun 2004 23:14, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+>  
+>
+>>>The implication is that pam_selinux cannot perform tty relabeling for
+>>>openssh 3.8.  Thus, we must revert to using a direct patch.  Someone
+>>>want to port the old 3.6 patch?
+>>>      
+>>>
+>>BTW, note that the patch is very simple; you just want to extend the
+>>    
+>>
+>
+>It seems to me that pam_selinux is not going to do what we want.
+>
+>We have to split the module into two parts to get the desired behaviour.  It 
+>doesn't work with sshd, and some xdm's.  Now it only works with /bin/login 
+>and one xdm variant (AFAIK).
+>
+>I think that we are taking the wrong approach to this and we should give up 
+>and just patch the applications?
+>
+>
+>Dan, as inventor of the pam_selinux module, what do you think?
+>
+>  
+>
+openssh has been repatched with the old patch.  Basically openssh 3.8 
+has this kind of pseudo code.
 
-One thing that hasn't sat well with me for a long time is that just
-about all file_types are sysadmfile in the strict policy.  To me, this
-sounds like an excessive amount of access for sysadm_t (with exception
-of the unrestricted_admin tunable being on).
+Authenticate
+If UID != 0
+       pam_open_session
+       Drop Creds
+Alloc TTY
+IF UID == 0
+       pam_open_session
+Exec shell
 
-Its true that since sysadm_t can already relabel almost everything, it
-makes this change moot from a security perspective, since it can relabel
-a file to something it can modify.  However, by limiting normal access,
-it affords some protection against accidental overwrites and deletions,
-and from malicious programs a sysadmin might accidentally run.  In my
-opinion, the packagers (rpm_t, etc) should be the only ones with access
-all file_types.
+This causes the stange behavior where if you ssh in to root, pam_selinux 
+works correctly.
+If you ssh as a normal user pam_selinux does not relabel the tty and you 
+get connection dropped.
 
-I haven't looked into it much, but my idea is eliminate sysadmfile
-except where its obviously warranted, such as in /etc/* types.  Then
-change the sysadmfile policy in admin_domain to something like:
+After investigating how we could get this behavior changed we decided to 
+just patch openssh with the setexec and tty relabel, and drop 
+pam_selinux from /etc/pam.d/sshd
 
-ifdef(`unrestricted_admin',`
-create_dir_notdevfile($1_t,{ file_type -device_type -shadow_t })
-',`
-create_dir_notdevfile($1_t,sysadmfile)
-')
+As far as dropping pam_selinux, I don't think that is a good idea since 
+it can be used by third party apps that might want this behavior and it 
+works fairly well for su and login.
 
-Or maybe use a boolean could be used, instead of a tunable.  Then change
-the relabeling rule to:
+Dan
 
-# Relabel all files except shadow_t.
-allow $1_t { file_type -shadow_t }:dir { getattr read search relabelfrom re=
-labelto };
-allow $1_t { file_type -shadow_t }:file_class_set { getattr relabelfrom rel=
-abelto };
-
-Comments?
-
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-Embedded Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
-
---=-y5++qA8vIyU+FdUQYJRq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAx0GavI7kLeavkkMRAv6hAJ9foveelBrE2BIK9CQeiPLO3mNfRwCfbx5c
-B5P7SAnM1jKkW/uzGDM3ioI=
-=q1u4
------END PGP SIGNATURE-----
-
---=-y5++qA8vIyU+FdUQYJRq--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
