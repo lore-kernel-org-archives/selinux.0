@@ -1,54 +1,93 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1FNvnRb007528
-	for <selinux@tycho.nsa.gov>; Sun, 15 Feb 2004 18:57:49 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1FNvlc3009677
-	for <selinux@tycho.nsa.gov>; Sun, 15 Feb 2004 23:57:47 GMT
-Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
-        by jazzband.ncsc.mil  with ESMTP id i1FNvkR0009658 for <selinux@tycho.nsa.gov>; Sun, 15 Feb 2004 23:57:46 GMT
-Subject: Re: Policy configuration question
-From: Colin Walters <walters@verbum.org>
-To: Ignacio Tripodi <ignaciot@unt.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <916FF28D-5FE0-11D8-8943-000393013D1A@unt.edu>
-References: <916FF28D-5FE0-11D8-8943-000393013D1A@unt.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-R5+7MWqg8sREmBxZSVg3"
-Message-Id: <1076888807.5934.0.camel@nexus.verbum.private>
-Mime-Version: 1.0
-Date: Sun, 15 Feb 2004 18:46:48 -0500
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Subject: Re: Of applications and separating configuration systems
+Date: Mon, 16 Feb 2004 11:45:42 +1100
+Cc: SELinux@tycho.nsa.gov
+References: <20040214000922.GA1083@gallifrey> <200402141521.49027.russell@coker.com.au> <20040215202727.GG1083@gallifrey>
+In-Reply-To: <20040215202727.GG1083@gallifrey>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200402161145.42664.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 16 Feb 2004 07:27, "Dr. David Alan Gilbert" <gilbertd@treblig.org> 
+wrote:
+> > For POP and SSL I think that we want to have a proxy that runs in a
+> > different domain so it can access the config files, the proxy will start
+> > the connection to the server.  In the case of POP a file handle could be
+> > passed back to the calling application, in the case of SSL all data would
+> > have to be proxied.
+>
+> The problem with proxy's is ensuring that only the right clients access
+> them - how can that be checked?
 
---=-R5+7MWqg8sREmBxZSVg3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+That depends on the application.  For Apache we can have something like the 
+following:
+domain_auto_trans(httpd_t, ssl_proxy_exec_t, httpd_ssl_t)
+allow httpd_ssl_t httpd_private_key_t:file { getattr read };
 
-On Sun, 2004-02-15 at 12:58, Ignacio Tripodi wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->=20
-> I'm trying to tune up the policy because I'm getting many "avc: denied"=20
-> log entries for almost every single command I try to run. The source=20
-> context seems to be the same (system_u:system_r:local_login_t),=20
+For user-space proxies it gets more difficult.  For a proxy for POP 
+connections we could have the MUA running in it's own domain.  Or we could 
+just accept that some programs could make unauthorised POP connections but 
+that as they can't steal the password it's less of a concern.
 
-Did you add pam_selinux.so to your login and sshd PAM configuration
-files?
+> > Work is being done on Security Enhanced X.  This will make it possible to
+> > give different X clients different levels of access to the display (a
+> > pre-requisite for any serious control of graphical programs).  I'm not
+> > sure whether SE-X will support distinguishing between multiple copies of
+> > an application that have different contexts.  Even when those problems
+> > are solved we are still left with the situation that Mozilla checks for
+> > other copies of itself and aborts if it finds any.
+>
+> Thats quite interesting; because I do worry about apps stealing selected
+> text or producing fake dialogs.  Another example (easier to deal with
+> using less exotic tools) is stopping accidental pasting of confidential
+> info into some windows (e.g. many people worry about accidentally
+> pasting things into irc or chat windows).
 
+Many people do accidentally paste passwords in IRC, you see it happen all the 
+time.
 
---=-R5+7MWqg8sREmBxZSVg3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I believe that SE-X will also control the clipboard and stop accidental 
+pasting into the wrong window.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+> > The problem for KDE is that programs are not exec'd, they are mmap'd into
+> > a running process, so domain_auto_trans() does not work for Konqueror!
+>
+> Sigh - that really isn't going to make it easy to control; a pity really
+> because bits of KDE are quite nice - but if it can't be made secure then
+> its future will be limited.
 
-iD8DBQBAMATnOIkJWWp2WGURAg+LAJ9HPlye7mTFAVYSiDwQzPqLY9SpfQCfWGeq
-+K/uVYFhXwOsmft4ZQrH8Lk=
-=czXw
------END PGP SIGNATURE-----
+It wouldn't be THAT difficult to change the code in question and spend a few 
+hours recompiling it...
 
---=-R5+7MWqg8sREmBxZSVg3--
+> > > Is it easy to set such a system up?  What about allowing normal users
+> > > to see the policy violations that are causing their individual programs
+> > > are making?
+> >
+> > This is not really possible at the moment.  Allowing all users to see all
+> > messages is easy but usually not desirable.  Writing a program to sort
+> > through the syslogd output and make some of the messages involving a
+> > user's account available to them would be possible, but no-one has worked
+> > on it AFAIK.
+>
+> Hmm doesn't sound that hard to do.
+>
+> Well I've created a new issue in the OpenOffice database
+> (http://qa.openoffice.org/issues/show_bug.cgi?id=25503)
+> suggesting splitting the config/options out into a separate binary.
+
+Great!
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
