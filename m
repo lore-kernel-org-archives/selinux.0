@@ -1,72 +1,45 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBE0mkIi008645
-	for <selinux@tycho.nsa.gov>; Mon, 13 Dec 2004 19:48:46 -0500 (EST)
-Received: from web50201.mail.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id iBE0l4Ux001934
-	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 00:47:04 GMT
-Message-ID: <20041214004849.25751.qmail@web50201.mail.yahoo.com>
-Date: Mon, 13 Dec 2004 16:48:49 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [patch] selinux_capget()
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>,
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBE696Ii009830
+	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 01:09:06 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBE67OjC008910
+	for <selinux@tycho.nsa.gov>; Tue, 14 Dec 2004 06:07:24 GMT
+Date: Tue, 14 Dec 2004 01:09:02 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
    "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <41BE1887.4010201@trustedcs.com>
+Subject: Re: [patch] selinux_capget()
+In-Reply-To: <20041214004849.25751.qmail@web50201.mail.yahoo.com>
+Message-ID: <Xine.LNX.4.44.0412140104020.30724-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 13 Dec 2004, Casey Schaufler wrote:
 
---- Darrel Goeddel <dgoeddel@trustedcs.com> wrote:
+> Briefly, the intent of the POSIX specification
+> is that you should not "correct" the effective set
+> due to the impact of additional policies or
+> conditions.
 
-> Currently, SELinux restricts the use of capabilities
-> by a process based on the 
-> process domain's access to the capability security
-> class.  This restriction is 
-> not reflected in the capabilities returned by the
-> capget system call.  I have 
-> attached a small patch which would remove the
-> "disallowed" capabilities from the 
-> effective set that is returned from the call.  This
-> seems to be a good idea to 
-> me because it gives an accurate picture of the the
-> capabilities that a process 
-> can use.  Does anyone else have an opinion on this?
+How does the application determine the real effective set?  
+(confusing enough terms ? :-)
 
-I do! I do!
-
-The POSIX 1003.1e/2c (previously P1003.6) working
-group that developed the capabilities interface
-upon which Linux capabilities are based discussed
-this issue at length. The concensus was that such
-a "correction" should not be made. One example that
-was used to demonstrate the rationale is a system
-(such as IRIX) on which you are allowed to perform
-a privileged operation if you have the capability
-or if your UID is zero (i.e. you are root). The
-getcap() call should not "correct" the effective
-set of capabilities to indicate they are all on
-for a root process, but should instead return the
-actual set. This is in line with the "stat" behavior
-which reports the actual mode bits, even if they
-include "w" on a read-only file system.
-
-Briefly, the intent of the POSIX specification
-is that you should not "correct" the effective set
-due to the impact of additional policies or
-conditions.
+Surely it is a reasonable thing to expect to be able to do.  I'm not sure
+that your example is valid here as euid==0 doesn't mean anything in
+SELinux (if it did, the application could check that first and infer that
+it has all capabilities).
 
 
-=====
-Casey Schaufler
-casey@schaufler-ca.com
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - Find what you need with new enhanced search.
-http://info.mail.yahoo.com/mail_250
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
