@@ -1,69 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TF9RrT019635
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 11:09:27 -0400 (EDT)
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TF8ubB025318
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 15:08:56 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by localhost (Postfix) with ESMTP id 5F998C4C094
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 17:09:21 +0200 (CEST)
-Received: from legolas.drinsama.de ([127.0.0.1])
-	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
-	with SMTP id 04155-04 for <selinux@tycho.nsa.gov>;
-	Thu, 29 Jul 2004 17:09:21 +0200 (CEST)
-Date: Thu, 29 Jul 2004 17:09:21 +0200
-From: Erich Schubert <erich@debian.org>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: udev and .dev...
-Message-ID: <20040729150921.GA17881@legolas.drinsama.de>
-References: <20040729091423.GC6443@lkcl.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TGvlrT020443
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 12:57:47 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TGvkCb012895
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 16:57:46 GMT
+Subject: Re: temporary hack to use udev in selinux
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <20040729142019.GG8858@lkcl.net>
+References: <20040728232043.GF18711@lkcl.net> <410844F9.3010203@gentoo.org>
+	 <20040729013510.GC4335@lkcl.net> <20040729020431.GA10044@lkcl.net>
+	 <1091105268.21971.22.camel@moss-spartans.epoch.ncsc.mil>
+	 <20040729142019.GG8858@lkcl.net>
+Content-Type: text/plain
+Message-Id: <1091120226.21971.110.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040729091423.GC6443@lkcl.net>
+Date: Thu, 29 Jul 2004 12:57:06 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> soooo... to fix that [rather than a patch, a sed command]:
-> 	:%s/u?dev/.?u?dev/g
+On Thu, 2004-07-29 at 10:20, Luke Kenneth Casson Leighton wrote:
+>  i don't follow entirely... ah, do you mean, tmpfs_t covers _both_ shmem
+>  _and_ tmpfs, so if i add xattr support and people start using it as
+>  tmpfs, then the policies are, yes, i think i get it.
+> 
+>  ... is there a way of supporting both names shmfs and tmpfs in
+>  the mount command and also in the kernel, such that they are
+>  distinguishable that way?
+> 
+>  i.e. it's the same kernel code, but it can be mounted with two
+>  different names.
+> 
+>  is that reasonable or unreasonable?
 
-Note that . has a special meaning in regular expressions.
-You should quote it, but you're approaching quoting hell right now with
-your sed expression... ;-)
-
-Also at least for some time udev used /etc/udev/.dev
-but i think this has been made deprecated by now.
-
-> this will allow setfiles to set up the security contexts on
-> the /.dev which is the _real_ filesystem /dev stuff which will
-> allow things like, oh, init (!!) to access the hard drive.
-
-Are you sure? i'd guess that using /dev is hardwired into init.
-FYI: i see
-/dev on /.dev type none (rw,bind)
-
-but /proc/mounts shows
-
-/dev/root /.dev ext3 rw,noatime 0 0
-none /dev tmpfs rw 0 0
-
-So i think that /dev is moved via a bind mount to /.dev (kind of
-emergency device nodes) and /dev is then replaced by a ramdisk which is
-maintained by udev.
-
-This sounds like relabling hell :-) "make relabel" might even skip /.dev
-because it doesn't know the file system.
-You can't use "make relabel" to persistently fix labels on /dev.
-I don't know enough about automatic labelling by selinux. Maybe you'll
-need a udev which reads the file_contexts file. :-(
-(or a similar specification file)
-
-Greetings,
-Erich
+SELinux determines filesystem labeling behavior (policy/fs_use) based on
+filesystem type, and shmem subsystem happens to use an instance of the
+tmpfs filesystem type.  James Morris introduced a new mount option
+(context=) a while back to allow assigning a single security context to
+all inodes in a particular mount; I suppose that this could be
+generalized to allow you to specify the labeling behavior itself on a
+per-mount basis.
+  
 -- 
-    erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C    (o_
-     Go away or i'll replace you with a very small shell script.    //\
-            Es ist besser, geliebt und verloren zu haben,           V_/_
-                    als niemals geliebt zu haben.
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
