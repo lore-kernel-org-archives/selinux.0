@@ -1,32 +1,30 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i22MNqRb006765
-	for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2004 17:23:53 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i22MNp0F029969
-	for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2004 22:23:52 GMT
-Received: from DINI (ool-43566129.dyn.optonline.net [67.86.97.41])
-        by jazzband.ncsc.mil  with SMTP id i22MNoga029966 for <selinux@tycho.nsa.gov>; Tue, 2 Mar 2004 22:23:50 GMT
-Date: Tue, 02 Mar 2004 17:30:25 -0500
-To: selinux@tycho.nsa.gov
-Subject: Hokki =)
-From: pasi.kivikangas@nokia.com
-Message-ID: <glimkhrlhkmfbhrlvgj@nokia.com>
+Date: Wed, 3 Mar 2004 08:35:39 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Chad Hanson <chanson@tcs-sec.com>
+cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
+Subject: Re: [Announce][Patch] Enhanced MLS support
+In-Reply-To: <791924EBDA572C4FA970D4A94AA95DA309E3BA@chaos.tcs.tcs-sec.com>
+Message-ID: <Xine.LNX.4.44.0403030835120.1101-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-        boundary="--------romwkhhcdibrwfusmiru"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-----------romwkhhcdibrwfusmiru
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+On Tue, 2 Mar 2004, Chad Hanson wrote:
 
-I don't bite, weah!
+> 
+> Attached are patches to enable the detection of MLS on a SELinux system. 
+> 
+>  <<linux-2.6.3_mls.patch>> 
 
-password for archive: 68145
+This patch does not apply to 2.6.3.
 
-[Virus removed - hdh]
-----------romwkhhcdibrwfusmiru--
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
