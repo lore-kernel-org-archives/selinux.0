@@ -1,39 +1,51 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4MDc2I4021262
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 09:38:02 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4MDbcuO010349
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 13:37:38 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4MDlKI4021341
+	for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 09:47:21 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h4MDlKtV013384
+	for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 13:47:20 GMT
 Received: from nox.lemuria.org (nox.lemuria.org [213.191.86.30])
-	by jazzswing.ncsc.mil  with ESMTP id h4MDbalV010346
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 13:37:37 GMT
-Date: Thu, 22 May 2003 15:39:05 +0200
+        by jazzband.ncsc.mil  with ESMTP id h4MDlHal013381 for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 13:47:18 GMT
+Date: Thu, 22 May 2003 15:48:22 +0200
 From: Tom <tom@lemuria.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: run_init woes
-Message-ID: <20030522153858.B6588@lemuria.org>
-References: <20030522112833.A2615@lemuria.org> <200305222241.35921.russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: pxe, tftpd and rsync policies
+Message-ID: <20030522154816.C6588@lemuria.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200305222241.35921.russell@coker.com.au>; from russell@coker.com.au on Thu, May 22, 2003 at 10:41:35PM +1000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, May 22, 2003 at 10:41:35PM +1000, Russell Coker wrote:
-> Are you using my run_init or the NSA one?
 
-yours, see the other mail.
-
-
-> If using mine then put "sleep 1" in the shell script after the daemon gets 
-> run.
-
-This makes rsync happy, but not pxe. I've tried with sleep 1, 2 and 5
+I'm currently trying to write policies for a pxe daemon, tftpd and
+rsync run as a daemon. This is part of a system imager server that I'm
+installing at work. The background is that an image server definitely 
+needs to be trustworthy. 
+That might not mesh very well with tftpd and rsync at first glance, but
+that is a different problem.
 
 
-Is there any way to enable stracing? I know I'd like to see what the
-heck is happening.
+The relationship between pxe and tftpd is pretty close. I was thinking 
+of merging them into one policy, in fact. Likewise, rsync is used 
+slightly customized in this setting, and will need new file types and
+access rules just for system imager operation.
+
+I'm looking for input on how to organize this policy. So far, I've
+edited the tftpd policy and written new ones for rsync and pxe. I will
+also have to write policies for the system imager tool set.
+
+On the other hand, I could merge all these changes into one
+systemimager policy. But then this policy would overlap in part with
+other policies (currently just tftpd, but who says there won't be an
+rsync or pxe policy one day?).
+
+I could also write a systemimager.te for the tools and sprinkle
+ifdef(`systemimager.te' throughout the other policies - but do we
+really want to fill policies with dozens of "if this special package is
+being used..." ?
+
+
+What's the preferred approach here?
 
 
 -- 
