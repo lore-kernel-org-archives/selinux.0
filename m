@@ -1,53 +1,53 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2KLtmx6019332
-	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 16:55:48 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h2KLqJn8029160
-	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 21:52:19 GMT
-Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h2KLijpk028680
-	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 21:46:26 GMT
-Received: from moss-sooners (moss-sooners [144.51.25.14])
-	by facesaver.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2KLmCNL017402
-	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 16:48:13 -0500 (EST)
-Subject: SELinux List Administrative Notes
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2KNrHx6019844
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 18:53:17 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h2KNrG9P016313
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 23:53:16 GMT
+Received: from babylon.swishmail.com (babylon.swishmail.com [209.10.110.2])
+        by jazzband.ncsc.mil  with SMTP id h2KNrFP7016305 for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 23:53:15 GMT
+From: "Leslie J. French" <ljf@semandex.net>
+To: "Douglas Phillipson" <phillipd@oem.doe.gov>, <selinux@tycho.nsa.gov>
+Subject: RE: Opinions on installing selinux on different distros, second try
+Date: Thu, 20 Mar 2003 18:53:34 -0500
+Message-ID: <BFEMIIHKHLALNELLMPOMEEHECDAA.ljf@semandex.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 In-Reply-To: <3E7A1FA6.1030604@oem.doe.gov>
-References: <3E7A1FA6.1030604@oem.doe.gov>
-Content-Type: text/plain
-Message-Id: <1048196891.24500.141.camel@moss-sooners.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 20 Mar 2003 16:48:12 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Just a couple of quick reminders from your friendly mailing list
-administrator.  There are many hundreds of subscribers on this list. 
-That means it can take several hours for a message to get to everyone,
-depending on many variable factors.
+>-----Original Message-----
+>From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
+>Behalf Of Douglas Phillipson
+>Sent: Thursday, March 20, 2003 3:08 PM
+>To: selinux@tycho.nsa.gov
+>Subject: Opinions on installing selinux on different distros, second try
+>
+>5) Has anyone had SELinux approved for use in a classified network?  If
+>so do you have a security plan I could look at?
 
-Also, on those occasions when you think there might be a list problem,
-please:
+I would be surprised (pleasantly, of course) to learn of a blanket approval
+for SELinux-based systems to process information in a classified
+environment.  In any case, the C&A would be for more than just the OS, but
+would need to cover the services and applications to determine if they pose
+an "acceptable" risk for the level of network being considered.
 
-Do Not - Do nothing
-Do Not - Send a test message to the list
-Do Not - Start a conspiracy theory about the demise of the SELinux team
+I have passed a Vulnerability Analysis with a hardened unit running SELinux
+(and my own policy files) that formed the basis of an IATC (Interim Approval
+to Connect) to such a network, but I have not (yet) passed, say, a DITSCAP
+evaluation.  However, probably 90% of my Security Template concerns the
+applications that run on top of the OS, not the properties of the OS itself
+(T.ROGUE_ADMIN being one of the main exceptions).
 
-Do - Send me, hdholm@epoch.ncsc.mil, private mail explaining why you
-think there's a problem.  I'll track it down.
+I'd be willing to explore the options for SELinux-based DITSCAP (EAL-2 seems
+to be a no-brainer, and -3 doesn't seem to onerous) if anyone else is
+contemplating the same, but it would probably need to be off-list.
 
-P.S. I'm not trying to take Douglas to task, his message just reminded
-me that it was about time to say all this again.
+Leslie French
 
-On Thu, 2003-03-20 at 15:08, Douglas Phillipson wrote:
-> I'm sorry if this gets posted twice.  The first time I didn't see it get 
-> posted...
 
--- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
 
 
 --
