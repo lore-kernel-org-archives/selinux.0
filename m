@@ -1,53 +1,68 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2KNrHx6019844
-	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 18:53:17 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h2KNrG9P016313
-	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 23:53:16 GMT
-Received: from babylon.swishmail.com (babylon.swishmail.com [209.10.110.2])
-        by jazzband.ncsc.mil  with SMTP id h2KNrFP7016305 for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2003 23:53:15 GMT
-From: "Leslie J. French" <ljf@semandex.net>
-To: "Douglas Phillipson" <phillipd@oem.doe.gov>, <selinux@tycho.nsa.gov>
-Subject: RE: Opinions on installing selinux on different distros, second try
-Date: Thu, 20 Mar 2003 18:53:34 -0500
-Message-ID: <BFEMIIHKHLALNELLMPOMEEHECDAA.ljf@semandex.net>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Howard Holm <hdholm@epoch.ncsc.mil>,
+   Douglas Phillipson <phillipd@oem.doe.gov>
+Subject: Re: Opinions on installing SeLinux on different distros
+Date: Fri, 21 Mar 2003 11:57:00 +0100
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <3E7A0B04.4090502@oem.doe.gov> <1048195831.24500.119.camel@moss-sooners.epoch.ncsc.mil>
+In-Reply-To: <1048195831.24500.119.camel@moss-sooners.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <3E7A1FA6.1030604@oem.doe.gov>
+  charset="iso-8859-1"
+Message-Id: <200303211157.00904.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->-----Original Message-----
->From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
->Behalf Of Douglas Phillipson
->Sent: Thursday, March 20, 2003 3:08 PM
->To: selinux@tycho.nsa.gov
->Subject: Opinions on installing selinux on different distros, second try
+On Thu, 20 Mar 2003 22:30, Howard Holm wrote:
+> Russell Coker has done much excellent work in bringing SELinux to
+> Debian, and provides the appropriate set of patched applications (which
+> are very close to the Red Hat applications) and a Debian specific
+> example policy.  Again, you'll probably need to modify the policy to
+> meet your specific needs.
+
+Thanks for the nice reference.
+
+My work on SE Debian is aimed at making it an integral part of the OS.  So 
+basic functionality of the OS such as package upgrades on a running server 
+will still work.  I believe that if you prevent usual operation of the system 
+then you reduce security by limiting the number of machines that can run SE 
+Linux, and by preventing the administrator from performing important tasks 
+such as prompt application of patches.
+
+The aim is that you should be able to install Debian with SE Linux and for the 
+base functionality and commonly used programs it should all just work with 
+minimal changes.
+
+When changes to policy are required I am very interested in merging any policy 
+contributed by users.
+
+> See the README in the SELinux distribution on the NSA web site
+> http://www.nsa.gov/selinux/ for Red Hat instructions.  I'm sure Russell
+> could provide Debian instructions.
+
+My web site http://www.coker.com.au/selinux/ provides some basic info, but 
+I've been too busy coding to do much.
+
+Faye's document is mostly focussed on Debian.  Go to 
+http://sourceforge.net/projects/selinux , go to the "Docs" section and Faye's 
+document is the first entry.
+
+> > 8) I understand that  the "Secure Computing" corporation had a hand in
+> > this.  Do they have a commercial version available or one planned?
 >
->5) Has anyone had SELinux approved for use in a classified network?  If
->so do you have a security plan I could look at?
+> I'm not aware of any currently available commercial version of SELinux.
 
-I would be surprised (pleasantly, of course) to learn of a blanket approval
-for SELinux-based systems to process information in a classified
-environment.  In any case, the C&A would be for more than just the OS, but
-would need to cover the services and applications to determine if they pose
-an "acceptable" risk for the level of network being considered.
+Some commercial distributions have been looking into the issue.  However since 
+the dot-com crash no-one has wanted to do any speculative development.  If a 
+big customer was to approach a commercial distribution with a demand for SE 
+Linux support then maybe something could be arranged.
 
-I have passed a Vulnerability Analysis with a hardened unit running SELinux
-(and my own policy files) that formed the basis of an IATC (Interim Approval
-to Connect) to such a network, but I have not (yet) passed, say, a DITSCAP
-evaluation.  However, probably 90% of my Security Template concerns the
-applications that run on top of the OS, not the properties of the OS itself
-(T.ROGUE_ADMIN being one of the main exceptions).
-
-I'd be willing to explore the options for SELinux-based DITSCAP (EAL-2 seems
-to be a no-brainer, and -3 doesn't seem to onerous) if anyone else is
-contemplating the same, but it would probably need to be off-list.
-
-Leslie French
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
