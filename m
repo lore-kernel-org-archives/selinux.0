@@ -1,32 +1,49 @@
-Subject: dumb auditdeny question
-From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-To: SELinux <SELinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-2
-Date: 11 Feb 2004 09:03:15 +0100
-Message-Id: <1076486595.2415.134.camel@kusturica>
-Mime-Version: 1.0
+From: Faye Coker <faye@lurking-grue.org>
+Reply-To: faye@lurking-grue.org
+To: =?iso-8859-2?q?Magos=E1nyi=20=C1rp=E1d?= <mag@bunuel.tii.matav.hu>,
+   SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: dumb auditdeny question
+Date: Wed, 11 Feb 2004 23:31:42 +1100
+References: <1076486595.2415.134.camel@kusturica>
+In-Reply-To: <1076486595.2415.134.camel@kusturica>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Message-Id: <200402112331.42106.faye@lurking-grue.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+On Wed, 11 Feb 2004 19:03, Magosányi Árpád wrote:
 
-I wanted to get rid of the following message:
+> I wanted to get rid of the following message:
+>
+>  avc:  denied  { create } for  pid=400 exe=/usr/bin/vim
+> scontext=kernel_u:kernel_r:kernel_d tcontext=kernel_u:object_r:tcb_t
+> tclass=file
+>
+> so I have the following in my policy:
+>
+> auditdeny kernel_d tcb_t:{ file lnk_file sock_file fifo_file chr_file }
+>         { ioctl append rename create };
+>
+> But I still get the message.
+> What did I do wrong?
 
- avc:  denied  { create } for  pid=400 exe=/usr/bin/vim
-scontext=kernel_u:kernel_r:kernel_d tcontext=kernel_u:object_r:tcb_t
-tclass=file
+Change the "auditdeny" to "dontaudit".
 
-so I have the following in my policy:
+What you are saying with the auditdeny line is "audit a denial of these 
+operations" { ioctl, append, rename, create }.  dontaudit means don't audit 
+what you have listed.
 
-auditdeny kernel_d tcb_t:{ file lnk_file sock_file fifo_file chr_file }
-        { ioctl append rename create };
+Use of auditdeny tends to cause confusion, so use dontaudit instead  :)
 
-But I still get the message.
 
-What did I do wrong?
+faye
 
 -- 
-GNU GPL: csak tiszta forrásból
+Faye Coker
+faye@lurking-grue.org
+
 
 
 --
