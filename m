@@ -1,46 +1,51 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7NBrcrT017222
-	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 07:53:38 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7NBrawb023863
-	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 11:53:36 GMT
-Date: Mon, 23 Aug 2004 13:04:41 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>, Alexandre Oliva <aoliva@redhat.com>,
-   SE Linux <selinux@tycho.nsa.gov>, fedora-selinux-list@redhat.com
-Subject: Re: Fedora and udev
-Message-ID: <20040823120441.GG13842@lkcl.net>
-References: <200408222125.38169.russell@coker.com.au> <orzn4nuval.fsf@livre.redhat.lsd.ic.unicamp.br> <200408231209.01521.russell@coker.com.au> <20040823085648.GC15972@lkcl.net>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7NCtHrT017703
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 08:55:17 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7NCsWAS027498
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 12:54:32 GMT
+Subject: Re: conflict between libselinux and libsepol
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Colin Walters <walters@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <4126812A.2050004@tresys.com>
+References: <1092942083.1721.101.camel@moss-spartans.epoch.ncsc.mil>
+	 <1092972342.29540.35.camel@nexus.verbum.private>
+	 <1093002523.16585.31.camel@moss-spartans.epoch.ncsc.mil>
+	 <1093013527.9495.0.camel@nexus.verbum.private>
+	 <1093015484.16585.199.camel@moss-spartans.epoch.ncsc.mil>
+	 <1093028441.16585.265.camel@moss-spartans.epoch.ncsc.mil>
+	 <1093030667.4212.4.camel@nexus.verbum.private>
+	 <1093035295.4212.9.camel@nexus.verbum.private>
+	 <4126812A.2050004@tresys.com>
+Content-Type: text/plain
+Message-Id: <1093265616.27211.20.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040823085648.GC15972@lkcl.net>
+Date: Mon, 23 Aug 2004 08:53:36 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Aug 23, 2004 at 09:56:48AM +0100, Luke Kenneth Casson Leighton wrote:
+On Fri, 2004-08-20 at 18:54, Joshua Brindle wrote:
+> How is this the case at all? Conceptually the file contexts is *not* 
+> part of the system policy, afaik that is a major design feature of 
+> SELinux, that the enforcement and labeling is totally seperate (with the 
+> exception of ocontext stuff ofcourse)
+> 
+> I believe this is the case, unless Steve disagrees ofcourse :)
 
-> > We either need to get ramfs working in the Fedora kernels or make some changes 
-> > to the udev plans.
-> > 
-> > One option would be to use an ext2 file system on a ram disk for udev.  It 
-> > would do all the same stuff as ramfs (at a slightly higher memory cost) and 
-> > work perfectly with SE Linux.
-  
-  ... but it would still leave you with the patches to udev to apply
-  [to do symlinks and directories as well as inodes]
+Colin's patch is simply to allow verification of a file_contexts
+configuration against a given policy at policy build time.  That is
+reasonable.
 
-  and also would leave you with an "initial startup" issue to set up
-  initial perms on /dev/null, /dev/initctl, rights to create /dev/fd/
-  etc. all the stuff that the /etc/init.d/udev "hacks" do.
+On a side note, the file contexts configuration has become an aspect of
+the runtime "policy" in the broader sense, since it is now used during
+normal system operation for things like rpm, udev, restorecon, etc
+rather than only for system installation and major policy upgrades.  But
+it is not part of the kernel policy.
 
-  ... just because you're using a persistent ext2 filesystem with
-  xattr permissions storable on a ramdisk it doesn't mean you'd have
-  initial setup issues!
-
-  but yes, those could be set up once, in permissive mode, and
-  consequently the problem is avoided.
-
-  l.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
