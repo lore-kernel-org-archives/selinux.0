@@ -1,47 +1,40 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9JIKlrT001418
-	for <selinux@tycho.nsa.gov>; Tue, 19 Oct 2004 14:20:47 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9JIKkS7000696
-	for <selinux@tycho.nsa.gov>; Tue, 19 Oct 2004 18:20:46 GMT
-Subject: Re: cdrecord deadlocks linux 2.6.8.1 (problem in setscheduler)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: John Johansen <johansen@immunix.com>
-Cc: Chris Wright <chrisw@osdl.org>,
-   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   lsm <linux-security-module@wirex.com>, SELinux ML <selinux@tycho.nsa.gov>,
-   Crispin Cowan <crispin@immunix.com>
-In-Reply-To: <1098188096.29525.33.camel@moss-spartans.epoch.ncsc.mil>
-References: 
-	 <Xine.LNX.4.44.0410181102350.22995-100000@thoron.boston.redhat.com>
-	 <4173F737.1070204@immunix.com> <20041018121432.O2357@build.pdx.osdl.net>
-	 <20041018214052.GB4336@immunix.com>
-	 <1098188096.29525.33.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Message-Id: <1098209844.29525.107.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9JIPxrT001483
+	for <selinux@tycho.nsa.gov>; Tue, 19 Oct 2004 14:25:59 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9JIOivJ008374
+	for <selinux@tycho.nsa.gov>; Tue, 19 Oct 2004 18:24:45 GMT
+Date: Tue, 19 Oct 2004 19:36:46 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Adding alternate root patch to restorecon (setfiles?)
+Message-ID: <20041019183646.GC19398@lkcl.net>
+References: <41741A2C.8040408@redhat.com> <20041018205136.GA2536@jmh.mhn.de> <41751792.4060207@redhat.com>
 Mime-Version: 1.0
-Date: Tue, 19 Oct 2004 14:17:24 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <41751792.4060207@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-10-19 at 08:14, Stephen Smalley wrote:
-> I think that you need to hold the lock when extracting p->policy, and if
-> you drop the lock for the security checks, you need to recheck that
-> p->policy hasn't changed after you re-take the lock.  Advantage of your
-> approach (with those fixes) is that no special handling is required by
-> capable(CAP_SYS_NICE) and security_task_setscheduler hook
-> implementations; they can audit immediately.  But given that the audit
-> framework does support deferred auditing via audit_log_end_irq, I'm not
-> sure that this is going to be compelling upstream, as it makes
-> setscheduler() very convoluted.
+On Tue, Oct 19, 2004 at 09:33:06AM -0400, Daniel J Walsh wrote:
+> Thomas Bleher wrote:
+> Good point, good thing I never put out a patched version.  We need ideas 
+> on the best way to do something
+> like this.
 
-Hmmm...may have spoken too soon; looks like audit_log_end_irq can
-deadlock too when the runqueue lock is held.  Only option is to disable
-auditing of CAP_SYS_NICE and setscheduler?  Very unpleasant.
+um... what happens if a user runs restorecon in a chroot environment
+that they create?
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+as an ordinary user, can they cp /lib/* and have the context preserved
+on their copy of libc.so.6?  just trying that now... no, it says setting
+attribute "security.selinux" for /home/sez/libc6.so.6': permission
+denied.
+
+is there any concievable way round that?  [i hope not!]
+
+l.
 
 
 --
