@@ -1,45 +1,46 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA08444
-	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2001 03:16:26 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA03108
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2001 09:06:45 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id IAA04840
-	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2001 08:16:17 GMT
-Received: from pandora.shad0w.org (shad0w.dial.nildram.co.uk [195.112.18.51])
-	by jazzband.ncsc.mil  with ESMTP id IAA04836
-	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2001 08:16:16 GMT
-Received: from monolith.sanctum.shad0w.org ([10.2.0.4] ident=shadow)
-	by pandora.shad0w.org with esmtp (Exim 3.16 #2)
-	id 14aZ23-0001vr-00
-	for selinux@tycho.nsa.gov; Wed, 07 Mar 2001 08:10:51 +0000
-Date: Wed, 7 Mar 2001 03:12:55 -0500 (EST)
-From: Chris Crowther <shadow@shad0w.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: Thoughts on the list...
-In-Reply-To: <saa4e866.078@my.snu.edu>
-Message-ID: <Pine.LNX.4.21.0103070309110.28850-100000@monolith.sanctum.shad0w.org>
+	by jazzband.ncsc.mil  with ESMTP id OAA18293
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2001 14:06:35 GMT
+Received: from staffnet.com (staffnet.com [207.226.80.14])
+	by jazzband.ncsc.mil  with ESMTP id OAA18289
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2001 14:06:34 GMT
+Message-ID: <3AA791EE.8E90634E@staffnet.com>
+Date: Thu, 08 Mar 2001 09:06:38 -0500
+From: Wade Hampton <whampton@staffnet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: selinux@tycho.nsa.gov
+Subject: RedHat 7.0?
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-On Tue, 6 Mar 2001, Joshua Brindle wrote:
+Greetings,
 
-> Why not filter on the To: field? <selinux@tycho.nsa.gov> 
+Has anyone built slinux on RedHat 7.0, 7.0 patched
+to latest GCC, or 7.9x (Fisher or Wolverine)?
+I am trying to build it with 7.0 patched running
+in VMWare and am getting build errors:
 
-	I personaly just use a procmail filter:
+Multiple warnings on "%eax" used instead of "%ax" due to 'l' suffix....
+...
 
-	:0:
-	* ^TO_selinux@tycho.nsa.gov
-	security.nsa.SEL
+Checksum.S:231  badly punctuated parameter list in #define
+Checksum.S:237  badly punctuated parameter list in #define
 
-	Works fine for me, the ^TO_ procmail rule will catch the address
-anywhere in the To:, Cc: or Fwd-To: headers.
+make[2]:  *** [checksum.o] error 1
+make[1]:  *** [first_rule] error 2
+make: *** [_dir_arch/i386/lib] error 2
 
+Cheers,
 -- 
-Chris Crowther
-shad0w@shad0w.org
-http://www.shad0w.org.uk/
-
+W. Wade, Hampton  <whampton@staffnet.com>  
+If Microsoft Built Cars:  Every time they repainted the 
+lines on the road, you'd have to buy a new car.
+Occasionally your car would just die for no reason, and 
+you'd have to restart it, but you'd just accept this.
 
 --
 You have received this message because you are subscribed to the selinux list.
