@@ -1,52 +1,39 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hARJmVRb024989
-	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 14:48:31 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hARKrdRb025114
+	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 15:53:39 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hARJmUqY017392
-	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 19:48:30 GMT
-Received: from toe.terreactive.ch (gate.terreactive.ch [212.90.202.121])
-        by jazzband.ncsc.mil  with SMTP id hARJmS0o017384 for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 19:48:29 GMT
-Message-ID: <3FC6546D.6020908@tac.ch>
-Date: Thu, 27 Nov 2003 20:45:49 +0100
-From: Roberto Nibali <ratz@tac.ch>
-MIME-Version: 1.0
-To: Diyab <diyab@diyab.net>
-CC: ratz@drugphish.ch, jonny@drugphish.ch,
-   SELinux Mail List <selinux@tycho.nsa.gov>
+	by jazzband.ncsc.mil  with ESMTP id hARKrcqY018444
+	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 20:53:38 GMT
+Received: from unicorn.lemuria.org (c152152.adsl.hansenet.de [213.39.152.152])
+        by jazzband.ncsc.mil  with ESMTP id hARKrb0o018441 for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 20:53:38 GMT
+Date: Thu, 27 Nov 2003 21:46:35 +0100
+From: Tom <tom@lemuria.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Subject: Re: BSD Secure levels for linux
-References: <3FC54560.5050303@diyab.net>
-In-Reply-To: <3FC54560.5050303@diyab.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-ID: <20031127214635.I7755@lemuria.org>
+References: <3FC54560.5050303@diyab.net> <200311271326.53583.russell@coker.com.au> <3FC61C05.90400@diyab.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <3FC61C05.90400@diyab.net>; from diyab@diyab.net on Thu, Nov 27, 2003 at 10:45:09AM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Diyab wrote:
-> Has anyone else run across the kernel patch that implements something 
-> similar to the BSD secure levels?  Has anyone tried to use this with 
-> selinux?  I'm also curious what the general thought of the idea is. Good 
-> idea? Bad idea?  What do you think?
+On Thu, Nov 27, 2003 at 10:45:09AM -0500, Diyab wrote:
+> I never thought about something like that.  On the plus side not only 
+> would you have more control over what your specific "levels" will do but 
+> you can easily and securely switch between levels.  The patch I 
+> mentioned does not have that functionality.
 
-A fellow member (jonny) of drugphish.ch has done such an implementation, which 
-he called private[1]. It's based on LSM, has a user space control tool and a 
-pretty straightforward configuration file. You might want to have a look at it, 
-although it's far from being finished.
+Remember that it's a _feature_ of the securelevels implementation that
+you can _not_ switch back. Once locked down, nothing short of a reboot
+will unlock, and a reboot is a very noisy action in any production
+environment.
 
-> Timothy,
-> 
-> PS. You can find a short note from the author and the actual patch here:
-> http://lwn.net/Articles/60096/  There is also a short article about it 
-> in the current weekly edition of LWN if you are a subscriber.
 
-Hmm, interesting. We'll look into merging the remaining CAP_* functionalities 
-into the 'private' LSM module. Thanks for the pointer.
-
-[1] http://www.drugphish.ch/~jonny/private.html
-
-Best regards,
-Roberto Nibali, ratz
 -- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq' | dc
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
