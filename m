@@ -1,28 +1,29 @@
-Subject: Re: writing zero bytes in bash
+Subject: Re: Proposed policy feature: $1_domain attribute
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200503010721.59865.russell@coker.com.au>
-References: <200502261832.16337.russell@coker.com.au>
-	 <1109616468.28470.20.camel@moss-spartans.epoch.ncsc.mil>
-	 <200503010721.59865.russell@coker.com.au>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1109685518.764.9.camel@cobra.ivg2.net>
+References: <1109685518.764.9.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Date: Tue, 01 Mar 2005 09:20:14 -0500
-Message-Id: <1109686814.10589.0.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 01 Mar 2005 09:35:48 -0500
+Message-Id: <1109687748.10589.2.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-03-01 at 07:21 +1100, Russell Coker wrote:
-> /proc/self/attr/exec will give the same result as 
-> runcon.  /proc/self/attr/fscreate works for operations such as
-> "program > file".
+On Tue, 2005-03-01 at 08:58 -0500, Ivan Gyurdiev wrote:
+> I'd like to mark all role-dependent domains with a new attribute
+> $1_domain (analogous to $1_file_type), and then do the following in
+> base_user_macros.te:
 > 
-> We need to have a way to test these things.  If we can't make it possible to 
-> do these things through the shell then someone (maybe me) has to write an 
-> interactive program to exercise the SE Linux API.
+> can_ps($1, $1_domain)
+> can_ptrace($1, $1_domain)
+> 
+> Objections?
 
-You can already test them via runcon, mkdir -Z, etc.
+can_ptrace?  You could easily end up allowing unintended permissions
+directly to the user domain that were previously limited to a specific
+program.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
