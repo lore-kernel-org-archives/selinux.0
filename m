@@ -1,63 +1,91 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA29357
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:33:37 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA02445
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 18:32:12 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA29523
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:47:40 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA23924
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 18:47:13 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id SAA02441 for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 18:32:11 GMT
+	by jazzswing.ncsc.mil  with ESMTP id SAA23920
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 18:47:11 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: Configuration issues on a new installation
-Date: Thu, 27 Jun 2002 14:33:17 -0400
+Subject: Re: Major reduction in errors
+Date: Thu, 27 Jun 2002 14:47:20 -0400
 Cc: selinux@tycho.nsa.gov
-References: <20020627160257.11062.qmail@web40014.mail.yahoo.com>
-In-Reply-To: <20020627160257.11062.qmail@web40014.mail.yahoo.com>
+References: <20020627180908.14427.qmail@web40018.mail.yahoo.com>
+In-Reply-To: <20020627180908.14427.qmail@web40018.mail.yahoo.com>
 MIME-Version: 1.0
-Message-Id: <20020627183317.C75077CF1@lyta.coker.com.au>
+Message-Id: <20020627184720.E0872694@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 27 Jun 2002 12:02, Brad Chapman wrote:
-> > For the syslogd/klogs errors, change the syslogd.te and klogd.te you need
-> > to change the domain_auto_trans() rules to take a transition from init_t
-> > instead
-> >
-> > of initrc_t because you are not running those daemons in the normal
-> > fashion.
->
->        "Normal fashion?" Do other distros start syslogd and klogd straight
-> from /etc/inittab? Done
+On Thu, 27 Jun 2002 14:09, Brad Chapman wrote:
+>        I was able to fix all the problems with your policy configuration at
+> www.coker.com.au/selinux/policy.tgz. I compiled, installed and loaded it,
+> and found that the number of errors had been slashed by at least a third,
+> maybe half. However, there are still a significant number of errors that I
+> don't know how to fix. Attached are two more dmesg outputs; one from
+> bootup, the other after starting X and Netscape.
 
-No, most distributions start them from /etc/init.d scrips.  I guessed that 
-you started them from inittab because they were running as init_t instead of 
-initrc_t.
+psidfiles_init:  error 22 in obtaining SID for context 
+system_u:object_r:rmmod_exec_t (psid 42).
 
-What you want to do is have the script that calls all the startup scripts 
-labelled as initrc_exec_t, usually one of the following catches it:
-/etc/rc.d/rc                    system_u:object_r:initrc_exec_t
-/etc/rc.d/rc.sysinit            system_u:object_r:initrc_exec_t
-/etc/rc.d/rc.local              system_u:object_r:initrc_exec_t
-/etc/init.d/rc.*                system_u:object_r:initrc_exec_t
+These are from removing types from the policy and then remounting a file 
+system that uses the now non-existant contexts or which once used them.
 
-> > Maybe you should have /usr/X11R6/bin/XFree86 labelled as
-> > system_u:object_r:xserver_exec_t...
->
->        How do I do that?
+avc:  denied  { mounton } for  pid=1 comm=swapper path=/dev dev=03:0a 
+ino=10041
+scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:file_t 
+tclass=dir
 
-Put the appropriate entry in file_contexts/programs/whatever and relabel the 
-file system.
+This is a problem in that you can't change the type of /dev (unless you use 
+some very experimental patches).  So all you can do is add a new rule to 
+allow this.
 
-> > /dev/nvidiactl needs an appropriate type.
->
->        How do I do this too? Should I mess with devfs_contexts or
-> devfsd.conf?
+avc:  denied  { write } for  pid=1 exe=/sbin/init dev=00:07 ino=1 
+scontext=system_u:system_r:init_t tcontext=system_u:object_r:devfs_t 
+tclass=dir
 
-Either can work, although due to a devfs related bug devfs_contexts is a 
-better option at the moment.
+Use the following in init.te (something equivalent should already be in my 
+policy):
+ifdef(`devfsd.te', `file_type_auto_trans(init_t, devfs_t, initctl_t)')
+
+avc:  denied  { read write } for  pid=12 exe=/sbin/devfsd path=/console 
+dev=00:07 ino=17 scontext=system_u:system_r:devfsd_t 
+tcontext=system_u:object_r:console_device_t tclass=chr_file
+
+This is fixed in my latest policy files which I have just put online (lots of 
+changes related to /dev/console).
+
+avc:  denied  { read } for  pid=12 exe=/sbin/devfsd path=/.devfsd dev=00:07 
+ino=2 scontext=system_u:system_r:devfsd_t tcontext=system_u:object_r:devfs_t 
+tclass=chr_file
+
+You need the following in the devfs_contexts file:
+devfscon /.devfsd               system_u:object_r:devfs_control_t
+
+avc:  denied  { read } for  pid=12 exe=/sbin/devfsd path=/etc/nsswitch.conf 
+dev=03:0a ino=14073 scontext=system_u:system_r:devfsd_t 
+tcontext=system_u:object_r:etc_t tclass=file
+
+Should be solved by the following:
+allow devfsd_t { etc_t etc_runtime_t proc_t }:file r_file_perms;
+
+avc:  denied  { write } for  pid=22 exe=/sbin/minilogd dev=00:07 ino=1 
+scontext=system_u:system_r:initrc_t tcontext=system_u:object_r:devfs_t 
+tclass=dir
+
+/sbin/minilogd should be labelled the same as /usr/sbin/syslogd.
+
+avc:  denied  { execute } for  pid=40 exe=/bin/bash path=/bin/echo dev=03:0a 
+ino=6068 scontext=system_u:system_r:insmod_t tcontext=system_u:object_r:bin_t 
+tclass=file
+Put in can_exec(devfsd_t, bin_t)
+
+
 
 -- 
 I do not get viruses because I do not use MS software.
