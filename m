@@ -1,55 +1,43 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5A8GorT025799
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 04:16:50 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5A8GhP2013204
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 04:16:45 -0400 (EDT)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Magnus Therning <magnus-work@therning.org>
-Subject: Re: SELinux on Debian (Sid)
-Date: Thu, 10 Jun 2004 18:17:28 +1000
-Cc: selinux@tycho.nsa.gov
-References: <20040609144404.GJ5477@philips.com>
-In-Reply-To: <20040609144404.GJ5477@philips.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ABPorT026445
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 07:25:51 -0400 (EDT)
+Received: from web51503.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5ABPmaH002949
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 07:25:48 -0400 (EDT)
+Message-ID: <20040610112544.16694.qmail@web51503.mail.yahoo.com>
+Date: Thu, 10 Jun 2004 04:25:44 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Issue on the security context of inode & filesystem
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200406101817.28861.russell@coker.com.au>
+Content-Type: multipart/alternative; boundary="0-1257014493-1086866744=:14048"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 10 Jun 2004 00:44, Magnus Therning <magnus-work@therning.org> wrote:
-> Installing selinux-default-policy failed, make complains about 'chsid'
-> not being present. These are the problems I run into when trying to
-> complete the installation of the policies:
+--0-1257014493-1086866744=:14048
+Content-Type: text/plain; charset=us-ascii
 
-Sounds like you have old SE Linux, that is ancient and no longer being 
-supported.  It is only supported to kernel 2.4.21 upstream and 2.4.22 on my 
-web site (in the section that is no longer maintained).  I strongly recommend 
-the new SE Linux.
+Hi,
+    
+    Would you please tell me what the difference between the security context of inodes within the filesystem and the security context of the filesystem itself is? 
+ 
+Thank you,
+Park Lee
+2004-06-10
 
->  3. 'make relabel' fails on a standard kernel:
->
->       load_policy: security_load_policy failed
->
->     After rebooting using my SE-kernel 'make relabel' also fails:
->
->       security:  policydb magic number 0x8 does not match expected magic
-> number 0xf97cff8c load_policy: security_load_policy failed
+		
+---------------------------------
+Do you Yahoo!?
+Friends.  Fun. Try the all-new Yahoo! Messenger
+--0-1257014493-1086866744=:14048
+Content-Type: text/html; charset=us-ascii
 
-Sounds like you have new SE Linux in the kernel and old SE Linux in the 
-utilities.  Don't use the packages in woody.  Start with Brian's back-ports 
-if you want to use SE Linux in woody, but they haven't been maintained for a 
-while either.  It's best to use Debian/unstable (the next version of Debian 
-will be out soon so there seems little point in starting with the old version 
-now).
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+<DIV>Hi,<BR>&nbsp;&nbsp;&nbsp; <BR>&nbsp;&nbsp;&nbsp; Would you please tell me what the difference between the security context of inodes within the filesystem and the security context of the filesystem itself is? </DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thank you,</DIV>
+<DIV>Park Lee<BR>2004-06-10</DIV><p>
+		<hr size=1><font face=arial size=-1>Do you Yahoo!?<br>Friends.  Fun. <a href="http://messenger.yahoo.com/">Try the all-new Yahoo! Messenger</a>
+--0-1257014493-1086866744=:14048--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
