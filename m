@@ -1,20 +1,20 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA23528
-	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 10:50:56 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id PAA19169
-	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 15:49:43 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA23575
+	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 11:04:56 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA21767
+	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 16:04:25 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id PAA19165
-	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 15:49:42 GMT
-Received: from localhost by clipper.gw.tislabs.com (8.9.3/8.9.1) with SMTP id KAA28450
-	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 10:49:54 -0500 (EST)
-Date: Tue, 26 Dec 2000 10:49:53 -0500 (EST)
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA21763
+	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 16:04:24 GMT
+Received: from localhost by clipper.gw.tislabs.com (8.9.3/8.9.1) with SMTP id LAA28661
+	for <selinux@tycho.nsa.gov>; Tue, 26 Dec 2000 11:03:55 -0500 (EST)
+Date: Tue, 26 Dec 2000 11:03:54 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
 To: selinux@tycho.nsa.gov
-Subject: Re: buffer overflow in libsecure/get_default_type.c
-In-Reply-To: <200012260622.BAA14166@theta.bos.bindview.com>
-Message-ID: <Pine.SOL.3.95.1001226103538.26114G-100000@clipper.gw.tislabs.com>
+Subject: Re: procps patches
+In-Reply-To: <200012222209.eBMM9ao457986@saturn.cs.uml.edu>
+Message-ID: <Pine.SOL.3.95.1001226095501.26114E-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -22,60 +22,96 @@ Reply-To: selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
 
-Thanks for finding and fixing this bug.  Our apologies for not
-catching it ourselves.  
+> Can I find out who wrote the procps (/bin/ps) patches?
+> That is, without getting killed. :-) I'd be happy to include
+> security data printing as part of the standard ps program.
+
+The procps patch was contributed by MITRE.  MITRE wrote
+patches for several of the Unix utilities (procps, psmisc,
+fileutils, findutils, stat, tar) as a learning exercise 
+to learn more about using SELinux prior to moving on to developing
+a security policy configuration for crond.
+
+> Note that I have already reserved several option flags
+> for MAC data... is this not what is needed? If possible
+> I'd prefer to keep the Linux ps compatible with what is
+> used on Trusted IRIX, etc.
+> 
+> Reserved for security data:  -M -Z -x -z
+> You may have seen the -x as -y on other systems;
+> the -y option is already taken for another purpose.
+
+In order to support many different kinds of security policies,
+the Security-Enhanced Linux provides policy-independent
+data types for security labels.  These types, the
+security context and the security identifier, are described
+in the kernel document (Integrating Flexible Support for
+Security Policies into the Linux Operating System).  If
+the reserved options are intended to be used with
+traditional trusted operating systems, then they will
+be specific to multi-level security (MLS) and will
+not be appropriate for other kinds of mandatory security policies.
+Hence, the current procps patch simply uses GNU-style long options
+for displaying security contexts and SIDs.  I think that
+we would be happy to use the existing reserved options if
+they will support policy-independent labels.
+
+> It is strongly preferred that columns of data never contain
+> whitespace and that unknown or unavailable data print as '-'.
+> So the "<not authorized>" stuff must become "-" instead.
+> This is to allow parsing the output of ps by splitting columns
+> apart based on whitespace. The "-" should always be printed
+> when using a non-FLASK kernel, instead of the error message.
+
+Ok.
+
+> Um, if someone is not authorized to read security data, then
+> why are they even allowed to know that the process exists?
+> Somebody could transmit data by playing with signal masks and
+> other items found under /proc.
+
+Access to /proc is controlled by the file mandatory access controls,
+as described in Section 7.1 of the kernel document and Section 3.3.4
+of the policy document.  The ps program runs in the same security
+context as its caller, so it has no special privileges in this
+regard.  The <not authorized> cases were simply to handle errors
+in obtaining the security context of the process, such as 
+lacking getattr permission to the particular /proc/PID directory
+or lacking permission to obtain the security context of the given SID.
+
+> I can't allow the #ifdef inside the list of format specifiers,
+> because this makes it hard for me to keep the list sorted.
+
+Ok.  
+
+> Generating a path to the process in pr_context() is poor.
+> Really, this should be done in the library code.
+
+As mentioned above, the utility patches were primarily exercises
+for MITRE to learn about SELinux while simultaneously providing
+some examples of how to use the new kernel features.  Feel free
+to improve on the implementation.
+
+> I notice that there are two new formats... why? It seems that
+> there would be plenty of room to put all the data in one format,
+> like this:
+> 
+> {"FLASK", "pid,secsid,context,command"}, /* FLASK security data */
+> 
+> On a standard 80-column screen you still get 22 characters for
+> the command name and arguments. It would even be reasonable to
+> include an extra column or two, like the (unimplemented?) LUID.
+
+Since security contexts may consist of multiple security attributes,
+a single security context could be quite long.  Even in a MLS
+system, a human-readable version of a compartment set could
+be quite long.  But I'm not especially adverse to merging the
+two formats into a single one.
 
 --
 Stephen D. Smalley, NAI Labs
 sds@tislabs.com
 
-
-On Tue, 26 Dec 2000, Matt Power wrote:
-
-> In the slinux-200012181053-release.tgz distribution, the
-> find_default_type function in libsecure/get_default_type.c attempts to
-> extract a type field from the file /etc/security/default_type and copy
-> it to a result buffer (specifically, to the argument "char **type").
-> Memory for this result buffer is allocated using malloc, but the
-> argument to malloc is always one character too small.
-> 
-> For example, the role argument might typically be "sysadm_r" and the
-> len argument would then be 8. With the initial installation, the first
-> value of buf would be "sysadm_r:sysadm_t\n". There are no leading
-> spaces, so i is 0. In the statement
-> 
->         (*type) = (char*) malloc (sizeof(char) * (strlen(buf)-i-len-1));
-> 
-> the argument to malloc is 18 - 0 - 8 - 1, which is 9. Then,
-> 
->         strcpy ((*type), &buf[i]+len+1);
-> 
-> attempts to copy the 10 characters "sysadm_t\n\0" into the 9-character
-> buffer.
-> 
-> This patch should address the issue:
-> 
-> *** get_default_type.c.old	Thu Nov 30 11:32:58 2000
-> --- get_default_type.c	Tue Dec 26 00:19:04 2000
-> ***************
-> *** 72,74 ****
->           /* malloc space for the type */
-> !         (*type) = (char*) malloc (sizeof(char) * (strlen(buf)-i-len-1));
->           if ((*type) == NULL)
-> --- 72,74 ----
->           /* malloc space for the type */
-> !         (*type) = (char*) malloc (sizeof(char) * (strlen(buf)-i-len));
->           if ((*type) == NULL)
-> 
-> Matt Power
-> BindView Corporation, RAZOR Team
-> mhpower@bos.bindview.com
-> 
-> 
-> You have received this message because you are subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
 
 You have received this message because you are subscribed to the selinux list.
 If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
