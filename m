@@ -1,104 +1,60 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAPLmoRb016547
-	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 16:48:50 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hAPLmFp5003496
-	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 21:48:15 GMT
-Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
-	by jazzswing.ncsc.mil  with ESMTP id hAPLmEt0003475
-	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 21:48:15 GMT
-Received: (from root@localhost)
-	by baitaca.ipen.br (8.12.9/8.12.9) id hAPLnHk2008230
-	for selinux@tycho.nsa.gov; Tue, 25 Nov 2003 19:49:17 -0200
-Received: from ipen.br ([10.0.12.47])
-	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id hAPLnBeE007855
-	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 19:49:11 -0200
-Message-ID: <3FC3CE10.8020307@ipen.br>
-Date: Tue, 25 Nov 2003 19:48:00 -0200
-From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
-MIME-Version: 1.0
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAPN0eRb016890
+	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 18:00:40 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hAPN0dqY013824
+	for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 23:00:40 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id hAPN0d0o013821 for <selinux@tycho.nsa.gov>; Tue, 25 Nov 2003 23:00:39 GMT
+Date: Tue, 25 Nov 2003 23:00:38 +0000
+From: Dale Amon <amon@vnl.com>
 To: selinux <selinux@tycho.nsa.gov>
-Subject: genfs_contexts file
-Content-Type: multipart/alternative;
- boundary="------------000802040100090609040706"
+Subject: Re: Still no authentication from new debian packages
+Message-ID: <20031125230038.GO2718@vnl.com>
+References: <20031125140255.GI2718@vnl.com> <20031125205010.GA2174@rom.cip.informatik.uni-muenchen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20031125205010.GA2174@rom.cip.informatik.uni-muenchen.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Thanks for the advice. I think by framing the question
+in greater detail I gave myself an answer... of course
+finally being able to access the net from the test machine
+(because of kernel bug fixes) helped a bit!
 
---------------000802040100090609040706
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+It is the login package.
 
-Hi.
+Russell's Release has a package that requires:
+	 conflict login <  1:4.0.3-11.se1
 
-I have a doubt about *genfs_contexts* file. For example, the statement 
-below:
-          
-*genfscon vfat /                system_u:object_r:dosfs_t*
+Colin's package supplies a package that satisfies
+that:
+	login 1:4.9.3-8.selinux.1
 
-I mounted the windows filesystem with: *mount -t vfat /dev/hda1 /mnt/win*
-I access with: *cd /mnt/win* and run *ls --context*
-The print out of the *ls --context* is:
-*-rwxr--r--  root     root     (null)                           130700.htm
-drwxr--r--  root     root     (null)                           aaa
--r-xr--r--  root     root     (null)                           admin.dll
--rwxr--r--  root     root     (null)                           ajapaedi
-*
-Is correct the (null) for security context?
+However, the sid distribution supplies a newer
+package that both satisfies Russell's rules and 
+overrides Colin's version with one which does not
+support selinux:
 
-If I note the line in the genfs_contexts file happen the same thing. The 
-are not change.
+	login 1:4.9.3-12
 
-Thanks.
+I have managed to get it working manually, now the
+question becomes whether a virgin install with a
+slightly modified preference will solve just this
+without doing the bean-bag thing on me...
+
+That system build will be in progress very shortly. Should
+be ready for me to test tomorrow morning...
 
 -- 
-Carlos Anisio Monteiro  <monteiro@ipen.br>
-IPEN/CNEN-SP
-Sao Paulo - Brasil
-
-
---------------000802040100090609040706
-Content-Type: text/html; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <title></title>
-</head>
-<body>
-Hi.<br>
-<br>
-I have a doubt about <b>genfs_contexts</b> file. For example, the statement
-below:<br>
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <br>
-<b>genfscon vfat /&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; system_u:object_r:dosfs_t</b><br>
-<br>
-I mounted the windows filesystem with: <b>mount -t vfat /dev/hda1 /mnt/win</b><br>
-I access with: <b>cd /mnt/win</b> and run <b>ls --context</b><br>
-The print out of the <b>ls --context</b> is:<br>
-<b>-rwxr--r--&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp; (null)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 130700.htm<br>
-drwxr--r--&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp; (null)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; aaa<br>
--r-xr--r--&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp; (null)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; admin.dll<br>
--rwxr--r--&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp; (null)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ajapaedi<br>
-</b><br>
-Is correct the (null) for security context?<br>
-<br>
-If I note the line in the genfs_contexts file happen the same thing. The
-are not change.<br>
-<br>
-Thanks.<br>
-<br>
-<pre class="moz-signature" cols="$mailwrapcol">-- 
-Carlos Anisio Monteiro  <a class="moz-txt-link-rfc2396E" href="mailto:monteiro@ipen.br">&lt;monteiro@ipen.br&gt;</a>
-IPEN/CNEN-SP
-Sao Paulo - Brasil
-</pre>
-</body>
-</html>
-
---------------000802040100090609040706--
-
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
