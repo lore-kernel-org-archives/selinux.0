@@ -1,38 +1,44 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00120
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2001 14:10:21 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA07618
+	for <selinux@tycho.nsa.gov>; Thu, 7 Jun 2001 17:47:36 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA02155
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2001 18:10:09 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id SAA02151
-	for <selinux@tycho.nsa.gov>; Wed, 6 Jun 2001 18:10:08 GMT
-Date: Wed, 6 Jun 2001 14:08:57 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: "Hugo F. Martinez" <hmartinez@cti.com.ar>
-cc: selinux@tycho.nsa.gov
-Subject: Re: Configuring users
-In-Reply-To: <3B1E8D1D.D06B5C59@cti.com.ar>
-Message-ID: <Pine.SOL.3.95.1010606140625.3546a-100000@clipper.gw.tislabs.com>
+	by jazzband.ncsc.mil  with ESMTP id VAA22050
+	for <selinux@tycho.nsa.gov>; Thu, 7 Jun 2001 21:47:30 GMT
+Received: from smtp6.andrew.cmu.edu (SMTP6.ANDREW.CMU.EDU [128.2.10.86])
+	by jazzband.ncsc.mil  with ESMTP id VAA22046
+	for <selinux@tycho.nsa.gov>; Thu, 7 Jun 2001 21:47:29 GMT
+Received: from UNIX3.ANDREW.CMU.EDU (UNIX3.ANDREW.CMU.EDU [128.2.11.203])
+	by smtp6.andrew.cmu.edu (8.12.0.Beta7/8.12.0.Beta7) with ESMTP id f57LlZQv026308
+	for <selinux@tycho.nsa.gov>; Thu, 7 Jun 2001 17:47:35 -0400
+Date: Thu, 7 Jun 2001 17:47:35 -0400 (EDT)
+From: Zachary Uram <zu22@andrew.cmu.edu>
+To: selinux@tycho.nsa.gov
+Subject: hello?
+Message-ID: <Pine.GSO.4.21L.0106071705030.6921-100000@unix3.andrew.cmu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+i am interested in Secure Linux.
+do you have guid that shows how to build/patch your source code
+into an exiting Linux kernel. 
+what is expected completion date for the user and administrative
+guides?
+is this more secure than OpenBSD?
+can i use this in an existing Debian distribution?
+i see no activity in list archives since april,
+is this effort still active?
+i am just beginning to really learn how to program but let me
+know if i can help in any way, i have some experience with code
+documentation and v&v testing.
 
-On Wed, 6 Jun 2001, Hugo F. Martinez wrote:
+regards,
+Zach
 
->     When you edit the policy/users file do i have to put users such as
-> apache, named, etc Or only those who have a login shell?
 
-You only need separate user entries for users who login and/or
-run cron jobs.  System processes run with the general system_u
-user identity.  The SELinux user identity attribute is only set
-by login and crond.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+uram@cmu.edu
+"Blessed are those who have not seen and yet have faith." - John 20:29
 
 
 
