@@ -1,10 +1,10 @@
-Message-ID: <40E294D0.40507@laufwerka.de>
-Date: Wed, 30 Jun 2004 12:24:16 +0200
+Message-ID: <40E298E8.9030107@laufwerka.de>
+Date: Wed, 30 Jun 2004 12:41:44 +0200
 From: Pascal Hahn <p.hahn@laufwerka.de>
 MIME-Version: 1.0
 To: SELinux@tycho.nsa.gov
 Subject: Re: apache rule to make it write in directory
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -33,21 +33,22 @@ Hi there,
 I inserted the rule but get the following error although:
 
 
-Jun 30 12:45:30 lboxx avc:  denied  { write } for  pid=3190 
-exe=/usr/sbin/apache2 name=ip.tmp dev=hdc6 ino=96390 
-scontext=system_u:system_r:httpd_t 
+Jun 30 12:45:30 lboxx avc:  denied  { write } for  pid=3190
+exe=/usr/sbin/apache2 name=ip.tmp dev=hdc6 ino=96390
+scontext=system_u:system_r:httpd_t
 tcontext=system_u:object_r:httpd_sys_content_t tclass=file
-Jun 30 12:45:30 lboxx avc:  denied  { setattr } for  pid=3190 
-exe=/usr/sbin/apache2 name=ip.tmp dev=hdc6 ino=96390 
-scontext=system_u:system_r:httpd_t 
+Jun 30 12:45:30 lboxx avc:  denied  { setattr } for  pid=3190
+exe=/usr/sbin/apache2 name=ip.tmp dev=hdc6 ino=96390
+scontext=system_u:system_r:httpd_t
 tcontext=system_u:object_r:httpd_sys_content_t tclass=file
 
-I just need file creation, chmodding, reading and writing on this folder 
+I just need file creation, chmodding, reading and writing on this folder
 and all its subolders.
 
 Thanks,
 
 Pascal Hahn
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
