@@ -1,47 +1,43 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7NCtHrT017703
-	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 08:55:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7ND6YrT017800
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 09:06:34 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7NCsWAS027498
-	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 12:54:32 GMT
-Subject: Re: conflict between libselinux and libsepol
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7ND5nAS028377
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 13:05:49 GMT
+Subject: Re: Fedora and udev
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Colin Walters <walters@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <4126812A.2050004@tresys.com>
-References: <1092942083.1721.101.camel@moss-spartans.epoch.ncsc.mil>
-	 <1092972342.29540.35.camel@nexus.verbum.private>
-	 <1093002523.16585.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <1093013527.9495.0.camel@nexus.verbum.private>
-	 <1093015484.16585.199.camel@moss-spartans.epoch.ncsc.mil>
-	 <1093028441.16585.265.camel@moss-spartans.epoch.ncsc.mil>
-	 <1093030667.4212.4.camel@nexus.verbum.private>
-	 <1093035295.4212.9.camel@nexus.verbum.private>
-	 <4126812A.2050004@tresys.com>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>,
+   fedora-selinux-list@redhat.com, James Morris <jmorris@redhat.com>
+In-Reply-To: <4128BBE6.6050207@tresys.com>
+References: <200408222125.38169.russell@coker.com.au>
+	 <20040822144016.GA13842@lkcl.net>  <4128BBE6.6050207@tresys.com>
 Content-Type: text/plain
-Message-Id: <1093265616.27211.20.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1093266284.27211.32.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 23 Aug 2004 08:53:36 -0400
+Date: Mon, 23 Aug 2004 09:04:44 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-08-20 at 18:54, Joshua Brindle wrote:
-> How is this the case at all? Conceptually the file contexts is *not* 
-> part of the system policy, afaik that is a major design feature of 
-> SELinux, that the enforcement and labeling is totally seperate (with the 
-> exception of ocontext stuff ofcourse)
+On Sun, 2004-08-22 at 11:29, Joshua Brindle wrote:
+> When we were experimenting with udev it only took ramfs xattr support, 
+> add ramfs to fs_use as an xattr filesystem and set up udev with selinux 
+> support. When it runs it creates the nodes and then labels them via the 
+> libselinux api which reads file_contexts. Aside from the problems I've 
+> already mentioned there should be no problems running udev.
 > 
-> I believe this is the case, unless Steve disagrees ofcourse :)
+> If the tmpfs context support is something different from this then it 
+> should not be used (I have not looked at tmpfs support at all but have 
+> personal experience that ramfs xattr works as expected).
 
-Colin's patch is simply to allow verification of a file_contexts
-configuration against a given policy at policy build time.  That is
-reasonable.
-
-On a side note, the file contexts configuration has become an aspect of
-the runtime "policy" in the broader sense, since it is now used during
-normal system operation for things like rpm, udev, restorecon, etc
-rather than only for system installation and major policy upgrades.  But
-it is not part of the kernel policy.
+tmpfs is preferable to ramfs, as tmpfs uses swap and honors resource
+limits.  But separate tmpfs instances can be used for diverse purposes
+by userspace (/tmp, /dev, /dev/shm) and a tmpfs instance is always used
+internally by the kernel for shared memory, so we want to be able to
+assign different filesystem security contexts to different tmpfs
+instances.  That requires extending fscontext= support to it, so that we
+can specify the context on a per-mount basis.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
