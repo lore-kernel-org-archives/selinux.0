@@ -1,61 +1,56 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8P1DirT021765
-	for <selinux@tycho.nsa.gov>; Fri, 24 Sep 2004 21:13:44 -0400 (EDT)
-Date: Fri, 24 Sep 2004 20:13:25 -0500
-From: Greg Norris <haphazard@kc.rr.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: [patch] jabberd file-context update
-Message-ID: <20040925011325.GB23849@yggdrasil.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QNDPHrPUIc00TOLW"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8PAdCrT023144
+	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 06:39:12 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8PAc9sn025459
+	for <selinux@tycho.nsa.gov>; Sat, 25 Sep 2004 10:38:10 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: Remove unrestricted_admin
+Date: Sat, 25 Sep 2004 20:39:01 +1000
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+References: <200409211526.37810.russell@coker.com.au> <200409250513.29870.russell@coker.com.au> <20040924222253.GB15746@lkcl.net>
+In-Reply-To: <20040924222253.GB15746@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200409252039.01196.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 25 Sep 2004 08:22, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > > > dd if=/dev/hda of=/dev/hdb
+> > > >
+> > > > file -s /dev/hda
+> > > >
+> > > > Using an LVM snapshot to backup a disk onto a DVD.
+> > >
+> > > Yes these are reasons; however, this is supposed to be the strict
+> > > policy, and these are not compelling enough to loosen the policy this
+> > > way, in my opinion.
+> >
+> > How do you suggest that we address those needs then?
+>
+>  write a small program that does the job, add it to fsadm_t?
+>  [or is that too obvious an answer]
 
---QNDPHrPUIc00TOLW
-Content-Type: multipart/mixed; boundary="N1GIdlSm9i+YlY4t"
-Content-Disposition: inline
+So you are saying we should write special programs to copy block devices to 
+other block devices, to/from DVD, copying raw partition tables, and all the 
+other things that administrators usually do?  I don't think that is viable.
 
+One possibility is to run things in fsadm_t, this means that fsadm_t needs a 
+heap of extra access which probably isn't desired.
 
---N1GIdlSm9i+YlY4t
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Another possibility is to have multiple domains in the sysadm_r role, only one 
+of which has such privs and then have the administrator use runcon to perform 
+such tasks.
 
-Please apply the attached jabberd.fc update, which is needed to make the=20
-logfile accessible.  Thanx!
-
-
---N1GIdlSm9i+YlY4t
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="jabberd.fc.diff"
-
---- jabberd.fc.orig	2004-08-02 02:28:37.000000000 -0500
-+++ jabberd.fc	2004-09-12 18:51:04.000000000 -0500
-@@ -1,3 +1,4 @@
- # jabberd
- /usr/sbin/jabberd		system_u:object_r:jabberd_exec_t
- /var/lib/jabber(/.*)?		system_u:object_r:jabberd_var_lib_t
-+/var/log/jabber(/.*)?		system_u:object_r:jabberd_log_t
-
---N1GIdlSm9i+YlY4t--
-
---QNDPHrPUIc00TOLW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBVMY1grEMyr8Cx2YRAvT6AKChtYXiV3XHDZx7eDKm1JXPDgo3VwCdFOg8
-q+ykJHLKrEqozhzsJNS0xQg=
-=ULg/
------END PGP SIGNATURE-----
-
---QNDPHrPUIc00TOLW--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
