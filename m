@@ -1,288 +1,260 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9Gp3Ii013817
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 11:51:03 -0500 (EST)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9GnNPU005120
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 16:49:26 GMT
-Message-ID: <41B8826D.30105@redhat.com>
-Date: Thu, 09 Dec 2004 11:50:53 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux ML <selinux@tycho.nsa.gov>,
-   Joshua Brindle <jbrindle@snu.edu>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   Russell Coker <rcoker@redhat.com>, Colin Walters <walters@redhat.com>
-CC: Nalin Dahyabhai <nalin@redhat.com>
-Subject: Single home directory type for all roles.
-References: <20041207000805.GH3678@jmh.mhn.de> <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
-In-Reply-To: <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------080709000402000709000002"
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9HDVIi013976
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 12:13:32 -0500 (EST)
+Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9HDYEj000884
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 17:13:35 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 9 Dec 2004 18:13:33 +0100
+Date: Thu, 9 Dec 2004 18:13:34 +0100
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: patch: stricter /tmp handling
+Message-Id: <20041209171333.GD5074@jmh.mhn.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080709000402000709000002
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-One of the things that we de-emphasized in the Fedora Releases of 
-SELinux up til not is the RBAC support.  We
-have basically made staff_r and user_r almost equivalent.  The reason we 
-did this, is that we felt the system was
-unmanagable for a normal administrators and would just result in SELinux 
-getting a bad name and being turned off.
-So for the first release of FC2 we turned off alot of the handling of 
-roles.  Now that we have developed targeted policy
-we are reviting some of the decisions we made around strict policy and 
-working to make it "stricter".  
+--Pd0ReVV5GZGQvF3a
+Content-Type: multipart/mixed; boundary="6c2NcOVqGQ03X4Wi"
+Content-Disposition: inline
 
-One problem I still have with RBAC though is the labeling of files based 
-on the role of the user.  IE (staff_home_t versus
-user_home_t).  I believe this causes many problems, without much benefit.
 
-1.  Causes problems with sharing files between users,   IE a staff user 
-coping a file to tmp and then the user
-can't read it, because it has the wrong type. 
-2.  Requirement that selinux-policy-strict-sources be installed and a 
-rebuild of policy in order to change the roles of a user.
-3.  But the number one problem I have is with relabeling files.  If I 
-were to implement roles management in
-system-config-securitylevel/adduser, I would need to trigger a relabel 
-any time a role of a user was changed.  This
-relabel would have to be inteligent enough to figure out not only the 
-home directories, but also the files in /tmp and potentially
-files in html files scattered over the system.  I find this an 
-unworkable situation.
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So yesterday I went though the policy and created a new tunable 
-single_user_file_type, that causes the policy to share a common
-filetypes between staff and users.  (Haven't completed this for http yet). 
+This patches uses my latest changes to file_type_auto_trans() to make
+/tmp more strict.
+Right now, any process with tmp_domain() can create any file type under
+/tmp except chr_file and blk_file. But most domains only need file and
+dir.
+This patch changes tmp_domain() so that normally, only file and dir
+access is allowed. It also adds a third parameter to the macro, so
+domains which need more access can get it.
+I have run this patch for a few weeks on all my machines so most things
+should work, but I don't have any server machines running SELinux ATM,
+so some daemons probably need additional permissions.
+This patch also removes the tmpfile attribute from tetex_data_t, since
+these are not really tmpfiles.
 
-With this tunable and the new SELinux Policy Modules.  I believe we can 
-begin to implement a sane mechanism for handling roles
-without causing the problems addressed above.
+Thomas
 
-With SELinux Policy Modules, can I build an system-config-user/adduser 
-that would modify a file under /etc/selinux/strict/roles/
-(the users file) and then reload just that policy?
+--=20
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
-Comments????
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="tmp_domain.patch"
+Content-Transfer-Encoding: quoted-printable
 
-Dan
-
---------------080709000402000709000002
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/global_macros.te policy-1.19.12.new/macros/global_macros.te
---- policy-1.19.12/macros/global_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/global_macros.te	2004-12-09 11:03:11.374549265 -0500
-@@ -573,3 +573,19 @@
+diff -urN orig/domains/program/ssh.te mod/domains/program/ssh.te
+--- orig/domains/program/ssh.te	2004-11-18 09:57:21.000000000 +0100
++++ mod/domains/program/ssh.te	2004-12-09 17:57:30.000000000 +0100
+@@ -203,7 +203,7 @@
+ # so a tunnel can point to another ssh tunnel...
+ can_tcp_connect(sshd_t, sshd_t)
+=20
+-tmp_domain(sshd)
++tmp_domain(sshd, `', { dir file sock_file })
+ ifdef(`pam.te', `
+ can_exec(sshd_t, pam_exec_t)
  ')
- 
- ')dnl end unconfined_domain
-+
-+define(`create_user_file_type', `
-+ifdef(`single_user_file_type', `
-+ifelse($1, user, `
-+type $1_$2, file_type, sysadmfile $3;
-+', `
-+ifelse($1, sysadm, `
-+type $1_$2, file_type, sysadmfile $3;
-+', `
-+typealias user_$2 alias $1_$2;
-+') dnl ifelse sysadm
-+') dnl ifelse user
-+', `
-+type $1_$2, file_type, sysadmfile $3;
-+') dnl ifdef single_user_file_type
-+') dnl define create_user_file_type
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/fingerd_macros.te policy-1.19.12.new/macros/program/fingerd_macros.te
---- policy-1.19.12/macros/program/fingerd_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/fingerd_macros.te	2004-12-09 11:03:11.375549152 -0500
-@@ -10,6 +10,6 @@
- # allow fingerd to create a fingerlog file in the user home dir
- #
- define(`fingerd_macro', `
--type $1_home_fingerlog_t, file_type, sysadmfile, $1_file_type;
-+create_user_file_type($1, `home_fingerlog_t', `, $1_file_type')
- file_type_auto_trans(fingerd_t, $1_home_dir_t, $1_home_fingerlog_t)
+diff -urN orig/domains/program/unused/kudzu.te mod/domains/program/unused/k=
+udzu.te
+--- orig/domains/program/unused/kudzu.te	2004-12-09 17:05:15.000000000 +0100
++++ mod/domains/program/unused/kudzu.te	2004-12-09 17:57:30.000000000 +0100
+@@ -84,8 +84,7 @@
+ allow kudzu_t sysfs_t:lnk_file read;
+ file_type_auto_trans(kudzu_t, etc_t, etc_runtime_t, file)
+ allow kudzu_t tape_device_t:chr_file r_file_perms;
+-tmp_domain(kudzu)
+-file_type_auto_trans(kudzu_t, tmp_t, kudzu_tmp_t, chr_file)
++tmp_domain(kudzu, `', `{ file dir chr_file }')
+=20
+ # for file systems that are not yet mounted
+ dontaudit kudzu_t file_t:dir search;
+diff -urN orig/domains/program/unused/postgresql.te mod/domains/program/unu=
+sed/postgresql.te
+--- orig/domains/program/unused/postgresql.te	2004-12-04 00:46:50.000000000=
+ +0100
++++ mod/domains/program/unused/postgresql.te	2004-12-09 17:57:30.000000000 =
++0100
+@@ -48,7 +48,7 @@
+ system_crond_entry(postgresql_exec_t, postgresql_t)
  ')
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/gpg_macros.te policy-1.19.12.new/macros/program/gpg_macros.te
---- policy-1.19.12/macros/program/gpg_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/gpg_macros.te	2004-12-09 11:03:11.376549040 -0500
-@@ -19,7 +19,7 @@
- define(`gpg_domain', `
- # Derived domain based on the calling user domain and the program.
- type $1_gpg_t, domain, privlog;
--type $1_gpg_secret_t, file_type, $1_file_type, sysadmfile, $1_file_type;
-+create_user_file_type($1, `gpg_secret_t', `, $1_file_type')
- 
- # Transition from the user domain to the derived domain.
- domain_auto_trans($1_t, gpg_exec_t, $1_gpg_t)
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/irc_macros.te policy-1.19.12.new/macros/program/irc_macros.te
---- policy-1.19.12/macros/program/irc_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/irc_macros.te	2004-12-09 11:03:11.377548927 -0500
+=20
+-tmp_domain(postgresql);
++tmp_domain(postgresql, `', `{ dir file sock_file }')
+ file_type_auto_trans(postgresql_t, tmpfs_t, postgresql_tmp_t)
+=20
+ # Use the network.
+diff -urN orig/domains/program/unused/xdm.te mod/domains/program/unused/xdm=
+=2Ete
+--- orig/domains/program/unused/xdm.te	2004-11-20 10:04:13.000000000 +0100
++++ mod/domains/program/unused/xdm.te	2004-12-09 17:57:30.000000000 +0100
+@@ -31,7 +31,7 @@
+ file_type_auto_trans(xdm_t, var_run_t, xdm_var_run_t, fifo_file)
+ file_type_auto_trans(xdm_t, var_run_t, xdm_var_run_t, dir)
+=20
+-tmp_domain(xdm)
++tmp_domain(xdm, `', `{ file dir sock_file }')
+ var_lib_domain(xdm)
+ # NB we do NOT allow xdm_xserver_t xdm_var_lib_t:dir, only access to an op=
+en
+ # handle of a file inside the dir!!!
+diff -urN orig/domains/program/unused/xfs.te mod/domains/program/unused/xfs=
+=2Ete
+--- orig/domains/program/unused/xfs.te	2004-10-17 13:07:14.000000000 +0200
++++ mod/domains/program/unused/xfs.te	2004-12-09 17:57:30.000000000 +0100
 @@ -20,7 +20,7 @@
- define(`irc_domain',`
- # Derived domain based on the calling user domain and the program.
- type $1_irc_t, domain;
--type $1_home_irc_t, file_type, $1_file_type, sysadmfile;
-+create_user_file_type($1, `home_irc_t', `, $1_file_type')
- type $1_irc_exec_t, file_type, sysadmfile;
- 
- ifdef(`slocate.te', `
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/mount_macros.te policy-1.19.12.new/macros/program/mount_macros.te
---- policy-1.19.12/macros/program/mount_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/mount_macros.te	2004-12-09 11:03:11.377548927 -0500
-@@ -83,7 +83,7 @@
- # mount domain. 
- #
- define(`mount_loopback_privs',`
--type $1_$2_source_t, file_type, sysadmfile, $1_file_type;
-+create_user_file_type($1, `$2_source_t', `, $1_file_type')
- allow $1_t $1_$2_source_t:file create_file_perms;
- allow $1_t $1_$2_source_t:file { relabelto relabelfrom };
- allow $2_t $1_$2_source_t:file rw_file_perms;
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/screen_macros.te policy-1.19.12.new/macros/program/screen_macros.te
---- policy-1.19.12/macros/program/screen_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/screen_macros.te	2004-12-09 11:03:11.378548815 -0500
+ allow xfs_t tmp_t:dir search;
+ file_type_auto_trans(xfs_t, initrc_tmp_t, xfs_tmp_t, sock_file)
+ ', `
+-tmp_domain(xfs)
++tmp_domain(xfs, `', sock_file)
+ ')
+=20
+ allow xfs_t { etc_t etc_runtime_t }:file { getattr read };
+diff -urN orig/domains/program/unused/zebra.te mod/domains/program/unused/z=
+ebra.te
+--- orig/domains/program/unused/zebra.te	2004-12-04 00:46:50.000000000 +0100
++++ mod/domains/program/unused/zebra.te	2004-12-09 17:57:30.000000000 +0100
+@@ -20,8 +20,7 @@
+ logdir_domain(zebra)
+=20
+ # /tmp/.bgpd is such a bad idea!
+-type zebra_tmp_t, file_type, sysadmfile, tmpfile;
+-file_type_auto_trans(zebra_t, tmp_t, zebra_tmp_t, sock_file)
++tmp_domain(zebra, `', sock_file)
+=20
+ allow zebra_t self:unix_dgram_socket create_socket_perms;
+ allow zebra_t self:unix_stream_socket { connectto create_stream_socket_per=
+ms };
+diff -urN orig/macros/admin_macros.te mod/macros/admin_macros.te
+--- orig/macros/admin_macros.te	2004-12-04 00:46:50.000000000 +0100
++++ mod/macros/admin_macros.te	2004-12-09 17:57:30.000000000 +0100
 @@ -22,7 +22,7 @@
- define(`screen_domain',`
- # Derived domain based on the calling user domain and the program.
- type $1_screen_t, domain, privlog, privfd;
--type $1_home_screen_t, file_type, $1_file_type, sysadmfile;
-+create_user_file_type($1, `home_screen_t', `, $1_file_type')
- 
+ # Type and access for pty devices.
+ can_create_pty($1)
+=20
+-tmp_domain($1)
++tmp_domain($1, `, $1_file_type', `{ file dir lnk_file sock_file fifo_file =
+}')
+=20
+ # Type for tty devices.
+ type $1_tty_device_t, sysadmfile, ttyfile, dev_fs;
+diff -urN orig/macros/global_macros.te mod/macros/global_macros.te
+--- orig/macros/global_macros.te	2004-12-09 17:05:15.000000000 +0100
++++ mod/macros/global_macros.te	2004-12-09 17:59:50.000000000 +0100
+@@ -396,10 +396,14 @@
+ allow $2_t device_t:dir getattr;
+ ')
+=20
+-
++# grant access to /tmp
++# by default, only plain files and dirs may be stored there.
++# This can be overridden with a third parameter
+ define(`tmp_domain', `
+ type $1_tmp_t, file_type, sysadmfile, tmpfile $2;
+-file_type_auto_trans($1_t, tmp_t, $1_tmp_t)
++ifelse($3, `',
++`file_type_auto_trans($1_t, tmp_t, $1_tmp_t, `{ file dir }')',
++`file_type_auto_trans($1_t, tmp_t, $1_tmp_t, `$3')')
+ ')
+=20
+ define(`tmpfs_domain', `
+diff -urN orig/macros/program/gpg_agent_macros.te mod/macros/program/gpg_ag=
+ent_macros.te
+--- orig/macros/program/gpg_agent_macros.te	2004-11-20 10:04:13.000000000 +=
+0100
++++ mod/macros/program/gpg_agent_macros.te	2004-12-09 17:58:59.000000000 +0=
+100
+@@ -56,7 +56,7 @@
+ allow $1_gpg_agent_t self:fifo_file { getattr read write };
+=20
+ # create /tmp files
+-tmp_domain($1_gpg_agent)
++tmp_domain($1_gpg_agent, `', `{ file dir sock_file }')
+=20
+ # gpg connect
+ allow $1_gpg_t $1_gpg_agent_tmp_t:dir search;
+diff -urN orig/macros/program/screen_macros.te mod/macros/program/screen_ma=
+cros.te
+--- orig/macros/program/screen_macros.te	2004-11-30 16:19:26.000000000 +0100
++++ mod/macros/program/screen_macros.te	2004-12-09 17:57:30.000000000 +0100
+@@ -27,7 +27,7 @@
  # Transition from the user domain to this domain.
  domain_auto_trans($1_t, screen_exec_t, $1_screen_t)
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/spamassassin_macros.te policy-1.19.12.new/macros/program/spamassassin_macros.te
---- policy-1.19.12/macros/program/spamassassin_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/spamassassin_macros.te	2004-12-09 11:03:11.379548702 -0500
-@@ -80,7 +80,7 @@
- dontaudit $1_spamassassin_t { sysctl_t sysctl_kernel_t }:dir search;
- 
- # The type of ~/.spamassassin
--type $1_home_spamassassin_t, file_type, $1_file_type, sysadmfile;
-+create_user_file_type($1, `home_spamassassin_t', `, $1_file_type')
- create_dir_file($1_t, $1_home_spamassassin_t)
- allow $1_t $1_home_spamassassin_t:notdevfile_class_set { relabelfrom relabelto };
- allow $1_t $1_home_spamassassin_t:dir { relabelfrom relabelto };
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/ssh_macros.te policy-1.19.12.new/macros/program/ssh_macros.te
---- policy-1.19.12/macros/program/ssh_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/ssh_macros.te	2004-12-09 11:03:11.380548590 -0500
-@@ -22,7 +22,7 @@
- define(`ssh_domain',`
- # Derived domain based on the calling user domain and the program.
- type $1_ssh_t, domain, privlog, nscd_client_domain;
--type $1_home_ssh_t, file_type, $1_file_type, sysadmfile;
-+create_user_file_type($1, `home_ssh_t', `, $1_file_type')
- 
- ifdef(`automount.te', `
- allow $1_ssh_t autofs_t:dir { search getattr };
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/tvtime_macros.te policy-1.19.12.new/macros/program/tvtime_macros.te
---- policy-1.19.12/macros/program/tvtime_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/tvtime_macros.te	2004-12-09 11:03:11.381548478 -0500
-@@ -19,7 +19,7 @@
- ifdef(`tvtime.te', `
- define(`tvtime_domain',`
- # Derived domain based on the calling user domain and the program.
--type $1_home_tvtime_t, file_type, $1_file_type, sysadmfile;
-+create_user_file_type($1, `home_tvtime_t', `, $1_file_type')
- 
- x_client_domain($1, tvtime)
- 
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/uml_macros.te policy-1.19.12.new/macros/program/uml_macros.te
---- policy-1.19.12/macros/program/uml_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/uml_macros.te	2004-12-09 11:03:11.381548478 -0500
-@@ -22,8 +22,8 @@
- # Derived domain based on the calling user domain and the program.
- type $1_uml_t, domain;
- type $1_uml_exec_t, file_type, sysadmfile, $1_file_type;
--type $1_uml_ro_t, file_type, sysadmfile, $1_file_type;
--type $1_uml_rw_t, file_type, sysadmfile, $1_file_type;
-+create_user_file_type($1, `uml_ro_t', `, $1_file_type')
-+create_user_file_type($1, `uml_rw_t', `, $1_file_type')
- 
- can_ptrace($1_t, $1_uml_t)
- 
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/vmware_macros.te policy-1.19.12.new/macros/program/vmware_macros.te
---- policy-1.19.12/macros/program/vmware_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/vmware_macros.te	2004-12-09 11:03:11.382548365 -0500
-@@ -23,10 +23,10 @@
- role $1_r types $1_vmware_t;
- 
- # The user file type is for files created when the user is running VMWare
--type $1_vmware_file_t, $1_file_type, file_type, sysadmfile;
-+create_user_file_type($1, `vmware_file_t', `, $1_file_type')
- 
- # The user file type for the VMWare configuration files
--type $1_vmware_conf_t, $1_file_type, file_type, sysadmfile;
-+type $1_vmware_conf_t, $1_file_type, file_type, sysadmfile, $1_file_type;
- 
- # for compatibility with older policy versions
- typealias $1_vmware_t alias vmware_$1_t;
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/xauth_macros.te policy-1.19.12.new/macros/program/xauth_macros.te
---- policy-1.19.12/macros/program/xauth_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/xauth_macros.te	2004-12-09 11:15:54.468740331 -0500
-@@ -20,7 +20,8 @@
- define(`xauth_domain',`
- # Derived domain based on the calling user domain and the program.
- type $1_xauth_t, domain;
--type $1_home_xauth_t, file_type, $1_file_type, sysadmfile;
-+
-+create_user_file_type($1, `home_xauth_t', `, $1_file_type')
- 
- allow $1_xauth_t self:process signal;
- 
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/program/x_client_macros.te policy-1.19.12.new/macros/program/x_client_macros.te
---- policy-1.19.12/macros/program/x_client_macros.te	2004-12-09 11:01:28.000000000 -0500
-+++ policy-1.19.12.new/macros/program/x_client_macros.te	2004-12-09 11:16:14.973434606 -0500
-@@ -25,9 +25,9 @@
- # Derived domain based on the calling user domain and the program.
- type $1_$2_t, domain $3;
- # Type for files that are writeable by this domain.
--type $1_$2_rw_t, file_type, $1_file_type, sysadmfile, tmpfile;
-+create_user_file_type($1, `$2_rw_t', `, tmpfile, $1_file_type')
- # Type for files that are read-only for this domain
--type $1_$2_ro_t, file_type, $1_file_type, sysadmfile;
-+create_user_file_type($1, `$2_ro_t', `, $1_file_type')
- 
- # Transition from the user domain to the derived domain.
- ifelse($2, games, `
-diff --exclude-from=exclude -N -u -r policy-1.19.12/macros/user_macros.te policy-1.19.12.new/macros/user_macros.te
---- policy-1.19.12/macros/user_macros.te	2004-12-09 11:22:43.634730157 -0500
-+++ policy-1.19.12.new/macros/user_macros.te	2004-12-09 11:03:11.384548140 -0500
-@@ -18,8 +18,8 @@
- # Use capabilities
- 
- # Type for home directory.
--type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type, user_home_dir_type;
--type $1_home_t, file_type, sysadmfile, home_type, user_home_type, $1_file_type;
-+create_user_file_type($1, `home_dir_t', `, home_dir_type, home_type, user_home_dir_type')
-+create_user_file_type($1, `home_t', `, home_type, user_home_type, $1_file_type')
- 
- tmp_domain($1, `, user_tmpfile, $1_file_type')
- 
-@@ -109,7 +109,13 @@
- 
- ifdef(`ftpd.te', `
- if (ftp_home_dir) {
-+ifdef(`single_user_file_type', `
-+ifelse($1, user, `
- file_type_auto_trans(ftpd_t, $1_home_dir_t, $1_home_t)
-+')
-+', `
-+file_type_auto_trans(ftpd_t, $1_home_dir_t, $1_home_t)
-+')
- }
- ')dnl end ifdef ftpd
- 
+=20
+-tmp_domain($1_screen)
++tmp_domain($1_screen, `', `{ dir file fifo_file }')
+ base_file_read_access($1_screen_t)
+ # The user role is authorized for this domain.
+ role $1_r types $1_screen_t;
+diff -urN orig/macros/program/xserver_macros.te mod/macros/program/xserver_=
+macros.te
+--- orig/macros/program/xserver_macros.te	2004-12-04 00:46:50.000000000 +01=
+00
++++ mod/macros/program/xserver_macros.te	2004-12-09 17:57:30.000000000 +0100
+@@ -138,7 +138,7 @@
+ allow $1_xserver_t zero_device_t:chr_file { read write execute };
+=20
+ # Type for temporary files.
+-tmp_domain($1_xserver)
++tmp_domain($1_xserver, `', `{ dir file sock_file }')
+ file_type_auto_trans($1_xserver_t, xdm_xserver_tmp_t, $1_xserver_tmp_t, so=
+ck_file)
+=20
+ ifelse($1, xdm, `
+diff -urN orig/macros/user_macros.te mod/macros/user_macros.te
+--- orig/macros/user_macros.te	2004-12-09 17:05:15.000000000 +0100
++++ mod/macros/user_macros.te	2004-12-09 17:57:30.000000000 +0100
+@@ -21,7 +21,7 @@
+ type $1_home_dir_t, file_type, sysadmfile, home_dir_type, home_type, user_=
+home_dir_type;
+ type $1_home_t, file_type, sysadmfile, home_type, user_home_type, $1_file_=
+type;
+=20
+-tmp_domain($1, `, user_tmpfile, $1_file_type')
++tmp_domain($1, `, user_tmpfile, $1_file_type', `{ file lnk_file dir sock_f=
+ile fifo_file }')
+=20
+ # Type and access for pty devices.
+ can_create_pty($1, `, userpty_type, user_tty_type')
+diff -urN orig/types/file.te mod/types/file.te
+--- orig/types/file.te	2004-12-04 00:46:51.000000000 +0100
++++ mod/types/file.te	2004-12-09 17:57:30.000000000 +0100
+@@ -178,7 +178,7 @@
+ type var_lock_t, file_type, sysadmfile, lockfile;
+ type var_lib_t, file_type, sysadmfile;
+ # for /var/{spool,lib}/texmf index files
+-type tetex_data_t, file_type, sysadmfile, tmpfile;
++type tetex_data_t, file_type, sysadmfile;
+ type var_spool_t, file_type, sysadmfile;
+ type var_yp_t, file_type, sysadmfile;
+=20
 
---------------080709000402000709000002--
+--6c2NcOVqGQ03X4Wi--
+
+--Pd0ReVV5GZGQvF3a
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBuIe9xWIrrrL0q+cRAr6aAKCubQxpHFPPFaT7+dBNlXTNGokYoACeLzrE
+LQni8RTw6Kqd6Lcoc5ijE6s=
+=vbAG
+-----END PGP SIGNATURE-----
+
+--Pd0ReVV5GZGQvF3a--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
