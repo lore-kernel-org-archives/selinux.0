@@ -1,54 +1,47 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j34FFQDo000515
-	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 11:15:27 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j34FAhis019617
-	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 15:10:43 GMT
-Message-ID: <42515894.8030203@redhat.com>
-Date: Mon, 04 Apr 2005 11:09:08 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: ivg2@cornell.edu
-CC: selinux@tycho.nsa.gov
 Subject: Re: /dev/pts/x use denials
-References: <1112569241.21383.37.camel@cobra.ivg2.net> <1112570031.23944.1.camel@cobra.ivg2.net>
-In-Reply-To: <1112570031.23944.1.camel@cobra.ivg2.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1112569241.21383.37.camel@cobra.ivg2.net>
+References: <1112569241.21383.37.camel@cobra.ivg2.net>
+Content-Type: text/plain
+Date: Mon, 04 Apr 2005 11:13:13 -0400
+Message-Id: <1112627593.7629.89.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ivan Gyurdiev wrote:
+On Sun, 2005-04-03 at 19:00 -0400, Ivan Gyurdiev wrote:
+> Strange denials:
+> 
+> /dev/pts/2 has context: sysadm_tmp_t.
+> Those happen intermittently, but I can't figure out when exactly.
+> I am logged in as a regular user, but su-ed to root. Usually accompanied
+> by a dac_override.
+> 
+> audit(1112568847.907:0): avc:  denied  { use } for  pid=22851
+> exe=/usr/bin/mplayer path=/dev/pts/2 dev=devpts ino=4
+> scontext=root:sysadm_r:sysadm_mplayer_t tcontext=phantom:staff_r:staff_t
+> tclass=fd
+> audit(1112568874.222:0): avc:  denied  { use } for  pid=22870
+> exe=/usr/bin/tvtime path=/dev/pts/2 dev=devpts ino=4
+> scontext=root:sysadm_r:sysadm_tvtime_t tcontext=phantom:staff_r:staff_t
+> tclass=fd
+> audit(1112568881.428:0): avc:  denied  { use } for  pid=22872
+> exe=/bin/bash path=/dev/pts/2 dev=devpts ino=4
+> scontext=root:sysadm_r:sysadm_mozilla_t tcontext=phantom:staff_r:staff_t
+> tclass=fd
 
->On Sun, 2005-04-03 at 19:00 -0400, Ivan Gyurdiev wrote: 
->  
->
->>Strange denials:
->>
->>/dev/pts/2 has context: sysadm_tmp_t.
->>Those happen intermittently, but I can't figure out when exactly.
->>I am logged in as a regular user, but su-ed to root. Usually accompanied
->>by a dac_override.
->>    
->>
->
->It's sometimes followed by a dac_override - not all the time.
->Here's something reproducible:
->
->If I su to root, launch tvtime/mplayer/whatever, then make load
->the selinux policy, I get use denial on /dev/pts. Then if I launch
->the same program - no use denial. Then I make load the policy again,
->launch program, and I get a use denial.
->
->  
->
-If you are running in permissive mode, you only get the denial once.  
-When you
-reload the policy it clears the flag.
-
-Dan
+I don't see sysadm_tmp_t anywhere above. I do see staff_t fd's, but that
+just shows that the descriptor was opened by a staff_t process and then
+inherited across the su, nothing surprising there.  Earlier versions of
+pam_selinux did try closing and re-opening descriptors 0-2 as newrole
+does, but that proved problematic.  su likely just needs to be directly
+patched rather than using pam_selinux.
 
 -- 
-
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
