@@ -2,32 +2,40 @@ Subject: Re: writing zero bytes in bash
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: russell@coker.com.au,
    Development discussions related to Fedora Core <fedora-devel-list@redhat.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200502261832.16337.russell@coker.com.au>
+Cc: Miloslav Trmac <mitr@volny.cz>, SELinux@tycho.nsa.gov
+In-Reply-To: <200502262147.55747.russell@coker.com.au>
 References: <200502261832.16337.russell@coker.com.au>
+	 <20050226103915.GB28440@chrys.ms.mff.cuni.cz>
+	 <200502262147.55747.russell@coker.com.au>
 Content-Type: text/plain
-Date: Mon, 28 Feb 2005 13:47:48 -0500
-Message-Id: <1109616468.28470.20.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 28 Feb 2005 14:00:30 -0500
+Message-Id: <1109617230.28470.33.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2005-02-26 at 18:32 +1100, Russell Coker wrote:
-> This message is intentionally sent to the fedora-devel-list and the SE Linux 
-> list not the fedora-selinux-list.  It is not related to Fedora specific SE 
-> Linux functionality, but it is related to bash (a core part of Fedora) and SE 
-> Linux kernel code.
+On Sat, 2005-02-26 at 21:47 +1100, Russell Coker wrote:
+> Interesting comment.  I'm replying with the SE Linux list CC'd so everyone 
+> who's involved can comment.
 > 
-> To unset the fscreate or exec context you have to write zero bytes 
-> to /proc/self/attr/fscreate or /proc/self/attr/exec respectively.
+> Maybe a change to make "\n" equivalent to "" in the SE Linux kernel interfaces 
+> in question would be appropriate then?  For the SE Linux interfaces in 
+> question a '\n' character is not valid in any part of the input and the input 
+> must contain three fields separated by colons, so a special case of "\n" 
+> being equivalent to "" can not cause any confusion.
 > 
-> If you want to do this in a shell script you would do something like:
-> echo -n "" > /proc/self/attr/fscreate
+> Also as a side note, in the normal use only libselinux.so has any code which 
+> does such zero byte writes.  Doing it from bash is only needed for testing, 
+> debugging, and educational purposes.
 
-Using the /proc/self/attr API from a shell script makes little sense, as
-any programs run by the script are going to have their attributes reset
-upon execve anyway.  It would only affect shell builtins, and likely
-just cause confusion.
+Pity no one pointed out this deviation from POSIX when we originally
+redesigned the SELinux API to address the kernel developers' comments on
+the original syscall-based API.  In any event, write(fd, NULL, 0); does
+work on /proc/pid/attr/<name> nodes despite what the write(2) man page
+says, and the SELinux kernel API is obviously specific to Linux anyway
+(although libselinux could be ported to SEBSD), and this API is never
+suitable for use by scripts regardless of whether or not this particular
+aspect is changed.   
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
