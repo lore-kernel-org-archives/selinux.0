@@ -1,41 +1,36 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA04107
-	for <selinux@tycho.nsa.gov>; Sat, 21 Apr 2001 11:16:50 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA15580
-	for <selinux@tycho.nsa.gov>; Sat, 21 Apr 2001 15:16:40 GMT
-Received: from ns.caldera.de (ns.caldera.de [212.34.180.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA15576
-	for <selinux@tycho.nsa.gov>; Sat, 21 Apr 2001 15:16:39 GMT
-Date: Sat, 21 Apr 2001 17:15:30 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Magos?nyi ?rp?d <mag@bunuel.tii.matav.hu>
-Cc: "Donaldson, Matthew" <matthew@datadeliverance.com>,
-        selinux <selinux@tycho.nsa.gov>
-Subject: Re: [BUGTRAQ] Linux patches to solve /tmp race problem
-Message-ID: <20010421171530.A3210@caldera.de>
-References: <15072.12895.627024.191687@localhost.localdomain> <20010421104502.A25434@bunuel.tii.matav.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20010421104502.A25434@bunuel.tii.matav.hu>; from mag@bunuel.tii.matav.hu on Sat, Apr 21, 2001 at 10:45:02AM +0200
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA03053
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2001 09:16:00 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA26442
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2001 13:15:24 GMT
+Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
+	by jazzswing.ncsc.mil  with SMTP id NAA26431
+	for <selinux@tycho.nsa.gov>; Fri, 27 Apr 2001 13:15:20 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524116@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: selinux@tycho.nsa.gov
+Subject: Sourceforge CVS
+Date: Fri, 27 Apr 2001 08:15:56 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Apr 21, 2001 at 10:45:02AM +0200, Magos?nyi ?rp?d wrote:
-> Hi!
-> 
-> This is a good functionality. What about making a selinux-dependent
-> version of it, which can include the TSID (or much better the label
-> representation) in the pathname?
-> It could be very useful for creating multilevel directories.
+To all who down load CVS Trees from Sourceforge.
 
-It's a _horrible_ cludge.  Look at Al Viro's namespace patches for Linux 2.4
-(ftp.math.psu.edu:/pub/viro) for a sane alternative.
+The CVS tree was Initialized on sourceforge before NSA released the 2.4.3
+versions of the
+kernel. I have synchronized the SourceForge CVS with the release from NSA.
+There were
+some changes in the source, policy and documentation. If you have downloaded
+the
+cvs tree you need to update.
 
-	Christoph
+Thanks
+Mark Westerman 
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
 
 --
 You have received this message because you are subscribed to the selinux list.
