@@ -1,39 +1,33 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA23087
-	for <selinux@tycho.nsa.gov>; Sat, 7 Apr 2001 01:49:34 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA25555
+	for <selinux@tycho.nsa.gov>; Sat, 7 Apr 2001 21:22:11 -0400 (EDT)
+From: gawain.lynch@felicity-consulting.com.au
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id FAA12969
-	for <selinux@tycho.nsa.gov>; Sat, 7 Apr 2001 05:49:17 GMT
-Received: from saturn.cs.uml.edu (saturn.cs.uml.edu [129.63.8.2])
-	by jazzband.ncsc.mil  with ESMTP id FAA12965
-	for <selinux@tycho.nsa.gov>; Sat, 7 Apr 2001 05:49:16 GMT
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104070549.f375n8E359254@saturn.cs.uml.edu>
-Subject: Re: Secure?
-To: bet@rahul.net (Bennett Todd)
-Date: Sat, 7 Apr 2001 01:49:08 -0400 (EDT)
-Cc: Pedro.Rosa@ksu.ru (Pedro Rosa), kurth@usaexpress.net (Kurth Bemis),
-        selinux@tycho.nsa.gov
-In-Reply-To: <20010316165108.A12384@rahul.net> from "Bennett Todd" at Mar 16, 2001 04:51:08 PM
+	by jazzband.ncsc.mil  with ESMTP id BAA13536
+	for <selinux@tycho.nsa.gov>; Sun, 8 Apr 2001 01:22:03 GMT
+Received: from mel-relay-dmz-01.felicity.net.au ([203.33.108.4])
+	by jazzband.ncsc.mil  with ESMTP id BAA13532
+	for <selinux@tycho.nsa.gov>; Sun, 8 Apr 2001 01:21:48 GMT
+Received: from oneone00.felicity.net.au (IDENT:notes@oneone00.felicity.net.au [203.33.109.69])
+	by mel-relay-dmz-01.felicity.net.au (8.11.0/8.11.0) with ESMTP id f381Lpk27987
+	for <selinux@tycho.nsa.gov>; Sun, 8 Apr 2001 11:21:51 +1000
+To: selinux@tycho.nsa.gov
+Subject: RPM spec files
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <OF18AE3A8A.F03005CB-ONCA256A28.000139F9@felicity.net.au>
+Date: Sun, 8 Apr 2001 11:15:37 +1100
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Bennett Todd writes:
-> 2001-03-16-06:25:27 Pedro Rosa:
+Hi just curious, has anyone put their hand up for producing an RPM spec 
+file yet for the 2.4 kernel?
 
->> [...] the presence of WuFTP is probably the most questionable
->> program in selinux. Not only in technical terms but also it arises
->> questions in the concept itself.
->
-> I don't see that at all.
+If so, is it available?  If not, I am happy to do one and post it.
 
-Just the opposite is true in fact. The real test of selinux is
-running buggy servers. When a major new WuFTP hole is found,
-will you be able to ignore it? Will you be safe, in spite of the
-hole, because selinux prevents the attackers from doing anything?
+Cheers,
 
+Gawain
 
 --
 You have received this message because you are subscribed to the selinux list.
