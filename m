@@ -1,41 +1,77 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i85CqwrT017467
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 08:52:58 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i85Cq5ia004983
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 12:52:06 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Joop" <joop@fttp.ca>
-Subject: Re: Is anyone using Selinux for VOIP applications?
-Date: Sun, 5 Sep 2004 22:52:52 +1000
-Cc: "Erich Schubert" <erich@debian.org>, <selinux@tycho.nsa.gov>,
-   <fedora-selinux-list@redhat.com>
-References: <1094260356.29689.44.camel@wintermute.xmldesign.de> <200409052045.46899.russell@coker.com.au> <00ab01c4933f$c66e32f0$0a01a8c0@huey>
-In-Reply-To: <00ab01c4933f$c66e32f0$0a01a8c0@huey>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409052252.52432.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i85DtBrT017609
+	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 09:55:12 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i85Dt7t0029979
+	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 13:55:11 GMT
+Subject: Re: Additional rule files
+From: Erich Schubert <erich@debian.org>
+To: russell@coker.com.au
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200409052031.05813.russell@coker.com.au>
+References: <1094260356.29689.44.camel@wintermute.xmldesign.de>
+	 <200409052031.05813.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sun, 05 Sep 2004 15:54:58 +0200
+Message-Id: <1094392498.22073.19.camel@wintermute.xmldesign.de>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 5 Sep 2004 21:59, "Joop" <joop@fttp.ca> wrote:
-> Is anyone using Selinux for VOIP applications at present? If so please
-> contact me off the list. I am looking at Asterisk, Ser etc.
+Hi,
 
-I've written SE Linux policy for Asterisk.  I haven't had the time to set it 
-up fully though, so some aspects of Asterisk functionality probably don't 
-work yet.
+> Why does fnord need a different policy?  Are the actions of different web 
+> servers that different?  (this is a serious question not a rhetorical 
+> question)
 
-Try it out and let me know how it goes.  I'll fix any bugs you report in the 
-Asterisk policy.
+Well, apache contains a lot of stuff. Fnord and tcpserver are much
+smaller applications that would allow a fine-grained definition of
+rules. (one of the reasons i don't like apache that much is that it
+contains a huge amount of stuff you usually do not use)
 
+On the other side, fnord can for example run chrooted.
+
+Here's a short overview of the typical fnord setup:
+
+system init (minit / daemontools etc.) runs the tcp daemon and the
+multilog daemon, and sets up the logging pipe from tcp daemon to the
+logging daemon.
+
+tcpsvd listens on the specified port and handles concurrency and reaping
+of timeout children. it can (should) setuid/setgid after binding the
+socket.
+
+sslio can be used as client, providing ssl encryption. sslio can again
+setuid/setgid/chroot and will then run the next client
+
+fnord is a single-shot webserver, designed for chroot operation.
+(using sendfile and such)
+
+http authentication is done using another process.
+
+Using all these different applications allows for much better privilege
+separation. For example, the web server doesn't need to read the ssl
+certs. Neither does it need write access to the log files, just to the
+logging socket. Neither does it need auth capabilities.
+
+> We can create some attributes to have multiple web servers work well with the 
+> rest of the policy as I have already done with mail servers.  But first we 
+> need a reason to do so.
+
+I havn't looked at the apache policy enough yet. I'll do so.
+We probably won't need such extra rules in each file by having a
+cgi_domain macro or such. Differences for web server can probably be
+handled in that macro.
+
+Greetings,
+Erich Schubert
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+           There are only 10 types of people in the world:           //\
+           Those who understand binary and those who don't           V_/_
+   Die kürzeste Verbindung zwischen zwei Menschen ist ein Lächeln.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
