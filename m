@@ -1,53 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAEExjSf024749
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 09:59:45 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAEExiqY002137
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 14:59:44 GMT
-Received: from unthought.net (unthought.net [212.97.129.88])
-        by jazzband.ncsc.mil  with ESMTP id hAEExi0o002134 for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2003 14:59:44 GMT
-Date: Fri, 14 Nov 2003 15:59:37 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
-Subject: Re: Do we break POSIX?
-Message-ID: <20031114145937.GA4993@unthought.net>
-References: <20031110143701.S16119@lemuria.org> <1068472925.32532.3.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+To: Karl MacMillan <kmacmillan@tresys.com>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+Subject: GNU Coding Standards (was: Setools 1.0.1 released)
+References: <1067890582.1269.32.camel@colossus.columbia.tresys.com>
+From: ramsdell@mitre.org (John D. Ramsdell)
+Date: 14 Nov 2003 10:04:13 -0500
+In-Reply-To: <1067890582.1269.32.camel@colossus.columbia.tresys.com>
+Message-ID: <ogtn0az2dqq.fsf@divan.mitre.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1068472925.32532.3.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Nov 10, 2003 at 09:02:05AM -0500, Stephen Smalley wrote:
+Karl MacMillan <kmacmillan@tresys.com> writes:
+
+> We have just released version 1.0.1 of setools.
+
 ...
-> > 
-> > Does anyone know immediately if this is so and if we are indeed
-> > breaking POSIX? If nobody can answer that, I will find out myself, as
-> > I've promised him to check.
-> 
-> NFS can yield the same behavior.  If you are holding a file open on the
-> client and writing to it, and someone changes the ownership of the file
-> on the server, then subsequent write() requests will fail with
-> Permission denied.  I just tested with a Linux client and server to
-> verify, and this is what happens.
 
-Yep.
+> The next release, sometime in early December, will include improved
+> information flow analysis, the ability to save and load complex
+> queries in apol, the removal of Tcl/TK and X dependencies from the
+> command-line tools, and a log file analysis tool that leverages
+> libapol to help a policy developer or system administrator
+> understand the audit message from SELinux.
 
-But NFS doesn't claim to have POSIX semantics.
+Karl,
 
-I doubt there are any real-world programs that would treat a write
-returning -1 with errno set to an 'unknown error', as a successful
-write.
+It would also be very helpful if the setools distribution adhered to
+GNU Coding Standards.  The standards have been developed over a long
+period of time, and compliant distributions fit into the Linux
+framework well.  Furthermore, tools are available that automate most
+of the work needed to meet the standards.  The lastest generation of
+autoconf, automake, libtool, and autoheader, make managing releases a
+no-brainer.
 
-(if such a program should exist, the author will be most thoroughly
- dealt with when I take over  ;)
+If you're not an Emacs user, you can read about the GNU Coding
+Standards with the command "info standards".
 
-So all in all I think that you are both correct, but the (my) conclusion
-is that it wouldn't matter if write returned EACCESS.
+You can see an example of a distribution that meets the standards in
+the selinux-usr/slat directory of the nsa module in the selinux
+project's CVS repository on SourceForge.  I just finished tuning it.
 
- / jakob
-
+John
 
 --
 This message was distributed to subscribers of the selinux mailing list.
