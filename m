@@ -1,91 +1,139 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QKK0rT028495
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 16:20:00 -0400 (EDT)
-Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QKIw76019860
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 20:18:59 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sun, 26 Sep 2004 22:19:59 +0200
-Date: Sun, 26 Sep 2004 22:20:33 +0200
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QKk9rT028586
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 16:46:09 -0400 (EDT)
+Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QKk8hU011054
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 20:46:09 GMT
+Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Sun, 26 Sep 2004 22:46:08 +0200
+Date: Sun, 26 Sep 2004 22:46:42 +0200
 From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: policy for timidity
-Message-Id: <20040926202033.GB2529@jmh.mhn.de>
+Subject: policy for resmgrd
+Message-Id: <20040926204642.GC2529@jmh.mhn.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZJcv+A0YCCLh2VIg"
+	protocol="application/pgp-signature"; boundary="L1c6L/cjZjI9d0Eq"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---ZJcv+A0YCCLh2VIg
-Content-Type: multipart/mixed; boundary="5G06lTa6Jq83wMTw"
+--L1c6L/cjZjI9d0Eq
+Content-Type: multipart/mixed; boundary="Ls2Gy6y7jbHLe9Od"
 Content-Disposition: inline
 
 
---5G06lTa6Jq83wMTw
+--Ls2Gy6y7jbHLe9Od
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Timidity can be used as alsa sequencer client and run as a daemon (when
-started as timidity -iA). Attached policy allows this to work on a
-SELinux system.
+Resmgrd is a daemon which is used on SuSE Linux to mediate access to
+devices. Clients can ask resmgrd to open a specific device, resmgrd
+checks if the app has appropriate permission and opens the device on
+behalf of the client. Resmgrd should probably be a userspace SELinux
+enforcer, but for now the attached policy allows it to work on a SELinux
+system.
 
 Thomas
-
 --=20
 http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
 GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
---5G06lTa6Jq83wMTw
+--Ls2Gy6y7jbHLe9Od
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="timidity.te"
+Content-Disposition: attachment; filename="resmgrd.patch"
+Content-Transfer-Encoding: quoted-printable
 
-# DESC timidity - MIDI to WAV converter and player
-#
-# Author: Thomas Bleher <ThomasBleher@gmx.de>
-#
-# Note: You only need this policy if you want to run timidity as a server
+diff -urN orig/domains/program/unused/resmgrd.te mod/domains/program/unused=
+/resmgrd.te
+--- orig/domains/program/unused/resmgrd.te	1970-01-01 01:00:00.000000000 +0=
+100
++++ mod/domains/program/unused/resmgrd.te	2004-09-26 22:30:47.000000000 +02=
+00
+@@ -0,0 +1,25 @@
++# DESC resmgrd - resource manager daemon
++#
++# Author: Thomas Bleher <ThomasBleher@gmx.de>
++=20
++daemon_base_domain(resmgrd)
++var_run_domain(resmgrd, { file sock_file })
++etc_domain(resmgrd)
++read_locale(resmgrd_t)
++allow resmgrd_t self:capability { dac_override dac_read_search sys_admin s=
+ys_rawio };
++
++allow resmgrd_t etc_t:file { getattr read };
++allow resmgrd_t self:unix_stream_socket create_stream_socket_perms;=20
++allow resmgrd_t self:unix_dgram_socket { connect create write };
++
++# hardware access
++allow resmgrd_t device_t:lnk_file { getattr read };
++# not sure if it needs write access, needs to be investigated further...
++allow resmgrd_t removable_device_t:blk_file { getattr ioctl read write };
++allow resmgrd_t scsi_generic_device_t:chr_file { getattr ioctl read };
++allow resmgrd_t scanner_device_t:chr_file { getattr };
++# I think a dontaudit should be enough there
++dontaudit resmgrd_t fixed_disk_device_t:blk_file { getattr ioctl read };
++
++# there is a macro can_resmgrd_connect() in macros/program/resmgrd_macros.=
+te
++
+diff -urN orig/domains/program/unused/xdm.te mod/domains/program/unused/xdm=
+=2Ete
+--- orig/domains/program/unused/xdm.te	2004-09-11 14:31:47.000000000 +0200
++++ mod/domains/program/unused/xdm.te	2004-09-26 22:30:06.000000000 +0200
+@@ -130,6 +130,7 @@
+ allow xdm_t v4l_device_t:chr_file { setattr getattr };
+ allow xdm_t scanner_device_t:chr_file { setattr getattr };
+ allow xdm_t tty_device_t:chr_file { ioctl read write setattr getattr };
++can_resmgrd_connect(xdm_t)
+=20
+ # Access xdm log files.
+ file_type_auto_trans(xdm_t, var_log_t, xserver_log_t, file)
+diff -urN orig/file_contexts/program/resmgrd.fc mod/file_contexts/program/r=
+esmgrd.fc
+--- orig/file_contexts/program/resmgrd.fc	1970-01-01 01:00:00.000000000 +01=
+00
++++ mod/file_contexts/program/resmgrd.fc	2004-09-26 22:30:38.000000000 +0200
+@@ -0,0 +1,6 @@
++# resmgrd
++/sbin/resmgrd		--	system_u:object_r:resmgrd_exec_t
++/etc/resmgr\.conf	--	system_u:object_r:resmgrd_etc_t
++/var/run/resmgr\.pid	--	system_u:object_r:resmgrd_var_run_t
++/var/run/\.resmgr_socket	system_u:object_r:resmgrd_var_run_t
++
+diff -urN orig/macros/base_user_macros.te mod/macros/base_user_macros.te
+--- orig/macros/base_user_macros.te	2004-09-25 19:52:50.000000000 +0200
++++ mod/macros/base_user_macros.te	2004-09-26 22:30:22.000000000 +0200
+@@ -177,6 +177,8 @@
+ allow $1_t misc_device_t:{ chr_file blk_file } rw_file_perms;
+ allow $1_t device_t:lnk_file { getattr read };
+=20
++can_resmgrd_connect($1_t)
++
+ #
+ # evolution and gnome-session try to create a netlink socket
+ #
+diff -urN orig/macros/program/resmgrd_macros.te mod/macros/program/resmgrd_=
+macros.te
+--- orig/macros/program/resmgrd_macros.te	1970-01-01 01:00:00.000000000 +01=
+00
++++ mod/macros/program/resmgrd_macros.te	2004-09-26 22:33:31.000000000 +0200
+@@ -0,0 +1,10 @@
++# Macro for resmgrd
++
++define(`can_resmgrd_connect', `
++ifdef(`resmgrd.te', `=20
++allow $1 resmgrd_t:unix_stream_socket connectto;
++allow $1 resmgrd_var_run_t:sock_file write;
++allow $1 resmgrd_t:fd use;
++')
++')
++
 
-daemon_base_domain(timidity)
-can_network(timidity_t)
+--Ls2Gy6y7jbHLe9Od--
 
-allow timidity_t device_t:lnk_file read;
-
-# read /usr/share/alsa/alsa.conf
-allow timidity_t usr_t:file { getattr read };
-# read /etc/esd.conf and /proc/cpuinfo
-allow timidity_t { etc_t proc_t }:file { getattr read };
-# read libartscbackend.la - should these be shlib_t?
-allow timidity_t lib_t:file { getattr read };
-
-allow timidity_t sound_device_t:chr_file { read write ioctl };
-
-# stupid timidity won't start if it can't search its current directory.
-# allow this so /etc/init.d/alsasound start works from /root
-allow timidity_t sysadm_home_dir_t:dir search;
-
-allow timidity_t tmp_t:dir search;
-allow timidity_t tmpfs_t:file { read write };
-
-allow timidity_t self:shm create_shm_perms;
-
-allow timidity_t self:unix_stream_socket { connect create };
-
-allow timidity_t devpts_t:dir search;
-allow timidity_t self:capability { dac_override dac_read_search };
-allow timidity_t self:process getsched;
-
---5G06lTa6Jq83wMTw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="timidity.fc"
-
-# timidity
-/usr/bin/timidity	--	system_u:object_r:timidity_exec_t
-
---5G06lTa6Jq83wMTw--
-
---ZJcv+A0YCCLh2VIg
+--L1c6L/cjZjI9d0Eq
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -93,12 +141,12 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBVySRxWIrrrL0q+cRAk3rAJ9ROGWPni5v+Tm2EnTn8o4QDId/rQCfb+2c
-uvHz3Jz/inO756SOxa4Zum4=
-=QzfC
+iD8DBQFBVyqyxWIrrrL0q+cRAvdgAJ4iZqkJXl5Eg5WqiFPSEDXx2TfCbwCfcJln
+ey9wBCBtUj6t8CwQ5bGMM+o=
+=/eSp
 -----END PGP SIGNATURE-----
 
---ZJcv+A0YCCLh2VIg--
+--L1c6L/cjZjI9d0Eq--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
