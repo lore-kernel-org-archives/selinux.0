@@ -1,71 +1,35 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hATLZYRb001306
-	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 16:35:35 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hATM9aRb001390
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 17:09:36 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hATLYup5014332
-	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 21:34:57 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id hATLYtt0014329
-	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 21:34:56 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id B7F3261BD5
-	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2003 08:35:26 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
-	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 01725-04 for <selinux@tycho.nsa.gov>;
-	Sun, 30 Nov 2003 08:35:26 +1100 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by ns.sws.net.au (Postfix) with ESMTP id 1371761BD1
-	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2003 08:35:26 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id DAA35924CC
-	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2003 08:35:25 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 1BE157F26F
-	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2003 08:35:23 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: selinux@tycho.nsa.gov
-Subject: Re: policy under version control
-Date: Sun, 30 Nov 2003 08:35:22 +1100
-References: <20031129132619.GE26960@lukas.schuldei.com> <20031129160507.A9332@lemuria.org>
-In-Reply-To: <20031129160507.A9332@lemuria.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311300835.22630.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id hATM8wp5015301
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 22:08:58 GMT
+Received: from localhost.localdomain (rrcs-sw-24-153-230-186.biz.rr.com [24.153.230.186])
+	by jazzswing.ncsc.mil  with ESMTP id hATM8vt0015298
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 22:08:57 GMT
+Received: from localhost.localdomain (hawaii [127.0.0.1])
+	by localhost.localdomain (8.12.8/8.12.8) with ESMTP id hATM9WPM010458
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 16:09:33 -0600
+Received: (from nick@localhost)
+	by localhost.localdomain (8.12.8/8.12.8/Submit) id hATM9WJA010456
+	for selinux@tycho.nsa.gov; Sat, 29 Nov 2003 16:09:32 -0600
+Subject: 
+From: Nick <nagray@austin.rr.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1070143772.4562.253.camel@hawaii>
+Mime-Version: 1.0
+Date: Sat, 29 Nov 2003 16:09:32 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 30 Nov 2003 02:05, Tom <tom@lemuria.org> wrote:
-> On Sat, Nov 29, 2003 at 02:26:19PM +0100, Andreas Schuldei wrote:
-> > I find it tiresom and uneffective to make changes to policy
-> > without and easy way to feed my effords upstream. Actually i feel
-> > selinux stands and falls with a smoothly working policy. this
-> > needs attention and time of many, not just one.
+I seem to have lost usage of Kudzu (Actually it still runs but cannot
+see the printer on the parallel port) after installing SELinux. Is this
+a known issue? 
 
-Currently the most effective way of getting policy changes sent upstream is to 
-send them to me, I bundle them with other patches and send them to Howard.
+I am running in permissive mode. Any suggestions?
 
-> Also, the update process needs refinement. For one, I find it very
-> tiresome (and error-prone!) to not bundle packages.
->
-> For example, there are many policy files that we can be reasonably sure
-> will be part of EVERY system. I don't know many Linux systems that
-> wouldn't want the rules for mount and init, for example.
->
-> Why not just lump them into one bundle? Not one .te file, but one
-> installer question.
-
-This is a different issue to that raised by Andreas.  It will be resolved for 
-Debian when Collin's code is merged (should happen soon).
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Nix
 
 --
 This message was distributed to subscribers of the selinux mailing list.
