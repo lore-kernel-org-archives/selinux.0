@@ -1,51 +1,50 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA16363
-	for <selinux@tycho.nsa.gov>; Thu, 23 May 2002 20:39:42 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA18199
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 08:12:56 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id AAA14802
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 00:38:22 GMT
-Received: from blackbird.intercode.com.au (blackbird.intercode.com.au [203.32.101.10])
-        by jazzband.ncsc.mil  with ESMTP id AAA14798 for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 00:38:19 GMT
-Date: Fri, 24 May 2002 10:39:21 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Is this a module bug?
-In-Reply-To: <20020522072017.AF7376E90@lyta.coker.com.au>
-Message-ID: <Mutt.LNX.4.44.0205241026400.25187-100000@blackbird.intercode.com.au>
+	by jazzband.ncsc.mil  with ESMTP id MAA07175
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 12:11:37 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id MAA07171 for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 12:11:35 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id EF55D92452
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 22:12:49 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 237B6655
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2002 14:12:43 +0200 (CEST)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: 2 checkpolicy bugs
+Date: Fri, 24 May 2002 13:09:18 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020524121244.237B6655@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 22 May 2002, Russell Coker wrote:
+If I don't assign SIDs to any TCP or UDP ports then I get the following 
+checkpolicy error:
 
-> May 22 08:42:57 lyta kernel: IPv6 v0.8 for NET4.0
-> May 22 08:42:57 lyta kernel:
-> May 22 08:42:57 lyta kernel: avc:  denied  { net_raw } for  pid=71 
-> exe=/sbin/insmod capability=13 scontext=system_u:system_r:insmod_t 
-> tcontext=system_u:system_r:insmod_t tclass=capability
-> May 22 08:42:57 lyta kernel: IPv6 over IPv4 tunneling driver
-> 
-> The above is a cut from my syslog while booting.  It appears to me that the 
-> kernel code for the IPv6 module is still being registered as insmod_t domain.
+error in the statement ending on line 31779 (token 'system_u'): parse error
 
-You're seeing this message because the IPv6 module needs to register some 
-kernel control sockets when it is loaded.  As these control sockets are 
-raw, they require CAP_NET_RAW during creation, which happens in this case 
-in the context of insmod.
+Line 31779 is the following:
+lo system_u:object_r:netif_lo_t system_u:object_r:netmsg_lo_t
 
-> Is this a bug in the IPv6 module?
+I consider that there are two bugs in checkpolicy, firstly it doesn't accept 
+a valid configuration with no special SIDs assigned to any TCP or UDP ports.  
+Secondly it doesn't give me an error message that is any good to inform me of 
+this matter.
 
-No.
+Currently to work around this matter I've assigned a type for port 1 (tcpmux) 
+which is never used.
 
-
-- James
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
-
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
