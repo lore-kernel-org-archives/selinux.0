@@ -1,56 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA25873
-	for <selinux@tycho.nsa.gov>; Wed, 5 Feb 2003 17:47:08 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h15Ml7I06628
-	for <selinux@tycho.nsa.gov>; Wed, 5 Feb 2003 22:47:07 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA01423
+	for <selinux@tycho.nsa.gov>; Thu, 6 Feb 2003 12:00:30 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA20287
+	for <selinux@tycho.nsa.gov>; Thu, 6 Feb 2003 16:57:29 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h15Ml5f06624 for <selinux@tycho.nsa.gov>; Wed, 5 Feb 2003 22:47:06 GMT
+	by jazzswing.ncsc.mil  with ESMTP id QAA20283
+	for <selinux@tycho.nsa.gov>; Thu, 6 Feb 2003 16:57:27 GMT
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 14779924E5
-	for <selinux@tycho.nsa.gov>; Thu,  6 Feb 2003 09:47:03 +1100 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 29FC8924E5
+	for <selinux@tycho.nsa.gov>; Fri,  7 Feb 2003 04:00:09 +1100 (EST)
 Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 923164278
-	for <selinux@tycho.nsa.gov>; Wed,  5 Feb 2003 23:46:55 +0100 (CET)
+	by lyta.coker.com.au (Postfix) with ESMTP id 186342DEC
+	for <selinux@tycho.nsa.gov>; Thu,  6 Feb 2003 18:00:00 +0100 (CET)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: selinux@tycho.nsa.gov
-Subject: arm
-Date: Wed, 5 Feb 2003 23:46:55 +0100
+Subject: The patent problem rears it's ugly head again
+Date: Thu, 6 Feb 2003 18:00:00 +0100
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_fRZQ+XLKm/8TLJg"
-Message-Id: <200302052346.55188.russell@coker.com.au>
+  boundary="Boundary-00=_QSpQ+U4Rn21uNO/"
+Message-Id: <200302061800.00297.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_fRZQ+XLKm/8TLJg
+--Boundary-00=_QSpQ+U4Rn21uNO/
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-I have my iPaQ booting a SE Linux kernel and loading policy.  I haven't 
-labelled the file systems so it doesn't do anything useful yet, but progress 
-is going well.
-
-I've attached a patch that applies on top of 2.4.19 with the latest ARM 
-patches and the 2.4.20 kernel patch back-ported to 2.4.19.
-
-On http://www.coker.com.au/selinux/kern/ I have a file arm.bz2 which is a 
-combination of all the 2.4.19 ARM patches I am using, and a file 
-arm-lsm.diff.bz2 which applies on top of that for all LSM functionality plus 
-the attached patch.
-
-Most of the attached patch should be good for merging into the LSM patch tree.  
-There are a couple of bits that break non-SE compilation, but they are easily 
-fixed.
-
-Also I have not actually called a SE Linux sys-call yet.  So there may be some 
-horrible bug in that regard.  Hopefully tomorrow I'll get a labeled file 
-system on my iPaQ and a modified login and I'll test these things out 
-properly.
+It seems that SE Linux isn't going into the main kernel until the patent 
+issues are resolved.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -58,125 +41,100 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_fRZQ+XLKm/8TLJg
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="arm.diff"
+--Boundary-00=_QSpQ+U4Rn21uNO/
+Content-Type: message/rfc822;
+  name="forwarded message"
+Content-Transfer-Encoding: 8bit
+Content-Description: Alan Cox <alan@lxorguk.ukuu.org.uk>: Re: [BK PATCH] LSM changes for 2.5.59
+
+Return-Path: <linux-security-module-admin@wirex.com>
+Delivered-To: bofh@sws.net.au
+Received: (qmail 26573 invoked by uid 501); 6 Feb 2003 16:54:41 -0000
+Delivered-To: rjc-bofh@coker.com.au
+Received: (qmail 26570 invoked from network); 6 Feb 2003 16:54:41 -0000
+Received: from unknown (HELO sat.sws.net.au) (postfix@10.10.10.30)
+  by 10.10.10.8 with SMTP; 6 Feb 2003 16:54:41 -0000
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id 4F20BBF5C
+	for <bofh@coker.com.au>; Fri,  7 Feb 2003 03:54:41 +1100 (EST)
+Received: from mail.wirex.com (mithra.wirex.com [65.102.14.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 2FFE2BF58
+	for <bofh@coker.com.au>; Fri,  7 Feb 2003 03:54:37 +1100 (EST)
+Received: from mithra.wirex.com (mithra.wirex.com [127.0.0.1])
+	by mail.wirex.com (Postfix) with ESMTP
+	id 34EBE2F071; Thu,  6 Feb 2003 08:54:01 -0800 (PST)
+Delivered-To: linux-security-module@wirex.com
+Received: from irongate.swansea.linux.org.uk (pc2-cwma1-4-cust86.swan.cable.ntl.com [213.105.254.86])
+	by mail.wirex.com (Postfix) with ESMTP id 4E03E2EFF1
+	for <linux-security-module@wirex.com>; Thu,  6 Feb 2003 08:53:41 -0800 (PST)
+Received: from irongate.swansea.linux.org.uk (localhost [127.0.0.1])
+	by irongate.swansea.linux.org.uk (8.12.6/8.12.6) with ESMTP id h16Hp6YU010969;
+	Thu, 6 Feb 2003 17:51:07 GMT
+Received: (from alan@localhost)
+	by irongate.swansea.linux.org.uk (8.12.6/8.12.6/Submit) id h16Hp3Wx010967;
+	Thu, 6 Feb 2003 17:51:03 GMT
+X-Authentication-Warning: irongate.swansea.linux.org.uk: alan set sender to alan@lxorguk.ukuu.org.uk using -f
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "Stephen D. Smalley" <sds@epoch.ncsc.mil>,
+ greg@kroah.com,
+ Linus Torvalds <torvalds@transmeta.com>,
+ linux-security-module@wirex.com,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030206151820.A11019@infradead.org>
+References: <200302061502.KAA06538@moss-shockers.ncsc.mil>
+	 <20030206151820.A11019@infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="arm.diff"
+Organization: 
+Message-Id: <1044553862.10374.23.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+X-Spam-Status: No, hits=-3.8 required=5.0
+	tests=IN_REP_TO,X_AUTH_WARNING,AWL
+	version=2.31
+X-Spam-Level: 
+Sender: linux-security-module-admin@wirex.com
+Errors-To: linux-security-module-admin@wirex.com
+X-BeenThere: linux-security-module@wirex.com
+X-Mailman-Version: 2.0.11
+Precedence: bulk
+List-Help: <mailto:linux-security-module-request@wirex.com?subject=help>
+List-Post: <mailto:linux-security-module@wirex.com>
+List-Subscribe: <http://mail.wirex.com/mailman/listinfo/linux-security-module>,
+	<mailto:linux-security-module-request@wirex.com?subject=subscribe>
+List-Id: Pluggable linux security module framework <linux-security-module.wirex.com>
+List-Unsubscribe: <http://mail.wirex.com/mailman/listinfo/linux-security-module>,
+	<mailto:linux-security-module-request@wirex.com?subject=unsubscribe>
+List-Archive: <http://mail.wirex.com/pipermail/linux-security-module/>
+Date: 06 Feb 2003 17:51:02 +0000
+X-Virus-Scanned: by AMaViS new-20020517
+X-Razor-id: aa75f87a1d76983976b4c188d3d34261f555c7a9
+X-Spam-Status: No, hits=-4.4 tests=IN_REP_TO
+Status: R 
+X-Status: N
+X-KMail-EncryptionState: 
+X-KMail-SignatureState: 
 
-diff -ruN linux-2.4.19-arm/arch/arm/config.in linux-2.4.19-arm-lsm/arch/arm/config.in
---- linux-2.4.19-arm/arch/arm/config.in	2003-02-05 23:25:59.000000000 +0100
-+++ linux-2.4.19-arm-lsm/arch/arm/config.in	2003-02-05 23:24:37.000000000 +0100
-@@ -818,4 +818,5 @@
- dep_bool '    Kernel low-level debugging messages via UART2' CONFIG_DEBUG_CLPS711X_UART2 $CONFIG_DEBUG_LL $CONFIG_ARCH_CLPS711X
- endmenu
- 
-+source security/Config.in
- source lib/Config.in
-diff -ruN linux-2.4.19-arm/arch/arm/kernel/calls.S linux-2.4.19-arm-lsm/arch/arm/kernel/calls.S
---- linux-2.4.19-arm/arch/arm/kernel/calls.S	2003-02-05 23:25:59.000000000 +0100
-+++ linux-2.4.19-arm-lsm/arch/arm/kernel/calls.S	2003-02-02 21:06:19.000000000 +0100
-@@ -237,7 +237,7 @@
- /* 220 */	.long	SYMBOL_NAME(sys_madvise)
- 		.long	SYMBOL_NAME(sys_fcntl64)
- 		.long	SYMBOL_NAME(sys_ni_syscall) /* TUX */
--		.long	SYMBOL_NAME(sys_ni_syscall) /* Security */
-+		.long	SYMBOL_NAME(sys_security_selinux_wrapper) /* Security */
- 		.long	SYMBOL_NAME(sys_gettid)
- /* 225 */	.long	SYMBOL_NAME(sys_readahead)
- __syscall_end:
-diff -ruN linux-2.4.19-arm/arch/arm/kernel/entry-common.S linux-2.4.19-arm-lsm/arch/arm/kernel/entry-common.S
---- linux-2.4.19-arm/arch/arm/kernel/entry-common.S	2002-02-25 20:37:52.000000000 +0100
-+++ linux-2.4.19-arm-lsm/arch/arm/kernel/entry-common.S	2003-02-05 01:20:31.000000000 +0100
-@@ -216,6 +216,10 @@
- 		add	r3, sp, #S_OFF
- 		b	SYMBOL_NAME(sys_execve)
- 
-+sys_security_selinux_wrapper:
-+		add	r3, sp, #S_OFF
-+		b	SYMBOL_NAME(sys_security_selinux_worker)
-+
- sys_clone_wapper:
- 		add	r2, sp, #S_OFF
- 		b	SYMBOL_NAME(sys_clone)
-diff -ruN linux-2.4.19-arm/security/selinux/arch/arm/Makefile linux-2.4.19-arm-lsm/security/selinux/arch/arm/Makefile
---- linux-2.4.19-arm/security/selinux/arch/arm/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.4.19-arm-lsm/security/selinux/arch/arm/Makefile	2003-02-02 20:53:33.000000000 +0100
-@@ -0,0 +1,8 @@
-+O_TARGET := security.o
-+
-+obj-y := wrapper.o
-+
-+EXTRA_CFLAGS += -I../../include 
-+
-+include $(TOPDIR)/Rules.make
-+
-diff -ruN linux-2.4.19-arm/security/selinux/arch/arm/wrapper.c linux-2.4.19-arm-lsm/security/selinux/arch/arm/wrapper.c
---- linux-2.4.19-arm/security/selinux/arch/arm/wrapper.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.4.19-arm-lsm/security/selinux/arch/arm/wrapper.c	2003-02-02 21:12:12.000000000 +0100
-@@ -0,0 +1,30 @@
-+#include <linux/kernel.h>
-+#include <linux/ptrace.h>
-+#include <linux/slab.h>
-+#include "../../selinux_plug.h"
-+
-+long sys_execve_secure(const char *path,
-+		       char **argv,
-+		       char **envp,
-+		       security_id_t sid,
-+		       struct pt_regs *regp)
-+{
-+	int error;
-+	char * filename;
-+	struct task_security_struct *tsec;
-+
-+	tsec = current->security;
-+
-+	filename = getname(path);
-+	error = PTR_ERR(filename);
-+	if (IS_ERR(filename))
-+		goto out;
-+	tsec->in_sid[0] = sid;
-+	error = do_execve(filename, argv, envp, regp);
-+	tsec->in_sid[0] = 0;
-+	if (error == 0)
-+		current->ptrace &= ~PT_DTRACE;
-+	putname(filename);
-+out:
-+	return error;
-+}
-diff -ruN linux-2.4.19-arm/security/selinux/include/asm-arm/flask/syscallaccess.h linux-2.4.19-arm-lsm/security/selinux/include/asm-arm/flask/syscallaccess.h
---- linux-2.4.19-arm/security/selinux/include/asm-arm/flask/syscallaccess.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.4.19-arm-lsm/security/selinux/include/asm-arm/flask/syscallaccess.h	2003-02-05 01:16:50.000000000 +0100
-@@ -0,0 +1,25 @@
-+/* -*- linux-c -*- */
-+
-+#ifndef _ASM_FLASK_SYSCALLACCESS_H_
-+#define _ASM_FLASK_SYSCALLACCESS_H_
-+
-+extern void *sys_call_table[];
-+
-+#define SELINUX_SYSCALL_GET(x) sys_call_table[x]
-+#define SELINUX_SYSCALL_SET(x, y)
-+
-+#define SECURITY_SELINUX_OR_WORKER \
-+asmlinkage int sys_security_selinux_worker(unsigned int magic, \
-+                                 unsigned int call, \
-+                                 unsigned long* args, \
-+                                 struct pt_regs* regp)
-+
-+#define SECURITY_EXECVE_SECURE sys_execve_secure((char *)a0, (char**)a1, \
-+                                        (char**)a[2], a[3], regp)
-+
-+extern long sys_execve_secure(const char *path,
-+			      char **argv,
-+			      char **envp,
-+			      security_id_t sid,
-+			      struct pt_regs *regp);
-+#endif
+On Thu, 2003-02-06 at 15:18, Christoph Hellwig wrote:
+> Life would be a lot simpler if you got the core flask engine in a mergeable
+> shapre earlier and we could have merged the hooks for actually using it
+> incrementally during 2.5, discussing the pros and contras for each hook
 
---Boundary-00=_fRZQ+XLKm/8TLJg--
+I'm not sure we can until the flask engine patent problems with secure
+computing are completely resolved and understood. 
+
+Getting it all resolved and in the base 2.7 early, with any cleanup, fixing
+needed would be a good step forward
+
+
+_______________________________________________
+linux-security-module mailing list
+linux-security-module@wirex.com
+http://mail.wirex.com/mailman/listinfo/linux-security-module
+
+--Boundary-00=_QSpQ+U4Rn21uNO/--
 
 
 --
