@@ -1,143 +1,60 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA20469
-	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 07:40:37 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA20682
+	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 08:11:47 -0400 (EDT)
+From: pasi.kivikangas@nokia.com
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA09405
-	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 11:38:49 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id LAA09401 for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 11:38:47 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 0A22F92467
-	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 21:40:32 +1000 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 06A393546
-	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 13:40:24 +0200 (CEST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: patch to remove initrd support
-Date: Thu, 26 Sep 2002 13:40:23 +0200
+	by jazzband.ncsc.mil  with ESMTP id MAA10778
+	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 12:09:59 GMT
+Received: from mgw-x1.nokia.com (mgw-x1.nokia.com [131.228.20.21])
+        by jazzband.ncsc.mil  with ESMTP id MAA10750 for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 12:09:27 GMT
+Received: from esvir05nok.ntc.nokia.com (esvir05nokt.ntc.nokia.com [172.21.143.37])
+	by mgw-x1.nokia.com (Switch-2.2.1/Switch-2.2.0) with ESMTP id g8QCB5522785
+	for <selinux@tycho.nsa.gov>; Thu, 26 Sep 2002 15:11:05 +0300 (EET DST)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_B3N1ERZHS2W4MCEVXATM"
-Message-Id: <200209261340.23623.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: RE: SELinux on UML
+Date: Thu, 26 Sep 2002 15:11:10 +0300
+Message-ID: <98C7D2E5BCD2374C9AAE0BCD2E9C1DD9BE8430@esebe013.ntc.nokia.com>
+To: <sds@tislabs.com>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+> From: ext Stephen Smalley [mailto:sds@tislabs.com] Sent: 26 September, 2002 14:34
+> 
+> Could you provide the actual output from the failed kernel compilation?
+> I'd like to see the specific error.  Is the real issue the new SELinux
+> system calls?
 
---------------Boundary-00=_B3N1ERZHS2W4MCEVXATM
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+I think the real issue is UML ptrace support but I'm not sure about it.
 
-The attached patch removes initrd support from policy/Makefile as it's just 
-been obsoleted by Steve's recent kernel patches.
+...snip...
+make[3]: Entering directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security/selinux'
+gcc -D__KERNEL__ -I/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common  -g  -U__i386__ -Ui386 -DUM_FASTCALL -D__arch_um__ -DSUBARCH="i386" -D_LARGEFILE64_SOURCE -I/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/arch/um/include -Derrno=kernel_errno    -Iinclude  -nostdinc -I /usr/lib/gcc-lib/i386-redhat-linux/2.96/include -DKBUILD_BASENAME=syscalls  -c -o syscalls.o syscalls.c
+In file included from syscalls.c:1035:
+include/asm/flask/syscalls.c: In function `sys_security_selinux':
+include/asm/flask/syscalls.c:180: structure has no member named `ebx'
+include/asm/flask/syscalls.c:181: structure has no member named `ecx'
+include/asm/flask/syscalls.c:182: structure has no member named `edx'
+make[3]: *** [syscalls.o] Error 1
+make[3]: Leaving directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security/selinux'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security/selinux'
+make[1]: *** [_subdir_selinux] Error 2
+make[1]: Leaving directory `/home/xxx/selinux/linux-2.4.19-lsm-sel-uml/security'
+make: *** [_dir_security] Error 2
+...snip...
+
+> As a side note, one SELinux user has privately reported that 
+> in order to port SELinux to the arm architecture, he restructured the 
+> SELinux code to ease porting to other architectures, which might also help 
+> with UML.  I'm still waiting for him to actually submit patches with his changes.
+
+Sounds like a good contribution if it shows up.
 
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---------------Boundary-00=_B3N1ERZHS2W4MCEVXATM
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="diff"
-
---- Makefile	2002-09-21 05:01:24.000000000 +0200
-+++ Makefile.new	2002-09-26 13:39:05.000000000 +0200
-@@ -34,28 +34,18 @@
- POLICYFILES += rbac users constraints
- POLICYFILES += initial_sid_contexts fs_use genfs_contexts net_contexts
- 
--INITRDPOLICYFILES = $(subst users, initrd-domains/users,$(subst all.te,initrd_all.te,$(POLICYFILES)))
--
- FC = file_contexts/file_contexts
- FCFILES=file_contexts/types.fc $(patsubst domains/program/%.te,file_contexts/program/%.fc, $(wildcard domains/program/*.te))
- 
- 
- install: $(LOADPATH)
- 
--install-initrd: $(LOADPATH).initrd
--
- $(LOADPATH):  $(POLICYCONF) $(CHECKPOLICY)
- 	mkdir -p $(INSTALLDIR)
- 	$(CHECKPOLICY) -o $@ $(POLICYCONF)
- # Note: Can't use install, so not sure how to deal with mode, user, and group
- #	other than by default.
- 
--$(LOADPATH).initrd:  $(POLICYCONF).initrd $(CHECKPOLICY)
--	mkdir -p $(INSTALLDIR)
--	$(CHECKPOLICY) -o $@ $(POLICYCONF).initrd
--# Note: Can't use install, so not sure how to deal with mode, user, and group
--#	other than by default.
--
- policy: $(POLICYVER)
- 
- $(POLICYVER):  policy.conf $(CHECKPOLICY)
-@@ -65,10 +55,6 @@
- 	mkdir -p $(SRCINSTALLDIR)
- 	install -m 644 -o root -g root policy.conf $@
- 
--$(POLICYCONF).initrd: policy.conf.initrd
--	mkdir -p $(SRCINSTALLDIR)
--	install -m 644 -o root -g root policy.conf.initrd $@
--
- reload tmp/load: $(LOADPATH)
- 	$(BINDIR)/load_policy $(LOADPATH)
- 	touch tmp/load
-@@ -83,26 +69,15 @@
- 	mkdir -p $(SRCINSTALLDIR)/policy
- 	cp -R . $(SRCINSTALLDIR)/policy
- 
--policy.conf.initrd: $(INITRDPOLICYFILES) 
--	m4 -Imacros -s $(INITRDPOLICYFILES) > $@
--
- ALLTEFILES := attrib.te tmp/program_used_flags.te tmp/all_macros.te tmp/all_types.te tmp/all_domains.te assert.te 
- 
- tmp/all.te: $(ALLTEFILES)
- 	cat $^ > $@
- 
--INITRD_ALLTEFILES := attrib.te tmp/initrd_program_used_flags.te tmp/all_macros.te tmp/all_types.te tmp/all_initrd_domains.te assert.te 
--
--tmp/initrd_all.te: $(INITRD_ALLTEFILES)
--	cat $^ > $@
--
- tmp/program_used_flags.te: $(wildcard domains/program/*.te) domains/program
- 	mkdir -p tmp
- 	( cd domains/program/ ; for n in *.te ; do echo "define(\`$$n')"; done ) > $@
- 
--tmp/initrd_program_used_flags.te: $(wildcard initrd-domains/*.te) initrd-domains
--	( cd initrd-domains ; for n in *.te ; do echo "define(\`$$n')"; done ) > $@
--
- tmp/all_macros.te:  macros $(wildcard macros/*.te) tmp/all_program_macros.te
- 	cat $(wildcard macros/*.te) tmp/all_program_macros.te > $@
- 
-@@ -115,9 +90,6 @@
- tmp/all_domains.te: $(wildcard domains/*.te domains/misc/*.te domains/program/*.te) domains domains/misc domains/program
- 	cat domains/*.te domains/misc/*.te domains/program/*.te > $@
- 
--tmp/all_initrd_domains.te: $(wildcard initrd-domains/*.te) initrd-domains
--	cat initrd-domains/*.te > $@
--
- relabel:  $(FC) $(SETFILES)
- 	$(SETFILES) $(FC) `mount | awk '/(ext[23]|reiserfs)/{print $$3}'`
- 
-@@ -128,7 +100,7 @@
- 	cat $(FCFILES) > $@
- 
- clean:
--	rm -f policy.conf policy.conf.initrd
-+	rm -f policy.conf
- 	rm -f tmp/*
- 	rm -f $(FC)
-  
-
---------------Boundary-00=_B3N1ERZHS2W4MCEVXATM--
-
+	- Pasi
 
 --
 This message was distributed to subscribers of the selinux mailing list.
