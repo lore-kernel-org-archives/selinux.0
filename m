@@ -1,40 +1,42 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98HXPrT023745
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 13:33:25 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98HWGBk014038
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 17:32:16 GMT
-Subject: Re: fuse
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1097256081.16641.179.camel@moss-spartans.epoch.ncsc.mil>
-References: <20040922005509.GD14303@lkcl.net>
-	 <200409230424.55524.russell@coker.com.au>  <20040922192225.GE7308@lkcl.net>
-	 <1097256081.16641.179.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98HxqrT023984
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 13:59:53 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98HxqZ2014235
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 17:59:52 GMT
+Subject: Re: gentoo diff for mysqld
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Russell Coker <russell@coker.com.au>
+Cc: petre rodan <kaiowas@gentoo.org>, Erich Schubert <erich@debian.org>,
+   SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200410071648.47636.russell@coker.com.au>
+References: <41625B74.2090503@gentoo.org>
+	 <1097001016.15549.4.camel@wintermute.xmldesign.de>
+	 <4163CF0D.4070201@gentoo.org>  <200410071648.47636.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1097256633.16641.194.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1097258322.13326.5.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 08 Oct 2004 13:30:33 -0400
+Date: Fri, 08 Oct 2004 13:58:42 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-10-08 at 13:21, Stephen Smalley wrote:
-> No special interface for that, just passes the option string via the
-> data parameter to mount(2).  So if you are using the patched mount
-> program, and fuse takes the typical string representation of mount
-> options, then nothing special required to use fscontext=.  Only
-> filesystems that use a binary struct to pass the data require special
-> handling, like NFS.
+I have merged the tmp_domain and daemontools chunks into CVS.
 
-Actually, you don't even need the patched mount program; that is only
-required for the NFS case.  Unpatched mount will happily pass the
-context= or fscontext= options down for you.
-
+On Thu, 2004-10-07 at 02:48, Russell Coker wrote:
+> On Wed, 6 Oct 2004 20:55, petre rodan <kaiowas@gentoo.org> wrote:
+> > Here is a new patch with no distro_gentoo ifdefs.
+> > Also can someone please tell me when is that 'allow mysqld_t
+> > sysadm_home_t:file { read getattr };' needed? I have never felt the need
+> > for that rule and I'd be happy to see it go.
+> 
+> The start command for mysqld reads the file /root/.my.cnf , or used to at 
+> least.  Has it changed?
+> 
+> I've merged the tmp_domain and daemontools bits into my tree.
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
