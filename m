@@ -1,43 +1,31 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA06473
-	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 09:54:58 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA26817
-	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 14:53:54 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA06509
+	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 10:02:01 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA07579
+	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 15:00:38 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id OAA26813 for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 14:53:53 GMT
+	by jazzswing.ncsc.mil  with ESMTP id PAA07575
+	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 15:00:37 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 097BD92443
+	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 02:01:57 +1100 (EST)
+Received: from there (lyta [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 1032A2F0
+	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 16:01:49 +0100 (CET)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Dale Amon <amon@vnl.com>
-Subject: Re: package configuration (for dpkg - rpm will have the same issues)
-Date: Fri, 22 Mar 2002 15:54:45 +0100
-Cc: selinux <selinux@tycho.nsa.gov>
-References: <20020320171217.2BF8A3CF33@lyta.coker.com.au> <Pine.GSO.4.33.0203201230580.11981-100000@raven> <20020322140833.GD2123@vnl.com>
-In-Reply-To: <20020322140833.GD2123@vnl.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: netscape
+Date: Fri, 22 Mar 2002 16:01:48 +0100
 MIME-Version: 1.0
-Message-Id: <20020322145445.497E5EFD@lyta.coker.com.au>
+Message-Id: <20020322150149.1032A2F0@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 22 Mar 2002 15:08, Dale Amon wrote:
-> On Wed, Mar 20, 2002 at 12:48:40PM -0500, Stephen Smalley wrote:
-> > When a new package is installed on a system running SELinux, I expected
-> > chcon or the modified file utilities to be used to set the security
-> > context appropriately for its files in a similar manner to the use
-> > of chown/chmod or the existing file utilities for setting the Unix
-> > attributes.  But it also seems necessary to update the setfiles
-> > configuration for future installations, resets, or major policy changes.
-> > So perhaps a hacked setfiles is a good idea.
->
-> Perhaps a 'setfiles --dump > file_contexts' capability is in order?
-
-Making that generate a list suitable for setsid or chcon would be easy.  
-Making it generate something that approximates the original file_contexts 
-would be very difficult.  Also there are lots of files that won't be on a 
-typical system which are in file_contexts, how would a setfiles --dump handle 
-them?
+Why does netscape need the capabilities setuid, setgid, and dac_override?
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
