@@ -1,28 +1,43 @@
-Message-ID: <3C73AB6F.7E051FA4@cpcug.org>
-Date: Wed, 20 Feb 2002 08:58:07 -0500
-From: James Griffin <agriffin@cpcug.org>
+Date: Wed, 20 Feb 2002 08:55:52 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Metrix <metrix007@yahoo.com>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: 2.2 kernel series
+In-Reply-To: <20020220005027.31760.qmail@web20602.mail.yahoo.com>
+Message-ID: <Pine.GSO.4.33.0202200838370.9757-100000@raven>
 MIME-Version: 1.0
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Security Policy Analysis Tools status
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Last October there as a thread on policy analysis tools.  Individuals at
-MITRE, IBM, and Tresys indicated that they were doing work in this
-area.  Frank Mayer, Tresys, made his work available at
-http://www.tresys.com/selinux.html (lasted updated in November).
 
-Since the thread seems to have ended, I was wondering what the current
-level of interest and activity is?
+On Tue, 19 Feb 2002, Metrix wrote:
 
-Part of the reason for the question is the availability of tools for
-system administrators and for "outside" auditors (e.g. GAO) to
-check/evaluate policy "as implemented" compared with policy "as
-documented".
+> why develop 2.4, 2.5 even? 2.4 has had quite a lot of
+> problems, most people are sticking with 2.2 in a
+> production enviroment, it would seem that the 2.2
+> selinux patches are not being updated, which is a
+> shame. also, does selinux audit there code ala openbsd?
 
-Regards,
-Jim
+I don't want to get into a 2.2 vs. 2.4 debate, and it really isn't
+relevant.  SELinux is focused on technology transfer to the mainstream
+Linux kernel.  In that context, maintaining a 2.2-based SELinux would not
+be a good use of our limited resources.  If you want to create a LSM-like
+framework for the 2.2 series and back port the current SELinux kernel
+module, then feel free.
+
+No, SELinux is not about auditing Linux code.  Please read the overview
+and the FAQ on the NSA SELinux web site.  SELinux is more like TrustedBSD
+than OpenBSD.  This has come up previously on the list - please refer to
+the mailing list archives.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
