@@ -1,37 +1,91 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB3DZ0Rb021184
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 08:35:00 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB3DYLp5021188
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 13:34:21 GMT
-Received: from nox.lemuria.org ([213.191.86.35])
-	by jazzswing.ncsc.mil  with ESMTP id hB3DYKt0021179
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 13:34:20 GMT
-Date: Wed, 3 Dec 2003 14:34:53 +0100
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: policy under version control
-Message-ID: <20031203143453.A31863@lemuria.org>
-References: <20031129132619.GE26960@lukas.schuldei.com> <1070291615.12270.120.camel@moss-spartans.epoch.ncsc.mil> <20031201202813.I16359@lemuria.org> <200312021430.51186.russell@coker.com.au> <20031202080830.E17580@lemuria.org> <1070377124.16958.13.camel@nexus.verbum.private> <20031202195219.G18433@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20031202195219.G18433@lemuria.org>; from tom@lemuria.org on Tue, Dec 02, 2003 at 07:52:19PM +0100
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB3EO9Rb021619
+	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 09:24:10 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hB3EO9qY017285
+	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 14:24:09 GMT
+Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
+        by jazzband.ncsc.mil  with ESMTP id hB3EO40o017269 for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 14:24:07 GMT
+Received: from lky (mailwall.shnet.edu.cn [202.112.26.55])
+	by sjtu.edu.cn (WorldPost) with ESMTP id 163BD37772E
+	for <selinux@tycho.nsa.gov>; Wed,  3 Dec 2003 22:23:51 +0800 (BEIST)
+Message-ID: <014201c3b9a9$1c01d6c0$5d38a8c0@lky>
+From: "lky" <lky77@sjtu.edu.cn>
+To: "SELINUX" <SELinux@tycho.nsa.gov>
+Subject: question about booting webmin as different users
+Date: Wed, 3 Dec 2003 22:24:02 +0800
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_013F_01C3B9EC.2770F340"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
 
-> Thanks, you explain this much better than I could. Someone else said
-> off-list that he'd be interested. I think I'll just give it a shot and
-> try to set up an arch repository on nox.lemuria.org this week.
+------=_NextPart_000_013F_01C3B9EC.2770F340
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
 
-I've got a repository, but the webdav access doesn't work. Anyone got
-experience with arch, webdav, apache2 ?
+SGksIEkganVzdCB3YW50IHRvIHNldCB1cCAzIHVzZXJzIHdpdGggZGlmZmVyZW50IHJpZ2h0cy5P
+bmUgZm9yIHN5c3RlbSBhZG1pbmlzdHJhdGlvbixvbmUgZm9yIGF1ZGl0IGFkbWluaXN0cmF0aW9u
+LHRoZSBsYXN0IGZvciBzZWN1cml0eSBhZG1pbnN0cmF0b3IuVGhlbiBJIGluc3RhbGxlZCAzIHdl
+Ym1pbnMgb24gMyBkaWZmZXJlbnQgcG9ydHM6MTAwMDAsMTEwMDAsMTIwMDAuIFRoZW4gSSBydW4g
+dGhlIHRocmVlIHdlYm1pbnMgb24gZGlmZmVyZW50IHBvcnRzIGJ5IHRoZSB0aHJlZSB1c2VycyBp
+bmRpdmlkdWFsbHkuDQpCZWNhdXNlIEkgaGF2ZSBjb25maWd1cmVkIGRpZmZlcmVudCByaWdodHMg
+Zm9yIHRoZSAzIHVzZXJzLk5vdyBJIGNhbiBvbmx5IHJ1biB0aGUgd2VibWluIGFzIHN5c3RlbSBh
+ZG1pbnN0cmF0b3IuV2hlbiBJIHJ1biB3ZWJtaW4gYXMgYXVkaXQgYWRtaW5pc3RyYXRvciBvciBz
+ZWN1cml0eSBhZG1pbmlzdHJhdG9yIHRoZSBlcnJvciBtZXNzYWdlcyBjb21lIGFzIGJlbG93Og0K
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQpTdGFydGluZyBXZWJtaW4gc2VydmVyIGlu
+IC91c3Ivc3JjL3dlYm1pbi1hdXRhZG0tMS4xMDANCmdldHNlcnZieW5hbWUgZmFpbGVkIGZvciB0
+Y3AgYXQgKGV2YWwgMykgbGluZSAxDQp1bml4IGRncmFtIGNvbm5lY3Q6IFBlcm1pc3Npb24gZGVu
+aWVkIGF0IChldmFsIDMpIGxpbmUgMQ0Kc3RyZWFtIC9kZXYvY29uc2xvZyBpcyBub3Qgd3JpdGFi
+bGUgYXQgKGV2YWwgMykgbGluZSAxDQpjb25zb2xlIGlzIG5vdCB3cml0YWJsZSBhdCAoZXZhbCAz
+KSBsaW5lIDENCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQpXaGF0IHJpZ2h0cyBzaG91
+bGQgSSBhZGQgdG8gYXVkaXQgYWRtaW5pc3RyYXRvciBhbmQgc2VjdXJpdHkgYWRtaW5pc3RyYXRv
+cj8NClRoYW5rcyBhIGxvdCENCmxreQ0K
+
+------=_NextPart_000_013F_01C3B9EC.2770F340
+Content-Type: text/html;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
+
+PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
+L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
+dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
+MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
+WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPkhpLCZuYnNw
+O0kganVzdCB3YW50IHRvIHNldCB1cCAzJm5ic3A7dXNlcnMgd2l0aCANCmRpZmZlcmVudCByaWdo
+dHMuT25lIGZvciBzeXN0ZW0gYWRtaW5pc3RyYXRpb24sb25lIGZvciBhdWRpdCBhZG1pbmlzdHJh
+dGlvbix0aGUgDQpsYXN0IGZvciBzZWN1cml0eSBhZG1pbnN0cmF0b3IuVGhlbiBJIGluc3RhbGxl
+ZCAzIHdlYm1pbnMgb24gMyBkaWZmZXJlbnQgDQpwb3J0czoxMDAwMCwxMTAwMCwxMjAwMC4gVGhl
+biBJIHJ1biB0aGUgdGhyZWUgd2VibWlucyBvbiBkaWZmZXJlbnQgcG9ydHMmbmJzcDtieSANCnRo
+ZSB0aHJlZSB1c2VycyBpbmRpdmlkdWFsbHkuDQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0y
+PkJlY2F1c2UgSSBoYXZlIGNvbmZpZ3VyZWQgZGlmZmVyZW50IHJpZ2h0cyBmb3IgdGhlIA0KMyB1
+c2Vycy5Ob3cgSSBjYW4gb25seSBydW4gdGhlIHdlYm1pbiBhcyBzeXN0ZW0gYWRtaW5zdHJhdG9y
+LldoZW4gSSBydW4gd2VibWluIA0KYXMgYXVkaXQgYWRtaW5pc3RyYXRvciBvciBzZWN1cml0eSBh
+ZG1pbmlzdHJhdG9yIHRoZSBlcnJvciBtZXNzYWdlcyBjb21lIGFzIA0KYmVsb3c6PC9GT05UPjwv
+RElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsIA0Kc2l6ZT0yPi0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLTwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+U3Rh
+cnRpbmcgV2VibWluIHNlcnZlciBpbiANCi91c3Ivc3JjL3dlYm1pbi1hdXRhZG0tMS4xMDA8QlI+
+Z2V0c2VydmJ5bmFtZSBmYWlsZWQgZm9yIHRjcCBhdCAoZXZhbCAzKSBsaW5lIA0KMTxCUj51bml4
+IGRncmFtIGNvbm5lY3Q6IFBlcm1pc3Npb24gZGVuaWVkIGF0IChldmFsIDMpIGxpbmUgMTxCUj5z
+dHJlYW0gDQovZGV2L2NvbnNsb2cgaXMgbm90IHdyaXRhYmxlIGF0IChldmFsIDMpIGxpbmUgMTxC
+Uj5jb25zb2xlIGlzIG5vdCB3cml0YWJsZSBhdCANCihldmFsIDMpIGxpbmUgMTwvRk9OVD48L0RJ
+Vj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCANCnNpemU9Mj4tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLTwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+V2hhdCBy
+aWdodHMgc2hvdWxkIEkgYWRkIHRvIGF1ZGl0IGFkbWluaXN0cmF0b3IgYW5kIA0Kc2VjdXJpdHkg
+YWRtaW5pc3RyYXRvcj88L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0y
+PlRoYW5rcyBhIGxvdCE8L0ZPTlQ+PC9ESVY+DQo8RElWPmxreTwvRElWPjwvRk9OVD48L0RJVj48
+L0JPRFk+PC9IVE1MPg0K
+
+------=_NextPart_000_013F_01C3B9EC.2770F340--
 
 
--- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
