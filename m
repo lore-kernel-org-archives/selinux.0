@@ -1,29 +1,44 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA21131
-	for <selinux@tycho.nsa.gov>; Sat, 3 Feb 2001 03:20:17 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA21742
+	for <selinux@tycho.nsa.gov>; Sat, 3 Feb 2001 11:36:36 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id IAA05815
-	for <selinux@tycho.nsa.gov>; Sat, 3 Feb 2001 08:20:16 GMT
-Received: from tech1comm.com (ns1.tech1comm.com [216.17.159.2])
-	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id IAA05811
-	for <selinux@tycho.nsa.gov>; Sat, 3 Feb 2001 08:20:12 GMT
-Received: from SHUNKWORKS (216-160-164-42.customers.uswest.net [216.160.164.42])
-	by tech1comm.com (8.11.0/8.8.7) with SMTP id f139HeX19625
-	for <selinux@tycho.nsa.gov>; Sat, 3 Feb 2001 02:17:46 -0700
-Message-ID: <008001c08dba$168f56e0$2aa4a0d8@SHUNKWORKS>
-From: "Jon Bazemore" <jpbazemo@tech1comm.com>
-To: <selinux@tycho.nsa.gov>
-Subject: diagrams for a secure network
-Date: Sat, 3 Feb 2001 01:19:45 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA18290
+	for <selinux@tycho.nsa.gov>; Sat, 3 Feb 2001 16:36:35 GMT
+Received: from localhost.localdomain (home2.telefragged.com [206.96.221.3])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA18286
+	for <selinux@tycho.nsa.gov>; Sat, 3 Feb 2001 16:36:35 GMT
+Received: from c783838-b.croltn1.tx.home.com (c783838-b.croltn1.tx.home.com [24.15.240.109])
+	by localhost.localdomain (8.11.0/8.11.0) with SMTP id f13GVdQ02929
+	for <selinux@tycho.nsa.gov>; Sat, 3 Feb 2001 10:31:39 -0600
+Date: Sat, 3 Feb 2001 10:36:43 -0600
+From: Dustin Reyes <crusader@linuxgames.com>
+To: selinux@tycho.nsa.gov
+Subject: Division of Labor?
+Message-ID: <20010203103643.A27767@linuxgames.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-I am looking for some blueprints or diagrams of a secure network.  Just
-something to branch some ideas off of--thanks in advance for your help.
+Greetings.
 
+What's the current division of labor for knocking out the remaining
+portions of the TODO list (http://www.nsa.gov/selinux/todo.html)?
+
+How are external patches being evaluated?
+
+Also, I'm assuming that the parties involved would not object to
+a third party expanding on the SE Linux distribution themselves,
+as the changes were released under the GNU General Public License.
+
+Great work, and I'm proud to see tax dollars being utilized for
+this kind of effort.
+
+-Dustin
+
+-- 
+Dustin Reyes - crusader@linuxgames.com
+LinuxGames - http://www.linuxgames.com
 
 --
 You have received this message because you are subscribed to the selinux list.
