@@ -1,258 +1,499 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81HmArT022971
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 13:48:11 -0400 (EDT)
-Received: from moss-huskies.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i81Hm9eu011208
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 17:48:09 GMT
-Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-huskies.epoch.ncsc.mil (8.12.11/8.12.11) with ESMTP id i81HmgST027325
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 13:48:42 -0400
-Received: (from hdholm@localhost)
-	by moss-huskies.epoch.ncsc.mil (8.12.11/8.12.11/Submit) id i81HmgVN027324
-	for selinux@tycho.nsa.gov; Wed, 1 Sep 2004 13:48:42 -0400
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81DTqrT020855
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 09:29:53 -0400 (EDT)
-Received: from mailgate.netsplit.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i81DT2Y2028218
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 13:29:03 GMT
-Subject: Re: dpkg and selinux
-From: Scott James Remnant <scott@netsplit.com>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>,
-   Dpkg Development <debian-dpkg@lists.debian.org>,
-   Debian Developers <debian-devel@lists.debian.org>
-In-Reply-To: <20040901101921.GC5882@lkcl.net>
-References: <20040831234115.GZ4375@lkcl.net>
-	 <1094004762.6901.68.camel@descent.netsplit.com>
-	 <20040901101921.GC5882@lkcl.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wbyMOsdWDgf/UnGdjkgE"
-Date: Wed, 01 Sep 2004 14:30:03 +0100
-Message-Id: <1094045403.6901.112.camel@descent.netsplit.com>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81HxnrT023072
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 13:59:49 -0400 (EDT)
+Message-ID: <41360E0A.5080704@redhat.com>
+Date: Wed, 01 Sep 2004 13:59:38 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: jwcart2@epoch.ncsc.mil
+CC: russell@coker.com.au, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Previous patch broken.
+References: <20040823215636.GD13677@lkcl.net>	 <200408242147.44485.russell@coker.com.au>	 <1093640980.24188.47.camel@moss-lions.epoch.ncsc.mil>	 <41337903.7020308@redhat.com> <1094052344.2523.48.camel@moss-lions.epoch.ncsc.mil>
+In-Reply-To: <1094052344.2523.48.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+James Carter wrote:
 
---=-wbyMOsdWDgf/UnGdjkgE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>Mostly Merged.  I removed the stuff reverting recent patches from
+>Russell that I just merged.
+>
+>Below is some comments, and attached is the diff that I merged.
+> 
+>On Mon, 2004-08-30 at 14:59, Daniel J Walsh wrote:
+>
+>  
+>
+>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/ssh.te policy-1.17.7/domains/program/ssh.te
+>>--- nsapolicy/domains/program/ssh.te	2004-08-27 14:44:11.000000000 -0400
+>>+++ policy-1.17.7/domains/program/ssh.te	2004-08-30 14:54:52.330858292 -0400
+>>@@ -232,6 +232,7 @@
+>> 
+>> # Type for the ssh executable.
+>> type ssh_exec_t, file_type, exec_type, sysadmfile;
+>>+can_exec(sshd_t, ssh_exec_t)
+>> 
+>> # Everything else is in the ssh_domain macro in
+>> # macros/program/ssh_macros.te.
+>>    
+>>
+>
+>Also added r_dir_file(sshd_t, self) further up in ssh.te to allow sshd
+>to access /proc/pid/fd. (Why does it want to?)
+>
+>  
+>
+ssh now reexecs it self in order to increase it's security.  Not sure 
+why it wants to access /proc/pid/fd.
 
-On Wed, 2004-09-01 at 11:19 +0100, Luke Kenneth Casson Leighton wrote:
+>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/syslogd.te policy-1.17.7/domains/program/syslogd.te
+>>--- nsapolicy/domains/program/syslogd.te	2004-08-30 09:49:15.000000000 -0400
+>>+++ policy-1.17.7/domains/program/syslogd.te	2004-08-30 14:54:52.331858177 -0400
+>>@@ -95,3 +95,6 @@
+>> #
+>> dontaudit syslogd_t file_t:dir search;
+>> allow syslogd_t devpts_t:dir { search };
+>>+# For tageted policy tries to read /init
+>>+dontaudit syslogd_t root_t:file { getattr read };
+>>+
+>>    
+>>
+>
+>Instead I did:
+>diff -u -r1.55 global_macros.te
+>--- macros/global_macros.te	1 Sep 2004 12:59:59 -0000	1.55
+>+++ macros/global_macros.te	1 Sep 2004 14:56:38 -0000
+>@@ -295,7 +295,7 @@
+> ')dnl end if automount.te
+> ifdef(`targeted_policy', `
+> dontaudit $1_t devpts_t:chr_file { read write };
+>-dontaudit $1_t unlabeled_t:file read;
+>+dontaudit $1_t root_t:file { getattr read };
+> ')dnl end if targeted_policy
+>  
+> ')dnl end macro daemon_core_rules
+>
+>  
+>
+Ok
 
-> On Wed, Sep 01, 2004 at 03:12:42AM +0100, Scott James Remnant wrote:
-> > On Wed, 2004-09-01 at 00:41 +0100, Luke Kenneth Casson Leighton wrote:
-> >=20
-> > > the way that russell's "postinst.d" patch works is that for every
-> > > package, exactly at the end of its postinst script, the scripts in
-> > > postinst.d are run - with the name of the package as an argument.
->=20
-So we've ascertained that this statement was wrong and that Russell's
-patch actually runs postinst.d scripts *before* the package's postinst
-script.
-=09
-> the analogy is to imagine that chmod, chgrp and chown were a new
-> concept that had to be retrofitted onto a system where the default
-> permissions were noaccess, noaccess, 0000, with no members in the
-> group "noaccess".
->=20
-It's an interesting one, certainly I'd suggest the right solution would
-be to do such commands in postinst until such time as it was the default
-and the tar format could carry this information.  It would then become
-policy that it would be carried inside the tar file, just as chmod/
-chgrp/chown are carried today.
+>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/apache.te policy-1.17.7/domains/program/unused/apache.te
+>>--- nsapolicy/domains/program/unused/apache.te	2004-08-30 09:49:15.000000000 -0400
+>>+++ policy-1.17.7/domains/program/unused/apache.te	2004-08-30 14:54:52.331858177 -0400
+>>@@ -41,6 +41,7 @@
+>> append_logdir_domain(httpd)
+>> #can read /etc/httpd/logs
+>> allow httpd_t httpd_log_t:lnk_file { read };
+>>+allow httpd_t httpd_log_t:dir { remove_name };
+>> 
+>> # For /etc/init.d/apache2 reload
+>> can_tcp_connect(httpd_t, httpd_t)
+>>    
+>>
+>
+>Do we really want to do this?
+>
+>  
+>
+Russell?
 
-> you'd have to specify a file with unix_contexts in it which
-> had:
->=20
->  	/bin(/.*)?		root,root,0755
-> 	/bin/ping		root,root,1755 (...or is it 3755 for setuid?)
->=20
-> etc, with THOUSANDS of entries...
->=20
-The thing that worries me about this file is that it contains policy for
-things I don't have installed on my system; and doesn't seem to cope
-well with differing policy for (e.g.) two binaries called 'ssh' which
-may have different requirements.
+>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/dbusd.te policy-1.17.7/domains/program/unused/dbusd.te
+>>--- nsapolicy/domains/program/unused/dbusd.te	2004-08-27 14:44:11.000000000 -0400
+>>+++ policy-1.17.7/domains/program/unused/dbusd.te	2004-08-30 14:55:40.446348342 -0400
+>>@@ -32,3 +32,4 @@
+>> 
+>> # SE-DBus specific permissions
+>> allow { dbus_client_domain userdomain } { dbusd_t self }:dbus { send_msg };
+>>+domain_auto_trans(userdomain, dbusd_exec_t, dbusd_t)
+>>    
+>>
+>
+>Steve posted on the list earlier today about this not being desired for
+>the longterm.
+>
+>  
+>
+Colin is doing a rewrite as we speak.
 
-SELinux's seems to suffer the same problem, it assumes what you have
-installed on your system.
+>------------------------------------------------------------------------
+>
+>Index: domains/program/crond.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/crond.te,v
+>retrieving revision 1.33
+>diff -u -r1.33 crond.te
+>--- domains/program/crond.te	20 Aug 2004 17:53:50 -0000	1.33
+>+++ domains/program/crond.te	31 Aug 2004 15:08:51 -0000
+>@@ -81,11 +81,13 @@
+> ifdef(`distro_redhat', `
+> # Run the rpm program in the rpm_t domain. Allow creation of RPM log files
+> # via redirection of standard out.
+>+ifdef(`rpm.te', `
+> allow crond_t rpm_log_t: file create_file_perms;
+> 
+> system_crond_entry(rpm_exec_t, rpm_t)
+> allow system_crond_t rpm_log_t:file create_file_perms;
+> ')
+>+')
+> 
+> allow system_crond_t var_log_t:file r_file_perms;
+> 
+>Index: domains/program/ssh.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/ssh.te,v
+>retrieving revision 1.36
+>diff -u -r1.36 ssh.te
+>--- domains/program/ssh.te	1 Sep 2004 12:58:21 -0000	1.36
+>+++ domains/program/ssh.te	1 Sep 2004 14:16:20 -0000
+>@@ -147,6 +147,7 @@
+> # sshd_extern_t is the domain for ssh from outside our network
+> #
+> sshd_program_domain(sshd)
+>+r_dir_file(sshd_t, self)
+> if (ssh_sysadm_login) {
+> sshd_spawn_domain(sshd, userdomain, { sysadm_devpts_t userpty_type })
+> } else {
+>@@ -232,6 +233,7 @@
+> 
+> # Type for the ssh executable.
+> type ssh_exec_t, file_type, exec_type, sysadmfile;
+>+can_exec(sshd_t, ssh_exec_t)
+> 
+> # Everything else is in the ssh_domain macro in
+> # macros/program/ssh_macros.te.
+>Index: domains/program/unused/canna.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/canna.te,v
+>retrieving revision 1.7
+>diff -u -r1.7 canna.te
+>--- domains/program/unused/canna.te	30 Jul 2004 19:57:15 -0000	1.7
+>+++ domains/program/unused/canna.te	31 Aug 2004 15:08:51 -0000
+>@@ -40,4 +40,3 @@
+> can_unix_connect(i18n_input_t, canna_t)
+> ')
+> 
+>-allow canna_t tmp_t:dir search;
+>Index: domains/program/unused/dbusd.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/dbusd.te,v
+>retrieving revision 1.9
+>diff -u -r1.9 dbusd.te
+>--- domains/program/unused/dbusd.te	23 Aug 2004 14:56:57 -0000	1.9
+>+++ domains/program/unused/dbusd.te	1 Sep 2004 14:48:53 -0000
+>@@ -32,3 +32,4 @@
+> 
+> # SE-DBus specific permissions
+> allow { dbus_client_domain userdomain } { dbusd_t self }:dbus { send_msg };
+>+domain_auto_trans(userdomain, dbusd_exec_t, dbusd_t)
+>Index: domains/program/unused/dovecot.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/dovecot.te,v
+>retrieving revision 1.4
+>diff -u -r1.4 dovecot.te
+>--- domains/program/unused/dovecot.te	30 Aug 2004 12:29:19 -0000	1.4
+>+++ domains/program/unused/dovecot.te	31 Aug 2004 15:08:51 -0000
+>@@ -19,8 +19,13 @@
+> allow dovecot_t self:unix_stream_socket create_stream_socket_perms;
+> can_unix_connect(dovecot_t, self)
+> 
+>+# For SSL certificates
+>+allow dovecot_t usr_t:file { getattr read };
+>+
+> allow dovecot_t etc_t:file { getattr read };
+> allow dovecot_t initrc_var_run_t:file { getattr };
+>+# Dovecot sub-binaries are lib_t on Debian and bin_t on Fedora
+>+allow dovecot_t lib_t:file { execute execute_no_trans };
+> allow dovecot_t bin_t:dir { getattr search };
+> can_exec(dovecot_t, bin_t)
+> 
+>Index: domains/program/unused/ftpd.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/ftpd.te,v
+>retrieving revision 1.22
+>diff -u -r1.22 ftpd.te
+>--- domains/program/unused/ftpd.te	30 Aug 2004 12:29:19 -0000	1.22
+>+++ domains/program/unused/ftpd.te	31 Aug 2004 15:08:51 -0000
+>@@ -101,3 +101,4 @@
+> allow ftpd_t nfs_t:file r_file_perms;
+> }
+> ')dnl end if nfs_home_dirs
+>+dontaudit ftpd_t selinux_config_t:dir { search };
+>Index: domains/program/unused/hald.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/hald.te,v
+>retrieving revision 1.4
+>diff -u -r1.4 hald.te
+>--- domains/program/unused/hald.te	30 Aug 2004 12:29:20 -0000	1.4
+>+++ domains/program/unused/hald.te	31 Aug 2004 15:08:51 -0000
+>@@ -33,7 +33,10 @@
+> allow hald_t { fixed_disk_device_t removable_device_t }:blk_file { getattr read ioctl };
+> allow hald_t event_device_t:chr_file { getattr read };
+> 
+>-ifdef(`updfstab.te', `domain_auto_trans(hald_t, updfstab_exec_t, updfstab_t)')
+>+ifdef(`updfstab.te', `
+>+domain_auto_trans(hald_t, updfstab_exec_t, updfstab_t)
+>+allow updfstab_t hald_t:dbus { send_msg };
+>+')
+> ifdef(`udev.te', `
+> domain_auto_trans(hald_t, udev_exec_t, udev_t)
+> allow udev_t hald_t:unix_dgram_socket sendto;
+>Index: domains/program/unused/hotplug.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/hotplug.te,v
+>retrieving revision 1.27
+>diff -u -r1.27 hotplug.te
+>--- domains/program/unused/hotplug.te	30 Aug 2004 12:29:20 -0000	1.27
+>+++ domains/program/unused/hotplug.te	31 Aug 2004 15:08:51 -0000
+>@@ -137,7 +137,6 @@
+> 
+> ifdef(`udev.te', `
+> domain_auto_trans(hotplug_t, { udev_exec_t udev_helper_exec_t }, udev_t)
+>-allow hotplug_t udev_helper_exec_t:lnk_file read;
+> ')
+> 
+> file_type_auto_trans(hotplug_t, etc_t, etc_runtime_t, file)
+>Index: domains/program/unused/iptables.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/iptables.te,v
+>retrieving revision 1.6
+>diff -u -r1.6 iptables.te
+>--- domains/program/unused/iptables.te	30 Jul 2004 19:57:15 -0000	1.6
+>+++ domains/program/unused/iptables.te	31 Aug 2004 15:08:51 -0000
+>@@ -23,10 +23,9 @@
+> # to allow rules to be saved on reboot
+> allow iptables_t initrc_tmp_t:file rw_file_perms;
+> 
+>-type iptables_var_run_t, file_type, sysadmfile, pidfile;
+>-
+> domain_auto_trans(iptables_t, ifconfig_exec_t, ifconfig_t)
+>-file_type_auto_trans(iptables_t, var_run_t, iptables_var_run_t, file)
+>+allow iptables_t var_t:dir search;
+>+var_run_domain(iptables)
+> 
+> allow iptables_t self:process { fork signal_perms };
+> 
+>@@ -57,4 +56,3 @@
+> 
+> # system-config-network appends to /var/log
+> allow iptables_t var_log_t:file { append };
+>-allow iptables_t var_t:dir { search };
+>Index: domains/program/unused/mdadm.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/mdadm.te,v
+>retrieving revision 1.7
+>diff -u -r1.7 mdadm.te
+>--- domains/program/unused/mdadm.te	12 Aug 2004 17:19:52 -0000	1.7
+>+++ domains/program/unused/mdadm.te	31 Aug 2004 15:08:51 -0000
+>@@ -28,7 +28,6 @@
+> # Ignore attempts to read every device file
+> dontaudit mdadm_t device_type:{ chr_file blk_file } getattr;
+> dontaudit mdadm_t device_t:{ fifo_file file dir chr_file blk_file } { read getattr };
+>-dontaudit mdadm_t device_t:dir r_dir_perms;
+> dontaudit mdadm_t devpts_t:dir r_dir_perms;
+> 
+> # Ignore attempts to read/write sysadmin tty
+>Index: domains/program/unused/openca-ca.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/openca-ca.te,v
+>retrieving revision 1.8
+>diff -u -r1.8 openca-ca.te
+>--- domains/program/unused/openca-ca.te	8 Mar 2004 13:48:21 -0000	1.8
+>+++ domains/program/unused/openca-ca.te	31 Aug 2004 15:08:51 -0000
+>@@ -39,11 +39,6 @@
+> allow httpd_t openca_ca_t:process {transition};
+> allow httpd_t openca_ca_exec_t:dir r_dir_perms;
+> 
+>-#############################################################
+>-# Allow the script access to the library files so it can run
+>-#############################################################
+>-can_exec(openca_ca_t, lib_t)
+>-
+> ##################################################################
+> # Allow the script to get the file descriptor from the http deamon
+> # and send sigchild to http deamon
+>@@ -52,6 +47,16 @@
+> allow openca_ca_t httpd_t:fd use;
+> allow openca_ca_t httpd_t:fifo_file {getattr write};
+> 
+>+############################################
+>+# Allow scripts to append to http logs
+>+#########################################
+>+allow openca_ca_t httpd_log_t:file { append getattr };
+>+
+>+#############################################################
+>+# Allow the script access to the library files so it can run
+>+#############################################################
+>+can_exec(openca_ca_t, lib_t)
+>+
+> ########################################################################
+> # The script needs to inherit the file descriptor and find the script it
+> # needs to run
+>@@ -79,11 +84,6 @@
+> ##############################################################################
+> allow openca_ca_t openca_ca_exec_t:dir search;
+> 
+>-############################################
+>-# Allow scripts to append to http logs
+>-#########################################
+>-allow openca_ca_t httpd_log_t:file { append getattr };
+>-
+> #
+> # Allow access to writeable files under /etc/openca
+> #
+>Index: domains/program/unused/portmap.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/portmap.te,v
+>retrieving revision 1.7
+>diff -u -r1.7 portmap.te
+>--- domains/program/unused/portmap.te	30 Aug 2004 12:29:20 -0000	1.7
+>+++ domains/program/unused/portmap.te	31 Aug 2004 15:08:51 -0000
+>@@ -26,6 +26,7 @@
+> 
+> # portmap binds to arbitary ports
+> allow portmap_t port_t:{ udp_socket tcp_socket } name_bind;
+>+allow portmap_t reserved_port_t:{ udp_socket tcp_socket } name_bind;
+> 
+> allow portmap_t etc_t:file { getattr read };
+> 
+>Index: domains/program/unused/rpm.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/rpm.te,v
+>retrieving revision 1.30
+>diff -u -r1.30 rpm.te
+>--- domains/program/unused/rpm.te	30 Aug 2004 19:58:53 -0000	1.30
+>+++ domains/program/unused/rpm.te	1 Sep 2004 14:36:01 -0000
+>@@ -10,7 +10,7 @@
+> # var_log_rpm_t is the type for rpm log files (/var/log/rpmpkgs*)
+> # var_lib_rpm_t is the type for rpm files in /var/lib
+> #
+>-type rpm_t, domain, admin, etc_writer, privlog, privowner, privmem, priv_system_role, fs_domain, privfd ifdef(`unlimitedRPM', `,auth_write, unrestricted');
+>+type rpm_t, domain, admin, etc_writer, privlog, privowner, privmem, priv_system_role, fs_domain, privfd ifdef(`unlimitedRPM', `, unrestricted, auth_write');
+> role system_r types rpm_t;
+> uses_shlib(rpm_t)
+> type rpm_exec_t, file_type, sysadmfile, exec_type;
+>@@ -117,7 +117,7 @@
+> 
+> allow { insmod_t depmod_t } rpm_t:fifo_file rw_file_perms;
+> 
+>-type rpm_script_t, domain, admin, etc_writer, privlog, privowner, privmodule, privmem, fs_domain, privfd, priv_system_role ifdef(`unlimitedRPM', `,auth_write, unrestricted');
+>+type rpm_script_t, domain, admin, etc_writer, privlog, privowner, privmodule, privmem, fs_domain, privfd, priv_system_role ifdef(`unlimitedRPM', `, unrestricted, auth_write');
+> # policy for rpm scriptlet
+> role system_r types rpm_script_t;
+> uses_shlib(rpm_script_t)
+>Index: domains/program/unused/xdm.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/xdm.te,v
+>retrieving revision 1.29
+>diff -u -r1.29 xdm.te
+>--- domains/program/unused/xdm.te	30 Aug 2004 12:29:20 -0000	1.29
+>+++ domains/program/unused/xdm.te	31 Aug 2004 15:08:51 -0000
+>@@ -29,6 +29,7 @@
+> allow xdm_t xdm_var_run_t:fifo_file create_file_perms;
+> allow initrc_t xdm_var_run_t:fifo_file unlink;
+> file_type_auto_trans(xdm_t, var_run_t, xdm_var_run_t, fifo_file)
+>+file_type_auto_trans(xdm_t, var_run_t, xdm_var_run_t, dir)
+> 
+> tmp_domain(xdm)
+> var_lib_domain(xdm)
+>Index: domains/program/unused/xfs.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/domains/program/unused/xfs.te,v
+>retrieving revision 1.10
+>diff -u -r1.10 xfs.te
+>--- domains/program/unused/xfs.te	20 Aug 2004 17:53:53 -0000	1.10
+>+++ domains/program/unused/xfs.te	31 Aug 2004 15:08:51 -0000
+>@@ -40,4 +40,3 @@
+> # Read /usr/X11R6/lib/X11/fonts/.* and /usr/share/fonts/.*
+> allow xfs_t fonts_t:dir search;
+> allow xfs_t fonts_t:file { getattr read };
+>-allow xfs_t tmpfs_t:dir { search };
+>Index: file_contexts/program/mailman.fc
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/file_contexts/program/mailman.fc,v
+>retrieving revision 1.10
+>diff -u -r1.10 mailman.fc
+>--- file_contexts/program/mailman.fc	30 Aug 2004 12:29:21 -0000	1.10
+>+++ file_contexts/program/mailman.fc	31 Aug 2004 15:08:51 -0000
+>@@ -4,7 +4,6 @@
+> /usr/lib/cgi-bin/mailman/.* -- system_u:object_r:mailman_cgi_exec_t
+> /usr/lib/mailman/cron/.*	-- system_u:object_r:mailman_queue_exec_t
+> /usr/lib/mailman/mail/wrapper -- system_u:object_r:mailman_mail_exec_t
+>-/usr/lib/mailman/bin/mailmanctl -- system_u:object_r:mailman_mail_exec_t
+> /usr/mailman/mail/wrapper 	-- system_u:object_r:mailman_mail_exec_t
+> /var/lib/mailman(/.*)?	   system_u:object_r:mailman_data_t
+> /var/lib/mailman/archives(/.*)?	system_u:object_r:mailman_archive_t
+>@@ -14,8 +13,6 @@
+> ifdef(`distro_redhat', `
+> /var/mailman/cgi-bin/.*		-- system_u:object_r:mailman_cgi_exec_t
+> /var/mailman/data(/.*)?		   system_u:object_r:mailman_data_t
+>-/var/mailman/pythonlib(/.*)?	   system_u:object_r:mailman_data_t
+>-/var/mailman/Mailman(/.*)?	   system_u:object_r:mailman_data_t
+> /var/mailman/locks(/.*)?	   system_u:object_r:mailman_lock_t
+> /var/mailman/cron		-d system_u:object_r:bin_t
+> /var/mailman/cron/.+		-- system_u:object_r:mailman_queue_exec_t
+>Index: macros/global_macros.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/macros/global_macros.te,v
+>retrieving revision 1.55
+>diff -u -r1.55 global_macros.te
+>--- macros/global_macros.te	1 Sep 2004 12:59:59 -0000	1.55
+>+++ macros/global_macros.te	1 Sep 2004 14:56:38 -0000
+>@@ -295,7 +295,7 @@
+> ')dnl end if automount.te
+> ifdef(`targeted_policy', `
+> dontaudit $1_t devpts_t:chr_file { read write };
+>-dontaudit $1_t unlabeled_t:file read;
+>+dontaudit $1_t root_t:file { getattr read };
+> ')dnl end if targeted_policy
+>  
+> ')dnl end macro daemon_core_rules
+>@@ -599,7 +599,6 @@
+> 
+> # Set user information and skip authentication.
+> allow $1 self:passwd *;
+>-
+> allow $1 self:dbus *;
+> allow $1 self:nscd *;
+>-')
+>+')dnl end unconfined_domain
+>Index: macros/program/screen_macros.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/macros/program/screen_macros.te,v
+>retrieving revision 1.10
+>diff -u -r1.10 screen_macros.te
+>--- macros/program/screen_macros.te	26 Jul 2004 19:45:05 -0000	1.10
+>+++ macros/program/screen_macros.te	31 Aug 2004 15:08:51 -0000
+>@@ -48,9 +48,8 @@
+> ifdef(`gnome-pty-helper.te', `allow $1_screen_t $1_gph_t:fd use;')
+> 
+> allow $1_screen_t $1_home_screen_t:{ file lnk_file } r_file_perms;
+>-allow $1_t $1_home_screen_t:{ file lnk_file } create_file_perms;
+>-allow $1_t $1_home_screen_t:{ file lnk_file } { relabelfrom relabelto };
+>-
+>+allow $1_t $1_home_screen_t:file { create_file_perms relabelfrom relabelto };
+>+allow $1_t $1_home_screen_t:lnk_file { create_lnk_perms relabelfrom relabelto };
+> ifdef(`nfs_home_dirs', `
+> r_dir_file($1_screen_t, nfs_t)
+> ')dnl end if nfs_home_dirs
+>Index: macros/program/xserver_macros.te
+>===================================================================
+>RCS file: /nfshome/pal/CVS/selinux-usr/policy/macros/program/xserver_macros.te,v
+>retrieving revision 1.25
+>diff -u -r1.25 xserver_macros.te
+>--- macros/program/xserver_macros.te	23 Aug 2004 14:52:40 -0000	1.25
+>+++ macros/program/xserver_macros.te	31 Aug 2004 15:08:51 -0000
+>@@ -241,6 +241,7 @@
+> 
+> allow $1_xserver_t var_lib_t:dir search;
+> rw_dir_create_file($1_xserver_t, var_lib_xkb_t)
+>+dontaudit $1_xserver_t selinux_config_t:dir { search };
+> 
+> # for fonts
+> r_dir_file($1_xserver_t, fonts_t)
+>  
+>
 
-Ordinary system administrators don't want this file, they want a
-sensible chown/chgrp/chmod setup when they install packages -- how many
-of our users really use dpkg-statoverride?
-
-> it might not actually be the case... but the example you give below
-> tends to suggest that it might be worse than suspected, and
-> that the source code of dpkg might need to be patched instead,
-> in the same way that rpm has been patched (and cron, and ssh,
-> and udev)
->=20
-Indeed, I'm leaning towards agreeing with you.  The postinst solution
-has always smelled of rotten fish, it needs to be done properly --
-either inside dpkg or inside the package postinsts.
-
-However I'm loath to embed specific selinux support into dpkg if it
-introduces extra dependencies, or causes problems for those not using
-it.
-
-The fact that RPM does it isn't actually relevant; RPM has a history of
-doing things at install-time ... e.g. library/file dependencies.  We've
-always taken a build-time attitude to it, with the packaging format and
-manager as (relatively) simple as possible.
-
-> am i correct in thinking that the tarobject function is responsible
-> for doing the dpkg unpacking?
->=20
-Vaguely, files are unpacked in a temporary place then moved into the
-right place (inside process_archive).
-
-> > If it's really true, isn't it going to be also true that sometimes you
-> > need to do the selinux processing before certain actions in the postins=
-t
-> > (like starting the daemon) are performed?
-> =20
-> ... you know, i think you could be right.
->=20
-I knew I wasn't crazy :o)
-
-> i think only stephen, russell, dan or colin are in a position to
-> answer that.
->=20
-Sadly they've stopped answering my calls <g>
-
-> > > for example, a few months ago i genuinely believed that
-> > > it would be a great idea for all package maintainers to be
-> > > responsible for selinux policy (such that it would be okay to
-> > > move selinux policy into debian packages): now i know that there
-> > > are targetted and strict policies, and that writing selinux
-> > > policy is sufficiently complex and inter-dependent for it to
-> > > require significant expert knowledge - something that package
-> > > maintainers DON'T NEED and DON'T even NEED TO KNOW ABOUT.
-> > >=20
-> > Package maintainers don't need, and don't even need to know about
-> > debconf templates, translations, debian policy, etc.  Let's separate
-> > those out into separate packages too!
->=20
-> i know you mean that in a sarcastic way
->=20
-Actually that was irony, I could try for sarcasm if you like <g>
-
-> okay... an analogy that may help you to understand: how many versions
-> of the debian policy document are there?
-> there's only one, isn't there?  everyone stick to it (hmmm, please
-> don't correct me if that's wrong :)
->=20
->  ... what if there was more than one debian policy document?
->=20
->  what if SITE ADMINISTRATORS could decide which debian policy document
->  should be applied to their system?
->=20
->  as a concept, it doesn't work, does it?
->=20
-Actually, it rather does.  Site admins could specify where man pages
-went on their system, how shared libraries were installed, etc.
-
-> >    And here we lead on to another fairy-tale story of "classes", a
-> >    feature of Solaris' packaging system I quite admire.  The selinux
-> >    support packages could implement replacement class handling that
-> >    performed the required selinux voodoo as it installed files.
-> >=20
-> >    (This is one of my ideas for generic conffile handling, btw.)
->=20
-> ooooo.
->=20
-> well, replacement, no, but "wrapping" yes.
->=20
-> in other words, the selinux support packaging system would run and then b=
-e
-> responsible for calling the "default" packaging system.
->=20
-Yeah.  The basic theory of a class is that it's a function responsible
-for taking an unpacked item (if it exists) and placing it on the
-filesystem in the right place (with diverts taken into account).
-conffiles would just be files with a different class to ordinary files
-that offered a chance to choose which file won.
-
-You could then specify alternate handlers for a class, dropping in
-(e.g.) a debconfish or ucf replacement for the default configuration
-handling, one that did a 3diff, etc.
-
-SELinux could replace the default class handler with one that applied
-contexts after the default was run.
-
-But as I said, this is fairy-land at the moment -- it's a feature of
-Solaris' packaging system I admire, and would certainly make some of the
-code more generic and less twisty.
-
-> > Another use case for this "always run" functionality is prelinking
-> > binaries, or updating the updatedb/locate database.
->=20
-> yes.
->=20
-Notably though these are "always run at the end of an installation run",
-so aren't compatible with the stuff you've asked for.
-
-> > In which case we're back to changing postinst of every package again
-> > (which is actually largely just a change-debhelper problem, anyway).
->=20
-> well, if the same effect can be achieved by doing the equivalent in
-> debhelper, then great.
->=20
-Certainly, debhelper writes the stuff to postinst for a large percentage
-of our packages.  It's a build-time solution to the problem, and
-relatively elegant.
-
-> > What happens to those files the package's postinst creates? =20
->=20
-> > Such as
-> > debconf-maintained configuration files, symlinks, etc.  How do those ge=
-t
-> > selinux policy?
->=20
->  to be honest, i don't rightly know.
->=20
->  _hopefully_ they are mentioned in the dpkg -L <packagename> listing
->  such that they can be managed.
->=20
-Nope.  Policy, in fact, demands that they aren't mentioned -- files
-written during package maintainer scripts *cannot* be dpkg managed
-conffiles.  (They get into a bit of a fight).
-
->  i assume that if they're not listed in the dpkg -L <packagename>
->  listing that that's a bug in the package, because when the time
->  comes for that package to be purged, symlinks would be left behind.
->=20
->  .... or, is there something that's been missed?
->=20
-The symlinks, files, etc. get removed in prerm.
-
-> does dpkg -L not include debconf-maintained configuration files?
->=20
-Yup, they're utterly missing from it.
-
-descent scott% dpkg -S /etc/X11/XF86Config-4
-dpkg: /etc/X11/XF86Config-4 not found.
-
-
-Scott
---=20
-Have you ever, ever felt like this?
-Had strange things happen?  Are you going round the twist?
-
---=-wbyMOsdWDgf/UnGdjkgE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBNc7bIexP3IStZ2wRAmqJAKCRAh4P3n22wviZodorWbPn6Mwx3gCggVYr
-HhMR9+k3B2YwPSuAXh/StRU=
-=Rx31
------END PGP SIGNATURE-----
-
---=-wbyMOsdWDgf/UnGdjkgE--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
