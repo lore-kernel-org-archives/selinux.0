@@ -1,55 +1,37 @@
-Reply-To: <sunil@liqwidkrystal.com>
-From: "sunil" <sunil@liqwidkrystal.com>
-To: <SELinux@tycho.nsa.gov>
-Subject: Question about SELinux
-Date: Thu, 4 Oct 2001 17:57:53 +0530
-Message-ID: <000501c14ccf$fe1031e0$5d01a8c0@liqwidkrystal.com>
+Date: Thu, 4 Oct 2001 09:07:55 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: sunil <sunil@liqwidkrystal.com>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: Question about SELinux
+In-Reply-To: <000501c14ccf$fe1031e0$5d01a8c0@liqwidkrystal.com>
+Message-ID: <Pine.GSO.4.33.0110040905580.7555-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
 
-We have the following server requirement:
+On Thu, 4 Oct 2001, sunil wrote:
 
-1. Untrusted users can login into the system and run
-    programs that they have written in  a variety of programming languages
-    ranging from Java to C++, Ruby, Python, etc. These programs would
-    typically be small in size, written by people who are learning these
-    technologies. But they could be of all types:
-    Socket programs, UI programs, text-mode programs, etc.
+> 2. The users should be able to run only well-behaved programs on the server.
+>      A well-behaved program would be one that uses reasonable amounts of
+> CPU,
+>     disk, network and memory resources and does not try to compromise the
+> security of the system.
+>     Therefore, malicious programs of any kind should be quietly terminated.
 
-2. The users should be able to run only well-behaved programs on the server.
-     A well-behaved program would be one that uses reasonable amounts of
-CPU,
-    disk, network and memory resources and does not try to compromise the
-security of the system.
-    Therefore, malicious programs of any kind should be quietly terminated.
+SELinux provides flexible and fine-grained nondiscretionary access controls,
+so you can use it to provide separation and confinement of these untrusted
+users and their programs.  However, SELinux does not currently provide any
+additional controls over resource usage beyond what is already present in
+Linux.  Also, the SELinux access controls don't terminate processes that
+violate the policy - they merely deny access and optionally audit such
+access denials.  Of course, this may yield the same effect in many cases,
+since many programs simply exit upon error.
 
-3. All of this should be possible with minimal overhead incurred from any
-monitoring
-    infrastructure.
-
-Can I achieve this using SELinux?
-
-Thanks & regards,
-
-Sunil Arvindam
-
-__________________________
-Sunil Arvindam
-Chief Architect,
-Liqwid Krystal,
-Pearl House, 9/3 Museum Road,
-Bangalore-560001,
-India.
-Ph: (91) 80-5091789
-Fax:(91) 80-5091794
-email:sunil@liqwidkrystal.com
-__________________________
-
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
 
