@@ -1,46 +1,67 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAUEaPRb002940
-	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2003 09:36:25 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hAUEZep5011844
-	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2003 14:35:40 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id hAUEZdt0011841
-	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2003 14:35:39 GMT
-Date: Sun, 30 Nov 2003 14:36:06 +0000
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Policy error of the day
-Message-ID: <20031130143606.GC11972@vnl.com>
-References: <20031129123120.GI18062@vnl.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAUIboRb003292
+	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2003 13:37:52 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hAUIbnqY015400
+	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2003 18:37:49 GMT
+Received: from wavehammer.waldi.eu.org (hornet.berlios.de [195.37.77.140])
+        by jazzband.ncsc.mil  with ESMTP id hAUIbh0o015397 for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2003 18:37:48 GMT
+Date: Sun, 30 Nov 2003 19:37:01 +0100
+From: Bastian Blank <bastian@waldi.eu.org>
+To: selinux@tycho.nsa.gov
+Subject: policy problems
+Message-ID: <20031130183701.GA14242@wavehammer.waldi.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20031129123120.GI18062@vnl.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Nov 29, 2003 at 12:31:20PM +0000, Dale Amon wrote:
-> Ah...Russ... did you do something naughty? I note all of these are
-> failing after the postinst.d/selinux. I wonder if you are 
-> expecting these installs to be occuring under selinux rather
-> than on a non-selinux 'factory' machine in a chroot:
 
-I haven't heard back from you. Any ideas on what went
-wrong? I can work around it if necessary by putting a
-rm postinst.d/selinux in my script at that point so
-that package installation doesn't get broken, but
-sweeping things under the rug is hardly ever a good 
-idea.
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+hi folks
+
+i found the following problems with the policy:
+- admins on the local console are not allowed to write to /dev/console
+  background: s390 don't know about vts, so this is the only console.
+- noone is allowed to use nfs, maybe you should add some examples.
+- inetd don't get the correct domain. the correct policy, inetd.te is
+  included and the file is labeled correcly but the process remains in
+  initrc_t.
+| # ls -al --context /usr/sbin/inetd
+| -rwxr-xr-x  root     root     system_u:object_r:inetd_exec_t /usr/sbin/in=
+etd
+| # ps aux | grep "[i]netd"
+| root       916  0.0  0.4  1624  540 ?        S    18:28   0:00 /usr/sbin/=
+inetd
+| # cat /proc/916/attr/current;echo
+| system_u:system_r:initrc_t
+
+bastian
+
+--=20
+Without facts, the decision cannot be made logically.  You must rely on
+your human intuition.
+		-- Spock, "Assignment: Earth", stardate unknown
+
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iEYEARECAAYFAj/KOM0ACgkQLkAIIn9ODhEDZACg3OmNz/3En+ZQZbEobddjr4QL
+wBMAn0CDqo3aXoq6HqjdrV1DEGA2YdyN
+=yM0J
+-----END PGP SIGNATURE-----
+
+--huq684BweRXVnRxX--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
