@@ -1,52 +1,66 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5C2JIrT008579
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 22:19:18 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5C2JD1j000522
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 22:19:14 -0400 (EDT)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Date: Sat, 12 Jun 2004 12:19:12 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040609214126.GF5727@lkcl.net> <200406111107.39205.russell@coker.com.au> <20040611230218.GI2861@lkcl.net>
-In-Reply-To: <20040611230218.GI2861@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5C6YSrT009378
+	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 02:34:28 -0400 (EDT)
+Received: from web51509.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5C6YQEu003958
+	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 02:34:26 -0400 (EDT)
+Message-ID: <20040612063426.65218.qmail@web51509.mail.yahoo.com>
+Date: Fri, 11 Jun 2004 23:34:26 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Regular Expression Problem
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200406121219.12208.russell@coker.com.au>
+Content-Type: multipart/alternative; boundary="0-1398554720-1087022066=:64728"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 12 Jun 2004 09:02, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> On Fri, Jun 11, 2004 at 11:07:39AM +1000, Russell Coker wrote:
-> > On Fri, 11 Jun 2004 07:11, Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
-wrote:
-> > > ?if it bit me (who is coming into this blind with no prior
-> > > ?knowledge or expectations other than "install it and find out
-> > > ?how to fix it if it's broke") then it's definitely going to
-> > > ?bite other people.
-> >
-> > http://www.coker.com.au/selinux/tweaks.html
->
-> ah ha!  thank you russell.
->
-> i'm raising wish-list bug report items for some of these in
-> debian because if you think hundreds and thousands of people,
-> a good proportion of them are not going to know about that
-> document.
+--0-1398554720-1087022066=:64728
+Content-Type: text/plain; charset=us-ascii
 
-A good thing you could raise would be removal of the 
-old /dev/[tp]ty[abcdepqrstuvwxyz][0-9a-f] nodes.  I don't think that there is 
-any good reason to have BSD pty nodes in Debian.  It will probably take some 
-work to get this done however.
+Hi,
+ 
+In the file_contexts file, I found some regular expressions. I studied them for a while, but still can't understand them well.
+ 
+For example:  /var(/.*)
+ 
+As I know: '.' stands for any character;
+Let's suppose '.' now stands for character 'a'. 
+then '/var(/.*)' can mean:
+'/var/a','/var/aa','/var/aaa','/var/aaaa','/var/aaaaa', ... ...
+ 
+But now, If I have a file or directory named 'abc' in directory '/var' (i.e., 
+/var/abc). How can it match '/var(/.*)' ?
+ 
+ 
+Thank you.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Park Lee
+
+
+		
+---------------------------------
+Do you Yahoo!?
+Friends.  Fun. Try the all-new Yahoo! Messenger
+--0-1398554720-1087022066=:64728
+Content-Type: text/html; charset=us-ascii
+
+<DIV>Hi,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>In the file_contexts file, I found some regular expressions. I studied them for a while, but still can't understand them well.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>For example:&nbsp; /var(/.*)</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>As I know: '.' stands for any character;<BR>Let's suppose '.' now stands for character 'a'. <BR>then '/var(/.*)' can mean:</DIV>
+<DIV>'/var/a','/var/aa','/var/aaa','/var/aaaa','/var/aaaaa', ... ...</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>But now, If I have a file or directory named 'abc' in directory '/var' (i.e., </DIV>
+<DIV>/var/abc). How can it match '/var(/.*)' ?</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thank you.</DIV>
+<DIV><BR>Park Lee<BR></DIV><p>
+		<hr size=1>Do you Yahoo!?<br>Friends.  Fun. <a href="http://messenger.yahoo.com/">Try the all-new Yahoo! Messenger</a>
+--0-1398554720-1087022066=:64728--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
