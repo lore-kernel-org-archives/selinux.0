@@ -1,66 +1,51 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SN9erT014932
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 19:09:41 -0400 (EDT)
-Received: from smtp808.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6SN9AVb025433
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 23:09:10 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp808.mail.ukl.yahoo.com with SMTP; 28 Jul 2004 23:09:39 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1Bpx3y-0000sW-Bb
-	for selinux@tycho.nsa.gov; Wed, 28 Jul 2004 22:38:18 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1Bpxj1-00054p-Vp
-	for selinux@tycho.nsa.gov; Thu, 29 Jul 2004 00:20:43 +0100
-Date: Thu, 29 Jul 2004 00:20:43 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: temporary hack to use udev in selinux
-Message-ID: <20040728232043.GF18711@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SNGSrT014978
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 19:16:33 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6SNFvVb025645
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 23:15:58 GMT
+Date: Thu, 29 Jul 2004 01:16:30 +0200
+From: Erich Schubert <erich@debian.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [idea] multiple contexts.
+Message-ID: <20040728231630.GA3948@wintermute.xmldesign.de>
+References: <20040724231154.GE3437@lkcl.net> <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil> <20040727160605.GG3392@lkcl.net> <1090949595.2448.180.camel@moss-spartans.epoch.ncsc.mil> <20040727182340.GW3392@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040727182340.GW3392@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-i have a requirement (use of usb-mount, see
-http://users.actrix.co.nz/michael/usbmount.html) that forces the use
-of udev on an selinux system.
+Hi,
 
-fighting with it for a day, and after seeing some clues in the
-file contexts (/(u)dev/....) i decided to try editing
-/etc/udev/udev.conf to set it to use /udev instead of /dev.
+On the multiple contexts thing:
+The power set of a finite set is still finite. I.e. you don't need to
+have multiple context if you are willing to manage enough contexts.
+It's just a matter of writing appropriate macros...
+You could name your contexts like sysadm_kde_mail_foobar_something
+for the context having the access rights of sysadm, kde, mail etc.
 
-other than a warning about udev not starting up, well, everything
-seems to work hunky-dory.
+The thing is: you don't want to allow any combination.
+For example you don't want a context which can use both KDE and write to
+system applications. Keeping such things exclusive is a good thing.
+When you allow multiple context you would need to write many rules like
+"when switching to context xyz, drop context foo" - that is not better.
 
-somehow i do _get_ a udevd running, i could not tell you how it got
-there.
+Why not define roles "kde_with_shell_r" and "kde_without_shell_r" and
+write appropriate access rules? (or: "kde_full_r" and "kde_limited_r")
 
-i notice the following message 
+This makes it a lot easier to verify.
 
-	http://www.redhat.com/archives/fedora-devel-list/2004-March/msg00888.html
+Also you avoid conflicts, rules are explicit. kde_full_r can exec xterm,
+kde_limited_r cannot. You can't have the case that a user has both
+contexts - should he be allowed access or not?
 
-in which steven (hi steven :) says that support for udev "fake"
-attributes for ramfs and tmpfs, just like for devpts.
-
-is that literally as simple as cut/paste the devpts code...
-the xattr stuff?
-
-cos if so, i _like_ cut/paste :)
-
-l.
-
+Greetings,
+Erich Schubert
 -- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+    erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C    (o_
+     Go away or i'll replace you with a very small shell script.    //\
+    Der Anfang aller Erkenntnis ist das Staunen. --- Aristoteles    V_/_
 
 --
 This message was distributed to subscribers of the selinux mailing list.
