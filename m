@@ -1,62 +1,68 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0BLbtIi011006
-	for <selinux@tycho.nsa.gov>; Tue, 11 Jan 2005 16:37:56 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0BLbo1A026635
-	for <selinux@tycho.nsa.gov>; Tue, 11 Jan 2005 21:37:54 GMT
-Date: Tue, 11 Jan 2005 21:48:18 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: Added is_context_configurable function
+From: Colin Walters <walters@redhat.com>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
-Subject: Re: Multiple contexts
-Message-ID: <20050111214818.GE26175@lkcl.net>
-References: <1105390249.8093.21.camel@cobra.ivg2.net> <20050110232312.GI6967@lkcl.net> <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
+References: <41E2FEF4.5070604@redhat.com>
+	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <41E3FAF4.2060109@redhat.com>
+	 <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 17:10:40 -0500
+Message-Id: <1105481440.24748.22.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jan 11, 2005 at 03:09:51PM -0500, Stephen Smalley wrote:
-> On Mon, 2005-01-10 at 18:23, Luke Kenneth Casson Leighton wrote:
-> >  i can only hazard a hazardous guess therefore that the more
-> >  "normal" ACL system [that we are used to seeing] was rejected
-> >  because it makes the formal proof methodology more difficult.
+On Tue, 2005-01-11 at 15:00 -0500, Stephen Smalley wrote:
+> On Tue, 2005-01-11 at 11:12, Daniel J Walsh wrote:
+> > I think this is more flexible, in that it allows users to specify the 
+> > location of these files versus policy.
+> > IE I create a new top level directory /rsync which I want to label 
+> > ftp_anon_t, I don't want to have to specify
+> > ftp_anon_t is an alternative to default_t.
 > 
-> With ACLs, you have to traverse the entire filesystem state in order to:
-> 1) determine what your policy truly is (and that policy can change
-> underneath you during your traversal),
-> 2) apply any widespread changes in policy state.
- 
-> Management and scalability nightmare.
- 
- oh - ah.  yes, now it comes back to me.
+> You could certainly specify a /rsync/(/.*)? entry in file_contexts that
+> had both contexts listed.  Ordinary user shouldn't be able to
+> create/populate /rsync anyway without administrative setup.
 
- microsoft solved this problem partially in NT 3.5 - NT 4.0 by
- only reading the ACL on the file [or directory] and applying that.
+I've said this before, but I don't like the idea of having to edit
+file_contexts whenever I want to change the labels.  I feel that the 
+on-disk version should be canonical, and the file_contexts only used for
+system initialization.  One major reason for this is that right now,
+practically speaking, it's difficult to maintain a local system policy
+delta, *particularly* with files/file_contexts.  file_contexts is a
+machine-generated file; in Fedora it's included in the 
+selinux-policy-targeted package.  If you change it you get .rpmnew files
+which you have to manually merge on every package update.  This could be
+solved to some extent if we also had matchpathcon read from
+file_contexts.local or something.  Even if we implemented that though,
+it is still painful for administrators to e.g. use a non-default Apache
+DocumentRoot; they will have to remember to create an entry in their
+file_contexts.local file with a regexp matching the path and all of the
+possible alternate types, which is pretty unintuitive.  Although the
+obvious merge conflict is gone, you still have to manually keep this
+line in sync with any Apache policy updates.
 
- by the time that NT 5 [aka windeuuws teuu thousand, with NT being a
- trademark owned by Northern Telecom, aka Nortel and all] came around,
- this was considered utterly mad.
+> Failing to associate the context with a location in any manner means
+> that setfiles/restorecon will fail to fix the label on e.g. /etc/shadow
+> if it happens to get one of these configurable types at some point. 
+> Admittedly, getting to that point requires some kind of serious error in
+> the first place,
 
- recursion was added to ACLs - or "inheritance" - because to fix access
- to subdirectories and all contents you are required in NT 4.0 to change
- ALL permissions on ALL subdirectories and contents!
+To say the least.
 
- basically you now have to traverse the directory tree right
- up to the mount point [as stephen says] in order to determine access
- rights, combining and checking permissions as you go.
+>  but running fixfiles relabel will no longer correct
+> such errors for you.
 
- eeuuuw.
+If your /etc/shadow is somehow mislabeled, I would think that you likely
+have larger problems than a fixfiles relabel could solve; e.g. you
+accidentally untarred an old system snapshot onto /.
 
- ... was that what you were referring to stephen?
+> BTW, customizable or alternatives seems better than configurable.
 
- l.
+Yeah, I like customizable, but it's not a strong preference.
 
--- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
 
 --
 This message was distributed to subscribers of the selinux mailing list.
