@@ -1,37 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0NFt8Rb014878
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 10:55:08 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i0NFt7Ca015501
-	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 15:55:07 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i0NFt6VC015498 for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2004 15:55:06 GMT
-Subject: RE: transition failure
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "James R. Kratzer" <JamesK@xetron.com>
-Cc: "SE Linux Mail List (E-mail)" <selinux@tycho.nsa.gov>
-In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A8A@s3cin>
-References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A8A@s3cin>
+Subject: Re: sepcut is broken
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Mark Shakespeare <mshakes@llnl.gov>
+Cc: Selinux Dev <selinux-dev@tresys.com>, SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <p06020415bc3612f59c62@[128.115.96.64]>
+References: <p0602040cbc34b0d29bb3@[128.115.96.64]>
+	 <1074789931.27824.87.camel@colossus.columbia.tresys.com>
+	 <p06020411bc35dc7ed885@[128.115.96.64]>
+	 <1074803381.27824.109.camel@colossus.columbia.tresys.com>
+	 <p06020412bc35f035775a@[128.115.96.64]>
+	 <1074807951.27824.168.camel@colossus.columbia.tresys.com>
+	 <p06020414bc35f7241764@[128.115.96.64]>
+	 <1074810177.27824.173.camel@colossus.columbia.tresys.com>
+	 <p06020415bc3612f59c62@[128.115.96.64]>
 Content-Type: text/plain
-Message-Id: <1074873305.4931.84.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1074876530.27824.198.camel@colossus.columbia.tresys.com>
 Mime-Version: 1.0
-Date: Fri, 23 Jan 2004 10:55:05 -0500
+Date: Fri, 23 Jan 2004 11:48:50 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-01-23 at 10:46, Kratzer, James R. wrote:
-> Thanks Stephen.  The script's context was indeed the problem. Using chcon
-> fixed the problem.  The context for the swatchd script was correct after a
-> "make relabel", but I later edited the file with vi, and vi corrupted the
-> context.  The chcon command corrected the context.  Is there a patched
-> version of vi available that will preserve contexts of files?
+On Thu, 2004-01-22 at 18:58, Mark Shakespeare wrote:
+> Karl,
+>        Appreciate your help here. I failed to mention that I had installed
+> a newer release of BWidgets....version 1.7
+> 
+> Well....I removed it, and defaulted to version 1.4.1
+> 
 
-Dan has a patched vim available under
-ftp://people.redhat.com/dwalsh/SELinux.  Also in rawhide, I think.
+Great - I'm glad that it is working for you now. We will test setools
+with bwidgets 1.7 and get things working for the next release.
+
+> Now sepcut works......although I'am getting a "security_load_policy failed"....
+> " make: *** [reload] Error 3 " now...
+> 
+> any ideas????
+> 
+
+Looks like you don't have permission to do a policy reload. Make certain
+that you are root and in the sysadm_r:sysamd_t context (the context is
+only important if you are in enforcing mode).
+
+Karl
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+http://www.tresys.com
+(410) 290-1411 x134
 
 
 --
