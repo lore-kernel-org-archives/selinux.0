@@ -1,105 +1,43 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1MNoFdW026810
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 18:50:15 -0500 (EST)
-Received: from smtp.osdl.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1MNljZG025091
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 23:47:53 GMT
-Date: Tue, 22 Feb 2005 15:47:37 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: lsm <linux-security-module@wirex.com>, Chris Wright <chrisw@osdl.org>,
-   James Morris <jmorris@redhat.com>, selinux@tycho.nsa.gov,
-   Ivan Gyurdiev <ivg2@cornell.edu>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [RFC][PATCH] Pass requested protection to security_file_mmap/mprotect hooks
-Message-ID: <20050222234737.GK15867@shell0.pdx.osdl.net>
-References: <1109095368.15893.17.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1N2CxdW027343
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 21:12:59 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1N2AaZE029753
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 02:10:36 GMT
+Subject: Mplayer: PT_GNU_STACK RWE
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: mplayer-dev-eng-request@mplayerhq.hu
+Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Tue, 22 Feb 2005 21:13:22 -0500
+Message-Id: <1109124802.26770.13.camel@cobra.ivg2.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1109095368.15893.17.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> This patch adds a reqprot parameter to the security_file_mmap and
-> security_file_mprotect hooks that is the original requested protection
-> value prior to any modification for read-implies-exec, and changes the
-> SELinux module to allow a mode of operation (controllable via
-> a /selinux/checkreqprot setting) where it applies checks based on that
-> protection value rather than the protection that will be applied by the
-> kernel, effectively restoring SELinux's original behavior prior to the
-> introduction of the read-implies-exec logic in the mainline kernel.  At
-> present, the read-implies-exec logic causes SELinux to see every
-> mmap/mprotect read request by legacy binaries or binaries marked with
-> PT_GNU_STACK RWE as a read|execute request, which tends to distort
-> policy even if it reflects what is ultimately possible.
+Hi, I've subscribed to this list just to post this one question.
 
-Only other way I can see is to effectively tweak policy based on
-tsk->personality.  While it seems ugly, it's an accurate reflection
-of both policy and reality (with some confusion of audit messages when
-building policy).  But your patch is probably the most straight-forward
-way to do it.
+The mplayer/mencoder executables are marked with PT_GNU_STACK RWE.
+This is true for the RPMS which I use from Livna.org (vs FC3), and also
+for mplayer CVS, compiled with gcc 3.4.3 (default FC rawhide compiler). 
 
-> Index: linux-2.6/mm/mprotect.c
-> ===================================================================
-> RCS file: /nfshome/pal/CVS/linux-2.6/mm/mprotect.c,v
-> retrieving revision 1.10
-> diff -u -p -r1.10 mprotect.c
-> --- linux-2.6/mm/mprotect.c	27 Dec 2004 15:09:53 -0000	1.10
-> +++ linux-2.6/mm/mprotect.c	22 Feb 2005 14:36:21 -0000
-> @@ -193,7 +193,7 @@ fail:
->  asmlinkage long
->  sys_mprotect(unsigned long start, size_t len, unsigned long prot)
->  {
-> -	unsigned long vm_flags, nstart, end, tmp;
-> +	unsigned long vm_flags, nstart, end, tmp, reqprot = prot;
+This creates problems for the SELinux strict policy, and requires that
+special privileges be granted for mplayer as a "legacy domain".
 
-Do you want to sample prot after it's been cleared of GROWSUP/DOWN bits
-just to keep reqport as clean as possible?
+The question is, does mplayer really require an executable stack?
 
-> +		prot = reqprot;
-> +
->  	if (vma->vm_file != NULL && vma->anon_vma != NULL && (prot & PROT_EXEC)) {
->  		/*
->  		 * We are making executable a file mapping that has
-> Index: linux-2.6/security/selinux/selinuxfs.c
-> ===================================================================
-> RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/selinuxfs.c,v
-> retrieving revision 1.51
-> diff -u -p -r1.51 selinuxfs.c
-> --- linux-2.6/security/selinux/selinuxfs.c	2 Dec 2004 15:21:42 -0000	1.51
-> +++ linux-2.6/security/selinux/selinuxfs.c	22 Feb 2005 15:33:39 -0000
-> @@ -34,6 +34,8 @@
->  #include "objsec.h"
->  #include "conditional.h"
->  
-> +unsigned int selinux_checkreqprot = 0;
+I'm not a gcc expert of any kind, but from what I've read I understand
+that asm code causes gcc to mark the binary as requiring executable
+stack. I think it can be overriden with ld -z noexecstack.
 
-unnecessary initialization
+It would be a lot easier to write the mplayer security policy
+if it didn't require executable stack.
 
-> +
->  static DECLARE_MUTEX(sel_sem);
->  
->  /* global data for booleans */
-> @@ -72,6 +74,7 @@ enum sel_inos {
->  	SEL_DISABLE,	/* disable SELinux until next reboot */
->  	SEL_AVC,	/* AVC management directory */
->  	SEL_MEMBER,	/* compute polyinstantiation membership decision */
-> +	SEL_CHECKREQPROT, /* check requested protection, not kernel-applied one */
->  };
->  
->  #define TMPBUFLEN	12
-> @@ -300,6 +303,55 @@ static struct file_operations sel_contex
->  	.write		= sel_write_context,
->  };
->  
-> +#define TMPBUFLEN	12
-
-Looks an unnecessary duplicate 
-
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
