@@ -1,45 +1,74 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j33N9kDo025360
-	for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2005 19:09:46 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j33N7rSQ022852
-	for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2005 23:07:53 GMT
-Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j33N7s7j007452
-	for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2005 19:07:54 -0400 (EDT)
-Subject: Re: /dev/pts/x use denials
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1112569241.21383.37.camel@cobra.ivg2.net>
-References: <1112569241.21383.37.camel@cobra.ivg2.net>
-Content-Type: text/plain
-Date: Sun, 03 Apr 2005 19:13:51 -0400
-Message-Id: <1112570031.23944.1.camel@cobra.ivg2.net>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j33NfGDo025507
+	for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2005 19:41:16 -0400 (EDT)
+Received: from web31611.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id j33NaduF009696
+	for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2005 23:36:40 GMT
+Message-ID: <20050403233923.94400.qmail@web31611.mail.mud.yahoo.com>
+Date: Sun, 3 Apr 2005 16:39:23 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: Desktop apps interoperability
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+   Casey Schaufler <casey@schaufler-ca.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-04-03 at 19:00 -0400, Ivan Gyurdiev wrote: 
-> Strange denials:
+
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Thu, 2005-03-31 at 08:51 -0800, Casey Schaufler
+> wrote:
+> > Existing MLS systems allow unprivileged
+> > applications to run unmodified. In at least
+> > one case that included an unmodified X server.
+> > You have to do at least as well as the unix MLS
+> > systems to be credible. You think that's a
+> > low bar, so you shouldn't have any trouble,
+> > right?
 > 
-> /dev/pts/2 has context: sysadm_tmp_t.
-> Those happen intermittently, but I can't figure out when exactly.
-> I am logged in as a regular user, but su-ed to root. Usually accompanied
-> by a dac_override.
+> You can certainly allow applications to run
+> unmodified on SELinux today.
 
-It's sometimes followed by a dac_override - not all the time.
-Here's something reproducible:
+This is critically important to the possibility
+of widespread acceptance of the system.
 
-If I su to root, launch tvtime/mplayer/whatever, then make load
-the selinux policy, I get use denial on /dev/pts. Then if I launch
-the same program - no use denial. Then I make load the policy again,
-launch program, and I get a use denial.
+> But there can be benefit from modifying applications
+> to provide stronger
+> isolation and true least privilege in the future.
 
--- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+To be sure. An application that is written with
+understanding of the environment in which it runs
+will always have the advantage over the one that
+is not.
+ 
+> And users do care
+> about these "unprivileged" applications corrupting
+> or leaking their
+> data.
 
+True enough. Nonetheless, the operating
+system developer must have enough confidence
+in the policies and mechanisms of the OS to
+let the application developer do arbitrary
+unprivileged things. Only a truely closed
+system can control everything, which is why
+the clear definition of system policies is
+so important in an open or open source system.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+	
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - You care about security. So do we. 
+http://promotions.yahoo.com/new_mail
 
 --
 This message was distributed to subscribers of the selinux mailing list.
