@@ -1,15 +1,29 @@
-Subject: Re: setools-1.5.1
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "James R. Marcus" <jmarcus@mvalent.net>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <E6E16A6D4277CD459BBDE6713766033CFB7E64@exchange.mvalent.local>
-References: <E6E16A6D4277CD459BBDE6713766033CFB7E64@exchange.mvalent.local>
-Content-Type: text/plain
-Date: Tue, 29 Mar 2005 12:04:20 -0500
-Message-Id: <1112115860.4339.108.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: setools-1.5.1
+Date: Tue, 29 Mar 2005 12:32:54 -0500
+Message-ID: <E6E16A6D4277CD459BBDE6713766033CFB7E6B@exchange.mvalent.local>
+From: "James R. Marcus" <jmarcus@mvalent.net>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+An 
+emerge libselinux
+and then
+emerge setools
+worked.
+thanks,
+James
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Tuesday, March 29, 2005 12:04 PM
+To: James R. Marcus
+Cc: selinux@tycho.nsa.gov
+Subject: Re: setools-1.5.1
 
 On Tue, 2005-03-29 at 11:49 -0500, James R. Marcus wrote:
 > I tried updating my machine to setools-1.5.1 and it failed.
@@ -28,6 +42,8 @@ Current stable version is 1.22.
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
 National Security Agency
+
+
 
 
 --
