@@ -1,70 +1,65 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1RLKeRb014270
-	for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2004 16:20:40 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1RLKdQQ007285
-	for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2004 21:20:39 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i1RLKRP0007090 for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2004 21:20:38 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-   Mario Olimpio de Menezes <mario@curiango.ipen.br>
-Subject: Re: accessing files under Linux and SELinux
-Date: Sat, 28 Feb 2004 08:19:02 +1100
-Cc: SELinux <selinux@tycho.nsa.gov>
-References: <20040227143925.GA21866@curiango.ipen.br> <1077894411.26543.46.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1077894411.26543.46.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <404020F5.9080202@snu.edu>
+Date: Fri, 27 Feb 2004 23:02:45 -0600
+From: Joshua Brindle <jbrindle@snu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402280819.02757.russell@coker.com.au>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+CC: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: PaX + selinux integration update
+References: <403CF8AB.5080309@snu.edu> <20040226164707.GC31204@rom.cip.informatik.uni-muenchen.de>
+In-Reply-To: <20040226164707.GC31204@rom.cip.informatik.uni-muenchen.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 28 Feb 2004 02:06, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> >   For example, I add a user with uid=gid=1000 to a system and then
-> >   assign this user a system_r role. If I try to access /etc/shadow I'll
-> >   be denied by the Linux checks and not SELinux checks.
->
-> Very few domains have direct access to /etc/shadow in the current
-> policy; not even sysadm_t has direct rw access to shadow_t.  But
-> sysadm_t can transition to useradd_t via useradd, and useradd_t can
-> write to /etc/shadow.
+Thomas Bleher wrote:
 
-Also sysadm_t can run "vipw".
+> * Joshua Brindle <jbrindle@snu.edu> [2004-02-25 21:49]:
+> 
+>>These are the fixed up versions thanks to Chris Pebenito, the kernel 
+>>patch no longer specifies defaults, so now all decisions come directly 
+>>from policy.
+>>
+>>Also the excess amount of denials will not be displayed per policy
+> 
+> 
+> Great! I think this is really useful work!
 
-For most domains removing access to /etc/shadow was a deliberate policy change 
-to protect this critical file.  For sysadm_t the removal of access was to 
-avoid accidentally relabeling it.  If sysadm_t is granted access to 
-replace /etc/shadow then by running "vi /etc/shadow" instead of "vipw -s" the 
-administrator could accidentally remove the protection by giving the shadow 
-file a label of etc_t!
+Thank you
+> 
+> Do you think there is any chance of integrating your work into PAX? I
+> understand that your patch will not go into the kernel in the near future, 
+> but if it was at least integrated into PAX it would be much more likely
+> to be used.
+> 
+The author of PaX doesn't want to add any implementation specific stuff 
+into mainline (understandably since he works with the grsecurity author 
+quite a bit) but this is what we are going to do:
 
-Now I could have granted sysadm_t read access to shadow_t for a similar result 
-(with the added benefit of allowing the administrator to grep it).  However 
-in that case the administrator may discover that they can't write the file 
-after loading it in their editor, this causes confusion, and may cause a copy 
-of the data to be dropped in /etc/shadow.tmp or something similar.
+We've started a little project called openpax which implements some of 
+the non-ACL aspects of grsecurity, /proc restrictions, chroot 
+restrictions, things like that. Not all of them are applicable to 
+selinux since the policy can take care of it but some are nicer this way 
+(especially /proc). Regardless, I've added the selinux pax integrations 
+into openpax, available at http://www.openpax.net or directly at
+http://openpax.net/linux-2.6.3-openpax-0.9.patch
 
-The only problem domain at the moment in regard to shadow_t is radius_t.  Most 
-(all?) Unix RADIUS servers by default will read /etc/shadow directly to 
-authenticate local users.  All Unix RADIUS servers can be configured to use 
-other sources of password data, but having a default policy that doesn't 
-support the default operation of the server isn't going to work.  I would 
-like to see RADIUS servers re-written such that on PAM systems they will use 
-unix_chkpwd and unix_verify for all password access.  A RADIUS server that 
-supports PAM will get this by default, but I don't think that PAM is designed 
-to be thread-safe so threaded servers won't necessarily work this way.  
-Although undocumented the unix_chkpwd interface is easy to use and the RADIUS 
-servers could be adjusted to use it (and the interface can be documented).
+Basically we are using this as a testing ground for our Hardened Gentoo 
+kernels, the configuration we are using is PaX + openpax + SELinux to 
+provide all the currently supported layers of security.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+> I think a lot of people use ExecShield because the patch is not too big
+> and supported by RedHat. If PAX with proper SELinux-support was
+> available as a single patch more people would consider using it on
+> production systems where every additional patch counts.
+> 
+> Thomas
+> 
+Well, too big is fairly irrelavent if it doesn't provide the necessary 
+protections (IMO) . Furthermore, every single PaX option is optional and 
+  encased in #ifdef's so every additional patch shouldn't count since 
+nothing unnecessary will end up in the compiled kernel.
 
+Joshua Brindle
 
 --
 This message was distributed to subscribers of the selinux mailing list.
