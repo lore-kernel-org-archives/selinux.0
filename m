@@ -1,50 +1,90 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9FJZxWt028179
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 15:35:59 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9FK5ZWt028380
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 16:05:35 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9FJZwmR021918
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 19:35:58 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h9FJZvjp021912 for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 19:35:57 GMT
-Subject: Re: Question about chsh/chfn/passwd patches
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Thorsten Kukuk <kukuk@suse.de>
-Cc: SELinux Mailinglist <selinux@tycho.nsa.gov>
-In-Reply-To: <20031015193005.GA18974@suse.de>
-References: <20031015034406.GA1644@suse.de>
-	 <1066241019.7399.79.camel@moss-spartans.epoch.ncsc.mil>
-	 <20031015183117.GA5967@suse.de>
-	 <1066243290.7399.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <20031015190453.GA24248@suse.de>
-	 <1066245388.7399.158.camel@moss-spartans.epoch.ncsc.mil>
-	 <20031015193005.GA18974@suse.de>
-Content-Type: text/plain
-Message-Id: <1066246556.7399.174.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 15 Oct 2003 15:35:56 -0400
+	by jazzband.ncsc.mil  with ESMTP id h9FK5YmR023559
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 20:05:34 GMT
+Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
+        by jazzband.ncsc.mil  with ESMTP id h9FK5Wjp023556 for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 20:05:33 GMT
+Message-ID: <3F8D9B39.4060904@ipen.br>
+Date: Wed, 15 Oct 2003 17:08:41 -0200
+From: =?UTF-8?B?Q2FybG9zIEFuw61zaW8gTW9udGVpcm8=?= <monteiro@ipen.br>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+CC: =?UTF-8?B?Q2FybG9zIEFuw61zaW8gTW9udGVpcm8=?= <monteiro@ipen.br>
+Subject: Re: enforce mode problems
+References: <3F8D2B57.2080807@ipen.br> <1066242001.7399.87.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/alternative;
+ boundary="------------080106050905060903020806"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-10-15 at 15:30, Thorsten Kukuk wrote:
-> No, I mean at first getfscreatecon. You cannot assume that a program
-> calling a library modifying /etc/passwd does not create any other files.
-> And in the later case it could be that we don't wish that this files
-> will be created with the passwd context. Only think about useradd and
-> creating home directories.
-> So you have to backup the original values at first and restore them
-> afterwards.
 
-Sorry, I misunderstood you.  Yes, the libuser and pam pwdb patches do
-this as well.
+--------------080106050905060903020806
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> No, I don't assume that root is god.
+Stephen Smalley wrote:
 
-Then you're assuming full revocation support, which doesn't exist, at
-least not yet.
+>You need to address the avc messages before switching into enforcing
+>mode.  From the sound of it, you still haven't labeled your
+>filesystems.  Did you run 'make relabel' to completion?  What does ls -Z
+>/sbin/init show?
+>
+>  
+>
+1) Yes, 'make relabel' to completion. I think that all filesystem  is 
+labeled, except /selinux and /proc directories.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+2) ls -Z /sbin/init
+    invalid option.
+
+obs.:
+ls --context /sbin/init
+-rwxr-xr-x  root     root     system_u:object_r:init_exec_t    /sbin/init
+
+Regards.
+
+
+
+--------------080106050905060903020806
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+Stephen Smalley wrote:<br>
+<blockquote type="cite"
+ cite="mid1066242001.7399.87.camel@moss-spartans.epoch.ncsc.mil">
+  <pre wrap=""></pre>
+  <pre wrap=""><!---->You need to address the avc messages before switching into enforcing
+mode.  From the sound of it, you still haven't labeled your
+filesystems.  Did you run 'make relabel' to completion?  What does ls -Z
+/sbin/init show?
+
+  </pre>
+</blockquote>
+1) Yes, 'make relabel' to completion. I think that all filesystem  is labeled,
+except /selinux and /proc directories.<br>
+<br>
+2) ls -Z /sbin/init <br>
+    invalid option.<br>
+<br>
+obs.:<br>
+ls --context /sbin/init<br>
+-rwxr-xr-x  root     root     system_u:object_r:init_exec_t    /sbin/init<br>
+<br>
+Regards.<br>
+<br>
+<br>
+</body>
+</html>
+
+--------------080106050905060903020806--
 
 
 --
