@@ -1,45 +1,41 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i28HXuRb007245
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 12:33:56 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i28HccRb007285
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 12:38:38 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i28HWF6Q003608
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 17:32:15 GMT
+	by jazzswing.ncsc.mil  with ESMTP id i28Hav6Q004112
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 17:36:57 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i28HWF5t003605
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 17:32:15 GMT
-Subject: Re: Proposed patch to policy file_contexts
+	by jazzswing.ncsc.mil  with ESMTP id i28Hav5t004109
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 17:36:57 GMT
+Subject: Re: system_r and sysadm_r roles
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-   Russell Coker <russell@coker.com.au>
-In-Reply-To: <1078761584.30476.67.camel@colossus.columbia.tresys.com>
-References: <403E52AD.5090103@redhat.com>
-	 <1077916703.11720.274.camel@colossus.columbia.tresys.com>
-	 <4044B7F5.1010302@redhat.com>
-	 <1078323734.9541.28.camel@colossus.columbia.tresys.com>
-	 <1078348887.13948.191.camel@moss-spartans.epoch.ncsc.mil>
-	 <1078349802.9541.47.camel@colossus.columbia.tresys.com>
-	 <1078507105.16195.78.camel@moss-spartans.epoch.ncsc.mil>
-	 <1078761584.30476.67.camel@colossus.columbia.tresys.com>
-Content-Type: text/plain
-Message-Id: <1078767204.30181.145.camel@moss-spartans.epoch.ncsc.mil>
+To: Carlos =?ISO-8859-1?Q?An=EDsio?= Monteiro <monteiro@baitaca.ipen.br>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1078766880.30181.140.camel@moss-spartans.epoch.ncsc.mil>
+References: <404C5B57.9020209@net.ipen.br>
+	 <1078757447.30181.82.camel@moss-spartans.epoch.ncsc.mil>
+	 <404CAA11.2070909@net.ipen.br>
+	 <1078766880.30181.140.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1078767513.30181.147.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 08 Mar 2004 12:33:25 -0500
+Date: Mon, 08 Mar 2004 12:38:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-03-08 at 10:59, Karl MacMillan wrote:
-> Our thinking was that root shouldn't be a special case and the ordering
-> of the roles could take care of everything. I'm not clear why root
-> should be labeled with sysadm*_home_t, though. Why not treat root like
-> all of the other admins? Wouldn't labeling root with sysadm*_home_t make
-> logging in as staff_r for root problematic (for example, when ssh logins
-> are allowed for root).
+On Mon, 2004-03-08 at 12:28, Stephen Smalley wrote:
+> On Mon, 2004-03-08 at 12:14, Carlos Anísio Monteiro wrote:
+> > Sorry, but don´t understand this. If a fail (that it provide a shell
+> > root) to occur in a system process, can´t occur a transition to
+> > sysadm_r role ?
+> 
+> Not unless the domain can transition to a domain associated with
+> sysadm_r, and the role transition meets the boolean condition specified
+> in policy/constraints for role changes.
 
-Yes, it makes life a little harder for direct remote root logins (but
-doesn't prevent them from occurring; you just have to do a subsequent
-newrole to get to a full normal operating state).  But it also protects
-the integrity of /root's dotfiles more strongly, which can be helpful.
+Oh, and it would also have to transition to a user identity authorized
+for sysadm_r, which would require meeting another boolean condition
+specified in policy/constraints for user identity changes.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
