@@ -1,62 +1,53 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i16FAVRb023099
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 10:10:31 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i16F8iQk025956
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 15:08:44 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-	by jazzswing.ncsc.mil  with ESMTP id i16F8hYo025950
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 15:08:43 GMT
-Message-ID: <4023AE3A.1050109@redhat.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i16F9mRb023072
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 10:09:49 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i16F9lOi000255
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 15:09:48 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i16F9lWW000252 for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 15:09:47 GMT
+Subject: Re: Issues relabeling filesystems
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Ignacio Tripodi <ignaciot@unt.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <BEA0F082-5867-11D8-A76A-000393013D1A@unt.edu>
+References: <BEA0F082-5867-11D8-A76A-000393013D1A@unt.edu>
+Content-Type: text/plain
+Message-Id: <1076080186.16170.13.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Date: Fri, 06 Feb 2004 10:09:46 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: Eric Estabrooks <eric@urbanrage.com>, selinux@tycho.nsa.gov
-Subject: Re: selinux-policy-default
-References: <40232CBB.7020607@urbanrage.com> <200402062339.14289.russell@coker.com.au>
-In-Reply-To: <200402062339.14289.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
+On Fri, 2004-02-06 at 00:46, Ignacio Tripodi wrote:
+> I'm running SELinux on User Mode Linux, on a Fedora Core 1 root 
+> filesystem I built. When trying to label the filesystem, I encountered 
+> this problem:
+> 
+> [root@umlSELinux policy]# make relabel
+> /usr/sbin/setfiles file_contexts/file_contexts `mount | awk 
+> '/ext[23].*rw/{print $3}'`
+> /usr/sbin/setfiles:  read 419 specifications
+> /usr/sbin/setfiles:  labeling files under /
+> /usr/sbin/setfiles: relocation error: /usr/sbin/setfiles: symbol 
+> nftw64, version GLIBC_2.3.3 not defined in file libc.so.6 with link 
+> time reference
+> make: *** [relabel] Error 127
+> 
+> I actually included glibc-2.3.2 when I built the root-filesystem, as 
+> well as glibc-common-2.3.2, glibc-debug-2.3.2, glibc-devel-2.3.2, 
+> glibc-headers-2.3.2, etc. Any clues of what this error means will be 
+> highly appreciated.
+> Thanks!
 
->On Fri, 6 Feb 2004 16:57, Eric Estabrooks <eric@urbanrage.com> wrote:
->  
->
->>/usr/bin/checkpolicy:  loading policy configuration from
->>/etc/security/selinux/src/policy.conf
->>domains/admin.te:32:ERROR 'unknown type sysadm_locate_t' at token ';' on
->>line 5974:
->>allow sysadm_locate_t { sysadm_mozilla_ro_t sysadm_mozilla_rw_t }:dir {
->>getattr
->>search };
->>    
->>
->
->I'll upload a new policy package to fix that tomorrow.
->
->Anyway using the locate policy for Debian is not a good idea.  Debian does not 
->have a SE Linux patched locate and is not likely to have one in the 
->forseeable future.  I think that locate is simply a bad idea and have no 
->plans to support it in Debian.
->
->  
->
->>I searched for type lines for sysadm_locate_t but couldn't find any in
->>    
->>
->
->Look at macros/program/locate_macros.te .
->
->  
->
+If you want to use the setfiles from Fedora Core development, then you
+need to upgrade your glibc.  You could just build our setfiles,
+preferably from the sourceforge CVS tree.
 
-Easiest thing to do is remove slocate.te from domain/program and  then 
-do a make reload.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
