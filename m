@@ -1,40 +1,37 @@
-Subject: Policy question
-From: Reino Wallin <reino@oribium.com>
-To: SELinux <SELinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: 02 May 2002 12:11:14 +0200
-Message-Id: <1020334278.21391.92.camel@matilda>
-Mime-Version: 1.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA23031
+	for <selinux@tycho.nsa.gov>; Thu, 2 May 2002 16:48:17 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA05329
+	for <selinux@tycho.nsa.gov>; Thu, 2 May 2002 20:46:25 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id UAA05325
+	for <selinux@tycho.nsa.gov>; Thu, 2 May 2002 20:46:25 GMT
+Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA04083
+	for <selinux@tycho.nsa.gov>; Thu, 2 May 2002 16:48:15 -0400 (EDT)
+Date: Thu, 2 May 2002 16:32:15 -0400 (EDT)
+From: hdholm@epoch.ncsc.mil (Howard Holm)
+Message-Id: <200205022032.QAA16755@coalpipe.epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Subject: Updated Release
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have defined a few nodes as well as a few interfaces in network.te,
-and net_contexts.
+The SELinux web site <http://www.nsa.gov/selinux/> including the mail
+list archive has been updated.  Two new technical reports are available
+in the documentation: a document describing the policy language and a
+document describing the current LSM implementation of SELinux.  The
+site also includes a new release of the LSM-based SELinux prototype.
+The stable (2.4) LSM-based SELinux prototype remains at kernel 2.4.18.
+The development (2.5) LSM-based SELinux prototype was updated to kernel
+2.5.10.  A number of policy improvements, minor feature enhancements
+and bug fixes have also been made.
 
-In the te files for the standalone proxies (http and generic) the
-following will do:
-
-# Allow the domain to send to any node.
-allow http_proxy_t node_type:node { tcp_send tcp_recv };
-
-However, the same approach doesn't work in the inetd.te. Avc error
-messages appears, and the following rules are supposed to be added.
-
-# Allow the domain to send to any node.
-allow inetd_t node_admin_t:node { tcp_send tcp_recv };
-allow inetd_t node_dmz_t:node { tcp_send tcp_recv };
-allow inetd_t node_vpn_t:node { tcp_send tcp_recv };
-allow inetd_t node_internal_t:node { tcp_send tcp_recv };
-allow inetd_t node_external_t:node { tcp_send tcp_recv };
-
-If I add theese rules, then also the proxies that is executed from the
-inetd works fine in enforcing mode.
-
-Why are theese fine grained rules needed in the inetd.te but not in the
-other te files?
-
-Reino
-
+--
+Howard Holm <hdholm@epoch.ncsc.mil>
+Secure Systems Research Office
+National Security Agency
 
 
 --
