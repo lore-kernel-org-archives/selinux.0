@@ -1,37 +1,36 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71A3NrT006137
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 06:03:23 -0400 (EDT)
-Received: from smtp812.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i71A3M0x018961
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 10:03:22 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp812.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 10:03:21 -0000
-Date: Sun, 1 Aug 2004 11:14:18 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Nikolay <nikolay@alexandrov.ws>, selinux@tycho.nsa.gov
-Subject: Re: Some ideas and info.
-Message-ID: <20040801101418.GB7384@lkcl.net>
-References: <200408010121.i711LUHs013906@mummy.ncsc.mil> <410C83AB.5020305@tresys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <410C83AB.5020305@tresys.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71AF1rT006190
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 06:15:01 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i71AER52019531
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 10:14:28 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: install on new machine fails due to no ln -s on default to current
+Date: Sun, 1 Aug 2004 20:14:50 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040731120919.GM3378@lkcl.net>
+In-Reply-To: <20040731120919.GM3378@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200408012014.50635.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-joshua, hi,
+On Sat, 31 Jul 2004 22:09, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> an installation of selinux-policy-default failed because there was
+> no symlink from default to current.
 
-at the risk of sounding like an aol bulletin-board-service wannabe,
-"me too!"
+There is not meant to be a sym-link.  The data is meant to be copied.  The 
+postinst of selinux-policy-default will do this (see line 7).
 
-l.
-
-On Sun, Aug 01, 2004 at 01:46:19AM -0400, Joshua Brindle wrote:
-
-> Memory protections are well outside the scope of SELinux (which includes 
-> only mandatory access control), however the Gentoo (of which I am a 
-> part) have a patch to integrate PaX flags into SELinux policy, it's 
-> available if you are interested.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
