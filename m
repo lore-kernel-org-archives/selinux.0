@@ -1,47 +1,70 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA25003
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 15:04:57 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA19716
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 20:03:35 GMT
-Received: from acheson-a2-hme0.state.gov (acheson-a2.state.gov [169.253.4.8])
-	by jazzswing.ncsc.mil  with SMTP id UAA19712
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 20:03:35 GMT
-Received: from iscan.state.gov (unverified) by mailsweeper1b.state.gov
- (Content Technologies SMTPRS 4.2.10) with SMTP id <T59c0aebdc0a9fd0820330@mailsweeper1b.state.gov> for <selinux@tycho.nsa.gov>;
- Wed, 20 Mar 2002 15:06:06 -0500
-Message-ID: <2304908D1580D411B23900508BAE5F4038F2E5@aimrmsntssi.irm.state.gov>
-From: "Myers, Robert" <MyersRB@state.gov>
-To: selinux@tycho.nsa.gov
-Cc: "Froberg, David C" <FrobergDC@state.gov>,
-        "Neal, Fred G"
-	 <NealFG@state.gov>
-Subject: Linux External Security Manager
-Date: Wed, 20 Mar 2002 14:59:05 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA25104
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 15:11:54 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA11117
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 20:10:50 GMT
+Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
+        by jazzband.ncsc.mil  with SMTP id UAA11113 for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 20:10:44 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524317@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Stephen Smalley'" <sds@tislabs.com>,
+        "Leslie J. French"
+	 <ljf@semandex.net>
+Cc: selinux@tycho.nsa.gov
+Subject: RE: SMP mode?
+Date: Wed, 20 Mar 2002 14:11:55 -0600
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I have it running on SMP box.
 
-To all:
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tislabs.com]
+Sent: Wednesday, March 20, 2002 1:02 PM
+To: Leslie J. French
+Cc: selinux@tycho.nsa.gov
+Subject: Re: SMP mode?
 
-In your research into security enhancements and options for SELinux, has
-anyone come across a COTS packages providing external security management
-capabilities for Linux or Unix OSs?  We are presently evaluating a package
-called CA Etrust Access Control, which provides C2 and some B1 like security
-controls for resource and object access authorization.  While we are very
-interested in exploring SELinux later for our classified applications, we
-need something else pronto for our unclassified applications hosted on
-Linux.  Anyone know of any other products we should consider?
 
-Bob Myers
-U.S. Department of State
-IRM/OPS/ITI/SI/IIB
- 
-This Email is unclassified based on the definitions provided in E.O. 12958
 
+On Wed, 20 Mar 2002, Leslie J. French wrote:
+
+> Is it known if SELinux works/doesn't work when installed on top of
+> RedHat7.1-smp? I'm running a dual-processor system and the apps (which are
+> very CPU & network intensive) work OK in the normal boot and fail
+> mysteriously in SELinux (e.g. "Operation not permitted" but with nothing
+in
+> the log, even in avc "permissive" mode). It's running 2002011718 version.
+>
+> I'll repeat the experiment on a single-CPU box, since it is most likely my
+> fault, but I'd appreciate it if it's *known* that there are problems in
+this
+> area.
+
+As far as I know, SELinux _should_ work on SMP, but it hasn't been tested.
+SELinux uses coarse-grained locking at present, but that shouldn't
+manifest as denials.  What are your kernel config option settings,
+particularly the CONFIG_SECURITY_* settings?
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
+
+
+--
+You have received this message because you are subscribed to the selinux
+list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 You have received this message because you are subscribed to the selinux list.
