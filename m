@@ -1,43 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA19435
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 10:00:43 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA18410
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 14:59:43 GMT
-Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
-	by jazzswing.ncsc.mil  with SMTP id OAA18406
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 14:59:42 GMT
-Message-ID: <72222DC86846D411ABD300A0C9EB08A106C52C80@csoc-mail-box.csoconline.com>
-From: "Walker, Jason" <Jason.Walker@csoconline.com>
-To: "'Ben McGinnes'" <ben-mcginnes@iname.com>, selinux@tycho.nsa.gov
-Cc: Flood Randy Capt AFCA/TCAA <randy.flood@scott.af.mil>,
-        Lonnie Cumberland <lonnie@outstep.com>
-Subject: RE: ftp long time connection
-Date: Wed, 20 Feb 2002 09:00:42 -0600
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA19498
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 10:05:01 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA00471
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 15:04:02 GMT
+Received: from fw2.amc.af.mil (amcuxfw802.amc.af.mil [131.9.254.188])
+        by jazzband.ncsc.mil  with ESMTP id PAA00467 for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 15:04:02 GMT
+Received: from fw2.amc.af.mil (root@localhost)
+	by fw2.amc.af.mil with ESMTP id g1KF5oL26197
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 09:05:50 -0600 (CST)
+Received: from amcw2av808.amc.ds.af.mil (amcw2av808.amc.af.mil [131.9.19.137])
+	by fw2.amc.af.mil with SMTP id g1KF5hl25893
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 09:05:47 -0600 (CST)
+Received: from amcw2ms872.amc.ds.af.mil ([131.9.19.110])
+ by amcw2av808.amc.ds.af.mil (NAVGW 2.5.1.18) with SMTP id M2002022008555423158
+ for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 08:55:54 -0600
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: ftp long time connection
+Date: Wed, 20 Feb 2002 08:55:50 -0600
+Message-ID: <1BF4DDD78DDA5D4EB0769BEA7F158E5A011BB22E@amcw2ms812.amc.ds.af.mil>
+From: "Flood Randy Capt AFCA/TCAA" <randy.flood@scott.af.mil>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I think that the DNS configuration will affect ftp connections, even if the
-client is trying to FTP to the IP address of the server.  
 
-What they're talking about is the reverse DNS lookup, where the SERVER does
-a reverse lookup on the address of the CLIENT to see who's trying to
-connect, for logging and authentication purposes.  If the Server doesn't
-know the name associated with the Client IP address, it will take some extra
-time before the server gives up and simply logs the client IP address
-instead of hostname.
+Actually, even if you ftp or telnet to a machine using its ip address,
+often times the client will nslookup the ip address.  Likewise, the
+server will often do a reverse lookup on the client (for logging
+purposes).  I have also seen this sort of behavior if you use host names
+rather than ip addresses in /etc/hosts.allow and /etc/hosts.deny.  Try
+fixing DNS and then see if you still have the problem.
 
-Make sure that the client system is listed in DNS, that the server is using
-the appropriate DNS server, or that the server has a HOSTS file listing the
-client.  From the server, try doing an nslookup against the client IP
-address and see if it correctly returns the client name.
-
-Jason Walker
-Lockheed Martin CSOC
-(281) 218-2569
-
+   
 
 -----Original Message-----
 From: Ben McGinnes [mailto:ben-mcginnes@iname.com]
@@ -47,8 +44,8 @@ Cc: Flood Randy Capt AFCA/TCAA; Lonnie Cumberland
 Subject: Re: ftp long time connection
 
 
-Flood Randy Capt AFCA/TCAA(randy.flood@scott.af.mil)@Tue, Feb 19, 2002 at
-01:55:17PM -0600:
+Flood Randy Capt AFCA/TCAA(randy.flood@scott.af.mil)@Tue, Feb 19, 2002
+at 01:55:17PM -0600:
 > 
 > Do you have reverse DNS entries for your server and client and is DNS
 > configured correctly?
@@ -57,18 +54,24 @@ Flood Randy Capt AFCA/TCAA(randy.flood@scott.af.mil)@Tue, Feb 19, 2002 at
 
 True, DNS errors will do that, as others here have pointed out.  The
 original query, however, also mentioned that accessing the host directly
-by its IP was attempted with the same results.  So while there may be some 
-DNS-related delays as well, it cannot be a complete explanation.  I also 
-doubt SE Linux is the cause here either since it's a fairly generic kind 
+by its IP was attempted with the same results.  So while there may be
+some 
+DNS-related delays as well, it cannot be a complete explanation.  I also
+
+doubt SE Linux is the cause here either since it's a fairly generic kind
+
 of problem.
 
-I'd try attempting other protocols such as SSH, telnet (if enabled), SMTP 
+I'd try attempting other protocols such as SSH, telnet (if enabled),
+SMTP 
 and probably SCP too.  To both hostname and IP address.  See if it is 
 affecting all protocols or just one or two, also try telnetting to the 
-machine on port 21 and see exactly what point at which it slows to a crawl 
+machine on port 21 and see exactly what point at which it slows to a
+crawl 
 or breaks.
 
-Chances are the cause (and shortly thereafter, the solution) will leap out 
+Chances are the cause (and shortly thereafter, the solution) will leap
+out 
 during this process.
 
 
