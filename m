@@ -1,63 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA22976
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 07:44:45 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA01464
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 12:43:47 GMT
-Received: from hotmail.com (f85.law4.hotmail.com [216.33.149.85])
-        by jazzband.ncsc.mil  with ESMTP id MAA01460 for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 12:43:46 GMT
-From: "CHEN Mike" <wofong@hotmail.com>
-To: metrix007@yahoo.com, selinux@tycho.nsa.gov
-Subject: Re: 
-Date: Wed, 27 Feb 2002 20:32:29 +0800
-Mime-Version: 1.0
-Content-Type: text/plain; charset=gb2312; format=flowed
-Message-ID: <F85vUsdBKGMuHof6WUF00005597@hotmail.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23202
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 08:36:37 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA22483
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 13:35:31 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id NAA22479
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2002 13:35:30 GMT
+Date: Wed, 27 Feb 2002 08:36:01 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Metrix <metrix007@yahoo.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: your mail
+In-Reply-To: <20020227113121.20222.qmail@web20604.mail.yahoo.com>
+Message-ID: <Pine.GSO.4.33.0202270831060.12300-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-They are based on different architectures. SELinux is based on
-Flask, which is different from RSBAC. For RSBAC, there are lots
-of studies on it in computer security field. I am not quite sure
-about whether they have enough research on flask or not, since there
-are papers on Flash architecture, but I didn't find complete proof
-on the correctness of this architecture(e.g. maths models etc).
 
+On Wed, 27 Feb 2002, Metrix wrote:
 
->From: Metrix <metrix007@yahoo.com>
->To: selinux@tycho.nsa.gov
->Date: Wed, 27 Feb 2002 03:31:21 -0800 (PST)
+> Hey people, just wanted to compliment you on the good
+> job, I will actualy be using RSBAC as it suits my
+> needs a bit better...
 >
->Hey people, just wanted to compliment you on the good
->job, I will actualy be using RSBAC as it suits my
->needs a bit better...
->
->My question is, what are the diferences of RSBAC
->[rsbac.org] and SELinux from a technical standpoint?
->
->__________________________________________________
->Do You Yahoo!?
->Yahoo! Greetings - Send FREE e-cards for every occasion!
->http://greetings.yahoo.com
->
->--
->You have received this message because you are subscribed to the selinux 
-list.
->If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
-with
->the words "unsubscribe selinux" without quotes as the message.
+> My question is, what are the diferences of RSBAC
+> [rsbac.org] and SELinux from a technical standpoint?
+
+This has been previously discussed on the mailing list, and is also
+summarized in the related work section of the Freenix '01 paper.  The
+mailing list thread starts at
+http://marc.theaimsgroup.com/?l=selinux&m=98618795624462&w=2 and the
+Freenix '01 paper is available at
+http://www.nsa.gov/selinux/freenix01-abs.html.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-
-
----
-There's nothing left to say,
-     Just walk away...
-
-
-_________________________________________________________________
-享用世界上最大的 Web 电子邮件系统 —— MSN Hotmail。
-http://www.hotmail.com/cn
 
 
 --
