@@ -1,55 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i09E9SRb029742
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 09:09:28 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i09E9RiV000753
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 14:09:27 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i09E9Q06000749 for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 14:09:26 GMT
-Subject: Re: aliases
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200401092218.47912.russell@coker.com.au>
-References: <200401092218.47912.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1073657357.29816.60.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i09EonRb000022
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 09:50:50 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i09Enjxr028671
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 14:49:45 GMT
+Received: from smtp-1.llnl.gov (smtp-1.llnl.gov [128.115.250.81])
+	by jazzswing.ncsc.mil  with ESMTP id i09EniYc028668
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 14:49:44 GMT
+Received: from popcorn.llnl.gov (localhost [127.0.0.1])
+	by smtp-1.llnl.gov (8.12.3p2-20030917/8.12.3/LLNL evision: 1.13 $) with ESMTP id i09EojLZ016892
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 06:50:45 -0800 (PST)
+Received: from [128.115.96.64] (account shakespeare2 [128.115.96.64] verified)
+  by popcorn.llnl.gov (CommuniGate Pro SMTP 4.0.6)
+  with ESMTP id 31155888 for selinux@tycho.nsa.gov; Fri, 09 Jan 2004 06:50:44 -0800
 Mime-Version: 1.0
-Date: Fri, 09 Jan 2004 09:09:17 -0500
+Message-Id: <p0602040ebc246ef12509@[128.115.96.64]>
+Date: Fri, 9 Jan 2004 06:50:43 -0800
+To: selinux@tycho.nsa.gov
+From: Mark Shakespeare <mshakes@llnl.gov>
+Subject: using Resin instead of Apache
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-01-09 at 06:18, Russell Coker wrote:
-> I believe that we need a minor change in the policy language to deal with 
-> aliases.
-> 
-> The current setup requires that all aliases be specified on the type 
-> declaration line.  One significant problem with this is that if a type is 
-> declared by a macro there is no way to add aliases to it.  Because of this we 
-> have at various times had aliases specified in macros when they weren't 
-> needed for 95% of the cases.
-> 
-> I believe that a declaration of the form is necessary:
-> typealias foo_t aliases { bar_t baz_t };
-> 
-> That would mean that I could do:
-> 
-> var_run_domain(foo)
-> typealias foo_var_run_t alias var_run_foo_t;
-> 
-> Instead of having the current alias in the var_run_domain() macro.  Of course 
-> it's no big deal for the var_run_domain() macro (and I'll remove the alias 
-> from my tree because it's been there too long anyway).  But there are other 
-> situations which are more difficult to manage (such as renaming netscape to 
-> mozilla).
+Has anyone used Resin with SeLinux?
 
-Aside from preserving old type names for compatibility, type aliases
-seem to have little use, and significant potential for confusion.  
+I've been asked to install SeLinux on a Server using Resin.
 
+Do I just modify the Apache.te file?
+
+Any help would be appreciated.
+
+Thanks.
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+******************************************
+* Mark Shakespeare			 *
+* Engineering Computer Operations Team   *
+* Lawrence Livermore National Laboratory *
+* 7000 East Ave		L-130            *
+* Livermore,Ca 94550			 *
+* 925-423-9922	      mshakes@llnl.gov   *
+******************************************
 
 --
 This message was distributed to subscribers of the selinux mailing list.
