@@ -1,34 +1,64 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA11749
-	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2001 18:17:56 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA15441
+	for <selinux@tycho.nsa.gov>; Wed, 17 Oct 2001 11:05:40 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA17996
-	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2001 22:17:24 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzband.ncsc.mil  with ESMTP id WAA17992
-	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2001 22:17:24 GMT
-Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA15731
-	for <selinux@tycho.nsa.gov>; Tue, 16 Oct 2001 18:17:52 -0400 (EDT)
-Date: Tue, 16 Oct 2001 18:03:00 -0400 (EDT)
-From: hdholm@epoch.ncsc.mil (Howard Holm)
-Message-Id: <200110162203.SAA06342@coalpipe.epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Subject: Updated release
+	by jazzband.ncsc.mil  with ESMTP id PAA23589
+	for <selinux@tycho.nsa.gov>; Wed, 17 Oct 2001 15:05:07 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
+	by jazzband.ncsc.mil  with ESMTP id PAA23585
+	for <selinux@tycho.nsa.gov>; Wed, 17 Oct 2001 15:05:07 GMT
+Received: from localhost (sds@localhost)
+	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id f9HF5BA27499
+	for <selinux@tycho.nsa.gov>; Wed, 17 Oct 2001 11:05:11 -0400 (EDT)
+Date: Wed, 17 Oct 2001 11:05:10 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: <selinux@tycho.nsa.gov>
+Subject: Re: Updated release
+In-Reply-To: <200110162203.SAA06342@coalpipe.epoch.ncsc.mil>
+Message-ID: <Pine.GSO.4.33.0110171035500.18757-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The SELinux web site <http://www.nsa.gov/selinux/> including the mail
-list archive has been updated.  The site includes a new release of the
-LSM-based SELinux prototype.  This release contains bug fixes and
-additional policy domains and permissions.  The capability module may
-now be stacked with SELinux.  The base for SELinux has been updated to
-the lsm-2001_10_11 patch against kernel 2.4.12.
+
+A few additional notes about this release:
+
+1) A new run_init utility program and domain have been created to allow
+administrators to run the init scripts with the appropriate security
+context (e.g. to restart daemons) in a secure manner.  This was requested
+by several SELinux users.  See the updated README, utils/run_init, and
+utils/appconfig/initrc_context.
+
+2) Step 4 of the updated README discusses the issues in running X on
+SELinux, whether via startx after an ordinary login or via an X display
+manager like xdm, gdm, or kdm.  You must uncomment certain allow
+statements in the policy to grant the X server the necessary permissions,
+as explained in the README.  Mark Westerman's gdm policy has been merged
+into the example policy in order to ensure that it is consistent and kept
+up-to-date with the rest of the policy, but you will need to obtain his
+modified gdm program separately if you want to use gdm on SELinux.
+
+3) Download Options 4 and 5 were revised in response to the feedback from
+the Debian packagers.  The SELinux kernel module is provided as a patch
+against the LSM kernel patch (which is identical to the lsm-2001_10_11
+patch against 2.4.12 from lsm.immunix.org) rather than being part of the
+archive.  The module Makefiles have been revised to ensure that the
+architecture-specific symbolic links are generated during the normal
+'make dep'.
 
 --
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
+
+
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
