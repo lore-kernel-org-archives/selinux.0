@@ -1,50 +1,40 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9KGDtXZ001511
-	for <selinux@tycho.nsa.gov>; Wed, 20 Oct 2004 12:13:55 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9KGCeui020893
-	for <selinux@tycho.nsa.gov>; Wed, 20 Oct 2004 16:12:40 GMT
-Subject: [PATCH][SELINUX] Add DAC check for setxattr(security.selinux)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-   lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
-Content-Type: text/plain
-Message-Id: <1098288630.672.181.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9KHcjXZ002302
+	for <selinux@tycho.nsa.gov>; Wed, 20 Oct 2004 13:38:45 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9KHbQui025837
+	for <selinux@tycho.nsa.gov>; Wed, 20 Oct 2004 17:37:30 GMT
+Date: Wed, 20 Oct 2004 18:49:38 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Jaspreet Singh <jsingh@ensim.com>, sds@epoch.ncsc.mil,
+   nsa <SELinux@tycho.nsa.gov>
+Subject: Re: Virtualization and SELinux
+Message-ID: <20041020174938.GL21185@lkcl.net>
+References: <1098274225.12118.20.camel@jsingh.india.ensim.com> <20041020151031.GB21185@lkcl.net>
 Mime-Version: 1.0
-Date: Wed, 20 Oct 2004 12:10:31 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20041020151031.GB21185@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch against 2.6.9 adds a DAC ownership check to the existing MAC
-permission checks when setting the security.selinux attribute via
-setxattr.  In the past, the MAC permission checks were viewed as
-sufficient for controlling relabeling operations, but experience in the
-Fedora SELinux integration has shown that a DAC check is also
-appropriate here, particularly under targeted policy.  Please apply.
+On Wed, Oct 20, 2004 at 04:10:31PM +0100, Luke Kenneth Casson Leighton wrote:
 
-Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
+> the only thing that you _might_ have to do is add to the [non-chrooted!]
+> selinux policy a .te and .fc for a shell program to be used in
+> /etc/passwd which can chroot your users and drop them into the right
+> user context: i don't know exactly what to suggest there.
 
- security/selinux/hooks.c |    3 +++
- 1 files changed, 3 insertions(+)
+ ... btw it would be helpful for you to describe exactly how
+ and where you are doing the chrooting.
 
---- linux-2.6.9/security/selinux/hooks.c.orig	2004-10-20 10:32:18.653598056 -0400
-+++ linux-2.6.9/security/selinux/hooks.c	2004-10-20 10:32:39.712396632 -0400
-@@ -2243,6 +2243,9 @@ static int selinux_inode_setxattr(struct
- 	if (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)
- 		return -EOPNOTSUPP;
- 
-+	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
-+		return -EPERM;
-+
- 	AVC_AUDIT_DATA_INIT(&ad,FS);
- 	ad.u.fs.dentry = dentry;
- 
+ l.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
-
+--
+you don't have to BE MAD   | this space    | my brother wanted to join mensa,
+  to work, but   IT HELPS  |   for rent    | for an ego trip - and get kicked 
+ you feel better!  I AM    | can pay cash  | out for a even bigger one.
+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
