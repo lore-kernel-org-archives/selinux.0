@@ -1,41 +1,44 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA12904
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 00:18:20 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA13879
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 07:35:30 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id EAA15994
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 04:16:55 GMT
+	by jazzband.ncsc.mil  with ESMTP id LAA01698
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 11:34:07 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id EAA15990 for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 04:16:53 GMT
+        by jazzband.ncsc.mil  with ESMTP id LAA01694 for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 11:34:05 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 1298092461
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 21:35:27 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 040AA5B8
+	for <selinux@tycho.nsa.gov>; Thu, 20 Jun 2002 13:35:20 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Gregory Ade <gkade@bigbrother.net>
-Subject: Re: new policy changes
-Date: Thu, 20 Jun 2002 06:18:02 +0200
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <20020619113740.9045569D@lyta.coker.com.au> <1024530561.32149.22.camel@pslgregory>
-In-Reply-To: <1024530561.32149.22.camel@pslgregory>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: new macro in users.te
+Date: Thu, 20 Jun 2002 13:35:19 +0200
 MIME-Version: 1.0
-Message-Id: <20020620041803.28265388E@lyta.coker.com.au>
+Message-Id: <20020620113520.040AA5B8@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 20 Jun 2002 01:49, Gregory Ade wrote:
-> On Wed, 2002-06-19 at 04:37, Russell Coker wrote:
-> > I've changed /dev/console to be writable only by the admin domains not by
-> > every_domain().
-> >
-> > This means of course that if you login at the console you have to do so
-> > as an administrator, this is fair IMHO, there's no cause for regular
-> > users to login at the console.
->
-> What about the case of a workstation?  I log in to the console of my
-> machine as myself every day.  Also, i believe that KDM/GDM/XDM logins
-> via the physically attached kb/mouse/monitor are treated as "console"
-> logins.
+In my policy tree I have the following in users.te:
 
-They are virtual consoles and have tty_device_t not console_device_t.
+define(`in_user_role', `
+role user_r types $1;
+#role second_user_r types $1;
+')
+
+Then I replace this:
+role user_r types foo_t;
+with this:
+in_user_role(foo_t)
+
+I want to have multiple user roles that each have their own primary domain, 
+but can change to other domains within their role, but can't access the 
+primary domain for other roles.
 
 -- 
 I do not get viruses because I do not use MS software.
