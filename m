@@ -1,64 +1,63 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00153
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 14:31:06 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA08270
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 19:28:15 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id TAA08266
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 19:28:14 GMT
-Message-Id: <200301211938.OAA02406@moss-shockers.ncsc.mil>
-Date: Tue, 21 Jan 2003 14:38:26 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: Problems compiling selinux release (2003011510) for 2.4.20 kernel
-To: selinux@tycho.nsa.gov, azeredo@qmc.ufsc.br
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00350
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 14:42:24 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h0LJgNI28581
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 19:42:23 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id h0LJgLf28577 for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 19:42:22 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov,
+        tom@lemuria.org
+Subject: Re: Apache/mysql policy status ?
+Date: Tue, 21 Jan 2003 20:42:11 +0100
+References: <200301211848.NAA02352@moss-shockers.ncsc.mil>
+In-Reply-To: <200301211848.NAA02352@moss-shockers.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: MULTIPART/mixed; BOUNDARY=Covey_of_Partridges_331_000
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200301212042.11953.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Covey_of_Partridges_331_000
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: TQcCvhsz0qoiZA4aMC2NpA==
+On Tue, 21 Jan 2003 19:48, Stephen D. Smalley wrote:
+> > I'm a bit confused about the current state of the two policies I've
+> > worked on. Are they merged with
+> > a) the CVS tree
+> > b) the Debian default policy?
+> >
+> > I'm asking because I just noticed that the woody default policy doesn't
+> > seem to use them. Was it only merged with sid?
+>
+> As I recall, we were still waiting final forms of patches for merging
+> from you.  Your last message about the mysql policy appears to have
+> been http://marc.theaimsgroup.com/?l=selinux&m=103598879429279&w=2,
+> where you posted full files for comments and said that you would
+> followup with a patch after further testing.  I don't recall seeing
+> any comments or a followup patch.  Since it was a major rewrite of
+> Russell's original domain, I was also looking for an ACK from him.
 
+The policy as last shown to me did not entirely work in a fashion that I 
+liked.
 
-> Sorry, the attached patch (also committed to the sourceforge CVS tree) should
-> fix this problem.  Save it to ~/acct.patch, cd lsm-2.4, patch -p1 < 
-> ~/acct.patch, rebuild your kernel.  Make sure that you've enabled the
-> new CONFIG_SECURITY option (Enable different security models) in your
-> kernel configuration.
+mysqld was permitted to write to var_log_t files and initrc_t was permitted to 
+write to mysqld_log_t files.
 
-The same problem also exists for the fs/dquot.c file, if you have quota
-support enabled.  The attached patch (also committed to the sourceforge CVS 
-tree) should fix this problem.  Thanks to Russell Coker for reporting it.
+>From memory I think I got some ideas for policy improvements from the policy 
+Tom posted, but didn't have the time to completely go through it.  Also I now 
+have a mysql server running fine with the policy I've got and haven't had a 
+great incentive to change it.
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+Tom, I would be happy to look into this again if you send me an updated 
+policy.
 
---Covey_of_Partridges_331_000
-Content-Type: TEXT/plain; name="dquot.patch"; charset=us-ascii; x-unix-mode=0644
-Content-Description: dquot.patch
-Content-MD5: EFCDbpTR947AeR2TJg+Nqw==
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-Index: lsm-2.4/fs/dquot.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/lsm-2.4/fs/dquot.c,v
-retrieving revision 1.1.1.3
-diff -u -r1.1.1.3 dquot.c
---- lsm-2.4/fs/dquot.c	16 Jan 2003 13:37:12 -0000	1.1.1.3
-+++ lsm-2.4/fs/dquot.c	21 Jan 2003 18:55:31 -0000
-@@ -61,6 +61,7 @@
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
- #include <linux/init.h>
-+#include <linux/security.h>
- 
- #include <asm/uaccess.h>
- 
-
---Covey_of_Partridges_331_000--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
