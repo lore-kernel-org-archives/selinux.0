@@ -1,40 +1,55 @@
-Received: from jazzdrum.ncsc.mil ([144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j02L24Ii013982
-	for <selinux@tycho.nsa.gov>; Sun, 2 Jan 2005 16:02:05 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j02L27eb013960
-	for <selinux@tycho.nsa.gov>; Sun, 2 Jan 2005 21:02:07 GMT
-Date: Sun, 2 Jan 2005 21:12:39 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Richard Troth <rtroth@bmc.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: modules needed to be compiled in for selinux to work
-Message-ID: <20050102211239.GB16131@lkcl.net>
-References: <20050102190123.GG12268@lkcl.net> <Pine.LNX.4.53.0501021358340.29430@rmt-desk.bmc.com>
+Subject: Re: Newrole in targeted mode
+From: Jaspreet Singh <jsingh@ensim.com>
+Reply-To: jsingh@ensim.com
+To: kwade@redhat.com, Matthew Leinhos <leinhos@lamar.colostate.edu>
+Cc: nsa <SELinux@tycho.nsa.gov>
+In-Reply-To: <1104665427.9831.13.camel@erato.phig.org>
+References: <1104259373.22401.0.camel@hawaii.grays-systems.com>
+	 <1104259847.21391.107.camel@moss-spartans.epoch.ncsc.mil>
+	 <1104388628.3140.4.camel@jsingh>  <1104665427.9831.13.camel@erato.phig.org>
+Content-Type: text/plain
+Date: Mon, 03 Jan 2005 10:41:56 +0530
+Message-Id: <1104729116.8446.9.camel@jsingh>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.LNX.4.53.0501021358340.29430@rmt-desk.bmc.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-fortunately, debian kernel maintainers will be looking to do
-CONFIG_CAPABILITY=yes apparently because of root plug exploit
-possibility otherwise.
+Hi,
+Thanx matthew and karsten ...
 
-l.
+> Everything runs in unconfined_t unless there is a transition specified
+> to go to the new domain.  This transition is specified for only a small
+> number of daemons.
+> Other things are simplified.  In the targeted policy, there are fewer
+> rules overall, fewer file contexts, and so forth.
 
-On Sun, Jan 02, 2005 at 01:59:20PM -0600, Richard Troth wrote:
-> With 'mkinitrd' you should not have to re-build the kernel.
-> You just re-make the initial RAMDISK with your desired
-> selection-o-modules and reboot.
-> 
-> -- R;
-> 
+Ok, I realized that after seeing the sources for target and strict
+policies... 
 
+> Because processes at all levels, whether spawned by init or a user, run
+> in the unconfined_t domain, the role has no meaning.  AIUI, a user does
+> not need an elevated role for what they do.
+
+I understand that .. But does the system makes *any* assumptions about
+the target or strict policies ??
+
+I mean .. does the system distinguish between target and strict
+policies ??? If I am not wrong the system just want some basic security
+classes in place which are same for target and strict policies.
+
+So, i can just borrow code from strict policy to add more domains and
+roles to target policy.
+
+I am right ??
+
+And Also how can i make the selinux understand a policy tree
+*intermediate* under /etc/selinux/  and load policy from there ....
+
+> - Karsten
+Thanx and Regards,
+Jaspreet
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
