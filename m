@@ -1,52 +1,35 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6M17iHa017727
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 21:07:44 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6M16dFB002370
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 01:06:39 GMT
-Received: from zaphod.crypt.gen.nz (203-79-74-204.adsl.paradise.net.nz [203.79.74.204])
-	by jazzswing.ncsc.mil  with ESMTP id h6M16cGD002367
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 01:06:38 GMT
-Message-ID: <2332.202.27.185.71.1058836061.squirrel@www.crypt.gen.nz>
-Date: Tue, 22 Jul 2003 13:07:41 +1200 (NZST)
-Subject: Re: make quickinstall redhat9 problem
-From: "Kerry Thompson" <kerry@crypt.gen.nz>
-To: <selinux@tycho.nsa.gov>
-In-Reply-To: <000001c34fe6$c761e5a0$6601a8c0@inspiron>
-References: <000001c34fe6$c761e5a0$6601a8c0@inspiron>
-Cc: <sreese@prcdigital.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6M1goHa017803
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2003 21:42:50 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h6M1gnDW015722
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 01:42:49 GMT
+Received: from web40613.mail.yahoo.com (web40613.mail.yahoo.com [66.218.78.150])
+        by jazzband.ncsc.mil  with SMTP id h6M1gmeN015719 for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 01:42:49 GMT
+Message-ID: <20030722014248.34651.qmail@web40613.mail.yahoo.com>
+Date: Mon, 21 Jul 2003 18:42:48 -0700 (PDT)
+From: Charlie Watts <st_possenti@yahoo.com>
+Subject: Linuxfromscratch.org
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Reese said:
-> make[1]: Entering directory `/home/installs/selinux/tools'
-> make[2]: Entering directory `/home/installs/selinux/tools/setools' cd
-> apol; make install
-> make[3]: Entering directory `/home/installs/selinux/tools/setools/apol'
-> gcc  -Wall -g -I/usr/include -DUSE_SORTING  -c apol_gui.c
-> apol_gui.c:14:17: tcl.h: No such file or directory
-> apol_gui.c:15:16: tk.h: No such file or directory
-[snip]
+I want to make a linux system from scratch. I have never compiled my
+own kernel, but I was wondering if i could start with the SE Linux
+kernel. I am using the instructions from linuxfromscratch.org to make
+the system on my laptop, which is running Mandrake 9, on a i686, 512Mb
+ram, and a 1.13 GHz P IV. Ext3 file system. Any advice would be great.
 
-SETools requires the TCL and TK libraries to be installed. You can either
-install TCL & TK packages or just build without these tools. SELinux will
-install just fine without the tools, just comment out the line which
-builds and installs the tools from the top-level Makefile:
+Thank you
 
-  # @echo "Building and installing SELinux tools"
-  # cd tools && make install
+Charlie
 
-
-Kerry
-
--- 
-Kerry Thompson, CCNA CISSP
-Information Systems Security Consultant
-http://www.crypt.gen.nz  kerry@crypt.gen.nz
-
-
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
