@@ -1,108 +1,55 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBFEV9Rb019873
-	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 09:31:09 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hBFEV8pn022300
-	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 14:31:08 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-        by jazzband.ncsc.mil  with ESMTP id hBFEV7ab022297 for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 14:31:08 GMT
-Message-ID: <3FDDC599.2060108@redhat.com>
-Date: Mon, 15 Dec 2003 09:30:49 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>,
-   selinux <selinux@tycho.nsa.gov>
-Subject: Re: Information
-References: <3FDD9A28.9070406@ipen.br> <200312152313.59234.russell@coker.com.au>
-In-Reply-To: <200312152313.59234.russell@coker.com.au>
-Content-Type: multipart/alternative;
- boundary="------------050803080206020705080700"
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBFErkRb020024
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 09:53:46 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hBFEqvjx002996
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 14:52:57 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id hBFEquSR002993
+	for <selinux@tycho.nsa.gov>; Mon, 15 Dec 2003 14:52:57 GMT
+Subject: Re: [patch] add source line numbers to checkpolicy
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Colin Walters <walters@verbum.org>
+Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
+   Howard Holm <hdholm@epoch.ncsc.mil>, Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <1071478020.17990.8.camel@nexus.verbum.private>
+References: <1071478020.17990.8.camel@nexus.verbum.private>
+Content-Type: text/plain
+Message-Id: <1071500009.28044.60.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 15 Dec 2003 09:53:29 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050803080206020705080700
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+On Mon, 2003-12-15 at 03:47, Colin Walters wrote:
+> Attached are two patches which have checkpolicy emit the source line
+> number where an error occurred, if available.  This would have been
+> fairly trivial, except it required rewriting the sample policy Makefile
+> to not invoke m4 multiple times.  
+> 
+> It all seems to work fine, but the changes to the Makefile should
+> probably be looked at carefully - I don't understand why it wasn't
+> written like this in the first place, so I'm wondering if I'm missing
+> something.
 
-Russell Coker wrote:
+Thanks, this looks useful.  If I recall correctly, we originally split
+up the m4 processing because we were encountering a m4 failure due to
+the number of arguments.  I'm not sure what version of m4 that was, but
+the m4 on RHEL3 and FC1 appear to work fine with your patch and all
+existing .te files enabled, so perhaps that limitation was eliminated. 
+Given this change, I would think that we could also factor out
+tmp/program_unused_flags.te and $(ALL_MACROS) from ALLTEFILES and
+CONSTRAINT_CONTEXT_MACRO_FILES and only include them once in POLICYFILES
+prior to TE_RBAC_FILES.
 
->On Mon, 15 Dec 2003 22:25, Carlos Anísio Monteiro <monteiro@ipen.br> wrote:
->  
->
->>I have seen that the binary policy file (policy.15) have "15" as version
->>of the checkpolicy utility, right ?
->>The change done in the sysvinit package load the policy as:
->>/sbin/load_policy /etc/security/selinux/policy.15, right?
->>If yes, a change in the version of the checkpolicy, I have that change
->>the sysvinit too ?
->>    
->>
->
->The file /selinux/policyvers has the version.  A future version of sysvinit 
->will examine that file to determine which (of possibly many) policy databases 
->should be loaded.
->
->Maybe Dan's rpm has this already, I haven't checked.
->
+The fact that you retain the policy.conf line information as well as the
+source line information is important, as some tools now use that
+information (e.g. Tresys setools), and since the source file and line
+information doesn't deal with macro expansion.
 
-Yes the current patch used security_policyvers from libselinux to 
-determine the policy version.
-
-Dan
-
->
->  
->
-
---------------050803080206020705080700
-Content-Type: text/html; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
-  <title></title>
-</head>
-<body text="#000000" bgcolor="#ffffff">
-Russell Coker wrote:<br>
-<blockquote type="cite"
- cite="mid200312152313.59234.russell@coker.com.au">
-  <pre wrap="">On Mon, 15 Dec 2003 22:25, Carlos An&iacute;sio Monteiro <a class="moz-txt-link-rfc2396E" href="mailto:monteiro@ipen.br">&lt;monteiro@ipen.br&gt;</a> wrote:
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">I have seen that the binary policy file (policy.15) have "15" as version
-of the checkpolicy utility, right ?
-The change done in the sysvinit package load the policy as:
-/sbin/load_policy /etc/security/selinux/policy.15, right?
-If yes, a change in the version of the checkpolicy, I have that change
-the sysvinit too ?
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->
-The file /selinux/policyvers has the version.  A future version of sysvinit 
-will examine that file to determine which (of possibly many) policy databases 
-should be loaded.
-
-Maybe Dan's rpm has this already, I haven't checked.</pre>
-</blockquote>
-<br>
-Yes the current patch used security_policyvers from libselinux to
-determine the policy version.<br>
-<br>
-Dan<br>
-<blockquote type="cite"
- cite="mid200312152313.59234.russell@coker.com.au">
-  <pre wrap="">
-
-  </pre>
-</blockquote>
-</body>
-</html>
-
---------------050803080206020705080700--
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
