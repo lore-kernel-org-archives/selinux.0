@@ -1,53 +1,40 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA05337
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 06:13:51 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA05979
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 08:54:07 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id KAA17547
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 10:13:40 GMT
-Received: from mailout01.sul.t-online.com (mailout01.sul.t-online.com [194.25.134.80])
-	by jazzswing.ncsc.mil  with ESMTP id KAA17543
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 10:13:40 GMT
-Message-ID: <3CFB4398.97404F23@dr-baldeweg.de>
-Date: Mon, 03 Jun 2002 12:23:20 +0200
-From: Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>
+	by jazzswing.ncsc.mil  with ESMTP id MAA23002
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 12:53:56 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id MAA22991
+	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2002 12:53:56 GMT
+Date: Mon, 3 Jun 2002 08:53:10 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: Howard Holm <hdholm@epoch.ncsc.mil>, <selinux@tycho.nsa.gov>
+Subject: Re: Updated Release
+In-Reply-To: <20020601233729.77D2870C9@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0206030849470.25105-100000@raven>
 MIME-Version: 1.0
-To: jw@centraltexasit.com, selinux@tycho.nsa.gov
-Subject: Re: SE-Linux on SuSE
-References: <200205281111.39926.jw@centraltexasit.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Jonathan!
 
-I've install SE-Linux on SuSE (7.1). It is easy to install. You should
-run it a few days in the permissive mode to add a few new rules e.g. to
-add the blogd to the initrc domain. And you should remove a lot of cron
-jobs, if you like or you write rules for this jobs. And the mingettys,
-but SE-Linux works fine on SuSE too. 
+On Sat, 1 Jun 2002, Russell Coker wrote:
 
-Carsten
+> For 2.4.18 the kernel patch doesn't have the recent patches for
+> security_get_sids or the patch for sleeping allocation during a policy load.
 
-JW schrieb:
-> 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Hello,
-> 
-> I am interested in running SE-Linux on SuSE.
-> 
-> I'd appreciate hearing from anyone who's tried it.
-> 
-> Esp. how hard/easy it was to install/configure, anything special you had to do to get it working, and what you like/dislike about it now that you have it working.
-> 
-> Thanks.
-> - --
-> 
-> - ----------------------------------------------------
-> Jonathan Wilson
-> System Administrator
-> Cedar Creek Software     http://www.cedarcreeksoftware.com
+I'm not sure what you mean.  I just downloaded the complete lsm-2.4 tree
+and the lsm patch from the NSA SELinux web site, and they did include
+these patches.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
