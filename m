@@ -1,51 +1,41 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0OKhmsj029354
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 15:43:48 -0500 (EST)
-Message-ID: <41F55E02.6090302@redhat.com>
-Date: Mon, 24 Jan 2005 15:43:46 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: libselinux rpm_execon should not fail in permissive mode.
-References: <41F03552.90806@redhat.com> <1106596929.3298.9.camel@moss-lions.epoch.ncsc.mil>
-In-Reply-To: <1106596929.3298.9.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------040101020401080507080709"
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0OKiisj029374
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 15:44:45 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0OKgfsm022044
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 20:42:41 GMT
+Subject: Re: [patch] ddclient
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Greg Norris <haphazard@kc.rr.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20050121222914.GA2208@yggdrasil.localdomain>
+References: <20050121222914.GA2208@yggdrasil.localdomain>
+Content-Type: text/plain
+Message-Id: <1106596969.3298.11.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 24 Jan 2005 15:02:49 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040101020401080507080709
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Merged.
 
-
-
---------------040101020401080507080709
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/rpm.c libselinux-1.21.1/src/rpm.c
---- nsalibselinux/src/rpm.c	2004-11-09 09:13:54.000000000 -0500
-+++ libselinux-1.21.1/src/rpm.c	2005-01-24 15:24:33.000000000 -0500
-@@ -41,8 +41,10 @@
- 	rc = setexeccon(newcon);
- 	if (rc < 0) 
- 		goto out;
--	rc = execve(filename, argv, envp);
- out:
-+	if ( ( rc == 0 ) || 
-+	     (security_getenforce() == 0 ))
-+	  rc = execve(filename, argv, envp);
- 	context_free(con);
- 	freecon(newcon);
- 	freecon(fcon);
-
---------------040101020401080507080709--
+On Fri, 2005-01-21 at 17:29, Greg Norris wrote:
+> The attached patches fix a few ddclient problems.  Please apply.
+> 
+> ddclient.fc
+>   * Make `ddclient_var_t' match the `/var/cache/ddclient' directory, 
+>     rather than just the files therein.
+> 
+> ddclient.te
+>   * Allow execution of bin_t programs.
+>   * Allow client-level access to TCP networking, instead of UDP only.
+>   * Allow ddclient to create it's cache file if necessary.
+> 
+> Thanx!
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
