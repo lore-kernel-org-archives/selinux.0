@@ -1,73 +1,57 @@
-Date: Mon, 17 Feb 2003 14:38:14 +0100 (MET)
-From: Carsten Lehr <carstengrohmann@gmx.de>
-To: <SELinux@tycho.nsa.gov>
+From: w9ya <w9ya@amsat.org>
+Reply-To: w9ya@amsat.org
+To: Russell Coker <russell@coker.com.au>, "Joshua Brindle" <JBrindle@snu.edu>,
+        <kayo@pyra.ca>, <bam@snoopy.apana.org.au>
+Subject: Re: user transparent encryption
+Date: Mon, 17 Feb 2003 10:28:59 -0500
+Cc: <SELinux@tycho.nsa.gov>
+References: <se502174.064@atlas.snu.edu> <200302171018.25601.russell@coker.com.au>
+In-Reply-To: <200302171018.25601.russell@coker.com.au>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========GMXBoundary311981045489094"
-Subject: patch libsecure and tar
-Message-ID: <31198.1045489094@www1.gmx.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200302171028.59818.w9ya@amsat.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a MIME encapsulated multipart message -
-please use a MIME-compliant e-mail program to open it.
+One comment before this discussion goes "off-list" please.
 
-Dies ist eine mehrteilige Nachricht im MIME-Format -
-bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
+The Knoppix linux distro is an example of at least part of the "solution" 
+mentioned below.
 
---========GMXBoundary311981045489094
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Bob Finch
 
-Hi,     
-     
-the attached patches corrects a little mistake in
-tar-1.13.25/src/Makefile.am and  
-tar-1.13.25-2003011510.patch. The subdirectory lib/ is missing in the path
-to libsecure.a. 
- 
-greetings 
- 
-Carsten 
-
--- 
-+++ GMX - Mail, Messaging & more  http://www.gmx.net +++
-Bitte lächeln! Fotogalerie online mit GMX ohne eigene Homepage!
---========GMXBoundary311981045489094
-Content-Type: text/x-diff; name="tar_makefile.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="tar_makefile.diff"
-
-ZGlmZiAtdSAtciB0YXItMS4xMy4yNS1vcmlnL3NyYy9NYWtlZmlsZS5hbSB0YXItMS4xMy4yNS9z
-cmMvTWFrZWZpbGUuYW0KLS0tIHRhci0xLjEzLjI1LW9yaWcvc3JjL01ha2VmaWxlLmFtCTIwMDIt
-MTAtMDMgMjE6MTA6MDEuMDAwMDAwMDAwICswMjAwCisrKyB0YXItMS4xMy4yNS9zcmMvTWFrZWZp
-bGUuYW0JMjAwMy0wMi0xNyAxNDoyNzowOC4wMDAwMDAwMDAgKzAxMDAKQEAgLTM5LDYgKzM5LDYg
-QEAKICMgTGluayBsaWJ0YXIuYSBhZnRlciBASU5UTExJQlNALCBzaW5jZSBASU5UTExJQlNAIG1p
-Z2h0IGludm9rZSBycGxfcmVhbGxvYy4KICMgQWxzbywgbGluayBpdCBiZWZvcmUgQElOVFRMSUJT
-QCwgc2luY2UgdW5pY29kZWlvLmMgbWlnaHQgaW52b2tlCiAjIGxvY2FsZV9jaGFyc2V0LiAgU2ln
-aC4KLUxEQUREID0gLi4vbGliL2xpYnRhci5hIEBJTlRMTElCU0AgLi4vbGliL2xpYnRhci5hIC91
-c3IvbG9jYWwvc2VsaW51eC9saWJzZWN1cmUuYQorTERBREQgPSAuLi9saWIvbGlidGFyLmEgQElO
-VExMSUJTQCAuLi9saWIvbGlidGFyLmEgL3Vzci9sb2NhbC9zZWxpbnV4L2xpYi9saWJzZWN1cmUu
-YQogcm10X0xEQUREID0gJChMREFERCkgQHJtdF9MREFEREAKIHRhcl9MREFERCA9ICQoTERBREQp
-IEB0YXJfTERBRERACg==
-
---========GMXBoundary311981045489094
-Content-Type: text/x-diff; name="tar_patch.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="tar_patch.diff"
-
-LS0tIHRhci0xLjEzLjI1LTIwMDMwMTE1MTAucGF0Y2gub3JpZwkyMDAzLTAxLTE1IDE3OjIyOjM0
-LjAwMDAwMDAwMCArMDEwMAorKysgdGFyLTEuMTMuMjUtMjAwMzAxMTUxMC5wYXRjaAkyMDAzLTAy
-LTE3IDE0OjI5OjI4LjAwMDAwMDAwMCArMDEwMApAQCAtNDQsNyArNDQsNyBAQAogICMgQWxzbywg
-bGluayBpdCBiZWZvcmUgQElOVFRMSUJTQCwgc2luY2UgdW5pY29kZWlvLmMgbWlnaHQgaW52b2tl
-CiAgIyBsb2NhbGVfY2hhcnNldC4gIFNpZ2guCiAtTERBREQgPSAuLi9saWIvbGlidGFyLmEgQElO
-VExMSUJTQCAuLi9saWIvbGlidGFyLmEKLStMREFERCA9IC4uL2xpYi9saWJ0YXIuYSBASU5UTExJ
-QlNAIC4uL2xpYi9saWJ0YXIuYSAvdXNyL2xvY2FsL3NlbGludXgvbGlic2VjdXJlLmEKKytMREFE
-RCA9IC4uL2xpYi9saWJ0YXIuYSBASU5UTExJQlNAIC4uL2xpYi9saWJ0YXIuYSAvdXNyL2xvY2Fs
-L3NlbGludXgvbGliL2xpYnNlY3VyZS5hCiAgcm10X0xEQUREID0gJChMREFERCkgQHJtdF9MREFE
-REAKICB0YXJfTERBREQgPSAkKExEQUREKSBAdGFyX0xEQUREQAogSW5kZXg6IHNlbGludXgvdXRp
-bHMvdGFyLTEuMTMuMjUvc3JjL01ha2VmaWxlLmluCg==
-
---========GMXBoundary311981045489094--
+On Monday 17 February 2003 04:18 am, Russell Coker wrote:
+> On Mon, 17 Feb 2003 06:40, Joshua Brindle wrote:
+> > I've pondered this myself, suppose you have a great selinux setup
+> > very secure, no easy way to compromise it, but the machine itself
+> > was in a hostile environment (not able to be protected from others
+> > well). What is to stop someone from booting up a non-selinux kernel
+> > and having at it with your filesystems? Nothing. I've often wondered
+> > if there is a way to lock down the drive contents so it is not
+> > accessible
+> > (at least easily) by a non-selinux kernel, or even the encrypted fs
+>
+> The solution is to have a kernel and initrd on removable media and use that
+> to setup an encrypted loopback device for root.
+>
+> The encryption key has to be on removable media for obvious reasons, and
+> the kernel and initrd have to be on removable media so that an attacker
+> can't trojan them.
+>
+> Of course a trojan in a flash BIOS could still get past this, but it would
+> be a lot more difficult.  TCPA is supposed to address these issues (if you
+> trust TCPA).  Also the LinuxBIOS people are working on similar schemes but
+> their work in this regard was classified last time I checked their web
+> site.
+>
+>
+> Now once the machine is running the administrator can ptrace all programs
+> and get at all the user's data, I don't think that there is any way around
+> this.
+>
+> This discussion is probably getting off-topic for this list.  If we are to
+> continue it I'll have to resurrect my SE Linux list for it.
 
 
 --
