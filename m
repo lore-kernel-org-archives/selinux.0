@@ -1,103 +1,71 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hATC3kRb000043
-	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 07:03:46 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hATCVaRb000085
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 07:31:36 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hATC3jqY024439
-	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 12:03:45 GMT
-Received: from drowsy.ifokr.org (puddle155.drizzle.com [216.162.217.155])
-        by jazzband.ncsc.mil  with ESMTP id hATC3i0o024436 for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 12:03:44 GMT
-Date: Sat, 29 Nov 2003 04:03:37 -0800
-From: Brian Hatch <bri@ifokr.org>
+	by jazzband.ncsc.mil  with ESMTP id hATCVZqY024660
+	for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 12:31:35 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id hATCVY0o024657 for <selinux@tycho.nsa.gov>; Sat, 29 Nov 2003 12:31:34 GMT
+Date: Sat, 29 Nov 2003 12:31:20 +0000
+From: Dale Amon <amon@vnl.com>
 To: Russell Coker <russell@coker.com.au>
-Cc: Petre Rodan <petre.rodan@ravantivirus.com>,
-   SELinux <selinux@tycho.nsa.gov>
-Subject: Re: policies for DJ Bernstein tools
-Message-ID: <20031129120337.GB26433@ifokr.org>
-References: <20031128164612.GA32668@peter.rav.local> <200311292147.58963.russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Policy error of the day
+Message-ID: <20031129123120.GI18062@vnl.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UPJubUC1OEhHGyA2"
-In-Reply-To: <200311292147.58963.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Ah...Russ... did you do something naughty? I note all of these are
+failing after the postinst.d/selinux. I wonder if you are 
+expecting these installs to be occuring under selinux rather
+than on a non-selinux 'factory' machine in a chroot:
 
---UPJubUC1OEhHGyA2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
+dpkg: error processing selinux-policy-default (--configure):
+ 1Error running trigger postinst: No such file or directory
+run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
+dpkg: error processing modutils (--configure):
+ 1Error running trigger postinst: No such file or directory
+run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
+dpkg: error processing strace (--configure):
+ 1Error running trigger postinst: No such file or directory
+run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
+dpkg: error processing hdparm (--configure):
+ 1Error running trigger postinst: No such file or directory
+run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
+dpkg: error processing dash (--configure):
+ 1Error running trigger postinst: No such file or directory
+run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
+dpkg: error processing cramfsprogs (--configure):
+ 1Error running trigger postinst: No such file or directory
+dpkg: dependency problems prevent configuration of initrd-tools:
+ initrd-tools depends on cramfsprogs; however:
+  Package cramfsprogs is not configured yet.
+ initrd-tools depends on dash | ash; however:
+  Package dash is not configured yet.
+  Package ash is not installed.
+dpkg: error processing initrd-tools (--configure):
+ dependency problems - leaving unconfigured
+Errors were encountered while processing:
+ selinux-policy-default
+ modutils
+ strace
+ hdparm
+ dash
+ cramfsprogs
+ initrd-tools
+E: Sub-process /usr/bin/dpkg returned an error code (1)
 
-
-
-> What is clockspeed?
-
-clock skewer.  Think ntpd.
-
-> What is publicfile?  Some sort of ftp-like service?
-
-publicfile's ftpd is a chrooted read-only anonymous FTP server.
-  (not pizza-thief enabled)
-
-publicfile's httpd is a virtual-host-aware read-only
-  (only GET/HEAD supported) chrooted HTTP server with
-  no bangs or whistles.
-
-> Also isn't ucspi-tcp is conceptually another version of inetd?
-
-tcpserver is like a single-port inetd.  ucspi-tcp also
-includes tcpclient, which connects to a host and runs a
-program to talk to the peer (read/writing on fd's 6/7, IIRC)
-A few other helper programs are in there too, I think.
-
-> currect summary then perhaps the correct solution would be to macroise th=
-e=20
-> inetd policy to support multiple versions of inetd and consider ucspi-tcp=
-=20
-> just another version of inetd (with a different set of ports that it is=
-=20
-> permitted to bind to).
->=20
-> What is svc?
-
-used to start/stop/etc a service being monitored by supervise processes.
-
-And, before you ask:
-
-What's supervise?  Like a single-process init.  Watches/spawns only
-one process.
-
-Supervise prcoesses are spawed by svcscan. Svscan looks through /service
-for symlinks that indicate supervise processes to be run.
-
-IE svsscan is akin to /sbin/init (with /service directory instead of
-/etc/inittab), supervise is like a single-process-watching init,
-and svc is used to start/stop those supervise processes, akin to
-'vi /etc/inittab; kill -HUP 1'
-
-
-
-
---
-Brian Hatch                  "You do not make history.
-   Systems and                You can only hope to survive it."
-   Security Engineer
-http://www.ifokr.org/bri/
-
-Every message PGP signed
-
---UPJubUC1OEhHGyA2
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/yIsZidaA3abfMooRAjWfAJ9frEUIpzEQJfH2YvSflUhbH7HlkACgh3Hv
-oIKbDTpA3BxD9psy9hhtpkw=
-=KGYp
------END PGP SIGNATURE-----
-
---UPJubUC1OEhHGyA2--
+-- 
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
