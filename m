@@ -1,71 +1,71 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8JJA8rT013342
-	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 15:10:08 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8JJH6rT013371
+	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 15:17:06 -0400 (EDT)
 Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8JJ992w028145
-	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 19:09:10 GMT
-Date: Sun, 19 Sep 2004 20:21:08 +0100
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8JJG82w028240
+	for <selinux@tycho.nsa.gov>; Sun, 19 Sep 2004 19:16:08 GMT
+Date: Sun, 19 Sep 2004 20:28:14 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Joshua Brindle <method@gentoo.org>
-Cc: selinux <selinux@tycho.nsa.gov>
-Subject: Re: [RFC] Upstream policy handling
-Message-ID: <20040919192108.GD23901@lkcl.net>
-References: <414DA0A7.1000708@gentoo.org>
+To: Robert Kot <robkot6@wp.pl>
+Cc: SELinux mailing list <selinux@tycho.nsa.gov>
+Subject: Re: Basic problems with roles and domains
+Message-ID: <20040919192814.GE23901@lkcl.net>
+References: <20040913225410.GB14736@wintermute.xmldesign.de> <200409192014.58452.russell@coker.com.au> <1095603929.3709.79.camel@skorpion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <414DA0A7.1000708@gentoo.org>
+In-Reply-To: <1095603929.3709.79.camel@skorpion>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Sep 19, 2004 at 11:07:19AM -0400, Joshua Brindle wrote:
+On Sun, Sep 19, 2004 at 04:25:29PM +0200, Robert Kot wrote:
 
-> If there are any other suggestions or comments on this I'd like to hear 
-> them. Obviously the implementation details are up in the air here, and I 
-> know that some of you can't/won't use bk. If there are suggestions for a 
->  better system and a way to host it (preferably neutrally) that would 
-> be great.
+> OS: stock Fedora Core 2
+> 
+> $ uname -a
+> Linux skorpion 2.6.5-1.358 #1 Sat May 8 09:04:50 EDT 2004 i686 i686 i386
+> GNU/Linux
+> 
+> Hi,
+> 
+>  I'm trying to learn SELinux using FC2.
+> This is probably stupid problem, but it's difficult for
+> a beginner.
+> First, I've added my user robert to 'users' file:
+> 
+> user robert roles { user_r };
+ 
+ okay: what this says is that when you do a make relabel,
+ the program genhomedircon will go through looking for
+ "ROLE" and automatically substitute and generate
+ robert:object_r_user_home_t etc. on your behalf.
 
- a little understood and even less deployed method of using
- cvs is to checkout a repository with a tag (e.g. NSA) and then
- checkout individual files with a different tag (e.g. REDHAT).
-
- the REDHAT repository should contain *only* the files that are
- different (or extra).
-
- first you do a cvs co -r NSA and then you do a cvs update -r REDHAT.
-
- what happens is that the files in the REDHAT repository overwrite
- those in the mainly NSA local checkout: examination of CVS/Entries
- shows a mixed selection of NSA and REDHAT tags.
+> In new file domains/program/robert.te, I added:
+> 
+> type myfile_txt_t, file_type;
+> type myfile_t, domain;
+> role robert_r types myfile_t;
+ 
+ okay.  creating new roles is a bit like doing new unix "groups".
+ sort-of.
 
 
- note that you _cannot_ due to a bug do a cvs co followed
- by a cvs update -r REDHAT.  if you then look in valtags
- (in CVSROOT on in this case the sourceforge repository)
- then you will find that there is an entry with two spaces:
- this causes all subsequent cvs operations to fail until the
- file is MANUALLY edited.  yes a bug was raised about this,
- and even a patch produced (several years ago) and no the cvs
- maintainers haven't bothered to fix it.
+ what i recommend here is that you examine russell's tutorial
+ on selinux (which if you can't find it you should be able to
+ reference via the ukuug.org web site because stephen tweedie
+ did a 1day tutorial on selinux using russell's material, two
+ months ago in leeds)
 
- a small script could be written to do the checkouts.
+ in the tutorial, they go through the creation of a role
+ "professors_r".
 
- maintainers of the REDHAT repository simply add whatever files that
- are different from the NSA repository to the REDHAT repository.
+ and also take you through the necessary policy modification steps.
 
- one other thing that's useful is of course cvs diff -r NSA to check
- the differences between the REDHAT files and NSA ones: this works
- as expected.
+ under normal circumstances, however, you really shouldn't need
+ to create new roles: sysadm_r, staff_r and user_r are pretty much
+ all that you'll ever need.
 
- cvs update also works as expected.
-
- the only thing is that from a maintenance point of view (commits)
- it will be necessary to write some scripts (to go in CVSROOT)
- that double-check who is allowed to commit to the NSA tag and
- who to the REDHAT one.
-
- at this point i'd recommend doing the same trick as above, with
- subversion, over cvs any day...
+ of course, for experimentation and as an aid to understanding,
+ forget the above sentence :)
 
  l.
 
