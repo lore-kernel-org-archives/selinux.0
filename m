@@ -1,42 +1,53 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8LDf2rT024435
-	for <selinux@tycho.nsa.gov>; Tue, 21 Sep 2004 09:41:02 -0400 (EDT)
-Received: from oe-im1.bizmailsrvcs.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8LDe3aY021899
-	for <selinux@tycho.nsa.gov>; Tue, 21 Sep 2004 13:40:03 GMT
-From: "Frank Mayer" <mayerf@tresys.com>
-To: <fedora-selinux-list@redhat.com>, <selinux@tycho.nsa.gov>
-Subject: SELinux Symposium Call for Presentation Proposals (Second Announcement)
-Date: Tue, 21 Sep 2004 09:41:00 -0400
-Message-ID: <006b01c49fe0$a2410f80$320c010a@columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <02c701c4951f$cd8cad50$a00c010a@columbia.tresys.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8LEfBrT024918
+	for <selinux@tycho.nsa.gov>; Tue, 21 Sep 2004 10:41:11 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8LEeCaY026185
+	for <selinux@tycho.nsa.gov>; Tue, 21 Sep 2004 14:40:12 GMT
+Subject: Re: File types that are not sysadmfiles...
+From: Colin Walters <walters@redhat.com>
+To: russell@coker.com.au
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+   "Christopher J. PeBenito" <cpebenito@tresys.com>,
+   Joshua Brindle <method@gentoo.org>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <200409211508.59158.russell@coker.com.au>
+References: <414DA0A7.1000708@gentoo.org>
+	 <1095695627.4431.157.camel@nexus.verbum.private>
+	 <414F4113.1000208@redhat.com>  <200409211508.59158.russell@coker.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/qC79lwV+ZGyo0sGIpMz"
+Date: Tue, 21 Sep 2004 10:42:30 -0400
+Message-Id: <1095777750.5427.11.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Just a reminder that the call for presentation proposals for the First SELinux
-Symposium remains open until October 1, 2004.  See the formal call below for
-further information.  Frank
 
+--=-/qC79lwV+ZGyo0sGIpMz
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> CALL FOR PRESENTATION PROPOSALS
-> 
-> FIRST SECURITY ENHANCED LINUX SYMPOSIUM (www.selinux-symposium.org)
-> 
-> The inaugural symposium on Security Enhanced Linux (SELinux) will be
-> held March 2-4 2005 in the Silver Spring, Maryland, USA (near
-> Washington, DC). SELinux
-> brings the power of flexible mandatory access control such as type
-> enforcement to Linux. The symposium is an opportunity to learn about
-> SELinux and share technical and application experiences.
-> 
-> The call for presentation and tutorial proposals is now open until
-> October 1, 2004. All proposals will be reviewed by the review
-> committees for inclusion in the symposium agenda.  To submit
-> proposals visit http://www.selinux-symposium.org.
+On Tue, 2004-09-21 at 15:08 +1000, Russell Coker wrote:
+=20
+>  # The sys configuration used for the /etc/vmware configuration files
+> -type vmware_sys_conf_t, file_type, sysadmfile;
+> +type vmware_sys_conf_t, file_type, sysadmfile, sysadmfile;
 
+Also, typo here.
+
+--=-/qC79lwV+ZGyo0sGIpMz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBUD3WOIkJWWp2WGURAid6AJ9GoPzF6l+75Fiho5FtKmqgBzAlhgCcCExd
+8dDiFk2ubL4+m8vi82V3TjU=
+=qsY/
+-----END PGP SIGNATURE-----
+
+--=-/qC79lwV+ZGyo0sGIpMz--
 
 
 --
