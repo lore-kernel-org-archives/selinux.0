@@ -14,28 +14,16 @@ References: <1110692016.29852.77.camel@cobra.ivg2.net>
 	 <1110829424.16850.39.camel@cobra.ivg2.net>
 	 <1110829277.21378.219.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 14 Mar 2005 15:00:48 -0500
-Message-Id: <1110830448.16850.44.camel@cobra.ivg2.net>
+Date: Mon, 14 Mar 2005 15:18:20 -0500
+Message-Id: <1110831501.16850.47.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-03-14 at 14:41 -0500, Stephen Smalley wrote:
-> On Mon, 2005-03-14 at 14:43 -0500, Ivan Gyurdiev wrote:
-> > I'm improving this macro with the purpose of using it in a lot of
-> > places (couples role/trans role, provides controlling boolean - seems
-> > beneficial)
-> > 
-> > I have a question, however - why is it that role declarations do not
-> > tolerate duplicates. I've noticed allow/dontaudit rules are tolerant
-> > to duplicates. 
-> 
-> Role declarations do "tolerate" duplicates, i.e. multiple role
-> declarations may exist for the same role, in which case the union is
-> taken, and redundant declarations cause no harm.  What is your question?
-
-You're right, my mistake ...
-Not sure why I was running into errors earlier.
+I guess what I'm trying to figure out is why 
+domain_auto_trans doesn't add the role access rule
+by default. Isn't this always necessary if you want
+a transition to occur?
 
 -- 
 Ivan Gyurdiev <ivg2@cornell.edu>
