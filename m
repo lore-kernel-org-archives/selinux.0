@@ -1,50 +1,51 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i760AbrT009231
-	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 20:10:37 -0400 (EDT)
-Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i760AYZl008432
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 00:10:35 GMT
-Subject: Addendum: Re: SE-Packages for powerpc available
-From: Wolfgang Pfeiffer <roto@gmx.net>
-To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1091727357.2840.40.camel@debby>
-References: <1091727357.2840.40.camel@debby>
-Content-Type: text/plain
-Message-Id: <1091751024.5709.57.camel@debby>
-Mime-Version: 1.0
-Date: Fri, 06 Aug 2004 02:10:24 +0200
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i766kLrT010525
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 02:46:21 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i766kJO0014709
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 06:46:20 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Wolfgang Pfeiffer <roto@gmx.net>
+Subject: Re: Build error pam on ppc
+Date: Fri, 6 Aug 2004 16:46:12 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <1091728350.2840.49.camel@debby>
+In-Reply-To: <1091728350.2840.49.camel@debby>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200408061646.12198.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-08-05 at 19:35, Wolfgang Pfeiffer wrote:
+On Fri, 6 Aug 2004 03:52, Wolfgang Pfeiffer <roto@gmx.net> wrote:
 > Hi All
-> 
-> Things are beginning to move for ppc, as it seems:
+>
+> When I built *successfully* pam on ppc with
+>
+> fakeroot apt-get source --compile pam=0.77-0.se5
+>
+> I got this error, that I *ignored*:
+>
+> ----------------------------------------
+>
+> mkdir -p /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib
+> /usr/bin/install -m 755 libpamc.so
+> /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib/libpamc.so.0.77
+> /sbin/ldconfig
+> /sbin/ldconfig: Can't create temporary cache file /etc/ld.so.cache~:
+> Permission denied make[2]: *** [install] Error 1
 
-should say:
-"Things are beginning to move a bit further for ppc, as it seems"
-
-This because we already have SE-packages on ppc ... just (most of?)
-those being available now were missing so far as binaries, IINM ... I
-simply forgot that ...
-
-Sorry
-
-Regards
-Wolfgang
-
-> <http://home.t-online.de/home/520050060325-0001/>
-                
-         [ ... ]
+I recall getting the same error on i386.  I just ignored it, but probably we 
+should have a bug report filed about that if you can reproduce it on the 
+version of PAM that's in Debian.
 
 -- 
-Profile: http://profiles.yahoo.com/wolfgangpfeiffer
-
-3 more reasons for Linux:
-<http://uptime.netcraft.com/up/graph?site=http%3A%2F%2Fwww.whitehouse.gov%2F>
-<http://uptime.netcraft.com/up/graph?site=http%3A%2F%2Fwww.fbi.gov%2F>
-<http://uptime.netcraft.com/up/graph?site=http%3A%2F%2Fwww.defenselink.mil>
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
