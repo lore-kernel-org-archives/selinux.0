@@ -1,47 +1,39 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5GJ9HrT005305
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jun 2004 15:09:17 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5GJ9Eot008011
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jun 2004 19:09:14 GMT
-Subject: Re: Question about selinux & the new kernel crash exploit
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Bryan Zeigler <bzeigler@mitre.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200406161843.i5GIhkv23853@smtp-bedford.mitre.org>
-References: <200406161843.i5GIhkv23853@smtp-bedford.mitre.org>
-Content-Type: text/plain
-Message-Id: <1087412950.16125.136.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5GLu8rT006292
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jun 2004 17:56:08 -0400 (EDT)
+Received: from gkgreen.dor.state.ma.us (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5GLu5ot016347
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jun 2004 21:56:05 GMT
+Message-Id: <6.1.1.1.0.20040616175353.02db7030@dor-exchange.dor.state.ma.us>
+Date: Wed, 16 Jun 2004 17:54:37 -0400
+To: selinux@tycho.nsa.gov
+From: "bmcmurphy@dor.state.ma.us" <bmcmurphy@dor.state.ma.us>
+Subject: RBAC with Unix Groups/GUIDs
 Mime-Version: 1.0
-Date: Wed, 16 Jun 2004 15:09:10 -0400
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-06-16 at 14:43, Bryan Zeigler wrote:
-> Hi,
->  
-> Based on papers I've read, I understand that one of the goals of SE Linux is
-> keeping processes separate.  So what happens in one domain shouldn't affect
-> other domains.  I was informed of a short bit of code that can crash the
-> kernel (at
-> http://reviewed.homelinux.org/news/2004-06-11_kernel_crash/index.html.en ).
-> When executing this code as just a normal user, it still completely crashes
-> the system.  Shouldn't the crash only be seen by the user that executed the
-> code?  It seems some people recommend SE Linux for systems that may not be
-> updated so often.  However, in this case, SE Linux doesn't seem to protect
-> much more than regular Linux.  Is there anyway to stop these types of things
-> using SE Linux policies (short of not allowing it to execute at all)?
+Hi,
 
-SELinux provides mandatory access controls in the kernel that can
-confine and protect processes.  It can't counter kernel bugs in general;
-in certain cases, it may happen to block exploitation of a particular
-kernel bug by preventing the attacker from reaching the relevant flawed
-code due to an earlier access denial in the code path, but you can't
-expect a kernel security mechanism to counter kernel flaws.
+I think I know the answer to this, but is there any way in selinux to 
+assign an entire group (GUID) to a selinux role instead of just adding 
+individual users? We are using LDAP-based authentication and I'd like to be 
+able to assign a GUID to a selinux role and be done with it, rather than 
+having to muck with the selinux policy whenever I add a new user into the 
+group. Maybe I'm missing something obvious. Wouldn't be the first time...
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Cheers
+
+
+
+
+**********************************************************************
+This email and any files transmitted with it are confidential and 
+intended solely for the use of the individual or entity to whom they   
+are addressed. If you have received this email in error please notify 
+the system manager at postmaster at dor.state.ma.us.
+**********************************************************************
 
 
 --
