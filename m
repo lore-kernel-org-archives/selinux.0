@@ -1,44 +1,29 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB1EYCRb006933
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 09:34:12 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB1EYAqa006644
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:34:11 GMT
-Date: Mon, 1 Dec 2003 14:34:09 +0000
-From: Dale Amon <amon@vnl.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Russell Coker <russell@coker.com.au>, Dale Amon <amon@vnl.com>,
-   SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Policy error of the day
-Message-ID: <20031201143409.GI11972@vnl.com>
-References: <20031129123120.GI18062@vnl.com> <200312010708.37773.russell@coker.com.au> <1070288825.12270.72.camel@moss-spartans.epoch.ncsc.mil> <1070288999.12270.76.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: patch
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Diyab <diyab@diyab.net>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <3FCAD897.9000104@diyab.net>
+References: <3FCAD897.9000104@diyab.net>
+Content-Type: text/plain
+Message-Id: <1070289384.12270.83.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1070288999.12270.76.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 01 Dec 2003 09:36:24 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Dec 01, 2003 at 09:29:59AM -0500, Stephen Smalley wrote:
-> BTW, this doesn't eliminate the need to have an xattr handler for the
-> security namespace; setfiles cannot work without such a handler in the
-> kernel.
+On Mon, 2003-12-01 at 00:58, Diyab wrote:
+> Where can one locate the AT_SECURE patch for glibc?  AT_SECURE does not 
+> exist in the current version of glibc, there is no patch in the  SE 
+> Linux archives and the glibc source RPM from the fedora project contains 
+> a patched glibc and not a seperate glibc and patch.
 
-Can it deal with a loopback image with xattr, where
-it is running in a chroot on a non-selinux system? ie,
-can it label the files on the loopback? I thought it
-would not be able to without an /selinux and a make
-load of the policy before hand, neither of which can
-be done in this situation. (ie building an image to
-be used on a CDROM)
+The change was upstreamed into the mainline glibc CVS tree in June.
+http://sources.redhat.com/glibc/
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
