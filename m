@@ -1,60 +1,67 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2V9i7Do023285
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 04:44:07 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2V9eATg010942
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 09:40:10 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2V9vEDo023407
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 04:57:14 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2V9tuiv023595
+	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 09:55:57 GMT
+Date: Thu, 31 Mar 2005 11:05:33 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Tom <tom@lemuria.org>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Casey Schaufler <casey@schaufler-ca.com>,
+   selinux@tycho.nsa.gov
 Subject: Re: Desktop apps interoperability
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1112261119.10971.14.camel@cobra.ivg2.net>
-References: <20050330170426.86197.qmail@web31606.mail.mud.yahoo.com>
-	 <20050330172630.GA10139@lkcl.net> <1112204662.8592.42.camel@cobra.ivg2.net>
-	 <20050330220018.GA9752@lkcl.net> <1112261119.10971.14.camel@cobra.ivg2.net>
-Content-Type: text/plain
-Date: Thu, 31 Mar 2005 04:48:53 -0500
-Message-Id: <1112262533.10971.21.camel@cobra.ivg2.net>
+Message-ID: <20050331100533.GD9752@lkcl.net>
+References: <20050330155207.58846.qmail@web31601.mail.mud.yahoo.com> <1112199204.8592.13.camel@cobra.ivg2.net> <20050330235010.B622@lemuria.org> <20050330221246.GC9752@lkcl.net> <20050331103736.K1195@lemuria.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20050331103736.K1195@lemuria.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
+On Thu, Mar 31, 2005 at 10:37:36AM +0200, Tom wrote:
+> On Wed, Mar 30, 2005 at 11:12:46PM +0100, Luke Kenneth Casson Leighton wrote:
+> >  kdbfs "flattens" the directory structures and forces applications,
+> >  via patches to the file save and file open dialogs, to ONLY be able
+> >  to save documents in certain subdirectories, ~/Documents, ~/Music ...
+> >  etc.
 > 
-> Okay, here's how this is going to work - if you want to delete the
-> preinstalled music content folder, and put your things somewhere else,
-> music_content_t would be configured as a customizable context - all
-> those contexts should be customizable. That means they survive a
-> restorecon, among other things.
-> 
-> Then you can make a folder, and in nautilus you right click,
-> and you see the SELinux content (dwalsh has a patch for that).
-> Then I've wanted to modify that patch to have a drop-down box 
-> of customizable contexts for the user to choose from. I haven't gotten
-> around to doing that yet, but I think you should be able to right click
-> in nautilus, open up a drop-down box of contents, and pick: Media
-> (media_content_t), or whatever. Then after that your app will be able to
-> save to that folder too.
+> There will be many people who reject that concept 
 
-Then for downloaded files, you can right-click and change their content
-to whatever you want (list of customizables), or double-click on the
-file, and GNOME does a mime-lookup on the file, and determines the
-proper handler, and the proper context for that handler (like the other
-person suggested)
+ yep - i know.  i didn't say it was a "nice" solution.
 
-Whenever you do that there could be a box saying something like:
+ for "dummies" - the sorts of people who use MAC OS/X -
+ directories are a massive confusional concept.
 
-"You are attempting to relabel potentially harmful content. 
- Are you sure you want to do this: Yes | No | Scan buttons 
- Checkbox: Do not ask again
- Checkbox: Perform a virus scan when opening file of this type"
+ think of the kinds of people who store 16,000 files in "My Documents"
+ because they've never heard of creating folders.
+ 
+ [and we won't talk about the person who spent 10 minutes each
+ day paging down the same word document until they got to the
+ end, okay? :) ]
 
-... or something like that
+ we are _privileged_ people who "understand" computers, graphical
+ OSes, and such.
 
--- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+ it's vitally important to remember that there are people out there who:
+
+ a) can't use a mouse
+
+ b) can't phyisically or PSYCHOLOGICALLY see or locate a cursor
+    (esp. the Mozilla Firefox and MS Word vertical bar ones)
+
+ c) don't really understand the concept of folders being a thing
+    with a border around it, let alone directories.
+
+ so, whilst we all "love" to put documents where we "want", creating
+ lovely structured directory hierarchies with symlinks to convenient
+ places, the majority of users simply use what's put in front of them
+ [and typically use or grok very little of even that].
+
+ and Apple put the "finder" in front of people, on MAC-OS/X,
+ and they sodding love it, because it finds EVERYTHING that's
+ useful to them.
+
+ l.
 
 
 --
