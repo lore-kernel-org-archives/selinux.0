@@ -1,55 +1,43 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i74A7HrT026997
-	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 06:07:17 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i74A6g0G004658
-	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 10:06:43 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i74ARSrT027078
+	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 06:27:29 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i74ARQWC013200
+	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 10:27:27 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 5C46461C1E
+	for <selinux@tycho.nsa.gov>; Wed,  4 Aug 2004 20:27:26 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 13217-02 for <selinux@tycho.nsa.gov>;
+	Wed, 4 Aug 2004 20:27:26 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 1E83E61BBE
+	for <selinux@tycho.nsa.gov>; Wed,  4 Aug 2004 20:27:26 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 94F90B59A7
+	for <selinux@tycho.nsa.gov>; Wed,  4 Aug 2004 20:27:24 +1000 (EST)
 From: Russell Coker <rcoker@redhat.com>
 Reply-To: rcoker@redhat.com
-To: Colin Walters <walters@redhat.com>
-Subject: Re: [patch] fix /var/run/console bits
-Date: Wed, 4 Aug 2004 20:07:03 +1000
-Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
-References: <1091584911.8312.7.camel@nexus.verbum.private>
-In-Reply-To: <1091584911.8312.7.camel@nexus.verbum.private>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: make policy
+Date: Wed, 4 Aug 2004 20:27:24 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408042007.03512.rcoker@redhat.com>
+  charset="us-ascii"
+Message-Id: <200408042027.24036.rcoker@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 4 Aug 2004 12:01, Colin Walters <walters@redhat.com> wrote:
-> Currently /var/run/console is labeled as xdm_var_run_t, which is totally
-> wrong, since it's actually owned by pam_console.  I noticed this while I
-> was trying to work on the D-BUS policy, which recently gained console
-> user authentication.
->
-> Attached is a patch which creates a new type for it, grants the
-> requisite permissions to login and xdm.  I still think we need a nicer
-> way of mapping the PAM permissions in policy.  The only reason that
-> login and xdm are granted these permissions is because they happen to
-> ship with pam_console in their PAM stack on Fedora, presumably.  (IIRC
-> Debian doesn't use pam_console).
+Does "make policy" serve any purpose any more?  It seems to me that the below 
+part of the Makefile is obsolete and should be removed.
 
-I think that perhaps the following would be good for the fc entry to keep the 
-convention:
-/var/run/console/(.*)?                     system_u:object_r:pam_var_console_t
 
-This is not what we want.  Ideally we will never have any files of type 
-var_run_t.
-rw_dir_create_file(xdm_t, var_run_t)
-rw_dir_create_file($1_login_t, var_run_t)
+policy: $(POLICYVER)
 
-I guess that the following code is to allow the xdm to check which login 
-processes are active when searching for an unused virtual console.  If my 
-guess is correct then signull access would need to be granted to getty_t and 
-userdomain.  Of course if you hard-code a VC in the config file then maybe 
-this isn't needed.
-# FIXME: what is this for?
-ifdef(`xdm.te', `
-allow xdm_t $1_login_t:process { signull };
-')
+$(POLICYVER):  policy.conf $(CHECKPOLICY)
+        $(CHECKPOLICY) -o $@ policy.conf
+
 
 -- 
 http://apac.redhat.com/disclaimer
