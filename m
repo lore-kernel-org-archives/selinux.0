@@ -1,28 +1,28 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i91GGErT002518
-	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 12:16:14 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i91GF84L020702
-	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 16:15:08 GMT
-Subject: Re: sulogin.te
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i91GFsrT002501
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 12:15:55 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i91GFrEZ005940
+	for <selinux@tycho.nsa.gov>; Fri, 1 Oct 2004 16:15:53 GMT
+Subject: Re: rpcd.te patch
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200409300850.04208.russell@coker.com.au>
-References: <200409300850.04208.russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <200409291237.13327.russell@coker.com.au>
+References: <200409291237.13327.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1096647317.13366.7.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1096647285.13366.5.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 01 Oct 2004 12:15:17 -0400
+Date: Fri, 01 Oct 2004 12:14:45 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Merged.
 
-On Wed, 2004-09-29 at 18:50, Russell Coker wrote:
-> The attached patch removes a redundant line from sulogin.te.  The "auth" 
-> attribute grants read and getattr access to /etc/shadow.
+On Tue, 2004-09-28 at 22:37, Russell Coker wrote:
+> The latest version of rpc.statd uses netlink to query the network state.  The 
+> attach patch permits this.
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
