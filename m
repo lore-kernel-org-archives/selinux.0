@@ -1,41 +1,66 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81K5irT024279
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 16:05:44 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i81K5geu016225
-	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 20:05:43 GMT
-Received: from lkcl.net (th-pm01-21.ndirect.co.uk [195.7.225.85])
-	by open.hands.com (Postfix) with ESMTP id 54CFDBFD5
-	for <selinux@tycho.nsa.gov>; Wed,  1 Sep 2004 21:05:28 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1C2ZEL-0001S7-8a
-	for selinux@tycho.nsa.gov; Wed, 01 Sep 2004 18:49:09 +0100
-Date: Wed, 1 Sep 2004 18:49:09 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: what to do with matchpathcon on S_IFCHR, S_IFBLK, hard links and fifos
-Message-ID: <20040901174909.GF4400@lkcl.net>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i81KoGrT024682
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 16:50:16 -0400 (EDT)
+Received: from mailgate.netsplit.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i81KnQY2000405
+	for <selinux@tycho.nsa.gov>; Wed, 1 Sep 2004 20:49:27 GMT
+Subject: Re: dpkg and selinux
+From: Scott James Remnant <scott@netsplit.com>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>,
+   Dpkg Development <debian-dpkg@lists.debian.org>,
+   Debian Developers <debian-devel@lists.debian.org>
+In-Reply-To: <20040901172551.GC4400@lkcl.net>
+References: <20040831234115.GZ4375@lkcl.net>
+	 <1094004762.6901.68.camel@descent.netsplit.com>
+	 <20040901101921.GC5882@lkcl.net>
+	 <1094045403.6901.112.camel@descent.netsplit.com>
+	 <20040901172551.GC4400@lkcl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-d+nPsTX2Bfj33PKDA4rF"
+Date: Wed, 01 Sep 2004 21:50:28 +0100
+Message-Id: <1094071829.6901.149.camel@descent.netsplit.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-when using matchpathcon(), is there anything special that should
-be done for the above filetypes, or should the mode_t argument
-just be passed through and let libselinux worry about it?
 
-ta,
+--=-d+nPsTX2Bfj33PKDA4rF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-l.
+On Wed, 2004-09-01 at 18:25 +0100, Luke Kenneth Casson Leighton wrote:
 
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+> On Wed, Sep 01, 2004 at 02:30:03PM +0100, Scott James Remnant wrote:
+> > However I'm loath to embed specific selinux support into dpkg if it
+> > introduces extra dependencies, or causes problems for those not using
+> > it.
+> =20
+>  1) fortunately, the only extra dependency will be libselinux1 which
+>     needs to be made "Required" such that cron, coreutils, logrotate,
+> 	ssh etc. can use it.
+>=20
+That rules that solution out, then.  I'm not going to add a dpkg
+dependency on libselinux until selinux is the default (over chown/chmod/
+etc.)
+
+Scott
+--=20
+Have you ever, ever felt like this?
+Had strange things happen?  Are you going round the twist?
+
+--=-d+nPsTX2Bfj33PKDA4rF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBNjYTIexP3IStZ2wRAoQyAJ44w0Oz6SUj2jgKcQUSnYPmnpB2zACfdBg7
+FR3y5FA1ENGviWLMOLRzV8w=
+=8Cg3
+-----END PGP SIGNATURE-----
+
+--=-d+nPsTX2Bfj33PKDA4rF--
 
 
 --
