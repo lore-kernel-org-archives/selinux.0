@@ -1,73 +1,367 @@
-Date: Mon, 2 Jun 2003 18:24:22 +0200
-From: Tom <tom@lemuria.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: some policy feedback
-Message-ID: <20030602182422.D2944@lemuria.org>
-References: <20030601222359.D31891@lemuria.org> <200306021037.21050.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200306021037.21050.russell@coker.com.au>; from russell@coker.com.au on Mon, Jun 02, 2003 at 10:37:21AM +1000
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C3292A.863D437F"
+Subject: How to get rid of avc denied messages
+Date: Mon, 2 Jun 2003 10:15:11 -0700
+Message-ID: <DB4BA538D0DA21479C610B2466EEF64616273E@sjmail.global.com>
+From: "Paul Loo" <PaulL@comglobal.com>
+To: <SELinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jun 02, 2003 at 10:37:21AM +1000, Russell Coker wrote:
-> In /etc/pam.d/su:
-> # This allows root to su without passwords (normal operation)
-> #auth       sufficient pam_rootok.so
-> 
-> SE Linux does not aim to protect users against standard Unix issues.  The idea 
-> is that you either have standard Unix permissions set up for it or you have 
-> different roles.
+This is a multi-part message in MIME format.
 
-Roger that. I wrote a workaround at the con using SELinux by
-essentially prohibiting access to su for user_r.
+------_=_NextPart_001_01C3292A.863D437F
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+=20
+
+After installing selinux on a Mandrake 8.1 system.=20
+
+Why do these "AVC DENIED" messages appears during bootup and how do I
+get rid of them ?
+
+=20
+
+un  2 17:07:22 gfcp kernel: avc:  denied  { read write } for  pid=3D1723
+exe=3D/usr/sbin/sshd path=3D/dev/ptmx dev=3D03:01 ino=3D14202
+scontext=3Dsystem_u:system_r:sshd_t tcontext=3Dsystem_u:object_r:file_t
+tclass=3Dchr_file
+
+Jun  2 17:07:22 gfcp kernel:=20
+
+Jun  2 17:07:22 gfcp kernel: avc:  denied  { ioctl } for  pid=3D1723
+exe=3D/usr/sbin/sshd path=3D/dev/ptmx dev=3D03:01 ino=3D14202
+scontext=3Dsystem_u:system_r:sshd_t tcontext=3Dsystem_u:object_r:file_t
+tclass=3Dchr_file
+
+Jun  2 17:07:22 gfcp sshd(pam_unix)[1723]: session opened for user tcip
+by (uid=3D0)
+
+Jun  2 17:07:22 gfcp kernel:=20
+
+Jun  2 17:07:22 gfcp kernel: avc:  denied  { write } for  pid=3D1725
+exe=3D/usr/sbin/sshd path=3D/var/run/utmp dev=3D03:01 ino=3D28697
+scontext=3Dsystem_u:system_r:sshd_t
+tcontext=3Dsystem_u:object_r:init_var_run_t tclass=3Dfile
+
+Jun  2 17:07:22 gfcp kernel:=20
+
+Jun  2 17:07:22 gfcp kernel: avc:  denied  { read write } for  =
+pid=3D1726
+exe=3D/bin/bash path=3D/dev/tty dev=3D03:01 ino=3D27191
+scontext=3Dsystem_u:system_r:user_t tcontext=3Dsystem_u:object_r:file_t
+tclass=3Dchr_file
+
+Jun  2 17:07:22 gfcp kernel:=20
+
+Jun  2 17:07:22 gfcp kernel: avc:  denied  { read write } for  =
+pid=3D1725
+exe=3D/bin/bash path=3D/dev/tty dev=3D03:01 ino=3D27191
+scontext=3Dtcip:user_r:user_t tcontext=3Dsystem_u:object_r:file_t
+tclass=3Dchr_file
+
+Jun  2 17:07:29 gfcp kernel:=20
+
+Jun  2 17:07:29 gfcp kernel: avc:  denied  { write } for  pid=3D1751
+exe=3D/bin/su path=3D/var/run/utmp dev=3D03:01 ino=3D28697
+scontext=3Dtcip:user_r:user_su_t =
+tcontext=3Dsystem_u:object_r:init_var_run_t
+tclass=3Dfile
+
+Jun  2 17:07:29 gfcp kernel:=20
+
+Jun  2 17:07:29 gfcp kernel: avc:  denied  { write } for  pid=3D1751
+exe=3D/bin/su path=3D/dev/log dev=3D03:01 ino=3D28395
+scontext=3Dtcip:user_r:user_su_t tcontext=3Dsystem_u:object_r:file_t
+tclass=3Dsock_file
+
+Jun  2 17:07:29 gfcp su(pam
 
 
+------_=_NextPart_001_01C3292A.863D437F
+Content-Type: text/html;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
 
-> > Someone (whose name I unfortunately forgot to get) did exploit this
-> > problem and modified my .bashrc in a non-malicious way. I discussed the
-> > issue with him and we both felt that it would probably be possible to
-> > exploit it.
-> 
-> Peter Palfreder has just demonstrated this on Method's SE-Gentoo system (see 
-> the IRC channel).
+<html>
 
-Sorry, I'm drowning in work today. Could someone please post a 2-line
-summary (like "oops, this is evil" or "not really serious") ?
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 10 (filtered)">
 
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
 
-> > One question was the usual LKM issue. Would it be possible to overload
-> > calls of the SELinux patch, in turn disabling it? Or does LSM and/or SE
-> > have any kind of "self-preservation" behaviour?
-> 
-> You could entirely prevent module loading and access to /dev/mem and 
-> /dev/kmem.  In a default configuration only X can access /dev/mem and only 
-> modutils can load modules into the kernel.  If you change it so that nothing 
-> can write to the modules files that get loaded or the modprobe/insmod/rmmod 
-> binaries and don't install the policy for the X server then it should be 
-> reasonably safe.
+</head>
 
-In other words: Whoever can insmod modules can take over the system. So
-if you want seperated sysadm accounts, you need to keep that in mind.
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
 
+<div class=3DSection1>
 
-> > 3) user macros
-> > I've been digging through the user macros, because I wanted to set up
-> > an additional unpriviledge (guest) user. Is there any documentation on
-> > why the macros were laid out the way they were?
-> 
-> They have just evolved like that.  They need to be sorted out more, 
-> documented, etc.
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Hi,</span></font></p>
 
-Is anyone working on that? I would like to give that a try because I
-would like to have a better role structure for my own systems.
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;</span></font></p>
 
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>After installing selinux on a Mandrake 8.1 system. =
+</span></font></p>
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Why do these &#8220;AVC DENIED&#8221; messages =
+appears
+during bootup and how do I get rid of them ?</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>un&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:22</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: avc:&nbsp;
+denied&nbsp; { read write } for&nbsp; pid=3D1723 exe=3D/usr/sbin/sshd =
+path=3D/dev/ptmx
+dev=3D</span></font><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+ font-family:Arial'>03:01</span></font><font size=3D2 face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'> ino=3D14202 =
+scontext=3Dsystem_u:system_r:sshd_t
+tcontext=3Dsystem_u:object_r:file_t tclass=3Dchr_file</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:22</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: </span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:22</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: avc:&nbsp;
+denied&nbsp; { ioctl } for&nbsp; pid=3D1723 exe=3D/usr/sbin/sshd =
+path=3D/dev/ptmx
+dev=3D</span></font><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+ font-family:Arial'>03:01</span></font><font size=3D2 face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'> ino=3D14202 =
+scontext=3Dsystem_u:system_r:sshd_t
+tcontext=3Dsystem_u:object_r:file_t tclass=3Dchr_file</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:22</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+sshd(pam_unix)[1723]:
+session opened for user tcip by (uid=3D0)</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:22</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: </span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:22</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: avc:&nbsp;
+denied&nbsp; { write } for&nbsp; pid=3D1725 exe=3D/usr/sbin/sshd =
+path=3D/var/run/utmp
+dev=3D</span></font><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+ font-family:Arial'>03:01</span></font><font size=3D2 face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'> ino=3D28697 =
+scontext=3Dsystem_u:system_r:sshd_t
+tcontext=3Dsystem_u:object_r:init_var_run_t =
+tclass=3Dfile</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:22</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: </span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:22</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: avc:&nbsp;
+denied&nbsp; { read write } for&nbsp; pid=3D1726 exe=3D/bin/bash =
+path=3D/dev/tty dev=3D</span></font><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;font-family:Arial'>03:01</span></font><font
+size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;font-family:Arial'> ino=3D27191 =
+scontext=3Dsystem_u:system_r:user_t
+tcontext=3Dsystem_u:object_r:file_t tclass=3Dchr_file</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:22</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: </span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:22</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: avc:&nbsp;
+denied&nbsp; { read write } for&nbsp; pid=3D1725 exe=3D/bin/bash =
+path=3D/dev/tty dev=3D</span></font><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;font-family:Arial'>03:01</span></font><font
+size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;font-family:Arial'> ino=3D27191 =
+scontext=3Dtcip:user_r:user_t
+tcontext=3Dsystem_u:object_r:file_t tclass=3Dchr_file</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:29</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: </span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:29</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: avc:&nbsp;
+denied&nbsp; { write } for&nbsp; pid=3D1751 exe=3D/bin/su =
+path=3D/var/run/utmp dev=3D</span></font><font size=3D2 =
+face=3DArial><span =
+style=3D'font-size:10.0pt;font-family:Arial'>03:01</span></font><font
+size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;font-family:Arial'> ino=3D28697 =
+scontext=3Dtcip:user_r:user_su_t
+tcontext=3Dsystem_u:object_r:init_var_run_t =
+tclass=3Dfile</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:29</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: </span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:29</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+kernel: avc:&nbsp;
+denied&nbsp; { write } for&nbsp; pid=3D1751 exe=3D/bin/su =
+path=3D/dev/log dev=3D</span></font><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;font-family:Arial'>03:01</span></font><font
+size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;font-family:Arial'> ino=3D28395 =
+scontext=3Dtcip:user_r:user_su_t
+tcontext=3Dsystem_u:object_r:file_t tclass=3Dsock_file</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Jun&nbsp; 2 </span></font><font size=3D2 =
+face=3DArial><span
+ =
+style=3D'font-size:10.0pt;font-family:Arial'>17:07:29</span></font><font =
+size=3D2
+face=3DArial><span style=3D'font-size:10.0pt;font-family:Arial'> gfcp =
+su(pam</span></font></p>
+
+</div>
+
+</body>
+
+</html>
+=00
+------_=_NextPart_001_01C3292A.863D437F--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
