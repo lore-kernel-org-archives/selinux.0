@@ -1,21 +1,30 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA26114
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 12:02:50 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA26421
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 17:02:41 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA26371
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 12:32:23 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA23223
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 17:32:21 GMT
 Received: from lodgistix.com ([64.123.115.90])
-	by jazzswing.ncsc.mil  with ESMTP id RAA26417
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 17:02:40 GMT
-Message-ID: <A4EDF51C1ED0D411818E0004AC4C1D7E049015@EXCHANGE_ICT>
+	by jazzband.ncsc.mil  with ESMTP id RAA23219
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 17:32:20 GMT
+Message-ID: <A4EDF51C1ED0D411818E0004AC4C1D7E049019@EXCHANGE_ICT>
 From: "Ellis, Wes" <wes.ellis@aremissoft.com>
 To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: RE: Cature the flag (was Re: Selinux kernel patches)
-Date: Fri, 9 Feb 2001 10:54:10 -0600 
+Subject: FW: Cature the flag (was Re: Selinux kernel patches)
+Date: Fri, 9 Feb 2001 11:23:58 -0600 
 MIME-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
+
+
+
+-----Original Message-----
+From: Ellis, Wes 
+Sent: Friday, February 09, 2001 10:54 AM
+To: 'selinux@tycho.nsa.gov'
+Subject: RE: Cature the flag (was Re: Selinux kernel patches)
+
 
 Then this is another vulnerability, and would need to be addressed, a
 machine is not just itself, but any other machines attached to it, and this
