@@ -1,47 +1,69 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h82JEHLa019119
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 15:14:17 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h82JCjpQ029520
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 19:12:45 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h82JCiQX029517
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 19:12:44 GMT
-Subject: Re: Q on Internals & Data Structures
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Bill Laut <wlsel@verizon.net>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200308301545.03201.wlsel@verizon.net>
-References: <200308291222.23424.wlsel@verizon.net>
-	 <1062177075.5432.143.camel@moss-spartans.epoch.ncsc.mil>
-	 <200308301545.03201.wlsel@verizon.net>
-Content-Type: text/plain
-Message-Id: <1062530054.18568.198.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 02 Sep 2003 15:14:14 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h82JG8La019148
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 15:16:08 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h82JG7et000516
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 19:16:07 GMT
+Received: from etsuex1.etsu.edu (etsuex1.etsu.edu [151.141.8.103])
+        by jazzband.ncsc.mil  with ESMTP id h82JG6lq000513 for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 19:16:06 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: Type background of SELinux
+Date: Tue, 2 Sep 2003 15:16:04 -0400
+Message-ID: <C5FA5FEED6F0884E9EB90BB3C010F1EF076F4283@etsuex1.etsu.edu>
+From: "Jenkins, Steven" <JENKINSS@mail.etsu.edu>
+To: "Stephen Smalley" <sds@epoch.ncsc.mil>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-08-30 at 15:45, Bill Laut wrote:
-> Speaking of "driving the requirements," there is something I've been curious 
-> about:  Would it be possible to add permissions to the security services 
-> themselves?  EG, if I have a program that is security-ignorant but which 
-> passes through the firewall to talk on the Internet, should a malicious 
-> server compromise it via an unforeseen buffer-overflow I want to insure that 
-> a security-aware payload inside the BO cannot somehow interrogate my policy 
-> or in any way alter it.
-> 
-> In short, if an application/client is assumed to be security-ignorant, I want 
-> its domain to -enforce- that ignorance and to audit any unexpected behavior 
-> to the contrary, especially if the app is a network client talking to a peer 
-> over an untrusted network.
 
-The ability to invoke the security policy API is already controlled by a
-set of permissions, so you can already do this.
+Thanks -- that's explains what I was seeing in the actual code itself,
+but some of the language in the papers made me wonder if I was missing
+something.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I'm still not clear how systems that can dynamically call libc (or other
+'dangerous' libraries) are handled -- is the development/deployment
+process basically:
+
+1- developer writes program
+2- security administrator examines program to determine appropriate
+    security policy
+
+That cost is very high in administrator time -- wouldn't it be more
+compact & efficient to do analyses on the programs themselves vis-a-vis
+the system calls they have available to them?  Granted, to do that in
+general is Turing-equivalent, but I would think it helpful to provide
+developers with a set of calls that they could use safely, without
+having to have an administrator 'sign off on' their code.
+
+For example:
+
+main(){
+	printf("Hello, world!\n");
+}
+
+is safe because it only calls a single safe function, printf().  Note
+that I mean safe in terms of integrity -- clearly printf() can be used
+to violate confidentiality policies!  As long as code passes a certain
+kind of automatic 'safety check', then it could be deployed without
+requiring manual inspection on the part of the administrator.
+
+As I look at SELinux, and at the 'Remaining Work', this is what I view
+as:
+
+* Improve and simplify the policy configuration system 
+* Complete the general purpose policy configuration 
+
+Is that understanding in line with what you're actually doing, or is
+that a different direction?
+
+Thanks,
+Steven
+
+
+
 
 
 --
