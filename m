@@ -1,36 +1,47 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA12936
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 11:11:30 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA09417
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 15:09:44 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id PAA09413
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 15:09:43 GMT
-Received: from localhost (sds@localhost)
-	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id g3PFB3a18951
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 11:11:03 -0400 (EDT)
-Date: Thu, 25 Apr 2002 11:11:03 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Configuring the SELinux Policy
-Message-ID: <Pine.GSO.4.33.0204251109130.15073-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: SELinux RPM Version
+From: Reino Wallin <reino@oribium.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: "Westerman, Mark" <Mark.Westerman@csoconline.com>,
+        SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20020425135110.E75773943@lyta.coker.com.au>
+References: 
+	<72222DC86846D411ABD300A0C9EB08A101524363@csoc-mail-box.csoconline.com>
+	<20020425135110.E75773943@lyta.coker.com.au>
+Content-Type: text/plain
+Date: 25 Apr 2002 16:38:06 +0200
+Message-Id: <1019745486.27628.65.camel@matilda.oribium.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+tor 2002-04-25 klockan 15.51 skrev Russell Coker:
+> On Thu, 25 Apr 2002 14:48, Westerman, Mark wrote:
+> > In the Filesystem Hierarchy Standard (FHS) document for the
+> > Linux Standard Base.
+> >
+> > "Any program or package which contains or requires data the doesn't
+> > need to modified should store that data in /usr/share. "
+> >
+> > the doc subdirectory if for "Miscellaneous documentation"
+> 
+> IMHO that means that /usr/share/selinux is better than /usr/share/doc/selinux 
+> for the sample policy files.
+> 
+> Sample policy files are not documentation, they don't even have much in the 
+> way of comments!
+> 
+I would agree with Russell here, and that is what Howard Holm suggested
+as well.
 
-The new policy technical report that I've previously mentioned is now
-available in the CVS tree at the sourceforge selinux site, under
-nsa/selinux/doc/policy.  This report will also be included in the next
-public release of SELinux.
+> > The /etc/selinux/policy directory is created
+> > and can be modified.
+> 
+> OK.  I'll change my package back to using /etc/selinux as the location for 
+> the files.
+> 
+I like Marks concept here, so it seems we all agree on this.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+Reino
 
 
 --
