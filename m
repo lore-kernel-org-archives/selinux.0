@@ -1,49 +1,51 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AKSvrT001059
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:28:57 -0400 (EDT)
-Received: from smtp801.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5AKSqP2025451
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:28:52 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AKWmrT001105
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:32:48 -0400 (EDT)
+Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i5AKWgP2025774
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 16:32:43 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp801.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 20:28:55 -0000
-Date: Thu, 10 Jun 2004 20:26:15 +0000
+  by smtp803.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 20:32:45 -0000
+Date: Thu, 10 Jun 2004 20:30:06 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ed Street <edstreet@street-tek.com>
-Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
-Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Message-ID: <20040610202615.GC2861@lkcl.net>
-References: <20040609233946.GI5727@lkcl.net> <20040610022221.7796D3A4063@abyss.simplyaquatics.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [debian] - installation of mysqld requires chfn
+Message-ID: <20040610203006.GD2861@lkcl.net>
+References: <20040609222209.GH5727@lkcl.net> <200406101220.53966.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040610022221.7796D3A4063@abyss.simplyaquatics.com>
+In-Reply-To: <200406101220.53966.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jun 09, 2004 at 10:22:21PM -0400, Ed Street wrote:
-> Well why ANY app needs write access to /etc is beyond me.  Also are you
-> using run_init /etc/init.d/foo ?
- 
- yes, i am, and that's part of the problem.
+On Thu, Jun 10, 2004 at 12:20:53PM +1000, Russell Coker wrote:
+> On Thu, 10 Jun 2004 08:22, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > i added the can_exec chfn_exec_t into domains/programs/dpkg.te:
+> 
+> ifdef(`passwd.te', `
+> domain_auto_trans(dpkg_t, chfn_exec_t, chfn_t)
+> ')
+> 
+> The above is what you want.  
 
- if you do an ls --context /var/spool/postfix/etc and compare the files
- listed there to ls --context /etc for example (there are others)
- you will find that the contexts are identical.
+ oooo, thank you v. much.  that wouldn't have occurred to me.
 
- therefore, in order for the chroot jail files to be copyable 
- (and overwritable!) from /etc to /var/spool/postfix/etc,
- and from /lib to /var/spool/postfix/lib, it is necessary to
- give initrd_t (which is what run_init drops you into, yes)
- write permission to etc_t (amongst other things).
+ lots still to learn...
 
- if you do that, you get a policy violation (build error) on a
- "make policy" on one of the checks that bans you from doing
- things like give initrd_t access to writing in etc_t or
- etc_runtime_t.
+> You don't want to allow dpkg_t direct access 
+> to /etc/shadow because it will probably mess it up (replace it with a copy 
+> labelled as etc_t).
 
- l.
+yerss, i noticed that if i run with "enforcing=0" and run chfn as
+sysadm_r, i end up with /etc/shadow labelled as root:object_r:system_t
+and i have to do a setfiles /etc/selinux/file_contexts/file_contexts
+/etc/shadow pdq.
 
+been bitten by not being able to log in once or twice by that :)
 
--- 
+l.
+
 -- 
 Information I post is with honesty, integrity, and the expectation that
 you will take full responsibility for acting on the information contained,
