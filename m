@@ -1,68 +1,49 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TM0grT023072
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 18:00:42 -0400 (EDT)
-Received: from smtp801.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i6TM0eCb023656
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 22:00:41 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp801.mail.ukl.yahoo.com with SMTP; 29 Jul 2004 22:00:41 -0000
-Date: Thu, 29 Jul 2004 23:11:46 +0100
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TM3UrT023104
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 18:03:30 -0400 (EDT)
+Received: from smtp808.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6TM2xbB022705
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 22:02:59 GMT
+Date: Thu, 29 Jul 2004 23:14:34 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: James Morris <jmorris@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
-   Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: temporary hack to use udev in selinux
-Message-ID: <20040729221146.GO9950@lkcl.net>
-References: <Xine.LNX.4.44.0407291305360.16390-100000@dhcp83-76.boston.redhat.com> <200407292059.i6TKxGFL019918@turing-police.cc.vt.edu>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: udev has had udev_selinux removed - argh!
+Message-ID: <20040729221434.GP9950@lkcl.net>
+References: <20040729094717.GE6443@lkcl.net> <20040729185034.GA1530@kroah.com> <20040729204008.GM9950@lkcl.net> <1091133915.3283.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200407292059.i6TKxGFL019918@turing-police.cc.vt.edu>
+In-Reply-To: <1091133915.3283.25.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-usb-mount does this by using sudo.
-
-it's a very clever program, but from a security perspective i ain't
-entirely enamoured with the number of additions i've had to make
-to fsadm.te, the number of extra permissions to mount_t and user_t
-and i'm sure i've got something wrong, here.
-
-however, that aside, usb-mount is at present only set up to
-do usb hotplug devices.
-
-perhaps it could be adapted to do scsi and ide drives, and consequently
-cdroms too?
-
-does hotplug "do" cdrom drives?
-
-l.
-
-p.s. anyone interested in the rather drastic hacks i've done for
-usb-mount, let me know.
-
-p.p.s. neither sg_map nor disktype are catered for in fsadm.te,
-so i've had to add stuff for those.
-
-On Thu, Jul 29, 2004 at 04:59:16PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 29 Jul 2004 13:06:15 EDT, James Morris said:
->  
-> > This could be done by simply allowing context= to override any other 
-> > behavior, right?
+On Thu, Jul 29, 2004 at 10:45:15PM +0200, Kay Sievers wrote:
+> On Thu, 2004-07-29 at 21:40 +0100, Luke Kenneth Casson Leighton wrote:
+> > hello greg,
+> > 
+> > well i tried compiling udev-024 and it was a pain, plus i got udev-030
+> > to work and decided it wasn't worth the effort, the users can
+> > JustLiveWithIt(tm) until it's fixed properly.
+> > 
+> > greg, do you have any objections to me doing a "proper" job, which
+> > is to patch udev-add.c to use some libselinux1 functions that will
+> > "prime" the selinux module with the right context, such that
+> > when the node (and the symlink!) are individually created, they
+> > are individually created with the correct context - there and then.
 > 
-> Well, with proper control over what roles/etc can use that mount option.
-> (Think "/dev/cdrom auto-mounted as 'user' by a system daemon"...)
+> How do we solve the klibc build, if selinux is used internally? We've
+> moved it to a external program for that reason.
+ 
+  if i understand you correctly (i don't know what klibc is):
 
+  i'd recommend leaving it up to distributions to decide
+  to create (or not) two _separate_ packages, se_udev and udev.
 
+  if you can at least provide an option --with-selinux in the
+  configure script, distros can make the decision.
 
--- 
--- 
-Information I post is with honesty, integrity, and the expectation that
-you will take full responsibility if acting on the information contained,
-and that, should you find it to be flawed or even mildly useful, you
-will act with both honesty and integrity in return - and tell me.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+  l.
 
 
 --
