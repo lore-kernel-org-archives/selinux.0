@@ -1,80 +1,61 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA25857
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 16:20:19 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA02602
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 20:20:08 GMT
-Received: from entoo.connect.com.au (entoo.connect.com.au [192.189.54.8])
-	by jazzswing.ncsc.mil  with ESMTP id UAA02598
-	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 20:20:06 GMT
-Received: from devious.adversary.org (acc7-ppp138.bur.dialup.connect.net.au [61.68.132.138])
-	by entoo.connect.com.au (Postfix) with ESMTP id AD43CE4EDF
-	for <selinux@tycho.nsa.gov>; Thu,  6 Jun 2002 06:13:33 +1000 (EST)
-Received: (from khayman@localhost)
-	by devious.adversary.org (8.11.6/8.11.6) id g55K7jv04939
-	for selinux@tycho.nsa.gov; Thu, 6 Jun 2002 06:07:45 +1000
-Date: Thu, 6 Jun 2002 06:07:45 +1000
-From: Ben McGinnes <bmcginnes@enternet.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA26339
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 17:36:37 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id VAA26777
+	for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 21:35:15 GMT
+Received: from dugite.summer.ami.com.au (a0s04.ami.com.au [203.55.31.101])
+        by jazzband.ncsc.mil  with ESMTP id VAA26765 for <selinux@tycho.nsa.gov>; Wed, 5 Jun 2002 21:34:58 GMT
+Received: from numbat.Os2.Ami.Com.Au (numbat.summer.ami.com.au [192.168.1.9])
+	by dugite.summer.ami.com.au (8.11.6/8.11.2) with ESMTP id g55LZoA03660
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 05:35:50 +0800
+Received: from numbat.Os2.Ami.Com.Au (summer@localhost)
+	by numbat.Os2.Ami.Com.Au (8.11.6/8.11.6) with ESMTP id g55LZoF14397
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 05:35:50 +0800
+Message-Id: <200206052135.g55LZoF14397@numbat.Os2.Ami.Com.Au>
 To: selinux@tycho.nsa.gov
-Subject: Re: Sorry, read this one: Re: SELinux Dumb Questions
-Message-ID: <20020606060744.J2249@mail.enternet.com.au>
-References: <31A81CDD9175D411815100508BE32AA60142F389@emss02m13.ems.lmco.com> <20020605192401.C3327@lemuria.org>
+Subject: Re: sendmail.fc and RH 7.3 
+In-Reply-To: Your message of "05 Jun 2002 12:13:42 -0400."
+             <1023293622.1368.5.camel@jsmith.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="GID0FwUMdk1T2AWN"
-In-Reply-To: <20020605192401.C3327@lemuria.org>; from tom@lemuria.org on Wed, Jun 05, 2002 at 07:24:01PM +0200
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 06 Jun 2002 05:35:50 +0800
+From: John Summerfield <summer@os2.ami.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---GID0FwUMdk1T2AWN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Tom(tom@lemuria.org)@Wed, Jun 05, 2002 at 07:24:01PM +0200:
->=20
-> We can't. See, if they'd merely hold the copyright to some code, we
-> could just rewrite that part. However, patents do explicitly extend to
-> indepentent implementations since they cover an IDEA, not as copyright
-> does an EXPRESSION.
->=20
-> That's the true evil of software patents. He who lives closer to the
-> patent office wins.
-
-Hmmm ...
-
-This then begs the question (which is *very* rhetorical and I do not
-expect an answer from the official channels): would the NSA be willing
-to purchase that patent from Secure Computing, assuming the latter
-were willing to sell?
-
-That, of course, is assuming that Secure Computing's intention is to
-enforce their patent to the detriment of SE Linux development under
-the GPL.
-
-BTW, has anyone here actually looked at the patent itself and seen
-exactly what it refers to?  Has anyone from Secure Computing mentioned
-any references with the relevant patent authorities so that the rest
-of us can see precisely what they're patent controls?
+> For some reason, in RH 7.3, sendmail is accessed by double-indirection:
+> 
+> /usr/sbin/sendmail is a symbolic link to /etc/alternatives/mta, which,
+> in turn is a symbolic link to 
+> 
+>  /usr/sbin/sendmail.sendmail
+> 
+> (?!), so that you have to augment sendmail.fc to assign the correct type
+> to /usr/sbin/sendmail.sendmail.
 
 
-Regards,
-Ben
+This is to allow the easy substitution of another MTA -m I forget which is inclluded;-)
 
---GID0FwUMdk1T2AWN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+There's a similar fiddle to allow switching between cups and LPRng.
 
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8
 
-iQA/AwUBPP5vkDcaxb+gSuMTEQJ36QCfUWpUcFU/8RBrX39keZH/U2hNMTEAoKMt
-FfRnhFN67RpOq3jF9S1OYlV+
-=GJci
------END PGP SIGNATURE-----
 
---GID0FwUMdk1T2AWN--
+
+-- 
+Cheers
+John Summerfield
+
+Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
+
+Note: mail delivered to me is deemed to be intended for me, for my disposition.
+
+==============================
+If you don't like being told you're wrong,
+	be right!
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
