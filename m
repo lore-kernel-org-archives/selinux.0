@@ -1,57 +1,43 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1LDXZdW017431
-	for <selinux@tycho.nsa.gov>; Mon, 21 Feb 2005 08:33:35 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1LDVS3J027341
-	for <selinux@tycho.nsa.gov>; Mon, 21 Feb 2005 13:31:28 GMT
-Received: from lkcl.net (host81-155-76-60.range81-155.btcentralplus.com [81.155.76.60])
-	by open.hands.com (Postfix) with ESMTP id 12138C60C
-	for <selinux@tycho.nsa.gov>; Mon, 21 Feb 2005 13:31:17 +0000 (GMT)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1D3DoS-0004iE-MU
-	for selinux@tycho.nsa.gov; Mon, 21 Feb 2005 13:41:24 +0000
-Date: Mon, 21 Feb 2005 13:41:24 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: sshd transition points (user@ip or net_context with setcon)
-Message-ID: <20050221134124.GR14038@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1LDiLdW017506
+	for <selinux@tycho.nsa.gov>; Mon, 21 Feb 2005 08:44:22 -0500 (EST)
+Received: from mail-old.asahi-net.or.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1LDdspm005512
+	for <selinux@tycho.nsa.gov>; Mon, 21 Feb 2005 13:39:54 GMT
+Received: from mailr1.asahi-net.or.jp (mailr1.asahi-net.or.jp [202.224.39.211])
+	by mail-old.asahi-net.or.jp (Postfix) with ESMTP id 086C7C6CB
+	for <selinux@tycho.nsa.gov>; Mon, 21 Feb 2005 22:42:07 +0900 (JST)
+Received: from ayu.kaigai.gr.jp (j069218.ppp.asahi-net.or.jp [61.213.69.218])
+	by mailr1.asahi-net.or.jp (8.11.7/3.7W) with ESMTP id j1LDg6Z19933
+	for <selinux@tycho.nsa.gov>; Mon, 21 Feb 2005 22:42:06 +0900 (JST)
+Received: from [192.168.1.32] (noah.kaigai.gr.jp [192.168.1.32])
+	by ayu.kaigai.gr.jp (Postfix) with ESMTP id D8D78CD0043
+	for <selinux@tycho.nsa.gov>; Mon, 21 Feb 2005 22:37:08 -0500 (EST)
+Message-ID: <4219E45B.2020501@kaigai.gr.jp>
+Date: Mon, 21 Feb 2005 22:38:35 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: What is typealias and typeattribute
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
+Hi,
 
-after kindly receiving a message which advised how to achieve the
-same net effect as sought (using AllowUsers in sshd_config) i was
-wondering if anyone considered it _actually_ worthwhile to go
-ahead and provide a means to achieve the same effect (as AllowUsers)
-with SE-Linux policy and some modifications to sshd (to use setcon
-and thereby be able to do net_contexts on a per-user basis).
+I noticed some sentence structures not to understand the meaning well,
+when I read policy_parse.y in checkpolicy.tgz.
 
-basically: can anyone think of a justification for the mods to
-sshd - _other than_ a "defense in depth" argument, given that
-what i originally aimed to do achieves the same end-result
-as AllowUsers?
+I think we can replace 'typealias' and 'typeattribute' with
+'type ...' sentence structure completely.
+So, It's not writen in 'Configuring the SELinux Policy', orz.
 
-e.g. oh i dunno, being able to lock down the priv_sep sshd,
-and the monitor process, because they would have distinct
-selinux domains?
+Is it historical syntax? or does it have another purpose?
+Please tell me.
 
-[the fact that if someone helped me come up with a justification
- i could then utilise that to maybe get some extra $ out of the
- client is purely coincidental :) ]
-
-i'd be more than happy to accept "no, we believe the present
-sshd selinux arrangement is perfectly good enough for most
-xyz circumstances".
-
-l.
-
+Thanks.
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
