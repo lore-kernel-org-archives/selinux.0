@@ -1,49 +1,49 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14MIQ53011880
-	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 17:18:27 -0500 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: Best way to label a filesystem for another system
-Date: Fri, 4 Feb 2005 14:18:25 -0800
-Message-ID: <60C14C611F1DDD4198D53F2F43D8CA3B0365B114@orsmsx410>
-From: "Villalovos, John L" <john.l.villalovos@intel.com>
-To: "Stephen Smalley" <sds@epoch.ncsc.mil>
-Cc: "SE-Linux" <selinux@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j177rY53019484
+	for <selinux@tycho.nsa.gov>; Mon, 7 Feb 2005 02:53:34 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j177pOv3012198
+	for <selinux@tycho.nsa.gov>; Mon, 7 Feb 2005 07:51:24 GMT
+Subject: Re: Latest diffs
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1107530908.31488.1.camel@cobra.ivg2.net>
+References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FA9717.2000609@redhat.com>
+	 <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>
+	 <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107349736.890.72.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107350272.890.82.camel@moss-spartans.epoch.ncsc.mil>
+	 <4200D68A.6030309@redhat.com> <1107478728.4065.3.camel@cobra.ivg2.net>
+	 <42037FDC.9000908@redhat.com>
+	 <1107526206.8078.55.camel@moss-spartans.epoch.ncsc.mil>
+	 <1107530908.31488.1.camel@cobra.ivg2.net>
+Content-Type: text/plain
+Date: Mon, 07 Feb 2005 02:53:52 -0500
+Message-Id: <1107762833.7200.4.camel@cobra.ivg2.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> Ok, so you are running with the default FC3 targeted policy (i.e.
-> confine specific network daemons, leave everything else uncontrolled)
-> but trying to install based on the NSA example strict policy (i.e.
-> fine-grained domains for many processes).  Hence, setfiles is
-> trying to
-> check the validity of the contexts from the strict policy against your
-> running policy, which doesn't define many of the necessary types.
-> Further, if setfiles were to get to the point of trying to set those
-> contexts, your running SELinux kernel would reject them as invalid, as
-> they aren't defined in its policy.
+On Fri, 2005-02-04 at 10:28 -0500, Ivan Gyurdiev wrote:
+> On Fri, 2005-02-04 at 09:10 -0500, Stephen Smalley wrote:
+> > On Fri, 2005-02-04 at 08:59, Daniel J Walsh wrote:
+> > > You need to set the boolean
+> > > 
+> > > setsebool -P allow_execmod 1
+> > >  On fresh installs this will be in there. 
 > 
-> Don't do that.  Either disable SELinux on the development system (edit
-> /etc/selinux/config or use system-config-securitylevel), or
-> use the same
-> policy for both (at least with respect to the set of defined types).
-> FC3 also includes a strict policy RPM.
+> Right, but the boolean is for user_t, and not for X.
+> For X the whole execmod rule was removed, which is why I get denials.
 
-So is there an option or anything to have setfiles not use the currently
-running policy to verify things?  Can you specify different files for it
-to use to verify information?
+And now execmod denials for user_mozilla_t and flash are back again.
+Those in addition to the mozilla execmem denials I posted about earlier.
 
-Can I just disable SE Linux on the host system before I run setfiles and
-then enable it afterwards?  Is that even possible?  I know I can turn
-off the enforcement but can I turn off SE Linux being enabled from a
-command line tool or do I need to actually reboot and disable it?
-
-I hope these aren't stupid questions.
-
-Thanks,
-John
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
