@@ -1,62 +1,43 @@
-Message-ID: <20041022174344.38864.qmail@web51503.mail.yahoo.com>
-Date: Fri, 22 Oct 2004 10:43:44 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: issue on confidentiality
-To: sds@epoch.ncsc.mil
+Subject: Re: What's the relationship between existing mls files?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Park Lee <parklee_sel@yahoo.com>
 Cc: SELinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1029126513-1098467024=:38556"
+In-Reply-To: <20041022171255.77893.qmail@web51507.mail.yahoo.com>
+References: <20041022171255.77893.qmail@web51507.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1098467023.7614.299.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 22 Oct 2004 13:43:43 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1029126513-1098467024=:38556
-Content-Type: text/plain; charset=us-ascii
+On Fri, 2004-10-22 at 13:12, Park Lee wrote:
+> Then, If I change one of the files, I must change it's countpart, Am I
+> right?
 
-On Fri, 22 Oct 2004 at 12:47, Stephen Smalley wrote:
- 
->You can actually express a MLS policy via a TE configuration; 
->it just starts to explode the type space if you have a large number
->of levels.
+If you make a change to anything that affects the security server logic
+or the binary policy format, then you need to change both the libsepol
+code and the kernel code, yes.  You could revise the internal data
+structures of one or the other without necessarily changing the other,
+e.g. for optimization purposes, as long as the logic itself remains
+consistent and the binary policy format is unchanged.  But it is
+preferable to keep the code as consistent as possible.
 
-Would you please give me some hints on how to do it ?
- 
-Thank you.
+> Don't the kernel code and the core code refer to the same thing?
+> (please forgive my ignorance)
 
+As I said, originally checkpolicy was built from the same core source
+code as the kernel security server using macros to convert kernel types
+and APIs to corresponding userland ones, but the code was forked to
+allow specialization and to avoid requiring a copy of the kernel source
+tree for building checkpolicy.  So the libsepol code and the
+linux-2.6/security/selinux/ss code originated from the same code base
+and implements the same basic logic.
 
---
-Best Regards,
-Park Lee <parklee_sel@yahoo.com> 
- 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-
-
-
-
-
-		
----------------------------------
-Do you Yahoo!?
-vote.yahoo.com - Register online to vote today!
---0-1029126513-1098467024=:38556
-Content-Type: text/html; charset=us-ascii
-
-<DIV>On Fri, 22 Oct 2004 at 12:47, Stephen Smalley wrote:</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&gt;You can actually express a MLS policy via a TE configuration; </DIV>
-<DIV>&gt;it just starts to explode the type space if you have a large number</DIV>
-<DIV>&gt;of levels.<BR></DIV>
-<DIV>Would you please give me some hints on how to do it ?</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Thank you.</DIV><BR><BR><DIV>
-<DIV>
-<DIV>
-<DIV>
-<DIV>
-<DIV>--<BR>Best Regards,<BR>Park Lee &lt;<A href="http://us.f515.mail.yahoo.com/ym/Compose?To=parklee_sel@yahoo.com&amp;YY=1156&amp;order=down&amp;sort=date&amp;pos=0"><FONT color=#003399>parklee_sel@yahoo.com</FONT></A>&gt; </DIV>
-<DIV>&nbsp;</DIV></DIV></DIV></DIV></DIV></DIV><p>
-		<hr size=1>Do you Yahoo!?<br><a
-href="http://vote.yahoo.com">vote.yahoo.com</a> - Register online to vote today!
---0-1029126513-1098467024=:38556--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
