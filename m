@@ -1,39 +1,93 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA17180
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2001 16:10:15 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA19731
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2001 21:10:04 GMT
-Received: from khaipur.xiat.org ([66.125.68.98])
-	by jazzswing.ncsc.mil  with ESMTP id VAA19727
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2001 21:10:03 GMT
-Received: from [10.0.1.20] (dhcp20.xiat.org [10.0.1.20])
-	(authenticated)
-	by khaipur.xiat.org (8.11.6/8.11.6) with ESMTP id fBDLABu17480
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2001 13:10:11 -0800
-Date: Thu, 13 Dec 2001 13:06:30 -0800
-From: Paul Krumviede <pwk@acm.org>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: freeswan ipsec, 2.4.16-selinux and pclose
-Message-ID: <97333588.1008248790@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA18406
+	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2001 20:25:56 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id BAA27817
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2001 01:25:13 GMT
+Received: from angusbay.vnl.com ([194.46.8.33])
+	by jazzband.ncsc.mil  with ESMTP id BAA27813
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2001 01:25:12 GMT
+Date: Fri, 14 Dec 2001 01:32:03 +0000
+From: Dale Amon <amon@vnl.com>
+To: Stephen Smalley <sds@tislabs.com>
+Cc: John Scroggins <dataefx@earthlink.net>, selinux@tycho.nsa.gov
+Subject: Re: Undefined refs in compile attempt
+Message-ID: <20011214013203.GB16720@vnl.com>
+References: <20011212014335.GA16538@vnl.com> <Pine.GSO.4.33.0112120840590.6865-100000@raven>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.GSO.4.33.0112120840590.6865-100000@raven>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-i built and installed the latest release with the frees/wan
-1.94 package, rebooted and tried to start ipsec. but i
-noticed some new errors: pclose() fails, with errno set
-to ECHILD, when pluto runs the _updown script to
-prepare, route, or "up" a host. frees/wan 1.94 didn't
-manifest such problems with the previous release (2.4.14
-kernel).
+Okay, I'm making progress. I thought I'd report in just in case
+our friend writing the book wants to follow what I do.
 
-has anybody gotten this working, seen a similar problem,
-or have suggestions?
+First, I took the newest version as Dr. Smalley suggested and
+applied his two patches. I also applied the patch from Andrew
+Morton on LKML to try to fix the problem that has shown up
+because of the new, more restrictive binutils.
 
--paul
+That failed. I believe the problem might be that there are
+occurences of the problem that are in the lsm patch or the
+selinux patches as it has to do with module exit code I
+believe.
 
+My second choice was to backoff to an older binutils and
+do the ld using that.
+
+  533  tar zxf 2001121010-SELINUX/lsm-selinux-2001121010.tgz 
+  537  cd selinux/
+  538  patch -p1 < ../2001121010-SELINUX/util-linux.patch
+  545  cd ../lsm
+  547  patch -p1 < ../2001121010-SELINUX/AndrewMorton-exit.patch 
+
+  550  cd ../selinux/module/
+  552  make insert
+  554  cd ../../lsm
+  555  patch -p1 < ../2001121010-SELINUX/module.patch 
+
+  558  cp -a ../20011213-collective.config .config
+  559  make oldconfig
+  560  make menuconfig
+
+	Downgrade to binutils_2.11.92.0.7-2_i386.deb
+
+  562  make dep
+  564  make bzImage
+  565  make modules
+
+Now since I am not building for this machine, I move everything
+to a target "root" which I'll later tar up and copy over
+to the test machine:
+
+  571  cp -a System.map ../Selinux/boot/System.map-2.4.16-lsm 
+  572  cp -a arch/i386/boot/bzImage ../Selinux/boot/vmlinuz-2.4.16-lsm 
+  574  make INSTALL_MOD_PATH=/usr/src/Selinux/ modules_install
+
+Since selinux doesn't have this feature, I edited the makefile and
+added it. After I'm done I'd be happy to supply any patchfiles I
+create in the process.
+
+  577  cd ../selinux/module
+	Patch Makefile to have ROOT variable
+
+  587  make ROOT=/usr/src/Selinux/usr/local install
+
+At this point I'm not yet clear whether I can
+continue on the kernel factory or have to complete the
+commands in the README over on the target machine. I'm
+hoping not as it would be terribly awkward if I have to
+move the source tree across just to finish.
+
+So, I'm on to the next RTFM and RTFC step.
+
+-- 
+------------------------------------------------------
+    Nuke bin Laden:           Dale Amon, CEO/MD
+  improve the global          Islandone Society
+     gene pool.               www.islandone.org
+------------------------------------------------------
 
 --
 You have received this message because you are subscribed to the selinux list.
