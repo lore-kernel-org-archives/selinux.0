@@ -1,56 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h91CXXsJ024577
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 08:33:33 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h91CXWCG000865
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 12:33:32 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-        by jazzband.ncsc.mil  with ESMTP id h91CXVqJ000862 for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 12:33:32 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 274EE924F2
-	for <selinux@tycho.nsa.gov>; Wed,  1 Oct 2003 22:33:26 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id C7EF57F25E
-	for <selinux@tycho.nsa.gov>; Wed,  1 Oct 2003 22:33:24 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: assertions in kernel
-Date: Wed, 1 Oct 2003 22:33:24 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200310012233.24193.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h91DHcsJ024851
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 09:17:38 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h91DFoZt027616
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 13:15:50 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h91DFoM3027613
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 13:15:50 GMT
+Subject: Re: makemap
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200310012113.44940.russell@coker.com.au>
+References: <200310012113.44940.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1065014251.350.20.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 01 Oct 2003 09:17:31 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In assert.te we can prevent doing stupid things, for example if I never want 
-to have a file labeled as root_t I can do the following:
-neverallow domain root_t:file { relabelto create };
+On Wed, 2003-10-01 at 07:13, Russell Coker wrote:
+> /usr/bin/makemap                system_u:object_r:sbin_t
+> 
+> What is the above entry in types.fc about?  Is there a hard-link between a 
+> file in /usr/sbin and /usr/bin?
 
-However doing this sort of thing means that we have to create asymetric policy 
-regarding relabeling as if we get a file labeled as root_t (through a 
-previous policy, through a file system error, or through kernel memory 
-corruption resulting in bad data being written to disk) we need a way to 
-label it back to some sane type.
-
-I think that this approach does not work.  I think that to maintain sane state 
-of the file system labeling we need to have some rules in the kernel, if 
-those rules are violated (either on first access after boot or when a new 
-policy load changes the rules) then the filesystem object gets relabeled to 
-unlabeled_t.  Then setfiles only needs relabelfrom access to unlabeled_t to 
-be able to fix all manner of file system stuff-ups.
-
-I am aware that what I am suggesting involves a moderate amount of kernel 
-coding (which I am not capable of doing).  However there has been some recent 
-discussion for a number of new features in regard to kernel management of 
-policy, so I presume that the feature list is up for discussion.
+IIRC, this was a hard link to /usr/sbin/makemap in an older version of
+RH, but it appears to now be a symlink, so this isn't really necessary
+anymore.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
