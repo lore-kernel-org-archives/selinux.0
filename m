@@ -1,93 +1,92 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Bill Laut <wlsel@verizon.net>
-To: Russell Coker <russell@coker.com.au>
-Subject: Re: Russell Coker is recognized for his contributions to the SELinux project
-Date: Fri, 11 Jul 2003 02:58:28 -0400
-Cc: Howard Holm <hdholm@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-References: <3F0E0999.70405@cpcug.org>
-In-Reply-To: <3F0E0999.70405@cpcug.org>
-MIME-Version: 1.0
-Message-Id: <200307110258.28184.wlsel@verizon.net>
+Subject: Re: port of procps patch to acahalan procps
+From: Colin Walters <walters@verbum.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <1057805552.751.1243.camel@cube>
+References: <1057776906.28674.262.camel@columbia>
+	 <1057805552.751.1243.camel@cube>
+Content-Type: text/plain
+Message-Id: <1057950856.1327.90.camel@columbia>
+Mime-Version: 1.0
+Date: 11 Jul 2003 15:14:16 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2003-07-09 at 22:52, Albert Cahalan wrote:
 
-As a relative newcomer to SELinux, I, too, would like to congratulate Russell 
-on his being recognized with this award.  As a consultant with 23 years 
-experience, I've seen my share of "varporware," hyped by equally vapid 
-snake-oil peddlers.  Products whose engineering really stand out well are so 
-far and few between that they become a veritable oasis in a desert of 
-mediocrity.
+> OK. I'll get most of that into the 3.1.10 release.
 
-SELinux is one such oasis.  After the OpenVMS operating system went into 
-decline (after DEC self-destructed), what succeeded it in the marketplace was 
-naked purgatory:  Windows.  No security whatsoever.  At least Linux made the 
-attempt by segregating superuser vs. normal user, along with distinguishing 
-one user from another.  But it still was no comparison to VMS with its 
-concept of a "privilege mask" and Access Control Lists.  And always was the 
-fear that somehow a daemon might be compromised and an attacker would gain 
-root access to the system.
+Cool.  Note however that it won't currently run on 2.4 SELinux, so you
+should probably warn your users about this.
 
-Enter SELinux:   -Professional grade- security returns to a mainstream OS,  to 
-where we can now uniquely tailor access to system resources for each 
-individual application and/or server on the system like a glove fitting a 
-hand, making setSUID and its vulnerabilities history.
+> I need to know more about a security context.
+> I need to know how big it is today (variable?)
+> and how, if at all, you intend to keep the size
+> from ever changing. I'm working toward a stable
+> ABI for procps, meaning that compile-time choices
+> can't make the library incompatible with the apps.
 
-With little exaggeration, after the wasteland of Microsoft offerings (and Unix 
-not much better), my reaction to SELinux was to break out singing, "Sweet 
-Mystery of Life, at Last I've Found You."  Someone finally *got it right* 
-about system security.  This goes far beyond what DEC achieved with OpenVMS.
+It's basically just a char *, and I don't think that will ever change.
 
-To Russell, my hearty congratulations for being recognized on your 
-contributions.
+> +#ifdef WITH_SELINUX
+> +    int selinux_enabled = is_selinux_enabled();
+> +#endif
+> 
+> Is that going to be slow? You're making this call
+> for every process.
 
-To the NSA and all the contributors combined, thank you for pushing Linux into 
-becoming the best damned OS available, and especially for releasing the 
-source code under the GNU General Public License.  In creating the tools to 
-make the computing world safe from attack, the service you have rendered is 
-incalculable, and all of you deserve to take a bow.
+It shouldn't be too slow, no; basically it is implemented by reading
+/proc/self/attr/current and seeing if it works.  But it would be a good
+idea to factor the code out into an initialization section.
 
-You have a clear and unmistakable winner in SELinux.  It's time is about to 
-come.
+> -    if (!p)
+> +    if (!p) {
+>         p = xcalloc(p, sizeof *p); /* passed buf or alloced mem */
+> +       memset(p, 0, sizeof(p));
+> +    }
+> 
+> Why? I notice elsewhere that you seem to expect
+> readproc() to get called with a security context
+> already allocated. Hmmm...
 
+The reason I did this was because the patch for the other procps does:
+	if (p->scontext) {
+	    freecon(p->scontext);
+	    p->scontext=NULL;
+	}
 
-Kindest regards,
+But this might be something that was only needed for the other procps. 
+It does look like when readproc is called, the proc_t * is always
+freshly allocated, and is later freed with freeproc, which will
+correctly free the context.  So you could probably just delete both the
+freecon code and the memset code in readproc.
 
-Bill Laut
+> +#ifdef WITH_SELINUX
+> +#define PROC_CONTEXT 0x8000 
+> +#endif
+> 
+> no need to #ifdef that
 
+Ok.
 
-On Thursday 10 July 2003 08:49 pm, James Griffin wrote:
-> In recognition for his selfless contributions to the SELinux program,
-> Mr. Russell Coker has been selected by board of the James and Charlotte
-> Griffin Foundation to receive an unrestricted grant of US$1,000.00.
->
-> This grant is awarded to Mr. Coker on the basis of his significant
-> contributions to the advancement of the National Security Agency's
-> research program known as "Security Enhanced Linux" (SELinux).  The
-> extent and nature of Mr. Coker's voluntary contributions are exceptional
-> for their scope, duration, and especially their quality.  Specifically
-> Mr. Coker has provided: 1) numerous patches to both the base code and to
-> the policy configurations, 2) an additional distribution, i.e., Debian
-> based SELinux, 3) material, extensive, and ongoing participation in the
-> SELinux mailing list (25% of all messages), and 4) providing additional
-> educational support to others with his presentations and his publicly
-> available SELinux testbed.  Mr. Coker has shared freely of his
-> knowledge, talent, and time for the public good.
->
-> The Foundation also wishes to acknowledge the contributions of the
-> National Security Agency (NSA), its employees and contractors, and the
-> other active participants.  Additionally, NSA is to be commended for
-> their efforts in transferring the results of the SELinux research into
-> the "commons" of public knowledge and for preserving and protecting this
-> transfer through the adoption of the GNU General Public License for
-> SELinux.
->
-> James A Griffin
-> Chairman
-> James and Charlotte Griffin Foundation
->
-> *Linux is a Registered Trade Mark of Linus Torvalds
+> 
+> -  memset(&buf, '#', sizeof(proc_t));
+> +  memset(&buf, 0, sizeof(proc_t));
+> 
+> This is debug code. It's used to help catch
+> uninitialized memory. (did it catch you?)
+
+Yes, because of the above code that checked whether p->scontext was
+nonzero, and freed it if not.
+
+This is unrelated to the SELinux patch, but: I personally find valgrind
+to be a far more effective way to debug memory allocation errors.  Also,
+I think it would be better to memset it to 0 in released code, but have
+a debugging mode which uses '#'.  This is a kind of defensive
+programming; if a bug could be avoided by memsetting a buffer to 0, then
+it's not really even a bug in the first place in my opinion.  You don't
+want procps to segfault on the user's computer just because they hit a
+strange codepath.
 
 
 --
