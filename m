@@ -1,41 +1,37 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7K1x3rT000875
-	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 21:59:03 -0400 (EDT)
-Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7K1wMpw020729
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 01:58:22 GMT
-Subject: Re: policy for scponly - need help
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7K3OrrT001150
+	for <selinux@tycho.nsa.gov>; Thu, 19 Aug 2004 23:24:53 -0400 (EDT)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7K3OqEE015766
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 03:24:52 GMT
+Subject: conflict between libselinux and libsepol
 From: Colin Walters <walters@verbum.org>
-To: Stefan SF <stefan@sf-net.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20040819173620.GA8543@crux.localdomain>
-References: <20040819173620.GA8543@crux.localdomain>
+In-Reply-To: <1092942083.1721.101.camel@moss-spartans.epoch.ncsc.mil>
+References: <1092942083.1721.101.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 19 Aug 2004 21:59:43 -0400
-Message-Id: <1092967183.29540.30.camel@nexus.verbum.private>
+Date: Thu, 19 Aug 2004 23:25:42 -0400
+Message-Id: <1092972342.29540.35.camel@nexus.verbum.private>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-08-19 at 19:36 +0200, Stefan SF wrote: 
-> Hi,
-> 
-> I'm trying to build a policy for a program called "scponly".
+On Thu, 2004-08-19 at 15:01 -0400, Stephen Smalley wrote:
 
-scponly seems similar to rssh.  You may want to try my rssh policy:
-http://verbum.org/files/rssh_macros.te
-http://verbum.org/files/rssh.te
-http://verbum.org/files/rssh.fc
+> The core checkpolicy logic has been moved into libsepol, a library for binary
+> policy manipulation.  
 
-It would likely be sufficient to just add a regexp for scponly to
-rssh.fc.
+There appears to be a conflict between the headers from this and
+libselinux, so an application can't presently include both (I am working
+on a patch to setfiles which needs this).  Specifically, "struct
+av_decision" is defined in both selinux/selinux.h and
+sepol/flask_types.h.
 
-> When I'm using the scponly program all things went fine, but when I'm trying to use the scponlyc program I get this message:
-> 
-> audit(1092936373.217:0): avc:  denied  { dac_override } for  pid=5220 exe=/usr/sbin/scponlyc capability=1 scontext=test:user_r:user_t tcontext=test:user_r:user_t tclass=capability
-> audit(1092936373.217:0): avc:  denied  { dac_read_search } for  pid=5220 exe=/usr/sbin/scponlyc capability=2 scontext=test:user_r:user_t tcontext=test:user_r:user_t tclass=capability
+Perhaps libselinux should be modified to depend on libsepol, and include
+the definition from flask_types.h in selinux.h?
 
-Hmmm, odd.  Are you logging in as root?
+
 
 
 
