@@ -1,111 +1,44 @@
-Message-ID: <36282A1733C57546BE392885C06185923AFE0D@chaos.tcs.tcs-sec.com>
-From: Chad Hanson <chanson@TrustedCS.com>
-To: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>
-Cc: "Stephen Smalley (E-mail)" <sds@epoch.ncsc.mil>
-Subject: [patch] Role Dominance Ordering
-Date: Thu, 2 Sep 2004 11:17:46 -0400 
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82FNerT000016
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 11:23:40 -0400 (EDT)
+Message-ID: <41373AEE.1040206@redhat.com>
+Date: Thu, 02 Sep 2004 11:23:26 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C49100.007B88E0"
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: Jim Carter <jwcart2@epoch.ncsc.mil>, Russell Coker <russell@coker.com.au>,
+   SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Latest Patches
+References: <200408241818.40064.russell@coker.com.au>	 <1093640295.24188.29.camel@moss-lions.epoch.ncsc.mil>	 <200408282346.05926.russell@coker.com.au>	 <1093897455.3227.6.camel@moss-lions.epoch.ncsc.mil>	 <41371628.2020408@redhat.com> <1094129654.17265.30.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1094129654.17265.30.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Stephen Smalley wrote:
 
-------_=_NextPart_000_01C49100.007B88E0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+>On Thu, 2004-09-02 at 08:46, Daniel J Walsh wrote:
+>  
+>
+>>Include some stuff from Russell,
+>>Critical patch for tmpfs to get udev on tmpfs working
+>>    
+>>
+>
+>You can't change fs_use in that manner; it will break the kernel's
+>internal usage of tmpfs for shared memory.  The situation is similar to
+>devpts; fs_use_trans will govern the initial setting of the inode
+>context, then programs can explicitly set and get the context.  
+>
+>________________________________________________________________________
+>  
+>
+We get a discretionary Access control error "Permission Denied" message 
+on on a restorecon /dev without making this change
+on bootup.  Everything seemed to be working ok Well at least to the 
+point of booting the machine and logging in.
 
-
-The attached patch addresses the role dominance ordering issues which has
-been brought up on this list previously.
-
-policy_parse.y |   38 ++++++++++++++++++++++++++++++++++++++
- 1 files changed, 38 insertions
-
- <<role_order.patch>> 
-____________________________
-Chad Hanson
-Senior Secure Systems Engineer
-
-Trusted Computer Solutions
-121 W Goose Alley
-Urbana, IL  61801
-
-www.TrustedCS.com
-
-V: 217.384.0028  ext.12
-F: 217.384.0288
-E: chanson@TrustedCS.com
-
-
-------_=_NextPart_000_01C49100.007B88E0
-Content-Type: application/octet-stream;
-	name="role_order.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="role_order.patch"
-
---- checkpolicy.old/policy_parse.y	2004-09-01 11:39:03.304407969 =
--0500=0A=
-+++ checkpolicy/policy_parse.y	2004-09-01 11:41:49.345351281 -0500=0A=
-@@ -2987,6 +2987,38 @@=0A=
- 	return new;=0A=
- }=0A=
- =0A=
-+/* This function eliminates the ordering dependency of role dominance =
-rule */=0A=
-+static int dominate_role_recheck(hashtab_key_t key, hashtab_datum_t =
-datum, void *arg)=0A=
-+{=0A=
-+	role_datum_t *rdp =3D (role_datum_t *) arg;=0A=
-+	role_datum_t *rdatum =3D (role_datum_t *) datum;=0A=
-+	int i;=0A=
-+=0A=
-+	/* Don't bother to process against self role */=0A=
-+	if (rdatum->value =3D=3D rdp->value)=0A=
-+		return 0;=0A=
-+=0A=
-+	/* If a dominating role found */=0A=
-+	if (ebitmap_get_bit(&(rdatum->dominates), rdp->value - 1))=0A=
-+	{=0A=
-+		/* raise types and dominates from dominated role */=0A=
-+		for (i =3D ebitmap_startbit(&rdp->dominates); =0A=
-+			i < ebitmap_length(&rdp->dominates); i++) =0A=
-+		{=0A=
-+			if (ebitmap_get_bit(&rdp->dominates, i))=0A=
-+				ebitmap_set_bit(&rdatum->dominates, i, TRUE);=0A=
-+		}=0A=
-+		for (i =3D ebitmap_startbit(&rdp->types); =0A=
-+			i < ebitmap_length(&rdp->types); i++)	=0A=
-+		{=0A=
-+			if (ebitmap_get_bit(&rdp->types, i))=0A=
-+				ebitmap_set_bit(&rdatum->types, i, TRUE);=0A=
-+		}		=0A=
-+	}=0A=
-+=0A=
-+	/* go through all the roles */=0A=
-+	return 0;=0A=
-+}=0A=
- =0A=
- static role_datum_t *=0A=
-  define_role_dom(role_datum_t * r)=0A=
-@@ -3040,6 +3072,12 @@=0A=
- 			ebitmap_destroy(&r->dominates);=0A=
- 			free(r);=0A=
- 		}=0A=
-+		/*=0A=
-+		 * Now go through all the roles and escalate this role's=0A=
-+		 * dominates and types if a role dominates this role.=0A=
-+		 */=0A=
-+		hashtab_map(policydbp->p_roles.table,=0A=
-+						dominate_role_recheck, role);=0A=
- 	}=0A=
- 	return role;=0A=
- }=0A=
-
-------_=_NextPart_000_01C49100.007B88E0--
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
