@@ -1,49 +1,40 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA65K0Sf015769
-	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 00:20:01 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hA65JxKl015040
-	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 05:19:59 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-        by jazzband.ncsc.mil  with ESMTP id hA65Jx5m015037 for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2003 05:19:59 GMT
-Date: Thu, 6 Nov 2003 00:19:19 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: Yuan ChunYang <cyyuanml@sonata.iscas.ac.cn>
-cc: lsm <linux-security-module@wirex.com>, <selinux@tycho.nsa.gov>
-Subject: Re: What's "name_bind " permission and difference with "bind"
- permission?
-In-Reply-To: <1068080280.1084.2.camel@sonata>
-Message-ID: <Xine.LNX.4.44.0311060003290.16840-100000@thoron.boston.redhat.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Bill Laut <wlsel@verizon.net>
+To: <SELinux@tycho.nsa.gov>
+Subject: Re: Verify the integrity of downloaded archives
+Date: Thu, 6 Nov 2003 01:11:16 -0500
+References: <000001c3a3db$2dad18f0$02000a0a@lady>
+In-Reply-To: <000001c3a3db$2dad18f0$02000a0a@lady>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200311060111.16197.wlsel@verizon.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 6 Nov 2003, Yuan ChunYang wrote:
 
-> hi,  in selinux ,there is "name_bind" permission check in
-> selinux_socket_bind permission. It's said that "If PF_INET, check
-> name_bind permission for the port" .
-> Can somebody tell me what's name_bind permission and difference with
-> "bind" permission?
-> thanx!
+While I'd love to meet a hacker who could successfully break into the NSA's 
+website to install a Trojan (;-), Oliver does bring up a good point.  As 
+SELinux gains a wider audience it would be reasonable to anticipate the 
+distro eventually getting mirrored at other sites.  Since the use of digital 
+signatures as an integrity-check is now commonplace within the Linux 
+community, would it be reasonable to start posting signatures on the NSA 
+website?
 
-The bind permission is used to control whether a socket is allowed to 
-have bind(3) called on it.
-
-The name_bind permission is a further check between a socket and the port
-it is being bound to, if the port is outside the local port range
-(determined by the sysctl net.ipv4.ip_local_port_range) and/or is a
-protected port.
-
-See http://www.nsa.gov/selinux/doc/module/x2042.html, and policy examples.
+Bill
 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
+On Wednesday 05 November 2003 03:26 pm, sMoTo wrote:
+> Hello,
+>
+> how can I verify the integrity of the archives offered on the project
+> page? Is there any possibility? How can I be sure not to work with
+> corrupted data?
+>
+> Best regards.
+>
+> ### Oliver Fritz
+> ### Singerstrasse 80
+> ### 10243 Berlin
 
 
 --
