@@ -1,81 +1,81 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h42HGPI4017997
-	for <selinux@tycho.nsa.gov>; Fri, 2 May 2003 13:16:25 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h42HGDVf019219
-	for <selinux@tycho.nsa.gov>; Fri, 2 May 2003 17:16:13 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h42HFs4D019210
-	for <selinux@tycho.nsa.gov>; Fri, 2 May 2003 17:16:10 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: forrest whitcher <fw@fwsystems.com>
-Subject: Re: Trusted Operating System?
-Date: Sat, 3 May 2003 03:14:55 +1000
-Cc: <selinux@tycho.nsa.gov>
-References: <AED99F3E5CF6C749B320E3B51B0D14B217B52F@EMSS01M10.us.lmco.com> <20030502120209.688e3b7a.fw@fwsystems.com>
-In-Reply-To: <20030502120209.688e3b7a.fw@fwsystems.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200305030314.55043.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h430M3I4019910
+	for <selinux@tycho.nsa.gov>; Fri, 2 May 2003 20:22:03 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h430M17R015083
+	for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 00:22:01 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+        by jazzband.ncsc.mil  with ESMTP id h430LwKP015080 for <selinux@tycho.nsa.gov>; Sat, 3 May 2003 00:21:59 GMT
+Date: Sat, 3 May 2003 10:21:43 +1000
+From: Brian May <bam@snoopy.apana.org.au>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: kernel crashes
+Message-ID: <20030503002143.GB28891@snoopy.apana.org.au>
+References: <20030501022414.GA13019@snoopy.apana.org.au> <20030502011436.GD17896@snoopy.apana.org.au> <1051876434.1377.424.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1051876434.1377.424.camel@moss-huskers.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 3 May 2003 02:02, forrest whitcher wrote:
-> As I've read NSA's intent and statements, SELinux (and the Flask
-> implementation that's been ported to TrustedBSD) is an R&D project
-> intended to demonstrate how to build assurance that is wired into
+On Fri, May 02, 2003 at 07:53:55AM -0400, Stephen Smalley wrote:
+> On Thu, 2003-05-01 at 21:14, Brian May wrote:
+> > If I boot 2.4.20 and load the SE-Linux policy *after* it boots, there
+> > are no problems. This is after several days (if not weeks actually)
+> > after building lots of packages, daily cron jobs, etc.
+> 
+> I'm not sure why you are seeing this behavior; I haven't seen it myself.
+> However, as a caveat, you have to load the policy early in order for
+> processes (including init) to transition properly to their desired
+> domains.  If you are loading the policy late, I'd expect that a ps -e
+> --context would show many processes in the wrong domain (i.e. just being
+> left in the domain of the caller).
 
-Regardless of some of the statements on the NSA web site, I consider SE Linux 
-to be more than a R&D project or a demonstration.
+Hmmm... I guess the next thing to consider is maybe one of the
+daemons causes the crash but only when it is in the correct
+context (as unlikely as it this seems).
 
-All the computers that I run (servers for two companies I work for, my own 
-servers, my laptop and the laptops and workstations I administer for other 
-people) use SE Linux as part of their protection.
+Next time I reboot my computer, I will boot it in single user
+mode, and see if it still crashes with fewer daemons being
+loaded.
 
-For me and my clients SE Linux is a standard security feature.
+> FYI, in the mainline 2.5-based SELinux, we've moved the initial policy
+> load into userspace based on kernel developer feedback, and are
+> currently performing it via an initrd (ultimately, we'd like to migrate
+> to using initramfs).  A copy of the binary policy file and load_policy
+> program are placed on the initrd, and the /linuxrc script is modified to
+> perform the initial policy load.  The kernel no longer reads the binary
+> policy directly from the file; the load_policy program opens+mmaps the
+> policy file and then writes the data to a /selinux/load pseudo node to
+> perform the load operation, similar to the new module interface in 2.5.
 
-> For instance (Please don't rely on this statement) as near as I
-> have been able to determine, the lsm/SEL kernel prevents the recent
-> ptrace local-root exploit from gaining privilege.
+I have read with interest about this initramfs[1]. I have read the
+idea is that all special case startup code, eg mounting the root file
+system, NFS-Root code, initial networking code for NFS-Root, RAID
+initialization, etc, will get moved to user space. This suposedly will
+make the kernel simpler and easier to maintain.
 
-If you configure it to deny ptrace.
+The long term plan (although controversial[2], at least in the mailing
+list archives I read) is to force everything to be compiled as modules,
+and not allow these optional features to be compiled directly in the
+kernel. The idea is that this will result in less code that only deals
+with "special cases", making it harder for bugs to go undetected.
 
-If you had configured SE Linux to deny ptrace out of general paranoia then the 
-discovery of the kernel bug would not have concerned you.  If you hadn't then 
-the bug forced you to change the policy to deny ptrace as Steve described.
+Personally, my only concern with initrd images is that the Debian initrd
+images are far to big to even consider putting on a 1.44Meg boot disk
+(at least those created with the mkinitrd script), I would hope that
+initramfs can be made small enough so that this is no longer a problem.
 
-This is still significantly better than the situation with non-SE machines.  
-One administrator I know was unable to compile a new kernel for his server 
-(for some reason all new kernels he compiled would crash).  So he was trying 
-to write a loadable module for his kernel to change the syscall table and 
-deny ptrace!
+Notes:
 
-With SE Linux all that is required to protect against the ptrace bug is a 
-single line change to the security policy and a reload of the policy (no 
-reboot required).
+[1] although I am still not sure how it is different from initrd.
 
-It is reasonable to expect that at some future time there will be other kernel 
-bugs discovered which may be as easily solvable in SE Linux and as totally 
-painful otherwise.
-
-
-One of my clients has as their main server a machine that won't run a new 
-kernel I compiled to solve the ptrace issue.  I suspect that it may be 
-related to some GCC vs old hardware issue, but can't fool around with their 
-server enough to track it down.  It's running with ~ptrace in the 
-global_macros file, and may continue running in such a fashion until they 
-purchase new hardware.  If they weren't using SE Linux then I would have to 
-visit their office (inconveniant for me) and they would have to put up with 
-down-time until I could solve the problem that prevents a kernel upgrade.
-
+[2] the people for this plan also had ideas on how to load modules at
+mkinitramfs time in such a way that you wouldn't get the normal memory
+management overhead of loading each module seperately.
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
