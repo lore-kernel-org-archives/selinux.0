@@ -1,48 +1,49 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA10265
-	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 12:15:41 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA11127
+	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 13:42:09 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA02148
-	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 16:14:06 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id QAA02138 for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 16:14:04 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>
-Subject: Re: Security settings for fcron
-Date: Mon, 5 Aug 2002 18:15:27 +0200
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <20020805142804.4209A120@lyta.coker.com.au> <20020805155436.B7FF2FA93@ivanova.coker.com.au>
-In-Reply-To: <20020805155436.B7FF2FA93@ivanova.coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id RAA06997
+	for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 17:40:33 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id RAA06993 for <selinux@tycho.nsa.gov>; Mon, 5 Aug 2002 17:40:33 GMT
+Date: Mon, 5 Aug 2002 13:43:09 -0400 (EDT)
+From: Chris Vance <cvance@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>, Chris Vance <cvance@tislabs.com>
+Subject: Re: what is "null" access?
+In-Reply-To: <20020805145309.096EC2CA8@lyta.coker.com.au>
+Message-ID: <Pine.LNX.4.33.0208051335190.13180-100000@zorg.gw.tislabs.com>
 MIME-Version: 1.0
-Message-Id: <20020805161528.953A73940@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 5 Aug 2002 17:54, Carsten Grohmann wrote:
-> Am Montag, 5. August 2002 16:28 schrieb Russell Coker:
-> > One problem that I am having is determining the distinction between
-> > system cron jobs and system-administrator cron jobs.
+On Mon, 5 Aug 2002, Russell Coker wrote:
 
-> I read the crond rules this weekend too. I mean you distrinction is right.
+> Aug ?5 10:58:57 ns kernel: avc: ?denied ?null for ?pid=30897
+> exe=/usr/sbin/apache IPCID=0 scontext=system_u:system_r:httpd_t
+> tcontext=system_u:system_r:httpd_t tclass=shm
+> Aug ?5 10:58:57 ns kernel: avc: ?denied ?null for ?pid=30897
+> exe=/usr/sbin/apache IPCID=0 scontext=system_u:system_r:httpd_t
+> tcontext=system_u:system_r:httpd_t tclass=shm
 >
-> But the system_crond_t is too powerfull (can_exec_any) I think. Isn't it
-> better to wite each system cronjob an own domain with the transition he
-> needs?
+> The above messages are appearing on a system running a version of SE Linux
+> that's not the latest (running the original 2002.07.03 release).
 
-can_exec_any() doesn't give much real power.  It's the access to /var/log 
-that gives system_crond_t it's power.
+The above message indicates that the requested permission is null.  In
+this particular case, it looks like apache is calling shmget() with a
+requested permission that does not include read or write access.  This can
+be a permission of '0000', '0111' or similar.  In May of this year a
+change to the AVC causes this access request to be explicitly denied.
 
-There are a number of domains for cron jobs, the ntp cron job runs as ntpd_t, 
-there's logrotate_t, sxid_t, and a few others.
+The kernel code path accepts this, and subsequently the ipc_permission()
+hook is called.  The SELinux implementation currently applies masks for
+read and write permissions, and not finding these checks for no (null)
+permission.  We are looking at the logic here and will likely make a
+change, as this denial is not the expected behaviour.
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+chris.
+
 
 --
 You have received this message because you are subscribed to the selinux list.
