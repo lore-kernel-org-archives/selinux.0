@@ -1,43 +1,32 @@
-Message-ID: <20050223183241.11825.qmail@web51504.mail.yahoo.com>
-Date: Wed, 23 Feb 2005 10:32:41 -0800 (PST)
+Message-ID: <20050223183429.19136.qmail@web51502.mail.yahoo.com>
+Date: Wed, 23 Feb 2005 10:34:29 -0800 (PST)
 From: Park Lee <parklee_sel@yahoo.com>
-Subject: Question of purpose of labeling port numbers?
-To: SELinux@tycho.nsa.gov
+Subject: What's the purpose of labeling packets
+To: jaegert@us.ibm.com
+Cc: SELinux@tycho.nsa.gov, sds@epoch.ncsc.mil
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Hi Trent,
+  I heard that you had implemented implicit packet
+labeling using IPsec SAs in SELinux. I also hope to
+see your great work.
+  But, Is there any necessary to label packets on
+sending/receiving? 
+  What's the purpose of labeling a packet?
 
-  We know that in SELinux, TCP and UDP port numbers
-are labeled to permit controls over the ability to
-bind to particular ports. e.g., we can write a rule
-"allow $1 port_t:udp_socket name_bind;" to explain
-this.
-
-  But, in the definition of macro "can_network" (in
-global_macros.te), we can see the following rule:
-"allow $1 port_type:{ tcp_socket udp_socket } {
-send_msg recv_msg };".
-  Does this rule mean that TCP and UDP port numbers
-are also labeled to permit controls over the ability
-of the socket(i.e. tcp_socket and udp_socket) to send
-or receive messages on particular ports? 
-
-Thank you.
+  Thank you.
 
 =====
 Best Regards,
 Park Lee
 
-
-	
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - You care about security. So do we. 
-http://promotions.yahoo.com/new_mail
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
