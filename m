@@ -1,27 +1,37 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6CDUgrT001865
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 09:30:42 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6CDULDC005917
-	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 13:30:21 GMT
-Subject: Re: initrc.te
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6CDVBrT001882
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 09:31:11 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6CDVAPJ009387
+	for <selinux@tycho.nsa.gov>; Mon, 12 Jul 2004 13:31:10 GMT
+Subject: Re: policy patch
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Russell Coker <russell@coker.com.au>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200407111759.23107.russell@coker.com.au>
-References: <200407111759.23107.russell@coker.com.au>
+In-Reply-To: <200407111759.34090.russell@coker.com.au>
+References: <200407111759.34090.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1089639034.22449.70.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1089639046.22449.72.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 12 Jul 2004 09:30:34 -0400
+Date: Mon, 12 Jul 2004 09:30:46 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Sun, 2004-07-11 at 03:59, Russell Coker wrote:
-> This patch moves all the Red Hat specific stuff to one place, causes files the 
-> administrator creates under the root directory to have type etc_runtime_t 
-> (for /halt) and does not permit stat'ing device nodes of types that are used 
+> file_type_auto_trans(sysadm_t, user_home_dir_t, user_home_t)
+> 
+> I remove the above from domains/admin.te because it's granted to privhome by 
+> macros/user_macros.te and sysadm_t has the privhome attribute.
+> 
+> checkpolicy_t should not be creating lnk_file, sock_file, or fifo_file objects 
+> of type policy_config_t, and if there are sock_file or fifo_file objects of 
+> type policy_src_t then it should not be reading them.
+> 
+> system_crond_t should not be trying to access device nodes of types that are 
 > for files.
+> 
+> I still don't think that dmesg_t is appropriate for running dmesg from the 
+> administrator shell.
 
 Thanks, merged.
 
