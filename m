@@ -1,59 +1,61 @@
 Subject: Re: [selinux] Re: SElinux vs. Grsecruity vs. RSBAC (vs.
 	TrustedBSD?)
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Cc: Bennett Todd <bet@rahul.net>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1061889339.1665.1548.camel@kusturica>
+To: Russell Coker <russell@coker.com.au>
+Cc: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>,
+   SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <200308262106.21978.russell@coker.com.au>
 References: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com>
-	 <20030825170259.GB4409@rahul.net>  <1061889339.1665.1548.camel@kusturica>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1061901864.23880.41.camel@moss-spartans.epoch.ncsc.mil>
+	 <20030825170259.GB4409@rahul.net> <1061889339.1665.1548.camel@kusturica>
+	 <200308262106.21978.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1061902509.23880.51.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 26 Aug 2003 08:44:24 -0400
+Date: 26 Aug 2003 08:55:09 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-08-26 at 05:15, Magosányi Árpád wrote:
-> The drawbacks: lack of polyinstantiation support (once it did have
-> it in the FLASK microkernel), and that network support is even more
-> primitive than that of RSBAC. I'm afraid even Stephen is yet to realize
-> how important the handling of security attributes in packet filter.
+On Tue, 2003-08-26 at 07:06, Russell Coker wrote:
+> The patches are in some cases large and in some cases weren't done in the way 
+> the upstream desired.  With the new SE Linux a focus will be made by me and 
+> other people who are involved in getting the patches accepted upstream.  This 
+> does not have to require that much work by the NSA people.  The NSA have 
+> limited resources to spend on this, I think it's best for everyone if they 
+> concentrate on kernel work and other things that they are best at, while 
+> people from distributions deal with getting patches merged upstream (what 
+> they are best at).
 
-RSBAC didn't include network access controls until relatively recently,
-and only developed them after SELinux was released with its layered set
-of network access controls.  It is true that we have temporarily dropped
-out the SELinux network access controls as part of preparing SELinux for
-mainline integration due to the rejection of most of the LSM networking
-hooks, but we will restore a base set of functionality that can be
-supported using only the hooks that were accepted plus the NetFilter
-hooks.
+I think that the many of the userland patches have been significantly
+streamlined and cleaned up as part of reworking them for the new SELinux
+API (this reworking of the userland patches was done by Dan Walsh of Red
+Hat), so it should be easier to get them upstream now.  It should also
+help that the underlying kernel APIs are stable and in mainline 2.6, and
+that SELinux itself is now in mainline 2.6.
 
-> It is too much connected to Redhat. It makes an unnecessary
-> inconvenience for a lot of users; why the userspace changes are given
-> as srpms instead of patches to the upstream?
+> > Not a directly technical but very important consideration: selinux
+> > is the first and yet only MAC model in the upstream kernel, and is
+> 
+> Along with DTE.  But DTE does not have the level of support that SE Linux has.
 
-The focus of SELinux is on the kernel security enhancements, which have
-always been provided as patches to the upstream kernel.  The userland
-patches have always been a secondary priority to us, and it was only
-natural for us to work from the distribution that we happened to use for
-development.  We do provide patches for each of the userspace changes
-separate from the SRPMS, and people have successfully ported them to
-other distributions.  We didn't view it as a priority to get the
-userland patches accepted upstream until we first got the kernel changes
-accepted, particularly as the API might have to change (and it did!). 
-It now makes sense to seek acceptance upstream for the userland patches.
+To clarify, DTE is not currently in the upstream Linux kernel.  Last I
+checked, the only security modules that are upstream are the dummy
+module (traditional uid 0 logic), capability (Linux/POSIX.1e
+capabilities), root_plug (sample module by Greg KH for a LJ article),
+and SELinux.
 
-> It might be interesting to include TrustedBSD in the comparison, but I
-> know very few of it. It seems that it is a DoD MAC implementation,
-> cares about every aspect (like network, polyinstantiation, etc), and
-> uses all the experience of engineers of "The Only Real Unix" :).
-> Its drawbacks might be its inflexibility (in SELinux you write a new
-> security server, and you have implemented a new model), and -for those
-> who do not like them- that it is DoD MAC, and BSD.
-> (I might err in the facts above about TrustedBSD).
+> I suspect that SE Linux would not work out of the box on TBSD.  SE Linux 
+> configuration needs to know the locations of files and device names.  There 
+> is no support for TBSD device and file names in the sample policy, so either 
+> the TBSD people have been holding back on us or they don't have good policy 
+> support yet.  I would be happy to assist anyone who wants to develop sample 
+> policy for TBSD and/or to run a TBSD play machine.
 
-There is a port of the SELinux module to the TrustedBSD MAC framework
-called SEBSD.  See the mailing list archives for prior discussion of it.
+The SEBSD project has its own policy configuration.  Merging the two
+policies don't seem like a good idea, although there can certainly be
+some sharing for common applications.  It isn't important to have a
+single unified policy configuration for both SELinux and SEBSD, but it
+is important to retain compatibility at the policy.conf level so that
+policy tools will work with both.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
