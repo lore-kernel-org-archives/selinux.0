@@ -1,73 +1,48 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA26403
-	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2001 06:09:31 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA15619
-	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2001 11:09:29 GMT
-Received: from Woody.fw.matav.hu (matav-1.matav.hu [145.236.241.98])
-	by jazzband.ncsc.mil  with ESMTP id LAA15615
-	for <selinux@tycho.nsa.gov>; Thu, 22 Mar 2001 11:09:27 GMT
-Date: Thu, 22 Mar 2001 12:09:16 +0100
-From: =?iso-8859-2?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-To: selinux@tycho.nsa.gov
-Subject: Re: [selinux] Re: lids
-Message-ID: <20010322120916.A8262@bunuel.tii.matav.hu>
-References: <Pine.SOL.3.95.1010321082240.12705E-100000@clipper.gw.tislabs.com> <3AB8DAEA.6050606@ksu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-In-Reply-To: <3AB8DAEA.6050606@ksu.ru>; from Pedro.Rosa@ksu.ru on Wed, Mar 21, 2001 at 07:46:34PM +0300
+Message-ID: <69230B2D239ED311BEC700C00D01199D1A619B@nt-server>
+From: "Marting, Steve" <Steve.Marting@progeny.net>
+To: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
+Subject: Transition from RBAC to MLS
+Date: Fri, 23 Mar 2001 15:09:34 -0500
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A levelezõm azt hiszi, hogy Pedro Rosa a következõeket írta:
-> > 
-> > I'm also not sure what you mean by your discussion of untrusted
-> > vs. trusted environments.  The mandatory access controls of SELinux
-> > are quite useful for limiting the damage that can be caused by
-> > flawed or malicious applications and for supporting different
-> > levels of trust among users.  So SELinux should be quite useful
-> > in the same environments where LIDS is useful.
-> 
-> Well I really don't think so. You are quite correct in noting the fact 
-> that SELinux is useful to limit possible damages. But note that this 
-> kind of architecture is in fact quite vulnerable in places where 
-> malicious users are present or there are serious flaws in the 
-> communication infrastructure. Besides guarantees against malicious 
-> applications fall in the measure of how this environment may allow their 
-> presence. One of NSA docs exactly referred to this point. From what I 
-> could get, SELinux is only useful when you have an have a secured 
-> office, do a good care to check apps and users and have some good 
-> firewall system to protect the LANs. In this case SELinux complements 
+Hello!
 
-The mandatory access control policies specifically target the case
-where malicious users/malware present. Please read any introductory
-paper on the Bell-LaPadula or any other MAC modell.
-Please do not get confused about the fact that the selinux docs
-explicitly emphasize the well-known fact, that the security of _any_
-system cannot be guaranteed without some measures external to the
-technical tools of the system. A clearly stated policy, and
-definition of user procedures comes to mind as the most important
-items. Furthermore _any_ security control is based on assumptions. The
-fact that these assumptions are held also should be guaranteed
-by measures external to the system.
-The above holds for LIDS, even if these facts are not emphasized
-in its docs.
+We have a system we set up with the default configuration files, which use
+only RBAC.  I'm now trying to rebuild the kernel with MLS enabled, but I'm
+running into a problem.  I hope someone here can help.  (If it matters, this
+was built on top of Red Hat 6.1.)
 
-> this environment by distributing resources according to policy uses, and 
-> caring for their limited use, in face of a control system. Anyway 
-> SELinux is not strong enough to avoid systematic attacks or covert 
-> agents or a bugged network. Besides, it has not a serious system of 
-> countermeasures and accounting beyond its access policies.
+First, I edited policy/mls and created policy/fs_contexts.mls,
+initial_sid_contexts.mls, net_contexts.mls, and users.mls with some default
+values.  Then (going from the directions in
+http://www.nsa.gov/selinux/doc/install.html) I ran the scripts in the tools
+directory (enabling MLS in the security options menu) and removed all the
+...security directories.  When I rebooted, the kernel panicked because
+/ss_policy did not have MLS but the kernel did.  I also tried booting
+without any /ss_policy file (figuring I could build it later, like the
+...security directories), but that caused a panic, as well.
 
-The theory behind selinux is very strong. It does not target every
-functional requirement you can think of or read in the CC, but it
-clearly goes in that direction, in a very planned manner.
+After doing some digging, I tried to create an MLS /ss_policy file by
+editing policy/Makefile and setting "CONFIG_FLASK_MLS" to "y."  Then I ran
+"make install" from that directory, but checkpolicy complained that it found
+MLS definitions in the policy.conf file!  This is where I got confused -
+shouldn't checkpolicy have been compiled with MLS support when I built the
+kernel and apps before those reboots?
 
-Please note that I am not talking about the actual implementation
-of these tools, because I am not yet familiar enough with any of them.
+Has anyone else ever taken a RBAC build and transitioned it to MLS?  Am I
+missing something simple?
 
--- 
-GNU GPL: csak tiszta forrásból
+Thanks for any help,
+-Steve
+
+--
+Steve Marting, Senior Associate Software Engineer
+Progeny Systems Corp., Manassas, VA (World HQ)
+703-368-6107 x162 -=#=- smarting@progeny.net
+
 
 --
 You have received this message because you are subscribed to the selinux list.
