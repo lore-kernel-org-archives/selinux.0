@@ -1,32 +1,44 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9TJGaXZ010924
-	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 15:16:36 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9TJGWsx020468
-	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 19:16:32 GMT
-Subject: Re: Patch: small fix for sudo
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9TJV2XZ011016
+	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 15:31:02 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9TJThMb022193
+	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 19:29:43 GMT
+Subject: Re: policy for timidity
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 Cc: SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <20041026092350.GB24672@rom.cip.ifi.lmu.de>
-References: <20041026092350.GB24672@rom.cip.ifi.lmu.de>
+In-Reply-To: <20040930130555.GC2773@cip.ifi.lmu.de>
+References: <20040926202033.GB2529@jmh.mhn.de>
+	 <200409292144.47950.russell@coker.com.au>
+	 <20040930130555.GC2773@cip.ifi.lmu.de>
 Content-Type: text/plain
-Message-Id: <1099077320.12321.90.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1099078190.12321.92.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 29 Oct 2004 15:15:20 -0400
+Date: Fri, 29 Oct 2004 15:29:50 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
+Both te and fc files merged.
 
-On Tue, 2004-10-26 at 05:23, Thomas Bleher wrote:
-> Attached patch fixes one duplicate permission which is already in
-> newrole_domain() and moves the exec type declaration out of the macro.
-> The old policy generated types like staff_sudo_exec_t which is wrong, I
-> think.
+On Thu, 2004-09-30 at 09:05, Thomas Bleher wrote:
+> * Russell Coker <russell@coker.com.au> [2004-09-29 14:52]:
+> > On Mon, 27 Sep 2004 06:20, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
+> > wrote:
+> > > Timidity can be used as alsa sequencer client and run as a daemon (when
+> > > started as timidity -iA). Attached policy allows this to work on a
+> > > SELinux system.
+> > 
+> > allow timidity_t tmpfs_t:file { read write };
+> > 
+> > That is wrong.  Should be tmpfs_domain(timidity).
+> > 
+> > Also for the unix_stream_socket access I think that there's no reason not to 
+> > use create_stream_socket_perms access.
 > 
-> Please apply.
+> Thanks for your comments!
+> A new version of timidity.te is attached.
 > 
 > Thomas
 -- 
