@@ -1,31 +1,35 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2PJZGx6012422
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 14:35:16 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h2PJZFR1027729
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 19:35:15 GMT
-Received: from RelayDAL.nai.com (relaydal.nai.com [205.227.136.197])
-        by jazzband.ncsc.mil  with ESMTP id h2PJZFj9027719 for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 19:35:15 GMT
-Received: from txwsout1.nai.com (txwsout1.na.nai.com [161.69.216.92])
-	by RelayDAL.nai.com (Switch-2.2.5/Switch-2.2.5) with SMTP id h2PJWmY15705
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 13:32:48 -0600 (CST)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2PKIxx6012799
+	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 15:18:59 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h2PKFQlY010334
+	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 20:15:26 GMT
+Received: from mx.nas-smoothtransition.com (nas-vm-156.nas-smoothtransition.com [66.95.157.156] (may be forged))
+	by jazzswing.ncsc.mil  with ESMTP id h2PKFQKX010331
+	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 20:15:26 GMT
+Received: from acme ([66.200.42.3])
+	by mx.nas-smoothtransition.com (8.12.8/8.9.3) with ESMTP id h2PKIvLF012955
+	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 15:18:57 -0500
+From: "david caplan" <dac@tresys.com>
+To: "SE Linux" <selinux@tycho.nsa.gov>
+Subject: usermod
+Date: Tue, 25 Mar 2003 15:18:57 -0500
+Message-ID: <GBEAJBKHFOBIBBJBCGAGAEOACKAA.dac@tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Subject: updated core policy files on sourceforge
-Date: Tue, 25 Mar 2003 13:37:04 -0600
-Message-ID: <8894CA1F87A5D411BD24009027EE783801C14CFF@md-exchange1.na.nai.com>
-From: <Kelly_Djahandari@nai.com>
-To: <selinux@tycho.nsa.gov>
+In-Reply-To: <200303251636.17723.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We've updated several of the core policy files to remove the use of every_domain(). The modified files include syslogd.te, klogd.te, crontd.te, fsadm.te, login.te, ssh.te, ifconfig.te and netutils.te. The files are on sourceforge. Please try them out.
+Was there a reason usermod was not wrapped similar to useradd/userdel?
+
+On a similar note, what about the gpasswd/group[add|mod|del] family?  As
+they are all sbin_t, they do not have permission, when run by sysadm_t, to
+open /etc/gshadow (which is shadow_t).
 
 Thanks,
-Kelly Djahandari
-Network Associates Laboratories
-
+david
 
 
 --
