@@ -1,37 +1,44 @@
-Date: Tue, 9 Jul 2002 14:13:43 +0100
-From: Dale Amon <amon@vnl.com>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: comparison between SELinux and chroot
-Message-ID: <20020709131343.GG11373@vnl.com>
-References: <200207091109.LAA21173@jazzband.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200207091109.LAA21173@jazzband.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA27849
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 09:27:28 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA27271
+	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 13:26:00 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id NAA27267 for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 13:25:59 GMT
+Date: Tue, 9 Jul 2002 09:26:34 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Debian User <rogelio@evoworks.evoserve.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: automatic type transitions for pts in devfs
+In-Reply-To: <3D2ADBF2.8020800@evoworks.evoserve.com>
+Message-ID: <Pine.GSO.4.33.0207090921010.27193-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jul 09, 2002 at 12:00:44PM +0200, Carsten Grohmann wrote:
-> I am looking for a paper with an comparison between SELinux and chroot.
-> Why should I install and use SELinux, if I could use a chroot call, who is 
-> possible simplier.
-> 
 
-That's sort of like comparing apples and rabbits. A chroot
-is a way of setting up an environment for testing or for
-a chroot jail... which can probably be broken out of, although
-you can improve this greatly with the grsec patches.
+On Tue, 9 Jul 2002, Debian User wrote:
 
-Selinux is security from the base up, built into the very
-operation of the system. It is MAC in the soul of the machine.
+> Whats best way to go about this? Where do i look first? I will try
+> fixing this with some help.
 
-There simply *isn't* any real comparison.
+You can look at how we provide labeling for the devpts filesystem.  The
+devpts filesystem uses transition SIDs to label its inodes.  Look at the
+sbsec->uses_trans case of inode_precondition in
+lsm-2.4/security/selinux/hooks.c.  The devfs filesystem uses
+genfs_contexts to label its inodes (the sbsec->uses_genfs case).  You want
+devfs to actually be a hybrid of the two methods, with /pts entries
+in devfs using transition SIDs like devpts and other entries using
+genfs_contexts.
 
--- 
-------------------------------------------------------
-    Nuke bin Laden:           Dale Amon, CEO/MD
-  improve the global          Islandone Society
-     gene pool.               www.islandone.org
-------------------------------------------------------
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
