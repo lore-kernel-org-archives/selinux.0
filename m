@@ -1,45 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA06546
-	for <selinux@tycho.nsa.gov>; Mon, 11 Feb 2002 00:49:54 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id FAA15319
-	for <selinux@tycho.nsa.gov>; Mon, 11 Feb 2002 05:49:01 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id FAA15315
-	for <selinux@tycho.nsa.gov>; Mon, 11 Feb 2002 05:48:59 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 2A9959266B
-	for <selinux@tycho.nsa.gov>; Mon, 11 Feb 2002 16:49:50 +1100 (EST)
-Received: from there (lyta [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id E1F12B7A9
-	for <selinux@tycho.nsa.gov>; Mon, 11 Feb 2002 15:50:56 +1000 (EST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: gdm
-Date: Mon, 11 Feb 2002 15:50:56 +1000
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA07532
+	for <selinux@tycho.nsa.gov>; Mon, 11 Feb 2002 08:54:15 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA24060
+	for <selinux@tycho.nsa.gov>; Mon, 11 Feb 2002 13:53:20 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id NAA24056 for <selinux@tycho.nsa.gov>; Mon, 11 Feb 2002 13:53:19 GMT
+Date: Mon, 11 Feb 2002 08:53:52 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: changing a process SID
+In-Reply-To: <20020209051145.10FB23A6ACC@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0202110851090.5822-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020211055056.E1F12B7A9@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The gdm.te file gives gdm access to apm_bios, why is this?
 
-I am thinking of creating some SE policy files which include a macro for xdm 
-type programs (there are about a dozen xdm type programs which are mostly the 
-same in terms of SE issues so they can use almost the same config apart from 
-minor issues such as apm_bios).
+On Sat, 9 Feb 2002, Russell Coker wrote:
 
-Or should we just make it xdm.te and have lots of comments of the form 
-"uncomment this for gdm" for the rules that are specific to a particular dm?
+> Is it possible for a process to change it's own SID?  Or is execve_secure()
+> the only way?
 
--- 
-http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
-http://www.coker.com.au/projects.html Projects I am working on
-http://www.coker.com.au/~russell/     My home page
+A process can only change SIDs upon program execution, either via an
+automatic transition defined in the policy or via an explicit
+execve_secure.  This permits control over the inheritance of state and the
+initialization of the process in the new SID.  setuid()-style operations
+considered harmful.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
