@@ -1,36 +1,43 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6QGCarT025996
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jul 2004 12:12:36 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6QKQWrT027805
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jul 2004 16:26:33 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6QGC77L022360
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jul 2004 16:12:07 GMT
-Subject: Re: [idea] multiple contexts.
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6QKQ37L009837
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jul 2004 20:26:03 GMT
+Subject: Re: file_contexts patch
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040724231154.GE3437@lkcl.net>
-References: <20040724231154.GE3437@lkcl.net>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: SELinux ML <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
+   Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <20040717195326.GA16762@bern.cip.ifi.lmu.de>
+References: <20040716201531.GB4940@obadja.jmh.mhn.de>
+	 <200407170802.08072.russell@coker.com.au>
+	 <20040716224252.GD4940@obadja.jmh.mhn.de>
+	 <200407171159.00489.russell@coker.com.au>
+	 <20040717195326.GA16762@bern.cip.ifi.lmu.de>
 Content-Type: text/plain
-Message-Id: <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1090873552.25761.28.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 26 Jul 2004 12:12:03 -0400
+Date: Mon, 26 Jul 2004 16:25:53 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2004-07-24 at 19:11, Luke Kenneth Casson Leighton wrote:
-> i'd like to propose an extension to the SE/Linux system: it's quite
-> straightforward and it could possibly be implemented in the macro
-> system - maybe, maybe not.
+On Sat, 2004-07-17 at 15:53, Thomas Bleher wrote:
+> * Russell Coker <russell@coker.com.au> [2004-07-17 05:16]:
+> > Maybe we should have a suse.te and suse.fc for such things?  One thing we want 
+> > to avoid if possible is having entries in types.fc for distribution specific 
+> > names which bloat types.fc and make setfiles run more slowly.
 > 
-> the ultimate aim is to help simplify the production of policies.
-> 
-> the idea is simple: to be able to have more than one context, and
-> to be able to make auditing decisions based on more than one context.
+> I think this is a good idea. I have a few other policy snippets which
+> are needed on SuSE but won't be suitable for general policy.
+> As a start, I have attached a small suse.te and suse.fc.
+> Can this be included in CVS?
 
-Not a good idea, and not necessary.  You can encode the entire call
-chain in a single security context using the domain transitions, and can
-then unwind as desired.  Fortunately, it sounds like the kdeinit problem
-is easily solved anyway.
+Would it be better to make the distro a tunable (e.g.
+policy/tunables/distro.te) and use ifdef's in the individual .te files
+and .fc files for the distro-specific changes to a given domain?  I'd
+particularly like to see all of the RedHat-specific changes moved from
+rpm.{te,fc} into something that is clearly specific to RedHat.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
