@@ -1,55 +1,39 @@
-Date: Wed, 19 Dec 2001 10:03:22 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: <lonnie@outstep.com>
-cc: SELinux Mailing <SELinux@tycho.nsa.gov>
-Subject: Re: setting up new test user domain?
-In-Reply-To: <1008771630.3c20a22e1de4b@mail.outstep.com>
-Message-ID: <Pine.GSO.4.33.0112190955150.5056-100000@raven>
+Message-ID: <3C20D492.10504@lowder.com>
+Date: Wed, 19 Dec 2001 11:55:30 -0600
+From: Gary Lowder <gary@lowder.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: SELinux@tycho.nsa.gov
+Subject: Re: setting up new test user domain?
+References: <Pine.GSO.4.33.0112190955150.5056-100000@raven>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Lonnie,
 
-On Wed, 19 Dec 2001 lonnie@outstep.com wrote:
+I hate to completely change the direction you're headed but...
+Based on what you've said earlier about what you want to accomplish, it 
+seems a chroot jail is what you want for your users.  Why reinvent the 
+wheel?  Of course you can beat SELinux into doing what you're asking, 
+but that's not really what it was designed to directly accomplish.
 
-> I have made a copy of the user.te to be_user.te and have changes all instances
-> of "user" ti "be_user" and changed the "domain" to "be_domain" inside
-> be_user.te.
+Largo, Florida, implemented a linux system for it's municipality workers 
+to use.  A base link off of which you might find lots of useful 
+information is:  http://www.consultingtimes.com/Largo.html
+He didn't do exactly what you're talking about, but it's not far off.
 
-You should leave the "domain" type attribute unchanged.  Since you are
-changing every.te, you can leave this attribute unmodified.  You only need
-to modify the domain attribute if you aren't changing every.te.  As I
-mentioned earlier, if you change the attribute, you have to remove an
-assertion to avoid the error you are encountering.
+Where I would actually start, is a site to help explain and set up a 
+chroot jail, one of I'm sure many sites is: 
+http://www.gsyc.inf.uc3m.es/~assman/jail/1.html
 
-> the problem that I am getting now is an assertion error:
->
-> assertion fail: allow be_user_su_t be_user_t:process { transition } was granted
->
-> could you please tell me what these assertion errors mean and, in general, how
-> to fix them?
+I'm sure there are others out there.
 
-In this case, you just need to restore the "domain" type attribute for
-your new domain.  This assertion is the first one in the assert.te file,
-and it verifies that every type that can be associated with a process is
-also tagged as a domain.
+With a large enough hammer it is entirely possible to beat a square peg 
+into a round hole, but it's much easier to just find the round peg.
 
-If you haven't already done so, you might want to read the Policy
-Configuration Language description from the first technical report
-skim the second technical report, and read the "Meeting Critical Security
-Objectives..." published paper available from
-http://www.nsa.gov/selinux/docs.html.  These reports and papers provide
-quite a bit of information, but it is admittedly difficult to get started.
-We plan on writing a new policy document that is better suited for people
-who want to customize their policy, define new roles, domains and/or
-types, or even create a new policy from scratch, but this will take some
-time.
+Hope this helps you accomplish your objectives.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
+Gary.
 
 
 
