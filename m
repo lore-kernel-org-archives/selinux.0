@@ -1,72 +1,78 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h77LJtHa003206
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2003 17:19:56 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h783keHa004104
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2003 23:46:41 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h77LJsFq018307
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2003 21:19:54 GMT
-Received: from psi-exch1.plansys.com (ip228-232-151-216.host.talkingnets.net [216.151.232.228])
-        by jazzband.ncsc.mil  with ESMTP id h77LJrMg018301 for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2003 21:19:53 GMT
-Message-ID: <01ff01c35d29$8f0d4640$6418a8c0@PSIMONT2>
-From: "David Eaves" <deaves@plansys.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Fw: [ISN] IBM earns Linux certification
-Date: Thu, 7 Aug 2003 14:19:16 -0700
+	by jazzband.ncsc.mil  with ESMTP id h783kdFq029047
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2003 03:46:39 GMT
+Received: from mta202-rme.xtra.co.nz (mta202-rme.xtra.co.nz [210.86.15.145])
+        by jazzband.ncsc.mil  with ESMTP id h783kWMg029044 for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2003 03:46:38 GMT
+Received: from mta3-rme.xtra.co.nz ([210.86.15.140])
+          by mta202-rme.xtra.co.nz with ESMTP
+          id <20030808034618.QPEU1245.mta202-rme.xtra.co.nz@mta3-rme.xtra.co.nz>
+          for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2003 15:46:18 +1200
+Received: from nccproxy.napier.govt.nz ([210.54.249.146])
+          by mta3-rme.xtra.co.nz with ESMTP
+          id <20030808034617.HHPZ5941.mta3-rme.xtra.co.nz@nccproxy.napier.govt.nz>
+          for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2003 15:46:17 +1200
+Date: Fri, 08 Aug 2003 15:46:08 +1200
+From: Glen Boyd <glenb@napier.govt.nz>
+To: selinux@tycho.nsa.gov
+Subject: Update - libsecure build failure
+Message-ID: <270060000.1060314368@glenb.napier.govt.nz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="==========1118500887=========="
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-SE-linux appears to headed for a DCID certification at NSA, to expedite its
-availability, rather than a CC one? Is that right Steve? If you can say one
-way or the other.
+--==========1118500887==========
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-MDSPP and MNISPP are available at
-http://www.iatf.net/protection_profiles/profiles.cfm, under Multiple Domain
-Solutions, and Multinational Information Sharing, respectively. MDSPP is a
-little bit shaky in terms of usefulness, while MNISPP is more geared toward
-workflow and systems. Neither one is the be-all and end-all of CC though.
+Hi,
 
-Flaw remediation sounds a little dubious in terms of assurance, but every
-little bit helps I guess... It sounds a little like credit ratings for
-bonds, BBB+ versus BBA-, i.e. fine gradations beyond actual resolvable
-differences.
+Thanks for the quick responses to this query.  Everything is working well=
+=20
+now.
 
-Anyway, since everybody seemed to be making such a fuss, I just wanted to
-state the obvious, regarding the general unimportance of the IBM/Suse-linux
-noise. Back to work now.
+regards
 
-Dave Eaves
-Principal Information Assurance Software Engineer
-Planning Systems, Inc
+Glen Boyd               <glenb@napier.govt.nz>
+Network Administrator   Napier City Council
+Private Bag 6010, Napier, NEW ZEALAND
+Phone: +64-6-8344119    Fax: +64-6-8357574
 
------ Original Message ----- 
-From: "Florian Weimer" <fw@deneb.enyo.de>
-To: "David Eaves" <deaves@plansys.com>
-Cc: <selinux@tycho.nsa.gov>
-Sent: Thursday, August 07, 2003 1:45 PM
-Subject: Re: Fw: [ISN] IBM earns Linux certification
+######################################################################
+Attention:=20
+This e-mail message and accompanying data may contain information=20
+that is confidential and subject to legal privilege. Any information
+provided is given in good faith. However unless specifically stated
+to the contrary, Napier City Council accepts no liability for the
+content of this e-mail or for the consequences of any action taken on
+the basis of the information provided, unless that information is
+subsequently confirmed in writing. If you are not the intended recipient,=
 
+you are notified that any use, dissemination, distribution or copying
+of this message or data is prohibited. If you received this e-mail
+message in error, please notify us immediately and erase all copies
+of this message and attachments. Thank you.
+######################################################################
 
-> "David Eaves" <deaves@plansys.com> writes:
->
-> > The Windows product lines already have EAL4+ (what the plus means I
-> > don't know)
->
-> EAL 4 plus flaw remediation procedures.
->
-> > versus CAPP, which as a protection profile is next to worthless from
-> > my pov.
->
-> I agree.
->
-> > Solutions I need will have to address the MDSPP and MNISPP profiles,
-which
-> > are much wider in scope and more difficult to assure.
->
-> Are the profiles already fully defined and available for
-> certification, and can they be applied to software which wasn't
-> designed from the beginning to meet those criteria?
+--==========1118500887==========
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/Mx0FKkBSjaRZZngRAibUAJ92iugL4o5aB9WM4PQmdFSQW55kvQCcDwL2
+YKbh7ZalalnFAuZ52g9iY6I=
+=x1Ko
+-----END PGP SIGNATURE-----
+
+--==========1118500887==========--
 
 
 --
