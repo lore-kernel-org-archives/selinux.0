@@ -1,46 +1,63 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h768bjHa025299
-	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 04:37:46 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7696RHa025374
+	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 05:06:28 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h768aUFB014160
-	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 08:36:30 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-	by jazzswing.ncsc.mil  with ESMTP id h768aTGD014155
-	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 08:36:29 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Chris PeBenito <pebenito@gentoo.org>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: [patch] initrd Makefile target
-Date: Wed, 6 Aug 2003 18:37:32 +1000
-References: <1060132448.678.13.camel@chris.pebenito.net>
-In-Reply-To: <1060132448.678.13.camel@chris.pebenito.net>
-MIME-Version: 1.0
+	by jazzswing.ncsc.mil  with ESMTP id h7695CFB015293
+	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 09:05:12 GMT
+Received: from mail.vegaa.de (mail.vegaa.de [213.203.196.181])
+	by jazzswing.ncsc.mil  with ESMTP id h7695CGD015290
+	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2003 09:05:12 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200308061837.32187.russell@coker.com.au>
+From: Carsten Grohmann <carsten.grohmann@raumbildsysteme.de>
+To: Glen Boyd <glenb@napier.govt.nz>, selinux@tycho.nsa.gov
+Subject: Re: libsecure Compilation Failure
+Date: Wed, 6 Aug 2003 10:02:46 +0200
+References: <86170000.1060141226@glenb.napier.govt.nz>
+In-Reply-To: <86170000.1060141226@glenb.napier.govt.nz>
+MIME-Version: 1.0
+Message-Id: <200308061002.47802.carsten.grohmann@raumbildsysteme.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 6 Aug 2003 11:14, Chris PeBenito wrote:
-> Please consider this patch for inclusion into the new api policy.  It
-> creates a initrd target in the policy Makefile.  By default it creates
-> /boot/initrd-$(KV) where KV defaults to `uname -r`.  However a user may
-> be creating an initrd for a newly installed kernel, so that obviously
-> could be overridden on the commandline:
+Hi,
 
-There are at least two different "mkinitrd" programs in common use, the Red 
-Hat one and the Debian one.
+you can found help about this in Kerrys faq 
+(http://www.crypt.gen.nz/selinux/faq.html) or some mails like 
+Stephens Mail "Re: SELinux Compilation Error on Redhat 8.0 with LSM 
+2.5" from 02.05.2003
 
-This sort of patch is probably best left as a distribution patch, otherwise 
-those of us who use different mkinitrd programs will just have to patch out 
-your changes.
+Am Mittwoch, 6. August 2003 05:40 schrieb Glen Boyd:
+> Hi,
+>
+> I am attempting to compile libsecure on a RedHat 8 based system
+> and I get the following error message when running make:
+>
+> *****
+>
+> cc -o fstat_secure.o -c -I../include
+> -I/usr/local/seclinux/include fstat_secure.c
+> In file included from fstat_secure.c:5
+> xstat_conv.h: In function `xstat_conv':
+> xstat_conv.h:59: structure has no member named `st_atim'
+> xstat_conv.h:60: structure has no member named `st_atim'
+> xstat_conv.h:61: structure has no member named `st_mtim'
+> xstat_conv.h:62: structure has no member named `st_mtim'
+> xstat_conv.h:63: structure has no member named `st_ctim'
+> xstat_conv.h:64: structure has no member named `st_ctim'
+> make: *** [fstat_secure.o] Error 1
+>
+> *****
+>
+> Is there any workaround to this to enable compilation?
+>
+> If you require further details or if this is in fact the
+> completely wrong place to post this question please let me know.
+>
+> thanks
+>
+> Glen Boyd               <glenb@napier.govt.nz>
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 
 --
