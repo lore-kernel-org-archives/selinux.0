@@ -1,61 +1,52 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5SDabrT012630
-	for <selinux@tycho.nsa.gov>; Mon, 28 Jun 2004 09:36:37 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5SDaa7l014969
-	for <selinux@tycho.nsa.gov>; Mon, 28 Jun 2004 13:36:36 GMT
-Subject: Re: r_file_perms and ioctl
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@redhat.com>
-In-Reply-To: <200406281747.37392.russell@coker.com.au>
-References: <200406281701.18137.russell@coker.com.au>
-	 <200406281747.37392.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1088429778.17133.27.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Mon, 28 Jun 2004 09:36:18 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5SDlrrT012732
+	for <selinux@tycho.nsa.gov>; Mon, 28 Jun 2004 09:47:53 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5SDlVVC021301
+	for <selinux@tycho.nsa.gov>; Mon, 28 Jun 2004 13:47:38 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Magnus Therning <magnus-work@therning.org>
+Subject: Re: SELinux on Debian (Sid), second try
+Date: Mon, 28 Jun 2004 23:47:41 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20040624163900.GB3290@philips.com> <200406251908.56334.russell@coker.com.au> <20040628094230.GB1688@philips.com>
+In-Reply-To: <20040628094230.GB1688@philips.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200406282347.41232.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-06-28 at 03:47, Russell Coker wrote:
-> On Mon, 28 Jun 2004 17:01, Russell Coker <russell@coker.com.au> wrote:
-> > It seems to me that including ioctl in the r_file_perms macro is a bad
-> > idea. ioctl is often (usually?) used for writing, so therefore the macro is
-> > not doing what it's name suggests.
-> 
-> Sorry my last message was not complete.
-> 
-> I was thinking of the case of using r_file_perms for access to device nodes.  
-> ioctl on a file is usually harmless.
-> 
-> Of course there's probably some policy which uses r_file_perms when it really 
-> wants to do ioctl's as well, access to sound devices and SCSI generic devices 
-> comes to mind.
+On Mon, 28 Jun 2004 19:42, Magnus Therning <magnus-work@therning.org> wrote:
+> Everything goes well until I get to the selinux-policy-default package.
+> The version I get is 1:1.12-3 (from Sid). The installation ends with the
+> following:
+>
+> make: *** /etc/selinux: No such file or directory.  Stop.
+> run-parts: /etc/dpkg/postinst.d/selinux exited with return code 2
+> "/bin/run-parts --arg=selinux-policy-default /etc/dpkg/postinst.d" failed:
+> 256 dpkg: error processing selinux-policy-default (--configure):
+>  1Error running trigger postinst: No such file or directory
+> Errors were encountered while processing:
+>  selinux-policy-default
+> E: Sub-process /usr/bin/dpkg returned error code (1)
+>
+>
+> Indeed, there is no directory called /etc/selinux. When should it have
+> been created? (By what package?)
 
-IIRC, ioctl permission was added to r_file_perms and similar macros
-because library routines were using ioctl frequently to probe the type
-of file, and because certain ioctls are indeed read flows (e.g. ext[23]
-getflags and getversion ioctls, although we did try to map those ioctls
-to other permissions in the ioctl hook).  If you remove ioctl from those
-macros, then you'll likely encounter a number of denials due to such
-probes.
+/etc/selinux is supposed to be a sym-link 
+to /usr/share/selinux/policy/current/ .
 
-With regard to read vs. write on devices, note that you have to obtain a
-descriptor in order to perform the ioctl, and we already mediate read
-and write permissions on the open or exec or local IPC.  Further, any
-capability checks performed by the driver code for the ioctl will
-require corresponding SELinux capability permissions.
-
-The ioctl permission check is really just a placeholder; a reminder that
-we ultimately need fine-grained permissions on individual ioctl
-operations implemented in the driver code if we want to effectively
-control ioctls.
+Does /usr/share/selinux/policy/current/ exist?
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
