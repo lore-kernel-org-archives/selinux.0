@@ -1,9 +1,9 @@
-Date: Fri, 17 Oct 2003 12:46:56 -0700
+Date: Fri, 17 Oct 2003 21:02:10 -0700
 From: Michael Reilly <michaelr@cisco.com>
 To: russell@coker.com.au
 Cc: SELinux@tycho.nsa.gov
 Subject: Re: Yet another question - newrole and xterm's
-Message-Id: <20031017124656.40d3714e.michaelr@cisco.com>
+Message-Id: <20031017210210.0c4e7894.michaelr@cisco.com>
 In-Reply-To: <200310171339.33673.russell@coker.com.au>
 References: <20031015191716.5478c74b.michaelr@cisco.com>
 	<200310170216.37933.russell@coker.com.au>
@@ -14,15 +14,22 @@ Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am using the newrole entry in /etc/pam.d provided by the selinux install.
-I do not have it in front of me but I do recall it matches the one for su
-minus the rootok line.
+Thank you Russell - once again your help was invaluable.
 
-I forgot about auth.log.  I'll take a look tonight.
+su on my system requires pam_wheel.so so when newrole was installed newrole also required pam_wheel.  No problem on a normal terminal.
 
-Thank you,
+However xterm is not allowed to update utmp so the getlogin() call made by pam_wheel.so returned NULL which made pam_wheel.so fail so newrole printed the "bad password" message.
+
+You can pass an option to pam_wheel.so to use the UID and call getpwuid(getuid()) instead of getlogin() to determine the who the user is.  Since using UIDs to identify a user is generally a bad thing for security reasons I did not take this approach.
+
+Instead I commented out pam_wheel.so so any user may run newrole.  Sounds like the way to go anyway.
+
+Is there any reason to use pam_wheel.so with newrole?  If so it would be fairly esy to modify pam_wheel.c to sue the same calls newrole uses to get the user name (get the context and call context_user_get(context);  For now I'll leave pam_wheel.so commented out for newrole.
+
+BTW - nothing was logged in auth.log.  I enabled debug of the pam modules for newrole and found the problem quickly once I was pointed at the pam modules.
 
 michael
+
 On Fri, 17 Oct 2003 13:39:33 +1000
 Russell Coker <russell@coker.com.au> wrote:
 
