@@ -1,26 +1,31 @@
-Date: Wed, 10 Oct 2001 15:32:25 -0400 (EDT)
+Date: Wed, 10 Oct 2001 15:25:52 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Frank Mayer <mayerf@tresys.com>
+To: "Justin R. Smith" <jsmith@mcs.drexel.edu>
 cc: <SELinux@tycho.nsa.gov>
-Subject: RE: Security policy analysis
-In-Reply-To: <ACEHIKGIGFEDAIKEMMMIGENIJPAA.mayerf@tresys.com>
-Message-ID: <Pine.GSO.4.33.0110101530440.16839-100000@raven>
+Subject: Re: Vanilla unix policy
+In-Reply-To: <1002732644.4547.11.camel@vorpal>
+Message-ID: <Pine.GSO.4.33.0110101518570.16839-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 10 Oct 2001, Frank Mayer wrote:
+On 10 Oct 2001, Justin R. Smith wrote:
 
->We looked quickly at checkpolicy and came to the same conclusion, i.e., that
->it compiles policies for a different reason and has a policy DB not
->suited for our purpose.  That's not a strong opinion.
+> 2. Is there a simple policy that merely duplicates the one that
+> implicitly exists in Linux already (i.e., user, group ownership and
+> permissions)?
 
-So perhaps checkpolicy needs to be revised to generate an intermediate set
-of data structures that are more suitable for policy analysis tools prior
-to generating the final set of data structures for the kernel security
-server?
+The SELinux access controls are orthogonal to the existing Linux access
+controls, so there isn't any reason to try to emulate the Linux access
+controls in the SELinux policy.  The SELinux access controls can be used
+to further restrict access based on the system security policy, but they
+do not replace the existing controls.  With the example security server,
+you can provide the "simple policy" that you describe by only using a
+single role, domain, and type for all subjects and objects and granting
+all permissions.  Or you can use the trivial security server, although we
+haven't been maintaining it lately.
 
 --
 Stephen D. Smalley, NAI Labs
