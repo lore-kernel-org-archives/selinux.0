@@ -1,43 +1,62 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9SEeCXZ000203
-	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2004 10:40:12 -0400 (EDT)
-Received: from wgimx02.wgint.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9SEcrba003550
-	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2004 14:38:53 GMT
-Received: from wgiptcemx01.wgint.net ([10.246.80.18])
-	by wgimx02.wgint.com (8.12.11/8.12.11) with ESMTP id i9SEeBRr002007
-	for <selinux@tycho.nsa.gov>; Thu, 28 Oct 2004 09:40:11 -0500
-From: "Richard Simpson" <richard.simpson@wgint.com>
-To: "Selinux@Tycho. Nsa. Gov" <selinux@tycho.nsa.gov>
-Subject: wrong context for ntpd.pid
-Date: Thu, 28 Oct 2004 08:42:52 -0600
-Message-ID: <BJENLMGHDPAAAGKKPOFOKEGMCFAA.richard.simpson@wgint.com>
+Message-ID: <418107A6.6070104@redhat.com>
+Date: Thu, 28 Oct 2004 10:52:22 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: Finally got around to adding the following patch to policycoreutils
+Content-Type: multipart/mixed;
+ boundary="------------040902040602050500080704"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi:
+This is a multi-part message in MIME format.
+--------------040902040602050500080704
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I posted this to the Gentoo mailing list, but thought I might benefit from a
-wider audience.
+for audit2allow.
 
-I'm trying to install ntpd on an selinux-enabled gentoo system, and one of
-the stranger problems I'm having is with /var/run/ntpd.pid. The file is
-being created with a context of initrc_var_run_t, but the ntpd.te policy
-expects this file to have a context of ntpd_var_run_t. Poking around, I see
-that the /etc/init.d/ntpd script creates an empty ntpd.pid because it wants
-to `chown ntp:ntp` before it starts the daemon (with a "-u ntp:ntp" option),
-ergo the initrc_var_run_t context.
+Enhanced Thomas Bleher's Patch a little bit.
 
-The startup script is the obvious culprit, but I'm not sure how to fix it.
-What is the proper selinux way to run a process as a non-root user:group?
-
-Thanks,
-Richard Simpson
+Dan
 
 
+
+--------------040902040602050500080704
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+diff --exclude-from=exclude -N -u -r nsapolicycoreutils/audit2allow/audit2allow policycoreutils-1.17.7/audit2allow/audit2allow
+--- nsapolicycoreutils/audit2allow/audit2allow	2004-09-10 11:25:57.000000000 -0400
++++ policycoreutils-1.17.7/audit2allow/audit2allow	2004-10-28 10:34:33.476265420 -0400
+@@ -124,13 +124,19 @@
+ foreach $k (sort keys %rules)
+ { 
+     my ($a,$scontext,$tcontext,$tclass) = split /\|/, $k;
+-    print OUT  "allow $scontext $tcontext:$tclass {";
++    if ($scontext eq $tcontext) {
++        $tcontext = 'self';
++    }
++    print OUT  "allow $scontext $tcontext:$tclass";
+     
+     my $access_types = $rules{$k};
++    $len=(keys %$access_types);
++    if ($len gt 2 ) { print OUT  " {"; }
+     foreach $t (sort keys %$access_types) {
+-		print OUT  "$t ";
++      if ($t ne "") {print OUT  " $t";}
+     }
+-    print OUT "};\n";
++    if ($len gt 2 ) { print OUT " }"; }
++    print OUT ";\n";
+     $occur{$k} =~ s/\\(.)/$1/g;  # de-escape string
+     print OUT "$occur{$k}\n" if ($verbose);
+ }
+
+--------------040902040602050500080704--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
