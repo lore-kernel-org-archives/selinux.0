@@ -1,141 +1,34 @@
-Message-Id: <200209061741.RAA05131@jazzswing.ncsc.mil>
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: Russell Coker <russell@coker.com.au>
-Subject: pppd with ipppd
-Date: Fri, 6 Sep 2002 19:41:38 +0200
-Cc: SELinux <SELinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_EH21UYK0T7DOAVAKJABQ"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA09275
+	for <selinux@tycho.nsa.gov>; Fri, 6 Sep 2002 14:28:34 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA11359
+	for <selinux@tycho.nsa.gov>; Fri, 6 Sep 2002 18:26:51 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id SAA11355 for <selinux@tycho.nsa.gov>; Fri, 6 Sep 2002 18:26:51 GMT
+Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA16878
+	for <selinux@tycho.nsa.gov>; Fri, 6 Sep 2002 14:28:31 -0400 (EDT)
+Date: Fri, 6 Sep 2002 14:11:36 -0400 (EDT)
+From: hdholm@epoch.ncsc.mil (Howard Holm)
+Message-Id: <200209061811.OAA07707@coalpipe.epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Subject: SELinux Mailing List
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+We will be making some internal changes this weekend starting at 6 PM
+EDT today, Friday 6 September.  These may result in long periods this
+weekend where the list is unavailable, bounces inbound mail, or even
+silently drops mail.  We regret the inconvenience, but expect the
+changes to result in greater long-term reliability.  We fully expect
+everything to be back to normal Monday morning.
 
---------------Boundary-00=_EH21UYK0T7DOAVAKJABQ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-I follow your suggestion and add the few line for the ipppd to the pppd_t=
-=20
-domain. The attached files contains the rules and the patch for the=20
-net_context and network.te files.
-May be that some rule is SuSE specific. I missing labeling the password=20
-files in your rules. Don't you use it?
-
-Carsten
-
---------------Boundary-00=_EH21UYK0T7DOAVAKJABQ
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="pppd.te"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="pppd.te"
-
-I0RFU0MgcHBwIGRhZW1vbgojCiMgQXV0aG9yOiAgUnVzc2VsbCBDb2tlcgojCgojIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKIwojIFJ1bGVzIGZvciB0aGUgcHBwZF90IGRvbWFpbiwg
-ZXQgYWwuCiMKIyBwcHBkX3QgaXMgdGhlIGRvbWFpbiBmb3IgdGhlIHBwcGQgcHJvZ3JhbS4KIyBw
-cHBkX2V4ZWNfdCBpcyB0aGUgdHlwZSBvZiB0aGUgcHBwZCBleGVjdXRhYmxlLgojIHBwcGRfc2Vj
-cmV0X3QgaXMgdGhlIHR5cGUgb2YgdGhlIHBhcCBhbmQgY2hhcCBwYXNzd29yZCBmaWxlcwojIHBw
-cGRfbG9nX3QgaXMgdGhlIHR5cGUgb2YgdGhlIHBwcCBsb2cgZmlsZXMKIwpkYWVtb25fZG9tYWlu
-KHBwcGQsIGAsIHByaXZtYWlsJykKdHlwZSBwcHBkX3NlY3JldF90LCBmaWxlX3R5cGUsIHN5c2Fk
-bWZpbGU7CnR5cGUgcHBwZF9sb2dfdCwgZmlsZV90eXBlLCBzeXNhZG1maWxlLCBsb2dmaWxlOwoK
-IyBVc2UgdGhlIG5ldHdvcmsuCmNhbl9uZXR3b3JrKHBwcGRfdCkKCiMgVXNlIGNhcGFiaWxpdGll
-cy4KYWxsb3cgcHBwZF90IHNlbGY6Y2FwYWJpbGl0eSB7IG5ldF9hZG1pbiBzZXR1aWQgc2V0Z2lk
-IGZzZXRpZCB9OwoKYWxsb3cgcHBwZF90IGZzX3Q6ZmlsZXN5c3RlbSBnZXRhdHRyOwoKYWxsb3cg
-cHBwZF90IHZhcl9sb2NrX3Q6ZGlyIHJ3X2Rpcl9wZXJtczsKYWxsb3cgcHBwZF90IHZhcl9sb2Nr
-X3Q6ZmlsZSBjcmVhdGVfZmlsZV9wZXJtczsKCiMgYWxsb3cgd3JpdGluZyBsb2cgZmlsZXMKZmls
-ZV90eXBlX2F1dG9fdHJhbnMocHBwZF90LCB2YXJfbG9nX3QsIHBwcGRfbG9nX3QpCgojIEFjY2Vz
-cyBzZWNyZXQgZmlsZXMKYWxsb3cgcHBwZF90IHBwcGRfc2VjcmV0X3Q6ZmlsZSByX2ZpbGVfcGVy
-bXM7CgppZmRlZihgcG9zdGZpeC50ZScsCmBhbGxvdyBwcHBkX3QgZXRjX3Bvc3RmaXhfdDpkaXIg
-c2VhcmNoOwphbGxvdyBwcHBkX3QgZXRjX3Bvc3RmaXhfdDpmaWxlIHJfZmlsZV9wZXJtczsKYWxs
-b3cgcHBwZF90IHBvc3RmaXhfbWFzdGVyX2V4ZWNfdDpmaWxlIHJlYWQ7CmFsbG93IHBvc3RmaXhf
-cG9zdHF1ZXVlX3QgcHBwZF90OmZkIHVzZTsKYWxsb3cgcG9zdGZpeF9wb3N0cXVldWVfdCBwcHBk
-X3Q6cHJvY2VzcyBzaWdjaGxkOycpCgojIGFsbG93IHJ1bm5pbmcgaXAtdXAgYW5kIGlwLWRvd24g
-c2NyaXB0cyBhbmQgcnVubmluZyBjaGF0LgpjYW5fZXhlYyhwcHBkX3QsIHsgc2hlbGxfZXhlY190
-IGJpbl90IHNiaW5fdCBldGNfdCB9KQphbGxvdyBwcHBkX3QgeyBiaW5fdCBzYmluX3QgfTpkaXIg
-c2VhcmNoOwphbGxvdyBwcHBkX3QgYmluX3Q6bG5rX2ZpbGUgcmVhZDsKCiMgQWNjZXNzIC9kZXYv
-cHBwIGFuZCAvZGV2L2lwcHAqCmFsbG93IHBwcGRfdCBwcHBfZGV2aWNlX3Q6Y2hyX2ZpbGUgcndf
-ZmlsZV9wZXJtczsKCmFsbG93IHBwcGRfdCBzZWxmOnVuaXhfZGdyYW1fc29ja2V0IGNyZWF0ZV9z
-b2NrZXRfcGVybXM7CmFsbG93IHBwcGRfdCBzZWxmOnVuaXhfc3RyZWFtX3NvY2tldCBjcmVhdGVf
-c29ja2V0X3Blcm1zOwoKYWxsb3cgcHBwZF90IHsgZGV2aWNlX3QgcHJvY190IH06ZGlyIHNlYXJj
-aDsKYWxsb3cgcHBwZF90IHByb2NfdDp7IGZpbGUgbG5rX2ZpbGUgfSByX2ZpbGVfcGVybXM7Cgph
-bGxvdyBwcHBkX3QgeyByZXNvbHZfY29uZl90IGV0Y19ydW50aW1lX3QgfTpmaWxlIHJfZmlsZV9w
-ZXJtczsKCmFsbG93IHBwcGRfdCBzZWxmOnNvY2tldCBjcmVhdGVfc29ja2V0X3Blcm1zOwoKYWxs
-b3cgcHBwZF90IGRldnR0eV90OmNocl9maWxlIHsgc2V0YXR0ciByd19maWxlX3Blcm1zIH07Cgoj
-IGZvciBzY3JpcHRzCmFsbG93IHBwcGRfdCBzZWxmOmZpZm9fZmlsZSByd19maWxlX3Blcm1zOwph
-bGxvdyBwcHBkX3QgZXRjX3Q6bG5rX2ZpbGUgcmVhZDsKCiMgZm9yIH4vLnBwcHJjIC0gaWYgaXQg
-YWN0dWFsbHkgZXhpc3RzIHRoZW4geW91IG5lZWQgc29tZSBwb2xpY3kgdG8gcmVhZCBpdAphbGxv
-dyBwcHBkX3QgeyBzeXNhZG1faG9tZV9kaXJfdCB1c2VyX2hvbWVfZGlyX3R5cGUgfTpkaXIgc2Vh
-cmNoOwoKaWZkZWYoYHBwcGRfZm9yX3VzZXInLCBgCiMgUnVuIHBwcGQgaW4gcHBwZF90IGJ5IGRl
-ZmF1bHQgZm9yIHVzZXIKZG9tYWluX2F1dG9fdHJhbnMoeyB1c2VyX3Qgc3lzYWRtX3QgfSwgcHBw
-ZF9leGVjX3QsIHBwcGRfdCkKaW5fdXNlcl9yb2xlKHBwcGRfdCkKcm9sZSBzeXNhZG1fciB0eXBl
-cyBwcHBkX3Q7CmFsbG93IHsgdXNlcl90IHN5c2FkbV90IH0gcHBwZF90OnByb2Nlc3Mgc2lnbmFs
-OwonKQoKIyBSdWxlcyBmb3IgaWZjb25maWdfdAojIyMjIyMjIyMjIyMjIyMjIyMjIyMjCgppZmRl
-ZihgaWZjb25maWcudGUnLCAKYGRvbWFpbl9hdXRvX3RyYW5zKHBwcGRfdCwgaWZjb25maWdfZXhl
-Y190LCBpZmNvbmZpZ190KQphbGxvdyBpZmNvbmZpZ190IHBwcGRfdDp1ZHBfc29ja2V0IHsgcmVh
-ZCB3cml0ZSB9OwphbGxvdyBwcHBkX3QgaWZjb25maWdfZXhlY190OmZpbGUgeyByZWFkIH07JykK
-CiMgRG9udGF1ZGl0CiMjIyMjIyMjIyMjCgpkb250YXVkaXQgaWZjb25maWdfdCBwcHBkX3NlY3Jl
-dF90OmZpbGUgeyByZWFkIH0gOwo=
-
---------------Boundary-00=_EH21UYK0T7DOAVAKJABQ
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="pppd.fc"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="pppd.fc"
-
-IyBwcHBkCi91c3Ivc2Jpbi9wcHBkCQkJc3lzdGVtX3U6b2JqZWN0X3I6cHBwZF9leGVjX3QKL3Vz
-ci9zYmluL2lwcHBkCQkJc3lzdGVtX3U6b2JqZWN0X3I6cHBwZF9leGVjX3QKL2Rldi9wcHAJCQlz
-eXN0ZW1fdTpvYmplY3RfcjpwcHBfZGV2aWNlX3QKL2Rldi9pcHBwLioJCQlzeXN0ZW1fdTpvYmpl
-Y3RfcjpwcHBfZGV2aWNlX3QKL3Zhci9ydW4vcHBwZC50ZGIJCXN5c3RlbV91Om9iamVjdF9yOnZh
-cl9ydW5fcHBwZF90Ci9ldGMvcHBwLy4qc2VjcmV0cwkJc3lzdGVtX3U6b2JqZWN0X3I6cHBwZF9z
-ZWNyZXRfdAovdmFyL3J1bi9pcHBwZC4qcGlkCQlzeXN0ZW1fdTpvYmplY3Rfcjp2YXJfcnVuX3Bw
-cGRfdAo=
-
---------------Boundary-00=_EH21UYK0T7DOAVAKJABQ
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="patch"
-
-LS0tIC4uL29yaWdpbmFsL25ldF9jb250ZXh0cwlXZWQgQXVnIDIxIDIwOjIyOjQyIDIwMDIKKysr
-IG5ldF9jb250ZXh0cwlXZWQgU2VwICA0IDE1OjQ4OjUzIDIwMDIKQEAgLTUzLDYgKzUzLDcgQEAK
-IG5ldGlmY29uIGV0aDAgc3lzdGVtX3U6b2JqZWN0X3I6bmV0aWZfZXRoMF90IHN5c3RlbV91Om9i
-amVjdF9yOm5ldG1zZ19ldGgwX3QKIG5ldGlmY29uIGV0aDEgc3lzdGVtX3U6b2JqZWN0X3I6bmV0
-aWZfZXRoMV90IHN5c3RlbV91Om9iamVjdF9yOm5ldG1zZ19ldGgxX3QKIG5ldGlmY29uIGV0aDIg
-c3lzdGVtX3U6b2JqZWN0X3I6bmV0aWZfZXRoMl90IHN5c3RlbV91Om9iamVjdF9yOm5ldG1zZ19l
-dGgyX3QKK25ldGlmY29uIGlwcHAwIHN5c3RlbV91Om9iamVjdF9yOm5ldGlmX2lwcHAwX3Qgc3lz
-dGVtX3U6b2JqZWN0X3I6bmV0bXNnX2lwcHAwX3QKIG5ldGlmY29uIGlwc2VjMCBzeXN0ZW1fdTpv
-YmplY3RfcjpuZXRpZl9pcHNlYzBfdCBzeXN0ZW1fdTpvYmplY3RfcjpuZXRtc2dfaXBzZWMwX3QK
-IG5ldGlmY29uIGlwc2VjMSBzeXN0ZW1fdTpvYmplY3RfcjpuZXRpZl9pcHNlYzFfdCBzeXN0ZW1f
-dTpvYmplY3RfcjpuZXRtc2dfaXBzZWMxX3QKIG5ldGlmY29uIGlwc2VjMiBzeXN0ZW1fdTpvYmpl
-Y3RfcjpuZXRpZl9pcHNlYzJfdCBzeXN0ZW1fdTpvYmplY3RfcjpuZXRtc2dfaXBzZWMyX3QKLS0t
-IC4uL29yaWdpbmFsL3R5cGVzL25ldHdvcmsudGUJVHVlIEp1biAxOCAxOTo0MDo0MiAyMDAyCisr
-KyB0eXBlcy9uZXR3b3JrLnRlCVdlZCBTZXAgIDQgMTU6NDg6MTUgMjAwMgpAQCAtNTQsNiArNTQs
-NyBAQAogdHlwZSBuZXRpZl9ldGgxX3QsIG5ldGlmX3R5cGU7CiB0eXBlIG5ldGlmX2V0aDJfdCwg
-bmV0aWZfdHlwZTsKIHR5cGUgbmV0aWZfbG9fdCwgbmV0aWZfdHlwZTsKK3R5cGUgbmV0aWZfaXBw
-cDBfdCwgbmV0aWZfdHlwZTsKIAogdHlwZSBuZXRpZl9pcHNlYzBfdCwgbmV0aWZfdHlwZTsKIHR5
-cGUgbmV0aWZfaXBzZWMxX3QsIG5ldGlmX3R5cGU7CkBAIC02OSw2ICs3MCw3IEBACiB0eXBlIG5l
-dG1zZ19ldGgxX3QsIG5ldG1zZ190eXBlOwogdHlwZSBuZXRtc2dfZXRoMl90LCBuZXRtc2dfdHlw
-ZTsKIHR5cGUgbmV0bXNnX2xvX3QsIG5ldG1zZ190eXBlOwordHlwZSBuZXRtc2dfaXBwcDBfdCwg
-bmV0bXNnX3R5cGU7CiAKIHR5cGUgbmV0bXNnX2lwc2VjMF90LCBuZXRtc2dfdHlwZTsKIHR5cGUg
-bmV0bXNnX2lwc2VjMV90LCBuZXRtc2dfdHlwZTsKQEAgLTExNiw2ICsxMTgsOCBAQAogYWxsb3cg
-bmV0bXNnX2xvX3Qgbm9kZV9sb190Om5vZGUgeyB0Y3BfcmVjdiB1ZHBfcmVjdiByYXdpcF9yZWN2
-IH07CiBhbGxvdyBuZXRtc2dfbG9fdCBub2RlX3Q6bm9kZSB7IHRjcF9yZWN2IHVkcF9yZWN2IHJh
-d2lwX3JlY3YgfTsKIGFsbG93IG5ldG1zZ19sb190IG5ldGlmX2xvX3Q6bmV0aWYgeyB0Y3BfcmVj
-diB1ZHBfcmVjdiByYXdpcF9yZWN2IH07CithbGxvdyBuZXRtc2dfaXBwcDBfdCBub2RlX3Q6bm9k
-ZSB7IHRjcF9yZWN2IHVkcF9yZWN2IHJhd2lwX3JlY3YgfTsKK2FsbG93IG5ldG1zZ19pcHBwMF90
-IG5ldGlmX2lwcHAwX3Q6bmV0aWYgeyB0Y3BfcmVjdiB1ZHBfcmVjdiByYXdpcF9yZWN2IH07CiBh
-bGxvdyBuZXRtc2dfaXBzZWMwX3Qgbm9kZV90Om5vZGUgeyB0Y3BfcmVjdiB1ZHBfcmVjdiByYXdp
-cF9yZWN2IH07CiBhbGxvdyBuZXRtc2dfaXBzZWMwX3QgbmV0aWZfaXBzZWMwX3Q6bm9kZSB7IHRj
-cF9yZWN2IHVkcF9yZWN2IHJhd2lwX3JlY3YgfTsKIGFsbG93IG5ldG1zZ19pcHNlYzFfdCBub2Rl
-X3Q6bm9kZSB7IHRjcF9yZWN2IHVkcF9yZWN2IHJhd2lwX3JlY3YgfTsK
-
---------------Boundary-00=_EH21UYK0T7DOAVAKJABQ--
+--
+Howard Holm <hdholm@epoch.ncsc.mil>
+SELinux Mailing List Maintainer
+Secure Systems Research Office
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
