@@ -1,71 +1,61 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7FLu5Ha005554
-	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 17:56:06 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7FLsiOD012479
-	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 21:54:44 GMT
-Received: from hotmail.com (bay8-dav5.bay8.hotmail.com [64.4.26.109])
-	by jazzswing.ncsc.mil  with ESMTP id h7FLshKO012476
-	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2003 21:54:44 GMT
-From: "Ripin Natani" <ripinfs@hotmail.com>
-To: <selinux@tycho.nsa.gov>
-Subject: iso image and smallest partition questions ...
-Date: Fri, 15 Aug 2003 17:55:58 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7G6J0Ha006380
+	for <selinux@tycho.nsa.gov>; Sat, 16 Aug 2003 02:19:00 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h7G6Ixj6015636
+	for <selinux@tycho.nsa.gov>; Sat, 16 Aug 2003 06:18:59 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+        by jazzband.ncsc.mil  with ESMTP id h7G6IrNN015627 for <selinux@tycho.nsa.gov>; Sat, 16 Aug 2003 06:18:58 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Ripin Natani" <ripinfs@hotmail.com>, <selinux@tycho.nsa.gov>
+Subject: Re: iso image and smallest partition questions ...
+Date: Sat, 16 Aug 2003 16:16:58 +1000
+References: <BAY8-DAV5vcSzLPMvY200038899@hotmail.com>
+In-Reply-To: <BAY8-DAV5vcSzLPMvY200038899@hotmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_013E_01C36356.7B5CEA50"
-Message-ID: <BAY8-DAV5vcSzLPMvY200038899@hotmail.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200308161616.58894.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Sat, 16 Aug 2003 07:55, Ripin Natani wrote:
+>      1. Is there an SELinux ISO image available ? (I have an old version of
+> RH and compiling the SELinux is giving me a lot of errors ) 2. What is the
+> smallest partition size that I can create on SELinux (with just network
+> access). I think its about 2.5 MB but if someone else has also experimented
+> with this please enlighten me. Thanks,
 
-------=_NextPart_000_013E_01C36356.7B5CEA50
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+In my paper for OLS 2003 I investigated the disk usage for small devices in 
+great depth.  The conclusion was that the disk usage was significantly less 
+than 1M, and could be as little as ~200K depending on exactly how you do it 
+(there are some trade-offs to be made between security and space).
 
-Hi, couple of questions ...
-     1. Is there an SELinux ISO image available ? (I have an old version =
-of RH and compiling the SELinux is giving me a lot of errors )
-     2. What is the smallest partition size that I can create on SELinux =
-(with just network access). I think its about 2.5 MB but if someone else =
-has also experimented with this please enlighten me.
-Thanks,
--Ripin.=20
+My paper is on the OLS web site and my SE Linux site (listed below).
 
-------=_NextPart_000_013E_01C36356.7B5CEA50
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+When you compare the amount of disk space needed for a basic installation of 
+any of the major distributions nowadays the ~500K you may require for SE 
+Linux is nothing.  In my paper I conclude that disk use for SE Linux is not a 
+major issue on machines with 32M of flash, it's RAM use that's more of a 
+concern.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>
-<DIV><FONT face=3DArial size=3D2>Hi, couple of questions =
-...</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>&nbsp;&nbsp;&nbsp; &nbsp;1. Is =
-there&nbsp;an=20
-SELinux ISO image&nbsp;available ? (I have an old version of RH and =
-compiling=20
-the SELinux is giving me a lot of errors&nbsp;)</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. What =
-is=20
-the&nbsp;smallest partition size that&nbsp;I can create on SELinux (with =
-just=20
-network access). I think its about 2.5 MB but if someone else has also=20
-experimented with this please enlighten me.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Thanks,</FONT></DIV>
-<DIV><FONT face=3DArial=20
-size=3D2>-Ripin.&nbsp;<BR></FONT></DIV></FONT></DIV></BODY></HTML>
+ISOs for installing SE Linux are not yet available, but work is in progress.  
+I am not sure what the release plans are however.  Hopefully someone from Red 
+Hat who knows the plans will be able to comment on this issue.
 
-------=_NextPart_000_013E_01C36356.7B5CEA50--
+I think it's safe to say that such an install CD will not be available in the 
+time-frame you desire.  So I recommend that you persist with trying to 
+compile SE Linux.  Also I strongly recommend that you first compile and 
+install your own non-SE kernel to ensure that there are no problems 
+preventing general kernel compilation and configuration.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
