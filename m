@@ -1,46 +1,40 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA06208
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jul 2001 23:18:30 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA06786
+	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2001 04:59:36 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id DAA08619
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2001 03:18:14 GMT
-Received: from mail21.bigmailbox.com (mail21.bigmailbox.com [209.132.220.195])
-	by jazzband.ncsc.mil  with ESMTP id DAA08615
-	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2001 03:18:13 GMT
-Date: Mon, 30 Jul 2001 20:18:21 -0700
-Message-Id: <200107310318.UAA03373@mail21.bigmailbox.com>
-Content-Type: text/plain
-Mime-Version: 1.0
-From: "Jonathan Day" <jd9812@my-deja.com>
-To: selinux@tycho.nsa.gov, shugal@gmx.de
+	by jazzband.ncsc.mil  with ESMTP id IAA17656
+	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2001 08:59:20 GMT
+Received: from mailgate3.cinetic.de (mailgate3.cinetic.de [212.227.116.80])
+	by jazzband.ncsc.mil  with ESMTP id IAA17652
+	for <selinux@tycho.nsa.gov>; Tue, 31 Jul 2001 08:59:19 GMT
+Received: from web.de (fmomail02.dlan.cinetic.de [172.20.1.46])
+	by mailgate3.cinetic.de (8.11.2/8.11.2/SuSE Linux 8.11.0-0.4) with SMTP id f6V8xX620375
+	for selinux@tycho.nsa.gov; Tue, 31 Jul 2001 10:59:33 +0200
+Date: Tue, 31 Jul 2001 10:59:33 +0200
+Message-Id: <200107310859.f6V8xX620375@mailgate3.cinetic.de>
+MIME-Version: 1.0
+From: "king killer" <thenamelessone@web.de>
+To: selinux@tycho.nsa.gov
 Subject: Re: seperate kernel modules
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-HURD (as is) uses the Mach microkernel, which (frankly) is the pits.
+first
+i know the hurd
+second
+l4 is a great design
+third
+if you really read the exokernel manual you will see that it
+is much more than a microkernel, since it handles network messages, hd blocks etc.
+fourth
+to seperate kernel modules another instance (a first-level kernel)would be needed that would handle ressource registration, for kernel modules which would then run in ring 1. the problem is that if you want to securely seperate them you have to put them into multiple segments.then a call from one module to another would include a call to the first-level-kernel.for all this stub routines could be made which would be mapped into every module segment and the module calls would point to the stup routine which would do the right call the 1st-lv-kernel.there would be no need to change the modules greatly, but the linux kernel would have to be completely modularized.
 
-The L4 microkernel (which you can see in L4Linux) is a better design, but still not briliant. There's still a 14% slow-down for some functions.
-
-About the most extreme design is MIT's Exokernel. This takes everything that a microkernel leaves in, and places it in user space. For security, the Exokernel design looks extremely promising, although MIT seems to have abandoned it.
-
-Another kernel design that looks interesting is EROS, which is designed to be secure from the outset.
-
-IMHO, though, seperation is not the answer. Secure boundaries would be much better, as modules have considerable power. If the scope of a module is confined and pre-determined, you should be able to mathematically prove the security.
-
-To be honest, I think that it's about time that somebody DID audit the entire of the Linux core. Not just run some pre-compiler, such as the Stanford Validator, but formally prove each of the core functions correct.
-
-I'm limiting this to the core, as the boundaries of Linux are expanding just too fast to make it viable to start auditing it.
-
-(The FOLK project, that I maintain, is now almost the same size as the Linux kernel it's supposed to patch! And it doesn't even begin to scratch the surface of what patches exist for Linux.)
-
-Further, if you prove the core (including the module-handling code), then you've proved everything you need to. Any rougue module CANNOT impact any other part of the kernel, simply because that would violate the pre/post conditions of the module-handler.
+_______________________________________________________________________
+1.000.000 DM gewinnen - kostenlos tippen - http://millionenklick.web.de
+IhrName@web.de, 8MB Speicher, Verschluesselung - http://freemail.web.de
 
 
-
-
-------------------------------------------------------------
---== Sent via Deja.com ==--
-http://www.deja.com/
 
 --
 You have received this message because you are subscribed to the selinux list.
