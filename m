@@ -1,30 +1,42 @@
-Date: Fri, 25 Jan 2002 12:56:53 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Timothy Wood <timothy@hallcomp.com>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: network and module problems
-In-Reply-To: <Pine.GSO.4.33.0201251146080.7127-100000@raven>
-Message-ID: <Pine.GSO.4.33.0201251250510.7127-100000@raven>
+Message-ID: <72222DC86846D411ABD300A0C9EB08A1015242B5@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Stephen Smalley'" <sds@tislabs.com>,
+        Timothy Wood
+	 <timothy@hallcomp.com>
+Cc: Paul Krumviede <pwk@acm.org>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Rules for SELinux in a vmware session
+Date: Fri, 25 Jan 2002 12:16:59 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 25 Jan 2002, Stephen Smalley wrote:
 
-> If you want to more easily track new versions, you might want to checkout
-> the CVS tree at the sourceforge site.
+I created the following rule for running selinux in a vmware session.
 
-Just to clarify, the directories under 'nsa' in the CVS tree are the ones
-you want - they track the NSA distribution.  The top-level 'selinux'
-directory contains the original SELinux prototype and is obsolete.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I currently have a prototype vmware domain for the host OS.
 
 
+File: policy/domains/program/modutil.te
+
+allow depmod_t etc_runtime_t:lnk_file r_file_perms;
+
+File: policy/domains/system/initrc.te
+# Read conf.modules.
+# Added lnk_file for vmware session
+allow initrc_t modules_conf_t:{ file lnk_file } r_file_perms;
+
+File: policy/domains/system/kmod.te
+# Read conf.modules.
+# Additions for vmware session
+allow kmod_t modules_conf_t:{ file lnk_file } r_file_perms;
+allow kmod_t etc_runtime_t:lnk_file { read };
+
+File: setfiles/file_contexts
+# Added for vmware session
+/etc/modules.conf(|.*)          system_u:object_r:modules_conf_t
 
 
 --
