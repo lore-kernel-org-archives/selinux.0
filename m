@@ -1,66 +1,48 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3OIwwI4009918
-	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 14:59:13 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3OIwu7R000009
-	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 18:58:56 GMT
-Received: from hoss.orcus.priv.at (chello080110242202.117.11.tuwien.teleweb.at [80.110.242.202])
-        by jazzband.ncsc.mil  with ESMTP id h3OIwtKP000004 for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 18:58:56 GMT
-To: selinux@tycho.nsa.gov
-Subject: broad domains
-From: Robert Bihlmeyer <robbe@orcus.priv.at>
-Date: 20 Apr 2003 09:11:46 +0200
-Message-ID: <87n0ilej7x.fsf@orcus.priv.at>
-MIME-Version: 1.0
-content-Type: multipart/signed; boundary="----------=_1051210723-1305-1"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3OKLbI4010660
+	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 16:21:37 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h3OKLVVf003333
+	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 20:21:31 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h3OKLV4D003330
+	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 20:21:31 GMT
+Subject: Re: broad domains
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Robert Bihlmeyer <robbe@orcus.priv.at>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <87n0ilej7x.fsf@orcus.priv.at>
+References: <87n0ilej7x.fsf@orcus.priv.at>
+Content-Type: text/plain
+Message-Id: <1051215495.20300.129.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 24 Apr 2003 16:18:15 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
-It has been signed conforming to RFC3156.
-You need GPG or PGP to check the signature.
+On Sun, 2003-04-20 at 03:11, Robert Bihlmeyer wrote:
+> On the other hand, having a domain for every teensy toy out there
+> seems a bit excessive.
 
-------------=_1051210723-1305-1
-Content-Type: text/plain; charset=us-ascii
+There isn't any point in defining a separate domain unless you need to
+control/protect the program differently.  You need to decide what your
+security goals are, identify what resources need to be protected, and
+what processes need to be separated.
 
-Hi,
+> BTW, can't setfiles assume some default user & role if none is given?
+> Repeating system_u:object_r: a million times is superflous.
 
-I started work on a generic X client domain, but now I get the feeling
-that this may not be the right way to go. As I have to add this
-permission for this client, and that permission for that program, the
-domain gets quite broad. Maybe these generic domains are a mistake?
-
-A have the same problem with the games domain provided in the default
-policy (or at least in Russell's package). As is, it doesn't fit half
-the stuff in my /usr/games.
-
-On the other hand, having a domain for every teensy toy out there
-seems a bit excessive.
-
-Any advice?
-
-
-
-BTW, can't setfiles assume some default user & role if none is given?
-Repeating system_u:object_r: a million times is superflous.
+This has come up previously on the list; we prefer that the applications
+not assume anything about the internal structure of a security context,
+so that they will continue to work if you add or remove security models
+to/from the policy engine.  SELinux was designed to provide policy
+flexibility and minimize the need for policy-specific code outside of
+the policy engine.
 
 -- 
-Robbe
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-------------=_1051210723-1305-1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+qDPj8g21h7wYWrMRAjhTAJ4kVYHdbJ48b1xKkH5GuAH5W/S90wCaA1vD
-WGbc6fJa6uvg7Y8+epkPjwE=
-=PyA/
------END PGP SIGNATURE-----
-
-------------=_1051210723-1305-1--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
