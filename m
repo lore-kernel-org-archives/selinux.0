@@ -1,32 +1,39 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i92MEerT010005
-	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 18:14:40 -0400 (EDT)
-Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i92MEdlM007169
-	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 22:14:39 GMT
-Subject: SELinux talk
-From: Colin Walters <walters@verbum.org>
-To: interlug@cantonlinux.org
-Cc: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
-Content-Type: text/plain
-Date: Sat, 02 Oct 2004 18:16:14 -0400
-Message-Id: <1096755374.4420.5.camel@nexus.verbum.private>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i92NbVrT010286
+	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 19:37:31 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i92NaOnE003861
+	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 23:36:25 GMT
+Subject: Re: Additional rule files
+From: Erich Schubert <erich@debian.org>
+To: russell@coker.com.au
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200409192002.47098.russell@coker.com.au>
+References: <1094260356.29689.44.camel@wintermute.xmldesign.de>
+	 <200409052019.20060.russell@coker.com.au>
+	 <20040913225221.GA14736@wintermute.xmldesign.de>
+	 <200409192002.47098.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sun, 03 Oct 2004 01:37:27 +0200
+Message-Id: <1096760247.4672.13.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks everyone who attended the SELinux talk at Ohio LinuxFest, there
-seemed to be a lot of interest from people afterwards about it.
+Hi,
 
-I've put the slides up here:
+> Please try out the attached pptp.te and let me know how it goes.  I've put the 
+> necessary change to net_contexts in my tree too.
 
-http://web.verbum.org/selinux/linuxfest/img0.html
+Sorry it took me so long.
+Yes, the new version of the rule file works for me.
 
-Since we ran out of time and couldn't get to any questions, feel free to
-ask them here, on one of the mailing lists above.  Thanks again,
-hopefully see you next year!
-
-
+Greetings,
+Erich Schubert
+-- 
+   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
+    Go away or i'll replace you with a very small shell script.     //\
+      Computer rechnen vor allem damit, daﬂ der Mensch denkt.       V_/_
 
 
 
