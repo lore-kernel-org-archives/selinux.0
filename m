@@ -1,26 +1,33 @@
-From: "keen@internode.on.net" <keen@internode.on.net>
-Reply-to: keen@internode.on.net
-To: SELinux@tycho.nsa.gov
-Subject: chfn/passwd
-Date: Fri, 23 Apr 2004 18:20:08 +1000
-Message-id: <4088d1b8.2a5.1877.956371590@internode.on.net>
+Message-ID: <4088E98C.9040806@interActive-Systems.de>
+Date: Fri, 23 Apr 2004 12:01:48 +0200
+From: Edin Dizdarevic <edin.dizdarevic@interactive-systems.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+To: SELinux@tycho.nsa.gov
+Subject: Re: Local LUG Presentation
+References: <20040423050512.315183A404F@abyss.simplyaquatics.com>
+In-Reply-To: <20040423050512.315183A404F@abyss.simplyaquatics.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi, I am running the December release on a 2.6.2 kernel on a
-FC1. I have realised normal users could not change their
-finger name as well as changing password under enforcement
-mode.
+Hi,
 
-Is this too restrictive? How do I get around this if I wish
-to allow normal users to be able to change their finger name
-information as well as password? What rules or changes to
-which particular source to enable it?
+looks good. Are those testboxes allready available?
 
-Regards,
-Keen
+I was also wondering, if there are any comments on 
+http://www.grsecurity.net/lsm.php and http://www.rsbac.org/lsm.htm
+from the "LSM-community"?
+
+Best regards,
+Edin
+
+Ed Street schrieb:
+
+> Hello,
+> ...
+
+-- 
+Edin Dizdarevic
 
 --
 This message was distributed to subscribers of the selinux mailing list.
