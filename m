@@ -1,32 +1,32 @@
-Message-Id: <200212171725.MAA01304@moss-shockers.ncsc.mil>
-Date: Tue, 17 Dec 2002 12:25:33 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: Domain transition -- enabling user_r in eklogin
-To: fw@fwsystems.com
-Cc: russell@coker.com.au, SELinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Date: Wed, 18 Dec 2002 09:16:41 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: Domain transition
+Message-ID: <20021217221641.GA3669@snoopy.apana.org.au>
+References: <200212162125.QAA00730@moss-shockers.ncsc.mil> <200212171019.27323.russell@coker.com.au> <20021217114203.GB5969@snoopy.apana.org.au> <200212171431.52724.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200212171431.52724.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, Dec 17, 2002 at 02:31:52PM +0100, Russell Coker wrote:
+> On Tue, 17 Dec 2002 12:42, Brian May wrote:
+> > > Kerberos still isn't safe, proxying the telnet protocol and hijacking it
+> > > is not overly difficult...
+> >
+> > Do you have a reference?
+> 
+> Is one really needed?
+> 
+> Redirecting a port 23 connection to one on the local machine and then 
+> establishing a new connection to the server is quite easy if you control a 
+> router.  Going from that to taking over an idle session is quite easy.
 
-> avc:  denied  { ioctl } for  pid=142 exe=/bin/bash path=/dev/tty1 dev=08:02 
-ino=22757 scontext=system_u:system_r:user_t 
-tcontext=system_u:object_r:tty_device_t tclass=chr_file
-> avc:  denied  { ioctl } for  pid=142 exe=/bin/bash path=/dev/tty1 dev=08:02 
-ino=22757 scontext=system_u:system_r:user_t 
-tcontext=system_u:object_r:tty_device_t tclass=chr_file
-
-This looks like you aren't using the SELinux-patched login program.
-The login process needs to set the security context for the user session
-and to relabel the tty based on that security context.  If you use an
-unmodified login, you'll get the behavior above.
-
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
-
+Not if you have encryption enabled...
+-- 
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
