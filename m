@@ -1,72 +1,80 @@
-Date: Wed, 1 Sep 2004 09:23:42 -0500 (CDT)
-From: Richard Troth <rtroth@bmc.com>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Nigel Kukard <nkukard@lbsd.net>, linux-hotplug-devel@lists.sourceforge.net,
-   SELinux <SELinux@tycho.nsa.gov>,
-   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
-   harald@redhat.com, Bill Nottingham <notting@redhat.com>
 Subject: Re: [OT] SELinux vs. other systems [was Re: [idea] udev + selinux]
+From: Colin Walters <walters@verbum.org>
+To: linas@austin.ibm.com
+Cc: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+   Nigel Kukard <nkukard@lbsd.net>, linux-hotplug-devel@lists.sourceforge.net,
+   SELinux <SELinux@tycho.nsa.gov>, harald@redhat.com,
+   Bill Nottingham <notting@redhat.com>
 In-Reply-To: <20040831224447.GA4964@austin.ibm.com>
-Message-ID: <Pine.LNX.4.53.0409010904530.7518@rmt-desk.bmc.com>
-References: <20040831224447.GA4964@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <20040830173744.GD10151@lbsd.net>
+	 <20040831160750.GM11456@lkcl.net> <20040831164635.GK10151@lbsd.net>
+	 <20040831191809.GC4375@lkcl.net>  <20040831224447.GA4964@austin.ibm.com>
+Content-Type: text/plain
+Date: Wed, 01 Sep 2004 10:29:34 -0400
+Message-Id: <1094048975.11084.9.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 31 Aug 2004, Linas Vepstas wrote:
+[ The CC list here is rather nuts, someone needs to trim it...]
+
+On Tue, 2004-08-31 at 17:44 -0500, Linas Vepstas wrote:
+
 > Every now and then, I look at SELinux, and I get scared away by its
-> complexity.  This complexity makes it very hard to audit, and assure
+> complexity.  
+
+It is actually not that complicated, but if you're unfamiliar with
+mandatory access control (as I was when I first started learning about
+SELinux), it does require understanding some theory before you dive in.
+
+> This complexity makes it very hard to audit, and assure
 > oneself that its actually providing any real security, as opposed to
-> the illusion of security.   ...
+> the illusion of security.  During this email thread, there are 
+> references to mysterious rules that neither party in the conversation 
+> fully understands; this scares me. 
 
-Tough questions.   Good questions!
-Still,  I do believe MAC has value in contrast to DAC.
-But the opposing "flying buttress" to this is that it all
-boils down to binary ... somewhere.   And is THAT part isolated?
+Because two people in a thread don't understand SELinux, that means that
+it's too complex?  I can certainly find plenty of examples of people not
+understanding Linux on linux-kernel; does that imply Linux is too
+complex?
 
-> Compare this to less complex security provided by e.g. the Linux
+> Compare this to less complex security provided by e.g. the Linux 
 > VServer project.  VServer is intended to allow an ISP to pretend they
 > have a rack of 100 cpu's all running linux, when in fact they have just
-> one.  The fact that it provides security is a side-effect; but its
-> far simpler, far easier to audit, and allows me to sleep at night.
+> one.  
 
-Ahhh...   virtual machines.   (And I don't mean Java.)
-I'm thinking VMware and (esp) z/VM (IBM style mainframe).
-Been using both or years,  VMware since 1.0 beta and mainframe since ...
-well ... I was pretty young at the time.   But not for security per-se,
-they have other interesting features.   Linas' mention of VServer
-and its side-effect security reminds me of something I read
-in the anals of VM hisory:
+VServer isn't solving the same problem as SELinux.  VServer is really a
+virtualization solution.  For example, it would make sense to run *both*
+a virtualization solution like VServer (or Xen, which looks more
+promising), and SELinux at the same time.  That way, if e.g. the bind
+daemon running in one of the virtualized servers gets cracked, it
+doesn't mean a compromise of the whole virtual server.
 
-	http://vm.marist.edu/~vmshare/browse?fn=VMHIST07&ft=NOTE
+Now, you can use a virtualization technology as a primitive form of
+separation by running e.g. your MTA in one virtual server, your name
+server in another, etc.  But that's rather painful, and is only an
+approximation to least privilege.
 
-(Stephen, Howard, and the rest and friends at the NSA
-please take no offense.   I found this terribly entertaining.)
-Even from its earliest days,  VM (CP) isolated each user,  so:
+> Another example: Way back in the kernel-2.2 timeframe, I hacked on 
+> something neat: 'LOMAC': if you came in from a network connection, 
+> you lost permission to do almost anything, other than to e.g. webserve. 
+> The system was simple, worked well, the kernel patches were easy to audit, 
+> you could go home without worrying about priveledge escalation.  
 
-        "On another  occasion we almost  had an  in-house protest.
-         Among the early  users of CP-67/CMS were  both the National
-         Security Agency and the CIA;  the fact that the DAT hardware
-         isolated each user in his own  address space was viewed as a
-         powerful system security feature.   One  time in 1970,  I
-         think, the CIA sent two of their people to Cambridge to talk
-         about something  that Ed Hendricks  had developed  or was
-         working on.   In the atmosphere of  the time,  none of the
-         technical people at CSC,  especially Ed,  wanted to talk to
-         them at all!   Ed stormed around the halls muttering "damned
-         spooks!" for half an hour or  more before Craig Johnson and
-         Norm Rasmussen were  able to coerce him  into the meeting.
-         Even more amazing is that they were spooks;  there was a man
-         and a woman, both of slightly below-average height,  average
-         build,  average  everything!   You could stand  and talk
-         directly to them or study them for five minutes or more, but
-         if you  turned around there  was nothing to  remember and
-         nothing to describe; they were effectively invisible."
+That's also a rather blunt tool; SELinux is much more flexible.
 
-Thanks to Lynn Wheeler for helping me dig this up.
+> Compare that to this thread, where we are talking about atomic vs.
+> non-atomic restoration of context for udev-mounted temp file systems.
+> Shudder. This seems to be begging for an exploit to be discovered.
 
--- R;
+I doubt it.  Files created in /dev should have a default type like
+device_t which most domains will not have access to.
+
+> Are we sure that SELinux is really on the right track here?
+
+Given the amount of research behind SELinux, and the amount of work
+being done on it, I think so, yes.
+
 
 
 --
