@@ -1,77 +1,44 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA00926
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 09:57:48 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA01249
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 10:35:45 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h23EvlI18764
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 14:57:47 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id h23Evjf18759 for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 14:57:46 GMT
-Received: from localhost (wsalamon@localhost)
-	by vox.gw.tislabs.com (8.11.2/8.11.2) with ESMTP id h23EPFT14761
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 09:25:15 -0500
-Date: Mon, 3 Mar 2003 09:25:15 -0500 (EST)
-From: Wayne Salamon <wsalamon@tislabs.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Core policy, third pass
-Message-ID: <Pine.LNX.4.33.0303030916220.14620-100000@vox.gw.tislabs.com>
+	by jazzband.ncsc.mil  with ESMTP id h23FZiI21630
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 15:35:44 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id h23FZgf21626 for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 15:35:42 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Wayne Salamon <wsalamon@tislabs.com>, <selinux@tycho.nsa.gov>
+Subject: Re: Core policy, third pass
+Date: Mon, 3 Mar 2003 16:35:33 +0100
+References: <Pine.LNX.4.33.0303030916220.14620-100000@vox.gw.tislabs.com>
+In-Reply-To: <Pine.LNX.4.33.0303030916220.14620-100000@vox.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200303031635.33938.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 3 Mar 2003 15:25, Wayne Salamon wrote:
+>   I've built another policy based on the feedback to the list (thanks to
+> all who commented).
 
-  I've built another policy based on the feedback to the list (thanks to
-all who commented). Here's 'core':
+Why portmap?  It doesn't seem much use on it's own.  If you don't use NFS or 
+NIS then you don't have much need for it.
 
-checkpolicy.te  getty.te     ldconfig.te     netutils.te  su.te
-chkpwd.te       ifconfig.te  load_policy.te  newrole.te   syslogd.te
-crond.te        inetd.te     login.te        passwd.te    tmpreaper.te
-crontab.te      initrc.te    logrotate.te    portmap.te
-init.te         modutil.te   setfiles.te     useradd.te
-fsadm.te        klogd.te     mount.te        ssh.te
+Also while re-tagging it I suggest that we merge pump.te and dhcpc.te into a 
+single policy file.  I don't think that we have a need to protect pump and 
+dhclient from each other as they both have essentially the same access.
 
-  This policy will build as long as the recent su_macros.te and
-lpr_macros.te files are used.
-
-  We plan on tagging the current Sourceforge selinux tree 'preCore', then
-moving non-core .te files to domains/program/unused. The next phase is to
-then audit/reduce the core policy.
-
-  Comments?
-
-  The Tresys 'sepcut' tool is very useful when experimenting with the
-policy builds.
-
-  For reference, here's the list of non-core:
-
-acct.te        ftpd.te              ntpd.te           sendmail.te
-amanda.te      games.te             oav-update.te     slapd.te
-amavis.te      gatekeeper.te        openca-ca.te      snmpd.te
-apache.te      gnome-pty-helper.te  pamconsole.te     snort.te
-apmd.te        gpg.te               perdition.te      sound.te
-atd.te         gpm.te               ping.te           speedmgmt.te
-authbind.te    hotplug.te           portslave.te      squid.te
-automount.te   hwclock.te           postfix.te        sxid.te
-backup.te      ipchains.te          postgresql.te     sysstat.te
-bootloader.te  ipsec.te             pppd.te           tcpd.te
-calamaris.te   ircd.te              procmail.te       tftpd.te
-cardmgr.te     irc.te               pump.te           traceroute.te
-chroot.te      kcheckpass.te        qmail.te          transproxy.te
-clamav.te      lpd.te               quota.te          uml_net.te
-courier.te     lpr.te               radius.te         uml.te
-crack.te       mailman.te           radvd.te          usbmodules.te
-cups.te        mrtg.te              rlogind.te        utempter.te
-ddt-client.te  mta.te               rpcd.te           vmware.te
-devfsd.te      mysqld.te            rpm.te            watchdog.te
-dhcpc.te       named.te             rshd.te           xauth.te
-dhcpd.te       nessusd.te           samba.te          xdm.te
-dictd.te       netscape.te          scannerdaemon.te  xfs.te
-dpkg.te        nscd.te              screen.te         xserver.te
-fingerd.te     nsd.te               selopt.te         ypbind.te
+I plan to re-write the dhcpc.te file soon in such a way that it'll do all you 
+need for pump.  This re-tagging will be a good opportunity to remove pump.te
 
 -- 
-Wayne Salamon
-wsalamon@tislabs.com
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
