@@ -1,38 +1,24 @@
-Date: Tue, 17 Sep 2002 11:22:20 -0400 (EDT)
-From: Chris Vance <cvance@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: Stephen Smalley <sds@tislabs.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: macro for run_init etc
-In-Reply-To: <200209112209.09605.russell@coker.com.au>
-Message-ID: <Pine.LNX.4.33.0209171119540.19878-100000@zorg.gw.tislabs.com>
+Message-Id: <200209171901.TAA20518@jazzband.ncsc.mil>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: privfd attribute
+Date: Tue, 17 Sep 2002 21:02:35 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 11 Sep 2002, Russell Coker wrote:
+Hi,
 
-> On Wed, 11 Sep 2002 21:52, Russell Coker wrote:
-> > > This change has been merged by Chris Vance and is available in
-> > > sourceforge CVS.
-> >
-> > It's in my tree now.
->
-> It made no sense to me to have two lines in run_deb.te, so I merged it with
-> dpkg.te.  run_deb.te would never work without dpkg.te in any case, and
-> dpkg.te makes no sense without run_deb.te
->
-> I originally had them in separate policy files because the run_deb policy was
-> so big and complex, now it's two lines it should be in the same file.
->
-> I think that perhaps the same merging should be done with initrc.te and
-> run_init.te.
+the privfd attribute is ofter use in the policy. But I don't understand why 
+we create and use this attribute. 
+And why don't we use it like e.g. the privlog attribute? Privlog is 
+declared in attrib.te, get his rights in syslogd.te and often use in domain 
+declarations. Is the same way for privfd not possible? This could simplify 
+the rules. Or?
 
-I agree.  I've made these changes in our tree and they will be pushed out
-to Sourceforge shortly.
-
-chris.
-
+Carsten
 
 --
 This message was distributed to subscribers of the selinux mailing list.
