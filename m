@@ -1,44 +1,59 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAM67Ii023972
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 17:06:07 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAM4Swg026944
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 22:04:29 GMT
-Received: from lkcl.net (host81-153-247-118.range81-153.btcentralplus.com [81.153.247.118])
-	by open.hands.com (Postfix) with ESMTP id 256ADBFB4
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 22:05:59 +0000 (GMT)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1Cct4A-0001WR-IT
-	for selinux@tycho.nsa.gov; Fri, 10 Dec 2004 22:16:46 +0000
-Date: Fri, 10 Dec 2004 22:16:46 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: [owner@bugs.debian.org: Bug#271030 acknowledged by developer (Bug#271030: fixed in xfree86 4.3.0.dfsg.1-9)]
-Message-ID: <20041210221646.GE5239@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBANltIi024359
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 18:47:55 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBANkFwg029877
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 23:46:16 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: can_network patch.
+Date: Sat, 11 Dec 2004 10:47:46 +1100
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
+   Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux <selinux@tycho.nsa.gov>
+References: <41741A2C.8040408@redhat.com> <200412110511.12960.russell@coker.com.au> <200412102101.iBAL1NeN009808@turing-police.cc.vt.edu>
+In-Reply-To: <200412102101.iBAL1NeN009808@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200412111047.51803.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-wha-heeey!
+On Saturday 11 December 2004 08:01, Valdis.Kletnieks@vt.edu wrote:
+> On Sat, 11 Dec 2004 05:11:07 +1100, Russell Coker said:
+> > We have mozilla running in it's own domain to limit the risk of exploits
+> > of mozilla taking over the rest of the system.  Allowing mozilla to
+> > install packages seems to directly contradict this aim.
+>
+> Gaak.  Given the "browser can install software" mentality that's one of the
+> single biggest design borkages in That Other Browser/Operating System, we
+> should do what we can to fix this...
 
-[btw i hope this was the right thing to do :) ]
+I agree.
 
-l.
+> > Maybe we should just remove the mozilla policy?
+>
+> I'd rather have a mozilla policy that enforces (roughly) "it can play
+> inside the ~/.mozilla tree, and download into ~/Downloads or similar, and
+> any other activity is constrained".
 
------ Forwarded message from Debian Bug Tracking System <owner@bugs.debian.org> -----
+Same here.
 
-This is an automatic notification regarding your Bug report
-#271030: xfree86-common: init script should restore SELinux security context for ICE and X server sockets after chmod/chown,
-which was filed against the xfree86-common package.
+> Or did you mean "remove the bit of policy that allows it to install
+> packages", in which case we're in total agreement....
 
-It has been closed by one of the developers, namely
-fabbione@fabbione.net (Fabio M. Di Nitto).
+If we were going to give Mozilla the access to install packages (as was in the 
+CVS until recently) then there was no benefit in trying to restrict it's 
+access so we may as well have removed mozilla.te.
 
-   * If the restorecon command is available, restore SELinux file security
-     contexts after setting up X server and ICE socket directories
-     (xfree86-common) and font server socket directories (xfs) after creating
-     them in the init scripts.  (Closes: #268812, #271030)
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
