@@ -1,51 +1,57 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1O79ARb021710
-	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 02:09:10 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1ODSDRb022863
+	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 08:28:13 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1O799QQ018473
-	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 07:09:09 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i1O78eP0018407 for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 07:08:57 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: identity
-Date: Tue, 24 Feb 2004 18:07:12 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200402231535.26738.russell@coker.com.au> <200402241054.45407.russell@coker.com.au> <200402240308.i1O38Nu6011811@turing-police.cc.vt.edu>
-In-Reply-To: <200402240308.i1O38Nu6011811@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200402241807.12390.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id i1ODSCQQ005973
+	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 13:28:12 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i1ODSCP0005970 for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 13:28:12 GMT
+Subject: Re: odd segfault in checkpolicy
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Colin Walters <walters@verbum.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1077577191.4374.9.camel@nexus.verbum.private>
+References: <1077577191.4374.9.camel@nexus.verbum.private>
+Content-Type: text/plain
+Message-Id: <1077629291.21221.16.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 24 Feb 2004 08:28:11 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 24 Feb 2004 14:08, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 24 Feb 2004 10:54:45 +1100, Russell Coker said:
-> > If it's a plain text field that's set by the login process then an identd
-> > lookup could be performed, and any other data that seems relevant could
-> > be included.
->
-> (Mostly for the archives, in case a newbie trawls up the thread...)
->
-> If I'm running an identd server, it's not so you can make authentications
-> decisions based on it.  It's so that if I have a multi-user system, and one
-> of my users misbehaves, you can give me the string my machine sent you and
-> then I'll know which of my users I need to beat the snot out of. ;)
->
-> And of course, if my box is compromised or under the control of an
-> adversary, the "authentication" provided by identd is "trust me"....
+On Mon, 2004-02-23 at 17:59, Colin Walters wrote:
+> I've been trying to track down an odd segfault when checkpolicy is
+> compiled without optimization, but I've been looking at the code for
+> like an hour and a half now and I just can't see the problem.  Here's
+> some debugging information:
+<snip>
+> Does anyone have any ideas?  Can anyone else reproduce this?
 
-The same thing applies to IP addresses.  This is why I suggested just having 
-it as essentially a comment.  It wouldn't be used for authentication, just 
-for tracking the apparent cause of any problems.
+Yes.  Patch below.  Since checkpolicy is rewriting the buffer in place
+(to perform endian conversion), it needs to map the policy file
+read-write and private, rather than read-only and shared.
+
+Index: checkpolicy/checkpolicy.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/checkpolicy/checkpolicy.c,v
+retrieving revision 1.16
+diff -u -r1.16 checkpolicy.c
+--- checkpolicy/checkpolicy.c	4 Feb 2004 19:31:17 -0000	1.16
++++ checkpolicy/checkpolicy.c	24 Feb 2004 13:24:45 -0000
+@@ -502,7 +502,7 @@
+ 				file, strerror(errno));
+ 			exit(1);
+ 		}
+-		map = mmap(NULL, sb.st_size, PROT_READ, MAP_SHARED, fd, 0);
++		map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+ 		if (map == MAP_FAILED) {
+ 			fprintf(stderr, "Can't map '%s':  %s\n",
+ 				file, strerror(errno));
+
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
