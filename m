@@ -1,36 +1,46 @@
-From: "Leslie J. French" <ljf@semandex.net>
-To: "Russell Coker" <russell@coker.com.au>
-Cc: "SELinux" <SELinux@tycho.nsa.gov>
-Subject: RE: poweroff problem?
-Date: Sun, 7 Jul 2002 20:00:13 -0400
-Message-ID: <BFEMIIHKHLALNELLMPOMOEKECBAA.ljf@semandex.net>
-MIME-Version: 1.0
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA17649
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 01:43:05 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id FAA12100
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 05:41:36 GMT
+Received: from mail.servicemail123.com ([12.96.162.84])
+        by jazzband.ncsc.mil  with ESMTP id FAA12096 for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 05:41:35 GMT
+Received: from jw (unknown [65.166.138.2])
+	by mail.servicemail123.com (Postfix on SuSE Linux 7.1 (i386)) with ESMTP id F05B947728
+	for <selinux@tycho.nsa.gov>; Mon,  8 Jul 2002 00:43:02 -0500 (CDT)
 Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <20020707133402.8E1613062@lyta.coker.com.au>
+  charset="us-ascii"
+From: JW <jw@centraltexasit.com>
+Reply-To: jw@centraltexasit.com
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: IRC?
+Date: Mon, 8 Jul 2002 00:42:43 -0500
+MIME-Version: 1.0
+Message-Id: <200207080042.44030.jw@centraltexasit.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->On Sat, 6 Jul 2002 11:35, Leslie J. French wrote:
->> And there are a lot of avc violations associated with killall from apmd_t
->> to various other types (e.g. kernet_t).  This is as "out of the box" as I
->> can make my system, none of my users or domains are in the system, and
-I'm
->> using the .te and .fc files directly from the distribution.
->
->Reporting that there are "a lot of errors" doesn't really help us.  You
-need
->to provide samples of these errors (and making sure that you spell them
->correctly is important too - there has never been a kernet_t).
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
--- Noted, though I was just polling to see if there was an obvious answer
-before filling the list with a dmesg trace etc.
+I'm wondering if any of you SE Linux users regularly hang out on IRC anywhere, if so, where?
 
-Anyway, with some random changes to the LSM config file it now works -- I
-don't know which set of options stopped it, and which restored it.  I did
-remove the "use APM bios for poweroff" option though!
+Just looking for a place where I could possibly ask questions in a more interactive manner :-)
 
-Leslie
+
+- -- 
+
+- ----------------------------------------------------
+Jonathan Wilson
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9KSZTQ5u80xXOLBcRAqKnAJ4h/mmRc9uQWNcAc0WKaW3jp21npwCgrcyq
+nkQcAoUootcmcck2N/bg2/A=
+=P+I7
+-----END PGP SIGNATURE-----
 
 
 --
