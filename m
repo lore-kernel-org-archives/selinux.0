@@ -1,45 +1,43 @@
-From: "Ed Street" <edstreet@street-tek.com>
-To: <russell@coker.com.au>
-Cc: "'SELinux'" <SELinux@tycho.nsa.gov>
-Subject: RE: apache-ssl mods for Debian
-Date: Mon, 12 Apr 2004 08:19:20 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <200404121629.46537.russell@coker.com.au>
-Message-Id: <20040412121920.E5E483A4054@abyss.simplyaquatics.com>
+Subject: Re: sys_admin cap breakup
+From: Colin Walters <walters@verbum.org>
+To: SELinux@tycho.nsa.gov
+In-Reply-To: <407A001D.3010805@snu.edu>
+References: <407A001D.3010805@snu.edu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-609AmrBiOj/WZr4EFDq9"
+Message-Id: <1081774708.22078.1.camel@nexus.verbum.private>
+Mime-Version: 1.0
+Date: Mon, 12 Apr 2004 08:58:28 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
 
-Tried them, with apache I get Alert!: Unable to access document.
+--=-609AmrBiOj/WZr4EFDq9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Sun, 2004-04-11 at 22:34, Joshua Brindle wrote:
 
-With apache-ssl I get this
+> So this is a question for the guys that are doing kernel work and=20
+> possibly interacting with linus and friends. How plausible would it be=20
+> to suggest breaking up caps that give lots of access in the next major=20
+> version, 2.7 or 2.8? do you think they'd go for it?
 
-Alert!: Unexpected network read error; connection aborted.
-Can't Access `https://localhost/'
-Alert!: Unable to access document.
+Maybe a better solution is to simply stop using capabilities entirely,
+and make the necessary changes to the policy.
 
-Ed
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-Behalf Of Russell Coker
-Sent: Monday, April 12, 2004 2:30 AM
-To: Ed Street
-Cc: SELinux
-Subject: Re: apache-ssl mods for Debian
+--=-609AmrBiOj/WZr4EFDq9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-I've attached my new Apache policy to this message, try it out and let me
-know how it goes.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
----
+iD8DBQBAepJzOIkJWWp2WGURAsFmAJ4ygQuqIchSBQ/W4ZiQVdoJ48RffgCbBf/8
+GucqcoTOL1NGbi/jt/yP6iU=
+=odtY
+-----END PGP SIGNATURE-----
 
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.656 / Virus Database: 421 - Release Date: 4/9/2004
- 
-
+--=-609AmrBiOj/WZr4EFDq9--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
