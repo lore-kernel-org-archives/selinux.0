@@ -1,55 +1,62 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA01058
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 13:38:39 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA14831
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 17:37:06 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id RAA14827 for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 17:37:05 GMT
-Date: Mon, 29 Jul 2002 13:37:45 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: "Menon, Sunanda R" <sunanda.r.menon@intel.com>
-cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: Re: building the kernel
-In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0F2F05CF@orsmsx108.jf.intel.com>
-Message-ID: <Pine.GSO.4.33.0207291334150.10600-100000@raven>
+Message-Id: <200207291738.RAA14908@jazzband.ncsc.mil>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: Install setfiles manpage
+Date: Mon, 29 Jul 2002 19:18:05 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_5ET0RJWRG9OI45PPBD5P"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 29 Jul 2002, Menon, Sunanda R wrote:
+--------------Boundary-00=_5ET0RJWRG9OI45PPBD5P
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> I downloaded 2.4 LSM based SE linux( Option 1 everything in one part),
-> unzipped into SELinux directory in Redhat 6.2 Linux.
->  I went thru the "Building kernel" part of the documentation. When I do the
-> "make menuconfig", I am getting th efollowing error:
-> /bin/sh scripts/menuconfig arch/i386/config.in
-> :commnad not found
-> :command not found
-> :command not found
-> scripts/menuconfig:syntax error on line 104:  'unexpected token {
->
-> Does anyone know what is the cause of this problem?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-No, I can't reproduce this error - 'make menuconfig' works fine on a clean
-copy of the 2002070313 release from www.nsa.gov/selinux.  Did the 'make
-insert' in selinux/module succeed without any errors?
+Today I am missing the sefiles man page. This patch change the Makefile t=
+o=20
+install this man page.
+I am sorry, but I can't commit this to the cvs. Can anybody do this for m=
+e?
 
-Do you see the same error on a 'make menuconfig' of a clean Linux kernel
-from www.kernel.org?
+Thanks=20
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+  Carsten
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iEYEARECAAYFAj1FeNQACgkQ4oaNQP0tWXCcnwCgnrugZcTKZV6My0yI/ta2bw2F
+CEoAn1RyFYxSLKYZTZbi3mQlI1biWOd1
+=3DQS53
+-----END PGP SIGNATURE-----
 
+--------------Boundary-00=_5ET0RJWRG9OI45PPBD5P
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="setfiles_installmanpage.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="setfiles_installmanpage.patch"
 
+SW5kZXg6IE1ha2VmaWxlCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT0KUkNTIGZpbGU6IC9jdnNyb290L3NlbGludXgvbnNh
+L3NlbGludXgvc2V0ZmlsZXMvTWFrZWZpbGUsdgpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMS4xLjQK
+ZGlmZiAtdSAtcjEuMS4xLjQgTWFrZWZpbGUKLS0tIE1ha2VmaWxlCTMgSnVsIDIwMDIgMjA6MjY6
+MjYgLTAwMDAJMS4xLjEuNAorKysgTWFrZWZpbGUJMjkgSnVsIDIwMDIgMTc6MTI6MjAgLTAwMDAK
+QEAgLTEsNCArMSw1IEBACiBCSU5ESVI9L3Vzci9sb2NhbC9zZWxpbnV4L2JpbgorTUFORElSPS91
+c3IvbG9jYWwvc2VsaW51eC9tYW4KIAogQ0ZMQUdTICs9IC1XYWxsIC1nIC1JL3Vzci9sb2NhbC9z
+ZWxpbnV4L2luY2x1ZGUgLURfRklMRV9PRkZTRVRfQklUUz02NAogTERGTEFHUyArPSAtTC91c3Iv
+bG9jYWwvc2VsaW51eC9saWIKQEAgLTksNiArMTAsNyBAQAogCiBpbnN0YWxsOiBzZXRmaWxlcwog
+CWluc3RhbGwgLW0gNzU1IHNldGZpbGVzICQoQklORElSKQorCWluc3RhbGwgLW0gNjQ0IC1vIHJv
+b3QgLWcgcm9vdCBzZXRmaWxlcy44ICQoTUFORElSKS9tYW44CiAKIGNsZWFuOgogCXJtIC1mIHNl
+dGZpbGVzICoubyAK
 
-
-
-
+--------------Boundary-00=_5ET0RJWRG9OI45PPBD5P--
 
 --
 You have received this message because you are subscribed to the selinux list.
