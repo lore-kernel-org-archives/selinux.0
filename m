@@ -1,30 +1,45 @@
-Received: from deliverance.tycho.ncsc.mil (deliverance [144.51.3.101])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5DFirI4005820
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 11:44:54 -0400 (EDT)
-Message-ID: <0D2F5426C26FD511A1C400B0D0D0596867264E@deliverance.tycho.ncsc.mil>
-From: "Gwyer, Megan" <megwyer@tycho.ncsc.mil>
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: GUI Policy Editors (other than Tresys's setools)
-Date: Fri, 13 Jun 2003 11:44:41 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5DGspI4006195
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 12:54:52 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h5DGsn5e003133
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 16:54:50 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h5DGsb92003109 for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2003 16:54:48 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Michael Lambert <mlambe7@lsu.edu>, selinux@tycho.nsa.gov
+Subject: Re: Status of selinux on IBM mainframe
+Date: Sat, 14 Jun 2003 02:54:19 +1000
+References: <1055514931.6878.33.camel@lambert.ocs.lsu.edu>
+In-Reply-To: <1055514931.6878.33.camel@lambert.ocs.lsu.edu>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+Message-Id: <200306140254.19153.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi.  I'm looking into GUI's to edit policy for SELinux.  I'm familiar with
-Tresys's tools and I'm wondering if anyone has experience with any other
-tools.  It appears that Hitachi Software Engineering Company in Japan has
-developed some tools based on Webmin
-(http://www.selinux.hitachi-sk.co.jp/en/tool/selpe/selpe-top.html).  Does
-anyone have any opinions on this and is familiar with it?  I find it strange
-because I can't find it mentioned anywhere on the list.  Also, the Computer
-Privacy and Security Lab at the University of North Texas seems to have a
-project to design tools for editing and analyzing policy, but all they
-currently have listed is an GUI analyzer.
-(http://cops.csci.unt.edu/projects/selinux/main.html).  Is anyone familiar
-with this project and have any opinions?  Thank you very much!
--Meghan Gwyer
+On Sat, 14 Jun 2003 00:35, Michael Lambert wrote:
+> I was wondering what the development status of selinux was for
+> architectures other than intel, particularly for linux on the IBM
+> mainframe. I've searched the list archives and found a few mentions of
+> the s/390, but nothing very descriptive. If there is a desire to port
+> selinux to mainframe linux, I may be able to lend a hand in development.
+
+It's been ported to ARM twice.
+
+It's in the process of being ported to SPARC.
+
+I would like to port it to S/390.  It's on my to-do list, however I'll 
+probably do some work on SPARC first.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
