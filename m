@@ -1,36 +1,30 @@
-Date: Tue, 22 Jan 2002 16:35:59 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: avc deny messages.
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A1015242AA@csoc-mail-box.csoconline.com>
-Message-ID: <Pine.GSO.4.33.0201221625320.20295-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Tue, 22 Jan 2002 17:15:07 -0500
+From: forrest whitcher <fw@fwsystems.com>
+To: <SELinux@tycho.nsa.gov>
+Subject: switching between SE Linux utils - kernel versions ? ... also ntp
+Message-Id: <20020122171507.060a9821.fw@fwsystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 22 Jan 2002, Westerman, Mark wrote:
-
-> I am not getting all my deny messages in development mode.
-> I get a permission denied in enforcing mode, but
-> where I change to permisive I do not get a permission denied.
-> No messages show up either way.
-
-The AVC rate limit should only be applied when in enforcing mode.  If you
-built your kernel with the development mode option and are in permissive
-mode, then every AVC denial should be audited.  Try again, this time
-checking the output of 'dmesg' as well as your /var/log/messages file.
-Make sure that you are in permissive mode with 'avc_enforcing'.
-Check both for avc messages and for security_compute_sid messages.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+A note on NTP: ntpd / ntpdate on my selinux installation has (surprsingly) not
+raised any AVC: messages in develop/permissive mode. Does this suggest that
+setting system time is not LSM / SEL hooked?
 
 
+I'll be updating to 2.4.17 shortly, wondered what is the safe matrix for 
+mixing versions?
 
+If I need to still sometimes boot the .12 kernel will it be able to deal 
+with PSID's left by .17? and are the .17 version utils likely to cause
+problems on .12 kernel?
+
+>From all I've read I'll be happy to have .17 in place and not look back,
+but thought it would be prudent to check for possible gotcha's
+
+forrest
 
 
 --
