@@ -1,70 +1,72 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA03969
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 00:26:06 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id EAA04908
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 04:24:36 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA04015
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 00:41:12 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id EAA17867
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 04:40:33 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id EAA04904 for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 04:24:33 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	by jazzswing.ncsc.mil  with ESMTP id EAA17863
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 04:40:31 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Brian May <bam@snoopy.apana.org.au>
-Subject: Re: currupt policy.11 file
-Date: Mon, 15 Jul 2002 06:25:51 +0200
-References: <20020715014333.GA17075@snoopy.apana.org.au>
-In-Reply-To: <20020715014333.GA17075@snoopy.apana.org.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
+To: <blacknet@simplyaquatics.com>, "'SE Linux'" <selinux@tycho.nsa.gov>
+Subject: Re: shellutils
+Date: Mon, 15 Jul 2002 06:40:52 +0200
+References: <014d01c22b9b$d0591720$0a01a8c0@ed>
+In-Reply-To: <014d01c22b9b$d0591720$0a01a8c0@ed>
 MIME-Version: 1.0
-Message-Id: <20020715042551.A39C7424F@lyta.coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_40X93NP50SJ62VUBZCDW"
+Message-Id: <20020715044054.89D5CF0A@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 15 Jul 2002 03:43, you wrote:
-> I accidently currupted my policy.11 file, probably by loading it before
-> it had been fully written (yes, stupid thing to do).
->
-> Anyway, the effect of this was my computer promptly crashed.
-> By this I mean it was running extremely slowly, and eventually
-> refused to respond to any user input.
 
-Should have a checksum or something.
+--------------Boundary-00=_40X93NP50SJ62VUBZCDW
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-> So I rebooted it.
->
-> It tried to load the currupted policy and crashed again.
->
-> If I left it a while the kernel complained it was out of memory,
-> and it had no processes it could kill.
->
-> So I suspect there might be a bug somewhere...
->
-> I had to boot from an old kernel without SE-Linux support to rectify
-> the problem.
->
-> Anyway, is there anyway to boot a computer without loading a faulty
-> policy?
+On Mon, 15 Jul 2002 03:06, Ed Street wrote:
+> It would be interesting to return bogus info to non sysadm_r users :)
 
-Boot a non-SE kernel, or a SE kernel that uses an older version of the 
-policydb.
+>From strace output:
+getsecsid()                             = 440
+security_sid_to_context(440, "rjc:user_r:user_t", [18]) = 0
 
-> Actually, this might still be a problem, because you can't login
-> without a policy present, but I guess at least you should be able to
-> boot with init=/bin/sh.
+So unless you block ptrace access, block the ability to write to any type 
+that is executable, and block all other ways of executing any code (IE fixing 
+stack overflows in all programs the user may be able to run among other 
+things) then such bogus info won't even slow down a smart attacker much.
 
-Unless you have a policydb in an initrd and boot using that...
+Besides everyone is too familiar with misdirection regarding UID etc.  
 
-> I still have a copy of this bad policy.11 file if you want a copy.
+I've attached a shell-script r00t expl01t for your amusement.  ;)
 
-
-You are probably better off sending such messages to the list direct...
+Run "./proba" then run "id".
 
 -- 
 I do not get viruses because I do not use MS software.
 If you use Outlook then please do not put my email address in your
 address-book so that WHEN you get a virus it won't use my address in the
 >From field.
+
+--------------Boundary-00=_40X93NP50SJ62VUBZCDW
+Content-Type: application/x-shellscript;
+  name="proba"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="proba"
+
+IyEvYmluL3NoDQpjbGVhcg0KZWNobyAicjAwdCBieSBsY2FtdHVmIg0KZWNobyAiLS0tLS0tLS0t
+LS0tLS0tIg0KZWNobw0KZWNobyAiUHJvc3plIGN6ZWthYywgc3p1a2FtIGtvcnplbmlhLi4uIg0K
+ZWNobyAiS29yemVuIHpuYWxlemlvbnkgbmEgMTkyRDpbMDEwMl0uIg0KZWNobw0KY2QgL3RtcA0K
+Y2F0ID5leC5jIDw8ZW9mDQppbnQgZ2V0dWlkKCkgeyByZXR1cm4gMDsgfQ0KaW50IGdldGV1aWQo
+KSB7IHJldHVybiAwOyB9DQppbnQgZ2V0Z2lkKCkgeyByZXR1cm4gMDsgfQ0KaW50IGdldGVnaWQo
+KSB7IHJldHVybiAwOyB9DQplb2YNCmdjYyAtc2hhcmVkIGV4LmMgLW9leC5zbw0KTERfUFJFTE9B
+RD0vdG1wL2V4LnNvIHNoDQpybSAvdG1wL2V4LnNvIC90bXAvZXguYw0KZWNobw0KZWNobyAiVGhh
+bmsgeW91IGZvciB1c2luZyByMDB0LiINCmVjaG8NCg0K
+
+--------------Boundary-00=_40X93NP50SJ62VUBZCDW--
 
 --
 You have received this message because you are subscribed to the selinux list.
