@@ -1,94 +1,120 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA07464
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 16:47:43 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA08050
+	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 17:50:08 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1CLlgI15461
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 21:47:42 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h1CLlgf15457 for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 21:47:42 GMT
-Subject: Re: Simple question
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: j.logsdon@lancaster.ac.uk
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <Pine.LNX.4.10.10302121830350.25327-100000@mercury.quantex>
-References: <Pine.LNX.4.10.10302121830350.25327-100000@mercury.quantex>
-Content-Type: text/plain
-Date: 12 Feb 2003 16:47:37 -0500
-Message-Id: <1045086458.16529.177.camel@moss-sooners.epoch.ncsc.mil>
-Mime-Version: 1.0
+	by jazzband.ncsc.mil  with ESMTP id h1CMo7I19208
+	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 22:50:07 GMT
+Received: from kjist.ac.kr (eunhasu.kjist.ac.kr [203.237.32.200])
+        by jazzband.ncsc.mil  with ESMTP id h1CMo6f19202 for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 22:50:06 GMT
+Received: from unknown (HELO kari) (kimhc@[203.237.51.114])
+          (envelope-sender <kimhc@kjist.ac.kr>)
+          by eunhasu.kjist.ac.kr (qmail-ldap-1.03) with SMTP
+          for <selinux@tycho.nsa.gov>; 13 Feb 2003 07:44:41 +0900
+Message-ID: <001201c2d2e8$fb235e80$7233edcb@kari>
+From: "Kim Hyung Chan" <kimhc@kjist.ac.kr>
+To: <selinux@tycho.nsa.gov>
+Subject: Transitivity in role dominance relation
+Date: Thu, 13 Feb 2003 07:49:20 +0900
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_000F_01C2D334.6B005820"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In general terms it's difficult to respond in general terms.  One
-problem is that "Access Control Lists" means different things to
-different people.  Access control lists are a mechanism that could be
-used for many of the same controls as SELinux, but typically ACLs are
-different from SELinux in many ways.
+This is a multi-part message in MIME format.
 
-Some differences between SELinux and what most people think of as ACLs:
+------=_NextPart_000_000F_01C2D334.6B005820
+Content-Type: text/plain;
+	charset="ks_c_5601-1987"
+Content-Transfer-Encoding: base64
 
-1. ACLs are usually "discretionary" meaning that some user is allowed to
-change them. SELinux controls are "mandatory" which means that the
-policy is set administratively and the controls can't be changed by most
-processes on the system.  In real-life terms that means that even if
-relatively important processes are compromised the compromise can be
-confined.
+V2l0aCB0aGUgd2VsbC1kb2N1bWVudGVkIG1hbnVhbHMsIEknbSBzdWNjZXNzZnVsbHkgdGVzdGlu
+Zw0Kc2V2ZXJhbCBhY2Nlc3MgY29udHJvbCBwb2xpY2llcy4gKFRoYW5rcyB0byBhbGwgY29udHJp
+YnV0b3JzIDopICkNCg0KSSd2ZSBiZWVuIHRlc3Rpbmcgcm9sZSBkb21pbmFuY2UgcmVsYXRpb24u
+IGV4cGVjaWFsbHksDQp0aGUgdHJhbnNpdGl2aXR5IG9mIHJvbGUgZG9taW5hbmNlIHJlbGF0aW9u
+Lg0KDQpwcm9mX3IgPiAob3NnX3IsIGRiZ19yKSA+IHN0dWRfcg0KDQphczsNCg0KZG9taW5hbmNl
+IHsgcm9sZSBwcm9mX3IgeyByb2xlIG9zZ19yOyByb2xlIGRiZ19yOyB9IH0NCmRvbWluYW5jZSB7
+IHJvbGUgb3NnX3IgeyByb2xlIHN0dWRfcjsgfSB9DQpkb21pbmFuY2UgeyByb2xlIGRiZ19yIHsg
+cm9sZSBzdHVkX3I7IH0gfQ0KIyBkaXNhYmxlZCBkaXJlY3QgcmVsYXRpb24NCiNkb21pbmFuY2Ug
+eyByb2xlIHByb2ZfciB7IHJvbGUgc3R1ZF9yOyB9IH0NCg0KSW4gdGhlIGFib3ZlIHJlbGF0aW9u
+LCBJIGd1ZXNzZWQgdGhhdCB0aGUgcHJvZl9yIHJvbGUgY2FuIG5vdCBpbmhlcml0DQp0aGUgdHlw
+ZXMgb2Ygc3R1ZF9yIGFzIHNlZWluZyBiZWxvdzsNCg0KbG9naW46IGRpbGVlX3UNClBhc3N3b3Jk
+Og0KDQpZb3VyIGRlZmF1bHQgY29udGV4dCBpcyBkaWxlZV91Om9zZ19yOm9zZ190Lg0KRG8geW91
+IHdhbnQgdG8gY2hvb3NlIGEgZGlmZmVyZW50IG9uZT8gW25deQ0KDQoNClsxXSBkaWxlZV91Om9z
+Z19yOm9zZ190DQpbMl0gZGlsZWVfdTpkYmdfcjpkYmdfdA0KWzNdIGRpbGVlX3U6cHJvZl9yOnBy
+b2ZfdA0KRW50ZXIgbnVtYmVyIG9mIGNob2ljZToNCg0KQW5kIEkgYWxzbyBjb3VsZCBub3QgZ2V0
+IHRoZSBjb250ZXh0IG9mIHN0dWRfciB1c2luZyB0aGUgbmV3cm9sZSBjb21tYW5kDQphZnRlciBn
+ZXR0aW5nIHRoZSBjb250ZXh0IG9mIG9zZ19yIG9yIGRiZ19yLg0KDQpBbnkgY29tbWVudHMgb24g
+dGhpcyBwcm9ibGVtPz8/DQoNCkhhdmUgYSBuaWNlIGRheS4NCg0KLT0tPS09LT0tPS09LT0tPS09
+LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LQ0KSHl1bmcgQ2hhbiBLaW0NCg0K
+U2VjdXJpdHkgR3JvdXAsIENvbmN1cnJlbnQgU3lzdGVtIFJlc2VhcmNoIExhYm9yYXRvcnkNCkRl
+cHQuIG9mIEluZm9ybWF0aW9uIGFuZCBDb21tdW5pY2F0aW9ucw0KS3dhbmdqdSBJbnN0aXR1dGUg
+b2YgU2NpZW5jZSBhbmQgVGVjaG5vbG9neSAoSy1KSVNUKQ0KMSBPcnlvbmctZG9uZyBCdWsta3Ug
+R3dhbmdqdSA1MDAtNzEyLCBSZXAuIG9mIEtvcmVhDQoNCkxhYi4gOiArODItNjItOTcwLTIyNjYN
+CkZheCA6ICs4Mi02Mi05NzAtMjIwNA0KTW9iaWxlIDogKzgyLTExLTk2NjAtNDkwMA0KLT0tPS09
+LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LQ0K
 
-2. ACLs as most people use the term generally applies to filesystem
-objects although it could apply to other system resources as well. 
-SELinux controls are intended for all system resources, so for example,
-signals generally wouldn't have separate ACLs (and that probably
-wouldn't make sense either) but SELinux can control the delivery of
-signals.
+------=_NextPart_000_000F_01C2D334.6B005820
+Content-Type: text/html;
+	charset="ks_c_5601-1987"
+Content-Transfer-Encoding: base64
 
-3. But what kind of control would you want on a file descriptor?  That
-brings us to the point that SELinux has finer grained controls.  So
-where ACLs are usually just read, write, execute, and delete, with
-perhaps a few more options depending on the system you're discussing,
-SELinux controls operations on resources specific to that resource. 
-(Poor wording on my part, but hopefully understandable.) Additionally,
-those controls are always in effect.
+PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
+L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
+dD0idGV4dC9odG1sOyBjaGFyc2V0PWtzX2NfNTYwMS0xOTg3Ij4NCjxNRVRBIGNvbnRlbnQ9Ik1T
+SFRNTCA2LjAwLjI2MDAuMCIgbmFtZT1HRU5FUkFUT1I+DQo8U1RZTEU+PC9TVFlMRT4NCjwvSEVB
+RD4NCjxCT0RZIGJnQ29sb3I9I2ZmZmZmZj4NCjxESVY+PEZPTlQgZmFjZT2xvLiyIHNpemU9Mj5X
+aXRoIHRoZSB3ZWxsLWRvY3VtZW50ZWQgbWFudWFscywgSSdtIHN1Y2Nlc3NmdWxseSANCnRlc3Rp
+bmc8L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9sby4siBzaXplPTI+c2V2ZXJhbCBhY2Nl
+c3MgY29udHJvbCBwb2xpY2llcy4gKFRoYW5rcyB0byBhbGwgDQpjb250cmlidXRvcnMgOikgKTwv
+Rk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT2xvLiyIHNpemU9Mj48L0ZPTlQ+Jm5ic3A7PC9E
+SVY+DQo8RElWPjxGT05UIGZhY2U9sby4siBzaXplPTI+SSd2ZSBiZWVuIHRlc3Rpbmcgcm9sZSBk
+b21pbmFuY2UgcmVsYXRpb24uIA0KZXhwZWNpYWxseSw8L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05U
+IGZhY2U9sby4siBzaXplPTI+dGhlIHRyYW5zaXRpdml0eSBvZiByb2xlIGRvbWluYW5jZSANCnJl
+bGF0aW9uLjwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT2xvLiyIHNpemU9Mj48L0ZPTlQ+
+Jm5ic3A7PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9sby4siBzaXplPTI+cHJvZl9yICZndDsgKG9z
+Z19yLCBkYmdfcikgJmd0OyBzdHVkX3I8L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9sby4
+siBzaXplPTI+PC9GT05UPiZuYnNwOzwvRElWPg0KPERJVj48Rk9OVCBmYWNlPbG8uLIgc2l6ZT0y
+PmFzOzwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT2xvLiyIHNpemU9Mj48L0ZPTlQ+Jm5i
+c3A7PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9sby4siBzaXplPTI+ZG9taW5hbmNlIHsgcm9sZSBw
+cm9mX3IgeyByb2xlIG9zZ19yOyByb2xlIGRiZ19yOyB9IA0KfTxCUj5kb21pbmFuY2UgeyByb2xl
+IG9zZ19yIHsgcm9sZSBzdHVkX3I7IH0gfTxCUj5kb21pbmFuY2UgeyByb2xlIGRiZ19yIHsgcm9s
+ZSANCnN0dWRfcjsgfSB9PC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPbG8uLIgc2l6ZT0y
+PiMgZGlzYWJsZWQgZGlyZWN0IHJlbGF0aW9uPC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNl
+PbG8uLIgc2l6ZT0yPiNkb21pbmFuY2UgeyByb2xlIHByb2ZfciB7IHJvbGUgc3R1ZF9yOyB9IA0K
+fTwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT2xvLiyIHNpemU9Mj48L0ZPTlQ+Jm5ic3A7
+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9sby4siBzaXplPTI+SW4gdGhlIGFib3ZlIHJlbGF0aW9u
+LCZuYnNwO0kmbmJzcDtndWVzc2VkIHRoYXQgdGhlIA0KcHJvZl9yIHJvbGUgY2FuIG5vdCBpbmhl
+cml0PC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPbG8uLIgc2l6ZT0yPnRoZSB0eXBlcyBv
+ZiBzdHVkX3IgYXMgc2VlaW5nIGJlbG93OzwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT2x
+vLiyIHNpemU9Mj48L0ZPTlQ+Jm5ic3A7PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9sby4siBzaXpl
+PTI+bG9naW46IGRpbGVlX3U8QlI+UGFzc3dvcmQ6PC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBm
+YWNlPbG8uLIgc2l6ZT0yPjwvRk9OVD4mbmJzcDs8L0RJVj4NCjxESVY+PEZPTlQgZmFjZT2xvLiy
+IHNpemU9Mj5Zb3VyIGRlZmF1bHQgY29udGV4dCBpcyBkaWxlZV91Om9zZ19yOm9zZ190LjxCUj5E
+byB5b3UgDQp3YW50IHRvIGNob29zZSBhIGRpZmZlcmVudCBvbmU/IFtuXXk8L0ZPTlQ+PC9ESVY+
+DQo8RElWPjxGT05UIGZhY2U9sby4siBzaXplPTI+PC9GT05UPiZuYnNwOzwvRElWPg0KPERJVj48
+Rk9OVCBmYWNlPbG8uLIgc2l6ZT0yPjxCUj5bMV0gZGlsZWVfdTpvc2dfcjpvc2dfdDxCUj5bMl0g
+DQpkaWxlZV91OmRiZ19yOmRiZ190PEJSPlszXSBkaWxlZV91OnByb2Zfcjpwcm9mX3Q8QlI+RW50
+ZXIgbnVtYmVyIG9mIA0KY2hvaWNlOjwvRElWPg0KPERJVj4mbmJzcDs8L0RJVj4NCjxESVY+QW5k
+IEkgYWxzbyBjb3VsZCBub3QgZ2V0IHRoZSBjb250ZXh0IG9mIHN0dWRfciB1c2luZyB0aGUgbmV3
+cm9sZSANCmNvbW1hbmQ8L0RJVj4NCjxESVY+YWZ0ZXIgZ2V0dGluZyB0aGUgY29udGV4dCBvZiBv
+c2dfciBvciBkYmdfci48L0RJVj4NCjxESVY+Jm5ic3A7PC9ESVY+DQo8RElWPkFueSBjb21tZW50
+cyBvbiB0aGlzIHByb2JsZW0/Pz88L0RJVj4NCjxESVY+Jm5ic3A7PC9ESVY+DQo8RElWPkhhdmUg
+YSBuaWNlIGRheS48QlI+PC9ESVY+PC9GT05UPg0KPERJVj48Rk9OVCBmYWNlPbG8uLIgDQpzaXpl
+PTI+LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09
+LTxCUj5IeXVuZyBDaGFuIA0KS2ltPC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNlPbG8uLIg
+c2l6ZT0yPjwvRk9OVD4mbmJzcDs8L0RJVj4NCjxESVY+PEZPTlQgZmFjZT2xvLiyIHNpemU9Mj5T
+ZWN1cml0eSBHcm91cCwgQ29uY3VycmVudCBTeXN0ZW0gUmVzZWFyY2ggDQpMYWJvcmF0b3J5PEJS
+PkRlcHQuIG9mIEluZm9ybWF0aW9uIGFuZCBDb21tdW5pY2F0aW9uczxCUj5Ld2FuZ2p1IEluc3Rp
+dHV0ZSBvZiANClNjaWVuY2UgYW5kIFRlY2hub2xvZ3kgKEstSklTVCk8QlI+MSBPcnlvbmctZG9u
+ZyBCdWsta3UgR3dhbmdqdSA1MDAtNzEyLCBSZXAuIG9mIA0KS29yZWE8L0ZPTlQ+PC9ESVY+DQo8
+RElWPjxGT05UIGZhY2U9sby4siBzaXplPTI+PC9GT05UPiZuYnNwOzwvRElWPg0KPERJVj48Rk9O
+VCBmYWNlPbG8uLIgc2l6ZT0yPkxhYi4gOiArODItNjItOTcwLTIyNjY8QlI+RmF4IDogDQorODIt
+NjItOTcwLTIyMDQ8QlI+TW9iaWxlIDogDQorODItMTEtOTY2MC00OTAwPEJSPi09LT0tPS09LT0t
+PS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS08L0ZPTlQ+PC9ESVY+
+PC9CT0RZPjwvSFRNTD4NCg==
 
-4. Another important factor is that SELinux can control access to system
-resources (like files) based not just on user identity or credentials,
-but on the security identifier of the process which was derived from a
-combination of the user and the code the user ran.  Type enforcement
-enables access control decisions to be based on such things as the
-trustworthiness of the code that's running, and program function, as
-well as the user identity.
-
-In summary a good mandatory access control implementation will: 1) Have
-an administratively set security policy. 2) Always be in control over
-all subjects and objects on the system. 3) Base policy decisions on all
-security relevant information.  Even a comprehensive access control list
-implementation with administratively set ACLs is not going to be able to
-meet the third.
-
-On Wed, 2003-02-12 at 13:32, j.logsdon@lancaster.ac.uk wrote:
-> Hi
-> 
-> In general terms, what does SEL do that I can't do (even if more
-> complicated) by Access Control Lists?  If I can control the users and
-> groups that can access files (and these are all properly set) what
-> advantage do I have in running SEL?
-> 
-> I'm not being rude - just trying to understand the difference and to see
-> whether it is really necessary to run a bespoke kernel.
-> 
-> TIA
-> 
-> John
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
--- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
+------=_NextPart_000_000F_01C2D334.6B005820--
 
 
 --
