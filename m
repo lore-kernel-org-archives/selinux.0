@@ -1,35 +1,37 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA20890
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 12:25:37 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA28447
-	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 17:23:40 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id RAA28439 for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 17:23:39 GMT
-Date: Tue, 29 Oct 2002 12:25:11 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: sulogin_exec_t
-In-Reply-To: <200210291721.52497.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0210291224350.29605-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA20742
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 12:19:34 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id RAA27025
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 17:17:41 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id RAA27021
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 17:17:40 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id D51C192713
+	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2002 04:19:30 +1100 (EST)
+Received: from lyta (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id E902F3AE9
+	for <selinux@tycho.nsa.gov>; Tue, 29 Oct 2002 17:21:52 +0100 (CET)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: sulogin_exec_t
+Date: Tue, 29 Oct 2002 17:21:52 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200210291721.52497.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Is there any reason why sulogin_exec_t doesn't have the exec_type attribute?
 
-On Tue, 29 Oct 2002, Russell Coker wrote:
-
-> Is there any reason why sulogin_exec_t doesn't have the exec_type attribute?
-
-No.  Feel free to add it.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
