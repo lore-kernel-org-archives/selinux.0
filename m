@@ -1,26 +1,40 @@
-Subject: Re: You mentioned somewhere there is a step by step guide to
-	getting the MLS policy installed on a machine?
+Subject: Re: Reloading Policy?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>, Chad Hanson <chanson@TrustedCS.com>
-In-Reply-To: <42408CAB.4030007@redhat.com>
-References: <41EC4682.8050807@trustedcs.com>
-	 <41F6D30D.9070904@trustedcs.com>
-	 <1106771757.23386.348.camel@moss-spartans.epoch.ncsc.mil>
-	 <42408CAB.4030007@redhat.com>
+To: John Buwa <sales@michianawireless.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200503230636.j2N6aXYi025308@unix2.michianawireless.com>
+References: <200503230636.j2N6aXYi025308@unix2.michianawireless.com>
 Content-Type: text/plain
-Date: Wed, 23 Mar 2005 08:11:08 -0500
-Message-Id: <1111583468.21107.15.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 23 Mar 2005 08:28:20 -0500
+Message-Id: <1111584500.21107.23.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-03-22 at 16:22 -0500, Daniel J Walsh wrote:
-> Where can I get that?
+On Wed, 2005-03-23 at 01:41 -0800, John Buwa wrote:
+> I have selinux on my fedora core 3 install. I need to reload the policy but
+> can not figure out how. I read all the faq's and such stating 'make load' in
+> the policy directory. However I do not have this directory by default nor
+> the source. This came installed with the distro. I have rebooted and still
+> the changes have not taken effect.
 
-selinux-doc/README.MLS (look for the section titled INSTALLATION)
+You can load a new binary policy file using the load_policy command,
+e.g.
+	/usr/sbin/load_policy /etc/selinux/targeted/policy/policy.18
+
+If you need to customize policy, you can modify the policy sources and
+then build and load a new policy using 'make load' in the policy source
+directory, e.g.
+	cd /etc/selinux/targeted/src/policy
+	make load
+
+If your system doesn't have the policy sources installed (not installed
+by default on Fedora), then you can grab the RPM from the CD and install
+it with rpm or just use yum to get the latest one, e.g.
+	yum install selinux-policy-targeted-sources
+
+Naturally, you'll want to yum update as well to get all updates for FC3
+since the release.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
