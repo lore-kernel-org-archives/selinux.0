@@ -1,46 +1,47 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i15LosRb019250
-	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2004 16:50:54 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i161GrRb020097
+	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2004 20:16:53 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i15LnUQk024151
-	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2004 21:49:30 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-	by jazzswing.ncsc.mil  with ESMTP id i15LnQYo024089
-	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2004 21:49:27 GMT
-To: selinux@tycho.nsa.gov
-Subject: Re: Problems finding working kernel/user land combination
-References: <401FF280.8070301@treblig.org>
-	<84d68vlr6a.fsf@snoopy.apana.org.au> <402261FE.5060708@treblig.org>
-From: Brian May <bam@snoopy.apana.org.au>
-Date: Fri, 06 Feb 2004 08:51:32 +1100
-In-Reply-To: <402261FE.5060708@treblig.org> (Dave Gilbert's message of "Thu,
- 05 Feb 2004 15:32:14 +0000")
-Message-ID: <84u125gpp7.fsf@snoopy.apana.org.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by jazzswing.ncsc.mil  with ESMTP id i161FTQk003887
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 01:15:29 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+	by jazzswing.ncsc.mil  with ESMTP id i161FTYo003881
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 01:15:29 GMT
+Subject: Re: make relabel error
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: keen@internode.on.net
+Cc: SE Linux <selinux@tycho.nsa.gov>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <4021fa76.336.47d3.1608314121@internode.on.net>
+References: <4021fa76.336.47d3.1608314121@internode.on.net>
+Content-Type: text/plain
+Message-Id: <1076030204.2003.222.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+Date: 06 Feb 2004 01:16:44 +0000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->>>>> "Dave" == Dave Gilbert (Home) <gilbertd@treblig.org> writes:
+Hi,
 
-    >> These packages, for woody, are still in the "unstable" section of my
-    >> archive.
-    >> Unless anybody has any serious objections, I plan to delete the old
-    >> selinux files in my "stable" archive and replace them with the new
-    >> selinux files in my "unstable" archive.
+On Thu, 2004-02-05 at 07:50, keen wrote:
 
-    Dave> Hmm - I'm confused - if I look in
-    Dave> /debian/dists/unstable/selinux/binary-i386/Packages
-    Dave> on your site I just see dpkg, dpkg-dev and dpkg-doc
-    Dave> can you give me an exact sources.list line?
+> system_u:object_r:inetd_child_exec_t on line number 725
+> /usr/sbin/setfiles:  invalid context
+> system_u:object_r:inetd_child_exec_t on line number 726
+> Exiting after 10 errors.
+> make: *** [relabel] Error 1
+> 
+> What have I missed? Could anyone help me on this? Your
+> attention is greatly appreciated. Thank you.
 
-You will need to use the "main" section as well as the "selinux"
-section.  The "selinux" section is obsolete, as maintaining two
-sections become difficult under certain circumstances.
+If you installed the policy rpm itself without an intervening reboot,
+then the policy may not actually be loaded in the kernel, and the kernel
+won't let you set contexts that aren't mentioned in its loaded policy. 
+You need a "make load" before the "make relabel" to load the new policy.
 
-dpkg must be the only package I haven't yet moved...
--- 
-Brian May <bam@snoopy.apana.org.au>
+Cheers, 
+ Stephen
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
