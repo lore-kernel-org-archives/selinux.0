@@ -1,40 +1,43 @@
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA22228
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 11:09:27 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA09704
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 15:07:55 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id PAA09700
+	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 15:07:52 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>, Chris Vance <cvance@tislabs.com>
-Subject: Re: [patch] label /home directory, create suserdel
-Date: Mon, 30 Sep 2002 16:58:58 +0200
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0209300756230.15004-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0209300756230.15004-100000@raven>
+To: Stephen Smalley <sds@tislabs.com>
+Subject: Re: patch for home_root_t
+Date: Mon, 30 Sep 2002 17:09:14 +0200
+Cc: <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0209300732490.15004-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0209300732490.15004-100000@raven>
 MIME-Version: 1.0
-Message-Id: <200209301658.58246.russell@coker.com.au>
+Message-Id: <200209301709.14893.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 30 Sep 2002 14:00, Stephen Smalley wrote:
-> On Sun, 29 Sep 2002, Chris Vance wrote:
-> > Attached are two patches (also committed to the sourceforge CVS tree)
-> > that define a new label for the /home directory and allow access as
-> > necessary. The first patch defines the new label and adds permissions. 
-> > The second patch add the suserdel program in the utils/spasswd directory.
+On Mon, 30 Sep 2002 13:33, Stephen Smalley wrote:
+> On Sat, 28 Sep 2002, Russell Coker wrote:
+> > The attached patch makes home_root_t work.
 >
-> Just to elaborate, the policy patch also defines a separate domain for
-> suseradd/suserdel with appropriate permissions and type transitions for
-> managing user home directories, and the spasswd patch also extends the
-> utilities to reset the security context on /etc/group and /etc/gshadow,
-> since these files are also re-created by the RedHat useradd to add a group
-> for each new user by default.
+> Most of this should already be covered by the rule in
+> base_file_read_access.
 
-The Debian useradd also likes to add groups, but it's something I forgot about 
-because I turn that feature off.  I don't like the "one group per user" 
-thing.
+I've gone back and removed some duplicate references to home_root_t from my 
+tree.
 
-The new suseradd doesn't deal with multiple user roles.  Ideally we would have 
-a program that would add an entry to the users file, add a new user-role 
-definition to user.te (with appropriate role transitions), and add a default 
-type and a cron context as well.
+After you've merged those of my current patches that you like I'll send you 
+another patch for any further changes.
+
+NB  Many of the home_root_t (and almost all of them in .te files I wrote) are 
+actually needed.  Most things broke when I initially changed the type of 
+/home...
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
