@@ -1,39 +1,44 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i524NnrT001289
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 00:23:49 -0400 (EDT)
-Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i534NYeD017938
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 00:23:34 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5254qrT001451
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 01:04:52 -0400 (EDT)
+Received: from smtp800.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5354aeD019224
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jun 2004 01:04:37 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp804.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 12:23:48 -0000
-Date: Tue, 1 Jun 2004 12:21:14 +0000
+  by smtp800.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 10:09:29 -0000
+Date: Tue, 1 Jun 2004 10:06:49 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: dpkg-reconfigure xserver-xfree86
-Message-ID: <20040601122114.GI8312@lkcl.net>
+Subject: exim4 / selinux (passwd) clash
+Message-ID: <20040601100649.GV8312@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-russell, hi,
+drat!
 
-ah ha, you missed one :)
+hm, what happens if i back out of passwd...
 
-i frequently use dpkg-reconfigure xserver-xfree86 to reconfig X.
+sez:/etc/selinux# apt-get install exim4-base
+Reading Package Lists... Done
+Building Dependency Tree... Done
+Some packages could not be installed. This may mean that you have
+requested an impossible situation or if you are using the unstable
+distribution that some required packages have not yet been created
+or been moved out of Incoming.
 
-and of course a run_init /etc/init.d/kdm restart throws a wobbly
-because the /etc/X11/XF86Config-4 file is owned by
-root:sysadm_r:sysadm_t instead of system_u:...
+Since you only requested a single operation it is extremely likely that
+the package is simply not installable and a bug report against
+that package should be filed.
+The following information may help to resolve the situation:
 
-so!
-
-the setfiles trigger, /etc/dpkg/postinst.d/selinux, needs to
-be re-run after people use dpkg-reconfigure.
-
-[luke smiles widely - or more specifically, turns corners of
- mouth up and shows lots of teeth]
-
+The following packages have unmet dependencies:
+  exim4-base: Depends: exim4-config (>= 4.30) but it is not going to be installed or
+                       exim4-config-2
+              Depends: passwd (>= 1:4.0.3-9) but 1:4.0.3-8.selinux.1 is to be installed or
+                       passwd (< 1:4.0.3-1) but 1:4.0.3-8.selinux.1 is to be installed
+E: Broken packages
 -- 
 -- 
 expecting email to be received and understood is a bit like
