@@ -1,40 +1,73 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA25488
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 13:33:10 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA00809
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 17:31:35 GMT
-Received: from femail44.sdc1.sfba.home.com ([24.254.60.38])
-	by jazzswing.ncsc.mil  with ESMTP id RAA00805
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 17:31:35 GMT
-Received: from [192.168.1.12] ([65.0.60.32]) by femail44.sdc1.sfba.home.com
-          (InterMail vM.4.01.03.20 201-229-121-120-20010223) with ESMTP
-          id <20010921173302.IZZY29400.femail44.sdc1.sfba.home.com@[192.168.1.12]>
-          for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 10:33:02 -0700
-Date: Fri, 21 Sep 2001 10:33:01 -0700
-Subject: SELinux on embedded devices?
-From: Devon Hubbard <devon@mac.com>
-To: <selinux@tycho.nsa.gov>
-Message-ID: <B7D0C7DD.6697%devon@mac.com>
-In-Reply-To: <200109211246.IAA15519@eclipse.ncsc.mil>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
+Message-ID: <002401c14595$5d1a8fb0$68026c85@ilios104>
+From: "Yuichi Nakamura" <ynakam@ori.hitachi-sk.co.jp>
+To: "SELinuxML" <SELinux@tycho.nsa.gov>
+Cc: <ynakam@ori.hitachi-sk.co.jp>
+Subject: I can ' t use named on LSM-based Prototype. Why?
+Date: Tue, 25 Sep 2001 16:40:35 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-My apologies to the list if there have been threads in the past on the
-following question...
+I found that named(bind 9.1.0) didn't work on SELinux(LSM-based Prototype)
+even if the kernel was flask development mode.
 
-Has anyone worked on putting SELinux on embedded devices?  Of course PDAs
-are by themselves inherently un-secure because of their portable nature but
-embedded devices that have wireless connections need high security as well.
+Named doesn't response to nslookup.
 
-If you know if any existing projects for embedded devices please let me
-know.
+I can use other services(httpd,sendmail,ftpd).
+And,Named works on usual Linux(2.4.3,2.4.9) and on original SELinux
+prototype.
 
-thanks,
-dEVoN Hubbard
-Motorola
+I installed SELinux (LSM-based Prototype) as development mode in RH7.1.
+And the kernel configration option is following,
+CONFIG_NETFILTER="Y"
+CONFIG_CAPABILITIES ="N"
+CONFIG_SELINUX="Y"
+CONFIG_LSM_IP="Y".
+
+The  startup log of named is following.
+--------------------------------------------------------
+Sep 25 15:11:54 myhost named[797]: starting BIND 9.1.0 -u named
+Sep 25 15:11:54 myhost named[797]: using 1 CPU
+Sep 25 15:11:54 myhost named: named startup succeeded
+Sep 25 15:11:54 myhost named[801]: loading configuration from
+'/etc/named.conf'
+Sep 25 15:11:54 myhost named[801]: the default for the 'auth-nxdomain'
+option is now 'no'
+Sep 25 15:11:54 myhost named[801]: no IPv6 interfaces found
+Sep 25 15:11:54 myhost named[801]: listening on IPv4 interface lo,
+127.0.0.1#53
+
+Sep 25 15:11:54 myhost named[801]: could not listen on UDP socket:
+permission denied
+
+Sep 25 15:11:54 myhost named[801]: creating IPv4 interface lo failed;
+interface ignored
+Sep 25 15:11:54 myhost named[801]: listening on IPv4 interface eth0,
+133.xxx.x.75#53
+
+Sep 25 15:11:54 myhost named[801]: could not listen on UDP socket:
+permission denied
+
+Sep 25 15:11:54 myhost named[801]: creating IPv4 interface eth0 failed;
+interface ignored
+Sep 25 15:11:54 myhost named[801]: not listening on any interfaces
+-------------------------------------------------------------
+
+Why named doesn't work on LSM based prototype?
+
+Did I miss kernel configuration or else?
+
+Please tell me.
+
+-------------------------------------
+Yuichi Nakamura
+Hitachi Software Engineering Co.,Ltd.
+ynakam@ori.hitachi-sk.co.jp
+
+
+
 
 
 --
