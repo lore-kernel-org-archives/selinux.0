@@ -1,40 +1,46 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA15023
-	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 12:58:46 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA15894
+	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 14:52:29 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA02068
-	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 16:56:57 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id QAA02064
-	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 16:56:57 GMT
-Date: Wed, 23 Oct 2002 12:57:47 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: kernel compile error with latest ver
-In-Reply-To: <200210231831.57210.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0210231256040.7042-100000@raven>
+	by jazzswing.ncsc.mil  with ESMTP id SAA08455
+	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 18:50:41 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id SAA08451
+	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 18:50:39 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 0750392713
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2002 04:52:24 +1000 (EST)
+Received: from lyta (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id B20B915E7
+	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 20:52:16 +0200 (CEST)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: ssh policy
+Date: Wed, 23 Oct 2002 20:52:16 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200210232052.16261.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+# Proxy openlogging.
+allow $1_ssh_t http_cache_port_t:tcp_socket name_bind;
 
-On Wed, 23 Oct 2002, Russell Coker wrote:
+The above has just appeared in the new policy.  I suggest that it be in the 
+policy commented out at the most.
 
-> The ip_warn() macro defined in selopt.h seems to demand at least 3 parameters
-> but in selopt.c it's often given only 2...
+This allows any ssh user (IE any user) to potentially subvert the web cache if 
+they can cause it to crash.
 
-selopt compiles fine for me either built-in or as a module, and the only
-thing that changed about the ip_warn() definition was fixing the handling
-of __FUNCTION__.  What version of gcc are you using and what is the
-precise output from gcc?
+I don't think I'll include this in my policy tree.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
