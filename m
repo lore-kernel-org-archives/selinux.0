@@ -1,48 +1,44 @@
-Subject: Re: is_selinux_enabled in fileutils
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8TCQBsJ011036
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2003 08:26:11 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8TCONZt000458
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2003 12:24:23 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h8TCOMM3000446
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2003 12:24:22 GMT
+Subject: Re: selinux and 64 bit hardware
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Joshua Brindle <JBrindle@snu.edu>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <sf7751ab.035@atlas.snu.edu>
-References: <sf7751ab.035@atlas.snu.edu>
+To: Joerg Hoh <joerg@devone.org>, Howard Holm <hdholm@epoch.ncsc.mil>,
+   James Morris <jmorris@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20030927173909.GB3936@hydra.joerghoh.de>
+References: <20030927173909.GB3936@hydra.joerghoh.de>
 Content-Type: text/plain
-Message-Id: <1064838175.10464.4.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1064838357.10464.9.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 29 Sep 2003 08:22:56 -0400
+Date: 29 Sep 2003 08:25:57 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2003-09-28 at 22:24, Joshua Brindle wrote:
-> I'm just wondering a few things about the new API patches
-> for fileutils (and no doubt others)
+On Sat, 2003-09-27 at 13:39, Joerg Hoh wrote:
+> Hi 
 > 
-> right now the ls, cp, mv patches etc do an is_selinux_enabled
-> check which isn't technically required (since xattr is not specific
-> to selinux). IMHO these artificial contraints shouldn't be added
-> so that recovery cd's and things of this nature which have xattr
-> enabled but not selinux will be able to see/copy/move files with
-> their context. We aren't gaining any security by adding these
-> contraints since libxattr, setfattr, getfattr, etc doesn't care
-> if selinux is enabled or not (and are easier for mangling attributes
-> anyway).
+> I have an alpha machine (64bit) right next to me running linux 2.6.0test5. 
+> I'd like to do some tests with selinux on this machine, but selinux doesn't 
+> work correctly. 
 > 
-> second, why aren't the selinux patches to file/coreutils generalized
-> for all extended attributes? If we (or someone) made patches that
-> would copy/move/view all extended attributes or just specified ones
-> it could be used by many more people than just selinux users and
-> would be more friendly upstream. the core/fileutils patches don't
-> really even need to rely on libselinux since xattr is now standard
-> in the kernel and the library for accessing xattr's is completely 
-> separate from selinux..
+> I've done some research at the code and detected that, some parts are _not_
+> portable (conversions from pointer to int, which only works on 32 bit
+> architectures, and so on).
+> 
+> Is this intentional? Are some parts based on assumptions, which are only
+> true on 32bit architectures? Are patches welcome to achieve a better 64 bit
+> compatibility?
 
-The xattr API only supports a subset of the SELinux API.  For example,
-the xattr API provides no way to create a file with a specified
-attribute value; you have to create the file with some default behavior,
-typically inherit-from-parent-directory, and then change its attribute. 
-This leaves a window where the file may be accessible to unauthorized
-processes.  The SELinux API allows for immediate creation of a file with
-a specified attribute.  The new SELinux API makes use of three
-components:  the process attribute API (/proc/pid/attr), the xattr API,
-and the selinuxfs policy API.
+Several fixes for 64 bit architectures were included in 2.6.0-test5
+based on feedback on the linux-kernel mailing list.  If you have
+encountered further problems, we'd certainly like to hear about them.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
