@@ -1,25 +1,35 @@
-Message-ID: <42408CAB.4030007@redhat.com>
-Date: Tue, 22 Mar 2005 16:22:51 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2N6a8Do019813
+	for <selinux@tycho.nsa.gov>; Wed, 23 Mar 2005 01:36:08 -0500 (EST)
+Received: from unix2.michianawireless.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2N6XcQ4022028
+	for <selinux@tycho.nsa.gov>; Wed, 23 Mar 2005 06:33:38 GMT
+Received: from DOWNSTAIRS (wirelessbase1.michianawireless.com [12.96.250.2] (may be forged))
+	by unix2.michianawireless.com (8.13.3/8.13.1) with ESMTP id j2N6aXYi025308
+	for <selinux@tycho.nsa.gov>; Wed, 23 Mar 2005 01:36:35 -0500
+Message-Id: <200503230636.j2N6aXYi025308@unix2.michianawireless.com>
+From: "John Buwa" <sales@michianawireless.com>
+To: <selinux@tycho.nsa.gov>
+Subject: Reloading Policy?
+Date: Wed, 23 Mar 2005 01:41:11 -0800
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>, Chad Hanson <chanson@TrustedCS.com>
-Subject: You mentioned somewhere there is a step by step guide to getting
- the MLS policy installed on a machine?
-References: <41EC4682.8050807@trustedcs.com>	 <41F6D30D.9070904@trustedcs.com> <1106771757.23386.348.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1106771757.23386.348.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <42408CAB.4030007@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Where can I get that?
 
-Dan
+Hello,
 
--- 
+I have selinux on my fedora core 3 install. I need to reload the policy but
+can not figure out how. I read all the faq's and such stating 'make load' in
+the policy directory. However I do not have this directory by default nor
+the source. This came installed with the distro. I have rebooted and still
+the changes have not taken effect.
 
+Thanks,
+John
 
 
 --
