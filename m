@@ -1,151 +1,214 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA20435
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2002 09:23:43 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA20789
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2002 10:06:42 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA22116
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2002 13:21:52 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id NAA22112
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2002 13:21:50 GMT
-Date: Thu, 24 Oct 2002 09:22:49 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: <selinux@tycho.nsa.gov>
-cc: <azeredo@qmc.ufsc.br>, <krikeb@e.kth.se>
-Subject: [patch] Remove __exit attribute from selopt functions
-Message-ID: <Pine.GSO.4.33.0210240907340.3525-200000@raven>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1254324197-1035465193=:3525"
+	by jazzswing.ncsc.mil  with ESMTP id OAA24566
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2002 14:04:52 GMT
+Received: from nox.lemuria.org ([213.191.86.30])
+	by jazzswing.ncsc.mil  with ESMTP id OAA24562
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2002 14:04:48 GMT
+Date: Thu, 24 Oct 2002 16:06:24 +0200
+From: Tom <tom@lemuria.org>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+Subject: New Apache policy
+Message-ID: <20021024160624.B2010@lemuria.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="mYCpIKhGyMATD0i+"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----559023410-1254324197-1035465193=:3525
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.GSO.4.33.0210240916241.3525@raven>
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+The attached patch includes the earlier one, fixes what Russell
+commented on and thus should get apache working in both the 1.x and 2.x
+versions. No guarantees for PHP, CGI and other modules, I will tackle
+that next.
 
-The attached patch, also committed to the sourceforge CVS tree, removes
-the __exit attribute from several selopt functions that can also be called
-on the error exit path from selopt_init.  Otherwise, gcc 3.2 omits these
-functions, leading to undefined reference errors when linking the kernel
-(previously noted in
-http://marc.theaimsgroup.com/?l=selinux&m=103288158813142&w=2 and
-http://marc.theaimsgroup.com/?l=selinux&m=103485225602431&w=2).  We
-weren't seeing this problem on RH7.x with gcc 2.96, but Chris Vance
-encountered the error while building on RH8.0 and made these changes to
-correct the problem.
+However, I have also included my very first own from-scratch policy
+file, for Subversion. Subversion is a CVS replacement and the server
+runs under Apache2 using DAV.
+My policy file tackles both the client tools and the server side,
+allowing a server and both remote and local repository access.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Since this is my first from-scratch policy file, please take a look and
+comment on it. It works for me, but I may have granted too much
+permissions somewhere, even though I tried hard not to.
 
 
+Finally, there is also a tiny fix for postfix that is required on my
+system to silence pickup. No idea if this was just missed elsewhere or
+if pickup works without and a simple dontaudit would've done it.
 
----559023410-1254324197-1035465193=:3525
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="seloptexit.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0210240913130.3525@raven>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="seloptexit.patch"
 
-SW5kZXg6IGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zZWxvcHQvY2FjaGUu
-Yw0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290
-L3NlbGludXgvbnNhL2xzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zZWxvcHQv
-Y2FjaGUuYyx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMS4xLjMNCmRpZmYg
-LXUgLXIxLjEuMS4zIGNhY2hlLmMNCi0tLSBsc20tMi40L3NlY3VyaXR5L3Nl
-bGludXgvc2Vsb3B0L2NhY2hlLmMJMjMgQXVnIDIwMDIgMTc6MjU6MTQgLTAw
-MDAJMS4xLjEuMw0KKysrIGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zZWxv
-cHQvY2FjaGUuYwkyNCBPY3QgMjAwMiAxMjo1MzowNCAtMDAwMA0KQEAgLTYx
-OSw3ICs2MTksNyBAQA0KIAlyZXR1cm4gMDsNCiB9DQogDQotX19leGl0IHZv
-aWQgc2Vsb3B0X2NhY2hlX2V4aXQodm9pZCkNCit2b2lkIHNlbG9wdF9jYWNo
-ZV9leGl0KHZvaWQpDQogew0KIAlzZWxvcHRfY2FjaGVfZmx1c2goKTsNCiAJ
-cmV0dXJuOw0KSW5kZXg6IGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zZWxv
-cHQvY2FjaGUuaA0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6
-IC9jdnNyb290L3NlbGludXgvbnNhL2xzbS0yLjQvc2VjdXJpdHkvc2VsaW51
-eC9zZWxvcHQvY2FjaGUuaCx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMS4x
-LjENCmRpZmYgLXUgLXIxLjEuMS4xIGNhY2hlLmgNCi0tLSBsc20tMi40L3Nl
-Y3VyaXR5L3NlbGludXgvc2Vsb3B0L2NhY2hlLmgJMTUgTWFyIDIwMDIgMTM6
-MjE6NDQgLTAwMDAJMS4xLjEuMQ0KKysrIGxzbS0yLjQvc2VjdXJpdHkvc2Vs
-aW51eC9zZWxvcHQvY2FjaGUuaAkyNCBPY3QgMjAwMiAxMjo1MzowNCAtMDAw
-MA0KQEAgLTUxLDYgKzUxLDYgQEANCiB2b2lkIHNlbG9wdF9jYWNoZV9mbHVz
-aCh2b2lkKTsNCiANCiBpbnQgc2Vsb3B0X2NhY2hlX2luaXQodm9pZCkgX19p
-bml0Ow0KLXZvaWQgc2Vsb3B0X2NhY2hlX2V4aXQodm9pZCkgX19leGl0Ow0K
-K3ZvaWQgc2Vsb3B0X2NhY2hlX2V4aXQodm9pZCk7DQogDQogI2VuZGlmCS8q
-IF9TRUxPUFRfQ0FDSEVfSF8gKi8NCkluZGV4OiBsc20tMi40L3NlY3VyaXR5
-L3NlbGludXgvc2Vsb3B0L2ZsbmV0bGluay5jDQo9PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09DQpSQ1MgZmlsZTogL2N2c3Jvb3Qvc2VsaW51eC9uc2EvbHNtLTIu
-NC9zZWN1cml0eS9zZWxpbnV4L3NlbG9wdC9mbG5ldGxpbmsuYyx2DQpyZXRy
-aWV2aW5nIHJldmlzaW9uIDEuMS4xLjINCmRpZmYgLXUgLXIxLjEuMS4yIGZs
-bmV0bGluay5jDQotLS0gbHNtLTIuNC9zZWN1cml0eS9zZWxpbnV4L3NlbG9w
-dC9mbG5ldGxpbmsuYwkzIE1heSAyMDAyIDEyOjUxOjUzIC0wMDAwCTEuMS4x
-LjINCisrKyBsc20tMi40L3NlY3VyaXR5L3NlbGludXgvc2Vsb3B0L2ZsbmV0
-bGluay5jCTI0IE9jdCAyMDAyIDEyOjUzOjA0IC0wMDAwDQpAQCAtMjk2LDcg
-KzI5Niw3IEBADQogCXJldHVybiAwOw0KIH0NCiANCi1fX2V4aXQgdm9pZCBm
-bG5ldGxpbmtfZXhpdCh2b2lkKQ0KK3ZvaWQgZmxuZXRsaW5rX2V4aXQodm9p
-ZCkNCiB7DQogCXNvY2tfcmVsZWFzZShmbG5sLT5zb2NrZXQpOw0KIAlkb3du
-KCZmbG5sX3NlbSk7DQpJbmRleDogbHNtLTIuNC9zZWN1cml0eS9zZWxpbnV4
-L3NlbG9wdC9wZXJpbXRhYi5jDQo9PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQpS
-Q1MgZmlsZTogL2N2c3Jvb3Qvc2VsaW51eC9uc2EvbHNtLTIuNC9zZWN1cml0
-eS9zZWxpbnV4L3NlbG9wdC9wZXJpbXRhYi5jLHYNCnJldHJpZXZpbmcgcmV2
-aXNpb24gMS4xLjEuMQ0KZGlmZiAtdSAtcjEuMS4xLjEgcGVyaW10YWIuYw0K
-LS0tIGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zZWxvcHQvcGVyaW10YWIu
-YwkxNSBNYXIgMjAwMiAxMzoyMTo0NCAtMDAwMAkxLjEuMS4xDQorKysgbHNt
-LTIuNC9zZWN1cml0eS9zZWxpbnV4L3NlbG9wdC9wZXJpbXRhYi5jCTI0IE9j
-dCAyMDAyIDEyOjUzOjA0IC0wMDAwDQpAQCAtMjczLDcgKzI3Myw3IEBADQog
-CXJldHVybiAwOw0KIH0NCiANCi1fX2V4aXQgdm9pZCBzZWxvcHRfcGVyaW10
-YWJfZXhpdCh2b2lkKQ0KK3ZvaWQgc2Vsb3B0X3BlcmltdGFiX2V4aXQodm9p
-ZCkNCiB7DQogCXNlbG9wdF9wZXJpbXRhYl9mbHVzaCgpOw0KIH0NCkluZGV4
-OiBsc20tMi40L3NlY3VyaXR5L3NlbGludXgvc2Vsb3B0L3BlcmltdGFiLmgN
-Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvY3Zzcm9vdC9z
-ZWxpbnV4L25zYS9sc20tMi40L3NlY3VyaXR5L3NlbGludXgvc2Vsb3B0L3Bl
-cmltdGFiLmgsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjEuMS4xDQpkaWZm
-IC11IC1yMS4xLjEuMSBwZXJpbXRhYi5oDQotLS0gbHNtLTIuNC9zZWN1cml0
-eS9zZWxpbnV4L3NlbG9wdC9wZXJpbXRhYi5oCTE1IE1hciAyMDAyIDEzOjIx
-OjQ0IC0wMDAwCTEuMS4xLjENCisrKyBsc20tMi40L3NlY3VyaXR5L3NlbGlu
-dXgvc2Vsb3B0L3BlcmltdGFiLmgJMjQgT2N0IDIwMDIgMTI6NTM6MDQgLTAw
-MDANCkBAIC0xOSw3ICsxOSw3IEBADQogdm9pZCBzZWxvcHRfcGVyaW10YWJf
-Zmx1c2godm9pZCk7DQogDQogaW50IHNlbG9wdF9wZXJpbXRhYl9pbml0KHZv
-aWQpIF9faW5pdDsNCi12b2lkIHNlbG9wdF9wZXJpbXRhYl9leGl0KHZvaWQp
-IF9fZXhpdDsNCit2b2lkIHNlbG9wdF9wZXJpbXRhYl9leGl0KHZvaWQpOw0K
-IA0KICNpbmNsdWRlIDxsaW51eC9za2J1ZmYuaD4NCiAjaW5jbHVkZSA8bGlu
-dXgvbmV0bGluay5oPg0KSW5kZXg6IGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51
-eC9zZWxvcHQvcXVldWUuYw0KPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNT
-IGZpbGU6IC9jdnNyb290L3NlbGludXgvbnNhL2xzbS0yLjQvc2VjdXJpdHkv
-c2VsaW51eC9zZWxvcHQvcXVldWUuYyx2DQpyZXRyaWV2aW5nIHJldmlzaW9u
-IDEuMS4xLjENCmRpZmYgLXUgLXIxLjEuMS4xIHF1ZXVlLmMNCi0tLSBsc20t
-Mi40L3NlY3VyaXR5L3NlbGludXgvc2Vsb3B0L3F1ZXVlLmMJMTUgTWFyIDIw
-MDIgMTM6MjE6NDQgLTAwMDAJMS4xLjEuMQ0KKysrIGxzbS0yLjQvc2VjdXJp
-dHkvc2VsaW51eC9zZWxvcHQvcXVldWUuYwkyNCBPY3QgMjAwMiAxMjo1Mzow
-NCAtMDAwMA0KQEAgLTQyNCw3ICs0MjQsNyBAQA0KIAlyZXR1cm4gMDsNCiB9
-DQogDQotX19leGl0IHZvaWQgc2Vsb3B0X3F1ZXVlX2V4aXQodm9pZCkNCit2
-b2lkIHNlbG9wdF9xdWV1ZV9leGl0KHZvaWQpDQogew0KIAluZl91bnJlZ2lz
-dGVyX3F1ZXVlX2hhbmRsZXIoUEZfSU5FVCk7DQogCXVucmVnaXN0ZXJfbmV0
-ZGV2aWNlX25vdGlmaWVyKCZzZWxvcHRfcXVldWVfbm90aWZpZXIpOw0KSW5k
-ZXg6IGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zZWxvcHQvcXVldWUuaA0K
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNyb290L3Nl
-bGludXgvbnNhL2xzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zZWxvcHQvcXVl
-dWUuaCx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMS4xLjENCmRpZmYgLXUg
-LXIxLjEuMS4xIHF1ZXVlLmgNCi0tLSBsc20tMi40L3NlY3VyaXR5L3NlbGlu
-dXgvc2Vsb3B0L3F1ZXVlLmgJMTUgTWFyIDIwMDIgMTM6MjE6NDQgLTAwMDAJ
-MS4xLjEuMQ0KKysrIGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9zZWxvcHQv
-cXVldWUuaAkyNCBPY3QgMjAwMiAxMjo1MzowNCAtMDAwMA0KQEAgLTIwLDYg
-KzIwLDYgQEANCiBpbnQgc2Vsb3B0X3F1ZXVlX2R1bXAoc3RydWN0IHNrX2J1
-ZmYgKnNrYiwgc3RydWN0IG5ldGxpbmtfY2FsbGJhY2sgKmNiKTsNCiANCiBp
-bnQgc2Vsb3B0X3F1ZXVlX2luaXQodm9pZCkgX19pbml0Ow0KLXZvaWQgc2Vs
-b3B0X3F1ZXVlX2V4aXQodm9pZCkgX19leGl0Ow0KK3ZvaWQgc2Vsb3B0X3F1
-ZXVlX2V4aXQodm9pZCk7DQogDQogI2VuZGlmCS8qIF9TRUxPUFRfUVVFVUVf
-SF8gKi8NCg==
----559023410-1254324197-1035465193=:3525--
+Is it OK to submit this stuff in one patch or should I have made
+several?
+
+
+-- 
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="apache-svn.diff"
+
+diff -urN default/domains/program/apache.te current/domains/program/apache.te
+--- default/domains/program/apache.te	2002-10-17 01:24:36.000000000 +0200
++++ current/domains/program/apache.te	2002-10-24 14:29:59.000000000 +0200
+@@ -367,14 +367,14 @@
+ 
+ ########################################
+ # When the admin starts the server, the server wants to acess
+-# the TTY or PTY associated with the session. The httpd appears
+-# to run correctly without this permission, so the permission
+-# are commented out here. If you decide that access is needed,
+-# then uncomment, but be aware that this will grant httpd access
+-# to all sysadm_r TTYs and PTYs.
++# the TTY or PTY associated with the session. This is very bad
++# behaviour as it allows the server access to the sysadm_r TTYs
++# and PTYs, but apache2 doesn't work without.
++# If you run apache 1.x.x, try disabling this. For apache2,
++# this is currently the only solution.
+ ##################################################
+-allow httpd_t admin_tty_type:chr_file write;
+-dontaudit httpd_t admin_tty_type:chr_file { read write };
++allow httpd_t admin_tty_type:chr_file { read write };
++
+ 
+ ###########################
+ # Allow httpd to receive messages from the network card
+@@ -401,6 +401,7 @@
+ ###################################################
+ allow httpd_t httpd_config_t:file r_file_perms;
+ allow httpd_t httpd_config_t:dir r_dir_perms;
++allow httpd_t httpd_config_t:lnk_file r_file_perms;
+ # allow logrotate to read the config files for restart
+ ifdef(`logrotate.te', `
+ r_dir_file(logrotate_t, httpd_config_t)
+diff -urN default/domains/program/postfix.te current/domains/program/postfix.te
+--- default/domains/program/postfix.te	2002-10-17 01:24:36.000000000 +0200
++++ current/domains/program/postfix.te	2002-10-24 14:29:41.000000000 +0200
+@@ -225,6 +225,8 @@
+ allow postfix_pickup_t postfix_spool_maildrop_t:file r_file_perms;
+ allow postfix_pickup_t postfix_spool_maildrop_t:file unlink;
+ allow postfix_pickup_t self:tcp_socket create_socket_perms;
++allow postfix_pickup_t postfix_pickup_t:capability { sys_chroot };
++
+ 
+ postfix_public_domain(qmgr)
+ allow postfix_qmgr_t postfix_public_t:fifo_file rw_file_perms;
+diff -urN default/domains/program/svn.te current/domains/program/svn.te
+--- default/domains/program/svn.te	1970-01-01 01:00:00.000000000 +0100
++++ current/domains/program/svn.te	2002-10-24 17:40:13.000000000 +0200
+@@ -0,0 +1,92 @@
++#DESC Subversion revision control system
++#
++# Author:  Tom Vogt <tom@lemuria.org>
++#
++
++#################################
++#
++# Rules for the subversion domains
++#
++# svn_t is the domain for the subversion client programs.
++# svn_sysadm_t is the domain for the subversion client programs if run by the sysadmin.
++# svn_exec_t is the type of the corresponding programs.
++# svn_admin_t is the domain for the subversion admin program.
++# svn_admin_t is the domain for the subversion admin program.
++# svn_admin_exec_t is the type of the corresponding programs.
++# svn_repos_t is the type of the repository files.
++#
++#
++type svn_t, domain, privlog;
++type svn_sysadm_t, domain, privlog;
++type svn_admin_t, domain, privlog;
++type svn_repos_t, file_type, sysadmfile;
++role user_r types svn_t;
++role sysadm_r types svn_sysadm_t;
++role system_r types svn_sysadm_t;
++role sysadm_r types svn_admin_t;
++every_domain(svn_t)
++every_domain(svn_sysadm_t)
++every_domain(svn_admin_t)
++type svn_exec_t, file_type, sysadmfile, exec_type;
++type svn_admin_exec_t, file_type, sysadmfile, exec_type;
++
++# allow network access to repositories
++# the first two lines allow regular networking, while
++# the second two take care of labeled or local networking
++can_network(svn_t)
++can_network(svn_sysadm_t)
++can_tcp_connect(svn_t,httpd_t)
++can_tcp_connect(svn_sysadm_t,httpd_t)
++
++# Transition into this domain when you run these programs.
++domain_auto_trans(user_t, svn_exec_t, svn_t)
++domain_auto_trans(sysadm_t, svn_exec_t, svn_sysadm_t)
++domain_auto_trans(initrc_t, svn_exec_t, svn_t)
++domain_auto_trans(sysadm_t, svn_admin_exec_t, svn_admin_t)
++
++# allow svnadmin full access to the repositories
++allow svn_admin_t svn_repos_t:dir create_dir_perms; 
++allow svn_admin_t svn_repos_t:file create_file_perms; 
++
++# allow sysadm direct access to the repository.
++# this is required for import via the file:// method
++allow svn_sysadm_t svn_repos_t:dir rw_dir_perms;
++allow svn_sysadm_t svn_repos_t:file rw_file_perms;
++
++
++# Create, access, and remove files in home directory.
++# (needed to read and possibly create our config file)
++file_type_auto_trans(svn_t, user_home_dir_t, user_home_t)
++file_type_auto_trans(svn_sysadm_t, sysadm_home_dir_t, sysadm_home_t)
++
++# the log/history is written using an external editor,
++# so we need permissions to execute it. we remain in our
++# domain, however, to ensure the confidentiality of the
++# change information
++allow svn_sysadm_t shell_exec_t:file { execute execute_no_trans };
++allow svn_sysadm_t bin_t:file { execute execute_no_trans };
++
++# Access the terminal.
++allow svn_t user_tty_device_t:chr_file rw_file_perms;
++allow svn_t user_devpts_t:chr_file rw_file_perms;
++ifdef(`gnome-pty-helper.te', `allow svn_t user_gph_t:fd use;')
++
++allow svn_sysadm_t sysadm_tty_device_t:chr_file rw_file_perms;
++allow svn_sysadm_t sysadm_devpts_t:chr_file rw_file_perms;
++ifdef(`gnome-pty-helper.te', `allow svn_sysadm_t sysadm_gph_t:fd use;')
++
++allow svn_admin_t sysadm_tty_device_t:chr_file rw_file_perms;
++allow svn_admin_t sysadm_devpts_t:chr_file rw_file_perms;
++ifdef(`gnome-pty-helper.te', `allow svn_admin_t sysadm_gph_t:fd use;')
++
++
++###############################################################################
++#
++# If we are running a server, the apache daemon needs access to the 
++# repositories
++ifdef(`apache.te', `
++allow httpd_t svn_repos_t:dir create_dir_perms;
++allow httpd_t svn_repos_t:file create_file_perms;
++')
++
++
+diff -urN default/file_contexts/program/svn.fc current/file_contexts/program/svn.fc
+--- default/file_contexts/program/svn.fc	1970-01-01 01:00:00.000000000 +0100
++++ current/file_contexts/program/svn.fc	2002-10-24 14:52:29.000000000 +0200
+@@ -0,0 +1,5 @@
++# types for subversion version control system
++/usr/bin/svn			system_u:object_r:svn_exec_t
++/usr/bin/svnlook		system_u:object_r:svn_exec_t
++/usr/bin/svnadmin		system_u:object_r:svn_admin_exec_t
++/var/svn(/.*)?			system_u:object_r:svn_repos_t
+
+--mYCpIKhGyMATD0i+--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
