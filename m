@@ -1,59 +1,26 @@
-Date: Fri, 23 Mar 2001 23:26:49 -0800 (PST)
-From: "frenzy@frenzy.org" <mcclellr@OIT.EDU>
-cc: SELinux@tycho.nsa.gov
-Subject: Re: your mail
-In-Reply-To: <OFC8827216.E70119F9-ON85256A18.007CF1F0@pok.ibm.com>
-Message-ID: <Pine.OSF.4.02.10103232325100.16137-100000@internet.oit.edu>
+Date: Sat, 24 Mar 2001 10:13:42 -0500 (EST)
+From: Chris Crowther <shadow@shad0w.org>
+To: SELinux@tycho.nsa.gov
+Subject: Slashdot Thread
+Message-ID: <Pine.LNX.4.21.0103241012200.28788-100000@monolith.sanctum.shad0w.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It was my understanding that the kernel patch was only made for the
-supplied kernel that comes with RH6.1
-I could be completely wrong here however. The last one I tried it with was
-2.2.17-14smp, which also failed to compile.
-Sincerely,
+'lo All,
 
-Randy McCleland-Bane
-http://www.frenzy.org -- Administrator
-MSN: drekbot@hotmail.com ICQ: 32276169
-EM: frenzy@frenzy.org,mcclellr@oit.edu
-"We must be the change we wish to see 
-in the world." - Mahatma Gandhi   
-PGP key: http://www.frenzy.org/frenzy/
-frenzy_at_frenzy.org.asc.txt
+	Slashdot currently has a thread about SEL running if anyone is
+interested:
 
-On Fri, 23 Mar 2001, Hubertus Franke wrote:
+	http://slashdot.org/article.pl?sid=01/03/24/0225209
 
-just downloaded the SELinux for 2.4.
+	Be prepared to wade through the usual drivel posts.
 
-I did the ./tools/build-kernel  and get the following errors.
-
-
-/home/frankeh/slinux/kernel/include/linux/flask/avc.h:13:31:
-linux/flask/flask.h: No such file or directory
-
-
-/home/frankeh/slinux/kernel/include/linux/flask/security.h:49:32:
-config/flask/audit.h: No such file or directory
-
-Looks like various files are missing in the distribution.
-Any ideas ?
-
-
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
-
-
-
---
-You have received this message because you are subscribed to the selinux list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+-- 
+Chris "_Shad0w_" Crowther
+shad0w@shad0w.org
+http://www.shad0w.org.uk/
 
 
 --
