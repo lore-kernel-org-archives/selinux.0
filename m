@@ -1,52 +1,62 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4MChiI4020957
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 08:43:44 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4MChKuO007132
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 12:43:20 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h4MChGlV007122
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 12:43:18 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, SE Linux <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4MDVvI4021213
+	for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 09:31:59 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h4MDVutV012634
+	for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 13:31:56 GMT
+Received: from nox.lemuria.org (nox.lemuria.org [213.191.86.30])
+        by jazzband.ncsc.mil  with ESMTP id h4MDVsal012631 for <selinux@tycho.nsa.gov>; Thu, 22 May 2003 13:31:55 GMT
+Date: Thu, 22 May 2003 15:32:58 +0200
+From: Tom <tom@lemuria.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: run_init woes
-Date: Thu, 22 May 2003 22:41:35 +1000
-References: <20030522112833.A2615@lemuria.org>
-In-Reply-To: <20030522112833.A2615@lemuria.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200305222241.35921.russell@coker.com.au>
+Message-ID: <20030522153250.A6588@lemuria.org>
+References: <20030522112833.A2615@lemuria.org> <1053605415.4729.1349.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1053605415.4729.1349.camel@moss-huskers.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Thu, May 22, 2003 at 08:10:20AM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 22 May 2003 19:28, Tom wrote:
-> I've started writing a policy for PXE daemon, improving tftpd policy,
-> etc - when something weird happend to me.
->
-> # run_init /etc/init.d/pxe start
-> Authenticating root.
-> Password:
-> Starting PXE daemon: Intel PXE daemon, PXE-2.0 Beta-1 (build 001)
-> Copyright (C) 1999  Intel Corporation
-> pxe.
->
->
-> So far, so good. Except that the pxe daemon dies right away. No debug
-> output either, nothing in the logfiles.
+On Thu, May 22, 2003 at 08:10:20AM -0400, Stephen Smalley wrote:
+> What happens if you do the following (in permissive mode, of course):
+> 	runas system_u:system_r:initrc_t /etc/init.d/pxe start
 
-Are you using my run_init or the NSA one?
+It starts up and runs in the correct domain. (pxe_t)
 
-If using mine then put "sleep 1" in the shell script after the daemon gets 
-run.
+
+> Are you using the extension to run_init created by Russell Coker to
+> create a separate pty for the daemon, or just the normal run_init
+> program?  
+
+I'm using Russells run_init from his current debian packages. I assume
+that it comes with his extensions.
+
+
+
+> What happens if you use the upstream run_init without his
+> modification?   
+
+I've just downloaded and compiled it, and it works fine.
+
+Russell - I've also made a few other experiments, since I was so sure I
+had seen this before. rsync (as a daemon) also has the same problem,
+but it throws an error message into the logfile:
+
+May 22 15:27:38 setest rsyncd[681]: rsync error: received SIGUSR1 or SIGINT (code 20) at rsync.c(229)
+
+
+It also works fine with the upstream run_init. Of course, there are
+these messages which were the initial cause for the modification:
+
+May 22 15:28:13 setest kernel: avc:  denied  { read write } for  pid=688 exe=/usr/bin/rsync path=/0 dev=00:07 ino=2 scontext=system_u:system_r:rsyncd_t tcontext=root:object_r:user_devpts_t tclass=chr_file
+
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
