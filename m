@@ -1,50 +1,60 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9VJMhWt021183
-	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2003 14:22:43 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA1I4xWt024568
+	for <selinux@tycho.nsa.gov>; Sat, 1 Nov 2003 13:04:59 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9VJMNC7024938
-	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2003 19:22:23 GMT
-Received: from lyta.coker.com.au (nat-pool-bos.redhat.com [66.187.230.200])
-	by jazzswing.ncsc.mil  with ESMTP id h9VJMNuw024934
-	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2003 19:22:23 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Brian May <bam@snoopy.apana.org.au>
-Subject: Re: user's access to files in their own home directory
-Date: Sat, 1 Nov 2003 06:17:43 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200310310610.14859.russell@coker.com.au> <20031030234711.GA31194@snoopy.apana.org.au>
-In-Reply-To: <20031030234711.GA31194@snoopy.apana.org.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311010617.43597.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id hA1I4dC7015469
+	for <selinux@tycho.nsa.gov>; Sat, 1 Nov 2003 18:04:40 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id hA1I4duw015466
+	for <selinux@tycho.nsa.gov>; Sat, 1 Nov 2003 18:04:39 GMT
+Date: Sat, 1 Nov 2003 18:04:52 +0000
+From: Dale Amon <amon@vnl.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: policycoreutils
+Message-ID: <20031101180452.GC4790@vnl.com>
+References: <20031031145133.GA16818@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20031031145133.GA16818@vnl.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 31 Oct 2003 10:47, Brian May wrote:
-> > So far in writing the policy I have allowed the user full access to files
-> > in their own home directory, with the exception of gpg where secrecy
-> > requires that the user's processes often be denied read access.
-> >
-> > I would like some feedback on how people feel about having files/dirs
-> > under a user's home directory that they can't unlink or rename.
->
-> This would seem to imply a useability/security tradeoff that is
-> dependant on the security requirements of the computer.
->
-> However, what files/dirs are you thinking of?
+On Fri, Oct 31, 2003 at 02:51:33PM +0000, Dale Amon wrote:
+> Where did policycoreutils go to? I can seem to find it
+> in the sid packages lists:
+> 
+> grep policycore *
+> ftp.de.debian.org_debian_dists_sid_main_binary-i386_Packages:Pre-Depends: policycoreutils, checkpolicy
+> www.coker.com.au_newselinux_._Packages:Pre-Depends: policycoreutils, checkpolicy
+> 
+> Package files:
+> ftp.de.debian.org_debian_dists_sid_contrib_binary-i386_Packages
+> ftp.de.debian.org_debian_dists_sid_contrib_binary-i386_Release
+> ftp.de.debian.org_debian_dists_sid_main_binary-i386_Packages
+> ftp.de.debian.org_debian_dists_sid_main_binary-i386_Release
+> ftp.de.debian.org_debian_dists_sid_non-free_binary-i386_Packages
+> ftp.de.debian.org_debian_dists_sid_non-free_binary-i386_Release
+> non-us.debian.org_debian-non-US_dists_sid_non-US_contrib_binary-i386_Packages
+> non-us.debian.org_debian-non-US_dists_sid_non-US_contrib_binary-i386_Release
+> non-us.debian.org_debian-non-US_dists_sid_non-US_main_binary-i386_Packages
+> non-us.debian.org_debian-non-US_dists_sid_non-US_main_binary-i386_Release
+> non-us.debian.org_debian-non-US_dists_sid_non-US_non-free_binary-i386_Packages
+> non-us.debian.org_debian-non-US_dists_sid_non-US_non-free_binary-i386_Release
+> www.coker.com.au_newselinux_._Packages
+> 
+> /usr/bin/apt-get -y install policycoreutils selinux-policy-default
+> Reading Package Lists...
+> Building Dependency Tree...
+> Package policycoreutils has no available version, but exists in the database.
+> This typically means that the package was mentioned in a dependency and
+> never uploaded, has been obsoleted or is not available with the contents
+> of sources.list
+> E: Package policycoreutils has no installation candidate
+> 
+> Any idea what's up? 
 
-Maildir
-www/web/public_html
-.ssh
-.gnupg (already done)
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I don't know is Russ got the above question, and in any case he might
+just be too busy to think about it. Does anyone else have a suggestion?
 
 
 --
