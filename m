@@ -1,25 +1,43 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0M7QIRb006754
-	for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2004 02:26:18 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i0M7QGCa027073
-	for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2004 07:26:16 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i0M7Q4VC027055 for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2004 07:26:15 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Kratzer, James R." <JamesK@xetron.com>,
-   "SE Linux Mail List (E-mail)" <selinux@tycho.nsa.gov>
-Subject: Re: transition failure
-Date: Thu, 22 Jan 2004 18:24:39 +1100
-References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A87@s3cin>
-In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A87@s3cin>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0MEuhRb008465
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2004 09:56:43 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i0MEtUxr011730
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2004 14:55:30 GMT
+Received: from s3cin.xetron.com (fw.xetron.com [216.68.89.2])
+	by jazzswing.ncsc.mil  with ESMTP id i0MEtUYc011727
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2004 14:55:30 GMT
+Message-ID: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A88@s3cin>
+From: "Kratzer, James R." <JamesK@xetron.com>
+To: "'russell@coker.com.au'" <russell@coker.com.au>
+Cc: "SE Linux Mail List (E-mail)" <selinux@tycho.nsa.gov>
+Subject: RE: transition failure
+Date: Thu, 22 Jan 2004 09:56:28 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200401221824.39426.russell@coker.com.au>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+Thanks Russ.  I was not aware of the constraints.  I'm am using "runcon"
+because when I use "run_init" I get the following error:
+
+    execvp: Permission Denied
+
+I forgot to mention previously that the "runcon" command gives this same
+error as well along with the "avc: denied { transition }" message.  
+
+BTW, these errors only occur with enforcing=1 as run_init and runcon execute
+swatch just fine with enforcing=0.
+What does execvp mean?
+
+
+-----Original Message-----
+From: Russell Coker [mailto:russell@coker.com.au]
+Sent: Thursday, January 22, 2004 2:25 AM
+To: Kratzer, James R.; SE Linux Mail List (E-mail)
+Subject: Re: transition failure
+
 
 On Thu, 22 Jan 2004 10:20, "Kratzer, James R." <JamesK@xetron.com> wrote:
 > I have SE Linux kernel 2.4 installed and I have a swatch type definition
@@ -44,7 +62,8 @@ In the default "constraints" file you have:
 constrain process transition
         ( r1 == r2 or t1 == privrole) ;
 
-The "privrole" attribute is not current assigned to sysadm_t, although changes 
+The "privrole" attribute is not current assigned to sysadm_t, although
+changes 
 are being made in this area...
 
 Why not just use run_init?  Or allow swatch_t to be in sysadm_r?
@@ -55,6 +74,12 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
