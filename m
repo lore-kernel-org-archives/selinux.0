@@ -1,35 +1,47 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2PKIxx6012799
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 15:18:59 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h2PKFQlY010334
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 20:15:26 GMT
-Received: from mx.nas-smoothtransition.com (nas-vm-156.nas-smoothtransition.com [66.95.157.156] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id h2PKFQKX010331
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 20:15:26 GMT
-Received: from acme ([66.200.42.3])
-	by mx.nas-smoothtransition.com (8.12.8/8.9.3) with ESMTP id h2PKIvLF012955
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 15:18:57 -0500
-From: "david caplan" <dac@tresys.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>
-Subject: usermod
-Date: Tue, 25 Mar 2003 15:18:57 -0500
-Message-ID: <GBEAJBKHFOBIBBJBCGAGAEOACKAA.dac@tresys.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2PNh4x6014128
+	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 18:43:04 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h2PNh3R1005846
+	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 23:43:04 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h2PNgwj9005838 for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2003 23:42:59 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "david caplan" <dac@tresys.com>, "SE Linux" <selinux@tycho.nsa.gov>
+Subject: Re: usermod
+Date: Wed, 26 Mar 2003 00:42:33 +0100
+References: <GBEAJBKHFOBIBBJBCGAGAEOACKAA.dac@tresys.com>
+In-Reply-To: <GBEAJBKHFOBIBBJBCGAGAEOACKAA.dac@tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <200303251636.17723.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200303260042.33489.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Was there a reason usermod was not wrapped similar to useradd/userdel?
+On Tue, 25 Mar 2003 21:18, david caplan wrote:
+> Was there a reason usermod was not wrapped similar to useradd/userdel?
 
-On a similar note, what about the gpasswd/group[add|mod|del] family?  As
-they are all sbin_t, they do not have permission, when run by sysadm_t, to
-open /etc/gshadow (which is shadow_t).
+I never use that program and it seems that the other people involved in 
+writing the wrappers don't use it either.
 
-Thanks,
-david
+> On a similar note, what about the gpasswd/group[add|mod|del] family?  As
+> they are all sbin_t, they do not have permission, when run by sysadm_t, to
+> open /etc/gshadow (which is shadow_t).
+
+Once again, it's not something that apparently gets used much.  Also you 
+forgot to mention vigr which is another program in need of a wrapper.
+
+It's been on my todo list to fix this for a while but I haven't got around to 
+it.  I'm sure that if you send Steve a patch to address this then it'll get 
+in the next release.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
