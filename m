@@ -1,155 +1,93 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4HGhsRb025411
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 12:43:55 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4HGhpAR022626
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 16:43:51 GMT
-Received: from carbon.btinternet.com (carbon.btinternet.com [194.73.73.92])
-        by jazzband.ncsc.mil  with ESMTP id i4HGhoHn022618 for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 16:43:51 GMT
-Received: from [81.130.181.235] (helo=lkcl.net)
-	by carbon.btinternet.com with esmtp (Exim 3.22 #25)
-	id 1BPlDH-0004bC-00
-	for selinux@tycho.nsa.gov; Mon, 17 May 2004 17:43:39 +0100
-Received: from highfield ([192.168.0.223]:33642 helo=lkcl.net)
-	by lkcl.net with esmtp (Exim 4.24 #1)
-	id 1BPlG1-0006ni-Gj
-	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 16:46:29 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BP8Xe-0007cq-Qx
-	for selinux@tycho.nsa.gov; Sat, 15 May 2004 23:26:06 +0000
-Date: Sat, 15 May 2004 23:26:06 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: selinux@tycho.nsa.gov
-Subject: suggestion to help transition to selinux: dynamic loading of libselinux
-Message-ID: <20040515232606.GA9378@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4HJBuRb026494
+	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 15:11:57 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4HJ9WB2023151
+	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 19:09:33 GMT
+Received: from smtp.sws.net.au ([61.95.69.6])
+	by jazzswing.ncsc.mil  with ESMTP id i4HJ9Vwi022985
+	for <selinux@tycho.nsa.gov>; Mon, 17 May 2004 19:09:31 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: suggestion to help transition to selinux: dynamic loading of libselinux
+Date: Tue, 18 May 2004 05:10:40 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20040515232606.GA9378@lkcl.net>
+In-Reply-To: <20040515232606.GA9378@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200405180510.40047.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-dear nsa et al,
+On Sun, 16 May 2004 09:26, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> and i presume that if such programs are compromised, and someone
+> attempts to _stop_ libselinux from being loaded, well then
+> those programs will not be capable of making domain transitions
+> etc. and they will be useless [am i right?]
 
-love selinux principle.  it's _got_ to be made easier.
+The first candidate for such changes would be init.  We would have to 
+hard-code a check for selinux=0 in the init source to avoid having init just 
+not enable SE Linux if file system corruption causes libselinux.so to 
+disappear.
 
-idea: make all the modifications to e.g. coreutils, login etc.
-compile with the header files but not necessarily _need_
-libselinux at run-time.
+I think that init is the program that needs such changes most, the current 
+situation makes libselinux one of the most important packages in the system 
+(can't boot without it).
 
-way to do that is the same way that libdvdcss is loaded by
-libdvdread: dynamically [there are plenty of other programs
-that use the same technique].
+> then, for example, in the patch to coreutils,
+> http://selinux.lemuria.org/newselinux/coreutils/coreutils.diff
+>
+> in coreutils-5.0.91/src/copy.c line 1444 approx, instead of
+> ++#ifdef WITH_SELINUX
+> ++	if (x->preserve_security_context)
+> ++	  setfscreatecon(NULL);
+> ++#endif
+>
+> you have:
+>
+> if (sel != NULL && x->preserve_security_context)
+> 	sel->setfscreatecon(NULL);
+>
+>
+> yes, correct: no #ifdef WITH_SELINUX :)
 
-the suggestion is based on the premise that if you have a
-non-selinux kernel, and no libselinux installed, the programs
-(pam, coreutils, login etc.) will attempt to dynamically load
-libselinux (with dlopen), find it missing, _won't care_
-and will adapt and proceed knowing that there's no security
-enhancements - i.e. as if they had never been patched to
-deal with selinux in the first place;
+In any case I think that we want #ifdef WITH_SELINUX.  People who don't want 
+to use SE Linux should have the option to compile without any of that code 
+for small memory systems.
 
-whilst if they _do_ detect that libselinux is available, an
-init function is called which returns a pointer to a vector
-table of all the functions needed, which are then used;
+> the advantage of deploying it is that at present there is
+> completely justifiable resistance upstream in accepting
+> patches to the core functionality of linux useability that
+> makes it impossible to use the core utilities for a non-selinux
+> environment (!), and this suggestion makes the reason for that
+> resistance go away.
 
-and i presume that if such programs are compromised, and someone
-attempts to _stop_ libselinux from being loaded, well then
-those programs will not be capable of making domain transitions
-etc. and they will be useless [am i right?]
+Of course we can do this on a per-application basis.  If there is some 
+application for which we can't get the current patches included but for which 
+changes such as you suggest would be accepted then we should definitely do it 
+for that app.
 
+Of course that doesn't require changing libselinux, we could just call dlsym() 
+for every function we want to use.  Do any applications use so many functions 
+that calling dlsym() repeatedly is excessive overhead?
 
-the technique of having one function available from a dynamic
-library, which returns a table of all functions available in
-the library, and which is accessed via dlsym is very common,
-i am sure you have heard of it:
+> p.s. please ask me for clarifications if needed or even for
+> patches rather than go "uhn?  weirdo, weird language, can't
+> even touch a shift key, don't talk to him".  i _want_ selinux
+> to be adapted mainstream by debian, quickly, so talk to me.
 
-/* change all functions listed in this vector table from
-   extern to static: they are made accessible _only_ through
-   the vector table, instead
- */
-
-static libselinux_vector_table fns =
-{
-    is_selinux_enabled,
-	freecon,
-	freeconary,
-	getcon,
-	getpidcon,
-	getprevcon,
-	getexeccon,
-	....
-	....
-	fsetfilecon
-}
-
-
-extern libselinux_vector_table *libselinux_init_fn(void);
-
-
-then you do this, in every program that requires access to
-libselinux functions:
-
-void *handle = dlopen("/usr/lib/libselinux.so", blah);
-void *(void) fn = dlsym(handle, "libselinux_init_fn");
-
-libselinux_vector_table *sel = (libselinux_vector_table*)(*fn)();
-
-then, for example, in the patch to coreutils,
-http://selinux.lemuria.org/newselinux/coreutils/coreutils.diff
-
-in coreutils-5.0.91/src/copy.c line 1444 approx, instead of
-++#ifdef WITH_SELINUX
-++	if (x->preserve_security_context) 
-++	  setfscreatecon(NULL);
-++#endif
-
-you have:
-
-if (sel != NULL && x->preserve_security_context)
-	sel->setfscreatecon(NULL);
-
-
-yes, correct: no #ifdef WITH_SELINUX :)
-
-
-i.e. you must compile always with the header files, but you must NOT
-require the library libselinux to be present in order for the program
-to actually work.
-
-this is a standard programming technique, i am sure that someone could
-provide better examples of how it is deployed.
-
-the advantage of deploying it is that at present there is
-completely justifiable resistance upstream in accepting
-patches to the core functionality of linux useability that
-makes it impossible to use the core utilities for a non-selinux
-environment (!), and this suggestion makes the reason for that
-resistance go away.
-
-
-i hope that you will consider adapting libselinux for use in this
-manner, because the sooner the dual-maintenance of the "alternate"
-versions of the core utils disappears, the better.
-
-sincerely,
-
-l.
-
-p.s. please ask me for clarifications if needed or even for
-patches rather than go "uhn?  weirdo, weird language, can't
-even touch a shift key, don't talk to him".  i _want_ selinux
-to be adapted mainstream by debian, quickly, so talk to me.
+The main thing that is needed for better SE Linux support in Debian is to have 
+more people working on it.  Doing this sort of thing properly requires that 
+most than one person work on it.
 
 -- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
