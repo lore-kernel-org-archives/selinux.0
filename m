@@ -1,104 +1,90 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3RGVVI4020918
-	for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 12:31:31 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3RGVU7R023858
-	for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 16:31:30 GMT
-Received: from hoss.orcus.priv.at (chello080110242202.117.11.tuwien.teleweb.at [80.110.242.202])
-        by jazzband.ncsc.mil  with ESMTP id h3RGVSKP023855 for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 16:31:29 GMT
-To: selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3RHFkI4021084
+	for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 13:15:47 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h3RHFdVf013877
+	for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 17:15:39 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h3RHFV4D013874
+	for <selinux@tycho.nsa.gov>; Sun, 27 Apr 2003 17:15:34 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Robert Bihlmeyer <robbe@orcus.priv.at>, selinux@tycho.nsa.gov
 Subject: Re: broad domains
-References: <87n0ilej7x.fsf@orcus.priv.at>
-	<200304251321.07207.russell@coker.com.au>
-From: Robert Bihlmeyer <robbe@orcus.priv.at>
-Date: 27 Apr 2003 18:17:20 +0200
-In-Reply-To: <200304251321.07207.russell@coker.com.au>
-Message-ID: <87of2r9apb.fsf@orcus.priv.at>
+Date: Mon, 28 Apr 2003 03:14:59 +1000
+References: <87n0ilej7x.fsf@orcus.priv.at> <200304251321.07207.russell@coker.com.au> <87of2r9apb.fsf@orcus.priv.at>
+In-Reply-To: <87of2r9apb.fsf@orcus.priv.at>
 MIME-Version: 1.0
-content-Type: multipart/signed; boundary="----------=_1051460297-1046-0"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200304280314.59792.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
-It has been signed conforming to RFC3156.
-You need GPG or PGP to check the signature.
+On Mon, 28 Apr 2003 02:17, Robert Bihlmeyer wrote:
+> > > A have the same problem with the games domain provided in the default
+> > > policy (or at least in Russell's package). As is, it doesn't fit half
+> > > the stuff in my /usr/games.
+> >
+> > How does it not fit them?
+>
+> I simply don't think it makes sense to put a class as diverse as games
+> into one domain. Some games, need X access (provided by the default
+> policy), some none. Some need direct video access, or want to output
 
-------------=_1051460297-1046-0
-Content-Type: text/plain; charset=us-ascii
+The problem is in categorising the games.  There are a huge number of games, 
+they are being written and re-written all the time.  For something that's 
+easy to setup having a single domain for all of them works reasonably well.
 
-Russell Coker <russell@coker.com.au> writes:
+> (in rare cases input) sound. Some need read access to game data, or
+> r/w access to state (hiscore, save games), that may be located in a
+> shared area or in a fixed or variable location below the user's home.
+> Sometimes even the game data or the game itself is in a user-specified
+> location (think: Doom WADs or Infocom zcode).
 
-> On Sun, 20 Apr 2003 17:11, Robert Bihlmeyer wrote:
-> > [...] Maybe these generic domains are a mistake?
-> 
-> Which generic domains are you referring to?
+I think that my policy covers this reasonably well.
 
-My X client domain, the games domain from the default policy.
+> Basically, I think most games should just run under user_t, and the
+> blanket specification putting everything in /usr/games into this
+> domain is wrong.
 
-> Why do you want to add a special domain for X clients?
+So if you run a network game that is compromised then it can run "ssh host" 
+and use your ssh authorized key.  It can ptrace other processes that you run, 
+send all your files out over the network, and do every other bad thing you 
+can imagine.
 
-I wanted to avoid giving user_t direct access to the X server or the
-DRI devices. But since I now think that this was mistaken, I now grant
-normal Xlib-style access to user_t, and open special domains for the
-programs that need DRI.
+Of course with the current situation regarding X a cracked game could sniff 
+the keyboard when you are entering a password.  But this is more difficult to 
+arrange, and we do plan to solve the X problem eventually.
 
-> For good X security we need something like Cluster Mode Workstation 
-> http://www.ornl.gov/~jar/cmw4me.pdf .
+If you want games to run in user_t then simply don't install games.te.
 
+> > > On the other hand, having a domain for every teensy toy out there
+> > > seems a bit excessive.
+> >
+> > Yes, it becomes a management nightmare which isn't good for security.
+>
+> If we had a stronger inheritance model (maybe just through m4 macros)
+> I'm not so sure it's too hard to handle.
 
+Go for it.  Write some sample policy and demonstrate to us how easy it is!
 
+> > > BTW, can't setfiles assume some default user & role if none is given?
+> > > Repeating system_u:object_r: a million times is superflous.
+> >
+> > I did that once and Steve convinced me to stop doing it.
+>
+> Any subject keywords or URL so I can find the arguments?
 
-> > A have the same problem with the games domain provided in the default
-> > policy (or at least in Russell's package). As is, it doesn't fit half
-> > the stuff in my /usr/games.
-> 
-> How does it not fit them?
-
-I simply don't think it makes sense to put a class as diverse as games
-into one domain. Some games, need X access (provided by the default
-policy), some none. Some need direct video access, or want to output
-(in rare cases input) sound. Some need read access to game data, or
-r/w access to state (hiscore, save games), that may be located in a
-shared area or in a fixed or variable location below the user's home. 
-Sometimes even the game data or the game itself is in a user-specified
-location (think: Doom WADs or Infocom zcode).
-
-Basically, I think most games should just run under user_t, and the
-blanket specification putting everything in /usr/games into this
-domain is wrong.
-
-> > On the other hand, having a domain for every teensy toy out there
-> > seems a bit excessive.
-> 
-> Yes, it becomes a management nightmare which isn't good for security.
-
-If we had a stronger inheritance model (maybe just through m4 macros)
-I'm not so sure it's too hard to handle.
-
-> > BTW, can't setfiles assume some default user & role if none is given?
-> > Repeating system_u:object_r: a million times is superflous.
-> 
-> I did that once and Steve convinced me to stop doing it.
-
-Any subject keywords or URL so I can find the arguments?
+Just search the mailing list archives for devfsd, I think the early discussion 
+of the devfsd module contains the relevant information.
 
 -- 
-Robbe
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-------------=_1051460297-1046-0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+rAXe8g21h7wYWrMRAllsAJ0S1FGt850aHWontZ1nrbsnMLaR5ACfSSPe
-2kNzHazw4PlvDI/EFI0dt64=
-=BTE+
------END PGP SIGNATURE-----
-
-------------=_1051460297-1046-0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
