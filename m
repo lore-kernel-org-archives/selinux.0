@@ -1,241 +1,60 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4K68wRb016528
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 02:08:58 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4K66WB2006767
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 06:06:32 GMT
-Received: from smtp800.mail.ukl.yahoo.com (smtp800.mail.ukl.yahoo.com [217.12.12.142])
-	by jazzswing.ncsc.mil  with SMTP id i4K66Vwi006763
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 06:06:31 GMT
-Date: Thu, 20 May 2004 06:06:06 +0000
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4K6HGRb016574
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 02:17:16 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4K6HDAR002640
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 06:17:13 GMT
+Received: from smtp802.mail.ukl.yahoo.com (smtp802.mail.ukl.yahoo.com [217.12.12.139])
+        by jazzband.ncsc.mil  with SMTP id i4K6HCHn002636 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 06:17:12 GMT
+Date: Thu, 20 May 2004 06:14:35 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Steve Greenland <steveg@moregruel.net>, SE-Linux <selinux@tycho.nsa.gov>,
+To: Russell Coker <russell@coker.com.au>
+Cc: Steve Greenland <steveg@moregruel.net>, SE-Linux <selinux@tycho.nsa.gov>,
    193644@bugs.debian.org, Stephen Smalley <sds@epoch.ncsc.mil>
 Subject: Re: Bug#193644: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=193644 (cron upstream patch)
-Message-ID: <20040520060606.GG24597@lkcl.net>
-References: <20040519091454.GL7348@lkcl.net> <1084973453.30873.76.camel@moss-spartans.epoch.ncsc.mil> <20040519140239.GF4221@lkcl.net> <20040519181120.GA6115@moregruel.net> <20040519200057.GD24597@lkcl.net> <20040519215409.GA7459@moregruel.net>
+Message-ID: <20040520061435.GH24597@lkcl.net>
+References: <20040519091454.GL7348@lkcl.net> <20040519140239.GF4221@lkcl.net> <20040519181120.GA6115@moregruel.net> <200405200600.46881.russell@coker.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
-In-Reply-To: <20040519215409.GA7459@moregruel.net>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200405200600.46881.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, May 19, 2004 at 04:54:09PM -0500, Steve Greenland wrote:
-> On 19-May-04, 15:00 (CDT), Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote: 
-> > 
-> >  ... therefore, i take it that you mean that the letters "system_u"
-> >  _could_ be used as a username, whereas "*" is an invalid character
-> >  which, _if_ used in /etc/passwd, would cause a login error.
+On Thu, May 20, 2004 at 06:00:46AM +1000, Russell Coker wrote:
+> On Thu, 20 May 2004 04:11, Steve Greenland <steveg@moregruel.net> wrote:
+> > It feels very misleading and confusing to overload it that way, and I
+> > don't see the difference between checking for "system_u" and "*system*".
+> >
+> > Except that "system_u" *is* a valid username, therefore raising the
+> > possiblity of conflict between /etc/crontab and the crontab of user
+> > system_u.
 > 
-> Yes.
+> If you are using SE Linux then a user name of "system_u" is not going to 
+> work, /bin/login etc can't launch shells with system_u as the identity.
 > 
-> >  and i take it that _that_ is why you object to its use, yes?
-> 
-> No. How many times do I have to say this? It's the WRONG FSCKING FIELD.
-> The field the SE linux people are so obsessed with changing is NOT
-> THE USERNAME field. The username field is available. Using it for
-> controlling the SE context would do the right thing, right? 
+> I guess we can have the SE Linux code in crond know that "*system*" means that 
+> the identity of "system_u" should be used.
+ 
+ i reworked the patch to add an extra argument to process_crontab.
+ the behaviour of the 2nd argument, fname, is left untouched.
+ a third argument is added which is set to "system_u" where needed,
+ and is identical to the 2nd argument, fname, where needed.
+ 
+ it makes it clear that the two purposes are separate and distinct,
+ and i believe it achieves what you intend by the above, which
+ would have been to strcmp (fname, "*system*") == 0 inside
+ process_crontab and to special-case call get_default_context
+ with "system_u" in that instance, yes?
 
- no, it wouldn't, because in some cases the context switch must
- come from "system".
-
- "system" is like... a privilege ABOVE root, and i presume its
- closest equivalent is to the "SYSTEM" SID on the NT
- (actually VAX/VMS) security model.
-
- i think this can be resolved by adding an extra argument to
- process_crontab.  to put that another way: if an extra
- argument is added which is used solely the selinux context,
- the issue you have, steve, over the change from *system*
- to system_u goes away.
-
- patch to add extra argument which does not interfere with
- the concept of "*system*" is attached.
+ the extra-argument-patch does the equivalent of that.
 
  l.
 
+ p.s. this is completely offtopic, but i wish the default world
+ language was sanscrit or german or something because when
+ describing computer stuff i end up hyphenating english words
+ together a lot.  oh well.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=x
-
---- database.c.old	2004-05-19 09:03:06.000000000 +0000
-+++ database.c	2004-05-20 06:04:24.000000000 +0000
-@@ -30,6 +30,11 @@
- #include <sys/stat.h>
- #include <sys/file.h>
- 
-+#ifdef WITH_SELINUX
-+#include <selinux/selinux.h>
-+#include <selinux/flask.h>
-+#include <selinux/av_permissions.h>
-+#endif
- 
- #define TMAX(a,b) ((a)>(b)?(a):(b))
- 
-@@ -46,7 +51,11 @@
- 
- #endif /* ifndef PATH_MAX */
- 
--static	void		process_crontab __P((char *, char *, char *,
-+static	void 		process_crontab __P((char *, char *,
-+#ifdef WITH_SELINUX
-+					     char *,
-+#endif
-+					     char *,
- 					     struct stat *,
- 					     cron_db *, cron_db *));
- #ifdef DEBIAN
-@@ -168,6 +177,9 @@
- 
- 	if (syscron_stat.st_mtime) {
- 		process_crontab("root", "*system*",
-+#ifdef WITH_SELINUX
-+				SYSUSERNAME,
-+#endif
- 				SYSCRONTAB, &syscron_stat,
- 				&new_db, old_db);
- 	}
-@@ -205,7 +217,11 @@
- 
- 		/* statbuf is used as working storage by process_crontab() --
- 		   current contents are irrelevant */
--		process_crontab("root", fname, tabname,
-+		process_crontab("root", fname,
-+#ifdef WITH_SELINUX
-+				SYSUSERNAME,
-+#endif
-+				tabname,
- 				&statbuf, &new_db, old_db);
- 
- 	}
-@@ -236,7 +252,11 @@
- 		(void) strcpy(fname, dp->d_name);
- 		snprintf(tabname, PATH_MAX+1, CRON_TAB(fname));
- 
--		process_crontab(fname, fname, tabname,
-+		process_crontab(fname, fname,
-+#ifdef WITH_SELINUX
-+				fname,
-+#endif
-+				tabname,
- 				&statbuf, &new_db, old_db);
- 	}
- 	closedir(dir);
-@@ -312,9 +332,16 @@
- 
- 
- static void
--process_crontab(uname, fname, tabname, statbuf, new_db, old_db)
-+process_crontab(uname, fname,
-+#ifdef WITH_SELINUX
-+		se_ctx_name,
-+#endif
-+		tabname, statbuf, new_db, old_db)
- 	char		*uname;
- 	char		*fname;
-+#ifdef WITH_SELINUX
-+	char		*se_ctx_name;
-+#endif
- 	char		*tabname;
- 	struct stat	*statbuf;
- 	cron_db		*new_db;
-@@ -324,6 +351,13 @@
- 	int		crontab_fd = OK - 1;
- 	user		*u;
- 
-+#ifdef WITH_SELINUX
-+	security_context_t  file_context=NULL;
-+	security_context_t   user_context=NULL;
-+	struct av_decision avd;
-+	int retval=0, selinux_enabled = (is_selinux_enabled() > 0);
-+#endif
-+
- #ifdef DEBIAN
- 	/* If the name begins with *system*, don't worry about password -
- 	 it's part of the system crontab */
-@@ -349,6 +383,14 @@
- 		goto next_crontab;
-             }
- 
-+#ifdef WITH_SELINUX
-+	    if (selinux_enabled) {
-+		if (fgetfilecon(crontab_fd, &file_context) < OK) {
-+		    log_it(fname, getpid(), "getfilecon FAILED", tabname);
-+		    goto next_crontab;
-+		}
-+	    }
-+#endif
-             if (fstat(crontab_fd, statbuf) < OK) {
- 		log_it(fname, getpid(), "FSTAT FAILED", tabname);
- 		goto next_crontab;
-@@ -385,6 +427,14 @@
- 		goto next_crontab;
-             }
- 
-+#ifdef WITH_SELINUX
-+	    if (selinux_enabled) {
-+		if (fgetfilecon(crontab_fd, &file_context) < OK) {
-+		    log_it(fname, getpid(), "getfilecon FAILED", tabname);
-+		    goto next_crontab;
-+		}
-+	    }
-+#endif
-             if (fstat(crontab_fd, statbuf) < OK) {
- 		log_it(fname, getpid(), "FSTAT FAILED", tabname);
- 		goto next_crontab;
-@@ -425,6 +475,31 @@
- 		free_user(u);
- 		log_it(fname, getpid(), "RELOAD", tabname);
- 	}
-+#ifdef WITH_SELINUX
-+	if (selinux_enabled)	{
-+		/*
-+		 * Since crontab files are not directly executed,
-+		 * crond must ensure that the crontab file has
-+		 * a context that is appropriate for the context of
-+		 * the user cron job.  It performs an entrypoint
-+		 * permission check for this purpose.
-+		 */
-+		if (get_default_context(se_ctx_name, NULL, &user_context)) {
-+			log_it(se_ctx_name, getpid(), "NO CONTEXT", tabname);
-+			goto next_crontab;
-+		}
-+		retval = security_compute_av(user_context, file_context,
-+			SECCLASS_FILE, FILE__ENTRYPOINT, &avd);
-+		freecon(user_context);
-+		freecon(file_context);
-+		file_context = NULL;
-+
-+		if (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT)) {
-+			log_it(fname, getpid(), "ENTRYPOINT FAILED", tabname);
-+			goto next_crontab;
-+		}
-+	}
-+#endif
- 	u = load_user(crontab_fd, pw, fname);
- 	if (u != NULL) {
- 		u->mtime = statbuf->st_mtime;
-@@ -436,6 +511,12 @@
- 		Debug(DLOAD, (" [done]\n"))
- 		close(crontab_fd);
- 	}
-+#ifdef WITH_SELINUX
-+	if(file_context) {
-+		freecon(file_context);
-+		file_context = NULL;
-+	}
-+#endif
- }
- 
- #ifdef DEBIAN
-
---BXVAT5kNtrzKuDFl--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
