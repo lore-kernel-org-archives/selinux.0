@@ -1,49 +1,54 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7MHX6rT013872
-	for <selinux@tycho.nsa.gov>; Sun, 22 Aug 2004 13:33:07 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7MHX5V1010015
-	for <selinux@tycho.nsa.gov>; Sun, 22 Aug 2004 17:33:05 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by open.hands.com (Postfix) with ESMTP id DCD49BF78
-	for <selinux@tycho.nsa.gov>; Sun, 22 Aug 2004 18:33:05 +0100 (BST)
-Received: from open.hands.com ([127.0.0.1])
-	by localhost (open [127.0.0.1]) (amavisd-new, port 10024) with LMTP
-	id 08164-05-2 for <selinux@tycho.nsa.gov>;
-	Sun, 22 Aug 2004 18:33:04 +0100 (BST)
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id C2314BF73
-	for <selinux@tycho.nsa.gov>; Sun, 22 Aug 2004 18:33:03 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BywOG-0005ca-8j
-	for selinux@tycho.nsa.gov; Sun, 22 Aug 2004 18:44:24 +0100
-Date: Sun, 22 Aug 2004 18:44:24 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: deleting all files in /var/log
-Message-ID: <20040822174424.GE13842@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7N29BrT015331
+	for <selinux@tycho.nsa.gov>; Sun, 22 Aug 2004 22:09:12 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7N297V1016502
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 02:09:09 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Alexandre Oliva <aoliva@redhat.com>
+Subject: Re: Fedora and udev
+Date: Mon, 23 Aug 2004 12:09:01 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>, fedora-selinux-list@redhat.com
+References: <200408222125.38169.russell@coker.com.au> <orzn4nuval.fsf@livre.redhat.lsd.ic.unicamp.br>
+In-Reply-To: <orzn4nuval.fsf@livre.redhat.lsd.ic.unicamp.br>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200408231209.01521.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-has anyone tried this?
+On Mon, 23 Aug 2004 00:00, Alexandre Oliva <aoliva@redhat.com> wrote:
+> On Aug 22, 2004, Russell Coker <russell@coker.com.au> wrote:
+> > It seems that udev is now virtually mandatory as of the latest
+> > rawhide update.
+>
+> This is what makes it, like, mandatory:
+>
+> /etc/udev/udev.conf:
+> UDEV_INITRD="yes"
+>
+> Change it to `no' and hopefully everything will work again.  It breaks
+> more than SELinux.
 
-because i have... and things like /var/log/dmesg cannot be recreated
-under the present selinux policy, which bans initrc_t from write and
-add_name permissions to /var/log.
+Thanks for that advice.  Once I looked at that I noticed that there's an 
+option UDEV_RAMFS in the same file which must be set to "no".  I'm not sure 
+whether UDEV_RAMFS="no" would allow it to work on SE Linux with 
+UDEV_INITRD="yes" but don't have any plans to test this at the moment.
 
-l.
+We either need to get ramfs working in the Fedora kernels or make some changes 
+to the udev plans.
+
+One option would be to use an ext2 file system on a ram disk for udev.  It 
+would do all the same stuff as ramfs (at a slightly higher memory cost) and 
+work perfectly with SE Linux.
 
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
