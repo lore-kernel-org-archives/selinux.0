@@ -1,51 +1,48 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2QHifx6018748
-	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 12:44:41 -0500 (EST)
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2QLDux6020228
+	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 16:13:57 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h2QHieR1029498
-	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 17:44:40 GMT
-Received: from RelayDAL.nai.com (relaydal.nai.com [205.227.136.197])
-        by jazzband.ncsc.mil  with ESMTP id h2QHidj9029495 for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 17:44:40 GMT
-Received: from txwsout1.nai.com (txwsout1.na.nai.com [161.69.216.92] (may be forged))
-	by RelayDAL.nai.com (Switch-2.2.5/Switch-2.2.5) with SMTP id h2QHgLY27865
-	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 11:42:21 -0600 (CST)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: RE: policy patches
-Date: Wed, 26 Mar 2003 11:47:01 -0600
-Message-ID: <8894CA1F87A5D411BD24009027EE783801C14D03@md-exchange1.na.nai.com>
-From: <Kelly_Djahandari@nai.com>
-To: <russell@coker.com.au>, <selinux@tycho.nsa.gov>
+	by jazzband.ncsc.mil  with ESMTP id h2QLDtR1008613
+	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 21:13:55 GMT
+Received: from petrus.schuldei.org ([81.27.1.16])
+        by jazzband.ncsc.mil  with ESMTP id h2QLDsj9008525 for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 21:13:55 GMT
+Received: from lukas (lukas.schuldei.com [192.168.31.10])
+	by petrus.schuldei.org (Postfix) with ESMTP id A4E73FBB62
+	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2003 22:12:23 +0100 (CET)
+Date: Wed, 26 Mar 2003 22:12:33 +0100
+From: Andreas Schuldei <andreas@schuldei.org>
+To: selinux@tycho.nsa.gov
+Subject: DHCP server and client
+Message-ID: <20030326211233.GE1342@lukas>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell's policy patches have been applied and the modified files are available on sourceforge. Thanks Russell.
+when i run a DHCP client or server on an selinux box the
+interface dhcp uses is switched to promiscous mode.
 
-Kelly Djahandari
-Network Associates Laboratories
+as a result i get lots of denies for all the rest of the system,
+which clutter up the logs. this is what newrules-selinux -d tells
+me:
 
-> -----Original Message-----
-> From: Russell Coker [mailto:russell@coker.com.au]
-> Sent: Saturday, March 22, 2003 5:14 PM
-> To: SE Linux
-> Subject: policy patches
-> 
-> 
-> I've attached a patch for the passwd_t policy as previously described.
-> 
-> I've also attached a patch containing some trivial changes, 
-> none of which 
-> should require much consideration before being included.
-> 
-> -- 
-> http://www.coker.com.au/selinux/   My NSA Security Enhanced 
-> Linux packages
-> http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-> http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-> http://www.coker.com.au/~russell/  My home page
-> 
+allow dhcpd_t sshd_t:packet_socket { recvfrom };
+allow dhcpd_t courier_tcpd_t:packet_socket { recvfrom };
+allow dhcpd_t netmsg_eth1_t:packet_socket { recvfrom };
+allow dhcpd_t icmp_socket_t:rawip_socket { recvfrom };
+allow dhcpd_t ping_t:rawip_socket { recvfrom };
+allow dhcpd_t named_t:packet_socket { recvfrom };
+allow dhcpd_t netmsg_eth0_t:packet_socket { recvfrom };
+allow dhcpd_t apt_t:packet_socket { recvfrom };
+allow dhcpd_t inetd_t:packet_socket { recvfrom };
+allow dhcpd_t postfix_master_t:packet_socket { recvfrom };
+allow dhcpd_t tcp_socket_t:packet_socket { recvfrom };
 
+i am not sure if i have to allow them or wheather a dontaudit
+should suffice. shouldnt one or the other be put in some kind of
+dhcp-handling policy? the logging facility is becoming really
+useless otherwise, since an avc denied warnings in the logs and
+the really importent once get dropped.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
