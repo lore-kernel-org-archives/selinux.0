@@ -1,70 +1,52 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB7GodIi029184
-	for <selinux@tycho.nsa.gov>; Tue, 7 Dec 2004 11:50:39 -0500 (EST)
-Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB7Gn2pn024192
-	for <selinux@tycho.nsa.gov>; Tue, 7 Dec 2004 16:49:03 GMT
-Message-Id: <200412071650.iB7GoSQs014629@turing-police.cc.vt.edu>
-To: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Yee-HAH! 'smartd' issues 70 avc's when it tries to send mail... 
-In-Reply-To: Your message of "Tue, 07 Dec 2004 10:24:54 EST."
-             <41B5CB46.4020407@redhat.com>
-From: Valdis.Kletnieks@vt.edu
-References: <200412032012.iB3KCjaT030175@turing-police.cc.vt.edu>
-            <41B5CB46.4020407@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB7KUTIi000961
+	for <selinux@tycho.nsa.gov>; Tue, 7 Dec 2004 15:30:29 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB7KUWmm027822
+	for <selinux@tycho.nsa.gov>; Tue, 7 Dec 2004 20:30:32 GMT
+Date: Tue, 7 Dec 2004 20:41:11 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: "Luis Fernando C. Talora" <luis.talora@iesa.com.br>
+Cc: " (SELinux@tycho.nsa.gov)" <SELinux@tycho.nsa.gov>
+Subject: Re: Problem with SELinux and Squid+Winbind+Samba
+Message-ID: <20041207204111.GC5153@lkcl.net>
+References: <5D201EB6E3041946BC4F8F6A14296132607EE3@svnt4-5.inepar.com.br>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1430046511P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Tue, 07 Dec 2004 11:50:27 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <5D201EB6E3041946BC4F8F6A14296132607EE3@svnt4-5.inepar.com.br>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1430046511P
-Content-Type: text/plain; charset=us-ascii
+On Tue, Dec 07, 2004 at 09:19:14AM -0200, Luis Fernando C. Talora wrote:
+> Fellows,
+>  
+> I?m trying to put a server running Squid with Microsoft Windows Active
+> Directory integrated authentication (using Samba 3 and Winbind). When I
+> start the squid service, I get the following message (it repeats itself many
+> times):
+>  
+> Dec  7 08:48:56 svux8-250 kernel: audit(1102416536.028:0): avc:  denied  {
+> getattr } for  pid=3825 exe=/usr/lib/squid/wb_ntlmauth
+> path=/var/run/winbindd/pipe dev=hda7 ino=627398
+> scontext=root:system_r:squid_t tcontext=root:object_r:var_run_t
+> tclass=sock_file
+  
+> Since I?m new in SELinux, I have no idea how to solve this. Could someone
+> give some help?
+ 
+  ah.   there's quite a lot involved!
 
-On Tue, 07 Dec 2004 10:24:54 EST, Daniel J Walsh said:
+  the first thing is, ideally, to write a separate policy for winbindd,
+  esp. making /var/run/winbindd have its own file context.
 
-> Can you try this patch
+  then you can grant wb_ntlmmauth (or squid_t) the right to access
+  /var/run/winbindd/pipe.
 
-Will let you know after I get a chance to test at a reboot, but at first
-eyeball it looks close to workable, if not elegant.  Probably be tomorrow
-before I have feedback on this one...
+ ... anyone got any opinions as to whether winbind should be creating a
+ socket in /var/run?  is that FHS compliant?
 
-> +can_exec(fsdaemon_t, { sbin_t bin_t shell_exec_t }
+ l.
 
-Definitely more sledgehammer than elegance here. :)
-
-I'm wondering if it would make more sense to push a patch upstream to the
-kernel-utils crew.  Reading the smartd manpage in more detail, it looks like
-feeding it a '-M exec /usr/sbin/sendmail' (or building with that as the
-default) would let us only have to add sendmail_exec_t rather than all those.
-
-I'll try your patch, and then see where I can get with the 'invoke sendmail
-directly' route.
-
-I'm not sure what we want to do here - even if we fix the flood of avc's for
-the default case, the smartmontools documentation has examples of invoking
-arbitrary shell scripts with -M (which of course means the obvious).  What
-direction do we want to take here?  Where should sites that need to add
-other 'can_exec' entries be putting them?
-
-
-
-
---==_Exmh_1430046511P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBtd9ScC3lWbTT17ARAimjAKCLkkdZfhz0Je54YsWdAdoDD3UqGgCg6Jys
-T0UM9lMFOUyqGQTcLZAMtNk=
-=Z0u/
------END PGP SIGNATURE-----
-
---==_Exmh_1430046511P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
