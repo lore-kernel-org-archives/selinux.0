@@ -1,38 +1,60 @@
-From: gawain.lynch@felicity-consulting.com.au
-To: Chris Crowther <shadow@shad0w.org>
-Cc: owner-selinux@tycho.nsa.gov, SELinux@tycho.nsa.gov
+Date: Fri, 23 Mar 2001 23:26:49 -0800 (PST)
+From: "frenzy@frenzy.org" <mcclellr@OIT.EDU>
+cc: SELinux@tycho.nsa.gov
 Subject: Re: your mail
+In-Reply-To: <OFC8827216.E70119F9-ON85256A18.007CF1F0@pok.ibm.com>
+Message-ID: <Pine.OSF.4.02.10103232325100.16137-100000@internet.oit.edu>
 MIME-Version: 1.0
-Message-ID: <OF80957966.799B47D4-ONCA256A19.001AABA7@felicity.net.au>
-Date: Sat, 24 Mar 2001 15:55:24 +1100
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> > /home/frankeh/slinux/kernel/include/linux/flask/avc.h:13:31:
-> > linux/flask/flask.h: No such file or directory
-> > /home/frankeh/slinux/kernel/include/linux/flask/security.h:49:32:
-> > config/flask/audit.h: No such file or directory
-> > 
-> > Looks like various files are missing in the distribution.
-> > Any ideas ?
+It was my understanding that the kernel patch was only made for the
+supplied kernel that comes with RH6.1
+I could be completely wrong here however. The last one I tried it with was
+2.2.17-14smp, which also failed to compile.
+Sincerely,
 
->                The header files get auto-created by the build, but 
-they're not
-> there when make dep is run, so you get all the errors, but the Kernel 
-does
-> compile.
+Randy McCleland-Bane
+http://www.frenzy.org -- Administrator
+MSN: drekbot@hotmail.com ICQ: 32276169
+EM: frenzy@frenzy.org,mcclellr@oit.edu
+"We must be the change we wish to see 
+in the world." - Mahatma Gandhi   
+PGP key: http://www.frenzy.org/frenzy/
+frenzy_at_frenzy.org.asc.txt
 
-I am having the same issue with the current release, I let 
-tool/build-kernel run twice, but both times it exits with the error below:
+On Fri, 23 Mar 2001, Hubertus Franke wrote:
 
-        In file included from /usr/include/errno.h:36,
-                         from scripts/split-include.c:26:
-        /usr/include/bits/errno.h:25: linux/errno.h: No such file or 
-directory
-        make: *** [scripts/split-include] Error 1
+just downloaded the SELinux for 2.4.
 
-I have also tried patching fresh source here and I get the same issues.
+I did the ./tools/build-kernel  and get the following errors.
+
+
+/home/frankeh/slinux/kernel/include/linux/flask/avc.h:13:31:
+linux/flask/flask.h: No such file or directory
+
+
+/home/frankeh/slinux/kernel/include/linux/flask/security.h:49:32:
+config/flask/audit.h: No such file or directory
+
+Looks like various files are missing in the distribution.
+Any ideas ?
+
+
+Hubertus Franke
+Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
+, OS-PIC (Chair)
+email: frankeh@us.ibm.com
+(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
+
+
+
+--
+You have received this message because you are subscribed to the selinux list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 You have received this message because you are subscribed to the selinux list.
