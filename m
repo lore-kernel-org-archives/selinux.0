@@ -1,53 +1,49 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA22022
-	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 14:09:59 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA18132
-	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 18:08:58 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id SAA18126
-	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 18:08:56 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 52CE292466
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 04:09:48 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 3719C854
-	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 20:09:40 +0200 (CEST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: policy file management
-Date: Thu, 15 Aug 2002 20:09:39 +0200
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA22257
+	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 14:42:26 -0400 (EDT)
+From: jbyrd@vspacegroup.com
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA02333
+	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 18:40:48 GMT
+Received: from sprout.phpwebhosting.com ([216.218.184.226])
+        by jazzband.ncsc.mil  with SMTP id SAA02329 for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 18:40:43 GMT
+Message-ID: <00a701c2448b$7c23f770$0100a8c0@vspaceprs2>
+To: <selinux@tycho.nsa.gov>
+Subject: Needing some direction ...
+Date: Thu, 15 Aug 2002 14:42:18 -0400
 MIME-Version: 1.0
-Message-Id: <20020815180940.3719C854@lyta.coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently in the SE policy files we have a number of dependencies between .te 
-files, and in my tree I am getting some conflicts.
+I've followed this list for some time, and would by all rights be considered
+a posix "newbie", as I have unfortunately been infected with the Microsoft
+GUI disease for many years now. I had extensive exposure to Unix (primarily
+on a VAX mainframe) while in college, but >15 years can rot your mind and
+memory.
 
-What we need is a good way of choosing which ones to install.
+I currently have an OOTB install of RedHat Linux 7.2 installed and happily
+running under a Connectix VirtualPC 5.0 install on a Win2K box. KDE is the
+default X86 desktop environment and I choose to install all the software
+development tools, so I'm confident that gcc, gcc++, and other packages I
+need are all there. I have downloaded and subsequently burned a CD with the
+SELinux "everything in one package" download. Sifting through the
+documentation to find EXACTLY what to do to install the patched kernal seems
+somewhat confusing to me. Numerous searches through the NSA SELinux webpages
+didn't seem to help much either. I totally expect my confusion has perhaps
+more to do with maneuverability and savvy with Linux itself rather that a
+generic kernal installation/compilation problem.
 
-I am considering the following for the start of a .te file, with postfix.te 
-as an example:
-#DESC Postfix mail server
-#DEPENDS mta.te
-#CONFLICTS mail-server
-#PROVIDES mail-server
+As the "no-hassle" install docs still have me confused, are there any
+resources available that outline a literal step-by-step install method to
+get the patched kernal up and going (ie what directories need to be created,
+what files go where and then what to type in the shell and where exactly in
+the file system I should be when I enter those shell commands}?
 
-So postfix.te depends on mta.te (it won't be offered if you don't have 
-mta.te), it conflicts with other mail-server policy (IE qmail.te and 
-sendmail.te).
+Any help would be greatly appreciated!
 
-What do you think?
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
