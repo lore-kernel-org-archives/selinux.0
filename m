@@ -1,75 +1,87 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iANLrBIi015583
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 16:53:12 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iANLr9au005594
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 21:53:14 GMT
-Received: from lkcl.net (host81-153-247-118.range81-153.btcentralplus.com [81.153.247.118])
-	by open.hands.com (Postfix) with ESMTP id B1514BF76
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 21:53:00 +0000 (GMT)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1CWilM-0001Vb-Sa
-	for selinux@tycho.nsa.gov; Tue, 23 Nov 2004 22:03:52 +0000
-Date: Tue, 23 Nov 2004 22:03:52 +0000
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAO082Ii016299
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 19:08:02 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAO06VuA023504
+	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 00:06:32 GMT
+Date: Wed, 24 Nov 2004 00:18:47 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: xen 2.0 - adding selinux permissions
-Message-ID: <20041123220352.GF5146@lkcl.net>
+To: Mark Williamson <maw48@hermes.cam.ac.uk>
+Cc: xen-devel@lists.sourceforge.net, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [Xen-devel] protecting xen startup
+Message-ID: <20041124001847.GH5146@lkcl.net>
+References: <20041123170546.GB6250@lkcl.net> <Pine.LNX.4.60.0411231802570.3258@hermes-1.csi.cam.ac.uk> <20041123205152.GA5146@lkcl.net> <Pine.LNX.4.60.0411232242120.3871@hermes-1.csi.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.LNX.4.60.0411232242120.3871@hermes-1.csi.cam.ac.uk>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-i'm considering doing some mods on xen 2.0's management interface,
-if i can justify the work.
+On Tue, Nov 23, 2004 at 10:49:24PM +0000, Mark Williamson wrote:
+> >is there anything preventing that interface from being removed, such
+> >that the client/server bit is munged into a single application?
+> 
+> In older releases, there wasn't a Xend.  Instead we had a set of 
+> management scripts that called various operations directly.  You could in 
+> principle munge xm and xend together into a big megatool but it wouldn't 
+> be pretty.
 
-at present, the xen "master", which is the first virtual machine fired up,
-is allowed access to the xen control system (running in x86 ring 0) via
-/proc/xen.
+ i'll take that as a challenge, then :)
 
-some ioctl commands represent things like "start a new virtual machine",
-"stop one", "suspend this session to disk" that sort of thing.
+> Xend makes concurrency control much easier, provides a central point of 
+> contact regarding machine state and demuxes the virtual consoles of the 
+> domain.  You'd have to address these problems in addition to combining the 
+> tools, which would take a fair bit of hacking to do properly.
 
-then, what the xen developers have done is to write a web
-interface (using twisted python *gibber*) which presents
-virtually unrestricted (*gibber*) access to that /proc/xen
-interface on port 8000, using HTTP.
+ okay.
 
-then there is a command xm which connects to port 8000 and issues
-commands over the network port.
+ assuming that 1) i don't want a central point of contact i only want
+ _one_ point of contact and 2) i can live without virtual consoles
+ until i understand the code enough and can get away with
+ using ssh logins instead:
 
-apparently it is possible to implement authentication with
-the twisted python framework, so it's not _all_ bad - plus,
-if you're running a cluster, security restrictions just... get
-in the way!!!
-
-
-what i would _like_ to do is:
-
-- take out the HTTP access and merge the xm http client with the xend
-  http server.
-
-- add in some new selinux security ids representing the xen commands
-  (create virtual machine, list virtual machines, shutdown a machine,
-   suspend-a-session-to-disk, etc.)
-
-- write an selinux policy restricting the xm command to be the only
-  thing that is allowed to perform those operations.
+ would this be a simple enough task for someone not entirely
+ familiar with xen's code [but who has developed a number of
+ 20k+ line python projects over the past four years]?
 
 
-so: is this a practical proposition?
 
-i've looked at security/selinux/hooks.c - is it a simple matter of, say,
-copying the file ioctl command?
+> >>Not exactly.  At the Linux Level, there aren't any extra Xen system calls.
+> >>Most commands are issued to Xen by performing ioctls on the
+> >>/proc/xen/privcmd file.
+> >
+> >GREAT.
+> >
+> >that means that it will be possible to lock down at the very least the
+> >access to /proc/xen and later, should it prove worthwhile, to protect
+> >each ioctl with a new selinux security id per ioctl command.
+> 
+> Right now, only root (actually, probably users with the CAP_SYSADMIN 
+> capability or similar) can do operations on /proc/xen.  
 
-should i be adding a new function to the LSM function table, examining
-the xen ioctl kernel call and calling the new security function in the
-xen ioctl?
+ [which, please excuse me for saying so, doesn't exactly help if that
+ root-only interface is then exposed via an open high port number!! :) ]
 
-if i add a new function to the LSM function table, then presumably that
-means that someone could write a linux "capabilities" function too, yes?
+> Also, many Xen 
+> operations are mapped onto one ioctl call so as it is you can't do very 
+> fine grained protection based on ioctl number.  
 
-l.
+ i was thinking of adding in an LSM hook function that received the
+ ioctl number as one of its arguments, translated that in a case
+ statement into the corresponding selinux SIDs, and from there checked
+ an selinux permission - in a similar way that security/selinux/hooks.c's
+ selinux_file_ioctl() or the selinux_file_fcntl() function operates.
+
+ i.e. not using file_has_perm() but task_has_perm() instead.
+
+ then the first thing that the xen ioctl function does is call that LSM
+ hook function.
+
+ it would therefore also be possible for someone else to write a
+ corresponding LSM linux capabilities function call, too.  should
+ someone so wish.
+
+ l.
 
 -- 
 --
