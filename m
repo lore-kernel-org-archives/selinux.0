@@ -1,54 +1,45 @@
-Subject: Re: dynamic context transitions
-From: Karl MacMillan <kmacmillan@tresys.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3FRrXZ015276
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 10:27:53 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3FRrJZ026075
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 15:27:53 GMT
+Date: Wed, 3 Nov 2004 15:38:21 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Frank Mayer <mayerf@tresys.com>,
-   "'Darrel Goeddel'" <dgoeddel@TrustedCS.com>,
-   SELinux List <SELinux@tycho.nsa.gov>,
-   "'Chad Hanson'" <chanson@TrustedCS.com>
-In-Reply-To: <1099490029.1213.15.camel@moss-spartans.epoch.ncsc.mil>
-References: <000501c4bf9b$a157d2e0$6701a8c0@columbia.tresys.com>
-	 <1099316236.21386.31.camel@moss-spartans.epoch.ncsc.mil>
-	 <4186DCE7.9030401@tresys.com>
-	 <1099409596.31739.150.camel@moss-spartans.epoch.ncsc.mil>
-	 <1099417155.23756.112.camel@pham.columbia.tresys.com>
-	 <1099418564.31739.208.camel@moss-spartans.epoch.ncsc.mil>
-	 <1099431220.23756.129.camel@pham.columbia.tresys.com>
-	 <1099490029.1213.15.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 03 Nov 2004 10:08:03 -0500
-Message-Id: <1099494483.23756.163.camel@pham.columbia.tresys.com>
+Cc: Chad Hanson <chanson@TrustedCS.com>,
+   Darrel Goeddel <DGoeddel@TrustedCS.com>, selinux@tycho.nsa.gov,
+   Frank Mayer <mayerf@tresys.com>
+Subject: Re: dynamic context transitions
+Message-ID: <20041103153821.GA5061@lkcl.net>
+References: <36282A1733C57546BE392885C06185924D9100@chaos.tcs.tcs-sec.com> <1099342548.21386.239.camel@moss-spartans.epoch.ncsc.mil> <20041101225820.GP9643@lkcl.net> <1099403267.31739.22.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1099403267.31739.22.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-03 at 08:53 -0500, Stephen Smalley wrote:
-> On Tue, 2004-11-02 at 16:33, Karl MacMillan wrote:
-> > This is using the dynamic context transitions as a practical
-> > _discretionary_ security measure then. That may have some benefit. I'm
-> > still concerned that the benefits don't outweigh the costs. We are,
-> > after all, talking about breaking some fundamental assumptions of the
-> > SELinux mechanism in a way that may give many people a false sense of
-> > security.
+On Tue, Nov 02, 2004 at 08:47:48AM -0500, Stephen Smalley wrote:
+> On Mon, 2004-11-01 at 17:58, Luke Kenneth Casson Leighton wrote:
+> >  e.g. if you _do_ implement exec_mls_up/downgrade() then you
+> >  can actually express that simply as a domain_auto_trans()
+> >  and an exec()?
+> > 
+> >  which _actually_ means that you really should abandon MLS altogether
+> >  and rewrite your applications to use selinux TE instead?
+> > 
+> >  ... i'm just following a logical progression here, but i feel i must
+> >  have missed something.  clues anyone?
 > 
-> Discretionary?  To samba, I suppose, but not to the client.  We are
-> still talking about the enforcement of a mandatory policy, whether the
-> enforcement is provided by samba as a userspace object manager or by the
-> kernel based on samba's dynamic transitions.
-> 
+> TE is an access matrix, so it can represent a MLS policy, but the
+> resulting representation would be huge for any significant number of MLS
+> levels.  
 
-I meant discretionary to samba. The point that I was trying to make
-clear is that the kernel cannot control samba beyond the union of the
-access granted to the dynamic domains. Finer-grained enforcement is at
-the discretion of samba. Yes the policy is still mandatory, but samba
-receives as much trust as if it were a userspace object manager.
+ so, this is again a bit like the "groups" argument - the one
+ where the number of bits representing the access matrix could
+ go exponential [and impractical]?
 
-Karl 
-
--- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-http://www.tresys.com
+ l.
 
 
 --
