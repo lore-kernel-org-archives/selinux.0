@@ -1,21 +1,52 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7KL8vLa025799
-	for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 17:08:57 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7KL3Qff009435
-	for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 21:08:36 GMT
-Received: from hotmail.com (bay8-dav43.bay8.hotmail.com [64.4.26.15])
-        by jazzband.ncsc.mil  with ESMTP id h7JLg1NN012097 for <selinux@tycho.nsa.gov>; Tue, 19 Aug 2003 21:42:01 GMT
-From: "Ripin Natani" <ripinfs@hotmail.com>
-To: "Stephen Smalley" <sds@epoch.ncsc.mil>
-Cc: "selinux" <selinux@tycho.nsa.gov>
-References: <BAY8-F87HJtfob7bOsP00014599@hotmail.com> <1061298117.25048.164.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7L2NGLa027414
+	for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 22:23:16 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h7L2Lq4F000917
+	for <selinux@tycho.nsa.gov>; Thu, 21 Aug 2003 02:21:52 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+	by jazzswing.ncsc.mil  with ESMTP id h7L2LoFC000909
+	for <selinux@tycho.nsa.gov>; Thu, 21 Aug 2003 02:21:51 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Ripin Natani" <ripinfs@hotmail.com>, selinux@tycho.nsa.gov
 Subject: Re: "Unable to mount root fs on unknown-block(0,0)"
-Date: Tue, 19 Aug 2003 17:29:54 -0400
+Date: Thu, 21 Aug 2003 12:22:57 +1000
+References: <BAY8-F10JvWmMNgl8EM00017e72@hotmail.com>
+In-Reply-To: <BAY8-F10JvWmMNgl8EM00017e72@hotmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_021A_01C36677.80D85B30"
-Message-ID: <BAY8-DAV43bd0PMRGVt0003fd92@hotmail.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200308211222.57311.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 20 Aug 2003 02:02, Ripin Natani wrote:
+> Also I am resending the .config file.
+
+Once again the .config file has SE Linux turned off!
+
+Enable the following items in your kernel configuration to turn on SE Linux.  
+But first I recommend that you get a 2.6.0 kernel working without SE Linux, 
+and as I suggested before this list probably isn't the best place to get 
+advice on general kernel configuration issues.
+
+CONFIG_EXT2_FS_SECURITY=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_SECURITY=y
+CONFIG_SECURITY_NETWORK=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_SECURITY_SELINUX=y
+CONFIG_SECURITY_SELINUX_DEVELOP=y
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
