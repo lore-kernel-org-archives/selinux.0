@@ -1,214 +1,51 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1GGr8Rb010822
-	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 11:53:08 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i1GGpclK004451
-	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 16:51:38 GMT
-Received: from serve.wwwroot16.net (serve.wwwrot16.net [63.247.90.186] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id i1GGpNOX004436
-	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2004 16:51:38 GMT
-Received: from pool-141-156-142-130.res.east.verizon.net ([141.156.142.130] helo=[10.0.1.2])
-	by serve.wwwroot16.net with asmtp (Exim 4.24)
-	id 1Aslyw-0007CX-C9
-	for selinux@tycho.nsa.gov; Mon, 16 Feb 2004 11:52:30 -0500
-Mime-Version: 1.0 (Apple Message framework v612)
-To: selinux@tycho.nsa.gov
-Message-Id: <815F59D7-60A0-11D8-97B0-00306555A856@cryptonomicon.net>
-Content-Type: multipart/alternative; boundary=Apple-Mail-1--141098864
-From: Matthew Hamrick <mhamrick@cryptonomicon.net>
-Subject: SE/Linux Article on Cryptonomicon.Net
-Date: Mon, 16 Feb 2004 11:52:28 -0500
+Date: Mon, 16 Feb 2004 12:19:44 -0500
+From: Robert Connolly <cendres@videotron.ca>
+Subject: Re: StrongArm port
+In-reply-to: <200402170346.15946.russell@coker.com.au>
+To: Douglas Williams <douglaswilliams@sympatico.ca>,
+   SELinux <SELinux@tycho.nsa.gov>
+Message-id: <200402161219.44430.cendres@videotron.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+References: <005701c3f441$e13d7a20$6401a8c0@williams>
+ <200402161000.31454.cendres@videotron.ca>
+ <200402170346.15946.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On February 16, 2004 11:46 am, Russell Coker wrote:
+> On Tue, 17 Feb 2004 02:00, Robert Connolly <cendres@videotron.ca> wrote:
+> > On February 15, 2004 11:03 pm, Douglas Williams wrote:
+> > > Does anyone know where I can get a good linux kernel for an IPAQ 3850.
+> > > My next robot must have a secure OS especially since it will use an RF
+> > > data link with relatively weak encryption.
+> >
+> > I have just recently started working on Ipaq development. I can't give
+> > you an expected date for a working release; but I intened to first get
+> > the Ipaq (3600) Linux built with 'gcc -pie', and without text relocation.
+> > First with glibc since that should already work, then with uclibc.
+> > Eventually leading to kernel 2.6, with selinux, Pax, and ssp. I haven't
+> > considered the issue with xattr, I'll deal with that when I get to it. I
+> > feel the biggest challenge will come in porting the graphical software to
+> > pie/pax.
+>
+> Why do you think that graphical software and PIE will be difficult?
+> People are already working on this, and it shouldn't be THAT difficult.
 
---Apple-Mail-1--141098864
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+Because thats where much of the work for x86 needs to be done, but the ipaq 
+has fewer developers.
 
-Thought the readers of this list might appreciate seeing this article 
-that just appeared on our sister site, Cryptonomicon.Net. For the 
-purposes of full-disclosure, we should mention we're SE/Linux fans here 
-at Security Technique. One of our internal servers is a Debian box with 
-SE/Linux patches applied.
+> However adding XATTR support to a file system is going to be difficult. 
+> You will need to deal with compatability issues (what happens when you
+> mount the XATTR file system with an old XATTR-less kernel?) among other
+> things.
 
-http://www.cryptonomicon.net/modules.php?name=News&file=article&sid=673
+This wouldn't bother me specificly. But I see the problem here.
 
--Matt Hamrick
--Editor, Security Technique
+> If you write the XATTR support then I would expect that someone else would
+> solve the PIE issues before you get XATTR finished.
 
-SE/Linux Goes Mainstream with Red Hat!
-
-Security Enhanced Linux (SE/Linux), a series of kernel and user mode 
-additions to the popular Linux operating system is finally getting it's 
-day in the sun. The SE/Linux project's goal is to add "enhanced" 
-security features including support for Multi-Level Security (MLS), 
-Mandatory Access Control (MAC), and compartmentalized access to data. 
-Not surprising considering the sponsor of the project is the secretive 
-US National Security Agency.
-
-SE/Linux has been available for download for several years, but until 
-now there has been no "officially supported" Linux distribution that 
-included SE/Linux enhancements. Lack of major distro support required 
-individual users to download patches and integrate them into their own 
-systems.
-
-But now SE/Linux is getting it's day in the sun. Linux powerhouse Red 
-Hat has announced that SE/Linux enhancements will be integrated into 
-Red Hat Enterprise Linux 4.0, due to ship in 2005. Official support for 
-the new security features will expand the user base beyond the research 
-and hard-core security user community that currently use the system.
-
-Users who can't wait that long may be able to get a peek in an upcoming 
-Fedora release. Fedora is the project name for the "free" version of 
-Red Hat's operating system, which is not officially supported by Red 
-Hat.
-
-SE/Linux is one of several enhanced security experiments, though it is 
-becoming less accurate these days to term SE/Linux as an "experiment." 
-Many of the ideas for SE/Linux originated in the Flask project from the 
-early 90's. Flask was an attempt to create a secure kernel first for 
-the Mach microkernel, and later for the Fluke microkernel. Commercial 
-interest in Mach appeared to wane during the mid-90's as NeXT, a major 
-commercial vendor of Mach-based systems, appeared to be concentrating 
-on the web applications industry with the development of Web Objects. 
-In the late 90's Apple Computer acquired NeXT and announced that future 
-versions of MacOS would be based on Mach.
-
-MacOS X is that system. Apple also chose to open the source to their 
-base OS, thus creating Darwin. Shortly after the OpenDarwin project was 
-announced, the Secure Trusted Operating System (Darwin) or STOSDarwin 
-project went public with the stated goal of providing SE/Linux-like 
-features for users of the Darwin operating system.
-
-Any discussion of trusted open source operating systems would be 
-incomplete without mention of Trusted BSD. This project is an outgrowth 
-of the FreeBSD project, and offers many enhanced security features, 
-including the ability to use SE/Linux security policy description 
-files.
-
-But not to be outdone by their open source counterparts, commercial OS 
-vendors are staking their claim to customer "mind-share." Microsoft has 
-been touting NGSCB (Next Generation Secure Computing Base), formerly 
-known as Palladium, as a panacea for all information security woes. 
-Preliminary information about the technology looks promising, but 
-critical features such as key management have yet to be publicly 
-disclosed. Critics of Microsoft's new system also mention it lacks the 
-fine-grained control available to users of SE/Linux, STOSDarwin, or 
-TrustedBSD. There is also some concern that Microsoft's focus on ease 
-of use will trump certain security considerations. One security 
-researcher interviewed for this article asked, "What good is all NGSCB 
-if Outlook ships with defaults that make it a trusted application, and 
-it trusts every virus-laden email that comes around?" Users will have 
-to wait until Microsoft ships Longhorn to evaluate it's security 
-features, but can download and install SE/Linux or TrustedBSD now.
---Apple-Mail-1--141098864
-Content-Transfer-Encoding: 7bit
-Content-Type: text/enriched;
-	charset=US-ASCII
-
-Thought the readers of this list might appreciate seeing this article
-that just appeared on our sister site, Cryptonomicon.Net. For the
-purposes of full-disclosure, we should mention we're SE/Linux fans
-here at Security Technique. One of our internal servers is a Debian
-box with SE/Linux patches applied.
-
-
-http://www.cryptonomicon.net/modules.php?name=News&file=article&sid=673
-
-
--Matt Hamrick
-
--Editor, Security Technique
-
-
-<bold><fontfamily><param>Tahoma</param><x-tad-smaller>SE/Linux Goes
-Mainstream with Red Hat!
-
-
-</x-tad-smaller></fontfamily></bold><x-tad-smaller>Security Enhanced
-Linux (SE/Linux)</x-tad-smaller><x-tad-smaller>, a series of kernel
-and user mode additions to the popular Linux operating system is
-finally getting it's day in the sun. The SE/Linux project's goal is to
-add "enhanced" security features including support for Multi-Level
-Security (MLS), Mandatory Access Control (MAC), and compartmentalized
-access to data. Not surprising considering the sponsor of the project
-is the secretive US </x-tad-smaller><x-tad-smaller>National Security
-Agency</x-tad-smaller><x-tad-smaller>.
-
-
-SE/Linux has been available for download for several years, but until
-now there has been no "officially supported" Linux distribution that
-included SE/Linux enhancements. Lack of major distro support required
-individual users to download patches and integrate them into their own
-systems.
-
-
-But now SE/Linux is getting it's day in the sun. Linux powerhouse
-</x-tad-smaller><x-tad-smaller>Red Hat</x-tad-smaller><x-tad-smaller>
-has announced that SE/Linux enhancements will be integrated into Red
-Hat Enterprise Linux 4.0, due to ship in 2005. Official support for
-the new security features will expand the user base beyond the
-research and hard-core security user community that currently use the
-system.
-
-
-Users who can't wait that long may be able to get a peek in an
-upcoming Fedora release. Fedora is the project name for the "free"
-version of Red Hat's operating system, which is not officially
-supported by Red Hat.
-
-
-SE/Linux is one of several enhanced security experiments, though it is
-becoming less accurate these days to term SE/Linux as an "experiment."
-Many of the ideas for SE/Linux originated in the
-</x-tad-smaller><x-tad-smaller>Flask</x-tad-smaller><x-tad-smaller>
-project from the early 90's. Flask was an attempt to create a secure
-kernel first for the Mach microkernel, and later for the Fluke
-microkernel. Commercial interest in Mach appeared to wane during the
-mid-90's as NeXT, a major commercial vendor of Mach-based systems,
-appeared to be concentrating on the web applications industry with the
-development of Web Objects. In the late 90's Apple Computer acquired
-NeXT and announced that future versions of MacOS would be based on
-Mach.
-
-
-MacOS X is that system. Apple also chose to open the source to their
-base OS, thus creating Darwin. Shortly after the
-</x-tad-smaller><x-tad-smaller>OpenDarwin</x-tad-smaller><x-tad-smaller>
-project was announced, the </x-tad-smaller><x-tad-smaller>Secure
-Trusted Operating System (Darwin)</x-tad-smaller><x-tad-smaller> or
-STOSDarwin project went public with the stated goal of providing
-SE/Linux-like features for users of the Darwin operating system.
-
-
-Any discussion of trusted open source operating systems would be
-incomplete without mention of </x-tad-smaller><x-tad-smaller>Trusted
-BSD</x-tad-smaller><x-tad-smaller>. This project is an outgrowth of
-the FreeBSD project, and offers many enhanced security features,
-including the ability to use SE/Linux security policy description
-files.
-
-
-But not to be outdone by their open source counterparts, commercial OS
-vendors are staking their claim to customer "mind-share." Microsoft
-has been touting </x-tad-smaller><x-tad-smaller>NGSCB (Next Generation
-Secure Computing Base)</x-tad-smaller><x-tad-smaller>, formerly known
-as Palladium, as a panacea for all information security woes.
-Preliminary information about the technology looks promising, but
-critical features such as key management have yet to be publicly
-disclosed. Critics of Microsoft's new system also mention it lacks the
-fine-grained control available to users of SE/Linux, STOSDarwin, or
-TrustedBSD. There is also some concern that Microsoft's focus on ease
-of use will trump certain security considerations. One security
-researcher interviewed for this article asked, "What good is all NGSCB
-if Outlook ships with defaults that make it a trusted application, and
-it trusts every virus-laden email that comes around?" Users will have
-to wait until Microsoft ships Longhorn to evaluate it's security
-features, but can download and install SE/Linux or TrustedBSD now.</x-tad-smaller>
---Apple-Mail-1--141098864--
+I'll check into it.
 
 
 --
