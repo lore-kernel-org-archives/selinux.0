@@ -1,53 +1,72 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA18634
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 17:01:28 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id UAA11417
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 20:58:35 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id UAA11413 for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 20:58:35 GMT
+Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA10094
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 17:00:04 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA16162
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 11:52:02 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA18305
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 16:09:55 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA26937
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 15:51:15 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id PAA26933
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 15:51:13 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 4069B92467
-	for <selinux@tycho.nsa.gov>; Sat, 27 Jul 2002 01:51:58 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 135D819C3
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 17:51:58 +0200 (CEST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: more thoughts on the ssh policy
-Date: Fri, 26 Jul 2002 17:51:57 +0200
+	by jazzswing.ncsc.mil  with ESMTP id UAA09953
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 20:08:48 GMT
+Received: from archway.securecomputing.com (archway.securecomputing.com [192.55.214.7])
+	by jazzswing.ncsc.mil  with ESMTP id UAA09941
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 20:08:27 GMT
+Received: from stpntmx01.share.rsvl.securecomputing.com (stpntmx01.share.rsvl.securecomputing.com [192.168.10.200])
+	by archway.securecomputing.com with ESMTP id g6QK92oP016774
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2002 15:09:02 -0500 (CDT)
+Message-ID: <7124107ACDA2D3118B7300A0C99D99A107DB53CB@stpntmx01.share.rsvl.securecomputing.com>
+From: SCC <SCC@securecomputing.com>
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Message from Secure Computing
+Date: Fri, 26 Jul 2002 21:08:53 +0100
 MIME-Version: 1.0
-Message-Id: <20020726155158.135D819C3@lyta.coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Do we need two types for the files under ~/.ssh?
+[Moderator note: Usually we require addresses be subscribed to the list
+before forwarding mail to the list from that address.  We're making an
+exception in this case because we believe many list subscribers will be
+interested in seeing this as soon as possible.  - Howard Holm, SELinux
+mailing list administrator]
 
-With the current setup in my policy tree the sshd can read the ~/.ssh/id* 
-files from all users, which of course could be useful in attacking other 
-machines.
+Secure Computing has reviewed the concerns expressed by the open source
+community about SELinux and certain Secure Computing patents.  We understand
+that considerable effort has been invested in SELinux, with the expectation
+that SELinux would be available for everyone's use.  On the other hand, it
+is the policy of Secure Computing to retain and enforce its rights in all of
+its patents and other intellectual property.  In this case, we have decided
+to make an exception to that policy, and to support the reasonable
+expectations of the open source community.  For this reason, we are
+extending an assurance to the open source community that Secure Computing
+will not use the patents in question to limit the availability of SELinux.  
+Our assurance is subject to certain limitations that we believe are
+consistent with the spirit of open source.  We know that we have caused
+confusion addressing this issue in the past, so we want to be as clear as
+possible in resolving the issue.  We have developed a Statement of Assurance
+to provide that clarity.  The Statement of Assurance summarizes the scope of
+our assurance to the community, as well as the limits of that assurance.
+The Statement of Assurance may be found at
+http://www.securecomputing.com/pdf/Statement_of_Assurance.pdf
+<http://www.securecomputing.com/pdf/Statement_of_Assurance.pdf>   We hope
+you will agree that the Statement of Assurance is both reasonable and clear.
 
-Of course if you have a bug in sshd then you can (in theory at least) cause 
-it to execute a shell in the user's security context which runs "scp" to 
-transfer the ~/.ssh/id* files to a host controlled by the attacker.  Although 
-such exploits may be easier said than done (maybe there's a bug in sshd that 
-doesn't allow executing arbitary code but merely allows reading arbitary 
-files and sending the result out the TCP socket).
+We thank you for your patience while we worked to resolve this issue and
+hope you will feel that your patience has been rewarded.
 
-What do you think?
+Regards,
 
-If I am to use two types then I will have to modify ssh-keygen to use 
-open_secure...
+Secure Computing Corporation
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+
 
 --
 You have received this message because you are subscribed to the selinux list.
