@@ -1,22 +1,25 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA29353
-	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 17:06:20 -0500 (EST)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA29394
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 17:07:20 -0500 (EST)
 From: azeredo@qmc.ufsc.br
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA11715
-	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 22:04:22 GMT
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id WAA07323
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 22:05:21 GMT
 Received: from quark.qmc.ufsc.br (bohr-gw.qmc.ufsc.br [150.162.31.223])
-        by jazzband.ncsc.mil  with ESMTP id WAA11708 for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 22:04:20 GMT
+	by jazzswing.ncsc.mil  with ESMTP id WAA07319
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 22:05:19 GMT
 Received: (from wwwrun@localhost)
-	by quark.qmc.ufsc.br (8.11.3/8.11.3/SuSE Linux 8.11.1-0.5) id gA7MRos06457
-	for selinux@tycho.nsa.gov; Thu, 7 Nov 2002 20:27:50 -0200
-Message-ID: <1036708070.3dcae8e662311@qmc.ufsc.br>
-Date: Thu,  7 Nov 2002 20:27:50 -0200
+	by quark.qmc.ufsc.br (8.11.3/8.11.3/SuSE Linux 8.11.1-0.5) id gA7MT4Y06467
+	for selinux@tycho.nsa.gov; Thu, 7 Nov 2002 20:29:04 -0200
+Message-ID: <1036708144.3dcae930a8fe4@qmc.ufsc.br>
+Date: Thu,  7 Nov 2002 20:29:04 -0200
 To: selinux@tycho.nsa.gov
+Subject: selinux in RH8
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
 
 
 
@@ -33,7 +36,7 @@ avc: denied {write} for pid=396 exe=/bin/bash path=/etc/passwd dev=03:05 ino=231
 scontext=system_u:system_r:initrc_t
 tcontext=system_u:object_r:etc_t tclass=file
 
-System booted ok and I logged as root and changed to system_r context and did a 
+System booted ok and I logged as root and changed to system_r context and did a
 
 make relabel
 
@@ -86,8 +89,8 @@ version. Why there is no comment  in the list about?
 
                              Aldrovando Azeredo.
                              Mathematics Department
-                             UFSC- Santa Catarina 
-                             Brazil   
+                             UFSC- Santa Catarina
+                             Brazil  
                               
 
 -------------------------------------------------
