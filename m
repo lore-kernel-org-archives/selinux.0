@@ -1,116 +1,64 @@
-Message-ID: <B51F0C636E578A4E832D3958690CD73EBB102D@es04snlnt>
-From: "Davies, James E" <jedavie@sandia.gov>
-To: "'Selinux@tycho.nsa.gov'" <Selinux@tycho.nsa.gov>
-Subject: new selinux install
-Date: Thu, 9 May 2002 07:38:08 -0600
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA20688
+	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 09:49:27 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA04245
+	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 13:47:29 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id NAA04241
+	for <selinux@tycho.nsa.gov>; Thu, 9 May 2002 13:47:29 GMT
+Date: Thu, 9 May 2002 09:48:43 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: ppp
+In-Reply-To: <20020509054932.AD7AA6E11@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0205090931210.1046-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=iso-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've just installed the selinux 2.4.(18) kernel on redhat 7.2 from the nsa
-site and have the following problems. All I've done so far is to add 2
-users. I have not modified any context or .te files yet.
 
-ps -e --context returns the following:
+On Thu, 9 May 2002, Russell Coker wrote:
 
- PID    SID CONTEXT                                  COMMAND
-   1      1 system_u:system_r:kernel_t               init [3]
-   2      1 system_u:system_r:kernel_t               [keventd]
-   3      1 system_u:system_r:kernel_t               [ksoftirqd_CPU0]
-   4      1 system_u:system_r:kernel_t               [kswapd]
-   5      1 system_u:system_r:kernel_t               [bdflush]
-   6      1 system_u:system_r:kernel_t               [kupdated]
-   9      1 system_u:system_r:kernel_t               [khubd]
-  10      1 system_u:system_r:kernel_t               [kjournald]
- 135      1 system_u:system_r:kernel_t               [kjournald]
- 136      1 system_u:system_r:kernel_t               [kjournald]
- 137      1 system_u:system_r:kernel_t               [kjournald]
- 138      1 system_u:system_r:kernel_t               [kjournald]
- 533      1 system_u:system_r:kernel_t               syslogd -m 0
- 538      1 system_u:system_r:kernel_t               klogd -2
- 558      1 system_u:system_r:kernel_t               portmap
- 586      1 system_u:system_r:kernel_t               rpc.statd
- 737      1 system_u:system_r:kernel_t               /usr/sbin/sshd
- 770      1 system_u:system_r:kernel_t               xinetd -stayalive
--reuse -
- 810      1 system_u:system_r:kernel_t               sendmail: accepting
-connec
- 829      1 system_u:system_r:kernel_t               gpm -t ps/2 -m
-/dev/mouse
- 847      1 system_u:system_r:kernel_t               crond
- 899      1 system_u:system_r:kernel_t               xfs -droppriv -daemon
- 935      1 system_u:system_r:kernel_t               /usr/sbin/atd
- 943      1 system_u:system_r:kernel_t               /sbin/mingetty tty2
- 944      1 system_u:system_r:kernel_t               /sbin/mingetty tty3
- 945      1 system_u:system_r:kernel_t               /sbin/mingetty tty4
- 946      1 system_u:system_r:kernel_t               /sbin/mingetty tty5
- 947      1 system_u:system_r:kernel_t               /sbin/mingetty tty6
-1047      1 system_u:system_r:kernel_t               /sbin/mingetty tty1
-1048      1 system_u:system_r:kernel_t               in.telnetd: 172.16.1.18
-1049      1 system_u:system_r:kernel_t               login -- jedavie
-1050    138 jedavie:sysadm_r:sysadm_t                -bash
-1087    138 jedavie:sysadm_r:sysadm_t                ps -e --context
+> No it would not be illusory!  It would be that there would be two ways of
+> entering system_r, one of which is run_init (by the system administrator) and
+> the other is the ppp wrapper which can be called by a user.
 
-Most of the processes are labeled as type kernel_t with a sid of 1. I
-suppose this means they're not transitioning to their proper domain.
-AVC_toggle to enforcing mode hangs the system console session, forcing a
-reboot.
+Except that the wrapper does nothing other than to run pppd in
+system_u:system_r:pppd_t.  Hence, every user_r process can transition to
+system_r.  The corresponding program (pppd) and domain (pppd_t) would be
+hardcoded by the wrapper (and could be strictly enforced by the TE model -
+i.e. the wrapper domain can be limited to running pppd in pppd_t), but the
+role separation itself would be gone.
 
-/var/log/messages show the following:(partial file immediately after reboot)
+> I don't like the idea of moving all the system_r domains into user_r.
 
-May  9 04:47:03 bilbo kernel: security:  6 users, 5 roles, 406 types
-May  9 04:47:03 bilbo kernel: security:  29 classes, 43869 rules
-May  9 04:47:03 bilbo kernel: task_precondition:  assigning context
-system_u:sys
-tem_r:kernel_t to pid 0 exe=none
-May  9 04:47:03 bilbo kernel: task_precondition:  assigning context
-system_u:sys
-tem_r:kernel_t to pid 1 exe=none
-May  9 04:47:03 bilbo kernel: Freeing unused kernel memory: 248k freed
-May  9 04:47:03 bilbo kernel:
-May  9 04:47:03 bilbo kernel: avc:  denied  { read write } for  pid=1
-path=/dev/
-console dev=48:06 ino=8241 scontext=system_u:system_r:kernel_t
-tcontext=system_u
-:object_r:file_t tclass=chr_file
-May  9 04:47:04 bilbo kernel:
-May  9 04:47:04 bilbo kernel: avc:  denied  { execute } for  pid=1
-path=/sbin/in
-it dev=48:06 ino=71490 scontext=system_u:system_r:kernel_t
-tcontext=system_u:obj
-ect_r:file_t tclass=file
-May  9 04:47:04 bilbo kernel:
-May  9 04:47:04 bilbo kernel: avc:  denied  { execute_no_trans } for  pid=1
-path
-=/sbin/init dev=48:06 ino=71490 scontext=system_u:system_r:kernel_t
-tcontext=sys
-tem_u:object_r:file_t tclass=file
-May  9 04:47:04 bilbo kernel:
+Understood, but keep in mind that the end result is the same.  Even if you
+place all of the system_r domains into user_r, that doesn't mean that a
+user_r:user_t process can transition (directly) to those domains.  The TE
+policy controls the domain transitions and entrypoint programs, so you can
+simply authorize user_t to run pppd in pppd_t and authorize pppd_t to run
+the daemon programs in their domains.
 
-t path=/dev/initctl dev=48:06 ino=23412 scontext=system_u:system_r:kernel_t
-tcon
-text=system_u:object_r:file_t tclass=fifo_file
+> I take your point, however I am definately not proposing totally
+> uncontstrained role transitions.  I am merely suggesting a wrapper program to
+> solve one particular instance of role transitions.
+>
+> How else should we approach this problem?  I guess I could have a pppd which
+> is always running, and have a SUID-root helper program which tells it when to
+> connect or disconnect.  Then the helper program would only need permissions
+> to send signals or write to a Unix domain socket.  I can get this done (I
+> have commit access to the PPP CVS) if it's considered the right thing to do,
+> although it will take time.
 
+In the short term, the ppp wrapper is probably fine.  The latter approach
+does sound better as a longer term solution.
 
-init path=/dev/initctl dev=48:06 ino=23412
-scontext=system_u:system_r:kernel_t t
-context=system_u:object_r:file_t tclass=fifo_file
-
-Any ideas or help as to how to track down this problem  would be greatly
-appreciated.
-Thanks,
-Jim
-
-
-Jim Davies                        
-Sandia National Laboratories
-jedavie@sandia.gov 
-Voice (505)845-8374
-Pager (505)540-6179
-FAX (505)844-4568
-
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
 
