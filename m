@@ -1,40 +1,33 @@
-Date: Fri, 12 Apr 2002 13:13:00 -0400 (EDT)
+Date: Fri, 12 Apr 2002 13:04:36 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Howard Holm <hdholm@epoch.ncsc.mil>
-cc: Russell Coker <russell@coker.com.au>, Tom <tom@lemuria.org>,
-        <SELinux@tycho.nsa.gov>
+To: Tom <tom@lemuria.org>
+cc: <SELinux@tycho.nsa.gov>
 Subject: Re: db conflict ?
-In-Reply-To: <20020412130109.A15470@gricklegrass.epoch.ncsc.mil>
-Message-ID: <Pine.GSO.4.33.0204121305530.21729-100000@raven>
+In-Reply-To: <20020412185044.A6824@lemuria.org>
+Message-ID: <Pine.GSO.4.33.0204121303000.21729-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 12 Apr 2002, Howard Holm wrote:
+On Fri, 12 Apr 2002, Tom wrote:
 
-> I think adding a magic number to the policy file is probably a good idea.
-> I'm not quite as sure about the file name containing a version number, but
-> it's probably a good idea as well.  My reading of the FHS (v2.2) is that
-> it prohibits /selinux/.  My suggestion would be /etc/security/policy/ or
-> /etc/security/policies/ with the thought that there might be at least
-> multiple versions in the directory so plural might be appropriate.
+> I have that. However, trying to log in via ssh fails with the same SID
+> error message I had earlier for tom when I didn't have tom in the
+> default_context. So this was my first idea - but not luck. I also do
+> have that user_u in the users role file (I didn't modify the default
+> very much yet).
 
-I primarily want to keep it separate from the policy sources (/etc/selinux
-in Russell's Debian package), yet clearly identified as being
-selinux-specific.  It also needs to stay within the root filesystem,
-although that isn't a problem regardless of whether we go with /selinux or
-/etc/security/selinux or /etc/selinux/policy as the subdirectory name.
-The name for the file itself can be reduced to policy.VERSION once it is
-in a selinux-specific directory (the ss_ prefix was just to avoid
-conflicts with other potential non-SELinux policy files, ss == security
-server).
+Seems to work here for me.  I added a user who has no entry in
+policy/users or /etc/security/default_contexts, then logged in
+as that user using ssh and ended up with my context as
+user_u:user_r:user_t.  Again, this is with the upstream distribution, not
+the Debian selinux package.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
 
 
 
