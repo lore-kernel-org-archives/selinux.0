@@ -1,30 +1,32 @@
-Subject: default_contexts question
-From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-To: SELinux <SELinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-2
-Date: 22 Sep 2003 19:38:57 +0200
-Message-Id: <1064252337.2137.30.camel@kusturica>
-Mime-Version: 1.0
+From: "Frank Mayer" <mayerf@tresys.com>
+To: <SELinux@tycho.nsa.gov>
+Subject: New release of setools
+Date: Mon, 22 Sep 2003 17:08:52 -0400
+Message-ID: <000b01c3814d$bac82690$8100a8c0@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+We've just posted a new release of setools (officially 1.0) on
+www.tresys.com/selinux.  We will separately send Steve a patch to get this
+release back into the main selinux distribution.  As always, you can see change
+logs, screen shots, and summaries of the tools in the package on our site.  In
+addition to a source tar file, we also now have a RPM package posted.
 
-/bin/login runs as system_u:boot_r:boot_d
-my /etc/security/default_contexts contains the following line:
+The most significant enhancements are in apol (the analysis tool), where we
+spent a lot of time implementing a pair of partial information flow analysis
+capabilities, and extending the domain transition analysis.  We also included
+some new help files describing these analyses.  This help remains brief; we're
+working on some more scholarly papers about policy analysis.  There were also a
+lot of bug fixes, and changes to add compatibility with new policy changes.  See
+the change log for a summary of major changes.  Feel free to provide comments
+and bug reports; we're already thinking about other tools that are on our list
+to do.
 
-boot_r:boot_d	tcb_user_r:tcb_user_d tcb_secadm_r:tcb_secadm_d\
-tcb_sysadm_r:tcb-sysadm_d
+Frank
 
-login says to me that "unable to obtain context for mag."
-When I enter the context tcb_user_r:tcb_user_d by hand,
-it lets me in, and no deny comes from the kernel.
-
-Question:
-What do I do wrong in defining the starting context for users?
-
--- 
-GNU GPL: csak tiszta forrásból
 
 
 --
