@@ -1,113 +1,117 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9772drT012102
-	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 03:02:39 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9772aov017599
-	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 07:02:37 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: petre rodan <kaiowas@gentoo.org>
-Subject: Re: gentoo diff for ntpd
-Date: Thu, 7 Oct 2004 17:02:33 +1000
-Cc: Joshua Brindle <method@gentoo.org>, selinux@tycho.nsa.gov
-References: <41625A62.7080609@gentoo.org> <41629E45.8050107@gentoo.org> <4163CDD3.3@gentoo.org>
-In-Reply-To: <4163CDD3.3@gentoo.org>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i978fFrT012448
+	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 04:41:16 -0400 (EDT)
+Received: from passage.avira.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i978e6nr016003
+	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 08:40:07 GMT
+Message-ID: <41650174.4090103@gentoo.org>
+Date: Thu, 07 Oct 2004 11:42:28 +0300
+From: petre rodan <kaiowas@gentoo.org>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_JoOZBKslCnkiT9S"
-Message-Id: <200410071702.33618.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: gentoo diff for ipsec
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig97D291447783FBAECCFDD76C"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig97D291447783FBAECCFDD76C
+Content-Type: multipart/mixed;
+ boundary="------------010401000705050702000201"
 
---Boundary-00=_JoOZBKslCnkiT9S
-Content-Type: text/plain;
-  charset="iso-8859-1"
+This is a multi-part message in MIME format.
+--------------010401000705050702000201
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-On Wed, 6 Oct 2004 20:49, petre rodan <kaiowas@gentoo.org> wrote:
-> this is a new diff with distro_gentoo ifdefs dropped.
-> also, logrotate is not part of the gentoo base-policy and it shouldn't be a
-> dependency for ntpd, so I'm also ifdef-ing that.
-
-Having daemon binaries in /usr/bin instead of /usr/sbin is a bug.
-
-ntpd and ntpdate can not be used by regular users, they can only be used by 
-the administrator.  Therefore any distribution that follows the LSB (or the 
-FHS which the LSB is based on) will put them in /usr/sbin.  Here is the 
-relevant section of the FHS:
-
-4.6 /usr/sbin : Non-essential standard system binaries
-
-This directory contains any non-essential binaries used exclusively by the
-system administrator. System administration programs that are required for
-system repair, system recovery, mounting /usr, or other essential functions
-should be placed in /sbin instead.
 
 
-Those .fc entries for /usr/bin can go in under ifdef(`distro_gentoo' if Gentoo 
-does not follow the FHS.  Otherwise it's best to file a bug in the Gentoo bug 
-system requesting that the files be moved.
+Hi!
 
-I've attached a patch which has the changes I think belong in the CVS at this 
-time.  Note that I changed the order of the capabilities so that they match 
-the order of capability.h .
+This policy was generated using the ipsec-tools that comes with gentoo [1]
+setkey was used to set-up the Security Policy Database and Security Association Database and racoon to do the x509 certificate exchange.
+
+the diff is needed because:
+
+ipsec_conf_file_t is a directory structure, not a single file
+
+ipsec_key_file_t is a directory structure that also contains symlinks (one of the ipsec_key_file_t directories must contain openssl hash-links to each certificate)
+
+racoon is the IKE daemon that is started by initrc_t. so this is why the daemon_base_domain is used.
+
+
+[1]. http://ipsec-tools.sourceforge.net/
+
+bye,
+peter
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+petre rodan
+<kaiowas@gentoo.org>
+Developer,
+Hardened Gentoo Linux
 
---Boundary-00=_JoOZBKslCnkiT9S
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="ntpd.diff"
+--------------010401000705050702000201
+Content-Type: text/plain;
+ name="selinux-ipsec-tools.diff"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ntpd.diff"
+Content-Disposition: inline;
+ filename="selinux-ipsec-tools.diff"
 
---- /usr/src/se/policy/domains/program/unused/ntpd.te	2004-09-29 00:49:58.000000000 +1000
-+++ domains/program/unused/ntpd.te	2004-10-07 16:59:59.000000000 +1000
-@@ -22,7 +22,7 @@
- # for SSP
- allow ntpd_t urandom_device_t:chr_file read;
+--- /root/public_html/policy/nsa/file_contexts/program/ipsec.fc	2004-09-09 18:27:39.000000000 +0300
++++ /root/cvs/cvs.gentoo.org/gentoo-projects/selinux/ipsec-tools/ipsec.fc	2004-10-06 04:59:57.000000000 +0300
+@@ -25,3 +25,6 @@
+ # Kame
+ /usr/sbin/racoon	--	system_u:object_r:ipsec_exec_t
+ /usr/sbin/setkey	--	system_u:object_r:ipsec_exec_t
++/etc/racoon(/.*)?		system_u:object_r:ipsec_conf_file_t
++/etc/racoon/certs(/.*)?	system_u:object_r:ipsec_key_file_t
++/etc/racoon/psk\.txt	--	system_u:object_r:ipsec_key_file_t
+--- /root/public_html/policy/nsa/domains/program/unused/ipsec.te	2004-09-23 05:08:20.000000000 +0300
++++ /root/cvs/cvs.gentoo.org/gentoo-projects/selinux/ipsec-tools/ipsec.te	2004-10-06 06:12:51.000000000 +0300
+@@ -10,10 +10,7 @@
+ # Rules for the ipsec_t domain.
+ #
+ # a domain for things that need access to the PF_KEY socket
+-type ipsec_t, domain, privlog;
+-
+-# type for executables that will run in the ipsec_t domain
+-type ipsec_exec_t, file_type, sysadmfile, exec_type;
++daemon_base_domain(ipsec, `, privlog')
  
--allow ntpd_t self:capability { setgid setuid sys_time net_bind_service ipc_lock };
-+allow ntpd_t self:capability { kill setgid setuid sys_time net_bind_service ipc_lock sys_chroot };
- allow ntpd_t self:process { setcap setsched };
- # ntpdate wants sys_nice
- dontaudit ntpd_t self:capability { fsetid sys_nice };
-@@ -50,7 +50,7 @@
- can_exec(ntpd_t, initrc_exec_t)
- allow ntpd_t self:fifo_file { read write getattr };
- allow ntpd_t etc_runtime_t:file r_file_perms;
--can_exec(ntpd_t, { bin_t shell_exec_t sbin_t ls_exec_t logrotate_exec_t ntpd_exec_t })
-+can_exec(ntpd_t, { bin_t shell_exec_t sbin_t ls_exec_t ntpd_exec_t })
- allow ntpd_t { sbin_t bin_t }:dir search;
- allow ntpd_t bin_t:lnk_file read;
- allow ntpd_t sysctl_kernel_t:dir search;
-@@ -59,6 +59,7 @@
- allow ntpd_t sysadm_home_dir_t:dir r_dir_perms;
- allow ntpd_t self:file { getattr read };
- dontaudit ntpd_t domain:dir search;
-+ifdef(`logrotate.te', `can_exec(ntpd_t, logrotate_exec_t)')
- ')
+ # type for ipsec configuration file(s) - not for keys
+ type ipsec_conf_file_t, file_type, sysadmfile;
+@@ -48,9 +45,8 @@
+ # I do not know where this pesky pipe is...
+ allow ipsec_t initrc_t:fifo_file { write };
  
- allow ntpd_t devtty_t:chr_file rw_file_perms;
---- /usr/src/se/policy/file_contexts/program/ntpd.fc	2004-06-17 15:10:43.000000000 +1000
-+++ file_contexts/program/ntpd.fc	2004-10-07 17:00:11.000000000 +1000
-@@ -1,6 +1,6 @@
- /var/lib/ntp(/.*)?			system_u:object_r:ntp_drift_t
- /etc/ntp/data(/.*)?			system_u:object_r:ntp_drift_t
--/etc/ntp\.conf			--	system_u:object_r:net_conf_t
-+/etc/ntp(d)?\.conf		--	system_u:object_r:net_conf_t
- /etc/ntp/step-tickers		--	system_u:object_r:net_conf_t
- /usr/sbin/ntpd			--	system_u:object_r:ntpd_exec_t
- /usr/sbin/ntpdate		--	system_u:object_r:ntpd_exec_t
+-allow ipsec_t ipsec_conf_file_t:file { getattr read ioctl };
+-allow ipsec_t ipsec_key_file_t:file { getattr read ioctl };
+-allow ipsec_t ipsec_key_file_t:dir r_dir_perms;
++r_dir_file(ipsec_t, ipsec_conf_file_t)
++r_dir_file(ipsec_t, ipsec_key_file_t)
+ allow ipsec_mgmt_t ipsec_conf_file_t:file { getattr read ioctl };
+ rw_dir_create_file(ipsec_mgmt_t, ipsec_key_file_t)
+ 
 
---Boundary-00=_JoOZBKslCnkiT9S--
+--------------010401000705050702000201--
+
+--------------enig97D291447783FBAECCFDD76C
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFBZQF4GSBEIeh4AEYRAqsMAJ9HPjv0UXqBtipfMH4IMo0CKOhpDQCgi5Oq
+WbIQvjzyOHnCRLNei7UnJ6E=
+=zd98
+-----END PGP SIGNATURE-----
+
+--------------enig97D291447783FBAECCFDD76C--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
