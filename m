@@ -1,53 +1,48 @@
-Subject: questions for upcoming article in Information Security Magazine
-From: Pete Loshin <pete@loshin.com>
-To: SELinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: 18 Jan 2002 12:24:11 -0500
-Message-Id: <1011374651.1196.1205.camel@elmo.loshin.com>
-Mime-Version: 1.0
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11060
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 12:51:20 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id RAA09739
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:50:31 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id RAA09735 for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:50:30 GMT
+Date: Fri, 18 Jan 2002 12:50:46 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: devfs_contexts
+In-Reply-To: <20020118171920.F3E3C3918E4@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0201181241010.3743-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi--I'm technical editor at Information Security Magazine, and working
-on an article about SE Linux, and the impact it's had over the past
-year. The material online explains very nicely how the technologies
-work, but we're looking for some input from people directly involved in
-the project or using it.
 
-In particular, we're looking for answers to these questions, and others:
+On Fri, 18 Jan 2002, Russell Coker wrote:
 
-- It's been over a year since the initial release of Security Enhanced
-Linux. How much affect, if any, has SE Linux had on the mainstream Linux
-community?
+> OK.  I've just used chsid as I can't find chcon.  Is chcon still in the
+> source distribution?  If so where?
 
-- Where can SE Linux best be applied? How is it being used now? Does
-anyone have any success stories to relate about using it?
+chcon is in the modified fileutils package.  But you can also use chsid or
+setfiles to label existing devfs nodes - all three programs invoke the
+chsid system call to set the label on a file when run on a SELinux kernel.
+chcon is merely a nicer interface than chsid that is derived from the
+existing chmod/chown programs in fileutils.
 
-- What progress is being made in the stated future directions published
-on the www.nsa.gov/selinux/todo.html page?
+For filesystems that use the persistent label mapping (e.g. ext2, ext3,
+reiserfs), the label will set by the chsid call be retained across reboots
+since it is stored in that mapping.  For pseudo filesystems like devfs,
+the label won't be retained across reboots unless you also add it to
+devfs_contexts, because there is no persistent storage of the label.  So,
+if you want the labels to persist, you'll need to update devfs_contexts
+and then reboot.
 
-- At what point will SE Linux be considered "complete"?
-
-I appreciate any and all feedback; I will be contacting appropriate
-press contacts as well, but any comments from project participants or
-users is most welcome.
-
-I've joined the list, so responses to the list are fine with me (as is
-direct email or even a phone call).
-
-Thanks very much in advance!
-
-regards,
--pl
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
--- 
-+-------------------------------------------------------+
-| Pete Loshin                           pete@loshin.com |
-| +1 781/646-6318             www.Internet-Standard.com |
-|                                                       |
-|      writing about Internet protocols since 1988      |
-+-------------------------------------------------------+
 
 
 --
