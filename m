@@ -1,53 +1,72 @@
-Subject: Re: Emacs major mode for policy editing
-From: Chris PeBenito <pebenito@gentoo.org>
-To: Eamon Walsh <ewalsh@epoch.ncsc.mil>
-Cc: selinux@tycho.ncsc.mil
-In-Reply-To: <1064504193.3885.14.camel@moss-tarheels.epoch.ncsc.mil>
-References: <1064504193.3885.14.camel@moss-tarheels.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GkePZdgDCK9Lwtq1sgAI"
-Message-Id: <1064515114.32224.86.camel@chris.pebenito.net>
-Mime-Version: 1.0
-Date: Thu, 25 Sep 2003 13:38:35 -0500
+From: "Michael Pender" <michael.pender@nanochron.com>
+To: "Howard Holm" <hdholm@epoch.ncsc.mil>, "Subba Rao" <subba9@cablespeed.com>
+Cc: "NSA's SELinux" <SELinux@tycho.nsa.gov>
+Subject: RE: SELinux meetings??
+Date: Thu, 25 Sep 2003 16:56:31 -0400
+Message-ID: <LDELJCIJPDOBAGCDJLGJCEHJDGAA.michael.pender@nanochron.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <1064508912.14150.116.camel@moss-huskies>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+There might be enough people here in the DC-metro area with an interest in
+Secure Linux to get a user group started.  I live and work in the Ballston
+area of Arlington, and I'm not inclined to drive 40+ miles to Columbia.
+However, I would be interested in a group in Arlington or DC.
 
---=-GkePZdgDCK9Lwtq1sgAI
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I expect that there are others who feel the same way.  I think it would be
+annoying to post e-mails to the newsgroup expressing interest, but we could
+set up an e-mail address to collect responses and then give it a go if we
+get a few dozen interested people.
 
-On Thu, 2003-09-25 at 10:36, Eamon Walsh wrote:
-> My name is Eamon Walsh; I recently joined the NSA selinux team.
-> I will be working on putting policy enforcement into XFree86.
+Shall we put it to a vote?
 
-Cool, thats great.  I've been approached by a few Gentoo users who
-wanted to try SELinux on their workstations over the last few months.  I
-wouldn't mind adding it onto my own either.  I'm interested to see how
-things pan out.
+- Mike
 
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer, SELinux
-Hardened Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
+Behalf Of Howard Holm
+Sent: Thursday, September 25, 2003 12:55 PM
+To: Subba Rao
+Cc: NSA's SELinux
+Subject: Re: SELinux meetings??
 
---=-GkePZdgDCK9Lwtq1sgAI
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+I'm not aware of any SELinux specific user's group meeting face-to-face
+anywhere.  If you know of one let me know.  I'm not sure that there are
+a sufficient number of people in the area interested in regular user's
+meetings to make it viable.
 
-iD8DBQA/czYqvI7kLeavkkMRApaiAJ9PpOxRLS8YdbRIImjfKCw/LQ3RPwCggAb6
-QxDONoWx1osEdsW0Mdw3XdQ=
-=awOe
------END PGP SIGNATURE-----
+There are Linux user's groups in the area, including the Columbia Linux
+user's group (http://www.calug.com) where Pete and Steve gave a overview
+of SELinux in March 2001.  But, I don't believe anyone from the SELinux
+team regularly attends those meetings.
 
---=-GkePZdgDCK9Lwtq1sgAI--
+On Mon, 2003-09-22 at 07:59, Subba Rao wrote:
+> Hi,
+>
+> I would like to know if there is any SELinux users group meeting in the DC
+> metro area.  If so could someone please let me know where and how often
+does
+> the team meet.
+>
+> Thank you in advance.
+
+--
+Howard Holm <hdholm@epoch.ncsc.mil>
+Office of Defensive Computing Research
+National Security Agency
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
