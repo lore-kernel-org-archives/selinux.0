@@ -1,34 +1,31 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TH4qrT020559
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 13:04:52 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TH4LbB003295
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 17:04:21 GMT
-Date: Thu, 29 Jul 2004 13:04:45 -0400 (EDT)
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6THGwrT020643
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 13:16:58 -0400 (EDT)
+Date: Thu, 29 Jul 2004 13:06:15 -0400 (EDT)
 From: James Morris <jmorris@redhat.com>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-cc: Stephen Smalley <sds@epoch.ncsc.mil>, Joshua Brindle <method@gentoo.org>,
-   SE-Linux <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>
 Subject: Re: temporary hack to use udev in selinux
-In-Reply-To: <20040729143549.GI8858@lkcl.net>
-Message-ID: <Xine.LNX.4.44.0407291303140.16390-100000@dhcp83-76.boston.redhat.com>
+In-Reply-To: <1091120226.21971.110.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.44.0407291305360.16390-100000@dhcp83-76.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 29 Jul 2004, Luke Kenneth Casson Leighton wrote:
+On Thu, 29 Jul 2004, Stephen Smalley wrote:
 
->  p.s. has anyone considered doing a macro for these "pseudo" xattrs?
->       or merging them into one bit of code?
+> SELinux determines filesystem labeling behavior (policy/fs_use) based on
+> filesystem type, and shmem subsystem happens to use an instance of the
+> tmpfs filesystem type.  James Morris introduced a new mount option
+> (context=) a while back to allow assigning a single security context to
+> all inodes in a particular mount; I suppose that this could be
+> generalized to allow you to specify the labeling behavior itself on a
+> per-mount basis.
 
-Yes, I was looking at making a library but it didn't work out.  Macros 
-may do the job, but I'm not sure how acceptable these would be upstream.
-
->       there are now THREE identical bits of code for the pseudo
-> 	  xattrs, except for the names of the functions.
-
-Some of this code is also identical in ext2/ext3.
+This could be done by simply allowing context= to override any other 
+behavior, right?
 
 
 - James
