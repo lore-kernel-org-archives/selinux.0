@@ -1,50 +1,44 @@
-Message-ID: <3F57A7FA.8050806@diyab.net>
-Date: Thu, 04 Sep 2003 17:00:42 -0400
-From: Diyab <diyab@diyab.net>
-MIME-Version: 1.0
-To: Colin Walters <walters@verbum.org>
-CC: max barwell <maxb@paradise.net.nz>, SELinux <SELinux@tycho.nsa.gov>
+Date: Fri, 5 Sep 2003 10:32:38 +1000
+From: Brian May <bam@snoopy.apana.org.au>
+To: Diyab <diyab@diyab.net>
+Cc: Colin Walters <walters@verbum.org>, max barwell <maxb@paradise.net.nz>,
+   SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: libselinux.so: cannot open shared object file
-References: <1062637188.565.7.camel@orac.lite.net.nz> <1062690102.15712.16.camel@columbia>
-In-Reply-To: <1062690102.15712.16.camel@columbia>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-ID: <20030905003238.GB23799@snoopy.apana.org.au>
+References: <1062637188.565.7.camel@orac.lite.net.nz> <1062690102.15712.16.camel@columbia> <3F57A7FA.8050806@diyab.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <3F57A7FA.8050806@diyab.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Colin Walters wrote:
-> On Wed, 2003-09-03 at 20:59, max barwell wrote:
+On Thu, Sep 04, 2003 at 05:00:42PM -0400, Diyab wrote:
+> >Hm, for some reason the binaries are getting linked against
+> >libselinux.so instead of libselinux.so.1.  I'll investigate this.  In
+> >the meantime it should be sufficient to install libselinux1-dev. 
 > 
->>I am using debian sid, I compiled a 2.6.0-test4 kernel ready for use,
->>and downloaded Colin Walters SElinux packages, during their install, and
->>I'm not sure when as I wasn't watching, the install borked, and now when
->>I try to do anything ie type ls, I get the error message
->>
->>error while loading shared libraries: libselinux.so: cannot open shared
->>object file: No such file or directory 
-> 
-> 
-> Hm, for some reason the binaries are getting linked against
-> libselinux.so instead of libselinux.so.1.  I'll investigate this.  In
-> the meantime it should be sufficient to install libselinux1-dev. 
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
-> .
-> 
+> Why not just link libselinux.so to libselinux.so.1 ?  That would at 
+> least temporarily fix the problem would it not?
 
-Why not just link libselinux.so to libselinux.so.1 ?  That would at 
-least temporarily fix the problem would it not?
+I would assume that this is what the libselinux1-dev package does?
+(otherwise that might be the problem).
 
-Timothy,
+I haven't seen the packages in question, but what normally happens
+(assuming this hasn't changed, I don't think it has):
 
+libselinux.so ---> libselinux.so.1   (symlink, for development)
+libselinux.so.1                      (shared library).
+
+You link against libselinux.so; The linker realizes that this points
+to libselinux.so.1, and encodes libselinux.so.1 into the resultant
+executable (and not libselinux.so).
+
+So you can run the programs with only libselinux.so.1 present, and
+libselinux.so is only needed for initial linking.
+
+What is the output of "ldd filename"?
 -- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
-
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
