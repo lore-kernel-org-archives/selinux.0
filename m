@@ -1,37 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA10499
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 21:55:25 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id BAA29361
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2002 01:53:54 GMT
-Received: from mail.simplyaquatics.com (66-0-92-223.deltacom.net [66.0.92.223])
-        by jazzband.ncsc.mil  with ESMTP id BAA29357 for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2002 01:53:53 GMT
-Received: from ed (ed1 [192.168.1.10])
-	by mail.simplyaquatics.com (Postfix) with ESMTP id 49CAB84404A
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jul 2002 21:55:22 -0400 (EDT)
-Reply-To: <blacknet@simplyaquatics.com>
-From: "Ed Street" <blacknet@simplyaquatics.com>
-To: "Selinux" <selinux@tycho.nsa.gov>
-Subject: netfilter
-Date: Mon, 15 Jul 2002 21:55:22 -0400
-Message-ID: <017901c22c6b$d8655e80$0a01a8c0@ed>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA11028
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2002 01:25:15 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id FAA19359
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2002 05:24:32 GMT
+Received: from clic.norwich.edu (209-6-138-204.s204.tnt2.mnh.nh.dialup.rcn.com [209.6.138.204])
+	by jazzswing.ncsc.mil  with ESMTP id FAA19355
+	for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2002 05:24:30 GMT
+Date: Mon, 15 Jul 2002 09:48:22 -0400
+From: Ryan Emge <emger@norwich.edu>
+To: selinux@tycho.nsa.gov
+Subject: XDM with SE Linux
+Message-Id: <20020715094822.63805dbc.emger@norwich.edu>
+In-Reply-To: <685C998FC4F39E48ABC93EABA534DEBD5690CA@AZ25EXM01N2.gddsi.com>
+References: <685C998FC4F39E48ABC93EABA534DEBD5690CA@AZ25EXM01N2.gddsi.com>
+Reply-To: emger@norwich.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
 
-Started working with netfilter under Selinux and I noted that it was
-grouped with ipchains and labeled as 
-/sbin/iptables                  system_u:object_r:ipchains_exec_t
+ SE linux users,
 
-Should this have a separate label and it's own te file?
+ Is there anyone here successfully running XDM with their SE Linux system? If you have both working together please contact me as I'm interested in how you went about it.
 
-Ed
+Best Regards,
+
+ Ryan Emge
 
 
+-- 
+
+Ryan O. Emge
+
+Information Assurance & Security
+Norwich University - http://www.norwich.edu
+158 Harmon Drive
+Northfield, VT 05663
+
+An NSA "Center of Academic Excellence in Information Assurance"
+
+E: emger@norwich.edu
 
 --
 You have received this message because you are subscribed to the selinux list.
