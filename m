@@ -1,63 +1,66 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAL0sqIi028579
-	for <selinux@tycho.nsa.gov>; Sat, 20 Nov 2004 19:54:52 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAL0ssqv012498
-	for <selinux@tycho.nsa.gov>; Sun, 21 Nov 2004 00:54:54 GMT
-Received: from lkcl.net (host81-153-247-118.range81-153.btcentralplus.com [81.153.247.118])
-	by open.hands.com (Postfix) with ESMTP id CFD75BF76
-	for <selinux@tycho.nsa.gov>; Sun, 21 Nov 2004 00:54:48 +0000 (GMT)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1CVgAg-0007Zd-Fa
-	for selinux@tycho.nsa.gov; Sun, 21 Nov 2004 01:05:42 +0000
-Date: Sun, 21 Nov 2004 01:05:42 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: http://sf.net/projects/xen
-Message-ID: <20041121010542.GA28925@lkcl.net>
-References: <20041120204020.GB26761@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20041120204020.GB26761@lkcl.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAL58aIi029341
+	for <selinux@tycho.nsa.gov>; Sun, 21 Nov 2004 00:08:36 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAL5765J002654
+	for <selinux@tycho.nsa.gov>; Sun, 21 Nov 2004 05:07:07 GMT
+Message-ID: <41A022C6.8050100@redhat.com>
+Date: Sun, 21 Nov 2004 00:08:22 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: jwcart2@epoch.ncsc.mil
+CC: petre rodan <kaiowas@gentoo.org>, SELinux <selinux@tycho.nsa.gov>,
+   Chris PeBenito <pebenito@gentoo.org>
+Subject: Re: gentoo diff for snmpd
+References: <4198D752.2020405@gentoo.org>	 <1100808061.26930.18.camel@moss-lions.epoch.ncsc.mil>	 <419DF805.80002@gentoo.org> <1100893806.31793.29.camel@moss-lions.epoch.ncsc.mil>
+In-Reply-To: <1100893806.31793.29.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Nov 20, 2004 at 08:40:20PM +0000, Luke Kenneth Casson Leighton wrote:
+James Carter wrote:
 
-> for those people who do a lot of selinux testing, and am fed up
-> of having stacks of machines, and who also don't want to pay for
-> vmware, _and_ who also don't want the slowness or features of UML,
-> there is xen.
+>I put an "ifdef(`distro_gentoo'" around all of these rules and merged
+>them.
+>
+>  
+>
+Are you sure the proc_net changes are specific to gentoo?
 
- okay - i am having difficulties with the network bridging and the
- allocation of DHCP addresses: other than that, i have an selinux
- "guest" kernel OS now up and running.
-
- the ext3 filesystem is in a file (mounted loopback automagically by xen)
- make relabel seems happy...
-
- [DAMN IT i shut down the master linux os AGAIN by mistake. 
-  kids, don't try this at home...]
-
- in the config file, e.g /etc/xen/xen-selinux-1, you will need
- to place what they call "extra" parameters into the
- config option extra="..."  e.g
-
- extra="selinux=1 enforcing=1 audit=1"
-
- that sort of thing...
-
- oh _great_ i know selinux is working absolutely fine when i
- can't damn well log in to the machine!!!  log in as root, cannot
- execute /bin/bash - greeeaat.
-
- [oops, pressing ctrl-alt-delete isn't caught / passed over to
-  the guest OS - that's _another_ accidental reboot.]
-
- 
- conclusion: it looks hopeful that xen will happily run selinux OSes.
-
- l.
+>On Fri, 2004-11-19 at 08:41, petre rodan wrote:
+>  
+>
+>>Hi James,
+>>
+>>James Carter wrote:
+>>    
+>>
+>>>Merged.
+>>>
+>>>Oops, there is no proc_net_t defined.
+>>>Petre, could you send me the proc_net_t stuff as well.
+>>>      
+>>>
+>>please see the attachment.
+>>
+>>    
+>>
+>>>On Mon, 2004-11-15 at 11:20, petre rodan wrote:
+>>>
+>>>      
+>>>
+>>>>Hi,
+>>>>
+>>>>gentoo as a special context for /proc/net:
+>>>>genfscon proc /net  system_u:object_r:proc_net_t
+>>>>
+>>>>so a small diff is needed for the snmpd policy. attached.
+>>>>        
+>>>>
+>>bye,
+>>peter
+>>    
+>>
 
 
 --
