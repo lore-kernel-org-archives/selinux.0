@@ -1,58 +1,85 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: <mayerf@tresys.com>,
-   "'Joshua D. Guttman disp: current'" <guttman@mitre.org>,
-   "'Karl MacMillan'" <kmacmillan@tresys.com>
-Subject: Re: Announce: SELinux conditional policy extensions
-Date: Sat, 14 Feb 2004 14:51:07 +1100
-Cc: "'SELinux List'" <SELinux@tycho.nsa.gov>,
-   "'Stephen D. Smalley'" <sds@epoch.ncsc.mil>,
-   "'Amy L. Herzog'" <aherzog@mitre.org>,
-   "'John D. Ramsdell'" <ramsdell@mitre.org>,
-   "'Galen B. Williamson'" <gwilliam@mitre.org>,
-   "'Grant M. Wagner'" <gmw@tycho.ncsc.mil>, "'David Caplan'" <dac@tresys.com>
-References: <000c01c3f265$9139f860$020d010a@columbia.tresys.com>
-In-Reply-To: <000c01c3f265$9139f860$020d010a@columbia.tresys.com>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>, SELinux@tycho.nsa.gov
+Subject: Re: Of applications and separating configuration systems
+Date: Sat, 14 Feb 2004 15:21:49 +1100
+References: <20040214000922.GA1083@gallifrey>
+In-Reply-To: <20040214000922.GA1083@gallifrey>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200402141451.08044.russell@coker.com.au>
+Message-Id: <200402141521.49027.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 14 Feb 2004 06:14, "Frank Mayer" <mayerf@tresys.com> wrote:
-> 2) Because SE Linux introduced "pragmatic" mandatory security to the world,
-> and it seems to be having success after our decades of failure of finding a
-> means to introduce strong mandatory security to the "mainstream."  My
-> observations to date are very few are concerned (rightly or wrongly) with
-> rigorous policy analysis, and are more concerned with a practical mechanism
-> to provide greater least privilege and system hardening.
+On Sat, 14 Feb 2004 11:09, "Dr. David Alan Gilbert" <gilbertd@treblig.org> 
+wrote:
+>   Having started looking at SELinux a thought struck me.
+> As a general matter of practice wouldn't it be better for desktop
+> like applications to have the preference editing done by a separate
+> program (binary) whose only job is to edit those preferences and
+> configurations.
 
-Yes, this is an issue that can not be under-estimated.
+I agree.  However there is the issue of maintaining correct labeling.
 
-Currently my work is tending towards providing less protection so that it is 
-more acceptable to the majority of users.  My personal preference of the 
-trade-off between security and usability is to have more security than most 
-people will be prepared to accept.  But we have to do what's necessary to get 
-the user-base.
+We don't necessarily want a regular shell session for the user to be able to 
+edit some of the config files, but they have to be able to get access to them 
+when necessary.  Also we don't want to accidentally lose the correct types on 
+such files either through system relabeling or through user error.
 
-When we get SE Linux in wide-spread use with a less restrictive policy it will 
-be much easier for everyone who is interested in security.  Taking a system 
-that's running SE Linux in a less restrictive manner and reconfiguring it to 
-be more restrictive is easy, installing SE Linux on a server that has not run 
-it before is much more difficult.
+> The thought is bought about by hearing of some of the viruses/worms that
+> have happened where a virus has disabled some of the other security
+> features in an app.    If the main app that was exposed to user
+> data couldn't alter its own preferences file then this risk
+> would be greatly reduced.
 
-I would like to see at least 30% of university students who are enthusiastic 
-about Linux using SE Linux!  Then in a few years time there will be a good 
-user-base of people who know how SE Linux works and have a good general 
-knowledge of security.
+True.  Also we want to protect files that contain private keys for SSL and 
+other encryption systems, and public keys for remote servers as used for 
+verifying SSL connections etc.  Then there are files containing passwords 
+such as the config of every MUA which uses POP.
+
+For POP and SSL I think that we want to have a proxy that runs in a different 
+domain so it can access the config files, the proxy will start the connection 
+to the server.  In the case of POP a file handle could be passed back to the 
+calling application, in the case of SSL all data would have to be proxied.
+
+> It strikes me that normal users of a system might want to have multiple
+> contexts to them within a windowing system; for example with seperate
+> permissions for normal stuff, a web browser, the web browser they use
+> for confidential stuff, and building things they downloaded.
+
+There are some difficulties with this.  Mozilla 1.6 seems to want to access 
+files all over the user's home directory.  Lots of gconf sub-dirs etc.  
+Getting the labelling on all those sub-directories and files correct is 
+difficult, and any mistakes will result in Mozilla aborting without 
+displaying an error!
+
+Work is being done on Security Enhanced X.  This will make it possible to give 
+different X clients different levels of access to the display (a 
+pre-requisite for any serious control of graphical programs).  I'm not sure 
+whether SE-X will support distinguishing between multiple copies of an 
+application that have different contexts.  Even when those problems are 
+solved we are still left with the situation that Mozilla checks for other 
+copies of itself and aborts if it finds any.
+
+The problem for KDE is that programs are not exec'd, they are mmap'd into a 
+running process, so domain_auto_trans() does not work for Konqueror!
+
+> Is it easy to set such a system up?  What about allowing normal users
+> to see the policy violations that are causing their individual programs
+> are making?
+
+This is not really possible at the moment.  Allowing all users to see all 
+messages is easy but usually not desirable.  Writing a program to sort 
+through the syslogd output and make some of the messages involving a user's 
+account available to them would be possible, but no-one has worked on it 
+AFAIK.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
 
 
 --
