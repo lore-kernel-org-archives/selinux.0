@@ -1,34 +1,86 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA25738
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 12:44:03 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA18165
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 16:42:39 GMT
-Received: from www.cabledns.net (internet.edu.nf [64.42.232.109])
-        by jazzband.ncsc.mil  with ESMTP id QAA18161 for <selinux@tycho.nsa.gov>; Mon, 17 Jun 2002 16:42:38 GMT
-Message-ID: <001201c2161d$d378b0c0$eeb6b38e@OK>
-From: "Admissions Office" <admissions@internet.edu.nf>
-To: "Greg KH" <greg@kroah.com>, "Crispin Cowan" <crispin@wirex.com>
-Cc: <Valdis.Kletnieks@vt.edu>, "Russell Coker" <russell@coker.com.au>,
-        <jw@centraltexasit.com>, <selinux@tycho.nsa.gov>,
-        "Haigh, Tom" <tom_haigh@securecomputing.com>,
-        "Carsten Grohmann" <carsten.grohmann@dr-baldeweg.de>,
-        <linux-security-module@wirex.com>
-References: <200205281111.39926.jw@centraltexasit.com> <20020603153940.937033C34@lyta.coker.com.au> <E17FLsN-00072J-00@pintail.mail.pas.earthlink.net> <20020604215946.DA32A748C@lyta.coker.com.au> <200206042255.g54MtHu1003846@turing-police.cc.vt.edu> <3CFD49A6.5060400@wirex.com> <20020617163139.GF14164@kroah.com>
-Subject: Re: To confusing....
-Date: Mon, 17 Jun 2002 10:41:26 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: AVC Messages
+From: Warren Lerner <wdl@zai.com>
+To: SELinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary="=-vCf4kpOoU/b3yDnS8d+V"
+Date: 17 Jun 2002 13:44:29 -0400
+Message-Id: <1024335869.3489.8.camel@montyburns>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Our company will not be using the SELinux for clients because, our
-management has determined the situation is to confusing and will not place
-our business at risk.
 
-Pamela Patterson
-OpenDNS Crop
+--=-vCf4kpOoU/b3yDnS8d+V
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Hello All,
+
+I am very new to SELinux.  I have some questions, and I hope you all
+forgive me if they have been asked before.
+
+1.  Is it possible to prevent the avc 'granted' or 'denied' messages
+off?  If so, how?
+2.  Can I write my own policy file from scratch and use only the
+functions necessary for my purpose?
+3.  Will SELinux be incorporated in to the next kernel release?
+
+
+Thank you for your time in advance.
+
+Warren Lerner
+
+wdl@zai.com
+
+
+
+
+--=-vCf4kpOoU/b3yDnS8d+V
+Content-Type: text/html; charset=utf-8
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 TRANSITIONAL//EN">
+<HTML>
+<HEAD>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=UTF-8">
+  <META NAME="GENERATOR" CONTENT="GtkHTML/1.0.2">
+</HEAD>
+<BODY>
+Hello All,
+<BR>
+
+<BR>
+I am very new to SELinux.&nbsp; I have some questions, and I hope you all forgive me if they have been asked before.
+<BR>
+
+<BR>
+1.&nbsp; Is it possible to prevent the avc 'granted' or 'denied' messages off?&nbsp; If so, how?
+<BR>
+2.&nbsp; Can I write my own policy file from scratch and use only the functions necessary for my purpose?
+<BR>
+3.&nbsp; Will SELinux be incorporated in to the next kernel release?
+<BR>
+
+<BR>
+
+<BR>
+Thank you for your time in advance.
+<BR>
+
+<BR>
+Warren Lerner
+<BR>
+
+<BR>
+wdl@zai.com
+<BR>
+
+<BR>
+
+<BR>
+
+</BODY>
+</HTML>
+
+--=-vCf4kpOoU/b3yDnS8d+V--
 
 
 --
