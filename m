@@ -1,72 +1,66 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RKOSrT005527
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 16:24:28 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6RKORup017824
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 20:24:27 GMT
-Subject: Re: distcc policy
-From: Colin Walters <walters@redhat.com>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: selinux@tycho.nsa.gov, russell@coker.com.au
-In-Reply-To: <1080449956.11635.32.camel@gorn.pebenito.net>
-References: <1080449956.11635.32.camel@gorn.pebenito.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EfgZ6wSpguqyV+D/Xw22"
-Date: Tue, 27 Jul 2004 16:24:20 -0400
-Message-Id: <1090959860.19104.41.camel@nexus.verbum.private>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6RLHWrT005803
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 17:17:34 -0400 (EDT)
+Received: from smtp811.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i6RLH1mJ014128
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jul 2004 21:17:02 GMT
+Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
+  by smtp811.mail.ukl.yahoo.com with SMTP; 27 Jul 2004 21:17:31 -0000
+Date: Tue, 27 Jul 2004 22:28:36 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [idea] multiple contexts.
+Message-ID: <20040727212836.GA21236@lkcl.net>
+References: <20040724231154.GE3437@lkcl.net> <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil> <20040727160605.GG3392@lkcl.net> <200407271940.i6RJebSp032388@turing-police.cc.vt.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200407271940.i6RJebSp032388@turing-police.cc.vt.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-EfgZ6wSpguqyV+D/Xw22
-Content-Type: multipart/mixed; boundary="=-cE4AjkVpPDJSyq9AjCqF"
+On Tue, Jul 27, 2004 at 03:40:37PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 27 Jul 2004 17:06:06 BST, Luke Kenneth Casson Leighton said:
+> 
+> >  i also seek to limit the programs that a KDE user may run.
+> > 
+> >  if there is a simple way to do that which does not involve writing
+> >  policy files for each and every single KDE program i intend to restrict
+> >  users to use, i would be interested to hear it.
+> 
+> Are there KDE programs that don't require anything but user permissions, but
+> that you want to restrict anyhow?
+ 
+ yes, sort-of: more that i only wish to limit what programs a user
+ can run (and what programs _those_ programs can run).
+
+ in particular, i want to stop people from being able to use the
+ "Run" capability of Konqueror, etc.  STOP, not have the popup coming
+ up with "are you sure you want to run this program?".
 
 
---=-cE4AjkVpPDJSyq9AjCqF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+ setting up a kdeusers group, chgrp'ing the allowed programs
+ to that group, and setting permissions to 0660 is what i really
+ need...
 
-On Sat, 2004-03-27 at 22:59 -0600, Chris PeBenito wrote:
-> Here's a policy for distccd, the distributed compiler daemon.  Its been
-> in heavy use in Gentoo for a while.
+ ... but i wondered if there was a way to do that same thing in
+ SE/Linux...
 
-Hi,
+ ... _without_ writing a whole stack of policies, one per program.
 
-I needed the attached patch to make this work.
+ a macro i could write that would let me do this:
+ 
+ allow_user_kde_access(konqueror_exec_t)
+ allow_user_kde_access(k3b_exec_t)
 
+ with all that that implies.
 
+ or, to simply set all the allowed kde executables into
+ kde_user_exec_t type, and set this on /usr/bin/konqueror,
+ /usr/bin/k3b, /usr/bin/koffice etc.
 
---=-cE4AjkVpPDJSyq9AjCqF
-Content-Disposition: attachment; filename=distcc.patch
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=distcc.patch; charset=UTF-8
-
-LS0tIC9ob21lL3dhbHRlcnMvZGlzdGNjLnRlCTIwMDQtMDctMjcgMTM6MjU6MjMuNzcxMTcxMjg4
-IC0wNDAwDQorKysgZGlzdGNjLnRlCTIwMDQtMDctMjcgMTY6MjI6NTMuMTI4MjIyOTM2IC0wNDAw
-DQpAQCAtNSw2ICs1LDcgQEANCiANCiBkYWVtb25fZG9tYWluKGRpc3RjY2QpDQogY2FuX25ldHdv
-cmsoZGlzdGNjZF90KQ0KK2xvZ19kb21haW4oZGlzdGNjZCkNCiB0bXBfZG9tYWluKGRpc3RjY2Qp
-DQogDQogdHlwZSBkaXN0Y2NkX3BvcnRfdCwgcG9ydF90eXBlOw0KQEAgLTE2LDYgKzE3LDcgQEAN
-CiANCiAjIGNvbXBpbGVyIHN0dWZmDQogYWxsb3cgZGlzdGNjZF90IHsgYmluX3Qgc2Jpbl90IH06
-ZGlyIHsgc2VhcmNoIGdldGF0dHIgfTsNCithbGxvdyBkaXN0Y2NkX3QgeyBiaW5fdCBzYmluX3Qg
-fTpsbmtfZmlsZSB7IGdldGF0dHIgcmVhZCB9Ow0KIGNhbl9leGVjKGRpc3RjY2RfdCxiaW5fdCkN
-CiBjYW5fZXhlYyhkaXN0Y2NkX3QsbGliX3QpDQogDQo=
-
-
---=-cE4AjkVpPDJSyq9AjCqF--
-
---=-EfgZ6wSpguqyV+D/Xw22
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBBrn0OIkJWWp2WGURArPNAJoCNMcQH+WRITS2MfFYc+7ivOVbCgCfdciv
-Rze/31Fk2q5V2gi70Eg5YiU=
-=4uEp
------END PGP SIGNATURE-----
-
---=-EfgZ6wSpguqyV+D/Xw22--
+ l.
 
 
 --
