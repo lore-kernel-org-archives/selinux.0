@@ -1,43 +1,28 @@
-From: "jiade" <jiadejiade@hotmail.com>
-To: <SELinux@tycho.nsa.gov>
-Subject: Source MAC Address DoS
-Date: Thu, 8 May 2003 16:34:10 +0800
-Message-ID: <Sea2-DAV62M19VMczi9000012c6@hotmail.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h48EU4I4018030
+	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 10:30:04 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h48ETnVf009780
+	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 14:29:49 GMT
+Received: from windowpane.com (ip57.gte1.rb1.bel.nwlink.com [209.20.131.57])
+	by jazzswing.ncsc.mil  with ESMTP id h48ETl4D009770
+	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 14:29:48 GMT
+Message-ID: <022f01c3156e$bd3eef30$398314d1@windowpane.com>
+From: "ccallen" <ccallen@windowpane.com>
+To: <selinux@tycho.nsa.gov>
+Subject: Fw: SELinux and LFS
+Date: Thu, 8 May 2003 07:33:05 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-(For those who have read the first part, there are new
-content added, thanks!)
+Heres another rescue CD build tool http://bblcd.berlios.de/. This one starts
+out with bootable CD's in mind where yard and others are geared toward
+creating minimal, floppy based linux distros.
 
-I got arp storm in my network(30 PCs and some WLAN devices),
-about 10,000 arp requests per second, no responses,lasting
-for severalminutes,all these arp requests have the same content
-which looks very strange:
-
-SRC             DST                info
-0060e0017d96    0060f0017d96       who has 192.168.1.188? tell 192.168.1.188
-
-it's an arp request but the DST is not a broadcast,
-and the DST is a real MAC address of one of my netcards
-while the SRC is a fake one.
-This happens several times a day but not regularly.
-Who will send millions of this kind of arp requests?
-
-Later I captured these packets and replayed this storm at 10000packets/s,
-no matter what kind of upper level protocol stuff (ARP,UDP or somethingelse)
-I filled in these packets ,they will jam up the Linux box whose MAC address
-is the same as the SOURCE (not the destination) MAC address of these
-packets.
-When I change the packets'source MAC address with the destination MAC
-address,the Linux box works well.I don't know the reason.
-
-Need your help, thanks.
-
-
-
-
-
-
+Conan
 
 
 --
