@@ -1,42 +1,61 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA12325
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 14:07:01 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA09993
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 18:05:36 GMT
+Received: from lyta.coker.com.au (n136.ols.wavesec.net [209.151.19.136])
+        by jazzband.ncsc.mil  with ESMTP id SAA09989 for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 18:05:33 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: gdsmarshall@hushmail.com, SELinux@tycho.nsa.gov
-Subject: Re: libsecure fails to compile
-Date: Tue, 25 Jun 2002 13:28:01 -0400
-References: <200206251543.g5PFhg451838@mailserver4.hushmail.com>
-In-Reply-To: <200206251543.g5PFhg451838@mailserver4.hushmail.com>
+To: Stephen Smalley <sds@tislabs.com>, Ed Street <blacknet@simplyaquatics.com>
+Subject: Re: Default policy under debian
+Date: Tue, 25 Jun 2002 13:25:09 -0400
+Cc: "'SE Linux'" <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0206240717270.10386-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0206240717270.10386-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020625172801.4DEAE3CE@lyta.coker.com.au>
+Message-Id: <20020625172509.7012E293C@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 25 Jun 2002 11:43, gdsmarshall@hushmail.com wrote:
-> make -C src
-> make[1]: Entering directory `/root/selinux/selinux/libsecure/src'
-> cc -o arch/i386/fstat64_secure.o -c -I../include
-> -I/usr/local/selinux/include arch/i386/fstat64_secure.c In file included
-> from arch/i386/fstat64_secure.c:6:
-> arch/i386/xstat64_conv.h: In function `xstat64_conv':
-> arch/i386/xstat64_conv.h:38: structure has no member named `__st_ino'
-> make[1]: *** [arch/i386/fstat64_secure.o] Error 1
-> make[1]: Leaving directory `/root/selinux/selinux/libsecure/src'
-> make: *** [all] Error 2
-> gatekeeper:~/selinux/selinux/libsecure#
+On Mon, 24 Jun 2002 07:50, Stephen Smalley wrote:
+> On Fri, 21 Jun 2002, Ed Street wrote:
+> > Just to let everyone know, using woody bf2.4 minimal install with
+> > selinux we found remote root could execute /sbin/poweroff
 >
-> I understand xstat64_conv.h is missing __st_ino, what should this be
-> please?
+> Can you clarify what you mean by this statement?  "Remote root" is
+> ambiguous, as there is a difference between having the Linux root uid and
+> having the SELinux root user identity, and you also need to specify the
+> role and domain.  Notice that processes with the Linux root uid do
 
-Do you have the 2.4.18 kernel headers installed?
+Here is the results of poweroff on Debian when uid=0 domain=user_t:
 
-> I am using debian (stable)  I know Russell Coker has done lots of work with
-> SELinux on debian, but I can not get to the stage of compiling the
-> utilities yet.
+root@lyta:/# /sbin/poweroff
+shutdown: warning: cannot open /var/run/shutdown.pid
+init: /dev/initctl: Permission denied
+root@lyta:/# id
+uid=0(root) gid=0(root) groups=0(root) context=rjc:user_r:user_t sid=440
+root@lyta:/#
 
-Unfortunately I have no time to back-port this code to potato.  Maybe you 
-should consider the option of upgrading to woody/testing?  Woody is closer to 
-a full production release state than SE Linux...
+If you ssh into a Debian machine as root in a typical setup it will log you 
+in as root:sysadm_r:sysadm_t by default.  But that can easily be changed.  If 
+you deny the "root" identity access to the sysadm_r role then they can't shut 
+the machine down (as I recently proved).
+
+> You can certainly remove the corresponding domain_trans rule from sshd.te
+> if you do not wish to permit remote administrator shells, although you
+> would also need to do something about newrole if you want to completely
+> prevent the use of newrole by remote sessions (e.g. setting up a separate
+> user domain for remote shells that cannot transition to newrole_t).
+
+With all the bugs in ssh recently I have been thinking of doing this.  Make 
+sshd go to user_t first (and prevent user_t having dac_override capability or 
+suid/sgid capabilities) and then require newrole to change to sysadm_r.  It 
+would still be possible to damage things, but it would be a lot harder and 
+the damage would be a lot less.
 
 -- 
 I do not get viruses because I do not use MS software.
