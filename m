@@ -1,55 +1,28 @@
-Message-Id: <5.1.0.14.0.20010629154747.00b18290@mail.bluesecure.com>
-Date: Fri, 29 Jun 2001 15:50:14 -0500
-To: SELinux@tycho.nsa.gov
+Date: Sat, 30 Jun 2001 00:56:18 EDT
 From: Matt Jezorek <matt@bluesecure.com>
-Subject: PAM
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="=====================_113433148==_.ALT"
+To: SELinux@tycho.nsa.gov
+Reply-To: matt@bluesecure.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Message-Id: <E15GCl2-0005jI-00@flamethrower.hostignition.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---=====================_113433148==_.ALT
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-What version of pam is required for selinux? I have gotten build errors on 
-build-apps because can not find -lpam so just wondering what
-version of pam you are recommending for optimal use. I am not using RH or 
-anything else I am building this from scratch so I don't have the luxury of 
-having pam installed thru the install program (
+I had alot of problems building this by itself without a base system. Its a
+real challenge has anyone else built this successfully on a source built
+system?
 
-Matt Jezorek
-Open Source: you deserve to be in control of your data.
-+----------------------------------------------------------------------+
-| BLUEsecure             http://www.bluesecure.com |
-| Blue Linux:          http://bluelinux.sourceforge.net |
-| Contact:                          matt@bluesecure.com |
-+-----------------------------------------------------------------------+
+After I finally got it built and everything I could no longer login....said
+invalid pass on everything....ohh well thank god i back up all my work
 
---=====================_113433148==_.ALT
-Content-Type: text/html; charset="us-ascii"
-
-<html>
-What version of pam is required for selinux? I have gotten build errors
-on build-apps because can not find -lpam so just wondering what<br>
-version of pam you are recommending for optimal use. I am not using RH or
-anything else I am building this from scratch so I don't have the luxury
-of having pam installed thru the install program (<br>
-<x-sigsep><p></x-sigsep>
-Matt Jezorek<br>
-Open Source: you deserve to be in control of your data. <br>
-+----------------------------------------------------------------------+<br>
-|
-BLUEsecure&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="http://www.bluesecure.com/" eudora="autourl">http://www.bluesecure.com</a>
-|<br>
-| Blue Linux:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="http://bluelinux.sourceforge.net/" eudora="autourl"><font color="#0000FF"><u>http://bluelinux.sourceforge.net</a></u></font> | <br>
-| Contact:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; matt@bluesecure.com |<br>
-+-----------------------------------------------------------------------+ <br>
-</html>
-
---=====================_113433148==_.ALT--
-
+-- 
+Open Source = Open Minds
+/****************************************************
+**BLUEsecure      http://www.bluesecure.com  *
+**Blue Linux   http://bluelinux.sourceforge.net  *
+**Contact @               matt@bluesecure.com  *
+*****************************************************
 
 --
 You have received this message because you are subscribed to the selinux list.
