@@ -1,40 +1,39 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2PHOXDo010459
-	for <selinux@tycho.nsa.gov>; Fri, 25 Mar 2005 12:24:33 -0500 (EST)
-Subject: Re: New policy for pyzor
-From: David Hampton <hampton-rh@rainbolthampton.net>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>,
-   fedora-selinux-list@redhat.com
-In-Reply-To: <20050324103556.GD7999@lkcl.net>
-References: <1111454594.18940.54.camel@hampton-pc.rainbolthampton.net>
-	 <1111605242.3856.24.camel@moss-lions.epoch.ncsc.mil>
-	 <1111610253.26996.16.camel@hampton-pc.rainbolthampton.net>
-	 <20050324103556.GD7999@lkcl.net>
-Content-Type: text/plain
-Date: Fri, 25 Mar 2005 12:24:05 -0500
-Message-Id: <1111771445.26996.31.camel@hampton-pc.rainbolthampton.net>
+Date: Fri, 25 Mar 2005 17:59:04 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Colin Walters <walters@verbum.org>
+Cc: Lorenzo Hern?ndez Garc?a-Hierro <lorenzo@gnu.org>,
+   Stephen Smalley <sds@tycho.nsa.gov>, ubuntu-hardened@lists.ubuntu.com,
+   selinux@tycho.nsa.gov
+Subject: Re: [RFC] selinux-support (1.0.1) available
+Message-ID: <20050325175904.GP8553@lkcl.net>
+References: <1111704432.27644.62.camel@localhost.localdomain> <1111759697.15280.53.camel@moss-spartans.epoch.ncsc.mil> <1111761662.27644.121.camel@localhost.localdomain> <1111764692.3932.45.camel@nexus.verbum.private>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1111764692.3932.45.camel@nexus.verbum.private>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-03-24 at 10:35 +0000, Luke Kenneth Casson Leighton wrote:
+On Fri, Mar 25, 2005 at 10:31:32AM -0500, Colin Walters wrote:
 
->  ... btw just as an aside, what the heck is razor doing
->  attempting to create /razor.log and /root/razor.log?
+> I haven't really done any Debian development in a year, but I think I
+> still remember much of how things work, so I'd be happy to help with any
+> integration issues you might have.  I'm sure the same is true of
+> Russell.  Posting to selinux@tycho.nsa.gov is probably your best bet.
+ 
+ about six/eight months ago, i worked for about four months on
+ getting debian to work with selinux (strict).
 
-The first time you run razor it can't find a config file telling it
-where to put its log, so it drops the log into the current working
-directory.  It then attempts to create a ~/.razor home directory and
-default config file.  All subsequent invocations of razor will find the
-just created config file and put the log where it specifies (which is
-~/.razor by default).
+ including getting udev to work (with tmpfs).
 
-The /razor.log is probably from the first invocation by a system daemon,
-and the /root/razor.log from the first time you tested it as root.
+ so, likewise, i'd be happy to help.
 
-David
+ many of the patches are delayed until sarge is released, at which point
+ libselinux1 can be made "Required" rather than "Optional".
 
+ at _that_ point, the patch floodgates open, and patches to coreutils
+ etc. can be put forward.
+
+ l.
 
 
 --
