@@ -1,43 +1,47 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAOK9GIi022545
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 15:09:16 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAOK7egi008880
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 20:07:41 GMT
-Date: Wed, 24 Nov 2004 20:19:50 +0000
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAOKDcIi022614
+	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 15:13:38 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAOKDeC8008498
+	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 20:13:40 GMT
+Date: Wed, 24 Nov 2004 20:24:12 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Colin Walters <walters@verbum.org>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: xen 2.0 - adding selinux permissions
-Message-ID: <20041124201950.GA15740@lkcl.net>
-References: <20041123220352.GF5146@lkcl.net> <1101303556.22014.56.camel@moss-spartans.epoch.ncsc.mil> <20041124150927.GP5146@lkcl.net> <1101308769.22014.136.camel@moss-spartans.epoch.ncsc.mil> <20041124154936.GB14100@lkcl.net> <1101319995.30763.11.camel@nexus.verbum.private>
+To: "Neugebauer, Rolf" <rolf.neugebauer@intel.com>,
+   Mark Williamson <maw48@hermes.cam.ac.uk>, xen-devel@lists.sourceforge.net,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [Xen-devel] protecting xen startup
+Message-ID: <20041124202412.GB15740@lkcl.net>
+References: <39CC97884CA19A4D8D6296FE94357BCBF5CCD7@swsmsx404> <20041124152402.GQ5146@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1101319995.30763.11.camel@nexus.verbum.private>
+In-Reply-To: <20041124152402.GQ5146@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Nov 24, 2004 at 01:13:15PM -0500, Colin Walters wrote:
-> On Wed, 2004-11-24 at 15:49 +0000, Luke Kenneth Casson Leighton wrote:
+On Wed, Nov 24, 2004 at 03:24:02PM +0000, Luke Kenneth Casson Leighton wrote:
+
+>  where xen->sid contains "xen_vm_0_t", "xen_vm_1_t" etc.
+>  and tsec->sid contains "xen_xm_bin_t" - representing the xen control
+>  binary /usr/bin/xm.
 > 
-> >  okay, regarding the second argument to avc_has_perm(),
-> >  i asked the nice xen developers if it'd be possible to
-> >  associate a sid with each virtual machine.
-> 
-> When would you want a process to be able to control one Xen machine but
-> not another?
- 
- i described such a scenario in an earlier message today to stephen:
- giving an operator-admin the right to reboot a VM running a SQL server
- but NOT giving that same operator the right to reboot the master OS
- which, if you rebooted that, would take down every single VM with it.
+>  the question i can't answer (the bit that i don't quite grok) is
+>  how do you get hold of the right xen_info struct and how do you blat
+>  the sid into it?
+
+ sorry to be replying to my own message with another question,
+ but would it be reasonable to have a function which adds
+ some state info into the VM?
+
+ what i mean by that is, would it be reasonable to add some functions
+ xen_get_selinux_sid and xen_set_selinux_sid which are
+ effectively the same as ext2/3 get and set xattrs "security.selinux"?
+
+ such that it would be possible, on creation of a new xen guest session,
+ to associate a SID with that session (e.g. "xen_vm_0_t") and then to be
+ able to retrieve it again in the ioctls?
 
  l.
 
--- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
 
 --
 This message was distributed to subscribers of the selinux mailing list.
