@@ -1,63 +1,38 @@
-Date: Mon, 11 Jun 2001 14:13:02 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Reiner Sailer <sailer@watson.ibm.com>
-cc: SELinux@tycho.nsa.gov
-Subject: Re: Root file system over NFS
-In-Reply-To: <3B24F822.B55E8098@watson.ibm.com>
-Message-ID: <Pine.SOL.3.95.1010611140105.6023G-100000@clipper.gw.tislabs.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA20448
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2001 14:44:42 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA29315
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2001 18:44:35 GMT
+Received: from mg03.austin.ibm.com (mg03.austin.ibm.com [192.35.232.20])
+	by jazzband.ncsc.mil  with ESMTP id SAA29311
+	for <selinux@tycho.nsa.gov>; Mon, 11 Jun 2001 18:44:34 GMT
+Date: Mon, 11 Jun 2001 13:47:26 -0500 (CDT)
+From: Emily Ratliff <ratliff@austin.ibm.com>
+To: Stephen Smalley <sds@tislabs.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: setting up selinux
+In-Reply-To: <Pine.SOL.3.95.1010611102221.23164O-100000@clipper.gw.tislabs.com>
+Message-ID: <Pine.LNX.4.33L2.0106111333410.9097-100000@spiff.austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 11 Jun 2001, Stephen Smalley wrote:
+> This doesn't look like it is related to SELinux in any way.
+I agree, however ...
 
-On Mon, 11 Jun 2001, Reiner Sailer wrote:
+> When you say that you were able to build an unpatched kernel,
+> do you mean the unmodified 2.4.3 sources from www.kernel.org?
+I tried with 2.4.5 from www.kernel.org on Friday and was successful. After
+your message today, I tried with 2.4.3 from www.kernel.org and it failed
+in exactly the say way. I'll dig around a little more and see if I can
+solve this problem.
 
-> we are developing in an embedded environment (Linux / Walnut board).
-> At least for development we need to mount the root file system  over
-> nfs from a trusted server (no hard-drive, no flash etc.). SELinux is running
-> in the embedded PowerPC environment.
+Thanks,
 
-SELinux doesn't really support NFS.  It provides some very minimal
-support for NFS clients, but it lacks general support for labeling
-and controls on NFS.  We did implement labeling and controls for
-NFS in a predecessor of SELinux, the DTOS prototype, and we
-have a similar design for SELinux.  But that involves modifying
-both the NFS client and server code, and it involves an extended
-version of the NFS protocol.  And since we're investigating
-transferring SELinux into the LSM framework, it doesn't seem
-worthwhile to implement that level of support in the current
-prototype at this point.
-
-> Possible solutions I think of  in order of preference:
-> 
-> a) handling nfs as it were a local fs - i.e. no default type
->     (how to label a nfs ?) [ assume we trust the server for the ss_policy
->     file and verify via MACs]
-
-I don't think this is a practical option with the current SELinux
-prototype.  It involves changes to both the NFS client and server
-code, and an extended NFS protocol.
-
-> b) manually assign contexts on the client after mounting nfs root  and before
->    any program is running (problem: chcon-command for changing contexts
->    also has nfs_t  -> does not work out-of-the-box)
->     -- good: different clients can specify policies independently
-
-This might work for setting the labels on files initially, but 
-you'll probably need to make changes to the kernel to deal
-with files created during system operation.  You can do a 'make relabel'
-in the policy directory after mounting the NFS root to initially
-set the labels.  Of course, you'll need a customized policy configuration
-to allow bootstrapping and relabeling.  You'll need to modify vfs_create,
-vfs_mkdir, etc. in kernel-2.4/fs/namei.c to set the SID on the inode
-after file creation.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+Emily
 
 
 --
