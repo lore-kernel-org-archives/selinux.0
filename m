@@ -1,44 +1,74 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9PIHuXZ005963
-	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2004 14:17:56 -0400 (EDT)
-Received: from moss-huskies.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9PIGRvs019076
-	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2004 18:16:27 GMT
-Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-huskies.epoch.ncsc.mil (8.12.11/8.12.11) with ESMTP id i9PIJE0B014276
-	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2004 14:19:14 -0400
-Received: (from hdholm@localhost)
-	by moss-huskies.epoch.ncsc.mil (8.12.11/8.12.11/Submit) id i9PIJEkY014275
-	for selinux@tycho.nsa.gov; Mon, 25 Oct 2004 14:19:14 -0400
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9PFMcXZ004114
-	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2004 11:22:38 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9PFLGvs013982
-	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2004 15:21:21 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9PIP9XZ006018
+	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2004 14:25:09 -0400 (EDT)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9PIP1mE021269
+	for <selinux@tycho.nsa.gov>; Mon, 25 Oct 2004 18:25:01 GMT
 Subject: Re: [patches] SE-DBUS policy revamp [1/2]
-From: Havoc Pennington <hp@redhat.com>
-To: Colin Walters <walters@verbum.org>
-Cc: selinux@tycho.nsa.gov, dbus@freedesktop.org, dwalsh@redhat.com
+From: Colin Walters <walters@verbum.org>
+To: selinux@tycho.nsa.gov
+Cc: dwalsh@redhat.com
 In-Reply-To: <1098569359.8447.47.camel@x-infinity.verbum.private>
 References: <1098569359.8447.47.camel@x-infinity.verbum.private>
-Content-Type: text/plain
-Date: Mon, 25 Oct 2004 11:23:32 -0400
-Message-Id: <1098717812.31744.2.camel@localhost.localdomain>
+Content-Type: multipart/mixed; boundary="=-DhhteKamEZewVbzGdKTT"
+Date: Mon, 25 Oct 2004 11:41:45 -0400
+Message-Id: <1098718905.18089.21.camel@decepticon.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+
+--=-DhhteKamEZewVbzGdKTT
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
 On Sat, 2004-10-23 at 18:09 -0400, Colin Walters wrote:
-> +/* Store the context of the bus for computing relabels. */
-> +char *bus_context = NULL;
 
-This should be "static"
+> I think the policy actually came out cleaner after macroizing
+> can_dbusd_converse.
 
-I can't say I understand the patch otherwise, but if you guys think it's
-right go for it.
+Should have tested the session bus in addition to the system one.
+Here's an interdiff.
 
-Havoc
+
+
+--=-DhhteKamEZewVbzGdKTT
+Content-Disposition: attachment; filename=dbus-policy-revamp-2.patch
+Content-Type: text/x-patch; name=dbus-policy-revamp-2.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -u policy.hacked/macros/base_user_macros.te policy.hacked/macros/base_user_macros.te
+--- policy.hacked/macros/base_user_macros.te	2004-10-23 15:33:47.271394352 -0400
++++ policy.hacked/macros/base_user_macros.te	2004-10-25 11:12:35.032343856 -0400
+@@ -191,17 +191,22 @@
+ can_network($1_t)
+ can_ypbind($1_t)
+ 
+-# Grant permissions to access the system DBus
+ ifdef(`dbusd.te', `
++# Grant permissions to access the system bus
+ dbusd_client(system, $1)
+-dbusd_client($1, $1)
++# Create derived domain for session bus, allow access
+ dbusd_domain($1)
++dbusd_client($1, $1, $1)
++# Allow any service acquisition on session bus
++# until we have user programs running in separate
++# domains
++allow $1_dbusd_$1_t $1_dbusd_t:dbus { acquire_svc };
+ ifdef(`hald.te', `
+ can_dbusd_converse(system, hald, $1)
+ ') dnl end ifdef hald.te
+-ifdef(`cupsd.te',`
++ifdef(`cups.te',`
+ # Only one-way conversation from cupsd -> user
+-allow cupsd_system_dbusd_t $1_dbusd_system_t:dbus { send_msg };
++allow cupsd_dbusd_system_t $1_dbusd_system_t:dbus { send_msg };
+ can_dbusd_converse(system, cupsd_config, $1)
+ ')
+ ') dnl end ifdef dbus.te
+
+--=-DhhteKamEZewVbzGdKTT--
 
 
 --
