@@ -1,44 +1,70 @@
-Date: Wed, 23 Feb 2005 13:48:24 +0100 (CET)
-From: Bartlomiej Balcerek <Bartlomiej.Balcerek@pwr.wroc.pl>
-Subject: Assigning user context to files out of home dir.
-To: SELinux@tycho.nsa.gov
-Message-id: <Pine.GSO.4.44.0502231318520.3577-100000@sun1000.pwr.wroc.pl>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Strange staff role problems...
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1109131644.5285.10.camel@cobra.ivg2.net>
+References: <1109131644.5285.10.camel@cobra.ivg2.net>
+Content-Type: text/plain
+Date: Wed, 23 Feb 2005 08:00:26 -0500
+Message-Id: <1109163626.17298.8.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2005-02-22 at 23:07 -0500, Ivan Gyurdiev wrote:
+> What does this mean, exactly, and what can cause it?
+> 
+> Feb 22 22:19:15 cobra kernel: inode_doinit_with_dentry:
+> context_to_sid([username]:object_r:staff_home_dir_t) returned 22 for
+> dev=dm-2 ino=324481
 
-Hello,
-Recently I've tried to define labeling for files, which are located out of
-user home, with user context, such as in user home. I want to label
-directories and files according to all user roles.
+22 == EINVAL.  This means that the security context was invalid with
+respect to the current policy, which typically means that:
+- one of the components (user, role, type) is no longer defined in the
+policy, or
+- the combination of the components is illegal in the policy
 
-There is now in "types.fc":
+Given what you show above, I'd assume that the user is no longer defined
+in the policy.
 
-/scratch      -d system_u:object_r:scratch_root_t
-/scratch/.+     system_u:object_r:ROLE_scratch_t
+> Something's broken on my machine. I had to reboot,
+> and then gdm said my home directory is missing (which it isn't - 
+> apparently it sees unlabeled context, which doesn't make any sense 
+> either, because ls -Z shows staff_home_dir_t).
 
-Inside scratch are users directories, just like in /home.
+ls -Z (or other applications) will display the on-disk extended
+attribute value, regardless of whether it is valid or not, as the xattr
+API queries the filesystem code, not the security module (other than to
+check permissions for accessing the xattr).  Hence, SELinux may
+internally be treating it as unlabeled due to an invalid context.
 
-Unfortunately i got "invalid context system_u:object_r:ROLE_scratch_t"
-from "setfiles".
+> Then I enable permissive mode, start X, and it creates unlabeled_t 
+> Xauthority file. Restorecon properly restores that to staff_home_t.
 
-So, my question is how to properly define such context for files like that
-(if possible) ?
+If the home directory is being treated internally as unlabeled, then any
+files created in it will by default also inherit that label.
 
-thanks in advance,
+> What could be the problem?
+> I have all the right users and roles, I think
+> in /etc/selinux/strict/users/local.users
 
--
-Bartlomiej Balcerek
-Technical University of Wroclaw
-Wroclaw Centre of Networking and Supercomputing
-phone: +48 (71) 320-20-43 mail: bartol@pwr.wroc.pl
+We only recently introduced support for actually using local.users, by
+adding sepol_genusers(3) to libsepol and modifying load_policy(1) to
+call it prior to loading the policy into the kernel.  At the same time,
+we changed the policy Makefile to no longer pull in local.users upon a
+policy build because it is now being dynamically added to the in-memory
+binary policy image by load_policy(1).  AFAIK, Dan is still working on
+the patch to /sbin/init to likewise call sepol_genusers(3) prior to
+loading the policy into the kernel.  Until that change is made, you'll
+lose any user definitions in local.users upon a reboot until you run
+load_policy, because /sbin/init won't dynamically pull in those entries.
+In the short term, you can either restore the inclusion of local.users
+into your policy build or separately run genpolusers(1) to rebuild the
+binary policy file with local.users included.
 
-
-
-
-
+-- 
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
