@@ -1,55 +1,53 @@
-Subject: Re: file context questions
+Subject: Re: pam_selinux and selinuxfs questions
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
 Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1077134006.6667.10.camel@kusturica>
-References: <1077134006.6667.10.camel@kusturica>
+In-Reply-To: <1077135048.6667.29.camel@kusturica>
+References: <1077135048.6667.29.camel@kusturica>
 Content-Type: text/plain; charset=UTF-8
-Message-Id: <1077135396.17849.166.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1077136518.17849.184.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 18 Feb 2004 15:16:36 -0500
+Date: Wed, 18 Feb 2004 15:35:18 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-02-18 at 14:53, Magosányi Árpád wrote:
-> 1. What is the difference between getfilecon and lgetfilecon?
+On Wed, 2004-02-18 at 15:10, Magosányi Árpád wrote:
+> 1.
+> Now I am here:
+> secadm@szoketto-TCB:~$ getcon
+> kernel_u:boot_r:tcb_ssh_d
+> 
+> I would like to put pam_selinux to /etc/pam.d/ssh, and get here:
+> secadm@szoketto-TCB:~$ getcon
+> secadm:tcb_user_r:tcb_user_d
+> 
+> The pam config part seems to be okay, I am struggling with the
+> selinux config part. What kind of transitions, etc should I allow?
 
-Analogous to stat(2) vs. lstat(2) or getxattr(2) vs. lgetxattr(2). 
-Identical when applied to a non-symlink.  When applied to a symlink,
-getfilecon will return the context of the referenced file, while
-lgetfilecon will return the context of the symlink itself.
+Look at the example ssh policy.  If you are using our constraints file,
+then you'll need to assign privuser, privrole, and privowner attributes
+to tcb_ssh_d so that it can transition to other user identities and
+roles and can label the pty properly.  It needs to get security
+decisions (can_getsecurity macro), set its exec context (can_setexec
+macro), transition to the user domain (domain_trans macro), relabel the
+pty, etc.  
 
-> 2. I cannot [l]getfilecon /selinux/context even in permissive mode.
-> What's happening? Is there a way to get file contexts of a
-> genfscontexted file, or I have to guess?
+> 2. What do each file does in /selinux? What is the security implication
+> of read and write acces to them?
+> access
+> context
+> create
+> enforce
+> load
+> policyvers
+> relabel
+> user
 
-selinuxfs doesn't presently provide an xattr handler, so its contexts
-aren't exported to userspace.  You could easily implement a fake xattr
-handler for it, as we have already done for devpts (to support
-relabeling of ptys by sshd) and are likely to do for tmpfs, but we
-haven't had a need for one for selinuxfs yet.
-
-> 3. If I use genfscontext and fs_use for the same file, which will be
->  in effect? (or genfscontext is just fs_use_genfs?)
-
-Should be an error, as they are exclusive.  I think that the current
-code will simply end up using the fs_use rule and ignore the
-genfs_contexts entries, as it checks the fs_use list first when
-determining the labeling behavior for the filesystem type.
-
-> 4. When I boot, several filesystems are not configured for labeling.
->    Which is the recommended way to label each of them, and why?
->    (And anyway, what the heck are they?)
-> 	eventpollfs
-> 	tmpfs
-> 	futexfs
-> 	bdev
-> 	rootfs
-> 	sysfs
-> 	usbfs
-> 	usbdevfs 
-
-Look at the policy in the sourceforge CVS tree.
+Described in selinux-doc/README.  The example policy provides a
+can_getsecurity() macro that allows access to the nodes that are simply
+used to obtain security decisions, a can_setenforce() macro that allows
+setting of the enforce flag, and a can_loadpol() macro that allows
+reloading the policy.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
