@@ -1,57 +1,40 @@
-Date: Thu, 30 Sep 2004 22:22:39 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: Out of curiosity looking for suid apps without special context on FC3
-Message-Id: <20040930202239.GA2546@jmh.mhn.de>
+Date: Fri, 1 Oct 2004 06:32:43 +1000
+Cc: SELinux <SELinux@tycho.nsa.gov>
 References: <415C4E36.3020303@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
 In-Reply-To: <415C4E36.3020303@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200410010632.43256.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 1 Oct 2004 04:19, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> These are the files that do not have special context associated with
+> them but are suid on FC3.
+>
+> /sbin/pwdb_chkpwd->system_u:object_r:sbin_t
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I suspect that should have type chkpwd_exec_t, but would have to do some tests 
+and code inspection.  I expect that it won't work without PAM code changes 
+anyway.
 
-* Daniel J Walsh <dwalsh@redhat.com> [2004-09-30 22:08]:
-> These are the files that do not have special context associated with=20
-> them but are suid on FC3.=20
->=20
-> /usr/lib/mc/cons.saver->system_u:object_r:lib_t
+> # Asks for suid but seems to work.
+> /usr/bin/newgrp->system_u:object_r:bin_t
 
-This program is used to save output of previous run programs when
-Midnight Commander is run in text mode on the Linux console (you can
-toggle to it with C-o)
-Nice functionality but not really essential. On Debian and strict SuSE
-config the file has mode 0755.
-Even though I use mc a lot I hadn't noticed till now so a case can
-probably be made to remove the suid bit.
+Only in targeted policy or as sysadm_t.  In strict policy as a regular user it 
+fails.  I guess I have to create user_newgrp_t etc domains, and policy for 
+gpasswd.
 
-Thomas
-
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-
---bp/iNruPH9dso1Pn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBXGsOxWIrrrL0q+cRAq9CAJ9nnTLagnSMvoN9uGdUD4gz21stNwCgqxEw
-kV/ctC2GdJmXMyPrNqaCcDk=
-=Dgne
------END PGP SIGNATURE-----
-
---bp/iNruPH9dso1Pn--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
