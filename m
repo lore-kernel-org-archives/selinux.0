@@ -1,44 +1,49 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2F4fRb014941
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 10:04:41 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2FBiRb015116
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 10:11:44 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB2F4eqY027994
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 15:04:40 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-        by jazzband.ncsc.mil  with ESMTP id hB2F4Z0o027982 for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 15:04:40 GMT
-Date: Tue, 2 Dec 2003 15:04:25 +0000
-From: Dale Amon <amon@vnl.com>
-To: Chris Vanden Berghe <vbc@zurich.ibm.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: selinux-policy-default
-Message-ID: <20031202150425.GV11972@vnl.com>
-References: <3FCC831A.1070002@zurich.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3FCC831A.1070002@zurich.ibm.com>
+	by jazzband.ncsc.mil  with ESMTP id hB2FBgqY028441
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 15:11:42 GMT
+Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id hB2FBf0o028432 for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 15:11:42 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Tom <tom@lemuria.org>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: wdm now has SELinux support out-of-the-box
+Date: Wed, 3 Dec 2003 02:11:33 +1100
+References: <20031202094639.C29282@lemuria.org> <200312022248.40562.russell@coker.com.au> <20031202145531.B1867@lemuria.org>
+In-Reply-To: <20031202145531.B1867@lemuria.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200312030211.33587.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Dec 02, 2003 at 01:18:34PM +0100, Chris Vanden Berghe wrote:
-> I tried installing the new selinux version for kernel 2.6.0-test11 under
-> Debian.  Started by installing libselinux1 from Russells newselinux
-> archives, this worked just fine.  But when afterwards I tried installing
-> selinux-policy-default, then I got the error message below:
+On Wed, 3 Dec 2003 00:55, Tom <tom@lemuria.org> wrote:
+> On Tue, Dec 02, 2003 at 10:48:40PM +1100, Russell Coker wrote:
+> > While you're on a roll perhaps you could look into trying to get some of
+> > the other application patches accepted upstream.  At the moment I'm busy
+> > enough just keeping things working...
+>
+> Tell me which ones are most important.
+>
+> I have a tight deadline next monday for my next paper. After that I'll
+> have a bit of time. Until then, I'm struggling for free minutes.
 
-Yeah, looks like the same problem I've got. It has to
-do with a package install hook that doesn't seem to 
-work under non-selinux systems. Won't guarantee that
-is a correct statement as I've been busy on other
-things and have spent time to properly dig into it.
+Apart from login and sshd where the patches are deprecated I think that they 
+are all equally important, so pick whichever you feel most comfortable 
+working with.
+
+If you choose psmisc then note that the patch does not have all desired 
+functionality (IMHO), and you would probably be best starting from scratch.
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
