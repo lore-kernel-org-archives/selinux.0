@@ -1,76 +1,68 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UJ2NrT025776
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 15:02:23 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UJ2Nog004576
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 19:02:23 GMT
-Subject: Re: New policy diff
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <415C5003.2090500@redhat.com>
-References: <415AAE8C.5050102@redhat.com>
-	 <1096564073.8418.11.camel@moss-lions.epoch.ncsc.mil>
-	 <415C5003.2090500@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UJ8BrT025842
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 15:08:11 -0400 (EDT)
+Received: from venus.informatica.co.cr (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UJ74ng003513
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 19:07:05 GMT
+Subject: Re: where is the modified login program's source code
+From: Miguel Bolanos <mike@hsol.net>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20040930141837.5407.qmail@web51503.mail.yahoo.com>
+References: <20040930141837.5407.qmail@web51503.mail.yahoo.com>
 Content-Type: text/plain
-Message-Id: <1096570878.8418.17.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1096571312.21508.16.camel@talena.hsol.net>
 Mime-Version: 1.0
-Date: Thu, 30 Sep 2004 15:01:18 -0400
+Date: Thu, 30 Sep 2004 13:08:32 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
+Hello,
 
-I actually went with this:
-allow inetd_t ftpd_exec_t:file x_file_perms;
+On Thu, 2004-09-30 at 08:18, Park Lee wrote:
+> Hi,
+>   I know that login is a modified daemon program. Now, I want to do
+> some work with the login program in SELinux. But, Where could I found
+> the modified login program's source code? It seems that it isn't
+> contained in Fedora Core 2.
+>   If you know the matter, please tell me about it.
 
-Also, I didn't merge the sendmail_macros.te chunk, because it was a
-reversal of Russell's patch from last Friday.
+Well there is not such thing as a "login" package, this is part of
+util-linux package. The FC2 srpm can be found here:
 
-On Thu, 2004-09-30 at 14:27, Daniel J Walsh wrote:
-> James Carter wrote:
-> 
-> >Isn't this sufficient?
-> >
-> >allow inetd_t ftpd_exec_t:file execute;
-> >
-> >
-> >On Wed, 2004-09-29 at 08:46, Daniel J Walsh wrote:
-> >  
-> >
-> >>Added policy for vpnc.
-> >>Mailman location on redhat is changing.
-> >>More fixes for xinetd apps
-> >>
-> >>
-> >>______________________________________________________________________
-> >>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ftpd.te policy-1.17.23/domains/program/unused/ftpd.te
-> >>--- nsapolicy/domains/program/unused/ftpd.te	2004-09-01 11:17:48.000000000 -0400
-> >>+++ policy-1.17.23/domains/program/unused/ftpd.te	2004-09-28 10:46:55.000000000 -0400
-> >>@@ -44,6 +44,8 @@
-> >> rw_dir_create_file(ftpd_t, var_lock_t)
-> >> allow ftpd_t ftp_port_t:tcp_socket name_bind;
-> >> can_tcp_connect(userdomain, ftpd_t)
-> >>+# Allows it to check exec privs on daemon
-> >>+can_exec(inetd_t, ftpd_exec_t)
-> >> }
-> >> ifdef(`inetd.te', `
-> >> if (!ftpd_is_daemon) {
-> >>    
-> >>
-> >
-> >  
-> >
-> Yes
+http://download.fedora.redhat.com/pub/fedora/linux/core/2/SRPMS/util-linux-2.12-18.src.rpm
+
+There is also an srpm for util-linux at the selinux offical site:
+
+http://www.nsa.gov/selinux/SRPMS/util-linux-2.12a-2.src.rpm
+
+Or you can just get the source code from the original location:
+
+ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/
+ftp://ftp.win.tue.nl/pub/linux-local/utils/util-linux/util-linux-2.12a.tar.gz
+
+And use the patch available at the selinux site for it:
+
+http://www.nsa.gov/selinux/patches/util-linux-selinux.patch.gz
+
+Hope this helps enough to get you started.
+best wishes
+
+Miguel
+
+>  
+>   Thank you.
 > 
 > --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+> Best Regards,
+> Park Lee <parklee_sel@yahoo.com> 
+>  
+> 
+> 
+> ______________________________________________________________________
+> Do you Yahoo!?
+> Yahoo! Mail - 50x more storage than other providers!
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
