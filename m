@@ -1,44 +1,39 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HIc5rT015618
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 14:38:05 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7HIbO2E010937
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 18:37:25 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HJRqrT015929
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 15:27:52 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7HJRnKV028411
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 19:27:50 GMT
 Received: from localhost (localhost [127.0.0.1])
-	by open.hands.com (Postfix) with ESMTP id 32586C0E6
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 19:38:04 +0100 (BST)
+	by open.hands.com (Postfix) with ESMTP id 5D290C0FA
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 20:27:50 +0100 (BST)
 Received: from open.hands.com ([127.0.0.1])
 	by localhost (open [127.0.0.1]) (amavisd-new, port 10024) with LMTP
-	id 29330-03-2 for <selinux@tycho.nsa.gov>;
-	Tue, 17 Aug 2004 19:38:02 +0100 (BST)
+	id 31659-02-4 for <selinux@tycho.nsa.gov>;
+	Tue, 17 Aug 2004 20:27:46 +0100 (BST)
 Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id E8866C0E4
-	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 19:38:01 +0100 (BST)
+	by open.hands.com (Postfix) with ESMTP id 538F5C0F7
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 20:27:46 +0100 (BST)
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1Bx90h-0006F6-K5
-	for selinux@tycho.nsa.gov; Tue, 17 Aug 2004 19:48:39 +0100
-Date: Tue, 17 Aug 2004 19:48:39 +0100
+	id 1Bx9mq-0000Jd-6g
+	for selinux@tycho.nsa.gov; Tue, 17 Aug 2004 20:38:24 +0100
+Date: Tue, 17 Aug 2004 20:38:24 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: k3b finding files
-Message-ID: <20040817184839.GS18321@lkcl.net>
+Subject: mozilla 0.9.3-2 crashing with tunables read and write homedir OFF
+Message-ID: <20040817193823.GU18321@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-... or, is there a different way to do file finding / listing?
+instant crash - after about two seconds, so not a thing on-screen.
 
-why does konqueror manage to do file finding / listing?
+just in case anyone's curious about using mozilla with no read or write
+access to user-home: at present (policy 1.12-3 or 4 and mozilla 0.9.2-3)
+it don't work.
 
-is there some sort of filesystem monitoring service that could be used
-(such that famd could use it as well)?
-
-does anyone know of a DCOP-based KDE service (konqueror itself, even)
-that could track files?
-
-i'm thinking of modifications to k3b that could keep its file accessing
-under control.
+debian bugreport raised.
 
 l.
 
