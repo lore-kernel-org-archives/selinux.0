@@ -1,57 +1,40 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1J3iXZ029229
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 14:03:45 -0500 (EST)
-Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1J3fGG003429
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 19:03:44 GMT
-Message-Id: <200411011903.iA1J3djT009295@turing-police.cc.vt.edu>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: patch: add assert statement for syslog 
-In-Reply-To: Your message of "Mon, 01 Nov 2004 13:14:05 EST."
-             <1099332844.21386.170.camel@moss-spartans.epoch.ncsc.mil>
-From: Valdis.Kletnieks@vt.edu
-References: <20041101102345.GA3377@jmh.mhn.de> <200411011745.iA1HjGZ0004102@turing-police.cc.vt.edu>
-            <1099332844.21386.170.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1JICXZ029350
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 14:18:13 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1JGqCC027899
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 19:16:52 GMT
+Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
+	by open.hands.com (Postfix) with ESMTP id 8DF37BF35
+	for <selinux@tycho.nsa.gov>; Mon,  1 Nov 2004 19:17:59 +0000 (GMT)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1COhrJ-0002cl-9b
+	for selinux@tycho.nsa.gov; Mon, 01 Nov 2004 19:28:53 +0000
+Date: Mon, 1 Nov 2004 19:28:53 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: dynamic context transitions - a seteuid parallel
+Message-ID: <20041101192853.GF9643@lkcl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1048839258P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 01 Nov 2004 14:03:35 -0500
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1048839258P
-Content-Type: text/plain; charset=us-ascii
+okay, so this dynamic context transitions idea is pretty much
+identical to the seteuid equivalence proposals, and doing
+an equivalent of seteuid() it has been made abundantly clear
+[many times], and why, that it should not be done.
 
-On Mon, 01 Nov 2004 13:14:05 EST, Stephen Smalley said:
+... question: what it is about MLS that makes it so necessary to
+implement dynamic context transitions?
 
-> The patch merely adds an assertion to verify what should already be true
-> in the policy, i.e. that every domain authorized to write to the
-> /dev/log socket has the privlog attribute.
+what are the alternatives?
 
-Pass me the caffeine, will ya? ;)
+l.
 
-For some reason, I was convinced that macros/user-macros.te had a
-ifdef that lopped out the privlog stuff - in fact, it sticks a
-'dontaudit' on it.
+p.s. not that i actually understand MLS enough to understand any answers
+[yet] but i'm just encouraging people to bounce ideas.
 
-
-
-
---==_Exmh_1048839258P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBhoiGcC3lWbTT17ARAjrjAKDK07P6LhoDLVpO1pMWnGy7Hzch7wCfcR/j
-lDz4v2n1GAb1t8nduE5PpaQ=
-=GzW7
------END PGP SIGNATURE-----
-
---==_Exmh_1048839258P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
