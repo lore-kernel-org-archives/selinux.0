@@ -1,70 +1,64 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i37000Rb006020
-	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 20:00:01 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i36Nxxmw022268
-	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 23:59:59 GMT
-Received: from mutemail.com (mutemail.com [24.244.170.124])
-        by jazzband.ncsc.mil  with SMTP id i36Nxv4w022250 for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 23:59:58 GMT
-Date: Tue, 06 Apr 2004 16:59:37 -0700
-From: Bill McCarty <bmccarty@pt-net.net>
-To: selinux@tycho.nsa.gov
-Subject: Re: Problems finding working kernel/user land combination
-Message-ID: <88042458.1081270777@[192.168.0.3]>
-In-Reply-To: <401FF280.8070301@treblig.org>
-References: <401FF280.8070301@treblig.org>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3723NRb006572
+	for <selinux@tycho.nsa.gov>; Tue, 6 Apr 2004 22:03:23 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i3721OUZ029434
+	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 02:01:24 GMT
+Received: from lakermmtao11.cox.net (lakermmtao11.cox.net [68.230.240.28])
+	by jazzswing.ncsc.mil  with ESMTP id i3721NmT029431
+	for <selinux@tycho.nsa.gov>; Wed, 7 Apr 2004 02:01:24 GMT
+Message-ID: <40736166.1060600@snu.edu>
+Date: Tue, 06 Apr 2004 21:03:18 -0500
+From: Joshua Brindle <jbrindle@snu.edu>
 MIME-Version: 1.0
+To: Dan Thomsen <dthomsen@tresys.com>
+CC: "'Michael Pender'" <michael.pender@nanochron.com>,
+   "'Bill McCarty'" <bmccarty@pt-net.net>,
+   "'Untitled'" <selinux@tycho.nsa.gov>
+Subject: Re: Logo Artwork for SELinux?
+References: <001801c41be6$a85bc0f0$0201a8c0@columbia.tresys.com>
+In-Reply-To: <001801c41be6$a85bc0f0$0201a8c0@columbia.tresys.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
+I added a few with a penguin in sunglasses and a black tie (the earpiece 
+would be hard to see)
 
-I'm trying to follow the trail for installing SELinux on Debian unstable, 
-as helpfully documented by Dave Gilbert (see below). Thanks, Dave!
+http://tachyon.snu.edu/selinux-buttons.html
 
-However, I'm having difficulty with the Selinux-policy-default package, 
-which Dselect complains is not compatible with Policycoreutils. I plan to 
-start over with a very minimal Debian installation on the hypothesis that 
-one or more of the SELinux package versions has been obsoleted by a 
-non-SELinux package. Can anyone offer other suggestions for installing 
-SELinux under Debian, whether stable or unstable?
+let me know what you think.
 
-Cheers,
+Joshua Brindle
 
---On Tuesday, February 03, 2004 7:12 PM +0000 "Dave Gilbert (Home)" 
-<gilbertd@treblig.org> wrote:
-
-> So - to summarise (for those reading this in the future - is the archive
-> working?); to get SELinux working on Debian/woody:
->
->    * Get the kernel patches (lsm and exec-shield) off Russell Coker's site
->    * Get the standard debian 2.4.24 kernel package (from the main debian
-> pool) and the debian kernel-patch-acl package    * To the standard kernel
-> apply the kernel-patch-acl patches (if you are doing it by hand that has
-> to be in the order ea, acl, nfsacl)    * Apply the exec-shield patch
->    * apply the lsm patch
->
-> Add:
->
->
-> deb http://www.microcomaustralia.com.au/debian unstable selinux main
->
-> to your sources.list
->
-> and follow the instructions from the *new* selinux howto - that will be
-> the one that tells you to mount /selinux and doesn't mention the 'login'
-> package.
->
-> Note: When installing the packages it is best to do one big apt-get line
-> rather than one at a time - doing them individually has a nasty habit of
-> removing other packages.
-
----------------------------------------------------
-Bill McCarty, Ph.D.
-Professor of Information Technology
-Azusa Pacific University
-
+Dan Thomsen wrote:
+>>contest to design the best logo.  We can offer the winner kudos as the
+>>graphic designer.  That should suffice to get some talented artists
+>>involved.  I'm willing to handle the administrative details to make it
+>>happen.
+> 
+> 
+> Not having a lick of artistic talent, I'll just have to throw my idea
+> out there for one of the talented artists to run with. :-)
+> 
+> How about Tux the penguin wearing dark man in black type sunglasses and
+> an ear piece?  Sort of a secret service look.
+> 
+> ---
+> Dan Thomsen
+> Tresys Technology    www.tresys.com
+> dthomsen@tresys.com  d.j.thomsen@ieee.org
+> cell: 612 968-5178   home: 612 789-4082
+> 
+> 
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
 
 
 --
