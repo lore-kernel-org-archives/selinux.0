@@ -1,147 +1,47 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA20119
-	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 16:00:33 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA20518
+	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 16:55:10 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA22909
-	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 20:00:11 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id UAA22902
-	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 20:00:11 GMT
-Date: Mon, 27 Aug 2001 16:00:04 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: Re: FreeSwan Intergration.
-In-Reply-To: <72222DC86846D411ABD300A0C9EB08A1015241D1@csoc-mail-box.csoconline.com>
-Message-ID: <Pine.SOL.3.95.1010827155610.8693l-200000@clipper.gw.tislabs.com>
+	by jazzband.ncsc.mil  with ESMTP id UAA25787
+	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 20:54:49 GMT
+Received: from biocserver.BIOC.CWRU.Edu (biocserver.BIOC.CWRU.Edu [129.22.208.36])
+	by jazzband.ncsc.mil  with ESMTP id UAA25783
+	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 20:54:48 GMT
+Received: from localhost (jose@localhost)
+	by biocserver.BIOC.CWRU.Edu with ESMTP id QAA04348
+	for <selinux@tycho.nsa.gov>; Mon, 27 Aug 2001 16:59:31 -0400
+Date: Mon, 27 Aug 2001 16:59:31 -0400 (EDT)
+From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
+To: <selinux@tycho.nsa.gov>
+Subject: of interest -- HP's secure linux
+Message-ID: <Pine.LNX.4.30.0108271657430.4116-100000@biocserver.BIOC.CWRU.Edu>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1817792895-998942404=:8693"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----559023410-1817792895-998942404=:8693
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+hi all,
 
+i figured that some peopl here may be interested to see this:
+http://www.hp.com/security/products/linux/
 
-On Mon, 27 Aug 2001, Westerman, Mark wrote:
+HP has developed a secure Linux product which they are selling. they will
+be demoing it this week, reportedly, at LWE in san fransisco. its open
+source, but currently you have to buy the media from HP.
 
-> Here are the changes for the ipsec domain for integration of FreeSwan
+it includes auditing, containment, etc ... no claims of "Orange Book" or
+trusted system compatability.
 
-I've attached a patch relative to the released example policy that
-applies the changes described in Mark's message, so you can just apply it 
-if you are using the example policy without a lot of local customization.  
-Otherwise, you can follow his directions.  This set of changes will be
-included in future releases.
+http://www.businesswire.com/cgi-bin/f_headline.cgi?bw.082701/212390245&ticker=HWP
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+enjoy,
 
+____________________________
+jose nazario						     jose@cwru.edu
+	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
+				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
 
-
-
----559023410-1817792895-998942404=:8693
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ipsec.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.SOL.3.95.1010827160004.8693m@clipper.gw.tislabs.com>
-Content-Description: 
-
-SW5kZXg6IHNlbGludXgvcG9saWN5L3JiYWMNCmRpZmYgLXUgc2VsaW51eC9w
-b2xpY3kvcmJhYzoxLjcgc2VsaW51eC9wb2xpY3kvcmJhYzoxLjgNCi0tLSBz
-ZWxpbnV4L3BvbGljeS9yYmFjOjEuNwlGcmkgQXVnIDI0IDE0OjE2OjE4IDIw
-MDENCisrKyBzZWxpbnV4L3BvbGljeS9yYmFjCU1vbiBBdWcgMjcgMTU6MzY6
-MjYgMjAwMQ0KQEAgLTcwLDYgKzcwLDcgQEANCiAJaHR0cGRfc3VleGVjX3By
-b2Nlc3NfdA0KIAlodHRwZF9zdWV4ZWNfZXhlY190DQogCWF1dG9tb3VudF90
-DQorCWlwc2VjX3QNCiAJcHVtcF90DQogfTsNCiANCkluZGV4OiBzZWxpbnV4
-L3BvbGljeS9kb21haW5zL2FkbWluL3N5c2FkbS50ZQ0KZGlmZiAtdSBzZWxp
-bnV4L3BvbGljeS9kb21haW5zL2FkbWluL3N5c2FkbS50ZToxLjkgc2VsaW51
-eC9wb2xpY3kvZG9tYWlucy9hZG1pbi9zeXNhZG0udGU6MS4xMA0KLS0tIHNl
-bGludXgvcG9saWN5L2RvbWFpbnMvYWRtaW4vc3lzYWRtLnRlOjEuOQlGcmkg
-QXVnIDI0IDE0OjE2OjE4IDIwMDENCisrKyBzZWxpbnV4L3BvbGljeS9kb21h
-aW5zL2FkbWluL3N5c2FkbS50ZQlNb24gQXVnIDI3IDE1OjM2OjI2IDIwMDEN
-CkBAIC0xNDMsNiArMTQzLDE0IEBADQogIyBBbGxvdyBvdXIgY3JvbnRhYiBk
-b21haW4gdG8gdW5saW5rIGEgdXNlciBjcm9uIHNwb29sIGZpbGUuDQogYWxs
-b3cgJDFfY3JvbnRhYl90IHVzZXJfY3Jvbl9zcG9vbF90OmZpbGUgdW5saW5r
-Ow0KIA0KKyMNCisjIFRoaXMgd2lsbCBhbGxvdyB0aGUgc3lzYWRtIHVzZXIg
-dG8gcmVhZCBhbmQgDQorIyBtb2RpZnkgdGhlIC9ldGMvaXBzZWMuc2VjcmV0
-cyBmaWxlLg0KKyMgSSB3aWxsIGNyZWF0ZSBhIGlwc2VjYWRtX3Igcm9sZSBm
-b3IgdGhpcyBmaWxlDQorIyBNYXJrIFdlc3Rlcm1hbiBtYXJrLndlc3Rlcm1h
-bkB3ZXN0Y2FtLmNvbQ0KKw0KK2FsbG93ICQxX3QgaXBzZWNfZmlsZV90OmZp
-bGUgcndfZmlsZV9wZXJtczsNCisNCiAnKQ0KIA0KIA0KSW5kZXg6IHNlbGlu
-dXgvcG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9tb2R1dGlsLnRlDQpkaWZmIC11
-IHNlbGludXgvcG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9tb2R1dGlsLnRlOjEu
-NiBzZWxpbnV4L3BvbGljeS9kb21haW5zL3Byb2dyYW0vbW9kdXRpbC50ZTox
-LjcNCi0tLSBzZWxpbnV4L3BvbGljeS9kb21haW5zL3Byb2dyYW0vbW9kdXRp
-bC50ZToxLjYJRnJpIEF1ZyAyNCAxNDoxNjoxOCAyMDAxDQorKysgc2VsaW51
-eC9wb2xpY3kvZG9tYWlucy9wcm9ncmFtL21vZHV0aWwudGUJTW9uIEF1ZyAy
-NyAxNTozNjoyNiAyMDAxDQpAQCAtNzIsNiArNzIsOSBAQA0KIGFsbG93IGlu
-c21vZF90IG1vZHVsZXNfb2JqZWN0X3Q6ZGlyIHJfZGlyX3Blcm1zOw0KIGFs
-bG93IGluc21vZF90IG1vZHVsZXNfb2JqZWN0X3Q6ZmlsZSByX2ZpbGVfcGVy
-bXM7DQogDQorIyBSdWxlcyBmb3IgaXBzZWMgRG9tYWluIA0KK2FsbG93IGlu
-c21vZF90IGlwc2VjX3Q6cHJvY2VzcyBzaWduYWw7DQorDQogDQogIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQogIw0KSW5kZXg6IHNlbGlu
-dXgvcG9saWN5L2RvbWFpbnMvc3lzdGVtL2luaXRyYy50ZQ0KZGlmZiAtdSBz
-ZWxpbnV4L3BvbGljeS9kb21haW5zL3N5c3RlbS9pbml0cmMudGU6MS4xNCBz
-ZWxpbnV4L3BvbGljeS9kb21haW5zL3N5c3RlbS9pbml0cmMudGU6MS4xNQ0K
-LS0tIHNlbGludXgvcG9saWN5L2RvbWFpbnMvc3lzdGVtL2luaXRyYy50ZTox
-LjE0CUZyaSBBdWcgMjQgMTQ6MTY6MTggMjAwMQ0KKysrIHNlbGludXgvcG9s
-aWN5L2RvbWFpbnMvc3lzdGVtL2luaXRyYy50ZQlNb24gQXVnIDI3IDE1OjM2
-OjI2IDIwMDENCkBAIC0xNzUsMyArMTc1LDggQEANCiBhbGxvdyBpbml0cmNf
-dCB2YXJfc3Bvb2xfdDpmaWxlIHJ3X2ZpbGVfcGVybXM7DQogDQogYWxsb3cg
-aW5pdHJjX3QgcHVtcF92YXJfcnVuX3Q6c29ja19maWxlIHVubGluazsNCisN
-CisjIGlwc2VjIERvbWFpbg0KK2RvbWFpbl9hdXRvX3RyYW5zKGluaXRyY190
-LCBpcHNlY19leGVjX3QsIGlwc2VjX3QpDQorYWxsb3cgaW5pdHJjX3QgaXBz
-ZWNfZmlsZV90OmZpbGUgeyByZWFkIGlvY3RsIH07DQorYWxsb3cgaW5pdHJj
-X3QgaXBzZWNfdmFyX3J1bl90OnNvY2tfZmlsZSB7IHJlYWQgd3JpdGUgfTsN
-CkluZGV4OiBzZWxpbnV4L3BvbGljeS9kb21haW5zL3N5c3RlbS9pcHNlYy50
-ZQ0KZGlmZiAtdSAvZGV2L251bGwgc2VsaW51eC9wb2xpY3kvZG9tYWlucy9z
-eXN0ZW0vaXBzZWMudGU6MS4xDQotLS0gL2Rldi9udWxsCU1vbiBBdWcgMjcg
-MTU6NDE6NDkgMjAwMQ0KKysrIHNlbGludXgvcG9saWN5L2RvbWFpbnMvc3lz
-dGVtL2lwc2VjLnRlCU1vbiBBdWcgMjcgMTU6Mzk6NDAgMjAwMQ0KQEAgLTAs
-MCArMSwyOCBAQA0KKyMNCisjIEF1dGhvcnM6IE1hcmsgV2VzdGVybWFuIG1h
-cmsud2VzdGVybWFuQHdlc3RjYW0uY29tDQorIw0KKyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNCisjDQorIyBSdWxlcyBmb3Ig
-dGhlIGlwc2VjX3QgZG9tYWluLg0KKyMNCit0eXBlIGlwc2VjX3QsIGRvbWFp
-biwgcHJpdmxvZzsNCit0eXBlIGlwc2VjX2V4ZWNfdCwgZmlsZV90eXBlLCBz
-eXNhZG1maWxlLCBleGVjX3R5cGU7DQordHlwZSBpcHNlY19maWxlX3QsIGZp
-bGVfdHlwZSwgc3lhZG1maWxlOw0KK3R5cGUgaXBzZWNfdmFyX3J1bl90LCBm
-aWxlX3R5cGUsIHN5c2FkbWZpbGUsIHBpZGZpbGU7DQorDQorYWxsb3cgaXBz
-ZWNfdCBzZWxmOmNhcGFiaWxpdHkgeyBuZXRfYWRtaW4gbmV0X2JpbmRfc2Vy
-dmljZSB9Ow0KKw0KK2RvbWFpbl9hdXRvX3RyYW5zKGlwc2VjX3QsIGluc21v
-ZF9leGVjX3QsIGluc21vZF90KQ0KKw0KK2RvbWFpbl9hdXRvX3RyYW5zKGlw
-c2VjX3QsIGlmY29uZmlnX2V4ZWNfdCwgaWZjb25maWdfdCkNCitmaWxlX3R5
-cGVfYXV0b190cmFucyhpcHNlY190LCB2YXJfcnVuX3QsIGlwc2VjX3Zhcl9y
-dW5fdCkNCisNCithbGxvdyBpcHNlY190IHZhcl9sb2NrX3Q6ZGlyIHJ3X2Rp
-cl9wZXJtczsNCithbGxvdyBpcHNlY190IHZhcl9sb2NrX3Q6ZmlsZSBjcmVh
-dGVfZmlsZV9wZXJtczsNCisNCisjIEluaGVyaXQgYW5kIHVzZSBkZXNjcmlw
-dG9ycyBmcm9tIGluaXQuDQorYWxsb3cgaXBzZWNfdCBpbml0X3Q6ZmQgaW5o
-ZXJpdF9mZF9wZXJtczsNCisNCithbGxvdyBpcHNlY190IGlwc2VjX2ZpbGVf
-dDpmaWxlIHsgZ2V0YXR0ciByZWFkIGlvY3RsIH07DQorDQorYWxsb3cgaXBz
-ZWNfdCBzZWxmOmtleV9zb2NrZXQgeyBjcmVhdGUgd3JpdGUgcmVhZCB9Ow0K
-SW5kZXg6IHNlbGludXgvc2V0ZmlsZXMvZmlsZV9jb250ZXh0cw0KZGlmZiAt
-dSBzZWxpbnV4L3NldGZpbGVzL2ZpbGVfY29udGV4dHM6MS4yMyBzZWxpbnV4
-L3NldGZpbGVzL2ZpbGVfY29udGV4dHM6MS4yNA0KLS0tIHNlbGludXgvc2V0
-ZmlsZXMvZmlsZV9jb250ZXh0czoxLjIzCVdlZCBBdWcgMjIgMTE6NDg6NDcg
-MjAwMQ0KKysrIHNlbGludXgvc2V0ZmlsZXMvZmlsZV9jb250ZXh0cwlNb24g
-QXVnIDI3IDE1OjQwOjE2IDIwMDENCkBAIC00MDMsNiArNDAzLDE2IEBADQog
-L3Zhci9sb2cvc2EofC8uKikJCXN5c3RlbV91Om9iamVjdF9yOnZhcl9sb2df
-c2FfdA0KIA0KICMNCisjIElQU0VDIERlZmluYXRpb24NCisjDQorL2V0Yy9p
-cHNlYy5zZWNyZXRzICAgICAgICAgICAgICBzeXN0ZW1fdTpvYmplY3Rfcjpp
-cHNlY19maWxlX3QNCisvdXNyL2xvY2FsL2xpYi9pcHNlYyh8Ly4qKSAgICAg
-IHN5c3RlbV91Om9iamVjdF9yOnNiaW5fdA0KKy91c3IvbG9jYWwvbGliL2lw
-c2VjL2Vyb3V0ZSAgICAgc3lzdGVtX3U6b2JqZWN0X3I6aXBzZWNfZXhlY190
-DQorL3Vzci9sb2NhbC9saWIvaXBzZWMva2xpcHNkZWJ1ZyBzeXN0ZW1fdTpv
-YmplY3RfcjppcHNlY19leGVjX3QNCisvdXNyL2xvY2FsL2xpYi9pcHNlYy9w
-bHV0byAgICAgIHN5c3RlbV91Om9iamVjdF9yOmlwc2VjX2V4ZWNfdA0KKy91
-c3IvbG9jYWwvbGliL2lwc2VjL3NwaSAgICAgICAgc3lzdGVtX3U6b2JqZWN0
-X3I6aXBzZWNfZXhlY190DQorDQorIw0KICMgUGVyc2lzdGVudCBsYWJlbCBt
-YXBwaW5ncy4NCiAjDQogLiovXC5cLlwuc2VjdXJpdHkofC8uKikJCXN5c3Rl
-bV91Om9iamVjdF9yOmZpbGVfbGFiZWxzX3QNCg==
----559023410-1817792895-998942404=:8693--
 
 --
 You have received this message because you are subscribed to the selinux list.
