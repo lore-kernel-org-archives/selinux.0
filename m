@@ -1,35 +1,45 @@
-Subject: RE: sepol_genusers
+Subject: Re: sepol_genusers
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <200502181400.j1IE0j8R008122@gotham.columbia.tresys.com>
-References: <200502181400.j1IE0j8R008122@gotham.columbia.tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <1108734223.28149.13.camel@moss-spartans.epoch.ncsc.mil>
+References: <1108656216.24494.65.camel@moss-spartans.epoch.ncsc.mil>
+	 <42152EAB.8090600@redhat.com>
+	 <1108734223.28149.13.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 18 Feb 2005 09:08:09 -0500
-Message-Id: <1108735689.29253.8.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 18 Feb 2005 09:28:16 -0500
+Message-Id: <1108736896.29253.13.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-02-18 at 09:00 -0500, Karl MacMillan wrote:
-> I know that't the point - I'm questioning whether that is the right approach for
-> this. For the booleans, the worst case it to fall back on the policy defaults.
-> For users, there is no fallback other than a previous policy, which in this
-> model won't have any users either. Why not have the user management tool
-> generate a new policy (indirectly through a helper, of course)? Really just a
-> binary policy version of the seuser program (not the X tool or the scripts - the
-> seuser program that _only_ modifies the policy).
+On Fri, 2005-02-18 at 08:43 -0500, Stephen Smalley wrote:
+> Possibly we could change /sbin/init and load_policy to just load the
+> original binary policy image in the case where sepol_genusers(3) returns
+> an error, as it doesn't modify that image during processing - it just
+> creates a new image.
 
-I don't quite see the first point; even with this in place, the on-disk
-binary policy still has the base set of user definitions (system_u,
-user_u, root), which is sufficient for basic operation even if
-system.users and/or local.users is corrupted.
+The patch below would make this change for load_policy, so that it will
+just fall through to loading the original binary policy image if
+sepol_genusers(3) returns an error.
 
-The approach you describe is what I originally proposed using the old
-genpolusers utility, which generated a new binary policy file from an
-existing one and a new set of user configuration files.  But that would
-mean that local customization of user definitions will yield a different
-binary policy file, thereby invalidating rpm -V checking.
+Index: policycoreutils/load_policy/load_policy.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/policycoreutils/load_policy/load_policy.c,v
+retrieving revision 1.11
+diff -u -p -r1.11 load_policy.c
+--- policycoreutils/load_policy/load_policy.c	17 Feb 2005 15:25:01 -0000	1.11
++++ policycoreutils/load_policy/load_policy.c	18 Feb 2005 14:22:01 -0000
+@@ -87,7 +87,8 @@ int main(int argc, char **argv) 
+ 	ret = sepol_genusers(map, sb.st_size, selinux_users_path(), &data, &data_size);
+ 	if (ret < 0) {
+ 		fprintf(stderr, _("%s:  Error while setting user configuration from %s:  %s\n"), argv[0], selinux_users_path(), strerror(errno));
+-		exit(2);
++		data = map;
++		data_size = sb.st_size;
+ 	}
+ 
+ 	if (setbools) {
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
