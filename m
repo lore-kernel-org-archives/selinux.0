@@ -1,73 +1,43 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAG8unIi028887
-	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 03:56:49 -0500 (EST)
-Received: from passage.avira.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAG8tKAa011510
-	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 08:55:22 GMT
-Message-ID: <4199C7EE.7080605@gentoo.org>
-Date: Tue, 16 Nov 2004 11:27:10 +0200
-From: petre rodan <kaiowas@gentoo.org>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAG93KIi028934
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 04:03:20 -0500 (EST)
+Received: from glaurung.internal.golden-gryphon.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAG93MFO004414
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 09:03:22 GMT
+Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
+	by glaurung.internal.golden-gryphon.com (8.13.1/8.13.1/Debian-17) with ESMTP id iAG92EDm031521
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 03:02:14 -0600
+To: selinux@tycho.nsa.gov
+Subject: polgen and strace
+From: Manoj Srivastava <manoj.srivastava@stdc.com>
+Date: Tue, 16 Nov 2004 03:02:14 -0600
+Message-ID: <87fz3ajhex.fsf@glaurung.internal.golden-gryphon.com>
 MIME-Version: 1.0
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-CC: selinux@tycho.nsa.gov
-Subject: Re: gentoo diff for snmpd
-References: <4198D752.2020405@gentoo.org> <20041116081610.GA2546@jmh.mhn.de>
-In-Reply-To: <20041116081610.GA2546@jmh.mhn.de>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig027101C95639A90CB4D19796"
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig027101C95639A90CB4D19796
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
+        While poking around in polgen (in preparation for packaging it
+ for Debian), I noticed that it has the full set of sources for
+ strace!  I am not sure I could use that (the strace maintainer would
+ be upset f I hijacked strace or forked it in Debian ;-);
 
-Hi Thomas,
+	I might be able to get strace patched, though, if the patches
+ were not too intrusive., but I was not able to find a canonical
+ location for strace patches.
 
-Thomas Bleher wrote:
-> * petre rodan <kaiowas@gentoo.org> [2004-11-15 18:04]:
-> 
->>gentoo as a special context for /proc/net:
->>genfscon proc /net  system_u:object_r:proc_net_t
-> 
-> 
-> This seems generally useful.
-> Care to provide a patch which adds this genfscon line plus the necessary
-> policy?
-> 
-> Thomas
+	Would polgen work with a vanilla strace? Are there plans for
+ pushing strace changes upstream?
 
-Chris is currently working on a base-policy patch that will be sent here. I'm not sure if that will also contain proc_net-related rules.
-
-If he wants it, I can come up with a diff about this issue.
-
-bye,
-peter
-
+	manoj
 -- 
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-
---------------enig027101C95639A90CB4D19796
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD4DBQFBmcfuGSBEIeh4AEYRAgK8AJ4uqeKo3XpBsoevD5gABqttojaURQCY0b9J
-7eJodyp3SZegLdICiPMFdQ==
-=zLfm
------END PGP SIGNATURE-----
-
---------------enig027101C95639A90CB4D19796--
+"Live or die, I'll make a million." Reebus Kneebus, before his jump to
+the center of the earth, Firesign Theater
+Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
