@@ -1,37 +1,62 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7PEhWLa024492
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:43:32 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7PEqrLa024587
+	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:52:53 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7PEhVfF029121
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 14:43:31 GMT
-Received: from mail3.utc.com (mail3.utc.com [192.249.46.81])
-        by jazzband.ncsc.mil  with ESMTP id h7PEhUHd029118 for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 14:43:30 GMT
-Received: (from uucp@localhost)
-	by mail3.utc.com (8.10.0/8.10.0) id h7PEhTn17904
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:43:29 -0400 (EDT)
-Received: from ehposrv5.eh.pweh.com (ehposrv5.eh.pweh.com [191.29.78.93])
-	by uusnwa0l.utc.com (Switch-2.2.6/Switch-2.2.6) with ESMTP id h7PEhLp11961
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:43:21 -0400 (EDT)
-Message-ID: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com>
-From: "Pisupati, Ajay" <ajay.pisupati@pw.utc.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: SElinux vs. Grsecruity
-Date: Mon, 25 Aug 2003 10:43:19 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	by jazzband.ncsc.mil  with ESMTP id h7PEqqfF000394
+	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 14:52:52 GMT
+Received: from moss-huskies.epoch.ncsc.mil (moss-huskies.epoch.ncsc.mil [144.51.25.7])
+        by jazzband.ncsc.mil  with ESMTP id h7PEqqHd000389 for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 14:52:52 GMT
+Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7PEqpdu020159
+	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:52:51 -0400
+Received: (from hdholm@localhost)
+	by moss-huskies.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h7PEqpFE020157
+	for selinux@tycho.nsa.gov; Mon, 25 Aug 2003 10:52:51 -0400
+Subject: Re: initrd vs initramfs
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Brian May <bam@snoopy.apana.org.au>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20030824235114.GA2962@snoopy.apana.org.au>
+References: <20030824235114.GA2962@snoopy.apana.org.au>
+Content-Type: text/plain
+Message-Id: <1061822074.28086.434.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 25 Aug 2003 10:34:34 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-	I just started reading about SE Linux and grsecurity.  Having used
-neither one (and wanting to learn), I wanted to find out the differences
-(advantages and disadvantes) between both.  I am not looking for a detailed
-explanation of how things work but just an introduction on a conceptual
-level.
+On Sun, 2003-08-24 at 19:51, Brian May wrote:
+> According to README from selinux-doc:
+> 
+> 4) The initial policy load has been moved into userspace, and is
+> performed from an initrd (see the BUILDING AND INSTALLING
+> instructions below).  We will likely migrate to using initramfs in the
+> future for the initial policy.
+> 
+> Can anybody tell me the difference between the initrd system
+> and the initramfs system?
+> 
+> So far the only answer I have got is that they are the same. The
+> above text would imply that they are not the same though.
+> 
+> Sorry if this appears to be off-topic for this mailing list.
 
-Thanks
-ajay  
+See Documentation/early-userspace/README in the linux-2.6.0-test4 tree.
+The points of interest for us were:
+1) The root filesystem image is linked into the kernel image, so a
+tighter coupling of a kernel and its initial policy is possible,
+2) The image is unpacked very early in the initialization process, so
+the initial policy load could potentially be moved earlier, although
+this would require further changes to the base kernel.
+
+We aren't pursuing a migration to initramfs at the moment, although it
+remains an area of interest in the future.  The existing initrd support
+is sufficient for the initial policy load currently, and works for both
+the 2.4-based and 2.6-based SELinux.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
