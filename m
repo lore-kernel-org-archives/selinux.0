@@ -1,48 +1,33 @@
-Message-ID: <72222DC86846D411ABD300A0C9EB08A10152434E@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'Stephen Smalley'" <sds@tislabs.com>,
-        Russell Coker
-	 <russell@coker.com.au>
-Cc: "Westerman, Mark" <Mark.Westerman@csoconline.com>, SELinux@tycho.nsa.gov,
-        "'hdholm@epoch.ncsc.mil'" <hdholm@epoch.ncsc.mil>
-Subject: RE: Generic SELinux Package
-Date: Fri, 19 Apr 2002 09:58:50 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11623
+	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 12:51:01 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA24639
+	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 16:49:50 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id QAA24635 for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 16:49:49 GMT
+Date: Fri, 19 Apr 2002 12:50:08 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: devfsd module
+In-Reply-To: <20020416105954.40C662413@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0204191250050.18117-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Friday, April 19, 2002 9:51 AM, Stephen Smalley wrote:
-> On Thu, 18 Apr 2002, Russell Coker wrote:
-> 
-> > It probably wouldn't be that difficult to make mount_root() not load the
-> > policy when an initrd is being used and to then have change_root() do it
-> > later.  In fact it seems to easy that I might have a hack  at it later
-tonight
-> > (although maybe Steve knows of something that'll make this extremely
-> > difficult and painful).
-> 
-> I don't think that this would be difficult, but it seems less  desirable
-> than the alternative you mention below, i.e. placing a  minimal policy on
-> the initrd to allow bootstrapping and reloading the policy once the
-> real root filesystem has been mounted.  It might be good to have an
-> additional hook to permit the security module to try  reloading the policy
-> itself after a change in the root filesystem, rather than 
-> requiring init to do it.
-> 
+Thanks, merged.
 
-I am in favor of having a hook to permit the security module to try
-reloading
-the policy itself after a change in the root filesystem, rather than
-requiring init
-to do it. I beleive this would give a better solution the modifing init.
-More secure
-than a init script reloading the policy.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-Mark Westerman
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
