@@ -1,44 +1,46 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAKEVIi023113
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 15:14:31 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAKEtIi023141
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 15:14:55 -0500 (EST)
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAKEYR8011034
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 20:14:34 GMT
-Subject: Re: patch: stricter /tmp handling
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAKEvR8011043
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 20:14:58 GMT
+Subject: Re: patch: various stuff
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 Cc: SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <20041209171333.GD5074@jmh.mhn.de>
-References: <20041209171333.GD5074@jmh.mhn.de>
+In-Reply-To: <20041209180342.GB8179@jmh.mhn.de>
+References: <20041209180342.GB8179@jmh.mhn.de>
 Content-Type: text/plain
-Message-Id: <1102709824.5654.40.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1102709848.5654.42.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 10 Dec 2004 15:17:04 -0500
+Date: Fri, 10 Dec 2004 15:17:28 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Merged.
 
-I had to make a change to the xfs part.  It needed to be tmp_domain(xfs,
-`', `{dir sock_file}') for /tmp/.font-unix
-
-On Thu, 2004-12-09 at 12:13, Thomas Bleher wrote:
-> This patches uses my latest changes to file_type_auto_trans() to make
-> /tmp more strict.
-> Right now, any process with tmp_domain() can create any file type under
-> /tmp except chr_file and blk_file. But most domains only need file and
-> dir.
-> This patch changes tmp_domain() so that normally, only file and dir
-> access is allowed. It also adds a third parameter to the macro, so
-> domains which need more access can get it.
-> I have run this patch for a few weeks on all my machines so most things
-> should work, but I don't have any server machines running SELinux ATM,
-> so some daemons probably need additional permissions.
-> This patch also removes the tmpfile attribute from tetex_data_t, since
-> these are not really tmpfiles.
+On Thu, 2004-12-09 at 13:03, Thomas Bleher wrote:
+> Some stuff that got forgotten from my previous patches. A few comments:
+> 
+> * hostname.te: sysadm_t should run hostname directly, it has the
+>   necessary privs and makes many things easier (eg redirections in
+>   scripts). The can_resolve() was necessary because (at least on SuSE)
+>   hostname does some dns-lookups. If noone else sees this it could be
+>   put inside an ifdef(`distro_suse',).
+> 
+> * checkpolicy.fc: These labels are unnecessary and just cause
+>   unnecessary relabels.
+> 
+> * user_macros.te: This may need some discussion. netstat needs to access
+>   /proc/net in order to work. Not sure if we want to allow this. Maybe a
+>   boolean?
 > 
 > Thomas
+>   
+> --
+> http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+> GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
