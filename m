@@ -1,51 +1,56 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA03661
-	for <selinux@tycho.nsa.gov>; Thu, 19 Dec 2002 19:12:59 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id AAA00925
-	for <selinux@tycho.nsa.gov>; Fri, 20 Dec 2002 00:10:32 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-	by jazzswing.ncsc.mil  with ESMTP id AAA00921
-	for <selinux@tycho.nsa.gov>; Fri, 20 Dec 2002 00:10:28 GMT
-Date: Fri, 20 Dec 2002 11:16:46 +1100
-From: Brian May <bam@snoopy.apana.org.au>
-To: Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA05006
+	for <selinux@tycho.nsa.gov>; Fri, 20 Dec 2002 01:46:04 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id gBK6k3I27991
+	for <selinux@tycho.nsa.gov>; Fri, 20 Dec 2002 06:46:03 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id gBK6k1f27987 for <selinux@tycho.nsa.gov>; Fri, 20 Dec 2002 06:46:02 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Paul Krumviede <pwk@acm.org>, selinux@tycho.nsa.gov
 Subject: Re: [ISN] Music file flaws could threaten traders
-Message-ID: <20021220001646.GD15409@snoopy.apana.org.au>
-References: <Pine.LNX.4.44.0212190257480.19905-100000@idle.curiosity.org> <200212192307.20386.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200212192307.20386.russell@coker.com.au>
+Date: Fri, 20 Dec 2002 07:45:48 +0100
+References: <200212192307.20386.russell@coker.com.au> <18223383.1040308887@localhost>
+In-Reply-To: <18223383.1040308887@localhost>
+MIME-Version: 1.0
+Message-Id: <200212200745.48173.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Dec 19, 2002 at 11:07:20PM +0100, Russell Coker wrote:
-> On Thu, 19 Dec 2002 09:58, InfoSec News wrote:
-> > http://news.com.com/2100-1001-978403.html?tag=fd_top
-> >
-> > By Robert Lemos
-> > Staff Writer, CNET News.com
-> > December 18, 2002, 5:12 PM PT
-> >
-> > A security firm on Wednesday warned that people using Windows XP or
-> > popular music player WinAmp could fall prey to a vulnerability,
-> > enabling a modified music file to take control of a person's PC.
+On Thu, 19 Dec 2002 23:41, Paul Krumviede wrote:
+> <russell@coker.com.au> wrote:
+> > This type of thing could affect Linux in the same way as it affects
+> > Windows.
+>
+> i'm not so sure. the bugtraq posting about the windows XP bug
+> indicated that it could be exploited even without downloading
+> a file to the user's computer. if using explorer, the file had to be
+> on the local machine, but didn't need to be "played" to allow
+> an exploit. i don't think that either case is relevant to selinux
+> (but would like to know if i'm wrong).
 
-I think it should be possible to write a program that checks to source
-file, makes sure it is valid and doesn't contain any errors or other
-potentially dangerous stuff (eg. a multimedia tag with too much data, as
-per article), and then relabels it with a file label that allows the
-user to freely use that file.
+KDE supports creating "thumbnail" pictures to represent different types of 
+files on the desktop and could also be vulnerable to "list a directory and 
+have some code executed" type bugs.
 
-Even better, this program could be generalized to automatically
-detect the format, and take appropriate action (eg. virus scanner
-for executables, MP3 valididator for MP3 files, etc).
+The problem with KDE is that everything seems to be run from one process that 
+just forks off copies of itself and mmap's executables (thus avoiding 
+automatic domain transitions).
 
-(then again, I am not entirely familiar with MP3 or PNG formats, they
-weren't around when I did my University course).
---
-Brian May <bam@snoopy.apana.org.au>
+I think that this is relevant to people who are writing SE Linux policy.  It 
+does not affect Linux, yet, AFAIK...  But sometimes it's best to lock down 
+things that look dangerous rather than waiting for proof that they are 
+dangerous (you never get absolute proof that anything is safe).
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
