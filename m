@@ -1,74 +1,96 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i83EY9rT007809
-	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 10:34:10 -0400 (EDT)
-Received: from moss-huskies.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i83EY9UQ021242
-	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 14:34:09 GMT
-Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-huskies.epoch.ncsc.mil (8.12.11/8.12.11) with ESMTP id i83EYcMS028774
-	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 10:34:38 -0400
-Received: (from hdholm@localhost)
-	by moss-huskies.epoch.ncsc.mil (8.12.11/8.12.11/Submit) id i83EYchU028773
-	for selinux@tycho.nsa.gov; Fri, 3 Sep 2004 10:34:38 -0400
-Date: Thu, 2 Sep 2004 12:07:34 -0500
-To: Russell Coker <russell@coker.com.au>
-Cc: fedora-selinux-list@redhat.com, Nigel Kukard <nkukard@lbsd.net>,
-   SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: [OT] SELinux vs. other systems [was Re: [idea] udev + selinux]
-Message-ID: <20040902170734.GA9645@austin.ibm.com>
-References: <20040830173744.GD10151@lbsd.net> <20040831191809.GC4375@lkcl.net> <20040831224447.GA4964@austin.ibm.com> <200409022215.20830.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i83G3brT008684
+	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 12:03:37 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i83G3aUQ024082
+	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 16:03:36 GMT
+Date: Fri, 3 Sep 2004 15:38:08 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Colin Walters <walters@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+   SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Proposed Hardware File Context file.
+Message-ID: <20040903143808.GA26568@lkcl.net>
+References: <1094153919.17265.375.camel@moss-spartans.epoch.ncsc.mil> <41377927.3080703@redhat.com> <1094155198.17265.389.camel@moss-spartans.epoch.ncsc.mil> <41377DD5.8010500@redhat.com> <1094155749.17265.392.camel@moss-spartans.epoch.ncsc.mil> <41377F4B.3010608@redhat.com> <1094167821.24091.25.camel@nexus.verbum.private> <1094210883.19206.2.camel@moss-spartans.epoch.ncsc.mil> <20040903131751.GC30562@lkcl.net> <1094218416.19206.116.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200409022215.20830.russell@coker.com.au>
-From: Linas Vepstas <linas@austin.ibm.com>
+In-Reply-To: <1094218416.19206.116.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 02, 2004 at 10:15:20PM +1000, Russell Coker was heard to remark:
-> On Wed, 1 Sep 2004 08:44, Linas Vepstas <linas@austin.ibm.com> wrote:
-> > Every now and then, I look at SELinux, and I get scared away by its
-> > complexity.  This complexity makes it very hard to audit, and assure
+On Fri, Sep 03, 2004 at 09:33:36AM -0400, Stephen Smalley wrote:
+> On Fri, 2004-09-03 at 09:17, Luke Kenneth Casson Leighton wrote:
+> >  ironically, it's scripted - with regexps matching nodes :)
+> > 
+> >  and then the owner, group and permissions are specified.
+> > 
+> >  there's also a system for dealing with classes of devices.
+> > 
+> >  so ide and scsi and also cd symbolic links are dealt with separately,
+> >  with scripts.
 > 
-> What auditing are you referring to?  Kernel code, application code, or policy?
+> It seems desirable to keep the SELinux context mapping approach for udev
+> consistent with the base udev permissions approach.  Using a separate
+> config file is reasonable (and allows us to keep it as part of the
+> policy package), but the syntax should mirror the existing udev
+> permission syntax as much as possible, I think, and we may even want
+> udev itself to directly interpret it, just as dbusd is handling its
+> service->context mapping (iirc).  How does that sound?  Not sure how to
+> integrate SELinux labeling with the scripts.
+  
+  what do you think of the idea of
+  "run-time enabling of alternative file contexts"?
 
-policy.
- 
-> > oneself that its actually providing any real security, as opposed to
-> > the illusion of security.  During this email thread, there are
-> > references to mysterious rules that neither party in the conversation
-> > fully understands; this scares me.
-> 
-> Which mysterious rules are you referring to?
+  because i still think that extending the existing
+  file_contexts syntax to have an optional keyword at the
+  end, and then providing extended versions of the existing
+  libselinux file context related functions, would provide
+  the simplest from-here-to-there approach.
 
-I wasn't refering to them, the posters to the thread were.  Unfortunately,
-I've already deleted those emails.
+  it's a cut/paste job in libselinux.
 
-> labelled as device_t.  This means that there is no window of opportunity for 
-> an attacker to access a device before it is correctly labelled.
+  it's generic enough to be used by programs other than udev should
+  it prove necessary.
 
-OK.
+  udev can determine what the type of the device is and can simply
+  pass the keyword representing that device type to the extended-syntax
+  versions of the libselinux fscontext functions.
 
-Well, here's another idle question, again off-topic: Does SELinux provide 
-any sort of assurances that storage media weren't tampered with between
-reboots?  
+  for simplicity of coding (in udev), the behaviour of the
+  extended-libselinux-fscontext could be that if there doesn't
+  happen to _be_ a line matching the keyword, the keyword is ignored
+  [and the filecontext matching the regexp, mode_t are used as is
+   presently normal].
 
-For example, with BIOS/firmware getting more sophisticated over time,
-there's potential for an attacker to break in, remotely, into
-bios/firmware, shortly before booting into the OS, and then alter 
-disk contents.  Yes, I know this is far-fetched, but was just curious.
+  alternatively if that could result in undesirable side-effects,
+  return an error code if the keyword is not available.
 
-What got me going on that thread was thinking about udev/hotplug again:
-with devices coming and going, disappearing and re-appearing, it isn't
-obvious that there wasn't tampering while the device was gone. 
+  for example... oh, i dunno... you could set the "default" keyword
+  to something different.
 
-Again, excuse me if this sounds naive, un-informed or far-fetched, 
-or terribly off-topic, but: In ye olden days, viruses spread through 
-diskettes.   These days, we're plugging-n-playing usb keychains,
-cameras, ipods, bluetooth this-n-that; although I haven't heard of 
-attacks carried out through these media, its not obivious that these
-couldn't be carriers for an attack.
+  what about postfix's chroot-labelled files: you don't want those
+  to be in there under certain circumstances: you certainly don't
+  want them activated if the admin decides they don't want to chroot
+  postfix.
 
---linas
+  ... but they have to _be_ there because at present there's no
+  flexibility to disable them - without editing
+  file_contexts/programs/postfix.te.
+
+  if you had a keyword "postfix" on the end of the chroot lines
+  in file_contexts, you could enable those as required
+  (setfiles --keyword "postfix" /etc/selinux/contexts/file_contexts
+   /var/lib/postfix/chroot/)
+
+  more if i think of it.
+
+  if you add the keyword argument to setfiles and restorecon, it's
+  possible to entirely change, at runtime, all or any part of the
+  filesystem to a different configuration - without recompiling the
+  policy.
+
+  l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
