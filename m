@@ -1,63 +1,54 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB5280Rb002116
-	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2003 21:08:00 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB52UCRb002192
+	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2003 21:30:12 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB527JlU012950
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 02:07:19 GMT
+	by jazzswing.ncsc.mil  with ESMTP id hB52TWlU013829
+	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 02:29:32 GMT
 Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id hB527ISX012947
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 02:07:18 GMT
+	by jazzswing.ncsc.mil  with ESMTP id hB52TRSX013826
+	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2003 02:29:28 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: nagray@austin.rr.com, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: ssh policy
-Date: Fri, 5 Dec 2003 13:07:48 +1100
-References: <1070587102.27071.159.camel@hawaii.efficax.net>
-In-Reply-To: <1070587102.27071.159.camel@hawaii.efficax.net>
+To: selinuxfaq@crypt.gen.nz
+Subject: FAQ updates
+Date: Fri, 5 Dec 2003 13:30:03 +1100
+Cc: SE Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200312051307.48320.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200312051330.03524.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 5 Dec 2003 12:18, Nick <nagray@austin.rr.com> wrote:
-> avc:  denied  { signal } for  pid=1002 exe=/usr/sbin/sshd
-> scontext=system_u:system_r:sshd_t tcontext=system_u:system_r:sshd_t
-> tclass=process
->
-> I dont think I get this one at all, unless the process which is starting
-> sshd is what is not able to send a signal or is it sshd can't send a
-> signal out?
+The version of your FAQ on Sourceforge is dated 4 July, the version on your 
+site is dated 17 October.  People on the IRC channel are using sourceforge, 
+so it would be good if SF could be updated to the latest version.
 
-I don't get it either.  Usually sshd runs fine with that blocked, but 
-sometimes it doesn't work correctly.  In my latest policy I have enabled that 
-access, but it needs more review.
+Also the documentation on my play machine is way out of date (by about 9 
+months).  Please change the FAQ to just refer to the web site as I plan to 
+change the password periodically and I don't want to force you to change your 
+site every time.
 
-> avc:  denied  { getattr } for  pid=1055 exe=/usr/sbin/sshd name=xauth
-> dev=03:02 ino=2261013 scontext=system_u:system_r:sshd_t
-> tcontext=system_u:object_r:bin_t tclass=file
+I suggest adding the following, I've CC'd the list to get any other input.
 
-You are logging in with X11 forwarding enabled.  I strongly recommend that you 
-set "ForwardX11 no" in your ssh_config file and then specifically enable X11 
-forwarding when you want it with the "-X" option to ssh.  Otherwise whenever 
-you ssh to a hostile machine they can use X to take over your account.
+Should I use 2.4 or 2.6 kernel?
+If you use the old SE Linux (which has a ...security directory to store the 
+file types) then you have to use a 2.4 kernel, there are no plans to port the 
+old SE Linux to 2.6.x kernels.  The new SE Linux uses XATTR's to store the 
+file types, it was originally written for 2.5 kernels and is now in the 2.6 
+tree that Linus ships.  It has been back-ported to 2.4 kernels.
 
-> avc:  denied  { name_bind } for  pid=1055 exe=/usr/sbin/sshd port=6010
-> scontext=system_u:system_r:sshd_t tcontext=system_u:object_r:port_t
-> tclass=tcp_socket
+It is recommended that you do not upgrade from a 2.4.x kernel without SE Linux 
+to a 2.6 kernel with SE Linux.  If you do that and something goes wrong you 
+won't know whether it's a kernel issue or a SE Linux issue.  If you plan to 
+use SE Linux on a 2.6 kernel then I suggest that you upgrade to a 2.6 kernel 
+first and contact your local Linux Users' Group if you have problems.  Then 
+once you have 2.6 running well you can enable SE Linux and ask the SE Linux 
+mailing list about any problems that you have.
 
-6010 is for DISPLAY=:10.0 .  In my current policy I don't enable this unless 
-you have startx or xdm policy included.  I can see that this was an error, it 
-should be included for ssh as it's quite valid to have an ssh tunnel be the 
-only X server on a machine.  In my next release I will also check for xauth 
-policy.
-
-If you don't have xauth policy then using sshd with X forwarding is probably a 
-bad idea.
-
-
-PS  Please choose an appropriate subject for your messages.
+The old SE Linux has been tested more extensively and is not changing as fast 
+as the new SE Linux.  However support for the old SE Linux is being decreased 
+and may cease entirely in the near future.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
