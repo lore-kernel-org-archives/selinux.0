@@ -1,38 +1,58 @@
-Subject: Re: sepol_genusers
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov, Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <42152EAB.8090600@redhat.com>
-References: <1108656216.24494.65.camel@moss-spartans.epoch.ncsc.mil>
-	 <42152EAB.8090600@redhat.com>
-Content-Type: text/plain
-Date: Fri, 18 Feb 2005 08:43:43 -0500
-Message-Id: <1108734223.28149.13.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-Id: <200502181400.j1IE0j8R008122@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: "'Stephen Smalley'" <sds@tycho.nsa.gov>
+Cc: "'Daniel J Walsh'" <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
+Subject: RE: sepol_genusers
+Date: Fri, 18 Feb 2005 09:00:45 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <1108733810.28149.5.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-02-17 at 18:54 -0500, Daniel J Walsh wrote:
-> What should init do if local.users is missing?  Has bad data in it?  My 
-> current patch panics the kernel and I don't think that
-> is a great idea.   IE the user screws up the local.users file and we 
-> can't boot.
 
-The current sepol_genusers(3) logic should just skip invalid user
-entries without returning an error, but does return errors in the cases
-of:
-- no system.users file
-- no local.users file
-- overly long line that was truncated (should likely be handled like
-invalid user entries instead)
-- out of memory while processing
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> Sent: Friday, February 18, 2005 8:37 AM
+> To: Karl MacMillan
+> Cc: 'Daniel J Walsh'; selinux@tycho.nsa.gov
+> Subject: RE: sepol_genusers
+> 
+> On Thu, 2005-02-17 at 21:53 -0500, Karl MacMillan wrote:
+> > Any reason this shouldn't generate a new policy that is 
+> saved to disc? 
+> > How are the booleans handled when the config file is corrupt? Also, 
+> > there doesn't seem to be a security reason not to continue 
+> the boot with the missing users.
+> 
+> sepol_genusers(3), like sepol_genbools(3), is acting on an 
+> in-memory binary policy image and generating a new in-memory 
+> image for loading into the kernel just prior to performing 
+> the load.  No modification of the on-disk policy binary file. 
+>  That is the point.
+>
 
-Possibly we could change /sbin/init and load_policy to just load the
-original binary policy image in the case where sepol_genusers(3) returns
-an error, as it doesn't modify that image during processing - it just
-creates a new image.
+I know that't the point - I'm questioning whether that is the right approach for
+this. For the booleans, the worst case it to fall back on the policy defaults.
+For users, there is no fallback other than a previous policy, which in this
+model won't have any users either. Why not have the user management tool
+generate a new policy (indirectly through a helper, of course)? Really just a
+binary policy version of the seuser program (not the X tool or the scripts - the
+seuser program that _only_ modifies the policy).
 
+Karl
 
+---
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410) 290-1411 ext 134  
+ 
+> --
+> Stephen Smalley <sds@tycho.nsa.gov>
+> National Security Agency
+> 
 
 
 --
