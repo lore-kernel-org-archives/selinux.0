@@ -1,47 +1,78 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA18548
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 15:56:03 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA14605
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 19:54:17 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id TAA14599 for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 19:54:16 GMT
-Date: Wed, 28 Aug 2002 15:55:52 -0400 (EDT)
+Date: Wed, 28 Aug 2002 15:53:51 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: ipsec access to { sysadm_tty_device_t sysadm_devpts_t }
-In-Reply-To: <20020827213114.CD4302F61@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0208281554310.25057-100000@raven>
+To: Timothy Wood <timothy@hallcomp.com>
+cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: ssh and fs relabel (new release)
+In-Reply-To: <1030541100.2059.18.camel@phobos>
+Message-ID: <Pine.GSO.4.33.0208281537090.25057-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 27 Aug 2002, Russell Coker wrote:
+On 28 Aug 2002, Timothy Wood wrote:
 
-> I have been having some discussions with Steve about access to {
-> sysadm_tty_device_t sysadm_devpts_t }.  We agree that giving all daemons
-> access to the administrator terminal is a bad idea in concept.
+> When enforcing mode is enabled there are several things that do not work
+> which should.  The first of these is sshd.  sshd works fine in
+> permissive mode, but when in enforcing mode the following avc messages
+> are logged and no connection can be completed.  From the client side
+> authentication passes and then the connection is closed.
 >
-> However some programs seem to require it.  The PCMCIA cardmgr program does
-> not seem to start correctly unless it has such access.
+> avc:  denied  { relabelto } for  pid=1298 exe=/usr/sbin/sshd path=/0
+> dev=00:06 ino=2 scontext=system_u:system_r:sshd_t
+> tcontext=timothy:object_r:sysadm_devpts_t tclass=chr_file
 >
-> Now I'm working on ipsec which seems to require { read write ioctl getattr }
-> access to those device types for correct functioning.  As I am just learning
-> about IPSec I'm not in a good position to analyse this in detail, could
-> someone who knows it better please have a look and see if there's something
-> that can be done about it or whether it really needs such access.
+> sshd[1298]: fatal: chsid(/dev/pts/0, 490) failed: Permission denied
+>
+> sshd[1298]: syslogin_perform_logout: logout() returned an error
 
-I would expect that the IKE daemon would not need such access, so that if
-we put it into a separate domain from the IPSEC utilities, we could
-refrain from granting such access to that domain.  But I haven't tried
-this yet.
+This isn't new to this release.  We removed direct transitions from sshd_t
+to sysadm_t in the prior release (2002070313) in response to the sshd
+vulnerability, requiring people to login as user_r:user_t and then use
+newrole.  This was discussed previously on the selinux list, e.g.
+http://marc.theaimsgroup.com/?l=selinux&m=102613964408029&w=2
+
+> Also while in enforcing mode attempting a make relabel from the
+> selinux/policy directory fails with the following avc messages.
+>
+> avc:  denied  { read } for  pid=1476
+> exe=/usr/local/selinux/bin/checkpolicy path=/src/selinux/policy/Makefile
+> dev=03:0b ino=1737013 scontext=root:sysadm_r:checkpolicy_t
+> tcontext=system_u:object_r:src_t tclass=file
+>
+> avc:  denied  { read } for  pid=1477 exe=/usr/local/selinux/bin/setfiles
+> path=/src/selinux/policy/file_contexts/file_contexts dev=03:0b
+> ino=1524031 scontext=root:sysadm_r:setfiles_t
+> tcontext=system_u:object_r:src_t tclass=file
+
+Several of the policy-related utilities (setfiles, checkpolicy,
+load_policy) have been placed into their own domains and limited to
+reading appropriate types.  The setfiles_t domain is also not new; it was
+created by Russell and added prior to the 2002070313 release.  The
+checkpolicy_t domain was added as part of the policy management patch
+posted on the list by Tresys Technology.  In this case, the 'make relabel'
+is only truly being prevented by the second denial.
+
+Limiting these domains to reading particular types is useful in reducing
+the risk of including untrustworthy data in the policy or file contexts
+configuration.  At present, setfiles_t is still fairly permissive in this
+regard (it still permits reading home directory types to permit 'make
+relabel' from a selinux/policy in the user's home directory), but we are
+likely to restrict it to reading policy_src_t in the future now that the
+policy management patch has been merged.
+
+As part of the policy management patch, the policy sources are now
+installed into /etc/security/selinux/src/policy via 'make install-src',
+which is run during the SELinux installation procedure.  You can then
+perform subsequent policy loads and relabels from that directory.  That
+directory is labeled with policy_src_t, which can be read by setfiles_t
+and checkpolicy_t.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
+
 
 
 
