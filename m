@@ -1,77 +1,57 @@
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Bill Laut <wlsel@verizon.net>
-To: SELinux@tycho.nsa.gov
-Subject: Newbie Q on "disappearing" boot dialog
-Date: Mon, 7 Jul 2003 12:32:49 -0400
-MIME-Version: 1.0
-Message-Id: <200307071232.49186.wlsel@verizon.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h67HeNHa014447
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2003 13:40:24 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h67HeHH5025581
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2003 17:40:17 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+        by jazzband.ncsc.mil  with ESMTP id h67HeERX025577 for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2003 17:40:16 GMT
+Subject: Re: rssh.{te,fc}
+From: Colin Walters <walters@verbum.org>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200307072014.38841.russell@coker.com.au>
+References: <1057551740.1241.10.camel@columbia>
+	 <200307072014.38841.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1057599574.20306.6.camel@columbia>
+Mime-Version: 1.0
+Date: 07 Jul 2003 13:39:35 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2003-07-07 at 06:14, Russell Coker wrote:
 
-I recently installed SELinux on my gateway/router, and as a novice I'm now 
-formulating some "baby-step" questions about SELinux.
+> The policy itself looks OK, but I'm not sure about the concept.
+> 
+> Maybe it would be better to have full_user_role(rssh) and then change the 
+> sshd.te to have something like the following:
+> dnl domain_trans($1, shell_exec_t, unpriv_userdomain)
+> domain_trans($1, shell_exec_t, { user_t staff_t })
+> domain_trans($1, rssh_exec_t, rssh_t)
 
-The first thing I'm noticing is that a majority of the boot dialog (such as 
-the kernel initialization messages) is no longer being recorded into 
-/var/log/messages.  For example, I traditionally would see:
+That's exactly what I don't want!
 
-Jul  7 09:34:26 scanner kernel: klogd 1.4.1, log source = /proc/kmsg started.
-Jul  7 09:34:26 scanner kernel: Inspecting /boot/System.map-2.4.18
-Jul  7 09:34:26 scanner syslog: klogd startup succeeded
-Jul  7 09:34:26 scanner kernel: Loaded 20220 symbols from 
-/boot/System.map-2.4.18.
-Jul  7 09:34:26 scanner kernel: Symbols match kernel version 2.4.18.
-Jul  7 09:34:26 scanner kernel: Loaded 13 symbols from 1 module.
-Jul  7 09:34:26 scanner kernel: Linux version 2.4.18 (...)
-[...]
-Jul  7 09:34:26 scanner keytable: Loading keymap:  succeeded
-Jul  7 09:34:26 scanner kernel: On node 0 totalpages: 131068
-Jul  7 09:34:26 scanner kernel: zone(0): 4096 pages.
-Jul  7 09:34:26 scanner kernel: zone(1): 126972 pages.
-Jul  7 09:34:26 scanner kernel: zone(2): 0 pages.
-Jul  7 09:34:26 scanner kernel: Local APIC disabled by BIOS -- reenabling.
-Jul  7 09:34:26 scanner kernel: Found and enabled local APIC!
-Jul  7 09:34:26 scanner kernel: Kernel command line: ro root=/dev/hda9 
-hdc=ide-scsi
-Jul  7 09:34:26 scanner kernel: ide_setup: hdc=ide-scsi
-Jul  7 09:34:26 scanner kernel: Initializing CPU#0
-Jul  7 09:34:26 scanner kernel: Detected 1211.906 MHz processor.
-Jul  7 09:34:26 scanner kernel: Console: colour VGA+ 80x25
-Jul  7 09:34:26 scanner kernel: Calibrating delay loop... 2418.27 BogoMIPS
+> Of course this relies on the rssh program to prevent the user from getting an 
+> interactive shell.
 
-etc., etc.  Instead, what is showing up under SELinux is:
+Yeah, and I just don't really trust rssh that much; similar programs
+like rbash have had a fairly bad security history as I understand it,
+although rssh tries to do less than rbash does.
 
-Jun 29 20:36:33 vortex syslogd 1.4.1: restart.
-Jun 29 20:36:33 vortex syslog: syslogd startup succeeded
-Jun 29 20:36:34 vortex syslog: klogd startup succeeded
-Jun 29 20:36:34 vortex kernel: klogd 1.4.1, log source = /proc/kmsg started.
-Jun 29 20:36:34 vortex kernel: Inspecting /boot/System.map-2.4.21-vortex
-       (Lots of startup messages missing between these two lines)
-Jun 29 20:36:31 vortex network: Bringing up interface eth1:  succeeded
-Jun 29 20:36:37 vortex keytable: Loading keymap:  succeeded
-Jun 29 20:36:38 vortex keytable: Loading system font:  succeeded
-Jun 29 20:36:40 vortex random: Initializing random number generator:  
-succeeded
-Jun 29 20:36:43 vortex autofs: automount startup succeeded
-Jun 29 20:36:45 vortex sshd: Starting sshd:
-Jun 29 20:36:46 vortex sshd:  succeeded
-Jun 29 20:36:47 vortex sshd:
-Jun 29 20:36:47 vortex rc: Starting sshd:  succeeded
-    (etc.)
+With rssh.te, even if they manage to crack rssh, they can basically only
+still manipulate files with type rssh_archive_t; they can't create
+network sockets or do other things.
 
-How do I get all of the startup messages to be logged again?  Is the default 
-kernel ring buffer too small?  (I haven't yet edited the policy to resolve 
-the "avc: denied" messages).  Or is there an SELinux parameter somewhere I 
-need to set? 
+> Another possibility is to implement the functionality of rssh in SE Linux 
+> policy alone.  We could have separate macros for the different areas of 
+> functionality provided by full_user_role() and make it easy to create a role 
+> with a sub-set of that functionality (user.te is a mess anyway and really 
+> needs to be sorted out).
 
-Thank you in advance for your time to answer this query.
-
-
-Regards,
-
-Bill Laut
+That would definitely be useful.  I have some things I want to do before
+working on it though.  You know, I'm thinking we need some sort of TODO
+list somewhere...
 
 
 --
