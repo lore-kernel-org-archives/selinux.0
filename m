@@ -1,155 +1,42 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5KNojrT027378
-	for <selinux@tycho.nsa.gov>; Sun, 20 Jun 2004 19:50:45 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5KNoY6w025914
-	for <selinux@tycho.nsa.gov>; Sun, 20 Jun 2004 23:50:34 GMT
-Subject: saslauthd policy, dovecot patches
-From: Colin Walters <walters@verbum.org>
-To: selinux@tycho.nsa.gov
-Cc: dwalsh@redhat.com, russell@coker.com.au
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NAgafnLFkzzbO/gYGdH3"
-Date: Sun, 20 Jun 2004 19:49:11 -0400
-Message-Id: <1087775351.32008.26.camel@optimus-prime.boston.redhat.com>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5L4nprT028806
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 00:49:51 -0400 (EDT)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5L4nni3020397
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 04:49:49 GMT
+Date: Mon, 21 Jun 2004 00:49:42 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: sched_setscheduler()
+In-Reply-To: <200406200049.25402.russell@coker.com.au>
+Message-ID: <Xine.LNX.4.44.0406210043150.22018-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, 20 Jun 2004, Russell Coker wrote:
 
---=-NAgafnLFkzzbO/gYGdH3
-Content-Type: multipart/mixed; boundary="=-aldUVe6oxSPyFYfGLiFa"
+> I am having some problems with asterisk (the VOIP server).
+> 
+> According to strace it does the following:
+> sched_setscheduler(0, SCHED_OTHER, { 0 }) = -1 EACCES (Permission denied)
+> 
+> This failure happens in enforcing mode but not in permissive mode, however 
+> nothing is audited!
 
-
---=-aldUVe6oxSPyFYfGLiFa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-I'm trying to get postfix+SASL working, and to do that I had to write a
-policy for saslauthd, which is attached.  I haven't had a chance to test
-it with Kerberos yet, so that's incomplete.  But it does seem to
-authenticate via the PAM mechanism (smtp PLAIN) correctly.
-
-Also, I've fixed up a few things in the Dovecot policy - the sub-
-binaries are bin_t on Fedora, it needed a few more capabilities, and I
-allowed it access to Kerberos configuration.
+setschedluler denials are not audited by the kernel, as doing so causes a 
+deadlock with printk (the kernel logging function).  I believe this can be 
+fixed with an asynchronous feature of the new audit framework, but am not 
+sure if it's been looked into.
 
 
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-
---=-aldUVe6oxSPyFYfGLiFa
-Content-Disposition: attachment; filename=saslauthd.te
-Content-Type: text/plain; name=saslauthd.te; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-I0RFU0Mgc2FzbGF1dGhkIC0gQXV0aGVudGljYXRpb24gZGFlbW9uIGZvciBTQVNMDQojDQojIEF1
-dGhvcjogQ29saW4gV2FsdGVycyA8d2FsdGVyc0B2ZXJidW0ub3JnPg0KIw0KDQpkYWVtb25fZG9t
-YWluKHNhc2xhdXRoZCwgYCwgYXV0aF9jaGtwd2QnKQ0KDQphbGxvdyBzYXNsYXV0aGRfdCBzZWxm
-OmZpZm9fZmlsZSB7IHJlYWQgd3JpdGUgfTsNCmFsbG93IHNhc2xhdXRoZF90IHNlbGY6dW5peF9k
-Z3JhbV9zb2NrZXQgY3JlYXRlX3NvY2tldF9wZXJtczsNCmFsbG93IHNhc2xhdXRoZF90IHNlbGY6
-dW5peF9zdHJlYW1fc29ja2V0IGNyZWF0ZV9zdHJlYW1fc29ja2V0X3Blcm1zOw0KYWxsb3cgc2Fz
-bGF1dGhkX3Qgc2FzbGF1dGhkX3Zhcl9ydW5fdDpzb2NrX2ZpbGUgY3JlYXRlX2ZpbGVfcGVybXM7
-DQoNCmFsbG93IHNhc2xhdXRoZF90IGV0Y190OmRpciB7IGdldGF0dHIgc2VhcmNoIH07DQphbGxv
-dyBzYXNsYXV0aGRfdCBldGNfdDpmaWxlIHJfZmlsZV9wZXJtczsNCmFsbG93IHNhc2xhdXRoZF90
-IG5ldF9jb25mX3Q6ZmlsZSByX2ZpbGVfcGVybXM7DQoNCmFsbG93IHNhc2xhdXRoZF90IGtyYjVf
-Y29uZl90OmZpbGUgcl9maWxlX3Blcm1zOw0KZG9udGF1ZGl0IHNhc2xhdXRoZF90IGtyYjVfY29u
-Zl90OmZpbGUgeyB3cml0ZSB9Ow0KDQphbGxvdyBzYXNsYXV0aGRfdCBzZWxmOmZpbGUgcl9maWxl
-X3Blcm1zOw0KYWxsb3cgc2FzbGF1dGhkX3QgcHJvY190OmZpbGUgeyByZWFkIH07DQoNCmFsbG93
-IHNhc2xhdXRoZF90IHVyYW5kb21fZGV2aWNlX3Q6Y2hyX2ZpbGUgeyBnZXRhdHRyIHJlYWQgfTsg
-DQoNCiMgTmVlZHMgaW52ZXN0aWdhdGlvbg0KZG9udGF1ZGl0IHNhc2xhdXRoZF90IGhvbWVfcm9v
-dF90OmRpciB7IGdldGF0dHIgfTsNCg0KaWZkZWYoYGtlcmJlcm9zLnRlJyxgDQojIEluY29tcGxl
-dGUNCmNhbl9uZXR3b3JrKHNhc2xhdXRoZF90KQ0KJykNCg==
-
-
---=-aldUVe6oxSPyFYfGLiFa
-Content-Disposition: attachment; filename=saslauthd.fc
-Content-Type: text/plain; name=saslauthd.fc; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-IyBzYXNsYXV0aGQgDQovdXNyL3NiaW4vc2FzbGF1dGhkCQkJCS0tCXN5c3RlbV91Om9iamVjdF9y
-OnNhc2xhdXRoZF9leGVjX3QNCi92YXIvcnVuL3Nhc2xhdXRoZAkJCQkJc3lzdGVtX3U6b2JqZWN0
-X3I6c2FzbGF1dGhkX3Zhcl9ydW5fdA0K
-
-
---=-aldUVe6oxSPyFYfGLiFa
-Content-Disposition: attachment; filename=postfix-saslauthd.patch
-Content-Type: text/x-patch; name=postfix-saslauthd.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-KiBhZGRlZCBmaWxlcw0KDQogICAgZG9tYWlucy9wcm9ncmFtLy5hcmNoLWlkcy9zYXNsYXV0aGQu
-dGUuaWQNCiAgICBkb21haW5zL3Byb2dyYW0vc2FzbGF1dGhkLnRlDQogICAgZmlsZV9jb250ZXh0
-cy9wcm9ncmFtLy5hcmNoLWlkcy9zYXNsYXV0aGQuZmMuaWQNCiAgICBmaWxlX2NvbnRleHRzL3By
-b2dyYW0vc2FzbGF1dGhkLmZjDQogICAge2FyY2h9L3BvbGljeS9wb2xpY3ktLW1haW4vcG9saWN5
-LS1tYWluLS0wL3Jvb3RAYXJlYTYxNC5uZXQtLW1vbmsvcGF0Y2gtbG9nL3BhdGNoLTcNCg0KKiBt
-b2RpZmllZCBmaWxlcw0KDQotLS0gb3JpZy9kb21haW5zL3Byb2dyYW0vcG9zdGZpeC50ZQ0KKysr
-IG1vZC9kb21haW5zL3Byb2dyYW0vcG9zdGZpeC50ZQ0KQEAgLTE2Nyw2ICsxNjcsMTIgQEANCiBy
-X2Rpcl9maWxlKHBvc3RmaXhfc210cGRfdCx1c3JfdCkNCiBhbGxvdyBwb3N0Zml4X3NtdHBkX3Qg
-ZXRjX2FsaWFzZXNfdDpmaWxlIHJfZmlsZV9wZXJtczsNCiANCitpZmRlZihgc2FzbGF1dGhkLnRl
-JyxgDQorYWxsb3cgcG9zdGZpeF9zbXRwZF90IHNhc2xhdXRoZF92YXJfcnVuX3Q6ZGlyIHsgc2Vh
-cmNoIGdldGF0dHIgfTsNCithbGxvdyBwb3N0Zml4X3NtdHBkX3Qgc2FzbGF1dGhkX3Zhcl9ydW5f
-dDpzb2NrX2ZpbGUgeyByZWFkIHdyaXRlIH07DQorY2FuX3VuaXhfY29ubmVjdChwb3N0Zml4X3Nt
-dHBkX3Qsc2FzbGF1dGhkX3QpDQorJykNCisNCiAjIGZvciBwcm5nX2V4Y2gNCiBhbGxvdyBwb3N0
-Zml4X3NtdHBkX3QgcG9zdGZpeF9zcG9vbF90OmZpbGUgcndfZmlsZV9wZXJtczsNCiANCg0KDQoN
-Cg==
-
-
---=-aldUVe6oxSPyFYfGLiFa
-Content-Disposition: attachment; filename=dovecot.patch
-Content-Type: text/x-patch; name=dovecot.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-KiBmaW5kaW5nIG9yIG1ha2luZyBwYXRjaC00DQoqIGZpbmRpbmcgb3IgbWFraW5nIHBhdGNoLTUN
-CiogY29tcHV0aW5nIGNoYW5nZXNldA0KQSAge2FyY2h9L3BvbGljeS9wb2xpY3ktLW1haW4vcG9s
-aWN5LS1tYWluLS0wL3Jvb3RAYXJlYTYxNC5uZXQtLW1vbmsvcGF0Y2gtbG9nL3BhdGNoLTUNCk0g
-IGRvbWFpbnMvcHJvZ3JhbS9kb3ZlY290LnRlDQoqIGNoYW5nZXNldCByZXBvcnQNCiogYWRkZWQg
-ZmlsZXMNCg0KICAgIHthcmNofS9wb2xpY3kvcG9saWN5LS1tYWluL3BvbGljeS0tbWFpbi0tMC9y
-b290QGFyZWE2MTQubmV0LS1tb25rL3BhdGNoLWxvZy9wYXRjaC01DQoNCiogbW9kaWZpZWQgZmls
-ZXMNCg0KLS0tIG9yaWcvZG9tYWlucy9wcm9ncmFtL2RvdmVjb3QudGUNCisrKyBtb2QvZG9tYWlu
-cy9wcm9ncmFtL2RvdmVjb3QudGUNCkBAIC0xMSwxNSArMTEsMjQgQEANCiANCiB0eXBlIGRvdmVj
-b3RfY2VydF90LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGU7DQogDQotYWxsb3cgZG92ZWNvdF90IHNl
-bGY6Y2FwYWJpbGl0eSB7IGNob3duIG5ldF9iaW5kX3NlcnZpY2Ugc2V0Z2lkIHNldHVpZCBzeXNf
-Y2hyb290IH07DQorYWxsb3cgZG92ZWNvdF90IHNlbGY6Y2FwYWJpbGl0eSB7IGNob3duIG5ldF9i
-aW5kX3NlcnZpY2Ugc2V0Z2lkIHNldHVpZCBzeXNfY2hyb290IGRhY19vdmVycmlkZSBkYWNfcmVh
-ZF9zZWFyY2ggfTsNCiBhbGxvdyBkb3ZlY290X3Qgc2VsZjpwcm9jZXNzIHsgc2V0cmxpbWl0IH07
-DQogY2FuX25ldHdvcmsoZG92ZWNvdF90KQ0KIGFsbG93IGRvdmVjb3RfdCBzZWxmOnVuaXhfZGdy
-YW1fc29ja2V0IGNyZWF0ZV9zb2NrZXRfcGVybXM7DQogYWxsb3cgZG92ZWNvdF90IHNlbGY6dW5p
-eF9zdHJlYW1fc29ja2V0IGNyZWF0ZV9zdHJlYW1fc29ja2V0X3Blcm1zOw0KIGNhbl91bml4X2Nv
-bm5lY3QoZG92ZWNvdF90LCBzZWxmKQ0KIGFsbG93IGRvdmVjb3RfdCBldGNfdDpmaWxlIHsgZ2V0
-YXR0ciByZWFkIH07DQorDQorIyBGb3IgU1NMIGNlcnRpZmljYXRlcw0KK2FsbG93IGRvdmVjb3Rf
-dCB1c3JfdDpmaWxlIHsgZ2V0YXR0ciByZWFkIH07DQorDQogYWxsb3cgZG92ZWNvdF90IGluaXRy
-Y192YXJfcnVuX3Q6ZmlsZSB7IGdldGF0dHIgfTsNCisNCisjIERvdmVjb3Qgc3ViLWJpbmFyaWVz
-IGFyZSBsaWJfdCBvbiBEZWJpYW4gYW5kIGJpbl90IG9uIEZlZG9yYQ0KIGFsbG93IGRvdmVjb3Rf
-dCBsaWJfdDpmaWxlIHsgZXhlY3V0ZSBleGVjdXRlX25vX3RyYW5zIH07DQorYWxsb3cgZG92ZWNv
-dF90IGJpbl90OmRpciB7IGdldGF0dHIgc2VhcmNoIH07DQorY2FuX2V4ZWMoZG92ZWNvdF90LCBi
-aW5fdCkNCisNCiBhbGxvdyBkb3ZlY290X3QgcG9wX3BvcnRfdDp0Y3Bfc29ja2V0IG5hbWVfYmlu
-ZDsNCiBhbGxvdyBkb3ZlY290X3QgdXJhbmRvbV9kZXZpY2VfdDpjaHJfZmlsZSB7IHJlYWQgfTsN
-CiBhbGxvdyBkb3ZlY290X3QgZG92ZWNvdF9jZXJ0X3Q6ZmlsZSB7IGdldGF0dHIgcmVhZCB9Ow0K
-QEAgLTI3LDYgKzM2LDkgQEANCiBhbGxvdyBkb3ZlY290X3QgeyBzZWxmIHByb2NfdCB9OmZpbGUg
-eyBnZXRhdHRyIHJlYWQgfTsNCiBhbGxvdyBkb3ZlY290X3Qgc2VsZjpmaWZvX2ZpbGUgcndfZmls
-ZV9wZXJtczsNCiANCitkb250YXVkaXQgZG92ZWNvdF90IGtyYjVfY29uZl90OmZpbGUgeyB3cml0
-ZSB9Ow0KK2FsbG93IGRvdmVjb3RfdCBrcmI1X2NvbmZfdDpmaWxlIHsgZ2V0YXR0ciByZWFkIH07
-DQorDQogZGFlbW9uX3N1Yl9kb21haW4oZG92ZWNvdF90LCBkb3ZlY290X2F1dGgsIGAsIGF1dGgn
-KQ0KIGFsbG93IGRvdmVjb3RfYXV0aF90IHNlbGY6cHJvY2VzcyB7IGZvcmsgc2lnbmFsX3Blcm1z
-IH07DQogYWxsb3cgZG92ZWNvdF9hdXRoX3QgZG92ZWNvdF90OnVuaXhfc3RyZWFtX3NvY2tldCB7
-IGdldGF0dHIgYWNjZXB0IHJlYWQgd3JpdGUgaW9jdGwgfTsNCg0KDQoNCg==
-
-
---=-aldUVe6oxSPyFYfGLiFa--
-
---=-NAgafnLFkzzbO/gYGdH3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA1iJ3OIkJWWp2WGURArm0AJ9axpq5NPY941RFdDl+zfS7GknaWgCeIaRI
-S3x5p2yqDjST20bF+PXLLKU=
-=JXGk
------END PGP SIGNATURE-----
-
---=-NAgafnLFkzzbO/gYGdH3--
 
 
 --
