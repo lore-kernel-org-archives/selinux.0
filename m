@@ -1,42 +1,48 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7NLYKrT021594
-	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 17:34:20 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7NLXZAS002098
-	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 21:33:35 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7NLdOrT021645
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 17:39:24 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7NLdMwb013629
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 21:39:22 GMT
 Received: from localhost (localhost [127.0.0.1])
-	by open.hands.com (Postfix) with ESMTP id C3D4EBF88
-	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 22:34:19 +0100 (BST)
+	by open.hands.com (Postfix) with ESMTP id 607F0BF8A
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 22:39:23 +0100 (BST)
 Received: from open.hands.com ([127.0.0.1])
 	by localhost (open [127.0.0.1]) (amavisd-new, port 10024) with LMTP
-	id 28579-05 for <selinux@tycho.nsa.gov>;
-	Mon, 23 Aug 2004 22:34:15 +0100 (BST)
+	id 28579-06-2 for <selinux@tycho.nsa.gov>;
+	Mon, 23 Aug 2004 22:39:21 +0100 (BST)
 Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 34CD0BF95
-	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 22:34:15 +0100 (BST)
+	by open.hands.com (Postfix) with ESMTP id E8CCABF88
+	for <selinux@tycho.nsa.gov>; Mon, 23 Aug 2004 22:39:20 +0100 (BST)
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BzMdD-0003ZX-8E
-	for selinux@tycho.nsa.gov; Mon, 23 Aug 2004 22:45:35 +0100
-Date: Mon, 23 Aug 2004 22:45:35 +0100
+	id 1BzMi9-0003aC-2v
+	for selinux@tycho.nsa.gov; Mon, 23 Aug 2004 22:50:41 +0100
+Date: Mon, 23 Aug 2004 22:50:41 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: patch for freshclam (live update)
-Message-ID: <20040823214535.GB13677@lkcl.net>
+Subject: patch for fsadm
+Message-ID: <20040823215041.GC13677@lkcl.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZfOjI3PrQbgiZnxM"
+Content-Type: multipart/mixed; boundary="R+My9LyyhiUvIEro"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---ZfOjI3PrQbgiZnxM
+--R+My9LyyhiUvIEro
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-here is a patch which gets the freshclam "live update" package working
-a bit more.
+usb-mount uses sg_map and disktype.
 
-it's what i've seen so far, mostly this is boot-up time stuff rather
-than cron job stuff (i think).
+both these programs require some extra stuff.
+
+basically the usb-mount script uses sg_map, disktype and fdisk
+to determine info about the usb scsi drive now within its evil
+grasp: e.g. the volume name, volume id, and whether the disk
+has a partition table on it or whether it _is_ a partition.
+
+so, anyway, these additions were required to not have usb-mount
+poo up.
 
 l.
 
@@ -50,32 +56,42 @@ around you, funnily and coincidentally enough, life gets a lot better.
 <a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
---ZfOjI3PrQbgiZnxM
+--R+My9LyyhiUvIEro
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=freshclam
+Content-Disposition: attachment; filename=fsadm
 
 diff -Naur 
---- default.1.14/domains/program/clamav.te	2004-08-02 08:28:37.000000000 +0100
-+++ current/domains/program/clamav.te	2004-08-22 20:18:54.000000000 +0100
-@@ -84,3 +84,16 @@
- 
- allow clamd_t { random_device_t urandom_device_t }:chr_file { getattr read };
- dontaudit clamd_t { random_device_t urandom_device_t }:chr_file ioctl;
+--- default.1.14/domains/program/fsadm.te	2004-08-02 08:28:37.000000000 +0100
++++ current/domains/program/fsadm.te	2004-08-22 17:58:20.000000000 +0100
+@@ -117,3 +116,15 @@
+ # Access to /initrd devices
+ allow fsadm_t { file_t unlabeled_t }:dir rw_dir_perms;
+ allow fsadm_t { file_t unlabeled_t }:blk_file rw_file_perms;
 +
-+# allow freshclam to do logging...
-+allow freshclam_t var_t:dir { search };
-+allow freshclam_t freshclam_log_t:dir { search write add_name };
-+allow freshclam_t var_run_t:dir { search };
++# this is for sg_map and disktype
++allow fsadm_t scsi_generic_device_t:chr_file { ioctl read };
++allow fsadm_t tape_device_t:chr_file { read };
++allow fsadm_t removable_device_t:lnk_file { read };
++#allow fsadm_t device_t:chr_file { read ioctl };
++#allow fsadm_t device_t:blk_file { read ioctl getattr };
 +
-+allow freshclam_t clamd_var_run_t:dir { write };
-+	#EXE=/usr/bin/freshclam  NAME=clamav   :  write
++# /bin/mountpoint to read /dev/shm
++allow fsadm_t devpts_t:dir { search };
++allow fsadm_t tmpfs_t:dir { getattr search };
 +
-+allow freshclam_t clamd_var_run_t:file { getattr write create };
-+allow freshclam_t clamd_var_run_t:dir { add_name };
-+	#EXE=/usr/bin/freshclam  NAME=freshclam.pid   :  add_name
-+
+diff -Naur 
+--- default.1.14/file_contexts/program/fsadm.fc	2004-08-02 08:28:37.000000000 +0100
++++ current/file_contexts/program/fsadm.fc	2004-08-06 19:03:43.000000000 +0100
+@@ -30,5 +30,7 @@
+ /sbin/install-mbr	--	system_u:object_r:fsadm_exec_t
+ /usr/bin/scsi_unique_id	--	system_u:object_r:fsadm_exec_t
+ /usr/bin/raw		--	system_u:object_r:fsadm_exec_t
++/usr/bin/sg_map		--	system_u:object_r:fsadm_exec_t
++/usr/bin/disktype	--	system_u:object_r:fsadm_exec_t
+ /sbin/partx		--	system_u:object_r:fsadm_exec_t
+ /usr/bin/partition_uuid	--	system_u:object_r:fsadm_exec_t
 
---ZfOjI3PrQbgiZnxM--
+--R+My9LyyhiUvIEro--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
