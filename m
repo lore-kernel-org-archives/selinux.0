@@ -1,28 +1,31 @@
-Date: Mon, 28 Jan 2002 02:15:16 +0000 (GMT)
-From: Chris Crowther <chrisc@shad0w.org.uk>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: Backups
-In-Reply-To: <1011931739.2629.24.camel@localhost2.localdomain>
-Message-ID: <Pine.LNX.4.33.0201280214040.3873-100000@monolith.shad0w.org.uk>
+Date: Sun, 27 Jan 2002 22:13:08 -0500 (EST)
+From: Thomas A Langan <tlangan@dsl.cis.upenn.edu>
+To: <SELinux@tycho.nsa.gov>
+Subject: Policy Enforcement Question
+Message-ID: <Pine.GSO.4.33.0201272204020.3875-100000@codex.cis.upenn.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 24 Jan 2002, Roger wrote:
 
-> "Backups are for wimps.  Real men upload their data to an
-> FTP site and have everyone else mirror it."  -Linus Torvalds
+I have a quick conceptual question about the role policies in the Flask
+architecture.
 
-	Yes, but all his data is Linux :)
+When policies are defined by an admin --- using RBAC, TE or a
+combination thereof --  and parsed into the system, does rights-checking
+at the lowest level occur seperately for each policy defined (and in turn,
+seperately for each language such as RBAC or TE) or do all the policies
+compile down to an intermediate format that handles all of the languages
+and policies transparently?  If the latter, what is the intermediate
+representation?
 
-	I personaly like his, "Linux isn't GNU.  Linux has a kernel which
-boots." quote.
 
--- 
-Chris "_Shad0w_" Crowther
-chrisc@shad0w.org.uk
-http://www.shad0w.org.uk/
+I couldn't find any clear documentation to answer this question -- if it
+exists, let me know where it is and I'm sorry about cluttering your
+mailbox!
+
+Tom
 
 
 --
