@@ -1,37 +1,49 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA07733
-	for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2003 00:58:15 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA07791
+	for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2003 01:06:58 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0I5wFI13753
-	for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2003 05:58:15 GMT
+	by jazzband.ncsc.mil  with ESMTP id h0I66wI13995
+	for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2003 06:06:58 GMT
 Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id h0I5wCf13749 for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2003 05:58:12 GMT
-Date: Sat, 18 Jan 2003 16:57:53 +1100
+        by jazzband.ncsc.mil  with ESMTP id h0I66uf13991 for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2003 06:06:57 GMT
+Date: Sat, 18 Jan 2003 17:06:46 +1100
 From: Brian May <bam@snoopy.apana.org.au>
-To: Tom <tom@lemuria.org>
+To: Russell Coker <russell@coker.com.au>
 Cc: selinux@tycho.nsa.gov
 Subject: Re: Cambridge Security Group talk
-Message-ID: <20030118055753.GB26168@snoopy.apana.org.au>
-References: <200301180149.27476.russell@coker.com.au> <20030118044554.A19790@lemuria.org>
+Message-ID: <20030118060646.GC26168@snoopy.apana.org.au>
+References: <200301180149.27476.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20030118044554.A19790@lemuria.org>
+In-Reply-To: <200301180149.27476.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Jan 18, 2003 at 04:45:55AM +0100, Tom wrote:
-> One partial solution (for those of us using it) would be to make bash's
-> "tab complete everything" feature aware of security contexts. It's
-> already pretty powerful (e.g. on an scp it can tab-complete remote
-> paths, for many programs it can tab-complete commandline parameters,
-> etc)
+On Sat, Jan 18, 2003 at 01:49:27AM +0100, Russell Coker wrote:
+> One suggestion from the audience was to remove "_t" and "_r" suffixes as the 
+> context has all the information necessary to differentiate domains from 
+> roles.  Another suggestion was to remove some parts of the context when they 
+> aren't needed (such as object_r).  I tried this once but Steve convinced me 
+> to revert it.  I am now thinking that perhaps we should review this matter.
 
-On Debian (at leat Debian, probably any system), there is a directory,
-/etc/bash_completion.d/ where packages can put scripts to enable
-"non-standard" command line completion. It would appear to be very
-powerful, and should be able to cope with any situation (I think).
+I think the benifit of the _t and _r suffixes isn't so much to aid
+to computer, but to make the policy more readable by the human user.
 
-It doesn't help me though, I use zsh...
+> In regard to the permissions on files, it was pointed out in a quite clear 
+> fashion that standard Unix has 10 characters in the "ls -l" output to specify 
+> the permissions.  Of course this is ignoring the user and group fields which 
+> combined make it into a text representation almost as long as a security 
+> context.  On my laptop the average length of security contexts I have in use 
+> at the moment is 30.5 characters including the two ':' characters.  For unix 
+> permissions it's 10, plus 5 for the group, plus <=8 for the user-name which 
+> is 25 characters if we include two separators.
+
+I think that the "standard" ls -l output is going to be less important
+when 2.5.x is finally released with ACL support...
+
+Which raises another interesting topic, that is 2.5.x supports attrs
+(EAs) on ext2 and ext3 (at the minimum; I don't know about reiserfs),
+maybe SE-Linux security contexts could be stored in attrs?
 --
 Brian May <bam@snoopy.apana.org.au>
 
