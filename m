@@ -1,58 +1,47 @@
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA03429
+	for <selinux@tycho.nsa.gov>; Wed, 13 Mar 2002 08:36:38 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id NAA14204
+	for <selinux@tycho.nsa.gov>; Wed, 13 Mar 2002 13:35:22 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id NAA14198
+	for <selinux@tycho.nsa.gov>; Wed, 13 Mar 2002 13:35:20 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 576B292443
+	for <selinux@tycho.nsa.gov>; Thu, 14 Mar 2002 00:36:30 +1100 (EST)
+Received: from there (lyta [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 22DD67B83
+	for <selinux@tycho.nsa.gov>; Wed, 13 Mar 2002 14:36:14 +0100 (CET)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Reino Wallin <reino@oribium.com>
-Subject: Re: Firewall Policy
-Date: Wed, 13 Mar 2002 08:06:16 +0100
-Cc: Rik van Riel <riel@conectiva.com.br>, SELinux <SELinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0203120933540.10942-100000@raven> <1015984108.1595.45.camel@matilda.oribium.com>
-In-Reply-To: <1015984108.1595.45.camel@matilda.oribium.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: stat64
+Date: Wed, 13 Mar 2002 14:36:14 +0100
 MIME-Version: 1.0
-Message-Id: <20020313083719.B034970A5@lyta.coker.com.au>
+Message-Id: <20020313133615.22DD67B83@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 13 Mar 2002 02:48, Reino Wallin wrote:
-> > > To make the nameserver to work as a slave server, we may consider to
-> > > grant write permissions to named_conf_t:dir and named_conf:file:
-> >
-> > I'd agree with Russell Coker's suggestion of defining a new type for
-> > this purpose.
->
-> I agree this is more secure. Should I use named_conf_t just for
-> /etc/named.conf and then use a new type like dns_masterzone_t for
-> /var/named/master and dns_slavezone_t for /var/named/slave ?
+Below is the URL for some errors reported by Debian build daemons (see the 
+ia64 records).
 
-Sounds like a reasonable idea.
+It seems that there is no stat64 on 64bit architectures.
 
-Also make the default policy:
-allow named_t dns_masterzone_t:file r_file_perms;
-allow named_t dns_masterzone_t:dir r_dir_perms;
-With a comment suggesting rw_file_perms and rw_dir_perms for if you want 
-dynamic updates (most people don't want it).
+I think that the right thing to do is to merge %stat64_secure.c with 
+%stat_secure.c and surround the stat64 code with #ifdef __i386__
 
-Then for the slave zones, a different domain for the named-xfer program to 
-allow only that program to write the slave files would be good.  Then someone 
-who cracks named can't change the zone files on disk.
 
-> Thanks. Since there are just a few applications, and a few user accounts
-> on a firewall, Russel Coker's suggestion to use nscd might be a good
-> solution in this particular case. I will continue to define fine grained
-> networking capabilities to the type enforcement files I am writing, and
-> hopefully get more experiences.
 
-Also some of the network access shouldn't be allowed.  I've already 
-discovered one bug in a Debian library where a network socket was incorrectly 
-set to allow it to remain open across exec through my tests of SE security 
-policies.
+http://buildd.debian.org/build.php?&pkg=selinux-small
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
 of legalistic junk at the end then you are specifically authorizing me to do
 whatever I wish with the message and all other messages from your domain, by
 posting the message you agree that your long legalistic sig is void.
-
 
 --
 You have received this message because you are subscribed to the selinux list.
