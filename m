@@ -1,38 +1,70 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4LHaPI4017145
-	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 13:36:25 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4LHaOtV015754
-	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 17:36:24 GMT
-Received: from unicorn.lemuria.org (c145125.adsl.hansenet.de [213.39.145.125])
-        by jazzband.ncsc.mil  with ESMTP id h4LHaAal015739 for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 17:36:23 GMT
-Date: Wed, 21 May 2003 19:33:40 +0200
-From: Tom <tom@lemuria.org>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: patched wdm (success)
-Message-ID: <20030521193333.B14730@lemuria.org>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4LNnfI4018920
+	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 19:49:41 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4LNnHuO011930
+	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 23:49:17 GMT
+Received: from a.mx.rapturesecurity.com ([66.113.84.53])
+	by jazzswing.ncsc.mil  with ESMTP id h4LNnGlV011926
+	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 23:49:16 GMT
+Subject: Re: matrix [NOW FreeS/WAN vs sshd]
+From: Jack <jack@rapturesecurity.com>
+Reply-To: jack@rapturesecurity.com
+To: selinux@tycho.nsa.gov
+In-Reply-To: <200305211505.10089.tk-selinux@datas-world.de>
+References: <C540EABA36FDD41189FD00508BAF8E850149266A@atsgroup.saic.com>
+	 <200305210013.14976.russell@coker.com.au>
+	 <1053459308.21482.23.camel@bubbles.eatflamingdeath.org>
+	 <200305211505.10089.tk-selinux@datas-world.de>
+Content-Type: text/plain
+Message-Id: <1053560950.23132.69.camel@bubbles.eatflamingdeath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: 21 May 2003 16:49:11 -0700
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks to Stephen, who pointed out the mistake, I now have a patched
-wdm that works fine and does the transition to user_t
+On Wed, 2003-05-21 at 06:05, Torsten Knodt wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> > > Good point about inetd.  If sshd is started by inetd and denied ptrace
+> > > access to itself then a cracked sshd can't interfere with another ssh
+> > > session.  I will have to look into changing my servers to do this.  Of
+> > > course this raises another problem, the unreliability of inetd's.  But if
+> > > inetd is cracked it doesn't allow much of an attack on the ssh protocol
+> > > as long as the clients already have a copy of the server public key.
+> > I was accually using something similar, but with djb tcpserver and the
+> > daemonutils package, but my idea was just to allow ssh connections
+> > though ipsec? with roaming users, and firewall eth?, that seems to
+> > control exposure very well with crls and X.509 FreeS/WAN patches.
+> With ipsec, you move the encryption bugs and friends problem of the daemons 
+> into the kernel. Without comparing openssh and freeswan code quality, I think 
+> this is more insecure. You have to crack one service (freeswan) and get 
+> access to the whole system (via kernel). When I'm not wrong, SE Linux doesn't 
+> protect the kernel. Or am I wrong with the
 
-I'm cleaning it up a little further right now and will put it up for
-download later. I'm having some minor troubles with the debian build
-system, I'm sure I'll figure it out.
+FreeS/WAN is userland AND kernel first off, and if you read the policy
+unused/ipsec.te and compare it to sshd.te in the policy directory you
+might get an idea of why I would rather expose ipsec.te before sshd.te.
+If you want to talk about this further you can just email me directly,
+as this is a long opinionated discussion. However you have given me
+the idea to edit the ipsec scripts to interact with iptables and only
+allow esp from someone who has passed IKE, as there is no reason
+to allow esp from everyone, not that it should matter.
 
+> 
+> > IPSEC also seems to fix almost all tcp/ip problems as well ;)
+> This part sounds very get. Only bad, than I can't reach my providers proxy 
+> with ipsec. ;(
 
-Russell - You might want to check your kdm diff files, they might have
-the same problem. Stephen pointed out that if(!get_default_sid...
-doesn't work because it returns 0 on success, <0 on failure.
-
+The idea is to negotiate an IPSEC tunnel between 2 hosts to allow ssh
+traffic inside of that tunnel, if you can communicate directly with a
+host, then you should be able to do this.
 
 -- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+Jack <jack@rapturesecurity.com>
+RaptureSecurity
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
