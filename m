@@ -1,65 +1,63 @@
-Message-ID: <404020F5.9080202@snu.edu>
-Date: Fri, 27 Feb 2004 23:02:45 -0600
-From: Joshua Brindle <jbrindle@snu.edu>
-MIME-Version: 1.0
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-CC: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: PaX + selinux integration update
-References: <403CF8AB.5080309@snu.edu> <20040226164707.GC31204@rom.cip.informatik.uni-muenchen.de>
-In-Reply-To: <20040226164707.GC31204@rom.cip.informatik.uni-muenchen.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1SIELRb019207
+	for <selinux@tycho.nsa.gov>; Sat, 28 Feb 2004 13:14:21 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i1SICilK026846
+	for <selinux@tycho.nsa.gov>; Sat, 28 Feb 2004 18:12:44 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id i1SIChOX026843
+	for <selinux@tycho.nsa.gov>; Sat, 28 Feb 2004 18:12:43 GMT
+Date: Sat, 28 Feb 2004 18:14:18 +0000
+From: Dale Amon <amon@vnl.com>
+To: selinux@tycho.nsa.gov
+Subject: Attn Colin: Overhelpful /usr/sbin/policy-remove-unwanted
+Message-ID: <20040228181418.GO11147@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thomas Bleher wrote:
+Colin's /usr/sbin/policy-remove-unwanted gets into trouble
+when you are using syslog-ng and do not have klogd installed:
 
-> * Joshua Brindle <jbrindle@snu.edu> [2004-02-25 21:49]:
-> 
->>These are the fixed up versions thanks to Chris Pebenito, the kernel 
->>patch no longer specifies defaults, so now all decisions come directly 
->>from policy.
->>
->>Also the excess amount of denials will not be displayed per policy
-> 
-> 
-> Great! I think this is really useful work!
+	Using policy installation method "Automatic"
+	Copying the sample /usr/share/selinux/policy/current directory from
+	/usr/share/selinux/policy/default
+	Removal of unwanted policy files
+	Removing "current/domains/program/gnome-pty-helper.te"
+	Keeping "current/domains/program/checkpolicy.te"
+	Keeping "current/domains/program/chkpwd.te"
+	Keeping "current/domains/program/crond.te"
+	Keeping "current/domains/program/crontab.te"
+	Keeping "current/domains/program/fsadm.te"
+	Keeping "current/domains/program/getty.te"
+	Keeping "current/domains/program/ifconfig.te"
+	Keeping "current/domains/program/init.te"
+	Keeping "current/domains/program/initrc.te"
+	Removing "current/domains/program/klogd.te"
 
-Thank you
-> 
-> Do you think there is any chance of integrating your work into PAX? I
-> understand that your patch will not go into the kernel in the near future, 
-> but if it was at least integrated into PAX it would be much more likely
-> to be used.
-> 
-The author of PaX doesn't want to add any implementation specific stuff 
-into mainline (understandably since he works with the grsecurity author 
-quite a bit) but this is what we are going to do:
+I think he needs to special case this and either test
+for syslog-ng if the .te to be removed is klogd and
+klogd is not found; or else simply never remove klogd.te
+under any circumstance.
 
-We've started a little project called openpax which implements some of 
-the non-ACL aspects of grsecurity, /proc restrictions, chroot 
-restrictions, things like that. Not all of them are applicable to 
-selinux since the policy can take care of it but some are nicer this way 
-(especially /proc). Regardless, I've added the selinux pax integrations 
-into openpax, available at http://www.openpax.net or directly at
-http://openpax.net/linux-2.6.3-openpax-0.9.patch
+This problem could pop up at other places under
+Automatic install as there is an assumption of an
+absolute correspondence between the xxxx.te and one or
+more xxxxx*.deb packages. (Or that's what I get from
+a quick read through of the code without figuring
+out all the details.)
 
-Basically we are using this as a testing ground for our Hardened Gentoo 
-kernels, the configuration we are using is PaX + openpax + SELinux to 
-provide all the currently supported layers of security.
+Colin? Pong... in your court! :-)
 
-> I think a lot of people use ExecShield because the patch is not too big
-> and supported by RedHat. If PAX with proper SELinux-support was
-> available as a single patch more people would consider using it on
-> production systems where every additional patch counts.
-> 
-> Thomas
-> 
-Well, too big is fairly irrelavent if it doesn't provide the necessary 
-protections (IMO) . Furthermore, every single PaX option is optional and 
-  encased in #ifdef's so every additional patch shouldn't count since 
-nothing unnecessary will end up in the compiled kernel.
-
-Joshua Brindle
+-- 
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
