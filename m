@@ -1,73 +1,49 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1AFE7Rb009623
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2004 10:14:07 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i1AFCRQk004446
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2004 15:12:27 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1AFiURb009771
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2004 10:44:30 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i1AFiTOi026882
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2004 15:44:29 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i1AFCQYo004443
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2004 15:12:26 GMT
-Subject: Re: Announce: Updated SELinux conditional policy extensions
+        by jazzband.ncsc.mil  with ESMTP id i1AFiSWW026879 for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2004 15:44:28 GMT
+Received: from moss-spartans.epoch.ncsc.mil (moss-spartans [144.51.25.121])
+	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1AFiSjP006881
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2004 10:44:28 -0500 (EST)
+Subject: 2.4-based SELinux
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: selinux@tycho.nsa.gov
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-   Selinux Dev <selinux-dev@tresys.com>
-In-Reply-To: <1074114393.10070.42.camel@colossus.columbia.tresys.com>
-References: <1074114393.10070.42.camel@colossus.columbia.tresys.com>
 Content-Type: text/plain
-Message-Id: <1076426021.5910.131.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1076427867.5910.162.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 10 Feb 2004 10:13:42 -0500
+Date: Tue, 10 Feb 2004 10:44:28 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-01-14 at 16:06, Karl MacMillan wrote:
-> A new release of the conditional policy extensions to SELinux is
-> available from our website:
-> 
-> http://www.tresys.com/selinux/index.html
-> 
-> Patches are also attached to this email. The conditional policy
-> extensions to SELinux allow runtime modification of the security policy
-> without having to load a new policy. Using boolean variables and
-> expressions, it is possible to define sections of policy that are
-> conditionally applied. Please see the website for more information.
-> 
-> This release includes modifications to the linux kernel, checkpolicy,
-> libselinux, and the default policy and allows the creation and loading
-> of conditional policies. Any testing or feedback would be greatly
-> appreciated.
+Hi,
 
-Just to let people know (if they haven't already noticed), we have
-merged the Tresys conditional policy extensions into our internal tree
-for inclusion in our next release, and we have pushed the merged code
-into the sourceforge CVS tree for linux-2.6 and selinux-usr.  The
-extensions change the binary policy format and increment the policy
-version, so please note the following:
+In the last nsa.gov release of SELinux, the 2.4-based SELinux (the back
+port of the 2.6-based SELinux) began to lag behind the 2.6-based
+SELinux, e.g. the new signal and resource limit inheritance controls and
+the restored network access controls were only implemented for the
+2.6-based SELinux.  The gulf between the two versions has grown further
+since that release, as all new development has only been done for the
+2.6-based SELinux (e.g. port-based controls, getpeercon support, mount
+context options, conditional policy extensions) and we have reached the
+point where compatibility is once again an issue, although you can still
+uncomment the POLICYCOMPAT definition in the policy Makefile to build
+the older policy format.
 
-- checkpolicy will still generate the old format if passed a -c option
-(dropping any booleans and conditional blocks with a warning in that
-case), and a POLICYCOMPAT definition has been added to the policy
-Makefile that can be uncommented to cause generation of a policy.15 file
-for kernels that do not include the Tresys patch (i.e. a vanilla
-kernel.org kernel or a Fedora Core development kernel).  Hence, if you
-update to the new checkpolicy but are using a kernel without the Tresys
-patch, then you will want to uncomment the definition for your policy
-builds.
-
-- The patched kernel will accept either policy version, but at present,
-/sbin/init will only try to load the version obtained via
-/selinux/policyvers, which will be 16.  We may want to change the
-SysVinit-selinux patch to retry with the prior policy version if it
-cannot find the current version, so that if someone updates their kernel
-to one that includes the Tresys patch but does not update their policy
-to the newer version, the system will still load the old policy and
-function as expected.
-
-- The extensions are only implemented for the 2.6-based SELinux. 2.4
-SELinux users will need to uncomment the POLICYCOMPAT definition in the
-policy Makefile.  More about the 2.4-based SELinux in a separate message
-to follow.
+While the 2.4 back port served a useful purpose for a time in allowing
+people to start migrating to the new SELinux API and to using extended
+attributes for file security contexts without immediately jumping to
+2.6, there seems to be little reason to continue maintaining it for much
+longer, and we are really only maintaining it for newer base kernels at
+present.  Hence, I expect that a final snapshot of it will be migrated
+to the historical versions page in the future.  If you have concerns
+with this, let us know, although we really don't plan on continuing to
+maintain it ourselves.  Someone else could certainly seek to maintain
+it, but I'm not sure that it would be worthwhile, as Fedora Core 2
+appears to only be 2.6-based.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
