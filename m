@@ -1,51 +1,45 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i766kLrT010525
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 02:46:21 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i766kJO0014709
-	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 06:46:20 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Wolfgang Pfeiffer <roto@gmx.net>
-Subject: Re: Build error pam on ppc
-Date: Fri, 6 Aug 2004 16:46:12 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <1091728350.2840.49.camel@debby>
-In-Reply-To: <1091728350.2840.49.camel@debby>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i76AFcrT011106
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 06:15:38 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i76AF2ps021170
+	for <selinux@tycho.nsa.gov>; Fri, 6 Aug 2004 10:15:03 GMT
+From: Russell Coker <rcoker@redhat.com>
+Reply-To: rcoker@redhat.com
+To: Andreas Schuldei <andreas@schuldei.org>
+Subject: Re: problems with selinux-policy-default 1:1.14-2
+Date: Fri, 6 Aug 2004 20:15:33 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <20040803233114.GQ1828@markus.schuldei.org>
+In-Reply-To: <20040803233114.GQ1828@markus.schuldei.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200408061646.12198.russell@coker.com.au>
+Message-Id: <200408062015.33606.rcoker@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 6 Aug 2004 03:52, Wolfgang Pfeiffer <roto@gmx.net> wrote:
-> Hi All
+On Wed, 4 Aug 2004 09:31, Andreas Schuldei <andreas@schuldei.org> wrote:
+> lrwxrwxrwx    1 root     root           33 Aug  4 00:57 src ->
+> /usr/share/selinux/policy/current petrus:~# l /usr/share/selinux/policy
+> total 12
+> drwxr-xr-x    3 root     root         4096 Aug  4 00:57 .
+> drwxr-xr-x    3 root     root         4096 Aug  4 00:57 ..
+> drwxr-xr-x    9 root     root         4096 Aug  4 00:57 default
+> ==========================
 >
-> When I built *successfully* pam on ppc with
->
-> fakeroot apt-get source --compile pam=0.77-0.se5
->
-> I got this error, that I *ignored*:
->
-> ----------------------------------------
->
-> mkdir -p /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib
-> /usr/bin/install -m 755 libpamc.so
-> /home/shorty/russellpackages/pam/pam-0.77/debian/tmp/lib/libpamc.so.0.77
-> /sbin/ldconfig
-> /sbin/ldconfig: Can't create temporary cache file /etc/ld.so.cache~:
-> Permission denied make[2]: *** [install] Error 1
+> src is a dangeling symlink.
 
-I recall getting the same error on i386.  I just ignored it, but probably we 
-should have a bug report filed about that if you can reproduce it on the 
-version of PAM that's in Debian.
+What happened to the current directory?
+
+> changing it to point to /usr/share/selinux/policy/default
+
+Don't do that.  If you do that the upgrading the policy will automatically 
+over-write changes that you have made to your policy.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+http://apac.redhat.com/disclaimer
+See above URL for disclaimer.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
