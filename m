@@ -1,20 +1,22 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1N2CxdW027343
-	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 21:12:59 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1N2JodW027380
+	for <selinux@tycho.nsa.gov>; Tue, 22 Feb 2005 21:19:50 -0500 (EST)
 Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1N2AaZE029753
-	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 02:10:36 GMT
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1N2HRZE000034
+	for <selinux@tycho.nsa.gov>; Wed, 23 Feb 2005 02:17:28 GMT
 Subject: Mplayer: PT_GNU_STACK RWE
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
-To: mplayer-dev-eng-request@mplayerhq.hu
+To: mplayer-dev-eng@mplayerhq.hu
 Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Tue, 22 Feb 2005 21:13:22 -0500
-Message-Id: <1109124802.26770.13.camel@cobra.ivg2.net>
+Date: Tue, 22 Feb 2005 21:20:12 -0500
+Message-Id: <1109125212.26770.16.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+(re-sending to correct mplayer list..)
 
 Hi, I've subscribed to this list just to post this one question.
 
