@@ -1,75 +1,57 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2OHAwx6004045
-	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 12:10:58 -0500 (EST)
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2OHE9x6004102
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 12:14:10 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h2OH7QlY001862
-	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 17:07:26 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h2OH7NKX001859
-	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 17:07:24 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Chris Vance <cvance@tislabs.com>
-Subject: Re: general policy stuff
-Date: Mon, 24 Mar 2003 18:10:43 +0100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <Pine.LNX.4.33.0303240942130.31241-100000@zorg.gw.tislabs.com>
-In-Reply-To: <Pine.LNX.4.33.0303240942130.31241-100000@zorg.gw.tislabs.com>
+	by jazzswing.ncsc.mil  with ESMTP id h2OHAclY002017
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 17:10:38 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id h2OHAbKX002008
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2003 17:10:38 GMT
+Date: Mon, 24 Mar 2003 12:13:43 -0500 (EST)
+From: Wayne Salamon <wsalamon@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: policy patches
+In-Reply-To: <200303222314.01287.russell@coker.com.au>
+Message-ID: <Pine.LNX.4.33.0303241207420.20487-100000@vox.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200303241810.43124.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 24 Mar 2003 15:58, Chris Vance wrote:
-> On Mon, 17 Mar 2003, Russell Coker wrote:
-> > Recently the line
-> > allow $2_t console_device_t:chr_file rw_file_perms;
-> > was added to the daemon_sub_domain() macro.  I don't think that this is
-> > desired as the ability to read/write to the console can allow a daemon a
-> > dangerous level of access (maybe offering a trojan login prompt).
+On Sat, 22 Mar 2003, Russell Coker wrote:
+
+> I've attached a patch for the passwd_t policy as previously described.
 >
-> Define recently?  CVS annotate indicates that this change was committed to
-> our internal tree 14-Jun-02 and was subsequently pushed out to sourceforge
-> 03-Jul-02.  Our internal CVS log also indicates that this has always been
-> a part of the daemon_sub_domain() -- which I thought you submitted, our
-> log only says: 'Merge Russell Coker's selinux-small_2002053110-3.diff
-> policy changes.'
 
-You are correct that I originally wrote the daemon_sub_domain() policy.  I 
-think I must have removed that rule from my tree as part of a general cleanup 
-of unwanted rules and forgot about that change.  Then when I noticed that my 
-tree differed from the CVS tree I incorrectly concluded that it was something 
-that had been added to CVS.
+  Thanks for the patch. One comment:
 
-> We can remove this line, but I'm curious how many child domains will break
-> when we do that?
++++ policy/domains/program/initrc.te    2003-03-22 22:12:15.000000000
++0100
+@@ -173,10 +173,12 @@
+ allow initrc_t ttyfile:chr_file relabelfrom;
+ allow initrc_t tty_device_t:chr_file relabelto;
 
-I don't think that any will break.  In my tree only the qmail and Apache 
-policy use that macro, and they both work fine without it.
++ifdef(`rpm.te', `
+ # Create and read /boot/kernel.h.
+ # RedHat systems typically create this file at boot time.
+ allow initrc_t boot_t:lnk_file r_file_perms;
+ file_type_auto_trans(initrc_t, boot_t, boot_runtime_t)
++')
 
-The concept is that a daemon needs access to the console to enable writing 
-critical error messages at boot time.  Actually this should not be, the 
-daemon should instead write to a pipe or a pty so that it never gains any 
-write access to the console device - this requires changes to the 
-distribution startup scripts.  I think that I can do something suitable for 
-Debian to address this, but that still leaves the other distributions.
+ # Delete and re-create /boot/System.map.
+ allow initrc_t boot_t:dir { read getattr write remove_name add_name };
+diff -ru /tmp/policy/domains/program/modutil.te
+policy/domains/program/modutil.te
 
-Anyway the main daemon process needs to write error messages to the console, 
-the daemon_sub_domain() macro is used for other processes that the daemon 
-starts (which do not communicate error conditions directly to the user - they 
-talk to the main process and/or the syslog).
 
-There are still some differences between my tree and the CVS tree however, and 
-it's possible that daemons other than Qmail and Apache use that macro, but I 
-expect that they still won't have any problems from this change.
+We can't use the presence of rpm.te to denote a RedHat system, and this
+approach won't work for the core policy.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Wayne Salamon
+wsalamon@tislabs.com
+
 
 
 --
