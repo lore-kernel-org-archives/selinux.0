@@ -1,43 +1,54 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ABPorT026445
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 07:25:51 -0400 (EDT)
-Received: from web51503.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5ABPmaH002949
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 07:25:48 -0400 (EDT)
-Message-ID: <20040610112544.16694.qmail@web51503.mail.yahoo.com>
-Date: Thu, 10 Jun 2004 04:25:44 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Issue on the security context of inode & filesystem
-To: selinux@tycho.nsa.gov
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ABlwrT026569
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 07:47:58 -0400 (EDT)
+Received: from abyss.simplyaquatics.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5ABltaH003557
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 07:47:56 -0400 (EDT)
+From: "Ed Street" <edstreet@street-tek.com>
+To: <russell@coker.com.au>
+Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
+Subject: RE: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
+Date: Thu, 10 Jun 2004 07:47:41 -0400
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1257014493-1086866744=:14048"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+In-Reply-To: <200406101510.31547.russell@coker.com.au>
+Message-Id: <20040610114741.2796A3A4066@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1257014493-1086866744=:14048
-Content-Type: text/plain; charset=us-ascii
+Hello,
 
-Hi,
-    
-    Would you please tell me what the difference between the security context of inodes within the filesystem and the security context of the filesystem itself is? 
+Then shouldn't it be postfix_etc_t instead of etc_t?
+
+Ed
+
+-----Original Message-----
+From: Russell Coker [mailto:russell@coker.com.au] 
+Sent: Thursday, June 10, 2004 1:11 AM
+To: Ed Street
+Cc: 'Luke Kenneth Casson Leighton'; 'SE-Linux'
+Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't
+working.
+
+On Thu, 10 Jun 2004 12:22, "Ed Street" <edstreet@street-tek.com> wrote:
+> Well why ANY app needs write access to /etc is beyond me.  Also are you
+> using run_init /etc/init.d/foo ?
+
+It's not /etc, it's /var/spool/postfix/etc.  Fortunately LaMont addressed
+this 
+issue in version 1.1.7-5 by making the files not be copied to the chroot if 
+master.cf does not specify any services to be chrooted.
+
  
-Thank you,
-Park Lee
-2004-06-10
 
-		
----------------------------------
-Do you Yahoo!?
-Friends.  Fun. Try the all-new Yahoo! Messenger
---0-1257014493-1086866744=:14048
-Content-Type: text/html; charset=us-ascii
+---
 
-<DIV>Hi,<BR>&nbsp;&nbsp;&nbsp; <BR>&nbsp;&nbsp;&nbsp; Would you please tell me what the difference between the security context of inodes within the filesystem and the security context of the filesystem itself is? </DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Thank you,</DIV>
-<DIV>Park Lee<BR>2004-06-10</DIV><p>
-		<hr size=1><font face=arial size=-1>Do you Yahoo!?<br>Friends.  Fun. <a href="http://messenger.yahoo.com/">Try the all-new Yahoo! Messenger</a>
---0-1257014493-1086866744=:14048--
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.698 / Virus Database: 455 - Release Date: 6/2/2004
+ 
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
