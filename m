@@ -1,48 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h89DroLa029764
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 09:53:51 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h89Drhmw021594
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 13:53:43 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h89EdVLa000198
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 10:39:32 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h89EbnLY018453
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:37:49 GMT
 Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h89Dre9d021571 for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 13:53:42 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Romix" <romix@php.cd>, <selinux@tycho.nsa.gov>
+	by jazzswing.ncsc.mil  with ESMTP id h89EblsG018448
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:37:48 GMT
+Date: Wed, 10 Sep 2003 00:39:11 +1000
+From: Faye Coker <faye@lurking-grue.org>
+To: Romix <romix@php.cd>
+Cc: selinux@tycho.nsa.gov
 Subject: Re: how to add a user with rights to login via ssh on selinux?
-Date: Tue, 9 Sep 2003 23:53:22 +1000
-References: <006101c376d8$fe52ab30$4200000a@roadwarrior>
+Message-ID: <20030909143911.GA422@lurking-grue.org>
+References: <200309092312.30592.russell@coker.com.au> <006101c376d8$fe52ab30$4200000a@roadwarrior>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <006101c376d8$fe52ab30$4200000a@roadwarrior>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200309092353.22849.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 9 Sep 2003 23:47, Romix wrote:
-> sorry, i posted the wrong line, but sshd was running in the same context:
-> 23618    243 root:sysadm_r:sysadm_chkpwd_t            /usr/sbin/sshd
->
-> so i changed it (i executed "/etc/init.d/sshd start" as root from a local
-> login and not via ssh):
-> 24176    195 root:staff_r:staff_t                     /usr/sbin/sshd
+On Tue, Sep 09, 2003 at 03:47:55PM +0200, Romix wrote:
+ 
+> how do i solve/change this? does someone know a good book/documentation for
+> selinux? all what i found was not really helpful for someone who is new to
+> selinux...
 
-Firstly you should be sysadm_r:sysadm_t when you start daemons.  Secondly you 
-should use "run_init".
+I have started working on documentation covering editing policies in
+more detail.  I've also started working on an SE Linux book.  No ETA at
+this point however :)
 
-Do the following:
-newrole -r sysadm_r
-run_init /etc/init.d/sshd start
-
-Then things should be fine.
-
+faye
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Faye Coker			faye@lurking-grue.org
 
 --
 This message was distributed to subscribers of the selinux mailing list.
