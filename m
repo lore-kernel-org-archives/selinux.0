@@ -1,58 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OELmHa000890
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 10:21:49 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6OEKfFB003975
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 14:20:42 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OEMcHa000907
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 10:22:38 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h6OEMaDW023497
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 14:22:36 GMT
 Received: from prometheus.epoch.ncsc.mil (prometheus.epoch.ncsc.mil [144.51.25.40])
-	by jazzswing.ncsc.mil  with ESMTP id h6OEKfGD003970
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 14:20:41 GMT
+        by jazzband.ncsc.mil  with ESMTP id h6OEMaeN023494 for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 14:22:36 GMT
 Received: from prometheus.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by prometheus.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OELlxH014667
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 10:21:47 -0400
+	by prometheus.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OEMaxH014674
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 10:22:36 -0400
 Received: (from jwcart2@localhost)
-	by prometheus.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h6OELlSF014665
-	for selinux@tycho.nsa.gov; Thu, 24 Jul 2003 10:21:47 -0400
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OEGvHa000855
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 10:16:58 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6OEFoFB003626
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 14:15:50 GMT
+	by prometheus.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h6OEMagl014672
+	for selinux@tycho.nsa.gov; Thu, 24 Jul 2003 10:22:36 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6OEIRHa000869
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 10:18:27 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h6OEIQDW023334
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 14:18:26 GMT
 Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id h6OEFoGD003623
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 14:15:50 GMT
-Date: Thu, 24 Jul 2003 15:16:29 +0100
+        by jazzband.ncsc.mil  with ESMTP id h6OEIQeN023331 for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2003 14:18:26 GMT
+Date: Thu, 24 Jul 2003 15:18:17 +0100
 From: Dale Amon <amon@vnl.com>
 To: Dean Anderson <dean@av8.com>
 Cc: karlm@mit.edu, "Carsten P. Gehrke" <Carsten@rollinghorse.com>,
    Russell Coker <russell@coker.com.au>, Charlie Watts <st_possenti@yahoo.com>,
    selinux@tycho.nsa.gov
 Subject: Re: Linuxfromscratch.org
-Message-ID: <20030724141629.GA13273@vnl.com>
-References: <200307231934.PAA18920@nerd-xing.mit.edu> <Pine.LNX.4.44.0307231746200.22745-100000@vista.av8.net>
+Message-ID: <20030724141817.GB13273@vnl.com>
+References: <200307231934.PAA18920@nerd-xing.mit.edu> <Pine.LNX.4.44.0307231746200.22745-100000@vista.av8.net> <20030724141629.GA13273@vnl.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.LNX.4.44.0307231746200.22745-100000@vista.av8.net>
+In-Reply-To: <20030724141629.GA13273@vnl.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jul 23, 2003 at 06:08:33PM -0400, Dean Anderson wrote:
-> It could very well have been Ken Thompson who did or thought up the
-> original hack.  I never saw a paper (at least I don't recall seeing a
-> paper.) I believe I heard it verbally either from Peter Salus or perhaps
-> at a Usenix many years ago. Peter Salus was employed at the OSF when I was
+Oopps, sorry about the two messages. I thought I'd hit the
+wrong key and lost the first one instead of sending it. I
+need more coffee :-)
 
-My memory says Kernighan at a Usenix, but I read it a
-long time ago. I thought I had a copy of the paper in
-my files but a quick search came up blank.
-
--- 
-------------------------------------------------------
-       IN MY NAME:            Dale Amon, CEO/MD
-  No Mushroom clouds over     Islandone Society
-    London and New York.      www.islandone.org
-------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
