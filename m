@@ -1,77 +1,79 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA19360
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 09:51:19 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA29721
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 14:50:20 GMT
-Received: from entoo.connect.com.au (entoo.connect.com.au [192.189.54.8])
-        by jazzband.ncsc.mil  with ESMTP id OAA29717 for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 14:50:18 GMT
-Date: Thu, 21 Feb 2002 01:39:05 +1100
-From: Ben McGinnes <ben-mcginnes@iname.com>
-To: selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA19435
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 10:00:43 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA18410
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 14:59:43 GMT
+Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
+	by jazzswing.ncsc.mil  with SMTP id OAA18406
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 14:59:42 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A106C52C80@csoc-mail-box.csoconline.com>
+From: "Walker, Jason" <Jason.Walker@csoconline.com>
+To: "'Ben McGinnes'" <ben-mcginnes@iname.com>, selinux@tycho.nsa.gov
 Cc: Flood Randy Capt AFCA/TCAA <randy.flood@scott.af.mil>,
         Lonnie Cumberland <lonnie@outstep.com>
-Subject: Re: ftp long time connection
-Message-ID: <20020221013905.B20971@mail.enternet.com.au>
-References: <1BF4DDD78DDA5D4EB0769BEA7F158E5A011BB229@amcw2ms812.amc.ds.af.mil>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
-In-Reply-To: <1BF4DDD78DDA5D4EB0769BEA7F158E5A011BB229@amcw2ms812.amc.ds.af.mil>; from randy.flood@scott.af.mil on Tue, Feb 19, 2002 at 01:55:17PM -0600
+Subject: RE: ftp long time connection
+Date: Wed, 20 Feb 2002 09:00:42 -0600
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I think that the DNS configuration will affect ftp connections, even if the
+client is trying to FTP to the IP address of the server.  
 
---qlTNgmc+xy1dBmNv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+What they're talking about is the reverse DNS lookup, where the SERVER does
+a reverse lookup on the address of the CLIENT to see who's trying to
+connect, for logging and authentication purposes.  If the Server doesn't
+know the name associated with the Client IP address, it will take some extra
+time before the server gives up and simply logs the client IP address
+instead of hostname.
 
-Flood Randy Capt AFCA/TCAA(randy.flood@scott.af.mil)@Tue, Feb 19, 2002 at 0=
-1:55:17PM -0600:
->=20
+Make sure that the client system is listed in DNS, that the server is using
+the appropriate DNS server, or that the server has a HOSTS file listing the
+client.  From the server, try doing an nslookup against the client IP
+address and see if it correctly returns the client name.
+
+Jason Walker
+Lockheed Martin CSOC
+(281) 218-2569
+
+
+-----Original Message-----
+From: Ben McGinnes [mailto:ben-mcginnes@iname.com]
+Sent: Wednesday, February 20, 2002 8:39 AM
+To: selinux@tycho.nsa.gov
+Cc: Flood Randy Capt AFCA/TCAA; Lonnie Cumberland
+Subject: Re: ftp long time connection
+
+
+Flood Randy Capt AFCA/TCAA(randy.flood@scott.af.mil)@Tue, Feb 19, 2002 at
+01:55:17PM -0600:
+> 
 > Do you have reverse DNS entries for your server and client and is DNS
 > configured correctly?
->=20
+> 
 > If DNS is not set up properly you can get results like that.
 
 True, DNS errors will do that, as others here have pointed out.  The
 original query, however, also mentioned that accessing the host directly
-by its IP was attempted with the same results.  So while there may be some=
-=20
-DNS-related delays as well, it cannot be a complete explanation.  I also=20
-doubt SE Linux is the cause here either since it's a fairly generic kind=20
+by its IP was attempted with the same results.  So while there may be some 
+DNS-related delays as well, it cannot be a complete explanation.  I also 
+doubt SE Linux is the cause here either since it's a fairly generic kind 
 of problem.
 
-I'd try attempting other protocols such as SSH, telnet (if enabled), SMTP=
-=20
-and probably SCP too.  To both hostname and IP address.  See if it is=20
-affecting all protocols or just one or two, also try telnetting to the=20
-machine on port 21 and see exactly what point at which it slows to a crawl=
-=20
+I'd try attempting other protocols such as SSH, telnet (if enabled), SMTP 
+and probably SCP too.  To both hostname and IP address.  See if it is 
+affecting all protocols or just one or two, also try telnetting to the 
+machine on port 21 and see exactly what point at which it slows to a crawl 
 or breaks.
 
-Chances are the cause (and shortly thereafter, the solution) will leap out=
-=20
+Chances are the cause (and shortly thereafter, the solution) will leap out 
 during this process.
 
 
 Regards,
 Ben
-
---qlTNgmc+xy1dBmNv
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8
-
-iQA/AwUBPHO1CDcaxb+gSuMTEQJUZACgllq0PTV2TnjGvwrxYCllU302xVAAmwQP
-LJ++8fyAtr7ItIdEUZC8UB3O
-=mn2A
------END PGP SIGNATURE-----
-
---qlTNgmc+xy1dBmNv--
 
 --
 You have received this message because you are subscribed to the selinux list.
