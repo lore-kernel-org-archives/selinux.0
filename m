@@ -1,113 +1,183 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8NDEVrT008835
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 09:14:31 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8NDERUk015672
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 13:14:29 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Subject: Re: patch: clean up vmware
-Date: Thu, 23 Sep 2004 23:14:25 +1000
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-References: <20040917224956.GA2517@jmh.mhn.de>
-In-Reply-To: <20040917224956.GA2517@jmh.mhn.de>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8NDWprT008957
+	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 09:32:51 -0400 (EDT)
+Message-ID: <4152D07C.9060507@redhat.com>
+Date: Thu, 23 Sep 2004 09:32:44 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_xwsUBWSOD6CQjO5"
-Message-Id: <200409232314.25355.russell@coker.com.au>
+To: jwcart2@epoch.ncsc.mil
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Remove unrestricted_admin
+References: <200409211526.37810.russell@coker.com.au> <1095884528.11254.6.camel@moss-lions.epoch.ncsc.mil>
+In-Reply-To: <1095884528.11254.6.camel@moss-lions.epoch.ncsc.mil>
+Content-Type: multipart/mixed;
+ boundary="------------010901080709080001060509"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---Boundary-00=_xwsUBWSOD6CQjO5
-Content-Type: text/plain;
-  charset="iso-8859-1"
+This is a multi-part message in MIME format.
+--------------010901080709080001060509
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Sat, 18 Sep 2004 08:49, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
-wrote:
-> After reading through the messy vmware policy I decided to clean it up a
-> little. Result is below.
+Remove unrestricted_admin tunable.  This was a bad idea :^(
 
-The changes are so great that patches don't work well.  I've made a few 
-modifications to your policy and attached an archive of it.
+Add modutil for targteted to get relabel to work better.
 
-I think that defining vmware_t is a bad idea.  I think that we want 
-system_vmware_t to be used for vmware sessions launched by the server and 
-have the same base macro used as for user_vmware_t.
 
-Your work is good and is a significant enough improvement to be worth merging 
-now.  But we need to go further to get the full functionality.
+--------------010901080709080001060509
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
 
-Also please keep in mind that some people may want to have multiple VMware 
-sessions isolated from each other which are launched from the same user role.  
-Maybe having two parameters to the vmware_domain() macro is the correct thing 
-to do, one to specify the source role and one part of the name for the target 
-domain.
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/admin.te policy-1.17.20/domains/admin.te
+--- nsapolicy/domains/admin.te	2004-09-09 15:36:12.000000000 -0400
++++ policy-1.17.20/domains/admin.te	2004-09-23 09:29:42.799096131 -0400
+@@ -4,7 +4,6 @@
+ 
+ # sysadm_t is the system administrator domain.
+ type sysadm_t, domain, privlog, privowner, admin, userdomain, web_client_domain, privhome, etc_writer, privmodule, nscd_client_domain
+-ifdef(`unrestricted_admin', `, fs_domain, privmem, sysctl_kernel_writer, auth, auth_write, unrestricted')
+ ifdef(`direct_sysadm_daemon', `, priv_system_role')
+ ; dnl end of sysadm_t type declaration
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/fsadm.te policy-1.17.20/domains/program/fsadm.te
+--- nsapolicy/domains/program/fsadm.te	2004-09-10 10:17:48.000000000 -0400
++++ policy-1.17.20/domains/program/fsadm.te	2004-09-23 09:29:14.470353752 -0400
+@@ -49,12 +49,7 @@
+ 
+ type fsadm_exec_t, file_type, sysadmfile, exec_type;
+ domain_auto_trans(initrc_t, fsadm_exec_t, fsadm_t)
+-ifdef(`unrestricted_admin', `
+-allow sysadm_t fixed_disk_device_t:devfile_class_set rw_file_perms;
+-allow sysadm_t removable_device_t:devfile_class_set rw_file_perms;
+-', `
+ domain_auto_trans(sysadm_t, fsadm_exec_t, fsadm_t)
+-')
+ 
+ tmp_domain(fsadm)
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/admin_macros.te policy-1.17.20/macros/admin_macros.te
+--- nsapolicy/macros/admin_macros.te	2004-09-21 12:51:06.000000000 -0400
++++ policy-1.17.20/macros/admin_macros.te	2004-09-23 09:28:52.371898273 -0400
+@@ -106,14 +106,10 @@
+ # allow setting up tunnels
+ allow $1_t tun_tap_device_t:chr_file rw_file_perms;
+ 
+-ifdef(`unrestricted_admin', `
+-unconfined_domain($1_t) 
+-', `
+ # run ls -l /dev
+ allow $1_t device_t:dir r_dir_perms;
+ allow $1_t { device_t device_type }:{ chr_file blk_file } getattr;
+ allow $1_t ptyfile:chr_file getattr;
+-')
+ 
+ # Run programs from staff home directories.
+ # Not ideal, but typical if users want to login as both sysadm_t or staff_t.
+diff --exclude-from=exclude -N -u -r nsapolicy/targeted/domains/program/modutil.te policy-1.17.20/targeted/domains/program/modutil.te
+--- nsapolicy/targeted/domains/program/modutil.te	1969-12-31 19:00:00.000000000 -0500
++++ policy-1.17.20/targeted/domains/program/modutil.te	2004-09-23 09:26:44.919632619 -0400
+@@ -0,0 +1,17 @@
++#DESC Modutil - Dynamic module utilities
++#
++# Authors:  Stephen Smalley <sds@epoch.ncsc.mil> and Timothy Fraser  
++# X-Debian-Packages: modutils
++#
++
++#################################
++#
++# Rules for the module utility domains.
++#
++type modules_dep_t, file_type, sysadmfile;
++type modules_conf_t, file_type, sysadmfile;
++type modules_object_t, file_type, sysadmfile;
++type depmod_exec_t, file_type, exec_type, sysadmfile;
++type insmod_exec_t, file_type, exec_type, sysadmfile;
++type update_modules_exec_t, file_type, exec_type, sysadmfile;
++
+diff --exclude-from=exclude -N -u -r nsapolicy/tunables/distro.tun policy-1.17.20/tunables/distro.tun
+--- nsapolicy/tunables/distro.tun	2004-09-09 15:36:11.000000000 -0400
++++ policy-1.17.20/tunables/distro.tun	2004-09-23 09:26:44.920632503 -0400
+@@ -5,7 +5,7 @@
+ # appropriate ifdefs.
+ 
+ 
+-dnl define(`distro_redhat')
++define(`distro_redhat')
+ 
+ dnl define(`distro_suse')
+ 
+diff --exclude-from=exclude -N -u -r nsapolicy/tunables/tunable.tun policy-1.17.20/tunables/tunable.tun
+--- nsapolicy/tunables/tunable.tun	2004-09-23 09:26:36.631594339 -0400
++++ policy-1.17.20/tunables/tunable.tun	2004-09-23 09:27:08.175936391 -0400
+@@ -1,51 +1,48 @@
+ # Allow all domains to connect to nscd
+-dnl define(`nscd_all_connect')
++define(`nscd_all_connect')
+ 
+ # Allow users to control network interfaces (also needs USERCTL=true)
+ dnl define(`user_net_control')
+ 
+ # Allow users to execute the mount command
+-dnl define(`user_can_mount')
++define(`user_can_mount')
+ 
+ # Allow rpm to run unconfined.
+-dnl define(`unlimitedRPM')
++define(`unlimitedRPM')
+ 
+ # Allow privileged utilities like hotplug and insmod to run unconfined.
+-dnl define(`unlimitedUtils')
++define(`unlimitedUtils')
+ 
+ # Support NFS home directories
+-dnl define(`nfs_home_dirs')
++define(`nfs_home_dirs')
+ 
+ # Allow users to run games
+-dnl define(`use_games')
++define(`use_games')
+ 
+ # Allow ypbind to run with NIS
+-dnl define(`allow_ypbind')
++define(`allow_ypbind')
+ 
+ # Allow rc scripts to run unconfined, including any daemon
+ # started by an rc script that does not have a domain transition
+ # explicitly defined.
+-dnl define(`unlimitedRC')
++define(`unlimitedRC')
+ 
+ # Allow sysadm_t to directly start daemons
+ define(`direct_sysadm_daemon')
+ 
+ # Do not audit things that we know to be broken but which
+ # are not security risks
+-dnl define(`hide_broken_symptoms')
+-
+-# Allow sysadm_t to do almost everything
+-dnl define(`unrestricted_admin')
++define(`hide_broken_symptoms')
+ 
+ # Allow the read/write/create on any NFS file system
+-dnl define(`nfs_export_all_rw')
++define(`nfs_export_all_rw')
+ 
+ # Allow the reading on any NFS file system
+ dnl define(`nfs_export_all_ro')
+ 
+ # Allow user_r to reach sysadm_r via su, sudo, or userhelper.
+ # Otherwise, only staff_r can do so.
+-dnl define(`user_canbe_sysadm')
++define(`user_canbe_sysadm')
+ 
+ # Allow xinetd to run unconfined, including any services it starts
+ # that do not have a domain transition explicitly defined.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_xwsUBWSOD6CQjO5
-Content-Type: application/x-tgz;
-  name="vmware.tgz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="vmware.tgz"
-
-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
-UKBAgQIFChQoUKBA/zv0HyPdV+0AUAAA
-
---Boundary-00=_xwsUBWSOD6CQjO5--
+--------------010901080709080001060509--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
