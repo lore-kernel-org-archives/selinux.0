@@ -1,88 +1,78 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA00443
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2001 13:03:28 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id SAA10381
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2001 18:01:57 GMT
-Received: from ics.com (ics.com [216.112.183.3])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id SAA10375
-	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2001 18:01:57 GMT
-Message-ID: <3A62F4E8.2CC6C8E@ics.com>
-Date: Mon, 15 Jan 2001 08:02:32 -0500
-From: Robert Hartley <rhartley@ics.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00663
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2001 14:18:44 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id TAA25672
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2001 19:18:06 GMT
+Received: from og.latency.net (og.latency.net [209.123.200.27])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id TAA25668
+	for <selinux@tycho.nsa.gov>; Mon, 15 Jan 2001 19:18:06 GMT
+Date: Mon, 15 Jan 2001 14:19:03 -0500
+From: Bennett Todd <bet@rahul.net>
+To: Johnathon Day <jcday@mail.thesportsregister.com>
+Cc: Jan Petranek <jan@petranek.de>, selinux@tycho.nsa.gov
 Subject: Re: Goal / Danger: Attack by malicious root
-References: <01011516091701.13938@linux16>
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <20010115141903.S8565@rahul.net>
+References: <01011516091701.13938@linux16> <Pine.LNX.4.21.0101151209240.18288-100000@mail.thesportsregister.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="mvzZjokS1nTZS3h1"
+In-Reply-To: <Pine.LNX.4.21.0101151209240.18288-100000@mail.thesportsregister.com>; from jcday@mail.thesportsregister.com on Mon, Jan 15, 2001 at 12:53:07PM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Jan,
 
-If we were to play paranoiac for a moment, we would have to assume that the application
-that does the encryption would be compromised by the malicious root, and that even system
-calls could be compromised by using a trace facility.
+--mvzZjokS1nTZS3h1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The only solution would be to either trust in the root users' lack of technical expertise,
-or in their good will.
+2001-01-15-12:53:07 Johnathon Day:
+>    If someone on the SELinux team sees any mistakes in what I'm saying,
+> feel free to correct me.
 
-The alternative is not to allow access to your data using your crypto keys in an execution
-environment you have no real control over.
+I'm not on the selinux team, but I see an assumption you're making
+that needs to be hauled out and examined clearly.
 
-Like Bennett just mentioned while I was typing this, you need assurance you have control
-over the hardware.
+You're assuming that control mechanisms wired into selinux can be
+effective. This is true only as long as the selinux installation
+itself isn't modified or replaced by something else.
 
-Have you considered using something like your own bootable CD, or a Jazz/Zip drive?
+The original poster seemed to be describing a setting where the
+physical hardware on which the OS was running was left exposed in a
+public lab. If that were the case, then no OS protections could
+solve the resulting security problem; before OS design can be of any
+help, the hardware itself must be physically secured enough to
+prevent the attacker from simply replacing it.
 
-Robert
+That's why replies emphasized tricks like rigging a bootable CD to
+carry with you.
 
+>    SELinux, as I understand it, uses mandatory access controls. To me,
+> this implies that NO user, including the superuser, has automatic right
+> of access, except in those specific cases where access is explicitly=20
+> granted. ie: the default is to deny access.
 
-Jan Petranek wrote:
+That's all fine --- as long as selinux is running, and the OS itself
+hasn't been compromised. With physically unprotected hardware, that
+cannot be guaranteed.
 
-> dear guys,
->
-> did You consider the possibility of an malicious root attacks? In most
-> Linuxdistributions, the priviliged user can read & manipulate all of the user's
-> data.
->
-> This is indeed a situation I find myself in today: I am working on a
-> Linux-Machine in the university's computer pool. And I find my own
-> (non-encrypted) home directory far too insecure to put a private key or
-> something like that in here.  This is also from the point of view, that the
-> root-login may be hacked on a campus site like this.
->
-> So to me, there is a need of encrypting the user's data. The question of the
-> key yet remains: A key like a password / passphrase is quite limited in it's
-> length (by the memory of the user). A key on a medium (like a CD-ROM,
-> chipcard etc.) could be longer, but still there is the demand, that it can't be read by
-> somebody else (not even the superuser), when mounted /
-> used by the user.
-> Also, the key medium could compromise the encryption, but that is another
-> problem.
->
-> I'd be quite glad, if you could take this point in consideration,
->
-> JanP
->
-> --
-> You have received this message because you are subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+-Bennett
 
---
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-=  Robert Hartley                 Mail:         201 Broadway        =
-=  Central Region Systems Engineer              Cambridge, MA 02139 =
-=  Integrated Computer            Email:        rhartley@ics.com    =
-=  Solutions, Inc.                Web Site:     www.ics.com         =
-=  Tech Support: support@ics.com  Phone:        800-800-4271        =
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+--mvzZjokS1nTZS3h1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Visit the MotifZone (www.motifzone.org) for info on Motif!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE6Y00mHZWg9mCTffwRAk8xAJ0dZqhYgDNS1UOCHgcR5l5xRRVExACg0prs
+3mTHhJeoX0fndKygLUgoyQc=
+=xzzs
+-----END PGP SIGNATURE-----
 
-
+--mvzZjokS1nTZS3h1--
 
 --
 You have received this message because you are subscribed to the selinux list.
