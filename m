@@ -1,26 +1,23 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3GHLXZ015800
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 11:17:22 -0500 (EST)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3GFt50019418
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 16:16:00 GMT
-Message-ID: <41890486.7020605@redhat.com>
-Date: Wed, 03 Nov 2004 11:17:10 -0500
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3GNrXZ015872
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 11:23:53 -0500 (EST)
+Message-ID: <4189060A.1010003@redhat.com>
+Date: Wed, 03 Nov 2004 11:23:38 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-CC: russell@coker.com.au, jwcart2@epoch.ncsc.mil,
-   SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@epoch.ncsc.mil>
+To: russell@coker.com.au
+CC: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>,
+   Stephen Smalley <sds@epoch.ncsc.mil>
 Subject: Re: Patch to make can_network stronger and remove nscd tunable.
-References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de> <200411030027.28875.russell@coker.com.au> <41879A1B.40103@redhat.com> <200411030248.49998.russell@coker.com.au> <4187AE44.40204@redhat.com> <20041103000707.GD2547@jmh.mhn.de>
-In-Reply-To: <20041103000707.GD2547@jmh.mhn.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de> <200411030248.49998.russell@coker.com.au> <4187AE44.40204@redhat.com> <200411031641.59816.russell@coker.com.au>
+In-Reply-To: <200411031641.59816.russell@coker.com.au>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thomas Bleher wrote:
+Russell Coker wrote:
 
->* Daniel J Walsh <dwalsh@redhat.com> [2004-11-02 18:35]:
+>On Wednesday 03 November 2004 02:56, Daniel J Walsh <dwalsh@redhat.com> wrote:
 >  
 >
 >>Updated with Russell's "daemon" change and other fixes.
@@ -29,203 +26,69 @@ Thomas Bleher wrote:
 >>    
 >>
 >
->First off, it would be nice if you could split your patches into
->logically independant pieces, makes it much easier to read.
+>+can_network($1_login_t) 
+>+allow $1_login_t self:{ tcp_socket udp_socket } connect;
 >
->I think there need to be some changes (comments below) but the
->nfs_home_dirs-related stuff should be merged as soon as possible.
->Currently it is broken in cvs because only some parts have been
->converted from tunable to boolean.
+>local_login_t does not need network access unless you use NIS or similar.  
+>can_ypbind() may be appropriate, but no other rules for network access for 
+>$1_login_t.
+>
+>Your patch is allowing many domains access to { tcp_socket udp_socket } 
+>connect which have no need for network connections other than ypbind.  It's 
+>probably best to just add this to can_ypbind and not add it to ANY daemon 
+>policy except for daemons which obviously need it.  Otherwise this change 
+>will make the policy weaker overall by explicitely adding permissions where 
+>they are not needed.  If we don't have the time to do this properly right now 
+>then we should leave can_network as it is until we have more time to work on 
+>it.
 >
 >  
 >
-Point taken.
+Not true.  pam_kerberos, pam_ldap require network access.  login already 
+has can_ypbind, which
+used to be turned on by default.  Now there is a boolean to turn it off. 
+and it is off by default, because it
+gives too many privs.  The problem is that these other protocols are 
+also allowed/required.   So this policy
+is actually  tighter since the allow_ypbind is now off.
 
->>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/crond.te policy-1.17.37/domains/program/crond.te
->>--- nsapolicy/domains/program/crond.te	2004-10-19 16:03:04.000000000 -0400
->>+++ policy-1.17.37/domains/program/crond.te	2004-11-02 10:30:33.000000000 -0500
->>@@ -114,6 +114,10 @@
->>+allow crond_t krb5_conf_t:file { getattr read };
->>+dontaudit crond_t krb5_conf_t:file { write };
->>    
->>
+>Probably the best thing to do is to merge a patch that doesn't allow such 
+>access to any daemon apart from the most obvious cases (EG allowing a mail 
+>server to make TCP connections).  Things will work for the binary policy in 
+>Fedora as NIS support is enabled.  Then we can spend the next couple of 
+>months testing out all the daemons and submitting patches for exactly the 
+>connection access that is required.
 >
->If we are going to add this to more domains we should add a macro IMHO
->like can_krb5_connect() or something. I do not know much about kerberos,
->but I think most kerberized apps will need similar permissions which
->should only be granted if kerberos is used.
+>
+>+mount_domain(sysadm, mount, `, fs_domain, nscd_client_domain')
+>
+>What does mount do that requires nscd access?
 >
 >  
 >
-I can run through the policy code an do this.
+NFS Mounts probably.
 
->>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/login.te policy-1.17.37/domains/program/login.te
->>--- nsapolicy/domains/program/login.te	2004-10-19 16:03:05.000000000 -0400
->>+++ policy-1.17.37/domains/program/login.te	2004-11-02 10:30:33.000000000 -0500
->>@@ -21,6 +21,8 @@
->> dontaudit $1_login_t shadow_t:file { getattr read };
->> 
->> general_domain_access($1_login_t);
->>+can_network($1_login_t) 
->>+allow $1_login_t self:{ tcp_socket udp_socket } connect;
->>    
->>
+>Why does user_ssh_t require kill capability?
 >
->Huh? Where does this come from? Cannot see this in the cvs policy. If
->this is needed because of kerberos it should be ifdef'ed.
+>Does dhcpc_t require TCP connection access when there is no NIS?
 >
 >  
 >
-Alot of pam protocols are going to require this kerberos, ldap, NIS 
-(can_ypbind gives us this though).
+Not sure.
 
->>-ifdef(`nfs_home_dirs', `
->>+if (use_nfs_home_dirs) {
->> r_dir_file($1_login_t, nfs_t)
->>-')dnl end if nfs_home_dirs
->>+}
->>    
->>
+>Does innd_t require UDP connection access when there is no NIS?
 >
->This should go into CVS ASAP, as mentioned above.
 >
 >  
 >
->>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/acct.te policy-1.17.37/domains/program/unused/acct.te
->>--- nsapolicy/domains/program/unused/acct.te	2004-10-19 16:03:05.000000000 -0400
->>+++ policy-1.17.37/domains/program/unused/acct.te	2004-11-02 10:30:33.000000000 -0500
->>@@ -63,6 +63,7 @@
->> 
->> ifdef(`logrotate.te', `
->> domain_auto_trans(logrotate_t, acct_exec_t, acct_t)
->>+allow logrotate_t acct_data_t:dir { search };
->> allow logrotate_t acct_data_t:file { create_file_perms };
->>    
->>
->
->allow logrotate_t acct_data_t:dir search;
->allow logrotate_t acct_data_t:file create_file_perms;
->
->This makes it easier to read, IMHO.
->
->  
->
->>--- nsapolicy/domains/program/unused/ftpd.te	2004-10-27 14:32:48.000000000 -0400
->>+++ policy-1.17.37/domains/program/unused/ftpd.te	2004-11-02 10:30:33.000000000 -0500
->>@@ -4,6 +4,7 @@
->> #           Russell Coker <russell@coker.com.au>
->> # X-Debian-Packages: proftpd-common bsd-ftpd ftpd vsftpd
->> #
->>+# Depends: inetd.te
->>    
->>
->
->Not true. There is a boolean ftpd_is_daemon which governs this.
->Current policy needed inetd.te to compile but I think this is an error
->in the policy. The following patch should fix it:
->  
->
-Correct
+Probably not.
 
->--- ftpd.te.orig	2004-11-03 00:37:16.000000000 +0100
->+++ ftpd.te	2004-11-03 00:39:33.000000000 +0100
->@@ -44,8 +44,6 @@
-> rw_dir_create_file(ftpd_t, var_lock_t)
-> allow ftpd_t ftp_port_t:tcp_socket name_bind;
-> can_tcp_connect(userdomain, ftpd_t)
->-# Allows it to check exec privs on daemon
->-allow inetd_t ftpd_exec_t:file x_file_perms;
-> }
-> ifdef(`inetd.te', `
-> if (!ftpd_is_daemon) {
->  
->  
->
->> allow ftpd_t ftp_data_port_t:tcp_socket name_bind;
->>+allow ftpd_t port_t:tcp_socket { name_bind };
->>    
->>
->
->I confess I am not too familiar with ftp, but does it really need to
->bind to arbitrary ports, seems excessive and unneeded (and is not
->granted in current policy as far as I can see)
+>sys_tty_config capability is another thing that should go into 
+>daemon_base_domain(), but as a dontaudit.
 >
 >  
 >
-This is caused by ypbind and should be removed.  can_ypbind now has this.
-
->>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ping.te policy-1.17.37/domains/program/unused/ping.te
->>--- nsapolicy/domains/program/unused/ping.te	2004-06-16 13:33:36.000000000 -0400
->>+++ policy-1.17.37/domains/program/unused/ping.te	2004-11-02 10:30:33.000000000 -0500
->>@@ -55,3 +56,5 @@
->> # it tries to access /var/run
->> dontaudit ping_t var_t:dir search;
->> 
->>+dontaudit ping_t devtty_t:chr_file { read write };
->>+dontaudit ping_t ping_t:capability { sys_tty_config };
->>    
->>
->
->        dontaudit ping_t self:capability sys_tty_config;
->
->is nicer.
->
->  
->
->>diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/mailman.fc policy-1.17.37/file_contexts/program/mailman.fc
->>--- nsapolicy/file_contexts/program/mailman.fc	2004-10-13 22:41:58.000000000 -0400
->>+++ policy-1.17.37/file_contexts/program/mailman.fc	2004-11-02 10:30:33.000000000 -0500
->>    
->>
->[...]
->  
->
->>+/usr/lib/mailman/bin/qrunner  	 -- system_u:object_r:mailman_queue_exec_t
->>+/etc/mailman(/.*)?		   system_u:object_r:mailman_data_t
->>+/var/spool/mailman(/.*)?	   system_u:object_r:mailman_data_t
->>    
->>
->
->Sorry, I do not know mailman at all, so please excuse my ignorance.
->But does mailman really have to write to /etc/mailman, which is
->presumably it's configuration data? This is not nice at all.
->
->  
->
-The problem here is that the administration of the config files is done 
-though cgi scripts, so /etc/mailman
-currently is managable via mailman_cgi_t.  Maybe we need a rewrite of 
-mailman to add a mailman_conf_t or
-some such.  But mailman_cgi_t still needs to manipulate both the 
-mailman_conf_t and mailman_data_t.
-
-Dan
-
->  
->
->>diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/ssh_macros.te policy-1.17.37/macros/program/ssh_macros.te
->>--- nsapolicy/macros/program/ssh_macros.te	2004-10-14 23:25:20.000000000 -0400
->>+++ policy-1.17.37/macros/program/ssh_macros.te	2004-11-02 10:30:33.000000000 -0500
->>@@ -20,20 +20,16 @@
->> undefine(`ssh_domain')
->> ifdef(`ssh.te', `
->> define(`ssh_domain',`
->>-ifdef(`single_userdomain', `
->>-typealias $1_home_t alias $1_home_ssh_t;
->>-typealias $1_t alias $1_ssh_t;
->>-', `
->>    
->>
->
->Ahh, nice to see single_userdomain finally gone.
->
->There were a few other superfluous braces, but the rest looks fine.
->
->Thomas
->
->  
->
-
+Ok.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
