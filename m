@@ -1,61 +1,41 @@
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-2022-jp
-Date: Mon, 29 Sep 2003 03:17:51 +0900
-To: tom@lemuria.org
+Date: Sun, 28 Sep 2003 21:22:51 +0200
+From: Tom <tom@lemuria.org>
+To: WATASE Jumpei <watase@olive.ocn.ne.jp>
 Cc: SELinux@tycho.nsa.gov
-From: watase@olive.ocn.ne.jp (WATASE Jumpei)
 Subject: Re: SELinux in Japan
-In-Reply-To: <20030925202623.B13075@lemuria.org>
-References: <20030925202623.B13075@lemuria.org>
-Message-Id: <20030928181755.2694A2F05@m-kg252p.ocn.ne.jp>
+Message-ID: <20030928212248.A23771@lemuria.org>
+References: <20030925202623.B13075@lemuria.org> <20030928181755.2694A2F05@m-kg252p.ocn.ne.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20030928181755.2694A2F05@m-kg252p.ocn.ne.jp>; from watase@olive.ocn.ne.jp on Mon, Sep 29, 2003 at 03:17:51AM +0900
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi
+On Mon, Sep 29, 2003 at 03:17:51AM +0900, WATASE Jumpei wrote:
+> I suppose, if you cover how to manage SELinux-boxes, and how to hack
+> SELinux policy in your talk, it will be very helpful for Japanese
+> sysadmins and developers, and encourage them to get started.
 
-I'm network security researcher in Japan. I got very interested in
-SELinux, and learned it several months.
+The presentation I answered the CFP with was a bit more of an
+introductory paper, but after hearing how big SELinux is in Japan, I've
+decided to rework parts of it. I will try to cover the bases you
+mention, but keep in mind that I only have 60 min.
 
-Now in Japan, mandatory access control and other security enhancements
-of operating systems attract a great deal of attention as a
-countermeasure for cyber attacks.
-SELinux is also getting widely known, and many people, mainly systems
-integrators, software developers, and system administrators in
-goverments, are interested in it, but a few people got started with it.
 
-Yuichi Nakamura and I wrote and translated several SELinux related
-documents, and provide SELinux information in Japanese language
-on www.selinux.jp, including what is SELinux, what it can and can't,
-and how to install it.
+> I'm not sure I myself can attend the conference, but if you have
+> time and you like, I would like to try to arrange a meeting or 
+> something like a "pizza(beer) party" with SElinux people near Tokyo
+> during your visit.:-)
 
-I suppose, if you cover how to manage SELinux-boxes, and how to hack
-SELinux policy in your talk, it will be very helpful for Japanese
-sysadmins and developers, and encourage them to get started.
+Sure, that sounds interesting. I will be arriving several days early,
+and will probably be in Tokyo the entire week. We should probably move
+that part off-list. :)
 
-I'm not sure I myself can attend the conference, but if you have
-time and you like, I would like to try to arrange a meeting or 
-something like a "pizza(beer) party" with SElinux people near Tokyo
-during your visit.:-)
 
-> I will be giving a presentation about SELinux at the Pacific Security
-> conference in Tokio on November 7th.
-> 
-> The talk will be in English, with japanese translation.
-> 
-> 
-> -- 
-> http://web.lemuria.org/pubkey.html
-> pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
->      Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
-> --
-watase
-
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
