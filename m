@@ -1,32 +1,210 @@
-Message-ID: <4236EA74.2050901@redhat.com>
-Date: Tue, 15 Mar 2005 09:00:20 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2FESwDo029301
+	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 09:28:58 -0500 (EST)
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2FEN6Nq019592
+	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 14:23:06 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j2FEN6PH012923
+	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 09:23:06 -0500
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j2FEN6Y02908
+	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 09:23:06 -0500
+Message-ID: <4236EF2E.8090104@redhat.com>
+Date: Tue, 15 Mar 2005 09:20:30 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Jim Carter <jwcart2@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Latest patches
-References: <423253FB.6090602@redhat.com> <1110893102.25947.7.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1110893102.25947.7.camel@moss-spartans.epoch.ncsc.mil>
+To: "Fedora SELinux support list for users &amp; developers." <fedora-selinux-list@redhat.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: New policy for yam
+References: <1110671442.7641.15.camel@hampton-pc.rainbolthampton.net>
+In-Reply-To: <1110671442.7641.15.camel@hampton-pc.rainbolthampton.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+David Hampton wrote:
 
->On Fri, 2005-03-11 at 21:29 -0500, Daniel J Walsh wrote:
+>This is written on an FC3 base system using the selinux-policy-strict-
+>sources-1.22.1-2 policy from March 11th.  These are the first policies
+>I've submitted so I'd appreciate any comments on how to write better
+>policies.
+>
+>David
 >  
 >
->>Fixed to Makefile to better handle local.users
->>    
->>
->
->Why is system.users a dependency of $(FCPATH) while local.users is a
->dependency of install?
->
+Why did you create a yam_crond_t?  Why not just transition to yam_t from 
+crond?
+
+Dan
+
 >  
 >
-We don't want to replace local.users on a make reload, since it is admin 
-customizable.
+>------------------------------------------------------------------------
+>
+># yam
+>/etc/yam.conf		--	system_u:object_r:yam_etc_t
+>/usr/bin/yam			system_u:object_r:yam_exec_t
+>/var/yam(/.*)?			system_u:object_r:yam_content_t
+>/var/www/yam(/.*)?		system_u:object_r:yam_content_t
+>  
+>
+>------------------------------------------------------------------------
+>
+># DESC yam - Yum/Apt Mirroring
+>#
+># Author: David Hampton <hampton@employees.org>
+>#
+>
+>
+>#
+># Yam downloads lots of files, indexes them, and makes them available
+># for upload.  Define a type for these file.
+>#
+>type yam_content_t, file_type, sysadmfile, httpdcontent;
+>
+>
+>#
+># Common definitions used by both the command line and the cron
+># invocation of yam.
+>#
+>define(`yam_common',`
+>
+># Update the content being managed by yam.
+>create_dir_file($1_t, yam_content_t)
+>
+># Content can also be on ISO image files.
+>r_dir_file($1_t, iso9660_t)
+>
+># Need to go through /var to get to /var/yam
+># Go through /var/www to get to /var/www/yam
+>allow $1_t var_t:dir { getattr search };
+>allow $1_t httpd_sys_content_t:dir { getattr search };
+>
+># Allow access to locale database,  nsswitch, and mtab
+>read_locale($1_t)
+>allow $1_t etc_t:file { getattr read };
+>allow $1_t etc_runtime_t:file { getattr read };
+>
+># Python seems to need things from various places
+>allow $1_t { bin_t sbin_t }:dir { search getattr };
+>allow $1_t { bin_t sbin_t lib_t usr_t }:file { getattr read };
+>allow $1_t bin_t:lnk_file read;
+>
+># Python works fine without reading /proc/meminfo
+>dontaudit $1_t proc_t:dir search;
+>dontaudit $1_t proc_t:file { getattr read };
+>
+># Yam wants to run rsync, lftp, mount, and a shell.  Allow the latter
+># two here.  Run rsync and lftp in the yam_t context so that we dont
+># have to give any other programs write access to the yam_t files.
+>general_domain_access($1_t)
+>can_exec($1_t, shell_exec_t)
+>can_exec($1_t, rsync_exec_t)
+>can_exec($1_t, bin_t)
+>can_exec($1_t, usr_t) #/usr/share/createrepo/genpkgmetadata.py
+>ifdef(`mount.te', `
+>domain_auto_trans($1_t, mount_exec_t, mount_t)
+>')
+>
+># Rsync and lftp need to network.  They also set files attributes to
+># match whats on the remote server.
+>can_network_client($1_t)
+>allow $1_t self:capability { chown fowner fsetid dac_override };
+>
+># access to sysctl_kernel_t ( proc/sys/kernel/* )
+>read_sysctl($1_t)
+>
+># Programs invoked to build package lists need various permissions.
+># genpkglist creates tmp files in /var/cache/apt/genpkglist
+>allow $1_t var_t:file { getattr read write };
+>allow $1_t var_t:dir read;
+># mktemp
+>allow $1_t urandom_device_t:chr_file read;
+># mv
+>allow $1_t proc_t:lnk_file read;
+>allow $1_t selinux_config_t:dir search;
+>allow $1_t selinux_config_t:file { getattr read };
+>')
+>
+>
+>##########
+>##########
+>
+>#
+># Runnig yam from the command line
+>#
+>application_domain(yam, `, nscd_client_domain')
+>role system_r types yam_t;
+>yam_common(yam)
+>etc_domain(yam)
+>tmp_domain(yam)
+>
+># Terminal access
+>allow yam_t devpts_t:dir search;
+>allow yam_t devtty_t:chr_file { read write };
+>allow yam_t sshd_t:fd use;
+>allow yam_t sysadm_devpts_t:chr_file { getattr ioctl read write };
+>
+># Reading dotfiles...
+>dontaudit yam_t staff_home_dir_t:dir search;		# /root
+>allow yam_t home_root_t:dir search;			# /home
+>allow yam_t user_home_dir_t:dir { getattr search };	# /home/user
+>
+>
+>##########
+>##########
+>
+>#
+># Running yam from cron
+>#
+>application_domain(yam_crond, `, nscd_client_domain')
+>role system_r types yam_crond_t;
+>ifdef(`crond.te', `
+>system_crond_entry(yam_exec_t, yam_crond_t)
+>')
+>
+>yam_common(yam_crond)
+>allow yam_crond_t yam_etc_t:file r_file_perms;
+>file_type_auto_trans(yam_crond_t, tmp_t, yam_tmp_t, `{ file dir }')
+>
+>allow yam_crond_t devtty_t:chr_file { read write };
+>
+># Reading dotfiles...
+># LFTP uses a directory for its dotfiles
+>allow yam_crond_t default_t:dir search;
+>
+># Don't know why init tries to read this.
+>allow initrc_t yam_etc_t:file read;
+>
+>
+>##########
+>##########
+>
+># The whole point of this program is to make updates available on a
+># local web server.  Allow apache access to these files.
+>ifdef(`apache.te', `
+>allow httpd_t yam_content_t:dir { getattr search };
+>allow httpd_t yam_content_t:file { getattr read };
+>allow httpd_t yam_content_t:lnk_file { getattr read };
+>')
+>
+># Mount needs access to the yam directories in order to mount the ISO
+># files on a loobpack file system.
+>ifdef(`mount.te', `
+>allow mount_t yam_content_t:dir mounton;
+>allow mount_t yam_content_t:file { read write };
+>')
+>  
+>
+>------------------------------------------------------------------------
+>
+>--
+>fedora-selinux-list mailing list
+>fedora-selinux-list@redhat.com
+>http://www.redhat.com/mailman/listinfo/fedora-selinux-list
+>
+
 
 -- 
 
