@@ -1,120 +1,36 @@
-Message-ID: <3F9F091C.5090505@urbanrage.com>
-Date: Tue, 28 Oct 2003 18:26:04 -0600
-From: Eric Estabrooks <eric@urbanrage.com>
-MIME-Version: 1.0
-To: SELINUX <SELinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9T5N2Wt005197
+	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 00:23:03 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9T5MjIS013629
+	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 05:22:45 GMT
+Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
+	by jazzswing.ncsc.mil  with ESMTP id h9T5MhDc013626
+	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 05:22:44 GMT
+Message-ID: <000701c39dde$236a85b0$5d38a8c0@lky>
+From: "lky" <lky77@sjtu.edu.cn>
+To: "SELINUX" <SELinux@tycho.nsa.gov>, "Eric Estabrooks" <eric@urbanrage.com>
+References: <003b01c39d8d$5ead9690$5d38a8c0@lky> <3F9F091C.5090505@urbanrage.com>
 Subject: Re: question about 2.6 modules
-References: <003b01c39d8d$5ead9690$5d38a8c0@lky>
-In-Reply-To: <003b01c39d8d$5ead9690$5d38a8c0@lky>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms010309070607050407090601"
+Date: Wed, 29 Oct 2003 13:33:05 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a cryptographically signed message in MIME format.
 
---------------ms010309070607050407090601
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 7bit
+On Wednesday, October 29, 2003 8:26 AM,Eric Estabrooks wrote:
 
-lky wrote:
+> do the modules have .ko instead of .o? the 2.6 kernel modules now need
+> to end in .ko to be automatically loaded, and it is just a name
+> difference. I had this problem with some modules that I had compiled for
+> 2.6 and I just renamed them and depmod'd and they worked fine.
 
-> Hi:
-> I reinstalled my linux system today. I installed the Redhat9.0 first.
-> Then I installed 2.6-based SELinux. In fact I installed two 2.6
-> kernels. One is the maintenance kernel with SELinux disabled and the
-> other with SELinux enabled.Before the installation I installed the new
-> modutils (downloaded from
-> http://www.kernel.org/pub/linux/kernel/people/rusty/modules) for the
-> 2.6 kernel first. And then I modified the /etc/rc.sysinit, just let
-> '/proc/sys/kernel/modprobe' replaced by '/sbin/modprobe'.After that I
-> installed the maintenance kernel first. Everything is ok but when I
-> rebooted the new kernel I found modules such as my network card and
-> loopback device can't be automatically loaded to work yet. Why? The
-> modules should work after installed the new modutils for 2.6 kernel.
-> Have I forgot something?
-> Thanks!
-> lky
-
-
-do the modules have .ko instead of .o? the 2.6 kernel modules now need
-to end in .ko to be automatically loaded, and it is just a name
-difference. I had this problem with some modules that I had compiled for
-2.6 and I just renamed them and depmod'd and they worked fine.
-
-Eric
-
-
---------------ms010309070607050407090601
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJSDCC
-AwIwggJroAMCAQICAwj8yDANBgkqhkiG9w0BAQQFADCBkjELMAkGA1UEBhMCWkExFTATBgNV
-BAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUx
-HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVl
-bWFpbCBSU0EgMjAwMC44LjMwMB4XDTAyMTIzMTE2NTUxNVoXDTAzMTIzMTE2NTUxNVowRDEf
-MB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEhMB8GCSqGSIb3DQEJARYSZXJpY0B1
-cmJhbnJhZ2UuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0+Es9GafbpTC
-9NpHzjd2fIhKCiO8WkhM/QBb7RECTSQNJR0CbhEy+iBVVjm+gdMqiSOfjiQeVIw3YHupNSzj
-nhXa+9bShLToufBTJFrNDvsdCj5k+xGwpKhHUS/pNaxT1W7i5YIjXx1Hq/zYzJBw8JnduIui
-5QpQbF+f3ug6rA6QRo+fyIcB0zuIVG22ri+9XTghSQ0zlx50AaCA5T03HryAkpnBik0YeaQD
-vdI0OPiTpqLS1d1+nm4G/zQJ5BQ1Mb0UlizWK8aEAIpGJkWJ5l/LwvvQK+oylzWgqKt1yV0G
-ubZZ6GRLdb4VM0XKYKbIKUgCg9jtyT3hg55NEkiAuQIDAQABoy8wLTAdBgNVHREEFjAUgRJl
-cmljQHVyYmFucmFnZS5jb20wDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQAa2+mH
-bmYsssINtxgeBbIM5CpQxJQ0plbfrO5s1SNFFFCCcUVuSqrC8MZ0eyG8SR3IRju7JHLImXdx
-Vz9g4yMdRLyAq8D5EMlZlyx+PpB01ZATUQ3vdTKSBGKM9uVlCNJJ9T4/CcpuHgumSn+YRLQd
-vm8w1BlLZlWCNQa9jACEhzCCAwIwggJroAMCAQICAwj8yDANBgkqhkiG9w0BAQQFADCBkjEL
-MAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3du
-MQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYD
-VQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwMB4XDTAyMTIzMTE2NTUxNVoX
-DTAzMTIzMTE2NTUxNVowRDEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEhMB8G
-CSqGSIb3DQEJARYSZXJpY0B1cmJhbnJhZ2UuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
-MIIBCgKCAQEA0+Es9GafbpTC9NpHzjd2fIhKCiO8WkhM/QBb7RECTSQNJR0CbhEy+iBVVjm+
-gdMqiSOfjiQeVIw3YHupNSzjnhXa+9bShLToufBTJFrNDvsdCj5k+xGwpKhHUS/pNaxT1W7i
-5YIjXx1Hq/zYzJBw8JnduIui5QpQbF+f3ug6rA6QRo+fyIcB0zuIVG22ri+9XTghSQ0zlx50
-AaCA5T03HryAkpnBik0YeaQDvdI0OPiTpqLS1d1+nm4G/zQJ5BQ1Mb0UlizWK8aEAIpGJkWJ
-5l/LwvvQK+oylzWgqKt1yV0GubZZ6GRLdb4VM0XKYKbIKUgCg9jtyT3hg55NEkiAuQIDAQAB
-oy8wLTAdBgNVHREEFjAUgRJlcmljQHVyYmFucmFnZS5jb20wDAYDVR0TAQH/BAIwADANBgkq
-hkiG9w0BAQQFAAOBgQAa2+mHbmYsssINtxgeBbIM5CpQxJQ0plbfrO5s1SNFFFCCcUVuSqrC
-8MZ0eyG8SR3IRju7JHLImXdxVz9g4yMdRLyAq8D5EMlZlyx+PpB01ZATUQ3vdTKSBGKM9uVl
-CNJJ9T4/CcpuHgumSn+YRLQdvm8w1BlLZlWCNQa9jACEhzCCAzgwggKhoAMCAQICEGZFcrfM
-dPXPY3ZFhNAukQEwDQYJKoZIhvcNAQEEBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxX
-ZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1
-bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNV
-BAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29u
-YWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0wNDA4MjcyMzU5NTla
-MIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBl
-IFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMx
-KDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAwgZ8wDQYJKoZIhvcN
-AQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7SbngnZ4HF2ogZgpcO40QpimM1Km1wPPrcrvfu
-dG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWaNRqdknWoJ67Ycvm6AvbXsJHeHOmr
-4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFpAgMBAAGjTjBMMCkGA1UdEQQi
-MCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNVHRMBAf8ECDAGAQH/AgEA
-MAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQAxsUtHXfkBceX1U2xdedY9mMAmE2KB
-IqcS+CKV6BtJtyd7BDm6/ObyJOuR+r3sDSo491BVqGz3Da1MG7wD9LXrokefbKIMWI0xQgkR
-bLAaadErErJAXWr5edDqLiXdiuT82w0fnQLzWtvKPPZE6iZph39Ins6ln+eE2MliYq0FxjGC
-A9UwggPRAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIw
-EAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNh
-dGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAC
-Awj8yDAJBgUrDgMCGgUAoIICDzAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3
-DQEJBTEPFw0wMzEwMjkwMDI2MDRaMCMGCSqGSIb3DQEJBDEWBBT5rfuLkGx3e5GXjjWM/5s8
-fQZGNDBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggq
-hkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBqwYJKwYBBAGCNxAEMYGdMIGa
-MIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBl
-IFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMx
-KDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwj8yDCBrQYLKoZI
-hvcNAQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUx
-EjAQBgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZp
-Y2F0ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4z
-MAIDCPzIMA0GCSqGSIb3DQEBAQUABIIBAEtvExE5Co6HD2xBETOWYWaKMiaRVMKRktOdfm+p
-c+E8kWWaoNnnKcvfvEeMMfdoC7OyKU9f3tcu2gYWkIIovl98iF7n9PJaE35wD2Ydm3ue3XuF
-QUGD4QpjErhV9q/mkjD22vbZDGZNxetyaiK0uGlv6c1+UorsmtDg5aZ+n5qMfMfOHjEHjTnZ
-RCBRQC3CMhMVAjM39fzWcrNMEPv7loU0g59pj3x/hgCRKpjg8JDSz7F4zPigU6a1yBBUUp3p
-HMux34KOsL8tzy3i/PR/ZoP+igKRnst2ylriO2P3T2sJU3AQfhSDh2W+J4DEOT79oEexb2yL
-62mG9d+81kTt3TgAAAAAAAA=
---------------ms010309070607050407090601--
+I have all my ordered modules with .ko and I can load them with modprobe from command line.But the modules can't be automatically loaded when I run the associated commands. For example,I have built the vfat filesystem as a module and the system also created the vfat.ko file.But when I reboot the new kernel and run 'mount /dev/hda6 /mnt' it said the kernel don't support vfat filesystem.(/dev/hda6 is a vfat section) However I can run 'modprobe vfat' to load the vfat module.
+I have modified the /etc/rc.sysinit and just let '/proc/sys/kernel/modprobe' replaced by '/sbin/modprobe'. Did it have some problems?
+Thanks!
+lky
 
 
 --
