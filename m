@@ -1,66 +1,38 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8RKsfrT004478
-	for <selinux@tycho.nsa.gov>; Mon, 27 Sep 2004 16:54:41 -0400 (EDT)
-Received: from mailrelay2.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8RKsdii013623
-	for <selinux@tycho.nsa.gov>; Mon, 27 Sep 2004 20:54:40 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Mon, 27 Sep 2004 22:54:38 +0200
-Date: Mon, 27 Sep 2004 22:55:12 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: jwcart2@epoch.ncsc.mil, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Patch for strict policy
-Message-Id: <20040927205512.GA2574@jmh.mhn.de>
-References: <41542FF5.2090502@redhat.com> <1096303384.3234.7.camel@moss-lions.epoch.ncsc.mil> <41584D2F.5020902@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
-In-Reply-To: <41584D2F.5020902@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8SFLfrT008237
+	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 11:21:42 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8SFKauK018146
+	for <selinux@tycho.nsa.gov>; Tue, 28 Sep 2004 15:20:38 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: fuse - how to "mirror" user_t file access rights?
+Date: Wed, 29 Sep 2004 01:21:23 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040927012108.GL28076@lkcl.net>
+In-Reply-To: <20040927012108.GL28076@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200409290121.23628.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 27 Sep 2004 11:21, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> i found the privhome domain thing but russell said "no way!"
+> because privhome allows access to *alll* user domains.
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+file_type_auto_trans($1_t, $1_home_dir_t, $1_home_t)
 
-* Daniel J Walsh <dwalsh@redhat.com> [2004-09-27 21:12]:
-> diff --exclude-from=3Dexclude -N -u -r nsapolicy/domains/misc/screensaver=
-=2Ete policy-1.17.22/domains/misc/screensaver.te
-> --- nsapolicy/domains/misc/screensaver.te	1969-12-31 19:00:00.000000000 -=
-0500
-> +++ policy-1.17.22/domains/misc/screensaver.te	2004-09-27 10:19:13.000000=
-000 -0400
-> @@ -0,0 +1,18 @@
-> +#
-> +# Alias file to stop blow up during policy upgrade, since=20
-> +# screensaver policy is being removed.
+To do this properly we need an attribute that matches all the other file types 
+for the user, I'll work on that later.
 
-How will screensavers be able to authenticate users (think screen lock)
-if this policy is removed? screensavers had the auth_chkpwd attribute to
-do this; I do not think that we should grant this capability to user_t.
-
-Thomas
-
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-
---4Ckj6UjgE2iN1+kY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBWH4wxWIrrrL0q+cRAg3MAJ9EUQ5L75AhhxeVIAx85vxkZunlRgCfemD4
-9as2TyGUtgf5Mj+tnEvAIEs=
-=e+jF
------END PGP SIGNATURE-----
-
---4Ckj6UjgE2iN1+kY--
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
