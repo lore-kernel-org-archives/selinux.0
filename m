@@ -1,43 +1,34 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Kratzer, James R." <JamesK@xetron.com>,
-   "SELinux (E-mail)" <SELinux@tycho.nsa.gov>
-Subject: Re: can't start X window in enforce mode
-Date: Fri, 17 Oct 2003 01:57:31 +1000
-References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A54@s3cin>
-In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A54@s3cin>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200310170157.31721.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9GG2cWt003930
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 12:02:38 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9GG2T0p027372
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 16:02:29 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id h9GG2Sr7027365
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 16:02:28 GMT
+Date: Thu, 16 Oct 2003 17:02:25 +0100
+From: Dale Amon <amon@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: genfscon and /boot
+Message-ID: <20031016160225.GM6726@vnl.com>
+References: <200310162109.25021.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200310162109.25021.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 17 Oct 2003 00:21, Kratzer, James R. wrote:
-> I'm trying to get X-windows to start with enforce set to "1" without any
-> luck.  I have moved the xserver.te file from the domains/program/unused
-> directory to the domains/program directory.  I have changed the dontaudit
-> line to allow as described here in the email below.  Any help would be
-> appreciated.
+On Thu, Oct 16, 2003 at 09:09:25PM +1000, Russell Coker wrote:
+> The Sun/Cobalt people are aware of this issue and it will hopefully be 
+> resolved soon, but we still want a solution to this as probably not all 
+> hardware will get the bugs fixed soon enough.  Also some people who own 
+> Cobalt hardware may not desire a ROM upgrade.
 
-We really can't help until you provide more information.
-
-When you have the dontaudit rules removed, what avc messages are logged when 
-you try to run the X server?
-
-What messages does the X server log to syslog?
-
-What messages does it display on the terminal?
-
-How are you running the X server?  Do you type "startx" after logging in or do 
-you use an XDM program?
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+I haven't worked with one for two years, but I seem to remember
+it is possible to upgrade the boot room yourself. Or it may be
+a parity error in my memory banks... :-)
 
 
 --
