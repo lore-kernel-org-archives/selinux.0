@@ -1,49 +1,106 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2MNcVx6027957
-	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 18:38:31 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h2MNZ1lY021604
-	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 23:35:01 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h2MNYwKX021601
-	for <selinux@tycho.nsa.gov>; Sat, 22 Mar 2003 23:34:59 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Kurt Roeckx <Q@ping.be>, selinux@tycho.nsa.gov
-Subject: Re: ping problems.
-Date: Sun, 23 Mar 2003 00:38:17 +0100
-References: <20030322204530.GA20526@ping.be>
-In-Reply-To: <20030322204530.GA20526@ping.be>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: patch makefiles
+Date: Sun, 23 Mar 2003 18:00:39 +0100
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200303230038.17087.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_3LO759R74T0USSDZAEHP"
+Message-Id: <200303231800.39827.carstengrohmann@gmx.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 22 Mar 2003 21:45, Kurt Roeckx wrote:
-> avc:  denied  { ioctl } for  pid=1641 exe=/bin/ping6
-> path=socket:[8429] dev=00:00 ino=8429
-> scontext=kurt:sysadm_r:ping_t tcontext=kurt:sysadm_r:ping_t
-> tclass=rawip_socket
 
-If the following rule is added:
-allow ping_t self:rawip_socket create_socket_perms;
+--------------Boundary-00=_3LO759R74T0USSDZAEHP
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Then it'll add the ioctl access, plus the following:
-getattr setattr append connect shutdown
+Hi,
 
-I think that those 5 accesses are ok and using the macro allows a simpler rule 
-which is a benefit.
+last days I create new rpm files for SuSE 8.1 with the selinux version=20
+published in January. (This time I don't publish the new rpm's on my page=
+=2E=20
+I hope I can publish the packages in the first week of April.)
+Thereby I add in a lot of makefile $(PREFIX), $(INCDIR) and so on. With t=
+his=20
+changes it is simple to create packages from the source.
+The attached patch (against the current cvs) contains this changes.
 
-I've added the ioctl to my tree for the moment, I'll probably change to the 
-macro later.
+Carsten
+--------------Boundary-00=_3LO759R74T0USSDZAEHP
+Content-Type: text/x-makefile;
+  charset="us-ascii";
+  name="makefile.diff.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="makefile.diff.gz"
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+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
+sbzVGqo9AAA=
+
+--------------Boundary-00=_3LO759R74T0USSDZAEHP--
 
 
 --
