@@ -1,55 +1,39 @@
-Subject: Re: How about future of MLS?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Wu Yanjun <yanjunwu@sonata.iscas.ac.cn>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <200309091050.57371.yanjunwu@sonata.iscas.ac.cn>
-References: <200309080810.12991.yanjunwu@sonata.iscas.ac.cn>
-	 <1063023949.8041.42.camel@moss-spartans.epoch.ncsc.mil>
-	 <200309091050.57371.yanjunwu@sonata.iscas.ac.cn>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h89ItOLa002457
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:55:24 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h89ItNmw021607
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 18:55:23 GMT
+Received: from smtp4.na.baesystems.com (smtp4.na.baesystems.com [63.164.202.13])
+        by jazzband.ncsc.mil  with ESMTP id h89ItN9d021604 for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 18:55:23 GMT
+Received: from BLUMS0022.bluelnk.net ([10.40.96.145])
+	by smtp4.na.baesystems.com (8.12.5/8.12.5) with SMTP id h89ItMcT020333
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:55:22 -0400 (EDT)
+Received: from u02r01.usa02.na.baesystems.com (u02r01.usa02.na.baesystems.com [129.86.15.109])
+	by smtp1.na.baesystems.com (8.12.5/8.12.5) with ESMTP id h89ItLc9026543
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:55:21 -0400 (EDT)
+Message-ID: <93DA0219FE13D511889F00508BCFEB900D756933@u02m02.usa02.na.baesystems.com>
+From: "Miner, Jonathan W" <jonathan.w.miner@baesystems.com>
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: NISPOM Chaper 8 Requirements
+Date: Tue, 9 Sep 2003 14:55:20 -0400 
+MIME-Version: 1.0
 Content-Type: text/plain
-Message-Id: <1063129289.8041.613.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 09 Sep 2003 13:41:29 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-09-08 at 22:50, Wu Yanjun wrote:
-> Though I subscribed SELinux maillist nearly one year, I am really a newbie on 
-> security field. So correct me if I am wrong. 
-> I just learned BLP model and read SELinux codes that implements MLS.  It seems 
-> SELinux use the same MLS context for both subject and object. And the context 
-> contains two levels, say high and low. I can understand why a subject binds 
-> two levels, but I'm confused why objects also have high and low levels. Is 
-> there any senerio we could make use of them two for an object? 
+Hello -
 
-The MLS model was described in the Final Report and Formal Top-Level
-Specification available from http://www.cs.utah.edu/flux/flask.  An
-object may serve as a proxy for a subject, e.g. sockets and network
-devices, or may represent the private state of a subject, e.g. memory,
-or may act as a communication channel between multilevel subjects, so
-that it may be useful to assign it two levels.
+I'm looking to deploy a number of Linux systems, that need to meet the
+requirements of NISPOM Chapter 8.  To make a long story short... there is no
+one who can tell me exactly what to do, or suggest 3rd party tools that can
+be used.
 
-> Also I am interested in what aspects your excellent team plan to enhance the 
-> MLS policy component. I hope I could do something for its improvement.
+I have started to look around the SELinux site, and want to know from others
+who are using SELinux if it meets Chapter 8 requirements.  The primary
+features revolve around audit trails, and automated account lockout.
 
-There is some debate about whether the decoupling of the MLS and TE
-policies (described in the reports mentioned above) in Flask was a good
-idea.  So one option would be to reintegrate them, with the ability to
-specify separate TE access vectors for each MLS relation, in order to
-better support least privilege for trusted subjects.
-
-Regardless of whether this approach is taken, the MLS configuration
-requires further work to correctly map each SELinux permission to the
-corresponding set of MLS base permissions (information flows), and the
-TE configuration requires further work to identify domains that need to
-act as trusted subjects.  Polyinstantiated / multi-level directory
-support will be needed to support userspace, and a program for selecting
-the current level will be needed.
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Thanks in advance. 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
