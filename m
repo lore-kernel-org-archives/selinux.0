@@ -1,44 +1,34 @@
-Date: Wed, 10 Oct 2001 08:26:09 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Frank Mayer <mayerf@tresys.com>
-cc: <SELinux@tycho.nsa.gov>
-Subject: Re: Security policy analysis
-In-Reply-To: <ACEHIKGIGFEDAIKEMMMIAEMOJPAA.mayerf@tresys.com>
-Message-ID: <Pine.GSO.4.33.0110100814260.25153-100000@raven>
+From: "Carl Carpenter" <ccarpenter@hillcountry.org>
+To: "SELinux" <SELinux@tycho.nsa.gov>
+Subject: Problems with eth0
+Date: Wed, 10 Oct 2001 09:06:04 -0500
+Message-ID: <DIECIJMLKGOOCPBJIBKJAELJCEAA.ccarpenter@hillcountry.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I have discovered how SELinux provides such terrific security--it doesn't
+load the eth0 drivers, thereby keeping the server off the network.
+Seriously, I have a problem when running the SELinux kernel in that the eth0
+module can't be found during bootup (modprobe:  can't locate module eth0).
+I'm running 2.4.10-lsm on RH 7.1 (I386).  It works fine in normal mode.  I
+followed the install instructions step-for-step, selecting the preferred
+method of building the SELinux module as part of the kernel.  If I got any
+error messages, I didn't see them with all the other messages on the screen.
+I'm fairly new to Linux, so this may be an easy fix, but it's beyond me at
+the moment.  Thanks in advance for any help.
 
-On Tue, 9 Oct 2001, Frank Mayer wrote:
+Carl Carpenter
+IT Manager
+Hill Country Community MHMR Center
+"Hiroshima 1945, Chernobyl 1986, Windows 2000"
 
-> We also find ourselves incrementally building tools to analyze policy.conf
-> files (e.g., show all types with a given attribute, show all rules that
-> involve a given type/attribute).  Essentially to help reverse engineer and
-> analyze the intent of a given policy.  We have some capabilities built, and
-> are writing additional ones as time and need allow (essentially by borrowing
-> the lex/yacc source from checkpolicy, and building our own policy database
-> and analysis logic).  Is anyone else building similar tools?  We'd be happy
-> to share our source incrementally with members of the list as we build new
-> capabilities if anyone is interested.
-
-Some people at MITRE have been working on similar policy analysis tools.
-Originally, they were creating these tools separately from checkpolicy
-but drawing from the checkpolicy sources. However, I recommended that they
-instead look into merging the support for new kinds of queries directly
-into the existing checkpolicy debugging facility (the -d option) and
-possibly replacing the checkpolicy debugging interface with an
-interactive query interface.  I'm not sure how far along they are,
-but you should certainly coordinate.
-
-We're interested in the capabilities that you've developed.  Can we
-acquire a copy?
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.285 / Virus Database: 151 - Release Date: 10/5/2001
 
 
 
