@@ -1,34 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7CEDKrT016873
-	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 10:13:20 -0400 (EDT)
-Received: from nox.lemuria.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7CECgQo014252
-	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 14:12:43 GMT
-Date: Thu, 12 Aug 2004 16:13:13 +0200
-From: Tom <tom@lemuria.org>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Lemuria Mirror
-Message-ID: <20040812161313.B6569@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7CGnqrT018189
+	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 12:49:52 -0400 (EDT)
+Received: from web51507.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i7CGnpBo015396
+	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 16:49:51 GMT
+Message-ID: <20040812164944.64756.qmail@web51507.mail.yahoo.com>
+Date: Thu, 12 Aug 2004 09:49:44 -0700 (PDT)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Re: net_contexts
+To: russell@coker.com.au
+Cc: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1295492449-1092329384=:61812"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Just a short announcement:
+--0-1295492449-1092329384=:61812
+Content-Type: text/plain; charset=us-ascii
 
-For at least several days now, I haven't been able to sync with the
-verbum.org distribution site. So if you are using the lemuria.org
-mirror to pull your Debian SELinux packages, note that those from
-verbum.org (selinux uml packages only, I think) may be outdated.
+Mon, 9 Aug 2004 18:09.  Russell Coker wrote:
+ 
+>Some parts of the file are order sensitive, net_contexts is one of them.
+ 
+Then, would you please tell us what others are?
+Thanks.
+ 
+Park Lee
+ 
 
+		
+---------------------------------
+Do you Yahoo!?
+Yahoo! Mail - Helps protect you from nasty viruses.
+--0-1295492449-1092329384=:61812
+Content-Type: text/html; charset=us-ascii
 
-Does anyone know about the state of verbum.org? Is it coming back or
-should I remove it?
-
--- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+<DIV>Mon, 9 Aug 2004 18:09. &nbsp;Russell Coker wrote:</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&gt;Some parts of the file are order sensitive, net_contexts is one of them.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Then, would you please tell us what others are?</DIV>
+<DIV>Thanks.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Park Lee</DIV>
+<DIV>&nbsp;</DIV><p>
+		<hr size=1>Do you Yahoo!?<br>
+<a href="http://us.rd.yahoo.com/mail_us/taglines/virus/*http://promotions.yahoo.com/new_mail/static/protection.html">Yahoo! Mail</a> - Helps protect you from nasty viruses.
+--0-1295492449-1092329384=:61812--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
