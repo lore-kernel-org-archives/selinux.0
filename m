@@ -1,50 +1,42 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5BNQOrT008014
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 19:26:27 -0400 (EDT)
-Received: from ms-smtp-01.rdc-kc.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5BNQJP2009875
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 19:26:19 -0400 (EDT)
-Received: from sasami.localdomain (CPE-24-31-241-155.kc.rr.com [24.31.241.155])
-	by ms-smtp-01.rdc-kc.rr.com (8.12.10/8.12.7) with ESMTP id i5BNQKBm027162
-	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 18:26:20 -0500 (CDT)
-Received: from yggdrasil.localdomain ([192.168.0.2])
-	by sasami.localdomain with esmtp (Exim 4.34)
-	id 1BYvPZ-000191-SN
-	for selinux@tycho.nsa.gov; Fri, 11 Jun 2004 18:26:13 -0500
-Received: from adric by yggdrasil.localdomain with local (Exim 4.34)
-	id 1BYvPZ-0002cV-P4
-	for selinux@tycho.nsa.gov; Fri, 11 Jun 2004 18:26:13 -0500
-Date: Fri, 11 Jun 2004 18:26:13 -0500
-From: Greg Norris <haphazard@kc.rr.com>
-To: selinux@tycho.nsa.gov
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5C2BhrT008543
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 22:11:44 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5C2Bd1j000409
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jun 2004 22:11:40 -0400 (EDT)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 Subject: Re: SELinux on Debian (Sid)
-Message-ID: <20040611232613.GA10019@yggdrasil.localdomain>
-References: <20040609144404.GJ5477@philips.com> <20040610120344.GM5477@philips.com> <20040610215418.GR2861@lkcl.net> <200406111413.40262.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406111413.40262.russell@coker.com.au>
+Date: Sat, 12 Jun 2004 12:11:32 +1000
+Cc: selinux@tycho.nsa.gov
+References: <20040609144404.GJ5477@philips.com> <200406111413.40262.russell@coker.com.au> <20040611204001.GE2861@lkcl.net>
+In-Reply-To: <20040611204001.GE2861@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200406121211.32316.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 11, 2004 at 02:13:40PM +1000, Russell Coker wrote:
-> 1.12-2 has been out for a while, and yesterday I uploaded 1.12-3 which fixes 
-> some issues discussed in this thread.
+On Sat, 12 Jun 2004 06:40, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > Why do you need a patched bsdutils?
+>
+>  uhm, i don't, as i said it was part of my desperation "try it and
+>  see" policy two weeks ago and hey, it seems to work, so it ain't
+>  broke os i'm leaving it there unless you believe that i really
+>  shouldn't?
 
-Speaking of which, I'm trying to install this version (new install) on
-one of my Debian sid systems.  It gets through all of the interactive
-policy prompting OK, but then croaks with the following messages:
+Did you compile it or did someone else?  Where did the patch come from?
 
-   /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-   domains/user.te:42:ERROR 'unknown type user_xserver_tmp_t' at token ';' on line 21459:
-   #line 42
-   allow user_uml_t user_xserver_tmp_t:sock_file { write };
-   /usr/bin/checkpolicy:  error(s) encountered while parsing configuration
-   make: *** [/etc/security/selinux/policy.17] Error 1
+I would like to know what this bsdutils patch does...
 
-Any idea what I need to fix here?  I've tried to sort it out myself,
-but am still finding it somewhat difficult to follow...
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-Thanx!
 
 --
 This message was distributed to subscribers of the selinux mailing list.
