@@ -1,51 +1,113 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14274
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 12:52:34 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA15074
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 14:55:17 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA03132
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 16:52:16 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id QAA03128
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 16:52:14 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Robert Hartley <rhartley@ics.com>, selinux@tycho.nsa.gov
-Subject: Re: What is the story on patents and SELinux?
-Date: Fri, 14 Jun 2002 18:52:05 +0200
+	by jazzswing.ncsc.mil  with ESMTP id SAA09896
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 18:54:59 GMT
+Received: from smtp.comcast.net (smtp.comcast.net [24.153.64.2])
+	by jazzswing.ncsc.mil  with ESMTP id SAA09890
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2002 18:54:59 GMT
+Received: from cpcug.org
+ (pcp01712074pcs.nrockv01.md.comcast.net [68.48.115.127])
+ by mtaout02.icomcast.net
+ (iPlanet Messaging Server 5.1 HotFix 0.8 (built May 13 2002))
+ with ESMTP id <0GXP00FYZLW1RB@mtaout02.icomcast.net> for
+ selinux@tycho.nsa.gov; Fri, 14 Jun 2002 14:55:13 -0400 (EDT)
+Date: Fri, 14 Jun 2002 14:55:13 -0400
+From: James Griffin <agriffin@cpcug.org>
+Subject: Going OT (was Re: What is the story on patents and SELinux?)
+To: Robert Hartley <rhartley@ics.com>
+Cc: selinux@tycho.nsa.gov
+Reply-to: agriffin@cpcug.org
+Message-id: <3D0A3C11.D445DF46@cpcug.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
 References: <3D098B97.7030903@evoworks.evoserve.com> <3D09F65D.151442E4@ics.com>
-In-Reply-To: <3D09F65D.151442E4@ics.com>
-MIME-Version: 1.0
-Message-Id: <20020614165205.E804676C9@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 14 Jun 2002 15:57, Robert Hartley wrote:
+Robert Hartley wrote:
+> 
 > Can code be freed by the GPL, but still tied up in patent stuff?
->
+> 
 > I guess everyone saw this article referenced on slashdot:
 > http://lwn.net/Articles/2376/
->
+> 
 > (Sorry if I missed previous posts on the subject.)
->
+> 
 > While working on Eclipse for an IBM partner, I was warned that anything we
-> release into the open source community causes us to relinquish all rights
-> to it, so we had to be careful not to let out, even accidently, any code or
-> other proprietary information lest we lose all claims over it due to the
-> wording of the GPL.
+> release into the open source community causes us to relinquish all rights to it,
+> so we had to be careful not to let out, even accidently, any code or other
+> proprietary information lest we lose all claims over it due to the wording of the
+> GPL.
+> 
+Robert,
 
-Any patent rights that the NSA had were given away by the GPL release.
+It sounds like you were seriously misinformed.  Whoever told you what
+you describe above was (and probably still is) incorrect.
 
-If the NSA release is determined to be in breach of their contract with 
-secure computing then it would have to be withdrawn.  Now we are still 
-waiting to hear about what the contract allowed.
+First, phrases such as "relinquish all rights" imply the placing of
+"intellectual property" into the "Public Domain".  In doing so, the
+owner of the intellectual property (the copyright holder) is
+surrendering "all claims over it".
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Second, the "open source community", to the extent that such a thing
+exists and is legally defined, has many different licenses that creators
+of intellectual property can use to define their rights with respect to
+their property.  For example, BSD and BSD-like, GPL, Apache, and others.
+
+Third, the underpinning for such licenses is the Copyright law which
+provides the legal basis for the concept of "ownership" for so-called
+"intellectual property" (as contrasted, for example, with real estate
+(property)).
+
+Fourth, by failing to include a copyright notice in your work, you may
+allow it to slip into the Public Domain. (Check with a competent lawyer
+for your jurisdiction.)
+
+When you create a copyrightable work (not everything is copyrightable),
+you, as the creator, have certain rights under the law (copyright law). 
+The copyright holder (the owner, you - in this paragraph) can make your
+work available to others for their use subject to terms and conditions
+specified by you in the form of a license.  You get to determine the
+terms and conditions; you might even choose to apply an already written
+license to your work.  You can even make your work available to
+different groups or for different uses under different terms and
+conditions.  Note that when you make your work available under license,
+you are not transferring ownership.  Your work is still your work and
+any unauthorized use is most likely to be unlawful.  One thing you can
+do with your work is to transfer ownership (of the copyright) to another
+party.
+
+There is much confusion about Open Source Licenses.  Some of this
+confusion has been generated by inaccurate characterizations of GPL by
+senior executives of Microsoft(R), a convicted abusive monopolist whose
+conviction was unanimously upheld on appeal.
+
+I would encourage members of this list to do a little home work of their
+own rather than relying on what they hear (or read in newsgroups).
+
+Check out some of the following.  In particular do a search for papers
+by Professor Eben Moglen, Columbia University Law School.  If you work
+for an organization with its own in-house legal staff, ask to see their
+Law Dictionary.
+
+The Open Source Definition
+   http://www.opensource.org/docs/definition.html
+The GNU General Public License [and other GNU license information]
+   http://www.fsf.org/licenses/licenses.html
+Frequently Asked Questions about the GNU GPL
+   http://www.fsf.org/licenses/gpl-faq.html
+Why the FSF gets copyright assignments from contributors
+   http://www.fsf.org/licenses/why-assign.html
+
+Please do not blindly accept what I have written.  Check the facts for
+yourself.
+
+Regards,
+Jim
+
+> Robert
 
 --
 You have received this message because you are subscribed to the selinux list.
