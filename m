@@ -1,86 +1,62 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5P3sV3E027180
-	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2003 23:54:31 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h5P3sU5e014051
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 03:54:30 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h5P3sS92014048 for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 03:54:29 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Colin Walters <walters@verbum.org>, selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5P49I3E027251
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 00:09:19 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h5P48Uss029126
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 04:08:30 GMT
+Received: from monk.verbum.org (mx-outgoing.verbum.org [216.226.142.159])
+	by jazzswing.ncsc.mil  with ESMTP id h5P48UhY029123
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2003 04:08:30 GMT
 Subject: Re: local policy changes, /var/lib access, syslogd
-Date: Wed, 25 Jun 2003 13:54:20 +1000
+From: Colin Walters <walters@verbum.org>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200306251354.20028.russell@coker.com.au>
 References: <1056505792.29159.43.camel@columbia>
-In-Reply-To: <1056505792.29159.43.camel@columbia>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200306251354.20028.russell@coker.com.au>
+	 <200306251354.20028.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1056514151.744.8.camel@columbia>
+Mime-Version: 1.0
+Date: 25 Jun 2003 00:09:11 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 25 Jun 2003 11:49, Colin Walters wrote:
-> in /etc/selinux/domains/misc/local.te.  Is there a more "standard" place
-> for this?
+(I'm going to CC you because this list is so slow)
 
-No.  I personally use domains/misc/custom.te, but it's a local issue.
+On Tue, 2003-06-24 at 23:54, Russell Coker wrote:
 
-We probably should document some suggested names to avoid the possibility of 
-conflicts.
+> We probably should document some suggested names to avoid the possibility of 
+> conflicts.
 
-> Secondly, I'm getting a lot of programs wanting search access to
-> /var/lib (var_lib_t).  At least sshd_t, user_ssh_t, syslogd_t,
-> postfix_master_t, etc.  I added a bunch of dontaudit rules, but I'm
-> wondering if anyone knew why these programs were trying to access
-> /var/lib?
+Yeah, it'd be a good idea, but no big deal.
 
-One way that programs can request search access to a directory is if you do 
-the following:
-cd /var/lib ; ssh foo
+> One way that programs can request search access to a directory is if you do 
+> the following:
+> cd /var/lib ; ssh foo
 
-For ssh this is a very common issue.  I guess we could set things up such that 
-a program in a user_whatever_t domain gets allow (or dontaudit) for search 
-access to every type of directory that user_t has access to.  But that may 
-permit undesired access.
+No, I'm not doing anything like that.
 
-Is sshd configured to have a privsep directory under /var/lib?
+> Is sshd configured to have a privsep directory under /var/lib?
 
-I suspect that postfix_master_t is trying to copy files around to setup a 
-chroot environment.  For my machines I configure postfix to not use chroot.  
-Chroot does not restrict postfix as much as SE Linux does and requires that 
-Postfix be given access that I don't want to permit.
+I don't have any privsep stuff in my sshd config, no.
 
-I would like to know more about what syslogd is doing.
+> I suspect that postfix_master_t is trying to copy files around to setup a 
+> chroot environment.  For my machines I configure postfix to not use chroot.
 
-> Finally, I also get a number of denials from syslogd attempting to
-> access /dev/xconsole:
->
-> avc:  denied  { read write } for  pid=162 exe=/sbin/syslogd
-> path=/dev/xconsole dev=03:01 ino=2310191
-> scontext=system_u:system_r:syslogd_t tcontext=system_u:object_r:device_t
-> tclass=fifo_file
->
-> I don't plan to use X on this machine, so I could just add a dontaudit I
-> suppose, but I'm curious why this isn't the default.
+I did that as well on the advice of weasel (from #selinux irc).  But I
+still get that message.  
 
-/dev/xconsole is not inherantly related to X.  It is a named pipe that syslogd 
-logs to, and it can be used by X or other programs to display the logs.
+Also, since this occurs for so many programs, I suspect something lower
+level is doing it, like glibc maybe?
 
-You can use /dev/xconsole without using X, or you can use X without 
-/dev/xconsole (as I do).
+> /dev/xconsole is not inherantly related to X.  
 
-If you run SE Linux on an X based workstation then you still probably don't 
-want to permit the users to see the logs.
+Right, I understand that.
 
-The best thing to do (IMHO) is to configure syslogd to not write anything to 
-/dev/xconsole.
+> The best thing to do (IMHO) is to configure syslogd to not write anything to 
+> /dev/xconsole.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Good idea, I've done that.  Thanks!
 
 
 --
