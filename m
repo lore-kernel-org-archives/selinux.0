@@ -1,48 +1,91 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA13758
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 12:42:14 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA12187
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 16:41:02 GMT
-Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
-        by jazzband.ncsc.mil  with SMTP id QAA12181 for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2002 16:41:01 GMT
-Message-ID: <72222DC86846D411ABD300A0C9EB08A10152436B@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'Russell Coker'" <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: RE: newrules
-Date: Thu, 25 Apr 2002 11:42:30 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Firewall Policy - thoughts
+From: Reino Wallin <reino@oribium.com>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: 25 Apr 2002 18:17:07 +0200
+Message-Id: <1019751428.27628.77.camel@matilda.oribium.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-on Thursday, April 25, 2002 11:20 AM, Russell Coker wrote:
+Besides to provide a Makefile for easy setup, the next step in my work
+with the firewall policy will be to refine the rules for interfaces and
+nodes.
 
-> Also for the newrules.pl, "read" should usually be changed to
-r_file_perms 
-> and "read write" should usually be changed to rw_file_perms.
-> 
-This is where we have a difference of option. I don't use the
-macros a whole lot. I test and retest the rules and behavior 
-of the program I am creating. The newrules.pl will create
-a read and as you stated you should change to r_file_perms.
-This is where I disagree. Why grant extra permission
-such as for r_file_perms { read getattr access lock poll ioctl }
-if a program does not need a permission such as lock, poll and ioctl
-don't grant that permission. As we develop more finer grained access 
-rules program should only be granted the permission they need 
-and nothing else. In security terms only grant what is need.
-For example in getting a security clearance you are only granted
-access to what you need to know.
+At this time my idea is to refine the type enforcement files so they,
+without modification, can be used to set up the most common types, like:
 
-I can go through all the macros and describe many access that 
-are granted, but are needed. 
+	+ LAN/DMZ/Internet
+	+ VPN gateway
+	+ Corporate bastion host
+	+ Home office, LAN/Internet
+	+ A corporate firewall to separate departments
+
+I figure it might be possible to set up the different types of firewalls
+only by editing net_contexts if the type enforcement files are properly
+written. When I know exactly what should be done, I will provide an
+interactive script to do it.
+
+Anyway, below are some examples how it might look like. They are not
+complete, though.
+
+---
+network.te
+
+	type node_admin_t, node_type;
+	type node_dmz_t, node_type;
+	type node_internal_t, node_type;
+	type node_external_t, node_type;
+	type node_extranet_t, node_type;
+	type node_vpn_t, node_type;
+
+	type netif_admin_t, netif_type;
+	type netif_dmz_t, netif_type;
+	type netif_external_t, netif_type;
+	type netif_extranet_t, netif_type;
+	type netif_internal_t, netif_type;
+	type netif_vpn_t, netif_type;
+
+	the analogous metmsg_type as well 
+
+net_contexts
+
+	eth0 system_u:object_r:netif_vpn_t system_u:object_r:netmsg_vpn_t
+	eth1 system_u:object_r:netif_admin_t system_u:object_r:netmsg_admin_t
+	eth2 system_u:object_r:netif_internal_t
+system_u:object_r:netmsg_internal_t
+	eth3 system_u:object_r:netif_dmz_t system_u:object_r:netmsg_dmz_t
+	
+generic.proxy.te
+
+	# Allow the domain to initiate TCP connections 
+	# on certain network interfaces.
+	allow generic_proxy_t netif_dmz_t:tcp_socket { connectto };
+	allow generic_proxy_t netif_external_t:tcp_socket { connectto };
+	allow generic_proxy_t netif_extranet_t:tcp_socket { connectto };
+	allow generic_proxy_t netif_vpn_t:tcp_socket { connectto };
+
+	# Allow the domain to accept TCP connections 
+	# on certain network interfaces.
+	allow generic_proxy_t netif_admin_t:tcp_socket { acceptfrom };
+	allow generic_proxy_t netif_dmz_t:tcp_socket { acceptfrom };
+	allow generic_proxy_t netif_external_t:tcp_socket { acceptfrom };
+	allow generic_proxy_t netif_extranet_t:tcp_socket { acceptfrom };
+	allow generic_proxy_t netif_internal_t:tcp_socket { acceptfrom };
+	allow generic_proxy_t netif_vpn_t:tcp_socket { acceptfrom };
+
+	the analogous metmsg_type as well
+
+	additional rules for the nodes
+
+---
+
+What do you think of this?
+
+Reino
 
 
-Mark
- 
+
 
 --
 You have received this message because you are subscribed to the selinux list.
