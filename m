@@ -1,34 +1,55 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA02911
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 14:12:00 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id TAA24071
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 19:10:34 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA02877
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 14:08:37 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id TAA11292
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 19:08:01 GMT
 Received: from biocserver.BIOC.CWRU.Edu (biocserver.BIOC.CWRU.Edu [129.22.208.36])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id TAA24067
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 19:10:33 GMT
-Date: Wed, 10 Jan 2001 14:15:50 -0500 (EST)
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id TAA11288
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jan 2001 19:08:00 GMT
+Date: Wed, 10 Jan 2001 14:12:41 -0500 (EST)
 From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
-To: Andi Kleen <ak@suse.de>
-cc: "Belmonte, Christopher" <cbelmonte@dit.state.va.us>,
-        "'Johnathon Day'" <jcday@mail.thesportsregister.com>,
-        <selinux@tycho.nsa.gov>
-Subject: Re: SELinux and covert channels
-In-Reply-To: <20010110192931.A3665@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.4.30.0101101414520.31913-100000@biocserver.BIOC.CWRU.Edu>
+To: "Belmonte, Christopher" <cbelmonte@dit.state.va.us>
+cc: <selinux@tycho.nsa.gov>
+Subject: RE: SELinux and covert channels
+In-Reply-To: <A0669F3E0A6B3448A962DC6141E6C7A6144162@mis1>
+Message-ID: <Pine.LNX.4.30.0101101357350.31818-100000@biocserver.BIOC.CWRU.Edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-On Wed, 10 Jan 2001, Andi Kleen wrote:
+On Wed, 10 Jan 2001, Belmonte, Christopher wrote:
 
-> If you want no or at least better controllable covert channels use
-> vmware or simply two different PCs.
+> 	In regards to covert channels, this is what I am referring to
+> (the following is from "A GUIDE TO UNDERSTANDING COVERT CHANNEL
+> ANALYSIS OF TRUSTED SYSTEMS"):
 
-how would this stop them? unless network enforcement is there (local
-enforcement is absent as of yet), this is still a channel to send
-information between two parties who are not authorized to share it.
+i was just reading that document ... :)
+
+links of interest to covert channel analysis:
+
+NCSC-TG-030  VERSION-1
+NATIONAL COMPUTER SECURITY CENTER
+A GUIDE TO UNDERSTANDING COVERT CHANNEL ANALYSIS OF TRUSTED SYSTEMS
+November 1993
+- http://www.radium.ncsc.mil/tpep/library/rainbow/NCSC-TG-030.html
+
+the whole series is available at
+http://www.radium.ncsc.mil/tpep/library/rainbow/ and is worth bookmarking.
+furthermore, the O'Reilly book "Computer Security Basics" may serve as a
+good introduction to trusted operating concepts to many people (it did for
+me!) -- http://www.oreilly.com/catalog/csb/
+
+i hope this info helps.
+
+getting back to the original question, in the absence of *enforcement*,
+SELinux will indeed have the capacity (and probably does have plenty of
+them) for covert channels. only if all of the system is brought in to play
+with the policies and their enforcement, and properly audited, can covert
+channels be eliminated.
+
+at least i think so.
 
 ____________________________
 jose nazario						     jose@cwru.edu
