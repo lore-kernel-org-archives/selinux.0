@@ -1,45 +1,40 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA26025
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 11:53:05 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA26051
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 11:54:33 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA21263
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 16:53:02 GMT
-Received: from biocserver.BIOC.CWRU.Edu (biocserver.BIOC.CWRU.Edu [129.22.208.36])
-	by jazzband.ncsc.mil  with ESMTP id QAA21259
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 16:53:01 GMT
-Date: Fri, 9 Feb 2001 11:58:04 -0500 (EST)
-From: Jose Nazario <jose@biocserver.bioc.cwru.edu>
-To: paul  <paul@bladestorm.com>
-cc: <selinux@tycho.nsa.gov>, Sandy Harris <sandy@storm.ca>
-Subject: Re: Cature the flag (was Re: Selinux kernel patches)
-In-Reply-To: <200102091018.AA709820754@bladestorm.com>
-Message-ID: <Pine.LNX.4.30.0102091156220.27973-100000@biocserver.BIOC.CWRU.Edu>
+	by jazzband.ncsc.mil  with ESMTP id QAA21352
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 16:54:30 GMT
+Received: from listproc.corp.loudcloud.com (olly.loudcloud.com [208.50.142.100])
+	by jazzband.ncsc.mil  with ESMTP id QAA21348
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 16:54:30 GMT
+Received: from loudcloud.com (goat.maude.corp.loudcloud.com [192.168.29.242])
+	by listproc.corp.loudcloud.com (8.10.1/8.10.1) with ESMTP id f19GsVE11259
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 08:54:31 -0800 (PST)
+Message-ID: <3A842131.56C5210@loudcloud.com>
+Date: Fri, 09 Feb 2001 08:56:17 -0800
+From: Daniel Harrison <danielh@loudcloud.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: selinux@tycho.nsa.gov
+Subject: Re: Cature the flag (was Re: Selinux kernel patches)
+References: <200102091033.AA740426066@bladestorm.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-On Fri, 9 Feb 2001, paul  wrote:
+In case some people haven't seen it, there has been a thread on the Vuln-Dev list hosted by securityfocus.com talking about the right and wrong way to do this. Some vendors have been participating in the discussion. I would definitely suggest checking out the archives of that list.
 
-> So what happens when the hackers attack the machines logging packets?
+-dan
 
-usually its configured at layer 2 only, so it's not visible to anyone.
-it's a good NIDS procedure. it's invisible, and also nearly immune to
-attacks. you also use a good IP stack (usually OpenBSD).
+paul wrote:
 
-> Or what if they just decide to take down the router?
-
-which used to happen at DefCon, then they moved to OpenBSD and cut down
-those problems pretty quickly.
-
-these are all good considerations, and considering that you're trying to
-attract the best of the best, wise to keep in mind. but, they've also been
-addressed before.
-
-____________________________
-jose nazario						     jose@cwru.edu
-	      	     PGP: 89 B0 81 DA 5B FD 7E 00  99 C3 B2 CD 48 A0 07 80
-				       PGP key ID 0xFD37F4E5 (pgp.mit.edu)
+> I have always felt that the best way to test a piece of software is the same way that any scientist would test a hypothesis.  The hypothesis here is that the software is secure.  So in order to test that hypothesis you have to have people that test that software for security holes.
+>
+> In my opinion, finishing a piece of software and then inviting the whole planet to try and "hack" it for $200 and a free shirt is just not the best way to approach this.  You will end up with people from all over the planet not only attacking the system but also the network, including other systems on the same wire that are gathering packets, routers, and perhaps even the upstream provider.  Sure, you can say that all these are off limits, but people will simply not care as has been shown by these kind of "tests" over and over and over.
+>
+> What we intend to do at Bladestorm is to integrate all the efforts here into our distribution and conduct a controlled test, where the software is tested by security professionals.  It will be probed and tested thoroughly, we would report our findings, patch, reprobe, and then after that cycle is done we will do a beta.  And the beta would be to put the distribution into environments where the software can be tested.  This way, we can eliminate variables such as routers going down and so forth and really be able to pinpoint holes.
+>
+> Public stunts like this is more like handing 2,000 people a can opener and telling them all to try to be the first to open a can.  You end up with a mess, and a lot of spilled tomato soup.  It's just not worth it from my vantage point.
+>
 
 
 --
