@@ -1,40 +1,46 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i87NnZrT000274
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 19:49:35 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i87Nmgxo005830
-	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 23:48:42 GMT
-Date: Wed, 8 Sep 2004 01:00:37 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Patch to make udev/tmpfs work and changes from colin  walters for dbus.
-Message-ID: <20040908000037.GD6506@lkcl.net>
-References: <413E1DE0.9050905@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <413E1DE0.9050905@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i881OnrT000750
+	for <selinux@tycho.nsa.gov>; Tue, 7 Sep 2004 21:24:49 -0400 (EDT)
+Received: from georgia.yamato.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i881Okll003982
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 01:24:47 GMT
+Received: from e19f2n15.jp.ibm.com (d19relay01.sagamino.japan.ibm.com [9.189.5.43])
+	by georgia.yamato.ibm.com (8.11.6p2-20030922/8.11.1) with ESMTP id i881OV4150774
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 10:24:31 +0900
+Received: from D19ML102.sagamino.japan.ibm.com (d19av04.sagamino.japan.ibm.com [9.189.5.112])
+	by e19f2n15.jp.ibm.com (8.12.10/NCO/VER6.6) with ESMTP id i881OUF8166090
+	for <selinux@tycho.nsa.gov>; Wed, 8 Sep 2004 10:24:31 +0900
+In-Reply-To: <200409071747.i87HkxJ6012464@mms-r00.iijmio.jp>
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Subject: Re: PAM in suse9.1 (Re: SuSE 9.1 SELinux)
+From: Takuya Mishina <TMISHINA@jp.ibm.com>
+Message-ID: <OF0DD26E97.7776F6AA-ON49256F08.007DAD0E-49256F09.0007B661@jp.ibm.com>
+Date: Wed, 8 Sep 2004 10:24:25 +0900
+Content-Type: text/plain; charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Sep 07, 2004 at 04:45:20PM -0400, Daniel J Walsh wrote:
-> Adding
-> 
-> restorecon /dev /dev/null
-> restorecon /dev/*
+Hi all,
 
- yes, it does, doesn't it!
 
- that's why i wrote a little script called /sbin/restoredevicefiles
- and call it from at least two places in /etc/init.d scripts!!
+I don't know the difference of pam_unix.so and pam_unix2.so, but in my 
+test, it seems no problem using pam_unix.so instead of pam_unix2.so.
+( cat /etc/pam.d/newrole | sed 's/pam_unix/pam_unix2/' > 
+/etc/pam.d/newrole.new )
 
- if you find that you don't need also to do restorecon /dev/*/*
- please let me know.
+the best may be the combination use of pam_unix2.so and unix_chkpwd, but 
+to be enable SELinux with SuSE 9.1, the easiest way is to setuid 
+/usr/bin/newrole or to patch pam_unix.so and use it.
 
- also i notice from the policy patch that you haven't gotten
- around to using any of the tools listed in fsadm.te.
 
- l.
+I'll report again if something happens on suse (esp. policy).
+
+
+---
+Takuya MISHINA
+IBM Research, Tokyo Research Laboratory
+
 
 
 --
