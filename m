@@ -1,45 +1,39 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i578PYrT002470
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jun 2004 04:25:34 -0400 (EDT)
-Received: from smtp801.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i578PT22025975
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jun 2004 04:25:29 -0400 (EDT)
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp801.mail.ukl.yahoo.com with SMTP; 7 Jun 2004 08:25:22 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BXEne-0001F1-8i
-	for selinux@tycho.nsa.gov; Mon, 07 Jun 2004 07:44:06 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BXFP1-00025b-Nd
-	for selinux@tycho.nsa.gov; Mon, 07 Jun 2004 08:22:43 +0000
-Date: Mon, 7 Jun 2004 08:22:43 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: support for fireflight reading /proc/NNN/fd and /proc/NNN/exe
-Message-ID: <20040607082243.GH4543@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: fedora-selinux-list@redhat.com
+Subject: Re: Access to the postgresql data files
+Date: Mon, 7 Jun 2004 18:23:24 +1000
+Cc: "Igor Borisovsky" <igor@datanaut.com>,
+   "'Stephen Smalley'" <sds@epoch.ncsc.mil>, SELinux@tycho.nsa.gov
+References: <200406070738.i577cch00684@alexru.adsl.kis.ru>
+In-Reply-To: <200406070738.i577cch00684@alexru.adsl.kis.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200406071823.24869.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
+On Mon, 7 Jun 2004 17:35, "Igor Borisovsky" <igor@datanaut.com> wrote:
+> Ok. I see you.
+> Can you explain me the following thing?
+> As I understand in selinux all permissions
+> must be explicitly granted. Hence there is
+> permission to allow sysadm_t to enter the /var/lib/pgsql directory.
+> I can't find something like this:
+> allow sysadm_t pgsql_home_dir_t:dir {...};
+> It is interesting how sysadm_t type has access to /var/lib/pgsql directory?
 
-got an interesting issue that i don't quite know how to tackle.
+The type pgsql_home_dir_t has attribute sysadmfile, which means sysadm_t gets 
+full access.  Remove the sysadmfile attribute and the access will be denied.  
+But if the attribute is granted through the full_user_role() macro then it's 
+probably easiest to just define a new type for this.
 
-i picked fireflight because it's exactly the sort of thing that i
-need to put 
 -- 
--- 
-expecting email to be received and understood is a bit like
-picking up the telephone and immediately dialing without
-checking for a dial-tone; speaking immediately without listening
-for either an answer or ring-tone; hanging up immediately and
-believing that you have actually started a conversation.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
