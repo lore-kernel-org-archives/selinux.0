@@ -1,49 +1,36 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UJB0rT025878
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 15:11:00 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UJ9png003870
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 19:09:52 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Joe Nall <joe@nall.com>
-Subject: Re: Representing releasibilities in SELinux
-Date: Fri, 1 Oct 2004 05:10:41 +1000
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-References: <C21693A0-1240-11D9-B045-000A95EED7F6@nall.com>
-In-Reply-To: <C21693A0-1240-11D9-B045-000A95EED7F6@nall.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200410010510.41928.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8UJIbrT026006
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 15:18:37 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8UJHVng004773
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 19:17:32 GMT
+Date: Thu, 30 Sep 2004 20:29:35 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Colin Walters <walters@verbum.org>
+Cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: Access to xdm_t
+Message-ID: <20040930192935.GA6063@lkcl.net>
+References: <20040929163222.GA4125@rom.cip.ifi.lmu.de> <1096561927.4957.15.camel@nexus.verbum.private>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1096561927.4957.15.camel@nexus.verbum.private>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 30 Sep 2004 03:55, Joe Nall <joe@nall.com> wrote:
-> We have an application that we are considering porting from a
-> Compartmented Mode Workstation (like Trusted Solaris) to SELinux. One of
-> the issues we need to address is representing releasability information.
-> We have a significant amount of data that is current marked with
-> variations of 'releasable to country1, country2 and country3'. Data
-> marked like this is releasable to any permutation of the countries
-> involved. There are a few hundred countries, so any approach needs
-> to scale to that level.
+On Thu, Sep 30, 2004 at 12:32:07PM -0400, Colin Walters wrote:
+> On Wed, 2004-09-29 at 18:32 +0200, Thomas Bleher wrote:
+> 
+> > If yes, should xdm_t get the attribute privfd?
+> 
+> Actually even moving the log to /tmp you'll still get programs wanting
+> access to the xdm_t fd.  Ideally we would have a little program run in
+> its own domain (xdm_launcher_t say) that would simply close all of its
+> file descriptors, open up the tmp file itself for logging and exec the
+> user session.  
 
-In SE Linux every process has exactly one domain and every resource that a 
-process may access (IE file) has exactly one type.
+ /usr/bin/startkde for example?
 
-If you had options to release to 5 different groups (EG continents) then you 
-could have 2^5-1 types to represent all the different combinations.  
-Obviously having 2^200-1 types isn't going to work though.
-
-How do you do this on Trusted Solaris?  Does TSOL support multiple labels on 
-one object?
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
