@@ -1,67 +1,90 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8BJFOLa018613
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 15:15:24 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8BJDlLY017937
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 19:13:47 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h8BJDksG017934
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 19:13:46 GMT
-Received: from moss-huskies (moss-huskies [144.51.25.7])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8BJFKLX006041
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 15:15:21 -0400 (EDT)
-Subject: Mail list reliability
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Message-Id: <1063307722.29990.46.camel@moss-huskies>
-Mime-Version: 1.0
-Date: 11 Sep 2003 15:15:22 -0400
+Message-ID: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A36@s3cin>
+From: "Kratzer, James R." <JamesK@xetron.com>
+To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
+Cc: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
+Subject: RE: Patching SRPM utilities produces rejects on RH9
+Date: Thu, 11 Sep 2003 15:32:38 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm seeing an increasing number of bounces from people who aren't
-receiving all the messages sent to the mailing list.  While this is a
-small minority of the list subscribers it is increasingly widespread and
-I suspect it will get worse.  These bounces are happening when mail
-servers along the route decide that a message has been through too many
-hops (has too many received headers) and must be in a loop through some
-set of hosts.  The vast majority of mail servers seem to have the
-maximum number of hops set to 25 (the default for sendmail, if I'm not
-mistaken.)  I've seen some set as low as 15.
 
-The problem is that as local networks grow, people are sending mail
-through more local hosts to get to the Internet.  There are now often
-extra hops through virus scanners and such on outbound mail.  It gets to
-the mail list processors here and our processing adds a few, and
-sometimes more than a few, hops before it gets sent out, then it gets to
-your local network and probably goes through virus scanners, maybe
-forwarded through hotmail or yahoo some other redirector and even more
-hops are added.
+I don't believe that the SRPMS are already patched and here is why.  Of the
+9 hunks in the patch, 8 are successful and 1 fails.  Comparing the original
+source file (login.c.orig) to the patched source file (login.c) I can see
+that applying the patch has added "#ifdef WITH_SELINUX" blocks to the
+original source file.  If the original soruce files (those SRPMS included
+with the userland archive) are already patched, where are the "#ifdef
+WITH_SELINUX" blocks in the original file? What am I missing here?
 
-The point of my message is that if you're experiencing dropped messages
-from the list, this is a very good place to start looking.  I'd suggest
-that hosts receiving mail a few hops down in their internal networks
-start thinking about maybe 30 hops or more as occasionally necessary
-rather than 25.  15 hops, in my humble opinion, is too few even for most
-edge systems these days and will probably result in your losing at least
-a few messages from this list that are sent "the long way around."
+**** login.c (patch applied)****
 
-If you find you're loosing messages (typically by seeing responses to
-messages you never got) and can't control the maximum number of hops
-configuration on your hosts, you may want to think about trying to
-minimize the route to you (i.e., not forwarding through hotmail, yahoo,
-acm, extra corporate domains, etc.)
+# define PAM_END { \
+	pam_setcred(pamh, PAM_DELETE_CRED); \
+	retcode = pam_close_session(pamh, 0); \
+	pam_end(pamh,retcode);\
+}
+#endif
+#ifdef WITH_SELINUX
+	security_context_t user_context=NULL;
+	security_context_t ttyn_context=NULL;
+	int selinux_enabled=0;
+#ifdef CHOWNCVS
+	security_context_t vcsn_context=NULL;
+	security_context_t vcsan_context=NULL;	
+#endif
+#endif
+#ifndef __linux__
+# include <tzfile.h>
+#endif
+#include <lastlog.h>
 
-Hopefully this will help some people diagnose or avoid dropped SELinux
-messages.  Since mail server configuration isn't really an SELinux
-topic, send your comments and complaints to me not the list.  Thanks.
+**** login.c.orig (patch not applied)****
+
+# define PAM_END { \
+	pam_setcred(pamh, PAM_DELETE_CRED); \
+	retcode = pam_close_session(pamh, 0); \
+	pam_end(pamh,retcode);\
+}
+#endif
+#ifndef __linux__
+# include <tzfile.h>
+#endif
+#include <lastlog.h>
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@epoch.ncsc.mil]
+Sent: Thursday, September 11, 2003 2:37 PM
+To: Kratzer, James R.
+Cc: 'SELinux@tycho.nsa.gov'
+Subject: Re: Patching SRPM utilities produces rejects on RH9
+
+
+On Thu, 2003-09-11 at 14:27, Kratzer, James R. wrote:
+> I'm running Red Hat 9 and I am using the SELinux userland archive
+> selinux-usr-2003081307.tgz which had been updated for Red Hat 9.
+> 
+> I am applying the patches to the SRPMs.  Both the patches and the SRPMs
+are
+> provided with the userland archive downloaded from the SELinux site.  When
+> applying the patches, I am getting some rejections, where the patch
+utility
+> can't find the code to patch.  Most of the hunks succeed but some are
+> rejected.  The hunks that fail are failing because the code to patch
+cannot
+> be found in the source file.  I would like to know if this is normal when
+> patching the SRPMs with the SELinux patches.  Could it be that the patches
+> were correct for an earlier version of Red Hat but have not been updated
+for
+> RH9?  After patching, the SRPMs build fine even with the rejections.  
+
+The SRPMS include the patches already.
 
 -- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Office of Defensive Computing Research
+Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
