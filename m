@@ -1,56 +1,33 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA12338
-	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 04:36:23 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id IAA01446
-	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 08:34:49 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id IAA01442
-	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 08:34:48 GMT
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA12422
+	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 04:52:29 -0400 (EDT)
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Tracy R Reed <treed@ultraviolet.org>
+To: Tracy R Reed <treed@ultraviolet.org>, Tom <tom@lemuria.org>
 Subject: Re: SE Linux on Debian
-Date: Wed, 2 Oct 2002 10:36:04 +0200
+Date: Wed, 2 Oct 2002 10:50:27 +0200
 Cc: selinux@tycho.nsa.gov
-References: <20021001153638.J5416@ultraviolet.org> <200210020201.46223.russell@coker.com.au> <20021001175422.A18667@ultraviolet.org>
-In-Reply-To: <20021001175422.A18667@ultraviolet.org>
+References: <20021001153638.J5416@ultraviolet.org> <20021002092056.A4475@lemuria.org> <20021002003004.C28686@ultraviolet.org>
+In-Reply-To: <20021002003004.C28686@ultraviolet.org>
 MIME-Version: 1.0
-Message-Id: <200210021036.04427.russell@coker.com.au>
+Message-Id: <200210021050.27797.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2 Oct 2002 02:54, Tracy R Reed wrote:
-> > > But the new ps, ls, sshd, etc. do not seem to be included here. Where
-> > > do I get those? Are they not in a deb?
-> >
-> > They are in coreutils, fileutils, shellutils, textutils, cron, dpkg, ssh,
-> > login, logrotate, procps, and psmisc packages.
->
-> Yes, but these are the non-SE Linux patched utils, right?
+On Wed, 2 Oct 2002 09:30, Tracy R Reed wrote:
+> I realized that I still have xdm running and logged in through that so I
+> was logged in as xdm_t and my username wasn't in the users file which of
+> course causes all sorts of problems.
 
-The packages on my site and on Brian's site are the SE patched ones.
+If you want an X login then the only Debian package for you is kdm (the KDE 
+XDM program), and that's for the 2.2.2 version of KDE.
 
-> Ok, I copied that file into place. Now the error I get is:
->
-> /usr/sbin/checkpolicy:  loading policy configuration from
-> /etc/security/selinux/src/policy.conf
-> ERROR 'name conflict for type run_deb_t' at token ';' on line 121201:
-> #
-> type run_deb_t, domain, privrole, privuser, privlog, auth;
-> /usr/sbin/checkpolicy:  error(s) encountered while parsing configuration
-> make: *** [/etc/security/selinux/policy.12] Error 1
->
-> Upon doing some digging in policy.conf I see that type run_deb_t is indeed
-> declared twice. It is declared in all.te and in all_domains.te but those
-> are in /usr/share/selinux/policy/current and default. What is the
-> relationship of those two dirs to /etc/selinux/domains? Looks like stuff
-> has been moved around compared to the RedHat version.
+There is a patch for GDM which I haven't packaged because it's not something I 
+use (and the things I use don't work to my satisfaction yet).
 
-This comes from run_deb.te which is supposed to be removed.  There is a bug in 
-Brian's package.
+If kde 2.2.2 isn't an option for you then you have to use startx.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
