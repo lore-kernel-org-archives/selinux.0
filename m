@@ -1,79 +1,238 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2OMJGRb011581
-	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2004 17:19:16 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i2OMJFFV028124
-	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2004 22:19:15 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-        by jazzband.ncsc.mil  with ESMTP id i2OMJF36028120 for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2004 22:19:15 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.10/8.12.10) with ESMTP id i2OMJFWA031336
-	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2004 17:19:15 -0500
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.64.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id i2OMJEj28521
-	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2004 17:19:14 -0500
-Received: from nexus.verbum.private (nexus.boston.redhat.com [172.16.67.53])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id i2OMJEhP029361
-	for <selinux@tycho.nsa.gov>; Wed, 24 Mar 2004 17:19:14 -0500
-Subject: minor logwatch avc denial fix
-From: Colin Walters <walters@redhat.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vPSfvA09na3ZDH4sc7JG"
-Message-Id: <1080166618.19992.80.camel@nexus.verbum.private>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2PJUSRb018496
+	for <selinux@tycho.nsa.gov>; Thu, 25 Mar 2004 14:30:28 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i2PJSbdQ006822
+	for <selinux@tycho.nsa.gov>; Thu, 25 Mar 2004 19:28:37 GMT
+Received: from chris.pebenito.dhs.org (c-24-15-25-98.client.comcast.net [24.15.25.98])
+	by jazzswing.ncsc.mil  with ESMTP id i2PJSbBL006781
+	for <selinux@tycho.nsa.gov>; Thu, 25 Mar 2004 19:28:37 GMT
+Subject: status tool
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-t8ooTXa6wpsFYauN6Er4"
+Message-Id: <1080243007.12376.28.camel@gorn.pebenito.net>
 Mime-Version: 1.0
-Date: Wed, 24 Mar 2004 17:16:58 -0500
+Date: Thu, 25 Mar 2004 13:30:07 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-vPSfvA09na3ZDH4sc7JG
-Content-Type: multipart/mixed; boundary="=-RjML8QYK+FubqPPX5OyX"
+--=-t8ooTXa6wpsFYauN6Er4
+Content-Type: multipart/mixed; boundary="=-VpjiRtXvOaSWs8hXQojF"
 
 
---=-RjML8QYK+FubqPPX5OyX
+--=-VpjiRtXvOaSWs8hXQojF
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Saw this avc message in dmesg:
+Over the last couple weeks I've been working on a SELinux status tool.=20
+I originally intended it for use as a support tool, so we could get much
+of SELinux's status in one shot.  Since not being able to log in is a
+common problem, I aimed the tool to be helpful with figuring out the
+problem.  After some suggestions from Russell, the result is the
+attached sestatus.
 
-audit(1080814317.301:0): avc:  denied  { getattr } for  pid=3D1874 exe=3D/b=
-in/df name=3D/ dev=3D ino=3D2025 scontext=3Dsystem_u:system_r:system_crond_=
-t tcontext=3Dsystem_u:object_r:rpc_pipefs_t tclass=3Dfilesystem
+With no options, it gives short status info:
 
-Looks like this came from /etc/cron.d/00-logwatch.  This patch should
-fix it.
+pebenito@gorn src $ sestatus
+SELinux status:         enabled
+SELinuxfs mount:        /selinux
+Current Mode:           permissive
+Policy version:         16
 
---=-RjML8QYK+FubqPPX5OyX
-Content-Disposition: attachment; filename=crond-macros.patch
-Content-Type: text/x-patch; name=crond-macros.patch; charset=UTF-8
+
+For verbose info, add -v:
+
+pebenito@gorn src $ sestatus -v
+SELinux status:         enabled
+SELinuxfs mount:        /selinux
+Current Mode:           permissive
+Policy version:         16
+=20
+Process contexts:
+Current context:        pebenito:staff_r:staff_t
+/sbin/init              system_u:system_r:init_t
+/sbin/mingetty          system_u:system_r:getty_t
+/usr/sbin/sshd          system_u:system_r:sshd_t
+=20
+File contexts:
+Controlling Term:       pebenito:object_r:staff_devpts_t
+/etc/passwd             system_u:object_r:etc_t
+/etc/shadow             system_u:object_r:shadow_t
+/bin/bash               system_u:object_r:shell_exec_t
+/bin/login              system_u:object_r:login_exec_t
+/bin/sh                 system_u:object_r:bin_t -> system_u:object_r:shell_=
+exec_t
+/sbin/agetty            system_u:object_r:getty_exec_t
+/sbin/init              system_u:object_r:init_exec_t
+/sbin/mingetty          system_u:object_r:getty_exec_t
+/usr/sbin/sshd          system_u:object_r:sshd_exec_t
+/lib/libc.so.6          system_u:object_r:lib_t -> system_u:object_r:shlib_=
+t
+/lib/ld-linux.so.2      system_u:object_r:lib_t -> system_u:object_r:ld_so_=
+t
+
+So, the verbose checks the contexts of a pile of files, and a few
+processes.  It also checks the context of the target, in cases of
+symlinks.
+
+Attached is the source, and a /etc/sestatus.conf, which defines which
+processes and files to context check.  Its CVS repo:
+
+http://www.gentoo.org/cgi-bin/viewcvs.cgi/hardened/policycoreutils-extra/sr=
+c/sestatus.c?root=3Dgentoo-projects
+
+Suggestions/patches are welcome.  I just threw this together, so I'm
+sure someone will find something :)
+
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+
+--=-VpjiRtXvOaSWs8hXQojF
+Content-Disposition: attachment; filename=sestatus.c
+Content-Type: text/x-c; name=sestatus.c; charset=ISO-8859-1
 Content-Transfer-Encoding: base64
 
-LS0tIHBvbGljeS0xLjkvbWFjcm9zL3Byb2dyYW0vY3JvbmRfbWFjcm9zLnRlfgkyMDA0LTAzLTI0
-IDE1OjQyOjA0Ljk4ODI2ODk3NiAtMDUwMA0KKysrIHBvbGljeS0xLjkvbWFjcm9zL3Byb2dyYW0v
-Y3JvbmRfbWFjcm9zLnRlCTIwMDQtMDMtMjQgMTU6NDg6NTEuNDgyNDcyNDY0IC0wNTAwDQpAQCAt
-NzgsNyArNzgsNyBAQA0KIGFsbG93ICQxX2Nyb25kX3QgeyBzeXNjdGxfdCBzeXNjdGxfa2VybmVs
-X3QgfTpkaXIgc2VhcmNoOw0KIGFsbG93ICQxX2Nyb25kX3Qgc3lzY3RsX2tlcm5lbF90OmZpbGUg
-eyBnZXRhdHRyIHJlYWQgfTsNCiBhbGxvdyAkMV9jcm9uZF90IHZhcl9zcG9vbF90OmRpciBzZWFy
-Y2g7DQotYWxsb3cgJDFfY3JvbmRfdCBmc190OmZpbGVzeXN0ZW0gZ2V0YXR0cjsNCithbGxvdyAk
-MV9jcm9uZF90IGZzX3R5cGU6ZmlsZXN5c3RlbSBnZXRhdHRyOw0KIA0KIGFsbG93ICQxX2Nyb25k
-X3QgeyBpbml0cmNfZGV2cHRzX3QgZGV2dHR5X3R9OmNocl9maWxlIHsgcmVhZCB3cml0ZSB9Ow0K
-IGFsbG93ICQxX2Nyb25kX3QgdmFyX3Q6ZGlyIHsgZ2V0YXR0ciBzZWFyY2ggfTsNCg==
+LyoNCiAqIENvcHlyaWdodCAxOTk5LTIwMDQgR2VudG9vIFRlY2hub2xvZ2llcywgSW5jLg0KICog
+RGlzdHJpYnV0ZWQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGlj
+ZW5zZSB2Mg0KICogJEhlYWRlcjogL2hvbWUvY3Zzcm9vdC9nZW50b28tcHJvamVjdHMvaGFyZGVu
+ZWQvcG9saWN5Y29yZXV0aWxzLWV4dHJhL3NyYy9zZXN0YXR1cy5jLHYgMS43IDIwMDQvMDMvMjIg
+MDU6NTA6MjQgcGViZW5pdG8gRXhwICQNCiAqLw0KDQojaW5jbHVkZSA8c3RkaW8uaD4NCiNpbmNs
+dWRlIDxlcnJuby5oPg0KI2luY2x1ZGUgPHNlbGludXgvc2VsaW51eC5oPg0KI2luY2x1ZGUgPHN5
+cy90eXBlcy5oPg0KI2luY2x1ZGUgPHN5cy9zdGF0Lmg+DQojaW5jbHVkZSA8ZGlyZW50Lmg+DQoj
+aW5jbHVkZSA8dW5pc3RkLmg+DQoNCiNkZWZpbmUgUFJPQ19CQVNFICIvcHJvYyINCiNkZWZpbmUg
+TUFYX0NIRUNLIDUwDQojZGVmaW5lIENPTkYgIi9ldGMvc2VzdGF0dXMuY29uZiINCg0KLyogY29u
+ZiBmaWxlIHNlY3Rpb25zICovDQojZGVmaW5lIFBST0NTICJbcHJvY2Vzc10iDQojZGVmaW5lIEZJ
+TEVTICJbZmlsZXNdIg0KDQpleHRlcm4gY2hhciAqc2VsaW51eF9tbnQ7DQoNCmludCBjbXBfY21k
+bGluZShjb25zdCBjaGFyICpjb21tYW5kLCBpbnQgcGlkKSB7DQovKiB0aGlzIGZ1bmN0aW9uIGlz
+IGFkYXB0ZWQgZnJvbSBydW5faW5pdC5jICovDQoNCiAgRklMRSogZnA7DQogIGNoYXIgIGJ1Zlsy
+NTVdLCAqYnVmcDsNCiAgaW50IGJ1Zl9sZW4sIHJjOw0KICBjaGFyIGZpbGVuYW1lWzI1NV07DQoN
+CiAgLyogZmlyc3QgcmVhZCB0aGUgcHJvYyBlbnRyeSAqLw0KICBzcHJpbnRmKGZpbGVuYW1lLCIl
+cy8lZC9jbWRsaW5lIixQUk9DX0JBU0UscGlkKTsNCg0KICBmcCA9IGZvcGVuKGZpbGVuYW1lLCAi
+ciIpOw0KICBpZiAoIWZwKSB7DQogICAgZnByaW50ZihzdGRlcnIsICJDb3VsZCBub3Qgb3BlbiBm
+aWxlICVzXG4iLCBmaWxlbmFtZSk7DQogICAgcmV0dXJuIDA7DQogIH0NCg0KICB3aGlsZSAoMSkg
+eyAvKiBsb29wIHVudGlsIHdlIGZpbmQgYSBub24tZW1wdHkgbGluZSAqLw0KDQogICAgaWYgKCFm
+Z2V0cyhidWYsIHNpemVvZiBidWYsIGZwKSkNCiAgICAgIGJyZWFrOw0KDQogICAgYnVmX2xlbiA9
+IHN0cmxlbihidWYpOw0KICAgIGlmIChidWZbYnVmX2xlbi0xXSA9PSAnXG4nKQ0KICAgICAgYnVm
+W2J1Zl9sZW4tMV0gPSAwOw0KDQogICAgYnVmcCA9IGJ1ZjsNCiAgICB3aGlsZSAoKmJ1ZnAgJiYg
+aXNzcGFjZSgqYnVmcCkpDQogICAgICBidWZwKys7DQoNCiAgICBpZiggKmJ1ZnAgKSB7DQogICAg
+ICBpZiAoISgqYnVmcCkpDQoJZ290byBvdXQ7DQogICAgICBmY2xvc2UoZnApOw0KDQogICAgICAv
+KiBjaGVjayBpZiB0aGlzIGlzIHRoZSBjb21tYW5kIHdlJ3JlIGxvb2tpbmcgZm9yLiAgICoNCiAg
+ICAgICAqIHRoaXMgYnJlYWtzIGlmIHRoZSBjb21tYW5kIGxpbmUgZG9lcyBub3QgYWh2ZSB0aGUg
+Kg0KICAgICAgICogZW50aXJlIHBhdGggb2YgdGhlIGV4ZWN1dGFibGUgOiggICAgICAgICAgICAg
+ICAgICAqLw0KICAgICAgcmMgPSBzdHJuY21wKGNvbW1hbmQsYnVmcCwgc3RybGVuKGNvbW1hbmQp
+KTsNCg0KICAgICAgaWYoIHJjID09IDAgKQ0KICAgICAgICByZXR1cm4gMTsNCiAgICAgIGVsc2UN
+CiAgICAgICAgcmV0dXJuIDA7DQogICAgfQ0KICB9DQpvdXQ6DQogIGZjbG9zZShmcCk7DQogIHJl
+dHVybiAwOw0KfQ0KDQppbnQgcGlkb2YoY29uc3QgY2hhciAqY29tbWFuZCkgew0KLyogaW5zcGly
+ZWQgYnkga2lsbGFsbDUuYyBmcm9tIHBzbWlzYyAqLw0KCURJUiAqZGlyOw0KCXN0cnVjdCBkaXJl
+bnQgKmRlOw0KCWludCBwaWQsIHJldD0tMSwgc2VsZj1nZXRwaWQoKTsNCg0KCWlmICghKGRpciA9
+IG9wZW5kaXIoUFJPQ19CQVNFKSkpIHsNCgkJcGVycm9yKFBST0NfQkFTRSk7DQoJCXJldHVybiAt
+MTsNCgl9DQoNCgl3aGlsZSAoIChkZSA9IHJlYWRkaXIoZGlyKSkgIT0gTlVMTCkgew0KCQlpZiAo
+IShwaWQgPSBhdG9pIChkZS0+ZF9uYW1lKSkgfHwgcGlkID09IHNlbGYpDQoJCQljb250aW51ZTsN
+CgkJaWYoY21wX2NtZGxpbmUoY29tbWFuZCxwaWQpKSB7DQoJCQlyZXQ9cGlkOw0KCQkJYnJlYWs7
+DQoJCX0NCgl9DQoJY2xvc2VkaXIoZGlyKTsNCglyZXR1cm4gcmV0Ow0KfQ0KDQp2b2lkIGxvYWRf
+Y2hlY2tzKGNoYXIgKnBjW10sIGludCAqbnBjLCBjaGFyICpmY1tdLCBpbnQgKm5mYykgew0KDQoJ
+RklMRSAqZnA9Zm9wZW4oQ09ORiwiciIpOw0KCWNoYXIgIGJ1ZlsyNTVdLCAqYnVmcDsNCglpbnQg
+YnVmX2xlbiwgc2VjdGlvbj0tMTsNCglpbnQgcHJvY2xlbj1zdHJsZW4oUFJPQ1MpOw0KCWludCBm
+aWxlbGVuPXN0cmxlbihGSUxFUyk7DQoNCglpZiggZnAgPT0gTlVMTCApIHsNCgkJcHJpbnRmKCJc
+blVuYWJsZSB0byBvcGVuICVzLlxuIixDT05GKTsNCgkJcmV0dXJuOw0KCX0NCg0KCXdoaWxlICgh
+ZmVvZihmcCkpIHsNCgkJaWYgKCFmZ2V0cyhidWYsIHNpemVvZiBidWYsIGZwKSkNCgkJCWJyZWFr
+Ow0KDQoJCWJ1Zl9sZW4gPSBzdHJsZW4oYnVmKTsNCgkJaWYgKGJ1ZltidWZfbGVuLTFdID09ICdc
+bicpDQoJCQlidWZbYnVmX2xlbi0xXSA9IDA7DQoNCgkJYnVmcCA9IGJ1ZjsNCgkJd2hpbGUgKCpi
+dWZwICYmIGlzc3BhY2UoKmJ1ZnApKQ0KCQkJYnVmcCsrOw0KDQoJCWlmKCpidWZwID09ICcjJykN
+CgkJCS8qIHNraXAgY29tbWVudHMgKi8NCgkJCWNvbnRpbnVlOw0KDQoJCWlmKCAqYnVmcCApIHsN
+CgkJCWlmICghKCpidWZwKSkNCgkJCQlnb3RvIG91dDsNCg0KCQkJaWYoc3RybmNtcChidWZwLFBS
+T0NTLHByb2NsZW4pID09IDApDQoJCQkJc2VjdGlvbj0wOw0KCQkJZWxzZSBpZihzdHJuY21wKGJ1
+ZnAsRklMRVMsZmlsZWxlbikgPT0gMCkNCgkJCQlzZWN0aW9uPTE7DQoJCQllbHNlIHsNCgkJCQlz
+d2l0Y2goIHNlY3Rpb24gKSB7DQoJCQkJCWNhc2UgMDoNCgkJCQkJCXBjWypucGNdPShjaGFyKilt
+YWxsb2MoKGJ1Zl9sZW4pKnNpemVvZihjaGFyKSk7DQoJCQkJCQltZW1jcHkocGNbKm5wY10sYnVm
+cCxidWZfbGVuKTsNCgkJCQkJCSgqbnBjKSsrOw0KCQkJCQkJYnVmcD1OVUxMOw0KCQkJCQkJYnJl
+YWs7DQoJCQkJCWNhc2UgMToNCgkJCQkJCWZjWypuZmNdPShjaGFyKiltYWxsb2MoKGJ1Zl9sZW4p
+KnNpemVvZihjaGFyKSk7DQoJCQkJCQltZW1jcHkoZmNbKm5mY10sYnVmcCxidWZfbGVuKTsNCgkJ
+CQkJCSgqbmZjKSsrOw0KCQkJCQkJYnVmcD1OVUxMOw0KCQkJCQkJYnJlYWs7DQoJCQkJCWRlZmF1
+bHQ6DQoJCQkJCS8qIGlnbm9yZSBsaW5lcyBiZWZvcmUgYSBzZWN0aW9uICovDQoJCQkJCQlwcmlu
+dGYoIkxpbmUgbm90IGluIGEgc2VjdGlvbjogJXMuXG4iLGJ1Zik7DQoJCQkJCQlicmVhazsNCgkJ
+CQl9DQoJCQl9DQoJCX0NCgl9DQpvdXQ6DQoJZmNsb3NlKGZwKTsNCglyZXR1cm47DQp9DQoNCg0K
+aW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KSB7DQoJLyogdGhlc2UgdmFycyBhcmUgcmV1
+c2VkIHNldmVyYWwgdGltZXMgKi8NCglpbnQgcmMsIGksaixjOw0KCWNoYXIgKmNvbnRleHQ7DQoN
+CgkvKiBmaWxlcyB0aGF0IG5lZWQgY29udGV4dCBjaGVja3MgKi8NCgljaGFyICpmY1tNQVhfQ0hF
+Q0tdOw0KCWNoYXIgKmN0ZXJtPXR0eW5hbWUoMCk7DQoJaW50IG5mYz0wOw0KCXN0cnVjdCBzdGF0
+IG07DQoNCgkvKiBwcm9jZXNzZXMgdGhhdCBuZWVkIGNvbnRleHQgY2hlY2tzICovDQoJY2hhciAq
+cGNbTUFYX0NIRUNLXTsNCglpbnQgbnBjPTA7DQoNCgljPWdldG9wdChhcmdjLCBhcmd2LCAidiIp
+Ow0KDQoJcHJpbnRmKCJTRUxpbnV4IHN0YXR1czpcdFx0Iik7DQoJcmM9aXNfc2VsaW51eF9lbmFi
+bGVkKCk7DQoNCglzd2l0Y2gocmMpIHsNCgkJY2FzZSAxOg0KCQkJcHJpbnRmKCJlbmFibGVkXG4i
+KTsNCgkJCWJyZWFrOw0KCQljYXNlIDA6DQoJCQlwcmludGYoImRpc2FibGVkXG4iKTsNCgkJCXJl
+dHVybiAwOw0KCQkJYnJlYWs7DQoJCWNhc2UgLTE6DQoJCQlwZXJyb3IoInVua25vd24iKTsNCgkJ
+CXJldHVybiAwOw0KCQkJYnJlYWs7DQoJCWRlZmF1bHQ6DQoJCQlwcmludGYoIlVua25vd24gaXNf
+c2VsaW51eF9lbmFibGVkKCkgcmV0dXJuIGNvZGU6ICVkXG4iLHJjKTsNCgkJCXJldHVybiAwOw0K
+CQkJYnJlYWs7DQoJfQ0KDQoJcHJpbnRmKCJTRUxpbnV4ZnMgbW91bnQ6XHQiKTsNCglpZiggc2Vs
+aW51eF9tbnQgIT0gTlVMTCkgew0KCQlwcmludGYoIiVzXG4iLHNlbGludXhfbW50KTsNCgl9IGVs
+c2Ugew0KCQlwcmludGYoIm5vdCBtb3VudGVkXG5cbiIpOw0KCQlwcmludGYoIlBsZWFzZSBtb3Vu
+dCBzZWxpbnV4ZnMgZm9yIHByb3BlciByZXN1bHRzLlxuIik7DQoJCXJldHVybiAtMTsNCgl9DQoN
+CglwcmludGYoIkN1cnJlbnQgTW9kZTpcdFx0Iik7DQoJcmM9c2VjdXJpdHlfZ2V0ZW5mb3JjZSgp
+Ow0KCXN3aXRjaChyYykgew0KCQljYXNlIDE6DQoJCQlwcmludGYoImVuZm9yY2luZ1xuIik7DQoJ
+CQlicmVhazsNCgkJY2FzZSAwOg0KCQkJcHJpbnRmKCJwZXJtaXNzaXZlXG4iKTsNCgkJCWJyZWFr
+Ow0KCQlkZWZhdWx0Og0KCQkJcHJpbnRmKCJ1bmtub3duXG4iKTsNCgkJCWJyZWFrOw0KCX0NCg0K
+CXJjID0gc2VjdXJpdHlfcG9saWN5dmVycygpOw0KCXByaW50ZigiUG9saWN5IHZlcnNpb246XHRc
+dCVkXG4iLHJjKTsNCg0KCS8qIG9ubHkgc2hvdyBjb250ZXh0cyBpZiAtdiBpcyBnaXZlbiAqLw0K
+CWlmKGMgIT0gJ3YnKSByZXR1cm4gMDsNCg0KCWxvYWRfY2hlY2tzKHBjLCZucGMsZmMsJm5mYyk7
+DQoNCglwcmludGYoIlxuUHJvY2VzcyBjb250ZXh0czpcbiIpOw0KCWdldGNvbigmY29udGV4dCk7
+DQoJcHJpbnRmKCJDdXJyZW50IGNvbnRleHQ6XHQlc1xuIixjb250ZXh0KTsNCglmcmVlY29uKGNv
+bnRleHQpOw0KDQoJZ2V0cGlkY29uKDEsJmNvbnRleHQpOw0KCXByaW50ZigiL3NiaW4vaW5pdFx0
+XHQlc1xuIixjb250ZXh0KTsNCglmcmVlY29uKGNvbnRleHQpOw0KDQoJZm9yKCBpPTAgOyBpPG5w
+YyA7IGkrKyApIHsNCgkJcmM9cGlkb2YocGNbaV0pOw0KCQlpZihyYyA+IDApIHsNCgkJCWdldHBp
+ZGNvbihyYywmY29udGV4dCk7DQoNCgkJCXByaW50ZigiJXMiLHBjW2ldKTsNCg0KCQkJLyogaW5z
+ZXJ0IHRoZSByaWdodCBudW1iZXIgb2YgdGFicyAqLw0KCQkJcmM9KCgzMi1zdHJsZW4ocGNbaV0p
+KS84KTsNCgkJCWZvciggaj0wIDsgajxyYyA7IGorKyApDQoJCQkJcHJpbnRmKCJcdCIpOw0KDQoJ
+CQlwcmludGYoIiVzXG4iLGNvbnRleHQpOw0KCQkJZnJlZWNvbihjb250ZXh0KTsNCgkJfQ0KCX0N
+Cg0KCXByaW50ZigiXG5GaWxlIGNvbnRleHRzOlxuIik7DQoNCgkvKiBjb250cm9sbGluZyB0ZXJt
+ICovDQoJbGdldGZpbGVjb24oY3Rlcm0sJmNvbnRleHQpOw0KCXByaW50ZigiQ29udHJvbGxpbmcg
+VGVybTpcdCVzXG4iLGNvbnRleHQpOw0KCWZyZWVjb24oY29udGV4dCk7DQoNCglmb3IoIGk9MCA7
+IGk8bmZjIDsgaSsrICkgew0KCQlpZiggbGdldGZpbGVjb24oZmNbaV0sJmNvbnRleHQpID49IDAg
+KSB7DQoJCQlwcmludGYoIiVzIixmY1tpXSk7DQoNCgkJCS8qIGluc2VydCB0aGUgcmlnaHQgbnVt
+YmVyIG9mIHRhYnMgKi8NCgkJCXJjPSgoMzItc3RybGVuKGZjW2ldKSkvOCk7DQoJCQlmb3IoIGo9
+MCA7IGo8cmMgOyBqKysgKQ0KCQkJCXByaW50ZigiXHQiKTsNCg0KCQkJLyogY2hlY2sgaWYgdGhp
+cyBpcyBhIHN5bWxpbmsgKi8NCgkJCWxzdGF0KGZjW2ldLCZtKTsNCgkJCWlmKCBTX0lTTE5LKG0u
+c3RfbW9kZSkgKSB7DQoJCQkJLyogcHJpbnQgbGluayB0YXJnZXQgY29udGV4dCAqLw0KCQkJCXBy
+aW50ZigiJXMgLT4gIixjb250ZXh0KTsNCgkJCQlmcmVlY29uKGNvbnRleHQpOw0KCQkJCWdldGZp
+bGVjb24oZmNbaV0sJmNvbnRleHQpOw0KCQkJfQ0KDQoJCQlwcmludGYoIiVzXG4iLGNvbnRleHQp
+Ow0KCQl9DQoJCWZyZWVjb24oY29udGV4dCk7DQoJfQ0KCXJldHVybiAwOw0KfQ0K
 
---=-RjML8QYK+FubqPPX5OyX--
+--=-VpjiRtXvOaSWs8hXQojF
+Content-Disposition: attachment; filename=sestatus.conf
+Content-Type: text/plain; name=sestatus.conf; charset=ISO-8859-1
+Content-Transfer-Encoding: base64
 
---=-vPSfvA09na3ZDH4sc7JG
+W2ZpbGVzXQ0KL2V0Yy9wYXNzd2QNCi9ldGMvc2hhZG93DQovYmluL2Jhc2gNCi9iaW4vbG9naW4N
+Ci9iaW4vc2gNCi9zYmluL2FnZXR0eQ0KL3NiaW4vaW5pdA0KL3NiaW4vbWluZ2V0dHkNCi91c3Iv
+c2Jpbi9zc2hkDQovbGliL2xpYmMuc28uNg0KL2xpYi9sZC1saW51eC5zby4yDQovbGliL2xkLnNv
+LjENCg0KW3Byb2Nlc3NdDQovc2Jpbi9taW5nZXR0eQ0KL3NiaW4vYWdldHR5DQovdXNyL3NiaW4v
+c3NoZA0K
+
+--=-VpjiRtXvOaSWs8hXQojF--
+
+--=-t8ooTXa6wpsFYauN6Er4
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBAYgjaOIkJWWp2WGURAu2HAJ4hE/AAaTrJWCSjO+EYq+CeuSK7FgCeOP7c
-HkY9kU8tjz66apx9icvjOyI=
-=VZ/v
+iD8DBQBAYzM/vI7kLeavkkMRAmRzAJ9Ju8KQyXPUUtBkZEHe+iSYOz5ZAQCfUVcy
+WlfJ2Ykhh+JfKk/TROkw+KI=
+=jWyR
 -----END PGP SIGNATURE-----
 
---=-vPSfvA09na3ZDH4sc7JG--
+--=-t8ooTXa6wpsFYauN6Er4--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
