@@ -1,33 +1,36 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA07198
-	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 10:23:05 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA17431
-	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 15:21:02 GMT
-Received: from nox.lemuria.org (nox.lemuria.org [213.191.86.30])
-        by jazzband.ncsc.mil  with ESMTP id PAA17426 for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 15:21:00 GMT
-Date: Tue, 3 Dec 2002 16:22:50 +0100
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: SELinux on CD
-Message-ID: <20021203162250.A30338@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Timothy Wood <timothy@hallcomp.com>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: tcp_send errors
+Date: Tue, 3 Dec 2002 16:22:33 +0100
+References: <1038926427.19852.19.camel@phobos.hallcomp.com>
+In-Reply-To: <1038926427.19852.19.camel@phobos.hallcomp.com>
+MIME-Version: 1.0
+Message-Id: <200212031622.33651.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I just received the newest german Linux Magazin, and it includes a CD
-with "top security software". Part of which is SELinux 2002102211 and a
-very detailed (almost 10 pages) article by Carsten Grohmann and
-Konstantin Agouros.
+On Tue, 3 Dec 2002 15:40, Timothy Wood wrote:
+> Lastly I've noticed a few others having trouble with RH8.0 and I have a
+> whole lot more problems than I did with a RH7.3 machine so my question
+> is does anyone have other distros they are running SELinux on and like
+> how it is working out?  Russell I know you are doing lots of good for
+> debian, but what about others? Mandrake? Slackware? etc. etc.?
 
-SE Linux is getting quite some publicity lately.
+I could always build packages for other distributions too if someone wants to 
+pay me to do it.  I've got the time to build packages for RH, Mandrake, and 
+Slackware if there are people who want to pay.
 
+Anyone who's interested can contact me off-list.
 
 -- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
