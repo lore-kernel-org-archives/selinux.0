@@ -1,67 +1,287 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA29047
-	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2001 15:44:08 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA18342
-	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2001 19:43:48 GMT
-Received: from scaup.mail.pas.earthlink.net (scaup.mail.pas.earthlink.net [207.217.121.49])
-	by jazzband.ncsc.mil  with ESMTP id TAA18338
-	for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2001 19:43:47 GMT
-Message-ID: <3B7C228B.F6EC6117@earthlink.net>
-Date: Thu, 16 Aug 2001 12:44:11 -0700
+Message-ID: <3B7C7C69.E7B84C68@earthlink.net>
+Date: Thu, 16 Aug 2001 19:07:37 -0700
 From: John Scroggins <dataefx@earthlink.net>
 MIME-Version: 1.0
-To: Dale Amon <amon@vnl.com>
-Subject: Re: RBAC/Types Hierarchy
-References: <Pine.SOL.3.95.1010815080617.24997B-100000@clipper.gw.tislabs.com> <002a01c125c1$ed4ee110$020144c0@windows> <3B7AF215.7ED269BA@earthlink.net> <00ec01c125e8$6aa2a950$020144c0@windows> <3B7B1F2F.2276C50C@earthlink.net> <20010816004517.E13661@vnl.com> <3B7C110C.286A8E4C@earthlink.net> <20010816071759.C18183@vnl.com>
-Content-Type: text/plain; charset=us-ascii
+To: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
+Subject: [Fwd: Partial TOC for Comment]
+Content-Type: multipart/mixed;
+ boundary="------------8A957F937161E9D5D978401E"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dale Amon wrote:
-> 
-> On Thu, Aug 16, 2001 at 11:29:32AM -0700, John Scroggins wrote:
-> > Are you willing to give some input on this project?
-> > Let me know, as I want to assemble a resource list (people), so we can
-> > get started.
-> >
-> > Thanks for your response,
-> >
-> 
-> I know a fair bit about the threat model, but only passing
-> knowledge of selinux itself. Although I've been following
-> the discussions, I've been so busy fire fighting that I've
-> not really had the time to actually *try it*, as it appears
-> to be not the sort of thing one can figure out and deploy
-> over a weekend...
-> 
-> I'm not sure there is much useful input that I *can* give
-> at this point. I just don't know enough in this area.
-> 
-> --
+This is a multi-part message in MIME format.
+--------------8A957F937161E9D5D978401E
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-well lets look at this from another vantage point: 
 
-The developers on this project have got there hands full trying to code
-the components of SELinux. If there is no field testing, creative
-comments, or general input, the whole documentation process will stand
-still (as it has for the last few months). If this occurs, then we will
-all have to sink or swim, never understanding the benefits of the
-project.
 
-I asked people from different backgrounds to help so that the docs would
-not seem one-dimensional, proving a singular concept which may have no
-relevance to the 
-inquiry posed by the user or admin. 
+-------- Original Message --------
+X-Mozilla-Status: 8001
+X-Mozilla-Status2: 00000000
+BCC: dataefx@earthlink.net
+Message-ID: <3B7C61C3.29886E04@earthlink.net>
+Date: Thu, 16 Aug 2001 17:13:55 -0700
+From: John Scroggins <dataefx@earthlink.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-lsm i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+Subject: Partial TOC for Comment
+Content-Type:
+multipart/mixed;boundary="------------F365DA8C7A05EE6BB97147FC"
 
-This effort is in not a destination, rather, a journey .. Linux would
-have never come this far if others had not joined in.        
+Please give me your feedback/critique on the TOC, and if you can think
+of additional subject headings (I do have more, but I want to see if
+this is moving in the right directiom..)
 
-> ------------------------------------------------------
-> Use Linux: A computer        Dale Amon, CEO/MD
-> is a terrible thing          Village Networking Ltd
-> to waste.                    Belfast, Northern Ireland
-> ------------------------------------------------------
+TIA, 
+
+John
+--------------8A957F937161E9D5D978401E
+Content-Type: text/html; charset=us-ascii;
+ name="adm082001.html"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="adm082001.html"
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>SELinux Administrators Guide</TITLE>
+ <LINK HREF="adm082001-1.html" REL=next>
+
+
+</HEAD>
+<BODY>
+<A HREF="adm082001-1.html">Next</A>
+Previous
+Contents
+<HR>
+<H1>SELinux Administrators Guide</H1>
+
+<H2>John Scroggins dataefx@earthlink.net </H2>
+<H2>Christopher Mahmood ckm@suse.com </H2>August 2001
+<P><HR>
+<EM>ABSTRACT</EM>
+<HR>
+<P><HR>
+<EM>Network security has become a focal point for the IT industry
+ as a whole, based on the increased connectivity required by Government,
+ and private sectors alike. One of the main concerns in system operation
+ is protecting the core operating elements, given the fact that most
+ attacks are intiated with the focus of gaining "
+root"
+, or system
+ administrator level privliges. The Linux operating system has been
+ well recieved in a wide range of network duties, its flexibility,
+ and open source modeling is an excellent choice for the development
+ of a "
+secure"
+ operating system called Security Enhanced Linux (SELinux).
+ SELinux utilizes two separate security methods, Type Enforcement
+ and Role Based Access. This document will assist the reader in determining
+ some of the potential scenarios where the SELinux kernel would become
+ beneficial, thus providing greater security than is available in
+ the standard Linux kernel.</EM>
+<HR>
+<P>
+<H2><A NAME="toc1">1.</A> <A HREF="adm082001-1.html">Introduction </A></H2>
+
+<UL>
+<LI><A HREF="adm082001-1.html#ss1.1">1.1 Operating System Security</A>
+<LI><A HREF="adm082001-1.html#ss1.2">1.2 Enhancing System Security</A>
+</UL>
+<P>
+<H2><A NAME="toc2">2.</A> <A HREF="adm082001-2.html">Security Controls </A></H2>
+
+<UL>
+<LI><A HREF="adm082001-2.html#ss2.1">2.1 Disrectionary Access </A>
+<LI><A HREF="adm082001-2.html#ss2.2">2.2 Manadatory Access </A>
+<LI><A HREF="adm082001-2.html#ss2.3">2.3 Domain and Type Enforcement </A>
+<LI><A HREF="adm082001-2.html#ss2.4">2.4 Role Based Access</A>
+<LI><A HREF="adm082001-2.html#ss2.5">2.5 Additional Control Measures</A>
+</UL>
+<P>
+<H2><A NAME="toc3">3.</A> <A HREF="adm082001-3.html">SELinux Combined Controls</A></H2>
+
+<UL>
+<LI><A HREF="adm082001-3.html#ss3.1">3.1 Flask Security Architecture</A>
+<LI><A HREF="adm082001-3.html#ss3.2">3.2 Linux Security Module (LSM) </A>
+</UL>
+<P>
+<H2><A NAME="toc4">4.</A> <A HREF="adm082001-4.html">Configuring SELinux</A></H2>
+
+<UL>
+<LI><A HREF="adm082001-4.html#ss4.1">4.1 Defining User Roles </A>
+<LI><A HREF="adm082001-4.html#ss4.2">4.2 Modifying the Default Type/Context Files </A>
+</UL>
+<HR>
+<A HREF="adm082001-1.html">Next</A>
+Previous
+Contents
+</BODY>
+</HTML>
+
+
+--------------8A957F937161E9D5D978401E
+Content-Type: text/html; charset=us-ascii;
+ name="adm082001-1.html"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="adm082001-1.html"
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>SELinux Administrators Guide: Introduction </TITLE>
+ <LINK HREF="adm082001-2.html" REL=next>
+
+ <LINK HREF="adm082001.html#toc1" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="adm082001-2.html">Next</A>
+Previous
+<A HREF="adm082001.html#toc1">Contents</A>
+<HR>
+<H2><A NAME="s1">1. Introduction </A></H2>
+
+<H2><A NAME="ss1.1">1.1 Operating System Security</A>
+</H2>
+
+<H2><A NAME="ss1.2">1.2 Enhancing System Security</A>
+</H2>
+
+<HR>
+<A HREF="adm082001-2.html">Next</A>
+Previous
+<A HREF="adm082001.html#toc1">Contents</A>
+</BODY>
+</HTML>
+
+
+--------------8A957F937161E9D5D978401E
+Content-Type: text/html; charset=us-ascii;
+ name="adm082001-2.html"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="adm082001-2.html"
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>SELinux Administrators Guide: Security Controls </TITLE>
+ <LINK HREF="adm082001-3.html" REL=next>
+ <LINK HREF="adm082001-1.html" REL=previous>
+ <LINK HREF="adm082001.html#toc2" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="adm082001-3.html">Next</A>
+<A HREF="adm082001-1.html">Previous</A>
+<A HREF="adm082001.html#toc2">Contents</A>
+<HR>
+<H2><A NAME="s2">2. Security Controls </A></H2>
+
+<H2><A NAME="ss2.1">2.1 Disrectionary Access </A>
+</H2>
+
+<H2><A NAME="ss2.2">2.2 Manadatory Access </A>
+</H2>
+
+<H2><A NAME="ss2.3">2.3 Domain and Type Enforcement </A>
+</H2>
+
+<H2><A NAME="ss2.4">2.4 Role Based Access</A>
+</H2>
+
+<H2><A NAME="ss2.5">2.5 Additional Control Measures</A>
+</H2>
+
+<HR>
+<A HREF="adm082001-3.html">Next</A>
+<A HREF="adm082001-1.html">Previous</A>
+<A HREF="adm082001.html#toc2">Contents</A>
+</BODY>
+</HTML>
+
+
+--------------8A957F937161E9D5D978401E
+Content-Type: text/html; charset=us-ascii;
+ name="adm082001-3.html"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="adm082001-3.html"
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>SELinux Administrators Guide: SELinux Combined Controls</TITLE>
+ <LINK HREF="adm082001-4.html" REL=next>
+ <LINK HREF="adm082001-2.html" REL=previous>
+ <LINK HREF="adm082001.html#toc3" REL=contents>
+</HEAD>
+<BODY>
+<A HREF="adm082001-4.html">Next</A>
+<A HREF="adm082001-2.html">Previous</A>
+<A HREF="adm082001.html#toc3">Contents</A>
+<HR>
+<H2><A NAME="s3">3. SELinux Combined Controls</A></H2>
+
+<H2><A NAME="ss3.1">3.1 Flask Security Architecture</A>
+</H2>
+
+<H2><A NAME="ss3.2">3.2 Linux Security Module (LSM) </A>
+</H2>
+
+<HR>
+<A HREF="adm082001-4.html">Next</A>
+<A HREF="adm082001-2.html">Previous</A>
+<A HREF="adm082001.html#toc3">Contents</A>
+</BODY>
+</HTML>
+
+
+--------------8A957F937161E9D5D978401E
+Content-Type: text/html; charset=us-ascii;
+ name="adm082001-4.html"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="adm082001-4.html"
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+ <META NAME="GENERATOR" CONTENT="SGML-Tools 1.0.9">
+ <TITLE>SELinux Administrators Guide: Configuring SELinux</TITLE>
+ <LINK HREF="adm082001-3.html" REL=previous>
+ <LINK HREF="adm082001.html#toc4" REL=contents>
+</HEAD>
+<BODY>
+Next
+<A HREF="adm082001-3.html">Previous</A>
+<A HREF="adm082001.html#toc4">Contents</A>
+<HR>
+<H2><A NAME="s4">4. Configuring SELinux</A></H2>
+
+<H2><A NAME="ss4.1">4.1 Defining User Roles </A>
+</H2>
+
+<H2><A NAME="ss4.2">4.2 Modifying the Default Type/Context Files </A>
+</H2>
+
+<HR>
+Next
+<A HREF="adm082001-3.html">Previous</A>
+<A HREF="adm082001.html#toc4">Contents</A>
+</BODY>
+</HTML>
+
+
+--------------8A957F937161E9D5D978401E--
+
 
 --
 You have received this message because you are subscribed to the selinux list.
