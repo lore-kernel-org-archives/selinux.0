@@ -1,47 +1,36 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA28295
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 08:35:16 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA28573
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 09:16:26 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA27437
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 12:34:27 GMT
+	by jazzswing.ncsc.mil  with ESMTP id NAA29377
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 13:15:37 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id MAA27433
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 12:34:26 GMT
-Date: Mon, 29 Jul 2002 08:34:16 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id NAA29373
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2002 13:15:36 GMT
+Date: Mon, 29 Jul 2002 09:15:22 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Brian May <bam@snoopy.apana.org.au>
-cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Fwd: Bug#153238: newrole: should be able to run any command,
- not just shell
-In-Reply-To: <20020724234927.GC1127@snoopy.apana.org.au>
-Message-ID: <Pine.GSO.4.33.0207290828350.10600-100000@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: fileutils
+In-Reply-To: <20020727122038.6B5C7265@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0207290911390.10600-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 25 Jul 2002, Brian May wrote:
+On Sat, 27 Jul 2002, Russell Coker wrote:
 
-> However, forcing you to run commands via the shell, means that arguments
-> are parsed twice, which could potentially introduce/allow security holes.
-<snip>
-> I suggest another solution, which should fix this problem and
-> the domain problem.
->
-> Create a small program that simply calls execv on its
-> parameters. Use this small program instead of the shell.
-<snip>
+> One final thing, I think that copy_s() in copy.c should be changed to use
+> open_secure() instead of just calling the regular function.  If we really
+> want the context set on copy then the current setup allows for a race
+> condition where a large file could potentially be read by an unauthorised
+> process while it's being copied.  Also could there be situations in which the
+> user has permission to create a file in a particular type via open_secure()
+> but not have permissions to change it to that type later?
 
-I'm still not convinced that this is the desired general behavior for
-newrole.  Additionally, notice that you would then need to either label
-this small program with shell_exec_t or add entrypoint permission to
-whatever type you use for this small program.
-
-If you really want this feature, I'd suggest creating a patch to newrole
-for a '-s' or '--shell' option, like the corresponding su options.  You
-could then run newrole with your small program specified as the shell (if
-permitted by the policy).
+I agree, and yes, the latter is a possible situation.
 
 --
 Stephen D. Smalley, NAI Labs
