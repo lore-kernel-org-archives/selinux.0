@@ -1,29 +1,30 @@
-Message-Id: <200208142211.WAA00113@jazzswing.ncsc.mil>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: security_t:security compute_av
-Date: Thu, 15 Aug 2002 00:12:22 +0200
-MIME-Version: 1.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA17549
+	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 19:12:22 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id XAA02686
+	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 23:11:22 GMT
+Received: from hotmail.com (f117.law14.hotmail.com [64.4.21.117])
+	by jazzswing.ncsc.mil  with ESMTP id XAA02682
+	for <selinux@tycho.nsa.gov>; Wed, 14 Aug 2002 23:11:21 GMT
+From: "M. H." <metalhead00@hotmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Problem solved: socket relabel fails
+Date: Wed, 14 Aug 2002 16:11:21 -0700
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F117ypKsEgJXOxJagXT00000d6f@hotmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+The context change I wanted to make involved changing the user identity, and 
+the constraints file specifically prohibits that unless the domain which 
+does the relabeling has the privowner attribute.
 
-I found follow rule in the crond and fcrond rules. 
 
-allow crond_t security_t:security compute_av;
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
 
-But I don't found enough about it. Only the type declaration in 
-policy/types/security and other little things. I missing something a 
-documentation the object classes and the permissions.
-
-Can anybody give me a hint in which documentation I can found more.
-
-Thanks
-
-  Carsten
 
 --
 This message was distributed to subscribers of the selinux mailing list.
