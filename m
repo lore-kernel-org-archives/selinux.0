@@ -1,38 +1,30 @@
-Subject: Re: What's the relationship between existing mls files?
+Subject: Re: issue on confidentiality
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Park Lee <parklee_sel@yahoo.com>
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <20041022171255.77893.qmail@web51507.mail.yahoo.com>
-References: <20041022171255.77893.qmail@web51507.mail.yahoo.com>
+In-Reply-To: <20041022174344.38864.qmail@web51503.mail.yahoo.com>
+References: <20041022174344.38864.qmail@web51503.mail.yahoo.com>
 Content-Type: text/plain
-Message-Id: <1098467023.7614.299.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1098467279.7614.304.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 22 Oct 2004 13:43:43 -0400
+Date: Fri, 22 Oct 2004 13:47:59 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-10-22 at 13:12, Park Lee wrote:
-> Then, If I change one of the files, I must change it's countpart, Am I
-> right?
+On Fri, 2004-10-22 at 13:43, Park Lee wrote:
+> On Fri, 22 Oct 2004 at 12:47, Stephen Smalley wrote:
+>  
+> >You can actually express a MLS policy via a TE configuration; 
+> >it just starts to explode the type space if you have a large number
+> >of levels.
+> 
+> Would you please give me some hints on how to do it ?
 
-If you make a change to anything that affects the security server logic
-or the binary policy format, then you need to change both the libsepol
-code and the kernel code, yes.  You could revise the internal data
-structures of one or the other without necessarily changing the other,
-e.g. for optimization purposes, as long as the logic itself remains
-consistent and the binary policy format is unchanged.  But it is
-preferable to keep the code as consistent as possible.
-
-> Don't the kernel code and the core code refer to the same thing?
-> (please forgive my ignorance)
-
-As I said, originally checkpolicy was built from the same core source
-code as the kernel security server using macros to convert kernel types
-and APIs to corresponding userland ones, but the code was forked to
-allow specialization and to avoid requiring a copy of the kernel source
-tree for building checkpolicy.  So the libsepol code and the
-linux-2.6/security/selinux/ss code originated from the same code base
-and implements the same basic logic.
+You just define a role and a set of TE types for each MLS level, and
+then define allow rules among the types that are consistent with the MLS
+model.  Think of it as simply expressing the MLS model via an access
+matrix.  Sorry, I don't have time to give a step-by-step tutorial, but
+that should suffice to explain the idea.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
