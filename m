@@ -1,42 +1,75 @@
-To: SELinux@tycho.nsa.gov
-Subject: Announce: Slat 1.1.0 with policy deconditionalizer
+To: russell@coker.com.au
+Cc: <mayerf@tresys.com>,
+   "'Joshua D. Guttman disp: current'" <guttman@mitre.org>,
+   "'Karl MacMillan'" <kmacmillan@tresys.com>,
+   "'SELinux List'" <SELinux@tycho.nsa.gov>,
+   "'Stephen D. Smalley'" <sds@epoch.ncsc.mil>,
+   "'Amy L. Herzog'" <aherzog@mitre.org>,
+   "'Galen B. Williamson'" <gwilliam@mitre.org>,
+   "'Grant M. Wagner'" <gmw@tycho.ncsc.mil>, "'David Caplan'" <dac@tresys.com>,
+   ramsdell@mitre.org
+Subject: Re: Announce: SELinux conditional policy extensions
+References: <000c01c3f265$9139f860$020d010a@columbia.tresys.com>
+	<200402141451.08044.russell@coker.com.au>
 From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 20 Feb 2004 06:21:18 -0500
-In-Reply-To: <000c01c3f265$9139f860$020d010a@columbia.tresys.com>
-Message-ID: <ogty8qyxahd.fsf@divan.mitre.org>
+Date: 20 Feb 2004 08:05:53 -0500
+In-Reply-To: <200402141451.08044.russell@coker.com.au>
+Message-ID: <ogtu11lyk7i.fsf@divan.mitre.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Slat version 1.1.0 has been committed into the nsa module of the
-selinux project on SourceForge.  This version reimplements some old
-fixes that somehow were left out of the repository at NSA, and
-provides a new program called poldecond.
+Russell Coker <russell@coker.com.au> writes:
 
-The poldecond program accepts policy configuration files that use the
-conditional policy extension.  The program extracts the
-conditional-less policy defined by using the default value for each
-boolean in the input.  For example, suppose ping.te contains the
-following boolean declaration:
+> On Sat, 14 Feb 2004 06:14, "Frank Mayer" <mayerf@tresys.com> wrote:
 
-  bool user_ping false;
+> > 2) Because SE Linux introduced "pragmatic" mandatory security to
+> > the world, and it seems to be having success after our decades of
+> > failure of finding a means to introduce strong mandatory security
+> > to the "mainstream."  My observations to date are very few are
+> > concerned (rightly or wrongly) with rigorous policy analysis, and
+> > are more concerned with a practical mechanism to provide greater
+> > least privilege and system hardening.
+> 
+> Yes, this is an issue that can not be under-estimated.
+> 
+> Currently my work is tending towards providing less protection so
+> that it is more acceptable to the majority of users.  My personal
+> preference of the trade-off between security and usability is to
+> have more security than most people will be prepared to accept.  But
+> we have to do what's necessary to get the user-base.
 
-The command
+In my opinion, adding more complexity to the policy enforcement
+mechanism is likely to drive away new users.  Why should people be
+interested in an operating system that provides mandatory access
+control if they find its access control policy incomprehensible?
 
-  $ poldecond ping.te ping_false.te
+SE Linux policies are difficult to understand even with policies that
+make no use of the conditional policy extension.  Consider the
+situation surrounding information flow analysis.  Both MITRE and
+Tresys have produced tools that perform an information flow analysis.
+In a comprehensible system, it would be obvious how the two flow
+analyses relate.  I have yet to see a plausible account of the two
+flow analyses in a common framework.
 
-will produce a te file with user_ping = true branches elided.
+I have one suggestion for making SE Linux policies more
+comprehensible.  Suppose the semantics of a class is defined by
+binding it to one or more LSM hook functions that perform access
+control.  In this way, the author of a policy file would know that an
+allow statement that refers to, say, the file class is making a
+statement about permissions associated with the LSM file access
+control hooks, and statements that refer to the inode class is making
+a statement about permissions associated with the LSM inode access
+control hooks.
 
-The value for the first boolean declaration overrides all others, so
-one can derive other policies by adding boolean declarations with
-different defaults at the beginning of the input.  For example, to
-produce a te file with user_ping = false branches elided, use the
-command:
-
-  $ echo 'bool user_ping true;' | cat - ping.te | poldecond - ping_true.te
+Of course, the SE Linux Security Module implements a binding of
+classes to access control hooks, but documentation available to policy
+writers I've seen does not encourage the writers to rely on any
+particular binding.
 
 John
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
