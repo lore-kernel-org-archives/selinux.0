@@ -1,44 +1,100 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7HDY8Ha008713
-	for <selinux@tycho.nsa.gov>; Sun, 17 Aug 2003 09:34:10 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7HIj3Ha009082
+	for <selinux@tycho.nsa.gov>; Sun, 17 Aug 2003 14:45:03 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7HDWkOD018600
-	for <selinux@tycho.nsa.gov>; Sun, 17 Aug 2003 13:32:46 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-	by jazzswing.ncsc.mil  with ESMTP id h7HDWTKO018597
-	for <selinux@tycho.nsa.gov>; Sun, 17 Aug 2003 13:32:45 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id E0EE092719
-	for <selinux@tycho.nsa.gov>; Sun, 17 Aug 2003 23:33:44 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id CEA2D7F093
-	for <selinux@tycho.nsa.gov>; Sun, 17 Aug 2003 23:33:41 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: coreutils
-Date: Sun, 17 Aug 2003 23:33:41 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200308172333.41265.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h7HIheOD027189
+	for <selinux@tycho.nsa.gov>; Sun, 17 Aug 2003 18:43:40 GMT
+Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
+	by jazzswing.ncsc.mil  with ESMTP id h7HIheKO027186
+	for <selinux@tycho.nsa.gov>; Sun, 17 Aug 2003 18:43:40 GMT
+Subject: updated setfiles altroot patch
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="=-k1n5Z3MYZMRogyOaji2I"
+Message-Id: <1061145897.6609.139.camel@chris.pebenito.net>
+Mime-Version: 1.0
+Date: Sun, 17 Aug 2003 13:44:58 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've modified the coreutils patch for 5.0.90 and put the Debian packages in 
-the usual place.
 
-I encourage anyone who wants support for the latest coreutils to take a look 
-at my patch instead of doing it themself, it's a real pain.  The coreutils 
-tests have been made much more extensive between 5.0 and 5.0.90, and the 
-original code failed many of them.
+--=-k1n5Z3MYZMRogyOaji2I
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Here is the alt root patch, against the policycoreutils 1.1 setfiles.
+
+ setfiles/setfiles.c |   56 +++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 53 insertions(+), 3 deletions(-)
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer, SELinux
+Hardened Gentoo Linux
+ 
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
+Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
+--=-k1n5Z3MYZMRogyOaji2I
+Content-Disposition: attachment; filename=policycoreutils-1.1-setfiles.diff
+Content-Type: text/x-patch; name=policycoreutils-1.1-setfiles.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdXIgcG9saWN5Y29yZXV0aWxzLTEuMS5vcmlnL3NldGZpbGVzL3NldGZpbGVzLmMgcG9s
+aWN5Y29yZXV0aWxzLTEuMS9zZXRmaWxlcy9zZXRmaWxlcy5jDQotLS0gcG9saWN5Y29yZXV0aWxz
+LTEuMS5vcmlnL3NldGZpbGVzL3NldGZpbGVzLmMJMjAwMy0wNy0xNCAxNTowMDowNi4wMDAwMDAw
+MDAgLTA1MDANCisrKyBwb2xpY3ljb3JldXRpbHMtMS4xL3NldGZpbGVzL3NldGZpbGVzLmMJMjAw
+My0wOC0xNyAxMzoyMjoyMC4wMDAwMDAwMDAgLTA1MDANCkBAIC0xNyw2ICsxNyw3IEBADQogICog
+LWQgICBTaG93IHdoYXQgc3BlY2lmaWNhdGlvbiBtYXRjaGVkIGVhY2ggZmlsZS4NCiAgKiAtbglE
+byBub3QgY2hhbmdlIGFueSBmaWxlIGxhYmVscy4NCiAgKiAtcSAgIEJlIHF1aWV0IChzdXBwcmVz
+cyBub24tZXJyb3Igb3V0cHV0KS4NCisgKiAtciAgIFVzZSBhbiBhbHRlcm5hdGUgcm9vdCBwYXRo
+DQogICogLXMgICBVc2Ugc3RkaW4gZm9yIGEgbGlzdCBvZiBmaWxlcyBpbnN0ZWFkIG9mIHNlYXJj
+aGluZyBhIHBhcnRpdGlvbi4NCiAgKiAtdglTaG93IGNoYW5nZXMgaW4gZmlsZSBsYWJlbHMuICAN
+CiAgKiAtVyAgIFdhcm4gYWJvdXQgZW50cmllcyB0aGF0IGhhdmUgbm8gbWF0Y2hpbmcgZmlsZS4N
+CkBAIC03OCw2ICs3OSw4IEBADQogc3RhdGljIGludCB1c2Vfc3RkaW4gPSAwOw0KIHN0YXRpYyBp
+bnQgdmVyYm9zZSA9IDA7DQogc3RhdGljIGludCB3YXJuX25vX21hdGNoID0gMDsNCitzdGF0aWMg
+Y2hhciAqcm9vdHBhdGggPSBOVUxMOw0KK3N0YXRpYyBpbnQgcm9vdHBhdGhsZW4gPSAwOw0KIA0K
+IC8qDQogICogUHJvZ3JhbSBuYW1lIGFuZCBlcnJvciBtZXNzYWdlIGJ1ZmZlci4NCkBAIC0yNjcs
+MTEgKzI3MCwyMyBAQA0KIGludCBtYXRjaChjb25zdCBjaGFyICpuYW1lLCBzdHJ1Y3Qgc3RhdCAq
+c2IpDQogew0KIAlpbnQgaSwgcmV0Ow0KKwljb25zdCBjaGFyICpmdWxsbmFtZSA9IG5hbWU7DQog
+DQotCXJldCA9IGxzdGF0KG5hbWUsIHNiKTsNCisJLyogZnVsbG5hbWUgd2lsbCBiZSB0aGUgcmVh
+bCBmaWxlIHRoYXQgZ2V0cyBsYWJlbGVkDQorCSAqIG5hbWUgd2lsbCBiZSB3aGF0IGlzIG1hdGNo
+ZWQgaW4gdGhlIHBvbGljeSAqLw0KKwlpZiAoTlVMTCAhPSByb290cGF0aCkgew0KKwkJaWYgKDAg
+IT0gc3RybmNtcChyb290cGF0aCwgbmFtZSwgcm9vdHBhdGhsZW4pKSB7DQorCQkJZnByaW50Zihz
+dGRlcnIsICIlczogICVzIGlzIG5vdCBsb2NhdGVkIGluICVzXG4iLCANCisJCQkJcHJvZ25hbWUs
+IG5hbWUsIHJvb3RwYXRoKTsNCisJCQlyZXR1cm4gLTE7DQorCQl9DQorCQluYW1lICs9IHJvb3Rw
+YXRobGVuOw0KKwl9DQorDQorCXJldCA9IGxzdGF0KGZ1bGxuYW1lLCBzYik7DQogCWlmIChyZXQp
+IHsNCiAJCWZwcmludGYoc3RkZXJyLCAiJXM6ICB1bmFibGUgdG8gc3RhdCBmaWxlICVzXG4iLCBw
+cm9nbmFtZSwNCi0JCQluYW1lKTsNCisJCQlmdWxsbmFtZSk7DQogCQlyZXR1cm4gLTE7DQogCX0N
+CiANCkBAIC01MTEsNiArNTI2LDIzIEBADQogCXJldHVybiAwOw0KIH0NCiANCit2b2lkIHNldF9y
+b290cGF0aChjb25zdCBjaGFyICphcmcpDQorew0KKwlpbnQgbGVuOw0KKw0KKwlyb290cGF0aCA9
+IHN0cmR1cChhcmcpOw0KKwlpZiAoTlVMTCA9PSByb290cGF0aCkgew0KKwkJZnByaW50ZihzdGRl
+cnIsICIlczogIGluc3VmZmljaWVudCBtZW1vcnkgZm9yIHJvb3RwYXRoXG4iLCANCisJCQlwcm9n
+bmFtZSk7DQorCQlleGl0KDEpOw0KKwl9DQorDQorCS8qIHRyaW0gdHJhaWxpbmcgLywgaWYgcHJl
+c2VudCAqLw0KKwlsZW4gPSBzdHJsZW4ocm9vdHBhdGgpOw0KKwl3aGlsZSAoJy8nID09IHJvb3Rw
+YXRoW2xlbiAtIDFdKQ0KKwkJcm9vdHBhdGhbLS1sZW5dID0gMDsNCisJcm9vdHBhdGhsZW4gPSBs
+ZW47DQorfQ0KIA0KIGludCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikNCiB7DQpAQCAtNTIx
+LDcgKzU1Myw3IEBADQogCWludCBvcHQsIGl0ZW1zLCBsZW4sIGxpbmVubywgcGFzcywgbmVyciwg
+cmVnZXJyLCBpOw0KIA0KIAkvKiBQcm9jZXNzIGFueSBvcHRpb25zLiAqLw0KLQl3aGlsZSAoKG9w
+dCA9IGdldG9wdChhcmdjLCBhcmd2LCAiZG5wcXN2eFciKSkgPiAwKSB7DQorCXdoaWxlICgob3B0
+ID0gZ2V0b3B0KGFyZ2MsIGFyZ3YsICJkbnBxcnN2eFciKSkgPiAwKSB7DQogCQlzd2l0Y2ggKG9w
+dCkgew0KIAkJY2FzZSAnZCc6DQogCQkJZGVidWcgPSAxOw0KQEAgLTUzMiw2ICs1NjQsMjAgQEAN
+CiAJCWNhc2UgJ3EnOg0KIAkJCXF1aWV0ID0gMTsNCiAJCQlicmVhazsNCisJCWNhc2UgJ3InOg0K
+KwkJCWlmIChvcHRpbmQgKyAxID49IGFyZ2MpIHsNCisJCQkJZnByaW50ZihzdGRlcnIsICJ1c2Fn
+ZTogICVzIC1yIHJvb3RwYXRoXG4iLCANCisJCQkJCWFyZ3ZbMF0pOw0KKwkJCQlleGl0KDEpOw0K
+KwkJCX0NCisJCQlpZiAoTlVMTCAhPSByb290cGF0aCkgew0KKwkJCQlmcHJpbnRmKHN0ZGVyciwg
+DQorCQkJCQkiJXM6IG9ubHkgb25lIC1yIGNhbiBiZSBzcGVjaWZpZWRcbiIsIA0KKwkJCQkJYXJn
+dlswXSk7DQorCQkJCWV4aXQoMSk7DQorCQkJfQ0KKwkJCXNldF9yb290cGF0aChhcmd2W29wdGlu
+ZCsrXSk7DQorCQkJYnJlYWs7DQogCQljYXNlICdzJzoNCiAJCQl1c2Vfc3RkaW4gPSAxOw0KIAkJ
+CWFkZF9hc3NvYyA9IDA7DQpAQCAtNzg5LDYgKzgzNSwxMCBAQA0KIAl9DQogCWVsc2UgZm9yICg7
+IG9wdGluZCA8IGFyZ2M7IG9wdGluZCsrKQ0KIAl7DQorCQlpZiAoTlVMTCAhPSByb290cGF0aCkg
+ew0KKwkJCVFQUklOVEYoIiVzOiAgbGFiZWxpbmcgZmlsZXMsIHByZXRlbmRpbmcgJXMgaXMgL1xu
+IiwNCisJCQkJYXJndlswXSwgcm9vdHBhdGgpOw0KKwkJfQ0KIA0KIAkJUVBSSU5URigiJXM6ICBs
+YWJlbGluZyBmaWxlcyB1bmRlciAlc1xuIiwgYXJndlswXSwNCiAJCQlhcmd2W29wdGluZF0pOw0K
+
+
+--=-k1n5Z3MYZMRogyOaji2I--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
