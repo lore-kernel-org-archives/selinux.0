@@ -1,53 +1,40 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98FkUrT022770
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 11:46:30 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98FkUZ2009562
-	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 15:46:30 GMT
-Subject: Re: need advice for ld_so_cache_t errors
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i98HOLrT023661
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 13:24:21 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i98HNCBk013590
+	for <selinux@tycho.nsa.gov>; Fri, 8 Oct 2004 17:23:12 GMT
+Subject: Re: fuse
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Greg Norris <haphazard@kc.rr.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20041005010057.GA31754@yggdrasil.localdomain>
-References: <20041001233554.GA26550@yggdrasil.localdomain>
-	 <20041002043740.GA28765@yggdrasil.localdomain>
-	 <20041002165041.GB30426@yggdrasil.localdomain>
-	 <200410040108.35839.russell@coker.com.au>
-	 <20041004014820.GA25896@yggdrasil.localdomain>
-	 <20041005003015.GA31681@yggdrasil.localdomain>
-	 <20041005010057.GA31754@yggdrasil.localdomain>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040922192225.GE7308@lkcl.net>
+References: <20040922005509.GD14303@lkcl.net>
+	 <200409230424.55524.russell@coker.com.au>  <20040922192225.GE7308@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1097250170.16641.138.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1097256081.16641.179.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 08 Oct 2004 11:42:50 -0400
+Date: Fri, 08 Oct 2004 13:21:22 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-10-04 at 21:00, Greg Norris wrote:
-> Ok, I've (finally) figured out what's actually failing.  When I strace a 
-> tail command on my selinux box, the following entries seem of interest:
+On Wed, 2004-09-22 at 15:22, Luke Kenneth Casson Leighton wrote:
+>  oh, sorry, i should have said: fscontext, that sort of thing.
 > 
->    open("/etc/ld.so.cache", O_RDONLY)      = 3
->    fstat64(3, {st_mode=S_IFREG|0644, st_size=11997, ...}) = 0
->    old_mmap(NULL, 11997, PROT_READ, MAP_PRIVATE, 3, 0) = -1 EACCES (Permission denied)
->    close(3)                                = 0
-> 
->    open("/usr/lib/locale/locale-archive", O_RDONLY|O_LARGEFILE) = 3
->    fstat64(3, {st_mode=S_IFREG|0644, st_size=1589840, ...}) = 0
->    mmap2(NULL, 1589840, PROT_READ, MAP_PRIVATE, 3, 0) = -1 EACCES (Permission denied)
->    close(3)                                = 0
-> 
-> When I strace the same command on my non-selinux box (also running
-> Debian sid), both of the mmaps are successful.  So I guess I need to
-> figure out why the the mmaps are being blocked.
-> 
-> I'm not sure why selinux would log that as a denied execute, tho.
+>  because it doesn't look like there's a way to pass fscontext
+>  arguments to the fuse module, and it uses man 2 mount() which
+>  doesn't take any arguments (except some flags, nothing that
+>  looks remotely like it could be used to pass an fscontext=),
+>  only the source and destination of the mount point
+>  (source = /proc/fs/fuse/dev, dest = /yourmountpoint).
 
-Legacy binary?  Read-only mmap/mprotect requests are now automatically
-translated to read-execute for backward compatibility when executing
-legacy binaries due to the NX support that was added to the upstream
-kernel.  That translation happens before the SELinux hooks are
-encountered, so SELinux just sees it as a read/execute request.
+No special interface for that, just passes the option string via the
+data parameter to mount(2).  So if you are using the patched mount
+program, and fuse takes the typical string representation of mount
+options, then nothing special required to use fscontext=.  Only
+filesystems that use a binary struct to pass the data require special
+handling, like NFS.
+
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
