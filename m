@@ -1,92 +1,54 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA03302
-	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 04:38:53 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id JAA06171
-	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 09:36:18 GMT
-Received: from pandora.snu.edu (pandora.snu.edu [204.126.2.1])
-	by jazzswing.ncsc.mil  with SMTP id JAA06167
-	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 09:36:18 GMT
-Message-Id: <se0fbfcb.099@atlas.snu.edu>
-Date: Mon, 30 Dec 2002 03:37:56 -0600
-From: "Joshua Brindle" <JBrindle@snu.edu>
-To: <bam@snoopy.apana.org.au>
-Cc: <selinux@tycho.nsa.gov>
-Subject: Re: automake gone?
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA03611
+	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 06:17:45 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id gBUBHiI25319
+	for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 11:17:44 GMT
+Received: from mozart.fwsystems.com (mozart.fwsystems.com [63.101.67.2])
+        by jazzband.ncsc.mil  with ESMTP id gBUBHff25315 for <selinux@tycho.nsa.gov>; Mon, 30 Dec 2002 11:17:41 GMT
+Date: Mon, 30 Dec 2002 06:17:29 -0500
+From: forrest whitcher <fw@fwsystems.com>
+To: Ben Ritter <benritter@earthlink.net>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Mandrake and Slackware Distros
+Message-Id: <20021230061729.16f6d5fa.fw@fwsystems.com>
+In-Reply-To: <CF725BE6-1A0C-11D7-9B43-003065AE1370@earthlink.net>
+References: <CF725BE6-1A0C-11D7-9B43-003065AE1370@earthlink.net>
 Mime-Version: 1.0
-Content-Type: multipart/alternative; boundary="=_69364A3B.FB9AE0F1"
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
 
---=_69364A3B.FB9AE0F1
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+I've been testing / using the selinux kernel on slackware-current (running 
+in a VMware vm) with good results for 3 months now, and have also now 
+installed lsm/selinux on a laptop.
 
-Thanks for putting that back :). The archive there is the 2002102211
-one, are you planning on adding automake support in the newest
-(20021212) archive? If not can you give me the info to do it? Thank you
- 
-Joshua Brindle
-UNIX Administrator
-Southern Nazarene University
+I'll be installing a new server soon and will run on either slack or rh.
+w/ selinux.
 
->>> Brian May 12/30/02 02:58AM >>> 
-On Mon, Dec 30, 2002 at 01:30:52AM -0600, Joshua Brindle wrote: 
-> Brian, while wondering if you were going to add your automake stuff
-to 
-> the new selinux-small archive i went to 
-> http://www.microcomaustralia.com.au/debian where the original was and
+I haven't had time to put together my notes of what needs to be done on
+slack. certainly you need to build / install PAM, if kerberos isn't 
+installed then the ssh build needs to be patched and I think there was a 
+problem with incude header files involving ncurses and a few other minor
+issues, mostly predictable due to layout problems.
 
-> found nothing. Have you decided against using automake or providing
-this 
-> on future releases? If you have, could you possibly give me the info
-to 
-> do it myself and i'll support it here to anyone that needs it. Thank
+I've tried on more experimental linuxes and had very poor results however.
 
-> you 
+forrest
 
-Sorry about that, it got accidently removed when upgrading my archive.
+On Fri, 27 Dec 2002 18:33:55 -0800 (unchecked - local sync NTPstrat4)
+Ben Ritter <benritter@earthlink.net> did inscribe thusly:
 
-
-The file should be back again in 5 minutes. 
--- 
-Brian May 
-
-
---=_69364A3B.FB9AE0F1
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Description: HTML
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
-<META content="MSHTML 6.00.2800.1126" name=GENERATOR></HEAD>
-<BODY style="MARGIN-TOP: 2px; FONT: 8pt Tahoma; MARGIN-LEFT: 2px">
-<DIV>Thanks for putting that back :). The archive there is the 2002102211 one, 
-are you planning on adding automake support in the newest (20021212) archive? If 
-not can you give me the info to do it? Thank you</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Joshua Brindle<BR>UNIX Administrator<BR>Southern Nazarene 
-University<BR><BR>&gt;&gt;&gt; Brian May <BAM@SNOOPY.APANA.ORG.AU>12/30/02 
-02:58AM &gt;&gt;&gt; <BR>On Mon, Dec 30, 2002 at 01:30:52AM -0600, Joshua 
-Brindle wrote: <BR>&gt; Brian, while wondering if you were going to add your 
-automake stuff to <BR>&gt; the new selinux-small archive i went to <BR>&gt; 
-<U><A 
-href="http://www.microcomaustralia.com.au/debian">http://www.microcomaustralia.com.au/debian</A></U> 
-where the original was and <BR>&gt; found nothing. Have you decided against 
-using automake or providing this <BR>&gt; on future releases? If you have, could 
-you possibly give me the info to <BR>&gt; do it myself and i'll support it here 
-to anyone that needs it. Thank <BR>&gt; you <BR><BR>Sorry about that, it got 
-accidently removed when upgrading my archive. <BR><BR>The file should be back 
-again in 5 minutes. <BR>-- <BR>Brian May 
-<BAM@SNOOPY.APANA.ORG.AU><BR></DIV></BODY></HTML>
-
---=_69364A3B.FB9AE0F1--
+> Hey Group,
+> I'm kinda new here, how secure are the current distributions of 
+> Mandrake and Slackware linux?
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
