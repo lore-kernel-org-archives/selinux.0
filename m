@@ -1,46 +1,63 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA13561
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 12:00:21 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA13481
+	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 11:52:09 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA10527
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 16:57:12 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-	by jazzswing.ncsc.mil  with ESMTP id QAA10523
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 16:57:11 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.11.6/8.11.6) with ESMTP id h1JH0JK31964
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 12:00:19 -0500
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.64.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id h1JH0Ja26730
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 12:00:19 -0500
-Received: from redhat.com (redsox.boston.redhat.com [172.16.65.225])
-	by mail.boston.redhat.com (8.11.6/8.11.6) with ESMTP id h1JH0HA14224
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 12:00:17 -0500
-Message-ID: <3E53B822.8060603@redhat.com>
-Date: Wed, 19 Feb 2003 12:00:18 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by jazzswing.ncsc.mil  with ESMTP id QAA10012
+	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 16:49:00 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id QAA10008
+	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 16:48:58 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 50FAE92569
+	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 03:52:03 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id C05B3270B
+	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 17:51:53 +0100 (CET)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Cover Story in Linux Journal
+Date: Wed, 19 Feb 2003 17:51:53 +0100
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Ok what am I doing wrong?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200302191751.53243.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I did a make quickinstall and added support for ext3 and networking.
-I have never gotten newrole to work correctly.  Is there some step that 
-I am missing?
+An article on SE Linux by Carsten Grohmann and Konstantin Agouros is the 
+February cover story for Linux Journal.  It's a good article and I recommend 
+that everyone here reads it.  Users can learn a lot from it, and developers 
+can get some ideas of things to improve.
 
-[root@pxe src]# id
-uid=0(root) gid=0(root) 
-groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel) 
-context=root:user_r:user_t sid=324
-[root@pxe src]# newrole -r sysadmin_r
-Couldn't get default type.
-[root@pxe src]# newrole -r sysadmin_r -t sysadmin_t
-Authenticating root.
-Password:
-root:sysadmin_r:sysadmin_t is not a valid context
 
+The article mentions a problem with /etc/localtime being a hard link on SUSE 
+causing problems.  This is something we should fix in policy.
+
+Maybe we should just label all the time zone files readable_t?
+
+
+A problem is mentioned with suse mingetty.  The error messages displayed in 
+the article appear to have come from permissive mode (in enforcing mode the 
+directories containing the files in question could not be searched).  Perhaps 
+we should just add the following rule to getty.te:
+dontaudit getty_t domain:dir { getattr search };
+That should fix mingetty and other similar getties.
+
+
+Regarding the name of cron, the Red Hat name for cron is crond, the Debian 
+(and apparently SUSE) name is cron.  The idea is that you only have one cron 
+program installed.
+
+
+I agree with removing updatedb.  If you like security then you don't like 
+updatedb anyway.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
