@@ -1,55 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA26715
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 10:51:14 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA17663
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:49:47 GMT
-Received: from lyta.coker.com.au ([209.151.19.136])
-        by jazzband.ncsc.mil  with ESMTP id OAA17659 for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:49:40 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: Re: Configuration issues on a new installation
-Date: Thu, 27 Jun 2002 10:34:00 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20020627002949.30727.qmail@web40011.mail.yahoo.com>
-In-Reply-To: <20020627002949.30727.qmail@web40011.mail.yahoo.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA26895
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 11:09:30 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA09427
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:09:03 GMT
+Received: from web40205.mail.yahoo.com (web40205.mail.yahoo.com [66.218.78.66])
+	by jazzswing.ncsc.mil  with SMTP id PAA09421
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 15:09:02 GMT
+Message-ID: <20020627150927.32672.qmail@web40205.mail.yahoo.com>
+Date: Thu, 27 Jun 2002 08:09:27 -0700 (PDT)
+From: Michael Nyika <nyix@yahoo.com>
+Subject: RE: System.te ?
+To: Stephen Smalley <sds@tislabs.com>,
+        "Westerman, Mark" <Mark.Westerman@csoconline.com>
+Cc: "'Michael Nyika'" <nyix@yahoo.com>, selinux@tycho.nsa.gov
+In-Reply-To: <Pine.GSO.4.33.0206270938330.1331-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020627145052.795357CC7@lyta.coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 26 Jun 2002 20:29, Brad Chapman wrote:
->        If you are interested, here is another dmesg output after some
-> system use.
+Hello Again. Question: 
 
-You need the following in gpm.te (it'll be in my new tree):
-ifdef(`devfsd.te', `file_type_auto_trans(gpm_t, device_t, gpmctl_t)')
+If Sysadm_t and user_t are domains whose definitions
+exist in admin.te and user.te in policy/domain, then
+why isnt there ( i presume) a file called system.te to
+define default behaviour for the system_t domain for
+system processes, in the same directory (or other
+dir)?
 
-For alsa, is /dev/snd really the right thing to do?  Probably best to have a 
-script do this whcih is labelled such that a transition from initrc_t will 
-take place.
 
-For the syslogd/klogs errors, change the syslogd.te and klogd.te you need to 
-change the domain_auto_trans() rules to take a transition from init_t instead 
-of initrc_t because you are not running those daemons in the normal fashion.
-
-Maybe you should have /usr/X11R6/bin/XFree86 labelled as 
-system_u:object_r:xserver_exec_t...
-
-/dev/nvidiactl needs an appropriate type.
-
-There's still a heap of issues that my latest devfsd.te will solve.  See 
-http://www.coker.com.au/selinux/selinux-small/ ...
-
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com
 
 --
 You have received this message because you are subscribed to the selinux list.
