@@ -1,37 +1,48 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i93F8krT012898
-	for <selinux@tycho.nsa.gov>; Sun, 3 Oct 2004 11:08:47 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i93F8hqH019257
-	for <selinux@tycho.nsa.gov>; Sun, 3 Oct 2004 15:08:45 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Greg Norris <haphazard@kc.rr.com>
-Subject: Re: need advice for ld_so_cache_t errors
-Date: Mon, 4 Oct 2004 01:08:35 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20041001233554.GA26550@yggdrasil.localdomain> <20041002043740.GA28765@yggdrasil.localdomain> <20041002165041.GB30426@yggdrasil.localdomain>
-In-Reply-To: <20041002165041.GB30426@yggdrasil.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200410040108.35839.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i93KR0rT013818
+	for <selinux@tycho.nsa.gov>; Sun, 3 Oct 2004 16:27:02 -0400 (EDT)
+Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i93KQxqH023879
+	for <selinux@tycho.nsa.gov>; Sun, 3 Oct 2004 20:26:59 GMT
+Subject: Re: purpose of the staff_r role?
+From: Wolfgang Pfeiffer <roto@gmx.net>
+To: Tom Anderson <granite217@yahoo.com>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040930013829.10463.qmail@web14925.mail.yahoo.com>
+References: <20040930013829.10463.qmail@web14925.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1096835213.2534.151.camel@debby>
+Mime-Version: 1.0
+Date: Sun, 03 Oct 2004 22:26:53 +0200
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 3 Oct 2004 02:50, Greg Norris <haphazard@kc.rr.com> wrote:
-> Could you check one of your Debian machines, and see if "execute" is
-> being included somehow?  I'm not sure how we'd have different results,
-> tho, as I'm using your selinux-policy-default package (1.14-2).
+On Thu, 2004-09-30 at 03:38, Tom Anderson wrote: 
+> Can anyone explain the purpose/benefit of having an account under the
+> staff_r role?  I thought it was to allow limited administrative
+> functions, but I've discovered that it doesn't even allow reading the
+> logfiles under /var/log/.  What purpose does it serve, other than to
+> limit who can transition to sysadm_r?
+> 
+> SE Linux appears to be quite powerful, but dear $deity it's confusing. 
+> I'd sell my soul for a nice, readable O'Reilly Press title covering
+> this stuff!
 
-I've just run apol from setools and it tells me that no execute access is 
-being granted.
+Some weeks ago when googling about for some docs (that is: Beginner
+docs) I stumbled over this site:
 
+http://www.lurking-grue.org/
+
+For me, a beginner with selinux, the most usable I found so far.
+
+[ Thanks, Faye Coker ]
+
+HTH
+
+Wolfgang
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Wolfgang Pfeiffer                           gpg ID: 0AA7E825 
+Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
