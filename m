@@ -1,52 +1,36 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0SG9URb005753
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 11:09:31 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i0SG9T1I022483
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 16:09:29 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0SGcPRb005972
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 11:38:26 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i0SGb8VK027931
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 16:37:08 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i0SG9Sbs022479 for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 16:09:28 GMT
-Subject: Re: Must SELinux have a initrd image and RAM disk when it boots
-	up? and...
+	by jazzswing.ncsc.mil  with ESMTP id i0SGb7lx027928
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 16:37:08 GMT
+Subject: Re: Problem with selinux configuration
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_2004@yahoo.com.cn>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20040128155450.12205.qmail@web15207.mail.bjs.yahoo.com>
-References: <20040128155450.12205.qmail@web15207.mail.bjs.yahoo.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: keen@internode.on.net, selinux@tycho.nsa.gov
+In-Reply-To: <200401290300.33895.russell@coker.com.au>
+References: <4017be35.30f.6615.1100265729@internode.on.net>
+	 <200401290300.33895.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1075306166.19427.61.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1075307887.19427.71.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 28 Jan 2004 11:09:27 -0500
+Date: Wed, 28 Jan 2004 11:38:07 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-01-28 at 10:54, Park Lee wrote:
->  and download 2.6.0-test11 kernel with SELinux patch applied and
-> SELinux Full Userland Archive from NSA's SELinux web site.
+On Wed, 2004-01-28 at 11:00, Russell Coker wrote:
+> Why are you building RPMs?  For Red Hat or Fedora you are best advised to use 
+> Dan Walsh's packages: ftp://people.redhat.com/dwalsh/SELinux
+> 
+> Dan's packages are the official packages that are going into FC2.
 
-I'd use 2.6.2-rc2 from kernel.org.  Or the Fedora Core development
-kernel.
-
-> When I configured the kernel,I have chosen the following options in
-> the Block Devices :
->  <*> RAM disk support
->  (4096) Default RAM disk size
->  [*] Initial RAM disk (initrd) support
-
-Try increasing the default ram disk size, e.g. to 8192.
-CONFIG_BLK_DEV_RAM_SIZE=8192.
->  
->  and Must SELinux have a two boot-up 
-> phase using a initrd RAM disk?
-
-Not anymore.  The modified init program will load the policy from the
-disk and then re-exec itself.
->  
-> Thus, prelink-0.3.0-16.sel.src.rpm can't be done.
-> Why? Is there some errors in it or in the Fedora core 1 system?
-
-Odd; this worked for me.  If you can't build a patched prelink, then you
-should disable prelink on your system.
+That isn't really an option unless he is willing to install rawhide, as
+Dan's packages have been rebuilt against it and now have dependencies on
+packages from it, e.g. newer glibc, newer db4, etc.  People who want to
+use SELinux on Fedora Core 1 still have to use the older userland.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
