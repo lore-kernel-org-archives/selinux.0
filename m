@@ -1,134 +1,127 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA11690
-	for <selinux@tycho.nsa.gov>; Sun, 23 Feb 2003 19:01:21 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id XAA08605
-	for <selinux@tycho.nsa.gov>; Sun, 23 Feb 2003 23:58:09 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id XAA08601
-	for <selinux@tycho.nsa.gov>; Sun, 23 Feb 2003 23:58:07 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id A842B9253C
-	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 11:00:54 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 0B56C8D6
-	for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2003 01:00:42 +0100 (CET)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: char signedness
-Date: Mon, 24 Feb 2003 01:00:40 +0100
+Message-ID: <3E598D32.390F96D9@att.net>
+Date: Sun, 23 Feb 2003 19:10:42 -0800
+From: Gerald E <gwe3409@att.net>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_oCWW+UCiu7AAPAq"
-Message-Id: <200302240100.40208.russell@coker.com.au>
+To: Brian May <bam@snoopy.apana.org.au>
+CC: Joshua Brindle <JBrindle@snu.edu>, SELinux@tycho.nsa.gov
+Subject: Re: XML ACL standard ratified
+References: <se55ee2c.092@atlas.snu.edu> <20030222034752.GC25815@snoopy.apana.org.au>
+Content-Type: multipart/alternative;
+ boundary="------------003F1F5BA0DD9A366DF4157C"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_oCWW+UCiu7AAPAq
-Content-Type: text/plain;
-  charset="us-ascii"
+--------------003F1F5BA0DD9A366DF4157C
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-I have attached a patch for selinux-small that makes it work correctly on 
-platforms where the "char" type is unsigned.
+Having read at least part of the XACML standard and sat through some
+presentations on it I could call my self an expert, but I am not.
 
-This affects ARM, PPC, and S/390.  Also the code will not perform correctly on 
-platforms with signed char (such as i386) in the case of character 255.
+Basically it is an extension to SAML, with eXtentions for how to exchange
+security tokens for permissions for authorization.
+ http://www.oasis-open.org/committees/security/
+For SAML
+http://www.oasis-open.org/committees/xacml/
+for XACML
+in addition there is additional mechanisms for security management.
+This standard will become more important as things like web services are
+implemented.
 
-This closes bug #182170 in the Debian BTS.
+I am on the W3C Web Services Architecture group for my company, and security is
+being addressed.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Gerald Edgar
 
---Boundary-00=_oCWW+UCiu7AAPAq
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="sign.diff"
+Brian May wrote:
+
+> On Fri, Feb 21, 2003 at 09:14:52AM -0600, Joshua Brindle wrote:
+> > http://www.eweek.com/article2/0,3959,893831,00.asp
+> > XACML (extensible access control markup language) ratified
+> >
+> > will selinux be taking advantage of this? i know someone was working on
+> > some xml stuff a while back but everytime i go look at where it is it
+> > hasn't changed.. anyone else planning on implementing an XML policy
+> > translator or something? Thanks..
+>
+> So far I only have had a quick look at XACML (and may be totally
+> mistaken, I am still downloading the specs), but it would appear to
+> serve a different purpose to SE-Linux.
+>
+> XACML, while a central policy, like SE-Linux, appears to be focused
+> around what actions individual users can/can't do. eg. Can a user log in
+> at time X:XXam?.
+>
+> SE-Linux on the other hand is focused on what processes can access
+> what resources. eg. Can Mozilla access the user's PGP private key?
+> Can inetd bind on port 80?
+>
+> These aren't necessarily mutually exclusive goals, just different
+> goals.
+> --
+> Brian May <bam@snoopy.apana.org.au>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+
+--------------003F1F5BA0DD9A366DF4157C
+Content-Type: text/html; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="sign.diff"
 
-diff -ruN selinux-orig/libsecure/test/msgget_s.c selinux-small-2003011510/libsecure/test/msgget_s.c
---- selinux-orig/libsecure/test/msgget_s.c	2001-07-18 22:38:06.000000000 +0200
-+++ selinux-small-2003011510/libsecure/test/msgget_s.c	2003-02-24 00:12:46.000000000 +0100
-@@ -31,11 +31,11 @@
-   key_t ipc_key;
-   int ret;
-   security_id_t sid = SECSID_NULL;
--  char c;
-+  int c_int;
-   int id;
- 
--  while ( (c = getopt(argc, argv, "k:c:s:")) != EOF) {
--    switch (c) {
-+  while ( (c_int = getopt(argc, argv, "k:c:s:")) != EOF) {
-+    switch ((char)c_int) {
-     case 'k':
-       ipc_key = atoi(optarg);
-       valid_ipc_key = 1;
-Binary files selinux-orig/libsecure/test/msgsnd_s and selinux-small-2003011510/libsecure/test/msgsnd_s differ
-diff -ruN selinux-orig/libsecure/test/msgsnd_s.c selinux-small-2003011510/libsecure/test/msgsnd_s.c
---- selinux-orig/libsecure/test/msgsnd_s.c	2001-07-18 22:38:06.000000000 +0200
-+++ selinux-small-2003011510/libsecure/test/msgsnd_s.c	2003-02-24 00:13:39.000000000 +0100
-@@ -42,10 +42,10 @@
-   int valid_msg_sid = 0;
-   char *word, *first_words;
-   int ret;
--  char c;
-+  int c_int;
- 
--  while ( (c = getopt(argc, argv, "c:i:s:t:")) != EOF) {
--    switch (c) {
-+  while ( (c_int = getopt(argc, argv, "c:i:s:t:")) != EOF) {
-+    switch ((char)c_int) {
-     case 's':
-       if (valid_msg_sid) {
- 	fprintf (stderr, "Only a sid or a context may be given, not both\n");
-Binary files selinux-orig/libsecure/test/semget_s and selinux-small-2003011510/libsecure/test/semget_s differ
-diff -ruN selinux-orig/libsecure/test/semget_s.c selinux-small-2003011510/libsecure/test/semget_s.c
---- selinux-orig/libsecure/test/semget_s.c	2001-07-18 22:38:06.000000000 +0200
-+++ selinux-small-2003011510/libsecure/test/semget_s.c	2003-02-24 00:14:38.000000000 +0100
-@@ -32,11 +32,11 @@
-   key_t ipc_key;
-   int ret;
-   security_id_t sid;
--  char c;
-+  int c_int;
-   int id;
- 
--  while ( (c = getopt(argc, argv, "k:c:s:n:")) != EOF) {
--    switch (c) {
-+  while ( (c_int = getopt(argc, argv, "k:c:s:n:")) != EOF) {
-+    switch ((char)c_int) {
-     case 'k':
-       ipc_key = atoi(optarg);
-       valid_ipc_key = 1;
-Binary files selinux-orig/libsecure/test/shmget_s and selinux-small-2003011510/libsecure/test/shmget_s differ
-diff -ruN selinux-orig/libsecure/test/shmget_s.c selinux-small-2003011510/libsecure/test/shmget_s.c
---- selinux-orig/libsecure/test/shmget_s.c	2001-07-18 22:38:06.000000000 +0200
-+++ selinux-small-2003011510/libsecure/test/shmget_s.c	2003-02-24 00:13:51.000000000 +0100
-@@ -32,11 +32,11 @@
-   key_t ipc_key;
-   int err, ret;
-   security_id_t sid = SECSID_NULL;
--  char c;
-+  int c_int;
-   int id;
- 
--  while ( (c = getopt(argc, argv, "k:c:s:b:")) != EOF) {
--    switch (c) {
-+  while ( (c_int = getopt(argc, argv, "k:c:s:b:")) != EOF) {
-+    switch ((char)c_int) {
-     case 'k':
-       ipc_key = atoi(optarg);
-       valid_ipc_key = 1;
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+Having read at least part of the XACML standard and sat through some presentations
+on it I could call my self an expert, but I am not.
+<p>Basically it is an extension to SAML, with eXtentions for how to exchange
+security tokens for permissions for authorization.
+<br>&nbsp;<a href="http://www.oasis-open.org/committees/security/">http://www.oasis-open.org/committees/security/</a>
+<br><a href="http://www.oasis-open.org/committees/security/">For SAML</a>
+<br><a href="http://www.oasis-open.org/committees/xacml/">http://www.oasis-open.org/committees/xacml/</a>
+<br><a href="http://www.oasis-open.org/committees/xacml/">for XACML</a>
+<br>in addition there is additional mechanisms for security management.
+<br>This standard will become more important as things like web services
+are implemented.
+<p>I am on the W3C Web Services Architecture group for my company, and
+security is being addressed.
+<p>Gerald Edgar
+<p>Brian May wrote:
+<blockquote TYPE=CITE>On Fri, Feb 21, 2003 at 09:14:52AM -0600, Joshua
+Brindle wrote:
+<br>> <a href="http://www.eweek.com/article2/0,3959,893831,00.asp">http://www.eweek.com/article2/0,3959,893831,00.asp</a>
+<br>> XACML (extensible access control markup language) ratified
+<br>>
+<br>> will selinux be taking advantage of this? i know someone was working
+on
+<br>> some xml stuff a while back but everytime i go look at where it is
+it
+<br>> hasn't changed.. anyone else planning on implementing an XML policy
+<br>> translator or something? Thanks..
+<p>So far I only have had a quick look at XACML (and may be totally
+<br>mistaken, I am still downloading the specs), but it would appear to
+<br>serve a different purpose to SE-Linux.
+<p>XACML, while a central policy, like SE-Linux, appears to be focused
+<br>around what actions individual users can/can't do. eg. Can a user log
+in
+<br>at time X:XXam?.
+<p>SE-Linux on the other hand is focused on what processes can access
+<br>what resources. eg. Can Mozilla access the user's PGP private key?
+<br>Can inetd bind on port 80?
+<p>These aren't necessarily mutually exclusive goals, just different
+<br>goals.
+<br>--
+<br>Brian May &lt;bam@snoopy.apana.org.au>
+<p>--
+<br>This message was distributed to subscribers of the selinux mailing
+list.
+<br>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+<br>the words "unsubscribe selinux" without quotes as the message.</blockquote>
+</html>
 
---Boundary-00=_oCWW+UCiu7AAPAq--
+--------------003F1F5BA0DD9A366DF4157C--
 
 
 --
