@@ -1,39 +1,51 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9IF3IrT021726
-	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 11:03:18 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9IF3FhO000161
-	for <selinux@tycho.nsa.gov>; Mon, 18 Oct 2004 15:03:18 GMT
-Date: Mon, 18 Oct 2004 11:03:15 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-cc: Thomas Bleher <bleher@informatik.uni-muenchen.de>,
-   SELinux ML <selinux@tycho.nsa.gov>, lsm <linux-security-module@wirex.com>
-Subject: Re: cdrecord deadlocks linux 2.6.8.1 (problem in setscheduler)
-In-Reply-To: <1098107356.27895.51.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.44.0410181102350.22995-100000@thoron.boston.redhat.com>
+Message-Id: <200410181538.i9IFc4Sf003259@gotham.columbia.tresys.com>
+From: "Karl MacMillan" <kmacmillan@tresys.com>
+To: <jsingh@ensim.com>
+Cc: "'nsa'" <SELinux@tycho.nsa.gov>, "'Selinux-Dev'" <selinux-dev@tresys.com>
+Subject: RE: writing rules to disallow a domain to read particular files
+Date: Mon, 18 Oct 2004 11:38:05 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <1098105480.9768.21.camel@x-infinity.verbum.private>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 18 Oct 2004, Stephen Smalley wrote:
 
-> a) Add a flag to avc_audit(), optionally passed via avc_audit_data, that
-> tells it to use audit_log_end_irq() so that it merely enqueues the audit
-> message for later processing, and change capable and setscheduler hooks
-> to pass this flag, or 
-> b) Move the security checks in setscheduler outside of the runqueue
-> lock, then just recheck that no security-relevant conditions changed
-> after taking the lock.
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+> Behalf Of Colin Walters
+> Sent: Monday, October 18, 2004 9:18 AM
+> To: jsingh@ensim.com
+> Cc: nsa
+> Subject: Re: writing rules to disallow a domain to read particular files
+> 
+> On Mon, 2004-10-18 at 13:28 +0530, Jaspreet Singh wrote:
+> 
+> > That was an eye opener .. i didn't know so much was possible with
+> > SELinux. Could you pass me on some document which can elaborate on
+> > policy rules and configuration (and discusses whats all possible with
+> > these policies).
+> 
+> http://www.nsa.gov/selinux/papers/policy2-abs.cfm
+> 
 
-A seems simpler, but perhaps better to do via a wrapper function.
+We also provide the slides from our SELinux course on our website:
+http://www.tresys.com/selinux/index.html. These cover both policy syntax and
+SELinux concepts.
 
+Karl
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+Karl MacMillan
+Tresys Technology
+http://www.tresys.com
+(410)290-1411 ext 134
+
+> > Just to test the above approach i tried the following on on my FC2 box
+> > with FC3 selinux-files , but i had some bad time compiling my changes
+> > ...
+> 
+> You'll need the strict policy for this, basically.
 
 
 
