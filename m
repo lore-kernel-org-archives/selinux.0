@@ -1,123 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA06732
-	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 13:36:48 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA12410
-	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 17:35:13 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id RAA12406 for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 17:35:11 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id EC86F92469
-	for <selinux@tycho.nsa.gov>; Fri,  9 Aug 2002 03:36:43 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id F1BC4173
-	for <selinux@tycho.nsa.gov>; Thu,  8 Aug 2002 19:36:35 +0200 (CEST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: chroot policy
-Date: Thu, 8 Aug 2002 19:36:35 +0200
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_ZWCJCLF67TCKRZ0TCXS2"
-Message-Id: <20020808173635.F1BC4173@lyta.coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA08084
+	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 15:10:58 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA13682
+	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 19:09:54 GMT
+Received: from ducks.huff20may77.us ([63.147.7.154])
+	by jazzswing.ncsc.mil  with ESMTP id TAA13678
+	for <selinux@tycho.nsa.gov>; Thu, 8 Aug 2002 19:09:53 GMT
+Subject: Re: A 'Statement of Assurance' on SELinux patents
+From: "Edward J. Huff" <edward.huff@acm.org>
+To: "Joshua D. Guttman" <guttman@mitre.org>
+Cc: Russell Coker <russell@coker.com.au>,
+        Ben McGinnes
+	 <bmcginnes@enternet.com.au>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <nhafzxpquq9.fsf@banjara.mitre.org>
+References: <000f01c23d4a$e938e750$0a01a8c0@ed>
+	<3D5114BB.D45BAD57@cpcug.org> <20020808235352.B4737@mail.enternet.com.au>
+	<20020808142256.7DBB620B@lyta.coker.com.au>
+	<nhafzxpquq9.fsf@banjara.mitre.org>
+Content-Type: text/plain
+Date: 08 Aug 2002 15:08:31 -0400
+Message-Id: <1028833711.16359.95.camel@ducks.huff20may77.us>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2002-08-08 at 10:40, Joshua D. Guttman wrote:
+> Has anybody checked how long it will be before the patents expire?
+> Maybe it's not too many years.
+> 
+>         Joshua 
 
---------------Boundary-00=_ZWCJCLF67TCKRZ0TCXS2
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+          Publication   / Filing        / Likely expiration
+US4713753 Dec. 15, 1987 / Feb. 21, 1985 / Feb. 21, 2005
+US4621321 Nov.  4, 1986 / Feb. 16, 1984 / Feb. 16, 2004
+US4701840 Oct. 20, 1987 / June 20, 1986 / June 20, 2006
 
-I've implemented my chroot policy as described in two previous messages 
-today.  I have updated the copy of my policy tree stored on 
-http://www.coker.com.au/selinux/policy.tgz to have the chroot policy, and I 
-have attached a short document describing it.
+-- Ed Huff
 
-I've installed the policy in question on my SE play machine and I'll create a 
-chroot for anyone who asks.
-
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
-
---------------Boundary-00=_ZWCJCLF67TCKRZ0TCXS2
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="chroot.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="chroot.txt"
-
-VG8gY3JlYXRlIGEgY2hyb290IGVudmlyb25tZW50IHlvdSB1c2UgdGhlIGNocm9vdCgpIG1hY3Jv
-IGluIHRoZSBmb2xsb3dpbmcKZmFzaGlvbjoKY2hyb290KHVzZXJfWFhYLCBYWFgsIHVzZXJfWFhY
-X3IsIHVzZXJfWFhYX2RldnB0c190KQoKVGhpcyBjcmVhdGVzIGEgY2hyb290IGVudmlyb25tZW50
-IHRvIGJlIHN0YXJ0ZWQgZnJvbSBkb21haW4gdXNlcl9YWFhfdAoocGF0YW1ldGVyIDEpLCB0aGUg
-Y2hyb290IGVudmlyb25tZW50IGhhcyBhIGJhc2UgbmFtZSBvZiAiWFhYIiB3aGljaCBpcwp1c2Vk
-IGZvciBuYW1pbmcgdGhlIGRvbWFpbnMgWFhYX3QsIFhYWF9zdXBlcl90LCBhbmQgWFhYX2Nocm9v
-dF90LCBhbmQKdGhlIHR5cGVzIFhYWF9yb190LCBYWFhfcndfdCwgWFhYX2Ryb3Bkb3duX3QsIGFu
-ZCBYWFhfc3VwZXJfZW50cnlfdC4KClRoZSBkb21haW4gWFhYX3QgaXMgdXNlZCBmb3IgcHJvZ3Jh
-bXMgcnVubmluZyBpbiB0aGUgY2hyb290IGVudmlyb25tZW50LgoKVGhlIHR5cGUgWFhYX3J3X3Qg
-aXMgZm9yIGZpbGVzL2RpcmVjdG9yaWVzIGluIHRoZSBjaHJvb3QgdGhhdCBjYW4gYmUgcmVhZCBh
-bmQKd3JpdHRlbiBieSB0aGUgZG9tYWluIFhYWF90LgoKVGhlIHR5cGUgWFhYX3JvX3QgaXMgZm9y
-IGZpbGVzL2RpcmVjdG9yaWVzIGluIHRoZSBjaHJvb3QgdGhhdCBjYW4gYmUgcmVhZCBidXQKbm90
-IHdyaXR0ZW4gYnkgdGhlIGRvbWFpbiBYWFhfdC4KClRoZSBkb21haW4gWFhYX3N1cGVyX3QgaXMg
-YSBkb21haW4gZm9yIHJ1bm5pbmcgaW4gdGhlIGNocm9vdCB0aGF0IGNhbiBzZWUKYW5kIGtpbGwg
-cHJvY2Vzc2VzIGluIHRoZSBYWFhfdCBkb21haW4gKGJ1dCBub3QgYmUgc2VlbiBvciBraWxsZWQg
-YnkgdGhlbSkuCgpBbHNvIGl0IGNhbiB3cml0ZSB0byBYWFhfcm9fdCwgaXQgaXMgdG8gYmUgdXNl
-ZCBmb3IgYWRtaW5pc3RyYXRpb24gb2YgdGhlCmNocm9vdCBlbnZpcm9ubWVudC4gIFdoZW4gWFhY
-X3N1cGVyX3QgZXhlY3V0ZXMgYSBwcm9ncmFtIG9mIHR5cGUgWFhYX3J3X3QgdGhlbgppdCB0cmFu
-c2l0aW9ucyB0byBkb21haW4gWFhYX3QuICBIb3dldmVyIHRoaXMgZG9lcyBub3QgZW50aXJlbHkg
-cHJldmVudCB5b3UKZnJvbSBhY2NpZGVudGFsbHkgcnVubmluZyBjb2RlIHdyaXR0ZW4gYnkgYSBY
-WFhfdCBkb21haW4gd2hpbGUgcnVubmluZyBhcwpYWFhfc3VwZXJfdCAtIHdhdGNoIG91dCBmb3Ig
-c2NyaXB0cyBhbmQgY29uZmlndXJhdGlvbiBmaWxlcyBjb250YWluaW5nIG5hbWVzCm9mIHByb2dy
-YW1zIHRvIGV4ZWN1dGUuICBBcyBsb25nIGFzIC9ldGMgaXMgb2YgdHlwZSBYWFhfcm9fdCBhbmQg
-WFhYX2Ryb3Bkb3duX3QKYW5kIC9saWIgYW5kIC91c3IgYXJlIG9mIFhYWF9yb190IHRoZW4gaXQg
-c2hvdWxkIGJlIGZpbmUuCgpUaGUgdHlwZSBYWFhfc3VwZXJfZW50cnlfdCBpcyB1c2VkIGFzIGFu
-IGVudHJ5IHBvaW50IGludG8gdGhlIFhYWF9zdXBlcl90CmRvbWFpbi4gIEkgc3VnZ2VzdCBoYXZp
-bmcgYSBjb3B5IG9mIHRoZSBzaGVsbCB3aXRoIHRoaXMgdHlwZSBmb3IgZW50ZXJpbmcgaW50bwph
-ZG1pbmlzdHJhdGlvbiBtb2RlIChidXQgYSBwYWNrYWdlIGFkbWluaXN0cmF0aW9uIHByb2dyYW0g
-c3VjaCBhcyBkc2VsZWN0IGNvdWxkCmhhdmUgaXQgdG9vKS4KClRoZSB0eXBlIFhYWF9kcm9wZG93
-bl90IGlzIHVzZWQgZm9yIHRoZSBjb250ZW50cyBvZiAvZXRjL2luaXQuZCBvciBvdGhlcgpmaWxl
-cyB0aGF0IHNob3VsZCB0cmlnZ2VyIGEgZG9tYWluIGNoYW5nZSBmcm9tIFhYWF9zdXBlcl90IHRv
-IFhYWF90LiAgVGhlIGlkZWEKaXMgdGhhdCB3aGVuIGEgcGFja2FnZSBhZG1pbmlzdHJhdGlvbiBw
-cm9ncmFtIHN1Y2ggYXMgZHBrZyBydW5zIGEgc2NyaXB0IHRvCnN0YXJ0IGEgZGFlbW9uIHRoZW4g
-dGhlIGRhZW1vbiBzaG91bGQgYXV0b21hdGljYWxseSB0cmFuc2l0aW9uIHRvIFhYWF90LiAgVGhp
-cwpyZXF1aXJlcyB0aGF0IC9ldGMvaW5pdC5kIGFsc28gaGF2ZSB0aGUgdHlwZSBYWFhfZHJvcGRv
-d25fdCBzbyB0aGF0IG5ldyBzY3JpcHRzCmFsc28gaGF2ZSB0aGF0IHR5cGUuCgpUaGUgZG9tYWlu
-IFhYWF9jaHJvb3RfdCBpcyB1c2VkIGZvciB0aGUgY2hyb290IHByb2dyYW0sIGl0IGhhcyB0aGUg
-Y2hyb290CmNhcGFiaWxpdHkgYW5kIGhhcyBhY2Nlc3MgdG8gcmVhZCBkaXJlY3RvcmllcyBhbmQg
-ZXhlY3V0ZSBmaWxlcyB1bmRlciB0aGUKY2hyb290LgoKV2hlbiB0aGUgZG9tYWluIHVzZXJfWFhY
-IGV4ZWN1dGVzIHRoZSBjaHJvb3QgcHJvZ3JhbSAodHlwZSBjaHJvb3RfZXhlY190KSB0aGVuCml0
-IHRyYW5zaXRpb25zIHRvIFhYWF9jaHJvb3RfdC4gIFdoZW4gWFhYX2Nocm9vdF90IGV4ZWN1dGVz
-IFhYWF9yb190LCBYWFhfcndfdCwKb3IgWFhYX2Ryb3Bkb3duX3QgdGhlbiBpdCB0cmFuc2l0aW9u
-cyB0byBYWFhfdC4gIFdoZW4gaXQgZXhlY3V0ZXMKWFhYX3N1cGVyX2VudHJ5X3QgaXQgdHJhbnNp
-dGlvbnMgdG8gWFhYX3N1cGVyX3QuCgpBbHNvIHRoZXJlIGlzIGEgZG9tYWluIFhYWF9tb3VudF90
-IHVzZWQgZm9yIG1vdW50aW5nIGRldmljZXMgdW5kZXIgdGhlIGNocm9vdAplbnZpcm9ubWVudC4g
-IEEgc2NyaXB0IGZvciBiaW5kIG1vdW50aW5nIC9kZXYgZW50cmllcyBhbmQgbW91bnRpbmcgL3By
-b2MgaXMKYmVsb3cuICBOQiB0aGUgZG9tYWluIFhYWF9tb3VudF90IGNhbiBub3QgYmUgZW50ZXJl
-ZCBmcm9tIHByb2Nlc3NlcyBpbiBYWFhfdCBvcgpYWFhfc3VwZXJfdCBkb21haW5zIC0gdGhpcyBo
-YXMgdG8gYmUgc2V0dXAgZnJvbSBvdXRzaWRlIHRoZSBjaHJvb3QhCgpUaGUgZ2VuZXJhbCBpZGVh
-IGlzIHRoYXQgd2hlbiBpbnN0YWxsaW5nIGEgY2hyb290IHlvdSBoYXZlIHRoZSBkZWZhdWx0IHR5
-cGUgYmUKWFhYX3JvX3QsIHRoZW4geW91IGhhdmUgL2RldiwgL2Rldi9wdHMsIC92YXIsIC9ob21l
-LCAvdG1wIHdpdGggdHlwZSBYWFhfcndfdCwKYW5kIC92YXIvbGliL2Rwa2csIC92YXIvY2FjaGUv
-YXB0L2FyY2hpdmVzLCBhbmQgL3Zhci97bGliLHN0YXRlfS9hcHQgd2l0aCB0eXBlClhYWF9yb190
-IHNvIHByb2Nlc3NlcyBpbiBkb21haW4gWFhYX3QgY2FuJ3QgbWVzcyB3aXRoIHRoZSBpbnN0YWxs
-YXRpb24gb2YKbmV3IHBhY2thZ2VzLgoKVGhlIGVuZCByZXN1bHQgaXMgdGhhdCBhcyByb290IGlu
-IHRoZSBjaHJvb3QgZW52aXJvbm1lbnQgeW91IGNhbiBjcmVhdGUgbmV3CnVzZXJzLCBkZWxldGUg
-dXNlcnMsIG1hbmFnZSB1c2VycycgcHJvY2Vzc2VzLCBldGMuICBCdXQgeW91IGNhbid0IGNoYW5n
-ZSBzeXN0ZW0KZmlsZXMgb3IgZG8gYW55dGhpbmcgb3V0c2lkZSB0aGUgY2hyb290LgoKCiMhL2Jp
-bi9iYXNoIC1lCiMgc2NyaXB0IHRvIG1vdW50IGRldmljZSBub2RlcyBhbmQgL3Byb2Mgb3IgdW1v
-dW50IHRoZW0uCgpERVZGSUxFUz0icHRzIHJhbmRvbSB1cmFuZG9tIgoKaWYgWyAiJDEiID09ICJt
-b3VudCIgXTsgdGhlbgogIGNkICQyCiAgbW91bnQgLW4gbm9uZSAtdCBwcm9jIHByb2MKICBmb3Ig
-biBpbiAkREVWRklMRVMgOyBkbwogICAgbW91bnQgLW4gL2Rldi8kbiBkZXYvJG4gLS1iaW5kCiAg
-ZG9uZQpmaQppZiBbICIkMSIgPT0gInVtb3VudCIgXTsgdGhlbgogIGNkICQyCiAgdW1vdW50IC1u
-IGBwd2RgL3Byb2MvCiAgZm9yIG4gaW4gJERFVkZJTEVTIDsgZG8KICAgIHVtb3VudCAtbiBgcHdk
-YC9kZXYvJG4KICBkb25lCmZpCg==
-
---------------Boundary-00=_ZWCJCLF67TCKRZ0TCXS2--
 
 --
 You have received this message because you are subscribed to the selinux list.
