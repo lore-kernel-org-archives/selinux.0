@@ -1,31 +1,33 @@
-Date: Thu, 28 Mar 2002 15:28:53 +0100
-From: Tom <tom@lemuria.org>
-To: SeLinux@tycho.nsa.gov
+Date: Thu, 28 Mar 2002 08:17:39 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200203281417.IAA96290@tomcat.admin.navo.hpc.mil>
+To: r2q2@rocketmail.com, SeLinux@tycho.nsa.gov
 Subject: Re: Java intragration
-Message-ID: <20020328152853.A19867@lemuria.org>
-References: <20020328062854.11444.qmail@web14608.mail.yahoo.com> <20020328092119.A17199@lemuria.org> <20020328135414.3C93F2799D@lyta.coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020328135414.3C93F2799D@lyta.coker.com.au>; from russell@coker.com.au on Thu, Mar 28, 2002 at 02:54:13PM +0100
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Mar 28, 2002 at 02:54:13PM +0100, Russell Coker wrote:
-> > I'd be careful with "known to be secure". AFAIK there's *one* computer
-> > system on this planet that is known to be secure. For everything else,
-> > we assume.
+ R2-Q2 <r2q2@rocketmail.com>:
 > 
-> What is this one computer?
+> Would it be a good idea to intragrate Java into the operating system.
+> Possibally it could be faster if it was. Java is known to be secure and
+> there are many open source vm's out there. Or we just could install it
+> into the OS using SUN's or IBM's version. Though probally SUN because
+> they have the latest version.
 
-AFAIK there is an A1 system in cheyenne mountains that was
-mathematically proved to be correct, i.e. "secure" as defined in the
-specs.
+I think you will find the memory management model used to track objects
+to be too incompatable with kernel memory management. Most of the JVMs
+I have run across (only two, so limited experience here) indicate that
+they expect a flat memory modle, and do not handle holes in memory at
+all since that breaks the security model being implemented.
 
+Now if it were the JavaOS now, that is a different animal. But it isn't
+Linux.
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/D88D35A6 2001-11-14 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = 276B B7BB E4D8 FCCE DB8F  F965 310B 811A D88D 35A6
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 
 --
 You have received this message because you are subscribed to the selinux list.
