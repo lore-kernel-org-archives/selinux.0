@@ -1,69 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA07668
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 17:44:36 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA22915
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 22:41:23 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA22911
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 22:41:21 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id D38C49253C
-	for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2003 09:44:33 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 67C934EC
-	for <selinux@tycho.nsa.gov>; Wed, 26 Feb 2003 23:44:25 +0100 (CET)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-Subject: Fwd: [ols-announce] Accepting Proposals for BOFS, Tutorials, and Meetings.
-Date: Wed, 26 Feb 2003 23:44:24 +0100
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200302262344.24865.russell@coker.com.au>
+From: Carsten Grohmann <carsten.grohmann@raumbildsysteme.de>
+To: Wayne Salamon <wsalamon@tislabs.com>
+Subject: Re: Core policy, second pass
+Date: Thu, 27 Feb 2003 09:23:25 +0100
+References: <Pine.LNX.4.33.0302261350580.3945-200000@vox.gw.tislabs.com>
+In-Reply-To: <Pine.LNX.4.33.0302261350580.3945-200000@vox.gw.tislabs.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Message-Id: <200302270923.25751.carsten.grohmann@raumbildsysteme.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Any plans for SE Linux things?  Should we have a SE BOF?
+Am Mittwoch, 26. Februar 2003 19:57 schrieb Wayne Salamon:
+> Well, we need some consensus. Who is the typical user of the SELinux
+> download, and what are their requirements? Or, do we require some
+> customization for the user to be able to run, to enable base
+> functionality?
 
-----------  Forwarded Message  ----------
+I think the idea of Leslie J. French with a really core policy based 
+only of the "CPU+DISK" (incl. ssh) rules, is a good way. The other 
+rules for net, gpg and others should be optional and only includes by 
+admins wish.
+Thru this we will have no problems with strip down the policy. We will 
+have a little base set. It will be simple to maintain also. 
+All others rules could be include manually or e.g. vie "make 
+workstation".
+In pratice we could use a rules directory and different target 
+directorys (base, network, mail, user, x, ..) and link the rules to 
+each necessary destination. A makefile could generate the policy only 
+from the target directory.
 
-Subject: [ols-announce] Accepting Proposals for BOFS, Tutorials, and Meetings.
-Date: Wed, 26 Feb 2003 23:10
-From: "Andrew J. Hutton" <ajh@linuxsymposium.org>
-To: ols-announce@lists.linuxsymposium.org
-
-We are now accepting proposals for Bird of a Feather Sessions,
-Tutorials, and Working Group meetings at the 2003 Symposium.
-
-To submit your proposal you will need to go to
-https://secure.linuxsymposium.org/2003/ and create an account.  You will
-then be given the option to submit a proposal.
-
-We'd also like to encourage everyone to register as early as they are
-able to.  We're over 25% full as of today and there are over 1300 people
-on this list and we limit attendance to around 500 people.
-
-Looking forward to seeing everyone who is able to make it this year.
-
---
-Andrew J. Hutton <ajh@linuxsymposium.org>
-Linux Symposium Inc.
-
-_______________________________________________
-ols-announce mailing list
-ols-announce@lists.achilles.net
-http://lists.achilles.net/mailman/listinfo/ols-announce
-
--------------------------------------------------------
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Carsten
 
 --
 This message was distributed to subscribers of the selinux mailing list.
