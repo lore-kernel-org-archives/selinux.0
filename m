@@ -1,29 +1,17 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA03530
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 17:32:39 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA04256
+	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 23:31:02 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA27558
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 21:30:49 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id VAA27554
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 21:30:49 GMT
-Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA28086
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 17:32:35 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA23508
-	for <selinux@tycho.nsa.gov>; Sat, 27 Apr 2002 21:27:53 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id BAA13489
-	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 01:26:04 GMT
-Received: from mailandnews.com ([209.81.157.231])
-	by jazzswing.ncsc.mil  with ESMTP id BAA13485
-	for <selinux@tycho.nsa.gov>; Sun, 28 Apr 2002 01:26:04 GMT
-Message-ID: <001a01c1ee54$093c60e0$780aa8c0@r213>
+	by jazzswing.ncsc.mil  with ESMTP id DAA12667
+	for <selinux@tycho.nsa.gov>; Tue, 30 Apr 2002 03:29:13 GMT
+Received: from mailandnews.com ([209.81.157.232])
+	by jazzswing.ncsc.mil  with ESMTP id DAA12663
+	for <selinux@tycho.nsa.gov>; Tue, 30 Apr 2002 03:29:12 GMT
+Message-ID: <001201c1eff7$b0e765c0$780aa8c0@r213>
 From: "f980215" <f980215@mailandnews.com>
 To: <selinux@tycho.nsa.gov>
-Subject: help: about boot message
-Date: Sun, 28 Apr 2002 09:28:39 +0800
+Subject: boot  messages and mount
+Date: Tue, 30 Apr 2002 11:32:40 +0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="gb2312"
@@ -32,45 +20,53 @@ List-Id: selinux@tycho.nsa.gov
 
 hi,all
 
-I have updated selinux-2.4.18 packages on redhat 7.2
+1)
 
-I have seen these files:
+I install freeswan-selinux rpm packages  on redhat 7.2
 
-  1) /etc/selinux/policy/file_context
-     ================================
-     /sbin/.*getty system_u:object_r:getty_exec_t
+when boot, found error messages:
+=================================
+Apr 28 21:05:16 sea2 ipsec: execvp: Permission denied
+kernel: avc:  denied  { execute } for  pid=679 exe=/sbin/initlog path=/etc/rc.d/init.d/ipsec dev=03:43 ino=680615 scontext=system_u:system_r:initrc_t tcontext=system_u:object_r:var_lock_t tclass=file
+Apr 28 20:27:09 sea2 ipsec: execvp: Permission denied
+Apr 28 20:27:09 sea2 rc: Starting ipsec:  failed
 
-  2) /etc/selinux/policy/domains/programs/getty.te
-     =============================================  
-     role system_r types getty_t;
-     allow getty_t tty_device_t:chr_file rw_file_perms;
-     allow getty_t ttyfile:chr_file rw_file_perms;
+then, 
 
-  3) /etc/selinux/policy/types/device.te
-     =================================== 
-     type tty_device_t, file_type;
+after  
 
-  4) /etc/selinux/policy/policy.conf
-     ===============================
-     allow getty_t tty_device_t:chr_file { ioctl read getattr access lock poll write
-setattr append };
-     allow getty_t ttyfile:chr_file { ioctl read getattr access lock poll write setattr append };
+file_context.te: (add)
+===============
+/usr/local/sbin/ipsec system_u:object_r:ipsec_exec_t
 
-but , after reboot, I found error infomation:
+initrc.te: (add)
+==========
+allow initrc_t var_lock_t:file { execute execute_no_trans };
+allow initrc_t file_t:file { execute execute_no_trans };
+allow initrc_t self:key_socket { create };
 
-* display on tty? console
-  ===============
-  INIT: Id "3" respawning too fast: disabled for 5 minutes
+, 
 
-* /var/log/messages
-  =================
-  Apr 28 16:13:57 sea2 kernel:
-  Apr 28 16:13:57 sea2 /sbin/mingetty[892]: /dev/tty2: Permission denied
-  Apr 28 16:13:57 sea2 kernel: avc:  denied  { setattr } for  pid=881 exe=/sbin/mingetty path=/dev/tty3 dev=03:43 ino=36350 scontext=system_u:system_r:getty_t tcontext=system_u:object_r:file_t tclass=chr_file
+when again boot, "ipsec startup succeeded"
 
-Thanks for any help.
+
+2)
+running mount command:
+======================
+        /dev/hdb3 on / type ext3 (rw)
+        none on /proc type proc (rw)
+        none on /dev/pts type devpts (rw,gid=5,mode=620)
+        /dev/hdb1 on /mnt/hdb1 type vfat (rw)
+        /dev/hdb5 on /mnt/hdb5 type vfat (rw)
+        none on /dev/shm type tmpfs (rw)
+        /dev/fd0 on /mnt/floppy type vfat (rw,nosuid,nodev)
+
+ext3 filesystems is read/write, but other filesystems ( vfat ) is read-only
+
+How to make other filesystems can be wrote?
 
 f980215
+
 
 
 --
