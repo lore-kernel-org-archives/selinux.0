@@ -1,42 +1,31 @@
-Subject: Re: Change of restorecon and setfiles to not modify context if
-	only_user_section changed
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0LJx8FX015045
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jan 2005 14:59:08 -0500 (EST)
+Subject: Re: run_init and interactive scripts
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <41F148B8.5090504@redhat.com>
-References: <41F148B8.5090504@redhat.com>
+To: Manoj Srivastava <manoj.srivastava@stdc.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <877jm7e2v6.fsf@glaurung.internal.golden-gryphon.com>
+References: <87acr4u57h.fsf@glaurung.internal.golden-gryphon.com>
+	 <1106247919.26753.207.camel@moss-spartans.epoch.ncsc.mil>
+	 <877jm7e2v6.fsf@glaurung.internal.golden-gryphon.com>
 Content-Type: text/plain
-Message-Id: <1106336874.28551.181.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1106337159.28551.186.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 21 Jan 2005 14:47:55 -0500
+Date: Fri, 21 Jan 2005 14:52:39 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2005-01-21 at 13:23, Daniel J Walsh wrote:
-> Specifying force (-F) will override.
+On Fri, 2005-01-21 at 01:02, Manoj Srivastava wrote:
+> 	What follows is an incremental patch relative to the changes
+>  already accepted.
 
-Thanks, merged into sourceforge CVS as of policycoreutils 1.21.3.
-Also includes the fix below for restorecon to avoid handling errors from
-is_customizable_context() incorrectly as per Tom London's bug report.
-
-Index: policycoreutils/restorecon/restorecon.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policycoreutils/restorecon/restorecon.c,v
-retrieving revision 1.21
-retrieving revision 1.22
-diff -u -p -r1.21 -r1.22
---- policycoreutils/restorecon/restorecon.c	21 Jan 2005 19:14:20 -0000	1.21
-+++ policycoreutils/restorecon/restorecon.c	21 Jan 2005 19:39:23 -0000	1.22
-@@ -133,7 +133,7 @@ int restore(char *filename) {
-     int customizable=0;
-     if (retcontext < 0 || 
- 	(strcmp(prev_context,scontext) != 0 && 	
--	 !(customizable=(force ? 0: is_context_customizable(prev_context))))) {
-+	 !(customizable=(force ? 0: (is_context_customizable(prev_context) > 0))))) {
-       if (outfile) {
- 	fprintf(outfile, "%s\n", filename);
-       }
-
+BTW, this was merged into sourceforge CVS as of policycoreutils 1.21.2,
+including the audit2allow man page, revised genhomedircon script and man
+page, and the open_init_pty helper for run_init (with stderr flushing,
+but not the latest patch that introduced erratic output).
+> 
+> ______________________________________________________________________
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
