@@ -1,37 +1,62 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: can_exec_read macro
-Date: Tue, 3 Sep 2002 19:27:48 +0200
-References: <200209031647.QAA25434@jazzband.ncsc.mil>
-In-Reply-To: <200209031647.QAA25434@jazzband.ncsc.mil>
+Message-ID: <007a01c2537a$f481fbb0$0200a8c0@kevsta>
+Reply-To: "jj012a1662" <jj012a1662@blueyonder.co.uk>
+From: "jj012a1662" <jj012a1662@blueyonder.co.uk>
+To: <SELinux@tycho.nsa.gov>
+Subject: Cant get linksys network card to work!
+Date: Tue, 3 Sep 2002 19:51:46 +0100
 MIME-Version: 1.0
-Message-Id: <200209031927.48216.russell@coker.com.au>
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0077_01C25383.55AA71D0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 3 Sep 2002 18:45, Carsten Grohmann wrote:
-> What is the difference between this tow macros: can_exec and
-> can_exec_read? I see none.
-> Both use the rx_file_perms macro. And in my opinion is the second read in
-> can_exec_read unnecessary. The rx_file_perms macro contains it.
->
-> We should change it. Or?
+This is a multi-part message in MIME format.
 
-You are correct, the second "read" does not seem necessary.
+------=_NextPart_000_0077_01C25383.55AA71D0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-When I added can_exec_read() it was necessary and fixed some problems where 
-can_exec() didn't do what was needed.  I guess that in the mean time 
-rx_file_perms has changed, I suggest checking the CVS (unfortunately I 
-haven't got time to track it down as I'm preparing for my L-K tutorial).
+Hi all,
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+I know this sounds like a stupid question, and feel like an idiot to ask =
+about it...but i am unable to get my network card to work once i have =
+SELinux kernel compiled. My Network card is a 10baseT linksys etherPCI =
+lan card II, A friend of mine said that my card uses the tuplip.c =
+driver, is there any way to get this card to work?
+
+
+Thankyou for your time.
+
+Regards,
+Kevin.j
+
+------=_NextPart_000_0077_01C25383.55AA71D0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2600.0" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>Hi all,<BR><BR>I know this sounds like =
+a stupid=20
+question, and feel like an idiot to ask about it...but i am unable to =
+get my=20
+network card to work once i have SELinux kernel compiled. My Network =
+card is a=20
+10baseT linksys etherPCI lan card II, A friend of mine said that my card =
+uses=20
+the tuplip.c driver, is there any way to get this card to=20
+work?<BR><BR><BR>Thankyou for your=20
+time.<BR><BR>Regards,<BR>Kevin.j</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0077_01C25383.55AA71D0--
 
 
 --
