@@ -1,52 +1,58 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i941mfrT014876
-	for <selinux@tycho.nsa.gov>; Sun, 3 Oct 2004 21:48:41 -0400 (EDT)
-Received: from ms-smtp-03.rdc-kc.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i941lXFo023334
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 01:47:34 GMT
-Date: Sun, 3 Oct 2004 20:48:21 -0500
-From: Greg Norris <haphazard@kc.rr.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: need advice for ld_so_cache_t errors
-Message-ID: <20041004014820.GA25896@yggdrasil.localdomain>
-References: <20041001233554.GA26550@yggdrasil.localdomain> <20041002043740.GA28765@yggdrasil.localdomain> <20041002165041.GB30426@yggdrasil.localdomain> <200410040108.35839.russell@coker.com.au>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94EG8rT017942
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 10:16:08 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94EF0YE013721
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 14:15:00 GMT
+Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
+	by open.hands.com (Postfix) with ESMTP id 7B94ABFA4
+	for <selinux@tycho.nsa.gov>; Mon,  4 Oct 2004 15:15:58 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1CETo0-0005X9-3V
+	for selinux@tycho.nsa.gov; Mon, 04 Oct 2004 15:27:12 +0100
+Date: Mon, 4 Oct 2004 15:27:12 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: bug in 2.6.8.1 scsi_block.c for CDROM "get configuration" ioctl
+Message-ID: <20041004142712.GF20930@lkcl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
-In-Reply-To: <200410040108.35839.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+the following patch needs to be added in order for k3b to operate
+correctly as a non-root user (there's a linux capability check in
+scsi_ioctl.c's verify_command() function)
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+apparently this is fixed for 2.6.9-rcsomething.
 
-On Mon, Oct 04, 2004 at 01:08:35AM +1000, Russell Coker wrote:
-> I've just run apol from setools and it tells me that no execute access is=
-=20
-> being granted.
+l.
 
-Hmmm... unfortunately, I'm stumped at this point.  If I have some time=20
-tomorrow I'll try out the 1.16 policy from the NSA website, and see if=20
-it makes any difference.
 
---qMm9M+Fa2AknHoGS
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Index: drivers/block/scsi_ioctl.c
+===================================================================
+RCS file: /cvsroot/selinux/nsa/linux-2.6/drivers/block/scsi_ioctl.c,v
+retrieving revision 1.1.1.9
+diff -u -r1.1.1.9 scsi_ioctl.c
+--- drivers/block/scsi_ioctl.c	19 Aug 2004 14:25:16 -0000	1.1.1.9
++++ drivers/block/scsi_ioctl.c	4 Oct 2004 14:07:25 -0000
+@@ -146,6 +146,7 @@
+ 		safe_for_read(GPCMD_READ_TOC_PMA_ATIP),
+ 		safe_for_read(GPCMD_REPORT_KEY),
+ 		safe_for_read(GPCMD_SCAN),
++		safe_for_read(GPCMD_GET_CONFIGURATION),
+ 
+ 		/* Basic writing commands */
+ 		safe_for_write(WRITE_6),
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBYKvkgrEMyr8Cx2YRAmTlAKCuUTEBSkGuAzfbmu/7mF7tvNvnYACeJkou
-3JXo5SoTN2R4gJBwVwXFwE4=
-=i6YM
------END PGP SIGNATURE-----
-
---qMm9M+Fa2AknHoGS--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
