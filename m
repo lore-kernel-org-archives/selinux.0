@@ -1,28 +1,135 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h48EU4I4018030
-	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 10:30:04 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h48ETnVf009780
-	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 14:29:49 GMT
-Received: from windowpane.com (ip57.gte1.rb1.bel.nwlink.com [209.20.131.57])
-	by jazzswing.ncsc.mil  with ESMTP id h48ETl4D009770
-	for <selinux@tycho.nsa.gov>; Thu, 8 May 2003 14:29:48 GMT
-Message-ID: <022f01c3156e$bd3eef30$398314d1@windowpane.com>
-From: "ccallen" <ccallen@windowpane.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Fw: SELinux and LFS
-Date: Thu, 8 May 2003 07:33:05 -0700
+From: "Christopher Carney" <ccarney@seacorp.com>
+To: <SELinux@tycho.nsa.gov>
+Subject: Step 19 of install
+Date: Thu, 8 May 2003 12:49:52 -0400
+Message-ID: <001001c31581$d8abd450$e501a8c0@CarneyC>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0011_01C31560.519A3450"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Heres another rescue CD build tool http://bblcd.berlios.de/. This one starts
-out with bootable CD's in mind where yard and others are geared toward
-creating minimal, floppy based linux distros.
+This is a multi-part message in MIME format.
 
-Conan
+------=_NextPart_000_0011_01C31560.519A3450
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+I got threw the install and I ran make relabel.  Now I am not sure where =
+my
+path for modified utilities is. I am trying to follow step 19 but don't =
+know
+how.=20
+19) Add /usr/local/selinux/bin and /usr/local/selinux/sbin
+to your path for the modified utilities.
+
+=20
+
+=20
+
+Thanks,
+
+Chris
+
+=20
+
+=20
+
+
+------=_NextPart_000_0011_01C31560.519A3450
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+
+
+<meta name=3DGenerator content=3D"Microsoft Word 10 (filtered)">
+
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+pre
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";}
+span.emailstyle17
+	{font-family:Arial;
+	color:windowtext;}
+span.EmailStyle19
+	{font-family:Arial;
+	color:navy;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1><pre><font size=3D2 face=3D"Courier New"><span
+style=3D'font-size:10.0pt'>I got threw the install and I ran make =
+relabel.&nbsp; Now I am not sure where my path for modified utilities =
+is. I am trying to follow step 19 but don&#8217;t know how. =
+</span></font></pre><pre><font
+size=3D2 face=3D"Courier New"><span style=3D'font-size:10.0pt'>19) Add =
+/usr/local/selinux/bin and =
+/usr/local/selinux/sbin</span></font></pre><pre><font
+size=3D2 face=3D"Courier New"><span style=3D'font-size:10.0pt'>to your =
+path for the modified utilities.</span></font></pre>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Thanks,</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Chris</span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;</span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>&nbsp;</span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_000_0011_01C31560.519A3450--
 
 
 --
