@@ -1,63 +1,78 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OE7NrT026614
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 10:07:23 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OEAqrT026642
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 10:10:52 -0400 (EDT)
 Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OE6bMZ007622
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 14:06:37 GMT
-Date: Tue, 24 Aug 2004 15:18:28 +0100
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OEA6MZ007896
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 14:10:06 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by open.hands.com (Postfix) with ESMTP id CF3E8BF2D
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 15:10:50 +0100 (BST)
+Received: from open.hands.com ([127.0.0.1])
+	by localhost (open [127.0.0.1]) (amavisd-new, port 10024) with LMTP
+	id 05723-05-3 for <selinux@tycho.nsa.gov>;
+	Tue, 24 Aug 2004 15:10:43 +0100 (BST)
+Received: from lkcl.net (th-pm02-58.ndirect.co.uk [195.7.225.250])
+	by open.hands.com (Postfix) with ESMTP id 5EFE7BF28
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 15:10:42 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BzcBV-0001i4-Cv
+	for selinux@tycho.nsa.gov; Tue, 24 Aug 2004 15:22:01 +0100
+Date: Tue, 24 Aug 2004 15:22:01 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: Joshua Brindle <jbrindle@tresys.com>, Greg KH <greg@kroah.com>,
-   SE Linux <selinux@tycho.nsa.gov>, fedora-selinux-list@redhat.com
-Subject: Re: Fedora and udev
-Message-ID: <20040824141828.GA4698@lkcl.net>
-References: <200408222125.38169.russell@coker.com.au> <412A74A6.9070206@tresys.com> <20040824092853.GD25356@lkcl.net> <200408242006.41591.russell@coker.com.au>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: policy patch for tunable "/dev/hdc is removable drive"
+Message-ID: <20040824142201.GB4698@lkcl.net>
+References: <20040823214228.GA13677@lkcl.net> <20040824002244.GA25356@lkcl.net> <20040824091520.GE11911@rom.cip.ifi.lmu.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200408242006.41591.russell@coker.com.au>
+In-Reply-To: <20040824091520.GE11911@rom.cip.ifi.lmu.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Aug 24, 2004 at 08:06:41PM +1000, Russell Coker wrote:
-> On Tue, 24 Aug 2004 19:28, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> >  2) it ONLY set the permissions on the inode NOT on any symlinks and NOT
-> >     on any directories or subdirectories created.
+On Tue, Aug 24, 2004 at 11:15:20AM +0200, Thomas Bleher wrote:
+> * Luke Kenneth Casson Leighton <lkcl@lkcl.net> [2004-08-24 03:38]:
+> > in amongst this lot are two lines that say /dev/hdc something here
+> > we go:
+> > 
+> > > +/.?u?dev/hdc		-b	system_u:object_r:tunably_defined_disk_t
+> > > +/.?u?dev/[h]d[^/^c]*	-b	system_u:object_r:fixed_disk_device_t
 > 
-> This part is OK.  We have moved to using device_t (the default) as the context 
-> for all directories and sym-links under /dev.
- 
- great, then the policy modifications i've made will be of some
- value in pointing you in the right direction, i'll endeavour to
- clean them up, sort them out [dammit i just did that and ended
- up accidentally deleting it, i _must_ try to stop the habit of
- reusing filenames f g h x y and z]
+> I don't think this is the right approach. Not all users have their
+> CD-Rom on /dev/hdc.
 
- i'm attaching also my modified /etc/init.d/udev file.
+ no, i know: that's why i set it to a tunable called
+ "tunably_defined_disk_t" :)
 
- as you can see it calls /sbin/restoredevicefiles (sent earlier)
- after the make_extra_nodes() call has been made.
-
- why?  because it is necessary to do a restorecon on every item
- created in /dev, and this is _before_ udev is running, and it is
- _to_ get udev running!
-
- i mean, sure, it's fine to grant udev permission to do stuff to
- device_t:file/directory instead (or as well?) such that it can
- "get started" and then "replace" or "re-restore" permissions on
- entries listed in /etc/udev/links.conf, that's another approach
- i imagine could be taken.
-
-
-> >  if the file_contexts stuff was somehow pre-munged and
-> >  transferred into kernel, and the regexp matching code (or
-> >  something similar) was _also_ transferred into the kernel,
-> >  then this problem would go away.
+> I've been using a hack to the Makefile which works well on the
+> hundred-odd machines we have here:
 > 
-> I think it's already been decided not to do that.
+> --- orig/Makefile
+> +++ mod/Makefile
+> @@ -145,6 +145,7 @@
+>         @grep -v "^/root" $@.tmp > $@.root
+>         @/usr/sbin/genhomedircon . $@.root  > $@
+>         @grep "^/root" $@.tmp >> $@
+> +       @for i in /proc/ide/hd*/media; do grep -q cdrom $$i && echo $$i | awk -F / '{ print "/dev/"$$4"\t-b\tsystem_u:object_r:removable_device_t"}' >> $@; done
+>         @-rm $@.tmp $@.root
 
- oh.  right.  ah well.  Next :)
+ okay... that's fine on a system that doesn't use udev :) :)
 
+> This inserts a special line into the file_contexts file for every cdrom
+> found on the system (according to proc).
+> I am however not sure how a proper solution would look like; do we want
+> to make policy that system dependant?
+> Maybe we need a tool like genhomedircon for devices.
  
+  perhaps udev could communicate to run-time tunables to "switch"
+  certain device types (like the example tunably_defined_disk_t)
+  from their aliases fixed_disk_device_t to removable_disk_device_t?
+
+  of course, it would be necessary to do "prep" things with a
+  tunably_defined_hda_t, tunably_defined_hdb_t, tunably_defined you
+  get the idea.
+
+  l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
