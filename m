@@ -1,46 +1,34 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6VIcwHa004789
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 14:38:59 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6VIcvDW018413
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 18:38:57 GMT
-Received: from relay.pair.com (relay.pair.com [209.68.1.20])
-        by jazzband.ncsc.mil  with SMTP id h6VIcueN018406 for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 18:38:56 GMT
-From: "Hariharan Gopalan" <hari@sapta.com>
-To: <selinux@tycho.nsa.gov>
-Subject: Error while installing:
-Date: Thu, 31 Jul 2003 14:38:57 -0400
-Message-ID: <MBEOIIDPALLENBNPLKLCIEPLHOAA.hari@sapta.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6VIecHa004825
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 14:40:38 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6VIdQFB017348
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 18:39:26 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h6VIdPGD017344
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 18:39:25 GMT
+Subject: Re: Searchable archive
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Hariharan Gopalan <hari@sapta.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <MBEOIIDPALLENBNPLKLCEEPLHOAA.hari@sapta.com>
+References: <MBEOIIDPALLENBNPLKLCEEPLHOAA.hari@sapta.com>
+Content-Type: text/plain
+Message-Id: <1059676834.1052.256.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 31 Jul 2003 14:40:35 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello
+On Thu, 2003-07-31 at 14:35, Hariharan Gopalan wrote:
+> Wonder if we have a searchable archive for this list?
 
-I am getting this error while making quickinstall:
+An unofficial archive is available at
+http://marc.theaimsgroup.com/?l=selinux
 
-It looks like the policy for inetd. My system uses xinetd, and so I did
-notmove the inetd.te from unused, but I could not find a xinted.te...
-
-Any pointers?
-
-thanks
-Hari
-
-
-
-/usr/local/selinux/bin/checkpolicy:  loading policy configuration from
-/etc/security/selinux/src/policy.conf
-ERROR 'unknown type inetd_t' at token ';' on line 30882:
-allow ftpd_t inetd_t:fd use;
-#line 6070
-/usr/local/selinux/bin/checkpolicy:  error(s) encountered while parsing
-configuration
-make[1]: *** [/etc/security/selinux/policy.12] Error 1
-make[1]: Leaving directory `/usr/src/down/secure/selinux/policy'
-make: *** [quickinstall] Error 2
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
