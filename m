@@ -1,35 +1,39 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFFeaIi023733
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 10:40:36 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAFFqIIi023816
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 10:52:18 -0500 (EST)
 Received: from passage.avira.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFFd8vq027117
-	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 15:39:09 GMT
-Message-ID: <4198D20C.9070009@gentoo.org>
-Date: Mon, 15 Nov 2004 17:58:04 +0200
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAFFopvq028065
+	for <selinux@tycho.nsa.gov>; Mon, 15 Nov 2004 15:50:52 GMT
+Message-ID: <4198D4CA.3020708@gentoo.org>
+Date: Mon, 15 Nov 2004 18:09:46 +0200
 From: petre rodan <kaiowas@gentoo.org>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Subject: gentoo diff for postgresql
+Subject: gentoo policy for stunnel
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enigA220C7F6558686F9F7296CDA"
+ boundary="------------enig98D817110E51F1BA0D3EBBD8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA220C7F6558686F9F7296CDA
+--------------enig98D817110E51F1BA0D3EBBD8
 Content-Type: multipart/mixed;
- boundary="------------080602040502070007040602"
+ boundary="------------020505030006000707010002"
 
 This is a multi-part message in MIME format.
---------------080602040502070007040602
+--------------020505030006000707010002
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 Hi,
 
-a diff that handles the gentoo init scripts and the location of database files.
+attached you'll find the policy we use for stunnel [1]
+
+[1] http://www.stunnel.org
+	Stunnel is a program that allows you to encrypt arbitrary TCP connections inside SSL (Secure Sockets Layer) available on both Unix and Windows. Stunnel can allow you to secure non-SSL aware daemons and protocols (like POP, IMAP, LDAP, etc) by having Stunnel provide the encryption, requiring no 
+changes to the daemon's code.
 
 bye,
 peter
@@ -40,42 +44,50 @@ petre rodan
 Developer,
 Hardened Gentoo Linux
 
---------------080602040502070007040602
+--------------020505030006000707010002
 Content-Type: text/plain;
- name="selinux-postgresql.diff"
+ name="stunnel.fc"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="selinux-postgresql.diff"
+ filename="stunnel.fc"
 
---- /root/public_html/policy/nsa/file_contexts/program/postgresql.fc	2004-10-21 12:56:53.000000000 +0300
-+++ /root/cvs/cvs.gentoo.org/gentoo-projects/selinux/postgresql/postgresql.fc	2004-10-28 11:48:44.000000000 +0300
-@@ -12,7 +12,7 @@
- /usr/bin/pg_id		--	system_u:object_r:postgresql_exec_t
- /usr/bin/pg_restore	--	system_u:object_r:postgresql_exec_t
- 
--/var/lib/postgres(/.*)?		system_u:object_r:postgresql_db_t
-+/var/lib/postgres(ql)?(/.*)? system_u:object_r:postgresql_db_t
- /var/lib/pgsql(/.*)?		system_u:object_r:postgresql_db_t
- /var/run/postgresql(/.*)?	system_u:object_r:postgresql_var_run_t
- /etc/postgresql(/.*)?		system_u:object_r:postgresql_etc_t
---- /root/public_html/policy/nsa/domains/program/unused/postgresql.te	2004-10-12 12:32:18.000000000 +0300
-+++ /root/cvs/cvs.gentoo.org/gentoo-projects/selinux/postgresql/postgresql.te	2004-10-28 11:48:12.000000000 +0300
-@@ -108,3 +108,11 @@
- dontaudit postgresql_t selinux_config_t:dir { search };
- allow postgresql_t mail_spool_t:dir { search };
- rw_dir_create_file(postgresql_t, var_lock_t)
-+
-+ifdef(`distro_gentoo', `
-+# "su - postgres ..." is called from initrc_t
-+allow initrc_su_t postgresql_db_t:dir { search };
-+allow postgresql_t initrc_su_t:process { sigchld };
-+dontaudit initrc_su_t sysadm_devpts_t:chr_file rw_file_perms;
-+')
-+
+/usr/sbin/stunnel	--	system_u:object_r:stunnel_exec_t
+/etc/stunnel(/.*)?          	system_u:object_r:stunnel_etc_t
+/var/run/stunnel(/.*)?		system_u:object_r:stunnel_var_run_t
 
---------------080602040502070007040602--
+--------------020505030006000707010002
+Content-Type: text/plain;
+ name="stunnel.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="stunnel.te"
 
---------------enigA220C7F6558686F9F7296CDA
+# DESC: selinux policy for stunnel
+#
+# Author:   petre rodan <kaiowas@gentoo.org>
+#
+
+type stunnel_port_t, port_type;
+
+daemon_domain(stunnel, `, privlog')
+
+can_network(stunnel_t)
+
+type stunnel_etc_t, file_type, sysadmfile;
+
+allow stunnel_t self:capability { setgid setuid sys_chroot };
+allow stunnel_t self:fifo_file { read write };
+allow stunnel_t self:tcp_socket { read write };
+allow stunnel_t self:unix_stream_socket { connect create };
+
+allow stunnel_t stunnel_port_t:tcp_socket { name_bind };
+
+r_dir_file(stunnel_t, stunnel_etc_t)
+r_dir_file(stunnel_t, etc_t)
+
+--------------020505030006000707010002--
+
+--------------enig98D817110E51F1BA0D3EBBD8
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -84,12 +96,12 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.2.6 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFBmNIMGSBEIeh4AEYRArnEAJ0dOhYadzgFF218NT6WBfyM0EbxFACfXmUM
-mr7sbcfj1luGma0IdMWsDhU=
-=9nW7
+iD8DBQFBmNTKGSBEIeh4AEYRAsJ9AJ4ltnJ8TxZW4iwA06/z6xjvW6VfYgCgjuA5
+3h3bKgXyCkkFSNECe9TF7bk=
+=yBd6
 -----END PGP SIGNATURE-----
 
---------------enigA220C7F6558686F9F7296CDA--
+--------------enig98D817110E51F1BA0D3EBBD8--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
