@@ -1,37 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBCKBeRb010846
-	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 15:11:40 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hBCKBdAH023214
-	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 20:11:39 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id hBCKBdZA023211 for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 20:11:39 GMT
-Subject: RE: syslog()
-From: Stephen Smalley <sds@epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBCKV9Rb010995
+	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 15:31:11 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hBCKULYX016750
+	for <selinux@tycho.nsa.gov>; Fri, 12 Dec 2003 20:30:22 GMT
+Date: Fri, 12 Dec 2003 14:30:27 -0600 (CST)
+From: Richard Troth <rtroth@bmc.com>
 To: Ed Street <edstreet@street-tek.com>
-Cc: "'Selinux'" <selinux@tycho.nsa.gov>
+Cc: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
+   "'Selinux'" <selinux@tycho.nsa.gov>
+Subject: RE: syslog()
 In-Reply-To: <00bd01c3c0e9$2c16a3a0$9a01a8c0@TECRA>
+Message-ID: <Pine.LNX.4.53.0312121424460.15697@rmt-desk.bmc.com>
 References: <00bd01c3c0e9$2c16a3a0$9a01a8c0@TECRA>
-Content-Type: text/plain
-Message-Id: <1071259896.14716.156.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 12 Dec 2003 15:11:37 -0500
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-12-12 at 14:50, Ed Street wrote:
-> I should have said this is a bash mod.  Logs keyboard activity to
-> syslog()for testing purposes.  All I need is to append to the syslog and
-> disallow any thing else.  Question is, is there anyway to allow an append
+>                        Question is, is there anyway to allow an append
+> but not allow the user access to the file?
 
-The log files aren't directly modified by the user; the message is sent
-to syslogd via /dev/log.  Domains that have the 'privlog' attribute are
-allowed to communicate with syslogd via /dev/log; see the corresponding
-allow rules in syslogd.te.
+Sure,  but it's not the same concept as writing -vs- reading.
+It's not really file access per se.   The files created by SYSLOG
+only get written IFF and after the traffic is routed to them.
+(see /etc/syslog.conf)
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+SYSLOG is a service.
+You *could* route the traffic off-host (which I like)
+in which case there would BE NO FILE for the user to read,
+regardless of the security rules in place locally.
+
+Stephen or someone else would have to clarify  (beyond me),
+but it sounds like what you're after if you do it with SElinux
+is a rule that allows logging.   As he said in one recent note:
+
+>                                                 You need to put your
+> program into a domain and authorize it to log messages.
+
+-- R;
 
 
 --
