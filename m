@@ -1,37 +1,37 @@
-Date: Wed, 30 Oct 2002 17:21:43 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Brian May <bam@snoopy.apana.org.au>
-cc: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Brian May <bam@snoopy.apana.org.au>, Stephen Smalley <sds@tislabs.com>
 Subject: Re: kernel warning
+Date: Wed, 30 Oct 2002 23:22:01 +0100
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <200210301613.51096.russell@coker.com.au> <Pine.GSO.4.33.0210301441331.12970-100000@raven> <20021030220806.GB16395@snoopy.apana.org.au>
 In-Reply-To: <20021030220806.GB16395@snoopy.apana.org.au>
-Message-ID: <Pine.GSO.4.33.0210301718430.22794-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200210302322.01805.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Thu, 31 Oct 2002, Brian May wrote:
-
+On Wed, 30 Oct 2002 23:08, Brian May wrote:
 > On Wed, Oct 30, 2002 at 02:48:12PM -0500, Stephen Smalley wrote:
 > > For the separate SELinux patch to work for LIDS and DTE users, you would
-> > need to drop those changes as well as #ifdef the initialization call.  You
-> > would also need to add stub hook functions for inode_init to the LIDS and
-> > DTE modules.
+> > need to drop those changes as well as #ifdef the initialization call. 
+> > You would also need to add stub hook functions for inode_init to the LIDS
+> > and DTE modules.
 >
 > What parts of the seperate SELinux patch would break LIDS and DTE users?
 
-As I said, you would need to drop the Makefile and defconfig diffs
-entirely, wrap the init/main.c diff with an #ifdef, and add inode_init
-stub hook functions to LIDS and DTE.  I don't plan on dropping the
-Makefile and defconfig diffs from our patch, but I'm willing to fix up the
-other issues in our patch.
+I'm not sure.  It was my understanding of the conversation between you and 
+Steve that some parts of SE Linux will be unconditionally enabled if you 
+apply the second patch.  So in my latest kernel patch package I put a bunch 
+of extra #ifdef's in...
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
