@@ -1,36 +1,39 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA04798
-	for <selinux@tycho.nsa.gov>; Tue, 30 Apr 2002 03:43:03 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA06674
+	for <selinux@tycho.nsa.gov>; Tue, 30 Apr 2002 08:28:51 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id HAA21187
-	for <selinux@tycho.nsa.gov>; Tue, 30 Apr 2002 07:41:50 GMT
-Received: from mailout07.sul.t-online.com (mailout07.sul.t-online.com [194.25.134.83])
-        by jazzband.ncsc.mil  with ESMTP id HAA21183 for <selinux@tycho.nsa.gov>; Tue, 30 Apr 2002 07:41:49 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by mail.dr-baldeweg.de (Postfix) with ESMTP id 43DA61AE90
-	for <selinux@tycho.nsa.gov>; Tue, 30 Apr 2002 09:42:39 +0200 (CEST)
-Message-ID: <3CCE4CFC.D18FF4E4@dr-baldeweg.de>
-Date: Tue, 30 Apr 2002 09:51:24 +0200
-From: Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>
+	by jazzband.ncsc.mil  with ESMTP id MAA00289
+	for <selinux@tycho.nsa.gov>; Tue, 30 Apr 2002 12:27:38 GMT
+Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
+        by jazzband.ncsc.mil  with SMTP id MAA00285 for <selinux@tycho.nsa.gov>; Tue, 30 Apr 2002 12:27:38 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524375@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'f980215'" <f980215@mailandnews.com>, selinux@tycho.nsa.gov
+Subject: RE: help: about boot message
+Date: Tue, 30 Apr 2002 07:29:09 -0500
 MIME-Version: 1.0
-To: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
-Subject: Security Context of nscd_socket
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="gb2312"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+Are you using a initrd ?
 
-Yesterday I rebuild the file security context and after this the nscd
-did not work, because the security context of the file
-/var/run/.nscd_socket was set to var_run_t and not to nscd_var_run_t.
-The policy denied the unlink of this file.
-A solution is to add follow line in the file file_context 
-/var/run/.nscd_socket   system_u:object_r:nscd_var_run_t. 
 
-Could anybody add this to the source code?
-
-Carsten
+> 
+> * display on tty? console
+>   ===============
+>   INIT: Id "3" respawning too fast: disabled for 5 minutes
+> 
+> * /var/log/messages
+>   =================
+>   Apr 28 16:13:57 sea2 kernel:
+>   Apr 28 16:13:57 sea2 /sbin/mingetty[892]: /dev/tty2: 
+> Permission denied
+>   Apr 28 16:13:57 sea2 kernel: avc:  denied  { setattr } for  
+> pid=881 exe=/sbin/mingetty path=/dev/tty3 dev=03:43 ino=36350 
+> scontext=system_u:system_r:getty_t 
+> tcontext=system_u:object_r:file_t tclass=chr_file
 
 --
 You have received this message because you are subscribed to the selinux list.
