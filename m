@@ -1,41 +1,70 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA27157
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 08:16:17 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA19405
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 12:16:07 GMT
-Received: from tomcat.admin.navo.hpc.mil (tomcat.admin.navo.hpc.mil [204.222.179.33])
-	by jazzswing.ncsc.mil  with ESMTP id MAA19401
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 12:16:07 GMT
-Date: Wed, 23 May 2001 07:16:14 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200105231216.HAA17913@tomcat.admin.navo.hpc.mil>
-To: edm@tycho.ncsc.mil, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Subject: Re: Immunity against Buffer Overflows / exploits
-In-Reply-To: <1010522185820.216AAH0H.edm@termpaper>
-Cc: edm@tycho.ncsc.mil, selinux@tycho.nsa.gov
+Message-ID: <3B0BC232.1763F0FF@watson.ibm.com>
+Date: Wed, 23 May 2001 09:59:14 -0400
+From: Reiner Sailer <sailer@watson.ibm.com>
+MIME-Version: 1.0
+To: SELinux@tycho.nsa.gov
+Subject: Re: PPC port of SELinux
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-edm@tycho.ncsc.mil:
->>Other hardware controls do change this. Even Intel could be better if the
->>memory management hardware had execute capability separate from read; and
->>separate from write. Once that is possible then the initial penetration
->>would fail.
->
->Actually the i386 archtecture (still) does have this capability when you use
->its segementation. Too bad current OS's don't use it.
+>From: Howard Holm (hdholm@epoch.ncsc.mil)
+>Date: Tue 6 Feb 2001 - 15:08:21 EST
+>I'm not aware of any port underway to the Power PC, nor is it something
 
-Perhaps a 2.5 or 2.7 issue to change the memory management to
-segmented+paging for designated processes ...?
+>likely to ever be a priority for the NSA team. If someone else wants
+>to port to the Power PC, or in fact has done any work extending the
+>system please keep the list informed so that we don't have people
+>duplicating each other's work and consider making your work in progress
 
-It's time to get new documentation...
+>available.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+I just ported (most of ) the SELinux kernel patch (available at the
+SELinux
+home page, kernel-2.4.3-200104121417) to work for the MontaVista
+(http://www.mvista.com) linux kernel  (2.4.2-mvista-010303 ... ppc
+unknown) running
+on a PPC 405GP processor in an embedded environment (here: Walnut
+board).
 
-Any opinions expressed are solely my own.
+The main change has been adapting the system calls to the
+PPC architecture and finding the right file counterparts in the
+arch/PPC directory.
+
+One thing remains to be solved: I couldn't integrate the SELinux
+patch regarding the mmap2 sys call as this system call
+seems not implemented by the PPC kernel. Two questions:
+1 )  Is there any reason (other than performance) not to put the patch
+      into the mmap system call?
+2) Is there a short description of the "context" of this patch? The
+patch itself
+    is easy to read. I am going to try to  integrate this patch, too.
+This might take
+    a while because I am not yet familiar with the way mmap works.
+
+I know that even getting all the patches to work does not imply that
+there are no other
+ways to circumvent the patches in the PPC kernel - functions could be
+used differently,
+called at different places, or even substituted by new functions that
+are not implemented
+in the i386 kernel (and therefore not considered). Somebody will have to
+look at the PPC
+kernel before using the PPC port in a commercial environment. Another
+question:
+3) Is there a test suite (available) that helps to verify whether the
+reference monitor
+    functions are active in all important control flows?
+
+If there is interest, we will  make this patch available as it is.  It
+might
+still be at bit of work to make it "patch" into the standard linux PPC
+kernel.
+[global Makefile will not patch but can be easily adapted, mmap to be
+resolved]
+
+Reiner
+
 
 --
 You have received this message because you are subscribed to the selinux list.
