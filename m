@@ -1,49 +1,37 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h98DdIWt018949
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 09:39:18 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h98DdRWt018966
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 09:39:27 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h98DdH7d021179
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 13:39:17 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h98DdHRn021176 for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 13:39:17 GMT
-Subject: Re: A few clarifications - SID, Precondition functions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Vikram K <vikramatiitkdotacdotin@yahoo.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20031008085847.26164.qmail@web41015.mail.yahoo.com>
-References: <20031008085847.26164.qmail@web41015.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1065620356.8181.110.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 08 Oct 2003 09:39:16 -0400
+	by jazzband.ncsc.mil  with ESMTP id h98DdQ7f021191
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2003 13:39:26 GMT
+Date: Wed, 8 Oct 2003 09:39:40 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+cc: Joerg Hoh <joerg@devone.org>, <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] Warnings and 64bit
+In-Reply-To: <1065619026.8181.83.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.44.0310080938580.8758-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-10-08 at 04:58, Vikram K wrote:
-> Therefore, we thought of generalizing this process and instead of
-> hardcoding a particular model into the existing code, we would add
-> hooks that would be implemented by a loadable policy module (similar
-> to the way in which LSM works). Particular policies can then be
-> implemented in such modules. Such a framework, we felt, could be
-> useful for indirectly extending the policy language by implementing
-> these extensions as modules themselves. This is a highly unconfirmed
-> statement, though, but we felt motivated enough to proceed.
+On 8 Oct 2003, Stephen Smalley wrote:
 
-I think that this is likely the wrong approach.  Rather than creating
-yet another infrastructure within SELinux for loadable policy modules
-(which is really what LSM is for), I'd suggest working on creating a
-real module abstraction in the policy language and implementing support
-for policy modules that can be reasonably bounded and can be checked for
-violations of properties of the base policy.  I'd suggest reading the
-following paper as background: 
-T. Fraser and L. Badger, _Ensuring Continuity during Dynamic Security
-Policy Reconfiguration in DTE_, Proceedings of the 1998 IEEE Symposium
-on Security and Privacy,
-http://www.computer.org/proceedings/s&p/8386/83860015abs.htm
+> constraint_expr structure, so I don't see how that helps.  Changing the
+> fields in constraint_expr to uintptr_t as in your patch causes their
+> size to vary depending on the architecture, which means that we can't
+> use a single binary policy on both 32 bit and 64 bit machines.  
+> 
+> James, correct me if I'm wrong here, but this is my understanding.
 
+Yes, this could certainly happen.
+
+- James
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
