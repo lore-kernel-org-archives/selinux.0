@@ -1,71 +1,60 @@
-Subject: [patch] give userspace_objmgr access to default_context_t
+Subject: [patch] allow hald to read selinux config
 From: Colin Walters <walters@verbum.org>
 To: SELinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-H9O8yztSvLHPZVs9s+QB"
-Date: Sat, 23 Oct 2004 14:40:43 -0400
-Message-Id: <1098556843.8447.30.camel@x-infinity.verbum.private>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wzfepVrs1CgxtVGMwbvD"
+Date: Sat, 23 Oct 2004 15:05:52 -0400
+Message-Id: <1098558352.8447.33.camel@x-infinity.verbum.private>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-H9O8yztSvLHPZVs9s+QB
-Content-Type: multipart/mixed; boundary="=-JNalDgbJ6+J6mx93Ot56"
+--=-wzfepVrs1CgxtVGMwbvD
+Content-Type: multipart/mixed; boundary="=-sJ2QqvMSvnFQ50jgKKnR"
 
 
---=-JNalDgbJ6+J6mx93Ot56
+--=-sJ2QqvMSvnFQ50jgKKnR
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+This patch is needed because HAL 0.4.0 now determines whether or not
+SELinux is enabled, and if it is applies the removable media context to
+mounted filesystems.=20
 
-Most userspace object managers (e.g. D-BUS) will need access to default
-contexts files.  I think these used to just be selinux_config_t but seem
-to have switched recently.
 
-I noticed two domains, updfstab and udev are both likely candidates for
-the userspace_objmgr attribute, since they have this:
 
-domains/program/updfstab.te:r_dir_file(updfstab_t, { selinux_config_t file_=
-context_t default_context_t } )
-
-Right now neither of them get security decisions, but it doesn't seem
-unlikely in the future.
-
---=-JNalDgbJ6+J6mx93Ot56
-Content-Disposition: attachment; filename=userspace-objmgr-contexts.patch
-Content-Type: text/x-patch; name=userspace-objmgr-contexts.patch; charset=UTF-8
+--=-sJ2QqvMSvnFQ50jgKKnR
+Content-Disposition: attachment; filename=hald-read-selconfig.patch
 Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=hald-read-selconfig.patch; charset=UTF-8
 
-LS0tIHBvbGljeS0xLjE3LjMzL2RvbWFpbnMvbWlzYy91c2Vyc3BhY2Vfb2JqbWdyLnRlCTIwMDQt
-MTAtMTkgMTY6MDM6NTguMDAwMDAwMDAwIC0wNDAwDQorKysgcG9saWN5LmhhY2tlZC9kb21haW5z
-L21pc2MvdXNlcnNwYWNlX29iam1nci50ZQkyMDA0LTEwLTIzIDE0OjMxOjI3Ljg2NTg3MDAwMCAt
-MDQwMA0KQEAgLTYsOCArNiw4IEBADQogY2FuX2dldGNvbih1c2Vyc3BhY2Vfb2JqbWdyKQ0KICMg
-R2V0IHNlY3VyaXR5IGRlY2lzaW9ucyB2aWEgc2VsaW51eGZzLg0KIGNhbl9nZXRzZWN1cml0eSh1
-c2Vyc3BhY2Vfb2JqbWdyKQ0KLSMgUmVhZCAvZXRjL3NlbGludXgvY29uZmlnLg0KLXJfZGlyX2Zp
-bGUodXNlcnNwYWNlX29iam1nciwgc2VsaW51eF9jb25maWdfdCkNCisjIFJlYWQgL2V0Yy9zZWxp
-bnV4DQorcl9kaXJfZmlsZSh1c2Vyc3BhY2Vfb2JqbWdyLCB7IHNlbGludXhfY29uZmlnX3QgZGVm
-YXVsdF9jb250ZXh0X3QgfSkNCiAjIFJlY2VpdmUgbm90aWZpY2F0aW9ucyBvZiBwb2xpY3kgcmVs
-b2FkcyBhbmQgZW5mb3JjaW5nIHN0YXR1cyBjaGFuZ2VzLg0KIGFsbG93IHVzZXJzcGFjZV9vYmpt
-Z3Igc2VsZjpuZXRsaW5rX3NlbGludXhfc29ja2V0IHsgY3JlYXRlIGJpbmQgcmVhZCB9Ow0KIA0K
+LS0tIHBvbGljeS0xLjE3LjMzL2RvbWFpbnMvcHJvZ3JhbS91bnVzZWQvaGFsZC50ZX4JMjAwNC0x
+MC0xOSAxNjowMzo1OC4wMDAwMDAwMDAgLTA0MDANCisrKyBwb2xpY3ktMS4xNy4zMy9kb21haW5z
+L3Byb2dyYW0vdW51c2VkL2hhbGQudGUJMjAwNC0xMC0yMyAxNTowMjozMC44Nzc2NDk1NjAgLTA0
+MDANCkBAIC02MCw3ICs2MCw3IEBADQogYWxsb3cgaGFsZF90IHVzYmZzX3Q6ZGlyIHNlYXJjaDsN
+CiBhbGxvdyBoYWxkX3QgdXNiZnNfdDpmaWxlIHsgZ2V0YXR0ciByZWFkIH07DQogYWxsb3cgaGFs
+ZF90IGJpbl90Omxua19maWxlIHJlYWQ7DQotZG9udGF1ZGl0IGhhbGRfdCBzZWxpbnV4X2NvbmZp
+Z190OmRpciB7IHNlYXJjaCB9Ow0KK3JfZGlyX2ZpbGUoaGFsZF90LCB7IHNlbGludXhfY29uZmln
+X3QgZGVmYXVsdF9jb250ZXh0X3QgfSApDQogYWxsb3cgaGFsZF90IGluaXRyY190OmRidXMgeyBz
+ZW5kX21zZyB9Ow0KIGFsbG93IGluaXRyY190IGhhbGRfdDpkYnVzIHsgc2VuZF9tc2cgfTsNCiBh
+bGxvdyBoYWxkX3QgZXRjX3J1bnRpbWVfdDpmaWxlIHJ3X2ZpbGVfcGVybXM7DQo=
 
 
+--=-sJ2QqvMSvnFQ50jgKKnR--
 
---=-JNalDgbJ6+J6mx93Ot56--
-
---=-H9O8yztSvLHPZVs9s+QB
+--=-wzfepVrs1CgxtVGMwbvD
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQBBeqWrOIkJWWp2WGURArV9AJkBQdasSmoUJAj8iTdAtbA5eOjf2QCaA1wy
-EbnAYX5ufKu72aGhfFRisMc=
-=ZNa6
+iD8DBQBBequQOIkJWWp2WGURAmz0AJ9xthAySXpqIRZMh5yvRjw7AbsxtACfWD9z
+tpiA7cHrSWWPk18d4UhFGrE=
+=DsLg
 -----END PGP SIGNATURE-----
 
---=-H9O8yztSvLHPZVs9s+QB--
+--=-wzfepVrs1CgxtVGMwbvD--
 
 
 --
