@@ -1,60 +1,73 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA20092
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2001 08:36:09 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA20287
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2001 13:35:26 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA20391
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2001 09:31:10 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA26807
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2001 14:30:58 GMT
 Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
-	by jazzband.ncsc.mil  with ESMTP id NAA20283
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2001 13:35:26 GMT
-Date: Fri, 14 Dec 2001 08:35:35 -0500 (EST)
+	by jazzswing.ncsc.mil  with ESMTP id OAA26803
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2001 14:30:57 GMT
+Date: Fri, 14 Dec 2001 09:30:45 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: Justin Smith <jsmith@mcs.drexel.edu>
-cc: selinux <selinux@tycho.nsa.gov>
-Subject: Re: Strange behavior (?)
-In-Reply-To: <1008318406.1624.1.camel@jsmith.org>
-Message-ID: <Pine.GSO.4.33.0112140817110.24054-100000@raven>
+To: Shaun Savage <savages@pcez.com>
+cc: <selinux@tycho.nsa.gov>, <courier-users@lists.sourceforge.net>
+Subject: Re: thanks, and new issue
+In-Reply-To: <3C1911B6.5000607@pcez.com>
+Message-ID: <Pine.GSO.4.33.0112140903310.24054-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On 14 Dec 2001, Justin Smith wrote:
+On Thu, 13 Dec 2001, Shaun Savage wrote:
 
-> It seems that my system occasionally toggles into permissive mode for no
-> apparent reason.
+> I am trying to add/make a new security policy for the courier mail
+> server.  Sendmail is easy compared with qmail or courier.  This will
+> also be a good learning experiance for me (and others) to go through the
+> thinking behind creating a security policy.    I am not a courier
+> expert,   but I think selinux and courier would be good togther.
 
-The only situations where the SELinux development module should revert to
-permissive mode after being toggled into enforcing mode are:
-1) when you reboot the system,
-2) when you run avc_toggle from a domain that has avc_toggle permission
-(the initrc_t domain and the sysadm_t domain in the example policy).
+I am not familiar with courier, but I'll try to provide some general
+guidance below.  Also, just FYI, please note that the sendmail domain
+is just a starting point for sendmail; a more complete solution for
+sendmail is being developed by some folks at MITRE.
 
-When you next encounter this behavior, please verify that your system
-wasn't rebooted (e.g. last reboot) and that no one ran avc_toggle again.
-To verify that no one ran avc_toggle, add an auditallow rule so that it
-will be audited when it is allowed as well as when it is denied:
-	auditallow { initrc_t admin } kernel_t:system avc_toggle;
+> The problem is how fine grained a security policy I should make?
+> Should every processes have a seperate policy or should the whole
+> package be one security?
+> Should the certs be protected more than other parts?
+> Courier writes to the users Maildir in their home dir, only
+> courier_local writes to users dir.  ????
 
-You should then see the following message when an avc_toggle occurs:
-	avc:  granted { avc_toggle } for ...
+This depends on the permissions required by each courier-related process
+and your security goals.  If several processes require essentially the
+same permissions, then you can place them in the same domain.  Likewise,
+if several directories/files should be accessible in the same way by the
+same processes, you can place them in the same type.  If you aren't sure
+what permissions are required, you can initially define separate domains
+for each process, run the system in permissive mode to collect audit
+messages, and then evaluate the resulting messages to see whether some of
+the domains should be coalesced.  The script posted by Justin Smith may be
+helpful to you in automatically converting the audit messages to allow
+rules, but you still need to carefully analyze these rules to see if they
+meet your security goals.
 
-> Also, whenever I reboot, it seems to boot up in permissive mode. Is this
-> normal behavior? Is there a way to configure it to boot in enforcing
-> mode?
-
-Yes, this is the normal behavior.  Please read the help text for the NSA
-SELinux Development Module option (select help from the 'make menuconfig'
-when you are looking at that option, or just read it directly from the
-Documentation/Configure.help file).  As noted there, you can either put
-avc_toggle in an rc script to switch into enforcing mode while booting
-(leaving open the option of later switching back to permissive mode from
-an authorized domain) or you can rebuild the kernel without the option (in
-which case the kernel will always be enforcing and cannot be toggled).  If
-you do the latter, be sure to keep a copy of a development kernel
-available so that you can do emergency recovery if you mess up your
-policy.
+You should be cautious about using separate types for individual files
+within a single directory, although this is possible.  The problem with
+using separate types for individual files within a single directory is
+ensuring that the type is preserved if the file is subsequently updated.
+If the existing file is merely modified in place, then the type will be
+preserved.  However, if the update to the file involves creation of a new
+file, then you must take steps to ensure that the type of the new file is
+the same as the type of the original.  One approach for doing so is to put
+programs that update the file into a separate domain and defining a
+file_type_auto_trans rule for that domain so that files created by the
+domain in the directory will inherit the desired type rather than the type
+of the parent directory by default.  However, if the program creates
+multiple files in the same directory that must have different types, this
+approach will not work, so you will have to either modify the program or
+wrap it with another program that sets the file types properly.
 
 --
 Stephen D. Smalley, NAI Labs
