@@ -1,53 +1,30 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA22043
-	for <selinux@tycho.nsa.gov>; Mon, 11 Nov 2002 17:02:03 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA21719
-	for <selinux@tycho.nsa.gov>; Mon, 11 Nov 2002 22:00:02 GMT
-Received: from pandora.snu.edu ([204.126.2.1])
-	by jazzswing.ncsc.mil  with SMTP id WAA21715
-	for <selinux@tycho.nsa.gov>; Mon, 11 Nov 2002 22:00:01 GMT
-Message-Id: <sdcfd474.085@atlas.snu.edu>
-Date: Mon, 11 Nov 2002 16:01:24 -0600
-From: "Joshua Brindle" <JBrindle@snu.edu>
-To: <selinux@tycho.nsa.gov>
-Subject: SELinux distro building
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: K VAMSHI KRISHNA <Vamshi.Krishna@cmcltd.com>
+Message-ID: <1089.172.16.16.31.1037101869.squirrel@webmail>
+Date: Tue, 12 Nov 2002 17:21:09 +0530 (IST)
+Subject: SELinux and Tomcat web server
+To: <SELinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi, I'm trying to set up support for SELinux in Gentoo linux (a source
-based distro with a ports system for installing everything). Basically
-instead of delivering a prepackaged/compiled SELinux build it downloads
-and compiles right then and installs. The problems are numerous though
-and I kinda wanted your advice
-1) it installs to /usr/local/selinux which is unacceptable, it needs to
-go to /usr/selinux (thats easily taken care of by patches to the
-Makefiles which i already did)
-2) when compiling the selinux archive it needs libsecure to already be
-installed (and to have copied the .h files from the lsm kernel) before
-the policy compiler can be built. This is a problem because the ports
-system wants to compile everything, install it to a fake root so that it
-can enumerate the files for uninstallation, then copy them to the file
-system.
-3) the Makefiles do not respect INSTALLPREFIX (which i also patched
-for, but it's dirty) because we *must* install to the fake root before
-installing to the filesystem, otherwise the sandbox kills it for
-permissions (which is it supposed to do)
-
-it seems to me that the entire archive package desperatly needs a
-configure system so that it will be a little more flexible. What is your
-opinion on this?
-Also, i haven't looked at the debian builds since i don't have any
-debian machines but how did you handle these problems, or did you? 
-
-Thanks for any information you can give me.
+Hello friends,
+I am a newbie just getting my hands dirty with SELinux. We are presently
+planing to host a Jakarta Tomcat web server that hosts some JSPs on a
+SELinux system. So as evident, this requires configuring the server which
+is started using the command
+/usr/local/jakarta/tomcat.sh start
+The process listens at some port and respond by serving JSPs. This to my
+knowledge involves unzipping/extracting class files from some jar files in
+the lib and work folders under the jakarta folder. It also needs
+configuring the acess to the Java subsystem by Tomcat process.
+Before starting on this, I thought of inquiring if any of you have already
+gone through it. I would be grateful for any help in this context. Any
+pointers in configuring the Java subsystem will also be quite useful.
+Thanks in advance,
+Vamshi.
 
 
-Joshua Brindle
-UNIX Administrator
-Southern Nazarene University
 
 --
 This message was distributed to subscribers of the selinux mailing list.
