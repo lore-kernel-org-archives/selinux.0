@@ -1,44 +1,79 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72MNlrT016744
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 18:23:47 -0400 (EDT)
-Date: Mon, 2 Aug 2004 21:10:16 +0100
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i730MMrT017250
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 20:22:22 -0400 (EDT)
+Received: from flame.hosts.ndo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i730MKKV001287
+	for <selinux@tycho.nsa.gov>; Tue, 3 Aug 2004 00:22:20 GMT
+Date: Tue, 3 Aug 2004 00:15:34 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: matchfilecon (the program) vs matchfilecon (the libselinux1 fn)
-Message-ID: <20040802201016.GO4194@lkcl.net>
-References: <20040801172751.GD20103@lkcl.net> <1091455223.23449.66.camel@moss-spartans.epoch.ncsc.mil> <20040802145724.GG4194@lkcl.net> <1091458325.23449.102.camel@moss-spartans.epoch.ncsc.mil> <20040802191243.GJ4194@lkcl.net> <1091474356.23449.272.camel@moss-spartans.epoch.ncsc.mil>
+To: "Marco d'Itri" <md@Linux.IT>
+Cc: 263079@bugs.debian.org, SE-Linux <selinux@tycho.nsa.gov>,
+   Linux Hotplug Dev List <linux-hotplug-devel@lists.sourceforge.net>
+Subject: Re: Bug#263079: udev: missing mknod on ppp
+Message-ID: <20040802231534.GB16238@lkcl.net>
+References: <E1Brl5k-0006Jd-1F@lkcl.net> <20040802224118.GA18849@wonderland.linux.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1091474356.23449.272.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <20040802224118.GA18849@wonderland.linux.it>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Aug 02, 2004 at 03:19:16PM -0400, Stephen Smalley wrote:
-> On Mon, 2004-08-02 at 15:12, Luke Kenneth Casson Leighton wrote:
-> > On Mon, Aug 02, 2004 at 10:52:05AM -0400, Stephen Smalley wrote:
-> > > What's the objection to patching udev to directly invoke matchpathcon(3)
-> > > and setfscreatecon(3) prior to creating each device node?
-> >  
-> >  time!  how long do those function calls take?
-> > 
-> >  using /sbin/restorecon, which is the present hack, each device node
-> >  creation takes around a quarter of a second (!!)
+On Tue, Aug 03, 2004 at 12:41:18AM +0200, Marco d'Itri wrote:
+> On Aug 03, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
 > 
-> Directly invoking the library functions has to be faster than exec'ing a
-> separate helper program (restorecon) that then invokes the library
-> functions.  Further, restorecon has to re-lookup the device node in the
-> filesystem, whereas udev can set up its context upon initial creation. 
-> Further, matchpathcon() caches the file context specification upon the
-> first call, so if the udev process stays around for multiple device
-> creations, then subsequent matchpathcon() calls will be a bit faster
-> (although pathname regex matching is still going to take time).
- 
- this would probably explain why the selinux support in udev-024 was
- so slow: it was a separate program with functionality pretty much
- identical to /sbin/restorecon.
+> > udev appears to be missing out ppp: i got a request
+> > to mknod /dev/ppp c 108 0 when running pon provider
+> I see no sign of this being an udev bug.
+> Please upgrade your kernel and read again README.Debian.
+> If you don't have /sys/class/ppp/ppp/dev, your kernel is too old.
+> 
+> -- 
+> ciao, |
+> Marco | [7408 op/KllxVxdFKI]
 
- l.
+
+
+Script started on Tue Aug  3 00:07:18 2004
+highfield:~# more /etc/motd
+Linux highfield 2.6.6-selinux1 #5 Tue May 18 16:33:29 GMT 2004 i686 GNU/Linux
+highfield:~# ls /sys/class/ppp/ppp/dev
+/sys/class/ppp/ppp/dev
+highfield:~# 
+Script done on Tue Aug  3 00:07:30 2004
+
+
+so this might be a kernel bug then?
+
+thank you for pointing me at the README.Debian because it makes clear
+that for SE/Linux there are certain /dev entries that may not get
+fired up by udev, and consequently won't have se/linux permissions set!
+
+i've had to modify /etc/init.d/udev to do a manual /sbin/restorecon on
+all entries listed in /etc/udev/links.conf.
+
+i have some vague and rushed recollection of forcibly doing an
+/sbin/restorecon in /etc/init.d/modutils, too.
+
+does anyone have any suggestions on how /etc/modutils should be dealt
+with on a tmpfs-mounted /dev?
+
+bearing in mind that a [patched, see
+http://hands.com/~lkcl/selinux/2.6.6 tmfs-xattr patch] selinux tmpfs
+would be mounted with NO initial selinux permissions, and that
+ANYTHING that goes into it will need to have a security context set
+on it for there to be any chance of it being accessible.
+
+the issue is, therefore that /etc/init.d/modutils will endeavour to
+manually install modules at startup - even before udev is run - and
+it doesn't bother to set the selinux permissions.
+
+and also, as this initial bug might be raising, if udev doesn't
+notice a device driver, /sbin/restorecon (or equivalent) won't ever
+get called.
+
+ideas, anyone?
+
+l.
 
 
 --
