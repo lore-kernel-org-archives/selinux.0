@@ -1,70 +1,43 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9G9SArT011809
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 05:28:10 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9GDpGrT012482
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 09:51:16 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9G9Qui9010043
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 09:26:57 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 07CAA627BB
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 19:28:04 +1000 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 29465-10 for <selinux@tycho.nsa.gov>;
-	Sat, 16 Oct 2004 19:28:03 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 982D361E02
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 19:28:03 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 68661B5AB3
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 19:28:01 +1000 (EST)
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9GDo2i9012877
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 13:50:03 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: insmod
-Date: Sat, 16 Oct 2004 19:28:00 +1000
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Subject: Re: policy compile fixes
+Date: Sat, 16 Oct 2004 23:51:11 +1000
+Cc: James Carter <jwcart2@epoch.ncsc.mil>, SELinux ML <selinux@tycho.nsa.gov>
+References: <20041014113536.GC2540@jmh.mhn.de> <1097785396.32077.92.camel@moss-lions.epoch.ncsc.mil> <20041014232413.GJ2540@jmh.mhn.de>
+In-Reply-To: <20041014232413.GJ2540@jmh.mhn.de>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_gmOcBsw7ytVk3ZT"
-Message-Id: <200410161928.00867.russell@coker.com.au>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200410162351.11178.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_gmOcBsw7ytVk3ZT
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Fri, 15 Oct 2004 09:24, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
+wrote:
+> > Currently, the policy Makefile is not set up so that the fc files can
+> > use an ifdef(`somefile.te',
+> >
+> > If there is interest in adding that support though, it can be done.
+>
+> It just seemed easiest this way.
 
-It seems that we can't get insmod changed to not open the module read/write 
-for locking, so the attached patch permits this access.
+I agree, it's something that should be done.
+
+Putting tmp/program_used_flags.te as the first entry for the FCFILES 
+declaration should be all that's needed.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_gmOcBsw7ytVk3ZT
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
---- /usr/src/se/policy/domains/program/modutil.te	2004-09-21 14:39:14.000000000 +1000
-+++ domains/program/modutil.te	2004-10-16 19:16:43.000000000 +1000
-@@ -107,6 +108,8 @@
- 
- # Read module objects.
- r_dir_file(insmod_t, modules_object_t)
-+# for locking
-+allow insmod_t modules_object_t:file write;
- 
- allow insmod_t { var_t var_log_t }:dir search;
- ifdef(`xserver.te', `
-
---Boundary-00=_gmOcBsw7ytVk3ZT--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
