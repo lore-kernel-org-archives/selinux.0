@@ -1,49 +1,52 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1QNdARb009480
-	for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 18:39:10 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i1QNbYlK018227
-	for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 23:37:34 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id i1QNbXOX018224
-	for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 23:37:34 GMT
-Date: Thu, 26 Feb 2004 23:39:00 +0000
-From: Dale Amon <amon@vnl.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Proposed patch to policy file_contexts
-Message-ID: <20040226233900.GB22602@vnl.com>
-References: <403E52AD.5090103@redhat.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1REdvRb018375
+	for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2004 09:39:58 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i1REduQQ006081
+	for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2004 14:39:56 GMT
+Received: from curiango.ipen.br (curiango.ipen.br [200.136.52.46])
+        by jazzband.ncsc.mil  with ESMTP id i1REdtP0006021 for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2004 14:39:55 GMT
+Received: from [10.0.7.45] (helo=voabaixo ident=mail)
+	by curiango.ipen.br with esmtp (Exim 3.35 #1 (Debian))
+	id 1Awj9I-0001ev-00
+	for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2004 11:39:32 -0300
+Received: from mario by voabaixo with local (Exim 3.36 #1 (Debian))
+	id 1Awj9B-0006gN-00
+	for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2004 11:39:25 -0300
+Date: Fri, 27 Feb 2004 11:39:25 -0300
+From: Mario Olimpio de Menezes <mario@curiango.ipen.br>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: accessing files under Linux and SELinux
+Message-ID: <20040227143925.GA21866@curiango.ipen.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <403E52AD.5090103@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Feb 26, 2004 at 03:10:21PM -0500, Daniel J Walsh wrote:
-> Since the file_contexts file is now being build with m4, I am proposing 
-> this patch to allow for simpler specifications of alternate 
-> homedirectories or staff users.
-> 
-> As we are roling this out we are finding many users placing their 
-> homedirectories in the non standard location.
-> 
-> What do you think?
+Hi,
 
-Now that you mention it, I resemble that remark. I
-do (on some systems) place my administrative accounts
-on a different drive than user home dirs. I hadn't
-run across the problem yet because my test systems
-are dead normal.
+  When accessing files under Linux, several checks will be done by 
+  syscall ensuring the user has the rights to do.
+
+  When accessing files under SELinux, additional checks (security
+  context) will be done.
+
+  Can I think of this as: "the minimum set will prevail".
+
+  For example, I add a user with uid=gid=1000 to a system and then
+  assign this user a system_r role. If I try to access /etc/shadow I'll
+  be denied by the Linux checks and not SELinux checks.
+
+  Is this correct? Am I getting the wrong picture here?
+
+  Thanks,
+
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+Mario O.de Menezes, Ph.D.    "Many are the plans in a man's heart, but
+    IPEN-CNEN/SP                is the Lord's purpose that prevails"
+http://www.ipen.br/~mario                  Prov. 19.21
+    
 
 --
 This message was distributed to subscribers of the selinux mailing list.
