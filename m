@@ -1,27 +1,31 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RL7JrT022996
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 17:07:19 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RL94rT023035
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 17:09:04 -0400 (EDT)
 Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7RL7IoM002441
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 21:07:18 GMT
-Subject: Re: admin.te
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7RL92oM002474
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 21:09:02 GMT
+Subject: Re: file_contexts/types.fc
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: russell@coker.com.au
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200408251429.22399.russell@coker.com.au>
-References: <200408251429.22399.russell@coker.com.au>
+In-Reply-To: <200408272141.36561.russell@coker.com.au>
+References: <200408272141.36561.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1093640799.24188.41.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1093640898.24188.45.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 27 Aug 2004 17:06:39 -0400
+Date: Fri, 27 Aug 2004 17:08:18 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Thanks.  Merged.
 
-On Wed, 2004-08-25 at 00:29, Russell Coker wrote:
-> The attached patch cleans up some redundant attributes in admin.te.
+On Fri, 2004-08-27 at 07:41, Russell Coker wrote:
+> The attached patch changes file_contexts/types.fc, it removes a bogus entry 
+> for /dev/mdsp (it's a DSP board whatever that means, not a hard disk).
+> 
+> It fixes an error in the tape device labelling which missed some entries, and 
+> it adds a Debian specific entry for fonts.
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
