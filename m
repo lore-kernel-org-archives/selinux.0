@@ -1,342 +1,222 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA26668
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jul 2002 09:36:31 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA08836
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jul 2002 13:35:48 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id NAA08832
-	for <selinux@tycho.nsa.gov>; Thu, 18 Jul 2002 13:35:47 GMT
-Date: Thu, 18 Jul 2002 09:35:24 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: [patch] Re: chattr
-In-Reply-To: <Pine.GSO.4.33.0207121200060.28541-100000@raven>
-Message-ID: <Pine.GSO.4.33.0207180911590.9066-200000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA00493
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jul 2002 17:02:53 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id VAA24626
+	for <selinux@tycho.nsa.gov>; Thu, 18 Jul 2002 21:01:22 GMT
+Received: from albatross.prod.itd.earthlink.net (albatross.mail.pas.earthlink.net [207.217.120.120])
+        by jazzband.ncsc.mil  with ESMTP id VAA24616 for <selinux@tycho.nsa.gov>; Thu, 18 Jul 2002 21:01:21 GMT
+Received: from crtntx1-ar7-4-35-055-079.crtntx1.elnk.dsl.genuity.net ([4.35.55.79] helo=donkey)
+	by albatross.prod.itd.earthlink.net with esmtp (Exim 3.33 #1)
+	id 17VIQA-0001Tk-00
+	for selinux@tycho.nsa.gov; Thu, 18 Jul 2002 14:02:46 -0700
+From: "Ryan Bergauer" <privateryan@mindspring.com>
+To: <selinux@tycho.nsa.gov>
+Subject: tripwire
+Date: Thu, 18 Jul 2002 16:02:46 -0500
+Message-ID: <000501c22e9e$7807c200$0300a8c0@donkey>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-33463914-1026998592=:9066"
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C22E74.8F31BA00"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+This is a multi-part message in MIME format.
 
----559023410-33463914-1026998592=:9066
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.GSO.4.33.0207180923321.9066@raven>
+------=_NextPart_000_0006_01C22E74.8F31BA00
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+
+I just installed Tripwire on my SELinux play box. I have no problem
+doing an integrity check when I'm logged in as root and newroled into
+sysadm_r. However, the default system cron job for integrity checking
+fails miserably because system_crond_t isn't granted the permissions
+necessary to check and sign most files on my system (and with good
+reason.) My first thought was to create a domain just for Tripwire, but
+unfortunately, the fact that Tripwire needs access to just about every
+file type on the disk results in a domain that not only would take quite
+some time to create, but would also require a fair degree of
+maintenance. Creating a cron job run by a user also appears out of the
+question, since my sysadm has no root access, and root runs user_crond_t
+cron jobs by default (which I feel would be wise to keep that way.)
+ 
+Either I'm overlooking something (very likely) or I'm going to have to
+suck it up and write that Tripwire domain. Any suggestions? If the
+Tripwire domain is the answer, are there any good ways to give it a
+large number of privileges very quickly?
+ 
+Thanks in advance - you guys are a huge help! I appreciate you bearing
+with those of us still getting used to this.
+-Ryan
+
+------=_NextPart_000_0006_01C22E74.8F31BA00
+Content-Type: text/html;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
 
 
-On Fri, 12 Jul 2002, Stephen Smalley wrote:
+<meta name=3DProgId content=3DWord.Document>
+<meta name=3DGenerator content=3D"Microsoft Word 10">
+<meta name=3DOriginator content=3D"Microsoft Word 10">
+<link rel=3DFile-List href=3D"cid:filelist.xml@01C22E74.8E4F9760">
+<!--[if gte mso 9]><xml>
+ <o:OfficeDocumentSettings>
+  <o:DoNotRelyOnCSS/>
+ </o:OfficeDocumentSettings>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:DocumentKind>DocumentEmail</w:DocumentKind>
+  <w:EnvelopeVis/>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	mso-style-noshow:yes;
+	mso-ansi-font-size:10.0pt;
+	mso-bidi-font-size:10.0pt;
+	font-family:Arial;
+	mso-ascii-font-family:Arial;
+	mso-hansi-font-family:Arial;
+	mso-bidi-font-family:Arial;
+	color:windowtext;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */=20
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]-->
+</head>
 
-> True, as long as you have setattr permission to the type (at least, with
-> ext2 and ext3).  So I think that the real issue is that 'setattr'
-> permission is unnecessarily included in the rw_file_perms and rw_dir_perms
-> macros.  For better control, we should probably remove it from these
-> macros and selectively grant it as needed.  It would still remain in the
-> create_file_perms and create_dir_perms macros.
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple =
+style=3D'tab-interval:.5in'>
 
-The attached patch (also committed to the sourceforge CVS tree) removes
-setattr permission from the rw_file_perms and rw_dir_perms macros and adds
-it explicitly to a number of allow rules where it is needed.  It is likely
-that you will encounter plenty of other cases where setattr permission
-must also be granted.
+<div class=3DSection1>
 
-Also, as a side note, just to clarify, the SELinux setattr permission is
-checked for any inode setattr operation (e.g. truncate, utimes, chmod,
-chown) as well as for certain ioctls (e.g. flags set by chattr).  We
-could define a separate permission for each of these operations, but
-SELinux itself does not require such a distinction.  In contrast, when
-setting the SID of a file, SELinux uses a separate set of permissions
-(relabelfrom and relabelto) and provides finer-grained control, since the
-SID is relevant to the SELinux access controls.
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I just installed Tripwire on my <span =
+class=3DSpellE>SELinux</span>
+play box. I have no problem doing an integrity check when I&#8217;m =
+logged in
+as root and <span class=3DSpellE>newroled</span> into <span =
+class=3DSpellE>sysadm_r</span>.
+However, the default system <span class=3DSpellE>cron</span> job for =
+integrity
+checking fails miserably because <span =
+class=3DSpellE>system_crond_t</span> isn&#8217;t
+granted the permissions necessary to check and sign most files on my =
+system
+(and with good reason.) My first thought was to create a domain just for
+Tripwire, but unfortunately, the fact that Tripwire needs access to just =
+about
+every file type on the disk results in a domain that not only would take =
+quite
+some time to create, but would also require a fair degree of =
+maintenance. Creating
+a <span class=3DSpellE>cron</span> job run by a user also appears out of =
+the
+question, since my <span class=3DSpellE>sysadm</span> has no root =
+access, and
+root runs <span class=3DSpellE>user_crond_t</span> <span =
+class=3DSpellE>cron</span>
+jobs by default (which I feel would be wise to keep that =
+way.)<o:p></o:p></span></font></p>
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Either I&#8217;m overlooking something (very likely) =
+or I&#8217;m
+going to have to suck it up and write that Tripwire domain. <span =
+class=3DGramE>Any
+suggestions?</span> If the Tripwire domain is the answer, are there any =
+good
+ways to give it a large number of privileges very =
+quickly?<o:p></o:p></span></font></p>
 
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
 
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Thanks in advance &#8211; you guys are a huge help! I
+appreciate you bearing with those of us still getting used to =
+this&#8230;<o:p></o:p></span></font></p>
 
----559023410-33463914-1026998592=:9066
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="setattr.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0207180923120.9066@raven>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="setattr.patch"
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>-Ryan<o:p></o:p></span></font></p>
 
-SW5kZXg6IHBvbGljeS9kb21haW5zL21pc2Mva2VybmVsLnRlDQo9PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2c3Jvb3Qvc2VsaW51eC9u
-c2Evc2VsaW51eC9wb2xpY3kvZG9tYWlucy9taXNjL2tlcm5lbC50ZSx2DQpy
-ZXRyaWV2aW5nIHJldmlzaW9uIDEuMS4xLjENCmRpZmYgLXUgLXIxLjEuMS4x
-IGtlcm5lbC50ZQ0KLS0tIHBvbGljeS9kb21haW5zL21pc2Mva2VybmVsLnRl
-CTMgSnVsIDIwMDIgMjA6MjY6MTkgLTAwMDAJMS4xLjEuMQ0KKysrIHBvbGlj
-eS9kb21haW5zL21pc2Mva2VybmVsLnRlCTE4IEp1bCAyMDAyIDEzOjAxOjM5
-IC0wMDAwDQpAQCAtNDMsNyArNDMsNyBAQA0KIGFsbG93IGtlcm5lbF90IGZp
-bGVfdDpkaXIgbW91bnRvbjsNCiBhbGxvdyBrZXJuZWxfdCBmaWxlX3Q6ZGly
-IHJ3X2Rpcl9wZXJtczsNCiBhbGxvdyBrZXJuZWxfdCBmaWxlX3Q6YmxrX2Zp
-bGUgY3JlYXRlX2ZpbGVfcGVybXM7DQotYWxsb3cga2VybmVsX3QgeyBzeXNj
-dGxfdCBzeXNjdGxfa2VybmVsX3QgfTpmaWxlIHJ3X2ZpbGVfcGVybXM7DQor
-YWxsb3cga2VybmVsX3QgeyBzeXNjdGxfdCBzeXNjdGxfa2VybmVsX3QgfTpm
-aWxlIHsgc2V0YXR0ciByd19maWxlX3Blcm1zIH07DQogDQogIyBMb29rdXAg
-dGhlIHBvbGljeS4NCiBhbGxvdyBrZXJuZWxfdCBwb2xpY3lfY29uZmlnX3Q6
-ZGlyIHJfZGlyX3Blcm1zOw0KSW5kZXg6IHBvbGljeS9kb21haW5zL3Byb2dy
-YW0vY3JvbmQudGUNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxl
-OiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9zZWxpbnV4L3BvbGljeS9kb21haW5z
-L3Byb2dyYW0vY3JvbmQudGUsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjMN
-CmRpZmYgLXUgLXIxLjMgY3JvbmQudGUNCi0tLSBwb2xpY3kvZG9tYWlucy9w
-cm9ncmFtL2Nyb25kLnRlCTMgSnVsIDIwMDIgMjA6Mzk6NDcgLTAwMDAJMS4z
-DQorKysgcG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9jcm9uZC50ZQkxOCBKdWwg
-MjAwMiAxMzowMTozOSAtMDAwMA0KQEAgLTE2Myw3ICsxNjMsNyBAQA0KIGFs
-bG93IHN5c3RlbV9jcm9uZF90IGNyb25fc3Bvb2xfdDpmaWxlIHJfZmlsZV9w
-ZXJtczsNCiANCiAjIFdyaXRlIHRvIC92YXIvbGliL3Nsb2NhdGUuZGIuDQot
-YWxsb3cgc3lzdGVtX2Nyb25kX3QgdmFyX2xpYl90OmRpciByd19kaXJfcGVy
-bXM7DQorYWxsb3cgc3lzdGVtX2Nyb25kX3QgdmFyX2xpYl90OmRpciB7IHNl
-dGF0dHIgcndfZGlyX3Blcm1zIH07DQogYWxsb3cgc3lzdGVtX2Nyb25kX3Qg
-dmFyX2xpYl90OmZpbGUgY3JlYXRlX2ZpbGVfcGVybXM7DQogDQogIyBVcGRh
-dGUgd2hhdGlzIGZpbGVzLg0KQEAgLTIwMyw3ICsyMDMsNyBAQA0KIGBhbGxv
-dyBzeXNhZG1fbWFpbF90IHN5c3RlbV9jcm9uZF90bXBfdDpmaWxlIHJhX2Zp
-bGVfcGVybXM7JykNCiANCiAjIFVzZWQgZm9yIC9zYmluL3RtcHdhdGNoDQot
-YWxsb3cgc3lzdGVtX2Nyb25kX3QgdG1wZmlsZTpkaXIgcndfZGlyX3Blcm1z
-Ow0KK2FsbG93IHN5c3RlbV9jcm9uZF90IHRtcGZpbGU6ZGlyIHsgc2V0YXR0
-ciByd19kaXJfcGVybXMgfTsNCiBhbGxvdyBzeXN0ZW1fY3JvbmRfdCB0bXBm
-aWxlOmRpciBybWRpcjsNCiBhbGxvdyBzeXN0ZW1fY3JvbmRfdCB0bXBmaWxl
-Om5vdGRldmZpbGVfY2xhc3Nfc2V0IGxpbmtfZmlsZV9wZXJtczsNCiBhbGxv
-dyBzeXN0ZW1fY3JvbmRfdCBjYXRtYW5fdDpkaXIgcndfZGlyX3Blcm1zOw0K
-SW5kZXg6IHBvbGljeS9kb21haW5zL3Byb2dyYW0vZ2V0dHkudGUNCj09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvY3Zzcm9vdC9zZWxpbnV4
-L25zYS9zZWxpbnV4L3BvbGljeS9kb21haW5zL3Byb2dyYW0vZ2V0dHkudGUs
-dg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjEuMS40DQpkaWZmIC11IC1yMS4x
-LjEuNCBnZXR0eS50ZQ0KLS0tIHBvbGljeS9kb21haW5zL3Byb2dyYW0vZ2V0
-dHkudGUJMyBKdWwgMjAwMiAyMDoyNjoyMSAtMDAwMAkxLjEuMS40DQorKysg
-cG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9nZXR0eS50ZQkxOCBKdWwgMjAwMiAx
-MzowMTozOSAtMDAwMA0KQEAgLTM3LDkgKzM3LDkgQEANCiAjIFdyaXRlIHRv
-IC92YXIvbG9nL3d0bXAuDQogYWxsb3cgZ2V0dHlfdCB3dG1wX3Q6ZmlsZSBy
-d19maWxlX3Blcm1zOw0KIA0KLSMgUmVhZCBhbmQgd3JpdGUgdHR5cy4NCi1h
-bGxvdyBnZXR0eV90IHR0eV9kZXZpY2VfdDpjaHJfZmlsZSByd19maWxlX3Bl
-cm1zOw0KLWFsbG93IGdldHR5X3QgdHR5ZmlsZTpjaHJfZmlsZSByd19maWxl
-X3Blcm1zOw0KKyMgQ2hvd24sIGNobW9kLCByZWFkIGFuZCB3cml0ZSB0dHlz
-Lg0KK2FsbG93IGdldHR5X3QgdHR5X2RldmljZV90OmNocl9maWxlIHsgc2V0
-YXR0ciByd19maWxlX3Blcm1zIH07DQorYWxsb3cgZ2V0dHlfdCB0dHlmaWxl
-OmNocl9maWxlIHsgc2V0YXR0ciByd19maWxlX3Blcm1zIH07DQogDQogDQog
-cndfZGlyX2NyZWF0ZV9maWxlKGdldHR5X3QsIHZhcl9sb2NrX3QpDQpJbmRl
-eDogcG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9pbml0cmMudGUNCj09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvY3Zzcm9vdC9zZWxpbnV4L25z
-YS9zZWxpbnV4L3BvbGljeS9kb21haW5zL3Byb2dyYW0vaW5pdHJjLnRlLHYN
-CnJldHJpZXZpbmcgcmV2aXNpb24gMS4xLjEuMw0KZGlmZiAtdSAtcjEuMS4x
-LjMgaW5pdHJjLnRlDQotLS0gcG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9pbml0
-cmMudGUJMyBKdWwgMjAwMiAyMDoyNjoyMSAtMDAwMAkxLjEuMS4zDQorKysg
-cG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9pbml0cmMudGUJMTggSnVsIDIwMDIg
-MTM6MDE6MzkgLTAwMDANCkBAIC03OCw3ICs3OCw3IEBADQogYWxsb3cgaW5p
-dHJjX3QgbGRfc29fY2FjaGVfdDpmaWxlIHJ3X2ZpbGVfcGVybXM7DQogDQog
-IyBVcGRhdGUgL2V0Yy9tYWlsLg0KLWFsbG93IGluaXRyY190IGV0Y19tYWls
-X3Q6ZmlsZSByd19maWxlX3Blcm1zOw0KK2FsbG93IGluaXRyY190IGV0Y19t
-YWlsX3Q6ZmlsZSB7IHNldGF0dHIgcndfZmlsZV9wZXJtcyB9Ow0KIA0KIGlm
-ZGVmKGB4ZnMudGUnLA0KIGAjIFVubGluayB0aGUgeGZzIHNvY2tldC4NCkBA
-IC04Nyw5ICs4Nyw5IEBADQogYWxsb3cgaW5pdHJjX3QgeGZzX3RtcF90OnNv
-Y2tfZmlsZSB7IHJlYWQgZ2V0YXR0ciBhY2Nlc3MgdW5saW5rIH07JykNCiAN
-CiAjIFVwZGF0ZSAvdmFyL2xvZy93dG1wIGFuZCAvdmFyL2xvZy9kbWVzZy4N
-Ci1hbGxvdyBpbml0cmNfdCB3dG1wX3Q6ZmlsZSByd19maWxlX3Blcm1zOw0K
-LWFsbG93IGluaXRyY190IHZhcl9sb2dfdDpmaWxlIHJ3X2ZpbGVfcGVybXM7
-DQotYWxsb3cgaW5pdHJjX3QgbGFzdGxvZ190OmZpbGUgcndfZmlsZV9wZXJt
-czsNCithbGxvdyBpbml0cmNfdCB3dG1wX3Q6ZmlsZSB7IHNldGF0dHIgcndf
-ZmlsZV9wZXJtcyB9Ow0KK2FsbG93IGluaXRyY190IHZhcl9sb2dfdDpmaWxl
-IHsgc2V0YXR0ciByd19maWxlX3Blcm1zIH07DQorYWxsb3cgaW5pdHJjX3Qg
-bGFzdGxvZ190OmZpbGUgeyBzZXRhdHRyIHJ3X2ZpbGVfcGVybXMgfTsNCiAN
-CiAjIEFjY2VzcyAvdmFyL2xpYi9yYW5kb20tc2VlZC4NCiBhbGxvdyBpbml0
-cmNfdCB2YXJfbGliX3Q6ZmlsZSByd19maWxlX3Blcm1zOw0KSW5kZXg6IHBv
-bGljeS9kb21haW5zL3Byb2dyYW0vbG9naW4udGUNCj09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT0NClJDUyBmaWxlOiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9zZWxp
-bnV4L3BvbGljeS9kb21haW5zL3Byb2dyYW0vbG9naW4udGUsdg0KcmV0cmll
-dmluZyByZXZpc2lvbiAxLjMNCmRpZmYgLXUgLXIxLjMgbG9naW4udGUNCi0t
-LSBwb2xpY3kvZG9tYWlucy9wcm9ncmFtL2xvZ2luLnRlCTMgSnVsIDIwMDIg
-MjA6Mzk6NDcgLTAwMDAJMS4zDQorKysgcG9saWN5L2RvbWFpbnMvcHJvZ3Jh
-bS9sb2dpbi50ZQkxOCBKdWwgMjAwMiAxMzowMTozOSAtMDAwMA0KQEAgLTc1
-LDggKzc1LDggQEANCiBhbGxvdyBsb2NhbF9sb2dpbl90IHNlY3VyaXR5X3Q6
-c2VjdXJpdHkgY2hhbmdlX3NpZDsNCiANCiAjIFJlYWQgYW5kIHdyaXRlIHR0
-eXMuDQotYWxsb3cgbG9jYWxfbG9naW5fdCB0dHlfZGV2aWNlX3Q6Y2hyX2Zp
-bGUgcndfZmlsZV9wZXJtczsNCi1hbGxvdyBsb2NhbF9sb2dpbl90IHR0eWZp
-bGU6Y2hyX2ZpbGUgcndfZmlsZV9wZXJtczsNCithbGxvdyBsb2NhbF9sb2dp
-bl90IHR0eV9kZXZpY2VfdDpjaHJfZmlsZSB7IHNldGF0dHIgcndfZmlsZV9w
-ZXJtcyB9Ow0KK2FsbG93IGxvY2FsX2xvZ2luX3QgdHR5ZmlsZTpjaHJfZmls
-ZSB7IHNldGF0dHIgcndfZmlsZV9wZXJtcyB9Ow0KIA0KICMgUmVsYWJlbCB0
-dHlzLg0KIGFsbG93IGxvY2FsX2xvZ2luX3QgdHR5X2RldmljZV90OmNocl9m
-aWxlIHsgZ2V0YXR0ciByZWxhYmVsZnJvbSByZWxhYmVsdG8gfTsNCkBAIC0x
-MjAsNyArMTIwLDcgQEANCiANCiAjIFVzZSB0aGUgcHR5IGNyZWF0ZWQgYnkg
-cmxvZ2luZC4NCiBpZmRlZihgcmxvZ2luZC50ZScsDQotYGFsbG93IHJlbW90
-ZV9sb2dpbl90IHJsb2dpbmRfZGV2cHRzX3Q6Y2hyX2ZpbGUgcndfZmlsZV9w
-ZXJtczsnKQ0KK2BhbGxvdyByZW1vdGVfbG9naW5fdCBybG9naW5kX2RldnB0
-c190OmNocl9maWxlIHsgc2V0YXR0ciByd19maWxlX3Blcm1zIH07JykNCiAN
-CiAjIFdyaXRlIHRvIC92YXIvcnVuL3V0bXAuDQogYWxsb3cgcmVtb3RlX2xv
-Z2luX3QgaW5pdHJjX3Zhcl9ydW5fdDpmaWxlIHJ3X2ZpbGVfcGVybXM7DQpJ
-bmRleDogcG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9tb2R1dGlsLnRlDQo9PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2c3Jvb3Qvc2VsaW51
-eC9uc2Evc2VsaW51eC9wb2xpY3kvZG9tYWlucy9wcm9ncmFtL21vZHV0aWwu
-dGUsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjEuMS4zDQpkaWZmIC11IC1y
-MS4xLjEuMyBtb2R1dGlsLnRlDQotLS0gcG9saWN5L2RvbWFpbnMvcHJvZ3Jh
-bS9tb2R1dGlsLnRlCTMgSnVsIDIwMDIgMjA6MjY6MjEgLTAwMDAJMS4xLjEu
-Mw0KKysrIHBvbGljeS9kb21haW5zL3Byb2dyYW0vbW9kdXRpbC50ZQkxOCBK
-dWwgMjAwMiAxMzowMTozOSAtMDAwMA0KQEAgLTQ5LDggKzQ5LDcgQEANCiBh
-bGxvdyBkZXBtb2RfdCBzeXNhZG1faG9tZV90OmZpbGUgcl9maWxlX3Blcm1z
-Ow0KIA0KICMgUnVsZXMgZm9yIC9wcm9jL3N5cy9rZXJuZWwvdGFpbnRlZA0K
-LWFsbG93IGluc21vZF90IHN5c2N0bF9rZXJuZWxfdDpmaWxlIHJ3X2ZpbGVf
-cGVybXM7DQotYWxsb3cgaW5zbW9kX3Qgc3lzY3RsX3Q6ZmlsZSB3cml0ZTsN
-CithbGxvdyBpbnNtb2RfdCBzeXNjdGxfa2VybmVsX3Q6ZmlsZSB7IHNldGF0
-dHIgcndfZmlsZV9wZXJtcyB9Ow0KIA0KICMgL3Zhci9sb2cva3N5bW9vcHMv
-Kg0KIGFsbG93IGluc21vZF90IHZhcl9sb2dfa3N5bXNfdDpmaWxlIGNyZWF0
-ZV9maWxlX3Blcm1zOw0KSW5kZXg6IHBvbGljeS9kb21haW5zL3Byb2dyYW0v
-c2VuZG1haWwudGUNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxl
-OiAvY3Zzcm9vdC9zZWxpbnV4L25zYS9zZWxpbnV4L3BvbGljeS9kb21haW5z
-L3Byb2dyYW0vc2VuZG1haWwudGUsdg0KcmV0cmlldmluZyByZXZpc2lvbiAx
-LjMNCmRpZmYgLXUgLXIxLjMgc2VuZG1haWwudGUNCi0tLSBwb2xpY3kvZG9t
-YWlucy9wcm9ncmFtL3NlbmRtYWlsLnRlCTMgSnVsIDIwMDIgMjA6Mzk6NDcg
-LTAwMDAJMS4zDQorKysgcG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9zZW5kbWFp
-bC50ZQkxOCBKdWwgMjAwMiAxMzowMTozOSAtMDAwMA0KQEAgLTM4LDcgKzM4
-LDcgQEANCiBhbGxvdyBzZW5kbWFpbF90IHNtdHBfcG9ydF90OnRjcF9zb2Nr
-ZXQgbmFtZV9iaW5kOw0KIA0KICMgV3JpdGUgdG8gL2V0Yy9hbGlhc2VzIGFu
-ZCAvZXRjL21haWwuDQotYWxsb3cgc2VuZG1haWxfdCBldGNfYWxpYXNlc190
-OmZpbGUgcndfZmlsZV9wZXJtczsNCithbGxvdyBzZW5kbWFpbF90IGV0Y19h
-bGlhc2VzX3Q6ZmlsZSB7IHNldGF0dHIgcndfZmlsZV9wZXJtcyB9Ow0KIGFs
-bG93IHNlbmRtYWlsX3QgZXRjX21haWxfdDpkaXIgcndfZGlyX3Blcm1zOw0K
-IGFsbG93IHNlbmRtYWlsX3QgZXRjX21haWxfdDpmaWxlIGNyZWF0ZV9maWxl
-X3Blcm1zOw0KIA0KSW5kZXg6IHBvbGljeS9kb21haW5zL3Byb2dyYW0vc3No
-ZC50ZQ0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNTIGZpbGU6IC9jdnNy
-b290L3NlbGludXgvbnNhL3NlbGludXgvcG9saWN5L2RvbWFpbnMvcHJvZ3Jh
-bS9zc2hkLnRlLHYNCnJldHJpZXZpbmcgcmV2aXNpb24gMS4zDQpkaWZmIC11
-IC1yMS4zIHNzaGQudGUNCi0tLSBwb2xpY3kvZG9tYWlucy9wcm9ncmFtL3Nz
-aGQudGUJMyBKdWwgMjAwMiAyMDozOTo0NyAtMDAwMAkxLjMNCisrKyBwb2xp
-Y3kvZG9tYWlucy9wcm9ncmFtL3NzaGQudGUJMTggSnVsIDIwMDIgMTM6MDE6
-MzkgLTAwMDANCkBAIC03NiwxMCArNzYsOSBAQA0KICMgT2J0YWluIHRoZSBT
-SUQgdG8gdXNlIGZvciByZWxhYmVsaW5nIHB0eXMNCiBhbGxvdyBzc2hkX3Qg
-c2VjdXJpdHlfdDpzZWN1cml0eSBjaGFuZ2Vfc2lkOw0KIA0KLSMgUmVsYWJl
-bCBwdHlzIGNyZWF0ZWQgYnkgc3NoZA0KLWFsbG93IHNzaGRfdCBzc2hkX2Rl
-dnB0c190OmNocl9maWxlIHsgZ2V0YXR0ciByZWxhYmVsZnJvbSByZWxhYmVs
-dG8gfTsNCi1hbGxvdyBzc2hkX3QgcHR5ZmlsZTpjaHJfZmlsZSB7IGdldGF0
-dHIgcmVsYWJlbGZyb20gcmVsYWJlbHRvIH07DQotYWxsb3cgc3NoZF90IHB0
-eWZpbGU6Y2hyX2ZpbGUgcndfZmlsZV9wZXJtczsNCisjIFJlbGFiZWwgYW5k
-IGFjY2VzcyBwdHlzIGNyZWF0ZWQgYnkgc3NoZA0KK2FsbG93IHNzaGRfdCBz
-c2hkX2RldnB0c190OmNocl9maWxlIHsgc2V0YXR0ciByZWxhYmVsZnJvbSBy
-d19maWxlX3Blcm1zIH07DQorYWxsb3cgc3NoZF90IHVzZXJfZGV2cHRzX3Q6
-Y2hyX2ZpbGUgeyBzZXRhdHRyIHJlbGFiZWx0byByd19maWxlX3Blcm1zIH07
-DQogDQogIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQogIw0K
-QEAgLTEwNiw4ICsxMDUsOCBAQA0KICNhbGxvdyBzc2hkX2xvZ2luX3Qgc3lz
-YWRtX2hvbWVfdDpmaWxlIHJfZmlsZV9wZXJtczsNCiANCiAjIFVzZSB0aGUg
-cHR5IGNyZWF0ZWQgYnkgc3NoZA0KLWFsbG93IHNzaGRfbG9naW5fdCBzc2hk
-X2RldnB0c190OmNocl9maWxlIHJ3X2ZpbGVfcGVybXM7DQotYWxsb3cgc3No
-ZF9sb2dpbl90IHB0eWZpbGU6Y2hyX2ZpbGUgcndfZmlsZV9wZXJtczsNCith
-bGxvdyBzc2hkX2xvZ2luX3Qgc3NoZF9kZXZwdHNfdDpjaHJfZmlsZSB7IHNl
-dGF0dHIgcndfZmlsZV9wZXJtcyB9Ow0KK2FsbG93IHNzaGRfbG9naW5fdCB1
-c2VyX2RldnB0c190OmNocl9maWxlIHsgc2V0YXR0ciByd19maWxlX3Blcm1z
-IH07DQogDQogIyBXcml0ZSB0byAvdmFyL3J1bi91dG1wDQogYWxsb3cgc3No
-ZF9sb2dpbl90IGluaXRyY192YXJfcnVuX3Q6ZmlsZSByd19maWxlX3Blcm1z
-Ow0KQEAgLTEyMyw3ICsxMjIsNyBAQA0KIA0KICMgUmVsYWJlbCBwdHlzIGNy
-ZWF0ZWQgYnkgc3NoZA0KIGFsbG93IHNzaGRfbG9naW5fdCBzc2hkX2RldnB0
-c190OmNocl9maWxlIHsgcmVsYWJlbGZyb20gcmVsYWJlbHRvIH07DQotYWxs
-b3cgc3NoZF9sb2dpbl90IHB0eWZpbGU6Y2hyX2ZpbGUgeyBnZXRhdHRyIHJl
-bGFiZWxmcm9tIHJlbGFiZWx0byB9Ow0KK2FsbG93IHNzaGRfbG9naW5fdCB1
-c2VyX2RldnB0c190OmNocl9maWxlIHsgZ2V0YXR0ciByZWxhYmVsZnJvbSBy
-ZWxhYmVsdG8gfTsNCiANCiAjIE9idGFpbiB0aGUgU0lEIGZvciB0aGUgdXNl
-cg0KIGFsbG93IHNzaGRfdCBzZWN1cml0eV90OnNlY3VyaXR5IGdldF91c2Vy
-X3NpZHM7DQpJbmRleDogcG9saWN5L21hY3Jvcy9nbG9iYWxfbWFjcm9zLnRl
-DQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2c3Jvb3Qv
-c2VsaW51eC9uc2Evc2VsaW51eC9wb2xpY3kvbWFjcm9zL2dsb2JhbF9tYWNy
-b3MudGUsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjUNCmRpZmYgLXUgLXIx
-LjUgZ2xvYmFsX21hY3Jvcy50ZQ0KLS0tIHBvbGljeS9tYWNyb3MvZ2xvYmFs
-X21hY3Jvcy50ZQkxNSBKdWwgMjAwMiAxMjoyNTo0NyAtMDAwMAkxLjUNCisr
-KyBwb2xpY3kvbWFjcm9zL2dsb2JhbF9tYWNyb3MudGUJMTggSnVsIDIwMDIg
-MTM6MDE6MzkgLTAwMDANCkBAIC03OSw3ICs3OSw3IEBADQogIyANCiAjIFBl
-cm1pc3Npb25zIGZvciByZWFkaW5nIGFuZCB3cml0aW5nIGZpbGVzIGFuZCB0
-aGVpciBhdHRyaWJ1dGVzLg0KICMNCi1kZWZpbmUoYHJ3X2ZpbGVfcGVybXMn
-LCBgeyBpb2N0bCByZWFkIGdldGF0dHIgYWNjZXNzIGxvY2sgcG9sbCB3cml0
-ZSBzZXRhdHRyIGFwcGVuZCB9JykNCitkZWZpbmUoYHJ3X2ZpbGVfcGVybXMn
-LCBgeyBpb2N0bCByZWFkIGdldGF0dHIgYWNjZXNzIGxvY2sgcG9sbCB3cml0
-ZSBhcHBlbmQgfScpDQogDQogIyANCiAjIFBlcm1pc3Npb25zIGZvciByZWFk
-aW5nIGFuZCBhcHBlbmRpbmcgdG8gZmlsZXMuDQpAQCAtMTA0LDEyICsxMDQs
-MTIgQEANCiAjIA0KICMgUGVybWlzc2lvbnMgZm9yIHJlYWRpbmcgYW5kIHdy
-aXRpbmcgZGlyZWN0b3JpZXMgYW5kIHRoZWlyIGF0dHJpYnV0ZXMuDQogIw0K
-LWRlZmluZShgcndfZGlyX3Blcm1zJywgYHsgcmVhZCBnZXRhdHRyIGFjY2Vz
-cyBsb2NrIHBvbGwgc2V0YXR0ciBzZWFyY2ggYWRkX25hbWUgcmVtb3ZlX25h
-bWUgd3JpdGUgfScpDQorZGVmaW5lKGByd19kaXJfcGVybXMnLCBgeyByZWFk
-IGdldGF0dHIgYWNjZXNzIGxvY2sgcG9sbCBzZWFyY2ggYWRkX25hbWUgcmVt
-b3ZlX25hbWUgd3JpdGUgfScpDQogDQogIyANCiAjIFBlcm1pc3Npb25zIGZv
-ciByZWFkaW5nIGFuZCBhZGRpbmcgbmFtZXMgdG8gZGlyZWN0b3JpZXMuDQog
-Iw0KLWRlZmluZShgcmFfZGlyX3Blcm1zJywgYHsgcmVhZCBnZXRhdHRyIGFj
-Y2VzcyBsb2NrIHBvbGwgc2V0YXR0ciBzZWFyY2ggYWRkX25hbWUgd3JpdGUg
-fScpDQorZGVmaW5lKGByYV9kaXJfcGVybXMnLCBgeyByZWFkIGdldGF0dHIg
-YWNjZXNzIGxvY2sgcG9sbCBzZWFyY2ggYWRkX25hbWUgd3JpdGUgfScpDQog
-DQogDQogIw0KQEAgLTQ2NywyMCArNDY3LDIwIEBADQogIw0KIGRlZmluZShg
-Y2FuX3N5c2N0bCcsYA0KIGFsbG93ICQxIHN5c2N0bF90OmRpciByX2Rpcl9w
-ZXJtczsNCi1hbGxvdyAkMSBzeXNjdGxfdDpmaWxlIHJ3X2ZpbGVfcGVybXM7
-DQorYWxsb3cgJDEgc3lzY3RsX3Q6ZmlsZSB7IHNldGF0dHIgcndfZmlsZV9w
-ZXJtcyB9Ow0KIGFsbG93ICQxIHN5c2N0bF9mc190OmRpciByX2Rpcl9wZXJt
-czsNCi1hbGxvdyAkMSBzeXNjdGxfZnNfdDpmaWxlIHJ3X2ZpbGVfcGVybXM7
-DQorYWxsb3cgJDEgc3lzY3RsX2ZzX3Q6ZmlsZSB7IHNldGF0dHIgcndfZmls
-ZV9wZXJtcyB9Ow0KIGFsbG93ICQxIHN5c2N0bF9rZXJuZWxfdDpkaXIgcl9k
-aXJfcGVybXM7DQotYWxsb3cgJDEgc3lzY3RsX2tlcm5lbF90OmZpbGUgcndf
-ZmlsZV9wZXJtczsNCithbGxvdyAkMSBzeXNjdGxfa2VybmVsX3Q6ZmlsZSB7
-IHNldGF0dHIgcndfZmlsZV9wZXJtcyB9Ow0KIGFsbG93ICQxIHN5c2N0bF9u
-ZXRfdDpkaXIgcl9kaXJfcGVybXM7DQotYWxsb3cgJDEgc3lzY3RsX25ldF90
-OmZpbGUgcndfZmlsZV9wZXJtczsNCithbGxvdyAkMSBzeXNjdGxfbmV0X3Q6
-ZmlsZSB7IHNldGF0dHIgcndfZmlsZV9wZXJtcyB9Ow0KIGFsbG93ICQxIHN5
-c2N0bF9uZXRfdW5peF90OmRpciByX2Rpcl9wZXJtczsNCi1hbGxvdyAkMSBz
-eXNjdGxfbmV0X3VuaXhfdDpmaWxlIHJ3X2ZpbGVfcGVybXM7DQorYWxsb3cg
-JDEgc3lzY3RsX25ldF91bml4X3Q6ZmlsZSB7IHNldGF0dHIgcndfZmlsZV9w
-ZXJtcyB9Ow0KIGFsbG93ICQxIHN5c2N0bF92bV90OmRpciByX2Rpcl9wZXJt
-czsNCi1hbGxvdyAkMSBzeXNjdGxfdm1fdDpmaWxlIHJ3X2ZpbGVfcGVybXM7
-DQorYWxsb3cgJDEgc3lzY3RsX3ZtX3Q6ZmlsZSB7IHNldGF0dHIgcndfZmls
-ZV9wZXJtcyB9Ow0KIGFsbG93ICQxIHN5c2N0bF9kZXZfdDpkaXIgcl9kaXJf
-cGVybXM7DQotYWxsb3cgJDEgc3lzY3RsX2Rldl90OmZpbGUgcndfZmlsZV9w
-ZXJtczsNCi1hbGxvdyAkMSBzeXNjdGxfbW9kcHJvYmVfdDpmaWxlIHJ3X2Zp
-bGVfcGVybXM7DQorYWxsb3cgJDEgc3lzY3RsX2Rldl90OmZpbGUgeyBzZXRh
-dHRyIHJ3X2ZpbGVfcGVybXMgfTsNCithbGxvdyAkMSBzeXNjdGxfbW9kcHJv
-YmVfdDpmaWxlIHsgc2V0YXR0ciByd19maWxlX3Blcm1zIH07DQogJykNCiAN
-CiANCkBAIC01MDQsNyArNTA0LDcgQEANCiB0eXBlX3RyYW5zaXRpb24gJDFf
-dCBkZXZwdHNfdDpjaHJfZmlsZSAkMV9kZXZwdHNfdDsNCiANCiAjIFJlYWQg
-YW5kIHdyaXRlIG15IHB0eSBmaWxlcy4NCi1hbGxvdyAkMV90ICQxX2RldnB0
-c190OmNocl9maWxlIHJ3X2ZpbGVfcGVybXM7DQorYWxsb3cgJDFfdCAkMV9k
-ZXZwdHNfdDpjaHJfZmlsZSB7IHNldGF0dHIgcndfZmlsZV9wZXJtcyB9Ow0K
-ICcpDQogDQogDQpAQCAtNTIzLDcgKzUyMyw3IEBADQogdHlwZV90cmFuc2l0
-aW9uICQxX3QgZGV2cHRzX3Q6Y2hyX2ZpbGUgJDJfZGV2cHRzX3Q7DQogDQog
-IyBSZWFkIGFuZCB3cml0ZSBwdHkgZmlsZXMuDQotYWxsb3cgJDFfdCAkMl9k
-ZXZwdHNfdDpjaHJfZmlsZSByd19maWxlX3Blcm1zOw0KK2FsbG93ICQxX3Qg
-JDJfZGV2cHRzX3Q6Y2hyX2ZpbGUgeyBzZXRhdHRyIHJ3X2ZpbGVfcGVybXMg
-fTsNCiAnKQ0KIA0KIA0KSW5kZXg6IHBvbGljeS9tYWNyb3MvcHJvZ3JhbS94
-c2VydmVyX21hY3Jvcy50ZQ0KPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KUkNT
-IGZpbGU6IC9jdnNyb290L3NlbGludXgvbnNhL3NlbGludXgvcG9saWN5L21h
-Y3Jvcy9wcm9ncmFtL3hzZXJ2ZXJfbWFjcm9zLnRlLHYNCnJldHJpZXZpbmcg
-cmV2aXNpb24gMS4xLjEuMg0KZGlmZiAtdSAtcjEuMS4xLjIgeHNlcnZlcl9t
-YWNyb3MudGUNCi0tLSBwb2xpY3kvbWFjcm9zL3Byb2dyYW0veHNlcnZlcl9t
-YWNyb3MudGUJMyBKdWwgMjAwMiAyMDoyNjoyMyAtMDAwMAkxLjEuMS4yDQor
-KysgcG9saWN5L21hY3Jvcy9wcm9ncmFtL3hzZXJ2ZXJfbWFjcm9zLnRlCTE4
-IEp1bCAyMDAyIDEzOjAxOjM5IC0wMDAwDQpAQCAtNzksMTMgKzc5LDEzIEBA
-DQogYWxsb3cgJDFfeHNlcnZlcl90IHByb2NfdDpmaWxlIHJ3X2ZpbGVfcGVy
-bXM7DQogDQogIyBDcmVhdGUgYW5kIGFjY2VzcyAvZGV2L2RyaSBkZXZpY2Vz
-Lg0KLWFsbG93ICQxX3hzZXJ2ZXJfdCBkcmlfZGV2aWNlX3Q6ZGlyIHJ3X2Rp
-cl9wZXJtczsNCithbGxvdyAkMV94c2VydmVyX3QgZHJpX2RldmljZV90OmRp
-ciB7IHNldGF0dHIgcndfZGlyX3Blcm1zIH07DQogYWxsb3cgJDFfeHNlcnZl
-cl90IGRyaV9kZXZpY2VfdDpjaHJfZmlsZSBjcmVhdGVfZmlsZV9wZXJtczsN
-CiANCiAjIEFjY2VzcyB0dHlzLg0KIGlmZWxzZSgkMSwgeGRtLCAsIGANCi1h
-bGxvdyAkMV94c2VydmVyX3QgJDFfdHR5X2RldmljZV90OmNocl9maWxlIHJ3
-X2ZpbGVfcGVybXM7JykNCi1hbGxvdyAkMV94c2VydmVyX3QgdHR5X2Rldmlj
-ZV90OmNocl9maWxlIHJ3X2ZpbGVfcGVybXM7DQorYWxsb3cgJDFfeHNlcnZl
-cl90ICQxX3R0eV9kZXZpY2VfdDpjaHJfZmlsZSB7c2V0YXR0ciByd19maWxl
-X3Blcm1zfTsnKQ0KK2FsbG93ICQxX3hzZXJ2ZXJfdCB0dHlfZGV2aWNlX3Q6
-Y2hyX2ZpbGUge3NldGF0dHIgcndfZmlsZV9wZXJtc307DQogDQogIyBHZXQg
-bmV0d29yayBpbnRlcmZhY2UgY29uZmlndXJhdGlvbi4NCiBhbGxvdyAkMV94
-c2VydmVyX3Qga2VybmVsX3Q6c3lzdGVtIHsgbmV0X2lvX2NvbnRyb2wgfTsN
-Cg==
----559023410-33463914-1026998592=:9066--
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_000_0006_01C22E74.8F31BA00--
+
 
 --
 You have received this message because you are subscribed to the selinux list.
