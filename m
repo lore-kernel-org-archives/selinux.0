@@ -1,55 +1,59 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9LGeYXZ009952
-	for <selinux@tycho.nsa.gov>; Thu, 21 Oct 2004 12:40:34 -0400 (EDT)
-Received: from moss-huskies.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9LGeY8L024098
-	for <selinux@tycho.nsa.gov>; Thu, 21 Oct 2004 16:40:34 GMT
-Received: from moss-huskies.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-huskies.epoch.ncsc.mil (8.12.11/8.12.11) with ESMTP id i9LGg6gq013292
-	for <selinux@tycho.nsa.gov>; Thu, 21 Oct 2004 12:42:06 -0400
-Received: (from hdholm@localhost)
-	by moss-huskies.epoch.ncsc.mil (8.12.11/8.12.11/Submit) id i9LGg6Ai013291
-	for selinux@tycho.nsa.gov; Thu, 21 Oct 2004 12:42:06 -0400
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9L6T0XZ006924
-	for <selinux@tycho.nsa.gov>; Thu, 21 Oct 2004 02:29:00 -0400 (EDT)
-Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9L6RjDK023290
-	for <selinux@tycho.nsa.gov>; Thu, 21 Oct 2004 06:27:45 GMT
-Subject: ANN: imsep 0.6
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9LGthXZ010089
+	for <selinux@tycho.nsa.gov>; Thu, 21 Oct 2004 12:55:43 -0400 (EDT)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9LGth8L024858
+	for <selinux@tycho.nsa.gov>; Thu, 21 Oct 2004 16:55:43 GMT
+Subject: Re: ANN: imsep 0.6
 From: Colin Walters <walters@gnome.org>
-To: selinux@tycho.nsa.gov
-Cc: gtk-devel-list@gnome.org
+To: gtk-devel-list@gnome.org
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20041021161556.22246.qmail@web86901.mail.ukl.yahoo.com>
+References: <20041021161556.22246.qmail@web86901.mail.ukl.yahoo.com>
 Content-Type: text/plain
-Date: Thu, 21 Oct 2004 02:29:17 -0400
-Message-Id: <1098340157.11607.12.camel@x-infinity.verbum.private>
+Date: Thu, 21 Oct 2004 12:55:52 -0400
+Message-Id: <1098377752.16197.45.camel@decepticon.boston.redhat.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+[ Re-CC'ing the SELinux list as this discussion is relevant there ]
 
-I'd like to announce the first release of a little project called Imsep.
-The goal, in short, is to completely isolate image loaders using
-SELinux, so that a compromised or buggy image loader can do essentially
-nothing.   It's designed for the "targeted" SELinux policy to be
-released with Fedora Core 3.
+On Thu, 2004-10-21 at 17:15 +0100, Sander Vesik wrote:
 
-I've put up a little web page here with slightly more information:
+> Note that the specs and ideas come from the folks that consider a "mathematicly 
+> proven to be correct and secure OS" developed by security cleared scientists 
+> locked up to be more secure than a simple humble "mathematicly proven to be 
+> correct and secure OS". 
 
-http://web.verbum.org/imsep/
+I am not sure what you are talking about.  SELinux is not a project to
+mathematically prove system security.  SELinux is simply an
+implementation of mandatory access control (MAC) for Linux.  I am using
+that mandatory control to lock down image loading.  Also, I have done a
+fair amount of work on SELinux, and most of my patches have been
+integrated.  I don't have any kind of formal security clearance.  The
+same is true for a lot of other contributors.
 
-The source includes a sample SELinux policy.
+> But more importantly - you can't simply run *one* imsep if you want to have any
+> actual benefit that way, you must keep data from programs with different rights
+> separate. 
 
-For people reading on the GTK+ list: I've created an initial patch to
-make gdk-pixbuf use imsep, it seems to work:
+Yes, I agree.  If you read the imsep source code, you will see that the
+master process is written to do polyinstantiation based on the security
+context of the requesting process.  However, this requires D-BUS
+support, which is not written yet.  I plan to do that fairly soon.  Once
+that support is available, it will be on the order of a one-line change
+to the imsep master daemon to turn it on.
 
-http://web.verbum.org/imsep/download/gdk-pixbuf-imsep-0.6.patch
+> Because otherwise a image loader with exploitable image bug opens up 
+> it all to inspection and modification by code from some web site. 
 
-The GDK_PIXBUF_FORMAT_REQUIRES_LOAD feels like a hack, but I didn't see
-a better alternative.
-
-Comments welcome.
+Absolutely, and that's why I designed imsep to support
+polyinstantiation.  But for Fedora's "targeted" policy, it is not useful
+because all of userspace runs in the same security context.  But there
+is still a high degree of security gain from imsep - a compromised image
+loader is very very strictly confined.  See the sample security policy
+in the imsep source code.
 
 
 
