@@ -1,40 +1,40 @@
-Subject: Re: RFE: inheritance
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <1109618754.28470.55.camel@moss-spartans.epoch.ncsc.mil>
-References: <1109400342.4581.25.camel@cobra.ivg2.net>
-	 <1109618167.28470.46.camel@moss-spartans.epoch.ncsc.mil>
-	 <1109619068.17982.3.camel@cobra.ivg2.net>
-	 <1109618754.28470.55.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 28 Feb 2005 14:42:09 -0500
-Message-Id: <1109619729.28470.67.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: writing zero bytes in bash
+Date: Tue, 1 Mar 2005 07:21:59 +1100
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <200502261832.16337.russell@coker.com.au> <1109616468.28470.20.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1109616468.28470.20.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200503010721.59865.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-02-28 at 14:25 -0500, Stephen Smalley wrote:
-> On Mon, 2005-02-28 at 14:31 -0500, Ivan Gyurdiev wrote:
-> > Also, I still like the idea of inheritance for types,
-> > whether or not this problem is fixed differently.
-> 
-> The policy language used to include a 'clone' statement that allowed
-> cloning all TE rules for a given type into another type, but it didn't
-> seem to work very well in practice, so it was left to more customized
-> definition by macros.
+On Tuesday 01 March 2005 05:47, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > If you want to do this in a shell script you would do something like:
+> > echo -n "" > /proc/self/attr/fscreate
+>
+> Using the /proc/self/attr API from a shell script makes little sense, as
+> any programs run by the script are going to have their attributes reset
+> upon execve anyway.  It would only affect shell builtins, and likely
+> just cause confusion.
 
-One other point to note - Tresys is working on a type hierarchy
-construct as part of their policy server work, but it is for the purpose
-of allowing administration of portions of the type space to be safely
-delegated to various roles by constraining each type to no more
-permissions than its parent type in the hierarchy.  This differs from
-your notion of type inheritance.
+/proc/self/attr/exec will give the same result as 
+runcon.  /proc/self/attr/fscreate works for operations such as
+"program > file".
+
+We need to have a way to test these things.  If we can't make it possible to 
+do these things through the shell then someone (maybe me) has to write an 
+interactive program to exercise the SE Linux API.
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
