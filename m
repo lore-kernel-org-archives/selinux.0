@@ -1,70 +1,58 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2R1foDo018226
-	for <selinux@tycho.nsa.gov>; Sat, 26 Mar 2005 20:41:50 -0500 (EST)
-Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2R1cda7028767
-	for <selinux@tycho.nsa.gov>; Sun, 27 Mar 2005 01:38:39 GMT
-Subject: Re: selinux-policy-targeted (1:1.22-2) available
-From: Colin Walters <walters@verbum.org>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-Cc: ubuntu-hardened@lists.ubuntu.com, rcoker@redhat.com, dwalsh@redhat.com,
-   selinux@tycho.nsa.gov, ubuntu-devel@lists.ubuntu.com
-In-Reply-To: <1111884872.27644.228.camel@localhost.localdomain>
-References: <1111884872.27644.228.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Im2UXRKe1MdtdZzPD6Wp"
-Date: Sat, 26 Mar 2005 20:41:05 -0500
-Message-Id: <1111887665.16952.22.camel@nexus.verbum.private>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2R6S3Do018867
+	for <selinux@tycho.nsa.gov>; Sun, 27 Mar 2005 01:28:03 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2R6RR7X024922
+	for <selinux@tycho.nsa.gov>; Sun, 27 Mar 2005 06:27:27 GMT
+Subject: [ PATCH ] hal - create netlink socket
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary="=-hrJU3tgQ6iaLaCs09wrj"
+Date: Sun, 27 Mar 2005 01:32:53 -0500
+Message-Id: <1111905173.3520.8.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-Im2UXRKe1MdtdZzPD6Wp
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+--=-hrJU3tgQ6iaLaCs09wrj
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Sun, 2005-03-27 at 01:54 +0100, Lorenzo Hern=C3=A1ndez Garc=C3=ADa-Hierr=
-o
-wrote:
+Makes hal work again on my system....sort of
 
-> I'm (very) glad to announce the availability of the first targeted
-> policy package for Debian and more concretely Ubuntu Linux=20
+/usr/libexec/hald-probe-input denied { read } on mouse_device_t:chr_file
+/usr/libexec/hald-addon-acpi denied { write } on acpid.socket
+(apmd_var_run_t)
+/usr/libexec/hald-add-selinux-mount-option denied { search } on /selinux
+(security_t)
+/usr/sbin/hald denied { getattr } on /dev/mapper/control (lvm_control_t)
+/usr/sbin/dmidecode denied { read } on /dev/mem (memory_device_t)
 
-Very cool, I'm excited about this.
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
-> The policy source itself has nothing to do Russell Coker's old
-> selinux-policy-default, but the package is based on his one, this mean,s
-> same configuration method.
+--=-hrJU3tgQ6iaLaCs09wrj
+Content-Disposition: attachment; filename=hal_netlink.diff
+Content-Type: text/x-patch; name=hal_netlink.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-I assume you mean this:
+diff -aur policy.old/domains/program/hald.te policy/domains/program/hald.te
+--- policy.old/domains/program/hald.te	2005-03-27 01:10:31.000000000 -0500
++++ policy/domains/program/hald.te	2005-03-27 01:25:30.000000000 -0500
+@@ -31,6 +31,7 @@
+ allow hald_t usr_t:file { getattr read };
+ 
+ allow hald_t bin_t:file getattr;
++allow hald_t self:netlink_socket create_socket_perms;
+ allow hald_t self:netlink_route_socket r_netlink_socket_perms;
+ allow hald_t self:capability { net_admin sys_admin dac_override dac_read_search mknod };
+ can_network_server(hald_t)
 
-+        print "Do you want $file:" . substr($line, 6);
-+        print "Yes/No/Display [Y/n/d]? ";
-
-I suggest that you simply delete this code entirely, and install
-every .te file.  It's outdated for several reasons:
-
-1) With the new dynamic boolean support, SELinux enforcement for a
-   particular daemon can be turned off at runtime, instead of
-   at policy build time.
-2) The targeted policy is significantly smaller than the strict, so
-   there are no space/size concerns. =20
-3) It's always been annoying as hell :)
-
-
---=-Im2UXRKe1MdtdZzPD6Wp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCRg8wOIkJWWp2WGURAkhZAJ4xfuVM4qZUguQ7EWygXJJi2SFnMACeJ8Yo
-/5UY0rfuAz83fawipUnTxM0=
-=atat
------END PGP SIGNATURE-----
-
---=-Im2UXRKe1MdtdZzPD6Wp--
+--=-hrJU3tgQ6iaLaCs09wrj--
 
 
 --
