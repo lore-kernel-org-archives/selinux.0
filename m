@@ -1,40 +1,46 @@
-Message-Id: <200212031526.KAA25860@moss-shockers.ncsc.mil>
-Date: Tue, 3 Dec 2002 10:26:19 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: tcp_send errors
-To: SELinux@tycho.nsa.gov, timothy@hallcomp.com
+Message-ID: <72222DC86846D411ABD300A0C9EB08A101524483@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'sds@epoch.ncsc.mil'" <sds@epoch.ncsc.mil>
+Subject: get_ordered_sid_list
+Date: Tue, 3 Dec 2002 09:34:37 -0600 
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+In porting the Redhat 8.0 gdm I have a strange problem
+in get_ordered_sid_list
 
-> I have the latest lsm (as per the NSA site) installed on a fresh RH8.0
-> install and I am getting errors trying to forward packets through it. 
-> Is there something I need to change in the policy to premit forwarding
-> or is this just a RH8.0 problem not present in the 7.X versions? I do
-> not have the exact errors since the ssh apparently isn't working
-> properly, but they were tcp_send errors and I can provide those later.  
-> 
-> Also I have four interfaces and I'm thinking I remember there being a
-> problem with more than two, so is this still a problem?
+login returns the correct number of sids 2.
 
-This should just be a policy configuration issue, and shouldn't be
-different for RH8.0.  You need to allow the tcp_send permission
-between the appropriate netmsg_* type and the appropriate netif_* type
-in policy/types/network.te to forward the packet.  The example policy only 
-defines types and contexts for eth[0-2], so you'll need to define additional 
-types and contexts in policy/types/network.te and policy/net_contexts if you 
-want to distinguish each interface in your policy.  Or, if you don't care
-to use SELinux to separate the interfaces, you can remove all of the
-eth[0-2] entries, in which case they will all map to netif_t for the
-interface and netmsg_t for packets received on the interface.
+root:sysadm_r:sysadm_t
+root:user_r:user_t
 
---
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+login = "root"
 
+ /* Get security context and SID for user */
+  sidlistlen = SIDLISTLEN;   /* 10 */
+  sidlist = malloc (sidlistlen*sizeof(security_id_t));
+  if (sidlist == 0)
+    {
+      syslog (LOG_ERR, "SELinux gdm Login: no memory for SID list\n");
+      return;
+    }
+  num_sids = get_ordered_sid_list (login, 0, sidlist, &sidlistlen);
+
+
+the call returns 1 and the sid is
+505   root:user_r:user_t
+
+actual sids
+504   root:sysadm_r:sysadm_t
+505   root:user_r:user_t
+
+Am I missing something obvious ?
+
+
+Mark
 
 --
 This message was distributed to subscribers of the selinux mailing list.
