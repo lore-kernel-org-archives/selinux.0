@@ -1,38 +1,89 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA10222
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 08:59:48 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA18793
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 12:58:05 GMT
-Received: from nox.lemuria.org ([213.191.86.30])
-	by jazzswing.ncsc.mil  with ESMTP id MAA18789
-	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 12:58:04 GMT
-Date: Fri, 19 Apr 2002 15:00:46 +0200
-From: Tom <tom@lemuria.org>
-To: SE Linux <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA10255
+	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 09:02:42 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA12493
+	for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 13:01:32 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id NAA12489 for <selinux@tycho.nsa.gov>; Fri, 19 Apr 2002 13:01:30 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Tom <tom@lemuria.org>, SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: initrc question and initrc+proftpd patch
-Message-ID: <20020419150046.A19154@lemuria.org>
-References: <20020419143800.B18906@lemuria.org> <Pine.GSO.4.33.0204190845550.18117-100000@raven>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.GSO.4.33.0204190845550.18117-100000@raven>; from sds@tislabs.com on Fri, Apr 19, 2002 at 08:47:41AM -0400
+Date: Fri, 19 Apr 2002 15:02:24 +0200
+References: <20020419143800.B18906@lemuria.org>
+In-Reply-To: <20020419143800.B18906@lemuria.org>
+MIME-Version: 1.0
+Message-Id: <20020419130224.B2E2544E9E@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Apr 19, 2002 at 08:47:41AM -0400, Stephen Smalley wrote:
-> The init scripts should be run via run_init by an administrator.  A domain
-> transition is not sufficient, as it does not address the user identity or
-> role attributes, and a direct transition poses risks from malicious code.
+On Fri, 19 Apr 2002 14:38, Tom wrote:
+> Why does it not do a domain transition to initrc_t when the scripts are
+> executed by sysadm_t (i.e. manually by the sysadmin) ?
 
-That makes sense and leaves just one question: Why then do some of the
-program.te files contain a domain transition for the sysadmin user?
-snort is one example.
+Here's the answer Steve gave when I asked that question:
+http://marc.theaimsgroup.com/?l=selinux&m=101170830818619&w=2
 
+> With the example policy, the same process started at system boot or
+> manually later will run in different domains. I've added this line to
+> domains/program/initrc.te:
+
+You are supposed to use "run_init /etc/init.d/daemon start" to start the 
+daemon.
+
+> But please tell me if there's a reason why it's not there, and I'm dumb
+> and/or compromising the system's security. In order for this to work
+> on debian, I also added to file_contexts:
+>
+> /etc/init.d(|/.*)               system_u:object_r:initrc_exec_t
+
+I tried that once, but decided it was a bad idea and changed it back.
+
+> The weird part is that SOME of the program.te files have a
+> domain_auto_trans line which serves essentially the same purpose. Does
+
+Which ones are you referring to?
+
+>From a casual inspection I can't see any daemon what has such a 
+configuration.  There are many utility programs such as fsck and ifconfig 
+that do, but they are in a different category.
+
+> Finally, some patches/changes to add proftpd support (using the
+> existing ftpd types and files):
+>
+> add to domains/program/ftpd.te:
+> domain_auto_trans(initrc_t, ftpd_exec_t, ftpd_t)
+
+I've put in the following:
+domain_auto_trans({ initrc_t inetd_t tcpd_t }, ftpd_exec_t, ftpd_t)
+
+Better one line than 3.
+
+> /etc/proftpd.conf             system_u:object_r:etc_ftp_t
+> /usr/sbin/proftpd             system_u:object_r:ftpd_exec_t
+>
+> plus the ftpd.te line from above and proftpd should be working. the
+> etc_ftp_t type was added by me to types/file.te:
+>
+> type etc_ftp_t, file_type, sysadmfile;
+
+OK, I've merged that in my tree.  But I've changed etc_ftp_t to etc_ftpd_t 
+(next you might want a policy for ncftp or some other FTP client that has 
+config files in /etc).
+
+> next time, I'll post a real diff file. my current playing-around policy
+> is so messed up that making a diff is not practical, sorry.
+
+You could just email me the files complete.
 
 -- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/D88D35A6 2001-11-14 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = 276B B7BB E4D8 FCCE DB8F  F965 310B 811A D88D 35A6
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
