@@ -1,90 +1,49 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j134Yr53027840
-	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 23:34:53 -0500 (EST)
-Received: from mx-3.zoominternet.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j134Ykf1019752
-	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 04:34:51 GMT
-Subject: Re: FC3, Apache and CGI web app
-From: Scott Cain <cain@cshl.org>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <42016640.3050807@redhat.com>
-References: <1107378461.3351.62.camel@localhost.localdomain>
-	 <42016640.3050807@redhat.com>
-Content-Type: text/plain
-Date: Wed, 02 Feb 2005 23:30:40 -0500
-Message-Id: <1107405040.3391.17.camel@localhost.localdomain>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j137E653028374
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 02:14:06 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j137E1f1022633
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 07:14:03 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: Advice on bringing up SE Linux
+Date: Thu, 3 Feb 2005 18:13:30 +1100
+Cc: "Villalovos, John L" <john.l.villalovos@intel.com>, selinux@tycho.nsa.gov
+References: <60C14C611F1DDD4198D53F2F43D8CA3B035B5359@orsmsx410> <1107284400.26936.212.camel@moss-spartans.epoch.ncsc.mil> <1107285883.26936.216.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1107285883.26936.216.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200502031813.33454.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-02-02 at 18:46 -0500, Daniel J Walsh wrote:
-> Scott Cain wrote:
-> > [...snip...]
-> >
-> First make sure you have the latest policy, via yum
-> 
-> yum update selinux-policy-targeted
-> 
-Check!
+On Wednesday 02 February 2005 06:24, Stephen Smalley <sds@epoch.ncsc.mil> 
+wrote:
+> On Tue, 2005-02-01 at 14:00, Stephen Smalley wrote:
+> > Any output in /var/log/messages from the attempt to write the policy to
+> > /selinux/load?  Any difference if you run load_policy on the binary
+> > policy instead of directly cat'ing it?
+>
+> Actually, cat is quite likely to fail, as it likely tries to read and
+> write the file in chunks, whereas the kernel wants the entire policy
+> pushed in a single transaction.  load_policy is what you want.
 
-> Next make sure httpd_unified is set
-> 
-> setsebool -P httpd_unified 1
+In fact cat is almost guaranteed to fail.  cat from coreutils will stat the 
+read and write files to check the IO block size.  On 2.6.10 /selinux/load 
+reports a 4096 byte IO block size which should cause cat to fail.  Maybe if 
+the kernel code was modified to return an insanely large value (larger than 
+we expect a policy to be) then cat would work.  I am not sure that this is 
+desirable though.
 
-Check; # sudo cat /etc/selinux/targeted/booleans
-allow_ypbind=1
-dhcpd_disable_trans=0
-httpd_disable_trans=1
-httpd_enable_cgi=1
-httpd_enable_homedirs=1
-httpd_ssi_exec=1
-httpd_tty_comm=1
-httpd_unified=1
-mysqld_disable_trans=0
-named_disable_trans=0
-named_write_master_zones=0
-nscd_disable_trans=0
-ntpd_disable_trans=0
-portmap_disable_trans=0
-postgresql_disable_trans=0
-snmpd_disable_trans=0
-squid_disable_trans=0
-syslogd_disable_trans=0
-winbind_disable_trans=0
-ypbind_disable_trans=0
+Using dd with a block size larger than the policy size should work.
 
-> 
-> Now try it.
-
-Check (and I restarted httpd, to answer Colin's question)
-> 
-> Look for AVC messages in /var/log/messages which will tell you what is 
-> being denied.
-> http://fedora.redhat.com/docs/selinux-apache-fc3/
-> has a lot of information on settingup apache and SElinux.
-
-Here we go from /var/log/messages:
-Feb  2 23:23:13 localhost kernel: audit(1107404593.566:0): avc:  denied
-{ read } for  pid=3792 exe=/usr/bin/perl name=tmp dev=hda2 ino=4243590
-scontext=root:system_r:httpd_sys_script_t
-tcontext=system_u:object_r:tmp_t tclass=lnk_file
-
-So what can I do to make this work?
-
-Thanks,
-Scott
-
-> 
-> Dan
-> 
-> 
 -- 
-------------------------------------------------------------------------
-Scott Cain, Ph. D.                                         cain@cshl.org
-GMOD Coordinator (http://www.gmod.org/)                     216-392-3087
-Cold Spring Harbor Laboratory
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
