@@ -1,50 +1,58 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1R1KtDq018320
-	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 20:21:13 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1QHnMGK015536
-	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 17:50:37 GMT
-Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j1QHn1nP010561
-	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 12:49:17 -0500 (EST)
-Subject: security files - why not sysadmfile
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Sat, 26 Feb 2005 12:52:28 -0500
-Message-Id: <1109440349.11452.7.camel@cobra.ivg2.net>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1R1GoDs018271
+	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 20:17:21 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1QLxklw015305
+	for <selinux@tycho.nsa.gov>; Sat, 26 Feb 2005 22:01:02 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 588BA61AF8
+	for <selinux@tycho.nsa.gov>; Sun, 27 Feb 2005 09:02:05 +1100 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 04488-01 for <selinux@tycho.nsa.gov>;
+	Sun, 27 Feb 2005 09:02:05 +1100 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id D842461AE1
+	for <selinux@tycho.nsa.gov>; Sun, 27 Feb 2005 09:02:04 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Tim Waugh <twaugh@redhat.com>
+Subject: Re: writing zero bytes in bash
+Date: Sun, 27 Feb 2005 09:01:35 +1100
+Cc: Development discussions related to Fedora Core <fedora-devel-list@redhat.com>,
+   SE-Linux <selinux@tycho.nsa.gov>
+References: <200502261832.16337.russell@coker.com.au> <20050226175426.GJ3626@redhat.com>
+In-Reply-To: <20050226175426.GJ3626@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200502270901.39429.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Why are those types not marked sysadmfile?
-This is particularly annoying when vi spits out
-error messages every time I edit a selinux source file.
+On Sunday 27 February 2005 04:54, Tim Waugh <twaugh@redhat.com> wrote:
+> On Sat, Feb 26, 2005 at 06:32:13PM +1100, Russell Coker wrote:
+> > To unset the fscreate or exec context you have to write zero bytes
+> > to /proc/self/attr/fscreate or /proc/self/attr/exec respectively.
+>
+> Oh dear, really?  How badly designed.  The man page for write() says
+> that writing no bytes causes write() to return 0 "without causing any
+> other effect".
 
-#
-# security_t is the target type when checking
-# the permissions in the security class.  It is also
-# applied to selinuxfs inodes.
-#
-type security_t, fs_type;
+Is an entry under /proc a "regular file" or a "special file"?
 
-#
-# policy_config_t is the type of /etc/security/selinux/*
-# the security server policy configuration.
-#
-type policy_config_t, file_type;
+Sym-links under /proc/*/fd are not regular sym-links, which seems to imply 
+that files under /proc are not "regular files".  That seems to indicate that 
+the section "the results are not portable" applies.
 
-#
-# policy_src_t is the type of the policy source
-# files.
-#
-type policy_src_t, file_type;
+Alexandre has a good point though, so it seems that changing the interface 
+would be a good idea.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
