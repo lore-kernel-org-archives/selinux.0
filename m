@@ -1,45 +1,27 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RLAKrT023064
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 17:10:20 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7RL9XpX023150
-	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 21:09:33 GMT
-Subject: Re: patch for firefox
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: russell@coker.com.au
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200408242147.44485.russell@coker.com.au>
-References: <20040823215636.GD13677@lkcl.net>
-	 <200408242147.44485.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1093640980.24188.47.camel@moss-lions.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7RLnsrT023174
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 17:49:54 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7RLn7pX024776
+	for <selinux@tycho.nsa.gov>; Fri, 27 Aug 2004 21:49:08 GMT
+Date: Fri, 27 Aug 2004 23:01:05 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Dale Amon <amon@vnl.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Trouble building Policy-1.16
+Message-ID: <20040827220105.GA3782@lkcl.net>
+References: <20040826225356.GC6058@lkcl.net> <20040826235737.3261.qmail@web60007.mail.yahoo.com> <20040827142622.GB3850@lkcl.net> <20040827171836.GB18446@vnl.com>
 Mime-Version: 1.0
-Date: Fri, 27 Aug 2004 17:09:40 -0400
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040827171836.GB18446@vnl.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged changes.
-
-On Tue, 2004-08-24 at 07:47, Russell Coker wrote:
-> On Tue, 24 Aug 2004 07:56, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > the attached patch is required for firefox 0.9.3 to run under debian
-> > (and other oses?)
-> >
-> > the reason for the patch is because someone decided to write a
-> > script around firefox called firefox-bin that does some LD_LIBRARY_PATH
-> > messing to keep /usr/lib/mozilla/blah separate.
-> >
-> > that this [script] messes up kde from being able to re-run firefox-bin
-> > for session management because the real binary is fired up without the
-> > correct LD_LIBRARY_PATH doesn't seem to have occurred to anyone, but
-> > that's another story...
-> 
-> Try the attached mozilla.fc.  It's got the latest stuff from the CVS plus a 
-> change equivalent to the one you made.
--- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+On Fri, Aug 27, 2004 at 06:18:36PM +0100, Dale Amon wrote:
+> Please take this off line. It is not of interest to
+> anyone else on the list.
+ 
+ finished already.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
