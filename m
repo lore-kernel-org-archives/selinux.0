@@ -1,97 +1,37 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9GJSKrT013647
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 15:28:20 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9GJSIlX011488
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 19:28:19 GMT
-Date: Sat, 16 Oct 2004 20:39:19 +0100
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9GJkxrT013709
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 15:46:59 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9GJjki9017568
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 19:45:46 GMT
+Date: Sat, 16 Oct 2004 20:57:53 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Jaspreet Singh <jsingh@ensim.com>
-Cc: nsa <SELinux@tycho.nsa.gov>
-Subject: Re: writing rules to disallow a domain to read particular files
-Message-ID: <20041016193919.GC19398@lkcl.net>
-References: <1097940101.2569.5.camel@jsingh.india.ensim.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>,
+   RH SELinux list <rhselinux-list@redhat.com>
+Subject: Re: mv and cp behavior.
+Message-ID: <20041016195753.GD19398@lkcl.net>
+References: <41712EEF.9090402@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1097940101.2569.5.camel@jsingh.india.ensim.com>
+In-Reply-To: <41712EEF.9090402@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Oct 16, 2004 at 08:51:41PM +0530, Jaspreet Singh wrote:
+On Sat, Oct 16, 2004 at 10:23:43AM -0400, Daniel J Walsh wrote:
 
-> Hi,
-> 
-> can someone help me with writing policy rules such that -
-> 
-> A domain (say apache_d) cannot access files beyond a directory
-> /home/jaspreet/
-> 
-> any clues ???
+> I believe that the what mv/cp is doing is wrong and we could do better, 
+> by default.
  
- hi jaspreet,
+ after (funnily enough) just examining apache_macros.te, i don't see a
+ file_auto_trans in there which i would have expected there to be.
 
- okay your first clue is to look in
- /etc/selinux/src/file_contexts/program/apache.fc
+ sure, there's a create_dir_file, but i would have expected at least to
+ see some use of file_type_auto_trans($1_t, httpd_$1_content_t, httpd_$1_content_t)
+ [i think that's right: if a user creates stuff in the
+ httpd_user_content_t directory, it's given that same context]
 
- what you are looking for is to match the known location where web files
- are stored (and you'd expect them to be stored in /var/www, yes?)
-
- so you look in apache.fc for /var/www and sure enough, /var/www(/.*)?
- matches against httpd_sys_content_t.
-
-
- the second clue is to look in
- /etc/selinux/src/domains/program/apache.fc
-
- and uh, okay, there's an ifdef (`targeted_policy', ... ') around
- http_sys_content_t being aliases to httpd_user_content_t.  okay,
- dunno what that's about.
-
- okay, so, uh, okay, let's grep httpd_user_content_t and
- httpd_sys_content_t against */* and */*/* okay, and we find
- some macros in macros/program/apache_macros.te... which
- defines a macro apache_domain.
-
-
- also, file_contexts/file_contexts contains this:
-
- # apache
- /home/[^/]+/((www)|(web)|(public_html))(/.+)?  system_u:object_r:httpd_user_content_t
-
- so, /home/jaspreet/www and /home/jaspreet/web  and
- /home/jaspreet/public_html _all_ are accessible automatically via the
- strict policy.
-
- already.  as httpd_user_content_t.
-
- /var/www/* is already accessible (as httpd_sys_content_t)
-
-
- there are two uses of the apache_domain macro:
-
- - the first is in domains/programs/apache.te, with this:
-
- 	apache_domain(sys)
-
-	which will create you the httpd_sys_content_t etc. etc.
-
- - the second is in macros/user_macros.te with this:
-
- 	apache_domain($1) where the macro gets called with $1 = user
-	or $1 = sysadm or staff, whatever.
-
-
- anything outside of this (using apache_domain() macro for anything
- else) is a bit beyond one single email for explanation.
-
-
-
-> Also if anyone could explain the behavior of "newrole" how can that be
-> used here.
-
- there is no use of the command newrole that i percieve would
- be of any use to you here - that could just be because i've
- never had a reason to use it.
+ and yes i'd expect mv and cp to obey that file_type_auto_trans.
 
  l.
 
