@@ -1,55 +1,44 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KBgMrT002993
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 07:42:22 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KBnvrT003041
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 07:49:57 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KBff4v001619
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 11:41:41 GMT
-Subject: Re: restorecon
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KBnF4v001818
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 11:49:16 GMT
+Subject: Re: conflict between libselinux and libsepol
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200408201918.40233.russell@coker.com.au>
-References: <200408201918.40233.russell@coker.com.au>
+To: Colin Walters <walters@verbum.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1092972342.29540.35.camel@nexus.verbum.private>
+References: <1092942083.1721.101.camel@moss-spartans.epoch.ncsc.mil>
+	 <1092972342.29540.35.camel@nexus.verbum.private>
 Content-Type: text/plain
-Message-Id: <1093002067.16585.22.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1093002523.16585.31.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 20 Aug 2004 07:41:07 -0400
+Date: Fri, 20 Aug 2004 07:48:43 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-08-20 at 05:18, Russell Coker wrote:
-> In 1.16 there is a new check in restorecon:
-<snip>
-> Is this really what we want?
-
-We definitely want to apply realpath() in the case where the final
-component is not a symlink, so that commands like:
-	cd /etc; restorecon passwd shadow group (i.e. relative paths)
-	-or-
-	restorecon /usr/lib/X11/config (i.e. intermediate symlinks)
-will work and apply the same security context that would be applied by
-setfiles.
-
-In the case where the final component is a symlink, restorecon can't
-tell whether the user meant to restore the context on the symlink itself
-or on the referenced file.  At present, it just falls back to the old
-behavior (apply to the symlink) with a warning.
-
-> I've attached a patch for policycoreutils to fix this.  In the case of the 
-> target being a sym-link it calls realpath() on the parent directory.
-
-Reasonable.  But still doesn't address the issue of whether the user
-meant to relabel the symlink itself or the referenced file.
-
-> To test this create a sym-link /etc/foo pointing to /lib and then try 
-> relabelling /etc/foo/X where X is a sym-link.
+On Thu, 2004-08-19 at 23:25, Colin Walters wrote:
+> On Thu, 2004-08-19 at 15:01 -0400, Stephen Smalley wrote:
 > 
-> Of course this shouldn't be an issue if the machine is in enforcing mode as 
-> restorecon_t can only get read access to lnk_file class through the following 
-> rules:
+> > The core checkpolicy logic has been moved into libsepol, a library for binary
+> > policy manipulation.  
+> 
+> There appears to be a conflict between the headers from this and
+> libselinux, so an application can't presently include both (I am working
+> on a patch to setfiles which needs this).  Specifically, "struct
+> av_decision" is defined in both selinux/selinux.h and
+> sepol/flask_types.h.
+> 
+> Perhaps libselinux should be modified to depend on libsepol, and include
+> the definition from flask_types.h in selinux.h?
 
-Yes, restorecon and setfiles are very limited in the set of symlink
-types that they can read.
+I'd rather keep them independent, as they serve different purposes
+(types for the binary policy vs. types for the SELinux API) and may
+diverge over time.  Simplest fix would be to add a distinguishing prefix
+to the sepol types to avoid namespace conflicts.  But I'm a bit curious
+about why setfiles would need libsepol at all, as it normally does not
+have anything to do with binary policies.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
