@@ -1,52 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB1FDuRb007473
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 10:13:56 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB1FDGp5007932
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 15:13:16 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id hB1FDFt0007893
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 15:13:15 GMT
-Subject: Re: policy under version control
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andreas Schuldei <andreas@schuldei.org>
-Cc: Russell Coker <russell@coker.com.au>,
-   SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <20031129132619.GE26960@lukas.schuldei.com>
-References: <20031129132619.GE26960@lukas.schuldei.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB1Fk9Rb007695
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 10:46:09 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hB1Fk7qY010358
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 15:46:07 GMT
+Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [144.51.25.4])
+        by jazzband.ncsc.mil  with ESMTP id hB1Fk70o010355 for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 15:46:07 GMT
+Subject: Re: policy problems
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: russell@coker.com.au
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200312010722.01551.russell@coker.com.au>
+References: <20031130183701.GA14242@wavehammer.waldi.eu.org>
+	 <200312010722.01551.russell@coker.com.au>
 Content-Type: text/plain
-Message-Id: <1070291615.12270.120.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1070293562.14835.17.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 01 Dec 2003 10:13:35 -0500
+Date: 01 Dec 2003 10:46:02 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-11-29 at 08:26, Andreas Schuldei wrote:
-> I find it tiresom and uneffective to make changes to policy
-> without and easy way to feed my effords upstream. Actually i feel
-> selinux stands and falls with a smoothly working policy. this
-> needs attention and time of many, not just one.
-> 
-> i would therefor suggest to create a public readabel repository
-> against which one can update and also some scripts for mailing
-> back/submitting to the repository(?) the changes needed to make
-> the subsystems work.
-> 
-> some with some clue should go through this and apply those
-> patches. 
-> 
-> does it make sense to make this a inter-distribution-spanning
-> process, perhaps with manpower from the nsa? the nsa policy seems
-> to be not intended for use, right now and lacks relevance in that
-> regard.
+On Sun, 2003-11-30 at 15:22, Russell Coker wrote:
 
-There is already a sourceforge CVS tree, and patches can be posted to
-the selinux list.
+> The problem here is that there is no good support for nfs.  I keep hearing 
+> rumors about people working on it but nothing concrete.  Does anyone know 
+> anything?
+
+Oops. I replied to Russell, but forgot to cc the list.  
+
+Yes.  I am working on SELinux support for nfs.  I plan to release a
+preliminary patch for 2.6 before the end of the year.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
