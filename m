@@ -1,33 +1,46 @@
-Subject: Re: user_trans/user_trans_boolean macro
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1110829277.21378.219.camel@moss-spartans.epoch.ncsc.mil>
-References: <1110692016.29852.77.camel@cobra.ivg2.net>
-	 <1110804353.21378.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <1110820329.16850.8.camel@cobra.ivg2.net>
-	 <1110820795.21378.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <1110824399.16850.21.camel@cobra.ivg2.net>
-	 <1110825077.21378.199.camel@moss-spartans.epoch.ncsc.mil>
-	 <1110826572.16850.33.camel@cobra.ivg2.net>
-	 <1110829424.16850.39.camel@cobra.ivg2.net>
-	 <1110829277.21378.219.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2EKNCDo025038
+	for <selinux@tycho.nsa.gov>; Mon, 14 Mar 2005 15:23:12 -0500 (EST)
+Subject: Re: Latest patches
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <423253FB.6090602@redhat.com>
+References: <423253FB.6090602@redhat.com>
 Content-Type: text/plain
-Date: Mon, 14 Mar 2005 15:18:20 -0500
-Message-Id: <1110831501.16850.47.camel@cobra.ivg2.net>
+Date: Mon, 14 Mar 2005 15:18:55 -0500
+Message-Id: <1110831535.3182.9.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I guess what I'm trying to figure out is why 
-domain_auto_trans doesn't add the role access rule
-by default. Isn't this always necessary if you want
-a transition to occur?
+Merged.
+
+Also:
+- Made sysadm_r the first role for root, so root's home will be labled
+as sysadm_home_dir_t instead of staff_home_dir_t.
+- Modified fs_use and Makefile to reflect jfs now supporting security
+xattrs.
+- Added an ifdef to nrpe.fc to prevent duplicate nagios and netsaint
+rules.
+
+On Fri, 2005-03-11 at 21:29 -0500, Daniel J Walsh wrote:
+> Fixed to Makefile to better handle local.users
+> 
+> Ivan's Gift policy
+> 
+> Fixes to expand targeted policy.  (Adding dhcpc, ifconfig, hostname, 
+> consoletype)
+> 
+> Fixes to fs_daemon
+> 
+> Added a bunch of dontaudit of net_admin for many policies.
+
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 
 --
