@@ -1,64 +1,61 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA29950
-	for <selinux@tycho.nsa.gov>; Tue, 12 Nov 2002 16:28:00 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id VAA07893
-	for <selinux@tycho.nsa.gov>; Tue, 12 Nov 2002 21:26:01 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id VAA07885 for <selinux@tycho.nsa.gov>; Tue, 12 Nov 2002 21:25:59 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Joshua Brindle" <JBrindle@snu.edu>, <selinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA00090
+	for <selinux@tycho.nsa.gov>; Tue, 12 Nov 2002 16:36:04 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id VAA26199
+	for <selinux@tycho.nsa.gov>; Tue, 12 Nov 2002 21:34:02 GMT
+Received: from pandora.snu.edu ([204.126.2.1])
+	by jazzswing.ncsc.mil  with SMTP id VAA26192
+	for <selinux@tycho.nsa.gov>; Tue, 12 Nov 2002 21:34:00 GMT
+Message-Id: <sdd11fd2.035@atlas.snu.edu>
+Date: Tue, 12 Nov 2002 15:35:26 -0600
+From: "Joshua Brindle" <JBrindle@snu.edu>
+To: <selinux@tycho.nsa.gov>
 Subject: Re: SELinux distro building
-Date: Tue, 12 Nov 2002 19:45:48 +0100
-References: <sdd0dd07.038@atlas.snu.edu>
-In-Reply-To: <sdd0dd07.038@atlas.snu.edu>
-MIME-Version: 1.0
-Message-Id: <200211121945.48259.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 12 Nov 2002 17:50, Joshua Brindle wrote:
-> 1) it installs to /usr/local/selinux which is unacceptable, it needs to
-> go to /usr/selinux (thats easily taken care of by patches to the
-> Makefiles which i already did)
+>I think that autoconf would be good for this.  Also perhaps my script
+for 
+>extracting header files from the kernel patch (instead of from a
+kernel 
+>source tree) would be a good addition to the distribution.
 
-I think that autoconf would be good for this.  Also perhaps my script for 
-extracting header files from the kernel patch (instead of from a kernel 
-source tree) would be a good addition to the distribution.
+I agree, thats pretty much what i was thinking about. I can't even
+imagine trying to distribute code to the public without a configure
+system. If someone is more familiar with autoconf and the basic build
+process of selinux than me then i'd be very gracious if they worked on
+this
 
-> 2) when compiling the selinux archive it needs libsecure to already be
-> installed (and to have copied the .h files from the lsm kernel) before
-> the policy compiler can be built. This is a problem because the ports
-> system wants to compile everything, install it to a fake root so that it
-> can enumerate the files for uninstallation, then copy them to the file
-> system.
+>I think it would be good to have the selinux-small split into two
+parts, one 
+>for the header files and library code for compiling applications, and
+the 
+>other for policy, run_init, etc.
 
-I think it would be good to have the selinux-small split into two parts, one 
-for the header files and library code for compiling applications, and the 
-other for policy, run_init, etc.
+EXACTLY!. the libs have to be installed before the policy compiler
+anyway, they should be 2 separate packages. Either that, or
+selinux-small should know how to link to libs in it's own directory
+before being installed, a single package with several "install" steps
+isn't a clean implementation, and makes distro packaging a pain.
 
-> it seems to me that the entire archive package desperatly needs a
-> configure system so that it will be a little more flexible. What is your
-> opinion on this?
+>I agree.  Perhaps if I had posted patches here in the past rather than
+just 
+>talking about it then something would have happened.  I suggest that
+you post 
+>your patches here.
 
-I agree.  Perhaps if I had posted patches here in the past rather than just 
-talking about it then something would have happened.  I suggest that you post 
-your patches here.
+My patches are basically hacked INSTALLPREFIX and fixed paths into the
+Makefile, it is clearly not something that would be helpful, autoconf
+would be much better.
 
-> Also, i haven't looked at the debian builds since i don't have any
-> debian machines but how did you handle these problems, or did you?
 
-Well I've got things basically solved for my use, but it is rather ugly.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Joshua Brindle
+UNIX Administrator
+Southern Nazarene University
 
 --
 This message was distributed to subscribers of the selinux mailing list.
