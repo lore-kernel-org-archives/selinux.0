@@ -1,90 +1,38 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i28HGWRb007111
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 12:16:32 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i28HEp6Q002089
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 17:14:51 GMT
-Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
-	by jazzswing.ncsc.mil  with ESMTP id i28HEj5t002049
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 17:14:51 GMT
-Received: (from root@localhost)
-	by baitaca.ipen.br (8.12.9/8.12.9) id i28HIUNF013267
-	for selinux@tycho.nsa.gov; Mon, 8 Mar 2004 14:18:30 -0300
-Received: from net.ipen.br ([10.0.12.47])
-	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id i28HIBiX013113
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 14:18:12 -0300
-Message-ID: <404CAA11.2070909@net.ipen.br>
-Date: Mon, 08 Mar 2004 14:14:57 -0300
-From: =?UTF-8?B?Q2FybG9zIEFuw61zaW8gTW9udGVpcm8=?= <monteiro@baitaca.ipen.br>
-MIME-Version: 1.0
-To: selinux <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i28HS5Rb007206
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 12:28:05 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i28HS40F004176
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 17:28:04 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i28HS3gZ004173 for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 17:28:03 GMT
 Subject: Re: system_r and sysadm_r roles
-References: <404C5B57.9020209@net.ipen.br> <1078757447.30181.82.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/alternative;
- boundary="------------070208050105080800030907"
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Carlos =?ISO-8859-1?Q?An=EDsio?= Monteiro <monteiro@baitaca.ipen.br>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <404CAA11.2070909@net.ipen.br>
+References: <404C5B57.9020209@net.ipen.br>
+	 <1078757447.30181.82.camel@moss-spartans.epoch.ncsc.mil>
+	 <404CAA11.2070909@net.ipen.br>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1078766880.30181.140.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 08 Mar 2004 12:28:00 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2004-03-08 at 12:14, Carlos Anísio Monteiro wrote:
+> Sorry, but don´t understand this. If a fail (that it provide a shell
+> root) to occur in a system process, can´t occur a transition to
+> sysadm_r role ?
 
---------------070208050105080800030907
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-
-Stephen Smalley wrote:
-
->>This would can induce the a problem of security ?
->>    
->>
->
->No, domain transitions are the key.
->
-Sorry, but don´t understand this. If a fail (that it provide a shell 
-root) to occur in a system process, can´t occur a transition to sysadm_r 
-role ?
-
-Many thanks.
+Not unless the domain can transition to a domain associated with
+sysadm_r, and the role transition meets the boolean condition specified
+in policy/constraints for role changes.
 
 -- 
-Carlos Anísio Monteiro	<monteiro@ipen.br>
-IPEN-CNEN/SP
-São Paulo - Brasil
-
-
-
---------------070208050105080800030907
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <title></title>
-</head>
-<body>
-Stephen Smalley wrote:<br>
-<blockquote type="cite"
- cite="mid1078757447.30181.82.camel@moss-spartans.epoch.ncsc.mil">
-  <pre wrap=""></pre>
-  <blockquote type="cite">
-    <pre wrap="">This would can induce the a problem of security ?
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->
-No, domain transitions are the key.</pre>
-</blockquote>
-Sorry, but don´t understand this. If a fail (that it provide a shell root)
-to occur in a system process, can´t occur a transition to sysadm_r role ?<br>
-<br>
-Many thanks.<br>
-<pre class="moz-signature" cols="$mailwrapcol">-- 
-Carlos Anísio Monteiro	<a class="moz-txt-link-rfc2396E" href="mailto:monteiro@ipen.br">&lt;monteiro@ipen.br&gt;</a>
-IPEN-CNEN/SP
-São Paulo - Brasil</pre>
-<br>
-</body>
-</html>
-
---------------070208050105080800030907--
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
