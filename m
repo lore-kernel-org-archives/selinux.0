@@ -1,40 +1,40 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5N35erT013546
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jun 2004 23:05:40 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5N35QAb018081
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jun 2004 03:05:27 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Colin Walters <walters@verbum.org>
-Subject: Re: generic pam authentication
-Date: Wed, 23 Jun 2004 13:05:28 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <1087940480.17038.96.camel@optimus-prime.boston.redhat.com>
-In-Reply-To: <1087940480.17038.96.camel@optimus-prime.boston.redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5NAwGrT015131
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jun 2004 06:58:18 -0400 (EDT)
+Received: from smtp-mclean.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5NAwEDm012426
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jun 2004 10:58:14 GMT
+Received: from smtp-mclean.mitre.org (localhost.localdomain [127.0.0.1])
+	by smtp-mclean.mitre.org (8.11.6/8.11.6) with ESMTP id i5NB7X308759
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jun 2004 07:07:33 -0400
+To: selinux@tycho.nsa.gov
+Cc: dwalsh@redhat.com
+Subject: ANN: slat 1.2 released
+From: ramsdell@mitre.org (John D. Ramsdell)
+Date: 23 Jun 2004 06:58:10 -0400
+Message-ID: <ogtn02usfr1.fsf@mitre.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200406231305.28609.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 23 Jun 2004 07:41, Colin Walters <walters@verbum.org> wrote:
-> What I think might be nice is a generic macro, say uses_pam(passwd)
-> which would grant any privileges necessary to use the libraries in the
-> PAM stack.  This macro would be defined in domains/pam.te, and would be
-> intended for customization by the administrator.  For example, if the
-> administrator decided to use PostgreSQL for holding user data, they
-> could insert the necessary privileges to talk to postgresql_port_t.
+Version 1.2 of slat has been released.  This version handles text
+policy configuration files that use the recent additions to the
+configuration language.  In particular, it handles the policy.conf
+file that is distributed with Fedora Core 2.
 
-That sounds like the correct approach.
+You will find a source and an RPM distribution here:
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+http://simp.mitre.org/selinux
 
+If you have root access and you're on a variety of GNU/Linux that
+supports RPMs, I encourage you to use the RPM, as it does not require
+the installation of O'Caml.  Once installed, type "info slat".
+
+We expect this release will be the last release that is not capable of
+reading binary policy configuration files.
+
+John
 
 --
 This message was distributed to subscribers of the selinux mailing list.
