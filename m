@@ -1,48 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA01609
-	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 07:00:35 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id LAA21096
-	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 11:00:30 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id LAA21092
-	for <selinux@tycho.nsa.gov>; Sun, 26 May 2002 11:00:29 GMT
+Message-Id: <200205261433.g4QEXLQ21791@mail2.iserv.net>
 Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: can_tcp_connect_to() macro
-Date: Sun, 26 May 2002 13:00:16 +0200
-References: <20020526095926.5C1852657@lyta.coker.com.au> <20020526123632.A28379@lemuria.org>
-In-Reply-To: <20020526123632.A28379@lemuria.org>
+  charset="iso-8859-15"
+From: Thomas G Land <tgland@iserv.net>
+Reply-To: tgland@iserv.net
+To: SELinux@tycho.nsa.gov
+Subject: RH cds from RH Linux 7.2 Bible Unlimited Ed.
+Date: Sun, 26 May 2002 10:40:55 -0400
 MIME-Version: 1.0
-Message-Id: <20020526110018.6E82D3BCD@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 26 May 2002 12:36, Tom wrote:
-> On Sun, May 26, 2002 at 11:59:25AM +0200, Russell Coker wrote:
-> > What do you think about the following?
->
-> yes, please! also, a restriction on target ports may be very, very
-> useful (e.g. "this user can surf the web or use telnet, but can't
-> telnet to arbitrary ports")
+I recently purchased this book which includes 3 cd's including RH7.2. 
+This book is pubolished by Hungry Minds (a div of Wiley & sons).
 
-The only thing my suggested new macro offers over the current 
-can_tcp_connect() macro is that the connections are uni-directional.
+I recall reading that the versions of RH included in books come stripped of 
+many features. 
 
-For example I want to allow all users to connect to Squid, but I don't want 
-to allow Squid to connect to them!
+My linux experience is 1.5 years with SuSE trying to learn. I am not on 
+expert.
 
-So you can currently limit what ports your user connects to, as long as you 
-are happy for the owners of those domains to connect to your user.
+I think it is just a matter of time before linux becomes popular enough to be 
+a better target for the bad guys. Especially default installs. 
 
+My system is for my own small business and consists of 10 pcs, 2 printers, 
+hub, DSL modem, scanner, fax etc.,etc.. All boxex now have internet access. I 
+kept it alive(?) for years using windows. I prefer to have everything linux.
+
+1) Does any one know if this RH cd version can be used with selinux?
+2) RH 7.3 is all I can find in the stores here. Should I get that and wait 
+for selinux to catch up?
+3) Is selinux generally only to be used by very experienced people.
+
+Eventually I want to use SuSE with selinux but for now most developement and 
+information avail seems to center around RH.
+
+Any answers to my questions will be welcome.
+
+Tom
 -- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+Linux SuSE 7.3 Pro   Kmail
 
 --
 You have received this message because you are subscribed to the selinux list.
