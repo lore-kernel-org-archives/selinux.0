@@ -1,79 +1,61 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4QBtpI4005725
-	for <selinux@tycho.nsa.gov>; Mon, 26 May 2003 07:55:51 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4RFusI4009840
+	for <selinux@tycho.nsa.gov>; Tue, 27 May 2003 11:56:54 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4QBtotV007251
-	for <selinux@tycho.nsa.gov>; Mon, 26 May 2003 11:55:50 GMT
+	by jazzband.ncsc.mil  with ESMTP id h4RFuqtV004859
+	for <selinux@tycho.nsa.gov>; Tue, 27 May 2003 15:56:53 GMT
 Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h4QBtlal007248 for <selinux@tycho.nsa.gov>; Mon, 26 May 2003 11:55:48 GMT
+        by jazzband.ncsc.mil  with ESMTP id h4RFuMal004832 for <selinux@tycho.nsa.gov>; Tue, 27 May 2003 15:56:39 GMT
 Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 7552EBF4F
-	for <selinux@tycho.nsa.gov>; Mon, 26 May 2003 21:55:45 +1000 (EST)
+	by sat.sws.net.au (Postfix) with ESMTP id 0FDBDBF57
+	for <selinux@tycho.nsa.gov>; Wed, 28 May 2003 01:56:07 +1000 (EST)
 Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 13355-05
- for <selinux@tycho.nsa.gov>; Mon, 26 May 2003 21:55:44 +1000 (EST)
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 25585-08
+ for <selinux@tycho.nsa.gov>; Wed, 28 May 2003 01:56:05 +1000 (EST)
 Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 0ACDABF4E
-	for <selinux@tycho.nsa.gov>; Mon, 26 May 2003 21:55:44 +1000 (EST)
+	by sat.sws.net.au (Postfix) with ESMTP id 516E1BF55
+	for <selinux@tycho.nsa.gov>; Wed, 28 May 2003 01:56:05 +1000 (EST)
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 89D0092705
-	for <selinux@tycho.nsa.gov>; Mon, 26 May 2003 21:55:42 +1000 (EST)
+	by tsv.sws.net.au (Postfix) with ESMTP id 92CDA92470
+	for <selinux@tycho.nsa.gov>; Wed, 28 May 2003 01:56:03 +1000 (EST)
 Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 6759A986B
-	for <selinux@tycho.nsa.gov>; Mon, 26 May 2003 21:55:35 +1000 (EST)
+	by lyta.coker.com.au (Postfix) with ESMTP id 65DF399BC
+	for <selinux@tycho.nsa.gov>; Wed, 28 May 2003 01:55:51 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: gpe-login patch
-Date: Mon, 26 May 2003 21:55:34 +1000
+Subject: bbwrap
+Date: Wed, 28 May 2003 01:55:50 +1000
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_2Cg0+fo7irG8UFz"
-Message-Id: <200305262155.34836.russell@coker.com.au>
+  boundary="Boundary-00=_Gq40+cOu64c5QRb"
+Message-Id: <200305280155.50615.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_2Cg0+fo7irG8UFz
+--Boundary-00=_Gq40+cOu64c5QRb
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-I have attached a patch for the gpe-login program that is used in the Familiar 
-distribution for iPaQ machines.
+I have attached the source, the configuration file, and the policy for my 
+busybox-wrapper program as mentioned previously.
 
-To get an iPaQ running SE Linux completely in enforcing mode you need this 
-patch, the patch I published previously for busybox, my latest policy tree, 
-and a single policy file containing all the iPaQ specific policy.
+The program is not as functional as it should be (it should get everything it 
+needs from the kernel and not need a configuration file), it has few 
+comments, and may be buggy.  The policy has a number of strange things that I 
+never sorted out.
 
-The iPaQ specific file is not quite ready to release yet (it's very ugly and I 
-haven't double-checked it to make sure that I'm not permitting undesired 
-things).  But if anyone is in a hurry to try it out then please let me know 
-and I'll send you a private copy.
+I am merely posting this here for anyone who's curious.  I believe that in the 
+paper I am presenting at OLS I have proven that such a wrapper is a bad idea.
 
-My iPaQ policy allows lots of weird stuff that Familiar depends on which you 
-normally don't want to allow (EG xdm creating symlinks under user home 
-directories, changing ownership of device nodes, and other nastyness).  For 
-that reason I will not put it in a regular section of the policy tree where 
-people who don't use Familiar might mistakenly install it and weaken their 
-security.  I will create some new section name, maybe a new subdirectory 
-under unused for things that definately shouldn't be installed by default.
+As I have developed it enough to demonstrate that it is not worth doing I am 
+ceasing development on it.
 
-I will soon sort out all my patches for iPaQ and put them on 
-http://www.coker.com.au/arm/ .
-
-I think I am about 3 hours away from having my SE Linux iPaQ ready for full 
-production use.
-
-
-PS  I am not publishing a binary of the modified gpe-login because it's 
-impossible for me to provide a coherent method of building it.  Building this 
-depends on libraries from XFree86 version 4.3.  To build it myself I used a 
-Debian ARM server that only has X 4.2 libraries, so I grabbed the header 
-files from an unofficial build of X 4.3 and hacked part of the library code 
-to not call one of the new functions that appeared in 4.3.  I will privately 
-supply my gpe-login on request to anyone who really needs it.
+I have developed better solutions to the busybox problem which I describe in 
+detail in my paper.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -81,121 +63,223 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_2Cg0+fo7irG8UFz
-Content-Type: text/x-diff;
+--Boundary-00=_Gq40+cOu64c5QRb
+Content-Type: text/x-csrc;
   charset="us-ascii";
-  name="diff"
+  name="bbwrap.c"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="diff"
+Content-Disposition: attachment; filename="bbwrap.c"
 
---- gpe-login.c	2003-04-28 14:24:29.000000000 +1000
-+++ /tmp/gpe-login.c	2003-05-26 21:28:08.000000000 +1000
-@@ -7,6 +7,7 @@
-  * 2 of the License, or (at your option) any later version.
-  */
- 
-+#include <syslog.h>
- #include <pwd.h>
- #include <sys/types.h>
- #include <shadow.h>
-@@ -44,6 +45,12 @@
- #include <gpe/translabel.h>
- 
- #include "rootpixmap.h"
-+#ifdef SELINUX
-+#include <flask_util.h>
-+#include <get_sid_list.h>
-+#include <proc_secure.h>
-+#include <fs_secure.h>
-+#endif
- 
- #define _(x) gettext(x)
- #define N_(x) (x)
-@@ -264,10 +271,10 @@
-       char *xkbd_args[MAX_ARGS + 1];
-       close (fd[0]);
-       if (dup2 (fd[1], 1) < 0)
--	perror ("dup2");
-+	syslog(LOG_NOTICE, "dup2: %m");
-       close (fd[1]);
-       if (fcntl (1, F_SETFD, 0))
--	perror ("fcntl");
-+	syslog(LOG_NOTICE, "fcntl: %m");
-       xkbd_args[0] = (char *)xkbd_path;
-       xkbd_args[1] = "-xid";
-       if (xkbd_str)
-@@ -275,7 +282,7 @@
-       else
- 	xkbd_args[2] = NULL;
-       execvp (xkbd_path, xkbd_args);
--      perror (xkbd_path);
-+      syslog(LOG_ERR, "Can't execute %s: %m", xkbd_path);
-       _exit (1);
-     }
-   
-@@ -357,12 +364,12 @@
- 	{
- 	case 0:
- 	  execl (PRE_SESSION, PRE_SESSION, name, NULL);
--	  perror (PRE_SESSION);
-+	  syslog(LOG_ERR, "Can't execute %s: %m", PRE_SESSION);
- 	  _exit (1);
- 	  break;
- 
- 	case -1:
--	  perror ("fork");
-+	  syslog(LOG_ERR, "Can't fork: %m");
- 	  break;
- 
- 	default:
-@@ -433,10 +440,36 @@
-       close (fd);
-     }
-   
-+#ifdef SELINUX
-+  if(is_flask_enabled())
-+  {
-+     security_id_t user_sid;
-+     char *argv[2];
-+     argv[1] = NULL;
-+
-+     /* Get SID for user */
-+     if(get_default_sid(name, 0, &user_sid))
-+     {
-+        syslog(LOG_ERR, "Unable to get SID for %s", name);
-+        _exit(1);
-+     }
-+     if (access (".xsession", X_OK) == 0)
-+     argv[0] = ".xsession";
-+     execve_secure(argv[0], argv, environ, user_sid);
-+     argv[0] = "/etc/X11/Xsession";
-+     execve_secure(argv[0], argv, environ, user_sid);
-+     argv[0] = "/usr/bin/x-terminal-emulator";
-+     execve_secure(argv[0], argv, environ, user_sid);
-+     syslog(LOG_ERR, "Can't exec_secure X session.");
-+     _exit(1);
-+  }
-+#endif
-+
-   if (access (".xsession", X_OK) == 0)
-     execl (".xsession", ".xsession", NULL);
-   execl ("/etc/X11/Xsession", "/etc/X11/Xsession", NULL);
-   execl ("/usr/bin/x-terminal-emulator", "/usr/bin/x-terminal-emulator", NULL);
-+  syslog(LOG_ERR, "Can't execute X session.");
-   _exit (1);
- }
- 
-@@ -1271,6 +1304,8 @@
-   if (gpe_application_init (&argc, &argv) == FALSE)
-     exit (1);
- 
-+  openlog("gpe-login", LOG_CONS, LOG_DAEMON);
-+
-   /* (LanguageCode) translators: please replace this with your own
-      Pango language code: */
-   pango_lang_code = g_strdup (_("en"));
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <selinux/fs_secure.h>
+#include <ss.h>
+#include <selinux/flask_util.h>
+#include <linux/flask/av_permissions.h>
 
---Boundary-00=_2Cg0+fo7irG8UFz--
+#define TRANS_FILE "/etc/bbwrap.conf"
+
+#define DO_STAT(XARGV, XBUF, XSID) \
+ ((using_flask && lstat_secure(XARGV, &XBUF, &XSID)) || lstat(XARGV, &XBUF)) \
+    && !S_ISLNK(XBUF.st_mode)
+
+int main(int argc, char *argv[], char * const envp[])
+{
+  struct stat sbuf;
+  security_id_t my_sid, link_sid, target_sid;
+  struct security_query query;
+  struct security_response resp;
+  FILE *fp;
+  char my_context[256], link_context[256], search_line[80], line[160], *tmp;
+  char *command;
+  int len = sizeof(my_context) - 1;
+  int using_flask = is_flask_enabled();
+
+/* check for an absolute or relative path */
+  if(!(command = strrchr(argv[0], '/')) )
+  {
+    /* check in /bin and /sbin when no path is given */
+    if( (chdir("/bin") || DO_STAT(argv[0], sbuf, link_sid) )
+      && (chdir("/sbin") || DO_STAT(argv[0], sbuf, link_sid) ) )
+    {
+      fprintf(stderr, "Can't find sym-link %s.\n", argv[0]);
+      return 2;
+    }
+  }
+  else
+  {
+/* check that a sym-link is the argv[0] and get the SE type at the same time */
+    if(DO_STAT(argv[0], sbuf, link_sid))
+    {
+      fprintf(stderr, "Can't find sym-link %s.\n", argv[0]);
+      return 2;
+    }
+    argv[0] = command + 1;
+  }
+
+  if(!using_flask)
+  {
+    execve("/bin/busybox", argv, envp);
+    fprintf(stderr, "Can't execute non-SE command %s.\n", argv[0]);
+    return 1;
+  }
+
+  my_sid = getosecsid();
+
+  if(security_sid_to_context(my_sid, my_context, &len))
+    return 4;
+  tmp = strrchr(my_context, ':');
+  if(!tmp)
+    return 4;
+  strcpy(search_line, tmp + 1);
+  strcat(search_line, " ");
+
+  len = sizeof(link_context);
+  if(security_sid_to_context(link_sid, link_context, &len))
+    return 4;
+  tmp = strrchr(link_context, ':');
+  if(!tmp || strlen(search_line) + strlen(tmp) + 1 >= sizeof(search_line))
+    return 4;
+  strcat(search_line, tmp + 1);
+  strcat(search_line, " ");
+  len = strlen(search_line);
+
+  fp = fopen(TRANS_FILE, "r");
+  if(!fp)
+  {
+    fprintf(stderr, "Can't open " TRANS_FILE ".\n");
+    return 5;
+  }
+  while(fgets(line, sizeof(line), fp))
+  {
+    strtok(line, "\r\n");
+    if(!strncmp(search_line, line, len))
+    {
+      int rc, i;
+
+      fclose(fp);
+
+      tmp = line + len;
+      strcpy(strrchr(my_context, ':') + 1, tmp);
+      if(security_context_to_sid(my_context, strlen(my_context) + 1, &target_sid))
+      {
+        fprintf(stderr, "Can't get sid for \"%s\".\n", my_context);
+        return 7;
+      }
+      
+      query.ssid = target_sid;
+      query.tsid = link_sid;
+      query.tclass = SECCLASS_FILE;
+      query.requested = FILE__ENTRYPOINT;
+      rc = security_compute_av(&query, &resp);
+      if(rc || ((query.requested & resp.allowed) != query.requested))
+      {
+        fprintf(stderr, "Entrypoint denied for type %s and target domain %s.\n"
+              , link_context, my_context);
+        return 6;
+      }
+      execve_secure("/bin/busybox", argv, envp, target_sid);
+      fprintf(stderr, "Can't execute busybox in context %s.\n", my_context);
+      return 7;
+    }
+  }
+  fclose(fp);
+  fprintf(stderr, "No configuration for domain and type combination of %s.\n"
+               , search_line);
+  return 5;
+}
+
+--Boundary-00=_Gq40+cOu64c5QRb
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="bbwrap.conf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="bbwrap.conf"
+
+init_t getty_exec_t getty_t
+getty_t login_exec_t local_login_t
+initrc_t klogd_exec_t klogd_t
+initrc_t syslogd_exec_t syslogd_t
+initrc_t mount_exec_t mount_t
+sysadm_t mount_exec_t mount_t
+kernel_t mount_exec_t mount_t
+kernel_t insmod_exec_t insmod_t
+initrc_t insmod_exec_t insmod_t
+sysadm_t insmod_exec_t insmod_t
+insmod_t insmod_exec_t insmod_t
+cardmgr_t insmod_exec_t insmod_t
+initrc_t ifconfig_exec_t ifconfig_t
+sysadm_t ifconfig_exec_t ifconfig_t
+initrc_t fsadm_exec_t fsadm_t
+sysadm_t fsadm_exec_t fsadm_t
+initrc_t hwclock_exec_t hwclock_t
+
+--Boundary-00=_Gq40+cOu64c5QRb
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="bbwrap.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="bbwrap.te"
+
+allow bbwrap_t { ttyfile ptyfile tty_device_t }:chr_file rw_file_perms;
+
+# dont know why we need this!
+allow bbwrap_t { pppd_t hcid_t }:process signal;
+
+# for busybox having SETUID support compiled in
+dontaudit insmod_t self:capability { setgid setuid };
+dontaudit hotplug_t self:capability { setgid setuid };
+dontaudit getty_t self:capability { setgid setuid };
+dontaudit syslogd_t self:capability { setgid setuid };
+dontaudit klogd_t self:capability { setgid setuid };
+dontaudit ifconfig_t self:capability { setgid setuid };
+dontaudit fsadm_t self:capability { setgid setuid };
+dontaudit hwclock_t self:capability { setgid setuid };
+allow mount_t self:capability { setgid setuid };
+dontaudit unpriv_userdomain self:capability { setgid setuid };
+
+# for bbwrap
+system_domain(bbwrap)
+allow bbwrap_t privfd:fd use;
+r_dir_file(bbwrap_t, etc_t)
+domain_auto_trans_read({ kernel_t sysadm_t getty_t init_t initrc_t }, bbwrap_exec_t, bbwrap_t)
+allow bbwrap_t { bin_t sbin_t }:dir search;
+allow bbwrap_t bin_t:file read;
+allow bbwrap_t security_t:security { context_to_sid compute_av sid_to_context };
+
+define(`bbwrap_domain_enter', `
+domain_trans(bbwrap_t, bin_t, $1)
+allow bbwrap_t $2:lnk_file getattr;
+')
+
+bbwrap_domain_enter(insmod_t, insmod_exec_t)
+bbwrap_domain_enter(local_login_t, login_exec_t)
+bbwrap_domain_enter(getty_t, getty_exec_t)
+bbwrap_domain_enter(klogd_t, klogd_exec_t)
+bbwrap_domain_enter(syslogd_t, syslogd_exec_t)
+bbwrap_domain_enter(mount_t, mount_exec_t)
+bbwrap_domain_enter(ifconfig_t, ifconfig_exec_t)
+bbwrap_domain_enter(fsadm_t, fsadm_exec_t)
+bbwrap_domain_enter(hwclock_t, hwclock_exec_t)
+bbwrap_domain_enter({ user_t sysadm_t }, shell_exec_t)
+
+allow insmod_t insmod_exec_t:lnk_file read;
+domain_auto_trans_read(insmod_t, bbwrap_exec_t, bbwrap_t)
+
+role sysadm_r types bbwrap_t;
+
+allow kernel_t insmod_exec_t:lnk_file read;
+allow cardmgr_t insmod_exec_t:lnk_file read;
+allow initrc_t klogd_exec_t:lnk_file read;
+allow initrc_t syslogd_exec_t:lnk_file read;
+allow initrc_t mount_exec_t:lnk_file read;
+allow kernel_t mount_exec_t:lnk_file read;
+
+
+--Boundary-00=_Gq40+cOu64c5QRb--
 
 
 --
