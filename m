@@ -1,70 +1,55 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i95HYPrT028033
-	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 13:34:26 -0400 (EDT)
-Received: from sunspire.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95HYO7h002500
-	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 17:34:25 GMT
-Message-ID: <4162DB6C.9080900@gentoo.org>
-Date: Tue, 05 Oct 2004 20:35:40 +0300
-From: petre rodan <kaiowas@gentoo.org>
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: selinux@tycho.nsa.gov
-Subject: Re: gentoo diff for mysqld
-References: <41625B74.2090503@gentoo.org> <200410051720.i95HJx2D017969@turing-police.cc.vt.edu>
-In-Reply-To: <200410051720.i95HJx2D017969@turing-police.cc.vt.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3399A129A58E03A6F93C8849"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i95HbBrT028082
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 13:37:12 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95HbB7h002604
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 17:37:11 GMT
+Subject: Re: policy patches
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Russell Coker <russell@coker.com.au>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <4162C0C6.9090704@redhat.com>
+References: <200409292354.15227.russell@coker.com.au>
+	 <200409300620.41527.russell@coker.com.au>
+	 <1096648965.13366.35.camel@moss-lions.epoch.ncsc.mil>
+	 <200410020344.04225.russell@coker.com.au>
+	 <1096920735.3235.17.camel@moss-lions.epoch.ncsc.mil>
+	 <4162C0C6.9090704@redhat.com>
+Content-Type: text/plain
+Message-Id: <1096997754.30738.9.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 05 Oct 2004 13:35:54 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3399A129A58E03A6F93C8849
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-
-Hi!
-
-Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 05 Oct 2004 11:29:40 +0300, petre rodan said:
->>attached you'll find a diff for the mysql policy.
+On Tue, 2004-10-05 at 11:41, Daniel J Walsh wrote:
+> Submitting patches against latest policy again.
 > 
+> Dan
 > 
->>-/var/lib/mysql(/.*)?		system_u:object_r:mysqld_db_t
->>+/var/lib(64)?/mysql(/.*)?	system_u:object_r:mysqld_db_t
-> 
-> 
-> Is the database likely to actually be in /var/lib64/mysql/*?
+> ______________________________________________________________________
 
-indeed the fc diff is not needed.
-after talking with amd64 maintainers, it looks like the '/var/lib(64)?' is not a gentoo requirement.
+> diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/mozilla.fc policy-1.17.27/file_contexts/program/mozilla.fc
+> --- nsapolicy/file_contexts/program/mozilla.fc	2004-09-30 20:48:49.000000000 -0400
+> +++ policy-1.17.27/file_contexts/program/mozilla.fc	2004-10-05 11:37:05.225353688 -0400
+> @@ -5,6 +5,7 @@
+>  HOME_DIR/\.gconfd(/.*)?		system_u:object_r:ROLE_mozilla_rw_t
+>  HOME_DIR/\.gconf(/.*)?		system_u:object_r:ROLE_mozilla_rw_t
+>  HOME_DIR/\.gnome2/epiphany(/.*)? system_u:object_r:ROLE_mozilla_rw_t
+> +HOME_DIR/My Downloads(/.*)?	system_u:object_r:ROLE_mozilla_rw_t
+>  /usr/bin/netscape	--	system_u:object_r:mozilla_exec_t
+>  /usr/bin/mozilla	--	system_u:object_r:mozilla_exec_t
+>  /usr/bin/mozilla-snapshot --	system_u:object_r:mozilla_exec_t
 
-thanks,
-peter
+Shouldn't this have an ifdef(`windows') around it? :)
+
+Is this going to be some sort of default download area for Mozilla?
+Is this Fedora specific?
 
 -- 
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-
---------------enig3399A129A58E03A6F93C8849
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBYtt2GSBEIeh4AEYRAk2AAJoDRzEg+f40Vx9Gcv+nBLHZu+O0zACfazLm
-Jd1+h6yP5OVMvQMpy41hoH8=
-=iTiE
------END PGP SIGNATURE-----
-
---------------enig3399A129A58E03A6F93C8849--
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
