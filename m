@@ -1,81 +1,58 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA26634
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2001 16:11:17 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA07459
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2001 20:09:57 GMT
-Received: from csoc-fire05.csoconline.com (csoc-mail-msfc.csoconline.com [140.169.36.3])
-	by jazzswing.ncsc.mil  with SMTP id UAA07451
-	for <selinux@tycho.nsa.gov>; Tue, 28 Aug 2001 20:09:56 GMT
-Message-ID: <72222DC86846D411ABD300A0C9EB08A1015241D5@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: policy configurations files
-Date: Tue, 28 Aug 2001 15:11:02 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA29962
+	for <selinux@tycho.nsa.gov>; Wed, 29 Aug 2001 08:26:46 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA21840
+	for <selinux@tycho.nsa.gov>; Wed, 29 Aug 2001 12:26:22 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
+	by jazzband.ncsc.mil  with ESMTP id MAA21836
+	for <selinux@tycho.nsa.gov>; Wed, 29 Aug 2001 12:26:22 GMT
+Date: Wed, 29 Aug 2001 08:26:02 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+Reply-To: Stephen Smalley <sds@tislabs.com>
+To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: Re: policy configurations files
+In-Reply-To: <72222DC86846D411ABD300A0C9EB08A1015241D5@csoc-mail-box.csoconline.com>
+Message-ID: <Pine.SOL.3.95.1010829082053.19714A-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-To list:
 
-I have making many modification to my policy configurations files. 
-In the process I tried to make a common set of modifications
-for the domains/admin/sysadm.te and domains/user/user.te
+On Tue, 28 Aug 2001, Westerman, Mark wrote:
 
-In the parts that begin with 
+> file: domains/user/user.te
+> 
+> define(`user_domain',`
+> ....
+> sinclude(includes/user-common.inc)
+> ....
+> ')
 
-define(`user_domain',`
-....
-allow $1_t $1_home_t:dir create_dir_perms;
-....
-')
-
-of course the sysadm domain is different for the domain.
-
-What I would like to do is
-
-
-file: domains/user/user.te
+The problem is that the sinclude is within the quotes, so it is
+not being expanded until the substitution occurs.  You need to 
+unquote the sinclude so that it is expanded as part of the macro
+definition, e.g.:
 
 define(`user_domain',`
 ....
+'
 sinclude(includes/user-common.inc)
+`
 ....
 ')
 
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-file: domains/admin/sysadm.te
-
-define(`admin_domain',`
-....
-sinclude(includes/user-common.inc)
-....
-')
 
 
-file: include/user-common.inc
-
-allow $1_t $1_home_t:dir create_dir_perms;
 
 
-because the line 
-
-allow $1_t $1_home_t:dir create_dir_perms;
-
-is the same in both files.
-
-When I tried this I got an error on the 
-allow $1_t $1_home_t:dir create_dir_perms;
-line
-
-I guess the real question is the sinclude() processed before or after the
-macro substitution 
-
-Thanks,
-Mark Westerman
 
 --
 You have received this message because you are subscribed to the selinux list.
