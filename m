@@ -1,85 +1,54 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KCDWRb017930
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 08:13:33 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4KCANB2018880
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:10:24 GMT
-Received: from mailrelay2.lrz-muenchen.de (mailrelay2.lrz-muenchen.de [129.187.254.102])
-	by jazzswing.ncsc.mil  with ESMTP id i4KC9owi018741
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 12:09:50 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.99.1] [192.168.99.1]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 20 May 2004 14:12:12 +0200
-Date: Thu, 20 May 2004 14:11:57 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: is this pretty much it (to patch kdm 3.2.2)?
-Message-Id: <20040520121157.GA2146@jmh.mhn.de>
-References: <20040519074242.GK7348@lkcl.net> <20040519100822.GA31914@colombo.cip.ifi.lmu.de> <20040519115039.GB4221@lkcl.net>
+Subject: Re: Policy compiler issues.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Bush, Daniel" <Daniel.Bush@boeing.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <E7E29FA7C732D146887C784B34AEF6A0044E3FD7@xch-ne-01.ne.nos.boeing.com>
+References: 
+	 <E7E29FA7C732D146887C784B34AEF6A0044E3FD7@xch-ne-01.ne.nos.boeing.com>
+Content-Type: text/plain
+Message-Id: <1085055603.521.49.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
-In-Reply-To: <20040519115039.GB4221@lkcl.net>
+Date: Thu, 20 May 2004 08:20:03 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2004-05-19 at 18:10, Bush, Daniel wrote:
+>   I'm trying to deploy SELInux in an embedded environment. Footprint
+> space is tight, every kilobyte counts. The environment is also fairly
+> dynamic, the users list and assigned roles can change fairly rapidly.
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+That seems like an odd combination - embedded but highly dynamic users
+and roles?  How do you plan on distributing updates to the users list
+and user-role authorizations?
 
-* Luke Kenneth Casson Leighton <lkcl@lkcl.net> [2004-05-19 15:13]:
-> On Wed, May 19, 2004 at 12:08:22PM +0200, Thomas Bleher wrote:
-> > * Luke Kenneth Casson Leighton <lkcl@lkcl.net> [2004-05-19 11:06]:
-> > > is this pretty much all that's required???  compared to the 2.4 stuff
-> > > it's like tiny.
-> > >=20
-> > > this is all that the patch to wdm does.  i'm just a little surprised
-> > > (pleasantly so).
-> > >=20
-> > > --- client.c.old	2004-05-19 07:40:58.000000000 +0000
-> > > +++ kdm/backend/client.c	2004-05-19 07:18:01.000000000 +0000
-> > <snip patch>
-> >=20
-> > I don't think that even this is required. It should work without
-> > patching, just using pam_selinux.so.
+>   It's my understanding that whenever the users' list changes (aside
+> from default users)in a SELinux system, that the policy files and
+> security labels need to be re-compiled. Is there any way around that?
+> Can a user be assigned a set of (non-default user) roles without
+> re-compiling the security system?
 
-I just rechecked, and it is indeed working fine on a SuSE box
-(kdebase3-kdm-3.2.2-8) without any patches, just using the selinux pam
-module.
+If you want the user to be recognized by SELinux as an individual user,
+then you need to modify the policy (either directly patching the binary
+policy or modifying the source and recompiling) and reload it.  There is
+already a user_u user that is a fallback for ordinary users who do not
+have a specific entry in the SELinux policy, so if you don't add the
+user to the SELinux policy, he will be mapped to user_u and limited to
+the roles authorized for user_u.  Direct manipulation of the binary
+policy is possible, and I expect that libraries and tools for doing so
+will become available; note the earlier work by Tresys on binary policy
+patching that was posted to this list, plus the posting re future work
+on loadable binary policy modules. 
 
->  oh?
->=20
->  do you have some example usage that i can try out, and does
->  anyone have any advice on how to ensure that installation
->  of debian packages (pam and selinux and kde) would result
->  in pam being automatically updated?
+>   Another question: Can SELinux be compiled under uClibc? I'm not
+> having much luck at that, and I was wondering if something special
+> needed to be done, or if anybody had any tips.
 
-echo "session  required       pam_selinux.so" >> /etc/pam.d/kdm
-should do it.
-/etc/pam.d/kdm is a conffile AFAIK, so there should be no problems when
-updating packages.
+I haven't tried.  What kind of problem are you encountering?
 
-HTH,
-Thomas
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFArKCNxWIrrrL0q+cRAjCgAJ4g0VNq7FcQMAh9yCFCM0mmLeK6RwCfU5cJ
-5025+WR/l7py+C2kjX60Dus=
-=6/pn
------END PGP SIGNATURE-----
-
---2oS5YaxWCcQjTEyO--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
