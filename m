@@ -1,42 +1,40 @@
-Reply-To: <mayerf@tresys.com>
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
-   "'Bush, Daniel'" <Daniel.Bush@boeing.com>
-Cc: "'SELinux'" <SELinux@tycho.nsa.gov>, <selinux-dev@tresys.com>
-Subject: RE: Policy compiler issues.
-Date: Thu, 20 May 2004 13:32:33 -0400
-Message-ID: <014501c43e90$6f4c2350$4c0c010a@columbia.tresys.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KHk2Rb021154
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 13:46:02 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4KHjxAR016704
+	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 17:45:59 GMT
+Received: from smtp.sws.net.au ([61.95.69.6])
+        by jazzband.ncsc.mil  with ESMTP id i4KHjwHn016576 for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 17:45:59 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Steve Greenland <steveg@moregruel.net>
+Subject: Re: Bug#193644: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=193644 (cron upstream patch)
+Date: Fri, 21 May 2004 03:44:49 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>, 193644@bugs.debian.org
+References: <20040519091454.GL7348@lkcl.net> <20040520142212.GE8810@lkcl.net> <20040520154849.GA14106@moregruel.net>
+In-Reply-To: <20040520154849.GA14106@moregruel.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-In-Reply-To: <1085070079.521.194.camel@moss-spartans.epoch.ncsc.mil>
+  charset="iso-8859-1"
+Message-Id: <200405210344.49475.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> 
->> This sounds promising... Could you please direct me to the
->> date range of the messages you're referring to?
-> 
-> http://marc.theaimsgroup.com/?l=selinux&m=106453351114046&w=2
-> http://marc.theaimsgroup.com/?l=selinux&m=105459714906101&w=2
-> 
-> The binary policy patch tools are out-of-date, and should be obsoleted
-> by newer work going on at Tresys to support direct manipulation of
-> binary policies.
+On Fri, 21 May 2004 01:48, Steve Greenland <steveg@moregruel.net> wrote:
+> Hmmm. One Debian specific problem. libselinux1 is priority "optional",
+> while cron is "important". I guess I need to talk to Colin Walters.
 
-Steve is correct, the binary patch tool was not maintained, and if I recall
-correctly I don't think it supported changing users.  One could certainly hack
-together something using that code to work temporarily.
+No problem.  I have already uploaded a new version with priority "required".
 
-The binary module work Steve indicate is probably a couple of months from
-initial release, and will take some time to work out bugs and integration
-issues.  Once complete this should make dynamic policy changes easier; for
-example we will change our seuser tool to use it so that policy sources are not
-needed, nor policy homogeneity across all systems.
+Colin doesn't seem to be doing any SE Linux work at the moment, so he's passed 
+his SE Linux packages to me.
 
-Frank
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
