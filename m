@@ -1,48 +1,52 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4N87WI4025989
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 04:07:32 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h4N87VtV015333
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 08:07:31 GMT
-Received: from nox.lemuria.org (nox.lemuria.org [213.191.86.30])
-        by jazzband.ncsc.mil  with ESMTP id h4N87Ual015330 for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 08:07:30 GMT
-Date: Fri, 23 May 2003 10:08:27 +0200
-From: Tom <tom@lemuria.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: pxe, tftpd and rsync policies
-Message-ID: <20030523100827.L26001@lemuria.org>
-References: <20030522154816.C6588@lemuria.org> <200305230243.32308.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200305230243.32308.russell@coker.com.au>; from russell@coker.com.au on Fri, May 23, 2003 at 02:43:32AM +1000
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4N8CsI4026026
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 04:12:54 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h4N8CTuO028389
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 08:12:29 GMT
+Received: from venere.mat.uniroma1.it ([151.100.50.3])
+	by jazzswing.ncsc.mil  with ESMTP id h4N8CSlV028373
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2003 08:12:29 GMT
+Message-ID: <3ECDD727.7030905@yahoo.it>
+Date: Fri, 23 May 2003 10:09:11 +0200
+From: Giorgio Zanin <selinux_list@yahoo.it>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+Subject: Re: about security contexts for objects
+References: <3ECCDA52.5010802@yahoo.it>	 <200305230235.50512.russell@coker.com.au> <1053631371.1032.43.camel@moss-huskers.epoch.ncsc.mil>
+In-Reply-To: <1053631371.1032.43.camel@moss-huskers.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, May 23, 2003 at 02:43:32AM +1000, Russell Coker wrote:
-> For rsync I always run it over ssh, so rsync doesn't need any special 
-> permissions, the user that you are logging in as needs to be able to access 
-> the files appropriately.
+Stephen Smalley wrote:
 
-I know. However, the ssh support of system imager is broken in the
-3.0.1 version. At least that's what the guys I had set up the server
-found out, they couldn't get it to work. rsync worked right away.
+>>Look at the policy for all types that have the attribute file_type, that 
+>>should catch all of them.
+>>
 
-(as I said, that's a different story. :) )
+Actually file_type, as it is just an attribute with no semantics with 
+respect to the configuration language, is not the thing I would look at.
+I mean, attributes are just names associated with types with no 
+semantics from a language point of view. What I need is something with 
+semantics in the configuration language context.
+I wouldn't use attributes values fot infering any property of a 
+configuration, becouse I can think at an attribute just as a collection 
+of types (attributes are useful but they are not necessary).
+
+>>Not all of them.  The file_type attribute is limited to files associated
+>>with conventional (disk-based) filesystems and is used in allow rules
+>>permitting the association of such types with those filesystems.  It
+>>doesn't cover types associated with pseudo filesystems.
+>>
+what are exactly all the kinds of pseudo files? Do they cover every  
+object class  other than  file-related ones (file, filesystem, dir, 
+fifo_file, ...) and process?
+
+Giorgio
 
 
-> As for PXE, I thought that someone had written a program that implemented both 
-> TFTP and PXE protocols...
-
-That's one more argument to merge these two policies into one. I don't
-see what harm it would do, even if only tftp is run, except for a few
-unused policy rules.
-
-
--- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
