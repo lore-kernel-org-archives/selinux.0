@@ -1,31 +1,33 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
 To: SELinux@tycho.nsa.gov
-Subject: df and getattr
-Date: Mon, 14 Apr 2003 14:32:46 +1000
+Subject: bug fix for devfsd makefile
+Date: Mon, 14 Apr 2003 14:48:58 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
-Message-Id: <200304141432.46560.russell@coker.com.au>
+Message-Id: <200304141448.58184.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In a recent version of coreutils (I suspect it was 4.5.9 from the changelog) 
-the actions of df changed.  It used to do a stat() of each mount point, and 
-now it appears not to do so.
+Please include the following in the next release.  It is needed for 
+cross-compiling.
 
-This is a change of note because df is something that gets run hundreds of 
-times per day, and everything it does must be covered by an allow or 
-dontaudit rule.
+diff -ruN /tmp/selinux-small-2003011510/devfsd/Makefile ./devfsd/Makefile
+--- /tmp/selinux-small-2003011510/devfsd/Makefile       2003-03-24 
+15:53:30.0000
+00000 +1100
++++ ./devfsd/Makefile   2002-04-20 06:32:37.000000000 +1000
+@@ -3,7 +3,7 @@
+ LDFLAGS= -L/usr/local/selinux/lib
 
-In my current policy tree I am not allowing user_t usbdevfs_t:dir getattr 
-access.  df from coreutils 4.5.7 requests this (although it runs fine without 
-it), df from coreutils 4.5.10 does not request this.  There are probably 
-other situations where similar things can arise.
+ devfsd-se.so: devfsd-se.c
+-       gcc -O2 -fPIC $(CFLAGS) $(LDFLAGS) -shared -o $@ $< -lsecure
++       $(CC) -O2 -fPIC $(CFLAGS) $(LDFLAGS) -shared -o $@ $< -lsecure
 
-IMHO  Upgrading coreutils/df is a better option than granting extra access 
-(but if you can't upgrade then it's not a difficult change to make in the 
-policy).
+ clean:
+        rm -f $(LIB)
+
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
