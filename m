@@ -1,83 +1,39 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA19022
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 16:08:32 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA01124
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 20:07:02 GMT
-Received: from mail.hallcomp.com (hallcomp.com [208.140.194.52])
-        by jazzband.ncsc.mil  with ESMTP id UAA01120 for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 20:07:02 GMT
-Subject: RE: sysadm_tty_device_t
-From: Timothy Wood <timothy@hallcomp.com>
-To: blacknet@simplyaquatics.com
-Cc: "'Stephen Smalley'" <sds@tislabs.com>,
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA18989
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 16:07:47 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA13087
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 20:07:10 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id UAA13083
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 20:07:10 GMT
+Date: Thu, 11 Jul 2002 16:07:02 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Ed Street <blacknet@simplyaquatics.com>
+cc: "'Timothy Wood'" <timothy@hallcomp.com>,
         "'SE Linux'" <selinux@tycho.nsa.gov>
+Subject: RE: sysadm_tty_device_t
 In-Reply-To: <00dd01c22914$a9b23b30$0a01a8c0@ed>
-References: <00dd01c22914$a9b23b30$0a01a8c0@ed>
-Content-Type: text/plain; charset=koi8-r
-Date: 11 Jul 2002 16:12:52 -0400
-Message-Id: <1026418372.1663.39.camel@phobos>
-Mime-Version: 1.0
+Message-ID: <Pine.GSO.4.33.0207111605400.21775-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-В Чтв, 11.07.2002, в 15:53, Ed Street написал:
-> Hello,
-> 
+
+On Thu, 11 Jul 2002, Ed Street wrote:
+
 > That's what it seems to be.  It does look like an accident waiting to
 > happen as well.
-> 
-> Ed
 
-I would not nessicarily call it an accident waiting to happen.  More
-like something that needs configured if you want it.  You have to
-remember that basic idea here is no access to something you don't need
-(as far as processes are concerned).  Syslog really only needs access to
-the log files it writes to, with the exception of severe kernel
-messages.  The latter I suppose works (/dev/console not /dev/tty*) but I
-have never noticed any kernel warnings or avc messages denying syslog
-write to /dev/console.  So I could easily be wrong about that. 
+I'm not sure what you mean.  The relabeling of the terminal devices by
+login is just like the setting of the uid on the device by login.  Nothing
+unusual here.
 
-Timothy,
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-> 
-> => -----Original Message-----
-> => From: Timothy Wood [mailto:timothy@hallcomp.com]
-> => Sent: Thursday, July 11, 2002 3:55 PM
-> => To: Stephen Smalley
-> => Cc: Ed Street; 'SE Linux'
-> => Subject: RE: sysadm_tty_device_t
-> => 
-> => В Чтв, 11.07.2002, в 13:39, Stephen Smalley написал:
-> => >
-> => > On Thu, 11 Jul 2002, Ed Street wrote:
-> => >
-> => > > And sysadm_tty_device_t?
-> => >
-> => > That was my point.  The ttys start in tty_device_t.  If login or
-> => newrole
-> => > creates a sysadm_r:sysadm_t shell, then it relabels the tty to
-> => > sysadm_tty_device_t.  If login or newrole creates a user_r:user_t
-> => shell,
-> => > then it relabels the tty to user_tty_device_t.  These relabeling
-> => > operations are based on type_change rules in the policy
-> configuration.
-> => >
-> => > --
-> => > Stephen D. Smalley, NAI Labs
-> => > ssmalley@nai.com
-> => >
-> => 
-> => So no matter what the file context is login and newrole relabel them
-> => when they take control of the tty, correct?  If so, then it is really
-> up
-> => to the controlling program (or program that needs control in this
-> case)
-> => and so syslog needs premissions to relabel and/or control the tty,
-> => yes/no?
-> => 
-> => Timothy,
-> 
-> 
 
 
 
