@@ -1,242 +1,52 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0DIV3Rb020901
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 13:31:03 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i0DIV2iV023985
-	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 18:31:03 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0DL0bRb021860
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 16:00:37 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i0DKxSxr014571
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 20:59:28 GMT
 Received: from thoron.boston.redhat.com (nat-pool-bos.redhat.com [66.187.230.200])
-        by jazzband.ncsc.mil  with ESMTP id i0DIUu08023974 for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 18:31:01 GMT
-Date: Tue, 13 Jan 2004 13:30:55 -0500 (EST)
+	by jazzswing.ncsc.mil  with ESMTP id i0DKxQYe014563
+	for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2004 20:59:28 GMT
+Date: Tue, 13 Jan 2004 16:00:32 -0500 (EST)
 From: James Morris <jmorris@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org, <selinux@tycho.nsa.gov>,
    Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: [PATCH][SELINUX] 1/1 Improve skb audit logging
-Message-ID: <Xine.LNX.4.44.0401131318410.6829-100000@thoron.boston.redhat.com>
+Subject: Re: [PATCH][SELINUX] 2/2 Add SEND_MSG and RECV_MSG controls
+In-Reply-To: <Xine.LNX.4.44.0401131326240.6829-100000@thoron.boston.redhat.com>
+Message-ID: <Xine.LNX.4.44.0401131557590.7560-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch against 2.6.1-mm2 is a rework of the skb audit logging code in
-SELinux.  Rather than relying on skb header pointers, it parses the skb
-for specific protocols (TCP and UDP for IPv4 at this stage).  This is
-safer for the case of locally generated raw packets, which can be
-malformed.  It also now takes fragmented skbs into account.  The new code
-allows the caller to parse the skb so that parsed information can be more
-readily re-used.
+On Tue, 13 Jan 2004, James Morris wrote:
 
-Please apply.
+> This patch implements two new access controls for SELinux: SEND_MSG and 
+> RECV_MSG, providing mediation of network packets based on destination 
+> port (IPv4 only at this stage).
+> 
 
- security/selinux/avc.c         |   46 ++------------------------
- security/selinux/hooks.c       |   72 ++++++++++++++++++++++++++++++++++++++---
- security/selinux/include/avc.h |    4 +-
- 3 files changed, 75 insertions(+), 47 deletions(-)
+After some further discussion, Stephen and I decided that it would be more 
+useful for security to invert the sense of the RECV_MSG permission so that 
+the source port is checked during packet reception.
 
-diff -urN -X dontdiff linux-2.6.1-rc3.pending/security/selinux/avc.c linux-2.6.1-rc3.w1/security/selinux/avc.c
---- linux-2.6.1-rc3.pending/security/selinux/avc.c	2004-01-08 10:38:49.000000000 -0500
-+++ linux-2.6.1-rc3.w1/security/selinux/avc.c	2004-01-08 13:53:28.238451616 -0500
-@@ -22,8 +22,6 @@
- #include <linux/un.h>
- #include <net/af_unix.h>
- #include <linux/ip.h>
--#include <linux/udp.h>
--#include <linux/tcp.h>
- #include "avc.h"
- #include "avc_ss.h"
- #include "class_to_string.h"
-@@ -640,46 +638,12 @@
- 					break;
- 				}
- 			}
--			if (a->u.net.daddr) {
--				printk(" daddr=%d.%d.%d.%d",
--				       NIPQUAD(a->u.net.daddr));
--				if (a->u.net.port)
--					printk(" dest=%d", a->u.net.port);
--			} else if (a->u.net.saddr) {
--				printk(" saddr=%d.%d.%d.%d",
--				       NIPQUAD(a->u.net.saddr));
--				if (a->u.net.port)
--					printk(" src=%d", a->u.net.port);
--			} else if (a->u.net.port)
--				printk(" port=%d", a->u.net.port);
--			if (a->u.net.skb) {
--				struct sk_buff *skb = a->u.net.skb;
--
--				if ((skb->protocol == htons(ETH_P_IP)) &&
--				     skb->nh.iph) {
--					u16 source = 0, dest = 0;
--					u8  protocol = skb->nh.iph->protocol;
--
--
--					if (protocol == IPPROTO_TCP &&
--					    skb->h.th) {
--						source = skb->h.th->source;
--						dest = skb->h.th->dest;
--					}
--					if (protocol == IPPROTO_UDP &&
--					    skb->h.uh) {
--						source = skb->h.uh->source;
--						dest = skb->h.uh->dest;
--					}
-+			
-+			avc_print_ipv4_addr(a->u.net.saddr, a->u.net.sport,
-+			                    "saddr", "src");
-+			avc_print_ipv4_addr(a->u.net.daddr, a->u.net.dport,
-+			                    "daddr", "dest");
+This patch is relative to the previous patch, please let me know if you 
+want the entire patch redone.
+
+
+diff -urN -X dontdiff linux-2.6.1-mm2.p/security/selinux/hooks.c linux-2.6.1-mm2.w/security/selinux/hooks.c
+--- linux-2.6.1-mm2.p/security/selinux/hooks.c	2004-01-13 15:59:04.153184216 -0500
++++ linux-2.6.1-mm2.w/security/selinux/hooks.c	2004-01-13 14:32:06.000000000 -0500
+@@ -2773,7 +2773,7 @@
  
--					avc_print_ipv4_addr(skb->nh.iph->saddr,
--					                    source,
--					                    "saddr", "source");
--					avc_print_ipv4_addr(skb->nh.iph->daddr,
--					                    dest,
--					                    "daddr", "dest");
--				}
--			}
- 			if (a->u.net.netif)
- 				printk(" netif=%s", a->u.net.netif);
- 			break;
-diff -urN -X dontdiff linux-2.6.1-rc3.pending/security/selinux/hooks.c linux-2.6.1-rc3.w1/security/selinux/hooks.c
---- linux-2.6.1-rc3.pending/security/selinux/hooks.c	2004-01-08 10:38:46.000000000 -0500
-+++ linux-2.6.1-rc3.w1/security/selinux/hooks.c	2004-01-08 12:31:57.000000000 -0500
-@@ -56,6 +56,7 @@
- #include <linux/netdevice.h>	/* for network interface checks */
- #include <linux/netlink.h>
- #include <linux/tcp.h>
-+#include <linux/udp.h>
- #include <linux/quota.h>
- #include <linux/un.h>		/* for Unix socket types */
- #include <net/af_unix.h>	/* for Unix socket types */
-@@ -2372,6 +2373,69 @@
- 
- #ifdef CONFIG_SECURITY_NETWORK
- 
-+static void selinux_parse_skb_ipv4(struct sk_buff *skb, struct avc_audit_data *ad)
-+{
-+	int dlen, ihlen;
-+	struct iphdr *iph;
-+
-+	if (skb->len < sizeof(struct iphdr))
-+		goto out;
-+	
-+	iph = skb->nh.iph;
-+	ihlen = iph->ihl * 4;
-+	if (ihlen < sizeof(struct iphdr))
-+		goto out;
-+
-+	dlen = skb->len - ihlen;
-+	ad->u.net.saddr = iph->saddr;
-+	ad->u.net.daddr = iph->daddr;
-+
-+	switch (iph->protocol) {
-+        case IPPROTO_TCP: {
-+        	int offset;
-+        	struct tcphdr tcph;
-+
-+        	if (ntohs(iph->frag_off) & IP_OFFSET)
-+        		break;
-+        		
-+		if (dlen < sizeof(tcph))
-+			break;
-+
-+		offset = skb->nh.raw - skb->data + ihlen;
-+		if (skb_copy_bits(skb, offset, &tcph, sizeof(tcph)) < 0)
-+			break;
-+
-+		ad->u.net.sport = tcph.source;
-+		ad->u.net.dport = tcph.dest;
-+		break;
-+        }
-+        
-+        case IPPROTO_UDP: {
-+        	int offset;
-+        	struct udphdr udph;
-+        	
-+        	if (ntohs(iph->frag_off) & IP_OFFSET)
-+        		break;
-+        		
-+        	if (dlen < sizeof(udph))
-+        		break;
-+
-+		offset = skb->nh.raw - skb->data + ihlen;
-+        	if (skb_copy_bits(skb, offset, &udph, sizeof(udph)) < 0)
-+        		break;	
-+
-+        	ad->u.net.sport = udph.source;
-+        	ad->u.net.dport = udph.dest;
-+        	break;
-+        }
-+
-+        default:
-+        	break;
-+        }
-+out:
-+	return;
-+}
-+
- /* socket security operations */
- static int socket_has_perm(struct task_struct *task, struct socket *sock,
- 			   u32 perms)
-@@ -2460,7 +2524,7 @@
- 			if (err)
- 				goto out;
- 			AVC_AUDIT_DATA_INIT(&ad,NET);
--			ad.u.net.port = snum;
-+			ad.u.net.sport = htons(snum);
- 			err = avc_has_perm(isec->sid, sid,
- 					   isec->sclass,
- 					   SOCKET__NAME_BIND, NULL, &ad);
-@@ -2488,7 +2552,7 @@
+ 		/* Fixme: make this more efficient */
+ 		err = security_port_sid(sk->sk_family, sk->sk_type,
+-		                        sk->sk_protocol, ntohs(ad.u.net.dport),
++		                        sk->sk_protocol, ntohs(ad.u.net.sport),
+ 		                        &port_sid);
+ 		if (err)
  			goto out;
- 		
- 		AVC_AUDIT_DATA_INIT(&ad,NET);
--		ad.u.net.port = snum;
-+		ad.u.net.sport = htons(snum);
- 		ad.u.net.saddr = addr->sin_addr.s_addr;
- 		err = avc_has_perm(isec->sid, sid,
- 		                   isec->sclass, node_perm, NULL, &ad);
-@@ -2686,7 +2750,7 @@
- 
- 	AVC_AUDIT_DATA_INIT(&ad, NET);
- 	ad.u.net.netif = dev->name;
--	ad.u.net.skb = skb;
-+	selinux_parse_skb_ipv4(skb, &ad);
- 
- 	err = avc_has_perm(isec->sid, nsec->if_sid, SECCLASS_NETIF,
- 	                   netif_perm, &nsec->avcr, &ad);
-@@ -2812,7 +2876,7 @@
- 
- 	AVC_AUDIT_DATA_INIT(&ad, NET);
- 	ad.u.net.netif = dev->name;
--	ad.u.net.skb = skb;
-+	selinux_parse_skb_ipv4(skb, &ad);
- 
- 	err = avc_has_perm(isec->sid, nsec->if_sid, SECCLASS_NETIF,
- 	                   netif_perm, &nsec->avcr, &ad) ? NF_DROP : NF_ACCEPT;
-diff -urN -X dontdiff linux-2.6.1-rc3.pending/security/selinux/include/avc.h linux-2.6.1-rc3.w1/security/selinux/include/avc.h
---- linux-2.6.1-rc3.pending/security/selinux/include/avc.h	2004-01-08 10:38:40.000000000 -0500
-+++ linux-2.6.1-rc3.w1/security/selinux/include/avc.h	2004-01-08 11:55:20.000000000 -0500
-@@ -63,9 +63,9 @@
- 		} fs;
- 		struct {
- 			char *netif;
--			struct sk_buff *skb;
- 			struct sock *sk;
--			u16 port;
-+			u16 dport;
-+			u16 sport;
- 			u32 daddr;
- 			u32 saddr;
- 		} net;
-
-
-
-
-
-
-
-
 
 
 --
