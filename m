@@ -1,52 +1,35 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3NKNxI4004743
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 16:23:59 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3NKNw7R027456
-	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 20:23:58 GMT
-Received: from petrus.schuldei.org ([81.27.1.16])
-        by jazzband.ncsc.mil  with ESMTP id h3NKNvKP027398 for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2003 20:23:57 GMT
-Date: Wed, 23 Apr 2003 22:13:33 +0200
-From: Andreas Schuldei <andreas@schuldei.org>
-To: Peter Gervai <grin@tolna.net>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: please offer your good advices / new policies: exim, dovecot, maradns, (aptitude)
-Message-ID: <20030423201331.GA14673@lukas>
-References: <20030423111231.GV3993@narya.grin.hu>
+Date: Wed, 23 Apr 2003 18:01:07 -0400
+From: Dave Dodge <dododge@alpha.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Cc: dododge@alpha.ncsc.mil
+Subject: Re: portability patch for char signedness
+Message-Id: <20030423180107.79a79184.dododge@alpha.ncsc.mil>
+In-Reply-To: <200304141459.54596.russell@coker.com.au>
+References: <200304141459.54596.russell@coker.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20030423111231.GV3993@narya.grin.hu>
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Peter Gervai (grin@tolna.net) [030423 20:56]:
-> (One line for every packet ever arriving on the network!)
-> 
-> I don't see the reason for this (I have wild guesses), and I don't see the
-> solution. And I don't get why nobody had this problem before. Shall I
-> dontaudit these (modifying dhcpc, newrole, sshd, ...)? Is there a better
-> solution?
+On Mon, 14 Apr 2003 00:59:54 -0400
+Russell Coker <russell@coker.com.au> wrote:
 
-yes, that is what i did, too. (i think i asked the same question
-here, too, and never got an answer.)
+> The attached patch fixes some char signedness issues.
 
-i have here collected over time:
-dontaudit dhcpd_t sshd_t:packet_socket { recvfrom };
-dontaudit dhcpd_t courier_tcpd_t:packet_socket { recvfrom };
-dontaudit dhcpd_t netmsg_eth1_t:packet_socket { recvfrom };
-dontaudit dhcpd_t icmp_socket_t:rawip_socket { recvfrom };
-dontaudit dhcpd_t ping_t:rawip_socket { recvfrom };
-dontaudit dhcpd_t named_t:packet_socket { recvfrom };
-dontaudit dhcpd_t netmsg_eth0_t:packet_socket { recvfrom };
-dontaudit dhcpd_t apt_t:packet_socket { recvfrom };
-dontaudit dhcpd_t inetd_t:packet_socket { recvfrom };
-dontaudit dhcpd_t postfix_master_t:packet_socket { recvfrom };
-dontaudit dhcpd_t tcp_socket_t:packet_socket { recvfrom };
-dontaudit dhcpd_t dhcpd_t:packet_socket { recvfrom };
-dontaudit dhcpd_t icmp_socket_t:packet_socket { recvfrom };
-dontaudit dhcpd_t sysadm_ssh_t:packet_socket { recvfrom };
+> -  char c;
+> +  int c_int;
 
-basicly, these are all the services i run on that box.
+> -  while ( (c = getopt(argc, argv, "k:c:s:")) != EOF) {
+> -    switch (c) {
+> +  while ( (c_int = getopt(argc, argv, "k:c:s:")) != EOF) {
+> +    switch ((char)c_int) {
+
+A slightly simpler fix is to just change the type of "c" to int
+without renaming or casting. "getopt" returns an int, all of
+the case statements are ints, and "c" is not used in any other
+context.
+
+                                        -Dave Dodge/dododge@alpha.ncsc.mil
 
 --
 This message was distributed to subscribers of the selinux mailing list.
