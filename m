@@ -1,67 +1,108 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9GHrGrT013373
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 13:53:16 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9GHq3i9016195
-	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 17:52:03 GMT
-Date: Sat, 16 Oct 2004 19:04:14 +0100
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9GJSKrT013647
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 15:28:20 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9GJSIlX011488
+	for <selinux@tycho.nsa.gov>; Sat, 16 Oct 2004 19:28:19 GMT
+Date: Sat, 16 Oct 2004 20:39:19 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Alex Ackerman <alex@darkhonor.com>
-Cc: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov, ackermal@jmu.edu
-Subject: Re: SELinux Testing Software/Scripts
-Message-ID: <20041016180414.GB19398@lkcl.net>
-References: <A52BEA1D8EE8634B9196A136333637B130F1@maat.darkhonor.net>
+To: Jaspreet Singh <jsingh@ensim.com>
+Cc: nsa <SELinux@tycho.nsa.gov>
+Subject: Re: writing rules to disallow a domain to read particular files
+Message-ID: <20041016193919.GC19398@lkcl.net>
+References: <1097940101.2569.5.camel@jsingh.india.ensim.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <A52BEA1D8EE8634B9196A136333637B130F1@maat.darkhonor.net>
+In-Reply-To: <1097940101.2569.5.camel@jsingh.india.ensim.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Oct 16, 2004 at 09:56:41AM -0400, Alex Ackerman wrote:
+On Sat, Oct 16, 2004 at 08:51:41PM +0530, Jaspreet Singh wrote:
 
-> capabilities of SELinux; i.e., making sure that SELinux functions as
-> advertised when dealing with events of escalating privilege. 
+> Hi,
+> 
+> can someone help me with writing policy rules such that -
+> 
+> A domain (say apache_d) cannot access files beyond a directory
+> /home/jaspreet/
+> 
+> any clues ???
+ 
+ hi jaspreet,
 
- just a comment [other than privilege means private law]:
+ okay your first clue is to look in
+ /etc/selinux/src/file_contexts/program/apache.fc
 
- as i understand it, there is no "escalation" present in SE/Linux,
- only that assigned in the minds of us humans.
+ what you are looking for is to match the known location where web files
+ are stored (and you'd expect them to be stored in /var/www, yes?)
 
- a good analogy for the way that SE/Linux works is door-cards and
- guards.
+ so you look in apache.fc for /var/www and sure enough, /var/www(/.*)?
+ matches against httpd_sys_content_t.
 
- outside a building, you are given a door-card by a guard: depending
- on whether you are on a list, your door-card will now give you
- access a) to an entry point into the building b) the right to go
- through certain doors inside that building.
 
- at _some_ doors inside the building, there will be another guard.
+ the second clue is to look in
+ /etc/selinux/src/domains/program/apache.fc
 
- if you attempt to go through a door (assuming your card allows you to
- do that), the guard will, depending on whether you are on a list, TAKE
- AWAY your present card and GIVE YOU A TOTALLY DIFFERENT ONE.
+ and uh, okay, there's an ifdef (`targeted_policy', ... ') around
+ http_sys_content_t being aliases to httpd_user_content_t.  okay,
+ dunno what that's about.
 
- that card might, or might not, give you the right to go back through
- the door you have just gone through (!).
+ okay, so, uh, okay, let's grep httpd_user_content_t and
+ httpd_sys_content_t against */* and */*/* okay, and we find
+ some macros in macros/program/apache_macros.te... which
+ defines a macro apache_domain.
 
- so, you can enter the university building, use your card to get into
- the lecture theatre, but your card is taken away from you when you
- enter the lecture theatre, and the card you are given only allows you
- to go to the toilet or to the exit out the building.
 
- in this "world", there is no "escalation" as such.
+ also, file_contexts/file_contexts contains this:
 
- certain rooms are only allowed to be accessed by certain people who have
- certain cards: you can only get to a certain place via a specific route
- if you are the right person.
+ # apache
+ /home/[^/]+/((www)|(web)|(public_html))(/.+)?  system_u:object_r:httpd_user_content_t
 
- that's a bit different from "escalating privilege" because that implies
- hierarchy, which SE/Linux doesn't have, per-se.
+ so, /home/jaspreet/www and /home/jaspreet/web  and
+ /home/jaspreet/public_html _all_ are accessible automatically via the
+ strict policy.
+
+ already.  as httpd_user_content_t.
+
+ /var/www/* is already accessible (as httpd_sys_content_t)
+
+
+ there are two uses of the apache_domain macro:
+
+ - the first is in domains/programs/apache.te, with this:
+
+ 	apache_domain(sys)
+
+	which will create you the httpd_sys_content_t etc. etc.
+
+ - the second is in macros/user_macros.te with this:
+
+ 	apache_domain($1) where the macro gets called with $1 = user
+	or $1 = sysadm or staff, whatever.
+
+
+ anything outside of this (using apache_domain() macro for anything
+ else) is a bit beyond one single email for explanation.
+
+
+
+> Also if anyone could explain the behavior of "newrole" how can that be
+> used here.
+
+ there is no use of the command newrole that i percieve would
+ be of any use to you here - that could just be because i've
+ never had a reason to use it.
 
  l.
 
- p.s. if this analogy sounds a bit weird, to help you tie it into selinux,
- the guards swapping cards at doors is managed by "domain_auto_trans".
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
