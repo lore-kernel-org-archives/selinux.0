@@ -1,83 +1,65 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i74DJxrT028090
-	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 09:19:59 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i74DJvap017315
-	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 13:19:57 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i74FR4rT029032
+	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 11:27:04 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i74FQUVf021982
+	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 15:26:30 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.10/8.12.10) with ESMTP id i74DJwe1020211
-	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 09:19:58 -0400
-Message-ID: <4110E27D.4080900@redhat.com>
-Date: Wed, 04 Aug 2004 09:19:57 -0400
+	by mx1.redhat.com (8.12.10/8.12.10) with ESMTP id i74FQue1022339
+	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 11:26:56 -0400
+Message-ID: <4111003F.7070500@redhat.com>
+Date: Wed, 04 Aug 2004 11:26:55 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Colin Walters <walters@redhat.com>
 CC: rcoker@redhat.com, selinux@tycho.nsa.gov
-Subject: Re: [patch] fix /var/run/console bits
-References: <1091584911.8312.7.camel@nexus.verbum.private>	 <200408042007.03512.rcoker@redhat.com> <1091624615.9005.6.camel@nexus.verbum.private>
-In-Reply-To: <1091624615.9005.6.camel@nexus.verbum.private>
+Subject: Re: [patch] allow rpm_t to create/relabel device files too
+References: <1091633163.9005.26.camel@nexus.verbum.private>
+In-Reply-To: <1091633163.9005.26.camel@nexus.verbum.private>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Colin Walters wrote:
 
->On Wed, 2004-08-04 at 20:07 +1000, Russell Coker wrote:
->  
+>Hi,
 >
->>On Wed, 4 Aug 2004 12:01, Colin Walters <walters@redhat.com> wrote:
->>    
->>
->>>Currently /var/run/console is labeled as xdm_var_run_t, which is totally
->>>wrong, since it's actually owned by pam_console.  I noticed this while I
->>>was trying to work on the D-BUS policy, which recently gained console
->>>user authentication.
->>>
->>>Attached is a patch which creates a new type for it, grants the
->>>requisite permissions to login and xdm.  I still think we need a nicer
->>>way of mapping the PAM permissions in policy.  The only reason that
->>>login and xdm are granted these permissions is because they happen to
->>>ship with pam_console in their PAM stack on Fedora, presumably.  (IIRC
->>>Debian doesn't use pam_console).
->>>      
->>>
->>I think that perhaps the following would be good for the fc entry to keep the 
->>convention:
->>/var/run/console/(.*)?                     system_u:object_r:pam_var_console_t
->>    
->>
+>The attached patch allows rpm_t to create/relabel device files - I
+>needed this when upgrading the "dev" package on my system.  I'm
+>surprised this hasn't been caught before, maybe I missed something.
 >
->Sounds good.
+>Some AVC messages for reference:
+>
+>Aug  4 11:11:43 decepticon kernel: audit(1091632303.691:0): avc:  denied  { getattr } for  pid=31094 exe=/usr/bin/python path=/dev/dri dev=sda2 ino=10111422 scontext=root:sysadm_r:rpm_t tcontext=system_u:object_r:dri_device_t tclass=dir
+>Aug  4 11:16:50 decepticon kernel: audit(1091632610.920:0): avc:  denied  { relabelfrom } for  pid=31149 exe=/usr/bin/python name=dri dev=sda2 ino=10111422 scontext=root:sysadm_r:rpm_t tcontext=system_u:object_r:dri_device_t tclass=dir
 >
 >  
 >
->>This is not what we want.  Ideally we will never have any files of type 
->>var_run_t.
->>rw_dir_create_file(xdm_t, var_run_t)
->>rw_dir_create_file($1_login_t, var_run_t)
->>    
->>
->
->I agree, but unfortunately pam_console creates a lockfile
->named /var/run/console.lock.  We should probably fix that.
->
->  
->
->>I guess that the following code is to allow the xdm to check which login 
->>processes are active when searching for an unused virtual console.  
->>    
->>
->
->Ok.  I just thought it was weird at first glance, and worthy of a
->comment :)
->
->  
->
-Ok I will change pam_console to put the lock file in /var/run/console 
-directory.  Then you should be able to change the rules to create files
-pam_var_console_t
+The /dev/dri directory is mislabled.  It should be device_t.  The latest 
+policy fixes this.
 
 Dan
+
+>------------------------------------------------------------------------
+>
+>--- policy-1.15.11/domains/program/unused/rpm.te~	2004-07-31 06:22:37.000000000 -0400
+>+++ policy-1.15.11/domains/program/unused/rpm.te	2004-08-04 11:20:40.165411688 -0400
+>@@ -90,9 +90,9 @@
+> general_domain_access(rpm_script_t)
+> 
+> # read/write/create any files in the system
+>-allow rpm_t { file_type - shadow_t }:{ file lnk_file dir fifo_file sock_file chr_file blk_file } { relabelfrom relabelto };
+>-allow rpm_t { file_type - shadow_t }:dir create_dir_perms;
+>-allow rpm_t { file_type - shadow_t }:{ file lnk_file fifo_file sock_file chr_file blk_file } create_file_perms;
+>+allow rpm_t { file_type device_type -shadow_t }:{ file lnk_file dir fifo_file sock_file chr_file blk_file } { relabelfrom relabelto };
+>+allow rpm_t { file_type device_type - shadow_t }:dir create_dir_perms;
+>+allow rpm_t { file_type device_type - shadow_t }:{ file lnk_file fifo_file sock_file chr_file blk_file } create_file_perms;
+> allow rpm_t sysfs_t:filesystem getattr;
+> allow rpm_t tmpfs_t:filesystem getattr;
+> dontaudit rpm_t domain:{ socket unix_dgram_socket udp_socket unix_stream_socket tcp_socket fifo_file rawip_socket packet_socket } getattr;
+>  
+>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
