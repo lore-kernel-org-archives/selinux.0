@@ -1,30 +1,32 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA01739
+	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 07:43:02 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id LAA12708
+	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 11:41:14 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA01807
-	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 07:47:01 -0400 (EDT)
-Date: Tue, 1 Oct 2002 07:46:43 -0400 (EDT)
+        by jazzband.ncsc.mil  with ESMTP id LAA12704 for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 11:41:14 GMT
+Date: Tue, 1 Oct 2002 07:42:22 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Tom <tom@lemuria.org>
+To: Russell Coker <russell@coker.com.au>
 cc: <selinux@tycho.nsa.gov>
-Subject: Re: policy version
-In-Reply-To: <20021001131535.A21503@lemuria.org>
-Message-ID: <Pine.GSO.4.33.0210010742590.1579-100000@raven>
+Subject: Re: /dev/pty*
+In-Reply-To: <200210011045.07733.russell@coker.com.au>
+Message-ID: <Pine.GSO.4.33.0210010740110.1579-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 1 Oct 2002, Tom wrote:
+On Tue, 1 Oct 2002, Russell Coker wrote:
 
-> I have a totally unusable SELinux system right now, because of policy
-> version conflicts. For reasons I don't understand, checkpolicy creates
-> a binary representation version 12, which load_policy refuses to load
-> because it's version 11.
+> What's the correct type for /dev/pty*?  devpts_t?
 
-This implies that you are still running a kernel with policy version 11,
-but your checkpolicy program has been rebuilt for policy version 12.
-Maybe you need to boot your new kernel (hopefully, you did obtain a new
-kernel, right?)?
+Possibly, but you are likely to need some additional rules.  We've always
+used the devpts pseudo filesystem (or alternatively, devfs now that
+Rogelio's patch has been merged) and haven't tried using SELinux with
+traditional /dev/pty* nodes.
 
 --
 Stephen D. Smalley, NAI Labs
