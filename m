@@ -1,35 +1,34 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA23088
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 11:42:45 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA29978
-	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:41:42 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id QAA29974 for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:41:41 GMT
-Date: Wed, 20 Mar 2002 11:42:34 -0500 (EST)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA23128
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 11:44:45 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA08480
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:43:24 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id QAA08476
+	for <selinux@tycho.nsa.gov>; Wed, 20 Mar 2002 16:43:23 GMT
+Date: Wed, 20 Mar 2002 11:44:17 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: selinux <selinux@tycho.nsa.gov>
-Subject: Re: general_file_read_access
-In-Reply-To: <20020320102215.A54A1232F@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0203201141260.11981-100000@raven>
+To: Dale Amon <amon@vnl.com>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: kernel Make
+In-Reply-To: <20020320121931.GC32621@vnl.com>
+Message-ID: <Pine.GSO.4.33.0203201143030.11981-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 20 Mar 2002, Russell Coker wrote:
+On Wed, 20 Mar 2002, Dale Amon wrote:
 
-> Could this macro be split into a number of smaller macros?
->
-> I'd like to have a macro for reading the root directory, /usr, /usr/bin,
-> /usr/sbin, /bin, and /sbin without allowing reading of any var_log_t files.
+> Any particular reason your README suggests using
+> "make" instead of "make bzImage"? I can't remember
+> the last time I built an uncompressed kernel. 3-4 years
+> at the least...
 
-Yes, my intent is to gradually partition each of the macros into
-increasingly finer-grained macros and then rewrite domains to use the new
-macros.  Other suggestions for the finer-grained macros are welcome, of
-course.
+No, no particular reason.  But it doesn't really matter.  The README then
+says to do a 'make install', which uses bzImage as the default.
 
 --
 Stephen D. Smalley, NAI Labs
