@@ -1,49 +1,70 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i95HK6rT027920
-	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 13:20:06 -0400 (EDT)
-Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95HIwPe006488
-	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 17:18:59 GMT
-Message-Id: <200410051720.i95HJx2D017969@turing-police.cc.vt.edu>
-To: petre rodan <kaiowas@gentoo.org>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: gentoo diff for mysqld 
-In-Reply-To: Your message of "Tue, 05 Oct 2004 11:29:40 +0300."
-             <41625B74.2090503@gentoo.org>
-From: Valdis.Kletnieks@vt.edu
-References: <41625B74.2090503@gentoo.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-242332346P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Tue, 05 Oct 2004 13:19:58 -0400
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i95HYPrT028033
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 13:34:26 -0400 (EDT)
+Received: from sunspire.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i95HYO7h002500
+	for <selinux@tycho.nsa.gov>; Tue, 5 Oct 2004 17:34:25 GMT
+Message-ID: <4162DB6C.9080900@gentoo.org>
+Date: Tue, 05 Oct 2004 20:35:40 +0300
+From: petre rodan <kaiowas@gentoo.org>
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: selinux@tycho.nsa.gov
+Subject: Re: gentoo diff for mysqld
+References: <41625B74.2090503@gentoo.org> <200410051720.i95HJx2D017969@turing-police.cc.vt.edu>
+In-Reply-To: <200410051720.i95HJx2D017969@turing-police.cc.vt.edu>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig3399A129A58E03A6F93C8849"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-242332346P
-Content-Type: text/plain; charset=us-ascii
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig3399A129A58E03A6F93C8849
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, 05 Oct 2004 11:29:40 +0300, petre rodan said:
 
-> attached you'll find a diff for the mysql policy.
+Hi!
 
-> -/var/lib/mysql(/.*)?		system_u:object_r:mysqld_db_t
-> +/var/lib(64)?/mysql(/.*)?	system_u:object_r:mysqld_db_t
+Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 05 Oct 2004 11:29:40 +0300, petre rodan said:
+>>attached you'll find a diff for the mysql policy.
+> 
+> 
+>>-/var/lib/mysql(/.*)?		system_u:object_r:mysqld_db_t
+>>+/var/lib(64)?/mysql(/.*)?	system_u:object_r:mysqld_db_t
+> 
+> 
+> Is the database likely to actually be in /var/lib64/mysql/*?
 
-Is the database likely to actually be in /var/lib64/mysql/*?
+indeed the fc diff is not needed.
+after talking with amd64 maintainers, it looks like the '/var/lib(64)?' is not a gentoo requirement.
 
---==_Exmh_-242332346P
-Content-Type: application/pgp-signature
+thanks,
+peter
+
+-- 
+petre rodan
+<kaiowas@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+
+--------------enig3399A129A58E03A6F93C8849
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFBYte8cC3lWbTT17ARAspKAJ9/O69RiZwSzg2yCKQTGrN+8MOTWwCgyp5c
-yPAAryl4V083Zp/M2xCOYP0=
-=gCEu
+iD8DBQFBYtt2GSBEIeh4AEYRAk2AAJoDRzEg+f40Vx9Gcv+nBLHZu+O0zACfazLm
+Jd1+h6yP5OVMvQMpy41hoH8=
+=iTiE
 -----END PGP SIGNATURE-----
 
---==_Exmh_-242332346P--
+--------------enig3399A129A58E03A6F93C8849--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
