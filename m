@@ -1,44 +1,57 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA02495
-	for <selinux@tycho.nsa.gov>; Fri, 7 Jun 2002 02:52:56 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA03088
+	for <selinux@tycho.nsa.gov>; Fri, 7 Jun 2002 07:07:37 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id GAA08326
-	for <selinux@tycho.nsa.gov>; Fri, 7 Jun 2002 06:52:43 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id GAA08240
-	for <selinux@tycho.nsa.gov>; Fri, 7 Jun 2002 06:52:41 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: emger@norwich.edu, selinux@tycho.nsa.gov
-Subject: Re: SE Linux & Education
-Date: Fri, 7 Jun 2002 08:28:14 +0200
-References: <31A81CDD9175D411815100508BE32AA60142F388@emss02m13.ems.lmco.com> <007801c20c3a$bf5ee920$0200000a@wb1> <20030704125136.64c3ce0c.emger@norwich.edu>
-In-Reply-To: <20030704125136.64c3ce0c.emger@norwich.edu>
-MIME-Version: 1.0
-Message-Id: <20020607065255.C06D1389E@lyta.coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id LAA16834
+	for <selinux@tycho.nsa.gov>; Fri, 7 Jun 2002 11:07:23 GMT
+Received: from mozart.fwsystems.com ([168.103.120.17])
+	by jazzswing.ncsc.mil  with ESMTP id LAA16830
+	for <selinux@tycho.nsa.gov>; Fri, 7 Jun 2002 11:07:23 GMT
+Date: Fri, 7 Jun 2002 07:07:10 -0400
+From: forrest whitcher <fw@fwsystems.com>
+To: Crispin Cowan <crispin@wirex.com>
+Cc: Admissions Office <admissions@internet.edu.nf>, Valdis.Kletnieks@vt.edu,
+        Russell Coker <russell@coker.com.au>, jw@centraltexasit.com,
+        selinux@tycho.nsa.gov, "Haigh, Tom" <tom_haigh@securecomputing.com>,
+        Carsten Grohmann <carsten.grohmann@dr-baldeweg.de>,
+        linux-security-module@wirex.com
+Subject: Re: SELinux to GPL or not to GPL
+Message-Id: <20020607070710.1f2fba80.fw@fwsystems.com>
+In-Reply-To: <3CFFF44B.2090903@wirex.com>
+References: <Pine.LNX.3.96.1020606184909.8617D-100000@dixie>
+	<3CFFF44B.2090903@wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 4 Jul 2003 18:51, Ryan Emge wrote:
-> In response to the rants lately, I would like to say that I'm devoted to
-> doing my part by subscribing to this listserv in order to learning the
-> advantages of SE Linux and how it can be utilized in an educational
-> environment at our University in Vermont. If there is anyone subscribed to
-> this list that has put countless hours in researching and developing
-> patches and other documenation that could be to my advantage, I would like
-> to hear from you.
+On Thu, 06 Jun 2002 16:46:19 -0700 (unchecked - local sync NTPstrat4)
+Crispin Cowan <crispin@wirex.com> did inscribe thusly:
 
-I think that my Debian packages will work well in an educational environment. 
-One particular advantage of Debian is that any student can become a developer 
-and join in the project...
+> This is misinformation. What JMJones says applies to TRADEMARK, not 
+> patents. Patent holder's rights endure, regardless of prior actions. See 
+> the UNISYS/GIF patent fiasco.
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+I have to differ on this.
+
+I've worked for 20 years in medical devices, in areas where virtually no
+device can be developed without consideration of your own and competitors's
+patents.
+
+Our patent attorneys were very clear on the effects of not persuing 
+violations, you can effectively lose much of the value of your patent
+not doing so.
+
+This does not imply that the patent will become invalid, rather that
+your ability to obtain a judgement in court will be hampered if you 
+fail to inform / take action wrt violators.
+
+Effectively a competitor may be able to practice your patent *until*
+you inform them. probably without financial penalty. (That said, if
+a court later finds that a violator of a patent undertook the violation
+knowingly you're looking at treble-damages)
+
+forrest
 
 --
 You have received this message because you are subscribed to the selinux list.
