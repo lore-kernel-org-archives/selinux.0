@@ -1,22 +1,22 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA01966
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 10:14:03 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA27693
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 15:13:19 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA02032
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 10:20:03 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA29071
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 15:19:53 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id PAA27689
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 15:13:19 GMT
+	by jazzswing.ncsc.mil  with ESMTP id PAA29067
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 15:19:52 GMT
 Received: from localhost (sds@localhost)
-	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id fBBFDj018011
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 10:13:45 -0500 (EST)
-Date: Tue, 11 Dec 2001 10:13:45 -0500 (EST)
+	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id fBBFJ7318214
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2001 10:19:07 -0500 (EST)
+Date: Tue, 11 Dec 2001 10:19:07 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
 To: <selinux@tycho.nsa.gov>
-Subject: [PATCH] Bug fix for selinux_file_send_sigiotask
-Message-ID: <Pine.GSO.4.33.0112111010370.13843-200000@raven>
+Subject: [PATCH] Bug fix for util-linux
+Message-ID: <Pine.GSO.4.33.0112111013480.13843-200000@raven>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-684387517-1008083625=:13843"
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1903590565-1008083947=:13843"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
@@ -24,15 +24,17 @@ List-Id: selinux@tycho.nsa.gov
   while the remaining parts are likely unreadable without MIME-aware tools.
   Send mail to mime@docserver.cac.washington.edu for more info.
 
----559023410-684387517-1008083625=:13843
+---559023410-1903590565-1008083947=:13843
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-The attached patch fixes a bug in the selinux_file_send_sigiotask hook
-function that calls the AVC with an uninitialized AVC audit structure.  It
-also fixes a minor unrelated error.  To apply, save it to
-~/module.patch, change to your lsm directory, and run
-'patch -p1 < ~/module.patch'.  Then rebuild the kernel.
+The attached patch merges an updated util-linux package from RedHat
+into the modified util-linux package in the SELinux release.  See
+http://www.redhat.com/support/errata/RHBA-2001-153.html for a description
+of the problem.  To apply this patch, save it to ~/util-linux.patch,
+change to your selinux directory, and then run 'patch -p1 <
+~/util-linux.patch'.  Then, perform another 'make' and 'make install' in
+the selinux/utils directory, followed by a 'make relabel'.
 
 --
 Stephen D. Smalley, NAI Labs
@@ -40,45 +42,120 @@ ssmalley@nai.com
 
 
 
----559023410-684387517-1008083625=:13843
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="module.patch"
+---559023410-1903590565-1008083947=:13843
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="util-linux.patch"
 Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0112111013450.13843@raven>
+Content-ID: <Pine.GSO.4.33.0112111019070.13843@raven>
 Content-Description: 
-Content-Disposition: attachment; filename="module.patch"
+Content-Disposition: attachment; filename="util-linux.patch"
 
-SW5kZXg6IGxzbS9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMNCmRpZmYgLXUg
-bHNtL3NlY3VyaXR5L3NlbGludXgvaG9va3MuYzoxLjEgbHNtL3NlY3VyaXR5
-L3NlbGludXgvaG9va3MuYzoxLjINCi0tLSBsc20vc2VjdXJpdHkvc2VsaW51
-eC9ob29rcy5jOjEuMQlGcmkgRGVjICA3IDEzOjQ2OjM1IDIwMDENCisrKyBs
-c20vc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jCVR1ZSBEZWMgMTEgMTE6MDE6
-MTYgMjAwMQ0KQEAgLTIzMjUsNyArMjMyNSw2IEBADQogCQkJCSAgICAgICBp
-bnQgZmQsIGludCByZWFzb24pDQogew0KICAgICAgICAgc3RydWN0IGZpbGUg
-KmZpbGU7DQotCWF2Y19hdWRpdF9kYXRhX3QgYWQ7DQogCWFjY2Vzc192ZWN0
-b3JfdCBwZXJtOw0KIAlzdHJ1Y3QgdGFza19zZWN1cml0eV9zdHJ1Y3QgKnRz
-ZWM7DQogCXN0cnVjdCBmaWxlX3NlY3VyaXR5X3N0cnVjdCAqZnNlYzsNCkBA
-IC0yMzU5LDggKzIzNTgsOCBAQA0KIAkJYnJlYWs7DQogCX0NCiANCi0JcmV0
-dXJuIGF2Y19oYXNfcGVybV9hdWRpdChmc2VjLT5mb3duX3NpZCwgdHNlYy0+
-c2lkLCANCi0JCQkJICBTRUNDTEFTU19QUk9DRVNTLCBwZXJtLCAmYWQpOw0K
-KwlyZXR1cm4gYXZjX2hhc19wZXJtKGZzZWMtPmZvd25fc2lkLCB0c2VjLT5z
-aWQsIA0KKwkJCSAgICBTRUNDTEFTU19QUk9DRVNTLCBwZXJtKTsNCiB9DQog
-DQogc3RhdGljIGludCBzZWxpbnV4X2ZpbGVfcmVjZWl2ZShzdHJ1Y3QgZmls
-ZSAqZmlsZSkNCkluZGV4OiBsc20vc2VjdXJpdHkvc2VsaW51eC9zZWxpbnV4
-X3BsdWcuaA0KZGlmZiAtdSBsc20vc2VjdXJpdHkvc2VsaW51eC9zZWxpbnV4
-X3BsdWcuaDoxLjEgbHNtL3NlY3VyaXR5L3NlbGludXgvc2VsaW51eF9wbHVn
-Lmg6MS4yDQotLS0gbHNtL3NlY3VyaXR5L3NlbGludXgvc2VsaW51eF9wbHVn
-Lmg6MS4xCUZyaSBEZWMgIDcgMTM6NDY6MzYgMjAwMQ0KKysrIGxzbS9zZWN1
-cml0eS9zZWxpbnV4L3NlbGludXhfcGx1Zy5oCU1vbiBEZWMgMTAgMTQ6NDU6
-MzYgMjAwMQ0KQEAgLTE3NSw3ICsxNzUsNyBAQA0KIC8qIFJhbmdlIG9mIHBv
-cnQgbnVtYmVycyB1c2VkIHRvIGF1dG9tYXRpY2FsbHkgYmluZC4NCiAgICBO
-ZWVkIHRvIGRldGVybWluZSB3aGV0aGVyIHdlIHNob3VsZCBwZXJmb3JtIGEg
-bmFtZV9iaW5kIA0KICAgIHBlcm1pc3Npb24gY2hlY2sgYmV0d2VlbiB0aGUg
-c29ja2V0IGFuZCB0aGUgcG9ydCBudW1iZXIuICovDQotI2lmZGVmIE1PRFVM
-RQ0KKyNpZm5kZWYgTU9EVUxFDQogI2RlZmluZSBpcF9sb2NhbF9wb3J0X3Jh
-bmdlXzAgc3lzY3RsX2xvY2FsX3BvcnRfcmFuZ2VbMF0NCiAjZGVmaW5lIGlw
-X2xvY2FsX3BvcnRfcmFuZ2VfMSBzeXNjdGxfbG9jYWxfcG9ydF9yYW5nZVsx
-XQ0KICNlbHNlDQo=
----559023410-684387517-1008083625=:13843--
+SW5kZXg6IHNlbGludXgvdXRpbHMvdXRpbC1saW51eC0yLjExZi9sb2dpbi11
+dGlscy9sb2dpbi5jDQpkaWZmIC11IHNlbGludXgvdXRpbHMvdXRpbC1saW51
+eC0yLjExZi9sb2dpbi11dGlscy9sb2dpbi5jOjEuMiBzZWxpbnV4L3V0aWxz
+L3V0aWwtbGludXgtMi4xMWYvbG9naW4tdXRpbHMvbG9naW4uYzoxLjMNCi0t
+LSBzZWxpbnV4L3V0aWxzL3V0aWwtbGludXgtMi4xMWYvbG9naW4tdXRpbHMv
+bG9naW4uYzoxLjIJVGh1IE9jdCAxOCAyMjoyNjo0OSAyMDAxDQorKysgc2Vs
+aW51eC91dGlscy91dGlsLWxpbnV4LTIuMTFmL2xvZ2luLXV0aWxzL2xvZ2lu
+LmMJTW9uIERlYyAxMCAxNjowMDo1NCAyMDAxDQpAQCAtNTU3LDEwICs1NTcs
+OSBAQA0KIA0KICAgICByZXRjb2RlID0gcGFtX3N0YXJ0KCJsb2dpbiIsdXNl
+cm5hbWUsICZjb252LCAmcGFtaCk7DQogICAgIGlmKHJldGNvZGUgIT0gUEFN
+X1NVQ0NFU1MpIHsNCi0JZnByaW50ZihzdGRlcnIsIF8oImxvZ2luOiBQQU0g
+RmFpbHVyZSwgYWJvcnRpbmc6ICVzXG4iKSwNCisJZnByaW50ZihzdGRlcnIs
+XygibG9naW46IFBBTSBGYWlsdXJlLCBhYm9ydGluZzogJXNcbiIpLA0KIAlw
+YW1fc3RyZXJyb3IocGFtaCwgcmV0Y29kZSkpOw0KLQlzeXNsb2coTE9HX0VS
+UiwgXygiQ291bGRuJ3QgaW5pdGlhbGl6ZSBQQU06ICVzIiksDQotCSAgICAg
+ICBwYW1fc3RyZXJyb3IocGFtaCwgcmV0Y29kZSkpOw0KKwlzeXNsb2coTE9H
+X0VSUixfKCJDb3VsZG4ndCBpbml0aWFsaXplIFBBTTogJXMiKSwgcGFtX3N0
+cmVycm9yKHBhbWgsIHJldGNvZGUpKTsNCiAJZXhpdCg5OSk7DQogICAgIH0N
+CiAgICAgLyogaG9zdG5hbWUgJiB0dHkgYXJlIGVpdGhlciBzZXQgdG8gTlVM
+TCBvciB0aGVpciBjb3JyZWN0IHZhbHVlcywNCkBAIC02NTYsMjAgKzY1NSwx
+OSBAQA0KICAgICAqLw0KICAgICByZXRjb2RlID0gcGFtX2dldF9pdGVtKHBh
+bWgsIFBBTV9VU0VSLCAoY29uc3Qgdm9pZCAqKikgJnVzZXJuYW1lKTsNCiAg
+ICAgUEFNX0ZBSUxfQ0hFQ0s7DQotDQogICAgIGlmICghdXNlcm5hbWUgfHwg
+ISp1c2VybmFtZSkgew0KLQkgICAgZnByaW50ZihzdGRlcnIsIF8oIlxuU2Vz
+c2lvbiBzZXR1cCBwcm9ibGVtLCBhYm9ydC5cbiIpKTsNCi0JICAgIHN5c2xv
+ZyhMT0dfRVJSLCBfKCJOVUxMIHVzZXIgbmFtZSBpbiAlczolZC4gQWJvcnQu
+IiksDQotCQkgICBfX0ZVTkNUSU9OX18sIF9fTElORV9fKTsNCi0JICAgIHBh
+bV9lbmQocGFtaCwgUEFNX1NZU1RFTV9FUlIpOw0KLQkgICAgZXhpdCgxKTsN
+CisgICAgICBmcHJpbnRmKHN0ZGVyciwgXygiXG5TZXNzaW9uIHNldHVwIHBy
+b2JsZW0sIGFib3J0LlxuIikpOw0KKyAgICAgIHN5c2xvZyhMT0dfRVJSLCBf
+KCJOVUxMIHVzZXIgbmFtZSBpbiAlczolZC4gQWJvcnQuIiksDQorCSAgICAg
+X19GVU5DVElPTl9fLCBfX0xJTkVfXyk7DQorICAgICAgcGFtX2VuZChwYW1o
+LCBQQU1fU1lTVEVNX0VSUik7DQorICAgICAgZXhpdCgxKTsNCiAgICAgfQ0K
+ICAgICBpZiAoIShwd2QgPSBnZXRwd25hbSh1c2VybmFtZSkpKSB7DQotCSAg
+ICBmcHJpbnRmKHN0ZGVyciwgXygiXG5TZXNzaW9uIHNldHVwIHByb2JsZW0s
+IGFib3J0LlxuIikpOw0KLQkgICAgc3lzbG9nKExPR19FUlIsIF8oIkludmFs
+aWQgdXNlciBuYW1lIFwiJXNcIiBpbiAlczolZC4gQWJvcnQuIiksDQotCQkg
+ICB1c2VybmFtZSwgX19GVU5DVElPTl9fLCBfX0xJTkVfXyk7DQotCSAgICBw
+YW1fZW5kKHBhbWgsIFBBTV9TWVNURU1fRVJSKTsNCi0JICAgIGV4aXQoMSk7
+DQorICAgICAgZnByaW50ZihzdGRlcnIsIF8oIlxuU2Vzc2lvbiBzZXR1cCBw
+cm9ibGVtLCBhYm9ydC5cbiIpKTsNCisgICAgICBzeXNsb2coTE9HX0VSUiwg
+XygiSW52YWxpZCB1c2VyIG5hbWUgXCIlc1wiIGluICVzOiVkLiBBYm9ydC4i
+KSwNCisJICAgICB1c2VybmFtZSwgX19GVU5DVElPTl9fLCBfX0xJTkVfXyk7
+DQorICAgICAgcGFtX2VuZChwYW1oLCBQQU1fU1lTVEVNX0VSUik7DQorICAg
+ICAgZXhpdCgxKTsNCiAgICAgfQ0KIA0KICAgICAvKiBDcmVhdGUgYSBjb3B5
+IG9mIHRoZSBwd2Qgc3RydWN0IC0gb3RoZXJ3aXNlIGl0IG1heSBnZXQNCkBA
+IC02ODMsMTIgKzY4MSwxMSBAQA0KICAgICBwd2QtPnB3X3NoZWxsICA9IHN0
+cmR1cChwd2QtPnB3X3NoZWxsKTsNCiAgICAgaWYgKCFwd2QtPnB3X25hbWUg
+fHwgIXB3ZC0+cHdfcGFzc3dkIHx8ICFwd2QtPnB3X2dlY29zIHx8DQogCSFw
+d2QtPnB3X2RpciB8fCAhcHdkLT5wd19zaGVsbCkgew0KLQkgICAgZnByaW50
+ZihzdGRlcnIsIF8oImxvZ2luOiBPdXQgb2YgbWVtb3J5XG4iKSk7DQotCSAg
+ICBzeXNsb2coTE9HX0VSUiwgIk91dCBvZiBtZW1vcnkiKTsNCi0JICAgIHBh
+bV9lbmQocGFtaCwgUEFNX1NZU1RFTV9FUlIpOw0KLQkgICAgZXhpdCgxKTsN
+CisgICAgICBmcHJpbnRmKHN0ZGVyciwgXygibG9naW46IE91dCBvZiBtZW1v
+cnlcbiIpKTsNCisgICAgICBzeXNsb2coTE9HX0VSUiwgIk91dCBvZiBtZW1v
+cnkiKTsNCisgICAgICBwYW1fZW5kKHBhbWgsIFBBTV9TWVNURU1fRVJSKTsN
+CisgICAgICBleGl0KDEpOw0KICAgICB9DQotICAgIHVzZXJuYW1lID0gcHdk
+LT5wd19uYW1lOw0KIA0KICAgICAvKg0KICAgICAgKiBJbml0aWFsaXplIHRo
+ZSBzdXBwbGVtZW50YXJ5IGdyb3VwIGxpc3QuDQpAQCAtNjk2LDEwICs2OTMs
+MTAgQEANCiAgICAgICogdGhlIFBBTSBtb2R1bGVzIG1pZ2h0IGFkZCBncm91
+cHMgZHVyaW5nIHBhbV9zZXRjcmVkLg0KICAgICAgKi8NCiAgICAgaWYgKGlu
+aXRncm91cHModXNlcm5hbWUsIHB3ZC0+cHdfZ2lkKSA8IDApIHsNCi0JICAg
+IHN5c2xvZyhMT0dfRVJSLCAiaW5pdGdyb3VwczogJW0iKTsNCi0JICAgIGZw
+cmludGYoc3RkZXJyLCBfKCJcblNlc3Npb24gc2V0dXAgcHJvYmxlbSwgYWJv
+cnQuXG4iKSk7DQotCSAgICBwYW1fZW5kKHBhbWgsIFBBTV9TWVNURU1fRVJS
+KTsNCi0JICAgIGV4aXQoMSk7DQorICAgICAgc3lzbG9nKExPR19FUlIsICJp
+bml0Z3JvdXBzOiAlbSIpOw0KKyAgICAgIGZwcmludGYoc3RkZXJyLCBfKCJc
+blNlc3Npb24gc2V0dXAgcHJvYmxlbSwgYWJvcnQuXG4iKSk7DQorICAgICAg
+cGFtX2VuZChwYW1oLCBQQU1fU1lTVEVNX0VSUik7DQorICAgICAgZXhpdCgx
+KTsNCiAgICAgfQ0KIA0KICAgICByZXRjb2RlID0gcGFtX29wZW5fc2Vzc2lv
+bihwYW1oLCAwKTsNCkBAIC04ODAsNyArODc3LDcgQEANCiAJICBkZWZhdWx0
+Og0KIAkgICAgcGVycm9yKCJxdW90YSAoUV9TRVRVSUQpIik7DQogCX0NCi0J
+c2xlZXBleGl0KDApOwkJLyogJSUgKi8NCisJc2xlZXBleGl0KDApOw0KICAg
+ICB9DQogI2VuZGlmDQogICAgIA0KQEAgLTEyMzEsNyArMTIyOCw3IEBADQog
+ICAgICAqIFNvbHV0aW9uOiB1c2UgVElPQ05PVFRZIGFuZCBzZXRzaWQoKS4N
+CiAgICAgICovDQogICAgIHNpZ25hbChTSUdJTlQsIFNJR19JR04pOw0KLSAg
+ICBzaWduYWwoU0lHSFVQLCBTSUdfSUdOKTsJLyogaWdub3JlIHNpZ25hbCBm
+cm9tIFRJT0NOT1RUWSBiZWxvdyAqLw0KKyAgICAvKiBzaWduYWwoU0lHSFVQ
+LCBTSUdfSUdOKTsJKi8gLyogaWdub3JlIHNpZ25hbCBmcm9tIFRJT0NOT1RU
+WSBiZWxvdyAqLw0KICAgICANCiAgICAgY2hpbGRQaWQgPSBmb3JrKCk7DQog
+ICAgIGlmIChjaGlsZFBpZCA8IDApIHsNCkBAIC0xMjQyLDggKzEyMzksOCBA
+QA0KICAgICAgICBleGl0KDApOw0KICAgICB9IGVsc2UgaWYgKGNoaWxkUGlk
+KSB7DQogICAgICAgIC8qIHBhcmVudCAtIHdhaXQgZm9yIGNoaWxkIHRvIGZp
+bmlzaCwgdGhlbiBjbGVhbnVwIHNlc3Npb24gKi8NCi0gICAgICAgaW9jdGwo
+MCwgVElPQ05PVFRZLCBOVUxMKTsNCi0gICAgICAgc2lnbmFsKFNJR0hVUCwg
+U0lHX0RGTCk7DQorICAgICAgIC8qIGlvY3RsKDAsIFRJT0NOT1RUWSwgTlVM
+TCk7ICovDQorICAgICAgIHNpZ25hbChTSUdIVVAsIFNJR19JR04pOw0KIA0K
+ICAgICAgICB3YWl0KE5VTEwpOw0KIA0KQEAgLTEyNzUsMTEgKzEyNzIsMTIg
+QEANCiAgICAgICAgZXhpdCgwKTsNCiAgICAgfQ0KICAgICAvKiBjaGlsZCAq
+Lw0KLSAgICBzZXRzaWQoKTsNCisgICAgLyogc2V0c2lkKCk7ICovDQogICAg
+IC8qIHJlb3BlbiwgYXMgd2UgbmVlZCBjb250cm9sbGluZyB0dHkgaW4gdGhl
+IGNoaWxkICovDQotICAgIG9wZW50dHkodHR5bik7DQorICAgIC8qIG9wZW50
+dHkodHR5bik7ICovDQorICAgIGlvY3RsKDAsIFRJT0NTQ1RUWSwgKGNoYXIg
+KikgMSk7DQogI2VuZGlmDQotICAgIHNpZ25hbChTSUdIVVAsIFNJR19ERkwp
+Ow0KKyAgICAvKiBzaWduYWwoU0lHSFVQLCBTSUdfREZMKTsgKi8NCiAgICAg
+c2lnbmFsKFNJR0lOVCwgU0lHX0RGTCk7DQogICAgIA0KICAgICAvKiBkaXNj
+YXJkIHBlcm1pc3Npb25zIGxhc3Qgc28gY2FuJ3QgZ2V0IGtpbGxlZCBhbmQg
+ZHJvcCBjb3JlICovDQpAQCAtMTQwMSw3ICsxMzk5LDcgQEANCiAgICAgaW9j
+dGwoMCwgVENHRVRBLCAmdGkpOw0KICAgICB0aS5jX2xmbGFnIHw9IEVDSE87
+DQogICAgIGlvY3RsKDAsIFRDU0VUQSwgJnRpKTsNCi0gICAgZXhpdCgwKTsJ
+CQkvKiAlJSAqLw0KKyAgICBleGl0KDApOw0KIH0NCiANCiAjaWZuZGVmIFVT
+RV9QQU0NCkBAIC0xNTQ2LDcgKzE1NDQsNyBAQA0KIH0NCiAjZW5kaWYgDQog
+DQotLyogU2hvdWxkIG5vdCBiZSBjYWxsZWQgZnJvbSBQQU0gY29kZS4uLiAq
+Lw0KKy8qIHNob3VsZCBub3QgYmUgY2FsbGVkIGZyb20gUEFNIGNvZGUuLi4g
+Ki8NCiB2b2lkDQogc2xlZXBleGl0KGludCBldmFsKSB7DQogICAgIHNsZWVw
+KFNMRUVQX0VYSVRfVElNRU9VVCk7DQo=
+---559023410-1903590565-1008083947=:13843--
 
 --
 You have received this message because you are subscribed to the selinux list.
