@@ -1,44 +1,60 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA29218
-	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 16:55:05 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA13640
-	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 21:51:52 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA29151
+	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 16:50:48 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h1PLokI05351
+	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 21:50:46 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id VAA13636
-	for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 21:51:51 GMT
+        by jazzband.ncsc.mil  with ESMTP id h1PLoif05345 for <selinux@tycho.nsa.gov>; Tue, 25 Feb 2003 21:50:45 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov,
-        wsalamon@tislabs.com
-Subject: Re: Core policy
-Date: Tue, 25 Feb 2003 22:54:53 +0100
-References: <200302251541.KAA15178@moss-shockers.ncsc.mil>
-In-Reply-To: <200302251541.KAA15178@moss-shockers.ncsc.mil>
+To: Trent Jaeger <jaegert@us.ibm.com>
+Subject: Re: Core policy and TCB
+Date: Tue, 25 Feb 2003 22:50:31 +0100
+Cc: selinux@tycho.nsa.gov
+References: <OF4A38669D.D36073FC-ON85256CD8.0061512D-85256CD8.0063FC56@us.ibm.com>
+In-Reply-To: <OF4A38669D.D36073FC-ON85256CD8.0061512D-85256CD8.0063FC56@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200302252254.53288.russell@coker.com.au>
+Message-Id: <200302252250.31098.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 25 Feb 2003 16:41, Stephen D. Smalley wrote:
-> merely express the common case).  In contrast, every_domain does not
-> provide any useful abstraction and merely conceals many permissions.
-> Some of its finer-grained macros might be ok (e.g.
-> general_domain_access) while others need to be split up further or
-> eliminated entirely.  Likewise, can_exec_any should likely be
-> eliminated entirely.
+On Tue, 25 Feb 2003 19:12, Trent Jaeger wrote:
+> I would like to prove that the TCB subject types are protected from the
+> rest of the system (i.e., the integrity of these TCB subject types should
+> only be dependent on input from other TCB subject types) .  As a first
+> step, I have used Biba integrity as the basis to see where integrity issues
+> are.  I have used my policy analysis prototype to collect the Biba
+> integrity violations in the policy.  I could provide a table of such
+> violations to those that are interested or to the list if enough interest.
 
-I think that the reason that not much has been done on this issue is that the 
-macros in question have to be removed from the main tree.
+I think it would be appropriate for the list.  Please send me a private copy 
+if you decide not to post to the list.  If you feel it's too big for the list 
+then perhaps a web page for it would be suitable.
 
-Once those macros get removed from the main tree I'll copy the change into my 
-tree and start work on fixing whatever breaks (and I'm sure that other people 
-will do the same).
+> As a summary, there are some ad hoc issues (like dpkg discussed earlier --
+> I included it in the TCB because I assumed that it was a fundamental system
+> update tool)
 
-While things are working moderately well I'm not in a hurry to make such 
-changes on my own.
+dpkg is a fundamental system tool for Debian.  The rpm policy is not as 
+important for Red Hat because AFAIK no-one has attempted to do the types of 
+live updates on Red Hat systems that I routinely do on Debian systems.
+
+> dictate a resolution strategy (deny, audit, etc.).  For example, sys admins
+> have access to all files, but they should probably audited upon access to
+> low integrity files (and denied altogether on some).  This could be
+> relative to the integrity spec rather than changing the attribute
+> relationships...
+
+Currently the only file that the system administrator is denied access to is 
+/etc/shadow (to prevent accidentally re-labelling it to the wrong type).  
+Also much access of device nodes is denied.  Are there any other areas that 
+you think should be denied?
+
+I have experimented with denying sysadm_t read access to tmpfile:lnk_file but 
+that gets annoying quickly when "ls -l" doesn't return correct results.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
