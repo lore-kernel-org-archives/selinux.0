@@ -1,44 +1,52 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA05110
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 05:53:20 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id JAA07924
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 09:53:03 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA05253
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 06:47:46 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id KAA02871
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 10:46:23 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id JAA07920
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 09:53:02 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id AAFC692461
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 19:53:15 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 54B5F18B
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 11:53:01 +0200 (CEST)
+        by jazzband.ncsc.mil  with ESMTP id KAA02867 for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 10:46:21 GMT
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: IGMP being blocked
-Date: Thu, 13 Jun 2002 11:53:00 +0200
+To: Keith Owens <kaos@sgi.com>
+Subject: Re: XFS and LSM
+Date: Thu, 13 Jun 2002 12:47:31 +0200
+Cc: linux-security-module@wirex.com, linux-xfs@oss.sgi.com,
+        SE Linux <selinux@tycho.nsa.gov>
+References: <5772.1023963428@ocs3.intra.ocs.com.au>
+In-Reply-To: <5772.1023963428@ocs3.intra.ocs.com.au>
 MIME-Version: 1.0
-Message-Id: <20020613095301.54B5F18B@lyta.coker.com.au>
+Message-Id: <20020613104731.CF50F1F09@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-avc:  denied  { rawip_send } for  saddr=213.84.71.248 daddr=224.0.1.41 
-netif=ppp0 scontext=system_u:object_r:unlabeled_t 
-tcontext=system_u:object_r:netif_t tclass=netif
+On Thu, 13 Jun 2002 12:17, Keith Owens wrote:
+> At 10:15 13-6-2002 +0200, Russell Coker wrote:
+> >I wanted to build a system running the XFS file system and Linux Security
+> >Modules (LSM), so I had a look at hacking the patch files to make them
+> > work.
+> >
+> >I found one issue where the patches severely conflict, system call 1217 on
+> >IA64 is sys_setxattr for XFS and is sys_security for LSM!
+>
+> The *attr syscall numbers are official, in both Linus and Marcelo
+> kernels.  LSM is picking an arbitrary syscall number for testing so
+> they will have to find another number - and change user space to match.
 
-avc:  denied  { rawip_send } for  saddr=213.84.71.248 daddr=224.0.1.41 
-netif=ppp0 scontext=system_u:object_r:unlabeled_t 
-tcontext=system_u:object_r:node_t tclass=node
+OK.  Shouldn't be a big issue.
 
-I am seeing the above in my logs regularly on a server that I have just 
-upgraded to the latest LSM with IPSec (which I have not enabled).
+> Pity Linus did not take my patch that reserves a range of syscall
+> numbers for testing and provides a clean interface for determining
+> which number to use.  Linus does not consider this to be a problem.
 
-It seems that IGMP code is being run as unlabeled_t.
+Yes, reserving a separate range for testing would be good, especially if you 
+can make it work so that patches don't conflict...
 
-Any ideas on what to do with this?
+
+BTW  XFS also changes the quota system in a serious way which breaks SE Linux 
+(not LSM).
 
 -- 
 I do not get viruses because I do not use MS software.
