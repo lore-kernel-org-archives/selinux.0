@@ -1,55 +1,82 @@
-Date: Sat, 7 Jun 2003 10:53:10 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: Rafal Wojtczuk <rafal@intruvert.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: A vulnerability in SELinux (fwd)
-Message-ID: <20030607005310.GC27123@snoopy.apana.org.au>
-References: <20030606170611.GA701@emperor.intruvert.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20030606170611.GA701@emperor.intruvert.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h576XAI4007539
+	for <selinux@tycho.nsa.gov>; Sat, 7 Jun 2003 02:33:10 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h576X9tV007133
+	for <selinux@tycho.nsa.gov>; Sat, 7 Jun 2003 06:33:09 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h576X7al007130 for <selinux@tycho.nsa.gov>; Sat, 7 Jun 2003 06:33:08 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id ECC2EBF3F
+	for <selinux@tycho.nsa.gov>; Sat,  7 Jun 2003 16:33:05 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 18629-01
+ for <selinux@tycho.nsa.gov>; Sat,  7 Jun 2003 16:33:04 +1000 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id 85C24BF3D
+	for <selinux@tycho.nsa.gov>; Sat,  7 Jun 2003 16:33:04 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 46BE592740
+	for <selinux@tycho.nsa.gov>; Sat,  7 Jun 2003 16:33:04 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id D4E589D22
+	for <selinux@tycho.nsa.gov>; Sat,  7 Jun 2003 16:32:05 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: SE Linux questions
+Date: Sat, 7 Jun 2003 16:32:05 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200306071632.05459.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 06, 2003 at 10:06:11AM -0700, Rafal Wojtczuk wrote:
-> Brian May> IIRC A process needs exec rights in order to use a shared library.
-> Correct. That is why simple "LD_PRELOAD=./my_evil_library.so schfn" does not
-> work.
+[Is SE Linux ready for production]
 
-I think the key mistake I made (im my sleep) is that libSegFault.so is
-a libc6 library (that does what???), and it is installed on all Linux
-systems.
+I'm running two ISPs on SE Linux.  I think it's production ready.
 
-What is libSegFault.so anyway?
+The only problem with SE Linux at the moment for serious installations is the 
+lack of support for backup of security contexts of files.  This will be fully 
+addresses in Linux 2.6.0, and in the mean time there are hacks you can use, 
+but nothing satisfactory.
 
-The bug reported here is that any library in /lib can be used in
-LD_PRELOAD. This would appear to be a potential problem for any exec
-from a "untrusted" domain that changes the domain to one that grants
-more access, not just schfn.
+However for a typical multi-user system the files you are most interested in 
+controlling are system files (which can easily be relabeled after a restore).  
+The labels for 99% of user files can also be correctly re-assigned by the 
+setfiles program.  Of the other 1%, most of such files don't even exist if 
+you don't have users running programs such as Netscape or UML.
 
-You could relabel every library, and only allow domains to execute
-libraries that are required by the application, but unless this can be
-automatated or semiautomated to some degree (eg. by looking at output of
-ldd), I think this could be a tedious and error prone task.
+As you won't want people using your server for running Netscape then the most 
+you will have to worry about is some small difficulty with UML, which could 
+easily be fixed by changing the policy.  Also as your typical user probably 
+won't be interested in great security they will probably run UML kernels 
+under their own user domain, in which case the issue is moot.
 
-Then you have issues that program X runs in a new domain, and may not
-require library Z, but execs program Y in the same domain which does
-require Z.
+[Can I patch procmail in a similar way to login etc]
 
-You could make every program that changes the domain statically linked,
-but that would be painful.
+I have considered the possibility of patching a mail server to run procmail 
+for delivery in a special user context.  Then procmail can safely access the 
+.procmailrc file and deliver mail to the user's home directory, but it can't 
+access the home directory of a user in another role.
 
-You could remove every domain switch from an "untrusted" domain to
-a domain with more access and replace them with communications to a
-trusted process, I think this would be a lot of work (just how many
-times does this occur anyway? Maybe some sort of tool to automatically
-count this would be useful...). I think this would be an interesting
-ideal all the same, but outside the scope of SE-Linux.
+However will you even be using multiple roles?  For a system such as you 
+describe it's likely that you will have three roles, staff_r (for minor 
+administration tasks), sysadm_r (for serious administration - mkfs, fdisk, 
+etc), and user_r (for the users).  Now if you demand that all people in 
+staff_r also have an account in user_r for their email, then you can just 
+restrict procmail to only accessing user_r.
 
-Which leaves the one last option: modifying /lib/ld-linux.so.2 to ignore
-LD_PRELOAD if the domain has changed.
+The above are some questions I answered in private mail.  I decided that other 
+people on the list may be interested so I posted an extract here.
+
 -- 
-Brian May <bam@snoopy.apana.org.au>
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
