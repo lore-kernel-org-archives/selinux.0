@@ -1,37 +1,39 @@
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: /var/lock
-Date: Fri, 13 Sep 2002 20:39:59 +0200
-MIME-Version: 1.0
-Message-Id: <200209132039.59879.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA13594
+	for <selinux@tycho.nsa.gov>; Sat, 14 Sep 2002 10:38:16 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA18109
+	for <selinux@tycho.nsa.gov>; Sat, 14 Sep 2002 14:36:31 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id OAA18105 for <selinux@tycho.nsa.gov>; Sat, 14 Sep 2002 14:36:30 GMT
+Date: Sat, 14 Sep 2002 15:38:03 +0100
+From: Dale Amon <amon@vnl.com>
+To: selinux@tycho.nsa.gov
+Subject: [OFT] Minor DOD security issue
+Message-ID: <20020914143803.GB6741@vnl.com>
+References: <Pine.LNX.4.44.0209130957530.512-100000@coffeesaur> <200209131346.09308.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200209131346.09308.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently to run minicom you have to be in sysadm_r, minicom needs to create a 
-lock file under /var/lock which needs sysadm_t.
+This is utterly totally off topic, but I've not been able
+so far to find who to pass the info to. I rcvd what appears
+to be a relayed virus from dlnews. Doesn't look like Klez,
+might be an open relay.
 
-This is wrong.
+	Date:         Fri, 13 Sep 2002 09:15:50 -0400
+	From: dlnews_sender <dlnews_sender@DTIC.MIL>
+	Subject:      INTERNAL STUFF
+	To: DODNEWS-L@DTIC.MIL
 
-I am thinking of adding a user_lock_t file type for this purpose.
+Does anyone have a contact to whom I could send the email
+in question, or at least be told they have sorted the
+problem?
 
-Also it would need a userlock attribute for allowing appropriate programs to 
-unlink the lock files.
-
-I also thought of giving system programs (such as pppd) the ability to unlink 
-userlock files so that they can break locks.  However this would also require 
-access to kill the user_t processes which hold the locks, and is possibly 
-undesirable.
-
-What do you think?
-
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Wouldn't be at all nice to have all the newsies get infected
+from the DOD...
 
 
 --
