@@ -1,37 +1,39 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA06509
-	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 10:02:01 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA07579
-	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 15:00:38 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id PAA07575
-	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 15:00:37 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 097BD92443
-	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 02:01:57 +1100 (EST)
-Received: from there (lyta [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 1032A2F0
-	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 16:01:49 +0100 (CET)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: netscape
-Date: Fri, 22 Mar 2002 16:01:48 +0100
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA06671
+	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 10:29:52 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA28629
+	for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 15:28:49 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id PAA28625 for <selinux@tycho.nsa.gov>; Fri, 22 Mar 2002 15:28:48 GMT
+Date: Fri, 22 Mar 2002 10:28:57 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: netscape
+In-Reply-To: <20020322150149.1032A2F0@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0203221025380.29643-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020322150149.1032A2F0@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Why does netscape need the capabilities setuid, setgid, and dac_override?
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+On Fri, 22 Mar 2002, Russell Coker wrote:
+
+> Why does netscape need the capabilities setuid, setgid, and dac_override?
+
+If netscape/mozilla runs any setuid or setgid programs as helpers, then
+you either need to grant these capabilities to the netscape domain or you
+need to transition to a separate domain for those programs and grant that
+domain the appropriate capabilities.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
