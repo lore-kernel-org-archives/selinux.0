@@ -1,63 +1,35 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i09LkMRb002915
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 16:46:22 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i09LkLiV023582
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 21:46:21 GMT
-Received: from thoron.boston.redhat.com (nat-pool-bos.redhat.com [66.187.230.200])
-        by jazzband.ncsc.mil  with ESMTP id i09LkI08023574 for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2004 21:46:21 GMT
-Date: Fri, 9 Jan 2004 16:46:18 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, <sds@epoch.ncsc.mil>,
-   <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH][SELINUX] 2/7 Add netif controls
-In-Reply-To: <20040109130613.711b34a6.akpm@osdl.org>
-Message-ID: <Xine.LNX.4.44.0401091638160.22937-100000@thoron.boston.redhat.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0A6MkRb004341
+	for <selinux@tycho.nsa.gov>; Sat, 10 Jan 2004 01:22:49 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i0A6Lfxr024932
+	for <selinux@tycho.nsa.gov>; Sat, 10 Jan 2004 06:21:41 GMT
+Received: from mutemail.com ([24.244.170.124])
+	by jazzswing.ncsc.mil  with SMTP id i0A6LPYc024847
+	for <selinux@tycho.nsa.gov>; Sat, 10 Jan 2004 06:21:40 GMT
+Date: Fri, 09 Jan 2004 22:20:11 -0800
+From: Bill McCarty <bmccarty@pt-net.net>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: GDM for RHEL 3
+Message-ID: <27010669.1073686811@[192.168.0.2]>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 9 Jan 2004, Andrew Morton wrote:
+Hi all,
 
-> James Morris <jmorris@redhat.com> wrote:
-> >
-> > +static void sel_netif_destroy(struct sel_netif *netif)
-> > +{
-> > +	DEBUGP("%s: %s\n", __FUNCTION__, netif->nsec.dev->name);
-> > +	
-> > +	spin_lock_bh(&sel_netif_lock);
-> > +	list_del_rcu(&netif->list);
-> > +	sel_netif_total--;
-> > +	spin_unlock_bh(&sel_netif_lock);
-> > +
-> > +	call_rcu(&netif->rcu_head, sel_netif_free, netif);
-> > +}
-> > +
-> > +void sel_netif_put(struct sel_netif *netif)
-> > +{
-> > +	if (atomic_dec_and_test(&netif->users))
-> > +		sel_netif_destroy(netif);
-> > +}
-> 
-> This seems racy.  If the netif is still eligible for lookup on entry to
-> sel_netif_put(), another CPU can come in and find the netif while it is
-> hashed but while it has a zero refcount.  Only to have the netif destroyed
-> under its feet?
+I'm installing SELinux for RHEL 3, including graphical mode support, using 
+the RPM packages available on Dan Walsh's web site. When I try to install 
+gdm, RPM complains that xinitrc 3.33-1 or greater is needed. However, I 
+don't find a binary or source package for xinitrc bearing an appropriate 
+version number. Can someone direct me to one, or otherwise suggest how I 
+can install gdm?
 
-The netif won't actually be freed until all of the CPUs have gone through
-a quiescent state, and the calling code running on the other CPU will have
-called sel_netif_put() before then.  These objects are extremely short
-lived and should not be held over context switches.
+Thanks!
 
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+---------------------------------------------------
+Bill McCarty
 
 
 --
