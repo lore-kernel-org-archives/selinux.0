@@ -1,40 +1,52 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9HC8bWt008606
-	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 08:08:37 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9HC8amR011354
-	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 12:08:36 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h9HC8Zjp011350 for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 12:08:36 GMT
-Subject: Re: process context
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: kamal <kamalnee@iitk.ac.in>
-Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
-In-Reply-To: <3F8FC612.2090105@iitk.ac.in>
-References: <3F8EEA16.8090908@ipen.br>
-	 <200310171327.31980.russell@coker.com.au>  <3F8FC612.2090105@iitk.ac.in>
-Content-Type: text/plain
-Message-Id: <1066392503.31764.11.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9HDWIWt009135
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 09:32:18 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9HDW80p008305
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 13:32:08 GMT
+Received: from Cantor.suse.de (ns.suse.de [195.135.220.2])
+	by jazzswing.ncsc.mil  with ESMTP id h9HDW7r7008291
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 13:32:08 GMT
+Received: from Hermes.suse.de (Hermes.suse.de [195.135.221.8])
+	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
+	(No client certificate requested)
+	by Cantor.suse.de (Postfix) with ESMTP id 37B5116F19C9
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 15:32:09 +0200 (CEST)
+Date: Fri, 17 Oct 2003 15:32:07 +0200
+From: Thorsten Kukuk <kukuk@suse.de>
+To: selinux@tycho.nsa.gov
+Subject: Symlinks with wrong context after copy
+Message-ID: <20031017133207.GA5665@suse.de>
 Mime-Version: 1.0
-Date: 17 Oct 2003 08:08:23 -0400
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-10-17 at 06:36, kamal wrote:
-> But why does this happen? I also had the same problem, and because getty 
-> process is not labeled properly, login fails to get default context.
-> 
-> Output of "ls --context /sbin/init" is:
-> -rwxr-xr-x  root     root     system_u:object_r:init_exec_t    /sbin/init
 
-As with the other poster, your problem may be that you aren't loading
-the policy prior to executing /sbin/init, or you are loading the policy
-via /sbin/init but failing to re-execute it.
+Hi,
+
+I don't know if this is a libattr or a selinux bug:
+
+Symlinks have wrong attributes after copying:
+
+dilbert:~ # ls --context /lib/ld-*
+-rwxr-xr-x  root     root     system_u:object_r:ld_so_t        /lib/ld-2.3.2.so
+lrwxrwxrwx  root     root     system_u:object_r:ld_so_t        /lib/ld-linux.so.2 -> ld-2.3.2.so
+
+dilbert:~ # cp -dp /lib/ld-* .
+dilbert:~ # ls --context ld-*
+-rwxr-xr-x  root     root     system_u:object_r:ld_so_t        ld-2.3.2.so
+lrwxrwxrwx  root     root     system_u:object_r:sysadm_home_dir_t ld-linux.so.2 -> ld-2.3.2.so
+
+any ideas what goes wrong?
+
+  Thorsten
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Thorsten Kukuk       http://www.suse.de/~kukuk/        kukuk@suse.de
+SuSE Linux AG        Deutschherrnstr. 15-19        D-90429 Nuernberg
+--------------------------------------------------------------------    
+Key fingerprint = A368 676B 5E1B 3E46 CFCE  2D97 F8FD 4E23 56C6 FB4B
 
 --
 This message was distributed to subscribers of the selinux mailing list.
