@@ -1,51 +1,28 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14206
-	for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2001 12:51:32 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA02366
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2001 09:49:48 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA26883
-	for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2001 17:51:24 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id RAA26879
-	for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2001 17:51:22 GMT
-Date: Fri, 2 Mar 2001 12:50:22 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Mark Slagell <ms@iastate.edu>
-cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Adding users
-In-Reply-To: <3A9FD9A4.D05B301E@iastate.edu>
-Message-ID: <Pine.SOL.3.95.1010302124755.3984P-100000@clipper.gw.tislabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by jazzband.ncsc.mil  with ESMTP id OAA13560
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2001 14:49:39 GMT
+Received: from ultraviolet.org (dsl081-032-181-lax1.dsl-isp.net [64.81.32.181])
+	by jazzband.ncsc.mil  with SMTP id OAA13556
+	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2001 14:49:38 GMT
+Date: Tue, 6 Mar 2001 02:28:49 -0800
+From: Tracy R Reed <treed@ultraviolet.org>
+To: selinux@tycho.nsa.gov
+Subject: archives?
+Message-ID: <20010306022849.D27909@ultraviolet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
+I'm new to the list (no traffic so far but I've only been on a day or two)
+and I am wondering if there are archives out there somewhere so I can get
+up to speed. I don't see any mailing list archives on the selinux webpage.
 
-You need to do a 'make load' in the policy directory to load the
-new policy configuration.  
-
---
-Stephen D. Smalley, NAI Labs
-sds@tislabs.com
-
-
-On Fri, 2 Mar 2001, Mark Slagell wrote:
-
-> Hi all,
-> 
-> Just tried adding a new user, the first one besides those that were in
-> place when installing SELinux. Did useradd -m username, then added the
-> relevant info to policy/users and to /etc/security/default_context. 
-> When logging the user on for the first time it would prompt with the
-> correct default context, but then say "That security context is invalid"
-> regardless of whether the default was used or something else entered. 
-> Tried doing "make install" in the policy directory, no effect. Then
-> rebooted and everything was fine, the new user could log in normally.
-> 
-> Surely the reboot shouldn't have been necessary (this ain't Windows) -
-> what did I miss?
-> 
->   Mark
-
+-- 
+Tracy Reed      http://www.ultraviolet.org
 
 --
 You have received this message because you are subscribed to the selinux list.
