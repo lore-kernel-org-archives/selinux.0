@@ -1,43 +1,43 @@
-Subject: Re: Security Officer and System Administrator Separation of Duties
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h93DjAsJ009875
+	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2003 09:45:10 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h93DhKZt017700
+	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2003 13:43:20 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h93DhKM3017697
+	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2003 13:43:20 GMT
+Subject: Re: Updated Release
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Fleischman, Eric" <eric.w.fleischman@boeing.com>
-Cc: SELinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
-   Tom <tom@lemuria.org>
-In-Reply-To: <5B58696DB20B9140AD20E0685C573A6402992E48@xch-nw-09.nw.nos.boeing.com>
-References: 
-	 <5B58696DB20B9140AD20E0685C573A6402992E48@xch-nw-09.nw.nos.boeing.com>
+To: Andreas Schuldei <andreas@schuldei.org>
+Cc: Howard Holm <hdholm@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+In-Reply-To: <20031003064750.GA4555@markus.schuldei.org>
+References: <1065114741.27477.3042.camel@moss-huskies>
+	 <20031003064750.GA4555@markus.schuldei.org>
 Content-Type: text/plain
-Message-Id: <1065184865.4080.27.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1065188703.4080.114.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 03 Oct 2003 08:41:06 -0400
+Date: 03 Oct 2003 09:45:03 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-10-02 at 18:42, Fleischman, Eric wrote:
-> I am a complete newcomer to SELinux but I did not notice any answer 
-> to my question on the Mail List Archives (though I didn't look at every entry). 
+On Fri, 2003-10-03 at 02:47, Andreas Schuldei wrote:
+> * Howard Holm (hdholm@epoch.ncsc.mil) [031002 21:37]:
+> > The
+> > star package has been added.
 > 
-> I hope to be able to configure SELinux so that it would have policies 
-> that correspond to the traditional DoD Separation of Duties with Least
->  Privilege practice of establishing different roles/functions for Network 
-> Administrators than for Security Officers. Specifically, I'd like the Security
->  Officer to be solely able to establish/modify accounts and passwords, 
-> establish group memberships, establish user role memberships, etc. However, 
-> the Security Officer must not be able to perform any other traditional 
-> sysadm_r:sysadm_t functions. Similarly, I want the sysadm_r:sysadm_t to no 
-> longer be able to perform the functionalities that have now become within the 
-> sole auspices of the Security Officer. Is this possible to do? If so, how can 
-> I do this? 
+> is that the tar which was enhanced for backing up selinux
+> attributes?
 
-This has come up several times in the past on the mailing list, e.g. see
-http://marc.theaimsgroup.com/?l=selinux&m=105457887918050&w=2
-http://marc.theaimsgroup.com/?l=selinux&m=101965643900447&w=2
-http://marc.theaimsgroup.com/?l=selinux&m=100799744813965&w=2
-
-It is possible to do, but you need to give it some careful thought to
-provide any real security benefit (see the discussions referenced
-above).  However, I do think that this would be worthwhile to do.
-
+It is not the patched tar program from the old SELinux.
+Instead, it is a patched form of Joerg Schilling's star(1) archiver.  He
+has incorporated the EA support into the upstream star, so we are able
+to leverage that support for storing the SELinux attributes in the
+archive, but there is a small SELinux-specific patch to use the SELinux
+API to create extracted files immediately with their SELinux security
+context (rather than having to set the security context _after_ creating
+the file), since the xattr API does not support that functionality.
+	
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
