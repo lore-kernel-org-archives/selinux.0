@@ -1,40 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6V2xUHa000827
-	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 22:59:30 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6V2xTDW021443
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 02:59:29 GMT
-Received: from pop018.verizon.net (pop018pub.verizon.net [206.46.170.212])
-        by jazzband.ncsc.mil  with ESMTP id h6V2xSeN021440 for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 02:59:28 GMT
-Received: from scanner.gici.com ([4.34.133.131]) by pop018.verizon.net
-          (InterMail vM.5.01.05.33 201-253-122-126-133-20030313) with ESMTP
-          id <20030731025928.CYKS11703.pop018.verizon.net@scanner.gici.com>
-          for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 21:59:28 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Bill Laut <wlsel@verizon.net>
-To: selinux@tycho.nsa.gov
-Subject: Re: Updated Release
-Date: Wed, 30 Jul 2003 22:56:08 -0400
-References: <1057952464.5561.322.camel@moss-sooners.epoch.ncsc.mil>
-In-Reply-To: <1057952464.5561.322.camel@moss-sooners.epoch.ncsc.mil>
-MIME-Version: 1.0
-Message-Id: <200307302256.08188.wlsel@verizon.net>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6V3Z9Ha000918
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2003 23:35:09 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6V3XwFB028958
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 03:33:58 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+	by jazzswing.ncsc.mil  with ESMTP id h6V3XwGD028950
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 03:33:58 GMT
+Subject: Re: writing a java policy file
+From: Colin Walters <walters@verbum.org>
+To: Michael Luu <mluu@cougaarsoftware.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <003e01c35707$c0cf6230$ef0111ac@mluudt>
+References: <003e01c35707$c0cf6230$ef0111ac@mluudt>
+Content-Type: text/plain
+Message-Id: <1059622256.12917.5.camel@columbia>
+Mime-Version: 1.0
+Date: 30 Jul 2003 23:30:56 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 11 July 2003 03:41 pm, Howard Holm wrote:
->
-> [...]
->
-> A report, "Securing the X Window System with SELinux" was added to
-> documentation discussing adding SELinux controls to the window system.
->
+On Wed, 2003-07-30 at 22:02, Michael Luu wrote:
+> hi all,
+> 
+> i'm trying set up a simple java policy whereby i only allow a specific
+> user (in java_r role) to run a java (type java_t)application that
+> communicates with a server (e.g., www.yahoo.com).  
 
-Where is this report located?  I've searched through both the 2.4 and 2.5 kits 
-but cannot seem to locate it.
+I think that java_t is a bad name for what you're doing.  It seems to me
+that you are writing a policy for a program which is implemented in
+Java, not the JVM itself.
 
-Bill
+What you probably want to do is write up a macro like
+
+uses_java(foo_t)
+
+that gives an application privileges to do everything that the JVM does
+by default (i.e. using shared libraries, maybe mmapping /dev/zero,
+whatever).  
+
+Then you should write a policy for your application, call it myapp_t,
+and use the uses_java macro.  The .fc file looks fine though.
+
 
 
 --
