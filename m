@@ -1,47 +1,79 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0MFEKRb008625
-	for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2004 10:14:20 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i0MFEJCa012339
-	for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2004 15:14:19 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i0MFEJVC012336 for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2004 15:14:19 GMT
-Subject: RE: transition failure
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "James R. Kratzer" <JamesK@xetron.com>
-Cc: "'russell@coker.com.au'" <russell@coker.com.au>,
-   "SE Linux Mail List (E-mail)" <selinux@tycho.nsa.gov>
-In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A88@s3cin>
-References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A88@s3cin>
+Subject: Re: sepcut is broken
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Mark Shakespeare <mshakes@llnl.gov>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <p0602040cbc34b0d29bb3@[128.115.96.64]>
+References: <p0602040cbc34b0d29bb3@[128.115.96.64]>
 Content-Type: text/plain
-Message-Id: <1074784446.13445.53.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1074789931.27824.87.camel@colossus.columbia.tresys.com>
 Mime-Version: 1.0
-Date: Thu, 22 Jan 2004 10:14:06 -0500
+Date: Thu, 22 Jan 2004 11:45:32 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-01-22 at 09:56, Kratzer, James R. wrote:
-> Thanks Russ.  I was not aware of the constraints.  I'm am using "runcon"
-> because when I use "run_init" I get the following error:
+On Wed, 2004-01-21 at 17:55, Mark Shakespeare wrote:
+> Just did a fresh install of Fedora core 1, and then ran Dan Walsh's
+> selUpgrade script.
 > 
->     execvp: Permission Denied
+> Had a few conflicts to deal with....mostly glibc 2.3.3, tk 8.4,tcl 8.4
+> and db4.2.52
 > 
-> I forgot to mention previously that the "runcon" command gives this same
-> error as well along with the "avc: denied { transition }" message.  
+> Resolved conflicts...ran script again and it went ok.
 > 
-> BTW, these errors only occur with enforcing=1 as run_init and runcon execute
-> swatch just fine with enforcing=0.
-> What does execvp mean?
+> Had to install bwidget manually.
+> 
 
-execvp(3) is a library function that is a front-end for execve(2);
-run_init calls it to execute the script.  The most likely cause for
-failure here is that the type on the /etc/rc.d/init.d/swatchd script is
-wrong; it needs to have the initrc_exec_t type.  Try 'chcon -t
-initrc_exec_t /etc/init.d/swatchd'.
+Why did you have to install it manually? Also, are you using Dan's
+packages for setools or ours?
 
+> Now sepcut is broken...error:page"pct_Test:text" does not exist...
+> 
+
+We're looking into this, but at first glance it looks like there might
+be something wrong with your installation. Can you download our source
+and try that:
+
+http://www.tresys.com/selinux/selinux_policy_tools.html
+
+If you are using tcl 8.4 you might have to change the top level makefile
+- just change the TCLVER variable at the top to 8.4.
+
+> There were many duplicate .te files in the
+> /etc/security/selinux/src/policy/domains/program and unused....which
+> were resolved.
+> 
+
+Dan and Russell - I noticed this as well. Is this duplication
+intentional? This breaks the convention, on which sepcut depends, that a
+.te file is either in programs or unused but not both.. We are making
+sepcut handle this situation more gracefully, but I would like to see
+this convention retained.
+
+> seaudit works fine...so does apol and seuserx
+> 
+
+Great.
+
+Karl
+
+> Any help would be appreciated.
+> 
+> Thanks.
+> -- 
+> ******************************************
+> * Mark Shakespeare                   *
+> * Engineering Computer Operations Team   *
+> * Lawrence Livermore National Laboratory *
+> * 7000 East Ave         L-130            *
+> * Livermore,Ca 94550                 *
+> * 925-423-9922             mshakes@llnl.gov   *
+> ******************************************
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+http://www.tresys.com
+(410) 290-1411 x134
 
 
 --
