@@ -1,47 +1,60 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8GJgrrT027685
-	for <selinux@tycho.nsa.gov>; Thu, 16 Sep 2004 15:42:53 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8GJgqsh025163
-	for <selinux@tycho.nsa.gov>; Thu, 16 Sep 2004 19:42:52 GMT
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 67485BFED
-	for <selinux@tycho.nsa.gov>; Thu, 16 Sep 2004 20:42:44 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1C82KN-0001mT-8M
-	for selinux@tycho.nsa.gov; Thu, 16 Sep 2004 20:53:59 +0100
-Date: Thu, 16 Sep 2004 20:53:59 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: KDE Volume Manager + D-Bus + HAL + Debian
-Message-ID: <20040916195359.GD6137@lkcl.net>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8GJrGrT027766
+	for <selinux@tycho.nsa.gov>; Thu, 16 Sep 2004 15:53:16 -0400 (EDT)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8GJqK8m011152
+	for <selinux@tycho.nsa.gov>; Thu, 16 Sep 2004 19:52:20 GMT
+Subject: Re: SELinux policy discussion.
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Colin Walters <walters@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1095356254.4231.188.camel@nexus.verbum.private>
+References: <4148A003.6080309@redhat.com>
+	 <1095295125.4231.127.camel@nexus.verbum.private>
+	 <1095302625.28466.56.camel@localhost.localdomain>
+	 <1095307503.4231.152.camel@nexus.verbum.private>
+	 <1095318426.32510.30.camel@localhost.localdomain>
+	 <1095356254.4231.188.camel@nexus.verbum.private>
+Content-Type: text/plain
+Date: Thu, 16 Sep 2004 15:53:09 -0400
+Message-Id: <1095364389.10058.85.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi,
 
-just to say that i managed to get the KDE Volume Manager compiled
-(out of latest kde cvs) and up-and-running.
+> > While you can establish exactly what the requirements of an application
+> > are and write a policy for it, I'm not sure you can establish exactly
+> > what the requirements of user_t are. There's a whole range of things
+> > user_t could decide to do. That's why it seems to me that the policy to
+> > adhere to when it comes to user_t should be compatible with Unix
+> > permissions.
+> 
+> I completely disagree.  The strict policy is always going to be more
+> restrictive than Unix permissions for users.  That's the point of it.
+> If you don't want that, use the targeted policy.
 
-therefore i will be updating to the latest selinux policy from
-cvs (AGAIN) as i will need exactly the same stuff as russell,
-colin and dan are working on.
+I guess that's my mistake. I thought the purpose of the strict policy 
+was not to additionally restrict the behavior of the user, but to take
+away privileges that applications do not use (when operating properly),
+therefore do not need. 
 
-that means i'll be in a position to send in patches if appropriate
-some time next week i imagine.
+What I want from MAC is to restrict my applications while preserving
+100% useful functionality and being transparent. I don't want more
+restrictions on my behavior. I don't want to be told that I can't use 
+mozilla as a file browser, because it's supposed to be a web browser.
+I don't want mozilla_readhome and mozilla_writehome that are false by 
+default so I can't save a web page to my home folder. In other words I
+don't necessarily like the "deny by default" policy on what I can do - I
+only want that to apply to individual programs. Maybe that's what
+Stephen Smalley means by "fundamental misunderstanding of mandatory
+access control" - I'll have to finish reading that paper to see.
 
-l.
 
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
