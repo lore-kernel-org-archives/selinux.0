@@ -1,40 +1,37 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9FHx2Wt027229
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 13:59:02 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9FI3nWt027324
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 14:03:49 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9FHx0mR015738
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 17:59:00 GMT
+	by jazzband.ncsc.mil  with ESMTP id h9FI3mmR016111
+	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 18:03:48 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h9FHx0jp015732 for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 17:59:00 GMT
-Subject: RE: Compile/build problem in Red Hat 9.0
+        by jazzband.ncsc.mil  with ESMTP id h9FI3ljp016108 for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2003 18:03:48 GMT
+Subject: Re: Question about chsh/chfn/passwd patches
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Richard Herbert Wanner <richard.wanner@cgi.com>
-Cc: selinux@tycho.nsa.gov, Kerry Thompson <kerry@crypt.gen.nz>
-In-Reply-To: <GMECJOINLDFDGEEPGINLMEGFCKAA.richard.wanner@cgi.com>
-References: <GMECJOINLDFDGEEPGINLMEGFCKAA.richard.wanner@cgi.com>
+To: Thorsten Kukuk <kukuk@suse.de>
+Cc: SELinux Mailinglist <selinux@tycho.nsa.gov>,
+   Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <20031015034406.GA1644@suse.de>
+References: <20031015034406.GA1644@suse.de>
 Content-Type: text/plain
-Message-Id: <1066240736.7399.74.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1066241019.7399.79.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 15 Oct 2003 13:58:56 -0400
+Date: 15 Oct 2003 14:03:39 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-10-14 at 20:54, Richard Herbert Wanner wrote:
-> Thanks.  These steps are quite a bit different from the ones in the docs in the usr package. Did I miss something?
-> The 2.6 docs and the 2.4 docs look the same, am I using the wrong ones?
+On Tue, 2003-10-14 at 23:44, Thorsten Kukuk wrote:
+> I have a question about the passwd/chfn/chsh patches.
 > 
-> The docs in the usr package in the 2.4 bundle say.
+> passwd only calls checkAccess. chfn/chsh additional calls 
+> setupDefaultContext. 
 > 
-> 	cd linux-2.4
-> 	make menuconfig
-> 	make 
-> 	make modules_install
-> 	make install
+> I don't understand what the last function makes. For what is it good,
+> and why don't we need to call it from passwd?
 
-Sorry, the 2.4 and 2.6 SELinux share the same userland archive,
-including build instructions, but the instructions currently only
-describe what to do for 2.6.  The kernel build process has changed for
-2.6, hence the difference.
+IIRC, for the RH passwd program, this is handled by the libuser patch.
+The call is necessary to preserve the security attributes on /etc/passwd
+and /etc/shadow when they are rewritten for updates.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
