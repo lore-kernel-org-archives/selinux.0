@@ -1,45 +1,39 @@
-Date: Mon, 26 Mar 2001 09:01:39 -0500 (EST)
+Date: Mon, 26 Mar 2001 08:57:44 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: "frenzy@frenzy.org" <mcclellr@OIT.EDU>
+To: Hubertus Franke <frankeh@us.ibm.com>
 cc: SELinux@tycho.nsa.gov
 Subject: Re: your mail
-In-Reply-To: <Pine.OSF.4.02.10103232325100.16137-100000@internet.oit.edu>
-Message-ID: <Pine.SOL.3.95.1010326090014.1077C-100000@clipper.gw.tislabs.com>
+In-Reply-To: <OFC8827216.E70119F9-ON85256A18.007CF1F0@pok.ibm.com>
+Message-ID: <Pine.SOL.3.95.1010326085159.1077B-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-The kernel patch is based on the stock kernel sources from
-www.kernel.org or its mirrors.  The current release provides
-patches for kernel versions 2.2.18 and 2.4.2, although the
-2.2-based patch is no longer being actively developed.
+These header files should be automatically generated during
+the build.  I just tried again with a clean copy of the release
+on my RedHat 6.1 system, and it built without any problems.
+Try expanding a clean copy of the release and building the
+kernel by hand rather than using the build-kernel script, i.e.
+
+tar xzf slinux-200103151617-release.tgz
+cd slinux
+ln -sf kernel-2.4 kernel
+cd kernel
+make xconfig or make menuconfig or make config
+	(Configure the kernel appropriately.)
+make dep
+make 
+make modules
 
 --
 Stephen D. Smalley, NAI Labs
 sds@tislabs.com
 
 
-On Fri, 23 Mar 2001, frenzy@frenzy.org wrote:
+On Fri, 23 Mar 2001, Hubertus Franke wrote:
 
-> It was my understanding that the kernel patch was only made for the
-> supplied kernel that comes with RH6.1
-> I could be completely wrong here however. The last one I tried it with was
-> 2.2.17-14smp, which also failed to compile.
-> Sincerely,
-> 
-> Randy McCleland-Bane
-> http://www.frenzy.org -- Administrator
-> MSN: drekbot@hotmail.com ICQ: 32276169
-> EM: frenzy@frenzy.org,mcclellr@oit.edu
-> "We must be the change we wish to see 
-> in the world." - Mahatma Gandhi   
-> PGP key: http://www.frenzy.org/frenzy/
-> frenzy_at_frenzy.org.asc.txt
-> 
-> On Fri, 23 Mar 2001, Hubertus Franke wrote:
-> 
 > just downloaded the SELinux for 2.4.
 > 
 > I did the ./tools/build-kernel  and get the following errors.
@@ -62,12 +56,6 @@ On Fri, 23 Mar 2001, frenzy@frenzy.org wrote:
 > email: frankeh@us.ibm.com
 > (w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
 > 
-> 
-> 
-> --
-> You have received this message because you are subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
 > 
 > 
 > --
