@@ -1,43 +1,64 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA22942
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 02:32:09 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id GAA04841
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 06:30:35 GMT
-Received: from mail.windowpane.com (ip57.gte1.rb1.bel.nwlink.com [209.20.131.57])
-	by jazzswing.ncsc.mil  with ESMTP id GAA04837
-	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 06:30:34 GMT
-Received: from ip57.gte1.rb1.bel.nwlink.com (ip57.gte1.rb1.bel.nwlink.com [209.20.131.57])
-	by mail.windowpane.com (Postfix) with ESMTP id 4D06A8044
-	for <selinux@tycho.nsa.gov>; Thu, 20 Sep 2001 22:49:32 -0700 (PDT)
-Date: Thu, 20 Sep 2001 22:49:31 -0700 (PDT)
-From: Conan Callen <ccallen@windowpane.com>
-To: <selinux@tycho.nsa.gov>
-Subject: selinux & gnome
-Message-ID: <Pine.LNX.4.33.0109202235000.15881-100000@localhost.localdomain>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA23707
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 08:44:57 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id MAA18849
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 12:44:30 GMT
+Received: from eclipse.ncsc.mil (shuttle.eclipse.ncsc.mil [144.51.102.80])
+	by jazzband.ncsc.mil  with ESMTP id MAA18845
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 12:44:30 GMT
+Received: from star (star [144.51.102.85])
+	by eclipse.ncsc.mil (YOU_CAN/BYTE_ME) with SMTP id IAA15519
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 08:46:26 -0400 (EDT)
+Message-Id: <200109211246.IAA15519@eclipse.ncsc.mil>
+Date: Fri, 21 Sep 2001 08:46:26 -0400 (EDT)
+From: "James J." <jjohnson@eclipse.ncsc.mil>
+Reply-To: "James J." <jjohnson@eclipse.ncsc.mil>
+Subject: compiling LSM/SELinux fileutils
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-I finally finished building my selinux gui dev machine. It appears to be
-working fine. I have been working up to tackling the file_contexts
-file, it was a bit overwhelming at first (along with a crash course on
-tripwire, iptables, etc).
+If this is not the proper list for a SELinux compile question please 
+direct me to a better list.
 
-The only problem so far has nothing to do with selinux itself but Im
-hoping someone on this list can give me a pointer. Im not sure which
-network device to select during the menuconfig (xconfig) step. I have a Linksys
-Ether PCI Lan Card II. If anyone knows the required selection it would be
-very helpful.
+I'm trying to compile the "Option 3 - Everything but Kernel Source" code 
+and am running into trouble compiling in utils/fileutils-4.0.  I'm 
+following the steps in the README file.  All goes well until step 6 
+(Build and install the modified applications.)
 
-Just in case anyone on this list did not see it already, there is an
-article on selinux in Sept 2001 issue of Linux Magizine. Theres also a
-good article on iptables for anyone caught in that learning curve.
+I have made one deviation from the steps in the README.  The system is 
+very stripped down, so logrotate, openssh, stat, and vixie-cron are not 
+on the system.  I have eliminated these programs from the SUBDIRS line 
+in the Makefile.
+  
+The first problem is that "make" fails because code in 
+fileutils-4.0/aclocal.m4 is duplicated in fileutils-4.0/m4/isc-posix.m4. 
+ Inserting "dnl " in front of lines 519-527 of aclocal.m4 (i.e. 
+commenting out the duplicated lines) appears to fix this problem.  Is 
+there a better solution?
 
-Conan Callen
-Windowpane
+The second problem is that "make" fails while running autoheader.  Here 
+is the error message:
+
+make[1]: Entering directory '/usr/src/selinux/utils/fileutils-4.0'
+cd . && autoheader
+autoheader: No template for symbol 'const'
+autoheader: No template for symbol 'mode_t'
+autoheader: No template for symbol 'off_t'
+autoheader: No template for symbol 'size_t'
+make[1]: *** [stamp-h.in] Error 1
+make[1]: Leaving directory '/usr/src/selinux/utils/fileutils-4.0'
+make: *** [all] Error 1
+
+I'm not familiar with autoheader, so I'm having some difficulty 
+diagnosing this problem.  Any ideas?
+
+James
+
 
 
 --
