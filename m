@@ -1,50 +1,65 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0KEliIi005083
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2005 09:47:44 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0KEllCf015562
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2005 14:47:47 GMT
-Subject: Re: run_init and interactive scripts
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Manoj Srivastava <manoj.srivastava@stdc.com>
-Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
-In-Reply-To: <87acr4u57h.fsf@glaurung.internal.golden-gryphon.com>
-References: <87acr4u57h.fsf@glaurung.internal.golden-gryphon.com>
-Content-Type: text/plain
-Message-Id: <1106230120.26753.16.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Added is_context_configurable function
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Colin Walters <walters@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41E544B6.1060606@redhat.com>
+References: <41E2FEF4.5070604@redhat.com>
+	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <41E3FAF4.2060109@redhat.com>
+	 <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
+	 <1105481440.24748.22.camel@nexus.verbum.private>
+	 <1105539555.22495.28.camel@moss-spartans.epoch.ncsc.mil>
+	 <41E544B6.1060606@redhat.com>
+Content-Type: multipart/mixed; boundary="=-1rthyRYrO7cHtXuPFE+Z"
+Message-Id: <1106235143.26753.78.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 20 Jan 2005 09:08:40 -0500
+Date: Thu, 20 Jan 2005 10:32:23 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-19 at 22:53, Manoj Srivastava wrote:
->         run_init, as distributed, can run init scripts in the initrc
->  domain. However, if the forked process is an interactive one, it
->  inherits the controlling tty, which is would mean that the
->  controlling tty is the controlling tty of a sysadm_t process -- and
->  this can be a problem, since a process  that has a pty can insert
->  characters and potentially take over a sysadm_t session. (If the
->  process invokes a daemon that does not close file handles, then if
->  exploited can be used to take over administrative sessions). (This
->  also inhibits denials due to an initrc_exec_t process trying to write
->  to a sysadm_devpts_t object).
 
-Just to clarify, the current SELinux security module rechecks access to
-the controlling tty and to any open file descriptors upon a
-context-changing exec, and will automatically revoke access if denied by
-policy.  Hence, without any change, it should already be the case that
-unless the daemon is explicitly granted permissions to the pty, all
-access should be revoked upon the transition into the daemon's domain. 
-If you have a daemon running in initrc_t, you have other problems.  I'm
-not opposed to this patch (we did merge a version of open_init_pty from
-Russell a long time ago, but reverted it due to some problems with its
-implementation/dependency on expect), but wanted to clarify this
-point...
+--=-1rthyRYrO7cHtXuPFE+Z
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Wed, 2005-01-12 at 10:39, Daniel J Walsh wrote:
+> Patch to policycoreutils so restorecon/setfiles can handle 
+> customizable_types.
 > 
-> ______________________________________________________________________
+> Also fix a segfault in restorecon.
+
+Thanks, merged into sourceforge CVS as of policycoreutils version
+1.21.1, depends on libselinux 1.21.1, along with the modifications below
+relative to your patch.  Note that setfiles and rpm still need to be
+modified for file_contexts.local support.
+
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
+Stephen Smalley <sds@tycho.nsa.gov>
 National Security Agency
+
+--=-1rthyRYrO7cHtXuPFE+Z
+Content-Disposition: attachment; filename=policycoreutils-fixes.patch
+Content-Type: text/x-patch; name=policycoreutils-fixes.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Index: policycoreutils/restorecon/restorecon.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/policycoreutils/restorecon/restorecon.c,v
+retrieving revision 1.19
+diff -u -p -r1.19 restorecon.c
+--- policycoreutils/restorecon/restorecon.c	19 Jan 2005 16:48:41 -0000	1.19
++++ policycoreutils/restorecon/restorecon.c	19 Jan 2005 17:23:20 -0000
+@@ -135,7 +135,7 @@ int restore(char *filename) {
+     int customizable=0;
+     if (retcontext < 0 || 
+ 	(strcmp(prev_context,scontext) != 0 && 	
+-	 (customizable=(force ? 0: is_context_customizable(prev_context))==0))) {
++	 !(customizable=(force ? 0: is_context_customizable(prev_context))))) {
+       if (outfile) {
+ 	fprintf(outfile, "%s\n", filename);
+       }
+
+--=-1rthyRYrO7cHtXuPFE+Z--
 
 
 --
