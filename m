@@ -1,42 +1,36 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4IF7BI4000250
-	for <selinux@tycho.nsa.gov>; Sun, 18 May 2003 11:07:11 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4IGuTI4000498
+	for <selinux@tycho.nsa.gov>; Sun, 18 May 2003 12:56:29 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4IF6nQj025663
-	for <selinux@tycho.nsa.gov>; Sun, 18 May 2003 15:06:49 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h4IGu7Qj028438
+	for <selinux@tycho.nsa.gov>; Sun, 18 May 2003 16:56:07 GMT
 Received: from datas-world.dyndns.org (dsl-213-023-212-162.arcor-ip.net [213.23.212.162])
-	by jazzswing.ncsc.mil  with ESMTP id h4IF6mxS025660
-	for <selinux@tycho.nsa.gov>; Sun, 18 May 2003 15:06:48 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h4IGu6xS028435
+	for <selinux@tycho.nsa.gov>; Sun, 18 May 2003 16:56:07 GMT
 From: Torsten Knodt <tk-selinux@datas-world.de>
-Subject: Thinking about an extension to the cron patch
-Date: Sun, 18 May 2003 17:07:00 +0200
 To: selinux@tycho.nsa.gov
+Subject: Creating a new lsm function
+Date: Sun, 18 May 2003 18:50:49 +0200
 MIME-Version: 1.0
 Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <200305181707.00953.tk-selinux@datas-world.de>
+  charset="us-ascii"
+Message-Id: <200305181856.22022.tk-selinux@datas-world.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Hello,
-I'm currently trying to get the SE Linux patches from Russell's homepage into 
-upstream via the Debian BTS.
+I'd like to create two new function's, which fill a buffer with lsm 
+informations about an interface/ a socket. Both will simply give back the 
+context. Also, for this two, a function will return a title for these fields.
+These function will be used to print out these informations in /proc/net/tcp, 
+... to be read by net-tools.
 
-I already had a mail conversation with the cron maintainer about some changes 
-to the patch. The patch is now a little smaller, because we don't need the 
-*system* hack any more.
-But we are also thinking about another change. In the system
-crontab's, there are the users. We could split them with a delimiter like :
-and allow to set the SE Linux user for this line. As long this isn't used,
-the jobs run under system_u. With this change, we could clean up the crond
-policy. I don't feel very good allowing all system cronjobs all this. Also it 
-would allow to get these policy parts back into the package policies owning 
-these jobs.
+Can someone give me a hint, where this has to be implemented to be independent 
+of the used security module?
 
-Regards
+Thanks
 	Torsten
 
 - -- 
@@ -46,9 +40,9 @@ pub 1024D/4CD29A2C 2001-01-12 Torsten Knodt <torstenknodt@datas-world.de>
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE+x6GUvxZktkzSmiwRAj+sAJ9ZD3hMvH0EjPKbejunBJQ7vu0D3gCfavQt
-7rLt7ddM3iMFQIxMa8co8iI=
-=ZDLL
+iD8DBQE+x7s0vxZktkzSmiwRAtCKAJ9a70iJksCaUjryHrT6QS7btVsOiACfaGrW
+qt8k5tNdc7J70BIiZ63OSEg=
+=ii8d
 -----END PGP SIGNATURE-----
 
 
