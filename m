@@ -1,72 +1,50 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA05982
-	for <selinux@tycho.nsa.gov>; Sat, 26 Oct 2002 17:39:55 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA06094
+	for <selinux@tycho.nsa.gov>; Sat, 26 Oct 2002 18:08:06 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id VAA00293
-	for <selinux@tycho.nsa.gov>; Sat, 26 Oct 2002 21:38:01 GMT
-Received: from tomts9-srv.bellnexxia.net (tomts9.bellnexxia.net [209.226.175.53])
-        by jazzband.ncsc.mil  with ESMTP id VAA00288 for <selinux@tycho.nsa.gov>; Sat, 26 Oct 2002 21:38:00 GMT
-Message-ID: <3DBB09DF.2020303@sympatico.ca>
-Date: Sat, 26 Oct 2002 17:32:15 -0400
-From: Chris Albert <christopher.albert@sympatico.ca>
-MIME-Version: 1.0
-To: Russell Coker <russell@coker.com.au>
-CC: selinux@tycho.nsa.gov
+	by jazzband.ncsc.mil  with ESMTP id WAA00972
+	for <selinux@tycho.nsa.gov>; Sat, 26 Oct 2002 22:06:12 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id WAA00968 for <selinux@tycho.nsa.gov>; Sat, 26 Oct 2002 22:06:10 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Chris Albert <christopher.albert@sympatico.ca>
 Subject: Re: expect
-References: <200210262252.30567.russell@coker.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Sun, 27 Oct 2002 00:07:51 +0200
+Cc: selinux@tycho.nsa.gov
+References: <200210262252.30567.russell@coker.com.au> <3DBB09DF.2020303@sympatico.ca>
+In-Reply-To: <3DBB09DF.2020303@sympatico.ca>
+MIME-Version: 1.0
+Message-Id: <200210270007.51472.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
+On Sat, 26 Oct 2002 23:32, Chris Albert wrote:
+> Russell Coker wrote:
+> >I want to run an expect script as:
+> >script program param1 param2 ...
 
->I want to run an expect script as:
->script program param1 param2 ...
->
->Then have the script spawn "program param1 param2" (sort of like "$@" in a 
->bash script).  How do I do this?  Expect wants to combine all the parameters 
->into a single parameter that contains spaces. How can I solve this?
->
->Also I want to do it for a varying number of parameters (so having an entry 
->for each parameter isn't going to work).
->
->The aim of this is to provide the open_init_pty functionality.  The version I 
->posted to the list before will work for the basic SE functionality (IE 
->Slackware type support).  But for Debian support (and for full RPM support 
->when someone implements it) we need to have open_init_pty run dpkg to install 
->packages (and we can install multiple packages at the same time).
->
->  
->
-Russel,
-Is is as you woud ex... imagine-- argv.
+OK, I think I didn't make it clear what I want to do.  Say I want to run ls 
+with a variety of parameters, I save the following as /tmp/testit:
 
-$expect script param1 param2 ... paramn
+#!/usr/bin/expect
 
-All the parameters are found in the list 'argv' , so if in script
-...
-set argc [llength $argv]
-for (set i 0) {$i < $argc} {incr i} {
-                puts "arg $i: [lindex $argv  $i]"
-}
-
-...
-
-Then the script will spit out:
-
-...
-
-arg 0: param1
-arg 1: param2
-...
-arg n: paramn
-...
-
-As in D.Libes' "Exploring Expect" (Oreilly)
-
-Chris
+spawn /bin/ls [lrange $argv 0 end]
+interact
 
 
+Then I type the following command:
+/tmp/testit -l -a /tmp
+
+I want the same result as "ls -l -a /tmp" but I don't get it.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
