@@ -1,48 +1,36 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4JBudRb009346
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 07:56:39 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4JBsEB2003963
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 11:54:14 GMT
-Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
-	by jazzswing.ncsc.mil  with ESMTP id i4JBsDwi003960
-	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 11:54:13 GMT
-From: "Ed Street" <edstreet@street-tek.com>
-To: "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
-   "'SE-Linux'" <selinux@tycho.nsa.gov>
-Subject: RE: adduser script
-Date: Wed, 19 May 2004 07:56:33 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <20040519091721.GA8839@lkcl.net>
-Message-Id: <20040519115634.9C18D3A4054@abyss.simplyaquatics.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4JCGLRb009482
+	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 08:16:21 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4JCGIAR001923
+	for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 12:16:19 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id i4JCGIHn001920 for <selinux@tycho.nsa.gov>; Wed, 19 May 2004 12:16:18 GMT
+Subject: Re: is this pretty much it (to patch kdm 3.2.2)?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040519100822.GA31914@colombo.cip.ifi.lmu.de>
+References: <20040519074242.GK7348@lkcl.net>
+	 <20040519100822.GA31914@colombo.cip.ifi.lmu.de>
+Content-Type: text/plain
+Message-Id: <1084968971.30873.5.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Wed, 19 May 2004 08:16:11 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Wed, 2004-05-19 at 06:08, Thomas Bleher wrote:
+> I don't think that even this is required. It should work without
+> patching, just using pam_selinux.so.
 
-That should not be to difficult, just pass a context(s) switch or prompt for
-it.
+At least for gdm, we weren't able to use pam_selinux, because the
+pam_open_session is called from the wrong process to set up the exec
+context for the desired child.
 
-Ed
-
-
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
-Behalf Of Luke Kenneth Casson Leighton
-Sent: Wednesday, May 19, 2004 5:17 AM
-To: SE-Linux
-Subject: adduser script
-
-has anyone considered writing an adduser script modification
-for selinux that adds users to /etc/selinux/users?
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.687 / Virus Database: 448 - Release Date: 5/16/2004
- 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
