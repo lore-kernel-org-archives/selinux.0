@@ -1,49 +1,36 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: [Fwd: Re: avc_toggle and avc_enforcing]
-Date: Fri, 17 Oct 2003 01:55:19 +1000
-References: <3F8E9DB7.5030903@redhat.com>
-In-Reply-To: <3F8E9DB7.5030903@redhat.com>
+To: "Kratzer, James R." <JamesK@xetron.com>,
+   "SELinux (E-mail)" <SELinux@tycho.nsa.gov>
+Subject: Re: can't start X window in enforce mode
+Date: Fri, 17 Oct 2003 01:57:31 +1000
+References: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A54@s3cin>
+In-Reply-To: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A54@s3cin>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200310170155.19538.russell@coker.com.au>
+Message-Id: <200310170157.31721.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 16 Oct 2003 23:31, Daniel J Walsh wrote:
-> on a SELinux machine.  A system administrator should be able to manage
-> the machine with limited knowlege of the way policy works.
+On Fri, 17 Oct 2003 00:21, Kratzer, James R. wrote:
+> I'm trying to get X-windows to start with enforce set to "1" without any
+> luck.  I have moved the xserver.te file from the domains/program/unused
+> directory to the domains/program directory.  I have changed the dontaudit
+> line to allow as described here in the email below.  Any help would be
+> appreciated.
 
-I guess that the next thing we want is per-role instantiations for run_init.  
-So for example we could have:
-full_user_role(dba)
-run_program(dba_t, dba_r, dba, initrc_exec_t, postgresql_t)
-allow run_dba_t self:capability setuid;
+We really can't help until you provide more information.
 
-Then the Database administrator could login as user:dba_r:dba_t to run all 
-unix programs, and they could have a SUID root program with type 
-run_dba_exec_t which would run /etc/init.d/postgresql with specified 
-parameters.  That combined with a few rules relating to file access would 
-give them full control over the database server without granting any access 
-to the rest of the system.
+When you have the dontaudit rules removed, what avc messages are logged when 
+you try to run the X server?
 
-NB It's quite important that such uses of run_program which have something 
-other than sysadm_t as the first parameter do not have initrc_t as the last 
-parameter!  It is very important that we restrict initrc_t.
+What messages does the X server log to syslog?
 
-Also it's very important that the program which has run_dba_exec_t is a very 
-simple program that sets it's UID, sets the execute context, and executes the 
-script.  As it has privrole we want to be very sure that it does not do the 
-wrong thing.  Privrole is necessary as it has to start the daemon as 
-system_r.
+What messages does it display on the terminal?
 
-
-I've been meaning to write policy for this for some time, but have lacked 
-suitable opportunities for testing.  The machines I've been involved in 
-running recently have all had a boolean policy regarding administrative 
-privs...
+How are you running the X server?  Do you type "startx" after logging in or do 
+you use an XDM program?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
