@@ -1,78 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i89NW7rT015737
-	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 19:32:08 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i89NVEo3009848
-	for <selinux@tycho.nsa.gov>; Thu, 9 Sep 2004 23:31:14 GMT
-Date: Fri, 10 Sep 2004 00:43:21 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: at last: info regarding boot problems on multiple partitions
-Message-ID: <20040909234320.GA7328@lkcl.net>
-References: <20040908224949.GK7717@lkcl.net> <200409100233.47416.russell@coker.com.au> <20040909183823.GJ10046@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040909183823.GJ10046@lkcl.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8A58arT016850
+	for <selinux@tycho.nsa.gov>; Fri, 10 Sep 2004 01:08:36 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8A58Yl6023126
+	for <selinux@tycho.nsa.gov>; Fri, 10 Sep 2004 05:08:35 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: tmpfs /dev
+Date: Fri, 10 Sep 2004 15:08:27 +1000
+Cc: "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>,
+   fedora-devel-list@redhat.com, SE Linux <selinux@tycho.nsa.gov>
+References: <200409100536.59711.russell@coker.com.au> <4140BAB8.8070808@redhat.com>
+In-Reply-To: <4140BAB8.8070808@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200409101508.27612.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 09, 2004 at 07:38:23PM +0100, Luke Kenneth Casson Leighton wrote:
+On Fri, 10 Sep 2004 06:19, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> You will need to talk to Bill Nottingham about modifying /sbin/init to
+> do this.  They are not crazy about
+> putting additional code into /sbin/init since it is very hard to debug.
 
-> On Fri, Sep 10, 2004 at 02:33:47AM +1000, Russell Coker wrote:
+We've done it once, we can do it again.
 
-> > On Thu, 9 Sep 2004 08:49, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > FINALLY i got a useable system when i encountered a boot problem
-> > > [well, i got a console login].
-> > >
-> > > the issue is that partitions fail to be mounted.
+> They prefer rc.sysinit.  They also do not
 
->  Mounting local filesystems...
->  SeLinix: initialized (dev hda1, type ext2) uses xattr
->  same for hda6
->  same for hda7
-> 
->  /dev/hda1 on /boot type ext2 (rw)
->  /dev/hda6 on /var type ext2 (rw)
->  /dev/hda7 on /home type ext2 (rw)
-> 
-> 
->  .... not a sausage about /dev/hda5!!!
+rc.sysinit means changing the policy for init_t, initrc_t, and maybe others.
 
-okay, it was as i kind-of expected - that audit banning
-write access of /bin/touch to /etc was wot done it.
+> want to relabel the /dev file system if it is not a tmpfs,  since with
+> 8000 or more files it could take a while and
+> slow down the boot up.
 
-that check is done in /etc/init.d/mountvirtfs.sh - it's a very
-awful hack to check that /etc/mtab is on a writeable filesystem.
+On the slowest machine I have access to (a machine that can never run Fedora 
+because it doesn't meet the hardware requirements) it takes 12 seconds to run 
+setfiles on a fully loaded /dev.  On machines that are a mere four years old 
+it takes about 2 seconds, I doubt that you will be able to measure the 
+difference that this makes on any hardware that can be purchased now.  But 
+writing some code to check for the file system type is not too difficult.
 
-rather than check the file itself, mountvirtfs.sh checks that
-the subdirectory is writeable - by attempting to touch it!
-
-[which is of course banned under the selinux policy]
-
-consequently, the test fails, and only if the test _succeeds_ does
-mountvirtfs.sh delete /etc/mtab. (with :> $MTAB_PATH)
-
-so, as a temporary hack, i removed the "if dir_writable ${MTAB_PATH%/*}"
-check.
-
-result?
-
-	/etc/mtab gets deleted.
-
-result?
-
-	/usr doesn't end up looking like it's still mounted (read-only in the
-	case of the prior shutdown...]
-
-result?
-
-	/usr always gets mounted.
-
-what an arse.
-
-bugreporting time.
-
-l.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
