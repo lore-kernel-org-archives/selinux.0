@@ -1,51 +1,69 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6SNGSrT014978
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 19:16:33 -0400 (EDT)
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6SNFvVb025645
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 23:15:58 GMT
-Date: Thu, 29 Jul 2004 01:16:30 +0200
-From: Erich Schubert <erich@debian.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: [idea] multiple contexts.
-Message-ID: <20040728231630.GA3948@wintermute.xmldesign.de>
-References: <20040724231154.GE3437@lkcl.net> <1090858323.24945.116.camel@moss-spartans.epoch.ncsc.mil> <20040727160605.GG3392@lkcl.net> <1090949595.2448.180.camel@moss-spartans.epoch.ncsc.mil> <20040727182340.GW3392@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040727182340.GW3392@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6T0TlrT015281
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jul 2004 20:29:47 -0400 (EDT)
+Received: from sccrmhc12.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6T0TGVb027806
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 00:29:16 GMT
+Message-ID: <410844F9.3010203@gentoo.org>
+Date: Wed, 28 Jul 2004 20:29:45 -0400
+From: Joshua Brindle <method@gentoo.org>
+MIME-Version: 1.0
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+CC: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: temporary hack to use udev in selinux
+References: <20040728232043.GF18711@lkcl.net>
+In-Reply-To: <20040728232043.GF18711@lkcl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Luke Kenneth Casson Leighton wrote:
 
-On the multiple contexts thing:
-The power set of a finite set is still finite. I.e. you don't need to
-have multiple context if you are willing to manage enough contexts.
-It's just a matter of writing appropriate macros...
-You could name your contexts like sysadm_kde_mail_foobar_something
-for the context having the access rights of sysadm, kde, mail etc.
+>i have a requirement (use of usb-mount, see
+>http://users.actrix.co.nz/michael/usbmount.html) that forces the use
+>of udev on an selinux system.
+>
+>fighting with it for a day, and after seeing some clues in the
+>file contexts (/(u)dev/....) i decided to try editing
+>/etc/udev/udev.conf to set it to use /udev instead of /dev.
+>
+>other than a warning about udev not starting up, well, everything
+>seems to work hunky-dory.
+>
+>somehow i do _get_ a udevd running, i could not tell you how it got
+>there.
+>
+>i notice the following message 
+>
+>	http://www.redhat.com/archives/fedora-devel-list/2004-March/msg00888.html
+>
+>in which steven (hi steven :) says that support for udev "fake"
+>attributes for ramfs and tmpfs, just like for devpts.
+>
+>is that literally as simple as cut/paste the devpts code...
+>the xattr stuff?
+>
+>cos if so, i _like_ cut/paste :)
+>
+>l.
+>
+>  
+>
+Chris PeBenito made this patch for Gentoo when we were evalutating udev 
+on selinux
 
-The thing is: you don't want to allow any combination.
-For example you don't want a context which can use both KDE and write to
-system applications. Keeping such things exclusive is a good thing.
-When you allow multiple context you would need to write many rules like
-"when switching to context xyz, drop context foo" - that is not better.
+http://dev.gentoo.org/~method/1330_linux-2.6.5-ramfs-xattr.patch
 
-Why not define roles "kde_with_shell_r" and "kde_without_shell_r" and
-write appropriate access rules? (or: "kde_full_r" and "kde_limited_r")
+that should patch cleanly into 2.6.7, but I'd like to note that at this 
+point udev is braindead wrt SELinux.
+Once upon a time udev had selinux support integrated so that setfscreate 
+was called to set the context of the devices being written however it 
+was changed at some point to make SELinux an after device creation addon 
+script which makes it label the devices after they are created. Because 
+of this Hardened Gentoo has decided not to support udev at this time.
 
-This makes it a lot easier to verify.
 
-Also you avoid conflicts, rules are explicit. kde_full_r can exec xterm,
-kde_limited_r cannot. You can't have the case that a user has both
-contexts - should he be allowed access or not?
-
-Greetings,
-Erich Schubert
--- 
-    erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C    (o_
-     Go away or i'll replace you with a very small shell script.    //\
-    Der Anfang aller Erkenntnis ist das Staunen. --- Aristoteles    V_/_
+Joshua Brindle
 
 --
 This message was distributed to subscribers of the selinux mailing list.
