@@ -1,114 +1,136 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6N1bAHa023286
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2003 21:37:10 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6N57JHa023766
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 01:07:20 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6N1bADW025668
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 01:37:10 GMT
-Received: from mvmail1.mv.cougaarsoftware.com (h-68-165-169-235.SNVACAID.covad.net [68.165.169.235])
-        by jazzband.ncsc.mil  with ESMTP id h6N1b8eN025665 for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 01:37:08 GMT
-From: "Michael Luu" <mluu@cougaarsoftware.com>
-To: <selinux@tycho.nsa.gov>
-Subject: can't log into machine w/ ssh
-Date: Tue, 22 Jul 2003 18:49:58 -0700
-Message-ID: <001801c350bc$b91cec20$ef0111ac@mluudt>
+	by jazzband.ncsc.mil  with ESMTP id h6N57IDW029005
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 05:07:19 GMT
+Received: from mailrtr1.mailzone.edeltacom.com (mailrtr1.mailzone.edeltacom.com [216.248.176.137])
+        by jazzband.ncsc.mil  with ESMTP id h6N57DeN029002 for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2003 05:07:18 GMT
+From: "Stephen Reese" <sreese@prcdigital.com>
+To: "'Kerry Thompson'" <kerry@crypt.gen.nz>, selinux@tycho.nsa.gov
+Subject: RE: grub/boot redhat9 problem
+Date: Wed, 23 Jul 2003 01:07:04 -0400
+Message-ID: <000001c350d8$42e0c290$6601a8c0@inspiron>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+	charset="us-ascii"
+In-Reply-To: <1888.202.27.185.71.1058921880.squirrel@www.crypt.gen.nz>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-i've added a new user to my selinux box, and i'm able to log in locally.
-however, when log in remotely using ssh, the remote machine
-automatically logs me out after i authenticate.  below are the output
-from the console, and the output from the /var/log/secure file.
+I ran the quickinstall, but I think missed something in the kernel
+configuration. I attempted to copy as many setting as I could from a
+stock functional kernel, but I think I missed a switch...
 
-========================
-ssh verbose output
-========================
-[mluu@mluu ~]$ ssh -v mike@myhost.com
-OpenSSH_3.4p1, SSH protocols 1.5/2.0, OpenSSL 0x0090602f
-debug1: Reading configuration data /home/mluu/.ssh/config
-debug1: Applying options for *
-debug1: /home/mluu/.ssh/config line 6: Deprecated option "FallBackToRsh"
-debug1: Reading configuration data /etc/ssh/ssh_config
-debug1: Applying options for *
-debug1: Rhosts Authentication disabled, originating port will not be
-trusted.
-debug1: ssh_connect: needpriv 0
-debug1: Connecting to myhost.com [192.168.1.225] port 22.
-debug1: Connection established.
-debug1: identity file /home/mluu/.ssh/id_rsa type 1
-debug1: identity file /home/mluu/.ssh/id_dsa type -1
-debug1: Remote protocol version 1.99, remote software version
-OpenSSH_3.4p1
-debug1: match: OpenSSH_3.4p1 pat OpenSSH*
-Enabling compatibility mode for protocol 2.0
-debug1: Local version string SSH-2.0-OpenSSH_3.4p1
-debug1: SSH2_MSG_KEXINIT sent
-debug1: SSH2_MSG_KEXINIT received
-debug1: kex: server->client aes128-cbc hmac-md5 none
-debug1: kex: client->server aes128-cbc hmac-md5 none
-debug1: SSH2_MSG_KEX_DH_GEX_REQUEST sent
-debug1: expecting SSH2_MSG_KEX_DH_GEX_GROUP
-debug1: dh_gen_key: priv key bits set: 129/256
-debug1: bits set: 1554/3191
-debug1: SSH2_MSG_KEX_DH_GEX_INIT sent
-debug1: expecting SSH2_MSG_KEX_DH_GEX_REPLY
-debug1: Host 'myhost.com' is known and matches the RSA host key.
-debug1: Found key in /home/mluu/.ssh/known_hosts:42
-debug1: bits set: 1585/3191
-debug1: ssh_rsa_verify: signature correct
-debug1: kex_derive_keys
-debug1: newkeys: mode 1
-debug1: SSH2_MSG_NEWKEYS sent
-debug1: waiting for SSH2_MSG_NEWKEYS
-debug1: newkeys: mode 0
-debug1: SSH2_MSG_NEWKEYS received
-debug1: done: ssh_kex2.
-debug1: send SSH2_MSG_SERVICE_REQUEST
-debug1: service_accept: ssh-userauth
-debug1: got SSH2_MSG_SERVICE_ACCEPT
-debug1: authentications that can continue: publickey,password
-debug1: next auth method to try is publickey
-debug1: userauth_pubkey_agent: testing agent key /home/mluu/.ssh/id_rsa
-debug1: authentications that can continue: publickey,password
-debug1: try pubkey: /home/mluu/.ssh/id_rsa
-debug1: authentications that can continue: publickey,password
-debug1: try privkey: /home/mluu/.ssh/id_dsa
-debug1: next auth method to try is password
-mike@myhost.com's password: 
-debug1: ssh-userauth2 successful: method password
-debug1: channel 0: new [client-session]
-debug1: send channel open 0
-debug1: Entering interactive session.
-debug1: ssh_session2_setup: id 0
-debug1: channel request 0: pty-req
-debug1: Requesting X11 forwarding with authentication spoofing.
-debug1: channel request 0: x11-req
-debug1: Requesting authentication agent forwarding.
-debug1: channel request 0: auth-agent-req@openssh.com
-debug1: channel request 0: shell
-debug1: fd 3 setting TCP_NODELAY
-debug1: channel 0: open confirm rwindow 0 rmax 32768
-debug1: channel_free: channel 0: client-session, nchannels 1
-Connection to myhost.com closed by remote host.
-Connection to myhost.com closed.
-debug1: Transferred: stdin 0, stdout 0, stderr 121 bytes in 0.2 seconds
-debug1: Bytes per second: stdin 0.0, stdout 0.0, stderr 634.7
-debug1: Exit status -1
-========================
-/var/log/secure log file
-========================
-Jul 22 17:30:35 balboa sshd[3817]: Could not reverse map address
-192.168.1.240.
-Jul 22 17:30:38 balboa sshd[3817]: Accepted password for mike from
-192.168.1.240 port 32804 ssh2
-Jul 22 17:30:38 balboa sshd[3817]: fatal: Could not obtain SID for user
-mike
-Jul 22 17:30:38 balboa sshd[3817]: syslogin_perform_logout: logout()
-returned an error
+-----Original Message-----
+From: Kerry Thompson [mailto:kerry@crypt.gen.nz] 
+Sent: Tuesday, July 22, 2003 8:58 PM
+To: sreese@prcdigital.com
+Subject: Re: grub/boot redhat9 problem
 
--mike
+
+Yikes, something's weird. Looks like the ide-disk kernel module isn't
+there. Did you run 'make modules_install' after building the kernel to
+install the kernel modules ?
+
+Kerry
+
+Stephen Reese said:
+> kmod: failed to exec /sbinmodprobe -s -k ide-disk, errno2
+> VFS: Cannot open root device "hda2" or 03:02
+> Please apend a correct "root" boot option
+> Kernel panic: VFS: Unable to mount root fs on 03:02
+>
+>
+> Filesystem            Size  Used Avail Use% Mounted on
+> /dev/hda2              25G  1.8G   22G   8% /
+> /dev/hda1              99M   39M   56M  41% /boot
+> none                  504M     0  504M   0% /dev/shm
+>
+> # grub.conf generated by anaconda
+> #
+> # Note that you do not have to rerun grub after making changes to this
+
+> file # NOTICE:  You have a /boot partition.  This means that
+> #          all kernel and initrd paths are relative to /boot/, eg. #
+>      root (hd0,0)
+> #          kernel /vmlinuz-version ro root=/dev/hda2
+> #          initrd /initrd-version.img
+> #boot=/dev/hda
+> default=2
+> timeout=10
+> splashimage=(hd0,0)/grub/splash.xpm.gz
+> title Red Hat Linux (2.4.21-selinux)
+> 	root (hd0,0)
+> 	kernel /vmlinuz-2.4.21-selinux ro root=/dev/hda2
+> 	initrd /initrd-2.4.21-selinux.img
+> title Red Hat Linux (2.4.20-19.9)
+> 	root (hd0,0)
+> 	kernel /vmlinuz-2.4.20-19.9 ro root=LABEL=/
+> 	initrd /initrd-2.4.20-19.9.img
+> title Red Hat Linux (2.4.20-19.9smp)
+> 	root (hd0,0)
+> 	kernel /vmlinuz-2.4.20-19.9smp ro root=LABEL=/
+> 	initrd /initrd-2.4.20-19.9smp.img
+> title Red Hat Linux (2.4.20-18.9)
+> 	root (hd0,0)
+> 	kernel /vmlinuz-2.4.20-18.9 ro root=LABEL=/
+> 	initrd /initrd-2.4.20-18.9.img
+> title Red Hat Linux (2.4.20-18.9smp)
+> 	root (hd0,0)
+> 	kernel /vmlinuz-2.4.20-18.9smp ro root=LABEL=/
+> 	initrd /initrd-2.4.20-18.9smp.img
+> title Red Hat Linux (2.4.20-8smp)
+> 	root (hd0,0)
+> 	kernel /vmlinuz-2.4.20-8smp ro root=LABEL=/
+> 	initrd /initrd-2.4.20-8smp.img
+> title Red Hat Linux-up (2.4.20-8)
+> 	root (hd0,0)
+> 	kernel /vmlinuz-2.4.20-8 ro root=LABEL=/
+> 	initrd /initrd-2.4.20-8.img
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+> On Behalf Of Kerry Thompson
+> Sent: Monday, July 21, 2003 10:59 PM
+> To: sreese@prcdigital.com
+> Cc: selinux@tycho.nsa.gov
+> Subject: RE: make quickinstall redhat9 problem
+>
+>
+> Stephen Reese said:
+>> installing tk and tcl was the trick thanks for the help now I get to 
+>> figure out where I went wrong with the kernel complile =)
+>>
+>> VFS: cannot open root device "Label=/"
+>
+> Change your bootloader ( /boot/grub/grub.conf for GRUB ) to use 
+> root=/dev/hda1 or wherever your root is rather than using Label=/
+>
+> Kerry
+>
+>
+> --
+> Kerry Thompson, CCNA CISSP
+> Information Systems Security Consultant http://www.crypt.gen.nz  
+> kerry@crypt.gen.nz
+>
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing 
+> list. If you no longer wish to subscribe, send mail to 
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without 
+> quotes as the message.
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing 
+> list. If you no longer wish to subscribe, send mail to 
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without 
+> quotes as the message.
+
+
+
 
 
 --
