@@ -1,58 +1,54 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7O9FLrT024636
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 05:15:21 -0400 (EDT)
-Received: from kokytos.rz.informatik.uni-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7O9EZMZ023401
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 09:14:35 GMT
-Received: from rom.cip.ifi.lmu.de (rom.cip.informatik.uni-muenchen.de [141.84.214.183])
-	by kokytos.rz.informatik.uni-muenchen.de (Postfix) with ESMTP id 4684C43572
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 11:15:20 +0200 (CEST)
-Date: Tue, 24 Aug 2004 11:15:20 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7O9LBrT024680
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 05:21:11 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7O9L9CV026886
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 09:21:09 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by open.hands.com (Postfix) with ESMTP id DF7A5BF88
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 10:21:09 +0100 (BST)
+Received: from open.hands.com ([127.0.0.1])
+	by localhost (open [127.0.0.1]) (amavisd-new, port 10024) with LMTP
+	id 24231-05-2 for <selinux@tycho.nsa.gov>;
+	Tue, 24 Aug 2004 10:21:08 +0100 (BST)
+Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
+	by open.hands.com (Postfix) with ESMTP id F365FBF7A
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 10:21:07 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BzXem-0008Gk-Cw
+	for selinux@tycho.nsa.gov; Tue, 24 Aug 2004 10:31:56 +0100
+Date: Tue, 24 Aug 2004 10:31:56 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: policy patch for tunable "/dev/hdc is removable drive"
-Message-ID: <20040824091520.GE11911@rom.cip.ifi.lmu.de>
-References: <20040823214228.GA13677@lkcl.net> <20040824002244.GA25356@lkcl.net>
+Subject: file_contexts in kernel
+Message-ID: <20040824093156.GE25356@lkcl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-In-Reply-To: <20040824002244.GA25356@lkcl.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Luke Kenneth Casson Leighton <lkcl@lkcl.net> [2004-08-24 03:38]:
-> in amongst this lot are two lines that say /dev/hdc something here
-> we go:
-> 
-> > +/.?u?dev/hdc		-b	system_u:object_r:tunably_defined_disk_t
-> > +/.?u?dev/[h]d[^/^c]*	-b	system_u:object_r:fixed_disk_device_t
+stephen, russell et al,
 
-I don't think this is the right approach. Not all users have their
-CD-Rom on /dev/hdc.
-I've been using a hack to the Makefile which works well on the
-hundred-odd machines we have here:
+how about uploading file_contexts in some pre-munged format that
+is suitable for use by some much simplified regexp code, along
+with moving the cache into the kernel too?
 
---- orig/Makefile
-+++ mod/Makefile
-@@ -145,6 +145,7 @@
-        @grep -v "^/root" $@.tmp > $@.root
-        @/usr/sbin/genhomedircon . $@.root  > $@
-        @grep "^/root" $@.tmp >> $@
-+       @for i in /proc/ide/hd*/media; do grep -q cdrom $$i && echo $$i | awk -F / '{ print "/dev/"$$4"\t-b\tsystem_u:object_r:removable_device_t"}' >> $@; done
-        @-rm $@.tmp $@.root
+or... how about just moving the cache into the kernel?
 
- clean:
+or... how about having a persistent user-space process that is
+accessible via libselinux that performs the file contexts cacheing?
 
-This inserts a special line into the file_contexts file for every cdrom
-found on the system (according to proc).
-I am however not sure how a proper solution would look like; do we want
-to make policy that system dependant?
-Maybe we need a tool like genhomedircon for devices.
-
-Thomas
+l.
 
 -- 
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
