@@ -1,33 +1,40 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2VKIpDo028947
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 15:18:51 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2VKHTiv008828
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 20:17:29 GMT
-Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j2VKHNB9020377
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 15:17:23 -0500 (EST)
-Subject: userhelper + xauth files - staff vs sysadm
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Thu, 31 Mar 2005 15:23:34 -0500
-Message-Id: <1112300614.12948.98.camel@cobra.ivg2.net>
+Date: Thu, 31 Mar 2005 23:13:00 +0200
+From: Tom <tom@lemuria.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
+   selinux@tycho.nsa.gov
+Subject: Re: Desktop apps interoperability
+Message-ID: <20050331231259.B2607@lemuria.org>
+References: <20050331160546.36303.qmail@web31615.mail.mud.yahoo.com> <1112285287.11216.114.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1112285287.11216.114.camel@moss-spartans.epoch.ncsc.mil>; from sds@tycho.nsa.gov on Thu, Mar 31, 2005 at 11:08:07AM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-userhelper (staff_userhelper_t) and xauth (staff_xauth_t) 
-fail to create/delete/write .xauth files under /root 
-when I try to run the system-config-* tools.
+On Thu, Mar 31, 2005 at 11:08:07AM -0500, Stephen Smalley wrote:
+> > Look here, sonny, I've been doing MLS systems
+> > since 1986 and the One Truth You Must Learn
+> > is that applications can not be changed. No.
+> > Don't even consider thinking in this direction.
+> > This is wrong. Sometimes all that's available
+> > is the binary. Sometimes they like the way it
+> > works.
+> 
+> Ah, yes.  That's certainly the example we should be following...the
+> example set by past trusted/MLS OSes.  No thanks, we're trying to solve
+> real problems here...
 
-What should be done?
+He does have a point, though - sometimes the application can not be
+changed. It may be a legacy application and for all I care, those are
+the ones most in need of a protective cage.
+
+
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
