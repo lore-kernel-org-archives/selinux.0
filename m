@@ -1,92 +1,47 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAO082Ii016299
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 19:08:02 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAO06VuA023504
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 00:06:32 GMT
-Date: Wed, 24 Nov 2004 00:18:47 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Mark Williamson <maw48@hermes.cam.ac.uk>
-Cc: xen-devel@lists.sourceforge.net, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: [Xen-devel] protecting xen startup
-Message-ID: <20041124001847.GH5146@lkcl.net>
-References: <20041123170546.GB6250@lkcl.net> <Pine.LNX.4.60.0411231802570.3258@hermes-1.csi.cam.ac.uk> <20041123205152.GA5146@lkcl.net> <Pine.LNX.4.60.0411232242120.3871@hermes-1.csi.cam.ac.uk>
+Subject: Re: Still getting random execute permissions on shared libraries.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <Dan-Walsh@comcast.net>
+Cc: James Morris <jmorris@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41A3EC21.1090200@comcast.net>
+References: <41A3EC21.1090200@comcast.net>
+Content-Type: text/plain
+Message-Id: <1101303008.22014.47.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.LNX.4.60.0411232242120.3871@hermes-1.csi.cam.ac.uk>
+Date: Wed, 24 Nov 2004 08:30:08 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Nov 23, 2004 at 10:49:24PM +0000, Mark Williamson wrote:
-> >is there anything preventing that interface from being removed, such
-> >that the client/server bit is munged into a single application?
+On Tue, 2004-11-23 at 21:04, Daniel J Walsh wrote:
+> Trying to run java from within firefox is a disaster, Mozilla crashes.
 > 
-> In older releases, there wasn't a Xend.  Instead we had a set of 
-> management scripts that called various operations directly.  You could in 
-> principle munge xm and xend together into a big megatool but it wouldn't 
-> be pretty.
+> allow user_mozilla_t ld_so_cache_t:file execute;
+> allow user_mozilla_t lib_t:file execute; (Jar files)
+> allow user_mozilla_t user_tmp_t:file execute;
+> allow user_t ld_so_cache_t:file execute;
+> allow user_t locale_t:file execute;
 
- i'll take that as a challenge, then :)
+They aren't random.  As discussed previously here and on
+fedora-selinux-list, execution of a legacy binary causes the
+read_implies_exec behavior to be enabled for the process, so that
+subsequent read requests are transparently mapped to read|execute.  This
+was a change in the upstream kernel, not SELinux, and was to allow
+introduction of NX support without breaking compatibility with legacy
+binaries.  SELinux is merely checking permissions based on the
+information supplied by the core kernel.
 
-> Xend makes concurrency control much easier, provides a central point of 
-> contact regarding machine state and demuxes the virtual consoles of the 
-> domain.  You'd have to address these problems in addition to combining the 
-> tools, which would take a fair bit of hacking to do properly.
-
- okay.
-
- assuming that 1) i don't want a central point of contact i only want
- _one_ point of contact and 2) i can live without virtual consoles
- until i understand the code enough and can get away with
- using ssh logins instead:
-
- would this be a simple enough task for someone not entirely
- familiar with xen's code [but who has developed a number of
- 20k+ line python projects over the past four years]?
-
-
-
-> >>Not exactly.  At the Linux Level, there aren't any extra Xen system calls.
-> >>Most commands are issued to Xen by performing ioctls on the
-> >>/proc/xen/privcmd file.
-> >
-> >GREAT.
-> >
-> >that means that it will be possible to lock down at the very least the
-> >access to /proc/xen and later, should it prove worthwhile, to protect
-> >each ioctl with a new selinux security id per ioctl command.
-> 
-> Right now, only root (actually, probably users with the CAP_SYSADMIN 
-> capability or similar) can do operations on /proc/xen.  
-
- [which, please excuse me for saying so, doesn't exactly help if that
- root-only interface is then exposed via an open high port number!! :) ]
-
-> Also, many Xen 
-> operations are mapped onto one ioctl call so as it is you can't do very 
-> fine grained protection based on ioctl number.  
-
- i was thinking of adding in an LSM hook function that received the
- ioctl number as one of its arguments, translated that in a case
- statement into the corresponding selinux SIDs, and from there checked
- an selinux permission - in a similar way that security/selinux/hooks.c's
- selinux_file_ioctl() or the selinux_file_fcntl() function operates.
-
- i.e. not using file_has_perm() but task_has_perm() instead.
-
- then the first thing that the xen ioctl function does is call that LSM
- hook function.
-
- it would therefore also be possible for someone else to write a
- corresponding LSM linux capabilities function call, too.  should
- someone so wish.
-
- l.
+Your options are:
+- get java rebuilt with a PT_GNU_STACK header so the kernel doesn't
+treat it as a legacy binary (assuming that it doesn't assume that read
+implies exec),
+- change policy to allow execute permission in these cases (although it
+would be preferable here to move java into its own domain in that case,
+so that you only have to allow it these permissions and not the entire
+user domain or mozilla domain).
 
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
