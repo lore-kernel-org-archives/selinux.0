@@ -1,61 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA27886
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 19:29:27 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id XAA10216
-	for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 23:27:56 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA28621
+	for <selinux@tycho.nsa.gov>; Sat, 13 Jul 2002 00:05:17 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id EAA02519
+	for <selinux@tycho.nsa.gov>; Sat, 13 Jul 2002 04:04:33 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id XAA10212 for <selinux@tycho.nsa.gov>; Fri, 12 Jul 2002 23:27:55 GMT
+	by jazzswing.ncsc.mil  with ESMTP id EAA02515
+	for <selinux@tycho.nsa.gov>; Sat, 13 Jul 2002 04:04:31 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        SE Linux <selinux@tycho.nsa.gov>
+To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
 Subject: Re: revising the su decision
-Date: Sat, 13 Jul 2002 01:29:15 +0200
-References: <200207121546.KAA74379@tomcat.admin.navo.hpc.mil>
-In-Reply-To: <200207121546.KAA74379@tomcat.admin.navo.hpc.mil>
+Date: Sat, 13 Jul 2002 06:04:56 +0200
+References: <20020712111941.30466.qmail@web40009.mail.yahoo.com> <63597.137.246.8.231.1026493819.squirrel@austin.bmh.com> <20020712200607.C26001@lemuria.org>
+In-Reply-To: <20020712200607.C26001@lemuria.org>
 MIME-Version: 1.0
-Message-Id: <20020712232915.70A7C44D@lyta.coker.com.au>
+Message-Id: <20020713040456.9455A766B@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 12 Jul 2002 17:46, Jesse Pollard wrote:
-> The separation now means that a root compromise is not all that usefull.
+On Fri, 12 Jul 2002 20:06, Tom wrote:
+> b) so, what you need is a trusted process ON the machines. ideally,
+> with a policy crafted specifically for it. I'll call this process
+> instwa, the "install watcher". it could be as simple as a cronjob
+> called every 5 minutes that essentially does:
 >
-> Consider what happes if a root compromise performs a "su - root". It
-> currently looks like the compromise would suddenly get whatever role has
-> been assiged to root.
+> if ( any file in /var/install ) then ( rpm/dpkg/whatever -i $file )
+>
+> c) give your remote/install user write priviledges for /var/install
 
-You are assuming here that root:user_r:user_t can su to any domain without a 
-password, and that a default su to a domain will get the maximum SE Linux 
-privs.
+If someone can write to /var/install in that case, then why not just allow 
+them to login directly with full admin privs?
 
-The former assumption is not what I had been thinking of, and the latter is a 
-matter of policy.
+Writing a RPM or DEB package to take over or destroy a system is easy 
+enough...
 
-I had imagined that the ability to do "su - account" without a password would 
-depend on both UID=0 and being sysadm_r:sysadm_t.
-
-> The advantage of the newrole is to REQUIRE a password before gaining
-> sysadm_r.
-
-Yes, but that doesn't stop us from having one program doing both
-"newrole -r sysadm_r" and "su -" functionality.
-
-> Now, If you merge the newrole functions into su and remove the automatic
-> su to itself (ie su root when root still requires a password, AND su to
-> any account requires a password), then my objections are much weaker.
-
-How about su to any account without a password gets the same result as such a 
-su operation now, the source UID must be 0 and the context doesn't change.
-
-I think that your disagreement is due to imagining a different way of 
-implementing it to that which I had imagined.
-
-
-Russell Coker
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
