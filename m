@@ -1,81 +1,70 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA12761
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 10:21:18 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id PAA08005
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 15:19:51 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id PAA08001
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 15:19:50 GMT
-Date: Thu, 11 Jan 2001 10:20:34 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-Reply-To: Stephen Smalley <sds@tislabs.com>
-To: Jeffry Smith <smith@missioncriticallinux.com>
-cc: selinux@tycho.nsa.gov, linux-privs-discuss@sourceforge.net
-Subject: Re: SELinux & Linux-privs projects 
-In-Reply-To: <E14GiyE-0000nL-00@smith>
-Message-ID: <Pine.SOL.3.95.1010111095226.23465N-100000@clipper.gw.tislabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA12888
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 10:34:19 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id PAA26498
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 15:33:43 GMT
+Received: from og.latency.net (og.latency.net [209.123.200.27])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id PAA26494
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 15:33:42 GMT
+Date: Thu, 11 Jan 2001 10:34:31 -0500
+From: Bennett Todd <bet@rahul.net>
+To: Stephen Smalley <sds@tislabs.com>
+Cc: selinux@tycho.nsa.gov
+Subject: IPSEC integration (was Re: SELinux and covert channels)
+Message-ID: <20010111103431.C21255@rahul.net>
+References: <20010111005355.A20214@bunuel.tii.matav.hu> <Pine.SOL.3.95.1010111084456.23465H-100000@clipper.gw.tislabs.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="BOr3uFpVABmJfvZe"
+In-Reply-To: <Pine.SOL.3.95.1010111084456.23465H-100000@clipper.gw.tislabs.com>; from sds@tislabs.com on Thu, Jan 11, 2001 at 09:01:41AM -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
 
-On Thu, 11 Jan 2001, Jeffry Smith wrote:
+--BOr3uFpVABmJfvZe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Sent to both lists
-> Since I hadn't seen any traffic on the two lists about the other project, I 
-> thought I'd cross-send a message, to ensure the two communities are aware of 
-> what the other is doing.  I figure, although the projects are tackling 
-> different parts of the security of linux, there should be some overlap, since 
-> privileges should make it easier to do the type enforcement (I think), and the 
-> type enforcement can help with requirements for privileges (right?).
-> 
-> Comments?  
+2001-01-11-09:01:41 Stephen Smalley:
+> Additionally, although mandatory access controls have been
+> implemented for sockets, the controls are currently limited
+> because support for communicating packet labels across the network
+> has not yet been implemented.  As discussed in the documentation,
+> the intent is to use IPSEC security associations to implicitly
+> label packets once IPSEC is integrated.
 
-The two mechanisms are mostly orthogonal, although SELinux can help
-to support the capability model and perhaps to even replace it.  The
-POSIX.1e capabilities can be used to decompose superuser privileges for
-overriding the traditional Unix access controls.  SELinux provides a
-flexible mandatory access control architecture that can support a wide
-range of security policies.  There is no need for a mechanism to override
-the SELinux mandatory access controls because the security policy can be
-configured as needed to support fine-grained privileges for processes
-with respect to the mandatory controls.  There is no need for any kind of
-"trusted" subject that operates outside of the boundaries of the mandatory
-access control architecture in SELinux.
+This I thought was the most exciting single bit of the whole
+announcement.
 
-To better support the capability mechanism, the ability to
-use a capability is controlled by the SELinux mandatory access controls.
-A parallel mandatory access control is defined for each capability
-and must be granted by the security policy in order for the
-capability to be used. Since SELinux provides subject labeling and 
-can support labels derived both from the attributes of the user and the
-program, it can restrict the use of capabilities to the appropriate
-program through the security policy configuration.
+While any MAC implementation is certainly interesting, and the more
+expressive ones are especially appealing for their potential for
+sandboxing, the real hard problems we're fighting with now, and
+expecting to be battling in the near future, center on defining
+really tight security perimeters around distributed apps. The
+ability to have a coherent enforcement of a centrally-specified
+policy over all the data throughout a distribute app is very, very
+exciting indeed.
 
-In one of the predecessors of SELinux (the DTOS system), the NSA
-implemented a different mechanism than the POSIX.1e capabilities
-for decomposing superuser privileges.  The superuser privileges were
-partitioned by having the security server return a set of override
-decisions along with its access decisions, where these override decisions
-could cause access to be granted even if the Unix access control would
-ordinarily deny access.  Unlike the Linux capabilities, these override
-decisions could be based on both the label of the subject and the label of
-the relevant object. This mechanism permitted fine-grained decomposition
-(e.g. permission to override DAC read restrictions could be limited to
-files with certain security labels) and simpler management (through the
-use of the centralized security policy).  Similar support could be added
-to the Security-Enhanced Linux as well but is not present in the
-current implementation.
+Especially to me, since I've been telling people that it's the next
+big step for some time now:-).
 
---
-Stephen D. Smalley, NAI Labs
-sds@tislabs.com
+-Bennett
 
+--BOr3uFpVABmJfvZe
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE6XdKHHZWg9mCTffwRAuImAKCtuSKguIMtEWmCvd5ZWXEleV/E9ACfcYTn
+F3AxRKWWkEjEUKfxp3kvKD4=
+=wBLz
+-----END PGP SIGNATURE-----
 
+--BOr3uFpVABmJfvZe--
 
 --
 You have received this message because you are subscribed to the selinux list.
