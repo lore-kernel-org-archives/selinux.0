@@ -1,51 +1,52 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8B6iFrT023456
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 02:44:16 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8B6iC6V028331
-	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 06:44:15 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8B9DGrT023871
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 05:13:16 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8B9CK9R017258
+	for <selinux@tycho.nsa.gov>; Sat, 11 Sep 2004 09:12:21 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Bill Nottingham <notting@redhat.com>
-Subject: Re: tmpfs /dev
-Date: Sat, 11 Sep 2004 16:43:54 +1000
-Cc: Development discussions related to Fedora Core <fedora-devel-list@redhat.com>,
-   Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-   "Fedora SELinux support list for users & developers." <fedora-selinux-list@redhat.com>
-References: <200409100536.59711.russell@coker.com.au> <200409101508.27612.russell@coker.com.au> <20040910163021.GA28303@nostromo.devel.redhat.com>
-In-Reply-To: <20040910163021.GA28303@nostromo.devel.redhat.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: ssh policy
+Date: Sat, 11 Sep 2004 19:13:11 +1000
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   SE Linux <selinux@tycho.nsa.gov>
+References: <200409090428.52881.russell@coker.com.au> <4141BF21.9050004@redhat.com> <1094828891.28310.52.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1094828891.28310.52.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200409111643.54132.russell@coker.com.au>
+Message-Id: <200409111913.11677.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 11 Sep 2004 02:30, Bill Nottingham <notting@redhat.com> wrote:
-> Russell Coker (russell@coker.com.au) said:
-> > On Fri, 10 Sep 2004 06:19, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > > You will need to talk to Bill Nottingham about modifying /sbin/init to
-> > > do this.  They are not crazy about
-> > > putting additional code into /sbin/init since it is very hard to debug.
-> >
-> > We've done it once, we can do it again.
+On Sat, 11 Sep 2004 01:08, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> > -r_dir_file(updfstab_t, { selinux_config_t file_context_t
+> > default_context_t } ) can_getsecurity(updfstab_t)
+> > +dontaudit updfstab_t selinux_config_t:dir search;
 >
-> But why is init any better? Especially when it's just spawning a
-> shell script - that's a hack.
+> I don't think that this is correct; updfstab appears to be looking up a
+> context via matchpathcon for preserving the context on /etc/fstab, so it
+> needs access to the file contexts file as in our policy.
 
-Spawning a shell script is good for a test.  If we decide to run it from init 
-then we can do it differently in the release version of the code.
+Why do we want to have updfstab do that?  Adding such functionality to 
+updfstab means more work for it to do, more time taken to complete, etc.
 
-> > > They prefer rc.sysinit.  They also do not
-> >
-> > rc.sysinit means changing the policy for init_t, initrc_t, and maybe
-> > others.
->
-> init runs in init_t, surely?
+Just having updfstab create the new file as /etc/fstab.new (or similar) makes 
+it get the right context automatically with much less effort.
 
-init runs in init_t AFTER it re-exec's itself.  At the time it is doing the SE 
-Linux stuff it's running as kernel_t or running on a system with no policy 
-loaded.
+We don't want to change every program that creates a file to preserve the SE 
+Linux context!  That would take significant development work and create 
+significant issues if the SE Linux interfaces ever change.
+
+The source to fstab-sync refers to the idea of creating a new fstab file 
+in /tmp if /etc is mounted read-only (with /etc/fstab being a sym-link to 
+somewhere else).  If this is implemented as described in the comments then an 
+inopportune power failure or system crash could potentially truncate the 
+fstab file and make the system non-bootable.  I think we should give up on 
+the idea of having fstab-sync do anything special in regard to SE Linux.
+
+Dan, what do you think?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
