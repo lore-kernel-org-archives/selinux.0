@@ -1,72 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA07018
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 08:36:53 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA25278
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 12:35:15 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA07198
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 08:46:56 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA11664
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 12:45:52 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id MAA25274 for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 12:35:14 GMT
-Date: Mon, 19 Aug 2002 08:36:14 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id MAA11660
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 12:45:52 GMT
+Date: Mon, 19 Aug 2002 08:46:03 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Brad Chapman <jabiru_croc@yahoo.com>
-cc: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: entrypoint permission
-In-Reply-To: <20020817125827.67159.qmail@web40017.mail.yahoo.com>
-Message-ID: <Pine.GSO.4.33.0208190738530.14458-100000@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: type_change rules
+In-Reply-To: <20020818215637.B69868906@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0208190841390.14458-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Sat, 17 Aug 2002, Brad Chapman wrote:
+On Sun, 18 Aug 2002, Russell Coker wrote:
 
->       What does the 'entrypoint' permission do? It seems to be related to
-> domains transfer and program execution, but not in an intuitive way.
+> In macros/user.te we have the following line:
+> type_change $1_t tty_device_t:chr_file $1_tty_device_t;
+>
+> However the tty label seems to be that which matches the last usesr logged in
+> (a security issue in itself).
 
-As an aside, the meaning of each SELinux permission was originally
-described in the old technical report available from
-http://www.nsa.gov/selinux/slinux-abs.html.  Changes to the SELinux
-permissions for LSM are described in the module technical report available
-in selinux/doc/module or from http://www.nsa.gov/selinux/module-abs.html.
+login should reset the tty label back to the original type when the user
+logs out.  However, if login doesn't exit properly, then it will be left
+in the type.  In this case, the tty will be correctly updated on the next
+login due to the type_change rules in newrole.te for dealing with the
+similar issue when newrole is terminated abruptly.  The real fix is to
+have the rc scripts or getty reset the types properly.
 
-For the TE model, the entrypoint permission controls what program types
-can be executed to initially enter a given domain.  It is typically
-granted via the domain_trans macro or domain_auto_trans macro, except for
-the special check performed by crond to deal with crontab files [since
-crontabs are "interpreted", not executed].  In the policy configuration, a
-distinct xxx_exec_t type is usually (but not always) defined for each
-domain and used as that domain's entrypoint type.  This type should only
-be assigned to programs used to enter the domain, and should preferably
-be limited to a single program for each domain whenever possible.  The
-entrypoint permission in combination with the process transition
-permission provides strong control over domain transitions based on the
-initial domain, the program type, and the new domain.
+> However it also has the issue that when you create a new user role you must
+> also create matching type_change rules to allow changes from all other user
+> domains (IE the number of rules is proportional to the number of user domains
+> squared).  Is there any reason for not doing the following?
+> type_change $1_t ttyfile:chr_file $1_tty_device_t;
 
-In contrast to entrypoint permission, the execute_no_trans permission
-controls what program types by a domain can be executed without
-transitioning to another domain.  For example, although the login process
-can execute a user shell, it should always change its SID at the same
-time, so it does not need execute_no_trans permission to the shell
-program.  The execute_no_trans permission is typically granted via the
-can_exec* macros.  can_exec access for any kind of privileged domain
-should also be minimized when possible to reduce risk (e.g. it is
-preferable that daemons not be able to execute shells without at least
-changing to another domain).
-
-The execute permission is checked whenever Linux would perform an execute
-check via the kernel permission() function, as well as in mmap or mprotect
-when execute access is requested (e.g. for shared libraries).  This
-permission provides coarse-grained control over the full set of types that
-can be executed by a domain.
+Aside from the state explosion in the TE rules, no.  But the better
+solution would be to have the rc scripts or getty reset the type properly
+to avoid the need for these rules.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
-
-
-
 
 
 
