@@ -1,68 +1,30 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA08091
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2001 08:29:16 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA09980
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2001 14:05:27 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA02487
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2001 12:28:35 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id MAA02483
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2001 12:28:35 GMT
-Date: Thu, 5 Jul 2001 08:28:29 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Jan Petranek <jan.petranek@student.uni-tuebingen.de>
-cc: selinux@tycho.nsa.gov
-Subject: Re: checkpolicy fails
-In-Reply-To: <Pine.LNX.4.30.0107032307120.15938-100000@linux45.zdv.uni-tuebingen.de>
-Message-ID: <Pine.SOL.3.95.1010705081105.29381D-100000@clipper.gw.tislabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by jazzswing.ncsc.mil  with ESMTP id SAA17584
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2001 18:04:46 GMT
+Received: from smtp2.abac.com (smtp2.abac.com [216.55.128.11])
+	by jazzswing.ncsc.mil  with ESMTP id SAA17578
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2001 18:04:45 GMT
+Received: from steve.computer.org (02-099.039.popsite.net [64.24.107.99])
+	by smtp2.abac.com (8.10.1/8.10.1) with ESMTP id f65I5Nn06479
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jul 2001 11:05:23 -0700 (PDT)
+Message-Id: <4.3.2.7.2.20010705115300.00aed870@mail1.abac.com>
+Date: Thu, 05 Jul 2001 12:05:35 -0600
+To: selinux@tycho.nsa.gov
+From: Steve Eckmann <eckmann@computer.org>
+Subject: how to add new user roles
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I've read the "Security Policy Configuration" paper and looked at the policy configuration files, but it isn't obvious what is needed to add new user roles with separate domains. I guess I need to create a file like user.te for each new domain, possibly containing just a new type definition and a user_domain() "call", plus whatever new rules apply to each new domain.
 
-On Tue, 3 Jul 2001, Jan Petranek wrote:
+Can someone share a simple new user domain they've developed, or at least the steps needed to add a new domain and role? For example, suppose I want two new domains A and B just like user except that A can read and execute B files, and B can read but not execute A files.
 
-> Breakpoint 1, main (argc=3, argv=0xbffffb2c) at setfiles.c:458
-> 458                             if (items < 2) {
-> 2: *context = 0 '\000'
-> 1: context = 0x8158a80 ""
-
-Oops.  I gave you incorrect guidance.  Display 'type' at this
-breakpoint.  Also, at line 472, display 'context'.  Each line
-in file_contexts has a pathname regular expression field, an optional
-type field, and a security context field.  We aren't currently using
-the optional type field, so immediately after the sscanf call, 
-'type' points to the context and 'context' points to the empty string.
-Then, between line 458 and 472, we see that there were only two fields,
-so we set 'context' to 'type' and clear 'type'.  The purpose of
-the first breakpoint is to see the content of the field immediately
-after the sscanf, to see if it has the bogus 'i' suffix, which is
-not actually present in file_contexts.
-
-> As we come to the second breakpoint, the content has read the context
-> correctly from the file:
-> 
-> Breakpoint 2, main (argc=3, argv=0xbffffb2c) at setfiles.c:553
-> 553                                             len = strlen(context);
-> 2: *context = 115 's'
-> 1: context = 0x81586f0 "system_u:object_r:user_netscape_rw_ti"
-> (gdb)
-
-No - the context is not right here - it has the 'i' suffix, which
-is not in file_contexts.  
-
-> I am not using MLS, so where does the "i" come frome?
-> 1: context = 0x81586f0 "system_u:object_r:user_netscape_rw_ti"
-
-Right - that's the question.  The 'i' isn't in the file_contexts
-file.  
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+Steve
 
 
 --
