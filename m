@@ -1,47 +1,37 @@
-Message-Id: <see628a5.002@atlas.snu.edu>
-Date: Tue, 10 Jun 2003 18:50:54 -0500
-From: "Joshua Brindle" <JBrindle@snu.edu>
-To: <SELinux@tycho.nsa.gov>
-Subject: Policy transport, management, application installation, etc
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Curtis.Bowman@atl.frb.org, <SELinux@tycho.nsa.gov>
+Subject: Re: VMWare GSX Server under SELinux
+Date: Wed, 11 Jun 2003 16:52:07 +1000
+References: <20030610223441.10ED085996@p3fed1.frb.org>
+In-Reply-To: <20030610223441.10ED085996@p3fed1.frb.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200306111652.07240.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Well, the time has come.. We now have the ability to label files during
-installation
-and so we have no choice but to confront my worst fear and problem
-since day 1
+On Wed, 11 Jun 2003 08:22, Curtis.Bowman@atl.frb.org wrote:
+> Has anyone tried with running VMWare under SELinux built on top of Redhat
+> 8.0 or another distro that is compatible for VMWare GSX server.  I thought
+> it might be a good way to do server consolidation while maintaining high
+> security standards for Linux.  Run a couple of Windows 2000 servers with
+> VMWare GSX server.  Any thoughts?
 
-Policy transport:
-  How to get the policy to the users machine when they install app X
+It's been done, there is policy for it, however the policy has not been 
+updated for a while and may not have kept up to date with the latest core 
+policy changes and the latest changes to VMWare and the kernel.
 
-Policy management:
-  How should the package manager deal with policies.
- 
-  To properly label a package the policy of the package would have to
-be
-  merged in to the users policy, recompiled and reloaded so that the 
-  contexts needed are available. 
+Try it out and report in detail any errors you may encounter, I expect that 
+any problems you find can be solved quickly enough.
 
-  This seems bad, playing with the users policy can't be a good thing,
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-  but installing files with incorrect labels can't either. 
-
-  Without doing this the user would be installing apps that either
-don't 
-  have the proper labels to enforce proper use, or apps that just 
-  plain don't work
-
-
-I've really dreaded this moment from the very beginning of this
-project
-but if we are to make this usable by anyone except us :P this needs to
-happen, and if we are to be taken seriously it has to happen the right
-way. I'd REALLY like comments, suggestions, flames, advice, details
-on existing implementations, etc.
-
-PLEASE HELP! :)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
