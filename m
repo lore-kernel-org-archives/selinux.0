@@ -1,42 +1,54 @@
-Message-Id: <200211072021.PAA07355@moss-shockers.ncsc.mil>
-Date: Thu, 7 Nov 2002 15:21:21 -0500 (EST)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA28101
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 15:28:11 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA01559
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 20:26:11 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id UAA01551
+	for <selinux@tycho.nsa.gov>; Thu, 7 Nov 2002 20:26:11 GMT
+Message-Id: <200211072031.PAA07358@moss-shockers.ncsc.mil>
+Date: Thu, 7 Nov 2002 15:31:41 -0500 (EST)
 From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
 Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: default_context file
-To: carstengrohmann@gmx.de, SELinux@tycho.nsa.gov, russell@coker.com.au
+Subject: Re: type transition
+To: selinux@tycho.nsa.gov, giorgio.zanin@inwind.it
 MIME-Version: 1.0
 Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-> From: Russell Coker <russell@coker.com.au>
-> To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
->
-> Actually the new setup for cron seems less capable than the old.
+> From: Giorgio Zanin <giorgio.zanin@inwind.it>
 > 
-> For example in the old setup I could setup an account bofh to have context 
-> bofh:user_r:user_crond_t for cron even though that user may be authorised for 
-> multiple roles.
+> what's the difference between the following statements:
 > 
-> If a hostile user manages to create a crontab file for the user then under the 
-> old system the cron job just wouldn't be run because it would be in the wrong 
-> context.  Under the new system the cron job would be run under the UID of the 
-> victim user but with the security context of the attacking user, if the 
-> attacking user is not permitted to change UID then this can give access to 
-> the UID of the victim user which may allow undesired access.
+> type_transition TYPE_A TYPE_B:process TYPE_C
 > 
-> So I think that the new system is easier to setup, but offers less control.
+> and
+> 
+> allow TYPE_A TYPE_C:process transition
+> ?
+> 
+> If I am  not wrong the first statement forces a new process, created by
+> TYPE_A, to belong to TYPE_C, i.e. everytime TYPE_A creates a process
+> (with respect to TYPE_B) this process is made member of TYPE_C.
+> The second statement allows TYPE_A to change to TYPE_C.
+> Does both occur upon an execve()? If so, what's the difference between
+> them? It seems the first requires a call to fork(), while the second
+> does not; probably I am wrong but it's the only difference I can argue.
+> Can anyone explain how these type transitions occur (possibly everything
+> about type transitions in SELinux....)?
 
-I'm not sure I follow you.  crond still performs a check between the user
-context that will be used for the cron job process [obtained by asking the
-security server for a set of legal SIDs for the user that can be reached
-from crond's SID and then ordering based on default_contexts] and the file
-context on the crontab spool file.  The crontab spool file is still labeled
-based on the context of the creating process using a type transition rule.
-If a hostile user in one domain manages to insert a crontab file for another 
-user who is authorized for a different domain, the cron jobs from that crontab 
-file still won't be executed in that other domain.
+This is explained in the technical reports available from the NSA site.
+To summarize, a type_transition rule specifies a default labeling behavior to 
+provide transparency to unmodified applications, but is not mandatory; it can be 
+overridden via the extended system calls if authorized by the policy.  The allow 
+rules define what is permitted.  A single type_transition may require a number 
+of allow rules to authorize it, e.g. look at what allow rules are contained by  
+a single domain_trans() macro.  Automatically generating the set of allow rules 
+from a type_transition rule isn't really feasible in general without being more 
+permissive than you want in every case.
 
 --
 Stephen Smalley, NSA
