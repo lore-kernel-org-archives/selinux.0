@@ -1,174 +1,55 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA12035
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 10:14:43 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA20441
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 14:14:14 GMT
-Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
-	by jazzband.ncsc.mil  with ESMTP id OAA20437
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 14:14:13 GMT
-Received: from localhost (sds@localhost)
-	by raven.gw.tislabs.com (8.11.6/8.11.6) with ESMTP id f92EEZY10526
-	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 10:14:35 -0400 (EDT)
-Date: Tue, 2 Oct 2001 10:14:35 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: <selinux@tycho.nsa.gov>
-Subject: [PATCH] ssh client domain, miscellaneous changes
-Message-ID: <Pine.GSO.4.33.0110021012040.2296-200000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA12377
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 11:02:59 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id PAA25723
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 15:01:15 GMT
+Received: from ivanova.coker.com.au (ivanova.coker.com.au [203.36.46.209])
+	by jazzswing.ncsc.mil  with ESMTP id PAA25711
+	for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2001 15:01:07 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Justin R. Smith" <jsmith@mcs.drexel.edu>, selinux@tycho.nsa.gov
+Subject: Re: A notion
+Date: Tue, 2 Oct 2001 14:05:24 +0200
+References: <1002012173.1248.12.camel@vorpal>
+In-Reply-To: <1002012173.1248.12.camel@vorpal>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1903590565-1002032075=:2296"
+Message-Id: <20011002150141.6EF1337D96B@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Tue, 2 Oct 2001 10:42, Justin R. Smith wrote:
+> It occurred to me that custom versions of software can be more secure
+> than standard versions because various exploits (like stack smashing,
+> etc.) require precise knowledge of certain sizes and distances in RAM
+> (for instance, the distance from the end of a buffer to the return
+> point...).
+>
+> Isn't it possible to develop a "randomizing C compiler" that randomly
+> varies these distances every time it compiles a program? No two compiles
+> of the same source code would be exactly the same (but they would
+> execute the same way).
 
----559023410-1903590565-1002032075=:2296
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I have a better idea.  Use such a compiler for testing your code.  If the 
+program you are testing doesn't behave the same way in different compiles (a 
+large proportion of programs won't because they are buggy) then you debug it!
 
+Many times I have seen companies ship code compiled in debugging mode because 
+optimising mode of the compiler resulting in SEGV's.  Naturally they assumed 
+it was a bug in the compiler not a bug in their code.  :(
 
-The attached patch adds a domain for the ssh client program
-and adds a few other miscellaneous permissions for logrotate
-and crond.  To apply this patch, save it to 'other.patch',
-change to the selinux directory, and run 'patch -p1 < other.patch'.
-Then do a 'make load' in the policy directory and a 'make relabel' in the
-setfiles directory.
+As someone else mentioned there are a number of options for trying to make it 
+more difficult to smash stacks, including a kernel patch from Solar Designer.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+-- 
+http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
+http://www.coker.com.au/projects.html Projects I am working on
+http://www.coker.com.au/~russell/     My home page
 
-
-
----559023410-1903590565-1002032075=:2296
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="other.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0110021014350.2296@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="other.patch"
-
-SW5kZXg6IHNlbGludXgvcG9saWN5L3JiYWMNCmRpZmYgLXUgc2VsaW51eC9w
-b2xpY3kvcmJhYzoxLjkgc2VsaW51eC9wb2xpY3kvcmJhYzoxLjExDQotLS0g
-c2VsaW51eC9wb2xpY3kvcmJhYzoxLjkJVHVlIFNlcCAyNSAxNzowNzo1OSAy
-MDAxDQorKysgc2VsaW51eC9wb2xpY3kvcmJhYwlUdWUgT2N0ICAyIDA4OjU3
-OjAzIDIwMDENCkBAIC05NCw2ICs5NSw3IEBADQogCXVzZXJfY3JvbmRfdA0K
-IAlodHRwZF91c2VyX3NjcmlwdF9wcm9jZXNzX3QNCiAJaHR0cGRfdXNlcl9z
-Y3JpcHRfdA0KKwl1c2VyX3NzaF90DQogfTsNCiANCiAjDQpAQCAtMTI2LDcg
-KzEyOCw4IEBADQogCXN5c2FkbV9uZXRzY2FwZV90DQogCXN5c2FkbV9jcm9u
-dGFiX3QNCiAgICAgICAgIHN5c2FkbV9jcm9uZF90DQotCXBpbmdfdA0KKwlw
-aW5nX3QJDQorCXN5c2FkbV9zc2hfdA0KIH07DQogDQogDQpJbmRleDogc2Vs
-aW51eC9wb2xpY3kvZG9tYWlucy9wcm9ncmFtL2xvZ3JvdGF0ZS50ZQ0KZGlm
-ZiAtdSBzZWxpbnV4L3BvbGljeS9kb21haW5zL3Byb2dyYW0vbG9ncm90YXRl
-LnRlOjEuNCBzZWxpbnV4L3BvbGljeS9kb21haW5zL3Byb2dyYW0vbG9ncm90
-YXRlLnRlOjEuNQ0KLS0tIHNlbGludXgvcG9saWN5L2RvbWFpbnMvcHJvZ3Jh
-bS9sb2dyb3RhdGUudGU6MS40CUZyaSBBdWcgMjQgMTQ6MTY6MTggMjAwMQ0K
-KysrIHNlbGludXgvcG9saWN5L2RvbWFpbnMvcHJvZ3JhbS9sb2dyb3RhdGUu
-dGUJTW9uIE9jdCAgMSAxMzoyNTo0OCAyMDAxDQpAQCAtNDgsNyArNDgsMTIg
-QEANCiANCiAjIFJ1biBzZW5kbWFpbCBpbiB0aGUgdXNlciBtYWlsIGRvbWFp
-bi4NCiBkb21haW5fYXV0b190cmFucyhsb2dyb3RhdGVfdCwgc2VuZG1haWxf
-ZXhlY190LCB1c2VyX21haWxfdCkNCithbGxvdyB1c2VyX21haWxfdCBsb2dy
-b3RhdGVfdG1wX3Q6ZmlsZSByX2ZpbGVfcGVybXM7DQogDQotIyBXcml0ZSB0
-byAvdmFyL2xpYi9sb2dyb3RhdGUuc3RhdHVzLg0KKyMgV3JpdGUgdG8gL3Zh
-ci9saWIvbG9ncm90YXRlLnN0YXR1cyAtIHNob3VsZCBiZSBtb3ZlZCBpbnRv
-IGl0cyBvd24gdHlwZS4NCiBhbGxvdyBsb2dyb3RhdGVfdCB2YXJfbGliX3Q6
-ZGlyIHJ3X2Rpcl9wZXJtczsNCiBhbGxvdyBsb2dyb3RhdGVfdCB2YXJfbGli
-X3Q6ZmlsZSBjcmVhdGVfZmlsZV9wZXJtczsNCisNCisjIFdyaXRlIHRvIC92
-YXIvc3Bvb2wvc2xybnB1bGwgLSBzaG91bGQgYmUgbW92ZWQgaW50byBpdHMg
-b3duIHR5cGUuDQorYWxsb3cgbG9ncm90YXRlX3QgdmFyX3Nwb29sX3Q6ZGly
-IHsgc2VhcmNoIHdyaXRlIGFkZF9uYW1lIHJlbW92ZV9uYW1lIH07DQorYWxs
-b3cgbG9ncm90YXRlX3QgdmFyX3Nwb29sX3Q6ZmlsZSB7IHJlbmFtZSBjcmVh
-dGUgc2V0YXR0ciB1bmxpbmsgfTsNCkluZGV4OiBzZWxpbnV4L3BvbGljeS9k
-b21haW5zL3Byb2dyYW0vc3NoLnRlDQpkaWZmIC11IC9kZXYvbnVsbCBzZWxp
-bnV4L3BvbGljeS9kb21haW5zL3Byb2dyYW0vc3NoLnRlOjEuMg0KLS0tIC9k
-ZXYvbnVsbAlUdWUgT2N0ICAyIDA5OjU5OjM5IDIwMDENCisrKyBzZWxpbnV4
-L3BvbGljeS9kb21haW5zL3Byb2dyYW0vc3NoLnRlCVR1ZSBPY3QgIDIgMDk6
-Mzk6NTQgMjAwMQ0KQEAgLTAsMCArMSw1MCBAQA0KKyMNCisjIEF1dGhvcjog
-IFN0ZXBoZW4gU21hbGxleSAoTkFJIExhYnMpIDxzc21hbGxleUBuYWkuY29t
-Pg0KKyMNCisNCisjDQorIyBzc2hfZXhlY190IGlzIHRoZSB0eXBlIG9mIHRo
-ZSBzc2ggZXhlY3V0YWJsZS4NCisjDQordHlwZSBzc2hfZXhlY190LCBmaWxl
-X3R5cGUsIGV4ZWNfdHlwZSwgc3lzYWRtZmlsZTsNCisNCisjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorIyANCisjIHNzaF9kb21haW4oZG9t
-YWluX3ByZWZpeCkNCisjDQorIyBEZWZpbmUgYSBzc2ggZG9tYWluIGZvciBh
-IHVzZXIgZG9tYWluDQorIw0KK2RlZmluZShgc3NoX2RvbWFpbicsYA0KKw0K
-K3R5cGUgJDFfc3NoX3QsIGRvbWFpbiwgcHJpdmxvZywgYXV0aDsNCisNCisj
-IEVudGVyIHRoZSBkb21haW4gdmlhIHRoZSBzc2ggcHJvZ3JhbS4NCitkb21h
-aW5fYXV0b190cmFucygkMV90LCBzc2hfZXhlY190LCAkMV9zc2hfdCkNCisN
-CisjIFVzZSBjYXBhYmlsaXRpZXMuDQorYWxsb3cgJDFfc3NoX3Qgc2VsZjpj
-YXBhYmlsaXR5IHsgc2V0dWlkIH07DQorDQorIyBSdW4gaGVscGVycy4NCitj
-YW5fZXhlY19hbnkoJDFfc3NoX3QpDQorDQorIyBSZWFkIHRoZSBzc2gga2V5
-IGZpbGUuDQorYWxsb3cgJDFfc3NoX3Qgc3NoZF9rZXlfdDpmaWxlIHJfZmls
-ZV9wZXJtczsNCisNCisjIEFjY2VzcyB0aGUgc3NoIHRlbXBvcmFyeSBmaWxl
-cy4NCitmaWxlX3R5cGVfYXV0b190cmFucygkMV9zc2hfdCwgdG1wX3QsIHNz
-aGRfdG1wX3QpDQorDQorIyBBY2Nlc3MgdGhlIHVzZXIncyAuc3NoIGRpcmVj
-dG9yeS4NCithbGxvdyAkMV9zc2hfdCAkMV9ob21lX3Q6ZGlyIHJ3X2Rpcl9w
-ZXJtczsNCithbGxvdyAkMV9zc2hfdCAkMV9ob21lX3Q6ZmlsZSBjcmVhdGVf
-ZmlsZV9wZXJtczsNCisNCisjIEluaGVyaXQgYW5kIHVzZSBkZXNjcmlwdG9y
-cyBmcm9tIGdub21lLXB0eS1oZWxwZXIuDQorYWxsb3cgJDFfc3NoX3QgJDFf
-Z3BoX3Q6ZmQgaW5oZXJpdF9mZF9wZXJtczsNCisNCisjIFVzZSB0aGUgbmV0
-d29yaw0KK2Nhbl9uZXR3b3JrKCQxX3NzaF90KQ0KKw0KKyMgV3JpdGUgdG8g
-dGhlIHVzZXIgZG9tYWluIHR0eS4NCithbGxvdyAkMV9zc2hfdCAkMV90dHlf
-ZGV2aWNlX3Q6Y2hyX2ZpbGUgcndfZmlsZV9wZXJtczsNCithbGxvdyAkMV9z
-c2hfdCAkMV9kZXZwdHNfdDpjaHJfZmlsZSByd19maWxlX3Blcm1zOw0KKw0K
-KycpDQorDQpJbmRleDogc2VsaW51eC9wb2xpY3kvZG9tYWlucy9zeXN0ZW0v
-Y3JvbmQudGUNCmRpZmYgLXUgc2VsaW51eC9wb2xpY3kvZG9tYWlucy9zeXN0
-ZW0vY3JvbmQudGU6MS4xNCBzZWxpbnV4L3BvbGljeS9kb21haW5zL3N5c3Rl
-bS9jcm9uZC50ZToxLjE2DQotLS0gc2VsaW51eC9wb2xpY3kvZG9tYWlucy9z
-eXN0ZW0vY3JvbmQudGU6MS4xNAlXZWQgU2VwIDI2IDA4OjE3OjE1IDIwMDEN
-CisrKyBzZWxpbnV4L3BvbGljeS9kb21haW5zL3N5c3RlbS9jcm9uZC50ZQlU
-dWUgT2N0ICAyIDA5OjM5OjU0IDIwMDENCkBAIC0xNDMsNiArMTQzLDcgQEAN
-CiAjIENyZWF0ZSB0ZW1wb3JhcnkgZmlsZXMuDQogdHlwZSBzeXN0ZW1fY3Jv
-bmRfdG1wX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZSwgdG1wZmlsZTsNCiBm
-aWxlX3R5cGVfYXV0b190cmFucyhzeXN0ZW1fY3JvbmRfdCwgdG1wX3QsIHN5
-c3RlbV9jcm9uZF90bXBfdCkNCithbGxvdyB1c2VyX21haWxfdCBzeXN0ZW1f
-Y3JvbmRfdG1wX3Q6ZmlsZSByYV9maWxlX3Blcm1zOw0KIA0KICMgVXNlZCBm
-b3IgL3NiaW4vdG1wd2F0Y2gNCiBhbGxvdyBzeXN0ZW1fY3JvbmRfdCB0bXBm
-aWxlOmRpciByd19kaXJfcGVybXM7DQpAQCAtMTY2LDggKzE2Nyw4IEBADQog
-YWxsb3cgc3lzdGVtX2Nyb25kX3QgdmFyX3Nwb29sX3Q6ZGlyIHJ3X2Rpcl9w
-ZXJtczsNCiANCiAjIERvIG5vdCBhdWRpdCBhdHRlbXB0cyB0byBzZWFyY2gg
-dW5sYWJlbGVkIGRpcmVjdG9yaWVzIChlLmcuIHNsb2NhdGUpLg0KLWF1ZGl0
-ZGVueSBzeXN0ZW1fY3JvbmRfdCB1bmxhYmVsZWRfdDpkaXIgcl9kaXJfcGVy
-bXM7DQotYXVkaXRkZW55IHN5c3RlbV9jcm9uZF90IHVubGFiZWxlZF90OmZp
-bGUgcl9maWxlX3Blcm1zOw0KK2F1ZGl0ZGVueSBzeXN0ZW1fY3JvbmRfdCB1
-bmxhYmVsZWRfdDpkaXIgfnJfZGlyX3Blcm1zOw0KK2F1ZGl0ZGVueSBzeXN0
-ZW1fY3JvbmRfdCB1bmxhYmVsZWRfdDpmaWxlIH5yX2ZpbGVfcGVybXM7DQog
-DQogDQogIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQpJbmRl
-eDogc2VsaW51eC9wb2xpY3kvZG9tYWlucy9zeXN0ZW0vaW5pdC50ZQ0KZGlm
-ZiAtdSBzZWxpbnV4L3BvbGljeS9kb21haW5zL3N5c3RlbS9pbml0LnRlOjEu
-MTAgc2VsaW51eC9wb2xpY3kvZG9tYWlucy9zeXN0ZW0vaW5pdC50ZToxLjEx
-DQotLS0gc2VsaW51eC9wb2xpY3kvZG9tYWlucy9zeXN0ZW0vaW5pdC50ZTox
-LjEwCUZyaSBTZXAgIDcgMTE6MDY6MjQgMjAwMQ0KKysrIHNlbGludXgvcG9s
-aWN5L2RvbWFpbnMvc3lzdGVtL2luaXQudGUJVHVlIE9jdCAgMiAwODo1Nzow
-MyAyMDAxDQpAQCAtOTIsMyArOTIsNiBAQA0KIHR5cGVfdHJhbnNpdGlvbiBp
-bml0X3QgYXV0b21vdW50X2V4ZWNfdDpwcm9jZXNzIGF1dG9tb3VudF90Ow0K
-IHR5cGVfdHJhbnNpdGlvbiBpbml0X3QgaHR0cGRfZXhlY190OnByb2Nlc3Mg
-aHR0cGRfdDsNCiB0eXBlX3RyYW5zaXRpb24gaW5pdF90IHB1bXBfZXhlY190
-OnByb2Nlc3MgcHVtcF90Ow0KK3R5cGVfdHJhbnNpdGlvbiBpbml0X3QgYW5h
-Y3Jvbl9leGVjX3Q6cHJvY2VzcyBzeXN0ZW1fY3JvbmRfdDsNCit0eXBlX3Ry
-YW5zaXRpb24gaW5pdF90IGlwc2VjX2V4ZWNfdDpwcm9jZXNzIGlwc2VjX3Q7
-DQordHlwZV90cmFuc2l0aW9uIGluaXRfdCBuYW1lZF9leGVjX3Q6cHJvY2Vz
-cyBuYW1lZF90Ow0KSW5kZXg6IHNlbGludXgvcG9saWN5L2RvbWFpbnMvdXNl
-ci91c2VyLnRlDQpkaWZmIC11IHNlbGludXgvcG9saWN5L2RvbWFpbnMvdXNl
-ci91c2VyLnRlOjEuMTQgc2VsaW51eC9wb2xpY3kvZG9tYWlucy91c2VyL3Vz
-ZXIudGU6MS4xNQ0KLS0tIHNlbGludXgvcG9saWN5L2RvbWFpbnMvdXNlci91
-c2VyLnRlOjEuMTQJVHVlIFNlcCAyNSAxNzowNzo1OSAyMDAxDQorKysgc2Vs
-aW51eC9wb2xpY3kvZG9tYWlucy91c2VyL3VzZXIudGUJRnJpIFNlcCAyOCAx
-Mjo1MzowMyAyMDAxDQpAQCAtMTk3LDYgKzE5Nyw5IEBADQogIyBSZWFkIHRo
-ZSBtb3VzZS4NCiBhbGxvdyAkMV90IG1vdXNlX2RldmljZV90OmNocl9maWxl
-IHJfZmlsZV9wZXJtczsNCiANCisjIFJ1biBzc2ggaW4gYSBzZXBhcmF0ZSBk
-b21haW4uDQorc3NoX2RvbWFpbigkMSkNCisNCiAnKQ0KIA0KIA0KSW5kZXg6
-IHNlbGludXgvc2V0ZmlsZXMvZmlsZV9jb250ZXh0cw0KZGlmZiAtdSBzZWxp
-bnV4L3NldGZpbGVzL2ZpbGVfY29udGV4dHM6MS4yNyBzZWxpbnV4L3NldGZp
-bGVzL2ZpbGVfY29udGV4dHM6MS4yOQ0KLS0tIHNlbGludXgvc2V0ZmlsZXMv
-ZmlsZV9jb250ZXh0czoxLjI3CVR1ZSBTZXAgMjUgMTc6MDg6NTEgMjAwMQ0K
-KysrIHNlbGludXgvc2V0ZmlsZXMvZmlsZV9jb250ZXh0cwlUdWUgT2N0ICAy
-IDA4OjU3OjE3IDIwMDENCkBAIC0yNTQsNiArMjU2LDcgQEANCiAvdXNyL2Jp
-bi9tYWtlbWFwCQlzeXN0ZW1fdTpvYmplY3RfcjpzYmluX3QNCiAvdXNyL2Jp
-bi9uZXRzY2FwZQkJc3lzdGVtX3U6b2JqZWN0X3I6bmV0c2NhcGVfZXhlY190
-DQogL3Vzci9iaW4vY3JvbnRhYgkJc3lzdGVtX3U6b2JqZWN0X3I6Y3JvbnRh
-Yl9leGVjX3QNCisvdXNyL2Jpbi9zc2gJCQlzeXN0ZW1fdTpvYmplY3Rfcjpz
-c2hfZXhlY190DQogDQogDQogIw0K
----559023410-1903590565-1002032075=:2296--
 
 --
 You have received this message because you are subscribed to the selinux list.
