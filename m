@@ -1,49 +1,56 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iANFDWIi011933
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 10:13:32 -0500 (EST)
-Received: from omx1.americas.sgi.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iANFC25q013713
-	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 15:12:02 GMT
-Message-ID: <41A35397.1080001@sgi.com>
-Date: Tue, 23 Nov 2004 10:13:27 -0500
-From: Prarit Bhargava <prarit@sgi.com>
-MIME-Version: 1.0
-To: linux-ia64@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: SELinux & ia64
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iANGpeIi012741
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 11:51:40 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iANGpcFP023715
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 16:51:43 GMT
+Received: from lkcl.net (unknown [212.44.25.89])
+	by open.hands.com (Postfix) with ESMTP id 2251CC182
+	for <selinux@tycho.nsa.gov>; Tue, 23 Nov 2004 16:51:16 +0000 (GMT)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1CWe3L-0001hO-QP
+	for selinux@tycho.nsa.gov; Tue, 23 Nov 2004 17:02:07 +0000
+Date: Tue, 23 Nov 2004 17:02:07 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: http://sf.net/projects/xen
+Message-ID: <20041123170207.GA6250@lkcl.net>
+References: <20041120204020.GB26761@lkcl.net> <20041122103142.GA4400@rns-nis.co.yu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20041122103142.GA4400@rns-nis.co.yu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-SELinux appears to cause warnings while attempting mounts both at 
-boot-time and run-time:
+On Mon, Nov 22, 2004 at 11:31:42AM +0100, Milan P. Stanic wrote:
+> On Sat, Nov 20, 2004 at 08:40:20PM +0000, Luke Kenneth Casson Leighton wrote:
+> > vmware, _and_ who also don't want the slowness or features of UML,
+> 
+> When I backported SELinux from Debian/unstable to woody, I did that
+> using UML only. I didn't had any problem with UML, only with my own
+> slowness :-)
+ 
+ :)
 
-kernel unaligned access to 0xa0000002003a0056, ip=0xa0000001002076d0
-kernel unaligned access to 0xa0000002003a005e, ip=0xa0000001002076d0
-kernel unaligned access to 0xa0000002003a0066, ip=0xa0000001002076d0
-kernel unaligned access to 0xa0000002003a006e, ip=0xa0000001002076d0
+ this page demonstrates it best:
 
-I've tracked this to the usage of le32_to_cpu in 
+ http://www.cl.cam.ac.uk/Research/SRG/netos/xen/performance.html
 
-security/selinux/ss/policydb.c
+ also, UML, unless it is patched (yes someone has provided
+ such patches), provides the host running the UML linux apps
+ with direct access to their kernel memory - for debugging
+ purposes, obviously.
 
-The code in question uses:
+ i'm evaluating xen as a means to run applications like mozilla
+ in an isolated selinux machine (!) also to suspend them down
+ to disk, and use xen to start an entire virtual machine up
+ when a user needs to run the application (!)
 
-    len = le32_to_cpu(buf[0]);
+ my only concern is how to stop absolutely anyone from running
+ a xen guest OS: management of xen is done on port 8000.
 
-and should be
+ l.
 
-    len = le32_to_cpu(get_unaligned(&buf[0]));
-
-However, this is probably not a good solution as the get_unaligned macro 
-can be expensive
-on platforms other than ia64. 
-
-I'm tempted to redefine the le32_to_cpu function for policydb.c for the 
-ia64 platform, but
-before I go down that road I was wondering if anyone had hit this issue 
-elsewhere in the kernel?
-
-Prarit.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
