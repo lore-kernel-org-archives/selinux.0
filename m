@@ -1,34 +1,50 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA05425
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 07:33:16 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id LAA04646
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 11:31:53 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA05592
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 08:07:22 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA13014
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 12:07:05 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id LAA04642 for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 11:31:52 GMT
-Date: Thu, 13 Jun 2002 07:32:41 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id MAA13010
+	for <selinux@tycho.nsa.gov>; Thu, 13 Jun 2002 12:07:05 GMT
+Date: Thu, 13 Jun 2002 08:06:31 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: giovanni <giovanni@unirel.it>
+To: Russell Coker <russell@coker.com.au>
 cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Are there any problems? 
-In-Reply-To: <200206130905.24624.giovanni@unirel.it>
-Message-ID: <Pine.GSO.4.33.0206130725060.23212-100000@raven>
+Subject: Re: IGMP being blocked
+In-Reply-To: <20020613095301.54B5F18B@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0206130755350.23212-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 13 Jun 2002, giovanni wrote:
+On Thu, 13 Jun 2002, Russell Coker wrote:
 
-> Usually i receive several message every day from this mailing list, but in the
-> last two days i haven't received any!
-> Has the list been closed?
+> avc:  denied  { rawip_send } for  saddr=213.84.71.248 daddr=224.0.1.41
+> netif=ppp0 scontext=system_u:object_r:unlabeled_t
+> tcontext=system_u:object_r:netif_t tclass=netif
+>
+> avc:  denied  { rawip_send } for  saddr=213.84.71.248 daddr=224.0.1.41
+> netif=ppp0 scontext=system_u:object_r:unlabeled_t
+> tcontext=system_u:object_r:node_t tclass=node
+>
+> I am seeing the above in my logs regularly on a server that I have just
+> upgraded to the latest LSM with IPSec (which I have not enabled).
+>
+> It seems that IGMP code is being run as unlabeled_t.
+>
+> Any ideas on what to do with this?
 
-There was a message posted on Wed 6/12 regarding mingetty on SuSE, plus
-several messages on Mon 6/10 (and now several messages today).  You can
-check the mailing list archives at
-http://marc.theaimsgroup.com/?l=selinux.
+I think that what is happening here is that the IGMP code is allocating a
+skb and sending it without ever associating it with a sending socket.
+Normally, a skb is initially tagged with the unlabeled SID upon allocation
+and later tagged with a SID derived from the sending socket upon
+skb_set_owner_w.  Notice that the IGMP code differs from the ICMP code,
+which uses a kernel ICMP socket for sends.  I suppose that we could try to
+detect these packets in selinux_ip_output_first and then assign them an
+initial SID for IGMP traffic.
 
 --
 Stephen D. Smalley, NAI Labs
