@@ -1,151 +1,57 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id XAA02767
-	for <selinux@tycho.nsa.gov>; Wed, 17 Apr 2002 23:02:44 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id DAA20045
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 03:01:33 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id DAA20041 for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 03:01:31 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 365FB92457
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 13:02:37 +1000 (EST)
-Received: from there (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 90487239FA
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 05:02:27 +0200 (CEST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA03554
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 05:22:00 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id JAA08724
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 09:20:18 GMT
+Received: from nox.lemuria.org ([213.191.86.30])
+	by jazzswing.ncsc.mil  with ESMTP id JAA08720
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 09:20:17 GMT
+Date: Thu, 18 Apr 2002 11:22:38 +0200
+From: Tom <tom@lemuria.org>
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: setfiles patch
-Date: Thu, 18 Apr 2002 05:02:26 +0200
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_2STQ2OR07NN6LCCRN8UZ"
-Message-Id: <20020418030227.90487239FA@lyta.coker.com.au>
+Subject: policy question
+Message-ID: <20020418112238.A1788@lemuria.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+After the 3rd reading, I think I finally "got it" - the policy part,
+that is. Objects, Domains, Types, Roles, you name it.
 
---------------Boundary-00=_2STQ2OR07NN6LCCRN8UZ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+So, I'm now at the "learning by example" stage. I'm looking through the
+example policy files, trying to understand what they do. I use that
+apol tool to analyse it as well as looking through the raw files.
 
-I have attached a patch for setfiles which gives support for files larger 
-than 2G on i386, and which changes the support for file names on stdin to use 
-a "-s" option flag instead of specifying "-" as the partition name.
 
-The large file support is a bit of a quick hack, I need to have something 
-like #ifdef i386 around the definition of _LARGEFILE64_SOURCE, or maybe some 
-autoconf stuff.
+Now a question: One thing I'd like to write a policy about is a
+seperated webserver. I *think* it can be done.
 
-But it's quite functional as a sample, and if you have a i386 machine with 
-some >2G files you'll probably be very happy with this patch.
+Scenario: Webhosting with PHP, multiple users (possibly many)
+Danger: PHP runs as a module, i.e. with apache's user and permissions.
+that means it is trivial for every user to acess other user's files,
+including .php files that may include things like database passwords.
+
+Solution: domain transition to individual user's domain when reading a
+file of that user. something like
+domain_auto_trans(httpd_t, user_webdata_t, user_t)
+should do the trick (I say "something like" because this macro expands
+to include only execution, but I see no reason why the same can't be
+done for file open or read).
+
+The tricky part is that the apache will have to revert BACK to its
+original domain once the operation is done, i.e. something like "on
+socket close, domain transition to httpd_t". however, the user_t domain
+should not have the general ability to make a transition to httpd_t.
+
+Am I making any sense? Or do I need to read the papers again? :)
+
 
 -- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
-
---------------Boundary-00=_2STQ2OR07NN6LCCRN8UZ
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="setfiles.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="setfiles.diff"
-
-LS0tIHNlbGludXgtc21hbGwtMjAwMjAzMTQwOS5vcmlnL3NldGZpbGVzL3NldGZpbGVzLmMKKysr
-IHNlbGludXgtc21hbGwtMjAwMjAzMTQwOS9zZXRmaWxlcy9zZXRmaWxlcy5jCkBAIC0xNyw2ICsx
-Nyw3IEBACiAgKiAtZCAgIFNob3cgd2hhdCBzcGVjaWZpY2F0aW9uIG1hdGNoZWQgZWFjaCBmaWxl
-LgogICogLW4JRG8gbm90IGNoYW5nZSBhbnkgZmlsZSBsYWJlbHMuCiAgKiAtdglTaG93IGNoYW5n
-ZXMgaW4gZmlsZSBsYWJlbHMuICAKKyAqIC1tICAgRG9uJ3Qgd2FybiBhYm91dCBubyBtYXRjaGVz
-LgogICogLVIgICBSZWNyZWF0ZSB0aGUgcGVyc2lzdGVudCBsYWJlbCBtYXBwaW5ncyBmcm9tIHNj
-cmF0Y2guCiAgKiAgICAgIE11c3QgcmVib290IHRvIHRha2UgYWZmZWN0LgogICogc3BlY19maWxl
-CVRoZSBzcGVjaWZpY2F0aW9uIGZpbGUuCkBAIC01MCw2ICs1MSw3IEBACiAgKiBzcGVjaWZpY2F0
-aW9uIG90aGVyIHRoYW4gPDxub25lPj4uCiAgKi8KIAorI2RlZmluZSBfTEFSR0VGSUxFNjRfU09V
-UkNFCiAjaW5jbHVkZSA8dW5pc3RkLmg+CiAjaW5jbHVkZSA8c3RkbGliLmg+CiAjaW5jbHVkZSA8
-c3RkaW8uaD4KQEAgLTY0LDYgKzY2LDEzIEBACiAjaW5jbHVkZSA8ZnNfc2VjdXJlLmg+CiAjaW5j
-bHVkZSA8c3MuaD4KICNpbmNsdWRlICJwc2lkLmgiCisjaW5jbHVkZSA8bGltaXRzLmg+CisKKyNp
-ZmRlZiBfTEFSR0VGSUxFNjRfU09VUkNFCit0eXBlZGVmIHN0cnVjdCBzdGF0NjQgU1RBVF9TVFJV
-Q1Q7CisjZWxzZQordHlwZWRlZiBzdHJ1Y3Qgc3RhdCBTVEFUX1NUUlVDVDsKKyNlbmRpZgogCiBz
-dHJ1Y3QgcHNpZHRhYiAqcHNpZHM7CiAKQEAgLTc2LDkgKzg1LDExIEBACiAgKiBDb21tYW5kLWxp
-bmUgb3B0aW9ucy4KICAqLwogc3RhdGljIGludCBjaGFuZ2UgPSAxOworc3RhdGljIGludCB3YXJu
-X25vX21hdGNoID0gMTsKIHN0YXRpYyBpbnQgZGVidWcgPSAwOwogc3RhdGljIGludCB2ZXJib3Nl
-ID0gMDsKIHN0YXRpYyBpbnQgcmVzZXQgPSAwOworc3RhdGljIGludCB1c2Vfc3RkaW4gPSAwOwog
-CiAvKgogICogUHJvZ3JhbSBuYW1lIGFuZCBlcnJvciBtZXNzYWdlIGJ1ZmZlci4KQEAgLTI0Nywx
-NCArMjU4LDIyIEBACiB9CiAKIAotaW50IG1hdGNoKGNvbnN0IGNoYXIgKm5hbWUsIHN0cnVjdCBz
-dGF0ICpzYiwgc2VjdXJpdHlfaWRfdCAqb3V0X3NpZCkgCitpbnQgbWF0Y2goY29uc3QgY2hhciAq
-bmFtZSwgU1RBVF9TVFJVQ1QgKnNiLCBzZWN1cml0eV9pZF90ICpvdXRfc2lkKSAKIHsKIAlpbnQg
-aSwgcmV0OwogCiAJaWYgKGZsYXNrX2VuYWJsZWQpIHsKKyNpZmRlZiBfTEFSR0VGSUxFNjRfU09V
-UkNFCisJCXJldCA9IGxzdGF0NjRfc2VjdXJlKG5hbWUsIHNiLCBvdXRfc2lkKTsKKyNlbHNlCiAJ
-CXJldCA9IGxzdGF0X3NlY3VyZShuYW1lLCBzYiwgb3V0X3NpZCk7CisjZW5kaWYKIAl9IGVsc2Ug
-eworI2lmZGVmIF9MQVJHRUZJTEU2NF9TT1VSQ0UKKwkJcmV0ID0gbHN0YXQ2NChuYW1lLCBzYik7
-CisjZWxzZQogCQlyZXQgPSBsc3RhdChuYW1lLCBzYik7CisjZW5kaWYKIAl9IAogCWlmIChyZXQp
-IHsKIAkJZnByaW50ZihzdGRlcnIsICIlczogIHVuYWJsZSB0byBzdGF0IGZpbGUgJXNcbiIsIHBy
-b2duYW1lLApAQCAtMzAxLDExICszMjAsMTEgQEAKICAqIHRoZSBkaXJlY3RvcnkgdHJhdmVyc2Fs
-LgogICovCiBzdGF0aWMgaW50IGFwcGx5X3NwZWMoY29uc3QgY2hhciAqZmlsZSwKLQkJICAgICAg
-Y29uc3Qgc3RydWN0IHN0YXQgKnNiLCBpbnQgZmxhZywgc3RydWN0IEZUVyAqcykKKwkJICAgICAg
-Y29uc3QgU1RBVF9TVFJVQ1QgKnNiLCBpbnQgZmxhZywgc3RydWN0IEZUVyAqcykKIHsKIAljb25z
-dCBjaGFyICpteV9maWxlOwogCWZpbGVfc3BlY190ICpmbDsKLQlzdHJ1Y3Qgc3RhdCBteV9zYjsK
-KwlTVEFUX1NUUlVDVCBteV9zYjsKIAlzZWN1cml0eV9pZF90IHNpZDsKIAlpbnQgaSwgbGVuLCBy
-ZXQ7CiAJY2hhciAqY29udGV4dDsKQEAgLTM1Niw3ICszNzUsMTEgQEAKIAogCS8qIEdldCB0aGUg
-Y3VycmVudCBTSUQgb3IgY29udGV4dCBvZiB0aGUgZmlsZS4gKi8KIAlpZiAoZmxhc2tfZW5hYmxl
-ZCkgeworI2lmZGVmIF9MQVJHRUZJTEU2NF9TT1VSQ0UKKwkJaWYgKGxzdGF0NjRfc2VjdXJlKG15
-X2ZpbGUsICZteV9zYiwgJnNpZCkpIHsKKyNlbHNlCiAJCWlmIChsc3RhdF9zZWN1cmUobXlfZmls
-ZSwgJm15X3NiLCAmc2lkKSkgeworI2VuZGlmCiAJCQlmcHJpbnRmKHN0ZGVyciwgIiVzOiAgdW5h
-YmxlIHRvIHN0YXQgZmlsZSAlc1xuIiwgcHJvZ25hbWUsCiAJCQkJbXlfZmlsZSk7CiAJCQlyZXR1
-cm4gMDsKQEAgLTQ1MiwxNCArNDc1LDE3IEBACiAJY2hhciBwYXRobmFtZVsxMDI0XTsKIAlpbnQg
-b3B0LCBpdGVtcywgbGVuLCBsaW5lbm8sIHBhc3MsIG5lcnIsIHJlZ2VyciwgaTsKIAlzZWN1cml0
-eV9pZF90IHNpZDsKLQlzdHJ1Y3Qgc3RhdCBzYjsKKwlTVEFUX1NUUlVDVCBzYjsKIAogCS8qIFBy
-b2Nlc3MgYW55IG9wdGlvbnMuICovCi0Jd2hpbGUgKChvcHQgPSBnZXRvcHQoYXJnYywgYXJndiwg
-ImRudlIiKSkgPiAwKSB7CisJd2hpbGUgKChvcHQgPSBnZXRvcHQoYXJnYywgYXJndiwgImRtbnZS
-cyIpKSA+IDApIHsKIAkJc3dpdGNoIChvcHQpIHsKIAkJY2FzZSAnZCc6CiAJCQlkZWJ1ZyA9IDE7
-CiAJCQlicmVhazsKKwkJY2FzZSAnbSc6CisJCQl3YXJuX25vX21hdGNoID0gMDsKKwkJCWJyZWFr
-OwogCQljYXNlICduJzoKIAkJCWNoYW5nZSA9IDA7CiAJCQlicmVhazsKQEAgLTQ2OSwxMCArNDk1
-LDEzIEBACiAJCWNhc2UgJ1InOgogCQkJcmVzZXQgPSAxOwogCQkJYnJlYWs7CisJCWNhc2UgJ3Mn
-OgorCQkJdXNlX3N0ZGluID0gMTsKKwkJCWJyZWFrOwogCQl9CiAJfQogCi0JaWYgKG9wdGluZCA+
-IChhcmdjIC0gMikpIHsKKwlpZiAoKG9wdGluZCAtIHVzZV9zdGRpbikgPiAoYXJnYyAtIDIpKSB7
-CiAJCWZwcmludGYoc3RkZXJyLAogCQkJInVzYWdlOiAgJXMgWy1kbnZSXSBzcGVjX2ZpbGUgcGF0
-aG5hbWUuLi5cbiIsCiAJCQlhcmd2WzBdKTsKQEAgLTY3NSw3ICs3MDQsNzQgQEAKIAkgKiBBcHBs
-eSB0aGUgc3BlY2lmaWNhdGlvbnMgdG8gdGhlIGZpbGUgc3lzdGVtcy4KIAkgKi8KIAlwcm9nbmFt
-ZSA9IGFyZ3ZbMF07Ci0JZm9yICg7IG9wdGluZCA8IGFyZ2M7IG9wdGluZCsrKSB7CisJaWYodXNl
-X3N0ZGluKQorCXsKKwkJY2hhciBidWZbUEFUSF9NQVhdOworCQlpZighZmxhc2tfZW5hYmxlZCkK
-KwkJeworCQkJc3ByaW50ZihwYXRobmFtZSwgIiVzLyVzIiwgYXJndltvcHRpbmRdLCAiLiIpOwor
-CQkJaSA9IG1hdGNoKHBhdGhuYW1lLCAmc2IsICZzaWQpOworCQkJaWYgKGkgPCAwKSAKKwkJCQlj
-b250ZXh0ID0gRklMRV9DT05URVhUOworCQkJZWxzZQorCQkJCWNvbnRleHQgPSBzcGVjW2ldLmNv
-bnRleHQ7CisKKwkJCXByaW50ZigiJXM6ICBsYWJlbGluZyBmaWxlcyB1bmRlciAlcyAoZGVmYXVs
-dCBmaWxlIGNvbnRleHQgJXMpXG4iLCBhcmd2WzBdLAorCQkJICAgICAgIGFyZ3Zbb3B0aW5kXSwg
-Y29udGV4dCk7CisKKwkJCXBzaWRzID0gcHNpZHRhYl9pbml0KGFyZ3Zbb3B0aW5kXSwgY29udGV4
-dCwgRlNfQ09OVEVYVCwgcmVzZXQpOworCQkJaWYgKHBzaWRzID09IE5VTEwpIHsKKwkJCQlmcHJp
-bnRmKHN0ZGVyciwKKwkJCQkJIiVzOiAgdW5hYmxlIHRvIGluaXRpYWxpemUgUFNJRCBtYXBwaW5n
-IGZvciAlc1xuIiwKKwkJCQkJYXJndlswXSwgYXJndltvcHRpbmRdKTsKKwkJCQlleGl0KDEpOwor
-CQkJfQorCQl9CisJCQorCQl3aGlsZShmZ2V0cyhidWYsIHNpemVvZihidWYpLCBzdGRpbikpCisJ
-CXsKKwkJCVNUQVRfU1RSVUNUIHNiOworCQkJc3RydG9rKGJ1ZiwgIlxuIik7CisJCQlpZihidWZb
-MF0gIT0gJ1xuJykKKwkJCXsKKyNpZmRlZiBfTEFSR0VGSUxFNjRfU09VUkNFCisJCQkJaWYoc3Rh
-dDY0KGJ1ZiwgJnNiKSkKKyNlbHNlCisJCQkJaWYoc3RhdChidWYsICZzYikpCisjZW5kaWYKKwkJ
-CQkJZnByaW50ZihzdGRlcnIsICJGaWxlIFwiJXNcIiBub3QgZm91bmQuXG4iLCBidWYpOworCQkJ
-CWVsc2UKKwkJCQl7CisJCQkJCWludCBmbGFnOworCQkJCQlzd2l0Y2goc2Iuc3RfbW9kZSkKKwkJ
-CQkJeworCQkJCQljYXNlIFNfSUZESVI6CisJCQkJCQlmbGFnID0gRlRXX0Q7CisJCQkJCWJyZWFr
-OworCQkJCQljYXNlIFNfSUZMTks6CisJCQkJCQlmbGFnID0gRlRXX1NMOworCQkJCQlicmVhazsK
-KwkJCQkJZGVmYXVsdDoKKwkJCQkJCWZsYWcgPSBGVFdfRjsKKwkJCQkJfQorCQkJCQlhcHBseV9z
-cGVjKGJ1ZiwgJnNiLCBmbGFnLCBOVUxMKTsKKwkJCQl9CisJCQl9CisJCX0KKwkJaWYgKCFmbGFz
-a19lbmFibGVkKQorCQkJcHNpZHRhYl9kZXN0cm95KHBzaWRzKTsKKworCQkvKgorCQkgKiBFdmFs
-dWF0ZSB0aGUgYXNzb2NpYXRpb24gaGFzaCB0YWJsZSBkaXN0cmlidXRpb24gZm9yIHRoZQorCQkg
-KiBkaXJlY3RvcnkgdHJlZSBqdXN0IHRyYXZlcnNlZC4KKwkJICovCisJCWZpbGVfc3BlY19ldmFs
-KCk7CisKKwkJLyogUmVzZXQgdGhlIGFzc29jaWF0aW9uIGhhc2ggdGFibGUgdG8gY2xlYW4gdXAg
-bWVtb3J5IHVzZS4gKi8KKwkJZmlsZV9zcGVjX2Rlc3Ryb3koKTsKKwl9CisJZWxzZSBmb3IgKDsg
-b3B0aW5kIDwgYXJnYzsgb3B0aW5kKyspCisJewogCiAJCWlmIChmbGFza19lbmFibGVkKSB7CiAJ
-CQlwcmludGYoIiVzOiAgbGFiZWxpbmcgZmlsZXMgdW5kZXIgJXNcbiIsIGFyZ3ZbMF0sCkBAIC03
-MDEsNyArNzk3LDExIEBACiAJCX0KIAkJCiAJCS8qIFdhbGsgdGhlIGZpbGUgdHJlZSwgY2FsbGlu
-ZyBhcHBseV9zcGVjIG9uIGVhY2ggZmlsZS4gKi8KKyNpZmRlZiBfTEFSR0VGSUxFNjRfU09VUkNF
-CisJCWlmIChuZnR3NjQKKyNlbHNlCiAJCWlmIChuZnR3CisjZW5kaWYKIAkJICAgIChhcmd2W29w
-dGluZF0sIGFwcGx5X3NwZWMsIDEwMjQsCiAJCSAgICAgRlRXX1BIWVMgfCBGVFdfTU9VTlQpKSB7
-CiAJCQlmcHJpbnRmKHN0ZGVyciwKQEAgLTcyMyw2ICs4MjMsNyBAQAogCQlmaWxlX3NwZWNfZGVz
-dHJveSgpOwogCX0KIAorCWlmKHdhcm5fbm9fbWF0Y2gpCiAJZm9yIChpID0gMDsgaSA8IG5zcGVj
-OyBpKyspIHsKIAkJaWYgKHNwZWNbaV0ubWF0Y2hlcyA9PSAwKSB7CiAJCQlpZiAoc3BlY1tpXS50
-eXBlX3N0cikgewo=
-
---------------Boundary-00=_2STQ2OR07NN6LCCRN8UZ--
+http://web.lemuria.org/pubkey.html
+pub  1024D/D88D35A6 2001-11-14 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = 276B B7BB E4D8 FCCE DB8F  F965 310B 811A D88D 35A6
 
 --
 You have received this message because you are subscribed to the selinux list.
