@@ -1,36 +1,59 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9OEgEXZ027908
-	for <selinux@tycho.nsa.gov>; Sun, 24 Oct 2004 10:42:14 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9OEgAZJ024893
-	for <selinux@tycho.nsa.gov>; Sun, 24 Oct 2004 14:42:14 GMT
-Date: Sun, 24 Oct 2004 15:53:04 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: sds@epoch.ncsc.mil, SELinux@tycho.nsa.gov, rusinskystanislas@yahoo.fr
-Subject: Re: SELinux with IPSec - something going on ?
-Message-ID: <20041024145304.GB4963@lkcl.net>
-References: <20041024093014.14853.qmail@web51506.mail.yahoo.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9OJwYXZ028815
+	for <selinux@tycho.nsa.gov>; Sun, 24 Oct 2004 15:58:34 -0400 (EDT)
+Received: from rproxy.gmail.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9OJvHc9029287
+	for <selinux@tycho.nsa.gov>; Sun, 24 Oct 2004 19:57:17 GMT
+Received: by rproxy.gmail.com with SMTP id 77so354307rnk
+        for <selinux@tycho.nsa.gov>; Sun, 24 Oct 2004 12:57:58 -0700 (PDT)
+Message-ID: <42efd06904102412571e81d4e1@mail.gmail.com>
+Date: Sun, 24 Oct 2004 12:57:58 -0700
+From: Ryan Graham <ryan.graham@gmail.com>
+Reply-To: ryan.graham+cr@gmail.com
+To: Rene Cunningham <rene@dclabs.com.au>
+Subject: Re: login as sysadm_r remotely
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20041023112327.GW8603@eden.office.dclabs.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20041024093014.14853.qmail@web51506.mail.yahoo.com>
+Content-Type: text/plain; charset=US-ASCII
+References: <20041023112327.GW8603@eden.office.dclabs.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-someone from ibm mentioned a few weeks back that they have been working
-on IPsec.
+I think they built a toggle for this into tunable.te. At least it is
+there in whatever version I am running on fedora.
 
-On Sun, Oct 24, 2004 at 02:30:14AM -0700, Park Lee wrote:
-> On 2003-11-17 at 14:37 Stephen Smalley wrote:
->  
-> >We have not done any work on integrating SELinux with IPSEC yet;
-> >at this point, such work would presumably be done based on the new
-> >Linux 2.6 IPSEC implementation.
->  
-> Now, 11 months have passed, has any work been made to integrate IPSec with SELinux?
-> I also want to see if there is something I can do with it.
->  
-> Thanks.
+
+On Sat, 23 Oct 2004 21:23:27 +1000, Rene Cunningham <rene@dclabs.com.au> wrote:
+> Gday,
+> 
+> Im trying to allow remote logins via ssh as root to use the sysadm_r role
+> by default. At the moment root logs in using staff_r and newrole -r needs
+> to be executed. I do want to force logins via tty's to default to
+> staff_r though.
+> 
+> Looking at /etc/selinux/context/root_default_contexts i just need to
+> unhash the following
+> 
+> system_r:sshd_t sysadm_r:sysadm_t staff_r:staff_t user_r:user_t
+> 
+> I rebuild the policy, though root still logs in as staff_r via ssh.
+> 
+> Im running debian with selinux-policy-default 1.14-2.
+> 
+> How do i enable this?
+> 
+> --
+> 
+> Rene Cunningham
+> DCLabs Pty Ltd
+> http://www.dclabs.com.au
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
