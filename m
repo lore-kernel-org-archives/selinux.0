@@ -1,25 +1,35 @@
-Message-ID: <3C1D909C.6070805@pcez.com>
-Date: Sun, 16 Dec 2001 22:28:44 -0800
-From: Shaun Savage <savages@pcez.com>
+Date: Mon, 17 Dec 2001 07:29:44 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Hans Reiser <reiser@namesys.com>
+cc: forrest whitcher <fw@fwsystems.com>, <SELinux@tycho.nsa.gov>
+Subject: Re: persistent labelling on afs, jfs, xfs?
+In-Reply-To: <3C1B64C5.4000207@namesys.com>
+Message-ID: <Pine.GSO.4.33.0112170709420.10438-100000@raven>
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: two different domains from on program
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have a question.
 
-courier has one program the has two different usage. I would like one 
-program to transistion into two different domains depending on the 
-starting domain.
+On Sat, 15 Dec 2001, Hans Reiser wrote:
 
-domain_auto_trans(domain1, exec_file_t, domain2)
-domain_auto_trans(domain3, exec_file_t, domain4)
+> We currently have unique and persistent inode numbers (at least until we
+> someday write a repacker that will optimize key assignments for better
+> layout), but you can't use them for finding files that are not in the
+> cache.  To find such files requires a key.
 
-where the context of the executable file is exec_file_t
+SELinux uses the inode number as an identifier for the file in the
+persistent label mapping in each filesystem.   So it doesn't find files
+based on the inode number, but it needs each file in a filesystem to have
+a unique and persistent inode number.  It sounds like reiserfs does
+currently provide this property.
 
-Shaun Savage
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 
 --
