@@ -1,53 +1,35 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h827NRLa013408
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 03:23:27 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h82CLbLa015184
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 08:21:37 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h827NQet002260
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 07:23:26 GMT
-Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h827NOlq002257 for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 07:23:25 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id A9CB2BF3C
-	for <selinux@tycho.nsa.gov>; Tue,  2 Sep 2003 17:23:23 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
- id 24531-06 for <selinux@tycho.nsa.gov>;
- Tue,  2 Sep 2003 17:23:23 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id CE8BBBF29
-	for <selinux@tycho.nsa.gov>; Tue,  2 Sep 2003 17:23:22 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 77646926F8
-	for <selinux@tycho.nsa.gov>; Tue,  2 Sep 2003 17:23:22 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 378317F002
-	for <selinux@tycho.nsa.gov>; Tue,  2 Sep 2003 17:23:28 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: ls --context of /selinux
-Date: Tue, 2 Sep 2003 17:23:27 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200309021723.27716.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id h82CLZet020962
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 12:21:36 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h82CLZlq020959 for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2003 12:21:35 GMT
+Subject: Re: getting sids
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Diyab <diyab@diyab.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <d6c88ab9c32238e8614baa747f3704ab@ziggy.r00td0wn.net>
+References: <d6c88ab9c32238e8614baa747f3704ab@ziggy.r00td0wn.net>
+Content-Type: text/plain
+Message-Id: <1062505293.18568.6.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 02 Sep 2003 08:21:33 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-What are the plans regarding "ls --context /selinux"?
+On Sat, 2003-08-30 at 23:40, Diyab wrote:
+> Is there any difference between get_default_sid and get_user_sid other than the fact that get_user_sid also returns a context?  Mostly I'm wondering why get_default_sid was used in the vixie cron code instead of get_user_sid.  Also I noticed there is a cron_get_user_sid defined in the get_user_sid.h but it is not used anywhere in the cron code.  Is there a reason for this and would it be better to use that instead of get_default_sid?
 
-Currently the lgetxattr() system call returns -1 (EOPNOTSUPP) and the current 
-ls patch (taken from Dan's repository) refuses to even allow "ls -l" because 
-of it (probably a bug in ls as I imagine that there will always be file 
-systems that don't support it).
-
-Will "ls --context /selinux" ever work?
+get_user_sid is obsolete.  For that matter, all of libsecure is
+obsolete; the 2.6-based SELinux required a complete API overhaul, and
+the new 2.4-based SELinux (back port of 2.6-based SELinux) also uses the
+new API, which is encapsulated by libselinux.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
