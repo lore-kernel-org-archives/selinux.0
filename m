@@ -1,54 +1,65 @@
-Subject: Re: Desktop apps interoperability
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Tom <tom@lemuria.org>,
-   "Fedora SELinux support list for users &amp;  developers." <fedora-selinux-list@redhat.com>,
-   selinux@tycho.nsa.gov
-In-Reply-To: <1112027973.2914.98.camel@moss-spartans.epoch.ncsc.mil>
-References: <1111987652.1514.97.camel@cobra.ivg2.net>
-	 <20050328132653.F27857@lemuria.org>
-	 <1112012129.1514.187.camel@cobra.ivg2.net>
-	 <20050328151126.B28232@lemuria.org>
-	 <1112017584.1514.239.camel@cobra.ivg2.net>
-	 <20050328160935.B28563@lemuria.org>
-	 <1112022358.5811.47.camel@cobra.ivg2.net>
-	 <1112022750.2914.65.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050328174753.D29441@lemuria.org>
-	 <1112025866.2914.88.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050328182020.A29887@lemuria.org>
-	 <1112027973.2914.98.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 00:01:06 -0500
-Message-Id: <1112158866.1536.29.camel@cobra.ivg2.net>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2U5XwDo012343
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 00:33:58 -0500 (EST)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2U5UBph027290
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 05:30:12 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: ivg2@cornell.edu
+Subject: Re: [ PATCH ] X clients cleanup patch #2
+Date: Tue, 29 Mar 2005 12:12:30 +1100
+Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
+References: <1111972339.1119.8.camel@cobra.ivg2.net> <1111972562.1119.12.camel@cobra.ivg2.net>
+In-Reply-To: <1111972562.1119.12.camel@cobra.ivg2.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200503291112.33518.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-How about
+On Monday 28 March 2005 11:16, Ivan Gyurdiev <ivg2@cornell.edu> wrote:
+> Question 1: X has the following rules:
+>
+> allow $1_$2_t self:unix_dgram_socket create_socket_perms;
+> allow $1_$2_t self:unix_stream_socket { connectto
+> create_stream_socket_perms };
+>
+> Removing them seems to affect most (all?) X clients.
+> Are those related to establishing a connection to X,
+> or are they just common frequently used rules?
 
-New Directory Structure (added to /skel, or whatever)
-~/content - ROLE_content_t
-~/content/desktop - ???
-~/content/downloads - ROLE_untrusted_content_t
-~/content/media - ROLE_media_content_t
-~/content/documents - ROLE_documents_content_t
-~/content/mail - ROLE_mail_content_t
-~/content/export_web - ROLE_httpd_user_content_t
-~/content/export_samba - ROLE_samba_share_t
-~/content/export_p2p - ROLE_p2p_share_t
+If DISPLAY=:0.0 then all X clients will need such access.  DISPLAY=:0.0 is the 
+default for a local X login so we should assume that every system that has X 
+will need such access.
 
-Desktop apps will be restricted to only access the appropriate one.
-"Downloading" apps will be restricted to download to
-untrusted_content_t. 
+In any case "self" access isn't a security issue.
 
-Now...how to move things to/from ~/content/downloads in a nice
-user-friendly way? What context for desktop? What role will the desktop
-play?
+> Question 2:
+>
+> games, mozilla, and gift want to read /etc/mtab, and /etc/nsswitch.conf.
+> Why is that neessary, and do those rules always go together?
+
+nsswitch.conf is used for any program that does a UID->name or name->UID 
+lookup.  So any operation comparable to "ls -l" will need it.  Mozilla will 
+probably call getuid() and then getpwuid() to get the Unix account name for 
+various things (including temporary file names I think).
+
+/etc/mtab is unrelated.  Lots of programs read it.  For example programs that 
+want to know how much disk space is free often read /etc/mtab.  Usually such 
+access is not strictly necessary (the program could perform the same tasks 
+without it) but sometimes the program will not be written well in this regard 
+and will fail without such access.  /etc/mtab doesn't contain any secret data 
+so there's no harm.  /proc/mounts is a better source of such data anyway so 
+any program that can read proc_t:lnk_file and self:file can get the same data 
+from a more authoritative source.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
