@@ -1,117 +1,980 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h712CLHa006843
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 22:12:22 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h712sNHa006939
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 22:54:24 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h712CKDW002331
-	for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2003 02:12:20 GMT
-Received: from nsa.hitachi-sk.co.jp (nsa.hitachi-sk.co.jp [202.232.217.2])
-        by jazzband.ncsc.mil  with ESMTP id h712CIeN002323 for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2003 02:12:20 GMT
-Message-Id: <200308010212.AA01029@ilios104.ori.hitachi-sk.co.jp>
-From: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>
-Date: Fri, 01 Aug 2003 11:12:04 +0900
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov, ynakam@ori.hitachi-sk.co.jp
-Subject: Re: macro about network
-In-Reply-To: <200307311437.21069.russell@coker.com.au>
-References: <200307311437.21069.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id h712sMDW003301
+	for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2003 02:54:22 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h712sIeN003298 for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2003 02:54:19 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sat.sws.net.au (Postfix) with ESMTP id D8381BF1D
+	for <selinux@tycho.nsa.gov>; Fri,  1 Aug 2003 12:54:15 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1])
+ by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 09659-01
+ for <selinux@tycho.nsa.gov>; Fri,  1 Aug 2003 12:54:14 +1000 (EST)
+Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
+	by sat.sws.net.au (Postfix) with ESMTP id A3DB4BF1A
+	for <selinux@tycho.nsa.gov>; Fri,  1 Aug 2003 12:54:13 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 15B7392719
+	for <selinux@tycho.nsa.gov>; Fri,  1 Aug 2003 12:54:13 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 836BE7F008
+	for <selinux@tycho.nsa.gov>; Fri,  1 Aug 2003 12:54:06 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: splitting global_macros.te
+Date: Fri, 1 Aug 2003 12:54:04 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_MZdK/dF5M5nlyHx"
+Message-Id: <200308011254.04359.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
->However I suggest that we get the port binding done properly first.
->Currently even my tree doesn't have the bind permissions changes complete, and in the NSA tree every domain can 
-bind to every port.
- 
-I agree this.
-In current policy,can_network macro allow domain to bind to port_t.
+--Boundary-00=_MZdK/dF5M5nlyHx
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
->I encourage you to investigate my policy in 
->http://www.coker.com.au/selinux/policy.tgz and let me know of any 
->improvements that can be made to the port binding rules.
+In my tree I have split the global_macros.te into two files, the other file 
+core_macros.te is for the basic macros which are very unlikely to change.
 
-I looked over your policy.
-In your policy, only 7 domains are allowed to bind to port_t.
-It is very good.
+Changing the macros in core_macros.te should almost never be necessary, and 
+making them different to what I have in that file (which are provided on the 
+NSA site in the global_macros.te) will almost always be a mistake.
 
-However,it may not be easy for user to understand whether a domain is allowed to use only unreserved ports over 
-1024 or all unreserved ports. 
+The macros in global_macros.te are widely used in the policy, but can be 
+easily changed if necessary without breaking much (and while still preserving 
+some level of compatability with the default policy).
 
-For example, in rpcd_t.te it would be better to describe like this.
-########### your original policy:
-# Use capabilities.
-allow rpcd_t self:capability { net_bind_service dac_override setgid setuid };
-# bind to arbitary unused ports
-allow rpcd_t port_t:{ tcp_socket udp_socket } name_bind;
 
-########### my suggestion:
-# Use capabilities.
-allow rpcd_t self:capability { dac_override setgid setuid };
-# bind to arbitary unused ports,including well-known ports.
-allow rpcd_t self:capability { net_bind_service }; #use well-known ports
-allow rpcd_t port_t:{ tcp_socket udp_socket } name_bind;
+The global_macros.te file as distributed by the NSA is the largest file in the 
+policy, which is one of the reasons for splitting it (smaller source files 
+are easier to read and comprehend).  Now the two smaller macros files that I 
+have attached are the two largest files in my policy tree.
 
-It may be good to make macro,like this.
-#can bind to unreserved ports over 1024
-#class:tcp_socket/udp_socket
-can_bind_unpriv_port(domain,class) 
-#can bind to all unreserved ports including well-known port
-can_bind_all_unreserved_port(domain,class)
+The third largest file is user_macros.te (which also needs work).
 
->One issue that I am currently considering is how to label ports for X to bind 
->to.  Ports 6000..6009 need to be reserved for the X servers, and 6010..6030 
->are commonly used by sshd for X proxying.  I am thinking of having a 
->configuration option for ssh to determine whether sshd is allowed to run X 
->proxying, and if so those ports would be reserved for it.
->What do you think?
 
-Some "define" statement in sshd.te will be necessary, 
-but I don't have good idea about this now ,sorry. 
-I have not tried X forwarding in SELinux yet.
+Howard, I encourage you to make similar changes to your policy tree.
 
-Thank you.
+Please note that these files are a split of my previous global_macros.te not 
+the one from the NSA site.  I have removed several deprecated macros from the 
+version in my tree, while those macros are still in the NSA tree.
 
-Russell Coker Wrote:
->On Tue, 29 Jul 2003 19:49, Yuichi Nakamura wrote:
->> In "can_network" macro,
->> "allow $1 netmsg_type:tcp_socket { connectto acceptfrom };"
->> exists.
->>
->> I think in some case "connectto" permission is not neccesary.
->
->That sounds reasonable.  However I suggest that we get the port binding done 
->properly first.
->
->Currently even my tree doesn't have the bind permissions changes complete, and 
->in the NSA tree every domain can bind to every port.
->
->I encourage you to investigate my policy in 
->http://www.coker.com.au/selinux/policy.tgz and let me know of any 
->improvements that can be made to the port binding rules.
->
->One issue that I am currently considering is how to label ports for X to bind 
->to.  Ports 6000..6009 need to be reserved for the X servers, and 6010..6030 
->are commonly used by sshd for X proxying.  I am thinking of having a 
->configuration option for ssh to determine whether sshd is allowed to run X 
->proxying, and if so those ports would be reserved for it.
->
->What do you think?
->
->-- 
->http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
->http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
->http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
->http://www.coker.com.au/~russell/  My home page
->
->
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---------------------
-Yuichi Nakamura
-Research&Development Department
-Hitachi Software Engineering Co.,Ltd.
-ynakam@ori.hitachi-sk.co.jp
-http://www.selinux.hitachi-sk.co.jp/en/(SELinux Policy Editor)
+--Boundary-00=_MZdK/dF5M5nlyHx
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="core_macros.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="core_macros.te"
+
+##############################
+#
+# core macros for the type enforcement (TE) configuration.
+#
+
+#
+# Authors:  Stephen Smalley <sds@epoch.ncsc.mil> and Timothy Fraser  
+# Modified: Howard Holm (NSA), <hdholm@epoch.ncsc.mil>
+#           System V IPC added
+#
+
+#################################
+# 
+# Macros for groups of classes and 
+# groups of permissions.
+#
+
+#
+# All directory and file classes
+#
+define(`dir_file_class_set', `{ dir file lnk_file sock_file fifo_file chr_file blk_file }')
+
+#
+# All non-directory file classes.
+#
+define(`file_class_set', `{ file lnk_file sock_file fifo_file chr_file blk_file }')
+
+#
+# Non-device file classes.
+#
+define(`notdevfile_class_set', `{ file lnk_file sock_file fifo_file }')
+
+#
+# Device file classes.
+#
+define(`devfile_class_set', `{ chr_file blk_file }')
+
+#
+# All socket classes.
+#
+define(`socket_class_set', `{ tcp_socket udp_socket rawip_socket netlink_socket packet_socket unix_stream_socket unix_dgram_socket }')
+
+#
+# Datagram socket classes.
+# 
+define(`dgram_socket_class_set', `{ udp_socket unix_dgram_socket }')
+
+#
+# Stream socket classes.
+#
+define(`stream_socket_class_set', `{ tcp_socket unix_stream_socket }')
+
+#
+# Unprivileged socket classes (exclude rawip, netlink, packet).
+#
+define(`unpriv_socket_class_set', `{ tcp_socket udp_socket unix_stream_socket unix_dgram_socket }')
+
+
+# 
+# Permissions for getting file attributes.
+#
+define(`stat_file_perms', `{ getattr }')
+
+# 
+# Permissions for executing files.
+#
+define(`x_file_perms', `{ getattr execute }')
+
+# 
+# Permissions for reading files and their attributes.
+#
+define(`r_file_perms', `{ read getattr lock ioctl }')
+
+# 
+# Permissions for reading and executing files.
+#
+define(`rx_file_perms', `{ read getattr lock execute ioctl }')
+
+# 
+# Permissions for reading and writing files and their attributes.
+#
+define(`rw_file_perms', `{ ioctl read getattr lock write append }')
+
+# 
+# Permissions for reading and appending to files.
+#
+define(`ra_file_perms', `{ ioctl read getattr lock append }')
+
+#
+# Permissions for linking, unlinking and renaming files.
+# 
+define(`link_file_perms', `{ getattr link unlink rename }')
+
+#
+# Permissions for creating and using files.
+# 
+define(`create_file_perms', `{ create ioctl read getattr lock write setattr append link unlink rename }')
+
+# 
+# Permissions for reading directories and their attributes.
+#
+define(`r_dir_perms', `{ read getattr lock search ioctl }')
+
+# 
+# Permissions for reading and writing directories and their attributes.
+#
+define(`rw_dir_perms', `{ read getattr lock search ioctl add_name remove_name write }')
+
+# 
+# Permissions for reading and adding names to directories.
+#
+define(`ra_dir_perms', `{ read getattr lock search ioctl add_name write }')
+
+
+#
+# Permissions for creating and using directories.
+# 
+define(`create_dir_perms', `{ create read getattr lock setattr link unlink rename search add_name remove_name reparent write rmdir }')
+
+#
+# Permissions to mount and unmount file systems.
+#
+define(`mount_fs_perms', `{ mount remount unmount getattr }')
+
+#
+# Permissions for using sockets.
+# 
+define(`rw_socket_perms', `{ ioctl read getattr write setattr append bind connect getopt setopt shutdown }')
+
+#
+# Permissions for creating and using sockets.
+# 
+define(`create_socket_perms', `{ create ioctl read getattr write setattr append bind connect getopt setopt shutdown }')
+
+#
+# Permissions for using stream sockets.
+# 
+define(`rw_stream_socket_perms', `{ ioctl read getattr write setattr append bind connect getopt setopt shutdown listen accept }')
+
+#
+# Permissions for creating and using stream sockets.
+# 
+define(`create_stream_socket_perms', `{ create ioctl read getattr write setattr append bind connect getopt setopt shutdown listen accept }')
+
+
+#
+# Permissions for sending all signals.
+#
+define(`signal_perms', `{ sigchld sigkill sigstop signull signal }')
+
+#
+# Permissions for sending and receiving network packets.
+#
+define(`packet_perms', `{ tcp_recv tcp_send udp_recv udp_send rawip_recv rawip_send }')
+
+#
+# Permissions for using System V IPC
+#
+define(`r_sem_perms', `{ associate getattr read unix_read }')
+define(`rw_sem_perms', `{ associate getattr read write unix_read unix_write }')
+define(`create_sem_perms', `{ associate getattr setattr create destroy read write unix_read unix_write }')
+define(`r_msgq_perms', `{ associate getattr read unix_read }')
+define(`rw_msgq_perms', `{ associate getattr read write enqueue unix_read unix_write }')
+define(`create_msgq_perms', `{ associate getattr setattr create destroy read write enqueue unix_read unix_write }')
+define(`r_shm_perms', `{ associate getattr read unix_read }')
+define(`rw_shm_perms', `{ associate getattr read write lock unix_read unix_write }')
+define(`create_shm_perms', `{ associate getattr setattr create destroy read write lock unix_read unix_write }')
+
+#################################
+# 
+# Macros for type transition rules and
+# access vector rules.
+#
+
+#
+# Simple combinations for reading and writing both
+# directories and files.
+# 
+define(`r_dir_file', `
+allow $1 $2:dir r_dir_perms;
+allow $1 $2:{ file lnk_file } r_file_perms;
+')
+
+define(`rw_dir_file', `
+allow $1 $2:dir rw_dir_perms;
+allow $1 $2:{ file lnk_file } rw_file_perms;
+')
+
+define(`ra_dir_file', `
+allow $1 $2:dir ra_dir_perms;
+allow $1 $2:{ file lnk_file } ra_file_perms;
+')
+
+define(`rw_dir_create_file', `
+allow $1 $2:dir rw_dir_perms;
+allow $1 $2:{ file lnk_file } create_file_perms;
+')
+
+define(`create_dir_file', `
+allow $1 $2:dir create_dir_perms;
+allow $1 $2:{ file lnk_file } create_file_perms;
+')
+
+define(`create_dir_notdevfile', `
+allow $1 $2:dir create_dir_perms;
+allow $1 $2:notdevfile_class_set create_file_perms;
+')
+
+define(`create_append_log_file', `
+allow $1 $2:dir { read getattr search add_name write };
+allow $1 $2:file { create ioctl getattr setattr append link };
+')
+
+##################################
+#
+# can_getsecurity(domain)
+#
+# Authorize a domain to get security policy decisions.
+#
+define(`can_getsecurity',`
+allow $1 security_t:dir { read search getattr };
+allow $1 security_t:file { getattr read write };
+allow $1 security_t:security { compute_av context_to_sid sid_to_context };
+')
+
+##################################
+#
+# can_loadpol(domain)
+#
+# Authorize a domain to load a policy configuration.
+# Due to its sensitivity, always audit this permission.
+#
+define(`can_loadpol',`
+allow $1 security_t:dir { read search getattr };
+allow $1 security_t:file { getattr read write };
+allow $1 security_t:security load_policy;
+auditallow $1 security_t:security load_policy;
+')
+
+#################################
+#
+# domain_trans(parent_domain, program_type, child_domain)
+#
+# Permissions for transitioning to a new domain.
+#
+
+define(`domain_trans',`
+
+#
+# Allow the process to transition to the new domain.
+#
+allow $1 $3:process transition;
+
+#
+# Allow the process to execute the program.
+# 
+allow $1 $2:file { read x_file_perms };
+
+#
+# Allow the process to reap the new domain.
+#
+allow $3 $1:process sigchld;
+
+#
+# Allow the new domain to inherit and use file 
+# descriptions from the creating process and vice versa.
+#
+allow $3 $1:fd use;
+allow $1 $3:fd use;
+
+#
+# Allow the new domain to write back to the old domain via a pipe.
+#
+allow $3 $1:fifo_file rw_file_perms;
+
+#
+# Allow the new domain to read and execute the program.
+#
+allow $3 $2:file rx_file_perms;
+
+#
+# Allow the new domain to be entered via the program.
+#
+allow $3 $2:file entrypoint;
+')
+
+#################################
+#
+# domain_auto_trans(parent_domain, program_type, child_domain)
+#
+# Define a default domain transition and allow it.
+#
+define(`domain_auto_trans',`
+domain_trans($1,$2,$3)
+type_transition $1 $2:process $3;
+')
+
+#################################
+#
+# can_ptrace(domain, domain)
+#
+# Permissions for running ptrace (strace or gdb) on another domain
+#
+define(`can_ptrace',`
+allow $1 $2:process ptrace;
+')
+
+#################################
+#
+# can_exec(domain, type)
+#
+# Permissions for executing programs with
+# a specified type without changing domains.
+#
+define(`can_exec',`
+allow $1 $2:file { rx_file_perms execute_no_trans };
+')
+
+#################################
+#
+# file_type_trans(domain, dir_type, file_type)
+#
+# Permissions for transitioning to a new file type.
+#
+
+define(`file_type_trans',`
+
+#
+# Allow the process to modify the directory.
+#
+allow $1 $2:dir rw_dir_perms;
+
+#
+# Allow the process to create the file.
+#
+ifelse(`$4', `', `
+allow $1 $3:notdevfile_class_set create_file_perms;
+allow $1 $3:dir create_dir_perms;
+', `
+ifelse(`$4', `dir', `
+allow $1 $3:$4 create_dir_perms;
+', `
+allow $1 $3:$4 create_file_perms;
+')dnl end if dir
+')dnl end if param 4 specified
+
+')
+
+#################################
+#
+# file_type_auto_trans(creator_domain, parent_directory_type, file_type, object_class)
+#
+# the object class will default to notdevfile_class_set if not specified as
+# the fourth parameter
+#
+# Define a default file type transition and allow it.
+#
+define(`file_type_auto_trans',`
+ifelse(`$4', `', `
+file_type_trans($1,$2,$3)
+type_transition $1 $2:dir $3;
+type_transition $1 $2:notdevfile_class_set $3;
+', `
+file_type_trans($1,$2,$3,$4)
+type_transition $1 $2:$4 $3;
+')
+
+')
+
+
+#################################
+#
+# can_unix_connect(client, server)
+#
+# Permissions for establishing a Unix stream connection.
+#
+define(`can_unix_connect',`
+allow $1 $2:unix_stream_socket connectto;
+')
+
+#################################
+#
+# can_unix_send(sender, receiver)
+#
+# Permissions for sending Unix datagrams.
+#
+define(`can_unix_send',`
+allow $1 $2:unix_dgram_socket sendto;
+')
+
+#################################
+#
+# can_tcp_connect(client, server)
+#
+# Permissions for establishing a TCP connection.
+#
+define(`can_tcp_connect',`
+allow $1 $2:tcp_socket { connectto recvfrom };
+allow $2 $1:tcp_socket { acceptfrom recvfrom };
+allow $2 tcp_socket_t:tcp_socket { recvfrom };
+allow $1 tcp_socket_t:tcp_socket { recvfrom };
+')
+
+#################################
+#
+# can_udp_send(sender, receiver)
+#
+# Permissions for sending/receiving UDP datagrams.
+#
+define(`can_udp_send',`
+allow $1 $2:udp_socket { sendto };
+allow $2 $1:udp_socket { recvfrom };
+')
+
+
+#
+# general_domain_access(domain)
+#
+# Grant permissions within the domain.
+# This includes permissions to processes, /proc/PID files,
+# file descriptors, pipes, Unix sockets, and System V IPC objects
+# labeled with the domain.
+#
+define(`general_domain_access',`
+# Access other processes in the same domain.
+allow $1 self:process ~ptrace;
+
+# Access /proc/PID files for processes in the same domain.
+allow $1 self:dir r_dir_perms;
+allow $1 self:notdevfile_class_set r_file_perms;
+
+# Access file descriptions, pipes, and sockets
+# created by processes in the same domain.
+allow $1 self:fd *;
+allow $1 self:fifo_file rw_file_perms;
+allow $1 self:unix_dgram_socket create_socket_perms;
+allow $1 self:unix_stream_socket create_stream_socket_perms;
+
+# Allow the domain to communicate with other processes in the same domain.
+allow $1 self:unix_dgram_socket sendto;
+allow $1 self:unix_stream_socket connectto;
+
+# Access System V IPC objects created by processes in the same domain.
+allow $1 self:sem  create_sem_perms;
+allow $1 self:msg  { send receive };
+allow $1 self:msgq create_msgq_perms;
+allow $1 self:shm  create_shm_perms;
+')
+
+
+--Boundary-00=_MZdK/dF5M5nlyHx
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="global_macros.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="global_macros.te"
+
+##############################
+#
+# Global macros for the type enforcement (TE) configuration.
+#
+
+#
+# Authors:  Stephen Smalley <sds@epoch.ncsc.mil> and Timothy Fraser  
+# Modified: Howard Holm (NSA), <hdholm@epoch.ncsc.mil>
+#           System V IPC added
+#
+#  Russell Coker <russell@coker.com.au>
+#
+
+#################################
+#
+# uses_shlib(domain)
+#
+# Permissions for using shared libraries.
+#
+define(`uses_shlib',`
+allow $1 { root_t usr_t lib_t etc_t }:dir r_dir_perms;
+allow $1 lib_t:lnk_file r_file_perms;
+allow $1 lib_t:file r_file_perms;
+allow $1 usr_t:{ file lnk_file } r_file_perms;
+allow $1 ld_so_t:file rx_file_perms;
+allow $1 ld_so_t:file execute_no_trans;
+allow $1 ld_so_t:lnk_file r_file_perms;
+allow $1 shlib_t:file rx_file_perms;
+allow $1 shlib_t:lnk_file r_file_perms;
+allow $1 ld_so_cache_t:file r_file_perms;
+allow $1 device_t:dir search;
+allow $1 null_device_t:chr_file rw_file_perms;
+')
+
+#################################
+#
+# can_exec_any(domain)
+#
+# Permissions for executing a variety
+# of executable types.
+#
+define(`can_exec_any',`
+allow $1 { bin_t sbin_t lib_t etc_t }:dir r_dir_perms;
+allow $1 { bin_t sbin_t etc_t }:lnk_file { getattr read };
+uses_shlib($1)
+can_exec($1, etc_t)
+can_exec($1, lib_t)
+can_exec($1, bin_t)
+can_exec($1, sbin_t)
+can_exec($1, exec_type)
+')
+
+
+#################################
+#
+# can_network(domain)
+#
+# Permissions for accessing the network.
+# See types/network.te for the network types.
+# See net_contexts for security contexts for network entities.
+#
+define(`can_network',`
+#
+# Allow the domain to create and use UDP and TCP sockets.
+# Other kinds of sockets must be separately authorized for use.
+allow $1 self:udp_socket create_socket_perms;
+allow $1 self:tcp_socket create_stream_socket_perms;
+
+#
+# Allow the domain to send UDP packets.
+# Since the destination sockets type is unknown, the generic
+# any_socket_t type is used as a placeholder.
+#
+allow $1 any_socket_t:udp_socket sendto;
+
+#
+# Allow the domain to send using any network interface.
+# netif_type is a type attribute for all network interface types.
+#
+allow $1 netif_type:netif { tcp_send udp_send rawip_send };
+
+#
+# Allow packets sent by the domain to be received on any network interface.
+#
+allow $1 netif_type:netif { tcp_recv udp_recv rawip_recv };
+
+#
+# Allow the domain to receive packets from any network interface.
+# netmsg_type is a type attribute for all default message types.
+#
+allow $1 netmsg_type:{ udp_socket tcp_socket rawip_socket } recvfrom;
+
+#
+# Allow the domain to initiate or accept TCP connections 
+# on any network interface.
+#
+allow $1 netmsg_type:tcp_socket { connectto acceptfrom };
+
+#
+# Receive resets from the TCP reset socket.
+# The TCP reset socket is labeled with the tcp_socket_t type.
+#
+allow $1 tcp_socket_t:tcp_socket recvfrom;
+
+dontaudit $1 tcp_socket_t:tcp_socket connectto;
+
+#
+# Allow the domain to send to any node.
+# node_type is a type attribute for all node types.
+#
+allow $1 node_type:node { tcp_send udp_send rawip_send };
+
+#
+# Allow packets sent by the domain to be received from any node.
+#
+allow $1 node_type:node { tcp_recv udp_recv rawip_recv };
+
+#
+# Allow the domain to send NFS client requests via the socket
+# created by mount.
+#
+allow $1 mount_t:udp_socket rw_socket_perms;
+
+#
+# Bind to the default port type.
+# Other port types must be separately authorized.
+#
+#allow $1 port_t:udp_socket name_bind;
+#allow $1 port_t:tcp_socket name_bind;
+')
+
+#################################
+#
+# can_sysctl(domain)
+#
+# Permissions for modifying sysctl parameters.
+#
+define(`can_sysctl',`
+allow $1 sysctl_t:dir r_dir_perms;
+allow $1 sysctl_t:file { setattr rw_file_perms };
+allow $1 sysctl_fs_t:dir r_dir_perms;
+allow $1 sysctl_fs_t:file { setattr rw_file_perms };
+allow $1 sysctl_kernel_t:dir r_dir_perms;
+allow $1 sysctl_kernel_t:file { setattr rw_file_perms };
+allow $1 sysctl_net_t:dir r_dir_perms;
+allow $1 sysctl_net_t:file { setattr rw_file_perms };
+allow $1 sysctl_net_unix_t:dir r_dir_perms;
+allow $1 sysctl_net_unix_t:file { setattr rw_file_perms };
+allow $1 sysctl_vm_t:dir r_dir_perms;
+allow $1 sysctl_vm_t:file { setattr rw_file_perms };
+allow $1 sysctl_dev_t:dir r_dir_perms;
+allow $1 sysctl_dev_t:file { setattr rw_file_perms };
+allow $1 sysctl_modprobe_t:file { setattr rw_file_perms };
+')
+
+
+##################################
+#
+# base_pty_perms(domain_prefix)
+#
+# Base permissions used for can_create_pty() and can_create_other_pty()
+#
+define(`base_pty_perms', `
+# Access the pty master multiplexer.
+allow $1_t ptmx_t:chr_file rw_file_perms;
+
+ifdef(`devfsd.te', `
+allow $1_t device_t:filesystem getattr;
+')
+allow $1_t devpts_t:filesystem getattr;
+
+# allow searching /dev/pts
+allow $1_t devpts_t:dir { getattr read search };
+')
+
+##################################
+#
+# can_create_pty(domain_prefix, attributes)
+#
+# Permissions for creating ptys.
+#
+define(`can_create_pty',`
+base_pty_perms($1)
+type $1_devpts_t, file_type, sysadmfile, ptyfile $2;
+
+# Allow the pty to be associated with the file system.
+allow $1_devpts_t devpts_t:filesystem associate;
+
+# Label pty files with a derived type.
+type_transition $1_t devpts_t:chr_file $1_devpts_t;
+
+# Read and write my pty files.
+allow $1_t $1_devpts_t:chr_file { setattr rw_file_perms };
+')
+
+
+##################################
+#
+# can_create_other_pty(domain_prefix,other_domain)
+#
+# Permissions for creating ptys for another domain.
+#
+define(`can_create_other_pty',`
+base_pty_perms($1)
+# Label pty files with a derived type.
+type_transition $1_t devpts_t:chr_file $2_devpts_t;
+
+# Read and write pty files.
+allow $1_t $2_devpts_t:chr_file { setattr rw_file_perms };
+')
+
+##################################
+#
+# read_locale(domain)
+#
+# Permissions for reading the locale data,
+# /etc/localtime and the files that it links to
+#
+define(`read_locale', `
+allow $1 etc_t:lnk_file read;
+r_dir_file($1, locale_t)
+')
+
+
+#
+# general_proc_read_access(domain)
+#
+# Grant read/search permissions to most of /proc, excluding
+# the /proc/PID directories and the /proc/kmsg and /proc/kcore files.
+# The general_domain_access macro grants access to the domain /proc/PID
+# directories, but not to other domains.  Only permissions to stat
+# are granted for /proc/kmsg and /proc/kcore, since these files are more
+# sensitive.
+# 
+define(`general_proc_read_access',`
+# Read system information files in /proc.
+allow $1 proc_t:dir r_dir_perms;
+allow $1 proc_t:notdevfile_class_set r_file_perms;
+
+# Stat /proc/kmsg and /proc/kcore.
+allow $1 proc_kmsg_t:file stat_file_perms;
+allow $1 proc_kcore_t:file stat_file_perms;
+
+# Read system variables in /proc/sys.
+allow $1 sysctl_modprobe_t:file r_file_perms;
+allow $1 sysctl_t:file r_file_perms;
+allow $1 sysctl_t:dir r_dir_perms;
+allow $1 sysctl_fs_t:file r_file_perms;
+allow $1 sysctl_fs_t:dir r_dir_perms;
+allow $1 sysctl_kernel_t:file r_file_perms;
+allow $1 sysctl_kernel_t:dir r_dir_perms;
+allow $1 sysctl_net_t:file r_file_perms;
+allow $1 sysctl_net_t:dir r_dir_perms;
+allow $1 sysctl_vm_t:file r_file_perms;
+allow $1 sysctl_vm_t:dir r_dir_perms;
+allow $1 sysctl_dev_t:file r_file_perms;
+allow $1 sysctl_dev_t:dir r_dir_perms;
+')
+
+#
+# base_file_read_access(domain)
+#
+# Grant read/search permissions to a few system file types.
+#
+define(`base_file_read_access',`
+# Read /.
+allow $1 root_t:dir r_dir_perms;
+allow $1 root_t:notdevfile_class_set r_file_perms;
+
+# Read /home.
+allow $1 home_root_t:dir r_dir_perms;
+
+# Read /usr.
+allow $1 usr_t:dir r_dir_perms;
+allow $1 usr_t:notdevfile_class_set r_file_perms;
+
+# Read bin and sbin directories.
+allow $1 bin_t:dir r_dir_perms;
+allow $1 bin_t:notdevfile_class_set r_file_perms;
+allow $1 sbin_t:dir r_dir_perms;
+allow $1 sbin_t:notdevfile_class_set r_file_perms;
+')
+
+#######################
+# daemon_base_domain(domain_prefix, attribs)
+#
+# Define a daemon domain with a base set of type declarations
+# and permissions that are common to most daemons.
+# attribs is the list of attributes which must start with "," if it is not empty
+#
+# Author:  Russell Coker <russell@coker.com.au>
+#
+define(`daemon_base_domain', `
+type $1_t, domain, privlog $2;
+type $1_exec_t, file_type, sysadmfile, exec_type;
+
+role system_r types $1_t;
+
+domain_auto_trans(initrc_t, $1_exec_t, $1_t)
+
+# Inherit and use descriptors from init.
+allow $1_t init_t:fd use;
+allow $1_t init_t:process sigchld;
+allow $1_t privfd:fd use;
+ifdef(`newrole.te', `allow $1_t newrole_t:process sigchld;')
+allow $1_t self:process { signal_perms fork };
+
+uses_shlib($1_t)
+
+allow $1_t { self proc_t }:dir r_dir_perms;
+allow $1_t { self proc_t }:lnk_file read;
+
+allow $1_t device_t:dir { getattr search };
+allow $1_t null_device_t:chr_file rw_file_perms;
+allow $1_t console_device_t:chr_file rw_file_perms;
+allow $1_t initrc_devpts_t:chr_file rw_file_perms;
+')dnl
+
+# allow a domain to create its own files under /var/run and to create files
+# in directories that are created for it.  For sock_file etc you need to add
+# your own rules
+define(`var_run_domain', `
+type $1_var_run_t alias var_run_$1_t, file_type, sysadmfile, pidfile;
+file_type_auto_trans($1_t, var_run_t, $1_var_run_t, file)
+allow $1_t $1_var_run_t:dir rw_dir_perms;
+')
+
+define(`daemon_domain', `
+daemon_base_domain($1, `$2')
+# Create pid file.
+allow $1_t var_t:dir { getattr search };
+var_run_domain($1)
+
+allow $1_t devtty_t:chr_file rw_file_perms;
+
+# for daemons that look at /root on startup
+dontaudit $1_t sysadm_home_dir_t:dir search;
+
+# for df
+allow $1_t fs_type:filesystem getattr;
+
+read_locale($1_t)
+')dnl
+
+define(`uses_authbind',
+`domain_auto_trans($1, authbind_exec_t, authbind_t)
+allow authbind_t $1:process sigchld;
+allow authbind_t $1:fd use;
+allow authbind_t $1:{ tcp_socket udp_socket } rw_socket_perms;
+')
+
+# define a sub-domain, $1_t is the parent domain, $2 is the name
+# of the sub-domain.
+#
+define(`daemon_sub_domain', `
+# $1 is the parent domain (or domains), $2_t is the child domain,
+# and $3 is any attributes to apply to the child
+type $2_t, domain, privlog $3;
+type $2_exec_t, file_type, sysadmfile, exec_type;
+
+role system_r types $2_t;
+
+domain_auto_trans($1, $2_exec_t, $2_t)
+
+# Inherit and use descriptors from parent.
+allow $2_t $1:fd use;
+allow $2_t $1:process sigchld;
+
+allow $2_t self:process signal_perms;
+
+uses_shlib($2_t)
+
+allow $2_t { self proc_t }:dir r_dir_perms;
+allow $2_t { self proc_t }:lnk_file read;
+
+allow $2_t device_t:dir getattr;
+')
+
+
+define(`tmp_domain', `
+type $1_tmp_t, file_type, sysadmfile, tmpfile $2;
+file_type_auto_trans($1_t, tmp_t, $1_tmp_t)
+')
+
+define(`tmpfs_domain', `
+type $1_tmpfs_t, file_type, sysadmfile, tmpfsfile;
+# Use this type when creating tmpfs/shm objects.
+file_type_auto_trans($1_t, tmpfs_t, $1_tmpfs_t)
+allow $1_tmpfs_t tmpfs_t:filesystem associate;
+')
+
+define(`var_lib_domain', `
+type $1_var_lib_t alias var_lib_$1_t, file_type, sysadmfile;
+file_type_auto_trans($1_t, var_lib_t, $1_var_lib_t)
+')
+
+define(`log_domain', `
+type $1_log_t, file_type, sysadmfile, logfile;
+file_type_auto_trans($1_t, var_log_t, $1_log_t)
+')
+
+define(`lock_domain', `
+type $1_lock_t, file_type, sysadmfile, lockfile;
+file_type_auto_trans($1_t, var_lock_t, $1_lock_t, file)
+')
+
+#######################
+# application_domain(domain_prefix)
+#
+# Define a domain with a base set of type declarations
+# and permissions that are common to simple applications.
+#
+# Author:  Russell Coker <russell@coker.com.au>
+#
+define(`application_domain', `
+type $1_t, domain, privlog;
+type $1_exec_t, file_type, sysadmfile, exec_type;
+role sysadm_r types $1_t;
+domain_auto_trans(sysadm_t, $1_exec_t, $1_t)
+uses_shlib($1_t)
+')
+
+define(`user_application_domain', `
+application_domain($1)
+in_user_role($1_t)
+domain_auto_trans(userdomain, $1_exec_t, $1_t)
+')
+
+define(`system_domain', `
+type $1_t, domain, privlog $2;
+type $1_exec_t, file_type, sysadmfile, exec_type;
+role system_r types $1_t;
+uses_shlib($1_t)
+allow $1_t etc_t:dir r_dir_perms;
+')
+
+
+--Boundary-00=_MZdK/dF5M5nlyHx--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
