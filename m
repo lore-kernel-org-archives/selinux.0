@@ -1,62 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA3DchWt029568
-	for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 08:38:43 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hA3DcgKl026488
-	for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 13:38:42 GMT
-Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
-        by jazzband.ncsc.mil  with ESMTP id hA3Dcf5m026482 for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 13:38:41 GMT
-Message-ID: <3FA65A60.3010802@diyab.net>
-Date: Mon, 03 Nov 2003 08:38:40 -0500
-From: Diyab <diyab@diyab.net>
-MIME-Version: 1.0
-To: Dale Amon <amon@vnl.com>
-CC: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: default policy package
-References: <20031103114353.GC13273@vnl.com>
-In-Reply-To: <20031103114353.GC13273@vnl.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA3DrHWt029705
+	for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 08:53:17 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hA3DquC7008626
+	for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 13:52:56 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id hA3Dquuw008623
+	for <selinux@tycho.nsa.gov>; Mon, 3 Nov 2003 13:52:56 GMT
+Subject: Re: specifying groups of types
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: david caplan <dac@tresys.com>, Russell Coker <russell@coker.com.au>,
+   SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1067794997.5374.42.camel@chris.pebenito.net>
+References: <200310111435.46684.russell@coker.com.au>
+	 <1066134168.5054.11.camel@moss-spartans.epoch.ncsc.mil>
+	 <3F8C46E4.1030403@tresys.com> <1067794997.5374.42.camel@chris.pebenito.net>
+Content-Type: text/plain
+Message-Id: <1067867585.21113.16.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 03 Nov 2003 08:53:05 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dale Amon wrote:
-> Looks like X windows has really stuck it's tentacles
-> into the policy. I can't compile one without it. Something
-> in the macros that I haven't tracked down yet:
-> 
-> ERROR: unknown type initrc_xserver_tmp_t' at token ':' on line 6198:
-> allow sysadm_uml_t initrc_xserver_tmp_t:dir search;
-> 
-> so I removed uml.te, which I didn't need anyway. Next run
-> I've now got:
-> 
-> ERROR: unknown type sysadm_xserver_t' at token ':' on line 7525:
-> allow sysadm_xserver_t xserver_tmpfile:dir { read getattr lock search ioctl add name remove_name write };
-> 
-> This is just some examples. I've been fighting this
-> all morning without finding a set that works without 
-> any X. (Hardly need X for a machine that normally doesn't
-> even have a terminal on it, and when it does it's an old
-> dumb b&w character only glass tty)
-> 
-> I haven't specifically seen where the problem is coming
-> from yet: everything seems to have ifdef's around it
-> on startx.te or xserver.te but I've not gone through
-> every file.
-> 
-> I'll keep at it, but suggestions are welcome. 
+On Sun, 2003-11-02 at 12:43, Chris PeBenito wrote:
+> Was there any resolution to this?  I think this would be useful for
+> checkpolicy to have, but it hasn't been merged (at least on the
+> sourceforge cvs).  I don't remember seeing any official response from
+> the NSA team about it nor any criticism/improvements of it.
 
-I ran into a similar problem with postgresql.te which contains a 
-can_exec statement with dpkg_exec_t that does not have an ifdef around 
-it.  So unless you include dpkg.te you get an error attempting to 
-compile the policy.  Easiest thing to do from what I've found is to grep 
-the everything in domains/program for the context that is giving the error.
-
-Timothy,
+Dave correctly noted that the implementation was just an experimental
+hack, not something for upstream inclusion, and explained what would
+need to be done to implement it correctly.  No one has done that yet,
+AFAIK.
 
 -- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
