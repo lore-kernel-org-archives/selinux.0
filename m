@@ -1,74 +1,60 @@
-Message-Id: <seba8444.037@atlas.snu.edu>
-Date: Thu, 08 May 2003 16:22:14 -0500
-From: "Joshua Brindle" <JBrindle@snu.edu>
-To: <SELinux@tycho.nsa.gov>
-Subject: [PATCH] setfiles support for altroot
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_A2FD2B84.55345550"
+Message-ID: <1348.202.27.185.71.1052429174.squirrel@www.crypt.gen.nz>
+Date: Fri, 9 May 2003 09:26:14 +1200 (NZST)
+Subject: Re: Step 19 of install
+From: "Kerry Thompson" <kerry@crypt.gen.nz>
+To: <ccarney@seacorp.com>
+In-Reply-To: <001001c31581$d8abd450$e501a8c0@CarneyC>
+References: <001001c31581$d8abd450$e501a8c0@CarneyC>
+Cc: <SELinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---=_A2FD2B84.55345550
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Christopher Carney said:
+> I got threw the install and I ran make relabel.  Now I am not sure where
+> my path for modified utilities is. I am trying to follow step 19 but
+> don't know how.
+> 19) Add /usr/local/selinux/bin and /usr/local/selinux/sbin
+> to your path for the modified utilities.
 
-This allows setfiles to label files in somewhere other than / as if they =
-were in /,=20
-very useful for labeling off the live filesystem before installing.
-This is necessary for Gentoo to support SELinux, is it reasonable for it
-to be imported into CVS and included in the next nsa release? If there are =
-any
-problems with it let me know (I really suck at C so there probably are =
-problems)
+For RedHat, edit /etc/profile and add the directories to the "pathmunge"
+lists:
 
-Joshua Brindle
-UNIX Administrator
-Southern Nazarene University
+  # Path manipulation
+  if [ `id -u` = 0 ]; then
+        pathmunge /sbin
+        pathmunge /usr/sbin
+        pathmunge /usr/local/bin
+        pathmunge /usr/local/sbin
+        pathmunge /usr/local/selinux/sbin
+  fi
+
+  pathmunge /usr/X11R6/bin after
+  pathmunge /usr/local/bin
+  pathmunge /usr/local/selinux/bin
 
 
---=_A2FD2B84.55345550
-Content-Type: application/octet-stream; name="setfiles-altroot[1].patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="setfiles-altroot[1].patch"
+... also you will probably want to add the SELinux man directory to
+MANPATH, by editing /etc/man.config and adding:
 
-ZGlmZiAtdXIgc2VsaW51eC9zZXRmaWxlcy9zZXRmaWxlcy5jIHNlbGludXgtc2V0ZmlsZXMvc2V0
-ZmlsZXMvc2V0ZmlsZXMuYwotLS0gc2VsaW51eC9zZXRmaWxlcy9zZXRmaWxlcy5jCTIwMDMtMDQt
-MDQgMDc6Mjk6NDQuMDAwMDAwMDAwIC0wNjAwCisrKyBzZWxpbnV4LXNldGZpbGVzL3NldGZpbGVz
-L3NldGZpbGVzLmMJMjAwMy0wNS0wOCAxNDo1NTozNi4wMDAwMDAwMDAgLTA1MDAKQEAgLTczLDYg
-KzczLDcgQEAKIAogI2RlZmluZSBGSUxFX0NPTlRFWFQgInN5c3RlbV91Om9iamVjdF9yOmZpbGVf
-dCIKICNkZWZpbmUgRlNfQ09OVEVYVCAic3lzdGVtX3U6b2JqZWN0X3I6ZnNfdCIKKyNkZWZpbmUg
-U1ogMjU1CiAKIHN0YXRpYyBpbnQgZmxhc2tfZW5hYmxlZCA9IDA7CiBzdGF0aWMgaW50IGFkZF9h
-c3NvYyA9IDE7CkBAIC04OSw2ICs5MCw5IEBACiBzdGF0aWMgaW50IHVzZV9pbnVtID0gMDsKIAog
-c3RhdGljIGludCBxdWlldCA9IDA7CisKK3N0YXRpYyBpbnQgdXNlcm9vdCA9IDA7CitzdGF0aWMg
-Y2hhciAqcm9vdHBhdGg7CiAjZGVmaW5lIFFQUklOVEYoYXJncy4uLikgZG8geyBpZiAoIXF1aWV0
-KSBwcmludGYoYXJncyk7IH0gd2hpbGUgKDApCiAKIC8qCkBAIC0yODAsOSArMjg0LDIzIEBACiB9
-CiAKIAotaW50IG1hdGNoKGNvbnN0IGNoYXIgKm5hbWUsIHN0cnVjdCBzdGF0ICpzYiwgc2VjdXJp
-dHlfaWRfdCAqb3V0X3NpZCkgCitpbnQgbWF0Y2goY29uc3QgY2hhciAqbXlfbmFtZSwgc3RydWN0
-IHN0YXQgKnNiLCBzZWN1cml0eV9pZF90ICpvdXRfc2lkKSAKIHsKIAlpbnQgaSwgcmV0OworY29u
-c3QgY2hhciAqbmFtZTsKKworICAvKiBteV9uYW1lIHdpbGwgYmUgdGhlIHJlYWwgZmlsZSwgZ2V0
-dGluZyBsYWJlbGVkCisgICAqIG5hbWUgd2lsbCBiZSB3aGF0IGlzIG1hdGNoZWQgaW4gdGhlIHBv
-bGljeSAgKi8KKyAgCitpZiAodXNlcm9vdCkgeworICAgIGk9MDsKKyAgICBuYW1lPW15X25hbWU7
-CisgICAgd2hpbGUgKHJvb3RwYXRoW2ldID09IG15X25hbWVbaV0pCisgICAgICBpKys7CisgICAg
-bmFtZT0mbXlfbmFtZVtpXTsKKyAgfSBlbHNlIHsKKyAgICBuYW1lPW15X25hbWU7CisgIH0KIAog
-CWlmIChmbGFza19lbmFibGVkKSB7CiAJCXJldCA9IGxzdGF0X3NlY3VyZShuYW1lLCBzYiwgb3V0
-X3NpZCk7CkBAIC00MTcsNyArNDM1LDYgQEAKIAlyZXR1cm47CiB9CiAKLSNkZWZpbmUgU1ogMjU1
-CiAKIC8qCiAgKiBBcHBseSB0aGUgbGFzdCBtYXRjaGluZyBzcGVjaWZpY2F0aW9uIHRvIGEgZmls
-ZS4KQEAgLTU3Nyw3ICs1OTQsNyBAQAogCXN0cnVjdCBzdGF0IHNiOwogCiAJLyogUHJvY2VzcyBh
-bnkgb3B0aW9ucy4gKi8KLQl3aGlsZSAoKG9wdCA9IGdldG9wdChhcmdjLCBhcmd2LCAiZGlucXN2
-UlciKSkgPiAwKSB7CisJd2hpbGUgKChvcHQgPSBnZXRvcHQoYXJnYywgYXJndiwgImRpbnFzdnJS
-VyIpKSA+IDApIHsKIAkJc3dpdGNoIChvcHQpIHsKIAkJY2FzZSAnZCc6CiAJCQlkZWJ1ZyA9IDE7
-CkBAIC02MDQsNiArNjIxLDEwIEBACiAJCWNhc2UgJ2knOgogCQkJdXNlX2ludW0gPSAxOwogCQkJ
-YnJlYWs7CisgICAgY2FzZSAncic6CisgICAgICByb290cGF0aCA9IGFyZ3Zbb3B0aW5kKytdOwor
-ICAgICAgdXNlcm9vdCA9IDE7CisgICAgICBicmVhazsKIAkJfQogCX0KIApAQCAtOTIwLDcgKzk0
-MywxMCBAQAogCWVsc2UgZm9yICg7IG9wdGluZCA8IGFyZ2M7IG9wdGluZCsrKQogCXsKIAotCQlp
-ZiAoZmxhc2tfZW5hYmxlZCkgeworICAgIGlmICh1c2Vyb290KQorICAgICAgUVBSSU5URigiJXM6
-ICBsYWJlbGluZyBmaWxlcyBhcyBpZiAlcyBpcyAvXG4iLGFyZ3ZbMF0scm9vdHBhdGgpOworCQkK
-KyAgICBpZiAoZmxhc2tfZW5hYmxlZCkgewogCQkJUVBSSU5URigiJXM6ICBsYWJlbGluZyBmaWxl
-cyB1bmRlciAlc1xuIiwgYXJndlswXSwKIAkJCSAgICAgICBhcmd2W29wdGluZF0pOwogCQl9IGVs
-c2Ugewo=
+  MANPATH /usr/local/selinux/man
 
---=_A2FD2B84.55345550--
+BEFORE the usual system MANPATHs so that your man command will pickup the
+SELinux man pages before the non-SE system ones.
+
+I'll add this stuff to my FAQ ( http://www.crypt.gen.nz/selinux/faq.html )
+in the next update.
+
+Kerry
+
+
+
+
+
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
