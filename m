@@ -1,67 +1,66 @@
-Reply-To: <mayerf@tresys.com>
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'Dhruv Gami'" <dgami@uncc.edu>, "'SELINUX'" <SELinux@tycho.nsa.gov>
-Subject: RE: Basic question on policy design
-Date: Thu, 4 Dec 2003 08:29:43 -0500
-Message-ID: <000401c3ba6a$ad593430$8100a8c0@columbia.tresys.com>
+Date: Thu, 4 Dec 2003 08:40:05 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Karl MacMillan <kmacmillan@tresys.com>
+cc: SELinux List <SELinux@tycho.nsa.gov>
+Subject: Re: RFC Kernel interface to conditional policy
+In-Reply-To: <1070484482.3774.54.camel@colossus.columbia.tresys.com>
+Message-ID: <Xine.LNX.4.44.0312040833250.32432-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <3FCE05F9.8090006@uncc.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-By now you might have received several responses, but here are some pointers.
-Basic documentation is sparse but others are developing some.  You can look on
-our web site (www.tresys.com/selinux) for slides from a 3-day class we presented
-a couple times for additional information; these slides are several months old
-but generally accurate.
+On Wed, 3 Dec 2003, Karl MacMillan wrote:
 
-> The TE Configuration file defines an extensible set of types. Using
-> the allow statement, allowable permissions between pairs of types are
-> specified for each object class.
+> We have added conditional expressions to the selinux policy language.
+> This allows you to place TE rules in if/else blocks with conditional
+> expressions. The booleans in the conditional expressions can be
+> controlled at runtime to allow the addition or removal of rules based on
+> the value of the booleans/expressions.
 > 
-> allow type_1 type_2:class { perm_1 ... perm_n };
+> Problem
+> 
+> Our initial prototype exports the booleans as files under
+> /proc/sys/selinux/booleans using the sysctl interface
+> ([un]register_sysctl_table). On each policy reload we call
+> unregister_sysctl_table and then re-register all of the booleans. The
+> problem is that if one of the boolean files is in use the file is not
+> removed and unregister_sysctl_table gives no indication that unregister
+> was not successful. The solutions to this problem that we see are:
 
-type_1 is the source (subject or process) type and type_2 is the target
-(object) type.  "class" is the object class pertaining to type_2 only.
-For example:
+Firstly, why does this need to be done in kernel space at all?  Why not 
+recompile the policy in userspace and reload it via the already simple and 
+well defined user/kernel policy interface?  
 
-	allow user_t bin_t : file {read execute };
+If it doesn't need to be done in the kernel, then it shouldn't be.
 
-generally means processes with the user_t type can have read and execute
-permission for object instances of class file that have the bin_t type.  Of
-course it's more complicated in the general case; you really have to learn by
-trial the semantic meaning of all the various object classes and their
-permissions.
+> 1) Manipulate proc files directly. This allows fine-grained labeling of
+> the boolean files, but kernel developers seem to be frowning on new uses
+> of proc.
 
-> The meaning of this above rule is not too clear to me.
-> 1. what exactly is the relationship between type_1 and type_2 ?
+Yes, extending proc is deprecated.
 
-This specifies allowed access by the source type (type_1) to the
-target type (type_2) for the specified object class[es] and 
-permission[s].
+> 
+> 2) Extend the selinux filesystem. This wouldn't allow fine-grained
+> labeling and would pollute the policy-neutral security server interface
+> with type enforcement policy specific functionality.
 
-> 2. is the class associated with type_2 only ?
+I'm not clear on why you need fine-grained labeling to update security
+policy: would you not allow just one domain to do this?
 
-Yes.  Generally speaking the object class of the source is typically
-a process (subject), but in the network area it can be things like
-messages.  Think process for source object class and you'll be right 
-the vast majority of the time.
 
-> 3. Are type_1 and type_2 interchangable in the above rule ?
+> 3) Create a new filesystem. This would be the most work, but otherwise
+> meet our needs.
 
-No.
+This sounds like the best approach, if you have to manipulate policy in 
+the kernel.  You might also consider netlink messaging (as an example, 
+this is how the in-kernel routing table is manipulated).
 
-> 4. is there any rule that type_1 should be subject and type_2 should
-> be an object type ?
 
-See above.
-
-type_transition is even more difficult to understand semantically at first!  See
-the referenced slides for some insights.  Good luck.
-
-Frank
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
 
 
