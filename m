@@ -1,204 +1,64 @@
-From: "Christopher Carney" <ccarney@seacorp.com>
-To: <SELinux@tycho.nsa.gov>
-Subject: Configure: error: *** libwrap missing
-Date: Thu, 1 May 2003 15:52:02 -0400
-Message-ID: <001401c3101b$2287ea80$e501a8c0@CarneyC>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h41LEiI4013049
+	for <selinux@tycho.nsa.gov>; Thu, 1 May 2003 17:14:44 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h41LEh7R008250
+	for <selinux@tycho.nsa.gov>; Thu, 1 May 2003 21:14:43 GMT
+Received: from mx.nas-smoothtransition.com (nas-vm-196.nas-smoothtransition.com [66.95.157.196] (may be forged))
+        by jazzband.ncsc.mil  with ESMTP id h41LEgKP008247 for <selinux@tycho.nsa.gov>; Thu, 1 May 2003 21:14:42 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Petty, Clint E'" <clint.e.petty@lmco.com>, <selinux@tycho.nsa.gov>
+Subject: RE: Trusted Operating System?
+Date: Thu, 1 May 2003 17:13:58 -0400
+Message-ID: <009201c31026$97ab8d70$6700a8c0@columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0015_01C30FF9.9B764A80"
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <AED99F3E5CF6C749B320E3B51B0D14B217B52F@EMSS01M10.us.lmco.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+I'm afraid you'll have to clarify what you mean by "trusted OS".  Do you
+mean a common criteria evaluation as I suspect?  The trustworthiness of
+an OS and the successful completion of a CC evaluation at some
+evaluation level are not equivalent concepts.  The latter tends to be
+more of a marketing/political concern (e.g., my government agency
+requires an evaluated OS) than an issue with the basic trustworthiness
+of the technology.
 
-------=_NextPart_000_0015_01C30FF9.9B764A80
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Without stating my own personal option, there are some who would claim
+that the type enforcement architecture and it open source availability
+makes the trustworthiness potential of SE Linux greater than evaluated
+proprietary OSs with standard user-based access controls (or even
+Bell-LaPadula like multilevel security access controls).  Of course for
+any application, one must judge the deployed system in its intended
+configuration (e.g., a certification and accreditation in U.S.
+government lingo) to determine whether the OS that you trust
+incorporates adequate assurances to be trustworthy.
 
-I am trying to install SELinux on a Mandrake 8.0 machine.
+Frank
 
-   
-
-I get a 
-
- 
-
-"checking for libwrap. configure: error: *** libwrap missing
-
-make[1]: *** [xopenssh-config] Error 1 
-
-make[1]: Leaving directory '/selinux/utils'
-
-make: *** [quickinstall] Error 2"
-
- 
-
-So I went ahead and ran. /configure for XOpenSSH which worked fine.
-
- 
-
-Not sure where to go from here.  Any help is appreciated.
-
- 
-
-  
-
-Thanks,
-
- 
-
-Chris
-
- 
-
-
-------=_NextPart_000_0015_01C30FF9.9B764A80
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Dus-ascii">
-
-
-<meta name=3DGenerator content=3D"Microsoft Word 10 (filtered)">
-
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{font-family:Arial;
-	color:windowtext;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-
-</head>
-
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
-
-<div class=3DSection1>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>I am trying to =
-install
-SELinux on a Mandrake 8.0 machine.</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>&nbsp; =
-&nbsp;</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>I get a =
-</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier =
-New"'>&nbsp;</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>&quot;checking for =
-libwrap.
-configure: error: *** libwrap missing</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>make[1]: ***
-[xopenssh-config] Error 1 </span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>make[1]: Leaving =
-directory
-'/selinux/utils'</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>make: *** =
-[quickinstall]
-Error 2&quot;</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier =
-New"'>&nbsp;</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>So I went ahead and =
-ran.
-/configure for XOpenSSH which worked fine.</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier =
-New"'>&nbsp;</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>Not sure where to =
-go from
-here.&nbsp; Any help is appreciated.</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier =
-New"'>&nbsp;</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier New"'>&nbsp; =
-</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier =
-New"'>Thanks,</span></font></p>
-
-<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D2 =
-face=3D"Courier New"><span
-style=3D'font-size:10.0pt;font-family:"Courier =
-New"'>&nbsp;</span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3D"Courier New"><span =
-style=3D'font-size:10.0pt;
-font-family:"Courier New"'>Chris</span></font></p>
-
-<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
-style=3D'font-size:
-12.0pt'>&nbsp;</span></font></p>
-
-</div>
-
-</body>
-
-</html>
-
-------=_NextPart_000_0015_01C30FF9.9B764A80--
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov 
+> [mailto:owner-selinux@tycho.nsa.gov] On Behalf Of Petty, Clint E
+> Sent: Thursday, May 01, 2003 2:31 PM
+> To: 'selinux@tycho.nsa.gov'
+> Subject: Trusted Operating System?
+> 
+> 
+> When do you anticipate you will have made SELinux a Trusted Operating
+> System?  Any forcasts?
+> Thanks,
+> Clint
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux 
+> mailing list.
+> If you no longer wish to subscribe, send mail to 
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
 
 
 --
