@@ -3,20 +3,47 @@ Content-Type: text/plain;
 From: JW <jw@centraltexasit.com>
 Reply-To: jw@centraltexasit.com
 To: "SELinux" <SELinux@tycho.nsa.gov>
-Subject: New user question
-Date: Mon, 8 Jul 2002 01:06:52 -0500
+Subject: Make errors from newrole in utils
+Date: Mon, 8 Jul 2002 01:16:57 -0500
 MIME-Version: 1.0
-Message-Id: <200207080106.52843.jw@centraltexasit.com>
+Message-Id: <200207080116.57947.jw@centraltexasit.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Probably I will find ot the hard way before I actually get a reply from the list, but what is the drawback of not installing the modified selinux 'utils'?
 
-Since I'm using SuSE, not RedHat, I would rather not install the modified utils unless i have to. It is not at all clear to me what is differant about these utils that would require their use.
+When I run make in utils I get errors in newrole.c about security/pam_appl.h security/pam_misc.h missing:
 
+ccs001:/usr/src/selinux/utils # whoami
+root
+ccs001:/usr/src/selinux/utils # pwd
+/usr/src/selinux/utils
+ccs001:/usr/src/selinux/utils # make
+make -C newrole
+make[1]: Entering directory `/usr/src/selinux/utils/newrole'
+cc -L/usr/local/selinux/lib -Wall -I/usr/local/selinux/include -DUSE_PAM -O3 -o newrole newrole.c -ldl -lpam -lpam_misc -lsecure
+newrole.c:132: security/pam_appl.h: No such file or directory
+newrole.c:133: security/pam_misc.h: No such file or directory
+make[1]: *** [newrole] Error 1
+make[1]: Leaving directory `/usr/src/selinux/utils/newrole'
+make: *** [xnewrole] Error 2`
+ccs001:/usr/src/selinux/utils # ls
+.          fileutils-4.1      newrole        run_init         tar-1.13.19
+..         findutils-4.1.7    openssh-3.4p1  sh-utils-2.0.11  util-linux-2.11f
+Makefile   logrotate-3.5.4-1  procps-2.0.7   spasswd          vixie-cron-3.0.1
+appconfig  logrotate-3.5.9    psmisc-20.1    stat-2.5
+ccs001:/usr/src/selinux/utils # ls ..
+.   ChangeLog  Makefile  README.MLS  doc        module  scripts  setfiles
+..  INDEX      README    devfsd      libsecure  policy  selopt   utils
+ccs001:/usr/src/selinux/utils # uname -a
+Linux ccs001 2.4.18-64GB-SMP #1 SMP Wed Mar 27 13:58:12 UTC 2002 i686 unknown
+ccs001:/usr/src/selinux/utils #
+
+What is missing? THis is the current download from the SE Linux website as of this evening (Sunday)
+
+Thanks
 - -- 
 
 - ----------------------------------------------------
@@ -27,9 +54,9 @@ Cedar Creek Software     http://www.cedarcreeksoftware.com
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE9KSv8Q5u80xXOLBcRAvqGAJ0QfDPnjeMDkWs4AMeHPN+Dc19lGACgifhf
-tGd2o00VFLKRJk9t+HXdyWU=
-=kdf3
+iD8DBQE9KS5ZQ5u80xXOLBcRAqNUAJ998z2hdC7eBbTYwOjZ+NFCMTqBAQCfaAGM
+wHKIS3XIq5DeCYq/ZsXpCrM=
+=pLNH
 -----END PGP SIGNATURE-----
 
 
