@@ -1,99 +1,70 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9ILaIi014616
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 13:21:36 -0500 (EST)
-Received: from mailrelay1.lrz-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9ILdEj003426
-	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 18:21:39 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 9 Dec 2004 19:21:39 +0100
-Date: Thu, 9 Dec 2004 19:21:39 +0100
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux ML <selinux@tycho.nsa.gov>
-Subject: patch: tags Makefile target
-Message-Id: <20041209182139.GC8179@jmh.mhn.de>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB9INYIi014640
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 13:23:34 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB9INbEj003493
+	for <selinux@tycho.nsa.gov>; Thu, 9 Dec 2004 18:23:37 GMT
+Subject: Re: Single home directory type for all roles.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <rcoker@redhat.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux list <selinux@tycho.nsa.gov>,
+   Joshua Brindle <jbrindle@snu.edu>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Colin Walters <walters@redhat.com>, Nalin Dahyabhai <nalin@redhat.com>
+In-Reply-To: <1102615951.4509.50.camel@aeon>
+References: <20041207000805.GH3678@jmh.mhn.de>
+	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
+	 <41B8826D.30105@redhat.com>
+	 <1102612828.32175.159.camel@moss-spartans.epoch.ncsc.mil>
+	 <1102614445.4509.25.camel@aeon>
+	 <1102614805.32175.176.camel@moss-spartans.epoch.ncsc.mil>
+	 <1102615951.4509.50.camel@aeon>
+Content-Type: text/plain
+Message-Id: <1102616319.32175.184.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ChQOR20MqfxkMJg9"
+Date: Thu, 09 Dec 2004 13:18:39 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2004-12-09 at 13:12, Russell Coker wrote:
+> Last time I mentioned this I was informed that it is impractically
+> difficult for the kernel code to differentiate between an application
+> such as ls calling readlink(2) and the kernel code calling it as part of
+> a file open operation.
 
---ChQOR20MqfxkMJg9
-Content-Type: multipart/mixed; boundary="ep0oHQY+/Gbo/zt0"
-Content-Disposition: inline
+Not sure who said that, but there are two separate LSM hooks on those
+code paths, security_inode_readlink() vs. security_inode_follow_link(). 
+They just happen to perform the same check in SELinux presently. 
+Whether or not it is legitimate to separate them in the access control
+model is another question; if you don't want the admin following the
+link, why do you want an application he runs to rely on the information
+returned by readlink?
+In any event, we could apply different permission checks - it just
+requires defining a new permission in the lnk_file class and modifying
+the selinux_inode_follow_link() hook function to use it.  Trivial patch,
+anyone could do it (but then you would need to identify all the places
+in the policy where you would need to add it).
 
+> The solution then would be to have a separate domain for the
+> administrator to run ls which can read all sym-links while other
+> programs the administrator may run (rm, cp, mv, etc) will be denied
+> access to read many types of sym-link.  Is this a good idea?
 
---ep0oHQY+/Gbo/zt0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Seems painful.
 
-This patch adds a Makefile target which creates a tags file. I find this
-extremely handy when working on SELinux policy as I can directly jump to
-the definition of a macro or type in the editor.
+> Can we break the tradition of having only /home/$USER in this regard?
+> There are several other categories of files that are relevant to
+> security that could benefit from similar treatment if we go down that
+> path.
 
-Thomas
+For MLS, we'll need multiple home directories per user anyway, although
+they could all be rooted under /home/$USER and polyinstantiated
+directories could be used to transparently redirect to the right member
+subdirectory.
 
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---ep0oHQY+/Gbo/zt0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="tags.patch"
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN orig/Makefile mod/Makefile
---- orig/Makefile	2004-10-26 00:19:49.000000000 +0200
-+++ mod/Makefile	2004-12-09 19:08:07.000000000 +0100
-@@ -162,8 +162,26 @@
- 	@grep "^/root" $@.tmp >> $@
- 	@-rm $@.tmp $@.root
-=20
-+# Create a tags-file for the policy:
-+# we need exuberant ctags; unfortunately it is named differently on differ=
-ent distros, sigh...
-+pathsearch =3D $(firstword $(wildcard $(addsuffix /$(1),$(subst :, ,$(PATH=
-))))) # taken from make-docs
-+CTAGS :=3D $(call pathsearch,ctags-exuberant) # debian naming scheme
-+ifeq ($(strip $(CTAGS)),)
-+CTAGS :=3D $(call pathsearch,ctags) # suse naming scheme
-+endif
-+
-+tags: $(wildcard *.te types/*.te domains/*.te domains/misc/*.te domains/pr=
-ogram/*.te domains/program/unused/*.te macros/*.te macros/program/*.te)
-+	@($(CTAGS) --version | grep -q Exuberant) || (echo ERROR: Need exuberant-=
-ctags to function!; exit 1)
-+	@LC_ALL=3DC $(CTAGS) --langdef=3Dte --langmap=3Dte:..te \
-+	  --regex-te=3D'/^[ \t]*type[ \t]+(\w+)(,|;)/\1/t,type/' \
-+	  --regex-te=3D'/^[ \t]*typealias[ \t]+\w+[ \t+]+alias[ \t]+(\w+);/\1/t,t=
-ype/' \
-+	  --regex-te=3D'/^[ \t]*attribute[ \t]+(\w+);/\1/a,attribute/' \
-+	  --regex-te=3D'/^[ \t]*define\(`(\w+)/\1/d,define/' \
-+	  --regex-te=3D'/^[ \t]*bool[ \t]+(\w+)/\1/b,bool/' $^
-+=20
- clean:
- 	rm -f policy.conf $(POLICYVER)
-+	rm -f tags
- 	rm -f tmp/*
- 	rm -f $(FC)
- 	rm -f flask/*.h
-
---ep0oHQY+/Gbo/zt0--
-
---ChQOR20MqfxkMJg9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBuJezxWIrrrL0q+cRAjCGAJ4scA8VKbpYnrqNLUh9X9vefhxvEQCfbe3k
-SatRsLbiDSsmWLb7kcFrcZQ=
-=F48B
------END PGP SIGNATURE-----
-
---ChQOR20MqfxkMJg9--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
