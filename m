@@ -1,65 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0BBXgRb008225
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 06:33:42 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0BBWaxr018313
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 11:32:36 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i0BBWYYc018207
-	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 11:32:35 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Park Lee <parklee_2004@yahoo.com.cn>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0BDQcRb008438
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 08:26:39 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0BDQbiV026937
+	for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 13:26:37 GMT
+Received: from maja.beep.pl (smtp.sys.beep.pl [195.245.198.13])
+        by jazzband.ncsc.mil  with ESMTP id i0BDQb06026934 for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2004 13:26:37 GMT
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+To: selinux@tycho.nsa.gov
 Subject: Re: Questions about install SELinux in Fedora Core
-Date: Sun, 11 Jan 2004 22:31:54 +1100
-Cc: selinux@tycho.nsa.gov
-References: <20040111024703.62855.qmail@web15208.mail.bjs.yahoo.com>
-In-Reply-To: <20040111024703.62855.qmail@web15208.mail.bjs.yahoo.com>
+Date: Sun, 11 Jan 2004 14:26:08 +0100
+References: <20040111024703.62855.qmail@web15208.mail.bjs.yahoo.com> <200401112231.54137.russell@coker.com.au>
+In-Reply-To: <200401112231.54137.russell@coker.com.au>
+Cc: Park Lee <parklee_2004@yahoo.com.cn>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="gb2312"
-Message-Id: <200401112231.54137.russell@coker.com.au>
+  charset="iso-8859-2"
+Message-Id: <200401111426.08881.arekm@pld-linux.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 11 Jan 2004 13:47, Park Lee <parklee_2004@yahoo.com.cn> wrote:
-> You say that:
-> >Better to get 2.6.1.
->
-> But there is only the 2.6.0-test11 kernel with SELinux patch applied could
-> be down from www.nsa.gov/selinux.
+On Sunday 11 of January 2004 12:31, Russell Coker wrote:
+> > > quotas? For xfsprogs, last I heard XFS support for SE Linux wasn't
+> > > >quite ready.
+[...]
+> XFS isn't something I've had a need to learn about, and quota-tools isn't
+> something I've used recently.  I don't know what the issues of upgrading
+> them may be.
 
-2.6.0 and 2.6.1 run fine without any patches.
-
-> >quota-tools doesn't matter unless you are using quotas, are >you using
-> > quotas? For xfsprogs, last I heard XFS support for SE Linux wasn't >quite
-> > ready. So unless something has changed you have to use Ext3, and
-> > >therefore the version of xfsprogs does not matter.
-> >Red Hat uses a different procps to everyone else. Don't worry >about it.
->
-> Then do you mean that I can ignore the above problems and install the 2.6
-> kernel with SELinux patch applied in the Fedora Core(2.4.22-1.2115.nptl )
-> successfully.
-
-Use Arjan's 2.6 kernel package, or compile your own 2.6.1 kernel.  Don't worry 
-about those problems.
-
-> And if I download the newest version of xfsprogs,quota-tools and procps.
-> Could I install them in the Fedora Core(2.4.22-1.2115.nptl ) and do not
-> cause other problems.
-
-Procps 3.1.15 will also work fine, but it's a different thing to the Red Hat 
-procps.
-
-XFS isn't something I've had a need to learn about, and quota-tools isn't 
-something I've used recently.  I don't know what the issues of upgrading them 
-may be.
+Labeling works with xfs on 2.6.1 patched using for example these patches
+http://cvs.pld-linux.org/cgi-bin/cvsweb/SOURCES/linux-2.6-xfs-cvs-20040102.patch?rev=1.2.2.1
+http://cvs.pld-linux.org/cgi-bin/cvsweb/SOURCES/linux-2.6-xfs-secure-attr.patch?rev=1.1
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
+arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
 
 
 --
