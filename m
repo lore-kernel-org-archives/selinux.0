@@ -1,32 +1,28 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA04454
-	for <selinux@tycho.nsa.gov>; Wed, 3 Jul 2002 22:25:39 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA05234
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 04:49:13 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id CAA02606
-	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 02:24:11 GMT
-Received: from mail.simplyaquatics.com (66-0-92-223.deltacom.net [66.0.92.223])
-        by jazzband.ncsc.mil  with ESMTP id CAA02602 for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 02:24:11 GMT
-Received: from ed (ed1 [192.168.1.10])
-	by mail.simplyaquatics.com (Postfix) with ESMTP id B7F41844054
-	for <selinux@tycho.nsa.gov>; Wed,  3 Jul 2002 22:25:36 -0400 (EDT)
-Reply-To: <blacknet@simplyaquatics.com>
-From: "Ed Street" <blacknet@simplyaquatics.com>
-To: "Selinux" <selinux@tycho.nsa.gov>
-Subject: /tmp and others
-Date: Wed, 3 Jul 2002 22:25:36 -0400
-Message-ID: <004f01c22302$150ebf70$0a01a8c0@ed>
+	by jazzband.ncsc.mil  with ESMTP id IAA13907
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 08:47:46 GMT
+Received: from mail.ispko.com ([210.16.10.89])
+        by jazzband.ncsc.mil  with ESMTP id IAA13903 for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 08:47:45 GMT
+Received: from evoworks.evoserve.com (rogelio@evoworks.evoserve.com [210.16.10.5])
+	by mail.ispko.com (8.12.3/8.12.3) with ESMTP id g648t3CM012056
+	for <selinux@tycho.nsa.gov>; Thu, 4 Jul 2002 16:55:04 +0800
+Message-ID: <3D240BFE.4000909@evoworks.evoserve.com>
+Date: Thu, 04 Jul 2002 16:49:02 +0800
+From: Debian User <rogelio@evoworks.evoserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: selinux@tycho.nsa.gov
+Subject: using genfs_context and cramfs
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
-
-I'm curious as to how Selinux deals with /tmp issues like exploits.
-Also how does Selinux deal with stack exploits and /proc exploits?
-
-Ed
+i can already mount a cramfs_file and it get labeled with "cramfs_t"
+i relabeled the directory where i built the cramfs from but when i mount 
+it via loopback. the labels are still cramfs. How do we use the fs image 
+as a root fs then?
 
 
 --
