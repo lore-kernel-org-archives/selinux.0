@@ -1,121 +1,55 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8B3wULa013627
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 23:58:30 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8B3wTmw022036
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 03:58:29 GMT
-Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h8B3wQ9d022033 for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 03:58:28 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 674C1C1B4
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 13:58:25 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
- id 31975-10 for <selinux@tycho.nsa.gov>;
- Thu, 11 Sep 2003 13:58:24 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id 7FA86BF3C
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 13:58:24 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 37D5392722
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 13:58:23 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id B1DFC7F06D
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 13:58:19 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: watchdog policy
-Date: Thu, 11 Sep 2003 13:58:18 +1000
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_aL/X/hoUBc9V8e2"
-Message-Id: <200309111358.18962.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8BBhDLa014895
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 07:43:14 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8BBfULY012653
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 11:41:30 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h8BBfTsG012650
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2003 11:41:29 GMT
+Subject: Re: rfs xattr's, mkinitrd and other stories
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Dale Amon <amon@vnl.com>
+Cc: Colin Walters <walters@verbum.org>,
+   SELinux Mail List <selinux@tycho.nsa.gov>,
+   Russell Coker <russell@coker.com.au>
+In-Reply-To: <20030910233424.GV5397@vnl.com>
+References: <20030910164854.GO5397@vnl.com>
+	 <1063233012.27358.11.camel@columbia> <20030910230519.GU5397@vnl.com>
+	 <20030910233424.GV5397@vnl.com>
+Content-Type: text/plain
+Message-Id: <1063280556.16884.3.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 11 Sep 2003 07:42:36 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2003-09-10 at 19:34, Dale Amon wrote:
+> Okay, next round of questions. According to Steve's HOWTO, the
+> line
+> 
+> 	none /selinux selinuxfs defaults 0 0
+> 
+> goes into the /etc/fstab to cause this file to mount. However
+> Debian mkinitrd defaults to cramfs and also states it requires
+> a debian dist patched kernel.
+> 
+> I'm left with these questions:
+> 
+> * what is an selinuxfs???
 
---Boundary-00=_aL/X/hoUBc9V8e2
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-I've attached a final version of my watchdog policy which should work fully 
-and not cause your machine to lock during the reboot process.
-
-Previous versions tended to lock machines and force a hardware reset (doing 
-exactly what the watchdog is designed to prevent).
+It isn't the initrd filesystem.  selinuxfs is a pseudo filesystem that
+exports the security policy API to userspace.  The /linuxrc script on
+the initrd needs to mount it in order to perform the initial policy
+load, and you also want it mounted on the real root (which is why we put
+it in /etc/fstab) for use by the SELinux-patched programs (e.g. login).
+See my slides from the 2003 OLS SELinux BOF, available from
+http://www.nsa.gov/selinux/docs.html, for a discussion of the API
+changes for 2.5/6.  
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_aL/X/hoUBc9V8e2
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="watchdog.te"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="watchdog.te"
-
-#DESC Watchdog - Software watchdog daemon
-#
-# Author:  Russell Coker <russell@coker.com.au>
-# X-Debian-Packages: watchdog
-#
-
-#################################
-#
-# Rules for the watchdog_t domain.
-#
-
-daemon_domain(watchdog, `, privmail')
-type watchdog_device_t, file_type;
-
-log_domain(watchdog)
-
-allow watchdog_t { etc_t }:file r_file_perms;
-allow watchdog_t etc_t:lnk_file read;
-allow watchdog_t self:unix_dgram_socket create_socket_perms;
-
-allow watchdog_t proc_t:file r_file_perms;
-
-allow watchdog_t self:capability { ipc_lock sys_nice };
-allow watchdog_t self:fifo_file rw_file_perms;
-allow watchdog_t self:unix_stream_socket create_socket_perms;
-can_network(watchdog_t)
-allow watchdog_t resolv_conf_t:file { getattr read };
-allow watchdog_t self:udp_socket create_socket_perms;
-allow watchdog_t bin_t:dir search;
-allow watchdog_t bin_t:lnk_file read;
-allow watchdog_t init_t:process signal;
-allow watchdog_t kernel_t:process sigstop;
-
-allow watchdog_t watchdog_device_t:chr_file { getattr write };
-
-# for orderly shutdown
-can_exec(watchdog_t, shell_exec_t)
-allow watchdog_t domain:process { signal_perms getsession };
-allow watchdog_t watchdog_t:capability { kill };
-allow watchdog_t sbin_t:dir search;
-
-# for updating mtab on umount
-file_type_auto_trans(watchdog_t, etc_t, etc_runtime_t, file)
-
-allow watchdog_t self:capability { sys_admin net_admin sys_boot };
-allow watchdog_t fixed_disk_device_t:blk_file swapon;
-allow watchdog_t { proc_t fs_t }:filesystem unmount;
-
-# record the fact that we are going down
-allow watchdog_t wtmp_t:file append;
-
-# do not care about saving the random seed
-dontaudit watchdog_t random_device_t:chr_file read;
-
---Boundary-00=_aL/X/hoUBc9V8e2--
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
