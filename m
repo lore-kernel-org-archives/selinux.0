@@ -1,52 +1,46 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0I0WNIi016954
-	for <selinux@tycho.nsa.gov>; Mon, 17 Jan 2005 19:32:23 -0500 (EST)
-Date: Mon, 17 Jan 2005 18:31:39 -0600
-From: Greg Norris <haphazard@kc.rr.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <selinux@tycho.nsa.gov>,
-   Ingo Molnar <mingo@elte.hu>
-Cc: Russell Coker <russell@coker.com.au>
-Subject: Re: lots of execmem failures with 2.6.10
-Message-ID: <20050118003139.GA13553@yggdrasil.localdomain>
-References: <20050112112630.GA12730@yggdrasil.localdomain> <1105541256.22495.57.camel@moss-spartans.epoch.ncsc.mil> <20050113030755.GA24828@yggdrasil.localdomain> <20050116015332.GA9811@yggdrasil.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-In-Reply-To: <20050116015332.GA9811@yggdrasil.localdomain>
+Message-ID: <20050118061124.94277.qmail@web51506.mail.yahoo.com>
+Date: Mon, 17 Jan 2005 22:11:24 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: How SELinux label packet by default?
+To: SELinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi,
+  In initial_sid_contexts, there seems no default
+packet SID. Then, 
+  (here, let's don't take IPsec protection into
+account)
+  1) When a packet is sending or receiving, Does
+SELinux label the packet and then control the
+sending/receiving packet according to the label? or
+just ignore it?
+  2) When an unlabeled packet is received from a node,
+What default packet SID will SELinux set to the packet
+? 
+  Is it still be as "When a message is sent on a
+socket, it inherits the SID of the sending socket by
+default. When the network component receives a message
+from the network, the SID of the message is initially
+set to a default message SID associated with the
+receiving network interface." as is described in
+subsection 8.1.1 of "Integrating Flexible Support for
+Security Policies into the Linux Operating System"
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  Thank you.
 
-On Sat, Jan 15, 2005 at 07:53:32PM -0600, Greg Norris wrote:
-> I've built a SELinux-enabled coreutils 5.2.1 package for Debian, and
-> I'm happy to report that it does indeed resolve my issue.  I want to
-> do a bit more testing before making the package generally available (I
-> just rebooted to 2.6.10 about 15 minutes ago), but I'll upload it
-> either tomorrow or Monday if no show-stoppers turn up.
+=====
+Best Regards,
+Park Lee
 
-No problems so far, so I've posted the i386 binary package and source=20
-components at "http://people.debian.org/~adric/selinux/coreutils/". =20
-I'll look into making it apt-get'able tomorrow.
 
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB7FjrgrEMyr8Cx2YRAuhDAJwKfgUAtnmk3aWBIXa3L49eNkYKXgCeJLql
-vTXr88bjQttQkQ8kqYtUAfo=
-=i9Rk
------END PGP SIGNATURE-----
-
---J/dobhs11T7y2rNN--
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - now with 250MB free storage. Learn more.
+http://info.mail.yahoo.com/mail_250
 
 --
 This message was distributed to subscribers of the selinux mailing list.
