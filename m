@@ -1,41 +1,51 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1OJBlDo008625
-	for <selinux@tycho.nsa.gov>; Thu, 24 Feb 2005 14:11:47 -0500 (EST)
-Subject: Re: [Fwd: New policy patch]
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <42152431.5010605@redhat.com>
-References: <41E57081.4090500@redhat.com>
-	 <1106339767.25125.31.camel@moss-lions.epoch.ncsc.mil>
-	 <42152431.5010605@redhat.com>
+Subject: Re: Strange staff role problems...
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1109178720.17298.94.camel@moss-spartans.epoch.ncsc.mil>
+References: <1109131644.5285.10.camel@cobra.ivg2.net>
+	 <1109163626.17298.8.camel@moss-spartans.epoch.ncsc.mil>
+	 <421CAF61.20708@redhat.com>
+	 <1109176324.17298.85.camel@moss-spartans.epoch.ncsc.mil>
+	 <421CB4F3.5040803@redhat.com>
+	 <1109178720.17298.94.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 24 Feb 2005 14:10:45 -0500
-Message-Id: <1109272245.10685.6.camel@moss-lions.epoch.ncsc.mil>
+Date: Thu, 24 Feb 2005 23:52:55 -0500
+Message-Id: <1109307176.4061.14.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Merged.
-On Thu, 2005-02-17 at 18:09 -0500, Daniel J Walsh wrote:
-> Ivan did a few more cleanups in x_client_macros and access_terminals.
->     Added a couple of ioctls back in.
-> 
-> Had to add back in a dontaudit for net_admin on cups.
-> 
-> Allow dovecot to search certs dir
-> 
-> Fixes for allow squirrelmail to spell check
-> 
-> Privoxy needs to run as a client as well as a server
-> 
-> 
-> plain text document attachment (policy-20050217.patch)
+On Wed, 2005-02-23 at 12:12 -0500, Stephen Smalley wrote:
+>On Wed, 2005-02-23 at 11:53 -0500, Daniel J Walsh wrote:
+>> Ok try again.
+>
+>Looks good.  Of course, you'll need to update the spec file if you
+>haven't already to depend on versions of libselinux and libsepol that
+>include the necessary support (libselinux >= 1.21.10, libsepol >=
+>1.3.4).
+
+In case you think this is important...
+load_policy's not working for me re: fixing this issue.
+It says policy loaded, shows 10 users (as opposed to 4 after init).
+Then I restorecon the entire home folder, it properly restores
+unlabeled_t files to staff_home_t, and ...
+
+I try to login, and I get denials that my home folder is unlabeled_t.
+
+I should note that while restorecon changes newly created unlabeled_t
+files to staff_home_t, it does nothing about my home folder (because
+it already says staff_home_dir_t on disk. Yet it says unlabeled_t
+on attempted access even after users are loaded.
+
+P.S. Why are there no SRPMS on dwalsh's repository..
+I found some, but they're not the right ones against rawhide, and I
+don't see sepol there.
 
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
