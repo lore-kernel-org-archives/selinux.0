@@ -1,41 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j144iV53005364
-	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 23:44:31 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j144iXOQ029929
-	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 04:44:34 GMT
-Received: from [192.168.2.96] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j144iSeF028173
-	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 23:44:28 -0500 (EST)
-Subject: How to install CVS wine
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: selinux@tycho.nsa.gov
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j14CQi53006661
+	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 07:26:45 -0500 (EST)
+Subject: Re: Best way to label a filesystem for another system
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Villalovos, John L" <john.l.villalovos@intel.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <60C14C611F1DDD4198D53F2F43D8CA3B03625283@orsmsx410>
+References: <60C14C611F1DDD4198D53F2F43D8CA3B03625283@orsmsx410>
 Content-Type: text/plain
-Date: Fri, 04 Feb 2005 01:44:20 -0500
-Message-Id: <1107499460.29033.7.camel@cobra.ivg2.net>
+Message-Id: <1107519609.8078.7.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 04 Feb 2005 07:20:09 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-See, I used to have it under /src, but SElinux didn't like that, and
-kept complaining. I moved it under ~/src and relabeled to user_home_t.
-Now I do cvs update, build it as a regular user, and try to do:
-su -c "make install". However, that doesn't work, because
-the sysadmin can't run user_home_t scripts. Should the sysadmin be able
-to run user_home_t scripts, or am I doing this the wrong way?
+On Thu, 2005-02-03 at 17:08, Villalovos, John L wrote:
+> I'm trying to figure out what is the best way for me to label (set file
+> contexts) on a file system which will be used for an embedded system.
+> 
+> At the moment it is an EXT2 file system created by genext2fs.  I can
+> mount the file system using the loop back device.
+> 
+> So I was hoping that the current utilities supported a --root option or
+> something but they don't seem too.
+> 
+> Any good ideas on the best way to do this.
+> 
+> Also is there an easy way to parse the list of file contexts from the
+> policy?  Could I write a script to parse the file and then do a chcon on
+> each file/directory in my filesystem.
 
-audit(1107498685.995:0): avc:  denied  { execute } for  pid=29007
-exe=/usr/bin/make name=mkinstalldirs dev=dm-2 ino=16332
-scontext=root:sysadm_r:sysadm_t tcontext=root:object_r:user_home_t
-tclass=file
-
-P.S. tools/wineinstall actually requires that wine be built as a regular
-user, and installed as root.
+setfiles -r allows you to specify an alternate root path.  Don't
+reinvent the logic for processing file_contexts; we have been moving in
+the opposite direction, centralizing it all in the matchpathcon()
+function in libselinux and rewriting all programs to use it.  In the
+sourceforge CVS tree (and thus the next release on nsa.gov), setfiles
+has also been rewritten in this manner.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
