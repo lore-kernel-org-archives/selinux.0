@@ -1,82 +1,66 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3HFQXZ016353
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 12:15:26 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3HE44w024285
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 17:14:05 GMT
-Date: Wed, 3 Nov 2004 17:26:09 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Chad Hanson <chanson@TrustedCS.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
-   Karl MacMillan <kmacmillan@tresys.com>, Frank Mayer <mayerf@tresys.com>,
-   Darrel Goeddel <DGoeddel@TrustedCS.com>,
-   SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: dynamic context transitions
-Message-ID: <20041103172609.GE5061@lkcl.net>
-References: <36282A1733C57546BE392885C06185924D93DC@chaos.tcs.tcs-sec.com>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3HHoXZ016391
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 12:17:50 -0500 (EST)
+Received: from glaurung.internal.golden-gryphon.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3HHnJZ004835
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 17:17:49 GMT
+Received: from glaurung.internal.golden-gryphon.com (srivasta@localhost [127.0.0.1])
+	by glaurung.internal.golden-gryphon.com (8.13.1/8.13.1/Debian-16) with ESMTP id iA3HGsnr022188
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 11:16:54 -0600
+To: selinux@tycho.nsa.gov
+Subject: SELinux capable UML's (bonus: root_fs creation on Debian)
+From: Manoj Srivastava <manoj.srivastava@stdc.com>
+Date: Wed, 03 Nov 2004 11:16:54 -0600
+Message-ID: <87mzxysvi1.fsf@glaurung.internal.golden-gryphon.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <36282A1733C57546BE392885C06185924D93DC@chaos.tcs.tcs-sec.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Nov 03, 2004 at 10:36:01AM -0500, Chad Hanson wrote:
+Hi folks,
 
-> At the end of the day, I don't see how a privilege bracket
-> mechanism can weaken the assurance of an application 
+	I've been trying to play with SELinux, but the current state
+ of affairs made it impossible to run my laptop in enforcing mode (and
+ still get work done). I then tried wotk with UML instances that ran
+ SELinux, and found there was nothing out of the box that would help
+ me. So, I have put together a recipe for setting up a SELinux uml
+ environment, 
+ <URL:http://www.golden-gryphon.com/software/security/selinux-uml.xhtml>
 
- the application's assurance is _already_ weak [in a situation where
- seteuid-like single-process security is used].
+	This is a recipe, giving step by step instructions, patches,
+ and scripts, and I will try to keep it updated with newer releases
+ (though it seems that the need for extra works is rapidly
+ diminishing).
 
- hence 
+	I hope this document shall be useful. I find that this is
+ useful for running services on an otherwise insecure box, since in a
+ number of real world situations, a machine can not be run in
+ enforcing mode, possibly because it needs to run applications and
+ services for which MAC policy has not yet been written. The
+ traditional solution of running services (like bind, postfix,
+ sendmail) in a chroot jail does not come close to the isolation
+ provided by a virtual machine running SELinux.
 
-> if we follow the
-> approach that all domains in the "domain transition group" for an
-> application are a subset of a high level domain which describes the maximal
-> set of application permissions.
+	Even if the host were running SELinux, a secure UML would
+ still be of value, because of its utility as a honey pot, with secure
+ tty logging - since the logging is performed on the host system, the
+ logging would be invisible to any attacker.  Just sniffing the
+ network doesn't help since that traffic is encrypted. So, you need to
+ capture keystrokes by running something on the honeypot. This is
+ problematic since the logging mechanism on a non-UML compromised
+ honey pot may be discovered, scaring off the attacker.
 
- one of us is missing something here.
+	The UML kernel runs in an entirely different host address
+ space from its processes (making it less vulnerable to some forms of
+ attacks), and has no access to the underlying hardware.
 
- let's assume that the "high level domain privileges" is
- AoredwithB, where A is a subset of the privileges (for the up-level)
- and B is the subset of privileges for the down-level.
-
- i believe it is that the advocates of the present SELinux
- TE strategy [i.e. with no dynamic single-process transition
- mechanism that is seteuid-like] would say that even _having_
- that "high level" i.e. higher privileged domain _at all_
- is an unacceptable security risk, and that the application
- should be designed to split the "higher level (AoredwithB)"
- into two distinct mutually exclusive subsets (set A and set B)
- - and then the program with the set A privileges should exec()
- a program with set B privileges.
-
- the problem that SELinux faces is that as soon as you provide a
- seteuid-like function as a "sop" to help people adopt SElinux
- in applications, all bets are off for being able to remove
- it at a later date, and SELinux's security assurance is lost.
-
- 
- so, the issue is: how to implement MLS _without_ having dynamic context
- transition capability?
-
- maybe making _only_ MLS be able to explicitly do dynamic transition,
- such that ordinarily [without MLS] it's not possible [to do dynamic
- transition in a single process]
-
- of course, at the risk of application writers realising that by
- creating a one-level MLS....
-
- l.
-
-
-
+	manoj
 -- 
---
-you don't have to BE MAD   | this space    | my brother wanted to join mensa,
-  to work, but   IT HELPS  |   for rent    | for an ego trip - and get kicked 
- you feel better!  I AM    | can pay cash  | out for a even bigger one.
---
+The number of computer scientists in a room is inversely proportional
+to the number of bugs in their code.
+Manoj Srivastava   <manoj.srivastava@stdc.com>    <srivasta@acm.org> 
+1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
 
 --
 This message was distributed to subscribers of the selinux mailing list.
