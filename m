@@ -1,51 +1,50 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: Verify the integrity of downloaded archives
-Date: Sun, 9 Nov 2003 09:16:51 +1100
-Cc: SELinux@tycho.nsa.gov
-References: <000001c3a3db$2dad18f0$02000a0a@lady> <200311060111.16197.wlsel@verizon.net> <1068128683.4355.37.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1068128683.4355.37.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA95jbSf029909
+	for <selinux@tycho.nsa.gov>; Sun, 9 Nov 2003 00:45:37 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hA95jD1W000621
+	for <selinux@tycho.nsa.gov>; Sun, 9 Nov 2003 05:45:14 GMT
+Received: from ns3.biznetindia.com ([203.200.89.83])
+	by jazzswing.ncsc.mil  with ESMTP id hA95jC5e000618
+	for <selinux@tycho.nsa.gov>; Sun, 9 Nov 2003 05:45:13 GMT
+Received: from ns3.biznetindia.com (localhost [127.0.0.1])
+	by ns3.biznetindia.com (8.12.8/8.12.8) with ESMTP id hA95jS6H029970
+	(version=TLSv1/SSLv3 cipher=EDH-RSA-DES-CBC3-SHA bits=168 verify=NO)
+	for <selinux@tycho.nsa.gov>; Sun, 9 Nov 2003 11:15:28 +0530
+Date: Sun, 9 Nov 2003 11:15:01 +0530
+Message-Id: <200311090545.hA95j16H029965@ns3.biznetindia.com>
+To: selinux@tycho.nsa.gov
+Subject: Invalid Security Context error
+From: "Dhruv Gami" <dgami@uncc.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311090916.51612.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 7 Nov 2003 01:24, Stephen Smalley wrote:
-> On Thu, 2003-11-06 at 01:11, Bill Laut wrote:
-> > While I'd love to meet a hacker who could successfully break into the
-> > NSA's website to install a Trojan (;-), Oliver does bring up a good
-> > point.  As SELinux gains a wider audience it would be reasonable to
-> > anticipate the distro eventually getting mirrored at other sites.  Since
-> > the use of digital signatures as an integrity-check is now commonplace
-> > within the Linux community, would it be reasonable to start posting
-> > signatures on the NSA website?
->
-> Possibly.  Since we originally released SELinux as a proof of concept /
-> reference implementation and it has never been intended to be a Linux
-> distribution unto itself (although it can be incorporated into one),
-> this hasn't been a major concern in the past.  However, I understand the
-> concern.  On the other hand, on what basis would you trust the key used
-> to sign the archives and patches?
 
-I think that the correct proceedure is for a GPG key to be established for the 
-sole purpose of signing SE Linux releases.  Then that key would be signed by 
-keys from you, Howard, and Pete Loscocco (the three NSA people who seem to 
-meet the most people who are in the web of trust).
+Hello Everyone,
 
-Then once you get your keys signed by a few people I think that everyone will 
-be satisfied by the key integrity.
+finally i managed to compile everything, though some of the patches
+needed manual changes (will post a list of patches that didnt work
+properly).
 
-This is essentially the same proceedure that is used for the kernel source 
-signatures on kernel.org.
+Now, when i rebooted the machine for the first time after compiling
+everything, and following the README doc step by step, i was asked
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+-------------
+login: root
+password: *****
+
+would you like to enter a security context? [y]
+       Enter role sysadm_r
+       Enter type sysadm_t
+Not a valid security context
+-------------
+
+have i missed some context setting somewhere ?
+
+regards,
+Gami
 
 
 --
