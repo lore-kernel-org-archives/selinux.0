@@ -1,49 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4KHQvRb020976
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 13:26:57 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4KHOVB2012230
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 17:24:31 GMT
-Received: from smtp800.mail.ukl.yahoo.com (smtp800.mail.ukl.yahoo.com [217.12.12.142])
-	by jazzswing.ncsc.mil  with SMTP id i4KHOUwi012227
-	for <selinux@tycho.nsa.gov>; Thu, 20 May 2004 17:24:30 GMT
-Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.130.181.235 with poptime)
-  by smtp800.mail.ukl.yahoo.com with SMTP; 20 May 2004 17:26:53 -0000
-Date: Thu, 20 May 2004 17:24:08 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <rcoker@redhat.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: is this pretty much it (to patch kdm 3.2.2)?
-Message-ID: <20040520172408.GA17932@lkcl.net>
-References: <20040519074242.GK7348@lkcl.net> <1085057380.521.70.camel@moss-spartans.epoch.ncsc.mil> <20040520145258.GF8810@lkcl.net> <200405210139.49261.rcoker@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200405210139.49261.rcoker@redhat.com>
+Reply-To: <mayerf@tresys.com>
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
+   "'Bush, Daniel'" <Daniel.Bush@boeing.com>
+Cc: "'SELinux'" <SELinux@tycho.nsa.gov>, <selinux-dev@tresys.com>
+Subject: RE: Policy compiler issues.
+Date: Thu, 20 May 2004 13:32:33 -0400
+Message-ID: <014501c43e90$6f4c2350$4c0c010a@columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+In-Reply-To: <1085070079.521.194.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, May 21, 2004 at 01:39:49AM +1000, Russell Coker wrote:
-> On Fri, 21 May 2004 00:52, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> >  i _do_ notice in permissive / audit mode that kdeinit attempts to
-> >  do an su:
+Stephen Smalley wrote:
 > 
-> Which program was it?  Almost every KDE program runs as kdeinit as an attempt 
-> at optimising load performance.
- 
- okay, it's kconsole, which execs commands.
+>> This sounds promising... Could you please direct me to the
+>> date range of the messages you're referring to?
+> 
+> http://marc.theaimsgroup.com/?l=selinux&m=106453351114046&w=2
+> http://marc.theaimsgroup.com/?l=selinux&m=105459714906101&w=2
+> 
+> The binary policy patch tools are out-of-date, and should be obsoleted
+> by newer work going on at Tresys to support direct manipulation of
+> binary policies.
 
- it's actually possible to configure KDE to use something - anything -
- via the "Exec" config option ... uhmmm.. track track track...
- /usr/share/apps/konsole/shell.desktop
+Steve is correct, the binary patch tool was not maintained, and if I recall
+correctly I don't think it supported changing users.  One could certainly hack
+together something using that code to work temporarily.
 
- so in theeoorry, it should be possible to specify a wrapper command
- under which the command will be exec'd (in this case "su something")
+The binary module work Steve indicate is probably a couple of months from
+initial release, and will take some time to work out bugs and integration
+issues.  Once complete this should make dynamic policy changes easier; for
+example we will change our seuser tool to use it so that policy sources are not
+needed, nor policy homogeneity across all systems.
 
- e.g. runcon?
-
- oo.  *wobble*.  don't know what to doo.
-
- ... clues, anyone?
+Frank
 
 
 --
