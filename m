@@ -1,38 +1,40 @@
-Date: Fri, 23 Aug 2002 09:50:03 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Timothy Wood <timothy@hallcomp.com>
-cc: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Timothy Wood <timothy@hallcomp.com>, SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: new file contexts
+Date: Fri, 23 Aug 2002 16:17:48 +0200
+References: <1030110414.16277.8.camel@phobos>
 In-Reply-To: <1030110414.16277.8.camel@phobos>
-Message-ID: <Pine.GSO.4.33.0208230945320.20183-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020823141748.6D83438FF@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On 23 Aug 2002, Timothy Wood wrote:
-
+On Fri, 23 Aug 2002 15:46, Timothy Wood wrote:
 > When you make a new file in the policy/file_contexts/program directory
 > do you have to specify the new file somewhere so that it gets compiled
 > into the policy or should it just pickup the new file automatically?
 
-The policy/Makefile automatically includes up a program .fc file into the
-file contexts configuration for each program .te file that exists under
-domains/program.  This approach is designed to permit users to remove
-program .te files for programs that they do not run and have the
-corresponding .fc files automatically ignored.  However, you may encounter
-problems in selectively removing program .te files, since there may be
-other .te files that have dependencies on them.  We are trying to wrap all
-such inter-domain dependencies with m4 ifdefs, but that is not yet
-complete.
+Following from Stephen's response, the main problems at the moment regarding 
+dependencies are xdm.te depending on xserver.te, sendmail.te conflicting with 
+other mail servers (in my policy at least - Steve may have fixed that for the 
+NSA policy), and httpadm.te depending on apache.te.  If you encounter any 
+other instances of dependencies between .te files then please consider it a 
+bug and report it here.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Also the file contexts data is not compiled into the policy, the 
+file_contexts/file_contexts file is created out of all appropriate *.fc files 
+and is then used by the setfiles program.  I'm not sure whether you 
+misunderstood this or whether your email was just unclear, so I want to make 
+sure there's no misunderstanding (and also to make it clear for the lurkers).
 
-
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
