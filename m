@@ -1,53 +1,62 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAE2clIi017717
-	for <selinux@tycho.nsa.gov>; Sat, 13 Nov 2004 21:38:47 -0500 (EST)
-Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id iAE2cn51006051
-	for <selinux@tycho.nsa.gov>; Sun, 14 Nov 2004 02:38:49 GMT
-Received: from debby (shorty@debby [127.0.0.1])
-	by localhost.localdomain (8.13.1/8.13.1/Debian-16) with ESMTP id iAE2cfUP025158
-	for <selinux@tycho.nsa.gov>; Sun, 14 Nov 2004 03:38:42 +0100
-Subject: Re: Linux Journal Article
-From: Wolfgang Pfeiffer <roto@gmx.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1100375928.1691.17.camel@debby>
-References: 
-	 <Xine.LNX.4.44.0411122147260.7482-100000@thoron.boston.redhat.com>
-	 <1100375928.1691.17.camel@debby>
-Content-Type: text/plain
-Date: Sun, 14 Nov 2004 03:38:41 +0100
-Message-Id: <1100399921.1687.26.camel@debby>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAEB4jIi018717
+	for <selinux@tycho.nsa.gov>; Sun, 14 Nov 2004 06:04:45 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAEB3Icp021169
+	for <selinux@tycho.nsa.gov>; Sun, 14 Nov 2004 11:03:18 GMT
+Date: Sun, 14 Nov 2004 11:15:27 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Andrew Bartlett <abartlet@samba.org>
+Cc: russell@coker.com.au, Stephen Smalley <sds@epoch.ncsc.mil>,
+   Darrel Goeddel <dgoeddel@TrustedCS.com>, James Morris <jmorris@redhat.com>,
+   Chad Hanson <chanson@TrustedCS.com>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   Multiple recipients of list SAMBA-TECHNICAL <samba-technical@samba.org>
+Subject: Re: dynamic context transitions
+Message-ID: <20041114111527.GK5031@lkcl.net>
+References: <418662EE.5090001@trustedcs.com> <20041101203524.GJ9643@lkcl.net> <1099340721.21386.223.camel@moss-spartans.epoch.ncsc.mil> <200411090142.16657.russell@coker.com.au> <1100395104.13794.12.camel@piglett.bartlett.house>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1100395104.13794.12.camel@piglett.bartlett.house>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2004-11-13 at 20:58 +0100, Wolfgang Pfeiffer wrote:
-> On Fri, 2004-11-12 at 21:48 -0500, James Morris wrote:
-> > What's New in Fedora Core 3 SE Linux
-> > By Faye Coker
-> > 
-> > http://www.linuxjournal.com/node/7887
-> 
-> Excerpt from this page:
-> 
-> "Work also is being done on Security Enhanced X, where the aim is to
-> have control over the X sessions so that, for instance, a hostile X
-> program can't interfere with other X programs on the display."
-> 
-> Does this mean that SElinux currently can't have an impact on X-related
-> processes (gdm, Gnome, FVWM etc., and on Debian/unstable)?
+On Sun, Nov 14, 2004 at 12:18:24PM +1100, Andrew Bartlett wrote:
 
-<http://www.freedesktop.org/Software/XDevConf/x-security-walsh.pdf>
-<http://www.nsa.gov/selinux/papers/x11/t1.html>
-<http://www.nsa.gov/selinux/list-archive/0305/4295.cfm>
+> On Tue, 2004-11-09 at 01:42, Russell Coker wrote:
 
-I'm not sure on how helpful the links above will be; but it seems to be
-a start, at least ... :)
+> On the other hand, adding an extra #ifdef to become_user() and friends
+> is a small, maintainable solution.  It just may not fit with the SELinux
+> world view.
 
-Wolfgang
--- 
-Wolfgang Pfeiffer                           gpg ID: 0AA7E825
-Profile, links: http://profiles.yahoo.com/wolfgangpfeiffer
+andrew,
+
+your comments are appreciated - esp. the ones about ensuring
+maintainability.
+
+i should point out [because you may not be on the selinux ml]
+that about 10 days ago stephen smalley said that, all things
+being considered, he was happy for a "seteuid"-like extension
+to selinux to be added, and urged the discussion to move from
+"if" to "how".
+
+a seteuid-like function, which allows a single process to
+transition to a new domain - yes, it would be called in become_user,
+become_root and the corresponding "un"s.
+
+i've said it before (and won't mention it again, i promise!) but
+personally i believe it far more sensible [and this is a
+practical solution that i believe could be done _now_ without
+any samba or selinux code modifications, just some time writing
+up the config files and policies] to run a samba-4 server with
+an smb client vfs redirector going to a samba-3 back-end smbd
+server on the same machine.
+
+there are many ways in which such a scheme could be improved
+to give performance gains, but to "get something working and
+secure" they are not necessary.
+
+l.
 
 
 --
