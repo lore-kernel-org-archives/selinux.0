@@ -1,44 +1,48 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5LD5QrT000774
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 09:05:26 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5LDFQrT000870
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 09:15:26 -0400 (EDT)
 Received: from mail.idtweb.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5LD5ENg012764
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 13:05:14 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5LDFFNg013521
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jun 2004 13:15:15 GMT
 Reply-To: <mayerf@tresys.com>
 From: "Frank Mayer" <mayerf@tresys.com>
-To: "'John D. Ramsdell'" <ramsdell@mitre.org>, <selinux@tycho.nsa.gov>
-Cc: <selinux-dev@tresys.com>
+To: "'Joshua D. Guttman disp: slinux'" <guttman@mitre.org>,
+   "'Stephen Smalley'" <sds@epoch.ncsc.mil>
+Cc: "'John D. Ramsdell'" <ramsdell@mitre.org>,
+   "'Karl MacMillan'" <kmacmillan@tresys.com>, <selinux@tycho.nsa.gov>,
+   "'Amy L Herzog'" <aherzog@mitre.org>
 Subject: RE: Fedora Core 2 setools RPM
-Date: Mon, 21 Jun 2004 09:04:22 -0400
-Message-ID: <003f01c45790$6a3cc090$4d0c010a@columbia.tresys.com>
+Date: Mon, 21 Jun 2004 09:14:54 -0400
+Message-ID: <004001c45791$d03b5400$4d0c010a@columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-In-Reply-To: <ogtllil1085.fsf@mitre.org>
+In-Reply-To: <nhabrjg3bpe.fsf@malabar.mitre.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> If Tresys is not completely sure that the libapol API is stable, they
-> may want to only release a static library for now.  Changing the API
-> used by a static library means that compilations may fail, but
-> existing binaries will be not be effected by the change.  Changing the
-> API used by a shared library means that existing binaries may fail.
-> Tresys should commit itself to an API provided by a shared library
-> only after careful thought. 
+> So in some sense the bottom line is that you think the type relations
+> give the essential core of the policy info, and to a first
+> approximation one can focus on that.
 > 
-> John
+> Of course, it's still desirable to have access to the supplementary
+> information (and an idea how to interpret it) so that the further
+> refinement will eventually work out.
 
-We are positive that the API is not stable, and guarantee that it will change a
-lot between releases.  We're still in a highly exploratory development cycle; so
-feel free to use the libraries but understand they are evolving based upon our
-needs.  For example, significant work is proceeding now to enhance the library
-to support a semantic policy diff tool we're building, as well as a means to
-model and batch information flow analyses. 
+I will assert rather strongly that a transitive analysis of flows between given
+types is the nearly the entire concern.  Filters on that analysis make the
+analysis practical, and the most important filters we have learned are interim
+types (i.e., "trusted" types), object classes, and permissions and permissions
+weights.  Libapol supports all of this.  
 
-With that said, we have 2.5 years invested in this code, and for our own sanity
-we try to keep old interfaces syntactically the same between versions, and add
-new ones as necessary.  The headers are not structured well for strong modular
-isolation of the libraries, so be careful.
+Constraints IMHO are like other orthogonal security mechanisms (such as
+protection modes); they can add further restrictions but are not part of the
+fundamental TE policy.  Role context restrictions are the same.  Some day we may
+get to them (as well as checking for access modes and indeed if types are even
+applied to real objects), but these issues are not critical to the goal.  Our
+thrust, now that we have implemented most of the critical filters that we have
+identified through analysis experience, is to provide a batching capability to
+allow re-analysis and modeling of security properties.
 
 Frank
 
