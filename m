@@ -1,57 +1,46 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94EG8rT017942
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 10:16:08 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94EF0YE013721
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 14:15:00 GMT
-Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 7B94ABFA4
-	for <selinux@tycho.nsa.gov>; Mon,  4 Oct 2004 15:15:58 +0100 (BST)
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1CETo0-0005X9-3V
-	for selinux@tycho.nsa.gov; Mon, 04 Oct 2004 15:27:12 +0100
-Date: Mon, 4 Oct 2004 15:27:12 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: bug in 2.6.8.1 scsi_block.c for CDROM "get configuration" ioctl
-Message-ID: <20041004142712.GF20930@lkcl.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94FDwrT018412
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 11:13:59 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94FDws6014689
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 15:13:58 GMT
+Subject: Re: Role questions
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Artur M. Piwko" <pipen@pu.kielce.pl>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <41517FA8.7050207@pu.kielce.pl>
+References: <41517FA8.7050207@pu.kielce.pl>
+Content-Type: text/plain
+Message-Id: <1096902648.32008.15.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Mon, 04 Oct 2004 11:10:48 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-the following patch needs to be added in order for k3b to operate
-correctly as a non-root user (there's a linux capability check in
-scsi_ioctl.c's verify_command() function)
+On Wed, 2004-09-22 at 09:35, Artur M. Piwko wrote:
+> 1. When I su - from myuser:staff_r:staff_t to root I'm still myuser,
+>     instead of root:staff_r:staff_t. What I did wrong?
+> 2. How can one set up initial sysadm_r password? All i see is:
+> 
+> # newrole -r sysadm_r
+> Authenticating myuser.
+> newrole: incorrect password for myser
 
-apparently this is fixed for 2.6.9-rcsomething.
+What distribution are you using as your base?  In Fedora, su uses
+pam_selinux and thus changes the SELinux user identity as well.  In
+other distros, su typically only changes the Linux user identity and
+leaves the SELinux user identity unchanged.
 
-l.
+newrole just re-authenticates the current user, and the policy governs
+whether or not the current user is authorized for the new role via
+policy/users.  The password authentication is not to authorize entrance
+into the role; it just acts as a primitive form of user confirmation to
+reduce the risk of malicious code changing roles without the user's
+consent/awareness.
 
-
-Index: drivers/block/scsi_ioctl.c
-===================================================================
-RCS file: /cvsroot/selinux/nsa/linux-2.6/drivers/block/scsi_ioctl.c,v
-retrieving revision 1.1.1.9
-diff -u -r1.1.1.9 scsi_ioctl.c
---- drivers/block/scsi_ioctl.c	19 Aug 2004 14:25:16 -0000	1.1.1.9
-+++ drivers/block/scsi_ioctl.c	4 Oct 2004 14:07:25 -0000
-@@ -146,6 +146,7 @@
- 		safe_for_read(GPCMD_READ_TOC_PMA_ATIP),
- 		safe_for_read(GPCMD_REPORT_KEY),
- 		safe_for_read(GPCMD_SCAN),
-+		safe_for_read(GPCMD_GET_CONFIGURATION),
- 
- 		/* Basic writing commands */
- 		safe_for_write(WRITE_6),
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
