@@ -1,88 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0SF3DRb005251
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 10:03:14 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0SF1uxr020711
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 15:01:56 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0SFRlRb005393
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 10:27:47 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0SFRjCa018898
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 15:27:45 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i0SF1tYc020708
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 15:01:56 GMT
-Subject: Re: login roles
+        by jazzband.ncsc.mil  with ESMTP id i0SFRiVC018887 for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2004 15:27:44 GMT
+Subject: Re: Problem with selinux configuration
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Timothy Wood <timothy@diyab.net>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
-   Russell Coker <russell@coker.com.au>
-In-Reply-To: <4015F1FB.4000902@diyab.net>
-References: <4015F1FB.4000902@diyab.net>
-Content-Type: multipart/mixed; boundary="=-qFHZ9UpOcoRl62IA34Bj"
-Message-Id: <1075302172.19427.22.camel@moss-spartans.epoch.ncsc.mil>
+To: keen@internode.on.net
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <4017be35.30f.6615.1100265729@internode.on.net>
+References: <4017be35.30f.6615.1100265729@internode.on.net>
+Content-Type: text/plain
+Message-Id: <1075303660.19427.52.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 28 Jan 2004 10:02:52 -0500
+Date: Wed, 28 Jan 2004 10:27:40 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2004-01-28 at 08:50, keen@internode.on.net wrote:
+> Hi,
+> 
+> I am trying to install selinux with a plain vanilla kernel
+> 2.6.0 (released 18 Dec 2003) from kernel.org using RH9
 
---=-qFHZ9UpOcoRl62IA34Bj
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+As mentioned on the site, we are using Fedora Core 1 as our development
+platform.  The packages in the last NSA release have dependencies on
+newer packages than RH9.
 
-On Tue, 2004-01-27 at 00:07, Timothy Wood wrote:
-> I set the pam_selinux module to multiple and now I'm seeing three roles 
-> instead of the two defined in policy/users.  The third context is 
-> <username>:staff_r:system_chkpwd_t, is this normal? I diffed my current 
-> policy against the 1.4 tarball from the NSA site and the only 
-> differences are a couple of changes I've made for slackware.  Of those 
-> few changes none of them have anything to do with system_chkpwd_t.
-
-This is due to the fact that system_chkpwd_t is authorized for
-<username>:staff_r and is also reachable from the login domains to
-perform authentication, so that context is reachable (but not enterable
-via the user shell, so it won't actually work when in enforcing mode). 
-I've tightened the constraints to reduce this problem, but we may need
-to change the getconlist logic to check entrypoint access to the shell
-as well to fully address it.  My patch to the policy/constraints file is
-attached, and this change is in the sourceforge CVS tree.
+Also, note that 2.6.2-rc2 would give you a much more up-to-date snapshot
+of SELinux, and we will likely move to FC2/test1 once it becomes
+available, as it has SELinux integrated.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
-
---=-qFHZ9UpOcoRl62IA34Bj
-Content-Disposition: attachment; filename=constraints.diff
-Content-Type: text/x-patch; name=constraints.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: policy/constraints
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policy/constraints,v
-retrieving revision 1.2
-retrieving revision 1.4
-diff -u -r1.2 -r1.4
---- policy/constraints	1 Jul 2003 13:35:42 -0000	1.2
-+++ policy/constraints	21 Jan 2004 15:25:29 -0000	1.4
-@@ -34,14 +34,18 @@
- #
- 
- constrain process transition
--	( u1 == u2 or t1 == privuser
-+	( u1 == u2 or ( t1 == privuser and t2 == userdomain )
- ifdef(`crond.te', `
-          or (t1 == crond_t and t2 == user_crond_domain)
- ')
-         );
- 
- constrain process transition 
--	( r1 == r2 or t1 == privrole) ;
-+	( r1 == r2 or ( t1 == privrole and t2 == userdomain )
-+ifdef(`crond.te', `
-+         or (t1 == crond_t and t2 == user_crond_domain)
-+')
-+        );
- 
- #
- # Restrict the ability to label objects with other
-
---=-qFHZ9UpOcoRl62IA34Bj--
 
 
 --
