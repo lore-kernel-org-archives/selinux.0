@@ -1,76 +1,51 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA27533
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 12:01:53 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA27681
+	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 12:17:07 -0400 (EDT)
+From: jbyrd@vspacegroup.com
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA24611
-	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 16:00:09 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id QAA24607 for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 16:00:08 GMT
-Date: Fri, 16 Aug 2002 12:01:14 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: what is "null" access?
-In-Reply-To: <20020805145309.096EC2CA8@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0208161158390.29385-200000@raven>
+	by jazzband.ncsc.mil  with ESMTP id QAA25436
+	for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 16:15:29 GMT
+Received: from sprout.phpwebhosting.com ([216.218.184.226])
+        by jazzband.ncsc.mil  with SMTP id QAA25432 for <selinux@tycho.nsa.gov>; Fri, 16 Aug 2002 16:15:28 GMT
+Message-ID: <00c901c24540$5c1a5bd0$0100a8c0@vspaceprs2>
+To: <selinux@tycho.nsa.gov>
+Subject: Re: Needing some direction
+Date: Fri, 16 Aug 2002 12:15:42 -0400
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1841205112-1029513674=:29385"
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+ok ... failure again
 
----559023410-1841205112-1029513674=:29385
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Most non-essential modules marked for exclusion, Telephony and MLS removed
+(along with all experimental options as well)
 
+here are a few lines of errors right before a total make error and exit
+(there are literally many screens of others)
 
-On Mon, 5 Aug 2002, Russell Coker wrote:
+services.o:  In function 'context_struct_compute_av'
+/selinux/selinux/module/checkpolicy/ ../ ../
+../lsm-2.4/security/selinux/selinux/ss/services.c:174: undefined reference
+to 'mls_compute_av'
+services.o:  In function 'context_struct_to_string':
+/selinux/selinux/module/checkpolicy/ ../ ../
+../lsm-2.4/security/selinux/selinux/ss/services.c:276: undefined reference
+to 'mls_compute_context_len'
+/selinux/selinux/module/checkpolicy/ ../ ../
+../lsm-2.4/security/selinux/selinux/ss/services.c:294: undefined reference
+to 'mls_sid_to_context'
+services.o: In function 'security_context_to_sid':
+/selinux/selinux/module/checkpolicy/ ../ ../
+../lsm-2.4/security/selinux/selinux/ss/services.c:444: undefined reference
+to 'mls_context_to_sid'
 
-> Aug ?5 10:58:57 ns kernel: avc: ?denied ?null for ?pid=30897
-> exe=/usr/sbin/apache IPCID=0 scontext=system_u:system_r:httpd_t
-> tcontext=system_u:system_r:httpd_t tclass=shm
-> Aug ?5 10:58:57 ns kernel: avc: ?denied ?null for ?pid=30897
-> exe=/usr/sbin/apache IPCID=0 scontext=system_u:system_r:httpd_t
-> tcontext=system_u:system_r:httpd_t tclass=shm
->
-> The above messages are appearing on a system running a version of SE Linux
-> that's not the latest (running the original 2002.07.03 release).
->
-> Bug?
+Hopefully this is a little more insightful.
 
-The attached patch (also committed to sourceforge CVS) should fix this
-bug.  To apply, save to ~/ipc.patch, cd lsm-2.4 && patch -p1 <
-~/ipc.patch.
+(is there a way somehow to pipe the output that goes to the screen during
+kernal build to a textfile?)
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
----559023410-1841205112-1029513674=:29385
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ipc.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0208161201140.29385@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="ipc.patch"
-
-SW5kZXg6IGxzbS0yLjQvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jDQo9PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2c3Jvb3Qvc2VsaW51
-eC9uc2EvbHNtLTIuNC9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMsdg0KcmV0
-cmlldmluZyByZXZpc2lvbiAxLjE1DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEu
-MTYNCmRpZmYgLXUgLXIxLjE1IC1yMS4xNg0KLS0tIGxzbS0yLjQvc2VjdXJp
-dHkvc2VsaW51eC9ob29rcy5jCTI2IEp1bCAyMDAyIDE0OjMwOjU4IC0wMDAw
-CTEuMTUNCisrKyBsc20tMi40L3NlY3VyaXR5L3NlbGludXgvaG9va3MuYwkx
-NiBBdWcgMjAwMiAxNDo0Mzo0OSAtMDAwMAkxLjE2DQpAQCAtNDQ4Nyw2ICs0
-NDg3LDkgQEANCiAJaWYgKGZsYWcgJiBTX0lXVUdPKQ0KIAkJYXYgfD0gSVBD
-X19VTklYX1dSSVRFOw0KIA0KKwlpZiAoYXYgPT0gMCkNCisJCXJldHVybiAw
-Ow0KKw0KIAlyZXR1cm4gaXBjX2hhc19wZXJtKGlwY3AsIDAgLyogWFhYICov
-LCBzY2xhc3MsIGF2KTsNCiB9DQogDQo=
----559023410-1841205112-1029513674=:29385--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
