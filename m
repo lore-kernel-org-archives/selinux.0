@@ -1,48 +1,54 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65]) by
-	tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h33GhYx6000209 for
-	<selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 11:43:35 -0500 (EST)
+	tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h33Jnkx6002077 for
+	<selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 14:49:46 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1]) by
-	jazzswing.ncsc.mil  with ESMTP id h33GdfOv001736 for
-	<selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 16:39:41 GMT
-Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil
-	[144.51.25.10]) by jazzswing.ncsc.mil  with ESMTP id h33GdeY1001733 for
-	<selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 16:39:40 GMT
-Message-Id: <200304031650.LAA13186@moss-shockers.ncsc.mil>
-Date: Thu, 3 Apr 2003 11:50:44 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: SELinux programming question
-To: selinux@tycho.nsa.gov, carsten.grohmann@raumbildsysteme.de
-Cc: hdholm@epoch.ncsc.mil
+	jazzswing.ncsc.mil  with ESMTP id h33Jk7Ov012679 for
+	<selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 19:46:08 GMT
+Received: from sat.sws.net.au ([202.5.161.49]) by jazzswing.ncsc.mil  with
+	ESMTP id h33JjoY1012664 for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2003
+	19:46:06 GMT
+Received: from localhost (localhost [127.0.0.1]) by sat.sws.net.au
+	(Postfix) with ESMTP id 591F0BF47 for <selinux@tycho.nsa.gov>; Fri,  4 Apr
+	2003 05:49:13 +1000 (EST)
+Received: from sat.sws.net.au ([127.0.0.1]) by localhost (sat
+	[127.0.0.1:10024]) (amavisd-new) with ESMTP id 22392-04 for
+	<selinux@tycho.nsa.gov>; Fri,  4 Apr 2003 05:49:12 +1000 (EST)
+Received: from tsv.sws.net.au (unknown [61.95.69.2]) by sat.sws.net.au
+	(Postfix) with ESMTP id 1174FBF43 for <selinux@tycho.nsa.gov>; Fri,  4 Apr
+	2003 05:49:12 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1]) by tsv.sws.net.au
+	(Postfix) with ESMTP id BDE2192738 for <selinux@tycho.nsa.gov>; Fri,  4 Apr
+	2003 05:49:10 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1]) by lyta.coker.com.au
+	(Postfix) with ESMTP id 980A6724D for <selinux@tycho.nsa.gov>; Fri,  4 Apr
+	2003 05:49:06 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: policy
+Date: Fri, 4 Apr 2003 05:49:06 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Message-Id: <200304040549.06053.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+can_exec(crond_t, sbin_t);
+Why was the above rule added to crond.te?
 
-> it is possible to change the sid of a program without to call an 
-> exec*_secure?
+allow $1_t sshd_tmp_t:file create_file_perms;
+The above rule from macros/user_macros.te looks dangerous.  We have the type 
+sshd_tmp_t being used for all user domains.
 
-The SID of a process may also change on a regular execve due to an
-automatic domain transition in the policy configuration.  But the SID
-of a process cannot change without going through an
-execve/execve_secure; this is an intentional design choice, and has
-been discussed in the documentation and on the list previously.  setSID-style
-calls are considered harmful, as you cannot provide the same control over
-the initialization of the process in the new SID and the inheritance of
-state between the SIDs, so you end up with very little real separation
-between the two SIDs.
+Could the following please be added to initrc.fc:
+/etc/nologin.*                 system_u:object_r:etc_runtime_t
+/etc/nohotplug                 system_u:object_r:etc_runtime_t
 
-As a side note, the entire SELinux API is undergoing massive changes as
-part of preparing SELinux for submission to mainline 2.5, and is likely
-to undergo even further changes after it is submitted in response to
-kernel developer feedback before the API can truly be considered
-stable.  There will still be a functional equivalent to execve_secure,
-but it will look rather different.  Details to follow soon.
-
---
-Stephen Smalley, NSA
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
