@@ -1,48 +1,40 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TGvlrT020443
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 12:57:47 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6TH3trT020532
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 13:03:55 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TGvkCb012895
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 16:57:46 GMT
-Subject: Re: temporary hack to use udev in selinux
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6TH3sCb012988
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jul 2004 17:03:54 GMT
+Subject: Re: udev and .dev...
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Joshua Brindle <method@gentoo.org>, SE-Linux <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <20040729142019.GG8858@lkcl.net>
-References: <20040728232043.GF18711@lkcl.net> <410844F9.3010203@gentoo.org>
-	 <20040729013510.GC4335@lkcl.net> <20040729020431.GA10044@lkcl.net>
-	 <1091105268.21971.22.camel@moss-spartans.epoch.ncsc.mil>
-	 <20040729142019.GG8858@lkcl.net>
+To: Erich Schubert <erich@debian.org>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040729150921.GA17881@legolas.drinsama.de>
+References: <20040729091423.GC6443@lkcl.net>
+	 <20040729150921.GA17881@legolas.drinsama.de>
 Content-Type: text/plain
-Message-Id: <1091120226.21971.110.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1091120582.21971.119.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 29 Jul 2004 12:57:06 -0400
+Date: Thu, 29 Jul 2004 13:03:02 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-07-29 at 10:20, Luke Kenneth Casson Leighton wrote:
->  i don't follow entirely... ah, do you mean, tmpfs_t covers _both_ shmem
->  _and_ tmpfs, so if i add xattr support and people start using it as
->  tmpfs, then the policies are, yes, i think i get it.
-> 
->  ... is there a way of supporting both names shmfs and tmpfs in
->  the mount command and also in the kernel, such that they are
->  distinguishable that way?
-> 
->  i.e. it's the same kernel code, but it can be mounted with two
->  different names.
-> 
->  is that reasonable or unreasonable?
+On Thu, 2004-07-29 at 11:09, Erich Schubert wrote:
+> This sounds like relabling hell :-) "make relabel" might even skip /.dev
+> because it doesn't know the file system.
+> You can't use "make relabel" to persistently fix labels on /dev.
+> I don't know enough about automatic labelling by selinux. Maybe you'll
+> need a udev which reads the file_contexts file. :-(
+> (or a similar specification file)
 
-SELinux determines filesystem labeling behavior (policy/fs_use) based on
-filesystem type, and shmem subsystem happens to use an instance of the
-tmpfs filesystem type.  James Morris introduced a new mount option
-(context=) a while back to allow assigning a single security context to
-all inodes in a particular mount; I suppose that this could be
-generalized to allow you to specify the labeling behavior itself on a
-per-mount basis.
-  
+I think in Fedora, udev is presently set up to invoke restorecon, which
+uses the matchpathcon() function to obtain the proper context from the
+file_contexts configuration and then relabels the device node to that
+context.  There was a patch to udev to directly call matchpathcon() and
+use setfscreatecon() to directly create the device node in the proper
+context, but that seems to have been dropped.
+
+make relabel omits bind mounts, to avoid obvious aliasing problems.
+
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
