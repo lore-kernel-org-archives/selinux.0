@@ -1,54 +1,44 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i842Y9rT012063
-	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 22:34:09 -0400 (EDT)
-Received: from europa.lunarpages.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i842Y7UQ007681
-	for <selinux@tycho.nsa.gov>; Sat, 4 Sep 2004 02:34:08 GMT
-Received: from adsl-65-43-161-171.dsl.bcvloh.ameritech.net ([65.43.161.171] helo=[10.0.0.26])
-	by europa.lunarpages.com with asmtp (Exim 4.34)
-	id 1C3QLm-00062w-Bp
-	for selinux@tycho.nsa.gov; Fri, 03 Sep 2004 19:32:22 -0700
-Subject: Guide to replace root as sysadm for machine
-From: Stephen torri <storri@torri.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1094265263.8562.24.camel@base.torri.org>
-Mime-Version: 1.0
-Date: Fri, 03 Sep 2004 22:34:23 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i847morT012940
+	for <selinux@tycho.nsa.gov>; Sat, 4 Sep 2004 03:48:50 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i847lvAJ013987
+	for <selinux@tycho.nsa.gov>; Sat, 4 Sep 2004 07:47:58 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Erich Schubert <erich@debian.org>
+Subject: Re: [idea] file contexts "alternate" keyword
+Date: Sat, 4 Sep 2004 17:48:38 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040903165723.GA31857@lkcl.net> <20040903205348.GA4084@lkcl.net> <1094258021.29689.32.camel@wintermute.xmldesign.de>
+In-Reply-To: <1094258021.29689.32.camel@wintermute.xmldesign.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200409041748.38442.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am stumbling my way through using a non-root user as the sysadm for
-the computer. Is there any advice on this?
+On Sat, 4 Sep 2004 10:33, Erich Schubert <erich@debian.org> wrote:
+> But this brings me to a different issue:
+> How about allowing multiple contexts for file_contexts?
+> Like the first hit being the default context, subsequent hits being
+> additional contexts that will not be *CHANGED* by setfiles?
 
-My goal is to have a non-root user able to do the following on my Gentoo
-box:
+The current method is that the last "hit" is the one that is applied.
 
-< User: storri - in sysadm_r (or whatever is appropriate) >
-- emerge rsync
-- emerge -av --deep world (or any package)
+> Let's say i'm running a web server, my standard http files have a non-
+> executable context. When i install a cgi i chcon it manually to
+> an executable context (having a different role than the web server
 
-< User: storri - in user_r >
-- compile source code in home directory.
-
-I figured I would start small. So far I am a bit stuck on getting the
-user sorted out. I figure that have a goal, two non-root users able to
-do normally 'root' actions I would be on my way to learning how to
-configure selinux.
-
-So far I have added storri to the /etc/security/selinux/src/policy/user
-with the following:
-
-user storri roles { user_r sysadm_r };
-
-Beyond this would I need to change the normal 'user' and 'group'
-ownership for those directories touched by the emerge application?
-
-Stephen
+This sounds like a reasonable feature request.  But we need a good way of 
+implementing it.
 
 -- 
-Email: storri@torri.org
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
