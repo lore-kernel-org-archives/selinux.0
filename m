@@ -1,106 +1,99 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5ALv0rT002008
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:57:00 -0400 (EDT)
-Received: from smtp801.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5ALuvaH026010
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 17:56:57 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AM6qrT002116
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 18:06:53 -0400 (EDT)
+Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5AM6maH026307
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 18:06:48 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp801.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 21:56:58 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BYWuO-0001mu-0Q
-	for selinux@tycho.nsa.gov; Thu, 10 Jun 2004 21:16:24 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BYXV4-0000zp-SJ
-	for selinux@tycho.nsa.gov; Thu, 10 Jun 2004 21:54:18 +0000
-Date: Thu, 10 Jun 2004 21:54:18 +0000
+  by smtp804.mail.ukl.yahoo.com with SMTP; 10 Jun 2004 22:06:49 -0000
+Date: Thu, 10 Jun 2004 22:04:05 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: selinux@tycho.nsa.gov
+To: Russell Coker <russell@coker.com.au>
+Cc: Magnus Therning <magnus-work@therning.org>, selinux@tycho.nsa.gov
 Subject: Re: SELinux on Debian (Sid)
-Message-ID: <20040610215418.GR2861@lkcl.net>
-References: <20040609144404.GJ5477@philips.com> <200406101817.28861.russell@coker.com.au> <20040610120344.GM5477@philips.com>
+Message-ID: <20040610220405.GS2861@lkcl.net>
+References: <20040609144404.GJ5477@philips.com> <20040609175001.GC5727@lkcl.net> <200406101813.12520.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040610120344.GM5477@philips.com>
+In-Reply-To: <200406101813.12520.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jun 10, 2004 at 02:03:44PM +0200, Magnus Therning wrote:
-
-> I forgot to mention the contents of my /etc/apt/sources.list:
-> 
->  deb http://ftp.uk.debian.org/debian/ testing main non-free contrib
->  deb http://ftp.uk.debian.org/debian-non-US testing/non-US main contrib non-free
-> 
->  deb http://ftp.uk.debian.org/debian/ unstable main non-free contrib
->  deb http://ftp.uk.debian.org/debian-non-US sid/non-US main contrib non-free
-> 
->  deb http://www.coker.com.au/newselinux/ ./
-> 
-> This together with the following line in /etc/apt/apt.conf should give
-> me a Sid system:
-> 
->  APT::Default-Release "unstable";
-> 
-> I did a 'apt-get update' and a 'apt-get dist-upgrade' after this.
-> 
-> On Thu, Jun 10, 2004 at 06:17:28PM +1000, Russell Coker wrote:
-> >On Thu, 10 Jun 2004 00:44, Magnus Therning <magnus-work@therning.org> wrote:
-> >> Installing selinux-default-policy failed, make complains about
-> >> 'chsid' not being present. These are the problems I run into when
-> >> trying to complete the installation of the policies:
+On Thu, Jun 10, 2004 at 06:13:12PM +1000, Russell Coker wrote:
+> On Thu, 10 Jun 2004 03:50, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > 2) DO NOT add selinux.lemuria.org/newselinux to your /etc/apt/sources.list
 > >
-> >Sounds like you have old SE Linux, that is ancient and no longer being
-> >supported.  It is only supported to kernel 2.4.21 upstream and 2.4.22
-> >on my web site (in the section that is no longer maintained).  I
-> >strongly recommend the new SE Linux.
+> > 3) DO add selinux.lemuria.org/walters to your /etc/apt/sources.list
 > 
-> The selinux-default-policy came from the apt-repository mentioned above.
+> Colin has not been working on his for quite some time.  Why would you want to 
+> use a repository with old versions that is not being maintained instead of a 
+> repository that is actively maintained with the latest versions?
  
- ah, there _isn't_ one in newselinux, you mean the one from
- ftp.uk.debian.org.
-
- check that you have 1.12-1
-
- tell y'what, here's a list of packages i have installed:
-
- sez:/boot# dpkg -l | grep selinux
- ii  bsdutils       2.11z-4.selinu Basic utilities from 4.4BSD-Lite
- ii  fileutils      5.0-4.selinux. The GNU file management utilities (transitio
- ii  kernel-image-2 selinux.1.0    Linux kernel binary image for version 2.6.6-
- ii  libpam-doc     0.76-13.selinu Documentation of PAM
- ii  libselinux1    1.12-1         SELinux shared libraries
- ii  libselinux1-de 1.12-1         SELinux development headers
- ii  mount          2.11z-4.selinu Tools for mounting and manipulating filesyst
- ii  psmisc         21.3-1.selinux Utilities that use the proc filesystem
- ii  selinux-policy 1.12-1         Policy config files and management for NSA S
- ii  selinux-utils  1.12-1         SELinux utility programs
- ii  shellutils     5.0-4.selinux. The GNU shell programming utilities (transit
- ii  textutils      5.0-4.selinux. The GNU text file processing utilities (tran
- ii  util-linux     2.11z-4.selinu Miscellaneous system utilities
- ii  util-linux-loc 2.11z-4.selinu Locales files for util-linux
-
- sez:/boot# dpkg -l | grep se1    
- ii  cron           3.0pl1-83.se1  management of regular background processing
- ii  dpkg           1.10.21-se1    Package maintenance system for Debian
- ii  initscripts    2.85-15.se1    Standard scripts needed for booting and shut
- ii  logrotate      3.7-1.se1      Log rotation utility
- ii  sysv-rc        2.85-15.se1    Standard boot mechanism using symlinks in /e
- ii  sysvinit       2.85-15.se1    System-V like init
-
-sez:/boot# dpkg -l | grep se5
-ii  libpam-modules 0.77-0.se5     Pluggable Authentication Modules for PAM
-ii  libpam-runtime 0.77-0.se5     Runtime support for the PAM library
-ii  libpam0g       0.77-0.se5     Pluggable Authentication Modules library
-ii  libpam0g-dev   0.77-0.se5     Development files for PAM
-
+ uhm... i don't know?   it seemed like a good idea?  i couldn't do
+ mount (even as sysadm_t) of nfs filesystems and such-like, and
+ went,
  
- and that happy lot seems to do it for me.  some of those are from
- selinux.lemuria.org/walters but as russell says these are older
- packages so may cause conflicts with an unstable system (unless you
- put them on "hold"?)
+ "argh, what random thing can i try that might have a possible
+ chance of working, hm, let's try installing one of those
+ old walters packages, yeh, that sounds like a long-shot, hm,
+ that broke, let's try something else, oh _that_ one works,
+ okay, it ain't broke now, so leave it alone!"
 
- .
+ not that i would recommend to anyone _else_ to try this kind
+ of approach unless you have a lot of time on your hands *lol* :)
+
+
+> > 4) DO install the (probably downgraded) cron, logrotate, coreutils etc.
+> >    from /walters
+> 
+> Why not install the latest versions of cron, logrotate, coreutils etc from my 
+> repository which requires no special effort as they are a minor sub-version 
+> greater than the versions in Debian/unstable?
+
+ i have those, and then for certain things that were missing (and/or
+ broke for me), i just ended up adding _some_ of the walters ones.
+
+
+> > 5) use the 1.12 .debs for libselinux1 and selinux-policy-default
+> >    and selinux-utils policycoreutils etc. they are the latest and they
+> >    ARE in [ftp/http].*.debian.org
+> 
+> They are also only tested with the latest versions of the packages from my 
+> site, not from the /walters repository.
+
+ i understand.
+
+
+> > 6) once you have installed the 1.12 selinux-policy-default and stuff,
+> >    YOU MUST go to http://sf.net/projects/selinux and download a
+> >    replacement genhomedircon from the
+> >    selinux-usr/policycoreutils//scripts/ directory.
+> >
+> >    the version presently released is brain-dead and does something
+> >    different and unexpected.
+> 
+> I've uploaded a new policycoreutils package that fixes this, along with a new 
+> policy source package to match.
+ 
+ oo! great.
+ 
+ i'm tempted to try that, i really am, but i am close to having
+ something "that works for me", now, and am reluctant to do
+ anything that would a) mean more work/testing b) break what
+ i have.
+
+ hm, maybe i will take a hard-drive snapshot and continue from there.
+
+ l.
+
+-- 
+Information I post is with honesty, integrity, and the expectation that
+you will take full responsibility for acting on the information contained,
+and that, should you find it to be flawed or even mildly useful, you
+will act with both honesty and integrity in return - and tell me.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
