@@ -1,60 +1,41 @@
-Subject: RFC Kernel interface to conditional policy
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: SELinux List <SELinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1070484482.3774.54.camel@colossus.columbia.tresys.com>
-Mime-Version: 1.0
-Date: Wed, 03 Dec 2003 15:48:02 -0500
+Message-ID: <3FCE05F9.8090006@uncc.edu>
+Date: Wed, 03 Dec 2003 16:49:13 +0100
+From: Dhruv Gami <dgami@uncc.edu>
+MIME-Version: 1.0
+To: SELINUX <SELinux@tycho.nsa.gov>
+Subject: Basic question on policy design
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This email is to get some feedback about the kernel interface to the
-booleans in the conditional policy work that we have been doing. This
-has been discussed off-list some, but I'd like to bring it up here to
-get some public discussion of the issue.
+Hello Everyone,
 
-Background
+I am trying to understand how  Type Enforcement has been implemented in 
+SELinux, and am using the sample policy given with the SELinux packages 
+as an example.
 
-We have added conditional expressions to the selinux policy language.
-This allows you to place TE rules in if/else blocks with conditional
-expressions. The booleans in the conditional expressions can be
-controlled at runtime to allow the addition or removal of rules based on
-the value of the booleans/expressions.
+In the paper "Meeting Critical Security Objectives with SELinux", 
+Stephen Smalley and Peter Loscocco say:
 
-Problem
+The TE Configuration file defines an extensible set of types. Using the 
+allow statement, allowable permissions between pairs of types are 
+specified for each object class.
 
-Our initial prototype exports the booleans as files under
-/proc/sys/selinux/booleans using the sysctl interface
-([un]register_sysctl_table). On each policy reload we call
-unregister_sysctl_table and then re-register all of the booleans. The
-problem is that if one of the boolean files is in use the file is not
-removed and unregister_sysctl_table gives no indication that unregister
-was not successful. The solutions to this problem that we see are:
+allow type_1 type_2:class { perm_1 ... perm_n };
 
-1) Manipulate proc files directly. This allows fine-grained labeling of
-the boolean files, but kernel developers seem to be frowning on new uses
-of proc.
+The meaning of this above rule is not too clear to me.
+1. what exactly is the relationship between type_1 and type_2 ?
+2. is the class associated with type_2 only ?
+3. Are type_1 and type_2 interchangable in the above rule ?
+4. is there any rule that type_1 should be subject and type_2 should be 
+an object type ?
 
-2) Extend the selinux filesystem. This wouldn't allow fine-grained
-labeling and would pollute the policy-neutral security server interface
-with type enforcement policy specific functionality.
+The structure of the policy rules is not very clear to me. Is there any 
+documentation available which makes it clear ? maybe im missing 
+something somewhere. any help in this regard would be greatly appreciated.
 
-3) Create a new filesystem. This would be the most work, but otherwise
-meet our needs.
-
-Any comments or suggestions are welcome.
-
-Thanks,
-
-Karl
-
-
--- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-http://www.tresys.com
-(410) 290-1411 x134
+regards,
+Dhruv Gami
 
 
 --
