@@ -1,44 +1,59 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA12210
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 03:27:04 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA13884
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 09:29:00 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id HAA14115
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 07:26:53 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id HAA14111
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 07:26:51 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: <blacknet@simplyaquatics.com>, "'SE Linux'" <selinux@tycho.nsa.gov>
-Subject: Re: Mini-cd's
-Date: Tue, 4 Jun 2002 09:26:51 +0200
-References: <000a01c20b61$d2f41520$0a01a8c0@ed>
-In-Reply-To: <000a01c20b61$d2f41520$0a01a8c0@ed>
+	by jazzswing.ncsc.mil  with ESMTP id NAA27626
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 13:28:49 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id NAA27622
+	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2002 13:28:48 GMT
+Date: Tue, 4 Jun 2002 09:28:40 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: auditdeny is painful
+In-Reply-To: <20020603223026.44BC568D@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0206040908440.3949-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020604072651.F3E2172B7@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 4 Jun 2002 02:50, Ed Street wrote:
-> I am currently working on a mini woody boot cd that will install selinux
-> by default.  Currently I have striped out everything to the bare core
-> (approx 34 megs) and adding packages in.  Any suggestions/ideas on going
-> this route?
 
-Sure, that should be easy enough to do.  Have your CD with the base packages, 
-the "selinux" and "selinux-policy-default" packages and my SE modified 
-versions of base packages.  Then for the base.tgz, have a copy of the default 
-policy in /usr/share/selinux/policy/current (with a sym-link from there to 
-/etc/selinux) and remove the .te files which don't apply.  Also you'll 
-probably want a pre-installed policydb if you want to use SE on first boot.
+On Tue, 4 Jun 2002, Russell Coker wrote:
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+> I think that auditdeny is misdesigned.  Having to specify that we want to
+> audit the opposite of what we don't want to audit is really confusing when
+> you first start, and even with some practise it can result in results other
+> than what you expect.  Consider the situation where you want to specify in
+> one file to not audit getattr while in another file you want to specify not
+> to audit search (this has seemed to be impossible in my tests).
+
+The auditdeny access vector specifies what permission denials should be
+audited.  If no auditdeny access vector is specified for a particular
+(type, type, class) triple, then all permission denials are audited for
+that triple, since you typically want to audit all denials by default.
+When you specify an auditdeny rule, you are indicating that only a
+particular subset of permission denials should be audited for that (type,
+type, class) triple.   You can either specify that subset of permission
+denials positively, listing the set of permissions that you want audited,
+or negatively, specifying the complement (~) of a set of permissions that
+you don't want audited, as with other rules.  When multiple auditdeny
+rules are specified for a single (type, type, class) triple, the union of
+the permission sets is used, as with other rules.
+
+I suppose that we could introduce a dontaudit rule that automatically
+generates auditdeny access vectors with the complement of the specified
+set of permissions, and that uses the intersection of the permission sets
+when multiple rules are specified for a single (type, type, class) triple.
+This would likely be more suited to what a human would expect.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
