@@ -1,49 +1,39 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7I5AhHa010201
-	for <selinux@tycho.nsa.gov>; Mon, 18 Aug 2003 01:10:44 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h7I59LOD015474
-	for <selinux@tycho.nsa.gov>; Mon, 18 Aug 2003 05:09:21 GMT
-Received: from tsv.sws.net.au ([61.95.69.2])
-	by jazzswing.ncsc.mil  with ESMTP id h7I59KKO015471
-	for <selinux@tycho.nsa.gov>; Mon, 18 Aug 2003 05:09:20 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Kerry Thompson" <kerry@crypt.gen.nz>,
-   "SELinux Mail List" <selinux@tycho.nsa.gov>
-Subject: Re: SELinux on Slackware 9 with PAM
-Date: Mon, 18 Aug 2003 15:10:29 +1000
-Cc: "Diyab" <diyab@diyab.net>
-References: <3F3896BD.5000307@diyab.net> <3357.202.27.185.71.1061177252.squirrel@www.crypt.gen.nz>
-In-Reply-To: <3357.202.27.185.71.1061177252.squirrel@www.crypt.gen.nz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200308181510.29857.russell@coker.com.au>
+Subject: Re: lilo and initrd
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Carsten Grohmann <carstengrohmann@gmx.de>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <200308161715.35442.carstengrohmann@gmx.de>
+References: <200308161715.35442.carstengrohmann@gmx.de>
+Content-Type: text/plain
+Message-Id: <1061212570.25048.98.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 18 Aug 2003 09:16:10 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 18 Aug 2003 13:27, Kerry Thompson wrote:
-> - you should mention that the Vixie crond in the SE release has been
-> modified for SELinux and really needs to be installed if you want cron.
-> Alternatively the user would need to modify Dillon's crond code to support
-> the SELinux extensions.
+On Sat, 2003-08-16 at 11:15, Carsten Grohmann wrote:
+> today I read in the SELinux README file, I should not use the 
+> initrd= option with the selinux entry. Knows anybody why? 
 
-http://archives.neohapsis.com/archives/linux/lsap/2001-q1/0142.html
-Solar Designer says some nice things about Dillon Cron at the above URL (the 
-Linux Security Auditing Project mailing list - which should be of interest to 
-people on this list).
+That is an old note that is no longer accurate, even for the old
+2.4-based SELinux.  Prior to 2.4.19, if you booted a SELinux kernel with
+an initrd, the kernel would try to perform the initial policy load from
+the initrd itself, which would fail unless you had installed a policy
+onto the initrd.  The old 2.4-based SELinux should work fine now with an
+initrd; the SELinux kernel will not try to load the policy until the
+real root filesystem has been mounted.
 
-It would be good to have some SE Linux patches to Dillon Cron if someone's got 
-the time for the coding.
-
-Especially as Vixie cron seems as good as dead upstream.
+In the 2.6-based SELinux and the new 2.4-based SELinux (back port of the
+2.6-based SELinux), the initial policy load has been pushed into
+userspace, and an initrd is specifically used for this purpose.  We have
+patched our mkinitrd script to copy load_policy and the binary policy
+file onto the initrd and to include commands in the /linuxrc script to
+load the policy from the initrd before the real root filesystem has been
+mounted.  See the README in selinux-doc.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
