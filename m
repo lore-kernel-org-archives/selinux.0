@@ -1,75 +1,44 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11661
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 12:05:53 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA23143
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 17:05:53 GMT
-Received: from lodgistix.com ([64.123.115.90])
-	by jazzswing.ncsc.mil  with ESMTP id RAA23139
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 17:05:52 GMT
-Message-ID: <A4EDF51C1ED0D411818E0004AC4C1D7E04918A@EXCHANGE_ICT>
-From: "Ellis, Wes" <wes.ellis@aremissoft.com>
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: RE: RedHat 7.0?
-Date: Fri, 9 Mar 2001 10:57:03 -0600 
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA12042
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 13:06:20 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA27944
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 18:06:19 GMT
+Received: from ultraviolet.org (dsl081-032-181-lax1.dsl-isp.net [64.81.32.181])
+	by jazzband.ncsc.mil  with SMTP id SAA27940
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 18:06:18 GMT
+Date: Fri, 9 Mar 2001 10:06:44 -0800
+From: Tracy R Reed <treed@ultraviolet.org>
+To: selinux@tycho.nsa.gov
+Subject: Re: archives?
+Message-ID: <20010309100644.A20482@ultraviolet.org>
+References: <20010306022849.D27909@ultraviolet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20010306022849.D27909@ultraviolet.org>; from treed@ultraviolet.org on Tue, Mar 06, 2001 at 02:28:49AM -0800
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Out-of the box, Red Hat 7.0 Comes packaged with Kernel headers for a
-completely different kernel than the system was released on, if you check
-the included packages, the only headers are for 2.4.X, I had to find the
-correct headers before I was able to build some things with gcc.
+On Tue, Mar 06, 2001 at 02:28:49AM -0800, Tracy R Reed wrote:
+> I'm new to the list (no traffic so far but I've only been on a day or two)
+> and I am wondering if there are archives out there somewhere so I can get
+> up to speed. I don't see any mailing list archives on the selinux webpage.
 
------Original Message-----
-From: richard offer [mailto:offer@sgi.com]
-Sent: Friday, March 09, 2001 9:24 AM
-To: Wade Hampton; Westerman, Mark
-Cc: selinux@tycho.nsa.gov
-Subject: Re: RedHat 7.0?
+Ok, I did NOT send this same email 4 times. Something is broken and
+judging from the headers I don't think anyone will be too shocked to find
+that it is an Exchange server:
 
-
-
-* $ from whampton@staffnet.com at "9-Mar: 9:19am" | sed "1,$s/^/* /"
-*
-*
-* "Westerman, Mark" wrote:
-* >
-* > I had to modify the Makefile to point the CC compiler to kgcc.
-* > The is a bug somewhere the prevents the gcc from compiling the
-* > kernel. Redhat has kgcc to compile the kernel. I have a working
-* > somewhat version of the Redhat 7.0. Let me know how it goes
-* > with your try of 7.0
-* I thought the kgcc issue was only for stock 7.0 and not
-* for after one has upgraded the compiler?  At home, I built
-* stock 2.4.0 on my upgraded 7.0 w/o any problems....
-*
-* I'll tgz my VMWare image and try it at home this weekend.....
-
-Right, but the 2.2 stream wont build with the 7.0 gcc.
-
-*
-* Thanks,
-* --
-* Wade
+Received: from mail pickup service by mail.satx.rr.com with Microsoft
+SMTPSVC;
+         Fri, 9 Mar 2001 05:50:55 -0600
+Received: from sm3.texas.rr.com ([24.93.35.210]) by mail.satx.rr.com  with
+Microsoft SMTPSVC(5.5.1877.537.53);         Tue, 6 Mar 2001 09:32:34 -0600
 
 
-richard.
-
-
------------------------------------------------------------------------
-Richard Offer                         Technical Lead, Trust Technology.
-"Specialization is for insects"
-__________________________________________http://reality.sgi.com/offer/
-
-
---
-You have received this message because you are subscribed to the selinux
-list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
+-- 
+Tracy Reed      http://www.ultraviolet.org
+"I want an Internet.  Can I have one of those?" -- Spice Girl Mel B.,
+aka Scary Spice, pointing to a monitor during an AOL press conference
 
 --
 You have received this message because you are subscribed to the selinux list.
