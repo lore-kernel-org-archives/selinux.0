@@ -1,41 +1,52 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72E1ErT012386
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 10:01:16 -0400 (EDT)
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i72E0eXV020831
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 14:00:41 GMT
-Subject: Re: lkm rootkitted, or issue with selinux 2.6.7 kernel?
-From: Erich Schubert <erich@debian.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1091452021.23449.31.camel@moss-spartans.epoch.ncsc.mil>
-References: <20040801124138.GA15205@lkcl.net>
-	 <1091452021.23449.31.camel@moss-spartans.epoch.ncsc.mil>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72E6srT012460
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 10:06:54 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i72E6LXV021249
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 14:06:21 GMT
+Subject: Re: user-directory _is_ home directory
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>
+In-Reply-To: <20040801143236.GA15949@lkcl.net>
+References: <20040801143236.GA15949@lkcl.net>
 Content-Type: text/plain
-Date: Mon, 02 Aug 2004 16:01:21 +0200
-Message-Id: <1091455281.28925.14.camel@wintermute.xmldesign.de>
+Message-Id: <1091455567.23449.70.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Mon, 02 Aug 2004 10:06:07 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Sun, 2004-08-01 at 10:32, Luke Kenneth Casson Leighton wrote:
+> okay, got a good one for you.
+> 
+> ... i notice that genhomedircon is working properly (hurrah)
+> 
+> however, it brings me a slight problem.
+> 
+> i've made /home _the_ home directory: there is one user, it's
+> _the_ user.
+> 
+> i could alternatively make a ln -s from /home/theoneuser to /c or
+> something but that would drive me up the wall because it is so
+> ... so.... windows.
+> 
+> my question is: does anyone have any recommendations on how to deal
+> with /home being a mount point, and also being a user's home directory.
+> 
+> naively i removed the HOME_ROOT macro from types.fc, and naturally,
+> the /home mount point doesn't.  mount, that is.
 
-> I have no direct knowledge here, but I have seen discussions on various
-> lists indicating that chkrootkit is buggy/racy at least with respect to
-> Linux 2.6, yielding false positives.  
+Quite aside from the issue of whether or not you should directly use
+/home in this manner, it would be interesting to understand exactly what
+denial you are encountering and whether policy should be adjusted
+accordingly.  e.g. it may well be true that mount is going to need
+permission to directly mount on these directory types anyway for other
+usage scenarios.
 
-Yes, IIRC chkrootkit doesn't understand new threads, listing these as
-hidden processes. (they used to be in /proc, now they are
-in /proc/parentpid/threads or so)
-
-Greetings,
-Erich Schubert
 -- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-     Which is worse: ignorance or apathy? Who knows? Who cares?      //\
-  Wer keine Zeit mehr mit echten Freunden verbringt, der wird bald   V_/_
-          sein Gleichgewicht verlieren. --- Michael Levine
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
