@@ -1,82 +1,61 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA19498
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 10:05:01 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA00471
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 15:04:02 GMT
-Received: from fw2.amc.af.mil (amcuxfw802.amc.af.mil [131.9.254.188])
-        by jazzband.ncsc.mil  with ESMTP id PAA00467 for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 15:04:02 GMT
-Received: from fw2.amc.af.mil (root@localhost)
-	by fw2.amc.af.mil with ESMTP id g1KF5oL26197
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 09:05:50 -0600 (CST)
-Received: from amcw2av808.amc.ds.af.mil (amcw2av808.amc.af.mil [131.9.19.137])
-	by fw2.amc.af.mil with SMTP id g1KF5hl25893
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 09:05:47 -0600 (CST)
-Received: from amcw2ms872.amc.ds.af.mil ([131.9.19.110])
- by amcw2av808.amc.ds.af.mil (NAVGW 2.5.1.18) with SMTP id M2002022008555423158
- for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 08:55:54 -0600
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "SELinux" <SELinux@tycho.nsa.gov>
+Cc: "James Griffin" <agriffin@cpcug.org>
+Subject: RE: Security Policy Analysis Tools status
+Date: Wed, 20 Feb 2002 10:55:54 -0500
+Message-ID: <ACEHIKGIGFEDAIKEMMMIAEONKBAA.mayerf@tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Subject: RE: ftp long time connection
-Date: Wed, 20 Feb 2002 08:55:50 -0600
-Message-ID: <1BF4DDD78DDA5D4EB0769BEA7F158E5A011BB22E@amcw2ms812.amc.ds.af.mil>
-From: "Flood Randy Capt AFCA/TCAA" <randy.flood@scott.af.mil>
-To: <selinux@tycho.nsa.gov>
+In-Reply-To: <3C73AB6F.7E051FA4@cpcug.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Actually there is a new version; forgot to update the web site (it should be
+updated now @  http://www.tresys.com/selinux.html ).  This is still just a
+simple, not well tested tool we use to help analyze policies.
 
-Actually, even if you ftp or telnet to a machine using its ip address,
-often times the client will nslookup the ip address.  Likewise, the
-server will often do a reverse lookup on the client (for logging
-purposes).  I have also seen this sort of behavior if you use host names
-rather than ip addresses in /etc/hosts.allow and /etc/hosts.deny.  Try
-fixing DNS and then see if you still have the problem.
+We are still working on many of the same issues you've identified (e.g.,
+analyzing/evaluating policies, developing new/modified policies).  We've
+recently begun to look more carefully at the tool problem for analyzing,
+developing, and operationally managing policies.  Tools have not been our
+primary goal to date, though that might change depending on our customer's
+need.
 
-   
+Feel free to e-mail me if you'd like to share experiences and thoughts.
+Frank
 
 -----Original Message-----
-From: Ben McGinnes [mailto:ben-mcginnes@iname.com]
-Sent: Wednesday, February 20, 2002 8:39 AM
-To: selinux@tycho.nsa.gov
-Cc: Flood Randy Capt AFCA/TCAA; Lonnie Cumberland
-Subject: Re: ftp long time connection
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
+Behalf Of James Griffin
+Sent: Wednesday, February 20, 2002 8:58 AM
+To: SELinux
+Subject: Security Policy Analysis Tools status
 
 
-Flood Randy Capt AFCA/TCAA(randy.flood@scott.af.mil)@Tue, Feb 19, 2002
-at 01:55:17PM -0600:
-> 
-> Do you have reverse DNS entries for your server and client and is DNS
-> configured correctly?
-> 
-> If DNS is not set up properly you can get results like that.
+Last October there as a thread on policy analysis tools.  Individuals at
+MITRE, IBM, and Tresys indicated that they were doing work in this
+area.  Frank Mayer, Tresys, made his work available at
+http://www.tresys.com/selinux.html (lasted updated in November).
 
-True, DNS errors will do that, as others here have pointed out.  The
-original query, however, also mentioned that accessing the host directly
-by its IP was attempted with the same results.  So while there may be
-some 
-DNS-related delays as well, it cannot be a complete explanation.  I also
+Since the thread seems to have ended, I was wondering what the current
+level of interest and activity is?
 
-doubt SE Linux is the cause here either since it's a fairly generic kind
-
-of problem.
-
-I'd try attempting other protocols such as SSH, telnet (if enabled),
-SMTP 
-and probably SCP too.  To both hostname and IP address.  See if it is 
-affecting all protocols or just one or two, also try telnetting to the 
-machine on port 21 and see exactly what point at which it slows to a
-crawl 
-or breaks.
-
-Chances are the cause (and shortly thereafter, the solution) will leap
-out 
-during this process.
-
+Part of the reason for the question is the availability of tools for
+system administrators and for "outside" auditors (e.g. GAO) to
+check/evaluate policy "as implemented" compared with policy "as
+documented".
 
 Regards,
-Ben
+Jim
+
+--
+You have received this message because you are subscribed to the selinux
+list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 You have received this message because you are subscribed to the selinux list.
