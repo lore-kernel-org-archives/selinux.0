@@ -1,71 +1,47 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SELinux@tycho.nsa.gov
-Subject: Re: Another small SE presentation
-Date: Thu, 11 Sep 2003 09:07:17 +1000
-References: <20030909215414.K6475@lemuria.org> <3F5ED720.3090206@hotmail.com>
-In-Reply-To: <3F5ED720.3090206@hotmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200309110907.17495.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8ANYRLa012747
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 19:34:27 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h8ANYQmw010707
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 23:34:26 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id h8ANYQ9d010702 for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 23:34:26 GMT
+Date: Thu, 11 Sep 2003 00:34:24 +0100
+From: Dale Amon <amon@vnl.com>
+To: Colin Walters <walters@verbum.org>
+Cc: Dale Amon <amon@vnl.com>, SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: rfs xattr's, mkinitrd and other stories
+Message-ID: <20030910233424.GV5397@vnl.com>
+References: <20030910164854.GO5397@vnl.com> <1063233012.27358.11.camel@columbia> <20030910230519.GU5397@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20030910230519.GU5397@vnl.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 10 Sep 2003 17:47, James de Lurker wrote:
-> Making each patch "self documenting", and a periodic "patch FAQ" that
-> listed everything necessary in simple steps from the last kernel.org
-> reference kernels ought to be posted to the list for folk that don't
-> work from CVS. Where patches are distro dedicated ( Debian, SuSe, whatever)
-> make that obvious at a glance. I've just downloaded Russell's patches
-> to 2.4.22 and 2.6.0-test5 UML but am clueless if they will work with
-> the RedHat base distributions, or are Debian dedicated, only. Obvious
-> to Russell and other leading developers perhaps, but not to me!
+On Thu, Sep 11, 2003 at 12:05:19AM +0100, Dale Amon wrote:
+> Okay, I see what you've done. mkinitrd loads /etc/mkinitrd/mkinitrd.conf
+> which calls /etc/mkinitrd/scripts/selinux.
 
-I am employed by Red Hat and am making Red Hat policy a priority.
+Okay, next round of questions. According to Steve's HOWTO, the
+line
 
-My policy always worked with Red Hat at least as well as the NSA policy, I 
-only add features.
+	none /selinux selinuxfs defaults 0 0
 
-> I am dismayed by all the distribution forks. I've been a RedHat distro
-> person (only) from 1998. Maybe their ought to be distro dedicated
-> subscriber lists to carry regular HOWTO postings and distro dedicated
-> traffic.
+goes into the /etc/fstab to cause this file to mount. However
+Debian mkinitrd defaults to cramfs and also states it requires
+a debian dist patched kernel.
 
-Currently there are Debian package repositories, so if you want to install SE 
-Linux on Debian it's not too difficult.  Faye has written a HOWTO which 
-explains this among other issues.
+I'm left with these questions:
 
-Red Hat work is progressing well.  I hope that soon we will have some official 
-RPMs that we can release.
+* what is an selinuxfs???
+* where do I find the cramfs patches. I don't use packaged
+  kernels. I roll my own no-module jobbies.
+* what should dst be?
+	mkinitrd -o dst
 
-> testing stuff on older kit - XFree86 driver rewrites have rendered (sic)
-> graphical interfaces useless on many of my legacy PCI video boxes, so all
-> my software development and building is still done on RedHat 7.x desktops.
-
-If you use the fbdev X server and VESAFB then it should work on all PCI 
-machines.  The VESA interface came in at about the same time as PCI.
-
-> The issue on the list recently of segfaulting due to weird sub-arch
-> glibc updating issues is a case in point. How many people ( like me )
-> will call it a day when they end up with a dead end broken system;
-> repeating the same mistakes that others have already unwittingly made?
-
-At the moment the modified libc6 is an optional feature, especially if you 
-don't give root access to hostile users.
-
-> Currently, I am just putting the finishing touches to a RedHat 9 command
-> line only full updated base system ready to put on the latest 2.6.0-t5
-> kernel with Russell's one liner patch... Hope that it works!! Wish it
-
-My 2.6.0-test5 patch is only needed for UML.  I've never booted a 2.6 kernel 
-on a non-UML system...
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+I'm going to go back and look over Steve's howto again and
+see if I can figure how to relate it to your debian set up.
 
 
 --
