@@ -1,49 +1,27 @@
-Date: Sun, 27 Feb 2005 16:37:43 +0100 (CET)
-From: Bartlomiej Balcerek <Bartlomiej.Balcerek@pwr.wroc.pl>
-Subject: Re: Assigning user context to files out of home dir.
-In-reply-to: <200502252334.55705.russell@coker.com.au>
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux@tycho.nsa.gov
-Message-id: <Pine.GSO.4.44.0502271604130.24519-100000@sun1000.pwr.wroc.pl>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1RHT0Do020805
+	for <selinux@tycho.nsa.gov>; Sun, 27 Feb 2005 12:29:01 -0500 (EST)
+Received: from mtiwmhc13.worldnet.att.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1RHPpjS008369
+	for <selinux@tycho.nsa.gov>; Sun, 27 Feb 2005 17:25:51 GMT
+Message-ID: <00d501c51cf1$651072c0$010aff0a@gw>
+From: "todd glassey" <todd.glassey@worldnet.att.net>
+To: <selinux@tycho.nsa.gov>
+References: <1109400342.4581.25.camel@cobra.ivg2.net> <20050227104528.GC28871@lkcl.net>
+Subject: Compromise of SHA1 and SElinux
+Date: Sun, 27 Feb 2005 09:16:27 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 25 Feb 2005, Russell Coker wrote:
+Got a question for this list - the hash collision that was discussed by
+Rivest, Shamir, and Hoyt at RSA2005 is a serious one. Is there an initiative
+to upgrade SELinux tools to address these new liabilities in SHA1. Most
+folks are moving to SHA256 at minimum and to 512 if they can.
 
-> It is not valid to use ROLE in the type specification if you don't use
-> HOME_DIR in the directory-name specification.  The genhomedircon program
-> expects things that way.
->
-> What are you trying to do anyway?  Home directories under /scratch will get
-> labeled correctly by genhomedircon if the users in question have entries in
-> the users file in the policy source directory.
-
-The thing is, users have they home dirs placed as defined in "passwd" file
-and "scratch" directories are aside from "homes" (scratch is for some
-temporary data and it's structure is similar to homes).
-
-I have:
-/home/bartol: bartol:object_r:bartol_home_dir_t
-
-and I want to have:
-/scratch/bartol: bartol:object_r:bartol_scratch_dir_t
-
-That is "genhomedircon" won't do for me, I think.
-
-> PS  I'm speaking at the Open Source Security conference in Warsaw.
-> http://www.oss.org.pl/en/  Let me know if you are in Warsaw or attending the
-> conference.
-
-It is interesting, thanks for that info, I'll let you know soon.
-
--
-Bartlomiej Balcerek
-Technical University of Wroclaw, Poland
-Wroclaw Centre of Networking and Supercomputing
-phone: +48 (71) 320-20-43 mail: bartol@pwr.wroc.pl
-
+Todd
 
 
 --
