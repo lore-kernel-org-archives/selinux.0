@@ -1,32 +1,31 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA05983
+	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 12:55:42 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA01549
+	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 16:53:53 GMT
 Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA05963
-	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 12:54:37 -0400 (EDT)
-Date: Tue, 1 Oct 2002 12:53:34 -0400 (EDT)
+        by jazzband.ncsc.mil  with ESMTP id QAA01545 for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 16:53:51 GMT
+Date: Tue, 1 Oct 2002 12:54:41 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
 To: Russell Coker <russell@coker.com.au>
 cc: <selinux@tycho.nsa.gov>
-Subject: Re: rlogin policy patch
-In-Reply-To: <200210011158.04480.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.33.0210011253230.14489-100000@raven>
+Subject: Re: patch for home_root_t
+In-Reply-To: <200209280154.44998.russell@coker.com.au>
+Message-ID: <Pine.GSO.4.33.0210011254080.14489-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 1 Oct 2002, Russell Coker wrote:
+On Sat, 28 Sep 2002, Russell Coker wrote:
 
-> I've attached a patch for the Debian telnetd setup.  In Debian telnetd runs a
-> SUID root wrapper for calling /bin/login so that telnetd can be run as
-> non-root.
->
-> For running with SE Linux it's easiest to just run telnetd as root (to deny
-> inetd setuid capability) but it still calls the wrapper by default anyway.
->
-> This patch allows that use, and doesn't give any significant extra access, so
-> I think it is worthy of inclusion in the CVS.
+> The attached patch makes home_root_t work.
 
-Thanks, merged.
+I merged this patch, although some of the rules are redundant with the
+corresponding rule in base_file_read_access, which is included by
+every_domain.
 
 --
 Stephen D. Smalley, NAI Labs
