@@ -1,98 +1,53 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0J37kRb018866
-	for <selinux@tycho.nsa.gov>; Sun, 18 Jan 2004 22:07:47 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i0J36axr008293
-	for <selinux@tycho.nsa.gov>; Mon, 19 Jan 2004 03:06:36 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-	by jazzswing.ncsc.mil  with ESMTP id i0J36aYc008290
-	for <selinux@tycho.nsa.gov>; Mon, 19 Jan 2004 03:06:36 GMT
-Message-ID: <400B49EE.2080502@redhat.com>
-Date: Sun, 18 Jan 2004 22:07:26 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0K9BrRb023569
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 04:11:54 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i0K9BriV022982
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 09:11:53 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+        by jazzband.ncsc.mil  with ESMTP id i0K9Bp06022979 for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2004 09:11:51 GMT
+To: selinux@tycho.nsa.gov
+Subject: Re: Samba and NFSv4 user-space server
+References: <200401131419.23834.russell@coker.com.au>
+	<84zncs2xxt.fsf@snoopy.apana.org.au>
+	<200401151619.58669.russell@coker.com.au>
+From: Brian May <bam@snoopy.apana.org.au>
+Date: Tue, 20 Jan 2004 20:11:30 +1100
+In-Reply-To: <200401151619.58669.russell@coker.com.au> (Russell Coker's
+ message of "Thu, 15 Jan 2004 16:19:58 +1100")
+Message-ID: <84ptdft265.fsf@snoopy.apana.org.au>
 MIME-Version: 1.0
-To: Bill McCarty <bmccarty@pt-net.net>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: RHEL 3 policy and policy-sources RPMs
-References: <222304176.1074345262@[192.168.0.100]>
-In-Reply-To: <222304176.1074345262@[192.168.0.100]>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Bill McCarty wrote:
+>>>>> "Russell" == Russell Coker <russell@coker.com.au> writes:
 
-> Hi all,
->
-> (1) I'm setting up another SELinux host on RHEL3, in addition to the 
-> one I successfully set up a few days back. I downloaded RPMs from 
-> people.redhat.com, but find that prelink.te and several other TE files 
-> (rpm.te, slocate.te) have syntax errors that prevent me from 
-> successfully making the policy. For instance:
->
-> ERROR 'syntax error' at token '-' on line 102125:
+    >>  Could you have the incoming TCP request go to a "wrapper"
+    >> service that does nothing but redirect it to the "real" process
+    >> that is already running with the correct UID/SE-Linux domain?
+    >> 
+    >> Not sure how feasible this is, or what sort of performance
+    >> penalty it might have though.
 
-Sorry about that a couple of packages had fallen behind on the RHEL3 
-tree.  You need to upgrade your version of Check Policy.  The "-XYZ" 
-syntax has been added to say get everything in this category except XYZ.
+    Russell> That won't work.  Samba supports having multiple
+    Russell> identities on a single TCP connection, and NFSv4 supports
+    Russell> similar things.
 
->
->
->> allow prelink_t {root_dir_type file_type -shadow_t} :{ file dir lnk_file
->> } { getattr read}; /usr/bin/checkpolicy:  error(s) encountered while
->> parsing configuration
->
->
-> It appears that an unwanted dash has been introduced. Unfortunately, 
-> after deleting the offending dashes, I ran into other problems:
->
->> security:  3 users, 5 roles, 1066 types
->> security:  30 classes, 134765 rules
->> assertion on line 130825 violated by allow rpm_t shadow_t:file {
->> relabelfrom relabelto }; assertion on line 130824 violated by allow
->> prelink_t shadow_t:file { read }; assertion on line 130824 violated by
->> allow rpm_t shadow_t:file { relabelfrom relabelto }; assertion on line
->> 130824 violated by allow locate_t shadow_t:file { read }; make: ***
->> [/etc/security/selinux/policy.15] Error 1
->
->
-> As a temporary expedient, I changed the relevant lines of assert.te to:
->
-> neverallow ~{ auth auth_write } shadow_t:file ~{ getattr read 
-> relabelfrom relabelto };
-> neverallow ~auth_write shadow_t:file ~{ read getattr lock ioctl 
-> relabelfrom relabelto};
->
-> After these changes, the policy compiles. I don't yet know how well it 
-> works.
->
-> Obviously, I understand that this policy is under active development 
-> and I don't want to seem to whine about such problems. But, are there 
-> better or worse times for users to work with it <g>? If so, I'd like 
-> to get in sync.
->
-I try to keep everything in sync, and most of the active work is being 
-done for Fedora Core.  But I will try to keep everything in sync on 
-RHEL3 in the future.
+I may not have been very clear.
 
-> (2) Also, I'm curious why some policy source files are found in both 
-> the policy and policy-sources RPMs.
->
-I didn't know that I will look.
+I am assuming that while the connection can have multiple identities,
+each request can only have on identity. I think this is the case for
+Samba, I could be mistaken.
 
-> Thanks, in any case, to Daniel and other who're working on this policy!
->
-> Cheers,
->
-> ---------------------------------------------------
-> Bill McCarty
->
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+My suggestion was to have one connection go to one process, which
+redirects the individual requests to other processes depending on the
+identity of that request.
 
+I am suspicious this will fall into the "easier said then done"
+category.
+-- 
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
