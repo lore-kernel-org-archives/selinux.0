@@ -1,78 +1,36 @@
-To: <mayerf@tresys.com>
-Cc: <russell@coker.com.au>,
-   "'Joshua D. Guttman disp: current'" <guttman@mitre.org>,
-   "'Karl MacMillan'" <kmacmillan@tresys.com>,
-   "'SELinux List'" <SELinux@tycho.nsa.gov>,
-   "'Stephen D. Smalley'" <sds@epoch.ncsc.mil>,
-   "'Amy L. Herzog'" <aherzog@mitre.org>,
-   "'Galen B. Williamson'" <gwilliam@mitre.org>,
-   "'Grant M. Wagner'" <gmw@tycho.ncsc.mil>, "'David Caplan'" <dac@tresys.com>
-Subject: Re: Announce: SELinux conditional policy extensions
-References: <007101c3f7c0$55f27380$020d010a@columbia.tresys.com>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 20 Feb 2004 10:14:18 -0500
-In-Reply-To: <007101c3f7c0$55f27380$020d010a@columbia.tresys.com>
-Message-ID: <ogtvfm1wzp1.fsf@divan.mitre.org>
+Message-ID: <20040220154134.55405.qmail@web41305.mail.yahoo.com>
+Date: Fri, 20 Feb 2004 07:41:34 -0800 (PST)
+From: Park Lee <parklee_sel@yahoo.com>
+Subject: Questions about security object classes and access vectors.
+To: SELinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative; boundary="0-366038463-1077291694=:54677"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I think Stephen's comments sink my proposal.  In any event, I hope
-people will find poldecond is a useful general purpose tool so that
-analysis tools can be used with policies that use the conditional
-extension before they are upgraded to understand the new syntax.
+--0-366038463-1077291694=:54677
+Content-Type: text/plain; charset=us-ascii
 
-John
+Dear sir,
+I want to learn more about security object classes and access vectors.
+Would you please tell me where I could get the detailed information about every security object class and every permission in access vectors.(e.g. their descriptions,their functions,etc). 
+Thank you very much!
+Yours,
+Park Lee
+2004-02-20
 
-"Frank Mayer" <mayerf@tresys.com> writes:
 
-> ramsdell@linus.mitre.org wrote:
-> > In my opinion, adding more complexity to the policy enforcement
-> > mechanism is likely to drive away new users.  Why should people be
-> > interested in an operating system that provides mandatory access
-> > control if they find its access control policy incomprehensible?
-> > 
-> > SE Linux policies are difficult to understand even with policies that
-> > make no use of the conditional policy extension.  Consider the
-> > situation surrounding information flow analysis.  Both MITRE and
-> > Tresys have produced tools that perform an information flow analysis.
-> > In a comprehensible system, it would be obvious how the two flow
-> > analyses relate.  I have yet to see a plausible account of the two
-> > flow analyses in a common framework.
-> 
-> All true.  We here have spent a huge amount of energy analyzing policies, and
-> building tools to support analysis.  But...The complexity is not because NSA
-> decided to make Linux more complex and then add type enforcement.  The
-> complexity is because Linux *is* a complex OS, with notions and mechanisms that
-> evolved over decades.  Any comprehensive attempt to encapsulate all access in
-> such a system, where the semantics of "access" is loosely defined with numerous
-> exceptions and special cases is bound to be complex.  The OS is complex and
-> there is no way around it...we're not dealing with nice security kernels here
-> that have simple task and segments abstractions upon which we can define clean
-> and simple access control constructs.
-> 
-> Several years ago when I first started to get involved with SE Linux I had much
-> the same reaction as above.  I've concluded that SE Linux is (from a security
-> assurance perspective) most analogous to the long ago Trusted XENIX from
-> IBM/TIS, where we evolved a mainstream Unix system to a B2 (middle-high?)
-> assurance level.  It was not easy and the Unix architecture is by no means clean
-> as compared to what a security kernel would contemplate.  
-> 
-> Nonetheless, what excites me is the economic potential of SE Linux to be
-> successful and widely adapted with a strong and flexible mandatory security
-> mechanism (TE rather than BLP or Biba).  So we all have challenge of finding
-> ways to analyze these policies and evolving abstractions to make the mechanisms
-> more accessible to developers if we want to stay in the Linux arena.   Far from
-> driving people away, it is my observation that SE Linux is making mandatory
-> security more accessible.
-> 
-> If one's goal is a simple, mathematically verifiable access control
-> architecture, then Linux is not the OS for you.  But if we're looking for widely
-> acceptable access control that can be rigorously informally analyzed, then I'm
-> pleasantly surprised with SE Linux. 
-> 
->  
+---------------------------------
+Do you Yahoo!?
+Yahoo! Mail SpamGuard - Read only the mail you want.
+--0-366038463-1077291694=:54677
+Content-Type: text/html; charset=us-ascii
+
+<DIV>Dear sir,<BR>I want to learn more about security object classes and access vectors.<BR>Would you please tell me where I could get the detailed information about every security object class and every permission in access vectors.(e.g. their descriptions,their functions,etc). <BR>Thank you very much!</DIV>
+<DIV>Yours,<BR>Park Lee<BR>2004-02-20</DIV><p><hr SIZE=1>
+Do you Yahoo!?<br>
+<a href="http://us.rd.yahoo.com/mailtag_us/*http://antispam.yahoo.com/tools?tool=1">Yahoo! Mail SpamGuard</a> - Read only the mail you want.</a>
+--0-366038463-1077291694=:54677--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
