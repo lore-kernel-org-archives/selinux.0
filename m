@@ -1,65 +1,60 @@
-Date: Thu, 24 Mar 2005 21:26:17 +0100
-From: Tom <tom@lemuria.org>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: SELinux@tycho.nsa.gov
+Message-ID: <20050324204100.87156.qmail@web31613.mail.mud.yahoo.com>
+Date: Thu, 24 Mar 2005 12:41:00 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: Do you trust X server?
-Message-ID: <20050324212616.C13605@lemuria.org>
-References: <20050318162144.32437.qmail@web50202.mail.yahoo.com>
-Mime-Version: 1.0
+To: Tom <tom@lemuria.org>, Casey Schaufler <casey@schaufler-ca.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: 6667
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20050318162144.32437.qmail@web50202.mail.yahoo.com>; from casey@schaufler-ca.com on Fri, Mar 18, 2005 at 08:21:44AM -0800
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Mar 18, 2005 at 08:21:44AM -0800, Casey Schaufler wrote:
-> Let us be clear. The X consortium has always
-> made it plain the the X server provides mechanism,
-> not policy. 
 
-That it does. Nevertheless, its impact on the policy needs to be
-evaluated if you want to use X on an SELinux system. There's no point
-in saying "sure, it breaks all my security, but hey, it wasn't designed
-to keep the policy intact".
+--- Tom <tom@lemuria.org> wrote:
 
-Of course X is policy-ignorant. Most of the programs that SELinux has
-policies for are.
+> > If you
+> > chose to use the X server as a component of
+> > your policy enforcement that is your affair,
+> > but the appropriate use of that code is your
+> > responsibility, not that of the X server.
+> 
+> That depends. As far as we can provide policy
+> enforcement externally,
+> the X server doesn't have to care.
 
+Yes, that is correct.
 
+> However, it has
+> been noted in past
+> discussions that the X server is, like login or ssh,
 
-> You can trust the X server to the same
-> degree you can trust any part of the system that
-> does not implement or enforce policy. 
+Excuse me, but the X server is not like login or ssh.
+Login and ssh are policy enforcing programs. As I
+noted above, the X server is not.
 
-i.e. ca. 90% of the applications we've written .te files for so far.
+> one of the
+> programs that cannot fulfill their role within an
+> SELinux environment
+> without either endangering said environment or
+> becoming policy-aware.
 
-
-
-> If you
-> chose to use the X server as a component of
-> your policy enforcement that is your affair,
-> but the appropriate use of that code is your
-> responsibility, not that of the X server.
-
-That depends. As far as we can provide policy enforcement externally,
-the X server doesn't have to care. However, it has been noted in past
-discussions that the X server is, like login or ssh, one of the
-programs that cannot fulfill their role within an SELinux environment
-without either endangering said environment or becoming policy-aware.
-
-
-
-> the "system" is not damaged at all. The DoS
-> "attack" is a programming flaw, or "bug" in
-> the jargon.
-
-Most security issues are the consequence of from programming flaws. ;)
+If this is true it is a problem with the SELinux
+environment, not the X server. The SGI Irix B1
+evaluation of 1995 used an unmodified X server
+that did no policy enforcement. The environment
+was not endangered by the presence of the X server.
 
 
+Casey Schaufler
+casey@schaufler-ca.com
 
--- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Small Business - Try our new resources site!
+http://smallbusiness.yahoo.com/resources/ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
