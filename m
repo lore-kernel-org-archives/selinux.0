@@ -1,52 +1,35 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1HjOXZ028048
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 12:45:24 -0500 (EST)
-Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1Hi3CC017875
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 17:44:03 GMT
-Message-Id: <200411011745.iA1HjGZ0004102@turing-police.cc.vt.edu>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: patch: add assert statement for syslog 
-In-Reply-To: Your message of "Mon, 01 Nov 2004 11:24:14 +0100."
-             <20041101102345.GA3377@jmh.mhn.de>
-From: Valdis.Kletnieks@vt.edu
-References: <20041101102345.GA3377@jmh.mhn.de>
+Subject: Re: [PATCH] checkpolicy - nodecon ordering
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chad Hanson <chanson@TrustedCS.com>
+Cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <36282A1733C57546BE392885C06185924D8EEF@chaos.tcs.tcs-sec.com>
+References: <36282A1733C57546BE392885C06185924D8EEF@chaos.tcs.tcs-sec.com>
+Content-Type: text/plain
+Message-Id: <1099332199.21386.160.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-284213844P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 01 Nov 2004 12:45:16 -0500
+Date: Mon, 01 Nov 2004 13:03:19 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-284213844P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 2004-10-29 at 10:07, Chad Hanson wrote:
+> I have created a patch which orders nodecon rules from most specific to
+> least specific.  We think this functionality can be useful for ease of
+> administration and to protect against accidental misconfiguration.
+> 
+> I couldn't find any mention of this topic being brought up before, so I am
+> interested in opinions on this subject.
 
-On Mon, 01 Nov 2004 11:24:14 +0100, Thomas Bleher said:
+Good idea, but I don't think that the patch is correct.  Should be
+sorting based on the number of bits set in each mask, not their integer
+value, as the simple value may not reflect the actual specificity.  Code
+could also be simplified a bit, e.g. setting of newc->next doesn't need
+to be conditional.
 
-> The following patch adds an assertion so that only domains with the
-> "privlog"-attribute can actually syslog.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Unless I'm missing a 'privlog' entry on a 'type' line someplace, this
-basically means that unless you write some policy, an arbitrary program can't
-syslog() at all.  This does help prevent "flood the syslog" attacks, but
-I'm not sure we want to be *that* draconian without a site-settable flag.
-
-It sort of renders /usr/bin/logger in a shell script useless, for starters...
-
---==_Exmh_-284213844P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBhnYrcC3lWbTT17ARAlHlAKCxuBAQVuD9ldkGHO7MIJ2XFl25swCghrWu
-Yu8mpWx2wZVo/qMGVzFKJRI=
-=J7YP
------END PGP SIGNATURE-----
-
---==_Exmh_-284213844P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
