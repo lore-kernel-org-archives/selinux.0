@@ -1,38 +1,44 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA05688
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2001 14:38:58 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA08444
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2001 03:16:26 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA02701
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2001 19:38:49 GMT
-Received: from my.snu.edu (gw.snu.edu [204.126.2.27])
-	by jazzband.ncsc.mil  with SMTP id TAA02697
-	for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2001 19:38:48 GMT
-Message-Id: <saa4e866.078@my.snu.edu>
-Date: Tue, 06 Mar 2001 13:38:06 -0600
-From: "Joshua Brindle" <JBrindle@snu.edu>
-To: <schroema@hotmail.com>, <selinux@tycho.nsa.gov>
+	by jazzband.ncsc.mil  with ESMTP id IAA04840
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2001 08:16:17 GMT
+Received: from pandora.shad0w.org (shad0w.dial.nildram.co.uk [195.112.18.51])
+	by jazzband.ncsc.mil  with ESMTP id IAA04836
+	for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2001 08:16:16 GMT
+Received: from monolith.sanctum.shad0w.org ([10.2.0.4] ident=shadow)
+	by pandora.shad0w.org with esmtp (Exim 3.16 #2)
+	id 14aZ23-0001vr-00
+	for selinux@tycho.nsa.gov; Wed, 07 Mar 2001 08:10:51 +0000
+Date: Wed, 7 Mar 2001 03:12:55 -0500 (EST)
+From: Chris Crowther <shadow@shad0w.org>
+To: selinux@tycho.nsa.gov
 Subject: Re: Thoughts on the list...
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <saa4e866.078@my.snu.edu>
+Message-ID: <Pine.LNX.4.21.0103070309110.28850-100000@monolith.sanctum.shad0w.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Why not filter on the To: field? <selinux@tycho.nsa.gov> 
+On Tue, 6 Mar 2001, Joshua Brindle wrote:
 
-Joshua Brindle
+> Why not filter on the To: field? <selinux@tycho.nsa.gov> 
 
->>> "Matt Schroeder" <schroema@hotmail.com> 03/06/01 11:26AM >>>
-Am I the only one who wishes the email list daemon added some recognizeable
-text to the subject so as to filter the email easier?  For instance,
+	I personaly just use a procmail filter:
 
-Subject: [selinux] Re: blah blah subject
+	:0:
+	* ^TO_selinux@tycho.nsa.gov
+	security.nsa.SEL
 
-Just curious.
+	Works fine for me, the ^TO_ procmail rule will catch the address
+anywhere in the To:, Cc: or Fwd-To: headers.
 
---
-You have received this message because you are subscribed to the selinux list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+-- 
+Chris Crowther
+shad0w@shad0w.org
+http://www.shad0w.org.uk/
 
 
 --
