@@ -1,43 +1,46 @@
 Subject: Re: 2.6.0-test3
-From: Colin Walters <walters@verbum.org>
-To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <200308212337.59952.russell@coker.com.au>
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Dale Amon <amon@vnl.com>
+Cc: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <20030821172554.GD4481@vnl.com>
 References: <1061468940.1665.16.camel@kusturica>
-	 <200308212337.59952.russell@coker.com.au>
+	 <200308212337.59952.russell@coker.com.au>  <20030821172554.GD4481@vnl.com>
 Content-Type: text/plain
-Message-Id: <1061487623.22355.27.camel@columbia>
+Message-Id: <1061491762.25855.19.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 21 Aug 2003 13:40:23 -0400
+Date: 21 Aug 2003 14:49:22 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-08-21 at 09:37, Russell Coker wrote:
-
-> This new version of SE Linux does not use the sys_security system call, and 
-> therefore any application compiled for the old SE Linux which uses that call 
-> (such as avc_toggle) will fail.
+On Thu, 2003-08-21 at 13:25, Dale Amon wrote:
+> Ouch. I'm just in the process of setting up a 2.6.0 test system
+> to check out the "mainstream" selinux.
 > 
-> Colin Walters is doing most of the work for the new SE Linux in Debian at the 
-> moment.  Unfortunately my 2.6.0 work has not progressed far enough for me to 
-> be able to advise you on how to do it right at this time.  Hopefully Colin 
-> will be able to help.
+> Are there compilable apps on the NSA sight that will work with
+> a vanilla 2.6.0-test3?
 
-My 2.6.0 Debian packages are here:
+The NSA site includes userland components ported to the new SELinux API
+(and updated to the RH9 packages).  The userland port was mostly done by
+Dan Walsh of RedHat.  Note that the new SELinux API and xattr support
+was also back ported to the 2.4-based SELinux, so the same userland can
+be used with the newer 2.4-based SELinux.  The older 2.4-based SELinux
+is no longer being actively maintained, and will be moved to a
+historical versions page along with the original SELinux in future
+releases.  See http://www.nsa.gov/selinux/download5.html for the
+2.6-based SELinux or http://www.nsa.gov/selinux/download3.html for the
+new 2.4-based SELinux.  Colin Walters has worked on porting and
+packaging the new components for Debian, so you may want to use his
+packages if you are using Debian.
 
-http://web.verbum.org/debian/experimental/
+Note that there have been some patches to the SELinux module since
+2.6.0-test3; there is a patch on the NSA site that includes some of
+those changes, but we have also fed further changes up to Andrew Morton
+since the last public release on the NSA site, and they are now in
+Linus' BitKeeper tree as well.
 
-I have been busy with some other things and haven't had a chance to
-update my packages recently.  I know at least coreutils, pam, and passwd
-all have higher versions in unstable now.
-
-Eventually, I'd like to not have to use any packages outside of unstable
-at all.  Russell, what do you think about starting to send these patches
-to the Debian package maintainers and get them integrated?  At least the
-Debian coreutils package already applies over 50 patches, one more
-wouldn't hurt :)
-The only drawback I see is a dependency on libselinux, but it's so small
-anyways.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
