@@ -1,57 +1,30 @@
-Date: Thu, 31 Jul 2003 17:38:10 +0200
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6VFinHa003531
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 11:44:50 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h6VFhcFB003462
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 15:43:38 GMT
+Received: from unicorn.lemuria.org (b067151.adsl.hansenet.de [62.109.67.151])
+	by jazzswing.ncsc.mil  with ESMTP id h6VFhbGD003459
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 15:43:38 GMT
+Date: Thu, 31 Jul 2003 17:41:27 +0200
 From: Tom <tom@lemuria.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: Bill Laut <wlsel@verizon.net>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: X-Windows and Client-side Buffer Overruns (was Re: Updated Release)
-Message-ID: <20030731173810.E16284@lemuria.org>
-References: <1057952464.5561.322.camel@moss-sooners.epoch.ncsc.mil> <200307301803.29302.wlsel@verizon.net> <20030731044521.H13872@lemuria.org> <200308010126.58444.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: SELinux Workshop at CCC
+Message-ID: <20030731174126.A16353@lemuria.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200308010126.58444.russell@coker.com.au>; from russell@coker.com.au on Fri, Aug 01, 2003 at 01:26:58AM +1000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Aug 01, 2003 at 01:26:58AM +1000, Russell Coker wrote:
-> Using IRC without X access is no great hardship, while using a text based MUA 
-> loses significant functionality.  
-
-Uh?
-<img content="stupid look on face of an avid mutt user">
-
-> X is currently the main area that SE Linux 
-> does not address yet.
-
-True. However, that is not a problem specific to a MUA.
-
-
-> A mail client wants to access mail files under the user's home directory, this 
-> means that the files in question need a separate type as you don't want the 
-> mail client to access all the other files in the home directory.  This gives 
-> the usual issues of mv followed by file creation giving a different type and 
-> preventing things working in a way that novice users can't debug...
-
-I'd do this the same way I did it with my subversion policy: Set up the
-mail directory so that only the MUA (running in its own domain) can
-access it. That way, the user simply can't mess up file labels.
-
-
-> The mail client needs to be able to save files (easily managed) and to invoke 
-> the web browser and other programs (which may be more difficult).
-
-I've been wanting to create a "downloaded files" domain for netscape
-anyways. Did I post about that already? In short, there'd be a
-~/Downloads dir with a special type and some auto-trans rules so that
-stuff you download and "try out" runs in an untrusted domain, etc.
-
-Maybe we should just create a more general "untrusted files" domain?
-
-
-> Finally if using kmail then you have to deal with the kdeinit method of 
-> program launch...
-
-I smell an SEKDE project on the horizon. From what I've seen, KDE is
-way too integrated with itself to behave nicely with SE without changes 
-in the KDE code itself.
+Carsten and myself will be holding a 2 hour SELinux presentation and
+workshop at the Chaos Computer Camp near Berlin on August 7th. We will
+be presenting SELinux to the audience, giving them an opportunity to
+upgrade or install their own systems under guidance, and answer
+questions.
+I will also try to get my play machine ready again, or maybe even set
+up a new one, so I can hook it up into the network and let everyone
+have a look for the entire 4 day event.
 
 
 -- 
