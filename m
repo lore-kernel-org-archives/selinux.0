@@ -1,40 +1,53 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA11914
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 18:59:46 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA12032
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 19:10:55 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA28806
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 22:58:08 GMT
-Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
-        by jazzband.ncsc.mil  with ESMTP id WAA28802 for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 22:58:06 GMT
-Date: Tue, 20 Aug 2002 08:59:38 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: type_change rules
-Message-ID: <20020819225938.GC12997@snoopy.apana.org.au>
-References: <Pine.GSO.4.33.0208190900150.14458-100000@raven> <20020819152726.B3533267@lyta.coker.com.au>
-Mime-Version: 1.0
+	by jazzband.ncsc.mil  with ESMTP id XAA29342
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 23:09:17 GMT
+Received: from web40012.mail.yahoo.com (web40012.mail.yahoo.com [66.218.78.30])
+        by jazzband.ncsc.mil  with SMTP id XAA29338 for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 23:09:17 GMT
+Message-ID: <20020819231053.24335.qmail@web40012.mail.yahoo.com>
+Date: Mon, 19 Aug 2002 16:10:53 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Re: Changing the default role/type of a user
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20020819224448.7446C129F@lyta.coker.com.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020819152726.B3533267@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Aug 19, 2002 at 05:27:26PM +0200, Russell Coker wrote:
-> > If compiled with PAM support, the util-linux login forks a child process
-> > that waits for the user shell to exit and then cleans up the session
-> > (including relabeling the tty back to its original SID, with the SELinux
-> > patch).
+
+--- Russell Coker <russell@coker.com.au> wrote:
+> On Tue, 20 Aug 2002 00:01, Brad Chapman wrote:
+> > In my policy, my username of Brad is placed in the role user_r and the
+> > domain user_t. However, the login program has my username in the role
+> > sysadm_r and the domain sysadm_t, despite there being no such role
+> > configured in the users file. Why does the login program do this?
 > 
-> I'll have to look into that.  Debian is using the shadow utils login which is 
-> different.
+> It sounds like it's set to that in /etc/security/default_context .
+> 
+> Although if the policy doesn't permit this then login should not be allowed 
+> to do it.  Are you running in permissive mode?
 
-I may have missed something here, but Debian login only forks a child
-process to wait for the user to logout if CLOSE_SESSIONS is set to YES
-in /etc/login.defs.
+Yes, but when I try to login with Brad:sysadm_r:sysadm_t, it fails, since I
+don't have that role in the list in the users file; AAR, it complains that
+there's no SID for it. So I enter user_r and user_t for my role/type, which 
+IS in the users file, and it logs in happily.
 
-This is required for instance if you want a kerberos PAM module
-to destroy the ticket when you logout.
--- 
-Brian May <bam@snoopy.apana.org.au>
+I am using permissive mode right now, because I want to be absolutely sure that
+the parts of the policy which apply to what I do are foolproof. My su_macros
+and user_macros files are growing again, but otherwise my (or your) policy is
+quite well set up, IMO.
+
+Brad
+
+
+__________________________________________________
+Do You Yahoo!?
+HotJobs - Search Thousands of New Jobs
+http://www.hotjobs.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
