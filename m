@@ -1,34 +1,38 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1INwMRb025868
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2004 18:58:22 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1JKt7Rb001287
+	for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2004 15:55:08 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i1INuolM014034
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2004 23:56:51 GMT
-Date: Wed, 18 Feb 2004 15:58:19 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: James Morris <jmorris@redhat.com>
-Cc: "David S. Miller" <davem@redhat.com>, akpm@osdl.org,
-   linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, selinux@tycho.nsa.gov
-Subject: Re: [SELINUX] Event notifications via Netlink
-Message-ID: <20040218155819.J1652@build.pdx.osdl.net>
-References: <20040218144346.B22989@build.pdx.osdl.net> <Xine.LNX.4.44.0402181845520.29323-100000@thoron.boston.redhat.com>
+	by jazzswing.ncsc.mil  with ESMTP id i1JKrZlK002094
+	for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2004 20:53:35 GMT
+Received: from continuum.cm.nu (continuum.cm.nu [216.113.193.225])
+	by jazzswing.ncsc.mil  with ESMTP id i1JKrYOX002060
+	for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2004 20:53:35 GMT
+Received: from shane by continuum.cm.nu with local (Exim 4.30)
+	id 1AtvC2-0005o4-C1
+	for selinux@tycho.nsa.gov; Thu, 19 Feb 2004 12:54:46 -0800
+Date: Thu, 19 Feb 2004 12:54:45 -0800
+To: selinux@tycho.nsa.gov
+Subject: Backing out SeLinux on 2.4
+Message-ID: <20040219205445.GA22106@cm.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Xine.LNX.4.44.0402181845520.29323-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Wed, Feb 18, 2004 at 06:47:33PM -0500
+From: Shane Wegner <shane-keyword-selinux.9d5a25@cm.nu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* James Morris (jmorris@redhat.com) wrote:
-> 
-> Reaching this would be incorrect use of a kernel API, leading to 
-> malfunctioning security code, so I feel that a BUG() is appropriate.
+Hi,
 
-Fair enough.  Just making sure it wasn't leftover from testing or something.
+I have decided to backout an installation of SeLinux and
+using a regular 2.4 kernel, the system cannot mount the
+root device, presumably due to the presence of ACLs. 
+Applying the acl patch at acl.bestbits.at does fix the
+problem.  Is there a way to remove the SeLinux ACLs such
+that the system can once again be booted on a vanilla
+kernel?  Maybe a dump/restore would work.  Anything that
+could be done without taking the system offline?
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Thanks,
+Shane
 
 --
 This message was distributed to subscribers of the selinux mailing list.
