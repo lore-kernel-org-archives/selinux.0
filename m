@@ -1,53 +1,30 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3GCLJI4000997
-	for <selinux@tycho.nsa.gov>; Wed, 16 Apr 2003 08:21:19 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h3GCLI7R010445
-	for <selinux@tycho.nsa.gov>; Wed, 16 Apr 2003 12:21:18 GMT
-Received: from lyta.coker.com.au (c16702.sunsh1.vic.optusnet.com.au [210.49.228.68])
-        by jazzband.ncsc.mil  with ESMTP id h3GCLFKP010442 for <selinux@tycho.nsa.gov>; Wed, 16 Apr 2003 12:21:16 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: SELinux version of sudo
-Date: Wed, 16 Apr 2003 22:21:05 +1000
-References: <3E9C17E9.2060203@redhat.com> <200304161408.06042.russell@coker.com.au> <3E9D3163.9040807@redhat.com>
-In-Reply-To: <3E9D3163.9040807@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200304162221.05403.russell@coker.com.au>
+Subject: Re: update question
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: ccallen <ccallen@windowpane.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <00d801c303f1$9fef2f00$398314d1@windowpane.com>
+References: <00d801c303f1$9fef2f00$398314d1@windowpane.com>
+Content-Type: text/plain
+Message-Id: <1050496159.2682.10.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 16 Apr 2003 08:29:19 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 16 Apr 2003 20:33, Daniel J Walsh wrote:
-> I like the idea of combining DAC with MAC using sudo rather than
-> su/newrole.  This would allow
-> an administrator to allow other people run functions that require
-> greater access to the system without them
-> having to have the root password.   IE.  You could allow someone to
-> manage the printers database without
-> having to become root.  Doing all MAC becomes to combersome for this
-> type of thing.
+On Wed, 2003-04-16 at 04:24, ccallen wrote:
+> If there is an older version of selinux installed, does the old one need to
+> be uninstalled before running the new version? If so is there a file with
+> the steps to do this? I thought I had read something on that before, but
+> cant find it now.
 
-To solve this problem I was thinking of creating some setuid programs that do 
-the following:
-1)  Check if SE Linux is in enforcing mode and exit if not.
-2)  setreuid(0, 0)
-3)  Call run_init or other similar program to do the real work once the 
-security context has been set.
-
-Domain transition rules (the run_program() macro) would be used to determine 
-who is authorised to run the program.
-
-As for authentication, it would use PAM which can probably be used to 
-configure whether a password is required for such operations.
+No, you don't need to "uninstall" the old version of SELinux.  The only
+case where you had to do some cleanup was if you were running the
+original SELinux kernel patch (pre-LSM) and were transitioning to the
+LSM-based SELinux.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
