@@ -1,33 +1,28 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i51HgIrT027261
-	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 13:42:18 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i52Hg3XL024285
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 13:42:03 -0400 (EDT)
-Subject: Re: latest cvs: policy appears to have different specs for apt-get
+Subject: Re: XP as a base for NetTop
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040529132024.GA12259@lkcl.net>
-References: <20040529132024.GA12259@lkcl.net>
+To: Joshua Brindle <jbrindle@snu.edu>
+Cc: "Dr. Eugene D. Myers" <edm@tycho.ncsc.mil>,
+   SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <40B67F41.6020309@snu.edu>
+References: <BCDBA110.10B6A%edm@tycho.ncsc.mil>  <40B67F41.6020309@snu.edu>
 Content-Type: text/plain
-Message-Id: <1086111685.13325.113.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1086111584.13325.111.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 01 Jun 2004 13:41:25 -0400
+Date: Tue, 01 Jun 2004 13:39:44 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2004-05-29 at 09:20, Luke Kenneth Casson Leighton wrote:
-> i'm getting this error on make relabel:
+On Thu, 2004-05-27 at 19:52, Joshua Brindle wrote:
+> on the slide entitled seperation it says that ACL's are used to protect 
+> the disk files so that rogue apps in a vm can't affect other vm's, 
+> additionally each vm's disk file is encrypted so that only the 'level' 
+> user can access it.
 > 
-> 	ERROR: Multiple different specifications for /usr/bin/apt-get
-> 	(system_u:object_r:rpm_exec_t and system_u:object_r:apt_exec_t).
-> 	/usr/sbin/setfiles:  labeling files under /
-> 
-> i won't pretend to know how it occurs...
+> Obviously both of these things can be done with (SE)Linux but it appears 
+>   they thought about this already.
 
-You shouldn't enable both rpm.te and dpkg.te in the same policy; they
-conflict.
+ACLs are a poor substitute for MAC, e.g. see
+http://marc.theaimsgroup.com/?l=selinux&m=104508693312829&w=2
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
