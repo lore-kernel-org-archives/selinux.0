@@ -1,57 +1,83 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA22938
-	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 16:15:57 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA07658
-	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 20:14:21 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id UAA07654 for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 20:14:19 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brad Chapman <jabiru_croc@yahoo.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Errors from your policy
-Date: Thu, 15 Aug 2002 22:15:44 +0200
-References: <20020815194304.70183.qmail@web40005.mail.yahoo.com>
-In-Reply-To: <20020815194304.70183.qmail@web40005.mail.yahoo.com>
+Message-Id: <200208152054.UAA27695@jazzswing.ncsc.mil>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: Russell Coker <russell@coker.com.au>
+Subject: mysqld rules
+Date: Thu, 15 Aug 2002 22:55:48 +0200
+Cc: SELinux <SELinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Message-Id: <20020815201545.4A6BB346@lyta.coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_0TKWR4V1ZKR4DRE4RJWR"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 15 Aug 2002 21:43, Brad Chapman wrote:
-> Attached to this e-mail is a partial listing of all the errors I got when I
-> loaded your policy. What should I do so that I don't repeat my earlier
-> problems (re: Swollen su_macros.te file) ?
 
-For the samba policy talk to the guy who wrote it.
+--------------Boundary-00=_0TKWR4V1ZKR4DRE4RJWR
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-For alsa there is no policy, you'll have to write your own.
+Hi Russel!
 
-For syslogd and klogd, what distribution are you running?
-Change this:
-domain_auto_trans(initrc_t, syslogd_exec_t, syslogd_t)
-To this:
-domain_auto_trans({ init_t initrc_t }, syslogd_exec_t, syslogd_t)
-and do the same for klogd.
+On SuSE mysqld starts with safe_mysqld. This time I write a rule set for=20
+it. And in this context I change your mysqld_t rules a little bit.
+I am interested in your opinion about this. ( I remaind of discussion abo=
+ut=20
+the config files.)
 
-For the login issue, make sure /bin/bash2 has shell_exec_t.
+I often need the dac_override capability in my suse rules (also in this=20
+case) and don't found it on other rules. Do you know why?
 
-Where is /dev/dsp coming from?  On devfs you should have it automatically 
-created in /dev/sound.
+Thanks
 
-Your problems with /dev/pts indicate that you are using an old version of the 
-kernel patch.
+  Carsten
+--------------Boundary-00=_0TKWR4V1ZKR4DRE4RJWR
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="mysqld.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="mysqld.patch"
 
-The problem with su is that your bash2 shell has the wrong type.  See my 
-previous messages on this topic...
+LS0tIHJ1c3NlbC9wb2xpY3kvZG9tYWlucy9wcm9ncmFtL215c3FsZC50ZQlGcmkgQXVnICA5IDE3
+OjUyOjI0IDIwMDIKKysrIC9ldGMvc2VjdXJpdHkvc2VsaW51eC9wb2xpY3kvZG9tYWlucy9wcm9n
+cmFtL215c3FsZC50ZQlUaHUgQXVnIDE1IDIyOjMyOjAwIDIwMDIKQEAgLTcsMTIgKzcsMjAgQEAK
+ICMgUnVsZXMgZm9yIHRoZSBteXNxbGRfdCBkb21haW4uCiAjCiAjIG15c3FsZF9leGVjX3QgaXMg
+dGhlIHR5cGUgb2YgdGhlIG15c3FsZCBleGVjdXRhYmxlLgotIworIyBteXNxbF9kYWVtb25jb25m
+X3QgaXMgdGhlIHR5cGUgb2YgdGhlIHNlcnZlciBzcGVjaWZpYyBzZXR0aW5ncyAKKyMgICAobXlz
+cWwtZGF0YWRpci9teS5jbmYpIC0tIE9OTFkgdXNpbmcgYnkgbXlzcWxkCisjIG15c3FsX2NvbmZf
+dCBpcyB0aGUgdHlwZSBmb3IgZ2xvYmFsIHNldHRpbmdzIAorIyAgICggL2V0Yy9teS5jbmYgKSAt
+LSB1c2luZyBieSBBTEwgbXlzcWwgcHJvZ3JhbXMKKyMgbXlzcWxfdXNlcmNvbmZfdCBpcyB0aGUg
+dHlwZSBvZiB0aGUgdXNlciBzcGVjaWZpYyBzZXR0aW5ncyAKKyMgICAoIH4vLm15LmNuZiApIC0t
+IE5PVCB1c2VzIGJ5IG15c3FsZAogZGFlbW9uX2RvbWFpbihteXNxbGQpCiAKIHR5cGUgZXRjX215
+c3FsZF90LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGU7CiB0eXBlIG15c3FsZF9kYl90LCBmaWxlX3R5
+cGUsIHN5c2FkbWZpbGU7CiB0eXBlIG15c3FsZF9sb2dfdCwgZmlsZV90eXBlLCBzeXNhZG1maWxl
+LCBsb2dmaWxlOwordHlwZSBteXNxbF91c2VyY29uZl90LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGU7
+Cit0eXBlIG15c3FsX2NvbmZfdCwgZmlsZV90eXBlLCBzeXNhZG1maWxlOwordHlwZSBteXNxbF9k
+YWVtb25jb25mX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZTsKIAogZmlsZV90eXBlX2F1dG9fdHJh
+bnMobXlzcWxkX3QsIHZhcl9sb2dfdCwgbXlzcWxkX2xvZ190KQogCkBAIC0zNiwxMyArNDQsMTMg
+QEAKIGFsbG93IG15c3FsZF90IHZhcl9saWJfdDpkaXIgc2VhcmNoOwogCiAjIHJlYWQgY29uZmln
+IGZpbGVzCi1hbGxvdyBteXNxbGRfdCB7IGV0Y190IGV0Y19teXNxbGRfdCByZXNvbHZfY29uZl90
+IGV0Y19ydW50aW1lX3QgfTp7IGZpbGUgbG5rX2ZpbGUgfSB7IHJlYWQgZ2V0YXR0ciB9OworI2Fs
+bG93IG15c3FsZF90IHsgZXRjX3QgZXRjX215c3FsZF90IHJlc29sdl9jb25mX3QgZXRjX3J1bnRp
+bWVfdCB9OnsgZmlsZSBsbmtfZmlsZSB9IHsgcmVhZCBnZXRhdHRyIH07CithbGxvdyBteXNxbGRf
+dCB7IGV0Y190IHJlc29sdl9jb25mX3QgZXRjX3J1bnRpbWVfdCB9OnsgZmlsZSBsbmtfZmlsZSB9
+IHsgcmVhZCBnZXRhdHRyIH07CithbGxvdyBteXNxbGRfdCB7IG15c3FsX2NvbmZfdCBteXNxbF9k
+YWVtb25jb25mX3QgfTpmaWxlIHsgZ2V0YXR0ciByZWFkIH07CiAKIGFsbG93IG15c3FsZF90IGV0
+Y190OmRpciBzZWFyY2g7CiAKIGFsbG93IG15c3FsZF90IHN5c2N0bF9rZXJuZWxfdDpkaXIgc2Vh
+cmNoOwogYWxsb3cgbXlzcWxkX3Qgc3lzY3RsX2tlcm5lbF90OmZpbGUgcmVhZDsKIAotIyBmb3Ig
+L3Jvb3QvLm15LmNuZiAtIHNob3VsZCBub3QgYmUgbmVlZGVkCi1hbGxvdyBteXNxbGRfdCBzeXNh
+ZG1faG9tZV9kaXJfdDpkaXIgc2VhcmNoOwotYWxsb3cgbXlzcWxkX3Qgc3lzYWRtX2hvbWVfdDpm
+aWxlIHsgcmVhZCBnZXRhdHRyIH07CisKLS0tIHJ1c3NlbC9wb2xpY3kvZmlsZV9jb250ZXh0cy9w
+cm9ncmFtL215c3FsZC5mYwlXZWQgQXVnICA3IDEyOjUzOjI4IDIwMDIKKysrIC9ldGMvc2VjdXJp
+dHkvc2VsaW51eC9wb2xpY3kvZmlsZV9jb250ZXh0cy9wcm9ncmFtL215c3FsZC5mYwlUaHUgQXVn
+IDE1IDIxOjMzOjU2IDIwMDIKQEAgLTMsMyArMyw2IEBACiAvdmFyL3J1bi9teXNxbGQofC8uKikJ
+CXN5c3RlbV91Om9iamVjdF9yOnZhcl9ydW5fbXlzcWxkX3QKIC92YXIvbG9nL215c3FsXC4oZXJy
+fGxvZykuKglzeXN0ZW1fdTpvYmplY3RfcjpteXNxbGRfbG9nX3QKIC92YXIvbGliL215c3FsKHwv
+LiopCQlzeXN0ZW1fdTpvYmplY3RfcjpteXNxbGRfZGJfdAorL2V0Yy9teS5jbmYJCQlzeXN0ZW1f
+dTpvYmplY3RfcjpteXNxbF9zeXNjb25mX3QKKy9yb290Ly5teS5jbmYJCQlzeXN0ZW1fdTpvYmpl
+Y3RfcjpteXNxbF91c2VyY29uZl90CisvaG9tZS9bXi9dKi8ubXkuY25mCQlzeXN0ZW1fdTpvYmpl
+Y3RfcjpteXNxbF91c2VyY29uZl90Cg==
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+--------------Boundary-00=_0TKWR4V1ZKR4DRE4RJWR--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
