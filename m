@@ -1,58 +1,122 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA13410
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 07:59:54 -0500 (EST)
-From: j.logsdon@lancaster.ac.uk
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA13953
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 09:06:41 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0NCxsI21120
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 12:59:54 GMT
-Received: from parmenides.zen.co.uk (parmenides.zen.co.uk [212.23.8.69])
-        by jazzband.ncsc.mil  with SMTP id h0NCxrf21116 for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 12:59:53 GMT
-Received: from localhost (j.logsdon@localhost)
-	by quantex-research.com (8.8.7/8.8.7) with ESMTP id NAA16057
-	for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 13:03:02 GMT
-Date: Thu, 23 Jan 2003 13:03:01 +0000 (GMT)
-To: selinux@tycho.nsa.gov
-Subject: Good news and bad news with the NSA version
-Message-ID: <Pine.LNX.4.10.10301231244480.5934-100000@mercury.quantex>
+	by jazzband.ncsc.mil  with ESMTP id h0NE6eI25615
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 14:06:40 GMT
+Received: from wiprom2mx2.wipro.com (wiprom2mx2.wipro.com [203.197.164.42])
+        by jazzband.ncsc.mil  with ESMTP id h0NE6af25602 for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 14:06:37 GMT
+Received: from m2vwall2 (m2vwall2.wipro.com [164.164.29.236])
+	by wiprom2mx2.wipro.com (8.11.3/8.11.3) with SMTP id h0NE6R903785
+	for <selinux@tycho.nsa.gov>; Thu, 23 Jan 2003 19:36:28 +0530 (IST)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+	boundary="----=_NextPartTM-000-bdbbc938-b546-440f-ab30-c1708cfd3abe"
+Subject: Information required
+Date: Thu, 23 Jan 2003 19:36:26 +0530
+Message-ID: <52C85426D39B314381D76DDD480EEE0C66D189@blr-m3-msg.wipro.com>
+From: "Rashmi Agrawal" <rashmi.agrawal@wipro.com>
+To: <selinux@tycho.nsa.gov>
+Cc: "Rashmi Agrawal" <rashmi.agrawal@wipro.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi again
+This is a multi-part message in MIME format.
 
-Firstly the good news - recall that I had a problem looking for some 2.96
-modules with RH8 which uses gcc-3.2.  I cleared out both directories and
-re-expanded the tarball that I downloaded.  This compilation went fine and
-all the files were relabelled OK.
+------=_NextPartTM-000-bdbbc938-b546-440f-ab30-c1708cfd3abe
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C2C2E8.9E4F53EF"
 
-Then I rebooted using the new kernel and to start with it all looked good
-but then hung after the 'initialising random number generator' stage.  The
-last messages were:
+------_=_NextPart_001_01C2C2E8.9E4F53EF
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-Jan 23 12:10:43 venus random: Initializing random number generator:
-succeeded
-Jan 23 12:10:43 venus kernel: Initializing RT netlink socket
-Jan 23 12:10:43 venus kernel: Starting kswapd
-Jan 23 12:10:43 venus kernel: Journalled Block Device driver loaded
-Jan 23 12:10:44 venus kernel: Installing knfsd (copyright (C) 1996 
-okir@monad.swb.de).
+Hi All,
 
-then after a further 8 minutes my patience ran out and I rebooted into RH8
-again.
+I am developing a software which require very high performance for data =
+store/retrieval. Taking that into consideration, I decided to go for =
+kernel space system calls for read/write, open/close etc.=20
 
-There was a message during the selinux boot against ne (I am using an old
-NE2000 ISA card) that the device had failed so I don't know whether there
-would still have been a problem with the networking side.  Under a normal
-boot, the networking is set up after the random number generator so the
-failure may be due to this.  
+I directly calls the file operation from within the kernel. Since kernel =
+has access to all system resources and low level hardware, could =
+somebody point out if it is secure enough to read/write in kernel space.
 
-Can anyone guide me as to what is wrong?  When it boots into RH8 there is
-no delay at all.
+If it is not advisable directly to use system calls in kernel, can we do =
+something to make it secure?? or do we already have something which =
+provides us security even if I do kernel space system call =
+implementation.
 
-TIA
+Any information provided on this would be useful. Also problems faced =
+with this kind of implementation will give me more clarity on what to =
+do.
 
-John
+Regards
+Rashmi
+
+------_=_NextPart_001_01C2C2E8.9E4F53EF
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3DWindows-1252">
+<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
+6.0.5770.91">
+<TITLE>Information required</TITLE>
+</HEAD>
+<BODY>
+<!-- Converted from text/plain format -->
+
+<P><FONT SIZE=3D2>Hi All,<BR>
+<BR>
+I am developing a software which require very high performance for data =
+store/retrieval. Taking that into consideration, I decided to go for =
+kernel space system calls for read/write, open/close etc.<BR>
+<BR>
+I directly calls the file operation from within the kernel. Since kernel =
+has access to all system resources and low level hardware, could =
+somebody point out if it is secure enough to read/write in kernel =
+space.<BR>
+<BR>
+If it is not advisable directly to use system calls in kernel, can we do =
+something to make it secure?? or do we already have something which =
+provides us security even if I do kernel space system call =
+implementation.<BR>
+<BR>
+Any information provided on this would be useful. Also problems faced =
+with this kind of implementation will give me more clarity on what to =
+do.<BR>
+<BR>
+Regards<BR>
+Rashmi</FONT>
+</P>
+
+</BODY>
+</HTML>
+------_=_NextPart_001_01C2C2E8.9E4F53EF--
+
+
+------=_NextPartTM-000-bdbbc938-b546-440f-ab30-c1708cfd3abe
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+**************************Disclaimer**************************************************    
+ 
+ Information contained in this E-MAIL being proprietary to Wipro Limited is 'privileged' 
+and 'confidential' and intended for use only by the individual or entity to which it is 
+addressed. You are notified that any use, copying or dissemination of the information 
+contained in the E-MAIL in any manner whatsoever is strictly prohibited.
+
+****************************************************************************************
+
+------=_NextPartTM-000-bdbbc938-b546-440f-ab30-c1708cfd3abe--
 
 
 --
