@@ -1,42 +1,54 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7METdLa010101
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 10:29:40 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7METcfF029928
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 14:29:38 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [144.51.25.4])
-        by jazzband.ncsc.mil  with ESMTP id h7METcHd029925 for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 14:29:38 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7METbmG009440
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2003 10:29:37 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h7METbfa009438
-	for selinux@tycho.nsa.gov; Fri, 22 Aug 2003 10:29:37 -0400
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Brian May <bam@snoopy.apana.org.au>, Colin Walters <walters@verbum.org>
-Subject: Re: 2.6.0-test3
-Date: Fri, 22 Aug 2003 22:44:46 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <200308212337.59952.russell@coker.com.au> <1061487623.22355.27.camel@columbia> <20030821223223.GA20695@snoopy.apana.org.au>
-In-Reply-To: <20030821223223.GA20695@snoopy.apana.org.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200308222244.46282.russell@coker.com.au>
+Subject: Re: general security lib (was: 2.6.0-test3)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>,
+   SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <200308230009.19552.russell@coker.com.au>
+References: <1061468940.1665.16.camel@kusturica>
+	 <1061487623.22355.27.camel@columbia> <1061555921.1648.142.camel@kusturica>
+	 <200308230009.19552.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1061562771.28086.157.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 22 Aug 2003 10:32:51 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 22 Aug 2003 08:32, Brian May wrote:
-> Does the libselinux in unstable support the 2.6 interface yet?
+On Fri, 2003-08-22 at 10:09, Russell Coker wrote:
+> A modification to PAM could allow the sshd, login, and cron patches to go 
+> away.
+> 
+> Theodore Ts'o suggested to me that a new PAM call be added to run the shell 
+> which takes appropriate parameters about user-name etc.  Then a SE Linux 
+> version of this module could change the security context appropriately, thus 
+> requiring only one copy of the code to determine the context to use, and not 
+> requiring any on-going modification to applications.
+> 
+> This design concept sounds really good, and as it's Ted's suggestion I don't 
+> expect any great resistance to accepting the patch upstream once it's been 
+> tested and proven to work.
+> 
+> I've been meaning to work on this for almost a year, I might start work next 
+> week.
 
-Colin is about to upload a new libselinux for 2.6 and the 2.4 back-port...
+If you investigate this idea, be sure to work from the new SELinux
+patches that use the new SELinux API, not the old one.  Note that the
+new SELinux API is better suited to encapsulation within PAM, since the
+exec context is now an attribute of the process that can be set prior to
+the execve call.  PAM could call setexeccon() when it ordinarily sets
+the user's credentials.  This avoids the need to create a new PAM call,
+or to alter the execve call itself.
+
+While you may be able to move the setup of the user execution context
+into PAM, there are other elements of the SELinux patches as well, such
+as the labeling of the tty/pty and the entrypoint check for cron jobs. 
+Hence, I suspect that we will still need some kind of patch for
+login/sshd/crond, albeit a smaller one. 
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
