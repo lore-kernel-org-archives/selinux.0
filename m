@@ -1,80 +1,120 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9SJisWt003307
-	for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2003 14:44:54 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9SJisIE017173
-	for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2003 19:44:54 GMT
-Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
-        by jazzband.ncsc.mil  with ESMTP id h9SJiq1J017170 for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2003 19:44:52 GMT
-Received: from lky (mailwall.shnet.edu.cn [202.112.26.55])
-	by sjtu.edu.cn (WorldPost) with ESMTP id D5029347260
-	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2003 03:44:49 +0800 (BEIST)
-Message-ID: <003b01c39d8d$5ead9690$5d38a8c0@lky>
-From: "lky" <lky77@sjtu.edu.cn>
-To: "SELINUX" <SELinux@tycho.nsa.gov>
-Subject: question about 2.6 modules 
-Date: Wed, 29 Oct 2003 03:54:59 +0800
+Message-ID: <3F9F091C.5090505@urbanrage.com>
+Date: Tue, 28 Oct 2003 18:26:04 -0600
+From: Eric Estabrooks <eric@urbanrage.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0038_01C39DD0.6C846440"
+To: SELINUX <SELinux@tycho.nsa.gov>
+Subject: Re: question about 2.6 modules
+References: <003b01c39d8d$5ead9690$5d38a8c0@lky>
+In-Reply-To: <003b01c39d8d$5ead9690$5d38a8c0@lky>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms010309070607050407090601"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+This is a cryptographically signed message in MIME format.
 
-------=_NextPart_000_0038_01C39DD0.6C846440
-Content-Type: text/plain;
-	charset="gb2312"
+--------------ms010309070607050407090601
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
+
+lky wrote:
+
+> Hi:
+> I reinstalled my linux system today. I installed the Redhat9.0 first.
+> Then I installed 2.6-based SELinux. In fact I installed two 2.6
+> kernels. One is the maintenance kernel with SELinux disabled and the
+> other with SELinux enabled.Before the installation I installed the new
+> modutils (downloaded from
+> http://www.kernel.org/pub/linux/kernel/people/rusty/modules) for the
+> 2.6 kernel first. And then I modified the /etc/rc.sysinit, just let
+> '/proc/sys/kernel/modprobe' replaced by '/sbin/modprobe'.After that I
+> installed the maintenance kernel first. Everything is ok but when I
+> rebooted the new kernel I found modules such as my network card and
+> loopback device can't be automatically loaded to work yet. Why? The
+> modules should work after installed the new modutils for 2.6 kernel.
+> Have I forgot something?
+> Thanks!
+> lky
+
+
+do the modules have .ko instead of .o? the 2.6 kernel modules now need
+to end in .ko to be automatically loaded, and it is just a name
+difference. I had this problem with some modules that I had compiled for
+2.6 and I just renamed them and depmod'd and they worked fine.
+
+Eric
+
+
+--------------ms010309070607050407090601
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-SGk6DQogICAgSSByZWluc3RhbGxlZCBteSBsaW51eCBzeXN0ZW0gdG9kYXkuIEkgaW5zdGFsbGVk
-IHRoZSBSZWRoYXQ5LjAgZmlyc3QuIFRoZW4gSSBpbnN0YWxsZWQgMi42LWJhc2VkIFNFTGludXgu
-IEluIGZhY3QgSSBpbnN0YWxsZWQgdHdvIDIuNiBrZXJuZWxzLiBPbmUgaXMgdGhlIG1haW50ZW5h
-bmNlIGtlcm5lbCB3aXRoIFNFTGludXggZGlzYWJsZWQgYW5kIHRoZSBvdGhlciB3aXRoIFNFTGlu
-dXggZW5hYmxlZC5CZWZvcmUgdGhlIGluc3RhbGxhdGlvbiBJIGluc3RhbGxlZCB0aGUgbmV3IG1v
-ZHV0aWxzIChkb3dubG9hZGVkIGZyb20gaHR0cDovL3d3dy5rZXJuZWwub3JnL3B1Yi9saW51eC9r
-ZXJuZWwvcGVvcGxlL3J1c3R5L21vZHVsZXMpICAgZm9yIHRoZSAyLjYga2VybmVsIGZpcnN0LiBB
-bmQgdGhlbiBJIG1vZGlmaWVkIHRoZSAvZXRjL3JjLnN5c2luaXQsIGp1c3QgbGV0ICcvcHJvYy9z
-eXMva2VybmVsL21vZHByb2JlJyByZXBsYWNlZCBieSAnL3NiaW4vbW9kcHJvYmUnLkFmdGVyIHRo
-YXQgSSBpbnN0YWxsZWQgdGhlIG1haW50ZW5hbmNlIGtlcm5lbCBmaXJzdC4gRXZlcnl0aGluZyBp
-cyBvayBidXQgd2hlbiBJIHJlYm9vdGVkIHRoZSBuZXcga2VybmVsIEkgZm91bmQgbW9kdWxlcyBz
-dWNoIGFzIG15IG5ldHdvcmsgY2FyZCBhbmQgbG9vcGJhY2sgZGV2aWNlIGNhbid0IGJlIGF1dG9t
-YXRpY2FsbHkgbG9hZGVkIHRvIHdvcmsgeWV0LiBXaHk/IFRoZSBtb2R1bGVzIHNob3VsZCB3b3Jr
-IGFmdGVyIGluc3RhbGxlZCB0aGUgbmV3IG1vZHV0aWxzIGZvciAyLjYga2VybmVsLiBIYXZlIEkg
-Zm9yZ290IHNvbWV0aGluZz8gDQogICAgVGhhbmtzIQ0KbGt5ICANCg==
-
-------=_NextPart_000_0038_01C39DD0.6C846440
-Content-Type: text/html;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
-
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
-dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
-MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
-WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWw+SGk6PC9GT05UPjwvRElW
-Pg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsPiZuYnNwOyZuYnNwOyZuYnNwOyBJIHJlaW5zdGFsbGVk
-IG15IGxpbnV4IHN5c3RlbSB0b2RheS4gSSANCmluc3RhbGxlZCB0aGUgUmVkaGF0OS4wIGZpcnN0
-LiBUaGVuIEkgaW5zdGFsbGVkIDIuNi1iYXNlZCBTRUxpbnV4LiBJbiBmYWN0IEkgDQppbnN0YWxs
-ZWQgdHdvIDIuNiBrZXJuZWxzLiBPbmUgaXMgdGhlIG1haW50ZW5hbmNlIGtlcm5lbCB3aXRoIFNF
-TGludXggZGlzYWJsZWQgDQphbmQgdGhlIG90aGVyIHdpdGggU0VMaW51eCBlbmFibGVkLkJlZm9y
-ZSB0aGUgaW5zdGFsbGF0aW9uIEkgaW5zdGFsbGVkIHRoZSBuZXcgDQptb2R1dGlscyAoZG93bmxv
-YWRlZCANCmZyb20mbmJzcDtodHRwOi8vd3d3Lmtlcm5lbC5vcmcvcHViL2xpbnV4L2tlcm5lbC9w
-ZW9wbGUvcnVzdHkvbW9kdWxlcykmbmJzcDsmbmJzcDsgDQo8L0ZPTlQ+PEZPTlQgZmFjZT1Bcmlh
-bD5mb3IgdGhlIDIuNiBrZXJuZWwgZmlyc3QuJm5ic3A7QW5kIHRoZW4gSSBtb2RpZmllZCB0aGUg
-DQovZXRjL3JjLnN5c2luaXQsIGp1c3QgbGV0ICcvcHJvYy9zeXMva2VybmVsL21vZHByb2JlJyBy
-ZXBsYWNlZCBieSANCicvc2Jpbi9tb2Rwcm9iZScuQWZ0ZXIgdGhhdCBJIGluc3RhbGxlZCB0aGUg
-bWFpbnRlbmFuY2Uga2VybmVsIGZpcnN0LiBFdmVyeXRoaW5nIA0KaXMgb2sgYnV0IHdoZW4gSSBy
-ZWJvb3RlZCB0aGUgbmV3IGtlcm5lbCBJIGZvdW5kIG1vZHVsZXMgc3VjaCBhcyBteSBuZXR3b3Jr
-IGNhcmQgDQphbmQgbG9vcGJhY2sgZGV2aWNlIGNhbid0IGJlIGF1dG9tYXRpY2FsbHkgbG9hZGVk
-IHRvIHdvcmsgeWV0LiBXaHk/Jm5ic3A7VGhlIA0KbW9kdWxlcyZuYnNwO3Nob3VsZCB3b3JrIGFm
-dGVyIGluc3RhbGxlZCB0aGUgbmV3IG1vZHV0aWxzIGZvciAyLjYgDQprZXJuZWwuJm5ic3A7SGF2
-ZSBJIGZvcmdvdCBzb21ldGhpbmc/Jm5ic3A7PC9GT05UPjwvRElWPg0KPERJVj48Rk9OVCBmYWNl
-PUFyaWFsPiZuYnNwOyZuYnNwOyZuYnNwOyBUaGFua3MhPC9GT05UPjwvRElWPg0KPERJVj48Rk9O
-VCBmYWNlPUFyaWFsPmxreSZuYnNwOyZuYnNwOzwvRk9OVD48L0RJVj48L0JPRFk+PC9IVE1MPg0K
-
-------=_NextPart_000_0038_01C39DD0.6C846440--
-
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJSDCC
+AwIwggJroAMCAQICAwj8yDANBgkqhkiG9w0BAQQFADCBkjELMAkGA1UEBhMCWkExFTATBgNV
+BAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUx
+HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVl
+bWFpbCBSU0EgMjAwMC44LjMwMB4XDTAyMTIzMTE2NTUxNVoXDTAzMTIzMTE2NTUxNVowRDEf
+MB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEhMB8GCSqGSIb3DQEJARYSZXJpY0B1
+cmJhbnJhZ2UuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0+Es9GafbpTC
+9NpHzjd2fIhKCiO8WkhM/QBb7RECTSQNJR0CbhEy+iBVVjm+gdMqiSOfjiQeVIw3YHupNSzj
+nhXa+9bShLToufBTJFrNDvsdCj5k+xGwpKhHUS/pNaxT1W7i5YIjXx1Hq/zYzJBw8JnduIui
+5QpQbF+f3ug6rA6QRo+fyIcB0zuIVG22ri+9XTghSQ0zlx50AaCA5T03HryAkpnBik0YeaQD
+vdI0OPiTpqLS1d1+nm4G/zQJ5BQ1Mb0UlizWK8aEAIpGJkWJ5l/LwvvQK+oylzWgqKt1yV0G
+ubZZ6GRLdb4VM0XKYKbIKUgCg9jtyT3hg55NEkiAuQIDAQABoy8wLTAdBgNVHREEFjAUgRJl
+cmljQHVyYmFucmFnZS5jb20wDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQAa2+mH
+bmYsssINtxgeBbIM5CpQxJQ0plbfrO5s1SNFFFCCcUVuSqrC8MZ0eyG8SR3IRju7JHLImXdx
+Vz9g4yMdRLyAq8D5EMlZlyx+PpB01ZATUQ3vdTKSBGKM9uVlCNJJ9T4/CcpuHgumSn+YRLQd
+vm8w1BlLZlWCNQa9jACEhzCCAwIwggJroAMCAQICAwj8yDANBgkqhkiG9w0BAQQFADCBkjEL
+MAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3du
+MQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYD
+VQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwMB4XDTAyMTIzMTE2NTUxNVoX
+DTAzMTIzMTE2NTUxNVowRDEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEhMB8G
+CSqGSIb3DQEJARYSZXJpY0B1cmJhbnJhZ2UuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
+MIIBCgKCAQEA0+Es9GafbpTC9NpHzjd2fIhKCiO8WkhM/QBb7RECTSQNJR0CbhEy+iBVVjm+
+gdMqiSOfjiQeVIw3YHupNSzjnhXa+9bShLToufBTJFrNDvsdCj5k+xGwpKhHUS/pNaxT1W7i
+5YIjXx1Hq/zYzJBw8JnduIui5QpQbF+f3ug6rA6QRo+fyIcB0zuIVG22ri+9XTghSQ0zlx50
+AaCA5T03HryAkpnBik0YeaQDvdI0OPiTpqLS1d1+nm4G/zQJ5BQ1Mb0UlizWK8aEAIpGJkWJ
+5l/LwvvQK+oylzWgqKt1yV0GubZZ6GRLdb4VM0XKYKbIKUgCg9jtyT3hg55NEkiAuQIDAQAB
+oy8wLTAdBgNVHREEFjAUgRJlcmljQHVyYmFucmFnZS5jb20wDAYDVR0TAQH/BAIwADANBgkq
+hkiG9w0BAQQFAAOBgQAa2+mHbmYsssINtxgeBbIM5CpQxJQ0plbfrO5s1SNFFFCCcUVuSqrC
+8MZ0eyG8SR3IRju7JHLImXdxVz9g4yMdRLyAq8D5EMlZlyx+PpB01ZATUQ3vdTKSBGKM9uVl
+CNJJ9T4/CcpuHgumSn+YRLQdvm8w1BlLZlWCNQa9jACEhzCCAzgwggKhoAMCAQICEGZFcrfM
+dPXPY3ZFhNAukQEwDQYJKoZIhvcNAQEEBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxX
+ZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1
+bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNV
+BAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29u
+YWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0wNDA4MjcyMzU5NTla
+MIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBl
+IFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMx
+KDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAwgZ8wDQYJKoZIhvcN
+AQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7SbngnZ4HF2ogZgpcO40QpimM1Km1wPPrcrvfu
+dG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWaNRqdknWoJ67Ycvm6AvbXsJHeHOmr
+4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFpAgMBAAGjTjBMMCkGA1UdEQQi
+MCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNVHRMBAf8ECDAGAQH/AgEA
+MAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQAxsUtHXfkBceX1U2xdedY9mMAmE2KB
+IqcS+CKV6BtJtyd7BDm6/ObyJOuR+r3sDSo491BVqGz3Da1MG7wD9LXrokefbKIMWI0xQgkR
+bLAaadErErJAXWr5edDqLiXdiuT82w0fnQLzWtvKPPZE6iZph39Ins6ln+eE2MliYq0FxjGC
+A9UwggPRAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIw
+EAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNh
+dGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAC
+Awj8yDAJBgUrDgMCGgUAoIICDzAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3
+DQEJBTEPFw0wMzEwMjkwMDI2MDRaMCMGCSqGSIb3DQEJBDEWBBT5rfuLkGx3e5GXjjWM/5s8
+fQZGNDBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggq
+hkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBqwYJKwYBBAGCNxAEMYGdMIGa
+MIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBl
+IFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMx
+KDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwj8yDCBrQYLKoZI
+hvcNAQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUx
+EjAQBgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZp
+Y2F0ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4z
+MAIDCPzIMA0GCSqGSIb3DQEBAQUABIIBAEtvExE5Co6HD2xBETOWYWaKMiaRVMKRktOdfm+p
+c+E8kWWaoNnnKcvfvEeMMfdoC7OyKU9f3tcu2gYWkIIovl98iF7n9PJaE35wD2Ydm3ue3XuF
+QUGD4QpjErhV9q/mkjD22vbZDGZNxetyaiK0uGlv6c1+UorsmtDg5aZ+n5qMfMfOHjEHjTnZ
+RCBRQC3CMhMVAjM39fzWcrNMEPv7loU0g59pj3x/hgCRKpjg8JDSz7F4zPigU6a1yBBUUp3p
+HMux34KOsL8tzy3i/PR/ZoP+igKRnst2ylriO2P3T2sJU3AQfhSDh2W+J4DEOT79oEexb2yL
+62mG9d+81kTt3TgAAAAAAAA=
+--------------ms010309070607050407090601--
 
 
 --
