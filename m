@@ -1,67 +1,169 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA12325
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 14:07:01 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA09993
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 18:05:36 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA12459
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 14:19:00 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA26457
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 18:18:34 GMT
 Received: from lyta.coker.com.au (n136.ols.wavesec.net [209.151.19.136])
-        by jazzband.ncsc.mil  with ESMTP id SAA09989 for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 18:05:33 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	by jazzswing.ncsc.mil  with ESMTP id SAA26452
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 18:18:33 GMT
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 63CAA1B0D
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2002 14:19:06 -0400 (EDT)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>, Ed Street <blacknet@simplyaquatics.com>
-Subject: Re: Default policy under debian
-Date: Tue, 25 Jun 2002 13:25:09 -0400
-Cc: "'SE Linux'" <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0206240717270.10386-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0206240717270.10386-100000@raven>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: sshd bugs etc
+Date: Tue, 25 Jun 2002 14:19:06 -0400
 MIME-Version: 1.0
-Message-Id: <20020625172509.7012E293C@lyta.coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_UJX9A99KEXKRA7UB3ZE1"
+Message-Id: <20020625181906.63CAA1B0D@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 24 Jun 2002 07:50, Stephen Smalley wrote:
-> On Fri, 21 Jun 2002, Ed Street wrote:
-> > Just to let everyone know, using woody bf2.4 minimal install with
-> > selinux we found remote root could execute /sbin/poweroff
->
-> Can you clarify what you mean by this statement?  "Remote root" is
-> ambiguous, as there is a difference between having the Linux root uid and
-> having the SELinux root user identity, and you also need to specify the
-> role and domain.  Notice that processes with the Linux root uid do
 
-Here is the results of poweroff on Debian when uid=0 domain=user_t:
+--------------Boundary-00=_UJX9A99KEXKRA7UB3ZE1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
-root@lyta:/# /sbin/poweroff
-shutdown: warning: cannot open /var/run/shutdown.pid
-init: /dev/initctl: Permission denied
-root@lyta:/# id
-uid=0(root) gid=0(root) groups=0(root) context=rjc:user_r:user_t sid=440
-root@lyta:/#
+For the new version of ssh, the sshd_t domain requires the sys_chroot 
+capability.
 
-If you ssh into a Debian machine as root in a typical setup it will log you 
-in as root:sysadm_r:sysadm_t by default.  But that can easily be changed.  If 
-you deny the "root" identity access to the sysadm_r role then they can't shut 
-the machine down (as I recently proved).
+Also I have attached a patch against the latest sshd to support SE 
+functionality.
 
-> You can certainly remove the corresponding domain_trans rule from sshd.te
-> if you do not wish to permit remote administrator shells, although you
-> would also need to do something about newrole if you want to completely
-> prevent the use of newrole by remote sessions (e.g. setting up a separate
-> user domain for remote shells that cannot transition to newrole_t).
-
-With all the bugs in ssh recently I have been thinking of doing this.  Make 
-sshd go to user_t first (and prevent user_t having dac_override capability or 
-suid/sgid capabilities) and then require newrole to change to sysadm_r.  It 
-would still be possible to damage things, but it would be a lot harder and 
-the damage would be a lot less.
+Please note, this isn't any sort of official release and was done in a great 
+rush (I'm sure that the NSA guys will release something better soon), but 
+this will probably be handy for some people.
 
 -- 
 I do not get viruses because I do not use MS software.
 If you use Outlook then please do not put my email address in your
 address-book so that WHEN you get a virus it won't use my address in the
 >From field.
+
+--------------Boundary-00=_UJX9A99KEXKRA7UB3ZE1
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="ssh-3.3.diff"
+Content-Transfer-Encoding: base64
+Content-Description: ssh-3.3.diff
+Content-Disposition: attachment; filename="ssh-3.3.diff"
+
+ZGlmZiAtcnVOIG9yaWcvb3BlbnNzaC0zLjNwMS9kZWJpYW4vY2hhbmdlbG9nIG9wZW5zc2gtMy4z
+cDEvZGViaWFuL2NoYW5nZWxvZwotLS0gb3JpZy9vcGVuc3NoLTMuM3AxL2RlYmlhbi9jaGFuZ2Vs
+b2cJVHVlIEp1biAyNSAxMzowMjo1MyAyMDAyCisrKyBvcGVuc3NoLTMuM3AxL2RlYmlhbi9jaGFu
+Z2Vsb2cJVHVlIEp1biAyNSAxNDowMzoyMCAyMDAyCkBAIC0xLDMgKzEsOSBAQAorb3BlbnNzaCAo
+MTozLjNwMS0wLjB3b29keTEuc2UxKSB0ZXN0aW5nLXNlY3VyaXR5OyB1cmdlbmN5PWhpZ2gKKwor
+ICAqIENvbXBpbGVkIHdpdGggU0UgTGludXggc3VwcG9ydC4KKworIC0tIFJ1c3NlbGwgQ29rZXIg
+PHJ1c3NlbGxAY29rZXIuY29tLmF1PiAgVHVlLCAyNSBKdW4gMjAwMiAxNDowMzowMCAtMDQwMAor
+CiBvcGVuc3NoICgxOjMuM3AxLTAuMHdvb2R5MSkgdGVzdGluZy1zZWN1cml0eTsgdXJnZW5jeT1o
+aWdoCiAKICAgKiBOTVUgYnkgdGhlIHNlY3VyaXR5IHRlYW0uCmRpZmYgLXJ1TiBvcmlnL29wZW5z
+c2gtMy4zcDEvZGViaWFuL2NvbnRyb2wgb3BlbnNzaC0zLjNwMS9kZWJpYW4vY29udHJvbAotLS0g
+b3JpZy9vcGVuc3NoLTMuM3AxL2RlYmlhbi9jb250cm9sCVR1ZSBKdW4gMjUgMTM6MDI6NTMgMjAw
+MgorKysgb3BlbnNzaC0zLjNwMS9kZWJpYW4vY29udHJvbAlUdWUgSnVuIDI1IDEzOjAzOjQxIDIw
+MDIKQEAgLTIsNyArMiw3IEBACiBTZWN0aW9uOiBuZXQKIFByaW9yaXR5OiBzdGFuZGFyZAogTWFp
+bnRhaW5lcjogTWF0dGhldyBWZXJub24gPG1hdHRoZXdAZGViaWFuLm9yZz4KLUJ1aWxkLURlcGVu
+ZHM6IGxpYndyYXAwLWRldiB8IGxpYndyYXAtZGV2LCB6bGliMWctZGV2IHwgbGliei1kZXYsIGxp
+YnNzbC1kZXYsIGxpYnBhbTBnLWRldiB8IGxpYnBhbS1kZXYsIGxpYmdub21lLWRldiwgZ3JvZmYs
+IGRlYmhlbHBlciAoPj0xLjEuMTcpCitCdWlsZC1EZXBlbmRzOiBsaWJ3cmFwMC1kZXYgfCBsaWJ3
+cmFwLWRldiwgemxpYjFnLWRldiB8IGxpYnotZGV2LCBsaWJzc2wtZGV2LCBsaWJwYW0wZy1kZXYg
+fCBsaWJwYW0tZGV2LCBsaWJnbm9tZS1kZXYsIGdyb2ZmLCBkZWJoZWxwZXIgKD49MS4xLjE3KSwg
+bGlic2VsaW51eC1kZXYKIFN0YW5kYXJkcy1WZXJzaW9uOiAzLjUuMgogCiBQYWNrYWdlOiBzc2gK
+ZGlmZiAtcnVOIG9yaWcvb3BlbnNzaC0zLjNwMS9kZWJpYW4vcnVsZXMgb3BlbnNzaC0zLjNwMS9k
+ZWJpYW4vcnVsZXMKLS0tIG9yaWcvb3BlbnNzaC0zLjNwMS9kZWJpYW4vcnVsZXMJVHVlIEp1biAy
+NSAxMzowMjo1MyAyMDAyCisrKyBvcGVuc3NoLTMuM3AxL2RlYmlhbi9ydWxlcwlUdWUgSnVuIDI1
+IDEzOjA4OjEwIDIwMDIKQEAgLTIxLDkgKzIxLDkgQEAKIAl0aGVuIG12IHZlcnNpb24uaCB2ZXJz
+aW9uLmgudXBzdHJlYW07IG12IHZlcnNpb24uaC5uZXcgdmVyc2lvbi5oOyBcCiAJZWxzZSBlY2hv
+ICJWZXJzaW9uIG51bWJlciBjaGFuZ2UgZmFpbGVkIjsgZXhpdCAxOyBcCiAJZmkKLQkuL2NvbmZp
+Z3VyZSAtLXByZWZpeD0vdXNyIC0tc3lzY29uZmRpcj0vZXRjL3NzaCAtLWxpYmV4ZWNkaXI9L3Vz
+ci9saWIgLS1tYW5kaXI9L3Vzci9zaGFyZS9tYW4gLS13aXRoLXRjcC13cmFwcGVycyAtLXdpdGgt
+eGF1dGg9L3Vzci9iaW4vWDExL3hhdXRoIC0td2l0aC1yc2g9L3Vzci9iaW4vcnNoIC0td2l0aC1k
+ZWZhdWx0LXBhdGg9L2JpbjovdXNyL2JpbjovdXNyL2xvY2FsL2JpbjovdXNyL1gxMVI2L2JpbiAt
+LXdpdGgtcGFtIC0td2l0aC00aW42IC0td2l0aC1pcHY0LWRlZmF1bHQgXAorCUxJQlM9LWxzZWN1
+cmUgLi9jb25maWd1cmUgLS1wcmVmaXg9L3VzciAtLXN5c2NvbmZkaXI9L2V0Yy9zc2ggLS1saWJl
+eGVjZGlyPS91c3IvbGliIC0tbWFuZGlyPS91c3Ivc2hhcmUvbWFuIC0td2l0aC10Y3Atd3JhcHBl
+cnMgLS13aXRoLXhhdXRoPS91c3IvYmluL1gxMS94YXV0aCAtLXdpdGgtcnNoPS91c3IvYmluL3Jz
+aCAtLXdpdGgtZGVmYXVsdC1wYXRoPS9iaW46L3Vzci9iaW46L3Vzci9sb2NhbC9iaW46L3Vzci9Y
+MTFSNi9iaW4gLS13aXRoLXBhbSAtLXdpdGgtNGluNiAtLXdpdGgtaXB2NC1kZWZhdWx0IFwKIAkJ
+LS13aXRoLXByaXZzZXAtcGF0aD0vdmFyL3J1bi9zc2hkCi0JJChNQUtFKSAtaiAyIEFTS1BBU1Nf
+UFJPR1JBTT0nL3Vzci9iaW4vc3NoLWFza3Bhc3MnIENGTEFHUz0nLU8yIC1XYWxsIC1ETE9HSU5f
+UFJPR1JBTT1cIi9iaW4vbG9naW5cIiAtRFNTSERfUEFNX1NFUlZJQ0U9XCJzc2hcIiAtRF9fRklM
+RV9PRkZTRVRfQklUUz02NCcgXAorCSQoTUFLRSkgLWogMiBBU0tQQVNTX1BST0dSQU09Jy91c3Iv
+YmluL3NzaC1hc2twYXNzJyBDRkxBR1M9Jy1EV0lUSF9TRUxJTlVYIC1JL3Vzci9pbmNsdWRlL3Nl
+bGludXggLU8yIC1XYWxsIC1ETE9HSU5fUFJPR1JBTT1cIi9iaW4vbG9naW5cIiAtRFNTSERfUEFN
+X1NFUlZJQ0U9XCJzc2hcIiAtRF9fRklMRV9PRkZTRVRfQklUUz02NCcgXAogCQlTU0hfS0VZU0lH
+Tj0nL3Vzci9saWIvc3NoLWtleXNpZ24nCiAJZ2NjIC1PMiBgZ25vbWUtY29uZmlnIC0tY2ZsYWdz
+IGdub21lIGdub21ldWlgIFwKIAkgICBjb250cmliL2dub21lLXNzaC1hc2twYXNzLmMgLW8gY29u
+dHJpYi9nbm9tZS1zc2gtYXNrcGFzcyBcCmRpZmYgLXJ1TiBvcmlnL29wZW5zc2gtMy4zcDEvc2Vz
+c2lvbi5jIG9wZW5zc2gtMy4zcDEvc2Vzc2lvbi5jCi0tLSBvcmlnL29wZW5zc2gtMy4zcDEvc2Vz
+c2lvbi5jCVRodSBKdW4gMjAgMjE6MDk6NDcgMjAwMgorKysgb3BlbnNzaC0zLjNwMS9zZXNzaW9u
+LmMJVHVlIEp1biAyNSAxMzoxNDoyNSAyMDAyCkBAIC02NCw2ICs2NCwxMiBAQAogI2RlZmluZSBp
+c193aW5udCAgICAgICAoR2V0VmVyc2lvbigpIDwgMHg4MDAwMDAwMCkKICNlbmRpZgogCisjaWZk
+ZWYgV0lUSF9TRUxJTlVYCisjaW5jbHVkZSA8Zmxhc2tfdXRpbC5oPgorI2luY2x1ZGUgPGdldF91
+c2VyX3NpZC5oPgorI2luY2x1ZGUgPHByb2Nfc2VjdXJlLmg+CisjZW5kaWYKKwogLyogZnVuYyAq
+LwogCiBTZXNzaW9uICpzZXNzaW9uX25ldyh2b2lkKTsKQEAgLTEyMzksNiArMTI0NSwyMyBAQAog
+CWNvbnN0IGNoYXIgKnNoZWxsLCAqc2hlbGwwLCAqaG9zdG5hbWUgPSBOVUxMOwogCXN0cnVjdCBw
+YXNzd2QgKnB3ID0gcy0+cHc7CiAJdV9pbnQgaTsKKyNpZmRlZiBXSVRIX1NFTElOVVgKKwlpbnQg
+Zmxhc2tfZW5hYmxlZDsKKwlzZWN1cml0eV9jb250ZXh0X3Qgc2NvbnRleHQgPSBOVUxMOworCXNl
+Y3VyaXR5X2lkX3Qgc2lkOworCisJZmxhc2tfZW5hYmxlZCA9IGlzX2ZsYXNrX2VuYWJsZWQoKTsK
+KwlpZihmbGFza19lbmFibGVkKQorCXsKKwkJaWYoIWdldF9kZWZhdWx0X3VzZXJfc2lkKHB3LT5w
+d19uYW1lLCBzdHJsZW4ocHctPnB3X25hbWUpCisJCSAgLCAmc2NvbnRleHQsICZzaWQpKQorCQl7
+CisJCQlmcHJpbnRmKHN0ZGVyciwgIkNvdWxkIG5vdCBvYnRhaW4gU0lEIGZvciB1c2VyICVzXG4i
+CisJCQkJLCBwdy0+cHdfbmFtZSk7CisJCQlleGl0KDEpOworCQl9CisJfQorI2VuZGlmCiAKIAkv
+KiByZW1vdmUgaG9zdGtleSBmcm9tIHRoZSBjaGlsZCdzIG1lbW9yeSAqLwogCWRlc3Ryb3lfc2Vu
+c2l0aXZlX2RhdGEoKTsKQEAgLTEzODEsNiArMTQwNCwxMSBAQAogCQkvKiBFeGVjdXRlIHRoZSBz
+aGVsbC4gKi8KIAkJYXJndlswXSA9IGFyZ3YwOwogCQlhcmd2WzFdID0gTlVMTDsKKyNpZmRlZiBX
+SVRIX1NFTElOVVgKKwkJaWYgKGZsYXNrX2VuYWJsZWQpCisJCQlleGVjdmVfc2VjdXJlKHNoZWxs
+LCBhcmd2LCBlbnYsIHNpZCk7CisJCWVsc2UKKyNlbmRpZgogCQlleGVjdmUoc2hlbGwsIGFyZ3Ys
+IGVudik7CiAKIAkJLyogRXhlY3V0aW5nIHRoZSBzaGVsbCBmYWlsZWQuICovCkBAIC0xMzk1LDYg
+KzE0MjMsMTEgQEAKIAlhcmd2WzFdID0gIi1jIjsKIAlhcmd2WzJdID0gKGNoYXIgKikgY29tbWFu
+ZDsKIAlhcmd2WzNdID0gTlVMTDsKKyNpZmRlZiBXSVRIX1NFTElOVVgKKwlpZiAoZmxhc2tfZW5h
+YmxlZCkgCisJCWV4ZWN2ZV9zZWN1cmUoc2hlbGwsIGFyZ3YsIGVudiwgc2lkKTsKKwllbHNlIAor
+I2VuZGlmCiAJZXhlY3ZlKHNoZWxsLCBhcmd2LCBlbnYpOwogCXBlcnJvcihzaGVsbCk7CiAJZXhp
+dCgxKTsKZGlmZiAtcnVOIG9yaWcvb3BlbnNzaC0zLjNwMS9zc2hwdHkuYyBvcGVuc3NoLTMuM3Ax
+L3NzaHB0eS5jCi0tLSBvcmlnL29wZW5zc2gtMy4zcDEvc3NocHR5LmMJU3VuIEp1biAgOSAxNTo0
+MTo0OSAyMDAyCisrKyBvcGVuc3NoLTMuM3AxL3NzaHB0eS5jCVR1ZSBKdW4gMjUgMTM6MDM6NDEg
+MjAwMgpAQCAtMjIsNiArMjIsMTMgQEAKICNpbmNsdWRlICJsb2cuaCIKICNpbmNsdWRlICJtaXNj
+LmgiCiAKKyNpZmRlZiBXSVRIX1NFTElOVVgKKyNpbmNsdWRlIDxzZWxpbnV4L2ZsYXNrX3V0aWwu
+aD4KKyNpbmNsdWRlIDxzZWxpbnV4L2dldF91c2VyX3NpZC5oPgorI2luY2x1ZGUgPHNlbGludXgv
+ZnNfc2VjdXJlLmg+CisjaW5jbHVkZSA8c2VsaW51eC9zcy5oPgorI2VuZGlmCisKIC8qIFB0eSBh
+bGxvY2F0ZWQgd2l0aCBfZ2V0cHR5IGdldHMgYnJva2VuIGlmIHdlIGRvIElfUFVTSDplcyB0byBp
+dC4gKi8KICNpZiBkZWZpbmVkKEhBVkVfX0dFVFBUWSkgfHwgZGVmaW5lZChIQVZFX09QRU5QVFkp
+CiAjdW5kZWYgSEFWRV9ERVZfUFRNWApAQCAtMzcwLDYgKzM3NywyMiBAQAogCWdpZF90IGdpZDsK
+IAltb2RlX3QgbW9kZTsKIAlzdHJ1Y3Qgc3RhdCBzdDsKKyNpZmRlZiBXSVRIX1NFTElOVVgKKwlp
+bnQgZmxhc2tfZW5hYmxlZDsKKwlzZWN1cml0eV9jb250ZXh0X3Qgc2NvbnRleHQgPSBOVUxMOwor
+CXNlY3VyaXR5X2lkX3QgdXNlcl9zaWQsIG9sZF90dHlfc2lkLCBuZXdfdHR5X3NpZDsKKworCWZs
+YXNrX2VuYWJsZWQgPSBpc19mbGFza19lbmFibGVkKCk7CisJaWYgKGZsYXNrX2VuYWJsZWQpIHsK
+KwkJaWYgKCFnZXRfZGVmYXVsdF91c2VyX3NpZChwdy0+cHdfbmFtZSwgCisJCQkJCSAgc3RybGVu
+KHB3LT5wd19uYW1lKSwKKwkJCQkJICAmc2NvbnRleHQsCisJCQkJCSAgJnVzZXJfc2lkKSkgewor
+CQkJZmF0YWwoIkNvdWxkIG5vdCBvYnRhaW4gU0lEIGZvciB1c2VyICVzXG4iLAorCQkJICAgICAg
+cHctPnB3X25hbWUpOworCQl9CisJfSAKKyNlbmRpZgogCiAJLyogRGV0ZXJtaW5lIHRoZSBncm91
+cCB0byBtYWtlIHRoZSBvd25lciBvZiB0aGUgdHR5LiAqLwogCWdycCA9IGdldGdybmFtKCJ0dHki
+KTsKQEAgLTM4Niw5ICs0MDksMjQgQEAKIAkgKiBXYXJuIGJ1dCBjb250aW51ZSBpZiBmaWxlc3lz
+dGVtIGlzIHJlYWQtb25seSBhbmQgdGhlIHVpZHMgbWF0Y2gvCiAJICogdHR5IGlzIG93bmVkIGJ5
+IHJvb3QuCiAJICovCisjaWZkZWYgV0lUSF9TRUxJTlVYCisJaWYgKGZsYXNrX2VuYWJsZWQpIHsK
+KwkJaWYgKHN0YXRfc2VjdXJlKHR0eW5hbWUsICZzdCwgJm9sZF90dHlfc2lkKSkgCisJCQlmYXRh
+bCgic3RhdF9zZWN1cmUoJS4xMDBzKSBmYWlsZWQ6ICUuMTAwcyIsIHR0eW5hbWUsCisJCQkgICAg
+ICBzdHJlcnJvcihlcnJubykpOworCQlpZiAoc2VjdXJpdHlfY2hhbmdlX3NpZCAodXNlcl9zaWQs
+IG9sZF90dHlfc2lkLCBTRUNDTEFTU19DSFJfRklMRSwgJm5ld190dHlfc2lkKSAhPSAwKSAKKwkJ
+CWZhdGFsKCJzZWN1cml0eV9jaGFuZ2Vfc2lkKCUuMTAwcykgZmFpbGVkOiAlLjEwMHMiLCB0dHlu
+YW1lLAorCQkJICAgICAgc3RyZXJyb3IoZXJybm8pKTsKKwl9IGVsc2UgeworCQlpZiAoc3RhdCh0
+dHluYW1lLCAmc3QpKQorCQkJZmF0YWwoInN0YXQoJS4xMDBzKSBmYWlsZWQ6ICUuMTAwcyIsIHR0
+eW5hbWUsCisJCQkgICAgICBzdHJlcnJvcihlcnJubykpOworCX0KKyNlbHNlCiAJaWYgKHN0YXQo
+dHR5bmFtZSwgJnN0KSkKIAkJZmF0YWwoInN0YXQoJS4xMDBzKSBmYWlsZWQ6ICUuMTAwcyIsIHR0
+eW5hbWUsCiAJCSAgICBzdHJlcnJvcihlcnJubykpOworI2VuZGlmCiAKIAlpZiAoc3Quc3RfdWlk
+ICE9IHB3LT5wd191aWQgfHwgc3Quc3RfZ2lkICE9IGdpZCkgewogCQlpZiAoY2hvd24odHR5bmFt
+ZSwgcHctPnB3X3VpZCwgZ2lkKSA8IDApIHsKQEAgLTQxNSw0ICs0NTMsMTIgQEAKIAkJCQkgICAg
+dHR5bmFtZSwgbW9kZSwgc3RyZXJyb3IoZXJybm8pKTsKIAkJfQogCX0KKworI2lmZGVmIFdJVEhf
+U0VMSU5VWAorCWlmIChmbGFza19lbmFibGVkKSB7CisJCWlmIChjaHNpZCAodHR5bmFtZSwgbmV3
+X3R0eV9zaWQpICE9IDApIAorCQkJZmF0YWwoImNoc2lkKCUuMTAwcywgJWQpIGZhaWxlZDogJS4x
+MDBzIiwKKwkJCQkgICAgICB0dHluYW1lLCBuZXdfdHR5X3NpZCwgc3RyZXJyb3IoZXJybm8pKTsK
+Kwl9CisjZW5kaWYKIH0K
+
+--------------Boundary-00=_UJX9A99KEXKRA7UB3ZE1--
 
 --
 You have received this message because you are subscribed to the selinux list.
