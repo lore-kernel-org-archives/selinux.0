@@ -1,187 +1,314 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2M1MqDo011216
-	for <selinux@tycho.nsa.gov>; Mon, 21 Mar 2005 20:22:52 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2M1N0Do011229
+	for <selinux@tycho.nsa.gov>; Mon, 21 Mar 2005 20:23:01 -0500 (EST)
 Received: from static-70-19-113-34.ny325.east.verizon.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2M1N9In017002
-	for <selinux@tycho.nsa.gov>; Tue, 22 Mar 2005 01:23:10 GMT
-Subject: New policy for razor
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2M1NHIn017008
+	for <selinux@tycho.nsa.gov>; Tue, 22 Mar 2005 01:23:18 GMT
+Subject: New policy for DCC
 From: David Hampton <hampton-rh@rainbolthampton.net>
 To: selinux@tycho.nsa.gov
 Cc: fedora-selinux-list@redhat.com
-Content-Type: multipart/mixed; boundary="=-bAzBmk7tvI/K2Kk1IZEq"
-Date: Mon, 21 Mar 2005 20:23:10 -0500
-Message-Id: <1111454590.18940.52.camel@hampton-pc.rainbolthampton.net>
+Content-Type: multipart/mixed; boundary="=-pJfEnsBuVdhPOfpbgYn7"
+Date: Mon, 21 Mar 2005 20:23:18 -0500
+Message-Id: <1111454598.18940.57.camel@hampton-pc.rainbolthampton.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-bAzBmk7tvI/K2Kk1IZEq
+--=-pJfEnsBuVdhPOfpbgYn7
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-This is a new strict policy for the razor spam filter.  It is based on
-the selinux-policy-strict-sources-1.23.2-1 fedora RPM.  This policy
-requires the definition of a razor reserved port that was in the
-net_contexts diff I sent last Wednesday.  Please let me know if there
-are any problems with or changes needed to this policy.
+This is a new strict policy for the DCC spam filter.  It is based on the
+selinux-policy-strict-sources-1.23.2-1 fedora RPM.  This policy requires
+the definition of dcc reserved ports that were in the net_contexts diff
+I sent last Wednesday.  Please let me know if there are any problems
+with or changes needed to this policy.
 
 David
 
 
---=-bAzBmk7tvI/K2Kk1IZEq
-Content-Disposition: attachment; filename=razor.fc
-Content-Type: text/plain; name=razor.fc; charset=ISO-8859-1
+--=-pJfEnsBuVdhPOfpbgYn7
+Content-Disposition: attachment; filename=dcc.fc
+Content-Type: text/plain; name=dcc.fc; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-# razor
-/etc/razor(/.*)?		system_u:object_r:razor_etc_t
-/usr/bin/razor.*		system_u:object_r:razor_exec_t
-/var/lib/razor(/.*)?		system_u:object_r:razor_var_lib_t
-/var/log/razor-agent.log	system_u:object_r:razor_log_t
-HOME_DIR/\.razor(/.*)?		system_u:object_r:ROLE_razor_home_t
+# DCC
+/etc/dcc(/.*)?				system_u:object_r:dcc_var_t
+/etc/dcc/map			--	system_u:object_r:dcc_client_map_t
+/etc/dcc/dccifd			-s	system_u:object_r:dccifd_sock_t
+/usr/bin/cdcc				system_u:object_r:cdcc_exec_t
+/usr/bin/dccproc			system_u:object_r:dcc_client_exec_t
+/usr/libexec/dcc/dbclean		system_u:object_r:dcc_dbclean_exec_t
+/usr/libexec/dcc/dccd			system_u:object_r:dccd_exec_t
+/usr/libexec/dcc/dccifd			system_u:object_r:dccifd_exec_t
+/usr/libexec/dcc/dccm			system_u:object_r:dccm_exec_t
+/usr/libexec/dcc/start-.*		system_u:object_r:dcc_script_exec_t
+/usr/libexec/dcc/stop-.*		system_u:object_r:dcc_script_exec_t
+/var/dcc(/.*)?				system_u:object_r:dcc_var_t
+/var/dcc/map			--	system_u:object_r:dcc_client_map_t
+/var/run/dcc				system_u:object_r:dcc_var_run_t
+/var/run/dcc/map		--	system_u:object_r:dcc_client_map_t
+/var/run/dcc/dccifd		-s	system_u:object_r:dccifd_sock_t
 
---=-bAzBmk7tvI/K2Kk1IZEq
-Content-Disposition: attachment; filename=razor_macros.te
-Content-Type: text/plain; name=razor_macros.te; charset=ISO-8859-1
+--=-pJfEnsBuVdhPOfpbgYn7
+Content-Disposition: attachment; filename=dcc.te
+Content-Type: text/plain; name=dcc.te; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 #
-# Razor - Razor is a collaborative, networked system to detect and
-#         block spam using identifying digests of messages.
-#
+# DCC - Distributed Checksum Clearinghouse
 # Author:  David Hampton <hampton@employees.org>
 #
+#
+# NOTE: DCC has writeable files in /etc/dcc that should probably be in
+# /var/lib/dcc.  For now this policy supports both directories being
+# writable.
+
+# Ports used by dcc
+type dcc_port_t, port_type, reserved_port_type;
+
+# Files common to all dcc programs
+type dcc_client_map_t, file_type, sysadmfile;
+type dcc_var_t, file_type, sysadmfile;
+type dcc_var_run_t, file_type, sysadmfile;
+
 
 ##########
-# common definitions for razord and all flavors of razor
 ##########
-define(`razor_base_domain',`
 
-# Razor is one executable and several symlinks
-allow $1_t razor_exec_t:{ file lnk_file } { getattr read };
+#
+# common to all dcc variants
+#
+define(`dcc_common',`
+# Access files in /var/dcc. The map file can be updated
+r_dir_file($1_t, dcc_var_t)
+allow $1_t dcc_client_map_t:file rw_file_perms;
 
-# Networking
-can_network_client_tcp($1_t, razor_port_t)
-can_resolve($1_t);
-
-general_proc_read_access($1_t)
-
-# Read system config file
-r_dir_file($1_t, razor_etc_t)
-
-# Update razor common files
-file_type_auto_trans($1_t, var_log_t, razor_log_t, file)
-create_dir_file($1_t, razor_log_t)
-allow $1_t var_lib_t:dir search;
-create_dir_file($1_t, razor_var_lib_t)
-
-allow $1_t bin_t:dir { getattr search };
-allow $1_t bin_t:file getattr;
-allow $1_t lib_t:file { getattr read };
-allow $1_t { var_t var_run_t }:dir search;
-uses_shlib($1_t)
-
-# Razor forks other programs to do part of its work.
-general_domain_access($1_t)
-can_exec($1_t, bin_t)
-
-# mktemp and other randoms
-allow $1_t { random_device_t urandom_device_t }:chr_file r_file_perms;
-
-# Allow access to various files in the /etc/directory including mtab
-# and nsswitch
+# Read mtab, nsswitch and locale
 allow $1_t { etc_t etc_runtime_t }:file { getattr read };
 read_locale($1_t)
+
+#Networking
+can_resolve($1_t)
+ifelse($2, `server', `
+can_network_udp($1_t)
+', `
+can_network_udp($1_t, `dcc_port_t')
+')
+allow $1_t self:unix_dgram_socket create_socket_perms;
+
+# Create private temp files
+tmp_domain($1)
+
+# Triggered by a call to gethostid(2) in dcc client libs
+allow $1_t self:unix_stream_socket { connect create };
+
+allow $1_t sysadm_su_t:process { sigchld };
+allow $1_t dcc_script_t:fd use;
+
+dontaudit $1_t kernel_t:fd use;
+dontaudit $1_t root_t:file read;
 ')
 
-
-#
-# Define a user domain for a razor
-#
-# Note: expects to be called with an argument of user, sysadm
-
-define(`razor_domain',`
-type $1_razor_t, domain, privlog, nscd_client_domain;
-role $1_r types $1_razor_t;
-domain_auto_trans($1_t, razor_exec_t, $1_razor_t)
-
-razor_base_domain($1_razor)
-
-# Per-user config/data files
-home_domain($1, razor)
-
-tmp_domain($1_razor)
-
-allow $1_razor_t self:unix_stream_socket create_stream_socket_perms;
-
-# Allow razor to be run by hand.  Needed by any action other than
-# invocation from a spam filter.
-allow $1_razor_t $1_devpts_t:chr_file rw_file_perms;
-allow $1_razor_t sshd_t:fd use;
-')
-
---=-bAzBmk7tvI/K2Kk1IZEq
-Content-Disposition: attachment; filename=razor.te
-Content-Type: text/plain; name=razor.te; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-#
-# Razor - Vipul's Razor is a distributed, collaborative, spam
-#         detection and filtering network.
-#
-# Author:  David Hampton <hampton@employees.org>
-#
-
-# NOTE: This policy will work with either the ATrpms provided config
-# file in /etc/razor, or with the default of dumping everything into
-# $HOME/.razor.
-
-type razor_port_t, port_type, reserved_port_type;
-
-##########
-# Razor query application - from system_r applictions
-##########
-type razor_t, domain, privlog, daemon;
-type razor_exec_t, file_type, sysadmfile, exec_type;
-role system_r types razor_t;
-
-razor_base_domain(razor)
-
-# Razor config file directory.  When invoked as razor-admin, it can
-# update files in this directory.
-etcdir_domain(razor)
-create_dir_file(razor_t, razor_etc_t);
-
-# Shared razor files updated freuently
-var_lib_domain(razor)
-
-# Log files
-log_domain(razor)
-allow razor_t var_log_t:dir search;
-ifdef(`logrotate.te', `
-allow logrotate_t razor_log_t:file r_file_perms;
-')
 
 ##########
 ##########
 
 #
-# Some spam filters executes the razor code directly.  Allow them access here.
+# dccd - Server daemon that can be accessed over the net
 #
-define(`razor_access',`
-r_dir_file($1, razor_etc_t)
-allow $1 var_log_t:dir search;
-allow $1 razor_log_t:file ra_file_perms;
-r_dir_file($1, razor_var_lib_t)
-r_dir_file($1, sysadm_razor_home_t)
-can_network_client_tcp($1, razor_port_t)
+daemon_domain(dccd, `, privlog, nscd_client_domain')
+dcc_common(dccd, server);
+
+# Runs the dbclean program
+allow dccd_t bin_t:dir search;
+domain_auto_trans(dccd_t, dcc_dbclean_exec_t, dcc_dbclean_t)
+#can_exec(dccd_t, dcc_dbclean_t)
+
+# The daemon needs to listen on the dcc ports
+allow dccd_t dcc_port_t:udp_socket name_bind;
+
+# Updating dcc_db, flod, ...
+create_dir_file(dccd_t, dcc_var_t);
+
+allow dccd_t self:capability net_admin;
+allow dccd_t self:netlink_route_socket { bind create getattr nlmsg_read read write };
+
+# Reading /proc/meminfo
+allow dccd_t proc_t:file { getattr read };
+
+
+#
+# cdcc - control dcc daemon
+#
+application_domain(cdcc, `, nscd_client_domain')
+role system_r types cdcc_t;
+dcc_common(cdcc)
+
+# suid program
+allow cdcc_t self:capability setuid;
+
+# Running from the command line
+allow cdcc_t sshd_t:fd use;
+allow cdcc_t sysadm_devpts_t:chr_file rw_file_perms;
+
+
+
+##########
+##########
+
+#
+# DCC Clients
+#
+
+#
+# dccifd  - Spamassassin and general MTA persistent client
+#
+daemon_domain(dccifd, `, privlog, nscd_client_domain')
+dcc_common(dccifd);
+file_type_auto_trans(dccifd_t, dcc_var_run_t, dccifd_var_run_t, file)
+
+# Allow the domain to communicate with other processes
+allow dccifd_t self:unix_stream_socket create_stream_socket_perms;
+
+# Updating dcc_db, flod, ...
+create_dir_notdevfile(dccifd_t, dcc_var_t);
+
+# Updating map, ...
+allow dccifd_t dcc_client_map_t:file rw_file_perms;
+
+# dccifd communications socket
+type dccifd_sock_t, file_type, sysadmfile;
+file_type_auto_trans(dccifd_t, dcc_var_t, dccifd_sock_t, sock_file)
+
+
+#
+# dccm  - sendmail milter client
+#
+daemon_domain(dccm, `, privlog, nscd_client_domain')
+dcc_common(dccm);
+file_type_auto_trans(dccm_t, dcc_var_run_t, dccm_var_run_t, file)
+
+# Allow the domain to communicate with other processes
+allow dccm_t self:unix_stream_socket create_stream_socket_perms;
+
+# Updating map, ...
+create_dir_notdevfile(dccm_t, dcc_var_t);
+allow dccm_t dcc_client_map_t:file rw_file_perms;
+
+# dccm communications socket
+type dccm_sock_t, file_type, sysadmfile;
+file_type_auto_trans(dccm_t, dcc_var_run_t, dccm_sock_t, sock_file)
+
+
+#
+# dccproc - dcc procmail interface
+#
+application_domain(dcc_client, `, privlog, nscd_client_domain')
+role system_r types dcc_client_t;
+dcc_common(dcc_client)
+
+# suid program
+allow dcc_client_t self:capability setuid;
+
+# Running from the command line
+allow dcc_client_t sshd_t:fd use;
+allow dcc_client_t sysadm_devpts_t:chr_file rw_file_perms;
+
+
+##########
+##########
+
+#
+# DCC Utilities
+#
+
+#
+# dbclean - database cleanup tool
+#
+application_domain(dcc_dbclean, `, nscd_client_domain')
+dcc_common(dcc_dbclean)
+
+# Updating various files.
+create_dir_file(dcc_dbclean_t, dcc_var_t);
+
+# wants to look at /proc/meminfo
+allow dcc_dbclean_t proc_t:dir search;
+allow dcc_dbclean_t proc_t:file { getattr read };
+
+# Running from the command line
+allow dcc_dbclean_t sshd_t:fd use;
+allow dcc_dbclean_t sysadm_devpts_t:chr_file rw_file_perms;
+
+##########
+##########
+
+#
+# DCC Startup scripts
+#
+# These are shell sccripts that start/stop/restart the various dcc
+# programs.
+#
+init_service_domain(dcc_script, `, nscd_client_domain')
+general_domain_access(dcc_script_t)
+general_proc_read_access(dcc_script_t)
+can_exec_any(dcc_script_t)
+dcc_common(dcc_script)
+
+# Allow calling the script from an init script (initrt_t) or from
+# rc.local (staff_t)
+domain_auto_trans({ initrc_t staff_t }, dcc_script_exec_t, dcc_script_t)
+
+# Start up the daemon process.  These scripts run 'su' to change to
+# the dcc user (even though the default dcc user is root).
+allow dcc_script_t self:capability setuid;
+su_restricted_domain(dcc_script, system)
+role system_r types dcc_script_su_t;
+domain_auto_trans(dcc_script_su_t, dccd_exec_t, dccd_t)
+domain_auto_trans(dcc_script_su_t, dccm_exec_t, dccm_t)
+domain_auto_trans(dcc_script_su_t, dccifd_exec_t, dccifd_t)
+
+# Stop the daemon process
+allow dcc_script_t { dccifd_t dccm_t }:process { sigkill signal };
+
+# Access various DCC files
+allow dcc_script_t { var_t var_run_t dcc_var_run_t}:dir { getattr search };
+allow dcc_script_t { dccifd_var_run_t dccm_var_run_t }:file { getattr read };
+
+allow { dcc_script_t dcc_script_su_t } initrc_t:fd use;
+allow { dcc_script_t dcc_script_su_t } devpts_t:dir search;
+allow { dcc_script_t dcc_script_su_t } initrc_devpts_t:chr_file rw_file_perms;
+allow dcc_script_t devtty_t:chr_file { read write };
+allow dcc_script_su_t sysadm_home_dir_t:dir search;
+allow dcc_script_su_t sysadm_t:process { noatsecure rlimitinh siginh transition };
+allow dcc_script_su_t initrc_devpts_t:chr_file { relabelfrom relabelto };
+
+dontaudit dcc_script_su_t kernel_t:fd use;
+dontaudit dcc_script_su_t root_t:file read;
+dontaudit dcc_script_t { home_root_t user_home_dir_t}:dir { getattr search };
+
+allow sysadm_t dcc_script_t:fd use;
+
+##########
+##########
+
+#
+# External spam checkers need to run and/or talk to DCC
+#
+define(`access_dcc',`
+domain_auto_trans($1_t, dcc_client_exec_t, dcc_client_t);
+allow $1_t dcc_var_t:dir search;
+allow $1_t dccifd_sock_t:sock_file { getattr write };
+allow $1_t dccifd_t:unix_stream_socket connectto;
+allow $1_t dcc_script_t:unix_stream_socket connectto;
 ')
 
-ifdef(`spamd.te', `razor_access(spamd_t)');
-ifdef(`amavis.te', `razor_access(amavisd_t)');
+ifdef(`amavis.te',`access_dcc(amavisd)')
+ifdef(`spamd.te',`access_dcc(spamd)')
 
---=-bAzBmk7tvI/K2Kk1IZEq--
+--=-pJfEnsBuVdhPOfpbgYn7--
 
 
 --
