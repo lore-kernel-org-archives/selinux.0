@@ -1,39 +1,39 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9OLBjWt017286
-	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 17:11:46 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9OMg8Wt017692
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 18:42:08 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9OLBWIS006464
-	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 21:11:32 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h9OLBWDc006461
-	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 21:11:32 GMT
-Subject: Re: [PATCH] libselinux-2
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Bastian Blank <bastian@waldi.eu.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20031023213354.GA23487@wavehammer.waldi.eu.org>
-References: <20031023213354.GA23487@wavehammer.waldi.eu.org>
-Content-Type: text/plain
-Message-Id: <1067029903.6209.62.camel@moss-spartans.epoch.ncsc.mil>
+	by jazzswing.ncsc.mil  with ESMTP id h9OMftIS010747
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 22:41:55 GMT
+Received: from mail.rollinghorse.com (dsl093-033-002.snd1.dsl.speakeasy.net [66.93.33.2])
+	by jazzswing.ncsc.mil  with ESMTP id h9OMfsDc010744
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 22:41:54 GMT
+Received: from hewey.RollingHorse.com (Hewey.RollingHorse.com [10.11.12.6])
+	by mail.rollinghorse.com (8.11.6/8.8.7) with ESMTP id h9OMg5U16325
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2003 15:42:05 -0700
+Message-Id: <5.2.1.1.2.20031024155304.0c94a990@Shire>
+Date: Fri, 24 Oct 2003 15:58:44 -0700
+To: "SE Linux" <selinux@tycho.nsa.gov>
+From: "Carsten P. Gehrke" <Carsten@rollinghorse.com>
+Subject: When to use SEL kernel
 Mime-Version: 1.0
-Date: 24 Oct 2003 17:11:43 -0400
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-10-23 at 17:33, Bastian Blank wrote:
-> hi folks
-> 
-> this patch fixes following problems:
-> - mark some attributes as unused
-> - signed vs. unsigned
-> - add -W -Werror to CFLAGS
-> files: utils/*
+I just completed the installation of LFS v4.1 on a server I intend to use 
+as a firewall.  For those not familiar with LFS, it is Linux From Scratch, 
+i.e. a Linux system built from source code.  It is FHS-compliant.  What I 
+would like to do is run the SE kernel.  I still need to add some packages 
+to this system (notably iptables).  My question is:  Does it matter if I 
+install additional packages before or after I install (and use) the SE 
+Linux kernel?
 
-Merged, except for the CFLAGS change.
+TIA,
+Carsten
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Carsten Gehrke     LFS No.: 190    using Linux since kernel 0.98
+carsten@gehrke.org                 http://tech.rollinghorse.com/
 
 
 --
