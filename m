@@ -1,39 +1,35 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA01700
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 10:43:41 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA26097
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 15:41:28 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id PAA26093
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 15:41:26 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 2769892668
-	for <selinux@tycho.nsa.gov>; Sat, 30 Nov 2002 02:43:37 +1100 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 010D633B
-	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 16:43:31 +0100 (CET)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: expect
-Date: Fri, 29 Nov 2002 16:43:31 +0100
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA02912
+	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 14:55:44 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA27963
+	for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 19:53:41 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id TAA27959 for <selinux@tycho.nsa.gov>; Fri, 29 Nov 2002 19:53:40 GMT
+Message-Id: <200211292002.PAA23890@moss-shockers.ncsc.mil>
+Date: Fri, 29 Nov 2002 15:02:59 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: expect
+To: selinux@tycho.nsa.gov, russell@coker.com.au
 MIME-Version: 1.0
-Message-Id: <200211291643.31661.russell@coker.com.au>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Due to what I believe to be bugs in expect, the new open_init_pty program will 
-not work correctly with old versions of expect.  Version 5.38.0 works fine, 
-version 5.32.2 is broken.  I don't know when the bug was fixed exactly.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+> Due to what I believe to be bugs in expect, the new open_init_pty program will 
+> not work correctly with old versions of expect.  Version 5.38.0 works fine, 
+> version 5.32.2 is broken.  I don't know when the bug was fixed exactly.
+
+I've backed out the open_init_pty changes to our internal copy of
+run_init.   I'd rather not have the base run_init functionality dependent
+on a particular version of expect, and I'm not even sure that it is
+wise to depend on having expect installed at all.  
+
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
 
 --
