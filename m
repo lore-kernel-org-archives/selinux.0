@@ -1,39 +1,51 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA13643
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 08:56:13 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA13607
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 08:53:30 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA22627
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 12:55:03 GMT
-Received: from nox.lemuria.org ([213.191.86.30])
-	by jazzswing.ncsc.mil  with ESMTP id MAA22623
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 12:55:02 GMT
-Date: Wed, 28 Aug 2002 14:56:06 +0200
-From: Tom <tom@lemuria.org>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: success story
-Message-ID: <20020828145606.A4758@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by jazzswing.ncsc.mil  with ESMTP id MAA22464
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 12:52:20 GMT
+Received: from mailgate5.cinetic.de (mailgate5.cinetic.de [217.72.192.165])
+	by jazzswing.ncsc.mil  with ESMTP id MAA22460
+	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 12:52:19 GMT
+Received: from web.de (fmomail01.dlan.cinetic.de [172.20.1.45])
+	by mailgate5.cinetic.de (8.11.2/8.11.2/SuSE Linux 8.11.0-0.4) with SMTP id g7SCrQX31618
+	for selinux@tycho.nsa.gov; Wed, 28 Aug 2002 14:53:27 +0200
+Date: Wed, 28 Aug 2002 14:53:27 +0200
+Message-Id: <200208281253.g7SCrQX31618@mailgate5.cinetic.de>
+MIME-Version: 1.0
+From: =?iso-8859-1?Q?Mark=20M=FCller?= <trusted@web.de>
+To: selinux@tycho.nsa.gov
+Subject: Direct logins (via local and ssh) as httpd_admin_r?
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-thanks to the incredible work done by everyone involved, especially
-russel coker, I've been able to run avc_toggle for the first time ever
-without making the system come to a screetching halt. even better, sshd
-and apache continued to run just fine (postfix and proftpd didn't, but
-hey, I need something to do tomorrow, too :) ).
+Hello,
 
-I've had a bunch of cron errors, and a few other messages, so I've
-rebooted back into permissive mode to fix this first. should I post the
-audit messages I received here, or somewhere else? this is a woody
-system with russel's packages and policy, but maybe other people are
-interested in the results, too?
+I can't login directly as httpd_admin_r. The default_context is set properly, but the following error occurs:
 
+Local login:
 
--- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+avc:  denied  { transition } for  pid=2178 exe=/bin/login path=/bin/bash dev=08:07 ino=46120 scontext=system_u:system_r:local_login_t tcontext=webadmin:httpd_admin_r:httpd_admin_t tclass=process
+
+SSH login:
+avc:  denied  { transition } for  pid=2183 exe=/usr/sbin/sshd path=/bin/bash dev=08:07 ino=46120 scontext=system_u:system_r:sshd_t tcontext=webadmin:httpd_admin_r:httpd_admin_t tclass=process
+
+I cannot solve this neither with:
+allow sshd_t httpd_admin_t:process { transition };
+
+nor with
+domain_trans(sshd_t, shell_exec_t, httpd_admin_t)
+
+(Login as user_t and newrole -r httpd_admin_r works)
+
+Any solutions? 
+
+Thanks in advance.
+______________________________________________________________________________
+Die witzigsten E-Mail-Adressen der Welt! Schon ab 2 Zeichen!
+Jetzt auswahlen unter http://digitaledienste.web.de/MyAdress/?mc=021101
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
