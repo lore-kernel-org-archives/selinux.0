@@ -1,48 +1,30 @@
-Content-Type: text/plain;
-  charset="us-ascii"
-From: JW <jw@centraltexasit.com>
-Reply-To: jw@centraltexasit.com
-To: <SELinux@tycho.nsa.gov>
-Subject: "Additional Documentation for..." -- where are these?
-Date: Fri, 5 Jul 2002 18:27:03 -0500
-MIME-Version: 1.0
-Message-Id: <200207051827.03955.jw@centraltexasit.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id AAA12246
+	for <selinux@tycho.nsa.gov>; Sat, 6 Jul 2002 00:11:19 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id EAA29741
+	for <selinux@tycho.nsa.gov>; Sat, 6 Jul 2002 04:09:51 GMT
+Received: from coffeesaur2.evoserve.com (evoworks.evoserve.com [210.16.10.5])
+        by jazzband.ncsc.mil  with ESMTP id EAA29737 for <selinux@tycho.nsa.gov>; Sat, 6 Jul 2002 04:09:50 GMT
+Received: from evoworks.evoserve.com (localhost [127.0.0.1])
+	by coffeesaur2.evoserve.com (Postfix) with ESMTP id CF93D814D2
+	for <selinux@tycho.nsa.gov>; Sat,  6 Jul 2002 12:07:22 +0800 (PHT)
+To: selinux@tycho.nsa.gov
+Subject: problem with "-" in libraries
+Date: Sat, 06 Jul 2002 12:07:22 +0800
+From: Debian User <rogelio@evoworks.evoserve.com>
+Message-Id: <20020706040722.CF93D814D2@coffeesaur2.evoserve.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Im developing a policy for a cramfs based selinux system. I cant specify the 
+contexts for libraries with a "-" in the names like "libpthread-0.9.11.so". 
+Checkpolicy does not accept such names int genfs_contexts. I am trying to work 
+around this by recompiling everything using modified library names. Can the 
+checkpolicy compiler be modified to accept this names? 
 
-Hello,
-
-On the doc page at the bottom is a link to a second documentation page. At the top is:
-
-Guidance Documents
-
-    * Installation Guide (README)
-    * User Guide (TBD)
-    * Administration Guide (TBD)
-    * Application Developer's Guide (TBD)
-
-
-Only the Installation Guide has a link. Where are the other documents?
-I'd like to see them, even it they are works in progress.
-
-- -- 
-
-- ----------------------------------------------------
-Jonathan Wilson
-System Administrator
-Cedar Creek Software     http://www.cedarcreeksoftware.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9JitHQ5u80xXOLBcRAoduAJsEjnwSQhNM7cGvPsqnzSoe45LhSgCgsEPl
-OFKaJd1mSCeyAlyCsJ0v+lQ=
-=SGXR
------END PGP SIGNATURE-----
-
+Is there a way to make a setfiles like program for genfs_contexts? Im 
+considering writing software to that. 
 
 --
 You have received this message because you are subscribed to the selinux list.
