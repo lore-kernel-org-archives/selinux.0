@@ -1,30 +1,24 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94FmkrT018681
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 11:48:46 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94Fmks6016051
-	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 15:48:46 GMT
-Subject: Re: BUG: looks like net contexts is being ignored
+Subject: Re: Patch to restorecon to add -R switch
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040926214625.GK28076@lkcl.net>
-References: <20040926214625.GK28076@lkcl.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41584DCA.7030006@redhat.com>
+References: <41584DCA.7030006@redhat.com>
 Content-Type: text/plain
-Message-Id: <1096904763.32008.51.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1096904808.32008.53.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 04 Oct 2004 11:46:04 -0400
+Date: Mon, 04 Oct 2004 11:46:49 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2004-09-26 at 17:46, Luke Kenneth Casson Leighton wrote:
-> i'm using cvs linux2.6 from 2 weeks ago.
-> latest cvs policy, tools and libs selinux-usr.
+On Mon, 2004-09-27 at 13:28, Daniel J Walsh wrote:
+> This will allow us to
 > 
-> the bug is that any tcp or udp port access by any program appears to be
-> attempted as reserved_port_t.
+> restorecon -R /dev in the initscripts.
+> 
+> Also patch adds some fixed for fixfiles.
 
-Using the latest checkpolicy from cvs?
+So, how does this differ from just running setfiles on /dev instead?
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
