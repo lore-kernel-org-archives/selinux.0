@@ -1,69 +1,62 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8RITYrT003420
-	for <selinux@tycho.nsa.gov>; Mon, 27 Sep 2004 14:29:34 -0400 (EDT)
-Received: from mail.mvalent.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8RISWhp005396
-	for <selinux@tycho.nsa.gov>; Mon, 27 Sep 2004 18:28:33 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: bash_profile: Permission denied
-Date: Mon, 27 Sep 2004 14:29:34 -0400
-Message-ID: <E6E16A6D4277CD459BBDE6713766033CB72208@exchange.mvalent.local>
-From: "James R. Marcus" <jmarcus@mvalent.net>
-To: <russell@coker.com.au>, "Luke Kenneth Casson Leighton" <lkcl@lkcl.net>
-Cc: "Daniel J Walsh" <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8RJPXrT003896
+	for <selinux@tycho.nsa.gov>; Mon, 27 Sep 2004 15:25:33 -0400 (EDT)
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8RJOVhp010158
+	for <selinux@tycho.nsa.gov>; Mon, 27 Sep 2004 19:24:31 GMT
+Subject: Re: Patch for strict policy
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <41584D2F.5020902@redhat.com>
+References: <41542FF5.2090502@redhat.com>
+	 <1096303384.3234.7.camel@moss-lions.epoch.ncsc.mil>
+	 <41584D2F.5020902@redhat.com>
+Content-Type: text/plain
+Message-Id: <1096313069.3234.13.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 27 Sep 2004 15:24:30 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry I haven't replied to this sooner. I'm fine with .bash_profile
-getting a permission denied.  The first issue was that when I was
-switching back and forth from permissive to enforced mode, my new login
-shell would hang on the permission denied error, and I would never get
-to a prompt. Maybe this was an issue with my ssh client? This error
-seems to be some extreme case, because without changing anything it
-appears I can login as root while in enforced mode.
+Merged -- I think.  
 
-James
+There were an awful lot of cvs adds and removes, I believe I got them
+all, but... :)
 
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
-On Behalf Of Russell Coker
-Sent: Friday, September 24, 2004 4:25 AM
-To: Luke Kenneth Casson Leighton
-Cc: Daniel J Walsh; James R. Marcus; selinux@tycho.nsa.gov
-Subject: Re: bash_profile: Permission denied
-
-On Fri, 24 Sep 2004 09:15, Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-wrote:
->  ah, but running newrole is not enough: not having write access to
->  /root/.bash_profile results in bash not _reading_ the file either.
-
-I wrote the following in my previous message to James R. Marcus on the
-same 
-topic:
-
-If you enable the boolean staff_read_sysadm_file then staff_t can read 
-sysadm_home_t files and can search sysadm_home_dir_t directories.  This
-will 
-allow you to login as root:staff_r:staff_t without any warning messages
-AND 
-with the aliases etc from .bashrc defined.
-
+On Mon, 2004-09-27 at 13:26, Daniel J Walsh wrote:
+> James Carter wrote:
+> 
+> >Shouldn't there be a ktalkd.te?  I don't think ktalkd_exec_t is defined
+> >anywhere.
+> >
+> >On Fri, 2004-09-24 at 10:32, Daniel J Walsh wrote:
+> >  
+> >
+> >>Added policy templates for swat, ktalkd, in.comcast, and rsyn daemons to 
+> >>be run by xinetd.
+> >>Separated out inetd_child_t context into a macro.
+> >>Mailman fixes
+> >>
+> >>______________________________________________________________________
+> >>diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/ktalkd.fc policy-1.17.20/file_contexts/program/ktalkd.fc
+> >>--- nsapolicy/file_contexts/program/ktalkd.fc	1969-12-31 19:00:00.000000000 -0500
+> >>+++ policy-1.17.20/file_contexts/program/ktalkd.fc	2004-09-24 10:05:50.845362460 -0400
+> >>@@ -0,0 +1,2 @@
+> >>+# kde talk daemon 
+> >>+/usr/bin/ktalkd	--	system_u:object_r:ktalkd_exec_t
+> >>    
+> >>
+> >
+> >  
+> >
+> Oops, yes here is a new patch including ktalkd, some of russells fixes.
+> 
+> ______________________________________________________________________
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux
-packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
-
-
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
