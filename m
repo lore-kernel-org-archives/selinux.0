@@ -1,32 +1,59 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i749JHrT026795
-	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 05:19:17 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i749Ih0G003813
-	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 09:18:43 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 4 Aug 2004 09:19:10 -0000
-Date: Wed, 4 Aug 2004 10:30:19 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i74A7HrT026997
+	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 06:07:17 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i74A6g0G004658
+	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 10:06:43 GMT
+From: Russell Coker <rcoker@redhat.com>
+Reply-To: rcoker@redhat.com
 To: Colin Walters <walters@redhat.com>
-Cc: rcoker@redhat.com, dwalsh@redhat.com, selinux@tycho.nsa.gov
 Subject: Re: [patch] fix /var/run/console bits
-Message-ID: <20040804093019.GB3575@lkcl.net>
+Date: Wed, 4 Aug 2004 20:07:03 +1000
+Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
 References: <1091584911.8312.7.camel@nexus.verbum.private>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <1091584911.8312.7.camel@nexus.verbum.private>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200408042007.03512.rcoker@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Aug 03, 2004 at 10:01:51PM -0400, Colin Walters wrote:
-
+On Wed, 4 Aug 2004 12:01, Colin Walters <walters@redhat.com> wrote:
+> Currently /var/run/console is labeled as xdm_var_run_t, which is totally
+> wrong, since it's actually owned by pam_console.  I noticed this while I
+> was trying to work on the D-BUS policy, which recently gained console
+> user authentication.
+>
+> Attached is a patch which creates a new type for it, grants the
 > requisite permissions to login and xdm.  I still think we need a nicer
 > way of mapping the PAM permissions in policy.  The only reason that
-> 
+> login and xdm are granted these permissions is because they happen to
+> ship with pam_console in their PAM stack on Fedora, presumably.  (IIRC
+> Debian doesn't use pam_console).
 
- someone on advogato suggested porting bsd_auth to linux.
+I think that perhaps the following would be good for the fc entry to keep the 
+convention:
+/var/run/console/(.*)?                     system_u:object_r:pam_var_console_t
 
+This is not what we want.  Ideally we will never have any files of type 
+var_run_t.
+rw_dir_create_file(xdm_t, var_run_t)
+rw_dir_create_file($1_login_t, var_run_t)
+
+I guess that the following code is to allow the xdm to check which login 
+processes are active when searching for an unused virtual console.  If my 
+guess is correct then signull access would need to be granted to getty_t and 
+userdomain.  Of course if you hard-code a VC in the config file then maybe 
+this isn't needed.
+# FIXME: what is this for?
+ifdef(`xdm.te', `
+allow xdm_t $1_login_t:process { signull };
+')
+
+-- 
+http://apac.redhat.com/disclaimer
+See above URL for disclaimer.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
