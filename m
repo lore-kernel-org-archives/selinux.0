@@ -1,56 +1,51 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7FI6ZrT003393
-	for <selinux@tycho.nsa.gov>; Sun, 15 Aug 2004 14:06:35 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7FI6X7E024951
-	for <selinux@tycho.nsa.gov>; Sun, 15 Aug 2004 18:06:34 GMT
-Date: Sun, 15 Aug 2004 19:17:11 +0100
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7FITSrT003476
+	for <selinux@tycho.nsa.gov>; Sun, 15 Aug 2004 14:29:28 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7FISmZR004292
+	for <selinux@tycho.nsa.gov>; Sun, 15 Aug 2004 18:28:49 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by open.hands.com (Postfix) with ESMTP id 46B62BF73
+	for <selinux@tycho.nsa.gov>; Sun, 15 Aug 2004 19:29:27 +0100 (BST)
+Received: from open.hands.com ([127.0.0.1])
+	by localhost (open [127.0.0.1]) (amavisd-new, port 10024) with LMTP
+	id 18417-03 for <selinux@tycho.nsa.gov>;
+	Sun, 15 Aug 2004 19:29:24 +0100 (BST)
+Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
+	by open.hands.com (Postfix) with ESMTP id A01C2BF70
+	for <selinux@tycho.nsa.gov>; Sun, 15 Aug 2004 19:29:24 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1BwPvI-0002kz-TP
+	for selinux@tycho.nsa.gov; Sun, 15 Aug 2004 19:40:04 +0100
+Date: Sun, 15 Aug 2004 19:40:04 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: 258214@bugs.debian.org, SE-Linux <selinux@tycho.nsa.gov>,
-   Linux Hotplug Dev List <linux-hotplug-devel@lists.sourceforge.net>
-Subject: udev script does NOT mount /dev/pts as claimed by debian maintainer
-Message-ID: <20040815181711.GK11256@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: kdm 3.3 is deleting and recreating /var/run/xdmctl
+Message-ID: <20040815184004.GL11256@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-the debian maintainer for udev claims in his response to closing the
-above bugreport that:
+heads up for something to watch out for: kdm 3.3 is deleting and
+then recreating /var/run/xdmctl, presumably as a way of clearing
+out any messy sockets in that directory.
 
-	"> initscript it unmounts /dev/pts because udev mounts
-	 > a tmpfs over /dev. The problem is that it does not seem to mount it
-	 > again.
+kdm 3.2.2 did not behave in this manner.
 
-	 And it does not need to, S36mountvirtfs does. "
+it means that people doing a new install of kdm under selinux
+may run into problems.
 
+e.g. if dpkg has not been given write permission to /var/run
+in order for /var/run/xdmctl to be created at postinst time.
 
-i have looked in /etc/rcS.d for S36mountvirtfs and i am sorry
-to have to report that it does not exist.  [on debian/unstable,
-initscripts version 2.86-1 or 2.85-22.se2]
+e.g. if postinst does _not_ create this directory, it doesn't exist,
+and kdm attempts to create it for the first time.
 
-i upgraded initscripts temporarily from version 2.85-22.se2
-to version 2.86-1 in order to check: i found that in both cases,
-/etc/rcS.d/S36mountvirtfs did not exist.
-
-[maybe this is one of the reasons why i cannot see shmfs unless
- i specify enforcing=0 but hey, that's another story]
-
-
-so:
-
-- the bug reported by mario boikov is still unresolved;
-
-- initscripts appears to have a bug in it where there is a missing
-  symlink in /etc/rcS.d;
-
-- some of the dependencies of udev-0.030 are broken: udev-0.030 should
-  depend on a version of initscripts that has the S36mountvirtfs
-  symlink, and it does not.
-
-the temporary fix is, like /etc/init.d/udev's "stop" case, to add
-/etc/init.d/mountvirtfs start into the "start" case (as previously
-attached).
+i am not allowing the xdm_t permission to unlink and create in
+var_run_t: consequently, if that directory already exists, everything
+is hunky-dory: selinux bans kdm from deleting it, and consequently,
+it still exists such that kdm doesn't try to create it.
 
 l.
 
