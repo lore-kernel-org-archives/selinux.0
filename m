@@ -1,56 +1,119 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6D6P9Ha009341
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jul 2003 02:25:10 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6E1A5Ha010542
+	for <selinux@tycho.nsa.gov>; Sun, 13 Jul 2003 21:10:05 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6D6P8H5020573
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jul 2003 06:25:08 GMT
+	by jazzband.ncsc.mil  with ESMTP id h6E1A4H5028891
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 01:10:04 GMT
 Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
-        by jazzband.ncsc.mil  with ESMTP id h6D6P8RX020570 for <selinux@tycho.nsa.gov>; Sun, 13 Jul 2003 06:25:08 GMT
+        by jazzband.ncsc.mil  with ESMTP id h6E1A4RX028888 for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 01:10:04 GMT
 Received: from columbia (dhcp024-208-189-249.columbus.rr.com [24.208.189.249])
 	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
 	(Client CN "columbia.verbum.org", Issuer "verbum.org CA" (verified OK))
-	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id E9C3532A6BB
-	for <selinux@tycho.nsa.gov>; Sun, 13 Jul 2003 14:29:41 -0400 (EDT)
-Subject: [patch] uninitialized values in setfiles/psid.c
+	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id 1DA9C32A6BB
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 09:14:46 -0400 (EDT)
+Subject: [patch] various fixes for libselinux
 From: Colin Walters <walters@verbum.org>
 To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-XnN8owYX0ViwBbqep93S"
-Message-Id: <1058077234.10673.68.camel@columbia>
+Content-Type: multipart/mixed; boundary="=-IkgfXOEFJwr1aisEm+MY"
+Message-Id: <1058144717.4130.5.camel@columbia>
 Mime-Version: 1.0
-Date: 13 Jul 2003 02:20:34 -0400
+Date: 13 Jul 2003 21:05:18 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-XnN8owYX0ViwBbqep93S
+--=-IkgfXOEFJwr1aisEm+MY
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-While updating to the newer policycoreutils release, I noticed the
-following gcc warnings:
+Hi,
 
-psid.c: In function `chpsid':
-psid.c:609: warning: `off' might be used uninitialized in this function
-psid.c:610: warning: `len' might be used uninitialized in this function
+Attached is a patch which fixes various things in libselinux; It adds a
+bunch of consts to the context.h API, handles a missed out-of-memory
+condition, and cleans up some -Wall compile warnings.
 
-I believe the patch below should fix the problem.
 
---=-XnN8owYX0ViwBbqep93S
-Content-Disposition: attachment; filename=setfiles-uninit-value.patch
-Content-Type: text/plain; name=setfiles-uninit-value.patch; charset=UTF-8
+
+
+--=-IkgfXOEFJwr1aisEm+MY
+Content-Disposition: attachment; filename=various-fixes.patch
+Content-Type: text/plain; name=various-fixes.patch; charset=UTF-8
 Content-Transfer-Encoding: base64
 
-LS0tIHNldGZpbGVzL3BzaWQuY34JMjAwMy0wNi0wMiAxNjoyMzowNy4wMDAwMDAwMDAgLTA0MDAN
-CisrKyBzZXRmaWxlcy9wc2lkLmMJMjAwMy0wNy0xMyAwMjoxMDozOC4wMDAwMDAwMDAgLTA0MDAN
-CkBAIC02NTgsMTAgKzY1OCwxMiBAQA0KIAkJICovDQogCQlEUFJJTlRGKCJjaHBzaWQ6ICBhZGRp
-bmcgbmV3IGVudHJ5IHRvIGNvbnRleHRzXG4iKTsNCiANCi0JCXJjID0gbHNlZWsodC0+Y29udGV4
-dHNfZnAsIDAsIFNFRUtfRU5EKTsNCi0JCWlmIChyYyA8IDApIHsNCisJCWxlbiA9IHN0cmxlbihj
-b250ZXh0KSsxOw0KKw0KKwkJb2ZmID0gbHNlZWsodC0+Y29udGV4dHNfZnAsIDAsIFNFRUtfRU5E
-KTsNCisJCWlmIChvZmYgPCAwKSB7DQogCQkJcGVycm9yKCJsc2VlayIpOw0KLQkJCXJldHVybiBy
-YzsNCisJCQlyZXR1cm4gb2ZmOw0KIAkJfQ0KIAkJcmMgPSB3cml0ZSh0LT5jb250ZXh0c19mcCwg
-Y29udGV4dCwgbGVuKTsNCiAJCWlmIChyYyA8IDApIHsNCg==
+LS0tIHNyYy9jb250ZXh0LmN+CTIwMDMtMDUtMDggMTY6MzY6NTMuMDAwMDAwMDAwIC0wNDAwDQor
+Kysgc3JjL2NvbnRleHQuYwkyMDAzLTA3LTEzIDIwOjUyOjI3LjAwMDAwMDAwMCAtMDQwMA0KQEAg
+LTE4LDEyICsxOCwxMiBAQA0KICAqIDQgY29sb24tc2VwYXJhdGVkIGNvbXBvbmVudHMgYW5kIG5v
+IHdoaXRlc3BhY2UuDQogICovDQogY29udGV4dF90DQotY29udGV4dF9uZXcoY2hhciAqc3RyKQ0K
+K2NvbnRleHRfbmV3KGNvbnN0IGNoYXIgKnN0cikNCiB7DQogICAgICAgICBpbnQgaSxjb3VudDsN
+CiAgICAgICAgIGNvbnRleHRfcHJpdmF0ZV90ICpuID0gKGNvbnRleHRfcHJpdmF0ZV90KikgbWFs
+bG9jKHNpemVvZihjb250ZXh0X3ByaXZhdGVfdCkpOw0KICAgICAgICAgY29udGV4dF90IHJlc3Vs
+dCA9IChjb250ZXh0X3QpIG1hbGxvYyhzaXplb2YoY29udGV4dF9zX3QpKTsNCi0gICAgICAgIGNo
+YXIgKnAsKnRvazsNCisgICAgICAgIGNvbnN0IGNoYXIgKnAsKnRvazsNCiAgICAgICAgIA0KICAg
+ICAgICAgaWYgKCBuID09IDAgfHwgcmVzdWx0ID09IDAgKSB7IGdvdG8gZXJyOyB9DQogICAgICAg
+ICBuLT5jdXJyZW50X3N0ciA9IG4tPmNvbXBvbmVudFswXSA9IG4tPmNvbXBvbmVudFsxXSA9IG4t
+PmNvbXBvbmVudFsyXSA9DQpAQCAtNDIsNiArNDIsOCBAQA0KICAgICAgICAgZm9yICggaSA9IDAs
+IHRvayA9IHN0cjsgKnRvazsgaSsrICkgew0KICAgICAgICAgICAgICAgICBmb3IgKCBwID0gdG9r
+OyAqcCAmJiAqcCAhPSAnOic7IHArKyApIHsgLyogZW1wdHkgKi8gfQ0KICAgICAgICAgICAgICAg
+ICBuLT5jb21wb25lbnRbaV0gPSAoY2hhciopIG1hbGxvYyhwLXRvaysxKTsNCisJCWlmIChuLT5j
+b21wb25lbnRbaV0gPT0gMCkNCisJCSAgZ290byBlcnI7DQogICAgICAgICAgICAgICAgIHN0cm5j
+cHkobi0+Y29tcG9uZW50W2ldLHRvayxwLXRvayk7DQogICAgICAgICAgICAgICAgIG4tPmNvbXBv
+bmVudFtpXVtwLXRva10gPSAnXDAnOw0KICAgICAgICAgICAgICAgICB0b2sgPSAqcCA/IHArMSA6
+IHA7DQpAQCAtMTE1LDcgKzExNyw3IEBADQogDQogLyogUmV0dXJucyBub256ZXJvIGlmZiBmYWls
+ZWQgKi8NCiANCi1zdGF0aWMgaW50IHNldF9jb21wKGNvbnRleHRfcHJpdmF0ZV90KiBuLGludCBp
+bmRleCxjaGFyICpzdHIpDQorc3RhdGljIGludCBzZXRfY29tcChjb250ZXh0X3ByaXZhdGVfdCog
+bixpbnQgaW5kZXgsIGNvbnN0IGNoYXIgKnN0cikNCiB7DQogICAgICAgICBjaGFyICp0ID0gKGNo
+YXIqKSBtYWxsb2Moc3RybGVuKHN0cikrMSk7DQogICAgICAgICBjaGFyICpwOw0KQEAgLTEzNCw3
+ICsxMzYsNyBAQA0KIH0NCiANCiAjZGVmaW5lIGRlZl9nZXQobmFtZSx0YWcpIFwNCi1jaGFyICog
+Y29udGV4dF8gIyMgbmFtZSAjIyBfZ2V0KGNvbnRleHRfdCBjb250ZXh0KSBcDQorY29uc3QgY2hh
+ciAqIGNvbnRleHRfICMjIG5hbWUgIyMgX2dldChjb250ZXh0X3QgY29udGV4dCkgXA0KIHsgXA0K
+ICAgICAgICAgY29udGV4dF9wcml2YXRlX3QgKm4gPSBjb250ZXh0LT5wdHI7IFwNCiAgICAgICAg
+IHJldHVybiBuLT5jb21wb25lbnRbdGFnXTsgXA0KQEAgLTE0Niw3ICsxNDgsNyBAQA0KIGRlZl9n
+ZXQocm9sZSxDT01QX1JPTEUpDQogDQogI2RlZmluZSBkZWZfc2V0KG5hbWUsdGFnKSBcDQotaW50
+IGNvbnRleHRfICMjIG5hbWUgIyMgX3NldChjb250ZXh0X3QgY29udGV4dCwgY2hhciogc3RyKSBc
+DQoraW50IGNvbnRleHRfICMjIG5hbWUgIyMgX3NldChjb250ZXh0X3QgY29udGV4dCwgY29uc3Qg
+Y2hhciogc3RyKSBcDQogeyBcDQogICAgICAgICByZXR1cm4gc2V0X2NvbXAoY29udGV4dC0+cHRy
+LHRhZyxzdHIpO1wNCiB9DQpAQCAtMTU1LDcgKzE1Nyw3IEBADQogZGVmX3NldChyb2xlLENPTVBf
+Uk9MRSkNCiBkZWZfc2V0KHVzZXIsQ09NUF9VU0VSKQ0KIA0KLWludCBjb250ZXh0X3JhbmdlX3Nl
+dChjb250ZXh0X3QgY29udGV4dCxjaGFyKiBzdHIpDQoraW50IGNvbnRleHRfcmFuZ2Vfc2V0KGNv
+bnRleHRfdCBjb250ZXh0LGNvbnN0IGNoYXIqIHN0cikNCiB7DQogICAgICAgICBjb250ZXh0X3By
+aXZhdGVfdCAqbiA9IGNvbnRleHQtPnB0cjsNCiAgICAgICAgIGlmICggISBuLT5jb21wb25lbnRb
+Q09NUF9SQU5HRV0gKSB7DQotLS0gaW5jbHVkZS9zZWxpbnV4L2NvbnRleHQuaH4JMjAwMy0wNS0w
+OCAxNjozNjo1MS4wMDAwMDAwMDAgLTA0MDANCisrKyBpbmNsdWRlL3NlbGludXgvY29udGV4dC5o
+CTIwMDMtMDctMTMgMjA6NTI6NDIuMDAwMDAwMDAwIC0wNDAwDQpAQCAtMTMsNyArMTMsNyBAQA0K
+IA0KIC8qIFJldHVybiBhIG5ldyBjb250ZXh0IGluaXRpYWxpemVkIHRvIGEgY29udGV4dCBzdHJp
+bmcgKi8NCiANCi1leHRlcm4gY29udGV4dF90IGNvbnRleHRfbmV3KGNoYXIgKik7DQorZXh0ZXJu
+IGNvbnRleHRfdCBjb250ZXh0X25ldyhjb25zdCBjaGFyICopOw0KIA0KIC8qIA0KICAqIFJldHVy
+biBhIHBvaW50ZXIgdG8gdGhlIHN0cmluZyB2YWx1ZSBvZiB0aGUgY29udGV4dF90DQpAQCAtMjgs
+MTYgKzI4LDE2IEBADQogDQogLyogR2V0IGEgcG9pbnRlciB0byB0aGUgc3RyaW5nIHZhbHVlIG9m
+IGEgY29udGV4dCBjb21wb25lbnQgKi8NCiANCi1leHRlcm4gY2hhciogY29udGV4dF90eXBlX2dl
+dChjb250ZXh0X3QpOw0KLWV4dGVybiBjaGFyKiBjb250ZXh0X3JhbmdlX2dldChjb250ZXh0X3Qp
+Ow0KLWV4dGVybiBjaGFyKiBjb250ZXh0X3JvbGVfZ2V0KGNvbnRleHRfdCk7DQotZXh0ZXJuIGNo
+YXIqIGNvbnRleHRfdXNlcl9nZXQoY29udGV4dF90KTsNCitleHRlcm4gY29uc3QgY2hhciogY29u
+dGV4dF90eXBlX2dldChjb250ZXh0X3QpOw0KK2V4dGVybiBjb25zdCBjaGFyKiBjb250ZXh0X3Jh
+bmdlX2dldChjb250ZXh0X3QpOw0KK2V4dGVybiBjb25zdCBjaGFyKiBjb250ZXh0X3JvbGVfZ2V0
+KGNvbnRleHRfdCk7DQorZXh0ZXJuIGNvbnN0IGNoYXIqIGNvbnRleHRfdXNlcl9nZXQoY29udGV4
+dF90KTsNCiANCiAvKiBTZXQgYSBjb250ZXh0IGNvbXBvbmVudC4gIFJldHVybnMgbm9uemVybyBp
+ZiB1bnN1Y2Nlc3NmdWwgKi8NCiANCi1leHRlcm4gaW50IGNvbnRleHRfdHlwZV9zZXQoY29udGV4
+dF90LGNoYXIqKTsNCi1leHRlcm4gaW50IGNvbnRleHRfcmFuZ2Vfc2V0KGNvbnRleHRfdCxjaGFy
+Kik7DQotZXh0ZXJuIGludCBjb250ZXh0X3JvbGVfc2V0KGNvbnRleHRfdCxjaGFyKik7DQotZXh0
+ZXJuIGludCBjb250ZXh0X3VzZXJfc2V0KGNvbnRleHRfdCxjaGFyKik7DQorZXh0ZXJuIGludCBj
+b250ZXh0X3R5cGVfc2V0KGNvbnRleHRfdCxjb25zdCBjaGFyKik7DQorZXh0ZXJuIGludCBjb250
+ZXh0X3JhbmdlX3NldChjb250ZXh0X3QsY29uc3QgY2hhciopOw0KK2V4dGVybiBpbnQgY29udGV4
+dF9yb2xlX3NldChjb250ZXh0X3QsY29uc3QgY2hhciopOw0KK2V4dGVybiBpbnQgY29udGV4dF91
+c2VyX3NldChjb250ZXh0X3QsY29uc3QgY2hhciopOw0KIA0KICNlbmRpZg0KLS0tIHNyYy9nZXRf
+Y29udGV4dF9saXN0LmN+CTIwMDMtMDUtMDkgMDc6NDQ6NTAuMDAwMDAwMDAwIC0wNDAwDQorKysg
+c3JjL2dldF9jb250ZXh0X2xpc3QuYwkyMDAzLTA3LTEzIDIwOjU1OjA0LjAwMDAwMDAwMCAtMDQw
+MA0KQEAgLTM3LDcgKzM3LDcgQEANCiAgICAgICAgICAgICAgICAgICAgICAgaW50IGxlbmd0aCkN
+CiB7DQogICAgIGNoYXIgKmN1cnJlbnRfbGluZTsNCi0gICAgY2hhciAqcHRyLCAqcHRyMjsNCisg
+ICAgY2hhciAqcHRyLCAqcHRyMiA9IE5VTEw7DQogICAgIGludCBmb3VuZCA9IDA7DQogICAgIGNo
+YXIgKmNjX3N0ciA9IDA7DQogICAgIGludCBjY19sZW4gPSAwOw0KLS0tIHNyYy9nZXRfZGVmYXVs
+dF90eXBlLmN+CTIwMDMtMDUtMDkgMDg6NTk6NDcuMDAwMDAwMDAwIC0wNDAwDQorKysgc3JjL2dl
+dF9kZWZhdWx0X3R5cGUuYwkyMDAzLTA3LTEzIDIwOjU1OjMzLjAwMDAwMDAwMCAtMDQwMA0KQEAg
+LTI4LDcgKzI4LDcgQEANCiAJCQkgICAgICBjaGFyKiogdHlwZSkNCiB7DQogICAgIGNoYXIgYnVm
+WzI1MF07DQotICAgIGNoYXIgKnB0ciwgKmVuZCwgKnQ7DQorICAgIGNoYXIgKnB0ciA9ICIiLCAq
+ZW5kLCAqdDsNCiAgICAgaW50IGxlbjsNCiAgICAgaW50IGZvdW5kID0gMDsNCiANCg==
 
---=-XnN8owYX0ViwBbqep93S--
+--=-IkgfXOEFJwr1aisEm+MY--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
