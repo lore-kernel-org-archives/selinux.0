@@ -1,49 +1,50 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA20066
-	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 11:52:34 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA21507
+	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 13:37:04 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA14002
-	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 16:49:21 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id QAA13998
-	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 16:49:20 GMT
-Message-Id: <200302201659.LAA12535@moss-shockers.ncsc.mil>
-Date: Thu, 20 Feb 2003 11:59:57 -0500 (EST)
-From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Subject: Re: Switching Security Policies
-To: sds@epoch.ncsc.mil, selinux@tycho.nsa.gov, CNguyen@mykotronx.com
+	by jazzswing.ncsc.mil  with ESMTP id SAA21005
+	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 18:33:55 GMT
+Received: from moss-sooners.epoch.ncsc.mil (moss-sooners.epoch.ncsc.mil [144.51.25.14])
+	by jazzswing.ncsc.mil  with ESMTP id SAA21001
+	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 18:33:54 GMT
+Received: from moss-sooners.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-sooners.epoch.ncsc.mil (8.12.5/8.12.5) with ESMTP id h1KIb1TT010091
+	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 13:37:01 -0500
+Received: (from hdholm@localhost)
+	by moss-sooners.epoch.ncsc.mil (8.12.5/8.12.5/Submit) id h1KIb02A010089
+	for selinux@tycho.nsa.gov; Thu, 20 Feb 2003 13:37:00 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA19945
+	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 11:40:57 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h1KGeuI05607
+	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 16:40:56 GMT
+Received: from torexch1.mykotronx.com (host-65-119-11-194.mykotronx.com [65.119.11.194] (may be forged))
+        by jazzband.ncsc.mil  with ESMTP id h1KGesf05603 for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 16:40:55 GMT
+Message-ID: <FD2221F5E1A8184DB61AFCE064C395F1C91CE6@torexch1.mykotronx.com>
+From: CNGUYEN <CNguyen@mykotronx.com>
+To: "'Stephen D. Smalley'" <sds@epoch.ncsc.mil>,
+        "'selinux@tycho.nsa.gov'"
+	 <selinux@tycho.nsa.gov>
+Subject: Making OPIE/QTOPIA aware of SELinux
+Date: Thu, 20 Feb 2003 08:42:22 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Any thoughts on how to make the GUI environment (OPIE or QTOPIA) aware of
+SELinux so that "bypassing" SELinux is prevented?
 
-> I understand that SELinux is not quite Multi-Level Security (MLS) yet, but
-
-The optional MLS policy component is experimental, as noted in
-selinux/README.MLS and in the help text for the kernel option.  You can
-experiment with the MLS policy if you like, but it is likely that you
-can achieve your security goals simply by configuring the TE policy
-appropriately.  If you merely want a two level system, you can easily
-represent the levels as TE domains and define appropriate allow rules
-to enable authorized information flows.  You can also define
-appropriate TE domains for any trusted subjects and set up assured
-pipelines for downgrading.
-
-> is it possible to switch security policies w/o having to reboot SELinux? For
-> example: if I need Security Policy A for environment A, and Security Policy
-> B for environment B, is there a (secure, of course) method to allow
-> authorized user to switch from one policy to the other as the user moves
-> from one  environment to the other environment?
-
-You can change the policy at runtime via load_policy, assuming that your
-initial policy loaded at boot time grants the necessary permission.  The
-example policy allows authorized administrators to reload the policy.
+Chieu Nguyen
+Mykotronx
 
 --
-Stephen Smalley, NSA
-sds@epoch.ncsc.mil
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 
 --
