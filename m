@@ -1,59 +1,41 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA28572
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 10:55:33 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA18430
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 14:55:21 GMT
-Received: from smtpproxy1.mitre.org (mb-20-100.mitre.org [129.83.20.100])
-	by jazzband.ncsc.mil  with ESMTP id OAA18426
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 14:55:19 GMT
-Received: from avsrv1.mitre.org (avsrv1.mitre.org [129.83.20.58])
-	by smtpproxy1.mitre.org (8.9.3/8.9.3) with ESMTP id KAA15837
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 10:55:21 -0400 (EDT)
-Received: from mailsrv1.mitre.org (mailsrv1.mitre.org [129.83.20.6])
-	by smtpsrv1.mitre.org (8.9.3/8.9.3) with ESMTP id KAA01402
-	for <selinux@tycho.nsa.gov>; Wed, 23 May 2001 10:55:10 -0400 (EDT)
-Message-ID: <3B0BCFE4.B587EB03@mitre.org>
-Date: Wed, 23 May 2001 10:57:40 -0400
-From: Jon Crowley <jonathan@mitre.org>
+Message-ID: <3B0BEC4E.8C35E591@austin.ibm.com>
+Date: Wed, 23 May 2001 11:58:55 -0500
+From: Bob Carver <bcarver2@austin.ibm.com>
+Reply-To: bcarver2@austin.ibm.com
 MIME-Version: 1.0
-To: "Hugo F. Martinez" <hmartinez@cti.com.ar>
-CC: selinux@tycho.nsa.gov
-Subject: Re: policy
-References: <3B0AF61B.BC396C0F@cti.com.ar>
-Content-Type: text/plain; charset=us-ascii
+To: Reiner Sailer <sailer@watson.ibm.com>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: PPC port of SELinux
+References: <3B0BC232.1763F0FF@watson.ibm.com>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Did you modify file_contexts?  It appears that is simply a typo... try
-changing that line in file_contexts to the following, note the lack of
-"i" on the end:
+Reiner Sailer wrote:
 
-system_u:object_r:cron_log_t 
+>
+> I just ported (most of ) the SELinux kernel patch (available at the
+> SELinux
+> home page, kernel-2.4.3-200104121417) to work for the MontaVista
+> (http://www.mvista.com) linux kernel  (2.4.2-mvista-010303 ... ppc
+> unknown) running
+> on a PPC 405GP processor in an embedded environment (here: Walnut
+> board).
+>
 
-Jon Crowley
+I ported SELinux to a Model 270 (POWER3 architecture PPC) machine
+in early April.  Have you looked at my patches?
+
+>
+> Reiner
+
+--
+Bob Carver
+
+Perfection [in design] is achieved not when there is nothing more to add,
+but rather when there is nothing more to take away. -- Saint-Exupery
 
 
-
-
-"Hugo F. Martinez" wrote:
-> 
-> Hi:
-> Im  trying to relabel my file system but im getting this kind of errors
-> 
-> ....
-> ./set files: invalid context system_u:object_r:cron_log_ti on line
-> number 368
-> make: *** [relabel] Error 1
-> 
-> I check the file_contexts but i cant see any clue of where the problem
-> 
-> Thanks in advance.
-> 
-> --
-> You have received this message because you are subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
 
 --
 You have received this message because you are subscribed to the selinux list.
