@@ -1,60 +1,95 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA25400
-	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 02:43:38 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id GAA01455
-	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 06:41:54 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id GAA01451 for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 06:41:53 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brian May <bam@snoopy.apana.org.au>
-Subject: Re: Problems compiling selinux on SuSe 7.2
-Date: Thu, 12 Sep 2002 08:43:20 +0200
-Cc: azeredo@qmc.ufsc.br, selinux@tycho.nsa.gov
-References: <1031756508.3d7f5adca337f@qmc.ufsc.br> <200209111753.37846.russell@coker.com.au> <20020911230717.GA17728@snoopy.apana.org.au>
-In-Reply-To: <20020911230717.GA17728@snoopy.apana.org.au>
+Reply-To: <rwashington@crucialsecurity.com>
+From: "Ryan Washington" <rwashington@crucialsecurity.com>
+To: "selinux" <SELinux@tycho.nsa.gov>
+Subject: http domain
+Date: Thu, 12 Sep 2002 10:07:44 -0400
+Message-ID: <DPEPJAJGOCGHICPODIHPOEFECBAA.rwashington@crucialsecurity.com>
 MIME-Version: 1.0
-Message-Id: <200209120843.20157.russell@coker.com.au>
+Content-Type: application/pkcs7-mime;
+	smime-type=signed-data;
+	name="smime.p7m"
+In-Reply-To: <001901c259a8$595621f0$0200a8c0@kevsta>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 12 Sep 2002 01:07, Brian May wrote:
-> > Do you REALLY need kerberos?  If not then it's probably best to compile
-> > without support.
->
-> If you wish to use Kerberos, and know what Kerberos is, then you
-> probably want it.
-
-Of course.
-
-> Otherwise, if the only reason you got here is because it tried to
-> automatically link in the Kerberos libraries, you would be better off
-> disabling kerberos support in openssh.
-
-Yes, I got the impression that the person asking the questions may have had 
-this problem (or alternately they may have patched a copy of the SSH source 
-that was prepared by someone who uses kerberos).
-
-> > If you do need kerberos then you'll probably want SE support on the
-> > kerberos ticket server first and we don't seem to have a policy for that
-> > yet, maybe you or Brian should write it first...
->
-> Its on my TODO list. Along with other items like "update Debian Heimdal
-> to latest upstream version" and "help get the latest krb4 into testing,
-> as it is holding up lots of other packages (including Heimdal)".
-
-Sounds like you're really busy.
-
-Are you sure you want to take over the woody port of SE Linux?
-
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAaCAJIAEggW4Q29u
+dGVudC1UeXBlOiBtdWx0aXBhcnQvYWx0ZXJuYXRpdmU7DQoJYm91bmRhcnk9Ii0tLS09X05leHRQ
+YXJ0XzAwMF8wMDc1XzAxQzI1QTQ0LjA3MTYxOTgwIg0KDQpUaGlzIGlzIGEgbXVsdGktcGFydCBt
+ZXNzYWdlIGluIE1JTUUgZm9ybWF0Lg0KDQotLS0tLS09X05leHRQYXJ0XzAwMF8wMDc1XzAxQzI1
+QTQ0LjA3MTYxOTgwDQpDb250ZW50LVR5cGU6IHRleHQvcGxhaW47DQoJY2hhcnNldD0iaXNvLTg4
+NTktMSINCkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDdiaXQNCg0KRG9lcyB0aGUgc3RhbmRh
+cmQgaW5zdGFsbCBvZiBTRUxpbnV4IGFscmVhZHkgaGF2ZSB0aGUgZG9tYWluIHNldCBmb3IgaHR0
+cD8NCklmIHNvLCB0byBnZXQgaXQgc3RhcnRlZCwgYWxsIEkgbmVlZCB0byBkbyBpcyB0byBlbmZv
+cmNlIHRoZSBkZWZhdWx0DQpwb2xpY3k/DQp0aGFua3MsDQpyeWFuDQoNCi0tLS0tLT1fTmV4dFBh
+cnRfMDAwXzAwNzVfMDFDMjVBNDQuMDcxNjE5ODANCkNvbnRlbnQtVHlwZTogdGV4dC9odG1sOw0K
+CWNoYXJzZXQ9Imlzby04ODU5LTEiDQpDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiBxdW90ZWQt
+cHJpbnRhYmxlDQoNCjwhRE9DVFlQRSBIVE1MIFBVQkxJQyAiLS8vVzNDLy9EVEQgSFRNTCA0LjAg
+VHJhbnNpdGlvbmFsLy9FTiI+DQo8SFRNTD48SEVBRD4NCjxNRVRBIGh0dHAtZXF1aXY9M0RDb250
+ZW50LVR5cGUgY29udGVudD0zRCJ0ZXh0L2h0bWw7ID0NCmNoYXJzZXQ9M0Rpc28tODg1OS0xIj4N
+CjxNRVRBIGNvbnRlbnQ9M0QiTVNIVE1MIDUuNTAuNDkxNi4yMzAwIiBuYW1lPTNER0VORVJBVE9S
+Pg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9EWSBiZ0NvbG9yPTNEI2ZmZmZmZj4NCjxE
+SVY+PEZPTlQgZmFjZT0zRFRhaG9tYSBzaXplPTNEMj48U1BBTiBjbGFzcz0zRDMxMjM4MDQxNC0x
+MjA5MjAwMj5Eb2VzID0NCnRoZSBzdGFuZGFyZD0yMA0KaW5zdGFsbCBvZiBTRUxpbnV4IGFscmVh
+ZHkgaGF2ZSB0aGUgZG9tYWluIHNldCBmb3IgPQ0KaHR0cD88L1NQQU4+PC9GT05UPjwvRElWPg0K
+PERJVj48Rk9OVCBmYWNlPTNEVGFob21hIHNpemU9M0QyPjxTUEFOIGNsYXNzPTNEMzEyMzgwNDE0
+LTEyMDkyMDAyPklmID0NCnNvLCB0byBnZXQgaXQ9MjANCnN0YXJ0ZWQsIGFsbCBJIG5lZWQgdG8g
+ZG8gaXMgdG8gZW5mb3JjZSB0aGUgZGVmYXVsdCA9DQpwb2xpY3k/PC9TUEFOPjwvRk9OVD48L0RJ
+Vj4NCjxESVY+PEZPTlQgZmFjZT0zRFRhaG9tYSBzaXplPTNEMj48U1BBTj0yMA0KY2xhc3M9M0Qz
+MTIzODA0MTQtMTIwOTIwMDI+dGhhbmtzLDwvU1BBTj48L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05U
+IGZhY2U9M0RUYWhvbWEgc2l6ZT0zRDI+PFNQQU49MjANCmNsYXNzPTNEMzEyMzgwNDE0LTEyMDky
+MDAyPnJ5YW48L1NQQU4+PC9GT05UPjwvRElWPjwvQk9EWT48L0hUTUw+DQoNCi0tLS0tLT1fTmV4
+dFBhcnRfMDAwXzAwNzVfMDFDMjVBNDQuMDcxNjE5ODAtLQ0KAAAAAAAAoIIIETCCA2IwggLLoAMC
+AQICEAvaCxfBP4mOqwl0erTOLjMwDQYJKoZIhvcNAQECBQAwXzELMAkGA1UEBhMCVVMxFzAVBgNV
+BAoTDlZlcmlTaWduLCBJbmMuMTcwNQYDVQQLEy5DbGFzcyAxIFB1YmxpYyBQcmltYXJ5IENlcnRp
+ZmljYXRpb24gQXV0aG9yaXR5MB4XDTk4MDUxMjAwMDAwMFoXDTA4MDUxMjIzNTk1OVowgcwxFzAV
+BgNVBAoTDlZlcmlTaWduLCBJbmMuMR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMUYw
+RAYDVQQLEz13d3cudmVyaXNpZ24uY29tL3JlcG9zaXRvcnkvUlBBIEluY29ycC4gQnkgUmVmLixM
+SUFCLkxURChjKTk4MUgwRgYDVQQDEz9WZXJpU2lnbiBDbGFzcyAxIENBIEluZGl2aWR1YWwgU3Vi
+c2NyaWJlci1QZXJzb25hIE5vdCBWYWxpZGF0ZWQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGB
+ALtaRIoEFrtV/QN6ii2UTxV4NrgNSrJvnFS/vOh3Kp258Gi7ldkxQXB6gUu5SBNWLccI4YRCq8Ci
+kqtEXKpC8IIOAukv+8I7u77JJwpdtrA2QjO1blSIT4dKvxna+RXoD4e2HOPMxpqOf2okkuP84GW6
+p7F+78nbN2rISsgJBuSZAgMBAAGjgbAwga0wDwYDVR0TBAgwBgEB/wIBADBHBgNVHSAEQDA+MDwG
+C2CGSAGG+EUBBwEBMC0wKwYIKwYBBQUHAgEWH3d3dy52ZXJpc2lnbi5jb20vcmVwb3NpdG9yeS9S
+UEEwMQYDVR0fBCowKDAmoCSgIoYgaHR0cDovL2NybC52ZXJpc2lnbi5jb20vcGNhMS5jcmwwCwYD
+VR0PBAQDAgEGMBEGCWCGSAGG+EIBAQQEAwIBBjANBgkqhkiG9w0BAQIFAAOBgQACfZ5vRUs4oLje
+6VNkIbzkTCuPHv6SQKzYCjlqoTIhLAebq1n+0mIafVU4sDdz3PQHZmNiveFTcFKH56jYUulbLarh
+3s+sMVTUixnI2COo7wQrMn0sGBzIfImoLnfyRNFlCk10te7TG5JzdC6JOzUTcudAMZrTssSr51a+
+i+P7FTCCBKcwggQQoAMCAQICEH6Psz391FZfpsKny7BSJt8wDQYJKoZIhvcNAQEEBQAwgcwxFzAV
+BgNVBAoTDlZlcmlTaWduLCBJbmMuMR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMUYw
+RAYDVQQLEz13d3cudmVyaXNpZ24uY29tL3JlcG9zaXRvcnkvUlBBIEluY29ycC4gQnkgUmVmLixM
+SUFCLkxURChjKTk4MUgwRgYDVQQDEz9WZXJpU2lnbiBDbGFzcyAxIENBIEluZGl2aWR1YWwgU3Vi
+c2NyaWJlci1QZXJzb25hIE5vdCBWYWxpZGF0ZWQwHhcNMDIwNzE3MDAwMDAwWhcNMDMwNjE3MjM1
+OTU5WjCCARkxFzAVBgNVBAoTDlZlcmlTaWduLCBJbmMuMR8wHQYDVQQLExZWZXJpU2lnbiBUcnVz
+dCBOZXR3b3JrMUYwRAYDVQQLEz13d3cudmVyaXNpZ24uY29tL3JlcG9zaXRvcnkvUlBBIEluY29y
+cC4gYnkgUmVmLixMSUFCLkxURChjKTk4MR4wHAYDVQQLExVQZXJzb25hIE5vdCBWYWxpZGF0ZWQx
+NDAyBgNVBAsTK0RpZ2l0YWwgSUQgQ2xhc3MgMSAtIE1pY3Jvc29mdCBGdWxsIFNlcnZpY2UxDzAN
+BgNVBAMUBlJ5YW4gUjEuMCwGCSqGSIb3DQEJARYfcndhc2hpbmd0b25AY3J1Y2lhbHNlY3VyaXR5
+LmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAzXAAZvk1VYdA8JQz0goRVCjR1G3/jlpe
+bzqTPNBs0kPo61a4IRKAg8GD1RqZkjiDF/ynRO0exJ/P+1grjW8+nM/WrkwcyZhjstu4u6ynNg/i
+xbzRciGo0QWnHYiBFDzzguzhxaD5l8E6vZAnqRt388lRWIc7rw8G9bvmieQyP6ECAwEAAaOCATgw
+ggE0MAkGA1UdEwQCMAAwgawGA1UdIASBpDCBoTCBngYLYIZIAYb4RQEHAQEwgY4wKAYIKwYBBQUH
+AgEWHGh0dHBzOi8vd3d3LnZlcmlzaWduLmNvbS9DUFMwYgYIKwYBBQUHAgIwVjAVFg5WZXJpU2ln
+biwgSW5jLjADAgEBGj1WZXJpU2lnbidzIENQUyBpbmNvcnAuIGJ5IHJlZmVyZW5jZSBsaWFiLiBs
+dGQuIChjKTk3IFZlcmlTaWduMBEGCWCGSAGG+EIBAQQEAwIHgDAwBgpghkgBhvhFAQYHBCIWIDY1
+YTMxYzUwZTdkMGExNWZiYzZiN2NjYWMwZjczNDg4MDMGA1UdHwQsMCowKKAmoCSGImh0dHA6Ly9j
+cmwudmVyaXNpZ24uY29tL2NsYXNzMS5jcmwwDQYJKoZIhvcNAQEEBQADgYEASd3YGt3PQFwW8+lt
+hPWNTDCQ2QOhwWl7J3T2XkvANpTzDQAtp+pynEquqCZMNBOYMS+RWpQ2kUExbSq7h4g0cnz1Yxv1
+054qZcgDdNRB0SCSxVFstRrxB+NMzluSnmnYlxBwzwHdT7gUK1Oi0ZEgiaIiq1+PKCJglbUbG8m7
+n5IxggMcMIIDGAIBATCB4TCBzDEXMBUGA1UEChMOVmVyaVNpZ24sIEluYy4xHzAdBgNVBAsTFlZl
+cmlTaWduIFRydXN0IE5ldHdvcmsxRjBEBgNVBAsTPXd3dy52ZXJpc2lnbi5jb20vcmVwb3NpdG9y
+eS9SUEEgSW5jb3JwLiBCeSBSZWYuLExJQUIuTFREKGMpOTgxSDBGBgNVBAMTP1ZlcmlTaWduIENs
+YXNzIDEgQ0EgSW5kaXZpZHVhbCBTdWJzY3JpYmVyLVBlcnNvbmEgTm90IFZhbGlkYXRlZAIQfo+z
+Pf3UVl+mwqfLsFIm3zAJBgUrDgMCGgUAoIIBkDAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwG
+CSqGSIb3DQEJBTEPFw0wMjA5MTIxNDA2MTNaMCMGCSqGSIb3DQEJBDEWBBQ44Gif4D1t8wDLEzAW
+Pto6gj2U4jA8BgkqhkiG9w0BCQ8xLzAtMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMAcGBSsOAwIa
+MAoGCCqGSIb3DQIFMIHyBgkrBgEEAYI3EAQxgeQwgeEwgcwxFzAVBgNVBAoTDlZlcmlTaWduLCBJ
+bmMuMR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMUYwRAYDVQQLEz13d3cudmVyaXNp
+Z24uY29tL3JlcG9zaXRvcnkvUlBBIEluY29ycC4gQnkgUmVmLixMSUFCLkxURChjKTk4MUgwRgYD
+VQQDEz9WZXJpU2lnbiBDbGFzcyAxIENBIEluZGl2aWR1YWwgU3Vic2NyaWJlci1QZXJzb25hIE5v
+dCBWYWxpZGF0ZWQCEH6Psz391FZfpsKny7BSJt8wDQYJKoZIhvcNAQEBBQAEgYCtjufR2yYNicER
+NiTfpSKCKYudKjf0o91UxsraatTl1j6glITQKpqjhHDsGf0/4AO3qLQaejxuvip0pommUNczDGAY
+QH6DN4RAefD+HVrrI5/vDo6QtZyimBXNmfHUA9rAOwcf138Vktz/zr0Og5u8a4wmHEg85jzSLZ7h
+247GkQAAAAAAAA==
 
 
 --
