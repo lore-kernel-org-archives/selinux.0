@@ -1,19 +1,19 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
+Date: Fri, 12 Apr 2002 13:13:00 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
 To: Howard Holm <hdholm@epoch.ncsc.mil>
+cc: Russell Coker <russell@coker.com.au>, Tom <tom@lemuria.org>,
+        <SELinux@tycho.nsa.gov>
 Subject: Re: db conflict ?
-Date: Fri, 12 Apr 2002 19:09:11 +0200
-Cc: SELinux@tycho.nsa.gov
-References: <Pine.GSO.4.33.0204121042260.21729-100000@raven> <20020412151252.D5E1D23B16@lyta.coker.com.au> <20020412130109.A15470@gricklegrass.epoch.ncsc.mil>
 In-Reply-To: <20020412130109.A15470@gricklegrass.epoch.ncsc.mil>
+Message-ID: <Pine.GSO.4.33.0204121305530.21729-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020412170911.EAE91287FF@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 12 Apr 2002 19:01, Howard Holm wrote:
+
+On Fri, 12 Apr 2002, Howard Holm wrote:
+
 > I think adding a magic number to the policy file is probably a good idea.
 > I'm not quite as sure about the file name containing a version number, but
 > it's probably a good idea as well.  My reading of the FHS (v2.2) is that
@@ -21,17 +21,23 @@ On Fri, 12 Apr 2002 19:01, Howard Holm wrote:
 > /etc/security/policies/ with the thought that there might be at least
 > multiple versions in the directory so plural might be appropriate.
 
-/etc/security/policy sounds good to me.
+I primarily want to keep it separate from the policy sources (/etc/selinux
+in Russell's Debian package), yet clearly identified as being
+selinux-specific.  It also needs to stay within the root filesystem,
+although that isn't a problem regardless of whether we go with /selinux or
+/etc/security/selinux or /etc/selinux/policy as the subdirectory name.
+The name for the file itself can be reduced to policy.VERSION once it is
+in a selinux-specific directory (the ss_ prefix was just to avoid
+conflicts with other potential non-SELinux policy files, ss == security
+server).
 
-Having multiple versions of the same policy does not require a plural (IMHO). 
-The plural would be required if we had a choice of policies that differed in 
-some way other than the version number.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
