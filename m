@@ -1,86 +1,42 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA22403
-	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2001 18:06:55 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA24471
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2001 08:33:38 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id WAA18983
-	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2001 22:06:34 GMT
-Received: from albatross.prod.itd.earthlink.net (albatross.mail.pas.earthlink.net [207.217.120.120])
-	by jazzband.ncsc.mil  with ESMTP id WAA18979
-	for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2001 22:06:34 GMT
-From: "JohnScroggins" <dataefx@earthlink.net>
-To: <selinux@tycho.nsa.gov>
-Cc: "Ethan Weinstein" <ethan_weinstein@yahoo.com>,
-        "Christopher Mahmood" <ckm@suse.com>
-Subject: New Development Site 
-Date: Tue, 21 Aug 2001 15:00:01 -0700
-Message-ID: <AGEMJJFIEKIAAOJCCEIGOEEJCEAA.dataefx@earthlink.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	by jazzband.ncsc.mil  with ESMTP id MAA15260
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2001 12:33:17 GMT
+Received: from mail22.bigmailbox.com (mail22.bigmailbox.com [209.132.220.199])
+	by jazzband.ncsc.mil  with ESMTP id MAA15256
+	for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2001 12:33:17 GMT
+Date: Wed, 22 Aug 2001 05:33:36 -0700
+Message-Id: <200108221233.FAA12994@mail22.bigmailbox.com>
+Content-Type: text/plain
+Mime-Version: 1.0
+From: "Jonathan Day" <jd9812@my-deja.com>
+To: dataefx@earthlink.net, selinux@tycho.nsa.gov
+Subject: RE: New Development Site
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In an effort to promote additional participation in developing SELinux and
-the associated tools,  we have set up a development site
-http://sourceforge.net. This site is a mirror of the NSA's web site, with
-the added extra of providing a collaborative developer environment. In
-addition, we have set up 3 mailing list that will be available in a few
-hours.
+Hi,
 
-selinux-devel: for development related issues, coding requirements, on-going
-development tasks, testing, etc.
+I hope you've not taken over the -whole- of Sourceforge. That could be most awkward for the 10,000 or so other projects hosted there. :)
 
-selinux-discussion: for general questions related to SELinux, such as
-possible deployment scenarios, documentation suggestions, tool suggestions
-(installer, policy configuration tools)
+Seriously, I thought someone had -already- mirrored SELinux over on Sourceforge. Not that it really does any good, as 99.999% of the development work, at this point, is being done behind the scenes, anyway.
 
-selinux-announce: This list will be a moderated list which provides timely
-announcement regarding  cvs-tree updating, new tool releases, and any
-updated information from the NSA's web site that affects the status of the
-project.
+IMHO, there's a right time for everything, and right now, that seems to be to examine the new infrastructure that's going to be used. Will it mean that the next version of SELinux will be more restricted? More flexible? How secure is the infrastructure itself? The new version of SELinux will be using external code - has it been audited? What else can it do?
 
->From this site you will be able to carry on discussions in a forum, submit
-suggestions for the project (which will be logged for your review), assist
-in task as related to your skill set. You will also have the access to the
-source code via CVS.
+Until the SELinux group is cleared to release the new code, mirroring the old stuff may be more harmful than good. For a start, it might give the impression that it -is- the new code, which would NOT be good.
 
-I have talked with Mark Westerman (he set up the project site a few months
-ago), and we believe this move is timely, with your continued support, this
-transition will expedite development and generate more interest in a secure
-Linux platform.
+Also, if there are multiple mirrors (especially multiple mirrors on Sourceforge), consolidation and/or arrangement might be a good idea. If the mirrors are all manual, for example, how is anybody to know, at any given time, what mirrors hold what versions of what? Perhaps you might want to look into a "meta-mirror", which allows people to see this information.
 
-Remember, if you know of someone that is deploying Linux in a hostile
-environment, tell them about this project, and/or have them join one of the
-mailing lists.
-
-If you would like to work as a developer on this project, set up a user
-account at Sourceforge and email your user name to Chris Mahmood, or myself,
-and we will add you to the developers. (please note the task(s) that you can
-assist in, programming, scripting, testing, etc.)
-
-Christopher Mahmood
-ckm@suse.com
-
-John Scroggins
-dataefx@earthlink.net
-
-<<Disclaimer mode ON//>>
-This is in no way an attempt to minimize the participation in the NSA's
-project, nor an effort to reroute mail traffic. This is an attempt to
-generate additional public participation in the development of SELinux.
-<<Disclaimer mode OFF//>>
-
-Thanks, and we look forward to seeing you at Sourceforge
-
-John
+Just some thoughts
 
 
-p.s. If the move to Sourceforge will inhibit your participation in the
-discussions, and/or development process please let us know, or if you have a
-better suggestion for a collaborative site forward the information for
-consideration.  This is a community effort, without the community, well, you
-know :)
 
+
+------------------------------------------------------------
+--== Sent via Deja.com ==--
+http://www.deja.com/
 
 --
 You have received this message because you are subscribed to the selinux list.
