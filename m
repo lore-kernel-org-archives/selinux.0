@@ -1,60 +1,78 @@
-Message-Id: <200210021252.MAA21909@jazzband.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA14885
+	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 10:43:16 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA16386
+	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 14:41:42 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id OAA16382
+	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 14:41:41 GMT
+Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA23197
+	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 10:43:12 -0400 (EDT)
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA09740
+	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 20:01:59 -0400 (EDT)
 Content-Type: text/plain;
   charset="iso-8859-1"
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: Russell Coker <russell@coker.com.au>
-Subject: Re: postfix
-Date: Wed, 2 Oct 2002 14:53:25 +0200
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <20020929161517.D356DBEF4@sat.sws.net.au> <200209291914.23804.russell@coker.com.au>
-In-Reply-To: <200209291914.23804.russell@coker.com.au>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Tracy R Reed <treed@ultraviolet.org>, selinux@tycho.nsa.gov
+Subject: Re: SE Linux on Debian
+Date: Wed, 2 Oct 2002 02:01:46 +0200
+References: <20021001153638.J5416@ultraviolet.org>
+In-Reply-To: <20021001153638.J5416@ultraviolet.org>
 MIME-Version: 1.0
+Message-Id: <200210020201.46223.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Am Sonntag, 29. September 2002 19:14 schrieb Russell Coker:
-> On Sun, 29 Sep 2002 17:57, Carsten Grohmann wrote:
-> > the attached patch contain some little changes on your postfix rules. I
-> > need the additional rules on my (SuSE) system and I think this changes
-> > are not SuSE specific and we could add this to postfix.te
+On Wed, 2 Oct 2002 00:36, Tracy R Reed wrote:
+> deb http://www.microcomaustralia.com.au/debian/ stable selinux
 >
-> How is the following needed?  A fifo_file access to the same process is
-> not checked for creation and usually only needs { read write } access,
-> sometimes getattr and ioctl.  I could probably make it more restrictive
-> than rw_file_perms even...
-> -allow postfix_master_t self:fifo_file rw_file_perms;
-> +allow postfix_master_t self:fifo_file create_file_perms;
+> because that is what is in the topic on the IRC channel. Is it ok to
+> install these from stable even though my distro is actually testing?
+
+Yes, but you can get my packages for unstable from:
+deb http://www.coker.com.au/selinux/ ./
+
+> Here are the debs:
 >
-> What needs the following?  On my system I have no fifo's with that type,
-> only sockets.
-> -allow postfix_master_t postfix_private_t:fifo_file getattr;
-> +allow postfix_master_t postfix_private_t:fifo_file create_file_perms;
+> libselinux-dev
+> selinux
+> selinux-policy-default
 >
-> For the following, are you sure that you have the programs in the right
-> domains?
+> But the new ps, ls, sshd, etc. do not seem to be included here. Where do I
+> get those? Are they not in a deb?
 
-Yes I think.
+They are in coreutils, fileutils, shellutils, textutils, cron, dpkg, ssh, 
+login, logrotate, procps, and psmisc packages.
 
-> -allow postfix_master_t postfix_prng_t:file getattr;
-> +allow postfix_master_t postfix_prng_t:file { getattr lock read write };
-> +allow postfix_master_t random_device_t:chr_file { read };
-> The following file_contexts line was changed recently to cover a change
-> in the default Debian setup for Postfix, maybe this is something you
-> need. /usr/lib/postfix/(n)?qmgr      
-> system_u:object_r:postfix_qmgr_exec_t
-
-qmgr is labelling correct
-
-> What is this one used for?
-> +allow postfix_pickup_t self:udp_socket { create ioctl };
+> When I installed the new policy it asked a lot of questions such as:
 >
-> Could you show me some dmesg output?
+> Setting up selinux-policy-default (2002082308-4.bam.1) ...
+> File "domains/program/apache.te" changed.
+> Copy/Ignore/Always ignore/view Diff [c/I/a/d]?
+>
+> I said Copy to all of them. I'm not running all of that but I will be
+> playing with various different things so I want the latest policies
+> installed. When it was done asking questions I got this error:
+>
+> /usr/sbin/checkpolicy:  loading policy configuration from
+> /etc/security/selinux/src/policy.conf
+>
+> ERROR 'parse error' at token 'run_program' on line 71322:
+> run_program(sysadm_t, sysadm_r, deb, dpkg_exec_t, dpkg_t)
 
-Is attached.
+It looks like you are missing the run_program_macros.te file.  It should be in 
+/etc/selinux/macros/programs , you can copy it manually from 
+/usr/share/selinux/policy/default/macros/program/run_program_macros.te .
 
-Could it be that this rules are used by older postfix versions? Because I 
-don't use the current version use 20010228pl8.
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
