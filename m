@@ -1,67 +1,78 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27198
-	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 11:08:00 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA27140
+	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 11:04:33 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id QAA20302
-	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 16:07:59 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzband.ncsc.mil  with ESMTP id QAA20298
-	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 16:07:58 GMT
-Received: from coalstove.epoch.ncsc.mil (coalstove [144.51.25.13])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA19032
-	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 11:07:57 -0500 (EST)
-Date: Fri, 16 Mar 2001 11:07:56 -0500 (EST)
-From: hdholm@epoch.ncsc.mil (Howard Holm)
-Message-Id: <200103161607.LAA06866@coalstove.epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Subject: Updated release
+	by jazzband.ncsc.mil  with ESMTP id QAA20032
+	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 16:04:31 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzband.ncsc.mil  with ESMTP id QAA20028
+	for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2001 16:04:29 GMT
+Date: Fri, 16 Mar 2001 11:03:28 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Kurth Bemis <kurth@usaexpress.net>
+cc: selinux@tycho.nsa.gov
+Subject: Re: Secure?
+In-Reply-To: <4.3.2.7.2.20010315083635.02bb5068@mail.usaexpress.net>
+Message-ID: <Pine.SOL.3.95.1010316102520.7537D-100000@clipper.gw.tislabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-An updated release of Security-enhanced Linux has been posted on the
-NSA web site (www.nsa.gov/selinux).
 
-Changes include:
+Security-Enhanced Linux is not a secure Linux distribution.
+It is a reference implementation of a flexible mandatory access 
+control architecture in the Linux kernel, and an example security policy
+configuration that shows how to use those controls.  The mandatory
+access controls can confine the actions of any process, so the 
+potential damage that can be done by exploiting a flaw in an
+application can be strictly limited.  The modified applications
+merely serve to help demonstrate some of the kernel features,
+but they are not integral to the system.  The ftpd modifications
+were an example of how to allow the ftp daemon to transition to a new
+security context after authenticating the user.  But even these
+transitions are controlled by the kernel in accordance with the security
+policy configuration, so a vulnerability in the ftp daemon is still
+confined to a limited set of accesses.  We simply used the ftpd sources
+that came with our RedHat 6.1 systems, which happened to be wu-ftpd.
 
-- Updated information on the developers' mailing list and archives was
-  made available.
-- Answers to Frequently Asked Questions were added to the site. 
-- Kernel patches are now provided for 2.4.2 and 2.2.18. 
-  - The 2.4.2 patch includes changes to virtualize the persistent SID
-    mapping interfaces and the file mandatory access controls.
-  - The 2.2.18 patch includes several bug fixes to the old 2.2-based
-    patch. It also includes a new implementation of System V IPC
-    mandatory access controls. These controls have not yet been ported to
-    the 2.4 kernel.
-  - Both the 2.2.18 and 2.4.2 patches incorporate a change in the
-    implementation of the new system calls that is not backward
-    compatible with the old implementation. Hence, the updated libsecure
-    must be compiled and all modified utilities must be relinked against it.
-- The util-linux patch is now provided for the util-linux-2.10s sources
-  from kernel.org.
-- The procps patch is now provided for the procps-010114 sources from
-  http://www.cs.uml.edu/~acahalan/procps.
-- The vixie-cron patch is now provided for the vixie-cron-3.0.1-61
-  sources from RedHat.
-- A small fix was made to the spasswd wrapper program to ensure that it
-  is not mistakenly used by an administrator to try to change another
-  user's password. A README was added to explain the purpose of this
-  program.
-- The shadow password file is no longer moved by the installation
-  scripts, and the modified versions of libpwdb, sulogin, and the shadow
-  utilities are no longer provided. The relocation of the shadow password
-  file was creating compatibility problems with a number of applications
-  despite the updatedlibpwdb. A different approach for maintaining a
-  separate security context on the shadow password file will be
-  implemented in the future.
-- The modified versions of rshd and wu-ftpd were removed from the
-  distribution and each of these daemons were limited to their initial
-  domain in the example policy configuration.
+As has been mentioned earlier, Linux was simply viewed as the best
+platform for transferring the Flask flexible mandatory access control
+architecture to a larger developer and user community.  Since the 
+SELinux development team is small, it was not practical to create
+both a Linux-based and a BSD-based implementation simultaneously.
+The TrustedBSD project has expressed the intention of drawing ideas from
+the SELinux mandatory access control architecture, so a similar
+architecture will hopefully become available for BSD systems as well.
+The security portion of the OpenBSD project is really orthogonal to the
+SELinux or TrustedBSD projects - OpenBSD is focused on a BSD distribution
+that is free from known security problems and that incorporates
+cryptographic mechanisms.  The mandatory access controls of SELinux
+or TrustedBSD can provide strong security guarantees even in the
+presence of security flaws in applications.  Ideally, some of the
+TrustedBSD work will filter over to the OpenBSD project as well.
 
 --
-Howard Holm <hdholm@epoch.ncsc.mil>
-Information Assurance Research Office
-National Security Agency
+Stephen D. Smalley, NAI Labs
+sds@tislabs.com
+
+
+On Thu, 15 Mar 2001, Kurth Bemis wrote:
+
+> isn't the point of NSA ESL to be secure?  If so why are you using something 
+> that is buggier than netscape code??  I referring to wu-FTP.  why not put 
+> efforts toward something that is already secure (like OpenBSD)?  Is there 
+> some reason that i'm missing as to why you choosing this route?
+> 
+> ~kurth
+> 
+> 
+> --
+> You have received this message because you are subscribed to the selinux list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
+
 
 --
 You have received this message because you are subscribed to the selinux list.
