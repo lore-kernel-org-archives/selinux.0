@@ -1,44 +1,40 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA14918
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 09:03:51 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA06378
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 13:02:20 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id NAA06374 for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 13:02:20 GMT
-Date: Thu, 11 Jul 2002 09:03:13 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Debian User <rogelio@evoworks.evoserve.com>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: automatic type transitions for pts in devfs
-In-Reply-To: <3D2D7BA1.2010304@evoworks.evoserve.com>
-Message-ID: <Pine.GSO.4.33.0207110857160.822-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA16286
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 12:13:08 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA29575
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 16:12:32 GMT
+Received: from mail.simplyaquatics.com (66-0-92-223.deltacom.net [66.0.92.223])
+	by jazzswing.ncsc.mil  with ESMTP id QAA29571
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 16:12:31 GMT
+Received: from ed (ed1 [192.168.1.10])
+	by mail.simplyaquatics.com (Postfix) with ESMTP id 3D9CC844054
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2002 12:13:06 -0400 (EDT)
+Reply-To: <blacknet@simplyaquatics.com>
+From: "Ed Street" <blacknet@simplyaquatics.com>
+To: "'SE Linux'" <selinux@tycho.nsa.gov>
+Subject: sysadm_tty_device_t
+Date: Thu, 11 Jul 2002 12:13:06 -0400
+Message-ID: <00cc01c228f5$d73b6e10$0a01a8c0@ed>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <20020710144012.524CB2F71@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hello,
 
-On Thu, 11 Jul 2002, Debian User wrote:
+Was working with putting syslog on /dev/tty24 (entry in /etc/syslog.conf
+is 
+*.*	/dev/tty24
 
-> Im having a problem with my X Window devpts entries.  The task sid when
-> X Window creates a pty is xdm_t. What should the proper type be? Ssh
-> works perfectly now in enforcing mode. X stops when I switch to
-> enforcing mode. What are the type transitions when gdm starts X window?
+Selinux shows /dev/tty1 as syadm_tty_device_t but /dev/tty24 is just
+tty_device_t.  I started poking around looking for sysadm_tty_device_t
+but not exactly sure what tty's are being set to this.  My question is
+where is the control file, is it /etc/securetty?
 
-To use an X Display Manager, you need a patched [xgk]dm to set the
-security context for the user session, as noted in selinux/README.  We do
-not provide a patched [xgk]dm, but I think Russell Coker has a patched kdm
-and Mark Westerman has a patched gdm.  If you are using a patched [xgk]dm,
-then the pty should be created by a process in the user's domain, not
-xdm_t, so it should pick up the proper user_devpts_t or sysadm_devpts_t
-type automatically.  At least, that has been my experience.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
+Ed
 
 
 --
