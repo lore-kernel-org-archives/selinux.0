@@ -1,48 +1,38 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB2EnaRb014658
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 09:49:36 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB2EnZqY027072
-	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 14:49:35 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [144.51.25.4])
-        by jazzband.ncsc.mil  with ESMTP id hB2EnZ0o027069 for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2003 14:49:35 GMT
-Subject: Re: policy problems
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: russell@coker.com.au
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200312021129.57402.russell@coker.com.au>
-References: <20031130183701.GA14242@wavehammer.waldi.eu.org>
-	 <200312010722.01551.russell@coker.com.au>
-	 <1070289657.14835.9.camel@moss-lions.epoch.ncsc.mil>
-	 <200312021129.57402.russell@coker.com.au>
+Subject: Re: Future of selinux/lsm
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: selinux@servalens.com
+Cc: SELinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>
+In-Reply-To: <2700.165.247.144.4.1070315301.squirrel@webmail.servalens.com>
+References: <2700.165.247.144.4.1070315301.squirrel@webmail.servalens.com>
 Content-Type: text/plain
-Message-Id: <1070376572.15777.155.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1070376706.14253.21.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 02 Dec 2003 09:49:33 -0500
+Date: Tue, 02 Dec 2003 09:51:46 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-12-01 at 19:29, Russell Coker wrote:
-> On Tue, 2 Dec 2003 01:40, James Carter <jwcart2@epoch.ncsc.mil> wrote:
-> > On Sun, 2003-11-30 at 15:22, Russell Coker wrote:
-> > > The problem here is that there is no good support for nfs.  I keep
-> > > hearing rumors about people working on it but nothing concrete.  Does
-> > > anyone know anything?
-> >
-> > Yes.  I am working on SELinux support for nfs.  I plan to release a
-> > preliminary patch for 2.6 before the end of the year.
-> 
-> Excellent!
-> 
-> How will it deal with the case of SE Linux client and server?  Will the client 
-> and server have to have the same context for a file?
+On Mon, 2003-12-01 at 16:48, selinux@servalens.com wrote:
+> I read that LSM was being pulled from the 2.6 kernel. Is this true?
 
-It will assume that the policies are the same for now.
-  
+Not as far as I know.  There was a discussion on lkml a while back where
+one particular kernel developer said that he would submit patches to
+remove LSM if there were no in-tree users (i.e. security modules) of the
+security hooks by 2.6-test.  But SELinux was reworked for mainline
+inclusion, and was added to the mainline kernel as of 2.6.0-test3 and
+later, thereby addressing his objection to leaving LSM in the mainline
+kernel.
+
+> The choice would be maintaining a patched 2.4x kernel or going bleeding
+> edge with a 2.6 kernel.
+
+Just FYI, 2.6 kernel RPMS are available from Arjan van de Ven of RH,
+under http://people.redhat.com/arjanv/2.5/.  His kernels have SELinux
+support enabled (although you won't notice it until you load a policy). 
+
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
+Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
