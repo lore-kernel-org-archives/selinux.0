@@ -1,79 +1,82 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0KGtVIi005986
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2005 11:55:31 -0500 (EST)
-Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0KGrTbQ001931
-	for <selinux@tycho.nsa.gov>; Thu, 20 Jan 2005 16:53:29 GMT
-Message-Id: <200501201655.j0KGtNan001364@turing-police.cc.vt.edu>
-To: SELinux <selinux@tycho.nsa.gov>, fedora-selinux-list@redhat.com
-Subject: quota files oddity...
-From: Valdis.Kletnieks@vt.edu
+Date: Thu, 20 Jan 2005 18:06:30 +0000
+From: Eric Andreychek <eric@openthought.net>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: PA Security Conference
+Message-ID: <20050120180630.GE15604@openthought.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1106240122_12559P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Thu, 20 Jan 2005 11:55:23 -0500
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1106240122_12559P
-Content-Type: text/plain; charset=us-ascii
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Running FC from the devel tree as of last night, and a 2.6.10-mm1-RT kernel.
+Hello,
 
-OK.. So I go and put user and group quotas on all the R/W file systems (it's
-a lot quicker to run 'repquota /full.fs' than to run 'du' and similar when you're
-sitting at 99%.. ;)
+(if you are on the Hardened Gentoo mailing list, this is the same message that
+was sent there -- but you did sign up, right? :-)
 
-Then quite some time later I run setfiles because I was pretty sure that I
-had a lot of files that hadn't been installed by rpm and thus didn't have
-the right contexts on them, and I get:
+On Saturday March 5, 2005, the Central PA Linux Users Group will be hosting a
+Security Conference near Harrisburg Pennsylvania.  The conference will be
+geared toward individuals, organizations, and businesses with a technical
+interest in Linux related networking and security.
 
-/usr/sbin/setfiles:  relabeling /aquota.user from system_u:object_r:quota_db_t to system_u:object_r:default_t
-/aquota.user: Operation not permitted
-/usr/sbin/setfiles:  unable to relabel /aquota.user to system_u:object_r:default_t
-/usr/sbin/setfiles:  relabeling /aquota.group from system_u:object_r:quota_db_t to system_u:object_r:default_t
-/aquota.group: Operation not permitted
-/usr/sbin/setfiles:  unable to relabel /aquota.group to system_u:object_r:default_t
+You may recognize the date -- this conference is the day after the SELinux
+Symposium.  So, if you can't get off work for three days, or find the SELinux
+Symposium difficult to afford, this conference might be right up your alley.
+And, if you are going to the SELinux Symposium, what a better way to end the
+week than by going to this one as well? :-)
 
-/usr/sbin/setfiles:  relabeling /boot/aquota.user from system_u:object_r:quota_db_t to system_u:object_r:boot_t
-/boot/aquota.user: Operation not permitted
-/usr/sbin/setfiles:  unable to relabel /boot/aquota.user to system_u:object_r:boot_t
-/usr/sbin/setfiles:  relabeling /boot/aquota.group from system_u:object_r:quota_db_t to system_u:object_r:boot_t
-/boot/aquota.group: Operation not permitted
-/usr/sbin/setfiles:  unable to relabel /boot/aquota.group to system_u:object_r:boot_t
+We booked a room at a local college, and will be able to accomodate up to 200
+people.  We have a number of really neat folks coming to speak.
 
-/usr/sbin/setfiles:  relabeling /usr/aquota.user from root:object_r:quota_db_t to system_u:object_r:usr_t
-/usr/aquota.user: Operation not permitted
-/usr/sbin/setfiles:  unable to relabel /usr/aquota.user to system_u:object_r:usr_t
-/usr/sbin/setfiles:  relabeling /usr/aquota.group from system_u:object_r:quota_db_t to system_u:object_r:usr_t
-/usr/aquota.group: Operation not permitted
-/usr/sbin/setfiles:  unable to relabel /usr/aquota.group to system_u:object_r:usr_t
+The speaker lineup is as follows:
 
-Is there any way to express:
+  * Ed Reed, Novell's "Security Tzar", will be delivering the keynote titled
+  "2005: The Platform Hardening Revival".
 
-$MOUNTPOINT/aquota\.(user|group)$ -- system_u:object_r:quota_db_t
+  * Russell Coker (RedHat), you know him, you love him, he will be giving an
+  SELinux presentation.
 
-in the .fc files, or do we need to settle for '/.*/aquota\.(user|group)' as
-the regexp?
+  * Marcus Ranum (Tenable), known as the inventor of the proxy firewall and
+  implementor of the first commercial firewall product, will be speaking on
+  "System Logging Tools and Tricks for Geeks".
 
-(And no, I have no idea how I ended up with 'root:object_r:quota_db_t' on
-/usr/aquota.user, but the other ones were system_u....)
+  * Jon Nelson, of the PA State Police Computer Crimes Unit and a member of the
+  Philly LUG, will be speaking on "Computer Crime Law, Trends, and Security
+  Basics".
 
+  * Brandon Hale, a Hardened Gentoo developer, will be discussing "Advanced
+  Memory Protections with Linux".
 
+  * Eric Andreychek (CPLUG), will be speaking on "Getting Started with
+  SELinux".
 
---==_Exmh_1106240122_12559P
-Content-Type: application/pgp-signature
+We'll have 5-6 hours worth of presentations, as well as informal discussions
+before, after, and throughout the conference.  At the end of the day, we also
+are planning a number of Lightning Talks, 5 minute talks from various
+conference attendees regarding a number of Linux and security related topics.
+
+If you or anyone you know are interested, you can get more information as well
+as register at the conference website:
+
+  http://cplug.net/conference/
+
+Seating is limited, so if you are interested, be sure to register soon.
+
+If you have any questions, please feel free to let us know.
+
+We look forward to seeing you there!
+  -Eric
+
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFB7+J6cC3lWbTT17ARAooQAKDM6kGj9sEtZw9xHJMK2T7A/JeBqACdEoWH
-E5FE0JJts3B3Ry4bEPuiLLo=
-=qV5r
+iD8DBQFB7/MmR5UKaDAjAG4RAgTzAKCEM8d2/wi3IbeWWJbR4Po69+QL6QCfbg4o
+HZZicvnebluBIjznSAxElMw=
+=4K75
 -----END PGP SIGNATURE-----
-
---==_Exmh_1106240122_12559P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
