@@ -1,43 +1,36 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7PE49La024023
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:04:09 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h7PE47fF024681
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 14:04:07 GMT
-Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [144.51.25.4])
-        by jazzband.ncsc.mil  with ESMTP id h7PE46Hd024636 for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 14:04:06 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7PE45sE014886
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2003 10:04:05 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h7PE45XP014884
-	for selinux@tycho.nsa.gov; Mon, 25 Aug 2003 10:04:05 -0400
-Date: Mon, 25 Aug 2003 09:51:14 +1000
-From: Brian May <bam@snoopy.apana.org.au>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: initrd vs initramfs
-Message-ID: <20030824235114.GA2962@snoopy.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <3F4A1B8E.9070901@tresys.com>
+Date: Mon, 25 Aug 2003 10:22:06 -0400
+From: David Caplan <dac@tresys.com>
+MIME-Version: 1.0
+To: =?ISO-8859-2?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: questions
+References: <1061676714.1648.281.camel@kusturica>
+In-Reply-To: <1061676714.1648.281.camel@kusturica>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-According to README from selinux-doc:
 
-4) The initial policy load has been moved into userspace, and is
-performed from an initrd (see the BUILDING AND INSTALLING
-instructions below).  We will likely migrate to using initramfs in the
-future for the initial policy.
 
-Can anybody tell me the difference between the initrd system
-and the initramfs system?
+Magosányi Árpád wrote:
+> 
+> -What tools and techniques exist for analysing the policy?
+>  For example how can I list domains besides using grep and friends
+>  on the policy file?
 
-So far the only answer I have got is that they are the same. The
-above text would imply that they are not the same though.
+You can check out our tools (http://www.tresys.com/setools), 
+specifically apol for policy analysis.  Apol has many features which can 
+help you break down the policy components as well as search through the 
+rules with filters on object types/classes/permissions/attributes/etc.
 
-Sorry if this appears to be off-topic for this mailing list.
--- 
-Brian May <bam@snoopy.apana.org.au>
+David
+
+___________________________
+David Caplan
+Tresys Technology, LLC.
+dac@tresys.com
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
