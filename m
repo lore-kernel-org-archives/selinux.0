@@ -1,65 +1,51 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i523ZjrT000846
-	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 23:35:45 -0400 (EDT)
-Received: from smtp803.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i52BUGbn009884
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 07:30:16 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i523r5rT000998
+	for <selinux@tycho.nsa.gov>; Tue, 1 Jun 2004 23:53:05 -0400 (EDT)
+Received: from smtp804.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i52Blabn010253
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jun 2004 07:47:36 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp803.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 08:49:04 -0000
-Date: Tue, 1 Jun 2004 08:46:31 +0000
+  by smtp804.mail.ukl.yahoo.com with SMTP; 1 Jun 2004 09:06:20 -0000
+Date: Tue, 1 Jun 2004 09:03:45 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: progress! ssh.
-Message-ID: <20040601084631.GJ8312@lkcl.net>
-References: <20040531212109.GQ3170@lkcl.net> <200406011312.48669.russell@coker.com.au>
+To: openssh-unix-dev@mindrot.org, pam-list@redhat.com,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: issue with SE/Linux - sshd not giving access to /dev/pts/[n]
+Message-ID: <20040601090345.GM8312@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200406011312.48669.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jun 01, 2004 at 01:12:48PM +1000, Russell Coker wrote:
-> On Tue, 1 Jun 2004 07:21, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > --- /usr/share/selinux/policy/default/domains/program/ssh.te	2004-05-30
-> > 07:06:13.000000000 +0100 +++ domains/program/ssh.te	2004-06-01
-> > 00:02:58.000000000 +0100
-> > @@ -231,3 +231,12 @@
-> >  allow ssh_keygen_t self:unix_stream_socket create_stream_socket_perms;
-> >  allow ssh_keygen_t sysadm_tty_device_t:chr_file { read write };
-> >  allow ssh_keygen_t urandom_device_t:chr_file { getattr read };
-> > +
-> > +# provide means for /sbin/unix_chkpwd to do some "stuff" with sshd, hey
-> > +# i don't pretend to understand...
-> > +allow system_chkpwd_t sshd_t:tcp_socket { read write };
-> > +allow system_chkpwd_t sshd_t:unix_stream_socket { read write };
-> 
-> This is not necessary.  In the Fedora PAM package there is code to close those 
-> file handles before exec so those accesses are never attempted.  
+hi there,
 
- oh, right.  *puzzled*.
+i have an issue on my newly created Debian/SELinux/unstable system.
 
- if Fedora PAM has been patched, would you mind forwarding the patch
- to me so i can ping pam-list with it?
+i have pam 0.77 se1 installed
+ssh            3.8.1p1-4      (OpenSSH)
+and libselinux1 1.12-1.
 
- 
+i can log in as root, fine.
 
-> A dontaudit 
-> rule would be an OK work-around (but should not be in the distributed 
-> policy).
+but i cannot log in as an ordinary user, and i had to grant
+special permission to the _user_ process (NOT sshd or pam
+before a setuid and exec is carried out) to access
+/dev/pts/0.
 
- ah... ... okay.
+in other words, if i understand this correctly, there is a
+bug somewhere in either sshd or pam where control of the
+tty is given at the wrong point, or is not given at all.
 
-> > +# users can't ssh in!  or they _can_, they just can't run a shell (!)
-> > +allow user_t sshd_devpts_t:chr_file { ioctl read write };
-> 
-> That's a bug in PAM or sshd.  I haven't got around to tracking it down.  It 
-> would be good if you could debug pam and find out why it doesn't relabel the 
-> controlling tty for some users.
- 
- eek!  me??  *panic* :)
+(russell talks of relabelling the tty, i'm not sure what that
+would involve.)
 
- okay.
+... except if the user is root :) :) whereupon magically
+it works fiine :)
+
+okay, so does anyone on the openssh or pam lists understand
+what this might about?  does it ring any bells?
+
+l.
 
 
 --
