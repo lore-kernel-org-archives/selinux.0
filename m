@@ -1,36 +1,45 @@
 Received: from jazzdrum.ncsc.mil ([144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0GIG9Ii012163
-	for <selinux@tycho.nsa.gov>; Sun, 16 Jan 2005 13:16:09 -0500 (EST)
-Received: from hotmail.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0GIGBXU022966
-	for <selinux@tycho.nsa.gov>; Sun, 16 Jan 2005 18:16:11 GMT
-Message-ID: <BAY101-F18255CE2DCD9B803428707B48D0@phx.gbl>
-From: "Albretch Mueller" <lbrtchx@hotmail.com>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0H9HNIi014132
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jan 2005 04:17:24 -0500 (EST)
+Received: from sun1000.pwr.wroc.pl (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0H9HPA9001500
+	for <selinux@tycho.nsa.gov>; Mon, 17 Jan 2005 09:17:25 GMT
+Received: from sun1000 (sun1000.pwr.wroc.pl [156.17.1.33])
+ by sun1000.pwr.wroc.pl
+ (Sun Java System Messaging Server 6.1 HotFix 0.06 (built Nov 11 2004))
+ with ESMTP id <0IAG00BRIF52YPC0@sun1000.pwr.wroc.pl> for
+ selinux@tycho.nsa.gov; Mon, 17 Jan 2005 10:17:27 +0100 (CET)
+Received: from mail.pwr.wroc.pl ([156.17.5.174])
+ by sun1000.pwr.wroc.pl (Sun Java System Messaging Server 6.1 HotFix 0.06
+ (built Nov 11 2004)) with ESMTPS id <0IAG00M6HF51HS50@sun1000.pwr.wroc.pl> for
+ selinux@tycho.nsa.gov; Mon, 17 Jan 2005 10:17:26 +0100 (CET)
+Date: Mon, 17 Jan 2005 10:17:25 +0100 (CET)
+From: Bartlomiej Balcerek <Bartlomiej.Balcerek@pwr.wroc.pl>
+Subject: Getting default context
 To: selinux@tycho.nsa.gov
-Subject: Java and SELinux
-Date: Sun, 16 Jan 2005 18:15:54 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
+Message-id: <Pine.GSO.4.44.0501170946330.16567-100000@sun1000.pwr.wroc.pl>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have been reading about SELinux, how to design a Trusted Computing Base 
-(TCB) with it and the difficulties of setting up an OS-based ruled based 
-security framework to control 'virtual machines' which basically take much 
-of the responsibilities of a TCB off the Operating System.
 
-I am more of an application developer kind of guy, but contrary to people's 
-opinions I think you can indeed make SELinux and the JVM dance together 
-pretty nicely, even better than regular OS-based applications since you 
-would be instead of one, actually two walls by:
+Hello,
 
-1._ actually using java security policies within the JVM
+I try to use get_default_context() function.
+There is in my code:  get_default_context(pw_name,NULL,&scontext),
+pw_name is "bartol", and I have default context definied in
+/etc/selinux/strict/contexts/default_contexts:
+system_r:pbs_mom_t bartol_r:bartol_t
+Role bartol_r is the only role allowed to bartol.
+SELinux is in permissive mode.
+As a result get_default_context() returns error.
 
-2._ constraining all native calls from the JVM to the actual OS through 
-SELinux
+What have I forgotten ?
 
-I find this straightforward and doable with much difficulty or . . . what is 
-it I am missing here?
+regards,
+Bartlomiej Balcerek
+
 
 
 
