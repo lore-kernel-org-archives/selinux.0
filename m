@@ -1,61 +1,35 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AJWarT000508
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 15:32:36 -0400 (EDT)
-Received: from abyss.simplyaquatics.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5AJWWP2021740
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 15:32:32 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
-	by abyss.simplyaquatics.com (Postfix) with ESMTP id 210C73A4066
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 14:32:20 -0500 (CDT)
-Received: from TECRAS1 (simplyaquatics.com [209.192.116.78])
-	by abyss.simplyaquatics.com (Postfix) with ESMTP id 8DD243A4066
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 14:32:18 -0500 (CDT)
-From: "Ed Street" <edstreet@street-tek.com>
-Cc: "'SE-Linux'" <selinux@tycho.nsa.gov>
-Subject: RE: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Date: Thu, 10 Jun 2004 15:32:18 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <200406102220.19165.russell@coker.com.au>
-Message-Id: <20040610193218.8DD243A4066@abyss.simplyaquatics.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AJetrT000645
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 15:40:55 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5AJeqaH021162
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 15:40:52 -0400 (EDT)
+Subject: Re: Issue on the security context of inode & filesystem
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20040610112544.16694.qmail@web51503.mail.yahoo.com>
+References: <20040610112544.16694.qmail@web51503.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1086896448.4397.111.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Thu, 10 Jun 2004 15:40:48 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Thu, 2004-06-10 at 07:25, Park Lee wrote:
+> Hi,
+>     
+>     Would you please tell me what the difference between the security
+> context of inodes within the filesystem and the security context of
+> the filesystem itself is? 
 
-Well like they say chroot is the poor mans security setup :) Disabling the
-chroot jail would be the best solution overall.
+Please read the published papers and technical reports.  They explain
+the difference.
 
-Ed
-
------Original Message-----
-From: Russell Coker [mailto:russell@coker.com.au] 
-Sent: Thursday, June 10, 2004 8:20 AM
-To: Ed Street
-Cc: 'SE-Linux'
-Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't
-working.
-
-On Thu, 10 Jun 2004 21:47, "Ed Street" <edstreet@street-tek.com> wrote:
-> Then shouldn't it be postfix_etc_t instead of etc_t?
-
-We could do something like that, although it would still require breaking
-the 
-design aim of "application should not have write access to it's own config 
-files".
-
-I think that the ideal solution would be to have a better mechanism of
-turning 
-off chroot operation.
-
- 
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.698 / Virus Database: 455 - Release Date: 6/2/2004
- 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
