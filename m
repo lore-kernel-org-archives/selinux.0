@@ -1,38 +1,30 @@
-Subject: Re: patch: correct default policy type
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i94FmkrT018681
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 11:48:46 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i94Fmks6016051
+	for <selinux@tycho.nsa.gov>; Mon, 4 Oct 2004 15:48:46 GMT
+Subject: Re: BUG: looks like net contexts is being ignored
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Timothy Wood <timothy@diyab.net>
-Cc: SELinux <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-   Russell Coker <russell@coker.com.au>
-In-Reply-To: <4152EA0A.9060606@diyab.net>
-References: <4152EA0A.9060606@diyab.net>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040926214625.GK28076@lkcl.net>
+References: <20040926214625.GK28076@lkcl.net>
 Content-Type: text/plain
-Message-Id: <1096904216.32008.39.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1096904763.32008.51.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Mon, 04 Oct 2004 11:36:56 -0400
+Date: Mon, 04 Oct 2004 11:46:04 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-09-23 at 11:21, Timothy Wood wrote:
-> I've noticed that the release on the NSA site installs the policy into
-> /etc/selinux/strict but libselinux looks for a targeted policy by
-> default.  Attached patch changes the default in libselinux to be strict.
-> ~ Please apply.
+On Sun, 2004-09-26 at 17:46, Luke Kenneth Casson Leighton wrote:
+> i'm using cvs linux2.6 from 2 weeks ago.
+> latest cvs policy, tools and libs selinux-usr.
+> 
+> the bug is that any tcp or udp port access by any program appears to be
+> attempted as reserved_port_t.
 
-The original support for multiple policies came from the introduction of
-the targeted policy in Fedora, and targeted policy is the default in
-Fedora.  Changing the libselinux default to strict could have
-implications for Fedora.  As long as /etc/selinux/config exists, is
-readable and contains a SELINUXTYPE= entry, there would be no problem,
-but I'm hesitant to make this change without further consideration. 
-Note that the /etc/selinux/config file is created by the spec file.
-
-I think I'd prefer to just make libselinux a bit smarter, e.g. if
-/etc/selinux/config doesn't exist, we could probe for the existence of
-strict or targeted subdirectories under /etc/selinux.  Of course, both
-policies could be installed, in which case we would still need a default
-choice.  And I think Russell's Debian setup just places the policy
-directly under /etc/selinux without a separate subdirectory, so that
-could be a problem.
+Using the latest checkpolicy from cvs?
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
