@@ -1,52 +1,38 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i69CERrT018783
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2004 08:14:27 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i69CEQNR003645
-	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2004 12:14:26 GMT
-Subject: Re: An SELinux policy for Red Hat 9
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Bradley Chapman <kakadu@gmail.com>
-Cc: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
-In-Reply-To: <e294b46e0407090443663d55c4@mail.gmail.com>
-References: <e294b46e040708131736c57b6@mail.gmail.com>
-	 <200407092111.55045.russell@coker.com.au>
-	 <e294b46e0407090443663d55c4@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1089375253.11726.34.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 09 Jul 2004 08:14:13 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i69CqVrT019067
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2004 08:52:31 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i69CqONR004657
+	for <selinux@tycho.nsa.gov>; Fri, 9 Jul 2004 12:52:27 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: policy to allow upgrade of nfs-utils
+Date: Fri, 9 Jul 2004 22:52:08 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <200407081319.05138.russell@coker.com.au> <1089292484.6414.17.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1089292484.6414.17.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200407092252.08749.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-07-09 at 07:43, Bradley Chapman wrote:
-> On Fri, 9 Jul 2004 21:11:55 +1000, Russell Coker <russell@coker.com.au> wrote:
-> > But if you REALLY want to use RHL 9, the current policy should work OK, you
-> > just have to make the appropriate changes to pam, logrotate, cron, coreutils,
-> > etc.
-> 
-> What sort of changes? Path changes? 
+On Thu, 8 Jul 2004 23:14, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> On Wed, 2004-07-07 at 23:19, Russell Coker wrote:
+> > The attached policy patch is needed to allow nfs-utils to be upgraded to
+> > the latest version on a rawhide system.
+>
+> Should /etc/exports get its own type?
 
-I think Russell is referring to the userland patches for those
-packages.  The current patches and SRPMS in our userland tree are drawn
-from the Fedora Core development tree, so you are likely to run into
-dependency problems building them on RH9.  And Fedora Core actually
-includes _many_ other patched userland packages for SELinux; we only
-maintain a core subset in our tree for reference purposes for people who
-want to port to other distributions.  A few examples of patched userland
-packages in Fedora Core that are not in our tree include gdm, usermode,
-atd, and libuser, and there are many others.  There is also the issue of
-glibc security awareness; the RH9 glibc won't enable secure mode upon
-domain transitions, unlike the Fedora Core glibc.
-
-If you truly are limited to using RH9, then you should likely grab an
-older release of SELinux that was based on RH9.  But life will be
-simpler if you can move to FC2.
+I guess so.  nfsd_etc_t or exports_t?
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
