@@ -1,66 +1,101 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB21kXIi029001
-	for <selinux@tycho.nsa.gov>; Wed, 1 Dec 2004 20:46:34 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB21iuYO015964
-	for <selinux@tycho.nsa.gov>; Thu, 2 Dec 2004 01:44:58 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Christopher R. Hertel" <crh@ubiqx.mn.org>
-Subject: Re: dynamic context transitions
-Date: Thu, 2 Dec 2004 12:46:13 +1100
-Cc: Simo Sorce <idra@samba.org>, Andrew Bartlett <abartlet@samba.org>,
-   Darrel Goeddel <dgoeddel@TrustedCS.com>, James Morris <jmorris@redhat.com>,
-   Chad Hanson <chanson@TrustedCS.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
-   Multiple recipients of list SAMBA-TECHNICAL <samba-technical@samba.org>,
-   tng-technical@samba-tng.org, SE-Linux <selinux@tycho.nsa.gov>
-References: <418662EE.5090001@trustedcs.com> <20041114215428.GP5031@lkcl.net> <20041201231224.GD5862@Favog.ubiqx.mn.org>
-In-Reply-To: <20041201231224.GD5862@Favog.ubiqx.mn.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200412021246.23614.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iB2Dq0Ii001735
+	for <selinux@tycho.nsa.gov>; Thu, 2 Dec 2004 08:52:00 -0500 (EST)
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iB2Dq38k022237
+	for <selinux@tycho.nsa.gov>; Thu, 2 Dec 2004 13:52:03 GMT
+Subject: Re: Reissue previous patch
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <41ACE3E6.5030801@redhat.com>
+References: <41741A2C.8040408@redhat.com>
+	 <200410260138.19426.russell@coker.com.au>
+	 <20041025213122.GA2535@jmh.mhn.de>
+	 <200410270036.14935.russell@coker.com.au>
+	 <1099690788.16488.52.camel@moss-lions.epoch.ncsc.mil>
+	 <4192A029.5050909@redhat.com>
+	 <1100722524.22035.18.camel@moss-lions.epoch.ncsc.mil>
+	 <419CB2A8.7020504@redhat.com>
+	 <1101235934.7273.24.camel@moss-lions.epoch.ncsc.mil>
+	 <41A4B54F.3070709@redhat.com>
+	 <1101325733.12859.37.camel@moss-lions.epoch.ncsc.mil>
+	 <41ACE3E6.5030801@redhat.com>
+Content-Type: text/plain
+Message-Id: <1101995669.8032.20.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Thu, 02 Dec 2004 08:54:29 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 02 December 2004 10:12, "Christopher R. Hertel" <crh@ubiqx.mn.org> 
-wrote:
-> I've been asking about this in different places.  I've heard theories,
-> mostly.  This is happening in Linux (dunno if it's been tested elsewhere)
-> and one theory is that the forked process speeds are good because Linux
-> basically does a really good job with those.  Meanwhile, thread speed is
-> bad because the multiple threads are all within a single process and the
-> single process gets only it's own share of processor time.
+Merged with some changes.
 
-I believe that in Linux with the NPTL each thread gets scheduled independently 
-by default.  Also if the threads were scheduled together then that would only 
-cause problems if there were other programs using CPU time, in the case of a 
-server running only a multi-threaded daemon it should not cause any problems.
+On Tue, 2004-11-30 at 16:19, Daniel J Walsh wrote:
+> Several can_network_clients were wrong
+<snip>
+> diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/mount.te policy-1.19.7/domains/program/mount.te
+> --- nsapolicy/domains/program/mount.te	2004-11-09 13:35:12.000000000 -0500
+> +++ policy-1.19.7/domains/program/mount.te	2004-11-30 06:18:45.000000000 -0500
+> @@ -64,7 +64,7 @@
+>  
+>  ifdef(`portmap.te', `
+>  # for nfs
+> -can_network(mount_t)
+> +can_network_server(mount_t)
+>  can_ypbind(mount_t)
+>  allow mount_t port_t:{ tcp_socket udp_socket } name_bind;
+>  allow mount_t reserved_port_t:{ tcp_socket udp_socket } name_bind;
 
-> I don't know much about thread handling on Linux, but I would also imagine
-> that there is a bit of an impact on all threads when one thread makes a
-> system call.
+Left it as can_network(), otherwise, I can't mount a NFS partition.  May
+be able to separate the NFS client and server usages, by I haven't
+looked into it.
 
-For thread libraries that have application code implementing threads on top of 
-a non-threaded libc or kernel (Green Threads for Java and every Ada runtime 
-for DOS are the two best examples that I can think of) then a blocking system 
-call in one thread will block all the other threads.
+<snip>
+> diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/howl.te policy-1.19.7/domains/program/unused/howl.te
+> --- nsapolicy/domains/program/unused/howl.te	2004-10-13 22:41:57.000000000 -0400
+> +++ policy-1.19.7/domains/program/unused/howl.te	2004-11-30 06:18:45.000000000 -0500
+> @@ -5,7 +5,7 @@
+>  
+>  daemon_domain(howl)
+>  allow howl_t proc_t:file { getattr read };
+> -can_network(howl_t)
+> +can_network_server(howl_t)
+>  can_ypbind(howl_t)
+>  allow howl_t self:capability { kill net_admin };
+>  
 
-One problem with threads is that certain libc calls use locking when linked in 
-a multi-threaded manner.  In version 1.9x of my Bonnie++ benchmark suite I 
-have a test program called getc_putc to test this.  On older versions of 
-glibc the performance difference between non-threaded and threaded versions 
-of a program when calling getc() and putc() was significant.  Now it seems 
-that there's hardly any difference.  I suspect that because of these changes 
-to glibc and other changes that presumably accompanied them the difference 
-betwen threaded and non-threaded programs for such things is much less than 
-it used to be.
+I used:
+-allow howl_t proc_t:file { getattr read };
+-can_network(howl_t)
++allow howl_t proc_net_t:dir search;
++allow howl_t proc_net_t:file {getattr read };
++can_network_server(howl_t)
+
+<snip>
+> diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/ssh_macros.te policy-1.19.7/macros/program/ssh_macros.te
+> --- nsapolicy/macros/program/ssh_macros.te	2004-11-30 05:59:40.000000000 -0500
+> +++ policy-1.19.7/macros/program/ssh_macros.te	2004-11-30 06:18:45.000000000 -0500
+> @@ -82,7 +82,7 @@
+>  
+>  # Grant permissions needed to create TCP and UDP sockets and
+>  # to access the network.
+> -can_network($1_ssh_t)
+> +can_network_client_tcp($1_ssh_t)
+>  can_ypbind($1_ssh_t)
+>  
+>  # Use capabilities.
+
+I used can_network_client() instead.
+
+The following was needed by ssh during my normal usage of it (like
+updating the CVS tree on sourceforge.)
+
+allow user_ssh_t self:udp_socket create
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
