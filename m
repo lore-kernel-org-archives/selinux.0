@@ -1,41 +1,69 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA19377
-	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 18:57:52 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id WAA21905
-	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 22:56:55 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA19862
+	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 20:43:31 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id AAA02220
+	for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 00:41:53 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id WAA21901
-	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 22:56:54 GMT
+        by jazzband.ncsc.mil  with ESMTP id AAA02216 for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 00:41:52 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 64F0E92469
+	for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 10:43:26 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 942A88564
+	for <selinux@tycho.nsa.gov>; Sat, 10 Aug 2002 02:43:18 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: "Ryan Bergauer" <privateryan@mindspring.com>, <selinux@tycho.nsa.gov>
-Subject: Re: problems with fd
-Date: Sat, 10 Aug 2002 00:57:38 +0200
-References: <001b01c23ff4$8081b730$0300a8c0@donkey>
-In-Reply-To: <001b01c23ff4$8081b730$0300a8c0@donkey>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: ioctl on a pty device
+Date: Sat, 10 Aug 2002 02:43:17 +0200
 MIME-Version: 1.0
-Message-Id: <20020809225739.47F6C84DD@lyta.coker.com.au>
+Message-Id: <20020810004318.942A88564@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 10 Aug 2002 00:31, Ryan Bergauer wrote:
-> The gpg command in question is 'gpg --gen-key', being run from the
-> console as (in the case of system_u:system_r:local_login_t) a normal
-> user in user_r and (in the case of user_name:sysadm_r:newrole_t) a
-> sysadm that newroled into the user_r role.
+Someone made a reference to an IOCTL on a pseudo-tty allowing a process that 
+can access the pty to get access to the master side (and therefore to pipe 
+commands to other processes on the pty).
 
-allow $1_gpg_t privrole:fd use;
+I would like to know, what is this IOCTL?  How does such access to the master 
+work?
 
-I was not able to reproduce the problem with local_login_t.  I was able to 
-reproduce the problem with newrole_t and added the above rule in the 
-gpg_domain() macro in the  policy/macros/program/gpg_macros.te file to solve 
-it.
+If the above problem is true then when the slave is relabeled to a different 
+domain by newrole will the hostile program still have access to the master?
 
 
-Russell Coker
+
+On a similar but related issue, recently I've been adding access to daemons 
+to allow them to write to { sysadm_tty_device_t sysadm_devpts_t } so that 
+they can write error messages if they fail to start, and I'm starting to 
+think that I'm not doing things the right way.
+
+It has occurred to me that a good solution would involve run_init creating 
+it's own pty to communicate with the daemon (type initrc_devpts_t perhaps), 
+and all daemons would get read/write access to that (from experimentation it 
+appears that most daemons demand read access if they are to write to the pty 
+- I have not examined the code to determine why this is so).  Now a correctly 
+behaved daemon will close stdin/stdout/stderr when it's successfully 
+initialised (yes I know many daemons are not correctly written - that's a 
+separate issue), at which time run_init could exit.  For the master side of 
+the pty run_init could detach a background process to copy data from the 
+daemon and write it to the admin's terminal at the time that the parent of 
+the daemon exits.  So the admin would see the same results as on a non-SE 
+system, they run a daemon, which may output errors to their screen after they 
+have received the shell prompt again, but which will hopefully detach itself 
+fully in a short period of time.
+
+This is fairly convoluted, is it necessary?  Or am I just getting paranoid 
+while working late at night?
+
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
