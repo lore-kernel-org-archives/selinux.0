@@ -1,48 +1,49 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2K3xRRb015013
-	for <selinux@tycho.nsa.gov>; Fri, 19 Mar 2004 22:59:28 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i2K3vedQ018322
-	for <selinux@tycho.nsa.gov>; Sat, 20 Mar 2004 03:57:40 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-	by jazzswing.ncsc.mil  with ESMTP id i2K3vNBL018282
-	for <selinux@tycho.nsa.gov>; Sat, 20 Mar 2004 03:57:39 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Mark Shakespeare <mshakes@llnl.gov>
-Subject: Re: Oracle 10g Database
-Date: Sat, 20 Mar 2004 14:56:49 +1100
-Cc: selinux@tycho.nsa.gov
-References: <p06020409bc8104da7991@[128.115.96.64]>
-In-Reply-To: <p06020409bc8104da7991@[128.115.96.64]>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200403201456.49500.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2M9N9Rb021479
+	for <selinux@tycho.nsa.gov>; Mon, 22 Mar 2004 04:23:09 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i2M9N8FV000966
+	for <selinux@tycho.nsa.gov>; Mon, 22 Mar 2004 09:23:08 GMT
+Received: from nox.lemuria.org ([213.191.86.35])
+        by jazzband.ncsc.mil  with ESMTP id i2M9N736000958 for <selinux@tycho.nsa.gov>; Mon, 22 Mar 2004 09:23:08 GMT
+Date: Mon, 22 Mar 2004 10:22:57 +0100
+From: Tom <tom@lemuria.org>
+To: selinux@tycho.nsa.gov
+Subject: SELinux on Cebit report
+Message-ID: <20040322102256.A7177@lemuria.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 20 Mar 2004 07:15, Mark Shakespeare <mshakes@llnl.gov> wrote:
-> Anybody ventured into running an Oracle database on SeLinux???
+On friday afternoon, Carsten and me held a presentation about SELinux
+at the Linuxpark on Cebit, europes largest computer technology fair.
 
-No.  But writing policy for Oracle is very important to me.  As soon as I can 
-get someone to tell me what Oracle does in detail I'll start work on it.
+The presentation was about 45 minutes, plus 20 minutes of questions,
+overdrawing the alloted timeslot considerably, which wasn't a problem
+as we were the last presentation that day.
 
-Contact me off-list if you want to work with me on writing Oracle policy.
+The audience area was small, but packed. My guess would be about 60 or
+so people, though I'm pretty bad at guesses like that. There were many
+questions, and the audience was very interested and present.
 
-After I send this message I will try and download a demo copy of Oracle (they 
-appear to be offering a trial copy on their web site).  If that doesn't work 
-I'll see if I can get a copy through Red Hat.  I'm sure that one way or 
-another I can get a free copy of Oracle as my work will help them sell it 
-(I've already written policy for MySQL and PostgreSQL...).
+Amin Ott from RSBAC was also there, he held a presentation about RSBAC
+earlier that day and was in the audience of our presentation, just as I
+had listened to his. He's a nice guy, we had a good talk afterwards,
+and I learned that he actually lives in the same city as I do. :)
 
-Then I'll just need advice from an expert on how to use it.
+
+The most interesting result here was that a good part of the audience
+had apparently heard about SELinux before, and when Carsten asked who
+is already using SELinux, a good number of hands went up. This is quite
+different from my earlier experiences, where only a minority of the
+audience seemed to have had any prior exposure.
+
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
