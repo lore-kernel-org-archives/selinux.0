@@ -1,38 +1,56 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA05222
-	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2001 14:41:39 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA25395
-	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2001 18:41:21 GMT
-Received: from mail24.bigmailbox.com (mail24.bigmailbox.com [209.132.220.207])
-	by jazzswing.ncsc.mil  with ESMTP id SAA25391
-	for <selinux@tycho.nsa.gov>; Wed, 4 Apr 2001 18:41:20 GMT
-Date: Wed, 4 Apr 2001 11:41:37 -0700
-Message-Id: <200104041841.LAA21943@mail24.bigmailbox.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA08389
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2001 03:26:08 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id HAA21615
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2001 07:25:55 GMT
+Received: from mailout04.sul.t-online.com (mailout04.sul.t-online.com [194.25.134.18])
+	by jazzband.ncsc.mil  with ESMTP id HAA21611
+	for <selinux@tycho.nsa.gov>; Thu, 5 Apr 2001 07:25:54 GMT
+From: Amon Ott <ao@rsbac.org>
+To: selinux@tycho.nsa.gov, rsbac@compuniverse.de
+Subject: Re: Rule Set Based Access Control (RSBAC)
+Date: Thu, 5 Apr 2001 08:00:33 +0200
 Content-Type: text/plain
-Mime-Version: 1.0
-From: "Jonathan Day" <jd9812@my-deja.com>
-To: selinux@tycho.nsa.gov
-Subject: Assorted ramblings
+References: <Pine.SOL.3.95.1010402145703.8569J-100000@clipper.gw.tislabs.com>
+In-Reply-To: <Pine.SOL.3.95.1010402145703.8569J-100000@clipper.gw.tislabs.com>
+MIME-Version: 1.0
+Message-Id: <01040509250501.00859@marvin>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Mon, 02 Apr 2001 Stephen Smalley wrote:
+> 7) Most of the RSBAC policy modules are very hardwired in their
+> policy logic, and can be easily expressed using the SELinux Type
+> Enforcement (TE) configuration.
 
-   First off, any news on when the next SELinux snapshot is likely? And will it play nice with devfs? (The existing version can get nasty, as the filing system holding the devices is virtual and gets recreated on each boot.)
+After rereading Section 'Overview' of your 'Security Policy Configuration'
+paper, and remembering a similar claim at another place, which I had no way of
+answering, I kindly ask for some explanation.
 
-   Second, I'm trying to shoe-horn the SELinux kernel patch into an -ac kernel. (2.4.3-ac2, with the International patches applied, to be exact.) 2.4.3 patched OK (well, apart from one #ifdef'ed comment, which doesn't seem too catastrophic :), but the -ac stuff is sufficiently different to really muck things up. Anyone tried this? And, if so, are there any kernel burps that crop up that I need to watch for?
+Without knowing your exact model details, I believe your claim 'can be easily
+expressed using SELinux Type Enforcement' to be
 
-Thanks
+- completely wrong for Privacy Model (PM), Malware Scan (MS), Role Compatibility
+(RC) and Access Control Lists (ACL)
+
+- doubtful for Mandatory Access Control (MAC), File Flags (FF) and
+Authentication (AUTH)
+
+- correct for the very simple models Functional Control (FC) and Security
+Information Modification (SIM)
 
 
+Since I regard all modules except FC and SIM as important models (or at least
+modules), I hereby ask you to either
 
+- prove your claim or
 
-------------------------------------------------------------
---== Sent via Deja.com ==--
-http://www.deja.com/
+- officially take it back
 
+for all these models.
 
+Amon.
 
 --
 You have received this message because you are subscribed to the selinux list.
