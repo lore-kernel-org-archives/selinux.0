@@ -1,47 +1,44 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j06BkhIi008027
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 06:46:43 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j06BnkIi008076
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 06:49:46 -0500 (EST)
 Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j06BkioP007091
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 11:46:45 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id D7F6261B01
-	for <selinux@tycho.nsa.gov>; Thu,  6 Jan 2005 22:46:44 +1100 (EST)
-Received: from smtp.sws.net.au ([127.0.0.1])
-	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 04894-08 for <selinux@tycho.nsa.gov>;
-	Thu, 6 Jan 2005 22:46:44 +1100 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 84A9B61B00
-	for <selinux@tycho.nsa.gov>; Thu,  6 Jan 2005 22:46:44 +1100 (EST)
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j06BnloP007164
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jan 2005 11:49:48 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [patch] screen_macros.te
-Date: Thu, 6 Jan 2005 22:46:39 +1100
+To: Greg Norris <haphazard@kc.rr.com>
+Subject: Re: [patch] types.fc
+Date: Thu, 6 Jan 2005 22:49:41 +1100
 Cc: SELinux <selinux@tycho.nsa.gov>
-References: <20050104230149.GA10317@yggdrasil.localdomain> <20050104233401.GA11885@yggdrasil.localdomain> <41DBE9F1.50303@redhat.com>
-In-Reply-To: <41DBE9F1.50303@redhat.com>
+References: <20050104025950.GA5321@yggdrasil.localdomain> <200501050032.29370.russell@coker.com.au> <20050104151703.GA8223@yggdrasil.localdomain>
+In-Reply-To: <20050104151703.GA8223@yggdrasil.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200501062246.42763.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200501062249.44651.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 06 January 2005 00:21, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> I would like to add a new file type cert_t for ssl cert files, since
-> these are defaulted to usr_t right now.
-> Shouldn't these be protected at a higher level?
+On Wednesday 05 January 2005 02:17, Greg Norris <haphazard@kc.rr.com> wrote:
+> > But I have been considering just moving to the locations that are used in
+> > Fedora.
+>
+> This seems like a good idea to me.  If nothing else, it would make it
+> easier to support multiple policies in the future... should we decide to
+> do something similar to Fedora's strict/targeted scheme.  Personally, I
+> rather like their approach.
 
-Are you talking about protecting the integrity or the secrecy of data in such 
-files?
+The way things currently work in Debian is that the policy source files are 
+copied to locations under /etc/selinux.  This means that you can have either 
+strict or targeted policy and just choose a different source for copying.  My 
+design for Debian always supported multiple policies, it's just that I never 
+had time to write more than one policy and no-one else wrote one for Debian.
 
-If integrity then anything which can write to usr_t can break the system 
-anyway.  If secrecy then nothing in an rpm is secret anyway.
-
-If there are certificates that have any secret data then they should be 
-somewhere other than under /usr.
+The advantage of the Fedora method is that you can quickly and easily switch 
+between different policies by just changing one config file, creating a flag 
+file, and rebooting.  This allows you to easily change policies and then 
+change back if you wish.  With Debian changing policies is a significant 
+matter to undertake and not something that you want to do often.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
