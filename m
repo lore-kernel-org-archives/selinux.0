@@ -1,81 +1,43 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA13288
-	for <selinux@tycho.nsa.gov>; Wed, 19 Sep 2001 09:19:04 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA23954
-	for <selinux@tycho.nsa.gov>; Wed, 19 Sep 2001 13:18:38 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id NAA23950
-	for <selinux@tycho.nsa.gov>; Wed, 19 Sep 2001 13:18:37 GMT
-Date: Wed, 19 Sep 2001 09:18:27 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Carlos Cardenas <ccardena@cs.utsa.edu>
-cc: selinux@tycho.nsa.gov
-Subject: Re: UltraSparc
-In-Reply-To: <Pine.GSO.3.95.1010918171342.1734B-100000@ten46>
-Message-ID: <Pine.SOL.3.95.1010919084244.18976B-100000@clipper.gw.tislabs.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA22942
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 02:32:09 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id GAA04841
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 06:30:35 GMT
+Received: from mail.windowpane.com (ip57.gte1.rb1.bel.nwlink.com [209.20.131.57])
+	by jazzswing.ncsc.mil  with ESMTP id GAA04837
+	for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2001 06:30:34 GMT
+Received: from ip57.gte1.rb1.bel.nwlink.com (ip57.gte1.rb1.bel.nwlink.com [209.20.131.57])
+	by mail.windowpane.com (Postfix) with ESMTP id 4D06A8044
+	for <selinux@tycho.nsa.gov>; Thu, 20 Sep 2001 22:49:32 -0700 (PDT)
+Date: Thu, 20 Sep 2001 22:49:31 -0700 (PDT)
+From: Conan Callen <ccallen@windowpane.com>
+To: <selinux@tycho.nsa.gov>
+Subject: selinux & gnome
+Message-ID: <Pine.LNX.4.33.0109202235000.15881-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 18 Sep 2001, Carlos Cardenas wrote:
+I finally finished building my selinux gui dev machine. It appears to be
+working fine. I have been working up to tackling the file_contexts
+file, it was a bit overwhelming at first (along with a crash course on
+tripwire, iptables, etc).
 
-> Has there been any successfull attempt for SELinux on an UltraSparc?
+The only problem so far has nothing to do with selinux itself but Im
+hoping someone on this list can give me a pointer. Im not sure which
+network device to select during the menuconfig (xconfig) step. I have a Linksys
+Ether PCI Lan Card II. If anyone knows the required selection it would be
+very helpful.
 
-Not as far as I know, but it shouldn't be difficult to port the 
-architecture-specific code of LSM and SELinux to other architectures.
-Someone ported the architecture-specific code of the original SELinux
-prototype to the PPC a while back without any real difficulty, and it
-shouldn't be any harder using the new LSM-based SELinux prototype.
+Just in case anyone on this list did not see it already, there is an
+article on selinux in Sept 2001 issue of Linux Magizine. Theres also a
+good article on iptables for anyone caught in that learning curve.
 
-There are a small number of architecture-specific changes in the LSM
-kernel patch that have only been made for the x86 and ia64 architectures
-so far.  Specifically, LSM adds a general security system call to support
-new system calls by security modules (see the changes to
-lsm/arch/i386/kernel/entry.S and lsm/include/asm-i386/unistd.h) and it
-inserts security hooks into the code of a few system calls in the
-architecture-specific directories (see the changes to
-lsm/arch/i386/kernel/ioport.c and lsm/arch/i386/kernel/ptrace.c).
-And you'll need to add a 'source security/Config.in' to the
-arch/*/config.in file for your desired architecture.  If you port
-these changes to another architecture, please feed them back to
-the LSM project - see their web site at lsm.immunix.org.
-
-The SELinux kernel module also contains a little architecture-specific 
-code in selinux/module/selinux_plug/include/asm-i386/flask/unistd.h and 
-selinux/module/selinux_plug/arch/i386/syscalls.c.  This code is to 
-implement one additional system call, execve_secure, that I wasn't able to
-successfully implement using the general security system call.  This is an
-extended version of execve that also passes the requested security
-identifier to use for the transformed process, invoked by some of our
-modified daemons and utilities.  If you port the architecture-specific
-version of execve_secure to another architecture, then please feed it back
-to us.
-
-Another option would be to try using the architecture-independent version
-of execve_secure (in selinux/module/selinux_plug/syscalls.c) by leaving
-USE_MD_EXECVE (use machine-dependent execve_secure) undefined in
-the include/asm-XXX/flask/unistd.file for your architecture.  This was an
-attempt to use the general security system call to implement 
-execve_secure (thus avoiding any architecture-specific code in the
-SELinux kernel module), but it returns the wrong error code when used
-to probe the path for some unknown reason, and I haven't tracked down the
-problem yet.  See the comment before the syscalls.c:sys_execve_secure.
-
-As a side note, please be aware that a number of important bug fixes and
-improvements have been made to both LSM and SELinux since the August 23rd
-release of SELinux, so I would expect that we are likely to make a new
-release soon.  I would have pushed for a new release already, but we've
-been waiting for 2.4.10.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+Conan Callen
+Windowpane
 
 
 --
