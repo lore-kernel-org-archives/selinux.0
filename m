@@ -1,36 +1,79 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA02064
-	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2001 14:07:37 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA13455
-	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2001 19:07:23 GMT
-Received: from hello.skrzynka.pl (hello.skrzynka.pl [217.11.136.218])
-	by jazzswing.ncsc.mil  with SMTP id TAA13451
-	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2001 19:07:20 GMT
-Message-ID: <01f901c1872e$8583fe70$790a0ed4@michter>
-From: "Krzysztof Zagrodzki" <zakr@skrzynka.pl>
-To: <SELinux@tycho.nsa.gov>
-References: <1008600510.3c1e05beb5430@mail.outstep.com>
-Subject: Hello
-Date: Mon, 17 Dec 2001 20:10:39 +0100
+Date: Mon, 17 Dec 2001 14:54:46 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: forrest whitcher <fw@fwsystems.com>
+cc: SELinux Mailing <SELinux@tycho.nsa.gov>
+Subject: Re: Inode persistence generally - was: Re: persistent labelling on
+ afs, jfs, xfs?
+In-Reply-To: <20011217113903.77f0d383.fw@fwsystems.com>
+Message-ID: <Pine.GSO.4.33.0112171427260.10304-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello
 
-I'm new on list.
-I have problem with installation of Linux.: I nead install Linux system with
-firewall on CD. I want install Redhat with Ipchains and Squid and with IDS
-(Portsentry or Snort) with reconfiguration of Ipchains on CD. All rules on
-floppy disk, and all temporary files on RAM disk. My problem: How move
-system and application to CD, and how mowe alle rules file to floppy. I know
-how make it on Hard disk, but for that I have to small experiences.
+On Mon, 17 Dec 2001, forrest whitcher wrote:
 
-With best regards
-Krzysztof Zagrodzki
+> fw> When a repacker is implemented, can your project allow persistent inode
+> fw> numbers be kept as a configure - option?
+
+Ultimately, if reiserfs supports extended attributes, then we can retarget
+SELinux to use that support for binding security contexts to files rather
+than the persistent label mapping when using reiserfs.  So at that point,
+we would no longer care whether it keeps persistent inode numbers.
+
+> The SELinux builds for kernel versions 2.4.12, 2.4.16 respectively
+> maintain PSID's for:
+>
+> .12   (ext2, ufs, sysv, v7, reiserfs)
+> .16   (ext2, ext3, reiserfs)
+>
+> I think all of the above as well as (jfs, xfs) are probably 'safe'
+> (why were (ufs, sysv, v7) removed from the code (hooks.c) between
+> these two versions?)
+
+We hadn't actually tested with those filesystem types, so I removed them
+to be safe.  I left reiserfs since I knew that there was specific
+interest in it, even though we have only tested ext2 and ext3 ourselves.
+Also, if I recall correctly, excluding experimental options, the kernel
+only provides read-only access for ufs, sysv, and v7, so you can't really
+maintain a persistent label mapping anyway for those types.
+
+> The journalling filesystems must have added calls for manipulating
+> the logs at the very least. Could these functions be mis-used?
+
+Possibly.  However, if the filesystem uses the existing capable() and/or
+permission() functions to perform access control for new operations, then
+there will be a corresponding SELinux permission check, since LSM inserts
+hooks into these functions.  But it may be desirable to define new SELinux
+permissions that are more specific to these operations.
+
+> Can we depend on the log check & replay functions and the fs-specific
+> backup/restore to maintain inode:file persistence?
+
+Probably not.  As far as backup/restore goes, there are two options:
+1) You can always run setfiles on the file_contexts configuration after
+restoring a filesystem to reset the file security contexts to a known
+state.  But this requires you to periodically update file_contexts, and
+doesn't capture dynamic changes to file labels.  You could use the
+modified find program to periodically snapshot your file security contexts
+and regenerate a file_contexts file based on it if you are concerned about
+such dynamic changes.
+
+2) You can use the modified tar program to save and restore file security
+contexts with the corresponding files.  This doesn't depend on the inode
+number at all.  It would be nice to have similar modified versions of
+other typical backup/restore programs.
+
+Long term, if support for extended attributes becomes mainstream, SELinux
+could be retargeted to use it.  At that point, the modified utilities for
+extended attributes could be used for this purpose.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
 
 
 --
