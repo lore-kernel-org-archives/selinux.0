@@ -1,88 +1,83 @@
+Message-Id: <200208011824.SAA28460@jazzswing.ncsc.mil>
 Content-Type: text/plain;
   charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
 Subject: Re: New SuSE rules
-Date: Thu, 1 Aug 2002 17:13:51 +0200
-References: <200208010657.GAA28694@jazzband.ncsc.mil>
-In-Reply-To: <200208010657.GAA28694@jazzband.ncsc.mil>
+Date: Thu, 1 Aug 2002 20:22:42 +0200
+References: <200208010657.GAA28694@jazzband.ncsc.mil> <20020801151351.47F1E76BC@lyta.coker.com.au>
+In-Reply-To: <20020801151351.47F1E76BC@lyta.coker.com.au>
 MIME-Version: 1.0
-Message-Id: <20020801151351.47F1E76BC@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 1 Aug 2002 08:59, Carsten Grohmann wrote:
-> My new rule set for SuSE can be found under
-> http://www.carstengrohmann.de/download/selinux/.
-> This include additional rules for the getty_t, so that runs now fine with
-> the suse mingetty.
-> I am sorry, but this time the file README.suserules are only in german.
+Am Donnerstag, 1. August 2002 17:13 schrieb Russell Coker:
+> Firstly try and avoid using file_type and domain if possible.  I really
+> doubt that getty needs to be able to read everything under /proc/[0-9]*
+> and stat every file or device on the file system.
+
+It's a problem with SuSE's mingetty. It reads all or the most /proc/<PID> 
+directories and all files in /var/log. So I have to add this rules. I wrote 
+to SuSE to change the mingetty program. On the other side, you can use Red 
+Hat's mingetty, with runs fine without this additional rules. 
+
+> I guess that it's doing some type of "lsof" operation, so some dontaudit
+> would be in order.
+
+It is not possible to deny this operations, because mingetty will not work 
+correct.
+
+> What is /dev/blog?  It's not in Documentation/devices.txt in the kernel
+> source...
+
+The blod daemon is an part of the SuSE boot concept. 
+
+> > # Allow access to modules_object_t (lib/modules)
+> > allow initrc_t modules_object_t:dir { write remove_name };
+> > allow initrc_t modules_dep_t:file { unlink };
 >
-> Please mail me any comments, if it works fine, if there problems ....
+> Why does initrc_t need to remove files from /lib/modules?  Perhaps a
+> domain transition to update_modules_t is what you need...
 
-Firstly try and avoid using file_type and domain if possible.  I really doubt 
-that getty needs to be able to read everything under /proc/[0-9]* and stat 
-every file or device on the file system.
+I can not change the domain, because the boot script (/etc/init.d/boot) 
+remove /lib/modules/'uname -r'/modules.dep. I see not a possibility to do a 
+domain transition for this -- it is a shell script with an rm in it.
 
-I guess that it's doing some type of "lsof" operation, so some dontaudit 
-would be in order.
+> > # Access to file_t (/opt)
+> > allow ldconfig_t file_t:dir { getattr read search };
+> > allow ldconfig_t file_t:{ file lnk_file } { getattr read };
+>
+> You should never grant anything access to file_t.  The existance of
+> file_t labelled objects indicates a deficiency in yout file_contexts.
 
-What is /dev/blog?  It's not in Documentation/devices.txt in the kernel 
-source...
+The NSA distribution have not a type for /opt. Next days I will send a 
+patch to correct this.
 
-> # Allow access to modules_object_t (lib/modules)
-> allow initrc_t modules_object_t:dir { write remove_name };
-> allow initrc_t modules_dep_t:file { unlink };
+> > # Access to /dev/xconsole
+> > allow syslogd_t device_t:fifo_file { ioctl read write };
+>
+> We need a better type for that pipe.
 
-Why does initrc_t need to remove files from /lib/modules?  Perhaps a domain 
-transition to update_modules_t is what you need...
+Done. I label it as devlog_t. 
 
-> # Access to file_t (/opt)
-> allow ldconfig_t file_t:dir { getattr read search };
-> allow ldconfig_t file_t:{ file lnk_file } { getattr read };
+> > # Access to /dev/tty10
+> > allow syslogd_t tty_device_t:chr_file { append ioctl };
+>
+> Do you realise that anyone can kill the machine by pressing ^S on VC 10?
 
-You should never grant anything access to file_t.  The existance of file_t 
-labelled objects indicates a deficiency in yout file_contexts.
+No this was me unknown. Could it be that this problem not selinux specific? 
+I don't no any solution. Have you disabled the log messages on tty10? 
 
-> # Access to /dev/xconsole
-> allow syslogd_t device_t:fifo_file { ioctl read write };
+> > file_type_auto_trans(ntpd_t, etc_t, etc_ntp_t)
+>
+> Why does ntpd need to create files under /etc?  Must be a deficiency in
+> the package.
 
-We need a better type for that pipe.
+On SuSE: Under /etc are the ntpd configuration file and ntp.dift.
 
-> # Access to /dev/tty10
-> allow syslogd_t tty_device_t:chr_file { append ioctl };
+Thanks for your comment
 
-Do you realise that anyone can kill the machine by pressing ^S on VC 10?
-
-> file_type_auto_trans(ntpd_t, etc_t, etc_ntp_t)
-
-Why does ntpd need to create files under /etc?  Must be a deficiency in the 
-package.
-
-> allow ntpd_t console_device_t:chr_file { read write };
-
-My Debian package has the following patch to macros/global_macros.te to 
-address that:
--allow $1_t console_device_t:chr_file rw_file_perms;
-+allow $1_t { sysadm_tty_device_t console_device_t }:chr_file rw_file_perms;
-
-> # Access to /proc/sys/kernel
-> allow ntpd_t sysctl_kernel_t:dir { search };
-> allow ntpd_t sysctl_kernel_t:file { read };
-
-That's in my Debian package.
-
-> # Access to /var
-> allow ntpd_t var_t:dir { search };
-
-That's in the daemon_domain macro, it should have worked without that.
-
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Carsten
 
 --
 You have received this message because you are subscribed to the selinux list.
