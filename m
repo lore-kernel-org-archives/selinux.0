@@ -1,45 +1,35 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i996MErT027324
+	for <selinux@tycho.nsa.gov>; Sat, 9 Oct 2004 02:22:14 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i996L2xf006089
+	for <selinux@tycho.nsa.gov>; Sat, 9 Oct 2004 06:21:04 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
+To: jwcart2@epoch.ncsc.mil
 Subject: Re: More SELinux fixes.
-Date: Sat, 9 Oct 2004 13:10:35 +1000
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <4165B9AA.8090803@redhat.com>
-In-Reply-To: <4165B9AA.8090803@redhat.com>
+Date: Sat, 9 Oct 2004 16:22:08 +1000
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+References: <4165B9AA.8090803@redhat.com> <1097258770.13326.14.camel@moss-lions.epoch.ncsc.mil>
+In-Reply-To: <1097258770.13326.14.camel@moss-lions.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200410091310.35902.russell@coker.com.au>
+Message-Id: <200410091622.08531.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 8 Oct 2004 07:48, Daniel J Walsh <dwalsh@redhat.com> wrote:
-policy-1.17.29/macros/program/chkpwd_macros.te
---- nsapolicy/macros/program/chkpwd_macros.te   2004-10-01 15:05:32.000000000 
--0400
-+++ policy-1.17.29/macros/program/chkpwd_macros.te      2004-10-07 
-17:24:28.492440739 -0400
-@@ -27,6 +27,7 @@
- role system_r types system_chkpwd_t;
- dontaudit auth_chkpwd shadow_t:file { getattr read };
- allow auth_chkpwd sbin_t:dir search;
-+dontaudit $1_chkpwd_t tty_device_t:chr_file rw_file_perms;
- ', `
- domain_auto_trans($1_t, chkpwd_exec_t, $1_chkpwd_t)
- allow $1_t sbin_t:dir search;
-@@ -51,9 +52,6 @@
- allow $1_chkpwd_t etc_t:file { getattr read };
- allow $1_chkpwd_t self:unix_dgram_socket create_socket_perms;
- allow $1_chkpwd_t self:unix_stream_socket create_socket_perms;
--ifdef(`targeted_policy', `
--allow $1_chkpwd_t tty_device_t:chr_file { read write };
--')
- read_locale($1_chkpwd_t)
- 
- # Use capabilities.
+On Sat, 9 Oct 2004 04:06, James Carter <jwcart2@epoch.ncsc.mil> wrote:
+> Merged, with the exception of the sendmail part.
+>
+> The sendmail.te part is a revision of Russell's patch from Oct 1st, is
+> this intentional?  Should these rules be added back?
 
-Do we have a bug in the PAM code?  If the PAM code is working as designed then 
-the terminal will be closed before unix_chkpwd is executed.
+If sendmail is started with file handle 0 being /dev/console then it wants to 
+access /var/run/utmp.  If file handle 0 refers to /dev/null then it doesn't.
+
+I'm currently looking into this, I suspect that a minor change to sendmail or 
+it's startup scripts might be the most appropriate thing.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
