@@ -1,52 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA26593
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 15:08:46 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA10376
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 20:08:05 GMT
-Received: from vorpal.mcs.drexel.edu (vorpal.mcs.drexel.edu [129.25.6.250])
-	by jazzband.ncsc.mil  with ESMTP id UAA10372
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 20:08:05 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA26807
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 15:22:58 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA04338
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 20:22:54 GMT
+Received: from sentry.gw.tislabs.com (relay.hq.tis.com [192.94.214.100] (may be forged))
+	by jazzswing.ncsc.mil  with ESMTP id UAA04334
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2001 20:22:53 GMT
+Date: Mon, 3 Dec 2001 15:22:00 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Justin Smith <jsmith@mcs.drexel.edu>
+cc: <selinux@tycho.nsa.gov>
 Subject: Re: X windows with i810 chip
-From: Justin Smith <jsmith@mcs.drexel.edu>
-To: Stephen Smalley <sds@tislabs.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <Pine.GSO.4.33.0112031009550.4293-100000@raven>
-References: <Pine.GSO.4.33.0112031009550.4293-100000@raven>
-Content-Type: text/plain
-Date: 03 Dec 2001 15:05:09 -0500
-Message-Id: <1007409909.1588.0.camel@vorpal>
-Mime-Version: 1.0
+In-Reply-To: <1007409909.1588.0.camel@vorpal>
+Message-ID: <Pine.GSO.4.33.0112031518560.4293-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2001-12-03 at 10:13, Stephen Smalley wrote:
-> 
-> indirectly through /usr/X11R6/bin/Xwrapper, which is labeled with the
-> xserver_exec_t type.  This type causes a domain transition from user_t
-> to user_xserver_t.  So I don't know why your X server is running in the
-> wrong domain.
-> 
-Yes, I saw the reason for this problem. The file_contexts listing
-only assigns xserver_t to /usr/X11R6/bin/Xwrapper when many systems name
-the X server X or XFree86 (mine does the latter). I assigned  the
-xserver_t type to both of these files and it solved the problem.
 
-I am now able to run X windows and even gdm, although gdm has some
-strange problems. When running under it, the newrole command gets the
-error message: 'unable to find user in passwd'. I do not get this
-message when running under ordinary X windows.
+On 3 Dec 2001, Justin Smith wrote:
 
-Another anomaly: in Redhat 7.1, /dev/hdc can be a hard drive OR a cdrom
-(!). The gnome desktop wouldn't start initially because the system
-thought it was trying to access a fixed disk.
+> Yes, I saw the reason for this problem. The file_contexts listing
+> only assigns xserver_t to /usr/X11R6/bin/Xwrapper when many systems name
+> the X server X or XFree86 (mine does the latter). I assigned  the
+> xserver_t type to both of these files and it solved the problem.
 
-In addition, MAKEDEV should be assigned a type that is some sort of
-system script rather than a device_t.
+On my RH7.1 systems, the real X server is in /usr/X11R6/bin/XFree86, but
+it must be executed via a setuid wrapper program, /usr/X11R6/bin/Xwrapper.
+Hence, we put the xserver_exec_t type on the wrapper program rather than
+the server.  /usr/X11R6/bin/X is a symbolic link to Xwrapper.
 
-Thanks very much for your comments. I'll create a domain for postgres.
-> 
 --
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
 
 
 --
