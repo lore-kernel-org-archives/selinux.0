@@ -1,38 +1,79 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i85IdNrT018392
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 14:39:23 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i85IdMt0003202
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 18:39:23 GMT
-Date: Sun, 5 Sep 2004 19:50:34 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Erich Schubert <erich@debian.org>
-Cc: russell@coker.com.au, selinux@tycho.nsa.gov
-Subject: Re: Additional rule files
-Message-ID: <20040905185034.GI4084@lkcl.net>
-References: <1094260356.29689.44.camel@wintermute.xmldesign.de> <200409052031.05813.russell@coker.com.au> <1094392498.22073.19.camel@wintermute.xmldesign.de> <20040905173452.GH4084@lkcl.net> <1094405907.22073.34.camel@wintermute.xmldesign.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1094405907.22073.34.camel@wintermute.xmldesign.de>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i861R8rT019415
+	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 21:27:08 -0400 (EDT)
+Received: from georgia.yamato.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i861QFia014021
+	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 01:26:17 GMT
+Received: from e19f3n15.jp.ibm.com (d19relay02.sagamino.japan.ibm.com [9.189.5.62])
+	by georgia.yamato.ibm.com (8.11.6p2-20030922/8.11.1) with ESMTP id i861R1a274476
+	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 10:27:01 +0900
+Received: from D19ML102.sagamino.japan.ibm.com (d19av02.sagamino.japan.ibm.com [9.189.5.91])
+	by e19f3n15.jp.ibm.com (8.12.10/NCO/VER6.6) with ESMTP id i861R0s2152142
+	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 10:27:01 +0900
+Reply-To: 
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Subject: SuSE 9.1 SELinux
+From: Takuya Mishina <TMISHINA@jp.ibm.com>
+Message-ID: <OF93C1DDD2.9FAF1403-ON49256F06.00517E1E-49256F07.0007F249@jp.ibm.com>
+Date: Mon, 6 Sep 2004 10:26:58 +0900
+Content-Type: text/plain; charset="ISO-2022-JP"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Sep 05, 2004 at 07:38:27PM +0200, Erich Schubert wrote:
-> Hi,
-> >  apache is modular: i assume that at some point the apache policy
-> >  would reflect this modularity [with tunables/apache_modules.te?]
-> 
-> With linkable modules, yes. Apart from apache2 modules having like one
-> security issue a month currently (ok, maybe a bit exxagerated) the
-> apache process still is one big process. Having one role/domain.
+Hi all,
 
- i was thinking more along the lines of having functionality
- in the single apache domain being optional.
+I've tried being enable SELinux on SuSE 9.1 personal edition, followings 
+are the installation and configuration memo.
+after this configuration, SELinux in console login mode (runlevel 3) is 
+available. please use this memo for your information about SELinux on 
+SuSE!
 
- then, one of the simpler web server applications could consider
- using the apache policy - starting with all the options switched off.
 
- l.
+
++ Install SuSE
+  filesystem must be ext3 (not reiserfs). no limitation except for 
+filesystem.
+
++ Install and upgrade RPM packages using YaST
+   - checkpolicy
+   - policycoreutils
+   - policy-sources
+   - other update packages (kernel, etc.)
+
++ make mountpoint /selinux
+  # mkdir /selinux
+
+  /selinux will be automatically mounted on boot (cf. /etc/init.d/boot).
+
++ modify /sbin/init 
+  cf. http://www.nsa.gov/selinux/list-archive/0310/5617.cfm
+  thanks, Russell!
+
++ edit policy
+　add following into 
+/security/selinux/src/policy/file_contexts/program/init.fc 
+
+　/sbin/init.real               --      system_u:object_r:init_exec_t
+
++ modify PAM configurations
+  add following into /etc/pam.d/sshd and /etc/pam.d/su
+
+  session       required        pam_selinux.so
+
++ setuid to /usr/bin/newrole
+  # chmod 4755 /usr/bin/newrole
+  SuSE Linux newrole seems not to use PAM for authentication, so newrole 
+must be able to read /etc/shadow. 
+
+
+to enable SELinux, boot SuSE with kernel option "selinux=1".
+
+
+
+---
+Takuya MISHINA
+IBM Research, Tokyo Research Laboratory
 
 
 --
