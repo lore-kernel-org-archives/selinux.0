@@ -1,74 +1,81 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA29640
-	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 13:09:25 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA00132
-	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 17:07:39 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id RAA00127 for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 17:07:39 GMT
-Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA12686
-	for <selinux@tycho.nsa.gov>; Thu, 12 Sep 2002 13:09:21 -0400 (EDT)
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-Subject: new login Debian package
-Date: Wed, 11 Sep 2002 12:58:39 +0200
-To: SELinux <SELinux@tycho.nsa.gov>
+To: Carsten Grohmann <carstengrohmann@gmx.de>
+Subject: Re: redhat.te and suse.te (was Re: pppd with ipppd)
+Date: Thu, 12 Sep 2002 19:21:49 +0200
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <200209082234.38885.russell@coker.com.au> <200209121632.39393.russell@coker.com.au> <20020912170340.C3722FA8D@ivanova.coker.com.au>
+In-Reply-To: <20020912170340.C3722FA8D@ivanova.coker.com.au>
 MIME-Version: 1.0
-Message-Id: <200209111258.45033.russell@coker.com.au>
+Message-Id: <200209121921.49843.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 12 Sep 2002 18:56, Carsten Grohmann wrote:
+> > The fact is that I proposed using M4 in the file contexts before, Steve
+> > rejected the idea, and we now have an alternate solution.
+> >
+> > If we need a redhat.fc or suse.fc then we may need to use M4, however I
+> > think that we will not need such entries.  I don't expect different
+> > distributions to need different types for the same file, and therefore we
+> > can put all definitions needed by all distributions in the main files.
+> >
+> > I suggest that we keep the current method in place until we have a
+> > concrete example of something failing with it.
+>
+> You have right. This little example shows the boundary of the current
+> method.
 
-Last week I recommended that everyone who is using my Debian packages upgrade 
-their login package to the latest version, that is 
-login_20000902-12.se2_i386.deb for unstable/sarge or 
-login_20000902-12.se2.woody0_i386.deb for woody.
+Actually your example does not show it at all.
 
-The previous version had a serious bug where it used the username variable for 
-determining the SE Linux credentials instead of the pam_user variable.
+> << suse.fc >>
+>
+> ifdef(`cups.fc',`
+> ....
+> dev/usb/lp*		system_u:object_r:printer_device_t
+> ....
+> ')
 
-username is only set the first time you enter a user name, while pam_user is 
-set every time.
+Firstly such an ifdef should probably make reference to lpd as well as cups...
 
-To exploit this you could enter the name of an account that's authorised for 
-sysadm_r with a bad password.  Then on the second login attempt you could 
-enter an un-priviledged account name and the correct password and login to 
-the sysadm_r with the un-priv account.
+Anyway /dev/usb/lp* is not a SUSE specific thing, it's documented in 
+/usr/src/linux/Documentation/devices.txt so it applies to all distributions.
 
-This was discovered in my tutorial (the students didn't discover the extent of 
-the bug - they discovered that sometimes they would get user_u:user_r:user_t 
-instead of the context they expected and I determined the extent of the bug 
-later).
+We should probably change the policy to match this now.
 
-This only affects code I released, not any code that is on the NSA web site.
+> ifdef(`ntpd.fc',`
+> /var/log/ntp		system_u:object_r:var_log_ntp_t
+> ')
 
-In my initial advisory I got the URL for the woody files wrong.  As no-one 
-asked I presume that everyone who is using my packages for woody knew where 
-to get it.
+Again this does not require anything special for SUSE.  Most distributions 
+will not have a /var/log/ntp entry (I think).  However I am certain that no 
+distribution will have /var/log/ntp unless it's a log file/directory for the 
+NTP daemon, in which case that entry is OK.
 
-For woody:
-deb http://www.coker.com.au/woody/ ./
+It's OK to have entries in the file_contexts that don't match anything.
 
-For Sarge/unstable:
-deb http://www.coker.com.au/selinux/ ./
+> I see there are more disadvantages then advantages. But if we like to merge
+> the single suse file (apmd_suse.(fc|te) crond_suse, cups_suse, inetd_suse)
+> , we need an fc file like this example, I think.
+> The suse fc file are not empty. SuSE use in some cases similar filenames or
+> it uses new "devices" like /dev/blog.
 
-For the source:
-http://www.coker.com.au/selinux/login/
+I see no advantages.  As long as there is no conflict there is no problem.  If 
+SUSE uses a file named "foo" while Debian uses a file named "bar" for the 
+same purpose, then we just put both in the file_contexts (it's what we have 
+been doing so far).  It's only if the same file is used for different 
+purposes that we have a problem.
 
+This problem has not occurred yet, so I don't think that we need to try 
+solving it.
 
-Russell Coker
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9fyHiwrB5/PXHUlYRAuMAAKDZSXiQIot2qCx1q2zMJ5IDM+sNOwCdGJgS
-BkUm9XOHePXLMlaCudJg4T8=
-=fAcr
------END PGP SIGNATURE-----
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 
 --
