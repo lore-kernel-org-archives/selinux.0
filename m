@@ -1,42 +1,54 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14610
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 12:56:44 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA15802
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:55:12 GMT
-Received: from gnat.inet.org (209-9-249-62.sdsl.cais.net [209.9.249.62])
-	by jazzswing.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA15792
-	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:55:11 GMT
-Message-Id: <5.0.0.25.2.20010111124540.01be6940@gnat.inet.org>
-Date: Thu, 11 Jan 2001 12:47:34 -0500
-To: Johnathon Day <jcday@mail.thesportsregister.com>
-From: RJ Atkinson <rja@inet.org>
-Subject: Re: Security enhancements, et al
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <Pine.LNX.4.21.0101100924010.5905-100000@mail.thesportsregi
- ster.com>
-References: <3A5C118F.36583E35@occamnetworks.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA14524
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 12:51:52 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA03267
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:51:16 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id RAA03263
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 17:51:15 GMT
+Received: from coalstove.epoch.ncsc.mil (coalstove [144.51.25.13])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11454
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 12:51:43 -0500 (EST)
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA13737
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 11:47:54 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA00191
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 16:47:18 GMT
+Received: from ns.caldera.de (ns.caldera.de [212.34.180.1])
+	by jazzband.ncsc.mil (8.9.1/8.9.1) with ESMTP id QAA00186
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jan 2001 16:47:17 GMT
+Date: Thu, 11 Jan 2001 17:46:29 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Huagang Xie <xie@gnuchina.org>
+Cc: Stephen Smalley <sds@tislabs.com>,
+        Jeffry Smith <smith@missioncriticallinux.com>, selinux@tycho.nsa.gov,
+        linux-privs-discuss@sourceforge.net
+Subject: Re: [Linux-privs-discuss] Re: SELinux & Linux-privs projects
+Message-ID: <20010111174629.A11158@caldera.de>
+References: <Pine.SOL.3.95.1010111095226.23465N-100000@clipper.gw.tislabs.com> <Pine.LNX.4.21.0101120029450.3618-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <Pine.LNX.4.21.0101120029450.3618-100000@localhost.localdomain>; from xie@gnuchina.org on Fri, Jan 12, 2001 at 12:42:56AM +0800
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-At 09:41 10/01/01, Johnathon Day wrote:
+On Fri, Jan 12, 2001 at 12:42:56AM +0800, Huagang Xie wrote:
+> 
+> 
+> In fact, the LIDS project(www.lids.org) extend the capability usage to
+> integrit in a MAC way. You can disable a capability world width and give 
+> the capability to the needed program( label the capability to a
+> subject).  
 
->The "Open Source" IPSECs I know of are: NIST (Linux), FreeS/WAN (Linux),
->CISCO (BSD), MIT (BSD) and DOD (BSD). 
+It's rather ugly compared to real filesystem capabilities and even
+the elfcap hack.
 
-Aside:
-        I don't think there exists an MIT (BSD) IPsec.  I think
-you meant the "NRL (BSD) IPsec" that happens to be distributed
-by MIT as a service to the community, at the request of ARPA,
-(done because getting NRL management to distribute crypto code 
-online was too administratively painful).
+	Christoph
 
-Cheers,
-
-Ran
-rja@inet.org
+-- 
+Whip me.  Beat me.  Make me maintain AIX.
 
 
 --
