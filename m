@@ -1,39 +1,34 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA14715
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 13:53:01 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA16430
+	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 21:23:53 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h1JIr0I03769
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 18:53:00 GMT
+	by jazzband.ncsc.mil  with ESMTP id h1K2NqI26132
+	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 02:23:52 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h1JIqxf03765 for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 18:52:59 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 5A98892569
-	for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 05:52:57 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id E56EAA82
-	for <selinux@tycho.nsa.gov>; Wed, 19 Feb 2003 19:52:43 +0100 (CET)
+        by jazzband.ncsc.mil  with ESMTP id h1K2Nof26122 for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2003 02:23:51 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Cover Story in Linux Magazine not Linux Journal!
-Date: Wed, 19 Feb 2003 19:52:43 +0100
-References: <200302191751.53243.russell@coker.com.au>
-In-Reply-To: <200302191751.53243.russell@coker.com.au>
+To: <kbottner@istation.com>
+Subject: Re: Cover Story in Linux Magazine
+Date: Thu, 20 Feb 2003 03:23:39 +0100
+References: <000001c2d881$142d7760$7900a8c0@neo>
+In-Reply-To: <000001c2d881$142d7760$7900a8c0@neo>
+Cc: SE Linux <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200302191952.43357.russell@coker.com.au>
+Message-Id: <200302200323.39700.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 19 Feb 2003 17:51, Russell Coker wrote:
-> An article on SE Linux by Carsten Grohmann and Konstantin Agouros is the
-> February cover story for Linux Magazine.  It's a good article and I
+On Thu, 20 Feb 2003 02:40, kbottner wrote:
+> Are you sure it's the February 2003 issue? I can't seem to find any
+> articles by the aforementioned authors.
 
-Sorry people, it was Linux Magazine not Linux Journal as I wrote in my 
-previous message.
+Yes, Feb 2003 Linux Magazine, issue #27, page 20, as sold in an English 
+language version in the Netherlands.
 
-I bought both magazines at the same time and wrote the wrong name in my email.
+Other countries may have different versions.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
