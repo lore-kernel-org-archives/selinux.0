@@ -1,38 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9GEE1Wt002840
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 10:14:02 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9GEE1mR027047
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 14:14:01 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h9GEE0jp027044 for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 14:14:00 GMT
-Subject: Re: selinux documentation
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Carlos Anisio Monteiro <monteiro@ipen.br>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <3F8E7BCB.2020107@ipen.br>
-References: <3F8E7BCB.2020107@ipen.br>
-Content-Type: text/plain
-Message-Id: <1066313633.25279.0.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 16 Oct 2003 10:13:53 -0400
+Message-ID: <69B1CAEF4FC66F4D9A07B903E0265D3F0B4A54@s3cin>
+From: "Kratzer, James R." <JamesK@xetron.com>
+To: "SELinux (E-mail)" <SELinux@tycho.nsa.gov>
+Subject: RE: can't start X window in enforce mode
+Date: Thu, 16 Oct 2003 10:21:13 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="GB2312"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-10-16 at 07:06, Carlos Anisio Monteiro wrote:
-> Hi.
-> 
-> Please, where can I find a documentation/guide about "wildcards" (p.ex. 
-> '\.', '.*', '^'), explain the meaning.
-> I woud like to know the aplication them in the file contexts.
+I'm trying to get X-windows to start with enforce set to "1" without any
+luck.  I have moved the xserver.te file from the domains/program/unused
+directory to the domains/program directory.  I have changed the dontaudit
+line to allow as described here in the email below.  Any help would be
+appreciated.
 
-The file contexts configuration uses pathname regular expressions.  man
-7 regex
+-----Original Message-----
+From: Russell Coker [mailto:russell@coker.com.au]
+Sent: Sunday, October 12, 2003 6:11 PM
+To: lky; SELINUX
+Subject: Re: can't start X window in enforce mode
+
+
+On Mon, 13 Oct 2003 04:37, lky wrote:
+>-------------- Why the system didn't display the denied message if the
+> opration violate the policy? How should I configure my policy in order to
+> start the X window? Thanks!
+
+# memory_device_t access is needed if not using the frame buffer
+dontaudit $1_xserver_t memory_device_t:chr_file read;
+
+The above is the relevant section of policy in
+macros/program/xserver_macros.te.  The X server tries to access /dev/mem
+even 
+if it doesn't need to.  Change the dontaudit rule to an allow for 
+rw_file_perms and it should work.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
