@@ -1,41 +1,33 @@
-Subject: /dev/mem error starting X11
-From: Timothy Wood <timothy@hallcomp.com>
-To: SELinux <SELinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA19472
+	for <selinux@tycho.nsa.gov>; Mon, 1 Jul 2002 15:08:29 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA19897
+	for <selinux@tycho.nsa.gov>; Mon, 1 Jul 2002 19:08:00 GMT
+Received: from capone.h.spamaps.org (ip-208-252-253-53-muca.asurf.net [208.252.253.53])
+	by jazzswing.ncsc.mil  with ESMTP id TAA19893
+	for <selinux@tycho.nsa.gov>; Mon, 1 Jul 2002 19:07:59 GMT
+Subject: TE/DTE Patent issues?
+From: Clint Byrum <cbyrum@spamaps.org>
+To: SE Linux <selinux@tycho.nsa.gov>, LSM <linux-security-module@wirex.com>
 Content-Type: text/plain
-Date: 01 Jul 2002 09:51:20 -0400
-Message-Id: <1025531480.13205.19.camel@phobos>
+Date: 01 Jul 2002 12:08:01 -0700
+Message-Id: <1025550481.1823.2.camel@lancelot>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Howdy all,
+Hi there. I'm still confused about the TE and DTE patent issues. I'm
+currently rolling something out and can't wait any longer for
+clarification. Its not totally clear that it would fall under the term
+"commercial use" .. but one of the reasons I've gone with Free software
+is to *avoid* licensing issues.
 
-I just installed the latest 2.4-lsm package on an almost fresh install
-of RH7.3 (stock + gnome 2) and when I try to start X11 I get an error
-accessing /dev/mem (and as I just noticed /dev/apm_bios)
+I just thought I'd check one more time. Are we still waiting for the
+latest "official" word from the patent holders?
 
-avc:  denied  { read } for  pid=10290 exe=/usr/X11R6/bin/XFree86
-path=/dev/mem dev=03:03 ino=65566 scontext=root:sysadm_r:sysadm_t
-tcontext=system_u:object_r:memory_device_t tclass=chr_file
+Thanks.
 
-avc:  denied  { read write } for  pid=10290 exe=/usr/X11R6/bin/XFree86
-path=/dev/apm_bios dev=03:03 ino=65587 scontext=root:sysadm_r:sysadm_t
-tcontext=system_u:object_r:apm_bios_t tclass=chr_file
-
-avc:  denied  { read write } for  pid=10290 exe=/usr/X11R6/bin/XFree86
-path=/dev/mem dev=03:03 ino=65566 scontext=root:sysadm_r:sysadm_t
-tcontext=system_u:object_r:memory_device_t tclass=chr_file
-Jul  1 
-
-Anyone have any ideas?  Also, despite that my networking works and
-everything I keep getting an avc message dealing with dhcp.  The dhcp
-works, I'm just curious about the message if anyone can explain it.
-
-avc:  denied  { recvfrom } for  saddr=192.168.42.242 daddr=192.168.42.7
-netif=eth0 scontext=system_u:system_r:dhcpc_t
-tcontext=system_u:system_r:icmp_socket_t tclass=packet_socket
-
-Thanks,
 
 
 
