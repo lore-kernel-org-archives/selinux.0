@@ -1,38 +1,66 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h97G2HWt012579
-	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 12:02:17 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h97HSeWt013248
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 13:28:40 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h97G297f005553
-	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 16:02:15 GMT
-Subject: Re: [selinux] Re: [PATCH] Warnings and 64bit
-From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Joerg Hoh <joerg@devone.org>, Selinux <selinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <1065467759.3919.121.camel@moss-spartans.epoch.ncsc.mil>
-References: <20031004231832.GE3573@hydra.joerghoh.de>
-	<1065467759.3919.121.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-2
-Date: 07 Oct 2003 17:56:52 +0200
-Message-Id: <1065542212.7264.3.camel@kusturica>
-Mime-Version: 1.0
+	by jazzband.ncsc.mil  with ESMTP id h97HSd7d010612
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 17:28:39 GMT
+Received: from web41011.mail.yahoo.com (web41011.mail.yahoo.com [66.218.93.10])
+        by jazzband.ncsc.mil  with SMTP id h97HScRn010608 for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 17:28:38 GMT
+Message-ID: <20031007172834.24557.qmail@web41011.mail.yahoo.com>
+Date: Tue, 7 Oct 2003 10:28:34 -0700 (PDT)
+From: Vikram K <vikramatiitkdotacdotin@yahoo.com>
+Subject: A few clarifications - SID, Precondition functions
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-2003-10-06, h keltezéssel Stephen Smalley ezt írta:
-> On Sat, 2003-10-04 at 19:18, Joerg Hoh wrote:
-> > We've managed to run SELinux on an alpha (Kernel 2.6.0test6). Before that 
-> > we've done lot of patching (the policy compiler was really messy).
+Hello,
 
-[lots of comments from Stephen]
+We had a few doubts regarding the SELinux kernel code.
 
-Hi!
+1. The need for having a SID ( instead of having a
+struct context* ) in
+each of the *_security_struct structures. (* = task,
+inode, etc.) As we
+see it, the SID is just a means of referring to the
+corresponding context
+structure and seems to have no other utility.
 
-I hope you can sort out all the issues remaining, as I plan to
-use selinux on sparc64. (Just I have other issues to solve with
-my kernel build).
+2. If once an object is created, what would happen if
+we change its SID.
+Is it at all safe to change the SID?
+(maybe because the struct context to which it was
+referring has a
+few fields changed and this structure is being
+referred to by other
+objects)
+
+3. There is a lot of documentation about "Precondition
+Functions" which
+are called whenever an SID needs to be dereferenced.
+This would help in
+initializing security fields of objects that were
+created before the
+SELinux module is loaded (or starts - if SELinux is
+built into the kernel)
+We couldn't find these precondition functions in the
+code, though. Can
+anybody tell us if they have been implemented and if
+yes, then in which
+version?
 
 
+Thanks in advance,
+Vikram
+Kamalneet
+
+
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
