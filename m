@@ -1,81 +1,230 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3G7NXZ015699
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 11:07:23 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3G7NJZ029196
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 16:07:23 GMT
-Subject: Re: dynamic context transitions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
-   Chad Hanson <chanson@TrustedCS.com>,
-   Darrel Goeddel <DGoeddel@TrustedCS.com>, selinux@tycho.nsa.gov,
-   Frank Mayer <mayerf@tresys.com>
-In-Reply-To: <20041103155537.GD5061@lkcl.net>
-References: <36282A1733C57546BE392885C06185924D9100@chaos.tcs.tcs-sec.com>
-	 <1099342548.21386.239.camel@moss-spartans.epoch.ncsc.mil>
-	 <20041101225820.GP9643@lkcl.net>
-	 <200411021930.iA2JURrg028137@turing-police.cc.vt.edu>
-	 <20041103155537.GD5061@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1099497817.1213.132.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Wed, 03 Nov 2004 11:03:37 -0500
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3GHLXZ015800
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 11:17:22 -0500 (EST)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3GFt50019418
+	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 16:16:00 GMT
+Message-ID: <41890486.7020605@redhat.com>
+Date: Wed, 03 Nov 2004 11:17:10 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+CC: russell@coker.com.au, jwcart2@epoch.ncsc.mil,
+   SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: Patch to make can_network stronger and remove nscd tunable.
+References: <20041018124332.GA5193@hydrogenium.cip.ifi.lmu.de> <200411030027.28875.russell@coker.com.au> <41879A1B.40103@redhat.com> <200411030248.49998.russell@coker.com.au> <4187AE44.40204@redhat.com> <20041103000707.GD2547@jmh.mhn.de>
+In-Reply-To: <20041103000707.GD2547@jmh.mhn.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-03 at 10:55, Luke Kenneth Casson Leighton wrote:
-> On Tue, Nov 02, 2004 at 02:30:26PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> > Not true at all - just because the only things passed to the execve()
-> > syscall are the argv[] and envp[] arrays doesn't mean that it's the
-> > only resources passed to the post-exec code:
-> > 
-> > 1) Open file descriptors, unless flagged as close-on-exec
-> > 2) ulimit/umask settings
-> > 3) Posix 1.e attributes (modulo the active/permitted/inherited changes)
-> > 4) The current working directory
-> > 5) Any namespaces created by mount --bind, clone(CLONE_FS), and friends.
-> > 
-> > And probably a bunch of other stuff I'm forgetting.  There's PLENTY of
-> > places to accidentally leak stuff up/down across an exec() call....
-> 
-> thank you for correcting me.
-> 
-> i trust that all these things are covered in some way by
-> SE/Linux - from what i can gather, the open file descriptors
-> definitely are, yes?
+Thomas Bleher wrote:
 
-SELinux performs a number of checks on an exec-based context transition,
-including open file descriptors, controlling tty, signal-related state,
-and resource limits.  Such checks have to be carefully balanced against
-application compatibility concerns (but policy can handle this on a
-selective basis) and against the potential for a security flaw to arise
-from unexpected state sanitization (e.g. you set resource limits prior
-to running some application to bound its resources, but it runs in a
-different domain and the policy forces a reset of its resource limits to
-protect it against subversion by the caller, thereby leading to it
-running with greater limits than desired - this too can be addressed by
-policy).  Some state sanitization need to be handled by glibc (e.g. LD_*
-variable purging), and this is done via the AT_SECURE mechanism.  Some
-state sanitization ultimately requires application knowledge and has to
-be done by the particular application during startup.
+>* Daniel J Walsh <dwalsh@redhat.com> [2004-11-02 18:35]:
+>  
+>
+>>Updated with Russell's "daemon" change and other fixes.
+>>
+>>How does this look?
+>>    
+>>
+>
+>First off, it would be nice if you could split your patches into
+>logically independant pieces, makes it much easier to read.
+>
+>I think there need to be some changes (comments below) but the
+>nfs_home_dirs-related stuff should be merged as soon as possible.
+>Currently it is broken in cvs because only some parts have been
+>converted from tunable to boolean.
+>
+>  
+>
+Point taken.
 
-We don't apply checking to every piece of state inherited on exec, as
-certain forms of manipulation should be countered by existing access
-checks (e.g. namespace manipulation already requires a capability to
-perform, and namespace manipulation may trick the application into
-accessing the wrong file, but it won't let the application access any
-file beyond its permissions) and since it isn't always clear what to do
-if a given piece of state couldn't be inherited (merely resetting to
-some sane default may introduce a vulnerability of its own, e.g.
-breaking out of a namespace set up by a caller).  But no matter how
-"leaky" exec may be, it is far less "leaky" than seteuid, where you have
-no control over inheritance or initialization of the new domain.
+>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/crond.te policy-1.17.37/domains/program/crond.te
+>>--- nsapolicy/domains/program/crond.te	2004-10-19 16:03:04.000000000 -0400
+>>+++ policy-1.17.37/domains/program/crond.te	2004-11-02 10:30:33.000000000 -0500
+>>@@ -114,6 +114,10 @@
+>>+allow crond_t krb5_conf_t:file { getattr read };
+>>+dontaudit crond_t krb5_conf_t:file { write };
+>>    
+>>
+>
+>If we are going to add this to more domains we should add a macro IMHO
+>like can_krb5_connect() or something. I do not know much about kerberos,
+>but I think most kerberized apps will need similar permissions which
+>should only be granted if kerberos is used.
+>
+>  
+>
+I can run through the policy code an do this.
 
+>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/login.te policy-1.17.37/domains/program/login.te
+>>--- nsapolicy/domains/program/login.te	2004-10-19 16:03:05.000000000 -0400
+>>+++ policy-1.17.37/domains/program/login.te	2004-11-02 10:30:33.000000000 -0500
+>>@@ -21,6 +21,8 @@
+>> dontaudit $1_login_t shadow_t:file { getattr read };
+>> 
+>> general_domain_access($1_login_t);
+>>+can_network($1_login_t) 
+>>+allow $1_login_t self:{ tcp_socket udp_socket } connect;
+>>    
+>>
+>
+>Huh? Where does this come from? Cannot see this in the cvs policy. If
+>this is needed because of kerberos it should be ifdef'ed.
+>
+>  
+>
+Alot of pam protocols are going to require this kerberos, ldap, NIS 
+(can_ypbind gives us this though).
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+>>-ifdef(`nfs_home_dirs', `
+>>+if (use_nfs_home_dirs) {
+>> r_dir_file($1_login_t, nfs_t)
+>>-')dnl end if nfs_home_dirs
+>>+}
+>>    
+>>
+>
+>This should go into CVS ASAP, as mentioned above.
+>
+>  
+>
+>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/acct.te policy-1.17.37/domains/program/unused/acct.te
+>>--- nsapolicy/domains/program/unused/acct.te	2004-10-19 16:03:05.000000000 -0400
+>>+++ policy-1.17.37/domains/program/unused/acct.te	2004-11-02 10:30:33.000000000 -0500
+>>@@ -63,6 +63,7 @@
+>> 
+>> ifdef(`logrotate.te', `
+>> domain_auto_trans(logrotate_t, acct_exec_t, acct_t)
+>>+allow logrotate_t acct_data_t:dir { search };
+>> allow logrotate_t acct_data_t:file { create_file_perms };
+>>    
+>>
+>
+>allow logrotate_t acct_data_t:dir search;
+>allow logrotate_t acct_data_t:file create_file_perms;
+>
+>This makes it easier to read, IMHO.
+>
+>  
+>
+>>--- nsapolicy/domains/program/unused/ftpd.te	2004-10-27 14:32:48.000000000 -0400
+>>+++ policy-1.17.37/domains/program/unused/ftpd.te	2004-11-02 10:30:33.000000000 -0500
+>>@@ -4,6 +4,7 @@
+>> #           Russell Coker <russell@coker.com.au>
+>> # X-Debian-Packages: proftpd-common bsd-ftpd ftpd vsftpd
+>> #
+>>+# Depends: inetd.te
+>>    
+>>
+>
+>Not true. There is a boolean ftpd_is_daemon which governs this.
+>Current policy needed inetd.te to compile but I think this is an error
+>in the policy. The following patch should fix it:
+>  
+>
+Correct
+
+>--- ftpd.te.orig	2004-11-03 00:37:16.000000000 +0100
+>+++ ftpd.te	2004-11-03 00:39:33.000000000 +0100
+>@@ -44,8 +44,6 @@
+> rw_dir_create_file(ftpd_t, var_lock_t)
+> allow ftpd_t ftp_port_t:tcp_socket name_bind;
+> can_tcp_connect(userdomain, ftpd_t)
+>-# Allows it to check exec privs on daemon
+>-allow inetd_t ftpd_exec_t:file x_file_perms;
+> }
+> ifdef(`inetd.te', `
+> if (!ftpd_is_daemon) {
+>  
+>  
+>
+>> allow ftpd_t ftp_data_port_t:tcp_socket name_bind;
+>>+allow ftpd_t port_t:tcp_socket { name_bind };
+>>    
+>>
+>
+>I confess I am not too familiar with ftp, but does it really need to
+>bind to arbitrary ports, seems excessive and unneeded (and is not
+>granted in current policy as far as I can see)
+>
+>  
+>
+This is caused by ypbind and should be removed.  can_ypbind now has this.
+
+>>diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ping.te policy-1.17.37/domains/program/unused/ping.te
+>>--- nsapolicy/domains/program/unused/ping.te	2004-06-16 13:33:36.000000000 -0400
+>>+++ policy-1.17.37/domains/program/unused/ping.te	2004-11-02 10:30:33.000000000 -0500
+>>@@ -55,3 +56,5 @@
+>> # it tries to access /var/run
+>> dontaudit ping_t var_t:dir search;
+>> 
+>>+dontaudit ping_t devtty_t:chr_file { read write };
+>>+dontaudit ping_t ping_t:capability { sys_tty_config };
+>>    
+>>
+>
+>        dontaudit ping_t self:capability sys_tty_config;
+>
+>is nicer.
+>
+>  
+>
+>>diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/mailman.fc policy-1.17.37/file_contexts/program/mailman.fc
+>>--- nsapolicy/file_contexts/program/mailman.fc	2004-10-13 22:41:58.000000000 -0400
+>>+++ policy-1.17.37/file_contexts/program/mailman.fc	2004-11-02 10:30:33.000000000 -0500
+>>    
+>>
+>[...]
+>  
+>
+>>+/usr/lib/mailman/bin/qrunner  	 -- system_u:object_r:mailman_queue_exec_t
+>>+/etc/mailman(/.*)?		   system_u:object_r:mailman_data_t
+>>+/var/spool/mailman(/.*)?	   system_u:object_r:mailman_data_t
+>>    
+>>
+>
+>Sorry, I do not know mailman at all, so please excuse my ignorance.
+>But does mailman really have to write to /etc/mailman, which is
+>presumably it's configuration data? This is not nice at all.
+>
+>  
+>
+The problem here is that the administration of the config files is done 
+though cgi scripts, so /etc/mailman
+currently is managable via mailman_cgi_t.  Maybe we need a rewrite of 
+mailman to add a mailman_conf_t or
+some such.  But mailman_cgi_t still needs to manipulate both the 
+mailman_conf_t and mailman_data_t.
+
+Dan
+
+>  
+>
+>>diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/ssh_macros.te policy-1.17.37/macros/program/ssh_macros.te
+>>--- nsapolicy/macros/program/ssh_macros.te	2004-10-14 23:25:20.000000000 -0400
+>>+++ policy-1.17.37/macros/program/ssh_macros.te	2004-11-02 10:30:33.000000000 -0500
+>>@@ -20,20 +20,16 @@
+>> undefine(`ssh_domain')
+>> ifdef(`ssh.te', `
+>> define(`ssh_domain',`
+>>-ifdef(`single_userdomain', `
+>>-typealias $1_home_t alias $1_home_ssh_t;
+>>-typealias $1_t alias $1_ssh_t;
+>>-', `
+>>    
+>>
+>
+>Ahh, nice to see single_userdomain finally gone.
+>
+>There were a few other superfluous braces, but the rest looks fine.
+>
+>Thomas
+>
+>  
+>
 
 
 --
