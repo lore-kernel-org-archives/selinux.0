@@ -1,186 +1,100 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8HHwCxF001872
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 13:58:12 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8HHwBmw028871
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 17:58:11 GMT
-Received: from sjtu.edu.cn (mailhost.shnet.edu.cn [202.112.26.54])
-        by jazzband.ncsc.mil  with ESMTP id h8HHw89d028848 for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 17:58:09 GMT
-Received: from lky (mailwall.shnet.edu.cn [202.112.26.55])
-	by sjtu.edu.cn (WorldPost) with ESMTP id DD603120D0B
-	for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2003 01:58:00 +0800 (BEIST)
-Message-ID: <000a01c37d46$29ed8300$5d38a8c0@lky>
-From: "lky" <lky77@sjtu.edu.cn>
-To: "SELINUX" <SELinux@tycho.nsa.gov>
-Subject: Installation Problem
-Date: Thu, 18 Sep 2003 02:04:39 +0800
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C37D89.37810620"
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8HIc4xF002095
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 14:38:04 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8HIaMLY014523
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 18:36:23 GMT
+Received: from moss-lions.epoch.ncsc.mil (moss-lions.epoch.ncsc.mil [144.51.25.4])
+	by jazzswing.ncsc.mil  with ESMTP id h8HIaMsG014520
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 18:36:22 GMT
+Subject: Re: Installation Problem
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: lky <lky77@sjtu.edu.cn>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <000a01c37d46$29ed8300$5d38a8c0@lky>
+References: <000a01c37d46$29ed8300$5d38a8c0@lky>
+Content-Type: text/plain
+Message-Id: <1063823878.7533.38.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 17 Sep 2003 14:37:58 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+SELinux uses extended attributes for file security contexts.  We (and
+others) have encountered problems booting unmodified 2.4 kernels after
+assigning extended attributes to the root filesystem.  
 
-------=_NextPart_000_0007_01C37D89.37810620
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
+A 2.4 kernel with the Extended Attribute patch applied will boot.  The
+kernel source that you are using for SELinux has the EA patch, so you
+can use it to make a non-SELinux kernel.
 
-SGksIEkgYW0gYXR0ZW1wdGluZyB0byBpbnN0YWxsIHRoZSBuZXcgMi40LWJhc2VkIFNFTGludXgg
-YXQgUmVkaGF0OS4wLiBCdXQgd2hlbiBJIGZpbmlzaGVkIHRoZSBpbnN0YWxsYXRpb24gSSBmb3Vu
-ZCBJIGNvdWxkbid0IHJlYm9vdCB0aGUgUmVkaGF0OS4wIGFueSBsb25nZXIgd2hpbGUgSSBjYW4g
-Ym9vdCB3aXRoIHRoZSBTRUxpbnV4IGtlcm5lbC4gV2hlbiBJIGJvb3Qgd2l0aCB0aGUgUmVkaGF0
-OS4wIGtlcm5lbCBJIGdvdCB0aGUgZm9sbG93aW5nIGVycm9yIG1lc3NhZ2U6DQotLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQg
-b2YgZGV2aWNlDQowMzowOTogcnc9MCwgd2FudD14eHh4eHh4eHh4LGxpbWl0PXh4eHh4eHh4eHgN
-Cmtlcm5lbCBwYW5pYzogTm8gaW5pdCBmb3VuZCAsVHJ5IHBhc3NpbmcgaW5pdD1vcHRpb24gdG8g
-a2VybmVsDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCg0KbXkgaGFyZGRp
-c2sgc3RhdGlzdGljcyBpcyBiZWxvdzoNCg0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tDQpEaXNrIC9kZXYvaGRhOiA0MC45IEdCLCA0MDk4MjE1MTE2OCBieXRlcw0KMjU1
-IGhlYWRzLCA2MyBzZWN0b3JzL3RyYWNrLCA0OTgyIGN5bGluZGVycw0KVW5pdHMgPSBjeWxpbmRl
-cnMgb2YgMTYwNjUgKiA1MTIgPSA4MjI1MjgwIGJ5dGVzDQoNCiAgIERldmljZSBCb290ICAgIFN0
-YXJ0ICAgICAgIEVuZCAgICBCbG9ja3MgICBJZCAgU3lzdGVtDQovZGV2L2hkYTEgICAqICAgICAg
-ICAgMSAgICAgICA2MzQgICA1MDkyNTczKyAgIGIgIFdpbjk1IEZBVDMyDQovZGV2L2hkYTIgICAg
-ICAgICAgIDYzNSAgICAgIDQ5ODIgIDM0OTI1MzEwICAgIGYgIFdpbjk1IEV4dCdkIChMQkEpDQov
-ZGV2L2hkYTUgICAgICAgICAgMTY4OCAgICAgIDI1NTAgICA2OTMyMDE2ICAgIDcgIEhQRlMvTlRG
-Uw0KL2Rldi9oZGE2ICAgICAgICAgIDI1NTEgICAgICAzODI1ICAxMDI0MTQwNiAgICBiICBXaW45
-NSBGQVQzMg0KL2Rldi9oZGE3ICAgICAgICAgIDM4MjYgICAgICA0OTgyICAgOTI5MzU3MSAgICBi
-ICBXaW45NSBGQVQzMg0KL2Rldi9oZGE4ICAgICAgICAgICA2MzUgICAgICAgNjQ3ICAgIDEwNDM1
-OSsgIDgzICBMaW51eA0KL2Rldi9oZGE5ICAgICAgICAgICA2NDggICAgICAxNjIyICAgNzgzMTY1
-NiAgIDgzICBMaW51eA0KL2Rldi9oZGExMCAgICAgICAgIDE2MjMgICAgICAxNjg3ICAgIDUyMjA4
-MSAgIDgyICBMaW51eCBzd2FwDQoNClBhcnRpdGlvbiB0YWJsZSBlbnRyaWVzIGFyZSBub3QgaW4g
-ZGlzayBvcmRlcg0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQoN
-Cm15IGdydWIuY29uZiBpcyBsaXN0ZWQgdG9vDQoNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tDQojIGdydWIuY29uZiBnZW5lcmF0ZWQgYnkgYW5hY29uZGENCiMNCiMg
-Tm90ZSB0aGF0IHlvdSBkbyBub3QgaGF2ZSB0byByZXJ1biBncnViIGFmdGVyIG1ha2luZyBjaGFu
-Z2VzIHRvIHRoaXMgZmlsZQ0KIyBOT1RJQ0U6ICBZb3UgaGF2ZSBhIC9ib290IHBhcnRpdGlvbi4g
-IFRoaXMgbWVhbnMgdGhhdA0KIyAgICAgICAgICBhbGwga2VybmVsIGFuZCBpbml0cmQgcGF0aHMg
-YXJlIHJlbGF0aXZlIHRvIC9ib290LywgZWcuDQojICAgICAgICAgIHJvb3QgKGhkMCw3KQ0KIyAg
-ICAgICAgICBrZXJuZWwgL3ZtbGludXotdmVyc2lvbiBybyByb290PS9kZXYvaGRhOQ0KIyAgICAg
-ICAgICBpbml0cmQgL2luaXRyZC12ZXJzaW9uLmltZw0KI2Jvb3Q9L2Rldi9oZGENCmRlZmF1bHQ9
-MQ0KdGltZW91dD0xMA0Kc3BsYXNoaW1hZ2U9KGhkMCw3KS9ncnViL3NwbGFzaC54cG0uZ3oNCnRp
-dGxlIFJlZCBIYXQgTGludXggKDIuNC4yMC04KQ0KIHJvb3QgKGhkMCw3KQ0KIGtlcm5lbCAvdm1s
-aW51ei0yLjQuMjAtOCBybyByb290PUxBQkVMPS8NCiBpbml0cmQgL2luaXRyZC0yLjQuMjAtOC5p
-bWcNCnRpdGxlIFNFTGludXggKDIuNC4yMSkNCiByb290IChoZDAsNykNCiBrZXJuZWwgL2J6SW1h
-Z2UtMi40IHJvIHJvb3Q9TEFCRUw9Lw0KIGluaXRyZCAvaW5pdHJkLTIuNC4yMS5pbWcNCnRpdGxl
-IERPUw0KIHJvb3Rub3ZlcmlmeSAoaGQwLDApDQogY2hhaW5sb2FkZXIgKzENCi0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCg0KSXMgaXQgYSBoYXJkd2Fy
-ZSB0cm91YmxlPyBIb3cgY2FuIEkgYm9vdCBteSBSZWRoYXQgOS4wIGFnYWluPw0KVGhhbmtzIQ0K
-DQo=
-
-------=_NextPart_000_0007_01C37D89.37810620
-Content-Type: text/html;
-	charset="gb2312"
-Content-Transfer-Encoding: base64
-
-PCFET0NUWVBFIEhUTUwgUFVCTElDICItLy9XM0MvL0RURCBIVE1MIDQuMCBUcmFuc2l0aW9uYWwv
-L0VOIj4NCjxIVE1MPjxIRUFEPg0KPE1FVEEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
-dD0idGV4dC9odG1sOyBjaGFyc2V0PWdiMjMxMiI+DQo8TUVUQSBjb250ZW50PSJNU0hUTUwgNi4w
-MC4yNjAwLjAiIG5hbWU9R0VORVJBVE9SPg0KPFNUWUxFPjwvU1RZTEU+DQo8L0hFQUQ+DQo8Qk9E
-WSBiZ0NvbG9yPSNmZmZmZmY+DQo8RElWPjxGT05UIGZhY2U9QXJpYWwgc2l6ZT0yPg0KPERJVj48
-Rk9OVCBmYWNlPUFyaWFsIHNpemU9Mj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCBzaXplPTI+SGks
-IEkgYW0gYXR0ZW1wdGluZyB0byBpbnN0YWxsIHRoZSBuZXcgMi40LWJhc2VkIA0KU0VMaW51eCBh
-dCBSZWRoYXQ5LjAuIEJ1dCB3aGVuIEkgZmluaXNoZWQgdGhlIGluc3RhbGxhdGlvbiBJIGZvdW5k
-IEkgY291bGRuJ3QgDQpyZWJvb3QgdGhlIFJlZGhhdDkuMCBhbnkgbG9uZ2VyIHdoaWxlJm5ic3A7
-SSBjYW4gYm9vdCB3aXRoIHRoZSBTRUxpbnV4IGtlcm5lbC4gDQpXaGVuIEkgYm9vdCB3aXRoIHRo
-ZSBSZWRoYXQ5LjAga2VybmVsIEkgZ290IHRoZSBmb2xsb3dpbmcgZXJyb3IgDQptZXNzYWdlOjwv
-Rk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCANCnNpemU9Mj4tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS08L0ZPTlQ+PC9ESVY+DQo8RElWPjxGT05UIGZhY2U9QXJp
-YWwgc2l6ZT0yPmF0dGVtcHQgdG8gYWNjZXNzIGJleW9uZCBlbmQgb2YgZGV2aWNlPC9GT05UPjwv
-RElWPg0KPERJVj48Rk9OVCBmYWNlPUFyaWFsIHNpemU9Mj4wMzowOTogcnc9MCwgDQp3YW50PXh4
-eHh4eHh4eHgsbGltaXQ9eHh4eHh4eHh4eDwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1B
-cmlhbCBzaXplPTI+a2VybmVsIHBhbmljOiBObyBpbml0IGZvdW5kICxUcnkgcGFzc2luZyANCmlu
-aXQ9b3B0aW9uIHRvIGtlcm5lbDwvRk9OVD48L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCAN
-CnNpemU9Mj4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS08L0ZPTlQ+PC9ESVY+
-DQo8RElWPiZuYnNwOzwvRElWPg0KPERJVj5teSBoYXJkZGlzayBzdGF0aXN0aWNzIGlzIGJlbG93
-OjwvRElWPg0KPERJVj4mbmJzcDs8L0RJVj4NCjxESVY+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tPC9ESVY+DQo8RElWPkRpc2sgL2Rldi9oZGE6IDQwLjkgR0IsIDQwOTgy
-MTUxMTY4IGJ5dGVzPEJSPjI1NSBoZWFkcywgNjMgc2VjdG9ycy90cmFjaywgDQo0OTgyIGN5bGlu
-ZGVyczxCUj5Vbml0cyA9IGN5bGluZGVycyBvZiAxNjA2NSAqIDUxMiA9IDgyMjUyODAgYnl0ZXM8
-L0RJVj4NCjxESVY+Jm5ic3A7PC9ESVY+DQo8RElWPiZuYnNwOyZuYnNwOyBEZXZpY2UgQm9vdCZu
-YnNwOyZuYnNwOyZuYnNwOyANClN0YXJ0Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5i
-c3A7IEVuZCZuYnNwOyZuYnNwOyZuYnNwOyANCkJsb2NrcyZuYnNwOyZuYnNwOyBJZCZuYnNwOyBT
-eXN0ZW08QlI+L2Rldi9oZGExJm5ic3A7Jm5ic3A7IA0KKiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNw
-OyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyANCjEmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJz
-cDsmbmJzcDsgNjM0Jm5ic3A7Jm5ic3A7IDUwOTI1NzMrJm5ic3A7Jm5ic3A7IA0KYiZuYnNwOyBX
-aW45NSANCkZBVDMyPEJSPi9kZXYvaGRhMiZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZu
-YnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyANCjYzNSZuYnNwOyZuYnNwOyZuYnNwOyZuYnNw
-OyZuYnNwOyA0OTgyJm5ic3A7IDM0OTI1MzEwJm5ic3A7Jm5ic3A7Jm5ic3A7IGYmbmJzcDsgDQpX
-aW45NSBFeHQnZCANCihMQkEpPEJSPi9kZXYvaGRhNSZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZu
-YnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyANCjE2ODgmbmJzcDsmbmJzcDsmbmJzcDsmbmJz
-cDsmbmJzcDsgMjU1MCZuYnNwOyZuYnNwOyA2OTMyMDE2Jm5ic3A7Jm5ic3A7Jm5ic3A7IA0KNyZu
-YnNwOyANCkhQRlMvTlRGUzxCUj4vZGV2L2hkYTYmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJz
-cDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsgDQoyNTUxJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7
-Jm5ic3A7IDM4MjUmbmJzcDsgMTAyNDE0MDYmbmJzcDsmbmJzcDsmbmJzcDsgYiZuYnNwOyANCldp
-bjk1IEZBVDMyPEJSPi9kZXYvaGRhNyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNw
-OyZuYnNwOyZuYnNwOyZuYnNwOyANCjM4MjYmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsg
-NDk4MiZuYnNwOyZuYnNwOyA5MjkzNTcxJm5ic3A7Jm5ic3A7Jm5ic3A7IA0KYiZuYnNwOyBXaW45
-NSANCkZBVDMyPEJSPi9kZXYvaGRhOCZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNw
-OyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyANCjYzNSZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZu
-YnNwOyZuYnNwOyA2NDcmbmJzcDsmbmJzcDsmbmJzcDsgMTA0MzU5KyZuYnNwOyANCjgzJm5ic3A7
-IA0KTGludXg8QlI+L2Rldi9oZGE5Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7
-Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IA0KNjQ4Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5i
-c3A7IDE2MjImbmJzcDsmbmJzcDsgNzgzMTY1NiZuYnNwOyZuYnNwOyA4MyZuYnNwOyANCkxpbnV4
-PEJSPi9kZXYvaGRhMTAmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsm
-bmJzcDsgDQoxNjIzJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IDE2ODcmbmJzcDsmbmJz
-cDsmbmJzcDsgNTIyMDgxJm5ic3A7Jm5ic3A7IA0KODImbmJzcDsgTGludXggc3dhcDwvRElWPg0K
-PERJVj4mbmJzcDs8L0RJVj4NCjxESVY+UGFydGl0aW9uIHRhYmxlIGVudHJpZXMgYXJlIG5vdCBp
-biBkaXNrIA0Kb3JkZXI8QlI+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tPC9ESVY+DQo8RElWPiZuYnNwOzwvRElWPg0KPERJVj5teSBncnViLmNvbmYgaXMgbGlzdGVk
-IHRvbzwvRElWPg0KPERJVj4mbmJzcDs8L0RJVj4NCjxESVY+LS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS08L0RJVj4NCjxESVY+IyBncnViLmNvbmYgZ2VuZXJhdGVkIGJ5
-IGFuYWNvbmRhPEJSPiM8QlI+IyBOb3RlIHRoYXQgeW91IGRvIG5vdCBoYXZlIHRvIA0KcmVydW4g
-Z3J1YiBhZnRlciBtYWtpbmcgY2hhbmdlcyB0byB0aGlzIGZpbGU8QlI+IyBOT1RJQ0U6Jm5ic3A7
-IFlvdSBoYXZlIGEgL2Jvb3QgDQpwYXJ0aXRpb24uJm5ic3A7IFRoaXMgbWVhbnMgDQp0aGF0PEJS
-PiMmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsg
-YWxsIGtlcm5lbCBhbmQgDQppbml0cmQgcGF0aHMgYXJlIHJlbGF0aXZlIHRvIC9ib290LywgDQpl
-Zy48QlI+IyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZu
-YnNwOyByb290IA0KKGhkMCw3KTxCUj4jJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5i
-c3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7IGtlcm5lbCANCi92bWxpbnV6LXZlcnNpb24gcm8gDQpyb290
-PS9kZXYvaGRhOTxCUj4jJm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7
-Jm5ic3A7Jm5ic3A7IGluaXRyZCANCi9pbml0cmQtdmVyc2lvbi5pbWc8QlI+I2Jvb3Q9L2Rldi9o
-ZGE8QlI+ZGVmYXVsdD0xPEJSPnRpbWVvdXQ9MTA8QlI+c3BsYXNoaW1hZ2U9KGhkMCw3KS9ncnVi
-L3NwbGFzaC54cG0uZ3o8QlI+dGl0bGUgDQpSZWQgSGF0IExpbnV4ICgyLjQuMjAtOCk8QlI+Jm5i
-c3A7cm9vdCAoaGQwLDcpPEJSPiZuYnNwO2tlcm5lbCAvdm1saW51ei0yLjQuMjAtOCANCnJvIHJv
-b3Q9TEFCRUw9LzxCUj4mbmJzcDtpbml0cmQgL2luaXRyZC0yLjQuMjAtOC5pbWc8QlI+dGl0bGUg
-U0VMaW51eCANCigyLjQuMjEpPEJSPiZuYnNwO3Jvb3QgKGhkMCw3KTxCUj4mbmJzcDtrZXJuZWwg
-L2J6SW1hZ2UtMi40IHJvIA0Kcm9vdD1MQUJFTD0vPEJSPiZuYnNwO2luaXRyZCAvaW5pdHJkLTIu
-NC4yMS5pbWc8QlI+dGl0bGUgDQpET1M8QlI+Jm5ic3A7cm9vdG5vdmVyaWZ5IChoZDAsMCk8QlI+
-Jm5ic3A7Y2hhaW5sb2FkZXIgDQorMTxCUj4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tPC9ESVY+DQo8RElWPiZuYnNwOzwvRElWPg0KPERJVj5JcyBpdCBh
-IGhhcmR3YXJlIHRyb3VibGU/IEhvdyBjYW4gSSBib290IG15IFJlZGhhdCA5LjAgYWdhaW4/PC9E
-SVY+DQo8RElWPlRoYW5rcyE8L0RJVj4NCjxESVY+PEZPTlQgZmFjZT1BcmlhbCANCnNpemU9Mj48
-L0ZPTlQ+Jm5ic3A7PC9ESVY+PC9GT05UPjwvRElWPjwvRk9OVD48L0RJVj48L0JPRFk+PC9IVE1M
-Pg0K
-
-------=_NextPart_000_0007_01C37D89.37810620--
-
-
+ On Wed, 2003-09-17 at 14:04, lky wrote:
+> Hi, I am attempting to install the new 2.4-based SELinux at Redhat9.0.
+> But when I finished the installation I found I couldn't reboot the
+> Redhat9.0 any longer while I can boot with the SELinux kernel. When I
+> boot with the Redhat9.0 kernel I got the following error message:
+> ------------------------------------------------------------------------------------------------------------------------------------------------------
+> attempt to access beyond end of device
+> 03:09: rw=0, want=xxxxxxxxxx,limit=xxxxxxxxxx
+> kernel panic: No init found ,Try passing init=option to kernel
+> ------------------------------------------------------------------------------------------------------------------------------------------------------
+>  
+> my harddisk statistics is below:
+>  
+> ---------------------------------------------------------------------------------------------------------------------------------------------------------
+> Disk /dev/hda: 40.9 GB, 40982151168 bytes
+> 255 heads, 63 sectors/track, 4982 cylinders
+> Units = cylinders of 16065 * 512 = 8225280 bytes
+>  
+>    Device Boot    Start       End    Blocks   Id  System
+> /dev/hda1   *         1       634   5092573+   b  Win95 FAT32
+> /dev/hda2           635      4982  34925310    f  Win95 Ext'd (LBA)
+> /dev/hda5          1688      2550   6932016    7  HPFS/NTFS
+> /dev/hda6          2551      3825  10241406    b  Win95 FAT32
+> /dev/hda7          3826      4982   9293571    b  Win95 FAT32
+> /dev/hda8           635       647    104359+  83  Linux
+> /dev/hda9           648      1622   7831656   83  Linux
+> /dev/hda10         1623      1687    522081   82  Linux swap
+>  
+> Partition table entries are not in disk order
+> ------------------------------------------------------------------------------------------------------------------------------------------------------------
+>  
+> my grub.conf is listed too
+>  
+> -----------------------------------------------------------------------------------------------------------------------------------------------------------
+> # grub.conf generated by anaconda
+> #
+> # Note that you do not have to rerun grub after making changes to this
+> file
+> # NOTICE:  You have a /boot partition.  This means that
+> #          all kernel and initrd paths are relative to /boot/, eg.
+> #          root (hd0,7)
+> #          kernel /vmlinuz-version ro root=/dev/hda9
+> #          initrd /initrd-version.img
+> #boot=/dev/hda
+> default=1
+> timeout=10
+> splashimage=(hd0,7)/grub/splash.xpm.gz
+> title Red Hat Linux (2.4.20-8)
+>  root (hd0,7)
+>  kernel /vmlinuz-2.4.20-8 ro root=LABEL=/
+>  initrd /initrd-2.4.20-8.img
+> title SELinux (2.4.21)
+>  root (hd0,7)
+>  kernel /bzImage-2.4 ro root=LABEL=/
+>  initrd /initrd-2.4.21.img
+> title DOS
+>  rootnoverify (hd0,0)
+>  chainloader +1
+> -------------------------------------------------------------------------------------------------------------------------------------------------------------------
+>  
+> Is it a hardware trouble? How can I boot my Redhat 9.0 again?
+> Thanks!
+>  
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
