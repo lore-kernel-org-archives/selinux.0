@@ -1,69 +1,60 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA21885
-	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 06:13:05 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id KAA17106
-	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 10:11:24 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id KAA17096 for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 10:11:23 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Mark =?iso-8859-1?q?M=FCller?= <trusted@web.de>, selinux@tycho.nsa.gov
-Subject: Re: Direct logins (via local and ssh) as httpd_admin_r?
-Date: Thu, 29 Aug 2002 12:12:53 +0200
-References: <200208290944.g7T9ikX09394@mailgate5.cinetic.de>
-In-Reply-To: <200208290944.g7T9ikX09394@mailgate5.cinetic.de>
+Date: Thu, 29 Aug 2002 07:37:39 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: kernel daemons runs in init_t
+In-Reply-To: <20020828163123.00B4227AF@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0208290723570.447-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020829101253.AAF656D11@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 29 Aug 2002 11:44, Mark Müller wrote:
-> > Do you have the following in your rbac file?
-> > allow system_r httpd_admin_r;
->
-> Bingo! Thanks for the fast answer Direct logins are now possible, but
->
-> a role change with newrole -r back to user_r does not work. Its curious:
 
-Do you have "allow httpd_admin_r user_r;" ???
+On Wed, 28 Aug 2002, Russell Coker wrote:
 
-> newrole just quits with error: chsid
->
-> The log says:
->
-> avc:  denied  { relabelto } for  pid=785 exe=/usr/local/selinux/bin/newrole
-> path=/1 dev=00:07 ino=3 scontext=webadmin:httpd_admin_r:httpd_admin_t
-> tcontext=webadmin:object_r:httpd_admin_devpts_t tclass=chr_file
+>   PID    SID CONTEXT                                  COMMAND
+>     1      7 system_u:system_r:init_t                 init [2]
+>     2      1 system_u:system_r:kernel_t               [keventd]
+>     3      1 system_u:system_r:kernel_t               [kapmd]
+>     4      7 system_u:system_r:init_t                 [ksoftirqd_CPU0]
+>     5      7 system_u:system_r:init_t                 [kswapd]
+>     6      7 system_u:system_r:init_t                 [bdflush]
+>     7      7 system_u:system_r:init_t                 [kupdated]
+>    19      1 system_u:system_r:kernel_t               [mdrecoveryd]
+>    22      7 system_u:system_r:init_t                 [khubd]
+>    31      1 system_u:system_r:kernel_t               [raid1d]
+>    40      1 system_u:system_r:kernel_t               [kreiserfsd]
+>   246    330 system_u:system_r:insmod_t               [kSpeedSARd]
+>   288    331 system_u:system_r:fsadm_t                [raid1d]
+>   298    331 system_u:system_r:fsadm_t                [raid1d]
 
-It appears that newrole is running as httpd_admin_t, so therefore as it's not 
-running in newrole_t it can't do anything interesting.
+I see something more like what Carsten describes:
+    2      7 system_u:system_r:init_t                 [keventd]
+    3      7 system_u:system_r:init_t                 [ksoftirqd_CPU0]
+    4      7 system_u:system_r:init_t                 [kswapd]
+    5      7 system_u:system_r:init_t                 [bdflush]
+    6      7 system_u:system_r:init_t                 [kupdated]
+    8      7 system_u:system_r:init_t                 [khubd]
+   11      7 system_u:system_r:init_t                 [kjournald]
+  133      7 system_u:system_r:init_t                 [kjournald]
 
->From newrole.te:
-domain_auto_trans(userdomain, newrole_exec_t, newrole_t)
+The ps -el output shows all of these "processes" having a PPID of 1, i.e.
+init.
 
-httpd_admin_t is not a "userdomain".
+In part, the change may be due to the new hook in the kernel
+reparent_to_init function.  This would affect the kjournald and khubd
+threads, since they call this function.  But I don't think it fully
+explains the change, and it doesn't explain why you see kernel_t on some
+of the same threads.
 
-Also httpd_admin_r is not permitted to have domain newrole_t.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-I think that httpadm.te is a bad idea, it was written long before I solved 
-the problems of multiple user domains which allow this to be solved in a much 
-better fashion.  I suggest replacing the contents of httpadm.te with 
-something like the following:
-full_user_role(httpd_admin)
-allow system_r httpd_admin_r;
-allow sysadm_r httpd_admin_r;
-allow user_r httpd_admin_r;
-Then followed by appropriate allow lines for httpd_config_t etc.
-Or you could put the above in the httpd_admin_domain() macro.
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
