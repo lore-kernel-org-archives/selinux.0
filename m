@@ -1,57 +1,51 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA25585
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2002 21:01:17 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA26316
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2002 04:05:04 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id CAA23562
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2002 02:00:26 GMT
-Received: from jsmith.org (pool-141-158-42-21.phil.east.verizon.net [141.158.42.21])
-        by jazzband.ncsc.mil  with ESMTP id CAA23554 for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2002 02:00:25 GMT
-Subject: RE: Gdm shut my system down
-From: Justin Smith <jsmith@mcs.drexel.edu>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: 
-	<72222DC86846D411ABD300A0C9EB08A1015242A7@csoc-mail-box.csoconline.com>
-References: 
-	<72222DC86846D411ABD300A0C9EB08A1015242A7@csoc-mail-box.csoconline.com>
-Content-Type: text/plain
-Date: 22 Jan 2002 21:01:50 -0500
-Message-Id: <1011751310.1789.8.camel@jsmith.org>
-Mime-Version: 1.0
+	by jazzband.ncsc.mil  with ESMTP id JAA06968
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2002 09:04:13 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id JAA06951 for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2002 09:04:11 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: <selinux@tycho.nsa.gov>
+Subject: Re: devfs_contexts
+Date: Wed, 23 Jan 2002 00:48:21 +1100
+Cc: rgooch@ras.ucalgary.ca
+References: <Pine.GSO.4.33.0201181241010.3743-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0201181241010.3743-100000@raven>
+MIME-Version: 1.0
+Message-Id: <20020123020122.13E9F330083@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2002-01-22 at 10:21, Westerman, Mark wrote:
-> Let me know 
-> 
-> Thanks,
-> Mark
-> 
+On Sat, 19 Jan 2002 04:50, Stephen Smalley wrote:
+> For filesystems that use the persistent label mapping (e.g. ext2, ext3,
+> reiserfs), the label will set by the chsid call be retained across reboots
+> since it is stored in that mapping.  For pseudo filesystems like devfs,
+> the label won't be retained across reboots unless you also add it to
+> devfs_contexts, because there is no persistent storage of the label.  So,
+> if you want the labels to persist, you'll need to update devfs_contexts
+> and then reboot.
 
+Do you think it would make sense to have a SE version of devfsd that applied 
+SE SID's at the same time as applying regular permissions to devfs managed 
+device nodes?  It makes sense to me to have both regular file system 
+permissions and SE sids applied at the same time.
 
-Well, gdm 2.2.3.1 seems to dislike enforcing mode. Whenever I use it in
-enforcing mode, it goes down within a few minutes (random short lengths
-of time --- between 5 and 30 seconds). There does not appear to be a
-problem in permissive mode since I've been able to use it for hours in
-that mode.
+I could do the devfsd patch in a small amount of time if desired (I've 
+written plenty of patches for devfsd already so I know the code reasonably 
+well).
 
-In addition, X windows does not appear to have a problem, by itself.
-I've been able to use X windows for hours in enforcing mode.
+NB  I've CC'd Richard Gooch to get his opinions on this matter.
 
-I don't think that it's a question of gdm getting permission denied
-because using it for hours in permissive  mode (and setting the policy
-to catch all the denied messages) would have caught everything gdm tried
-to do. It must be some obscure interaction with the kernel...(ugh!)
-
-I'm using Redhat 7.2 (upgraded from 7.1),
-
-An Nvidia GEForce 2 MX card (with Nvidia's drivers recompiled for this
-system)
-
-lsm-2.4-selinux-2002011718.
 -- 
-
-
+http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
+http://www.coker.com.au/projects.html Projects I am working on
+http://www.coker.com.au/~russell/     My home page
 
 --
 You have received this message because you are subscribed to the selinux list.
