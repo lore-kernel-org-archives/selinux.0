@@ -1,42 +1,35 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA07354
-	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 10:31:39 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA17543
-	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 15:29:22 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id PAA17534
-	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 15:29:13 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, selinux@tycho.nsa.gov
-Subject: Re: SELinux on CD
-Date: Tue, 3 Dec 2002 16:31:11 +0100
-References: <20021203162250.A30338@lemuria.org>
-In-Reply-To: <20021203162250.A30338@lemuria.org>
-Cc: Carsten Grohmann <carstengrohmann@gmx.de>
-MIME-Version: 1.0
-Message-Id: <200212031631.11158.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA07737
+	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 10:58:31 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA19808
+	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 15:56:28 GMT
+Received: from jsmith.org (pool-141-158-42-116.phil.east.verizon.net [141.158.42.116])
+        by jazzband.ncsc.mil  with ESMTP id PAA19804 for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 15:56:27 GMT
+Received: from jsmith.org (jsmith.org [127.0.0.1])
+	by jsmith.org (8.12.5/8.12.5) with ESMTP id gB3FuDI5002058
+	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2002 10:56:13 -0500
+Subject: Systrace
+From: Justin Smith <jsmith@mcs.drexel.edu>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: 03 Dec 2002 10:56:13 -0500
+Message-Id: <1038930973.2041.2.camel@jsmith.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 3 Dec 2002 16:22, Tom wrote:
-> I just received the newest german Linux Magazin, and it includes a CD
-> with "top security software". Part of which is SELinux 2002102211 and a
-> very detailed (almost 10 pages) article by Carsten Grohmann and
-> Konstantin Agouros.
+I came across the Systrace site
 
-Go Carsten!
+http://www.citi.umich.edu/u/provos/systrace/
 
-Any chance of getting it translated and published in English?
-
+and it strikes me as somewhat similar to SELinux: although it lacks
+roles, it does intercept system calls and file accesses and apply access
+criteria. It seems to me that the most significant difference between
+systrace and SELinux is the lack of domains for running processes. On
+the other hand, one can specify which programs to monitor.
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
 
 
 --
