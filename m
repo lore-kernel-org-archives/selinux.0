@@ -1,59 +1,84 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA21108
-	for <selinux@tycho.nsa.gov>; Wed, 11 Sep 2002 10:44:16 -0400 (EDT)
-From: azeredo@qmc.ufsc.br
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA19100
-	for <selinux@tycho.nsa.gov>; Wed, 11 Sep 2002 14:42:31 GMT
-Received: from quark.qmc.ufsc.br (bohr-gw.qmc.ufsc.br [150.162.31.223])
-        by jazzband.ncsc.mil  with ESMTP id OAA19094 for <selinux@tycho.nsa.gov>; Wed, 11 Sep 2002 14:42:29 GMT
-Message-ID: <1031756508.3d7f5adca337f@qmc.ufsc.br>
-Date: Wed, 11 Sep 2002 12:01:48 -0300
-To: russel@coker.com.au
-Cc: selinux@tycho.nsa.gov
-Subject: Problems compiling selinux on SuSe 7.2
+Message-ID: <001901c259a8$595621f0$0200a8c0@kevsta>
+Reply-To: "jj012a1662" <jj012a1662@blueyonder.co.uk>
+From: "jj012a1662" <jj012a1662@blueyonder.co.uk>
+To: "selinux" <SELinux@tycho.nsa.gov>
+Subject: Dialup connection
+Date: Wed, 11 Sep 2002 16:31:49 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0016_01C259B0.BA771E00"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0016_01C259B0.BA771E00
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Dear all,
+
+I'm trying to refrain from posting questions such as this as i know alot =
+of you don't like to be answering silly non technical SELinux related =
+questions like these but i will ask it anyway. I have searched the =
+archives for related topics but i couldn't find any. I would like to =
+setup SELinux to share the internet which is a 56k dialup connection but =
+i'm not too sure how i would go about doing it as i've always had a GUI =
+to setup my connection to share the internet (such as the smoothwall web =
+interface) and run my command line computers (slackware) behind my =
+router which shares the internet.=20
+
+If anybody would be kind enough to help me get SELinux to share a dialup =
+connection, it will be very much appreciated. If i manage to get SELinux =
+to share my connection, i will try to ask alot more technical related =
+questions as Security is my main interest.
+
+Thank you for your time.
+
+Regards,
+Kevin.j=20
 
 
- Hi:
+------=_NextPart_000_0016_01C259B0.BA771E00
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
- I am trying to compile selinux on SuSe 7.2. I got the last package version of 
-lsm-2.4-selinux-2002082308.tgz with kernel 2.4.19 and got the following error:
-I have tried with kerberos 5 from mandrake distribution and also with heimdal 
-that comes with suse. But the error is the same, namely
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2600.0" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT size=3D2>
+<P>Dear all,<BR><BR>I'm trying to refrain from posting questions such as =
+this as=20
+i know alot of you don't like to be answering silly non technical =
+SELinux=20
+related questions like these but i will ask it anyway. I have searched =
+the=20
+archives for related topics but i couldn't find any. I would like to =
+setup=20
+SELinux to share the internet which is a 56k dialup connection but i'm =
+not too=20
+sure how i would go about doing it as i've always had a GUI to setup my=20
+connection to share the internet (such as the smoothwall web interface) =
+and run=20
+my command line computers (slackware) behind my router which shares the=20
+internet. <BR><BR>If anybody would be kind enough to help me get SELinux =
+to=20
+share a dialup connection, it will be very much appreciated. If i manage =
+to get=20
+SELinux to share my connection, i will try to ask alot more technical =
+related=20
+questions as Security is my main interest.<BR><BR>Thank you for your=20
+time.<BR><BR>Regards,<BR>Kevin.j </P></FONT></DIV></BODY></HTML>
 
-make[3]: Leaving directory `/usr/src/selinux/utils/openssh-3.4p1/openbsd-compat'
-gcc -g -O2 -Wall -Wpointer-arith -Wno-uninitialized -DWITH_SELINUX -I/usr/local/
-            selinux/include -I. -I.  -I/usr/kerberos/include
--DSSHDIR=\"/etc/ssh\" -D_PATH_S             SH_PROGRAM=\"/usr/bin/ssh\"
--D_PATH_SSH_ASKPASS_DEFAULT=\"/usr/libexec/openssh/s             sh-askpass\"
--D_PATH_SFTP_SERVER=\"/usr/libexec/openssh/sftp-server\" -D_PATH_SS            
-H_KEY_SIGN=\"/usr/libexec/openssh/ssh-keysign\" -D_PATH_SSH_PIDDIR=\"/var/run\"
-             -D_PATH_PRIVSEP_CHROOT_DIR=\"/var/empty\"
--DSSH_RAND_HELPER=\"/usr/libexec/opens             sh/ssh-rand-helper\"
--DHAVE_CONFIG_H -c monitor_wrap.c
-In file included from auth.h:42,
-                 from monitor_wrap.c:36:
-/usr/include/krb5.h:1930: parse error before `profile_t'
-make[2]: *** [monitor_wrap.o] Error 1
-make[2]: Leaving directory `/usr/src/selinux/utils/openssh-3.4p1'
-make[1]: *** [xopenssh] Error 2
-make[1]: Leaving directory `/usr/src/selinux/utils'
-make: *** [quickinstall] Error 2
+------=_NextPart_000_0016_01C259B0.BA771E00--
 
-Any suggestion about getting rid of this error?
-
-                                   Thanks
-
-                           azeredo@qmc.ufsc.br
-
-
--------------------------------------------------
-This mail sent through IMP: http://horde.org/imp/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
