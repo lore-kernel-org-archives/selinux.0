@@ -1,59 +1,55 @@
-Message-ID: <005701c3f441$e13d7a20$6401a8c0@williams>
-Reply-To: "Douglas Williams" <douglaswilliams@sympatico.ca>
-From: "Douglas Williams" <douglaswilliams@sympatico.ca>
-To: "SELinux" <SELinux@tycho.nsa.gov>
-Subject: StrongArm port
-Date: Sun, 15 Feb 2004 23:03:48 -0500
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Douglas Williams" <douglaswilliams@sympatico.ca>,
+   "SELinux" <SELinux@tycho.nsa.gov>
+Subject: Re: StrongArm port
+Date: Mon, 16 Feb 2004 16:52:32 +1100
+References: <005701c3f441$e13d7a20$6401a8c0@williams>
+In-Reply-To: <005701c3f441$e13d7a20$6401a8c0@williams>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0054_01C3F417.F84A4D30"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200402161652.32834.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+On Mon, 16 Feb 2004 15:03, "Douglas Williams" <douglaswilliams@sympatico.ca> 
+wrote:
+> Does anyone know where I can get a good linux kernel for an IPAQ 3850. My
+> next robot must have a secure OS especially since it will use an RF data
+> link with relatively weak encryption.
 
-------=_NextPart_000_0054_01C3F417.F84A4D30
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+The new SE Linux requires XATTR support in the file system.
 
-Does anyone know where I can get a good linux kernel for an IPAQ 3850. =
-My next robot must have a secure OS especially since it will use an RF =
-data link with relatively weak encryption.=20
+The 2.4 kernels for the iPaQ do not have any XATTR code, if the patch was 
+merged (which is more difficult than you might imagine as Familiar uses 
+2.4.19 which is heavily modified) then support would still have to be written 
+for the JFFS2 file system.  I think that we will never see 2.4.x on the iPaQ 
+supporting XATTRs.
 
-www.pda-robotics.com
+2.6 on the iPaQ is a work in progress.  Whether they will back-port it to 
+older iPaQ's such as the 3800 series is something I'm unsure of.  I get the 
+impression that the key developers have moved on from the 3900 series and are 
+not going to do much more for it, so I'm not sure what that means for the 
+older 3800 series.
 
-Thanks.
-Doug.
-------=_NextPart_000_0054_01C3F417.F84A4D30
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+When 2.6 is running on iPaQ's, then someone needs to write XATTR support for 
+JFFS2.  After that getting the new SE Linux running on iPaQ's should be easy.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2800.1276" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>Does anyone know where I can get a good =
-linux=20
-kernel for an IPAQ 3850. My next robot <STRONG>must</STRONG> have a =
-secure OS=20
-especially since it will use an RF data link with relatively weak =
-encryption.=20
-</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2><A=20
-href=3D"http://www.pda-robotics.com">www.pda-robotics.com</A></FONT></DIV=
->
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>Thanks.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>Doug.</FONT></DIV></BODY></HTML>
 
-------=_NextPart_000_0054_01C3F417.F84A4D30--
+Old SE Linux works on iPaQ's, but there will not be much future support for 
+that.
+
+
+If you use an IBM mini-disk formatted with Ext3 then you could use new SE 
+Linux on an iPaQ.  Of course you would still have to back-port the kernel 
+patches to 2.4.19...
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
