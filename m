@@ -1,35 +1,29 @@
-Date: Wed, 23 Apr 2003 18:01:07 -0400
-From: Dave Dodge <dododge@alpha.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Cc: dododge@alpha.ncsc.mil
-Subject: Re: portability patch for char signedness
-Message-Id: <20030423180107.79a79184.dododge@alpha.ncsc.mil>
-In-Reply-To: <200304141459.54596.russell@coker.com.au>
-References: <200304141459.54596.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: patch libsecure
+Date: Thu, 24 Apr 2003 12:16:19 +1000
+References: <200304232048.16402.carstengrohmann@gmx.de>
+In-Reply-To: <200304232048.16402.carstengrohmann@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200304241216.19290.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 14 Apr 2003 00:59:54 -0400
-Russell Coker <russell@coker.com.au> wrote:
+On Thu, 24 Apr 2003 04:48, Carsten Grohmann wrote:
+> I missing some free calls in the libsecure test files. The attached patch
+> insert this calls.
 
-> The attached patch fixes some char signedness issues.
+Looks good, I have added it to my tree.
 
-> -  char c;
-> +  int c_int;
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-> -  while ( (c = getopt(argc, argv, "k:c:s:")) != EOF) {
-> -    switch (c) {
-> +  while ( (c_int = getopt(argc, argv, "k:c:s:")) != EOF) {
-> +    switch ((char)c_int) {
-
-A slightly simpler fix is to just change the type of "c" to int
-without renaming or casting. "getopt" returns an int, all of
-the case statements are ints, and "c" is not used in any other
-context.
-
-                                        -Dave Dodge/dododge@alpha.ncsc.mil
 
 --
 This message was distributed to subscribers of the selinux mailing list.
