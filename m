@@ -1,87 +1,75 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4AJO4Rb017406
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 15:24:04 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4AJLi5d029092
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 19:21:44 GMT
-Message-Id: <200405101924.i4AJO0X0009629@turing-police.cc.vt.edu>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Linux 2.6.6-rc3-mm2 and SELinux support of stacked modules 
-In-Reply-To: Your message of "Mon, 10 May 2004 14:38:39 EDT."
-             <1084214318.23757.285.camel@moss-spartans.epoch.ncsc.mil>
-From: Valdis.Kletnieks@vt.edu
-References: <200405100238.i4A2cDRW027971@turing-police.cc.vt.edu>
-            <1084214318.23757.285.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4ANxbRb018653
+	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 19:59:38 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4ANxZYW016080
+	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 23:59:35 GMT
+Received: from nsa.hitachi-sk.co.jp (nsa.hitachi-sk.co.jp [202.232.217.2])
+        by jazzband.ncsc.mil  with ESMTP id i4ANxXBf016068 for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 23:59:34 GMT
+Received: from vsa.hitachi-sk.co.jp ([133.108.250.41])
+	by nsa.hitachi-sk.co.jp (unknown) with ESMTP id i4ANxH610415
+	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 08:59:17 +0900
+Received: from gwa.hitachi-sk.co.jp (localhost [127.0.0.1])
+	by vsa.hitachi-sk.co.jp (8.9.3+3.2W/3.7W) with ESMTP id IAA20176
+	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 08:59:16 +0900 (JST)
+Received: (from root@localhost)
+	by gwa.hitachi-sk.co.jp (8.11.7p1+Sun/3.7W) id i4ANxGU06111
+	for selinux@tycho.nsa.gov; Tue, 11 May 2004 08:59:16 +0900 (JST)
+Received: from ori.hitachi-sk.co.jp (ori.ori.hitachi-sk.co.jp [133.108.2.2])
+	by dns1.hitachi-sk.co.jp (8.11.6/3.7W) with ESMTP id i4ANxFv05475
+	for <selinux@tycho.nsa.gov>; Tue, 11 May 2004 08:59:15 +0900
+Date: Tue, 11 May 2004 08:58:49 +0900
+From: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>
+To: selinux@tycho.nsa.gov
+Subject: Japanese Documentation(Re: presentation results)
+Message-Id: <20040511085849.2213308a.ynakam@ori.hitachi-sk.co.jp>
+In-Reply-To: <20040510032712.919833A404E@abyss.simplyaquatics.com>
+References: <20040510032712.919833A404E@abyss.simplyaquatics.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_169909664P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 10 May 2004 15:24:00 -0400
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_169909664P
-Content-Type: text/plain; charset=us-ascii
+On Sun, 9 May 2004 23:27:12 -0400
+"Ed Street" <edstreet@street-tek.com> wrote:
+> Documentation, is there any plans to have a printed book dealing with
+> selinux administration?
 
-On Mon, 10 May 2004 14:38:39 EDT, Stephen Smalley said:
+There are book and many articles in Japan.
+Unfortunately, they are written in Japanese.
+People who can read Japanese, please look at them.
 
-> I'd recommend just using an ordinary initcall.  Note that the SELinux
-> module has several such ordinary initcall functions that handle similar
-> issues, e.g. registering Netfilter hooks, registering the selinuxfs
-> pseudo filesystem, registering a netdevice notifier for the netif table,
-> and creating the netlink selinux socket.  I'd expect post_mountroot to
-> die eventually; think early userspace.  Note that the SELinux initial
-> policy load has been moved into userspace; we don't use post_mountroot
-> anymore.
+1)
+I wrote book about selinux.
+"Complete guide to SELinux" printed by Nikkei BP in Mar 2004.
+http://www.amazon.co.jp/exec/obidos/ASIN/4822221113/
 
-D'Oh! ;)
+2)
+The latest free article is available on Web site of Nikkei BP, 
+free member registration is necessary.
+http://itpro.nikkeibp.co.jp/members/ITPro/oss/20040422/1/
+It is based on Fedora Core2. 
 
-OK, I can do that... cancel the request for post_mountroot() then. ;)
+3) Other free documents about SELinux
+http://www.ipa.go.jp/security/fy14/contents/trusted-os/guide.html
+http://localhost/selinux-web/document/article/article-top.html
 
-> > 2) It stacks just fine with SELinux, except there's hooks that selinux/hooks.c
-> > either doesn't hook, or it doesn't call secondary_ops() in its hook.
-> 
-> As I mentioned in a previous reply to Joshua Brindle (for his attempt to
-> stack SELinux with digsig), we didn't want to encourage blindly stacking
-> modules with SELinux, so we only provided secondary ops as required. 
-> You will naturally encounter difficulties if your other security module
-> wants to use the security fields.
-
-I'm being very careful to *not* use the security fields, for exactly that
-reason. All the info I'm examining is either somewhere in a dentry/inode or
-passed in as an LSM API parameter.
-
-Also, I'm intentionally restricting the scope of what I check for to a set of
-things that are relatively easy to express in C code, but difficult to write
-SELinux policy for - the two big predicates I'm testing are "if the process is
-chroot'ed..." and "if the process is working with a file in a world-writeable
-+t directory...".
-
-I'm intentionally *not* doing any of the grsecurity patch's ACL stuff,
-precisely because having 2 ACL systems active is guaranteed to be b0rked..
-
-> We typically want to call the secondary module first, so that ordinary
-> Linux capability checks are applied first and the code never reaches
-> SELinux if they would deny access.  capget and capset are unusual in
-> that they get or set state; they don't just mediate access.
-
-Ahh.. That was the part I was missing... ;)
+In addition, in Japanese sourceforge site, 
+RPMs and SELinux install package for FedoraCore1 are available.
+http://sourceforge.jp/projects/selinux/files/
+o Kernel rpm(2.4-based SELinux released in Apr 2004, patches for vulnerablities of linux-2.4.25 are applied.)
+http://prdownloads.sourceforge.jp/selinux/9155/kernel-2.4.25-selinux1.p2.i386.rpm
+http://prdownloads.sourceforge.jp/selinux/9156/kernel-2.4.25-selinux1.p2.src.rpm
+o Install package with user land archive rpms(2.4-based SELinux released in Feb 2004)
+http://prdownloads.sourceforge.jp/selinux/8631/selinux-20040223_install.tgz
 
 
-
---==_Exmh_169909664P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAn9bQcC3lWbTT17ARAmVLAJ4gNukZWha2cufJYDHIT0iM83cJlwCfe+V3
-IzonSjbMRv92D0PqRDMk6gI=
-=VDUS
------END PGP SIGNATURE-----
-
---==_Exmh_169909664P--
+-- 
+---------
+Yuichi Nakamura
+Research & Development Department
+Hitachi Software Engineering Co., Ltd.
+http://www.selinux.hitachi-sk.co.jp/en
 
 --
 This message was distributed to subscribers of the selinux mailing list.
