@@ -1,67 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA01779
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 15:22:04 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA27120
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 19:20:43 GMT
-Received: from mail.tresys.com (mail.tresys.com [66.22.20.205])
-        by jazzband.ncsc.mil  with ESMTP id TAA27116 for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 19:20:42 GMT
-Reply-To: <dac@tresys.com>
-From: "David Caplan" <dac@tresys.com>
-To: <selinux@tycho.nsa.gov>, "Ben McGinnes" <bmcginnes@enternet.com.au>
-Subject: RE: Sorry, read this one: Re: SELinux Dumb Questions
-Date: Thu, 6 Jun 2002 15:25:35 -0400
-Message-ID: <NJEELFKFDFJAACDDMCHCCEGLEBAA.dac@tresys.com>
-MIME-Version: 1.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id CAA02495
+	for <selinux@tycho.nsa.gov>; Fri, 7 Jun 2002 02:52:56 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id GAA08326
+	for <selinux@tycho.nsa.gov>; Fri, 7 Jun 2002 06:52:43 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id GAA08240
+	for <selinux@tycho.nsa.gov>; Fri, 7 Jun 2002 06:52:41 GMT
 Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <20020606060744.J2249@mail.enternet.com.au>
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: emger@norwich.edu, selinux@tycho.nsa.gov
+Subject: Re: SE Linux & Education
+Date: Fri, 7 Jun 2002 08:28:14 +0200
+References: <31A81CDD9175D411815100508BE32AA60142F388@emss02m13.ems.lmco.com> <007801c20c3a$bf5ee920$0200000a@wb1> <20030704125136.64c3ce0c.emger@norwich.edu>
+In-Reply-To: <20030704125136.64c3ce0c.emger@norwich.edu>
+MIME-Version: 1.0
+Message-Id: <20020607065255.C06D1389E@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Has anyone determined which patent(s) is/are relevant?  The closest thing
-I've found is a Linux Journal article written by Earl Boebert,
-http://www.linuxjournal.com/article.php?sid=4963, entitled "Some Thoughts on
-the Occasion of the NSA Linux Release".  He writes that "The NSA release
-incorporates an idea called Type Enforcement (TE) that was cooked up by Dick
-Kain and [himself] over 15 years ago" (this article is dated Jan. 24, 2001).
-There is no mention of a patent, but a search at the US PTO web site,
-http://patft.uspto.gov/netahtml/search-bool.html, shows three granted in the
-mid eighties to Mr. Boebert, et. al, #4621321, #4701840, and #4713753.  I'm
-not sure if any of these are the relevant ones or not, though, after a quick
-glance, they appear to be.
+On Fri, 4 Jul 2003 18:51, Ryan Emge wrote:
+> In response to the rants lately, I would like to say that I'm devoted to
+> doing my part by subscribing to this listserv in order to learning the
+> advantages of SE Linux and how it can be utilized in an educational
+> environment at our University in Vermont. If there is anyone subscribed to
+> this list that has put countless hours in researching and developing
+> patches and other documenation that could be to my advantage, I would like
+> to hear from you.
 
-There is another Linux Journal article,
-http://www.linuxjournal.com/article.php?sid=5105, entitled "Secure Computing
-to Develop Type Enforced Tux", dated Feb 23, 2000, which refers to SCC's
-"patented security solution for the Linux kernel".  At the end it refers to
-the "lingering question" of "the origins of the Type Enforcement
-technology."  I'm not sure why this is a "question", but it notes that SCC
-used the University of Utah/NSA Flask system/modified kernel "for the
-current Type Enforcement/Secure Linux project", and that the origins of Type
-Enforcement "may go back as far as the 1970s" referring to PSOS.
+I think that my Debian packages will work well in an educational environment. 
+One particular advantage of Debian is that any student can become a developer 
+and join in the project...
 
-David
-
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
-> Behalf Of Ben McGinnes
-> Sent: Wednesday, June 05, 2002 4:08 PM
-> To: selinux@tycho.nsa.gov
-> Subject: Re: Sorry, read this one: Re: SELinux Dumb Questions
->
-[stuff cut]
->
-> BTW, has anyone here actually looked at the patent itself and seen
-> exactly what it refers to?  Has anyone from Secure Computing mentioned
-> any references with the relevant patent authorities so that the rest
-> of us can see precisely what they're patent controls?
->
->
-> Regards,
-> Ben
->
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
