@@ -1,47 +1,47 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3Q3hARb018857
-	for <selinux@tycho.nsa.gov>; Sun, 25 Apr 2004 23:43:11 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i3Q3exW3011913
-	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2004 03:41:00 GMT
-Received: from smtp.sws.net.au ([61.95.69.6])
-	by jazzswing.ncsc.mil  with ESMTP id i3Q3ewIx011892
-	for <selinux@tycho.nsa.gov>; Mon, 26 Apr 2004 03:40:59 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Ed Street" <edstreet@street-tek.com>
-Subject: Re: sshd, devpts, unix_chkpwd
-Date: Mon, 26 Apr 2004 13:41:38 +1000
-Cc: <selinux@tycho.nsa.gov>
-References: <20040425145703.6C4ED3A404F@abyss.simplyaquatics.com>
-In-Reply-To: <20040425145703.6C4ED3A404F@abyss.simplyaquatics.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1252"
-Message-Id: <200404261341.38667.russell@coker.com.au>
+Subject: Re: preserving user-set contexts
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Colin Walters <walters@redhat.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <1082752649.12608.111.camel@nexus.verbum.private>
+References: <1082752649.12608.111.camel@nexus.verbum.private>
+Content-Type: text/plain
+Message-Id: <1082989812.22940.43.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 26 Apr 2004 10:30:12 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 26 Apr 2004 00:57, "Ed Street" <edstreet@street-tek.com> wrote:
-> How about some type of wrapper that would force passwd (and other programs)
-> to run in a specific domain instead of doing mods to the programs itself?
+On Fri, 2004-04-23 at 16:37, Colin Walters wrote:
+> What I think would be nice is if we had chcon set another extended
+> attribute that marked the file as having its context manually set.  Then
+> we modify setfiles to ignore files which have this extended attribute by
+> default.  That way I could use 'make relabel' to fix system contexts,
+> and leave my customizations intact.
 
-We had that, but decided that modifying PAM was better than having wrapper 
-programs.
+It wouldn't be safe to allow untrusted users to mark files in this
+manner, as it could prevent proper relabeling of the filesystem upon a
+policy update.  So you would have to limit it to administrators anyway. 
+And if they are administrators, they can already mark the files with
+<<none>> in the file contexts configuration.  You could also introduce a
+separate type in the policy that setfiles doesn't have permission to
+relabelfrom, and use that type for this purpose.
 
-> As for ssh 3.8 under debian I had to add the following line for user logins
-> to occur correctly.
->
-> #ssh 3.8 stuff
-> allow staff_t sshd_devpts_t:chr_file { read write ioctl };
+> Is this desirable?  Does it seem like the right approahc?  One question
+> is - which namespace to put it in?  user.?  system.?  If we allow
+> regular users to relabel (as we already do for files like
+> httpd_user_script_exec_t) then we can only put it in the user.
+> namespace.
 
-This is due to a bug, the pty is not getting correctly relabeled.
+I don't think it is the right approach.  But note that the security
+namespace is easily extensible, so you can create additional security
+attributes in it for other purposes without requiring changes to the
+kernel.  Use of the security namespace requires CAP_SYS_ADMIN except for
+the SELinux attribute, which has its own finer-grained permissions.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
