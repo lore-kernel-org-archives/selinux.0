@@ -1,102 +1,55 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6LN5prT001092
-	for <selinux@tycho.nsa.gov>; Wed, 21 Jul 2004 19:05:52 -0400 (EDT)
-Received: from mailrelay2.lrz-muenchen.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6LN5NRL012915
-	for <selinux@tycho.nsa.gov>; Wed, 21 Jul 2004 23:05:24 GMT
-Received: from cobalt.jmh.mhn.de ([192.168.10.2] [192.168.10.2]) by mailout.lrz-muenchen.de for selinux@tycho.nsa.gov; Thu, 22 Jul 2004 01:05:48 +0200
-Date: Thu, 22 Jul 2004 01:06:06 +0200
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: running interpreted scripts in different domains
-Message-Id: <20040721230605.GD2848@jmh.mhn.de>
-References: <40FADE92.7060307@gentoo.org> <1090338174.25139.60.camel@moss-lions.epoch.ncsc.mil> <40FD6114.3020808@gentoo.org> <1090355250.25139.130.camel@moss-lions.epoch.ncsc.mil> <40FD814B.2060503@gentoo.org>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6LNXCrT001178
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jul 2004 19:33:12 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6LNX9vO028898
+	for <selinux@tycho.nsa.gov>; Wed, 21 Jul 2004 23:33:10 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by localhost (Postfix) with ESMTP id 79826C4C090
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jul 2004 01:33:02 +0200 (CEST)
+Received: from legolas.drinsama.de ([127.0.0.1])
+	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
+	with SMTP id 07912-03 for <selinux@tycho.nsa.gov>;
+	Thu, 22 Jul 2004 01:33:01 +0200 (CEST)
+Received: from wintermute.xmldesign.de (pD958F795.dip.t-dialin.net [217.88.247.149])
+	by legolas.drinsama.de (Postfix) with ESMTP id 49575C4C08E
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jul 2004 01:33:01 +0200 (CEST)
+Date: Thu, 22 Jul 2004 01:33:12 +0200
+From: Erich Schubert <erich@debian.org>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Skype (for Linux)
+Message-ID: <20040721233312.GD9916@wintermute.xmldesign.de>
+References: <20040721170652.GC12344@lkcl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
-In-Reply-To: <40FD814B.2060503@gentoo.org>
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20040721170652.GC12344@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+> has anyone written an selinux policy for skype at all?
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I for myself wouldn't touch such a proprietary closed-protocol
+application. Especially not if it is hyped that way ("by the makers of
+kazaa" - there i nothing to gain by using filesharing technologies
+unless you want to broadcast your voice)
+Being a firewall-buster also is not a good but a bad thing.
+Firewalls were installed to prevent access. Applications busting through
+firewalls are written by authors *fighting* against their network
+admins, not working together with them.
 
-* Joshua Brindle <method@gentoo.org> [2004-07-20 23:57]:
-> James Carter wrote:
-> >I was trying to say that you are trying to manually do something that
-> >the kernel can do automatically. =20
-> >
-> >You don't need to do the security_create_compute() and setexeccon()
-> >before the exec, because, on the exec, the kernel will do the same
-> >thing.  In both cases, you would have had to use the domain_auto_trans
-> >macro, so you don't gain anything by doing it manually.
-> >
-> >Without an exec, setexecon() won't help you. =20
-> >>From selinux.h:
-> >/* Set exec security context for the next execve.=20
-> >  Call with NULL if you want to reset to the default. */
-> >extern int setexeccon(security_context_t con);
-> >
-> >I am not an expert on Apache and php, but I am pretty sure that when you
-> >execute the php interpreter an exec is occurring somewhere.
-> >
-> Right, an exec is happening from httpd_t to php_exec_t currently, and=20
-> this will give back php_exec_t. Thats the standard way php is done in=20
-> SELinux at the moment and exactly what I'm trying to make better.
->=20
-> Now, the new idea is to have fastcgi wrapper which already does setuid()=
-=20
-> and setgid() based on the ownership of the target php script (this is a=
-=20
-> script! it is not executed by execve()) and then executes php (which is=
-=20
-> php_exec_t) resulting in php_t again. What I want it to do is also read=
-=20
-> the context of the target script and calculate the autotrans that would=
-=20
-> happen if php was going to execute the script directly and then do=20
-> setexeccon() to do it manually.
+I prefer using standard protocols such has H.323 and SIP.
+The biggest problem with these protocols is that the windows clients
+suck (i.e. netmeeting not supporting gatekeepers properly), but i don't
+care about that.
 
-How does cron handle this? I think that cron is in a similar situation
-since it can't exec the users crontab. From macros/program/crond_macros.te:
+Gruﬂ,
+Erich Schubert
+-- 
+     erich@(mucl.de|debian.org)      --      GPG Key ID: 4B3A135C    (o_
+   To understand recursion you first need to understand recursion.   //\
+        Es gibt kein idiotensicheres Programm, weil Idioten so       V_/_
+                      genial sind. -- E. Murphy
 
-# Permit a transition from the crond_t domain to this domain.
-# The transition is requested explicitly by the modified crond
-# via execve_secure.  There is no way to set up an automatic
-# transition, since crontabs are configuration files, not executables.
-domain_trans(crond_t, shell_exec_t, $1_crond_t)
-
-Additionaly, crond has this:
-# Set exec context.
-can_setexec(crond_t)
-
-Maybe someone who knows the cron code better than me can explain what
-exactly cron is doing and if this can be applied to the fastcgi code as
-well.
-
-Thomas
-
---=20
-http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-
---r5Pyd7+fXNt84Ff3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA/vbdxWIrrrL0q+cRAiZfAKCQaRnRF7Jd+RMr5zZ/u9En4yp6ygCcCB81
-i4Luwpch0Io/ApfhAs92tT4=
-=RKO0
------END PGP SIGNATURE-----
-
---r5Pyd7+fXNt84Ff3--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
