@@ -1,116 +1,54 @@
-Subject: Re: New patch for fixfiles sed script
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1107368924.890.298.camel@moss-spartans.epoch.ncsc.mil>
-References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>
-	 <41FA9717.2000609@redhat.com>
-	 <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>
-	 <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107349736.890.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1107350272.890.82.camel@moss-spartans.epoch.ncsc.mil>
-	 <4200DC75.1070009@redhat.com>
-	 <1107360761.890.234.camel@moss-spartans.epoch.ncsc.mil>
-	 <4201012F.6040604@redhat.com>  <42011203.3010005@redhat.com>
-	 <1107368924.890.298.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j12LAO53025918
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 16:10:24 -0500 (EST)
+Received: from mx-5.zoominternet.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j12L8FVZ017370
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 21:08:16 GMT
+Received: from mua-1.zoominternet.net (mua-1.zoominternet.net [24.154.1.44])
+	by mx-5.zoominternet.net (8.12.11/8.12.11) with ESMTP id j12LAPRs013482
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 16:10:26 -0500
+Received: from 192.168.0.188 (acs-24-144-211-60.zoominternet.net [24.144.211.60])
+	by mua-1.zoominternet.net (Postfix) with ESMTP id 226C17F408
+	for <selinux@tycho.nsa.gov>; Wed,  2 Feb 2005 16:10:26 -0500 (EST)
+Subject: FC3, Apache and CGI web app
+From: Scott Cain <cain@cshl.org>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Message-Id: <1107369819.890.314.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 02 Feb 2005 16:07:41 -0500
+Message-Id: <1107378461.3351.62.camel@localhost.localdomain>
 Mime-Version: 1.0
-Date: Wed, 02 Feb 2005 13:43:39 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-02-02 at 13:28, Stephen Smalley wrote:
-> On Wed, 2005-02-02 at 12:46, Daniel J Walsh wrote:
-> > Ok how about this patch.
-> > 
-> > Added -e flag for restorecon
-> 
-> Merged along with the attached patch as of policycoreutils 1.21.11.
+Hello,
 
-Naturally, I noticed two other issues after committing:
-1) restorecon/setfiles should just warn about non-existing directories
-for -e, not bail out, as their absence just guarantees the exclusion and
-use by scripts like fixfiles -C could very easily occur on a system that
-was missing one of the typical directories.
-2) restorecon was calling exclude() on the filename before realpath()
-was applied, and was also incrementing the error count upon an exclude.
+I am one of the authors of a web application that is widely used in my
+community, GBrowse ( http://www.gmod.org/ggb/ ).  We've started
+receiving bug reports from users who are trying to install and run it on
+Fedora Core 3 systems with SELinux installed and enabled with the
+default values from the distribution.  
 
-Patch below should fix.
+To do some testing, I've installed FC3 and GBrowse and run into the same
+problems.  The only way I've been able to get GBrowse to run is to
+disable SELinux.  There are a few reasons I'd rather not tell my users
+to do that, so I am looking for a way to leave SELinux enabled and still
+run GBrowse.  The first thing I tried was to set httpd_disable_trans=1
+(which the GUI calls "Disable SELinux protection for httpd daemon"), but
+that doesn't help.  Are there any parameters that I can add
+to /etc/selinux/targeted/booleans to allow GBrowse to work?
 
-Index: policycoreutils/restorecon/restorecon.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policycoreutils/restorecon/restorecon.c,v
-retrieving revision 1.26
-diff -u -r1.26 restorecon.c
---- policycoreutils/restorecon/restorecon.c	2 Feb 2005 18:26:21 -0000	1.26
-+++ policycoreutils/restorecon/restorecon.c	2 Feb 2005 18:37:04 -0000
-@@ -61,12 +61,12 @@
-     return 1;
-   }
-   if(lstat(directory, &sb)) {
--    fprintf(stderr, "Directory \"%s\" not found.\n", directory);
--    return 1;
-+    fprintf(stderr, "Directory \"%s\" not found, ignoring.\n", directory);
-+    return 0;
-   }
-   if ((sb.st_mode & S_IFDIR) == 0 ) {
--    fprintf(stderr, "\"%s\" is not a Directory: mode %o\n", directory,sb.st_mode);
--    return 1;
-+    fprintf(stderr, "\"%s\" is not a Directory: mode %o, ignoring\n", directory,sb.st_mode);
-+    return 0;
-   }
- 
-   if (excludeCtr == MAX_EXCLUDES) {
-@@ -130,9 +130,6 @@
-   if (len > 0 && filename[len-1]=='/' && (strcmp(filename,"/") != 0)) {
-     filename[len-1]=0;
-   }
--  if (excludeCtr > 0 && exclude(filename)) {
--      return 1;
--  }
-   if (lstat(filename, &st)!=0) {
-     fprintf(stderr,"lstat(%s) failed: %s\n", filename,strerror(errno));
-     return 1;
-@@ -170,6 +167,9 @@
-     }
-     filename = p;
-   }
-+  if (excludeCtr > 0 && exclude(filename)) {
-+      return 0;
-+  }
-   retval = matchpathcon(filename, st.st_mode, &scontext);
-   if (retval < 0) {
-     if (errno == ENOENT)
-Index: policycoreutils/setfiles/setfiles.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/policycoreutils/setfiles/setfiles.c,v
-retrieving revision 1.31
-diff -u -r1.31 setfiles.c
---- policycoreutils/setfiles/setfiles.c	2 Feb 2005 18:26:24 -0000	1.31
-+++ policycoreutils/setfiles/setfiles.c	2 Feb 2005 18:37:48 -0000
-@@ -124,12 +124,12 @@
- 		return 1;
- 	}
- 	if(lstat(directory, &sb)) {
--	        fprintf(stderr, "Directory \"%s\" not found.\n", directory);
--	        return 1;
-+	        fprintf(stderr, "Directory \"%s\" not found, ignoring.\n", directory);
-+	        return 0;
- 	}
- 	if ((sb.st_mode & S_IFDIR) == 0 ) {
--	        fprintf(stderr, "\"%s\" is not a Directory: mode %o\n", directory,sb.st_mode);
--	        return 1;
-+	        fprintf(stderr, "\"%s\" is not a Directory: mode %o, ignoring\n", directory,sb.st_mode);
-+	        return 0;
- 	}
- 
- 	if (excludeCtr == MAX_EXCLUDES) {
+As far as I can tell, the reason SELinux doesn't like GBrowse is that it
+is a cgi that tries to read a directory and files in the apache conf
+directory.
 
+Thanks,
+Scott
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+------------------------------------------------------------------------
+Scott Cain, Ph. D.                                         cain@cshl.org
+GMOD Coordinator (http://www.gmod.org/)                     216-392-3087
+Cold Spring Harbor Laboratory
 
 
 --
