@@ -1,40 +1,77 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5GJbIi000825
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 11:19:39 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5GIHgk029822
-	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 16:18:18 GMT
-Date: Fri, 5 Nov 2004 16:29:51 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-Cc: Frank Mayer <mayerf@tresys.com>, "'Colin Walters'" <walters@verbum.org>,
-   "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
+Subject: RE: dynamic context transitions
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Frank Mayer <mayerf@tresys.com>
+Cc: "'Colin Walters'" <walters@verbum.org>,
+   "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
    "'Chad Hanson'" <chanson@TrustedCS.com>,
    "'Karl MacMillan'" <kmacmillan@tresys.com>,
+   "'Darrel Goeddel'" <DGoeddel@TrustedCS.com>,
    "'SELinux List'" <SELinux@tycho.nsa.gov>
-Subject: Re: dynamic context transitions
-Message-ID: <20041105162951.GD5565@lkcl.net>
-References: <01df01c4c336$4facc6f0$1e0c010a@columbia.tresys.com> <418B968F.3070700@trustedcs.com>
+In-Reply-To: <01f701c4c34f$e4c56170$1e0c010a@columbia.tresys.com>
+References: <01f701c4c34f$e4c56170$1e0c010a@columbia.tresys.com>
+Content-Type: text/plain
+Message-Id: <1099672876.6373.182.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <418B968F.3070700@trustedcs.com>
+Date: Fri, 05 Nov 2004 11:41:17 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Nov 05, 2004 at 09:04:47AM -0600, Darrel Goeddel wrote:
+On Fri, 2004-11-05 at 10:55, Frank Mayer wrote:
+> I guess I don't see this issue as policy, but rather as fundamental nature of
+> "domain" in TE.  What I'm proposing is to retain the notion of domain type as a
+> strong concept, yet still allowing practices such as privilege bracketing. In
+> essence, any name hierarchy tree, from its upper bound starting point on down,
+> is one domain.  The language would guarantee that there is no increase of
+> permission "down" the tree hierarchy.  A process can freely drop "down" the
+> hierarchy to its privilege (at its discretion) and go back "up" the hierarchy
+> (but not above its upper bound or starting point type) to re-assert its base
+> privileges.  So the definition of a domain is still largely the same, i.e., the
+> starting type of a process.
 
-> For now, the policy writer has complete control over all dynamic 
-> transitions, just as he/she has control over other allow rules.  One could 
-> write policy that allows a dynamic transition to user_t, but one could also 
-> write policy that allows access to virtually (restricted by asserts) 
+What about permanently shedding permissions after a certain point in
+processing within a program?   What about an orthogonal transformation,
+e.g. adding permission to one type while removing permission to another
+type for least privilege purposes?  I think that your model will prove
+too simplistic and inflexible.
 
- eek!
+> To me this is not policy, but definition of domain.  The notion of domain type
+> entry only via exec isn't a policy decision, and neither would this.
 
- however, are there already asserts covering domain_auto_trans?
+This is just another way of arguing aginst dynamic context transitions
+at all.  A "domain" is a security equivalence class for processes. 
+Whether or not it can change only at new-subject-creation time is
+another matter, and I don't think SELinux would be the first TE system
+to support dynamic changes in domain.  Parallel:  Files can be
+relabeled, not just assigned a label when they are created.  Kernel
+imposes no inherent restriction on the relationship among those types;
+it just enforces the policy as defined.
 
- the same logic would apply, yes?
+> In fact we don't even have to have a permission to allow context change, there's
+> no reason to prevent any process from dropping down the type tree as long as
+> there are guarantees that the sub-domains are always less privileged.  Seems a
+> lot simpler and still responsive.
 
- l.
+I don't think this will meet the need, as above.
+
+> The current proposal, if I understand correctly, will allow policy writers to
+> arbitrary related multiple type domains forcing analysis to be treat all related
+> domains as a "union domain."  
+
+Yes, the kernel mechanism is only restricted by the policy.  What
+restrictions can/should be imposed by userspace can be investigated, but
+we don't have a clear answer presently, nor a clear sense that a single
+set of restrictions will properly cover every case.
+
+> What I'm not entirely sure of is the best mechanisms: how much of this is
+> enforced in policy compile (probably the hierarchy implicit constraints) and how
+> much the kernel needs to be involved in?  The kernel has to define context
+> switch, so why not have it preserve the concept of domain type the same time?
+
+Because the concept, as stated above, is really a policy decision.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
