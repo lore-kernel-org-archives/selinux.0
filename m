@@ -1,59 +1,36 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA03713
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 06:44:49 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA03781
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 07:03:24 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id KAA04214
-	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 10:43:39 GMT
+	by jazzband.ncsc.mil  with ESMTP id LAA04789
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 11:02:14 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id KAA04210 for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 10:43:37 GMT
+        by jazzband.ncsc.mil  with ESMTP id LAA04785 for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 11:02:12 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 26C7092457
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 21:03:19 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id CD31A93B
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 13:03:11 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: policy question
-Date: Thu, 18 Apr 2002 12:44:24 +0200
-References: <20020418112238.A1788@lemuria.org>
-In-Reply-To: <20020418112238.A1788@lemuria.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: init and sigchld
+Date: Thu, 18 Apr 2002 13:03:11 +0200
 MIME-Version: 1.0
-Message-Id: <20020418104424.B714A44C1C@lyta.coker.com.au>
+Message-Id: <20020418110311.CD31A93B@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 18 Apr 2002 11:22, Tom wrote:
-> Scenario: Webhosting with PHP, multiple users (possibly many)
-> Danger: PHP runs as a module, i.e. with apache's user and permissions.
+What is the benefit in denying sigchld access to init?
 
-Here's the problem, not just for SE Linux but also for regular Unix 
-permissions models and every other security system I know of.
+How can a process do harm by sending sigchld to the init process?
 
-Trying to give access to only code from a certain shared object inside a 
-program is never going to work.  Anything Apache can do to get access, some 
-malicious code can also potentially do.
+I am thinking of doing the following:
 
-> Solution: domain transition to individual user's domain when reading a
-> file of that user. something like
-> domain_auto_trans(httpd_t, user_webdata_t, user_t)
-> should do the trick (I say "something like" because this macro expands
-> to include only execution, but I see no reason why the same can't be
-> done for file open or read).
-
-It could, but that't not the security model that the NSA people want.  It 
-would just open too many security issues.
-
-Even having a system call to allow a process to change domain (much less 
-risky) is something that they don't want.
-
-> The tricky part is that the apache will have to revert BACK to its
-> original domain once the operation is done, i.e. something like "on
-> socket close, domain transition to httpd_t". however, the user_t domain
-> should not have the general ability to make a transition to httpd_t.
->
-> Am I making any sense? Or do I need to read the papers again? :)
-
-To do this type of thing you need to have the php code run from a separate 
-program.  PHP has some support for this, but I could never get it to work 
-properly.
+allow domain init_t:signal sigchld;
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
