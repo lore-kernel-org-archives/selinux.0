@@ -1,47 +1,56 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Bartlomiej Balcerek <Bartlomiej.Balcerek@pwr.wroc.pl>
-Subject: Re: Assigning user context to files out of home dir.
-Date: Fri, 25 Feb 2005 23:34:52 +1100
-Cc: SELinux@tycho.nsa.gov
-References: <Pine.GSO.4.44.0502231318520.3577-100000@sun1000.pwr.wroc.pl>
-In-Reply-To: <Pine.GSO.4.44.0502231318520.3577-100000@sun1000.pwr.wroc.pl>
+Message-ID: <421F30FC.7040103@redhat.com>
+Date: Fri, 25 Feb 2005 09:06:52 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200502252334.55705.russell@coker.com.au>
+To: ivg2@cornell.edu
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: Strange staff role problems...
+References: <1109131644.5285.10.camel@cobra.ivg2.net>	 <1109163626.17298.8.camel@moss-spartans.epoch.ncsc.mil>	 <421CAF61.20708@redhat.com>	 <1109176324.17298.85.camel@moss-spartans.epoch.ncsc.mil>	 <421CB4F3.5040803@redhat.com>	 <1109178720.17298.94.camel@moss-spartans.epoch.ncsc.mil> <1109307176.4061.14.camel@cobra.ivg2.net>
+In-Reply-To: <1109307176.4061.14.camel@cobra.ivg2.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 23 February 2005 23:48, Bartlomiej Balcerek 
-<Bartlomiej.Balcerek@pwr.wroc.pl> wrote:
-> Recently I've tried to define labeling for files, which are located out of
-> user home, with user context, such as in user home. I want to label
-> directories and files according to all user roles.
+Ivan Gyurdiev wrote:
+
+>On Wed, 2005-02-23 at 12:12 -0500, Stephen Smalley wrote:
+>  
 >
-> There is now in "types.fc":
+>>On Wed, 2005-02-23 at 11:53 -0500, Daniel J Walsh wrote:
+>>    
+>>
+>>>Ok try again.
+>>>      
+>>>
+>>Looks good.  Of course, you'll need to update the spec file if you
+>>haven't already to depend on versions of libselinux and libsepol that
+>>include the necessary support (libselinux >= 1.21.10, libsepol >=
+>>1.3.4).
+>>    
+>>
 >
-> /scratch      -d system_u:object_r:scratch_root_t
-> /scratch/.+     system_u:object_r:ROLE_scratch_t
-
-It is not valid to use ROLE in the type specification if you don't use 
-HOME_DIR in the directory-name specification.  The genhomedircon program 
-expects things that way.
-
-What are you trying to do anyway?  Home directories under /scratch will get 
-labeled correctly by genhomedircon if the users in question have entries in 
-the users file in the policy source directory.
-
-
-PS  I'm speaking at the Open Source Security conference in Warsaw.  
-http://www.oss.org.pl/en/  Let me know if you are in Warsaw or attending the 
-conference.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+>In case you think this is important...
+>load_policy's not working for me re: fixing this issue.
+>It says policy loaded, shows 10 users (as opposed to 4 after init).
+>Then I restorecon the entire home folder, it properly restores
+>unlabeled_t files to staff_home_t, and ...
+>
+>I try to login, and I get denials that my home folder is unlabeled_t.
+>
+>I should note that while restorecon changes newly created unlabeled_t
+>files to staff_home_t, it does nothing about my home folder (because
+>it already says staff_home_dir_t on disk. Yet it says unlabeled_t
+>on attempted access even after users are loaded.
+>
+>P.S. Why are there no SRPMS on dwalsh's repository..
+>I found some, but they're not the right ones against rawhide, and I
+>don't see sepol there.
+>
+>  
+>
+Because I don't put srpms on them.  All packages on my site are just 
+what is going to be
+in Rawhide the next day.  So I don't bother pullin srpms.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
