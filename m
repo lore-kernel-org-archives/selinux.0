@@ -1,61 +1,149 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8S3hXsJ007356
-	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2003 23:43:34 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8S3hXCG026144
-	for <selinux@tycho.nsa.gov>; Sun, 28 Sep 2003 03:43:33 GMT
-Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h8S3hUqJ026141 for <selinux@tycho.nsa.gov>; Sun, 28 Sep 2003 03:43:31 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Bill Laut <wlsel@verizon.net>
-Subject: Re: Emacs major mode for policy editing
-Date: Sun, 28 Sep 2003 13:43:23 +1000
-Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
-References: <1064504193.3885.14.camel@moss-tarheels.epoch.ncsc.mil> <200309272024.54251.russell@coker.com.au> <200309271624.17976.wlsel@verizon.net>
-In-Reply-To: <200309271624.17976.wlsel@verizon.net>
+Message-ID: <3F765A7E.4000804@bah.com>
+Date: Sat, 27 Sep 2003 23:50:22 -0400
+From: "McDonald Patrick" <mcdonald_patrick@bah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200309281343.23332.russell@coker.com.au>
+To: Tony Stanco <Tony@egovos.org>
+CC: Howard Holm <hdholm@epoch.ncsc.mil>,
+   "NSA's SELinux" <SELinux@tycho.nsa.gov>
+Subject: Re: SELinux meetings??
+References: <250101c3850c$6727f700$d8742244@DJHB9G21>
+In-Reply-To: <250101c3850c$6727f700$d8742244@DJHB9G21>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms030802060307000105000702"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 28 Sep 2003 06:24, Bill Laut wrote:
-> > At this point I should mention that Security Enhanced X is an important
-> > development for Linux, it's something that we've been waiting far too
-> > long for, and when it's available I'm sure we won't be able to get enough
-> > of it.
+This is a cryptographically signed message in MIME format.
+
+--------------ms030802060307000105000702
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Tony Stanco wrote:
+Thanks for the awesome offer.  I am definitely interested.  What time 
+would be good for everyone to meet?
+
+Pat
+
+>George Washington University is happy to provide the Computer Science
+>conference room as a place to host a monthly SELinux users meeting. We are
+>at the Foggy Bottom metro station in Washington, so it would be a central
+>location for people coming from both Maryland and Virginia. Good pizza place
+>around the corner for beers afterwards.
 >
-> I couldn't agree with you more.  That's why, for my contribution, I want
-> everyone who is interested to review it and tell me where I'm in error, or
-> where something could be better designed, so that what I eventually release
-> to the group is a polished gem.
+>Best regards,
 >
-> I have no ego problems with peer review/criticism whatsoever.
+>Tony Stanco
+>Founding Director
+>The Center of Open Source & Government
+>http://www.eGovOS.org
+>tony@egovos.org
+>
+>Associate Director
+>Open Source and eGovernment
+>Cyber Security Policy and Research Institute
+>George Washington University
+>[NSA Center of Excellence in Information Assurance]
+>2033 K Street, NW, Suite 340
+>Washington, DC 20006
+>tel        202-994-5513
+>fax       202-994-5505
+>http://www.cpi.seas.gwu.edu
+>Stanco@gwu.edu
+>
+>
+>  
+>
 
-I agree that extensive review is a good thing.  One of the reasons for my work 
-on UML and SE Linux is so that images of SE Linux machines can be exchanged 
-for review.  I'm sure that exchanging images of Security Enhanced X will 
-become a popular past-time for many people.
 
-> That's also why I threw in the reference to "extra homework" in my previous
-> post.  For example, this could be a good excuse to go through XFree86 and
-> insure that there aren't any unrecognized buffer-overflow vulnerabilities.
-> It would be embarassing to say the least to release SE-X, only to have it
-> contain exploitable BO vulnerabilities--the very thing that SELinux is
-> advertised as protecting against.
+--------------ms030802060307000105000702
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-Absolutely!  However it should be noted that SE Linux has a very expressive 
-configuration language which allows detailed control over what is allowed.  
-If an administrator desires Back-Orifice access to their network then the 
-Security Enhanced X configuration will surely allow them to enable it.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIOajCC
+A4UwggJtoAMCAQICAgKCMA0GCSqGSIb3DQEBBQUAMFExCzAJBgNVBAYTAlVTMQwwCgYDVQQK
+EwNCQUgxEzARBgNVBAsTCkNvbXBvbmVudHMxHzAdBgNVBAMTFkJvb3ogQWxsZW4gSGFtaWx0
+b24gQ0EwHhcNMDIxMjA5MTM0MDEyWhcNMDUwNjA5MTM0MDEyWjBFMQswCQYDVQQGEwJVUzEM
+MAoGA1UEChMDQkFIMQ0wCwYDVQQLEwRTTVRQMRkwFwYDVQQDExBNY0RvbmFsZCBQYXRyaWNr
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDfD4NG0swrq4nyHc3RoYL1+bZFzfCmc7FN
+QaEuCTwALs/pmEjwp0rU15IJoODXmJoE8sCd2m1V+0FOwRxznOpe3K1+1v6oVvnwZWddP5FV
+b90TI/6Btmr8XFzkdsxly90JzjBvQNrXmV2vsaoafZJDx+D6UbTiDLICmBC83GyrlQIDAQAB
+o4H2MIHzMA4GA1UdDwEB/wQEAwIFoDAdBgNVHQ4EFgQUr9UuMkgpXdL4uNDGbHsPmBfHQ4sw
+GAYDVR0gBBEwDzANBgsrBgEEAd4AAQMCATBiBgNVHR8EWzBZMFegVaBThlFsZGFwOi8vZGly
+c3luYy51c2FlLmJhaC5jb20vY249Qm9veiBBbGxlbiBIYW1pbHRvbiBDQSwgb3U9Q29tcG9u
+ZW50cywgbz1CQUgsIGM9VVMwIwYDVR0RBBwwGoEYbWNkb25hbGRfcGF0cmlja0BiYWguY29t
+MB8GA1UdIwQYMBaAFOB9hMW8tGVT8qJdm4A40Gwcnp3CMA0GCSqGSIb3DQEBBQUAA4IBAQAf
+Z3UJ2UZ1+UbW2PoOdIsk54a12VSTsYUOPOMtcjD3besRIxJ6NsIHTqV9RsBVW/UdtYgAmqc/
+xxmdCgcQ1ka/ktjD2AzYxSJltZHi7sWog+5+AtPm0t7PVNs7fxQUir3mPdXAkDqHnwS3aHvP
+Ixzsz77xygTSqUMmeUOpsGLt/QuNhs5EojL+iqIPuaKT/oUrKe/bNAGFUq3A46sjemVKKISg
+LDaxdHfEqJtr+AnbC2vmxvEtOGGS7IeeoYZiGViTz1quOrswJbDbHpwW+/ZSs7DqkBrP0hs5
+wNFK6U5F83N67xXyZXSUh1KIFX3SrsqEVXEigabQqshnhvCBc4fRMIIDhTCCAm2gAwIBAgIC
+AoIwDQYJKoZIhvcNAQEFBQAwUTELMAkGA1UEBhMCVVMxDDAKBgNVBAoTA0JBSDETMBEGA1UE
+CxMKQ29tcG9uZW50czEfMB0GA1UEAxMWQm9veiBBbGxlbiBIYW1pbHRvbiBDQTAeFw0wMjEy
+MDkxMzQwMTJaFw0wNTA2MDkxMzQwMTJaMEUxCzAJBgNVBAYTAlVTMQwwCgYDVQQKEwNCQUgx
+DTALBgNVBAsTBFNNVFAxGTAXBgNVBAMTEE1jRG9uYWxkIFBhdHJpY2swgZ8wDQYJKoZIhvcN
+AQEBBQADgY0AMIGJAoGBAN8Pg0bSzCurifIdzdGhgvX5tkXN8KZzsU1BoS4JPAAuz+mYSPCn
+StTXkgmg4NeYmgTywJ3abVX7QU7BHHOc6l7crX7W/qhW+fBlZ10/kVVv3RMj/oG2avxcXOR2
+zGXL3QnOMG9A2teZXa+xqhp9kkPH4PpRtOIMsgKYELzcbKuVAgMBAAGjgfYwgfMwDgYDVR0P
+AQH/BAQDAgWgMB0GA1UdDgQWBBSv1S4ySCld0vi40MZsew+YF8dDizAYBgNVHSAEETAPMA0G
+CysGAQQB3gABAwIBMGIGA1UdHwRbMFkwV6BVoFOGUWxkYXA6Ly9kaXJzeW5jLnVzYWUuYmFo
+LmNvbS9jbj1Cb296IEFsbGVuIEhhbWlsdG9uIENBLCBvdT1Db21wb25lbnRzLCBvPUJBSCwg
+Yz1VUzAjBgNVHREEHDAagRhtY2RvbmFsZF9wYXRyaWNrQGJhaC5jb20wHwYDVR0jBBgwFoAU
+4H2Exby0ZVPyol2bgDjQbByencIwDQYJKoZIhvcNAQEFBQADggEBAB9ndQnZRnX5RtbY+g50
+iyTnhrXZVJOxhQ484y1yMPdt6xEjEno2wgdOpX1GwFVb9R21iACapz/HGZ0KBxDWRr+S2MPY
+DNjFImW1keLuxaiD7n4C0+bS3s9U2zt/FBSKveY91cCQOoefBLdoe88jHOzPvvHKBNKpQyZ5
+Q6mwYu39C42GzkSiMv6Kog+5opP+hSsp79s0AYVSrcDjqyN6ZUoohKAsNrF0d8Som2v4CdsL
+a+bG8S04YZLsh56hhmIZWJPPWq46uzAlsNsenBb79lKzsOqQGs/SGznA0UrpTkXzc3rvFfJl
+dJSHUogVfdKuyoRVcSKBptCqyGeG8IFzh9EwggOeMIIChqADAgECAgsCAAAAAADWeLnRrzAN
+BgkqhkiG9w0BAQQFADBXMQswCQYDVQQGEwJCRTEZMBcGA1UEChMQR2xvYmFsU2lnbiBudi1z
+YTEQMA4GA1UECxMHUm9vdCBDQTEbMBkGA1UEAxMSR2xvYmFsU2lnbiBSb290IENBMB4XDTk5
+MDEyODEyMDAwMFoXDTA5MDEyODEyMDAwMFowXzELMAkGA1UEBhMCQkUxGTAXBgNVBAoTEEds
+b2JhbFNpZ24gbnYtc2ExFDASBgNVBAsTC1BhcnRuZXJzIENBMR8wHQYDVQQDExZHbG9iYWxT
+aWduIFBhcnRuZXJzIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0iz4MqxK
+Eno3yCmRpa6Mbh4OwDQziOUzcRYceIRowxg0UC4WPrGUgk+xmp8A+MYRNcZpe5gCrQAGiGzn
+TDMoAIgnRh+Hs3F1Y7wyu4jeZhgOUAaTtPa8FDcwPSLfPf91ftkKGsWfs/zQrLMIeonTAegA
+XOdKCz1Neyait2IGi9pG3ZMXPz9bAksLtoggEZIArbvHLtTjRa71iVp8jaSthWQywCeMxvKK
+gJKGJFZZjXRoooNCs549UEGGbyBu9v3O0xnjMsyP7ZpebR8o9VKsbhhe+D3RkuW6bAGISwry
+Ld5lMwVCoEyqMXa+/b+BePlxHEZeLRWVLTBZjkxB0WKrPQIDAQABo2MwYTAOBgNVHQ8BAf8E
+BAMCAAYwHQYDVR0OBBYEFEMkjXAVCGJVnE8MQBddhl4Pokz7MB8GA1UdIwQYMBaAFGB7ZhpF
+DZfKiVAvfQTNNKj//P1LMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEEBQADggEBAGbt
+tIhpEZmCIYOsoW2Lm4StDy3IHozKe36tqtSO3gfWnkXHpbicBzlgJVUawE8Z5c8XKUmJGDVm
+5esoQE5Xya+z5LggBaM7lVCRSZQpfSzliEGlRYhenYIn99LvW7VPn77+NWUsVWSf4VHaImF3
+ulhOj8Z5WVluMICiT5BuIQut0Gg5kBCb7SJlbx4ROOZ/jNLzOW1H1SHo6nU6QdGt9hadXQsh
+vfMfYwYlHcEfNXEs6yAZ1cGw7D3lb+0CBz8Te2aS1kTBmPdfUIt6W8JvbbDR+OV0oEA3oyUP
+5D3KZDGTkFwwe7k5MZpeTM25QU9Q5D04rshm2cc7XVFHrJur8q0wggOyMIICmqADAgECAgsD
+AAAAAADsmbz/bjANBgkqhkiG9w0BAQUFADBfMQswCQYDVQQGEwJCRTEZMBcGA1UEChMQR2xv
+YmFsU2lnbiBudi1zYTEUMBIGA1UECxMLUGFydG5lcnMgQ0ExHzAdBgNVBAMTFkdsb2JhbFNp
+Z24gUGFydG5lcnMgQ0EwHhcNMDIwMzE1MTEyNjIyWhcNMDgxMjMxMTIwMDAwWjBRMQswCQYD
+VQQGEwJVUzEMMAoGA1UEChMDQkFIMRMwEQYDVQQLEwpDb21wb25lbnRzMR8wHQYDVQQDExZC
+b296IEFsbGVuIEhhbWlsdG9uIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+sAd+Bkb8thXzV6Xg3+DVsFKjLRxb7VKX4AX0/HPn72w9H2TriLINzRrDO93JKNBhhhZFLCel
+ZJNZTPPK0FR2XURM0VJ/Ggt498w0MV5UVncKZuz9u75oVa20ecP+299yFzG9hjRJyGGdIX9s
+4sbuMD6PH1DdHpvubxkr3ML4YndFYPGcig23j/5MDAOeFkJ2wthZL8wnTPgyQxQQ2YNVDOSJ
+Sx6cbZNYHuUBj5WiIPObU8/55B+fgBNz5jIBCF6nAloomwOrdXkntqFY5Y8hsGAABvVHePEx
+WLAmNldNHJTQ9IMz5plWge9K/KdrZdk6ehOz7u+uNjTbLS+Y5U7rmQIDAQABo30wezAOBgNV
+HQ8BAf8EBAMCAYYwDwYDVR0TAQH/BAUwAwEB/zAYBgNVHSAEETAPMA0GCysGAQQB3gABAwIB
+MB0GA1UdDgQWBBTgfYTFvLRlU/KiXZuAONBsHJ6dwjAfBgNVHSMEGDAWgBRDJI1wFQhiVZxP
+DEAXXYZeD6JM+zANBgkqhkiG9w0BAQUFAAOCAQEAJt512+HBqvg78uylLenYv3uRpZo8JNGU
+41P/mHPS96cirvDtPnpSfS0z6FNkTcNMcN1lJXXzDCxiRnbA78SoSihH4MjEZPu/RRTvQIx/
+CissozMhoBW0tQtPSloYI8ri8eEAB9D/xaA9RJzE7AbD+fQmfUmjtq9hpK0uCXwrQ1Rj8Lwr
+h667IuIeDmpPbmANN8MqzOXOcFCgQnq+nZm7A8bq351XynGDkhikA1Xw4hprdexZXsfDshAB
+Fp9F7wgmQAdKgFjGDPL4/1Nx+SwxbrnAZNbGWnJ131X/MYLtK/R6J4iePISrHECoVxLzXCPU
+hrfJ2CkXWMPT+6uIKdzdiDGCAoQwggKAAgEBMFcwUTELMAkGA1UEBhMCVVMxDDAKBgNVBAoT
+A0JBSDETMBEGA1UECxMKQ29tcG9uZW50czEfMB0GA1UEAxMWQm9veiBBbGxlbiBIYW1pbHRv
+biBDQQICAoIwCQYFKw4DAhoFAKCCAYMwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkq
+hkiG9w0BCQUxDxcNMDMwOTI4MDM1MDIyWjAjBgkqhkiG9w0BCQQxFgQUWfmh6zXk/uFEYxTc
+GjQ+lOKMUxYwUgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAw
+DQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwZgYJKwYBBAGCNxAEMVkw
+VzBRMQswCQYDVQQGEwJVUzEMMAoGA1UEChMDQkFIMRMwEQYDVQQLEwpDb21wb25lbnRzMR8w
+HQYDVQQDExZCb296IEFsbGVuIEhhbWlsdG9uIENBAgICgjBoBgsqhkiG9w0BCRACCzFZoFcw
+UTELMAkGA1UEBhMCVVMxDDAKBgNVBAoTA0JBSDETMBEGA1UECxMKQ29tcG9uZW50czEfMB0G
+A1UEAxMWQm9veiBBbGxlbiBIYW1pbHRvbiBDQQICAoIwDQYJKoZIhvcNAQEBBQAEgYBRC6gj
+Fw5HpHpbpmTBAdruC1IN/hUvOOdchGykQR2kg3hGfUmoEDR6QD1QVMT4X3Nw3r2zn6U9lDzB
+A4RTrvCaaKAh1QyNSQuyREwXBegrNX8hA5tdnPotiBUavFXbGpQJE+vpmaWgZ4jm2YdZSlgK
+sdqXLF4c0NjkiHUMugW5lAAAAAAAAA==
+--------------ms030802060307000105000702--
 
 
 --
