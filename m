@@ -1,35 +1,40 @@
-Subject: Re: dynamic context transitions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>, Frank Mayer <mayerf@tresys.com>,
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA5GwIIi001148
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 11:58:18 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA5Guwgk002266
+	for <selinux@tycho.nsa.gov>; Fri, 5 Nov 2004 16:56:58 GMT
+Date: Fri, 5 Nov 2004 16:33:32 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Frank Mayer <mayerf@tresys.com>
+Cc: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
    "'Colin Walters'" <walters@verbum.org>,
    "'Chad Hanson'" <chanson@TrustedCS.com>,
    "'Karl MacMillan'" <kmacmillan@tresys.com>,
+   "'Darrel Goeddel'" <DGoeddel@TrustedCS.com>,
    "'SELinux List'" <SELinux@tycho.nsa.gov>
-In-Reply-To: <20041105162951.GD5565@lkcl.net>
-References: <01df01c4c336$4facc6f0$1e0c010a@columbia.tresys.com>
-	 <418B968F.3070700@trustedcs.com>  <20041105162951.GD5565@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1099673084.6373.186.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: dynamic context transitions
+Message-ID: <20041105163332.GE5565@lkcl.net>
+References: <1099660413.6373.55.camel@moss-spartans.epoch.ncsc.mil> <01f701c4c34f$e4c56170$1e0c010a@columbia.tresys.com>
 Mime-Version: 1.0
-Date: Fri, 05 Nov 2004 11:44:45 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <01f701c4c34f$e4c56170$1e0c010a@columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-11-05 at 11:29, Luke Kenneth Casson Leighton wrote:
->  however, are there already asserts covering domain_auto_trans?
+On Fri, Nov 05, 2004 at 10:55:37AM -0500, Frank Mayer wrote:
+
+> To me this is not policy, but definition of domain.  The notion of domain type
+> entry only via exec isn't a policy decision, and neither would this.
 > 
->  the same logic would apply, yes?
+> In fact we don't even have to have a permission to allow context change, there's
+> no reason to prevent any process from dropping down the type tree as long as
+> there are guarantees that the sub-domains are always less privileged.  Seems a
+> lot simpler and still responsive.
+ 
+ sounds to me like a job for automatic (macro-based) generation of assertions.
 
-The same logic is "Write your policy carefully, and check it well (using
-assertions, apol, etc.)"  It isn't to hardcode a specific logic in the
-kernel mechanism.  Consider unconfined_domain() and the targeted policy;
-should the kernel mechanism have prohibited the creation of policies
-that include it?
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+ l.
 
 
 --
