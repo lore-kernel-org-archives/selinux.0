@@ -1,32 +1,37 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5B17jrT003352
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 21:07:45 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5B17dP2006183
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 21:07:40 -0400 (EDT)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: [debian] postfix chroot setup from /etc/init.d/postfix isn't working.
-Date: Fri, 11 Jun 2004 11:07:39 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040609214126.GF5727@lkcl.net> <20040609232932.GD2142@jmh.mhn.de> <20040610211112.GG2861@lkcl.net>
-In-Reply-To: <20040610211112.GG2861@lkcl.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5B1DqrT003383
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 21:13:52 -0400 (EDT)
+Received: from TYO202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5B1DlaH001193
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 21:13:48 -0400 (EDT)
+Message-ID: <004d01c44f51$543a2ae0$f97d220a@linux.bs1.fc.nec.co.jp>
+From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
+To: <linux-ia64@vger.kernel.org>, <selinux@tycho.nsa.gov>
+Cc: "James Morris" <jmorris@redhat.com>
+References: <Xine.LNX.4.44.0406101657420.8385-100000@thoron.boston.redhat.com>
+Subject: Re: [PATCH] Kernel panic on IA-64 Linux with SELinux
+Date: Fri, 11 Jun 2004 10:13:38 +0900
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200406111107.39205.russell@coker.com.au>
+	charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 11 Jun 2004 07:11, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
->  if it bit me (who is coming into this blind with no prior
->  knowledge or expectations other than "install it and find out
->  how to fix it if it's broke") then it's definitely going to
->  bite other people.
+James Morris wrote:
+> Were you using a standard kernel, or was this a vendor or otherwise 
+> patched kernel?  I know people have booted IA64 with SELinux enabled in 
+> recent times with no problems.
 
-http://www.coker.com.au/selinux/tweaks.html
+Yes, I booted up both of the standard kernel (2.6.6) with both of the previous patches.
+SELinux was configured to the Permissive-mode.
+(I have not tried to boot up with the Enforcing-mode.)
 
+I'm interested in the case you mentioned.
+In my experience, kernel panic always occurs while booting up.
+What is written in /etc/sysconfig/selinux?
+--------
+Kaigai Kohei, Linux Promotion Center, NEC
+E-mail: kaigai@ak.jp.nec.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
