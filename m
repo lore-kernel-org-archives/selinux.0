@@ -1,30 +1,36 @@
+From: Wu Yanjun <yanjunwu@sonata.iscas.ac.cn>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Subject: Re: How about future of MLS?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Wu Yanjun <yanjunwu@sonata.iscas.ac.cn>
+Date: Tue, 9 Sep 2003 10:50:57 +0800
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <200309080810.12991.yanjunwu@sonata.iscas.ac.cn>
-References: <200309080810.12991.yanjunwu@sonata.iscas.ac.cn>
-Content-Type: text/plain
-Message-Id: <1063023949.8041.42.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 08 Sep 2003 08:25:50 -0400
+References: <200309080810.12991.yanjunwu@sonata.iscas.ac.cn> <1063023949.8041.42.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1063023949.8041.42.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200309091050.57371.yanjunwu@sonata.iscas.ac.cn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2003-09-07 at 20:10, Wu Yanjun wrote:
-> It seems MLS has been in experimental status for a long time.
-> How about its future? Is it possible that SELinux will discard MLS component?
+Though I subscribed SELinux maillist nearly one year, I am really a newbie on 
+security field. So correct me if I am wrong. 
+I just learned BLP model and read SELinux codes that implements MLS.  It seems 
+SELinux use the same MLS context for both subject and object. And the context 
+contains two levels, say high and low. I can understand why a subject binds 
+two levels, but I'm confused why objects also have high and low levels. Is 
+there any senerio we could make use of them two for an object? 
+Also I am interested in what aspects your excellent team plan to enhance the 
+MLS policy component. I hope I could do something for its improvement.
 
-I would expect the MLS policy component to eventually be enhanced; the
-fact that it hasn't been done yet is just a reflection of a lack of
-anyone driving requirements for it, as most people seem satisfied with
-the RBAC/TE model.  Do you have a particular need for MLS support?  Note
-that TE can express MLS, so that is an alternative approach.
+> I would expect the MLS policy component to eventually be enhanced; the
+> fact that it hasn't been done yet is just a reflection of a lack of
+> anyone driving requirements for it, as most people seem satisfied with
+> the RBAC/TE model.  Do you have a particular need for MLS support?  Note
+> that TE can express MLS, so that is an alternative approach.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Best regards,
+Wu Yanjun
 
 --
 This message was distributed to subscribers of the selinux mailing list.
