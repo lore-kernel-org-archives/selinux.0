@@ -1,65 +1,78 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4SN0GrT011694
-	for <selinux@tycho.nsa.gov>; Fri, 28 May 2004 19:00:16 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i4SN0Fo9024476
-	for <selinux@tycho.nsa.gov>; Fri, 28 May 2004 23:00:16 GMT
-Received: from lakemtao01.cox.net (lakemtao01.cox.net [68.1.17.244])
-        by jazzband.ncsc.mil  with ESMTP id i4SN0EIp024470 for <selinux@tycho.nsa.gov>; Fri, 28 May 2004 23:00:15 GMT
-Message-ID: <40B67F41.6020309@snu.edu>
-Date: Thu, 27 May 2004 18:52:33 -0500
-From: Joshua Brindle <jbrindle@snu.edu>
-MIME-Version: 1.0
-To: "Dr. Eugene D. Myers" <edm@tycho.ncsc.mil>
-CC: SELinux <selinux@tycho.nsa.gov>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4T8VHrT013671
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 04:31:17 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i4T8SlTg025023
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 08:28:48 GMT
+Received: from smtp804.mail.ukl.yahoo.com (smtp804.mail.ukl.yahoo.com [217.12.12.141])
+	by jazzswing.ncsc.mil  with SMTP id i4T8SlPE025020
+	for <selinux@tycho.nsa.gov>; Sat, 29 May 2004 08:28:47 GMT
+Received: from unknown (HELO lkcl.net) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
+  by smtp804.mail.ukl.yahoo.com with SMTP; 29 May 2004 08:31:10 -0000
+Date: Sat, 29 May 2004 08:28:31 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Joshua Brindle <jbrindle@snu.edu>
+Cc: "Dr. Eugene D. Myers" <edm@tycho.ncsc.mil>,
+   SELinux <selinux@tycho.nsa.gov>
 Subject: Re: XP as a base for NetTop
-References: <BCDBA110.10B6A%edm@tycho.ncsc.mil>
-In-Reply-To: <BCDBA110.10B6A%edm@tycho.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-ID: <20040529082831.GB13736@lkcl.net>
+References: <BCDBA110.10B6A%edm@tycho.ncsc.mil> <40B67F41.6020309@snu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <40B67F41.6020309@snu.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> In NetTop, each virtual machine is assigned a specific type (for example,
-> vm1_d) and the files that contain the virtual disks are assigned a different
-> type (for example, vm1_t).  Each virtual machine type vmX_d (where X is an
-> arbitrary number) can only access files (virtual disks) of type vmX_t.
+On Thu, May 27, 2004 at 06:52:33PM -0500, Joshua Brindle wrote:
+> >In NetTop, each virtual machine is assigned a specific type (for example,
+> >vm1_d) and the files that contain the virtual disks are assigned a 
+> >different
+> >type (for example, vm1_t).  Each virtual machine type vmX_d (where X is an
+> >arbitrary number) can only access files (virtual disks) of type vmX_t.
+> >
+> >The restriction means that each virtual machine can only access only its
+> >virtual disks.
 > 
-> The restriction means that each virtual machine can only access only its
-> virtual disks.
+> on the slide entitled seperation it says that ACL's are used to protect 
+> the disk files so that rogue apps in a vm can't affect other vm's, 
+> additionally each vm's disk file is encrypted so that only the 'level' 
+> user can access it.
+ 
+  ha, you had me there for a minute: i seriously thought you were
+  saying that microsoft recommended installing linux to baby-sit
+  their flagship OS.
 
-on the slide entitled seperation it says that ACL's are used to protect 
-the disk files so that rogue apps in a vm can't affect other vm's, 
-additionally each vm's disk file is encrypted so that only the 'level' 
-user can access it.
+> Obviously both of these things can be done with (SE)Linux but it appears 
+>  they thought about this already.
 
-Obviously both of these things can be done with (SE)Linux but it appears 
-  they thought about this already.
+ it would seem to me that SE/Linux would be a better choice of OS
+ to achieve this goal.
 
-Joshua
+ 1) linux code can be audited without dependence on a single vendor
+    for their cooperation (or otherwise)
 
-> 
-> In NetTop, the SELinux policy is written such that -->Only<-- only a VM can
-> access a virtual disk and only its associated virtual disk.  No other
-> process (including other VM's) have permission to access a VM's virtual
-> disk.  This includes processes that execute with root permission.
-> 
-> This is a significant point.  In systems, where data separation is
-> important, being able to show that data cannot flow (in this case from one
-> VM to another, which can happen if a VM gains access to another VM's virtual
-> disk) is an important property of a mandatory policy.  In the NetTop policy,
-> the VMware virtual machines are isolated from the rest of the system and
-> data flows into and out of a virtual machine, only if the policy allows it.
-> 
-> 
->>another hint is that they are focussing on network access so
->>presumably that means writing a special / modified VMware network
->>driver.
->>
->>
->>... anyway, what's this got to do with SE/Linux? :)
->>
->>no.
->>
+ 2) at the choice of the user [, developer or admin] the code and
+    applications can be cut away to an absolute minimum at runtime:
+	a linux "thin client" to run VMware
+ 
+ 3) additional vetting of the behaviour of each vm session can be done
+    including network access.
+
+	it would be a bit painful to do such vetting without any cooperation
+	from the VMware sessions, but definitely doable...
+
+	... but it might be possible to... write a program that runs
+	"other" programs and communicates with the host OS, and that
+	program asks the SE/Linux system to perform domain transitions.
+
+    [without such a program, it'd be necessary to run one VMware
+	 session per application - or per "purpose".]
+
+
+ just a thought.
+
+ l.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
