@@ -1,75 +1,55 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KGUKrT005217
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 12:30:20 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KGTc4v019334
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 16:29:38 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.10/8.12.10) with ESMTP id i7KGUJe1026728
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 12:30:19 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id i7KGUEa29606
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 12:30:14 -0400
-Received: from [172.16.83.126] (vpn83-126.boston.redhat.com [172.16.83.126])
-	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id i7KGUEtL024159
-	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 12:30:14 -0400
-Subject: little libselinux patch to display errno
-From: Colin Walters <walters@redhat.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OTPVoMtpqfbWOqb//XGo"
-Date: Fri, 20 Aug 2004 12:31:05 -0400
-Message-Id: <1093019465.9495.14.camel@nexus.verbum.private>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7KHKErT005594
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 13:20:14 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7KHJW4v022310
+	for <selinux@tycho.nsa.gov>; Fri, 20 Aug 2004 17:19:32 GMT
+Date: Fri, 20 Aug 2004 18:31:24 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: James Morris <jmorris@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
+   "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
+Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
+Message-ID: <20040820173124.GA11086@lkcl.net>
+References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com> <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, Aug 20, 2004 at 10:36:03PM +0900, Kaigai Kohei wrote:
+> Hello, everyone.
+> 
+> Tuesday, August 17, 2004 12:19 AM
+> James Morris wrote:
+> > > Is removing direct reference to AVC-Entry approach acceptable?
+> > > 
+> > > I'll try to consider this issue further.
+> > 
+> > Sure, if you can make it work without problems.
+> 
+> The attached patches against to 2.6.8.1 kernel improve the performance
+> and the scalability of SELinux by RCU-approach.
+> 
+> The evaluation results are as follows:
+> <Environment>
+> CPU: Itanium2(1GHz) x 4/8/16/32
+> Memory: enough (no swap)
+> OS: 2.6.8.1 (SELinux disabled by 'selinux=0' boot option)
+>     2.6.8.1 (SELinux enabled)
+>     2.6.8.1 + rwlock patch by KaiGai
+>     2.6.8.1 + RCU patch by KaiGai
+> 
+> The test program iterates write() to files on tmpfs 500,000 times in parallel.
+                                                ^^^^^
+ i presume that that is without the xattr patch which adds extended
+ attributes to tmpfs?
 
---=-OTPVoMtpqfbWOqb//XGo
-Content-Type: multipart/mixed; boundary="=-/0NcbsItvEU9nzKHqfOj"
+ (see http://hands.com/~lkcl/selinux)
 
-
---=-/0NcbsItvEU9nzKHqfOj
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-Here's a little patch to libselinux which causes it to print=20
-strerror(errno) if the AVC netlink socket can't be opened.  I wasn't
-sure if there was a reason just the numeric value of errno was printed,
-so I kept it.
-
-
---=-/0NcbsItvEU9nzKHqfOj
-Content-Disposition: attachment; filename=libselinux-avc-errno.patch
-Content-Type: text/x-patch; name=libselinux-avc-errno.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-LS0tIGxpYnNlbGludXgtMS4xNi9zcmMvYXZjLmN+CTIwMDQtMDgtMDUgMDk6NTk6MDUuMDAwMDAw
-MDAwIC0wNDAwDQorKysgbGlic2VsaW51eC0xLjE2L3NyYy9hdmMuYwkyMDA0LTA4LTIwIDEyOjE4
-OjQ3LjM1MzEzNjMwNCAtMDQwMA0KQEAgLTE4MCw3ICsxODAsOCBAQA0KIA0KICAgcmMgPSBhdmNf
-bmV0bGlua19vcGVuKGF2Y191c2luZ190aHJlYWRzKTsNCiAgIGlmIChyYyA8IDApIHsNCi0gICAg
-YXZjX2xvZygiJXM6ICBjYW4ndCBvcGVuIG5ldGxpbmsgc29ja2V0OiAlZFxuIiwgYXZjX3ByZWZp
-eCwgZXJybm8pOw0KKyAgICBhdmNfbG9nKCIlczogIGNhbid0IG9wZW4gbmV0bGluayBzb2NrZXQ6
-ICVkICglcylcbiIsIGF2Y19wcmVmaXgsDQorCSAgICBlcnJubywgc3RyZXJyb3IoZXJybm8pKTsN
-CiAgICAgZ290byBvdXQ7DQogICB9DQogICBpZiAoYXZjX3VzaW5nX3RocmVhZHMpIHsNCg==
-
-
---=-/0NcbsItvEU9nzKHqfOj--
-
---=-OTPVoMtpqfbWOqb//XGo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBJidIOIkJWWp2WGURAt+EAJ9qt86vZL7S6pCZESC6i9hrtMOVMACfRcHV
-HaGYa1cFsiwXkDVvolbBmu8=
-=8G47
------END PGP SIGNATURE-----
-
---=-OTPVoMtpqfbWOqb//XGo--
+ l.
 
 
 --
