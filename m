@@ -1,46 +1,27 @@
-Date: Sun, 24 Aug 2003 23:49:06 +1000 (EST)
-From: James Morris <jmorris@redhat.com>
-To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: questions
-In-Reply-To: <1061676714.1648.281.camel@kusturica>
-Message-ID: <Mutt.LNX.4.44.0308242341320.21690-100000@excalibur.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7OFdXLa020084
+	for <selinux@tycho.nsa.gov>; Sun, 24 Aug 2003 11:39:33 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h7OFc74F002797
+	for <selinux@tycho.nsa.gov>; Sun, 24 Aug 2003 15:38:07 GMT
+Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
+	by jazzswing.ncsc.mil  with ESMTP id h7OFc6FC002794
+	for <selinux@tycho.nsa.gov>; Sun, 24 Aug 2003 15:38:07 GMT
+Date: Sun, 24 Aug 2003 16:39:27 +0100
+From: Dale Amon <amon@vnl.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Suse xattr patches
+Message-ID: <20030824153927.GB17684@vnl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 24 Aug 2003, Magosányi Árpád wrote:
-
-> - Is polyinstantiation is put back to selinux yet? Having moldy
->  directories based on subject domain would be nice. If not, what
->  workarounds exist?
-
-There is no polyinstantiation (of e.g. directories, ports), and AFAIK,
-never has been.
-
-> - What about networking? I see that there is nodecon and portcom,
->  and someone has written that some networking functionality is
->  out because of rejection of the corresponding LSM hooks. Do
->  they work?
-
-Some of the missing networking functionality is in the process of being 
-redesigned and added back in.
-
-> Do we have an iptables context match module?
-
-Not that I know of.
-
->  Will we?
-
-It is possible, if someone cares to do it.
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
+Does anyone know if there are xattr patches for reiserfs
+on 2.6? I haven't any real choice of changing fs on my
+customers servers, so upgrades are on hold until this
+support is available... outside of my "toy" machines that
+is.
 
 
 --
