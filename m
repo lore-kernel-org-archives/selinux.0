@@ -1,54 +1,68 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CEXlIi015547
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 09:33:47 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CEXigF018810
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 14:33:45 GMT
-Date: Wed, 12 Jan 2005 14:44:11 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Message-ID: <41E537C8.8060101@redhat.com>
+Date: Wed, 12 Jan 2005 09:44:24 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
-Subject: Re: Multiple contexts
-Message-ID: <20050112144411.GZ26175@lkcl.net>
-References: <1105390249.8093.21.camel@cobra.ivg2.net> <20050110232312.GI6967@lkcl.net> <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil> <20050111214818.GE26175@lkcl.net> <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil>
+CC: Colin Walters <walters@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Added is_context_configurable function
+References: <41E2FEF4.5070604@redhat.com>	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>	 <41E3FAF4.2060109@redhat.com>	 <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>	 <1105481440.24748.22.camel@nexus.verbum.private> <1105539555.22495.28.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1105539555.22495.28.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jan 12, 2005 at 09:00:49AM -0500, Stephen Smalley wrote:
+Stephen Smalley wrote:
 
-> On Tue, 2005-01-11 at 16:48, Luke Kenneth Casson Leighton wrote:
-> >  recursion was added to ACLs - or "inheritance" - because to fix access
-> >  to subdirectories and all contents you are required in NT 4.0 to change
-> >  ALL permissions on ALL subdirectories and contents!
-> > 
-> >  basically you now have to traverse the directory tree right
-> >  up to the mount point [as stephen says] in order to determine access
-> >  rights, combining and checking permissions as you go.
-> > 
-> >  eeuuuw.
-> > 
-> >  ... was that what you were referring to stephen?
-> 
-> No.  I'm simply referring to the fact that if your policy is encoded in
-> the file attributes themselves, as with ACLs, then you cannot analyze
-> the potential information flow among security equivalence classes in the
-> system (which is necessary if you want to ensure confidentiality or
-> integrity guarantees) without looking at all of the file attributes. 
+>On Tue, 2005-01-11 at 17:10, Colin Walters wrote:
+>  
+>
+>>I've said this before, but I don't like the idea of having to edit
+>>file_contexts whenever I want to change the labels.  I feel that the 
+>>on-disk version should be canonical, and the file_contexts only used for
+>>system initialization.
+>>    
+>>
+>
+>That is also my view.  However, if people are going to run setfiles or
+>restorecon at runtime to check or set contexts (which is current
+>practice in Fedora), then we do need a way to distinguish legitimate
+>customizations from what are essentially bugs in the policy (e.g. lack
+>of a file type transition rule) or applications (e.g. failure to
+>preserve or set context on a file where file type transition rules are
+>insufficient).  The file contexts configuration seemed like a reasonable
+>way to capture that distinction to me.  Two questions:
+>1) Is it sufficient to identify legitimate customizations based solely
+>on the TE type of the file?  If not, what other information should be
+>taken into account, irrespective of whether this is done via
+>file_contexts or via a different config file?
+>  
+>
+I think we can somewhat do that now.  I am not looking at the ability to 
+put general
+files in random location, just based off the wim of the Administrator.  
+IE putting
+/var/named some where else is not what we are considering, in this case 
+a secondary
+file_context.local file should be required.  But the usual case of 
+labeling file for sharing
+IE samba_share_t, http*, ftp_anon_t.  These will be come common, and the 
+admin should not
+be required to update file_context in this case.  (We had considered 
+calling them sharables)
 
- ... how about encoding the file attributes in the policy files,
- such that they are ACL-like?
+>2) Is it feasible for the policy writer to identify all such TE types a
+>priori in the policy without covering such a large set as to make
+>setfiles/restorecon completely useless by default? If not, what
+>mechanism will be provided to allow users/admins to easily mark
+>additional types without conflicting with future policy updates?
+>
+>  
+>
+I believe so as long as we confine it to shareable types of context, not 
+files that have standard locations,
+that an admin might decide to change.
 
- [i realise this is quite a radical change under-the-hood]
 
- if nothing else by having the means to apply a list of contexts
- [any of which may apply] to a file.
-
- the ultimate aim of which would be to make it easier for
- administrators to add permissions and programs without going
- through a complete policy rebuild / reload.
 
 
 --
