@@ -1,45 +1,85 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: SUDO package
-Date: Fri, 25 Apr 2003 04:07:10 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <00d801c303f1$9fef2f00$398314d1@windowpane.com> <200304231710.34773.russell@coker.com.au> <1051205517.20300.71.camel@moss-huskers.epoch.ncsc.mil>
-In-Reply-To: <1051205517.20300.71.camel@moss-huskers.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3OIwwI4009919
+	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 14:59:00 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h3OIwv7R000012
+	for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 18:58:57 GMT
+Received: from hoss.orcus.priv.at (chello080110242202.117.11.tuwien.teleweb.at [80.110.242.202])
+        by jazzband.ncsc.mil  with ESMTP id h3OIwtKP029999 for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2003 18:58:56 GMT
+To: selinux@tycho.nsa.gov
+Subject: role orthogonality
+From: Robert Bihlmeyer <robbe@orcus.priv.at>
+Date: 20 Apr 2003 10:51:14 +0200
+Message-ID: <87ist9eem5.fsf@orcus.priv.at>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200304250407.10413.russell@coker.com.au>
+content-Type: multipart/signed; boundary="----------=_1051210641-1305-0"; micalg="pgp-sha1"; protocol="application/pgp-signature"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 25 Apr 2003 03:31, Stephen Smalley wrote:
-> I prefer extending the domain name with the type suffix, but this is
-> obviously not a big deal as long as we are consistent.  It is likely
-> easier to quickly see what types are associated with a given domain if
-> they use the domain name as the prefix.
+This is a multi-part message in MIME format.
+It has been signed conforming to RFC3156.
+You need GPG or PGP to check the signature.
 
-OK.  I had been tending towards the same conclusion, but hadn't been looking 
-forward to the hassle of changing it.
+------------=_1051210641-1305-0
+Content-Type: text/plain; charset=us-ascii
 
-I have now re-written most of the policy for such things, I'll test it out 
-over the next few days and I'll have something ready for you to look at 
-within a week.
+One thing that I still poorly understand is the interaction between
+types and roles.
 
-BTW  What shall we do about all the other changes I've made recently?  The 
-unified diff between my tree and yours is probably in excess of 5,000 lines, 
-it would probably be most conveniant for everyone if we try getting things 
-merged now.
+Am I right that roles are only relevant when transitioning, and not
+during normal type enforcement?
 
-Is there someone else who can look into this?  I know you're really busy with 
-2.5 stuff right now.
+It seems to me that we often want to break that orthogonality, so we
+encode the role in the type (e.g. sysadm_tty_device_t vs
+user_tty_device_t). I find this ugly, boring and repetitive -- exactly
+the kind of thing that computers should shield us from. Wouldn't it be
+possible to make the policy language grok these desires? Out of my
+hat:
+
+    rtype foo_t, domain;
+    type foo_etc_t, file_type;
+    rtype foo_files_t, file_type;
+
+    allow foo_t self:process signal;
+    allow foo_t foo_etc_t:file r_file_perms;
+    allow foo_t foo_files_t:file rw_file_perms;
+
+This is supposed to mean that foo_t and foo_files_t exist seperately
+for every role, while there is only one foo_etc_t. Or you can think of
+foo_t and foo_files_t having "hard" boundaries between roles.
+
+So in this scenario user_r:foo_t may signal user_r:foo_t, but not
+sysadm_r:foo_t; user_r:foo_files_t [1] may only be read/written by
+user_r:foo_t, not sysadm_r:foo_t; but foo_etc_t can be read by foo_t
+under any role.
+
+It's probably desirable to allow more detailed specification as well:
+    allow sysadm_r:foo_t user_r:foo_files_t:file rw_file_perms;
+meaning that sysadm_r can access user_r's foo_files as well. (Yes we
+run into colon overload problems here.)
+
+Now, what's wrong with this naive proposal?
+
+
+[1] Files would need to be able to hold roles, then.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Robbe
 
+------------=_1051210641-1305-0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+qDPj8g21h7wYWrMRAmPcAJ9oUvDAOn/3y0cXCEgOv1aOpy8E3gCePYmk
+sT/CZ7qa5ZiftR3wl3dizC4=
+=Iwje
+-----END PGP SIGNATURE-----
+
+------------=_1051210641-1305-0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
