@@ -1,52 +1,37 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7CGnqrT018189
-	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 12:49:52 -0400 (EDT)
-Received: from web51507.mail.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i7CGnpBo015396
-	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 16:49:51 GMT
-Message-ID: <20040812164944.64756.qmail@web51507.mail.yahoo.com>
-Date: Thu, 12 Aug 2004 09:49:44 -0700 (PDT)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: net_contexts
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1295492449-1092329384=:61812"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7CIW0rT018902
+	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 14:32:00 -0400 (EDT)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7CIVxBo018692
+	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 18:32:00 GMT
+Subject: Re: Lemuria Mirror
+From: Colin Walters <walters@verbum.org>
+To: Tom <tom@lemuria.org>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <20040812161313.B6569@lemuria.org>
+References: <20040812161313.B6569@lemuria.org>
+Content-Type: text/plain
+Date: Thu, 12 Aug 2004 14:32:28 -0400
+Message-Id: <1092335548.26501.4.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1295492449-1092329384=:61812
-Content-Type: text/plain; charset=us-ascii
+On Thu, 2004-08-12 at 16:13 +0200, Tom wrote:
+> Just a short announcement:
+> 
+> For at least several days now, I haven't been able to sync with the
+> verbum.org distribution site. So if you are using the lemuria.org
+> mirror to pull your Debian SELinux packages, note that those from
+> verbum.org (selinux uml packages only, I think) may be outdated.
+> 
+> 
+> Does anyone know about the state of verbum.org? Is it coming back or
+> should I remove it?
 
-Mon, 9 Aug 2004 18:09.  Russell Coker wrote:
- 
->Some parts of the file are order sensitive, net_contexts is one of them.
- 
-Then, would you please tell us what others are?
-Thanks.
- 
-Park Lee
- 
+You should probably remove it, I won't have time to work on it soon.
 
-		
----------------------------------
-Do you Yahoo!?
-Yahoo! Mail - Helps protect you from nasty viruses.
---0-1295492449-1092329384=:61812
-Content-Type: text/html; charset=us-ascii
 
-<DIV>Mon, 9 Aug 2004 18:09. &nbsp;Russell Coker wrote:</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&gt;Some parts of the file are order sensitive, net_contexts is one of them.</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Then, would you please tell us what others are?</DIV>
-<DIV>Thanks.</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Park Lee</DIV>
-<DIV>&nbsp;</DIV><p>
-		<hr size=1>Do you Yahoo!?<br>
-<a href="http://us.rd.yahoo.com/mail_us/taglines/virus/*http://promotions.yahoo.com/new_mail/static/protection.html">Yahoo! Mail</a> - Helps protect you from nasty viruses.
---0-1295492449-1092329384=:61812--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
