@@ -1,33 +1,48 @@
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA12440
+	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 04:53:27 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id IAA01887
+	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 08:51:53 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id EAA12422
-	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 04:52:29 -0400 (EDT)
+	by jazzswing.ncsc.mil  with ESMTP id IAA01878
+	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 08:51:34 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Tracy R Reed <treed@ultraviolet.org>, Tom <tom@lemuria.org>
+To: Tom <tom@lemuria.org>, Tracy R Reed <treed@ultraviolet.org>
 Subject: Re: SE Linux on Debian
-Date: Wed, 2 Oct 2002 10:50:27 +0200
+Date: Wed, 2 Oct 2002 10:52:04 +0200
 Cc: selinux@tycho.nsa.gov
-References: <20021001153638.J5416@ultraviolet.org> <20021002092056.A4475@lemuria.org> <20021002003004.C28686@ultraviolet.org>
-In-Reply-To: <20021002003004.C28686@ultraviolet.org>
+References: <20021001153638.J5416@ultraviolet.org> <20021001232715.A28686@ultraviolet.org> <20021002092056.A4475@lemuria.org>
+In-Reply-To: <20021002092056.A4475@lemuria.org>
 MIME-Version: 1.0
-Message-Id: <200210021050.27797.russell@coker.com.au>
+Message-Id: <200210021052.04154.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2 Oct 2002 09:30, Tracy R Reed wrote:
-> I realized that I still have xdm running and logged in through that so I
-> was logged in as xdm_t and my username wasn't in the users file which of
-> course causes all sorts of problems.
+On Wed, 2 Oct 2002 09:20, Tom wrote:
+> On Tue, Oct 01, 2002 at 11:27:15PM -0700, Tracy R Reed wrote:
+> > Ah. Actually they were in
+> >
+> > /usr/share/selinux/policy/current/
+> >
+> > and
+> >
+> > /usr/share/selinux/policy/default/
+> >
+> > What's the difference? But I removed them and now the policy compiles.
+> > Yeay!  Thanks for the help.
+>
+> That's just some symlinking, I believe.
 
-If you want an X login then the only Debian package for you is kdm (the KDE 
-XDM program), and that's for the 2.2.2 version of KDE.
+No.  /usr/share/selinux/policy/default/ is the files shipped in the Debian 
+package (use "dpkg -L selinux-policy-default" to see this).  
+/usr/share/selinux/policy/current/ is the files that are actually in use, and 
+the symlink /etc/selinux points to it.
 
-There is a patch for GDM which I haven't packaged because it's not something I 
-use (and the things I use don't work to my satisfaction yet).
-
-If kde 2.2.2 isn't an option for you then you have to use startx.
+There's no symlinks under /usr/share/selinux.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
