@@ -1,33 +1,43 @@
-Date: Wed, 6 Feb 2002 12:36:12 -0500 (EST)
+Date: Wed, 6 Feb 2002 12:32:51 -0500 (EST)
 From: Stephen Smalley <sds@tislabs.com>
-To: Hacko <toltec@karai.net>
+To: Scott Shealy <sshealy@asgnet.psc.sc.edu>
 cc: <SELinux@tycho.nsa.gov>
-Subject: Re: test selinux account
-In-Reply-To: <Pine.LNX.4.44.0202061849040.31648-100000@karai.karai.net>
-Message-ID: <Pine.GSO.4.33.0202061233020.27827-100000@raven>
+Subject: Re: NFS Volumes
+In-Reply-To: <MILLuxUv7NXraBMOkKj00000025@mill>
+Message-ID: <Pine.GSO.4.33.0202061149510.27827-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 6 Feb 2002, Hacko wrote:
+On Wed, 6 Feb 2002, Scott Shealy wrote:
 
-> if you wish please test selinux,2.4.14-lsm on slackware-curent, PC,
-> enforcing, test is in user_r:user_t, as some of the other user accounts,
-> many restrictions are not present, test is normal shell account.
+> At the current time with the current default installation how are NFS mounted
+> volumes treated?  What are my options....
 
-You might want to consider upgrading to a newer version of SELinux, since
-there have been various bug fixes since the 2.4.14-based kernel.  When you
-say "many restrictions are not present", what exactly do you mean?  Did
-you significantly alter the example policy configuration?  You probably
-had to make a number of changes just to adapt to Slackware.
+If you mount a NFS filesystem, all files will initially appear with a
+default security context (system_u:object_r:nfs_t).  You can subsequently
+relabel the files via setfiles, but any such changes will be
+local to the client (not visible elsewhere) and transient (not persisting
+across reboots).  If you have an essentially static file security contexts
+mapping, you can have the clients apply it during bootup by running
+setfiles on an appropriate file_contexts configuration from an rc script.
+This will be more complicated if your root filesystem is NFS.  In any
+event, it will likely require some policy changes.
+
+Even if you have created a persistent label mapping on the filesystem (by
+running setfiles on the NFS server), a SELinux kernel on the NFS client
+won't try to use it at present.  This is because there is no mechanism
+implemented to coordinate updates to the mapping among the clients, so it
+would not be safe to access it.  Furthermore, the mapping may not even be
+accessible to clients due to either mount restrictions or mounting a
+subdirectory of the filesystem.
+
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
-
-
 
 
 
