@@ -1,43 +1,42 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7P4J6rT002899
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 00:19:06 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7P4IILV018749
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 04:18:19 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7P4TRrT002970
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 00:29:27 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7P4TPuQ028740
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 04:29:26 GMT
 Received: from localhost (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 0C12E61AFB
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 14:18:59 +1000 (EST)
+	by smtp.sws.net.au (Postfix) with ESMTP id 0FC6D61AFB
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 14:29:25 +1000 (EST)
 Received: from smtp.sws.net.au ([127.0.0.1])
 	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 26791-02 for <selinux@tycho.nsa.gov>;
-	Wed, 25 Aug 2004 14:18:58 +1000 (EST)
+	id 26843-04 for <selinux@tycho.nsa.gov>;
+	Wed, 25 Aug 2004 14:29:24 +1000 (EST)
 Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by smtp.sws.net.au (Postfix) with ESMTP id 9D58061AFA
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 14:18:58 +1000 (EST)
+	by smtp.sws.net.au (Postfix) with ESMTP id A9AAC61AFA
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 14:29:24 +1000 (EST)
 Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 1EC5CB5889
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 14:18:57 +1000 (EST)
+	by lyta.coker.com.au (Postfix) with ESMTP id E682EB5889
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 14:29:22 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: hald
-Date: Wed, 25 Aug 2004 14:18:56 +1000
+Subject: admin.te
+Date: Wed, 25 Aug 2004 14:29:22 +1000
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_wMBLB6HoPtBDIHc"
-Message-Id: <200408251418.56556.russell@coker.com.au>
+  boundary="Boundary-00=_iWBLBmht4Sbjd1p"
+Message-Id: <200408251429.22399.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_wMBLB6HoPtBDIHc
+--Boundary-00=_iWBLBmht4Sbjd1p
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Attached is a patch to make the hald from rawhide work, it's against the 
-latest CVS policy.
+The attached patch cleans up some redundant attributes in admin.te.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
@@ -45,54 +44,27 @@ http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
 
---Boundary-00=_wMBLB6HoPtBDIHc
+--Boundary-00=_iWBLBmht4Sbjd1p
 Content-Type: text/x-diff;
   charset="us-ascii";
-  name="hald.diff"
+  name="admin.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="hald.diff"
+	filename="admin.diff"
 
---- /usr/src/se/policy/domains/program/unused/hald.te	2004-08-25 13:21:22.000000000 +1000
-+++ domains/program/unused/hald.te	2004-08-23 20:35:07.000000000 +1000
-@@ -10,14 +10,15 @@
- #
- # hald_exec_t is the type of the hald executable.
- #
--daemon_domain(hald, `, dbus_client_domain')
-+daemon_domain(hald, `, dbus_client_domain, fs_domain')
+--- /usr/src/se/policy/domains/admin.te	2004-08-25 13:21:21.000000000 +1000
++++ ./domains/admin.te	2004-08-25 14:11:45.000000000 +1000
+@@ -4,7 +4,7 @@
  
--allow hald_t etc_t:file { getattr read };
--allow hald_t self:{ unix_dgram_socket unix_stream_socket } create_stream_socket_perms;
-+allow hald_t { etc_t etc_runtime_t }:file { getattr read };
-+allow hald_t self:unix_stream_socket create_stream_socket_perms;
-+allow hald_t self:unix_dgram_socket create_socket_perms;
+ # sysadm_t is the system administrator domain.
+ type sysadm_t, domain, privlog, privowner, admin, userdomain, web_client_domain, privhome, etc_writer, privmodule
+-ifdef(`unrestricted_admin', `,etc_writer, fs_domain, privmem, privlog, privowner, sysctl_kernel_writer, auth, auth_write, unrestricted')
++ifdef(`unrestricted_admin', `, fs_domain, privmem, sysctl_kernel_writer, auth, auth_write, unrestricted')
+ ifdef(`direct_sysadm_daemon', `, priv_system_role')
+ ; dnl end of sysadm_t type declaration
  
- allow hald_t dbusd_t:dbus { acquire_svc };
- 
--allow hald_t self:file { getattr read };
-+allow hald_t { self proc_t }:file { getattr read };
- 
- allow hald_t { bin_t sbin_t }:dir search;
- allow hald_t hald_t:fifo_file rw_file_perms;
-@@ -28,8 +29,14 @@
- allow hald_t self:capability { net_admin sys_admin };
- can_network(hald_t)
- 
-+allow hald_t fixed_disk_device_t:blk_file { getattr read };
-+allow hald_t event_device_t:chr_file { getattr read };
-+
- ifdef(`updfstab.te', `domain_auto_trans(hald_t, updfstab_exec_t, updfstab_t)')
--ifdef(`udev.te', `domain_auto_trans(hald_t, udev_exec_t, udev_t)')
-+ifdef(`udev.te', `
-+domain_auto_trans(hald_t, udev_exec_t, udev_t)
-+allow udev_t hald_t:unix_dgram_socket sendto;
-+')
- 
- allow hald_t usbdevfs_t:dir search;
- allow hald_t usbdevfs_t:file { getattr read };
 
---Boundary-00=_wMBLB6HoPtBDIHc--
+--Boundary-00=_iWBLBmht4Sbjd1p--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
