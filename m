@@ -1,74 +1,39 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAOFDLIi020015
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 10:13:21 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAOFDNC8027624
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 15:13:23 GMT
-Date: Wed, 24 Nov 2004 15:24:02 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: "Neugebauer, Rolf" <rolf.neugebauer@intel.com>
-Cc: Mark Williamson <maw48@hermes.cam.ac.uk>, xen-devel@lists.sourceforge.net,
-   SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: [Xen-devel] protecting xen startup
-Message-ID: <20041124152402.GQ5146@lkcl.net>
-References: <39CC97884CA19A4D8D6296FE94357BCBF5CCD7@swsmsx404>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <39CC97884CA19A4D8D6296FE94357BCBF5CCD7@swsmsx404>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAOFTvIi020179
+	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 10:29:58 -0500 (EST)
+Received: from tcsfw2.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAOFTwCA028246
+	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 15:30:00 GMT
+Message-ID: <41A4A921.9060105@trustedcs.com>
+Date: Wed, 24 Nov 2004 09:30:41 -0600
+From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: "Joshua D. Guttman disp: slinux" <guttman@mitre.org>,
+   Amy L Herzog <aherzog@mitre.org>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   Chad Hanson <chanson@tcs-sec.com>
+Subject: Re: dynamic context transitions
+References: <4182959B.4080503@trustedcs.com>	 <1099328185.21386.140.camel@moss-spartans.epoch.ncsc.mil>	 <20041112184232.GK15243@golconda.mitre.org>	 <1100527665.31773.41.camel@moss-spartans.epoch.ncsc.mil>	 <nhau0rm54ra.fsf@malabar.mitre.org>	 <1100874782.15944.67.camel@moss-spartans.epoch.ncsc.mil>	 <419E1F76.9080803@trustedcs.com> <1100884644.15944.181.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1100884644.15944.181.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Nov 24, 2004 at 11:48:15AM -0000, Neugebauer, Rolf wrote:
-> Yes, in principle you should be able to do that (and we have been
-> thinking along similar lines). However, at the moment the linux kernel
-> in the exporting VM (BE) does not know anything about other VMs so as
-> far as my understanding goes you can't apply SELinux policies to it as
-> you don't have a subject.
- 
- okay.
+Stephen Smalley wrote:
+> Unless you have an actual usage scenario for this functionality, I'd
+> suggest a simple prohibition of any change in context even by the thread
+> group leader if there are any child threads.  That would still allow a
+> process to change its context prior to spawning any threads, e.g. to
+> shed privileges during startup.  Changing the security attributes of
+> other threads without their explicit awareness/consent is undesirable;
+> note that SELinux currently prevents setprocattr on another task.
 
- that can be dealt with by... (this is speculation, here!)
+The prohibition works for us.  Would you like a new patch with these changes?
 
- by writing an selinux policy in advance that defines how many
- virtual machines you have, and creating xen_vm0_t, xen_vm1_t
- etc. to represent them.
+-- 
 
- you then define what operations can be carried out, and then
- grant a program the right to perform that operation on SPECIFIC
- machines.  [yes there is a short-hand which allows you to specify an
- operation be allowed by a program on all machines].
-
- then it would be necessary to modify the linux kernel to call the
- avc_has_perm() function at the appropriate point to check, at the time
- that an operation was being done (e.g. read from block device), as to
- whether that process had the right to perform that operation on that
- xen virtual machine.
-
- in order for this to work, it would be necessary to have a translation
- mechanism between the numbering xen_vm_0_t etc. and the actual xen
- virtual machines.
-
- looking at avc_has_perm(), you'd need a SID per virtual machine,
- as the second argument...
-
- xen_communication_has_perm(struct task_struct *tsk,
-                            struct xen_info *xen,
-							u32 perms)
- {
-	 return avc_has_perm(tsec->sid,
-	                     xen->sid, SECCLASS_XEN, perms, NULL, NULL);
- }
-
- where xen->sid contains "xen_vm_0_t", "xen_vm_1_t" etc.
- and tsec->sid contains "xen_xm_bin_t" - representing the xen control
- binary /usr/bin/xm.
-
- the question i can't answer (the bit that i don't quite grok) is
- how do you get hold of the right xen_info struct and how do you blat
- the sid into it?
-
- l.
-
+Darrel
 
 --
 This message was distributed to subscribers of the selinux mailing list.
