@@ -1,31 +1,32 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j07CGlIi014780
-	for <selinux@tycho.nsa.gov>; Fri, 7 Jan 2005 07:16:47 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j07CGoMn014910
-	for <selinux@tycho.nsa.gov>; Fri, 7 Jan 2005 12:16:50 GMT
-Subject: Re: Architectural doubts
+Subject: Re: BUG in security_context_to_sid() ?
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Juan =?ISO-8859-1?Q?Gonz=E1lez?= <jgonzale@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <fd0153ad05010614044e6b7c75@mail.gmail.com>
-References: <fd0153ad05010612546d5c87e9@mail.gmail.com>
-	 <1105045386.24438.176.camel@moss-spartans.epoch.ncsc.mil>
-	 <fd0153ad05010614044e6b7c75@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1105099866.28680.0.camel@moss-spartans.epoch.ncsc.mil>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: James Morris <jmorris@redhat.com>, SELinux@tycho.nsa.gov
+In-Reply-To: <20050107082301.94911.qmail@web51502.mail.yahoo.com>
+References: <20050107082301.94911.qmail@web51502.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1105101368.28680.20.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 07 Jan 2005 07:11:06 -0500
+Date: Fri, 07 Jan 2005 07:36:08 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-01-06 at 17:04, Juan González wrote:
-> Me question is, SELinux and LSM share the method to catch system
-> entry, via hooks.
-> I'm right?
+On Fri, 2005-01-07 at 03:23, Park Lee wrote:
+>     But, every time, when security_context_to_sid() is
+> called in the hook, the kernel yield a oops as the
+> following:
+> 
+> 
+> Debug: sleeping function called from invalid context
+> at mm/slab.c:1980
 
-LSM defines the hook interfaces and locations, and SELinux implements
-the hook functions with its own processing.
+security_context_to_sid() is presently only called when it is safe to
+sleep; thus, it calls kmalloc with GFP_KERNEL rather than GFP_ATOMIC
+when it makes a copy of the context for processing.  If you truly need
+to use it from non-blocking context, then it would need to be changed to
+use GFP_ATOMIC.  But it would be better if you were to convert the
+context to a SID earlier while in a process context and then just use
+the SID later.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
