@@ -1,35 +1,38 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8HJr1rT005079
-	for <selinux@tycho.nsa.gov>; Fri, 17 Sep 2004 15:53:01 -0400 (EDT)
-Message-ID: <414B4091.5030500@redhat.com>
-Date: Fri, 17 Sep 2004 15:52:49 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Strange Associate bug
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Boolean utilities segv's
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "George C. Wilson" <ltcgcw@us.ibm.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>,
+   Fedora SELinux List <fedora-selinux-list@redhat.com>
+In-Reply-To: <20040917193839.GA3020@us.ibm.com>
+References: <20040917193839.GA3020@us.ibm.com>
+Content-Type: text/plain
+Message-Id: <1095450979.17932.317.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Fri, 17 Sep 2004 15:56:19 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If I mount an NFS filesystem and then try to move a file to it,
-I get permission denied and end up with an associate error
+On Fri, 2004-09-17 at 15:38, George C. Wilson wrote:
+> We found what appears to be a bug in libselinux.  The getsebool, setsebool,
+> and togglesebool all SIGSEGV when SELINUX=disabled.
+> 
+> The global that stores the selinuxfs mountpoint in libselinux, selinux_mnt, is
+> initialized to NULL.  selinuxfs is not mounted when SELinux is disabled,
+> therefore no mountpoint exists when init_selinuxmnt() scans /proc/mounts, and
+> selinux_mnt remains NULL.  So when get_bool_value() in booleans.c  attempts to
+> strlen(selinux_mnt), a SIGSEGV results.  The fix is to validate selinux_mnt
+> before the offending strlen() in get_bool_value(), line 101 of booleans.c from
+> selinux-usr-2004081908.  It probably would not hurt to validate name as well.
+> The same bug exists in FC3.
 
- >mount remote:/vol/vol1/home /mnt/dwalsh
- >touch /home/dwalsh/foo
- >mv /home/dwalsh/foo /mnt/dwalsh
-mv: cannot create regular file `./foo': Permission denied
-Sep 17 15:48:19 celtics kernel: audit(1095450499.359:0): avc:  denied  { 
-associate } for  pid=19797 exe=/bin/mv name=foo 
-scontext=user_u:object_r:user_home_t tcontext=system_u:object_r:nfs_t 
-tclass=filesystem
+Ok, we can certainly fix this, but note that these functions are not
+going to work on a non-SELinux system regardless; you shouldn't even be
+calling them (or running those utilities) on a non-SELinux system.
 
-allow user_home_t nfs_t:filesystem { associate };
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Do I need to change mv to be able to handle this or do we need
-
-allow domain nfs_t:filesystem associate;
-
-Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
