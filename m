@@ -1,94 +1,67 @@
-Received: from ultraviolet.org ([192.215.175.10])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with SMTP id SAA09346
-	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 18:37:21 -0400 (EDT)
-Date: Tue, 1 Oct 2002 15:36:38 -0700
-From: Tracy R Reed <treed@ultraviolet.org>
-To: selinux@tycho.nsa.gov
-Subject: SE Linux on Debian
-Message-ID: <20021001153638.J5416@ultraviolet.org>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA10420
+	for <selinux@tycho.nsa.gov>; Tue, 1 Oct 2002 22:12:18 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id CAA18808
+	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 02:10:44 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+	by jazzswing.ncsc.mil  with ESMTP id CAA18804
+	for <selinux@tycho.nsa.gov>; Wed, 2 Oct 2002 02:10:42 GMT
+Date: Wed, 2 Oct 2002 11:48:15 +1000
+From: Brian May <bam@snoopy.apana.org.au>
+To: Tracy R Reed <treed@ultraviolet.org>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: SE Linux on Debian
+Message-ID: <20021002014815.GB14890@snoopy.apana.org.au>
+References: <20021001153638.J5416@ultraviolet.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="g3RkK9jYN81zD2N+"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20021001153638.J5416@ultraviolet.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, Oct 01, 2002 at 03:36:38PM -0700, Tracy R Reed wrote:
+> Here are the debs:
+> libselinux-dev
+> selinux
+> selinux-policy-default 
+> 
+> But the new ps, ls, sshd, etc. do not seem to be included here. Where do I
+> get those? Are they not in a deb? 
 
---g3RkK9jYN81zD2N+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think you are looking for the coreutils, fileutils, shellutils, and
+procps packages.
 
-I am trying to get SE Linux working on my debian system. I've been running
-RedHat for years and I'm somewhat new to debian. :) I am running testing.
-I installed 2.4.19 and the lsm-new-2002082308-2.4.19.patch.12.gz with
-apt-get also. The kernel is running just fine. But I am having trouble
-with the policy and utils.
+> ERROR 'parse error' at token 'run_program' on line 71322:
+> run_program(sysadm_t, sysadm_r, deb, dpkg_exec_t, dpkg_t)
+> #
+> /usr/sbin/checkpolicy:  error(s) encountered while parsing configuration
+> make: *** [/etc/security/selinux/policy.12] Error 1
+> dpkg: error processing selinux-policy-default (--configure):
+>  subprocess post-installation script returned error exit status 2
+> 
+> Errors were encountered while processing:
+>  selinux-policy-default
+> E: Sub-process /usr/bin/dpkg returned an error code (1)
 
-I installed the debs with apt-get from:
+I believe that problem should be fixed in my latest version.
 
-deb http://www.microcomaustralia.com.au/debian/ stable selinux
+Now I get another error though:
 
-because that is what is in the topic on the IRC channel. Is it ok to
-install these from stable even though my distro is actually testing?
-
-Here are the debs:
-
-libselinux-dev
-selinux
-selinux-policy-default=20
-
-But the new ps, ls, sshd, etc. do not seem to be included here. Where do I
-get those? Are they not in a deb?=20
-
-When I installed the new policy it asked a lot of questions such as:
-
-Setting up selinux-policy-default (2002082308-4.bam.1) ...
-File "domains/program/apache.te" changed.
-Copy/Ignore/Always ignore/view Diff [c/I/a/d]?=20
-
-I said Copy to all of them. I'm not running all of that but I will be
-playing with various different things so I want the latest policies
-installed. When it was done asking questions I got this error:
-
-/usr/sbin/checkpolicy:  loading policy configuration from /etc/security/sel=
-inux/src/policy.conf
-
-ERROR 'parse error' at token 'run_program' on line 71322:
-run_program(sysadm_t, sysadm_r, deb, dpkg_exec_t, dpkg_t)
-#
+mkdir -p /etc/security/selinux
+/usr/sbin/checkpolicy -o tmp/pol /etc/security/selinux/src/policy.conf
+/usr/sbin/checkpolicy:  loading policy configuration from
+/etc/security/selinux/src/policy.conf
+ERROR 'unknown type devfs_t' at token ';' on line 49839:
+# allow writes to devpts devices
+allow domain devfs_t:chr_file { ioctl read getattr lock write append };
 /usr/sbin/checkpolicy:  error(s) encountered while parsing configuration
 make: *** [/etc/security/selinux/policy.12] Error 1
-dpkg: error processing selinux-policy-default (--configure):
- subprocess post-installation script returned error exit status 2
 
-Errors were encountered while processing:
- selinux-policy-default
-E: Sub-process /usr/bin/dpkg returned an error code (1)
-
-Whenever I install a new package apt-get tries to recompile the policy
-(why?) and I get the same error.
-
-Any help is greatly appreciated!
-
---=20
-Tracy Reed      http://www.ultraviolet.org
-"Our products just aren't engineered for security." - Brian Valentine,=20
-senior VP in charge of Microsoft's Windows development 5 Sept 2002
-
---g3RkK9jYN81zD2N+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAj2aI3YACgkQ9PIYKZYVAq22sACfY5szw1ZbG9tGKsnFiWop/EwV
-EVsAn0sHevHTviQHLTdnHAAeZ7VbYU1v
-=h9AZ
------END PGP SIGNATURE-----
-
---g3RkK9jYN81zD2N+--
+Where is this type defined? It doesn't appear to be in
+domains/program/devfsd.te.
+-- 
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
