@@ -1,55 +1,60 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QLZKrT028781
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 17:35:20 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8R1A2rT029370
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 21:10:04 -0400 (EDT)
 Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QLZJhU011592
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 21:35:19 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8R1A0hU014850
+	for <selinux@tycho.nsa.gov>; Mon, 27 Sep 2004 01:10:01 GMT
 Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id EE92FBFCB
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 22:35:13 +0100 (BST)
+	by open.hands.com (Postfix) with ESMTP id D946FC101
+	for <selinux@tycho.nsa.gov>; Mon, 27 Sep 2004 02:09:57 +0100 (BST)
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1CBgqf-00083I-5G
-	for selinux@tycho.nsa.gov; Sun, 26 Sep 2004 22:46:25 +0100
-Date: Sun, 26 Sep 2004 22:46:25 +0100
+	id 1CBkCS-0000Nh-VF
+	for selinux@tycho.nsa.gov; Mon, 27 Sep 2004 02:21:08 +0100
+Date: Mon, 27 Sep 2004 02:21:08 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: BUG: looks like net contexts is being ignored
-Message-ID: <20040926214625.GK28076@lkcl.net>
+Subject: fuse - how to "mirror" user_t file access rights?
+Message-ID: <20040927012108.GL28076@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-i'm using cvs linux2.6 from 2 weeks ago.
-latest cvs policy, tools and libs selinux-usr.
+hi,
 
-the bug is that any tcp or udp port access by any program appears to be
-attempted as reserved_port_t.
+does anyone have any ideas on how to mirror the exact same file
+permissions as a user_t or sysadm_t or staff_t... in another domain?
 
-e.g:
+i'm writing a policy for a fuse program (fusexmp) and yes i'm also
+modifying the fuse kernel module to support xattrs.
 
-denied { name_bind } for /sbin/dhclient
-scontext=system_u:system_r:dhcpc_t
-tcontext=system_u_object_r:reserved_port_t tclass=udp_socket
-  
-  and
+the issue is as follows:
 
-denied { name_bind } for /usr/sbin/sshd src=22
-scontext=system_u:system_r:sshd_t
-tcontext=system_u_object_r:reserved_port_t tclass=tcp_socket
+- a macro similar to mount_domain called fusexmp_domain creates a domain
+  $2_fusexmp_t from its argument e.g. user -> user_fusexmp_t.
 
-zero modifications to net_contexts have been made.
+- user_t running the fusexmp_exec_t program causes a domain_auto_trans
+  into user_fusexmp_t.
 
-okay i admit it i made some mods to fs/proc/base.c to split up a
-function in order use 98% of that function somewhere else.
+- any user file access on, say /Documents/foo will result in
+  /usr/bin/fusexmp doing a corresponding file access on
+  /home/yourusername/foo...
 
-also i reduced autofs4's NEGATIVE_TIMEOUT from 60 seconds to 5.
+  ... but as explained above, this access is done in the
+  user_fusexmp_t domain
 
-nothing significant or what i would call relevant.
+i found the privhome domain thing but russell said "no way!"
+because privhome allows access to *alll* user domains.
+
+does anyone know if there is a half-way-house that i can use,
+which will grant access to just the given user's files and
+directories, as if it was that user doing the access?
+
+ta,
 
 l.
 
--- 
+--
 --
 Truth, honesty and respect are rare commodities that all spring from
 the same well: Love.  If you love yourself and everyone and everything
