@@ -1,45 +1,70 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j34JYdDo003183
-	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 15:34:39 -0400 (EDT)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j34JTliu009015
-	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 19:29:54 GMT
-Subject: Re: New Policy Patch
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: jwcart2@epoch.ncsc.mil, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <42518C8A.7040200@redhat.com>
-References: <41E57081.4090500@redhat.com>
-	 <1106339767.25125.31.camel@moss-lions.epoch.ncsc.mil>
-	 <42518C8A.7040200@redhat.com>
+Subject: Re: policy hierarchy patch
+From: Joshua Brindle <jbrindle@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>, selinux-dev@tresys.com
+In-Reply-To: <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil>
+References: <1112631282.19526.18.camel@localhost>
+	 <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 04 Apr 2005 15:38:35 -0400
-Message-Id: <1112643515.31122.3.camel@cobra.ivg2.net>
+Date: Mon, 04 Apr 2005 15:37:27 -0400
+Message-Id: <1112643447.19527.30.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> +can_getsecurity(hald_t)
+Yes you appear to be right. It turns out that this is a hard problem,
+currently '.' is treated as a terminal some of the time and part of an
+identifier other times. We tried to fix this problem by using lex start
+states to disambiguate mls identifiers and normal ones but this became
+problematic in contexts. Namely the following is currently valid:
 
-check_context was sufficient for me.. does it
-need the rest of the things in can_getsecurity?
+user:role:type:s0-s9:cat1. cat2
 
-+# For /usr/libexec/hald-add-selinux-mount-option
-+allow hald_t security_t:dir search;
-+allow hald_t security_t:file { read write };
-+allow hald_t security_t:security check_context;
+note the space, now currently parts of the language require 2 contexts
+in 1 rule, specifically netifcon:
 
-> +# For /usr/sbin/dmidecode
-> +# Violates assertion
-> +#allow hald_t memory_device_t:chr_file read;
-> +allow hald_t self:capability sys_rawio;
+netifcon user:role:type:s0:cat1 user:role:type:s1:cat1
 
-Hold on - this should go into its own domain for dmidecode...
+If the context were always the last thing on the line we could end the
+lex start state but since that isn't the case the yacc lookahead causes
+the next identifier to be treated as an mls_identifier.
 
--- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+I said all that to ask if it is feasible to combine identifier and
+mls_identifier in the patch and remove the terminal '.'. This would
+cause category ranges to be 1 identifier and they'd have to be split
+manually but otherwise it should work. The only visible change would be
+that spaces would no longer be allowed between the category and the '.'.
+
+Joshua Brindle
+
+On Mon, 2005-04-04 at 13:24 -0400, Stephen Smalley wrote:
+> On Mon, 2005-04-04 at 12:14 -0400, Joshua Brindle wrote:
+> > This patch implements hierarchical types and roles in the current CVS
+> > compiler. More information is available in selinux-doc/README.HIERARCHY,
+> > which is included below.
+> 
+> The patch appears to break a MLS-enabled policy compile.  To test, run
+> make mlsconvert in a policy directory and then set MLS=y in the policy
+> Makefile.
+> 
+> Before:
+> /usr/bin/checkpolicy -M -o /etc/selinux/mls/policy/policy.19 policy.conf
+> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
+> security:  7 users, 6 roles, 1632 types, 57 bools, 10 sens, 128 cats
+> security:  54 classes, 393434 rules
+> /usr/bin/checkpolicy:  policy configuration loaded
+> /usr/bin/checkpolicy:  writing binary representation (version 19) to /etc/selinux/mls/policy/policy.19
+> 
+> After:
+> /usr/bin/checkpolicy -M -o /etc/selinux/mls/policy/policy.19 policy.conf
+> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
+> users:24:ERROR 'syntax error' at token 's0' on line 380486:
+> user system_u roles system_r level s0 range s0 - s9 : c0 . c127;
+> #
+> /usr/bin/checkpolicy:  error(s) encountered while parsing configuration
+> make: *** [/etc/selinux/mls/policy/policy.19] Error 1
+> 
+> 
 
 
 --
