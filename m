@@ -1,40 +1,40 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBN2aLRb025132
-	for <selinux@tycho.nsa.gov>; Mon, 22 Dec 2003 21:36:21 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBN3eRRb025259
+	for <selinux@tycho.nsa.gov>; Mon, 22 Dec 2003 22:40:27 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hBN2aKpn003580
-	for <selinux@tycho.nsa.gov>; Tue, 23 Dec 2003 02:36:20 GMT
+	by jazzband.ncsc.mil  with ESMTP id hBN3eQpn004903
+	for <selinux@tycho.nsa.gov>; Tue, 23 Dec 2003 03:40:26 GMT
 Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hBN2a8ab003554 for <selinux@tycho.nsa.gov>; Tue, 23 Dec 2003 02:36:19 GMT
+        by jazzband.ncsc.mil  with ESMTP id hBN3ePab004851 for <selinux@tycho.nsa.gov>; Tue, 23 Dec 2003 03:40:25 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: selinux@tycho.nsa.gov
-Subject: Sun/Cobalt SE Linux support
-Date: Tue, 23 Dec 2003 13:34:42 +1100
+To: Yuichi Nakamura <himainu_ynakam@yahoo.co.jp>, selinux@tycho.nsa.gov
+Subject: Re: Apache on FedoraCore1(Was Re: log_domain macro)
+Date: Tue, 23 Dec 2003 14:38:59 +1100
+References: <3FE6EA56.7010708@redhat.com> <200312230005.hBN05Mab000127@jazzband.ncsc.mil>
+In-Reply-To: <200312230005.hBN05Mab000127@jazzband.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200312231334.42654.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200312231438.59305.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-https://sourceforge.net/project/showfiles.php?group_id=83123&release_id=203159
-The above URL contains boot ROM images for Sun/Cobalt machines (Qube and RaQ 
-server appliances).  The ROM images contain a Linux kernel which will be used 
-for booting if a kernel can not be loaded from the hard disk (for system 
-recovery usually), the ones with "SE" in the name contain a SE Linux kernel.
+On Tue, 23 Dec 2003 11:01, Yuichi Nakamura <himainu_ynakam@yahoo.co.jp> wrote:
 
-Unfortunately they don't work on my system (Qube 3), but they apparently work 
-on RaQ machines.
+I have added most of your patches to my tree, however I moved the type 
+definition for the /etc/krb5.conf file to file.fc and types.fc (most people 
+who use Kerberos won't use Apache on all servers).  We probably should make a 
+separate kerberos_client.te file or something.  But for the moment I've stuck 
+the allow and dontaudit rules in apache.te (it's easy to change them later).
 
-http://cobalt.iceblink.org/debian/binary
-The above URL contains Debian packages of kernels for Cobalt machines.  This 
-includes a kernel with SE Linux (but the capability module is not compiled 
-in).
+allow httpd_t httpd_t:netlink_socket { bind create getattr read write };
+What is the reason for the above?
 
-Thanks to Duncan L. of Sun for his good work on this.  Hopefully with the next 
-revision of his packages I will be able to rely on his kernel images for my 
-SE Linux Qube and RaQ machines.
+
+I've put a new policy archive on http://www.coker.com.au/selinux/policy.tgz 
+which contains this and some other changes (including some resulting from 
+apparent differences between 2.6.0-test11 and 2.6.0 kernels).
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
