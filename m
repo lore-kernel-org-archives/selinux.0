@@ -1,39 +1,41 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j141dg53004790
-	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 20:39:42 -0500 (EST)
-Received: from smtp106.mail.sc5.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j141dhf1025900
-	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 01:39:44 GMT
-Message-ID: <4202D376.7040009@yahoo.com>
-Date: Thu, 03 Feb 2005 20:44:22 -0500
-From: Subba Rao <castellan2004-member@yahoo.com>
-MIME-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j144iV53005364
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 23:44:31 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j144iXOQ029929
+	for <selinux@tycho.nsa.gov>; Fri, 4 Feb 2005 04:44:34 GMT
+Received: from [192.168.2.96] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j144iSeF028173
+	for <selinux@tycho.nsa.gov>; Thu, 3 Feb 2005 23:44:28 -0500 (EST)
+Subject: How to install CVS wine
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
 To: selinux@tycho.nsa.gov
-Subject: Restart
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
+Date: Fri, 04 Feb 2005 01:44:20 -0500
+Message-Id: <1107499460.29033.7.camel@cobra.ivg2.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello everyone,
+See, I used to have it under /src, but SElinux didn't like that, and
+kept complaining. I moved it under ~/src and relabeled to user_home_t.
+Now I do cvs update, build it as a regular user, and try to do:
+su -c "make install". However, that doesn't work, because
+the sysadmin can't run user_home_t scripts. Should the sysadmin be able
+to run user_home_t scripts, or am I doing this the wrong way?
 
-In the past I have tried and droped building a SELinux system.   This 
-time I want to get back into it and get it working right.  One of the 
-primary reason for failure in the past was due to my choice of distro 
-(Slackware).  I tried to compile in the kernel patches and got several 
-errors or warnings.  I still use Slackware, however I will try to 
-compile it on Debian or Fedora.
+audit(1107498685.995:0): avc:  denied  { execute } for  pid=29007
+exe=/usr/bin/make name=mkinstalldirs dev=dm-2 ino=16332
+scontext=root:sysadm_r:sysadm_t tcontext=root:object_r:user_home_t
+tclass=file
 
-I want to build the SELinux kernel.  The big question I have is, what 
-are the libaries or utilities that need to be installed?  Do you need 
-PAM, Kerberos....etc?  My last compile attempt (years ago) on Debian 
-prompted for several such packages.  I used apt_get and installed such 
-packages but that did not resolve the issue.  Please let me know what 
-are the basic requirements for building a SELinux patch kernel.
+P.S. tools/wineinstall actually requires that wine be built as a regular
+user, and installed as root.
 
-Thank you in advance.
-
-Subba Rao
-
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
