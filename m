@@ -1,105 +1,47 @@
-Date: Fri, 30 Mar 2001 12:08:01 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Hubertus Franke <frankeh@us.ibm.com>
-cc: SELinux@tycho.nsa.gov, Pratap Pattnaik <0xL33Ez@northrelay02.pok.ibm.com>
-Subject: Re: SE Linux problems on 7.0 and some other BUGS we found
-In-Reply-To: <OFB0DBAF92.C33932D5-ON85256A1F.0054E91F@pok.ibm.com>
-Message-ID: <Pine.SOL.3.95.1010330120018.23186I-100000@clipper.gw.tislabs.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11838
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2001 12:50:47 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id RAA24772
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2001 17:50:32 GMT
+Received: from blackhole.cc.ndsu.nodak.edu (blackhole.cc.ndsu.NoDak.edu [134.129.106.141])
+	by jazzswing.ncsc.mil  with ESMTP id RAA24768
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2001 17:50:31 GMT
+Received: from localhost (kodland@localhost)
+	by blackhole.cc.ndsu.nodak.edu (8.11.0/8.11.0) with ESMTP id f2UHr3W29576
+	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2001 11:53:04 -0600
+Date: Fri, 30 Mar 2001 11:53:03 -0600 (CST)
+From: Kris Odland <kodland@blackhole.cc.ndsu.nodak.edu>
+To: "NSA Linux (E-mail)" <selinux@tycho.nsa.gov>
+Subject: Error in tools/build-apps
+In-Reply-To: <Pine.SOL.3.95.1010330082748.22613A-100000@clipper.gw.tislabs.com>
+Message-ID: <Pine.LNX.4.30.0103301149010.27433-100000@blackhole.cc.ndsu.nodak.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi, I am attempting to install this on a rh7 box and the kernel compiled
+without any problems.  I get this error twice in the build-apps script
+when it is building the syscalls programs.
+In file included from msgread.c:17:
+../../include/ipc_secure.h:19: warning: `struct msgbuf' declared inside
+parameter list
+../../include/ipc_secure.h:19: warning: its scope is only this definition
+or declaration, which is probably not what you want.
+../../include/ipc_secure.h:23: warning: `struct msgbuf' declared inside
+parameter list
+msgread.c: In function `main':
+msgread.c:35: storage size of `buf' isn't known
+make[1]: *** [msgread.o] Error 1
 
-The message generated while building the policy configuration
-isn't an error, just a warning about overriding a rule.  In
-the short term, we could mention it in the INSTALL file
-so people won't worry about it.
+Everything else seems to compile fine except this.  Is there something I
+missed?
 
-We can add a 'make depend' for syscalls to the build-apps script.
-We'll also fix the bug in the example msgread program.  That program,
-like the other programs in syscalls, is just an example of how to
-use the new system calls.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Kris
 
 
 
-On Fri, 30 Mar 2001, Hubertus Franke wrote:
-
-> 
-> Here are few PROBLEMS and BUGS we found that need fixing,
-> (at least for 7.0 kernels).
-> 
-> 
-> We reinstalled RH7.0 on our machine.
-> We applied recent "bind" fix to fend of recent worm daemons.
-> We replaced gcc with kgcc (people using RH7.0 have complaint about that).
-> Initial problems reported regarding missing stddef.h files
-> were related to this compiler mixups.
-> 
-> 
-> 
-> -----------------
-> ./tools/build-kernel:
-> 
->         make initpolicy
-> 
-> warning about the statement ending on line 22456 (token ';'): conflicting
-> rule for (polyadm_t, poly_t:dir):  default was polyadm_home_t, is now
-> poly_t
-> 
-> still builds though ....  !!!!!
-> 
-> ------------------
-> ./tools/build-apps
-> 
-> (a) first problem
-> make[1]: *** No rule to make target
-> `/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/stddef.h', needed
-> by `unix_stream_server.o'.  Stop.
-> make[1]: *** No rule to make target
-> `/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/stddef.h', needed
-> by `unix_stream_server.o'.  Stop.
-> 
->         FIX:   cd syscalls; make depend
->           suggest you put this somewhere in the initial setup (??)
->           our directories are named slightly different hence the hickup.
-> 
-> 
-> 
-> 
-> (a) second problem:  THIS IS A BUG.
-> ./syscalls/msgread/msgread.c #35:
->      msgread.c:35: storage size of `buf' isn't known
-> 
->      looking at the code, this actually exposes a BUG:
->      You need to specify
->           "struct ipcmsgbuf buf"  instead of       "struct msgbuf buf"
->      not doing so provides a smaller buffer during the later msgrcv_secure
->      Surprised the code didn't barf.
->      Take a look at msgwrite.c, there it's done correctly
-> 
-> 
-> Now its building....... will try running now.
-> 
-> 
-> 
-> Hubertus Franke
-> Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-> , OS-PIC (Chair)
-> email: frankeh@us.ibm.com
-> (w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
-> 
-> 
-> 
-> --
-> You have received this message because you are subscribed to the selinux list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
 
 
 --
