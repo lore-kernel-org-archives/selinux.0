@@ -1,43 +1,38 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA16701
+	for <selinux@tycho.nsa.gov>; Sun, 14 Apr 2002 14:53:33 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id SAA26841
+	for <selinux@tycho.nsa.gov>; Sun, 14 Apr 2002 18:52:24 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id SAA26835 for <selinux@tycho.nsa.gov>; Sun, 14 Apr 2002 18:52:22 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 5B6E192453
+	for <selinux@tycho.nsa.gov>; Mon, 15 Apr 2002 04:53:20 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 6F3FD22A7A
+	for <selinux@tycho.nsa.gov>; Sun, 14 Apr 2002 20:53:05 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Howard Holm <hdholm@epoch.ncsc.mil>
-Subject: Re: db conflict ?
-Date: Fri, 12 Apr 2002 23:01:41 +0200
-Cc: Stephen Smalley <sds@tislabs.com>,
-        "Westerman, Mark" <Mark.Westerman@csoconline.com>,
-        SELinux@tycho.nsa.gov
-References: <Pine.GSO.4.33.0204121514350.21729-100000@raven> <20020412201148.E8D262870D@lyta.coker.com.au> <20020412162551.C15470@gricklegrass.epoch.ncsc.mil>
-In-Reply-To: <20020412162551.C15470@gricklegrass.epoch.ncsc.mil>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: setfiles verbosity
+Date: Sun, 14 Apr 2002 20:53:04 +0200
 MIME-Version: 1.0
-Message-Id: <20020412210141.AD99F3EFE7@lyta.coker.com.au>
+Message-Id: <20020414185305.6F3FD22A7A@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 12 Apr 2002 22:25, Howard Holm wrote:
-> Bringing up again a proposal of mine from April 3rd, I suggest that we
-> put the "example" policy in /usr/share/selinux/policy/default/ and
-> compile the policy in automated scripts from
-> /usr/share/selinux/policy/current/.  When creating current, it should
-> be a link to default.  If the admin changes the link or removes it
-> in favor of an actuall local directory then all that happens when an
-> automated script installs new default policy language and recompiles
-> and installs "current" is that the real current policy is reinstalled
-> if it is different than the default.  If it is a link to the default,
-> then the updated default policy is compliled and installed.  This
-> seems to be a good compromise between not arbitrarily replacing a
-> local administrative policy while still allowing the majority of
-> people who use the default policy to have it automatically maintained
-> and added to when adding new packages.
+When running setfiles with the -v option I get messages such as the following:
 
-I like this idea, apart from one issue.
+setfiles:  relabeling /etc/ld.so.cache from rjc:object_r:ld_so_cache_t to 
+system_u:object_r:ld_so_cache_t
 
-Symbolically linking to default does not work well with packaging systems, so 
-I'll use "cp -a" instead.
+I suggest that we change setfiles to have two levels of verbosity, one of 
+which doesn't give messages such as the above.
 
-One benefit of this is that it allows for easily creating several sets of 
-sample configurations that could be used.
+What do you think?
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
