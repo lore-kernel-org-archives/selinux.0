@@ -1,38 +1,46 @@
-Date: Fri, 29 Oct 2004 16:28:40 -0700
-From: Nifty Hat Mitch <mitch48@sbcglobal.net>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Proposed patch for libselinux  -- xdr ???
-Message-ID: <20041029232840.GA23710@xtl1.xtl.tenegg.com>
-References: <41782BBA.9090101@redhat.com> <1098449318.7614.13.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1098449318.7614.13.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9U2fhXZ013692
+	for <selinux@tycho.nsa.gov>; Fri, 29 Oct 2004 22:41:43 -0400 (EDT)
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9U2eMMd014803
+	for <selinux@tycho.nsa.gov>; Sat, 30 Oct 2004 02:40:24 GMT
+Date: Fri, 29 Oct 2004 22:41:37 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   Stephen Smalley <sds@epoch.ncsc.mil>, Chad Hanson <chanson@TrustedCS.com>
+Subject: Re: dynamic context transitions
+In-Reply-To: <4182959B.4080503@trustedcs.com>
+Message-ID: <Xine.LNX.4.44.0410292235470.24581-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Oct 22, 2004 at 08:48:39AM -0400, Stephen Smalley wrote:
-> > diff --exclude-from=exclude -N -u -r nsalibselinux/src/getfilecon.c...
-....
-> Directly storing an integer in the xattr?  Endianness issues; you need
-> to convert to a particular ordering before setting and convert back when
-> getting.
+On Fri, 29 Oct 2004, Darrel Goeddel wrote:
 
-I am a little late to this party...
-Should xdr be specified for data in cases like this?
+> 	A goal of SELinux and trusted application programming is to
+> create smaller programs which can be secured and audited. However, there
+> are and will continue to be applications which don't fall into this
+> framework. For these applications, a privilege bracketing approach
+> provides a more granular security framework than what currently exists
+> from SELinux today at process level.
 
-If all the data had an external data representation specification (man
-xdr) then the right thing could happen.
+Are these applications useful outside MLS?  (In fact, can you give some 
+examples?).
 
-In the world of storage area networks this could be an interesting
-topic when the raw bits of the disk are exposed to hardware with
-different data representations.
+It really seems odd to fundamentally change the security model to cater 
+for poorly designed applications.
+
+What about limiting this change to MLS enabled systems only?
 
 
-
+- James
 -- 
-	T o m  M i t c h e l l 
-	May your cup runneth over with goodness and mercy
-	and may your buffers never overflow.
+James Morris
+<jmorris@redhat.com>
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
