@@ -1,32 +1,33 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id GAA13761
-	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 06:41:59 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id KAA23114
-	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 10:40:23 GMT
-Received: from web13004.mail.yahoo.com (web13004.mail.yahoo.com [216.136.174.14])
-        by jazzband.ncsc.mil  with SMTP id KAA23110 for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 10:40:22 GMT
-Message-ID: <20020809104140.86354.qmail@web13004.mail.yahoo.com>
-Date: Fri, 9 Aug 2002 03:41:40 -0700 (PDT)
-From: Rajesh Joseph <dare_to_play_ait@yahoo.com>
-To: selinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA14170
+	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 08:02:03 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA20899
+	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 12:01:07 GMT
+Received: from webmail10.rediffmail.com (webmail10.rediffmail.com [202.54.124.179] (may be forged))
+	by jazzswing.ncsc.mil  with SMTP id MAA20886
+	for <selinux@tycho.nsa.gov>; Fri, 9 Aug 2002 12:01:06 GMT
+Date: 9 Aug 2002 12:01:31 -0000
+Message-ID: <20020809120131.14012.qmail@webmail10.rediffmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Samarth  Sharma" <samarth7880@rediffmail.com>
+Reply-To: "Samarth  Sharma" <samarth7880@rediffmail.com>
+To: selinux@tycho.nsa.gov
+Content-type: text/plain;
+	format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hi, 
-  1. Can we use remote kernel debugger (kgdb) in
-SELinux? 
-  2. If yes, where do i get the patch (of kgdb)
- 
-thanx,
-Rajesh Joseph
+hi,
+  is it possible to override the Linux uid permission checks using 
+the SELinux policy??
+thanks
+samarth
+__________________________________________________________
+Give your Company an email address like
+ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
+Know more. http://www.rediffmailpro.com/signup/
 
-__________________________________________________
-Do You Yahoo!?
-HotJobs - Search Thousands of New Jobs
-http://www.hotjobs.com
 
 --
 You have received this message because you are subscribed to the selinux list.
