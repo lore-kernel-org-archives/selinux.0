@@ -1,72 +1,65 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA25355
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 10:33:24 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA25270
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 10:24:37 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA17175
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 15:33:21 GMT
+	by jazzband.ncsc.mil  with ESMTP id PAA16747
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 15:24:34 GMT
 Received: from bladestorm.com ([216.205.134.102])
-	by jazzband.ncsc.mil  with ESMTP id PAA17171
-	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 15:33:21 GMT
-Date: Fri,  9 Feb 2001 10:41:55 -0500
-Message-Id: <200102091041.AA654180630@bladestorm.com>
+	by jazzband.ncsc.mil  with ESMTP id PAA16743
+	for <selinux@tycho.nsa.gov>; Fri, 9 Feb 2001 15:24:34 GMT
+Date: Fri,  9 Feb 2001 10:33:08 -0500
+Message-Id: <200102091033.AA740426066@bladestorm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 From: "paul " <paul@bladestorm.com>
 Reply-To: <paul@bladestorm.com>
-To: Dale Amon  <amon@vnl.com>
-CC: <selinux@tycho.nsa.gov>
-Subject: Re: Selinux kernel patches
+To: <selinux@tycho.nsa.gov>
+Subject: Re: Cature the flag (was Re: Selinux kernel patches)
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-I have seen a lot of these test and it is very hard to learn anything from these.  People have a lot of different definitions for "getting in" which usually includes "if you can't get into your own system then we win", meaning that you see a lot of things attack everything around the system, including the logging system and the routers, along with any firewalls or IDS system that might be present.
+I have always felt that the best way to test a piece of software is the same way that any scientist would test a hypothesis.  The hypothesis here is that the software is secure.  So in order to test that hypothesis you have to have people that test that software for security holes.
 
-Yes, you learn, but what you often learn is not what you are looking to learn.  These kind of tests is like handing out 2,000 can openers to 2,000 15-year-olds and telling them to all be the first to open a can of pea soup.
+In my opinion, finishing a piece of software and then inviting the whole planet to try and "hack" it for $200 and a free shirt is just not the best way to approach this.  You will end up with people from all over the planet not only attacking the system but also the network, including other systems on the same wire that are gathering packets, routers, and perhaps even the upstream provider.  Sure, you can say that all these are off limits, but people will simply not care as has been shown by these kind of "tests" over and over and over.
 
-The security community titans, such as Bruce Schneier, have constantly said that these kind of tests are just a publicity stunt and a waste of time.
+What we intend to do at Bladestorm is to integrate all the efforts here into our distribution and conduct a controlled test, where the software is tested by security professionals.  It will be probed and tested thoroughly, we would report our findings, patch, reprobe, and then after that cycle is done we will do a beta.  And the beta would be to put the distribution into environments where the software can be tested.  This way, we can eliminate variables such as routers going down and so forth and really be able to pinpoint holes.
 
-If you want to see how good this is, set up a lab, eliminate variables such as someone attacking a border router, and have a few people that know what they are doing bang on the software internally and externally.  You will get much better results and something you can analyze right away.
-
+Public stunts like this is more like handing 2,000 people a can opener and telling them all to try to be the first to open a can.  You end up with a mess, and a lot of spilled tomato soup.  It's just not worth it from my vantage point.
 
 ---------- Original Message ----------------------------------
-From: Dale Amon <amon@vnl.com>
-Date: Fri, 9 Feb 2001 15:22:25 +0000
+From: Sandy Harris <sandy@storm.ca>
+Date: Thu, 08 Feb 2001 21:32:11 -0500
 
->On Fri, Feb 09, 2001 at 10:14:09AM -0500, paul  wrote:
->> These kind of shows never real mount to anything since the "hackers" 
->> will typically attack everything around the box as well, including 
->> the routers.  Besides, these things are more of a publicity stunt 
->> than a bona fide test of the operating system.
+>Dale Amon wrote:
 >> 
->
->PR or not, if someone does get in, you have learned something. And
->the reason I said "external" for the test was that very reason. I'd
->not want the machine under test to be anywhere *near* anything that
->was really important.
->
->> Our company is working with the findings here and integrating them 
->> into our own distribution, and our plan is to basically bang on it 
->> as much as we can in-house and then bite the bullet and put it out, 
->> patching and upgrading as problems are exposed.
+>> On Tue, Feb 06, 2001 at 03:28:44PM -0500, Pete Loscocco wrote:
+>> > We think that we have a good architecture and that it warrants
+>> > consideration. ...
 >> 
+>> Just a wild suggestion. When things are well along and
+>> everyone thinks the system is ready, why not put a box
+>> out on a public network for a game of "capture the flag"?
 >
->Which comes down to the resources you have as a company, or
->that I have as a company. I don't think it is such a bad
->idea to have some more impersonal baseline outside of
->ourselves.
+>The annual Defcon conference (http://www.defcon.org/) has run such
+>a contest, on a LAN at the conference, for several years now. Some
+>firewall vendors bring machines for use as targets.
+> 
+>> Offer a free T-shirt "I cracked the NSA" to anyone who
+>> succeeds *and* tells precisely how it was done. Set up
+>> tests for system cracks both from fully external or from
+>> various shell access levels.
 >
->At the end of the day, proving security is like proving
->aliens don't exist. If a flying saucer lands in London, you've 
->proven they do; but no matter how much you spend you can 
->never absolutely guarantee the negation. You can only 
->add 9's to your statistical confidence in that conclusion.
+>In addition to attackers' machines and target machiness, they have
+>other machines doing packet logging so attacks can be analysed
+>later.
 >
->-- 
->------------------------------------------------------
->Use Linux: A computer        Dale Amon, CEO/MD
->is a terrible thing          Village Networking Ltd
->to waste.                    Belfast, Northern Ireland
->------------------------------------------------------
+>A web search on "defcon capture the flag" will turn up the rules,
+>last year's logs and some discussion.
+>
+>--
+>You have received this message because you are subscribed to the selinux list.
+>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>the words "unsubscribe selinux" without quotes as the message.
 >
 
 --
