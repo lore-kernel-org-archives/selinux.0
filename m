@@ -1,61 +1,36 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h97DElWt011145
-	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 09:14:47 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h97DKoWt011197
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 09:20:50 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h97DEk7d025675
-	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 13:14:46 GMT
+	by jazzband.ncsc.mil  with ESMTP id h97DKn7d025925
+	for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 13:20:49 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h97DEkRn025672 for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 13:14:46 GMT
-Subject: Re: Problems applying SELinux patch to util-linux-2.11y
+        by jazzband.ncsc.mil  with ESMTP id h97DKmRn025922 for <selinux@tycho.nsa.gov>; Tue, 7 Oct 2003 13:20:48 GMT
+Subject: Re: libselinux-1.2 and const usage
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Erlend Aasland <erlend-a@ux.his.no>
-Cc: SELinux Mailing List <selinux@tycho.nsa.gov>,
-   Daniel J Walsh <dwalsh@redhat.com>, Russell Coker <russell@coker.com.au>
-In-Reply-To: <20031007102943.GA12671@badne3.ux.his.no>
-References: <20031007102943.GA12671@badne3.ux.his.no>
+To: Thorsten Kukuk <kukuk@suse.de>
+Cc: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+In-Reply-To: <20031007045019.GA25435@suse.de>
+References: <20031003063614.GA20539@suse.de>
+	 <1065205090.4080.177.camel@moss-spartans.epoch.ncsc.mil>
+	 <20031006073312.GA3261@suse.de> <200310071224.45294.russell@coker.com.au>
+	 <20031007045019.GA25435@suse.de>
 Content-Type: text/plain
-Message-Id: <1065532472.3919.183.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1065532841.3919.187.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 07 Oct 2003 09:14:32 -0400
+Date: 07 Oct 2003 09:20:41 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-10-07 at 06:29, Erlend Aasland wrote:
-> Is this a known problem? Should I apply the patch against a different
-> version of util-linux? (I got the util-linux-2.11y source from
-> www.kernel.org). 
+On Tue, 2003-10-07 at 00:50, Thorsten Kukuk wrote:
+> pam_login is a login program, for which I use the util-linux/login
+> patch as base.
 
-The patch is applied after the other patches in the RH util-linux
-SRPM.   You can get the full SRPM (including the selinux patch) from
-http://www.nsa.gov/selinux/SRPMS.  The patch does apply cleanly relative
-to the preceding patches in that SRPM.  In particular, it applies
-cleanly _after_ applying the util-linux-2.11r-ctty3.patch from that
-SRPM. 
-
-> I tried to manually apply the rejected code, and I
-> placed the it ca. around line 1250:
-> 
-> if (childPid) {
-> 	...
-> 	signal();
-> 	signal();
-> 	signal();
-> 	wait();
-> ->	<the rejected code>
-> 	PAM_EXIT;
-> 	exit();
-> }
-> 
-> Is that correct?
-
-Yes, this looks correct (but PAM_EXIT == PAM_END, right?).
-
-Note that Dan Walsh of RH has developed a pam_selinux session module as
-an alternative to patching login at all.  I think that it is included in
-his pam SRPM available from
-ftp://people.redhat.com/dwalsh/SELinux/srpms.  With that module, you
-just add pam_selinux as a session module to login's pam configuration.
-
+Just FYI, Dan Walsh of RH has developed a pam_selinux session module as
+a possible alternative to patching the util-linux login.  I think it is
+available in his pam SRPM from
+ftp//people.redhat.com/dwalsh/SELinux/srpms.
+  
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
