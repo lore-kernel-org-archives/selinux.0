@@ -1,37 +1,43 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i867ZCrT020387
-	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 03:35:12 -0400 (EDT)
-Received: from mail.yacme.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i867ZBaj012139
-	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 07:35:12 GMT
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i86DGrrT021272
+	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 09:16:53 -0400 (EDT)
+Received: from mbox-o00.iijmio.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i86DGmal016538
+	for <selinux@tycho.nsa.gov>; Mon, 6 Sep 2004 13:16:51 GMT
+Message-Id: <200409061316.i86DGhWU026428@mms-r00.iijmio.jp>
+Date: Mon, 06 Sep 2004 09:16:34 -0400
+From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+MIME-Version: 1.0
+To: stefano.zanarini@yacme.com
+Cc: selinux@tycho.nsa.gov, himainu-ynakam@miomio.jp, sds@epoch.ncsc.mil
 Subject: Re: SuSE 9.1 SELinux
-From: Stefano Zanarini <stefano.zanarini@yacme.com>
-Reply-To: stefano.zanarini@yacme.com
-To: selinux@tycho.nsa.gov
-In-Reply-To: <OF93C1DDD2.9FAF1403-ON49256F06.00517E1E-49256F07.0007F249@jp.ibm.com>
-References: 
-	 <OF93C1DDD2.9FAF1403-ON49256F06.00517E1E-49256F07.0007F249@jp.ibm.com>
-Content-Type: text/plain
-Message-Id: <1094456102.2213.3.camel@pignoletto.cantina.yacme>
-Mime-Version: 1.0
-Date: Mon, 06 Sep 2004 09:35:03 +0200
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1094456102.2213.3.camel@pignoletto.cantina.yacme>
+References: <1094456102.2213.3.camel@pignoletto.cantina.yacme>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Il lun, 2004-09-06 alle 03:26, Takuya Mishina ha scritto:
+Hi.
 
-> + Install SuSE
->   filesystem must be ext3 (not reiserfs). no limitation except for 
-> filesystem.
+Stefano Zanarini <stefano.zanarini@yacme.com> wrote:
+> I'm interested in doing the same thing ,even in suse 9.0 with a custom
+> kernel and in 9.1 with defoult one ,but this could be a real problem for
+> me ... why doesn't it work with reiserfs ? is there a patch or a
+> workaround to make it works ? have you tryed ? 
+> thank's in advance.
 
-hi,
-I'm interested in doing the same thing ,even in suse 9.0 with a custom
-kernel and in 9.1 with defoult one ,but this could be a real problem for
-me ... why doesn't it work with reiserfs ? is there a patch or a
-workaround to make it works ? have you tryed ? 
+Stephen Smalley said that there is a deadlock in reiserfs with SELinux.
+http://marc.theaimsgroup.com/?l=selinux&m=109422792406335&w=2
 
-thank's in advance.
+But I would like to know the detail of deadlock.
+Could someone tell me where is the deadlock or the condition that the deadlock happens??
+A Novell Japan person will report to Bugzilla.
 
+---
+Yuichi Nakamura
+Japan SELinux Users Group(JSELUG)
+http://www.selinux.gr.jp/
+The George Washington University
 
 
 --
