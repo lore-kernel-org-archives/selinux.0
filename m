@@ -1,68 +1,59 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA05924
-	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2001 18:30:46 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA11520
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2001 15:49:13 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id XAA12032
-	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2001 23:30:28 GMT
-Received: from deliverator.sgi.com (deliverator.sgi.com [204.94.214.10])
-	by jazzswing.ncsc.mil  with ESMTP id XAA12026
-	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2001 23:30:27 GMT
-Received: from cthulhu.engr.sgi.com (gate3-relay.engr.sgi.com [130.62.1.234]) by deliverator.sgi.com (980309.SGI.8.8.8-aspam-6.2/980310.SGI-aspam) via ESMTP id PAA09936
-	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2001 15:29:35 -0800 (PST)
-	mail_from (casey@sgi.com)
-Received: from sgi.com (sgigate.sgi.com [198.29.75.75])
-	by cthulhu.engr.sgi.com (SGI-8.9.3/8.9.3) with ESMTP id PAA82929
-	for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2001 15:30:38 -0800 (PST)
-Message-ID: <3A95A11E.FEB392B5@sgi.com>
-Date: Thu, 22 Feb 2001 15:30:38 -0800
-From: Casey Schaufler <casey@sgi.com>
-MIME-Version: 1.0
+	by jazzswing.ncsc.mil  with ESMTP id UAA02260
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2001 20:48:55 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id UAA02256
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2001 20:48:54 GMT
+Received: from coalstack.epoch.ncsc.mil (coalstack [144.51.25.12])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA28845
+	for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2001 15:49:10 -0500 (EST)
+Date: Fri, 23 Feb 2001 15:49:10 -0500 (EST)
+From: pal@epoch.ncsc.mil (Pete Loscocco)
+Message-Id: <200102232049.PAA11442@coalstack.epoch.ncsc.mil>
 To: selinux@tycho.nsa.gov
 Subject: Re: questions...
-References: <Pine.SOL.3.95.1010222142757.25226A-100000@clipper.gw.tislabs.com>
-Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Stephen Smalley wrote:
+Casey Schaufler wrote:
+> If you are going to have a policy which
+> is based on a label and on a user id you may have
+> something good, but you ain't got a [DM]AC policy.
 > 
-> On Thu, 22 Feb 2001, Casey Schaufler wrote:
-> 
-> > I guess I'm a little slow today. How would having MAC access
-> > superceding DAC access be anything like the capabilities scheme?
-> 
-> See Spence Minear's paper at
-> http://www.bsdcon.org/proceedings/spencer_minear/example_of_secure_bsd_os.ps
-> for a discussion of the parallels between Type Enforcement and POSIX.1e
-> capabilities.  In the DTOS system, Type Enforcement was used both
-> to identify subjects that could override MLS restrictions and to
-> identify subjects that could override Unix DAC restrictions.  At the
-> same time, Type Enforcement was used to strictly limit such subjects
-> to least privilege.  Their ability to override such restrictions
-> could be limited to a particular set of objects since the rules
-> are based on domain-type pairs.
 
-OKay, I get it now. I keep forgetting that you're replacing
-the entire access control scheme.
+If the modifications to SELinux to allow selective override of DAC (or
+any other capability that Linux currently has) that were suggested were
+made, what you get is a system that:
 
-A claim that MAC affects DAC like Capabilities gives me
-a certain amount of discomfort. Tranditionally, You gots
-yer DAC, you gots yer MAC, and you gots yer Capabilities
-and you could remove any one without changing the behavior
-of the others. This is the way it's speced in the POSIX1e
-scheme, and the way it's implemented in Irix. To quote
-an old co-worker, "the mixed metaphore never boils".
-To provide interactions between a DAC policy and a MAC
-policy may be useful, but it's neither fish nor fowl
-at that point. If you are going to have a policy which
-is based on a label and on a user id you may have
-something good, but you ain't got a [DM]AC policy.
+- still has the current DAC policy. SELinux doesn't change the existing
+  DAC mechanism. That is not being proposed here.
+- still enforces a mandatory access control (MAC) policy. By MAC, I mean a
+  policy central to the system that every process on the system is
+  subject to and that can only be changed as allowed by that policy.
+  That is what SELinux does today.
+- enforces a MAC policy which can allow certain processes, depending on
+  security attributes of the process, to override the DAC mechanism to
+  access files, depending on the security attributes of the file. This
+  is just a refinement of the functionality that the current Linux
+  capability mechanism along with the SELinux control over it gives
+  today. It is more expressive allowing privileges to be limited to
+  only those that are necessary. It allows processes other than root
+  processes have this privilege. Also it removes the necessity to grant
+  any process the ability to arbitrarily violate the MAC or DAC
+  policies which is often what has been done in traditional MAC
+  implementations.
 
--- 
+I would say that this is good. If what SELinux has now supports a
+[DM]AC policy, what is being proposed still does, only in an even more
+useful way. If what SELinux does is not supporting a [DM]AC policy, the
+goal of a [DM]AC policy perhaps should be questioned.
 
-Casey Schaufler				Manager, Trust Technology, SGI
-casey@sgi.com				voice: 650.933.1634
-casey_p@pager.sgi.com			Pager: 888.220.0607
+--
+Peter Loscocco, NSA
+pal@epoch.ncsc.mil
 
 --
 You have received this message because you are subscribed to the selinux list.
