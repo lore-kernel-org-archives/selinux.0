@@ -1,8 +1,8 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAL5D1Ii029375
-	for <selinux@tycho.nsa.gov>; Sun, 21 Nov 2004 00:13:01 -0500 (EST)
-Message-ID: <41A023DE.5070808@redhat.com>
-Date: Sun, 21 Nov 2004 00:13:02 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAL5IiIi029423
+	for <selinux@tycho.nsa.gov>; Sun, 21 Nov 2004 00:18:45 -0500 (EST)
+Message-ID: <41A02530.3070505@redhat.com>
+Date: Sun, 21 Nov 2004 00:18:40 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: jwcart2@epoch.ncsc.mil
@@ -11,18 +11,20 @@ Subject: Re: gentoo policy for dante
 References: <4198E94B.8070008@gentoo.org>	 <1100808438.26930.28.camel@moss-lions.epoch.ncsc.mil>	 <419D1ABD.4020901@gentoo.org> <1100893919.31793.32.camel@moss-lions.epoch.ncsc.mil>
 In-Reply-To: <1100893919.31793.32.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: multipart/mixed;
- boundary="------------010401060904050806050000"
+ boundary="------------080000020400090501060509"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010401060904050806050000
+--------------080000020400090501060509
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-More policy changes.
+Small change on previous patch.
 
---------------010401060904050806050000
+Please ignore previous patch and use this one.
+
+--------------080000020400090501060509
 Content-Type: text/x-patch;
  name="policy-small.patch"
 Content-Transfer-Encoding: 7bit
@@ -31,7 +33,7 @@ Content-Disposition: inline;
 
 diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/apache.te policy-1.19.4/domains/program/unused/apache.te
 --- nsapolicy/domains/program/unused/apache.te	2004-11-20 22:29:08.000000000 -0500
-+++ policy-1.19.4/domains/program/unused/apache.te	2004-11-20 23:55:38.629090793 -0500
++++ policy-1.19.4/domains/program/unused/apache.te	2004-11-21 00:17:07.931618015 -0500
 @@ -264,7 +264,7 @@
  r_dir_file(httpd_suexec_t, nfs_t)
  can_exec(httpd_suexec_t, nfs_t)
@@ -54,7 +56,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/apache.te 
  ifdef(`distro_redhat', `
 diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/hald.te policy-1.19.4/domains/program/unused/hald.te
 --- nsapolicy/domains/program/unused/hald.te	2004-11-18 08:13:58.000000000 -0500
-+++ policy-1.19.4/domains/program/unused/hald.te	2004-11-20 23:55:38.633090342 -0500
++++ policy-1.19.4/domains/program/unused/hald.te	2004-11-21 00:17:07.932617902 -0500
 @@ -21,6 +21,7 @@
  ifdef(`dbusd.te', `
  allow hald_t system_dbusd_t:dbus { acquire_svc send_msg };
@@ -70,7 +72,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/hald.te po
 +allow hald_t mnt_t:dir search;
 diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/kerberos.te policy-1.19.4/domains/program/unused/kerberos.te
 --- nsapolicy/domains/program/unused/kerberos.te	2004-11-09 13:35:12.000000000 -0500
-+++ policy-1.19.4/domains/program/unused/kerberos.te	2004-11-20 23:55:38.633090342 -0500
++++ policy-1.19.4/domains/program/unused/kerberos.te	2004-11-21 00:17:07.932617902 -0500
 @@ -50,26 +50,31 @@
  # Bind to the kerberos, kerberos-adm ports.
  allow krb5kdc_t kerberos_port_t:udp_socket name_bind;
@@ -112,7 +114,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/kerberos.t
  
 diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/postgresql.te policy-1.19.4/domains/program/unused/postgresql.te
 --- nsapolicy/domains/program/unused/postgresql.te	2004-11-20 22:29:09.000000000 -0500
-+++ policy-1.19.4/domains/program/unused/postgresql.te	2004-11-20 23:55:38.634090229 -0500
++++ policy-1.19.4/domains/program/unused/postgresql.te	2004-11-21 00:17:07.933617789 -0500
 @@ -110,6 +110,14 @@
  dontaudit postgresql_t selinux_config_t:dir { search };
  allow postgresql_t mail_spool_t:dir { search };
@@ -130,7 +132,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/postgresql
  # "su - postgres ..." is called from initrc_t
 diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/stunnel.te policy-1.19.4/domains/program/unused/stunnel.te
 --- nsapolicy/domains/program/unused/stunnel.te	2004-11-18 14:44:59.000000000 -0500
-+++ policy-1.19.4/domains/program/unused/stunnel.te	2004-11-20 23:55:38.635090116 -0500
++++ policy-1.19.4/domains/program/unused/stunnel.te	2004-11-21 00:17:07.934617676 -0500
 @@ -2,21 +2,10 @@
  #
  # Author:   petre rodan <kaiowas@gentoo.org>
@@ -158,7 +160,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/stunnel.te
 -r_dir_file(stunnel_t, etc_t)
 diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/cups.fc policy-1.19.4/file_contexts/program/cups.fc
 --- nsapolicy/file_contexts/program/cups.fc	2004-11-20 22:29:09.000000000 -0500
-+++ policy-1.19.4/file_contexts/program/cups.fc	2004-11-20 23:55:38.635090116 -0500
++++ policy-1.19.4/file_contexts/program/cups.fc	2004-11-21 00:17:07.934617676 -0500
 @@ -1,7 +1,7 @@
  # cups printing
  /etc/cups(/.*)?			system_u:object_r:cupsd_etc_t
@@ -170,7 +172,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/cups.fc pol
  /etc/cups/cupsd\.conf.* --	system_u:object_r:cupsd_rw_etc_t
 diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/dovecot.fc policy-1.19.4/file_contexts/program/dovecot.fc
 --- nsapolicy/file_contexts/program/dovecot.fc	2004-11-19 11:20:43.000000000 -0500
-+++ policy-1.19.4/file_contexts/program/dovecot.fc	2004-11-20 23:55:38.636090003 -0500
++++ policy-1.19.4/file_contexts/program/dovecot.fc	2004-11-21 00:17:07.935617563 -0500
 @@ -9,4 +9,4 @@
  /usr/share/ssl/certs/dovecot\.pem --	system_u:object_r:dovecot_cert_t
  /usr/share/ssl/private/dovecot\.pem --	system_u:object_r:dovecot_cert_t
@@ -179,7 +181,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/dovecot.fc 
 +/usr/lib(64)?/dovecot/.+	--		system_u:object_r:bin_t
 diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/dpkg.fc policy-1.19.4/file_contexts/program/dpkg.fc
 --- nsapolicy/file_contexts/program/dpkg.fc	2004-11-19 11:20:43.000000000 -0500
-+++ policy-1.19.4/file_contexts/program/dpkg.fc	2004-11-20 23:55:38.636090003 -0500
++++ policy-1.19.4/file_contexts/program/dpkg.fc	2004-11-21 00:17:07.935617563 -0500
 @@ -47,5 +47,5 @@
  /usr/share/shorewall/.*	--	system_u:object_r:bin_t
  /usr/share/reportbug/.*	--	system_u:object_r:bin_t
@@ -189,7 +191,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/dpkg.fc pol
  /bin/mountpoint		--	system_u:object_r:fsadm_exec_t
 diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/hotplug.fc policy-1.19.4/file_contexts/program/hotplug.fc
 --- nsapolicy/file_contexts/program/hotplug.fc	2004-11-19 11:20:43.000000000 -0500
-+++ policy-1.19.4/file_contexts/program/hotplug.fc	2004-11-20 23:55:38.637089890 -0500
++++ policy-1.19.4/file_contexts/program/hotplug.fc	2004-11-21 00:17:07.936617451 -0500
 @@ -1,10 +1,10 @@
  # hotplug
  /etc/hotplug(/.*)?		system_u:object_r:hotplug_etc_t
@@ -206,7 +208,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/hotplug.fc 
  /etc/hotplug/hotplug\.functions --	system_u:object_r:sbin_t
 diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/nrpe.fc policy-1.19.4/file_contexts/program/nrpe.fc
 --- nsapolicy/file_contexts/program/nrpe.fc	2004-11-19 11:20:44.000000000 -0500
-+++ policy-1.19.4/file_contexts/program/nrpe.fc	2004-11-20 23:55:38.637089890 -0500
++++ policy-1.19.4/file_contexts/program/nrpe.fc	2004-11-21 00:17:07.936617451 -0500
 @@ -1,5 +1,5 @@
  # nrpe
  /usr/bin/nrpe		--	system_u:object_r:nrpe_exec_t
@@ -217,7 +219,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/nrpe.fc pol
 +/usr/lib(64)?/nagios/plugins(/.*)?	--	system_u:object_r:bin_t
 diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/xdm.fc policy-1.19.4/file_contexts/program/xdm.fc
 --- nsapolicy/file_contexts/program/xdm.fc	2004-11-19 11:20:44.000000000 -0500
-+++ policy-1.19.4/file_contexts/program/xdm.fc	2004-11-20 23:55:38.638089778 -0500
++++ policy-1.19.4/file_contexts/program/xdm.fc	2004-11-21 00:17:07.937617338 -0500
 @@ -21,7 +21,6 @@
  ifdef(`distro_suse', `
  /var/lib/pam_devperm/:0	--	system_u:object_r:xdm_var_lib_t
@@ -234,7 +236,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/xdm.fc poli
 +/usr/lib(64)?/qt-.*/etc/settings(/.*)?	system_u:object_r:xdm_var_run_t
 diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/types.fc policy-1.19.4/file_contexts/types.fc
 --- nsapolicy/file_contexts/types.fc	2004-11-20 22:29:09.000000000 -0500
-+++ policy-1.19.4/file_contexts/types.fc	2004-11-20 23:55:38.639089665 -0500
++++ policy-1.19.4/file_contexts/types.fc	2004-11-21 00:17:07.938617225 -0500
 @@ -458,3 +458,11 @@
  #  we defined a type to dontaudit
  #
@@ -249,7 +251,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/types.fc policy-1.1
 +/usr/lib(64)?/[^/]*thunderbird[^/]*/mozilla-xremote-client -- system_u:object_r:bin_t
 diff --exclude-from=exclude -N -u -r nsapolicy/macros/base_user_macros.te policy-1.19.4/macros/base_user_macros.te
 --- nsapolicy/macros/base_user_macros.te	2004-11-20 22:29:09.000000000 -0500
-+++ policy-1.19.4/macros/base_user_macros.te	2004-11-20 23:55:38.640089552 -0500
++++ policy-1.19.4/macros/base_user_macros.te	2004-11-21 00:17:07.939617112 -0500
 @@ -82,7 +82,7 @@
  allow $1_t usbtty_device_t:chr_file read;
  
@@ -261,7 +263,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/macros/base_user_macros.te policy
  # Bind to a Unix domain socket in /tmp.
 diff --exclude-from=exclude -N -u -r nsapolicy/macros/core_macros.te policy-1.19.4/macros/core_macros.te
 --- nsapolicy/macros/core_macros.te	2004-11-20 22:29:09.000000000 -0500
-+++ policy-1.19.4/macros/core_macros.te	2004-11-20 23:55:38.640089552 -0500
++++ policy-1.19.4/macros/core_macros.te	2004-11-21 00:17:07.940616999 -0500
 @@ -152,12 +152,12 @@
  #
  # Permissions for creating and using sockets.
@@ -279,7 +281,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/macros/core_macros.te policy-1.19
  #
 diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mount_macros.te policy-1.19.4/macros/program/mount_macros.te
 --- nsapolicy/macros/program/mount_macros.te	2004-11-18 08:13:59.000000000 -0500
-+++ policy-1.19.4/macros/program/mount_macros.te	2004-11-20 23:55:38.641089439 -0500
++++ policy-1.19.4/macros/program/mount_macros.te	2004-11-21 00:17:07.940616999 -0500
 @@ -21,7 +21,7 @@
  # macro if $2_def is defined
  define(`$2_def', `')
@@ -300,7 +302,7 @@ diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mount_macros.te po
  ifdef(`pamconsole.te',`
 diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mozilla_macros.te policy-1.19.4/macros/program/mozilla_macros.te
 --- nsapolicy/macros/program/mozilla_macros.te	2004-11-20 22:29:09.000000000 -0500
-+++ policy-1.19.4/macros/program/mozilla_macros.te	2004-11-21 00:00:58.136040632 -0500
++++ policy-1.19.4/macros/program/mozilla_macros.te	2004-11-21 00:17:33.188768235 -0500
 @@ -22,6 +22,7 @@
  
  # Unrestricted inheritance from the caller.
@@ -309,20 +311,29 @@ diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/mozilla_macros.te 
  
  # Set resource limits and scheduling info.
  allow $1_mozilla_t self:process { setrlimit setsched };
-@@ -116,6 +117,11 @@
+@@ -116,6 +117,8 @@
  dontaudit $1_mozilla_t file_type:dir getattr;
  allow $1_mozilla_t self:sem create_sem_perms;
  
-+ifdef(`userhelper.te', `
-+domain_auto_trans($1_mozilla_t, userhelper_exec_t, $1_userhelper_t)
-+')
 +dontaudit $1_mozilla_t selinux_config_t:dir search;
 +
  ifdef(`xdm.te', `
  allow $1_mozilla_t xdm_t:fifo_file { write read };
  allow $1_mozilla_t xdm_tmp_t:dir search;
+diff --exclude-from=exclude -N -u -r nsapolicy/macros/program/userhelper_macros.te policy-1.19.4/macros/program/userhelper_macros.te
+--- nsapolicy/macros/program/userhelper_macros.te	2004-11-18 08:13:59.000000000 -0500
++++ policy-1.19.4/macros/program/userhelper_macros.te	2004-11-21 00:17:24.007804129 -0500
+@@ -143,4 +143,8 @@
+ allow $1_userhelper_t pam_var_console_t:dir { search };
+ ')
+ 
++ifdef(`mozilla.te', `
++domain_auto_trans($1_mozilla_t, userhelper_exec_t, $1_userhelper_t)
++')
++
+ ')dnl end userhelper macro
 
---------------010401060904050806050000--
+--------------080000020400090501060509--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
