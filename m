@@ -1,38 +1,29 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8TBiqrT014466
-	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 07:44:53 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8TBhmnY000864
-	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 11:43:49 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8TBknrT014487
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 07:46:49 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8TBkkjQ005385
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 11:46:47 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Subject: Re: policy for timidity
-Date: Wed, 29 Sep 2004 21:44:47 +1000
-Cc: SELinux ML <selinux@tycho.nsa.gov>
-References: <20040926202033.GB2529@jmh.mhn.de>
-In-Reply-To: <20040926202033.GB2529@jmh.mhn.de>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: postfix, spamd, cupsd all attempting name_bind to 25, 893 etc. as "reserved_port_t"
+Date: Wed, 29 Sep 2004 21:46:41 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040926171824.GD28076@lkcl.net> <20040926190736.GA2529@jmh.mhn.de> <20040926210308.GJ28076@lkcl.net>
+In-Reply-To: <20040926210308.GJ28076@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200409292144.47950.russell@coker.com.au>
+Message-Id: <200409292146.41496.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 27 Sep 2004 06:20, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
-wrote:
-> Timidity can be used as alsa sequencer client and run as a daemon (when
-> started as timidity -iA). Attached policy allows this to work on a
-> SELinux system.
+On Mon, 27 Sep 2004 07:03, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+>  yes i ended up with those programs.  and libsepol which doesn't have a
+>  dpkg thing for it so i tarred it up to put onto the test machine.
 
-allow timidity_t tmpfs_t:file { read write };
-
-That is wrong.  Should be tmpfs_domain(timidity).
-
-Also for the unix_stream_socket access I think that there's no reason not to 
-use create_stream_socket_perms access.
-
-Apart from that it's fine and I've put it in my tree.
+libsepol is in my Debian repository, just not in main.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
