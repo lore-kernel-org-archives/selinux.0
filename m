@@ -1,46 +1,26 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA3JXSXZ017696
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 14:33:28 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA3JW64w005835
-	for <selinux@tycho.nsa.gov>; Wed, 3 Nov 2004 19:32:06 GMT
-Subject: Re: learning about policies/transitions
+Subject: Re: What policy is the system running?
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Serge Hallyn <serge.hallyn@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <46ce702f041103084530fe8539@mail.gmail.com>
-References: <46ce702f041103084530fe8539@mail.gmail.com>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+   SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <20041103185116.24681.qmail@web50606.mail.yahoo.com>
+References: <20041103185116.24681.qmail@web50606.mail.yahoo.com>
 Content-Type: text/plain
-Message-Id: <1099510181.1213.198.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1099510701.1213.200.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 03 Nov 2004 14:29:41 -0500
+Date: Wed, 03 Nov 2004 14:38:21 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-03 at 11:45, Serge Hallyn wrote:
-> With my basic policy, though, boot_d will not transition to login_d
-> on execution of /bin/login.  ls -Z /bin/login shows that it is labeled
-> as login_et.  Since logging in doesn't work, I test by booting single
-> user mode, and running
+On Wed, 2004-11-03 at 13:51, Steve G wrote:
+> >This would be case for setting boolean states on policy load, correct?
 > 
-> ps -Z
-> [everything is running under boot_d]
-> /bin/login & ps -Z
-> [login is running under boot_d]
-> 
-> What am I missing in the policy that would enable this automatic
-> domain transition to happen?
+> I made a typo in my reply..I meant overwrite what's on disk. Sorry.
 
-Your policy looks sufficient for that purpose, although there are some
-oddities in it (e.g. you shouldn't be authorizing system_r for object
-types, you should be using object_r in file contexts, a file descriptor
-is not labeled with a file type).  A possible explanation would be an
-inconsistency between the on-disk xattr and the incore inode SID, e.g.
-type wasn't defined at the time that the inode was attached to a
-dentry.  Try setfilecon system_u:object_r:login_et /bin/login and then
-re-trying.  setfiles and chcon tend to not bother setting the context if
-it already appears to be correct, but they only can see the on-disk
-xattr via the xattr API, not the incore inode context. 
+I think the in-memory modification of the policy for the boolean
+settings is the larger concern, as it means that the binary policy seen
+by the kernel may not match any file on disk, not even the one that was
+"loaded".
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
