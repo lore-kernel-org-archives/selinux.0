@@ -1,60 +1,66 @@
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "SELinux" <SELinux@tycho.nsa.gov>
-Cc: "James Griffin" <agriffin@cpcug.org>
-Subject: RE: Security Policy Analysis Tools status
-Date: Wed, 20 Feb 2002 10:55:54 -0500
-Message-ID: <ACEHIKGIGFEDAIKEMMMIAEONKBAA.mayerf@tresys.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA20068
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 11:08:26 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id QAA22582
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 16:07:26 GMT
+Received: from mail.outstep.com (a904j637.tower.wayne.edu [141.217.140.65])
+	by jazzswing.ncsc.mil  with ESMTP id QAA22578
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2002 16:07:26 GMT
+Message-ID: <1222.141.217.131.74.1014221008.squirrel@www.outstep.com>
+Date: Wed, 20 Feb 2002 11:03:28 -0500 (EST)
+Subject: Re: ftp long time connection
+From: "Lonnie Cumberland" <lonnie@outstep.com>
+To: <sds@tislabs.com>
+In-Reply-To: <Pine.GSO.4.33.0202201008250.9757-100000@raven>
+References: <Pine.GSO.4.33.0202201008250.9757-100000@raven>
+Cc: <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <3C73AB6F.7E051FA4@cpcug.org>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Actually there is a new version; forgot to update the web site (it should be
-updated now @  http://www.tresys.com/selinux.html ).  This is still just a
-simple, not well tested tool we use to help analyze policies.
+Hello All,
 
-We are still working on many of the same issues you've identified (e.g.,
-analyzing/evaluating policies, developing new/modified policies).  We've
-recently begun to look more carefully at the tool problem for analyzing,
-developing, and operationally managing policies.  Tools have not been our
-primary goal to date, though that might change depending on our customer's
-need.
+Sorry for not responding a little earlier, but although I have not
+completely narrowed down the problem, I do not think that is has to
+do with SElinux now.
 
-Feel free to e-mail me if you'd like to share experiences and thoughts.
-Frank
+It is probably some error on my part as I have been making many
+chages to our servers lately.
 
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]On
-Behalf Of James Griffin
-Sent: Wednesday, February 20, 2002 8:58 AM
-To: SELinux
-Subject: Security Policy Analysis Tools status
+Cheers and thanks for the help everyone.
+
+I really appreciate it,
+Lonnie
+
+>
+> If you've figured out the problem (or at least determined that it
+> isn't related to SELinux), it might be good to say so on the
+> mailing list so that people won't continue to post endlessly on
+> this thread.
+>
+> --
+> Stephen D. Smalley, NAI Labs
+> ssmalley@nai.com
 
 
-Last October there as a thread on policy analysis tools.  Individuals at
-MITRE, IBM, and Tresys indicated that they were doing work in this
-area.  Frank Mayer, Tresys, made his work available at
-http://www.tresys.com/selinux.html (lasted updated in November).
+-- 
+ Lonnie Cumberland
+ OutStep Technologies Incorporated
+ EMAIL: Lonnie@OutStep.com
+      : Lonnie_Cumberland@yahoo.com
 
-Since the thread seems to have ended, I was wondering what the current
-level of interest and activity is?
+ The Basis Express Virtual Office
+               &
+ Data Backup and Recovery Services
 
-Part of the reason for the question is the availability of tools for
-system administrators and for "outside" auditors (e.g. GAO) to
-check/evaluate policy "as implemented" compared with policy "as
-documented".
+ URL: http://www.basis-express.com
 
-Regards,
-Jim
+"The Virtual Office with no boundries!!!"
 
---
-You have received this message because you are subscribed to the selinux
-list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
+
+
 
 
 --
