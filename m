@@ -1,52 +1,36 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i715kjrT005329
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 01:46:47 -0400 (EDT)
-Received: from sccrmhc13.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i715k452016858
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 05:46:13 GMT
-Message-ID: <410C83AB.5020305@tresys.com>
-Date: Sun, 01 Aug 2004 01:46:19 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i719XZrT005964
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 05:33:37 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i719XS0x018711
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 09:33:29 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: genhomedircon - bugs in sed stuff with unknown { } characters
+Date: Sun, 1 Aug 2004 19:32:54 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040731122721.GN3378@lkcl.net>
+In-Reply-To: <20040731122721.GN3378@lkcl.net>
 MIME-Version: 1.0
-To: Nikolay <nikolay@alexandrov.ws>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Some ideas and info.
-References: <200408010121.i711LUHs013906@mummy.ncsc.mil>
-In-Reply-To: <200408010121.i711LUHs013906@mummy.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200408011932.54960.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Nikolay wrote:
+On Sat, 31 Jul 2004 22:27, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> okay, i removed the {s and }s from the genhomedircon's use of sed,
+> and whoopee, off it went, looks like it's working now.
 
->Hi. I was wondering if you've thought about implementing non-exec pages and
->stack randomization?
->In case that the user hasn't got the PaX patches it's nice to be protected
->at least a little more isn't it ? I think that at least basic
->implementations of such mechanisms is needed and would help in improving the
->security level.
->I could implement such ideas, if you'd like ofcourse.
->
->(Sorry for my poor english (it's not my native language. I also intend to
->write often here, I like the ideas of your project and I would be glad to
->help you.)
->Best regards,
->Nikolay
->
->
->--
->This message was distributed to subscribers of the selinux mailing list.
->If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->the words "unsubscribe selinux" without quotes as the message.
->
->  
->
-Memory protections are well outside the scope of SELinux (which includes 
-only mandatory access control), however the Gentoo (of which I am a 
-part) have a patch to integrate PaX flags into SELinux policy, it's 
-available if you are interested.
+You need to have a recent version of sed, do you have the latest version 
+installed?
 
-Joshua Brindle
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
