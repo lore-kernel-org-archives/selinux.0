@@ -1,57 +1,37 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1ODSDRb022863
-	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 08:28:13 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1OElTRb023375
+	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 09:47:29 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i1ODSCQQ005973
-	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 13:28:12 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id i1ODSCP0005970 for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 13:28:12 GMT
-Subject: Re: odd segfault in checkpolicy
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@verbum.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1077577191.4374.9.camel@nexus.verbum.private>
-References: <1077577191.4374.9.camel@nexus.verbum.private>
-Content-Type: text/plain
-Message-Id: <1077629291.21221.16.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Tue, 24 Feb 2004 08:28:11 -0500
+	by jazzband.ncsc.mil  with ESMTP id i1OElEQQ013321
+	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 14:47:14 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+        by jazzband.ncsc.mil  with ESMTP id i1OElDP0013318 for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2004 14:47:14 GMT
+Date: Tue, 24 Feb 2004 09:47:26 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: identity
+In-Reply-To: <200402231535.26738.russell@coker.com.au>
+Message-ID: <Xine.LNX.4.44.0402240945330.24455-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-02-23 at 17:59, Colin Walters wrote:
-> I've been trying to track down an odd segfault when checkpolicy is
-> compiled without optimization, but I've been looking at the code for
-> like an hour and a half now and I just can't see the problem.  Here's
-> some debugging information:
-<snip>
-> Does anyone have any ideas?  Can anyone else reproduce this?
+On Mon, 23 Feb 2004, Russell Coker wrote:
 
-Yes.  Patch below.  Since checkpolicy is rewriting the buffer in place
-(to perform endian conversion), it needs to map the policy file
-read-write and private, rather than read-only and shared.
+> The idea is to have something like rjc#10.0.0.1:user_r:user_t to indicate that 
+> I logged in from IP address 10.0.0.1.
 
-Index: checkpolicy/checkpolicy.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/checkpolicy/checkpolicy.c,v
-retrieving revision 1.16
-diff -u -r1.16 checkpolicy.c
---- checkpolicy/checkpolicy.c	4 Feb 2004 19:31:17 -0000	1.16
-+++ checkpolicy/checkpolicy.c	24 Feb 2004 13:24:45 -0000
-@@ -502,7 +502,7 @@
- 				file, strerror(errno));
- 			exit(1);
- 		}
--		map = mmap(NULL, sb.st_size, PROT_READ, MAP_SHARED, fd, 0);
-+		map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
- 		if (map == MAP_FAILED) {
- 			fprintf(stderr, "Can't map '%s':  %s\n",
- 				file, strerror(errno));
+How would the kernel know the IP address you're logged in from?  Would you 
+also want to log the serial device if that's how the user logged in?
 
 
+- James
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
