@@ -1,45 +1,48 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB3B2iRb020469
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 06:02:44 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB3B23p7012534
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 11:02:05 GMT
-Date: Wed, 3 Dec 2003 11:02:26 +0000
-From: Dale Amon <amon@vnl.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: nagray@austin.rr.com, Russell Coker <russell@coker.com.au>,
-   nagray@bruzenak.com, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: What causes this??
-Message-ID: <20031203110225.GA25416@vnl.com>
-References: <1070340338.12612.2.camel@hawaii> <200312021549.34383.russell@coker.com.au> <1070376464.13070.127.camel@hawaii> <1070382538.14253.65.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1070382538.14253.65.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB3B5hRb020488
+	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 06:05:43 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hB3B5gqY010137
+	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 11:05:42 GMT
+Received: from tesla.eecs.ku.edu (tesla.eecs.ku.edu [129.237.87.2])
+        by jazzband.ncsc.mil  with ESMTP id hB3B5f0o010129 for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 11:05:42 GMT
+Received: from tesla.eecs.ku.edu (tesla.eecs.ku.edu [129.237.87.2])
+	by tesla.eecs.ku.edu (8.12.10/8.12.3) with ESMTP id hB3B5asQ013700
+	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2003 05:05:36 -0600 (CST)
+	(envelope-from nmucci@eecs.ku.edu)
+Date: Wed, 3 Dec 2003 05:05:36 -0600 (CST)
+From: Nicholas Mucci <nmucci@eecs.ku.edu>
+To: selinux@tycho.nsa.gov
+Subject: machine check exception
+Message-ID: <20031203043334.S1461@tesla.eecs.ku.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Dec 02, 2003 at 11:28:58AM -0500, Stephen Smalley wrote:
-> On Tue, 2003-12-02 at 09:47, Nick wrote:
-> > id -c 
-> > system_u:system_r:sysadm_t
-> 
-> This implies that you aren't running the patched login program (or,
-> alternatively, using the pam_selinux module).  Note that the user
-> identity portion of the context wasn't set, which is why newrole is
-> confused.
+Hi,
+	Recently I installed the 2.6.0-test6-selinux1 kernel on my box and
+noticed that it will occassionally throw a machine check exception after
+detecting IDE devices on startup.  I never saw this occur with the
+2.6.0-test3 selinux kernel, 2.4.18 from RedHat 8, 2.4.9 or 2.4.8 on this
+machine.  I know there is probably a hardware issue that is causing this,
+but I am curious as to why the MCE only surfaces now.  If I use the older
+kernels this problem does not show up and I don't see an MCE.  Has anyone
+seen or heard of this before?  The MCE handler was modified in test5
+to remove "useless junk" that caused problems on some cpus.  This may be
+just a mainstream 2.6 thing, but I figured I would check and see if
+anybody here has any thoughts or ideas about this.
 
-Stephen, just a modest and time saving suggestion. Why
-not add a bit of code to detect this particular condition
-and print a message stating the probable solution? 
+Thanks,
 
--- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+---------------------------------------
+Nicholas Mucci
+Institute for Educational Research
+and Public Service
+University of Kansas
+Home: 785-812-2520
+Cell: 847-445-7023
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
