@@ -1,53 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA21513
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 09:09:10 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA16628
-	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 13:07:46 GMT
-Received: from mail.ispko.com ([210.16.10.89])
-        by jazzband.ncsc.mil  with ESMTP id NAA16624 for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 13:07:45 GMT
-Message-ID: <3D132564.1060307@evoworks.evoserve.com>
-Date: Fri, 21 Jun 2002 21:08:52 +0800
-From: Debian User <rogelio@evoworks.evoserve.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA22095
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 10:38:32 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA06960
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 14:38:08 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id OAA06954
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 14:38:06 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 4095F92462
+	for <selinux@tycho.nsa.gov>; Sat, 22 Jun 2002 00:38:21 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 4F44456
+	for <selinux@tycho.nsa.gov>; Fri, 21 Jun 2002 16:38:13 +0200 (CEST)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: error
+Date: Fri, 21 Jun 2002 16:38:12 +0200
 MIME-Version: 1.0
-To: Russell Coker <russell@coker.com.au>
-CC: selinux@tycho.nsa.gov
-Subject: Re: selinux cramfs
-References: <Pine.GSO.4.33.0206210844000.12888-100000@raven> <20020621125427.228C41EE0@lyta.coker.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20020621143813.4F44456@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
+/usr/sbin/checkpolicy:  loading policy configuration from policy.conf
+security:  5 users, 4 roles, 400 types
+security:  29 classes, 48761 rules
+security:  SID igmp_packet was never defined.
+make: *** [policy.9] Error 1
 
->On Fri, 21 Jun 2002 14:45, Stephen Smalley wrote:
->
->>On Fri, 21 Jun 2002, Stephen Smalley wrote:
->>
->>>You might be able to handle cramfs to some degree using the new
->>>genfs_contexts configuration, which is a generalization of
->>>devfs_contexts. That isn't in the current release, but will be in the
->>>next one.
->>>
->>I just tried using genfs_contexts to specify a context for cramfs and
->>then mounting a cramfs image, and it appears to work correctly.  So this
->>will hopefully be addressed by the next public release.
->>
->
->Excellent!
->
->Howard, when is the next release scheduled?
->
->
->Stephen,  I'm just about to test those patches you sent me.
->
->
->
->Russell Coker
->
-Cool! My system is waiting. Lots of possibilities here.
+Stephen, I applied the latest patches you sent me and got the above error.  
+Could you please explain where it came from?
 
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 You have received this message because you are subscribed to the selinux list.
