@@ -1,91 +1,60 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA16298
-	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 08:13:46 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA24789
-	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 13:10:43 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id NAA24785
-	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 13:10:41 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: FOSDEM report
-Date: Sun, 9 Feb 2003 22:02:22 +0100
-Cc: Colin Leroy <colin@colino.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA17029
+	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 10:03:08 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h1AF37I12438
+	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 15:03:07 GMT
+Received: from RelaySNC.nai.com (relaysnc.nai.com [161.69.3.67])
+        by jazzband.ncsc.mil  with ESMTP id h1AF32f12433 for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 15:03:06 GMT
+Received: from scwsout1.nai.com (scwsout1.nai.com [161.69.3.73])
+	by RelaySNC.nai.com (Switch-2.2.4/Switch-2.2.4) with SMTP id h1AEptu15823
+	for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2003 08:51:55 -0600 (CST)
+Message-ID: <8894CA1F87A5D411BD24009027EE783801C14C45@md-exchange1.na.nai.com>
+From: Kelly_Djahandari@nai.com
+To: selinux@tycho.nsa.gov
+Subject: File labeling issue
+Date: Mon, 10 Feb 2003 07:06:07 -0800
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200302092202.22424.russell@coker.com.au>
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Today I gave a 1 hour talk on SE Linux at FOSDEM.  It wasn't a scheduled talk 
-but they made room for me at the last minute.
+While testing xinetd, I ran into a problem with the build of the
+file_contexts file. Because file_contexts is a concatenation of files in
+alphabetical order, inetd.fc can override labeling of /usr/sbin/in.*d files
+if the fc file is alphabetically before inetd.fc.
 
-The audience was very attentive and knowledgable (about half the audience had 
-tried out SE Linux in my hacking contest) and asked some really good 
-questions.  This was fortunate as my talk went faster than expected and I had 
-covered the material in half the time, but the questions lasted until the 
-security people wanted to lock the doors.
+The file inetd.fc has a default inetd services label. It has the line:
 
+/usr/sbin/in\..*d               system_u:object_r:inetd_child_exec_t
 
-The hacking contest had two parts.  The first part was to read or write a file 
-in the home directory of user "easy" when starting from UID=0 
-context=root:user_r:user_t.
+As an example, the service fingerd has specific labeling in fingerd.fc. It
+has the line:
 
-Colin Leroy was the first (and AFAIK only) person to solve this.  Firstly he 
-put in a cron job for user "easy" to do "ls" on the easy home directory (mode 
-0700 which prevented root from inspecting it directly even though both "root" 
-and "easy" were in user_r) and discovered the file /home/easy/FLAG but 
-couldn't read it because it was owned by root and more 0600.
+/usr/sbin/in.fingerd            system_u:object_r:fingerd_exec_t
 
-Then he discovered that he could use the command:
-EDITOR=vi /home/easy/FLAG crontab -e -u easy
+Since fingerd.fc is concatenated to file_contexts before inetd.fc, the
+inetd.fc line overrides the fingerd.fc line for labeling
+/usr/sbin/in.fingerd and the file is labeled inetd_child_exec_t.
 
-To get at the file.
+The default type for files in /usr/sbin is system_u:object_r:sbin_t. If
+services started by xinetd are labeled sbin_t, they are run in the inetd_t
+domain--not good. Talkd is an example of a service which does not have a fc
+file and would be labeled with the default inetd.fc labeling
+(inetd_child_exec_t).
 
-I did some experiments later and discovered that I could do "crontab -e -u 
-easy" and then use the ":r" and ":w" commands in vi.
+Is it reasonable to request that all services started by inetd have a .fc
+file and a corresponding .te file and remove the default inetd labeling in
+inetd.fc? Or should we keep the default inetd labeling and figure out some
+other way to not overwrite specific labeling? Since this could be a problem
+not just of inetd.fc, but with any wildcard usage, we may need to think of a
+more general solution. 
 
-The reason is that the user_crontab_t domain has dac_override access.  I 
-experimented with removing dac_override and found that it still works OK for 
-my setup, I am still not sure about all the implications of this for other 
-installations.  However I have not been able to think of a situation where 
-this is really required.
+Any suggestions/comments are appreciated.
 
-Also I noticed that user_crontab_t had capability net_bind_service and could 
-think of no possible reason for that so I removed it from my tree.
-
-The next thing that occurred to me is that vi should not run in the 
-user_crontab_t anyway, so I put in a domain_auto_trans rule to transition to 
-user_t when running { bin_t sbin_t exec_type } so that the editor can run in 
-user_t and not have any special access.  I am still experimenting with this, 
-but it will probably mean that I can significantly reduce the access of 
-user_crontab_t.  Also I attended Solar Designer's presentation, and if I 
-installed some of his patches for crond and crontab then I could remove 
-setuid access from user_crontab_t as well.
-
-
-Another thing that Colin noticed is that as there was no crontab entry for my 
-account "rjc" he could create one to run cron jobs as rjc:user_r:user_crond_t 
-which gets him access to my identity.  However as I had not allowed 
-transitions from user_r to staff_r or sysadm_r that did not gain much.
-
-
-So the end result of the hacking contest is that Colin got the best work in 
-exceeding the access I had intended to grant.  Of course it has to be noted 
-that the majority of SE Linux administrators will not grant hostile users 
-access to the root account, so this is not a security issue in SE Linux, but 
-it is something that we should tighten up to reduce the risk of a security 
-hole in crontab being exploited for further access.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Kelly Djahandari
+Network Associates Laboratories
 
 
 --
