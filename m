@@ -1,47 +1,38 @@
-Message-ID: <415AC9D0.1080708@redhat.com>
-Date: Wed, 29 Sep 2004 10:42:24 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: Problems with fixfiles and setfiles.
-References: <4159C55D.4050404@redhat.com> <200409300034.10552.russell@coker.com.au>
-In-Reply-To: <200409300034.10552.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8TGWPrT016914
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 12:32:25 -0400 (EDT)
+Received: from kokytos.rz.informatik.uni-muenchen.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8TGWMjQ016559
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 16:32:23 GMT
+Received: from rom.cip.ifi.lmu.de (rom.cip.informatik.uni-muenchen.de [141.84.214.183])
+	by kokytos.rz.informatik.uni-muenchen.de (Postfix) with ESMTP id 2DBB4436F7
+	for <selinux@tycho.nsa.gov>; Wed, 29 Sep 2004 18:32:23 +0200 (CEST)
+Date: Wed, 29 Sep 2004 18:32:22 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: SELinux ML <selinux@tycho.nsa.gov>
+Subject: Access to xdm_t
+Message-ID: <20040929163222.GA4125@rom.cip.ifi.lmu.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
+I have a question about access to xdm_t:
+With KDM 3.3 I am seeing a lot of accesses to xdm_t:fd and
+xdm_t:fifo_file from user processes (say user_lpr_t and user_gpg_t)
+Should these be allowed?
+If yes, should xdm_t get the attribute privfd?
 
->On Wed, 29 Sep 2004 06:11, Daniel J Walsh <dwalsh@redhat.com> wrote:
->  
->
->>The fixfiles script is used to report and fix file contexts that are
->>invalid, the problem is that it gets a lot of
->>false positives.  Reviewing fixfiles.cron shows that most of the files
->>created by mozilla are reported as invalid.
->>It would be nice if we could remove these false positives by some means.
->>
->>If we had some mechanism of saying a file could have one of several
->>valid contexts, or be in a context that
->>has a certain attribute.
->>    
->>
->
->For files under the home directory the valid contexts are all the contexts 
->that the user in question can create (directly or indirectly).
->
->If the user does "mv .ssh .ssh-old" we don't want .ssh-old relabelled at 
->user_home_t.
->
->Maybe we should just have fixfiles skip the home directories?
->
->  
->
-Yes I considered that, but fixfiles is just a front end to setfiles,  
-which does not have an easy way of skipping home dirs.
+Also, is it OK to dontaudit access to .xsession-errors (on SuSE it lives
+under ~ and I do not want to give all derived user domains access to user's
+home dir). Or will this cause errors with some programs?
 
-Dan
+Thanks for your answers,
+Thomas
+
+-- 
+http://www.cip.ifi.lmu.de/~bleher/selinux/ - my SELinux pages
+GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
 
 --
 This message was distributed to subscribers of the selinux mailing list.
