@@ -1,57 +1,37 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8AJcuLa011549
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 15:38:56 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h8AJctmw026023
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 19:38:55 GMT
-Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
-        by jazzband.ncsc.mil  with ESMTP id h8AJct9d026017 for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 19:38:55 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8AJh8La011612
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 15:43:08 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h8AJfULa029246
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2003 19:41:31 GMT
+Date: Wed, 10 Sep 2003 20:43:04 +0100
+From: Dale Amon <amon@vnl.com>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: Dale Amon <amon@vnl.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
 Subject: Re: rfs xattr's, mkinitrd and other stories
-From: Chris PeBenito <pebenito@gentoo.org>
-To: Dale Amon <amon@vnl.com>, Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <20030910191015.GQ5397@vnl.com>
-References: <20030910164854.GO5397@vnl.com>
-	 <1063220599.29764.6.camel@chris.pebenito.net>
-	 <20030910191015.GQ5397@vnl.com>
-Content-Type: text/plain
-Message-Id: <1063222733.29765.19.camel@chris.pebenito.net>
+Message-ID: <20030910194304.GS5397@vnl.com>
+References: <20030910164854.GO5397@vnl.com> <1063220599.29764.6.camel@chris.pebenito.net> <20030910191015.GQ5397@vnl.com> <1063222733.29765.19.camel@chris.pebenito.net>
 Mime-Version: 1.0
-Date: Wed, 10 Sep 2003 14:38:54 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1063222733.29765.19.camel@chris.pebenito.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-09-10 at 14:10, Dale Amon wrote:
-> Hmmm... I shouldn't think it should be too hard to do that,
-> assuming the format of handlers is similar. The 2.6 one was
-> pretty straight forward.
-> 
-> I'll take a look. Supper first though :-)
+On Wed, Sep 10, 2003 at 02:38:54PM -0500, Chris PeBenito wrote:
+> If you ls --context, it came up null for the context, and if you do a
+> touch, the process hangs.  I have the appropriate change in super.c and
+> reiserfs_xattr.h.  I also adjusted the reiserfs_fs_sb.h, as theres a
+> mention by the trusted handler of making the xattrs 'always on', so I
+> made sure the xattrs are always on for the security labels too.  I think
+> there is just some little bit that I'm overlooking.
 
-On Wed, 2003-09-10 at 14:11, Stephen Smalley wrote: 
-> You should just be able to copy the trusted handler and tweak it
-> slightly for the "security." namespace.
+Hmmm... Keep in mind that this code, while simple and while eyeballed
+by three people, has not been well tested even on 2.6. I do not
+consider it out of the question that there is an error. 
 
-This afternoon, I tried using the 2.6 handlers to no avail.  I also
-tried copying the trusted one a while back (yes, I remembered to change
-the prefix), and removing the capability check, and they all resulted
-the same way.  
-
-If you ls --context, it came up null for the context, and if you do a
-touch, the process hangs.  I have the appropriate change in super.c and
-reiserfs_xattr.h.  I also adjusted the reiserfs_fs_sb.h, as theres a
-mention by the trusted handler of making the xattrs 'always on', so I
-made sure the xattrs are always on for the security labels too.  I think
-there is just some little bit that I'm overlooking.
-
--- 
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer, SELinux
-Hardened Gentoo Linux
- 
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
-Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+I'm still in the alligator pit with 2.6 and Steve just chucked
+another one in on me :-)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
