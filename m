@@ -1,50 +1,47 @@
-Message-ID: <4251BA1E.9040406@trustedcs.com>
-Date: Mon, 04 Apr 2005 17:05:18 -0500
-From: Darrel Goeddel <dgoeddel@TrustedCS.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j35DeFDo008174
+	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 09:40:16 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j35Dc2Gl024603
+	for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2005 13:38:04 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Alejandro Mery <amery@geeks.cl>
+Subject: Re: selinux without sysvinit
+Date: Tue, 5 Apr 2005 23:37:25 +1000
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+References: <4188E956.7020808@geeks.cl> <1099579644.3174.73.cam el@moss-spartans.epoch.ncsc.mil> <418B9531.7090303@geeks.cl>
+In-Reply-To: <418B9531.7090303@geeks.cl>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>,
-   selinux-dev@tresys.com
-Subject: Re: policy hierarchy patch
-References: <1112631282.19526.18.camel@localhost>	 <1112635440.7629.125.camel@moss-spartans.epoch.ncsc.mil> <1112643447.19527.30.camel@localhost>
-In-Reply-To: <1112643447.19527.30.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200504052337.28548.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Yes you appear to be right. It turns out that this is a hard problem,
-> currently '.' is treated as a terminal some of the time and part of an
-> identifier other times. We tried to fix this problem by using lex start
-> states to disambiguate mls identifiers and normal ones but this became
-> problematic in contexts. Namely the following is currently valid:
-> 
-> user:role:type:s0-s9:cat1. cat2
-> 
-> note the space, now currently parts of the language require 2 contexts
-> in 1 rule, specifically netifcon:
-> 
-> netifcon user:role:type:s0:cat1 user:role:type:s1:cat1
-> 
-> If the context were always the last thing on the line we could end the
-> lex start state but since that isn't the case the yacc lookahead causes
-> the next identifier to be treated as an mls_identifier.
-> 
-> I said all that to ask if it is feasible to combine identifier and
-> mls_identifier in the patch and remove the terminal '.'. This would
-> cause category ranges to be 1 identifier and they'd have to be split
-> manually but otherwise it should work. The only visible change would be
-> that spaces would no longer be allowed between the category and the '.'.
-> 
+On Saturday 06 November 2004 01:58, Alejandro Mery <amery@geeks.cl> wrote:
+> > Yes, that should work as well, and I think some people have actually
+> > used that approach in the past.  But if you decide to move aside
+> > /sbin/init and replace it with a small program that loads policy and
+> > then runs the real init program, be careful that telinit is then
+> > redirected to the real init program.
+>
+> i was thinking in a /sbin/seinit with proper init= on loader, hardcoded
+> to execve /sbin/init and /bin/sh after that.
 
-Sounds good to me.  I should actually be able to take a look at it tomorrow and 
-help you out with the code.  I know that the parsing isn't the prettiest...  I 
-think I may be able to make it look better in C code.  And we didn't really like 
-the spaces anyway.
+I've done that, it works.  It's a minor PITA though, you need to have your 
+boot loader pass init=/sbin/seinit though.  If your boot loader is something 
+like the boot loader in a Cobalt machine it's even more painful as BIOS 
+upgrades etc can lose the boot loader config.
+
+Best to just patch /sbin/init, I only patched init after trying all the other 
+options and finding them to be worse.
 
 -- 
-
-Darrel (Go Illini!)
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
