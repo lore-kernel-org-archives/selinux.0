@@ -1,104 +1,42 @@
-Date: Fri, 12 Apr 2002 09:06:51 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Tom <tom@lemuria.org>
-cc: <SELinux@tycho.nsa.gov>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
 Subject: Re: db conflict ?
-In-Reply-To: <20020412122349.A28382@lemuria.org>
-Message-ID: <Pine.GSO.4.33.0204120840060.21729-100000@raven>
+Date: Fri, 12 Apr 2002 15:27:57 +0200
+Cc: Tom <tom@lemuria.org>, <SELinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0204120907250.21729-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0204120907250.21729-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020412132757.47C8023B16@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Fri, 12 Apr 2002, Tom wrote:
-
-> I have just installed a new SELinux test machine. It had an SELinux
-> earlier, but I deleted that and installed a new one, from the Debian
-> packages.
+On Fri, 12 Apr 2002 15:09, Stephen Smalley wrote:
+> On Fri, 12 Apr 2002, Russell Coker wrote:
+> > Steve, I think that we need an option in the policy.conf file to specify
+> > the version of the policydb.  If we add it now then it'll break
+> > compatability with old versions of checkpolicy (which is desired).  Then
+> > we can say "policy v8" in the config file and count on any older version
+> > refusing to compile it.
 >
-> During boot, I get this error message:
->
-> security:  starting up (compiled Jan 12 2002)
-> security:  loading policy configuration from /ss_policy
-> security:  policydb version 8 does not match my version 7
-> security:  error while loading /ss_policy, cannot initialize.
-> SELinux:  Could not initialize
-> Freeing unused kernel memory: 208k freed
-> Adding Swap: 498004k swap-space (priority -1)
-> security_context_to_sid: called before initial load_policy on unknown context system_u:object_r:policy_config_t
+> The policy.conf file isn't necessarily tied to a particular version of the
+> policydb (the binary representation).  The change from policydb version 7
+> to policydb version 8 had no impact on policy.conf, just on the resulting
+> policy (/ss_policy) file compiled by checkpolicy.
 
-The policydb binary representation changed between the 2001121010 release
-(December) and the 2002011718 release (January).  You need to rebuild your
-policy configuration with the current version of the checkpolicy policy
-compiler, so that the binary representation will be consistent with what
-the kernel expects.  Make sure that you have rebuilt checkpolicy from the
-new packages and installed it, and then rebuild your policy.
+I realise that, I'm sorry if I gave the impression that things are otherwise.
 
-> but my "make install" fails:
->
-> arkham:/etc/selinux# make install
-> install -m 644 -o root -g root policy /ss_policy
-> chsid system_u:object_r:policy_config_t /ss_policy
-> system_u:object_r:policy_config_t: Invalid argument
-> make: *** [install] Error 1
+However what I would like to do is distribute a package of tools for version 
+8 and a policy.conf file to match which is resistant to errors that the user 
+may make.
 
-This is harmless (not the cause of your problem), although it differs from
-the upstream SELinux distribution.  Russell appears to have modified the
-policy Makefile to always try to relabel /ss_policy after each install,
-and the chsid will fail when you install SELinux on a non-SELinux kernel
-(but this doesn't matter in that case).  We have a separate relabel target
-in the policy Makefile for this purpose (so you can do 'make install
-relabel' in policy when on a SELinux kernel, or just 'make install' when
-on a non-SELinux kernel).  We have the same kind of support in the utils
-Makefile so you can do 'make install relabel' in utils as well when
-re-installing the modified daemons and utilities on a SELinux kernel.  It
-looks like Russell changed the policy Makefile's relabel target to refer
-to setfiles so that he could unify the policy and setfiles Makefiles.
-
-> arkham:/etc/selinux# checkpolicy
-> checkpolicy:  loading policy configuration from policy.conf
-> security:  5 users, 5 roles, 488 types
-> security:  29 classes, 52901 rules
-> checkpolicy:  policy configuration loaded
-
-The policy.conf file may be fine, but if you are running the wrong version
-of checkpolicy, you'll generate the wrong binary representation.  You need
-to build and install the new version of checkpolicy and then build your
-policy.
-
-> I also have this error:
->
-> arkham:/etc/selinux# load_policy /ss_policy
-> security_load_policy: Invalid argument
-
-load_policy only works on a SELinux kernel, since you can't load a policy
-into a non-SELinux kernel.
-
-> maybe it's related. Since this fails, I can't relabel:
->
-> arkham:/etc/selinux# make relabel
-> /usr/bin/load_policy /ss_policy
-> security_load_policy: Invalid argument
-> make: *** [tmp/load] Error 2
-
-I assume that this is specific to Russell's modified Makefile.  'make
-relabel' for setfiles should work fine on a non-SELinux kernel and
-shouldn't try to run load_policy.
-
-> I did remove the persistent label things:
->   rm -rf /...security /var/...security
-
-You only need to do this if you were running the non-LSM version of
-SELinux, due to a change in the mappings between the non-LSM and LSM
-versions of SELinux.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
