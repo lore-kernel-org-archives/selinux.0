@@ -1,50 +1,38 @@
-Message-Id: <200210240916.JAA07281@jazzband.ncsc.mil>
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: patch to install libsecure man pages
-Date: Thu, 24 Oct 2002 11:15:51 +0200
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Carsten Grohmann <carstengrohmann@gmx.de>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: patch to install libsecure man pages
+Date: Thu, 24 Oct 2002 11:54:59 +0200
+References: <200210240916.JAA07281@jazzband.ncsc.mil>
+In-Reply-To: <200210240916.JAA07281@jazzband.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_F2BH1ND0E6VP9VVVKXLI"
+Message-Id: <200210241154.59754.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 24 Oct 2002 11:15, Carsten Grohmann wrote:
+> The attached patch help you to install the man pages from
+> libsecure/man to /usr/local/selinux/man.
 
---------------Boundary-00=_F2BH1ND0E6VP9VVVKXLI
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Subject: 
+This may do for Slackware.  But for RPM distributions like SUSE you should 
+probably do something similar to what I did for Debian.
 
+I diverted the original man pages for open(2) etc from open.2.gz to 
+open.2.gz.non-se and then installed the SE Linux man pages into the regular 
+places.
 
-The attached patch help you to install the man pages from=20
-libsecure/man to /usr/local/selinux/man.
+So "man 2 open" gives you the documentation on the open_secure() system call.
 
-Carsten
---------------Boundary-00=_F2BH1ND0E6VP9VVVKXLI
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="libsecure_manpages.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="libsecure_manpages.diff"
+Otherwise people won't find them...
 
-ZGlmZiAtdXIgLS1uZXctZmlsZSBvbGQvbGlic2VjdXJlL01ha2VmaWxlIHNlbGludXgvbGlic2Vj
-dXJlL01ha2VmaWxlCi0tLSBvbGQvbGlic2VjdXJlL01ha2VmaWxlCVRodSBPY3QgMjQgMTE6MDk6
-MjIgMjAwMgorKysgc2VsaW51eC9saWJzZWN1cmUvTWFrZWZpbGUJVGh1IE9jdCAyNCAxMDoyNDoy
-NyAyMDAyCkBAIC02LDYgKzYsNyBAQAogCSQoTUFLRSkgLUMgaW5jbHVkZSBpbnN0YWxsCiAJJChN
-QUtFKSAtQyBzcmMgaW5zdGFsbAogCSQoTUFLRSkgLUMgdGVzdCBpbnN0YWxsCisJJChNQUtFKSAt
-QyBtYW4gaW5zdGFsbAogCiByZWxhYmVsOgogCSQoTUFLRSkgLUMgdGVzdCByZWxhYmVsCmRpZmYg
-LXVyIC0tbmV3LWZpbGUgb2xkL2xpYnNlY3VyZS9tYW4vTWFrZWZpbGUgc2VsaW51eC9saWJzZWN1
-cmUvbWFuL01ha2VmaWxlCi0tLSBvbGQvbGlic2VjdXJlL21hbi9NYWtlZmlsZQlUaHUgSmFuICAx
-IDAxOjAwOjAwIDE5NzAKKysrIHNlbGludXgvbGlic2VjdXJlL21hbi9NYWtlZmlsZQlUaHUgT2N0
-IDI0IDEwOjU5OjI3IDIwMDIKQEAgLTAsMCArMSw3IEBACitNQU5ESVI9L3Vzci9sb2NhbC9zZWxp
-bnV4L21hbgorCitpbnN0YWxsIDogCisJaW5zdGFsbCAtbSA3NTUgIC1vIHJvb3QgLWcgcm9vdCAt
-ZCAkKE1BTkRJUikvbWFuMS8KKwlpbnN0YWxsIC1tIDc1NSAgLW8gcm9vdCAtZyByb290IC1kICQo
-TUFORElSKS9tYW4yLworCWluc3RhbGwgLW0gNjQ0IC1vIHJvb3QgLWcgcm9vdCBtYW4xLyouMSAk
-KE1BTkRJUikvbWFuMS8KKwlpbnN0YWxsIC1tIDY0NCAtbyByb290IC1nIHJvb3QgbWFuMi8qLjIg
-JChNQU5ESVIpL21hbjIvCg==
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---------------Boundary-00=_F2BH1ND0E6VP9VVVKXLI--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
