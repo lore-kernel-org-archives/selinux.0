@@ -1,46 +1,34 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2VIIQDo027503
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 13:18:27 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2VIH5iv028129
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 18:17:06 GMT
-Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j2VIH5B9021338
-	for <selinux@tycho.nsa.gov>; Thu, 31 Mar 2005 13:17:06 -0500 (EST)
-Subject: Mozilla Denials Question
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: selinux@tycho.nsa.gov
+Subject: Re: Desktop apps interoperability
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20050331165116.92416.qmail@web31601.mail.mud.yahoo.com>
+References: <20050331165116.92416.qmail@web31601.mail.mud.yahoo.com>
 Content-Type: text/plain
-Date: Thu, 31 Mar 2005 13:23:16 -0500
-Message-Id: <1112293396.12948.45.camel@cobra.ivg2.net>
+Date: Thu, 31 Mar 2005 13:16:50 -0500
+Message-Id: <1112293010.11216.144.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ok, why does it do that? 
+On Thu, 2005-03-31 at 08:51 -0800, Casey Schaufler wrote:
+> Existing MLS systems allow unprivileged
+> applications to run unmodified. In at least
+> one case that included an unmodified X server.
+> You have to do at least as well as the unix MLS
+> systems to be credible. You think that's a
+> low bar, so you shouldn't have any trouble,
+> right?
 
-audit(1112171413.328:1286470): avc:  denied  { read } for  pid=2095
-exe=/usr/lib/firefox-1.0.2/firefox-bin name=lokkit dev=dm-0 ino=1032605
-scontext=phantom:staff_r:staff_mozilla_t
-tcontext=system_u:object_r:sbin_t tclass=file
-audit(1112171417.018:1304950): avc:  denied  { read } for  pid=2095
-exe=/usr/lib/firefox-1.0.2/firefox-bin name=rsync dev=dm-0 ino=1032829
-scontext=phantom:staff_r:staff_mozilla_t
-tcontext=system_u:object_r:rsync_exec_t tclass=file
-
-... 500 more times for every executable in /usr/bin and /usr/sbin
-after attempting to add a plugin handler.
-
-It's already a browsing app, which means we don't audit
-read:dir and getattr:file and some more things, but
-read:file dontaudit seems like too much.
-
-Why does it want to read the files?
+You can certainly allow applications to run unmodified on SELinux today.
+But there can be benefit from modifying applications to provide stronger
+isolation and true least privilege in the future.  And users do care
+about these "unprivileged" applications corrupting or leaking their
+data.
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
 
 --
