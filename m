@@ -1,41 +1,50 @@
-From: "Frank Mayer" <mayerf@tresys.com>
-To: <SELinux@tycho.nsa.gov>
-Subject: ACM CCS conference tutorial slides
-Date: Fri, 31 Oct 2003 14:23:45 -0500
-Message-ID: <001101c39fe4$810368b0$8100a8c0@columbia.tresys.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9VJMhWt021183
+	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2003 14:22:43 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9VJMNC7024938
+	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2003 19:22:23 GMT
+Received: from lyta.coker.com.au (nat-pool-bos.redhat.com [66.187.230.200])
+	by jazzswing.ncsc.mil  with ESMTP id h9VJMNuw024934
+	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2003 19:22:23 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Brian May <bam@snoopy.apana.org.au>
+Subject: Re: user's access to files in their own home directory
+Date: Sat, 1 Nov 2003 06:17:43 +1100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <200310310610.14859.russell@coker.com.au> <20031030234711.GA31194@snoopy.apana.org.au>
+In-Reply-To: <20031030234711.GA31194@snoopy.apana.org.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
+Message-Id: <200311010617.43597.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've posted on our web site (www.tresys.com/selinux, under "additional
-information") the slides I used for my tutorial on SE Linux and policy analysis
-at the recent ACM conference on computer and communications security in
-Washington, DC.  The conference is to publish slides on their site too
-(www.acm.org/sigs/sigsac/ccs/CCS2003/).
+On Fri, 31 Oct 2003 10:47, Brian May wrote:
+> > So far in writing the policy I have allowed the user full access to files
+> > in their own home directory, with the exception of gpg where secrecy
+> > requires that the user's processes often be denied read access.
+> >
+> > I would like some feedback on how people feel about having files/dirs
+> > under a user's home directory that they can't unlink or rename.
+>
+> This would seem to imply a useability/security tradeoff that is
+> dependant on the security requirements of the computer.
+>
+> However, what files/dirs are you thinking of?
 
-Other than the worse than the normally disastrous commute to DC (allowed 2 hours
-for the 45 minute drive, and had 5 minutes to spare!), the session went well.
-There was probably 30-40 people in attendance, though most without any direct SE
-Linux experience.  A smart audience who asked a lot of questions, and managed to
-digest the massive amounts of information I tried to convey.  Lots of questions
-and concerns about the need for greater abstraction of the policy language (the
-direction I biased the presentation), both for validating policies and
-developing policies.  Hopefully I managed to create some additional research
-excitement in those areas.
+Maildir
+www/web/public_html
+.ssh
+.gnupg (already done)
 
-Besides a basic abstract tutorial on type enforcement ala SE Linux, my
-presentation also went into more details one some of the whys and whats of the
-high-level analyses capabilities we are incorporating in our apol tool.
-
-Overall I sensed keen interest and good energy from the audience. 
-
-Frank
-
-PS- I'm also on the agenda at the ACSAC conference in Las Vegas this December to
-discuss some other aspects of SE Linux (www.acsac.org/).
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
