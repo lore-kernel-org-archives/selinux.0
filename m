@@ -1,44 +1,82 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6880FrT011495
-	for <selinux@tycho.nsa.gov>; Thu, 8 Jul 2004 04:00:15 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6880CEg023226
-	for <selinux@tycho.nsa.gov>; Thu, 8 Jul 2004 08:00:13 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6895ErT011741
+	for <selinux@tycho.nsa.gov>; Thu, 8 Jul 2004 05:05:14 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6894r5G025025
+	for <selinux@tycho.nsa.gov>; Thu, 8 Jul 2004 09:04:54 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 373B861C9C
+	for <selinux@tycho.nsa.gov>; Thu,  8 Jul 2004 19:05:11 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 09497-08 for <selinux@tycho.nsa.gov>;
+	Thu, 8 Jul 2004 19:05:11 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id D740B61BD2
+	for <selinux@tycho.nsa.gov>; Thu,  8 Jul 2004 19:05:10 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 4F22BB59AD
+	for <selinux@tycho.nsa.gov>; Thu,  8 Jul 2004 19:05:09 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: cifs_t
-Date: Thu, 8 Jul 2004 18:00:09 +1000
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200407052352.53439.russell@coker.com.au> <1089224292.1774.160.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1089224292.1774.160.camel@moss-spartans.epoch.ncsc.mil>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: userhelper_t vs sysadm_userhelper_t
+Date: Thu, 8 Jul 2004 19:05:08 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200407081800.09919.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_E5Q7A6GnsYKRaNV"
+Message-Id: <200407081905.08774.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 8 Jul 2004 04:18, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
-> Looking at the CVS tree, it appears that it was changed from cifs_t to
-> sambafs_t on 5/4/2004, as part of a merge of a policy diff from Fedora.
-> cifs_t was retained as an alias for compatibility, IIRC.
 
-It seems that this was a mistake.
+--Boundary-00=_E5Q7A6GnsYKRaNV
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-In 2.6.7 the kernel module is cifs.ko, the /proc/filesystems entry is cifs, 
-and there is no mention of sambafs.  The correct thing to do is to make 
-cifs_t the type name and sambafs_t the alias.
-
-The next thing we should do is think about when we will remove the old 
-aliases.  I suggest that every typealias that is in the Fedora Core 2 policy 
-can be removed before FC3 without hurting anyone.
+I think that as much as possible the policy should refer to the real 
+domain/type names not aliases.  The attached patch fixes this for 
+userhelper_t.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
+--Boundary-00=_E5Q7A6GnsYKRaNV
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
+
+diff -ru /usr/src/se/policy/constraints ./constraints
+--- /usr/src/se/policy/constraints	2004-05-12 05:10:28.000000000 +1000
++++ ./constraints	2004-07-08 13:30:09.000000000 +1000
+@@ -39,7 +39,7 @@
+          or (t1 == crond_t and t2 == user_crond_domain)
+ ')
+ ifdef(`userhelper.te', 
+-	`or (t1 == userhelper_t)')
++	`or (t1 == sysadm_userhelper_t)')
+ 	 or (t1 == priv_system_role and u2 == system_u )
+         );
+ 
+@@ -49,7 +49,7 @@
+          or (t1 == crond_t and t2 == user_crond_domain)
+ ')
+ ifdef(`userhelper.te', 
+-	`or (t1 == userhelper_t)')
++	`or (t1 == sysadm_userhelper_t)')
+ 	 or (t1 == priv_system_role and r2 == system_r )
+         );
+ 
+
+--Boundary-00=_E5Q7A6GnsYKRaNV--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
