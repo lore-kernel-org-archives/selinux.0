@@ -1,61 +1,60 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hA8JNfSf028830
-	for <selinux@tycho.nsa.gov>; Sat, 8 Nov 2003 14:23:42 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hA8JNeKl027434
-	for <selinux@tycho.nsa.gov>; Sat, 8 Nov 2003 19:23:40 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hA8JNc5m027431 for <selinux@tycho.nsa.gov>; Sat, 8 Nov 2003 19:23:39 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id 3011A61BA9
-	for <selinux@tycho.nsa.gov>; Sun,  9 Nov 2003 05:22:17 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
- by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
- id 17024-05 for <selinux@tycho.nsa.gov>;
- Sun,  9 Nov 2003 05:22:16 +1100 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by ns.sws.net.au (Postfix) with ESMTP id CAA3461BA7
-	for <selinux@tycho.nsa.gov>; Sun,  9 Nov 2003 05:22:16 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id C32089260A
-	for <selinux@tycho.nsa.gov>; Wed,  5 Nov 2003 08:03:07 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 7BC5D7F004
-	for <selinux@tycho.nsa.gov>; Wed,  5 Nov 2003 07:57:55 +1100 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: insmod
-Date: Wed, 5 Nov 2003 07:57:54 +1100
+To: Stephen Smalley <sds@epoch.ncsc.mil>, sMoTo <smoto@gmx.de>
+Subject: Re: Question concerning proftpd exploit
+Date: Fri, 7 Nov 2003 06:22:19 +1100
+Cc: SELinux@tycho.nsa.gov
+References: <000001c3a463$6d510650$02000a0a@lady> <1068128153.4355.28.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1068128153.4355.28.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200311050757.54690.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200311070622.19614.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We have been discussing some potential changes to make insmod work better with 
-SE Linux.
+On Fri, 7 Nov 2003 01:15, Stephen Smalley wrote:
+> On Thu, 2003-11-06 at 07:42, sMoTo wrote:
+> > The open source proof of concept exploit code gains a root shell on my
+> > Red Hat 8.0 System without running in enforcing mode. I ran the system
+> > with a maintenance kernel. If I would switch to enforcing mode, what
+> > would happen? Does the exploit gain a root shell with privileges
+> > system_u:system_r:ftp_t? Is this possible?
+>
+> Yes.  The exploit would be limited to the permissions granted to ftpd_t
+> in the SELinux policy.  And, since there are no transitions granted
+> out of ftpd_t, there is no possibility of privilege escalation beyond
+> those permissions.
+>
+> If you wanted to prevent the exploit from even executing a shell (or
+> other programs), you could remove the corresponding can_exec rules from
+> ftpd.te.  Note that some of those rules are simply to allow re-use of
+> the ftpd_t domain for the proftpd cron script.  That approach was
+> introduced by Russell Coker, but I'd like to see a separate domain
+> defined for such cron scripts rather than re-using the daemon domain, as
+> it reduces our ability to tightly control code execution by the daemon
+> and to truly limit it to least privilege.
 
-Insmod runs with the security domain insmod_t, and so does the initialisation 
-phase of the kernel code it runs.  When kernel code is blocked by SE Linux 
-the usual result is an Oops (buggy code, but even if it handles the error 
-correctly it won't be operational unless access is granted).  To prevent 
-Oopsen and modules failing to operate we need to either have the code always 
-run in kernel_t by having the process that loads the module be in kernel_t or 
-we have to give insmod_t the same access as kernel_t (which essentially means 
-running the insmod program in kernel_t).
+One current issue with ftpd and many other domains is that they can read
+/etc/shadow to authenticate users.  I have been working on PAM modules to use 
+helper programs to authenticate users such that ftpd and other programs never 
+need direct access to /etc/shadow.
 
-So it seems that we need have insmod run in kernel_t and have modprobe run in 
-it's own domain modprobe_t.
+So with policy changes to match only the following domains need direct access 
+to /etc/shadow:
 
-This means that we can't have insmod and modprobe be the same binary.
+sysadm_chkpwd_t user_chkpwd_t staff_chkpwd_t system_chkpwd_t
+sysadm_passwd_t passwd_t backup_t quota_t setfiles_t useradd_t
+groupadd_t
+
+When I fix the checkquota program quota_t won't need such access.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
+
 
 
 --
