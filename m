@@ -1,47 +1,56 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Colin Walters <walters@redhat.com>
-Subject: Re: chfn/passwd
-Date: Sun, 25 Apr 2004 22:24:16 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <4088d1b8.2a5.1877.956371590@internode.on.net> <1082727010.6575.3.camel@nexus.verbum.private>
-In-Reply-To: <1082727010.6575.3.camel@nexus.verbum.private>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3PEvKRb017028
+	for <selinux@tycho.nsa.gov>; Sun, 25 Apr 2004 10:57:20 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i3PEvJdi019247
+	for <selinux@tycho.nsa.gov>; Sun, 25 Apr 2004 14:57:19 GMT
+Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
+        by jazzband.ncsc.mil  with ESMTP id i3PEvFJP019244 for <selinux@tycho.nsa.gov>; Sun, 25 Apr 2004 14:57:19 GMT
+From: "Ed Street" <edstreet@street-tek.com>
+To: <russell@coker.com.au>
+Cc: <selinux@tycho.nsa.gov>
+Subject: RE: sshd, devpts, unix_chkpwd
+Date: Sun, 25 Apr 2004 10:57:02 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200404252224.16624.russell@coker.com.au>
+	charset="Windows-1252"
+In-Reply-To: <200404251359.10230.russell@coker.com.au>
+Message-Id: <20040425145703.6C4ED3A404F@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 23 Apr 2004 23:30, Colin Walters <walters@redhat.com> wrote:
-> On Fri, 2004-04-23 at 04:20, keen@internode.on.net wrote:
-> > Hi, I am running the December release on a 2.6.2 kernel on a
-> > FC1. I have realised normal users could not change their
-> > finger name as well as changing password under enforcement
-> > mode.
->
-> I remember fixing a bug like this in the FC2 policy a few weeks ago,
-> maybe it was also in the upstream policy.  After mining my email a bit,
-> here's the patch I came up with at the time.  Not sure if you're running
-> into the same problem, you'd need to post the exact AVC messages.
+Hello,
 
-The original chfn policy was written when we used the "spasswd" wrapper 
-for /bin/passwd.  At that time there was no code called by chfn etc to set 
-types, so the chfn policy just defined automatic type transitions (which 
-resulted in the identity of the user in question being assigned 
-to /etc/passwd - so anyone could see who last changed their finger name).  
-Now that we have PAM code to relabel /etc/passwd (necessary to remove the 
-spasswd wrapper) we need privowner so that it can change the identity 
-of /etc/passwd.  Lack of this access should result in chfn failing when it 
-calls setfscreatecon().
+How about some type of wrapper that would force passwd (and other programs)
+to run in a specific domain instead of doing mods to the programs itself?
 
-I guess that no-one had tested chfn since the time of spasswd.  ;)
+As for ssh 3.8 under debian I had to add the following line for user logins
+to occur correctly.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+#ssh 3.8 stuff
+allow staff_t sshd_devpts_t:chr_file { read write ioctl };
+
+Ed
+
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+Behalf Of Russell Coker
+Sent: Saturday, April 24, 2004 11:59 PM
+To: mizu
+Cc: selinux@tycho.nsa.gov
+Subject: Re: sshd, devpts, unix_chkpwd
+
+That is a bug in the pam package for Debian.  Fixing it is on my to-do list,
+
+in the mean time putting in a dontaudit rule to stop that will be OK.
+
+
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.662 / Virus Database: 425 - Release Date: 4/20/2004
+ 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
