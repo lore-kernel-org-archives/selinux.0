@@ -1,53 +1,39 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72FtirT013730
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 11:55:44 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i72Ft3XV029948
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 15:55:10 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i72GAPrT013884
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 12:10:26 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i72GAMKV016798
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 16:10:23 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Ian Campbell <ijc@hellion.org.uk>
-Subject: Re: selinux-policy-default 1.14 is missing _stacks_ of stuff
-Date: Tue, 3 Aug 2004 01:55:16 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040801103252.GC7384@lkcl.net> <200408022323.48941.russell@coker.com.au> <1091459400.23582.83.camel@icampbell-debian>
-In-Reply-To: <1091459400.23582.83.camel@icampbell-debian>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: /etc/qt3/.qt*
+Date: Tue, 3 Aug 2004 02:10:20 +1000
+Cc: Erich Schubert <erich@debian.org>, SE-Linux <selinux@tycho.nsa.gov>
+References: <20040801194006.GF20103@lkcl.net> <1091391553.7861.17.camel@wintermute.xmldesign.de> <20040802144542.GC4194@lkcl.net>
+In-Reply-To: <20040802144542.GC4194@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200408030155.16121.russell@coker.com.au>
+Message-Id: <200408030210.20528.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 3 Aug 2004 01:10, Ian Campbell <ijc@hellion.org.uk> wrote:
-> > This means that you do it in the Debian way.  You install a package that
-> > supplies what you want to do.
-> >
-> > Having two conflicting packages installed at once is not the Debian way.
+On Tue, 3 Aug 2004 00:45, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > I don't have a /etc/qt3. And if i had it, it certainly would be mode
+> > 0755, so no user can write there (and i don't think running qt apps as
+> > root is a good idea) - something must be wrong with your setup.
 >
-> I appreciate that this is true for some packages, MTAs being the prime
-> example. But what about packages that use the alternatives system --
-> they do not conflict with each other even though they supply "the same
-> thing".
+>  this is very strange.
+>
+>  it's kde 3.2.2, bog-standard.
+>
+>  and it's root that's trying to write there (xdm_t and xdm_server_t).
 
-This is true for cases such as nvi vs vim.  You can install both nvi and vim 
-on the same system, some users will prefer one and configure their account 
-(by putting an alias in ~/.bash_profile or similar) for their preferred 
-editor.  Some users won't really care because they use so few features that 
-both nvi and vim are the same to them, they can just run "vi" and get 
-whichever it's linked to.
+xdm_t is for kdm as I previously mentioned.
 
-SE Linux policy is quite different.  Turning off SE Linux enforcement, 
-relabelling all file systems, rm'ing files from /tmp and /var/tmp, rebooting, 
-and maybe having to unlink some temporary files that were created during the 
-shutdown process is quite a serious and significant operation.
-
-I might say to myself "hey I think I'll try a different vi today", but the 
-decision to change to a different SE Linux policy is much more significant.
-
-When someone else packages a SE Linux policy for Debian we can review this.  I 
-think that I have done a decent job of planning for multiple policies over 
-the last 3 years even though there has only been one policy in Debian.  ;)
+Is xdm_xserver_t (the X server domain) REALLY trying to write to those files?  
+Or is it just inheriting open file handles from kdm?
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
