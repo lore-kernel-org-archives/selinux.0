@@ -1,40 +1,46 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71CUcrT006719
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 08:30:38 -0400 (EDT)
-Received: from smtp802.mail.ukl.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id i71CU552021063
-	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 12:30:05 GMT
-Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.152.10.162 with poptime)
-  by smtp802.mail.ukl.yahoo.com with SMTP; 1 Aug 2004 12:30:36 -0000
-Received: from highfield ([192.168.0.223] helo=lkcl.net)
-	by hyd with esmtp (Exim 4.34)
-	id 1BrF0N-0002Df-OP
-	for selinux@tycho.nsa.gov; Sun, 01 Aug 2004 11:59:55 +0000
-Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1BrFek-0003zW-Ha
-	for selinux@tycho.nsa.gov; Sun, 01 Aug 2004 13:41:38 +0100
-Date: Sun, 1 Aug 2004 13:41:38 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: lkm rootkitted, or issue with selinux 2.6.7 kernel?
-Message-ID: <20040801124138.GA15205@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i71CsLrT006829
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 08:54:21 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i71Crl52021416
+	for <selinux@tycho.nsa.gov>; Sun, 1 Aug 2004 12:53:48 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: selinux-policy-default 1.14 is missing _stacks_ of stuff
+Date: Sun, 1 Aug 2004 22:54:15 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20040801103252.GC7384@lkcl.net>
+In-Reply-To: <20040801103252.GC7384@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200408012254.15553.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hello, hello,
+On Sun, 1 Aug 2004 20:32, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> there appears to be quite a lot of things missing from the
+> debian selinux-policy-default package.
+>
+> - the appconfig directory
+> - the targeted directory
+> - the strict directory.
 
-i have a slight situation with the fireflier and mysql packages:
-their use results in chkrootkit's lkm (linux kernel module) test
-showing a warning.
+There is no support for targeted in Debian, only strict and it has the 
+directory name "." .
 
-what i wondered was has anyone _else_ seen this issue, on debian/unstable,
-with a 2.6.7 kernel.
+> so, i can't use run_init because targeted/contexts/initrc_context
+> doesn't exist.
 
-ta,
+Your /etc/selinux/config file should have the following line:
+SELINUXTYPE=.
 
-l.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
