@@ -1,47 +1,39 @@
-Date: Thu, 29 Mar 2001 08:43:02 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: gawain.lynch@felicity-consulting.com.au
-cc: SELinux@tycho.nsa.gov
-Subject: Re: Problem in installation...
-In-Reply-To: <OF47CED767.27D7E95D-ONCA256A1D.007D6A98@felicity.net.au>
-Message-ID: <Pine.SOL.3.95.1010329082932.17401C-100000@clipper.gw.tislabs.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA04448
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 09:54:51 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id OAA19308
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 14:54:37 GMT
+Received: from e1.ny.us.ibm.com (e1.ny.us.ibm.com [32.97.182.101])
+	by jazzswing.ncsc.mil  with ESMTP id OAA19304
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 14:54:36 GMT
+Received: from northrelay02.pok.ibm.com (northrelay02.pok.ibm.com [9.117.200.22])
+	by e1.ny.us.ibm.com (8.9.3/8.9.3) with ESMTP id JAA80952
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 09:53:30 -0500
+Received: from d01ml244.pok.ibm.com (d01ml244.pok.ibm.com [9.117.200.44])
+	by northrelay02.pok.ibm.com (8.8.8m3/NCO v4.95) with ESMTP id JAA42166
+	for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2001 09:50:24 -0500
+Subject: error while building initial policy
+To: selinux@tycho.nsa.gov
+Message-ID: <OF063C958F.83A691A3-ON85256A1E.00515858@pok.ibm.com>
+From: "Rajan Ravindran" <rajancr@us.ibm.com>
+Date: Thu, 29 Mar 2001 09:54:46 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I had a problem while building initial policy (make initpolicy)
+on Redhat 7.0. The error it showed was
+---------------------------------------------------------------------------------------------
+error: unknown class file system used in rule.
+../kernel/security/checkpolicy: error(s) encountered
+while parsing configuration.
+make: *** [initpolicy] error 1
+--------------------------------------------------------------------------------------------
+Do I need to modify anything in my file system policy file?
 
-People also had compiler problems with the older 2.2-based 
-SELinux release on RedHat 7, but were able to address them
-by using kgcc or by upgrading their gcc to the latest version.  
-See the thread starting at 
-http://www.nsa.gov/selinux/list-archive/0232.html.
-However, it seemed like at least some of the problems
-were due to using 2.2-based kernel sources rather than
-2.4-based sources, so I'm not sure why there would
-still be problems with the new release.
-
---
-Stephen D. Smalley, NAI Labs
-sds@tislabs.com
-
-
-On Thu, 29 Mar 2001 gawain.lynch@felicity-consulting.com.au wrote:
-
-> I tracked one of the problems down.  A lot of people, myself included seem 
-> to be trying to compile with Red Hat 7. 
-> 
-> The RH7 install is missing egcs (provides 
-> /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/), which I installed off 
-> my RH6.2 CD, _reinstalled_ the updated gcc and no more stddef.h error!
-> 
-> I still can't give anymore reasons as to the tools/build-kernel script 
-> fails, but it will work if you have run make dep and commented that action 
-> out of the script.
-> 
-> Cheers,
-> 
-> Gawain
+Rajan
 
 
 --
