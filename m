@@ -1,125 +1,58 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4LG3URb028098
-	for <selinux@tycho.nsa.gov>; Fri, 21 May 2004 12:03:30 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4LG0lB2014934
-	for <selinux@tycho.nsa.gov>; Fri, 21 May 2004 16:00:48 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i4LG0lwi014931
-	for <selinux@tycho.nsa.gov>; Fri, 21 May 2004 16:00:47 GMT
-Subject: [PATCH][RFC] Allow administrator control over per-user
-	default_contexts
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Russell Coker <russell@coker.com.au>,
-   selinux-dev@tresys.com
-Content-Type: multipart/mixed; boundary="=-CKTHsssm7ioHuql6JbDa"
-Message-Id: <1085155374.2789.131.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4LHnERb028857
+	for <selinux@tycho.nsa.gov>; Fri, 21 May 2004 13:49:15 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i4LHnBAT000899
+	for <selinux@tycho.nsa.gov>; Fri, 21 May 2004 17:49:12 GMT
+Message-Id: <200405211749.i4LHnA2f025443@turing-police.cc.vt.edu>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: K Vikram <vikramatiitkdotacdotin@yahoo.com>,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Loadable Policy Modules and a Generic MAC Policy Language 
+In-Reply-To: Your message of "Fri, 21 May 2004 08:37:22 EDT."
+             <1085143042.2789.12.camel@moss-spartans.epoch.ncsc.mil>
+From: Valdis.Kletnieks@vt.edu
+References: <20040521035145.81148.qmail@web41013.mail.yahoo.com>
+            <1085143042.2789.12.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Fri, 21 May 2004 12:02:55 -0400
+Content-Type: multipart/signed; boundary="==_Exmh_-795893628P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 21 May 2004 13:49:10 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--==_Exmh_-795893628P
+Content-Type: text/plain; charset=us-ascii
 
---=-CKTHsssm7ioHuql6JbDa
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Fri, 21 May 2004 08:37:22 EDT, Stephen Smalley said:
+> On Thu, 2004-05-20 at 23:51, K Vikram wrote:
+>> Other than kernel code, relevant patches to userspace programs such as
+>> login, init, setfiles, etc. and loadable kernel modules for Biba, BLP
+>> and Lipner models are also included. These patches were required to
+>> fully implement and use the above mechanisms. 
+> This seems worrisome.  The SELinux/Flask architecture was designed to
+> support policy flexibility, so further patching of those programs
+> shouldn't be necessary, aside from allowing selection of new fields in
+> pam_selinux.  Most applications should be fine, as the security context
+> is already encapsulated.
 
-Hi,
+Could K Vikram explain what pieces needed to be added in userspace
+to support Biba, BLP, and Lipner (or actually, what additional info/etc
+needed to be dealt with)?  Or was the MLS support what he was looking for?
 
-A Fedora user expressed a desire to be able to have the administrator
-control the per-user default_contexts configuration rather than allowing
-users to specify their own prioritization via $HOME/.default_contexts.
-This patch implements such support by changing libselinux to check for
-the existence of an /etc/security/default_contexts.user directory.  If
-the directory is present, then libselinux will check for a file named by
-the username in that directory and use that file if it exists for any
-per-user default_contexts ordering.  Only if the directory is not
-present will libselinux check for $HOME/.default_contexts and use it. 
-Thus, an administrator can simply create the directory to prohibit any
-use of $HOME/.default_contexts and can then optionally chose to create
-per-user configurations under it if desired.
+--==_Exmh_-795893628P
+Content-Type: application/pgp-signature
 
-Note that the use of $HOME/.default_contexts has never been well
-supported by policy, as login/sshd typically lack permission to read
-user home directory files and a separate type was never introduced for
-per-user default_contexts.  While Fedora Core 2 is using a
-/root/.default_contexts file, that is naturally administratively
-controlled and labeled with default_context_t so that it can be accessed
-by login/sshd.  But if we truly wanted to allow ordinary users to create
-their own $HOME/.default_contexts files, we would need a separate type
-for this purpose, e.g. $1_default_context_t for each user domain, allow
-the user domains to create/relabel such files, and allow login/sshd to
-read such files.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Questions:
+iD8DBQFArkEWcC3lWbTT17ARAmwSAKCYGWxWgIIJi8an8wl6OkpuuQrQXwCbBI77
+S9tpTxOQ1nz0KuGDsCl+0IA=
+=Hx/A
+-----END PGP SIGNATURE-----
 
-- Does this change seem reasonable?
-
-- Should the policy include support for the $HOME/.default_contexts
-files for ordinary users?
-
-- Should Fedora transition to using
-/etc/security/default_contexts.user/root instead of
-/root/.default_contexts, thus prohibiting use of $HOME/.default_contexts
-by default?  Administrators who want to allow $HOME/.default_contexts
-would then need to copy the root entry to /root/.default_contexts and
-remove the directory to enable such support.
-
-- Should the support for $HOME/.default_contexts be retained at all?
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
---=-CKTHsssm7ioHuql6JbDa
-Content-Disposition: attachment; filename=libselinux-usercon.patch
-Content-Type: text/x-patch; name=libselinux-usercon.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: libselinux/include/selinux/get_context_list.h
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/include/selinux/get_context_list.h,v
-retrieving revision 1.3
-diff -u -r1.3 get_context_list.h
---- libselinux/include/selinux/get_context_list.h	6 Oct 2003 19:55:18 -0000	1.3
-+++ libselinux/include/selinux/get_context_list.h	21 May 2004 14:53:02 -0000
-@@ -4,6 +4,7 @@
- #include <selinux/selinux.h>
- 
- #define _DEFCONTEXT_PATH "/etc/security/default_contexts"
-+#define _DEFCONTEXT_USER_PATH "/etc/security/default_contexts.user"
- #define _FAILSAFECONTEXT_PATH "/etc/security/failsafe_context"
- #define SELINUX_DEFAULTUSER "user_u"
- 
-Index: libselinux/src/get_context_list.c
-===================================================================
-RCS file: /nfshome/pal/CVS/selinux-usr/libselinux/src/get_context_list.c,v
-retrieving revision 1.15
-diff -u -r1.15 get_context_list.c
---- libselinux/src/get_context_list.c	16 Apr 2004 19:22:24 -0000	1.15
-+++ libselinux/src/get_context_list.c	21 May 2004 14:59:45 -0000
-@@ -213,8 +213,15 @@
-     int retval;           /* The return value                          */
-     long buflen;
- 
--    if (which == USERPRIORITY)
--    {
-+    if (which == USERPRIORITY && access(_DEFCONTEXT_USER_PATH, F_OK) == 0) {
-+        fname_len = sizeof(_DEFCONTEXT_USER_PATH) + strlen(user) + 1;
-+        fname = malloc (fname_len);
-+        if (!fname) 
-+            return -1;
-+        sprintf (fname, "%s/%s", _DEFCONTEXT_USER_PATH, user);
-+        config_file = fopen (fname, "r");
-+	free (fname);
-+    } else if (which == USERPRIORITY) {
-         /* Get the password structure in order to find the home directory.
- 	   Use getpwnam_r to avoid clobbering any existing pwd struct obtained
- 	   by the caller. */
-
---=-CKTHsssm7ioHuql6JbDa--
-
+--==_Exmh_-795893628P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
