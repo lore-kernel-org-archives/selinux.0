@@ -1,46 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA8EdZIi015941
-	for <selinux@tycho.nsa.gov>; Mon, 8 Nov 2004 09:39:35 -0500 (EST)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA8Ec9C6008645
-	for <selinux@tycho.nsa.gov>; Mon, 8 Nov 2004 14:38:11 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA8EgKIi015986
+	for <selinux@tycho.nsa.gov>; Mon, 8 Nov 2004 09:42:20 -0500 (EST)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA8EgLDE027782
+	for <selinux@tycho.nsa.gov>; Mon, 8 Nov 2004 14:42:22 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Subject: Re: dynamic context transitions
-Date: Tue, 9 Nov 2004 01:39:23 +1100
-Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   Stephen Smalley <sds@epoch.ncsc.mil>,
+Date: Tue, 9 Nov 2004 01:42:16 +1100
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
+   James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
    "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
    Chad Hanson <chanson@TrustedCS.com>, samba-technical@samba.org,
    tng-technical@samba-tng.org
-References: <418662EE.5090001@trustedcs.com> <Xine.LNX.4.44.0411011508210.5409-100000@thoron.boston.redhat.com> <20041101203524.GJ9643@lkcl.net>
-In-Reply-To: <20041101203524.GJ9643@lkcl.net>
+References: <418662EE.5090001@trustedcs.com> <20041101203524.GJ9643@lkcl.net> <1099340721.21386.223.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1099340721.21386.223.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200411090139.24391.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200411090142.16657.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 02 November 2004 07:35, Luke Kenneth Casson Leighton 
-<lkcl@lkcl.net> wrote:
-> > Is there any reason why smbd can't exec a simple helper application in
-> > the required context which only does what needs to be done?
+On Tuesday 02 November 2004 07:25, Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+> >  the helper application opens files as-and-when they are needed,
+> >  [and also does mkdirs? and rmdirs?] and then passes the file
+> >  descriptor over a unix-domain-socket to the smbd process,
+> >  which NEVER itself does file opens under a user context.
+> >
+> >  i believe it then no longer becomes necessary for smbd to
+> >  call become_user().
 >
->  no there is no reason why [a helper application should] not [be used].
->
->  i am not sure if the simple solution [that andrew and russell
->  came up with] was fully enumerated: it involves exec'ing a
->  per-user helper application which does a setuid.
->
->  the helper application opens files as-and-when they are needed,
->  [and also does mkdirs? and rmdirs?] and then passes the file
+> Except that SELinux mediates access to file descriptors upon transfer
+> via local socket IPC as well as attempted use for read/write, so SELinux
+> is still going to apply a permission check to the parent smbd process in
+> that situation.  Not to mention that this no doubt has a significant
+> cost.
 
-Yes, it would also do mkdir, rmdir, link, unlink, rename, and symlink.  For 
-best functionality it would do stat, but that would have performance issues 
-or require file handle caching code which would be more work to write and 
-maintain.
+The cost is only for open, creat, link, symlink, unlink, mkdir, and rmdir 
+operations, which usually aren't that performance critical.  The few 
+applications for which such operations are performance critical (Maildir 
+format mail spool and old style INN news spool) are unlikely to be used over 
+SMB.
+
+As for allowing operations, the parent must be permitted to receive file 
+handles from the child and to have read/write access to all files that the 
+child processes may open.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
