@@ -1,59 +1,44 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA22823
-	for <selinux@tycho.nsa.gov>; Mon, 20 Jan 2003 20:56:30 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0L1uTI09401
-	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 01:56:29 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA26005
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 07:59:47 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id MAA14906
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 12:56:56 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id h0L1uRf09397 for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 01:56:28 GMT
+	by jazzswing.ncsc.mil  with ESMTP id MAA14902
+	for <selinux@tycho.nsa.gov>; Tue, 21 Jan 2003 12:56:54 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: forrest whitcher <fw@fwsystems.com>, selinux@tycho.nsa.gov
-Subject: Re: Root-only systems
-Date: Tue, 21 Jan 2003 02:56:08 +0100
-References: <200301180149.27476.russell@coker.com.au> <20030118044554.A19790@lemuria.org> <20030120193144.57cabd3e.fw@fwsystems.com>
-In-Reply-To: <20030120193144.57cabd3e.fw@fwsystems.com>
+To: selinux@tycho.nsa.gov
+Subject: box is back
+Date: Tue, 21 Jan 2003 13:59:35 +0100
+Cc: Don Marti <dmarti@zgp.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200301210256.08482.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200301211359.35581.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 21 Jan 2003 01:31, forrest whitcher wrote:
-> I'm actually trying to go the other direction, and remove some of the
-> Unix/Posix root concepts. Presently the lsm/selinux checks are run in
-> addition to the unix uid/gid checks, failing either can deny the
-> privelege.
->
-> As a strong tool is in place, why for instance do we still want to
-> require UID=0 to bind a low-number network port or access device
-> drivers etc?
+I have a new SE Linux play machine online.
+ssh -p 222 root@adsl.coker.com.au
+Password "1234"
 
-One really good reason is the way that SE Linux is deployed on running 
-servers.
+IRC channel is #selinux on irc.debian.org.
 
-If I have a running machine then I can't entirely rebuild it immediately, so I 
-install SE Linux in permissive mode, and apart from the potential of someone 
-typing "avc_toggle" at the wrong time it'll keep running as before.
+It's using the latest kernel patch (compiled with GCC 3.2) and policy.
 
-If we allow non-root to bind to low ports (for example) then permissive mode 
-would be significantly less secure than a non-SE machine.  If we don't allow 
-such operations in permissive mode then permissive and enforcing modes will 
-be functionally different.
+This time almost everything runs as root and almost all files and directories 
+are mode 777 (some daemons change things and I've installed a few new 
+packages that have resulted in some files with restrictive permissions).  
+It's difficult to keep everything mode 777, but the general aim is for SE 
+Linux to be the only security mechanism.
 
-Also once we have a system running in enforcing mode we know that if the SE 
-Linux policy fails us then we still have Unix permissions.  If we weaken the 
-standard Unix permissions then new users will not be granted the assurance of 
-"the worst security problem it can have is to run like a regular Unix 
-system".
+I plan to also change all daemons apart from sshd to not use other UIDs as 
+well, and change the spasswd wrapper to allow you to change your password.
 
-> Otoh, I expect the number of places where UID=0 checks have been
-> built into both the kernel and userspace tools may make practically
-> eliminating root from low-level operations a bit of a stretch.
-
-The issue of binding to low ports is not difficult to fix.  The other big one 
-is setuid(), the rest probably don't matter much.
+If anyone wants their own role so that they can avoid having lamers kill their 
+shell then let me know by private email.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
