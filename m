@@ -1,298 +1,53 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i841CjrT011726
-	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 21:12:45 -0400 (EDT)
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i841BsFY008768
-	for <selinux@tycho.nsa.gov>; Sat, 4 Sep 2004 01:11:54 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by localhost (Postfix) with ESMTP id 18826C4C09A
-	for <selinux@tycho.nsa.gov>; Sat,  4 Sep 2004 03:12:44 +0200 (CEST)
-Received: from legolas.drinsama.de ([127.0.0.1])
-	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
-	with SMTP id 22106-04 for <selinux@tycho.nsa.gov>;
-	Sat, 4 Sep 2004 03:12:42 +0200 (CEST)
-Received: from wintermute.xmldesign.de (pD9E4FADC.dip.t-dialin.net [217.228.250.220])
-	by legolas.drinsama.de (Postfix) with ESMTP id 3591BC4C08E
-	for <selinux@tycho.nsa.gov>; Sat,  4 Sep 2004 03:12:41 +0200 (CEST)
-Received: from [127.0.0.1] (wintermute.xmldesign.de [127.0.0.1])
-	by wintermute.xmldesign.de (Postfix) with ESMTP id 441E04880C8
-	for <selinux@tycho.nsa.gov>; Sat,  4 Sep 2004 03:12:38 +0200 (CEST)
-Subject: Additional rule files
-From: Erich Schubert <erich@debian.org>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qALoRB1poXvvL9JhDzFL"
-Date: Sat, 04 Sep 2004 03:12:36 +0200
-Message-Id: <1094260356.29689.44.camel@wintermute.xmldesign.de>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i842Y9rT012063
+	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 22:34:09 -0400 (EDT)
+Received: from europa.lunarpages.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i842Y7UQ007681
+	for <selinux@tycho.nsa.gov>; Sat, 4 Sep 2004 02:34:08 GMT
+Received: from adsl-65-43-161-171.dsl.bcvloh.ameritech.net ([65.43.161.171] helo=[10.0.0.26])
+	by europa.lunarpages.com with asmtp (Exim 4.34)
+	id 1C3QLm-00062w-Bp
+	for selinux@tycho.nsa.gov; Fri, 03 Sep 2004 19:32:22 -0700
+Subject: Guide to replace root as sysadm for machine
+From: Stephen torri <storri@torri.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Message-Id: <1094265263.8562.24.camel@base.torri.org>
 Mime-Version: 1.0
+Date: Fri, 03 Sep 2004 22:34:23 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I am stumbling my way through using a non-root user as the sysadm for
+the computer. Is there any advice on this?
 
---=-qALoRB1poXvvL9JhDzFL
-Content-Type: multipart/mixed; boundary="=-j6SLT83XK8XfR5utR5O5"
+My goal is to have a non-root user able to do the following on my Gentoo
+box:
 
+< User: storri - in sysadm_r (or whatever is appropriate) >
+- emerge rsync
+- emerge -av --deep world (or any package)
 
---=-j6SLT83XK8XfR5utR5O5
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+< User: storri - in user_r >
+- compile source code in home directory.
 
-Attached is a set of additional rule files.
-No diffs, because there are no rules yet in CVS for these.
+I figured I would start small. So far I am a bit stuck on getting the
+user sorted out. I figure that have a goal, two non-root users able to
+do normally 'root' actions I would be on my way to learning how to
+configure selinux.
 
-First there are rule files for pptpd (poptop).
+So far I have added storri to the /etc/security/selinux/src/policy/user
+with the following:
 
-The next two rule sets are for the statistic tools "bindgraph" and
-"mailgraph". The first parses bind query logs and does nice graphs out
-of them, the second does the same for postfix+amavis logs.
+user storri roles { user_r sysadm_r };
 
-Fourth rule set if for using the "fnord" web server with "tcpsvd"
-(of the ipsvd package. very lightweight.)
-I'd suggest only including this rule file in some "examples" section,
-since you'll most probably need to adopt it to your wishes. For example
-i havn't set up logging with this fnord installation, so no multilog
-things are included (that would kind of require running it with
-runit/minit/daemontools or such, which i am not)
+Beyond this would I need to change the normal 'user' and 'group'
+ownership for those directories touched by the emerge application?
 
-But when writing this rule i encountered a small problem with current
-policy WRT web files: it's very apache-centric.
+Stephen
 
-For example the /var/www directory is only labeled when apache is
-defined. Even the http_port_t is only used when apache is there.
-IMHO these web-server-general things should be put into a web-server
-domain. Maybe (except for the setuid/setgid/chroot part) i could even
-use this generic web server domain for fnord, too.
-But at least the general types for web files, cgi, ports should be
-separated from the apache stuff.
-
-
-Greetings,
-Erich Schubert
---=20
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
- A man doesn't know what he knows until he knows what he doesn't know. //\
-   Wie kann ich wissen, was ich denke, bevor ich h=F6re, was ich sage.   V_=
-/_
-
---=-j6SLT83XK8XfR5utR5O5
-Content-Disposition: attachment; filename=bindgraph.fc
-Content-Type: text/plain; name=bindgraph.fc; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-IyBiaW5kZ3JhcGgNCi92YXIvbGliL2JpbmRncmFwaCgvLiopPwlzeXN0ZW1fdTpvYmplY3Rfcjpi
-aW5kZ3JhcGhfbGliX3QNCi91c3Ivc2Jpbi9iaW5kZ3JhcGgucGwJLS0Jc3lzdGVtX3U6b2JqZWN0
-X3I6YmluZGdyYXBoX2V4ZWNfdA0KL3Vzci9saWIvY2dpLWJpbi9iaW5kZ3JhcGguY2dpCS0tCXN5
-c3RlbV91Om9iamVjdF9yOmJpbmRncmFwaF9jZ2lfZXhlY190DQovdmFyL3J1bi9iaW5kZ3JhcGhc
-LnBpZAkJc3lzdGVtX3U6b2JqZWN0X3I6YmluZGdyYXBoX3Zhcl9ydW5fdA0KL3Zhci9jYWNoZS9i
-aW5kZ3JhcGgoLy4qKT8Jc3lzdGVtX3U6b2JqZWN0X3I6YmluZGdyYXBoX2NhY2hlX3QNCg==
-
-
---=-j6SLT83XK8XfR5utR5O5
-Content-Disposition: attachment; filename=bindgraph.te
-Content-Type: text/plain; name=bindgraph.te; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-I0RFU0MgQklOREdSQVBIIC0gYmluZCBzdGF0aXN0aWNzIGdyYXBoIHRvb2wNCiMgQXV0aG9yczog
-IEVyaWNoIFNjaHViZXJ0IDxlcmljaEBkZWJpYW4ub3JnPg0KIyBYLURlYmlhbi1QYWNrYWdlczog
-YmluZGdyYXBoDQojDQoNCmRhZW1vbl9kb21haW4oYmluZGdyYXBoKQ0KZGFlbW9uX2RvbWFpbihi
-aW5kZ3JhcGhfY2dpKQ0KIyBsaWIgaXMgZm9yIHRoZSBSUkQgZmlsZXMgKGRhdGEgZ2F0aGVyZWQp
-DQp0eXBlIGJpbmRncmFwaF9saWJfdCwgZmlsZV90eXBlLCBzeXNhZG1maWxlOw0KIyB0aGUgY2Fj
-aGUgaXMgc3RvcmluZyBnZW5lcmF0ZWQgaW1hZ2VzDQp0eXBlIGJpbmRncmFwaF9jYWNoZV90LCBm
-aWxlX3R5cGUsIHN5c2FkbWZpbGU7DQoNCiMgc3RhcnRlZCBieSBpbml0cmNfdA0KZG9tYWluX2F1
-dG9fdHJhbnMoaW5pdHJjX3QsIGJpbmRncmFwaF9leGVjX3QsIGJpbmRncmFwaF90KQ0KIyBtYXli
-ZSB0aGUgc2FtZSBwaWQgZmlsZSByZW1vdmFsIHJ1bGUgaXMgbmVlZGVkIGFzIGZvciBtYWlsZ3Jh
-cGg/DQoNCiMgcmVhZCBsb2cgZmlsZXMNCnJfZGlyX2ZpbGUoYmluZGdyYXBoX3QsIHZhcl9sb2df
-dCkNCg0KIyB3cml0ZSBvd24gbGliIGZpbGVzIChSUkQgZmlsZXMpDQphbGxvdyBiaW5kZ3JhcGhf
-dCB2YXJfbGliX3Q6ZGlyIHNlYXJjaDsNCmNyZWF0ZV9kaXJfZmlsZShiaW5kZ3JhcGhfdCwgYmlu
-ZGdyYXBoX2xpYl90KQ0KIyB0aGUgY2dpIG1heSBvbmx5IHJlYWQgdGhlIFJSRCBmaWxlcw0Kcl9k
-aXJfZmlsZShiaW5kZ3JhcGhfY2dpX3QsIGJpbmRncmFwaF9saWJfdCkNCg0KIyBjZ2kgY2FuIHdy
-aXRlIGluIGNhY2hlDQpjcmVhdGVfZGlyX2ZpbGUoYmluZGdyYXBoX2NnaV90LCBiaW5kZ3JhcGhf
-Y2FjaGVfdCkNCmFsbG93IGJpbmRncmFwaF9jZ2lfdCB2YXJfbGliX3Q6ZGlyIHNlYXJjaDsNCg0K
-IyBwZXJsIGJlaGF2aW91cg0KYWxsb3cgeyBiaW5kZ3JhcGhfdCBiaW5kZ3JhcGhfY2dpX3QgfSB7
-IGJpbl90IHNiaW5fdCB9OmRpciB7IHNlYXJjaCBnZXRhdHRyIH07DQpyX2Rpcl9maWxlKHsgYmlu
-ZGdyYXBoX3QgYmluZGdyYXBoX2NnaV90IH0sIHVzcl90KQ0KYWxsb3cgeyBiaW5kZ3JhcGhfdCBi
-aW5kZ3JhcGhfY2dpX3QgfSB7IHJhbmRvbV9kZXZpY2VfdCB1cmFuZG9tX2RldmljZV90IH06Y2hy
-X2ZpbGUgcmVhZDsNCg0KIyBjZ2kgY2FuIGJlIGV4ZWN1dGVkIGJ5IHdlYiBzZXJ2ZXJzDQojIHRo
-aXMgaXMgdGhlIGV4ZWN1dGlvbiBydWxlIGZvciBmbm9yZA0KaWZkZWYoYGZub3JkLXRjcHN2ZC50
-ZScsIGANCmNhbl9leGVjX2FueShodHRwX3JlcXVlc3RfdCkNCmRvbWFpbl9hdXRvX3RyYW5zKGh0
-dHBfcmVxdWVzdF90LCBiaW5kZ3JhcGhfY2dpX2V4ZWNfdCwgYmluZGdyYXBoX2NnaV90KQ0KYWxs
-b3cgYmluZGdyYXBoX2NnaV90IHRjcHN2ZF9mbm9yZF90OmZkIHVzZTsNCmFsbG93IGJpbmRncmFw
-aF9jZ2lfdCBodHRwX3JlcXVlc3RfdDpmaWZvX2ZpbGUgeyByZWFkIHdyaXRlIH07DQpyX2Rpcl9m
-aWxlKGJpbmRncmFwaF9jZ2lfdCwgaHR0cGRfc3lzX2NvbnRlbnRfdCkNCicpDQo=
-
-
---=-j6SLT83XK8XfR5utR5O5
-Content-Disposition: attachment; filename=fnord-tcpsvd.fc
-Content-Type: text/plain; name=fnord-tcpsvd.fc; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-IyB3ZWIgZmlsZXMNCiMgdGhpcyBpcyBtb3N0bHkgYSBsb2NhbCB0aGluZywgYnV0IGkgYmVsaWV2
-ZSB0aGUgc2FtZSBhcyBhcGFjaGUuZmMgdXNlcz8NCi92YXIvd3d3KC8uKik/CQkJc3lzdGVtX3U6
-b2JqZWN0X3I6aHR0cGRfc3lzX2NvbnRlbnRfdA0KDQojIGFnYWluLCB0aGUgcGlkIGZpbGUgaXMg
-YSBsb2NhbCB0aGluZywgZGVwZW5kYW50IG9uIHRoZSBzdGFydHVwIHNjcmlwdA0KIyBidXQgdGhl
-cmUgaXMgbm8gZGVmYXVsdCBzdGFydHVwIHNjcmlwdCwgbm90IGV2ZW4gYW4gZXhhbXBsZQ0KIyBp
-bmNsdWRlZCBpbiB0aGUgZGViaWFuIHBhY2thZ2UuDQovdmFyL3J1bi9mbm9yZC10Y3BzdmQucGlk
-CXN5c3RlbV91Om9iamVjdF9yOnRjcHN2ZF9mbm9yZF92YXJfcnVuX3QNCg==
-
-
---=-j6SLT83XK8XfR5utR5O5
-Content-Disposition: attachment; filename=fnord-tcpsvd.te
-Content-Type: text/plain; name=fnord-tcpsvd.te; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-I0RFU0MgdGNwc3ZkIGFuZCBmbm9yZCAtIHRpbnkgYW5kIGZhc3Qgd2ViIHNlcnZlcg0KIw0KIyBB
-dXRob3JzOiAgRXJpY2ggU2NodWJlcnQgPGVyaWNoQGRlYmlhbi5vcmc+DQojIFgtRGViaWFuLVBh
-Y2thZ2VzOiBpcHN2ZCBmbm9yZA0KIw0KDQojIHRoZSBodHRwIHBvcnQgaXRzZWxmDQojIGhhZCB0
-byByZWRlZmluZSBpdCwgYmVjYXVzZSBpdCBpcyBpbiB0aGUgYXBhY2hlLnRlIGZpbGUNCiMgd2hp
-Y2ggaSBkbyBub3QgdXNlLg0KdHlwZSBodHRwX3BvcnRfdCwgcG9ydF90eXBlOw0KDQojIHRoZSB3
-ZWIgZmlsZXMNCnR5cGUgaHR0cGRfc3lzX2NvbnRlbnRfdCwgZmlsZV90eXBlLCBob21lZGlyZmls
-ZSwgc3lzYWRtZmlsZTsNCg0KIyBkb21haW4gZm9yIHRoZSBzZXJ2ZXINCmRhZW1vbl9kb21haW4o
-dGNwc3ZkX2Zub3JkKQ0KZG9tYWluX2F1dG9fdHJhbnMoaW5pdHJjX3QsIHRjcHN2ZF9mbm9yZF9l
-eGVjX3QsIHRjcHN2ZF9mbm9yZF90KQ0KDQojIGRvbWFpbiBmb3IgcmVxdWVzdA0KdHlwZSBodHRw
-X3JlcXVlc3RfdCwgZG9tYWluLCBwcml2bG9nOw0Kcm9sZSBzeXN0ZW1fciB0eXBlcyBodHRwX3Jl
-cXVlc3RfdDsNCg0KIyB0aGUgc2VydmVyIGNhbiBuZXR3b3JrDQpjYW5fbmV0d29yayh0Y3BzdmRf
-Zm5vcmRfdCkNCmFsbG93IHRjcHN2ZF9mbm9yZF90IGV0Y190OmZpbGUgeyBnZXRhdHRyIHJlYWQg
-aW9jdGwgfTsNCmFsbG93IHRjcHN2ZF9mbm9yZF90IGh0dHBfcG9ydF90OnRjcF9zb2NrZXQgbmFt
-ZV9iaW5kOw0KYWxsb3cgaHR0cF9yZXF1ZXN0X3QgdGNwc3ZkX2Zub3JkX3Q6dGNwX3NvY2tldCBz
-ZXRvcHQ7DQojIHRjcHN2ZCB3aWxsIHRyeSB0byByZXZlcnNlLWxvb2t1cCB0aGUgaG9zdA0KYWxs
-b3cgdGNwc3ZkX2Zub3JkX3QgcG9ydF90OnVkcF9zb2NrZXQgbmFtZV9iaW5kOw0KDQojIGluc3Rh
-bGxhdGlvbiBsb2NhdGlvbiBvZiBmbm9yZA0KY2FuX2V4ZWModGNwc3ZkX2Zub3JkX3QsIHNiaW5f
-dCkNCmNhbl9leGVjKHRjcHN2ZF9mbm9yZF90LCBiaW5fdCkNCg0KIyBVc2UgY2FwYWJpbGl0aWVz
-ICh0Y3BzdmQgd2lsbCBzZXR1aWQvc2V0Z2lkKS4NCmFsbG93IHRjcHN2ZF9mbm9yZF90IHNlbGY6
-dW5peF9zdHJlYW1fc29ja2V0IGNyZWF0ZV9zb2NrZXRfcGVybXM7DQphbGxvdyB0Y3BzdmRfZm5v
-cmRfdCBzZWxmOmNhcGFiaWxpdHkgeyBzZXR1aWQgc2V0Z2lkIG5ldF9iaW5kX3NlcnZpY2UgfTsN
-Cg0KIyBpbml0cmMgY2FuIHdyaXRlIHBpZCBmaWxlDQphbGxvdyBpbml0cmNfdCB0Y3BzdmRfZm5v
-cmRfdmFyX3J1bl90OmZpbGUgY3JlYXRlX2ZpbGVfcGVybXM7DQoNCiMgYWxsb3cgYW55IGRvbWFp
-biB0byBjb25uZWN0IHRvIHRoZSB3ZWIgc2VydmVyDQpjYW5fdGNwX2Nvbm5lY3QodXNlcmRvbWFp
-biwgaHR0cF9wb3J0X3QpDQoNCmFsbG93IHRjcHN2ZF9mbm9yZF90IHsgYmluX3Qgc2Jpbl90IH06
-ZGlyIHNlYXJjaDsNCmFsbG93IHRjcHN2ZF9mbm9yZF90IHsgYmluX3Qgc2Jpbl90IH06bG5rX2Zp
-bGUgcmVhZDsNCg0KIyB0cmFuc2l0aW9uIHRvIHJlcXVlc3QgdHlwZSB1cG9uIGV4ZWN1dGlvbiBv
-Zg0KIyB0aGUgZm5vcmQgd2ViIHNlcnZlciAoYWRkIGJpbl90IGhlcmUgaWYgZm5vcmQgaXMgbGFi
-ZWxlZCBiaW5fdCBmb3IgeW91KQ0KIyBpIHNlZSBubyByZWFzb24gZm9yIHRoYXQsIGJ1dCBpbiBk
-ZWJpYW4gaXQgaXMgaW5zdGFsbGVkIGluIHNiaW4NCmRvbWFpbl9hdXRvX3RyYW5zKHRjcHN2ZF9m
-bm9yZF90LCBzYmluX3QsIGh0dHBfcmVxdWVzdF90KQ0KYWxsb3cgdGNwc3ZkX2Zub3JkX3QgaHR0
-cF9yZXF1ZXN0X3Q6cHJvY2VzcyBzaWdraWxsOw0KDQojIGRhZW1vbiBjYW4gY2hhbmdlIHRvIHdl
-YiBkaXINCmFsbG93IHRjcHN2ZF9mbm9yZF90IHsgdmFyX3QgaHR0cGRfc3lzX2NvbnRlbnRfdCB9
-OmRpciByX2Rpcl9wZXJtczsNCiMgcmVxdWVzdCBjYW4gcmVhZCB3ZWIgZmlsZXMNCnJfZGlyX2Zp
-bGUoaHR0cF9yZXF1ZXN0X3QsIGh0dHBkX3N5c19jb250ZW50X3QpDQphbGxvdyBodHRwX3JlcXVl
-c3RfdCBudWxsX2RldmljZV90OmNocl9maWxlIHsgcl9maWxlX3Blcm1zIHdyaXRlIH07DQoNCiMg
-cmVxdWVzdCBjYW4gdGFsayB0byB0Y3Agc2VydmVyDQphbGxvdyBodHRwX3JlcXVlc3RfdCB0Y3Bz
-dmRfZm5vcmRfdDp0Y3Bfc29ja2V0IHsgcmVhZCB3cml0ZSB9Ow0KDQojIHNlcnZlciBjYW4gY2hy
-b290IGl0c2VsZiB0byB0aGUgcmVxdWVzdCBkaXINCmFsbG93IGh0dHBfcmVxdWVzdF90IHJvb3Rf
-dDpkaXIgc2VhcmNoOw0KYWxsb3cgaHR0cF9yZXF1ZXN0X3Qgc2VsZjpjYXBhYmlsaXR5IHsgc3lz
-X2Nocm9vdCB9Ow0KDQojIHNlcnZlciBjYW4gbGF1bmNoIGNnaSBhbmQvb3IgaHRhY2Nlc3MgaGVs
-cGVyDQphbGxvdyBodHRwX3JlcXVlc3RfdCBzZWxmOnByb2Nlc3MgeyBmb3JrIHNpZ25hbCBzaWdj
-aGxkIH07DQphbGxvdyBodHRwX3JlcXVlc3RfdCBzZWxmOmZpZm9fZmlsZSB7IHJlYWQgd3JpdGUg
-fTsNCg0KIyBpZ25vcmUgdmlvbGF0aW9ucw0KZG9udGF1ZGl0IHsgdGNwc3ZkX2Zub3JkX3QgaHR0
-cF9yZXF1ZXN0X3QgfSBpbml0cmNfdDpmZCB1c2U7DQo=
-
-
---=-j6SLT83XK8XfR5utR5O5
-Content-Disposition: attachment; filename=mailgraph.fc
-Content-Type: text/plain; name=mailgraph.fc; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-IyBtYWlsZ3JhcGgNCi91c3Ivc2Jpbi9tYWlsZ3JhcGgucGwgIC0tICAgICAgc3lzdGVtX3U6b2Jq
-ZWN0X3I6bWFpbGdyYXBoX2V4ZWNfdA0KL3Vzci9saWIvY2dpLWJpbi9tYWlsZ3JhcGguY2dpICAt
-LSAgICAgIHN5c3RlbV91Om9iamVjdF9yOm1haWxncmFwaF9jZ2lfZXhlY190DQovdmFyL3J1bi9t
-YWlsZ3JhcGhcLnBpZCAgICAgICAgIHN5c3RlbV91Om9iamVjdF9yOm1haWxncmFwaF92YXJfcnVu
-X3QNCi92YXIvY2FjaGUvbWFpbGdyYXBoKC8uKik/ICAgICAgc3lzdGVtX3U6b2JqZWN0X3I6bWFp
-bGdyYXBoX2NhY2hlX3QNCg==
-
-
---=-j6SLT83XK8XfR5utR5O5
-Content-Disposition: attachment; filename=mailgraph.te
-Content-Type: text/plain; name=mailgraph.te; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-I0RFU0MgTUFJTEdSQVBIIC0gcG9zdGZpeC9hbWF2aXMgc3RhdGlzdGljcyBncmFwaCB0b29sDQoj
-IEF1dGhvcnM6IEVyaWNoIFNjaHViZXJ0IDxlcmljaEBkZWJpYW4ub3JnPg0KIyBYLURlYmlhbi1Q
-YWNrYWdlczogbWFpbGdyYXBoDQojDQoNCmRhZW1vbl9kb21haW4obWFpbGdyYXBoKQ0KZGFlbW9u
-X2RvbWFpbihtYWlsZ3JhcGhfY2dpKQ0KIyBtYWlsZ3JhcGggdXNlcyB0aGUgY2FjaGUgZm9yIGJv
-dGggUlJEIGFuZCBncmFwaGljcw0KIyBhIHNwbGl0IHdvdWxkIGJlIG5pY2UsIG1heWJlIGknbGwg
-ZG8gdGhpcyBpbiBhIGRpZmYgbGF0ZXIgb24NCiMgKFJSRCBmaWxlcyBoYXZlIHRoZSAucnJkIGV4
-dGVuc2lvbikNCnR5cGUgbWFpbGdyYXBoX2NhY2hlX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZTsN
-Cg0KIyBzdGFydGVkIGJ5IGluaXRyY190DQpkb21haW5fYXV0b190cmFucyhpbml0cmNfdCwgbWFp
-bGdyYXBoX2V4ZWNfdCwgbWFpbGdyYXBoX3QpDQojIGZvciBwaWQgZmlsZQ0KYWxsb3cgaW5pdHJj
-X3QgbWFpbGdyYXBoX3Zhcl9ydW5fdDpmaWxlIHsgZ2V0YXR0ciByZWFkIHdyaXRlIHVubGluayB9
-Ow0KDQojIHJlYWQgbG9nIGZpbGVzIChuZWVkZWQ6IG1haWwubG9nKQ0Kcl9kaXJfZmlsZShtYWls
-Z3JhcGhfdCwgdmFyX2xvZ190KQ0KDQojIHdyaXRlIG93biBjYWNoZSBmaWxlcw0KY3JlYXRlX2Rp
-cl9maWxlKG1haWxncmFwaF90LCBtYWlsZ3JhcGhfY2FjaGVfdCkNCmNyZWF0ZV9kaXJfZmlsZSht
-YWlsZ3JhcGhfY2dpX3QsIG1haWxncmFwaF9jYWNoZV90KQ0KDQojIHBlcmwgYmVoYXZpb3VyDQph
-bGxvdyB7IG1haWxncmFwaF90IG1haWxncmFwaF9jZ2lfdCB9IHsgYmluX3Qgc2Jpbl90IH06ZGly
-IHsgc2VhcmNoIGdldGF0dHIgfTsNCnJfZGlyX2ZpbGUoeyBtYWlsZ3JhcGhfdCBtYWlsZ3JhcGhf
-Y2dpX3QgfSwgdXNyX3QpDQphbGxvdyB7IG1haWxncmFwaF90IG1haWxncmFwaF9jZ2lfdCB9IHsg
-cmFuZG9tX2RldmljZV90IHVyYW5kb21fZGV2aWNlX3QgfTpjaHJfZmlsZSByZWFkOw0KDQojIHVu
-c3VyZSB3aGF0IHRoaXMgaXMgbmVlZGVkIGZvci4gcGVybD8NCiMgbWF5YmUgZG9udGF1ZGl0IGlz
-IHBvc3NpYmxlLCBoYXZuJ3QgaW52ZXN0aWdhdGVkIHRoYXQgeWV0DQojIChhbmQgaSdtIG5vdCBz
-dXJlIGkndmUgdW5kZXJzdG9vZCB3aGF0IHRoZXNlIGNhcGFiaWxpdGllcyBhcmUpDQphbGxvdyBt
-YWlsZ3JhcGhfdCBzZWxmOmNhcGFiaWxpdHkgeyBkYWNfb3ZlcnJpZGUgZGFjX3JlYWRfc2VhcmNo
-IH07DQoNCiMgY2FuIGJlIGV4ZWN1dGVkIGJ5IGZub3JkIHdlYiBzZXJ2ZXINCmlmZGVmKGBmbm9y
-ZC10Y3BzdmQudGUnLCBgDQpjYW5fZXhlY19hbnkoaHR0cF9yZXF1ZXN0X3QpDQpkb21haW5fYXV0
-b190cmFucyhodHRwX3JlcXVlc3RfdCwgbWFpbGdyYXBoX2NnaV9leGVjX3QsIG1haWxncmFwaF9j
-Z2lfdCkNCmFsbG93IG1haWxncmFwaF9jZ2lfdCB0Y3BzdmRfZm5vcmRfdDpmZCB1c2U7DQphbGxv
-dyBtYWlsZ3JhcGhfY2dpX3QgaHR0cF9yZXF1ZXN0X3Q6Zmlmb19maWxlIHsgcmVhZCB3cml0ZSB9
-Ow0Kcl9kaXJfZmlsZShtYWlsZ3JhcGhfY2dpX3QsIGh0dHBkX3N5c19jb250ZW50X3QpDQonKQ0K
-DQo=
-
-
---=-j6SLT83XK8XfR5utR5O5
-Content-Disposition: attachment; filename=pptp.fc
-Content-Type: text/plain; name=pptp.fc; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-IyBwcHRwZA0KL3Vzci9zYmluL3BwdHBkCQktLQlzeXN0ZW1fdTpvYmplY3RfcjpwcHRwZF9leGVj
-X3QNCi91c3Ivc2Jpbi9wcHRwY3RybAktLQlzeXN0ZW1fdTpvYmplY3RfcjpwcHRwZF9leGVjX3QN
-Ci91c3Ivc2Jpbi9iY3JlbGF5CS0tCXN5c3RlbV91Om9iamVjdF9yOnBwdHBkX2V4ZWNfdA0KL2V0
-Yy9wcHRwZC5jb25mCQktLQlzeXN0ZW1fdTpvYmplY3RfcjpwcHRwZF9ldGNfdA0KL3Zhci9ydW4v
-cHB0cGQucGlkCS0tCXN5c3RlbV91Om9iamVjdF9yOnBwdHBkX3Zhcl9ydW5fdA0K
-
-
---=-j6SLT83XK8XfR5utR5O5
-Content-Disposition: attachment; filename=pptp.te
-Content-Type: text/plain; name=pptp.te; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-I0RFU0MgcG9wdG9wIC0gUFBUUCBkYWVtb24NCiMNCiMgQXV0aG9yOiAgRXJpY2ggU2NodWJlcnQN
-CiMgWC1EZWJpYW4tUGFja2FnZXM6IHBwdHANCiMNCg0KIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjDQojDQojIFJ1bGVzIGZvciB0aGUgcHB0cGRfdCBkb21haW4sIGV0IGFsLg0KIw0K
-IyBwcHRwZF90IGlzIHRoZSBkb21haW4gZm9yIHRoZSBwcHRwZCBwcm9ncmFtLg0KIyBwcHRwZF9l
-eGVjX3QgaXMgdGhlIHR5cGUgb2YgdGhlIHBwdHBkIGV4ZWN1dGFibGUuDQojDQpkYWVtb25fZG9t
-YWluKHBwdHBkKQ0KZXRjX2RvbWFpbihwcHRwZCkNCg0KIyBjYW4gZXhlY3V0ZSBvd24gYXBwcyAo
-cHB0cGN0cmwpDQpjYW5fZXhlYyhwcHRwZF90LCBwcHRwZF9leGVjX3QpDQoNCiMgVXNlIHRoZSBu
-ZXR3b3JrLg0KY2FuX25ldHdvcmsocHB0cGRfdCkNCmFsbG93IHBwdHBkX3Qgc2VsZjpjYXBhYmls
-aXR5IHsgbmV0X3JhdyB9Ow0KYWxsb3cgcHB0cGRfdCBwcHRwZF90OnVuaXhfZGdyYW1fc29ja2V0
-IGNyZWF0ZV9zb2NrZXRfcGVybXM7DQphbGxvdyBwcHRwZF90IHsgbm9kZV90IHBwdHBkX3QgfTpy
-YXdpcF9zb2NrZXQgeyBjcmVhdGVfc29ja2V0X3Blcm1zIG5vZGVfYmluZCB9Ow0KYWxsb3cgcHB0
-cGRfdCB7IHBwdHBkX3QgcG9ydF90fTp0Y3Bfc29ja2V0IHsgY3JlYXRlX3NvY2tldF9wZXJtcyBu
-YW1lX2JpbmQgfTsNCg0KY2FuX2NyZWF0ZV9wdHkocHB0cGQpDQoNCiMgZmluZCBhbmQgZXhlY3V0
-ZSBwcHBkDQphbGxvdyBwcHRwZF90IHNiaW5fdDpkaXIgeyBzZWFyY2ggfTsNCmNhbl9leGVjKHBw
-dHBkX3QsIHBwcGRfZXhlY190KQ0KZG9tYWluX2F1dG9fdHJhbnMocHB0cGRfdCwgcHBwZF9leGVj
-X3QsIHBwcGRfdCkNCmFsbG93IHBwdHBkX3QgcHBwZF90OnByb2Nlc3Mgc2lnbmFsOw0KDQojIGFs
-bG93IHBwcGQgdG8gYWNjZXNzIHRoZSBwcHRwIHB0eXMNCmFsbG93IHBwcGRfdCBwcHRwZF9kZXZw
-dHNfdDpjaHJfZmlsZSByd19maWxlX3Blcm1zOw0KDQojIGFsbG93IHRvIHJlYWQgcHBwZCBvcHRp
-b25zIGZpbGUNCmFsbG93IHBwdHBkX3QgeyBwcHBkX2V0Y19yd190IHBwcGRfZXRjX3QgfTpmaWxl
-IHsgcmVhZCBnZXRhdHRyIH07DQphbGxvdyBwcHRwZF90IHBwcGRfZXRjX3Q6ZGlyIHsgc2VhcmNo
-IH07DQoNCiMgc2VhcmNoIC92YXIvbGliDQphbGxvdyBwcHRwZF90IHZhcl9saWJfdDpkaXIgeyBz
-ZWFyY2ggfTsNCg0KIyBhbGxvdyByZWFkaW5nIG9mIG5zc3dpdGNoLmNvbmYgZXRjLg0KYWxsb3cg
-cHB0cGRfdCBldGNfdDpkaXIgc2VhcmNoOw0KYWxsb3cgcHB0cGRfdCBldGNfdDpmaWxlIHJfZmls
-ZV9wZXJtczsNCg==
-
-
---=-j6SLT83XK8XfR5utR5O5--
-
---=-qALoRB1poXvvL9JhDzFL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBORaEntB470s6E1wRAmycAJ416AoH+5ggdHn6UUB5KKldzJl33gCcCwTM
-WzUGeHvkAkZbnSUi+vNjbGM=
-=hgkg
------END PGP SIGNATURE-----
-
---=-qALoRB1poXvvL9JhDzFL--
+-- 
+Email: storri@torri.org
 
 
 --
