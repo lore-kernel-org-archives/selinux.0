@@ -1,53 +1,59 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i92GLCrT008984
-	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 12:21:12 -0400 (EDT)
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i92GLAlM002723
-	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 16:21:11 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by localhost (Postfix) with ESMTP id 91505C4C088
-	for <selinux@tycho.nsa.gov>; Sat,  2 Oct 2004 18:21:06 +0200 (CEST)
-Received: from legolas.drinsama.de ([127.0.0.1])
-	by localhost (legolas [127.0.0.1]) (amavisd-new, port 10024)
-	with SMTP id 11331-03 for <selinux@tycho.nsa.gov>;
-	Sat, 2 Oct 2004 18:21:06 +0200 (CEST)
-Received: from wintermute.xmldesign.de (pD9E4F72F.dip.t-dialin.net [217.228.247.47])
-	by legolas.drinsama.de (Postfix) with ESMTP id 7A21FC4C084
-	for <selinux@tycho.nsa.gov>; Sat,  2 Oct 2004 18:21:05 +0200 (CEST)
-Received: from wintermute.xmldesign.de (wintermute.xmldesign.de [127.0.0.1])
-	by wintermute.xmldesign.de (Postfix) with ESMTP id EEFEE234095
-	for <selinux@tycho.nsa.gov>; Sat,  2 Oct 2004 18:21:02 +0200 (CEST)
-Subject: RE: bash_profile: Permission denied
-From: Erich Schubert <erich@debian.org>
-To: selinux@tycho.nsa.gov
-In-Reply-To: <BJENLMGHDPAAAGKKPOFOAEFACFAA.richard.simpson@wgint.com>
-References: <BJENLMGHDPAAAGKKPOFOAEFACFAA.richard.simpson@wgint.com>
-Content-Type: text/plain
-Date: Sat, 02 Oct 2004 18:21:02 +0200
-Message-Id: <1096734062.4672.7.camel@wintermute.xmldesign.de>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i92GourT009094
+	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 12:50:56 -0400 (EDT)
+Received: from ms-smtp-01.rdc-kc.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i92GoslM003131
+	for <selinux@tycho.nsa.gov>; Sat, 2 Oct 2004 16:50:55 GMT
+Date: Sat, 2 Oct 2004 11:50:41 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: need advice for ld_so_cache_t errors
+Message-ID: <20041002165041.GB30426@yggdrasil.localdomain>
+References: <20041001233554.GA26550@yggdrasil.localdomain> <200410021309.46413.russell@coker.com.au> <20041002043740.GA28765@yggdrasil.localdomain>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+In-Reply-To: <20041002043740.GA28765@yggdrasil.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-> You can give staff_r enhanced privileges, including reading root files, by
-> setting appropriate tunables in tunable.te. You can see what the tunables do
-> in staff.te.
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks to all who replied.
-I had thought that maybe there is a solution for only allowing staff_r
-read access to certain files such as the shell profile files. But i'm
-happy with the current solution.
+I'm not sure if this will help, but here's a quick look at the generated=20
+rules.  There are a lot more entries, of course, but they all seem to be=20
+granting the exact same privileges against ld_so_cache_t (except for=20
+ldconfig_t itself, of course).
 
-Greetings,
-Erich Schubert
--- 
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-          There are only 10 types of people in the world:           //\
-          Those who understand binary and those who don't           V_/_
-              Denken ist oft schwerer, als man denkt.
+   $ grep ld_so_cache_t policy.conf | head -5
+   # ld_so_cache_t is the type of /etc/ld.so.cache.
+   type ld_so_cache_t, file_type, sysadmfile;
+   allow sysadm_t ld_so_cache_t:file { read getattr lock ioctl };
+   allow sysadm_chkpwd_t ld_so_cache_t:file { read getattr lock ioctl };
+   allow sysadm_mail_t ld_so_cache_t:file { read getattr lock ioctl };
 
+Could you check one of your Debian machines, and see if "execute" is=20
+being included somehow?  I'm not sure how we'd have different results,=20
+tho, as I'm using your selinux-policy-default package (1.14-2).
+
+--yrj/dFKFPuw6o+aM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBXtxhgrEMyr8Cx2YRAuS8AJwOXlVCRhGjLa7D/dgZcLV4ZVL6IACg3hCs
+mgbyiEv68TzXTEjJ6TWA0bs=
+=xc6O
+-----END PGP SIGNATURE-----
+
+--yrj/dFKFPuw6o+aM--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
