@@ -1,56 +1,74 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAR37mRb022925
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2003 22:07:48 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAR37lqY002938
-	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 03:07:47 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hAR37k0o002935 for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 03:07:46 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Dale Amon <amon@vnl.com>
-Subject: Re: mkinitrd setup script problem
-Date: Thu, 27 Nov 2003 14:07:36 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <20031126231523.GX2718@vnl.com>
-In-Reply-To: <20031126231523.GX2718@vnl.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hARBxSRb023938
+	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 06:59:28 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hARBwqp5021992
+	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 11:58:53 GMT
+Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
+	by jazzswing.ncsc.mil  with ESMTP id hARBwpt0021989
+	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 11:58:52 GMT
+Received: (from root@localhost)
+	by baitaca.ipen.br (8.12.9/8.12.9) id hARC04RH014407
+	for selinux@tycho.nsa.gov; Thu, 27 Nov 2003 10:00:04 -0200
+Received: from ipen.br ([10.0.12.47])
+	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id hARBxheE014007
+	for <selinux@tycho.nsa.gov>; Thu, 27 Nov 2003 09:59:45 -0200
+Message-ID: <3FC5E6EA.30409@ipen.br>
+Date: Thu, 27 Nov 2003 09:58:34 -0200
+From: =?ISO-8859-1?Q?Carlos_An=EDsio_Monteiro?= <monteiro@ipen.br>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200311271407.36409.russell@coker.com.au>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Installation of packages
+Content-Type: multipart/alternative;
+ boundary="------------090203000903000200000709"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 27 Nov 2003 10:15, Dale Amon <amon@vnl.com> wrote:
-> Installs
-> 	/sbin/load_policy
-> and a link
-> 	/usr/sbin/load_policy -> /sbin/load_policy
 
-This is because /sbin/init executes load_policy in the current Debian package.  
-When I update it to match Dan's new code this won't matter, but until then 
-load_policy needs to be on the root fs.  For the long term I think that 
-load_policy should be on the root fs to allow the most possible configuration 
-options for users.
+--------------090203000903000200000709
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Installs
-> 	/etc/mkinitrd/scripts/selinux
-> which contains the line:
-> 	cp -a /usr/sbin/load_policy "$INITRDDIR/bin/load_policy
+Helo.
 
-The next version of my policy package will fix this.  I haven't tested this 
-for a while as I don't use initrd any more.
+I would like to know what packages (*patches for linux utilities*, 
+login, coreutils, procps, shadow ...) are essentials to system and if 
+there is a sequence of installation this packages.
 
-When compiling a kernel for your own use an initrd usually does not offer much 
-(except for unusual situations such as nfs-root - which often don't work with 
-SE Linux).  I have had some problems with the Debian mkinitrd script recently 
-and decided not to use it for any of my machines.
+Many thanks.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Carlos Anisio Monteiro  <monteiro@ipen.br>
+IPEN/CNEN-SP
+Sao Paulo - Brasil
+
+
+--------------090203000903000200000709
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+Helo.<br>
+<br>
+I would like to know what packages (<b>patches for linux utilities</b>, login,
+coreutils, procps, shadow ...) are essentials to system and if there is a
+sequence of installation this packages.<br>
+<br>
+Many thanks.<br>
+<pre class="moz-signature" cols="$mailwrapcol">-- 
+Carlos Anisio Monteiro  <a class="moz-txt-link-rfc2396E" href="mailto:monteiro@ipen.br">&lt;monteiro@ipen.br&gt;</a>
+IPEN/CNEN-SP
+Sao Paulo - Brasil
+</pre>
+</body>
+</html>
+
+--------------090203000903000200000709--
 
 
 --
