@@ -1,43 +1,43 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hASBHdRb026869
-	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 06:17:39 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hASBH2p5007903
-	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 11:17:03 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id hASBH2t0007900
-	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 11:17:02 GMT
-Date: Fri, 28 Nov 2003 11:17:35 +0000
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: Dale Amon <amon@vnl.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: More mkinitrd setup script problems
-Message-ID: <20031128111735.GB18062@vnl.com>
-References: <20031128110536.GE12418@vnl.com> <200311282210.39268.russell@coker.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200311282210.39268.russell@coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hASBfGRb026951
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 06:41:17 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hASBfFqY029094
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 11:41:16 GMT
+Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id hASBfE0o029086 for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2003 11:41:15 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Carlos =?iso-8859-1?q?An=EDsio=20Monteiro?= <monteiro@ipen.br>,
+   selinux <selinux@tycho.nsa.gov>
+Subject: Re: Information about packages
+Date: Fri, 28 Nov 2003 22:41:05 +1100
+References: <3FC72C83.8050309@ipen.br>
+In-Reply-To: <3FC72C83.8050309@ipen.br>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200311282241.05097.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-BTW... I have finally succeeded in going all the way
-from a description to an installed and working selinux.
+On Fri, 28 Nov 2003 22:07, Carlos Anísio Monteiro <monteiro@ipen.br> wrote:
+> Please, I would like to know what are the packages for SELinux more
+> appropriate and more "up-to-date" (in this moment) to install in a
+> *Debian/testing* with  *kernel 2.6.0* ?
 
-Hands on only to fiddle that script and reboot the
-target machine three times. Next project is to cut
-the reboots down to two... if I can fit an selinux
-kernel on the NFS boot floppy, then I can do the
-make relabel and skip the intermediate non-selinux
-boot.
+deb http://www.coker.com.au/newselinux/ ./
+If you add the above to your /etc/apt/sources.list file then you'll get 
+everything you need.  Kernel 2.6.0 doesn't need any patches, but you'll have 
+to compile it yourself.
 
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
