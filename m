@@ -1,52 +1,47 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4JBY4I4002454
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 07:34:04 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4JBdjI4002488
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 07:39:45 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4JBXfQj023685
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 11:33:41 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h4JBXdxS023682
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 11:33:40 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 333A8BF4E
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 21:33:59 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 28747-09
- for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 21:33:57 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id CA32CBF3D
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 21:33:57 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 6DFE992705
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 21:33:57 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 504A4876D
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 21:32:13 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: rw_sem_perms() etc
-Date: Mon, 19 May 2003 21:32:12 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200305192132.12745.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h4JBdNQj023935
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 11:39:23 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h4JBdMxS023932
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2003 11:39:23 GMT
+Subject: Re: slow application of contexts in devfs?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Christopher J. PeBenito" <pebenito@ieee.org>
+Cc: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1053191138.4322.33.camel@chris.pebenito.net>
+References: <3EC2792D.1020209@yahoo.it>
+	 <1053016311.20932.17.camel@chris.pebenito.net>
+	 <1053025378.4729.770.camel@moss-huskers.epoch.ncsc.mil>
+	 <200305160945.45658.russell@coker.com.au>
+	 <1053054721.21382.32.camel@chris.pebenito.net>
+	 <1053085242.4729.786.camel@moss-huskers.epoch.ncsc.mil>
+	 <1053191138.4322.33.camel@chris.pebenito.net>
+Content-Type: text/plain
+Message-Id: <1053344357.4729.918.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 19 May 2003 07:39:18 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Would it make sense to change the rw_sem_perms() and rw_shm_perms() macros to 
-not permit create and destroy access, and then add some new macros 
-create_sem_perms() and create_shm_perms()?
+On Sat, 2003-05-17 at 13:05, Christopher J. PeBenito wrote:
+> The binary for metalog is metalog.  If you'd like to look at it:
+> http://metalog.sourceforge.net/.  I like it because of it's built-in
+> rotation of logs based on age or size, and simple configuration.  The
+> problem is that metalog is klogd+syslogd, so it doesnt fit in syslogd_t
+> nicely (I didn't try running it in klogd_t, that might work better).  I
+> just added policy to syslogd.te.
 
-Doing so would make the semaphore and shared memory macros have the same style 
-as the macros for file and directory permissions which will potentially save 
-confusion.
+Given that it performs rotation of the logs, you may want to also look
+into integrating the logrotate.te policy and the logrotate patch into
+metalog.  The logrotate patch is necessary to ensure that the log
+security contexts are preserved when they are rotated.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
