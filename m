@@ -1,37 +1,45 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7CJQRrT019293
-	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 15:26:27 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7CJmLrT019454
+	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 15:48:21 -0400 (EDT)
 Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7CJQQBo020480
-	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 19:26:26 GMT
-Subject: Re: net_contexts
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7CJmLBo021234
+	for <selinux@tycho.nsa.gov>; Thu, 12 Aug 2004 19:48:21 GMT
+Subject: Re: device types
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
-In-Reply-To: <20040812164944.64756.qmail@web51507.mail.yahoo.com>
-References: <20040812164944.64756.qmail@web51507.mail.yahoo.com>
+To: Russell Coker <rcoker@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <200408101539.14895.rcoker@redhat.com>
+References: <200408101539.14895.rcoker@redhat.com>
 Content-Type: text/plain
-Message-Id: <1092338711.16219.159.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1092340025.16219.166.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 12 Aug 2004 15:25:11 -0400
+Date: Thu, 12 Aug 2004 15:47:05 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2004-08-12 at 12:49, Park Lee wrote:
-> Mon, 9 Aug 2004 18:09.  Russell Coker wrote:
->  
-> >Some parts of the file are order sensitive, net_contexts is one of
-> them.
->  
-> Then, would you please tell us what others are?
+On Tue, 2004-08-10 at 01:39, Russell Coker wrote:
+> /u?dev/irlpt[0-9]+     -c      system_u:object_r:tty_device_t
+> 
+> Wouldn't it be more appropriate to have irlpt be printer_device_t?
+> 
+> /u?dev/md.*            -c      system_u:object_r:fixed_disk_device_t
+> 
+> In what situation will a /dev/md* device node be a character device?  The 
+> block devices are already labelled.  The only device nodes of class chr_file 
+> labelled with fixed_disk_device_t are for raw devices and a flash device, 
+> probably neither of which will work properly due to lack of policy.
+> 
+> 
+> I have attached a patch which fixes these problems and a couple of other minor 
+> issues (including making the /dev/*nrft* entries only take one line) and 
+> adding an entry for /dev/dm-* (which LVM on Fedora seems to create).
+> 
+> Finally I've added a solution to the BSD pty issue.  I've labelled all the 
+> device nodes as bsdpty_device_t and made domains that don't use such nodes 
+> have dontaudit rules for them.  This stops programs like sshd from trying all 
+> of the BSD pty's first and filling the audit logs for no good cause.
 
-The language grammar is defined in checkpolicy/policy_parse.y, and
-documented in the Configuring the SELinux Policy report (although it is
-not entirely up to date).  It doesn't allow for mixing other elements of
-the language (like context specifications) with the TE and RBAC
-statements.  Note that the context specifications come after all
-components of a context have been defined (i.e. all types, roles, and
-users have been declared).
+Thanks, merged.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
