@@ -1,88 +1,106 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j07NEMIi019189
-	for <selinux@tycho.nsa.gov>; Fri, 7 Jan 2005 18:14:23 -0500 (EST)
-Received: from ms-smtp-03.rdc-kc.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j07NCS0j022060
-	for <selinux@tycho.nsa.gov>; Fri, 7 Jan 2005 23:12:29 GMT
-Date: Fri, 7 Jan 2005 17:13:56 -0600
-From: Greg Norris <haphazard@kc.rr.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: [patch] logrotate
-Message-ID: <20050107231356.GA16938@yggdrasil.localdomain>
-References: <20050104030117.GB5321@yggdrasil.localdomain> <200501062243.09520.russell@coker.com.au>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0918LIi023281
+	for <selinux@tycho.nsa.gov>; Sat, 8 Jan 2005 20:08:21 -0500 (EST)
+Received: from vds-320151.amen-pro.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0918NYO028911
+	for <selinux@tycho.nsa.gov>; Sun, 9 Jan 2005 01:08:23 GMT
+Subject: [PATCH] Security-Enhanced Linux back port for 2.4 rev.0.3
+	(20050108)
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?= =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: linux-kernel@vger.kernel.org
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@epoch.ncsc.mil>,
+   russell@coker.com.au
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6ftTo+bNs4wShzrD8VQz"
+Date: Sun, 09 Jan 2005 02:07:35 +0100
+Message-Id: <1105232856.24876.58.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gj572EiMnwbLXET9"
-In-Reply-To: <200501062243.09520.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---gj572EiMnwbLXET9
-Content-Type: multipart/mixed; boundary="qDbXVdCdHGoSgWSk"
-Content-Disposition: inline
-
-
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-6ftTo+bNs4wShzrD8VQz
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 06, 2005 at 10:43:06PM +1100, Russell Coker wrote:
-> > Debian creates the logrotate state file as "/var/lib/logrotate/status",
-> > rather than "/var/lib/logrotate.status".  The updated pattern will match
-> > both cases.
->=20
-> I've attached a slightly different version that will work on other distro=
-s=20
-> too.
+Hi,
 
-I don't mind tagging that change as Debian-specific.  But wouldn't it be
-better to match the "/var/lib/logrotate" directory, instead of the=20
-individual file therein?  Just in case additional files are added in the=20
-future.
+During the past week, I've progressively worked on the back porting of
+the latest features and fixes applied to 2.6 SELinux-related code, so,
+we can now make use of them in 2.4.
 
-Would this version be acceptable?
+I know that 2.4 is in maintenance mode, but this was mainly just for my
+own fun and learning profit, even if there are some technical reasons to
+do it.
 
+Documentation and tracking is available at:
+http://selinux.tuxedo-es.org/2.4-backport/
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Description: logrotate.fc.diff
-Content-Disposition: attachment; filename="logrotate.fc.diff"
+The patches can be retrieved by checking out the 2.4-backport module in
+the SELinux CVS at SourceForge.Net:
 
---- logrotate.fc.orig	2005-01-01 15:17:35.000000000 -0600
-+++ logrotate.fc	2005-01-07 17:12:06.000000000 -0600
-@@ -3,9 +3,11 @@
- /usr/sbin/logcheck	--	system_u:object_r:logrotate_exec_t
- ifdef(`distro_debian', `
- /usr/bin/savelog	--	system_u:object_r:logrotate_exec_t
-+/var/lib/logrotate(/.*)?	system_u:object_r:logrotate_var_lib_t
-+', `
-+/var/lib/logrotate\.status --	system_u:object_r:logrotate_var_lib_t
- ')
- /etc/cron\.(daily|weekly)/sysklogd -- system_u:object_r:logrotate_exec_t
--/var/lib/logrotate\.status --	system_u:object_r:logrotate_var_lib_t
- /var/lib/logcheck(/.*)?		system_u:object_r:logrotate_var_lib_t
- # using a hard-coded name under /var/tmp is a bug - new version fixes it
- /var/tmp/logcheck	-d	system_u:object_r:logrotate_tmp_t
+http://cvs.sourceforge.net/viewcvs.py/selinux/2.4-backport/
 
---qDbXVdCdHGoSgWSk--
+Under ./pre-patches/ you can find the latest patches that are not yet
+stable:
+http://cvs.sourceforge.net/viewcvs.py/selinux/2.4-backport/pre-patches/
 
---gj572EiMnwbLXET9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+ASAP i will try to validate it's capabilities and see what's working and
+what's not, and this will happen after i solve some personal
+infrastructure problems.
+
+The BTS at http://selinux.tuxedo-es.org/tracking/ should be used to
+report bugs and so on.
+I would appreciate a lot any type of help, testing would be surely
+appreciated, and any type of feedback would be good too (even if you
+want to say it's crap, which i don't think so ;) ).
+
+If there's someone that made this possible, it's Stephen D. Smalley
+which helped me giving me his attention and time to solve my extensive
+lack of knowledge and skills.
+
+Also i want to say thanks to Russell Coker from Red Hat for giving me
+access to a testing machine where i can run out the back port kernel
+patches, and also for helping me when understanding how the SELinux
+policy works.
+
+Currently, I'm researching on a possible bug introduced by an incorrect
+back porting of the latest anonymous memory mappings control features.
+Also, dynamic context transitions and mount contexts are not supported
+because of lack of some code that makes me almost unable to back port
+them without doing extra, geekish, hacking in the kernel core and memory
+management stuff (help really welcome).
+
+In short, the back port is now fully supporting up to v18 policies which
+includes almost the Netlink classes (not fully back ported support, even
+for ipv6 and some other things may be not fully supported as well) and
+the policy booleans, etc (v15->v17).
+
+Those who are using or testing the 0.2 revision are encouraged to move
+to latest 0.3 pre-patches, as a kernel oops due to inexistent (and
+superfluous) SLAB_PANIC handling has been solved since past 0.2
+revisions.
+
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
+[2048g/9AE91A22] Hardened Debian head developer & project manager
+http://www.tuxedo-es.org - http://lorenzo.debian-hardened.org
+
+--=-6ftTo+bNs4wShzrD8VQz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFB3xe0grEMyr8Cx2YRArVBAJ9KQN5feTPpQR3XfCfjykubsWkRCwCgznZ7
-3r+nIhDI/66pvsByyUxnk7M=
-=uUIP
+iD8DBQBB4IPXDcEopW8rLewRAufYAKCVQsUZucpcPgIWqFQE95j4730D5ACfSZEJ
+C2zD6RFUH589QwF6a9KW03M=
+=QVwf
 -----END PGP SIGNATURE-----
 
---gj572EiMnwbLXET9--
+--=-6ftTo+bNs4wShzrD8VQz--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
