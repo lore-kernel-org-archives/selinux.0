@@ -1,52 +1,63 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QLRtrT028736
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 17:27:55 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QLQq76020604
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 21:26:53 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Tom London <selinux@gmail.com>
-Subject: Re: reconnecting USB p rinter
-Date: Mon, 27 Sep 2004 07:27:44 +1000
-Cc: fedora-selinux-list@redhat.com, SE Linux <selinux@tycho.nsa.gov>,
-   Daniel J Walsh <dwalsh@redhat.com>
-References: <4c4ba1530409251901fa541f6@mail.gmail.com> <200409262314.37967.russell@coker.com.au> <4c4ba153040926112828a7c55@mail.gmail.com>
-In-Reply-To: <4c4ba153040926112828a7c55@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200409270727.44674.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QLZKrT028781
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 17:35:20 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QLZJhU011592
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 21:35:19 GMT
+Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
+	by open.hands.com (Postfix) with ESMTP id EE92FBFCB
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 22:35:13 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1CBgqf-00083I-5G
+	for selinux@tycho.nsa.gov; Sun, 26 Sep 2004 22:46:25 +0100
+Date: Sun, 26 Sep 2004 22:46:25 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: BUG: looks like net contexts is being ignored
+Message-ID: <20040926214625.GK28076@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 27 Sep 2004 04:28, Tom London <selinux@gmail.com> wrote:
-> That's not right, is it? Shouldn't cupsd be running in cupsd_t?
+i'm using cvs linux2.6 from 2 weeks ago.
+latest cvs policy, tools and libs selinux-usr.
 
-Correct.
+the bug is that any tcp or udp port access by any program appears to be
+attempted as reserved_port_t.
 
-> The following patch adds a
-> domain_auto_trans(hald_t, cupsd_exec_t, cupsd_t)
-> to cups.te
+e.g:
 
-Good work, I've put that in my tree.
+denied { name_bind } for /sbin/dhclient
+scontext=system_u:system_r:dhcpc_t
+tcontext=system_u_object_r:reserved_port_t tclass=udp_socket
+  
+  and
 
-Also we should remove the can_exec_any() from hald.te ASAP, it's a time bomb 
-allowing large numbers of undesired programs to run in hald_t.
+denied { name_bind } for /usr/sbin/sshd src=22
+scontext=system_u:system_r:sshd_t
+tcontext=system_u_object_r:reserved_port_t tclass=tcp_socket
 
-> This makes the 'new' cupsd run in cupsd_t.
-> This doesn't fix everything, as there are still about 170 AVCs.
->
-> Do we need to add a bunch of 'domain_auto_trans' rules for
-> hald_t (for apmd_t, crond_t, ......)?  dontaudits?
+zero modifications to net_contexts have been made.
 
-I'll look into that later.
+okay i admit it i made some mods to fs/proc/base.c to split up a
+function in order use 98% of that function somewhere else.
+
+also i reduced autofs4's NEGATIVE_TIMEOUT from 60 seconds to 5.
+
+nothing significant or what i would call relevant.
+
+l.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
