@@ -1,69 +1,43 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i16BfJRb021965
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 06:41:19 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i16CasRb022193
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 07:36:54 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i16BdrQk017565
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 11:39:53 GMT
-Received: from butternut.transitive.com (dsl-217-207-128-218.uk.easynet.net [217.207.128.218] (may be forged))
-	by jazzswing.ncsc.mil  with ESMTP id i16BdqYo017562
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 11:39:53 GMT
-Message-ID: <40237D40.500@treblig.org>
-Date: Fri, 06 Feb 2004 11:40:48 +0000
-From: "Dave Gilbert (Home)" <gilbertd@treblig.org>
+	by jazzswing.ncsc.mil  with ESMTP id i16CZWQk019035
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 12:35:33 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+	by jazzswing.ncsc.mil  with ESMTP id i16CZGYo018930
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 12:35:32 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Ignacio Tripodi <ignaciot@unt.edu>, selinux@tycho.nsa.gov
+Subject: Re: Issues relabeling filesystems
+Date: Fri, 6 Feb 2004 23:35:12 +1100
+References: <BEA0F082-5867-11D8-A76A-000393013D1A@unt.edu>
+In-Reply-To: <BEA0F082-5867-11D8-A76A-000393013D1A@unt.edu>
 MIME-Version: 1.0
-To: Brian May <bam@snoopy.apana.org.au>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Problems finding working kernel/user land combination
-References: <401FF280.8070301@treblig.org>	<84d68vlr6a.fsf@snoopy.apana.org.au> <402261FE.5060708@treblig.org> <84u125gpp7.fsf@snoopy.apana.org.au>
-In-Reply-To: <84u125gpp7.fsf@snoopy.apana.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200402062335.12533.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Brian May wrote:
->>>>>>"Dave" == Dave Gilbert (Home) <gilbertd@treblig.org> writes:
+On Fri, 6 Feb 2004 16:46, Ignacio Tripodi <ignaciot@unt.edu> wrote:
+> /usr/sbin/setfiles: relocation error: /usr/sbin/setfiles: symbol
+> nftw64, version GLIBC_2.3.3 not defined in file libc.so.6 with link
+> time reference
 
-> You will need to use the "main" section as well as the "selinux"
-> section.  The "selinux" section is obsolete, as maintaining two
-> sections become difficult under certain circumstances.
-> 
-> dpkg must be the only package I haven't yet moved...
+I recall that there were some errors similar to that with some of Dan's 
+earlier packages.  The problem in question was solved quite a while ago.
 
-Thank you! It now works.
+How recent were the rpms you used to create the file system image?  If they 
+were not recent then I recommend updating to the latest stuff and the problem 
+should disappear.
 
-The only remaining gotcha was that the old HOWTO that I had made a big 
-point of warning you that the first thing you had to install was the 
-'login' package - which now doesn't have an selinux version.
-
-So - to summarise (for those reading this in the future - is the archive 
-working?); to get SELinux working on Debian/woody:
-
-   * Get the kernel patches (lsm and exec-shield) off Russell Coker's site
-   * Get the standard debian 2.4.24 kernel package (from the main debian 
-pool) and the debian kernel-patch-acl package
-   * To the standard kernel apply the kernel-patch-acl patches (if you 
-are doing it by hand that has to be in the order ea, acl, nfsacl)
-   * Apply the exec-shield patch
-   * apply the lsm patch
-
-Add:
-
-
-deb http://www.microcomaustralia.com.au/debian unstable selinux main
-
-to your sources.list
-
-and follow the instructions from the *new* selinux howto - that will be 
-the one that tells you to mount /selinux and doesn't mention the 'login' 
-package.
-
-Note: When installing the packages it is best to do one big apt-get line 
-rather than one at a time - doing them individually has a nasty habit of 
-removing other packages.
-
-Thanks,
-
-Dave
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
