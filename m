@@ -1,56 +1,47 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6V4bgHa001127
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 00:37:42 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6VCKJHa002144
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 08:20:19 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h6V4aTFB001111
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 04:36:30 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h6V4aNGD001108
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 04:36:29 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Yuichi Nakamura <ynakam@ori.hitachi-sk.co.jp>, selinux@tycho.nsa.gov
-Subject: Re: macro about network
-Date: Thu, 31 Jul 2003 14:37:21 +1000
-References: <20030729184953.31a3b3fb.ynakam@ori.hitachi-sk.co.jp>
-In-Reply-To: <20030729184953.31a3b3fb.ynakam@ori.hitachi-sk.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200307311437.21069.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id h6VCJ8FB017647
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 12:19:08 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id h6VCJ8GD017643
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2003 12:19:08 GMT
+Subject: Re: Updated Release
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Bill Laut <wlsel@verizon.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200307302256.08188.wlsel@verizon.net>
+References: <1057952464.5561.322.camel@moss-sooners.epoch.ncsc.mil>
+	 <200307302256.08188.wlsel@verizon.net>
+Content-Type: text/plain
+Message-Id: <1059654015.1052.134.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 31 Jul 2003 08:20:16 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 29 Jul 2003 19:49, Yuichi Nakamura wrote:
-> In "can_network" macro,
-> "allow $1 netmsg_type:tcp_socket { connectto acceptfrom };"
-> exists.
->
-> I think in some case "connectto" permission is not neccesary.
+On Wed, 2003-07-30 at 22:56, Bill Laut wrote:
+> On Friday 11 July 2003 03:41 pm, Howard Holm wrote:
+> >
+> > [...]
+> >
+> > A report, "Securing the X Window System with SELinux" was added to
+> > documentation discussing adding SELinux controls to the window system.
+> >
+> 
+> Where is this report located?  I've searched through both the 2.4 and 2.5 kits 
+> but cannot seem to locate it.
 
-That sounds reasonable.  However I suggest that we get the port binding done 
-properly first.
-
-Currently even my tree doesn't have the bind permissions changes complete, and 
-in the NSA tree every domain can bind to every port.
-
-I encourage you to investigate my policy in 
-http://www.coker.com.au/selinux/policy.tgz and let me know of any 
-improvements that can be made to the port binding rules.
-
-One issue that I am currently considering is how to label ports for X to bind 
-to.  Ports 6000..6009 need to be reserved for the X servers, and 6010..6030 
-are commonly used by sshd for X proxying.  I am thinking of having a 
-configuration option for ssh to determine whether sshd is allowed to run X 
-proxying, and if so those ports would be reserved for it.
-
-What do you think?
+http://www.nsa.gov/selinux/x11-abs.html contains links to PDF and
+PostScript versions of the document.  That page is linked into the
+Documentation page (http://www.nsa.gov/selinux/docs.html), as well as
+being directly linked by the What's New page
+(http://www.nsa.gov/selinux/news.html).
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
