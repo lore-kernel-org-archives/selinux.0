@@ -1,469 +1,1006 @@
-From: "Frank Mayer" <mayerf@tresys.com>
-To: <SELinux@tycho.nsa.gov>
-Subject: setools patch
-Date: Tue, 19 Aug 2003 13:29:58 -0400
-Message-ID: <002a01c36677$8630eac0$8100a8c0@columbia.tresys.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7KE9EHa021668
+	for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 10:09:14 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h7KE7ouC003423
+	for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 14:07:50 GMT
+Received: from hotmail.com (bay8-dav65.bay8.hotmail.com [64.4.26.200])
+	by jazzswing.ncsc.mil  with ESMTP id h7KE7n4e003420
+	for <selinux@tycho.nsa.gov>; Wed, 20 Aug 2003 14:07:49 GMT
+From: "Ripin Natani" <ripinfs@hotmail.com>
+To: "selinux" <selinux@tycho.nsa.gov>
+Subject: Re: "Unable to mount root fs on unknown-block(0,0)"
+Date: Wed, 20 Aug 2003 10:09:06 -0400
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_002B_01C36655.FF1F4AC0"
+	boundary="----=_NextPart_000_007B_01C36703.16DCFC90"
+Message-ID: <BAY8-DAV65gIXre2awF00029870@hotmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_002B_01C36655.FF1F4AC0
+------=_NextPart_000_007B_01C36703.16DCFC90
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_007C_01C36703.16DCFC90"
+
+
+------=_NextPart_001_007C_01C36703.16DCFC90
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-Attached is a patch to our selinux tools (setools) package.  It fixes =
-two
-issues:
+(I have sent this message twice before but it did not appear on the list =
+..
+seems that there is some prob)
 
-1. Fixes problem handling type aliases noted by Carsten Grohmann.
+Yes I am booting with an initrd. Basically I do a 'make install' after =
+make
+'make modules_install'. The steps that I perform:
+make mrproper
+make menuconfig
+make clean
+make bzImage
+make modules
+make modules_install
+make install
+I also updated the mkinitrd (now i have the 3.4.42 version). Does that =
+have
+the patch ? Btw I did not find any documentation in linux2.6/README =
+about
+the patch for the mkinitrd script. ( I hope i looked at the right README
+!!! ).
+The system is still giving the same error !
+Also I am resending the .config file.
+Thanks,
+-Ripin
 
-2. Updates the core library to handle policy version 15 files (as used =
-with the
-new 2.6 kernel).  As always, this library should remain backward =
-compatible with
-older policy versions too.
 
-This patch is for release 20030609 of setools (the source of which can =
-be found
-at wwww.tresys.com/selinux among other places).
 
-Just as a heads up we're planning to release a new version in September =
-that
-will add more analysis capabilities for apol (such as information flow =
-analysis,
-and more domain transition analysis), plus various minor stuff. =20
 
-Regards, Frank
 
-------=_NextPart_000_002B_01C36655.FF1F4AC0
+----- Original Message -----
+From: "Stephen Smalley" <sds@epoch.ncsc.mil>
+To: "Ripin Natani" <ripinfs@hotmail.com>
+Sent: Tuesday, August 19, 2003 9:01 AM
+Subject: Re: "Unable to mount root fs on unknown-block(0,0)"
+
+
+> On Mon, 2003-08-18 at 18:12, Ripin Natani wrote:
+> > Hi,
+> >       I am trying to run a custom compiled SElinux kernel with as =
+small
+as
+> > possible (with support for nfs and mounting and basic networking
+> > capabilities). I get the following error when i use the custom =
+compiled
+> > image
+> > "Unable to mount root fs on unknown-block(0,0)"
+>
+> Are you boot it with an initrd?  Did you patch your mkinitrd script =
+per
+> the README so that the initial policy load will occur from the initrd?
+>
+> The root=3DLABEL=3D/ should work fine as long as you are using an =
+initrd
+> (which you should be using, to perform the initial policy load, unless
+> using the old 2.4-based SELinux).  If you weren't using an initrd, you
+> would need to specify the actual root device, e.g. root=3D/dev/hda2 or
+> whatever is appropriate for your system.
+>
+> --
+> Stephen Smalley <sds@epoch.ncsc.mil>
+> National Security Agency
+>
+>
+
+------=_NextPart_001_007C_01C36703.16DCFC90
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2><FONT face=3D"Times New Roman" =
+size=3D3>(I have sent=20
+this message twice before but it did not appear on the list ..<BR>seems =
+that=20
+there is some prob)<BR><BR>Yes I am booting with an initrd. Basically I =
+do a=20
+'make install' after make<BR>'make modules_install'. The steps that I=20
+perform:<BR>make mrproper<BR>make menuconfig<BR>make clean<BR>make=20
+bzImage<BR>make modules<BR>make modules_install<BR>make install<BR>I =
+also=20
+updated the mkinitrd (now i have the 3.4.42 version). Does that =
+have<BR>the=20
+patch ? Btw I did not find any documentation in linux2.6/README =
+about<BR>the=20
+patch for the mkinitrd script. ( I hope i looked at the right =
+README<BR>!!!=20
+).<BR>The system is still giving the same error !<BR>Also I am resending =
+the=20
+.config file.<BR>Thanks,<BR>-Ripin<BR><BR><BR><BR><BR><BR>----- Original =
+Message=20
+-----<BR>From: "Stephen Smalley" &lt;</FONT><A=20
+href=3D"mailto:sds@epoch.ncsc.mil"><FONT face=3D"Times New Roman"=20
+size=3D3>sds@epoch.ncsc.mil</FONT></A><FONT face=3D"Times New Roman"=20
+size=3D3>&gt;<BR>To: "Ripin Natani" &lt;</FONT><A=20
+href=3D"mailto:ripinfs@hotmail.com"><FONT face=3D"Times New Roman"=20
+size=3D3>ripinfs@hotmail.com</FONT></A><FONT face=3D"Times New Roman"=20
+size=3D3>&gt;<BR>Sent: Tuesday, August 19, 2003 9:01 AM<BR>Subject: Re: =
+"Unable to=20
+mount root fs on unknown-block(0,0)"<BR><BR><BR>&gt; On Mon, 2003-08-18 =
+at=20
+18:12, Ripin Natani wrote:<BR>&gt; &gt; Hi,<BR>&gt;=20
+&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I am trying to run a custom =
+compiled=20
+SElinux kernel with as small<BR>as<BR>&gt; &gt; possible (with support =
+for nfs=20
+and mounting and basic networking<BR>&gt; &gt; capabilities). I get the=20
+following error when i use the custom compiled<BR>&gt; &gt; =
+image<BR>&gt; &gt;=20
+"Unable to mount root fs on unknown-block(0,0)"<BR>&gt;<BR>&gt; Are you =
+boot it=20
+with an initrd?&nbsp; Did you patch your mkinitrd script per<BR>&gt; the =
+README=20
+so that the initial policy load will occur from the =
+initrd?<BR>&gt;<BR>&gt; The=20
+root=3DLABEL=3D/ should work fine as long as you are using an =
+initrd<BR>&gt; (which=20
+you should be using, to perform the initial policy load, unless<BR>&gt; =
+using=20
+the old 2.4-based SELinux).&nbsp; If you weren't using an initrd, =
+you<BR>&gt;=20
+would need to specify the actual root device, e.g. root=3D/dev/hda2 =
+or<BR>&gt;=20
+whatever is appropriate for your system.<BR>&gt;<BR>&gt; --<BR>&gt; =
+Stephen=20
+Smalley &lt;</FONT><A href=3D"mailto:sds@epoch.ncsc.mil"><FONT=20
+face=3D"Times New Roman" size=3D3>sds@epoch.ncsc.mil</FONT></A><FONT=20
+face=3D"Times New Roman" size=3D3>&gt;<BR>&gt; National Security=20
+Agency<BR>&gt;<BR>&gt;</FONT><BR></FONT></DIV></BODY></HTML>
+
+------=_NextPart_001_007C_01C36703.16DCFC90--
+
+------=_NextPart_000_007B_01C36703.16DCFC90
 Content-Type: application/octet-stream;
-	name="setools-20030609a.patch"
+	name=".config"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment;
-	filename="setools-20030609a.patch"
+	filename=".config"
 
-diff -ruN --exclude CVS setools/ChangeLog-setools =
-setools-cur/ChangeLog-setools=0A=
---- setools/ChangeLog-setools	2003-06-09 09:01:54.000000000 -0400=0A=
-+++ setools-cur/ChangeLog-setools	2003-08-18 14:47:45.798856608 -0400=0A=
-@@ -1,6 +1,13 @@=0A=
- CHANGE LOG, SE Linux TOOLS (setools)=0A=
- =0A=
- =
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=0A=
-+August 18, 2003 SE Linux Tools, Release 20030609a=0A=
-+=0A=
-+Libapol:=0A=
-+	Fixed alias bug.=0A=
-+	Added support for v15 policy files.=0A=
-+=0A=
-+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=0A=
- June 9, 2003 SE Linux Tools, Release 20030609=0A=
- =0A=
- Apol:=0A=
-diff -ruN --exclude CVS setools/libapol/apolicy_parse.y =
-setools-cur/libapol/apolicy_parse.y=0A=
---- setools/libapol/apolicy_parse.y	2003-04-01 16:37:08.000000000 -0500=0A=
-+++ setools-cur/libapol/apolicy_parse.y	2003-08-18 13:40:59.000000000 =
--0400=0A=
-@@ -126,7 +126,7 @@=0A=
- static int define_port_context(int ver);=0A=
- static int define_netif_context(int ver);=0A=
- static int define_node_context(int ver);=0A=
--static int define_fs_use(int behavior);=0A=
-+static int define_fs_use(int behavior, int ver);=0A=
- static int define_genfs_context(int has_type);=0A=
- static int define_nfs_context(void);=0A=
- %}=0A=
-@@ -164,7 +164,7 @@=0A=
- %token TARGET=0A=
- %token SAMEUSER=0A=
- %token FSCON PORTCON NETIFCON NODECON =0A=
--%token FSUSEPSID FSUSETASK FSUSETRANS=0A=
-+%token FSUSEPSID FSUSETASK FSUSETRANS FSUSEXATTR=0A=
- %token GENFSCON=0A=
- %token U1 U2 R1 R2 T1 T2=0A=
- %token NOT AND OR =0A=
-@@ -524,12 +524,15 @@=0A=
-                         | fs_uses fs_use_def=0A=
-                         ;=0A=
- /* added Jul 2002 */=0A=
-+/* changed Jul 2003; added FSUSEXATTR */=0A=
- fs_use_def              : FSUSEPSID identifier ';' =0A=
--                        {if (define_fs_use(0)) return -1;}=0A=
-+                        {if (define_fs_use(0, POL_VER_JUL2002)) return =
--1;}=0A=
-+                        | FSUSEXATTR identifier security_context_def ';'=0A=
-+                        {if (define_fs_use(1, POL_VER_15)) return -1;}=0A=
-                         | FSUSETASK identifier security_context_def ';'=0A=
--                        {if (define_fs_use(1)) return -1;}=0A=
-+                        {if (define_fs_use(1, POL_VER_JUL2002)) return =
--1;}=0A=
-                         | FSUSETRANS identifier security_context_def ';'=0A=
--                        {if (define_fs_use(1)) return -1;}=0A=
-+                        {if (define_fs_use(1, POL_VER_JUL2002)) return =
--1;}=0A=
-                         ; =0A=
- /* added Jul 2002 */                       =0A=
- opt_genfs_contexts      : genfs_contexts=0A=
-@@ -2271,11 +2274,12 @@=0A=
- }=0A=
- =0A=
- /* added Jul 2002 */=0A=
--static int define_fs_use(int behavior)=0A=
-+/* changed Jul 2003; added FSUSEXATTR */=0A=
-+static int define_fs_use(int behavior, int ver)=0A=
- {=0A=
- 	int rt;=0A=
- 	=0A=
--	rt =3D set_policy_version(POL_VER_JUL2002, policy);=0A=
-+	rt =3D set_policy_version(ver, policy);=0A=
- 	if(rt !=3D 0) {=0A=
- 		if(rt =3D=3D -2) {=0A=
- 			yyerror("fs_use keyword (FSUSE*) in what appears to be a pre-July =
-2002 policy)");=0A=
-diff -ruN --exclude CVS setools/libapol/apolicy_scan.l =
-setools-cur/libapol/apolicy_scan.l=0A=
---- setools/libapol/apolicy_scan.l	2002-09-26 16:35:28.000000000 -0400=0A=
-+++ setools-cur/libapol/apolicy_scan.l	2003-08-18 13:40:59.000000000 =
--0400=0A=
-@@ -100,6 +100,8 @@=0A=
- FS_USE_TASK                     {return(FSUSETASK);}=0A=
- fs_use_trans |=0A=
- FS_USE_TRANS                    {return(FSUSETRANS);}=0A=
-+fs_use_xattr |=0A=
-+FS_USE_XATTR                     {return(FSUSEXATTR);}=0A=
- genfscon |=0A=
- GENFSCON                        { return(GENFSCON);}=0A=
- r1 |=0A=
-diff -ruN --exclude CVS setools/libapol/apol_tcl.c =
-setools-cur/libapol/apol_tcl.c=0A=
---- setools/libapol/apol_tcl.c	2003-05-29 08:50:26.000000000 -0400=0A=
-+++ setools-cur/libapol/apol_tcl.c	2003-08-18 13:40:59.000000000 -0400=0A=
-@@ -894,6 +894,9 @@=0A=
- 	/* case POL_VER_12: */ /* (currently synonmous with v.11 */=0A=
- 		Tcl_AppendResult(interp, POL_VER_STRING_11, (char *) NULL);=0A=
- 		break;=0A=
-+	case POL_VER_15:=0A=
-+		Tcl_AppendResult(interp, POL_VER_STRING_15, (char *) NULL);=0A=
-+		break;=0A=
- 	default:=0A=
- 		Tcl_AppendResult(interp, "Unkown version", (char *) NULL);=0A=
- 		break;=0A=
-diff -ruN --exclude CVS setools/libapol/policy-avl.c =
-setools-cur/libapol/policy-avl.c=0A=
---- setools/libapol/policy-avl.c	2003-03-12 16:27:44.000000000 -0500=0A=
-+++ setools-cur/libapol/policy-avl.c	2003-08-18 13:35:44.000000000 -0400=0A=
-@@ -57,21 +57,8 @@=0A=
- /* Compare support function for TYPES to use with avl-utils */=0A=
- int type_compare(const char *key, int idx, policy_t *policy)=0A=
- {=0A=
--	int cmpval;=0A=
--	name_item_t *ptr;=0A=
--	=0A=
- 	assert(!(key =3D=3D NULL || policy =3D=3D NULL || =
-!is_valid_type_idx(idx, policy)));=0A=
--	cmpval =3D strcasecmp(key, policy->types[idx].name);=0A=
--	if(cmpval !=3D 0) {=0A=
--		/* FIX: for now aliases are just unsorted attached linked list;=0A=
--		 * low priority since they are rare */		=0A=
--		/* check aliases */=0A=
--		for(ptr =3D policy->types[idx].aliases; ptr !=3D NULL; ptr =3D =
-ptr->next) {=0A=
--			if(strcasecmp(ptr->name, key) =3D=3D 0)=0A=
--				return 0; /* found via alias */=0A=
--		}=0A=
--	}=0A=
--	return cmpval;=0A=
-+	return strcasecmp(key, policy->types[idx].name);=0A=
- }=0A=
- /* ATTRIB comp function*/=0A=
- int attrib_compare(const char *key, int idx, policy_t *policy)=0A=
-diff -ruN --exclude CVS setools/libapol/policy.c =
-setools-cur/libapol/policy.c=0A=
---- setools/libapol/policy.c	2003-04-10 09:23:22.000000000 -0400=0A=
-+++ setools-cur/libapol/policy.c	2003-08-18 13:40:59.000000000 -0400=0A=
-@@ -70,7 +70,16 @@=0A=
- 	}=0A=
- 	policy->list_sz[POL_LIST_TYPE] =3D LIST_SZ;=0A=
- 	policy->num_types =3D 0;=0A=
--=0A=
-+	=0A=
-+	/* type aliases */=0A=
-+	policy->aliases =3D (alias_item_t *)malloc(sizeof(type_item_t) * =
-LIST_SZ);=0A=
-+	if(policy->aliases =3D=3D NULL) {=0A=
-+		fprintf(stderr, "out of memory\n");=0A=
-+		return -1;=0A=
-+	}=0A=
-+	policy->list_sz[POL_LIST_ALIAS] =3D LIST_SZ;=0A=
-+	policy->num_aliases =3D 0;=0A=
-+	=0A=
- 	/* type attributes list */=0A=
- 	policy->attribs =3D (attrib_item_t *)malloc(sizeof(attrib_item_t) * =
-LIST_SZ);=0A=
- 	if(policy->attribs =3D=3D NULL) {=0A=
-@@ -177,6 +186,10 @@=0A=
- 		/* fprintf(stdout, "Policy version appears to be Pre July 2002\n");*/=0A=
- 		break;=0A=
- 	case POL_VER_JUL2002:=0A=
-+		if(policy->version > POL_VER_JUL2002)=0A=
-+		/* if we have a greater version, just go on */=0A=
-+			return 0;=0A=
-+=0A=
- 		if(policy->version !=3D POL_VER_UNKNOWN ) {=0A=
- 			return -3;=0A=
- 		}=0A=
-@@ -299,8 +312,18 @@=0A=
- 		free(policy->types);=0A=
- 	}=0A=
- =0A=
-+	/* type aliases list */=0A=
-+	/* NOTE: while we still have the name list for attributes associated =
-with =0A=
-+	 * the types, the alias names in the alias list will be freed above in =
-the=0A=
-+	 * types area and we do not need to free them again */=0A=
-+	if(policy->aliases !=3D NULL) {=0A=
-+		free(policy->aliases);=0A=
-+	} =0A=
-+	=0A=
-+=0A=
- 	/* type attributes list */=0A=
- 	free_attrib_list(policy->attribs, policy->num_attribs);=0A=
-+	=0A=
- =0A=
- 	/* av_access rules */=0A=
- 	if(policy->av_access !=3D NULL) {=0A=
-@@ -401,6 +424,24 @@=0A=
- 	return 0;=0A=
- }=0A=
- =0A=
-+/* check if TYPE ALIAS array has room for new entry, grow if necessary =
-*/=0A=
-+int check_alias_array(policy_t *policy)=0A=
-+{=0A=
-+	assert(policy !=3D NULL);=0A=
-+	if (policy->num_aliases >=3D policy->list_sz[POL_LIST_ALIAS]) {=0A=
-+		/* grow the dynamic array */=0A=
-+		alias_item_t * ptr;=0A=
-+		ptr =3D (alias_item_t *)realloc(policy->aliases, =
-(LIST_SZ+policy->list_sz[POL_LIST_ALIAS]) * sizeof(alias_item_t));=0A=
-+		if(ptr =3D=3D NULL) {=0A=
-+			fprintf(stderr, "out of memory\n");=0A=
-+			return -1;=0A=
-+		}=0A=
-+		policy->aliases =3D ptr;=0A=
-+		policy->list_sz[POL_LIST_ALIAS] +=3D LIST_SZ;=0A=
-+	}=0A=
-+	return 0;=0A=
-+}=0A=
-+=0A=
- /* check if ATTRIB array has room for new entry, grow if necessary */=0A=
- int check_attrib_array(policy_t *policy)=0A=
- {=0A=
-@@ -474,6 +515,19 @@=0A=
- 	return 0;=0A=
- }=0A=
- =0A=
-+/* check the alias array to see if name matches and if so return the =
-associated=0A=
-+ * type idx */=0A=
-+int get_type_idx_by_alias_name(const char *alias, policy_t *policy)=0A=
-+{=0A=
-+	int i;=0A=
-+	if(alias =3D=3D NULL || policy =3D=3D NULL)=0A=
-+		return -1;=0A=
-+	for(i =3D 0; i < policy->num_aliases; i++) {=0A=
-+		if(strcasecmp(alias, policy->aliases[i].name) =3D=3D 0) =0A=
-+			return policy->aliases[i].type;=0A=
-+	} =0A=
-+	return -1;=0A=
-+}=0A=
- =0A=
- =0A=
- int get_type_idx(char *name, policy_t *policy)=0A=
-@@ -481,13 +535,22 @@=0A=
- #ifndef USE_SORTING=0A=
- 	int i;=0A=
- 	name_item_t *ptr;=0A=
-+#else	=0A=
-+	int rt, rt2;=0A=
- #endif=0A=
- 	if(name =3D=3D NULL || policy =3D=3D NULL)=0A=
- 		return -1;=0A=
- =0A=
- #ifdef USE_SORTING=0A=
- 	/* traverse the avl tree */=0A=
--	return avl_get_idx(name, policy->tree[AVL_TYPES].head, type_compare, =
-get_type_subtree, policy);=0A=
-+	rt =3D avl_get_idx(name, policy->tree[AVL_TYPES].head, type_compare, =
-get_type_subtree, policy);=0A=
-+	if(rt <0) {=0A=
-+		/* check aliases for a match */=0A=
-+		rt2 =3D get_type_idx_by_alias_name(name, policy);=0A=
-+		if(rt2 >=3D0 )=0A=
-+			return rt2;=0A=
-+	}=0A=
-+	return rt;		=0A=
- #else=0A=
- 	for(i =3D 0; i < policy->num_types; i++)	{=0A=
- 		if(strcasecmp(policy->types[i].name, name) =3D=3D 0)=0A=
-@@ -503,6 +566,9 @@=0A=
- =0A=
- }=0A=
- =0A=
-+=0A=
-+=0A=
-+=0A=
- /* this is an INTERNAL function only; allows direct access to type name =
-string=0A=
-  * stored within the policy db.  This function shouldn't be exported as =
-a caller=0A=
-  * could corrupt the db.  It is used internally within the policy.c =
-file for=0A=
-@@ -775,12 +841,37 @@=0A=
- =0A=
- int add_alias(int type_idx, char *alias, policy_t *policy)=0A=
- {=0A=
-+	int idx;=0A=
- 	if(!is_valid_type_idx(type_idx, policy) || alias =3D=3D NULL || policy =
-=3D=3D NULL)=0A=
- 		return -1;=0A=
- =0A=
-+	/* TODO: we have a problem with the way we handle aliases once AVL =
-trees were added.=0A=
-+	 *	since the AVL trees are sorted by type name, the alias search =
-doesn't work=0A=
-+	 *	(since an aliases is checked only if the type name doesn't match, =
-but since we have=0A=
-+	 * 	an efficient type name tree, not all types (and therefore aliases) =
-are searched.=0A=
-+	 *	What we've done for now is maintain a separate alias array while =
-still maintaining=0A=
-+	 *	the old alias name list attached to each type.  The alias array =
-will allow us to search=0A=
-+	 *	for a type using its alias name if it wasn't found via the AVL =
-search using prime=0A=
-+	 *	type names.  Eventually we need to remove the name list and use =
-references to the=0A=
-+	 *	alias array.=0A=
-+	 *=0A=
-+	 *	This is currently fragile as we don't check for syntax problems =
-arising from the using=0A=
-+	 * 	the same alias twice (checkpolicy would not allow this).=0A=
-+	 */=0A=
-+	/* first the simple name list */=0A=
- 	if(add_name(alias, &(policy->types[type_idx].aliases)) !=3D 0) {=0A=
- 		return -1;			=0A=
- 	}=0A=
-+	/* and now the alias array; add_name also uses the memory for the =
-name, so we need to be=0A=
-+	 * careful on free */=0A=
-+	if(check_alias_array(policy) !=3D 0) =0A=
-+		return -1;=0A=
-+	=0A=
-+	idx =3D policy->num_aliases;=0A=
-+	policy->aliases[idx].name =3D alias;=0A=
-+	policy->aliases[idx].type =3D type_idx;=0A=
-+	(policy->num_aliases)++;=0A=
-+=0A=
- 	return 0;=0A=
- }=0A=
- =0A=
-diff -ruN --exclude CVS setools/libapol/policy.h =
-setools-cur/libapol/policy.h=0A=
---- setools/libapol/policy.h	2003-03-13 11:43:52.000000000 -0500=0A=
-+++ setools-cur/libapol/policy.h	2003-08-18 13:42:41.000000000 -0400=0A=
-@@ -249,6 +249,12 @@=0A=
- } user_list_t;=0A=
- =0A=
- =0A=
-+/* type alias array=0A=
-+ * TODO: see comments in add_alias() in policy.c */=0A=
-+typedef struct alias_item {=0A=
-+	char			*name;=0A=
-+	int			type;	/* assoicated type */=0A=
-+} alias_item_t;=0A=
- =0A=
- /* IDs for DYNAMIC array only  (e.g., clones is not a dynamic array, =
-but rather a linked list*/=0A=
- #define POL_LIST_TYPE		0=0A=
-@@ -262,7 +268,8 @@=0A=
- #define POL_LIST_PERMS		8=0A=
- #define POL_LIST_COMMON_PERMS	9=0A=
- #define POL_LIST_OBJ_CLASSES	10=0A=
--#define POL_NUM_LISTS		11=0A=
-+#define POL_LIST_ALIAS		11=0A=
-+#define POL_NUM_LISTS		12=0A=
- =0A=
- =0A=
- =0A=
-@@ -282,10 +289,12 @@=0A=
- #define POL_VER_JUL2002		2	/* all version after Jul 2002 until next =
-date */=0A=
- #define POL_VER_11		2	/* same as POL_VER_JUL2002 */=0A=
- #define POL_VER_12		2	/* same as POL_VER_JUL2002; no apparent syntax =
-changes b/w 11 and 12 */=0A=
--#define POL_VER_MAX		2=0A=
-+#define POL_VER_15		3	/* somewhere between v 12 and 15! */=0A=
-+#define POL_VER_MAX		3=0A=
- =0A=
- #define POL_VER_STRING_PRE_11 	"prior to v. 11"=0A=
- #define POL_VER_STRING_11	"v.11 -- v.12"=0A=
-+#define POL_VER_STRING_15	"v.13 -- v.15"=0A=
- =0A=
- =0A=
- =0A=
-@@ -303,6 +312,7 @@=0A=
- 	int 	num_perms;		/* " " */=0A=
- 	int	num_common_perms;=0A=
- 	int	num_obj_classes;=0A=
-+	int	num_aliases;=0A=
- 	int 	rule_cnt[RULE_MAX];	/* statics on # of various rules */=0A=
- 	int	list_sz[POL_NUM_LISTS]; /* keep track of dynamic array sizes */=0A=
- #ifdef USE_SORTING=0A=
-@@ -316,6 +326,7 @@=0A=
- 	obj_class_t	*obj_classes;	/* define objects and their perms (ARRAY) */=0A=
- /* Type Enforcement Rules */=0A=
- 	type_item_t 	*types;    	/* defined types and their attribs (ARRAY)*/=0A=
-+	alias_item_t	*aliases;	/* separate index into type aliases (ARRAY) */=0A=
- 	attrib_item_t 	*attribs;	/* defined attribs and their types (ARRAY)*/=0A=
- 	av_item_t	*av_access;	/* allow and neverallow rules; we expect lots of =
-these (ARRAY)*/=0A=
- 	av_item_t	*av_audit;	/* audit and notify rules (ARRAY)*/=0A=
-@@ -375,6 +386,7 @@=0A=
- int init_policy( policy_t **policy_ptr);=0A=
- int free_policy(policy_t **policy_ptr);=0A=
- int get_type_idx(char *name, policy_t *policy);=0A=
-+int get_type_idx_by_alias_name(const char *alias, policy_t *policy);=0A=
- int get_attrib_idx(char *name, policy_t *policy);=0A=
- int get_type_or_attrib_idx(char *name, int *idx_type, policy_t *policy);=0A=
- int get_role_name(int idx, char **name, policy_t *policy);=0A=
-diff -ruN --exclude CVS setools/libapol/util.h setools-cur/libapol/util.h=0A=
---- setools/libapol/util.h	2003-05-29 12:32:02.000000000 -0400=0A=
-+++ setools-cur/libapol/util.h	2003-08-18 14:49:11.416840696 -0400=0A=
-@@ -15,7 +15,7 @@=0A=
- #include <stdlib.h>=0A=
- #include "policy.h"=0A=
- =0A=
--#define VERSION_STRING "0.7.1"=0A=
-+#define VERSION_STRING "0.7.1a"=0A=
- =0A=
- /* generic link list structures */=0A=
- typedef struct llist_node {=0A=
+#=0A=
+# Automatically generated make config: don't edit=0A=
+#=0A=
+CONFIG_X86=3Dy=0A=
+CONFIG_MMU=3Dy=0A=
+CONFIG_UID16=3Dy=0A=
+CONFIG_GENERIC_ISA_DMA=3Dy=0A=
+=0A=
+#=0A=
+# Code maturity level options=0A=
+#=0A=
+CONFIG_EXPERIMENTAL=3Dy=0A=
+=0A=
+#=0A=
+# General setup=0A=
+#=0A=
+CONFIG_SWAP=3Dy=0A=
+CONFIG_SYSVIPC=3Dy=0A=
+# CONFIG_BSD_PROCESS_ACCT is not set=0A=
+CONFIG_SYSCTL=3Dy=0A=
+CONFIG_LOG_BUF_SHIFT=3D14=0A=
+# CONFIG_EMBEDDED is not set=0A=
+CONFIG_KALLSYMS=3Dy=0A=
+CONFIG_FUTEX=3Dy=0A=
+CONFIG_EPOLL=3Dy=0A=
+CONFIG_IOSCHED_AS=3Dy=0A=
+CONFIG_IOSCHED_DEADLINE=3Dy=0A=
+=0A=
+#=0A=
+# Loadable module support=0A=
+#=0A=
+CONFIG_MODULES=3Dy=0A=
+CONFIG_MODULE_UNLOAD=3Dy=0A=
+CONFIG_MODULE_FORCE_UNLOAD=3Dy=0A=
+CONFIG_OBSOLETE_MODPARM=3Dy=0A=
+# CONFIG_MODVERSIONS is not set=0A=
+CONFIG_KMOD=3Dy=0A=
+=0A=
+#=0A=
+# Processor type and features=0A=
+#=0A=
+CONFIG_X86_PC=3Dy=0A=
+# CONFIG_X86_VOYAGER is not set=0A=
+# CONFIG_X86_NUMAQ is not set=0A=
+# CONFIG_X86_SUMMIT is not set=0A=
+# CONFIG_X86_BIGSMP is not set=0A=
+# CONFIG_X86_VISWS is not set=0A=
+# CONFIG_X86_GENERICARCH is not set=0A=
+# CONFIG_X86_ES7000 is not set=0A=
+# CONFIG_M386 is not set=0A=
+# CONFIG_M486 is not set=0A=
+# CONFIG_M586 is not set=0A=
+# CONFIG_M586TSC is not set=0A=
+# CONFIG_M586MMX is not set=0A=
+# CONFIG_M686 is not set=0A=
+# CONFIG_MPENTIUMII is not set=0A=
+# CONFIG_MPENTIUMIII is not set=0A=
+CONFIG_MPENTIUM4=3Dy=0A=
+# CONFIG_MK6 is not set=0A=
+# CONFIG_MK7 is not set=0A=
+# CONFIG_MK8 is not set=0A=
+# CONFIG_MELAN is not set=0A=
+# CONFIG_MCRUSOE is not set=0A=
+# CONFIG_MWINCHIPC6 is not set=0A=
+# CONFIG_MWINCHIP2 is not set=0A=
+# CONFIG_MWINCHIP3D is not set=0A=
+# CONFIG_MCYRIXIII is not set=0A=
+# CONFIG_MVIAC3_2 is not set=0A=
+# CONFIG_X86_GENERIC is not set=0A=
+CONFIG_X86_CMPXCHG=3Dy=0A=
+CONFIG_X86_XADD=3Dy=0A=
+CONFIG_X86_L1_CACHE_SHIFT=3D7=0A=
+CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy=0A=
+CONFIG_X86_WP_WORKS_OK=3Dy=0A=
+CONFIG_X86_INVLPG=3Dy=0A=
+CONFIG_X86_BSWAP=3Dy=0A=
+CONFIG_X86_POPAD_OK=3Dy=0A=
+CONFIG_X86_GOOD_APIC=3Dy=0A=
+CONFIG_X86_INTEL_USERCOPY=3Dy=0A=
+CONFIG_X86_USE_PPRO_CHECKSUM=3Dy=0A=
+# CONFIG_HUGETLB_PAGE is not set=0A=
+# CONFIG_SMP is not set=0A=
+# CONFIG_PREEMPT is not set=0A=
+# CONFIG_X86_UP_APIC is not set=0A=
+CONFIG_X86_TSC=3Dy=0A=
+CONFIG_X86_MCE=3Dy=0A=
+# CONFIG_X86_MCE_NONFATAL is not set=0A=
+# CONFIG_TOSHIBA is not set=0A=
+# CONFIG_I8K is not set=0A=
+# CONFIG_MICROCODE is not set=0A=
+# CONFIG_X86_MSR is not set=0A=
+# CONFIG_X86_CPUID is not set=0A=
+CONFIG_EDD=3Dy=0A=
+CONFIG_NOHIGHMEM=3Dy=0A=
+# CONFIG_HIGHMEM4G is not set=0A=
+# CONFIG_HIGHMEM64G is not set=0A=
+# CONFIG_MATH_EMULATION is not set=0A=
+CONFIG_MTRR=3Dy=0A=
+=0A=
+#=0A=
+# Power management options (ACPI, APM)=0A=
+#=0A=
+# CONFIG_PM is not set=0A=
+=0A=
+#=0A=
+# ACPI Support=0A=
+#=0A=
+CONFIG_ACPI=3Dy=0A=
+CONFIG_ACPI_BOOT=3Dy=0A=
+# CONFIG_ACPI_SLEEP is not set=0A=
+CONFIG_ACPI_AC=3Dy=0A=
+CONFIG_ACPI_BATTERY=3Dy=0A=
+CONFIG_ACPI_BUTTON=3Dy=0A=
+CONFIG_ACPI_FAN=3Dy=0A=
+CONFIG_ACPI_PROCESSOR=3Dy=0A=
+CONFIG_ACPI_THERMAL=3Dy=0A=
+# CONFIG_ACPI_ASUS is not set=0A=
+# CONFIG_ACPI_TOSHIBA is not set=0A=
+CONFIG_ACPI_DEBUG=3Dy=0A=
+CONFIG_ACPI_BUS=3Dy=0A=
+CONFIG_ACPI_INTERPRETER=3Dy=0A=
+CONFIG_ACPI_EC=3Dy=0A=
+CONFIG_ACPI_POWER=3Dy=0A=
+CONFIG_ACPI_PCI=3Dy=0A=
+CONFIG_ACPI_SYSTEM=3Dy=0A=
+=0A=
+#=0A=
+# CPU Frequency scaling=0A=
+#=0A=
+# CONFIG_CPU_FREQ is not set=0A=
+=0A=
+#=0A=
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)=0A=
+#=0A=
+CONFIG_PCI=3Dy=0A=
+# CONFIG_PCI_GOBIOS is not set=0A=
+# CONFIG_PCI_GODIRECT is not set=0A=
+CONFIG_PCI_GOANY=3Dy=0A=
+CONFIG_PCI_BIOS=3Dy=0A=
+CONFIG_PCI_DIRECT=3Dy=0A=
+# CONFIG_PCI_LEGACY_PROC is not set=0A=
+CONFIG_PCI_NAMES=3Dy=0A=
+CONFIG_ISA=3Dy=0A=
+# CONFIG_EISA is not set=0A=
+# CONFIG_MCA is not set=0A=
+# CONFIG_SCx200 is not set=0A=
+CONFIG_HOTPLUG=3Dy=0A=
+=0A=
+#=0A=
+# PCMCIA/CardBus support=0A=
+#=0A=
+CONFIG_PCMCIA=3Dy=0A=
+# CONFIG_YENTA is not set=0A=
+# CONFIG_I82092 is not set=0A=
+# CONFIG_I82365 is not set=0A=
+# CONFIG_TCIC is not set=0A=
+CONFIG_PCMCIA_PROBE=3Dy=0A=
+=0A=
+#=0A=
+# PCI Hotplug Support=0A=
+#=0A=
+# CONFIG_HOTPLUG_PCI is not set=0A=
+=0A=
+#=0A=
+# Executable file formats=0A=
+#=0A=
+CONFIG_KCORE_ELF=3Dy=0A=
+# CONFIG_KCORE_AOUT is not set=0A=
+CONFIG_BINFMT_ELF=3Dy=0A=
+CONFIG_BINFMT_AOUT=3Dy=0A=
+CONFIG_BINFMT_MISC=3Dy=0A=
+=0A=
+#=0A=
+# Generic Driver Options=0A=
+#=0A=
+# CONFIG_FW_LOADER is not set=0A=
+=0A=
+#=0A=
+# Memory Technology Devices (MTD)=0A=
+#=0A=
+# CONFIG_MTD is not set=0A=
+=0A=
+#=0A=
+# Parallel port support=0A=
+#=0A=
+# CONFIG_PARPORT is not set=0A=
+=0A=
+#=0A=
+# Plug and Play support=0A=
+#=0A=
+# CONFIG_PNP is not set=0A=
+=0A=
+#=0A=
+# Block devices=0A=
+#=0A=
+# CONFIG_BLK_DEV_FD is not set=0A=
+# CONFIG_BLK_DEV_XD is not set=0A=
+# CONFIG_BLK_CPQ_DA is not set=0A=
+# CONFIG_BLK_CPQ_CISS_DA is not set=0A=
+# CONFIG_BLK_DEV_DAC960 is not set=0A=
+# CONFIG_BLK_DEV_UMEM is not set=0A=
+# CONFIG_BLK_DEV_LOOP is not set=0A=
+# CONFIG_BLK_DEV_NBD is not set=0A=
+# CONFIG_BLK_DEV_RAM is not set=0A=
+CONFIG_BLK_DEV_INITRD=3Dy=0A=
+CONFIG_LBD=3Dy=0A=
+=0A=
+#=0A=
+# ATA/ATAPI/MFM/RLL support=0A=
+#=0A=
+# CONFIG_IDE is not set=0A=
+=0A=
+#=0A=
+# SCSI device support=0A=
+#=0A=
+CONFIG_SCSI=3Dy=0A=
+=0A=
+#=0A=
+# SCSI support type (disk, tape, CD-ROM)=0A=
+#=0A=
+CONFIG_BLK_DEV_SD=3Dy=0A=
+# CONFIG_CHR_DEV_ST is not set=0A=
+# CONFIG_CHR_DEV_OSST is not set=0A=
+CONFIG_BLK_DEV_SR=3Dy=0A=
+CONFIG_BLK_DEV_SR_VENDOR=3Dy=0A=
+CONFIG_CHR_DEV_SG=3Dy=0A=
+=0A=
+#=0A=
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs=0A=
+#=0A=
+CONFIG_SCSI_MULTI_LUN=3Dy=0A=
+CONFIG_SCSI_REPORT_LUNS=3Dy=0A=
+CONFIG_SCSI_CONSTANTS=3Dy=0A=
+# CONFIG_SCSI_LOGGING is not set=0A=
+=0A=
+#=0A=
+# SCSI low-level drivers=0A=
+#=0A=
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set=0A=
+# CONFIG_SCSI_7000FASST is not set=0A=
+# CONFIG_SCSI_ACARD is not set=0A=
+# CONFIG_SCSI_AHA152X is not set=0A=
+# CONFIG_SCSI_AHA1542 is not set=0A=
+# CONFIG_SCSI_AACRAID is not set=0A=
+CONFIG_SCSI_AIC7XXX=3Dy=0A=
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=3D64=0A=
+CONFIG_AIC7XXX_RESET_DELAY_MS=3D2000=0A=
+# CONFIG_AIC7XXX_PROBE_EISA_VL is not set=0A=
+# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set=0A=
+# CONFIG_AIC7XXX_DEBUG_ENABLE is not set=0A=
+CONFIG_AIC7XXX_DEBUG_MASK=3D0=0A=
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=3Dy=0A=
+# CONFIG_SCSI_AIC7XXX_OLD is not set=0A=
+# CONFIG_SCSI_AIC79XX is not set=0A=
+# CONFIG_SCSI_DPT_I2O is not set=0A=
+# CONFIG_SCSI_ADVANSYS is not set=0A=
+# CONFIG_SCSI_IN2000 is not set=0A=
+# CONFIG_SCSI_AM53C974 is not set=0A=
+# CONFIG_SCSI_MEGARAID is not set=0A=
+# CONFIG_SCSI_BUSLOGIC is not set=0A=
+# CONFIG_SCSI_CPQFCTS is not set=0A=
+# CONFIG_SCSI_DMX3191D is not set=0A=
+# CONFIG_SCSI_DTC3280 is not set=0A=
+# CONFIG_SCSI_EATA is not set=0A=
+# CONFIG_SCSI_EATA_PIO is not set=0A=
+# CONFIG_SCSI_FUTURE_DOMAIN is not set=0A=
+# CONFIG_SCSI_GDTH is not set=0A=
+# CONFIG_SCSI_GENERIC_NCR5380 is not set=0A=
+# CONFIG_SCSI_GENERIC_NCR5380_MMIO is not set=0A=
+# CONFIG_SCSI_IPS is not set=0A=
+# CONFIG_SCSI_INITIO is not set=0A=
+# CONFIG_SCSI_INIA100 is not set=0A=
+# CONFIG_SCSI_NCR53C406A is not set=0A=
+# CONFIG_SCSI_SYM53C8XX_2 is not set=0A=
+# CONFIG_SCSI_SYM53C8XX is not set=0A=
+# CONFIG_SCSI_PAS16 is not set=0A=
+# CONFIG_SCSI_PCI2000 is not set=0A=
+# CONFIG_SCSI_PCI2220I is not set=0A=
+# CONFIG_SCSI_PSI240I is not set=0A=
+# CONFIG_SCSI_QLOGIC_FAS is not set=0A=
+# CONFIG_SCSI_QLOGIC_ISP is not set=0A=
+# CONFIG_SCSI_QLOGIC_FC is not set=0A=
+CONFIG_SCSI_QLOGIC_1280=3Dy=0A=
+# CONFIG_SCSI_SEAGATE is not set=0A=
+# CONFIG_SCSI_SYM53C416 is not set=0A=
+# CONFIG_SCSI_DC395x is not set=0A=
+# CONFIG_SCSI_DC390T is not set=0A=
+# CONFIG_SCSI_T128 is not set=0A=
+# CONFIG_SCSI_U14_34F is not set=0A=
+# CONFIG_SCSI_ULTRASTOR is not set=0A=
+# CONFIG_SCSI_NSP32 is not set=0A=
+# CONFIG_SCSI_DEBUG is not set=0A=
+=0A=
+#=0A=
+# PCMCIA SCSI adapter support=0A=
+#=0A=
+# CONFIG_PCMCIA_AHA152X is not set=0A=
+# CONFIG_PCMCIA_FDOMAIN is not set=0A=
+# CONFIG_PCMCIA_NINJA_SCSI is not set=0A=
+# CONFIG_PCMCIA_QLOGIC is not set=0A=
+=0A=
+#=0A=
+# Old CD-ROM drivers (not SCSI, not IDE)=0A=
+#=0A=
+# CONFIG_CD_NO_IDESCSI is not set=0A=
+=0A=
+#=0A=
+# Multi-device support (RAID and LVM)=0A=
+#=0A=
+# CONFIG_MD is not set=0A=
+=0A=
+#=0A=
+# Fusion MPT device support=0A=
+#=0A=
+# CONFIG_FUSION is not set=0A=
+=0A=
+#=0A=
+# IEEE 1394 (FireWire) support (EXPERIMENTAL)=0A=
+#=0A=
+# CONFIG_IEEE1394 is not set=0A=
+=0A=
+#=0A=
+# I2O device support=0A=
+#=0A=
+# CONFIG_I2O is not set=0A=
+=0A=
+#=0A=
+# Networking support=0A=
+#=0A=
+CONFIG_NET=3Dy=0A=
+=0A=
+#=0A=
+# Networking options=0A=
+#=0A=
+CONFIG_PACKET=3Dy=0A=
+# CONFIG_PACKET_MMAP is not set=0A=
+# CONFIG_NETLINK_DEV is not set=0A=
+CONFIG_UNIX=3Dy=0A=
+# CONFIG_NET_KEY is not set=0A=
+CONFIG_INET=3Dy=0A=
+CONFIG_IP_MULTICAST=3Dy=0A=
+# CONFIG_IP_ADVANCED_ROUTER is not set=0A=
+# CONFIG_IP_PNP is not set=0A=
+# CONFIG_NET_IPIP is not set=0A=
+# CONFIG_NET_IPGRE is not set=0A=
+# CONFIG_IP_MROUTE is not set=0A=
+# CONFIG_ARPD is not set=0A=
+# CONFIG_INET_ECN is not set=0A=
+# CONFIG_SYN_COOKIES is not set=0A=
+# CONFIG_INET_AH is not set=0A=
+# CONFIG_INET_ESP is not set=0A=
+# CONFIG_INET_IPCOMP is not set=0A=
+# CONFIG_IPV6 is not set=0A=
+# CONFIG_DECNET is not set=0A=
+# CONFIG_BRIDGE is not set=0A=
+# CONFIG_NETFILTER is not set=0A=
+# CONFIG_XFRM_USER is not set=0A=
+=0A=
+#=0A=
+# SCTP Configuration (EXPERIMENTAL)=0A=
+#=0A=
+CONFIG_IPV6_SCTP__=3Dy=0A=
+# CONFIG_IP_SCTP is not set=0A=
+# CONFIG_ATM is not set=0A=
+# CONFIG_VLAN_8021Q is not set=0A=
+# CONFIG_LLC is not set=0A=
+# CONFIG_X25 is not set=0A=
+# CONFIG_LAPB is not set=0A=
+# CONFIG_NET_DIVERT is not set=0A=
+# CONFIG_ECONET is not set=0A=
+# CONFIG_WAN_ROUTER is not set=0A=
+# CONFIG_NET_FASTROUTE is not set=0A=
+# CONFIG_NET_HW_FLOWCONTROL is not set=0A=
+=0A=
+#=0A=
+# QoS and/or fair queueing=0A=
+#=0A=
+# CONFIG_NET_SCHED is not set=0A=
+=0A=
+#=0A=
+# Network testing=0A=
+#=0A=
+# CONFIG_NET_PKTGEN is not set=0A=
+CONFIG_NETDEVICES=3Dy=0A=
+=0A=
+#=0A=
+# ARCnet devices=0A=
+#=0A=
+# CONFIG_ARCNET is not set=0A=
+CONFIG_DUMMY=3Dm=0A=
+# CONFIG_BONDING is not set=0A=
+# CONFIG_EQUALIZER is not set=0A=
+# CONFIG_TUN is not set=0A=
+# CONFIG_ETHERTAP is not set=0A=
+=0A=
+#=0A=
+# Ethernet (10 or 100Mbit)=0A=
+#=0A=
+CONFIG_NET_ETHERNET=3Dy=0A=
+# CONFIG_MII is not set=0A=
+# CONFIG_HAPPYMEAL is not set=0A=
+# CONFIG_SUNGEM is not set=0A=
+# CONFIG_NET_VENDOR_3COM is not set=0A=
+# CONFIG_LANCE is not set=0A=
+# CONFIG_NET_VENDOR_SMC is not set=0A=
+# CONFIG_NET_VENDOR_RACAL is not set=0A=
+=0A=
+#=0A=
+# Tulip family network device support=0A=
+#=0A=
+# CONFIG_NET_TULIP is not set=0A=
+# CONFIG_AT1700 is not set=0A=
+# CONFIG_DEPCA is not set=0A=
+# CONFIG_HP100 is not set=0A=
+# CONFIG_NET_ISA is not set=0A=
+CONFIG_NET_PCI=3Dy=0A=
+# CONFIG_PCNET32 is not set=0A=
+# CONFIG_AMD8111_ETH is not set=0A=
+# CONFIG_ADAPTEC_STARFIRE is not set=0A=
+# CONFIG_AC3200 is not set=0A=
+# CONFIG_APRICOT is not set=0A=
+# CONFIG_B44 is not set=0A=
+# CONFIG_CS89x0 is not set=0A=
+# CONFIG_DGRS is not set=0A=
+# CONFIG_EEPRO100 is not set=0A=
+CONFIG_E100=3Dy=0A=
+# CONFIG_FEALNX is not set=0A=
+# CONFIG_NATSEMI is not set=0A=
+# CONFIG_NE2K_PCI is not set=0A=
+# CONFIG_8139CP is not set=0A=
+# CONFIG_8139TOO is not set=0A=
+# CONFIG_SIS900 is not set=0A=
+# CONFIG_EPIC100 is not set=0A=
+# CONFIG_SUNDANCE is not set=0A=
+# CONFIG_TLAN is not set=0A=
+# CONFIG_VIA_RHINE is not set=0A=
+# CONFIG_NET_POCKET is not set=0A=
+=0A=
+#=0A=
+# Ethernet (1000 Mbit)=0A=
+#=0A=
+# CONFIG_ACENIC is not set=0A=
+# CONFIG_DL2K is not set=0A=
+# CONFIG_E1000 is not set=0A=
+# CONFIG_NS83820 is not set=0A=
+# CONFIG_HAMACHI is not set=0A=
+# CONFIG_YELLOWFIN is not set=0A=
+# CONFIG_R8169 is not set=0A=
+# CONFIG_SK98LIN is not set=0A=
+# CONFIG_TIGON3 is not set=0A=
+=0A=
+#=0A=
+# Ethernet (10000 Mbit)=0A=
+#=0A=
+# CONFIG_IXGB is not set=0A=
+# CONFIG_FDDI is not set=0A=
+# CONFIG_HIPPI is not set=0A=
+# CONFIG_PPP is not set=0A=
+# CONFIG_SLIP is not set=0A=
+=0A=
+#=0A=
+# Wireless LAN (non-hamradio)=0A=
+#=0A=
+# CONFIG_NET_RADIO is not set=0A=
+=0A=
+#=0A=
+# Token Ring devices (depends on LLC=3Dy)=0A=
+#=0A=
+# CONFIG_NET_FC is not set=0A=
+# CONFIG_RCPCI is not set=0A=
+# CONFIG_SHAPER is not set=0A=
+=0A=
+#=0A=
+# Wan interfaces=0A=
+#=0A=
+# CONFIG_WAN is not set=0A=
+=0A=
+#=0A=
+# PCMCIA network device support=0A=
+#=0A=
+CONFIG_NET_PCMCIA=3Dy=0A=
+# CONFIG_PCMCIA_3C589 is not set=0A=
+# CONFIG_PCMCIA_3C574 is not set=0A=
+# CONFIG_PCMCIA_FMVJ18X is not set=0A=
+CONFIG_PCMCIA_PCNET=3Dy=0A=
+# CONFIG_PCMCIA_NMCLAN is not set=0A=
+# CONFIG_PCMCIA_SMC91C92 is not set=0A=
+# CONFIG_PCMCIA_XIRC2PS is not set=0A=
+# CONFIG_PCMCIA_AXNET is not set=0A=
+=0A=
+#=0A=
+# Amateur Radio support=0A=
+#=0A=
+# CONFIG_HAMRADIO is not set=0A=
+=0A=
+#=0A=
+# IrDA (infrared) support=0A=
+#=0A=
+# CONFIG_IRDA is not set=0A=
+=0A=
+#=0A=
+# ISDN subsystem=0A=
+#=0A=
+# CONFIG_ISDN_BOOL is not set=0A=
+=0A=
+#=0A=
+# Telephony Support=0A=
+#=0A=
+# CONFIG_PHONE is not set=0A=
+=0A=
+#=0A=
+# Input device support=0A=
+#=0A=
+CONFIG_INPUT=3Dy=0A=
+=0A=
+#=0A=
+# Userland interfaces=0A=
+#=0A=
+CONFIG_INPUT_MOUSEDEV=3Dy=0A=
+CONFIG_INPUT_MOUSEDEV_PSAUX=3Dy=0A=
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=3D1024=0A=
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=3D768=0A=
+# CONFIG_INPUT_JOYDEV is not set=0A=
+# CONFIG_INPUT_TSDEV is not set=0A=
+# CONFIG_INPUT_EVDEV is not set=0A=
+# CONFIG_INPUT_EVBUG is not set=0A=
+=0A=
+#=0A=
+# Input I/O drivers=0A=
+#=0A=
+# CONFIG_GAMEPORT is not set=0A=
+CONFIG_SOUND_GAMEPORT=3Dy=0A=
+CONFIG_SERIO=3Dy=0A=
+CONFIG_SERIO_I8042=3Dy=0A=
+# CONFIG_SERIO_SERPORT is not set=0A=
+# CONFIG_SERIO_CT82C710 is not set=0A=
+# CONFIG_SERIO_PCIPS2 is not set=0A=
+=0A=
+#=0A=
+# Input Device Drivers=0A=
+#=0A=
+CONFIG_INPUT_KEYBOARD=3Dy=0A=
+CONFIG_KEYBOARD_ATKBD=3Dy=0A=
+# CONFIG_KEYBOARD_SUNKBD is not set=0A=
+# CONFIG_KEYBOARD_XTKBD is not set=0A=
+# CONFIG_KEYBOARD_NEWTON is not set=0A=
+CONFIG_INPUT_MOUSE=3Dy=0A=
+CONFIG_MOUSE_PS2=3Dy=0A=
+# CONFIG_MOUSE_SERIAL is not set=0A=
+# CONFIG_MOUSE_INPORT is not set=0A=
+# CONFIG_MOUSE_LOGIBM is not set=0A=
+# CONFIG_MOUSE_PC110PAD is not set=0A=
+# CONFIG_INPUT_JOYSTICK is not set=0A=
+# CONFIG_INPUT_TOUCHSCREEN is not set=0A=
+# CONFIG_INPUT_MISC is not set=0A=
+=0A=
+#=0A=
+# Character devices=0A=
+#=0A=
+CONFIG_VT=3Dy=0A=
+CONFIG_VT_CONSOLE=3Dy=0A=
+CONFIG_HW_CONSOLE=3Dy=0A=
+# CONFIG_SERIAL_NONSTANDARD is not set=0A=
+=0A=
+#=0A=
+# Serial drivers=0A=
+#=0A=
+CONFIG_SERIAL_8250=3Dy=0A=
+# CONFIG_SERIAL_8250_CONSOLE is not set=0A=
+# CONFIG_SERIAL_8250_CS is not set=0A=
+# CONFIG_SERIAL_8250_ACPI is not set=0A=
+# CONFIG_SERIAL_8250_EXTENDED is not set=0A=
+=0A=
+#=0A=
+# Non-8250 serial port support=0A=
+#=0A=
+CONFIG_SERIAL_CORE=3Dy=0A=
+# CONFIG_UNIX98_PTYS is not set=0A=
+=0A=
+#=0A=
+# I2C support=0A=
+#=0A=
+# CONFIG_I2C is not set=0A=
+=0A=
+#=0A=
+# I2C Hardware Sensors Mainboard support=0A=
+#=0A=
+=0A=
+#=0A=
+# I2C Hardware Sensors Chip support=0A=
+#=0A=
+# CONFIG_I2C_SENSOR is not set=0A=
+=0A=
+#=0A=
+# Mice=0A=
+#=0A=
+# CONFIG_BUSMOUSE is not set=0A=
+# CONFIG_QIC02_TAPE is not set=0A=
+=0A=
+#=0A=
+# IPMI=0A=
+#=0A=
+# CONFIG_IPMI_HANDLER is not set=0A=
+=0A=
+#=0A=
+# Watchdog Cards=0A=
+#=0A=
+# CONFIG_WATCHDOG is not set=0A=
+# CONFIG_HW_RANDOM is not set=0A=
+# CONFIG_NVRAM is not set=0A=
+# CONFIG_RTC is not set=0A=
+# CONFIG_GEN_RTC is not set=0A=
+# CONFIG_DTLK is not set=0A=
+# CONFIG_R3964 is not set=0A=
+# CONFIG_APPLICOM is not set=0A=
+# CONFIG_SONYPI is not set=0A=
+=0A=
+#=0A=
+# Ftape, the floppy tape device driver=0A=
+#=0A=
+# CONFIG_FTAPE is not set=0A=
+# CONFIG_AGP is not set=0A=
+# CONFIG_DRM is not set=0A=
+=0A=
+#=0A=
+# PCMCIA character devices=0A=
+#=0A=
+# CONFIG_SYNCLINK_CS is not set=0A=
+# CONFIG_MWAVE is not set=0A=
+# CONFIG_RAW_DRIVER is not set=0A=
+# CONFIG_HANGCHECK_TIMER is not set=0A=
+=0A=
+#=0A=
+# Multimedia devices=0A=
+#=0A=
+# CONFIG_VIDEO_DEV is not set=0A=
+=0A=
+#=0A=
+# Digital Video Broadcasting Devices=0A=
+#=0A=
+# CONFIG_DVB is not set=0A=
+=0A=
+#=0A=
+# File systems=0A=
+#=0A=
+CONFIG_EXT2_FS=3Dy=0A=
+CONFIG_EXT2_FS_XATTR=3Dy=0A=
+# CONFIG_EXT2_FS_POSIX_ACL is not set=0A=
+# CONFIG_EXT2_FS_SECURITY is not set=0A=
+# CONFIG_EXT3_FS is not set=0A=
+# CONFIG_JBD is not set=0A=
+CONFIG_FS_MBCACHE=3Dy=0A=
+# CONFIG_REISERFS_FS is not set=0A=
+# CONFIG_JFS_FS is not set=0A=
+# CONFIG_XFS_FS is not set=0A=
+# CONFIG_MINIX_FS is not set=0A=
+# CONFIG_ROMFS_FS is not set=0A=
+# CONFIG_QUOTA is not set=0A=
+# CONFIG_AUTOFS_FS is not set=0A=
+# CONFIG_AUTOFS4_FS is not set=0A=
+=0A=
+#=0A=
+# CD-ROM/DVD Filesystems=0A=
+#=0A=
+CONFIG_ISO9660_FS=3Dy=0A=
+CONFIG_JOLIET=3Dy=0A=
+# CONFIG_ZISOFS is not set=0A=
+CONFIG_UDF_FS=3Dy=0A=
+=0A=
+#=0A=
+# DOS/FAT/NT Filesystems=0A=
+#=0A=
+CONFIG_FAT_FS=3Dy=0A=
+CONFIG_MSDOS_FS=3Dy=0A=
+CONFIG_VFAT_FS=3Dy=0A=
+# CONFIG_NTFS_FS is not set=0A=
+=0A=
+#=0A=
+# Pseudo filesystems=0A=
+#=0A=
+CONFIG_PROC_FS=3Dy=0A=
+# CONFIG_DEVFS_FS is not set=0A=
+CONFIG_TMPFS=3Dy=0A=
+CONFIG_RAMFS=3Dy=0A=
+=0A=
+#=0A=
+# Miscellaneous filesystems=0A=
+#=0A=
+# CONFIG_ADFS_FS is not set=0A=
+# CONFIG_AFFS_FS is not set=0A=
+# CONFIG_HFS_FS is not set=0A=
+# CONFIG_BEFS_FS is not set=0A=
+# CONFIG_BFS_FS is not set=0A=
+# CONFIG_EFS_FS is not set=0A=
+# CONFIG_CRAMFS is not set=0A=
+# CONFIG_VXFS_FS is not set=0A=
+# CONFIG_HPFS_FS is not set=0A=
+# CONFIG_QNX4FS_FS is not set=0A=
+# CONFIG_SYSV_FS is not set=0A=
+# CONFIG_UFS_FS is not set=0A=
+=0A=
+#=0A=
+# Network File Systems=0A=
+#=0A=
+CONFIG_NFS_FS=3Dy=0A=
+# CONFIG_NFS_V3 is not set=0A=
+# CONFIG_NFS_V4 is not set=0A=
+# CONFIG_NFSD is not set=0A=
+CONFIG_LOCKD=3Dy=0A=
+# CONFIG_EXPORTFS is not set=0A=
+CONFIG_SUNRPC=3Dy=0A=
+# CONFIG_SUNRPC_GSS is not set=0A=
+# CONFIG_SMB_FS is not set=0A=
+# CONFIG_CIFS is not set=0A=
+# CONFIG_NCP_FS is not set=0A=
+# CONFIG_CODA_FS is not set=0A=
+# CONFIG_INTERMEZZO_FS is not set=0A=
+# CONFIG_AFS_FS is not set=0A=
+=0A=
+#=0A=
+# Partition Types=0A=
+#=0A=
+# CONFIG_PARTITION_ADVANCED is not set=0A=
+CONFIG_MSDOS_PARTITION=3Dy=0A=
+CONFIG_NLS=3Dy=0A=
+=0A=
+#=0A=
+# Native Language Support=0A=
+#=0A=
+CONFIG_NLS_DEFAULT=3D"iso8859-1"=0A=
+CONFIG_NLS_CODEPAGE_437=3Dy=0A=
+# CONFIG_NLS_CODEPAGE_737 is not set=0A=
+# CONFIG_NLS_CODEPAGE_775 is not set=0A=
+# CONFIG_NLS_CODEPAGE_850 is not set=0A=
+# CONFIG_NLS_CODEPAGE_852 is not set=0A=
+# CONFIG_NLS_CODEPAGE_855 is not set=0A=
+# CONFIG_NLS_CODEPAGE_857 is not set=0A=
+# CONFIG_NLS_CODEPAGE_860 is not set=0A=
+# CONFIG_NLS_CODEPAGE_861 is not set=0A=
+# CONFIG_NLS_CODEPAGE_862 is not set=0A=
+# CONFIG_NLS_CODEPAGE_863 is not set=0A=
+# CONFIG_NLS_CODEPAGE_864 is not set=0A=
+# CONFIG_NLS_CODEPAGE_865 is not set=0A=
+# CONFIG_NLS_CODEPAGE_866 is not set=0A=
+# CONFIG_NLS_CODEPAGE_869 is not set=0A=
+# CONFIG_NLS_CODEPAGE_936 is not set=0A=
+# CONFIG_NLS_CODEPAGE_950 is not set=0A=
+# CONFIG_NLS_CODEPAGE_932 is not set=0A=
+# CONFIG_NLS_CODEPAGE_949 is not set=0A=
+# CONFIG_NLS_CODEPAGE_874 is not set=0A=
+# CONFIG_NLS_ISO8859_8 is not set=0A=
+# CONFIG_NLS_CODEPAGE_1250 is not set=0A=
+# CONFIG_NLS_CODEPAGE_1251 is not set=0A=
+CONFIG_NLS_ISO8859_1=3Dy=0A=
+# CONFIG_NLS_ISO8859_2 is not set=0A=
+# CONFIG_NLS_ISO8859_3 is not set=0A=
+# CONFIG_NLS_ISO8859_4 is not set=0A=
+# CONFIG_NLS_ISO8859_5 is not set=0A=
+# CONFIG_NLS_ISO8859_6 is not set=0A=
+# CONFIG_NLS_ISO8859_7 is not set=0A=
+# CONFIG_NLS_ISO8859_9 is not set=0A=
+# CONFIG_NLS_ISO8859_13 is not set=0A=
+# CONFIG_NLS_ISO8859_14 is not set=0A=
+# CONFIG_NLS_ISO8859_15 is not set=0A=
+# CONFIG_NLS_KOI8_R is not set=0A=
+# CONFIG_NLS_KOI8_U is not set=0A=
+# CONFIG_NLS_UTF8 is not set=0A=
+=0A=
+#=0A=
+# Graphics support=0A=
+#=0A=
+# CONFIG_FB is not set=0A=
+# CONFIG_VIDEO_SELECT is not set=0A=
+=0A=
+#=0A=
+# Console display driver support=0A=
+#=0A=
+CONFIG_VGA_CONSOLE=3Dy=0A=
+# CONFIG_MDA_CONSOLE is not set=0A=
+CONFIG_DUMMY_CONSOLE=3Dy=0A=
+=0A=
+#=0A=
+# Sound=0A=
+#=0A=
+# CONFIG_SOUND is not set=0A=
+=0A=
+#=0A=
+# USB support=0A=
+#=0A=
+# CONFIG_USB is not set=0A=
+# CONFIG_USB_GADGET is not set=0A=
+=0A=
+#=0A=
+# Bluetooth support=0A=
+#=0A=
+# CONFIG_BT is not set=0A=
+=0A=
+#=0A=
+# Profiling support=0A=
+#=0A=
+# CONFIG_PROFILING is not set=0A=
+=0A=
+#=0A=
+# Kernel hacking=0A=
+#=0A=
+# CONFIG_DEBUG_KERNEL is not set=0A=
+CONFIG_DEBUG_SPINLOCK_SLEEP=3Dy=0A=
+CONFIG_FRAME_POINTER=3Dy=0A=
+=0A=
+#=0A=
+# Security options=0A=
+#=0A=
+# CONFIG_SECURITY is not set=0A=
+=0A=
+#=0A=
+# Cryptographic options=0A=
+#=0A=
+# CONFIG_CRYPTO is not set=0A=
+=0A=
+#=0A=
+# Library routines=0A=
+#=0A=
+# CONFIG_CRC32 is not set=0A=
+CONFIG_X86_BIOS_REBOOT=3Dy=0A=
 
-------=_NextPart_000_002B_01C36655.FF1F4AC0--
-
+------=_NextPart_000_007B_01C36703.16DCFC90--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
