@@ -1,51 +1,32 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3FDjWI4026184
-	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2003 09:45:32 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h3FDfjOv022928
-	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2003 13:41:45 GMT
-Received: from lyta.coker.com.au (c16702.sunsh1.vic.optusnet.com.au [210.49.228.68])
-	by jazzswing.ncsc.mil  with ESMTP id h3FDfgY1022925
-	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2003 13:41:44 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Westerman, Mark" <Mark.Westerman@csoconline.com>,
-   SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: strange errors
-Date: Tue, 15 Apr 2003 23:45:32 +1000
-References: <CB4A800B69051C4986485EBBC070C69952B950@csoc-mail-hou.csoconline.com>
-In-Reply-To: <CB4A800B69051C4986485EBBC070C69952B950@csoc-mail-hou.csoconline.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200304152345.32626.russell@coker.com.au>
+Subject: Re: tcpdump
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <200304132007.45102.russell@coker.com.au>
+References: <200304132007.45102.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1050415152.16051.82.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: 15 Apr 2003 10:09:58 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 15 Apr 2003 23:18, Westerman, Mark wrote:
-> I have run into problems like this before.
-> What fixed it for me was
-> removing all ...security for all mounted partitions and
-> performing a make reset (not relabel)
->
-> Did you try that ?
-> Tring to see if it was a similar problem
+On Sun, 2003-04-13 at 06:07, Russell Coker wrote:
+> I just tried using a machine as a router when it didn't have the correct SE 
+> policy for network access.
+> I get messages such as the following:
+> avc:  denied  { rawip_send } for  saddr=210.49.228.68 daddr=61.95.69.3 
+> netif=eth0 scontext=system_u:object_r:netmsg_eth1_t 
+> tcontext=system_u:object_r:netif_eth0_t tclass=netif
+> AVC: 4 messages suppressed.
 
-I haven't tried that.  I need that machine to do some serious compiles so I 
-couldn't take the time to investigate it fully.
-
-However from your report I conclude that there isn't just something strange 
-with my system, but maybe a bug in the PSID handling in SE Linux.
-
-Hopefully Steve could make some suggestions on what might be the cause and 
-which tests could usefully be done to gather more information.  In the mean 
-time I'll try not to destroy any more evidence.
+This indicates that a packet that was received on eth1 (and hence
+labeled netmsg_eth1_t by default) is being sent on eth0, and the send on
+eth0 is being denied.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
