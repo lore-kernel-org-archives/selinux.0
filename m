@@ -1,30 +1,62 @@
-Subject: Re: update question
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: ccallen <ccallen@windowpane.com>
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <00d801c303f1$9fef2f00$398314d1@windowpane.com>
-References: <00d801c303f1$9fef2f00$398314d1@windowpane.com>
-Content-Type: text/plain
-Message-Id: <1050496159.2682.10.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 16 Apr 2003 08:29:19 -0400
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3GCXmI4001081
+	for <selinux@tycho.nsa.gov>; Wed, 16 Apr 2003 08:33:48 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h3GCXk7R011029
+	for <selinux@tycho.nsa.gov>; Wed, 16 Apr 2003 12:33:46 GMT
+Received: from lyta.coker.com.au (c16702.sunsh1.vic.optusnet.com.au [210.49.228.68])
+        by jazzband.ncsc.mil  with ESMTP id h3GCXhKP011026 for <selinux@tycho.nsa.gov>; Wed, 16 Apr 2003 12:33:44 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+Subject: Fwd: Bug#189251: oops, cosmetics
+Date: Wed, 16 Apr 2003 22:33:47 +1000
+To: selinux@tycho.nsa.gov
+Cc: Peter Gervai <grin@tolna.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200304162233.47714.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-04-16 at 04:24, ccallen wrote:
-> If there is an older version of selinux installed, does the old one need to
-> be uninstalled before running the new version? If so is there a file with
-> the steps to do this? I thought I had read something on that before, but
-> cant find it now.
+If you have a file named "a+++b" or some other name that is a regex wildcard 
+then newrules.pl does not handle AVC messages referring to it correctly.  
+This patch fixes that, and I've applied it to my Debian package already.
 
-No, you don't need to "uninstall" the old version of SELinux.  The only
-case where you had to do some cleanup was if you were running the
-original SELinux kernel patch (pre-LSM) and were transitioning to the
-LSM-based SELinux.
+----------  Forwarded Message  ----------
+
+Subject: Bug#189251: oops, cosmetics
+Date: Wed, 16 Apr 2003 20:01
+From: Peter Gervai <grin@tolna.net>
+To: 189251-maintonly@bugs.debian.org
+
+
+--- newrules-selinux-   2003-04-16 12:56:54.000000000 +0200
++++ newrules-selinux    2003-04-16 13:14:13.000000000 +0200
+@@ -79,6 +79,8 @@
+
+     my($c,$c,$c,$c) = split /\|/, $group;
+     $info=~s/\ $c=\S+\ //gi;
++    # escape regexp patterns --<g>
++    $info=~s/([^\w])/\\$1/g;
+
+     @atypes=split /\ /,$command;
+     foreach $i(0..$#atypes){
+@@ -113,6 +115,7 @@
+                print OUT  "$t ";
+     }
+     print OUT "};\n";
++    $occur{$k} =~ s/\\(.)/$1/g;  # de-escape string
+     print OUT "$occur{$k}\n" if ($verbose);
+ }
+
+-------------------------------------------------------
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
