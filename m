@@ -1,43 +1,41 @@
-Message-Id: <200208021050.KAA06618@jazzswing.ncsc.mil>
+Message-Id: <200208021119.LAA10120@jazzband.ncsc.mil>
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Carsten Grohmann <carstengrohmann@gmx.de>
 To: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: system_r and apm_t
-Date: Fri, 2 Aug 2002 12:49:37 +0200
-References: <200208020910.JAA06405@jazzband.ncsc.mil> <20020802095109.3403F7FB9@lyta.coker.com.au>
-In-Reply-To: <20020802095109.3403F7FB9@lyta.coker.com.au>
+Subject: Re: New SuSE rules -- opt file type
+Date: Fri, 2 Aug 2002 13:20:36 +0200
+References: <200208010657.GAA28694@jazzband.ncsc.mil> <20020801182445.4897EFA93@ivanova.coker.com.au> <20020801195618.D8D9D76C7@lyta.coker.com.au>
+In-Reply-To: <20020801195618.D8D9D76C7@lyta.coker.com.au>
 MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This time I write rules to adapt SuSE on the original SELinux rules. I 
-don't want rewrite SuSE to become it more secure. 
+Am Donnerstag, 1. August 2002 21:56 schrieb Russell Coker:
+> > > > # Access to file_t (/opt)
+> > > > allow ldconfig_t file_t:dir { getattr read search };
+> > > > allow ldconfig_t file_t:{ file lnk_file } { getattr read };
+> > >
+> > > You should never grant anything access to file_t.  The existance of
+> > > file_t labelled objects indicates a deficiency in yout file_contexts.
+> >
+> > The NSA distribution have not a type for /opt. Next days I will send a
+> > patch to correct this.
+>
+> I suggest making opt root_t as it's likely to be the root of a different
+> file system (and it's not something you'll restrict access to unless
+> you're restricting access to the root directory).  Then have rules
+> labelling /opt/.*/bin(|/.*) bin_t, etc.
 
-In this case I need for a cronjob access to apm_t via domain_auto_trans.
-
-Your policy and the nsa policy are different. Do you merge you policy to 
-the nsa policy periodical? 
+Why root_t? 
+The standard policy labled follow directories as file_t:
+opt, swap, mnt and some links. 
+This entries should be not labelling in the same type. If several file 
+system entries have the same security context, I need only grand access to 
+one directory and all other can also access. That's why I think we should 
+use different types. 
 
 Carsten
-
-Am Freitag, 2. August 2002 11:51 schrieb Russell Coker:
-> On Fri, 2 Aug 2002 11:11, Carsten Grohmann wrote:
-> > Hi!
-> >
-> > I think we should give the system_r access to apm_t
-> > with
-> > role system_r types apm_t;
-> > After this some system scripts can use the apm_t domain.
->
-> Makes sense to me.  I've added that to my tree and also made the apm_t
-> domain have enough access to run "apm -s" (which had somehow got lost
-> along the way).
->
-> It's on http://www.coker.com.au/selinux/policy.tgz
->
-> Also what domain do you want to transition to apm_t?  Do you need an
-> auto_trans rule from initrc_t?
 
 --
 You have received this message because you are subscribed to the selinux list.
