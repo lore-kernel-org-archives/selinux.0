@@ -1,43 +1,31 @@
-From: Steven Harp <steven.harp@adventiumlabs.org>
-To: SELinux@tycho.nsa.gov
-Subject: Re: Port Binding Being Allowed
-Date: Tue, 17 Aug 2004 15:23:04 -0500
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Message-Id: <200408171523.21707.steven.harp@adventiumlabs.org>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7HKdQrT016373
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 16:39:26 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7HKcj2E018310
+	for <selinux@tycho.nsa.gov>; Tue, 17 Aug 2004 20:38:46 GMT
+Date: Tue, 17 Aug 2004 21:49:57 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <rcoker@redhat.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: hald
+Message-ID: <20040817204957.GW18321@lkcl.net>
+References: <1092716467.1684.304.camel@vpn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1092716467.1684.304.camel@vpn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Aug 17, 2004 at 02:21:07PM +1000, Russell Coker wrote:
+> hald is a daemon that manages hardware via dbus, which is now a
+> mandatory feature of the latest rawhide.
+ 
+ ah.
 
+ is this better than the hotplug+udev mess?
 
-Suggest making sure the CONFIG_SECURITY_NETWORK security option 
-in the kernel build has been enabled.  Curiously, this is off
-by default in this config....
-
-CONFIG_SECURITY_NETWORK=y  
-
-
-On Tuesday 17 August 2004 10:51 am, Eric Andreychek wrote:
-> Howdy,
-> 
-> I'm setting up an SELinux box using Hardened Gentoo, the 2.6.7-r7 kernel, with
-> SMP enabled.  The goal is to set up a multi-user box with some reasonable
-> security measures in place.
-> 
-> I'm hoping to restrict who can bind to a local port (ie, disallow someone from
-> running a daemon).  It's my impression that this is the default, but it
-> unfortunatly doesn't seem to be working for me.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQFBImktPcFX9H2zuSkRAlW3AKC2Hee12tL6ADNy3SjeH7U6oiGJtwCeNABu
-YUFtP9EDjGcBj9myUC1KuE4=
-=2ToS
------END PGP SIGNATURE-----
-
+ l.
 
 
 --
