@@ -1,85 +1,87 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4AJLkRb017371
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 15:21:46 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4AJO4Rb017406
+	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 15:24:04 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i4AJJQ5b028858
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 19:19:26 GMT
-Received: from turing-police.cirt.vt.edu (turing-police.cirt.vt.edu [128.173.54.129])
-	by jazzswing.ncsc.mil  with ESMTP id i4AJJQql028855
-	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 19:19:26 GMT
-Message-Id: <200405101921.i4AJLdbm010270@turing-police.cc.vt.edu>
-To: Serge Hallyn <hallyn@cs.wm.edu>
+	by jazzswing.ncsc.mil  with ESMTP id i4AJLi5d029092
+	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 19:21:44 GMT
+Message-Id: <200405101924.i4AJO0X0009629@turing-police.cc.vt.edu>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: selinux@tycho.nsa.gov
 Subject: Re: Linux 2.6.6-rc3-mm2 and SELinux support of stacked modules 
-In-Reply-To: Your message of "Mon, 10 May 2004 13:32:35 CDT."
-             <1084213955.17955.6.camel@serge.austin.ibm.com>
+In-Reply-To: Your message of "Mon, 10 May 2004 14:38:39 EDT."
+             <1084214318.23757.285.camel@moss-spartans.epoch.ncsc.mil>
 From: Valdis.Kletnieks@vt.edu
 References: <200405100238.i4A2cDRW027971@turing-police.cc.vt.edu>
-            <1084213955.17955.6.camel@serge.austin.ibm.com>
+            <1084214318.23757.285.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_162617846P";
+Content-Type: multipart/signed; boundary="==_Exmh_169909664P";
 	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Mon, 10 May 2004 15:21:39 -0400
+Date: Mon, 10 May 2004 15:24:00 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_162617846P
+--==_Exmh_169909664P
 Content-Type: text/plain; charset=us-ascii
 
-On Mon, 10 May 2004 13:32:35 CDT, Serge Hallyn said:
-> Both the /proc and network restrictions are done in ways which are
-> probably not acceptable to the kernel maintainers anyway.  For /proc, I
-> am considering doing a simpler inode_permission on pathname based
-> restriction.  This may be a part of the next version (which I have to
-> put out to handle iopl() and shared memory anyway.)
+On Mon, 10 May 2004 14:38:39 EDT, Stephen Smalley said:
 
-Would you be open to a collaboration?  A lot of my module is stuff that I'm
-re-implementing mostly because it's such a pain to stack modules,
-and I have some people that want selinux+chroot, some that want
-selinux+tempdir, and some that want chroot+tempdir, and nobody
-seems to like the invasiveness level of the grsecurity patch..
+> I'd recommend just using an ordinary initcall.  Note that the SELinux
+> module has several such ordinary initcall functions that handle similar
+> issues, e.g. registering Netfilter hooks, registering the selinuxfs
+> pseudo filesystem, registering a netdevice notifier for the netif table,
+> and creating the netlink selinux socket.  I'd expect post_mountroot to
+> die eventually; think early userspace.  Note that the SELinux initial
+> policy load has been moved into userspace; we don't use post_mountroot
+> anymore.
 
-> For network restrictions, I'm open to suggestions for another way to
-> implement these.
+D'Oh! ;)
 
-I admit not having thought about them yet, other than to realize that it's
-a messy issue... ;)
+OK, I can do that... cancel the request for post_mountroot() then. ;)
 
-> Regarding the task_security.  One possibility would be for selinux to
-> have a task_security->secondary pointer, and change get_security and
-> set_security in bsdjail.c to use task_security->secondary if it found it
-> was loaded under selinux.
+> > 2) It stacks just fine with SELinux, except there's hooks that selinux/hooks.c
+> > either doesn't hook, or it doesn't call secondary_ops() in its hook.
+> 
+> As I mentioned in a previous reply to Joshua Brindle (for his attempt to
+> stack SELinux with digsig), we didn't want to encourage blindly stacking
+> modules with SELinux, so we only provided secondary ops as required. 
+> You will naturally encounter difficulties if your other security module
+> wants to use the security fields.
 
-Unfortunately, that's probably a dead end.  What you'd probably want to
-do is generalize the *_alloc_security() routines to support a linked list of
-structures of the form:
+I'm being very careful to *not* use the security fields, for exactly that
+reason. All the info I'm examining is either somewhere in a dentry/inode or
+passed in as an LSM API parameter.
 
-struct sec_mem {	struct secmem *next; int magic; void *blob};
+Also, I'm intentionally restricting the scope of what I check for to a set of
+things that are relatively easy to express in C code, but difficult to write
+SELinux policy for - the two big predicates I'm testing are "if the process is
+chroot'ed..." and "if the process is working with a file in a world-writeable
++t directory...".
 
-(I seem to remember that being proposed on the LSM list, and shot down
-because it was encouraging massive stacking of modules, with the resulting
-composition issues...)
+I'm intentionally *not* doing any of the grsecurity patch's ACL stuff,
+precisely because having 2 ACL systems active is guaranteed to be b0rked..
 
-> Of course, another possibility which I prefer is to use the stacker lsm
-> and rewrite selinux to use that  :)
+> We typically want to call the secondary module first, so that ordinary
+> Linux capability checks are applied first and the code never reaches
+> SELinux if they would deny access.  capget and capset are unusual in
+> that they get or set state; they don't just mediate access.
 
-Unfortunately, Stephen Smalley is right - rampant composition is generally
-a bad idea.
+Ahh.. That was the part I was missing... ;)
 
 
---==_Exmh_162617846P
+
+--==_Exmh_169909664P
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFAn9ZDcC3lWbTT17ARAhrJAKD3w92Eesd2CeemzGz6T1d7F4NPvQCdEvAu
-8BOfAvmsQA1i/WFE8dpPm1k=
-=xzZF
+iD8DBQFAn9bQcC3lWbTT17ARAmVLAJ4gNukZWha2cufJYDHIT0iM83cJlwCfe+V3
+IzonSjbMRv92D0PqRDMk6gI=
+=VDUS
 -----END PGP SIGNATURE-----
 
---==_Exmh_162617846P--
+--==_Exmh_169909664P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
