@@ -1,80 +1,32 @@
-Subject: Re: Patch to policycoreutils
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <41FE4B16.1050206@redhat.com>
-References: <1106927779.32737.59.camel@moss-spartans.epoch.ncsc.mil>
-	 <41FA6861.6080505@redhat.com>
-	 <1106941913.32737.138.camel@moss-spartans.epoch.ncsc.mil>
-	 <41FA9FA8.7010008@redhat.com>
-	 <1107180899.24654.67.camel@moss-spartans.epoch.ncsc.mil>
-	 <41FE4B16.1050206@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0VHQU53009161
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jan 2005 12:26:30 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0VHQXGm012329
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jan 2005 17:26:33 GMT
+Received: from [192.168.2.96] (syr-24-58-1-204.twcny.rr.com [24.58.1.204])
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j0VHQV2G012222
+	for <selinux@tycho.nsa.gov>; Mon, 31 Jan 2005 12:26:33 -0500 (EST)
+Subject: Strange Denial
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Message-Id: <1107185236.24654.97.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 31 Jan 2005 10:26:34 -0700
+Message-Id: <1107192394.27510.0.camel@cobra.ivg2.net>
 Mime-Version: 1.0
-Date: Mon, 31 Jan 2005 10:27:16 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-01-31 at 10:13, Daniel J Walsh wrote:
-> >1) The first sed substitution changes:
-> >/var/tmp/vi\.recover  -d      system_u:object_r:tmp_t
-> >to:
-> >/var/tmp/vi*
-> >
-> >  
-> >
-> This looks good.
+What's this?
 
-i.e. We can drop the first substitution entirely, right?  Shell will
-correctly handle \. as is.
-
-> >2) The second sed substitution changes:
-> >/usr/lib(64)?/[^/]*thunderbird[^/]*/thunderbird --      system_u:object_r:bin_t
-> >to:
-> >/usr/lib*
-> >
-> >This is due to sed itself performing regex matching for the .* sequence,
-> >i.e. it consumes anything after an open parens.  Possibly you could
-> >escape it if that is what you intended, e.g. \.\*.
-> >
-> >  
-> >
-> Huh?   you need to match both /usr/lib/ and /usr/lib64/  So I don't see 
-> anyway of doing this withoug /usr/lib*
-
-Possibly /usr/lib{64,}/*thunderbird*/thunderbird.  The point being that
-we don't need to relabel all of /usr/lib here.
-
-> >Similar issues with the other substitutions that are using .*, I think,
-> >e.g. changing:
-> >/usr/bin/[xgkw]dm     --      system_u:object_r:xdm_exec_t
-> >to:
-> >/usr/bin/*
-> >
-> >But the shell would have correctly handled /usr/bin/[xgkw]dm without any
-> >change at all.
-> >
-> >  
-> >
-> But there are lots of other stuff that could be in between the [] correct?
-
-Yes, we would have to distinguish the cases that can be handled by the
-shell vs. the use of other regex metacharacters within the brackets.
-
-> Yes, good catch.  First off we should remove /u?dev and switch to /dev 
-> in policy since this was
-> only a pre-fc3 problem.  But as in other message any sed experts who can 
-> change
-> 
-> /u*dev --> /{u,}dev
-
-More generally, we would want to replace x? or (x)? with {x,}.  Might be
-easier to do in perl or other languages than just sed.
+audit(1107188820.754:0): avc:  denied  { } for  pid=6672 comm=mplayer
+path=/dev/zero dev=tmpfs ino=2055 scontext=user_u:user_r:user_mplayer_t
+tcontext=system_u:object_r:zero_device_t tclass=chr_file
 
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
 
 --
