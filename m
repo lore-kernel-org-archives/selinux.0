@@ -1,34 +1,50 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA07095
-	for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2002 10:29:21 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id gB5FTKI16123
-	for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2002 15:29:20 GMT
-Received: from server.westcam.com (rrcs-sw-24-242-155-198.biz.rr.com [24.242.155.198])
-        by jazzband.ncsc.mil  with ESMTP id gB5FTJf16119 for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2002 15:29:19 GMT
-Subject: GDM Redhat 8.0
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA07709
+	for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2002 12:09:17 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id RAA00363
+	for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2002 17:06:44 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id RAA00357
+	for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2002 17:06:44 GMT
+Date: Thu, 5 Dec 2002 12:08:04 -0500 (EST)
+From: Chris Vance <cvance@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: new policy
+In-Reply-To: <200212031610.12318.russell@coker.com.au>
+Message-ID: <Pine.LNX.4.33.0212051206030.25186-100000@zorg.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Date: Thu, 5 Dec 2002 09:31:13 -0600
-Message-ID: <862636C39A8D56448223B94D19757133015EAA@server.westcam.com>
-From: "Mark Westerman" <mark.westerman@westcam.com>
-To: <selinux@tycho.nsa.gov>
-Cc: <savagess@pcez.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A Rpm Version of gdm for Red Hat 8.0 supporting
-NSA Release 2002102211 has been post to 
-sourceforge.net
-http://sourceforge.net/project/showfiles.php?group_id=21266
+On Tue, 3 Dec 2002, Russell Coker wrote:
 
-Note to Shaun Savage:
-Shaun, if you want your rpm packages here let me know
-and I will tell you what to do.
+> diff -ruN /tmp/policy/domains/program/hwclock.te ./domains/program/hwclock.te
+> --- /tmp/policy/domains/program/hwclock.te      2002-12-03 15:56:40.000000000
+> +0
+> 100
+> +++ ./domains/program/hwclock.te        2002-08-21 20:22:44.000000000 +0200
+> @@ -45,3 +45,5 @@
+>  allow hwclock_t ptyfile:chr_file rw_file_perms;
+>  ifdef(`gnome-pty-helper.te', `allow hwclock_t sysadm_gph_t:fd use;')
+>
+> +# hwclock needs to search file_t directories when run from rc.sysinit on RH8
+> +allow hwclock_t file_t:dir search;
+>
+> For the above change that's recently committed, shouldn't it have
+> ifdef(`rpm.te', around it?
 
+I'm just curious why you think this is necessary?  If anything I would
+have thought something more along the lines of ifdef(`hwclock.te',...)
+would be appropriate.  Neither are really specific to RH systems, and the
+permission itself isn't that critical.
 
-Mark Westerman
+Thanks,
+
+chris.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
