@@ -1,44 +1,46 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA12042
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 13:06:20 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA27944
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 18:06:19 GMT
-Received: from ultraviolet.org (dsl081-032-181-lax1.dsl-isp.net [64.81.32.181])
-	by jazzband.ncsc.mil  with SMTP id SAA27940
-	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 18:06:18 GMT
-Date: Fri, 9 Mar 2001 10:06:44 -0800
-From: Tracy R Reed <treed@ultraviolet.org>
-To: selinux@tycho.nsa.gov
-Subject: Re: archives?
-Message-ID: <20010309100644.A20482@ultraviolet.org>
-References: <20010306022849.D27909@ultraviolet.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20010306022849.D27909@ultraviolet.org>; from treed@ultraviolet.org on Tue, Mar 06, 2001 at 02:28:49AM -0800
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA12427
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 14:04:22 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA29120
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 19:04:21 GMT
+Received: from mail.thesportsregister.com ([208.53.250.139])
+	by jazzswing.ncsc.mil  with ESMTP id TAA29116
+	for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2001 19:04:20 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by mail.thesportsregister.com (Postfix) with ESMTP id 78011BB
+	for <selinux@tycho.nsa.gov>; Fri,  9 Mar 2001 14:09:10 -0500 (EST)
+Date: Fri, 9 Mar 2001 14:09:10 -0500 (EST)
+From: Johnathon Day <jcday@mail.thesportsregister.com>
+To: <selinux@tycho.nsa.gov>
+Subject: How is 2.4.x progressing?
+In-Reply-To: <p04320405b6c04aed15b0@[208.24.120.15]>
+Message-ID: <Pine.LNX.4.30.0103091352460.6433-100000@mail.thesportsregister.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-On Tue, Mar 06, 2001 at 02:28:49AM -0800, Tracy R Reed wrote:
-> I'm new to the list (no traffic so far but I've only been on a day or two)
-> and I am wondering if there are archives out there somewhere so I can get
-> up to speed. I don't see any mailing list archives on the selinux webpage.
+Hi,
 
-Ok, I did NOT send this same email 4 times. Something is broken and
-judging from the headers I don't think anyone will be too shocked to find
-that it is an Exchange server:
+   Long time, no post. Thought I'd drop a note and ask how the port to
+Linux 2.4.x was progressing. Also, wondering if SE Linux made any use of
+the International Patch, if installed. (SE Linux might not use crypto,
+but I'd be amazed if it never used secure hash functions.)
 
-Received: from mail pickup service by mail.satx.rr.com with Microsoft
-SMTPSVC;
-         Fri, 9 Mar 2001 05:50:55 -0600
-Received: from sm3.texas.rr.com ([24.93.35.210]) by mail.satx.rr.com  with
-Microsoft SMTPSVC(5.5.1877.537.53);         Tue, 6 Mar 2001 09:32:34 -0600
+   Also, to go back to the IPSec question, NIST's Cerberus IPSec was/is
+either funded by, or partially developed by the NSA, if I'm reading the
+documents rightly. However, it was said (more than once) on this list
+that SE Linux will -probably- use FreeSWAN. My question here is not
+whether that is technically the right decision (FreeSWAN is evolving,
+Cerberus is stagnating), but whether the SE Linux core team is going to
+be free to make it. I could just be over-anxious, here, but I don't know
+of many PHB's who will pay to develop one product, and then use a
+"competitors". Any reassurance on this would be greatfully received.
+
+Jonathan Day
 
 
--- 
-Tracy Reed      http://www.ultraviolet.org
-"I want an Internet.  Can I have one of those?" -- Spice Girl Mel B.,
-aka Scary Spice, pointing to a monitor during an AOL press conference
 
 --
 You have received this message because you are subscribed to the selinux list.
