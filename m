@@ -1,56 +1,50 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: <matt@finaldraftbooks.com>, "Matthew R. Singer" <msinger@itac.com>,
-   <SELinux@tycho.nsa.gov>
-Subject: Re: Sendmail tcp_socket denial
-Date: Fri, 14 Mar 2003 14:21:17 +0100
-References: <8A61167D13CED411B3E500B0D079784703AAC4@mailserver.itac.reston>
-In-Reply-To: <8A61167D13CED411B3E500B0D079784703AAC4@mailserver.itac.reston>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2EDpix6017065
+	for <selinux@tycho.nsa.gov>; Fri, 14 Mar 2003 08:51:44 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h2EDphPC018401
+	for <selinux@tycho.nsa.gov>; Fri, 14 Mar 2003 13:51:43 GMT
+Received: from facesaver.epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id h2EDpg5x018398 for <selinux@tycho.nsa.gov>; Fri, 14 Mar 2003 13:51:43 GMT
+Message-Id: <200303141359.IAA24430@moss-shockers.ncsc.mil>
+Date: Fri, 14 Mar 2003 08:59:10 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: Which module is "best"?
+To: selinux@tycho.nsa.gov, russell@coker.com.au
+Cc: dcarrera@math.umd.edu
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200303141421.17339.russell@coker.com.au>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 14 Mar 2003 13:38, Matthew R. Singer wrote:
-> Sorry to send this direct to you, but if I email to the selinux list, it
-> bounces with a relaying error.
 
-The list should be fixed now.
+Russell Coker wrote:
+> > > DTE has similar concepts and aims to SE Linux (I don't want to say more
+> > > on this list).
+> >
+> > I'd love to hear anything more you can tell me.
+> 
+> I think that's already been addressed on the LSM list in a better way than I
+> could.
 
-> Can anyone explain to me where this is coming from?
->
-> avc:  denied  { recvfrom } for  saddr=127.0.0.1 source=32771
-> daddr=127.0.0.1 dest=25 netif=lo scontext=system_u:system_r:sendmail_t
-> tcontext=root:sysadm_r:sysadm_mail_t tclass=tcp_socket
+DTE is actually quite different from SELinux, both abstractly and in
+terms of the specific DTE implementation for LSM.  The published papers
+about SELinux (see http://www.nsa.gov/selinux/docs.html) briefly
+mention some high level differences between SELinux and DTE in their
+related work sections.  I wrote up a detailed comparison of the
+original SELinux architecture and implementation and the TIS/NAI Labs
+DTE architecture and implementation a long time ago, which I can
+provide upon request (caveat:  certain aspects of it are out-of-date
+with respect to the current SELinux, and a number of aspects of the
+TIS/NAI Labs DTE implementation are not implemented in the independent
+DTE implementation for LSM).  A quick look at the DTE implementation
+for LSM suggests that it is not complete, as many of the hook functions
+have only stub implementations.
 
-It seems that /usr/bin/sendmail is being run by the administrator (sysadm_t) 
-in a way that makes it try to connect to localhost port 25 (SMTP port).
-
-/usr/bin/sendmail being run from sysadm_t (which is what causes a transition 
-into sysadm_mail_t) is something that normally only happens from mailx or 
-other mail clients using the /usr/bin/sendmail command to queue mail.
-
-The /usr/bin/sendmail command on a system running the Sendmail mail server 
-should write the message to the queue and therefore not require any such TCP 
-access.
-
-Has this just started occuring with the latest version of Sendmail?  Maybe 
-they have changed the way it works (although that seems unlikely).
-
-Are you running more than one mail server program on the same machine?  Are 
-you running smail or exim or another mail program that's somewhat similar to 
-sendmail with the sendmail.te policy?  If so that's a bad idea, separate 
-policy is needed for each mail server.
-
-Please tell us more about what you are doing so we can try and track it down.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
 
 --
