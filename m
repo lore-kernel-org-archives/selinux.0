@@ -1,73 +1,38 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA19233
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 17:25:05 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA21882
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 21:23:55 GMT
-Received: from hotmail.com (f255.law14.hotmail.com [64.4.20.130])
-	by jazzswing.ncsc.mil  with ESMTP id VAA21878
-	for <selinux@tycho.nsa.gov>; Wed, 28 Aug 2002 21:23:55 GMT
-From: "M. H." <metalhead00@hotmail.com>
-To: sds@tislabs.com
-Cc: selinux@tycho.nsa.gov
-Subject: Re: building libsecure.a advice
-Date: Wed, 28 Aug 2002 14:24:03 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F255oHMwVN7miR9Odut0000011b@hotmail.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id FAA21594
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 05:14:45 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id JAA15364
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 09:13:05 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id JAA15360 for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 09:13:03 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 97AF092466
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 19:14:41 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 33D427959
+	for <selinux@tycho.nsa.gov>; Thu, 29 Aug 2002 11:14:33 +0200 (CEST)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: fileutils_4.1.11
+Date: Thu, 29 Aug 2002 11:14:32 +0200
+MIME-Version: 1.0
+Message-Id: <20020829091433.33D427959@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I may be missing something but running 'make install' from selinux/module 
-fails (complains about missing asm/flask files.)
-Are you saying that doing 'make install' from selinux/module followed by 
-make in selinux/libsecure is sufficient to compile the library (and place 
-the appropriate headers in /usr/local/selinux...)?
+I've produced Debian packages of the latest fileutils patched for SE Linux 
+for both woody and sarge.  They are in my apt repositories, and the patch is 
+in the usual place.
 
-
-
->From: Stephen Smalley <sds@tislabs.com>
->To: "M. H." <metalhead00@hotmail.com>
->CC: <selinux@tycho.nsa.gov>
->Subject: Re: building libsecure.a advice
->Date: Wed, 28 Aug 2002 16:11:40 -0400 (EDT)
->
->
->On Wed, 28 Aug 2002, M. H. wrote:
->
-> > Has anyone tried to build JUST libsecure.a. Since SELinux applications 
->need
-> > to be linked against it, I want to separate all necessary headers and
-> > libraries (seems like libsecure.a is the only one) so I can integrate 
->them
-> > in my build environment (rather than relying on the default include or 
->lib
-> > directories of the system.)
-> > A problem I've run into is finding a simple way of rebuilding the 
->library
-> > without installing the whole kernel. I tried to run 'make' in the
-> > selinux/libsecure directory but that fails since 
->selinux/libsecure/include
-> > misses some necessary files (some of those are in
-> > lsm-2.4/security/selinux/include.) Has anyone had any luck building ONLY
-> > libsecure.a?
->
->As explained in selinux/README, you need to run 'make install' in
->selinux/module to install the support files from the SELinux module used
->to build the remaining components.  This doesn't require building the
->kernel itself.
->
->--
->Stephen D. Smalley, NAI Labs
->ssmalley@nai.com
-
-
-
-
-_________________________________________________________________
-MSN Photos is the easiest way to share and print your photos: 
-http://photos.msn.com/support/worldwide.aspx
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
