@@ -1,68 +1,41 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8N9WirT007868
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 05:32:44 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8N9Viv8004903
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 09:31:45 GMT
-Date: Thu, 23 Sep 2004 10:43:44 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Alex Ackerman <alex@darkhonor.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: SELinux  Doesn't Complete Initialization
-Message-ID: <20040923094344.GB5397@lkcl.net>
-References: <A52BEA1D8EE8634B9196A136333637B130D4@maat.darkhonor.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <A52BEA1D8EE8634B9196A136333637B130D4@maat.darkhonor.net>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: More fixes for nscd in targeted policy
+Date: Thu, 23 Sep 2004 22:45:47 +1000
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, SELinux <SELinux@tycho.nsa.gov>
+References: <41475DEA.90907@redhat.com> <1095253977.28981.80.camel@moss-spartans.epoch.ncsc.mil> <41484CFE.3050804@redhat.com>
+In-Reply-To: <41484CFE.3050804@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200409232245.47674.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Sep 22, 2004 at 10:48:51PM -0400, Alex Ackerman wrote:
-> No luck.  I didn't see any additional logs.  
+On Thu, 16 Sep 2004 00:09, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> >>+#
+> >>+# Handle winbind for samba, Might only be needed for targeted policy
+> >>+#
+> >>+dontaudit nscd_t var_run_t:sock_file rw_file_perms;
+> >
+> >This doesn't make sense; nscd_t has these permissions as a consequence
+> >of having nscd_client_domain attribute in the policy (since it is used
+> >for both the client and the daemon).
+>
+> I don't believ nscd_t has access to var_run_t.  It can do this to
+> nscd_var_run_t.   It is
+> trying to communicate with a socket created by winbind.
 
- don't tell me everyone on the redhat team have done such
- a good job that the strict policy doesn't get in the way :)
+Any reference to var_run_t:sock_file should have ifdef(`targetted' around it.
 
- i _have_ seen this happen before (no audit messages) and
- audit=1 worked for me, on advice from stephen.
-
- you're running with the strict policy so console-logging in as root
- should ask you if you want 1 or 2 for the context which is sysadm_r
- or staff_r.
-
- 
- at this point my advice would be for you to track down russell's
- tutorial notes with the step-by-step setup guide in it.
-
- also now that you have the auditing switched on, cd to
- /etc/selinux/src and just experiment with make clean
- make install make reload that sort of thing.
-
- you did do a make install as well as a make relabel, yes?
-
- to check, type the command "policyver" and then look for
- /etc/selinux/policy/policy.<thatversionnum>
-
- selinux is a game of two halves: step 1 is to have a binary version of
- the policy, step 2 is to have labels on the filesystem [and all other
- "objects" like networks n stuff].
-
-> Is the Cryptographic API
-> required for the modules to complete initialization? 
-
- i wouldn't know but i doubt it.
-
- l.
+In strict policy there will be no var_run_t:sock_file.
 
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
