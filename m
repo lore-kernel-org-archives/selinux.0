@@ -1,25 +1,45 @@
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA16472
+	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 16:50:27 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA12607
+	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 20:49:53 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id UAA12603
+	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 20:49:52 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Timothy Wood <timothy@hallcomp.com>, SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: new LSM ver
-Date: Sun, 7 Jul 2002 09:32:15 -0400
-References: <1025911273.8785.1.camel@phobos>
-In-Reply-To: <1025911273.8785.1.camel@phobos>
+To: <blacknet@simplyaquatics.com>, "'SE Linux'" <selinux@tycho.nsa.gov>
+Subject: Re: new packages
+Date: Sun, 7 Jul 2002 16:48:01 -0400
+References: <005201c22591$453d5c10$0a01a8c0@ed>
+In-Reply-To: <005201c22591$453d5c10$0a01a8c0@ed>
 MIME-Version: 1.0
-Message-Id: <20020707133215.5D7BF304B@lyta.coker.com.au>
+Message-Id: <20020707204801.B3AC922A8@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 5 Jul 2002 19:21, Timothy Wood wrote:
-> Anyone notice that the default context for root in the new lsm package
-> is a user_r and not sysadm_r?  Any specific reason for this change or is
-> it a mistake?
+On Sun, 7 Jul 2002 04:35, Ed Street wrote:
+> Some quick notes on the new updates I found.
+>
+> 1) kernel patch file had a blurb on one file, stated already applied.
+> (will get the section and past it)
 
-I wouldn't expect Steve to make a mistake about such things.
+Are you applying it over the Debian kernel-patch package?  If so try getting 
+the source from ftp.kernel.org.
 
-I'm willing to bet that it's related to the recent sshd bugs...
+> 2) fingerd.te gave me fits. Had to remote the file
+> /usr/share/Selinux/policy/current/domains/program/fingerd.te (not
+> running fingerd on this box)
+
+What exactly was the problem?  Anyway that's not finished yet...
+
+> 3) using apt-get while in enforcement mode gives some interesting
+> errors.
+
+Use se_apt-get, se_dpkg, and se_dselect instead of the usual programs.
 
 -- 
 I do not get viruses because I do not use MS software.
