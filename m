@@ -1,52 +1,45 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00187
-	for <selinux@tycho.nsa.gov>; Sun, 16 Feb 2003 14:37:11 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id TAA13952
-	for <selinux@tycho.nsa.gov>; Sun, 16 Feb 2003 19:34:04 GMT
-Received: from ziplip.com (mail.ziplip.com [128.242.109.119])
-	by jazzswing.ncsc.mil  with ESMTP id TAA13948
-	for <selinux@tycho.nsa.gov>; Sun, 16 Feb 2003 19:34:03 GMT
-Message-ID: <MPCKDQD2D5PXECB1KMMIFRPTCEPZOPB0IJGLEHIP@ziplip.com>
-Date: Sun, 16 Feb 2003 11:35:32 -0800 (PST)
-From: Dusty Hall <draper7@ziplip.com>
-Reply-To: draper7@ziplip.com
-To: SELinux@tycho.nsa.gov
-Subject: spasswd.c
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: draper7@ziplip.com, SELinux@tycho.nsa.gov
+Subject: Re: spasswd.c
+Date: Sun, 16 Feb 2003 21:12:36 +0100
+References: <MPCKDQD2D5PXECB1KMMIFRPTCEPZOPB0IJGLEHIP@ziplip.com>
+In-Reply-To: <MPCKDQD2D5PXECB1KMMIFRPTCEPZOPB0IJGLEHIP@ziplip.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200302162112.36169.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  
-  I'm having trouble compiling utils, specifically spasswd.  I've read through the spasswd README and glanced at the Makefile but to no avail.  First of all I'm compiling on Owl Linux with 2.2.22 if that makes a difference.  I've got the new kernel built following the instructions and made it down to compiling utils but thats where I'm having problems.  Here's the error I'm getting:
+On Sun, 16 Feb 2003 20:35, Dusty Hall wrote:
+>   I'm having trouble compiling utils, specifically spasswd.  I've read
+>
+> [root@localhost:~/downloads/selinux/utils/spasswd] make
+> cc -Wall -g -I/usr/local/selinux/include  -L/usr/local/selinux/lib 
+> spasswd.c   -o spasswd spasswd.c: In function `sig_handler':
+> spasswd.c:47: warning: implicit declaration of function `kill'
+> spasswd.c: In function `main':
+> spasswd.c:66: storage size of `sa' isn't known
 
-[root@localhost:~/downloads/selinux/utils/spasswd] make
-cc -Wall -g -I/usr/local/selinux/include  -L/usr/local/selinux/lib  spasswd.c   -o spasswd
-spasswd.c: In function `sig_handler':
-spasswd.c:47: warning: implicit declaration of function `kill'
-spasswd.c: In function `main':
-spasswd.c:66: storage size of `sa' isn't known
-spasswd.c:149: `SA_SIGINFO' undeclared (first use in this function)
-spasswd.c:149: (Each undeclared identifier is reported only once
-spasswd.c:149: for each function it appears in.)
-spasswd.c:150: warning: implicit declaration of function `sigaction'
-spasswd.c:150: `SIGHUP' undeclared (first use in this function)
-spasswd.c:151: `SIGINT' undeclared (first use in this function)
-spasswd.c:152: `SIGQUIT' undeclared (first use in this function)
-spasswd.c:153: `SIGPIPE' undeclared (first use in this function)
-spasswd.c:154: `SIGTERM' undeclared (first use in this function)
-spasswd.c:66: warning: unused variable `sa'
-make: *** [spasswd] Error 1
+Add the following near the top of spasswd.c:
+#include <signal.h>
 
+After the following line would be good:
+#include <sys/types.h>
 
-  Any advise would be greatly appreciated.
+The problem was that when I added the kill() call for proxying signals I 
+didn't add enough #include lines, it worked on my system and apparently on 
+most people's systems too.  Steve, can this be added to the CVS?
 
-Thanks,
+Probably OWL is using an older glibc which relies on getting these things 
+right.
 
-
--Dusty
-draper7@<NOSPAM>slashseven.com
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
