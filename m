@@ -1,38 +1,49 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Carsten Grohmann <carstengrohmann@gmx.de>
-Subject: Workshop SELinux in Dresden
-Date: Thu, 4 Sep 2003 21:05:53 +0200
-To: SELinux <SELinux@tycho.nsa.gov>
+Message-ID: <3F57A7FA.8050806@diyab.net>
+Date: Thu, 04 Sep 2003 17:00:42 -0400
+From: Diyab <diyab@diyab.net>
 MIME-Version: 1.0
-Message-Id: <200309042105.53558.carstengrohmann@gmx.de>
+To: Colin Walters <walters@verbum.org>
+CC: max barwell <maxb@paradise.net.nz>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: libselinux.so: cannot open shared object file
+References: <1062637188.565.7.camel@orac.lite.net.nz> <1062690102.15712.16.camel@columbia>
+In-Reply-To: <1062690102.15712.16.camel@columbia>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Titel SELinux
+Colin Walters wrote:
+> On Wed, 2003-09-03 at 20:59, max barwell wrote:
+> 
+>>I am using debian sid, I compiled a 2.6.0-test4 kernel ready for use,
+>>and downloaded Colin Walters SElinux packages, during their install, and
+>>I'm not sure when as I wasn't watching, the install borked, and now when
+>>I try to do anything ie type ls, I get the error message
+>>
+>>error while loading shared libraries: libselinux.so: cannot open shared
+>>object file: No such file or directory 
+> 
+> 
+> Hm, for some reason the binaries are getting linked against
+> libselinux.so instead of libselinux.so.1.  I'll investigate this.  In
+> the meantime it should be sufficient to install libselinux1-dev. 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
+> .
+> 
 
-Place
-  Linux Info Tag in Dresden
+Why not just link libselinux.so to libselinux.so.1 ?  That would at 
+least temporarily fix the problem would it not?
 
-Date
-  Saturday 18. October 2003 10:30 Uhr
+Timothy,
 
-Duration
-  1to 3h
-
-Short description:
- - short initiation - workings and background
- - demonstration on a play maschine
- - at request Install-Party
-
-Speaker
-  Carsten Grohmann
-
-Additional Informations:
-http://www.linux-dresden.de
-http://www.securityenhancedlinux.de
-http://www.nsa.gov/selinux/index.html
-
+-- 
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
 
 
 --
