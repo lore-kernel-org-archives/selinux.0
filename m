@@ -1,40 +1,42 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA24688
-	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 01:46:04 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id FAA08084
-	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 05:44:52 GMT
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id BAA24676
+	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 01:43:42 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id FAA11780
+	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 05:41:57 GMT
 Received: from mail.lemuria.org ([213.191.74.130])
-        by jazzband.ncsc.mil  with ESMTP id FAA08080 for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 05:44:52 GMT
+	by jazzswing.ncsc.mil  with ESMTP id FAA11771
+	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 05:41:55 GMT
 Received: from unicorn.lemuria.org (b067114.adsl.hansenet.de [62.109.67.114])
-	by mail.lemuria.org (Postfix) with ESMTP id 874B3BB8B
-	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 07:39:32 +0200 (CEST)
-Date: Tue, 23 Apr 2002 07:43:22 +0200
+	by mail.lemuria.org (Postfix) with ESMTP id 1D049BB8B
+	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2002 07:37:05 +0200 (CEST)
+Date: Tue, 23 Apr 2002 07:40:55 +0200
 From: Tom <tom@lemuria.org>
 To: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: boot loader
-Message-ID: <20020423074322.C14880@lemuria.org>
-References: <Pine.GSO.4.33.0204221825010.5657-100000@raven> <20020422224503.C7C6744A5A@lyta.coker.com.au>
+Message-ID: <20020423074055.B14880@lemuria.org>
+References: <20020422220826.EF5F645C95@lyta.coker.com.au> <Pine.GSO.4.33.0204221825010.5657-100000@raven>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020422224503.C7C6744A5A@lyta.coker.com.au>; from russell@coker.com.au on Tue, Apr 23, 2002 at 12:45:03AM +0200
+In-Reply-To: <Pine.GSO.4.33.0204221825010.5657-100000@raven>; from sds@tislabs.com on Mon, Apr 22, 2002 at 06:27:54PM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Apr 23, 2002 at 12:45:03AM +0200, Russell Coker wrote:
-> /etc/lilo.conf will (on any properly configured system) contain a boot 
-> password for the system, which is the best way of taking over a system 
-> entirely without disassembling the hardware.  I think that this deserves a 
-> different type to world-readable files such as /etc/passwd!
-> 
-> I think that the situation is similar for other boot loaders.
+On Mon, Apr 22, 2002 at 06:27:54PM -0400, Stephen Smalley wrote:
+> There is one other potential issue.  If an administrator directly edits
+> /etc/lilo.conf, it will revert to etc_t (and become inaccessible to lilo
+> unless it is then relabeled by the administrator).  Is there any strong
+> reason to maintain a separate type on this file?  It is problematic to
+> keep it in a separate type from other /etc files, since it may be directly
+> modified by the administrator and it doesn't live in its own separate
+> subdirectory.
 
-Physical access to the hardware always means you have lost (an
-encrypted filesystem being the exception). Moreover, a lot of properly
-configured systems do NOT have a boot password. If they are located in
-a physical secure location, then coming up again after a crash or power
-failure is more important than the off-chance that someone breaks into
-the hosting center just to reboot and take over your machine.
+It may be more tricky even. I'm thinking about split administrator access 
+here. Say you have one network and one system admin. Network admin needs 
+to access stuff in /etc (such as interface configs, maybe some or all 
+network daemons, depending on where authorities are split) while system 
+admin needs access to other /etc files (cron and startup files, among 
+others).
 
 
 -- 
