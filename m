@@ -1,51 +1,56 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA05199
-	for <selinux@tycho.nsa.gov>; Sun, 18 Aug 2002 22:03:01 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id CAA21777
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 02:01:57 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id CAA21771
-	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 02:01:55 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brad Chapman <jabiru_croc@yahoo.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: psidfiles_init errors
-Date: Mon, 19 Aug 2002 04:02:44 +0200
-References: <20020819015459.26016.qmail@web40004.mail.yahoo.com>
-In-Reply-To: <20020819015459.26016.qmail@web40004.mail.yahoo.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id HAA06535
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 07:39:36 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id LAA22699
+	for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 11:37:52 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id LAA22695 for <selinux@tycho.nsa.gov>; Mon, 19 Aug 2002 11:37:51 GMT
+Date: Mon, 19 Aug 2002 07:38:48 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: shadow_t
+In-Reply-To: <20020816230931.DFD12A19@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0208190737120.14458-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020819020245.495578922@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 19 Aug 2002 03:54, Brad Chapman wrote:
->       Could someone please explain the following errors?
+
+On Sat, 17 Aug 2002, Russell Coker wrote:
+
+> I've got shadow_t working correctly with my policy.
 >
-> psidfiles_init:  invalid context system_u:object_r:dmesg_exec_t (psid 89).
-> psidfiles_init:  invalid context system_u:object_r:xdm_log_t (psid 92).
-> psidfiles_init:  invalid context system_u:object_r:minilogd_exec_t (psid
-> 120). ...
-> psidfiles_init:  invalid context system_u:object_r:writeable_t (psid 37).
-> psidfiles_init:  invalid context system_u:object_r:mesg_exec_t (psid 47).
-> psidfiles_init:  invalid context Brad:object_r:writeable_t (psid 62).
-> psidfiles_init:  invalid context system_u:object_r:samba_t (psid 64).
+> I have changed the spasswd.c program to relabel the /etc/passwd and
+> /etc/shadow files after running /usr/bin/passwd, and I made a
+> file_type_auto_trans() rule to have them default to shadow_t (which
+> unfortunately gives a momentary situation where /etc/passwd will be
+> unreadable).  It would also be unfortunate if there was a power outage at
+> that moment...
+>
+> So I'm thinking of having a program run from a boot script to fix the type of
+> /etc/passwd.
+>
+> Also I've got vipw and adduser also working with shadow_t...
+>
+> This isn't ideal, but the code for the chsh/chfn/vipw/etc programs is really
+> ugly and I'm afraid of causing more problems than I fix if I change them.
 
-These are file types that existed in old versions of the policy but which 
-don't exist any more.  They still have entries in the ...security database 
-because there's no code to clean them up (IMHO they should be removed when 
-there are no files of that context on the file system any more).
+Can you clarify what you mean by the latter statements, i.e. have you
+created wrapper programs for vipw and adduser to relabel /etc/passwd from
+shadow_t to etc_t after completion, or have you patched these programs?
 
-To avoid the messages add the following to your policy:
-type dummy_file_t alias { dmesg_exec_t xdm_log_t minilogd_exec_t ... };
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+
+
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
