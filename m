@@ -1,38 +1,45 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i85HNirT018223
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 13:23:44 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i85HNht0002438
-	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 17:23:43 GMT
-Date: Sun, 5 Sep 2004 18:34:52 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Erich Schubert <erich@debian.org>
-Cc: russell@coker.com.au, selinux@tycho.nsa.gov
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i85HcXrT018255
+	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 13:38:33 -0400 (EDT)
+Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i85HcWt0002643
+	for <selinux@tycho.nsa.gov>; Sun, 5 Sep 2004 17:38:32 GMT
 Subject: Re: Additional rule files
-Message-ID: <20040905173452.GH4084@lkcl.net>
-References: <1094260356.29689.44.camel@wintermute.xmldesign.de> <200409052031.05813.russell@coker.com.au> <1094392498.22073.19.camel@wintermute.xmldesign.de>
+From: Erich Schubert <erich@debian.org>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: russell@coker.com.au, selinux@tycho.nsa.gov
+In-Reply-To: <20040905173452.GH4084@lkcl.net>
+References: <1094260356.29689.44.camel@wintermute.xmldesign.de>
+	 <200409052031.05813.russell@coker.com.au>
+	 <1094392498.22073.19.camel@wintermute.xmldesign.de>
+	 <20040905173452.GH4084@lkcl.net>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sun, 05 Sep 2004 19:38:27 +0200
+Message-Id: <1094405907.22073.34.camel@wintermute.xmldesign.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1094392498.22073.19.camel@wintermute.xmldesign.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Sep 05, 2004 at 03:54:58PM +0200, Erich Schubert wrote:
-> Hi,
-> 
-> > Why does fnord need a different policy?  Are the actions of different web 
-> > servers that different?  (this is a serious question not a rhetorical 
-> > question)
-> 
-> Well, apache contains a lot of stuff. Fnord and tcpserver are much
-> smaller applications that would allow a fine-grained definition of
-> rules. (one of the reasons i don't like apache that much is that it
-> contains a huge amount of stuff you usually do not use)
- 
- apache is modular: i assume that at some point the apache policy
- would reflect this modularity [with tunables/apache_modules.te?]
+Hi,
+>  apache is modular: i assume that at some point the apache policy
+>  would reflect this modularity [with tunables/apache_modules.te?]
 
- l.
+With linkable modules, yes. Apart from apache2 modules having like one
+security issue a month currently (ok, maybe a bit exxagerated) the
+apache process still is one big process. Having one role/domain.
+(Using fastcgi and such you can of course separate this a bit into
+different roles, granted)
+
+With SELinux it is advisable to split different parts into different
+applications - such as the unix_verify application for pam.
+
+Greetings,
+Erich Schubert
+-- 
+     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C     (o_
+ A man doesn't know what he knows until he knows what he doesn't know. //\
+  Man kann sich auch in Gesellschaft anderer einsam fühlen. Weizsäcker V_/_
+
 
 
 --
