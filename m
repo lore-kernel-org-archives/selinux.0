@@ -5,41 +5,32 @@ Cc: SELinux List <SELinux@tycho.nsa.gov>
 In-Reply-To: <p06020408bc3db651f5a5@[128.115.96.64]>
 References: <p06020408bc3db651f5a5@[128.115.96.64]>
 Content-Type: text/plain
-Message-Id: <1075389930.13803.69.camel@colossus.columbia.tresys.com>
+Message-Id: <1075391927.13803.98.camel@colossus.columbia.tresys.com>
 Mime-Version: 1.0
-Date: Thu, 29 Jan 2004 10:25:30 -0500
+Date: Thu, 29 Jan 2004 10:58:47 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Wed, 2004-01-28 at 14:20, Mark Shakespeare wrote:
+> Been trying to automate the build process for a Fedora/Selinux system.
+> I'am also aware that Fedora core release 2 is coming in April and will
+> have Selinux integrated in it.
 
-> I downloaded setools from www.tresys.com, in order to install BWidgets.
-> 
-> Some setools components required TK and TCL 8.3, while setools-gui
-> requires TK and TCL 8.4
-> 
-
-It sounds like you are using a mix of our rpms and Dan Walsh's. You said
-that you downloaded setools from our website, but the packages there
-don't have setools-gui. So you need to double check which set of rpms
-you are using and only use Tresys packages or Dan Walsh's. You will
-probably be better off for the long term if you use Dan's.
-
-To avoid this confusion in the future we are going to stop distributing
-rpms entirely starting with the next release.
-
-Karl
-
-> I forced tk and tcl8.4 using the rpm -i --force....so both are installed.
-> 
-> The script now completes.....and we now have a bootable selinux system...
-> 
-> well sort of...
-> vi does not work....has a libperl.so error
-> id -Z does not work....says it can only be used on a selinux-enabled kernel
 > seaudit fails...something about a bad policy.conf file...
 > 
 > 
+
+Do you mean that it says that the policy.conf file is bad and that you
+need to exit the application? If so, this is normal behavior for bad
+policies (the bug that causes you to have to restart seaudit and apol
+when you encounter a bad policy has been fixed for the next release,
+however). Does the policy.conf file work with checkpolicy? If it works
+with checkpolicy, please send me the policy.conf because that version of
+seaudit should handle anything that checkpolicy does with the exception
+of the two new features that Steve just added ('-' and typealias). 
+
+Karl 
+
 > The also appears to be no logging for selinux related events.
 > 
 > 
