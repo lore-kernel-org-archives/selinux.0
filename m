@@ -1,44 +1,77 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h33Lx0x6003017
-	for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 16:59:01 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h33Lx0xH021612
-	for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 21:59:00 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-        by jazzband.ncsc.mil  with ESMTP id h33LwvDl021609 for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2003 21:58:58 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
-Subject: Re: policy
-Date: Fri, 4 Apr 2003 07:58:50 +1000
-References: <200304032201.RAA25118@moss-shockers.ncsc.mil>
-In-Reply-To: <200304032201.RAA25118@moss-shockers.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200304040758.50344.russell@coker.com.au>
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C2FAEB.D1B258A0"
+Subject: spassword
+Date: Fri, 4 Apr 2003 15:50:26 -0500
+Message-ID: <8A61167D13CED411B3E500B0D079784703AAEE@mailserver.itac.reston>
+From: "Matthew R. Singer" <msinger@itac.com>
+To: <SELinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 4 Apr 2003 08:01, Stephen D. Smalley wrote:
-> > allow $1_t sshd_tmp_t:file create_file_perms;
-> > The above rule from macros/user_macros.te looks dangerous.  We have the
-> > type sshd_tmp_t being used for all user domains.
->
-> Agreed, I've removed this from our internal tree.  It appears that this
-> is also granted to some program domains, e.g. the su domains and the
-> ssh client domains.
+This is a multi-part message in MIME format.
 
-That will probably break a few things, but that's fine.  When we break things 
-we will then be able to fix them properly, just as long as it doesn't get 
-released in the broken version.
+------_=_NextPart_001_01C2FAEB.D1B258A0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
 
+Running spasswd fails with:
+
+/usr/local/selinux/bin/spasswd:  Unix identity root does not match Flask
+identity system_u
+
+/var/log/messages contains:
+
+localhost kernel: security_compute_sid:  invalid context
+system_u:system_r:passwd_t for scontext=3Dsystem_u:system_r:sysadm_t
+tcontext=3Dsystem_u:object_r:passwd_exec_t tclass=3Dprocess
+
+How do I fix this?
+
+
+
+------_=_NextPart_001_01C2FAEB.D1B258A0
+Content-Type: text/html;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
+6.0.6249.1">
+<TITLE>spassword</TITLE>
+</HEAD>
+<BODY>
+<!-- Converted from text/rtf format -->
+<BR>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">Running spasswd fails with:</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">/usr/local/selinux/bin/spasswd:&nbsp; =
+Unix identity root does not match Flask identity system_u</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">/var/log/messages contains:</FONT>
+</P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">localhost kernel: =
+security_compute_sid:&nbsp; invalid context system_u:system_r:passwd_t =
+for scontext=3Dsystem_u:system_r:sysadm_t =
+tcontext=3Dsystem_u:object_r:passwd_exec_t tclass=3Dprocess</FONT></P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">How do I fix this?</FONT>
+</P>
+<BR>
+
+</BODY>
+</HTML>
+------_=_NextPart_001_01C2FAEB.D1B258A0--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
