@@ -1,60 +1,93 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5JCX5I4002112
-	for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2003 08:33:05 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h5JCX45e000430
-	for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2003 12:33:04 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h5JCX392000427 for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2003 12:33:03 GMT
-Subject: Re: how usable is selinux in lsm-2.5?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andreas Schuldei <andreas@schuldei.org>,
-   Russell Coker <russell@coker.com.au>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20030618212607.GB5278@schuldei.org>
-References: <20030618212607.GB5278@schuldei.org>
-Content-Type: text/plain
-Message-Id: <1056025963.1071.27.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 19 Jun 2003 08:32:44 -0400
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: rules uptimed
+Date: Thu, 19 Jun 2003 21:33:00 +0200
+References: <200306182130.11056.carstengrohmann@gmx.de> <200306191056.29941.russell@coker.com.au>
+In-Reply-To: <200306191056.29941.russell@coker.com.au>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_0BUQNQ75HXPSHAFHCDCV"
+Message-Id: <200306192133.00539.carstengrohmann@gmx.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2003-06-18 at 17:27, Andreas Schuldei wrote:
-> I notice with satisfaction that lsm-2.5 with selinux configured
-> in compiles fine here.
 
-Are you referring to the lsm-2.5 BitKeeper tree from either
-lsm.bkbits.net or lsm.immunix.org?  I did replace the SELinux module in
-that tree with the new 2.5 SELinux, although the LSM patch in that tree
-still includes various hooks that are not in mainline.  You might want
-to wait until we make an updated public release of the mainline
-2.5-based SELinux and use it.
+--------------Boundary-00=_0BUQNQ75HXPSHAFHCDCV
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> what is missing from it to be usable? Or which parts are there
-> and what can one do with them?
+Am Donnerstag, 19. Juni 2003 02:56 schrieb Russell Coker:
+> On Thu, 19 Jun 2003 05:34, Carsten Grohmann wrote:
+> > I use the uptimed from unixcode.org/uptimed/ since a few
+> > months. I wrote the rules last days. Feel free to use it....
+>
+> I've attached a version with a few minor changes.
 
-It doesn't include the networking access controls, since those controls
-need to be reimplemented using only features provided by the mainline
-kernel (vs. the rejected networking fields and hooks).  It also is more
-limited in its support for filesystems due to the transition to xattr
-and the elimination of unsafe inode-to-path translation; if you want to
-use something other than ext[23] on disk or if you want to use devfs,
-you'll need to implement an xattr handler in the filesystem or some
-technique for labeling it in the SELinux module.
+Thank you!=20
 
-> will the 2.4 userspace which russel and brian ship in debian
-> packages work on this kernel? I understand that the proc
-> interface changed. are there patches for userspace allready?
+You could also replace readable_t with locale_t. The new policy from=20
+the CVS used it to label /etc/localtime.=20
+The attached version should runs fine with the current policy. I've=20
+apply all of Russels suggestions.
 
-No, the SELinux API has been massively overhauled.  You can fetch
-snapshots of the new userland components from
-http://www.nsa.gov/selinux/lk, but it might be easier for you to wait
-for an updated public release on the main download page.
+--------------Boundary-00=_0BUQNQ75HXPSHAFHCDCV
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="uptimed.fc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="uptimed.fc"
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+# uptimed
+/etc/uptimed.conf               system_u:object_r:etc_uptimed_t
+/usr/sbin/uptimed		system_u:object_r:uptimed_exec_t
+/var/spool/uptimed(/.*)?        system_u:object_r:uptimed_spool_t
+
+--------------Boundary-00=_0BUQNQ75HXPSHAFHCDCV
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="uptimed.te"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="uptimed.te"
+
+#DESC uptimed - a uptime daemon
+#
+# Author:  Carsten Grohmann <carsten@securityenhancedlinux.de>
+#
+# Date:  19. June 2003 
+#
+
+#################################
+#
+# General Types
+#
+
+type etc_uptimed_t, file_type, sysadmfile;
+type uptimed_spool_t, file_type, sysadmfile;
+
+#################################
+#
+# Rules for the uptimed_t domain.
+#
+daemon_domain(uptimed, `,privmail')
+file_type_auto_trans(uptimed_t, var_spool_t, uptimed_spool_t)
+allow uptimed_t { etc_uptimed_t proc_t locale_t }:file { getattr read };
+allow uptimed_t uptimed_spool_t:file create_file_perms;
+allow uptimed_t self:unix_dgram_socket create_socket_perms;
+
+# to send mail
+can_exec(uptimed_t, shell_exec_t)
+allow uptimed_t { bin_t sbin_t }:dir search;
+allow uptimed_t bin_t:lnk_file read;
+allow uptimed_t etc_runtime_t:file { getattr read };
+allow uptimed_t self:fifo_file { getattr write };
+
+# rules for uprecords - it runs in the user context
+allow userdomain uptimed_spool_t:dir search;
+allow userdomain uptimed_spool_t:file { getattr read };
+
+--------------Boundary-00=_0BUQNQ75HXPSHAFHCDCV--
+
 
 
 --
