@@ -1,57 +1,44 @@
-From: "Frank Mayer" <mayerf@tresys.com>
-To: "'Tony Stanco'" <Tony@egovos.org>,
-   "'M. Pender'" <michael.pender@nanochron.com>,
-   "'K Rob'" <kdrobins@engineer.com>, "'Dale Amon'" <amon@vnl.com>
-Cc: "'Howard Holm'" <hdholm@epoch.ncsc.mil>,
-   "'Subba Rao'" <subba9@cablespeed.com>,
-   "'NSA's SELinux'" <SELinux@tycho.nsa.gov>
-Subject: RE: SELinux meetings??
-Date: Mon, 6 Oct 2003 08:51:14 -0400
-Message-ID: <000801c38c08$890159e0$8100a8c0@columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-Reply-To: <2a4b01c389fd$50e06400$d8742244@DJHB9G21>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h96I0VWt006823
+	for <selinux@tycho.nsa.gov>; Mon, 6 Oct 2003 14:00:31 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h96I0U7d020956
+	for <selinux@tycho.nsa.gov>; Mon, 6 Oct 2003 18:00:30 GMT
+Received: from unicorn.lemuria.org (c152019.adsl.hansenet.de [213.39.152.19])
+        by jazzband.ncsc.mil  with ESMTP id h96I0TRn020953 for <selinux@tycho.nsa.gov>; Mon, 6 Oct 2003 18:00:30 GMT
+Date: Mon, 6 Oct 2003 19:55:24 +0200
+From: Tom <tom@lemuria.org>
+To: Andreas Schuldei <andreas@schuldei.org>, selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: Updated Release
+Message-ID: <20031006195521.E9448@lemuria.org>
+References: <1065114741.27477.3042.camel@moss-huskies> <20031003064750.GA4555@markus.schuldei.org> <1065188703.4080.114.camel@moss-spartans.epoch.ncsc.mil> <20031004114020.GA7845@markus.schuldei.org> <1065450015.3919.13.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1065450015.3919.13.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Mon, Oct 06, 2003 at 10:20:20AM -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For those in the Washington, DC area, I'm presenting a tutorial on SE Linux, and
-how to debug and analyze policies, at the ACM CSS conference on Oct 29 (see
-http://www.acm.org/sigs/sigsac/ccs/CCS2003/, tutorial 3).
+On Mon, Oct 06, 2003 at 10:20:20AM -0400, Stephen Smalley wrote:
+> Upgrading an existing system from the old SELinux to the new SELinux
+> seamlessly is complicated; see the earlier discussions on the list
+> regarding it, e.g.
+> http://marc.theaimsgroup.com/?l=selinux&m=106156668426416&w=2
 
-Also, we're physically located in Columbia, MD, and would be glad to give an
-occasional presentation on our work at your meetings.  Besides developing
-setools, we're working on enhancements to the policy language and associated
-kernel enforcement, and analysis of security policies in support of
-certification (among other activities).  Just let us know.
+On Debian, it's not that hard if you can live with running it in 
+non-SELinux or at least permissive mode during the update. I've just 
+done it to my notebook last week. Here's a short step-by-step guide:
 
-Frank Mayer
+http://selinux.lemuria.org/install-2.6.html
 
-On Friday, October 03, 2003 6:26 PM,, owner-selinux@tycho.nsa.gov wrote:
+It doesn't explicitly say so, but the system was a 2.4.21 SELinux
+system when I started out.
 
-> Subject: Re: SELinux meetings??
-> 
-> 
-> Thanks to everyone that emailed me about forming the Washington area
-> SELinux Users Group. The mailing list is up at
-> http://www.egovos.org/mailman/listinfo/selug and we will have a
-> webpage up soon, too.
-> This group is currently being formed and will have its regular
-> meetings in the Computer Science Department's conference room at
-> George Washington University's downtown campus. If you are interested
-> in joining the group, please contact us by subscribing to the list.
-> 
-> We are planning an October 2003 meeting right now, and will have
-> particulars posted to the email list shortly.
-> 
-> Best regards,
-> 
-> Tony Stanco
-> Director
-> The Center of Open Source & Government
-> http://www.eGovOS.org
-> tony@egovos.org
 
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
