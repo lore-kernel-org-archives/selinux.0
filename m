@@ -1,65 +1,71 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9G57XWt000764
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 01:07:33 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9G57WmR012815
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 05:07:32 GMT
-Received: from chris.pebenito.dhs.org (12-251-184-225.client.attbi.com [12.251.184.225])
-        by jazzband.ncsc.mil  with ESMTP id h9G57Vjp012812 for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 05:07:32 GMT
-Subject: Re: specifying groups of types
-From: Chris PeBenito <pebenito@gentoo.org>
-To: David Caplan <dac@tresys.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Russell Coker <russell@coker.com.au>,
-   SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <3F8C46E4.1030403@tresys.com>
-References: <200310111435.46684.russell@coker.com.au>
-	 <1066134168.5054.11.camel@moss-spartans.epoch.ncsc.mil>
-	 <3F8C46E4.1030403@tresys.com>
-Content-Type: text/plain
-Message-Id: <1066280844.31190.34.camel@chris.pebenito.net>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9G5agWt000858
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 01:36:42 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9G5aY0p019792
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 05:36:34 GMT
+Received: from sj-iport-4.cisco.com (sj-iport-4.cisco.com [171.68.10.86])
+	by jazzswing.ncsc.mil  with ESMTP id h9G5aXr7019789
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 05:36:33 GMT
+Date: Wed, 15 Oct 2003 22:35:31 -0700
+From: Michael Reilly <michaelr@cisco.com>
+To: Diyab <diyab@diyab.net>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: setfiles and /home labeling
+Message-Id: <20031015223531.70abb76a.michaelr@cisco.com>
+In-Reply-To: <3F8DFEA3.5000701@diyab.net>
+References: <20031015160109.7fbdbb12.michaelr@cisco.com>
+	<3F8DFEA3.5000701@diyab.net>
 Mime-Version: 1.0
-Date: Thu, 16 Oct 2003 00:07:25 -0500
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Well I tried this out, and it worked, though I used simple examples:
+Thank you.  I do not have the original 1.2 policy file here so I do not know if I added the extra / or if it was already there when I changed the name from jadmin to michaelr.
 
-portage.te:
-create_dir_notdevfile(portage_t,{file_type -shadow_t})
+michael
+On Wed, 15 Oct 2003 22:12:51 -0400
+Diyab <diyab@diyab.net> wrote:
 
-admin_macros.te:
-# Relabel most files.
-allow $1_t {file_type -shadow_t}:dir { getattr read search relabelfrom relabelto };
-allow $1_t {file_type -shadow_t}:file_class_set { getattr relabelfrom relabelto };
-
-(where portage is Gentoo's packaging system)  I don't know anything
-about yacc, so I can't comment on the implementation.  But the new
-shadow assertions are what the first IRC discussion stemmed from.  They
-were (correctly) not tripped by these statements, and sysadm_t can stat
-but not read /etc/shadow.
-
-On Tue, 2003-10-14 at 13:56, David Caplan wrote:
-> I'd recommend trying this out and if you find it useful change the parse 
-> rules.  I tested it on some real basic policy, so it may cause other 
-> unintended problems.  I'm throwing it out more as a starting point 
-> rather than something intended to be integrated into checkpolicy.
-
-> Stephen Smalley wrote:
-> > On Sat, 2003-10-11 at 00:35, Russell Coker wrote:
+> Michael Reilly wrote:
+> > I know I am missing something.  These are all of the lines from
+> > file_contexts which reference the /home directories.  Notice the two lines
+> > which reference /home/michaelr.  After running make relabel /home/michaelr
+> > is labeled system_u:object_r:user_home_dir_t instead of
+> > system_u:object_r:staff_home_dir_t and all of the files in /home/michaelr
+> > and below (except the files special cased like .ssh, etc.) are labeled
+> > system_u:object_r:user_home_t.
 > > 
-> >>Following a discussion on IRC, it occurs to me that it would be handy to have 
-> >>the following in the policy language:
-> >>allow some_domain { file_type !shadow_t }:...
-> >>
-> >>So we can specify everything in file_type except for shadow_t.
+> > Why are the two lines for /home/michaelr being ignored?  What am I doing
+> > wrong?
+> > 
+> > Thanks,
+> > 
+> > michael
+> > # Ordinary user home directories.
+> > /home				system_u:object_r:home_root_t
+> > /home/[^/]+	-d		system_u:object_r:user_home_dir_t
+> > /home/[^/]+/.+			system_u:object_r:user_home_t
+> > # Other staff home directories, replace "jadmin" with appropriate name
+> > /home/michaelr/(/.*)?		system_u:object_r:staff_home_t
+> > /home/michaelr			system_u:object_r:staff_home_dir_t
+> 
+> You have an extra / in the staff_home_t declaration.  Change it to read 
+> like this:
+> 
+> /home/michaelr(/.*)?		system_u:object_r:staff_home_t
+> 
+> Timothy,
+> 
+> -- 
+> I put instant coffee in a microwave and almost went back in time.
+> 		-- Steven Wright
+
+
 -- 
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer, SELinux
-Hardened Gentoo Linux
- 
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
-Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+---- ---- ----
+Michael Reilly    michaelr@cisco.com
+    Cisco Systems, Santa Cruz, CA
 
 --
 This message was distributed to subscribers of the selinux mailing list.
