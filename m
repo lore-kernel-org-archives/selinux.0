@@ -1,36 +1,42 @@
-Subject: Re: dynamic context transitions
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA2EQPXZ005724
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 09:26:25 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA2EP44G009003
+	for <selinux@tycho.nsa.gov>; Tue, 2 Nov 2004 14:25:04 GMT
+Subject: RE: dynamic context transitions
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Karl MacMillan <kmacmillan@tresys.com>
-Cc: Darrel Goeddel <dgoeddel@TrustedCS.com>,
-   Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-   SELinux List <SELinux@tycho.nsa.gov>, Chad Hanson <chanson@TrustedCS.com>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <1099404989.23756.79.camel@pham.columbia.tresys.com>
-References: <4182959B.4080503@trustedcs.com>
-	 <20041029211809.GJ8897@lkcl.net> <20041030090603.GK8897@lkcl.net>
-	 <1099315214.21386.13.camel@moss-spartans.epoch.ncsc.mil>
-	 <20041101141025.GZ8897@lkcl.net>  <418662EE.5090001@trustedcs.com>
-	 <1099344460.23756.49.camel@pham.columbia.tresys.com>
-	 <1099402984.31739.17.camel@moss-spartans.epoch.ncsc.mil>
-	 <1099404989.23756.79.camel@pham.columbia.tresys.com>
+To: Frank Mayer <mayerf@tresys.com>
+Cc: "'Luke Kenneth Casson Leighton'" <lkcl@lkcl.net>,
+   "'Chad Hanson'" <chanson@TrustedCS.com>,
+   "'Darrel Goeddel'" <DGoeddel@TrustedCS.com>, selinux@tycho.nsa.gov
+In-Reply-To: <00ba01c4c0e5$29f78e70$1e0c010a@columbia.tresys.com>
+References: <00ba01c4c0e5$29f78e70$1e0c010a@columbia.tresys.com>
 Content-Type: text/plain
-Message-Id: <1099405140.31739.59.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1099405366.31739.65.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Tue, 02 Nov 2004 09:19:00 -0500
+Date: Tue, 02 Nov 2004 09:22:46 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-11-02 at 09:16, Karl MacMillan wrote:
-> It would certainly require some additional infrastructure and more
-> invasive changes to init scripts, but it could be made to work. I think
-> that others have raised the more important point - what real use case is
-> there for this functionality?
+On Tue, 2004-11-02 at 09:06, Frank Mayer wrote:
+> But my instinct still says that orthogonal, rather than hybrid, TE/MLS would be
+> better.  I'm trying to read up on the reasons for the design decision but
+> perhaps you could explain further the rationale for the dependency (other than
+> implementation detail).
 
-A common problem in Fedora is that daemons expect to be able to display
-output and possibly to get user input during startup (e.g. httpd ssl
-requesting a passphrase), then close their descriptors and proceed to
-normal operation.  Since we revoke access to the tty upon the exec of
-the daemon, we run into this problem frequently.
+MLS requires some way to identify trusted subjects and grant them the
+necessary privileges to override the BLP restrictions.  How would you do
+it?  Conventional approaches include POSIX.1e capabilities (e.g. if the
+process has the CAP_MAC_WRITE capability, it can write down) or TE (e.g.
+if the policy contains "allow foo_t bar_t:file mls_writedown;" then a
+process in "foo_t" can write down to files labeled "bar_t").  Either
+approach lets you bind MLS privileges to specific programs, but the
+TE-based approach is clearly finer-grained (per-object) and provides
+better support for protecting and isolating the trusted subject.  We
+didn't invent this idea, TE has been used in this manner from the
+beginning IIUC (and we have certainly used it in this manner in research
+predecessors of SELinux).
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
