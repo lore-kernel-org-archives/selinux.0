@@ -1,92 +1,70 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1GF2fL9016338
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 10:02:41 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1GF1Mfs010713
-	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 15:01:23 GMT
-Date: Wed, 16 Feb 2005 15:11:27 +0000
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1GFAwL9016387
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 10:10:58 -0500 (EST)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1GF7MNj025004
+	for <selinux@tycho.nsa.gov>; Wed, 16 Feb 2005 15:07:22 GMT
+Date: Wed, 16 Feb 2005 15:19:32 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: sshd transition points
-Message-ID: <20050216151127.GS31121@lkcl.net>
-References: <1108491293.17854.153.camel@moss-spartans.epoch.ncsc.mil> <20050215191640.GA26294@lkcl.net> <1108495342.17854.200.camel@moss-spartans.epoch.ncsc.mil> <20050215200355.GB26294@lkcl.net> <20050215225329.GH26294@lkcl.net> <20050215231707.GC29523@lkcl.net> <20050216000437.GD30341@lkcl.net> <1108559425.19756.54.camel@moss-spartans.epoch.ncsc.mil> <20050216134457.GL31121@lkcl.net> <1108561176.19756.86.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: dynamic context transitions
+Message-ID: <20050216151932.GT31121@lkcl.net>
+References: <20050215213455.GF26294@lkcl.net> <1108559153.19756.49.camel@moss-spartans.epoch.ncsc.mil> <20050216140849.GQ31121@lkcl.net> <1108562413.19756.96.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1108561176.19756.86.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1108562413.19756.96.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Feb 16, 2005 at 08:39:36AM -0500, Stephen Smalley wrote:
-> On Wed, 2005-02-16 at 08:44, Luke Kenneth Casson Leighton wrote:
-> >  out of curiosity: why?
+On Wed, Feb 16, 2005 at 09:00:13AM -0500, Stephen Smalley wrote:
+> On Wed, 2005-02-16 at 09:08, Luke Kenneth Casson Leighton wrote:
+> >  in order to be able to restrict users from logging in on a per-IP
+> >  basis.
 > > 
-> >  if it's specified in the policy, and there are permissions
-> >  required for it to occur, what is the harm?
+> >  e.g. so restricted_user1 can ONLY ssh in from 192.168.0.223, because
+> >  i set up a net_context that said so, and associated
+> >  sshd_priv_restricted_user1_t with that network context
 > 
-> Because you have an application that has explicitly requested a context
-> C1 but you are applying a different context C2 without its awareness. 
+> I'm not clear that this is going to work for you, or that this is the
+> right approach (vs. using iptables and multiple sshd instances running
+> in different security contexts and listening on different ports
+> initially).  
 
- i see what you mean: it's the fact that you are calling setcon()
- and it doesn't happen, something else happens
+ this is the temporary approach that i have in fact taken.
 
- it could be argued that the same thing happens with execve(), but
- i take the point that you're not actually calling something that
- says "set context NOW".
 
-> Compare with file relabeling; we don't rewrite the context passed to
-> setfilecon(3).  Or compare with setexeccon(3) - we don't rewrite the
-> context passed to it.  That is different than applying a default context
-> defined by policy when the application specified _no_ context for an
-> execve or a file creation.
+ think in terms of maybe having to add a dozen or more different
+ "zones".
+
+ eth0 -> iptables -> /usr/sbin/sshd_eth0 -> restricted_user0
+ eth1 -> iptables -> /usr/sbin/sshd_eth1 -> restricted_user1
+ ....
+ ....
+ eth100 -> iptables -> /usr/sbin/sshd_eth100-> restricted_user100
+
+ and it _very_ quickly becomes unmanageable - some time after the
+ first two users are added.
+
+ the requirements are such that there will be several different
+ users with several different ip addresses / zones from which
+ those users need to be restricted.
+
+ i can forsee a point where the customer is going to bitch at me
+ to provide a solution.
  
-  okay, i get it.
 
-> >  what rules must be placed in the policy such that
-> >  security_compute_create will produce the desired results, for example:
-> 
-> It consults the type_transition rules in the policy.  It was named
+> Further, I'm not sure where you are going to perform these
+> dynamic context transitions, as the user isn't authenticated when the
+> monitor and unprivileged child are created.  
 
- GREAT.
+ do_authentication2() - just afer the username is determined.
 
-> >  if scon = "sshd_priv_t" and tcon = "user_t"
-> >  [and tclass = SECCLASS_PROCESS?]
-> > 
-> >  and i want newcon to equal "sshd_priv_user_t" as a result of the call,
-> > 
-> >  what do i put in the policy to reflect this?
-> 
-> type_transition sshd_priv_t user_t:process sshd_priv_user_t;
+ auth2.c's input_userauth_request().
+ 
+ after "user = packet_get_string(NULL)"
 
- ah _ha_!
-
- thank you.
-
-
-> But I'm still not clear on your usage, as these processes are not
-> associated with a user.
-
- i believe one of my former messages (just 30mins ago) provides
- sufficient explanation.
-
- at the point at which do_authentication2() receives information
- about what username is to be used, i wish at THAT point to
- do a setcon() to sshd_priv_user_t, there and then.
-
- in order to stop any further unauthorised network traffic by
- that user.
-
- so i will put this:
-
-	net_context 192.168.0.223 255.255.255.55 restricted_user_ip_t
-
- 	allow restricted_user_1_ip_t:net_if sshd_priv_restricted_user_t 
-
- and consequently, if restricted_user isn't logging in from
- 192.168.0.223, the sshd do_authentication2() function will be UNABLE
- to respond to any further authentication requests.
-
- i realise it's a bit dodgy, but it will do the job :)
+ i hope :)
 
  l.
 
