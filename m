@@ -1,42 +1,57 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9EMTbWt022128
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 18:29:37 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9EMTT0p025289
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 22:29:30 GMT
-Received: from remt26.cluster1.charter.net (remt26.cluster1.charter.net [209.225.8.36])
-	by jazzswing.ncsc.mil  with ESMTP id h9EMTTr7025286
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 22:29:29 GMT
-Received: from [68.116.1.217] (HELO eng21)
-  by remt26.cluster1.charter.net (CommuniGate Pro SMTP 4.0.6)
-  with ESMTP id 26849329 for selinux@tycho.nsa.gov; Tue, 14 Oct 2003 18:29:11 -0400
-From: "Robert Potter" <robertp72@charter.net>
-To: "'SELinux Mail List'" <selinux@tycho.nsa.gov>
-Subject: Trust Basics
-Date: Tue, 14 Oct 2003 15:29:25 -0700
-Message-ID: <000a01c392a2$a7b24020$d9017444@eng21>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9ENVAWt022347
+	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 19:31:10 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h9ENV9mR006317
+	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 23:31:09 GMT
+Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
+        by jazzband.ncsc.mil  with ESMTP id h9ENV8jp006314 for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2003 23:31:08 GMT
+Message-ID: <3F8C873B.30703@diyab.net>
+Date: Tue, 14 Oct 2003 19:31:07 -0400
+From: Diyab <diyab@diyab.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-Reply-To: <1066162420.5054.395.camel@moss-spartans.epoch.ncsc.mil>
+To: James Morris <jmorris@redhat.com>
+CC: Russell Coker <russell@coker.com.au>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: trusted vs untrusted packages
+References: <Xine.LNX.4.44.0310140805090.1093-100000@thoron.boston.redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0310140805090.1093-100000@thoron.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I suggest we also consider using the concept of time for upgrading our
-"trust" of code. This is in addition to other methods of knowing the source.
-It is another line of defense.
+James Morris wrote:
+> On Tue, 14 Oct 2003, Russell Coker wrote:
+> 
+> 
+>>Now this raises some interesting issues.  If a signed package has a program 
+>>which relies on some other program (and has a dependency), what happens if 
+>>the dependency is satisfied by an unsigned package?  Installing the unsigned 
+>>package may not result in the system being fully functional (execution of the 
+>>file in question may be denied).
+> 
+> 
+> This should be like enforcing vs. non-enforcing -- you either want all of
+> your packages signed (and the above would fail) or not (just generate a
+> warning).
+> 
+> 
+> - James
 
-Not all code has to be trusted immediately, or applied. 
+How about trust based on the package requiring said untrusted or 
+temporarily untrusted package.  For example, you have package abc signed 
+by a trusted source.  The package contents have been verified as 
+legitimate through something like the package signature. A requirement 
+made by the verified abc package says you need package xyz.  The abc 
+package also gives you the option to install a public key for the 
+required xyz package, which is trusted by the abc package.  Therefore as 
+long as package xyz passes the basic signature/validity check then not 
+only are the contents valid but they are trusted by someone you trust.
 
-I think this is what all of us do anyway, as we have learned to wait and
-listen for problem reports before applying patches.
+Timothy,
 
-It is what many of us do when we rescan our download subdirectories with the
-latest anti-virus, worm and trojan sigs.
-
-Rob
-
-
+-- 
+I put instant coffee in a microwave and almost went back in time.
+		-- Steven Wright
 
 
 --
