@@ -1,50 +1,31 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA09182
-	for <selinux@tycho.nsa.gov>; Fri, 18 May 2001 13:57:14 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA10868
-	for <selinux@tycho.nsa.gov>; Fri, 18 May 2001 17:57:06 GMT
-Received: from info.tvcom.ru (info.tvcom.ru [194.87.73.17])
-	by jazzswing.ncsc.mil  with ESMTP id RAA10864
-	for <selinux@tycho.nsa.gov>; Fri, 18 May 2001 17:57:05 GMT
-Date: Fri, 18 May 2001 21:58:09 +0400
-From: Maksim Otstavnov <maksim@otstavnov.com>
-Reply-To: Maksim Otstavnov <maksim@otstavnov.com>
-Message-ID: <1176445758.20010518215809@otstavnov.com>
-To: Jan Petranek <jan.petranek@student.uni-tuebingen.de>
-CC: NSA Selinux Mailinglist <selinux@tycho.nsa.gov>
-Subject: Re[2]: SELinux as a desktop / workstation?
-In-Reply-To: <Pine.LNX.4.30.0105181548250.6378-100000@linux16.zdv.uni-tuebingen.de>
-References: 
- <Pine.LNX.4.30.0105181548250.6378-100000@linux16.zdv.uni-tuebingen.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA09824
+	for <selinux@tycho.nsa.gov>; Fri, 18 May 2001 15:51:12 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA08607
+	for <selinux@tycho.nsa.gov>; Fri, 18 May 2001 19:51:08 GMT
+Received: from mx-03.carambole.com (mx-03.carambole.com [213.180.68.11])
+	by jazzband.ncsc.mil  with SMTP id TAA08603
+	for <selinux@tycho.nsa.gov>; Fri, 18 May 2001 19:51:07 GMT
+Message-Id: <5.1.0.14.0.20010518152212.00a05e80@mail.carambole.com>
+Date: Fri, 18 May 2001 15:25:30 +0200
+To: selinux@tycho.nsa.gov
+From: Thomas Sjogren <thomas@northernsecurity.net>
+Subject: Swedish Installation how-to available
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Jan,
+A swedish installation how-to is now available at
+www.northernsecurity.net/artiklar/sel.html
 
-Friday, May 18, 2001, 6:22:43 PM, you wrote:
+cheers
+Thomas Sjogren
 
-JP> The reason I'm writing this is, that I'm a bit concerned about security
-JP> issues. Up to now, very little viruses have shaken the linux community,
-JP> but except for selinux and sandbox, there is no thing that prevents code
-JP> running in the user space from doing anything in the user space.
 
-RSBAC (www.rsbac.org; see also ftp.altlinux.ru for Beta-version of "ALT
-Linux Castle" distro).
-
-JP> Thank you all for your comments on that,
-
-Not at all. :)
-
-Cheers,
-
--- 
--- Maksim Otstavnov <maksim@otstavnov.com> http://www.otstavnov.com
--- Computerra weekly,
---  contributing editor
-
+security analyst   |   northernsecurity.net
++46 (0) 739 76 23 06   |   0xAADE91FC
 
 
 --
