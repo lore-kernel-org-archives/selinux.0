@@ -1,55 +1,38 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i83DZQrT007320
-	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 09:35:26 -0400 (EDT)
-Received: from epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i83DZPUQ019342
-	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 13:35:25 GMT
-Subject: Re: Proposed Hardware File Context file.
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Colin Walters <walters@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-   SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <20040903131751.GC30562@lkcl.net>
-References: <1094136369.17265.128.camel@moss-spartans.epoch.ncsc.mil>
-	 <413741A3.3070305@redhat.com>
-	 <1094153919.17265.375.camel@moss-spartans.epoch.ncsc.mil>
-	 <41377927.3080703@redhat.com>
-	 <1094155198.17265.389.camel@moss-spartans.epoch.ncsc.mil>
-	 <41377DD5.8010500@redhat.com>
-	 <1094155749.17265.392.camel@moss-spartans.epoch.ncsc.mil>
-	 <41377F4B.3010608@redhat.com>
-	 <1094167821.24091.25.camel@nexus.verbum.private>
-	 <1094210883.19206.2.camel@moss-spartans.epoch.ncsc.mil>
-	 <20040903131751.GC30562@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1094218416.19206.116.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: Fri, 03 Sep 2004 09:33:36 -0400
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i83DcvrT007355
+	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 09:38:57 -0400 (EDT)
+Received: from mbox-o00.iijmio.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i83DcsUQ019439
+	for <selinux@tycho.nsa.gov>; Fri, 3 Sep 2004 13:38:56 GMT
+Message-Id: <200409031338.i83DccKp019984@mms-r01.iijmio.jp>
+Date: Fri, 03 Sep 2004 09:38:32 -0400
+From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Cc: himainu-ynakam@miomio.jp
+Subject: reiferfs in SUSE9.1
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-09-03 at 09:17, Luke Kenneth Casson Leighton wrote:
->  ironically, it's scripted - with regexps matching nodes :)
-> 
->  and then the owner, group and permissions are specified.
-> 
->  there's also a system for dealing with classes of devices.
-> 
->  so ide and scsi and also cd symbolic links are dealt with separately,
->  with scripts.
 
-It seems desirable to keep the SELinux context mapping approach for udev
-consistent with the base udev permissions approach.  Using a separate
-config file is reasonable (and allows us to keep it as part of the
-policy package), but the syntax should mirror the existing udev
-permission syntax as much as possible, I think, and we may even want
-udev itself to directly interpret it, just as dbusd is handling its
-service->context mapping (iirc).  How does that sound?  Not sure how to
-integrate SELinux labeling with the scripts.
- 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Some people in Japan(including me) say that they can not use reiserfs in SUSE9.1(selinux enabled).
+
+In fs_use, we added the following.
+fs_use_xattr reiserfs system_u:object_r:fs_t.
+
+System boot succeeds but hangs up in init scripts.
+# I forget correct place,sorry because I do not have the environment now...
+
+We can use SELinux in SUSE9.1 with ext3 filesystem.
+
+Does anyone use reiserfs in SUSE9.1?
+
+---
+Yuichi Nakamura
+Japan SELinux Users Group(JSELUG)
+http://www.selinux.gr.jp/
+The George Washington University
 
 
 --
