@@ -1,52 +1,54 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA26792
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 08:58:41 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA27042
+	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 09:22:46 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA28283
-	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 12:57:28 GMT
-Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id MAA28279 for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 12:57:27 GMT
-Date: Mon, 29 Apr 2002 08:57:58 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: SE Linux <selinux@tycho.nsa.gov>
+	by jazzband.ncsc.mil  with ESMTP id NAA29425
+	for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 13:21:33 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id NAA29421 for <selinux@tycho.nsa.gov>; Mon, 29 Apr 2002 13:21:32 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
 Subject: Re: "use"
-In-Reply-To: <20020428200027.717963850@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0204290854320.19520-100000@raven>
+Date: Mon, 29 Apr 2002 15:22:49 +0200
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0204290854320.19520-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0204290854320.19520-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020429132249.8FFC53BFB@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Sun, 28 Apr 2002, Russell Coker wrote:
-
-> What's the deal with the following section of the global macros file?  Why
-> are there three things aliased to use?  Is the plan to actually enforce a
-> distinction in a future version?  Or did a past version support a distinction
-> and is this a compatability thing?
+On Mon, 29 Apr 2002 14:57, Stephen Smalley wrote:
+> > #
+> > # Permissions to use file descriptions created by another domain.
+> > #
+> > define(`use_fd_perms', `use')
+> > define(`inherit_fd_perms', `use')
+> > define(`receive_fd_perms', `use')
 >
-> #
-> # Permissions to use file descriptions created by another domain.
-> #
-> define(`use_fd_perms', `use')
-> define(`inherit_fd_perms', `use')
-> define(`receive_fd_perms', `use')
+> The original (pre-LSM) SELinux provided a distinction among these three
+> cases that was eliminated from the LSM-based SELinux.  The macros were
+> retained for compatibility, but there is no intent to revive the
+> distinction.  This change is documented more completely along with a
+> summary of all the changes between the original SELinux and the LSM-based
+> SELinux in a technical report that is pending release approval from the
+> NSA.
 
-The original (pre-LSM) SELinux provided a distinction among these three
-cases that was eliminated from the LSM-based SELinux.  The macros were
-retained for compatibility, but there is no intent to revive the
-distinction.  This change is documented more completely along with a
-summary of all the changes between the original SELinux and the LSM-based
-SELinux in a technical report that is pending release approval from the
-NSA.
+Thanks for the information.  I have removed those macros from my source tree, 
+and used sed to change every reference to them to be a reference to "use".
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I can understand why you want to keep those macros for the moment in your 
+tree, but I think it would be a good idea if you changed all the program .te 
+files to use "use" instead of "inherit_fd_perms".
 
-
-
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
