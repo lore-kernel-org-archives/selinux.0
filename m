@@ -1,45 +1,52 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA28664
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2001 14:43:23 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA20816
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2001 18:43:21 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id SAA20812
-	for <selinux@tycho.nsa.gov>; Wed, 9 May 2001 18:43:20 GMT
-Date: Wed, 9 May 2001 14:42:47 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-Reply-To: Stephen Smalley <sds@tislabs.com>
-To: "Hugo F. Martinez" <hmartinez@cti.com.ar>
-cc: selinux@tycho.nsa.gov
-Subject: Re: Installing selinux on RedHat 7.0
-In-Reply-To: <3AF9C18F.1890725@cti.com.ar>
-Message-ID: <Pine.SOL.3.95.1010509144033.627I-100000@clipper.gw.tislabs.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA05106
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2001 16:15:36 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA13014
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2001 20:14:51 GMT
+Received: from c0mailgw06.prontomail.com (mailgw.prontomail.com [216.163.180.10])
+	by jazzswing.ncsc.mil  with ESMTP id UAA13006
+	for <selinux@tycho.nsa.gov>; Thu, 10 May 2001 20:14:51 GMT
+Received: by c0mailgw06.prontomail.com (NPlex 5.1.050) id 3AF98BB400056FC9 for selinux@tycho.nsa.gov; Thu, 10 May 2001 13:13:21 -0700
+Date: Thu, 10 May 2001 16:13:35 -0400 (EDT)
+From: Roger <roger.nsa@starband.net>
+Reply-To: Roger <roger.nsa@starband.net>
+To: <selinux@tycho.nsa.gov>
+Subject: cvs tree
+Message-ID: <Pine.LNX.4.30.0105101612180.1738-100000@localhost2>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, 9 May 2001, Hugo F. Martinez wrote:
+Trying to d/l the cvs tree.  The following will merrily accept the login
+but download nothing (as if it's an empty dir):
 
-> ERROR IN THE STATEMENT ENDING ON LINE 1054 (TOKEN ';'):
->     UNKNOWN CLASS FILESYSTEM USED IN RULE
+cvs -d:pserver:anonymous@cvs.selinux.sourceforge.net:/cvsroot/selinux
+login
 
-You need to apply the patch that I sent to the mailing list
-on Monday to fix a bug in the checkpolicy program.  After
-applying the patch, rebuild your checkpolicy program and try again.
-
-> security: unable to open /ss_policy
-
-This is because you were unable to compile and install the security
-policy configuration using the checkpolicy program, due to the bug.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+(all on one line)
 
 
+Although, i can browse the cvs tree with netscape:
+
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/selinux/
+
+- ----
+http://www.alltel.net/~rogerx/
+(can also verify gnupg/pgp signature at the above url in  About Section)
+My ICQ UIN# = 21252173
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjr69nYACgkQZA/JYxAFHWERVQCcC730A0ZOweTIr7KSjxMZFxSw
+dp8AnjCljqgfC3gNQFy2UcJc0vICGPw0
+=OKDF
+-----END PGP SIGNATURE-----
 
 
 
