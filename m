@@ -1,49 +1,79 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0CIvPIi018069
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 13:57:25 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0CItQ8I011958
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jan 2005 18:55:27 GMT
-Date: Wed, 12 Jan 2005 19:07:58 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, SELinux@tycho.nsa.gov
-Subject: Re: Multiple contexts
-Message-ID: <20050112190758.GH26175@lkcl.net>
-References: <1105390249.8093.21.camel@cobra.ivg2.net> <20050110232312.GI6967@lkcl.net> <1105474191.20566.134.camel@moss-spartans.epoch.ncsc.mil> <20050111214818.GE26175@lkcl.net> <1105538449.22495.8.camel@moss-spartans.epoch.ncsc.mil> <20050112144411.GZ26175@lkcl.net> <1105542047.22495.69.camel@moss-spartans.epoch.ncsc.mil> <20050112181814.GD26175@lkcl.net> <1105552982.22495.169.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1105552982.22495.169.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <41E576BF.8020404@gentoo.org>
+Date: Wed, 12 Jan 2005 21:13:03 +0200
+From: petre rodan <kaiowas@gentoo.org>
+MIME-Version: 1.0
+To: Park Lee <parklee_sel@yahoo.com>
+CC: SELinux@tycho.nsa.gov
+Subject: Re: SELinux with IPSec - something going on ?
+References: <20050112170231.39090.qmail@web51502.mail.yahoo.com>
+In-Reply-To: <20050112170231.39090.qmail@web51502.mail.yahoo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig3479274DED62DC67FF641AF3"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jan 12, 2005 at 01:03:02PM -0500, Stephen Smalley wrote:
-> On Wed, 2005-01-12 at 13:18, Luke Kenneth Casson Leighton wrote:
-> >  sorry.
-> > 
-> >  something simple:
-> > 
-> >  i am thinking along the lines of more than one file context being
-> >  associated with a file - that sort of thing.
-> > 
-> >  and permission being checked and allowed on either of the contexts.
-> 
-> I already explained why you don't want that - it puts the policy into
-> the filesystem state.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig3479274DED62DC67FF641AF3
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
- there is of course the other scheme which achieves the same end-result,
- but using customised m4 macro-based programs to do it: this scheme
- has been raised before.
 
- namely, to have your apache.fc file and your customthing.fc file,
- and to "spew forth" a combined apache_customthing_filetype_t with
- some macro preprocessing.
+Hi,
 
- then your apache.fc is unmodified, it's clean, it can be verified,
- upgraded etc...
+Park Lee wrote:
+> On 2004-10-25 at 15:51, petre rodan wrote:
+>
+>>Hi,
+>>here is a fresh ipsec-tools [1] policy made for
+>>gentoo. works flawlessly with my setup [2] (the doc
+>>is work in progress).
+>>
+>>[1] http://ipsec-tools.sourceforge.net/
+>>[2] http://dev.gentoo.org/~kaiowas/doc/wifi_ipsec-
+>>howto.html
+>>
+>>is this usable for any of you?
+>
+>
+> In racoon.fc, you wrote:
+>
+>   ... ...
+> /var/run/pluto\.ctl	-s
+> system_u:object_r:racoon_var_run_t
+>   ... ...
+>
+> But, when we use IPsec-Tools, it seems that there is
+> no such a file (i.e. /var/run/pluto.ctl). Then, Why
+> should we write this rule for it?
 
- l.
+you are correct, that rule should be removed.
+it's a leftover from the prior implementation
 
+thanks,
+peter
+
+--
+petre rodan
+<kaiowas@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+
+--------------enig3479274DED62DC67FF641AF3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFB5Xa/GSBEIeh4AEYRAjjkAJ4pU/KqaK+6oE/fM2wX8WYq3iM3AACffTpn
+BwEZKp8XXlDr8ggYvAieYWw=
+=vU6Z
+-----END PGP SIGNATURE-----
+
+--------------enig3479274DED62DC67FF641AF3--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
