@@ -1,70 +1,104 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB9J5HRb024329
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 14:05:17 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hB9J4XlU007647
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 19:04:33 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id hB9J4VSX007643
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 19:04:32 GMT
-Date: Tue, 9 Dec 2003 19:05:03 +0000
-From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: Dale Amon <amon@vnl.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: More on selinux-default policy install probs
-Message-ID: <20031209190503.GA3812@vnl.com>
-References: <20031209184253.GZ3812@vnl.com>
+Subject: Re: relabel python script.
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux List <SELinux@tycho.nsa.gov>
+In-Reply-To: <3FD0AB5C.4030103@redhat.com>
+References: <3FD0AB5C.4030103@redhat.com>
+Content-Type: text/plain
+Message-Id: <1071001121.6729.80.camel@colossus.columbia.tresys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20031209184253.GZ3812@vnl.com>
+Date: Tue, 09 Dec 2003 15:18:42 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Just so you can see what I'm seeing... first to make
-sure all is virgin, I purge the files:
+On Fri, 2003-12-05 at 10:59, Daniel J Walsh wrote:
+> The attached script is something I wrote to handle the problem of 
+> labeling users home directories.  Russell's latest policy has added 
+> several security contexts to files in the users home directories (.ssh, 
+> .pgp, .xauthority etc).  The problem is the current 'make label' labels 
+> all entries in the users home directory with user_*_t.  If you define a 
+> certain user at staff_t (required by policy if you want to become 
+> sysadm_t) by default he will not be able to login.
+> 
+> This script figures out the default role for all users and then if the 
+> user is not root and the default role is not user_u, it adds entries to 
+> file_contexts to properly label this users home directories.  The script 
+> then runs a make relabel.
+> 
+> This functionality should probably be added to either seuser or make 
+> relabel to make this easier to do. 
+> 
 
-# dpkg --purge selinux-policy-default                         
-(Reading database ... 15591 files and directories currently installed.)
-Removing selinux-policy-default ...
-Purging configuration files for selinux-policy-default ...
+I have added this to our list of wanted features for seuser. Hopefully
+we can get to it for the release after next.
 
-Okay, now we are in a clean state. I attempt to install
-the policy package:
+Karl
 
-# dpkg -i selinux-policy-default_1%3a1.2.real-13_all.deb 
-Selecting previously deselected package selinux-policy-default.
-(Reading database ... 15228 files and directories currently installed.)
-Unpacking selinux-policy-default (from selinux-policy-default_1%3a1.2.real-13_all.deb) ...
-Setting up selinux-policy-default (1.2.real-13) ...
-/etc/selinux does not exist, aborting!
-run-parts: /etc/dpkg/postinst.d/selinux exited with return code 1
-"/bin/run-parts --arg=selinux-policy-default /etc/dpkg/postinst.d" failed: 256
-dpkg: error processing selinux-policy-default (--install):
- 1Error running trigger postinst: No such file or directory
-Errors were encountered while processing:
- selinux-policy-default
-
-And it fails... and leaves the postinit.d hook 
-behind just to make sure all other package
-installs will fail too!
-
-It looks to me like the postinst.d hook might run
-before selinux-policy-default.postinst creates the
-link. But that doesn't make sense because that 
-would happen on any system and always fail the
-first time around.
-
-Next I guess I'll have to try debugging these
-scripts to see why this happens...
-
+> Ideas?
+> 
+> Dan
+> 
+> ______________________________________________________________________
+> #!/usr/bin/python
+> import commands
+> import sys
+> import os
+> 
+> policy_dir="/etc/security/selinux/src/policy"
+> context_dir="%s/file_contexts" % policy_dir
+> 
+> def makeFileContext():
+> 	rc=commands.getstatusoutput("cd %s;rm file_contexts/file_contexts; make file_contexts/file_contexts" % policy_dir)
+> 	if rc[0] != 0:
+> 		raise ValueError, rc[1]
+> def makeRelabel():
+> 	rc=commands.getstatusoutput("cd %s;make relabel" % policy_dir)
+> 	if rc[0] != 0:
+> 		raise ValueError, rc[1]
+> 	
+> def getUsers():
+> 	rc=commands.getstatusoutput("seuser show users")
+> 	udict={}
+> 	if rc[0] == 0:
+> 		ulist=rc[1].strip().split("\n")
+> 		for u in ulist:
+> 			user=u.split(":")
+> 			if user[0]=="root" or user[0]=="user_u" or user[0]=="system_u":
+> 				continue
+> 			role = user[1].split()[0].split("_r")[0]
+> 			if role == "user":
+> 				continue
+> 			udict[user[0]]=role
+> 	return udict
+> 
+> def usage():
+> 	print "Usage: %s" % sys.argv[0]
+> 	sys.exit(1)
+> 	
+> def update(user, role):
+> 	rc=commands.getstatusoutput("cd %s; grep -h '/home/\[\^' file_contexts | grep -v vmware | sed 's|/home/\[\^\/\]+|/home/%s|g' | sed 's/user/%s/' > /tmp/user_context.tmp; cat /tmp/user_context.tmp >> file_contexts; rm /tmp/user_context.tmp" % (context_dir,user, role))
+> 	if rc[0] != 0:
+> 		print rc[1]
+> 		sys.exit(1)
+> 	return rc
+> 
+> try:
+> 	makeFileContext()
+> 	users=getUsers()
+> 	for u in users.keys():
+> 		update (u, users[u])
+> 
+>        	makeRelabel()
+> except ValueError, error:
+> 	print error
+> 	
 -- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+http://www.tresys.com
+(410) 290-1411 x134
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
