@@ -1,273 +1,40 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1IGqdRb022799
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2004 11:52:39 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i1IGp8lM015418
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2004 16:51:08 GMT
-Date: Wed, 18 Feb 2004 11:52:31 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
-   <selinux@tycho.nsa.gov>, "David S. Miller" <davem@redhat.com>
-Subject: [SELINUX] Event notifications via Netlink
-Message-ID: <Xine.LNX.4.44.0402181143550.26718-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: file context questions
+From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+To: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-2
+Date: 18 Feb 2004 20:53:26 +0100
+Message-Id: <1077134006.6667.10.camel@kusturica>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch against 2.6.3 implements Netlink based notifications for 
-SELinux kernel events.  This will allow SELinux userspace components to 
-maintain synchronization with kernel state.
+Hi!
 
-For example, a userspace AVC (Access Vector Cache, the component that
-makes access control decisions) is being implemented for use by Security
-Enhanced X and SE-DBUS.  These applications will request access control
-decisions from the usersapce AVC, which will relay and cache decisions
-from the kernel AVC.
+Several questions here:
 
-When the security policy is reloaded or the enforcing mode is changed in 
-the kernel, the userspace AVC can be notified and take appropriate action 
-(e.g. flush cache).
+1. What is the difference between getfilecon and lgetfilecon?
 
-Please apply.
+2. I cannot [l]getfilecon /selinux/context even in permissive mode.
+What's happening? Is there a way to get file contexts of a
+genfscontexted file, or I have to guess?
 
+3. If I use genfscontext and fs_use for the same file, which will be
+ in effect? (or genfscontext is just fs_use_genfs?)
 
- include/linux/netlink.h         |    1 
- include/linux/selinux_netlink.h |   37 +++++++++++++
- security/selinux/Makefile       |    2 
- security/selinux/netlink.c      |  113 ++++++++++++++++++++++++++++++++++++++++
- security/selinux/selinuxfs.c    |    3 +
- security/selinux/ss/services.c  |    3 +
- 6 files changed, 158 insertions(+), 1 deletion(-)
+4. When I boot, several filesystems are not configured for labeling.
+   Which is the recommended way to label each of them, and why?
+   (And anyway, what the heck are they?)
+	eventpollfs
+	tmpfs
+	futexfs
+	bdev
+	rootfs
+	sysfs
+	usbfs
+	usbdevfs 
 
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-diff -urN -X dontdiff linux-2.6.3.o/include/linux/netlink.h linux-2.6.3.w/include/linux/netlink.h
---- linux-2.6.3.o/include/linux/netlink.h	2003-10-15 08:53:19.000000000 -0400
-+++ linux-2.6.3.w/include/linux/netlink.h	2004-02-18 08:53:17.583636544 -0500
-@@ -11,6 +11,7 @@
- #define NETLINK_TCPDIAG		4	/* TCP socket monitoring			*/
- #define NETLINK_NFLOG		5	/* netfilter/iptables ULOG */
- #define NETLINK_XFRM		6	/* ipsec */
-+#define NETLINK_SELINUX		7	/* SELinux event notifications */
- #define NETLINK_ARPD		8
- #define NETLINK_ROUTE6		11	/* af_inet6 route comm channel */
- #define NETLINK_IP6_FW		13
-diff -urN -X dontdiff linux-2.6.3.o/include/linux/selinux_netlink.h linux-2.6.3.w/include/linux/selinux_netlink.h
---- linux-2.6.3.o/include/linux/selinux_netlink.h	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.3.w/include/linux/selinux_netlink.h	2004-02-18 08:53:17.584636392 -0500
-@@ -0,0 +1,37 @@
-+/*
-+ * Netlink event notifications for SELinux.
-+ *
-+ * Author: James Morris <jmorris@redhat.com>
-+ *
-+ * Copyright (C) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2,
-+ * as published by the Free Software Foundation.
-+ */
-+#ifndef _LINUX_SELINUX_NETLINK_H
-+#define _LINUX_SELINUX_NETLINK_H
-+
-+/* Message types. */
-+#define SELNL_MSG_BASE 0x10
-+enum {
-+	SELNL_MSG_SETENFORCE = SELNL_MSG_BASE,
-+	SELNL_MSG_POLICYLOAD,
-+	SELNL_MSG_MAX
-+};
-+
-+/* Multicast groups */
-+#define SELNL_GRP_NONE		0x00000000
-+#define SELNL_GRP_AVC		0x00000001	/* AVC notifications */
-+#define SELNL_GRP_ALL		0xffffffff
-+
-+/* Message structures */
-+struct selnl_msg_setenforce {
-+	u_int32_t	val;
-+};
-+
-+struct selnl_msg_policyload {
-+	u_int32_t	seqno;
-+};
-+
-+#endif /* _LINUX_SELINUX_NETLINK_H */
-diff -urN -X dontdiff linux-2.6.3.o/security/selinux/Makefile linux-2.6.3.w/security/selinux/Makefile
---- linux-2.6.3.o/security/selinux/Makefile	2004-02-04 08:39:07.000000000 -0500
-+++ linux-2.6.3.w/security/selinux/Makefile	2004-02-18 08:53:17.605633200 -0500
-@@ -4,7 +4,7 @@
- 
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o ss/
- 
--selinux-y := avc.o hooks.o selinuxfs.o
-+selinux-y := avc.o hooks.o selinuxfs.o netlink.o
- 
- selinux-$(CONFIG_SECURITY_NETWORK) += netif.o
- 
-diff -urN -X dontdiff linux-2.6.3.o/security/selinux/netlink.c linux-2.6.3.w/security/selinux/netlink.c
---- linux-2.6.3.o/security/selinux/netlink.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.6.3.w/security/selinux/netlink.c	2004-02-18 09:01:54.288085528 -0500
-@@ -0,0 +1,113 @@
-+/*
-+ * Netlink event notifications for SELinux.
-+ *
-+ * Author: James Morris <jmorris@redhat.com>
-+ *
-+ * Copyright (C) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2,
-+ * as published by the Free Software Foundation.
-+ */
-+#include <linux/init.h>
-+#include <linux/types.h>
-+#include <linux/stddef.h>
-+#include <linux/kernel.h>
-+#include <linux/list.h>
-+#include <linux/skbuff.h>
-+#include <linux/netlink.h>
-+#include <linux/selinux_netlink.h>
-+
-+static struct sock *selnl;
-+
-+static int selnl_msglen(int msgtype)
-+{
-+	int ret = 0;
-+	
-+	switch (msgtype) {
-+	case SELNL_MSG_SETENFORCE:
-+		ret = sizeof(struct selnl_msg_setenforce);
-+		break;
-+	
-+	case SELNL_MSG_POLICYLOAD:
-+		ret = sizeof(struct selnl_msg_policyload);
-+		break;
-+		
-+	default:
-+		BUG();
-+	}
-+	return ret;
-+}
-+
-+static void selnl_add_payload(struct nlmsghdr *nlh, int len, int msgtype, void *data)
-+{
-+	switch (msgtype) {
-+	case SELNL_MSG_SETENFORCE: {
-+		struct selnl_msg_setenforce *msg = NLMSG_DATA(nlh);
-+		
-+		memset(msg, 0, len);
-+		msg->val = *((int *)data);
-+		break;
-+	}
-+	
-+	case SELNL_MSG_POLICYLOAD: {
-+		struct selnl_msg_policyload *msg = NLMSG_DATA(nlh);
-+		
-+		memset(msg, 0, len);
-+		msg->seqno = *((u32 *)data);
-+		break;
-+	}
-+
-+	default:
-+		BUG();
-+	}
-+}
-+
-+static void selnl_notify(int msgtype, void *data)
-+{
-+	int len;
-+	unsigned char *tmp;
-+	struct sk_buff *skb;
-+	struct nlmsghdr *nlh;
-+	
-+	len = selnl_msglen(msgtype);
-+	
-+	skb = alloc_skb(NLMSG_SPACE(len), GFP_USER);
-+	if (!skb)
-+		goto oom;
-+
-+	tmp = skb->tail;
-+	nlh = NLMSG_PUT(skb, 0, 0, msgtype, len);
-+	selnl_add_payload(nlh, len, msgtype, data);
-+	nlh->nlmsg_len = skb->tail - tmp;
-+	netlink_broadcast(selnl, skb, 0, SELNL_GRP_AVC, GFP_USER);
-+out:
-+	return;
-+	
-+nlmsg_failure:
-+	kfree_skb(skb);
-+oom:
-+	printk(KERN_ERR "SELinux:  OOM in %s\n", __FUNCTION__);
-+	goto out;
-+}
-+
-+void selnl_notify_setenforce(int val)
-+{
-+	selnl_notify(SELNL_MSG_SETENFORCE, &val);
-+}
-+
-+void selnl_notify_policyload(u32 seqno)
-+{
-+	selnl_notify(SELNL_MSG_POLICYLOAD, &seqno);
-+}
-+
-+static int __init selnl_init(void)
-+{
-+	selnl = netlink_kernel_create(NETLINK_SELINUX, NULL);
-+	if (selnl == NULL)
-+		panic("SELinux:  Cannot create netlink socket.");
-+	netlink_set_nonroot(NETLINK_SELINUX, NL_NONROOT_RECV);	
-+	return 0;
-+}
-+
-+__initcall(selnl_init);
-diff -urN -X dontdiff linux-2.6.3.o/security/selinux/selinuxfs.c linux-2.6.3.w/security/selinux/selinuxfs.c
---- linux-2.6.3.o/security/selinux/selinuxfs.c	2004-02-18 00:17:09.000000000 -0500
-+++ linux-2.6.3.w/security/selinux/selinuxfs.c	2004-02-18 08:53:17.616631528 -0500
-@@ -17,6 +17,8 @@
- #include "security.h"
- #include "objsec.h"
- 
-+extern void selnl_notify_setenforce(int val);
-+
- /* Check whether a task is allowed to use a security operation. */
- int task_has_security(struct task_struct *tsk,
- 		      u32 perms)
-@@ -111,6 +113,7 @@
- 		selinux_enforcing = new_value;
- 		if (selinux_enforcing)
- 			avc_ss_reset(0);
-+		selnl_notify_setenforce(selinux_enforcing);
- 	}
- 	length = count;
- out:
-diff -urN -X dontdiff linux-2.6.3.o/security/selinux/ss/services.c linux-2.6.3.w/security/selinux/ss/services.c
---- linux-2.6.3.o/security/selinux/ss/services.c	2004-02-18 00:17:09.000000000 -0500
-+++ linux-2.6.3.w/security/selinux/ss/services.c	2004-02-18 08:53:17.619631072 -0500
-@@ -28,6 +28,8 @@
- #include "services.h"
- #include "mls.h"
- 
-+extern void selnl_notify_policyload(u32 seqno);
-+
- static rwlock_t policy_rwlock = RW_LOCK_UNLOCKED;
- #define POLICY_RDLOCK read_lock(&policy_rwlock)
- #define POLICY_WRLOCK write_lock_irq(&policy_rwlock)
-@@ -1052,6 +1054,7 @@
- 	sidtab_destroy(&oldsidtab);
- 
- 	avc_ss_reset(seqno);
-+	selnl_notify_policyload(seqno);
- 
- 	return 0;
- 
+GNU GPL: csak tiszta forrásból
 
 
 --
