@@ -1,46 +1,27 @@
 Subject: Re: setools, version 0.8
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Mauro Chiarugi <vlaovic@libero.it>
-Cc: Frank Mayer <mayerf@tresys.com>, SELinux@tycho.nsa.gov, selinux@tresys.com
-In-Reply-To: <20030410211532.7cb35199.vlaovic@libero.it>
+To: Frank Mayer <mayerf@tresys.com>
+Cc: "'SELinux'" <SELinux@tycho.nsa.gov>
+In-Reply-To: <004901c2ff81$959a32d0$6600a8c0@columbia.tresys.com>
 References: <004901c2ff81$959a32d0$6600a8c0@columbia.tresys.com>
-	 <20030410211532.7cb35199.vlaovic@libero.it>
 Content-Type: text/plain
-Message-Id: <1050067377.3715.43.camel@moss-huskers.epoch.ncsc.mil>
+Message-Id: <1050073439.1054.0.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 11 Apr 2003 09:22:57 -0400
+Date: 11 Apr 2003 11:04:00 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-04-10 at 15:15, Mauro Chiarugi wrote:
-> my name is Mauro Chiarugi, an italian student of University of Ancona.
-> I'd like to port SELinux under Debian, but i don't know now SeLinux very
-> well ;) ..so i'd like be sure that i know all released resources/tools
-> that are now avaible (i'll use LSM tree, with OpenWall + SELinux + LIDS
-> + DTE ..). Which tools are avaible now???
-> I've just seen tresys tools and dte tools (at
-> http://www.cs.wm.edu/~hallyn/dte/), are there other tools to configure
-> all modules?? Which are most important?? Which do i need??
+On Thu, 2003-04-10 at 12:52, Frank Mayer wrote:
+> We just released version 0.8 of our setools packages.  The version of
+> setools included in the latest NSA distribution (under
+> selinux/tools/setools) was version 0.7, which we released in February of
+> this year.  You can download the complete tar file for versions 0.8 at
+> www.tresys.com/selinux.  I will separately send a (rather large) patch
+> file to Steve to update the versions in the selinux sourceforge CVS
+> tree.
 
-Just to clarify, you can't use SELinux+LIDS+DTE together, because they
-will conflict with each other in their usage of the LSM security
-fields.  SELinux does provide simple support for stacking with the
-capabilities or dummy modules, and you may be able to stack SELinux with
-OWLSM (which is not OpenWall, just a port of a subset of OpenWall to LSM
-by different people) as long as you don't enable CONFIG_OWLSM_FD (which
-would conflict in its usage of the linux_binprm security field).  We
-typically recommend using SELinux+capabilities, so that you preserve the
-existing Linux access control logic and API (some applications depend on
-Linux supporting capabilities).
-
-The Tresys setools were merged into the NSA SELinux releases starting
-with the January 2003 release; they seem to be the most mature tools
-available.  A couple of simple scripts for policy generation and
-analysis have been contributed, such as the newrules.pl script (included
-in the release) and a cando script (see the mailing list archives).  The
-COPS Lab at UNT developed a TE rule browser that operated on the binary
-policy a while back, but I'm not sure that it is still active or whether
-it offers any capability beyond the Tresys setools.
+Thanks, the new version has been merged into the sourceforge CVS tree
+now.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
