@@ -1,58 +1,66 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82Jh6rT002527
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:43:06 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82Jg840008417
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 19:42:16 GMT
-Message-ID: <413777B3.1090009@redhat.com>
-Date: Thu, 02 Sep 2004 15:42:43 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-CC: Stephen Smalley <sds@epoch.ncsc.mil>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   Russell Coker <russell@coker.com.au>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Latest Patches
-References: <200408241818.40064.russell@coker.com.au> <1093640295.24188.29.camel@moss-lions.epoch.ncsc.mil> <200408282346.05926.russell@coker.com.au> <1093897455.3227.6.camel@moss-lions.epoch.ncsc.mil> <41371628.2020408@redhat.com> <1094129654.17265.30.camel@moss-spartans.epoch.ncsc.mil> <41373AEE.1040206@redhat.com> <1094139993.17265.232.camel@moss-spartans.epoch.ncsc.mil> <41374200.3000005@redhat.com> <20040902194822.GI5745@lkcl.net>
-In-Reply-To: <20040902194822.GI5745@lkcl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82JhLrT002546
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 15:43:21 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i82JhJv0029367
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 19:43:20 GMT
+Date: Thu, 2 Sep 2004 20:54:22 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Proposed Hardware File Context file.
+Message-ID: <20040902195422.GJ5745@lkcl.net>
+References: <200408241818.40064.russell@coker.com.au> <41371628.2020408@redhat.com> <1094130607.17265.47.camel@moss-spartans.epoch.ncsc.mil> <200409022338.20644.russell@coker.com.au> <1094136369.17265.128.camel@moss-spartans.epoch.ncsc.mil> <413741A3.3070305@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <413741A3.3070305@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Luke Kenneth Casson Leighton wrote:
-
->On Thu, Sep 02, 2004 at 11:53:36AM -0400, Daniel J Walsh wrote:
->
->  
->
->>>That doesn't make it correct.  You can't just change the existing
->>>labeling behavior and superblock type for the tmpfs internal mount for
->>>shmem.  As per prior discussions on this list with Luke, you want to:
->>>- mount tmpfs on /dev with fscontext=system_u:object_r:device_t (James
->>>sent Arjan the necessary patch for that along with the xattr handler
->>>based on the earlier patches by Luke)
->>>
->>>
->>>      
->>>
->>We can't do that because the file system is mounted in the initrd before 
->>context is loaded
->>    
->>
->
-> um.  why?  *curious*.
->
-> i mean, why mount the /dev filesystem in the initrd ?
->
-> and, also, why before running /sbin/init? [hope i'm right about that]
+On Thu, Sep 02, 2004 at 11:52:03AM -0400, Daniel J Walsh wrote:
+> Collin and I were discussing a way to label hardware devices correctly.
 > 
-> l.
->
->  
->
-I am guessing certain devices are required before /sbin/init is started.
-Devices required to mount the / file system?
+> One proposal would be to come up with a new file_contexts file based off 
+> of path and hardware type.
+> 
+> So we could have a file with
+> 
+> /dev/h
+> 
+> /u?dev/[shmx]d[^/]*    -b    system_u:object_r:fixed_disk_device_t
 
-Dan
+you mean:
+
+  /u?dev/[shmx]d[^/]*    -b    system_u:object_r:fixed_disk_device_t disk
+
+or do you mean _not_ having the extra word on the end to indicate
+the default, should the type not be matched [by a udev script]?
+
+> /u?dev/[shmx]d[^/]*    -b    system_u:object_r:removable_disk_device_t cdrom
+
+> Then either add a param to matchpathcon or a new function that would 
+> pass in the hardware type
+> and get the correct context.
+> 
+> Then tools like udev could use this to create the device with the 
+> correct context.
+> 
+> ideas??
+
+ interesting.
+
+ in some respects, it's almost like you don't need the /u?dev/[...]...
+ bit: if it's a cdrom, you know it's removable_disk_device_t, end
+ of story.
+
+ hm.
+
+ except.... what about restricting access to removable_disk_device_t,
+ or is that covered by user_rw_noexattrfile?
+
+ l.
+
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
