@@ -1,64 +1,51 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8NECTrT009296
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 10:12:29 -0400 (EDT)
-Received: from www.pu.kielce.pl (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8NECSUk017672
-	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 14:12:28 GMT
-Received: from [81.26.8.20] (port=45584 helo=[81.26.8.20] ident=pipen)
-	by www.pu.kielce.pl with asmtp (TLS-1.0:DHE_RSA_RIJNDAEL_128_CBC_SHA:16)
-	(Exim 4.30)
-	id 1CAUH8-0007hL-5e
-	for selinux@tycho.nsa.gov; Thu, 23 Sep 2004 16:08:46 +0200
-Message-ID: <4152DA65.7090808@pu.kielce.pl>
-Date: Thu, 23 Sep 2004 16:15:01 +0200
-From: "Artur M. Piwko" <pipen@pu.kielce.pl>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8NEOHrT009406
+	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 10:24:17 -0400 (EDT)
+Received: from mail.mvalent.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8NENHv8018688
+	for <selinux@tycho.nsa.gov>; Thu, 23 Sep 2004 14:23:17 GMT
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: Role questions
-References: <41517FA8.7050207@pu.kielce.pl>
-In-Reply-To: <41517FA8.7050207@pu.kielce.pl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: bash_profile: Permission denied
+Date: Thu, 23 Sep 2004 10:24:17 -0400
+Message-ID: <E6E16A6D4277CD459BBDE6713766033CB71F3E@exchange.mvalent.local>
+From: "James R. Marcus" <jmarcus@mvalent.net>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Artur M. Piwko wrote:
-> 1. When I su - from myuser:staff_r:staff_t to root I'm still myuser,
->    instead of root:staff_r:staff_t. What I did wrong?
 
-Still working on it.
+When I login in enforced mode I get this error as root:
+-bash: /root/.bash_profile: Permission denied
+ftp root # pwd       
+/root
+ftp root # ls -aZ
+ls: .: Permission denied
+ftp root #
 
-Naturally users are defined in /etc/selinux/src/users.
+I thought it might be a labeling issue so I ran this command:
+ftp domains # newrole -r sysadm_r
+Authenticating root.
+Password: 
+ftp domains # cd /
+ftp / # setfiles /etc/security/selinux/file_contexts /root/
+setfiles:  read 575 specifications
+setfiles:  labeling files under /root/
+setfiles:  hash table stats: 5 elements, 5/65536 buckets used, longest
+chain length 1
+setfiles:  Done.
 
-user root roles { staff_r sysadm_r ifdef(`direct_sysadm_daemon', 
-`system_r') };
-user myuser roles { staff_r sysadm_r ifdef(`direct_sysadm_daemon', 
-`system_r') };
+I'm not getting any messages in /var/log/messages when I avc_toggle.
 
-> 2. How can one set up initial sysadm_r password? All i see is:
-> 
-> # newrole -r sysadm_r
-> Authenticating myuser.
-> newrole: incorrect password for myser
-> 
 
-I browsed newrole.c. The problem was PAM.
-This is what /etc/pam.d/newrole looked like after policycoreutils
-installation:
+Am I on the right track?
 
-auth     required  /lib/security/$ISA/pam_stack.so service=system-auth
-account  required  /lib/security/$ISA/pam_stack.so service=system-auth
-password required  /lib/security/$ISA/pam_stack.so service=system-auth
-session  required  /lib/security/$ISA/pam_stack.so service=system-auth
-session  optional  /lib/security/$ISA/pam_xauth.so
+James
 
-None of the libs were present. Removing these lines helped.
-Same apply to /etc/pam.d/run_init.
 
--- 
-Artur M. Piwko : AMP29-RIPE : ISPC:+48413496205 : jab:pipen@jabberpl.org
-Akademia Swietokrzyska  ::  Uczelniane Centrum Informatyczne  ::  Kielce
-PGP id:B969478F finger:35E6 E3A3 8120 F000 1375 5A1C 23A8 1A71 B969 478F
-"Death is just life's way of telling you you've been fired"  --  unknown
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
