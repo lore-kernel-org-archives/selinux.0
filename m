@@ -1,38 +1,36 @@
-Return-Path: <owner-selinux@tycho.ncsc.mil>
-Date: 10 Mar 2002 09:39:40 -0000
-Message-ID: <20020310093940.30150.qmail@mailFA9.rediffmail.com>
+Date: Mon, 11 Mar 2002 09:08:46 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: Samarth Sharma <samarth7880@rediffmail.com>, <SELinux@tycho.nsa.gov>
+Subject: Re:
+In-Reply-To: <20020310164844.6FCAD3CDEA@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0203110907550.25401-100000@raven>
 MIME-Version: 1.0
-From: "Samarth  Sharma" <samarth7880@rediffmail.com>
-Reply-To: "Samarth  Sharma" <samarth7880@rediffmail.com>
-To: SELinux@tycho.nsa.gov
-Content-type: text/plain;
-	format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ok i need answers to these questions :
 
-1.On login i get the following message :
-  [ avc: denied {write} for pid=647 exe=/bin/login
-  path=/var/log/wtmp dev=03:07 ino=182350
-  scontext=system_u:system_r:local_login_t
-  tcontext=system_u:object_r:cron_log_t tclass=file ]
-what does this mean and how can i get around it.
-  i get similar messages while loading 'atd'.
+On Sun, 10 Mar 2002, Russell Coker wrote:
 
-2.Can u give me a specific example where SElinux is able to solve 
-a security flaw in normal Linux
+> I guess that you had cron rename the old wtmp to wtmp.1 and then create a new
+> wtmp file, the new file gets a domain based on the domain that cron is
+> running in and the domain of the parent directory.
+>
+> One way of solving this would be to have an executable which has no purpose
+> other than to rotate the wtmp file (could be a wrapper for logrotate) with
+> the SE Linux setup to have an automatic domain transition for that program
+> into a domain that defaults to wtmp_t for the file type.
 
-3.i tried loading the selinux kernel on an amd machine.
-however the machine keeps rebooting immediately after the lilo 
-screen. Linux 7.1 (redhat) runs fine on this machine.
+The SELinux-modified logrotate should handle this already - it preserves
+the security context of the original file when it rotates the log.
 
-4.how do u add a user to the system. i added a new user in the 
-../policy/users file with appropriate context and compiled the 
-policy but security context for that user was not initialized.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-thanks,
-Samarth Sharma
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
