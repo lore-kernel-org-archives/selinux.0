@@ -1,57 +1,48 @@
-From: "Lamont R. Peterson" <lrp@xmission.com>
-Reply-To: lrp@xmission.com
-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-   Christof Rath <rath@sbox.tu-graz.ac.at>
-Subject: Re: installing SELinux on Trustix
-Date: Thu, 17 Apr 2003 12:35:46 -0600
-Cc: SELinux@tycho.nsa.gov
-References: <000801c303a8$4622a310$3700a8c0@wind> <1050508220.1143.21.camel@moss-huskers.epoch.ncsc.mil>
-In-Reply-To: <1050508220.1143.21.camel@moss-huskers.epoch.ncsc.mil>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h3I21nI4009468
+	for <selinux@tycho.nsa.gov>; Thu, 17 Apr 2003 22:01:49 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h3I21mVf001101
+	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2003 02:01:48 GMT
+Received: from lyta.coker.com.au (c16702.sunsh1.vic.optusnet.com.au [210.49.228.68])
+	by jazzswing.ncsc.mil  with ESMTP id h3I21V4D001092
+	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2003 02:01:47 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 6800194C2
+	for <selinux@tycho.nsa.gov>; Thu, 17 Apr 2003 09:40:14 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: uses_shlib() and device_t
+Date: Thu, 17 Apr 2003 09:40:13 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200304171235.46749.lrp@xmission.com>
+  charset="us-ascii"
+Message-Id: <200304170940.13881.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christof:
+In my tree I have just changed the uses_shlib() macro to include:
+allow $1 device_t:dir search;
 
-<SNIP>
+The rationale is that the macro allows access to null_device_t and it is 
+almost always necessary to allow search access on the directory to actually 
+open /dev/null (and it is necessary for the mmap /dev/null operations that 
+shared libraries use).
 
-On Wednesday 16 April 2003 09:50 am, Stephen Smalley wrote:
-> Boot with your old kernel and follow the step-by-step instructions for
-> installing SELinux, since the quickinstall aborted for you.
+I decided to do this after adding a huge number of allow rules for 
+device_t:dir search as part of the process of removing every_domain().
 
-It sounded like you might not have that old kernel installed still.  For just 
-such situations, I always test new kernels using a separate boot selection 
-first, without changing my default.  Personally, I like lilo better than 
-grub, so I will use that "terminology".
+Steve, please let me know what you think of this.  If you think it's worthy of 
+inclusion in the CVS then I'll go through my policy tree and remove all the 
+redundant rules from the various .te files.
 
-I create a section in my lilo.conf that looks like this:
-	image = /boot/bzImage.test
-	root = /dev/[whatever your root partition is]
-	label = Test
-	read-only
-	append = "[which whatever boot option(s) you need to pass to the kernel]"
-	optional
-
-Then, all I have to do move my testing kernel to /boot/bzImage.test and run 
-lilo.  I boot it, test it and so on until I am happy with it.  Then I rename 
-it bzImage (usually moving the old to bzImage.YYYY-MM-DD, run lilo and I am 
-set!
-
-Now, if you can not boot, then I might suggest you go to 
-http://www.gentoo.org/ and get one of the installation iso images.  The 
-1.4_rc? series are just great.  You can just download the smallest one.  Burn 
-the CD and boot with it.  There is a file named INSTALL.TXT (if I am 
-remembering correctly) in the root of the CD that is helpful.  This makes a 
-super emergency/recovery/diagnostic CD to use.  Keep it handy when you need 
-to fix other people's linux installs, whether or not they are Gentoo.
-
-Hope that helps some of you out there.
 -- 
-Sincerely,
-Lamont R. Peterson <lrp@xmission.com>
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
