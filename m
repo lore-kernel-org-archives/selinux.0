@@ -1,46 +1,47 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Bill Laut <wlsel@verizon.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: Q on nonuniform "recvfrom" avc message
-Date: Tue, 8 Jul 2003 16:04:44 -0400
-Cc: SELinux@tycho.nsa.gov
-References: <200307081224.41939.wlsel@verizon.net> <1057687509.12912.100.camel@moss-huskers.epoch.ncsc.mil>
-In-Reply-To: <1057687509.12912.100.camel@moss-huskers.epoch.ncsc.mil>
-MIME-Version: 1.0
-Message-Id: <200307081604.44315.wlsel@verizon.net>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h68M5DHa020845
+	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2003 18:05:13 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h68M5CH5013983
+	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2003 22:05:12 GMT
+Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
+        by jazzband.ncsc.mil  with ESMTP id h68M5CRX013975 for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2003 22:05:12 GMT
+Received: from columbia (dhcp024-208-189-249.columbus.rr.com [24.208.189.249])
+	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
+	(Client CN "columbia.verbum.org", Issuer "verbum.org CA" (verified OK))
+	by monk.verbum.org (Postfix (Debian/GNU)) with ESMTP id 81E2C41401C
+	for <selinux@tycho.nsa.gov>; Tue,  8 Jul 2003 18:05:48 -0400 (EDT)
+Subject: context trouble with 2.5 bits
+From: Colin Walters <walters@verbum.org>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Message-Id: <1057701768.25921.53.camel@columbia>
+Mime-Version: 1.0
+Date: 08 Jul 2003 18:02:48 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 08 July 2003 02:05 pm, Stephen Smalley wrote:
-> On Tue, 2003-07-08 at 12:24, Bill Laut wrote:
-> >
-> > [...]
-> >
-> > Why is SELinux reporting that kjournald is trying to receive this packet?
-> >  Is it because the violation occured in the kernel while kjournald
-> > happened to be the currently executing process?  Or is SELinux telling me
-> > that there's a possible Trojan/BO/whatever buried inside of kjournald?
->
-> The former.   The avc_audit code simply tests current and current->pid
-> and includes the corresponding process information in the audit message
-> if they are non-zero.  Not useful in the case of 'recvfrom' or other
-> checks performed on network input processing.
->
+Hi,
 
-Upon reading your reply, it occured to me that one of my sentences could have 
-been misunderstood.  When I speculated "... that there's a possible 
-Trojan/BO/whatever buried inside of kjournald," I did not mean to suggest 
-that SELinux has NSA "spyware" buried in it.  I was thinking of something 
-else entirely unrelated to NSA while typing that sentence, and therefore 
-didn't catch and filter out the inference before submitting the post.
+I think I'm pretty close to getting my Debian system running with the
+SELinux 2.5 bits.  However, I can't seem to get either the patched sshd
+or login to give me the correct context.  When I login (using login) as
+root, I see:
 
-To anyone at NSA who might have been offended at my sentence, I sincerely 
-apologize for my faulty editing.  From a security perspective, SELinux is, 
-imho, the greatest thing since sliced bread and all of the Linux community 
-owes NSA a debt of gratitude for having nurtured it into fruition.
+Warning!  Could not get new context for tty1, not relabeling.
 
-Thanks again for all of your help.
+...followed by a bunch of avc denials about tty1 and /root, and then my
+context is:
+
+meta:~# id
+uid=0(root) gid=0(root) groups=0(root) context:system_u:system_r:user_t
+
+Now, since Debian uses the login in shadow-utils (not the one in
+util-linux), I had to port over the patch, but I'm fairly sure that's
+not the problem, because I get the exact same symptoms when logging in
+over the patched ssh.
+
+Does anyone have any ideas for what could be going wrong?
 
 
 --
