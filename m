@@ -1,53 +1,88 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1Kb1XZ000033
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 15:37:01 -0500 (EST)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1KZeCC004081
-	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 20:35:41 GMT
-Date: Mon, 1 Nov 2004 20:47:47 +0000
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iA1KnlXZ000180
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 15:49:47 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id iA1KnlfG008160
+	for <selinux@tycho.nsa.gov>; Mon, 1 Nov 2004 20:49:47 GMT
+Date: Mon, 1 Nov 2004 21:00:39 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Chad Hanson <chanson@TrustedCS.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
-   Darrel Goeddel <DGoeddel@TrustedCS.com>, selinux@tycho.nsa.gov,
-   Frank Mayer <mayerf@tresys.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: James Morris <jmorris@redhat.com>, Darrel Goeddel <dgoeddel@TrustedCS.com>,
+   "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+   Chad Hanson <chanson@TrustedCS.com>, samba-technical@samba.org,
+   tng-technical@samba-tng.org
 Subject: Re: dynamic context transitions
-Message-ID: <20041101204747.GK9643@lkcl.net>
-References: <36282A1733C57546BE392885C06185924D9100@chaos.tcs.tcs-sec.com>
+Message-ID: <20041101210038.GL9643@lkcl.net>
+References: <418662EE.5090001@trustedcs.com> <Xine.LNX.4.44.0411011508210.5409-100000@thoron.boston.redhat.com> <20041101203524.GJ9643@lkcl.net> <1099340721.21386.223.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <36282A1733C57546BE392885C06185924D9100@chaos.tcs.tcs-sec.com>
+In-Reply-To: <1099340721.21386.223.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Nov 01, 2004 at 01:28:57PM -0500, Chad Hanson wrote:
-> > able to legitimately collapse multiple domains into a single 
-> > equivalence
-> > class for information flow analysis purposes, I don't see how this is
-> > legitimate for levels.  If they were separate levels in the 
-> > first place,
-> > then they should be separate equivalence classes for 
-> > information flow. 
-> > Can you clarify?
+On Mon, Nov 01, 2004 at 03:25:21PM -0500, Stephen Smalley wrote:
+
+> On Mon, 2004-11-01 at 15:35, Luke Kenneth Casson Leighton wrote:
+
+> >  no there is no reason why [a helper application should] not [be used].
+> >  
+> >  i am not sure if the simple solution [that andrew and russell
+> >  came up with] was fully enumerated: it involves exec'ing a
+> >  per-user helper application which does a setuid.
+> >  
+> >  the helper application opens files as-and-when they are needed,
+> >  [and also does mkdirs? and rmdirs?] and then passes the file
+> >  descriptor over a unix-domain-socket to the smbd process,
+> >  which NEVER itself does file opens under a user context.
+> > 
+> >  i believe it then no longer becomes necessary for smbd to
+> >  call become_user().
 > 
-> Let me try to give some background.
-> 
-> The ability for a process to perform actions at multiple MLS labels exists
-                             
- an equivalent to seteuid has been successfully resisted for
- some time (on the basis that applications should be redesigned
- to use exec, thereby gaining quite a large benefit in secure
- design irrespective of the use of selinux).
+> Except that SELinux mediates access to file descriptors upon transfer
+> via local socket IPC as well as attempted use for read/write, so SELinux
+> is still going to apply a permission check to the parent smbd process in
+> that situation.  
 
- surely the same principle / lesson should apply to MLS?
+ that i would expect.
 
- namely that a process _should not_ be able to perform actions at
- multiple MLS labels - that a single process _should not_ be able to
- transition between MLS labels, and that the only boundary on which MLS
- label transitions should be allowed is on an exec()?
+> Not to mention that this no doubt has a significant
+> cost.
 
- so, the million dollar question is: what is it about MLS that
- make it _necessary_ for individual processes to do as you say?
- [perform actions at multiple MLS labels].
+ that i was not expecting.
+
+ ... which leaves my original idea as a viable option, and it is one
+ that fits the "exec()" principle.
+ 
+ the "front-end" proxy smbd process [doing NT-style network-based
+ authentication] i.e. a "Samba 4" server with the example
+ VFS SMB-proxy used in a live production environment, and a
+ "back-end" "Samba 3.0.X" server doing the actual file access.
+
+ if speed is of the essence [the overhead of an intermediate TCP
+ connection is considered to be non-trivial] then an additional
+ communication mechanism, just like MySQL does and just like
+ X does, can be added: a unix-domain-socket to provide a
+ communication path between the front-end and back-end servers.
+
+ the front-end smbd process running in smbd_t context, the
+ back-end running in smbd_user_t context, never the twain
+ shall meet.
+
+ several front-end smbd processes would need to be triggered -
+ one for each SMB user context - something that i believe the
+ "Samba 4" VFS SMB-proxy plugin already does [by default /
+ lack-of-other-options].
+
+
+ if the cost of the [permanently established] link between the
+ front-end and back-end is expensive on an selinux system [due
+ to exactly the same mediation that stephen mentions above],
+ how about using shared memory instead?
+
+ it would require a little bit of design thought [or researching
+ for existing libraries] - a packet-based transport in shared
+ memory that to all external intents and purposes looked like
+ a socket (odd!)
 
  l.
 
