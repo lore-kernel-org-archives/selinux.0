@@ -1,36 +1,52 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Reino Wallin <reino@oribium.com>
-Subject: Re: SELinux RPM Version
-Date: Thu, 25 Apr 2002 01:45:57 +0200
-Cc: "Westerman, Mark" <Mark.Westerman@csoconline.com>,
-        SELinux <SELinux@tycho.nsa.gov>
-References: <72222DC86846D411ABD300A0C9EB08A10152435C@csoc-mail-box.csoconline.com> <20020424121737.214CA29B7@lyta.coker.com.au> <1019687930.27628.46.camel@matilda.oribium.com>
-In-Reply-To: <1019687930.27628.46.camel@matilda.oribium.com>
+Message-ID: <003701c1ec21$5199e2c0$780aa8c0@r213>
+From: "f980215" <f980215@mailandnews.com>
+To: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+Cc: <SELinux@tycho.nsa.gov>
+References: <72222DC86846D411ABD300A0C9EB08A101524360@csoc-mail-box.csoconline.com>
+Subject: Install SELinux RPM
+Date: Thu, 25 Apr 2002 14:20:22 +0800
 MIME-Version: 1.0
-Message-Id: <20020424234557.A28EE7BB@lyta.coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 25 Apr 2002 00:38, Reino Wallin wrote:
-> I like Howards suggestion and ability to share the policy. However, I
-> thought he suggested /etc/security/policy to link to the real policy, or
-> even keep the real policy files. I might have missed something here
-> though. This is not that important to me rigth now anyway.
+hi,all
 
-/etc/security/selinux is the new location for the compiled policy files 
-loaded by the kernel.
+I download selinux-2.4.18-2002031409.i386.rpm
 
-I recall that /etc/selinux/policy was suggested, but I think that's too many 
-levels of directories.
+When I install, found error infomation:
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
+rpm -Uvh selinux-2.4.18-2002031409.i386.rpm
+
+========
+error:unpacking of archive failed on file /lib/modules/2.4.18-selinux/kernel/drivers/char
+/agp/agpgart.o;3cc79ba6: cpio: MD5 sum mismatch
+
+Also,
+
+Where can found:  SELINUX  + FreeS/WAN rpm package ?
+
+Can someone help me?
+
+Thanks
+
+f980215
+
+----- Original Message ----- 
+Subject: SELinux RPM
+
+
+The RedHat rpm version of selinux
+has been release to sourceforge
+
+www.sourceforge.net/projects/selinux
+
+This a beta release and feedback will
+only make it better
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
