@@ -1,107 +1,61 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i136DRRb004577
-	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 01:13:28 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i13DKkRb005573
+	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 08:20:47 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i136DI1K000865
-	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 06:13:21 GMT
+	by jazzband.ncsc.mil  with ESMTP id i13DKj1I010584
+	for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 13:20:45 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i13DKhbs010412 for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2004 13:20:44 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Fernando Luis =?iso-8859-1?q?V=E1zquez=20Cao?= <bs-f-vazquez@bs.rd.nttdata.co.jp>
 Subject: Re: fork and security context transitions
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <bs-f-vazquez@bs.rd.nttdata.co.jp>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
+Date: Wed, 4 Feb 2004 00:19:11 +1100
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1075469989.22930.19.camel@moss-spartans.epoch.ncsc.mil>
-References: <1075437775.1088.144.camel@volcano.rd.nttdata.co.jp>
-	 <1075469989.22930.19.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=
-Message-Id: <1075788687.826.222.camel@volcano.rd.nttdata.co.jp>
-Mime-Version: 1.0
-Date: Tue, 03 Feb 2004 15:11:28 +0900
+References: <1075437775.1088.144.camel@volcano.rd.nttdata.co.jp> <1075469989.22930.19.camel@moss-spartans.epoch.ncsc.mil> <1075788687.826.222.camel@volcano.rd.nttdata.co.jp>
+In-Reply-To: <1075788687.826.222.camel@volcano.rd.nttdata.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200402040019.11770.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thank you for your prompt reply.
+On Tue, 3 Feb 2004 17:11, Fernando Luis Vázquez Cao 
+<bs-f-vazquez@bs.rd.nttdata.co.jp> wrote:
+> As an example, if we wanted to make Samba and Apache SELinux aware so
+> that, in the event of a user session, a child process would be created
+> in a user-specific domain, what should we do? With SELinux you are
+> forced to split the servers in two executables, eventually being forced
+> to make a lot of application specific changes (once more, if this is the
+> only right approach let's stick with it).
 
-I have read through the links you provided me with (I'm sorry you have
-had to answer so many times to the same question) and I would like to
-make some further comments.
+For Samba this will not work.
 
-In one of your early replies you say that "SELinux only supports process
-SID transitions upon program execution so that inheritance of state and
-the initialization of the process in the new SID can be controlled". I
-agree with this statement, but what I was planning to do I feel that is
-slightly different.
+The SMB protocol supports multiple SMB identities on the same SMB connection.  
+Currently this is only really used in Windows Terminal Server edition, but it 
+should be used in future workstation products when some bugs in the MS client 
+code are fixed.
 
-I was thinking of implementing a new function analogical to
-"setexeccon", that could be called something like "setforkcon".
-"setforkcon" would be invoked before the execution of fork (just as its
-model function) and the child would be given the security context
-specified in the call IF, AND ONLY IF, the parent process has been
-granted the transition to the requested domain.
+Because of this such code that you might write for Samba will only work for a 
+while (until the next release of Windows maybe).
 
-"fork" would be modified to be aware of the use of "setforkcon" (maybe
-via /proc/*/attr/fork), but the compatibility with the original version
-of fork would be preserved, since, in case "setforkcon" has not been
-used, it is functionally identical. Of course, some changes would have
-to be made in both the kernel and user space parts of "SELinux" to add
-support to a new kind of operation (let's say "ftransition"). The
-application requiring this functionality could be granted a
-"ftransition" permission with a command such as:
+Of course in the development version of Samba things are a bit different and 
+you can write plug-ins to do these sorts of things.  It would be possible to 
+have the main Samba process execute helper programs to do the actual file IO 
+and then communicate with the parent process by shared memory and pipes.  
+Then a smbd which is serving for two SMB identities can have two helper 
+children running in different contexts.
 
-allow d1_t d2_t:process ftransition;
+The other option is something like setfsuid() for SE Linux as previously 
+discussed.
 
-Wouldn't the "inheritance of state and the initialization of the process
-in the new SID" be controlled as effectively as it is with the use of
-"setexeccon" and "execv"?. This is, in once sentence, the source of all
-my doubts.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-I think that such a functionality would ease the adoption of SELinux by
-new applications. Of course, if my proposal makes no sense and something
-like "setforkcon" is potentially insecure it SHOULD not be used,
-regardless of its ease of use or user-friendliness.
-
-As an example, if we wanted to make Samba and Apache SELinux aware so
-that, in the event of a user session, a child process would be created
-in a user-specific domain, what should we do? With SELinux you are
-forced to split the servers in two executables, eventually being forced
-to make a lot of application specific changes (once more, if this is the
-only right approach let's stick with it).
-
-I think that the previous examples represent a case different from that
-of inetd, crond or ssh (to cite some), since the latter have to fork
-third party applications that are completely unrelated to themselves and
-whose trustworthiness is unknown.
-
-In the case of Samba, Apache and my own application, we are talking
-about ONE SINGLE application that forks itself. I think that splitting
-these programs into a listening server and a service application that is
-launched via execve is very similar, from a security point of view, to
-my proposal. Why do I think this?
-
-* Before changing the security context functionally identical functions
-have to be executed ("setexeccon" and "setforkcon" respectively).
-
-* Only if the right permissions (analogical in both cases) were granted
-in the policy, would the requested transition be performed.
-
-* The "initialization of the process" is equally controlled with both
-solutions, since in both cases the children could be spawned in a set of
-contexts (one per user) that is predefined in the security policy.
-
-* There's no need to make the child process execute a program from a
-type different from the father's, since both programs belong to the same
-application and, therefore, it is trusted. Any way, with the proposed
-extension I think that the same restrictions could be applied to the
-child processes.
-
-With the proposed approach I think that not new vulnerabilities (I
-apologize if I am completely missing the point!!!!!) are introduced and
-that the migration to a SELinux aware application is easier.
-
-I'm sorry for such a long mail and hope that what I have said makes any
-sense.
-
-Best regards,
-
-Fernando VÃ¡zquez
 
 
 --
