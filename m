@@ -1,85 +1,71 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8AF7YrT019206
-	for <selinux@tycho.nsa.gov>; Fri, 10 Sep 2004 11:07:34 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8AF7Xl6008502
-	for <selinux@tycho.nsa.gov>; Fri, 10 Sep 2004 15:07:33 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.10/8.12.10) with ESMTP id i8AF7X70025791
-	for <selinux@tycho.nsa.gov>; Fri, 10 Sep 2004 11:07:33 -0400
-Subject: [patch] don't relabel sub-subdirectories of /mnt, /media by default
-From: Colin Walters <walters@redhat.com>
-To: selinux@tycho.nsa.gov, dwalsh@redhat.com, rcoker@redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mRYSxUcmbtXEuAwLXp3V"
-Date: Fri, 10 Sep 2004 11:08:56 -0400
-Message-Id: <1094828936.7061.20.camel@nexus.verbum.private>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8AFAMrT019243
+	for <selinux@tycho.nsa.gov>; Fri, 10 Sep 2004 11:10:22 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8AF9Svo012949
+	for <selinux@tycho.nsa.gov>; Fri, 10 Sep 2004 15:09:28 GMT
+Subject: Re: ssh policy
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Jim Carter <jwcart2@epoch.ncsc.mil>, Russell Coker <russell@coker.com.au>,
+   SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4141BF21.9050004@redhat.com>
+References: <200409090428.52881.russell@coker.com.au>
+	 <1094761979.2895.64.camel@moss-lions.epoch.ncsc.mil>
+	 <4141BF21.9050004@redhat.com>
+Content-Type: text/plain
+Message-Id: <1094828891.28310.52.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 10 Sep 2004 11:08:11 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2004-09-10 at 10:50, Daniel J Walsh wrote:
+> Latest policy.  More stuff for dbus.  Added media file.   Changes for 
+> udev on tmpfs.
 
---=-mRYSxUcmbtXEuAwLXp3V
-Content-Type: multipart/mixed; boundary="=-HsSWxoB9O+9Xs8zMiJoX"
+Conflicts with our latest patches.
+> 
+> ______________________________________________________________________
+> -allow ifconfig_t self:netlink_route_socket { bind create getattr nlmsg_read nlmsg_write read write };
+> +allow ifconfig_t self:netlink_route_socket { bind create getattr nlmsg_read nlmsg_write read write setopt };
 
+I just replaced this with rw_netlink_socket_perms in our tree.
 
---=-HsSWxoB9O+9Xs8zMiJoX
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> -r_dir_file(updfstab_t, { selinux_config_t file_context_t default_context_t } )
+>  can_getsecurity(updfstab_t)
+> +dontaudit updfstab_t selinux_config_t:dir search;
 
-Hi,
+I don't think that this is correct; updfstab appears to be looking up a
+context via matchpathcon for preserving the context on /etc/fstab, so it
+needs access to the file contexts file as in our policy.
 
-The attached patch ensures we don't try to relabel files from arbitrary
-mounts, like /media/usbkey/*.  One person pointed out on fedora-devel
-that setting extended attributes on ext3 causes older kernels not to be
-able to mount them.  It seems safest to have the default behavior be the
-least invasive.  People who want to label their mount points can do so
-manually. =20
+> diff --exclude-from=exclude -N -u -r nsapolicy/file_contexts/program/xserver.fc policy-1.17.13/file_contexts/program/xserver.fc
+> --- nsapolicy/file_contexts/program/xserver.fc	2004-09-09 15:36:11.000000000 -0400
+> +++ policy-1.17.13/file_contexts/program/xserver.fc	2004-09-10 10:29:32.761599897 -0400
+> @@ -11,7 +11,7 @@
+>  /var/log/XFree86.*	--	system_u:object_r:xserver_log_t
+>  /var/log/Xorg.*		--	system_u:object_r:xserver_log_t
+>  /etc/init\.d/xfree86-common --	system_u:object_r:xserver_exec_t
+> -/tmp/\.X11-unix		-d	system_u:object_r:xdm_xserver_tmp_t
+> +/tmp/\.X11-unix		-d	system_u:object_r:xdm_tmp_t
+>  /tmp/\.X11-unix/.*	-s	<<none>>
+>  /tmp/\.ICE-unix		-d	system_u:object_r:xdm_xserver_tmp_t
+>  /tmp/\.ICE-unix/.*	-s	<<none>>
 
-One thing that might be nice is to have a "removable_context" config
-file.  Then we modify HAL to automatically mount removable media with -o
-context=3D$(cat $SELINUXROOT/contexts/removable_context).  (Really getting
-the context via libselinux of course).  People who want to override that
-behavior can simply add the device manually to fstab, that will cause
-HAL not to create a new entry.
+I know that this was motivated by the relabel cycling reported by Tom
+London, but it raises an obvious question - who is creating this
+directory?  Is it truly [xdk]dm?  If not, why it is being created in
+xdm_tmp_t rather than xdm_xserver_t?
 
+> +dontaudit $1_dbusd_t var_t:dir { getattr search };
 
+Hmm...I was going to give it access to read /var/run/console, as with
+the system dbus daemon.  Does the per-session dbusd not need it?
 
-
---=-HsSWxoB9O+9Xs8zMiJoX
-Content-Disposition: attachment; filename=no-relabel-media.patch
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=no-relabel-media.patch; charset=UTF-8
-
-LS0tIHBvbGljeS0xLjE3LjEzL2ZpbGVfY29udGV4dHMvdHlwZXMuZmN+CTIwMDQtMDktMTAgMTA6
-MTg6MDQuMDAwMDAwMDAwIC0wNDAwDQorKysgcG9saWN5LTEuMTcuMTMvZmlsZV9jb250ZXh0cy90
-eXBlcy5mYwkyMDA0LTA5LTEwIDEwOjU4OjA5LjAxOTE1Nzc2OCAtMDQwMA0KQEAgLTU1LDEwICs1
-NSwxNCBAQA0KIEhPTUVfRElSLy4rCQkJc3lzdGVtX3U6b2JqZWN0X3I6Uk9MRV9ob21lX3QNCiAN
-CiAvcm9vdC8uZGVmYXVsdF9jb250ZXh0cwktLSAJc3lzdGVtX3U6b2JqZWN0X3I6ZGVmYXVsdF9j
-b250ZXh0X3QNCisNCiAjDQotIyBBIGNvbW1vbiBtb3VudCBwb2ludA0KLS9tbnQoLy4qKT8JCS1k
-CXN5c3RlbV91Om9iamVjdF9yOm1udF90DQotL21lZGlhKC8uKik/CQktZAlzeXN0ZW1fdTpvYmpl
-Y3RfcjptbnRfdA0KKyMgTW91bnQgcG9pbnRzOyBkbyBub3QgcmVsYWJlbCBzdWJkaXJlY3Rvcmll
-cywgc2luY2UNCisjIHdlIGRvbid0IHdhbnQgdG8gY2hhbmdlIGFueSByZW1vdmFibGUgbWVkaWEg
-YnkgZGVmYXVsdC4NCisvbW50KC9bXi9dKik/CQktZAlzeXN0ZW1fdTpvYmplY3RfcjptbnRfdA0K
-Ky9tbnQvW14vXSovLioJCQk8PG5vbmU+Pg0KKy9tZWRpYSgvW14vXSopPwkJLWQJc3lzdGVtX3U6
-b2JqZWN0X3I6bW50X3QNCisvbWVkaWEvW14vXSovLioJCQk8PG5vbmU+Pg0KIA0KICMNCiAjIC92
-YXINCg==
-
-
---=-HsSWxoB9O+9Xs8zMiJoX--
-
---=-mRYSxUcmbtXEuAwLXp3V
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBQcOIOIkJWWp2WGURAiF5AJ9CYF2+xc9vX2by7hV7bfeynAciYwCfctzh
-wEQIQjG1Y+dwqg8Z/L1FDzI=
-=tJb2
------END PGP SIGNATURE-----
-
---=-mRYSxUcmbtXEuAwLXp3V--
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
