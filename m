@@ -1,81 +1,48 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2TFlJRb004964
-	for <selinux@tycho.nsa.gov>; Mon, 29 Mar 2004 10:47:20 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2THd9Rb006530
+	for <selinux@tycho.nsa.gov>; Mon, 29 Mar 2004 12:39:09 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i2TFeSpx011888
-	for <selinux@tycho.nsa.gov>; Mon, 29 Mar 2004 15:47:06 GMT
-Received: from gorn.pebenito.dhs.org (c-24-15-25-98.client.comcast.net [24.15.25.98])
-        by jazzband.ncsc.mil  with ESMTP id i2T5c536006055 for <selinux@tycho.nsa.gov>; Mon, 29 Mar 2004 05:38:06 GMT
-Subject: libselinux/policyvers
-From: Chris PeBenito <pebenito@gentoo.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DF4pD7MfDXOKpi7RtrEf"
-Message-Id: <1080538678.11635.53.camel@gorn.pebenito.net>
-Mime-Version: 1.0
-Date: Sun, 28 Mar 2004 23:37:59 -0600
+	by jazzband.ncsc.mil  with ESMTP id i2THOHqJ029066
+	for <selinux@tycho.nsa.gov>; Mon, 29 Mar 2004 17:38:59 GMT
+Received: from nibbel.kulnet.kuleuven.ac.be (nibbel.kulnet.kuleuven.ac.be [134.58.240.41])
+        by jazzband.ncsc.mil  with ESMTP id i2SMbB36005428 for <selinux@tycho.nsa.gov>; Sun, 28 Mar 2004 22:37:11 GMT
+In-Reply-To: <20040328192930.GA12067@bern.cip.informatik.uni-muenchen.de>
+References: <D571AD7F-7F4B-11D8-A7FC-000A95D903E6@student.kuleuven.ac.be> <200403262039.i2QKdELb020746@turing-police.cc.vt.edu> <5D73C9A0-7F6C-11D8-A718-003065725CB8@student.kuleuven.ac.be> <200403270025.i2R0PK2l029036@turing-police.cc.vt.edu> <20040328192930.GA12067@bern.cip.informatik.uni-muenchen.de>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <7204F773-8108-11D8-AC4F-000A95D903E6@student.kuleuven.ac.be>
+Cc: selinux@tycho.nsa.gov
+From: Koen Vervloesem <koen.vervloesem@student.kuleuven.ac.be>
+Subject: Re: make relabel: invalid context
+Date: Mon, 29 Mar 2004 00:37:08 +0200
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+> I hit this problem when trying to use a version 16 policy on a kernel
+> which was not configured for it (that is vanilla 2.6.4). Try to set
+> POLICYCOMPAT = -c in the Makefile and also delete
+> /etc/security/selinux/policy.16 , this should fix it.
 
---=-DF4pD7MfDXOKpi7RtrEf
-Content-Type: multipart/mixed; boundary="=-HSNptksGBwocpCG/sAoa"
+OK. Many thanks for the help. I changed the Makefile, deleted the 
+policy.16 file, and reran make policy and make install. Now I didn't 
+get any errors. But is this normal:
 
+root@carnivore:~/policy-1.8# make load
+/usr/sbin/load_policy /etc/security/selinux/policy.15
+touch tmp/load
+root@carnivore:~/policy-1.8# make relabel
+/usr/sbin/setfiles file_contexts/file_contexts `mount | awk '/(ext[23]| 
+xfs).*rw/{print $3}'`
+/usr/sbin/setfiles:  read 0 specifications
 
---=-HSNptksGBwocpCG/sAoa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Regards,
 
-Attached is a suggested patch for libselinux/src/policyvers.c.  It adds
-an errno check when the open() for /selinux/policyvers fails.  If its
-ENOENT, it returns the default policy version, for the case that its a
-older kernel that doesn't have policyvers on selinuxfs.  Otherwise, it
-returns -1, so the caller can know that its actually failed, rather than
-returning a possibly incorrect policy version.
+Koen
+--
+"A great many people think they are thinking when they are merely 
+rearranging their prejudices." (William James)
 
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-Embedded Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
-
---=-HSNptksGBwocpCG/sAoa
-Content-Disposition: attachment; filename=libselinux-errno.diff
-Content-Type: text/x-patch; name=libselinux-errno.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IHNyYy9wb2xpY3l2ZXJzLmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvY3Zzcm9vdC9z
-ZWxpbnV4L25zYS9zZWxpbnV4LXVzci9saWJzZWxpbnV4L3NyYy9wb2xpY3l2ZXJzLmMsdg0KcmV0
-cmlldmluZyByZXZpc2lvbiAxLjINCmRpZmYgLXUgLXIxLjIgcG9saWN5dmVycy5jDQotLS0gc3Jj
-L3BvbGljeXZlcnMuYwkxMiBEZWMgMjAwMyAxNTo1MDoxMSAtMDAwMAkxLjINCisrKyBzcmMvcG9s
-aWN5dmVycy5jCTI5IE1hciAyMDA0IDA0OjI0OjI0IC0wMDAwDQpAQCAtMjAsOCArMjAsMTIgQEAN
-CiANCiAJc25wcmludGYocGF0aCwgc2l6ZW9mIHBhdGgsICIlcy9wb2xpY3l2ZXJzIiwgc2VsaW51
-eF9tbnQpOw0KIAlmZCA9IG9wZW4ocGF0aCwgT19SRE9OTFkpOw0KLQlpZiAoZmQgPCAwKQ0KLQkJ
-cmV0dXJuIHZlcnM7DQorCWlmIChmZCA8IDApIHsNCisJCWlmIChlcnJubyA9PSBFTk9FTlQpDQor
-CQkJcmV0dXJuIHZlcnM7DQorCQllbHNlDQorCQkJcmV0dXJuIC0xOw0KKwl9DQogCW1lbXNldChi
-dWYsIDAsIHNpemVvZiBidWYpOw0KIAlyZXQgPSByZWFkKGZkLCBidWYsIHNpemVvZiBidWYtMSk7
-DQogCWNsb3NlKGZkKTsNCg==
-
---=-HSNptksGBwocpCG/sAoa--
-
---=-DF4pD7MfDXOKpi7RtrEf
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAZ7Y0vI7kLeavkkMRAq/GAJ4ucU+pglJWwET2A8OisJ5yjdg4SQCdHgCL
-1MFAwLiJb32DJt6iP/cstMk=
-=ciSW
------END PGP SIGNATURE-----
-
---=-DF4pD7MfDXOKpi7RtrEf--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
