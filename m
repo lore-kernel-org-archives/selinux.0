@@ -1,43 +1,44 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA09043
-	for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2003 13:14:20 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA09758
+	for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2003 19:38:50 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA16495
-	for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2003 18:11:33 GMT
-Received: from mta5.rcsntx.swbell.net (mta5.rcsntx.swbell.net [151.164.30.29])
-	by jazzswing.ncsc.mil  with ESMTP id SAA16491
-	for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2003 18:11:33 GMT
-Received: from D611017 ([64.123.90.245]) by mta5.rcsntx.swbell.net
- (iPlanet Messaging Server 5.1 HotFix 1.6 (built Oct 18 2002))
- with ESMTP id <0H8X007HR9B92B@mta5.rcsntx.swbell.net> for
- selinux@tycho.nsa.gov; Sat, 18 Jan 2003 12:14:05 -0600 (CST)
-Date: Sun, 19 Jan 2003 00:13:57 -0600
-From: Florian Hines <frhines@swbell.net>
-Subject: RE: Cambridge Security Group talk
-In-reply-to: <20030118060646.GC26168@snoopy.apana.org.au>
+	by jazzswing.ncsc.mil  with ESMTP id AAA26746
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 00:36:02 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id AAA26742
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 00:36:01 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id D391992738
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 11:38:30 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id 5676D4609
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 01:38:30 +0100 (CET)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
 To: selinux@tycho.nsa.gov
-Message-id: <001101c2bf81$f6c383d0$a702a8c0@D611017>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
+Subject: GLLUG
+Date: Sun, 19 Jan 2003 01:38:29 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200301190138.29933.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-By any chance is there a streaming media recording of the Cambridge seminar
-? Or is there plans for a live web cast once ? (Through Flashcomm or
-something)...or a speaking engagment in the South Western US.  I'm stuck in
-San Antonio, TX so not much chance of me making it to europe till next
-summer. 
+The GLLUG talk went reasonably well.  I found it a bit difficult to 
+concentrate after getting only a small amount of sleep the previous night, 
+and moved through the main part of the presentation faster than I had 
+planned.  But the Q/A part went really well.  Judging by the questions a good 
+number of the audience members had a good grasp of the material.  There were 
+also some questions about installation etc which are a positive sign.
 
-Just curious,
+Afterwards one of the organizers suggested a follow-up talk in 6 to 12 months.
 
-Florian Hines
-
-
----
-Treadhead's aren't born, they're made!
-			--  Polaris owners
----
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
