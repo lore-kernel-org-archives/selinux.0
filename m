@@ -1,44 +1,65 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id TAA23909
+	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 19:27:32 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id XAA17257
+	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 23:25:55 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id XAA17251 for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2002 23:25:54 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Carsten Grohmann <carstengrohmann@gmx.de>
-Subject: Re: mysqld rules
-Date: Fri, 16 Aug 2002 01:12:54 +0200
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <200208152054.UAA27695@jazzswing.ncsc.mil>
-In-Reply-To: <200208152054.UAA27695@jazzswing.ncsc.mil>
+To: Brian May <bam@snoopy.apana.org.au>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: policy file management
+Date: Fri, 16 Aug 2002 01:27:20 +0200
+References: <20020815180940.3719C854@lyta.coker.com.au> <20020815222237.GA26062@snoopy.apana.org.au>
+In-Reply-To: <20020815222237.GA26062@snoopy.apana.org.au>
 MIME-Version: 1.0
-Message-Id: <20020815231254.D1605400@lyta.coker.com.au>
+Message-Id: <20020815232720.B17BB400@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 15 Aug 2002 22:55, Carsten Grohmann wrote:
-> On SuSE mysqld starts with safe_mysqld. This time I write a rule set for
-> it. And in this context I change your mysqld_t rules a little bit.
-> I am interested in your opinion about this. ( I remaind of discussion about
-> the config files.)
+On Fri, 16 Aug 2002 00:22, Brian May wrote:
+> On Thu, Aug 15, 2002 at 08:09:39PM +0200, Russell Coker wrote:
+> > So postfix.te depends on mta.te (it won't be offered if you don't have
+> > mta.te), it conflicts with other mail-server policy (IE qmail.te and
+> > sendmail.te).
+> >
+> > What do you think?
+>
+> What tool do you propose would parse these headers?
 
-The type etc_mysqld_t is to be used for system configuration files, I have 
-changed my mysqld.fc file appropriately.
+A little Perl script I've just started writing.
 
-I think that adding a mysql_userconf_t is not the way to go, there should be 
-a macros file with a $1_home_mysql_t if necessary.  But do we really need 
-that?
+> Would you have a tool for installing policies according to these rules,
+> or would you simply check the installed policy before compiling it?
 
-Apart from the issue of mysql startup scripts wanting to access sysadm_home_t 
-files is there any need for a different type?
+Install .te files interactively based on user choices.  Currently you get 
+asked 66 [Y/n] questions about which files to install.
 
-> I often need the dac_override capability in my suse rules (also in this
-> case) and don't found it on other rules. Do you know why?
+> Anyway, for my conference submission for LCA (not yet accepted), I
 
-That is because some of the files that mysqld is accessing are under a 
-different UID/GID than that used by the daemon.
+They are taking their time about it.
 
-To lock down mysqld most tightly you want to use a program like 
-start-stop-daemon to start mysqld under the correct UID so that you can deny 
-it the setuid and setgid capabilities.  Then of course you have to make sure 
-that all the files are also under the correct UID.
+> have designed a new XML file format which defines a formal unit called
+> a "package". This might be another solution, as each package defines
+> domains in its own name space. It would also allow installing several
+> different MTAs for instance, with different port numbers or something
+> (although don't ask me why you would want to do that...).
+
+The problem with having multiple different mail servers is /usr/bin/sendmail. 
+ It has to deliver mail into one spool.  Also with Sendmail it's the same 
+program that does everything so it needs full rights (unlike other mail 
+servers).  So currently with my policy you can have any combination of mail 
+servers just as long as you don't have Sendmail and another mail server.
+
+> Of course, there is still some work to do, for instance, which label
+> from which package to use to label what files with. I need to think
+> about this one.
+
+Yes.  It's a fairly ambitious project you're working on, which is why I'm 
+hacking up Perl code to manage things in the mean time.
 
 -- 
 I do not get viruses because I do not use MS software.
