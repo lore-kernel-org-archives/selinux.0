@@ -1,36 +1,40 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5H9p1rT008080
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 05:51:02 -0400 (EDT)
-Received: from smtp-bedford.mitre.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5H9opPh002660
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 09:50:59 GMT
-Received: from smtp-bedford.mitre.org (localhost.localdomain [127.0.0.1])
-	by smtp-bedford.mitre.org (8.11.6/8.11.6) with ESMTP id i5H9l5i21312
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 05:47:05 -0400
-To: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5HBubrT008572
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 07:56:37 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5HBuSuB025145
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 11:56:28 GMT
+Subject: Re: CONFIG_SECURITY_NETWORK required?
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Tom Anderson <granite217@yahoo.com>
 Cc: selinux@tycho.nsa.gov
-Subject: SE Linux enhanced strace for Fedora Core 2
-References: <ogtvfhss8rr.fsf@mitre.org>
-	<1087393067.16125.13.camel@moss-spartans.epoch.ncsc.mil>
-	<40D07C52.3070805@redhat.com>
-From: ramsdell@mitre.org (John D. Ramsdell)
-Date: 17 Jun 2004 05:47:04 -0400
-In-Reply-To: <40D07C52.3070805@redhat.com>
-Message-ID: <ogtfz8uqzxj.fsf_-_@mitre.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20040617010912.36445.qmail@web14929.mail.yahoo.com>
+References: <20040617010912.36445.qmail@web14929.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1087473390.25033.15.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Thu, 17 Jun 2004 07:56:30 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I discovered the sources that make up the distribution of strace I
-sent out earlier fail to compile in Fedora Core 2.  Recall that this
-distribution builds a version of strace that optionally prints
-the security context of some of a system call's arguments.  The
-modified strace for Fedora Core 2 is available here:
+On Wed, 2004-06-16 at 21:09, Tom Anderson wrote:
+> Is CONFIG_SECURITY_NETWORK required for SELinux?  I've seen some docs
+> which recommend enabling it, but I'd expect it to be listed under NSA
+> SELinux Support (menuconfig) if it was truly required.  Any real
+> (dis)advantage to leaving it disabled?
 
-http://simp.mitre.org/selinux
+SELinux _should_ work with it disabled (although I haven't tested this
+for some time), but disabling it does cause all socket hooks to be
+disabled, even those related to Unix domain sockets.  Consequently,
+local socket IPC would no longer be controlled by policy, and the
+getpeercon API for obtaining the context of a Unix domain peer would not
+be supported if you disabled it.  The latter is important for certain
+userspace policy enforcers, e.g. security-enhanced X.
 
-John
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
