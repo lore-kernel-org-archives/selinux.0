@@ -1,36 +1,29 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8HCFSLa024552
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 08:15:28 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8HCDjLY014206
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 12:13:46 GMT
-Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id h8HCDjsG014201
-	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 12:13:45 GMT
-Date: Wed, 17 Sep 2003 13:15:12 +0100
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8HCbxLa024696
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 08:37:59 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h8HCbvn0006999
+	for <selinux@tycho.nsa.gov>; Wed, 17 Sep 2003 12:37:58 GMT
+Date: Wed, 17 Sep 2003 13:37:47 +0100
 From: Dale Amon <amon@vnl.com>
 To: Russell Coker <russell@coker.com.au>
-Cc: Dale Amon <amon@vnl.com>, SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: Trivial debian bootscript for selinuxfs on 2.6
-Message-ID: <20030917121512.GD8988@vnl.com>
-References: <20030916155439.GN8988@vnl.com> <200309172036.48566.russell@coker.com.au> <20030917111027.GA8988@vnl.com>
+Cc: Dale Amon <amon@vnl.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
+   SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: Boot time avc messages
+Message-ID: <20030917123747.GF8988@vnl.com>
+References: <20030915214153.GE8988@vnl.com> <20030916145353.GM8988@vnl.com> <200309172014.59503.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20030917111027.GA8988@vnl.com>
+In-Reply-To: <200309172014.59503.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Sep 17, 2003 at 12:10:27PM +0100, Dale Amon wrote:
-> But how would you know whether you needed to re-pivot 
-> or not? What if you have booted your maintenance kernel
-> or some other that doesn't pivot? The boot script would
-> have to recognize that. I haven't got the test machine
-> booted at the moment so I can't check it the initrd mount
-> has a unique feature that you can find in /proc/mounts.
+On Wed, Sep 17, 2003 at 08:14:59PM +1000, Russell Coker wrote:
+> On Wed, 17 Sep 2003 00:53, Dale Amon wrote:
+> 
+> Here's a new syslogd.te that should solve most of the problems you had.
 
-I suppose you could check for the exitence of an /initrd
-mount and then check that /initrd/selinux exists.
-
+Will this work with Colin's or should I try to interpolate the two?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
