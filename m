@@ -1,60 +1,62 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2CIZ1Rb003089
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 13:35:02 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i2CIXI6Q015637
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 18:33:18 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id i2CIXI5t015634
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 18:33:18 GMT
-Received: from moss-huskies (moss-huskies [144.51.25.7])
-	by epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2CIZ0jP004090
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 13:35:00 -0500 (EST)
-Subject: Updated Release
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-K08Ac9yehodUJxBco3wx"
-Message-Id: <1079116499.9107.292.camel@moss-huskies>
-Mime-Version: 1.0
-Date: 12 Mar 2004 13:34:59 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2CKmhRb003947
+	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 15:48:44 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i2CKmg0F004390
+	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 20:48:42 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i2CKmUgZ004261 for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 20:48:42 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by ns.sws.net.au (Postfix) with ESMTP id ACB1761C19
+	for <selinux@tycho.nsa.gov>; Sat, 13 Mar 2004 07:47:08 +1100 (EST)
+Received: from ns.sws.net.au ([127.0.0.1])
+	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 11874-04 for <selinux@tycho.nsa.gov>;
+	Sat, 13 Mar 2004 07:47:08 +1100 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by ns.sws.net.au (Postfix) with ESMTP id 25F4B61BCE
+	for <selinux@tycho.nsa.gov>; Sat, 13 Mar 2004 07:47:08 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id BFFE42F581
+	for <selinux@tycho.nsa.gov>; Sat, 13 Mar 2004 07:47:05 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Brad Spender and Debian play machine
+Date: Sat, 13 Mar 2004 07:47:03 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200403130747.04033.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+In my latest discussion with Brad Spengler (I made a mistake in spelling his 
+name in my previous message - sorry) I was informed that the incident in 
+question allegedly happened some months ago.
 
---=-K08Ac9yehodUJxBco3wx
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+If the machine had been cracked then any evidence would most likely have 
+disappeared in the course of upgrades to the software on the system and of 
+the disk being repeatedly filled (no chance of undeletion), so it seems 
+hardly worth attempting a forensic examination unless there are claims of any 
+more recent attacks or of continual maintenance of a root-kit.
 
-The SELinux web site <http://www.nsa.gov/selinux/> including the mail
-list archive has been updated. OpenPGP signatures are now available for
-released code. The site includes a new release of the SELinux prototype.
-Experimental SELinux NFS code has been made available. The base kernel
-version for 2.4 has been updated to 2.4.25. The base version for 2.6
-remains 2.6.3, but the SELinux patch has been updated.  Among the
-improvements in this release: Fine-grained boolean labeling support has
-been merged. The userspace AVC has been enhanced to handle netlink
-selinux notifications. MLS improvements have been merged as well as
-updates to slat and the example policy.
+The suggestion that stealth was involved in cracking the machine seems totally 
+incorrect.  Stealth says that he had no involvement in such things and no 
+knowledge of the existence of my play machine.
 
---=20
-Howard Holm <hdholm@epoch.ncsc.mil>
-Secure Systems Research Office
-National Security Agency
+There is no credible evidence for the machine ever having been cracked.
 
---=-K08Ac9yehodUJxBco3wx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+But regardless of this the machine will be removed.  Someone else has 
+expressed interest in running a Debian SE Linux play machine, they seem to 
+have better bandwidth and more time to work on it so the result should be 
+good for users.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQBAUgLT4bzZdP61mHERAg1GAKDenwl3Uo9BzVGt69npzQNeRGR4+ACeI3Of
-4pbjkJDQ+EN+386XXY8kq+w=
-=N6fL
------END PGP SIGNATURE-----
-
---=-K08Ac9yehodUJxBco3wx--
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
