@@ -1,79 +1,76 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA25868
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 09:52:48 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA26132
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 10:17:05 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA14241
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 13:51:21 GMT
-Received: from web40204.mail.yahoo.com (web40204.mail.yahoo.com [66.218.78.65])
-        by jazzband.ncsc.mil  with SMTP id NAA14237 for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 13:51:21 GMT
-Message-ID: <20020627135246.74377.qmail@web40204.mail.yahoo.com>
-Date: Thu, 27 Jun 2002 06:52:46 -0700 (PDT)
-From: Michael Nyika <nyix@yahoo.com>
-Subject: Re: Type Attribute Declarations
-To: Stephen Smalley <sds@tislabs.com>
+	by jazzband.ncsc.mil  with ESMTP id OAA15499
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:15:38 GMT
+Received: from web40017.mail.yahoo.com (web40017.mail.yahoo.com [66.218.78.57])
+        by jazzband.ncsc.mil  with SMTP id OAA15495 for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:15:38 GMT
+Message-ID: <20020627141702.89849.qmail@web40017.mail.yahoo.com>
+Date: Thu, 27 Jun 2002 07:17:02 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Re: Configuration issues on a new installation
+To: Russell Coker <russell@coker.com.au>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <Pine.GSO.4.33.0206270915550.1331-100000@raven>
+In-Reply-To: <20020626224924.43C026E2@lyta.coker.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Related to this, i am also trying to resolve the
-identifiers given to types. 
+Mr. Coker,
 
-Your document "Security Policy Configuration for the
-Security-Enhanced Linux" outlines some on page 5, such
-as "privuser", "privrole" and others. (I understand
-"domain" as an important attribute in defining a
-domain ). Where are "privuser" and the rest in the
-document defined? 
+--- Russell Coker <russell@coker.com.au> wrote:
+> On Wed, 26 Jun 2002 17:10, Brad Chapman wrote:
+> > > It is impossible to answer your question as asked.
+> >
+> >       I apologize for my ambiguity. I assumed that people who had
+> > previously installed SELInux on this list had experienced the same
+> > difficulties setting up a good policy, and that they would have some good
+> > "generic" guidelines for me to follow.
+> 
+> Yes, they probably have.  But most of them seem to have suffered in silence. 
+> 
+> It seems that I'm the only SE Linux user who is spending any time writing 
+> policy files and then publishing them.
+> 
+> > > I suggest that you should start by sending email to this list with
+> > > examples of the operations that are being denied along with the new rules
+> > > that you plan to resolve the issue.  Then Steve and I can advise you on
+> > > whether you are on the correct path towards good SE policy.
+> >
+> >        Attached (MIME) is the output of dmesg with kernel messages edited
+> > out. I have used the newrules.pl utility, manually edited some of the files
+> > under policy/domains/program and policy/file_contexts, and followed some of
+> > the instructions given my others on this list. So far, I have had no luck:
+> > the same messages at the same time for the same reasons.
+> 
+> OK.  At a quick glance these appear to be issues I've already solved in my 
+> tree.  In a few hours I'll update my web site 
+> http://www.coker.com.au/selinux/ with my latest policy (although the version 
+> that's currently there should solve the vast majority of it).
 
-Also, looking at policy/types/network.te , i come
-across "socket_type", "port_type" and others. They
-must have been defined somewhere, right? OR is that
-just a way of GROUPING types with one's own identifers
-(and leaving it at that) so that that particular SET
-of type-attributes must exist/not-exist for certain
-permissions to be granted?...........????
+       Could you please help me fix your Makefile for my system? I can't seem
+to make it compile the policy; it keeps failing with this error:
 
---- Stephen Smalley <sds@tislabs.com> wrote:
-> 
-> On Thu, 27 Jun 2002, Michael Nyika wrote:
-> 
-> > Good day: I have a question and it is about Object
-> > Security Classes. How does one know before hand
-> what
-> > identifiers they can take? For example, i have
-> come
-> > across "file", "capability", "process". In what
-> file
-> > have they been predefined (if at all)?
-> 
-> As explained in the Configuring the SELinux Policy
-> report, the security
-> classes are defined in a configuration file that is
-> shared between the
-> SELinux kernel module and the example policy
-> configuration.  The file is
-> named security_classes and is located under
-> lsm-2.4/security/selinux/flask
-> in the source tree.  The upstream distribution
-> installs it into
-> /usr/local/selinux/flask, while the Debian selinux
-> package install it into
-> /usr/lib/selinux (I think).  There are a set of
-> macros defined for common
-> sets of classes in the
-> selinux/policy/macros/global_macros.te file, as
-> also discussed in the report.
-> 
-> --
-> Stephen D. Smalley, NAI Labs
-> ssmalley@nai.com
-> 
-> 
-> 
+( cd macros/program/ ; for n in *.te ; do echo "define(\`$n')"; done ) >
+tmp/macro_used_flags.te
+/bin/sh: tmp/macro_used_flags.te: No such file or directory
+make: *** [tmp/macro_used_flags.te] Error 1
 
+       I'm running RedHat 6.2 with SELinux installed in /usr/local/selinux. 
+
+Thanks, 
+
+Brad
+
+
+=====
+Brad Chapman
+
+Permanent e-mails: kakadu_croc@yahoo.com
+		   jabiru_croc@yahoo.com
+		   tanami_croc@devel.lbsd.net
 
 __________________________________________________
 Do You Yahoo!?
