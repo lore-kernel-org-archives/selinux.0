@@ -1,73 +1,105 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5RJsW0S015905
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2003 15:54:32 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h5RJsV5e011499
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2003 19:54:31 GMT
+Received: from moss-sooners.epoch.ncsc.mil (moss-sooners.epoch.ncsc.mil [144.51.25.14])
+        by jazzband.ncsc.mil  with ESMTP id h5RJsV92011496 for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2003 19:54:31 GMT
+Received: from moss-sooners.epoch.ncsc.mil (moss-sooners.epoch.ncsc.mil [127.0.0.1])
+	by moss-sooners.epoch.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5RJsUn3012520
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2003 15:54:31 -0400
+Received: (from hdholm@localhost)
+	by moss-sooners.epoch.ncsc.mil (8.12.8/8.12.8/Submit) id h5RJsUsm012518
+	for selinux@tycho.nsa.gov; Fri, 27 Jun 2003 15:54:30 -0400
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5RGpT0S014715
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2003 12:51:29 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5RJik0S015845
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2003 15:44:47 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h5RGofss007401
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2003 16:50:41 GMT
-Received: from citation.av8.net ([130.105.12.4])
-	by jazzswing.ncsc.mil  with ESMTP id h5RGoWhY007382
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2003 16:50:39 GMT
-Date: Fri, 27 Jun 2003 12:45:06 -0400 (EDT)
-From: Dean Anderson <dean@av8.com>
-To: Howard Holm <hdholm@epoch.ncsc.mil>
-cc: selinux-team@epoch.ncsc.mil, <selinux@tycho.nsa.gov>
-Subject: Re: abusive dnsbl's
-In-Reply-To: <1056720378.3993.1696.camel@moss-sooners.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.44.0306271231470.15538-100000@vista.av8.net>
+	by jazzswing.ncsc.mil  with ESMTP id h5RJhwss017060
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2003 19:43:58 GMT
+Received: from MOZART.PatioEnclosuresInc.com (mail.patioenclosuresinc.com [206.183.7.174])
+	by jazzswing.ncsc.mil  with ESMTP id h5RJhvhY017057
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2003 19:43:58 GMT
+Message-ID: <B4E788FBFCD6844F96A017F337797AE167B624@mozart.patioenclosuresinc.com>
+From: "Rottura, Steven" <SRottura@patioenclosuresinc.com>
+To: "'Howard Holm'" <hdholm@epoch.ncsc.mil>
+Cc: selinux-team@epoch.ncsc.mil, selinux@tycho.nsa.gov
+Subject: biometric codecs / hardware signed blackbox-capable interconnecti
+	ve system-resources
+Date: Fri, 27 Jun 2003 15:39:03 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I choose not to give my information to hotmail, so that isn't an option.
+Thanks, I didn't want to get in anybody's hair 9-]   
 
-The only reason I can think I would ever need to communicate with you is
-in regards to SELinux. So, I'd guess this is a meta topic.
-
-BTW, you responded twice to the same message. In your second message, you
-had not previously "told [me] this was off-topic" as you imply. One thing
-I can't tolerate is dishonesty, even by implication.
-
-If you are the moderator, then it sounds like we need a more reasonable
-moderator. So I have created a list selinux@av8.com. Please send
-subscription requests to selinux-request@av8.com This mailing list will be
-archived, and the archives will be kept uptodate.
-
-		--Dean
-
-On 27 Jun 2003, Howard Holm wrote:
-
-> DNSBL's have very little to do with SELinux.  This is off-topic.  Please
-> take it elsewhere.
->
-> On Thu, 2003-06-26 at 18:54, Dean Anderson wrote:
-> > Sorry, I have to send this to the list....
->
-> --
+-----Original Message-----
+From: Howard Holm [mailto:hdholm@epoch.ncsc.mil]
+Sent: Friday, June 27, 2003 3:40 PM
+To: Rottura, Steven
+Subject: Re: (no subject)
 
 
-On 27 Jun 2003, Howard Holm wrote:
+I really encourage you to post your questions with an applicable title
+(e.g., Biometrics) to the selinux list.  I think the wider SELinux
+community should probably be thinking about issues like that.  At the
+moment there are no specific features of SELinux designed to accomodate
+biometric hardware, although I suspect such additions might be useful
+and relatively uncomplicated.  I'm sure others on the SELinux list would
+have insight and opinions.
 
-> No, you didn't have to send it to the list.  I told you this was
-> off-topic.  The SELinux list is not moderated, but our charter is very
-> specific and enforced.  If you insist on sending further off-topic posts
-> to the list we will block your e-mail headers and moderate your posts.
->
-> On Thu, 2003-06-26 at 18:54, Dean Anderson wrote:
-> > Sorry, I have to send this to the list....
->
+On Fri, 2003-06-27 at 15:24, Rottura, Steven wrote:
+> Sorry, I quoted as a reply & that is the only reason that the blocked term
+> was in the text, the original message, FYI, without the text, is below, in
+> case it's worth asking;
+> 
+> -----Original Message-----
+> From: Howard Holm [mailto:hdholm@epoch.ncsc.mil]
+> Sent: Friday, June 27, 2003 3:25 PM
+> To: Rottura, Steven
+> Cc: selinux-team@epoch.ncsc.mil
+> Subject: RE: abusive dnsbl's
+> 
+> 
+> As of this morning, the list filters have been set to block further
+> discussion of <...>  The below message was trapped as a result of
+> its subject and quoting the entire off-topic thread.  Your message has
+> not been forwarded to the SELinux list.  Please resend your message
+> without the off-topic material and an appropriate subject.
+> 
+> The SELinux list is maintained at taxpayer expense to discuss SELinux,
+> and discussion of other topics must be kept to a minimum.
+> 
+> I appologize for the inconvenience.
+> 
 > --
 > Howard Holm <hdholm@epoch.ncsc.mil>
 > Secure Systems Research Office
 > National Security Agency
->
->
-
-
-
-
-
-
+> 
+> On Fri, 2003-06-27 at 15:03, Rottura, Steven wrote:
+> > Room for a future question?
+> > 	Does SELinux ever consider biometric or other specialized hardware
+> > interfacing (i know it's just a patch for linux, but aren't there
+> > specialized devices it should intrinsically be built to deal with) /
+> > specialized hardware for partitioning and protecting each user /
+> > application's priveledge (realtime, on the fly)?  
+> > 	Question two is pointed at the future, I am wondering if users and
+> > processes will be isolated using hardware for 'virtual machines' or the
+> > like; allowing IO between 'virtual machines' so that everything is
+> > absolutely defined and everything is absolutely owned by each item.  I
+> > suppose some of that is already happening, but I was considering whether
+> > hardware facilitated allocation of devices | resources with integrated
+> > permissions, all signed of course, per user and process; might be out
+> there
+> > already for public consumption
+-- 
+Howard Holm <hdholm@epoch.ncsc.mil>
+Secure Systems Research Office
+National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
