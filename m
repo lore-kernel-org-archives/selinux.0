@@ -1,62 +1,30 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA08927
-	for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2002 16:52:07 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id VAA13693
-	for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2002 21:49:49 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id VAA13683
-	for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2002 21:49:47 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Chris Vance <cvance@tislabs.com>
-Subject: Re: new policy
-Date: Thu, 5 Dec 2002 22:51:47 +0100
-Cc: <selinux@tycho.nsa.gov>
-References: <Pine.LNX.4.33.0212051206030.25186-100000@zorg.gw.tislabs.com>
-In-Reply-To: <Pine.LNX.4.33.0212051206030.25186-100000@zorg.gw.tislabs.com>
+To: "Richard Mayo" <rmayo@caci.com>, SELinux@tycho.nsa.gov
+Subject: Re: SE Linux Auditing
+Date: Thu, 5 Dec 2002 23:55:35 +0100
+References: <OFB4BC1BEA.C8493AB0-ON85256C86.00536EFC@caci.com>
+In-Reply-To: <OFB4BC1BEA.C8493AB0-ON85256C86.00536EFC@caci.com>
 MIME-Version: 1.0
-Message-Id: <200212052251.47349.russell@coker.com.au>
+Message-Id: <200212052355.35084.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 5 Dec 2002 18:08, Chris Vance wrote:
-> On Tue, 3 Dec 2002, Russell Coker wrote:
-> > diff -ruN /tmp/policy/domains/program/hwclock.te
-> > ./domains/program/hwclock.te --- /tmp/policy/domains/program/hwclock.te  
-> >    2002-12-03 15:56:40.000000000 +0
-> > 100
-> > +++ ./domains/program/hwclock.te        2002-08-21 20:22:44.000000000
-> > +0200 @@ -45,3 +45,5 @@
-> >  allow hwclock_t ptyfile:chr_file rw_file_perms;
-> >  ifdef(`gnome-pty-helper.te', `allow hwclock_t sysadm_gph_t:fd use;')
-> >
-> > +# hwclock needs to search file_t directories when run from rc.sysinit on
-> > RH8 +allow hwclock_t file_t:dir search;
-> >
-> > For the above change that's recently committed, shouldn't it have
-> > ifdef(`rpm.te', around it?
->
-> I'm just curious why you think this is necessary?  If anything I would
-> have thought something more along the lines of ifdef(`hwclock.te',...)
+On Thu, 5 Dec 2002 16:14, Richard Mayo wrote:
+> Does anybody know if there any tools that could be used to put the SELinux
+> audit logs into a user friendly (human readable) format?  For example, with
+> Solaris there is an Audit Reduction Tool that removes all of the "junk".
 
-Having ifdef(`hwclock.te' makes no sense inside the hwclock.te file.
+What exactly does this ART do?
 
-> would be appropriate.  Neither are really specific to RH systems, and the
-> permission itself isn't that critical.
-
-If something is specific to a particular distribution then it should be 
-surrounded by an appropriate ifdef.  Otherwise the policy for all 
-distributions bloats causing wasted disk space everywhere.  If you want to 
-put SE Linux on devices such as iPaq's then you don't want to be doing such 
-things.
-
-Actually there's probably quite a few things that are Debian specific in the 
-main policy because I'm writing lots of policy and no-one is checking whether 
-it's the same way in other distributions.  We should probably work on these 
-things.
+Being able to sort logs by identity or role would be handy.  But it would be 
+merely a sub-set of a good event logging program.  If I had an immense amount 
+of spare time (or a good sponsoring deal) I'd write a proper event and server 
+management tool.  Something like CA Unicenter but that works (IE doesn't 
+SEGV, doesn't kill servers, doesn't take 60M of RAM per server, and has 
+partial failure modes).
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
