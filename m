@@ -1,64 +1,66 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8P32AsJ021910
-	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 23:02:10 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h8P30QZt020599
-	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 03:00:26 GMT
-Received: from mcfeely.r00td0wn.net (dsl093-212-010.clb1.dsl.speakeasy.net [66.93.212.10])
-	by jazzswing.ncsc.mil  with ESMTP id h8P30PM3020596
-	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 03:00:25 GMT
-Message-ID: <3F725AA4.1090300@diyab.net>
-Date: Wed, 24 Sep 2003 23:01:56 -0400
-From: Diyab <diyab@diyab.net>
-MIME-Version: 1.0
-To: Dale Amon <amon@vnl.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h8P3X8sJ021996
+	for <selinux@tycho.nsa.gov>; Wed, 24 Sep 2003 23:33:08 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h8P3X7CG027527
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 03:33:07 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+        by jazzband.ncsc.mil  with ESMTP id h8P3X4qJ027524 for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2003 03:33:05 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Dale Amon <amon@vnl.com>, SELinux Mail List <selinux@tycho.nsa.gov>
 Subject: Re: ssh policy hassles
-References: <F5441DDE18FFD9418974338018C522B718BDB0@na1fcm61.dearborn.ford.com> <20030924221157.GS21997@vnl.com> <20030924222702.GT21997@vnl.com>
-In-Reply-To: <20030924222702.GT21997@vnl.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Thu, 25 Sep 2003 13:32:53 +1000
+References: <20030923150926.GG21997@vnl.com> <200309242334.55203.russell@coker.com.au> <20030924203129.GQ21997@vnl.com>
+In-Reply-To: <20030924203129.GQ21997@vnl.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200309251332.53496.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dale Amon wrote:
-> On Wed, Sep 24, 2003 at 11:11:57PM +0100, Dale Amon wrote:
-> 
->>I'll have to go to the ssh.te now and figure out why it
->>isn't there already. Seems strange that it isn't if it
->>is commonly accessed.
-> 
-> 
-> I've added this:
-> 
-> # DMA20030924 Added search /var/lib 
-> allow $1 var_lib_t:dir search;
-> 
-> to ssh.te and it gets rid of that avc. I wonder if this
-> is needed in the master policy? Up to Steve I guess.
-> 
+On Thu, 25 Sep 2003 06:31, Dale Amon wrote:
+> avc:  denied  { search } for  pid=654 exe=/usr/sbin/sshd dev=sda2
+> ino=903169 scontext=system_u:system_r:sshd_t
+> tcontext=system_u:object_r:var_lib_t tclass=dir
+
+What is in /etc/passwd for the sshd account?
+
+> The only thing I see that looks even vaguely like a possible
+> target there is /var/lib/urandom.
+
+That's not something that sshd should be accessing.
+
+Does sshd work well without the access?  If so then a dontaudit rule is in 
+order.
+
 > Okay, now I've still one more, and this one is really
 > confusing because ino=48726022 seems not to exist:
-> 
+>
 > 	48726022        <inode not found>
-> 
+>
 > I half wonder if I've got a bad link somewhere. It would
 > be easy enough to add an allow for this, but I'd like
 > to figure out why rather than blindly add things.
-> 
-> avc:  denied  { read } for  pid=743 exe=/usr/sbin/sshd dev= ino=48726022 scontext=system_u:system_r:sshd_t tcontext=system_u:system_r:sshd_t tclass=lnk_file
-> 
+>
+> avc:  denied  { read } for  pid=743 exe=/usr/sbin/sshd dev= ino=48726022
+> scontext=system_u:system_r:sshd_t tcontext=system_u:system_r:sshd_t
+> tclass=lnk_file
 
-I don't get that /var/lib avc error.  Does the login work without that 
-allow rule you added?  If so then maybe it doesn't really need it.
+When you see that a domain is listed as the target (sshd_t is the tcontext) 
+for a file/dir/link_file access then it's an access to /proc/pid .  In this 
+case it's probably access to /proc/self/cwd or something.  In my latest 
+policy I have the following:
+dontaudit sshd_t proc_t:dir search;
 
-Maybe that "bad" link has something to do with it.  unmount /var and run 
-an fsck on it then remount it and see if you still get the error.
-
-Timothy,
+Nothing else is permitted under /proc.
 
 -- 
-I put instant coffee in a microwave and almost went back in time.
-		-- Steven Wright
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
