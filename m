@@ -1,47 +1,59 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA20605
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 11:07:04 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA02224
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 15:05:35 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id PAA02220 for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 15:05:34 GMT
-Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA16162
-	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2002 11:06:59 -0400 (EDT)
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA16404
-	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 16:25:50 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id UAA26729
-	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 20:24:21 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id UAA26725 for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2002 20:24:20 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: <blacknet@simplyaquatics.com>, "'SE Linux'" <selinux@tycho.nsa.gov>
-Subject: Re: new packages
-Date: Sun, 7 Jul 2002 16:25:21 -0400
-References: <005101c2255f$78d8a520$0a01a8c0@ed>
-In-Reply-To: <005101c2255f$78d8a520$0a01a8c0@ed>
-MIME-Version: 1.0
-Message-Id: <20020707202521.B108DFB@lyta.coker.com.au>
+Subject: Re: new LSM ver
+From: Timothy Wood <timothy@hallcomp.com>
+To: Stephen Smalley <sds@tislabs.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <Pine.GSO.4.33.0207081029490.19100-100000@raven>
+References: <Pine.GSO.4.33.0207081029490.19100-100000@raven>
+Content-Type: text/plain; charset=koi8-r
+Date: 08 Jul 2002 11:19:55 -0400
+Message-Id: <1026141595.1724.71.camel@phobos>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 6 Jul 2002 22:39, Ed Street wrote:
-> Where is the kernel patch located at?
+В Пнд, 08.07.2002, в 10:39, Stephen Smalley написал:
+> 
+> On 8 Jul 2002, Timothy Wood wrote:
+> 
+> > So what is going ot be done about root permissions and such since you
+> > are restricting them now?  I mean there are just some things you have to
+> > be root and have root permissions to run.  Are you rewriting everything
+> > to run based on security context instead of user?  That would be ideal,
+> > no I take that back, that would be awesome if things would run based on
+> > security context of the user running them.  Then you could get rid of
+> > root altogether.
+> >
+> > Anywho (sorry for the rant) a really good/simple example of the new
+> > default context is this.  Lets say you want to add a new user... oh
+> > wait, you can't!  Why?  No one but root can do this and now, not even
+> > root can't do it.  Did a primary service, such as named, bail out for
+> > some reason?  Too bad!  You do not have any way to restart it except by
+> > rebooting the server.  Same reason, root only.
+> >
+> > But don't get me wrong.  Getting rid of root is a good idea but it's too
+> > early in the game to make changes like this.  It pretty much breaks the
+> > system in enforcing mode.
+> 
+> I think you've misunderstood what we've done.  We have merely changed the
+> default login context for root to the user_r role, and prohibited direct
+> ssh logins in the sysadm_r role.  For administration, you can still login
+> as yourself, run newrole to change to sysadm_r, and run su to obtain the
+> Linux root user identity.  Or, you can login as root if you permit direct
+> root logins and then run newrole to change to sysadm_r.
+> 
+> The change simply ensures that a vulnerability in sshd does not open a
+> direct path to sysadm_r.  The attacker will not be able to reach sysadm_r
+> without authenticating to newrole.
 
-It's in Debian/unstable, but I've also put it on 
-http://www.coker.com.au/selinux/kern/
+This is true.  You can also merely change the context when you login (if
+you log in as root).  I suppose I jumpped the gun a little there,
+however I do like the idea of severely restricting root or removing root
+altogether.  Would I be correct in that pretty much everything would
+have to be rewritten if this were to be accomplished (the removal of
+root, that is)?
 
--- 
-I do not get viruses because I do not use MS software.
-If you use Outlook then please do not put my email address in your
-address-book so that WHEN you get a virus it won't use my address in the
->From field.
+Timothy,
+
 
 
 --
