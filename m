@@ -1,54 +1,47 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9HFuQWt010125
-	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 11:56:27 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9HJ8xWt011139
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 15:08:59 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9HFuH0p019376
-	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 15:56:17 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h9HFuHr7019373
-	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 15:56:17 GMT
-Subject: Re: Sample config
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Inger, Slav (S.B.)" <vinger@ford.com>
+	by jazzswing.ncsc.mil  with ESMTP id h9HJ8n0p004384
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 19:08:49 GMT
+Received: from dymwsm08.mailwatch.com (dymwsm08.mailwatch.com [204.253.83.44])
+	by jazzswing.ncsc.mil  with ESMTP id h9HJ8mr7004375
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 19:08:49 GMT
+Received: from mwsc0231.mw4.mailwatch.com (mwsc0231.mw4.mailwatch.com [204.253.83.45])
+	by dymwsm08.mailwatch.com (8.12.9/8.12.9) with ESMTP id h9HJ8u2m022105
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 15:08:56 -0400
+Received: from fmpo1.azell.com (fmpo1.azell.com [136.1.7.9])
+	by dymwsm15.mailwatch.com (8.12.9/8.12.9) with ESMTP id h9HJ8sng008622
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2003 15:08:55 -0400
+Message-ID: <752E6D5014672D458A593B5E7A3CD5F56165D5@na1fcm51.dearborn.ford.com>
+From: "Inger, Slav (S.B.)" <vinger@ford.com>
+To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
 Cc: "SELinux ML (E-mail)" <selinux@tycho.nsa.gov>
-In-Reply-To: <752E6D5014672D458A593B5E7A3CD5F56165CD@na1fcm51.dearborn.ford.com>
-References: 
-	 <752E6D5014672D458A593B5E7A3CD5F56165CD@na1fcm51.dearborn.ford.com>
-Content-Type: text/plain
-Message-Id: <1066406183.31764.194.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 17 Oct 2003 11:56:24 -0400
+Subject: RE: Sample config
+Date: Fri, 17 Oct 2003 15:08:49 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-10-17 at 11:38, Inger, Slav (S.B.) wrote:
-> Hi,
-> 
-> In my environment, 'root' has a role of sysadm_r.  Running SELinux in 
-> permissive mode and looking at the avc messages, all violations apply 
-> to the kernel_t context.  Also, all of the processes on the system seem 
-> to be running in kernel_t context as well.  I can use newrules.pl to relax
->  the rules (basically add a bunch of 'allow kernel_t' lines, but that's not
->  the point.  What I would like to demonstrate is that user 'root' can do 
-> all of his normal sysadmin chores EXCEPT kill some process or rm some file.
->   Let's say he shouldn't be able to kill sshd and overwrite or remove 
-> /var/log/messages (but appending is fine).  This is pretty easy to do 
-> with LIDS, I need to know how administratively intensive it is to set 
-> up these rules in SELinux.  What specific rules do I need to 
-> add/remove/change to make what I'm asking for happen?  Thanks in advance.
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@epoch.ncsc.mil]
+Sent: Friday, October 17, 2003 11:56 AM
+To: Inger, Slav (S.B.)
+Cc: SELinux ML (E-mail)
+Subject: Re: Sample config
 
-First, you need to get your system into a working state, which it isn't
-if everything is running in kernel_t.  Did you label your filesystem? 
-Does ls --context /sbin/init show the correct context?  If not, then
-relabel your filesystem and reboot as per the README.  If it is labeled
-correctly, then another possible explanation is that you didn't load the
-policy via an initrd prior to executing /sbin/init, so the domain
-transition didn't occur.  
+> First, you need to get your system into a working state, which it isn't
+> if everything is running in kernel_t.  Did you label your filesystem? 
+> Does ls --context /sbin/init show the correct context?  If not, then
+> relabel your filesystem and reboot as per the README.  If it is labeled
+> correctly, then another possible explanation is that you didn't load the
+> policy via an initrd prior to executing /sbin/init, so the domain
+> transition didn't occur.  
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
 
+Thanks for feedback, Stephen.  Actually, the problem was that initrd wasn't doing the policy load because I forgot to mount -t selinuxfs before policy_load in /linuxrc (I did my own custom ramdisk config).  The policy is loading fine now and I start to see avc messages right from the get go, so that's a good sign.  ps also shows more encouraging results.  I'll have to play with it some more, but it's looking good so far.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
