@@ -1,80 +1,47 @@
-From: "Ed Street" <edstreet@street-tek.com>
-To: <russell@coker.com.au>
-Cc: "'SELinux'" <SELinux@tycho.nsa.gov>
-Subject: RE: apache-ssl mods for Debian
-Date: Mon, 12 Apr 2004 16:14:42 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-In-Reply-To: <200404121629.46537.russell@coker.com.au>
-Message-Id: <20040412201442.A6A473A4058@abyss.simplyaquatics.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3CMxuRb012644
+	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2004 18:59:56 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i3CMxtmw002542
+	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2004 22:59:55 GMT
+Received: from smtp807.mail.sc5.yahoo.com (smtp807.mail.sc5.yahoo.com [66.163.168.186])
+        by jazzband.ncsc.mil  with SMTP id i3CMxs4w002539 for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2004 22:59:54 GMT
+Received: from xtl1.xtl.tenegg.com (localhost.localdomain [127.0.0.1])
+	by xtl1.xtl.tenegg.com (8.12.10/8.12.10) with ESMTP id i3CMxo3K026464
+	for <selinux@tycho.nsa.gov>; Mon, 12 Apr 2004 15:59:50 -0700
+Received: (from mitch@localhost)
+	by xtl1.xtl.tenegg.com (8.12.10/8.12.10/Submit) id i3CMxonW026462
+	for selinux@tycho.nsa.gov; Mon, 12 Apr 2004 15:59:50 -0700
+Date: Mon, 12 Apr 2004 15:59:50 -0700
+From: Tom Mitchell <mitch48@sbcglobal.net>
+To: SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: Re: Logo Artwork for SELinux?
+Message-ID: <20040412225950.GA26151@xtl1.xtl.tenegg.com>
+References: <20040410212453.GA19726@vnl.com> <Pine.LNX.4.44.0404120322400.21241-100000@cirrus.av8.net> <3162.204.169.68.12.1081781856.squirrel@webmail.ods.org> <20040412151408.GA27005@vnl.com> <3192.204.169.68.12.1081783139.squirrel@webmail.ods.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <3192.204.169.68.12.1081783139.squirrel@webmail.ods.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Mon, Apr 12, 2004 at 10:18:59AM -0500, Elvedin Trnjanin wrote:
+> I completely agree with you on that but I doubt many of the forgein
+> developers and users would like....
+> > On Mon, Apr 12, 2004 at 09:57:36AM -0500, Elvedin Trnjanin wrote:
+> >> I suggest we avoid any preference to a country or orginization...
 
-This time I get the following. 
+Well the good guys once wore white hats.
 
-When I start apache-ssl, run_init /etc/init.d/apache-ssl I get the
-following.
-
-
-avc:  denied  { read } for  pid=12580 exe=/usr/sbin/run_init
-path=pipe:[4995] dev= ino=4995 scontext=blacknet:sysadm_r:run_init_t
-tcontext=blacknet:sysadm_r:sysadm_su_t tclass=fifo_file
-
-avc:  denied  { getattr } for  pid=12580 exe=/usr/sbin/run_init
-path=/proc/12580/mounts dev= ino=824442896
-scontext=blacknet:sysadm_r:run_init_t tcontext=blacknet:sysadm_r:run_init_t
-tclass=file
-
-avc:  denied  { getattr } for  pid=12581 exe=/sbin/unix_chkpwd
-path=/proc/12581/mounts dev= ino=824508432
-scontext=blacknet:sysadm_r:sysadm_chkpwd_t
-tcontext=blacknet:sysadm_r:sysadm_chkpwd_t tclass=file
-
-avc:  denied  { read } for  pid=12583 exe=/bin/bash name=selinux dev=hda3
-ino=1785904 scontext=system_u:system_r:initrc_t
-tcontext=system_u:object_r:policy_src_t tclass=lnk_file
-
-avc:  denied  { read } for  pid=12582 exe=/bin/bash name=selinux dev=hda3
-ino=1785904 scontext=system_u:system_r:initrc_t
-tcontext=system_u:object_r:policy_src_t tclass=lnk_file
-
-avc:  denied  { search } for  pid=12587 exe=/usr/sbin/apache-ssl
-name=apache-ssl dev=hda3 ino=2457683 scontext=system_u:system_r:httpd_t
-tcontext=system_u:object_r:httpd_exec_t tclass=dir
-
-avc:  denied  { search } for  pid=12588 exe=/usr/sbin/apache-ssl
-name=apache-ssl dev=hda3 ino=2457683 scontext=system_u:system_r:httpd_t
-tcontext=system_u:object_r:httpd_exec_t tclass=dir
-
-avc:  denied  { search } for  pid=12589 exe=/usr/sbin/apache-ssl
-name=apache-ssl dev=hda3 ino=2457683 scontext=system_u:system_r:httpd_t
-tcontext=system_u:object_r:httpd_exec_t tclass=dir
-
-avc:  denied  { search } for  pid=12591 exe=/usr/sbin/apache-ssl
-name=apache-ssl dev=hda3 ino=2457683 scontext=system_u:system_r:httpd_t
-tcontext=system_u:object_r:httpd_exec_t tclass=dir
-
-When I lynx https://localhost/ I get the following.
+A more general solution might be to have a "haberdashery" dir that is
+full of hats and other contributed head coverings, buttons and what
+not.  With digital methods it should be possible to take any base
+image of a hat on a contrasting background and reduce it to logos,
+icons, buttons and what ever.
 
 
-avc:  denied  { write } for  pid=12592 exe=/usr/sbin/apache-ssl
-name=gcache_port dev=hda3 ino=2539552 scontext=system_u:system_r:httpd_t
-tcontext=system_u:object_r:var_run_t tclass=sock_file
-
-This is why I used r_dir_file and the exec line, it was the closest match I
-could find to what I needed.
-
-Ed
-
----
-
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.656 / Virus Database: 421 - Release Date: 4/9/2004
- 
-
+-- 
+	T o m  M i t c h e l l 
+	/dev/null the ultimate in secure storage.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
