@@ -1,46 +1,44 @@
-Subject: SSH not relabeling "user_u" pts's properly
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <bs-f-vazquez@bs.rd.nttdata.co.jp>
-To: Russell Coker <russell@coker.com.au>
-Cc: SELinux@tycho.nsa.gov
-Content-Type: text/plain
-Message-Id: <1081932262.18446.58.camel@volcano.rd.nttdata.co.jp>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3E930Rb027548
+	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 05:03:00 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i3E92xmw018994
+	for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 09:02:59 GMT
+Received: from nox.lemuria.org ([213.191.86.35])
+        by jazzband.ncsc.mil  with ESMTP id i3E92w4w018991 for <selinux@tycho.nsa.gov>; Wed, 14 Apr 2004 09:02:58 GMT
+Date: Wed, 14 Apr 2004 11:02:42 +0200
+From: Tom <tom@lemuria.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Fedora Core 2 Test 2
+Message-ID: <20040414110242.C26635@lemuria.org>
+References: <1081459652.24857.33.camel@hawaii.efficax.net> <32926.192.168.1.3.1081469476.squirrel@www> <200404121728.59270.russell@coker.com.au>
 Mime-Version: 1.0
-Date: Wed, 14 Apr 2004 17:44:22 +0900
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200404121728.59270.russell@coker.com.au>; from russell@coker.com.au on Mon, Apr 12, 2004 at 05:28:59PM +1000
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Last week I decided to update my SELinux machine to the latest stable
-kernel version (2.6.5). Since I am using Debian and the policy package
-is outdated I made my own package using the latest upstream version. To
-relabel the user files properly the new version of "genhomedircon" is
-also needed, thus "policycoreutils" has to be downloaded from the
-SELinux's home page (the Debian version is too old and the file_contexts
-file is not generated properly).
+On Mon, Apr 12, 2004 at 05:28:59PM +1000, Russell Coker wrote:
+> On Fri, 9 Apr 2004 10:11, "Kerry Thompson" <kerry@crypt.gen.nz> wrote:
+> > I'm advising people that if they're not interested in SELinux or are
+> > installing a desktop for their granny then disable with selinux=0.
+> 
+> I think that a granny's desktop system is an ideal machine for SE Linux.  Such 
+> machines often don't get upgraded as often as you might like and you want as 
+> many security options as possible!
 
-After doing this I found out that I was no longer able to login via SSH
-as a normal user in the user_t domain. The reason was that pts would not
-transit to the expected "user_u:object_r:user_devpts_t" type. Instead,
-it ended up with the "system_u:object_r:sshd_devpts_t" type. Under this
-conditions, of course, the connection is closed right after successfully
-being authenticated. Surprisingly, logins as the root user were still
-working and the pts adequately relabeled as
-"root:object_r:staff_devpts_t".
+Plus granny is unlikely to fool around and thus can comfortably live in
+a restricted environment.
 
-Since I needed to login as an unprivileged user I temporarily granted
-"allow user_t sshd_devpts_t:chr_file { read write ioctl };" and started
-to investigate what was going wrong. First of all I recompiled and
-installed the latest version of checkpolicy, load_policy, setfiles and
-pam_selinux.so, but this didn't solve anything.
+I know that for me, my own machines are the ones with the most relaxed
+security settings, because I constantly install, tweak, tune, and
+generally mess with stuff.
 
-After checking the policy thoroughly I could not find any bug and this
-is why I would like to know if someone else is experiencing the same
-problem.
 
-Finally I would like to offer my help (if needed) to keep the Debian
-packages updated.
-
-Thanks in advance.
-
+-- 
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
