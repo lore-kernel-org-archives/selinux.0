@@ -1,62 +1,56 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i01G5aRb022736
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2004 11:05:37 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i01GmPRb022813
+	for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2004 11:48:25 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i01G4cxr006669
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2004 16:04:38 GMT
+	by jazzswing.ncsc.mil  with ESMTP id i01GlRxr007962
+	for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2004 16:47:27 GMT
 Received: from maja.beep.pl (smtp.sys.beep.pl [195.245.198.13])
-	by jazzswing.ncsc.mil  with ESMTP id i01G4bYc006666
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2004 16:04:37 GMT
+	by jazzswing.ncsc.mil  with ESMTP id i01GlQYc007959
+	for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2004 16:47:26 GMT
 Received: from [195.245.198.2] (helo=gucio.beep.pl ident=exim)
 	by maja.beep.pl with esmtp (TLSv1:EDH-RSA-DES-CBC3-SHA:168)
 	(Exim 4.30)
-	id 1Ac5Bv-0001Vo-Ib
-	for selinux@tycho.nsa.gov; Thu, 01 Jan 2004 16:56:55 +0100
+	id 1Ac5rc-0003Na-Sq
+	for selinux@tycho.nsa.gov; Thu, 01 Jan 2004 17:40:00 +0100
 Received: from [156.17.236.105] (helo=192.168.2.2 ident=arekm-m1)
 	by gucio.beep.pl with asmtp (TLSv1:RC4-MD5:128)
 	(Exim 4.30)
-	id 1Ac5Jz-0006tU-NN
-	for selinux@tycho.nsa.gov; Thu, 01 Jan 2004 17:05:15 +0100
+	id 1Ac5zh-0001nE-Kv
+	for selinux@tycho.nsa.gov; Thu, 01 Jan 2004 17:48:21 +0100
 From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
 To: selinux@tycho.nsa.gov
-Subject: modification of vixie-cron patch to get crond working in permissive mode
-Date: Thu, 1 Jan 2004 17:05:12 +0100
+Subject: Re: modification of vixie-cron patch to get crond working in permissive mode
+Date: Thu, 1 Jan 2004 17:48:19 +0100
+References: <200401011705.12427.arekm@pld-linux.org>
+In-Reply-To: <200401011705.12427.arekm@pld-linux.org>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_4UE9/eDIblEchHw"
-Message-Id: <200401011705.12427.arekm@pld-linux.org>
+  boundary="Boundary-00=_T9E9/oQFl6JfoIb"
+Message-Id: <200401011748.19883.arekm@pld-linux.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---Boundary-00=_4UE9/eDIblEchHw
+--Boundary-00=_T9E9/oQFl6JfoIb
 Content-Type: text/plain;
   charset="iso-8859-2"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hi,
-
-This patch should be applied after fedora core selinux patch for vixie-cron=
+On Thursday 01 of January 2004 17:05, you wrote:
+> This patch should be applied after fedora core selinux patch for vixie-cr=
+on
+> (probably the same as on nsa.gov/selinux page).
+I've modified it a little to do not display error message to stderr when in=
 =20
-(probably the same as on nsa.gov/selinux page).
+permissive mode (it would generate email message for each such job=20
+execution).
 
-It changes behaviour when running selinux in permissive mode. Until now whe=
-n=20
-there were no known context with which jobs should be executed then error=20
-message was logged and crontab file was skipped. Now error message is logge=
-d=20
-but jobs are still run.
-
-It's better to have working crond + bunch of log messages instead of not=20
-usable crond.
-
-Please apply + rediff new selinux patch.
 =2D-=20
 Arkadiusz Mi=B6kiewicz    CS at FoE, Wroclaw University of Technology
 arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
 
---Boundary-00=_4UE9/eDIblEchHw
+--Boundary-00=_T9E9/oQFl6JfoIb
 Content-Type: application/octet-stream;
   name="vixie-cron-selinux-pld.patch"
 Content-Transfer-Encoding: 7bit
@@ -64,8 +58,8 @@ Content-Disposition: attachment;
 	filename="vixie-cron-selinux-pld.patch"
 
 diff -urN vixie-cron-3.0.1.org/database.c vixie-cron-3.0.1/database.c
---- vixie-cron-3.0.1.org/database.c	2004-01-01 16:37:48.651341944 +0100
-+++ vixie-cron-3.0.1/database.c	2004-01-01 16:58:42.478731208 +0100
+--- vixie-cron-3.0.1.org/database.c	2004-01-01 16:37:48.000000000 +0100
++++ vixie-cron-3.0.1/database.c	2004-01-01 16:58:42.000000000 +0100
 @@ -350,8 +350,13 @@
  	  int retval=0;
  
@@ -118,9 +112,9 @@ diff -urN vixie-cron-3.0.1.org/database.c vixie-cron-3.0.1/database.c
  #endif
  	u = load_user(crontab_fd, pw, fname);
 diff -urN vixie-cron-3.0.1.org/do_command.c vixie-cron-3.0.1/do_command.c
---- vixie-cron-3.0.1.org/do_command.c	2004-01-01 16:37:48.707333432 +0100
-+++ vixie-cron-3.0.1/do_command.c	2004-01-01 16:56:33.269374016 +0100
-@@ -280,14 +280,21 @@
+--- vixie-cron-3.0.1.org/do_command.c	2004-01-01 16:37:48.000000000 +0100
++++ vixie-cron-3.0.1/do_command.c	2004-01-01 17:15:05.377307912 +0100
+@@ -280,14 +280,19 @@
  			if (is_selinux_enabled()) {
  			  security_context_t scontext;
  			  if (get_default_context(u->name, NULL, &scontext)) {
@@ -129,15 +123,13 @@ diff -urN vixie-cron-3.0.1.org/do_command.c vixie-cron-3.0.1/do_command.c
 +			    if (security_getenforce() > 0) {
 +    				fprintf(stderr, "execle: couldn't get security context for user %s\n", u->name); 
 +    				_exit(ERROR_EXIT);
-+			    } else
-+				fprintf(stderr, "execle: couldn't get security context for user %s but SELinux in permissive mode, continuing\n", u->name);
++			    }
 +			  } else {
 +    			      if (setexeccon(scontext) < 0) {
 +				  if (security_getenforce() > 0) {
 +				      fprintf(stderr, "Could not set exec context to %s for user  %s\n", scontext,u->name);
 +    				      _exit(ERROR_EXIT);
-+				  } else
-+				      fprintf(stderr, "Could not set exec context to %s for user  %s but SELinux in permissive mode, continuing\n", scontext,u->name);
++				  }
 +    			      }
 +    			      freecon(scontext);
  			  }
@@ -150,7 +142,7 @@ diff -urN vixie-cron-3.0.1.org/do_command.c vixie-cron-3.0.1/do_command.c
  #endif
  			execle(shell, shell, "-c", e->cmd, (char *)0, e->envp);
 
---Boundary-00=_4UE9/eDIblEchHw--
+--Boundary-00=_T9E9/oQFl6JfoIb--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
