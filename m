@@ -1,46 +1,36 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA03108
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2001 09:06:45 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA04560
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2001 12:03:29 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA18293
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2001 14:06:35 GMT
-Received: from staffnet.com (staffnet.com [207.226.80.14])
-	by jazzband.ncsc.mil  with ESMTP id OAA18289
-	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2001 14:06:34 GMT
-Message-ID: <3AA791EE.8E90634E@staffnet.com>
-Date: Thu, 08 Mar 2001 09:06:38 -0500
-From: Wade Hampton <whampton@staffnet.com>
-MIME-Version: 1.0
+	by jazzband.ncsc.mil  with ESMTP id RAA27393
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2001 17:03:19 GMT
+Received: from web9307.mail.yahoo.com (web9307.mail.yahoo.com [216.136.129.56])
+	by jazzband.ncsc.mil  with SMTP id RAA27389
+	for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2001 17:03:19 GMT
+Message-ID: <20010308170327.48932.qmail@web9307.mail.yahoo.com>
+Date: Thu, 8 Mar 2001 09:03:27 -0800 (PST)
+From: Dan DeVries <ddevries2000@yahoo.com>
+Subject: make errors with policy
 To: selinux@tycho.nsa.gov
-Subject: RedHat 7.0?
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-ID: <selinux@tycho.nsa.gov>
 
-Greetings,
+I had a bizarre error when making and installing the
+policy for both a Redhat 6.1 and Redhat 6.2
+it said 
+make* [Policy] error 127
 
-Has anyone built slinux on RedHat 7.0, 7.0 patched
-to latest GCC, or 7.9x (Fisher or Wolverine)?
-I am trying to build it with 7.0 patched running
-in VMWare and am getting build errors:
+What is an error 127 when doing a make install in
+policy
 
-Multiple warnings on "%eax" used instead of "%ax" due to 'l' suffix....
-...
+-Dan
 
-Checksum.S:231  badly punctuated parameter list in #define
-Checksum.S:237  badly punctuated parameter list in #define
-
-make[2]:  *** [checksum.o] error 1
-make[1]:  *** [first_rule] error 2
-make: *** [_dir_arch/i386/lib] error 2
-
-Cheers,
--- 
-W. Wade, Hampton  <whampton@staffnet.com>  
-If Microsoft Built Cars:  Every time they repainted the 
-lines on the road, you'd have to buy a new car.
-Occasionally your car would just die for no reason, and 
-you'd have to restart it, but you'd just accept this.
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/
 
 --
 You have received this message because you are subscribed to the selinux list.
