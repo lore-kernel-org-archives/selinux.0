@@ -1,44 +1,67 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7QAnTrT012013
-	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 06:49:29 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7QAn2rT011996
+	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 06:49:02 -0400 (EDT)
 Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7QAnR0g008139
-	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 10:49:28 GMT
-Date: Thu, 26 Aug 2004 12:00:41 +0100
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7QAn00g008127
+	for <selinux@tycho.nsa.gov>; Thu, 26 Aug 2004 10:49:00 GMT
+Date: Thu, 26 Aug 2004 12:00:11 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Erich Schubert <erich@debian.org>
+To: Russell Coker <russell@coker.com.au>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: policy mods for xfs (to support xfstt and xfs-xtt)
-Message-ID: <20040826110041.GC6382@lkcl.net>
-References: <20040823232812.GB12720@lkcl.net> <200408252124.12152.russell@coker.com.au> <20040825132834.GB4241@lkcl.net> <1093472168.3759.5.camel@wintermute.xmldesign.de>
+Subject: Re: policy patch for tunable "/dev/hdc is removable drive"
+Message-ID: <20040826110011.GB6382@lkcl.net>
+References: <20040823214228.GA13677@lkcl.net> <200408252357.08855.russell@coker.com.au> <20040825162035.GA7260@lkcl.net> <200408260951.48939.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1093472168.3759.5.camel@wintermute.xmldesign.de>
+In-Reply-To: <200408260951.48939.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Aug 26, 2004 at 12:16:08AM +0200, Erich Schubert wrote:
-> Hi,
-> are you aware that X11 does support TrueType fonts out of the box since
-> version 4, removing the need for a truetype font server?
- 
- *lol*.
-
- noooo :)
-
-> In fact, in my experience it is best to avoid using font servers unless
-> you have a reason to do so (for example with thin clients, where you do
-> not want or maybe even cannot copy the fonts to the xserver itself)
+On Thu, Aug 26, 2004 at 09:51:48AM +1000, Russell Coker wrote:
+> On Thu, 26 Aug 2004 02:20, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > > udev uses the same file_contexts file, so it should work.  The only
+> > > possible problem I can think of is that if you have a machine which boots
+> > > without IDE disk access and which has no IDE modules loaded at the time
+> > > that it has the file_contexts file generated then this would not work
+> > > (think of servers that have IDE CD-ROM or DVD drives but hardware RAID or
+> > > SCSI for main storage).
+> > >
+> > > Of course this is not necessarily a problem, Fedora kernels have the IDE
+> > > drivers statically linked into the kernel, and there were some issues
+> > > last time I tried building a Debian kernel with IDE as a module so the
+> > > number of people who might get hit by this is very small.
+> >
+> >  ... initrd.  initial ramdisk.  contains all ide drivers, 'n'stuff.
 > 
-> I'd suggest you to only install and use stuff that is needed. The more
-> you install, the more resources are needed, the longer the startup
-> takes, and the more likely security issues will arise. (Even when a
-> security issue with the font server is likely do be limited in damage by
-> selinux, you still do not want it)
+> Last time I was doing this there were some kernel bugs related to IDE drivers.  
+> One of which was having two drivers which need symbols that the other exports 
+> (so it was impossible to load them).  At the time almost no testing was being 
+> done on this and it didn't seem that the problem was going to be fixed in a 
+> reasonable amount of time.
+> 
+> I gave up using an initrd in Debian at about the same time.  The problem was 
+> that the Debian mkinitrd program tried to work out too many things about the 
+> system by itself.  This made it difficult if it's guesses were wrong, or if 
+> you wanted to prepare an initrd for a different configuration (either for a 
+> significant configuration change or making an initrd for use on another 
+> machine).
+ 
+ there was indeed a wobbly period a few months ago where you couldn't
+ even _use_ make-kpkg if you had some particular version of
+ module-init-tools but didn't back-pedal to some earlier version of
+ some package.
 
- okay, i get rid of them.
+ i had to do the make-kpkg with one version the package, wait for the
+ error and the exit, install the latest version and then carry on.
 
- thanks.
+ but the dust appears to have settled now.
+
+ i get around the problems you describe by having the same kernel on my
+ build machine as on my target.
+
+ i can then add scripts to /etc/mkinitrd/files to do "weird" things like
+ mount a cd, mount a tmpfs, unpack a .tgz from the CD into the tmpfs and
+ then chroot to the tmpfs, with impunity.
 
  l.
 
