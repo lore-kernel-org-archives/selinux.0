@@ -1,40 +1,24 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBSKWWIi024529
-	for <selinux@tycho.nsa.gov>; Tue, 28 Dec 2004 15:32:32 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBSKUiGx029093
-	for <selinux@tycho.nsa.gov>; Tue, 28 Dec 2004 20:30:44 GMT
-Subject: Re: pam_selinux when selinux is disabled
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1104264941.21391.140.camel@moss-spartans.epoch.ncsc.mil>
-References: <20041228202032.GA5296@lkcl.net>
-	 <1104264941.21391.140.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBT1thIi025720
+	for <selinux@tycho.nsa.gov>; Tue, 28 Dec 2004 20:55:43 -0500 (EST)
+Received: from hawaii.grays-systems.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBT1tjLa008761
+	for <selinux@tycho.nsa.gov>; Wed, 29 Dec 2004 01:55:45 GMT
+Received: (from nick@localhost)
+	by hawaii.grays-systems.com (8.13.1/8.13.1/Submit) id iBT1tkwl005227
+	for selinux@tycho.nsa.gov; Tue, 28 Dec 2004 19:55:46 -0600
+Subject: system auditing or event logging facilities
+From: Nick Gray <nick-lists@austin.rr.com>
+To: SELinux ML <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Message-Id: <1104265628.21391.152.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 28 Dec 2004 19:55:46 -0600
+Message-Id: <1104285346.22401.75.camel@hawaii.grays-systems.com>
 Mime-Version: 1.0
-Date: Tue, 28 Dec 2004 15:27:08 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-12-28 at 15:15, Stephen Smalley wrote:
-> On Tue, 2004-12-28 at 15:20, Luke Kenneth Casson Leighton wrote:
-> > does anyone know what happens when selinux is disabled and pam_selinux
-> > is being used [by login, ssh, kdm, whatever]?
-> 
-> I believe that pam_selinux checks is_selinux_enabled() and bails
-> immediately with PAM_SUCCESS if SELinux is not enabled; check the
-> current pam_selinux module in the recently opened Fedora Core public CVS
-> tree (see http://cvs.fedora.redhat.com/core.shtml).
-
-BTW, sshd is no longer using pam_selinux; we had to go back to a direct
-patch due to changes in the upstream sshd.
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+I am looking into C2/Capp auditing/event logging. Has there been any
+work on this in regards to SELinux ?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
