@@ -1,43 +1,48 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h37LjiI4018438
-	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2003 17:45:44 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h382THI4019232
+	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2003 22:29:17 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h37LjXxH025969
-	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2003 21:45:33 GMT
-Received: from mx.nas-smoothtransition.com (nas-vm-156.nas-smoothtransition.com [66.95.157.156] (may be forged))
-        by jazzband.ncsc.mil  with ESMTP id h37LjWDl025886 for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2003 21:45:32 GMT
-From: "david caplan" <dac@tresys.com>
-To: "Russell Coker" <russell@coker.com.au>, <selinux@tycho.nsa.gov>
-Subject: RE: usermod/group* patch
-Date: Mon, 7 Apr 2003 17:45:16 -0400
-Message-ID: <GBEAJBKHFOBIBBJBCGAGMEJCCLAA.dac@tresys.com>
+	by jazzband.ncsc.mil  with ESMTP id h382TExH005479
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 02:29:14 GMT
+Received: from windowpane.com (ip57.gte1.rb1.bel.nwlink.com [209.20.131.57])
+        by jazzband.ncsc.mil  with ESMTP id h382TDDl005476 for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2003 02:29:14 GMT
+Message-ID: <001d01c2fd77$1721c5a0$398314d1@windowpane.com>
+From: "ccallen" <ccallen@windowpane.com>
+To: <selinux@tycho.nsa.gov>
+Subject: NTFS / bitkeeper problem
+Date: Mon, 7 Apr 2003 19:32:24 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
-In-Reply-To: <200303301127.05440.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In trying out the new policy I rn across a problem with userdel (which uses
-the useradd.te policy).  I got a denied { rmdir } on a user's home directory
-when I tried to remove the account.
+I kicked off bitkeeper with "bk clone bk://lsm.bkbits.net:lsm-2.5", it made
+it as far as "include/linux/netfilter_ipv4/SCCS/s.ipt_dscp.h" and displayed
+the message below. Is it going to be impossible to clone the repository to
+NTFS, or is there a way to do this? I could put my linux machine online, but
+I wanted to get selinux configured first.
 
-I'm not sure when this was changed, but the useradd_t user_home_dir_t
-directory line went from:
+Is the Mainline 2.5 basically the same thing as the lsm-2.5 bits, just
+cleaned up in preperation for release with the kernel?
 
-file_type_auto_trans(useradd_t, home_root_t, user_home_dir_t)
+Conan
 
-to
-
-file_type_auto_trans(useradd_t, home_root_t, user_home_dir_t, dir)
-
-Specifying the 'dir' results in useradd_t not getting rmdir permission
-(necessary for userdel when removing the account's home directory).  This is
-because file_type_auto_trans (actually its subcall to file_type_trans) only
-gives create_file_perms when a fourth argument is given.  When a fourth
-argument is not specified file_type_trans produces two relevant rules, one
-of which grants the target type (arg 3) of class dir, create_dir_perms.
-
+Bitkeeper Message
+==========================================================================
+Sfio has detected a name conflict between
+"include/linux/netfilter_ipv4/SCCS/s.i
+pt_dscp.h" and "include/linux/netfilter_ipv4/SCCS/s.ipt_DSCP.h";
+This usually happens when you transfer file from a case-sensitive file
+system (e.g. Unix) to a case insensitive file system (e.g FAT, NTFS)
+Please rename one of the files and retry (see also "bk helptool mv")
+Note: You must do the rename in the sending repository.
+==========================================================================
+write on fd gzip_in gunzip2fd: Broken pipe
+ERROR: process 304 is exiting and it has left the repository at
+. write locked!!  This is the result of a process that has been
+killed prematurely or is a bug.
+socket2pipe: reader error 2
 
 
 --
