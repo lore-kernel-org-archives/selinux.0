@@ -1,39 +1,35 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA08458
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jul 2002 08:36:11 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id MAA29218
-	for <selinux@tycho.nsa.gov>; Fri, 5 Jul 2002 12:34:44 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-        by jazzband.ncsc.mil  with ESMTP id MAA29214 for <selinux@tycho.nsa.gov>; Fri, 5 Jul 2002 12:34:43 GMT
-Date: Fri, 5 Jul 2002 08:35:19 -0400 (EDT)
+Date: Fri, 5 Jul 2002 08:33:35 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Brad Chapman <jabiru_croc@yahoo.com>
-cc: Grant Bayley <gbayley@ausmac.net>, <selinux@tycho.nsa.gov>
-Subject: Re: Updated Release
-In-Reply-To: <20020704155325.1577.qmail@web40019.mail.yahoo.com>
-Message-ID: <Pine.GSO.4.33.0207050833481.29942-100000@raven>
+To: <gdsmarshall@hushmail.com>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: This does not look correct....
+In-Reply-To: <200207041319.g64DJ8448572@mailserver2.hushmail.com>
+Message-ID: <Pine.GSO.4.33.0207050830480.29942-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 4 Jul 2002, Brad Chapman wrote:
+On Thu, 4 Jul 2002 gdsmarshall@hushmail.com wrote:
 
->          I'm sorry, but I can't seem to find this Mr. Howard's post in the
-> hypermail archives. Have they been updated yet? (IIRC, they are updated only
-> when a new release of selinux is made)
+> I know I have not been trying to configure SELinux for very long, but this does not look correct to me.  Should ssh have a getty_t definision?  I know it needs one to prevent this error message, but is it correct for ssh to have a getty_t definision?
+>
+> Jul  4 08:05:33 gatekeeper kernel: avc:  denied  { use } for  pid=339 exe=/usr/b
+> in/ssh path=/dev/tty3 dev=03:01 ino=71770 scontext=root:sysadm_r:sysadm_ssh_t tc
+> ontext=system_u:system_r:getty_t tclass=fd
+>
+> I am running debian (woody), with kernel from NSA, and packages from Russell's site.
 
-A new release was made on July 3rd, followed by Howard's announcement
-(which naturally won't show up in the archives at the NSA site, as it
-occurred after the release).  However, you can see it in the
-http://marc.theaimsgroup.com/?l=selinux list archives (and you should have
-received a copy if you are subscribed).
+This indicates that the ssh client program is inheriting a descriptor
+originally opened by getty.  This doesn't show up on our RedHat systems -
+we only need to grant fd use permission to the login domains
+(local_login_t), but it seems harmless to grant this permission.
 
 --
 Stephen D. Smalley, NAI Labs
 ssmalley@nai.com
+
 
 
 
