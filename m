@@ -1,25 +1,26 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAG8hnIi028845
-	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 03:43:49 -0500 (EST)
-Received: from passage.avira.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAG8hpFO004006
-	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 08:43:52 GMT
-Message-ID: <4199C4CC.5030102@gentoo.org>
-Date: Tue, 16 Nov 2004 11:13:48 +0200
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAG8unIi028887
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 03:56:49 -0500 (EST)
+Received: from passage.avira.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAG8tKAa011510
+	for <selinux@tycho.nsa.gov>; Tue, 16 Nov 2004 08:55:22 GMT
+Message-ID: <4199C7EE.7080605@gentoo.org>
+Date: Tue, 16 Nov 2004 11:27:10 +0200
 From: petre rodan <kaiowas@gentoo.org>
 MIME-Version: 1.0
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>, selinux@tycho.nsa.gov
-Subject: Re: gentoo policy for dante
-References: <4198E94B.8070008@gentoo.org> <20041116082954.GC2546@jmh.mhn.de>
-In-Reply-To: <20041116082954.GC2546@jmh.mhn.de>
+To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+CC: selinux@tycho.nsa.gov
+Subject: Re: gentoo diff for snmpd
+References: <4198D752.2020405@gentoo.org> <20041116081610.GA2546@jmh.mhn.de>
+In-Reply-To: <20041116081610.GA2546@jmh.mhn.de>
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enig69EC1B4EF015C53C695A40B0"
+ boundary="------------enig027101C95639A90CB4D19796"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig69EC1B4EF015C53C695A40B0
+--------------enig027101C95639A90CB4D19796
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -27,25 +28,21 @@ Content-Transfer-Encoding: 7bit
 Hi Thomas,
 
 Thomas Bleher wrote:
-> * petre rodan <kaiowas@gentoo.org> [2004-11-15 19:35]:
+> * petre rodan <kaiowas@gentoo.org> [2004-11-15 18:04]:
 > 
->>policy for dante [1], attached
->>
->>
->>type socks_port_t, port_type;
+>>gentoo as a special context for /proc/net:
+>>genfscon proc /net  system_u:object_r:proc_net_t
 > 
 > 
-> The net_contexts part is missing.
-> 
-> Apart from the issues mentioned in my mails, all policies look very
-> fine.
+> This seems generally useful.
+> Care to provide a patch which adds this genfscon line plus the necessary
+> policy?
 > 
 > Thomas
 
-the port the daemon binds to is configurable, but according to RFC 1700, socks should go to 1080.
+Chris is currently working on a base-policy patch that will be sent here. I'm not sure if that will also contain proc_net-related rules.
 
-so we have in the net_contexts:
-ifdef(`dante.te', `portcon tcp 1080 system_u:object_r:socks_port_t')
+If he wants it, I can come up with a diff about this issue.
 
 bye,
 peter
@@ -56,7 +53,7 @@ petre rodan
 Developer,
 Hardened Gentoo Linux
 
---------------enig69EC1B4EF015C53C695A40B0
+--------------enig027101C95639A90CB4D19796
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -65,12 +62,12 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.2.6 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFBmcTeGSBEIeh4AEYRAjZyAJ4glVW7yLMziRFD0ixyNxptZTbsOQCfeLxC
-WHYHAl3896NvfBhW2L5QLHQ=
-=M741
+iD4DBQFBmcfuGSBEIeh4AEYRAgK8AJ4uqeKo3XpBsoevD5gABqttojaURQCY0b9J
+7eJodyp3SZegLdICiPMFdQ==
+=zLfm
 -----END PGP SIGNATURE-----
 
---------------enig69EC1B4EF015C53C695A40B0--
+--------------enig027101C95639A90CB4D19796--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
