@@ -1,284 +1,432 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2D5YODo016180
-	for <selinux@tycho.nsa.gov>; Sun, 13 Mar 2005 00:34:24 -0500 (EST)
-Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2D5QKj3010536
-	for <selinux@tycho.nsa.gov>; Sun, 13 Mar 2005 05:26:20 GMT
-Subject: user_trans/user_trans_boolean macro
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: selinux@tycho.nsa.gov
-Cc: dwalsh@redhat.com
-Content-Type: multipart/mixed; boundary="=-avykLzj+dOqVihodNSpo"
-Date: Sun, 13 Mar 2005 00:33:36 -0500
-Message-Id: <1110692016.29852.77.camel@cobra.ivg2.net>
-Mime-Version: 1.0
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2DGfjDo017657
+	for <selinux@tycho.nsa.gov>; Sun, 13 Mar 2005 11:41:46 -0500 (EST)
+Received: from mail-old.asahi-net.or.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2DGXdj3022589
+	for <selinux@tycho.nsa.gov>; Sun, 13 Mar 2005 16:33:40 GMT
+Message-ID: <42346C17.3090301@kaigai.gr.jp>
+Date: Mon, 14 Mar 2005 01:36:39 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Cc: kaigai@ak.jp.nec.com
+Subject: [RFC & PATCH] inherited type definition.
+Content-Type: multipart/mixed;
+ boundary="------------060404020907040301080607"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---=-avykLzj+dOqVihodNSpo
-Content-Type: text/plain
+This is a multi-part message in MIME format.
+--------------060404020907040301080607
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 
-Is there anything wrong with this patch?
+Hello,
+This attached patch provids a new syntax extension to checkpolicy.
+This makes it possible to describe a definition of type which inherit
+access vectors of parent's types/attributes.
 
-It continues to remove stuff from x_client_domain.
-This time the type declaration is removed, along with 
-the transboolean stuff. The transition stuff is placed
-in new macros called user_trans and user_trans_boolean.
+Syntax:
+TYPE <type> [ALIAS <aliases>] EXTENDS <type/attr>, <type/attr>, ... ;
 
-Points of interest:
+The basical idea is like attribute, but 'EXTENDS' has those differences as follows:
+- It can inherit other types, not only attribute.
+- It can describe multi-layer inheritance tree of type.
 
-- can_exec($1_$2_t, $2_exec_t)
-I don't quite understand what this does, but I remember
-domains needed it. It was also in the x_client rules.
+Currently, when we try to define a type like another type, we must describe a new
+type from a scratch for tiny difference.  For example, if we want a new type
+'ext_user_t' which is permitted all access vectors for user_t and a tiny additional
+access vectors, we must describe all of the user_t's access vectors and some of
+original allow-statements.
 
-- nscd_client_domain was removed for mplayer and mozilla.
-I didn't see any problems. 
+When you use EXTENDS extension, only what you describe are a type definition
+with EXTENDS statement and some original allow-statements.
 
-- tmp_domain for tvtime now allows for fifo_file. This
-addresses a denial I noticed.
+[Simple Example]
+type subject_t;
+type parent_t;
+type child_t extends parent_t;
+type grandchild_t extends child_t;
+type stranger_t;
 
-If there is nothing wrong with this patch, can I convert
-other domains in macros/program to use this macro? 
-Is it a problem if they don't have the above can_exec rule?
+In this case, there are five types for explanation.
+- "allow subject_t child_t:XXX XXX;" means "allow subject_t {child_t grandchild_t}:XXX XXX".
+- "allow parent_t child_t:XXX XXX;" means "allow {parent_t child_t grandchild_t} {child_t grandchild_t}:XXX XXX"
+- "allow subject_t ~parent_t:XXX XXX" means "allow subject_t stranger_t:XXX XXX".
+  child_t and grandchild_t are not included in ~parent_t, because its ancestor is parent_t.
+- "allow child_t self:XXX XXX" means "allow child_t child_t:XXX XXX",
+  "allow child_t grandchild_t:XXX XXX" and "allow grandchild_t grandchild_t:XXX XXX".
+
+An access vector granted to parent-type is inherited to child and grandchild.
+We must pay attention to '~' and 'self'.
+When we use '~', that means the reverse of the type and its children.
+When we use 'self', that means the type and its children.
+
+Thanks, any comments please.
+# This is a personal work, but would you Cc: 'kaigai@ak.jp.nec.com' for useful ?
+
+--------------------------------------------------------------------
+When we don't use EXTENDS statement, checkpolicy works compatibly.
+I tried to test checkpolicy-1.20 with EXTENDS patch by Tresys's sediff and policy-1.20.
+
+Test 1: compatibility of the checkpolicy
+[kaigai@ayu ~]$ sediff polbin.org polbin.std
+Difference between policy 1 and policy 2:
+   p1 (binary, ver: 18): polbin.org ... generated by standard checkpolicy
+   p2 (binary, ver: 18): polbin.std ... generated by extended checkpolicy
+
+Types (0 Added, 0 Removed, 0 Changed)
+        Added Types: 0
+        Removed Types: 0
+        Changed Types: 0
+
+Roles (0 Added, 0 Removed, 0 Changed)
+        Added Roles: 0
+        Removed Roles: 0
+        Changed Roles: 0
+
+Users (0 Added, 0 Removed, 0 Changed)
+        Added Users: 0
+        Removed Users: 0
+        Changed Users: 0
+
+Booleans (0 Added, 0 Removed, 0 Changed)
+        Added Booleans: 0
+        Removed Booleans: 0
+        Changed Booleans: 0
+
+Classes (0 Added, 0 Removed, 0 Changed)
+        Added Classes: 0
+        Removed Classes: 0
+        Changed Classes: 0
+
+Permissions (0 Added, 0 Removed)
+        Added Permissions: 0
+        Removed Permissions: 0
+
+Common Permissions (0 Added, 0 Removed, 0 Changed)
+        Added Common Permissions: 0
+        Removed Common Permissions: 0
+        Changed Common Permissions: 0
+
+Conditionals are not currently supported.
+Role Allows (0 Added, 0 Removed, 0 Changed)
+        Added Role Allows: 0
+        Removed Role Allows: 0
+        Changed Role Allows: 0
+
+TE Rules (0 Added, 0 Removed, 0 Changed)
+        Added TE Rules 0:
+        Removed TE Rules 0:
+        Changed TE Rules 0:
+
+Total Differences:
+        Classes & Permissions 0
+        Types 0
+        Attributes 0
+        Roles 0
+        Users 0
+        Booleans 0
+        Rbac 0
+        TE Rules 0
+
+--------------------------------------------------------------------------
+Test 2: The advantage of EXTENDS statement.
+        I added a line 'type user_ext_t extends user_t;' into policy.conf.
+[kaigai@ayu ~]$ sediff polbin.std polbin.ext
+Difference between policy 1 and policy 2:
+   p1 (binary, ver: 18): polbin.std ... original policy-1.20
+   p2 (binary, ver: 18): polbin.ext ... I added a type definition.
+
+Types (1 Added, 0 Removed, 0 Changed)
+        Added Types: 1
+                + user_ext_t
+        Removed Types: 0
+        Changed Types: 0
+
+Roles (0 Added, 0 Removed, 1 Changed)
+        Added Roles: 0
+        Removed Roles: 0
+        Changed Roles: 1
+                * user_r (1 Added Types)
+                        + user_ext_t
+
+Users (0 Added, 0 Removed, 0 Changed)
+                      :
+                  <Omitted>
+                      :
+TE Rules (1766 Added, 0 Removed, 0 Changed)
+        Added TE Rules 1766:
+                + allow load_policy_t user_ext_t : fd { use };
+                      :
+                  <Omitted>
+                      :
+                + allow ifconfig_t user_ext_t : fd { use };
+        Removed TE Rules 0:
+        Changed TE Rules 0:
+
+Total Differences:
+        Classes & Permissions 0
+        Types 1
+        Attributes 0
+        Roles 1
+        Users 0
+        Booleans 0
+        Rbac 0
+        TE Rules 1766
 
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+DO NOTHING IS THE WORST POLICY.
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
---=-avykLzj+dOqVihodNSpo
-Content-Disposition: attachment; filename=user_trans_v0.diff
-Content-Type: text/x-patch; name=user_trans_v0.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+--------------060404020907040301080607
+Content-Type: text/plain;
+ name="checkpolicy-1.20-type_extends.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="checkpolicy-1.20-type_extends.patch"
 
-diff -aur policy.old/macros/global_macros.te policy/macros/global_macros.te
---- policy.old/macros/global_macros.te	2005-03-11 21:55:06.000000000 -0500
-+++ policy/macros/global_macros.te	2005-03-13 00:06:05.000000000 -0500
-@@ -170,6 +170,37 @@
- allow $1 $2_devpts_t:chr_file { read write getattr ioctl };
- ') 
- 
-+##################################
-+#
-+# user_trans(user, target)
-+#
-+# Transition the user to the target domain
-+#
-+define(`user_trans', `
-+domain_auto_trans($1_t, $2_exec_t, $1_$2_t)
-+can_exec($1_$2_t, $2_exec_t)
-+role $1_r types $1_$2_t;
-+')
-+
-+##################################
-+#
-+# user_trans_boolean(user, target)
-+#
-+# Transition the user to the target domain
-+# For the user domain, do this conditional
-+# on a boolean
-+#
-+define(`user_trans_boolean', `
-+ifelse($1, user, `
-+bool disable_user_$2 false;
-+')
-+role $1_r types $1_$2_t;
-+if (! disable_user_$2) {
-+domain_auto_trans($1_t, $2_exec_t, $1_$2_t)
-+can_exec($1_$2_t, $2_exec_t)
-+}
-+')
-+
- #
- # general_proc_read_access(domain)
- #
-diff -aur policy.old/macros/program/games_domain.te policy/macros/program/games_domain.te
---- policy.old/macros/program/games_domain.te	2005-03-10 14:32:25.000000000 -0500
-+++ policy/macros/program/games_domain.te	2005-03-12 19:18:23.000000000 -0500
-@@ -10,7 +10,14 @@
- #
- #
- define(`games_domain', `
--x_client_domain($1, `games', `, transitionbool')
-+
-+# Type transiton
-+type $1_games_t, domain, nscd_client_domain;
-+user_trans_boolean($1, games)
-+
-+# X access, Private tmp
-+x_client_domain($1, games)
-+tmp_domain($1_games)
- 
- allow $1_games_t var_t:dir { search getattr };
- rw_dir_create_file($1_games_t, games_data_t)
-@@ -29,7 +36,6 @@
- 
- dontaudit $1_games_t sysctl_t:dir search;
- 
--tmp_domain($1_games)
- allow $1_games_t urandom_device_t:chr_file { getattr ioctl read };
- ifdef(`xdm.te', `
- allow $1_games_t xdm_tmp_t:dir rw_dir_perms;
-diff -aur policy.old/macros/program/gift_macros.te policy/macros/program/gift_macros.te
---- policy.old/macros/program/gift_macros.te	2005-03-11 21:34:13.000000000 -0500
-+++ policy/macros/program/gift_macros.te	2005-03-13 00:21:22.000000000 -0500
-@@ -12,20 +12,17 @@
- 
- define(`gift_domain', `
- 
--# Connect to X
--x_client_domain($1, gift, `')	
-+# Type transition
-+type $1_gift_t, domain, nscd_client_domain;
-+user_trans($1, gift)
- 
--# Transition
--domain_auto_trans($1_t, gift_exec_t, $1_gift_t)
--can_exec($1_gift_t, gift_exec_t)
--role $1_r types $1_gift_t;
-+# X access, Home access
-+x_client_domain($1, gift)
-+home_domain($1, gift)
- 
- # Self permissions
- allow $1_gift_t self:process getsched;
- 
--# Home files
--home_domain($1, gift)
--
- # Fonts, icons
- r_dir_file($1_gift_t, usr_t)
- r_dir_file($1_gift_t, fonts_t)
-diff -aur policy.old/macros/program/mozilla_macros.te policy/macros/program/mozilla_macros.te
---- policy.old/macros/program/mozilla_macros.te	2005-03-10 14:32:25.000000000 -0500
-+++ policy/macros/program/mozilla_macros.te	2005-03-12 18:52:11.000000000 -0500
-@@ -16,12 +16,11 @@
- # provided separately in domains/program/mozilla.te. 
- #
- define(`mozilla_domain',`
--x_client_domain($1, mozilla, `, web_client_domain, privlog, transitionbool')
-+type $1_mozilla_t, domain, web_client_domain, privlog;
- 
--# Configuration
-+user_trans_boolean($1, mozilla)
- home_domain($1, mozilla)
--
--# Allow mozilla to browse files
-+x_client_domain($1, mozilla)
- file_browse_domain($1_mozilla_t)
- 
- allow $1_mozilla_t sound_device_t:chr_file rw_file_perms;
-diff -aur policy.old/macros/program/mplayer_macros.te policy/macros/program/mplayer_macros.te
---- policy.old/macros/program/mplayer_macros.te	2005-03-10 14:32:25.000000000 -0500
-+++ policy/macros/program/mplayer_macros.te	2005-03-12 18:57:22.000000000 -0500
-@@ -64,13 +64,13 @@
- 
- define(`mplayer_domain',`
- 
--# Derive from X client domain
--x_client_domain($1, `mplayer', `')
-+# Type transition
-+type $1_mplayer_t, domain;
-+user_trans($1, mplayer)
- 
--# Mplayer configuration here
-+# Home access, X access, Browse files
- home_domain($1, mplayer)
--
--# Allow mplayer to browse files
-+x_client_domain($1, mplayer)
- file_browse_domain($1_mplayer_t)
- 
- # Mplayer common stuff
-@@ -101,12 +101,8 @@
- # FIXME: privhome temporarily removed...
- type $1_mencoder_t, domain;
- 
--# Transition
--domain_auto_trans($1_t, mencoder_exec_t, $1_mencoder_t)
--can_exec($1_mencoder_t, mencoder_exec_t)
--role $1_r types $1_mencoder_t;
--
--# Read home config
-+# Transition, access mplayer home domain
-+user_trans($1, mencoder)
- home_domain_access($1_mencoder_t, $1, mplayer)
- 
- # Mplayer common stuff
-diff -aur policy.old/macros/program/tvtime_macros.te policy/macros/program/tvtime_macros.te
---- policy.old/macros/program/tvtime_macros.te	2005-03-11 21:34:13.000000000 -0500
-+++ policy/macros/program/tvtime_macros.te	2005-03-12 21:24:15.000000000 -0500
-@@ -19,7 +19,13 @@
- ifdef(`tvtime.te', `
- define(`tvtime_domain',`
- 
-+# Type transition
-+type $1_tvtime_t, domain, nscd_client_domain;
-+user_trans($1, tvtime)
-+
-+# Home access, X access
- home_domain($1, tvtime)
-+tmp_domain($1_tvtime, `', `{ file dir fifo_file }')
- x_client_domain($1, tvtime)
- 
- allow $1_tvtime_t urandom_device_t:chr_file read;
-@@ -28,7 +34,6 @@
- allow $1_tvtime_t sound_device_t:chr_file read;
- allow $1_tvtime_t $1_home_t:dir { getattr read search };
- allow $1_tvtime_t $1_home_t:file { getattr read };
--tmp_domain($1_tvtime)
- allow $1_tvtime_t self:capability { setuid sys_nice sys_resource };
- allow $1_tvtime_t self:process setsched;
- allow $1_tvtime_t usr_t:file { getattr read };
-diff -aur policy.old/macros/program/x_client_macros.te policy/macros/program/x_client_macros.te
---- policy.old/macros/program/x_client_macros.te	2005-03-10 14:32:25.000000000 -0500
-+++ policy/macros/program/x_client_macros.te	2005-03-12 18:45:53.000000000 -0500
-@@ -37,39 +37,11 @@
- ')
- 
- #
--# x_client_domain(domain_prefix)
-+# x_client_domain(user, app)
- #
--# Define a derived domain for an X program when executed by
--# a user domain.  
--#
--# The type declaration for the executable type for this program ($2_exec_t)
--# must be provided separately!
--#
--# The first parameter is the base name for the domain/role (EG user or sysadm)
--# The second parameter is the program name (EG $2)
--# The third parameter is the attributes for the domain (if any)
-+# Defines common X access rules for the user_app_t domain
- #
- define(`x_client_domain',`
--# Derived domain based on the calling user domain and the program.
--type $1_$2_t, domain, nscd_client_domain $3;
--
--ifelse(index(`$3', `transitionbool'), -1, `
--domain_auto_trans($1_t, $2_exec_t, $1_$2_t)
--can_exec($1_$2_t, $2_exec_t)
--', `
--ifelse($1, user, `
--bool disable_$2 false;
--')
--# Transition from the user domain to the derived domain.
--if (! disable_$2) {
--domain_auto_trans($1_t, $2_exec_t, $1_$2_t)
--can_exec($1_$2_t, $2_exec_t)
--}
--')
--
--# The user role is authorized for this domain.
--role $1_r types $1_$2_t;
- 
- # This domain is granted permissions common to most domains (including can_net)
- can_network($1_$2_t)
-
---=-avykLzj+dOqVihodNSpo--
-
+LS0tIGNoZWNrcG9saWN5LTEuMjAvcG9saWN5X3NjYW4ubAkyMDA0LTEyLTEzIDE2OjI5OjQ5
+LjAwMDAwMDAwMCAtMDUwMAorKysgY2hlY2twb2xpY3ktMS4yMC5leHRlbmRzL3BvbGljeV9z
+Y2FuLmwJMjAwNS0wMy0xMiAyMDo0MzoxMy4wMDAwMDAwMDAgLTA1MDAKQEAgLTc1LDggKzc1
+LDEwIEBACiBFTFNFIHwKIGVsc2UgICAgICAgICAgICAgICAgICAgICAgICAgeyByZXR1cm4o
+RUxTRSk7IH0KIEFMSUFTIHwKIGFsaWFzCQkJCXsgcmV0dXJuKEFMSUFTKTsgfQorRVhURU5E
+UyB8CitleHRlbmRzCQkJCXsgcmV0dXJuKEVYVEVORFMpOyB9CiBBVFRSSUJVVEUgfAogYXR0
+cmlidXRlCQkJeyByZXR1cm4oQVRUUklCVVRFKTsgfQogVFlQRV9UUkFOU0lUSU9OIHwKIHR5
+cGVfdHJhbnNpdGlvbgkJCXsgcmV0dXJuKFRZUEVfVFJBTlNJVElPTik7IH0KLS0tIGNoZWNr
+cG9saWN5LTEuMjAvY2hlY2twb2xpY3kuaAkyMDA0LTA4LTExIDA5OjM4OjU1LjAwMDAwMDAw
+MCAtMDQwMAorKysgY2hlY2twb2xpY3ktMS4yMC5leHRlbmRzL2NoZWNrcG9saWN5LmgJMjAw
+NS0wMy0xMyAyMjozMjowNy4wMDAwMDAwMDAgLTA1MDAKQEAgLTE1LDYgKzE1LDE3IEBACiAK
+IHRlX2Fzc2VydF90ICp0ZV9hc3NlcnRpb25zOwogCiBleHRlcm4gdW5zaWduZWQgaW50IHBv
+bGljeXZlcnM7CisvKiB0eXBlIHdhcyBub3QgaW5kZXhlZCBpbiBwb2xpY3lkYiwKKyAgIGJ1
+dCBpdCdzIG5lY2Vzc2FyeSBmb3IgZXh0ZW5kcyBzdXBwb3J0LiAqLworZXh0ZXJuIHR5cGVf
+ZGF0dW1fdCAqKnR5cGVfdmFsX3RvX3N0cnVjdDsKK2V4dGVybiBpbnQgbnVtX3R5cGVfdmFs
+X3RvX3N0cnVjdDsKK2V4dGVybiB2b2lkIGdldF9jaGlsZF90eXBlcyhlYml0bWFwX3QgKnNl
+dCwgdHlwZV9kYXR1bV90ICp0LCBpbnQgZGVwdGgpOworCitzdGF0aWMgaW5saW5lIHR5cGVf
+ZGF0dW1fdCAqZ2V0X3R5cGUoaW50IHR5cGV2YWwpIHsKKwlpZiAoIXR5cGVfdmFsX3RvX3N0
+cnVjdCB8fCB0eXBldmFsPDEgfHwgdHlwZXZhbD5udW1fdHlwZV92YWxfdG9fc3RydWN0KQor
+CQlyZXR1cm4gTlVMTDsKKwlyZXR1cm4gdHlwZV92YWxfdG9fc3RydWN0W3R5cGV2YWwtMV07
+Cit9CiAKICNlbmRpZgotLS0gY2hlY2twb2xpY3ktMS4yMC9jaGVja3BvbGljeS5jCTIwMDQt
+MDgtMTEgMTA6MDM6MTkuMDAwMDAwMDAwIC0wNDAwCisrKyBjaGVja3BvbGljeS0xLjIwLmV4
+dGVuZHMvY2hlY2twb2xpY3kuYwkyMDA1LTAzLTE0IDAwOjQ4OjQ1LjAwMDAwMDAwMCAtMDUw
+MApAQCAtMzM2LDggKzMzNiwxMCBAQAogfQogCiB2b2lkIGNoZWNrX2Fzc2VydGlvbnModm9p
+ZCkgCiB7CisJZWJpdG1hcF90IHRlbXA7CisJdHlwZV9kYXR1bV90ICp0eXBlZGF0dW07CiAJ
+dGVfYXNzZXJ0X3QgKmEsICp0bXA7CiAJdW5zaWduZWQgaW50IGksIGo7CiAKIAlhID0gdGVf
+YXNzZXJ0aW9uczsKQEAgLTM0NSw5ICszNDcsMjEgQEAKIAkJZm9yIChpID0gZWJpdG1hcF9z
+dGFydGJpdCgmYS0+c3R5cGVzKTsgaSA8IGViaXRtYXBfbGVuZ3RoKCZhLT5zdHlwZXMpOyBp
+KyspIHsKIAkJCWlmICghZWJpdG1hcF9nZXRfYml0KCZhLT5zdHlwZXMsIGkpKQogCQkJCWNv
+bnRpbnVlOwogCQkJaWYgKGEtPnNlbGYpIHsKLQkJCQljaGVja19hc3NlcnRpb25faGVscGVy
+KGksIGksICZhLT50Y2xhc3NlcywgYS0+YXZwLCBhLT5saW5lKTsKKwkJCQl0eXBlZGF0dW0g
+PSB0eXBlX3ZhbF90b19zdHJ1Y3RbaV07CisJCQkJaWYgKCF0eXBlZGF0dW0pIHsKKwkJCQkJ
+ZnByaW50ZihzdGRlcnIsICJCVUc6IGNoZWNrX2Fzc2V0aW9uIGZvciB1bmRlZmluZWQgdHlw
+ZS5cbiIpOworCQkJCQlleGl0KDEpOworCQkJCX0KKwkJCQllYml0bWFwX2luaXQoJnRlbXAp
+OworCQkJCWdldF9jaGlsZF90eXBlcygmdGVtcCwgdHlwZWRhdHVtLCAwKTsKKwkJCQlmb3Ig
+KGogPSBlYml0bWFwX3N0YXJ0Yml0KCZ0ZW1wKTsgaiA8IGViaXRtYXBfbGVuZ3RoKCZ0ZW1w
+KTsgaisrKSB7CisJCQkJCWlmICghZWJpdG1hcF9nZXRfYml0KCZ0ZW1wLCBqKSkKKwkJCQkJ
+CWNvbnRpbnVlOworCQkJCQljaGVja19hc3NlcnRpb25faGVscGVyKGksIGosICZhLT50Y2xh
+c3NlcywgYS0+YXZwLCBhLT5saW5lKTsKKwkJCQl9CisJCQkJZWJpdG1hcF9kZXN0cm95KCZ0
+ZW1wKTsKIAkJCX0KIAkJCWZvciAoaiA9IGViaXRtYXBfc3RhcnRiaXQoJmEtPnR0eXBlcyk7
+IGogPCBlYml0bWFwX2xlbmd0aCgmYS0+dHR5cGVzKTsgaisrKSB7CiAJCQkJaWYgKCFlYml0
+bWFwX2dldF9iaXQoJmEtPnR0eXBlcywgaikpIAogCQkJCQljb250aW51ZTsKQEAgLTQzNCw4
+ICs0NDgsNDMgQEAKIAlldmFsdWF0ZV9jb25kcyhwb2xpY3lkYnApOwogCXJldHVybiAwOwog
+fQogCit0eXBlX2RhdHVtX3QgKip0eXBlX3ZhbF90b19zdHJ1Y3QgPSBOVUxMOworaW50IG51
+bV90eXBlX3ZhbF90b19zdHJ1Y3QgPSAtMTsKKworc3RhdGljIGludCB0eXBlX3ZhbF90b19z
+dHJ1Y3RfaGVscGVyKGhhc2h0YWJfa2V5X3QgaywgaGFzaHRhYl9kYXR1bV90IGQsIHZvaWQg
+KmFyZ3MpCit7CisJdHlwZV9kYXR1bV90ICp0ID0gKHR5cGVfZGF0dW1fdCAqKWQ7CisJaWYg
+KCF0LT5pc2F0dHIgJiYgdC0+cHJpbWFyeSkKKwkJdHlwZV92YWxfdG9fc3RydWN0W3QtPnZh
+bHVlLTFdID0gdDsKKwlyZXR1cm4gMDsgLyogYWx3YXlzIHN1Y2Nlc3MgKi8KK30KKwordm9p
+ZCBnZXRfY2hpbGRfdHlwZXMoZWJpdG1hcF90ICpzZXQsIHR5cGVfZGF0dW1fdCAqdGQsIGlu
+dCBkZXB0aCkKK3sKKwl0eXBlX2RhdHVtX3QgKmNoaWxkOworCWludCBpOworCisJaWYgKHRk
+LT5pc2F0dHIgJiYgZGVwdGg+MCkgeworCQlmcHJpbnRmKHN0ZGVyciwgIkJVRzogYW4gYXR0
+cmlidXRlIG11c3Qgbm90IGluaGVyaXQgYW55b25lLlxuIik7CisJCWV4aXQoMSk7CisJfQor
+CisJaWYgKCF0ZC0+aXNhdHRyICYmICF0ZC0+cHJpbWFyeSkKKwkJdGQgPSBnZXRfdHlwZSh0
+ZC0+dmFsdWUpOworCisJaWYgKCF0ZC0+aXNhdHRyKQorCQllYml0bWFwX3NldF9iaXQoc2V0
+LCB0ZC0+dmFsdWUgLSAxLCAxKTsKKworCWZvciAoaSA9IGViaXRtYXBfc3RhcnRiaXQoJnRk
+LT50eXBlcyk7IGkgPCBlYml0bWFwX2xlbmd0aCgmdGQtPnR5cGVzKTsgaSsrKSB7CisJCWlm
+IChlYml0bWFwX2dldF9iaXQoJnRkLT50eXBlcywgaSkpIHsKKwkJCWNoaWxkID0gdHlwZV92
+YWxfdG9fc3RydWN0W2ldOworCQkJZ2V0X2NoaWxkX3R5cGVzKHNldCwgY2hpbGQsIGRlcHRo
+ICsgMSk7CisJCX0KKwl9Cit9CisKIGludCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikK
+IHsKIAlzZWN1cml0eV9jbGFzc190IHRjbGFzczsKIAlzZWN1cml0eV9pZF90IHNzaWQsIHRz
+aWQsICpzaWRzOwpAQCAtNDQ4LDkgKzQ5Nyw5IEBACiAJdW5zaWduZWQgaW50IHByb3RvY29s
+LCBwb3J0OwogCXVuc2lnbmVkIGludCBiaW5hcnkgPSAwLCBkZWJ1ZyA9IDA7CiAJc3RydWN0
+IHZhbF90b19uYW1lIHY7CiAJaW50IHJldCwgY2gsIGZkOwotCXVuc2lnbmVkIGludCBuZWw7
+CisJdW5zaWduZWQgaW50IG5lbCwgbGVuOwogCXN0cnVjdCBzdGF0IHNiOwogCXZvaWQgKm1h
+cDsKIAlGSUxFICpvdXRmcCA9IE5VTEw7CiAJY2hhciAqbmFtZTsKQEAgLTU2OCw4ICs2MTcs
+MjAgQEAKIAkJaWYgKHl5cGFyc2UoKSB8fCBwb2xpY3lkYl9lcnJvcnMpIHsKIAkJCWZwcmlu
+dGYoc3RkZXJyLCAiJXM6ICBlcnJvcihzKSBlbmNvdW50ZXJlZCB3aGlsZSBwYXJzaW5nIGNv
+bmZpZ3VyYXRpb25cbiIsIGFyZ3ZbMF0pOwogCQkJZXhpdCgxKTsKIAkJfQorCisJCS8qIGNv
+bnN0cnVjdGlvbiBvZiB0eXBlX3ZhbF90b19zdHJ1Y3QgKi8KKwkJbnVtX3R5cGVfdmFsX3Rv
+X3N0cnVjdCA9IHBvbGljeWRicC0+cF90eXBlcy5ucHJpbTsKKwkJbGVuID0gc2l6ZW9mKHR5
+cGVfZGF0dW1fdCAqKSAqIG51bV90eXBlX3ZhbF90b19zdHJ1Y3Q7CisJCXR5cGVfdmFsX3Rv
+X3N0cnVjdCA9ICh0eXBlX2RhdHVtX3QgKiopbWFsbG9jKGxlbik7CisJCWlmICghdHlwZV92
+YWxfdG9fc3RydWN0KSB7CisJCQlmcHJpbnRmKHN0ZGVyciwgInR5cGVfdmFsX3RvX3N0cnVj
+dDogb3V0IG9mIG1lbW9yeVxuIik7CisJCQlleGl0KDEpOworCQl9CisJCW1lbXNldCh0eXBl
+X3ZhbF90b19zdHJ1Y3QsIDAsIGxlbik7CisJCWhhc2h0YWJfbWFwKHBvbGljeWRicC0+cF90
+eXBlcy50YWJsZSwgdHlwZV92YWxfdG9fc3RydWN0X2hlbHBlciwgTlVMTCk7CisKIAkJcmV3
+aW5kKHl5aW4pOwogCQlwb2xpY3lkYl9saW5lbm8gPSAxOwogCQlzb3VyY2VfZmlsZVswXSA9
+ICdcMCc7CiAJCXNvdXJjZV9saW5lbm8gPSAxOwotLS0gY2hlY2twb2xpY3ktMS4yMC9wb2xp
+Y3lfcGFyc2UueQkyMDA0LTEyLTEzIDE2OjI5OjQ5LjAwMDAwMDAwMCAtMDUwMAorKysgY2hl
+Y2twb2xpY3ktMS4yMC5leHRlbmRzL3BvbGljeV9wYXJzZS55CTIwMDUtMDMtMTQgMDA6NDk6
+MjMuMDAwMDAwMDAwIC0wNTAwCkBAIC0xMiw4ICsxMiwxMyBAQAogICogIAlpdCB1bmRlciB0
+aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hl
+ZCBieQogICoJdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbiwgdmVyc2lvbiAyLgogICov
+CiAKKy8qIFVwZGF0ZWQ6IEthaUdhaSBLb2hlaSwgPGthaWdhaUBrYWlnYWkuZ3IuanA+Cisg
+KiAgICAgIEFkZGVkIGluaGVyaXRlZCB0eXBlIGV4dGVuc2lvbnMuICgyMDA1LzAzLzEzKQor
+ICovCisKKwogLyogRkxBU0sgKi8KIAogJXsKICNpbmNsdWRlIDxzeXMvdHlwZXMuaD4KQEAg
+LTY4LDkgKzczLDkgQEAKIHN0YXRpYyBpbnQgZGVmaW5lX2F2X2Jhc2Uodm9pZCk7CiBzdGF0
+aWMgaW50IGRlZmluZV9hdHRyaWIodm9pZCk7CiBzdGF0aWMgaW50IGRlZmluZV90eXBlYWxp
+YXModm9pZCk7CiBzdGF0aWMgaW50IGRlZmluZV90eXBlYXR0cmlidXRlKHZvaWQpOwotc3Rh
+dGljIGludCBkZWZpbmVfdHlwZShpbnQgYWxpYXMpOworc3RhdGljIGludCBkZWZpbmVfdHlw
+ZShpbnQgYWxpYXMsIGludCBleHRlbmRzKTsKIHN0YXRpYyBpbnQgZGVmaW5lX2NvbXB1dGVf
+dHlwZShpbnQgd2hpY2gpOwogc3RhdGljIGludCBkZWZpbmVfdGVfYXZ0YWIoaW50IHdoaWNo
+KTsKIHN0YXRpYyBpbnQgZGVmaW5lX3JvbGVfdHlwZXModm9pZCk7CiBzdGF0aWMgcm9sZV9k
+YXR1bV90ICptZXJnZV9yb2xlc19kb20ocm9sZV9kYXR1bV90ICpyMSxyb2xlX2RhdHVtX3Qg
+KnIyKTsKQEAgLTEyNSw4ICsxMzAsOSBAQAogJXRva2VuIFRZUEVBVFRSSUJVVEUKICV0b2tl
+biBUWVBFCiAldG9rZW4gVFlQRVMKICV0b2tlbiBBTElBUworJXRva2VuIEVYVEVORFMKICV0
+b2tlbiBBVFRSSUJVVEUKICV0b2tlbiBCT09MCiAldG9rZW4gSUYKICV0b2tlbiBFTFNFCkBA
+IC0yOTgsMTEgKzMwNCwxNSBAQAogYXR0cmlidXRlX2RlZiAgICAgICAgICAgOiBBVFRSSUJV
+VEUgaWRlbnRpZmllciAnOycKICAgICAgICAgICAgICAgICAgICAgICAgIHsgaWYgKGRlZmlu
+ZV9hdHRyaWIoKSkgcmV0dXJuIC0xO30KICAgICAgICAgICAgICAgICAgICAgICAgIDsKIHR5
+cGVfZGVmCQk6IFRZUEUgaWRlbnRpZmllciBhbGlhc19kZWYgb3B0X2F0dHJfbGlzdCAnOycK
+LSAgICAgICAgICAgICAgICAgICAgICAgIHtpZiAoZGVmaW5lX3R5cGUoMSkpIHJldHVybiAt
+MTt9CisgICAgICAgICAgICAgICAgICAgICAgICB7aWYgKGRlZmluZV90eXBlKDEsIDApKSBy
+ZXR1cm4gLTE7fQogCSAgICAgICAgICAgICAgICB8IFRZUEUgaWRlbnRpZmllciBvcHRfYXR0
+cl9saXN0ICc7JwotICAgICAgICAgICAgICAgICAgICAgICAge2lmIChkZWZpbmVfdHlwZSgw
+KSkgcmV0dXJuIC0xO30KKyAgICAgICAgICAgICAgICAgICAgICAgIHtpZiAoZGVmaW5lX3R5
+cGUoMCwgMCkpIHJldHVybiAtMTt9CisJCQl8IFRZUEUgaWRlbnRpZmllciBhbGlhc19kZWYg
+b3B0X2V4dGVuZHNfbGlzdCAnOycKKwkJCXtpZiAoZGVmaW5lX3R5cGUoMSwgMSkpIHJldHVy
+biAtMTt9CisJCQl8IFRZUEUgaWRlbnRpZmllciBvcHRfZXh0ZW5kc19saXN0ICc7JworCQkJ
+e2lmIChkZWZpbmVfdHlwZSgwLCAxKSkgcmV0dXJuIC0xO30KICAgICAJCQk7CiB0eXBlYWxp
+YXNfZGVmICAgICAgICAgICA6IFRZUEVBTElBUyBpZGVudGlmaWVyIGFsaWFzX2RlZiAnOycK
+IAkJCXtpZiAoZGVmaW5lX3R5cGVhbGlhcygpKSByZXR1cm4gLTE7fQogCQkJOwpAQCAtMzEx
+LDggKzMyMSwxMCBAQAogCQkJOwogb3B0X2F0dHJfbGlzdCAgICAgICAgICAgOiAnLCcgaWRf
+Y29tbWFfbGlzdAogCQkJfCAKIAkJCTsKK29wdF9leHRlbmRzX2xpc3QJOiBFWFRFTkRTIGlk
+X2NvbW1hX2xpc3QKKwkJCTsKIGJvb2xfZGVmICAgICAgICAgICAgICAgIDogQk9PTCBpZGVu
+dGlmaWVyIGJvb2xfdmFsICc7JwogICAgICAgICAgICAgICAgICAgICAgICAge2lmIChkZWZp
+bmVfYm9vbCgpKSByZXR1cm4gLTE7fQogICAgICAgICAgICAgICAgICAgICAgICAgOwogYm9v
+bF92YWwgICAgICAgICAgICAgICAgOiBDVFJVRQpAQCAtMTY3NiwxNSArMTY4OCwxMyBAQAog
+CiAJCWlmIChyZXQgPT0gSEFTSFRBQl9QUkVTRU5UKSB7CiAJCQlzcHJpbnRmKGVycm9ybXNn
+LCAibmFtZSBjb25mbGljdCBmb3IgdHlwZSBhbGlhcyAlcyIsIGlkKTsKIAkJCXl5ZXJyb3Io
+ZXJyb3Jtc2cpOwotCQkJZnJlZShhbGlhc2RhdHVtKTsKIAkJCWZyZWUoaWQpOwogCQkJcmV0
+dXJuIC0xOwogCQl9CiAJCWlmIChyZXQgPT0gSEFTSFRBQl9PVkVSRkxPVykgewogCQkJeXll
+cnJvcigiaGFzaCB0YWJsZSBvdmVyZmxvdyIpOwotCQkJZnJlZShhbGlhc2RhdHVtKTsKIAkJ
+CWZyZWUoaWQpOwogCQkJcmV0dXJuIC0xOwogCQl9CiAJfQpAQCAtMTc3MCwxMiArMTc4MCwx
+MiBAQAogCiAJcmV0dXJuIDA7CiB9CiAKLXN0YXRpYyBpbnQgZGVmaW5lX3R5cGUoaW50IGFs
+aWFzKQorc3RhdGljIGludCBkZWZpbmVfdHlwZShpbnQgYWxpYXMsIGludCBleHRlbmRzKQog
+ewogCWNoYXIgKmlkOwotCXR5cGVfZGF0dW1fdCAqZGF0dW0sICphbGlhc2RhdHVtLCAqYXR0
+cjsKKwl0eXBlX2RhdHVtX3QgKmRhdHVtLCAqYWxpYXNkYXR1bSwgKmluaGVyaXQ7CiAJaW50
+IHJldCwgbmV3YXR0ciA9IDA7CiAKIAogCWlmIChwYXNzID09IDIpIHsKQEAgLTE4MzcsMTUg
+KzE4NDcsMTMgQEAKIAogCQkJaWYgKHJldCA9PSBIQVNIVEFCX1BSRVNFTlQpIHsKIAkJCQlz
+cHJpbnRmKGVycm9ybXNnLCAibmFtZSBjb25mbGljdCBmb3IgdHlwZSBhbGlhcyAlcyIsIGlk
+KTsKIAkJCQl5eWVycm9yKGVycm9ybXNnKTsKLQkJCQlmcmVlKGFsaWFzZGF0dW0pOwogCQkJ
+CWZyZWUoaWQpOwogCQkJCXJldHVybiAtMTsKIAkJCX0KIAkJCWlmIChyZXQgPT0gSEFTSFRB
+Ql9PVkVSRkxPVykgewogCQkJCXl5ZXJyb3IoImhhc2ggdGFibGUgb3ZlcmZsb3ciKTsKLQkJ
+CQlmcmVlKGFsaWFzZGF0dW0pOwogCQkJCWZyZWUoaWQpOwogCQkJCXJldHVybiAtMTsKIAkJ
+CX0KIAkJfQpAQCAtMTg1NiwxMSArMTg2NCwxMiBAQAogCQkJeXllcnJvcigib3V0IG9mIG1l
+bW9yeSIpOwogCQkJZnJlZShpZCk7CiAJCQlyZXR1cm4gLTE7CiAJCX0KLQkJYXR0ciA9IGhh
+c2h0YWJfc2VhcmNoKHBvbGljeWRicC0+cF90eXBlcy50YWJsZSwgaWQpOwotCQlpZiAoIWF0
+dHIpIHsKLQkJCXNwcmludGYoZXJyb3Jtc2csICJhdHRyaWJ1dGUgJXMgaXMgbm90IGRlY2xh
+cmVkIiwgaWQpOworCQlpbmhlcml0ID0gaGFzaHRhYl9zZWFyY2gocG9saWN5ZGJwLT5wX3R5
+cGVzLnRhYmxlLCBpZCk7CisJCWlmICghaW5oZXJpdCkgeworCQkJc3ByaW50ZihlcnJvcm1z
+ZywgIiVzYXR0cmlidXRlICVzIGlzIG5vdCBkZWNsYXJlZCIsCisJCQkgICAgICAgKGV4dGVu
+ZHMpPyJ0eXBlLyI6IiIsIGlkKTsKICNpZiAxCiAJCQkvKiB0cmVhdCBpdCBhcyBhIGZhdGFs
+IGVycm9yICovCiAJCQl5eWVycm9yKGVycm9ybXNnKTsKIAkJCXJldHVybiAtMTsKQEAgLTE4
+ODcsMTggKzE4OTYsMTggQEAKIAkJfSBlbHNlIHsKIAkJCW5ld2F0dHIgPSAwOwogCQl9CiAK
+LQkJaWYgKCFhdHRyLT5pc2F0dHIpIHsKKwkJaWYgKCFleHRlbmRzICYmICFpbmhlcml0LT5p
+c2F0dHIpIHsKIAkJCXNwcmludGYoZXJyb3Jtc2csICIlcyBpcyBhIHR5cGUsIG5vdCBhbiBh
+dHRyaWJ1dGUiLCBpZCk7CiAJCQl5eWVycm9yKGVycm9ybXNnKTsKIAkJCXJldHVybiAtMTsK
+IAkJfQogCiAJCWlmICghbmV3YXR0cikKIAkJCWZyZWUoaWQpOwogCi0JCWViaXRtYXBfc2V0
+X2JpdCgmYXR0ci0+dHlwZXMsIGRhdHVtLT52YWx1ZSAtIDEsIFRSVUUpOworCQllYml0bWFw
+X3NldF9iaXQoJmluaGVyaXQtPnR5cGVzLCBkYXR1bS0+dmFsdWUgLSAxLCBUUlVFKTsKIAl9
+CiAKIAlyZXR1cm4gMDsKIH0KQEAgLTE5MzUsMTYgKzE5NDQsMTYgQEAKIAkJcmV0dXJuIHYu
+bmFtZTsKIAlyZXR1cm4gTlVMTDsKIH0KIAotCiBzdGF0aWMgaW50IHNldF90eXBlcyhlYml0
+bWFwX3QgKnNldCwKIAkJICAgICBlYml0bWFwX3QgKm5lZ3NldCwKIAkJICAgICBjaGFyICpp
+ZCwKIAkJICAgICBpbnQgKmFkZCkKIHsKIAl0eXBlX2RhdHVtX3QgKnQ7CiAJdW5zaWduZWQg
+aW50IGk7CisJZWJpdG1hcF90IHRlbXA7CiAKIAlpZiAoc3RyY21wKGlkLCAiKiIpID09IDAp
+IHsKIAkJLyogc2V0IGFsbCB0eXBlcyBub3QgaW4gbmVnc2V0ICovCiAJCWZvciAoaSA9IDA7
+IGkgPCBwb2xpY3lkYnAtPnBfdHlwZXMubnByaW07IGkrKykgewpAQCAtMTk4MCw0MyArMTk4
+OSwyNyBAQAogCQlmcmVlKGlkKTsKIAkJcmV0dXJuIC0xOwogCX0KIAotCWlmICh0LT5pc2F0
+dHIpIHsKLQkJLyogc2V0IG9yIGNsZWFyIGFsbCB0eXBlcyB3aXRoIHRoaXMgYXR0cmlidXRl
+LAotCQkgICBidXQgZG8gbm90IHNldCBhbnl0aGluZyBleHBsaWNpdGx5IGNsZWFyZWQgcHJl
+dmlvdXNseSAqLwotCQlmb3IgKGkgPSBlYml0bWFwX3N0YXJ0Yml0KCZ0LT50eXBlcyk7IGkg
+PCBlYml0bWFwX2xlbmd0aCgmdC0+dHlwZXMpOyBpKyspIHsKLQkJCWlmICghZWJpdG1hcF9n
+ZXRfYml0KCZ0LT50eXBlcywgaSkpIAotCQkJCWNvbnRpbnVlOwkJCi0JCQlpZiAoISgqYWRk
+KSkgewotCQkJCWViaXRtYXBfc2V0X2JpdChzZXQsIGksIEZBTFNFKTsKLQkJCQllYml0bWFw
+X3NldF9iaXQobmVnc2V0LCBpLCBUUlVFKTsKLQkJCX0gZWxzZSBpZiAoIWViaXRtYXBfZ2V0
+X2JpdChuZWdzZXQsIGkpKSB7Ci0JCQkJZWJpdG1hcF9zZXRfYml0KHNldCwgaSwgVFJVRSk7
+Ci0jaWYgVkVSQk9TRQotCQkJfSBlbHNlIHsKLQkJCQljaGFyICpuYW1lID0gdHlwZV92YWxf
+dG9fbmFtZShpKzEpOwotCQkJCXNwcmludGYoZXJyb3Jtc2csICJpZ25vcmluZyAlcyBkdWUg
+dG8gcHJpb3IgLSVzIiwgbmFtZSwgbmFtZSk7Ci0JCQkJeXl3YXJuKGVycm9ybXNnKTsKLSNl
+bmRpZgotCQkJfQotCQl9Ci0JfSBlbHNlIHsKLQkJLyogc2V0IG9yIGNsZWFyIG9uZSB0eXBl
+LCBidXQgZG8gbm90IHNldCBhbnl0aGluZwotCQkgICBleHBsaWNpdGx5IGNsZWFyZWQgcHJl
+dmlvdXNseSAqLwkKKwllYml0bWFwX2luaXQoJnRlbXApOworCWdldF9jaGlsZF90eXBlcygm
+dGVtcCwgdCwgMCk7CisJZm9yIChpID0gZWJpdG1hcF9zdGFydGJpdCgmdGVtcCk7IGkgPCBl
+Yml0bWFwX2xlbmd0aCgmdGVtcCk7IGkrKykgeworCQlpZiAoIWViaXRtYXBfZ2V0X2JpdCgm
+dGVtcCwgaSkpCisJCQljb250aW51ZTsKIAkJaWYgKCEoKmFkZCkpIHsKLQkJCWViaXRtYXBf
+c2V0X2JpdChzZXQsIHQtPnZhbHVlIC0gMSwgRkFMU0UpOwotCQkJZWJpdG1hcF9zZXRfYml0
+KG5lZ3NldCwgdC0+dmFsdWUgLSAxLCBUUlVFKTsKLQkJfSBlbHNlIGlmICghZWJpdG1hcF9n
+ZXRfYml0KG5lZ3NldCwgdC0+dmFsdWUgLSAxKSkgewotCQkJZWJpdG1hcF9zZXRfYml0KHNl
+dCwgdC0+dmFsdWUgLSAxLCBUUlVFKTsKKwkJCWViaXRtYXBfc2V0X2JpdChzZXQsIGksIEZB
+TFNFKTsKKwkJCWViaXRtYXBfc2V0X2JpdChuZWdzZXQsIGksIFRSVUUpOworCQl9IGVsc2Ug
+aWYgKCFlYml0bWFwX2dldF9iaXQobmVnc2V0LCBpKSkgeworCQkJZWJpdG1hcF9zZXRfYml0
+KHNldCwgaSwgVFJVRSk7CiAjaWYgVkVSQk9TRQogCQl9IGVsc2UgewotCQkJc3ByaW50Zihl
+cnJvcm1zZywgImlnbm9yaW5nICVzIGR1ZSB0byBwcmlvciAtJXMiLCBpZCwgaWQpOworCQkJ
+Y2hhciAqbmFtZSA9IHR5cGVfdmFsX3RvX25hbWUoaSsxKTsKKwkJCXNwcmludGYoZXJyb3Jt
+c2csICJpZ25vcmluZyAlcyBkdWUgdG8gcHJpb3IgLSVzIiwgbmFtZSwgbmFtZSk7CiAJCQl5
+eXdhcm4oZXJyb3Jtc2cpOwogI2VuZGlmCiAJCX0KIAl9Ci0KKwllYml0bWFwX2Rlc3Ryb3ko
+JnRlbXApOwogCWZyZWUoaWQpOwogCSphZGQgPSAxOwogCXJldHVybiAwOwogfQpAQCAtMjU5
+OCw5ICsyNTkxLDEwIEBACiAJY2hhciAqaWQ7CiAJY29uZF9hdl9saXN0X3QgKnN1Yl9saXN0
+LCAqZmluYWxfbGlzdCwgKnRhaWw7CiAJY2xhc3NfZGF0dW1fdCAqY2xhZGF0dW07CiAJcGVy
+bV9kYXR1bV90ICpwZXJkYXR1bTsKLQllYml0bWFwX3Qgc3R5cGVzLCB0dHlwZXMsIHRjbGFz
+c2VzLCBuZWdzZXQ7CisJdHlwZV9kYXR1bV90ICp0eXBlZGF0dW07CisJZWJpdG1hcF90IHN0
+eXBlcywgdHR5cGVzLCB0Y2xhc3NlcywgdGVtcCwgbmVnc2V0OwogCWFjY2Vzc192ZWN0b3Jf
+dCAqYXZwOwogCWludCBpLCBqLCBoaWNsYXNzLCBzZWxmID0gMCwgYWRkID0gMTsKIAlpbnQg
+c3VwcHJlc3MgPSAwOwogCkBAIC0yNzIyLDIwICsyNzE2LDMzIEBACiAJCWZvciAoaSA9IGVi
+aXRtYXBfc3RhcnRiaXQoJnN0eXBlcyk7IGkgPCBlYml0bWFwX2xlbmd0aCgmc3R5cGVzKTsg
+aSsrKSB7CiAJCQlpZiAoIWViaXRtYXBfZ2V0X2JpdCgmc3R5cGVzLCBpKSkgCiAJCQkJY29u
+dGludWU7CiAJCQlpZiAoc2VsZikgewotCQkJCWlmICgoc3ViX2xpc3QgPSBjb25kX3RlX2F2
+dGFiX2hlbHBlcih3aGljaCwgaSwgaSwgJnRjbGFzc2VzLCBhdnAgKSkgPT0gQ09ORF9FUlIp
+CisJCQkJdHlwZWRhdHVtID0gZ2V0X3R5cGUoaSsxKTsKKwkJCQlpZiAoIXR5cGVkYXR1bSkK
+IAkJCQkJcmV0dXJuIENPTkRfRVJSOwotCQkJCWlmIChmaW5hbF9saXN0KSB7Ci0JCQkJCXRh
+aWwtPm5leHQgPSBzdWJfbGlzdDsKLQkJCQkJd2hpbGUgKHRhaWwtPm5leHQgIT0gTlVMTCkK
+LQkJCQkJCXRhaWwgPSB0YWlsLT5uZXh0OwotCQkJCX0gZWxzZSB7Ci0JCQkJCWZpbmFsX2xp
+c3QgPSBzdWJfbGlzdDsKLQkJCQkJdGFpbCA9IGZpbmFsX2xpc3Q7Ci0JCQkJCXdoaWxlICh0
+YWlsLT5uZXh0ICE9IE5VTEwpCi0JCQkJCQl0YWlsID0gdGFpbC0+bmV4dDsKKwkJCQllYml0
+bWFwX2luaXQoJnRlbXApOworCQkJCWdldF9jaGlsZF90eXBlcygmdGVtcCwgdHlwZWRhdHVt
+LCAwKTsKKwkJCQlmb3IgKGogPSBlYml0bWFwX3N0YXJ0Yml0KCZ0ZW1wKTsgaiA8IGViaXRt
+YXBfbGVuZ3RoKCZ0ZW1wKTsgaisrKSB7CisJCQkJCWlmKCFlYml0bWFwX2dldF9iaXQoJnRl
+bXAsIGopKQorCQkJCQkJY29udGludWU7CisJCQkJCXN1Yl9saXN0ID0gY29uZF90ZV9hdnRh
+Yl9oZWxwZXIod2hpY2gsIGksIGosICZ0Y2xhc3NlcywgYXZwICk7CisJCQkJCWlmIChzdWJf
+bGlzdD09Q09ORF9FUlIpIHsKKwkJCQkJCWViaXRtYXBfZGVzdHJveSgmdGVtcCk7CisJCQkJ
+CQlyZXR1cm4gQ09ORF9FUlI7CisJCQkJCX0KKwkJCQkJaWYgKGZpbmFsX2xpc3QpIHsKKwkJ
+CQkJCXRhaWwtPm5leHQgPSBzdWJfbGlzdDsKKwkJCQkJCXdoaWxlICh0YWlsLT5uZXh0ICE9
+IE5VTEwpCisJCQkJCQkJdGFpbCA9IHRhaWwtPm5leHQ7CisJCQkJCX0gZWxzZSB7CisJCQkJ
+CQlmaW5hbF9saXN0ID0gc3ViX2xpc3Q7CisJCQkJCQl0YWlsID0gZmluYWxfbGlzdDsKKwkJ
+CQkJCXdoaWxlICh0YWlsLT5uZXh0ICE9IE5VTEwpCisJCQkJCQkJdGFpbCA9IHRhaWwtPm5l
+eHQ7CisJCQkJCX0KIAkJCQl9CisJCQkJZWJpdG1hcF9kZXN0cm95KCZ0ZW1wKTsKIAkJCX0K
+IAkJfQogCX0KIAlmb3IgKGkgPSBlYml0bWFwX3N0YXJ0Yml0KCZzdHlwZXMpOyBpIDwgZWJp
+dG1hcF9sZW5ndGgoJnN0eXBlcyk7IGkrKykgewpAQCAtMjc3NCw5ICsyNzgxLDEwIEBACiB7
+CiAJY2hhciAqaWQ7CiAJY2xhc3NfZGF0dW1fdCAqY2xhZGF0dW07CiAJcGVybV9kYXR1bV90
+ICpwZXJkYXR1bTsKLQllYml0bWFwX3Qgc3R5cGVzLCB0dHlwZXMsIHRjbGFzc2VzLCBuZWdz
+ZXQ7CisJdHlwZV9kYXR1bV90ICp0eXBlZGF0dW07CisJZWJpdG1hcF90IHN0eXBlcywgdHR5
+cGVzLCB0Y2xhc3NlcywgdGVtcCwgbmVnc2V0OwogCWFjY2Vzc192ZWN0b3JfdCAqYXZwOwog
+CXVuc2lnbmVkIGludCBpLCBqLCBoaWNsYXNzOwogCWludCBzZWxmID0gMCwgYWRkID0gMTsK
+IAl0ZV9hc3NlcnRfdCAqbmV3YXNzZXJ0OwpAQCAtMjkxNCwxMCArMjkyMiwyMiBAQAogCWZv
+ciAoaSA9IGViaXRtYXBfc3RhcnRiaXQoJnN0eXBlcyk7IGkgPCBlYml0bWFwX2xlbmd0aCgm
+c3R5cGVzKTsgaSsrKSB7CiAJCWlmICghZWJpdG1hcF9nZXRfYml0KCZzdHlwZXMsIGkpKSAK
+IAkJCWNvbnRpbnVlOwogCQlpZiAoc2VsZikgewotCQkJaWYgKHRlX2F2dGFiX2hlbHBlcih3
+aGljaCwgaSwgaSwgJnRjbGFzc2VzLCBhdnApKQorCQkJdHlwZWRhdHVtID0gZ2V0X3R5cGUo
+aSsxKTsKKwkJCWlmICghdHlwZWRhdHVtKQogCQkJCXJldHVybiAtMTsKKwkJCWViaXRtYXBf
+aW5pdCgmdGVtcCk7CisJCQlnZXRfY2hpbGRfdHlwZXMoJnRlbXAsIHR5cGVkYXR1bSwgMCk7
+CisJCQlmb3IgKGogPSBlYml0bWFwX3N0YXJ0Yml0KCZ0ZW1wKTsgaiA8IGViaXRtYXBfbGVu
+Z3RoKCZ0ZW1wKTsgaisrKSB7CisJCQkJaWYgKCFlYml0bWFwX2dldF9iaXQoJnRlbXAsIGop
+KQorCQkJCQljb250aW51ZTsKKwkJCQlpZiAodGVfYXZ0YWJfaGVscGVyKHdoaWNoLCBpLCBq
+LCAmdGNsYXNzZXMsIGF2cCkpIHsKKwkJCQkJZWJpdG1hcF9kZXN0cm95KCZ0ZW1wKTsKKwkJ
+CQkJcmV0dXJuIC0xOworCQkJCX0KKwkJCX0KKwkJCWViaXRtYXBfZGVzdHJveSgmdGVtcCk7
+CiAJCX0KIAkJZm9yIChqID0gZWJpdG1hcF9zdGFydGJpdCgmdHR5cGVzKTsgaiA8IGViaXRt
+YXBfbGVuZ3RoKCZ0dHlwZXMpOyBqKyspIHsKIAkJCWlmICghZWJpdG1hcF9nZXRfYml0KCZ0
+dHlwZXMsIGopKSAKIAkJCQljb250aW51ZTsK
+--------------060404020907040301080607--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
