@@ -1,33 +1,38 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: shravan kumar <shravanincosmos@yahoo.com>, SELinux@tycho.nsa.gov
-Subject: Re: Installation Problem
-Date: Wed, 13 Aug 2003 19:11:54 +1000
-References: <20030813075008.81593.qmail@web13702.mail.yahoo.com>
-In-Reply-To: <20030813075008.81593.qmail@web13702.mail.yahoo.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h7DEkwHa023780
+	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2003 10:46:59 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h7DEjbOD019383
+	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2003 14:45:37 GMT
+Received: from smtp4.poczta.onet.pl (smtp4.poczta.onet.pl [213.180.130.28])
+	by jazzswing.ncsc.mil  with ESMTP id h7DEjaKO019376
+	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2003 14:45:37 GMT
+Message-ID: <013a01c361a9$c57f7de0$260b0aac@MWPCNOWY>
+Reply-To: "Marcin Wasilewski" <marcinwasilewski@poczta.onet.pl>
+From: "Marcin Wasilewski" <marcinwasilewski@poczta.onet.pl>
+To: <selinux@tycho.nsa.gov>
+Subject: Policy problem
+Date: Wed, 13 Aug 2003 16:47:08 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200308131911.54482.russell@coker.com.au>
+	charset="iso-8859-2"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 13 Aug 2003 17:50, shravan kumar wrote:
->               drivers/char/riscom8.h:85: field `tqueue' has incomplete type
->               drivers/char/riscom8.h:86: field `tqueue_hangup' has
-> incomplete type   drivers/char/riscom8.c:84: warning: type defaults to
-> `int' in declaration of `DECLARE_TASK_QUEUE'
+Hello,
 
-The easiest thing to do is to turn off the CONFIG_RISCOM8 option in your 
-kernel configuration.
+I'm still trying to install the policy for selinux but could not find the
+right solution for my problem:
+make -C /etc/selinux policy - is OK
+make -C /etc/selinux install - is also OK
+make -C /etc/selinux load - gives an error:
 
-What happens when you compile a kernel without SE Linux?
+/usr/sbin/load_policy /etc/security/selinux/policy.12
+security_load_policy: Function not implemented
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+any idea why?
+Best regards
+Marcin
 
 
 --
