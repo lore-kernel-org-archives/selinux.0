@@ -1,48 +1,46 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2UF6fDo015172
-	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 10:06:42 -0500 (EST)
-Received: from web31603.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id j2UF5Wo4026858
-	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 15:05:32 GMT
-Message-ID: <20050330150525.90469.qmail@web31603.mail.mud.yahoo.com>
-Date: Wed, 30 Mar 2005 07:05:24 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2UFOLDo015334
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 10:24:21 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2UFKWph019182
+	for <selinux@tycho.nsa.gov>; Wed, 30 Mar 2005 15:20:32 GMT
 Subject: Re: Desktop apps interoperability
-To: ivg2@cornell.edu
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20050330150525.90469.qmail@web31603.mail.mud.yahoo.com>
+References: <20050330150525.90469.qmail@web31603.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 30 Mar 2005 10:29:06 -0500
+Message-Id: <1112196547.8475.0.camel@cobra.ivg2.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Ivan Gyurdiev <ivg2@cornell.edu> wrote:
-> How about
+On Wed, 2005-03-30 at 07:05 -0800, Casey Schaufler wrote:
+> --- Ivan Gyurdiev <ivg2@cornell.edu> wrote:
+> > How about
+> > 
+> > New Directory Structure (added to /skel, or
+> > whatever)
+> > ~/content - ROLE_content_t
+> > ...
+> > ~/content/export_p2p - ROLE_p2p_share_t
+> > 
+> > Desktop apps will be restricted to only access the
+> > appropriate one.
+> > "Downloading" apps will be restricted to download to
+> > untrusted_content_t. 
 > 
-> New Directory Structure (added to /skel, or
-> whatever)
-> ~/content - ROLE_content_t
-> ...
-> ~/content/export_p2p - ROLE_p2p_share_t
-> 
-> Desktop apps will be restricted to only access the
-> appropriate one.
-> "Downloading" apps will be restricted to download to
-> untrusted_content_t. 
+> Am I the only one wary of a slippery slope here?
 
-Am I the only one wary of a slippery slope here?
+What's the problem?
 
+-- 
+Ivan Gyurdiev <ivg2@cornell.edu>
+Cornell University
 
-Casey Schaufler
-casey@schaufler-ca.com
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Small Business - Try our new resources site!
-http://smallbusiness.yahoo.com/resources/ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
