@@ -1,75 +1,57 @@
-Subject: hal - denials
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <1112031473.2914.109.camel@moss-spartans.epoch.ncsc.mil>
-References: <1111905173.3520.8.camel@cobra.ivg2.net>
-	 <1112016475.2914.16.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112026129.3040.1.camel@cobra.ivg2.net>
-	 <1112026381.2914.95.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112029334.3350.2.camel@cobra.ivg2.net>
-	 <1112029488.2914.103.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112030817.3350.6.camel@cobra.ivg2.net>
-	 <1112031473.2914.109.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Sat, 02 Apr 2005 18:14:30 -0500
-Message-Id: <1112483670.14277.5.camel@cobra.ivg2.net>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j33HcdDo024358
+	for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2005 13:38:39 -0400 (EDT)
+Received: from hermes.domdv.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j33HamSQ017402
+	for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2005 17:36:48 GMT
+Message-ID: <425029B0.3070208@domdv.de>
+Date: Sun, 03 Apr 2005 19:36:48 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: fix for segfault in getconlist of libselinux-1.22
+Content-Type: multipart/mixed;
+ boundary="------------050604030909010803050803"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ok, here is what hald required to stop complaining.
-Which ones should be dontaudit? I take it you won't like
-allowing hald to write to /selinux, and read /dev/mem.
+This is a multi-part message in MIME format.
+--------------050604030909010803050803
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-re: dmidecode - 
-dmidecode decodes the DMI data present in x86 and IA64 BIOS's.
-
-Can't that be made to run in its own domain?
-
-diff -aur policy.old/domains/program/hald.te
-policy/domains/program/hald.te
---- policy.old/domains/program/hald.te  2005-04-02 17:37:37.000000000
--0500
-+++ policy/domains/program/hald.te      2005-04-02 18:06:02.000000000
--0500
-@@ -43,6 +43,7 @@
- allow hald_t event_device_t:chr_file { getattr read ioctl };
- allow hald_t printer_device_t:chr_file rw_file_perms;
- allow hald_t urandom_device_t:chr_file read;
-+allow hald_t mouse_device_t:chr_file { read ioctl };
-
- ifdef(`updfstab.te', `
- domain_auto_trans(hald_t, updfstab_exec_t, updfstab_t)
-@@ -73,3 +74,20 @@
- tmp_domain(hald)
- allow hald_t mnt_t:dir search;
- r_dir_file(hald_t, proc_net_t)
-+
-+# For /usr/libexec/hald-add-selinux-mount-option
-+allow hald_t security_t:dir search;
-+allow hald_t security_t:file { read write };
-+allow hald_t security_t:security check_context;
-+
-+# For /usr/libxexc/hald-addon-acpi - writes to /var/run/acpid.socket
-+allow hald_t apmd_var_run_t:sock_file write;
-+allow hald_t apmd_t:unix_stream_socket connectto;
-+
-+# For /usr/sbin/dmidecode
-+# Violates assertion
-+#allow hald_t memory_device_t:chr_file read;
-+allow hald_t self:capability sys_rawio;
-+
-+# ??
-+allow hald_t lvm_control_t:chr_file getattr;
-
-
+fix for segfault in case of non-exisiting user attached.
 -- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
 
+--------------050604030909010803050803
+Content-Type: text/plain;
+ name="libselinux-1.22.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libselinux-1.22.diff"
+
+diff -rNu libselinux-1.22.orig/utils/getconlist.c libselinux-1.22/utils/getconlist.c
+--- libselinux-1.22.orig/utils/getconlist.c	2004-11-01 15:21:46.000000000 +0100
++++ libselinux-1.22/utils/getconlist.c	2005-03-29 13:13:13.000000000 +0200
+@@ -38,10 +38,12 @@
+ 
+ 	/* Get the list and print it */
+ 	ret = get_ordered_context_list(argv[1], cur_context, &list);
+-	for (i = 0; list[i]; i++)
+-		puts (list[i]);
++	if(ret != -1) {
++		for (i = 0; list[i]; i++)
++			puts (list[i]);
++		freeconary(list);
++	}
+ 
+-	freeconary(list);
+ 	free(usercon);
+ 
+ 	return 0;
+
+--------------050604030909010803050803--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
