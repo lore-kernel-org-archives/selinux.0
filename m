@@ -1,54 +1,30 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA28690
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 10:33:12 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id OAA01515
-	for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 14:31:43 GMT
-Received: from mail.ispko.com ([210.16.10.89])
-        by jazzband.ncsc.mil  with ESMTP id OAA01505 for <selinux@tycho.nsa.gov>; Tue, 9 Jul 2002 14:31:42 GMT
-Message-ID: <3D2AF420.50708@evoworks.evoserve.com>
-Date: Tue, 09 Jul 2002 22:33:04 +0800
-From: Debian User <rogelio@evoworks.evoserve.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: jw@centraltexasit.com, "SELinux" <SELinux@tycho.nsa.gov>
+Subject: Re: Make errors from newrole in utils
+Date: Mon, 8 Jul 2002 16:04:13 -0400
+References: <200207080116.57947.jw@centraltexasit.com>
+In-Reply-To: <200207080116.57947.jw@centraltexasit.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tislabs.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: automatic type transitions for pts in devfs
-References: <Pine.GSO.4.33.0207091011390.27193-100000@raven>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20020709162533.822977672@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+On Mon, 8 Jul 2002 02:16, JW wrote:
+> When I run make in utils I get errors in newrole.c about
+> security/pam_appl.h security/pam_misc.h missing:
 
->On Tue, 9 Jul 2002, Debian User wrote:
->
->  
->
->>So I focus on hooks.c. This is basically getting the inodes labelled
->>correctly.
->>Either we add some new fields(?) in the inode structure or we insert a
->>condition that would make the inode get the proper label. Is that correct?
->>    
->>
->
->You could add a test within the sbsec->uses_genfs case to see whether the
->filesystem type is devfs and whether the inode corresponds to a /pts node.
->If so, then you want to use a transition SID as with the sbsec->uses_trans
->case.  Otherwise, you would use genfs_contexts as usual.
->  
->
-That would mean checking if the inode's super block magic number is DEVPTS.
-Is that going to be enough?
+To build on a Debian machine you need the libpam0g-dev package installed 
+(it's in the build-depends for my SE Linux package).  For other distributions 
+you need the equivalent package.
 
->--
->Stephen D. Smalley, NAI Labs
->ssmalley@nai.com
->
->
->  
->
-
-
+-- 
+I do not get viruses because I do not use MS software.
+If you use Outlook then please do not put my email address in your
+address-book so that WHEN you get a virus it won't use my address in the
+>From field.
 
 
 --
