@@ -1,38 +1,35 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAIK3AIi016011
-	for <selinux@tycho.nsa.gov>; Thu, 18 Nov 2004 15:03:10 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAIK4XIi016028
+	for <selinux@tycho.nsa.gov>; Thu, 18 Nov 2004 15:04:33 -0500 (EST)
 Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAIK1giM026533
-	for <selinux@tycho.nsa.gov>; Thu, 18 Nov 2004 20:01:42 GMT
-Subject: Re: gentoo policy for stunnel
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAIK35iM026645
+	for <selinux@tycho.nsa.gov>; Thu, 18 Nov 2004 20:03:06 GMT
+Subject: Re: gentoo policy for dante
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
 To: petre rodan <kaiowas@gentoo.org>
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <4198D4CA.3020708@gentoo.org>
-References: <4198D4CA.3020708@gentoo.org>
+In-Reply-To: <4198E94B.8070008@gentoo.org>
+References: <4198E94B.8070008@gentoo.org>
 Content-Type: text/plain
-Message-Id: <1100808355.26930.26.camel@moss-lions.epoch.ncsc.mil>
+Message-Id: <1100808438.26930.28.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 18 Nov 2004 15:05:55 -0500
+Date: Thu, 18 Nov 2004 15:07:18 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Added.
+allow dante_t initrc_var_run_t:file { getattr write };
 
-I also removed the duplicate stunnel specification in inetd.fc.
+Why does dante need this?
 
-By the way, the privlog attribute comes free of charge with the
-daemon_core_rules macro (which is used by daemon_domain macro).
-
-On Mon, 2004-11-15 at 11:09, petre rodan wrote:
+On Mon, 2004-11-15 at 12:37, petre rodan wrote:
 > Hi,
 > 
-> attached you'll find the policy we use for stunnel [1]
+> this must be gentoo-day :)
 > 
-> [1] http://www.stunnel.org
-> 	Stunnel is a program that allows you to encrypt arbitrary TCP connections inside SSL (Secure Sockets Layer) available on both Unix and Windows. Stunnel can allow you to secure non-SSL aware daemons and protocols (like POP, IMAP, LDAP, etc) by having Stunnel provide the encryption, requiring no 
-> changes to the daemon's code.
+> policy for dante [1], attached
+> 
+> [1] http://www.inet.no/dante/
 > 
 > bye,
 > peter
