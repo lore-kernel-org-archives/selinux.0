@@ -1,42 +1,34 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA11583
-	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 11:57:34 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA21393
-	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 16:54:46 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11715
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 12:10:24 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id h0JHAOI07665
+	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 17:10:24 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id QAA21389
-	for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 16:54:44 GMT
+        by jazzband.ncsc.mil  with ESMTP id h0JHANf07661 for <selinux@tycho.nsa.gov>; Sun, 19 Jan 2003 17:10:23 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Florian Hines <frhines@swbell.net>, selinux@tycho.nsa.gov
-Subject: Re: Cambridge Security Group talk
-Date: Sun, 19 Jan 2003 17:57:13 +0100
-References: <001101c2bf81$f6c383d0$a702a8c0@D611017>
-In-Reply-To: <001101c2bf81$f6c383d0$a702a8c0@D611017>
+To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov,
+        tom@lemuria.org
+Subject: Re: KDM login trouble
+Date: Sun, 19 Jan 2003 18:10:15 +0100
+References: <200301171418.JAA00475@moss-shockers.ncsc.mil>
+In-Reply-To: <200301171418.JAA00475@moss-shockers.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200301191757.13780.russell@coker.com.au>
+Message-Id: <200301191810.15992.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 19 Jan 2003 07:13, Florian Hines wrote:
-> By any chance is there a streaming media recording of the Cambridge seminar
-> ? Or is there plans for a live web cast once ? (Through Flashcomm or
+On Fri, 17 Jan 2003 15:18, Stephen D. Smalley wrote:
+> Offhand, I would guess that the SELinux patch for kdm was never updated
+> for the newer libsecure functions and default_contexts configuration,
 
-As far as I am aware there was no such recording.
+I have not made such an update, and I guess that Brian hasn't either.
 
-My talks for OLS 2002 and Debconf 2002 in Toronto were both recorded but have 
-not been released.  I have asked the people who made the recordings for the 
-mp3's to be released to me (if no-one else), but I have not received a 
-response.
-
-> something)...or a speaking engagment in the South Western US.  I'm stuck in
-> San Antonio, TX so not much chance of me making it to europe till next
-> summer.
-
-If air-fares and accomodation are paid then that can probably be arranged.
+I've been waiting for KDE 3.1 to enter Debian.  KDE 2.2 is still the latest 
+supported version in Debian.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
