@@ -1,70 +1,72 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9NKZfWt012014
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 16:35:41 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9NL4DWt012238
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 17:04:14 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9NKZQIS015784
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 20:35:27 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id h9NKZQDc015781
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 20:35:26 GMT
-Subject: Re: selinux, openssh and users
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Ignacio Tripodi <ignaciot@unt.edu>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1066939944.3f9836281d4ed@eaglemail.unt.edu>
-References: <1066939944.3f9836281d4ed@eaglemail.unt.edu>
-Content-Type: text/plain
-Message-Id: <1066941339.8242.164.camel@moss-spartans.epoch.ncsc.mil>
+	by jazzswing.ncsc.mil  with ESMTP id h9NL3xIS017690
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 21:03:59 GMT
+Received: from extern.mail.waldi.eu.org (wavehammer.waldi.eu.org [82.139.196.55])
+	by jazzswing.ncsc.mil  with ESMTP id h9NL3wDc017684
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2003 21:03:58 GMT
+Date: Thu, 23 Oct 2003 23:04:10 +0200
+From: Bastian Blank <bastian@waldi.eu.org>
+To: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] checkpolicy/policy_scan.y
+Message-ID: <20031023210410.GA21631@wavehammer.waldi.eu.org>
+References: <20031022175608.GB4531@hydra.joerghoh.de> <1066847603.32228.76.camel@moss-spartans.epoch.ncsc.mil> <20031022190241.GA4671@hydra.joerghoh.de> <1066855497.32228.150.camel@moss-spartans.epoch.ncsc.mil> <20031022211407.GC4671@hydra.joerghoh.de> <1066858032.32228.169.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 23 Oct 2003 16:35:39 -0400
+Content-Type: multipart/mixed; boundary="FsscpQKzF/jJk6ya"
+In-Reply-To: <1066858032.32228.169.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-10-23 at 16:12, Ignacio Tripodi wrote:
-> I just finished setting up a 2.6 selinux kernel environment, and noticed that I
-> can't ssh to it.
 
-Did you label the filesystems and reboot (or at least restart sshd)?  If
-not, sshd is running in the wrong security domain and can't find a
-reachable user context for you.  What does ps -eZ (ps -e --context)
-show?
+--FsscpQKzF/jJk6ya
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->  I found in the list archives that you cannot ssh using an
-> admin_r user (is that still valid?)
+On Wed, Oct 22, 2003 at 05:27:13PM -0400, Stephen Smalley wrote:
+> I've merged this patch with the ~0UL -> ~0U fix.
 
-The example policy prohibits direct transitions from sshd_t to sysadm_t,
-but you should be able to login as staff_r:staff_t and then newrole to
-sysadm_r:sysadm_t.
+I just find out that this patch have unpredictable side effects. It uses
+integers of different size at the same time (op and roleop uses int,
+cexpr and cexpr_prim uses uintptr_t).
 
->  so I tried to create a regular user and
-> assign the user_r role to it. If I do a "seuser add -R user_r username" it says
-> that it couldn't modify the policy and failed to create the user. Do you know
-> where can I start looking for errors?
+this should work on 32bit machines (big and little), but breaks if
+uintptr_t is larger than int, because accessing the int member only
+writes the corresponding 32bit. the attached sources demonstrates this
+problem.
 
-Your 'dmesg' output or /var/log/messages will show avc denied messages
-for SELinux access denials.  Is your kernel running in enforcing mode?
-It is a good idea to start with permissive mode until you have worked
-out any policy issues, as noted in the README.
-
-> Also, once I am able to create a regular user, do I need to specify any
-> role/context parameters in order to ssh to this machine? How does the openssh
-> client get around this?
-
-sshd (via libselinux) asks the kernel what contexts are reachable from
-its domain for your user identity (kernel determines this based on the
-policy) and then picks one of the reachable contexts based on either
-/etc/security/default_contexts or $HOME/.default_contexts.  There is no
-way to specify a context from the client.  
-
-Note that a patched sshd isn't necessary if you use Dan's pam_selinux
-module and alter your PAM sshd configuration to include it.  Not sure if
-his module allows user selection of contexts for ssh sessions (if using
-the 'multiple' option to the module).
+bastian
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Ahead warp factor one, Mr. Sulu.
 
+--FsscpQKzF/jJk6ya
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="test.c"
+
+#include <stdint.h>
+#include <stdio.h>
+
+union
+{
+  uint16_t val1;
+  uint32_t val2;
+} test;
+
+int main (void)
+{
+  test.val2 = 1 | 1 << 16;
+  printf ("write 0x%x into 32\n", 1 | 1 << 16);
+  printf ("32: 0x%x\n", test.val2);
+  printf ("16: 0x%hx\n", test.val1);
+  test.val1 = 1;
+  printf ("write 0x%x into 16\n", 1);
+  printf ("32: 0x%x\n", test.val2);
+  printf ("16: 0x%hx\n", test.val1);
+}
+
+--FsscpQKzF/jJk6ya--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
