@@ -1,41 +1,42 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i728BOrT010552
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 04:11:25 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i728AoXV008676
-	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 08:10:51 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i728mwrT010660
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 04:48:59 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i728muKV004779
+	for <selinux@tycho.nsa.gov>; Mon, 2 Aug 2004 08:48:57 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Wolfgang Pfeiffer <roto@gmx.net>
-Subject: Re: gcc-2.95: checking for va_list assignment copy... configure: error: no
-Date: Mon, 2 Aug 2004 18:10:51 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <1091383127.1295.283.camel@debby>
-In-Reply-To: <1091383127.1295.283.camel@debby>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: hotplug 0.030 not setting selinux permissions on /dev/tty*
+Date: Mon, 2 Aug 2004 18:48:22 +1000
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+   SE-Linux <selinux@tycho.nsa.gov>
+References: <20040801160019.GC15949@lkcl.net> <20040801164440.GD15949@lkcl.net>
+In-Reply-To: <20040801164440.GD15949@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200408021810.51884.russell@coker.com.au>
+Message-Id: <200408021848.22461.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2 Aug 2004 03:58, Wolfgang Pfeiffer <roto@gmx.net> wrote:
-> Trying to build a SE-Linux dpkg package with gcc-2.95 and this script:
+On Mon, 2 Aug 2004 02:44, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> GOT IT!  gotit,gotit,gotit.
 >
-> ends like this:
-> ----------------------------------------------------
-> checking for initscr in -lncurses... yes
-> checking if TIOCNOTTY is defined in sys/ioctl.h... yes
-> checking for va_copy... no
-> checking for va_list assignment copy... configure: error: no
-> make: ***
-> [/home/shorty/russellpackages/dpkg/dpkg-1.10.22/build/configure-stamp]
-> Error 1 ----------------------------------------------------
+> watching stuff go by during boot-up, i observed the same
+> "matchpathcon cannot find file" error that i - fortunately -
+> observed earlier today.
 >
-> Trying to build the package with the mentioned script above plus gcc-3.3
-> or gcc-3.0 or gcc-3.4 each time successfully builds these packages:
+> the [unnamed] file it's searching for is of course
+> /etc/selinux/something/file_contexts/file_contexts
+>
+> this file is on /usr/share/selinux and has a symlink to it from
+> /etc/selinux.
 
-Why not just use the latest GCC?
+Then your system is messed up.  It was on older versions of the 
+selinux-policy-default package that /etc/selinux was a sym-link.  
+Now /etc/selinux/src is a sym-link and /etc/selinux/./contexts/file_contexts 
+is on the root file system.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
