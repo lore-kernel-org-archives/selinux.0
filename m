@@ -1,25 +1,35 @@
-Reply-To: <dac@tresys.com>
-From: "David Caplan" <dac@tresys.com>
-To: <SeLinux@tycho.nsa.gov>
-Subject: policy white papers
-Date: Mon, 8 Apr 2002 17:35:42 -0400
-Message-ID: <NJEELFKFDFJAACDDMCHCGEPADOAA.dac@tresys.com>
+Date: Tue, 9 Apr 2002 08:07:27 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: David Caplan <dac@tresys.com>
+cc: <SeLinux@tycho.nsa.gov>
+Subject: Re: policy white papers
+In-Reply-To: <NJEELFKFDFJAACDDMCHCGEPADOAA.dac@tresys.com>
+Message-ID: <Pine.GSO.4.33.0204090805280.6557-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-We've started to write some "primer" white papers in order to help others
-come up to speed on understanding, writing, changing, and testing SE Linux
-security policies.  We've posted the first couple of these white papers as
-PDF files at http://www.tresys.com/selinux.html, and are working on others.
-Any comments or corrections would be welcome, and can be sent to
-selinux@tresys.com.
+On Mon, 8 Apr 2002, David Caplan wrote:
 
-David Caplan, Tresys Technology
-dac@tresys.com
+> We've started to write some "primer" white papers in order to help others
+> come up to speed on understanding, writing, changing, and testing SE Linux
+> security policies.  We've posted the first couple of these white papers as
+> PDF files at http://www.tresys.com/selinux.html, and are working on others.
+> Any comments or corrections would be welcome, and can be sent to
+> selinux@tresys.com.
+
+We've written a new "Configuring the SELinux Policy" technical report that
+appears to overlap with some of these planned white papers.  It should be
+released soon, and is merely pending authorization by the NSA for release.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
