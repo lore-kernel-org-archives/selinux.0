@@ -1,43 +1,25 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1ALmNL9014876
-	for <selinux@tycho.nsa.gov>; Thu, 10 Feb 2005 16:48:23 -0500 (EST)
-Subject: Re: TTY question
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1ALoEL9014924
+	for <selinux@tycho.nsa.gov>; Thu, 10 Feb 2005 16:50:14 -0500 (EST)
+Subject: Re: Rewrite of genhomedircon
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: ivg2@cornell.edu
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1108071596.3689.15.camel@cobra.ivg2.net>
-References: <1107915334.6602.1.camel@cobra.ivg2.net>
-	 <1107954368.17568.25.camel@moss-spartans.epoch.ncsc.mil>
-	 <1108000939.5241.10.camel@cobra.ivg2.net>
-	 <1108039573.22172.37.camel@moss-spartans.epoch.ncsc.mil>
-	 <1108043320.326.1.camel@cobra.ivg2.net>
-	 <1108058666.3808.2.camel@cobra.ivg2.net>
-	 <1108062931.4443.3.camel@cobra.ivg2.net>
-	 <1108063884.22172.231.camel@moss-spartans.epoch.ncsc.mil>
-	 <1108067400.5249.10.camel@cobra.ivg2.net>
-	 <1108067486.22172.251.camel@moss-spartans.epoch.ncsc.mil>
-	 <1108069944.3689.9.camel@cobra.ivg2.net>
-	 <1108070175.22172.262.camel@moss-spartans.epoch.ncsc.mil>
-	 <1108071596.3689.15.camel@cobra.ivg2.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Nalin Dahyabhai <nalin@redhat.com>
+In-Reply-To: <420BC588.4@redhat.com>
+References: <420BC588.4@redhat.com>
 Content-Type: text/plain
-Message-Id: <1108071674.22172.267.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1108071785.22172.270.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 10 Feb 2005 16:41:15 -0500
+Date: Thu, 10 Feb 2005 16:43:05 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-02-10 at 16:39, Ivan Gyurdiev wrote:
-> Actually here's probably why:
-> it's duplicated in su_mini_domain:
-> 
-> # Close and re-open ttys and ptys to get the fd into the correct domain.
-> allow $1_su_t { ttyfile ptyfile }:chr_file { read write };
-> 
-> So it's all good.
+On Thu, 2005-02-10 at 15:35, Daniel J Walsh wrote:
+> genhomedircon will generate only one HOME_ROOT based off the location in 
+> the /etc/default/useradd.
 
-That likely isn't necessary presently, as su/pam_selinux no longer does
-that (it caused breakage; we'd have to directly patch su to do it right,
-and at that point, we'd likely just introduce a proxy pty).
+Is this limitation (to a single HOME_ROOT) going to be a problem in
+practice?
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
