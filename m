@@ -1,32 +1,35 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6EC79Ha011718
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 08:07:09 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h6ECCrHa011752
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 08:12:54 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h6EC78H5006637
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:07:08 GMT
+	by jazzband.ncsc.mil  with ESMTP id h6ECCqH5006835
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:12:52 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h6EC77RX006634 for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:07:07 GMT
-Subject: Re: patch for new release
+        by jazzband.ncsc.mil  with ESMTP id h6ECCqRX006832 for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2003 12:12:52 GMT
+Subject: Re: [patch] uninitialized values in setfiles/psid.c
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200307122059.52553.russell@coker.com.au>
-References: <200307122059.52553.russell@coker.com.au>
+To: Colin Walters <walters@verbum.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1058077234.10673.68.camel@columbia>
+References: <1058077234.10673.68.camel@columbia>
 Content-Type: text/plain
-Message-Id: <1058184423.13738.572.camel@moss-huskers.epoch.ncsc.mil>
+Message-Id: <1058184770.13738.575.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: 14 Jul 2003 08:07:03 -0400
+Date: 14 Jul 2003 08:12:51 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2003-07-12 at 06:59, Russell Coker wrote:
-> The attached patch from Carsten was omitted from the new release.
+On Sun, 2003-07-13 at 02:20, Colin Walters wrote:
+> While updating to the newer policycoreutils release, I noticed the
+> following gcc warnings:
 > 
-> I think that this patch is worthy of inclusion for the next release.
+> psid.c: In function `chpsid':
+> psid.c:609: warning: `off' might be used uninitialized in this function
+> psid.c:610: warning: `len' might be used uninitialized in this function
+> 
+> I believe the patch below should fix the problem.
 
-libsecure and the old 2.4-based SELinux userland will be obsoleted by
-libselinux and the new 2.5-based SELinux userland as soon as the new API
-and xattr support have been back ported.
+The psid code in setfiles is actually obsolete now, and can be dropped.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
