@@ -1,56 +1,38 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA18407
-	for <selinux@tycho.nsa.gov>; Mon, 21 Oct 2002 10:45:37 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA13745
-	for <selinux@tycho.nsa.gov>; Mon, 21 Oct 2002 14:43:40 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA13121
+	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 10:34:08 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id OAA16751
+	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 14:32:12 GMT
 Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-	by jazzswing.ncsc.mil  with ESMTP id OAA13737
-	for <selinux@tycho.nsa.gov>; Mon, 21 Oct 2002 14:43:39 GMT
+        by jazzband.ncsc.mil  with ESMTP id OAA16747 for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 14:32:12 GMT
 Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
-	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA27441
-	for <selinux@tycho.nsa.gov>; Mon, 21 Oct 2002 10:45:23 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA15588
-	for <selinux@tycho.nsa.gov>; Sun, 20 Oct 2002 16:40:51 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id UAA07885
-	for <selinux@tycho.nsa.gov>; Sun, 20 Oct 2002 20:39:04 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id UAA07881
-	for <selinux@tycho.nsa.gov>; Sun, 20 Oct 2002 20:39:03 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id B7C1D92465
-	for <selinux@tycho.nsa.gov>; Mon, 21 Oct 2002 06:40:47 +1000 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 09522A793
-	for <selinux@tycho.nsa.gov>; Sun, 20 Oct 2002 22:40:40 +0200 (CEST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA03563
+	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2002 10:34:03 -0400 (EDT)
+Date: Wed, 23 Oct 2002 10:16:48 -0400 (EDT)
+From: hdholm@epoch.ncsc.mil (Howard Holm)
+Message-Id: <200210231416.KAA04799@coalpipe.epoch.ncsc.mil>
 To: selinux@tycho.nsa.gov
-Subject: strace
-Date: Sun, 20 Oct 2002 22:40:39 +0200
-MIME-Version: 1.0
-Message-Id: <200210202240.39519.russell@coker.com.au>
+Subject: Updated Release
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've put a Debian package of strace with SE Linux support online on 
-http://www.coker.com.au/selinux/strace/ .  It contains a newer version of my 
-patch that I previously sent here (and is now on the NSA site).
+The SELinux web site <http://www.nsa.gov/selinux/> including the mail
+list archive has been updated. The site includes a new release of the
+LSM-based SELinux prototype. The base 2.5 kernel version has been
+updated to 2.5.44. The base 2.4 kernel version remains at 2.4.19, but
+many changes have been made to the 2.4 LSM patch and to the 2.4 SELinux
+module since the last release. The modified login, sshd and crond
+programs have been updated to use a new configuration scheme. Socket
+handling has been improved. Internally, precondition functions have
+been removed in favor of early initialization support. The modified tar
+has been updated to tar-1.13.25. A number of other improvements, bug
+fixes and policy enhancements have taken place.
 
-It's now got full support for:
-recvmsg_secure(), accept_secure(), and open_secure()
-
-This package is for unstable, hopefully Brian will port it to woody soon.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--
+Howard Holm <hdholm@epoch.ncsc.mil>
+Secure Systems Research Office
+National Security Agency
 
 
 --
