@@ -1,174 +1,165 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i47JrnRb004665
-	for <selinux@tycho.nsa.gov>; Fri, 7 May 2004 15:53:49 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i4A3RHRb012466
+	for <selinux@tycho.nsa.gov>; Sun, 9 May 2004 23:27:17 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i47JrlYW027911
-	for <selinux@tycho.nsa.gov>; Fri, 7 May 2004 19:53:47 GMT
-Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
-        by jazzband.ncsc.mil  with ESMTP id i47JrlBf027908 for <selinux@tycho.nsa.gov>; Fri, 7 May 2004 19:53:47 GMT
-Date: Fri, 7 May 2004 15:53:30 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>,
-   "David S. Miller" <davem@redhat.com>
-cc: Stephen Smalley <sds@epoch.ncsc.mil>, Chris Wright <chrisw@osdl.org>,
-   <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-   <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH][SELINUX] 2/2 sock_create_lite()
-In-Reply-To: <Xine.LNX.4.44.0405071118490.21529-100000@thoron.boston.redhat.com>
-Message-ID: <Xine.LNX.4.44.0405071531480.22499-100000@thoron.boston.redhat.com>
+	by jazzband.ncsc.mil  with ESMTP id i4A3RFYW016864
+	for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 03:27:15 GMT
+Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
+        by jazzband.ncsc.mil  with ESMTP id i4A3RFBf016861 for <selinux@tycho.nsa.gov>; Mon, 10 May 2004 03:27:15 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by abyss.simplyaquatics.com (Postfix) with ESMTP id 261123A404E
+	for <selinux@tycho.nsa.gov>; Sun,  9 May 2004 22:27:13 -0500 (CDT)
+Received: from TECRAS1 (simplyaquatics.com [209.192.116.78])
+	by abyss.simplyaquatics.com (Postfix) with ESMTP id 919833A404E
+	for <selinux@tycho.nsa.gov>; Sun,  9 May 2004 22:27:12 -0500 (CDT)
+From: "Ed Street" <edstreet@street-tek.com>
+To: "'Selinux'" <selinux@tycho.nsa.gov>
+Subject: presentation results
+Date: Sun, 9 May 2004 23:27:12 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0140_01C4361D.28123590"
+Message-Id: <20040510032712.919833A404E@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 7 May 2004, James Morris wrote:
+This is a multi-part message in MIME format.
 
-> On Fri, 7 May 2004, Christoph Hellwig wrote:
-> 
-> > On Fri, May 07, 2004 at 11:06:04AM -0400, James Morris wrote:
-> > > This patch adds a function sock_create_lite(), deprecating kernel-wide use
-> > > of sock_alloc(), which has been made static to net/socket.c.
-> > 
-> > We're in the stable series and removing exported APIs there shoudn't happen.
-> > Given that sock_alloc() is actually okay for every normal use I don't think
-> > there's enough reason to remove it from the API.
-> 
+------=_NextPart_000_0140_01C4361D.28123590
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+ 
+
+The presentation I gave went rather well considering everything.  The 2
+biggest questions that came up where:
+
+ 
+
+Documentation, is there any plans to have a printed book dealing with
+selinux administration?
+
+ 
+
+Is/will selinux be certified under Common Criteria and if so what level?
+
+ 
+
+Ed
 
 
-Ok, here's a version of this patch which doesn't do anything with 
-sock_alloc().
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004
+ 
+
+------=_NextPart_000_0140_01C4361D.28123590
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3DWindows-1252">
 
 
-diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/include/linux/net.h linux-2.6.6-rc3-mm2.w/include/linux/net.h
---- linux-2.6.6-rc3-mm2.p/include/linux/net.h	2004-05-06 16:59:28.000000000 -0400
-+++ linux-2.6.6-rc3-mm2.w/include/linux/net.h	2004-05-07 13:57:47.669957104 -0400
-@@ -151,6 +151,8 @@
- 				 struct socket **res);
- extern int	     sock_create_kern(int family, int type, int proto,
- 				      struct socket **res);
-+extern int	     sock_create_lite(int family, int type, int proto,
-+				      struct socket **res); 
- extern void	     sock_release(struct socket *sock);
- extern int   	     sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 				  size_t len);
-diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/net/bluetooth/rfcomm/core.c linux-2.6.6-rc3-mm2.w/net/bluetooth/rfcomm/core.c
---- linux-2.6.6-rc3-mm2.p/net/bluetooth/rfcomm/core.c	2004-05-06 16:59:28.000000000 -0400
-+++ linux-2.6.6-rc3-mm2.w/net/bluetooth/rfcomm/core.c	2004-05-07 13:56:02.770904184 -0400
-@@ -1642,11 +1642,9 @@
- 
- 	BT_DBG("session %p", s);
- 
--	nsock = sock_alloc();
--	if (!nsock)
-+	if (sock_create_lite(PF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP, &nsock))
- 		return;
--
--	nsock->type = sock->type;
-+	
- 	nsock->ops  = sock->ops;
- 
- 	__module_get(nsock->ops->owner);
-diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/net/netlink/af_netlink.c linux-2.6.6-rc3-mm2.w/net/netlink/af_netlink.c
---- linux-2.6.6-rc3-mm2.p/net/netlink/af_netlink.c	2004-05-05 11:16:20.000000000 -0400
-+++ linux-2.6.6-rc3-mm2.w/net/netlink/af_netlink.c	2004-05-07 13:56:02.771904032 -0400
-@@ -833,11 +833,9 @@
- 	if (unit<0 || unit>=MAX_LINKS)
- 		return NULL;
- 
--	if (!(sock = sock_alloc())) 
-+	if (sock_create_lite(PF_NETLINK, SOCK_DGRAM, unit, &sock))
- 		return NULL;
- 
--	sock->type = SOCK_RAW;
--
- 	if (netlink_create(sock, unit) < 0) {
- 		sock_release(sock);
- 		return NULL;
-diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/net/sctp/protocol.c linux-2.6.6-rc3-mm2.w/net/sctp/protocol.c
---- linux-2.6.6-rc3-mm2.p/net/sctp/protocol.c	2004-04-29 10:03:53.000000000 -0400
-+++ linux-2.6.6-rc3-mm2.w/net/sctp/protocol.c	2004-05-06 17:26:12.000000000 -0400
-@@ -653,8 +653,8 @@
- 	else
- 		family = PF_INET;
- 
--	err = sock_create(family, SOCK_SEQPACKET, IPPROTO_SCTP,
--			  &sctp_ctl_socket);
-+	err = sock_create_kern(family, SOCK_SEQPACKET, IPPROTO_SCTP,
-+			       &sctp_ctl_socket);
- 	if (err < 0) {
- 		printk(KERN_ERR
- 		       "SCTP: Failed to create the SCTP control socket.\n");
-diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/net/socket.c linux-2.6.6-rc3-mm2.w/net/socket.c
---- linux-2.6.6-rc3-mm2.p/net/socket.c	2004-05-06 16:59:28.000000000 -0400
-+++ linux-2.6.6-rc3-mm2.w/net/socket.c	2004-05-07 13:57:40.429057888 -0400
-@@ -457,7 +457,7 @@
-  *	NULL is returned.
-  */
- 
--struct socket *sock_alloc(void)
-+static struct socket *sock_alloc(void)
- {
- 	struct inode * inode;
- 	struct socket * sock;
-@@ -840,6 +840,27 @@
- 	return err;
- }
- 
-+int sock_create_lite(int family, int type, int protocol, struct socket **res)
-+{
-+	int err;
-+	struct socket *sock = NULL;
-+	
-+	err = security_socket_create(family, type, protocol, 1);
-+	if (err)
-+		goto out;
-+
-+	sock = sock_alloc();
-+	if (!sock) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	security_socket_post_create(sock, family, type, protocol, 1);
-+	sock->type = type;
-+out:
-+	*res = sock;
-+	return err;
-+}
- 
- /* No kernel lock held - perfect */
- static unsigned int sock_poll(struct file *file, poll_table * wait)
-@@ -2001,6 +2022,7 @@
- EXPORT_SYMBOL(sock_alloc_inode);
- EXPORT_SYMBOL(sock_create);
- EXPORT_SYMBOL(sock_create_kern);
-+EXPORT_SYMBOL(sock_create_lite);
- EXPORT_SYMBOL(sock_map_fd);
- EXPORT_SYMBOL(sock_recvmsg);
- EXPORT_SYMBOL(sock_register);
-diff -urN -X dontdiff linux-2.6.6-rc3-mm2.p/net/sunrpc/svcsock.c linux-2.6.6-rc3-mm2.w/net/sunrpc/svcsock.c
---- linux-2.6.6-rc3-mm2.p/net/sunrpc/svcsock.c	2004-05-06 16:59:28.000000000 -0400
-+++ linux-2.6.6-rc3-mm2.w/net/sunrpc/svcsock.c	2004-05-07 13:56:02.775903424 -0400
-@@ -781,13 +781,15 @@
- 	if (!sock)
- 		return;
- 
--	if (!(newsock = sock_alloc())) {
--		printk(KERN_WARNING "%s: no more sockets!\n", serv->sv_name);
-+	err = sock_create_lite(PF_INET, SOCK_STREAM, IPPROTO_TCP, &newsock);
-+	if (err) {
-+		if (err == -ENOMEM)
-+			printk(KERN_WARNING "%s: no more sockets!\n",
-+			       serv->sv_name);
- 		return;
- 	}
--	dprintk("svc: tcp_accept %p allocated\n", newsock);
- 
--	newsock->type = sock->type;
-+	dprintk("svc: tcp_accept %p allocated\n", newsock);
- 	newsock->ops = ops = sock->ops;
- 
- 	clear_bit(SK_CONN, &svsk->sk_flags);
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Hello,<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>The presentation I gave went rather well considering
+everything.&nbsp; The 2 biggest questions that came up =
+where:<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Documentation, is there any plans to have a printed =
+book
+dealing with selinux administration?<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Is/will selinux be certified under Common Criteria =
+and if so
+what level?<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Ed<o:p></o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+<BR>
+
+<P><FONT SIZE=3D2>---<BR>
+<BR>
+Checked by AVG anti-virus system (http://www.grisoft.com).<BR>
+Version: 6.0.677 / Virus Database: 439 - Release Date: 5/4/2004<BR>
+</FONT> </P>
+
+------=_NextPart_000_0140_01C4361D.28123590--
 
 
 --
