@@ -1,104 +1,46 @@
-Subject: Re: relabel python script.
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux List <SELinux@tycho.nsa.gov>
-In-Reply-To: <3FD0AB5C.4030103@redhat.com>
-References: <3FD0AB5C.4030103@redhat.com>
-Content-Type: text/plain
-Message-Id: <1071001121.6729.80.camel@colossus.columbia.tresys.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hBA05pRb025605
+	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2003 19:05:51 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hBA03jlU028125
+	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 00:03:45 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+	by jazzswing.ncsc.mil  with ESMTP id hBA03cSX028112
+	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2003 00:03:42 GMT
+Date: Wed, 10 Dec 2003 11:03:59 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: Tom <tom@lemuria.org>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Policy in arch/tla
+Message-ID: <20031210000359.GB27706@snoopy.apana.org.au>
+References: <20031209115448.B1732@lemuria.org>
 Mime-Version: 1.0
-Date: Tue, 09 Dec 2003 15:18:42 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20031209115448.B1732@lemuria.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2003-12-05 at 10:59, Daniel J Walsh wrote:
-> The attached script is something I wrote to handle the problem of 
-> labeling users home directories.  Russell's latest policy has added 
-> several security contexts to files in the users home directories (.ssh, 
-> .pgp, .xauthority etc).  The problem is the current 'make label' labels 
-> all entries in the users home directory with user_*_t.  If you define a 
-> certain user at staff_t (required by policy if you want to become 
-> sysadm_t) by default he will not be able to login.
+On Tue, Dec 09, 2003 at 11:54:49AM +0100, Tom wrote:
+> tom@lemuria.org--selinux-public
+>     http://guest:guest@nox.lemuria.org/arch/public/
 > 
-> This script figures out the default role for all users and then if the 
-> user is not root and the default role is not user_u, it adds entries to 
-> file_contexts to properly label this users home directories.  The script 
-> then runs a make relabel.
-> 
-> This functionality should probably be added to either seuser or make 
-> relabel to make this easier to do. 
-> 
+> And there is one item there named "policy--default--0.1"
 
-I have added this to our list of wanted features for seuser. Hopefully
-we can get to it for the release after next.
+For people not entirely familiar with tla, the commands to
+check this out are:
 
-Karl
+tla register-archive tom@lemuria.org--selinux-public http://guest:guest@nox.lemuria.org/arch/public/
+tla get tom@lemuria.org--selinux-public/policy--default--0.1 policy
 
-> Ideas?
-> 
-> Dan
-> 
-> ______________________________________________________________________
-> #!/usr/bin/python
-> import commands
-> import sys
-> import os
-> 
-> policy_dir="/etc/security/selinux/src/policy"
-> context_dir="%s/file_contexts" % policy_dir
-> 
-> def makeFileContext():
-> 	rc=commands.getstatusoutput("cd %s;rm file_contexts/file_contexts; make file_contexts/file_contexts" % policy_dir)
-> 	if rc[0] != 0:
-> 		raise ValueError, rc[1]
-> def makeRelabel():
-> 	rc=commands.getstatusoutput("cd %s;make relabel" % policy_dir)
-> 	if rc[0] != 0:
-> 		raise ValueError, rc[1]
-> 	
-> def getUsers():
-> 	rc=commands.getstatusoutput("seuser show users")
-> 	udict={}
-> 	if rc[0] == 0:
-> 		ulist=rc[1].strip().split("\n")
-> 		for u in ulist:
-> 			user=u.split(":")
-> 			if user[0]=="root" or user[0]=="user_u" or user[0]=="system_u":
-> 				continue
-> 			role = user[1].split()[0].split("_r")[0]
-> 			if role == "user":
-> 				continue
-> 			udict[user[0]]=role
-> 	return udict
-> 
-> def usage():
-> 	print "Usage: %s" % sys.argv[0]
-> 	sys.exit(1)
-> 	
-> def update(user, role):
-> 	rc=commands.getstatusoutput("cd %s; grep -h '/home/\[\^' file_contexts | grep -v vmware | sed 's|/home/\[\^\/\]+|/home/%s|g' | sed 's/user/%s/' > /tmp/user_context.tmp; cat /tmp/user_context.tmp >> file_contexts; rm /tmp/user_context.tmp" % (context_dir,user, role))
-> 	if rc[0] != 0:
-> 		print rc[1]
-> 		sys.exit(1)
-> 	return rc
-> 
-> try:
-> 	makeFileContext()
-> 	users=getUsers()
-> 	for u in users.keys():
-> 		update (u, users[u])
-> 
->        	makeRelabel()
-> except ValueError, error:
-> 	print error
-> 	
+In any case I recommend new users read the tla tutorial.
+
+<URL:http://regexps.srparish.net/tutorial-tla/arch.html>
+
+(actually, I cannot seem to get this to work via my squid proxy despite
+adding the required exension_methods parameter to squid; but thats a
+topic for another mailing list).
 -- 
-Karl MacMillan
-Tresys Technology
-kmacmillan@tresys.com
-http://www.tresys.com
-(410) 290-1411 x134
-
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
