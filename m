@@ -1,39 +1,28 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h89ItOLa002457
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:55:24 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h89ItNmw021607
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 18:55:23 GMT
-Received: from smtp4.na.baesystems.com (smtp4.na.baesystems.com [63.164.202.13])
-        by jazzband.ncsc.mil  with ESMTP id h89ItN9d021604 for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 18:55:23 GMT
-Received: from BLUMS0022.bluelnk.net ([10.40.96.145])
-	by smtp4.na.baesystems.com (8.12.5/8.12.5) with SMTP id h89ItMcT020333
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:55:22 -0400 (EDT)
-Received: from u02r01.usa02.na.baesystems.com (u02r01.usa02.na.baesystems.com [129.86.15.109])
-	by smtp1.na.baesystems.com (8.12.5/8.12.5) with ESMTP id h89ItLc9026543
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:55:21 -0400 (EDT)
-Message-ID: <93DA0219FE13D511889F00508BCFEB900D756933@u02m02.usa02.na.baesystems.com>
-From: "Miner, Jonathan W" <jonathan.w.miner@baesystems.com>
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: NISPOM Chaper 8 Requirements
-Date: Tue, 9 Sep 2003 14:55:20 -0400 
-MIME-Version: 1.0
-Content-Type: text/plain
+Date: Tue, 9 Sep 2003 21:54:19 +0200
+From: Tom <tom@lemuria.org>
+To: SELinux@tycho.nsa.gov
+Subject: Another small SE presentation
+Message-ID: <20030909215414.K6475@lemuria.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello -
+During a private, small meeting (about 20 people) in London this
+weekend, I gave a shortened version of the CCC presentation that
+Carsten I made in August. The audience was exclusively computer
+security people. There was a lot of interest, many questions including
+fairly deep ones, e.g. polyinstantiation or comparisons to other
+systems.
 
-I'm looking to deploy a number of Linux systems, that need to meet the
-requirements of NISPOM Chapter 8.  To make a long story short... there is no
-one who can tell me exactly what to do, or suggest 3rd party tools that can
-be used.
+It seems to me after these last events that SELinux is by far not as
+well known as I would have thought. I'm a bit surprised by that. Is
+anyone else?
 
-I have started to look around the SELinux site, and want to know from others
-who are using SELinux if it meets Chapter 8 requirements.  The primary
-features revolve around audit trails, and automated account lockout.
-
-Thanks in advance. 
+-- 
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
