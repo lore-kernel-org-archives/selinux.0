@@ -1,53 +1,29 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9AFJDWt003998
-	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 11:19:13 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9AFZNWt004119
+	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 11:35:23 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h9AFJ70r028572
-	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 15:19:09 GMT
-Date: Fri, 10 Oct 2003 11:19:21 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Russell Coker <russell@coker.com.au>
-cc: Stephen Smalley <sds@epoch.ncsc.mil>, <selinux@tycho.nsa.gov>
-Subject: Re: login messages
-In-Reply-To: <200310101620.32424.russell@coker.com.au>
-Message-ID: <Xine.LNX.4.44.0310101115070.18207-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+	by jazzswing.ncsc.mil  with ESMTP id h9AFZE0r000302
+	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2003 15:35:20 GMT
+Date: Fri, 10 Oct 2003 16:35:08 +0100
+From: Dale Amon <amon@vnl.com>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Russell Coker <russell@coker.com.au>, Dale Amon <amon@vnl.com>,
+   selinux@tycho.nsa.gov
+Subject: Re: newrules.pl -o option
+Message-ID: <20031010153508.GF31227@vnl.com>
+References: <200310090124.AA01358@ilios104.ori.hitachi-sk.co.jp> <200310102116.16958.russell@coker.com.au> <1065793227.8181.426.camel@moss-spartans.epoch.ncsc.mil> <200310110040.30023.russell@coker.com.au> <1065797671.8181.449.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1065797671.8181.449.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 10 Oct 2003, Russell Coker wrote:
+On Fri, Oct 10, 2003 at 10:54:31AM -0400, Stephen Smalley wrote:
+> Ok.  Another question is whether we should leave it as part of the
+> policy package or whether it should be moved over to the policycoreutils
+> package.  
 
-> On Fri, 10 Oct 2003 05:39, Stephen Smalley wrote:
-> > > Also I think I'll just make it loadkeys_t instead of having a number of
-> > > user_loadkeys_t domains.
-> >
-> > So, what's the resolution on the capable() check being performed by the
-> > SELinux module?  Should it be reduced from a full capable() check (i.e.
-> > Linux capability and SELinux permission check) to just a SELinux
-> > capability permission check, to avoid changing the Linux permissions
-> > model and the need for a setuid program?
-> 
-> I think that makes sense at the moment.
-> 
-> However I think that the kernel people should consider making this capability 
-> a requirement for non-SE kernels.  James, what do you think?
-> 
-
-I don't think that further restricting this for the standard kernel is
-necessary, although feel free to propose the change on lkml if you feel
-strongly about it.
-
-I also agree that it is probably better to move from a capability check to
-an SELinux permission.
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+I'd vote for policycoreutils myself.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
