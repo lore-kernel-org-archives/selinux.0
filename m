@@ -1,39 +1,36 @@
-Subject: Re: Added is_context_configurable function
+Subject: Re: root and change of passwords
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Colin Walters <walters@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1105544883.10150.17.camel@nexus.verbum.private>
-References: <41E2FEF4.5070604@redhat.com>
-	 <1105456934.20566.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <41E3FAF4.2060109@redhat.com>
-	 <1105473610.20566.123.camel@moss-spartans.epoch.ncsc.mil>
-	 <1105481440.24748.22.camel@nexus.verbum.private>
-	 <1105539555.22495.28.camel@moss-spartans.epoch.ncsc.mil>
-	 <1105544883.10150.17.camel@nexus.verbum.private>
+To: sequel@neofreak.org
+Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+   "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1105451963.20566.12.camel@moss-spartans.epoch.ncsc.mil>
+References: <1105124940.27291.20.camel@sequel.info.polymtl.ca>
+	 <1105451963.20566.12.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Message-Id: <1105567743.23136.59.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1105568098.23136.63.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 12 Jan 2005 17:09:03 -0500
+Date: Wed, 12 Jan 2005 17:14:58 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2005-01-12 at 10:48, Colin Walters wrote:
-> Actually, thinking about this a bit: probably not.  On my system I have
-> several times changed the SELinux user identity component of file
-> contexts from the default system_u to e.g. foo_u.  The reason is that
-> the constraints prevent a user from relabeling a file unless the SELinux
-> user matches.  So a list of alternate types would not be sufficient in
-> this case.
-<snip>
-> It seems the SELinux uid, for one.  Also perhaps whether or not the
-> pathname is part of the standard filesystem.  There seems to me to be a
-> difference between a very well known file such as /etc/shadow being
-> mislabeled according to file_contexts versus an unknown path such
-> as /apps/web/blah.
+On Tue, 2005-01-11 at 08:59, Stephen Smalley wrote:
+> Hence, gaining uid 0 is not sufficient by itself to use passwd to change
+> root's password - you must also obtain the SELinux user identity of root
+> or have appropriate permission in the SELinux policy.
+> 
+> Whether or not passwd should require root to be in sysadm_r to change
+> his own password is another question.  If root is starting in user_r,
+> then he is already exposed to other user_t processes, so requiring him
+> to newrole to sysadm_r first isn't going to help.  root (and other
+> administrative users) should typically only run in staff_r or sysadm_r,
+> not user_r, as they are otherwise exposed to tampering/interference by
+> user_t processes.
 
-Ok, so I take this to mean that I should await a new patchset from Dan
-that supports this more general way of specifying customizable contexts
-based on a combination of type, user identity, and file location.  Yes?
+The other item to note here is that even if you have both uid 0 and the
+SELinux user identity of "root", you still can't run the passwd program
+with the necessary privileges to modify /etc/shadow unless your domain
+can transition to passwd_t.  That would be true of the user domains, but
+not for a number of daemon domains.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
