@@ -1,76 +1,47 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7B2cxrT007734
-	for <selinux@tycho.nsa.gov>; Tue, 10 Aug 2004 22:38:59 -0400 (EDT)
-Received: from smtp-09.primus.ca (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7B2cLET002318
-	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 02:38:23 GMT
-Received: from dsl-207-112-23-123.tor.primus.ca ([207.112.23.123] helo=fugusec.net)
-	by smtp-09.primus.ca with esmtp (Exim 3.36 #1)
-	id 1BujBh-0005r2-0A
-	for selinux@tycho.nsa.gov; Wed, 11 Aug 2004 02:50:01 +0000
-Message-ID: <411986C1.3030601@fugusec.net>
-Date: Tue, 10 Aug 2004 22:38:57 -0400
-From: Alexis Wagner <venon@fugusec.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7B8H9rT008833
+	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 04:17:10 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7B8H35L028603
+	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 08:17:08 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id E8D2E61C27
+	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 18:16:58 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 21333-04 for <selinux@tycho.nsa.gov>;
+	Wed, 11 Aug 2004 18:16:58 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 9398061BB4
+	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 18:16:58 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id D149FB59AA
+	for <selinux@tycho.nsa.gov>; Wed, 11 Aug 2004 18:16:56 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: network auditing
+Date: Wed, 11 Aug 2004 18:16:56 +1000
 MIME-Version: 1.0
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: network object
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200408111816.56367.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+avc:  granted  { name_bind } for  pid=21718 exe=/usr/bin/imapd 
+scontext=system_u:system_r:courier_pop_t tcontext=system_u:object_r:port_t 
+tclass=tcp_socket
 
-I have some questions about selinux in a labeled network. 
+On kernel 2.6.7 with the patch from the NSA site I get messages such as the 
+above about port access.  Can we get this changed to log the port number as 
+it used to?
 
-First of all, I have read on the web that network labelling is not 
-supported in kernel 2.6 an higher.  I have also read that it will be 
-possible to reimplement the necessary features using the packet filter.
-Is that true ?
-
-Imagine I want to allow the domain one_t to set up and use  a tcp 
-connection with the domain two_t on node two_t.  
-Is it the correct way to set up the policy ?
-
-node one  will have the following configuration :
-net_contexts  :
-        nodecon 10.10.10.2 255.255.255.255 system_u:object_r:node_two_t
-one.te :
-        allow one_t self:tcp_socket  { create_stream_socket_perms } ;
-        allow one_t netif_type:netif  {tcp_recv tcp_send} ;
-        allow one_t node_two_t:node {node_bind tcp_send tcp_recv};
-        allow one_t port_t:tcp_socket {name_bind  recv_msg send_msg} ;
-        allow one_t net_conf_t:file r_file_perms;
-
-        allow one_t kernel_t:tcp_socket {recvfrom } ;
-       #Wich domain I put here ? 
-        allow one_t ???:tcp_socket {acceptfrom recvfrom } ;
-
-node two will have the following configuration :
-net_contexts  :
-        nodecon 10.10.10.1 255.255.255.255 system_u:object_r:node_one_t
-two.te :
-        allow two_t self:tcp_socket  { create_stream_socket_perms } ;
-        allow two_t netif_type:netif  {tcp_recv tcp_send} ;
-        allow two_t node_one_t:node {node_bind tcp_send tcp_recv};
-        allow two_t port_t:tcp_socket {name_bind  recv_msg send_msg} ;
-        allow two_t net_conf_t:file r_file_perms;
-
-        allow two_t kernel_t:tcp_socket {recvfrom } ;
-       #Wich domain I put here ? 
-        allow two_t ???:tcp_socket {acceptfrom recvfrom } ;
-
-
-It is correct ?
-
-Where could I find more uptodate information about using SELinux in a 
-labeled network ?
-
-
-Thank you,
-
-Alexis Wagner
-
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
