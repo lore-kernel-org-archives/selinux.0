@@ -1,34 +1,50 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h89EgRLa000264
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 10:42:27 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h89EljLa000358
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 10:47:45 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h89EepLY018774
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:40:51 GMT
+	by jazzswing.ncsc.mil  with ESMTP id h89Ek8LY019424
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:46:08 GMT
 Received: from mx1.avenit.de (nexus6.avenit.de [80.237.241.2])
-	by jazzswing.ncsc.mil  with SMTP id h89EeosG018771
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:40:50 GMT
+	by jazzswing.ncsc.mil  with SMTP id h89Ek7sG019421
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 14:46:08 GMT
 From: "Romix" <romix@php.cd>
-To: "'Faye Coker'" <faye@lurking-grue.org>
-Cc: <selinux@tycho.nsa.gov>
+To: <russell@coker.com.au>, <selinux@tycho.nsa.gov>
 Subject: RE: how to add a user with rights to login via ssh on selinux?
-Date: Tue, 9 Sep 2003 16:42:03 +0200
-Message-ID: <006401c376e0$8f320e00$4200000a@roadwarrior>
+Date: Tue, 9 Sep 2003 16:47:23 +0200
+Message-ID: <006501c376e1$4cc11fb0$4200000a@roadwarrior>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <20030909143911.GA422@lurking-grue.org>
+	charset="US-ASCII"
+In-Reply-To: <200309092353.22849.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> I have started working on documentation covering editing 
-> policies in more detail.  I've also started working on an SE 
-> Linux book.  No ETA at this point however :)
+> On Tue, 9 Sep 2003 23:47, Romix wrote:
+> > sorry, i posted the wrong line, but sshd was running in the 
+> same context:
+> > 23618    243 root:sysadm_r:sysadm_chkpwd_t            /usr/sbin/sshd
+> >
+> > so i changed it (i executed "/etc/init.d/sshd start" as root from a 
+> > local login and not via ssh):
+> > 24176    195 root:staff_r:staff_t                     /usr/sbin/sshd
+> 
+> Firstly you should be sysadm_r:sysadm_t when you start 
+> daemons.  Secondly you 
+> should use "run_init".
+> 
+> Do the following:
+> newrole -r sysadm_r
+> run_init /etc/init.d/sshd start
+> 
+> Then things should be fine.
 
-let me know when your documentation or your book is finished and i´ll be the
-first to buy it :)
+ok, i think i understand now, that was the information missing :) 
+now sshd is running in system_u:system_r:sshd_t context and my user can
+login :D
 
-Romain
+thanks a lot for your help.
 
+cu, Romain
 
 
 --
