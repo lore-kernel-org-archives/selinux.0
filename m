@@ -1,47 +1,54 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA09035
-	for <selinux@tycho.nsa.gov>; Sat, 8 Jun 2002 09:15:37 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id NAA20353
-	for <selinux@tycho.nsa.gov>; Sat, 8 Jun 2002 13:15:18 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA09332
+	for <selinux@tycho.nsa.gov>; Sat, 8 Jun 2002 12:37:30 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA17168
+	for <selinux@tycho.nsa.gov>; Sat, 8 Jun 2002 16:36:09 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id NAA20349
-	for <selinux@tycho.nsa.gov>; Sat, 8 Jun 2002 13:15:16 GMT
+        by jazzband.ncsc.mil  with ESMTP id QAA17164 for <selinux@tycho.nsa.gov>; Sat, 8 Jun 2002 16:36:08 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 5DEBA92461
+	for <selinux@tycho.nsa.gov>; Sun,  9 Jun 2002 02:37:26 +1000 (EST)
+Received: from there (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id CEF4075C6
+	for <selinux@tycho.nsa.gov>; Sat,  8 Jun 2002 18:38:07 +0200 (CEST)
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Tom <tom@lemuria.org>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Announce: Project to port SE Linux to SuSE 8.0
-Date: Sat, 8 Jun 2002 15:13:04 +0200
-References: <200205311915.16873.jw@centraltexasit.com> <20020606073215.3774971A1@lyta.coker.com.au> <20020606103018.A25497@lemuria.org>
-In-Reply-To: <20020606103018.A25497@lemuria.org>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: /boot
+Date: Sat, 8 Jun 2002 18:38:07 +0200
 MIME-Version: 1.0
-Message-Id: <20020608131544.E11951198@lyta.coker.com.au>
+Message-Id: <20020608163807.CEF4075C6@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 6 Jun 2002 10:30, Tom wrote:
-> On Wed, Jun 05, 2002 at 01:48:04PM +0200, Russell Coker wrote:
-> > > My idea is to post patches and RPMs to the web site as I (and others)
-> > > manage to build them.
-> >
-> > That's the easy part, policy files is the hard part.
->
-> which means we need more of them. more examples, more working policies
-> for programs of various kinds.
->
-> right now, I believe the number of people actually using SELinux is
-> pretty small. but once it's increased a little (say, by 500%, to
-> something like 10 people :) ) we should gather some and include the
-> best ones as examples.
+On the SE Linux machine at LinuxTag I have been providing everyone with 
+"root" access and inviting them to discover a way to obtain full access to 
+the system (root is in user_r only).
 
-Yes, I think we need some policy files to hold up as examples for people who 
-want to create new policy by cut/paste.  However I think that the main thing 
-we need now is support for more daemons.  Once we have policy files for all 
-the most common daemons (including all the ones that are installed by default 
-in all popular distributions) then it'll be a lot easier to get it working on 
-a given system.
+They have discovered that as user_t they can read /boot files which may 
+contain the lilo password in a form that can be extracted (I am not sure if 
+that is the case for this version of LILO - it was definately the case for 
+previous versions).  Here is a patch to remove this access.
+
+diff -ru default/macros/global_macros.te current/macros/global_macros.te
+--- default/macros/global_macros.te     Wed Jun  5 13:29:34 2002
++++ current/macros/global_macros.te     Sat Jun  8 18:34:08 2002
+@@ -716,11 +716,6 @@
+ allow $1 initrc_var_run_t:file r_file_perms;
+ allow $1 wtmp_t:file r_file_perms;
+
+-# Read /boot and /boot/kernel.h.
+-allow $1 boot_t:dir r_dir_perms;
+-allow $1 boot_t:{ file lnk_file } r_file_perms;
+-allow $1 boot_runtime_t:{ file lnk_file } r_file_perms;
+-
+ # Read /etc.
+ allow $1 etc_t:dir r_dir_perms;
+ allow $1 etc_t:notdevfile_class_set r_file_perms;
+
 
 -- 
 I do not get viruses because I do not use MS software.
