@@ -1,44 +1,42 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA27867
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 03:32:28 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id HAA01571
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 07:32:16 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id DAA27873
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 03:32:30 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id HAA21003
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 07:31:09 GMT
 Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id HAA01563
-	for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 07:32:13 GMT
+        by jazzband.ncsc.mil  with ESMTP id HAA20999 for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2002 07:31:08 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: jw@centraltexasit.com, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Announce: Project to port SE Linux to SuSE 8.0
-Date: Wed, 5 Jun 2002 13:48:04 +0200
-References: <200205311915.16873.jw@centraltexasit.com>
-In-Reply-To: <200205311915.16873.jw@centraltexasit.com>
+To: Stephen Smalley <sds@tislabs.com>
+Subject: Re: [patch] Re: auditdeny is painful
+Date: Wed, 5 Jun 2002 13:19:26 +0200
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0206041520480.3949-200000@raven>
+In-Reply-To: <Pine.GSO.4.33.0206041520480.3949-200000@raven>
 MIME-Version: 1.0
-Message-Id: <20020606073215.3774971A1@lyta.coker.com.au>
+Message-Id: <20020606073214.F18567183@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 1 Jun 2002 02:15, JW wrote:
-> Mailing list: I don't have any listserve installed currently, so for now,
-> if you want to "join" the mailing list just send me a message telling me
-> what address you want subscribed, and I'll add you to the list.
+On Tue, 4 Jun 2002 21:24, Stephen Smalley wrote:
+> On Tue, 4 Jun 2002, Stephen Smalley wrote:
+> > I suppose that we could introduce a dontaudit rule that automatically
+> > generates auditdeny access vectors with the complement of the specified
+> > set of permissions, and that uses the intersection of the permission sets
+> > when multiple rules are specified for a single (type, type, class)
+> > triple. This would likely be more suited to what a human would expect.
+>
+> I've attached a patch to checkpolicy and the example policy configuration
+> that adds support for these 'dontaudit' rules and replaces all 'auditdeny'
+> rules in the example configuration with equivalent 'dontaudit' rules.
+> This patch has not yet been committed.  Feedback is welcome (as with the
+> prior checkpolicy patch for optional sections).
 
-Why do you need a mailing list?  Why not just use this one?  It works for 
-me...
-
-> My idea is to post patches and RPMs to the web site as I (and others)
-> manage to build them.
-
-That's the easy part, policy files is the hard part.
-
-> If possible, I would apprecite hearing from one of the NSA people that this
-> is at least un-officially 'permissable' (I have no expectations of
-> receiving official acknowledgment of any kind).
-
-The NSA guys are actually a lot friendlier than you may expect.  ;)
+Looks good to me.  I've just built some packages with it, and after a brief 
+test they seem to work OK.
 
 -- 
 I do not get viruses because I do not use MS software.
