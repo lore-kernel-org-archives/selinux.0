@@ -1,32 +1,33 @@
-Subject: Re: [RFC & PATCH] inherited type definition.
+Subject: Re: user_trans/user_trans_boolean macro
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>,
-   SELinux Mail List <selinux@tycho.nsa.gov>, kaigai@ak.jp.nec.com
-In-Reply-To: <20050314160158.GD1246@lkcl.net>
-References: <42346C17.3090301@kaigai.gr.jp>
-	 <1110808202.21378.51.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050314151351.GC1246@lkcl.net>
-	 <1110813732.21378.91.camel@moss-spartans.epoch.ncsc.mil>
-	 <20050314160158.GD1246@lkcl.net>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1110831501.16850.47.camel@cobra.ivg2.net>
+References: <1110692016.29852.77.camel@cobra.ivg2.net>
+	 <1110804353.21378.8.camel@moss-spartans.epoch.ncsc.mil>
+	 <1110820329.16850.8.camel@cobra.ivg2.net>
+	 <1110820795.21378.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <1110824399.16850.21.camel@cobra.ivg2.net>
+	 <1110825077.21378.199.camel@moss-spartans.epoch.ncsc.mil>
+	 <1110826572.16850.33.camel@cobra.ivg2.net>
+	 <1110829424.16850.39.camel@cobra.ivg2.net>
+	 <1110829277.21378.219.camel@moss-spartans.epoch.ncsc.mil>
+	 <1110831501.16850.47.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Date: Mon, 14 Mar 2005 15:10:50 -0500
-Message-Id: <1110831050.21378.232.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 14 Mar 2005 15:13:30 -0500
+Message-Id: <1110831210.21378.235.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-03-14 at 16:01 +0000, Luke Kenneth Casson Leighton wrote:
-> what is the one significant distinct advantage that the proposed
-> inheritance thing gives you that macro refactoring cannot?
+On Mon, 2005-03-14 at 15:18 -0500, Ivan Gyurdiev wrote:
+> I guess what I'm trying to figure out is why 
+> domain_auto_trans doesn't add the role access rule
+> by default. Isn't this always necessary if you want
+> a transition to occur?
 
-Direct expression of certain type relationships in the language would
-allow tools to manipulate such relationships without having to deal with
-the much less constrained world of m4 macros.  I can understand that
-desire; I just want to make sure that it is done in a way that will be
-practically useful.  The not-yet-merged binary policy modules support
-has no way today to deal with e.g. instantiation of program domains for
-each user role/domain.
+domain_auto_trans() can be (and is ) used from any domain, not just a
+user domain.  One could certainly add an optional argument for a role.
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
