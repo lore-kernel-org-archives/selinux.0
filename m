@@ -1,56 +1,47 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAFm6Ii020969
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 10:48:06 -0500 (EST)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAFkPwi002817
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 15:46:28 GMT
-Subject: Re: Single home directory type for all roles.
-From: Colin Walters <walters@redhat.com>
-To: Russell Coker <rcoker@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
-   SE Linux list <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@snu.edu>,
-   Jim Carter <jwcart2@epoch.ncsc.mil>, Nalin Dahyabhai <nalin@redhat.com>
-In-Reply-To: <1102645414.4509.105.camel@aeon>
-References: <20041207000805.GH3678@jmh.mhn.de>
-	 <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil>
-	 <41B8826D.30105@redhat.com>
-	 <1102613299.10785.21.camel@nexus.verbum.private>
-	 <1102615344.4509.39.camel@aeon>
-	 <1102632223.10785.36.camel@nexus.verbum.private>
-	 <1102645414.4509.105.camel@aeon>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBAFmFIi020986
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 10:48:15 -0500 (EST)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBAFkbwg002853
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 15:46:37 GMT
+Subject: Re: can_network patch.
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Jim Carter <jwcart2@epoch.ncsc.mil>, Russell Coker <russell@coker.com.au>,
+   Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+   SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <41A4BCC9.10604@redhat.com>
+References: <41741A2C.8040408@redhat.com>
+	 <200410260138.19426.russell@coker.com.au>
+	 <20041025213122.GA2535@jmh.mhn.de>
+	 <200410270036.14935.russell@coker.com.au>
+	 <1099690788.16488.52.camel@moss-lions.epoch.ncsc.mil>
+	 <4192A029.5050909@redhat.com>
+	 <1100722524.22035.18.camel@moss-lions.epoch.ncsc.mil>
+	 <419CB2A8.7020504@redhat.com>
+	 <1101235934.7273.24.camel@moss-lions.epoch.ncsc.mil>
+	 <41A4B54F.3070709@redhat.com>
+	 <1101314370.22014.198.camel@moss-spartans.epoch.ncsc.mil>
+	 <41A4BCC9.10604@redhat.com>
 Content-Type: text/plain
-Date: Fri, 10 Dec 2004 10:48:02 -0500
-Message-Id: <1102693682.10785.44.camel@nexus.verbum.private>
+Message-Id: <1102693385.1628.102.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+Date: Fri, 10 Dec 2004 10:43:05 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2004-12-10 at 13:23 +1100, Russell Coker wrote:
-> On Thu, 2004-12-09 at 17:43 -0500, Colin Walters wrote:
-> > On Fri, 2004-12-10 at 05:02 +1100, Russell Coker wrote:
-> > > Currently the default policy has /root labeled as staff_home_dir_t.
-> > > This significantly weakens the boundaries between staff_r and sysadm_r.
-> > 
-> > I don't see there as being an interesting boundary between staff_r and
-> > sysadm_r.  The reason I see staff_r as separated is because it has no
-> > interaction with user_r, which closes a lot of possible attacks.
-> 
-> Among other things a default configuration allows sshd to permit logins
-> as staff_r but not sysadm_r.  If a sshd was suspected to be compromised
-> then you could login at the console as sysadm_r to fix things IFF /root
-> was not writable to staff_r domains.  If a session launched by sshd can
-> directly modify files under /root then if you suspected a sshd
-> compromise then the only option would be to boot from recovery media.
+On Wed, 2004-11-24 at 11:54, Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+> >Sorry, why would you want to allow mozilla to run userhelper? 
+> >
+> system-config-packages
 
-If you want this, then why not just make your normal account user_r, and
-log in as root on the console?
+I can run system-config-packages here on FC3 without this domain
+transition defined, and I don't see how mozilla factors into it.
 
-> Also note that many daemons look for configuration or data files
-> under /root, this is due to bugs in daemons but many of them are not
-> expected to be fixed for quite a while.  
-
-Point, but we should fix those bugs.
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
