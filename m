@@ -1,43 +1,23 @@
-Subject: Re: /dev/pts/x use denials
+Subject: Re: shell based replacement for genhomedircon
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
+To: Andreas Steinmetz <ast@domdv.de>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1112569241.21383.37.camel@cobra.ivg2.net>
-References: <1112569241.21383.37.camel@cobra.ivg2.net>
+In-Reply-To: <42503182.2010103@domdv.de>
+References: <42503182.2010103@domdv.de>
 Content-Type: text/plain
-Date: Mon, 04 Apr 2005 11:13:13 -0400
-Message-Id: <1112627593.7629.89.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 04 Apr 2005 11:19:49 -0400
+Message-Id: <1112627989.7629.97.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2005-04-03 at 19:00 -0400, Ivan Gyurdiev wrote:
-> Strange denials:
-> 
-> /dev/pts/2 has context: sysadm_tmp_t.
-> Those happen intermittently, but I can't figure out when exactly.
-> I am logged in as a regular user, but su-ed to root. Usually accompanied
-> by a dac_override.
-> 
-> audit(1112568847.907:0): avc:  denied  { use } for  pid=22851
-> exe=/usr/bin/mplayer path=/dev/pts/2 dev=devpts ino=4
-> scontext=root:sysadm_r:sysadm_mplayer_t tcontext=phantom:staff_r:staff_t
-> tclass=fd
-> audit(1112568874.222:0): avc:  denied  { use } for  pid=22870
-> exe=/usr/bin/tvtime path=/dev/pts/2 dev=devpts ino=4
-> scontext=root:sysadm_r:sysadm_tvtime_t tcontext=phantom:staff_r:staff_t
-> tclass=fd
-> audit(1112568881.428:0): avc:  denied  { use } for  pid=22872
-> exe=/bin/bash path=/dev/pts/2 dev=devpts ino=4
-> scontext=root:sysadm_r:sysadm_mozilla_t tcontext=phantom:staff_r:staff_t
-> tclass=fd
+On Sun, 2005-04-03 at 20:10 +0200, Andreas Steinmetz wrote:
+> Attached is a shell based replacement for genhomedircon that seems to
+> work properly, at least for me. Not everybody installs python on servers
+> just for a single script.
 
-I don't see sysadm_tmp_t anywhere above. I do see staff_t fd's, but that
-just shows that the descriptor was opened by a staff_t process and then
-inherited across the su, nothing surprising there.  Earlier versions of
-pam_selinux did try closing and re-opening descriptors 0-2 as newrole
-does, but that proved problematic.  su likely just needs to be directly
-patched rather than using pam_selinux.
+You might want to look at recent changes to genhomedircon, see:
+http://cvs.sourceforge.net/viewcvs.py/selinux/nsa/selinux-usr/policycoreutils/scripts/genhomedircon?rev=1.19&view=log
 
 -- 
 Stephen Smalley <sds@tycho.nsa.gov>
