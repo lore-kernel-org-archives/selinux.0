@@ -1,52 +1,73 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0OKxVsj029623
-	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 15:59:31 -0500 (EST)
-Message-ID: <41F561B3.5090907@redhat.com>
-Date: Mon, 24 Jan 2005 15:59:31 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: libselinux rpm_execon should not fail in permissive mode.
-References: <41F03552.90806@redhat.com>	 <1106596929.3298.9.camel@moss-lions.epoch.ncsc.mil>	 <41F55E02.6090302@redhat.com> <1106599610.19246.255.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1106599610.19246.255.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0OL59sj029723
+	for <selinux@tycho.nsa.gov>; Mon, 24 Jan 2005 16:05:09 -0500 (EST)
+Subject: Re: Sugg. for SELinux enabled Interpreters
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Jochen Schmitt <Jochen@herr-schmitt.de>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <E1CtATI-0008Ib-00@mrelayng.kundenserver.de>
+References: <E1CtATI-0008Ib-00@mrelayng.kundenserver.de>
+Content-Type: text/plain
+Message-Id: <1106600322.19246.270.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 24 Jan 2005 15:58:42 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-
->On Mon, 2005-01-24 at 15:43, Daniel J Walsh wrote:
->  
->
->>diff --exclude-from=exclude -N -u -r nsalibselinux/src/rpm.c libselinux-1.21.1/src/rpm.c
->>--- nsalibselinux/src/rpm.c	2004-11-09 09:13:54.000000000 -0500
->>+++ libselinux-1.21.1/src/rpm.c	2005-01-24 15:24:33.000000000 -0500
->>@@ -41,8 +41,10 @@
->> 	rc = setexeccon(newcon);
->> 	if (rc < 0) 
->> 		goto out;
->>-	rc = execve(filename, argv, envp);
->> out:
->>+	if ( ( rc == 0 ) || 
->>+	     (security_getenforce() == 0 ))
->>+	  rc = execve(filename, argv, envp);
->> 	context_free(con);
->> 	freecon(newcon);
->> 	freecon(fcon);
->>    
->>
->
->What failure are you encountering in permissive mode?  Possibly the file
->might lack a context and we should handle that more cleanly, but I
->wouldn't recommend this patch.  The setexeccon() shouldn't fail in
->permissive mode.
+On Mon, 2005-01-24 at 15:05, Jochen Schmitt wrote:
+> Hallo,
 > 
->  
->
-Basically running rpm --root
+> I have bought a book about SELinux form O'Reilly. In this book it
+> was discussed, that some applications, like KDE have issues with
+> SELinux.
+> 
+> On KDE the problem is the kdeinit process, which coused, that
+> SELinux can not distlinguish the diffent programms started by
+> kdeinit.
+> 
+> So, I have the following idea:
+> 
+> 1.) Determinate the filecontext of a file based on the file name.
+> 
+> 2.) Calculate the destination transition based of the context of
+> the file.
+> 
+> 3.) Make the transition.
+> 
+> I have create a patch for libselinux, which offers a function to
+> determinate the destination context and an other function to make
+> the transition.
+> 
+> I have uploaded the patch on:
+> 
+> http://www.herr-schmitt.de/pub/selinux/libselinux-getdestcon.patch
+> 
+> For testing, I have wrote a test programm, which you may find at:
+> 
+> http://www.herr-schmitt.de/pub/selinux/setest.c
+> 
+> But unfortunately, I have trouble with the third test, so I have
+> put the audit log, which I have got on
+> 
+> http://www.herr-schmitt.de/pub/selinux/audit.txt
+> 
+> It will be happy for any comments and helps, becouse I am not
+> very familar with SELinux.
 
-Bugzilla %145770
+Given your intended usage by interpreters, you should pass in the
+descriptor to the file being interpreted, and use fgetfilecon rather
+than getfilecon.  It isn't clear why you split the interface into two
+functions, and it seems prone to leakage.  setcon() imposes a much
+higher trust burden than setexeccon() on the application, so I'm not
+clear on how this would be used safely, and there is a presumption that
+the application has already undergone an exec-based transition at
+startup to properly protect it from less trusted callers.  The error
+suggests that you didn't authorize the role for the domain, i.e. role
+system_r types setest_t;.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
