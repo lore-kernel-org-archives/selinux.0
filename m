@@ -1,58 +1,49 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA00834
-	for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 11:45:07 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id QAA10809
-	for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 16:43:45 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id QAA10803
-	for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 16:43:44 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Dale Amon <amon@vnl.com>
-Subject: Re: Debian file_contexts needed
-Date: Thu, 21 Mar 2002 17:44:55 +0100
-Cc: selinux <selinux@tycho.nsa.gov>
-References: <20020321161931.GP10482@vnl.com>
-In-Reply-To: <20020321161931.GP10482@vnl.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA02193
+	for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 14:20:14 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA10915
+	for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 19:19:09 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id TAA10907 for <selinux@tycho.nsa.gov>; Thu, 21 Mar 2002 19:19:09 GMT
+Date: Thu, 21 Mar 2002 14:19:37 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: uses_shlib
+In-Reply-To: <20020320225257.C7CB12EC7E@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0203211418050.19336-100000@raven>
 MIME-Version: 1.0
-Message-Id: <20020321164455.4DF255927@lyta.coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 21 Mar 2002 17:19, Dale Amon wrote:
-> Does anyone have a current copy of a file_contexts for
 
-It's in the new selinux package I put online on 
-http://www.coker.com.au/selinux/ a few minutes ago.
+On Wed, 20 Mar 2002, Russell Coker wrote:
 
-> the new release for Debian? I presume Rich Coker does,
+> On Wed, 20 Mar 2002 21:51, Stephen Smalley wrote:
+> > On Wed, 20 Mar 2002, Russell Coker wrote:
+> > > The libc on my system uses a file named /etc/ld.so.preload.
+> > > I have added the following line to my file_contexts:
+> > > /etc/ld.so.preload              system_u:object_r:ld_so_t
+> >
+> > You mean ld_so_cache_t not ld_so_t, right?
+>
+> Both actually, I need the /etc/ld.so.preload as well.
 
-I don't know anyone named Rich.
+I'll try again.  I think that the line in your file_contexts should be:
+/etc/ld.so.preload              system_u:object_r:ld_so_cache_t
 
-> but given the time diff between Ireland and Australia,
-> I suspect he's well before dawn and sound asleep.
+The ld_so_t type should only be applied to system dynamic linker programs,
+not configuration files.
 
-I live in Amsterdam, not that far from Ireland.  But regardless I keep 
-strange hours so even if I was in Australia I might be up.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
-> I could go ahead and roll my own, but it seems a boring
-> waste of a few hours to re-invent it.
 
-The file_contexts is the trivially easy part.  Writing the .te rules and 
-having them not be too permissive is the hard part.
 
-Also regarding my Debian packages, the only real problems now are that cron 
-doesn't work (haven't got around to finding out why) and I haven't packaged 
-logrotate.
 
--- 
-If you send email to me or to a mailing list that I use which has >4 lines
-of legalistic junk at the end then you are specifically authorizing me to do
-whatever I wish with the message and all other messages from your domain, by
-posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
