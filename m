@@ -1,44 +1,48 @@
-Date: Fri, 12 Apr 2002 11:45:05 -0700 (PDT)
-From: Sung Kim <hunkim@cse.ucsc.edu>
-To: SELinux@tycho.nsa.gov
-Subject: How can I change the rols?
-Message-ID: <Pine.GSO.4.44.0204121134280.9478-100000@sundance.cse.ucsc.edu>
+Date: Fri, 12 Apr 2002 14:50:14 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Sung Kim <hunkim@cse.ucsc.edu>
+cc: <SELinux@tycho.nsa.gov>
+Subject: Re: Stat compile error.
+In-Reply-To: <Pine.GSO.4.44.0204121131350.9478-100000@sundance.cse.ucsc.edu>
+Message-ID: <Pine.GSO.4.33.0204121441560.21729-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
 
-I have several questions:
+On Fri, 12 Apr 2002, Sung Kim wrote:
 
-1. Can I change users' role without editing ploicy/users file?
-   Is there any command such as chgrole or something?
+> When I compile /usr/src/selinux/utils/stat-2.5, I've got the error:
+>
+> [root@hunkim stat-2.5]# make
+> gcc -O2 -g -Wall -DFLASK_LINUX -D_FILE_OFFSET_BITS=64 -I/usr/local/selinux/include   -c -o stat.o stat.c
+> stat.c:29:1: directives may not be used inside a macro argument
+> stat.c:29:1: unterminated argument list invoking macro "printf"
+> stat.c: In function `do_statfs':
+> stat.c:32: parse error before "filename"
+> stat.c:49: warning: long int format, int arg (arg 5)
+> stat.c:122: warning: long unsigned int format, int arg (arg 3)
+> stat.c:128: warning: long int format, int arg (arg 6)
+> stat.c: In function `usage':
+> stat.c:293: warning: implicit declaration of function `exit'
+> make: *** [stat.o] Error 1
+>
+> [root@hunkim stat-2.5]# gcc --version
+> 3.0.2
 
-2. I specified root as sysadm_r, but it doesn't work.
+That's an issue for the upstream provider of stat, not us.  The problem
+is in the base stat code, not the SELinux modifications.  Compiles fine on
+RH7.1 and RH7.2 with the provided gcc (2.96-81 or 2.96-98).
 
-$id
-uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel) context=system_u:system_r:user_t sid=208
-
-But I specified user in the policy/users file :
-
-user root roles { user_r sysadm_r system_r};
-user hunkim roles { user_r sysadm_r system_r};
-
-3. What is system_u and system_r?
-
-4. How many role in selinux? system_r, user_r, sysadm_r, object_r?
-Can I make or specify a new role?
-
-5. Is http_port_t (or *_t) kind of a role?
-
-Please excuse my basic questions. :-)
+Also, it isn't generally recommended that you use gcc 3.x for the
+Linux kernel, as noted in lsm-2.4/Documentation/Changes.
 
 --
-Sung Kim <hunkim@cse.ucsc.edu>
-http://www.cse.ucsc.edu/~hunkim
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
- "Dreams become reality!"
+
 
 
 --
