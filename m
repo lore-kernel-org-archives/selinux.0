@@ -1,34 +1,34 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAGDVcRb002397
-	for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 08:31:38 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAGDXFRb002414
+	for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 08:33:15 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id hAGDV3Bb012013
-	for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 13:31:03 GMT
+	by jazzswing.ncsc.mil  with ESMTP id hAGDWkBb012126
+	for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 13:32:46 GMT
 Received: from crisium.vnl.com (crisium.vnl.com [194.46.8.33])
-	by jazzswing.ncsc.mil  with ESMTP id hAGDV34o012010
-	for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 13:31:03 GMT
-Date: Sun, 16 Nov 2003 13:31:09 +0000
+	by jazzswing.ncsc.mil  with ESMTP id hAGDWk4o012122
+	for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 13:32:46 GMT
+Date: Sun, 16 Nov 2003 13:33:13 +0000
 From: Dale Amon <amon@vnl.com>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: policy bug
-Message-ID: <20031116133109.GE17041@vnl.com>
+To: selinux@tycho.nsa.gov
+Subject: initrd package problem fixed
+Message-ID: <20031116133313.GF17041@vnl.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Here's another for you Russ. Fresh from today:
+In case anyone else is interested, Howard Xu has
+fixed a bug report of mine against the initrd-tools
+package so that no longer should force a load of
+modutil. This is good for those who want small
+systems with no modules.
 
-ERROR 'name conflict for type run_init_conf_t' at token ';' on line 42023:
-
-type run_init_conf_t, file_type, sysadmfile;
-/usr/bin/checkpolicy:  error(s) encountered while parsing configuration
-make: *** [/etc/security/selinux/policy.15] Error 1
-
-Let me know if you need any other specifics.
-
-
+-- 
+------------------------------------------------------
+       IN MY NAME:            Dale Amon, CEO/MD
+  No Mushroom clouds over     Islandone Society
+    London and New York.      www.islandone.org
+------------------------------------------------------
 
 --
 This message was distributed to subscribers of the selinux mailing list.
