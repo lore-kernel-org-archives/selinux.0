@@ -1,49 +1,62 @@
-Date: Mon, 1 Jul 2002 16:13:23 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Timothy Wood <timothy@hallcomp.com>
-cc: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: /dev/mem error starting X11
-In-Reply-To: <1025531480.13205.19.camel@phobos>
-Message-ID: <Pine.GSO.4.33.0207011604050.14035-100000@raven>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA20068
+	for <selinux@tycho.nsa.gov>; Mon, 1 Jul 2002 16:26:11 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id UAA24353
+	for <selinux@tycho.nsa.gov>; Mon, 1 Jul 2002 20:25:41 GMT
+Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
+	by jazzswing.ncsc.mil  with SMTP id UAA24347
+	for <selinux@tycho.nsa.gov>; Mon, 1 Jul 2002 20:25:38 GMT
+Message-ID: <72222DC86846D411ABD300A0C9EB08A1015243B6@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Clint Byrum'" <cbyrum@spamaps.org>, SE Linux <selinux@tycho.nsa.gov>,
+        LSM <linux-security-module@wirex.com>
+Subject: RE: TE/DTE Patent issues?
+Date: Mon, 1 Jul 2002 15:26:27 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On 1 Jul 2002, Timothy Wood wrote:
-
-> I just installed the latest 2.4-lsm package on an almost fresh install
-> of RH7.3 (stock + gnome 2) and when I try to start X11 I get an error
-> accessing /dev/mem (and as I just noticed /dev/apm_bios)
-
-You need to set the type on the XFree86 program.  Justin Smith mentioned
-this issue with RH7.3 previously on the list, along with a few other
-changes he found necessary for RH7.3.  For a quick fix, just run:
-chcon system_u:object_r:xserver_exec_t /usr/X11R6/bin/XFree86
-
-To ensure that this type is preserved upon subsequent make relabel's, add
-an appropriate entry to policy/file_contexts/program/xserver.fc.  We have
-made this change in our internal tree, and it will be included in the
-next public release.
-
-> everything I keep getting an avc message dealing with dhcp.  The dhcp
-> works, I'm just curious about the message if anyone can explain it.
->
-> avc:  denied  { recvfrom } for  saddr=192.168.42.242 daddr=192.168.42.7
-> netif=eth0 scontext=system_u:system_r:dhcpc_t
-> tcontext=system_u:system_r:icmp_socket_t tclass=packet_socket
-
-This indicates that dhcpcd is receiving a kernel-generated ICMP packet.
-You can allow this via 'allow dhcpc_t icmp_socket_t:packet_socket
-recvfrom;' in policy/domains/program/dhcpc.te.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I am going with the NSA web pages about the patent
+issue. They released all the code for SELinux
+under the GPL some of the modified maybe release
+under different license.
 
 
+How ever Type Enforcement is a Trademark. I would not
+use the phrase "Type Enforcement" with out a TM 
+reference
 
+Mark
+
+> -----Original Message-----
+> From: Clint Byrum [mailto:cbyrum@spamaps.org]
+> Sent: Monday, July 01, 2002 2:08 PM
+> To: SE Linux; LSM
+> Subject: TE/DTE Patent issues?
+> 
+> 
+> Hi there. I'm still confused about the TE and DTE patent issues. I'm
+> currently rolling something out and can't wait any longer for
+> clarification. Its not totally clear that it would fall under the term
+> "commercial use" .. but one of the reasons I've gone with 
+> Free software
+> is to *avoid* licensing issues.
+> 
+> I just thought I'd check one more time. Are we still waiting for the
+> latest "official" word from the patent holders?
+> 
+> Thanks.
+> 
+> 
+> 
+> _______________________________________________
+> linux-security-module mailing list
+> linux-security-module@wirex.com
+> http://mail.wirex.com/mailman/listinfo/linux-security-module
+> 
 
 --
 You have received this message because you are subscribed to the selinux list.
