@@ -1,47 +1,35 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h530LcI4012524
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jun 2003 20:21:38 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h530L5ss018936
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jun 2003 00:21:05 GMT
-Received: from sat.sws.net.au ([202.5.161.49])
-	by jazzswing.ncsc.mil  with ESMTP id h530KlhY018927
-	for <selinux@tycho.nsa.gov>; Tue, 3 Jun 2003 00:21:03 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by sat.sws.net.au (Postfix) with ESMTP id 734B9BF1D
-	for <selinux@tycho.nsa.gov>; Tue,  3 Jun 2003 10:20:59 +1000 (EST)
-Received: from sat.sws.net.au ([127.0.0.1])
- by localhost (sat [127.0.0.1:10024]) (amavisd-new) with ESMTP id 02334-05
- for <selinux@tycho.nsa.gov>; Tue,  3 Jun 2003 10:20:57 +1000 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by sat.sws.net.au (Postfix) with ESMTP id A40DEBF32
-	for <selinux@tycho.nsa.gov>; Tue,  3 Jun 2003 10:20:53 +1000 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 8189892747
-	for <selinux@tycho.nsa.gov>; Tue,  3 Jun 2003 10:20:53 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 59A028C17
-	for <selinux@tycho.nsa.gov>; Tue,  3 Jun 2003 01:02:08 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Play machine online again!
-Date: Tue, 3 Jun 2003 01:02:07 +1000
+To: Tom <tom@lemuria.org>
+Subject: Re: Default Policy question?
+Date: Tue, 3 Jun 2003 09:51:59 +1000
+Cc: SELinux@tycho.nsa.gov
+References: <3EDB7585.8050308@redhat.com> <1054574512.1053.178.camel@moss-huskers.epoch.ncsc.mil> <20030602230314.C3637@lemuria.org>
+In-Reply-To: <20030602230314.C3637@lemuria.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200306030102.07684.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200306030951.59964.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've put my SE Linux play machine online again.  This time it has full network 
-access without any serious restrictions.  So I can run servers on it etc.  
-Also I've upgraded the RAM, with 256M of RAM now we can do more interesting 
-things (such as UML).
+On Tue, 3 Jun 2003 07:03, Tom wrote:
+> But if the secadm_r controls the policy, he should have enough power at
+> his hands to prevent subversion. Things he would have to protect:
+>
+> * his home directory (environment)
+> * policy and policy tools
+> * kernel and kernel modules
 
-Finally it's running Linux 2.4.21-rc6.
+So who runs debugfs/fdisk/mkfs?
 
-See http://www.coker.com.au/selinux/play.html for the details on how to login.
+> Other than that, all other tools are limited by the policy, aren't
+> they? The sysadm_r can replace ls with a trojaned binary, but he can't
+> make it do anything that the normal ls isn't allowed to do.
+
+When "ls" is run by any userdomain it does not trigger a domain transition.  
+If ls is compromised it's game-over, ls can do lots of interesting things 
+other than list the stats of files if it wants to...
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
