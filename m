@@ -1,35 +1,40 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAGFgqRb002657
-	for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 10:42:52 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hAGMIXRb003380
+	for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 17:18:33 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hAGFgpqY026792
-	for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 15:42:51 GMT
-Received: from smtp001.mail.ukl.yahoo.com (smtp001.mail.ukl.yahoo.com [217.12.11.32])
-        by jazzband.ncsc.mil  with SMTP id hAGFgo0o026789 for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 15:42:50 GMT
-Subject: SELinux with IPSec - something going on ?
-From: "Rusinsky Stanislas Herman W. A." <rusinskystanislas@yahoo.fr>
-Reply-To: rusinskystanislas@yahoo.fr
-To: SELinux ML <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1068997347.1687.51.camel@kola localhost>
-Mime-Version: 1.0
-Date: Sun, 16 Nov 2003 16:42:28 +0100
+	by jazzband.ncsc.mil  with ESMTP id hAGMIWqY002458
+	for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 22:18:32 GMT
+Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id hAGMIV0o002455 for <selinux@tycho.nsa.gov>; Sun, 16 Nov 2003 22:18:32 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Dale Amon <amon@vnl.com>
+Subject: Re: policy bug
+Date: Mon, 17 Nov 2003 09:17:55 +1100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <20031116133109.GE17041@vnl.com>
+In-Reply-To: <20031116133109.GE17041@vnl.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200311170917.55412.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On Mon, 17 Nov 2003 00:31, Dale Amon <amon@vnl.com> wrote:
+> Here's another for you Russ. Fresh from today:
+>
+> ERROR 'name conflict for type run_init_conf_t' at token ';' on line 42023:
+>
+> type run_init_conf_t, file_type, sysadmfile;
 
-after taking a look at the NSA site I wondered if any work has been made
-to integrate IPSec with SELinux.
-
-Is there any draft or specification on what has to be done exactly?
-
-Stanislas.
-
+Just remove the run_init_conf_t entries from later.te.
 
 -- 
-One world, One web, One program -- Microsoft ad
-Ein volk, Ein Reich, Ein Fuhrer -- Adolf Hitler
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
