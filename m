@@ -1,166 +1,49 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i64EVDrT021725
-	for <selinux@tycho.nsa.gov>; Sun, 4 Jul 2004 10:31:13 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i65Dr0rT025104
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jul 2004 09:53:00 -0400 (EDT)
 Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i64EUrD3020067
-	for <selinux@tycho.nsa.gov>; Sun, 4 Jul 2004 14:30:55 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i65DqdEZ007025
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jul 2004 13:52:41 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 099D061C14
+	for <selinux@tycho.nsa.gov>; Mon,  5 Jul 2004 23:52:56 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 30030-08 for <selinux@tycho.nsa.gov>;
+	Mon, 5 Jul 2004 23:52:55 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id B4A1361BD7
+	for <selinux@tycho.nsa.gov>; Mon,  5 Jul 2004 23:52:55 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id EF557B59A1
+	for <selinux@tycho.nsa.gov>; Mon,  5 Jul 2004 23:52:53 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: latest LVM policy
-Date: Mon, 5 Jul 2004 00:30:57 +1000
-Cc: Daniel J Walsh <dwalsh@redhat.com>
+Subject: cifs_t
+Date: Mon, 5 Jul 2004 23:52:53 +1000
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_hSB6AKZ/qn9qeij"
-Message-Id: <200407050030.57905.russell@coker.com.au>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200407052352.53439.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+typealias sambafs_t alias cifs_t;
 
---Boundary-00=_hSB6AKZ/qn9qeij
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+What is the benefit of the above?
 
-I have attached my latest policy for LVM.  It works for cryptsetup as well as 
-other LVM stuff.
+If we are going to make cifs_t the new name for what is currently sambafs_t 
+then surely the correct thing to do is to change the declaration of sambafs_t 
+to cifs_t and use the following typealias:
 
-With this policy I have a machine mounting a LVM file system and using 
-encrypted swap.
-
-Steve, please commit this to SF.
+typealias cifs_t alias sambafs_t;
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
 http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
 http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
 http://www.coker.com.au/~russell/  My home page
-
---Boundary-00=_hSB6AKZ/qn9qeij
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="lvm.te"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="lvm.te"
-
-#DESC LVM - Linux Volume Manager
-#
-# Author:  Michael Kaufman <walker@screwage.com>
-# X-Debian-Packages: lvm10 lvm2 lvm-common
-#
-
-#################################
-#
-# Rules for the lvm_t domain.
-#
-# lvm_t is the domain for LVM administration.
-# lvm_exec_t is the type of the corresponding programs.
-# lvm_etc_t is for read-only LVM configuration files.
-# lvm_metadata_t is the type of LVM metadata files in /etc that are
-# modified at runtime.
-#
-type lvm_vg_t, file_type, sysadmfile;
-type lvm_metadata_t, file_type, sysadmfile;
-type lvm_control_t, file_type, device_type;
-etcdir_domain(lvm)
-allow lvm_t var_t:dir search;
-lock_domain(lvm)
-allow lvm_t lvm_lock_t:dir rw_dir_perms;
-
-# needs privowner because it assigns the identity system_u to device nodes
-# but runs as the identity of the sysadmin
-daemon_base_domain(lvm, `, fs_domain, privowner')
-role sysadm_r types lvm_t;
-
-# LVM will complain a lot if it cannot set its priority.
-allow lvm_t self:process { setsched };
-
-allow lvm_t self:fifo_file rw_file_perms;
-
-r_dir_file(lvm_t, proc_t)
-allow lvm_t self:file r_file_perms;
-
-# Read system variables in /proc/sys
-allow lvm_t sysctl_kernel_t:file r_file_perms;
-allow lvm_t sysctl_kernel_t:dir r_dir_perms;
-
-# Read /sys/block. Device mapper metadata is kept there.
-r_dir_file(lvm_t, sysfs_t) 
-
-# Read configuration files in /etc.
-allow lvm_t { etc_t etc_runtime_t }:file { getattr read };
-
-# LVM creates block devices in /dev/mapper or /dev/<vg>
-# depending on its version
-file_type_auto_trans(lvm_t, device_t, fixed_disk_device_t, blk_file)
-
-# LVM(2) needs to create directores (/dev/mapper, /dev/<vg>)
-# and links from /dev/<vg> to /dev/mapper/<vg>-<lv>
-allow lvm_t device_t:dir create_dir_perms;
-allow lvm_t device_t:lnk_file create_file_perms;
-
-# /lib/lvm-<version> holds the actual LVM binaries (and symlinks)
-allow lvm_t lvm_exec_t:dir search;
-allow lvm_t lvm_exec_t:{ file lnk_file } r_file_perms;
-
-tmp_domain(lvm)
-allow lvm_t { random_device_t urandom_device_t }:chr_file { getattr read ioctl };
-
-# DAC overrides and mknod for modifying /dev entries (vgmknodes)
-allow lvm_t self:capability { dac_override ipc_lock sys_admin sys_nice mknod };
-
-# Write to /etc/lvm, /etc/lvmtab, /etc/lvmtab.d
-file_type_auto_trans(lvm_t, { etc_t lvm_etc_t }, lvm_metadata_t, file)
-
-allow lvm_t lvm_metadata_t:dir r_dir_perms;
-
-# Inherit and use descriptors from init.
-allow lvm_t init_t:fd use;
-
-# LVM is split into many individual binaries
-can_exec(lvm_t, lvm_exec_t)
-
-# Access raw devices and old /dev/lvm (c 109,0).  Is this needed?
-allow lvm_t fixed_disk_device_t:chr_file create_file_perms;
-
-# relabel devices
-allow lvm_t { default_context_t file_context_t }:dir search;
-allow lvm_t file_context_t:file { getattr read };
-can_getsecurity(lvm_t)
-allow lvm_t fixed_disk_device_t:blk_file { relabelfrom relabelto };
-allow lvm_t device_t:lnk_file { relabelfrom relabelto };
-
-# Access terminals.
-allow lvm_t { initrc_devpts_t admin_tty_type }:chr_file rw_file_perms;
-allow lvm_t devtty_t:chr_file rw_file_perms;
-ifdef(`gnome-pty-helper.te', `allow lvm_t sysadm_gph_t:fd use;')
-allow lvm_t privfd:fd use;
-allow lvm_t devpts_t:dir { search getattr read };
-
-read_locale(lvm_t)
-
-# LVM (vgscan) scans for devices by stating every file in /dev and applying a regex...
-dontaudit lvm_t device_type:{ chr_file blk_file } getattr;
-dontaudit lvm_t device_t:{ fifo_file dir chr_file blk_file } getattr;
-dontaudit lvm_t devpts_t:dir { getattr read };
-ifdef(`gpm.te', `
-dontaudit lvm_t gpmctl_t:sock_file getattr;
-')
-dontaudit lvm_t initctl_t:fifo_file getattr;
-dontaudit lvm_t sbin_t:file getattr;
-allow lvm_t lvm_control_t:chr_file rw_file_perms;
-allow initrc_t lvm_control_t:chr_file unlink;
-allow initrc_t device_t:chr_file create;
-dontaudit lvm_t var_run_t:dir getattr;
-
-allow lvm_t tmpfs_t:dir getattr;
-dontaudit lvm_t dri_device_t:dir r_dir_perms;
-r_dir_file(lvm_t, selinux_config_t)
-
---Boundary-00=_hSB6AKZ/qn9qeij--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
