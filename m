@@ -1,39 +1,27 @@
-Message-ID: <3C20D492.10504@lowder.com>
-Date: Wed, 19 Dec 2001 11:55:30 -0600
-From: Gary Lowder <gary@lowder.com>
+Date: Wed, 19 Dec 2001 13:05:44 -0500 (EST)
+From: Noah silva <nsilva@atari-source.com>
+To: SELinux Mailing <SELinux@tycho.nsa.gov>
+Subject: Debian SE Linux ?
+In-Reply-To: <Pine.GSO.4.33.0112190955150.5056-100000@raven>
+Message-ID: <Pine.LNX.4.21.0112191302320.26475-100000@sparcy.internal.lan>
 MIME-Version: 1.0
-To: SELinux@tycho.nsa.gov
-Subject: Re: setting up new test user domain?
-References: <Pine.GSO.4.33.0112190955150.5056-100000@raven>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Lonnie,
+Hello,
 
-I hate to completely change the direction you're headed but...
-Based on what you've said earlier about what you want to accomplish, it 
-seems a chroot jail is what you want for your users.  Why reinvent the 
-wheel?  Of course you can beat SELinux into doing what you're asking, 
-but that's not really what it was designed to directly accomplish.
+looking back on the list, I saw some people have discussed using Debian
+Linux with the SELinux patch.  I was wondering if that ever came to
+anything other than talk.  I am currently working on setting up a test
+machine with Debian Testing (on x86) and SE Linux.  (ATM, I am still
+sorting out ext3 + initrd... can't believe there isn't a cleaner
+solution).
 
-Largo, Florida, implemented a linux system for it's municipality workers 
-to use.  A base link off of which you might find lots of useful 
-information is:  http://www.consultingtimes.com/Largo.html
-He didn't do exactly what you're talking about, but it's not far off.
+Looking at the way SELinux works, I assume I will have at least to alter
+the policies because of the differences in paths?
 
-Where I would actually start, is a site to help explain and set up a 
-chroot jail, one of I'm sure many sites is: 
-http://www.gsyc.inf.uc3m.es/~assman/jail/1.html
-
-I'm sure there are others out there.
-
-With a large enough hammer it is entirely possible to beat a square peg 
-into a round hole, but it's much easier to just find the round peg.
-
-Hope this helps you accomplish your objectives.
-
-Gary.
+ -- noah silva 
 
 
 
