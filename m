@@ -1,55 +1,91 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i28G77Rb006569
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 11:07:07 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i28G760F027723
-	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 16:07:06 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i28G74gZ027604 for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 16:07:05 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Karl MacMillan <kmacmillan@tresys.com>
-Subject: Re: Proposed patch to policy file_contexts
-Date: Tue, 9 Mar 2004 03:05:40 +1100
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Daniel J Walsh <dwalsh@redhat.com>,
-   SE Linux <selinux@tycho.nsa.gov>
-References: <403E52AD.5090103@redhat.com> <1078507105.16195.78.camel@moss-spartans.epoch.ncsc.mil> <1078761584.30476.67.camel@colossus.columbia.tresys.com>
-In-Reply-To: <1078761584.30476.67.camel@colossus.columbia.tresys.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i28HGWRb007111
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 12:16:32 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i28HEp6Q002089
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 17:14:51 GMT
+Received: from baitaca.ipen.br (baitaca.ipen.br [200.136.52.8])
+	by jazzswing.ncsc.mil  with ESMTP id i28HEj5t002049
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 17:14:51 GMT
+Received: (from root@localhost)
+	by baitaca.ipen.br (8.12.9/8.12.9) id i28HIUNF013267
+	for selinux@tycho.nsa.gov; Mon, 8 Mar 2004 14:18:30 -0300
+Received: from net.ipen.br ([10.0.12.47])
+	by baitaca.ipen.br (8.12.9/8.12.9) with ESMTP id i28HIBiX013113
+	for <selinux@tycho.nsa.gov>; Mon, 8 Mar 2004 14:18:12 -0300
+Message-ID: <404CAA11.2070909@net.ipen.br>
+Date: Mon, 08 Mar 2004 14:14:57 -0300
+From: =?UTF-8?B?Q2FybG9zIEFuw61zaW8gTW9udGVpcm8=?= <monteiro@baitaca.ipen.br>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200403090305.40774.russell@coker.com.au>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Re: system_r and sysadm_r roles
+References: <404C5B57.9020209@net.ipen.br> <1078757447.30181.82.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/alternative;
+ boundary="------------070208050105080800030907"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 9 Mar 2004 02:59, Karl MacMillan <kmacmillan@tresys.com> wrote:
-> > The resulting file_contexts file maps /root entries to staff*_home_t
-> > rather than sysadm*_home_t.  This is a general limitation of
-> > genhomedircon (not knowing which role to select when multiple ones are
-> > authorized), but the old one avoided the problem by skipping root and
-> > leaving the /root entries in the .fc files.  Now, we could alter the
-> > ordering of roles for root in policy/users as a workaround; that
-> > shouldn't affect the default context as that is governed by
-> > /etc/security/default_contexts.
+
+--------------070208050105080800030907
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Stephen Smalley wrote:
+
+>>This would can induce the a problem of security ?
+>>    
+>>
 >
-> Our thinking was that root shouldn't be a special case and the ordering
-> of the roles could take care of everything. I'm not clear why root
-> should be labeled with sysadm*_home_t, though. Why not treat root like
-> all of the other admins? Wouldn't labeling root with sysadm*_home_t make
-> logging in as staff_r for root problematic (for example, when ssh logins
-> are allowed for root).
+>No, domain transitions are the key.
+>
+Sorry, but don´t understand this. If a fail (that it provide a shell 
+root) to occur in a system process, can´t occur a transition to sysadm_r 
+role ?
 
-Why not allow staff_t to search sysadm_home_dir_t:dir and read 
-sysadm_home_t:file?  Then you can login as root:staff_r and still get aliases 
-etc setup, and then you can run "newrole -r sysadm_r".
-
-I've got policy to do that in my tree already.
+Many thanks.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Carlos Anísio Monteiro	<monteiro@ipen.br>
+IPEN-CNEN/SP
+São Paulo - Brasil
+
+
+
+--------------070208050105080800030907
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+Stephen Smalley wrote:<br>
+<blockquote type="cite"
+ cite="mid1078757447.30181.82.camel@moss-spartans.epoch.ncsc.mil">
+  <pre wrap=""></pre>
+  <blockquote type="cite">
+    <pre wrap="">This would can induce the a problem of security ?
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+No, domain transitions are the key.</pre>
+</blockquote>
+Sorry, but don´t understand this. If a fail (that it provide a shell root)
+to occur in a system process, can´t occur a transition to sysadm_r role ?<br>
+<br>
+Many thanks.<br>
+<pre class="moz-signature" cols="$mailwrapcol">-- 
+Carlos Anísio Monteiro	<a class="moz-txt-link-rfc2396E" href="mailto:monteiro@ipen.br">&lt;monteiro@ipen.br&gt;</a>
+IPEN-CNEN/SP
+São Paulo - Brasil</pre>
+<br>
+</body>
+</html>
+
+--------------070208050105080800030907--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
