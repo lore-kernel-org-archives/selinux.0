@@ -1,64 +1,44 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8U4CJrT021152
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 00:12:21 -0400 (EDT)
-Received: from raq0.openthought.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8U4CJog008461
-	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 04:12:19 GMT
-Date: Thu, 30 Sep 2004 04:09:32 +0000
-From: Eric Andreychek <eric@openthought.net>
-To: selinux@tycho.nsa.gov
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8U4Z6rT021197
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 00:35:06 -0400 (EDT)
+Received: from mail.rollinghorse.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8U4Z4og008860
+	for <selinux@tycho.nsa.gov>; Thu, 30 Sep 2004 04:35:05 GMT
+Message-Id: <5.2.1.1.2.20040929213557.06cc1010@Shire>
+Date: Wed, 29 Sep 2004 21:39:14 -0700
+To: Tom Anderson <granite217@yahoo.com>, selinux@tycho.nsa.gov
+From: "Carsten P. Gehrke" <Carsten@rollinghorse.com>
 Subject: Re: purpose of the staff_r role?
-Message-ID: <20040930040932.GB17135@rwcwarranty.com>
-References: <20040930013829.10463.qmail@web14925.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 In-Reply-To: <20040930013829.10463.qmail@web14925.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+At 18:38 29-09-04, Tom Anderson wrote:
+>Can anyone explain the purpose/benefit of having an account under the
+>staff_r role?  I thought it was to allow limited administrative
+>functions, but I've discovered that it doesn't even allow reading the
+>logfiles under /var/log/.  What purpose does it serve, other than to
+>limit who can transition to sysadm_r?
+>
+>SE Linux appears to be quite powerful, but dear $deity it's confusing.
+>I'd sell my soul for a nice, readable O'Reilly Press title covering
+>this stuff!
 
-Howdy,
+There is one in the works.  I saw a draft copy at LinuxWorld in San 
+Francisco early August.  The title is "SELINUX: NSA's Open Source Security 
+Enhanced Linux" and the author is Bill McCarty.
 
-On Wed, 29 Sep 2004, Tom Anderson wrote:
-> SE Linux appears to be quite powerful, but dear $deity it's confusing. 
+Now, do I get your soul or does O'Reilly?
 
-- From one new SELinux user to another, keep tinkering around with it, it'll
-start to make sense :-)  You're right, it is really powerful.  Don't be afraid
-to get in there and work with the policies (just make a backup, RCS is your
-friend ;-)
 
-Nothing will help you figure it out quicker than building a policy for a daemon
-without one :-)
+--
+Rolling Horse Ranch Technical Services                 Carsten P. Gehrke
+          Custom software solutions using open source technology
+http://tech.RollingHorse.com/                   Carsten@RollingHorse.com
 
-> I'd sell my soul for a nice, readable O'Reilly Press title covering
-> this stuff!
 
-Well, lucky for you, you might not need to go quite that far ;-)
-
-It looks like O'Reilly will be releasing one named "SELinux NSA's Open Source
-Security Enhanced Linux" by Bill McCarty pretty soon:
-
-  http://www.oreilly.com/catalog/selinux/index.html
-
-The estimated release date is October.  I'm looking forward to that myself.
-
-Good luck!
-  -Eric
-
-- -- 
- Eric Andreychek              | Lucy: "What happens if you practice the
- Eric Conspiracy Secret Labs  |  piano for 20 years and then end up not
- eric@openthought.net         |  being rich and famous?"
- http://openthought.net       | Schroeder: "The joy is in the playing."
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBW4b8R5UKaDAjAG4RAhRhAKDgM8GT9BZxRFcHqcBMk7/QMRENyACcDFbu
-cys8mXtVF8yKvu8VuH0MXJA=
-=2hWg
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
