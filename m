@@ -1,53 +1,36 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1L0mudW015374
-	for <selinux@tycho.nsa.gov>; Sun, 20 Feb 2005 19:48:56 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j1L4xPdW016065
+	for <selinux@tycho.nsa.gov>; Sun, 20 Feb 2005 23:59:25 -0500 (EST)
 Received: from postoffice9.mail.cornell.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1L0iali010685
-	for <selinux@tycho.nsa.gov>; Mon, 21 Feb 2005 00:44:36 GMT
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id j1L4t2pm021400
+	for <selinux@tycho.nsa.gov>; Mon, 21 Feb 2005 04:55:02 GMT
 Received: from [192.168.2.105] (cpe-24-58-1-204.twcny.res.rr.com [24.58.1.204])
-	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j1L0ksEA028531
-	for <selinux@tycho.nsa.gov>; Sun, 20 Feb 2005 19:46:56 -0500 (EST)
-Subject: PT_GNU_STACK RWE
+	by postoffice9.mail.cornell.edu (8.12.10/8.12.6) with ESMTP id j1L4vNEA024193
+	for <selinux@tycho.nsa.gov>; Sun, 20 Feb 2005 23:57:24 -0500 (EST)
+Subject: Access_terminal + ioctl
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
 To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Sun, 20 Feb 2005 19:49:12 -0500
-Message-Id: <1108946955.9501.7.camel@cobra.ivg2.net>
+Date: Sun, 20 Feb 2005 23:59:54 -0500
+Message-Id: <1108961995.20655.8.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Some of those are causing trouble, just like java.
-They produce the same kind of denials as a legacy domain
-where you say READ implies EXEC for backwards compatibility. 
+Is it all right if I add back ioctl permission
+on $1_devpts_t, $1_tty_device_t, and devtty_t (chr_file)
+in the access_terminal macro?
 
-In particular mplayer, lame, inkscape and gpg don't work anymore.
-What needs to be done? 
+Already all of those domains need it:
+- smbmount_t
+- $1_su_t
+- $1_ssh_t
+- $1_gpg_t
+- $1_mplayer_t
+- $1_mencoder_t
 
-[root@cobra ~]#  for DIR in `echo $PATH|tr ':' ' '`; do for FILE in
-$DIR/*; do if [ ! -z "`readelf -l $FILE 2>/dev/null |grep GNU_STACK|grep
-RWE`" ]; then echo "$FILE"; fi; done;done;
-/sbin/netplugd
-/usr/bin/eu-nm
-/usr/bin/gmplayer
-/usr/bin/gnatbind
-/usr/bin/gnatls
-/usr/bin/gnatmake
-/usr/bin/gpg
-/usr/bin/gpgv
-/usr/bin/inkscape
-/usr/bin/inkview
-/usr/bin/lame
-/usr/bin/mencoder
-/usr/bin/mp3rtp
-/usr/bin/mp3x
-/usr/bin/mplayer
-/usr/bin/ocamlc.opt
-/usr/bin/ocamldep.opt
-/usr/bin/ocamldoc.opt
-/usr/bin/ocamllex.opt
-/usr/bin/ocamlopt.opt
+Can I just use rw_file_perms?
 
 -- 
 Ivan Gyurdiev <ivg2@cornell.edu>
