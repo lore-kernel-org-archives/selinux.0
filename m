@@ -1,60 +1,42 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AGN2rT028616
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 12:23:02 -0400 (EDT)
-Received: from rwcrmhc13.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5AGMvP2008247
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 12:22:58 -0400 (EDT)
-Subject: too many sysadmfile?
-From: Chris PeBenito <pebenito@gentoo.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1086884579.19414.30.camel@gorn.pebenito.net>
-Mime-Version: 1.0
-Date: Thu, 10 Jun 2004 11:22:59 -0500
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5AHTUrT029238
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 13:29:30 -0400 (EDT)
+Received: from web.different1.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5AHTNP2012714
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jun 2004 13:29:25 -0400 (EDT)
+Date: 10 Jun 2004 12:26:12 -0500
+Message-ID: <20040610172612.25551.qmail@web.different1.com>
+To: selinux@tycho.nsa.gov
+Subject: Restrict File creation types
+From: Kenny <selinux@kfk2.com>
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-One thing that hasn't sat well with me for a long time is that just
-about all file_types are sysadmfile in the strict policy.  To me, this
-sounds like an excessive amount of access for sysadm_t (with exception
-of the unrestricted_admin tunable being on).
+How would I go about restricting all files created in a certain
+directory to a set of types. Eg:
+I have Dir Types:
+Dir_Type1_t
+Dir_Type2_t
+and file Types:
+File_type_1a_t
+File_type_1b_t
+File_type_2a_t
+File_type_2b_t
 
-Its true that since sysadm_t can already relabel almost everything, it
-makes this change moot from a security perspective, since it can relabel
-a file to something it can modify.  However, by limiting normal access,
-it affords some protection against accidental overwrites and deletions,
-and from malicious programs a sysadmin might accidentally run.  In my
-opinion, the packagers (rpm_t, etc) should be the only ones with access
-all file_types.
+I want all files in Dir_Type1_t to be of types File_type_1a_t or
+File_type_1b_t no matter the domain of the creating process 
+and all files in Dir_Type2_t to be of types File_type_2a_t or
+File_type_2b_t.
+(mkdir -Z user:object_r:File_type_2a_t TEST in a dir of type
+Dir_Type2_t should fail as any user/role/domain)
 
-I haven't looked into it much, but my idea is eliminate sysadmfile
-except where its obviously warranted, such as in /etc/* types.  Then
-change the sysadmfile policy in admin_domain to something like:
+I've tried looking through the logs with auditallow on for all the Dir
+and File types, but didn't see anything where both types where listed
+in the same allow statement.  Is this even possible?
 
-ifdef(`unrestricted_admin',`
-create_dir_notdevfile($1_t,{ file_type -device_type -shadow_t })
-',`
-create_dir_notdevfile($1_t,sysadmfile)
-')
-
-Or maybe use a boolean could be used, instead of a tunable.  Then change
-the relabeling rule to:
-
-# Relabel all files except shadow_t.
-allow $1_t { file_type -shadow_t }:dir { getattr read search relabelfrom relabelto };
-allow $1_t { file_type -shadow_t }:file_class_set { getattr relabelfrom relabelto };
-
-Comments?
-
--- 
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-Embedded Gentoo Linux
- 
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
-Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+Kenny
 
 --
 This message was distributed to subscribers of the selinux mailing list.
