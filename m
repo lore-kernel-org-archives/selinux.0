@@ -1,64 +1,41 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA05629
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 13:54:05 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA07039
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 18:51:00 GMT
-Received: from hellcat.admin.navo.hpc.mil (hellcat.admin.navo.hpc.mil [204.222.179.34])
-	by jazzswing.ncsc.mil  with ESMTP id SAA07035
-	for <selinux@tycho.nsa.gov>; Wed, 12 Feb 2003 18:51:00 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: j.logsdon@lancaster.ac.uk, selinux@tycho.nsa.gov
-Subject: Re: Simple question
-Date: Wed, 12 Feb 2003 12:53:26 -0600
-References: <Pine.LNX.4.10.10302121830350.25327-100000@mercury.quantex>
-In-Reply-To: <Pine.LNX.4.10.10302121830350.25327-100000@mercury.quantex>
-MIME-Version: 1.0
-Message-Id: <200302121253.26502.pollard@admin.navo.hpc.mil>
+From: "Curtis Greer" <curtlg@msn.com>
+To: SELinux@tycho.nsa.gov
+Subject: Selinux on smp
+Date: Wed, 12 Feb 2003 19:09:17 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F309haIsUCDZ2UehKla00014297@hotmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 12 February 2003 12:32 pm, j.logsdon@lancaster.ac.uk wrote:
-> Hi
->
-> In general terms, what does SEL do that I can't do (even if more
-> complicated) by Access Control Lists?  If I can control the users and
-> groups that can access files (and these are all properly set) what
-> advantage do I have in running SEL?
+I have been successfully buidling SLEinux 2.4.20 on Red Hat 7.3 on a 
+uni-processor Intel based computer. I'm now trying to do the  same on a dual 
+processor Dell 6600.  The build works fine.  When attempting to run SELinux 
+I get the following errors:
 
-ACLs are under the control of the user. The user choses the other users that
-may access the files that the user owns.
+  NET4: Unix domain sockets 1.0/SMP for Linux NET4.0
+  ds: no socket drivers loaded!
+  kmod: failed to exec /sbin/modprobe -s -k block-major-8, errno = 2
+  VFS: Cannot open root device "807" or 08:07
+  Please append a correct "root=" boot option
+  Kernel panic: VFS: Unable to mount root fs on 08:07
 
-SELinux is under the control of the security administrator. This includes the
-files that the user owns. Even if the user wants a specific other user to have
-access to a file, if that user is not in a domain containing the other user 
-(ie, both are in the same domain) then the other user still cannot access the 
-file.
+  I'm new at this unix game so I'm stuck. Is something missing from the 
+kernel?
 
-> I'm not being rude - just trying to understand the difference and to see
-> whether it is really necessary to run a bespoke kernel.
+  Also, there is an error in /usr/selinux/policy/makefile.  In the 
+[install-src] section the second line begins with mv.  This should be
+  -mv.
 
-The difference is in mandatory access vs descretionary access.
+  Dr. Curtis L. Greer
 
-As far as the system files go, if all are carefully given approprate ACLs, 
-then they can be protected. However, if the root accout is hacked, the files
-are still vulnerable.
 
-If a SELinux system is hacked, unless the hack itself contains an all powerful
-label/domain, the hack still doesn't have access to all of the files.. Only 
-those belonging to the domain of the hacked daemon.
 
-Others may have more detailed/correct answers, but this should be the
-lowest common denominator.
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+_________________________________________________________________
+MSN 8 helps eliminate e-mail viruses. Get 2 months FREE*.  
+http://join.msn.com/?page=features/virus
 
-Any opinions expressed are solely my own.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
