@@ -1,52 +1,66 @@
-Subject: Re: hal - denials
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <1112483670.14277.5.camel@cobra.ivg2.net>
-References: <1111905173.3520.8.camel@cobra.ivg2.net>
-	 <1112016475.2914.16.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112026129.3040.1.camel@cobra.ivg2.net>
-	 <1112026381.2914.95.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112029334.3350.2.camel@cobra.ivg2.net>
-	 <1112029488.2914.103.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112030817.3350.6.camel@cobra.ivg2.net>
-	 <1112031473.2914.109.camel@moss-spartans.epoch.ncsc.mil>
-	 <1112483670.14277.5.camel@cobra.ivg2.net>
-Content-Type: text/plain
-Date: Mon, 04 Apr 2005 08:55:42 -0400
-Message-Id: <1112619342.7629.7.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j34DAsDo029449
+	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 09:10:54 -0400 (EDT)
+Received: from hermes.domdv.de (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j34D8rW6013167
+	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 13:08:54 GMT
+Message-ID: <42513C67.7020604@domdv.de>
+Date: Mon, 04 Apr 2005 15:08:55 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: fix setfiles segfault caused by libselinux-1.22
+Content-Type: multipart/mixed;
+ boundary="------------040408000402040702060809"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2005-04-02 at 18:14 -0500, Ivan Gyurdiev wrote:
-> Ok, here is what hald required to stop complaining.
-> Which ones should be dontaudit? I take it you won't like
-> allowing hald to write to /selinux, and read /dev/mem.
+This is a multi-part message in MIME format.
+--------------040408000402040702060809
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-Writing to /selinux/context to check the validity of a context is ok,
-and necessary for checking the context it is going to use for the mount
-option.  Note that each node under /selinux has its own finer-grained
-permission check in the security class to allow distinctions to be made
-among the operations separate from the inode-based permission check.
-See the can_getsecurity() macro for an example of allowing the ability
-to get any kind of security decision from selinuxfs (as distinct from
-being able to set things like the enforcing status, booleans, or loading
-policy, which have their own macros).
-
-> 
-> re: dmidecode - 
-> dmidecode decodes the DMI data present in x86 and IA64 BIOS's.
-> 
-> Can't that be made to run in its own domain?
-
-Likely should be.
-
+setfiles does reset user defined functions by calling the related setup
+function with NULL as argument. Instead of resetting to the default
+these setup functions did set up NULL as the function pointer. Fix attached.
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
 
+--------------040408000402040702060809
+Content-Type: text/plain;
+ name="libselinux-1.22.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libselinux-1.22.diff"
+
+--- libselinux-1.22.orig/src/matchpathcon.c	2005-04-04 15:01:14.000000000 +0200
++++ libselinux-1.22/src/matchpathcon.c	2005-04-04 15:01:23.000000000 +0200
+@@ -29,7 +29,10 @@
+ 
+ void set_matchpathcon_printf(void (*f)(const char *fmt, ...))
+ {
+-	myprintf = f;
++	if (f)
++		myprintf = f;
++	else
++		myprintf = &default_printf;
+ }
+ 
+ static int default_invalidcon(const char *path, unsigned lineno, char *context)
+@@ -45,7 +48,10 @@
+ 
+ void set_matchpathcon_invalidcon(int (*f)(const char *p, unsigned l, char *c))
+ {
+-	myinvalidcon = f;
++	if (f)
++		myinvalidcon = f;
++	else
++		myinvalidcon = &default_invalidcon;
+ }
+ 
+ /*
+
+--------------040408000402040702060809--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
