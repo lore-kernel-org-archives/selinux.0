@@ -1,45 +1,50 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: draper7@ziplip.com, SELinux@tycho.nsa.gov
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA00453
+	for <selinux@tycho.nsa.gov>; Sun, 16 Feb 2003 16:37:47 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id VAA17242
+	for <selinux@tycho.nsa.gov>; Sun, 16 Feb 2003 21:34:40 GMT
+Received: from ziplip.com (mail.ziplip.com [128.242.109.119])
+	by jazzswing.ncsc.mil  with ESMTP id VAA17238
+	for <selinux@tycho.nsa.gov>; Sun, 16 Feb 2003 21:34:40 GMT
+Message-ID: <DTCOIKAKKNB3NWCMMKNXKJCDHTEAEFP3JRHWOJAF@ziplip.com>
+Date: Sun, 16 Feb 2003 13:36:02 -0800 (PST)
+From: Dusty Hall <draper7@ziplip.com>
+Reply-To: draper7@ziplip.com
+To: SELinux@tycho.nsa.gov
 Subject: Re: spasswd.c
-Date: Sun, 16 Feb 2003 21:12:36 +0100
-References: <MPCKDQD2D5PXECB1KMMIFRPTCEPZOPB0IJGLEHIP@ziplip.com>
-In-Reply-To: <MPCKDQD2D5PXECB1KMMIFRPTCEPZOPB0IJGLEHIP@ziplip.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200302162112.36169.russell@coker.com.au>
+Cc: russell@coker.com.au
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 16 Feb 2003 20:35, Dusty Hall wrote:
->   I'm having trouble compiling utils, specifically spasswd.  I've read
->
-> [root@localhost:~/downloads/selinux/utils/spasswd] make
-> cc -Wall -g -I/usr/local/selinux/include  -L/usr/local/selinux/lib 
-> spasswd.c   -o spasswd spasswd.c: In function `sig_handler':
-> spasswd.c:47: warning: implicit declaration of function `kill'
-> spasswd.c: In function `main':
-> spasswd.c:66: storage size of `sa' isn't known
+Russell,
 
-Add the following near the top of spasswd.c:
-#include <signal.h>
+  Thanks for the fix, it worked like a champ.  Although now I'm having problems compiling disk-utils, specifically raw.c.  The following is the error message:
 
-After the following line would be good:
-#include <sys/types.h>
+cc -O -pipe -O2 -m486 -fomit-frame-pointer -I../lib -Wall -Wmissing-prototypes -Wstrict-prototypes -I/usr/include/ncurses -DNCH=0 -I/usr/include/slang -D_FILE_OFFSET_BITS=64 -DSBINDIR=\"/sbin\" -DUSRSBINDIR=\"/usr/sbin\" -DLOGDIR=\"/var/log\" -DVARPATH=\"/var\" -DLOCALEDIR=\"/usr/share/locale\"  -s  raw.c   -o raw
+raw.c:22: linux/raw.h: No such file or directory
+raw.c: In function `main':
+raw.c:121: `RAW_MAJOR' undeclared (first use in this function)
+raw.c:121: (Each undeclared identifier is reported only once
+raw.c:121: for each function it appears in.)
+raw.c: In function `query':
+raw.c:187: storage size of `rq' isn't known
+raw.c:191: `RAW_GETBIND' undeclared (first use in this function)
+raw.c:187: warning: unused variable `rq'
+raw.c: In function `bind':
+raw.c:209: storage size of `rq' isn't known
+raw.c:215: `RAW_SETBIND' undeclared (first use in this function)
+raw.c:209: warning: unused variable `rq'
+make: *** [raw] Error 1
 
-The problem was that when I added the kill() call for proxying signals I 
-didn't add enough #include lines, it worked on my system and apparently on 
-most people's systems too.  Steve, can this be added to the CVS?
+Sorry to keep buggin you guys but I really would like to test it out.  I guess what I really need to do is learn C.  As usual thanks for any help.
 
-Probably OWL is using an older glibc which relies on getting these things 
-right.
+Later,
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+-Dusty
+draper7@<NOSPAM>ziplip.com
 
 
 --
