@@ -1,39 +1,46 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Now that SELinux supports booleans should we replace tunables with booleans?
-Date: Wed, 14 Apr 2004 09:17:01 +1000
-Cc: SELinux <SELinux@tycho.nsa.gov>
-References: <407BF24E.90901@redhat.com>
-In-Reply-To: <407BF24E.90901@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200404140917.01773.russell@coker.com.au>
+Subject: SSH not relabeling "user_u" pts's properly
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao <bs-f-vazquez@bs.rd.nttdata.co.jp>
+To: Russell Coker <russell@coker.com.au>
+Cc: SELinux@tycho.nsa.gov
+Content-Type: text/plain
+Message-Id: <1081932262.18446.58.camel@volcano.rd.nttdata.co.jp>
+Mime-Version: 1.0
+Date: Wed, 14 Apr 2004 17:44:22 +0900
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 13 Apr 2004 23:59, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> Ideas?
+Last week I decided to update my SELinux machine to the latest stable
+kernel version (2.6.5). Since I am using Debian and the policy package
+is outdated I made my own package using the latest upstream version. To
+relabel the user files properly the new version of "genhomedircon" is
+also needed, thus "policycoreutils" has to be downloaded from the
+SELinux's home page (the Debian version is too old and the file_contexts
+file is not generated properly).
 
-For most items in tunable.te they won't be changed often or for small reasons.  
-In some cases changing tunable.te will require application restart (or system 
-reboot) to fully take affect.
+After doing this I found out that I was no longer able to login via SSH
+as a normal user in the user_t domain. The reason was that pts would not
+transit to the expected "user_u:object_r:user_devpts_t" type. Instead,
+it ended up with the "system_u:object_r:sshd_devpts_t" type. Under this
+conditions, of course, the connection is closed right after successfully
+being authenticated. Surprisingly, logins as the root user were still
+working and the pts adequately relabeled as
+"root:object_r:staff_devpts_t".
 
-The aim of booleans is for things that are designed to be transient (EG secure 
-levels).
+Since I needed to login as an unprivileged user I temporarily granted
+"allow user_t sshd_devpts_t:chr_file { read write ioctl };" and started
+to investigate what was going wrong. First of all I recompiled and
+installed the latest version of checkpolicy, load_policy, setfiles and
+pam_selinux.so, but this didn't solve anything.
 
-Also if we use booleans for tunables we need to have boolean support for role 
-and domain transitions (currently not implemented), and a mechanism for 
-preserving boolean values across a reboot.
+After checking the policy thoroughly I could not find any bug and this
+is why I would like to know if someone else is experiencing the same
+problem.
 
-I think it's best to continue with tunables the way they are.
+Finally I would like to offer my help (if needed) to keep the Debian
+packages updated.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Thanks in advance.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
