@@ -1,47 +1,97 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5HIm9rT012010
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 14:48:09 -0400 (EDT)
-Received: from gotham.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5HIlwMZ023338
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 18:47:59 GMT
-Message-Id: <200406171847.i5HIlPSf000906@gotham.columbia.tresys.com>
-From: "Karl MacMillan" <kmacmillan@tresys.com>
-To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>
-Cc: "'John D. Ramsdell'" <ramsdell@mitre.org>, <selinux@tycho.nsa.gov>
-Subject: RE: Fedora Core 2 setools RPM
-Date: Thu, 17 Jun 2004 14:47:56 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-In-Reply-To: <1087487902.25033.89.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5I3SarT014517
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jun 2004 23:28:37 -0400 (EDT)
+Received: from rwcrmhc13.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i5I3SYSU006053
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jun 2004 03:28:34 GMT
+Subject: toggle_bool
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wuZttH1Td7jYFjuLXGDB"
+Message-Id: <1087529312.23933.248.camel@gorn.pebenito.net>
+Mime-Version: 1.0
+Date: Thu, 17 Jun 2004 22:28:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
+--=-wuZttH1Td7jYFjuLXGDB
+Content-Type: multipart/mixed; boundary="=-h9kUPZ12lOUJ7g/lZsV2"
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@epoch.ncsc.mil]
-> 
-> I think it would be helpful for libapol to be available for third party
-> packages to encourage other people working on policy tools to re-use and
-> (if necessary) contribute extensions back to libapol rather than
-> reinventing the wheel each time.  I'd also think you would want both
-> shared and static libraries, and have most of the tools dynamically
-> linked against the shared library.
-> 
 
-Sure - like I said we just haven't put any energy into this. We would
-certainly like to see people using our libraries as much as possible as they
-provide a lot of functionality that has taken a long time to develop. We
-will be putting an interim release out soon and will include the
-installation of the include files and libraries (shared and static).
+--=-h9kUPZ12lOUJ7g/lZsV2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Karl
+I wrote up little tool, toggle_bool, inspired by the old avc_toggle.=20
+You can specify one or more booleans on the command line, and it will
+toggle their value, and display their new value.
 
-> --
-> Stephen Smalley <sds@epoch.ncsc.mil>
-> National Security Agency
+beta root # toggle_bool admin_sep disable_pax user_ping
+admin_sep: active
+disable_pax: inactive
+user_ping: inactive
 
+beta root # toggle_bool admin_sep disable_pax user_ping
+admin_sep: inactive
+disable_pax: active
+user_ping: active
+
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+
+--=-h9kUPZ12lOUJ7g/lZsV2
+Content-Disposition: attachment; filename=toggle_bool.c
+Content-Type: text/x-csrc; name=toggle_bool.c; charset=ISO-8859-1
+Content-Transfer-Encoding: base64
+
+LyoNCiAqIENvcHlyaWdodCAxOTk5LTIwMDQgR2VudG9vIFRlY2hub2xvZ2llcywgSW5jLg0KICog
+RGlzdHJpYnV0ZWQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGlj
+ZW5zZSB2Mg0KICogJEhlYWRlcjogL3Zhci9jdnNyb290L2dlbnRvby1wcm9qZWN0cy9oYXJkZW5l
+ZC9wb2xpY3ljb3JldXRpbHMtZXh0cmEvc3JjL3RvZ2dsZV9ib29sLmMsdiAxLjEgMjAwNC8wNi8x
+OCAwMzoxMToyOCBwZWJlbml0byBFeHAgJA0KICovDQojaW5jbHVkZSA8c3RkaW8uaD4NCiNpbmNs
+dWRlIDxsaWJnZW4uaD4NCiNpbmNsdWRlIDxlcnJuby5oPg0KI2luY2x1ZGUgPHNlbGludXgvc2Vs
+aW51eC5oPg0KDQppbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFyZ3YpIHsNCg0KCWludCByYywg
+aSwgY29tbWl0PTA7DQoNCglpZihhcmdjIDwgMikgew0KCQlwcmludGYoIlVzYWdlOiAgJXMgYm9v
+bG5hbWUxIFtib29sbmFtZTIgLi4uXVxuIixiYXNlbmFtZShhcmd2WzBdKSk7DQoJCXJldHVybiAx
+Ow0KCX0NCg0KCWZvcihpPTE7IGk8YXJnYzsgaSsrKSB7DQoJCXByaW50ZigiJXM6ICIsYXJndltp
+XSk7DQoJCXJjPXNlY3VyaXR5X2dldF9ib29sZWFuX2FjdGl2ZShhcmd2W2ldKTsNCgkJc3dpdGNo
+KHJjKSB7DQoJCQljYXNlIDE6DQoJCQkJaWYoc2VjdXJpdHlfc2V0X2Jvb2xlYW4oYXJndltpXSww
+KSA+PSAwKSB7DQoJCQkJCXByaW50ZigiaW5hY3RpdmVcbiIpOw0KCQkJCQljb21taXQrKzsNCgkJ
+CQl9IGVsc2Ugew0KCQkJCQlwcmludGYoIiVzXG4iLHN0cmVycm9yKGVycm5vKSk7DQoJCQkJfQ0K
+CQkJCWJyZWFrOw0KCQkJY2FzZSAwOg0KCQkJCWlmKHNlY3VyaXR5X3NldF9ib29sZWFuKGFyZ3Zb
+aV0sMSkgPj0gMCkgew0KCQkJCQlwcmludGYoImFjdGl2ZVxuIik7DQoJCQkJCWNvbW1pdCsrOw0K
+CQkJCX0gZWxzZSB7DQoJCQkJCXByaW50ZigiJXNcbiIsc3RyZXJyb3IoZXJybm8pKTsNCgkJCQl9
+DQoJCQkJYnJlYWs7DQoJCQlkZWZhdWx0Og0KCQkJCWlmKGVycm5vPT1FTk9FTlQpDQoJCQkJCXBy
+aW50ZigiQm9vbGVhbiBkb2VzIG5vdCBleGlzdFxuIik7DQoJCQkJZWxzZQ0KCQkJCQlwcmludGYo
+IiVzXG4iLHN0cmVycm9yKGVycm5vKSk7DQoJCQkJYnJlYWs7DQoJCX0NCgl9DQoNCglpZihjb21t
+aXQgPiAwKQ0KCQlpZihzZWN1cml0eV9jb21taXRfYm9vbGVhbnMoKSA8IDApDQoJCQlwcmludGYo
+IkNvbW1pdCBmYWlsZWQuICglcykgIE5vIGNoYW5nZSB0byBib29sZWFucy5cbiIsc3RyZXJyb3Io
+ZXJybm8pKTsNCn0NCg==
+
+--=-h9kUPZ12lOUJ7g/lZsV2--
+
+--=-wuZttH1Td7jYFjuLXGDB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA0mFgvI7kLeavkkMRApe+AKCrNVEJhFibRn3Pa66j1p9ikGNyMgCgrXyw
+SyCP0ZISuOt8H2NUD/Sy9jI=
+=NlX+
+-----END PGP SIGNATURE-----
+
+--=-wuZttH1Td7jYFjuLXGDB--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
