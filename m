@@ -1,61 +1,55 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7PGtsrT006919
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 12:55:56 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7PGt8LV016319
-	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 16:55:08 GMT
-Date: Wed, 25 Aug 2004 17:53:54 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: prelink on debian
-Message-ID: <20040825165354.GB7260@lkcl.net>
-References: <20040823232135.GA12720@lkcl.net> <200408252143.25077.russell@coker.com.au> <20040825131653.GA4241@lkcl.net> <200408252352.14465.russell@coker.com.au>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7PH6rrT007061
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 13:06:56 -0400 (EDT)
+Received: from monk.area614.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7PH6ruQ016544
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 17:06:53 GMT
+Received: from [127.0.0.1] (localhost.localdomain [127.0.0.1])
+	by monk.area614.net (Postfix) with ESMTP id D1E0841081A
+	for <selinux@tycho.nsa.gov>; Wed, 25 Aug 2004 13:07:01 -0400 (EDT)
+Subject: Re: policy patch for tunable "/dev/hdc is removable drive"
+From: Colin Walters <walters@verbum.org>
+To: selinux@tycho.nsa.gov
+In-Reply-To: <200408252140.41362.russell@coker.com.au>
+References: <20040823214228.GA13677@lkcl.net>
+	 <20040824002244.GA25356@lkcl.net>
+	 <20040824091520.GE11911@rom.cip.ifi.lmu.de>
+	 <200408252140.41362.russell@coker.com.au>
+Content-Type: text/plain
+Date: Wed, 25 Aug 2004 13:07:43 -0400
+Message-Id: <1093453663.5092.84.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200408252352.14465.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Aug 25, 2004 at 11:52:14PM +1000, Russell Coker wrote:
-> On Wed, 25 Aug 2004 23:16, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > On Wed, Aug 25, 2004 at 09:43:25PM +1000, Russell Coker wrote:
-> > > On Tue, 24 Aug 2004 09:21, Luke Kenneth Casson Leighton <lkcl@lkcl.net> 
-> wrote:
-> > > > prelink is a script on debian: i had to add this because prelink checks
-> > > > that there's > 50mb of disk space and then exec's prelink.bin.
-> > >
-> > > OK, this needs a ifdef(`distro_debian', around it.
-> >
-> >  oh yeh :)
-> >
-> > > Do you think we should have the shell script labelled as sbin_t on
-> > > Debian?
-> >
-> >  i don't know enough about FHS to be able to advise you: perhaps someone
-> >  else here could answer that better.
-> 
-> It's not a FHS issue.
- 
- oh, right.
+On Wed, 2004-08-25 at 21:40 +1000, Russell Coker wrote:
+> On Tue, 24 Aug 2004 19:15, Thomas Bleher <bleher@informatik.uni-muenchen.de> 
 
-> Do we need the shell script to transition to prelink_t or can it run in the 
-> calling domain (maybe system_crond_t)?  
+> > --- orig/Makefile
+> > +++ mod/Makefile
+> > @@ -145,6 +145,7 @@
+> >         @grep -v "^/root" $@.tmp > $@.root
+> >         @/usr/sbin/genhomedircon . $@.root  > $@
+> >         @grep "^/root" $@.tmp >> $@
+> > +       @for i in /proc/ide/hd*/media; do grep -q cdrom $$i && echo $$i |
+> > awk -F / '{ print "/dev/"$$4"\t-b\tsystem_u:object_r:removable_device_t"}'
+> > >> $@; done @-rm $@.tmp $@.root
 
- well, that's where it's run from (as a cron job),
- also it's run as a sysadm_r on the first initial setup of prelink.
+I guess genhomedircon is a precendent here, but: I don't think this
+makes sense, because then the policy is dependent on the machine where
+you build the policy, which may be different from the machine to which
+the policy is ultimately installed.
 
- i'm not even going to pretend to say i know enough to help
- make a decision on this one!
+This kind of calculation should probably be done in the policy post-
+installation step.
 
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+In the larger picture, I don't think we should use one-off hacks like
+this.  Instead, we really need a tool to analyze your whole system and
+suggest policy changes, or vice versa.  If we start embedding things
+like this in policy, system administrators are going to actually expect
+it to work, and I don't think it will, reliably.
+
+
 
 
 --
