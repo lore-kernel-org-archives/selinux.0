@@ -1,65 +1,45 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA11429
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 10:45:39 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA11746
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 11:35:16 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id PAA07785
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 15:44:40 GMT
-Received: from csoc-fire1.csoconline.com (csoc-mail-imc.csoconline.com [140.169.2.142])
-        by jazzband.ncsc.mil  with SMTP id PAA07781 for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 15:44:40 GMT
-Message-ID: <72222DC86846D411ABD300A0C9EB08A1015242DD@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'Russell Coker'" <russell@coker.com.au>,
-        SE Linux
-	 <selinux@tycho.nsa.gov>
-Subject: RE: gdm
-Date: Mon, 25 Feb 2002 09:45:48 -0600
+	by jazzband.ncsc.mil  with ESMTP id QAA10660
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 16:34:17 GMT
+Received: from sentry.gw.tislabs.com (firewall-user@sentry.gw.tislabs.com [192.94.214.100])
+        by jazzband.ncsc.mil  with ESMTP id QAA10656 for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2002 16:34:17 GMT
+Date: Mon, 25 Feb 2002 11:34:26 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: devfs permissions
+In-Reply-To: <20020224121902.AC8E4286E3@lyta.coker.com.au>
+Message-ID: <Pine.GSO.4.33.0202251133330.16566-100000@raven>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-xlogin is fine with me
 
------Original Message-----
-From: Russell Coker [mailto:russell@coker.com.au]
-Sent: Monday, February 25, 2002 8:05 AM
-To: Westerman, Mark; SE Linux
-Subject: Re: gdm
+On Sun, 24 Feb 2002, Russell Coker wrote:
+
+> Another potential solution is to keep the current method of assigning SIDs to
+> devfs nodes, but use it only for the early stages of boot after which devfsd
+> takes over.
+
+I'm inclined toward this approach.
+
+> For interest I have attached the latest devfs_contexts file I am using.  I
+> have attempted to make it give the same result as the file_contexts entries
+> for non-devfs systems as much as possible (but as it doesn't do regular
+> expressions it's impossible to distinguish between CDs and hard drives).
+
+Thanks, merged.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-On Mon, 25 Feb 2002 14:41, Westerman, Mark wrote:
-> Now that you have modified the kdm to use SELinux I would
-> agree that we to rename the gdm domain. I not on favor of
-> renaming the xdm because there is a xdm program and does
-> not totaly avoid the confusion.
 
-I disagree.  xdm is the generic name "X Display Manager" and the program
-that 
-all the other programs are copied off (that's why the kdm code sucks so 
-badly).
-
-But if you can think of a name that's more logical than "xdm" then that'll
-be 
-fine.  The best I can think of now is "xlogin".
-
-> How about sdm for (Security Display Manager) ?
-
-Calling a domain "security" makes no sense in this context (every domain is
-a 
-security domain).  The only reason for calling something "security" in a SE 
-Linux context is if it's something that's seriously related to security, but
-
-as the /ss_policy file has no mention of security in it's SID.
-
-Currently the only mention of security in the SE Linux policy is the 
-security_t domain.
-
--- 
-Signatures >4 lines are rude.  If you send email to me or to a mailing list
-that I am subscribed to which has >4 lines of legalistic junk at the end
-then you are specifically authorizing me to do whatever I wish with the
-message (the sig won't be read).
 
 --
 You have received this message because you are subscribed to the selinux list.
