@@ -1,61 +1,59 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h89CGNLa028935
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 08:16:24 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h89CGMmw012741
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 12:16:22 GMT
-Received: from mx1.avenit.de (nexus6.avenit.de [80.237.241.2])
-        by jazzband.ncsc.mil  with SMTP id h89CGL9d012738 for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 12:16:22 GMT
-From: "Romix" <romix@php.cd>
-To: <russell@coker.com.au>, <selinux@tycho.nsa.gov>
-Subject: RE: how to add a user with rights to login via ssh on selinux?
-Date: Tue, 9 Sep 2003 14:16:07 +0200
-Message-ID: <005901c376cc$28890460$4200000a@roadwarrior>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h89DCdLa029406
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 09:12:40 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h89DB3LY008049
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 13:11:03 GMT
+Received: from sat.sws.net.au (sat.sws.net.au [202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h89DB2sG008046
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2003 13:11:03 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Romix" <romix@php.cd>, <selinux@tycho.nsa.gov>
+Subject: Re: how to add a user with rights to login via ssh on selinux?
+Date: Tue, 9 Sep 2003 23:12:30 +1000
+References: <005901c376cc$28890460$4200000a@roadwarrior>
+In-Reply-To: <005901c376cc$28890460$4200000a@roadwarrior>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-In-Reply-To: <200309092054.12989.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200309092312.30592.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+On Tue, 9 Sep 2003 22:16, Romix wrote:
+> > Does "dmesg" display any avc messages concerning the login?
+>
+> yes there are some messages, but i don´t understand them (is that explained
+> somewhere?):
+>
+> avc:  denied  { read } for  pid=23997 exe=/usr/sbin/sshd
+> path=socket:[257597] dev=00:00 ino=257597
+> scontext=root:sysadm_r:sysadm_chkpwd_t
+> tcontext=root:sysadm_r:sysadm_chkpwd_t tclass=unix_stream_socket
 
-> From your description it seems that you correctly added the user and 
-> configured your system.
-> 
-> Does "dmesg" display any avc messages concerning the login?
+This is wrong.  Either sshd has the wrong type or you started it in the wrong 
+manner.
 
-yes there are some messages, but i don´t understand them (is that explained
-somewhere?):
+Run "ls --context /usr/sbin/sshd" to see the type of the file, it should be 
+sshd_exec_t.
 
-avc:  denied  { read } for  pid=23997 exe=/usr/sbin/sshd
-path=socket:[257597] dev=00:00 ino=257597
-scontext=root:sysadm_r:sysadm_chkpwd_t
-tcontext=root:sysadm_r:sysadm_chkpwd_t tclass=unix_stream_socket
-avc:  denied  { write } for  pid=23998 exe=/usr/sbin/sshd
-path=socket:[257596] dev=00:00 ino=257596
-scontext=root:sysadm_r:sysadm_chkpwd_t
-tcontext=root:sysadm_r:sysadm_chkpwd_t tclass=unix_stream_socket
-avc:  denied  { getattr } for  pid=23997 exe=/usr/sbin/sshd
-path=socket:[257601] dev=00:00 ino=257601
-scontext=root:sysadm_r:sysadm_chkpwd_t
-tcontext=root:sysadm_r:sysadm_chkpwd_t tclass=udp_socket
-avc:  denied  { getattr } for  pid=23997 exe=/usr/sbin/sshd
-scontext=root:sysadm_r:sysadm_chkpwd_t tcontext=system_u:object_r:devpts_t
-tclass=filesystem
-avc:  denied  { search } for  pid=23997 exe=/usr/sbin/sshd dev=00:08 ino=1
-scontext=root:sysadm_r:sysadm_chkpwd_t tcontext=system_u:object_r:devpts_t
-tclass=dir
+> > Is sshd running in the correct context?  "ps --context | grep
+> > sshd" will show
+> > you the context.
+>
+> 23994    243 root:sysadm_r:sysadm_chkpwd_t            grep sshd
+>
+> is sysadm_chkpwd_t the right domain?
 
-> Is sshd running in the correct context?  "ps --context | grep 
-> sshd" will show 
-> you the context.
+That's the context of the "grep" process, and it's not the right domain for 
+sshd or for grep.
 
-23994    243 root:sysadm_r:sysadm_chkpwd_t            grep sshd
-
-is sysadm_chkpwd_t the right domain?
-
-cu, Romain
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 
