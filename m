@@ -1,52 +1,47 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3B2jrRb002379
-	for <selinux@tycho.nsa.gov>; Sat, 10 Apr 2004 22:45:53 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i3B2jqmw005367
-	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 02:45:52 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i3B2je4w005337 for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 02:45:51 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Matthew J. Fanto" <mattjf@uncompiled.com>
-Subject: Re: Logo Artwork for SELinux?
-Date: Sun, 11 Apr 2004 12:44:17 +1000
-Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
-References: <200404041856.17745.wlsel@verizon.net> <200404102107.06368.russell@coker.com.au> <1081613326.456.11.camel@nemesis>
-In-Reply-To: <1081613326.456.11.camel@nemesis>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3B3cgRb002487
+	for <selinux@tycho.nsa.gov>; Sat, 10 Apr 2004 23:38:42 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i3B3aeUZ002707
+	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 03:36:40 GMT
+Received: from mutemail.com (mutemail.com [24.244.170.124])
+	by jazzswing.ncsc.mil  with SMTP id i3B3admT002704
+	for <selinux@tycho.nsa.gov>; Sun, 11 Apr 2004 03:36:39 GMT
+Date: Sat, 10 Apr 2004 20:38:29 -0700
+From: Bill McCarty <bmccarty@pt-net.net>
+To: "Milan P. Stanic" <mps@rns-nis.co.yu>, selinux@tycho.nsa.gov
+Subject: Re: Problems finding working kernel/user land combination
+Message-ID: <36722574.1081629509@[192.168.0.3]>
+In-Reply-To: <20040409204356.GA6027@rns-nis.co.yu>
+References: <88042458.1081270777@[192.168.0.3]>
+ <20040407075405.D19421@lemuria.org> <20040409204356.GA6027@rns-nis.co.yu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200404111244.17434.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 11 Apr 2004 02:08, "Matthew J. Fanto" <mattjf@uncompiled.com> wrote:
-> I also think a button for is necessary. I don't think Joshua was going
-> for the dutch flag when he designed it, but rather the colors of the US
-> (the red, white and blue).  A flag of the US would not work in the
-> background. I'm don't know how much those of you not living in the US
-> would like such a color scheme though.
+Hi Milan,
 
-People who live in France, the Netherlands, the UK, Australia, New Zealand, 
-and many other countries are unlikely to complain because they also have the 
-same colors on their flag.
+--On Friday, April 09, 2004 10:43 PM +0200 "Milan P. Stanic" 
+<mps@rns-nis.co.yu> wrote:
 
-http://www.photius.com/flags/alphabetic_list.html
+> Maybe you could look at my backports from debian unstable to woody
+> at http://www.rns-nis.co.yu/~mps/ or with apt:
+> deb http://www.rns-nis.co.yu/~mps selinux/
+>
+> I backported it with the help from Russell Coker, and  tested it only
+> under UML with 2.6.4 kernel.
 
->From a quick scan of the flags of the world web page (URL above) it seems that 
-red, white, and blue is one of the most common combinations of colors for a 
-national flag, and may even be THE most common combination.
+I gave it a go; but dpkg reports that libselinux1 depends on libattr1 >= 
+2.4.4-1, which is not part of Woody. Did I take a wrong turn?
 
-I suspect that the color choice of the US flag was inspired by the French 
-flag, but according to the history sites I've checked it seems that the 
-origin of the design was lost.
+Cheers,
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+---------------------------------------------------
+Bill McCarty, Ph.D.
+Professor of Information Technology
+Azusa Pacific University
+
 
 
 --
