@@ -1,50 +1,86 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id UAA28141
-	for <selinux@tycho.nsa.gov>; Fri, 31 May 2002 20:12:33 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id AAA16688
-	for <selinux@tycho.nsa.gov>; Sat, 1 Jun 2002 00:12:24 GMT
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA28434
+	for <selinux@tycho.nsa.gov>; Fri, 31 May 2002 22:37:10 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id CAA07605
+	for <selinux@tycho.nsa.gov>; Sat, 1 Jun 2002 02:35:50 GMT
 Received: from mail.servicemail123.com ([12.96.162.84])
-	by jazzswing.ncsc.mil  with ESMTP id AAA16682
-	for <selinux@tycho.nsa.gov>; Sat, 1 Jun 2002 00:12:23 GMT
+        by jazzband.ncsc.mil  with ESMTP id CAA07601 for <selinux@tycho.nsa.gov>; Sat, 1 Jun 2002 02:35:50 GMT
+Received: from jw (unknown [65.166.138.2])
+	by mail.servicemail123.com (Postfix on SuSE Linux 7.1 (i386)) with ESMTP id 02E9837F74
+	for <selinux@tycho.nsa.gov>; Fri, 31 May 2002 21:37:09 -0500 (CDT)
 Content-Type: text/plain;
   charset="us-ascii"
 From: JW <jw@centraltexasit.com>
 Reply-To: jw@centraltexasit.com
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Announce: Project to port SE Linux to SuSE 8.0
-Date: Fri, 31 May 2002 19:15:16 -0500
+To: selinux@tycho.nsa.gov
+Subject: How to go about mixing kernel patches...
+Date: Fri, 31 May 2002 21:39:56 -0500
 MIME-Version: 1.0
-Message-Id: <200205311915.16873.jw@centraltexasit.com>
+Message-Id: <200205312140.02418.jw@centraltexasit.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Hello,
+I hope no one minds to mposting this here, if you do, flame away.
 
-I don't have any idea how far I'll get with this, but I've decided to at least try real hard to get SE Linux to work on SuSE.
+My first difficulty it appling the SE Linux patch to the SuSE-patched kernel.
 
-It seems that there's a few SuSE-users around (besides myself) who want to use SE Linux, so I've start a mailing list and web site hoping that maybe we can work together.
+I applied lsm-2.4-2002050211.patch.gz to vanila 2.4.18 and they apply perfectly.
 
-Web site (nothing fancy): http://se-linux-suse.cedarcreeksoftware.com/
+I applied it to linux-2.4.18-SuSE and got some errors, producing the following rejects:
 
-Mailing list: I don't have any listserve installed currently, so for now, if you want to "join" the mailing list just send me a message telling me what address you want subscribed, and I'll add you to the list.
+linux-2.4.18.SuSE/fs/dquot.c.rej
+linux-2.4.18.SuSE/fs/namei.c.rej
+linux-2.4.18.SuSE/fs/inode.c.rej
+linux-2.4.18.SuSE/mm/memory.c.rej
+linux-2.4.18.SuSE/mm/mprotect.c.rej
+linux-2.4.18.SuSE/mm/filemap.c.rej
+linux-2.4.18.SuSE/net/socket.c.rej
+linux-2.4.18.SuSE/arch/i386/kernel/entry.S.rej
+linux-2.4.18.SuSE/arch/ia64/kernel/entry.S.rej
+linux-2.4.18.SuSE/init/main.c.rej
+linux-2.4.18.SuSE/kernel/fork.c.rej
+linux-2.4.18.SuSE/kernel/sched.c.rej
+linux-2.4.18.SuSE/Makefile.rej
+linux-2.4.18.SuSE/include/linux/fs.h.rej
 
-My idea is to post patches and RPMs to the web site as I (and others) manage to build them.
+Or if this helps any:
 
-If anyone already has anything (SuSE-specific) they want put up on the site, please send the files directly to me via email.
+jw:/work/dl/se_linux/se_build/linux-2.4.18.SuSE # zcat ../../opt5/all-opt-4-together/patches/lsm-2.4-2002050211.patch.gz | patch -s -p1
+1 out of 3 hunks FAILED -- saving rejects to file Makefile.rej
+1 out of 1 hunk FAILED -- saving rejects to file arch/i386/kernel/entry.S.rej
+1 out of 1 hunk FAILED -- saving rejects to file arch/ia64/kernel/entry.S.rej
+Reversed (or previously applied) patch detected!  Assume -R? [n]
+Apply anyway? [n]
+1 out of 1 hunk ignored -- saving rejects to file fs/binfmt_elf.c.rej
+1 out of 2 hunks FAILED -- saving rejects to file fs/dquot.c.rej
+1 out of 3 hunks FAILED -- saving rejects to file fs/inode.c.rej
+1 out of 22 hunks FAILED -- saving rejects to file fs/namei.c.rej
+1 out of 6 hunks FAILED -- saving rejects to file include/linux/fs.h.rej
+1 out of 2 hunks FAILED -- saving rejects to file init/main.c.rej
+1 out of 4 hunks FAILED -- saving rejects to file kernel/fork.c.rej
+1 out of 7 hunks FAILED -- saving rejects to file kernel/sched.c.rej
+1 out of 3 hunks FAILED -- saving rejects to file mm/filemap.c.rej
+1 out of 1 hunk FAILED -- saving rejects to file mm/memory.c.rej
+1 out of 2 hunks FAILED -- saving rejects to file mm/mprotect.c.rej
+1 out of 15 hunks FAILED -- saving rejects to file net/socket.c.rej
 
-If enough interest is shown, I expect to be able to get more "normal" file sharing/mailing list features, maybe CVS. 
-I think this is good enough for now, until there's proven interest.
 
-If anyone is aware of any legal issues with this, please notify me ASAP. 
-Since the project's only purpose is to collaborate with fellow SuSE users on SE-Linux, I think I should be fine, but I'd rather be safe then sorry.
+At this point I'm presuming the the correct course of action is to diff those files one at a time between the "good" patched {.c|.h} files and the "bad" suse-patched {.c|.h} files.
 
-If possible, I would apprecite hearing from one of the NSA people that this is at least un-officially 'permissable' (I have no expectations of receiving official acknowledgment of any kind).
+Would there be any benefit to try to do the opposite, i.e. apply the LSM patches first, and the SuSE patches second?
 
-Thanks... hopefully we'll get somewhere with this.
+I'm a little worried since I have to mix 3 patches actually. I suppose there's not much chance of the actual se-linux patches applying to my mixed lsm/suse kernel?
+
+Sorry to ask such basic questions, I've never had to do something like this before -- but I'm detirmined to do it right.
+
+If any one has advise as far as how to go about this, I'd really appreciate hearing from you.
+
+Thanks!
+
 - -- 
 
 - ----------------------------------------------------
@@ -55,9 +91,9 @@ Cedar Creek Software     http://www.cedarcreeksoftware.com
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE8+BIUQ5u80xXOLBcRAiY7AJwOHyrZNjzXmfMxN91HiGwSsNmAhACg2mBp
-nLRa3zrENoTjdCH5FBsl7NQ=
-=qlM7
+iD8DBQE8+DQCQ5u80xXOLBcRAoBCAKC7v3Ta7boFkXltryIjtOj1wohx5ACfesN3
+LLlU60flwIRnTs4Ylkon2RU=
+=ALT7
 -----END PGP SIGNATURE-----
 
 
