@@ -1,36 +1,45 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QH2VrT027963
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 13:02:31 -0400 (EDT)
-Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QH1T76017084
-	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 17:01:29 GMT
-Date: Sun, 26 Sep 2004 18:13:36 +0100
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8QH7JrT027983
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 13:07:19 -0400 (EDT)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8QH7IhU008423
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 17:07:18 GMT
+Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
+	by open.hands.com (Postfix) with ESMTP id 80C4EC0F6
+	for <selinux@tycho.nsa.gov>; Sun, 26 Sep 2004 18:07:12 +0100 (BST)
+Received: from lkcl by lkcl.net with local (Exim 4.24)
+	id 1CBcfI-0007fd-62
+	for selinux@tycho.nsa.gov; Sun, 26 Sep 2004 18:18:24 +0100
+Date: Sun, 26 Sep 2004 18:18:24 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Russell Coker <russell@coker.com.au>, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: udev_uses_tmpfs
-Message-ID: <20040926171336.GC28076@lkcl.net>
-References: <20040926120608.GG26338@lkcl.net> <200409262324.29324.russell@coker.com.au> <20040926142002.GA28076@lkcl.net>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: postfix, spamd, cupsd all attempting name_bind to 25, 893 etc. as "reserved_port_t"
+Message-ID: <20040926171824.GD28076@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040926142002.GA28076@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, Sep 26, 2004 at 03:20:02PM +0100, Luke Kenneth Casson Leighton wrote:
-> On Sun, Sep 26, 2004 at 11:24:29PM +1000, Russell Coker wrote:
-> > On Sun, 26 Sep 2004 22:06, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> > > if there are _really_ some redhat-specific things such as "only redhat
-> > > does udev+tmpfs from its initial ramdisk" then fine.
-> > 
-> > That's what it is.
-> > 
-> > If tmpfs is mounted after the machine boots (as done in Debian) then it can be 
-> > correctly labelled before use.
->  
->  ... sorry for being thick, but how do i achieve that?
+hi, i'm using the latest cvs from sf as policy.
 
- okay, i get it: as soon as you do a mount of tmpfs on /dev, do
- a restorecon /dev.
+kernel 2.6.8.1-selinux1 also from cvs (last week).
+
+i get cups attempting to bind to port 631 as a "reserved_port_t",
+also postfix to 25 likewise
+and spamd_t to port 783 - again to reserved_port_t.
+
+i've made absolutely no changes to the strict policy.
+
+help?
+
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 
 
 --
