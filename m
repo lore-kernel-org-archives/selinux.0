@@ -1,67 +1,52 @@
-Date: Thu, 4 Dec 2003 08:40:05 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: Karl MacMillan <kmacmillan@tresys.com>
-cc: SELinux List <SELinux@tycho.nsa.gov>
-Subject: Re: RFC Kernel interface to conditional policy
-In-Reply-To: <1070484482.3774.54.camel@colossus.columbia.tresys.com>
-Message-ID: <Xine.LNX.4.44.0312040833250.32432-100000@thoron.boston.redhat.com>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB4DgPRb027494
+	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2003 08:42:25 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id hB4DgORV009018
+	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2003 13:42:24 GMT
+Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id hB4DgKta008991 for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2003 13:42:21 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Dale Amon <amon@vnl.com>
+Subject: Re: Policy error of the day
+Date: Fri, 5 Dec 2003 00:42:09 +1100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <20031129123120.GI18062@vnl.com> <20031201143409.GI11972@vnl.com> <20031204124047.GQ25416@vnl.com>
+In-Reply-To: <20031204124047.GQ25416@vnl.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200312050042.09363.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 3 Dec 2003, Karl MacMillan wrote:
+On Thu, 4 Dec 2003 23:40, Dale Amon <amon@vnl.com> wrote:
+> I'm preparing a new kernel for the machine I build on
+> and have just hesitated over the enabling of xattr's
+> in the kernel config. I'm pretty sure the file system
+> won't be automatically affected, but I want to do
+> a "tell me three times on it" because I simply cannot
+> afford to make this machine unable to boot under
+> old kernels.
+>
+> So, do all swear on a stack of bible and assorted other
+> holy or unholy books that booting a kernel with xattr ext2
+> support enabled will *NOT* touch an existing file system
+> and make it unuseable in, say a 2.2 kernel?
 
-> We have added conditional expressions to the selinux policy language.
-> This allows you to place TE rules in if/else blocks with conditional
-> expressions. The booleans in the conditional expressions can be
-> controlled at runtime to allow the addition or removal of rules based on
-> the value of the booleans/expressions.
-> 
-> Problem
-> 
-> Our initial prototype exports the booleans as files under
-> /proc/sys/selinux/booleans using the sysctl interface
-> ([un]register_sysctl_table). On each policy reload we call
-> unregister_sysctl_table and then re-register all of the booleans. The
-> problem is that if one of the boolean files is in use the file is not
-> removed and unregister_sysctl_table gives no indication that unregister
-> was not successful. The solutions to this problem that we see are:
+XATTR's don't appear on their own.  You can have a file system driver compiled 
+with XATTR options and nothing will happen as long as no programs try to set 
+an xattr.  Of course it would only take one program to do this...
 
-Firstly, why does this need to be done in kernel space at all?  Why not 
-recompile the policy in userspace and reload it via the already simple and 
-well defined user/kernel policy interface?  
+In practise I have not found this to be a problem, I've run machines for 
+months with XATTR enabled and not had it get used.
 
-If it doesn't need to be done in the kernel, then it shouldn't be.
-
-> 1) Manipulate proc files directly. This allows fine-grained labeling of
-> the boolean files, but kernel developers seem to be frowning on new uses
-> of proc.
-
-Yes, extending proc is deprecated.
-
-> 
-> 2) Extend the selinux filesystem. This wouldn't allow fine-grained
-> labeling and would pollute the policy-neutral security server interface
-> with type enforcement policy specific functionality.
-
-I'm not clear on why you need fine-grained labeling to update security
-policy: would you not allow just one domain to do this?
-
-
-> 3) Create a new filesystem. This would be the most work, but otherwise
-> meet our needs.
-
-This sounds like the best approach, if you have to manipulate policy in 
-the kernel.  You might also consider netlink messaging (as an example, 
-this is how the in-kernel routing table is manipulated).
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
