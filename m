@@ -1,38 +1,38 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j0DIQhIi026056
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jan 2005 13:26:43 -0500 (EST)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j0DIQkdk008106
-	for <selinux@tycho.nsa.gov>; Thu, 13 Jan 2005 18:26:46 GMT
-Date: Thu, 13 Jan 2005 18:37:05 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: ivg2@cornell.edu, SELinux@tycho.nsa.gov
-Subject: Re: Multiple contexts
-Message-ID: <20050113183704.GP17414@lkcl.net>
-References: <1105390249.8093.21.camel@cobra.ivg2.net> <1105474095.20566.131.camel@moss-spartans.epoch.ncsc.mil> <1105560687.11135.26.camel@cobra.ivg2.net> <1105566461.23136.40.camel@moss-spartans.epoch.ncsc.mil> <1105571319.11828.19.camel@cobra.ivg2.net> <1105632619.24406.27.camel@moss-spartans.epoch.ncsc.mil>
+Subject: SELinux Policy Editor and CAP_SYS_BOOT
+From: Nick <nick-lists@austin.rr.com>
+To: SELinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Thu, 13 Jan 2005 13:37:14 -0600
+Message-Id: <1105645034.32758.35.camel@hawaii.efficax.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1105632619.24406.27.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jan 13, 2005 at 11:10:19AM -0500, Stephen Smalley wrote:
-> On Wed, 2005-01-12 at 18:08, Ivan Gyurdiev wrote:
-> > What about a tool that creates a hybrid type on demand, and stores that
-> > information in the policy?
+I have the need to enable (and make work) the shutdown and halt
+accounts. I set a password for these accounts and tried to use them and
+got the expected "you must be root" a collegue pointed out that I might
+need the CAP_SYS_BOOT capability turned on. After an hour of Googling on
+something that relates to CAP_SYS_BOOT and makes sense within the
+context of SELinux. 
 
- i believe that the same issues apply to the "hybrid" types
- as apply to "ACLs" - the only difference that i perceive is
- the letters contained in the file_contexts [whether a ","
- is allowed in the name of the "hybrid" type].
+I came up with a reference in the old SELinux Policy Editor page that
+indicates you could set a "boot system call" check-box
+To check this allows the current domain to use the "reboot" system call.
+This corresponds to the capability "CAP_SYS_BOOT" in Linux system.
 
- the only complication therefore would be that if your users expected
- to create a combination - a "hybrid" type not previously encountered
- before: that's doable though.
+The page also go on to say that SELinux Policy Editor is for 2.4 Kernel
+only ...
 
- l.
- 
+Can someone give me some info on making this work?
+
+Nix
+
+-- 
+Nick Gray
+Senior Systems Engineer
+Bruzenak Inc
+Office: 512-331-7998
+Cell: 512-630-7009
 
 
 --
