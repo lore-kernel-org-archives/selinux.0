@@ -1,32 +1,49 @@
-Subject: Re: Proposed patch for libselinux
-From: Colin Walters <walters@redhat.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <1098715957.13491.157.camel@moss-spartans.epoch.ncsc.mil>
-References: <41782BBA.9090101@redhat.com>
-	 <1098449318.7614.13.camel@moss-spartans.epoch.ncsc.mil>
-	 <20041022155639.GA4986@lkcl.net>  <41796C01.4060909@redhat.com>
-	 <1098715957.13491.157.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 25 Oct 2004 11:31:36 -0400
-Message-Id: <1098718296.18089.8.camel@decepticon.boston.redhat.com>
-Mime-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: Adding alternate root patch to restorecon (setfiles?)
+Date: Tue, 26 Oct 2004 01:35:01 +1000
+Cc: SELinux <SELinux@tycho.nsa.gov>
+References: <41741A2C.8040408@redhat.com> <41751792.4060207@redhat.com> <20041019183646.GC19398@lkcl.net>
+In-Reply-To: <20041019183646.GC19398@lkcl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200410260135.01652.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2004-10-25 at 10:52 -0400, Stephen Smalley wrote:
+On Wed, 20 Oct 2004 04:36, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> On Tue, Oct 19, 2004 at 09:33:06AM -0400, Daniel J Walsh wrote:
+> > Thomas Bleher wrote:
+> > Good point, good thing I never put out a patched version.  We need ideas
+> > on the best way to do something
+> > like this.
+>
+> um... what happens if a user runs restorecon in a chroot environment
+> that they create?
 
-> I'm inclined more towards the idea of alternatives in the file_contexts
-> configuration, e.g. you specify a "primary" security context to be
-> applied upon initialization, and you optionally specify alternatives
-> (either individually or via equivalence classes) that are equally
-> permissible.  setfiles then defaults to applying the primary context,
-> but will allow the file to remain unchanged if it has been set to any of
-> the alternatives.
+One thing to note is that running programs inside a chroot environment in the 
+same domain that they may run under in a non-chroot environment is probably a 
+bad idea.
 
-I think you're right; this handles the use cases I can think of for the
-custom attribute. 
+If the user can do something that is path sensitive then they can do it from 
+user_t which does not have chroot capability.  If they enter a chroot 
+environment then they do it through a program which has appropriate privs and 
+then enter a different domain.
 
+If the user can enter arbitary domains in a chroot then you are bound to lose 
+somehow.
+
+
+NB  This has nothing to do with the patches to restorecon, just something to 
+note for future reference.
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
