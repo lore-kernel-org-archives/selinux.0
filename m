@@ -1,35 +1,35 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2FI6oDo001065
-	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 13:06:50 -0500 (EST)
-Subject: Re: gentoo policies for daemontools, ucspi-tcp, publicfile,
-	djbdns, clockspeed
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2FIANDo001108
+	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 13:10:23 -0500 (EST)
+Subject: Re: Patch: Policy for NX server
 From: James Carter <jwcart2@epoch.ncsc.mil>
 Reply-To: jwcart2@epoch.ncsc.mil
-To: petre rodan <kaiowas@gentoo.org>
+To: rbg@informatik.uni-muenchen.de
 Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <41A07D3C.4070300@gentoo.org>
-References: <41A07D3C.4070300@gentoo.org>
+In-Reply-To: <20050212151251.GA5151@jmh.mhn.de>
+References: <20050212151251.GA5151@jmh.mhn.de>
 Content-Type: text/plain
-Date: Tue, 15 Mar 2005 13:02:22 -0500
-Message-Id: <1110909742.19764.13.camel@moss-lions.epoch.ncsc.mil>
+Date: Tue, 15 Mar 2005 13:05:55 -0500
+Message-Id: <1110909955.19764.17.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry for the delay, but the policies for clockspeed, daemontools,
-djbdns, publicfile, and ucspi-tcp have now been added.
+Merged.
+Serviceusers is no longer being used, but since nx_server is using an
+actual Unix user, I added the ifdef for user nx to users.
 
-On Sun, 2004-11-21 at 13:34 +0200, petre rodan wrote:
-> Hi,
+On Sat, 2005-02-12 at 16:12 +0100, Thomas Bleher wrote:
+> This patch adds policy for the NX server.
+> The server works like this: a new user nx is added; the users connect to
+> the host via ssh with username nx; the nxserver is started by ssh and
+> connects to the real user via ssh on localhost.
+> To start nxserver in the correct context I had to add a new role.
+> Only the server is currently protected, not the client or the nxagent. I
+> also haven't tested the more advanced features like remote printing.
 > 
-> This is a collection of policies that I've been using and maintaining for more than an year now.
+> Thomas
 > 
-> [1] http://cr.yp.to/daemontools.html
-> [2] http://cr.yp.to/ucspi-tcp.html
-> [3] http://cr.yp.to/publicfile.html
-> [4] http://cr.yp.to/djbdns.html
-> [5] http://cr.yp.to/clockspeed.html
-
 -- 
 James Carter <jwcart2@epoch.ncsc.mil>
 National Security Agency
