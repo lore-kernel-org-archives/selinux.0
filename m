@@ -1,56 +1,36 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i972lqrT011097
-	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 22:47:53 -0400 (EDT)
-Message-ID: <01d801c4ac15$5c4d0a60$f97d220a@linux.bs1.fc.nec.co.jp>
-From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
-To: "Stephen Smalley" <sds@epoch.ncsc.mil>,
-   "James Morris" <jmorris@redhat.com>
-Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>
-References: <Xine.LNX.4.44.0410061602000.1417-100000@thoron.boston.redhat.com> <1097093531.11370.100.camel@moss-spartans.epoch.ncsc.mil>
-Subject: Re: [PATCH] security/selinux/netif.c has a serious problem
-Date: Thu, 7 Oct 2004 11:28:41 +0900
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i972oKrT011126
+	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 22:50:20 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i972nAnN009886
+	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 02:49:11 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Subject: Re: .fonts-cache being created as user_home_dir_t
+Date: Thu, 7 Oct 2004 12:50:14 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <20041005091026.GB25251@lkcl.net>
+In-Reply-To: <20041005091026.GB25251@lkcl.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-2022-jp"
+  charset="iso-8859-1"
+Message-Id: <200410071250.14304.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Good morning.
+On Tue, 5 Oct 2004 19:10, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> it looks like a file_auto_trans() is missing somewhere: i find
+> that ~/.fonts.cache-1 is set to type user_home_dir_t.
 
-Thu, Oct 07, 2004 5:12 AM
-Stephen Smalley wrote:
-> > > Perhaps we need to move the rcu_read_lock/unlock to the hook functions
-> > > that call sel_netif_lookup?
-> > 
-> > We shouldn't push locking to the caller, there must be another way.
-> 
-> Comparing with the AVC, we have avc_has_perm_noaudit() perform the
-> rcu_read_lock/unlock, but it holds the lock until it has copied the
-> result, and merely returns a copy of the decision to the caller, not a
-> reference to a node itself.  You could do likewise for sel_netif_lookup
-> and only have it return copies of the SIDs to the caller.  The netif AVC
-> entry reference is obsolete anyway with the introduction of RCU for the
-> AVC.  No need for any atomic operations on the read path, which is one
-> of the stated purposes of RCU (Documentation/RCU/rcu.txt) - readers need
-> not acquire any locks, perform any atomic instructions, ...
+Is that being created by kdm?  Is the machine in permissive mode at the time 
+the file is created?
 
-Indeed, I agree it doesn't need to return the reference of 'netif' object.
-For example, should the function prototype be replaced as follows?
-
-- struct *sel_netif *sel_netif_lookup(struct net_device *dev)
-  -> int sel_netif_lookup(struct net_device *dev, u32 *if_sid, u32 *msg_sid)
-- sel_netif_put() is discontinued.
-
-If it's so, we can hide rcu_read_lock()/unlock() in netif.c.
-
-In my previous patch, caller is under the rcu_read_lock() when sel_netif_lookup()
-returns success. I don't think it's a significant issue, because it's like
-XXXX_trylock(). But Stephen's suggestion is better.
-
-Thanks.
---------
-Kai Gai <kaigai@ak.jp.nec.com>
-
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
