@@ -1,29 +1,30 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2HHcmx6000834
-	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 12:38:49 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h2HHcmPC011278
-	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 17:38:48 GMT
-Received: from RelayDAL.nai.com (relaydal.nai.com [205.227.136.197])
-        by jazzband.ncsc.mil  with ESMTP id h2HHcg5x011275 for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 17:38:45 GMT
-Received: from txwsout1.nai.com (txwsout1.na.nai.com [161.69.216.92])
-	by RelayDAL.nai.com (Switch-2.2.5/Switch-2.2.5) with SMTP id h2HHaQf10052
-	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 11:36:26 -0600 (CST)
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tarius.tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h2HJCgx6001420
+	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 14:12:42 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h2HJ9Fn8025689
+	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 19:09:16 GMT
+Received: from mx.nas-smoothtransition.com (nas-vm-195.nas-smoothtransition.com [66.95.157.195] (may be forged))
+	by jazzswing.ncsc.mil  with ESMTP id h2HJ9Fpk025685
+	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2003 19:09:15 GMT
+From: "Frank Mayer" <mayerf@tresys.com>
+To: "'Russell Coker'" <russell@coker.com.au>,
+   "'SE Linux'" <selinux@tycho.nsa.gov>
+Subject: RE: general policy stuff
+Date: Mon, 17 Mar 2003 14:12:22 -0500
+Message-ID: <006201c2ecb9$27829790$6600a8c0@columbia.tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: more policy updates on sourceforge
-Date: Mon, 17 Mar 2003 11:41:23 -0600
-Message-ID: <8894CA1F87A5D411BD24009027EE783801C14CE7@md-exchange1.na.nai.com>
-From: <Kelly_Djahandari@nai.com>
-To: <selinux@tycho.nsa.gov>
+	charset="us-ascii"
+In-Reply-To: <200303170036.12421.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sourceforge has been updated with several policy updates including Russell Coker's policy modifications for getty, postfix, and xserver, a new NetSaint policy, and Carsten Grohmann's modifications to setfiles and run_init Makefiles. Thanks Russell and Carsten.
+> The Makefile for the policy has constraints mis-spelled in 
+> the following line:
+> POLICYFILES += tmp/contraints-contexts.m4
 
-Kelly Djahandari
-Network Associates Laboratories
+My fault...came in my last patch to fix user name space.  Frank
 
 
 --
