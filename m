@@ -1,35 +1,51 @@
-Date: Mon, 2 Jul 2001 14:14:36 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Venkatakrishnan VN <venkat@wins.hrl.com>
-cc: SELinux@tycho.nsa.gov
-Subject: Re: installation
-In-Reply-To: <Pine.GSO.4.21.0107021103190.2852-100000@pandora.wins.hrl.com>
-Message-ID: <Pine.SOL.3.95.1010702141225.1066J-100000@clipper.gw.tislabs.com>
+Message-ID: <72222DC86846D411ABD300A0C9EB08A10152416D@csoc-mail-box.csoconline.com>
+From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
+To: "'Venkatakrishnan VN'" <venkat@wins.hrl.com>
+Cc: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
+Subject: RE: installation
+Date: Mon, 2 Jul 2001 14:37:06 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+The folks at the NSA  put a comment on the end of the #endif line
+make dep will report lots of problem but it will compile ok.
 
-On Mon, 2 Jul 2001, Venkatakrishnan VN wrote:
+I have build it on RedHat 6.1, 6.2 7.0 and 7.1. They all report
+problems with the make dep, but alway compile ok
 
-> 	Could someone tell me which Red Hat distribution version is the
-> ideal one to compile the current distribution of selinux.
-> 
-> I tried to compile SElinux on RH 7.1. The make depend reported a lot of
-> problems. 
+Mark 
 
-Could you provide more detail?  Others have reported success in
-building and installing the current SELinux prototype on RH7.1, and our
-development of the new LSM-based SELinux prototype has been on RH7.1.
+-----Original Message-----
+From: Venkatakrishnan VN [mailto:venkat@wins.hrl.com]
+Sent: Monday, July 02, 2001 1:04 PM
+To: 
+Subject: installation
+
+
+
+
+Hi,
+	Could someone tell me which Red Hat distribution version is the
+ideal one to compile the current distribution of selinux.
+
+I tried to compile SElinux on RH 7.1. The make depend reported a lot of
+problems. 
+
+Thanks,
+venkat
+
+
+
 
 --
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
-
+You have received this message because you are subscribed to the selinux
+list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 --
 You have received this message because you are subscribed to the selinux list.
