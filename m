@@ -1,89 +1,48 @@
-Subject: RE: non-Linux behavior
-From: Albert Cahalan <albert@users.sourceforge.net>
-To: "Loughry, Joe" <joe.loughry@lmco.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>, SELinux@tycho.nsa.gov
-In-Reply-To: <835AD41BA2589F49A8A34117D4C421DF02CA1E80@EMSS02M15.us.lmco.com>
-References: <835AD41BA2589F49A8A34117D4C421DF02CA1E80@EMSS02M15.us.lmco.com>
-Content-Type: text/plain
-Message-Id: <1072714824.828.1259.camel@cube>
-Mime-Version: 1.0
-Date: 29 Dec 2003 11:20:24 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i01BbNRb022350
+	for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2004 06:37:23 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i01BbM7m018540
+	for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2004 11:37:22 GMT
+Received: from ns.sws.net.au ([61.95.69.3])
+        by jazzband.ncsc.mil  with ESMTP id i01BbBLC018520 for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2004 11:37:22 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Thibault Godouet <fcron@free.fr>
+Subject: Re: [fcron announce] Fcron 2.9.4 - a replacement for Vixie cron and anacron
+Date: Thu, 1 Jan 2004 22:35:38 +1100
+References: <3FF0A314.6050509@free.fr>
+In-Reply-To: <3FF0A314.6050509@free.fr>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200401012235.38103.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-12-29 at 12:34, Loughry, Joe wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> I can help out with Trusted Solaris.  Which of the following versions
-> would you like?
-> 
-> Trusted Solaris 8 HW 7/03 (beta, not yet released)
-> Trusted Solaris 8 HW 12/02 (with current patches)
-> Trusted Solaris 8 4/01 (with current patches)
-> Trusted Solaris 2.5.1 (with current patches)
+On Tue, 30 Dec 2003 08:56, Thibault Godouet <fcron@free.fr> wrote:
+> What is new in this release (2.9.4) ?
+> ------------------------------------
+>
+>      * Merged support for SE Linux (patch from Russell Coker : thanks !)
 
-The very latest one you have. I guess "8 HW 7/03"
-would be the latest? Take a glance through the
-man page to see if I've missed any recently added
-options, then run the commands as I've indicated.
-The "script" command may be helpful.
+Thanks for that.
 
-Thank you for the offer.
+Since the time that I sent you the SE Linux patch the "new" SE Linux has 
+become ready for wide use and the "old" SE Linux is deprecated.  But it was 
+still good to have the SE Linux patch included in your tree as it make it 
+much easier for me to put in new SE Linux support.
 
-> - -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov
-> [mailto:owner-selinux@tycho.nsa.gov]On
-> Behalf Of Albert Cahalan
-> Sent: Friday, 26 December, 2003 08:41
-> To: SELinux@tycho.nsa.gov
-> Subject: non-Linux behavior
-> 
-> 
-> I've been adding SE Linux support to procps.
-> The 3.1.15 release supports "--context" when
-> run on a 2.6.0 kernel. (http://procps.sf.net/)
-> 
-> I need some help. One of my goals is to be
-> mostly compatible with both UNIX and BSD.
-> I'm looking for people willing to try out
-> security-related ps options on high-security
-> systems. Better yet would be a trial account.
-> 
-> I'm interested in whatever systems commonly
-> in use or are likely to be of importance.
-> I guess that means: Trusted IRIX, Cray's OS,
-> Trusted Solaris, FreeBSD with LOMAC, and
-> probably stuff from IBM or HP. Anything else?
-> If you'd like Linux compatible with whatever
-> it is you've been using, speak now.
-> 
-> For those who can help only by typing commands
-> themselves, feel free to change command names
-> to "[x]", "x", or "x x" as appropriate. (I need
-> to know if args are shown or if brakets are used)
-> The same goes for user names, etc.
-> 
-> I'd like to have output from at least:
-> 
-> ps -Z
-> ps -flZ
-> ps -Zlf
-> ps -ZelfLyPcj  (all the options you can do)
-> ps Z
-> 
-> Then again, replacing the 'Z' with 'z'.
-> Then again, this time with 'M'.
-> Then again, this time with 'x'.
-> Then again, this time with 'C'.
-> And so on, for every security-related option...
-> 
-> Plus this one:
-> 
-> ps -zMZ  (all available security options at once)
-> 
-> The goal here is to determine column width,
-> column order, interactions between options, etc.
+I have attached the patch I use which gives new SE Linux support in fcron, and 
+also has the patch for building a Debian package (you may include the Debian 
+patch in your tree if you wish - I don't feel strongly about it either way).
+
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 
