@@ -1,35 +1,44 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: Summary of Informal SELinux Meeting on May 6, 2004
-Date: Fri, 4 Jun 2004 18:03:23 +1000
+Date: Fri, 4 Jun 2004 11:15:23 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Russell Coker <russell@coker.com.au>
 Cc: Karl MacMillan <kmacmillan@tresys.com>,
    "'SELinux'" <SELinux@tycho.nsa.gov>,
    "'Fedora SELinux support list for users & developers.'" <fedora-selinux-list@redhat.com>
-References: <200406022032.i52KWuSf003348@gotham.columbia.tresys.com> <20040603195738.GE3856@lkcl.net>
-In-Reply-To: <20040603195738.GE3856@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200406041803.23026.russell@coker.com.au>
+Subject: Re: Summary of Informal SELinux Meeting on May 6, 2004
+Message-ID: <20040604111523.GM3856@lkcl.net>
+References: <200406022032.i52KWuSf003348@gotham.columbia.tresys.com> <20040603195738.GE3856@lkcl.net> <200406041803.23026.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200406041803.23026.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 4 Jun 2004 05:57, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
->  all in the same single monolithic daemon that bound itself
->  to several different ports and several different unix domain
->  sockets, you wouldn't seriously consider saying that "this
->  hybrid is a trusted application" would you?
+On Fri, Jun 04, 2004 at 06:03:23PM +1000, Russell Coker wrote:
+> On Fri, 4 Jun 2004 05:57, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > ?all in the same single monolithic daemon that bound itself
+> > ?to several different ports and several different unix domain
+> > ?sockets, you wouldn't seriously consider saying that "this
+> > ?hybrid is a trusted application" would you?
+> 
+> "trusted" in this context does not mean "the code is great and we can totally 
+> trust it", but rather "due to the design of the system we have no choice but 
+> to trust it as it can totally break the security if it has a problem".
+ 
+ well, the thing is that if you use samba-tng, you _do_ have a choice.
 
-"trusted" in this context does not mean "the code is great and we can totally 
-trust it", but rather "due to the design of the system we have no choice but 
-to trust it as it can totally break the security if it has a problem".
+ each service is separated into its own daemon.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+ you might want to mention this to the samba team because they were
+ totally (and technically unjustifiable) unreasonably adamant that
+ no such thing would be implemented in samba(3).
+
+ "it's too slow"
+
+ "using unix domain sockets is insecure"
+
+ were my favourites.
+
+ l.
 
 
 --
