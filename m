@@ -1,28 +1,32 @@
-Date: Mon, 2 Jul 2001 08:53:24 -0400 (EDT)
+Date: Mon, 2 Jul 2001 08:50:32 -0400 (EDT)
 From: Stephen Smalley <sds@tislabs.com>
-To: Matt Jezorek <matt@bluesecure.com>
+To: cslater@wcnet.org
 cc: SELinux@tycho.nsa.gov
-Subject: Re: PAM
-In-Reply-To: <5.1.0.14.0.20010629154747.00b18290@mail.bluesecure.com>
-Message-ID: <Pine.SOL.3.95.1010702085050.13449B-100000@clipper.gw.tislabs.com>
+Subject: Re: Slackware
+In-Reply-To: <200106272310.f5RNAib05790@woody.wcnet.org>
+Message-ID: <Pine.SOL.3.95.1010702084703.13449A-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 29 Jun 2001, Matt Jezorek wrote:
+On Wed, 27 Jun 2001 cslater@wcnet.org wrote:
 
-> What version of pam is required for selinux? I have gotten build errors on 
-> build-apps because can not find -lpam so just wondering what
-> version of pam you are recommending for optimal use. I am not using RH or 
-> anything else I am building this from scratch so I don't have the luxury of 
-> having pam installed thru the install program (
+> I tried it on slackware. I also killed my box flat dead. SELinux as far as i 
+> can tell requires PAM. PAM Kills slackware. Do not use PAM and slackware. I 
+> tried. Gave errors when you tried to login, refused to let you login. I 
+> reformated and reinstalled. Ive been talking to people cin the forum and they 
+> say that they are not going to support PAM till it becomes more developed and 
+> mature. They say that there are too many security problems at the moment, and 
+> that it requires a entire rebuild of most of the a1 and possible n1 series. I 
+> would generaly stay away from SELinux.
 
-Try disabling PAM in the util-linux MCONFIG file and then building the
-modified login program.  SELinux doesn't really care whether you use
-PAM or not, but the util-linux package in the distribution comes with
-it enabled by default since we're using RedHat.
+You should be able to work around this problem simply by disabling PAM
+in the util-linux MCONFIG before building the modified login program.
+SELinux itself doesn't depend on PAM, but the modified login program
+provided in the SELinux distribution is configured with PAM enabled
+by default, because we're using RedHat, and RedHat uses PAM.
 
 --
 Stephen D. Smalley, NAI Labs
