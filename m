@@ -1,36 +1,32 @@
-Subject: RE: Unlabeled files - followup
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Matthew R. Singer" <msinger@itac.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Mauro Chiarugi <vlaovic@libero.it>
+Subject: Re: setools, version 0.8
+Date: Fri, 11 Apr 2003 16:24:43 +1000
 Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <8A61167D13CED411B3E500B0D079784703AAF6@mailserver.itac.reston>
-References: <8A61167D13CED411B3E500B0D079784703AAF6@mailserver.itac.reston>
-Content-Type: text/plain
-Message-Id: <1050004680.2999.11.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 10 Apr 2003 15:58:01 -0400
+References: <004901c2ff81$959a32d0$6600a8c0@columbia.tresys.com> <20030410211532.7cb35199.vlaovic@libero.it>
+In-Reply-To: <20030410211532.7cb35199.vlaovic@libero.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200304111624.43830.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-04-10 at 15:30, Matthew R. Singer wrote:
-> So... Running kdm from init level 6, when it goes to get the sid, the
-> current is
-> System_u:system_r:init_r.  Get_ordered_sid_list() returns a 0 as it
-> finds no sid confirmed with  libsecure/test/get_user_sids
-> system_u:system_r:init_t root. 
-> 
-> libsecure/test/get_user_sids system_u:system_r:xdm_t root returns the
-> proper sid(as a sanity check)
-> 
-> So, how do I either get init_t to be able to do a transition or get kdm
-> to be xdm_t?
+On Fri, 11 Apr 2003 05:15, Mauro Chiarugi wrote:
+> my name is Mauro Chiarugi, an italian student of University of Ancona.
+> I'd like to port SELinux under Debian
 
-Try adding the following to policy/domains/program/xdm.te and reloading
-your policy:
-	domain_auto_trans(init_t, xdm_exec_t, xdm_t) 
+I've already got SE Linux packaged for Debian.  But there's plenty of work to 
+go around if you'd like to join in.  We could do with someone packaging and 
+testing the kernel patches for the 2.5.x kernels for a start, I haven't had 
+time to do this for a while.
 
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
