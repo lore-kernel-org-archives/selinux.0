@@ -1,110 +1,33 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iALBW2Ii000249
-	for <selinux@tycho.nsa.gov>; Sun, 21 Nov 2004 06:32:02 -0500 (EST)
-Received: from sunspire.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iALBW4q6018229
-	for <selinux@tycho.nsa.gov>; Sun, 21 Nov 2004 11:32:05 GMT
-Message-ID: <41A08072.5000904@gentoo.org>
-Date: Sun, 21 Nov 2004 13:48:02 +0200
-From: petre rodan <kaiowas@gentoo.org>
-MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: gentoo diff for dhcpd
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig8C73F3F0A25D96968D00137A"
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAMBN3Ii003928
+	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 06:23:04 -0500 (EST)
+Received: from sq.rns-nis.co.yu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAMBN5Cv006377
+	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 11:23:06 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by sq.rns-nis.co.yu (Postfix) with ESMTP id EC7EA424A
+	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 12:22:57 +0100 (CET)
+Received: from dl.oss.co.yu (unknown [194.247.213.6])
+	by sq.rns-nis.co.yu (Postfix) with ESMTP id E3EAC41CA
+	for <selinux@tycho.nsa.gov>; Mon, 22 Nov 2004 12:22:49 +0100 (CET)
+Date: Mon, 22 Nov 2004 11:31:42 +0100
+From: "Milan P. Stanic" <mps@rns-nis.co.yu>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: http://sf.net/projects/xen
+Message-ID: <20041122103142.GA4400@rns-nis.co.yu>
+References: <20041120204020.GB26761@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20041120204020.GB26761@lkcl.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig8C73F3F0A25D96968D00137A
-Content-Type: multipart/mixed;
- boundary="------------000609030504040102050103"
+On Sat, Nov 20, 2004 at 08:40:20PM +0000, Luke Kenneth Casson Leighton wrote:
+> vmware, _and_ who also don't want the slowness or features of UML,
 
-This is a multi-part message in MIME format.
---------------000609030504040102050103
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-
-added needed capabilities
-sys_chroot-related file locations
-
-bye,
-peter
-
--- 
-petre rodan
-<kaiowas@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-
---------------000609030504040102050103
-Content-Type: text/plain;
- name="selinux-dhcp.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="selinux-dhcp.diff"
-
---- /root/public_html/policy/nsa/file_contexts/program/dhcpd.fc	2004-11-19 10:48:10.000000000 +0200
-+++ /root/cvs/cvs.gentoo.org/gentoo-projects/selinux/dhcp/dhcpd.fc	2004-11-19 10:35:55.000000000 +0200
-@@ -8,3 +8,27 @@
- /var/lib/dhcp(3)?	-d	system_u:object_r:dhcp_state_t
- define(`dhcp_defined')
- ')
-+
-+ifdef(`distro_gentoo', `
-+/etc/dhcp			-d	system_u:object_r:dhcp_etc_t
-+/etc/dhcp(/.*)?			--	system_u:object_r:dhcp_etc_t
-+/var/lib/dhcp			-d 	system_u:object_r:dhcp_state_t
-+/var/lib/dhcp/dhcpd\.leases.* 	--	system_u:object_r:dhcpd_state_t
-+/var/run/dhcp/dhcpd\.pid     	--	system_u:object_r:dhcpd_var_run_t
-+
-+# for the chroot setup
-+/chroot						-d	system_u:object_r:root_t
-+/chroot/dhcp					-d	system_u:object_r:root_t
-+/chroot/dhcp/dev				-d	system_u:object_r:device_t
-+/chroot/dhcp/etc				-d	system_u:object_r:etc_t
-+/chroot/dhcp/etc/dhcp               -d  system_u:object_r:dhcp_etc_t
-+/chroot/dhcp/etc/dhcp(/.*)?         --  system_u:object_r:dhcp_etc_t
-+/chroot/dhcp/usr/sbin/dhcpd         --  system_u:object_r:dhcpd_exec_t
-+/chroot/dhcp/var				-d	system_u:object_r:var_t
-+/chroot/dhcp/var/run				-d	system_u:object_r:var_run_t
-+/chroot/dhcp/var/lib				-d	system_u:object_r:var_lib_t
-+/chroot/dhcp/var/lib/dhcp			-d	system_u:object_r:dhcp_state_t
-+/chroot/dhcp/var/lib/dhcp/dhcpd\.leases.*	--	system_u:object_r:dhcpd_state_t
-+/chroot/dhcp/var/run/dhcp/dhcpd\.pid     	--	system_u:object_r:dhcpd_state_t
-+')
-+
---- /root/public_html/policy/nsa/domains/program/unused/dhcpd.te	2004-11-20 09:01:20.000000000 +0200
-+++ /root/cvs/cvs.gentoo.org/gentoo-projects/selinux/dhcp/dhcpd.te	2004-11-20 09:47:28.000000000 +0200
-@@ -67,3 +67,8 @@
- # allow reading /proc
- allow dhcpd_t proc_t:{ file lnk_file } r_file_perms;
- tmp_domain(dhcpd)
-+
-+ifdef(`distro_gentoo', `
-+allow dhcpd_t self:capability { chown dac_override setgid setuid sys_chroot };
-+allow initrc_t dhcpd_state_t:file setattr;
-+')
-
---------------000609030504040102050103--
-
---------------enig8C73F3F0A25D96968D00137A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBoIByGSBEIeh4AEYRApJGAJwPvP01Nghwq8h98D46jjc0MyCLzgCfb/GF
-tT/93oXEIWsrZ2ES5AdvdFU=
-=Bp3d
------END PGP SIGNATURE-----
-
---------------enig8C73F3F0A25D96968D00137A--
+When I backported SELinux from Debian/unstable to woody, I did that
+using UML only. I didn't had any problem with UML, only with my own
+slowness :-)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
