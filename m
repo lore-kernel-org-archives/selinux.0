@@ -1,44 +1,55 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9GF1EWt003256
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 11:01:14 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h9GF1DmR029693
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 15:01:13 GMT
-Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
-        by jazzband.ncsc.mil  with ESMTP id h9GF1Cjp029688 for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 15:01:12 GMT
-Subject: Re: genfscon and /boot
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Russell Coker <russell@coker.com.au>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200310170050.30444.russell@coker.com.au>
-References: <200310162109.25021.russell@coker.com.au>
-	 <1066308938.24561.38.camel@moss-spartans.epoch.ncsc.mil>
-	 <200310170050.30444.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1066316470.25279.10.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Date: 16 Oct 2003 11:01:10 -0400
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h9GFBuWt003395
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 11:11:57 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id h9GFBg0p022693
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 15:11:42 GMT
+Received: from mail.speakeasy.net (mail10.speakeasy.net [216.254.0.210])
+	by jazzswing.ncsc.mil  with ESMTP id h9GFBfr7022688
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2003 15:11:42 GMT
+Date: Thu, 16 Oct 2003 11:13:14 -0400
+Mime-Version: 1.0 (Apple Message framework v552)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Subject: Washington Area Users Group Meeting October 23
+From: Jonathan Stanton <jstanton@gwu.edu>
+To: selug@egovos.org, selinux@tycho.nsa.gov
+Message-Id: <43838A18-FFEB-11D7-99AB-00039375601C@gwu.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2003-10-16 at 10:50, Russell Coker wrote:
-> OK.  Then how about an option to label all of /boot as boot_t?  There can be 
-> no confusion when all of a file system has the same label, and being overly 
-> restrictive should not be a problem.
+Hello,
 
-And we distinguish /boot from any other ext2 filesystem in what manner?
-Particularly since any ext3 filesystem can also be mounted as an ext2
-filesystem.
+Based on the interest expressed a few weeks ago a SE Linux Users Group 
+for the Washington DC area is being formed.
 
-Exactly what is broken by having xattrs on /boot?  Why does this
-interfere with the ability of old boot loaders to access /boot?
+We have an email list and web page and a first meeting is scheduled for 
+October 23rd at 7pm at George Washington's foggy bottom campus in 736 
+Academic Center. The campus is convenient to Metro (Orange/Blue line 
+Foggy Bottom stop - 1 block or Red Line Farragut North stop - 5 block 
+walk) and has visitor and street parking.
 
-Of course, if we were still using the persistent label mapping, then
-this wouldn't be an issue, but that wasn't an option...
+Frank Mayer has agreed to talk about how the security model of SELinux 
+differs from regular Linux and about some of the tools his company 
+Tresys has produced to help with SELinux.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+For more information, including directions, a map, and links to the 
+email list visit the website
+
+http://www.ensl.cs.gwu.edu/selug/
+
+or join the email list at http://www.egovos.org/mailman/listinfo/selug/
+
+If you plan to come I would appreciate a brief email so make sure the 
+room will be large enough.
+
+I'm looking forward to meeting everyone,
+
+Jonathan
+
+-- ** -- ** -- ** -- ** -- ** -- ** -- ** -- ** -- ** --
+Jonathan Stanton  jstanton@gwu.edu
+Dept. of Computer Science
+George Washington University
 
 
 --
