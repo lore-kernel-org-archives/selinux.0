@@ -1,58 +1,50 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id VAA15664
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2001 21:01:11 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id CAA18610
-	for <selinux@tycho.nsa.gov>; Sat, 17 Nov 2001 02:00:56 GMT
-Received: from ultraviolet.org ([192.215.175.10])
-	by jazzswing.ncsc.mil  with SMTP id CAA18598
-	for <selinux@tycho.nsa.gov>; Sat, 17 Nov 2001 02:00:47 GMT
-Date: Fri, 16 Nov 2001 19:00:59 -0800
-From: Tracy R Reed <treed@ultraviolet.org>
-To: selinux@tycho.nsa.gov
-Subject: SELinux policy configuration tutorial?
-Message-ID: <20011116190059.L24702@ultraviolet.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="mGCtrYeZ202LI9ZG"
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA20218
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 08:38:22 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id NAA13923
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 13:37:37 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzband.ncsc.mil  with ESMTP id NAA13919
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2001 13:37:37 GMT
+Date: Mon, 19 Nov 2001 08:37:53 -0500 (EST)
+From: Stephen Smalley <sds@tislabs.com>
+To: Tracy R Reed <treed@ultraviolet.org>
+cc: <selinux@tycho.nsa.gov>
+Subject: Re: SELinux policy configuration tutorial?
+In-Reply-To: <20011116190059.L24702@ultraviolet.org>
+Message-ID: <Pine.GSO.4.33.0111190826490.24517-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---mGCtrYeZ202LI9ZG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, 16 Nov 2001, Tracy R Reed wrote:
 
-After months of thinking about it I have finally gotten around to
-installing SELinux. Very impressive. I am comparing and contrasting it to
-LIDS and it seems that SELinux is far more flexible although LIDS was far
-easier to figure out.
+> I am having problems understanding how to define policies and how the
+> roles, domains, types, etc. work to do this. I am slowly making my way
+> through the documentation on the web site but I find most of it to be
+> quite inscrutable. Has anyone written up a general tutorial on how all of
+> this stuff works in practice?
 
-I am having problems understanding how to define policies and how the
-roles, domains, types, etc. work to do this. I am slowly making my way
-through the documentation on the web site but I find most of it to be
-quite inscrutable. Has anyone written up a general tutorial on how all of
-this stuff works in practice?
+I don't think anyone has written a general tutorial.  However, you'll find
+quite a bit of useful information in the security server section of the
+first technical report, the entire second technical report, and the OLS
+2001 paper, all of which are on the web site.  Several people outside of
+the SELinux project have already contributed to the example policy
+configuration, including both refinement of the existing domains and new
+domains (e.g. Mark Westerman's mount_t, ipsec_t and gdm_t domains,
+Yuichi Nakamura's named_t domain, David Wheeler's ping_t and hwclock_t
+domains).  Feel free to ask specific questions about policy configuration
+on the list.
 
---=20
-Tracy Reed      http://www.ultraviolet.org
-My karma ran over your dogma.
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
---mGCtrYeZ202LI9ZG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iEYEARECAAYFAjv10usACgkQ9PIYKZYVAq2saQCggZJX0FUoh/kVxlCUQ3UMmU5o
-4W8An29VYLzRDx3f9SMjHoSoUrIoILmA
-=KTp8
------END PGP SIGNATURE-----
-
---mGCtrYeZ202LI9ZG--
 
 --
 You have received this message because you are subscribed to the selinux list.
