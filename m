@@ -1,89 +1,77 @@
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Brian May <bam@snoopy.apana.org.au>
-Subject: Re: Domain transition -- enabling user_r in eklogin
-Date: Wed, 18 Dec 2002 08:45:22 +0100
-Cc: SELinux@tycho.nsa.gov
-References: <200212171725.MAA01304@moss-shockers.ncsc.mil> <20021217192856.427b5d68.fw@fwsystems.com> <20021218012830.GC31462@snoopy.apana.org.au>
-In-Reply-To: <20021218012830.GC31462@snoopy.apana.org.au>
-MIME-Version: 1.0
-Message-Id: <200212180845.22750.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA24187
+	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 14:53:59 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA14270
+	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 19:51:31 GMT
+Received: from moss-sooners.epoch.ncsc.mil (moss-sooners.epoch.ncsc.mil [144.51.25.14])
+	by jazzswing.ncsc.mil  with ESMTP id TAA14266
+	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 19:51:31 GMT
+Received: from moss-sooners.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-sooners.epoch.ncsc.mil (8.12.5/8.12.5) with ESMTP id gBIJvdDA003654
+	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 14:57:39 -0500
+Received: (from hdholm@localhost)
+	by moss-sooners.epoch.ncsc.mil (8.12.5/8.12.5/Submit) id gBIJvciK003652
+	for selinux@tycho.nsa.gov; Wed, 18 Dec 2002 14:57:38 -0500
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id WAA19234
+	for <selinux@tycho.nsa.gov>; Tue, 17 Dec 2002 22:34:32 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id gBI3YVI24939
+	for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 03:34:31 GMT
+Received: from snoopy.apana.org.au (snoopy.apana.org.au [203.12.237.97])
+        by jazzband.ncsc.mil  with ESMTP id gBI3YTf24935 for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2002 03:34:29 GMT
+Date: Wed, 18 Dec 2002 14:39:00 +1100
+From: Brian May <bam@snoopy.apana.org.au>
+To: selinux@tycho.nsa.gov
+Subject: SE-Linux Debian woody archive
+Message-ID: <20021218033900.GK3669@snoopy.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 18 Dec 2002 02:28, Brian May wrote:
-> On Tue, Dec 17, 2002 at 07:28:56PM -0500, forrest whitcher wrote:
-> > I'll look into adding kerberos auth to newrole(1) to save retypings of
-> > password next.
->
-> Interesting idea, it would be good not to have to type in your password
-> each time.
+Hello,
 
-Which is something you could easily achieve through PAM configuration if that 
-is what you desire, without any kerberos issues etc.
+I am about to update my archive to use the my DAK version. All files are
+copied now, I just need to update the Packages index files, this should
+take minutes at the most.
 
-> However, I have to wonder if this is such a good idea...
->
-> At the very least you would need to have a strict policy that only
-> allows very trusted programs to access the ticket or to run a program
-> (eg. newrole) that has access to this ticket.
+It is located at:
 
-As newrole can't be ptraced etc it should be safe to be trusted with the 
-ticket.  But it doesn't make sense IMHO to be doing such things.
+deb http://www.microcomaustralia.com.au/debian/ unstable main selinux
 
-> If there is any weakness in this strict policy, and for instance program
-> X finds it can run newrole indirectly via, say bash, and automatically
-> get sysadm_r priviliges, you loose any benifit SE-Linux could provide.
+OR
 
-No.
+deb http://www.microcomaustralia.com.au/debian/ stable main selinux
 
-Programs in domains such as user_netscape_t and user_irc_t will not be allowed 
-to run newrole at all.
+What this means:
 
-Newrole will still only allow transitions to roles that are permitted (so if a 
-user is not permitted sysadm_r then they still can't get it).
+- some packages have been recompiled with newer version numbers, even
+  though nothing has changed; this is because the previous versions did
+  not include full source code, and DAK is rather fussy that all
+  packages must have full source code available.
 
-Daemons will still run in separate domains to protect against each other and 
-against regular system users.
+- if anyone is interested I can setup an announce mailing list
+  which will notify you automatically when a new package is installed.
 
-Allowing role transitions without password loses you some of the benefits of 
-SE Linux, but not even most of them.
+- as shown above, there are two distributions, a stable distribution and
+  a unstable distribution.
 
-Also I think that in most situations where a user could be tricked into 
-running newrole then it's game-over anyway.
+Any new uploads will go straight to unstable. Packages in unstable may
+not have received any testing yet, so could be broken. When the package
+is tested, and seems to be working, I will move it to stable.
 
-> Some sort of tool for analysing policy might be good here, for instance
-> so you can ask questions like "Can Mozilla access the Kerberos ticket
-> either directly or indirectly by loading another program first?".
+Eventually I could have a third stage, testing, to go inbetween stable
+and unstable. However, I haven't yet worked out when to use testing, so
+for now it remains empty.
 
-I think that Trent is working on such tools.  But this is a simple case that 
-can be addressed by grep:
-grep allow.*netscape.*process.transition policy.conf
-Shows that user_netscape_t can only transition to user_lpr_t (and similar 
-transitions for sysadm_netscape_t and httpd_admin_netscape_t).
+If you encounter any problems with this new setup, please let me know.
 
-grep allow.*_lpr_t.*process.transition policy.conf
-Shows that user_lpr_t etc can't transition to any domain.
-
-So netscape is safe in this regard.
-
-> I am not yet sure how good SE-Linux will be at solving this type of
-> problem, without duplicating a lot of domains, for instance
-> a set of domains for programs with Kerberos ticket access, and
-> a duplicate set for programs without Kerberos ticket access).
-
-What exactly is "ticket access" and how does it conceptually differ from read 
-access to /etc/shadow?  Couldn't we just treat ticket access in the same way 
-as access to /etc/shadow?
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+Otherwise, I will assume it is working without any problems and
+delete the files required by the old layout.
+--
+Brian May <bam@snoopy.apana.org.au>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
