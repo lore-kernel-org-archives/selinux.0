@@ -1,37 +1,50 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7SI1grT026736
-	for <selinux@tycho.nsa.gov>; Sat, 28 Aug 2004 14:01:42 -0400 (EDT)
-Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7SI1fdb017809
-	for <selinux@tycho.nsa.gov>; Sat, 28 Aug 2004 18:01:41 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7SI7srT026791
+	for <selinux@tycho.nsa.gov>; Sat, 28 Aug 2004 14:07:54 -0400 (EDT)
+Received: from open.hands.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7SI76Hc012441
+	for <selinux@tycho.nsa.gov>; Sat, 28 Aug 2004 18:07:07 GMT
 Received: from lkcl.net (host81-152-10-162.range81-152.btcentralplus.com [81.152.10.162])
-	by open.hands.com (Postfix) with ESMTP id 97038C0BF
-	for <selinux@tycho.nsa.gov>; Sat, 28 Aug 2004 19:01:31 +0100 (BST)
+	by open.hands.com (Postfix) with ESMTP id ACF99C0BF
+	for <selinux@tycho.nsa.gov>; Sat, 28 Aug 2004 19:07:48 +0100 (BST)
 Received: from lkcl by lkcl.net with local (Exim 4.24)
-	id 1C17h6-0008E0-51
-	for selinux@tycho.nsa.gov; Sat, 28 Aug 2004 19:12:52 +0100
-Date: Sat, 28 Aug 2004 19:12:52 +0100
+	id 1C17nB-00005S-GK
+	for selinux@tycho.nsa.gov; Sat, 28 Aug 2004 19:19:09 +0100
+Date: Sat, 28 Aug 2004 19:19:09 +0100
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: ah ha, very funny: autofs causing grief on make relabel
-Message-ID: <20040828181252.GE11546@lkcl.net>
+Subject: mount accessing /dev/cdrom as a symlink
+Message-ID: <20040828181909.GF11546@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-a word of caution when using autofs: switch it off before doing a
-make relabel.
+i had to add this to the mount.te policy in order to allow mount
+to actually succeed on a udev-automatically-created /dev/cdrom symlink
+(to /dev/hdc which is my ide cdrom drive).
 
-i'm not sure what the long-term solution is but if you happen to
-have messed up the autofs mount point's file context (in my case
-/media was set to root_t) then it's not possible to relabel
-the mount point whilst autofs is still running.
+so, the question is: should udev have relabelled that symlink correctly,
+or should mount be allowed to read device_t symlinks?
 
-i had to switch off autofs (a task in itself which includes having
-to manually run umount -lf /media) and _then_ i could relabel /media.
+bearing in mind that it's the udev *SCRIPTS* in /etc/udev that
+will be creating the symlink, NOT the udevd program, nor the udev
+program, nor the udevsend program.
+
+likely to have been /etc/udev/ide-devfs.sh that done it, 'guv.
 
 l.
+
+
+--- /usr/share/selinux/policy/default.1.14/domains/program/mount.te	2004-08-02 08:28:37.000000000 +0100
++++ domains/program/mount.te	2004-08-28 18:54:24.000000000 +0100
+@@ -96,3 +97,6 @@
+ allow mount_t mnt_t:dir { getattr };
+ dontaudit mount_t { userdomain kernel_t}:fd use;
+ can_exec(mount_t, { sbin_t bin_t })
++
++allow mount_t device_t:lnk_file { read };
++	#EXE=/bin/mount  NAME=cdrom   :  read
 
 -- 
 --
