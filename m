@@ -1,175 +1,353 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i97JTdrT016762
-	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 15:29:39 -0400 (EDT)
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i97JTWox010737
-	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 19:29:38 GMT
-Subject: Agressive Trimming of types.fc
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Russell Coker <russell@coker.com.au>, Daniel J Walsh <dwalsh@redhat.com>,
-   Steve Smalley <sds@epoch.ncsc.mil>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary="=-PzLgEFrRbeIVg4g7Y4UV"
-Message-Id: <1097177305.8508.49.camel@moss-lions.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i97JiFrT016968
+	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 15:44:16 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i97Jh7nr027013
+	for <selinux@tycho.nsa.gov>; Thu, 7 Oct 2004 19:43:07 GMT
+Subject: Re: libsepol+mls compile failure
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1097111576.31497.6.camel@chris.pebenito.net>
+References: <1097111576.31497.6.camel@chris.pebenito.net>
+Content-Type: text/plain
+Message-Id: <1097178086.13339.214.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 07 Oct 2004 15:28:25 -0400
+Date: Thu, 07 Oct 2004 15:41:26 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2004-10-06 at 21:12, Chris PeBenito wrote:
+> I was going to try out MLS, but I get the following compile failure in
+> libsepol:
+> 
+> mls.c: In function `mls_compute_av':
+> mls.c:36: error: `policydb' undeclared (first use in this function)
+> mls.c:36: error: (Each undeclared identifier is reported only once
+> mls.c:36: error: for each function it appears in.)
+> mls.c: In function `mls_compute_context_len':
+> mls.c:84: error: `policydb' undeclared (first use in this function)
+> mls.c: In function `mls_sid_to_context':
+> mls.c:114: error: `policydb' undeclared (first use in this function)
+> mls.c: In function `mls_context_to_sid':
+> mls.c:230: error: `policydb' undeclared (first use in this function)
 
---=-PzLgEFrRbeIVg4g7Y4UV
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Compile-tested only.
 
-Attached is an aggressive trimming of types.fc.  
-
- types.fc |  104
-++++++---------------------------------------------------------
- 1 files changed, 11 insertions(+), 93 deletions(-)
-
-I am trying to make things a little easier to maintain and a little more
-flexible (to avoid the "it's i686 not i386" issues).  Please let me know
-what you think.
-
-This patch uses more generalized rules in labeling the following:
-	lib_t and shlib_t in /opt
-	lib_t, shlib_t, and ld_so_t in /lib(64)?
-	lib_t, shlib_t, ld_so_t, bin_t, and sbin_t in /usr
-
-
-Some things I noticed when I relabeled with my patch:
-
-The following were not labeled as bin_t before, but I think they should
-be:
-/usr/share/apps/kapptemplate/bin
-/usr/share/apps/kapptemplate/bin/mkinstalldirs
-
-We are labeling /usr/lib/debug inconsistently.
-/usr/lib/debug/usr/bin is labeled as bin_t, everything else is labeled
-as lib_t.  It seems reasonable to think that the debug information
-should be labeled as the same type as the executable.  Am I wrong here?
-
-Everything else on my system was labeled the same as before.
+Index: libsepol/include/sepol/mls.h
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/include/sepol/mls.h,v
+retrieving revision 1.1
+diff -u -r1.1 mls.h
+--- libsepol/include/sepol/mls.h	9 Aug 2004 15:25:49 -0000	1.1
++++ libsepol/include/sepol/mls.h	7 Oct 2004 19:37:17 -0000
+@@ -15,19 +15,23 @@
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_MLS
+ 
+-void mls_compute_av(context_struct_t * scontext,
++void mls_compute_av(policydb_t *policydb,
++		    context_struct_t * scontext,
+ 		    context_struct_t * tcontext,
+ 		    class_datum_t * tclass,
+ 		    access_vector_t * allowed);
+ 
+-int mls_compute_context_len(context_struct_t * context);
++int mls_compute_context_len(policydb_t *policydb,
++			    context_struct_t * context);
+ 
+-int mls_sid_to_context(context_struct_t * context,
++int mls_sid_to_context(policydb_t *policydb,
++		       context_struct_t * context,
+ 		       char **scontext);
+ 
+ int mls_context_isvalid(policydb_t *p, context_struct_t * c);
+ 
+-int mls_context_to_sid(char oldc,
++int mls_context_to_sid(policydb_t *policydb,
++		       char oldc,
+ 	               char **scontext,
+ 		       context_struct_t * context);
+ 
+@@ -35,7 +39,8 @@
+ 			policydb_t * newp,
+ 			context_struct_t * context);
+ 
+-int mls_compute_sid(context_struct_t *scontext,
++int mls_compute_sid(policydb_t *policydb,
++		    context_struct_t *scontext,
+ 		    context_struct_t *tcontext,
+ 		    security_class_t tclass,
+ 		    uint32_t specified,
+@@ -45,8 +50,8 @@
+ int cat_index(hashtab_key_t key, hashtab_datum_t datum, void *datap);
+ int sens_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p);
+ int cat_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p);
+-int sens_read(policydb_t * p, hashtab_t h, void * fp);
+-int cat_read(policydb_t * p, hashtab_t h, void * fp);
++int sens_read(policydb_t * p, hashtab_t h, struct policy_file *fp);
++int cat_read(policydb_t * p, hashtab_t h, struct policy_file *fp);
+ 
+ #define mls_for_user_ranges(user, usercon) { \
+ mls_range_list_t *__ranges; \
+@@ -75,13 +80,13 @@
+ 
+ #else
+ 
+-#define	mls_compute_av(scontext, tcontext, tclass_datum, allowed)
+-#define mls_compute_context_len(context) 0
+-#define	mls_sid_to_context(context, scontextpp)
++#define	mls_compute_av(policydb, scontext, tcontext, tclass_datum, allowed)
++#define mls_compute_context_len(policydb, context) 0
++#define	mls_sid_to_context(policydb, context, scontextpp)
+ #define mls_context_isvalid(p, c) 1
+-#define	mls_context_to_sid(oldc, context_str, context) 0
++#define	mls_context_to_sid(policydb, oldc, context_str, context) 0
+ #define mls_convert_context(oldp, newp, c) 0
+-#define mls_compute_sid(scontext, tcontext, tclass, specified, newcontextp) 0
++#define mls_compute_sid(policydb, scontext, tcontext, tclass, specified, newcontextp) 0
+ #define mls_for_user_ranges(user, usercon) 
+ #define mls_end_user_ranges
+ #define mls_symtab_names
+Index: libsepol/src/mls.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/mls.c,v
+retrieving revision 1.2
+diff -u -r1.2 mls.c
+--- libsepol/src/mls.c	11 Aug 2004 13:35:42 -0000	1.2
++++ libsepol/src/mls.c	7 Oct 2004 19:37:42 -0000
+@@ -13,13 +13,16 @@
+ #include <sepol/policydb.h>
+ #include <sepol/services.h>
+ 
++#include <stdlib.h>
++
+ #include "private.h"
+ 
+ /*
+  * Remove any permissions from `allowed' that are
+  * denied by the MLS policy.
+  */
+-void mls_compute_av(context_struct_t * scontext,
++void mls_compute_av(policydb_t *policydb,
++		    context_struct_t * scontext,
+ 		    context_struct_t * tcontext,
+ 		    class_datum_t * tclass,
+ 		    access_vector_t * allowed)
+@@ -33,14 +36,14 @@
+ 
+ 	if (rel[1] != MLS_RELATION_EQ) {
+ 		if (rel[1] != MLS_RELATION_DOM &&
+-		    !ebitmap_get_bit(&policydb.trustedreaders, scontext->type - 1) &&
+-		    !ebitmap_get_bit(&policydb.trustedobjects, tcontext->type - 1)) {
++		    !ebitmap_get_bit(&policydb->trustedreaders, scontext->type - 1) &&
++		    !ebitmap_get_bit(&policydb->trustedobjects, tcontext->type - 1)) {
+ 			/* read(s,t) = (s.high >= t.high) = False */
+ 			*allowed = (*allowed) & ~(tclass->mlsperms.read);
+ 		}
+ 		if (rel[1] != MLS_RELATION_DOMBY &&
+-		    !ebitmap_get_bit(&policydb.trustedreaders, tcontext->type - 1) &&
+-		    !ebitmap_get_bit(&policydb.trustedobjects, scontext->type - 1)) {
++		    !ebitmap_get_bit(&policydb->trustedreaders, tcontext->type - 1) &&
++		    !ebitmap_get_bit(&policydb->trustedobjects, scontext->type - 1)) {
+ 			/* readby(s,t) = read(t,s) = False */
+ 			*allowed = (*allowed) & ~(tclass->mlsperms.readby);
+ 		}
+@@ -49,8 +52,8 @@
+ 	    ((!mls_level_eq(tcontext->range.level[0],
+ 			    tcontext->range.level[1])) &&
+ 	     (rel[1] != MLS_RELATION_DOM && rel[1] != MLS_RELATION_EQ))) &&
+-	    !ebitmap_get_bit(&policydb.trustedwriters, scontext->type - 1) &&
+-	    !ebitmap_get_bit(&policydb.trustedobjects, tcontext->type - 1)) {
++	    !ebitmap_get_bit(&policydb->trustedwriters, scontext->type - 1) &&
++	    !ebitmap_get_bit(&policydb->trustedobjects, tcontext->type - 1)) {
+ 		/*
+ 		 * write(s,t) = ((s.low <= t.low = t.high) or (s.low
+ 		 * <= t.low <= t.high <= s.high)) = False
+@@ -62,8 +65,8 @@
+ 	    ((!mls_level_eq(scontext->range.level[0],
+ 			    scontext->range.level[1])) &&
+ 	     (rel[1] != MLS_RELATION_DOMBY && rel[1] != MLS_RELATION_EQ))) &&
+-	    !ebitmap_get_bit(&policydb.trustedwriters, tcontext->type - 1) &&
+-	    !ebitmap_get_bit(&policydb.trustedobjects, scontext->type - 1)) {
++	    !ebitmap_get_bit(&policydb->trustedwriters, tcontext->type - 1) &&
++	    !ebitmap_get_bit(&policydb->trustedobjects, scontext->type - 1)) {
+ 		/* writeby(s,t) = write(t,s) = False */
+ 		*allowed = (*allowed) & ~(tclass->mlsperms.writeby);
+ 	}
+@@ -74,18 +77,18 @@
+  * Return the length in bytes for the MLS fields of the
+  * security context string representation of `context'.
+  */
+-int mls_compute_context_len(context_struct_t * context)
++int mls_compute_context_len(policydb_t *policydb, context_struct_t * context)
+ {
+ 	int i, l, len;
+ 
+ 
+ 	len = 0;
+ 	for (l = 0; l < 2; l++) {
+-		len += strlen(policydb.p_sens_val_to_name[context->range.level[l].sens - 1]) + 1;
++		len += strlen(policydb->p_sens_val_to_name[context->range.level[l].sens - 1]) + 1;
+ 
+ 		for (i = 1; i <= ebitmap_length(&context->range.level[l].cat); i++)
+ 			if (ebitmap_get_bit(&context->range.level[l].cat, i - 1))
+-				len += strlen(policydb.p_cat_val_to_name[i - 1]) + 1;
++				len += strlen(policydb->p_cat_val_to_name[i - 1]) + 1;
+ 
+ 		if (mls_level_relation(context->range.level[0], context->range.level[1]) == MLS_RELATION_EQ)
+ 			break;
+@@ -100,7 +103,8 @@
+  * the MLS fields of `context' into the string `*scontext'.
+  * Update `*scontext' to point to the end of the MLS fields.
+  */
+-int mls_sid_to_context(context_struct_t * context,
++int mls_sid_to_context(policydb_t *policydb,
++		       context_struct_t * context,
+ 		       char **scontext)
+ {
+ 	char *scontextp;
+@@ -111,14 +115,14 @@
+ 
+ 	for (l = 0; l < 2; l++) {
+ 		strcpy(scontextp,
+-		       policydb.p_sens_val_to_name[context->range.level[l].sens - 1]);
+-		scontextp += strlen(policydb.p_sens_val_to_name[context->range.level[l].sens - 1]);
++		       policydb->p_sens_val_to_name[context->range.level[l].sens - 1]);
++		scontextp += strlen(policydb->p_sens_val_to_name[context->range.level[l].sens - 1]);
+ 		*scontextp = ':';
+ 		scontextp++;
+ 		for (i = 1; i <= ebitmap_length(&context->range.level[l].cat); i++)
+ 			if (ebitmap_get_bit(&context->range.level[l].cat, i - 1)) {
+-				strcpy(scontextp, policydb.p_cat_val_to_name[i - 1]);
+-				scontextp += strlen(policydb.p_cat_val_to_name[i - 1]);
++				strcpy(scontextp, policydb->p_cat_val_to_name[i - 1]);
++				scontextp += strlen(policydb->p_cat_val_to_name[i - 1]);
+ 				*scontextp = ',';
+ 				scontextp++;
+ 			}
+@@ -213,7 +217,8 @@
+  * This function modifies the string in place, inserting
+  * NULL characters to terminate the MLS fields. 
+  */
+-int mls_context_to_sid(char oldc,
++int mls_context_to_sid(policydb_t *policydb,
++		       char oldc,
+ 		       char **scontext,
+ 		       context_struct_t * context)
+ {
+@@ -227,7 +232,7 @@
+ 	if (!oldc) {
+ 		/* No MLS component to the security context.  Try
+ 		   to use a default 'unclassified' value. */
+-		levdatum = (level_datum_t *) hashtab_search(policydb.p_levels.table,
++		levdatum = (level_datum_t *) hashtab_search(policydb->p_levels.table,
+ 							    (hashtab_key_t) "unclassified");
+ 		
+ 		if (!levdatum)
+@@ -248,7 +253,7 @@
+ 		*p++ = 0;
+ 
+ 	for (l = 0; l < 2; l++) {
+-		levdatum = (level_datum_t *) hashtab_search(policydb.p_levels.table,
++		levdatum = (level_datum_t *) hashtab_search(policydb->p_levels.table,
+ 					      (hashtab_key_t) scontextp);
+ 
+ 		if (!levdatum)
+@@ -266,7 +271,7 @@
+ 				if (delim != 0)
+ 					*p++ = 0;
+ 
+-				catdatum = (cat_datum_t *) hashtab_search(policydb.p_cats.table,
++				catdatum = (cat_datum_t *) hashtab_search(policydb->p_cats.table,
+ 					      (hashtab_key_t) scontextp);
+ 
+ 				if (!catdatum)
+@@ -373,7 +378,8 @@
+ 	return 0;
+ }
+ 
+-int mls_compute_sid(context_struct_t *scontext,
++int mls_compute_sid(policydb_t *policydb,
++		    context_struct_t *scontext,
+ 		    context_struct_t *tcontext,
+ 		    security_class_t tclass,
+ 		    uint32_t specified,
+@@ -655,7 +661,7 @@
+ 	return 0;
+ }
+ 
+-int sens_read(policydb_t * p, hashtab_t h, void * fp)
++int sens_read(policydb_t * p, hashtab_t h, struct policy_file * fp)
+ {
+ 	char *key = 0;
+ 	level_datum_t *levdatum;
+@@ -697,7 +703,7 @@
+ }
+ 
+ 
+-int cat_read(policydb_t * p, hashtab_t h, void * fp)
++int cat_read(policydb_t * p, hashtab_t h, struct policy_file * fp)
+ {
+ 	char *key = 0;
+ 	cat_datum_t *catdatum;
+Index: libsepol/src/services.c
+===================================================================
+RCS file: /nfshome/pal/CVS/selinux-usr/libsepol/src/services.c,v
+retrieving revision 1.6
+diff -u -r1.6 services.c
+--- libsepol/src/services.c	20 Aug 2004 19:02:11 -0000	1.6
++++ libsepol/src/services.c	7 Oct 2004 19:35:22 -0000
+@@ -260,7 +260,7 @@
+ 	/*
+ 	 * Remove any permissions prohibited by the MLS policy.
+ 	 */
+-	mls_compute_av(scontext, tcontext, tclass_datum, &avd->allowed);
++	mls_compute_av(policydb, scontext, tcontext, tclass_datum, &avd->allowed);
+ 
+ 	/* 
+ 	 * Remove any permissions prohibited by a constraint.
+@@ -345,7 +345,7 @@
+ 	*scontext_len += strlen(policydb->p_user_val_to_name[context->user - 1]) + 1;
+ 	*scontext_len += strlen(policydb->p_role_val_to_name[context->role - 1]) + 1;
+ 	*scontext_len += strlen(policydb->p_type_val_to_name[context->type - 1]) + 1;
+-	*scontext_len += mls_compute_context_len(context);
++	*scontext_len += mls_compute_context_len(policydb, context);
+ 
+ 	/* Allocate space for the context; caller must free this space. */
+ 	scontextp = malloc(*scontext_len+1);
+@@ -363,7 +363,7 @@
+ 		policydb->p_type_val_to_name[context->type - 1]);
+ 	scontextp += strlen(policydb->p_user_val_to_name[context->user - 1]) + 1 + strlen(policydb->p_role_val_to_name[context->role - 1]) + 1 + strlen(policydb->p_type_val_to_name[context->type - 1]) + 1;
+ 
+-	mls_sid_to_context(context, &scontextp);
++	mls_sid_to_context(policydb, context, &scontextp);
+ 
+ 	scontextp--;
+ 	*scontextp = 0;
+@@ -484,7 +484,7 @@
+ 
+ 	context.type = typdatum->value;
+ 
+-	rc = mls_context_to_sid(oldc, &p, &context);
++	rc = mls_context_to_sid(policydb, oldc, &p, &context);
+ 	if (rc)
+ 		goto out;
+ 
+@@ -664,7 +664,7 @@
+ 
+ 	/* Set the MLS attributes.
+ 	   This is done last because it may allocate memory. */
+-	rc = mls_compute_sid(scontext, tcontext, tclass, specified, &newcontext);
++	rc = mls_compute_sid(policydb, scontext, tcontext, tclass, specified, &newcontext);
+ 	if (rc) 
+ 		goto out;
+ 
 
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
+Stephen Smalley <sds@epoch.ncsc.mil>
 National Security Agency
 
-
---=-PzLgEFrRbeIVg4g7Y4UV
-Content-Disposition: attachment; filename=types.fc.diff
-Content-Type: text/x-patch; name=types.fc.diff; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IGZpbGVfY29udGV4dHMvdHlwZXMuZmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAvbmZz
-aG9tZS9wYWwvQ1ZTL3NlbGludXgtdXNyL3BvbGljeS9maWxlX2NvbnRleHRzL3R5cGVzLmZjLHYN
-CnJldHJpZXZpbmcgcmV2aXNpb24gMS41Mg0KZGlmZiAtdSAtcjEuNTIgdHlwZXMuZmMNCi0tLSBm
-aWxlX2NvbnRleHRzL3R5cGVzLmZjCTYgT2N0IDIwMDQgMjA6MTU6MTIgLTAwMDAJMS41Mg0KKysr
-IGZpbGVfY29udGV4dHMvdHlwZXMuZmMJNyBPY3QgMjAwNCAxODoyNzo1NyAtMDAwMA0KQEAgLTI0
-OSwxMCArMjQ5LDggQEANCiAvc2VsaW51eCgvLiopPwkJCTw8bm9uZT4+DQogL29wdCgvLiopPwkJ
-CXN5c3RlbV91Om9iamVjdF9yOnVzcl90DQogL29wdC9bXi9dKi9iaW4oLy4qKT8JCXN5c3RlbV91
-Om9iamVjdF9yOmJpbl90DQotL29wdC9bXi9dKi9saWIoLy4qKT8JCXN5c3RlbV91Om9iamVjdF9y
-OmxpYl90DQotL29wdC9bXi9dKi9saWIvbGliW14vXSpcLnNvKFwuW14vXSopKgktLQlzeXN0ZW1f
-dTpvYmplY3RfcjpzaGxpYl90DQotL29wdC9bXi9dKi9saWIvLiovbGliW14vXSpcLnNvKFwuW14v
-XSopKgktLQlzeXN0ZW1fdTpvYmplY3RfcjpzaGxpYl90DQotL29wdC8uKi9saWIvLipcLnNvCS0t
-CXN5c3RlbV91Om9iamVjdF9yOnNobGliX3QNCisvb3B0Ly4qL2xpYig2NCk/KC8uKik/CQkJCXN5
-c3RlbV91Om9iamVjdF9yOmxpYl90DQorL29wdC8uKi9saWIoNjQpPy8uKlwuc28oXC5bXi9dKikq
-CS0tCXN5c3RlbV91Om9iamVjdF9yOnNobGliX3QNCiAvb3B0L1teL10qL21hbigvLiopPwkJc3lz
-dGVtX3U6b2JqZWN0X3I6bWFuX3QNCiAvb3B0L1teL10qL2xpYmV4ZWMoLy4qKT8Jc3lzdGVtX3U6
-b2JqZWN0X3I6YmluX3QNCiANCkBAIC0zMDMsMTcgKzMwMSw5IEBADQogIw0KICMgL2xpYig2NCk/
-DQogIw0KLS9saWIoNjQpPygvLiopPwkJCXN5c3RlbV91Om9iamVjdF9yOmxpYl90DQotL2xpYig2
-NCk/L2xkW14vXSpcLnNvKFwuW14vXSopKgkJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6bGRfc29fdA0K
-LS9saWIoNjQpPy90bHMvbGRbXi9dKlwuc28oXC5bXi9dKikqCS0tCXN5c3RlbV91Om9iamVjdF9y
-OmxkX3NvX3QNCi0vbGliKDY0KT8vbGliW14vXSpcLnNvKFwuW14vXSopKgktLQlzeXN0ZW1fdTpv
-YmplY3RfcjpzaGxpYl90DQotL2xpYig2NCk/L1teL10qL2xpYlteL10qXC5zbyhcLlteL10qKSoJ
-LS0Jc3lzdGVtX3U6b2JqZWN0X3I6c2hsaWJfdA0KLS9saWIoNjQpPy9zZWN1cml0eS9bXi9dKlwu
-c28oXC5bXi9dKikqCS0tCXN5c3RlbV91Om9iamVjdF9yOnNobGliX3QNCi0vbGliKDY0KT8vdGxz
-L2k2ODYvY21vdi9bXi9dKlwuc28oXC5bXi9dKikqIC0tCXN5c3RlbV91Om9iamVjdF9yOnNobGli
-X3QNCi0vbGliKDY0KT8vdGxzL2kuODYvW14vXSpcLnNvKFwuW14vXSopKiAtLQlzeXN0ZW1fdTpv
-YmplY3RfcjpzaGxpYl90DQotaWZkZWYoYGRpc3Ryb19nZW50b28nLCBgDQotL2xpYig2NCk/L3Jj
-c2NyaXB0cy8uKlwuc28uKgkJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6c2hsaWJfdA0KLScpDQorL2xp
-Yig2NCk/KC8uKik/CQkJCQlzeXN0ZW1fdTpvYmplY3RfcjpsaWJfdA0KKy9saWIoNjQpPy8uKlwu
-c28oXC5bXi9dKikqCQktLQlzeXN0ZW1fdTpvYmplY3RfcjpzaGxpYl90DQorL2xpYig2NCk/KC8u
-Kik/L2xkLVteL10qXC5zbyhcLlteL10qKSoJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6bGRfc29fdA0K
-IA0KICMNCiAjIC9zYmluDQpAQCAtMzMwLDYgKzMyMCwxMSBAQA0KICMgL3Vzcg0KICMNCiAvdXNy
-KC8uKik/CQkJc3lzdGVtX3U6b2JqZWN0X3I6dXNyX3QNCisvdXNyKC8uKik/L2xpYig2NCk/KC8u
-Kik/CXN5c3RlbV91Om9iamVjdF9yOmxpYl90DQorL3VzcigvLiopPy9saWIoNjQpPy8uKlwuc28o
-XC5bXi9dKikqCS0tCXN5c3RlbV91Om9iamVjdF9yOnNobGliX3QNCisvdXNyKC8uKik/L2xpYig2
-NCk/KC8uKik/L2xkLVteL10qXC5zbyhcLlteL10qKSogc3lzdGVtX3U6b2JqZWN0X3I6bGRfc29f
-dA0KKy91c3IoLy4qKT8vYmluKC8uKik/CQlzeXN0ZW1fdTpvYmplY3RfcjpiaW5fdA0KKy91c3Io
-Ly4qKT8vc2JpbigvLiopPwkJc3lzdGVtX3U6b2JqZWN0X3I6c2Jpbl90DQogL3Vzci9ldGMoLy4q
-KT8JCQlzeXN0ZW1fdTpvYmplY3RfcjpldGNfdA0KIC91c3IvbGliZXhlYygvLiopPwkJc3lzdGVt
-X3U6b2JqZWN0X3I6YmluX3QNCiAvdXNyL3NyYygvLiopPwkJCXN5c3RlbV91Om9iamVjdF9yOnNy
-Y190DQpAQCAtMzM3LDU1ICszMzIsMjIgQEANCiAvdXNyL21hbigvLiopPwkJCXN5c3RlbV91Om9i
-amVjdF9yOm1hbl90DQogL3Vzci9zaGFyZS9tYW4oLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOm1h
-bl90DQogL3Vzci9zaGFyZS9tYy9leHRmcy8uKgktLQlzeXN0ZW1fdTpvYmplY3RfcjpiaW5fdA0K
-LS91c3Ivc2hhcmUvdGV4bWYvdGVUZVgvYmluKC8uKik/CXN5c3RlbV91Om9iamVjdF9yOmJpbl90
-DQorL3Vzci9zaGFyZSgvLiopPy9saWIoNjQpPygvLiopPwlzeXN0ZW1fdTpvYmplY3Rfcjp1c3Jf
-dA0KIGlmZGVmKGBkaXN0cm9fZGViaWFuJywgYA0KIC91c3Ivc2hhcmUvc2VsaW51eCgvLiopPwlz
-eXN0ZW1fdTpvYmplY3Rfcjpwb2xpY3lfc3JjX3QNCiAnKQ0KIA0KICMNCi0jIC91c3IvYmluDQot
-Iw0KLS91c3IvYmluKC8uKik/CQkJc3lzdGVtX3U6b2JqZWN0X3I6YmluX3QNCi0NCi0jDQogIyAv
-dXNyL2xpYig2NCk/DQogIw0KLS91c3IvbGliKDY0KT8oLy4qKT8JCQlzeXN0ZW1fdTpvYmplY3Rf
-cjpsaWJfdA0KLS91c3IvbGliKDY0KT8vLipcLnNvKFwuW14vXSopKgktLQlzeXN0ZW1fdTpvYmpl
-Y3RfcjpzaGxpYl90DQogL3Vzci9saWIoNjQpPy9wZXJsNS9tYW4oLy4qKT8Jc3lzdGVtX3U6b2Jq
-ZWN0X3I6bWFuX3QNCiAvdXNyL2xpYig2NCk/L3NlbGludXgoLy4qKT8JCXN5c3RlbV91Om9iamVj
-dF9yOnBvbGljeV9zcmNfdA0KIC91c3IvbGliKDY0KT8vZW1hY3Nlbi1jb21tb24vLioJc3lzdGVt
-X3U6b2JqZWN0X3I6YmluX3QNCi0vdXNyL2xpYig2NCk/Ly4qL2JpbigvLiopPwkJc3lzdGVtX3U6
-b2JqZWN0X3I6YmluX3QNCi0vdXNyL3NoYXJlL2d1aWxlL2ctd3JhcHBlZC8uKlwuc28gLS0gc3lz
-dGVtX3U6b2JqZWN0X3I6c2hsaWJfdA0KLQ0KLSMNCi0jIC91c3IvLipnbGliYy4qLWxpbnV4L2xp
-Yig2NCk/DQotIw0KLS91c3IvLipnbGliYy4qLWxpbnV4L2xpYig2NCk/KC8uKik/CXN5c3RlbV91
-Om9iamVjdF9yOmxpYl90DQotL3Vzci8uKmdsaWJjLiotbGludXgvbGliKDY0KT8vbGRbXi9dKlwu
-c28oXC5bXi9dKikqCS0tCXN5c3RlbV91Om9iamVjdF9yOmxkX3NvX3QNCi0vdXNyLy4qZ2xpYmMu
-Ki1saW51eC9saWIoNjQpPy9saWJbXi9dKlwuc28oXC5bXi9dKikqCS0tCXN5c3RlbV91Om9iamVj
-dF9yOnNobGliX3QNCi0NCi0jDQotIyAvdXNyLy4qcmVkaGF0LWxpbnV4L2xpYig2NCk/DQotIw0K
-LWlmZGVmKGBkaXN0cm9fcmVkaGF0JywgYA0KLS91c3IvLipyZWRoYXQtbGludXgvbGliKDY0KT8o
-Ly4qKT8Jc3lzdGVtX3U6b2JqZWN0X3I6bGliX3QNCi0vdXNyLy4qcmVkaGF0LWxpbnV4L2xpYig2
-NCk/L2xkW14vXSpcLnNvKFwuW14vXSopKgktLQlzeXN0ZW1fdTpvYmplY3RfcjpsZF9zb190DQot
-L3Vzci8uKnJlZGhhdC1saW51eC9saWIoNjQpPy9saWJbXi9dKlwuc28oXC5bXi9dKikqCS0tCXN5
-c3RlbV91Om9iamVjdF9yOnNobGliX3QNCi0nKQ0KLQ0KLSMNCi0jIC91c3IvLipsaW51eC1saWJj
-LiovbGliKDY0KT8NCi0jDQotL3Vzci8uKmxpbnV4LWxpYmMuKi9saWIoNjQpPygvLiopPyBzeXN0
-ZW1fdTpvYmplY3RfcjpsaWJfdA0KLS91c3IvLipsaW51eC1saWJjLiovbGliKDY0KT8vbGRbXi9d
-Klwuc28oXC5bXi9dKikqCS0tIHN5c3RlbV91Om9iamVjdF9yOmxkX3NvX3QNCi0vdXNyLy4qbGlu
-dXgtbGliYy4qL2xpYig2NCk/L2xpYlteL10qXC5zbyhcLlteL10qKSoJLS0gc3lzdGVtX3U6b2Jq
-ZWN0X3I6c2hsaWJfdA0KIA0KICMNCiAjIC91c3IvLiotLiotbGludXgtZ251DQogIw0KIGlmZGVm
-KGBkaXN0cm9fZ2VudG9vJywgYA0KLS91c3IvLiotLiotbGludXgtZ251L2JpbigvLiopPwkJc3lz
-dGVtX3U6b2JqZWN0X3I6YmluX3QNCiAvdXNyLy4qLS4qLWxpbnV4LWdudS9nY2MtYmluLy4qKC8u
-Kik/CXN5c3RlbV91Om9iamVjdF9yOmJpbl90DQogJykNCiANCkBAIC0zOTQsNTAgKzM1NiwxNCBA
-QA0KICMNCiAvdXNyL2xvY2FsL2V0YygvLiopPwkJc3lzdGVtX3U6b2JqZWN0X3I6ZXRjX3QNCiAv
-dXNyL2xvY2FsL3NyYygvLiopPwkJc3lzdGVtX3U6b2JqZWN0X3I6c3JjX3QNCi0vdXNyL2xvY2Fs
-L3NiaW4oLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOnNiaW5fdA0KIC91c3IvbG9jYWwvbWFuKC8u
-Kik/CQlzeXN0ZW1fdTpvYmplY3RfcjptYW5fdA0KIA0KICMNCi0jIC91c3IvbG9jYWwvYmluDQot
-Iw0KLS91c3IvbG9jYWwvYmluKC8uKik/CQlzeXN0ZW1fdTpvYmplY3RfcjpiaW5fdA0KLS91c3Iv
-bG9jYWwvQWNyb2JhdC4qL2Jpbi8gCXN5c3RlbV91Om9iamVjdF9yOmJpbl90DQotIw0KLSMgL3Vz
-ci9sb2NhbC9saWIoNjQpPw0KLSMNCi0vdXNyL2xvY2FsL2xpYig2NCk/KC8uKik/CQlzeXN0ZW1f
-dTpvYmplY3RfcjpsaWJfdA0KLS91c3IvbG9jYWwvbGliKDY0KT8oLy4qKStcLnNvKFwuW14vXSop
-KgktLQlzeXN0ZW1fdTpvYmplY3RfcjpzaGxpYl90DQotDQotIw0KLSMgL3Vzci9zYmluDQotIw0K
-LS91c3Ivc2JpbigvLiopPwkJCXN5c3RlbV91Om9iamVjdF9yOnNiaW5fdA0KLQ0KLSMNCi0jIC91
-c3IvWDExUjYvKC4qLyk/YmluDQotIw0KLS91c3IvWDExUjYvKC4qLyk/YmluKC8uKik/CXN5c3Rl
-bV91Om9iamVjdF9yOmJpbl90DQotDQotIw0KLSMgL3Vzci9YMTFSNi8oLiovKT9saWIoNjQpPw0K
-LSMNCi0vdXNyL1gxMVI2LyguKi8pP2xpYig2NCk/KC8uKik/CQlzeXN0ZW1fdTpvYmplY3Rfcjps
-aWJfdA0KLS91c3IvWDExUjYvKC4qLyk/bGliKDY0KT8oLy4qKStcLnNvKFwuW14vXSopKiAtLQlz
-eXN0ZW1fdTpvYmplY3RfcjpzaGxpYl90DQotDQotIw0KICMgL3Vzci9YMTFSNi9tYW4NCiAjDQog
-L3Vzci9YMTFSNi9tYW4oLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOm1hbl90DQogDQogIw0KLSMg
-L3Vzci9rZXJiZXJvcw0KLSMNCi0vdXNyL2tlcmJlcm9zL2JpbigvLiopPwkJc3lzdGVtX3U6b2Jq
-ZWN0X3I6YmluX3QNCi0vdXNyL2tlcmJlcm9zL3NiaW4oLy4qKT8Jc3lzdGVtX3U6b2JqZWN0X3I6
-c2Jpbl90DQotL3Vzci9rZXJiZXJvcy9saWIoNjQpPygvLiopPwkJc3lzdGVtX3U6b2JqZWN0X3I6
-bGliX3QNCi0vdXNyL2tlcmJlcm9zL2xpYig2NCk/L2xpYlteL10qXC5zbyhcLlteL10qKSogLS0g
-c3lzdGVtX3U6b2JqZWN0X3I6c2hsaWJfdA0KLQ0KLSMNCiAjIEZvbnRzIGRpcg0KICMNCiAvdXNy
-L1gxMVI2L2xpYi9YMTEvZm9udHMoLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOmZvbnRzX3QNCkBA
-IC01MTUsMTQgKzQ0MSw2IEBADQogL2luaXRyZAkJCS1kCXN5c3RlbV91Om9iamVjdF9yOnJvb3Rf
-dA0KIA0KICMNCi0jIFRoZSBTdW4gSmF2YSBkZXZlbG9wbWVudCBraXQsIFJQTSBpbnN0YWxsDQot
-Iw0KLS91c3IvamF2YS8oLiovKT9iaW4oLy4qKT8JCXN5c3RlbV91Om9iamVjdF9yOmJpbl90DQot
-L3Vzci9qYXZhLyguKi8pP2pyZS9saWIoNjQpPy9pMzg2KC8uKik/CXN5c3RlbV91Om9iamVjdF9y
-OmxpYl90DQotL3Vzci9qYXZhLyguKi8pP3BsdWdpbi9pMzg2KC8uKik/L2xpYlteL10qXC5zbyhc
-LlteL10qKSogLS0gc3lzdGVtX3U6b2JqZWN0X3I6c2hsaWJfdA0KLS91c3IvamF2YS8oLiovKT9s
-aWIoNjQpPygvLiopK1wuc28oXC5bXi9dKikqIC0tCXN5c3RlbV91Om9iamVjdF9yOnNobGliX3QN
-Ci0NCi0jDQogIyAgVGhlIGtyYjUuY29uZiBmaWxlIGlzIGFsd2F5cyBiZWluZyB0ZXN0ZWQgZm9y
-IHdyaXRhYmlsaXR5LCBzbw0KICMgIHdlIGRlZmluZWQgYSB0eXBlIHRvIGRvbnRhdXRpdA0KICMN
-Cg==
-
---=-PzLgEFrRbeIVg4g7Y4UV--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
