@@ -1,84 +1,52 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j34C8RDo029069
-	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 08:08:27 -0400 (EDT)
-Received: from hermes.domdv.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j34C6RW6008898
-	for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2005 12:06:28 GMT
-Message-ID: <42512DC5.8060102@domdv.de>
-Date: Mon, 04 Apr 2005 14:06:29 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: build fixes for selinux-doc-1.18
-Content-Type: multipart/mixed;
- boundary="------------030802090407020101070001"
+Subject: Re: hal - denials
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <1112483670.14277.5.camel@cobra.ivg2.net>
+References: <1111905173.3520.8.camel@cobra.ivg2.net>
+	 <1112016475.2914.16.camel@moss-spartans.epoch.ncsc.mil>
+	 <1112026129.3040.1.camel@cobra.ivg2.net>
+	 <1112026381.2914.95.camel@moss-spartans.epoch.ncsc.mil>
+	 <1112029334.3350.2.camel@cobra.ivg2.net>
+	 <1112029488.2914.103.camel@moss-spartans.epoch.ncsc.mil>
+	 <1112030817.3350.6.camel@cobra.ivg2.net>
+	 <1112031473.2914.109.camel@moss-spartans.epoch.ncsc.mil>
+	 <1112483670.14277.5.camel@cobra.ivg2.net>
+Content-Type: text/plain
+Date: Mon, 04 Apr 2005 08:55:42 -0400
+Message-Id: <1112619342.7629.7.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030802090407020101070001
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+On Sat, 2005-04-02 at 18:14 -0500, Ivan Gyurdiev wrote:
+> Ok, here is what hald required to stop complaining.
+> Which ones should be dontaudit? I take it you won't like
+> allowing hald to write to /selinux, and read /dev/mem.
 
-1. added simple top level Makefile
-2. replaced db2html with docbook2html as db2html is not part of
-   docbook-utils but seems to be created by some distro only
+Writing to /selinux/context to check the validity of a context is ok,
+and necessary for checking the context it is going to use for the mount
+option.  Note that each node under /selinux has its own finer-grained
+permission check in the security class to allow distinctions to be made
+among the operations separate from the inode-based permission check.
+See the can_getsecurity() macro for an example of allowing the ability
+to get any kind of security decision from selinuxfs (as distinct from
+being able to set things like the enforcing status, booleans, or loading
+policy, which have their own macros).
+
+> 
+> re: dmidecode - 
+> dmidecode decodes the DMI data present in x86 and IA64 BIOS's.
+> 
+> Can't that be made to run in its own domain?
+
+Likely should be.
+
 -- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
 
---------------030802090407020101070001
-Content-Type: text/plain;
- name="selinux-doc-1.18.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="selinux-doc-1.18.diff"
-
-diff -rNu selinux-doc-1.18.orig/Makefile selinux-doc-1.18/Makefile
---- selinux-doc-1.18.orig/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ selinux-doc-1.18/Makefile	2005-04-04 00:12:35.000000000 +0200
-@@ -0,0 +1,4 @@
-+subdirs=module uavc policy
-+
-+all:
-+	for i in $(subdirs) ; do make -C $$i || exit 1 ; done
-diff -rNu selinux-doc-1.18.orig/module/Makefile selinux-doc-1.18/module/Makefile
---- selinux-doc-1.18.orig/module/Makefile	2004-02-26 21:36:44.000000000 +0100
-+++ selinux-doc-1.18/module/Makefile	2005-04-04 00:05:49.000000000 +0200
-@@ -20,7 +20,7 @@
- 
- $(HTML): $(ALL)
- 	-$(RM) -r $@
--	db2html $(TOP)
-+	docbook2html $(TOP)
- 	if [ ! -z "$(JPG-$@)" ]; then cp $(JPG-$@) $@; fi
- 
- clean:
-diff -rNu selinux-doc-1.18.orig/policy/Makefile selinux-doc-1.18/policy/Makefile
---- selinux-doc-1.18.orig/policy/Makefile	2004-02-26 21:36:47.000000000 +0100
-+++ selinux-doc-1.18/policy/Makefile	2005-04-04 00:05:58.000000000 +0200
-@@ -20,7 +20,7 @@
- 
- $(HTML): $(ALL)
- 	-$(RM) -r $@
--	db2html $(TOP)
-+	docbook2html $(TOP)
- 	if [ ! -z "$(JPG-$@)" ]; then cp $(JPG-$@) $@; fi
- 
- clean:
-diff -rNu selinux-doc-1.18.orig/uavc/Makefile selinux-doc-1.18/uavc/Makefile
---- selinux-doc-1.18.orig/uavc/Makefile	2004-05-29 01:57:26.000000000 +0200
-+++ selinux-doc-1.18/uavc/Makefile	2005-04-04 00:06:06.000000000 +0200
-@@ -20,7 +20,7 @@
- 
- $(HTML): $(ALL)
- 	-$(RM) -r $@
--	db2html $(TOP)
-+	docbook2html $(TOP)
- 	if [ ! -z "$(JPG-$@)" ]; then cp $(JPG-$@) $@; fi
- 
- clean:
-
---------------030802090407020101070001--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
