@@ -1,24 +1,28 @@
-Subject: Re: Minor genhomedircon patch
+Subject: Re: Updated policy
 From: Stephen Smalley <sds@epoch.ncsc.mil>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <41F90DD2.5040601@redhat.com>
-References: <41F90538.9010107@redhat.com>
-	 <1106839940.28623.117.camel@moss-spartans.epoch.ncsc.mil>
-	 <41F90BFD.4010208@redhat.com>
-	 <1106840307.28623.122.camel@moss-spartans.epoch.ncsc.mil>
-	 <41F90DD2.5040601@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>
+In-Reply-To: <41F6A47E.9010407@redhat.com>
+References: <41F6A47E.9010407@redhat.com>
 Content-Type: text/plain
-Message-Id: <1106840839.28623.125.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1106841450.28623.132.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Thu, 27 Jan 2005 10:47:19 -0500
+Date: Thu, 27 Jan 2005 10:57:30 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2005-01-27 at 10:50, Daniel J Walsh wrote:
-> Without this change UID are compared as strings instead of integers.
+On Tue, 2005-01-25 at 14:56, Daniel J Walsh wrote:
+> Fixes for targeted crond to run as unconfined and still have transitions 
+> work.
 
-Thanks, merged into sourceforge CVS as of policycoreutils 1.21.6.
+I'm a little unclear on the current direction of the targeted policy.  I
+see that you are putting more programs like login and crond into
+domains, but then adding unconfined_domain() to them and allowing them
+to transition to unconfined_t.  What is the purpose of such domains?
+
+As a side note, do you truly want crond to run directly in
+system_crond_t (normally only used for system cron jobs in the strict
+policy, vs. crond_t for the daemon itself).
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
