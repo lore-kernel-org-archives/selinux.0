@@ -1,54 +1,39 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBALe0Ii023777
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 16:40:00 -0500 (EST)
-Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBALe3R8013513
-	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 21:40:03 GMT
-Message-Id: <200412102139.iBALdhHh020525@turing-police.cc.vt.edu>
-To: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-Cc: Russell Coker <russell@coker.com.au>, Daniel J Walsh <dwalsh@redhat.com>,
-   Stephen Smalley <sds@epoch.ncsc.mil>, Jim Carter <jwcart2@epoch.ncsc.mil>,
-   SELinux <selinux@tycho.nsa.gov>
-Subject: Re: can_network patch. 
-In-Reply-To: Your message of "Fri, 10 Dec 2004 20:11:07 +0100."
-             <20041210191107.GA5059@jmh.mhn.de>
-From: Valdis.Kletnieks@vt.edu
-References: <41741A2C.8040408@redhat.com> <1102698638.1628.148.camel@moss-spartans.epoch.ncsc.mil> <41B9E48A.8010204@redhat.com> <200412110511.12960.russell@coker.com.au>
-            <20041210191107.GA5059@jmh.mhn.de>
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iBALm2Ii023864
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 16:48:02 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iBALm3R8013727
+	for <selinux@tycho.nsa.gov>; Fri, 10 Dec 2004 21:48:04 GMT
+Date: Fri, 10 Dec 2004 21:58:35 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Colin Walters <walters@redhat.com>
+Cc: Russell Coker <rcoker@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+   Stephen Smalley <sds@epoch.ncsc.mil>, SE Linux list <selinux@tycho.nsa.gov>,
+   Joshua Brindle <jbrindle@snu.edu>, Jim Carter <jwcart2@epoch.ncsc.mil>,
+   Nalin Dahyabhai <nalin@redhat.com>
+Subject: Re: Single home directory type for all roles.
+Message-ID: <20041210215835.GA5239@lkcl.net>
+References: <20041207000805.GH3678@jmh.mhn.de> <1102534349.30962.25.camel@moss-lions.epoch.ncsc.mil> <41B8826D.30105@redhat.com> <1102613299.10785.21.camel@nexus.verbum.private> <1102615344.4509.39.camel@aeon> <1102632223.10785.36.camel@nexus.verbum.private> <1102645414.4509.105.camel@aeon> <1102693682.10785.44.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1015039288P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Fri, 10 Dec 2004 16:39:42 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1102693682.10785.44.camel@nexus.verbum.private>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_-1015039288P
-Content-Type: text/plain; charset=us-ascii
+On Fri, Dec 10, 2004 at 10:48:02AM -0500, Colin Walters wrote:
 
-On Fri, 10 Dec 2004 20:11:07 +0100, Thomas Bleher said:
+> If you want this, then why not just make your normal account user_r, and
+> log in as root on the console?
+> 
+> > Also note that many daemons look for configuration or data files
+> > under /root, this is due to bugs in daemons but many of them are not
+> > expected to be fixed for quite a while.  
+> 
+> Point, but we should fix those bugs.
+ 
+ e.g. if anyone's interested (and using it) - spamassassin, which
+ attempts to dump log files (as root) pretty much evvveeerryyywhere.
 
-> Or add a boolean to control the transition from the userdomain to
-> mozilla. Then we can have a locked down policy for people who just want
-> to securely browse the web. People who want all the bells and whistles
-> can turn the transition off at the cost of higher exposure.
-
-I could live with that.  However, before long we're in danger of getting lost
-in a maze of tiny little twisty booleans, all different... :)
-
-
---==_Exmh_-1015039288P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBuheecC3lWbTT17ARAgKGAKCiU4FVSwJkesCh6fgladxLs6WcWgCgiZbU
-N7G/otPuJvLagFgJ6ajaPlE=
-=y7Lu
------END PGP SIGNATURE-----
-
---==_Exmh_-1015039288P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
