@@ -1,89 +1,87 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8F1J1rT014507
-	for <selinux@tycho.nsa.gov>; Tue, 14 Sep 2004 21:19:01 -0400 (EDT)
-Received: from ms-smtp-03.rdc-kc.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8F1I0Je018649
-	for <selinux@tycho.nsa.gov>; Wed, 15 Sep 2004 01:18:01 GMT
-Date: Tue, 14 Sep 2004 20:18:36 -0500
-From: Greg Norris <haphazard@kc.rr.com>
-To: SE-Linux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>
-Cc: simon@thekelleys.org.uk
-Subject: policy update for dnsmasq
-Message-ID: <20040915011836.GA7394@yggdrasil.localdomain>
+Subject: Re: More fixes for nscd in targeted policy
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+In-Reply-To: <41475DEA.90907@redhat.com>
+References: <41475DEA.90907@redhat.com>
+Content-Type: text/plain
+Message-Id: <1095253977.28981.80.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QKdGvSO+nmPlgiQ/"
+Date: Wed, 15 Sep 2004 09:12:58 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2004-09-14 at 17:08, Daniel J Walsh wrote:
+> diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/named.te policy-1.17.15/domains/program/unused/named.te
+> --- nsapolicy/domains/program/unused/named.te	2004-09-14 09:18:10.000000000 -0400
+> +++ policy-1.17.15/domains/program/unused/named.te	2004-09-14 16:59:49.090149450 -0400
+> @@ -12,10 +12,10 @@
+>  #
+>  type rndc_port_t, port_type;
+>  
+> -daemon_domain(named)
+> +daemon_domain(named, `, nscd_shmem_domain')
+>  tmp_domain(named)
 
---QKdGvSO+nmPlgiQ/
-Content-Type: multipart/mixed; boundary="7JfCtLOvnd9MIVvH"
-Content-Disposition: inline
+nscd_shmem_domain should only be given to domains that you trust to have
+access to the entire cached mapping.  Otherwise, use nscd_client_domain
+to let them use the socket interface.
 
+> diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/nscd.te policy-1.17.15/domains/program/unused/nscd.te
+> --- nsapolicy/domains/program/unused/nscd.te	2004-09-10 16:10:36.000000000 -0400
+> +++ policy-1.17.15/domains/program/unused/nscd.te	2004-09-14 16:59:24.541807946 -0400
+> @@ -24,6 +24,7 @@
+>  ifdef(`nscd_all_connect', `
+>  can_unix_connect(domain, nscd_t)
+>  allow domain nscd_var_run_t:sock_file rw_file_perms;
+> +allow domain nscd_var_run_t:file r_file_perms;
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I don't think you want to allow this for clients that are using the
+socket interface, only those that are using the shmem interface (which
+should be limited to a small set).
 
-I've attached a small patch against the dnsmasq policy, which provides
-the updates indicated below.  Thanx to Simon Kelley, author of this
-wondrous beastie, for bringing the relevant enhancements to my
-attention. ;-)
+> +#
+> +# Handle winbind for samba, Might only be needed for targeted policy
+> +#
+> +dontaudit nscd_t var_run_t:sock_file rw_file_perms;
 
-1) Allow binding to port 53 TCP.  Beginning with version 2.10, dnsmasq
-   supports DNS queries over both TCP and UDP.
+This doesn't make sense; nscd_t has these permissions as a consequence
+of having nscd_client_domain attribute in the policy (since it is used
+for both the client and the daemon).
 
-2) Allow the creation of RAWIP sockets, in order to enable ICMP echo
-   requests.  This is used as a sanity-check before assigning an IP
-   address via DHCP, to ensure that it isn't already in use.
+> diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/ntpd.te policy-1.17.15/domains/program/unused/ntpd.te
+> --- nsapolicy/domains/program/unused/ntpd.te	2004-09-09 15:36:13.000000000 -0400
+> +++ policy-1.17.15/domains/program/unused/ntpd.te	2004-09-14 17:01:58.987097221 -0400
+> @@ -8,7 +8,7 @@
+>  #
+>  # Rules for the ntpd_t domain.
+>  #
+> -daemon_domain(ntpd)
+> +daemon_domain(ntpd, `, nscd_shmem_domain')
+>  type ntp_drift_t, file_type, sysadmfile;
+>  type ntp_port_t, port_type;
 
-I've been running with the modified policy for the past few days (while
-trying to stress it appropriately), and everything appears to be
-working as expected... I think it's ready to be merged into CVS.  As
-always, comments are most welcome.
+nscd_client_domain only, I'd say.
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dnsmasq.te.diff"
-Content-Transfer-Encoding: quoted-printable
+> diff --exclude-from=exclude -N -u -r nsapolicy/domains/program/unused/portmap.te policy-1.17.15/domains/program/unused/portmap.te
+> --- nsapolicy/domains/program/unused/portmap.te	2004-09-09 15:36:13.000000000 -0400
+> +++ policy-1.17.15/domains/program/unused/portmap.te	2004-09-14 16:59:37.482406411 -0400
+> @@ -11,7 +11,7 @@
+>  #
+>  # Rules for the portmap_t domain.
+>  #
+> -daemon_domain(portmap)
+> +daemon_domain(portmap, `, nscd_shmem_domain')
+>  
+>  can_network(portmap_t)
+>  can_ypbind(portmap_t)
 
---- dnsmasq.te.orig	2004-08-02 02:28:37.000000000 -0500
-+++ dnsmasq.te	2004-09-12 18:34:02.000000000 -0500
-@@ -18,12 +18,13 @@
- # network-related goodies
- can_network(dnsmasq_t)
- allow dnsmasq_t self:packet_socket create_socket_perms;
-+allow dnsmasq_t self:rawip_socket create_socket_perms;
- allow dnsmasq_t self:unix_dgram_socket create_socket_perms;
- allow dnsmasq_t self:unix_stream_socket create_stream_socket_perms;
-=20
- # UDP ports 53 and 67
- allow dnsmasq_t dhcpd_port_t:udp_socket name_bind;
--allow dnsmasq_t dns_port_t:udp_socket name_bind;
-+allow dnsmasq_t dns_port_t:{ tcp_socket udp_socket } name_bind;
-=20
- # By default, dnsmasq binds to the wildcard address to listen for DNS requ=
-ests.
- # Comment out the following entry if you do not want to allow this behavio=
-ur.
+Ditto.
 
---7JfCtLOvnd9MIVvH--
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---QKdGvSO+nmPlgiQ/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBR5hsgrEMyr8Cx2YRAspBAKDZaUkx1X2Lg0bDySzgcdAkQMUnrwCfaWWj
-DdQD74lDT46O6VVI1p4uJpQ=
-=+QCq
------END PGP SIGNATURE-----
-
---QKdGvSO+nmPlgiQ/--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
