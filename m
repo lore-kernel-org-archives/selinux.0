@@ -1,54 +1,40 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OFaYrT027703
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 11:36:34 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OFaVCV007713
-	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 15:36:32 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: patch for fsadm
-Date: Wed, 25 Aug 2004 01:36:19 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <20040823215041.GC13677@lkcl.net>
-In-Reply-To: <20040823215041.GC13677@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200408250136.19967.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i7OFctrT027752
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 11:38:55 -0400 (EDT)
+Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i7OFcAMZ014572
+	for <selinux@tycho.nsa.gov>; Tue, 24 Aug 2004 15:38:10 GMT
+Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+   "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
+   James Morris <jmorris@redhat.com>
+In-Reply-To: <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
+References: 
+	 <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
+	 <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
+Content-Type: text/plain
+Message-Id: <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Tue, 24 Aug 2004 11:37:24 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 24 Aug 2004 07:50, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
-> usb-mount uses sg_map and disktype.
->
-> both these programs require some extra stuff.
+On Tue, 2004-08-24 at 03:25, Kaigai Kohei wrote:
+> You are right. Indeed, the lock for hash bucket is also necessary
+> when avc_insert() is called. I fixed them.
 
-# this is for sg_map and disktype
-allow fsadm_t scsi_generic_device_t:chr_file { ioctl read };
-
-It only needs ioctl and read access?  I'll give it r_file_perms.
-
-+allow fsadm_t tape_device_t:chr_file { read };
-
-Why does it need to access tape devices?
-
-allow fsadm_t removable_device_t:lnk_file { read };
-
-This is wrong.  We don't want to label lnk_file objects under /dev other than 
-as device_t.
-
-+# /bin/mountpoint to read /dev/shm
-+allow fsadm_t devpts_t:dir { search };
-+allow fsadm_t tmpfs_t:dir { getattr search };
-
-The tmpfs_t part is good, I'm not so sure about the devpts_t part.
-
+avc_has_perm* can be called from interrupt or bh, e.g. send_sigio or
+sock_rcv_skb.  So using just spin_lock/spin_unlock rather than
+spin_lock_irqsave/restore is unsafe, right?
+ 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
