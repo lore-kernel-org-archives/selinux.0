@@ -1,40 +1,56 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h91BoUsJ024299
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 07:50:31 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h91BqmsJ024322
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 07:52:48 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h91BmdZt020902
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 11:48:39 GMT
-Received: from nox.lemuria.org ([213.191.86.35])
-	by jazzswing.ncsc.mil  with ESMTP id h91BmcM3020899
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 11:48:38 GMT
-Date: Wed, 1 Oct 2003 13:50:25 +0200
-From: Tom <tom@lemuria.org>
-To: selinux@tycho.nsa.gov
-Subject: 2.6 install guide
-Message-ID: <20031001135021.B1248@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by jazzswing.ncsc.mil  with ESMTP id h91Bp0Zt021174
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 11:51:00 GMT
+Received: from tsv.sws.net.au ([61.95.69.2])
+	by jazzswing.ncsc.mil  with ESMTP id h91BowM3021165
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2003 11:50:59 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id 7927A924F2
+	for <selinux@tycho.nsa.gov>; Wed,  1 Oct 2003 21:52:40 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id B39487F0E7
+	for <selinux@tycho.nsa.gov>; Wed,  1 Oct 2003 21:52:38 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: shlib_t vs lib_t for symbolic links
+Date: Wed, 1 Oct 2003 21:52:38 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200310012152.38059.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-After installing 2.6.0-test6 on a few machines, I've written down all
-the steps I took while doing the last and created a small
-"step-by-step" guide. Maybe it'll help someone else to avoid the pits
-that I've fallen into.
+Is there any reason why the symbolic links under /lib and /usr/lib have type 
+shlib_t instead of lib_t?
 
-It's at http://selinux.lemuria.org/install-2.6.html
+I've looked through the policy for different access for those types.  I found 
+three examples, there's user_ssh_t etc (which is a minor policy bug that I've 
+fixed), there's apt_t (which may not be what we desire, but as apt_t can 
+destroy your system in many ways that are easier than fiddling with sym-links 
+it's not an issue), and there's the ldconfig_t policy for keeping the 
+sym-links in shlib_t.
 
-Any feedback appreciated. It worked for me, no guarantees beyond that.
+It seems that it would be simpler to have the sym-links in question have type 
+lib_t, and with the current implementation there's no difference in access.
 
+The reason I ask is that it would simplify things a bit (less policy in 
+ldconfig.te and a possibility of optimising setfiles) to give the sym-links 
+lib_t.
 
-Now I need to figure out how to port my wdm patch to the new API, then 
-I'm set for Japan. :)
-
+If there are any plans to do things differently in regard to lib_t/shlib_t in 
+the future then I think that now would be a good time to discuss them.
 
 -- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
