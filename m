@@ -1,36 +1,43 @@
-Date: Fri, 12 Apr 2002 17:29:54 +0200
-From: Tom <tom@lemuria.org>
-To: SELinux@tycho.nsa.gov
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA10655
+	for <selinux@tycho.nsa.gov>; Fri, 12 Apr 2002 12:33:52 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA27923
+	for <selinux@tycho.nsa.gov>; Fri, 12 Apr 2002 16:32:43 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id QAA27913 for <selinux@tycho.nsa.gov>; Fri, 12 Apr 2002 16:32:42 GMT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Tom <tom@lemuria.org>
 Subject: Re: db conflict ?
-Message-ID: <20020412172954.A30349@lemuria.org>
-References: <20020412170130.A30042@lemuria.org> <Pine.GSO.4.33.0204121108290.21729-100000@raven>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <Pine.GSO.4.33.0204121108290.21729-100000@raven>; from sds@tislabs.com on Fri, Apr 12, 2002 at 11:11:16AM -0400
+Date: Fri, 12 Apr 2002 18:33:35 +0200
+References: <Pine.GSO.4.33.0204120840060.21729-100000@raven> <20020412161729.B29624@lemuria.org> <20020412170130.A30042@lemuria.org>
+In-Reply-To: <20020412170130.A30042@lemuria.org>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Message-Id: <20020412163336.32FB044BF0@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Apr 12, 2002 at 11:11:16AM -0400, Stephen Smalley wrote:
-> > so tom should be more than covered. or am I just being dumb again?
-> 
-> You also need an entry for tom in /etc/security/default_context.  This
-> configuration file will be obsoleted in the future, but we're still
-> waiting on a developer at NSA to finish the support necessary to eliminate
-> it.
+On Fri, 12 Apr 2002 17:01, Tom wrote:
+> On Fri, Apr 12, 2002 at 04:17:29PM +0200, Tom wrote:
+> > It looks like I solved the problem, at least it now boots and appears
+> > to run fine, except that I can't log in remotely, but ssh localhost
+> > works. I'll inspect that later.
+>
+> Funny thing, I guess I found the revers of "NoRootLogin" :)
 
-actually, one more question: What am I doing wrong if the generic user
-entries don't work? i.e. I create a new user - can't log in remotely. I
-add him to /etc/security/default_context - still no luck. I add him to
-the policy (/etc/selinux/users) and it works.
+Do you have an entry in /etc/security/default_context?
 
-sounds like not good for systems with many users, so what is the right
-way to do it?
-
+I think this may be a bug, but haven't looked into it deeply enough.
 
 -- 
-http://web.lemuria.org/pubkey.html
-pub  1024D/D88D35A6 2001-11-14 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = 276B B7BB E4D8 FCCE DB8F  F965 310B 811A D88D 35A6
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
