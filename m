@@ -1,89 +1,96 @@
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: =?iso-8859-2?q?Magos=E1nyi=20=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
 Subject: Re: [selinux] Re: SElinux vs. Grsecruity vs. RSBAC (vs. TrustedBSD?)
-From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-To: Bennett Todd <bet@rahul.net>
+Date: Tue, 26 Aug 2003 21:06:21 +1000
 Cc: SELinux <SELinux@tycho.nsa.gov>
-In-Reply-To: <20030825170259.GB4409@rahul.net>
-References: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com>
-	<20030825170259.GB4409@rahul.net>
-Content-Type: text/plain; charset=ISO-8859-2
-Date: 26 Aug 2003 11:15:39 +0200
-Message-Id: <1061889339.1665.1548.camel@kusturica>
-Mime-Version: 1.0
+References: <FAB2059733EB46409AD28AC957F663F70BEE5C@pusmde04.mt.pweh.com> <20030825170259.GB4409@rahul.net> <1061889339.1665.1548.camel@kusturica>
+In-Reply-To: <1061889339.1665.1548.camel@kusturica>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Message-Id: <200308262106.21978.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+On Tue, 26 Aug 2003 19:15, Magosányi Árpád wrote:
+> It is too much connected to Redhat.
 
-Grsecurity is for those who not really informed in trusted systems,
-but need some security. It have some mechanisms to prevent usual
-programming errors to escalate (stack protection, chroot protection),
-and some security functionality (execution log, acl). I would say
-that it is the unix style; it is easily understandable for any unix
-admin. You can do domain separation in that model with CAPless
-chroots.
+It always annoys me when people say that.  Try using Debian SE Linux systems 
+and Red Hat SE Linux systems at any time over tha past 18 months and you 
+won't say that.
 
-RSBAC implements nearly every MAC model which can be found in the
-research papers. The models are implemented with the german precision.
-It also means that they take little care fo things which are needed
-in real life. As they have a big user base (I guess their user base is
-the greatest of linux MAC implementations), these shortcomings are
-compensated for, to some extent. One example is the polyinstantiation
-support, implemented by "moldy symlinks". They now have it for RC (it is
-a DTE+RBAC variant), and maybe for
-DoD MAC. Actually the main focus is on the RC model twisted with AUTH;
-the other model implementations count not much more than reference
-implementations (however Amon recently told that he has a user who
-insist on using DoD MAC, so that model also have rapidly evolved
-recently. I didn't checked it yet, I stick now with an RC approximation
-of MAC). Ah, and their JAIL model is also useable to some extent,
-only too hardcoded in some aspects.
-The main drawback with RSBAC is that german precisity: don't even
-think about policy-aware userspace applications (X, rdbms, logging
-security attributes from userspace programs, etc). The network
-support is better than selinux, but still criminally primitive.
-Amon is yet to realize how important the handling of security attributes
-in packet filter.
+There is much sample policy that has not been tested properly on Red Hat 
+systems, and no work has been done on upgrading live servers with RPM.
 
-Selinux inside is a flexible security architecture, very well tought
-out and the ideas tested for a long time on a fairly modern OS research
-kernel implementation. Outside it is a DTE+RBAC variant with user
-identities unrelated to the OS uid. So it is fairly close to the most
-used RSBAC setup, the biggest conceptual difference being that rsbac
-AUTH do connected with unix uid (sometimes a bit inconveniently).
-Selinux have a flexible configuration language, with all of its power
-to describe and problems to understand. This is partly because the
-default policy is very detailed, and cares about nearly all aspects
-of the mechanisms of a modern Linux. And yes, selinux have tools to
-analize and design the policy (I have yet to try them).
-Selinux have a well thought-out userspace API, which makes creating
-security-aware applications easy. Actually Selinux in most uses
-depends on at least the login mechanism being security-aware.
-The drawbacks: lack of polyinstantiation support (once it did have
-it in the FLASK microkernel), and that network support is even more
-primitive than that of RSBAC. I'm afraid even Stephen is yet to realize
-how important the handling of security attributes in packet filter.
-It is too much connected to Redhat. It makes an unnecessary
-inconvenience for a lot of users; why the userspace changes are given
-as srpms instead of patches to the upstream? (I guess this can be drawn
-from the fact that the authors are americans; considering other
-cultures (like Debian or moslim:) is a bit hard to them.) Fortunately
-there are good debian maintainers for the selinux packages.
-Not a directly technical but very important consideration: selinux
-is the first and yet only MAC model in the upstream kernel, and is
-supported by the NSA. It means that selinux have very great probability
-to be the winner implementation, like Apache in web servers.
+Just because the NSA has always released patches against Red Hat versions of 
+the various packages does not mean much.  You don't generally expect the 
+upstream maintainers of any software to provide patches against all 
+distributions' code.  You merely expect them to support what they use.
 
-It might be interesting to include TrustedBSD in the comparison, but I
-know very few of it. It seems that it is a DoD MAC implementation,
-cares about every aspect (like network, polyinstantiation, etc), and
-uses all the experience of engineers of "The Only Real Unix" :).
-Its drawbacks might be its inflexibility (in SELinux you write a new
-security server, and you have implemented a new model), and -for those
-who do not like them- that it is DoD MAC, and BSD.
-(I might err in the facts above about TrustedBSD).
+Red Hat has recently announced support for SE Linux in a future version of the 
+AS product and have hired me to work on it.  This means that in the next 
+couple of weeks I will get my policy working as well on Red Hat as it does on 
+Debian, and then I will work on adding RPM specific features as well as 
+policy for all software that is in the AS product.  This will give an 
+advantage for Red Hat as there are no plans to write policy for all 
+applications in Debian.  One thing that makes this task possible for Red Hat 
+AS is that they don't have four different choices for every task.
+
+> It makes an unnecessary
+> inconvenience for a lot of users; why the userspace changes are given
+> as srpms instead of patches to the upstream? (I guess this can be drawn
+
+The patches are in some cases large and in some cases weren't done in the way 
+the upstream desired.  With the new SE Linux a focus will be made by me and 
+other people who are involved in getting the patches accepted upstream.  This 
+does not have to require that much work by the NSA people.  The NSA have 
+limited resources to spend on this, I think it's best for everyone if they 
+concentrate on kernel work and other things that they are best at, while 
+people from distributions deal with getting patches merged upstream (what 
+they are best at).
+
+> from the fact that the authors are americans; considering other
+> cultures
+
+Let's not be offensive.  There are lots of other lists that are better suited 
+to nationalistic flames.
+
+> Fortunately
+> there are good debian maintainers for the selinux packages.
+> Not a directly technical but very important consideration: selinux
+> is the first and yet only MAC model in the upstream kernel, and is
+
+Along with DTE.  But DTE does not have the level of support that SE Linux has.
+
+> supported by the NSA. It means that selinux have very great probability
+> to be the winner implementation, like Apache in web servers.
+
+Also SE Linux is supported by Red Hat, Debian, and Gentoo.  Having the two 
+major distributions in English-speaking countries and the distribution that's 
+getting the largest amount of users wanting to try new things supporting SE 
+Linux puts it in a very good position.
+
+> It might be interesting to include TrustedBSD in the comparison, but I
+> know very few of it. It seems that it is a DoD MAC implementation,
+
+It also has support for the SE Linux model.  I've been meaning to install a 
+TrustedBSD machine to play with it, but haven't had time.  If someone could 
+setup a TBSD play machine then it would be really good.
+
+I suspect that SE Linux would not work out of the box on TBSD.  SE Linux 
+configuration needs to know the locations of files and device names.  There 
+is no support for TBSD device and file names in the sample policy, so either 
+the TBSD people have been holding back on us or they don't have good policy 
+support yet.  I would be happy to assist anyone who wants to develop sample 
+policy for TBSD and/or to run a TBSD play machine.
 
 -- 
-GNU GPL: csak tiszta forrásból
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
+
 
 
 --
