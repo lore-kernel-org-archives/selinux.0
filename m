@@ -1,40 +1,23 @@
-Subject: Re: SELinux meetings??
-From: Howard Holm <hdholm@epoch.ncsc.mil>
-To: Subba Rao <subba9@cablespeed.com>
-Cc: "NSA's SELinux" <SELinux@tycho.nsa.gov>
-In-Reply-To: <20030922115944.GI7359@cablespeed.com>
-References: <20030922115944.GI7359@cablespeed.com>
-Content-Type: text/plain
-Message-Id: <1064508912.14150.116.camel@moss-huskies>
+Date: Thu, 25 Sep 2003 20:26:26 +0200
+From: Tom <tom@lemuria.org>
+To: "NSA's SELinux" <SELinux@tycho.nsa.gov>
+Subject: SELinux in Japan
+Message-ID: <20030925202623.B13075@lemuria.org>
 Mime-Version: 1.0
-Date: 25 Sep 2003 12:55:13 -0400
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm not aware of any SELinux specific user's group meeting face-to-face
-anywhere.  If you know of one let me know.  I'm not sure that there are
-a sufficient number of people in the area interested in regular user's
-meetings to make it viable.
+I will be giving a presentation about SELinux at the Pacific Security
+conference in Tokio on November 7th.
 
-There are Linux user's groups in the area, including the Columbia Linux
-user's group (http://www.calug.com) where Pete and Steve gave a overview
-of SELinux in March 2001.  But, I don't believe anyone from the SELinux
-team regularly attends those meetings.
+The talk will be in English, with japanese translation.
 
-On Mon, 2003-09-22 at 07:59, Subba Rao wrote:
-> Hi,
-> 
-> I would like to know if there is any SELinux users group meeting in the DC
-> metro area.  If so could someone please let me know where and how often does
-> the team meet.
-> 
-> Thank you in advance.
 
 -- 
-Howard Holm <hdholm@epoch.ncsc.mil>
-Office of Defensive Computing Research
-National Security Agency
-
+http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
 
 --
 This message was distributed to subscribers of the selinux mailing list.
