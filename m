@@ -1,36 +1,39 @@
-Date: Fri, 12 Apr 2002 10:40:53 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Russell Coker <russell@coker.com.au>
-cc: Tom <tom@lemuria.org>, <SELinux@tycho.nsa.gov>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>, Tom <tom@lemuria.org>
 Subject: Re: db conflict ?
-In-Reply-To: <20020412140719.EC35D281EF@lyta.coker.com.au>
-Message-ID: <Pine.GSO.4.33.0204121030040.21729-100000@raven>
+Date: Fri, 12 Apr 2002 16:34:20 +0200
+Cc: <SELinux@tycho.nsa.gov>
+References: <Pine.GSO.4.33.0204121019570.21729-100000@raven>
+In-Reply-To: <Pine.GSO.4.33.0204121019570.21729-100000@raven>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020412143420.70F66281EF@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Fri, 12 Apr 2002, Russell Coker wrote:
-
-> Having SE Linux code in /etc/magic for 0x6, 0x7, or 0x8, etc as the first
-> long of the file is not viable, eventually we'll hit a conflict.
+On Fri, 12 Apr 2002 16:21, Stephen Smalley wrote:
+> On Fri, 12 Apr 2002, Tom wrote:
+> > One thing that I noticed during this setup was that the patched login
+> > and ssh tools do not appear to work if they run on a non-lsm kernel.
+> > While this is probably the right thing to do security-wise, it also
+> > means that keeping a non-SELinux kernel as "rescue system" on-disk
+> > doesn't help a thing.
 >
-> This is why I have intentionally not submitted my /etc/magic changes to the
-> maintainer of the "file" package.
+> I can't speak for the Debian selinux packages, but the upstream SELinux
+> modified daemons and utilities run fine on non-SELinux kernels and non-LSM
+> kernels.  They simply fall back to the ordinary processing in that case.
 
-Yes, you originally asked for a magic number back in January.  Sorry.  How
-about the same magic number we use to distinguish the SELinux module's
-system calls and security structures, 0xf97cff8c?  This number follows a
-convention suggested by David Wheeler for security modules - see
-http://marc.theaimsgroup.com/?l=linux-security-module&m=99842987214848&w=2.
+That is my aim too, and as of my last test they worked.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+I'll have to test the latest versions of those packages.
 
-
-
+-- 
+If you send email to me or to a mailing list that I use which has >4 lines
+of legalistic junk at the end then you are specifically authorizing me to do
+whatever I wish with the message and all other messages from your domain, by
+posting the message you agree that your long legalistic sig is void.
 
 --
 You have received this message because you are subscribed to the selinux list.
