@@ -1,62 +1,38 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA12847
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 18:05:01 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id XAA26437
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 23:04:23 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id XAA26425
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 23:04:21 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 5518C92749
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jan 2002 10:04:45 +1100 (EST)
-Received: from there (lyta [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with SMTP id 2772532FA2C
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jan 2002 00:04:36 +0100 (CET)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: <selinux@tycho.nsa.gov>
-Subject: starting daemons under Debian
-Date: Sat, 19 Jan 2002 00:04:35 +0100
-MIME-Version: 1.0
-Message-Id: <20020118230436.2772532FA2C@lyta.coker.com.au>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA12895
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 18:12:55 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id XAA24786
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 23:12:04 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+        by jazzband.ncsc.mil  with ESMTP id XAA24780 for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 23:12:04 GMT
+Received: from coalpipe.epoch.ncsc.mil (coalpipe [144.51.25.11])
+	by epoch.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA00149
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 18:12:21 -0500 (EST)
+Date: Fri, 18 Jan 2002 17:56:59 -0500 (EST)
+From: hdholm@epoch.ncsc.mil (Howard Holm)
+Message-Id: <200201182256.RAA02483@coalpipe.epoch.ncsc.mil>
+To: selinux@tycho.nsa.gov
+Subject: Updated Release
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I am considering how to make SE Linux integrate smoothly with Debian 
-regarding the startup of daemons.
- 
-Requiring everyone to change all their init scripts is out of the question of 
-course.
+The SELinux web site <http://www.nsa.gov/selinux/> including the mail
+list archive has been updated.  The site includes a new release of the
+LSM-based SELinux prototype.  The stable (2.4) LSM-based SELinux
+prototype was updated to kernel 2.4.17 and was updated to include a
+number of bug fixes and minor enhancements made since the previous
+release. A new development (2.5) LSM-based SELinux prototype based on
+kernel 2.5.2 was also added to the site.  The original SELinux
+prototype (which was not based on LSM) has been reduced to just the
+2.2.19 and 2.4.3 kernel patches for historical reference. The technical
+report describing the design and implementation of the original 2.2
+kernel patch is also still available for historical reference.
 
-One thing I have played with is setting the security contexts so that the 
-daemon automatically changes to the correct domain on startup from the 
-sysadm_t domain such as the following (and also a minor matching change to 
-rbac to make it allow root:sysadm_r:sshd_t):
-
-domain_auto_trans(sysadm_t , sshd_exec_t, sshd_t)
-
-This is minorly ugly, involves more rules than I'd like, but has the benefit 
-that running "sshd" at the command line gets the same result as 
-"/etc/init.d/ssh start".
-
-The other option is to divert /sbin/start-stop-daemon which is used by Debian 
-for starting most (should be all) daemons.  Then my replacement script would 
-call run_init to run the real start-stop-daemon.
-
-
-Any comments on the relative merits of these two schemes?
-
-I realise that the recommended way is probably run_init (it was written for a 
-reason), but how bad an idea is it to not use it?
-
--- 
-http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
-http://www.coker.com.au/projects.html Projects I am working on
-http://www.coker.com.au/~russell/     My home page
+--
+Howard Holm <hdholm@epoch.ncsc.mil>
+Secure Systems Research Office
+National Security Agency
 
 --
 You have received this message because you are subscribed to the selinux list.
