@@ -1,47 +1,53 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id SAA18941
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jan 2003 18:01:28 -0500 (EST)
-From: j.logsdon@lancaster.ac.uk
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id h0UN1SI09387
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jan 2003 23:01:28 GMT
-Received: from parmenides.zen.co.uk (parmenides.zen.co.uk [212.23.8.69])
-        by jazzband.ncsc.mil  with SMTP id h0UN1Rf09383 for <selinux@tycho.nsa.gov>; Thu, 30 Jan 2003 23:01:27 GMT
-Received: from localhost (j.logsdon@localhost)
-	by quantex-research.com (8.8.7/8.8.7) with ESMTP id XAA25583
-	for <selinux@tycho.nsa.gov>; Thu, 30 Jan 2003 23:02:13 GMT
-Date: Thu, 30 Jan 2003 23:02:13 +0000 (GMT)
-To: selinux@tycho.nsa.gov
-Subject: W4L anyone?
-Message-ID: <Pine.LNX.4.10.10301302252510.23331-100000@mercury.quantex>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id RAA00299
+	for <selinux@tycho.nsa.gov>; Sat, 1 Feb 2003 17:52:19 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id WAA14810
+	for <selinux@tycho.nsa.gov>; Sat, 1 Feb 2003 22:49:21 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzswing.ncsc.mil  with ESMTP id WAA14806
+	for <selinux@tycho.nsa.gov>; Sat, 1 Feb 2003 22:49:19 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+Subject: Re: tmpfs_t
+Date: Sat, 1 Feb 2003 23:51:48 +0100
+References: <200301271320.IAA05862@moss-shockers.ncsc.mil>
+In-Reply-To: <200301271320.IAA05862@moss-shockers.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200302012351.48969.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi again
+On Mon, 27 Jan 2003 14:20, Stephen D. Smalley wrote:
+> The problem is that tmpfs is also used for the kernel internal mount
+> for System V shared memory and shared anonymous mappings.  The current
+> fs_use configuration and the existing $1_tmpfs_t types and rules are
+> oriented toward that usage of tmpfs.  Distinguishing different instances
+> of tmpfs mounts and providing different labeling behaviors and contexts
+> for those different instances would require further changes to SELinux.
 
-I still have the computer hanging problem from time to time but I guess
-when I get round to setting the policies properly this will go away - once
-it appeared to be linked to Netscape and another occasion it was after I
-tried to vi a large file.  Has anyone else ever seen this, could it be
-some quirk of the hardware or I haven't got the kernel configuration right
-(I'm new to this part of the game.
+I believe that changes are required.
 
-I have printed off Stephen's extensive notes on setting policies and will
-plough through these when I have a moment.  I have extracted the candidate
-policies from the avc messages using newrules.pl so these need checking -
-or rather understanding then checking!
+For UML and busy Apache servers using tmpfs as /tmp is common practise.  The 
+current SE Linux setup will force many of the people who run big servers to 
+change their operation in a way that will hurt performance to support running 
+SE Linux.
 
-On a completely different topic, has anyone tried to patch in the Win4Lin
-kernel patches or is there any clear reason why they shouldn't work?  I
-would be very interested to try (it would save me grappling with a W2k
-server as well) but if there is a good reason why this is a pointless
-exercise it would be nice to know beforehand :-).
+I've experimented with using chcon to set the type after mounting which seems 
+to work OK.
 
-TIA
+I believe that the best option is to label the root inode of tmpfs as 
+system_u:object_r:tmp_t via initial_sid_contexts.  I've been looking at the 
+kernel code, is superblock_doinit() the right place to do a change?
 
-John
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
 
 --
