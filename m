@@ -1,69 +1,73 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAOFAQIi019962
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 10:10:26 -0500 (EST)
-Received: from epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAOF8ugi019559
-	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 15:08:56 GMT
-Subject: Re: xen 2.0 - adding selinux permissions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20041124150927.GP5146@lkcl.net>
-References: <20041123220352.GF5146@lkcl.net>
-	 <1101303556.22014.56.camel@moss-spartans.epoch.ncsc.mil>
-	 <20041124150927.GP5146@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1101308769.22014.136.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAOFDLIi020015
+	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 10:13:21 -0500 (EST)
+Received: from open.hands.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAOFDNC8027624
+	for <selinux@tycho.nsa.gov>; Wed, 24 Nov 2004 15:13:23 GMT
+Date: Wed, 24 Nov 2004 15:24:02 +0000
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: "Neugebauer, Rolf" <rolf.neugebauer@intel.com>
+Cc: Mark Williamson <maw48@hermes.cam.ac.uk>, xen-devel@lists.sourceforge.net,
+   SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: [Xen-devel] protecting xen startup
+Message-ID: <20041124152402.GQ5146@lkcl.net>
+References: <39CC97884CA19A4D8D6296FE94357BCBF5CCD7@swsmsx404>
 Mime-Version: 1.0
-Date: Wed, 24 Nov 2004 10:06:09 -0500
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <39CC97884CA19A4D8D6296FE94357BCBF5CCD7@swsmsx404>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2004-11-24 at 10:09, Luke Kenneth Casson Leighton wrote:
->  okay, i must have misunderstood.
-> 
->  i envisage creating a xen_has_perm() and _that_ means adding
->  something to security/selinux/include/av_permissions.h
->  #define XEN_VM_CREATE  0x00000001UL
->  #define XEN_VM_DESTROY 0x00000002UL, etc.
-> 
->  and creating a SECCLASS_XEN?
+On Wed, Nov 24, 2004 at 11:48:15AM -0000, Neugebauer, Rolf wrote:
+> Yes, in principle you should be able to do that (and we have been
+> thinking along similar lines). However, at the moment the linux kernel
+> in the exporting VM (BE) does not know anything about other VMs so as
+> far as my understanding goes you can't apply SELinux policies to it as
+> you don't have a subject.
+ 
+ okay.
 
-Those header files are automatically generated.  To add new
-classes/permissions:
-- Check out a copy of linux-2.6 and selinux-usr from our sourceforge CVS
-tree,
-- cd selinux-usr/policy/flask
-- Edit security_classes and access_vectors, adding your new class at the
-end.
-- Run make in that directory to generate the headers,
-- Run make tokern to push the new headers to
-linux-2.6/security/selinux/include or copy them manually,
-- Build the new kernel and policy that includes those definitions.
+ that can be dealt with by... (this is speculation, here!)
 
-And note that until we merge a patch from you reserving that security
-class, someone else may come along and take that value away from you at
-any time, at which point you'll have to re-base and rebuild.  Actually,
-that reminds me to check on the status of such a patch for the
-ipsec-related class.
+ by writing an selinux policy in advance that defines how many
+ virtual machines you have, and creating xen_vm0_t, xen_vm1_t
+ etc. to represent them.
 
-> 	 /* Check whether a task is allowed to perform a xen virtual machine
-> 	    operation. */
-> 	int xen_has_perm(struct task_struct *tsk, u32 perms)
-> 	{
-> 		struct task_security_struct *tsec;
-> 
-> 		tsec = tsk->security;
-> 
-> 		return avc_has_perm(tsec->sid, tsec->sid,
-> 				SECCLASS_XEN, perms, NULL, NULL);
-> 	}
+ you then define what operations can be carried out, and then
+ grant a program the right to perform that operation on SPECIFIC
+ machines.  [yes there is a short-hand which allows you to specify an
+ operation be allowed by a program on all machines].
 
-Doesn't task_has_xen() sound better? ;)
+ then it would be necessary to modify the linux kernel to call the
+ avc_has_perm() function at the appropriate point to check, at the time
+ that an operation was being done (e.g. read from block device), as to
+ whether that process had the right to perform that operation on that
+ xen virtual machine.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+ in order for this to work, it would be necessary to have a translation
+ mechanism between the numbering xen_vm_0_t etc. and the actual xen
+ virtual machines.
+
+ looking at avc_has_perm(), you'd need a SID per virtual machine,
+ as the second argument...
+
+ xen_communication_has_perm(struct task_struct *tsk,
+                            struct xen_info *xen,
+							u32 perms)
+ {
+	 return avc_has_perm(tsec->sid,
+	                     xen->sid, SECCLASS_XEN, perms, NULL, NULL);
+ }
+
+ where xen->sid contains "xen_vm_0_t", "xen_vm_1_t" etc.
+ and tsec->sid contains "xen_xm_bin_t" - representing the xen control
+ binary /usr/bin/xm.
+
+ the question i can't answer (the bit that i don't quite grok) is
+ how do you get hold of the right xen_info struct and how do you blat
+ the sid into it?
+
+ l.
 
 
 --
