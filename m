@@ -1,71 +1,36 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j12DwO53022358
-	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 08:58:25 -0500 (EST)
-Message-ID: <4200DC75.1070009@redhat.com>
-Date: Wed, 02 Feb 2005 08:58:13 -0500
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j12E7f53022470
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 09:07:42 -0500 (EST)
+Message-ID: <4200DEA2.1080008@redhat.com>
+Date: Wed, 02 Feb 2005 09:07:30 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: New patch for fixfiles sed script
-References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>	 <41FA9717.2000609@redhat.com>	 <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>	 <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>	 <1107349736.890.72.camel@moss-spartans.epoch.ncsc.mil> <1107350272.890.82.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1107350272.890.82.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------070900090906030504040804"
+To: ivg2@cornell.edu
+CC: Stephen Smalley <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
+Subject: Re: File Browsing apps and getattr
+References: <1107210369.1928.5.camel@cobra.ivg2.net>	 <1107259894.26936.27.camel@moss-spartans.epoch.ncsc.mil>	 <1107263308.6722.5.camel@cobra.ivg2.net>	 <1107263499.26936.50.camel@moss-spartans.epoch.ncsc.mil>	 <1107264384.6956.2.camel@cobra.ivg2.net>	 <1107264676.26936.63.camel@moss-spartans.epoch.ncsc.mil>	 <1107283354.7117.13.camel@cobra.ivg2.net>	 <1107287529.26936.231.camel@moss-spartans.epoch.ncsc.mil>	 <1107301148.3429.10.camel@cobra.ivg2.net>	 <1107345834.890.9.camel@moss-spartans.epoch.ncsc.mil> <1107350380.7449.2.camel@cobra.ivg2.net>
+In-Reply-To: <1107350380.7449.2.camel@cobra.ivg2.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070900090906030504040804
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Added file_browse_domain to latest policy
+
+define(`file_browse_domain', `
+# Do not flood message log, if the user does a browse
+allow $1 file_type - secure_file_type:file getattr;
+dontaudit $1 dev_fs:dir_file_class_set getattr;
+dontaudit $1 sysadmfile:file getattr;
+dontaudit $1 sysadmfile:dir read;
+')dnl end file_browse_domain
+
+Added to base_user_domain, mozilla and mplayer.
+Also added secure_file_type attribute, to shadow_t, kerberos_keytab_t, 
+and cert_t.
+
+I will submit a policy patch later.
 
 
-
---------------070900090906030504040804
-Content-Type: text/x-patch;
- name="policycoreutils-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="policycoreutils-rhat.patch"
-
-diff --exclude-from=exclude -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-1.21.9/scripts/fixfiles
---- nsapolicycoreutils/scripts/fixfiles	2005-01-31 09:49:15.000000000 -0500
-+++ policycoreutils-1.21.9/scripts/fixfiles	2005-02-01 14:06:56.000000000 -0500
-@@ -60,12 +60,26 @@
- if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
- 	TEMPFILE=`mktemp ${FC}.XXXXXXXXXX`
- 	test -z "$TEMPFILE" && exit
--	/usr/bin/diff $PREFC $FC | egrep '^[<>]'|cut -c3-| grep ^/ | \
--        sed -e 's,\\.*,*,g' -e 's,(.*,*,g' -e 's,\[.*,*,g' -e 's,\..*,*,g' \
--            -e 's,[[:blank:]].*,,g' -e 's,\?.*,*,g' | sort -u | \
--        while read pattern ; do if ! echo "$pattern" | grep -q -f ${TEMPFILE} 2>/dev/null ; then echo "$pattern"; case "$pattern" in *"*") echo "$pattern" |sed 's,\*$,,g'>> ${TEMPFILE};;  esac; fi; done | \
-+	/usr/bin/diff $PREFC $FC | grep '^[<>]'|cut -c3-| grep ^/ | \
-+	sed -r -e 's|\(([/[:alnum:]]+)\)\?|{\1,}|g' \
-+	       -e 's|([/[:alnum:]])\?|{\1,}|g' \
-+               -e 's|\?.*|*|g' \
-+	       -e 's|\(.*|*|g' \
-+	       -e 's|\[.*|*|g' \
-+               -e 's|\.\*|*|g' \
-+               -e 's|\.\+|*|g' \
-+	sort -u | \
-+        while read pattern ; \
-+	    do if ! echo "$pattern" | grep -q -f ${TEMPFILE} 2>/dev/null; then \
-+                  echo "$pattern"; \
-+                  case "$pattern" in *"*") \
-+	               echo "$pattern" | sed 's,\*$,,g' >> ${TEMPFILE};;  
-+                  esac; \
-+               fi; \
-+            done | \
-+	grep -v -e ^/root -e ^/home -e ^/tmp -e ^/var/tmp | \
- 	while read pattern ; do find $pattern -maxdepth 0 -print; done 2> /dev/null | \
--	${RESTORECON} $2 -v -f -R - 
-+	${RESTORECON} -R $2 -v -f - 
- 	rm -f ${TEMPFILE}
- fi
- }
-
---------------070900090906030504040804--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
