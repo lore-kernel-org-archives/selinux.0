@@ -1,49 +1,37 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id LAA22228
-	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 11:09:27 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id PAA09704
-	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 15:07:55 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id PAA09700
-	for <selinux@tycho.nsa.gov>; Mon, 30 Sep 2002 15:07:52 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: patch for home_root_t
-Date: Mon, 30 Sep 2002 17:09:14 +0200
-Cc: <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0209300732490.15004-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0209300732490.15004-100000@raven>
+Date: Mon, 30 Sep 2002 11:09:19 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Russell Coker <russell@coker.com.au>
+cc: Chris Vance <cvance@tislabs.com>, Frank Mayer <mayerf@tresys.com>,
+        SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: [patch] label /home directory, create suserdel
+In-Reply-To: <200209301658.58246.russell@coker.com.au>
+Message-ID: <Pine.GSO.4.33.0209301103210.27156-100000@raven>
 MIME-Version: 1.0
-Message-Id: <200209301709.14893.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 30 Sep 2002 13:33, Stephen Smalley wrote:
-> On Sat, 28 Sep 2002, Russell Coker wrote:
-> > The attached patch makes home_root_t work.
->
-> Most of this should already be covered by the rule in
-> base_file_read_access.
 
-I've gone back and removed some duplicate references to home_root_t from my 
-tree.
+On Mon, 30 Sep 2002, Russell Coker wrote:
 
-After you've merged those of my current patches that you like I'll send you 
-another patch for any further changes.
+> The new suseradd doesn't deal with multiple user roles.  Ideally we would have
+> a program that would add an entry to the users file, add a new user-role
+> definition to user.te (with appropriate role transitions), and add a default
+> type and a cron context as well.
 
-NB  Many of the home_root_t (and almost all of them in .te files I wrote) are 
-actually needed.  Most things broke when I initially changed the type of 
-/home...
+Some of this functionality may be available in the Tresys' setools.
+However, IMHO, suseradd shouldn't deal with creating new roles, just with
+adding users and possibly assigning them existing roles.  As a side note,
+please be aware that the /etc/security/default_context and
+/etc/security/cron_context files will be obsolete as of the next public
+release and their replacement will no longer require per-user entries.
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
 
 
 --
