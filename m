@@ -1,43 +1,60 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA10804
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 12:19:34 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA10753
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 12:14:32 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id RAA08247
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:18:45 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-        by jazzband.ncsc.mil  with ESMTP id RAA08238 for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:18:43 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: devfs_contexts
-Date: Fri, 18 Jan 2002 18:19:20 +0100
-Cc: <selinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0201181118440.3743-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0201181118440.3743-100000@raven>
+	by jazzband.ncsc.mil  with ESMTP id RAA07949
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:13:42 GMT
+Received: from smtp-server1.tampabay.rr.com (smtp-server1.tampabay.rr.com [65.32.1.34])
+        by jazzband.ncsc.mil  with ESMTP id RAA07945 for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2002 17:13:42 GMT
+Message-ID: <3C4857EB.1090503@netzero.net>
+Date: Fri, 18 Jan 2002 12:14:19 -0500
+From: Paul Kronenwetter <kronenpj@netzero.net>
 MIME-Version: 1.0
-Message-Id: <20020118171920.F3E3C3918E4@lyta.coker.com.au>
+To: Stephen Smalley <sds@tislabs.com>
+CC: Justin Smith <jsmith@mcs.drexel.edu>, selinux@tycho.nsa.gov
+Subject: Re: ext3 file system
+References: <Pine.GSO.4.33.0201181023090.3743-100000@raven>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 18 Jan 2002 17:27, Stephen Smalley wrote:
-> On Fri, 18 Jan 2002, Russell Coker wrote:
-> > How exactly is devfs_contexts supposed to work, when is it applied?
+Actually the .journal files are only visible when they're created on a 
+mounted filesystem.  If they're created by mke2fs -j they're made invisible.
+
+So Stephen's machine was a clean install of Red Hat 7.2 and Justin's was 
+an upgrade or a manual enhancement of an ext2 fs.
+
+-Paul
+
+Stephen Smalley wrote:
+
+>On 17 Jan 2002, Justin Smith wrote:
 >
-> The devfs_contexts file is consulted for each devfs inode when that inode
-> is first caught by a LSM hook.  So subsequent updates to devfs_contexts
-> won't be propagated to existing inodes.  Try using chcon on existing
-> nodes.
+>>When trying to label files with the setfiles utilities, the process
+>>crashes when they encounter the .journal files. These are user-visible,
+>>but are not regular files (they are immutable in the sense that even
+>>root cannot change them in any way). The setfiles utilities issue a
+>>warning that they cannot write to .journal and quit.
+>>
+>>Any ideas?
+>>
+>>Perhaps there should be some way of exempting the .journal files from
+>>the labelling process. It is unfortunate that they are visible to users
+>>(since users cannot actually use them for anything).
+>>
+>
+>
+>
+>
+>
+>--
+>You have received this message because you are subscribed to the selinux list.
+>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>the words "unsubscribe selinux" without quotes as the message.
+>
 
-OK.  I've just used chsid as I can't find chcon.  Is chcon still in the 
-source distribution?  If so where?
 
--- 
-http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
-http://www.coker.com.au/projects.html Projects I am working on
-http://www.coker.com.au/~russell/     My home page
+
 
 --
 You have received this message because you are subscribed to the selinux list.
