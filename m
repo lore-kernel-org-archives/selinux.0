@@ -1,92 +1,76 @@
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA05695
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 12:08:43 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id QAA20482
+	for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 16:07:32 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+        by jazzband.ncsc.mil  with ESMTP id QAA20478 for <selinux@tycho.nsa.gov>; Thu, 18 Apr 2002 16:07:30 GMT
 Content-Type: text/plain;
   charset="iso-8859-1"
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tislabs.com>, Dale Amon <amon@vnl.com>
-Subject: Re: db conflict ?
-Date: Thu, 18 Apr 2002 17:42:10 +0200
-Cc: "Westerman, Mark" <Mark.Westerman@csoconline.com>, <SELinux@tycho.nsa.gov>
-References: <Pine.GSO.4.33.0204181045360.5560-100000@raven>
-In-Reply-To: <Pine.GSO.4.33.0204181045360.5560-100000@raven>
+To: Tom <tom@lemuria.org>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: policy question
+Date: Thu, 18 Apr 2002 18:08:28 +0200
+References: <20020418112238.A1788@lemuria.org> <20020418145101.D31F444CB8@lyta.coker.com.au> <20020418171532.B6551@lemuria.org>
+In-Reply-To: <20020418171532.B6551@lemuria.org>
 MIME-Version: 1.0
-Message-Id: <20020418154333.B804444D90@lyta.coker.com.au>
+Message-Id: <20020418160829.1AF9F44D90@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 18 Apr 2002 16:54, Stephen Smalley wrote:
-> distribution, I have a few questions and concerns aside from the
-> location in the filesystem hierarchy:
+On Thu, 18 Apr 2002 17:15, Tom wrote:
+> On Thu, Apr 18, 2002 at 04:51:01PM +0200, Russell Coker wrote:
+> > > Absolutely. The problem is that you have a unified frontend with
+> > > diversification at the backend. This is the same issue you have for
+> > > ssh, except that ssh (and other remote login tools) have a method for
+> > > changing to a specific user, based on user/password data.
+> >
+> > Ssh solves it by forking a new process and changing UID BEFORE doing any
+> > work.
+>
+> Right. I want to do the same thing, but not with UIDs, but with
+> domains.
 
-Incidentally I've been running with /usr/share/selinux/policy/default and 
-/usr/share/selinux/policy/current for a few days now.  It seems that the 
-directory is inconveniantly long (why not "/usr/share/selinux" instead of 
-"/usr/share/selinux/policy"?).  Also I am going to create a symlink 
-/etc/selinux that points to the policy.
+Changing UIDs involves much the same process as changing domains.
 
-> 1) When installing the policy and file contexts sources, do we want to
-> keep them in separate directories as in the distribution (policy,
-> setfiles), or do we want to merge them together as in Russell Coker's
-> Debian selinux package?  I'd prefer to keep them separate, especially
-> since we have now partitioned file contexts into many files as well.
-> They can live under a common top-level directory, but I'd like to keep
-> each within its own subdirectory.  Does that seem reasonable?
+If you want to get any support from Apache people etc then it's best if you 
+talk about changing UID (something that they all understand).
 
-Why not just have a file_contexts directory under the main policy directory?
+> > > where user2's script contains something like:
+> > > <? $f=fopen("../user1/script.php"); read($f); ?>
+> >
+> > What you could do is to have a unix domain socket named
+> > /var/www/socket/user1 which the Apache process creates and then forks off
+> > a child process to run all PHP code for user1 under the UID of that user,
+> > and then pass back the data to Apache through the socket for
+> > retransmission to the client.
+>
+> That requires changes in the apache code, which is bug-prone and will
 
-I think that having a single Makefile do them both is the best way to do it.  
-In my current code base it will compile the policy before doing a relabel.
+No changes should be needed to the Apache code, just to the module code.  Of 
+course that's still a major PITA...
 
-Also with the new file_contexts scheme of separate files then the same 
-Makefile needs to be used so it can determine which .fc files to use 
-something like the following:
-FC_FILES=$(pathsubst domains/program/%.te,file_contexts/%.fc, $(wildcard 
-domains/program/*.te))
+> In essence, it boils down to: "a script (php, cgi, whatever) that
+> belongs to user X can only access files of user X"
 
-Then I was thinking of having a rule to compile the set of fc files to use 
-into one file and compare it to the previous version - then if there's a 
-change it does a "make relabel", otherwise nothing.
+Doing it for cgi is easy enough.  I could easily hack something up if the NSA 
+people don't release the MITRE code.
 
-> runs an installed setfiles program on them.  This will require something
-> other than just copying the setfiles directory (i.e. omit the setfiles
-> program source files and replace the Makefile with a different one),
-> unless we restructure it within our own distribution to isolate the
-> program from the configuration (e.g. have separate setfiles and
-> file_contexts directories, 'make install' in setfiles will build and
-> install the setfiles program, 'make relabel' in file_contexts will build
-> the file contexts configuration and run the installed setfiles program on
-> it). Does the latter change seem reasonable?
+> The sole problem being that the scripts aren't executed in the
+> unix-sense of execution, but by being loaded and interpreted by the
+> apache process.
 
-Sounds fine to me.
+Which means that they can't be given a different UID and therefore they can't 
+be given a different domain because domain transition can only occur at exec 
+time (just like for SUID programs).
 
-> 3) At present, our installation procedure always builds and installs the
-> distribution policy and file contexts configurations.  Howard mentioned
-> always building and installing the local policy, which might be a link
-> to the example policy or might be a locally-customized policy.  However,
-> I think we typically want people to merge any customizations into the
-> distribution policy and install it when upgrading SELinux from the
-> upstream distribution, as there may be incompatible changes.  At present,
-> almost everyone uses some kind of locally-customized policy at least to
-> set up policy/users (and often to enable X support or add new domains), so
-> if we merely check to see whether they have made _any_ local
-> customizations, we will almost always use their local policy, which may
-> not be a good thing.
+The concept you have is wrong, nothing will make domain transitions on module 
+load work.
 
-I agree.
-
-I think we need some perl programs to manage this.  At the install time (or 
-at any time afterwards) the user should be able to delete policy files from 
-the current tree and not have them reappear.
-
-Once the .te file has been deleted the matching .fc file must be disregarded 
-ar relabel time.
-
-An upgrade should list files that have changed and allow a choice of 
-wholesale change application or applying/rejecting changes on a per-file 
-basis after seeing a "diff -u" of the changes.
-
-If the upstream file has not changed (IE if I'm reinstalling the same version 
-of the upstream code that I already had) then it must not prompt me to change 
-things where the files I'm using are different from the distribution files.
+PHP via CGI with suexec may work if your PHP requirements are small enough.  
+Otherwise you need some module changes.
 
 -- 
 If you send email to me or to a mailing list that I use which has >4 lines
