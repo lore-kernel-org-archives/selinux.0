@@ -1,62 +1,52 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2CKmhRb003947
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 15:48:44 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2CLNvRb004175
+	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 16:23:57 -0500 (EST)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i2CKmg0F004390
-	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 20:48:42 GMT
-Received: from ns.sws.net.au ([61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id i2CKmUgZ004261 for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 20:48:42 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id ACB1761C19
-	for <selinux@tycho.nsa.gov>; Sat, 13 Mar 2004 07:47:08 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
-	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 11874-04 for <selinux@tycho.nsa.gov>;
-	Sat, 13 Mar 2004 07:47:08 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id 25F4B61BCE
-	for <selinux@tycho.nsa.gov>; Sat, 13 Mar 2004 07:47:08 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id BFFE42F581
-	for <selinux@tycho.nsa.gov>; Sat, 13 Mar 2004 07:47:05 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Brad Spender and Debian play machine
-Date: Sat, 13 Mar 2004 07:47:03 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200403130747.04033.russell@coker.com.au>
+	by jazzband.ncsc.mil  with ESMTP id i2CLNu0F007023
+	for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 21:23:56 GMT
+Received: from mail.idtweb.com (mail.idtweb.com [63.140.241.100])
+        by jazzband.ncsc.mil  with ESMTP id i2CLNugZ007003 for <selinux@tycho.nsa.gov>; Fri, 12 Mar 2004 21:23:56 GMT
+Subject: Re: policy booleans
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: russell@coker.com.au
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200403040226.55513.russell@coker.com.au>
+References: <200403040226.55513.russell@coker.com.au>
+Content-Type: text/plain
+Message-Id: <1079126613.8603.22.camel@colossus.columbia.tresys.com>
+Mime-Version: 1.0
+Date: Fri, 12 Mar 2004 16:23:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In my latest discussion with Brad Spengler (I made a mistake in spelling his 
-name in my previous message - sorry) I was informed that the incident in 
-question allegedly happened some months ago.
+On Wed, 2004-03-03 at 10:26, Russell Coker wrote:
+> Would it be possible for booleans to apply to things other than allow 
+> statements?
+> 
+> I would like to have booleans determining which domains are allowed in a role, 
+> and which role transitions are permitted.
 
-If the machine had been cracked then any evidence would most likely have 
-disappeared in the course of upgrades to the software on the system and of 
-the disk being repeatedly filled (no chance of undeletion), so it seems 
-hardly worth attempting a forensic examination unless there are claims of any 
-more recent attacks or of continual maintenance of a root-kit.
+[This is an old message - I realized that I never replied]
 
-The suggestion that stealth was involved in cracking the machine seems totally 
-incorrect.  Stealth says that he had no involvement in such things and no 
-knowledge of the existence of my play machine.
+This would certainly be possible and I think that this would be a useful
+extension to the conditional policy work, but it wasn't part of our
+original design spec (especially since role transitions were still
+deprecated at that point). It is possible that we will find time to do
+this in the next few months, but I can't commit to anything. I think
+that Steve was also considering taking this on, but I'll let him reply
+if he has any specific plans to implement this.
 
-There is no credible evidence for the machine ever having been cracked.
+Thanks,
 
-But regardless of this the machine will be removed.  Someone else has 
-expressed interest in running a Debian SE Linux play machine, they seem to 
-have better bandwidth and more time to work on it so the result should be 
-good for users.
+Karl
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Karl MacMillan
+Tresys Technology
+kmacmillan@tresys.com
+http://www.tresys.com
+(410) 290-1411 x134
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
