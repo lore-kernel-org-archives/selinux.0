@@ -1,39 +1,41 @@
-Message-ID: <72222DC86846D411ABD300A0C9EB08A1015241B8@csoc-mail-box.csoconline.com>
-From: "Westerman, Mark" <Mark.Westerman@csoconline.com>
-To: "'Conan Callen '" <ccallen@windowpane.com>
-Cc: "'SELinux@tycho.nsa.gov'" <SELinux@tycho.nsa.gov>
-Subject: RE: Partial TOC for Comment]
-Date: Sat, 18 Aug 2001 08:01:32 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Date: Sun, 19 Aug 2001 05:58:59 +0100
+From: Dale Amon <amon@vnl.com>
+To: LeRoy Cressy <lcressy@telocity.com>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: [Fwd: Partial TOC for Comment]
+Message-ID: <20010819055859.D11122@vnl.com>
+References: <3B7C7C69.E7B84C68@earthlink.net> <20010817001226.J18183@vnl.com> <3B7D591A.EA28B00C@earthlink.net> <20010817122305.P18183@vnl.com> <3B7E54C4.E19EA07E@telocity.com> <20010818084601.A7060@vnl.com> <3B7FD0EE.398E6F02@telocity.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <3B7FD0EE.398E6F02@telocity.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, Aug 19, 2001 at 10:45:02AM -0400, LeRoy Cressy wrote:
+> True, but doesn't selinux utilize all of the security measures built
+> into Unix/Linux from years gone by?  Selinux is built on top of Linux
+> with improvements and not replacemants.
+> 
 
-Conan Callen Wrote:
-> Does SELinux help to make it tougher for the crackers to
->gain access like this? Know of any good webpages / books on how to get
->started (steps) on locking down a system, and creating scripts to
->monitor
->the system?
+You must be missing the context of the discussion. We
+are discussing the design issues of the SELinux and the
+concepts of revocation via a security policy change at 
+run time as discussed in the Flask papers on line, for 
+use in Mr Scroggins book on SELinux. 
 
-With a resound yes it does help. I had a Redhat box that used for
-DNS. I was being lazy and did not update the box. Someone broke into
-The DNS server and installed rootkit. I reloaded the server since I was
-on his target list I got hit again (same as you.. Same day) I then reload
-the box (offline) with selinux and created a named domain. Then the machine
-was placed online. I did not update named to see if the named security
-domain would work. Yes it works great. For the next week he kept tying, I
-noticed in the logs where he was using buffer overflow to attacked the
-named. He performed buffered overflow on the named server but was not able
-to do any thing else to the system.
+As I am no expert on SELinux, barely a neophyte
+even, I've suggested that one of the designers discuss
+this.
 
-Mark Westerman
-I very satisfied customer of SeLinux
+We're not discussing general unix security methods, as
+that would be a bit off topic here.
 
-
-
+-- 
+------------------------------------------------------
+Use Linux: A computer        Dale Amon, CEO/MD
+is a terrible thing          Village Networking Ltd
+to waste.                    Belfast, Northern Ireland
+------------------------------------------------------
 
 --
 You have received this message because you are subscribed to the selinux list.
