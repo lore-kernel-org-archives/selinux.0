@@ -1,46 +1,74 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA22220
-	for <selinux@tycho.nsa.gov>; Wed, 4 Sep 2002 10:25:24 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA17842
-	for <selinux@tycho.nsa.gov>; Wed, 4 Sep 2002 14:24:09 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzswing.ncsc.mil  with ESMTP id OAA17838
-	for <selinux@tycho.nsa.gov>; Wed, 4 Sep 2002 14:24:08 GMT
-Date: Wed, 4 Sep 2002 10:24:51 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-To: Magnus Johansson <magnusj@it.uu.se>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: Buildproblems
-In-Reply-To: <200209041601.07772.magnusj@it.uu.se>
-Message-ID: <Pine.GSO.4.33.0209041022160.18204-100000@raven>
+Message-Id: <200209041730.RAA29245@jazzswing.ncsc.mil>
+From: Carsten Grohmann <carstengrohmann@gmx.de>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: route
+Date: Wed, 4 Sep 2002 19:27:51 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_FICX94R2BOUVWH2GDZ17"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 4 Sep 2002, Magnus Johansson wrote:
+--------------Boundary-00=_FICX94R2BOUVWH2GDZ17
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> I just tried to build the latest tarball, but ran into problems compiling
-> 'more'. However, I found both the problem and the solution in the
-> mailinglist archive from January. I just want to point out that the problem
-> still exists in the current tar-ball (lsm-2.4-selinux-2002082308.tgz).
+Hi!
 
-This is only an issue if you don't have libtermcap installed on your
-system (in which case the configure script will fall back to using
-libcurses).  In any event, this is an issue with the base util-linux
-package, not in the SELinux patch to it.  Builds fine for us on RH7.1 and
-RH7.2.
+attached is the rule set for the route_t domain.
+I am glad if anybody use it.
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Carsten
+--------------Boundary-00=_FICX94R2BOUVWH2GDZ17
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="route.te"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="route.te"
 
+IwojIFRoaXMgcG9saWN5IGlzIGZvciByb3V0ZQojCiMgQXV0aG9yICAgICA6ICBDYXJzdGVuIEdy
+b2htYW5uIDxjYXJzdGVuZ3JvaG1hbm5AZ214LmRlPgojCiMgJElkJAojCiMgTGljZW5zZSAgICA6
+ICBHUEwKIwojIExhc3QgY2hhbmdlOiAgMDQuIFNlcHRlbWJlciAyMDAyCiMKIyBTdGF0ZSAgICAg
+IDogIGNvbXBsZXRlIGFuZCB0ZXN0ZXQKIwojIFRlc3RlZCB2ZXJzaW9uczoKIyAgIC0gU3VTRSA3
+LjMKIwojIEhpbnRzICAgICAgOgojICAtIAojCiMgQ2hhbmdlcyAgICA6CiMgIC0gCiMKIyBFbmhh
+bmNlbWVudHMvQ29ycmVjdGlvbnM6CiMgIC0gCgojIEdlbmVyYWwgZGVjbGFyYXRpb25zCiMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMKCnR5cGUgcm91dGVfdCwgZG9tYWluOwpyb2xlIHN5c3RlbV9yIHR5
+cGVzIHJvdXRlX3Q7CnJvbGUgc3lzYWRtX3IgdHlwZXMgcm91dGVfdDsKCiMgdHlwZSBmb3IgdGhl
+IHJvdXRlIGV4ZWN1dGFibGUKdHlwZSByb3V0ZV9leGVjX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmls
+ZSwgZXhlY190eXBlOwoKIyB0eXBlIGZvciByb3V0ZSBjb25maWd1cmF0aW9uIGZpbGUgKCAvZXRj
+L3JvdXRlLmNvbmYgKQp0eXBlIGV0Y19yb3V0ZV90LCBmaWxlX3R5cGUsIHN5c2FkbWZpbGU7CmZp
+bGVfdHlwZV9hdXRvX3RyYW5zKHJvdXRlX3QsIGV0Y190LCBldGNfcm91dGVfdCkKCmRvbWFpbl9h
+dXRvX3RyYW5zKGluaXRyY190LCByb3V0ZV9leGVjX3QsIHJvdXRlX3QpCnR5cGVfdHJhbnNpdGlv
+biBpbml0X3Qgcm91dGVfZXhlY190OnByb2Nlc3Mgcm91dGVfdDsKCmRvbWFpbl9hdXRvX3RyYW5z
+KHN5c2FkbV90LCByb3V0ZV9leGVjX3QsIHJvdXRlX3QpCgojIEZpbGUgcGVybWlzc2lvbnMKIyMj
+IyMjIyMjIyMjIyMjIyMjCgojIEFsbG93IGFjY2VzcyB0byBwcm9jX3QKYWxsb3cgcm91dGVfdCBw
+cm9jX3Q6ZGlyIHsgc2VhcmNoIH07CmFsbG93IHJvdXRlX3QgcHJvY190OmZpbGUgeyBnZXRhdHRy
+IHJlYWQgfTsKCiMgQWxsb3cgYWNjZXNzIHRvIHN5c2FkbV90dHlfZGV2aWNlX3QKYWxsb3cgcm91
+dGVfdCBzeXNhZG1fdHR5X2RldmljZV90OmNocl9maWxlIHsgZ2V0YXR0ciBpb2N0bCByZWFkIHdy
+aXRlIH07CgojIFByb2Nlc3MgcGVybWlzc2lvbnMKIyMjIyMjIyMjIyMjIyMjIyMjIyMjCgojIEFs
+bG93IHRvIHVzZSBzaGFyZWQgbGlicmFyaWVzCnVzZXNfc2hsaWIocm91dGVfdCkKCmFsbG93IHJv
+dXRlX3Qgc2VsZjpjYXBhYmlsaXR5IHsgbmV0X2FkbWluIH07CgojIEFsbG93IHByb2Nlc3MgYW5k
+IG5ldHdvcmsgY29tbXVuaWNhdGlvbgojIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIwoKYWxsb3cgcm91dGVfdCBsb2NhbF9sb2dpbl90OmZkIHsgdXNlIH07CmFsbG93IHJv
+dXRlX3Qgc2VsZjp1ZHBfc29ja2V0IHsgY3JlYXRlIGlvY3RsIH07CgojIFNldHRpbmdzIHRvIGFs
+bG93IGluaXRyY190IGFjY2VzcyB0byBldGNfcm91dGVfdAppZmRlZihgaW5pdHJjLnRlJywgYGFs
+bG93IGluaXRyY190IGV0Y19yb3V0ZV90OmZpbGUgeyBpb2N0bCByZWFkIH07ICcpCg==
 
+--------------Boundary-00=_FICX94R2BOUVWH2GDZ17
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="route.fc"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="route.fc"
 
+IwojIEF1dGhvcjogIENhcnN0ZW4gR3JvaG1hbm4gPGNhcnN0ZW5ncm9obWFubkBnbXguZGU+CiMK
+IyAkSWQkCiMKCiMgc2V0dGluZ3MgZm9yIHJvdXRlCiMjIyMjIyMjIyMjIyMjIyMjIyMjCgovc2Jp
+bi9yb3V0ZQkJCXN5c3RlbV91Om9iamVjdF9yOnJvdXRlX2V4ZWNfdAovZXRjL3JvdXRlLmNvbmYJ
+CQlzeXN0ZW1fdTpvYmplY3RfcjpldGNfcm91dGVfdAo=
 
-
+--------------Boundary-00=_FICX94R2BOUVWH2GDZ17--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
