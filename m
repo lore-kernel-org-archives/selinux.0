@@ -1,75 +1,58 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA02131
-	for <selinux@tycho.nsa.gov>; Tue, 18 Jun 2002 10:56:15 -0400 (EDT)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id OAA05732
-	for <selinux@tycho.nsa.gov>; Tue, 18 Jun 2002 14:55:54 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id OAA05728
-	for <selinux@tycho.nsa.gov>; Tue, 18 Jun 2002 14:55:52 GMT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: SE Linux <selinux@tycho.nsa.gov>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA04348
+	for <selinux@tycho.nsa.gov>; Tue, 18 Jun 2002 15:48:17 -0400 (EDT)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id TAA10899
+	for <selinux@tycho.nsa.gov>; Tue, 18 Jun 2002 19:46:51 GMT
+Received: from cholera.gruver.net ([65.68.190.226])
+        by jazzband.ncsc.mil  with ESMTP id TAA10895 for <selinux@tycho.nsa.gov>; Tue, 18 Jun 2002 19:46:50 GMT
+Date: Tue, 18 Jun 2002 14:47:58 -0500
+From: Eric Johnson <eric@gruver.net>
+To: "Russell Coker" <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
 Subject: Re: oops
-Date: Tue, 18 Jun 2002 16:55:56 +0200
+Message-Id: <20020618144758.3ed245ef.eric@gruver.net>
+In-Reply-To: <20020618145556.D02161581@lyta.coker.com.au>
 References: <45F949D73F69D41198B00004AC2513FB03D5B6CD@mad00mp3.dot.state.wi.us>
-In-Reply-To: <45F949D73F69D41198B00004AC2513FB03D5B6CD@mad00mp3.dot.state.wi.us>
-MIME-Version: 1.0
-Message-Id: <20020618145556.D02161581@lyta.coker.com.au>
+	<20020618145556.D02161581@lyta.coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 18 Jun 2002 16:32, you wrote:
-> Isn't the below somewhat of an invite to unauthorized activity on this
-> machine ?
-> ===========================================================================
->= ==
-> Anyway the machine is available now.  Ssh to port 222 on adsl.coker.com.au,
-> root password is "1".
-> ===========================================================================
+On Tue, 18 Jun 2002 16:55:56 +0200
+"Russell Coker" <russell@coker.com.au> wrote:
 
-Anything on that machine is authorised.  I would prefer that people report 
-any security issues to me rather than exploiting them, and so far that's been 
-done.
+> On Tue, 18 Jun 2002 16:32, you wrote:
+> > Isn't the below somewhat of an invite to unauthorized activity on
+> > this machine ?
+> > =================================================================
+> > =========== ==
+> > Anyway the machine is available now.  Ssh to port 222 on
+> > adsl.coker.com.au, root password is "1".
+> > =================================================================
+> > ==========
+> 
+> Anything on that machine is authorised.
 
-James Bromberger reported to me that he could read /etc/shadow.  I have 
-changed that file to type shadow_t and changed the passwd.te policy file to 
-preserve the permissions across change of password (and of course changed 
-every .te file for a login type program).
+I hope that doesn't include spamming.  Someone could abuse the machine
+by connecting and spewing forth e-mail.  Of course, typing in spam
+with "mail" is hardly conducive to spewing out spam.
 
-The next thing to do is to address the issue of vipw, chage, etc as sysadm_t, 
-which I will work on later tonight.
+Anyway, I doubt that too many spammers subscribe to this mailing list,
+so it's probably not going to be much of a problem.
 
+I'm brand new to SELinux.  I've looked at the web page several times
+in the past, but I haven't been too serious about trying it out.  I'm
+getting ready to go from Red Hat 7.2 to 7.3, so I'll probably try it
+out when I make the change.
 
-Below is the new motd on my SE play box:
+But it was nice to look around a SELinux installation for a couple of
+minutes.
 
-This machine is running NSA Security Enhanced Linux.  You are free to try and
-break the security of this machine as long as you do the following:
+Thanks,
 
-1)  Do not use it to attack any machine without the permission of the 
-machine's
-    owner.  If you want to use it to probe your own machines that's OK.
-
-2A) Report to me any security holes you find.
-
-2B) Destroying this machine is OK if it's the only way to determine that there
-    is a hole in the security policy, if you do so please tell me what you 
-did!
-
-3)  Don't do DOS attacks against this machine.  I expect that some combination
-    of using large numbers of open files, memory, etc can cause the machine to
-    become unusable.  Doing that proves nothing, we already know that the
-    Linux kernel won't handle all problems of lack of resources in a graceful
-    fashion.  The point of this exercise is to test the SE Linux 
-functionality.
-
-russell@coker.com.au
-
-
-
-PS  I've BCC'd this message to the person that asked the question.
+Eric Johnson
 
 --
 You have received this message because you are subscribed to the selinux list.
