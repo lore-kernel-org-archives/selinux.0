@@ -1,67 +1,52 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB1A26Rb005617
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 05:02:07 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id hB1A26qY028029
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 10:02:06 GMT
-Received: from ns.sws.net.au (ns.sws.net.au [61.95.69.3])
-        by jazzband.ncsc.mil  with ESMTP id hB1A240o028026 for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 10:02:05 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by ns.sws.net.au (Postfix) with ESMTP id 584FF61BE9
-	for <selinux@tycho.nsa.gov>; Mon,  1 Dec 2003 21:02:04 +1100 (EST)
-Received: from ns.sws.net.au ([127.0.0.1])
-	by localhost (ns [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
-	id 28130-06 for <selinux@tycho.nsa.gov>;
-	Mon, 1 Dec 2003 21:02:03 +1100 (EST)
-Received: from tsv.sws.net.au (tsv.sws.net.au [61.95.69.2])
-	by ns.sws.net.au (Postfix) with ESMTP id E481661BDA
-	for <selinux@tycho.nsa.gov>; Mon,  1 Dec 2003 21:02:03 +1100 (EST)
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id BDB469265F
-	for <selinux@tycho.nsa.gov>; Mon,  1 Dec 2003 21:02:03 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 33A597F26F
-	for <selinux@tycho.nsa.gov>; Mon,  1 Dec 2003 21:02:01 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: setfiles and non-SE systems
-Date: Mon, 1 Dec 2003 21:02:00 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200312012102.00554.russell@coker.com.au>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id hB1E6iRb006535
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 09:06:44 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id hB1E64p5001893
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:06:04 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id hB1E64t0001890
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2003 14:06:04 GMT
+Subject: Re: Installation of packages
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Carlos =?ISO-8859-1?Q?An=EDsio?= Monteiro <monteiro@ipen.br>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <3FC5E6EA.30409@ipen.br>
+References: <3FC5E6EA.30409@ipen.br>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1070287593.12270.44.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Date: Mon, 01 Dec 2003 09:06:33 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-lstat64("/", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-lgetxattr("/", "security.selinux", 0x84789a0, 255) = -1 EOPNOTSUPP (Operation 
-no
-t supported)
-dup(2)                                  = 3
-fcntl64(3, F_GETFL)                     = 0x2 (flags O_RDWR)
-fstat64(3, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 0), ...}) = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 
-0
-x4001a000
-_llseek(3, 0, 0xbfffe640, SEEK_CUR)     = -1 ESPIPE (Illegal seek)
-write(3, "/: Operation not supported\n", 27) = 27
-close(3)                                = 0
-munmap(0x4001a000, 4096)                = 0
-write(2, "setfiles:  unable to obtain attr"..., 49) = 49
+On Thu, 2003-11-27 at 06:58, Carlos Anísio Monteiro wrote:
+> I would like to know what packages (patches for linux utilities,
+> login, coreutils, procps, shadow ...) are essentials to system and if
+> there is a sequence of installation this packages.
 
-Above is part of the strace output from trying to run setfiles on a non-SE 
-system (kernel 2.4.22 with the ACL patch but no SE patch).
+If you are working from our last public release on nsa.gov, then the
+most important ones are:
+- util-linux (patched login program to set the user security context)
+- openssh (patched sshd to set the user security context)
+- vixie-cron (patched crond to set the user security context)
 
-It appears that if we had a kernel patch to provide the security.selinux name 
-space as a regular xattr on non-SE systems then we could label the file 
-system before installing a SE Linux kernel.
+If you are working from Dan's packages
+(ftp://people.redhat.com/dwalsh/SELinux), then the most important ones
+are:
+- SysVinit (patched init program to perform the initial policy load,
+obsoletes the need to modify your initrd)
+- pam (pam_selinux module and other SELinux modifications to pam)
+- util-linux (login pam configuration modified to use pam_selinux)
+- openssh (patched sshd)
+- vixie-cron (patched crond)
+
+The patched coreutils and procps are certainly useful, but they aren't
+essential to basic system operation.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
 
 --
