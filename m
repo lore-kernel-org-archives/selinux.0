@@ -1,49 +1,76 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA00841
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 14:44:31 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id TAA16697
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 19:43:41 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id TAA16693
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2002 19:43:40 GMT
-Date: Wed, 16 Jan 2002 14:43:52 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: "Miara, Richard J." <rjmiara@missi.ncsc.mil>
-cc: <selinux@tycho.nsa.gov>
-Subject: Re: RH 7.1 Selinux Install fails in step 7 - /usr/sbin/sshd not
- found
-In-Reply-To: <200201161909.g0GJ99513708@stingray.missi.ncsc.mil>
-Message-ID: <Pine.GSO.4.33.0201161440310.7787-100000@raven>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <3C45D723.7090308@pcez.com>
+Date: Wed, 16 Jan 2002 11:40:19 -0800
+From: Shaun Savage <savages@pcez.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_homegate.savages.net-2504-1011210258-0001-2"
+To: SELinux@tycho.nsa.gov
+Subject: more info
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-On Wed, 16 Jan 2002, Miara, Richard J. wrote:
+--=_homegate.savages.net-2504-1011210258-0001-2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->    if [ ! -f /usr/sbin/sshd.old ]; then mv /usr/sbin/sshd
-> /usr/sbin/sshd.old fi
->    mv: cannot stat '/usr/sbin/sshd' no such file or directory
->    make: *** [install] Error1
->
-> I'm not sure how to proceed from here?
+During the load process I get
 
-Just remove that line from the install target of utils/Makefile and try
-again.  The line is intended to move aside your existing ssh daemon
-program prior to performing the installation of the SELinux-modified ssh
-daemon.  But you apparently don't have the ssh daemon installed at all, so
-this fails.  We'll fix the Makefile to perform an explicit test here.
+ss: loading .....
+security: 5 users, 6roles, 391 types
+security: 29 classes, 74171 rules
+security: context root:sysadm_r:ipchains_t is invalid
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
+Why/How is it invalid?
 
+attached is the new ipchains.te
 
+Shaun 
 
+--=_homegate.savages.net-2504-1011210258-0001-2
+Content-Type: text/plain; name="ipchains.te"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipchains.te"
 
+#
+# Authors:  Justin Smith <jsmith@mcs.drexel.edu>
+#
 
+role sysadm_t types { ipchains_t };
+domain_auto_trans(sysadm_t, ipchains_exec_t, ipchains_t)
+
+allow tripwire_t sysadm_tty_device_t:chr_file rw_file_perms;
+allow tripwire_t sysadm_devpts_t:chr_file rw_file_perms;
+allow tripwire_t sysadm_gph_t:fd inherit_fd_perms;
+ 
+auditallow sysadm_t ipchains_t:process transition;
+auditallow sysadm_t ipchains_exec_t:process transition;
+auditallow sysadm_t ipchains_exec_t:file execute;
+
+#
+# Rules for the ipchains_t domain.
+#
+type ipchains_t, domain, privlog;
+type ipchains_exec_t, file_type, sysadmfile, exec_type;
+type ipchains_var_run_t, file_type, sysadmfile, pidfile;
+
+domain_auto_trans(ipchains_t, insmod_exec_t, insmod_t)
+
+domain_auto_trans(ipchains_t, ifconfig_exec_t, ifconfig_t)
+file_type_auto_trans(ipchains_t, var_run_t, ipchains_var_run_t)
+uses_shlib(ipchains_t)
+
+# Inherit and use descriptors from init.
+allow ipchains_t init_t:fd inherit_fd_perms;
+
+allow ipchains_t bin_t:file { execute execute_no_trans };
+allow ipchains_t ipchains_exec_t:file { execute_no_trans };
+allow ipchains_t ipchains_t:capability { net_admin net_raw };
+allow ipchains_t ipchains_t:rawip_socket { create setopt };
+
+--=_homegate.savages.net-2504-1011210258-0001-2--
 
 --
 You have received this message because you are subscribed to the selinux list.
