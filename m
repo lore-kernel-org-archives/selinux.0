@@ -1,98 +1,91 @@
-Message-Id: <200209151031.KAA19100@jazzband.ncsc.mil>
+Message-Id: <200209151556.PAA17617@jazzswing.ncsc.mil>
 From: Carsten Grohmann <carstengrohmann@gmx.de>
-To: Stephen Smalley <sds@tislabs.com>
-Subject: Re: pppd and net_context
-Date: Sun, 15 Sep 2002 11:32:04 +0200
-References: <20020911130902.A6BE2FA8D@ivanova.coker.com.au> <200209121615.01677.russell@coker.com.au>
-In-Reply-To: <200209121615.01677.russell@coker.com.au>
-Cc: Russell Coker <russell@coker.com.au>, SELinux <SELinux@tycho.nsa.gov>
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: some patches
+Date: Sun, 15 Sep 2002 17:56:45 +0200
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_GT3HKT0YHATO3893BC5M"
+  boundary="------------Boundary-00=_LMLHRJWRG9OI45PPBD5P"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---------------Boundary-00=_GT3HKT0YHATO3893BC5M
+--------------Boundary-00=_LMLHRJWRG9OI45PPBD5P
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Stephen,
+Hi,
 
-last week I add the isdn4linux devices to my selinux rules.=20
-That do you think, is the attached patch correct?=20
-The type declaration should be ok, also the netifcon entries. Both are=20
-wrote on "Configure the SELinux Policy".=20
-I am not sure with the two allow entries, because I don't found anything=20
-about it in the documentation.=20
-And why uses the loopback device the special node_lo_t ?
-
-Thanks
+I've attached follow patches:
+inetd.diff:=20
+  add a type var_log_inetd_t for daemons logs
+ldconfig.diff:=20
+  dontaudit ldconfig_t device_t:dir { search };
+  change { read write } for sysadm_devpts_t and sysadm_tty_device_t=20
+  to rw_file_perms, because I need also getattr and ioctl for SuSE
+pppd.diff:
+  allow pppd_t device_t:dir { search };
 
 Carsten
-
-Am Donnerstag, 12. September 2002 16:15 schrieben Sie:
-> On Wed, 11 Sep 2002 15:08, Carsten Grohmann wrote:
-> > Hi Russel,
-> >
-> > I missing the attached patch in your policy. This patch is necessary =
-to
-> > label the trafic over the ippp0 interface correct.
->
-> I have not done anything seriously with network contexts, I am spending
-> all my time working on host based security.  So therefore I don't feel
-> that I am qualified to determine whether your patch is suitable for my
-> policy tree.
->
-> I recommend that you send it to Stephen Smalley, if he likes it then I'=
-ll
-> put it in my tree too.
->
->
-> Russell Coker
-
---------------Boundary-00=_GT3HKT0YHATO3893BC5M
+--------------Boundary-00=_LMLHRJWRG9OI45PPBD5P
 Content-Type: text/x-diff;
   charset="iso-8859-1";
-  name="netcontext.diff"
+  name="inetd.diff"
 Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="netcontext.diff"
+Content-Disposition: attachment; filename="inetd.diff"
 
-LS0tIC4uL29yaWdpbmFsL25ldF9jb250ZXh0cwlXZWQgQXVnIDIxIDIwOjIyOjQyIDIwMDIKKysr
-IG5ldF9jb250ZXh0cwlXZWQgU2VwICA0IDE1OjQ4OjUzIDIwMDIKQEAgLTUzLDYgKzUzLDcgQEAK
-IG5ldGlmY29uIGV0aDAgc3lzdGVtX3U6b2JqZWN0X3I6bmV0aWZfZXRoMF90IHN5c3RlbV91Om9i
-amVjdF9yOm5ldG1zZ19ldGgwX3QKIG5ldGlmY29uIGV0aDEgc3lzdGVtX3U6b2JqZWN0X3I6bmV0
-aWZfZXRoMV90IHN5c3RlbV91Om9iamVjdF9yOm5ldG1zZ19ldGgxX3QKIG5ldGlmY29uIGV0aDIg
-c3lzdGVtX3U6b2JqZWN0X3I6bmV0aWZfZXRoMl90IHN5c3RlbV91Om9iamVjdF9yOm5ldG1zZ19l
-dGgyX3QKK25ldGlmY29uIGlwcHAwIHN5c3RlbV91Om9iamVjdF9yOm5ldGlmX2lwcHAwX3Qgc3lz
-dGVtX3U6b2JqZWN0X3I6bmV0bXNnX2lwcHAwX3QKIG5ldGlmY29uIGlwc2VjMCBzeXN0ZW1fdTpv
-YmplY3RfcjpuZXRpZl9pcHNlYzBfdCBzeXN0ZW1fdTpvYmplY3RfcjpuZXRtc2dfaXBzZWMwX3QK
-IG5ldGlmY29uIGlwc2VjMSBzeXN0ZW1fdTpvYmplY3RfcjpuZXRpZl9pcHNlYzFfdCBzeXN0ZW1f
-dTpvYmplY3RfcjpuZXRtc2dfaXBzZWMxX3QKIG5ldGlmY29uIGlwc2VjMiBzeXN0ZW1fdTpvYmpl
-Y3RfcjpuZXRpZl9pcHNlYzJfdCBzeXN0ZW1fdTpvYmplY3RfcjpuZXRtc2dfaXBzZWMyX3QKLS0t
-IC4uL29yaWdpbmFsL3R5cGVzL25ldHdvcmsudGUJVHVlIEp1biAxOCAxOTo0MDo0MiAyMDAyCisr
-KyB0eXBlcy9uZXR3b3JrLnRlCVdlZCBTZXAgIDQgMTU6NDg6MTUgMjAwMgpAQCAtNTQsNiArNTQs
-NyBAQAogdHlwZSBuZXRpZl9ldGgxX3QsIG5ldGlmX3R5cGU7CiB0eXBlIG5ldGlmX2V0aDJfdCwg
-bmV0aWZfdHlwZTsKIHR5cGUgbmV0aWZfbG9fdCwgbmV0aWZfdHlwZTsKK3R5cGUgbmV0aWZfaXBw
-cDBfdCwgbmV0aWZfdHlwZTsKIAogdHlwZSBuZXRpZl9pcHNlYzBfdCwgbmV0aWZfdHlwZTsKIHR5
-cGUgbmV0aWZfaXBzZWMxX3QsIG5ldGlmX3R5cGU7CkBAIC02OSw2ICs3MCw3IEBACiB0eXBlIG5l
-dG1zZ19ldGgxX3QsIG5ldG1zZ190eXBlOwogdHlwZSBuZXRtc2dfZXRoMl90LCBuZXRtc2dfdHlw
-ZTsKIHR5cGUgbmV0bXNnX2xvX3QsIG5ldG1zZ190eXBlOwordHlwZSBuZXRtc2dfaXBwcDBfdCwg
-bmV0bXNnX3R5cGU7CiAKIHR5cGUgbmV0bXNnX2lwc2VjMF90LCBuZXRtc2dfdHlwZTsKIHR5cGUg
-bmV0bXNnX2lwc2VjMV90LCBuZXRtc2dfdHlwZTsKQEAgLTExNiw2ICsxMTgsOCBAQAogYWxsb3cg
-bmV0bXNnX2xvX3Qgbm9kZV9sb190Om5vZGUgeyB0Y3BfcmVjdiB1ZHBfcmVjdiByYXdpcF9yZWN2
-IH07CiBhbGxvdyBuZXRtc2dfbG9fdCBub2RlX3Q6bm9kZSB7IHRjcF9yZWN2IHVkcF9yZWN2IHJh
-d2lwX3JlY3YgfTsKIGFsbG93IG5ldG1zZ19sb190IG5ldGlmX2xvX3Q6bmV0aWYgeyB0Y3BfcmVj
-diB1ZHBfcmVjdiByYXdpcF9yZWN2IH07CithbGxvdyBuZXRtc2dfaXBwcDBfdCBub2RlX3Q6bm9k
-ZSB7IHRjcF9yZWN2IHVkcF9yZWN2IHJhd2lwX3JlY3YgfTsKK2FsbG93IG5ldG1zZ19pcHBwMF90
-IG5ldGlmX2lwcHAwX3Q6bmV0aWYgeyB0Y3BfcmVjdiB1ZHBfcmVjdiByYXdpcF9yZWN2IH07CiBh
-bGxvdyBuZXRtc2dfaXBzZWMwX3Qgbm9kZV90Om5vZGUgeyB0Y3BfcmVjdiB1ZHBfcmVjdiByYXdp
-cF9yZWN2IH07CiBhbGxvdyBuZXRtc2dfaXBzZWMwX3QgbmV0aWZfaXBzZWMwX3Q6bm9kZSB7IHRj
-cF9yZWN2IHVkcF9yZWN2IHJhd2lwX3JlY3YgfTsKIGFsbG93IG5ldG1zZ19pcHNlYzFfdCBub2Rl
-X3Q6bm9kZSB7IHRjcF9yZWN2IHVkcF9yZWN2IHJhd2lwX3JlY3YgfTsK
+LS0tIC4uL29yaWdpbmFsL2ZpbGVfY29udGV4dHMvcHJvZ3JhbS9pbmV0ZC5mYwlUdWUgSnVuIDE4
+IDE5OjQwOjQxIDIwMDIKKysrIGZpbGVfY29udGV4dHMvcHJvZ3JhbS9pbmV0ZC5mYwlTYXQgU2Vw
+IDE0IDE3OjU0OjE0IDIwMDIKQEAgLTQsMyArNCw0IEBACiAvdXNyL3NiaW4vcmxpbmV0ZAkJc3lz
+dGVtX3U6b2JqZWN0X3I6aW5ldGRfZXhlY190CiAvdXNyL3NiaW4vaWRlbnRkCQlzeXN0ZW1fdTpv
+YmplY3RfcjppbmV0ZF9jaGlsZF9leGVjX3QKIC91c3Ivc2Jpbi9pblwuLipkCQlzeXN0ZW1fdTpv
+YmplY3RfcjppbmV0ZF9jaGlsZF9leGVjX3QKKy92YXIvbG9nLyh4KT9pbmV0ZC5sb2cJCXN5c3Rl
+bV91Om9iamVjdF9yOnZhcl9sb2dfaW5ldGRfdAotLS0gLi4vb3JpZ2luYWwvZG9tYWlucy9wcm9n
+cmFtL2luZXRkLnRlCVR1ZSBKdW4gMTggMTk6NDA6MzkgMjAwMgorKysgZG9tYWlucy9wcm9ncmFt
+L2luZXRkLnRlCVNhdCBTZXAgMTQgMTg6MDg6MDAgMjAwMgpAQCAtMjMsNiArMjMsOCBAQAogZmls
+ZV90eXBlX2F1dG9fdHJhbnMoaW5ldGRfdCwgdG1wX3QsIGluZXRkX3RtcF90KQogdHlwZSBpbmV0
+ZF92YXJfcnVuX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZSwgcGlkZmlsZTsKIGZpbGVfdHlwZV9h
+dXRvX3RyYW5zKGluZXRkX3QsIHZhcl9ydW5fdCwgaW5ldGRfdmFyX3J1bl90KQordHlwZSB2YXJf
+bG9nX2luZXRkX3QsIGZpbGVfdHlwZSwgc3lzYWRtZmlsZTsKK2ZpbGVfdHlwZV9hdXRvX3RyYW5z
+KGluZXRkX3QsIHZhcl9sb2dfdCwgdmFyX2xvZ19pbmV0ZF90KQogCiAjIEluaGVyaXQgYW5kIHVz
+ZSBkZXNjcmlwdG9ycyBmcm9tIGluaXQuCiBhbGxvdyBpbmV0ZF90IGluaXRfdDpmZCB1c2U7Cg==
 
---------------Boundary-00=_GT3HKT0YHATO3893BC5M--
+--------------Boundary-00=_LMLHRJWRG9OI45PPBD5P
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="ldconfig.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ldconfig.diff"
+
+LS0tIC4uL29yaWdpbmFsL2RvbWFpbnMvcHJvZ3JhbS9sZGNvbmZpZy50ZQlXZWQgQXVnIDIxIDIw
+OjIyOjQ0IDIwMDIKKysrIGRvbWFpbnMvcHJvZ3JhbS9sZGNvbmZpZy50ZQlTdW4gU2VwIDE1IDE3
+OjE3OjMwIDIwMDIKQEAgLTEzLDcgKzEzLDcgQEAKIHJvbGUgc3lzdGVtX3IgdHlwZXMgbGRjb25m
+aWdfdDsKIAogZG9tYWluX2F1dG9fdHJhbnMoeyBzeXNhZG1fdCBpbml0cmNfdCBpZmRlZihgZHBr
+Zy50ZScsIGBkcGtnX3QnKSB9LCBsZGNvbmZpZ19leGVjX3QsIGxkY29uZmlnX3QpCi1hbGxvdyBs
+ZGNvbmZpZ190IHsgc3lzYWRtX2RldnB0c190IHN5c2FkbV90dHlfZGV2aWNlX3QgfTpjaHJfZmls
+ZSB7IHJlYWQgd3JpdGUgfTsKK2FsbG93IGxkY29uZmlnX3QgeyBzeXNhZG1fZGV2cHRzX3Qgc3lz
+YWRtX3R0eV9kZXZpY2VfdCB9OmNocl9maWxlIHJ3X2ZpbGVfcGVybXM7CiBhbGxvdyBsZGNvbmZp
+Z190IHByaXZmZDpmZCB1c2U7CiAKIHVzZXNfc2hsaWIobGRjb25maWdfdCkKQEAgLTI2LDMgKzI2
+LDYgQEAKIGFsbG93IGxkY29uZmlnX3QgZXRjX3Q6bG5rX2ZpbGUgcmVhZDsKIAogYWxsb3cgbGRj
+b25maWdfdCBmc190OmZpbGVzeXN0ZW0gZ2V0YXR0cjsKKworIyBkb250YXVkaXQKK2RvbnRhdWRp
+dCBsZGNvbmZpZ190IGRldmljZV90OmRpciB7IHNlYXJjaCB9Owo=
+
+--------------Boundary-00=_LMLHRJWRG9OI45PPBD5P
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="pppd.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="pppd.diff"
+
+LS0tIC4uL3J1c3NlbC9kb21haW5zL3Byb2dyYW0vcHBwZC50ZQlNb24gU2VwICA5IDIyOjMxOjE4
+IDIwMDIKKysrIGRvbWFpbnMvcHJvZ3JhbS9wcHBkLnRlCVNhdCBTZXAgMTQgMTc6MTk6NDIgMjAw
+MgpAQCAtNDYsNiArNDYsNyBAQAogYWxsb3cgcHBwZF90IGJpbl90Omxua19maWxlIHJlYWQ7CiAK
+ICMgQWNjZXNzIC9kZXYvcHBwLgorYWxsb3cgcHBwZF90IGRldmljZV90OmRpciB7IHNlYXJjaCB9
+OwogYWxsb3cgcHBwZF90IHBwcF9kZXZpY2VfdDpjaHJfZmlsZSByd19maWxlX3Blcm1zOwogYWxs
+b3cgcHBwZF90IGRldnR0eV90OmNocl9maWxlIHsgcmVhZCB3cml0ZSB9OwogCg==
+
+--------------Boundary-00=_LMLHRJWRG9OI45PPBD5P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
