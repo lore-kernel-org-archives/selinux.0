@@ -1,50 +1,83 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i0UIEmRb020954
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 13:14:48 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i0UIEc1K000799
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2004 18:14:42 GMT
-Date: Fri, 30 Jan 2004 13:14:21 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-To: Chris Wright <chrisw@osdl.org>
-cc: linux-security-module@wirex.com, Stephen Smalley <sds@epoch.ncsc.mil>,
-   <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH][RFC] Security mount data & sb_copy_data hook.
-In-Reply-To: <20040130100208.A28565@osdlab.pdx.osdl.net>
-Message-ID: <Xine.LNX.4.44.0401301312070.16488-100000@thoron.boston.redhat.com>
+Message-ID: <20040131044945.36671.qmail@web21402.mail.yahoo.com>
+Date: Sat, 31 Jan 2004 15:49:45 +1100 (EST)
+From: =?iso-8859-1?q?Leigh=20Purdie?= <intersect_alliance@yahoo.com.au>
+Subject: SELinux auditing - proposal
+To: SELinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 30 Jan 2004, Chris Wright wrote:
+I've seen quite a few messages over time asking about
+the potential for integrating auditing into SELinux -
+and a few more asking about a nice user interface to
+such an audit subsystem.
 
-> > Any feedback on this will be most appreciated.
-> 
-> Hrm, I'm not really fond of the extra page, and extra hook.
-> Unfortunately, it doesn't seem like doing something generic in
-> lib/parser.c is feasible since not each fs uses it, and touching each
-> fs to find this is even uglier.
+A few methods have been proposed over time. I'm not
+sure if these have fizzled, or are still being worked
+on, but I thought I'd throw another option into the
+mix.
 
-The extra page isn't really an issue as mounting a fileystem is not 
-performance critical.
+'Snare for Linux' has been around for a while now, and
+is really starting to solidify in terms of
+feature-set, and effective performance (thanks largely
+to a few key contributors - a couple of which are
+active members of the SELinux list).  Note: From
+memory, Stephen S@nsa has already had a look at the
+Snare stuff, with a view to using it with SELinux - so
+please forgive me if this has been dicussed before,
+and has already been rejected.
 
->  Would it be possible to handle it all
-> in the module with something like:
-> 
-> mount -tselinux -oreal_type=$fstype,context=foo,the_fs_opts dev mntpnt
+Although system level (c2/capp style) auditing is not
+something that most users are interested in on a
+day-to-day basis, the user profile of SELinux and
+Snare overlaps to a large extent.
 
-I'm not sure how this could be done cleanly without further reaching into 
-the vfs (e.g. to hijack the real filesystem ops etc.).  Perhaps better 
-when we have a proper filesystem stacking mechanism available.
+There are plenty of organisations out there that are
+using, or are looking at using Snare - Sikorsky
+helicopters, Raytheon, Lockheed Martin, NASA, Miltec
+Missiles, HP, General Dynamics, many DoD sites in the
+US and in Australia... etc. RedHat have also looked at
+including Snare with Advanced Server once we have
+everything stable & happy, and DISA & Mitre are
+recommending Snare for installation in DoD linux
+boxes. This doesn't mean that Snare is the best thing
+since sliced bread, by any means - it just implies
+that it seems to meet their requirements at this point
+in time.
 
+Snare has a kernel-patch component, a daemon portion,
+and a nice GUI interface that, in combination, tries
+to make auditing a lot easier to get into on Linux
+than other operating systems.
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+A lot of people are starting to ask us when Snare is
+going to make it into the kernel. Alan Cox has
+suggested that 2.7 may be a possibility. Andrew Morton
+reckons that 2.6 inclusion might be viable (subject to
+many conditions). However, I think Snare would benefit
+a great deal by yanking it out of it's 'standalone
+application' mode, and integrating it in with a
+project that focuses on a broader security
+framework... Hence this message.
 
+So down to the question: Do people think that making
+Snare a component of SELinux would be of benefit to
+both projects?
+If so, how can we make it happen, and would anyone be
+interested in helping out?
 
+If the first thing that pops into your mind is "what's
+a snare":
+http://www.intersectalliance.com/projects/Snare/index.html
+
+Regards,
+
+Leigh.
+(Snare Developer - InterSect Alliance)
+
+http://greetings.yahoo.com.au - Yahoo! Greetings
+Send your love online with Yahoo! Greetings - FREE!
 
 --
 This message was distributed to subscribers of the selinux mailing list.
