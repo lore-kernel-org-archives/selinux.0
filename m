@@ -1,63 +1,65 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id iAQJafIi001202
-	for <selinux@tycho.nsa.gov>; Fri, 26 Nov 2004 14:36:41 -0500 (EST)
-Received: from ms-smtp-03.rdc-kc.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id iAQJZ9im021123
-	for <selinux@tycho.nsa.gov>; Fri, 26 Nov 2004 19:35:10 GMT
-Received: from sasami.localdomain (CPE-24-163-154-106.kc.rr.com [24.163.154.106])
-	by ms-smtp-03.rdc-kc.rr.com (8.12.10/8.12.7) with ESMTP id iAQJagOl017331
-	for <selinux@tycho.nsa.gov>; Fri, 26 Nov 2004 13:36:42 -0600 (CST)
-Received: from localhost (localhost [127.0.0.1])
-	by sasami.localdomain (Postfix) with ESMTP id CBF224A658
-	for <selinux@tycho.nsa.gov>; Fri, 26 Nov 2004 13:36:41 -0600 (CST)
-Received: from sasami.localdomain ([127.0.0.1])
-	by localhost (sasami [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 00391-02 for <selinux@tycho.nsa.gov>;
-	Fri, 26 Nov 2004 13:36:41 -0600 (CST)
-Received: from yggdrasil.localdomain (yggdrasil.localdomain [192.168.0.2])
-	by sasami.localdomain (Postfix) with ESMTP id 8C15F4A650
-	for <selinux@tycho.nsa.gov>; Fri, 26 Nov 2004 13:36:41 -0600 (CST)
-Date: Fri, 26 Nov 2004 13:36:41 -0600
-From: Greg Norris <haphazard@kc.rr.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: anyone attending the SELinux Symposium?
-Message-ID: <20041126193641.GB15850@yggdrasil.localdomain>
+Message-Id: <200411262244.iAQMiLvE007647@turing-police.cc.vt.edu>
+To: petre rodan <kaiowas@gentoo.org>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
+   Daniel J Walsh <Dan-Walsh@comcast.net>, James Morris <jmorris@redhat.com>,
+   SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: Still getting random execute permissions on shared libraries. 
+In-Reply-To: Your message of "Fri, 26 Nov 2004 21:49:22 +0200."
+             <41A788C2.9060609@gentoo.org>
+From: Valdis.Kletnieks@vt.edu
+References: <41A3EC21.1090200@comcast.net> <1101303008.22014.47.camel@moss-spartans.epoch.ncsc.mil>
+            <41A788C2.9060609@gentoo.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dc+cDN39EJAMEtIO"
+Content-Type: multipart/signed; boundary="==_Exmh_-199084579P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 26 Nov 2004 17:44:21 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---dc+cDN39EJAMEtIO
+--==_Exmh_-199084579P
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Is anyone else planning to attend the SELinux Symposium
-(http://www.selinux-symposium.org)?  If so, have you tried to reserve a
-room at the hotel yet?  Any problems?  I was told that it doesn't appear
-on their list of events, which means that the group rate isn't
-available.  I'm curious if everyone's getting the same story, or perhaps
-the person I spoke with is "out of the loop"?
+On Fri, 26 Nov 2004 21:49:22 +0200, petre rodan said:
 
-I emailed info@selinux-symposium.org separately... if there's really a
-problem with the conference hotel arrangements, I assume they'll get it
-cleared up.
+> I made a patch to the kernel that reverts to the old behaviour. no more execs on random files.
+> I find that changing the policy to allow those execs is not a valid solution.
 
---dc+cDN39EJAMEtIO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Why is fixing the policy not a valid solution?
+
+> would it be feasible to send upstream a patch that would remove the 'exec on 
+> read' behaviour if the kernel has selinux capabilities?
+
+A Very Bad Idea.  Basically, you're disabling a good and reasonable security
+measure entirely, just because you can't get it to work with a *legacy* binary
+and another security measure..
+
+If you *have* to do something like this, you should make it much more targeted,
+so the test is "if kernel has selinux *and* the binary is flagged as a known
+problem, *then* disable *for this process".
+
+It's especially bad because you're turning off future security in order to
+deal with *legacy* binaries.  What do you do if/when Java gets rebuilt with
+a more recent toolchain that adds the PT_GNU_STACK header?  Then your problem
+is solved the *right* way, but you're still turning off a security measure
+for everything else needlessly.
+
+That's something that's probably OK as a local patch while you find a better
+way, but we certainly don't want it merged into upstream....
+
+
+--==_Exmh_-199084579P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFBp4XJgrEMyr8Cx2YRAuL0AJ4u6h+6wh4gc1ToJKyvkLYyBslW5QCcDuV8
-jQ4go5h6YXIwBuzG3YDQgUo=
-=Pi45
+iD8DBQFBp7HFcC3lWbTT17ARAhhtAJ9oTwYLv3CJmly/GJ0OGZQlJt1TKgCfa3C4
+F/11Kw3jul1/3Of0fresRY4=
+=n274
 -----END PGP SIGNATURE-----
 
---dc+cDN39EJAMEtIO--
+--==_Exmh_-199084579P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
