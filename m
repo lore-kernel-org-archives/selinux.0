@@ -1,64 +1,56 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA29437
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 08:19:58 -0400 (EDT)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id IAA29673
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 08:56:11 -0400 (EDT)
+From: pasi.kivikangas@nokia.com
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id MAA10379
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 12:18:28 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id MAA10370
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 12:18:26 GMT
-Received: from lyta.coker.com.au (localhost [127.0.0.1])
-	by tsv.sws.net.au (Postfix) with ESMTP id 406C692465
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 22:19:54 +1000 (EST)
-Received: from lyta (localhost [127.0.0.1])
-	by lyta.coker.com.au (Postfix) with ESMTP id 8B37B76A5
-	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 14:19:46 +0200 (CEST)
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: losing type information under high load
-Date: Fri, 27 Sep 2002 14:19:46 +0200
+	by jazzswing.ncsc.mil  with ESMTP id MAA12105
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 12:54:40 GMT
+Received: from mgw-x1.nokia.com (mgw-x1.nokia.com [131.228.20.21])
+	by jazzswing.ncsc.mil  with ESMTP id MAA12095
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 12:54:39 GMT
+Received: from esvir01nok.ntc.nokia.com (esvir01nokt.ntc.nokia.com [172.21.143.33])
+	by mgw-x1.nokia.com (Switch-2.2.1/Switch-2.2.0) with ESMTP id g8RCtw507326
+	for <selinux@tycho.nsa.gov>; Fri, 27 Sep 2002 15:55:58 +0300 (EET DST)
+Received: from esebh001.NOE.Nokia.com (unverified) by esvir01nok.ntc.nokia.com
+ (Content Technologies SMTPRS 4.2.5) with ESMTP id <T5d987b29a7ac158f210a1@esvir01nok.ntc.nokia.com> for <selinux@tycho.nsa.gov>;
+ Fri, 27 Sep 2002 15:56:06 +0300
 MIME-Version: 1.0
-Message-Id: <200209271419.46189.russell@coker.com.au>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: RE: SE Linux and UML compile problems...
+Date: Fri, 27 Sep 2002 15:56:00 +0300
+Message-ID: <98C7D2E5BCD2374C9AAE0BCD2E9C1DD9BE843B@esebe013.ntc.nokia.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have two machines running ReiserFS for /var/cache/squid where files 
-occasionally get changed to type system_u:object_r:file_t for no good reason.
+> From: ext Russell Coker [mailto:russell@coker.com.au] Sent: 26 September, 2002 17:27
+> 
+> I haven't had time to try this yet...
+> 
+> ----------  Forwarded Message  ----------
+> Subject: Re: pt_regs
+> Date: Wed, 25 Sep 2002 20:32:30 -0500
+> From: Jeff Dike <jdike@karaya.com>
+> To: Russell Coker <russell@coker.com.au>
+> 
+> russell@coker.com.au said:
+> >        unsigned int magic = regs.ebx;
+> >        unsigned int call = regs.ecx;
+> 
+> unsigned int magic = regs.args[1];
+> unsigned int call = regs.args[2];
+> 
+> 				Jeff
 
-This has happened for the last few kernel patches, with kernel 2.4.18 and 
-2.4.19, and is not related to power failures or crashes.
+Maybe this way?
 
-The only other similar occurance I observed involved a mail server queue file 
-(but this only happened once and I'm not certain it wasn't due to another 
-cause).
+	unsigned int magic = regs.regs.args[1];
+	unsigned int call = regs.regs.args[2];
+	unsigned long *args = (unsigned long *)regs.regs.args[3];
 
-I suspect that there is some sort of ReiserFS/SE problem here regarding file 
-systems that are under moderate load (neither of the Squid machines in 
-question is under heavy load - the more highly loaded machine was running 
-fine when it was a Pentium-166, now it's a well configured Athlon 1000 with 
-corresponding improvements in RAM and disk).
 
-These problems occur about two or three times a month (it'll be tough to track 
-down).  I can't recommend that the NSA people spend any great amount of time 
-investigating this until/unless we get some confirmation of this (and 
-preferrably from someone who isn't using ReiserFS).
-
-However this raises another issue.  In the default policy we allow almost 
-everything read access to file_t directories, sym-links, and files.  So any 
-situation that results in a file changing to the default type (EG a power 
-failure at an inconveniant time) may make a file world-readable!!!
-
-Is there any reason for not restricting file_t to the administrator only?
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+	- Pasi
 
 --
 This message was distributed to subscribers of the selinux mailing list.
