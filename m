@@ -1,52 +1,45 @@
-Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id MAA11091
-	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 12:45:29 -0500 (EST)
-Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id RAA11234
-	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 17:44:06 GMT
-Received: from c001.snv.cp.net (c001-h001.c001.snv.cp.net [209.228.32.115])
-	by jazzswing.ncsc.mil  with SMTP id RAA11230
-	for <selinux@tycho.nsa.gov>; Sat, 23 Mar 2002 17:44:06 GMT
-From: "Leslie J. French" <ljf@semandex.net>
-To: <selinux@tycho.nsa.gov>
-Subject: Location of policy rules
-Date: Sat, 23 Mar 2002 12:46:21 -0500
-Message-ID: <BFEMIIHKHLALNELLMPOMEEMPCAAA.ljf@semandex.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <Pine.GSO.4.33.0203201538540.11981-100000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id KAA12808
+	for <selinux@tycho.nsa.gov>; Sun, 24 Mar 2002 10:10:06 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id PAA17110
+	for <selinux@tycho.nsa.gov>; Sun, 24 Mar 2002 15:09:00 GMT
+Received: from angusbay.vnl.com ([194.46.8.33])
+        by jazzband.ncsc.mil  with ESMTP id PAA17106 for <selinux@tycho.nsa.gov>; Sun, 24 Mar 2002 15:08:59 GMT
+Date: Sun, 24 Mar 2002 15:22:23 +0000
+From: Dale Amon <amon@vnl.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Mix and Match problems
+Message-ID: <20020324152223.GM20057@vnl.com>
+References: <20020322212840.CF3FE108F@lyta.coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20020322212840.CF3FE108F@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have a meta-policy question, if I may:
+A question for Russ. In your debian package you still
+have the original policy/README file. If you are 
+trying to build an selinux using your policy Makefile
+there is a catch-22. The README suggests building
+and installing policy first; but your Makefile uses
+chsid. chsid is not built until the next step when
+you make and make install libsecure; and even then
+it would not ordinarily be built as the original 
+libsecure/test/Makefile suggests it is needed only 
+if chcon is not present.
 
-I want to enable the "halt" userid for console login and ssh access to shut
-down a machine remotely, *without* allowing root access over ssh.
-Naturally, I want to limit the exposure this gives. So, I created a "halt_t"
-domain similar to the other
-daemon-type domains, and I lock the "halt" user id into that domain, giving
-it exec access to /sbin/halt, which is now of type halt_exec_t etc...
+After going through that, I still got errors when
+trying to use your make install. I'm going to 
+presume that is due to the fact that I'm doing
+a build under a non-selinux kernel and thus
+chsid is missing something it needs.
 
-This has the side-effect of locking out /sbin/halt from root, since it
-doesn't have any access to halt_exec_t.
-
-Here is my question:
-Assuming this is the right approach [if not, do tell what is], where should
-I put the additional rules to allow sysadm to halt the machine.  Is it:
-(a) in sysadm.te so that all the sysadm rules are in the same place; or
-(b) in halt.te so that this "feature" becomes a stand-alone domain
-definition in the system?
-
-I know they all end up in the same place, but I'm torn between wanting to
-build a modular configuration vs not introducing potentially dangerous
-sysadm_t permissions in an unexpected place.
-
-All guidance for the novice gratefully received.
-
-Leslie
-
-PS - I'm a SeLinux convert.  If there's anything I can do to help....
+This may all be moot, and I'm getting the problems
+only because I'm mixing your policy with Stephen's
+release, but thought I'd mention it in case it's
+of any use.
 
 
 --
