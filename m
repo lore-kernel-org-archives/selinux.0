@@ -1,40 +1,58 @@
-Subject: Re: root and change of passwords
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: sequel@neofreak.org
-Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-   "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <1105451963.20566.12.camel@moss-spartans.epoch.ncsc.mil>
-References: <1105124940.27291.20.camel@sequel.info.polymtl.ca>
-	 <1105451963.20566.12.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Message-Id: <1105568098.23136.63.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: [patch] allow users of tmp_domain to read /usr/tmp
+From: Colin Walters <walters@verbum.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <1105566103.23136.32.camel@moss-spartans.epoch.ncsc.mil>
+References: <1105565245.4415.29.camel@nexus.verbum.private>
+	 <1105566103.23136.32.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/6xDMP6UaCmnrhXTsD0w"
+Date: Wed, 12 Jan 2005 17:27:00 -0500
+Message-Id: <1105568820.4415.44.camel@nexus.verbum.private>
 Mime-Version: 1.0
-Date: Wed, 12 Jan 2005 17:14:58 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-01-11 at 08:59, Stephen Smalley wrote:
-> Hence, gaining uid 0 is not sufficient by itself to use passwd to change
-> root's password - you must also obtain the SELinux user identity of root
-> or have appropriate permission in the SELinux policy.
-> 
-> Whether or not passwd should require root to be in sysadm_r to change
-> his own password is another question.  If root is starting in user_r,
-> then he is already exposed to other user_t processes, so requiring him
-> to newrole to sysadm_r first isn't going to help.  root (and other
-> administrative users) should typically only run in staff_r or sysadm_r,
-> not user_r, as they are otherwise exposed to tampering/interference by
-> user_t processes.
 
-The other item to note here is that even if you have both uid 0 and the
-SELinux user identity of "root", you still can't run the passwd program
-with the necessary privileges to modify /etc/shadow unless your domain
-can transition to passwd_t.  That would be true of the user domains, but
-not for a number of daemon domains.
+--=-/6xDMP6UaCmnrhXTsD0w
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+On Wed, 2005-01-12 at 16:41 -0500, Stephen Smalley wrote:
+> On Wed, 2005-01-12 at 16:27, Colin Walters wrote:
+> > Hi,
+> >=20
+> > On Fedora at least, /usr/tmp is a symlink to /var/tmp.  Users of
+> > tmp_domain get write access to tmp_t:dir, so I think it makes sense to
+> > automatically grant access to tmp_t:lnk_file as well, so that programs
+> > which refer to /usr/tmp work.  This should be safe since as discussed
+> > earlier no non-unconfined domain can create tmp_t:lnk_file.
+> >=20
+> > This came up on the #fedora-selinux channel where a user was trying to
+> > get their CGI script to work.
+>=20
+> Hmm...I had thought that we had agreed that /usr/tmp should be dropped
+> from types.fc and left in usr_t, then just allow read to usr_t:lnk_file
+> as a safer approach.  In fact, the current types.fc file only assigns
+> tmp_t if /usr/tmp is a directory (via the -d flag), and it is labeled
+> usr_t on my FC3 systems (strict).
+
+Ok, sounds reasonable.  So I just needed to relabel then with the latest
+policy.  Another reason we need automatic relabeling :)
+
+
+--=-/6xDMP6UaCmnrhXTsD0w
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBB5aQ0OIkJWWp2WGURAmS2AJ0YGuy8qMZPRuJ4OWo8Z6DJvU6wCQCdFOF3
+427M/B9Op6AdUWcfbvO5kZ0=
+=tYNR
+-----END PGP SIGNATURE-----
+
+--=-/6xDMP6UaCmnrhXTsD0w--
 
 
 --
