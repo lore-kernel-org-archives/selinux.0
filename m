@@ -1,37 +1,42 @@
-Date: Tue, 14 Oct 2003 12:11:48 -0700
-From: Michael Reilly <michaelr@cisco.com>
-To: <SELinux@tycho.nsa.gov>
-Subject: Anyone run mozilla in enforce mode?
-Message-Id: <20031014121148.4155015d.michaelr@cisco.com>
+Date: Tue, 14 Oct 2003 21:46:24 +0200
+From: Thorsten Kukuk <kukuk@suse.de>
+To: SELinux@tycho.nsa.gov
+Subject: Re: selinux from user POV
+Message-ID: <20031014194624.GA1655@suse.de>
+References: <sf880644.030@atlas.snu.edu> <1066141498.5054.138.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1066141498.5054.138.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thank you to those who helped me  - I finally got my X server running in
-enforce mode.  Turning off dontaudit revealed that the X server needed
-DAC_OVERRIDE.
+On Tue, Oct 14, Stephen Smalley wrote:
 
-Now I have another problem - mozilla fails to start.  Nothing is logged even
-with the dontaudit's removed from the policy.  Mozilla does complain that it
-couldn't find one of its libraries (I do not recall which one and I left my
-notes at home).
+> On Sat, 2003-10-11 at 14:29, Joshua Brindle wrote:
+> > This is going to be contraversial, I know, but this is something that
+> > is fairly important to me and others I know of on this list.
+> > 
+> > Being a user on an SELinux machine is currently not good.. Ideally
+> > it should be totally transparent but there are some issues. Mainly, 
+> > right now, a user can't even add a .ssh directory and put their
+> > ssh key in authorized_keys2 and then log in with it without the 
+> > admin having to relabel (or at least label those objects) . 
+> 
+> Put an empty .ssh directory in the /etc/skel directory and assign it the
+> correct type there, and modify useradd to preserve types when copying
+> the skeleton directory for new accounts.  Then when a user creates files
 
-I went through and labeled the mozilla executables and reg* files so they
-match is specified in the file_constraints since mozilla installed itself
-into /usr/lib/mozilla-1.4 instead of /usr/lib/mozilla.  The shared libraries
-are properly labled as shared libs.
+The useradd implementation from the next pwdutils release (2.3.96)
+will preserve all extended attributes when copying /etc/skel, this
+means ACLs and SELinux attributes.
 
-Has anyone been able to run Mozilla in enforce mode?  If so, what changes
-need to be made from the default policy?
+  Thorsten
 
-Thanks,
-
-michael
 -- 
----- ---- ----
-Michael Reilly    michaelr@cisco.com
-    Cisco Systems, Santa Cruz, CA
+Thorsten Kukuk       http://www.suse.de/~kukuk/        kukuk@suse.de
+SuSE Linux AG        Deutschherrnstr. 15-19        D-90429 Nuernberg
+--------------------------------------------------------------------    
+Key fingerprint = A368 676B 5E1B 3E46 CFCE  2D97 F8FD 4E23 56C6 FB4B
 
 --
 This message was distributed to subscribers of the selinux mailing list.
