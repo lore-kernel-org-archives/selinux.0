@@ -1,52 +1,33 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6Q3eBrT022243
-	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 23:40:11 -0400 (EDT)
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6Q3e8Yd013675
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jul 2004 03:40:09 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Wolfgang Pfeiffer <roto@gmx.net>
-Subject: Re: Selinux possible on Debian-Linux/ppc?
-Date: Mon, 26 Jul 2004 13:40:04 +1000
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-References: <1090769556.7265.32.camel@debby>
-In-Reply-To: <1090769556.7265.32.camel@debby>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200407261340.04981.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i6Q3o5rT022361
+	for <selinux@tycho.nsa.gov>; Sun, 25 Jul 2004 23:50:05 -0400 (EDT)
+Received: from monk.area614.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i6Q3naVH023926
+	for <selinux@tycho.nsa.gov>; Mon, 26 Jul 2004 03:49:36 GMT
+Subject: Re: [patch] openvpn policy
+From: Colin Walters <walters@verbum.org>
+To: selinux@tycho.nsa.gov
+Cc: russell@coker.com.au
+In-Reply-To: <1090799087.13627.14.camel@nexus.verbum.private>
+References: <1090799087.13627.14.camel@nexus.verbum.private>
+Content-Type: text/plain
+Date: Sun, 25 Jul 2004 23:50:04 -0400
+Message-Id: <1090813804.15346.17.camel@nexus.verbum.private>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 26 Jul 2004 01:32, Wolfgang Pfeiffer <roto@gmx.net> wrote:
-> But I'm not quite sure whether SElinux will run on that machine, and on
-> Debian-ppc ...
+On Sun, 2004-07-25 at 19:50 -0400, Colin Walters wrote:
 
-It is expected to work, I think that the Gentoo people have been getting PPC 
-machines to run SE Linux.
+openvpn.fc:
+> /etc/openvpn/(/*)       --      system_u:object_r:openvpn_etc_t
 
-> But a quick search for SElinux packages for my system gives this:
->
->       * checkpolicy - SELinux policy compiler
->       * libselinux1 - SELinux shared libraries
->       * libselinux1-dev - SELinux development headers
->       * policycoreutils - SELinux core policy utilities
->       * selinux-doc - documentation for Security-Enhanced Linux
->       * selinux-policy-default - Policy config files and management for
->         NSA Security Enhanced Linux
->       * selinux-utils - SELinux utility programs
+Ooops, obviously that should be:
 
-You will need to compile ssh, dpkg, cron, sysvinit, logrotate, and pam with 
-the SE Linux patches from my web site to get it going.  I only have i386 
-architecture hardware, and a lot of my stuff hasn't been accepted into Debian 
-yet.
+/etc/openvpn(/.*)?       --      system_u:object_r:openvpn_etc_t
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
