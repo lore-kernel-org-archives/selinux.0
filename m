@@ -1,47 +1,62 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i16EPnRb022717
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 09:25:49 -0500 (EST)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i16FAVRb023099
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 10:10:31 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id i16EORQk023660
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 14:24:27 GMT
-Received: from mailhost.unt.edu (mailhost.unt.edu [129.120.209.40])
-	by jazzswing.ncsc.mil  with ESMTP id i16EOQYo023643
-	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 14:24:27 GMT
-Message-ID: <1076077531.4023a3db6de27@eaglemail.unt.edu>
-Date: Fri,  6 Feb 2004 08:25:31 -0600
-From: Ignacio Tripodi <ignaciot@unt.edu>
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
-Subject: Re: Issues relabeling filesystems
-References: <BEA0F082-5867-11D8-A76A-000393013D1A@unt.edu> <200402062335.12533.russell@coker.com.au>
-In-Reply-To: <200402062335.12533.russell@coker.com.au>
+	by jazzswing.ncsc.mil  with ESMTP id i16F8iQk025956
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 15:08:44 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+	by jazzswing.ncsc.mil  with ESMTP id i16F8hYo025950
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2004 15:08:43 GMT
+Message-ID: <4023AE3A.1050109@redhat.com>
+Date: Fri, 06 Feb 2004 10:09:46 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: russell@coker.com.au
+CC: Eric Estabrooks <eric@urbanrage.com>, selinux@tycho.nsa.gov
+Subject: Re: selinux-policy-default
+References: <40232CBB.7020607@urbanrage.com> <200402062339.14289.russell@coker.com.au>
+In-Reply-To: <200402062339.14289.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Russell Coker <russell@coker.com.au>:
+Russell Coker wrote:
 
-> On Fri, 6 Feb 2004 16:46, Ignacio Tripodi <ignaciot@unt.edu> wrote:
-> > /usr/sbin/setfiles: relocation error: /usr/sbin/setfiles: symbol
-> > nftw64, version GLIBC_2.3.3 not defined in file libc.so.6 with link
-> > time reference
+>On Fri, 6 Feb 2004 16:57, Eric Estabrooks <eric@urbanrage.com> wrote:
+>  
+>
+>>/usr/bin/checkpolicy:  loading policy configuration from
+>>/etc/security/selinux/src/policy.conf
+>>domains/admin.te:32:ERROR 'unknown type sysadm_locate_t' at token ';' on
+>>line 5974:
+>>allow sysadm_locate_t { sysadm_mozilla_ro_t sysadm_mozilla_rw_t }:dir {
+>>getattr
+>>search };
+>>    
+>>
+>
+>I'll upload a new policy package to fix that tomorrow.
+>
+>Anyway using the locate policy for Debian is not a good idea.  Debian does not 
+>have a SE Linux patched locate and is not likely to have one in the 
+>forseeable future.  I think that locate is simply a bad idea and have no 
+>plans to support it in Debian.
+>
+>  
+>
+>>I searched for type lines for sysadm_locate_t but couldn't find any in
+>>    
+>>
+>
+>Look at macros/program/locate_macros.te .
+>
+>  
+>
 
-> How recent were the rpms you used to create the file system image?  If they 
-> were not recent then I recommend updating to the latest stuff and the problem
-> should disappear.
+Easiest thing to do is remove slocate.te from domain/program and  then 
+do a make reload.
 
-I used the RPM's off the three iso images available at :
-http://download.fedora.redhat.com/pub/fedora/linux/core/1/i386/iso/ 
-
-and added the necessary additional SELinux-related packages from: 
-http://download.fedora.redhat.com/pub/fedora/linux/core/development/i386/Fedora/RPMS/
-
-Do you think these are the most updated sources? 
-
-Ignacio
-CoPS Lab
-University of North Texas
+Dan
 
 --
 This message was distributed to subscribers of the selinux mailing list.
