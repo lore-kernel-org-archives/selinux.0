@@ -1,40 +1,55 @@
-Date: Thu, 26 Feb 2004 17:47:07 +0100
-From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
-To: SELinux <SELinux@tycho.nsa.gov>
-Subject: Re: PaX + selinux integration update
-Message-ID: <20040226164707.GC31204@rom.cip.informatik.uni-muenchen.de>
-References: <403CF8AB.5080309@snu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-In-Reply-To: <403CF8AB.5080309@snu.edu>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i1QGxqRb007310
+	for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 11:59:53 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id i1QGxpQQ011626
+	for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 16:59:51 GMT
+Received: from mx1.redhat.com (mx1.redhat.com [66.187.233.31])
+        by jazzband.ncsc.mil  with ESMTP id i1QGxoP0011619 for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 16:59:50 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.11.6/8.11.6) with ESMTP id i1QGxob26056
+	for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 11:59:50 -0500
+Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [172.16.52.156])
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id i1QGxo824797
+	for <selinux@tycho.nsa.gov>; Thu, 26 Feb 2004 11:59:50 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Message-ID: <16446.9733.300596.566738@neuro.alephnull.com>
+Date: Thu, 26 Feb 2004 11:59:49 -0500
+From: Rik Faith <faith@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: Patch for auditing framework 
+In-Reply-To: [Rik Faith <faith@redhat.com>] Wed 25 Feb 2004 15:38:06 -0500
+References: <16445.1966.74416.309923@neuro.alephnull.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-* Joshua Brindle <jbrindle@snu.edu> [2004-02-25 21:49]:
-> These are the fixed up versions thanks to Chris Pebenito, the kernel 
-> patch no longer specifies defaults, so now all decisions come directly 
-> from policy.
-> 
-> Also the excess amount of denials will not be displayed per policy
+On Wed 25 Feb 2004 15:38:06 -0500,
+   Rik Faith <faith@redhat.com> wrote:
+> For the brave, I have also attached a small user-space test program and
+> pseudo-daemon (it logs to stdout).  No man pages, but some online help.
+> E.g., you can try:
+>     Window 1:
+>         ./auditd
+>     Window 2 (you don't have to have the daemon running to try this, but
+>     enabled has to be 1):
+>         ./auditctl -s
+>         ./auditctl -a entry,always -S open
+>         ls
+>         ./auditctl -d entry,always -S open
 
-Great! I think this is really useful work!
+The tarball was missing a file, so there is a new version available:
+    http://people.redhat.com/faith/audit/auditd-0.2b.tar.gz
 
-Do you think there is any chance of integrating your work into PAX? I
-understand that your patch will not go into the kernel in the near future, 
-but if it was at least integrated into PAX it would be much more likely
-to be used.
+Also, to build the example program, you have to pass the location of the
+patched kernel headers to configure, e.g.:
 
-I think a lot of people use ExecShield because the patch is not too big
-and supported by RedHat. If PAX with proper SELinux-support was
-available as a single patch more people would consider using it on
-production systems where every additional patch counts.
+    ./configure --with-audith=/wrk/selinux/linux-2.6.3/include
 
-Thomas
+Where "/wrk/selinux/linux-2.6.3/include" is the path to the audit.h
+file.
 
--- 
-GPG-Fingerprint: BC4F BB16 30D6 F253 E3EA  D09E C562 2BAE B2F4 ABE7
-"Work like you don't need the money, love like you've never been hurt
-and dance like you do when nobody's watching."
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
