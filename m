@@ -1,61 +1,79 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4KJZSI4012000
-	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 15:35:28 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h4LAJvI4014525
+	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 06:19:57 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h4KJZ5Qj028900
-	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 19:35:05 GMT
-Received: from a.mx.rapturesecurity.com ([66.113.84.53])
-	by jazzswing.ncsc.mil  with ESMTP id h4KJZ4xS028880
-	for <selinux@tycho.nsa.gov>; Tue, 20 May 2003 19:35:04 GMT
-Subject: Re: matrix
-From: Jack <jack@rapturesecurity.com>
-Reply-To: jack@rapturesecurity.com
-To: selinux@tycho.nsa.gov
-In-Reply-To: <200305210013.14976.russell@coker.com.au>
-References: <C540EABA36FDD41189FD00508BAF8E850149266A@atsgroup.saic.com>
-	 <200305201437.24228.russell@coker.com.au>
-	 <200305201505.25398.tk-selinux@datas-world.de>
-	 <200305210013.14976.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1053459308.21482.23.camel@bubbles.eatflamingdeath.org>
+	by jazzswing.ncsc.mil  with ESMTP id h4LAJXQj029880
+	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 10:19:33 GMT
+Received: from narya.grin.hu (Narya.grin.hu [195.38.113.130])
+	by jazzswing.ncsc.mil  with ESMTP id h4LAJRxS029870
+	for <selinux@tycho.nsa.gov>; Wed, 21 May 2003 10:19:32 GMT
+Date: Wed, 21 May 2003 12:19:44 +0200
+From: Peter Gervai <grin@tolna.net>
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: Policy for exim and/ or tiger?
+Message-ID: <20030521101944.GG32563@narya.grin.hu>
+Reply-To: grin@tolna.net
+References: <200305152349.28038.tk-selinux@datas-world.de> <20030520080652.GW32563@narya.grin.hu> <200305202049.40285.russell@coker.com.au>
 Mime-Version: 1.0
-Date: 20 May 2003 12:35:09 -0700
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200305202049.40285.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2003-05-20 at 07:13, Russell Coker wrote:
+On Tue, May 20, 2003 at 08:49:40PM +1000, Russell Coker wrote:
+> On Tue, 20 May 2003 18:06, Peter Gervai wrote:
 
-...
-> >
-> > I think this can be reduced. Stack smash protection and pax are already
-> > there, they only have to be used by the distributions. Then there is
+> > # not strictly required
+> > #file_type_auto_trans(exim_t, etc_t, etc_exim_t)
+
+> I would change that comment to "not desired for normal operation".  Allowing 
+[...]
+
+Since these are draft versions (as you may notice from the large amounts of
+commented parts) the comments often contain unnecessary or undesired parts
+of the policy. If things seem not to break I going to remove all these
+comments from the files. Apologies for the inconveniece reading these.
+
+> > # Write to /var/spool/mail and /var/spool/mqueue.
 > 
-> Has anyone got PaX working with LSM?
+> Either the above comment is wrong or you are missing a file contexts entry for 
+> /var/spool/mqueue.  If exim does use /var/spool/mqueue then I recommend that 
+> you use type mqueue_spool_t for it so that you can convert a Sendmail system 
+> to Exim without too much pain.
+
+Comment is misleading since exim does not use mqueue but
+/var/spool/exim/*/*, but the actual policy reflects reality. I'll change
+this comment which is the remains of the sendmail policy I started editing
+from.
+
+> > allow exim_t exim_var_run_t:dir rw_dir_perms;
+> > allow exim_t exim_var_run_t:file rw_file_perms;
 > 
-> Propolice would be good to have.
+> The above should be taken care of by daemon_domain().
 
-I have an selinux server up with ProPolice daemons and PaX. There is
-only 1 reject if you patch last time I checked, but then again I haven't
-looked to see how safe the code is (with both aplied).
+Weird. I started inserting policy lines at the end when getting deny entries
+in the syslog. I'll check this, but I can't tell why were they required (I
+don't recall inserting the daemon_domain later...)
 
-...
-> Good point about inetd.  If sshd is started by inetd and denied ptrace access 
-> to itself then a cracked sshd can't interfere with another ssh session.  I 
-> will have to look into changing my servers to do this.  Of course this raises 
-> another problem, the unreliability of inetd's.  But if inetd is cracked it 
-> doesn't allow much of an attack on the ssh protocol as long as the clients 
-> already have a copy of the server public key.
+> > I have policy for pine, I mean, it's something like a policy but looks like
+> > a horrible rape on selinux for me, since it contains plenty of horrible
+> > permissions granted. I wonder whether it can be made working without
+> > these...
+[...]
 
-I was accually using something similar, but with djb tcpserver and the
-daemonutils package, but my idea was just to allow ssh connections
-though ipsec? with roaming users, and firewall eth?, that seems to
-control exposure very well with crls and X.509 FreeS/WAN patches.
-IPSEC also seems to fix almost all tcp/ip problems as well ;)
+> What is the aim of the pine policy anyway?  To grant pine some access that 
+> user_t is not given?  Or to lock down pine because it's got a bad history?
 
--- 
-Jack <jack@rapturesecurity.com>
-RaptureSecurity
+One reason is its bad history, other is the amount of weird permissions it
+requires, I do not know any other way to make it work. Is there any other
+way to make it fully functioning? It wants to rw ~mail, send mail by smtp
+and connect to local mail daemons, and some stuff I can't even tell the
+reason of.
 
+Could it work without any special policy, is this what you mean?
+
+Peter
 
 --
 This message was distributed to subscribers of the selinux mailing list.
