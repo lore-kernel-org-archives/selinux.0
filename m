@@ -1,139 +1,48 @@
-Date: Fri, 21 Dec 2001 10:51:17 -0500 (EST)
-From: Stephen Smalley <sds@tislabs.com>
-To: Justin Smith <jsmith@mcs.drexel.edu>
-cc: SELinux Mailing <SELinux@tycho.nsa.gov>
-Subject: [PATCH] avc_enforcing (Was: Re: Question)
-In-Reply-To: <1008796006.1168.8.camel@jsmith.org>
-Message-ID: <Pine.GSO.4.33.0112211044140.27598-300000@raven>
+Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id QAA27426
+	for <selinux@tycho.nsa.gov>; Sat, 22 Dec 2001 16:17:41 -0500 (EST)
+Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
+	by jazzband.ncsc.mil  with ESMTP id VAA07616
+	for <selinux@tycho.nsa.gov>; Sat, 22 Dec 2001 21:16:57 GMT
+Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
+	by jazzband.ncsc.mil  with ESMTP id VAA07612
+	for <selinux@tycho.nsa.gov>; Sat, 22 Dec 2001 21:16:55 GMT
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by tsv.sws.net.au (Postfix) with ESMTP id AA45292708
+	for <selinux@tycho.nsa.gov>; Sun, 23 Dec 2001 08:17:29 +1100 (EST)
+Received: from there (lyta [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with SMTP id 479731A62
+	for <selinux@tycho.nsa.gov>; Sat, 22 Dec 2001 22:18:04 +0100 (CET)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: <selinux@tycho.nsa.gov>
+Subject: su etc
+Date: Sat, 22 Dec 2001 22:18:03 +0100
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-33463914-1008949877=:27598"
+Message-Id: <20011222211804.479731A62@lyta.coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+At the moment I'm trying to compile the shadow password programs from 
+Julianne Frances Haugh (as used in Debian for /bin/login and friends) with SE 
+support.
 
----559023410-33463914-1008949877=:27598
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I've got login almost working (I think) but haven't tested it yet (anyone 
+who's interested in seeing what I'm doing please contact me off the list - 
+I'm not publishing untested patches).
 
+I'm now thinking about what to do with su.  Should su change the security of 
+the tty with chsid() before spawning a new shell and then change it back 
+afterwards as login does?  Or is there some difference in the way that su and 
+login work that requires some different code?
 
-On 19 Dec 2001, Justin Smith wrote:
-
-> Is there a simple way to determine whether the system is in enforcing or
-> permissive mode (other than issuing the avc_toggle command twice)?
-
-The attached patches add a call and program that will allow you to test
-whether the system is enforcing or permissive without toggling.  The first
-patch should be applied to the lsm tree, and the second patch should be
-applied to the selinux tree.  Apply the patches, rebuild your kernel, do a
-'make install' in the selinux/module directory to reinstall the header
-files used by libsecure, and rebuild and install libsecure.  After
-booting the new kernel, you can run avc_enforcing to see whether the
-system is enforcing or permissive.
-
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
-
-
-
-
-
----559023410-33463914-1008949877=:27598
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="esyscall.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0112211051170.27598@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="esyscall.patch"
-
-SW5kZXg6IGxzbS9zZWN1cml0eS9zZWxpbnV4L2F2Yy5jDQpkaWZmIC11IGxz
-bS9zZWN1cml0eS9zZWxpbnV4L2F2Yy5jOjEuMiBsc20vc2VjdXJpdHkvc2Vs
-aW51eC9hdmMuYzoxLjMNCi0tLSBsc20vc2VjdXJpdHkvc2VsaW51eC9hdmMu
-YzoxLjIJV2VkIERlYyAxOSAxNTowNzozNSAyMDAxDQorKysgbHNtL3NlY3Vy
-aXR5L3NlbGludXgvYXZjLmMJRnJpIERlYyAyMSAwOTozNzoxMyAyMDAxDQpA
-QCAtMTEyNiwxMCArMTEyNiwyMCBAQA0KIAl9DQogCXJldHVybiBhdmNfZGVi
-dWdfYWx3YXlzX2FsbG93Ow0KIH0NCisNCitsb25nIHN5c19hdmNfZW5mb3Jj
-aW5nKHZvaWQpIA0KK3sNCisJcmV0dXJuICFhdmNfZGVidWdfYWx3YXlzX2Fs
-bG93Ow0KK30NCiAjZWxzZQ0KIGxvbmcgc3lzX2F2Y190b2dnbGUodm9pZCkg
-DQogew0KIAlyZXR1cm4gMDsNCit9DQorDQorbG9uZyBzeXNfYXZjX2VuZm9y
-Y2luZyh2b2lkKSANCit7DQorCXJldHVybiAxOw0KIH0NCiAjZW5kaWYNCiAN
-CkluZGV4OiBsc20vc2VjdXJpdHkvc2VsaW51eC9hcmNoL2kzODYvc3lzY2Fs
-bHMuYw0KZGlmZiAtdSBsc20vc2VjdXJpdHkvc2VsaW51eC9hcmNoL2kzODYv
-c3lzY2FsbHMuYzoxLjEgbHNtL3NlY3VyaXR5L3NlbGludXgvYXJjaC9pMzg2
-L3N5c2NhbGxzLmM6MS4yDQotLS0gbHNtL3NlY3VyaXR5L3NlbGludXgvYXJj
-aC9pMzg2L3N5c2NhbGxzLmM6MS4xCUZyaSBEZWMgIDcgMDk6MzI6NTkgMjAw
-MQ0KKysrIGxzbS9zZWN1cml0eS9zZWxpbnV4L2FyY2gvaTM4Ni9zeXNjYWxs
-cy5jCUZyaSBEZWMgMjEgMDk6Mzc6MTMgMjAwMQ0KQEAgLTE1NSw3ICsxNTUs
-OCBAQA0KIAlBTCg0KSwgLyogZXhlY3ZlICovDQogCUFMKDMpLCAvKiBzdGF0
-NjQgKi8NCiAJQUwoMyksIC8qIGxzdGF0NjQgKi8NCi0JQUwoMykgIC8qIGZz
-dGF0NjQgKi8NCisJQUwoMyksIC8qIGZzdGF0NjQgKi8NCisJQUwoMCkgIC8q
-IGF2Y19lbmZvcmNpbmcgKi8NCiB9Ow0KICN1bmRlZiBBTA0KIA0KQEAgLTMy
-Nyw2ICszMjgsOSBAQA0KIAkJZXJyID0gc3lzX2ZzdGF0NjRfc2VjdXJlKGEw
-LCANCiAJCQkJICAgICAgIChzdHJ1Y3Qgc3RhdDY0KilhMSwgDQogCQkJCSAg
-ICAgICAoc2VjdXJpdHlfaWRfdCopYVsyXSk7DQorCQlicmVhazsNCisJY2Fz
-ZSBTRUxJTlVYQ0FMTF9BVkNfRU5GT1JDSU5HOg0KKwkJZXJyID0gc3lzX2F2
-Y19lbmZvcmNpbmcoKTsNCiAJCWJyZWFrOw0KIAlkZWZhdWx0Og0KIAkJZXJy
-ID0gLUVJTlZBTDsNCkluZGV4OiBsc20vc2VjdXJpdHkvc2VsaW51eC9pbmNs
-dWRlL2xpbnV4L2ZsYXNrL3N5c2NhbGxzLmgNCmRpZmYgLXUgbHNtL3NlY3Vy
-aXR5L3NlbGludXgvaW5jbHVkZS9saW51eC9mbGFzay9zeXNjYWxscy5oOjEu
-MSBsc20vc2VjdXJpdHkvc2VsaW51eC9pbmNsdWRlL2xpbnV4L2ZsYXNrL3N5
-c2NhbGxzLmg6MS4zDQotLS0gbHNtL3NlY3VyaXR5L3NlbGludXgvaW5jbHVk
-ZS9saW51eC9mbGFzay9zeXNjYWxscy5oOjEuMQlGcmkgRGVjICA3IDA5OjMy
-OjU5IDIwMDENCisrKyBsc20vc2VjdXJpdHkvc2VsaW51eC9pbmNsdWRlL2xp
-bnV4L2ZsYXNrL3N5c2NhbGxzLmgJRnJpIERlYyAyMSAwOTo1NzozMCAyMDAx
-DQpAQCAtNTUsOCArNTUsMTAgQEANCiAjZGVmaW5lIFNFTElOVVhDQUxMX0xT
-VEFUNjQgICAgICAgMzgNCiAjZGVmaW5lIFNFTElOVVhDQUxMX0ZTVEFUNjQg
-ICAgICAgMzkNCiANCi0jZGVmaW5lIFNFTElOVVhDQUxMX05VTSAgICAgICAg
-ICAgMzkNCisjZGVmaW5lIFNFTElOVVhDQUxMX0FWQ19FTkZPUkNJTkcgNDAN
-CiANCisjZGVmaW5lIFNFTElOVVhDQUxMX05VTSAgICAgICAgICAgNDANCisN
-CiAvKiBTdHJ1Y3R1cmUgZGVmaW5pdGlvbnMgZm9yIGNvbXB1dGVfYXYgY2Fs
-bCAqLw0KIHN0cnVjdCBzZWN1cml0eV9xdWVyeSB7DQogCXNlY3VyaXR5X2lk
-X3Qgc3NpZDsNCkBAIC0xMTksNiArMTIxLDcgQEANCiAJCQkJICAgICAgIF9f
-dTMyICpuZWwpOw0KIA0KIGV4dGVybiBsb25nIHN5c19hdmNfdG9nZ2xlKHZv
-aWQpOw0KK2V4dGVybiBsb25nIHN5c19hdmNfZW5mb3JjaW5nKHZvaWQpOw0K
-IA0KICNlbmRpZiAvKiBfX0tFUk5FTF9fICovDQogDQo=
----559023410-33463914-1008949877=:27598
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="elib.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0112211051171.27598@raven>
-Content-Description: 
-Content-Disposition: attachment; filename="elib.patch"
-
-SW5kZXg6IHNlbGludXgvbGlic2VjdXJlL2luY2x1ZGUvc3MuaA0KZGlmZiAt
-dSBzZWxpbnV4L2xpYnNlY3VyZS9pbmNsdWRlL3NzLmg6MS4xIHNlbGludXgv
-bGlic2VjdXJlL2luY2x1ZGUvc3MuaDoxLjINCi0tLSBzZWxpbnV4L2xpYnNl
-Y3VyZS9pbmNsdWRlL3NzLmg6MS4xCUZyaSBKdW4gIDEgMTE6NTE6NDAgMjAw
-MQ0KKysrIHNlbGludXgvbGlic2VjdXJlL2luY2x1ZGUvc3MuaAlGcmkgRGVj
-IDIxIDA5OjQwOjIzIDIwMDENCkBAIC01LDYgKzUsOCBAQA0KIA0KIGV4dGVy
-biBpbnQgYXZjX3RvZ2dsZSh2b2lkKTsNCiANCitleHRlcm4gaW50IGF2Y19l
-bmZvcmNpbmcodm9pZCk7DQorDQogLyogSW5kaXZpZHVhbCBzZWN1cml0eSBz
-ZXJ2ZXIgY2FsbHMuICovDQogDQogZXh0ZXJuIGludCBzZWN1cml0eV9jb21w
-dXRlX2F2KHN0cnVjdCBzZWN1cml0eV9xdWVyeSAqcXVlcnksIA0KSW5kZXg6
-IHNlbGludXgvbGlic2VjdXJlL3NyYy9hdmNfZW5mb3JjaW5nLmMNCmRpZmYg
-LXUgL2Rldi9udWxsIHNlbGludXgvbGlic2VjdXJlL3NyYy9hdmNfZW5mb3Jj
-aW5nLmM6MS4xDQotLS0gL2Rldi9udWxsCUZyaSBEZWMgMjEgMTA6MDk6MzIg
-MjAwMQ0KKysrIHNlbGludXgvbGlic2VjdXJlL3NyYy9hdmNfZW5mb3JjaW5n
-LmMJRnJpIERlYyAyMSAwOTo0MDoyMyAyMDAxDQpAQCAtMCwwICsxLDYgQEAN
-CisjaW5jbHVkZSA8c3MuaD4NCisNCitpbnQgYXZjX2VuZm9yY2luZyh2b2lk
-KQ0KK3sNCisJcmV0dXJuIGxzbShTRUxJTlVYX01BR0lDLCBTRUxJTlVYQ0FM
-TF9BVkNfRU5GT1JDSU5HLCAwKTsNCit9DQpJbmRleDogc2VsaW51eC9saWJz
-ZWN1cmUvdGVzdC9hdmNfZW5mb3JjaW5nLmMNCmRpZmYgLXUgL2Rldi9udWxs
-IHNlbGludXgvbGlic2VjdXJlL3Rlc3QvYXZjX2VuZm9yY2luZy5jOjEuMQ0K
-LS0tIC9kZXYvbnVsbAlGcmkgRGVjIDIxIDEwOjA5OjMyIDIwMDENCisrKyBz
-ZWxpbnV4L2xpYnNlY3VyZS90ZXN0L2F2Y19lbmZvcmNpbmcuYwlGcmkgRGVj
-IDIxIDA5OjQwOjIzIDIwMDENCkBAIC0wLDAgKzEsMjUgQEANCisjaW5jbHVk
-ZSA8c3RkbGliLmg+DQorDQoraW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiph
-cmd2LCBjaGFyICoqZW52cCkNCit7DQorCWludCByZXQ7DQorDQorCWlmIChh
-cmdjICE9IDEpIHsNCisJCXByaW50ZigidXNhZ2U6ICAlc1xuIiwgYXJndlsw
-XSk7DQorCQlleGl0KDEpOw0KKwl9DQorDQorCXJldCA9IGF2Y19lbmZvcmNp
-bmcoKTsNCisJc3dpdGNoIChyZXQpIHsNCisJY2FzZSAxOg0KKwkJcHJpbnRm
-KCJlbmZvcmNpbmdcbiIpOw0KKwkJYnJlYWs7DQorCWNhc2UgMDoNCisJCXBy
-aW50ZigicGVybWlzc2l2ZVxuIik7DQorCQlicmVhazsNCisJZGVmYXVsdDoN
-CisJCXBlcnJvcihhcmd2WzBdKTsNCisJfQ0KKw0KKwlleGl0KDApOw0KK30N
-Cg==
----559023410-33463914-1008949877=:27598--
+-- 
+http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
+http://www.coker.com.au/projects.html Projects I am working on
+http://www.coker.com.au/~russell/     My home page
 
 --
 You have received this message because you are subscribed to the selinux list.
