@@ -1,71 +1,56 @@
-Message-ID: <636A9B29EA94BC4194D844C27A3B1AAB0174E2AC@mercury.intrusion.com>
-From: "Fermin, Fabricio" <ffermin@intrusion.com>
-To: SELinux@tycho.nsa.gov
-Subject: IDS System
-Date: Thu, 17 May 2001 17:59:25 -0500
+Date: Fri, 18 May 2001 09:12:33 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Sean Rolinson <snowdog@bigfoot.com>
+cc: SELinux@tycho.nsa.gov
+Subject: Re: Problems compiling: SELinux 200104121417 on Alpha (config/flash.h: No such file or directory)
+In-Reply-To: <010501c0df17$ee102050$24b8dcd1@hemisphere>
+Message-ID: <Pine.SOL.3.95.1010518090235.12195C-100000@clipper.gw.tislabs.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C0DF25.049B6250"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
 
-------_=_NextPart_001_01C0DF25.049B6250
-Content-Type: text/plain;
-	charset="iso-8859-1"
+On Thu, 17 May 2001, Sean Rolinson wrote:
 
-Hi to everyone out there..
- 
-The company that I work for ( Intrusion.com) has an IDS that work under the
-Linux Platform. I was task to introduce this product to NSA do to some of
-its unique capabilities. Ex: Packet Content Analysis, IP Fragmentation,
-amount others. It support 10/100/1000. I would like to test the product on
-SELinux and I am wondering if anybody out there would help me out.
- 
-Fabricio Fermin
-SE
-ffermin@intrusion.com <mailto:ffermin@intrusion.com> 
- 
- 
+> I am having a problem compiling SELinux with a 2.4 kernel on an
+> alpha.  I am using the complete downloaded package,
+> slinux-200104121417-release.tgz (i.e. NOT the patches).
 
-------_=_NextPart_001_01C0DF25.049B6250
-Content-Type: text/html;
-	charset="iso-8859-1"
+SELinux is not currently supported on the Alpha, although it should
+not be difficult to port it to the Alpha.  If you grep for CONFIG_FLASK
+under arch/i386, you'll see that some of changes are in the
+architecture-specific files.  Also, there is some Alpha-specific
+code in the execve system call that might require some Flask
+changes, but that isn't clear.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+> I then edited the file "include/linux/sched.h" and changed line 35
+> FROM "#include <config/flask.h>" TO "#include <linux/flask/flask.h>".
+
+These are two very different header files.  config/flask.h is
+generated during the kernel configuration and defines the
+various CONFIG_FLASK* options.  You don't have one because
+arch/alpha/config.in doesn't include any Flask options, since
+we don't currently support the Alpha (see arch/i386/config.in
+for the Flask security mechanisms menu).  This option menu
+should actually be moved into a separate config.in file
+in a non-architecture-specific directory (e.g. flask/config.in)
+since the options themselves are not architecture-specific
+so that it can be sourced by any of the architecture-specific 
+config.in files.
+
+> Finally, I changed to the kernel root directory and typed "make" and
+> it proceeded to compile the kernel with no additional errors. 
+
+Since you didn't have a config/flask.h, none of the Flask options
+were defined, so your "make" simply built an ordinary Linux kernel.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-<META content="MSHTML 5.00.3103.1000" name=GENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=#ffffff>
-<DIV><FONT color=#0000ff face=Arial size=2><SPAN class=532025122-17052001>Hi to 
-everyone out there..</SPAN></FONT></DIV>
-<DIV><FONT color=#0000ff face=Arial size=2><SPAN 
-class=532025122-17052001></SPAN></FONT>&nbsp;</DIV>
-<DIV><FONT color=#0000ff face=Arial size=2><SPAN class=532025122-17052001>The 
-company that I work for ( Intrusion.com) has an IDS that work under the Linux 
-Platform. I was task to introduce this product to NSA do to some of its unique 
-capabilities. Ex: Packet Content Analysis, IP Fragmentation, amount others. It 
-support 10/100/1000. I would like to test the product on SELinux and I am 
-wondering if anybody out there would help me out.</SPAN></FONT></DIV>
-<DIV><FONT color=#0000ff face=Arial size=2><SPAN 
-class=532025122-17052001></SPAN></FONT>&nbsp;</DIV>
-<DIV><FONT color=#0000ff face=Arial size=2><SPAN 
-class=532025122-17052001>Fabricio Fermin</SPAN></FONT></DIV>
-<DIV><FONT color=#0000ff face=Arial size=2><SPAN 
-class=532025122-17052001>SE</SPAN></FONT></DIV>
-<DIV><FONT color=#0000ff face=Arial size=2><SPAN class=532025122-17052001><A 
-href="mailto:ffermin@intrusion.com">ffermin@intrusion.com</A></SPAN></FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV align=center><FONT color=#0000ff face=Arial size=2><SPAN 
-class=532025122-17052001></SPAN></FONT>&nbsp;</DIV></BODY></HTML>
 
-------_=_NextPart_001_01C0DF25.049B6250--
 
 --
 You have received this message because you are subscribed to the selinux list.
