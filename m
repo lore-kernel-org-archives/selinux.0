@@ -1,62 +1,101 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8GLjYrT028456
-	for <selinux@tycho.nsa.gov>; Thu, 16 Sep 2004 17:45:35 -0400 (EDT)
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8GLjXsh028966
-	for <selinux@tycho.nsa.gov>; Thu, 16 Sep 2004 21:45:34 GMT
-Subject: Re: SELinux policy discussion.
-From: Colin Walters <walters@redhat.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: ivg2@cornell.edu, selinux@tycho.nsa.gov
-In-Reply-To: <414A03BC.80707@redhat.com>
-References: <4148A003.6080309@redhat.com>
-	 <1095295125.4231.127.camel@nexus.verbum.private>
-	 <1095302625.28466.56.camel@localhost.localdomain>
-	 <1095307503.4231.152.camel@nexus.verbum.private>
-	 <1095318426.32510.30.camel@localhost.localdomain>
-	 <1095356254.4231.188.camel@nexus.verbum.private>
-	 <414A03BC.80707@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3XiVVdTXKQe2A8SayDFk"
-Date: Thu, 16 Sep 2004 17:46:57 -0400
-Message-Id: <1095371217.4231.203.camel@nexus.verbum.private>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i8H0darT029226
+	for <selinux@tycho.nsa.gov>; Thu, 16 Sep 2004 20:39:36 -0400 (EDT)
+Received: from rwcrmhc11.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i8H0cd8m021685
+	for <selinux@tycho.nsa.gov>; Fri, 17 Sep 2004 00:38:39 GMT
+Subject: [PATCH] Gentoo-specific initrc
+From: Chris PeBenito <pebenito@gentoo.org>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ass086eClndJ3go88pNT"
+Message-Id: <1095381586.735.30.camel@gorn.pebenito.net>
 Mime-Version: 1.0
+Date: Thu, 16 Sep 2004 20:39:46 -0400
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-3XiVVdTXKQe2A8SayDFk
+--=-ass086eClndJ3go88pNT
+Content-Type: multipart/mixed; boundary="=-JBVGAf/or7I9OY1aI3Q2"
+
+
+--=-JBVGAf/or7I9OY1aI3Q2
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2004-09-16 at 17:21 -0400, Daniel J Walsh wrote:
+Here's a patch for Gentoo-specific initrc, against sourceforge CVS.
 
-> One argument for allowing users to read most of these files, is we are=20
-> forcing a user in strict policy to run in a higher domain then he might=20
-> otherwize.  IE if a user wants to regularly look at files in /etc,=20
-> he might decide to add admin privs to his user account=20
-> and login as sysadm_r.
+ domains/program/initrc.te       |   15 +++++++++++++++
+ file_contexts/program/initrc.fc |    8 ++++++++
+ 2 files changed, 23 insertions(+)
 
-True, but no one has yet explained a reason why access to any of the
-files being discussed would be needed if you weren't going to log in as
-sysadm_r and *do* something with them anyways.
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+Embedded Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
+--=-JBVGAf/or7I9OY1aI3Q2
+Content-Disposition: attachment; filename=gentoo-initrc.diff
+Content-Type: text/x-patch; name=gentoo-initrc.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: base64
 
+SW5kZXg6IGRvbWFpbnMvcHJvZ3JhbS9pbml0cmMudGUNCj09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBmaWxlOiAv
+Y3Zzcm9vdC9zZWxpbnV4L25zYS9zZWxpbnV4LXVzci9wb2xpY3kvZG9tYWlucy9wcm9ncmFtL2lu
+aXRyYy50ZSx2DQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMjgNCmRpZmYgLXUgLXIxLjI4IGluaXRy
+Yy50ZQ0KLS0tIGRvbWFpbnMvcHJvZ3JhbS9pbml0cmMudGUJMTAgU2VwIDIwMDQgMTQ6NDU6NDgg
+LTAwMDAJMS4yOA0KKysrIGRvbWFpbnMvcHJvZ3JhbS9pbml0cmMudGUJMTcgU2VwIDIwMDQgMDA6
+MzU6MDggLTAwMDANCkBAIC0zMTksMyArMzE5LDE4IEBADQogaWZkZWYoYGRidXNkLnRlJywgYA0K
+IGFsbG93IGluaXRyY190IHN5c3RlbV9kYnVzZF90OmRidXMgeyBzZW5kX21zZyBhY3F1aXJlX3N2
+YyB9Ow0KICcpDQorDQoraWZkZWYoYGRpc3Ryb19nZW50b28nLCBgDQorIyBnZW50b28tc3BlY2lm
+aWMgaW5pdCBzY3JpcHQgc3RhdGUNCit0eXBlIGluaXRyY19zdGF0ZV90LCBmaWxlX3R5cGUsIHN5
+c2FkbWZpbGU7DQorYWxsb3cgaW5pdHJjX3QgaW5pdHJjX3N0YXRlX3Q6bG5rX2ZpbGUgeyBjcmVh
+dGUgcmVhZCB1bmxpbmsgc2V0YXR0ciB9Ow0KK2FsbG93IGluaXRyY190IGluaXRyY19zdGF0ZV90
+OmZpbGUgY3JlYXRlX2ZpbGVfcGVybXM7DQorYWxsb3cgaW5pdHJjX3QgaW5pdHJjX3N0YXRlX3Q6
+ZGlyIHsgYWRkX25hbWUgcmVtb3ZlX25hbWUgcmVhZCB3cml0ZSBybWRpciBjcmVhdGUgcmVuYW1l
+IHNldGF0dHIgfTsNCisNCisjIGVudi11cGRhdGU6DQorYWxsb3cgaW5pdHJjX3QgZXRjX3J1bnRp
+bWVfdDpkaXIgcmVhZDsNCithbGxvdyBpbml0cmNfdCBldGNfcnVudGltZV90OmZpbGUgdW5saW5r
+Ow0KKw0KKyMgR2VudG9vIGludGVncmF0ZWQgcnVuX2luaXQrb3Blbl9pbml0X3B0eS1ydW5zY3Jp
+cHQ6DQorZG9tYWluX2F1dG9fdHJhbnMoc3lzYWRtX3QsaW5pdHJjX2V4ZWNfdCxydW5faW5pdF90
+KQ0KKycpDQpJbmRleDogZmlsZV9jb250ZXh0cy9wcm9ncmFtL2luaXRyYy5mYw0KPT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PQ0KUkNTIGZpbGU6IC9jdnNyb290L3NlbGludXgvbnNhL3NlbGludXgtdXNyL3BvbGljeS9maWxl
+X2NvbnRleHRzL3Byb2dyYW0vaW5pdHJjLmZjLHYNCnJldHJpZXZpbmcgcmV2aXNpb24gMS43DQpk
+aWZmIC11IC1yMS43IGluaXRyYy5mYw0KLS0tIGZpbGVfY29udGV4dHMvcHJvZ3JhbS9pbml0cmMu
+ZmMJMzAgQXVnIDIwMDQgMjA6MTM6MjkgLTAwMDAJMS43DQorKysgZmlsZV9jb250ZXh0cy9wcm9n
+cmFtL2luaXRyYy5mYwkxNyBTZXAgMjAwNCAwMDozNTowOSAtMDAwMA0KQEAgLTExLDYgKzExLDE0
+IEBADQogL3Zhci9ydW4vcnVubGV2ZWxcLmRpcgkJc3lzdGVtX3U6b2JqZWN0X3I6aW5pdHJjX3Zh
+cl9ydW5fdA0KIC92YXIvcnVuL3JhbmRvbS1zZWVkCS0tCXN5c3RlbV91Om9iamVjdF9yOmluaXRy
+Y192YXJfcnVuX3QNCiAvdmFyL3J1bi9zZXRtaXhlcl9mbGFnCS0tCXN5c3RlbV91Om9iamVjdF9y
+OmluaXRyY192YXJfcnVuX3QNCisNCitpZmRlZihgZGlzdHJvX2dlbnRvbycsIGANCisvc2Jpbi9y
+YwkJLS0Jc3lzdGVtX3U6b2JqZWN0X3I6aW5pdHJjX2V4ZWNfdA0KKy9zYmluL3J1bnNjcmlwdAkJ
+LS0gICAgICBzeXN0ZW1fdTpvYmplY3Rfcjppbml0cmNfZXhlY190DQorL3NiaW4vcnVuc2NyaXB0
+LnNoCS0tCXN5c3RlbV91Om9iamVjdF9yOmluaXRyY19leGVjX3QNCisvdmFyL2xpYi9pbml0LmQo
+Ly4qKT8JCXN5c3RlbV91Om9iamVjdF9yOmluaXRyY19zdGF0ZV90DQorJykNCisNCiAjIHJ1bl9p
+bml0DQogL3Vzci9zYmluL3J1bl9pbml0CS0tCXN5c3RlbV91Om9iamVjdF9yOnJ1bl9pbml0X2V4
+ZWNfdA0KIGlmZGVmKGBkaXN0cm9fZGViaWFuJywgYA0K
 
+--=-JBVGAf/or7I9OY1aI3Q2--
 
---=-3XiVVdTXKQe2A8SayDFk
+--=-ass086eClndJ3go88pNT
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQBBSgnROIkJWWp2WGURAhdvAJ41/MYUXqwggAqvzZr3A/oqgxETYgCfXE59
-n2s0xiysrvk6fteNjZoTnS4=
-=CqVg
+iD8DBQBBSjJRvI7kLeavkkMRAqy3AKCmn/ujyw2PLcsWlNFX1DI9MVrK9gCgppyf
+OklxRVU6UQQwbFgipQhnWwU=
+=XAIA
 -----END PGP SIGNATURE-----
 
---=-3XiVVdTXKQe2A8SayDFk--
-
+--=-ass086eClndJ3go88pNT--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
