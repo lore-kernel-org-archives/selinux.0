@@ -1,48 +1,41 @@
-Subject: Re: user_trans/user_trans_boolean macro
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j2F5LiDo027325
+	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 00:21:44 -0500 (EST)
+Received: from postoffice9.mail.cornell.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id j2F5FvNq000114
+	for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2005 05:15:57 GMT
+Subject: make install fails if any users are in local.users
 From: Ivan Gyurdiev <ivg2@cornell.edu>
 Reply-To: ivg2@cornell.edu
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <1110831210.21378.235.camel@moss-spartans.epoch.ncsc.mil>
-References: <1110692016.29852.77.camel@cobra.ivg2.net>
-	 <1110804353.21378.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <1110820329.16850.8.camel@cobra.ivg2.net>
-	 <1110820795.21378.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <1110824399.16850.21.camel@cobra.ivg2.net>
-	 <1110825077.21378.199.camel@moss-spartans.epoch.ncsc.mil>
-	 <1110826572.16850.33.camel@cobra.ivg2.net>
-	 <1110829424.16850.39.camel@cobra.ivg2.net>
-	 <1110829277.21378.219.camel@moss-spartans.epoch.ncsc.mil>
-	 <1110831501.16850.47.camel@cobra.ivg2.net>
-	 <1110831210.21378.235.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1110838214.19525.1.camel@cobra.ivg2.net>
+References: <1110672353.29153.2.camel@cobra.ivg2.net>
+	 <4235BE2F.8020009@redhat.com> <1110821742.16850.14.camel@cobra.ivg2.net>
+	 <42360347.1030105@redhat.com>  <1110838214.19525.1.camel@cobra.ivg2.net>
 Content-Type: text/plain
-Date: Mon, 14 Mar 2005 15:45:56 -0500
-Message-Id: <1110833157.16850.63.camel@cobra.ivg2.net>
+Date: Tue, 15 Mar 2005 00:20:46 -0500
+Message-Id: <1110864047.30167.8.camel@cobra.ivg2.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2005-03-14 at 15:13 -0500, Stephen Smalley wrote:
-> On Mon, 2005-03-14 at 15:18 -0500, Ivan Gyurdiev wrote:
-> > I guess what I'm trying to figure out is why 
-> > domain_auto_trans doesn't add the role access rule
-> > by default. Isn't this always necessary if you want
-> > a transition to occur?
-> 
-> domain_auto_trans() can be (and is ) used from any domain, not just a
-> user domain.  One could certainly add an optional argument for a role
 
-Well, I think I will conclude that I'll leave things exactly as they
-are :) It seems a bad idea to me to add yet another argument. The macro
-I was trying to write also seems like a bad idea now. 
+> > genhomedircon reads your local.users file and creates the 
+> > file_contexts.homedirs from it.  If
+> > you don't have a user phantom in local.users then file_contexts.homedirs 
+> > will cause load_policy to fail.
 
-The only thing I will do is add controlling booleans to the domain.te
-file, and use them in the macros.te file around the auto_trans call 
-(and remove all of this from x_client_macros).
+It seems to me that the problem is that setfiles -c, calls
+sepol_set_policydb_from_file, which loads the policy, does
+not call sepol_genusers, and as a result fails when it sees 
+the homedir contexts. 
 
--- 
-Ivan Gyurdiev <ivg2@cornell.edu>
-Cornell University
+Also, sepol_genusers is undocumented, and the -c option of setfiles
+is also not documented in the man pages.
+
+
+
 
 
 --
