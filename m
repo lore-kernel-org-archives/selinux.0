@@ -1,93 +1,128 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i74FPlrT029004
-	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 11:25:47 -0400 (EDT)
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i74FPDVf021892
-	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 15:25:14 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.12.10/8.12.10) with ESMTP id i74FPle1022088
-	for <selinux@tycho.nsa.gov>; Wed, 4 Aug 2004 11:25:47 -0400
-Subject: [patch] allow rpm_t to create/relabel device files too
-From: Colin Walters <walters@redhat.com>
-To: dwalsh@redhat.com, rcoker@redhat.com
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aRKuuOnkSzEw9o8g1qgH"
-Date: Wed, 04 Aug 2004 11:26:03 -0400
-Message-Id: <1091633163.9005.26.camel@nexus.verbum.private>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i756WUrT003474
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 02:32:30 -0400 (EDT)
+Received: from markus.schuldei.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id i756WSZl012289
+	for <selinux@tycho.nsa.gov>; Thu, 5 Aug 2004 06:32:29 GMT
+Date: Wed, 4 Aug 2004 01:31:15 +0200
+From: Andreas Schuldei <andreas@schuldei.org>
+To: Russell Coker <rcoker@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: problems with selinux-policy-default 1:1.14-2
+Message-ID: <20040803233114.GQ1828@markus.schuldei.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+installing on a selinx kernel gives me this:
 
---=-aRKuuOnkSzEw9o8g1qgH
-Content-Type: multipart/mixed; boundary="=-mzLC9mYbfiNEo9e+3z6M"
+=============================
+petrus:~# apt-get install selinux-policy-default
+Reading Package Lists... Done
+Building Dependency Tree... Done
+The following NEW packages will be installed:
+  selinux-policy-default
+0 upgraded, 1 newly installed, 0 to remove and 7 not upgraded.
+Need to get 0B/193kB of archives.
+After unpacking 4129kB of additional disk space will be used.
+Selecting previously deselected package selinux-policy-default.
+(Reading database ... 32354 files and directories currently installed.)
+Unpacking selinux-policy-default (from .../selinux-policy-default_1%3a1.14-2_all.deb) ...
+Setting up selinux-policy-default (1.14-2) ...
+make: *** /etc/selinux/src: No such file or directory.  Stop.
+run-parts: /etc/dpkg/postinst.d/selinux exited with return code 2
+"/bin/run-parts --arg=selinux-policy-default /etc/dpkg/postinst.d" failed: 256
+dpkg: error processing selinux-policy-default (--configure):
+ 1Error running trigger postinst: No such file or directory
+Errors were encountered while processing:
+ selinux-policy-default
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+petrus:~# l /etc/selinux/
+total 20
+drwxr-xr-x    4 root     root         4096 Aug  4 00:57 .
+drwxr-xr-x   70 root     root         4096 Aug  4 00:57 ..
+-rw-r--r--    1 root     root          120 Aug  2 09:28 config
+drwxr-xr-x    2 root     root         4096 Aug  4 00:57 contexts
+drwxr-xr-x    2 root     root         4096 Aug  2 09:28 policy
+lrwxrwxrwx    1 root     root           33 Aug  4 00:57 src -> /usr/share/selinux/policy/current
+petrus:~# l /usr/share/selinux/policy
+total 12
+drwxr-xr-x    3 root     root         4096 Aug  4 00:57 .
+drwxr-xr-x    3 root     root         4096 Aug  4 00:57 ..
+drwxr-xr-x    9 root     root         4096 Aug  4 00:57 default
+==========================
+
+src is a dangeling symlink.
+
+changing it to point to /usr/share/selinux/policy/default 
+lets me run into this error:
+
+======================
+petrus:~# rm /etc/selinux/src
+petrus:~# ln -s /usr/share/selinux/policy/default /etc/selinux/src
+petrus:~# apt-get install selinux-policy-default
+Reading Package Lists... Done
+Building Dependency Tree... Done
+selinux-policy-default is already the newest version.
+0 upgraded, 0 newly installed, 0 to remove and 7 not upgraded.
+1 not fully installed or removed.
+Need to get 0B of archives.
+After unpacking 0B of additional disk space will be used.
+Setting up selinux-policy-default (1.14-2) ...
+/usr/bin/checkpolicy:  loading policy configuration from policy.conf
+security:  4 users, 6 roles, 1327 types, 1 bools
+security:  52 classes, 188841 rules
+/usr/bin/checkpolicy:  policy configuration loaded
+/usr/bin/checkpolicy:  writing binary representation (version 18) to /etc/selinux/policy/policy.18
+make: *** No rule to make target `file_contexts/program/webalizer.fc', needed by `file_contexts/file_contexts'.  Stop.
+run-parts: /etc/dpkg/postinst.d/selinux exited with return code 2
+"/bin/run-parts --arg=selinux-policy-default /etc/dpkg/postinst.d" failed: 256
+dpkg: error processing selinux-policy-default (--configure):
+ 1Error running trigger postinst: No such file or directory
+Errors were encountered while processing:
+ selinux-policy-default
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+======================
+
+creating that file
+
+=======================
+petrus:~# touch /etc/selinux/src/file_contexts/program/webalizer.fc
+=======================
+
+lets me start the selection process.
+
+this procedure was necessary after i attempted to install
+selinux-policy-default on a non-selinux kernel. Then everything
+worked fine untill i failed at the same point then now, after
+going through the whole selection process:
+
+=======================
+Installing the new SE Linux policy
+mount: none already mounted or /selinux busy
+dpkg: error processing selinux-policy-default (--configure):
+ subprocess post-installation script returned error exit status 32
+Errors were encountered while processing:
+ selinux-policy-default
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+=======================
+
+i am aware of the thread on this list where similar progress had
+been made and at this point the discussion did not focus on how
+to get around this error but if it was good or not to have
+selinux in the fstab. in my case the package (or rather russel)
+took care of that and there is the line
+
+========================
+none            /selinux        selinuxfs       noauto  0 0
+========================
+
+in my fstab.
+
+how can i successfully create a policy anyway?
 
 
---=-mzLC9mYbfiNEo9e+3z6M
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-The attached patch allows rpm_t to create/relabel device files - I
-needed this when upgrading the "dev" package on my system.  I'm
-surprised this hasn't been caught before, maybe I missed something.
-
-Some AVC messages for reference:
-
-Aug  4 11:11:43 decepticon kernel: audit(1091632303.691:0): avc:  denied  {=
- getattr } for  pid=3D31094 exe=3D/usr/bin/python path=3D/dev/dri dev=3Dsda=
-2 ino=3D10111422 scontext=3Droot:sysadm_r:rpm_t tcontext=3Dsystem_u:object_=
-r:dri_device_t tclass=3Ddir
-Aug  4 11:16:50 decepticon kernel: audit(1091632610.920:0): avc:  denied  {=
- relabelfrom } for  pid=3D31149 exe=3D/usr/bin/python name=3Ddri dev=3Dsda2=
- ino=3D10111422 scontext=3Droot:sysadm_r:rpm_t tcontext=3Dsystem_u:object_r=
-:dri_device_t tclass=3Ddir
-
-
---=-mzLC9mYbfiNEo9e+3z6M
-Content-Disposition: attachment; filename=dev.patch
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=dev.patch; charset=UTF-8
-
-LS0tIHBvbGljeS0xLjE1LjExL2RvbWFpbnMvcHJvZ3JhbS91bnVzZWQvcnBtLnRlfgkyMDA0LTA3
-LTMxIDA2OjIyOjM3LjAwMDAwMDAwMCAtMDQwMA0KKysrIHBvbGljeS0xLjE1LjExL2RvbWFpbnMv
-cHJvZ3JhbS91bnVzZWQvcnBtLnRlCTIwMDQtMDgtMDQgMTE6MjA6NDAuMTY1NDExNjg4IC0wNDAw
-DQpAQCAtOTAsOSArOTAsOSBAQA0KIGdlbmVyYWxfZG9tYWluX2FjY2VzcyhycG1fc2NyaXB0X3Qp
-DQogDQogIyByZWFkL3dyaXRlL2NyZWF0ZSBhbnkgZmlsZXMgaW4gdGhlIHN5c3RlbQ0KLWFsbG93
-IHJwbV90IHsgZmlsZV90eXBlIC0gc2hhZG93X3QgfTp7IGZpbGUgbG5rX2ZpbGUgZGlyIGZpZm9f
-ZmlsZSBzb2NrX2ZpbGUgY2hyX2ZpbGUgYmxrX2ZpbGUgfSB7IHJlbGFiZWxmcm9tIHJlbGFiZWx0
-byB9Ow0KLWFsbG93IHJwbV90IHsgZmlsZV90eXBlIC0gc2hhZG93X3QgfTpkaXIgY3JlYXRlX2Rp
-cl9wZXJtczsNCi1hbGxvdyBycG1fdCB7IGZpbGVfdHlwZSAtIHNoYWRvd190IH06eyBmaWxlIGxu
-a19maWxlIGZpZm9fZmlsZSBzb2NrX2ZpbGUgY2hyX2ZpbGUgYmxrX2ZpbGUgfSBjcmVhdGVfZmls
-ZV9wZXJtczsNCithbGxvdyBycG1fdCB7IGZpbGVfdHlwZSBkZXZpY2VfdHlwZSAtc2hhZG93X3Qg
-fTp7IGZpbGUgbG5rX2ZpbGUgZGlyIGZpZm9fZmlsZSBzb2NrX2ZpbGUgY2hyX2ZpbGUgYmxrX2Zp
-bGUgfSB7IHJlbGFiZWxmcm9tIHJlbGFiZWx0byB9Ow0KK2FsbG93IHJwbV90IHsgZmlsZV90eXBl
-IGRldmljZV90eXBlIC0gc2hhZG93X3QgfTpkaXIgY3JlYXRlX2Rpcl9wZXJtczsNCithbGxvdyBy
-cG1fdCB7IGZpbGVfdHlwZSBkZXZpY2VfdHlwZSAtIHNoYWRvd190IH06eyBmaWxlIGxua19maWxl
-IGZpZm9fZmlsZSBzb2NrX2ZpbGUgY2hyX2ZpbGUgYmxrX2ZpbGUgfSBjcmVhdGVfZmlsZV9wZXJt
-czsNCiBhbGxvdyBycG1fdCBzeXNmc190OmZpbGVzeXN0ZW0gZ2V0YXR0cjsNCiBhbGxvdyBycG1f
-dCB0bXBmc190OmZpbGVzeXN0ZW0gZ2V0YXR0cjsNCiBkb250YXVkaXQgcnBtX3QgZG9tYWluOnsg
-c29ja2V0IHVuaXhfZGdyYW1fc29ja2V0IHVkcF9zb2NrZXQgdW5peF9zdHJlYW1fc29ja2V0IHRj
-cF9zb2NrZXQgZmlmb19maWxlIHJhd2lwX3NvY2tldCBwYWNrZXRfc29ja2V0IH0gZ2V0YXR0cjsN
-Cg==
-
-
---=-mzLC9mYbfiNEo9e+3z6M--
-
---=-aRKuuOnkSzEw9o8g1qgH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBEQALOIkJWWp2WGURArpCAJ43fSQFs8EW+AAkZX5cxFcY2Jf6ZACeM5dN
-41XJHp4sz9twhJzask4Q/Ng=
-=pRp4
------END PGP SIGNATURE-----
-
---=-aRKuuOnkSzEw9o8g1qgH--
 
 
 --
