@@ -1,31 +1,23 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i96GBMrT005950
-	for <selinux@tycho.nsa.gov>; Wed, 6 Oct 2004 12:11:22 -0400 (EDT)
-Date: Wed, 6 Oct 2004 12:10:14 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-cc: Stephen Smalley <sds@epoch.ncsc.mil>,
-   "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] security/selinux/netif.c has a serious problem
-In-Reply-To: <Xine.LNX.4.44.0410061205100.32613-100000@thoron.boston.redhat.com>
-Message-ID: <Xine.LNX.4.44.0410061209010.32613-100000@thoron.boston.redhat.com>
+Message-ID: <416419A5.6030809@redhat.com>
+Date: Wed, 06 Oct 2004 12:13:25 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: SELinux <SELinux@tycho.nsa.gov>
+Subject: Shouldn't this avc message be dontaudited?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 6 Oct 2004, James Morris wrote:
+How come I am getting this avc message
 
-> return without unlock.  Please use goto.
+Oct  6 11:58:44 localhost kernel: audit(1097078324.850:0): avc:  denied  
+{ name_bind } for  pid=2471 exe=/usr/sbin/nscd src=953 
+scontext=user_u:system_r:nscd_t tcontext=system_u:object_r:rndc_port_t 
+tclass=tcp_socket
 
-Hold on, you want to hold the lock while the user has the netif?
+When I have this rule?
 
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
+dontaudit nscd_t reserved_port_t:{ tcp_socket udp_socket } name_bind;
 
 
 --
