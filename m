@@ -1,71 +1,50 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5C8CXrT009693
-	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:12:33 -0400 (EDT)
-Received: from smtp800.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5C8CUEu005149
-	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:12:30 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i5C8GrrT009721
+	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:16:53 -0400 (EDT)
+Received: from smtp804.mail.ukl.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id i5C8GoEu005198
+	for <selinux@tycho.nsa.gov>; Sat, 12 Jun 2004 04:16:50 -0400 (EDT)
 Received: from unknown (HELO hyd) (selinux@tycho.nsa.gov@81.155.76.36 with poptime)
-  by smtp800.mail.ukl.yahoo.com with SMTP; 12 Jun 2004 08:12:31 -0000
-Date: Sat, 12 Jun 2004 08:09:48 +0000
+  by smtp804.mail.ukl.yahoo.com with SMTP; 12 Jun 2004 08:16:51 -0000
+Date: Sat, 12 Jun 2004 08:14:09 +0000
 From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Park Lee <parklee_sel@yahoo.com>
+To: Russell Coker <russell@coker.com.au>
 Cc: selinux@tycho.nsa.gov
-Subject: Re: Regular Expression Problem
-Message-ID: <20040612080948.GP2861@lkcl.net>
-References: <20040612063426.65218.qmail@web51509.mail.yahoo.com>
+Subject: Re: SELinux on Debian (Sid)
+Message-ID: <20040612081409.GR2861@lkcl.net>
+References: <20040609144404.GJ5477@philips.com> <200406111413.40262.russell@coker.com.au> <20040611204001.GE2861@lkcl.net> <200406121211.32316.russell@coker.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20040612063426.65218.qmail@web51509.mail.yahoo.com>
+In-Reply-To: <200406121211.32316.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jun 11, 2004 at 11:34:26PM -0700, Park Lee wrote:
-> Hi,
->  
-> In the file_contexts file, I found some regular expressions. I studied them for a while, but still can't understand them well.
->  
-> For example:  /var(/.*)
->  
-> As I know: '.' stands for any character;
-> Let's suppose '.' now stands for character 'a'. 
-> then '/var(/.*)' can mean:
-> '/var/a','/var/aa','/var/aaa','/var/aaaa','/var/aaaaa', ... ...
->  
-> But now, If I have a file or directory named 'abc' in directory '/var' (i.e., 
-> /var/abc). How can it match '/var(/.*)' ?
-  
-  well, i don't pretend to understand regular expressions either:
-  they are one of the most obscure nasty amazingly compact hang-overs
-  from the days when computers didn't have enough space to store
-  wordey programs or programming languages.
+On Sat, Jun 12, 2004 at 12:11:32PM +1000, Russell Coker wrote:
+> On Sat, 12 Jun 2004 06:40, Luke Kenneth Casson Leighton <lkcl@lkcl.net> wrote:
+> > > Why do you need a patched bsdutils?
+> >
+> > ?uhm, i don't, as i said it was part of my desperation "try it and
+> > ?see" policy two weeks ago and hey, it seems to work, so it ain't
+> > ?broke os i'm leaving it there unless you believe that i really
+> > ?shouldn't?
+> 
+> Did you compile it or did someone else?  
 
-  i think you'll find that the regular expression you are referring to
-  is "/var(/.*)?" note the question mark which means it's optional.
+ i got it from walter's repository
+ (lemuria.selinux.org/walters)
+ 
+> Where did the patch come from?
+> 
+> I would like to know what this bsdutils patch does...
+ 
+ i don't know, but look at http://www.nsa.gov/selinux, look
+ for the downloads directory.
 
-  dot means any one character, and star means zero or more characters.
+ also consider looking at russell's sf.net/projects/selinux
+ cvs repository, search for the directory patches i think
+ in selinux-usr.
 
-  so dot star means "one or more characters".
-
-  
-  obtuse as it is, can i recommend that you read up on several
-  sources of regular expressions, for example "man regex"
-  and also
-
-	  http://www.google.com/search?q=regular+expressions
-
-
-
-  remember we said google is your friend?  well we REALLY MEANT IT!
-
-  if you don't know about something, put some random words into
-  google, first.
-
-  THEN if you can't find an answer, and it's definitely SE/Linux
-  related, ask.
-
-  sincerely,
-
-  l.
+ l.
 
 -- 
 -- 
