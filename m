@@ -1,23 +1,35 @@
-Subject: Re: minor structure usage bug
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i2VDMLRb020206
+	for <selinux@tycho.nsa.gov>; Wed, 31 Mar 2004 08:22:21 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i2VDKQlU020065
+	for <selinux@tycho.nsa.gov>; Wed, 31 Mar 2004 13:20:26 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id i2VDKPkh020061
+	for <selinux@tycho.nsa.gov>; Wed, 31 Mar 2004 13:20:25 GMT
+Subject: Re: Problems to compile the src.rpm packages on Red Hat Linux 9.0
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chad Hanson <chanson@tcs-sec.com>
-Cc: "SE Linux (E-mail)" <SELinux@tycho.nsa.gov>,
-   James Morris <jmorris@redhat.com>
-In-Reply-To: <36282A1733C57546BE392885C0618592080BFA@chaos.tcs.tcs-sec.com>
-References: <36282A1733C57546BE392885C0618592080BFA@chaos.tcs.tcs-sec.com>
+To: "lcvleo@ig.com.br" <lcvleo@ig.com.br>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1080685248.6780.5.camel@linux.linuxista.eti.br>
+References: <1080685248.6780.5.camel@linux.linuxista.eti.br>
 Content-Type: text/plain
-Message-Id: <1080739457.22514.7.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1080739324.22514.4.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 31 Mar 2004 08:24:17 -0500
+Date: Wed, 31 Mar 2004 08:22:04 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2004-03-30 at 15:56, Chad Hanson wrote:
-> We found the sk_free_security() function incorrectly types ssec to a
-> task_security_struct instead of sk_security_struct. This has no current
-> impact as the magic element is the top of each structure.
+On Tue, 2004-03-30 at 17:20, lcvleo@ig.com.br wrote:
+>        Dear friends,
+>        I have problems when trying compile the packages coreutils,
+> openssh, pam, vixie-cron, shadow-utils. Only this packages. This message
+> error is present:
 
-Thanks.
+The SRPMS on the NSA web site are for Fedora Core 1, not RH9.  In any
+event, at this point, you are better off installing Fedora Core 2 test2
+if you want to experiment with Fedora and SELinux.  It already includes
+a SELinux-enabled kernel and applications.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
