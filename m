@@ -1,32 +1,37 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i9QG4mXZ013590
+	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 12:04:48 -0400 (EDT)
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id i9QG3TC0000907
+	for <selinux@tycho.nsa.gov>; Tue, 26 Oct 2004 16:03:30 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id A111F61AFC
+	for <selinux@tycho.nsa.gov>; Wed, 27 Oct 2004 02:04:46 +1000 (EST)
+Received: from smtp.sws.net.au ([127.0.0.1])
+	by localhost (smtp [127.0.0.1]) (amavisd-new, port 10024) with ESMTP
+	id 28612-01 for <selinux@tycho.nsa.gov>;
+	Wed, 27 Oct 2004 02:04:46 +1000 (EST)
+Received: from lyta.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 3973461AF7
+	for <selinux@tycho.nsa.gov>; Wed, 27 Oct 2004 02:04:46 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by lyta.coker.com.au (Postfix) with ESMTP id C8B11B58A0
+	for <selinux@tycho.nsa.gov>; Wed, 27 Oct 2004 02:04:46 +1000 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Rene Cunningham <rene@dclabs.com.au>
-Subject: Re: login as sysadm_r remotely
-Date: Wed, 27 Oct 2004 02:03:25 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <20041023112327.GW8603@eden.office.dclabs.com.au>
-In-Reply-To: <20041023112327.GW8603@eden.office.dclabs.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: dclabs
+Date: Wed, 27 Oct 2004 02:04:45 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200410270203.25440.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200410270204.45678.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 23 Oct 2004 21:23, Rene Cunningham <rene@dclabs.com.au> wrote:
-> Im trying to allow remote logins via ssh as root to use the sysadm_r role
-> by default. At the moment root logs in using staff_r and newrole -r needs
-> to be executed. I do want to force logins via tty's to default to
-> staff_r though.
+http://www.dclabs.com.au/
 
-The new policy I have just uploaded to Debian and put on my site permits this.  
-But note that you also need the new checkpolicy to match.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Note "Security Enhanced Linux on by default"...
 
 --
 This message was distributed to subscribers of the selinux mailing list.
