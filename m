@@ -1,42 +1,43 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA03431
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 13:24:04 -0500 (EST)
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA03525
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 13:31:00 -0500 (EST)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id SAA04848
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 18:20:47 GMT
-Received: from tsv.sws.net.au (tsv.sws.net.au [203.36.46.2])
-	by jazzswing.ncsc.mil  with ESMTP id SAA04844
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 18:20:44 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Jesse Pollard <pollard@admin.navo.hpc.mil>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SE play machine
-Date: Mon, 3 Mar 2003 19:23:52 +0100
-References: <200303011851.31023.russell@coker.com.au> <200303031200.45095.pollard@admin.navo.hpc.mil>
-In-Reply-To: <200303031200.45095.pollard@admin.navo.hpc.mil>
+	by jazzswing.ncsc.mil  with ESMTP id SAA05332
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 18:27:43 GMT
+Received: from epoch.ncsc.mil (facesaver.epoch.ncsc.mil [144.51.25.10])
+	by jazzswing.ncsc.mil  with ESMTP id SAA05328
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2003 18:27:42 GMT
+Message-Id: <200303031838.NAA18412@moss-shockers.ncsc.mil>
+Date: Mon, 3 Mar 2003 13:38:35 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: Core policy, third pass
+To: wsalamon@tislabs.com
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200303031923.52336.russell@coker.com.au>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 3 Mar 2003 19:00, Jesse Pollard wrote:
-> Again, only if you are sharing an account.
 
-Or if you are logging into an untrusted host, or if you fall victim to one of 
-the MITM attacks against ssh.
+Stephen Smalley wrote:
+> As a side note, netutils.te should likely be split up into separate
+> domains for the differing needs of these utilities, and some of the
+> other networking utilities should likely be placed into one of these
+> domains.  The current netutils.{te,fc} isn't very well-defined.
+> We should likewise look into whether the existing ping.te and traceroute.te
+> domains should be folded into a single 
 
-> As far as a keyboard grabber: I've attached one that we used to use.
+Sorry, I sent this message prematurely.  To complete and correct the
+above thought, when partitioning netutils.te into multiple domains and
+grouping related network utilities together, we might want to see
+whether each of ping.te and traceroute.te might be folded into one of
+the resulting domains.  However, it may be desirable to keep them
+separate from each other due to differences in their permission sets.
 
-Thanks.  I'll check it out later.
-
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 
 
 --
