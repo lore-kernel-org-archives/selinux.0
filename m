@@ -1,41 +1,67 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA29658
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:56:23 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA03958
-	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 18:54:58 GMT
-Received: from unicorn.lemuria.org (b067022.adsl.hansenet.de [62.109.67.22])
-        by jazzband.ncsc.mil  with ESMTP id SAA03947 for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 18:54:56 GMT
-Date: Thu, 27 Jun 2002 20:52:31 +0200
-From: Tom <tom@lemuria.org>
-To: jason phillips <jphillips@maximumbsd.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: BBC E-mail: Pro-Islamic hackers join forces
-Message-ID: <20020627205230.D16991@lemuria.org>
-References: <200206271553.g5RFrFJ25920@gateg.kw.bbc.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <200206271553.g5RFrFJ25920@gateg.kw.bbc.co.uk>; from jphillips@maximumbsd.com on Thu, Jun 27, 2002 at 03:47:00PM +0000
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id OAA29610
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 14:53:45 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id SAA24378
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 18:53:18 GMT
+Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
+	by jazzswing.ncsc.mil  with ESMTP id SAA24374
+	for <selinux@tycho.nsa.gov>; Thu, 27 Jun 2002 18:53:17 GMT
+Date: Thu, 27 Jun 2002 14:52:52 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+To: Ryan Bergauer <privateryan@mindspring.com>
+cc: <selinux@tycho.nsa.gov>
+Subject: RE: Configuration issues on a new installation
+In-Reply-To: <001701c21daa$28a60550$6501a8c0@donkey>
+Message-ID: <Pine.GSO.4.33.0206271424450.21230-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Jun 27, 2002 at 03:47:00PM +0000, jason phillips wrote:
-> *Pro-Islamic hackers join forces*
-> <http://news.bbc.co.uk/go/em/fr/-/hi/english/sci/tech/newsid_2052000/2052320.stm>
-> 
-> A global alliance of anti-US, anti-India and anti-Israel hacking groups
-> could increase the threat to cyberspace, say security experts.
 
-why do you post this FUD/spam/junk to a list about TECHNICAL security
-issues? I didn't read the article, but I'll take a bet that it doesn't
-contain any selinux config or code points.
+On Thu, 27 Jun 2002, Ryan Bergauer wrote:
+
+> Hah, tonight I've actually been working on policy files for Samba. This
+> is my first time dabbling with domains - could any of you who are much
+> more versed with SELinux take a quick look and tell me if everything
+> seems in order?
+>
+> I haven't had anything denied recently, but that's when Samba's being
+> used for my purposes. Your mileage may vary. The above files also
+> required a small change to the dhcpc domain, adding:
+>
+> allow dhcpc_t nmbd_t:packet_socket recvfrom;
+> allow dhcpc_t smbd_t:packet_socket recvfrom;
+> allow dhcpc_t tcp_socket_t:packet_socket recvfrom;
+>
+> Feeback is highly appreciated. No better way to get used to SELinux than
+> jumping in head-first...
+
+Thanks for contributing.  A few questions/suggestions:
+1) You may want to be more restrictive in granting read access to
+smbd/nmbd than what is currently permitted under every_domain() and by
+your allow rules to home_type.  Ideally, we'd like to see all of the
+domains reworked to move away from using every_domain in order to
+provide true least privilege.  Notice that every_domain is already
+partitioned into some smaller macros that you can use and that
+you could easily define even finer-grained subset macros.
+2) You can pick up some common declarations and rules for daemons from
+the daemon_domain macro in global_macros.te, contributed by Russell.
+3) It would be a good idea to define a separate type for /var/cache/samba
+and only grant smbd/nmbd access to it rather than the generic var_t type.
+4) Why does nmbd_t need recvfrom permission to initrc_t?  Are any of your
+system processes being left in initrc_t due to a lack of a domain?  Check
+your ps -e --context output.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
--- 
-New GPG Key issued (old key expired):
-http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5
+
+
+
 
 --
 You have received this message because you are subscribed to the selinux list.
