@@ -1,88 +1,122 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id NAA12274
-	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2001 13:50:23 -0500 (EST)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id SAA19400
-	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2001 18:50:17 GMT
-Received: from blackhole.cc.ndsu.nodak.edu (blackhole.cc.ndsu.NoDak.edu [134.129.106.141])
-	by jazzband.ncsc.mil  with ESMTP id SAA19396
-	for <selinux@tycho.nsa.gov>; Fri, 30 Mar 2001 18:50:16 GMT
-Date: Fri, 30 Mar 2001 12:52:39 -0600 (CST)
-From: Kris Odland <kodland@blackhole.cc.ndsu.nodak.edu>
-To: Stephen Smalley <sds@tislabs.com>
-cc: "NSA Linux (E-mail)" <selinux@tycho.nsa.gov>
-Subject: Re: Error in tools/build-apps
-In-Reply-To: <Pine.SOL.3.95.1010330130543.2543A-100000@clipper.gw.tislabs.com>
-Message-ID: <Pine.LNX.4.30.0103301248300.29708-100000@blackhole.cc.ndsu.nodak.edu>
+From: gawain.lynch@felicity-consulting.com.au
+To: SELinux@tycho.nsa.gov
+Subject: Re: Problem in installation...
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <OF0C084921.312D2C07-ONCA256A20.00009719@felicity.net.au>
+Date: Sat, 31 Mar 2001 10:18:29 +1000
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-OK, I changed the struct in msgread.c and it compiled without the errors,
-but still had the warnings.  It worked though.
->From what I can tell sys/msg.h in 6.2 includes sys/types.h and 7 does not.
-Im not sure if that is anything.  Also, the way they have the definitions
-for  msgrcv and msgsnd are set up a little different.
+My system already had the latest gcc on there, so I installed egcs with 
+rpm -ivh, then reinstalled gcc with rpm -ivh --force
 
-6.2:
-extern int msgrcv __P ((int __msqid, void *__msgp, size_t __msgsz,
-			long int __msgtyp, int __msgflg));
-7.0:
-extern int msgrcv (int __msqid, void *__msgp, size_t __msgsz,
-		   long int __msgtyp, int __msgflg) __THROW;
+That was all I needed. 
 
-Im not sure if that makes a difference or not either.  But those are the
-only differences with that call that I found.
-Anyway.  It all worked and its installed.  Now just have to restart and
-see if it I can get that far.  Thanks for the help.
+Oh I did run into one little problem compiling the apps too. The file 
+syscalls/msgread/msgread.c, line 35 reads: 
 
-Kris
+        struct msgbuf buf;
 
- On Fri, 30 Mar 2001, Stephen Smalley wrote:
+To compile I had to change it to:
 
->
-> Hubertus Franke just reported the same problem.  There
-> is an error in the syscalls msgread program that demonstrates
-> the msgrcv_secure system call.  msgread.c should use
-> 'struct ipcmsgbuf' rather than 'struct msgbuf' for buf.
-> I'm not sure about the warning you are getting for the
-> function prototypes in ipc_secure.h.  ipc_secure.h includes
-> sys/msg.h, and on RedHat 6.1 and 6.2, sys/msg.h defines struct
-> msgbuf as a template for the struct to be used as the argument
-> for msgsnd and msgrcv.  Has that changed in RedHat 7.0?
->
+        struct ipcmsgbuf buf;
+
+Other than those two changes and having all the necessary rpms for 
+compiling code, it should just work  :-)
+
+Gawain
+
+
+
+
+Jon Crowley <jonathan@mitre.org>
+Sent by: root@smtpsrv1.mitre.org
+03/30/01 12:58 AM
+
+ 
+        To:     gawain.lynch@felicity-consulting.com.au
+        cc: 
+        Subject:        Re: Problem in installation...
+
+
+Were you able to simply reinstall gcc from the RPM, or did you have to
+do any configuration, etc?
+
+Jon
+
+
+gawain.lynch@felicity-consulting.com.au wrote:
+> 
+> I tracked one of the problems down.  A lot of people, myself included 
+seem
+> to be trying to compile with Red Hat 7.
+> 
+> The RH7 install is missing egcs (provides
+> /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/), which I installed off
+> my RH6.2 CD, _reinstalled_ the updated gcc and no more stddef.h error!
+> 
+> I still can't give anymore reasons as to the tools/build-kernel script
+> fails, but it will work if you have run make dep and commented that 
+action
+> out of the script.
+> 
+> Cheers,
+> 
+> Gawain
+> 
+> Stephen Smalley <sds@tislabs.com>
+> Sent by: owner-selinux@tycho.nsa.gov
+> 03/29/01 06:59 AM
+> 
+> 
+>         To:     Rajan Ravindran <rajancr@us.ibm.com>
+>         cc:     SELinux@tycho.nsa.gov
+>         Subject:        Re: Problem in installation...
+> 
+> Several people have reported problems using the build-kernel script,
+> but they haven't identified the exact nature of the problem, and
+> it doesn't seem to occur on our RedHat 6.1 systems.  Try expanding
+> a clean copy of the release and building the kernel by hand, e.g.
+> 
+> tar xzf slinux-200103151617-release.tgz
+> cd slinux
+> ln -sf kernel-2.4 kernel
+> cd kernel
+> make xconfig
+>                  (Configure the kernel appropriately for your hardware.)
+> make dep
+> make
+> make modules
+> 
 > --
 > Stephen D. Smalley, NAI Labs
-> ssmalley@nai.com
->
-> On Fri, 30 Mar 2001, Kris Odland wrote:
->
-> > Hi, I am attempting to install this on a rh7 box and the kernel compiled
-> > without any problems.  I get this error twice in the build-apps script
-> > when it is building the syscalls programs.
-> > In file included from msgread.c:17:
-> > ../../include/ipc_secure.h:19: warning: `struct msgbuf' declared inside
-> > parameter list
-> > ../../include/ipc_secure.h:19: warning: its scope is only this definition
-> > or declaration, which is probably not what you want.
-> > ../../include/ipc_secure.h:23: warning: `struct msgbuf' declared inside
-> > parameter list
-> > msgread.c: In function `main':
-> > msgread.c:35: storage size of `buf' isn't known
-> > make[1]: *** [msgread.o] Error 1
+> sds@tislabs.com
+> 
+> On Wed, 28 Mar 2001, Rajan Ravindran wrote:
+> 
 > >
-> > Everything else seems to compile fine except this.  Is there something I
-> > missed?
+> > Hi,
+> > I started installing the security-enchanced linux as per the
+> > procedure mentioned in
 > >
-> > Kris
->
-
--- 
------------------------------------------------------
-  Kris Odland  -- ITS Server Group
-  IACC 242K    -- NDSU
-  (701) 231-9646  Kristoffer_Odland@ndsu.nodak.edu
+> > http://www.nsa.gov/selinux/doc/install.html
+> >
+> > While building the kernel by running
+> >
+> > ./tools/build-kernel
+> >
+> > i'm getting an error "stddef.h not found", this
+> > happening while running make xconfig itself (stddef.h is present
+> > in kernel/linux/include directory). If anyone
+> > knows the solution for this problem, please let me know.
+> 
+> --
+> You have received this message because you are subscribed to the selinux 
+list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
+with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 
