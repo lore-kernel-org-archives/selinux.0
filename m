@@ -1,68 +1,460 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82K8trT002840
-	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 16:08:55 -0400 (EDT)
-Message-ID: <41377DD5.8010500@redhat.com>
-Date: Thu, 02 Sep 2004 16:08:53 -0400
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i82KBurT002897
+	for <selinux@tycho.nsa.gov>; Thu, 2 Sep 2004 16:11:57 -0400 (EDT)
+Message-ID: <41377E8A.2030707@redhat.com>
+Date: Thu, 02 Sep 2004 16:11:54 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: SELinux <selinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>
-Subject: Re: Proposed Hardware File Context file.
+CC: SELinux <selinux@tycho.nsa.gov>, Colin Walters <walters@redhat.com>,
+   Nalin Dahyabhai <nalin@redhat.com>
+Subject: Please review openssh patch for selinux
 References: <200408241818.40064.russell@coker.com.au>	 <41371628.2020408@redhat.com>	 <1094130607.17265.47.camel@moss-spartans.epoch.ncsc.mil>	 <200409022338.20644.russell@coker.com.au>	 <1094136369.17265.128.camel@moss-spartans.epoch.ncsc.mil>	 <413741A3.3070305@redhat.com>	 <1094153919.17265.375.camel@moss-spartans.epoch.ncsc.mil>	 <41377927.3080703@redhat.com> <1094155198.17265.389.camel@moss-spartans.epoch.ncsc.mil>
 In-Reply-To: <1094155198.17265.389.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/mixed;
+ boundary="------------010208000406070702040002"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+This is a multi-part message in MIME format.
+--------------010208000406070702040002
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
->On Thu, 2004-09-02 at 15:48, Daniel J Walsh wrote:
->  
->
->>The other thought would be to use a separate file that would map device 
->>type to policy
->>cat hardware_contexts
->>
->>cdrom system_u:object_r:removable_disk_device_t 
->>
->>disk system_u:object_r:fixed_disk_device_t
->>    
->>
->
->I think I like this better.  But let them also specify unit number or
->similar so that multiple devices of the same type can be mapped to
->different contexts, please.
->
->  
->
-Ok so the original context as specified in the file context file with 
-hardware type.   IE
-PATH  MODETYPE CONTEXT HARDWARE
-/dev/hd.* -b  system_u:object_r:removable_disk_device_t     cdrom
-/dev/hd.* -b  system_u:object_r:fixed_disk_device_t              disk
+New SSH patch.
 
->>But this would still fail the restorecon, rpm and setfiles.
->>
->>One idea would be to not include /dev in the setfiles stuff.  ( I guess it wouldn't now that it is a tmpfs file system)
->>    
->>
->
->True, relabel won't include tmpfs mounts.   Not sure about rpm and /dev
->nodes, e.g. is dev package obsoleted by udev, and are there other /dev
->nodes that are part of other packages?
->
->  
->
->>We still need a mapping in policy and a libselinux function to give us 
->>that mapping.
->>    
->>
->
->True.  But much simpler than matchpathcon.
->
->  
->
+Provides the capability of doing
 
+ssh hostname -l root/sysadm_r
+
+suggested by Collin. 
+
+I used the / instead of : to preserve the BSD syntax.
+
+Comments?
+
+
+Dan
+
+
+--------------010208000406070702040002
+Content-Type: text/plain;
+ name="openssh-selinux.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="openssh-selinux.patch"
+
+--- openssh-3.9p1/monitor_wrap.h.selinux	2004-06-21 22:56:02.000000000 -0400
++++ openssh-3.9p1/monitor_wrap.h	2004-09-02 16:01:12.361473922 -0400
+@@ -44,6 +44,7 @@
+ DH *mm_choose_dh(int, int, int);
+ int mm_key_sign(Key *, u_char **, u_int *, u_char *, u_int);
+ void mm_inform_authserv(char *, char *);
++void mm_inform_authrole(char *);
+ struct passwd *mm_getpwnamallow(const char *);
+ char *mm_auth2_read_banner(void);
+ int mm_auth_password(struct Authctxt *, char *);
+--- openssh-3.9p1/contrib/redhat/sshd.init.selinux	2002-05-09 22:19:23.000000000 -0400
++++ openssh-3.9p1/contrib/redhat/sshd.init	2004-09-02 16:01:12.363473687 -0400
+@@ -35,6 +35,9 @@
+ 		if $KEYGEN -q -t rsa1 -f $RSA1_KEY -C '' -N '' >&/dev/null; then
+ 			chmod 600 $RSA1_KEY
+ 			chmod 644 $RSA1_KEY.pub
++			if [ -x /sbin/restorecon ]; then
++			    /sbin/restorecon $RSA1_KEY.pub
++			fi
+ 			success $"RSA1 key generation"
+ 			echo
+ 		else
+@@ -51,6 +54,9 @@
+ 		if $KEYGEN -q -t rsa -f $RSA_KEY -C '' -N '' >&/dev/null; then
+ 			chmod 600 $RSA_KEY
+ 			chmod 644 $RSA_KEY.pub
++			if [ -x /sbin/restorecon ]; then
++			    /sbin/restorecon $RSA_KEY.pub
++			fi
+ 			success $"RSA key generation"
+ 			echo
+ 		else
+@@ -67,6 +73,9 @@
+ 		if $KEYGEN -q -t dsa -f $DSA_KEY -C '' -N '' >&/dev/null; then
+ 			chmod 600 $DSA_KEY
+ 			chmod 644 $DSA_KEY.pub
++			if [ -x /sbin/restorecon ]; then
++			    /sbin/restorecon $DSA_KEY.pub
++			fi
+ 			success $"DSA key generation"
+ 			echo
+ 		else
+--- openssh-3.9p1/auth1.c.selinux	2004-09-02 16:01:12.290482263 -0400
++++ openssh-3.9p1/auth1.c	2004-09-02 16:02:18.505704965 -0400
+@@ -283,7 +283,7 @@
+ do_authentication(Authctxt *authctxt)
+ {
+ 	u_int ulen;
+-	char *user, *style = NULL;
++	char *user, *style = NULL, *role=NULL;
+ 
+ 	/* Get the name of the user that we wish to log in as. */
+ 	packet_read_expect(SSH_CMSG_USER);
+@@ -292,11 +292,15 @@
+ 	user = packet_get_string(&ulen);
+ 	packet_check_eom();
+ 
++	if ((role = strchr(user, '/')) != NULL)
++		*role++ = '\0';
++
+ 	if ((style = strchr(user, ':')) != NULL)
+ 		*style++ = '\0';
+ 
+ 	authctxt->user = user;
+ 	authctxt->style = style;
++	authctxt->role = role;
+ 
+ 	/* Verify that the user is a valid user. */
+ 	if ((authctxt->pw = PRIVSEP(getpwnamallow(user))) != NULL)
+--- openssh-3.9p1/monitor.h.selinux	2003-11-17 06:18:22.000000000 -0500
++++ openssh-3.9p1/monitor.h	2004-09-02 16:01:12.366473335 -0400
+@@ -30,7 +30,7 @@
+ 
+ enum monitor_reqtype {
+ 	MONITOR_REQ_MODULI, MONITOR_ANS_MODULI,
+-	MONITOR_REQ_FREE, MONITOR_REQ_AUTHSERV,
++	MONITOR_REQ_FREE, MONITOR_REQ_AUTHSERV,MONITOR_REQ_AUTHROLE,
+ 	MONITOR_REQ_SIGN, MONITOR_ANS_SIGN,
+ 	MONITOR_REQ_PWNAM, MONITOR_ANS_PWNAM,
+ 	MONITOR_REQ_AUTH2_READ_BANNER, MONITOR_ANS_AUTH2_READ_BANNER,
+--- openssh-3.9p1/monitor.c.selinux	2004-07-17 03:05:14.000000000 -0400
++++ openssh-3.9p1/monitor.c	2004-09-02 16:01:12.369472982 -0400
+@@ -111,6 +111,7 @@
+ int mm_answer_pwnamallow(int, Buffer *);
+ int mm_answer_auth2_read_banner(int, Buffer *);
+ int mm_answer_authserv(int, Buffer *);
++int mm_answer_authrole(int, Buffer *);
+ int mm_answer_authpassword(int, Buffer *);
+ int mm_answer_bsdauthquery(int, Buffer *);
+ int mm_answer_bsdauthrespond(int, Buffer *);
+@@ -176,6 +177,7 @@
+     {MONITOR_REQ_SIGN, MON_ONCE, mm_answer_sign},
+     {MONITOR_REQ_PWNAM, MON_ONCE, mm_answer_pwnamallow},
+     {MONITOR_REQ_AUTHSERV, MON_ONCE, mm_answer_authserv},
++    {MONITOR_REQ_AUTHROLE, MON_ONCE, mm_answer_authrole},
+     {MONITOR_REQ_AUTH2_READ_BANNER, MON_ONCE, mm_answer_auth2_read_banner},
+     {MONITOR_REQ_AUTHPASSWORD, MON_AUTH, mm_answer_authpassword},
+ #ifdef USE_PAM
+@@ -602,6 +604,7 @@
+ 	else {
+ 		/* Allow service/style information on the auth context */
+ 		monitor_permit(mon_dispatch, MONITOR_REQ_AUTHSERV, 1);
++		monitor_permit(mon_dispatch, MONITOR_REQ_AUTHROLE, 1);
+ 		monitor_permit(mon_dispatch, MONITOR_REQ_AUTH2_READ_BANNER, 1);
+ 	}
+ 
+@@ -647,6 +650,23 @@
+ }
+ 
+ int
++mm_answer_authrole(int sock, Buffer *m)
++{
++	monitor_permit_authentications(1);
++
++	authctxt->role = buffer_get_string(m, NULL);
++	debug3("%s: style=%s",
++	    __func__, authctxt->role);
++
++	if (strlen(authctxt->role) == 0) {
++		xfree(authctxt->role);
++		authctxt->role = NULL;
++	}
++
++	return (0);
++}
++
++int
+ mm_answer_authpassword(int sock, Buffer *m)
+ {
+ 	static int call_count;
+--- openssh-3.9p1/config.h.in.selinux	2004-08-17 08:54:51.000000000 -0400
++++ openssh-3.9p1/config.h.in	2004-09-02 16:01:12.371472747 -0400
+@@ -265,6 +265,9 @@
+ /* Define if you want Kerberos 5 support */
+ #undef KRB5
+ 
++/* Define if have want SELinux support */
++#undef WITH_SELINUX
++
+ /* Define this if you are using the Heimdal version of Kerberos V5 */
+ #undef HEIMDAL
+ 
+--- /dev/null	2004-08-26 15:03:20.000000000 -0400
++++ openssh-3.9p1/selinux.c	2004-09-02 16:01:12.375472277 -0400
+@@ -0,0 +1,101 @@
++#include "includes.h"
++#include "auth.h"
++#include "log.h"
++
++#ifdef WITH_SELINUX
++#include <selinux/selinux.h>
++#include <selinux/flask.h>
++#include <selinux/context.h>
++#include <selinux/get_context_list.h>
++#include <selinux/get_default_type.h>
++extern Authctxt *the_authctxt;
++
++static const security_context_t selinux_get_user_context(const char *name) {
++	security_context_t user_context=NULL;
++	if (get_default_context(name,NULL,&user_context)) {
++		if (security_getenforce() > 0) 
++			fatal("Failed to get default security context for %s.", name);
++		else 
++			error("Failed to get default security context for %s. Continuing in permissve mode", name);
++	} else {
++		if (the_authctxt) {
++			char *role=the_authctxt->role;
++			if (role != NULL && role[0]) {
++				char *type;
++				if (get_default_type(role, &type) < 0) {
++					if (security_getenforce() > 0) 
++						fatal("Failed to get default type for role %s, user %s.", role, name);
++					else 
++						error("Failed to get default type for role %s, user %s. Continuing in permissive mode", role, name);
++				} else {
++					context_t newcon=context_new(user_context);
++					if (context_role_set(newcon, role) != 0) {
++						context_free(newcon);
++						if (security_getenforce() > 0) 
++							fatal("Failed to set role %s for %s.", role, name);
++						else 
++							error("Failed to set role %s for %s. Continuing in permissive mode", role, name);
++					} else if (context_type_set(newcon, type) != 0) {
++						context_free(newcon);
++						if (security_getenforce() > 0) 
++							fatal("Failed to set type %s for %s.", role, name);
++						else 
++							error("Failed to set type %s for %s. Continuing in permissive mode", role, name);
++					} else {
++						freecon(user_context);
++						user_context = strdup(context_str(newcon));
++						context_free(newcon);
++					}
++				}
++			}
++		}
++	}
++	return user_context;
++}
++
++void setup_selinux_pty(const char *name, const char *tty) {
++	if (is_selinux_enabled() > 0) {
++		security_context_t new_tty_context=NULL, user_context=NULL, old_tty_context=NULL; 
++
++		user_context=selinux_get_user_context(name);
++
++		if (getfilecon(tty, &old_tty_context) < 0) {
++			error("getfilecon(%.100s) failed: %.100s", tty, strerror(errno));
++		} else {
++			if (security_compute_relabel(user_context,old_tty_context,
++						     SECCLASS_CHR_FILE,
++						     &new_tty_context) != 0) {
++				error("security_compute_relabel(%.100s) failed: %.100s", tty,
++				      strerror(errno));
++			} else {
++				if (setfilecon (tty, new_tty_context) != 0) 
++					error("setfilecon(%.100s, %s) failed: %.100s",
++					      tty, new_tty_context, 
++					      strerror(errno));
++				freecon(new_tty_context);
++			}
++			freecon(old_tty_context);
++		}
++		if (user_context) {
++			freecon(user_context);
++		}
++	}
++}
++
++void setup_selinux_exec_context(char *name) {
++
++	if (is_selinux_enabled() > 0) {
++		security_context_t user_context=selinux_get_user_context(name);
++		if (setexeccon(user_context)) {
++			if (security_getenforce() > 0) 
++				fatal("Failed to set exec security context %s for %s.", user_context, name);
++			else 
++				error("Failed to set exec security context %s for %s. Continuing in permissive mode", user_context, name);
++		}
++		if (user_context) {
++			freecon(user_context);
++		}
++	}
++}
++
++#endif /* WITH_SELINUX */
+--- openssh-3.9p1/auth.h.selinux	2004-05-23 20:36:23.000000000 -0400
++++ openssh-3.9p1/auth.h	2004-09-02 16:01:12.377472042 -0400
+@@ -57,6 +57,7 @@
+ 	char		*service;
+ 	struct passwd	*pw;		/* set if 'valid' */
+ 	char		*style;
++	char		*role;
+ 	void		*kbdintctxt;
+ #ifdef BSD_AUTH
+ 	auth_session_t	*as;
+--- openssh-3.9p1/sshpty.c.selinux	2004-06-21 22:56:02.000000000 -0400
++++ openssh-3.9p1/sshpty.c	2004-09-02 16:01:12.378471925 -0400
+@@ -22,6 +22,8 @@
+ #include "log.h"
+ #include "misc.h"
+ 
++#include "selinux.h"
++
+ #ifdef HAVE_PTY_H
+ # include <pty.h>
+ #endif
+@@ -200,6 +202,8 @@
+ 		fatal("stat(%.100s) failed: %.100s", tty,
+ 		    strerror(errno));
+ 
++	setup_selinux_pty(pw->pw_name, tty);
++
+ 	if (st.st_uid != pw->pw_uid || st.st_gid != gid) {
+ 		if (chown(tty, pw->pw_uid, gid) < 0) {
+ 			if (errno == EROFS &&
+--- openssh-3.9p1/configure.ac.selinux	2004-09-02 16:01:12.327477916 -0400
++++ openssh-3.9p1/configure.ac	2004-09-02 16:01:12.382471455 -0400
+@@ -2218,6 +2218,18 @@
+ 			[#include <arpa/nameser.h>])
+ 	])
+ 
++# Check whether user wants SELinux support
++SELINUX_MSG="no"
++AC_ARG_WITH(selinux,
++	[  --with-selinux   Enable SELinux support],
++	[ if test "x$withval" != "xno" ; then
++		AC_DEFINE(WITH_SELINUX)
++		SELINUX_MSG="yes"
++		AC_CHECK_HEADERS(selinux.h)
++		LIBS="$LIBS -lselinux"
++	fi
++	])
++
+ # Check whether user wants Kerberos 5 support
+ KRB5_MSG="no"
+ AC_ARG_WITH(kerberos5,
+@@ -2975,6 +2987,7 @@
+ echo "                    Manpage format: $MANTYPE"
+ echo "                       PAM support: $PAM_MSG"
+ echo "                 KerberosV support: $KRB5_MSG"
++echo "                   SELinux support: $SELINUX_MSG"
+ echo "                 Smartcard support: $SCARD_MSG"
+ echo "                     S/KEY support: $SKEY_MSG"
+ echo "              TCP Wrappers support: $TCPW_MSG"
+--- openssh-3.9p1/Makefile.in.selinux	2004-08-15 07:01:37.000000000 -0400
++++ openssh-3.9p1/Makefile.in	2004-09-02 16:01:12.385471103 -0400
+@@ -76,7 +76,7 @@
+ 	sshconnect.o sshconnect1.o sshconnect2.o
+ 
+ SSHDOBJS=sshd.o auth-rhosts.o auth-passwd.o auth-rsa.o auth-rh-rsa.o \
+-	sshpty.o sshlogin.o servconf.o serverloop.o \
++	sshpty.o sshlogin.o servconf.o serverloop.o selinux.o \
+ 	auth.o auth1.o auth2.o auth-options.o session.o \
+ 	auth-chall.o auth2-chall.o groupaccess.o \
+ 	auth-skey.o auth-bsdauth.o auth2-hostbased.o auth2-kbdint.o \
+--- /dev/null	2004-08-26 15:03:20.000000000 -0400
++++ openssh-3.9p1/selinux.h	2004-09-02 16:01:12.386470985 -0400
+@@ -0,0 +1,10 @@
++#ifndef __SELINUX_H_
++#define __SELINUX_H_
++#ifdef WITH_SELINUX
++extern void setup_selinux_pty(const char *name, const char *tty);
++extern void setup_selinux_exec_context(const char *name);
++#else
++inline void setup_selinux_pty(const char *name, const char *tty) {}
++inline void setup_selinux_exec_context(const char *name) {} 
++#endif /* WITH_SELINUX */
++#endif /* __SELINUX_H_ */
+--- openssh-3.9p1/auth2.c.selinux	2004-08-12 08:40:25.000000000 -0400
++++ openssh-3.9p1/auth2.c	2004-09-02 16:01:12.389470633 -0400
+@@ -132,7 +132,7 @@
+ {
+ 	Authctxt *authctxt = ctxt;
+ 	Authmethod *m = NULL;
+-	char *user, *service, *method, *style = NULL;
++	char *user, *service, *method, *style = NULL, *role = NULL;
+ 	int authenticated = 0;
+ 
+ 	if (authctxt == NULL)
+@@ -144,6 +144,9 @@
+ 	debug("userauth-request for user %s service %s method %s", user, service, method);
+ 	debug("attempt %d failures %d", authctxt->attempt, authctxt->failures);
+ 
++	if ((role = strchr(user, '/')) != NULL)
++		*role++ = 0;
++
+ 	if ((style = strchr(user, ':')) != NULL)
+ 		*style++ = 0;
+ 
+@@ -170,8 +173,11 @@
+ 		    use_privsep ? " [net]" : "");
+ 		authctxt->service = xstrdup(service);
+ 		authctxt->style = style ? xstrdup(style) : NULL;
+-		if (use_privsep)
++		authctxt->role = role ? xstrdup(role) : NULL;
++		if (use_privsep) {
+ 			mm_inform_authserv(service, style);
++			mm_inform_authrole(role);
++		}
+ 	} else if (strcmp(user, authctxt->user) != 0 ||
+ 	    strcmp(service, authctxt->service) != 0) {
+ 		packet_disconnect("Change of username or service not allowed: "
+--- openssh-3.9p1/monitor_wrap.c.selinux	2004-07-17 03:05:14.000000000 -0400
++++ openssh-3.9p1/monitor_wrap.c	2004-09-02 16:01:12.391470398 -0400
+@@ -274,6 +274,23 @@
+ 	buffer_free(&m);
+ }
+ 
++/* Inform the privileged process about role */
++
++void
++mm_inform_authrole(char *role)
++{
++	Buffer m;
++
++	debug3("%s entering", __func__);
++
++	buffer_init(&m);
++	buffer_put_cstring(&m, role ? role : "");
++
++	mm_request_send(pmonitor->m_recvfd, MONITOR_REQ_AUTHROLE, &m);
++
++	buffer_free(&m);
++}
++
+ /* Do the password authentication */
+ int
+ mm_auth_password(Authctxt *authctxt, char *password)
+--- openssh-3.9p1/session.c.selinux	2004-08-12 08:40:25.000000000 -0400
++++ openssh-3.9p1/session.c	2004-09-02 16:01:12.395469928 -0400
+@@ -58,6 +58,8 @@
+ #include "session.h"
+ #include "monitor_wrap.h"
+ 
++#include "selinux.h"
++
+ #if defined(KRB5) && defined(USE_AFS)
+ #include <kafs.h>
+ #endif
+@@ -1304,6 +1306,8 @@
+ #endif
+ 	if (getuid() != pw->pw_uid || geteuid() != pw->pw_uid)
+ 		fatal("Failed to set uids to %u.", (u_int) pw->pw_uid);
++
++	setup_selinux_exec_context(pw->pw_name);
+ }
+ 
+ static void
+
+--------------010208000406070702040002--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
