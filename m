@@ -1,78 +1,38 @@
 Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h5UIA973002308
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2003 14:10:09 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id h61Cfw73005546
+	for <selinux@tycho.nsa.gov>; Tue, 1 Jul 2003 08:41:58 -0400 (EDT)
 Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
-	by jazzswing.ncsc.mil  with ESMTP id h5UI9Iss026624
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2003 18:09:19 GMT
-Received: from monk.verbum.org (monk.debian.net [216.226.142.128])
-	by jazzswing.ncsc.mil  with ESMTP id h5UI9HhY026621
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2003 18:09:18 GMT
-Subject: Re: improvements to chcon.c
-From: Colin Walters <walters@verbum.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, selinux@tycho.nsa.gov
-In-Reply-To: <200307010011.22778.russell@coker.com.au>
-References: <1056781690.14920.81.camel@columbia>
-	 <1056976283.1110.748.camel@moss-huskers.epoch.ncsc.mil>
-	 <200307010011.22778.russell@coker.com.au>
-Content-Type: text/plain
-Message-Id: <1056996530.24425.35.camel@columbia>
-Mime-Version: 1.0
-Date: 30 Jun 2003 14:08:50 -0400
+	by jazzswing.ncsc.mil  with ESMTP id h61Cf7ss012246
+	for <selinux@tycho.nsa.gov>; Tue, 1 Jul 2003 12:41:07 GMT
+Received: from sat.sws.net.au ([202.5.161.49])
+	by jazzswing.ncsc.mil  with ESMTP id h61Cf0hY012231
+	for <selinux@tycho.nsa.gov>; Tue, 1 Jul 2003 12:41:06 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Familiar ARM patches
+Date: Tue, 1 Jul 2003 22:41:36 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200307012241.36451.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2003-06-30 at 10:11, Russell Coker wrote:
+src 2.4.19 http://www.coker.com.au/ipaq-feed
 
-> Also I have been thinking that the "-h" option to chcon should become the 
-> default.  It seems that most times I run it I want that, and that having it 
-> change symlinks rather than their destination is usually the safest option 
-> (CF a symlink to /etc/passwd).
+I've updated my feed of iPaQ kernel packages for SE Linux, putting the above 
+in your /etc/ipkg.conf file will allow you to upgrade.  NB  It's only for 
+X-scale.
 
-Wholeheartedly agreed.
+The patches are also updated and on http://www.coker.com.au/arm/
 
-> NB  These same issues apply to chown/chgrp/chmod.  So a patch for this would 
-> best be written in a generic manner to solve the issue for all three.  The 
-> problems of "chown -R" etc are well known for many years...
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-Honestly I didn't even realize until now that chown followed symlinks by
-default.  I think I'm going to write a little zsh function that wraps
-chown/chcon and warns me if I use -R without -h.
-
-Actually, I just did, in case anyone's interested:
-
-function chown () {
-    cw-dangerous-command "/bin/chown" $@
-}
-
-function chcon () {
-    cw-dangerous-command "/usr/bin/chcon" $@
-}
-
-function cw-dangerous-command () {
-    cmd=$1
-    shift
-    R_seen=
-    h_seen=
-    for arg in $@; do
-        if test "$arg" = "-R" || test "$arg" = "--recursive"; then
-	    R_seen=yes
-	fi
-        if test "$arg" = "-h" || test "$arg" = "--no-dereference"; then
-	    h_seen=yes
-	fi
-    done
-    if test -n "$R_seen" && test -z "$h_seen"; then
-	printf "recursive \"%s\" without -h is dangerous; continue? (y/n) " "$cmd"
-	read ans
-	case "$ans" in
-	    y*|Y*) $cmd "$@" ;;
-	    *) ;;
-	esac
-    else
-        $cmd "$@"
-    fi
-}
 
 --
 This message was distributed to subscribers of the selinux mailing list.
