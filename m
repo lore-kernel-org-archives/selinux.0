@@ -1,49 +1,46 @@
-Subject: questions
-From: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
-To: SELinux <SELinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-2
-Date: 24 Aug 2003 00:11:54 +0200
-Message-Id: <1061676714.1648.281.camel@kusturica>
-Mime-Version: 1.0
+Date: Sun, 24 Aug 2003 23:49:06 +1000 (EST)
+From: James Morris <jmorris@redhat.com>
+To: =?ISO-8859-1?Q?Magos=E1nyi_=C1rp=E1d?= <mag@bunuel.tii.matav.hu>
+cc: SELinux <SELinux@tycho.nsa.gov>
+Subject: Re: questions
+In-Reply-To: <1061676714.1648.281.camel@kusturica>
+Message-ID: <Mutt.LNX.4.44.0308242341320.21690-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi!
+On 24 Aug 2003, Magosányi Árpád wrote:
 
-I am experimenting with selinux. My previous experiments included
-RSBAC with its RC model. It was (is) a system where there are
-multiple chrooted environments, and there is an RC emulation
-of Bell&LaPadula within them. Compared to that, the default
-selinux configuration is _way_ complicated. Now I am thinking
-about implementing either the above setup or a setup which is
-a combination of the above and the default policy. I just have to
-get in sync, and figure out how one can handle this complexity
-in a secure manner. (I guess that constraints will help, but the
-whole picture is far from clear.) This is why I have several
-questions.
+> - Is polyinstantiation is put back to selinux yet? Having moldy
+>  directories based on subject domain would be nice. If not, what
+>  workarounds exist?
 
--What tools and techniques exist for analysing the policy?
- For example how can I list domains besides using grep and friends
- on the policy file?
- I am also interested in techniques of analysing and designing MAC
- policies in general, and using TE and RBAC in particular. I presume
- that there is something newer than the Red and Aqua books on the
- issue, but where?
+There is no polyinstantiation (of e.g. directories, ports), and AFAIK,
+never has been.
 
-- Is polyinstantiation is put back to selinux yet? Having moldy
- directories based on subject domain would be nice. If not, what
- workarounds exist?
+> - What about networking? I see that there is nodecon and portcom,
+>  and someone has written that some networking functionality is
+>  out because of rejection of the corresponding LSM hooks. Do
+>  they work?
 
-- What about networking? I see that there is nodecon and portcom,
- and someone has written that some networking functionality is
- out because of rejection of the corresponding LSM hooks. Do
- they work? Do we have an iptables context match module?
- Will we?
+Some of the missing networking functionality is in the process of being 
+redesigned and added back in.
 
-Thanx.
+> Do we have an iptables context match module?
 
+Not that I know of.
+
+>  Will we?
+
+It is possible, if someone cares to do it.
+
+
+- James
 -- 
-GNU GPL: csak tiszta forrásból
+James Morris
+<jmorris@redhat.com>
+
 
 
 --
