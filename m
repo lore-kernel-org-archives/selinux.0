@@ -1,31 +1,42 @@
 Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j12D8X53021845
-	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 08:08:33 -0500 (EST)
-Subject: RE: Advice on bringing up SE Linux
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id j12DFT53021895
+	for <selinux@tycho.nsa.gov>; Wed, 2 Feb 2005 08:15:30 -0500 (EST)
+Subject: Re: Latest diffs
 From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Villalovos, John L" <john.l.villalovos@intel.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <60C14C611F1DDD4198D53F2F43D8CA3B035B5599@orsmsx410>
-References: <60C14C611F1DDD4198D53F2F43D8CA3B035B5599@orsmsx410>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Jim Carter <jwcart2@epoch.ncsc.mil>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
+References: <1106940328.32737.120.camel@moss-spartans.epoch.ncsc.mil>
+	 <41FA9717.2000609@redhat.com>
+	 <1107283533.31281.8.camel@moss-lions.epoch.ncsc.mil>
+	 <1107287300.26936.226.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Message-Id: <1107349320.890.68.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1107349736.890.72.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Date: Wed, 02 Feb 2005 08:02:00 -0500
+Date: Wed, 02 Feb 2005 08:08:56 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2005-02-01 at 15:50, Villalovos, John L wrote:
-> I will work on trying to get load_policy compiled up for what we have
-> going and see if I can get it to work that way.
+On Tue, 2005-02-01 at 14:48, Stephen Smalley wrote:
+> After Jim's merge of some of your changes, I've committed the patch
+> below, which introduces an allow_execmem boolean for all execmem allow
+> rules, wraps some additional execmod allow rules with your boolean,
+> removes execmod permission to shlib_t entirely (should only be allowed
+> to texrel_shlib_t except for special domains for programs like java),
+> and assigns texrel_shlib_t to libGL.  Actually, some of the individual
+> execmod allow rules may now be redundant with the conditional rule you
+> put in uses_shlib.  I think that we may need to further break up these
+> booleans to allow certain programs to have these permissions without
+> granting them more widely.
 
-Note that you don't need the full load_policy logic to just perform a
-basic load, especially given that you are using a pre-boolean policy
-version.  You should be able to strip load_policy down to just opening
-the policy file, mmap'ing it, and calling security_load_policy from
-libselinux (or if you don't want to build libselinux, you could just
-handcode load_policy to open /selinux/load and write the mmap'd policy
-file to it).  The boolean support in the current load_policy isn't
-critical, and is completely irrelevant for a version 15 policy.
+BTW, I think that putting the conditional rule in uses_shlib() is likely
+not what you want, as it means that if you allow execmod at all to
+texrel_shlib_t, you essentially allow it for all domains.  In practice,
+I think you will only want to allow it where needed, and especially not
+for daemon domains.  Hence, I would recommend removing it from
+uses_shlib() and instead add it selectively to domains that have a
+legitimate need, as has already been done for a few cases as well as the
+user domains.
 
 -- 
 Stephen Smalley <sds@epoch.ncsc.mil>
