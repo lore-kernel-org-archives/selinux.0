@@ -1,58 +1,66 @@
-From: "cheng weifang" <study_box@hotmail.com>
-To: SELinux@tycho.nsa.gov
-Subject: Trouble with Selinux package
-Date: Wed, 07 Jan 2004 11:54:21 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; charset=gb2312; format=flowed
-Message-ID: <BAY2-F158WfBX8JKjfi000628e7@hotmail.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i07Fh6Rb015677
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jan 2004 10:43:08 -0500 (EST)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id i07Fg3xr010493
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jan 2004 15:42:03 GMT
+Received: from web15202.mail.bjs.yahoo.com (web15202.mail.cnb.yahoo.com [202.43.216.132])
+	by jazzswing.ncsc.mil  with SMTP id i07FfvYc010484
+	for <selinux@tycho.nsa.gov>; Wed, 7 Jan 2004 15:42:01 GMT
+Message-ID: <20040107154244.96866.qmail@web15202.mail.bjs.yahoo.com>
+Date: Wed, 7 Jan 2004 23:42:44 +0800 (CST)
+From: =?gb2312?q?Park=20Lee?= <parklee_2004@yahoo.com.cn>
+Subject: Questions about install SELinux
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-2086161914-1073490164=:96653"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello! Sorry to interrupt you. 
-I have downloaded '2.4.23 kernel with SELinux patch applied' and 'SELinux 
-Full Userland Archive' from http://www.nsa.gov/selinux. But when I build 
-and install the SELinux-patched packages, there is something wrong with 
-building 'coreutils-5.0-32.sel.src.rpm'. The following is the error 
-message:
-"
-[root@cwf coreutils-5.0]# make
-cd . && \
-  /bin/sh /usr/src/redhat/BUILD/coreutils-5.0/config/missing --run 
-automake-1.6
---gnits  Makefile
-configure.ac:6: `automake requires `AM_CONFIG_HEADER', not 
-`AC_CONFIG_HEADER'
-configure.ac:9: require version 1.6b, but have 1.6.3
-make: *** [Makefile.in] Error 1
-[root@cwf coreutils-5.0]#
-"
-I guessed that it may be caused by version conflicts. I have read the 
-README file.There is warning in it like this :
-"WARNING:  If you modify files like configure.in, m4/*.m4, aclocal.m4,
-or any Makefile.am, then don't be surprised if what gets regenerated no
-longer works.  To make things work, you'll have to be using appropriate
-versions of automake and autoconf.  As for what versions are `appropriate',
-use the versions of
+--0-2086161914-1073490164=:96653
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: 8bit
 
-  * autoconf specified via AC_PREREQ in m4/jm-macros.m4
-  * automake specified via AM_INIT_AUTOMAKE in configure.ac
+Hello:
+ I'm a beginner of SELinux.
+ I'm very interested in SELinux.
+ But now I have some questions about SELinux.
+ I have installed RedHat 9.0(the Linux kernel version is 2.4.20-8) on my computer and downloaded the 2.4.23 kernel with SELinux patch applied (i.e. linux-2.4-2003120509.tgz) and the SELinux Full Userland Archive (i.e. selinux-usr-2003120509.tgz) from NSA's web site (http://www.nsa.gov/selinux).
+ I can unpacked the 2.4.23 kernel with SELinux patch applied and would configure and install it successfully. 
+ Then I unpacked the SELinux Full Userland Archive .But when I take actions according to the README file,there are always several packages cann't be installed rightly.
+{
+/* it is in the 2nd step of the BUILDING AND INSTALLING section.as follows: */
+After installing the new SELinux packages (particularly libselinux),you can build and install the SELinux-patched packages as follows:
+ cd SRPMS
+ rpmbuild --rebuild *.src.rpm
+ rpm -Uvh --force /usr/src/redhat/RPMS/*/*.rpm
+Note:  To rebuild these SRPMS, we had to install the following additional packages from Fedora:
+ libcroco-devel (required to build gdm)
+ sharutils (required to build openssh)
+ elfutils-devel (required to build prelink)
+ autoconf213 (required to build star)
+}
+ I fell very confused about it.
+ I want to install SELinux successfully and I want to study SELinux very much! 
+ Would you tell me what's wrong? Thank you very much!
+ And would you tell me where can I find and download the 2.4.20 kernel with SELinux patch applied and the it's SELinux Full Userland Archive correspondingly? If I unpack, configure and install them on RedHat9.0 ,Can I 
+success?
+ Thanks again!
 
-Usually it's fine to use versions that are newer than those specified.°±
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 
+--0-2086161914-1073490164=:96653
+Content-Type: text/html; charset=gb2312
+Content-Transfer-Encoding: 8bit
 
-Then I got that the autoconf version is 2.56 form the line AC_PREREQ(2.56) 
-in m4/jm-macros.m4. And the automake version specified in configure.ac  is 
-AM_INIT_AUTOMAKE([1.6b gnits dist-bzip2]). But I don't clearly know what 
-the automake version should be,because I cann't find the automake which is 
-version 1.6b.
-The automake on my Redhat 9.01 Linux is automake-1.6.3-5, and autoconf is 
-autoconf-2.57-3. I think they both are newer then those specified, but why 
-I get such errors? Can you help me?
-
-I am waiting your answer. Thank you very much!
-
-_________________________________________________________________
-√‚∑—œ¬‘ÿ MSN Explorer:   http://explorer.msn.com/lccn/  
-
+<DIV>Hello:<BR>&nbsp;I'm a beginner of SELinux.<BR>&nbsp;I'm very interested in SELinux.<BR>&nbsp;But now I have some questions about SELinux.<BR>&nbsp;I have installed RedHat 9.0(the Linux kernel version is 2.4.20-8) on my computer and downloaded the 2.4.23 kernel with SELinux patch applied (i.e. linux-2.4-2003120509.tgz) and the SELinux Full Userland Archive (i.e. selinux-usr-2003120509.tgz) from NSA's web site (<A href="http://www.nsa.gov/selinux">http://www.nsa.gov/selinux</A>).<BR>&nbsp;I can unpacked the 2.4.23 kernel with SELinux patch applied and would configure and install it successfully. <BR>&nbsp;Then I unpacked the SELinux Full Userland Archive .But when I take actions according to the README file,there are always several packages cann't be installed rightly.</DIV>
+<DIV>{<BR>/* it is in the 2nd step of the BUILDING AND INSTALLING section.as follows: */</DIV>
+<DIV>After installing the new SELinux packages (particularly libselinux),you can build and install the SELinux-patched packages as follows:<BR>&nbsp;cd SRPMS<BR>&nbsp;rpmbuild --rebuild *.src.rpm<BR>&nbsp;rpm -Uvh --force /usr/src/redhat/RPMS/*/*.rpm<BR>Note:&nbsp; To rebuild these SRPMS, we had to install the following additional packages from Fedora:<BR>&nbsp;libcroco-devel (required to build gdm)<BR>&nbsp;sharutils (required to build openssh)<BR>&nbsp;elfutils-devel (required to build prelink)<BR>&nbsp;autoconf213 (required to build star)<BR>}</DIV>
+<DIV>&nbsp;I fell very confused about it.<BR>&nbsp;I want to install SELinux successfully and I want to study SELinux very much! <BR>&nbsp;Would you tell me what's wrong? Thank you very much!<BR>&nbsp;And would you tell me where can I find and download the 2.4.20 kernel with SELinux patch applied and the it's SELinux Full Userland Archive correspondingly? If I unpack, configure and install them on RedHat9.0 ,Can I </DIV>
+<DIV>success?<BR>&nbsp;Thanks again!</DIV><p>__________________________________________________<br>Do You Yahoo!?<br>Tired of spam?  Yahoo! Mail has the best spam protection around <br>http://mail.yahoo.com 
+--0-2086161914-1073490164=:96653--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
