@@ -1,37 +1,40 @@
-From: "R N" <rnmj44@hotmail.com>
-To: russell@coker.com.au, SELinux@tycho.nsa.gov
-Subject: Re: SELinux and SystemImager
-Date: Fri, 13 Feb 2004 17:19:07 -0500
+Date: Sat, 14 Feb 2004 00:09:22 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: SELinux@tycho.nsa.gov
+Subject: Of applications and separating configuration systems
+Message-ID: <20040214000922.GA1083@gallifrey>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY9-F378aZRhQdOgl400022bb7@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi,
+  Having started looking at SELinux a thought struck me.
+As a general matter of practice wouldn't it be better for desktop
+like applications to have the preference editing done by a separate
+program (binary) whose only job is to edit those preferences and
+configurations.
 
-what do you mean by xattr's, could you please elaborate.
-As we understand the SI is just doing a copy (using rsync) of the files, and 
-SE Linux uses inode info along with context of the files. Once we have the 
-SELinux copy we want to avoid the relabel after rebooting. If there is a way 
-to relabel the copy thru SI or some other system command without the 
-reboot??
+The thought is bought about by hearing of some of the viruses/worms that
+have happened where a virus has disabled some of the other security
+features in an app.    If the main app that was exposed to user
+data couldn't alter its own preferences file then this risk
+would be greatly reduced.
 
-Thanks,
--Rajeev
+It strikes me that normal users of a system might want to have multiple
+contexts to them within a windowing system; for example with seperate
+permissions for normal stuff, a web browser, the web browser they use
+for confidential stuff, and building things they downloaded.
+Is it easy to set such a system up?  What about allowing normal users
+to see the policy violations that are causing their individual programs
+are making?
 
->It sounds like SI doesn't support xattr's.
->
->The easy way of working around this is to create a floppy disk that boots a 
->SE
->Linux kernel and initrd that can relabel the file system.  After doing the 
->SI
->work you just boot from the custom floppy to label it correctly, then it
->should be fully functional.
+Dave
 
-_________________________________________________________________
-Find great local high-speed Internet access value at the MSN High-Speed 
-Marketplace. http://click.atdmt.com/AVE/go/onm00200360ave/direct/01/
-
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
