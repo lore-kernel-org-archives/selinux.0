@@ -1,26 +1,30 @@
 From: Russell Coker <russell@coker.com.au>
 Reply-To: Russell Coker <russell@coker.com.au>
-To: Mauro Chiarugi <vlaovic@libero.it>
-Subject: Re: setools, version 0.8
-Date: Fri, 11 Apr 2003 16:24:43 +1000
-Cc: SELinux@tycho.nsa.gov
-References: <004901c2ff81$959a32d0$6600a8c0@columbia.tresys.com> <20030410211532.7cb35199.vlaovic@libero.it>
-In-Reply-To: <20030410211532.7cb35199.vlaovic@libero.it>
+To: "Matthew R. Singer" <msinger@itac.com>, <SELinux@tycho.nsa.gov>
+Subject: Re: Unlabeled files
+Date: Fri, 11 Apr 2003 17:03:05 +1000
+References: <8A61167D13CED411B3E500B0D079784703AAF1@mailserver.itac.reston>
+In-Reply-To: <8A61167D13CED411B3E500B0D079784703AAF1@mailserver.itac.reston>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200304111624.43830.russell@coker.com.au>
+Message-Id: <200304111703.05285.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 11 Apr 2003 05:15, Mauro Chiarugi wrote:
-> my name is Mauro Chiarugi, an italian student of University of Ancona.
-> I'd like to port SELinux under Debian
+On Wed, 9 Apr 2003 05:32, Matthew R. Singer wrote:
+> Apr  8 14:07:11 localhost kernel: avc:  denied  { transition } for
+> pid=902 exe=/usr/bin/kdm path=/etc/X11/xdm/Xsession dev=08:02 ino=314289
+> scontext=root:sysadm_r:sysadm_t tcontext=system_u:object_r:unlabeled_t
+> tclass=process
 
-I've already got SE Linux packaged for Debian.  But there's plenty of work to 
-go around if you'd like to join in.  We could do with someone packaging and 
-testing the kernel patches for the 2.5.x kernels for a start, I haven't had 
-time to do this for a while.
+kdm should not be running in sysadm_t.  It should be started by run_init or 
+from init with the patch that Steve suggested for the policy (my next xdm 
+policy file which I should have ready to share in a week will have this).
+
+Regardless of this kdm should not get unlabeled_t as the target.  Probably 
+there's a bug in the error handling code.  I'm re-writing the patch for kde 
+3.1.1 anyway which will solve this.  I should have it released in a few days.
 
 -- 
 http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
