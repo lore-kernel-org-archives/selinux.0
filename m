@@ -1,39 +1,72 @@
 Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3RJDXRb000174
-	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 15:13:34 -0400 (EDT)
+	by tycho.ncsc.mil (8.12.8/8.12.8) with ESMTP id i3RJkYRb000653
+	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 15:46:34 -0400 (EDT)
 Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id i3RIe0oI008702
-	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 19:13:31 GMT
-Received: from hawaii.efficax.net (rrcs-sw-24-153-230-186.biz.rr.com [24.153.230.186])
-        by jazzband.ncsc.mil  with ESMTP id i3RHVkJP005691 for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 17:31:46 GMT
-Received: from hawaii.efficax.net (localhost.localdomain [127.0.0.1])
-	by hawaii.efficax.net (8.12.10/8.12.10) with ESMTP id i3RHVc84007250
-	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 12:31:38 -0500
-Received: (from nick@localhost)
-	by hawaii.efficax.net (8.12.10/8.12.10/Submit) id i3RHVc0J007248
-	for selinux@tycho.nsa.gov; Tue, 27 Apr 2004 12:31:38 -0500
-Subject: Adding user accounts
-From: Nick Gray <nagray@austin.rr.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Message-Id: <1083087096.29534.185.camel@hawaii.efficax.net>
-Mime-Version: 1.0
-Date: Tue, 27 Apr 2004 12:31:37 -0500
+	by jazzband.ncsc.mil  with ESMTP id i3RJkRYW021357
+	for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 19:46:27 GMT
+Received: from abyss.simplyaquatics.com (abyss.simplyaquatics.com [69.44.152.139])
+        by jazzband.ncsc.mil  with ESMTP id i3RJkQBf021281 for <selinux@tycho.nsa.gov>; Tue, 27 Apr 2004 19:46:26 GMT
+From: "Ed Street" <edstreet@street-tek.com>
+To: "'Stephen Smalley'" <sds@epoch.ncsc.mil>,
+   "'Russell Coker'" <russell@coker.com.au>
+Cc: "'Selinux'" <selinux@tycho.nsa.gov>
+Subject: RE: /etc/passwd labeling issues
+Date: Tue, 27 Apr 2004 15:46:03 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+In-Reply-To: <1083080493.24445.117.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <20040427194604.B6FFD3A405A@abyss.simplyaquatics.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is the procedure I have for adding user accounts.
+Hello,
 
-#1.  useradd -m developer 
-#2.  passwd developer
-#3. sed -i -e /user\ root/a\ user\ developer\ roles\ \{\ staff_r\ \
-sysadm_r\ \}\; /etc/security/selinux/src/policy/users 
+I would recommend using the wrapper because it can be generic in case of
+other issues like this, at least until the main problem is solved.
 
-#4. cd /etc/security/selinux/src/policy
-#5. make policy
-#6. make load
+Ed
 
-Is this still necessary?
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@epoch.ncsc.mil] 
+Sent: Tuesday, April 27, 2004 11:42 AM
+To: Russell Coker
+Cc: Ed Street; Selinux
+Subject: Re: /etc/passwd labeling issues
+
+On Mon, 2004-04-26 at 23:25, Russell Coker wrote:
+> On Tue, 27 Apr 2004 08:44, "Ed Street" <edstreet@street-tek.com> wrote:
+> > So we have 2 choices for our debian users.  A) Change the password,
+change
+> 
+> No, we have only one realistic choice.  To fix PAM and make it work
+correctly 
+> as it does in Fedora.
+
+Or use the wrapper-based approach of the older SELinux, i.e. spasswd and
+friends.
+
+As I recall, Fedora includes more than just a modified pam for this
+purpose; it also required modifications to libuser, shadow-utils, and
+components of util-linux to preserve contexts on /etc/passwd and
+/etc/shadow.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.667 / Virus Database: 429 - Release Date: 4/23/2004
+ 
+
+---
+
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.670 / Virus Database: 432 - Release Date: 4/27/2004
+ 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
