@@ -1,47 +1,40 @@
-Received: from jazzband.ncsc.mil (jazzband.ncsc.mil [144.51.5.4])
-	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id JAA22280
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2001 09:57:58 -0400 (EDT)
-Received: from jazzband.ncsc.mil (localhost [127.0.0.1])
-	by jazzband.ncsc.mil  with ESMTP id NAA02653
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2001 13:57:46 GMT
-Received: from sentry.gw.tislabs.com (sentry.gw.tislabs.com [192.94.214.100])
-	by jazzband.ncsc.mil  with ESMTP id NAA02649
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jul 2001 13:57:46 GMT
-Date: Mon, 9 Jul 2001 09:57:38 -0400 (EDT)
-From: Stephen Smalley <sds@tislabs.com>
-Reply-To: Stephen Smalley <sds@tislabs.com>
-To: Randy -Harborside Internet <randymb@harborside.com>
-cc: selinux@tycho.nsa.gov, mcclellr@OIT.EDU
-Subject: Re: SELinux + Engarde
-In-Reply-To: <JMECKPIMOJNMLPBBEGBDAEIJCAAA.randymb@harborside.com>
-Message-ID: <Pine.SOL.3.95.1010709094818.21543L-100000@clipper.gw.tislabs.com>
+Received: from jazzswing.ncsc.mil (jazzswing.ncsc.mil [144.51.68.65])
+	by tycho.ncsc.mil (8.9.3/8.9.3) with ESMTP id PAA12039
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2001 15:51:59 -0400 (EDT)
+Received: from jazzswing.ncsc.mil (localhost [127.0.0.1])
+	by jazzswing.ncsc.mil  with ESMTP id TAA28259
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2001 19:51:13 GMT
+Received: from firewall.yingternet.com (adsl-216-102-148-143.dsl.lsan03.pacbell.net [216.102.148.143])
+	by jazzswing.ncsc.mil  with ESMTP id TAA28255
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2001 19:51:12 GMT
+Received: from yinglaptop (SYN-209-19-110-189.synetics.com [209.19.110.189])
+	by firewall.yingternet.com (Postfix) with SMTP id E50752755
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jul 2001 12:51:51 -0700 (PDT)
+Message-ID: <00da01c10b0c$4496a140$bd6e13d1@yinglaptop>
+From: "Ying-Hung Chen" <ying@yingternet.com>
+To: "NSA Selinux Mailinglist" <selinux@tycho.nsa.gov>
+Subject: development of SELinux
+Date: Thu, 12 Jul 2001 12:53:05 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi,
 
-On Fri, 6 Jul 2001, Randy -Harborside Internet wrote:
+    I noticed that there is no more releases of SELinux since April, and
+also the mailinglist archive hasn't get updated on the NSA's SELinux website
+too. Since everthing seems to be on hold right now, I would be very
+interested to know what's going to happen for this project? are there
+anymore releases? or we are on our own?
 
-> 1. There isn't a way to combine the LIDS kernel module with SELinux,
-> correct? I remember seeing something about LIDS earlier on the
-> mailing list, but didn't think it regarded to combining the two into
-> one kernel.
+Thanks,
 
-When I last looked at it, LIDS was a kernel patch, not a module.
-Likewise, the current SELinux implementation is a kernel patch
-(although we are migrating to a module that depends on the
-LSM kernel patch, which will hopefully find its way into
-the 2.5 and subsequent kernel versions).  So if you wanted
-to combine LIDS with SELinux, you would have to apply both
-patches and resolve any conflicts.  And there will almost
-certainly be conflicts, because LIDS and SELinux have
-overlapping functionality.
+-Ying
 
---
-Stephen D. Smalley, NAI Labs
-ssmalley@nai.com
-
+PS. yes, I know the emaillist are still active and archived. but why the
+main webside didn't even have the pointer to the archives too?
 
 
 --
